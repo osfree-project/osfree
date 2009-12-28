@@ -9,7 +9,10 @@
  * gcc `libIDL-config --cflags --libs` tstidl.c -o tstidl
  *
  */
-
+#ifdef G_LOG_DOMAIN
+#  undef G_LOG_DOMAIN
+#endif
+#define G_LOG_DOMAIN            "tstidl"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +26,7 @@ typedef struct {
         IDL_ns ns;
 } WalkData;
 
-static int
+static gboolean
 print_repo_id (IDL_tree_func_data *tfd, WalkData *data)
 {
         char *repo_id = NULL;
@@ -44,7 +47,7 @@ print_repo_id (IDL_tree_func_data *tfd, WalkData *data)
         return TRUE;
 }
 
-static int
+static gboolean
 print_xpidl_exts (IDL_tree_func_data *tfd, WalkData *data)
 {
         IDL_tree p;
@@ -63,20 +66,20 @@ print_xpidl_exts (IDL_tree_func_data *tfd, WalkData *data)
 
         if (IDL_NODE_TYPE (p) == IDLN_NATIVE &&
             IDL_NATIVE (p).user_type)
-                fprintf(stderr, "XPIDL native type: \"%s\"", IDL_NATIVE (p).user_type);
+                printf ("XPIDL native type: \"%s\"", IDL_NATIVE (p).user_type);
 
         if (IDL_NODE_TYPE (p) == IDLN_CODEFRAG) {
                 GSList *slist = IDL_CODEFRAG (p).lines;
 
-                fprintf(stderr,"XPIDL code fragment desc.: \"%s\"", IDL_CODEFRAG (p).desc);
+                printf ("XPIDL code fragment desc.: \"%s\"", IDL_CODEFRAG (p).desc);
                 for (; slist; slist = slist->next)
-                        fprintf(stderr,"XPIDL code fragment line.: \"%s\"", (char *) slist->data);
+                        printf ("XPIDL code fragment line.: \"%s\"", (char *) slist->data);
         }
 
         return TRUE;
 }
 
-static int
+static gboolean
 print_ident_comments (IDL_tree_func_data *tfd, WalkData *data)
 {
         GSList *list;
@@ -99,7 +102,7 @@ print_ident_comments (IDL_tree_func_data *tfd, WalkData *data)
         return TRUE;
 }
 
-static int
+static gboolean
 print_const_dcls (IDL_tree_func_data *tfd, WalkData *data)
 {
         IDL_tree p;
@@ -107,10 +110,11 @@ print_const_dcls (IDL_tree_func_data *tfd, WalkData *data)
         p = tfd->tree;
 
         if (IDL_NODE_TYPE (p) == IDLN_CONST_DCL) {
-                char *s;
+                GString *s;
 
                 s = IDL_tree_to_IDL_string (p, NULL, IDLF_OUTPUT_NO_NEWLINES);
-                puts (s);
+                puts (s->str);
+                g_string_free (s, TRUE);
 
                 return FALSE;
         }
@@ -146,7 +150,7 @@ my_input_cb (IDL_input_reason reason, union IDL_input_data *cb_data, gpointer us
 
         switch (reason) {
         case IDL_INPUT_REASON_INIT:
-                fprintf(stderr,"my_input_cb: filename: %s", cb_data->init.filename);
+                printf ("my_input_cb: filename: %s", cb_data->init.filename);
                 my_data->in = fopen (cb_data->init.filename, "r");
                 /* If failed, should know that it is implied to libIDL that errno is set
                  * appropriately by a C library function or otherwise. Return 0 upon
@@ -160,7 +164,7 @@ my_input_cb (IDL_input_reason reason, union IDL_input_data *cb_data, gpointer us
                    cb_data->fill.max_size), 0 for EOF, negative value upon error. */
                 rv = fread (cb_data->fill.buffer, 1, cb_data->fill.max_size, my_data->in);
                 IDL_queue_new_ident_comment ("Queue some comment...");
-                printf("my_input_cb: fill, max size %d, got %d",
+                printf ("my_input_cb: fill, max size %d, got %d",
                            cb_data->fill.max_size, rv);
                 if (rv == 0 && ferror (my_data->in))
                         return -1;

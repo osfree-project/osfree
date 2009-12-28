@@ -1,4 +1,4 @@
-os3-os2-cmd -a 1 -c..\..\bin\os2
+os3-os2-cmd -a 1 -c..\bin\os2
 ansi.exe
 attrib.exe
 bldlevel.cmd

@@ -18,38 +18,17 @@
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    $Id: IDL.h.in,v 1.31 2003/04/12 08:38:27 msakai Exp $
+    $Id: IDL.h.in,v 1.1 2008/04/06 14:49:52 balena Exp $
 
 ***************************************************************************/
 #ifndef __IDL_H
 #define __IDL_H
 
-#ifndef TRUE
-  #define TRUE 1
-#endif
-
-#ifndef FALSE
-  #define FALSE 0
-#endif
-
-#include "gtypes.h"
-//#include "gquark.h"
-//#include "gthread.h"
-#include "gatomic.h"
-//#include "gstring.h"
-#include "gslist.h"
-#include "ghash.h"
-#include "gnode.h"
-#include "gtree.h"
+#include "glib.h"
 
 /* Try to find wchar_t support */
 #include <stdlib.h>
-#if 1 /* HAVE_WCHAR_H */
 #  include <wchar.h>
-#endif
-#if 0 /* HAVE_WCSTR_H */
-#  include <wcstr.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,8 +40,8 @@ extern "C" {
 #define LIBIDL_GEN_VERSION(a,b,c)       (((a) << 16) + ((b) << 8) + (c))
 #define LIBIDL_MAJOR_VERSION            0
 #define LIBIDL_MINOR_VERSION            8
-#define LIBIDL_MICRO_VERSION            10
-#define LIBIDL_VERSION_CODE             LIBIDL_GEN_VERSION(0,8,10)
+#define LIBIDL_MICRO_VERSION            7
+#define LIBIDL_VERSION_CODE             087
 
 /* miscellaneous constants */
 #define IDL_SUCCESS                     0
@@ -117,12 +96,12 @@ extern "C" {
 #define IDL_CHECK_CAST(tree, thetype, name)                     \
         (IDL_check_type_cast(tree, thetype,                     \
                             __FILE__, __LINE__,                 \
-                            ((const char*) (__func__)))->u.name)
+                            G_GNUC_PRETTY_FUNCTION)->u.name)
 
 /* GLib 2.0 requires 64-bit types */
 #define IDL_LL          "ll"
-typedef signed long long          IDL_longlong_t;
-typedef unsigned long long        IDL_ulonglong_t;
+typedef gint64          IDL_longlong_t;
+typedef guint64         IDL_ulonglong_t;
 
 typedef unsigned int                    IDL_declspec_t;
 typedef struct _IDL_tree_node           IDL_tree_node;
@@ -134,8 +113,6 @@ struct _IDL_LIST {
         IDL_tree next;
         IDL_tree _tail;                 /* Internal use, may not be valid */
 };
-
-
 
 #define IDL_LIST(a)                     IDL_CHECK_CAST(a, IDLN_LIST, idl_list)
 extern IDL_tree         IDL_list_new                    (IDL_tree data);
@@ -492,11 +469,11 @@ extern IDL_tree         IDL_codefrag_new                (char *desc,
 struct _IDL_SRCFILE {
         char *filename;
         int seenCnt;
-        int isTop;
-        int wasInhibit;
+        gboolean isTop;
+        gboolean wasInhibit;
 };
 #define IDL_SRCFILE(a)                  IDL_CHECK_CAST(a, IDLN_SRCFILE, idl_srcfile)
-extern IDL_tree         IDL_srcfile_new         (char *filename, int seenCnt, int isTop, int wasInhibit);
+extern IDL_tree         IDL_srcfile_new         (char *filename, int seenCnt, gboolean isTop, gboolean wasInhibit);
 
 /*
  * IDL_tree_type - Enumerations of node types
@@ -608,8 +585,8 @@ struct _IDL_tree_node {
         } u;
 
         /* Fields for application use */
-        unsigned int flags;
-        void * data;
+        guint32 flags;
+        gpointer data;
 };
 #define IDL_NODE_TYPE(a)                ((a)->_type)
 #define IDL_NODE_TYPE_NAME(a)           ((a)?IDL_tree_type_names[IDL_NODE_TYPE(a)]:"NULL")
@@ -684,7 +661,7 @@ union IDL_input_data {
 
 typedef int             (*IDL_input_callback)           (IDL_input_reason reason,
                                                          union IDL_input_data *data,
-                                                         void * user_data);
+                                                         gpointer user_data);
 
 typedef int             (*IDL_msg_callback)             (int level,
                                                          int num,
@@ -702,7 +679,7 @@ struct _IDL_tree_func_state {
         IDL_tree_func_state *up;
         IDL_tree start;
         IDL_tree_func_data *bottom;
-        long   flags;
+        glong   flags;
 };
 
 /* This holds a list of the up hierarchy traversed, beginning from traversal.  This is
@@ -712,13 +689,13 @@ struct _IDL_tree_func_data {
         IDL_tree_func_state *state;
         IDL_tree_func_data *up;
         IDL_tree tree;
-        int step;
-        void * data;          /* Application data */
-        int level;
+        gint step;
+        gpointer data;          /* Application data */
+        gint level;
 };
 
-typedef int        (*IDL_tree_func)                (IDL_tree_func_data *tnfd,
-                                                         void * user_data);
+typedef gboolean        (*IDL_tree_func)                (IDL_tree_func_data *tnfd,
+                                                         gpointer user_data);
 
 extern IDL_tree         IDL_check_type_cast             (const IDL_tree var,
                                                          IDL_tree_type type,
@@ -739,7 +716,7 @@ extern int              IDL_parse_filename              (const char *filename,
 
 extern int              IDL_parse_filename_with_input   (const char *filename,
                                                          IDL_input_callback input_cb,
-                                                         void * input_cb_user_data,
+                                                         gpointer input_cb_user_data,
                                                          IDL_msg_callback msg_cb,
                                                          IDL_tree *tree, IDL_ns *ns,
                                                          unsigned long parse_flags,
@@ -778,12 +755,14 @@ extern int              IDL_tree_get_node_info          (IDL_tree tree,
 
 extern void             IDL_tree_error                  (IDL_tree p,
                                                          const char *fmt,
-                                                         ...);
+                                                         ...)
+                                                        G_GNUC_PRINTF (2, 3);
 
 extern void             IDL_tree_warning                (IDL_tree p,
                                                          int level,
                                                          const char *fmt,
-                                                         ...);
+                                                         ...)
+                                                        G_GNUC_PRINTF (3, 4);
 
 extern const char *     IDL_tree_property_get           (IDL_tree tree,
                                                          const char *key);
@@ -792,7 +771,7 @@ extern void             IDL_tree_property_set           (IDL_tree tree,
                                                          const char *key,
                                                          const char *value);
 
-extern int         IDL_tree_property_remove        (IDL_tree tree,
+extern gboolean         IDL_tree_property_remove        (IDL_tree tree,
                                                          const char *key);
 
 extern void             IDL_tree_properties_copy        (IDL_tree from_tree,
@@ -805,18 +784,18 @@ extern void             IDL_tree_walk                   (IDL_tree p,
                                                          IDL_tree_func_data *current,
                                                          IDL_tree_func pre_tree_func,
                                                          IDL_tree_func post_tree_func,
-                                                         void * user_data);
+                                                         gpointer user_data);
 
 extern void             IDL_tree_walk2                  (IDL_tree p,
                                                          IDL_tree_func_data *current,
-                                                         long flags,
+                                                         glong flags,
                                                          IDL_tree_func pre_tree_func,
                                                          IDL_tree_func post_tree_func,
-                                                         void * user_data);
+                                                         gpointer user_data);
 
 extern void             IDL_tree_walk_in_order          (IDL_tree p,
                                                          IDL_tree_func tree_func,
-                                                         void * user_data);
+                                                         gpointer user_data);
 
 extern void             IDL_tree_free                   (IDL_tree root);
 
@@ -825,17 +804,17 @@ extern void             IDL_tree_to_IDL                 (IDL_tree p,
                                                          FILE *output,
                                                          unsigned long output_flags);
 
-extern char *        IDL_tree_to_IDL_string          (IDL_tree p,
+extern GString *        IDL_tree_to_IDL_string          (IDL_tree p,
                                                          IDL_ns ns,
                                                          unsigned long output_flags);
 
-extern int         IDL_tree_contains_node          (IDL_tree p,
+extern gboolean         IDL_tree_contains_node          (IDL_tree p,
                                                          IDL_tree searchNode);
 
-extern int         IDL_tree_is_recursive           (IDL_tree tree,
-                                                         void * dummy);
+extern gboolean         IDL_tree_is_recursive           (IDL_tree tree,
+                                                         gpointer dummy);
 
-extern char *          IDL_do_escapes                  (const char *s);
+extern gchar *          IDL_do_escapes                  (const char *s);
 
 extern IDL_tree         IDL_resolve_const_exp           (IDL_tree p,
                                                          IDL_tree_type type);
@@ -854,11 +833,11 @@ extern IDL_tree         IDL_ns_resolve_ident            (IDL_ns ns,
 extern IDL_tree         IDL_ns_lookup_this_scope        (IDL_ns ns,
                                                          IDL_tree scope,
                                                          IDL_tree ident,
-                                                         int *conflict);
+                                                         gboolean *conflict);
 
 extern IDL_tree         IDL_ns_lookup_cur_scope         (IDL_ns ns,
                                                          IDL_tree ident,
-                                                         int *conflict);
+                                                         gboolean *conflict);
 
 extern IDL_tree         IDL_ns_place_new                (IDL_ns ns,
                                                          IDL_tree ident);
@@ -870,7 +849,7 @@ extern void             IDL_ns_pop_scope                (IDL_ns ns);
 
 extern IDL_tree         IDL_ns_qualified_ident_new      (IDL_tree nsid);
 
-extern char *          IDL_ns_ident_to_qstring         (IDL_tree ns_ident,
+extern gchar *          IDL_ns_ident_to_qstring         (IDL_tree ns_ident,
                                                          const char *join,
                                                          int scope_levels);
 
@@ -878,7 +857,7 @@ extern int              IDL_ns_scope_levels_from_here   (IDL_ns ns,
                                                          IDL_tree ident,
                                                          IDL_tree parent);
 
-extern char *          IDL_ns_ident_make_repo_id       (IDL_ns ns,
+extern gchar *          IDL_ns_ident_make_repo_id       (IDL_ns ns,
                                                          IDL_tree p,
                                                          const char *p_prefix,
                                                          int *major,

@@ -18,7 +18,7 @@
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    $Id: ns.c 445 2000-07-14 18:17:43Z kennard $
+    $Id: ns.c,v 1.1 2008/04/06 14:49:52 balena Exp $
 
 ***************************************************************************/
 #include <assert.h>
@@ -37,37 +37,26 @@ IDL_ns IDL_ns_new (void)
 {
         IDL_ns ns;
 
-        printf("ns 1\n");
-        ns = (struct _IDL_ns *) malloc (((unsigned int) sizeof (struct _IDL_ns)) * ((unsigned int) (1)));
-
-        printf("ns 2\n");
-
+        ns = g_new0 (struct _IDL_ns, 1);
         if (ns == NULL) {
                 yyerror ("IDL_ns_new: memory exhausted");
                 return NULL;
         }
 
-        printf("ns 3\n");
-
         IDL_NS (ns).global = IDL_gentree_new (IDL_ident_hash,
                                               IDL_ident_equal,
                                               IDL_ident_new (""));
-
-        printf("ns 4\n");
         IDL_NS (ns).file =  IDL_NS (ns).current = IDL_NS (ns).global;
-        printf("ns 5\n");
         IDL_NS (ns).inhibits = g_hash_table_new (g_direct_hash, g_direct_equal);
-        printf("ns 6\n");
         IDL_NS (ns).filename_hash = g_hash_table_new (g_str_hash, g_str_equal);
-        printf("ns 7\n");
 
         return ns;
 }
 
 static void filename_hash_free (char *filename, IDL_fileinfo *fi)
 {
-        free (fi->name);
-        free (fi);
+        g_free (fi->name);
+        g_free (fi);
 }
 
 void IDL_ns_free (IDL_ns ns)
@@ -80,7 +69,7 @@ void IDL_ns_free (IDL_ns ns)
         g_hash_table_destroy (IDL_NS (ns).filename_hash);
         IDL_tree_free (IDL_NS (ns).global);
 
-        free (ns);
+        g_free (ns);
 }
 
 #define IDL_NS_ASSERTS          do {                                            \
@@ -106,16 +95,16 @@ int IDL_ns_prefix (IDL_ns ns, const char *s)
                 return FALSE;
 
         if (*s == '"')
-                r = strdup (s + 1);
+                r = g_strdup (s + 1);
         else
-                r = strdup (s);
+                r = g_strdup (s);
 
         l = strlen (r);
         if (l && r[l - 1] == '"')
                 r[l - 1] = 0;
 
         if (IDL_GENTREE (IDL_NS (ns).current)._cur_prefix)
-                free (IDL_GENTREE (IDL_NS (ns).current)._cur_prefix);
+                g_free (IDL_GENTREE (IDL_NS (ns).current)._cur_prefix);
 
         IDL_GENTREE (IDL_NS (ns).current)._cur_prefix = r;
 
@@ -145,7 +134,7 @@ IDL_tree IDL_ns_resolve_ident (IDL_ns ns, IDL_tree ident)
         return IDL_ns_resolve_this_scope_ident (ns, IDL_NS (ns).current, ident);
 }
 
-IDL_tree IDL_ns_lookup_this_scope (IDL_ns ns, IDL_tree scope, IDL_tree ident, int *conflict)
+IDL_tree IDL_ns_lookup_this_scope (IDL_ns ns, IDL_tree scope, IDL_tree ident, gboolean *conflict)
 {
         IDL_tree p, q;
 
@@ -158,19 +147,24 @@ IDL_tree IDL_ns_lookup_this_scope (IDL_ns ns, IDL_tree scope, IDL_tree ident, in
                 return NULL;
 
         assert (IDL_NODE_TYPE (scope) == IDLN_GENTREE);
-
+printf("a1\n");
         /* Search this namespace */
         if (g_hash_table_lookup_extended (
-                IDL_GENTREE (scope).children, ident, NULL, (void *)&p)) {
+                IDL_GENTREE (scope).children, ident, NULL, (gpointer)&p)) {
                 assert (IDL_GENTREE (p).data != NULL);
                 assert (IDL_NODE_TYPE (IDL_GENTREE (p).data) == IDLN_IDENT);
+printf("a2\n");
                 return p;
         }
 
         /* If there are inherited namespaces, look in those before giving up */
         q = IDL_GENTREE (scope)._import;
         if (!q)
+        {
+printf("a3\n");
                 return NULL;
+        }
+printf("a4\n");
 
         assert (IDL_NODE_TYPE (q) == IDLN_LIST);
         for (; q != NULL; q = IDL_LIST (q).next) {
@@ -184,7 +178,7 @@ IDL_tree IDL_ns_lookup_this_scope (IDL_ns ns, IDL_tree scope, IDL_tree ident, in
                 /* Search imported namespace scope q */
                 if (g_hash_table_lookup_extended (
                         IDL_GENTREE (IDL_IDENT_TO_NS (IDL_LIST (q).data)).children,
-                        ident, NULL, (void *)&p)) {
+                        ident, NULL, (gpointer)&p)) {
                         assert (IDL_GENTREE (p).data != NULL);
                         assert (IDL_NODE_TYPE (IDL_GENTREE (p).data) == IDLN_IDENT);
 
@@ -205,7 +199,7 @@ IDL_tree IDL_ns_lookup_this_scope (IDL_ns ns, IDL_tree scope, IDL_tree ident, in
         return NULL;
 }
 
-IDL_tree IDL_ns_lookup_cur_scope (IDL_ns ns, IDL_tree ident, int *conflict)
+IDL_tree IDL_ns_lookup_cur_scope (IDL_ns ns, IDL_tree ident, gboolean *conflict)
 {
         return IDL_ns_lookup_this_scope (ns, IDL_NS (ns).current, ident, conflict);
 }
@@ -213,13 +207,19 @@ IDL_tree IDL_ns_lookup_cur_scope (IDL_ns ns, IDL_tree ident, int *conflict)
 IDL_tree IDL_ns_place_new (IDL_ns ns, IDL_tree ident)
 {
         IDL_tree p, up_save;
-        int does_conflict;
+        gboolean does_conflict;
 
         IDL_NS_ASSERTS;
 
+printf("%s\n", IDL_IDENT (ident).str);
+printf("%x\n", ident);
+
         p = IDL_ns_lookup_cur_scope (ns, ident, &does_conflict);
         if (p != NULL && does_conflict)
+        {
+printf("conflict -> duplicate identifier?\n");
                 return NULL;
+        }
 
         /* The namespace tree is separate from the primary parse tree,
            so keep the primary tree node's parent the same */
@@ -228,18 +228,24 @@ IDL_tree IDL_ns_place_new (IDL_ns ns, IDL_tree ident)
         IDL_NODE_UP (ident) = up_save;
 
         if (p == NULL)
+        {
+printf("error generate chain child \n");
                 return NULL;
-
+        }
+printf("5\n");
         assert (IDL_NODE_TYPE (p) == IDLN_GENTREE);
+printf("6\n");
 
         IDL_IDENT_TO_NS (ident) = p;
 
+printf("7\n");
         assert (IDL_NODE_UP (IDL_IDENT_TO_NS (ident)) == IDL_NS (ns).current);
+printf("8\n");
 
         /* Generate default repository ID */
         IDL_IDENT_REPO_ID (ident) =
                 IDL_ns_ident_make_repo_id (__IDL_root_ns, p, NULL, NULL, NULL);
-
+printf("9\n");
         return p;
 }
 
@@ -274,7 +280,7 @@ IDL_tree IDL_ns_qualified_ident_new (IDL_tree nsid)
                 assert (IDL_GENTREE (nsid).data != NULL);
                 assert (IDL_NODE_TYPE (IDL_GENTREE (nsid).data) == IDLN_IDENT);
                 item = IDL_list_new (IDL_ident_new (
-                        strdup (IDL_IDENT (IDL_GENTREE (nsid).data).str)));
+                        g_strdup (IDL_IDENT (IDL_GENTREE (nsid).data).str)));
                 l = IDL_list_concat (item, l);
                 nsid = IDL_NODE_UP (nsid);
         }
@@ -282,7 +288,7 @@ IDL_tree IDL_ns_qualified_ident_new (IDL_tree nsid)
         return l;
 }
 
-char *IDL_ns_ident_to_qstring (IDL_tree ns_ident, const char *join, int levels)
+gchar *IDL_ns_ident_to_qstring (IDL_tree ns_ident, const char *join, int levels)
 {
         IDL_tree l, q;
         int len, joinlen;
@@ -325,7 +331,7 @@ char *IDL_ns_ident_to_qstring (IDL_tree ns_ident, const char *join, int levels)
 
         assert (start_level >= 0 && start_level < count);
 
-        s = malloc (len + 1);
+        s = g_malloc (len + 1);
         if (s == NULL) {
                 IDL_tree_free (l);
                 return NULL;
@@ -352,8 +358,8 @@ int IDL_ns_scope_levels_from_here (IDL_ns ns, IDL_tree ident, IDL_tree parent)
         IDL_tree p, scope_here, scope_ident;
         int levels;
 
-//        g_return_val_if_fail (ns != NULL, 1);
-//        g_return_val_if_fail (ident != NULL, 1);
+        g_return_val_if_fail (ns != NULL, 1);
+        g_return_val_if_fail (ident != NULL, 1);
 
         while (parent && !IDL_NODE_IS_SCOPED (parent))
                 parent = IDL_NODE_UP (parent);
@@ -380,7 +386,7 @@ int IDL_ns_scope_levels_from_here (IDL_ns ns, IDL_tree ident, IDL_tree parent)
 }
 
 /* If insertion was made, return true, else there was a collision */
-static int heap_insert_ident (IDL_tree interface_ident, GTree *heap, IDL_tree any)
+static gboolean heap_insert_ident (IDL_tree interface_ident, GTree *heap, IDL_tree any)
 {
         IDL_tree p;
 
@@ -417,7 +423,7 @@ static int heap_insert_ident (IDL_tree interface_ident, GTree *heap, IDL_tree an
                 IDL_tree_error (p, "%s `%s' conflicts with", what1, i1);
                 IDL_tree_error (any, "%s `%s'", what2, i2);
 
-                free (newi); free (i1); free (i2);
+                g_free (newi); g_free (i1); g_free (i2);
 
                 return FALSE;
         }

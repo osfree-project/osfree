@@ -18,7 +18,7 @@
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    $Id: lexer.l,v 1.83 2003/05/09 15:19:06 jody Exp $
+    $Id: lexer.l,v 1.4 2008/04/28 05:17:21 balena Exp $
 
 ***************************************************************************/
 %{
@@ -35,6 +35,15 @@
 #  include <unix.h>
 #  define YY_NEVER_INTERACTIVE 1
 #endif
+
+#ifdef _WIN32
+#define fileno _fileno
+#endif
+
+#if __GNUC__
+static void yyunput (int, char *) __attribute__ ((unused));
+#endif
+
 
 /* Eliminate warning */
 #define YY_NO_UNPUT 1
@@ -94,7 +103,7 @@ static GSList *                         codefrag_list_tail;
 
 whitespace              [ \t\v\f\r]*
 whitespacenl            [ \t\v\f\r\n]*
-newline                 \n
+newline                 \n|\n\r
 cpp_pragma              ^{whitespace}#{whitespace}pragma{whitespace}.*
 cpp_status              ^{whitespace}#{whitespace}[0-9][0-9]*.*
 cpp_other               ^{whitespace}#.*
@@ -123,6 +132,8 @@ dqstring                \"[^\"\n]*[\"\n]
 %s CFRG
 %x CFRGX
 
+%option prefix="__IDL"
+
 %%
 
         SELECT_START;
@@ -130,8 +141,8 @@ dqstring                \"[^\"\n]*[\"\n]
 <INITIAL,XP,CFRG>^%\{.*                                 {
         char *s = yytext + 2;
 
-        while (isspace (*s)) ++s;
-        codefrag_desc = strdup (s);
+        while (g_ascii_isspace (*s)) ++s;
+        codefrag_desc = g_strdup (s);
         codefrag_list = codefrag_list_tail = NULL;
 
         if (!(__IDL_flags & IDLF_XPIDL || __IDL_flags & IDLF_CODEFRAGS))
@@ -147,7 +158,7 @@ dqstring                \"[^\"\n]*[\"\n]
         char *s;
         GSList *slist;
 
-        s = strdup (yytext);
+        s = g_strdup (yytext);
         slist = g_slist_alloc ();
         slist->data = s;
 
@@ -164,37 +175,37 @@ dqstring                \"[^\"\n]*[\"\n]
         char *p = yytext;
         char *s, *t;
 
-        while (isspace (*p) || *p == '#') ++p;
+        while (g_ascii_isspace (*p) || *p == '#') ++p;
         s = p;
         sscanf (p, "%*6s%n", &n); s += n;
-        while (isspace (*s)) ++s;
+        while (g_ascii_isspace (*s)) ++s;
 
         t = s + strlen(s) - 1;
-        while(isspace(*t) && t > s) *(t--) = '\0'; /* Chomp trailing spaces */
+        while(g_ascii_isspace(*t) && t > s) *(t--) = '\0'; /* Chomp trailing spaces */
 
         __IDL_do_pragma (s);
 }
 <*>{cpp_status}                                         {
-        char *mytext = yytext;
-        int   line;
+        gchar *mytext = yytext;
+        gint   line;
 
-        while (isspace (*mytext))
+        while (g_ascii_isspace (*mytext))
                 mytext++;
 
-//        g_assert (mytext [0] == '#' && mytext [1] == ' ');
+        g_assert (mytext [0] == '#' && mytext [1] == ' ');
 
         mytext += 2;
 
         line = atoi (mytext);
 
-        while (isdigit (*mytext))
+        while (g_ascii_isdigit (*mytext))
                 mytext++;
 
-        if (isspace (*mytext)) {
+        if (g_ascii_isspace (*mytext)) {
                 mytext++;
 
                 if (mytext [0] == '"') {
-                        char *p = ++mytext;
+                        gchar *p = ++mytext;
 
                         while (*p && *p != '"') p++;
 
@@ -205,16 +216,15 @@ dqstring                \"[^\"\n]*[\"\n]
                     (!strcmp (mytext, "<builtin>")  ||
                      !strcmp (mytext, "<built-in>") ||
                      !strcmp (mytext, "<stdin>")    ||
-                     !strcmp (mytext, "<command-line>") ||
                      !strcmp (mytext, "<command line>")))
 
                         yylval.tree = IDL_file_set ("", line);
                 else {
-                        char *filename = strdup (mytext);
+                        gchar *filename = g_strdup (mytext);
 
                         yylval.tree = IDL_file_set (filename, line);
 
-                        free (filename);
+                        g_free (filename);
                 }
         }
         else
@@ -241,7 +251,7 @@ dqstring                \"[^\"\n]*[\"\n]
         tokreturn (TOK_INTEGER);
 }
 {fixed_lit}                                             {
-        yylval.str = strdup (yytext);
+        yylval.str = g_strdup (yytext);
         tokreturn (TOK_FIXEDP);
 }
 {float_lit}                                             {
@@ -290,7 +300,7 @@ wstring                 tokreturn (TOK_WSTRING);
 \>\>                    tokreturn (TOK_OP_SHR);
 \<\<                    tokreturn (TOK_OP_SHL);
 {declspec}                                              {
-        char *s = strdup (yytext);
+        char *s = g_strdup (yytext);
 
         /* Get the parenthesized expression (ignoring whitespace) */
         sscanf (yytext, "__declspec %*[(] %[A-Za-z_] %*[)]", s);
@@ -307,11 +317,11 @@ wstring                 tokreturn (TOK_WSTRING);
                 tokreturn (TOK_TYPECODE);
         if ( (__IDL_pidl <= 0) && strcmp(yytext, "Object")==0 )
                 tokreturn (TOK_OBJECT);
-        yylval.str = strdup (yytext);
+        yylval.str = g_strdup (yytext);
         tokreturn (TOK_IDENT);
 }
 {escaped_ident}                                         {
-        yylval.str = strdup (&yytext[1]);
+        yylval.str = g_strdup (&yytext[1]);
         tokreturn (TOK_IDENT);
 }
 {warn1_ident}                                           {
@@ -321,7 +331,7 @@ wstring                 tokreturn (TOK_WSTRING);
                            "with C-language IDL mappings", yytext);
                 warn_underscores = 1;
         }
-        yylval.str = strdup (yytext);
+        yylval.str = g_strdup (yytext);
         tokreturn (TOK_IDENT);
 }
 <PROP>]                                                 {
@@ -330,27 +340,27 @@ wstring                 tokreturn (TOK_WSTRING);
         tokreturn (yytext[0]);
 }
 <PROP>{prop_key}                                        {
-        yylval.str = strdup (yytext);
+        yylval.str = g_strdup (yytext);
         tokreturn (TOK_PROP_KEY);
 }
 <PROP>{prop_value}                                      {
-        yylval.str = strdup (yytext + 1);
+        yylval.str = g_strdup (yytext + 1);
         yylval.str[strlen (yylval.str) - 1] = 0;
         tokreturn (TOK_PROP_VALUE);
 }
 <NATIVE>{native_type}                                   {
         __IDL_flagsi &= ~IDLFP_NATIVE;
-        yylval.str = strdup (yytext);
+        yylval.str = g_strdup (yytext);
         yylval.str[strlen (yylval.str) - 1] = 0;
         tokreturn (TOK_NATIVE_TYPE);
 }
 {sqstring}                                              {
-        yylval.str = strdup (yytext + 1);
+        yylval.str = g_strdup (yytext + 1);
         yylval.str[strlen (yytext) - 2] = 0;
         tokreturn (TOK_SQSTRING);
 }
 {dqstring}                                              {
-        yylval.str = strdup (yytext + 1);
+        yylval.str = g_strdup (yytext + 1);
         yylval.str[strlen (yytext) - 2] = 0;
         tokreturn (TOK_DQSTRING);
 }

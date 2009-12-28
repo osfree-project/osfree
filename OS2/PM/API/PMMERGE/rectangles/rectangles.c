@@ -6,11 +6,6 @@
    Rectangle related functions are mapped into Rect* ones... look at
    pm/winrectangles.h and utlapi/librectangles.h */
 
-/* Also: two functions (WinMakePoint & WinMakeRect) are unimplemented. I simply
-   don't know what they should do, and Sample Code in PM Guide & Ref doesn't
-   compile... Any clue? */
-
-
 
 #ifndef LIBRECTANGLES_INCLUDED
 #define INCL_UTLAPI
@@ -89,15 +84,16 @@ BOOL APIENTRY WinSubtractRect(HAB hab, PRECTL prclDst, PRECTL prclSrc1,
   return RectSubtract(prclDst,prclSrc1,prclSrc2);
 };
 
-/* what with these???? */
+/* This function does nothing. Seems it was for older versions. */
+/* Need more investigation */
 BOOL APIENTRY WinMakeRect(HAB hab, PRECTL pwrc)
 {
-  /* TODO: clarify docs... */
-  return FALSE;
+  return TRUE;
 };
 
+/* This function does nothing. Seems it was for older versions. */
+/* Need more investigation */
 BOOL APIENTRY WinMakePoints(HAB hab, PPOINTL pwpt, ULONG cwpt)
 {
-  /* TODO: clarify docs... */
-  return FALSE;
+  return TRUE;
 };

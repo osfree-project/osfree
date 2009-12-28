@@ -1,4 +1,4 @@
-os3-dos-cmd -a 1 -c..\..\bin\os2\mdos
+os3-dos-cmd -a 1 -c..\bin\os2\mdos
 attrib.exe
 basic.com
 basic.exe

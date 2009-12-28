@@ -18,10 +18,12 @@
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    $Id: parser.y,v 1.163 2004/11/12 15:37:11 michael Exp $
+    $Id: parser.y,v 1.2 2008/04/06 21:10:13 balena Exp $
 
 ***************************************************************************/
 %{
+#define YYINCLUDED_STDLIB_H
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -29,6 +31,10 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+
+#define YYMALLOC malloc /* make some compilers happy */
+#define YYFREE free     /* make some compilers happy */
+
 #include "rename.h"
 #include "util.h"
 
@@ -98,36 +104,38 @@ static IDL_tree         IDL_binop_eval                  (enum IDL_binop op,
 static IDL_tree         IDL_unaryop_eval                (enum IDL_unaryop op,
                                                          IDL_tree a);
 static IDL_tree         list_start                      (IDL_tree a,
-                                                         int filter_null);
+                                                         gboolean filter_null);
 static IDL_tree         list_chain                      (IDL_tree a,
                                                          IDL_tree b,
-                                                         int filter_null);
+                                                         gboolean filter_null);
 static IDL_tree         zlist_chain                     (IDL_tree a,
                                                          IDL_tree b,
-                                                         int filter_null);
+                                                         gboolean filter_null);
 static int              do_token_error                  (IDL_tree p,
                                                          const char *message,
-                                                         int prev);
+                                                         gboolean prev);
 static void             illegal_context_type_error      (IDL_tree p,
                                                          const char *what);
 static void             illegal_type_error              (IDL_tree p,
                                                          const char *message);
 %}
 
+
 %union {
         IDL_tree tree;
         struct {
                 IDL_tree tree;
-                void * data;
+                gpointer data;
         } treedata;
         GHashTable *hash_table;
         char *str;
-        int boolean;
+        gboolean boolean;
         IDL_declspec_t declspec;
         IDL_longlong_t integer;
         double floatp;
         enum IDL_unaryop unaryop;
         enum IDL_param_attr paramattr;
+        enum IDL_integer_type int_type;
 }
 
 /* Terminals */
@@ -299,7 +307,7 @@ static void             illegal_type_error              (IDL_tree p,
 %type <hash_table>      z_props prop_hash
 %type <boolean>         is_readonly is_oneway
 %type <boolean>         is_varargs is_cvarargs
-%type <integer>         signed_int unsigned_int
+%type <int_type>        signed_int unsigned_int
 %type <paramattr>       param_attribute
 %type <str>             sqstring dqstring dqstring_cat
 %type <unaryop>         unary_op
@@ -464,7 +472,7 @@ interface:              z_declspec
 z_inheritance:          /* empty */                     { $$ = NULL; }
 |                       ':' scoped_name_list            {
         GHashTable *table = g_hash_table_new (g_direct_hash, g_direct_equal);
-        int die = FALSE;
+        gboolean die = FALSE;
         IDL_tree p = $2;
 
         assert (IDL_NODE_TYPE (p) == IDLN_LIST);
@@ -475,7 +483,7 @@ z_inheritance:          /* empty */                     { $$ = NULL; }
                 if (g_hash_table_lookup_extended (table, IDL_LIST (p).data, NULL, NULL)) {
                         char *s = IDL_ns_ident_to_qstring (IDL_LIST (p).data, "::", 0);
                         yyerrorv ("Cannot inherit from interface `%s' more than once", s);
-                        free (s);
+                        g_free (s);
                         die = TRUE;
                         break;
                 } else
@@ -486,7 +494,7 @@ z_inheritance:          /* empty */                     { $$ = NULL; }
                         yyerrorv ("Incomplete definition of interface `%s'", s);
                         IDL_tree_error (IDL_LIST (p).data,
                                         "Previous forward declaration of `%s'", s);
-                        free (s);
+                        g_free (s);
                         die = TRUE;
                 }
                 else if (IDL_NODE_TYPE (IDL_NODE_UP (IDL_LIST (p).data)) != IDLN_INTERFACE) {
@@ -494,7 +502,7 @@ z_inheritance:          /* empty */                     { $$ = NULL; }
                         yyerrorv ("`%s' is not an interface", s);
                         IDL_tree_error (IDL_LIST (p).data,
                                         "Previous declaration of `%s'", s);
-                        free (s);
+                        g_free (s);
                         die = TRUE;
                 }
         }
@@ -662,7 +670,7 @@ element_spec:           type_spec declarator            {
                 s = IDL_ns_ident_to_qstring ($2, "::", 0);
                 yyerrorv ("Member `%s'", s);
                 do_token_error (IDL_NODE_UP ($1), "recurses", TRUE);
-                free (s);
+                g_free (s);
         }
 }
         ;
@@ -988,7 +996,7 @@ member:                 type_spec declarator_list
                 s = IDL_ns_ident_to_qstring (IDL_LIST ($2).data, "::", 0);
                 yyerrorv ("Member `%s'", s);
                 do_token_error (IDL_NODE_UP ($1), "recurses", TRUE);
-                free (s);
+                g_free (s);
         }
 }
         ;
@@ -1126,7 +1134,7 @@ array_declarator:       new_ident
                 if (!IDL_LIST (p).data) {
                         char *s = IDL_ns_ident_to_qstring ($1, "::", 0);
                         yyerrorv ("Missing value in dimension %d of array `%s'", i, s);
-                        free (s);
+                        g_free (s);
                 }
 }
         ;
@@ -1153,12 +1161,12 @@ prop_hash:              TOK_PROP_KEY
 }
 |                       TOK_PROP_KEY                    {
         $$ = g_hash_table_new (IDL_strcase_hash, IDL_strcase_equal);
-        g_hash_table_insert ($$, $1, strdup (""));
+        g_hash_table_insert ($$, $1, g_strdup (""));
 }
 |                       prop_hash ','
                         TOK_PROP_KEY                    {
         $$ = $1;
-        g_hash_table_insert ($$, $3, strdup (""));
+        g_hash_table_insert ($$, $3, g_strdup (""));
 }
         ;
 
@@ -1218,7 +1226,8 @@ pop_scope:              /* empty */                     {
 ns_new_ident:           ident                           {
         IDL_tree p;
 
-        if ((p = IDL_ns_place_new (__IDL_root_ns, $1)) == NULL) {
+        if ((p = IDL_ns_place_new (__IDL_root_ns, $1)) == NULL)
+        {
                 IDL_tree q;
                 int i;
 
@@ -1368,7 +1377,7 @@ positive_int_const:     const_exp                       {
 z_declspec:             /* empty */                     { $$ = 0; }
 |                       TOK_DECLSPEC                    {
         $$ = IDL_parse_declspec ($1);
-        free ($1);
+        g_free ($1);
 }
         ;
 
@@ -1417,23 +1426,23 @@ srcfile:                TOK_SRCFILE             {
 
 dqstring_cat:           dqstring
 |                       dqstring_cat dqstring           {
-        char *catstr = malloc (strlen ($1) + strlen ($2) + 1);
-        strcpy (catstr, $1); free ($1);
-        strcat (catstr, $2); free ($2);
+        char *catstr = g_malloc (strlen ($1) + strlen ($2) + 1);
+        strcpy (catstr, $1); g_free ($1);
+        strcat (catstr, $2); g_free ($2);
         $$ = catstr;
 }
         ;
 
 dqstring:               TOK_DQSTRING                    {
         char *s = IDL_do_escapes ($1);
-        free ($1);
+        g_free ($1);
         $$ = s;
 }
         ;
 
 sqstring:               TOK_SQSTRING                    {
         char *s = IDL_do_escapes ($1);
-        free ($1);
+        g_free ($1);
         $$ = s;
 }
         ;
@@ -1459,10 +1468,10 @@ static const char *IDL_ns_get_cur_prefix (IDL_ns ns)
         return p ? IDL_GENTREE (p)._cur_prefix : NULL;
 }
 
-char *IDL_ns_ident_make_repo_id (IDL_ns ns, IDL_tree p,
+gchar *IDL_ns_ident_make_repo_id (IDL_ns ns, IDL_tree p,
                                   const char *p_prefix, int *major, int *minor)
 {
-        char s[1024];
+        GString *s = g_string_new (NULL);
         const char *prefix;
         char *q;
 
@@ -1476,15 +1485,16 @@ char *IDL_ns_ident_make_repo_id (IDL_ns ns, IDL_tree p,
         prefix = p_prefix ? p_prefix : IDL_ns_get_cur_prefix (ns);
 
         q = IDL_ns_ident_to_qstring (p, "/", 0);
-        sprintf (s, "IDL:%s%s%s:%d.%d",
+        g_string_printf (s, "IDL:%s%s%s:%d.%d",
                           prefix ? prefix : "",
                           prefix && *prefix ? "/" : "",
                           q,
                           major ? *major : 1,
                           minor ? *minor : 0);
-        free (q);
+        g_free (q);
 
-        q = s;
+        q = s->str;
+        g_string_free (s, FALSE);
 
         return q;
 }
@@ -1497,7 +1507,7 @@ static const char *get_name_token (const char *s, char **tok)
         if (!s)
                 return NULL;
 
-        while (isspace (*s)) ++s;
+        while (g_ascii_isspace (*s)) ++s;
 
         while (1) switch (state) {
         case 0:         /* Unknown */
@@ -1511,7 +1521,7 @@ static const char *get_name_token (const char *s, char **tok)
                 break;
         case 1:         /* Scope */
                 if (strncmp (s, "::", 2) == 0) {
-                        char *r = malloc (3);
+                        char *r = g_malloc (3);
                         strcpy (r, "::");
                         *tok = r;
                         return s + 2;
@@ -1522,7 +1532,7 @@ static const char *get_name_token (const char *s, char **tok)
                 if (isalnum ((int)*s) || *s == '_')
                         ++s;
                 else {
-                        char *r = malloc (s - begin + 1);
+                        char *r = g_malloc (s - begin + 1);
                         strncpy (r, begin, s - begin + 1);
                         r[s - begin] = 0;
                         *tok = r;
@@ -1555,7 +1565,7 @@ static IDL_tree IDL_ns_pragma_parse_name (IDL_ns ns, const char *s)
                                 /* Globally scoped */
                                 p = IDL_NS (ns).file;
                         }
-                        free (tok);
+                        g_free (tok);
                 } else {
                         IDL_tree ident = IDL_ident_new (tok);
                         p = IDL_ns_lookup_this_scope (__IDL_root_ns, p, ident, NULL);
@@ -1594,9 +1604,9 @@ void IDL_ns_ID (IDL_ns ns, const char *s)
         ident = IDL_GENTREE (p).data;
 
         if (IDL_IDENT_REPO_ID (ident) != NULL)
-                free (IDL_IDENT_REPO_ID (ident));
+                g_free (IDL_IDENT_REPO_ID (ident));
 
-        IDL_IDENT_REPO_ID (ident) = strdup (id);
+        IDL_IDENT_REPO_ID (ident) = g_strdup (id);
 }
 
 void IDL_ns_version (IDL_ns ns, const char *s)
@@ -1626,13 +1636,15 @@ void IDL_ns_version (IDL_ns ns, const char *s)
         if (IDL_IDENT_REPO_ID (ident) != NULL) {
                 char *v = strrchr (IDL_IDENT_REPO_ID (ident), ':');
                 if (v) {
-                        char s[1024];
+                        GString *s;
 
                         *v = 0;
-                        sprintf (s, "%s:%d.%d",
+                        s = g_string_new (NULL);
+                        g_string_printf (s, "%s:%d.%d",
                                           IDL_IDENT_REPO_ID (ident), major, minor);
-                        free (IDL_IDENT_REPO_ID (ident));
-                        IDL_IDENT_REPO_ID (ident) = s;
+                        g_free (IDL_IDENT_REPO_ID (ident));
+                        IDL_IDENT_REPO_ID (ident) = s->str;
+                        g_string_free (s, FALSE);
                 } else if (__IDL_is_parsing)
                         yywarningv (IDL_WARNING1, "Cannot find RepositoryID OMG IDL version in ID `%s'",
                                     IDL_IDENT_REPO_ID (ident));
@@ -1644,21 +1656,21 @@ void IDL_ns_version (IDL_ns ns, const char *s)
 
 int IDL_inhibit_get (void)
 {
-//        g_return_val_if_fail (__IDL_is_parsing, -1);
+        g_return_val_if_fail (__IDL_is_parsing, -1);
 
         return __IDL_inhibits;
 }
 
 void IDL_inhibit_push (void)
 {
-//        g_return_if_fail (__IDL_is_parsing);
+        g_return_if_fail (__IDL_is_parsing);
 
         ++__IDL_inhibits;
 }
 
 void IDL_inhibit_pop (void)
 {
-//        g_return_if_fail (__IDL_is_parsing);
+        g_return_if_fail (__IDL_is_parsing);
 
         if (--__IDL_inhibits < 0)
                 __IDL_inhibits = 0;
@@ -1666,25 +1678,25 @@ void IDL_inhibit_pop (void)
 
 static void IDL_inhibit (IDL_ns ns, const char *s)
 {
-        if (strcasecmp ("push", s) == 0)
+        if (g_ascii_strcasecmp ("push", s) == 0)
                 IDL_inhibit_push ();
-        else if (strcasecmp ("pop", s) == 0)
+        else if (g_ascii_strcasecmp ("pop", s) == 0)
                 IDL_inhibit_pop ();
 }
 
 static void IDL_typecodes_as_tok (IDL_ns ns, const char *s)
 {
-        if (strcasecmp ("push", s) == 0)
+        if (g_ascii_strcasecmp ("push", s) == 0)
                 ++(__IDL_typecodes_as_tok);
-        else if (strcasecmp ("pop", s) == 0)
+        else if (g_ascii_strcasecmp ("pop", s) == 0)
                 --(__IDL_typecodes_as_tok);
 }
 
 static void IDL_pidl (IDL_ns ns, const char *s)
 {
-        if (strcasecmp ("push", s) == 0)
+        if (g_ascii_strcasecmp ("push", s) == 0)
                 ++(__IDL_pidl);
-        else if (strcasecmp ("pop", s) == 0)
+        else if (g_ascii_strcasecmp ("pop", s) == 0)
                 --(__IDL_pidl);
 }
 
@@ -1693,13 +1705,13 @@ void __IDL_do_pragma (const char *s)
         int n;
         char directive[256];
 
-//        g_return_if_fail (__IDL_is_parsing);
-//        g_return_if_fail (s != NULL);
+        g_return_if_fail (__IDL_is_parsing);
+        g_return_if_fail (s != NULL);
 
         if (sscanf (s, "%255s%n", directive, &n) < 1)
                 return;
         s += n;
-        while (isspace (*s)) ++s;
+        while (g_ascii_isspace (*s)) ++s;
 
         if (strcmp (directive, "prefix") == 0)
                 IDL_ns_prefix (__IDL_root_ns, s);
@@ -1737,12 +1749,12 @@ IDL_tree IDL_file_set (const char *filename, int line)
         IDL_fileinfo *fi;
         IDL_tree tree = NULL;
 
-//        g_return_val_if_fail (__IDL_is_parsing, NULL);
+        g_return_val_if_fail (__IDL_is_parsing, NULL);
 
         if (filename) {
                 const char *oldfilename = __IDL_cur_filename;
-                int wasInhibit = IS_INHIBIT_STATE();
-                int isTop =
+                gboolean wasInhibit = IS_INHIBIT_STATE();
+                gboolean isTop =
 #ifdef HAVE_CPP_PIPE_STDIN
                         strlen (filename)==0;
 #else
@@ -1760,9 +1772,8 @@ IDL_tree IDL_file_set (const char *filename, int line)
                         __IDL_cur_fileinfo = fi;
                         ++(fi->seenCnt);
                 } else {
-                        fi = ((IDL_fileinfo *) malloc (((unsigned int) sizeof (IDL_fileinfo)) * ((unsigned int) (1))));
-
-                        fi->name = strdup(filename);
+                        fi = g_new0 (IDL_fileinfo, 1);
+                        fi->name = g_strdup(filename);
                         g_hash_table_insert (__IDL_filename_hash, fi->name, fi);
                 }
                 __IDL_cur_fileinfo = fi;
@@ -1781,7 +1792,7 @@ IDL_tree IDL_file_set (const char *filename, int line)
 
 void IDL_file_get (const char **filename, int *line)
 {
-//        g_return_if_fail (__IDL_is_parsing);
+        g_return_if_fail (__IDL_is_parsing);
 
         if (filename)
                 *filename = __IDL_cur_filename;
@@ -1790,7 +1801,7 @@ void IDL_file_get (const char **filename, int *line)
                 *line = __IDL_cur_line;
 }
 
-static int do_token_error (IDL_tree p, const char *message, int prev)
+static int do_token_error (IDL_tree p, const char *message, gboolean prev)
 {
         int dienow;
         char *what = NULL, *who = NULL;
@@ -1811,21 +1822,23 @@ static int do_token_error (IDL_tree p, const char *message, int prev)
 
 static void illegal_context_type_error (IDL_tree p, const char *what)
 {
-        char s[1024];
+        GString *s = g_string_new (NULL);
 
-        sprintf (s, "Illegal type `%%s' for %s", what);
-        illegal_type_error (p, s);
+        g_string_printf (s, "Illegal type `%%s' for %s", what);
+        illegal_type_error (p, s->str);
+        g_string_free (s, TRUE);
 }
 
 static void illegal_type_error (IDL_tree p, const char *message)
 {
-        char * s;
+        GString *s;
 
         s = IDL_tree_to_IDL_string (p, NULL, IDLF_OUTPUT_NO_NEWLINES);
-        yyerrorv (message, s);
+        yyerrorv (message, s->str);
+        g_string_free (s, TRUE);
 }
 
-static IDL_tree list_start (IDL_tree a, int filter_null)
+static IDL_tree list_start (IDL_tree a, gboolean filter_null)
 {
         IDL_tree p;
 
@@ -1837,7 +1850,7 @@ static IDL_tree list_start (IDL_tree a, int filter_null)
         return p;
 }
 
-static IDL_tree list_chain (IDL_tree a, IDL_tree b, int filter_null)
+static IDL_tree list_chain (IDL_tree a, IDL_tree b, gboolean filter_null)
 {
         IDL_tree p;
 
@@ -1854,7 +1867,7 @@ static IDL_tree list_chain (IDL_tree a, IDL_tree b, int filter_null)
         return a;
 }
 
-static IDL_tree zlist_chain (IDL_tree a, IDL_tree b, int filter_null)
+static IDL_tree zlist_chain (IDL_tree a, IDL_tree b, gboolean filter_null)
 {
         if (a == NULL)
                 return list_start (b, filter_null);
@@ -2100,8 +2113,8 @@ static IDL_tree IDL_unaryop_eval (enum IDL_unaryop op, IDL_tree a)
 
 IDL_tree IDL_resolve_const_exp (IDL_tree p, IDL_tree_type type)
 {
-        int resolved_value = FALSE, die = FALSE;
-        int wrong_type = FALSE;
+        gboolean resolved_value = FALSE, die = FALSE;
+        gboolean wrong_type = FALSE;
 
         while (!resolved_value && !die) {
                 if (IDL_NODE_TYPE (p) == IDLN_IDENT) {
@@ -2147,8 +2160,16 @@ IDL_tree IDL_resolve_const_exp (IDL_tree p, IDL_tree_type type)
 
 void IDL_queue_new_ident_comment (const char *str)
 {
-//        g_return_if_fail (str != NULL);
+        g_return_if_fail (str != NULL);
 
-        __IDL_new_ident_comments = g_slist_append (__IDL_new_ident_comments, strdup (str));
+        __IDL_new_ident_comments = g_slist_append (__IDL_new_ident_comments, g_strdup (str));
 }
 
+/*
+ * Local variables:
+ * mode: C
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ */

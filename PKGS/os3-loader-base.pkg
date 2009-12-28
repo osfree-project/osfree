@@ -1,0 +1,2 @@
+os3-loader-base -a 1 -c..\bin\boot * -r
+-s loader-base.wis

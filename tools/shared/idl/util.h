@@ -18,7 +18,7 @@
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    $Id: util.h 540 2004-01-21 14:04:54Z markmc $
+    $Id: util.h,v 1.1 2008/04/06 14:49:52 balena Exp $
 
 ***************************************************************************/
 #ifndef __UTIL_H
@@ -32,6 +32,7 @@
 #elif defined(HAVE_WCSTR_H)
 #  include <wcstr.h>
 #endif
+#include <glib.h>
 #include <IDL.h>
 
 /* Internal parse flags */
@@ -49,19 +50,25 @@ extern void             yyerror                         (const char *s);
 extern void             yyerrorl                        (const char *s, int ofs);
 extern void             yywarning                       (int level, const char *s);
 extern void             yywarningl                      (int level, const char *s, int ofs);
-extern void             yyerrorv                        (const char *fmt, ...);
-extern void             yyerrorlv                       (const char *fmt, int ofs, ...);
-extern void             yywarningv                      (int level, const char *fmt, ...);
-extern void             yywarninglv                     (int level, const char *fmt, int ofs, ...);
-extern void             yyerrornv                       (IDL_tree p, const char *fmt, ...);
-extern void             yywarningnv                     (IDL_tree p, int level, const char *fmt, ...);
+extern void             yyerrorv                        (const char *fmt, ...)
+                                                        G_GNUC_PRINTF (1, 2);
+extern void             yyerrorlv                       (const char *fmt, int ofs, ...)
+                                                        G_GNUC_PRINTF (1, 3);
+extern void             yywarningv                      (int level, const char *fmt, ...)
+                                                        G_GNUC_PRINTF (2, 3);
+extern void             yywarninglv                     (int level, const char *fmt, int ofs, ...)
+                                                        G_GNUC_PRINTF (2, 4);
+extern void             yyerrornv                       (IDL_tree p, const char *fmt, ...)
+                                                        G_GNUC_PRINTF (2, 3);
+extern void             yywarningnv                     (IDL_tree p, int level, const char *fmt, ...)
+                                                        G_GNUC_PRINTF (3, 4);
 
-extern unsigned int            IDL_strcase_hash                (const void * v);
-extern int             IDL_strcase_equal               (const void * a, const void * b);
-extern int             IDL_strcase_cmp                 (const void * a, const void * b);
-extern unsigned int            IDL_ident_hash                  (const void * v);
-extern int             IDL_ident_equal                 (const void * a, const void * b);
-extern int             IDL_ident_cmp                   (const void * a, const void * b);
+extern guint            IDL_strcase_hash                (gconstpointer v);
+extern gint             IDL_strcase_equal               (gconstpointer a, gconstpointer b);
+extern gint             IDL_strcase_cmp                 (gconstpointer a, gconstpointer b);
+extern guint            IDL_ident_hash                  (gconstpointer v);
+extern gint             IDL_ident_equal                 (gconstpointer a, gconstpointer b);
+extern gint             IDL_ident_cmp                   (gconstpointer a, gconstpointer b);
 extern int              IDL_ns_check_for_ambiguous_inheritance
                                                         (IDL_tree interface_ident,
                                                          IDL_tree p);
@@ -99,7 +106,7 @@ extern int                              __IDL_is_okay;
 extern int                              __IDL_is_parsing;
 extern unsigned long                    __IDL_flags;
 extern unsigned long                    __IDL_flagsi;
-extern void *                         __IDL_inputcb_user_data;
+extern gpointer                         __IDL_inputcb_user_data;
 extern IDL_input_callback               __IDL_inputcb;
 extern GSList *                         __IDL_new_ident_comments;
 
