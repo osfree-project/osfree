@@ -1,0 +1,15 @@
+module udsk;
+
+(* Generic sectors access *)
+function DskSecRead(in pszDisk: PSZ; in ullLBA: ULONGLONG; in bufSize: ULONG; out buffer): APIRET;
+function DskSecWrite(in pszDisk: PSZ; in ullLBA: ULONGLONG; in bufSize: ULONG; in buffer): APIRET;
+
+(* Boot sectors access *)
+function DskBootSecRead(in pszDisk: PSZ; out buffer): APIRET;
+function DskBootSecWrite(in pszDisk: PSZ; in buffer): APIRET;
+
+(* Master boot records access *)
+function DskMbrRead(in pszDisk: PSZ; out buffer): APIRET;
+function DskMbrWrite(in pszDisk: PSZ; in buffer): APIRET;
+
+end.
