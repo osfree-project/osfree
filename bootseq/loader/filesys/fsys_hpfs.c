@@ -49,6 +49,26 @@ strocmp (char *s1, char *s2)
 }
 
 int
+tolower (int c)
+{
+  if (0x40 < c && c < 0x5b)
+    c += 0x20;
+
+  return c;
+}
+
+char *
+locase(char *s)
+{
+  char *p;
+
+  for (p = s; *p; p++)
+    *p = tolower(*p);
+
+  return s;
+}
+
+int
 hpfs_mount (void)
 {
   char *c = (char *)BOOT->sig_hpfs;
@@ -198,7 +218,7 @@ hpfs_dir (char *dirname)
     {
       (*pgrub_memmove) (filename, dirent->name, dirent->namelen);
       filename[dirent->namelen] = '\0';
-      n = strocmp (fn, filename);
+      n = strocmp (locase(fn), locase(filename));
       if (!n)
       {
         /* name found */

@@ -22,8 +22,8 @@
 #define REL_BASE    0x90000
 #define REL1_BASE   (0x90000 + SHIFT)
 
-#define PREFERRED_BASE  0x5e000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
-#define BOOT_PART_TABLE  (0x5f000 + SHIFT) //
+#define PREFERRED_BASE  0x5c000 // preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+#define BOOT_PART_TABLE  (0x5d000 + SHIFT) //
 #define FSYS_BUFLEN  0x8000
 
 // ;
@@ -61,7 +61,7 @@
 #define STAGE0_BASE  (0x63e00 + SHIFT)  // Stage0 load base
 #define EXT_BUF_BASE  (0x73e00 + SHIFT) // buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-#define SCRATCHADDR  (0x5e000 + SHIFT) // 512-byte scratch area
+#define SCRATCHADDR  (0x5c000 + SHIFT) // 512-byte scratch area
 #define BUFFERADDR  (SCRATCHADDR + 0x200) //
 #define BUFFERLEN  0xe00 // 0x7e00
 

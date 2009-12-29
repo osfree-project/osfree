@@ -22,9 +22,9 @@ KERN_BASE       equ 0x800000
 REL_BASE        equ 0x90000
 REL1_BASE       equ (0x90000 + SHIFT)
 
-PREFERRED_BASE  equ 0x5e000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
+PREFERRED_BASE  equ 0x5c000               ; preferred load base (addresses 0x6f000-0x7f000 occupied by pre-loader
                                           ; when loaded initially without relocation)
-BOOT_PART_TABLE equ (0x5f000 + SHIFT)     ;
+BOOT_PART_TABLE equ (0x5d000 + SHIFT)     ;
 FSYS_BUFLEN     equ 0x8000
 
 ;
@@ -62,7 +62,7 @@ BOOTSEC_BASE    equ (0x63c00 + SHIFT)     ; bootsector relocation base
 STAGE0_BASE     equ (0x63e00 + SHIFT)     ; Stage0 load base
 EXT_BUF_BASE    equ (0x73e00 + SHIFT)     ; buffer for extensions (blackboxes) (size: 0x2800 bytes)
 
-SCRATCHADDR     equ (0x5e000 + SHIFT)     ; 512-byte scratch area
+SCRATCHADDR     equ (0x5c000 + SHIFT)     ; 512-byte scratch area
 BUFFERADDR      equ SCRATCHADDR + 0x200   ;
 BUFFERLEN       equ 0xe00                 ; 0x7e00
 

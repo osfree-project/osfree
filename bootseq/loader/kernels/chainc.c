@@ -245,13 +245,14 @@ void cmain(void)
     // Copy kernel
     grub_memmove((char *)load_addr, kernel, kernel_len);
 
-    if (mods_count >= 2)
+    if (mods_count > 1)
     {
       for (i = 0; i < mods_count; i++, mod++)
-      if (!strcmp((char *)mod->cmdline, "*bootsec*"))
+      if (strstr((char *)mod->cmdline, "*bootsec*"))
       {
         /* if "*bootsec*" line is in the command line */
         memmove((char *)0x7c00, (char *)mod->mod_start, mod->mod_end - mod->mod_start);
+        break;
       }
     }
 
