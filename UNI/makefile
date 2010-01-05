@@ -68,7 +68,6 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosdevioctl.h &
      $(OUT)$(SEP)os2$(SEP)dosprofile.h &
      $(OUT)$(SEP)os2$(SEP)dossemaphores.h &
-     $(OUT)$(SEP)os2$(SEP)dossemaphorescommon.h &
      $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h &
      $(OUT)$(SEP)os2$(SEP)dosresources.h &
      $(OUT)$(SEP)os2$(SEP)dosresourcescommon.h &
@@ -159,12 +158,13 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)os2me.h &
      $(OUT)$(SEP)os2$(SEP)os2mm.h &
      $(OUT)$(SEP)os2$(SEP)meerror.h &
+     $(OUT)$(SEP)os2$(SEP)udsk.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
 
 os2libs: $(LIBOUT)sub32.lib &
-	 .symbolic
+         .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
  uni2h.exe -edef $< $^*.def
@@ -241,8 +241,6 @@ $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
 $(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dossemaphores.h: os2$(SEP)dossemaphores.uni
-
-$(OUT)$(SEP)os2$(SEP)dossemaphorescommon.h: os2$(SEP)dossemaphorescommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)dosdatetime.uni
 
@@ -439,6 +437,7 @@ $(OUT)$(SEP)dos$(SEP)os2mm.h: dos$(SEP)os2mm.uni
 
 $(OUT)$(SEP)dos$(SEP)meerror.h: dos$(SEP)meerror.uni
 
+$(OUT)$(SEP)os2$(SEP)udsk.h: os2$(SEP)udsk.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

@@ -1,14 +1,14 @@
-/************************************************************************ 
- * This file is part of PDCurses. PDCurses is public domain software;	*
- * you may use it for any purpose. This software is provided AS IS with	*
- * NO WARRANTY whatsoever.						*
- *									*
- * If you use PDCurses in an application, an acknowledgement would be	*
- * appreciated, but is not mandatory. If you make corrections or	*
- * enhancements to PDCurses, please forward them to the current		*
- * maintainer for the benefit of other users.				*
- *									*
- * See the file maintain.er for details of the current maintainer.	*
+/************************************************************************
+ * This file is part of PDCurses. PDCurses is public domain software;   *
+ * you may use it for any purpose. This software is provided AS IS with *
+ * NO WARRANTY whatsoever.                                              *
+ *                                                                      *
+ * If you use PDCurses in an application, an acknowledgement would be   *
+ * appreciated, but is not mandatory. If you make corrections or        *
+ * enhancements to PDCurses, please forward them to the current         *
+ * maintainer for the benefit of other users.                           *
+ *                                                                      *
+ * See the file maintain.er for details of the current maintainer.      *
  ************************************************************************/
 
 /* $Id: pdcos2.h,v 1.7 2007/07/03 00:11:45 wmcbrine Exp $ */
@@ -24,6 +24,10 @@
 #ifdef EMXVIDEO
 # include <sys/video.h>
 #else
+# define INCL_BSETIB
+# define INCL_BSEMEMF
+# define INCL_DOSMEMMGR
+# define INCL_DOSPROCESS
 # define INCL_DOS
 # define INCL_DOSMISC
 # define INCL_WIN

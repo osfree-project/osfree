@@ -485,7 +485,7 @@ expr_t  eval_if( void)
 
 static int  eval_lex( void)
 /*
- * Return next operator or constant to evaluate.  Called from eval_if().  It 
+ * Return next operator or constant to evaluate.  Called from eval_if().  It
  * calls a special-purpose routines for character constants and numeric values:
  *      eval_char()     called to evaluate 'x'
  *      eval_num()      called to evaluate numbers
@@ -1216,8 +1216,8 @@ static expr_t   eval_one(
     if (uc1 == 'u' || uc1 == 'U') {
         if ((count < 4 && uc1 == 'u') || (count < 8 && uc1 == 'U'))
             goto  undefined;
-        if ((value >= 0L && value <= 0x9FL
-                    && value != 0x24L && value != 0x40L && value != 0x60L)
+        if ((/*(value >= 0L) && (value <= 0x9FL)
+                    &&*/ value != 0x24L && value != 0x40L && value != 0x60L)
                 || (!stdc3 && value >= 0xD800L && value <= 0xDFFFL)) {
             if (!skip)
                 cerror( ucn_malval, NULL, (long) value, NULL);
@@ -1401,7 +1401,7 @@ static expr_t   eval_signed(
         if (chk
 #if HAVE_LONG_LONG
                 || (! stdc3 && v1 && (long) v1 == (long) -v1)
-#endif 
+#endif
             )
             overflow( op_name, valpp, chk);
         v1 = -v1;

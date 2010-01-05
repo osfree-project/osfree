@@ -2,7 +2,7 @@
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
 #define INCL_DOSSEMAPHORES
-#define INCL_DOSDATETIMECOMMON
+#define INCL_DOSDATETIME
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
@@ -447,7 +447,8 @@ APIRET APIENTRY DosSleep(ULONG msec)
 APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
 {
   printf(__FUNCTION__ " not implemented yet\n");
-  return 0; }
+  return 0;
+}
 
 APIRET APIENTRY DosDevConfig(PSZ pdevinfo, ULONG item)
 {
@@ -790,7 +791,7 @@ APIRET APIENTRY      DosSetProcessCp(void)
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
 
-APIRET APIENTRY      DosStopTimer(void)
+APIRET APIENTRY      DosStopTimer(ULONG tmr)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }
@@ -1152,13 +1153,13 @@ APIRET APIENTRY DosWaitThread(PTID ptid,
   return 0;
 }
 
-APIRET APIENTRY      DosAsyncTimer(void)
+APIRET APIENTRY      DosAsyncTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0;
 }
 
-APIRET APIENTRY      DosStartTimer(void)
+APIRET APIENTRY      DosStartTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
 {
   printf(__FUNCTION__ " not implemented yet\n");
   return 0; }

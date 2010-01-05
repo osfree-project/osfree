@@ -1545,3 +1545,9 @@ RexxQueryMacro                              DLL APIENTRY REXXAPI  26   OS2386
 RexxReorderMacro                            DLL APIENTRY REXXAPI  27   OS2386
 RexxSaveMacroSpace                          DLL APIENTRY REXXAPI  28   OS2386
 RexxExecuteMacroFunction                    DLL APIENTRY REXXAPI  29   OS2386
+DskSecRead                                  DLL APIENTRY UDSK      1   UDSK
+DskSecWrite                                 DLL APIENTRY UDSK      2   UDSK
+DskBootSecRead                              DLL APIENTRY UDSK      3   UDSK
+DskBootSecWrite                             DLL APIENTRY UDSK      4   UDSK
+DskMbrRead                                  DLL APIENTRY UDSK      5   UDSK
+DskMbrWrite                                 DLL APIENTRY UDSK      6   UDSK

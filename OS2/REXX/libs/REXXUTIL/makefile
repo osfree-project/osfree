@@ -1,7 +1,3 @@
-#
-# $Id: makefile,v 1.3 2004/08/16 04:51:08 prokushev Exp $
-#
-#
 
 DBG = 1
 #DBG = 0

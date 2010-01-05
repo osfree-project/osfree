@@ -147,12 +147,9 @@ void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
  ULONG cbData;
  APIRET rc;
 
- /* printf("size of track layout is %d\n",sizeof(TRACKLAYOUT)); */
- /* size = 13 decimal */
-
  if (1 == sector)
   trackLayout.bCommand = 0x01;   /* means track layout starts w/sector 1
-                                    & has consec sectors */
+                                  & has consec sectors */
  else
   trackLayout.bCommand = 0;
  trackLayout.usHead = head;

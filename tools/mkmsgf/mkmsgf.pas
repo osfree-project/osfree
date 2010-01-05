@@ -49,11 +49,11 @@ const
             '  -h, -H, -?, --help  Help'+LineEnding+LineEnding+
             'You can use "/" instead of "-".'+LineEnding;
   msg_nofile: String ='MKMSGF: File %s not found';
-  msg_vars: String ='global variables';
-  msg_strin: String ='strIn';
-  msg_strout: String ='strOut';
-  msg_not_msg_file: String ='Invalid magic - not a MSG file?';
-  msg_not_valid_version: String ='Unknown version of indexed message file.';
+//  msg_vars: String ='global variables';
+//  msg_strin: String ='strIn';
+//  msg_strout: String ='strOut';
+//  msg_not_msg_file: String ='Invalid magic - not a MSG file?';
+//  msg_not_valid_version: String ='Unknown version of indexed message file.';
   msg_incorrect_format: String =': Incorrect source message file format';
   msg_incorrect_identifier: String =': Incorrect message identifier: ';
   msg_incorrect_switch: String ='Unsupported switch';

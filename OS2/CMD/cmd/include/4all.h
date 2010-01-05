@@ -600,7 +600,7 @@ typedef struct
 #define INCL_DOSFILEMGR
 #define INCL_WIN
 #define INCL_PM
-#include <osfree.h>
+#include <os2.h>
 #include <cmd_shared.h>         // Include file for cmd tools
 #include "4os2.h"
 

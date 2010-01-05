@@ -1,5 +1,7 @@
 #include <os2.h>
 
+#include <stdio.h>
+
 APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
                                   ULONG ulNumentries,
                                   PLISTIO pListIO)
@@ -7,13 +9,15 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
   PLISTIOL pListIOL;
 
   printf(__FUNCTION__ " not implemented yet\n");
+
   return 0;
 
-  return DosListIO(ulCmdMode,
-                   ulNumentries,
-                   pListIOL);
+//  return DosListIO(ulCmdMode,
+//                   ulNumentries,
+//                   pListIOL);
 }
 
+#if 0
 
 typedef struct _LISTIO_CB {
     HFILE hFile;
@@ -41,5 +45,4 @@ typedef struct _LISTIO_CBL {
     ULONG    Reserved3[2];
 } LISTIOL, *PLISTIOL;
 
-#if 0
 #endif
