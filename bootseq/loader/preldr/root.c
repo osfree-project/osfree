@@ -22,6 +22,8 @@ extern unsigned long cur_part_addr;
 
 unsigned long boot_part_addr;
 
+int open_device2(void);
+
 int
 real_mkroot (char *arg, int attempt_mount)
 {
@@ -46,7 +48,7 @@ real_mkroot (char *arg, int attempt_mount)
   /* Ignore ERR_FSYS_MOUNT.  */
   if (attempt_mount)
     {
-      if (! open_device () && errnum != ERR_FSYS_MOUNT)
+      if (! open_device2 () && errnum != ERR_FSYS_MOUNT)
         return 1;
     }
   else

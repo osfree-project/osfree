@@ -94,7 +94,7 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%append $^@ ALIAS cmain=cmain_
 !endif
 !else
- @%append $^@ ALIAS mem_lower=_mem_lower
+ #@%append $^@ ALIAS mem_lower=_mem_lower
  #@%append $^@ ALIAS _biosdisk_int13_extensions=biosdisk_int13_extensions
  #@%append $^@ ALIAS _biosdisk_standard=biosdisk_standard
  #@%append $^@ ALIAS _check_int13_extensions=check_int13_extensions
