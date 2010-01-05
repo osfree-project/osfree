@@ -97,7 +97,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   buffer = buf;
 
   /* make a pointer 16-byte aligned */
-  buffer = (char *)(((int)buffer >> 2) << 2);
+  buffer = (unsigned char *)(((int)buffer >> 2) << 2);
   if (buffer < buf) buffer += 4;
 
   /* sets the header pointer to point to the beginning of the
@@ -113,7 +113,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
   errnum = ERR_NONE;
 
-  if (!(len = u_read (buffer, MULTIBOOT_SEARCH)) || len < 32)
+  if (!(len = u_read ((char *)buffer, MULTIBOOT_SEARCH)) || len < 32)
     {
       u_close ();
 
@@ -150,7 +150,7 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
   /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
   if ((type == KERNEL_TYPE_MULTIBOOT
        || pu.elf->e_ident[EI_OSABI] == ELFOSABI_FREEBSD
-       || grub_strcmp (pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
+       || grub_strcmp ((char *)pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
        || suggested_type == KERNEL_TYPE_NETBSD)
       && len > sizeof (Elf32_Ehdr)
       && BOOTABLE_I386_ELF ((*((Elf32_Ehdr *) buffer))))
@@ -740,7 +740,7 @@ int dla(char *driveletter)
     /* zero-out CRC field and unused sector space */
     dlat->DLA_CRC = 0;
     memset(p + sizeof(DLA_Table_Sector), 0, 0x200 - sizeof(DLA_Table_Sector));
-    CRC32 = crc32(p, 0x200);
+    CRC32 = crc32((unsigned char *)p, 0x200);
     dlat->DLA_CRC = crc; // return back
     if (crc == CRC32)    // crc ok
     {

@@ -34,13 +34,13 @@ extrn   init         :near
 extrn   call_pm      :near
 extrn   lip1         :dword
 
+ifndef STAGE1_5
+
 extrn   mem_lower    :dword
 
 extrn   preldr_ss_sp :dword
 extrn   preldr_ds    :word
 extrn   preldr_es    :word
-
-ifndef STAGE1_5
 
 public  ft
 public  jmp_reloc
@@ -356,10 +356,10 @@ reloc:
 
         lgdt fword ptr [ebx]
 
-;ifndef STAGE1_5
+ifndef STAGE1_5
         ; get available memory
         call getmem
-;endif
+endif
         ; enable A20 address line
         ;call EnableA20Line
 
@@ -433,14 +433,14 @@ endif
 
 ;endif
 
-;ifndef STAGE1_5
+ifndef STAGE1_5
 getmem:
         xor  eax, eax
         int  12h
         mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
         mov  [ebx], eax
         ret
-;endif
+endif
 
 ;EnableA20Line:
 ;    ; Enable A20 address line:
@@ -472,8 +472,8 @@ filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got 
 boot_flags         dw 0         ; <-- DX
 boot_drive         dd 0         ; <-- DL
 ; copied from pre-loader header
-_preldr            label byte
 install_partition  dd 0
+_preldr            label byte
                    db 28 dup (?)
 install_filesys    db 16 dup (?)
 ft                 FileTable <>

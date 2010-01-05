@@ -11,7 +11,6 @@
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
-unsigned long saved_slice;
 
 extern unsigned long boot_drive;
 extern unsigned long install_partition;
@@ -32,22 +31,24 @@ int buf_track;
 struct geometry buf_geom;
 
 #pragma aux errnum "*"
-
 extern grub_error_t errnum;
 
 #ifndef STAGE1_5
 
+unsigned long saved_slice;
+
+static void
+check_and_print_mount (int flags);
+
 int
-attempt_mount (void);
+stage0_mount (void);
 
 static int do_completion;
 
 extern int bsd_evil_hack;
 
-//#ifndef STAGE1_5
 int
 sane_partition (void);
-//#endif
 
 /* Forward declarations.  */
 int next_bsd_partition (unsigned long drive, unsigned long dest,
@@ -465,7 +466,8 @@ real_open_partition (int flags)
 static void
 check_and_print_mount (int flags)
 {
-  attempt_mount ();
+  //attempt_mount ();
+  stage0_mount ();
   if (errnum == ERR_FSYS_MOUNT)
     errnum = ERR_NONE;
   //if (!errnum)
@@ -474,10 +476,16 @@ check_and_print_mount (int flags)
   //print_error ();
 }
 
-#else // STAGE1_5
+int
+open_partition (void)
+{
+  return real_open_partition (0);
+}
+
+#endif // STAGE1_5
 
 #pragma pack(1)
-
+/* Partition descriptor in PT */
 typedef struct _desc {
   char active;
   char start_chs[3];
@@ -502,39 +510,77 @@ typedef struct _partsect {
 int open_partition_hiddensecs(void)
 {
   partsect *p;
-  int     lba;
-  struct  geometry *geo;
-  char    *buf = (char *)0x20000;
-  desc    *q;
+  unsigned long id = 0, offset = 0, off;
+  unsigned long bsd = 0xff, n, lba;
+  int      i;
+  char     buf[0x200];
+  desc     *q;
 
   p = (partsect *)(BOOTSEC_BASE);
-  /* LBA of partition EBR */
+  part_start  = p->bpb.hidden_secs;
+  part_length = p->bpb.n_sect;
+  if (!part_length) part_length = p->bpb.n_sect_ext;
   lba = p->bpb.hidden_secs - p->bpb.track_size;
-  part_start = p->bpb.hidden_secs;
 
-  rawread (boot_drive, lba, 0, 512, buf);
+  /* read MBR */
+  rawread (boot_drive, 0, 0, 512, buf);
   p = (partsect *)buf;
 
-  /* 1st partition descriptor */
   q = p->pt;
+  for (i = 0; i < 4; i++, q++)
+  {
+    id = q->id;
+#ifndef STAGE1_5
+    n = i;
+    if (id == 0x5 || id == 0xf)
+      offset = q->start_lba;
+#endif
+    /* if this partition is contained inside a BSD slice */
+    if (IS_PC_SLICE_TYPE_BSD(id) &&
+        q->start_lba <= part_start &&
+        part_start + part_length <= q->start_lba + q->len)
+      break;
+
+    /* if this partition is found in PT */
+    if (q->start_lba == part_start)
+      break;
+  }
+
+  /* logical partition, EBR */
+  if (i == 4)
+  {
+#ifndef STAGE1_5
+    n = 3;
+    off = 0;
+    while (1)
+    {
+      n++;
+      /* read next EBR */
+      rawread(boot_drive, offset + off, 0, 512, buf);
+      p = (partsect *)buf;
+      q = p->pt;
+      if (offset + off < lba)
+      {
+        q++;
+        off = q->start_lba;
+      }
+      else
+        break;
+    };
+#else
+    /* read EBR */
+    rawread (boot_drive, lba, 0, 512, buf);
+    p = (partsect *)buf;
+    /* 1st partition descriptor */
+    q = p->pt;
+#endif
+  }
 
   current_slice = q->id;
-  part_length   = q->len;
-
   current_drive = boot_drive;
-  current_partition = install_partition;
-
-  errnum = ERR_NONE;
-  return 1;
-}
-#endif
-
-int
-open_partition (void)
-{
 #ifndef STAGE1_5
-  return real_open_partition (0);
-#else
-  return open_partition_hiddensecs();
+  current_partition = 0xff | (bsd << 8) | (n << 16);
 #endif
+
+  return 1;
 }

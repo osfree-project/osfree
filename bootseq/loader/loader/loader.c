@@ -57,6 +57,8 @@ int screen_fg_color_hl = 7;
 int num_items = 0;
 static int scrollnum = 0;
 
+int exec_line(char *line);
+
 void show_background_screen(void);
 void draw_menu(int item, int shift);
 
@@ -150,7 +152,7 @@ macro_subst(char *path)
   char *p, *q, *r;
   char *macro = "()";
   char *s = strpos;
-  int  l = strlen(at_drive);
+  int  l = strlen((char *)at_drive);
   int  m = strlen(macro);
   int  k;
 
@@ -163,7 +165,7 @@ macro_subst(char *path)
 
     grub_strncpy(s, q + 1, k);
 
-    if (r) grub_strcat(s, s, at_drive);
+    if (r) grub_strcat(s, s, (char *)at_drive);
     else break;
 
     s = s + l + k;
@@ -394,8 +396,9 @@ void show_background_screen(void)
   char *s1 = "北北北北北北北 FreeLdr v.0.0.4, (c) osFree project, 2009 Oct 22 北北北北北北北";
   int  l, n;
 
-  t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
-              (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
+  if (t->setcolor)
+    t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
+                (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
   //t->cls();
 
   t->setcolorstate(COLOR_STATE_NORMAL);
@@ -461,8 +464,9 @@ invert_colors(int *col1, int *col2)
   *col1 = *col2;
   *col2 = col;
 
-  t->setcolor((char)foreground_color | ((char)background_color << 4),
-              (char)foreground_color_hl | ((char)background_color_hl << 4));
+  if (t->setcolor)
+    t->setcolor((char)foreground_color | ((char)background_color << 4),
+                (char)foreground_color_hl | ((char)background_color_hl << 4));
 }
 
 // draw a menu with selected item shifted
@@ -488,8 +492,9 @@ void draw_menu(int item, int shift)
   // clear screen
   //t->cls();
   // 5 - normal (pink), 3 - highlighted (magenta)
-  t->setcolor((char)foreground_color    | ((char)background_color << 4),
-              (char)foreground_color_hl | ((char)background_color_hl << 4));
+  if (t->setcolor)
+    t->setcolor((char)foreground_color    | ((char)background_color << 4),
+                (char)foreground_color_hl | ((char)background_color_hl << 4));
 
   if (menu_width  > SCREEN_WIDTH  - 4) menu_width  = SCREEN_WIDTH  - 4;
   if (menu_height > SCREEN_HEIGHT - 8) menu_height = SCREEN_HEIGHT - 8;
@@ -574,9 +579,11 @@ void draw_menu(int item, int shift)
   buf[l++] = 0xd9; buf[l] = '\0';
   printf("%s", buf);
 
-  t->setcursor(0);
+  if (t->setcursor)
+    t->setcursor(0);
 
-  t->setcolor(7, 7);
+  if (t->setcolor)
+    t->setcolor(7, 7);
 }
 
 void showpath(void)

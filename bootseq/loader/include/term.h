@@ -86,9 +86,9 @@ struct term_entry
   /* Turn on/off the cursor.  */
   int __cdecl (*setcursor) (int on);
   /* Set terminal initial params */
-  int __cdecl (*init) (char *args);
+  //int __cdecl (*init) (char *args);
   /* function to start a terminal */
-  int __cdecl (*startup) (void);
+  int __cdecl (*startup) (char *args);
   /* function to use to shutdown a terminal */
   void __cdecl (*shutdown) (void);
 };
@@ -181,7 +181,7 @@ void __cdecl graphics_cls(void);
 void __cdecl graphics_setcolorstate (color_state state);
 void __cdecl graphics_setcolor (int normal_color, int highlight_color); //, int helptext_color, int heading_color);
 int __cdecl graphics_setcursor (int on);
-int __cdecl graphics_init(void);
+int __cdecl graphics_init(char *);
 void __cdecl graphics_end(void);
 
 int __cdecl hex(int v);

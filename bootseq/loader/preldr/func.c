@@ -11,9 +11,6 @@
 
 int __cdecl (*fsd_init)(lip1_t *l1);
 
-int mem_lower;
-int mem_upper = 16384;
-
 /* filesystem common variables */
 int filepos;
 int filemax;
@@ -21,10 +18,15 @@ int filemax;
 void (*disk_read_func) (int, int, int) = 0;
 void (*disk_read_hook) (int, int, int) = 0;
 
+int open_partition_hiddensecs(void);
+
+#ifndef STAGE1_5
+
 extern unsigned long current_drive;
 extern int           fsmax;
 
-#ifndef STAGE1_5
+int mem_lower;
+int mem_upper = 16384;
 
 extern char *strpos;
 extern char at_drive[16];
@@ -34,25 +36,25 @@ extern char at_drive[16];
 extern grub_error_t errnum;
 int print_possibilities;
 
-int  saved_fsys_type;
-int  saved_current_slice;
-int  saved_fsmax;
-int  saved_buf_drive;
-int  saved_buf_track;
-struct geometry saved_buf_geom;
-unsigned long   saved_current_partition;
-unsigned long   saved_current_drive;
-unsigned long   saved_cdrom;
-unsigned long   saved_part_start;
-unsigned long   saved_part_length;
-unsigned long   saved_filemax;
-unsigned long   saved_filepos;
+//int  saved_fsys_type;
+//int  saved_current_slice;
+//int  saved_fsmax;
+//int  saved_buf_drive;
+//int  saved_buf_track;
+//struct geometry saved_buf_geom;
+//unsigned long   saved_current_partition;
+//unsigned long   saved_current_drive;
+//unsigned long   saved_cdrom;
+//unsigned long   saved_part_start;
+//unsigned long   saved_part_length;
+//unsigned long   saved_filemax;
+//unsigned long   saved_filepos;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
 
-int debug = 0;
+//int debug = 0;
 struct geometry buf_geom;
 
 /* filesystem type */
@@ -68,90 +70,9 @@ sane_partition (void);
 
 /* FIXME: BSD evil hack */
 #include "freebsd.h"
-int bsd_evil_hack;
-
-#if 0
-
-struct fsys_entry fsys_table[NUM_FSYS + 1] =
-{
-  /* TFTP should come first because others don't handle net device.  */
-# ifdef FSYS_TFTP
-  {"tftp", tftp_mount, tftp_read, tftp_dir, tftp_close, 0},
-# endif
-# ifdef STAGE0
-  {"stage0", stage0_mount, stage0_read, stage0_dir, 0, 0},
-# endif
-# ifdef FSYS_FAT
-  {"fat", fat_mount, fat_read, fat_dir, 0, 0},
-# endif
-# ifdef FSYS_EXT2FS
-  {"ext2fs", ext2fs_mount, ext2fs_read, ext2fs_dir, 0, 0},
-# endif
-# ifdef FSYS_MINIX
-  {"minix", minix_mount, minix_read, minix_dir, 0, 0},
-# endif
-# ifdef FSYS_REISERFS
-  {"reiserfs", reiserfs_mount, reiserfs_read, reiserfs_dir, 0, reiserfs_embed},
-# endif
-# ifdef FSYS_VSTAFS
-  {"vstafs", vstafs_mount, vstafs_read, vstafs_dir, 0, 0},
-# endif
-# ifdef FSYS_JFS
-  {"jfs", jfs_mount, jfs_read, jfs_dir, 0, jfs_embed},
-# endif
-# ifdef FSYS_XFS
-  {"xfs", xfs_mount, xfs_read, xfs_dir, 0, 0},
-# endif
-# ifdef FSYS_UFS2
-  {"ufs2", ufs2_mount, ufs2_read, ufs2_dir, 0, ufs2_embed},
-# endif
-# ifdef FSYS_ISO9660
-  {"iso9660", iso9660_mount, iso9660_read, iso9660_dir, 0, 0},
-# endif
-  /* XX FFS should come last as it's superblock is commonly crossing tracks
-     on floppies from track 1 to 2, while others only use 1.  */
-# ifdef FSYS_FFS
-  {"ffs", ffs_mount, ffs_read, ffs_dir, 0, ffs_embed},
-# endif
-  {0, 0, 0, 0, 0, 0}
-};
-
-#endif
-
-/* These are defined in asm.S, and never be used elsewhere, so declare the
-   prototypes here.  */
-//extern int biosdisk_int13_extensions (int ax, int drive, void *dap);
-//extern int biosdisk_standard (int ah, int drive,
-//                              int coff, int hoff, int soff,
-//                              int nsec, int segment);
-//extern int check_int13_extensions (int drive);
-//extern int get_diskinfo_standard (int drive,
-//                                  unsigned long *cylinders,
-//                                  unsigned long *heads,
-//                                  unsigned long *sectors);
-
+//int bsd_evil_hack;
 
 #ifndef STAGE1_5
-
-void swap_fsys_bufs(void *buf1, void *buf2)
-{
-  unsigned long *b1 = (unsigned long *)buf1;
-  unsigned long *b2 = (unsigned long *)buf2;
-  unsigned long b;
-  int n;
-
-  // number of swapped dwords
-  n = (EXT_LEN + 3) >> 2;
-
-  while (n)
-  {
-    b   = *b1;
-    *b1 = *b2;
-    *b2 = b;
-
-    b1++; b2++; n--;
-  }
-}
 
 void set_boot_fsys(void)
 {
@@ -274,116 +195,6 @@ void fsys_by_num(int n, char *buf)
   grub_memmove((void *)(buf + m + t + k), ".mdl\0", 5);
 }
 
-#endif /* ! STAGE1_5 */
-
-int
-attempt_mount (void)
-{
-
-#ifndef STAGE1_5
-  char buf[0x100];
-  char *s;
-  char *fsys_name;
-  int  m, k, t, rc;
-/*
-  saved_fsys_type     = fsys_type;
-  saved_current_drive = current_drive;
-  saved_cdrom = cdrom_drive;
-  saved_current_slice = current_slice;
-  saved_current_partition = current_partition;
-  saved_fsmax = fsmax;
-  saved_part_start  = part_start;
-  saved_part_length = part_length;
-  saved_filemax   = filemax;
-  saved_filepos   = filepos;
-  saved_buf_drive = buf_drive;
-  saved_buf_track = buf_track;
-  grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
- */
-/*
-  __asm {
-    push  fsys_type
-    push  current_drive
-    push  cdrom_drive
-    push  current_slice
-    push  current_partition
-    push  fsmax
-    push  part_start
-    push  part_length
-    push  filemax
-    push  filepos
-    push  buf_drive
-    push  buf_track
-  }
- */
-
-  //set_boot_fsys();
-  //if (!stage0_mount())
-  //{
-  //  for (fsys_type = 0; fsys_type < num_fsys; fsys_type++) {
-  //    fsys_by_num(fsys_type, buf);
-  //
-  //    if (set_fsys(buf))
-  //      break;
-  //  }
-  //}
-
-  return stage0_mount();
-
-/*
-  if (!stage0_mount())
-  {
-    errnum = ERR_FSYS_MOUNT;
-    fsys_type = NUM_FSYS;
-  }
- */
-//  if (fsys_type == num_fsys && errnum == ERR_NONE)
-//    errnum = ERR_FSYS_MOUNT;
-  //if (fsys_type == NUM_FSYS && errnum == ERR_NONE)
-  //  errnum = ERR_FSYS_MOUNT;
-/*
-  __asm {
-    pop   buf_track
-    pop   buf_drive
-    pop   filepos
-    pop   filemax
-    pop   part_length
-    pop   part_start
-    pop   fsmax
-    pop   current_partition
-    pop   current_slice
-    pop   cdrom_drive
-    pop   current_drive
-    pop   fsys_type
-  }
- */
-/*
-  fsys_type = saved_fsys_type;
-  current_drive = saved_current_drive;
-  cdrom_drive = saved_cdrom;
-  current_slice = saved_current_slice;
-  current_partition = saved_current_partition;
-  fsmax = saved_fsmax;
-  part_start = saved_part_start;
-  part_length = saved_part_length;
-  filemax = saved_filemax;
-  filepos = saved_filepos;
-  buf_drive = saved_buf_drive;
-  buf_track = saved_buf_track;
-  grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
- */
-#else
-  //fsys_type = 0;
-  //if ((*(fsys_table[fsys_type].mount_func)) () != 1)
-  //if (!stage0_mount())
-  //  {
-  //    fsys_type = NUM_FSYS;
-  //    errnum = ERR_FSYS_MOUNT;
-  //  }
-  return stage0_mount();
-#endif
-}
-
 
 /*
  *  This performs a "mount" on the current device, both drive and partition
@@ -392,17 +203,21 @@ attempt_mount (void)
 int
 open_device (void)
 {
-  //if (open_partition ())
-  //  attempt_mount ();
-  if (!open_partition () || !attempt_mount ())
+  if (!(
+        ((current_drive == boot_drive) &&
+         (boot_drive != cdrom_drive) &&
+         (boot_drive >= 0x80) &&
+         open_partition_hiddensecs () &&
+         stage0_mount ()) ||
+        (open_partition () &&
+         stage0_mount ())
+        ))
     return 0;
 
   if (errnum != ERR_NONE)
     return 0;
 
   return 1;
-
-  //return open_partition() && attempt_mount();
 }
 
 /* open_device() wrapper. Attempts to set a filesystem
@@ -411,7 +226,6 @@ open_device (void)
 int
 open_device2(void)
 {
-#ifndef STAGE1_5
   char buf[0x100];
   int fst;
   unsigned int cd = current_drive;
@@ -436,32 +250,32 @@ open_device2(void)
     if (open_device())
       return 1;
   }
-#else
-  return open_device();
-#endif
   errnum = ERR_FSYS_MOUNT;
   return 0;
 }
 
+#endif /* ! STAGE1_5 */
 
 static char *
 setup_part (char *filename)
 {
 #ifdef STAGE1_5
 
-  if (! (filename = set_device (filename)))
-    {
-      current_drive = GRUB_INVALID_DRIVE;
-      return 0;
-    }
+  //if (! (filename = set_device (filename)))
+  //  {
+  //    current_drive = GRUB_INVALID_DRIVE;
+  //    return 0;
+  //  }
 
 # ifndef NO_BLOCK_FILES
   if (*filename != '/')
     open_partition ();
   else
 # endif /* ! NO_BLOCK_FILES */
-    open_device ();
-
+  {
+    open_partition_hiddensecs ();
+    stage0_mount ();
+  }
 #else /* ! STAGE1_5 */
 
   if (*filename == '(')
@@ -574,7 +388,7 @@ restart:
       while (list_addr < BLK_MAX_ADDR)
         {
           tmp = 0;
-          safe_parse_maxint (&ptr, &tmp);
+          safe_parse_maxint (&ptr, (long *)&tmp);
           errnum = 0;
 
           if (*ptr != '+')
@@ -596,7 +410,7 @@ restart:
           BLK_BLKSTART (list_addr) = tmp;
           ptr++;
 
-          if (!safe_parse_maxint (&ptr, &tmp)
+          if (!safe_parse_maxint (&ptr, (long *)&tmp)
               || tmp == 0
               || (*ptr && *ptr != ',' && *ptr != '/' && !isspace (*ptr)))
             {
@@ -775,6 +589,8 @@ grub_read (char *buf, int len)
   //return (*(fsys_table[fsys_type].read_func)) (buf, len);
 }
 
+#ifndef STAGE1_5
+
 /* Reposition a file offset.  */
 int
 grub_seek (int offset)
@@ -786,7 +602,6 @@ grub_seek (int offset)
   return offset;
 }
 
-#ifndef STAGE1_5
 int
 dir (char *dirname)
 {
@@ -814,7 +629,6 @@ dir (char *dirname)
 
   //return (*(fsys_table[fsys_type].dir_func)) (dirname);
 }
-#endif /* STAGE1_5 */
 
 void
 grub_close (void)
@@ -830,3 +644,5 @@ grub_close (void)
   //  if (fsys_table[fsys_type].close_func != 0)
   //    (*(fsys_table[fsys_type].close_func)) ();
 }
+
+#endif /* STAGE1_5 */

@@ -16,8 +16,6 @@
 #include "struc.h"
 
 lip1_t *l1, lip1;
-void *filetab_ptr = 0;
-
 int __cdecl (*fsd_init)(lip1_t *l);
 
 #pragma aux gateA20 "*"
@@ -29,12 +27,14 @@ unsigned long stage0base;
 unsigned long scratchaddr;    // 512-byte scratch area
 unsigned long bufferaddr;
 
-extern int mem_lower;
-extern int mem_upper;
-
 #pragma aux stage0base      "*"
 
 #ifndef STAGE1_5
+extern void *filetab_ptr = 0;
+
+extern int mem_lower;
+extern int mem_upper;
+
 extern unsigned char use_term;
 
 extern unsigned long extended_memory;
@@ -43,6 +43,10 @@ extern unsigned long extended_memory;
 #pragma aux mu_Read_wr      "*"
 #pragma aux mu_Close_wr     "*"
 #pragma aux mu_Terminate_wr "*"
+
+int lastpos(char c, char *s);
+void setlip2(lip2_t *l2);
+int blackbox_load(char *path, int bufno, void *p);
 
 unsigned short __cdecl
   mu_Open_wr(char *pName,
@@ -139,8 +143,8 @@ struct term_entry trm, *t = 0;
 /* Configuration got
    from .INI file      */
 _Packed struct {
-  char driveletter;
-  char multiboot;
+  unsigned char driveletter;
+  unsigned char multiboot;
   struct {
     char ignorecase;
     char **fsys_list;
@@ -177,15 +181,18 @@ char *fsd_dir     = "fsd/";           // uFSD's subdir
 char *term_dir    = "term/";          // term   subdir
 char *cfg_file    = "preldr.ini";     // .INI file
 
-#endif
-
-#pragma aux lip1 "*"
 #pragma aux lip2 "*"
 
 extern mu_Open;
 extern mu_Read;
 extern mu_Close;
 extern mu_Terminate;
+
+extern FileTable ft;
+
+#endif
+
+#pragma aux lip1 "*"
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
@@ -202,8 +209,6 @@ extern int           fsmax;
 extern int buf_drive;
 extern int buf_track;
 
-extern FileTable ft;
-
 extern unsigned short boot_flags;
 extern unsigned long  boot_drive;
 extern unsigned long  install_partition;
@@ -213,9 +218,6 @@ extern int fsmax;
 
 void __cdecl real_test(void);
 void __cdecl call_rm(fp_t);
-
-//void trap_3(void);
-//#pragma aux trap_3 "*"
 
 void idt_init(void);
 #pragma aux idt_init "*"
@@ -635,7 +637,7 @@ u_termctl(int termno)
   {
     printf("\r\nterminal loaded\r\n");
     if (trm.flags == TERM_NEED_INIT)
-      trm.startup();
+      trm.startup(0);
   }
   else
     return 0;
@@ -810,24 +812,23 @@ freeldr_seek (int offset)
 {
    return grub_seek(offset);
 }
-#endif
 
 void
 freeldr_close (void)
 {
-#ifndef STAGE1_5
    if (filetab_ptr)
    {
      // use 16-bit uFSD
      mu_Close_wr();
    }
    else
-#endif
    {
      // use 32-bit uFSD
      grub_close();
    }
 }
+
+#endif
 
 int  stage0_mount (void)
 {
@@ -844,13 +845,13 @@ int  stage0_dir (char *dirname)
   return l1->lip_fs_dir(dirname);
 }
 
+#ifndef STAGE1_5
+
 void stage0_close(void)
 {
   if (l1->lip_fs_close)
     l1->lip_fs_close();
 }
-
-#ifndef STAGE1_5
 
 int  stage0_embed(int *start_sector, int needed_sectors)
 {
@@ -888,8 +889,8 @@ void setlip1(lip1_t *l1)
 #ifndef STAGE1_5
   l1->lip_seek  = &freeldr_seek;
   l1->lip_term  = 0;
-#endif
   l1->lip_close = &freeldr_close;
+#endif
 
   //l->lip_memcheck = 0; //&grub_memcheck;
   l1->lip_memset   = &grub_memset;
@@ -907,12 +908,12 @@ void setlip1(lip1_t *l1)
   l1->lip_devread   = &devread;
   l1->lip_rawread   = &rawread;
 
+#ifndef STAGE1_5
   l1->lip_mem_lower = &mem_lower;
   l1->lip_mem_upper = &mem_upper;
-
+#endif
   l1->lip_filepos   = &filepos;
   l1->lip_filemax   = &filemax;
-
   l1->lip_buf_drive = &buf_drive;
   l1->lip_buf_track = &buf_track;
   l1->lip_buf_geom  = &buf_geom;
@@ -1061,7 +1062,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "default", 7))
      {
        line = skip_to(1, line);
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.term._default = n;
        else
          panic("process_cfg_line: incorrect default terminal!", "");
@@ -1082,7 +1083,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "base", 4))
      {
        line = strip(skip_to(1, line));
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.loader.base = n;
        else
          panic("process_cfg_line: incorrect loader load base value!", "");
@@ -1090,7 +1091,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "len", 3))
      {
        line = strip(skip_to(1, line));
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.loader.len = n;
        else
          panic("process_cfg_line: incorrect loader length value!", "");
@@ -1111,7 +1112,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "base", 4))
      {
        line = strip(skip_to(1, line));
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.extloader.base = n;
        else
          panic("process_cfg_line: incorrect extloader load base value!", "");
@@ -1119,7 +1120,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "len", 3))
      {
        line = strip(skip_to(1, line));
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.extloader.len = n;
        else
          panic("process_cfg_line: incorrect extloader length value!", "");
@@ -1141,7 +1142,7 @@ int process_cfg_line1(char *line)
      else if (abbrev(line, "base", 4))
      {
        line = strip(skip_to(1, line));
-       if (safe_parse_maxint(&line, &n))
+       if (safe_parse_maxint(&line, (long *)&n))
          conf.mini.base = n;
        else
          panic("process_cfg_line: incorrect minifsd load base value!", "");
@@ -1348,7 +1349,7 @@ void __cdecl set_addr (void)
 
   /* the correction shift added while relocating */
   //relshift = ldrbase - (PREFERRED_BASE + 0x10000);
-  preldr_size = 0x1000 + 0x4e00 + 0x2000;
+  preldr_size = 0x1000 + 0x4e00 + 0x2000 + 0x2000;
   /* int 13h buf--^  stack--^  preldr--^ (low) */
   relshift = ldrbase - (PREFERRED_BASE + preldr_size);
 
@@ -1555,7 +1556,7 @@ void set_ftable (int which_ldr)
   ft.ft_ldrlen = ldrlen; // 0x3800;
   ft.ft_museg  = (scratchaddr) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
                                          // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0x1000 + 0x4e00 + 0x2000; // 0x10000;     // It is empirically found maximal value
+  ft.ft_mulen  = 0x1000 + 0x4e00 + 0x2000 + 0x2000; // 0x10000;     // It is empirically found maximal value
   ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
   ft.ft_mfslen = mfslen;  // 0x95f0;
   ft.ft_ripseg = 0; // 0x800;   // end of mfs
@@ -1662,7 +1663,7 @@ void determine_boot_drive(void)
 #endif
 #endif
 
-int init(void)
+void init(void)
 {
 #ifndef STAGE1_5
   char cfg[0x20];
@@ -1706,7 +1707,12 @@ int init(void)
       || ! (geom.flags & BIOSDISK_FLAG_CDROM))
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
+  {
     cdrom_drive = boot_drive;
+    //part_start = 0;
+    //part_length = geom.total_sectors;
+    //current_slice = 0;
+  }
 #else
   cdrom_drive = GRUB_INVALID_DRIVE;
 #endif
@@ -1719,16 +1725,16 @@ int init(void)
 #ifndef STAGE1_5
   // backup uFSD
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
-#endif
 
   /* call uFSD init (set linkage) */
   if (!filetab_ptr)
+#endif
   {
     fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
     fsd_init(l1);
   }
-
 #ifndef STAGE1_5
+
 
   /* build config filename */
   //grub_memmove(cfg, "()", 2); /* boot partition number */
@@ -1830,9 +1836,7 @@ int init(void)
     /* Set filetable values for os2ldr */
     set_ftable(1);
   }
-
 #else
-
   /* Load a pre-loader full version */
   rc = freeldr_open(preldr);
 
@@ -1846,14 +1850,13 @@ int init(void)
         hlt
       }
     }
-  } else __asm {
-    cli
-    hlt
+  } else {
+    __asm {
+      cli
+      hlt
+    }
   }
-
 #endif
-
-  return 0;
 }
 
 #pragma aux init     "_*"

@@ -26,6 +26,7 @@
 //# include <grub.h>
 //#endif
 
+
 /*
  *  Shared BIOS/boot data.
  */
@@ -34,61 +35,17 @@ unsigned long saved_drive; // = -1;
 unsigned long saved_partition; // = -1;
 unsigned long cdrom_drive; // = -1;
 
-extern unsigned long stage0base;
-
 /*
  *  Error code stuff.
  */
 
-#pragma aux stage0base "*"
 #pragma aux errnum "*"
 grub_error_t errnum = ERR_NONE;
 
 #ifndef STAGE1_5
-/*
-char *err_list[] =
-{
-  [ERR_NONE] = 0,
-  [ERR_BAD_ARGUMENT] = "Invalid argument",
-  [ERR_BAD_FILENAME] =
-  "Filename must be either an absolute pathname or blocklist",
-  [ERR_BAD_FILETYPE] = "Bad file or directory type",
-  [ERR_BAD_GZIP_DATA] = "Bad or corrupt data while decompressing file",
-  [ERR_BAD_GZIP_HEADER] = "Bad or incompatible header in compressed file",
-  [ERR_BAD_PART_TABLE] = "Partition table invalid or corrupt",
-  [ERR_BAD_VERSION] = "Mismatched or corrupt version of stage1/stage2",
-  [ERR_BELOW_1MB] = "Loading below 1MB is not supported",
-  [ERR_BOOT_COMMAND] = "Kernel must be loaded before booting",
-  [ERR_BOOT_FAILURE] = "Unknown boot failure",
-  [ERR_BOOT_FEATURES] = "Unsupported Multiboot features requested",
-  [ERR_DEV_FORMAT] = "Unrecognized device string",
-  [ERR_DEV_NEED_INIT] = "Device not initialized yet",
-  [ERR_DEV_VALUES] = "Invalid device requested",
-  [ERR_EXEC_FORMAT] = "Invalid or unsupported executable format",
-  [ERR_FILELENGTH] =
-  "Filesystem compatibility error, cannot read whole file",
-  [ERR_FILE_NOT_FOUND] = "File not found",
-  [ERR_FSYS_CORRUPT] = "Inconsistent filesystem structure",
-  [ERR_FSYS_MOUNT] = "Cannot mount selected partition",
-  [ERR_GEOM] = "Selected cylinder exceeds maximum supported by BIOS",
-  [ERR_NEED_LX_KERNEL] = "Linux kernel must be loaded before initrd",
-  [ERR_NEED_MB_KERNEL] = "Multiboot kernel must be loaded before modules",
-  [ERR_NO_DISK] = "Selected disk does not exist",
-  [ERR_NO_DISK_SPACE] = "No spare sectors on the disk",
-  [ERR_NO_PART] = "No such partition",
-  [ERR_NUMBER_OVERFLOW] = "Overflow while parsing number",
-  [ERR_NUMBER_PARSING] = "Error while parsing number",
-  [ERR_OUTSIDE_PART] = "Attempt to access block outside partition",
-  [ERR_PRIVILEGED] = "Must be authenticated",
-  [ERR_READ] = "Disk read error",
-  [ERR_SYMLINK_LOOP] = "Too many symbolic links",
-  [ERR_UNALIGNED] = "File is not sector aligned",
-  [ERR_UNRECOGNIZED] = "Unrecognized command",
-  [ERR_WONT_FIT] = "Selected item cannot fit into memory",
-  [ERR_WRITE] = "Disk write error",
-  [ERR_BADMODADDR] = "Bad modaddr",
-};
-*/
+
+extern unsigned long stage0base;
+#pragma aux stage0base "*"
 
 extern struct multiboot_info mbi;
 extern unsigned long  boot_drive;
@@ -154,8 +111,8 @@ mmap_avail_at (unsigned long bottom)
   while (cont);
 
   /* For now, GRUB assumes 32bits addresses, so...  */
-  if (top > 0xFFFFFFFF)
-    top = 0xFFFFFFFF;
+  //if (top > 0xFFFFFFFF)
+  //  top = 0xFFFFFFFF;
 
   return (unsigned long) top - bottom;
 }
@@ -176,7 +133,6 @@ init_bios_info (void)
   mbi.mem_lower = get_memsize (0);
   mbi.mem_upper = get_memsize (1);
 
-#ifndef STAGE1_5
   /*
    *  We need to call this somewhere before trying to put data
    *  above 1 MB, since without calling it, address line 20 will be wired
@@ -336,8 +292,6 @@ init_bios_info (void)
 
   if (apm_bios_info.version)
     mbi.flags |= MB_INFO_APM_TABLE;
-
-#endif /* STAGE1_5 */
 
   /* Set boot drive and partition.  */
   //saved_drive = boot_drive;

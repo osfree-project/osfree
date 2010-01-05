@@ -270,7 +270,7 @@ serial_translate_key_sequence (void)
     };
 
   /* The buffer must start with ``ESC [''.  */
-  if (*((unsigned short *) input_buf) != ('\e' | ('[' << 8)))
+  if (*((unsigned short *) input_buf) != ('\027' | ('[' << 8)))
     return;
 
   if (npending >= 3)
@@ -511,7 +511,7 @@ serial_init(char *arg)
           char *p = arg + sizeof ("--unit=") - 1;
           int unit;
 
-          if (! safe_parse_maxint (&p, &unit))
+          if (! safe_parse_maxint (&p, (long *)&unit))
             return 1;
 
           if (unit < 0 || unit > 3)
@@ -527,7 +527,7 @@ serial_init(char *arg)
           char *p = arg + sizeof ("--speed=") - 1;
           int num;
 
-          if (! safe_parse_maxint (&p, &num))
+          if (! safe_parse_maxint (&p, (long *)&num))
             return 1;
 
           speed = (unsigned int) num;
@@ -537,7 +537,7 @@ serial_init(char *arg)
           char *p = arg + sizeof ("--port=") - 1;
           int num;
 
-          if (! safe_parse_maxint (&p, &num))
+          if (! safe_parse_maxint (&p, (long *)&num))
             return 1;
 
           port = (unsigned short) num;
@@ -547,7 +547,7 @@ serial_init(char *arg)
           char *p = arg + sizeof ("--word=") - 1;
           int len;
 
-          if (! safe_parse_maxint (&p, &len))
+          if (! safe_parse_maxint (&p, (long *)&len))
             return 1;
 
           switch (len)
@@ -566,7 +566,7 @@ serial_init(char *arg)
           char *p = arg + sizeof ("--stop=") - 1;
           int len;
 
-          if (! safe_parse_maxint (&p, &len))
+          if (! safe_parse_maxint (&p, (long *)&len))
             return 1;
 
           switch (len)

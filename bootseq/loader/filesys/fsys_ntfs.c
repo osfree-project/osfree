@@ -1068,7 +1068,7 @@ static int list_file(char* cur_mft,char *fn,char *pos)
         break;
       np=pos+0x52;
       ns=valueat(np,-2,unsigned char);
-      uni2ansi((unsigned short *)np, utf8, ns);
+      uni2ansi((unsigned short *)np, (char *)utf8, ns);
       if (((print_possibilities) && (ns>=len)) ||
           ((! print_possibilities) && (ns==len)))
         {

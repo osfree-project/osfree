@@ -225,7 +225,7 @@ iso9660_dir (char *dirname)
               rr_len = (idr->length.l - idr->name_len.l
                         - sizeof(struct iso_directory_record)
                         + sizeof(idr->name));
-              rr_ptr.ptr = ((unsigned char *)idr + idr->name_len.l
+              rr_ptr.ptr = ((char *)idr + idr->name_len.l
                             + sizeof(struct iso_directory_record)
                             - sizeof(idr->name));
               if (rr_ptr.i & 1)
@@ -356,11 +356,11 @@ iso9660_dir (char *dirname)
                           && (unsigned char *)name < RRCONT_BUF + ISO_SECTOR_SIZE )
                         {
                           (*pgrub_memmove)(NAME_BUF, name, name_len);
-                          name = NAME_BUF;
+                          name = (char *)NAME_BUF;
                         }
-                      rr_ptr.ptr = RRCONT_BUF + ce_ptr->u.ce.offset.l;
+                      rr_ptr.ptr = (char *)RRCONT_BUF + ce_ptr->u.ce.offset.l;
                       rr_len = ce_ptr->u.ce.size.l;
-                      if (!iso9660_devread(ce_ptr->u.ce.extent.l, 0, ISO_SECTOR_SIZE, RRCONT_BUF))
+                      if (!iso9660_devread(ce_ptr->u.ce.extent.l, 0, ISO_SECTOR_SIZE, (char *)RRCONT_BUF))
                         {
                           *perrnum = 0;   /* this is not fatal. */
                           break;

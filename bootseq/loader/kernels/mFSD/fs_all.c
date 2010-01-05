@@ -131,6 +131,10 @@ int far pascal _loadds FS_INIT(
   //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", p[i]);
   kprintf("\n");
 
+  //__asm {
+  //  int 3
+  //}
+
   return NO_ERROR;
 }
 
@@ -331,6 +335,10 @@ int far pascal _loadds FS_MOUNT(
   char far *p;
   int rc;
   int i;
+
+  //__asm {
+  //  int 3
+  //}
 
   kprintf("**** FS_MOUNT\n");
 

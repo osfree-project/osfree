@@ -159,7 +159,8 @@ void init(lip1_t *l, struct term_entry *te, unsigned int shift)
   te->setcolorstate = &serial_setcolorstate;
   te->setcolor      = 0;
   te->setcursor     = 0;
-  te->init          = &serial_init;
+  te->startup       = &serial_init;
+  te->shutdown      = 0;
 #else
 #ifdef TERM_GRAPHICS
   te->flags         = TERM_NEED_INIT;

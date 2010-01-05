@@ -268,6 +268,10 @@ int far pascal _loadds MFS_INIT(
     char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
     unsigned short selector;
 
+    //__asm {
+    //  int 3
+    //}
+
     // mbi as RIPL data
     mbi = *((unsigned long far *)bootdata);
 

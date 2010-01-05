@@ -55,10 +55,10 @@ char splashimage[64] = "/boot/loader/splas.xpm";
 
 #define VSHADOW VSHADOW1
 /* 8x16 dot array, total chars = 80*30. plano size = 80*30*16 = 38400 bytes */
-static unsigned char *VSHADOW1 = (unsigned char *)0x3A0000;	//unsigned char VSHADOW1[38400];
-static unsigned char *VSHADOW2 = (unsigned char *)0x3A9600;	//unsigned char VSHADOW2[38400];
-static unsigned char *VSHADOW4 = (unsigned char *)0x3B2C00;	//unsigned char VSHADOW4[38400];
-static unsigned char *VSHADOW8 = (unsigned char *)0x3BC200;	//unsigned char VSHADOW8[38400];
+static unsigned char *VSHADOW1 = (unsigned char *)0x3A0000;     //unsigned char VSHADOW1[38400];
+static unsigned char *VSHADOW2 = (unsigned char *)0x3A9600;     //unsigned char VSHADOW2[38400];
+static unsigned char *VSHADOW4 = (unsigned char *)0x3B2C00;     //unsigned char VSHADOW4[38400];
+static unsigned char *VSHADOW8 = (unsigned char *)0x3BC200;     //unsigned char VSHADOW8[38400];
 /* text buffer has to be kept around so that we can write things as we
  * scroll and the like */
 //static unsigned short text[80 * 30];
@@ -105,8 +105,8 @@ static int read_image (char *s);
 static inline void
 outb (unsigned short port, unsigned char value)
 {
-  //asm volatile ("outb	%b0, %w1" : : "a" (value), "Nd" (port));
-  //asm volatile ("outb	%%al, $0x80" : : );
+  //asm volatile ("outb %b0, %w1" : : "a" (value), "Nd" (port));
+  //asm volatile ("outb %%al, $0x80" : : );
   __asm {
     mov dx, port
     mov al, value
@@ -141,8 +141,8 @@ static void BitMask(int value) {
 /* Initialize a vga16 graphics display with the palette based off of
  * the image in splashimage.  If the image doesn't exist, leave graphics
  * mode.  */
-int
-graphics_init (void)
+int __cdecl
+graphics_init (char *args)
 {
     /* graphics mode will corrupt the extended memory. so we should
      * invalidate the kernel_type. */
@@ -165,14 +165,14 @@ graphics_init (void)
     graphics_inited = 1;
 
     /* make sure that the highlight color is set correctly */
-    graphics_highlight_color = ((graphics_normal_color >> 4) | 
-				((graphics_normal_color & 0xf) << 4));
+    graphics_highlight_color = ((graphics_normal_color >> 4) |
+                                ((graphics_normal_color & 0xf) << 4));
 
     return 1;
 }
 
 /* Leave graphics mode */
-void
+void __cdecl
 graphics_end (void)
 {
     if (graphics_inited)
@@ -183,7 +183,7 @@ graphics_end (void)
 }
 
 /* Print ch on the screen.  Handle any needed scrolling or the like */
-void
+void __cdecl
 graphics_putchar (int ch)
 {
     ch &= 0xff;
@@ -194,11 +194,11 @@ graphics_putchar (int ch)
         if (fonty + 1 < y1)
             graphics_gotoxy(fontx, fonty + 1);
         else
-	{
-	    graphics_cursor(0);
+        {
+            graphics_cursor(0);
             graphics_scroll();
-	    graphics_cursor(1);
-	}
+            graphics_cursor(1);
+        }
         //graphics_cursor(1);
         return;
     } else if (ch == '\r') {
@@ -221,10 +221,10 @@ graphics_putchar (int ch)
         if (fonty + 1 < y1)
             graphics_setxy(x0, fonty + 1);
         else
-	{
+        {
             graphics_setxy(x0, fonty);
             graphics_scroll();
-	}
+        }
     } else {
         graphics_setxy(fontx + 1, fonty);
     }
@@ -233,13 +233,13 @@ graphics_putchar (int ch)
 }
 
 /* get the current location of the cursor */
-int
+int __cdecl
 graphics_getxy(void)
 {
     return (fontx << 8) | fonty;
 }
 
-void
+void __cdecl
 graphics_gotoxy (int x, int y)
 {
     graphics_cursor(0);
@@ -249,7 +249,7 @@ graphics_gotoxy (int x, int y)
     graphics_cursor(1);
 }
 
-void
+void __cdecl
 graphics_cls (void)
 {
     int i;
@@ -287,38 +287,38 @@ graphics_cls (void)
     (*pgrub_memmove)(mem, s8, 38400);
 
     MapMask(15);
- 
+
 }
 
-void
+void __cdecl
 graphics_setcolorstate (color_state state)
 {
     switch (state)
     {
-	case COLOR_STATE_STANDARD:
-		graphics_current_color = graphics_standard_color;
-		break;
-	case COLOR_STATE_NORMAL:
-		graphics_current_color = graphics_normal_color;
-		break;
-	case COLOR_STATE_HIGHLIGHT:
-		graphics_current_color = graphics_highlight_color;
-		break;
-	//case COLOR_STATE_HELPTEXT:
-	//	graphics_current_color = graphics_helptext_color;
-	//	break;
-	//case COLOR_STATE_HEADING:
-	//	graphics_current_color = graphics_heading_color;
-	//	break;
-	default:
-		graphics_current_color = graphics_standard_color;
-		break;
+        case COLOR_STATE_STANDARD:
+                graphics_current_color = graphics_standard_color;
+                break;
+        case COLOR_STATE_NORMAL:
+                graphics_current_color = graphics_normal_color;
+                break;
+        case COLOR_STATE_HIGHLIGHT:
+                graphics_current_color = graphics_highlight_color;
+                break;
+        //case COLOR_STATE_HELPTEXT:
+        //      graphics_current_color = graphics_helptext_color;
+        //      break;
+        //case COLOR_STATE_HEADING:
+        //      graphics_current_color = graphics_heading_color;
+        //      break;
+        default:
+                graphics_current_color = graphics_standard_color;
+                break;
     }
 
     graphics_color_state = state;
 }
 
-void
+void __cdecl
 graphics_setcolor (int normal_color, int highlight_color) //, int helptext_color, int heading_color)
 {
     graphics_normal_color = normal_color;
@@ -329,7 +329,7 @@ graphics_setcolor (int normal_color, int highlight_color) //, int helptext_color
     graphics_setcolorstate (graphics_color_state);
 }
 
-int
+int __cdecl
 graphics_setcursor (int on)
 {
     /* FIXME: we don't have a cursor in graphics */
@@ -353,19 +353,19 @@ read_image (char *s)
 
     if (! (*pgrub_open)(s))
     {
-	*perrnum = 0;
-	//graphics_set_palette(1, 0, 0, 0);
-	
-	for (i = 0; i < 38400 / 4; i++)
-		((long *)s1)[i] = ((long *)s2)[i] = ((long *)s4)[i] = ((long *)s8)[i] = 0;
+        *perrnum = 0;
+        //graphics_set_palette(1, 0, 0, 0);
 
-	//for (y = 0, len = 0; y < 480; y++, len += 80) {
-	//    for (x = 0; x < 640; x++) {
-	//	s1[len + (x >> 3)] |= 0x80 >> (x & 7);
-	//    }
-	//}
+        for (i = 0; i < 38400 / 4; i++)
+                ((long *)s1)[i] = ((long *)s2)[i] = ((long *)s4)[i] = ((long *)s8)[i] = 0;
 
-        goto set_palette;	//return 0;
+        //for (y = 0, len = 0; y < 480; y++, len += 80) {
+        //    for (x = 0; x < 640; x++) {
+        //      s1[len + (x >> 3)] |= 0x80 >> (x & 7);
+        //    }
+        //}
+
+        goto set_palette;       //return 0;
     }
 
     /* read header */
@@ -373,7 +373,7 @@ read_image (char *s)
         (*pgrub_close)();
         return 0;
     }
-    
+
     /* parse info */
     while ((*pgrub_read)((char *)&c, 1)) { // , 0xedde0d90)
         if (c == '"')
@@ -445,7 +445,7 @@ read_image (char *s)
     x = y = len = 0;
 
     for (i = 0; i < 38400 / 4; i++)
-	((long *)s1)[i] = ((long *)s2)[i] = ((long *)s4)[i] = ((long *)s8)[i] = 0;
+        ((long *)s1)[i] = ((long *)s2)[i] = ((long *)s4)[i] = ((long *)s8)[i] = 0;
 
     /* parse xpm data */
     while (y < height) {
@@ -489,11 +489,11 @@ read_image (char *s)
 
 set_palette:
 
-    graphics_set_palette(0, (background >> 16), (background >> 8) & 63, 
+    graphics_set_palette(0, (background >> 16), (background >> 8) & 63,
                 background & 63);
-    graphics_set_palette(15, (foreground >> 16), (foreground >> 8) & 63, 
+    graphics_set_palette(15, (foreground >> 16), (foreground >> 8) & 63,
                 foreground & 63);
-    graphics_set_palette(0x11, (border >> 16), (border >> 8) & 63, 
+    graphics_set_palette(0x11, (border >> 16), (border >> 8) & 63,
                          border & 63);
 
     return 1;
@@ -546,7 +546,7 @@ graphics_scroll (void)
         graphics_gotoxy (x0, j - 1);
 
         for (i = x0; i < x1; i++)
-       	{
+        {
             graphics_putchar (text[j * 80 + i]);
         }
     }
@@ -579,7 +579,7 @@ graphics_cursor (int set)
     offset = cursorY * 80 + fontx;
     ch = text[fonty * 80 + fontx] & 0xff;
     if (ch != ' ' || ! disable_space_highlight)
-	invert = (text[fonty * 80 + fontx] & /*0xff00*/ 0xffff0000) != 0;
+        invert = (text[fonty * 80 + fontx] & /*0xff00*/ 0xffff0000) != 0;
     pat = font8x16 + (ch << 4);
 
     mem = (unsigned char*)VIDEOMEM + offset;
@@ -589,7 +589,7 @@ graphics_cursor (int set)
         MapMask(15);
         ptr = mem;
         for (i = 0; i < 16; i++, ptr += 80)
-       	{
+        {
             cursorBuf[i] = pat[i];
             *ptr = ~pat[i];
         }
@@ -600,64 +600,64 @@ graphics_cursor (int set)
       for (i = 0; i < 16; i++)
       {
         mask[i] = pat[i];
-	if (i < 15)
-		mask[i] |= pat[i+1];
-	if (i > 0)
-		mask[i] |= pat[i-1];
+        if (i < 15)
+                mask[i] |= pat[i+1];
+        if (i > 0)
+                mask[i] |= pat[i-1];
         mask[i] |= (mask[i] << 1) | (mask[i] >> 1);
-	mask[i] = ~(mask[i]);
+        mask[i] = ~(mask[i]);
       }
 
     for (i = 0; i < 16; i++, offset += 80)
     {
-	unsigned char m, p, c1, c2, c4, c8;
+        unsigned char m, p, c1, c2, c4, c8;
 
-	p = pat[i];
+        p = pat[i];
 
-	if (invert)
-	{
-		p = ~p;
-		chr[i     ] = p;
-		chr[16 + i] = p;
-		chr[32 + i] = p;
-		chr[48 + i] = p;
-		continue;
-	}
-
-	c1 = ((unsigned char*)VSHADOW1)[offset];
-	c2 = ((unsigned char*)VSHADOW2)[offset];
-	c4 = ((unsigned char*)VSHADOW4)[offset];
-	c8 = ((unsigned char*)VSHADOW8)[offset];
-
-	if (outline)
-	{
-		m = mask[i];
-
-		c1 &= m;
-		c2 &= m;
-		c4 &= m;
-		c8 &= m;
-	}
-	
-	c1 |= p;
-	c2 |= p;
-	c4 |= p;
-	c8 |= p;
-
-#if 0	
         if (invert)
-	{
-		c1 = ~c1;
-		c2 = ~c2;
-		c4 = ~c4;
-		c8 = ~c8;
-	}
+        {
+                p = ~p;
+                chr[i     ] = p;
+                chr[16 + i] = p;
+                chr[32 + i] = p;
+                chr[48 + i] = p;
+                continue;
+        }
+
+        c1 = ((unsigned char*)VSHADOW1)[offset];
+        c2 = ((unsigned char*)VSHADOW2)[offset];
+        c4 = ((unsigned char*)VSHADOW4)[offset];
+        c8 = ((unsigned char*)VSHADOW8)[offset];
+
+        if (outline)
+        {
+                m = mask[i];
+
+                c1 &= m;
+                c2 &= m;
+                c4 &= m;
+                c8 &= m;
+        }
+
+        c1 |= p;
+        c2 |= p;
+        c4 |= p;
+        c8 |= p;
+
+#if 0
+        if (invert)
+        {
+                c1 = ~c1;
+                c2 = ~c2;
+                c4 = ~c4;
+                c8 = ~c8;
+        }
 #endif
 
-	chr[i     ] = c1;
-	chr[16 + i] = c2;
-	chr[32 + i] = c4;
-	chr[48 + i] = c8;
+        chr[i     ] = c1;
+        chr[16 + i] = c2;
+        chr[32 + i] = c4;
+        chr[48 + i] = c8;
     }
 
     offset = 0;

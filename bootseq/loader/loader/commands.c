@@ -547,7 +547,7 @@ modaddr_func (char *arg, int flags)
   switch (kernel_type)
     {
     case KERNEL_TYPE_MULTIBOOT:
-      if (safe_parse_maxint(&arg, &addr))
+      if (safe_parse_maxint(&arg, (long *)&addr))
         {
           set_load_addr(addr);
           break;
@@ -629,7 +629,7 @@ vbeset_func (char *arg, int flags)
       return 1;
     }
 
-  safe_parse_maxint (&arg, &mode_number);
+  safe_parse_maxint (&arg, (long *)&mode_number);
 
   if (vbe_mode_set(&controller, mode_number,
                    &mode, (unsigned int *)&pmif_segoff,
@@ -1094,7 +1094,7 @@ toggle_func(char *arg, int flags)
           if (*a++ != '=')
             goto bad_arg;
 
-          if (!safe_parse_maxint(&a, &b))
+          if (!safe_parse_maxint(&a, (long *)&b))
             goto bad_arg;
 
           if ((s = toggle_find_slot(k)) == -1)
@@ -1328,7 +1328,7 @@ int
 default_func(char *arg, int flags)
 {
   int n;
-  safe_parse_maxint(&arg, &n);
+  safe_parse_maxint(&arg, (long *)&n);
   default_item = n;
   return 0;
 }
@@ -1345,7 +1345,7 @@ static struct builtin builtin_default =
 int
 timeout_func(char *arg, int flags)
 {
-  safe_parse_maxint(&arg, &menu_timeout);
+  safe_parse_maxint(&arg, (long *)&menu_timeout);
   return 0;
 }
 
@@ -1363,7 +1363,7 @@ color_func(char *arg, int flags)
 {
   int color;
 
-  safe_parse_maxint(&arg, &color);
+  safe_parse_maxint(&arg, (long *)&color);
   background_color    = color & 0xff;
   foreground_color    = (color >> 8)  & 0xff;
   background_color_hl = (color >> 16) & 0xff;
@@ -1386,7 +1386,7 @@ static struct builtin builtin_color =
 int
 width_func(char *arg, int flags)
 {
-  safe_parse_maxint(&arg, &menu_width);
+  safe_parse_maxint(&arg, (long *)&menu_width);
   return 0;
 }
 
@@ -1402,7 +1402,7 @@ static struct builtin builtin_width =
 int
 height_func(char *arg, int flags)
 {
-  safe_parse_maxint(&arg, &menu_height);
+  safe_parse_maxint(&arg, (long *)&menu_height);
   return 0;
 }
 
@@ -1420,7 +1420,7 @@ screen_func(char *arg, int flags)
 {
   int screen;
 
-  safe_parse_maxint(&arg, &screen);
+  safe_parse_maxint(&arg, (long *)&screen);
   screen_bg_color    = screen & 0xff;
   screen_fg_color    = (screen >> 8)  & 0xff;
   screen_bg_color_hl = (screen >> 16) & 0xff;
@@ -1465,7 +1465,7 @@ os2ldr_func(char *arg, int flags)
   if (s = strstr(arg, "--ldrlen"))
   {
     s = skip_to(1, s);
-    safe_parse_maxint(&s, &n);
+    safe_parse_maxint(&s, (long *)&n);
     u_parm(PARM_LDRLEN, ACT_SET, (unsigned int *)&n);
   }
 
@@ -1502,7 +1502,7 @@ serial_func (char *arg, int flags)
 {
   t = u_termctl(2);
 
-  return t->init(arg);
+  return t->startup(arg);
 }
 
 static struct builtin builtin_serial =
@@ -1528,7 +1528,7 @@ write_func (char *arg, int flags)
   unsigned long val;
   char *str, *s, *p;
 
-  safe_parse_maxint(&arg, &addr);
+  safe_parse_maxint(&arg, (long *)&addr);
   p = (char *)addr;
   str = skip_to(0, arg);
 
@@ -1544,7 +1544,7 @@ write_func (char *arg, int flags)
   }
   else
   {
-    if (safe_parse_maxint(&str, &val))
+    if (safe_parse_maxint(&str, (long *)&val))
     {
       *((unsigned long *)p) = val;
       return 0;

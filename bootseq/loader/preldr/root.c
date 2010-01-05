@@ -70,7 +70,7 @@ real_mkroot (char *arg, int attempt_mount)
     {
       /* BSD and chainloading evil hacks !!  */
       biasptr = skip_to (0, next);
-      safe_parse_maxint (&biasptr, &hdbias);
+      safe_parse_maxint (&biasptr, (long *)&hdbias);
       errnum = 0;
       bootdev = set_bootdev (hdbias);
       if (errnum)
