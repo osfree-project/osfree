@@ -116,7 +116,7 @@ CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.
 !ifeq ENV OS2
 COMSPEC   = $(OS_SHELL)          # Shell
 OS2_SHELL = $(OS_SHELL)          #
-RN  = @ren                       # Rename command
+RN  = move                       # Rename command
 !else
 !ifeq ENV Windows
 RN  = move                       # Rename command
