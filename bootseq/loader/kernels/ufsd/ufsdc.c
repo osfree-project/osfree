@@ -19,7 +19,10 @@ int assign_drvletter (char *mode);
 /* Config.sys preprocessor/editor callback */
 void (*callback)(unsigned long addr,
                  unsigned long size,
-                 char drvletter);
+                 char drvletter,
+                 struct term_entry *term);
+
+extern struct term_entry *t;
 
 extern mu_Open;
 extern mu_Read;
@@ -29,6 +32,7 @@ extern mu_Terminate;
 extern unsigned short boot_flags;
 extern unsigned long  boot_drive;
 extern FileTable      ft;
+extern struct term_entry *t;
 
 extern unsigned long  bss_end;
 extern stack_bottom;
@@ -70,6 +74,7 @@ int toupper (int c);
 
 int kprintf(const char *format, ...);
 void comout(unsigned short port, unsigned char c);
+void terminit(void);
 
 void init (void)
 {
@@ -262,7 +267,7 @@ patch_cfgsys(void)
   {
     /* Call config.sys preprocessor/editor
        routine outside microfsd            */
-    callback(fileaddr, filemax, drvletter);
+    callback(fileaddr, filemax, drvletter, t);
     ufs_close();
   }
 }
@@ -281,6 +286,9 @@ void cmain (void)
   long speed = 9600;
   char *pp, *r;
   int  i;
+
+  // init terminal
+  terminit ();
 
   if (m->flags & MB_INFO_CMDLINE)
   {

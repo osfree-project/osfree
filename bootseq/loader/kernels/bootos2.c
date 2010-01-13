@@ -27,7 +27,9 @@ extern unsigned long mfsd_start;
 /* mFSD size                   */
 extern unsigned long mfsd_size;
 
+char cfged = 0;
 char debug = 0;
+unsigned long cur_addr;
 
 int kprintf(const char *format, ...);
 int serial_init (long port, long speed,
@@ -76,7 +78,6 @@ void mbi_reloc(void)
   struct mod_list       *mod;
   struct multiboot_info *mbi_new;
   struct mod_list       *mod_new;
-  unsigned long         cur_addr;
   char                  *p;
 
   mod = (struct mod_list *)m->mods_addr;
@@ -156,6 +157,7 @@ void mbi_reloc(void)
     m->boot_loader_name = cur_addr;
     kprintf("boot_loader_name: %s\n", cur_addr);
   }
+  cur_addr += size;
 }
 
 int cmain(void)
@@ -168,6 +170,11 @@ int cmain(void)
   long speed = 9600;
   struct mod_list *mod;
   unsigned long cur_addr;
+
+  if (p = strstr((char *)m->cmdline, "--cfged"))
+  {
+    cfged = 1;
+  }
 
   if (p = strstr((char *)m->cmdline, "--debug"))
   {

@@ -443,7 +443,7 @@ console_cls:
 ;
 
 console_cursor_state    db      1
-console_cursor_shape       dw      0
+console_cursor_shape    dw      0
 
 console_setcursor:
         push    ebp

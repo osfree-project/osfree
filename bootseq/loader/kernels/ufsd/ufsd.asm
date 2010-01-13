@@ -47,7 +47,7 @@ include loader.inc
 include bpb.inc
 
 BASE1              equ     REL1_BASE - 0x10000
-_16BIT_SIZE        equ     0x600
+_16BIT_SIZE        equ     0x800
 VIDEO_BUF          equ     0xb8000
 
 _TEXT16  segment dword public 'CODE' use16

@@ -17,7 +17,6 @@ int grub_memcmp (const char *s1, const char *s2, int n);
 int kprintf(const char *format, ...);
 int rawread (int drive, int sector, int byte_offset, int byte_len, char *buf);
 int get_disk_type(int driveno, int *status);
-void printmsg(char *);
 
 #define PART_TABLE_OFFSET 0x1be
 
@@ -33,22 +32,6 @@ extern grub_error_t errnum;
 #pragma aux boot_drive   "*"
 
 extern char buf[];
-
-int scrprintf(const char *format, ...)
-{
-  va_list arg;
-
-  if (!debug)
-    return 1;
-
-  va_start(arg, format);
-  vsprintf(buf, format, arg);
-  va_end(arg);
-
-  printmsg(buf);
-
-  return 0;
-}
 
 // danidasd supported partition types
 char default_part_types[] = {
