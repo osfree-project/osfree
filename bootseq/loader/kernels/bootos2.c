@@ -27,6 +27,7 @@ extern unsigned long mfsd_start;
 /* mFSD size                   */
 extern unsigned long mfsd_size;
 
+char autopreload = 0;
 char cfged = 0;
 char debug = 0;
 unsigned long cur_addr;
@@ -169,7 +170,11 @@ int cmain(void)
   long port = 0x3f8;
   long speed = 9600;
   struct mod_list *mod;
-  unsigned long cur_addr;
+
+  if (p = strstr((char *)m->cmdline, "--auto-preload"))
+  {
+    autopreload = 1;
+  }
 
   if (p = strstr((char *)m->cmdline, "--cfged"))
   {
@@ -200,9 +205,19 @@ int cmain(void)
   kprintf("comport = 0x%x\n", port);
 
   // relocate mbi info after all modules
-  kprintf("Relocating MBI info...\n");
-  mbi_reloc();
-  kprintf("done.\n");
+  //kprintf("Relocating MBI info...\n");
+  //mbi_reloc();
+  //kprintf("done.\n");
+
+  mod = (struct mod_list *)m->mods_addr;
+  // find the address of modules end
+  // pointer to the last module in the list
+  mod += m->mods_count - 1;
+  // last module end
+  p = (char *)mod->mod_end;
+  // skip a string after a module (cmdline for FreeLdr, none for GRUB)
+  while (*p++) ;
+  cur_addr = ((unsigned long)(p + 0xfff)) & 0xfffff000;
 
   // copy mFSD at 0x7c0
   memmove((char *)0x7c0, (char *)&mfsd_start, mfsd_size);

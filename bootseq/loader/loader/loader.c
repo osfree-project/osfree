@@ -181,7 +181,7 @@ int
 process_cfg_line1(char *line)
 {
   int    n;
-  int    i;
+  int    i, rc;
   char   *s, *p, *q;
   char   *title; // current menu item title
   struct builtin **b;
@@ -230,7 +230,13 @@ process_cfg_line1(char *line)
     while (p[config_len++] = *s++) ;
   }
   else
-    return exec_line(line);
+  {
+    rc = exec_line(line);
+    if (!rc)
+      printf("Error occured during execution of %s\r\n", (*b)->name);
+
+    return rc;
+  }
 
   return 1;
 }
@@ -254,15 +260,11 @@ exec_line(char *line)
   {
     if (abbrev(line, (*b)->name, strlen((*b)->name)))
     {
-      line = skip_to(1, line);
-      /* substitute macros, like '(@)' for a bootdrive */
-      s = macro_subst(line);
+      s = skip_to(1, line);
+      /* substitute macros, like '()' for a bootdrive */
+      s = macro_subst(s);
       strpos = s;
-      if (((*b)->func)(s, 0x2))
-      {
-        printf("Error occured during execution of %s\r\n", (*b)->name);
-        return 0;
-      }
+      if (((*b)->func)(s, 0x2)) return 0;
       break;
     }
   }
@@ -734,7 +736,9 @@ void cmdline(int item, int shift)
     if (cmd = getcmd(ch))
     {
       printf("\r\n%s\r\n", cmd);
-      exec_cmd(cmd);
+      rc = exec_cmd(cmd);
+      if (!rc)
+        printf("Error occured during execution of a command\r\n");
     }
     else
       break;
@@ -851,6 +855,9 @@ exec_script(script_t *script)
     } while (!last);
 
     rc = exec_line(buf);
+    if (!rc)
+      printf("Error occured during execution of a command\r\n");
+
     if (rc != 1) return rc;
   }
 
@@ -975,6 +982,7 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
   }
 
   /* launch a multiboot kernel */
+  t->setcursor(1);
   boot_func(0, 2);
 
   return 0;

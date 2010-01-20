@@ -450,7 +450,7 @@ console_setcursor:
         push    ebx
 
         ; check if the standard cursor shape has already been saved
-        mov     ax, console_cursor_shape
+        mov     ax, ds:console_cursor_shape
         test    ax, ax
         jne     lw1
 
@@ -465,11 +465,11 @@ console_setcursor:
         mov     ds:console_cursor_shape, cx
 lw1:
         ; set %cx to the designated cursor shape
-        mov     cx, 2000h
+        mov     cx,  2000h
         mov     ebx, [esp + 0ch]
         test    ebx, ebx
         jz      lw2
-        mov     cx, console_cursor_shape
+        mov     cx, ds:console_cursor_shape
 lw2:
         ; enter real mode
         mov     eax, base32
@@ -479,7 +479,7 @@ lw2:
         call    call_rm
         add     esp, 4
 
-        movzx   eax, console_cursor_state
+        movzx   eax, ds:console_cursor_state
         mov     ds:console_cursor_state, bl
 
         pop     ebx

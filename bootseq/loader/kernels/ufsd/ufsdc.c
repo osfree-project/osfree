@@ -17,10 +17,11 @@ int serial_init (long port, long speed,
 int assign_drvletter (char *mode);
 
 /* Config.sys preprocessor/editor callback */
-void (*callback)(unsigned long addr,
-                 unsigned long size,
-                 char drvletter,
-                 struct term_entry *term);
+struct multiboot_info *
+(*callback)(unsigned long addr,
+            unsigned long size,
+            char drvletter,
+            struct term_entry *term);
 
 extern struct term_entry *t;
 
@@ -47,6 +48,9 @@ int filemax;
 int filepos;
 int fileaddr;
 
+unsigned long ufsd_stack;
+unsigned long ldr_stack;
+
 unsigned long cdrom_drive;
 char drvletter;
 char mode[12];
@@ -69,6 +73,8 @@ extern char debug;
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
 #pragma aux callback     "*"
+#pragma aux ldr_stack    "*"
+#pragma aux ufsd_stack   "*"
 
 int toupper (int c);
 
@@ -267,7 +273,7 @@ patch_cfgsys(void)
   {
     /* Call config.sys preprocessor/editor
        routine outside microfsd            */
-    callback(fileaddr, filemax, drvletter, t);
+    m = callback(fileaddr, filemax, drvletter, t);
     ufs_close();
   }
 }
@@ -398,8 +404,19 @@ void cmain (void)
   drvletter = assign_drvletter(mode);
   kprintf("assign_drvletter() exited\n");
 
+  /* set freeldr stack before calling it */
+  __asm {
+    mov ufsd_stack, esp
+    mov esp, ldr_stack
+  }
+
   /* Patch the config.sys file with boot drive letter */
   patch_cfgsys();
+
+  /* restore our stack */
+  __asm {
+    mov esp, ufsd_stack
+  }
 
   // correct the command line according the drive letter got
   pp[0] = (char)drvletter;

@@ -34,8 +34,9 @@ chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                    $(p)chainc$(e) $(p)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)setdev$(e) &
                    $(p)bios$(e)
 
-bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)cfgsys$(e) $(p)serial$(e) $(p)vsprintf$(e) $(p)istable$(e) &
-                   $(p)edit$(e) $(p)cmdline$(e)
+bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)cfgsys$(e) $(p)serial$(e) &
+                   $(p)vsprintf$(e) $(p)istable$(e) $(p)edit$(e) $(p)cfgparsr$(e) &
+                   $(p)cmdline$(e)
 
 ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 
@@ -132,7 +133,6 @@ $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
  $(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .rel: $(PATH)ufsd
-#.dll: $(PATH)mFSD
 
 $(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
 

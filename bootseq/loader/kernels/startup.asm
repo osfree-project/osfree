@@ -13,6 +13,7 @@ include mb_info.inc
 include mb_header.inc
 include mb_etc.inc
 
+extrn exec_cmd        :dword
 extrn callback        :near
 extrn cmain_          :near
 extrn exe_end         :near
@@ -55,7 +56,7 @@ _BSS     ends
 _end3    segment dword public 'BSS'   use32
 _end3    ends
 _end4    segment dword public 'BSS'   use32
-                   db      'кукуй666'                                ; just to include BSS into executable file
+                   ;db      'кукуй666'                                ; just to include BSS into executable file
 _end4    ends
 
 DGROUP   group _TEXT,_DATA,CONST,CONST2,_end1,_end2,_BSS,_end3,_end4
@@ -113,6 +114,11 @@ __entry            equ     offset _TEXT:entry                        ; entry poi
 ; This is multiboot header itself
 ;
 _mbhdr          multiboot_header  <_magic,_flags,_checksum,__mbhdr,__start,__exe_end,__bss_end,__entry,0,0,0,0>
+
+_flags_ext         equ     0x00000001
+_checksum_ext      equ     - _magic - _flags_ext
+
+_mbhdr_ext      multiboot_header_ext <_magic,_flags_ext,_checksum_ext,offset _TEXT:exec_cmd,0,0,0,0,0,0,0,0>
 
                    org     start + 100h
 real_start:

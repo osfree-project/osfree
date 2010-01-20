@@ -38,6 +38,8 @@ char buff[0x210];
 DLA_Table_Sector *dlat;
 DLA_Entry *dlae;
 
+int exec_cmd(char *cmd);
+
 static int cur_addr;
 entry_func entry_addr;
 static struct mod_list mll[99];
@@ -71,11 +73,11 @@ kernel_t
 load_image (char *kernel, char *arg, kernel_t suggested_type,
             unsigned long load_flags)
 {
-  int len, i, exec_type = 0, align_4k = 1;
+  int len, i, j, exec_type = 0, align_4k = 1;
   unsigned int size;
   entry_func real_entry_addr = 0;
   kernel_t type = KERNEL_TYPE_NONE;
-  unsigned long flags = 0, text_len = 0, data_len = 0, bss_len = 0;
+  unsigned long flags = 0, flags_ext = 0, text_len = 0, data_len = 0, bss_len = 0;
   char *str = 0, *str2 = 0;
   struct linux_kernel_header *lh;
   union
@@ -85,6 +87,8 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
       Elf32_Ehdr *elf;
     }
   pu;
+  struct multiboot_header_ext *mbext;
+  unsigned *p;
 
   /* presuming that MULTIBOOT_SEARCH is large enough to encompass an
      executable header */
@@ -141,6 +145,21 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
             }
           type = KERNEL_TYPE_MULTIBOOT;
           str2 = "kernel-mboot";
+          break;
+        }
+    }
+
+  /* search for optional second multiboot header (FreeLDR extension) */
+  for (j = i + 1; j < len; j++)
+    {
+      if (MULTIBOOT_FOUND((int) (buffer + j), len - j))
+        {
+          flags_ext = ((struct multiboot_header_ext *) (buffer + j))->flags;
+          if (flags_ext & MULTIBOOT_EXT_CALLBACK)
+            {
+              /* callback address is needed */
+              p = (unsigned *)((struct multiboot_header_ext *) (buffer + j))->callback_ptr_addr;
+            }
           break;
         }
     }
@@ -285,6 +304,9 @@ load_image (char *kernel, char *arg, kernel_t suggested_type,
 
               printf (", bss=0x%x", bss_len);
             }
+          /* pass callback address after zeroing bss */
+          if (p)
+            *p = (unsigned)(&exec_cmd);
         }
       else if (!errnum)
       {

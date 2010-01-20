@@ -25,17 +25,17 @@ struct multiboot_header
 {
   /* Must be MULTIBOOT_MAGIC - see below.  */
   unsigned magic;
-  
+
   /* Feature flags - see below.  */
   unsigned flags;
-  
+
   /*
    * Checksum
    *
    * The above fields plus this one must equal 0 mod 2^32.
    */
   unsigned checksum;
-  
+
   /* These are only valid if MULTIBOOT_AOUT_KLUDGE is set.  */
   unsigned header_addr;
   unsigned load_addr;
@@ -50,41 +50,70 @@ struct multiboot_header
   unsigned depth;
 };
 
+/* A second (optional) multiboot header;
+ * intended for FreeLDR specific extensions.
+ */
+struct multiboot_header_ext
+{
+  /* Must be MULTIBOOT_MAGIC - see below.  */
+  unsigned magic;
+
+  /* Feature flags - see below.  */
+  unsigned flags;
+
+  /*
+   * Checksum
+   *
+   * The above fields plus this one must equal 0 mod 2^32.
+   */
+  unsigned checksum;
+
+  /* Address of the variable which holds
+   * an address of loader callback function.
+   * This function executes loader commands
+   * from within the multiboot header.
+   */
+  unsigned callback_ptr_addr;
+  unsigned pad[8];
+};
+
+#define MULTIBOOT_EXT_CALLBACK 0x00000001
+
 /*
  * The entire multiboot_header must be contained
  * within the first MULTIBOOT_SEARCH bytes of the kernel image.
  */
-#define MULTIBOOT_SEARCH		8192
+#define MULTIBOOT_SEARCH                8192
 #define MULTIBOOT_FOUND(addr, len) \
   (! ((addr) & 0x3) \
    && (len) >= 12 \
    && *((int *) (addr)) == MULTIBOOT_MAGIC \
    && ! (*((unsigned *) (addr)) + *((unsigned *) (addr + 4)) \
-	 + *((unsigned *) (addr + 8))) \
+         + *((unsigned *) (addr + 8))) \
    && (! (MULTIBOOT_AOUT_KLUDGE & *((int *) (addr + 4))) || (len) >= 32) \
    && (! (MULTIBOOT_VIDEO_MODE & *((int *) (addr + 4))) || (len) >= 48))
 
 /* Magic value identifying the multiboot_header.  */
-#define MULTIBOOT_MAGIC			0x1BADB002
+#define MULTIBOOT_MAGIC                 0x1BADB002
 
 /*
  * Features flags for 'flags'.
  * If a boot loader sees a flag in MULTIBOOT_MUSTKNOW set
  * and it doesn't understand it, it must fail.
  */
-#define MULTIBOOT_MUSTKNOW		0x0000FFFF
+#define MULTIBOOT_MUSTKNOW              0x0000FFFF
 
 /* currently unsupported flags...  this is a kind of version number.  */
-#define MULTIBOOT_UNSUPPORTED		0x0000FFF8
+#define MULTIBOOT_UNSUPPORTED           0x0000FFF8
 
 /* Align all boot modules on i386 page (4KB) boundaries.  */
-#define MULTIBOOT_PAGE_ALIGN		0x00000001
+#define MULTIBOOT_PAGE_ALIGN            0x00000001
 
 /* Must pass memory information to OS.  */
-#define MULTIBOOT_MEMORY_INFO		0x00000002
+#define MULTIBOOT_MEMORY_INFO           0x00000002
 
 /* Must pass video information to OS.  */
-#define MULTIBOOT_VIDEO_MODE		0x00000004
+#define MULTIBOOT_VIDEO_MODE            0x00000004
 
 /* This flag indicates the use of the address fields in the header.  */
-#define MULTIBOOT_AOUT_KLUDGE		0x00010000
+#define MULTIBOOT_AOUT_KLUDGE           0x00010000

@@ -83,7 +83,7 @@ SED       = sed
 AWK       = @awk
 DOX       = doxygen
 
-# Watcom 1.7 RC has bug with resource storing. Resursed not just added
+# Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
 #RC        = @wrc -q
 #RCOPT     = -bt=OS2
@@ -127,8 +127,8 @@ RN  = move                       # Rename command
 !endif
 !endif
 
-SEP       = \                  # dir components separator
-PS        = ;                  # paths separator
+SEP       = \                    # dir components separator
+PS        = ;                    # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 O16       = o16                  # 16-bit obj
 DC        = @del                 # Delete command is rm on linux and del on OS/2
@@ -161,16 +161,16 @@ DLL_PREFIX =
 DLL_SUFFIX = .dll
 
 !else
-!ifeq UNIX TRUE             # UNIX
+!ifeq UNIX TRUE                  # UNIX
 
-SEP       = /                  # dir components separator
-PS        = :                  # paths separator
+SEP       = /                    # dir components separator
+PS        = :                    # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 O16       = o16                  # 16-bit obj
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command
 RN        = mv                   # Rename command
-SAY       = @echo                 # Echo message
+SAY       = @echo                # Echo message
 MKBIN     = mkbin
 GENHDD    = genhdd
 GENFDD    = genfdd

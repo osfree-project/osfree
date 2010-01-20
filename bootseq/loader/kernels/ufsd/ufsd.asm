@@ -25,6 +25,7 @@ public _debug
 
 public _small_code_
 
+extrn  ldr_stack    :dword
 extrn  callback     :dword
 extrn  idt_initted  :byte
 extrn  kprintf_     :near
@@ -236,6 +237,9 @@ entry:
                    jne     stop                                        ; is present in eax
 
                    ; setup stack
+                   mov     eax, offset _TEXT:ldr_stack
+                   mov     [eax], esp
+
                    mov     esp, PM_STACK_INIT
 
                    mov     ds:m, ebx                                   ; save multiboot structure address
