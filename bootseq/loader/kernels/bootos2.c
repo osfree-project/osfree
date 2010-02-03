@@ -13,6 +13,7 @@
 #pragma aux ufsd_size  "*"
 #pragma aux mfsd_start "*"
 #pragma aux mfsd_size  "*"
+#pragma aux uFSD_base  "*"
 
 /* multiboot structure pointer */
 extern struct multiboot_info *m;
@@ -27,6 +28,7 @@ extern unsigned long mfsd_start;
 /* mFSD size                   */
 extern unsigned long mfsd_size;
 
+char remotefs = 0;
 char autopreload = 0;
 char cfged = 0;
 char debug = 0;
@@ -119,7 +121,8 @@ void mbi_reloc(void)
 
     // relocate mods command lines
     cur_addr = (((unsigned long)((char *)cur_addr + size)) + 0xfff) & 0xfffff000;
-    for (i = 0, mod = (struct mod_list *)m->mods_addr; i < m->mods_count; i++, cur_addr += size, mod++)
+    for (i = 0, mod = (struct mod_list *)m->mods_addr;
+         i < m->mods_count; i++, cur_addr += size, mod++)
     {
       size = strlen((char *)mod->cmdline) + 1;
       memmove((char *)cur_addr, (char *)mod->cmdline, size);
@@ -164,9 +167,9 @@ void mbi_reloc(void)
 int cmain(void)
 {
   int relshift;
-  unsigned int uFSD_base;
   char *p;
   unsigned short *d;
+  unsigned ufs_base = 0;
   long port = 0x3f8;
   long speed = 9600;
   struct mod_list *mod;
@@ -174,6 +177,11 @@ int cmain(void)
   if (p = strstr((char *)m->cmdline, "--auto-preload"))
   {
     autopreload = 1;
+  }
+
+  if (p = strstr((char *)m->cmdline, "--remote-fs"))
+  {
+    remotefs = 1;
   }
 
   if (p = strstr((char *)m->cmdline, "--cfged"))
@@ -209,42 +217,29 @@ int cmain(void)
   //mbi_reloc();
   //kprintf("done.\n");
 
-  mod = (struct mod_list *)m->mods_addr;
-  // find the address of modules end
-  // pointer to the last module in the list
-  mod += m->mods_count - 1;
-  // last module end
-  p = (char *)mod->mod_end;
-  // skip a string after a module (cmdline for FreeLdr, none for GRUB)
-  while (*p++) ;
-  cur_addr = ((unsigned long)(p + 0xfff)) & 0xfffff000;
-
-  // copy mFSD at 0x7c0
-  memmove((char *)0x7c0, (char *)&mfsd_start, mfsd_size);
-
   // where to copy uFSD
-  uFSD_base = ((m->mem_lower << 10) - 0x10000 - ufsd_size - 0x3000 - 0x200) & 0xfffc000;
-  kprintf("uFSD base: 0x%08lx\n", uFSD_base);
+  ufs_base = ((m->mem_lower << 10) - 0x10000 - ufsd_size - 0x3000 - 0x200) & 0xfffc000;
+  kprintf("uFSD base: 0x%08lx\n", ufs_base);
 
   // a shift relative to REL1_BASE
-  relshift  = uFSD_base - REL1_BASE;
+  relshift  = ufs_base - REL1_BASE;
   kprintf("relshift: %ld\n", relshift);
 
   // copy uFSD where needed
-  memmove((char *)uFSD_base, (char *)&ufsd_start, ufsd_size);
+  memmove((char *)ufs_base, (char *)&ufsd_start, ufsd_size);
   kprintf("uFSD is moved...\n");
 
   // save port value in 16-bit area in uFSD header
-  d  = (unsigned short *)(uFSD_base + 0x24);
+  d  = (unsigned short *)(ufs_base + 0x24);
   *d = port;
 
   // save debug flag into the same area
-  d = (unsigned short *)(uFSD_base + 0x26);
+  d = (unsigned short *)(ufs_base + 0x26);
   *((char *)d) = debug;
 
   // fixup uFSD
-  reloc((char *)uFSD_base, (char *)&rel_start, relshift);
+  reloc((char *)ufs_base, (char *)&rel_start, relshift);
   kprintf("uFSD is relocated...\n");
 
-  return uFSD_base;
+  return ufs_base;
 }

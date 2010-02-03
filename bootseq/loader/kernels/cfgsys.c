@@ -12,6 +12,8 @@
 #pragma aux u_msg        "*"
 #pragma aux m            "*"
 #pragma aux exec_cmd     "*"
+#pragma aux mfsd_start   "*"
+#pragma aux mfsd_size    "*"
 
 #define NO_ERROR 0
 
@@ -20,6 +22,12 @@ struct term_entry *t;
 extern struct multiboot_info *m;
 extern char   cfged;
 extern char   autopreload;
+extern char   remotefs;
+
+/* mFSD start                  */
+extern unsigned long mfsd_start;
+/* mFSD size                   */
+extern unsigned long mfsd_size;
 
 int (*exec_cmd)(char *cmd) = 0;
 
@@ -28,8 +36,11 @@ extern unsigned long cur_addr;
 /* changed config.sys length    */
 extern int    len;
 
+char drv;
+
 void editor (char *cfg, int len, char force);
 int kprintf(const char *format, ...);
+int toupper (int c);
 void mbi_reloc(void);
 
 int getkey (void)
@@ -77,7 +88,6 @@ void u_msg (char *s)
 {
 }
 
-
 int preload_module(char *module, int three_dirs)
 {
   char str[0x200];
@@ -85,26 +95,31 @@ int preload_module(char *module, int three_dirs)
   char *t;
   int  i, rc;
   char **p;
-  char *dirs[] = {"/", "/os2", "/os2/boot", 0};
+  char *dirs[] = {"/os2/boot", "/os2", "/", 0};
   struct mod_list *mod;
 
+  for (t = s; *t; t++)
+  {
+    /* change all '\\' to '/' */
+    if (*t == '\\') *t = '/';
+    /* make a filename lowercase */
+    *t = tolower(*t);
+  }
   /* skip drive letter */
   if (s[1] == ':') s += 2;
   /* skip leading slash */
-  if (*s == '/' || *s == '\\') s++;
+  if (*s == '/') s++;
 
   /* if a file with such name already is loaded, skip loading */
   for (i = 0, mod = (struct mod_list *)m->mods_addr;
        i < m->mods_count; i++, mod++)
-    if (strstr((char *)mod->cmdline, module))
+    if (strstr((char *)mod->cmdline, s))
       return 1;
 
   /* find 1st space in the command line */
   for (t = s; *t && !isspace(*t); t++) ;
   /* delete command line params */
   if (*t) *t = 0;
-  /* make a filename lowercase */
-  for (t = s; *t; t++) *t = tolower(*t);
 
   if (three_dirs)
   {
@@ -128,7 +143,7 @@ int preload_library(const char *name)
 {
   int  i, rc;
   char buf[0x200];
-  char *p, *dir, *s, *t;
+  char *p, *t;
 
   p = options.libpath;
   for (;;)
@@ -179,12 +194,43 @@ int load_type (const char *tp)
   return 0;
 }
 
+int load_type_bootdrv (const char *tp)
+{
+  int  i, j;
+  char *str;
+
+  for (i = 0; i < 8; i++)
+  {
+    if (!strcmp(type[i].name, tp))
+    {
+      for (j = 0; j < type[i].ip; j++)
+      {
+        str = type[i].sp[j].string;
+        /* if it is booting from boot drive */
+        if ((str[1] == ':' && toupper(str[0]) == toupper(drv)) ||
+             str[0] == '\\')
+        {
+          if (!preload_module(str, 0))
+            return 1;
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
 int load_modules (char *cfg, int len)
 {
   int  rc;
-  int  i, j;
+  int  last, first;
+  int  i, j, l;
   char *p, *t;
-  char buf[0x80];
+  char *ifs, *device;
+  int  ifs_line, line;
+  char buf[0x400];
+  char str[0x400];
+  struct mod_list *mod;
 
   // Initialize initial values from CONFIG.SYS
   rc = CfgInitOptions();
@@ -204,7 +250,7 @@ int load_modules (char *cfg, int len)
 
   printf ("Auto preloading modules: \r\n");
 
-  /* exec modaddr command to skip a saved config.sys */
+  /* exec modaddr command to skip saved config.sys */
   sprintf(buf, "modaddr 0x%x", cur_addr);
   exec_cmd(buf);
   /* now config.sys is just below cur_addr */
@@ -277,6 +323,7 @@ int load_modules (char *cfg, int len)
   if (!preload_module(p, 0))
     return 1;
 
+  /* preload doscall1 and forwarders */
   if (!preload_library("doscall1.dll") ||
       !preload_library("sesmgr.dll")   ||
       !preload_library("msg.dll")      ||
@@ -290,6 +337,138 @@ int load_modules (char *cfg, int len)
       !preload_library("viocalls.dll"))
     return 1;
 
+  if (remotefs) /* remote fs boot -- additional modules are needed */
+  {
+    /* load all IFS'es from the boot drive */
+    if (load_type_bootdrv("IFS")    ||
+    /* load all 'device' drivers from the boot drive */
+        load_type_bootdrv("DEVICE") ||
+    /* load all 'run' daemons from the boot drive */
+        load_type_bootdrv("RUN")    ||
+    /* load all 'call' programs from the boot drive */
+        load_type_bootdrv("CALL"))
+      return 1;
+    /* the same for protshell */
+    device = options.protshell;
+    if ((device[1] == ':' && toupper(device[0]) == toupper(drv)) || device[0] == '\\')
+    {
+      if (!preload_module(device, 0))
+        return 1;
+    }
+  }
+  else /* ordinary boot */
+  {
+    /* 1st ifs command line */
+    ifs = type[3].sp[0].string;
+    /* its line number      */
+    ifs_line = type[3].sp[0].line;
+
+    /* load all 'device' drivers before 1st ifs */
+    for (i = 0; i < type[2].ip; i++)
+    {
+      line = type[2].sp[i].line;
+      device = type[2].sp[i].string;
+      if (line < ifs_line)
+      {
+        if (!preload_module(device, 0))
+          return 1;
+      }
+      else
+        break;
+    }
+
+    /* load 1st ifs */
+    if (!preload_module(ifs, 0))
+      return 1;
+  }
+
+  /* load video DLL's, like 'bvhvga' and 'bvhsvga' */
+  if (CfgGetenv("VIDEO_DEVICES", buf) == NO_ERROR)
+  {
+    if (CfgGetenv(buf, buf) == NO_ERROR)
+    {
+      /* find '(' */
+      for (p = buf; *p && *p != '('; p++) ;
+      if (*p)
+      {
+        p++; /* skip '(' */
+        for (;;)
+        {
+          /* load next DLL name into str[] buffer */
+          for (i = 0, t = p; *t && *t != ',' && *t != ')'; i++, t++) str[i] = tolower(*t);
+          if (*t) /* if the list not reached its end */
+          {
+            strcpy(str + i, ".dll");
+
+            if (!preload_library(str))
+              return 1;
+
+            if (*t == ')')
+              break;
+
+            t++; p = t; /* skip ',' */
+          }
+        }
+      }
+    }
+  }
+
+  /* preload codepage files for unicode.sys */
+  for (i = 0, mod = (struct mod_list *)m->mods_addr;
+       i < m->mods_count; i++, mod++)
+  {
+    if (strstr((char *)mod->cmdline, "unicode.sys"))
+    {
+      if (!preload_module("/language/codepage/ucstbl.lst", 0))
+        return 1;
+
+      p = options.codepage;
+      for (l = 0; l < 2; l++)
+      {
+        strcpy(buf, "/language/codepage/ibm");
+        for (j = strlen(buf), t = p; *t && *t != ','; j++, t++) buf[j] = *t;
+        buf[j] = '\0';
+
+        if (!preload_module(buf, 0))
+          return 1;
+
+        t++; p = t; /* skip comma */
+      }
+    }
+  }
+
+  /* load oso001.msg */
+  if (CfgGetenv("DPATH", buf) == NO_ERROR)
+  {
+    t = buf;
+    for (;;)
+    {
+      /* copy next DPATH element into str[] buffer */
+      for (i = 0, p = t; *p && *p != ';'; i++, p++) str[i] = tolower(*p);
+
+      /* skip '.' DPATH entry */
+      if (i == 1 && *str == '.')
+      {
+        t += 2;
+        continue;
+      }
+
+      /* if DPATH ended */
+      if (!*str)
+        break;
+
+      /* add trailing backslash */
+      if (str[i - 1] != '\\') str[i++] = '\\';
+      /* copy filename */
+      strcpy(str + i, "oso001.msg");
+
+      if (preload_module(str, 0))
+        break;
+
+      p++; t = p;
+    }
+  }
+
   return 0;
 }
 
@@ -302,11 +481,22 @@ callback(unsigned long addr,
          struct term_entry *term)
 {
   int i;
-  char *cfg;
+  char *cfg, *p;
   struct mod_list *mod;
 
   t = term;
+  drv = drvletter;
   cfg = (char *)addr;
+
+  mod = (struct mod_list *)m->mods_addr;
+  // find the address of modules end
+  // pointer to the last module in the list
+  mod += m->mods_count - 1;
+  // last module end
+  p = (char *)mod->mod_end;
+  // skip a string after a module (cmdline for FreeLdr, none for GRUB)
+  while (*p++) ;
+  cur_addr = ((unsigned long)(p + 0xfff)) & 0xfffff000;
 
   /* Patch a boot drive letter */
   for (i = 0; i < size; i++)
@@ -354,6 +544,11 @@ callback(unsigned long addr,
   kprintf("Relocating MBI info...\n");
   mbi_reloc();
   kprintf("done.\n");
+
+  // copy mFSD at 0x7c0
+  memmove((char *)0x7c0, (char *)&mfsd_start, mfsd_size);
+
+  cls ();
 
   return m;
 }

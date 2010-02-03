@@ -164,8 +164,7 @@ entry:
                    mov   ds:m, ebx                                   ; save multiboot structure address
 
                    ; set stack
-                   ;mov   esp, stack_top
-                   ; at the moment, we use loader stack
+                   mov   esp, 9e000h
 
                    ; copy bootos2 parts at REL_BASE (below 1 Mb)
                    ;cld                                               ; move forward
@@ -219,10 +218,16 @@ entry:
 
                    pop     eax
 
-                   mov     ebx, ds:m
-
                    ; pass config.sys callback address
                    lea     ecx, callback
+
+                   ; set up uFSD stack
+                   mov     ebx, edx
+                   sub     ebx, 200h
+                   mov     esp, ebx
+
+                   mov     ebx, ds:m
+
                    ; start microfsd emulator
                    push    edx
 

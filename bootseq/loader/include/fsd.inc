@@ -18,7 +18,7 @@ OS2LDR_SEG      equ 0x1000                ; os2ldr segment
 LDR_SEG         equ 0x2000                ; freeldr segment
 
 ; multiboot kernel load base
-KERN_BASE       equ 0x800000
+KERN_BASE       equ 0x400000
 REL_BASE        equ 0x90000
 REL1_BASE       equ (0x90000 + SHIFT)
 

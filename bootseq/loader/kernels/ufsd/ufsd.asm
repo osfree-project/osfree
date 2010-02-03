@@ -25,7 +25,7 @@ public _debug
 
 public _small_code_
 
-extrn  ldr_stack    :dword
+;extrn  ldr_stack    :dword
 extrn  callback     :dword
 extrn  idt_initted  :byte
 extrn  kprintf_     :near
@@ -229,7 +229,7 @@ entry0:
                    ; start of 32-bit part
                    org     BASE1 + _16BIT_SIZE + 100h
                    ;
-                   ; 32-bit entry point. Invokes by multiboot
+                   ; 32-bit entry point. Is invoked by multiboot
                    ; loader from multiboot header
                    ;
 entry:
@@ -237,10 +237,10 @@ entry:
                    jne     stop                                        ; is present in eax
 
                    ; setup stack
-                   mov     eax, offset _TEXT:ldr_stack
-                   mov     [eax], esp
+                   ;mov     eax, offset _TEXT:ldr_stack
+                   ;mov     [eax], esp
 
-                   mov     esp, PM_STACK_INIT
+                   ;mov     esp, PM_STACK_INIT
 
                    mov     ds:m, ebx                                   ; save multiboot structure address
 
@@ -288,6 +288,8 @@ set_gdt:
                    ; fix gdt descriptors base
                    mov  ebx, GDT_ADDR
                    mov  eax, REL1_BASE
+                   mov  ecx, eax
+                   sub  ecx, 10200h
                    ; FLAT DS and CS
                    mov  [ebx][1*8].ds_limit, 0xffff
                    mov  [ebx][2*8].ds_limit, 0xffff
@@ -306,6 +308,27 @@ set_gdt:
 
                    mov  [ebx][1*8].ds_acchi, 0xcf
                    mov  [ebx][2*8].ds_acchi, 0xcf
+
+                   ; Pseudo RM SS
+                   mov  [ebx][5*8].ds_limit, 0xffff
+
+                   mov  [ebx][5*8].ds_baselo, cx
+
+                   ror  ecx, 16
+
+                   mov  [ebx][5*8].ds_basehi1, cl
+
+                   ror  ecx, 8
+
+                   mov  [ebx][5*8].ds_basehi2, cl
+
+                   mov  [ebx][5*8].ds_acclo, 0x92
+
+                   mov  [ebx][5*8].ds_acchi, 0x0
+
+                   ror  ecx, 8
+                   shr  ecx, 4
+                   mov  word ptr ds:[RMSTACK + 2], cx
 
                    ; pseudo RM DS and CS
                    mov  [ebx][8*8].ds_limit, 0xffff
@@ -408,6 +431,7 @@ _end3    segment dword public 'BSS'   use32
 _end3    ends
 _end4    segment dword public 'BSS'   use32
 _end4    ends
+
 
 ; protected mode stack size
 PM_STACK_SIZE    equ   2000h

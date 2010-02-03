@@ -39,9 +39,15 @@ unsigned short FlatR0DS;
 unsigned long far *p_minifsd;
 
 char debug = 0;
+char remotefs = 0;
 
-char mount_name[] = "FS_MOUNT";      // "FSD_Mount";
-char open_name[]  = "FS_OPENCREATE"; // "FSD_OpenCreate";
+char mount_name[]   = "FS_MOUNT";
+char open_name[]    = "FS_OPENCREATE";
+char mkdir_name[]   = "FS_MKDIR";
+char attach_name[]  = "FS_ATTACH";
+char write_name[]   = "FS_WRITE";
+char close_name[]   = "FS_CLOSE";
+char chgfileptr_name[] = "FS_CHGFILEPTR";
 
 #pragma pack(1)
 
@@ -135,6 +141,7 @@ int fstrlen (const char far *str);
 void far *fmemmove (void far *_to, const void far *_from, int _len);
 char far *fstrcpy (char far *dest, const char far *src);
 int toupper (int c);
+int tolower (int c);
 int isspace (int c);
 char far *strip(char far *s);
 char far *fstrstr (const char far *s1, const char far *s2);
@@ -186,6 +193,32 @@ typedef int far pascal (*open_t)(struct cdfsi far *pcdfsi,
                                  unsigned short usAttr,
                                  char far *pcEABuf,
                                  unsigned short far *pfgenflag);
+typedef int far pascal (*attach_t)(unsigned short flag,
+                                 char far *pDev,
+                                 struct vpfsd far *pvpfsd,
+                                 struct cdfsd far *pcdfsd,
+                                 char far *pParm,
+                                 unsigned short far *p);
+typedef int far pascal (*write_t)(struct sffsi far *psffsi,
+                                 struct sffsd far *psffsd,
+                                 char far *pData,
+                                 unsigned short far *pLen,
+                                 unsigned short IOfl€);
+typedef int far pascal (*close_t)(unsigned short type,
+                                  unsigned short IOflag,
+                                  struct sffsi far *psffsi,
+                                  struct sffsd far *psffsd);
+typedef int far pascal (*mkdir_t)(struct cdfsi far * pcdfsi,
+                                  struct cdfsd far *pcdfsd,
+                                  char far *pName,
+                                  unsigned short iCurDirEnd,
+                                  char far *pEABuf,
+                                  unsigned short fl);
+typedef int far pascal (*chgfileptr_t)(struct sffsi far * psffsi,
+                                  struct sffsd far * psffsd,
+                                  long offset,
+                                  unsigned short type,
+                                  unsigned short IOfl);
 
 void serout(char *s);
 int kprintf(const char *format, ...);
@@ -296,6 +329,13 @@ int far pascal _loadds MFS_INIT(
 
     if (mbi_far->flags & MB_INFO_CMDLINE)
     {
+      // if we're booting from remote fs
+      if (pp = strstr(cmdline, "--remote-fs"))
+      {
+        remotefs = 1;
+      }
+
+      // if debug output is on
       if (pp = strstr(cmdline, "--debug"))
       {
         debug = 1;
@@ -361,9 +401,10 @@ int far pascal _loadds MFS_INIT(
     if (!strcmp(FS_NAME, "JFS") ||
         !strcmp(FS_NAME, "FAT32"))
       **((unsigned long far * far *)pMiniFSD) = 0x1961;
-    else if (!strcmp(FS_NAME, "CDFS"))
+
+    if (remotefs)
     {
-      // if booting from a CDROM, use remote boot
+      // if booting from a remote drive, use remote boot
       // attach one remote drive
       *number = 1;
       FS_ATTRIBUTE |= 0x1;
@@ -570,39 +611,84 @@ int far pascal _loadds MFS_CLOSE(void) {
     kprintf("**** MFS_CLOSE\n");
 
     if (sel1)     MFSH_UNPHYSTOVIRT(sel1);
-    if (mods_sel) MFSH_UNPHYSTOVIRT(mods_sel);
     if (sel)      MFSH_UNPHYSTOVIRT(sel);
 
     return NO_ERROR;
 }
 
-int far pascal _loadds MFS_TERM(void)
+int getaddr (char *module,
+             char *funcname,
+             void **funcaddr)
 {
   struct p48 p48;
-  open_t  p_open  = 0;
-  mount_t p_mount = 0;
-  mount_t p_mount1 = 0;
+
+  if (!GetProcAddr(module,
+                   strlen(module),
+                   funcname,
+                   strlen(funcname),
+                   &p48))
+  {
+    *((unsigned short *)funcaddr) = (unsigned short)p48.off;
+    *((unsigned short *)(funcaddr) + 1) = p48.sel;
+
+    kprintf("IFS %s addr: 0x%04x:0x%08lx\n",
+            funcname,
+            p48.sel,
+            p48.off);
+
+    return 0;
+  }
+
+  kprintf("IFS %s addr not found.\n", funcname);
+  return 1;
+}
+
+
+int far pascal _loadds MFS_TERM(void)
+{
+  open_t    p_open   = 0;
+  mount_t   p_mount  = 0;
+  attach_t  p_attach = 0;
+  write_t   p_write  = 0;
+  close_t   p_close  = 0;
+  mkdir_t   p_mkdir  = 0;
+  chgfileptr_t p_chgfileptr = 0;
   //unsigned char drv;
   struct vpfsi far *pvpfsi = 0;
   struct vpfsd far *pvpfsd = 0;
+  struct cdfsd far *pcdfsd = 0;
+  struct cdfsi far *pcdfsi = 0;
   struct vpfsi far *pvpfsi1 = 0;
   struct vpfsd far *pvpfsd1 = 0;
-  int rc;
+  int rc, i, j;
   unsigned short hVPB1;
   unsigned short usAction;
   unsigned short flags;
-  char msg_errmount[] = "Error mounting the disk!\n";
+  unsigned short l;
+  unsigned long addr, len, written, length;
+  unsigned short sel, msel;
+  char far *data;
+  char msg_errmount[] = "Error mounting/attaching the disk!\n";
   char msg_erropen[] = "Error reopening file!\n";
+  char msg_errwrite[] = "Error writing to a file!\n";
+  char msg_errclose[] = "Error closing file!\n";
+  char msg_errptr[] = "Error changing file ptr!\n";
+  struct vpfsi vpfsi;
+  struct vpfsd vpfsd;
   struct cdfsi cdfsi;
   struct cdfsd cdfsd;
+  struct sffsi sffsi;
+  struct sffsd sffsd;
   char far *pBoot = 0;
   char str[0x3a];
+  char buf[0x20];
   char fs_name[12];
-  char *r;
+  char far *r, far *p, far *s;
   void far *dpbhead;
   unsigned short new_hVPB;
-  char c, d;
+  char opened;
   struct dpb far *pdpb1 = 0;
+  struct mod_list far *mod;
 
   kprintf("**** MFS_TERM\n");
   kprintf("hello stage3!\n");
@@ -616,38 +702,47 @@ int far pascal _loadds MFS_TERM(void)
   else
     kprintf("Flat selectors not found.\n");
 
-  // Get FS_MOUNT address
-  if (!GetProcAddr(fs_module,
-              strlen(fs_module),
-              mount_name,
-              strlen(mount_name),
-              &p48))
+  if (remotefs) // booting from remote fs
   {
-    *((unsigned short *)&p_mount) = (unsigned short)p48.off;
-    *((unsigned short *)(&p_mount) + 1) = p48.sel;
-    kprintf("IFS FS_MOUNT addr: 0x%04x:0x%08lx\n", p48.sel, p48.off);
+    // Get FS_ATTACH address
+    if (getaddr(fs_module,
+                attach_name,
+                (void *)(&p_attach))    ||
+        getaddr(fs_module,
+                close_name,
+                (void *)(&p_close))     ||
+        getaddr(fs_module,
+                mkdir_name,
+                (void *)(&p_mkdir))     ||
+        getaddr(fs_module,
+                write_name,
+                (void *)(&p_write))     ||
+        getaddr(fs_module,
+                chgfileptr_name,
+                (void *)(&p_chgfileptr)))
+      return 1;
+
   }
   else
-    kprintf("IFS FS_MOUNT addr not found.\n");
-
+  {
+    // Get FS_MOUNT address
+    if (getaddr(fs_module,
+                mount_name,
+                (void *)(&p_mount)))
+      return 1;
+  }
   // Get FS_OPENCREATE address
-  if (!GetProcAddr(fs_module,
-              strlen(fs_module),
+  if (getaddr(fs_module,
               open_name,
-              strlen(open_name),
-              &p48))
-  {
-    *((unsigned short *)&p_open) = (unsigned short)p48.off;
-    *((unsigned short *)(&p_open) + 1) = p48.sel;
-    kprintf("IFS FS_OPENCREATE addr: 0x%04x:0x%08lx\n", p48.sel, p48.off);
-  }
-  else
-  {
-    kprintf("IFS FS_OPENCREATE addr not found.\n");
-  }
+              (void *)(&p_open)))
+    return 1;
 
-  kprintf("p_mount = 0x%08lx\n", p_mount);
-  kprintf("p_open  = 0x%08lx\n", p_open);
+  kprintf("p_mount = 0x%08lx\n",  p_mount);
+  kprintf("p_open  = 0x%08lx\n",  p_open);
+  kprintf("p_attach = 0x%08lx\n", p_attach);
+  kprintf("p_write  = 0x%08lx\n", p_write);
+  kprintf("p_close  = 0x%08lx\n", p_close);
+  kprintf("p_mkdir  = 0x%08lx\n", p_mkdir);
 
   kprintf("hard disk partition hVPB: 0x%04x\n", hVPB);
 
@@ -668,10 +763,17 @@ int far pascal _loadds MFS_TERM(void)
     if ((int)pdpb->dpb_next_dpb == -1) break;
     pdpb = pdpb->dpb_next_dpb;
   }
+
   pdpb = pdpb1;
-  kprintf("pdpb = 0x%08lx\n", pdpb);
-  hVPB = pdpb->dpb_hVPB;
-  cd_drvletter = 'A' + pdpb->dpb_drive;
+  if (pdpb)
+  {
+    kprintf("pdpb = 0x%08lx\n", pdpb);
+    hVPB = pdpb->dpb_hVPB;
+    cd_drvletter = 'A' + pdpb->dpb_drive;
+  }
+  else
+    cd_drvletter = drvletter;
+
   kprintf("boot drive: %c:, its hVPB: 0x%04x\n", cd_drvletter, hVPB);
 
   //if (!FSH_FINDDUPHVPB(hVPB, &new_hVPB)) hVPB = new_hVPB;
@@ -717,62 +819,319 @@ int far pascal _loadds MFS_TERM(void)
   kprintf("vpi_drive  = %c:\n", 'a' + pvpfsi->vpi_drive);
   kprintf("vpi_unit   = %01u\n", pvpfsi->vpi_unit);
 
-  //*FS_NAME = 0;
-
-  // call the FS_MOUNT entry point of the IFS:
-  kprintf("ifs FS_MOUNT()");
-  rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
-  if (rc)
+  if (remotefs)
   {
-    kprintf(" failed, rc = %u\n", rc);
-    FSH_INTERR(msg_errmount, strlen(msg_errmount));
-  }
-  else
-    kprintf(" = %u\n", rc);
-
-  kprintf("open_files = %u\n", open_files);
-
-  // reopen by an IFS all files open by minifsd
-  for (save_index = 0; save_index < 0x80; save_index++)
-  {
-    if (save_map[save_index]) // if a file is open
+    // call the FS_ATTACH entry point of the IFS
+    kprintf("ifs FS_ATTACH()");
+    str[0] = drvletter; str[1] = ':'; str[2] = '\0';
+    rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
+    if (rc)
     {
-      save_pos = save_area + save_index;
+      kprintf(" failed, rc = %u\n", rc);
+      FSH_INTERR(msg_errmount, strlen(msg_errmount));
+    }
+    else
+      kprintf(" = %u\n", rc);
+
+    for (i = 0, mod = (struct mod_list far *)mods_addr;
+         i < mods_count; i++, mod++)
+    {
+      addr = mod->mod_start;
+      len  = mod->mod_end - mod->mod_start;
+
+      rc = MFSH_PHYSTOVIRT(addr, 0xffff, &msel);
+      CHECKRC
+      data = MAKEP(msel, 0);
+
+      rc = MFSH_PHYSTOVIRT(mod->cmdline, 0xffff, &sel);
+      CHECKRC
+      s = MAKEP(sel, 0);
+
+      strcpy(str, s);
+      s = str;
+
+      /* skip (...,...) */
+      if (*s == '(')
+      {
+        s++;
+        for (; *s && *s != ')'; s++) ;
+        s++;
+      }
+
+      /* change '/' to '\\' and make a file name lowercase */
+      for (r = s; *r; r++)
+      {
+        if (*r == '/') *r = '\\';
+        *r = tolower(*r);
+      }
+
+      /* search for a space in command line */
+      for (r = s; *r && !isspace(*r); r++) ;
+
+      if (*r) /* space found */
+      {
+        r++; /* skip it */
+        s = r;
+      }
+
+      p = strstr(s, "\\");
+      if (!p || p - s > 2)
+      {
+        /* no slash or no slash at the beginning */
+        s -= 3;
+        s[0] = tolower(drvletter);
+        s[1] = ':';
+        s[2] = '\\';
+      }
+      else if (p[-1] != ':')
+      {
+        s = p - 2;
+        s[0] = tolower(drvletter);
+        s[1] = ':';
+      }
+      else
+        s = p - 2;
+
       // zero out cdfsi buffer
       memset(&cdfsi, 0, sizeof(struct cdfsi));
+      memset(&cdfsd, 0, sizeof(struct cdfsd));
       cdfsi.cdi_hVPB = hVPB;
-      // change hVPB of 'fake bootdrive' to hVPB of a real one
-      save_pos->psffsi->sfi_hVPB = hVPB;
 
-      strcpy(str, save_pos->pName);
-      // change a 'fake bootdrive' drv letter to a CD drv letter
-      if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+      /* create parent dirs for s */
+      for (j = 0, r = s; *r; j++, r++)
+      {
+        /* get 1st level dir */
+        for (; *r && *r != '\\'; j++, r++) buf[j] = *r;
+        if (*r) /* ended with slash */
+        {
+          /* skip "d:\" */
+          buf[j] = '\0';
 
-      kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
-              save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
-              save_pos->usOpenFlag);
-      kprintf("ifs FS_OPENCREATE(\"%s\")", str);
-      if(!(rc = (*p_open)(&cdfsi,
-                          &cdfsd,
-                          str,
-                          -1, // not 0 -- needed by ext2_os2.ifs
-                          save_pos->psffsi,
-                          save_pos->psffsd,
-                          save_pos->ulOpenMode,  // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
-                          save_pos->usOpenFlag,
-                          &usAction,             //dummy address
-                          0,
-                          0,
-                          &flags)))
-        kprintf(" = %u\n", rc);
+          if (r[-1] == ':')
+          {
+            buf[j] = *r;
+            continue;
+          }
+
+          kprintf("ifs FS_MKDIR(\"%s\")", buf);
+          rc = (*p_mkdir)(&cdfsi, &cdfsd, buf, -1, 0, 0);
+
+          if (rc)
+            kprintf(" failed, rc = %u\n", rc);
+          else
+            kprintf(" = %u\n", rc);
+
+          buf[j] = *r;
+        }
+      }
+
+      // zero out cdfsi buffer
+      memset(&cdfsi, 0, sizeof(struct cdfsi));
+      memset(&cdfsd, 0, sizeof(struct cdfsd));
+      memset(&sffsi, 0, sizeof(struct sffsi));
+      memset(&sffsd, 0, sizeof(struct sffsd));
+      cdfsi.cdi_hVPB = hVPB;
+      sffsi.sfi_hVPB = hVPB;
+
+      /* determine whether this file is opened by minifsd */
+      opened = 0;
+      for (save_index = 0; save_index < 0x80; save_index++)
+      {
+        if (save_map[save_index])
+        {
+          save_pos = save_area + save_index;
+          // find first difference
+          for (p = save_pos->pName, r = s; *p && *r && *p == *r; p++, r++) ;
+          // if they're equal
+          if (!*p && !*r)
+          {
+            opened = 1;
+            break;
+          }
+        }
+      }
+
+      // reopen by an IFS all files open by minifsd
+      if (opened)
+      {
+        // zero out cdfsi buffer
+        // change hVPB of 'fake bootdrive' to hVPB of a real one
+        save_pos->psffsi->sfi_hVPB = hVPB;
+
+        strcpy(str, save_pos->pName);
+        // change a 'fake bootdrive' drv letter to a CD drv letter
+        if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+
+        kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
+                save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                save_pos->usOpenFlag);
+        kprintf("ifs FS_OPENCREATE(\"%s\")", str);
+        if(!(rc = (*p_open)(&cdfsi,
+                            &cdfsd,
+                            str,
+                            -1, // not 0 -- needed by ext2_os2.ifs
+                            save_pos->psffsi,
+                            save_pos->psffsd,
+                            save_pos->ulOpenMode,
+                            OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS,
+                            &usAction,             //dummy address
+                            0,
+                            0,
+                            &flags)))
+          kprintf(" = %u\n", rc);
+        else
+        {
+          kprintf(" failed, rc = %u\n", rc);
+          FSH_INTERR(msg_erropen, strlen(msg_erropen));
+        }
+      }
       else
       {
+        kprintf("ifs FS_OPENCREATE(\"%s\")", s);
+        sffsi.sfi_mode = OPEN_ACCESS_WRITEONLY | OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE | OPEN_FLAGS_NOINHERIT;
+        rc = (*p_open)(&cdfsi,
+                       &cdfsd,
+                       s,
+                       -1,
+                       &sffsi,
+                       &sffsd,
+                       sffsi.sfi_mode,
+                       OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS,
+                       &usAction,
+                       0,
+                       0,
+                       &flags);
+        if (rc)
+        {
+          kprintf(" failed, rc = %u\n", rc);
+          FSH_INTERR(msg_erropen, strlen(msg_erropen));
+        }
+        kprintf(" = %u\n", rc);
+      }
+
+      kprintf("ifs FS_CHGFILEPTR()");
+      if (opened)
+        rc = (*p_chgfileptr)(save_pos->psffsi, save_pos->psffsd, 0, 0, 0);
+      else
+        rc = (*p_chgfileptr)(&sffsi, &sffsd, 0, 0, 0);
+
+      if (rc)
+      {
         kprintf(" failed, rc = %u\n", rc);
-        FSH_INTERR(msg_erropen, strlen(msg_erropen));
+        FSH_INTERR(msg_errclose, strlen(msg_errptr));
+      }
+      kprintf(" = %u\n", rc);
+
+      length = len;
+      for (;;)
+      {
+        l = 0x8000;   /* write portion */
+        if (length < l)
+          l = length;
+        kprintf("ifs FS_WRITE()");
+        if (opened)
+          rc = (*p_write)(save_pos->psffsi, save_pos->psffsd, data, &l, 0);
+        else
+          rc = (*p_write)(&sffsi, &sffsd, data, &l, 0);
+        if (rc)
+        {
+          kprintf(" failed, rc = %u\n", rc);
+          FSH_INTERR(msg_errwrite, strlen(msg_errwrite));
+        }
+        kprintf(" = %u; %u bytes written\n", rc, l);
+        if (opened)
+          kprintf("sfi_position=%lu, sfi_size=%lu\n", save_pos->psffsi->sfi_position, save_pos->psffsi->sfi_size);
+        else
+          kprintf("sfi_position=%lu, sfi_size=%lu\n", sffsi.sfi_position, sffsi.sfi_size);
+        addr    += l;
+        length  -= l;
+        if (length)
+        {
+          rc = MFSH_UNPHYSTOVIRT(msel);
+          CHECKRC
+          rc = MFSH_PHYSTOVIRT(addr, 0xffff, &msel);
+          CHECKRC
+          data = MAKEP(msel, 0);
+        }
+        else
+          break;
+      }
+
+      /* if current file is not opened by minifsd, then close it */
+      if (!opened)
+      {
+        kprintf("ifs FS_CLOSE()");
+        rc = (*p_close)(0, 0, &sffsi, &sffsd);
+        if (rc)
+        {
+          kprintf(" failed, rc = %u\n", rc);
+          FSH_INTERR(msg_errclose, strlen(msg_errclose));
+        }
+        kprintf(" = %u\n", rc);
+      }
+
+      MFSH_UNPHYSTOVIRT(msel);
+      MFSH_UNPHYSTOVIRT(sel);
+    }
+  }
+  else
+  {
+    // call the FS_MOUNT entry point of the IFS:
+    kprintf("ifs FS_MOUNT()");
+    rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
+    if (rc)
+    {
+      kprintf(" failed, rc = %u\n", rc);
+      FSH_INTERR(msg_errmount, strlen(msg_errmount));
+    }
+    else
+      kprintf(" = %u\n", rc);
+
+    kprintf("open_files = %u\n", open_files);
+
+    // reopen by an IFS all files open by minifsd
+    for (save_index = 0; save_index < 0x80; save_index++)
+    {
+      if (save_map[save_index]) // if a file is open
+      {
+        save_pos = save_area + save_index;
+        // zero out cdfsi buffer
+        memset(&cdfsi, 0, sizeof(struct cdfsi));
+        cdfsi.cdi_hVPB = hVPB;
+        // change hVPB of 'fake bootdrive' to hVPB of a real one
+        save_pos->psffsi->sfi_hVPB = hVPB;
+
+        strcpy(str, save_pos->pName);
+        // change a 'fake bootdrive' drv letter to a CD drv letter
+        if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+
+        kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
+                save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                save_pos->usOpenFlag);
+        kprintf("ifs FS_OPENCREATE(\"%s\")", str);
+        if(!(rc = (*p_open)(&cdfsi,
+                            &cdfsd,
+                            str,
+                            -1, // not 0 -- needed by ext2_os2.ifs
+                            save_pos->psffsi,
+                            save_pos->psffsd,
+                            save_pos->ulOpenMode,  // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                            save_pos->usOpenFlag,
+                            &usAction,             //dummy address
+                            0,
+                            0,
+                            &flags)))
+          kprintf(" = %u\n", rc);
+        else
+        {
+          kprintf(" failed, rc = %u\n", rc);
+          FSH_INTERR(msg_erropen, strlen(msg_erropen));
+        }
       }
     }
   }
 
+  if (mods_sel) MFSH_UNPHYSTOVIRT(mods_sel);
 
   return NO_ERROR;
 }

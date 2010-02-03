@@ -18,7 +18,7 @@
 #define LDR_SEG  0x2000 // freeldr segment
 
 // ; multiboot kernel load base
-#define KERN_BASE   0x800000
+#define KERN_BASE   0x400000
 #define REL_BASE    0x90000
 #define REL1_BASE   (0x90000 + SHIFT)
 

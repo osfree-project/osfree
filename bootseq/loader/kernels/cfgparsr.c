@@ -165,7 +165,7 @@ unsigned long CfgParseLine(char line[], int len, int lineno)
       if(!(pc=(char *)malloc((size_t)len + 1)))
               return(0);
       strcpy(pc,line);
-      type[i].sp[type[i].ip].str_num = lineno;
+      type[i].sp[type[i].ip].line = lineno;
       type[i].sp[type[i].ip].string  = pc;
 
       type[i].ip++;
@@ -614,24 +614,24 @@ unsigned long CfgParseConfig(void * addr, int size)
   return 0;
 };
 
-unsigned long CfgGetenv(char * name, char ** value)
+unsigned long CfgGetenv(char *name, char *value)
 {
   unsigned long i;
   unsigned long j;
+  char *p;
 
-  for(i=0;i<type[6].ip;i++)
+  for(i = 0; i < type[6].ip; i++)
   {
-    for(j=0;j<strlen(type[6].sp[i].string);j++)
-    {
-      if(type[6].sp[i].string[j]!=toupper(name[j]))
-      {
-        if (type[6].sp[i].string[j]=='=')
-        {
-          strcpy(*value,type[6].sp[i].string+j+1);
-          return NO_ERROR;
-        }
+    /* find '=' in string */
+    for(j = 0, p = type[6].sp[i].string; *p && *p != '='; j++, p++)
+      if (*p != toupper(name[j]))
         break;
-      }
+
+    if (*p == '=') /* if we met '=' sign, i.e. name found */
+    {
+      p++; /* skip '=' sign */
+      strcpy(value, p);
+      return NO_ERROR;
     }
   }
 

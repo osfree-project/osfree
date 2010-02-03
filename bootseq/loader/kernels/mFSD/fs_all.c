@@ -18,6 +18,7 @@ unsigned long DevHlp;
 char oncecntr = 0;
 char drvflag  = 0;
 
+int tolower (int c);
 int kprintf(const char *format, ...);
 void advance_ptr(void);
 
@@ -473,6 +474,7 @@ int far pascal _loadds FS_OPENCREATE(
 {
   unsigned long size;
   char msg_toomany[] = "Open file limit exceeded!\n";
+  char far *p;
   int rc, i;
 
   kprintf("**** FS_OPENCREATE(\"%s\")\n", pName);
@@ -529,6 +531,8 @@ int far pascal _loadds FS_OPENCREATE(
     save_pos->ulOpenMode = ulOpenMode;
     save_pos->usOpenFlag = openflag;
     memmove(save_pos->pName, pName, 0x3a);
+    // make lowercase
+    for (p = save_pos->pName; *p; p++) *p = tolower(*p);
 
     *((unsigned long *)psffsd + 2) = save_index;
   }
@@ -578,7 +582,7 @@ int far pascal _loadds FS_ATTACH(
                         )
 {
   int rc;
-  kprintf("***** FS_ATTACH(\"%s\")\n", pDev);
+  kprintf("**** FS_ATTACH(\"%s\")\n", pDev);
   // zero out open files indicate area
   memset(save_map, 0, sizeof(save_map));
   oncecntr++;

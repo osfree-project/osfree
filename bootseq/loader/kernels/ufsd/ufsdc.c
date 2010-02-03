@@ -48,8 +48,8 @@ int filemax;
 int filepos;
 int fileaddr;
 
-unsigned long ufsd_stack;
-unsigned long ldr_stack;
+//unsigned long ufsd_stack;
+//unsigned long ldr_stack;
 
 unsigned long cdrom_drive;
 char drvletter;
@@ -73,8 +73,8 @@ extern char debug;
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
 #pragma aux callback     "*"
-#pragma aux ldr_stack    "*"
-#pragma aux ufsd_stack   "*"
+//#pragma aux ldr_stack    "*"
+//#pragma aux ufsd_stack   "*"
 
 int toupper (int c);
 
@@ -183,6 +183,7 @@ ufs_open (char *filename)
       if (*p == '\\')  p++;
 
       l = lastpos(p, q);
+
       if (l && ((p + strlen(p)) == (l + strlen(q))) && (l == p || l[-1] == ' '))
           break;
 
@@ -280,8 +281,8 @@ patch_cfgsys(void)
 
 void cmain (void)
 {
-  int  ldrbase, mfsbase = 0;
-  int  ldrlen, mfslen = 0;
+  int  ldrbase = 0, mfsbase = 0;
+  int  ldrlen = 0, mfslen = 0;
   char *buf;
   char type[8];
   unsigned long *p;
@@ -359,30 +360,6 @@ void cmain (void)
 
   kprintf("boot_device=%x\n", m->boot_device);
 
-  // load os2ldr
-  if (ufs_open("OS2LDR"))
-  {
-    ldrbase = 0x10000;
-    buf = (char *)ldrbase;
-    ldrlen = ufs_read(buf, -1);
-  }
-
-  // load os2boot (if it exists)
-  if (ufs_open("OS2BOOT"))
-  {
-    mfsbase = 0x7c0;
-    buf = (char *)mfsbase;
-    mfslen = ufs_read(buf, -1);
-  }
-
-  // read a bootsector. there must be "*bootsec*"
-  // string in a command line
-  if (ufs_open("*bootsec*"))
-  {
-    buf = (char *)(REL1_BASE - 0x200);
-    ufs_read(buf, 512);
-  }
-
   p = (unsigned long *)(REL1_BASE + 0x20); // an address of mfs_len in the header
 
   /* set boot flags */
@@ -404,23 +381,47 @@ void cmain (void)
   drvletter = assign_drvletter(mode);
   kprintf("assign_drvletter() exited\n");
 
+  // correct the command line according the drive letter got
+  pp[0] = (char)drvletter;
+  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+
   /* set freeldr stack before calling it */
-  __asm {
-    mov ufsd_stack, esp
-    mov esp, ldr_stack
-  }
+  //__asm {
+  //  mov ufsd_stack, esp
+  //  mov esp, ldr_stack
+  //}
 
   /* Patch the config.sys file with boot drive letter */
   patch_cfgsys();
 
-  /* restore our stack */
-  __asm {
-    mov esp, ufsd_stack
+  // load os2ldr
+  if (ufs_open("os2ldr"))
+  {
+    ldrbase = 0x10000;
+    buf = (char *)ldrbase;
+    ldrlen = ufs_read(buf, -1);
   }
 
-  // correct the command line according the drive letter got
-  pp[0] = (char)drvletter;
-  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
+  // load os2boot (if it exists)
+  if (ufs_open("os2boot"))
+  {
+    mfsbase = 0x7c0;
+    buf = (char *)mfsbase;
+    mfslen = ufs_read(buf, -1);
+  }
+
+  // read a bootsector. there must be "*bootsec*"
+  // string in a command line
+  if (ufs_open("*bootsec*"))
+  {
+    buf = (char *)(REL1_BASE - 0x200);
+    ufs_read(buf, 512);
+  }
+
+  /* restore our stack */
+  //__asm {
+  //  mov esp, ufsd_stack
+  //}
 
   if (get_diskinfo (boot_drive, &geom)
     || ! (geom.flags & BIOSDISK_FLAG_CDROM))
@@ -483,7 +484,7 @@ void cmain (void)
 
   /* set BPB */
   bpb = (bios_parameters_block *)(REL1_BASE - 0x200 + 0xb);
-  /*
+
   if (boot_drive == cdrom_drive) { // booting from CDROM drive
     // fill fake BPB
     grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
@@ -495,7 +496,7 @@ void cmain (void)
     bpb->track_size = 0x3f;
     bpb->heads_cnt  = 0xff;
     bpb->marker     = 0x29;
-  } */
+  }
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
   bpb->log_drive   = 0x80 + (drvletter - 'C'); // c:;

@@ -70,7 +70,7 @@ extern cfg_opts options;
 
 struct name
 {
-  unsigned str_num;
+  unsigned line;
   char *string;
 };
 
@@ -86,4 +86,4 @@ unsigned long CfgInitOptions(void);
 unsigned long CfgParseLine(char *, int, int);
 unsigned long CfgCleanup(void);
 unsigned long CfgParseConfig(void * addr, int size);
-unsigned long CfgGetenv(char * name, char ** value);
+unsigned long CfgGetenv(char *name, char *value);
