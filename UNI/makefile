@@ -10,7 +10,7 @@ OUT = $(%ROOT)$(SEP)build$(SEP)include
 LIBOUT = $(%ROOT)$(SEP)build$(SEP)lib$(SEP)
 TARGETS = h
 
-subdirs = $(OUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
+subdirs = $(OUT) $(LIBOUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
 
 h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
   @%null

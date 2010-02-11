@@ -7,8 +7,8 @@ DEST    = os2$(SEP)system
 
 !include $(%ROOT)/mk/appsos2.mk
 
-TARGETS = $(PATH)oso001.msg  $(PATH)oso001.pl  $(PATH)oso001.ru &
-          $(PATH)oso001h.msg $(PATH)oso001h.pl $(PATH)oso001h.ru
+TARGETS = $(PATH)OSO001.msg  $(PATH)oso001.pl  $(PATH)OSO001.ru &
+          $(PATH)OSO001h.msg $(PATH)oso001h.pl $(PATH)OSO001h.ru
 
 $(PATH)oso001.rsf: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) T=$^. rsf

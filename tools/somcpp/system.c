@@ -46,7 +46,12 @@
 #if     HOST_SYS_FAMILY == SYS_UNIX
 #include    "unistd.h"              /* For getcwd(), readlink() */
 #elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC || HOST_COMPILER == __WATCOMC__
+#ifdef __LINUX__
+#include    "dirent.h"
+#include    "unistd.h"              /* For getcwd(), readlink() */
+#else
 #include    "direct.h"
+#endif
 #if __WATCOMC__ < 1280
 #define getcwd( buf, size)  _getcwd( buf, size)
 #endif
