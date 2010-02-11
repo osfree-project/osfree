@@ -9,6 +9,7 @@
 
 parse arg dir
 parse source os .
+parse version rexxname rexxver releasedate
 
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
    os = 'WINNT' | os = 'WIN32'
@@ -45,12 +46,12 @@ end
 
 do while path \= ''
   parse value path with dir '\' path
-
+  cdir=directory()
   if pos(':', dir) = 2 & length(dir) = 2
   then
     iterate
   else if dir = '' then iterate
-  else if directory(dir) = ''
+  else if ((directory(dir) = cdir)|(directory(dir)='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
   then do
     'mkdir ' || dir
     call directory dir

@@ -41,7 +41,9 @@ Boston, MA 02111-1307, USA.  */
 #endif
 #endif
 
+#ifndef __LINUX__
 #include <io.h>
+#endif
 #include <stdio.h>
 
 #ifdef HAVE_UNISTD_H
@@ -89,6 +91,8 @@ extern int noparserflag;
 #endif
 
 #ifdef __LINUX__
+#include <sys/stat.h>
+#include <unistd.h>
 #include <libgen.h>
 #include <process.h> //getpid()
 

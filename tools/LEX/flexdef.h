@@ -30,7 +30,9 @@
 
 #include "config.h"
 
+#ifndef __LINUX__
 #include <io.h>
+#endif
 #include <stdio.h>
 #include <ctype.h>
 

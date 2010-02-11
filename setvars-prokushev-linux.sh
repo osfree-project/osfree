@@ -9,7 +9,7 @@ if p > 0 then basename = delstr(basename, p)
 user = substr(basename, pos('-', basename) + 1)
 curdir = directory()
 call directory path
-call setenv user || '.conf'
+call SETENV user || '.conf'
 call directory curdir
 
 say 'New shell started'
