@@ -23,6 +23,10 @@ Boston, MA 02111-1307, USA.  */
 #include "system.h"
 #include "machine.h"    /* for MAXSHORT */
 
+#ifdef __LINUX__
+#include <unistd.h>
+#endif
+
 extern  int lineno;
 extern  int verboseflag;
 extern  char *infile;
