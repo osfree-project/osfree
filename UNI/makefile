@@ -7,7 +7,7 @@
 !include $(%ROOT)/mk/all.mk
 
 OUT = $(%ROOT)$(SEP)build$(SEP)include
-LIBOUT = $(%ROOT)$(SEP)build$(SEP)lib$(SEP)
+LIBOUT = $(%ROOT)build$(SEP)lib$(SEP)
 TARGETS = h
 
 subdirs = $(OUT) $(LIBOUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
@@ -17,7 +17,7 @@ h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
 
 pre: .SYMBOLIC
  $(SAY) Creating directories...
- @for %i in ($(subdirs)) do @$(MDHIER) %i
+ @for %i in ($(subdirs)) do $(MDHIER) %i
 
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file

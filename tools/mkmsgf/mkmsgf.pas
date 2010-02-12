@@ -25,7 +25,7 @@ program mkmsgf;
 
 {.$MODE ObjFPC}
 {$H+}
-{$DEFINE xDEBUG}
+{$DEFINE DEBUG}
 
 Uses
   SysUtils(*,

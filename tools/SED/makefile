@@ -1,6 +1,6 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-PROJ = sed
+PROJ = SED
 DESC = SED language interpreter
 srcfiles = $(p)sedcomp$(e) $(p)sedexec$(e)
 
