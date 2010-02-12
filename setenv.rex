@@ -71,6 +71,7 @@ tools = root || '\bin\tools'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
 if os == 'UNIX' | os == 'LINUX' then do
+  include = watcom || '\lh;'
 end; else do
   include = watcom || '\h;'
 end
