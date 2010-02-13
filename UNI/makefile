@@ -241,7 +241,7 @@ $(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
 
 $(OUT)$(SEP)os2$(SEP)dossemaphores.h: os2$(SEP)dossemaphores.uni
 
-$(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)dosdatetime.uni
+$(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)cpi$(SEP)dosdatetime.uni
 
 $(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
 
