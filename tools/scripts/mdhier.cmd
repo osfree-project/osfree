@@ -53,8 +53,8 @@ do while path \= ''
   if dir = '' then iterate
 
   cdir=directory()
-  ndir=(directory(dir)
-  if (ndir = cdir)|(ndir='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
+  ndir=directory(dir)
+  if ((ndir = cdir)|(ndir='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
   then do
     'mkdir ' || dir
     call directory dir
