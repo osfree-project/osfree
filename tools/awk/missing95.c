@@ -14,6 +14,7 @@ int pclose(FILE *f) {
 
 #else
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define READ 0
