@@ -328,7 +328,7 @@ DosQuerySysInfo                             DLL APIENTRY DOSCALLS 348  OS2386
 DosWaitThread                               DLL APIENTRY DOSCALLS 349  OS2386
 DosAsyncTimer                               DLL APIENTRY DOSCALLS 350  OS2386
 DosTimerAsync                               DLL APIENTRY DOSCALLS 350  OS2386 DosAsyncTimer
-DosTimerTimer                               DLL APIENTRY DOSCALLS 351  OS2386 DosStartTimer
+DosTimerStart                               DLL APIENTRY DOSCALLS 351  OS2386 DosStartTimer
 DosStartTimer                               DLL APIENTRY DOSCALLS 351  OS2386
 DosGetResource                              DLL APIENTRY DOSCALLS 352  OS2386
 DosGetResource2                             DLL APIENTRY DOSCALLS 352  OS2386 DosGetResource
