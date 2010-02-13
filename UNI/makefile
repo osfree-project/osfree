@@ -73,7 +73,6 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosresourcescommon.h &
      $(OUT)$(SEP)os2$(SEP)dosexceptions.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetime.h &
-     $(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h &
      $(OUT)$(SEP)os2$(SEP)pm.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
      $(OUT)$(SEP)os2$(SEP)pmbase.h &
@@ -246,8 +245,6 @@ $(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)dosdatetime.uni
 
 $(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
 
-$(OUT)$(SEP)os2$(SEP)dosdatetimecommon.h: os2$(SEP)dosdatetimecommon.uni
-
 $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)dosmemmgr.h: os2$(SEP)dosmemmgr.uni
@@ -416,7 +413,7 @@ $(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pmgpi.uni
 
 $(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pmdev.uni
 
-$(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)devcommon.uni
+$(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)cpi$(SEP)devcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpiprimitives.uni
 

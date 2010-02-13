@@ -38,7 +38,6 @@ uses dosmemmgrcommon;
 uses dosprocesscommon;
 uses dosfilemgrcommon default;
 uses dossemaphorescommon;
-uses dosdatetimecommon;
 uses dosresourcescommon;
 uses dossesmgrfilemgr; (* Need to move to both areas *)
 uses dosspinlock;

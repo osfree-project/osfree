@@ -1,7 +1,6 @@
 module dos;
 
 uses dosdatetime default;
-uses dosdatetimecommon default;
 uses dosdevices default;
 uses dosexceptions default;
 uses dosfilemgr default;
