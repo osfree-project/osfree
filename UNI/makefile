@@ -181,16 +181,16 @@ $(OUT)$(SEP)os2$(SEP)bse.h: os2$(SEP)cpi$(SEP)bse.uni
 $(OUT)$(SEP)os2$(SEP)base.h: os2$(SEP)cpi$(SEP)base.uni
 
 ### OS/2 Personality base DOS API ordinals
-$(OUT)$(SEP)os2$(SEP)bsedos.h: os2$(SEP)bsedos.uni
+$(OUT)$(SEP)os2$(SEP)bsedos.h: os2$(SEP)cpi$(SEP)bsedos.uni
 
 ### OS/2 Personality base error codes and messages
-$(OUT)$(SEP)os2$(SEP)bseerr.h: os2$(SEP)bseerr.uni
+$(OUT)$(SEP)os2$(SEP)bseerr.h: os2$(SEP)cpi$(SEP)bseerr.uni
 
 ### OS/2 Personality base API ordinals
-$(OUT)$(SEP)os2$(SEP)bseord.h: os2$(SEP)bseord.uni
+$(OUT)$(SEP)os2$(SEP)bseord.h: os2$(SEP)cpi$(SEP)bseord.uni
 
 ### OS/2 Personality memory API flags
-$(OUT)$(SEP)os2$(SEP)bsememf.h: os2$(SEP)bsememf.uni
+$(OUT)$(SEP)os2$(SEP)bsememf.h: os2$(SEP)cpi$(SEP)bsememf.uni
 
 $(OUT)$(SEP)os2$(SEP)bsedev.h: os2$(SEP)cpi$(SEP)bsedev.uni
 
@@ -451,6 +451,7 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 
 .uni: $(MYDIR)shared
 .uni: $(MYDIR)os2
+.uni: $(MYDIR)os2$(SEP)cpi
 .uni: $(MYDIR)dos
 
 .lib: $(PATH)
