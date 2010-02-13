@@ -2,46 +2,47 @@ module dosdatetime;
 
 abi os2386;
 
+type  HSEM=ULONG;
+type PHSEM=^HSEM;
 
+type HTIMER=LHANDLE;
+type PHTIMER=^HTIMER;
 
-(*   #define DosTimerAsync   DosAsyncTimer
-   #define DosTimerStart   DosStartTimer
-   #define DosTimerStop    DosStopTimer *)
+function   DosAsyncTimer(in msec: ULONG;
+                         in hsem: HSEM;
+                         out phtimer: HTIMER): APIRET;
+function   DosTimerAsync(in msec: ULONG;
+                         in hsem: HSEM;
+                         out phtimer: HTIMER): APIRET;
 
-         type  HSEM=ULONG;
-      type PHSEM=^HSEM;
+function   DosTimerStart(in msec: ULONG;
+                         in hsem: HSEM;
+                         out phtimer: HTIMER): APIRET;
+function   DosStartTimer(in msec: ULONG;
+                         in hsem: HSEM;
+                         out phtimer: HTIMER): APIRET;
 
-   type HTIMER=LHANDLE;
-   type PHTIMER=^HTIMER;
+function   DosStopTimer(in htimer: HTIMER): APIRET;
+function   DosTimerStop(in htimer: HTIMER): APIRET;
 
-   function   DosAsyncTimer(in msec: ULONG;
-                                    in hsem: HSEM;
-                                    out phtimer: HTIMER): APIRET;
+(*** Time support *)
 
-   function   DosStartTimer(in msec: ULONG;
-                                   in hsem: HSEM;
-                                   out phtimer: HTIMER): APIRET;
+type DATETIME=structure      (* date *)
+  hours: UCHAR;
+  minutes: UCHAR;
+  seconds: UCHAR;
+  hundredths: UCHAR;
+  day: UCHAR;
+  month: UCHAR;
+  year: USHORT;
+  timezone: SHORT;
+  weekday: UCHAR;
+end;
 
-   function   DosStopTimer(in htimer: HTIMER): APIRET;
+type PDATETIME=^DATETIME;
 
-   (*** Time support *)
+function   DosGetDateTime(out pdt: DATETIME): APIRET;
 
-   type DATETIME=structure      (* date *)
-         hours: UCHAR;
-         minutes: UCHAR;
-         seconds: UCHAR;
-         hundredths: UCHAR;
-         day: UCHAR;
-         month: UCHAR;
-         year: USHORT;
-         timezone: SHORT;
-         weekday: UCHAR;
-   end;
-
-   type PDATETIME=^DATETIME;
-
-   function   DosGetDateTime(out pdt: DATETIME): APIRET;
-
-   function   DosSetDateTime(in pdt: PDATETIME): APIRET;
+function   DosSetDateTime(in pdt: PDATETIME): APIRET;
 
 end.

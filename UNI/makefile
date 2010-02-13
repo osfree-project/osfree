@@ -194,11 +194,11 @@ $(OUT)$(SEP)os2$(SEP)bsememf.h: os2$(SEP)cpi$(SEP)bsememf.uni
 
 $(OUT)$(SEP)os2$(SEP)bsedev.h: os2$(SEP)cpi$(SEP)bsedev.uni
 
-$(OUT)$(SEP)os2$(SEP)bsetib.h: os2$(SEP)bsetib.uni
+$(OUT)$(SEP)os2$(SEP)bsetib.h: os2$(SEP)cpi$(SEP)bsetib.uni
 
-$(OUT)$(SEP)os2$(SEP)bsexcpt.h: os2$(SEP)bsexcpt.uni
+$(OUT)$(SEP)os2$(SEP)bsexcpt.h: os2$(SEP)cpi$(SEP)bsexcpt.uni
 
-$(OUT)$(SEP)os2$(SEP)bsesub.h: os2$(SEP)bsesub.uni
+$(OUT)$(SEP)os2$(SEP)bsesub.h: os2$(SEP)cpi$(SEP)bsesub.uni
 
 $(OUT)$(SEP)os2$(SEP)sub.h: os2$(SEP)sub.uni
 
@@ -208,7 +208,7 @@ $(OUT)$(SEP)os2$(SEP)kbd.h: os2$(SEP)kbd.uni
 
 $(OUT)$(SEP)os2$(SEP)mou.h: os2$(SEP)mou.uni
 
-$(OUT)$(SEP)os2$(SEP)dos.h: os2$(SEP)dos.uni
+$(OUT)$(SEP)os2$(SEP)dos.h: os2$(SEP)cpi$(SEP)dos.uni
 
 $(OUT)$(SEP)os2$(SEP)win.h: os2$(SEP)win.uni
 

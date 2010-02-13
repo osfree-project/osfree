@@ -272,6 +272,7 @@ DosPhysicalDisk                             DLL APIENTRY DOSCALLS 287  OS2386
 DosSetCp                                    DLL APIENTRY DOSCALLS 288  OS2386
 DosSetProcessCp                             DLL APIENTRY DOSCALLS 289  OS2386
 DosStopTimer                                DLL APIENTRY DOSCALLS 290  OS2386
+DosTimerStop                                DLL APIENTRY DOSCALLS 290  OS2386 DosStopTimer
 DosQueryCp                                  DLL APIENTRY DOSCALLS 291  OS2386
 DosGetCp                                    DLL APIENTRY DOSCALLS 291  OS2386 DosQueryCp
 DosSetDateTime                              DLL APIENTRY DOSCALLS 292  OS2386
@@ -326,6 +327,8 @@ DosSubUnsetMem                              DLL APIENTRY DOSCALLS 347  OS2386
 DosQuerySysInfo                             DLL APIENTRY DOSCALLS 348  OS2386
 DosWaitThread                               DLL APIENTRY DOSCALLS 349  OS2386
 DosAsyncTimer                               DLL APIENTRY DOSCALLS 350  OS2386
+DosTimerAsync                               DLL APIENTRY DOSCALLS 350  OS2386 DosAsyncTimer
+DosTimerTimer                               DLL APIENTRY DOSCALLS 351  OS2386 DosStartTimer
 DosStartTimer                               DLL APIENTRY DOSCALLS 351  OS2386
 DosGetResource                              DLL APIENTRY DOSCALLS 352  OS2386
 DosGetResource2                             DLL APIENTRY DOSCALLS 352  OS2386 DosGetResource
