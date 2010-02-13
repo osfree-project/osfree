@@ -39,7 +39,7 @@ char copyright[] =
 #include "version.h"
 #ifdef __LINUX__
 #include <unistd.h>
-#enif
+#endif
 static char flex_version[] = FLEX_VERSION;
 
 

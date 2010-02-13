@@ -366,7 +366,7 @@ install: build
 !endif
 
 precopy: .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
+ $(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
 
 .error
  @$(SAY) Error (!)
