@@ -6,7 +6,7 @@
 
 !include $(%ROOT)/mk/all.mk
 
-OUT = $(%ROOT)$(SEP)build$(SEP)include
+OUT = $(%ROOT)build$(SEP)include
 LIBOUT = $(%ROOT)build$(SEP)lib$(SEP)
 TARGETS = h
 
