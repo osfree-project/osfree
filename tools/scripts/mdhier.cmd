@@ -46,12 +46,15 @@ end
 
 do while path \= ''
   parse value path with dir '\' path
-  cdir=directory()
   if pos(':', dir) = 2 & length(dir) = 2
   then
     iterate
-  else if dir = '' then iterate
-  else if ((directory(dir) = cdir)|(directory(dir)='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
+  
+  if dir = '' then iterate
+
+  cdir=directory()
+  ndir=(directory(dir)
+  if (ndir = cdir)|(ndir='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
   then do
     'mkdir ' || dir
     call directory dir
