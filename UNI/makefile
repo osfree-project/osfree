@@ -211,57 +211,57 @@ $(OUT)$(SEP)os2$(SEP)dos.h: os2$(SEP)cpi$(SEP)dos.uni
 
 $(OUT)$(SEP)os2$(SEP)win.h: os2$(SEP)win.uni
 
-$(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)dosprocesscommon.uni
+$(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)cpi$(SEP)dosprocesscommon.uni
 
-$(OUT)$(SEP)os2$(SEP)dosprocess.h: os2$(SEP)dosprocess.uni
+$(OUT)$(SEP)os2$(SEP)dosprocess.h: os2$(SEP)cpi$(SEP)dosprocess.uni
 
-$(OUT)$(SEP)os2$(SEP)dosprofile.h: os2$(SEP)dosprofile.uni
+$(OUT)$(SEP)os2$(SEP)dosprofile.h: os2$(SEP)cpi$(SEP)dosprofile.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmisc.h: os2$(SEP)dosmisc.uni
+$(OUT)$(SEP)os2$(SEP)dosmisc.h: os2$(SEP)cpi$(SEP)dosmisc.uni
 
 $(OUT)$(SEP)os2$(SEP)basemid.h: os2$(SEP)cpi$(SEP)basemid.uni
 
-$(OUT)$(SEP)os2$(SEP)dosnmpipes.h: os2$(SEP)dosnmpipes.uni
+$(OUT)$(SEP)os2$(SEP)dosnmpipes.h: os2$(SEP)cpi$(SEP)dosnmpipes.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)dosmvdm.uni
+$(OUT)$(SEP)os2$(SEP)dosmvdm.h: os2$(SEP)cpi$(SEP)dosmvdm.uni
 
-$(OUT)$(SEP)os2$(SEP)dossesmgr.h: os2$(SEP)dossesmgr.uni
+$(OUT)$(SEP)os2$(SEP)dossesmgr.h: os2$(SEP)cpi$(SEP)dossesmgr.uni
 
-$(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)dosnls.uni
+$(OUT)$(SEP)os2$(SEP)dosnls.h: os2$(SEP)cpi$(SEP)dosnls.uni
 
-$(OUT)$(SEP)os2$(SEP)dosdevioctl.h: os2$(SEP)dosdevioctl.uni
+$(OUT)$(SEP)os2$(SEP)dosdevioctl.h: os2$(SEP)cpi$(SEP)dosdevioctl.uni
 
-$(OUT)$(SEP)os2$(SEP)dosqueues.h: os2$(SEP)dosqueues.uni
+$(OUT)$(SEP)os2$(SEP)dosqueues.h: os2$(SEP)cpi$(SEP)dosqueues.uni
 
-$(OUT)$(SEP)os2$(SEP)doserrors.h: os2$(SEP)doserrors.uni
+$(OUT)$(SEP)os2$(SEP)doserrors.h: os2$(SEP)cpi$(SEP)doserrors.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)dosmodulemgr.uni
+$(OUT)$(SEP)os2$(SEP)dosmodulemgr.h: os2$(SEP)cpi$(SEP)dosmodulemgr.uni
 
-$(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)dosfilemgr.uni
+$(OUT)$(SEP)os2$(SEP)dosfilemgr.h: os2$(SEP)cpi$(SEP)dosfilemgr.uni
 
-$(OUT)$(SEP)os2$(SEP)dossemaphores.h: os2$(SEP)dossemaphores.uni
+$(OUT)$(SEP)os2$(SEP)dossemaphores.h: os2$(SEP)cpi$(SEP)dossemaphores.uni
 
 $(OUT)$(SEP)os2$(SEP)dosdatetime.h: os2$(SEP)cpi$(SEP)dosdatetime.uni
 
-$(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)dosdevices.uni
+$(OUT)$(SEP)os2$(SEP)dosdevices.h: os2$(SEP)cpi$(SEP)dosdevices.uni
 
-$(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)dosfilemgrcommon.uni
+$(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h: os2$(SEP)cpi$(SEP)dosfilemgrcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmemmgr.h: os2$(SEP)dosmemmgr.uni
+$(OUT)$(SEP)os2$(SEP)dosmemmgr.h: os2$(SEP)cpi$(SEP)dosmemmgr.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmonitors.h: os2$(SEP)dosmonitors.uni
+$(OUT)$(SEP)os2$(SEP)dosmonitors.h: os2$(SEP)cpi$(SEP)dosmonitors.uni
 
-$(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)dosmemmgrcommon.uni
+$(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h: os2$(SEP)cpi$(SEP)dosmemmgrcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)dosexceptions.h: os2$(SEP)dosexceptions.uni
+$(OUT)$(SEP)os2$(SEP)dosexceptions.h: os2$(SEP)cpi$(SEP)dosexceptions.uni
 
-$(OUT)$(SEP)os2$(SEP)dosexcptfunc.h: os2$(SEP)dosexcptfunc.uni
+$(OUT)$(SEP)os2$(SEP)dosexcptfunc.h: os2$(SEP)cpi$(SEP)dosexcptfunc.uni
 
-$(OUT)$(SEP)os2$(SEP)dosresources.h: os2$(SEP)dosresources.uni
+$(OUT)$(SEP)os2$(SEP)dosresources.h: os2$(SEP)cpi$(SEP)dosresources.uni
 
-$(OUT)$(SEP)os2$(SEP)dosresourcescommon.h: os2$(SEP)dosresourcescommon.uni
+$(OUT)$(SEP)os2$(SEP)dosresourcescommon.h: os2$(SEP)cpi$(SEP)dosresourcescommon.uni
 
-$(OUT)$(SEP)os2$(SEP)dosdebug.h: os2$(SEP)dosdebug.uni
+$(OUT)$(SEP)os2$(SEP)dosdebug.h: os2$(SEP)cpi$(SEP)dosdebug.uni
 
 $(OUT)$(SEP)os2$(SEP)hevdef.h: os2$(SEP)hevdef.uni
 
