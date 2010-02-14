@@ -18,8 +18,6 @@ int pclose(FILE *f) {
 #include <unistd.h>
 
 // Prototypes
-FILE *popen(const char * s, const char * m);
-int pclose(FILE *f);
 
 
 #define READ 0
@@ -62,13 +60,14 @@ FILE *popen(const char * s, const char * m)
   if (close(pfp[child_end])==-1) exit(1);
   
   execl("/bin/sh", "sh", "-c", s, NULL);
-  exit (1);
-  
+  exit(1);
+  return NULL;
 }
 
 
 int pclose(FILE *f)
 {
   fclose(f);
+  return NULL;
 }
 #endif
