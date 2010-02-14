@@ -3,9 +3,7 @@
  *
  */
 
-#define INCL_DOSERRORS
-#define INCL_NOPMAPI
-#include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
+#include <const.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
 #include <mb_info.h>
 #include "serial.h"
@@ -40,6 +38,7 @@ unsigned long far *p_minifsd;
 
 char debug = 0;
 char remotefs = 0;
+char ramdisk = 0;
 
 char mount_name[]   = "FS_MOUNT";
 char open_name[]    = "FS_OPENCREATE";
@@ -329,7 +328,13 @@ int far pascal _loadds MFS_INIT(
 
     if (mbi_far->flags & MB_INFO_CMDLINE)
     {
-      // if we're booting from remote fs
+      // if we're booting from a ramdisk
+      if (pp = strstr(cmdline, "--ramdisk-boot"))
+      {
+        ramdisk  = 1;
+        remotefs = 1;
+      }
+    // if we're booting from remote fs
       if (pp = strstr(cmdline, "--remote-fs"))
       {
         remotefs = 1;
@@ -743,6 +748,7 @@ int far pascal _loadds MFS_TERM(void)
   kprintf("p_write  = 0x%08lx\n", p_write);
   kprintf("p_close  = 0x%08lx\n", p_close);
   kprintf("p_mkdir  = 0x%08lx\n", p_mkdir);
+  kprintf("p_chgfileptr = 0x%08lx\n", p_chgfileptr);
 
   kprintf("hard disk partition hVPB: 0x%04x\n", hVPB);
 
@@ -832,7 +838,24 @@ int far pascal _loadds MFS_TERM(void)
     }
     else
       kprintf(" = %u\n", rc);
+  }
+  else
+  {
+    // call the FS_MOUNT entry point of the IFS:
+    kprintf("ifs FS_MOUNT()");
+    rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
+    if (rc)
+    {
+      kprintf(" failed, rc = %u\n", rc);
+      FSH_INTERR(msg_errmount, strlen(msg_errmount));
+    }
+    else
+      kprintf(" = %u\n", rc);
+  }
 
+
+  if (ramdisk)
+  {
     for (i = 0, mod = (struct mod_list far *)mods_addr;
          i < mods_count; i++, mod++)
     {
@@ -940,7 +963,7 @@ int far pascal _loadds MFS_TERM(void)
         if (save_map[save_index])
         {
           save_pos = save_area + save_index;
-          // find first difference
+          // find the first difference
           for (p = save_pos->pName, r = s; *p && *r && *p == *r; p++, r++) ;
           // if they're equal
           if (!*p && !*r)
@@ -1039,10 +1062,6 @@ int far pascal _loadds MFS_TERM(void)
           FSH_INTERR(msg_errwrite, strlen(msg_errwrite));
         }
         kprintf(" = %u; %u bytes written\n", rc, l);
-        if (opened)
-          kprintf("sfi_position=%lu, sfi_size=%lu\n", save_pos->psffsi->sfi_position, save_pos->psffsi->sfi_size);
-        else
-          kprintf("sfi_position=%lu, sfi_size=%lu\n", sffsi.sfi_position, sffsi.sfi_size);
         addr    += l;
         length  -= l;
         if (length)
@@ -1076,17 +1095,6 @@ int far pascal _loadds MFS_TERM(void)
   }
   else
   {
-    // call the FS_MOUNT entry point of the IFS:
-    kprintf("ifs FS_MOUNT()");
-    rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
-    if (rc)
-    {
-      kprintf(" failed, rc = %u\n", rc);
-      FSH_INTERR(msg_errmount, strlen(msg_errmount));
-    }
-    else
-      kprintf(" = %u\n", rc);
-
     kprintf("open_files = %u\n", open_files);
 
     // reopen by an IFS all files open by minifsd

@@ -4,9 +4,7 @@
  *
  */
 
-#define INCL_DOSERRORS
-#define INCL_NOPMAPI
-#include <os2.h>                // From the "Developer Connection Device Driver Kit" version 2.0
+#include <const.h>                // From the "Developer Connection Device Driver Kit" version 2.0
 
 #include "ifs.h"
 #include "struct.h"

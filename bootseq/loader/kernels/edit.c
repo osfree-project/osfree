@@ -267,6 +267,7 @@ int get_user_input (int *x, int *y)
     case 0x4:    // del key
       break;
     default:
+    
       continue;
     }
     break;

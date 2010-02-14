@@ -568,8 +568,13 @@ load_module (char *module, char *arg)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
+  printf ("   * mod try: '%s' @ 0x%x, 0x%x bytes", module, cur_addr, len);
+
   if (u_open (module, &size))
+  {
+    printf("\r\n");
     return 0;
+  }
 
   u_parm(PARM_FILEMAX, ACT_GET, (unsigned int *)&filemax);
 
@@ -580,6 +585,7 @@ load_module (char *module, char *arg)
       errnum = ERR_BADMODADDR;
       u_parm(PARM_ERRNUM, ACT_SET, (unsigned int *)&errnum);
       u_close ();
+      printf("\r\n");
       return 0;
     }
 
@@ -592,10 +598,12 @@ load_module (char *module, char *arg)
   if (! len)
     {
       u_close ();
+      printf("\r\n");
       return 0;
     }
 
-  printf ("   * mod '%s' @ 0x%x, 0x%x bytes\r\n", module, cur_addr, len);
+  //printf ("   * mod '%s' @ 0x%x, 0x%x bytes\r\n", module, cur_addr, len);
+  printf(": *ok*\r\n");
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;

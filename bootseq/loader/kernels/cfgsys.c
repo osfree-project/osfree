@@ -22,7 +22,7 @@ struct term_entry *t;
 extern struct multiboot_info *m;
 extern char   cfged;
 extern char   autopreload;
-extern char   remotefs;
+extern char   ramdisk;
 
 /* mFSD start                  */
 extern unsigned long mfsd_start;
@@ -141,7 +141,7 @@ int preload_module(char *module, int three_dirs)
 
 int preload_library(const char *name)
 {
-  int  i, rc;
+  int  i, rc = 0;
   char buf[0x200];
   char *p, *t;
 
@@ -291,7 +291,7 @@ int load_modules (char *cfg, int len)
   /* load country.sys according to config.sys file */
   p = options.country;
   /* search ',' */
-  for (t = p; *t != ','; t++) ;
+  for (t = p; *t && *t != ','; t++) ;
   /* skip it */
   t++;
 
@@ -301,11 +301,11 @@ int load_modules (char *cfg, int len)
   /* load DCP files according to config.sys */
   p = options.devinfo_kbd;
   /* find 1st ',' */
-  for (t = p; *t != ','; t++) ;
+  for (t = p; *t && *t != ','; t++) ;
   /* skip it */
   t++;
   /* find 2nd ',' */
-  for (p = t; *p != ','; p++) ;
+  for (p = t; *p && *p != ','; p++) ;
   /* skip */
   p++;
 
@@ -314,10 +314,10 @@ int load_modules (char *cfg, int len)
 
   p = options.devinfo_vio;
   /* find 1st ',' */
-  for (t = p; *t != ','; t++) ;
+  for (t = p; *t && *t != ','; t++) ;
   t++;
   /* find 2nd ',' */
-  for (p = t; *p != ','; p++) ;
+  for (p = t; *p && *p != ','; p++) ;
   p++;
 
   if (!preload_module(p, 0))
@@ -337,7 +337,7 @@ int load_modules (char *cfg, int len)
       !preload_library("viocalls.dll"))
     return 1;
 
-  if (remotefs) /* remote fs boot -- additional modules are needed */
+  if (ramdisk) /* remote fs boot -- additional modules are needed */
   {
     /* load all IFS'es from the boot drive */
     if (load_type_bootdrv("IFS")    ||
@@ -432,6 +432,9 @@ int load_modules (char *cfg, int len)
         if (!preload_module(buf, 0))
           return 1;
 
+        if (!*t)
+          break;
+
         t++; p = t; /* skip comma */
       }
     }
@@ -478,6 +481,7 @@ struct multiboot_info *
 callback(unsigned long addr,
          unsigned long size,
          char drvletter,
+         char drvletter2,
          struct term_entry *term)
 {
   int i;
@@ -501,8 +505,10 @@ callback(unsigned long addr,
   /* Patch a boot drive letter */
   for (i = 0; i < size; i++)
   {
-    if (cfg[i] == '@') /* change '@' symbol to a boot drive letter */
+    if (cfg[i + 1] == ':' && cfg[i] == '@') /* change '@' symbol to a boot drive letter */
       cfg[i] = drvletter;
+    if (cfg[i + 1] == ':' && cfg[i] == '!') /* change '!' symbol to a secondary boot drive letter (when booting from ramdisk) */
+      cfg[i] = drvletter2;
   }
 
   /* Start config.sys editor */
@@ -537,6 +543,10 @@ callback(unsigned long addr,
     {
       kprintf("Error preloading modules!\n");
       printf("Error preloading modules!\r\n");
+      __asm {
+        cli
+        hlt
+      }
     }
   }
 

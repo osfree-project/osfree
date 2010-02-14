@@ -13,6 +13,13 @@ a Veit Kannegieser's memdisk is that OS/2 does not boot from emulated memory dri
 but a boot drive letter is assigned to a real boot drive (a CD, a flash disk or alike)
 but not a memdrive.
 
+Also, it can be treated as universal set of mini- and microfsd's for any FS. It is FS 
+independent and can be used with any disk FS which has support in bootloader. The files
+are preloaded to memory, and then retrieved from there by os2ldr or os2krnl requests. Then
+a control is passed to a fully-functional IFS. So far, successfully tested IFS'es are: 
+cdfs.ifs (but CD boot still does not work due to limitations of os2dasd.dmd and os2cdrom.dmd),
+fat32.ifs, ext2-os2.ifs, vfat-os2.ifs, hpfs.ifs, jfs.ifs, ramfs.ifs.
+
 The limitation now is that this is a IFS-only booting solution, so you cannot use it for
 booting using in-kernel FAT filesystem. As a workaround, you can use vfat-os2.ifs
 filesystem (unfortunately, it is unstable, but currently, it has no stable replacement).
@@ -68,6 +75,18 @@ ext2-os2.ifs  | EXT2-OS2               | ext2
 vfat-os2.ifs  | VFAT-OS2               | vfat
 cdfs.ifs      | CDFS (CDFSD for debug) | CDFS
 ntfs.ifs      | NTFS                   | NTFS
+ramfs.ifs     | RAMFS                  | RAMFS
 ---------------------------------------------------------
 Note: a FS name and module name are case-sensitive!
+
+--auto-preload           specifies to use 'auto preload' feature. So, you can specify only config.sys as
+                         a module; the booter parses config.sys in memory and tries to determine which files
+                         are needed to load and loads them automatically.
+
+--remote-fs              means a remote fs boot. This switch is used when booting from 'remote' FS'es as opposed
+                         to 'local' ones. An example of remote FS'es is ramfs.ifs (an IFS-based ramdisk).
+
+--ramdisk-boot           means booting from the ramdisk IFS. (A memdisk-like technology). '--ramdisk-boot' implies
+                         '--remote-fs'. Files are copied to a ramdisk from multiboot structure, then the boot process
+                         continues from a ramdisk.
 

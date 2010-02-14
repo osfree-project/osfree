@@ -28,7 +28,7 @@ extern unsigned long mfsd_start;
 /* mFSD size                   */
 extern unsigned long mfsd_size;
 
-char remotefs = 0;
+char ramdisk = 0;
 char autopreload = 0;
 char cfged = 0;
 char debug = 0;
@@ -179,9 +179,9 @@ int cmain(void)
     autopreload = 1;
   }
 
-  if (p = strstr((char *)m->cmdline, "--remote-fs"))
+  if (p = strstr((char *)m->cmdline, "--ramdisk-boot"))
   {
-    remotefs = 1;
+    ramdisk = 1;
   }
 
   if (p = strstr((char *)m->cmdline, "--cfged"))

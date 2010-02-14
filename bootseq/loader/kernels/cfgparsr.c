@@ -434,7 +434,7 @@ unsigned long CfgParseLine(char line[], int len, int lineno)
           if(!(pc=(char *)malloc((size_t)len + 1)))
                   error("Memory could not be allocated!");
           strcpy(pc,line);
-          options.libpath=pc;
+          options.swappath=pc;
           break;
         case 39:// SXFAKEHWFPU
           if(line[0]=='1') {
