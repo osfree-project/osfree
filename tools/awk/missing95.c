@@ -17,6 +17,11 @@ int pclose(FILE *f) {
 #include <stdlib.h>
 #include <unistd.h>
 
+// Prototypes
+FILE *popen(const char * s, const char * m);
+int pclose(FILE *f);
+
+
 #define READ 0
 #define WRITE 1
 

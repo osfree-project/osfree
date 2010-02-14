@@ -4,7 +4,7 @@
 
 PROJ = tools_shared
 DIRS = z #idl
-LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib $(%ROOT)build$(SEP)lib$(SEP)idl.lib
+LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib #$(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
 TARGETS  = subdirs $(PATH)$(PROJ).lib
 TARGET   = all
