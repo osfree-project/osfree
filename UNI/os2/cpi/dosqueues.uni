@@ -1,5 +1,5 @@
 (*** Pipe and queue support *)
-groupdosqueues;
+group dosqueues;
 
 abi os2386;
 

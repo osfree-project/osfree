@@ -660,7 +660,7 @@ begin
   case CurToken of
     tkUnit: ParseUnit(Module);
     else
-      ParseExc(Format(SParserExpectTokenError, ['module']));
+      ParseExc(Format(SParserExpectTokenError, ['group']));
   end;
 end;
 
