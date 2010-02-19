@@ -421,7 +421,7 @@ $(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
 
 $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpibitmapscommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)gpibitmaps.uni
+$(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)gpi$(SEP)gpibitmaps.uni
 
 $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
 
