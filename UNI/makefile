@@ -383,7 +383,7 @@ $(OUT)$(SEP)os2$(SEP)pmerr.h: os2$(SEP)pmerr.uni
 
 $(OUT)$(SEP)os2$(SEP)wperrors.h: os2$(SEP)wperrors.uni
 
-$(OUT)$(SEP)os2$(SEP)gpierrors.h: os2$(SEP)gpierrors.uni
+$(OUT)$(SEP)os2$(SEP)gpierrors.h: os2$(SEP)gpi$(SEP)gpierrors.uni
 
 $(OUT)$(SEP)os2$(SEP)splerrors.h: os2$(SEP)splerrors.uni
 
@@ -415,17 +415,17 @@ $(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pmdev.uni
 
 $(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)cpi$(SEP)devcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpiprimitives.uni
+$(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpi$(SEP)gpiprimitives.uni
 
-$(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpilcids.uni
+$(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpi$(SEP)gpilcids.uni
 
-$(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpibitmapscommon.uni
+$(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpi$(SEP)gpibitmapscommon.uni
 
 $(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)gpi$(SEP)gpibitmaps.uni
 
-$(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpicontrolcommon.uni
+$(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpi$(SEP)gpicontrolcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)gpilogcoltable.uni
+$(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)gpi$(SEP)gpilogcoltable.uni
 
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: dos$(SEP)os2me.uni
