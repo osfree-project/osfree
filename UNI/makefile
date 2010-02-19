@@ -449,6 +449,7 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .uni: $(MYDIR)shared
 .uni: $(MYDIR)os2
 .uni: $(MYDIR)os2$(SEP)cpi
+.uni: $(MYDIR)os2$(SEP)gpi
 .uni: $(MYDIR)dos
 
 .lib: $(PATH)
