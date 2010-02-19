@@ -1,4 +1,4 @@
-module udsk;
+group udsk;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module dosdevices;
+group dosdevices;
 
 abi os2386;
 

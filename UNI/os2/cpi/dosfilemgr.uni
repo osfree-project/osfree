@@ -1,4 +1,4 @@
-module dosfilemgr;
+group dosfilemgr;
 
 constant EAT_APPTYP_PMAPI      =  $00;            (* Uses PM API *)
 constant EAT_APPTYP_DOS        =  $01;            (* DOS APP *)

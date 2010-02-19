@@ -1,4 +1,4 @@
-module winmessagemgr;
+group winmessagemgr;
 
 abi os2386;
 

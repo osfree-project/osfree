@@ -1,4 +1,4 @@
-module winswitchlist;
+group winswitchlist;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module basemid;
+group basemid;
 
 uses bseerr;
 

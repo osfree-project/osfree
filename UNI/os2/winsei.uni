@@ -1,4 +1,4 @@
-module winsei;
+group winsei;
 
 uses pmsei default;
 

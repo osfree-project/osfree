@@ -1,4 +1,4 @@
-module gpibitmaps;
+group gpibitmaps;
 
 abi os2386;
 

@@ -2,7 +2,7 @@
 (* This module describes interface to BIOS calls                                                     *)
 (*******************************************************************************************)
 
-module bios;
+group bios;
 
 
 (* This interrupts called by hardware. For now uni not used for such low lovel 

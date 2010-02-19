@@ -4,7 +4,7 @@
 *
 \***************************************************************************)
 
-module pm;
+group pm;
 
 uses pmdef;
 uses pmwin;        (* OS/2 Window Manager definitions    *)

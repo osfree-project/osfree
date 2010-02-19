@@ -1,4 +1,4 @@
-module bsesub;
+group bsesub;
 
 uses sub;
 

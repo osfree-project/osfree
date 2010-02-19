@@ -3,7 +3,7 @@
  *
  *)
 
-module bse;
+group bse;
 
 (* workaround of unimplemented uni2h feature *)
 uses cdeftypes2 default;

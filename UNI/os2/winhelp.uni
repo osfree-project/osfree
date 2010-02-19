@@ -1,4 +1,4 @@
-module winhelp;
+group winhelp;
 
 uses pmhelp default;
 

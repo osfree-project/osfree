@@ -1,4 +1,4 @@
-module winstdfont;
+group winstdfont;
 
 abi os2386;
 

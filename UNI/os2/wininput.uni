@@ -1,4 +1,4 @@
-module wininput;
+group wininput;
 
 abi os2386;
 

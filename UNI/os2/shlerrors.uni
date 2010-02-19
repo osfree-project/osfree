@@ -1,4 +1,4 @@
-module shlerrors;
+group shlerrors;
 
 constant PMERR_INVALID_PIB                = $1101;
 constant PMERR_INSUFF_SPACE_TO_ADD        = $1102;

@@ -1,4 +1,4 @@
-module dosmvdm;
+group dosmvdm;
 
 abi os2386;
 

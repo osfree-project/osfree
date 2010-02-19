@@ -1,4 +1,4 @@
-module dos;
+group dos;
 
 uses dosdatetime default;
 uses dosdevices default;

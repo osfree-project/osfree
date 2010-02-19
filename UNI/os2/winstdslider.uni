@@ -1,4 +1,4 @@
-module winstdslider;
+group winstdslider;
 
 constant SLS_HORIZONTAL      = $00000000;
 constant SLS_VERTICAL        = $00000001;

@@ -1,4 +1,4 @@
-module dosmemmgrcommon;
+group dosmemmgrcommon;
 
 
 end.

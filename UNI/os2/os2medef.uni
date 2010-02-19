@@ -1,4 +1,4 @@
-module os2medef;
+group os2medef;
 
 (*
 #ifndef __WORDBYTEDWORD__

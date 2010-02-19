@@ -1,4 +1,4 @@
-module winrectangles;
+group winrectangles;
 
 abi os2386;
 

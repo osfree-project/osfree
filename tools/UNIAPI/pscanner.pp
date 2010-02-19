@@ -272,7 +272,7 @@ const
     'true',
 //    'try',
     'type',
-    'module',
+    'group',
 //    'until',
     'uses',
     'var',

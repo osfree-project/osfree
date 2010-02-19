@@ -1,4 +1,4 @@
-module sub;
+group sub;
 
 uses kbd;
 uses mou;

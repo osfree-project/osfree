@@ -7,7 +7,7 @@
 *                                                                          *
 ***************************************************************************)
 
-module osfree;
+group osfree;
 
 uses os2 default;
 uses dos;

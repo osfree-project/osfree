@@ -1,4 +1,4 @@
-module dosexceptions;
+group dosexceptions;
 
 
 (*** Signal support *)

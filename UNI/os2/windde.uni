@@ -1,4 +1,4 @@
-module windde;
+group windde;
 
 abi os2386;
 

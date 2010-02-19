@@ -1,4 +1,4 @@
-module kbd;
+group kbd;
 
 abi sub32;
 

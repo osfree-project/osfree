@@ -1,4 +1,4 @@
-module wintimer;
+group wintimer;
 
 abi os2386;
 

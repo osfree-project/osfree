@@ -1,4 +1,4 @@
-module wperrors;
+group wperrors;
 
 constant WPERR_PROTECTED_CLASS            = $1700;
 constant WPERR_INVALID_CLASS              = $1701;

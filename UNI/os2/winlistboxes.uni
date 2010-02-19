@@ -1,4 +1,4 @@
-module winlistboxes;
+group winlistboxes;
 
    (**** Listboxes *)
 

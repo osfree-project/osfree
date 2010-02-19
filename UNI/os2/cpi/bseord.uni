@@ -7,7 +7,7 @@
 *                                                                          *
 ***************************************************************************)
 
-module bseord;
+group bseord;
 
 (* ANSICALL *)
 constant ORD_ANSIINJECT = 1;

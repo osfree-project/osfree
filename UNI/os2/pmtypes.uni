@@ -1,4 +1,4 @@
-module pmtypes;
+group pmtypes;
 
 constant DTYP_USER              = (16384);
 

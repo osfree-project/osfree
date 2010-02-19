@@ -1,4 +1,4 @@
-module pmdev;
+group pmdev;
 
 uses devcommon;
 

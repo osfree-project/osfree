@@ -1,4 +1,4 @@
-module windesktop;
+group windesktop;
 
 abi os2386;
 

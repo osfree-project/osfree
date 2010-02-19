@@ -1,4 +1,4 @@
-module wincursors;
+group wincursors;
 
 abi os2386;
 

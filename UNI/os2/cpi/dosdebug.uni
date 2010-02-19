@@ -1,4 +1,4 @@
-module dosdebug;
+group dosdebug;
 
 (*
 #ifndef DBG_INCL_DOSDEBUG

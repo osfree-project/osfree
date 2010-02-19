@@ -1,4 +1,4 @@
-module winstddrag;
+group winstddrag;
 
 abi os2386;
 

@@ -1,6 +1,6 @@
-module gpierrors;
+group gpierrors;
 
-      (* AAB error codes for the GPI *)
+(* AAB error codes for the GPI *)
 constant PMERR_OK                           = $0000;
 constant PMERR_ALREADY_IN_AREA              = $2001;
 constant PMERR_ALREADY_IN_ELEMENT           = $2002;

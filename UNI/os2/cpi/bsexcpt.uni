@@ -1,4 +1,4 @@
-module bsexcpt;
+group bsexcpt;
 
 abi os2386;
 

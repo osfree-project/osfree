@@ -1,6 +1,6 @@
-module hevdef;
+group hevdef;
 
-   type  HEV=ULONG;             (* hev *)
-   type  PHEV=^HEV;
+type  HEV=ULONG;             (* hev *)
+type  PHEV=^HEV;
 
 end.

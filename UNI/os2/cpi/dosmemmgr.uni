@@ -1,4 +1,4 @@
-module dosmemmgr;
+group dosmemmgr;
 
 abi os2386;
 

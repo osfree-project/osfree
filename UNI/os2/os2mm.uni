@@ -1,4 +1,4 @@
-module os2mm;
+group os2mm;
 
 
 uses  mcios2;

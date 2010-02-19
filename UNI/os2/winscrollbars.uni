@@ -1,4 +1,4 @@
-module winscrollbars;
+group winscrollbars;
 
 constant SBS_HORZ      = $0000;
 constant SBS_VERT      = $0001;

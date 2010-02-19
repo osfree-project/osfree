@@ -1,4 +1,4 @@
-module pmgpi;
+group pmgpi;
 
 (* General GPI return values *)
 constant GPI_ERROR                  =     0;

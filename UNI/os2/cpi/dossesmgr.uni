@@ -1,4 +1,4 @@
-module dossesmgr;
+group dossesmgr;
 
 abi os2386;
 

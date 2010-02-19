@@ -1,4 +1,4 @@
-module wintrackrect;
+group wintrackrect;
 
 abi os2386;
 

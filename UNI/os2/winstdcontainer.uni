@@ -1,4 +1,4 @@
-module winstdcontainer;
+group winstdcontainer;
 
 constant CFA_IGNORE       = $80000000;
 constant CRA_IGNORE       = $00008000;

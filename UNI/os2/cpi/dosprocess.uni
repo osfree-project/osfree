@@ -1,4 +1,4 @@
-module dosprocess;
+group dosprocess;
 
 abi os2386;
 

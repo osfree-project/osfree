@@ -1,4 +1,4 @@
-module bsedos;
+group bsedos;
 
 abi os2386;
 

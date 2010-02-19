@@ -1,4 +1,4 @@
-module winprogramlist;
+group winprogramlist;
 
 abi os2386;
 

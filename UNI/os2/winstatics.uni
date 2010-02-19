@@ -1,4 +1,4 @@
-module winstatics;
+group winstatics;
 
 
 constant SS_TEXT          = $0001;

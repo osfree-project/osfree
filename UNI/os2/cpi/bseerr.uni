@@ -1,4 +1,4 @@
-module bseerr;
+group bseerr;
 
 error NO_ERROR                         0;
 (* Y N A R I *)

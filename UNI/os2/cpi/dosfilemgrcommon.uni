@@ -1,4 +1,4 @@
-module dosfilemgrcommon;
+group dosfilemgrcommon;
 
 abi os2386;
 

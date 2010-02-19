@@ -1,4 +1,4 @@
-module winbuttons;
+group winbuttons;
 
 abi os2386;
 

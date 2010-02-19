@@ -1,4 +1,4 @@
-module doserrors;
+group doserrors;
 
 uses bseerr default;
 

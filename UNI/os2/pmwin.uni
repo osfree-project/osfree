@@ -1,4 +1,4 @@
-module pmwin;
+group pmwin;
 
 abi os2386;
 

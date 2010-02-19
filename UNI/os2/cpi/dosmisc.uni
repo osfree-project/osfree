@@ -1,4 +1,4 @@
-module dosmisc;
+group dosmisc;
 
 abi os2386;
 

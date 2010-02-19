@@ -1,4 +1,4 @@
-module winhprogram;
+group winhprogram;
 
    (*** common types, constants and function declarations ******************)
 

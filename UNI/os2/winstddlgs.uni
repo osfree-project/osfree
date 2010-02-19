@@ -1,4 +1,4 @@
-module winstddlgs;
+group winstddlgs;
 
 uses pmstddlg default;
 

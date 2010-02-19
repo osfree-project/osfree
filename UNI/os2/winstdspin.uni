@@ -1,4 +1,4 @@
-module winstdspin;
+group winstdspin;
 
 constant SPBS_ALLCHARACTERS = $00000000;
 constant SPBS_NUMERICONLY   = $00000001;

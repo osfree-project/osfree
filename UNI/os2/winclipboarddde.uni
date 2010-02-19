@@ -1,4 +1,4 @@
-module winclipboarddde;
+group winclipboarddde;
 
 (* Clipboard messages *)
 

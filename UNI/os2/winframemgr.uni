@@ -1,4 +1,4 @@
-module winframemgr;
+group winframemgr;
 
 abi os2386;
 

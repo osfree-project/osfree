@@ -1,4 +1,4 @@
-module winerrors;
+group winerrors;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module winshelldata;
+group winshelldata;
 
 abi os2386;
 

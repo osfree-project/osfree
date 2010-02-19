@@ -1,4 +1,4 @@
-module meerror;
+group meerror;
 
 (*
 #ifndef NO_ERROR

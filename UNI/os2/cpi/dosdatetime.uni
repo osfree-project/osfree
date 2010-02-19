@@ -1,4 +1,4 @@
-module dosdatetime;
+group dosdatetime;
 
 abi os2386;
 

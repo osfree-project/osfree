@@ -1,5 +1,5 @@
 (* Video Input Output (Vio) functions (32-bit version) *)
-module vio;
+group vio;
 
 abi sub32;
 

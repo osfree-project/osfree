@@ -1,4 +1,4 @@
-module picerrors;
+group picerrors;
 
 constant PMERR_INV_TYPE         = $5001;
 constant PMERR_INV_CONV         = $5002;

@@ -1,4 +1,4 @@
-module winaccelerators;
+group winaccelerators;
 
 abi os2386;
 

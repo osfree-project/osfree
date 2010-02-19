@@ -1,4 +1,4 @@
-module winstdfile;
+group winstdfile;
 
 abi os2386;
 

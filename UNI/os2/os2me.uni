@@ -1,4 +1,4 @@
-module os2me;
+group os2me;
 
 (*
 uses os2mm;

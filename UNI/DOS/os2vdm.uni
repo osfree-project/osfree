@@ -7,7 +7,7 @@
 *                                                                          *
 ***************************************************************************)
 
-module os2vdm;
+group os2vdm;
 
 (* Query JOIN array *)
 function VdmJoinQuery(cDrive: CHAR; usBufferSize: USHORT; Buffer: PVOID): APIRET;

@@ -1,4 +1,4 @@
-module pmstddlg;
+group pmstddlg;
 
 uses winstdbook default;
 uses wincircularslider default;

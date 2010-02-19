@@ -1,4 +1,4 @@
-module winpointers;
+group winpointers;
 
 abi os2386;
 

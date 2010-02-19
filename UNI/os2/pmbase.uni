@@ -1,4 +1,4 @@
-module pmbase;
+group pmbase;
 
 abi os2386;
 

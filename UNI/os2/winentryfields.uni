@@ -1,4 +1,4 @@
-module winentryfields;
+group winentryfields;
 
    (**** Entryfield controls Subsection *)
 

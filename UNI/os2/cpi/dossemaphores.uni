@@ -1,4 +1,4 @@
-module dossemaphores;
+group dossemaphores;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module dosexcptfunc;
+group dosexcptfunc;
 
 abi os2386;
 

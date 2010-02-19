@@ -1,4 +1,4 @@
-module dosdevioctl;
+group dosdevioctl;
 
 abi os2386;
 

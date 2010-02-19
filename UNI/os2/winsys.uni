@@ -1,4 +1,4 @@
-module winsys;
+group winsys;
 
 abi os2386;
 

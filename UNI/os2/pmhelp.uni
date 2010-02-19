@@ -1,4 +1,4 @@
-module pmhelp;
+group pmhelp;
 
 abi os2386;
 

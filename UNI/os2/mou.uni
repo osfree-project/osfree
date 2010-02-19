@@ -1,4 +1,4 @@
-module mou;
+group mou;
 
 abi sub32;
 

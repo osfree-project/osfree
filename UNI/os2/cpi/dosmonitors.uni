@@ -1,4 +1,4 @@
-module dosmonitors;
+group dosmonitors;
 
 abi sub32;
 

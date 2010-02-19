@@ -1,4 +1,4 @@
-module dosresources;
+group dosresources;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module winwindowmgrcommon;
+group winwindowmgrcommon;
 
 abi os2386;
 

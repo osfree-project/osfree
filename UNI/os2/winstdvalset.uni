@@ -1,4 +1,4 @@
-module winstdvalset;
+group winstdvalset;
 
 constant VS_BITMAP       = $0001;
 constant VS_ICON         = $0002;

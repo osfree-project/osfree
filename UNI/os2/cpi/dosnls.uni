@@ -1,4 +1,4 @@
-module dosnls;
+group dosnls;
 
 abi os2386;
 

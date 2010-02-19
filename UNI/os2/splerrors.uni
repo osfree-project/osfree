@@ -1,4 +1,4 @@
-module splerrors;
+group splerrors;
 
 constant PMERR_SPL_DRIVER_ERROR             = $4001;
 constant PMERR_SPL_DEVICE_ERROR             = $4002;

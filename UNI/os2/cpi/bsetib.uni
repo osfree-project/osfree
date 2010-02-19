@@ -1,4 +1,4 @@
-module bsetib;
+group bsetib;
 
 (*
  *      Thread Information Block (TIB)

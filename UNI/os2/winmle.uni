@@ -1,4 +1,4 @@
-module winmle;
+group winmle;
 
 constant MLS_WORDWRAP     = $00000001;
 constant MLS_BORDER       = $00000002;

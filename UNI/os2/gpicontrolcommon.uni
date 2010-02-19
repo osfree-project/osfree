@@ -1,4 +1,4 @@
-module gpicontrolcommon;
+group gpicontrolcommon;
 
 abi os2386;
 

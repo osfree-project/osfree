@@ -1,4 +1,4 @@
-module pmerr;
+group pmerr;
 
 (* This file contains all the public PM error codes. *)
 

@@ -1,4 +1,4 @@
-module gpiprimitives;
+group gpiprimitives;
 
 abi os2386;
 

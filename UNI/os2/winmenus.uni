@@ -1,4 +1,4 @@
-module winmenus;
+group winmenus;
 
 abi os2386;
 

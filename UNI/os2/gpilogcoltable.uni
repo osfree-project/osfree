@@ -1,4 +1,4 @@
-module gpilogcoltable;
+group gpilogcoltable;
 
 abi os2386;
 

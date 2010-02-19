@@ -1,4 +1,4 @@
-module os2def;
+group os2def;
 
 abi os2386;
 

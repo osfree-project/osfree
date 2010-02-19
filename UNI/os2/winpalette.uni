@@ -1,4 +1,4 @@
-module winpalette;
+group winpalette;
 
 abi os2386;
 

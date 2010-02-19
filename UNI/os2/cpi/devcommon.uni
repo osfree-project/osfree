@@ -1,4 +1,4 @@
-module devcommon;
+group devcommon;
 
 abi os2386;
 

@@ -1,4 +1,4 @@
-module dosprofile;
+group dosprofile;
 
 (*** DosProfile API support *)
 

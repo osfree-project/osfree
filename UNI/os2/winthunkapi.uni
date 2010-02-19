@@ -1,4 +1,4 @@
-module winthunkapi;
+group winthunkapi;
 
 abi os2386;
 

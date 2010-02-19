@@ -1,4 +1,4 @@
-module winhooks;
+group winhooks;
 
 abi os2386;
 

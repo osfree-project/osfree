@@ -1,4 +1,4 @@
-module win;
+group win;
 uses pmbase default;
 uses winhprogram default;
 uses winmessagemgr default;

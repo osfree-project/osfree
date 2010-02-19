@@ -1,4 +1,4 @@
-module pmsei;
+group pmsei;
 
 abi os2386;
 

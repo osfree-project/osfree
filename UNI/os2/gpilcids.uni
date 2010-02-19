@@ -1,4 +1,4 @@
-module gpilcids;
+group gpilcids;
 
 abi os2386;
 

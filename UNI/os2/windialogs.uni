@@ -1,4 +1,4 @@
-module windialogs;
+group windialogs;
 
 abi os2386;
 

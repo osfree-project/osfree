@@ -1,4 +1,4 @@
-module wininputcommon;
+group wininputcommon;
 
 abi os2386;
 

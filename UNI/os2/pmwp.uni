@@ -1,4 +1,4 @@
-module pmwp;
+group pmwp;
 
 type HOBJECT=LHANDLE;
 

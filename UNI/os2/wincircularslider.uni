@@ -1,4 +1,4 @@
-module wincircularslider;
+group wincircularslider;
 
 constant CSM_QUERYRANGE           = $053D;
 constant CSM_SETRANGE             = $053E;
