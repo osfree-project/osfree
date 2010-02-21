@@ -1,7 +1,7 @@
 Program UNI2H;
 
 uses
-  abi, defwrite, hwrite, pparser, pastree, sysutils, classes;
+  abi, defwrite, hwrite, pparser, pastree, sysutils, classes, getopts;
 
 Type
   TUNIAPIEngine = class(TPasTreeContainer)
@@ -75,15 +75,56 @@ end;
 var
   AEngine: TUNIAPIEngine;
   AModule: TPasModule;
+  c : char;
+  optionindex : Longint;
+  theopts : array[1..2] of TOption;
+  emitter: string;
+  abifile: string;
 begin
- AEngine:=TUNIAPIEngine.Create;
- if paramstr(1)='-edef' then
- begin
+  with theopts[1] do
+  begin
+    name:='emitter';
+    has_arg:=Required_argument;
+    flag:=nil;
+    value:='e';
+  end;
+  with theopts[2] do
+  begin
+    name:='abi';
+    has_arg:=Required_argument;
+    flag:=nil;
+    value:='a';
+  end;
+
+
+  c:=#0;
+  repeat
+    c:=getlongopts('e:a:',@theopts[1],optionindex);
+    case c of
+      'e': emitter:=optarg;
+      'a': abifile:=optarg;
+//      '?',':' : usage();
+    end; { case }
+  until c=endofoptions;
+
+  if optind<=paramcount then
+  begin
+    while optind<=paramcount do
+    begin
+      write (paramstr(optind),' ');
+      inc(optind)
+    end;
+    writeln
+  end;
+
+  AEngine:=TUNIAPIEngine.Create;
+  if emitter='def' then
+  begin
    AModule:=ParseSource(AEngine, paramstr(2),'','');
    rootpath:=extractfilepath(paramstr(2));
    WriteDefFile(AModule, paramstr(3)) 
  end else
- if paramstr(1)='-eh' then 
+ if emitter='h' then 
  begin 
    AModule:=ParseSource(AEngine, paramstr(2),'','');
    rootpath:=extractfilepath(paramstr(2));
