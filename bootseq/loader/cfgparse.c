@@ -235,10 +235,10 @@ int process_cfg(char *cfg)
         }
 
         // expand variables
-        expand_vars(s, str);
+        //expand_vars(s, str);
 
         // process the line
-        if (!process_cfg_line(s))
+        if (!process_cfg_line(str))
           return -1;
       }
     }

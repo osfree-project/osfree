@@ -75,7 +75,7 @@ set files=os2ldr os2ldr.msg os2ldr.ini os2boot os2dump os2krnl config.sys
 :mkiso
 
 @del %imgdir%\osfree.iso
-@%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 12 -boot-info-table -no-iso-translate -iso-level 3 -r -J -U -D -allow-lowercase -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
+@%mkisofs% -b boot/bootblk -c boot/bootcat.bin -no-emul-boot -boot-load-size 4 -boot-info-table -no-iso-translate -iso-level 3 -r -J -U -D -allow-lowercase -publisher "osFree (www.osfree.org)" -o %imgdir1%/osfree.iso cd
 rem -eltorito-alt-boot -b floppies/os2boot.img
 cd %cwd%
 

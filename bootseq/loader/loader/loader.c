@@ -57,6 +57,9 @@ int screen_fg_color_hl = 7;
 int num_items = 0;
 static int scrollnum = 0;
 
+int var_sprint(char *buf, char *str);
+int toggle_do_key(int key);
+
 int exec_line(char *line);
 
 void show_background_screen(void);
@@ -247,6 +250,7 @@ exec_line(char *line)
 {
   int i, rc;
   char *p, *s = line;
+  char str[0x400];
   struct builtin **b;
 
   if (!*line) return 1;
@@ -264,7 +268,8 @@ exec_line(char *line)
       /* substitute macros, like '()' for a bootdrive */
       s = macro_subst(s);
       strpos = s;
-      if (((*b)->func)(s, 0x2)) return 0;
+      var_sprint(str, s);
+      if (((*b)->func)(str, 0x2)) return 0;
       break;
     }
   }
@@ -378,6 +383,8 @@ get_user_input(int *item, int *shift)
       }
       default:
        {
+         if (toggle_do_key(c & 0xff))
+           toggle_print_status(3, 18);
          t->gotoxy(SCREEN_WIDTH - 7, SCREEN_HEIGHT - 2);
          t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
                      (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));

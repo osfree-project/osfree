@@ -444,7 +444,7 @@ int load_modules (char *cfg, int len)
   if (CfgGetenv("DPATH", buf) == NO_ERROR)
   {
     t = buf;
-    for (;;)
+    while (*t)
     {
       /* copy next DPATH element into str[] buffer */
       for (i = 0, p = t; *p && *p != ';'; i++, p++) str[i] = tolower(*p);
@@ -455,10 +455,6 @@ int load_modules (char *cfg, int len)
         t += 2;
         continue;
       }
-
-      /* if DPATH ended */
-      if (!*str)
-        break;
 
       /* add trailing backslash */
       if (str[i - 1] != '\\') str[i++] = '\\';

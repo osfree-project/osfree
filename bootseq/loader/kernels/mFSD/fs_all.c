@@ -5,11 +5,15 @@
  */
 
 #include <const.h>                // From the "Developer Connection Device Driver Kit" version 2.0
+#include <mb_info.h>
 
 #include "ifs.h"
 #include "struct.h"
 
+#pragma aux mbi              "*"
+
 extern char boot[0x800];
+extern unsigned long mbi;
 
 char hellomsg[] = "Hello stage2!\n";
 unsigned long DevHlp;
@@ -26,6 +30,14 @@ unsigned long secsize = 0;
 unsigned short hVPB   = 0;
 struct dpb far *pdpb  = 0; // pointer to our DPB
 
+#define CHECKRC \
+    if (rc) \
+    {       \
+      kprintf("MFSH_PHYSTOVIRT() failed, @%s, line #%lu\n", \
+              __FILE__, __LINE__); \
+      return 1; \
+    }
+
 #pragma pack(1)
 
 struct save_item
@@ -40,6 +52,20 @@ struct save_item
 };
 
 #pragma pack()
+
+struct FileFindBuf {
+  unsigned short dateCreate;
+  unsigned short timeCreate;
+  unsigned short dateAccess;
+  unsigned short timeAccess;
+  unsigned short dateWrite;
+  unsigned short timeWrite;
+  long           cbEOF;
+  long           cbAlloc;
+  unsigned short attr;
+  unsigned char  cbName;
+  unsigned char  szName[0x100];
+} ffb;
 
 extern unsigned char drvletter;
 extern unsigned char cd_drvletter;
@@ -63,7 +89,11 @@ int strlen (const char *str);
 int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
 int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
 
-int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
+//int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
+int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
+                               unsigned short usLen,
+                               unsigned short far *pusSel);
+int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
 
 int  far pascal FSH_DOVOLIO    (unsigned short operation,
                                unsigned short fAllowed,
@@ -548,17 +578,17 @@ int far pascal _loadds FS_PROCESSNAME(
 
   // If volume is remounted as a CD, then change a driveletter to a CD's one
   //if (oncecntr == 2 && pNameBuf[0] == drvletter)
-  if (strstr(pNameBuf, "msg.dll") ||
-      strstr(pNameBuf, "MSG.DLL"))
-  {
+  //if (strstr(pNameBuf, "msg.dll") ||
+  //    strstr(pNameBuf, "MSG.DLL"))
+  //{
     // msg.dll is loading after CDFS.IFS. At this point
     // we need to access a CD drive letter. So, we 'transform'
     // to the 'local' IFS by changing FS_ATTRIBUTE
-    drvflag = 1;
-    FS_ATTRIBUTE &= ~0x1; // clear 'remote fs' bit
+    //drvflag = 1;
+    //FS_ATTRIBUTE &= ~0x1; // clear 'remote fs' bit
 
-    kprintf("FS_PROCESSNAME: %s\n", pNameBuf);
-  }
+    //kprintf("FS_PROCESSNAME: %s\n", pNameBuf);
+  //}
   //if (drvflag) pNameBuf[0] = 'V';
 
   return NO_ERROR;
@@ -586,4 +616,43 @@ int far pascal _loadds FS_ATTACH(
   oncecntr++;
 
   return NO_ERROR;
+}
+
+int     far pascal _loadds FS_FINDFIRST(
+                               struct cdfsi   far *pcdfsi,
+                               struct cdfsd   far *pcdfsd,
+                               char           far *pName,
+                               unsigned short         iCurDirEnd,
+                               unsigned short         attr,
+                               struct fsfsi   far *pfsfsi,
+                               struct fsfsd   far *pfsfsd,
+                               char           far *pData,
+                               unsigned short         cbData,
+                               unsigned short far *pcMatch,
+                               unsigned short         level,
+                               unsigned short         flags
+                              )
+{
+  int    i, rc;
+  char   far *p;
+  struct mod_list *mod;
+  struct multiboot_info far *mbi_far;
+  unsigned short sel, mods_sel;
+  unsigned long mods_addr, mods_count, size;
+
+  kprintf("**** FS_FINDFIRST(\"%s\")\n", pName);
+
+  // skip a drive letter
+  if (pName[1] == ':' && pName[2] == '\\') pName += 2;
+
+  /* find by trying to open */
+  *pcMatch = 0; rc = 2; // file not found
+  if (!MFS_OPEN(pName, &size))
+  {
+    // file found
+    *pcMatch = 1;
+    rc = 0;
+  }
+
+  return rc;
 }

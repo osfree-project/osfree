@@ -568,7 +568,7 @@ load_module (char *module, char *arg)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
-  printf ("   * mod try: '%s' @ 0x%x, 0x%x bytes", module, cur_addr, len);
+  printf ("   * mod '%s' @ 0x%x, 0x%x bytes", module, cur_addr, len);
 
   if (u_open (module, &size))
   {
@@ -603,7 +603,7 @@ load_module (char *module, char *arg)
     }
 
   //printf ("   * mod '%s' @ 0x%x, 0x%x bytes\r\n", module, cur_addr, len);
-  printf(": *ok*\r\n");
+  printf(" *ok*\r\n");
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;

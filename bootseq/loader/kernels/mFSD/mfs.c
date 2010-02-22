@@ -412,7 +412,7 @@ int far pascal _loadds MFS_INIT(
       // if booting from a remote drive, use remote boot
       // attach one remote drive
       *number = 1;
-      FS_ATTRIBUTE |= 0x1;
+      FS_ATTRIBUTE  |= 0x1;
     }
 
     // init serial port
@@ -686,7 +686,7 @@ int far pascal _loadds MFS_TERM(void)
   struct sffsd sffsd;
   char far *pBoot = 0;
   char str[0x3a];
-  char buf[0x20];
+  char buf[0x3a];
   char fs_name[12];
   char far *r, far *p, far *s;
   void far *dpbhead;
@@ -878,7 +878,7 @@ int far pascal _loadds MFS_TERM(void)
       {
         s++;
         for (; *s && *s != ')'; s++) ;
-        s++;
+        if (*s) s++;
       }
 
       /* change '/' to '\\' and make a file name lowercase */
@@ -920,16 +920,19 @@ int far pascal _loadds MFS_TERM(void)
       memset(&cdfsd, 0, sizeof(struct cdfsd));
       cdfsi.cdi_hVPB = hVPB;
 
+      memset(buf, 0, sizeof(buf));
       /* create parent dirs for s */
       for (j = 0, r = s; *r; j++, r++)
       {
         /* get 1st level dir */
         for (; *r && *r != '\\'; j++, r++) buf[j] = *r;
-        if (*r) /* ended with slash */
+        if (!*r)
+          break;
+        else /* ended with slash */
         {
-          /* skip "d:\" */
           buf[j] = '\0';
 
+          /* skip "d:\" */
           if (r[-1] == ':')
           {
             buf[j] = *r;

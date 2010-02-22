@@ -38,6 +38,7 @@ extern struct term_entry *t;
 static char *mb_cmdline;
 
 #pragma aux l "*"
+//#pragma aux t "*"
 
 //#pragma aux kernel_func    "*"
 //#pragma aux module_func    "*"
@@ -742,9 +743,9 @@ static struct builtin builtin_set =
   "Set a variable to a value."
 };
 
-#define TOGGLES 10
-#define MAX_BLOCKS 7
-#define MAX_VAR_PER_BLOCK 4
+#define TOGGLES 24
+#define MAX_BLOCKS 24
+#define MAX_VAR_PER_BLOCK 5
 
 struct toggle_data_struct {
   int key; /* int because of F-keys !? */
@@ -779,7 +780,7 @@ int toggle_print_status(int x, int y)
   /* Basically print all variable which are on the left side on toggles */
   int printed[VARIABLES_MAX];
   int printed_something = 0;
-  int i, t, b, v, dummy;
+  int i, tg, b, v, dummy;
   //const int ylines = 6;
   #define ylines 6
   int xpos[ylines];
@@ -791,19 +792,19 @@ int toggle_print_status(int x, int y)
   for (i = 0; i < VARIABLES_MAX; i++)
     printed[i] = 0;
 
-  for (t = 0; t < toggles_used; t++)
+  for (tg = 0; tg < toggles_used; tg++)
     {
-      for (b = 0; b < toggle_data[t].nr_blocks; b++)
+      for (b = 0; b < toggle_data[tg].nr_blocks; b++)
         {
-          for (v = 0; v < toggle_data[t].block[b].nr_vars; v++)
+          for (v = 0; v < toggle_data[tg].block[b].nr_vars; v++)
             {
-              i = toggle_data[t].block[b].var[v].var;
+              i = toggle_data[tg].block[b].var[v].var;
               if (!printed[i])
                 {
                   int len;
                   char *vals;
 
-                  //gotoxy(xpos[dy], y + dy);
+                  t->gotoxy(xpos[dy], y + dy);
 
                   /* don't use printf here since we need the lengths
                    * of the printed string and we don't want to use another

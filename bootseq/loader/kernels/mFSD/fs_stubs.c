@@ -153,7 +153,7 @@ int far pascal _loadds FS_COMMIT(
                             struct sffsd   far *psffsd
 )
 {
-    return NO_ERROR;
+  return NO_ERROR;
 }
 
 int far pascal _loadds FS_COPY(
@@ -256,24 +256,7 @@ int far pascal _loadds FS_RMDIR(
     return ERROR_NOT_SUPPORTED;
 }
 
-
-int     far pascal _loadds FS_FINDFIRST(
-                               struct cdfsi   far *pcdfsi,
-                               struct cdfsd   far *pcdfsd,
-                               char           far *pName,
-                               unsigned short         iCurDirEnd,
-                               unsigned short         attr,
-                               struct fsfsi   far *pfsfsi,
-                               struct fsfsd   far *pfsfsd,
-                               char           far *pData,
-                               unsigned short         cbData,
-                               unsigned short far *pcMatch,
-                               unsigned short         level,
-                               unsigned short         flags
-                              )
-{
-    return ERROR_NOT_SUPPORTED;
-}
+/***FS_FINDFIRST***/
 
 int     far pascal _loadds FS_FINDCLOSE(
                                struct fsfsi far *pfsfsi,
