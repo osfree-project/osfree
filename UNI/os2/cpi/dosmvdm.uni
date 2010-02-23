@@ -1,8 +1,5 @@
 group dosmvdm;
 
-abi os2386;
-
-
 (* Virtual DOS Machine API support *)
 
    type HVDD=LHANDLE;     (* hvdd *)

@@ -1,7 +1,5 @@
 group dosmonitors;
 
-abi sub32;
-
 type HMONITOR=SHANDLE;
 type PHMONITOR=^HMONITOR;
 

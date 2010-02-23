@@ -1,8 +1,5 @@
 group winhooks;
 
-abi os2386;
-
-
 function WinSetHook(in hab: HAB;
                                in hmq: HMQ;
                                in iHook: LONG;

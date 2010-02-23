@@ -1,8 +1,5 @@
 group wintimer;
 
-abi os2386;
-
-
 (**** Timer manager *)
 
 function WinStartTimer(in hab: HAB;

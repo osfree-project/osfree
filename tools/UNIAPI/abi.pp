@@ -4,8 +4,8 @@ interface
 
 
 var
-  rootpath: string;
-
+  abifile: string;
+  
 type
   TAbiType=(AbiDynamicLibrary, AbiStaticLibrary, AbiInterrupt, AbiTypeDef);
 
@@ -49,17 +49,17 @@ type
     )
   end;
 
-function AbiGet(AbiFile: String; SymbolName: String): TABI;
+function AbiGet(SymbolName: String): TABI;
 
 implementation
 
-function AbiGet(AbiFile: String; SymbolName: String): TABI;
+function AbiGet(SymbolName: String): TABI;
 var
   F: Text;
   S: String;
   T: String;
 begin
-  Assign(F, RootPath+AbiFile);
+  Assign(F, AbiFile);
   Reset(F);
   While not EOF(F) do
   begin

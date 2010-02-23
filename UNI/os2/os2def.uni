@@ -1,7 +1,5 @@
 group os2def;
 
-abi os2386;
-
 
 type BYTE   = T_BYTE; (* 8bit *)
 type UCHAR  = T_BYTE; (* 8bit *)

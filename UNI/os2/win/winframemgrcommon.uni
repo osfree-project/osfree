@@ -1,8 +1,5 @@
 group winframemgrcommon;
 
-abi os2386;
-
-
    (*** Frame Manager Common subsection *)
 
 (*   #pragma pack(2)  force structure alignment packing *)

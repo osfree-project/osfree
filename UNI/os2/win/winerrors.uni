@@ -1,8 +1,5 @@
 group winerrors;
 
-abi os2386;
-
-
 uses pmerr;
 
 

@@ -1,8 +1,5 @@
 group gpibitmaps;
 
-abi os2386;
-
-
 constant CBM_INIT = 4;
 
 constant BCA_UNCOMP         =0;

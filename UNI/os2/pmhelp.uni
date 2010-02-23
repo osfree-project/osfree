@@ -1,7 +1,5 @@
 group pmhelp;
 
-abi os2386;
-
 constant HM_RESOURCEID = 0;
 constant HM_PANELNAME  = 1;
 

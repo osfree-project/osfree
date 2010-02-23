@@ -1,8 +1,5 @@
 group gpilogcoltable;
 
-abi os2386;
-
-
 constant LCOL_RESET                   = $0001;
 constant LCOL_REALIZABLE              = $0002;
 constant LCOL_PURECOLOR               = $0004;

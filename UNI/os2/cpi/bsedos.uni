@@ -1,7 +1,5 @@
 group bsedos;
 
-abi os2386;
-
 
 (************************************************************************
 * CCHMAXPATH is the maximum fully qualified path name length including  *

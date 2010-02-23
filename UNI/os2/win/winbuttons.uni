@@ -1,8 +1,5 @@
 group winbuttons;
 
-abi os2386;
-
-
    (**** Button Controls Subsection *)
 
    (* Button control styles *)

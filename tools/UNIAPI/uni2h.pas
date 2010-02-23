@@ -79,7 +79,6 @@ var
   optionindex : Longint;
   theopts : array[1..2] of TOption;
   emitter: string;
-  abifile: string;
   unifile: string;
   outfile: string;
 begin
@@ -109,6 +108,7 @@ begin
     end; { case }
   until c=endofoptions;
 
+  writeln(abifile);
   if (ParamCount-OptInd)=1 then
   begin
     unifile:=paramstr(optind);
@@ -116,7 +116,6 @@ begin
     outfile:=paramstr(optind);
     AEngine:=TUNIAPIEngine.Create;
     AModule:=ParseSource(AEngine, unifile,'','');
-    rootpath:=extractfilepath(unifile);
     if emitter='def' then WriteDefFile(AModule, outfile) 
     else if emitter='h' then WriteHFile(AModule, outfile) 
     else WriteHFile(AModule, outfile);

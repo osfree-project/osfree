@@ -1,7 +1,5 @@
 group winwindowmgr;
 
-abi os2386;
-
    (* WM_CREATE structure *)
 
    type CREATESTRUCT=structure    (* crst *)

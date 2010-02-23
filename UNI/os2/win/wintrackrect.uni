@@ -1,7 +1,5 @@
 group wintrackrect;
 
-abi os2386;
-
 constant TF_LEFT              =$0001;
 constant TF_TOP               =$0002;
 constant TF_RIGHT             =$0004;

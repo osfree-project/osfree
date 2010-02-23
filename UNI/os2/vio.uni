@@ -1,8 +1,6 @@
 (* Video Input Output (Vio) functions (32-bit version) *)
 group vio;
 
-abi sub32;
-
 (* Vio handles *)
 type HVIO=USHORT;
 type PHVIO=^HVIO;

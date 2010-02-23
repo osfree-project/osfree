@@ -1,7 +1,5 @@
 group winpointers;
 
-abi os2386;
-
 constant SPTR_ARROW           = 1;
 constant SPTR_TEXT            = 2;
 constant SPTR_WAIT            = 3;

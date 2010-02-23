@@ -1,7 +1,5 @@
 group winstdfile;
 
-abi os2386;
-
 constant FDS_CENTER            = $00000001;
 constant FDS_CUSTOM            = $00000002;
 constant FDS_FILTERUNION       = $00000004;

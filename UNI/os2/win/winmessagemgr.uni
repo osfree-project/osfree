@@ -1,7 +1,5 @@
 group winmessagemgr;
 
-abi os2386;
-
 (*** WM_CALCVALIDRECTS return flags *************************************)
 constant CVR_ALIGNLEFT               = $0001;
 constant CVR_ALIGNBOTTOM             = $0002;

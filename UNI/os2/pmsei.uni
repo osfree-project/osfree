@@ -1,7 +1,5 @@
 group pmsei;
 
-abi os2386;
-
 constant  SEI_BREAKPOINT   = $8000;
 constant  SEI_NOBEEP       = $4000;
 constant  SEI_NOPROMPT     = $2000;

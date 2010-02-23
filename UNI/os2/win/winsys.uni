@@ -1,7 +1,5 @@
 group winsys;
 
-abi os2386;
-
 (*** System values *)
 
 function WinQuerySysValue(in hwndDesktop: HWND;

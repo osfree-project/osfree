@@ -1,8 +1,5 @@
 group dosmodulemgr;
 
-abi os2386;
-
-
 (*** Module manager *)
 
 function DosLoadModule(out pszName: CHAR;

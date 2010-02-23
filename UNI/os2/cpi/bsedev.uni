@@ -6,8 +6,6 @@
 
 group bsedev;
 
-abi os2386;
-
 (* Input and Output Control Categories *)
 
 constant IOCTL_ASYNC                       = $0001;

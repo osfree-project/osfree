@@ -1,7 +1,5 @@
 group unidef;
 
-abi os2386;
-
 
 (* compiler dependent include files *)
 #include <stddef.h>             (* define size_t and wchar_t types *)

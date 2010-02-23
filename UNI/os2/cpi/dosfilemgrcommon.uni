@@ -1,7 +1,5 @@
 group dosfilemgrcommon;
 
-abi os2386;
-
 uses hevdef;
 
    (*** File manager *)

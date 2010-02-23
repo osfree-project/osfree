@@ -1,7 +1,5 @@
 group pmbase;
 
-abi os2386;
-
 constant HWND_DESKTOP            = 1;
 constant HWND_OBJECT             = 2;
 

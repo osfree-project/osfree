@@ -1,7 +1,5 @@
 group winaccelerators;
 
-abi os2386;
-
 type HACCEL=LHANDLE;
 
 constant AF_CHAR       = $0001;

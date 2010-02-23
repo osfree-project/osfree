@@ -1,7 +1,5 @@
 group wincursors;
 
-abi os2386;
-
 constant CURSOR_SOLID      = $0000;
 constant CURSOR_HALFTONE   = $0001;
 constant CURSOR_FRAME      = $0002;

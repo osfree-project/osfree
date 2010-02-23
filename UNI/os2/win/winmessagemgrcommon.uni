@@ -1,7 +1,5 @@
 group winmessagemgrcommon;
 
-abi os2386;
-
    (* QMSG structure *)
    type QMSG=structure    (* qmsg *)
       hwnd: HWND;

@@ -28,13 +28,13 @@ type
     IsStartOfLine: Boolean;
     Indent, CurDeclSection: string;
     DeclSectionStack: TList;
-    FAbiList: TPasSection;
+    //FAbiList: TPasSection;
     procedure IncIndent;
     procedure DecIndent;
     procedure IncDeclSectionLevel;
     procedure DecDeclSectionLevel;
     procedure PrepareDeclSection(const ADeclSection: string);
-    function MultiAbiGet(Symbol: String): TAbi;
+    //function MultiAbiGet(Symbol: String): TAbi;
   public
     constructor Create(AStream: TStream);
     destructor Destroy; override;
@@ -276,7 +276,7 @@ begin
 
   CurDeclSection := '';
 
-  FAbiList:=ASection;
+  //FAbiList:=ASection;
 
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
@@ -313,7 +313,7 @@ begin
 
 end;
 
-function THWriter.MultiAbiGet(Symbol: String): TAbi;
+(*function THWriter.MultiAbiGet(Symbol: String): TAbi;
 var
   i: word;
 begin
@@ -325,6 +325,7 @@ begin
     Result.Name:='';
   end;
 end;
+*)
 
 procedure THWriter.WriteClass(AClass: TPasClassType);
 var
@@ -432,7 +433,7 @@ begin
     wrt('VOID');
   end;
 
-  ABI:=MultiAbiGet(AProc.Name);
+  ABI:=AbiGet(AProc.Name);
   If ABI.Name='' then raise Exception.Create('ABI not found for '+AProc.Name);
   wrt(' '+ABI.CallingConvertion+' '+AProc.Name);
 
@@ -476,7 +477,7 @@ var
   i: Integer;
   ABI: TABI;
 begin
-  ABI:=MultiAbiGet(AProc.Name);
+  ABI:=AbiGet(AProc.Name);
   if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   wrt('VOID ('+ABI.CallingConvertion+' '+AProc.Name+')');
 
@@ -522,7 +523,7 @@ var
 begin
   WriteType(AProc.ResultEl.ResultType, false);
 
-  ABI:=MultiAbiGet(AProc.Name);
+  ABI:=AbiGet(AProc.Name);
   if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   wrt('('+ABI.CallingConvertion+' '+AProc.Name+')');
 

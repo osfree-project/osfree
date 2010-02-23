@@ -1,7 +1,5 @@
 group pmwin;
 
-abi os2386;
-
 uses pmbase;
 uses pmshl;
 uses winwindowmgr;

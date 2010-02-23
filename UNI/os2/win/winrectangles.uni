@@ -1,7 +1,5 @@
 group winrectangles;
 
-abi os2386;
-
 function WinCopyRect(in hab: HAB; in prclDst: PRECTL; in prclSrc: PRECTL): BOOL;
 function WinEqualRect(in hab: HAB; in prcl1: PRECTL; in prcl2: PRECTL): BOOL;
 function WinInflateRect(in hab: HAB; in prcl: PRECTL; in cx: LONG; in cy: LONG): BOOL;

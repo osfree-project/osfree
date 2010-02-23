@@ -1,7 +1,5 @@
 group winstddrag;
 
-abi os2386;
-
 constant PMERR_NOT_DRAGGING     = $1f00;
 constant PMERR_ALREADY_DRAGGING = $1f01;
 

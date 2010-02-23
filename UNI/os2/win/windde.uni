@@ -1,7 +1,5 @@
 group windde;
 
-abi os2386;
-
 constant DDE_FACK         = $0001;
 constant DDE_FBUSY        = $0002;
 constant DDE_FNODATA      = $0004;

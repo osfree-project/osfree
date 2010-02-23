@@ -25,7 +25,7 @@ type
   TDefWriter = class
   private
     FStream: TStream;
-    FAbiList: TPasSection;
+    //FAbiList: TPasSection;
   public
     constructor Create(AStream: TStream);
     destructor Destroy; override;
@@ -37,7 +37,7 @@ type
     procedure WriteModule(AModule: TPasModule);
     procedure WriteSection(ASection: TPasSection);
     procedure WriteProcDecl(AProc: TPasProcedure);
-    function MultiAbiGet(Symbol: String): TAbi;
+    //function MultiAbiGet(Symbol: String): TAbi;
     property Stream: TStream read FStream;
   end;
 
@@ -101,14 +101,14 @@ var
   i: Integer;
 begin
 
-  FAbiList:=ASection;
+  //FAbiList:=ASection;
 
   for i := 0 to ASection.Declarations.Count - 1 do
     WriteElement(TPasElement(ASection.Declarations[i]));
 
 end;
 
-function TDefWriter.MultiAbiGet(Symbol: String): TAbi;
+(*function TDefWriter.MultiAbiGet(Symbol: String): TAbi;
 var
   i: word;
 begin
@@ -120,12 +120,12 @@ begin
     Result.Name:='';
   end;
 end;
-
+*)
 procedure TDefWriter.WriteProcDecl(AProc: TPasProcedure);
 var
   ABI: TAbi;
 begin
-  ABI:=MultiAbiGet(AProc.Name);
+  ABI:=AbiGet(AProc.Name);
   if ABI.Name='' then raise Exception.Create('No ABI found for '+AProc.Name);
   if ABI.ImportName='' then
     wrtln('++'+AProc.Name+'.'+ABI.DLL+'.'+ABI.Ordinal)

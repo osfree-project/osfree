@@ -1,7 +1,5 @@
 group winatom;
 
-abi os2386;
-
 (* #define MAKEINTATOM(a)  ((PCH)MAKEULONG(a,0xffff)) *)
 
 type ATOM=ULONG;

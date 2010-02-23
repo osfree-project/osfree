@@ -1,7 +1,5 @@
 group wincountry;
 
-abi os2386;
-
 function WinQueryCp(in hmq: HMQ): ULONG;
 
 function WinSetCp(in hmq: HMQ;

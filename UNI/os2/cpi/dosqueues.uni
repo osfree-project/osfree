@@ -1,8 +1,6 @@
 (*** Pipe and queue support *)
 group dosqueues;
 
-abi os2386;
-
 uses hevdef default;
 
 type  HSEM=ULONG;

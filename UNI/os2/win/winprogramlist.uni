@@ -1,7 +1,5 @@
 group winprogramlist;
 
-abi os2386;
-
 uses winhprogram default;
 
       (*** maximum path length *********************************************)

@@ -1,7 +1,5 @@
 group winshelldata;
 
-abi os2386;
-
 (*** INI files access functions ****************************************)
 
 function PrfQueryProfileInt(in hini: HINI;

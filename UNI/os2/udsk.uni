@@ -1,7 +1,5 @@
 group udsk;
 
-abi os2386;
-
 (* Generic sectors access *)
 function DskSecRead(in pszDisk: PSZ; in llLBA: LONGLONG; in bufSize: ULONG; out buffer: VOID): APIRET;
 function DskSecWrite(in pszDisk: PSZ; in llLBA: LONGLONG; in bufSize: ULONG; in buffer: PVOID): APIRET;

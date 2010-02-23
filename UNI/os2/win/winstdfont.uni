@@ -1,7 +1,5 @@
 group winstdfont;
 
-abi os2386;
-
 constant CLRC_FOREGROUND =1;
 constant CLRC_BACKGROUND =2;
 

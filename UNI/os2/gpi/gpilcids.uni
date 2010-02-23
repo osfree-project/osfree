@@ -1,8 +1,5 @@
 group gpilcids;
 
-abi os2386;
-
-
    (* return codes from GpiCreateLogFont *)
 constant FONT_DEFAULT                  =  1;
 constant FONT_MATCH                    =  2;

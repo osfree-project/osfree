@@ -1,7 +1,5 @@
 group windesktop;
 
-abi os2386;
-
 constant SDT_DESTROY         = $01;
 constant SDT_NOBKGND         = $02;
 constant SDT_TILE            = $04;

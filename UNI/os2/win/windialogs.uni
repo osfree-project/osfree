@@ -1,8 +1,5 @@
 group windialogs;
 
-abi os2386;
-
-
    (* Dialog codes: returned by WM_QUERYDLGCODE msg     *)
 
 constant DLGC_ENTRYFIELD    = $0001;  (* Entry field item understands EM_SETSEL) *)

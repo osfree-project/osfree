@@ -1,7 +1,5 @@
 group dosexcptfunc;
 
-abi os2386;
-
 function DosSetExceptionHandler(in pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;
 
 function DosUnsetExceptionHandler(in pERegRec: PEXCEPTIONREGISTRATIONRECORD): APIRET;

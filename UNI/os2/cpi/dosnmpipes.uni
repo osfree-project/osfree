@@ -7,9 +7,6 @@
 
 group dosnmpipes;
 
-abi os2386;
-
-
    (*** Data structures used with named pipes ***)
 
       type  HSEM=ULONG;

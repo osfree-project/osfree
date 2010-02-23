@@ -7,10 +7,6 @@
 
 group pmshl;
 
-abi os2386;
-
-
-
 uses winswitchlistcommon;
 uses winswitchlist;
 uses winprogramlist;

@@ -1,7 +1,5 @@
 group dosprocess;
 
-abi os2386;
-
 uses dosprocesscommon default;
 
 (* NOINC *

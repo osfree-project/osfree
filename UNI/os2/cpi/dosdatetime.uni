@@ -1,7 +1,5 @@
 group dosdatetime;
 
-abi os2386;
-
 type  HSEM=ULONG;
 type PHSEM=^HSEM;
 

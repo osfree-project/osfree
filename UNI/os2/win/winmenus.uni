@@ -1,7 +1,5 @@
 group winmenus;
 
-abi os2386;
-
 constant MIT_END            = (-1);
 constant MIT_NONE           = (-1);
 constant MIT_MEMERROR       = (-1);

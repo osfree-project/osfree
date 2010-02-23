@@ -1,7 +1,5 @@
 group winframemgr;
 
-abi os2386;
-
 uses pmbase default;
 
 function WinFlashWindow(in hwndFrame: HWND;

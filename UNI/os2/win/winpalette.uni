@@ -1,7 +1,5 @@
 group winpalette;
 
-abi os2386;
-
 function WinRealizePalette(in a: HWND; in b: HPS; in c: PULONG): LONG;
 
 end.

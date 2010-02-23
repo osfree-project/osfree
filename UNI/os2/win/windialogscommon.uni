@@ -1,7 +1,5 @@
 group windialogscommon;
 
-abi os2386;
-
 (**** Dialog Manager *)
 
 (**** Dialog Manager COMMON subsection *)

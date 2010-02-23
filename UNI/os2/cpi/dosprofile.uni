@@ -2,8 +2,6 @@ group dosprofile;
 
 (*** DosProfile API support *)
 
-abi os2386;
-
 (*** Perfview API support *)
 
 function DosTmrQueryFreq(out pulTmrFreq: ULONG): APIRET;

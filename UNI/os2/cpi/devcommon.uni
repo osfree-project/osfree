@@ -1,7 +1,5 @@
 group devcommon;
 
-abi os2386;
-
 constant CAPS_FAMILY                  = 0;
 constant CAPS_IO_CAPS                 = 1;
 constant CAPS_TECHNOLOGY              = 2;
