@@ -471,7 +471,7 @@ Begin
   msgpos:=messages;
   While msgpos<>nil do
   begin
-    Idx^[Number]:=Idx^[Number-1]+StrLen(MsgPos^.Message);
+    Idx^[Number]:=Idx^[Number-1]+Longword(StrLen(MsgPos^.Message));
     MsgPos:=MsgPos^.Next;
     Inc(Number);
 {$ifdef DEBUG}

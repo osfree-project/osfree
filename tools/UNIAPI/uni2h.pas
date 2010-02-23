@@ -108,7 +108,6 @@ begin
     end; { case }
   until c=endofoptions;
 
-  writeln(abifile);
   if (ParamCount-OptInd)=1 then
   begin
     unifile:=paramstr(optind);
