@@ -166,7 +166,7 @@ os2libs: $(LIBOUT)sub32.lib &
          .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
- uni2h.exe -e def $< $^*.def
+ uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
  $(LIB) $(LIBOPT) $^@ @$^*.def
  $(DC) $^*.def
 
