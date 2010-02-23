@@ -80,6 +80,8 @@ var
   theopts : array[1..2] of TOption;
   emitter: string;
   abifile: string;
+  unifile: string;
+  outfile: string;
 begin
   with theopts[1] do
   begin
@@ -107,31 +109,16 @@ begin
     end; { case }
   until c=endofoptions;
 
-  if optind<=paramcount then
+  if (ParamCount-OptInd)=1 then
   begin
-    while optind<=paramcount do
-    begin
-      write (paramstr(optind),' ');
-      inc(optind)
-    end;
-    writeln
-  end;
-
-  AEngine:=TUNIAPIEngine.Create;
-  if emitter='def' then
-  begin
-   AModule:=ParseSource(AEngine, paramstr(2),'','');
-   rootpath:=extractfilepath(paramstr(2));
-   WriteDefFile(AModule, paramstr(3)) 
- end else
- if emitter='h' then 
- begin 
-   AModule:=ParseSource(AEngine, paramstr(2),'','');
-   rootpath:=extractfilepath(paramstr(2));
-   WriteHFile(AModule, paramstr(3)) 
- end else begin
-   AModule:=ParseSource(AEngine, paramstr(1),'','');
-   rootpath:=extractfilepath(paramstr(1));
-   WriteHFile(AModule, paramstr(2));
- end;
+    unifile:=paramstr(optind);
+    inc(optind);
+    outfile:=paramstr(optind);
+    AEngine:=TUNIAPIEngine.Create;
+    AModule:=ParseSource(AEngine, unifile,'','');
+    rootpath:=extractfilepath(unifile);
+    if emitter='def' then WriteDefFile(AModule, outfile) 
+    else if emitter='h' then WriteHFile(AModule, outfile) 
+    else WriteHFile(AModule, outfile);
+  end else Writeln('error');
 end.
