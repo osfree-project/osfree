@@ -38,7 +38,10 @@ extern int    len;
 
 char drv;
 
-void editor (char *cfg, int len, char force);
+#define EDT_FORCE_START 1
+#define EDT_QUIET       2
+
+int editor (char *cfg, int len, unsigned long force);
 int kprintf(const char *format, ...);
 int toupper (int c);
 void mbi_reloc(void);
@@ -334,6 +337,7 @@ int load_modules (char *cfg, int len)
       !preload_library("bkscalls.dll") ||
       !preload_library("kbdcalls.dll") ||
       !preload_library("moucalls.dll") ||
+      !preload_library("quecalls.dll") ||
       !preload_library("viocalls.dll"))
     return 1;
 

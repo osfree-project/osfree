@@ -884,7 +884,7 @@ skip3:                                  ; !!!!!
     cmp     bh, 1
     je      obj_1
     cmp     bh, 3
-    je      obj_3
+    je      obj_1  ;;; valerius ;;; obj_3
 
     int     3                           ; someone have messed with bh!!!
 

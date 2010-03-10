@@ -30,6 +30,8 @@ unsigned long secsize = 0;
 unsigned short hVPB   = 0;
 struct dpb far *pdpb  = 0; // pointer to our DPB
 
+#define CCHMAXPATHCOMP 256
+
 #define CHECKRC \
     if (rc) \
     {       \
@@ -51,21 +53,22 @@ struct save_item
   char pName[0x3a];
 };
 
-#pragma pack()
+typedef struct _FILEFINDBUF2 {
+  unsigned short fdateCreation;            /*  Date of file creation. */
+  unsigned short ftimeCreation;            /*  Time of file creation. */
+  unsigned short fdateLastAccess;          /*  Date of last access.   */
+  unsigned short ftimeLastAccess;          /*  Time of last access.   */
+  unsigned short fdateLastWrite;           /*  Date of last write.    */
+  unsigned short ftimeLastWrite;           /*  Time of last write.    */
+  unsigned long  cbFile;                   /*  Size of file.          */
+  unsigned long  cbFileAlloc;              /*  Allocated size.        */
+  unsigned long  attrFile;                 /*  File attributes.       */
+  unsigned long  cbList;                   /*  EA list size           */
+  unsigned char  cchName;                  /*  Length of file name.   */
+  char achName[CCHMAXPATHCOMP];       /*  File name including null terminator. */
+} FILEFINDBUF2;
 
-struct FileFindBuf {
-  unsigned short dateCreate;
-  unsigned short timeCreate;
-  unsigned short dateAccess;
-  unsigned short timeAccess;
-  unsigned short dateWrite;
-  unsigned short timeWrite;
-  long           cbEOF;
-  long           cbAlloc;
-  unsigned short attr;
-  unsigned char  cbName;
-  unsigned char  szName[0x100];
-} ffb;
+#pragma pack()
 
 extern unsigned char drvletter;
 extern unsigned char cd_drvletter;
@@ -120,6 +123,9 @@ int  far pascal FSH_PROBEBUF  (unsigned short operation,
                                unsigned short cbData);
 void far pascal FSH_INTERR(char far *pMsg,
                            unsigned short cbMsg);
+int  far pascal FSH_UPPERCASE(char far *szPathName,
+                              unsigned short cbPathBuf,
+                              char far *pPathBuf);
 
 #pragma aux DevHlp          "*"
 #pragma aux FS_NAME         "*"
@@ -127,7 +133,7 @@ void far pascal FSH_INTERR(char far *pMsg,
 #pragma aux FS_MPSAFEFLAGS2 "*"
 
 char FS_NAME[12];
-unsigned long FS_ATTRIBUTE         = 0x0L;
+unsigned long FS_ATTRIBUTE         = 0; //0x2C0CL;
 unsigned long long FS_MPSAFEFLAGS2 = 0x0LL;
 
 char read_panic[] = "Error reading boot sector from the boot drive!\n";
@@ -506,6 +512,7 @@ int far pascal _loadds FS_OPENCREATE(
   int rc, i;
 
   kprintf("**** FS_OPENCREATE(\"%s\")\n", pName);
+  kprintf("iCurDirEnd=%d, curdir=%s, cdi_end=%d\n", iCurDirEnd, pcdfsi->cdi_curdir, pcdfsi->cdi_end);
 
   if (ulOpenMode & OPEN_FLAGS_DASD) // opening whole drive for a direct read
   {
@@ -622,37 +629,103 @@ int     far pascal _loadds FS_FINDFIRST(
                                struct cdfsi   far *pcdfsi,
                                struct cdfsd   far *pcdfsd,
                                char           far *pName,
-                               unsigned short         iCurDirEnd,
-                               unsigned short         attr,
+                               unsigned short iCurDirEnd,
+                               unsigned short attr,
                                struct fsfsi   far *pfsfsi,
                                struct fsfsd   far *pfsfsd,
                                char           far *pData,
-                               unsigned short         cbData,
+                               unsigned short cbData,
                                unsigned short far *pcMatch,
-                               unsigned short         level,
-                               unsigned short         flags
+                               unsigned short level,
+                               unsigned short flags
                               )
 {
-  int    i, rc;
-  char   far *p;
-  struct mod_list *mod;
-  struct multiboot_info far *mbi_far;
-  unsigned short sel, mods_sel;
-  unsigned long mods_addr, mods_count, size;
+  int    rc;
+  unsigned long size;
+  char far *p;
+  FILEFINDBUF2 far *ff;
+  char buf[0x100];
 
-  kprintf("**** FS_FINDFIRST(\"%s\")\n", pName);
+  kprintf("**** FS_FINDFIRST(\"%s\"), level=%u, flags=%u, curdir=%s, iCurDirEnd=%d\n",
+          pName, level, flags, pcdfsi->cdi_curdir, iCurDirEnd);
 
+  p = pName;
   // skip a drive letter
-  if (pName[1] == ':' && pName[2] == '\\') pName += 2;
+  if (p[1] == ':' && p[2] == '\\') p += 2;
 
   /* find by trying to open */
   *pcMatch = 0; rc = 2; // file not found
-  if (!MFS_OPEN(pName, &size))
+  if (!MFS_OPEN(p, &size))
   {
+    //pName += 3;
     // file found
-    *pcMatch = 1;
+    switch (level)
+    {
+    case 1:
+      *pcMatch = 1;
+      break;
+    case 2: // query EA size, specially for *.cmd
+      // query write access to the buffer
+      if (!FSH_PROBEBUF(1, pData, cbData))
+      {
+        // fill in the position field
+        *((unsigned long far *)pData) = 0; // sizeof(FILEFINDBUF2) - CCHMAXPATHCOMP;
+        pData += sizeof(unsigned long);
+        ff = (FILEFINDBUF2 far *)pData;
+        ff->cbFile = size;
+        ff->cbFileAlloc = size;
+        ff->cbList = 0; // sizeof(unsigned long);
+
+        // for files in root dir. or files in first-level dirs, return the
+        // full pathname; for deeper files, return a filename with last dir
+        // i.e.: s:\tools\netdrive\ndctl.exe -> netdrive\ndctl.exe
+        for (p = pName + strlen(pName) - 1; p > pName && *p != '\\'; p--) ;
+        if (p - pName > 2)
+        {
+          p--;
+          for (; p > pName && *p != '\\'; p--) ;
+        }
+        if (p - pName > 2)
+          p++;
+        else
+          p = pName;
+
+        //memmove(pcdfsi->cdi_curdir, pName, p - pName + 1);
+        //pcdfsi->cdi_curdir[p - pName + 1] = '\0';
+        //pcdfsi->cdi_end = iCurDirEnd = p - pName + 1;
+        //p++;
+
+        //cbData = sizeof(FILEFINDBUF2) - CCHMAXPATHCOMP - 1;
+        ff->cchName = strlen(p);
+        if (attr & 0x0040)
+        {
+          strcpy(ff->achName, p);
+          attr &= ~0x0040;
+        }
+        else
+          FSH_UPPERCASE(p, ff->cchName, ff->achName);
+
+        kprintf("achName=%s, curdir=%s, cdi_end=%d\n", ff->achName, pcdfsi->cdi_curdir, pcdfsi->cdi_end);
+      }
+      else
+        kprintf("FSH_PROBEBUF failed!\n");
+      break;
+    default:
+      break;
+    }
+
     rc = 0;
   }
 
   return rc;
+}
+
+int     far pascal _loadds FS_FINDCLOSE(
+                               struct fsfsi far *pfsfsi,
+                               struct fsfsd far *pfsfsd
+                              )
+{
+    kprintf("**** FS_FINDCLOSE\n");
+
+    return NO_ERROR;
 }

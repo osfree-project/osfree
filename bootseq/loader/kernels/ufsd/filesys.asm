@@ -20,6 +20,7 @@ extrn ufs_open          :near
 extrn ufs_read          :near
 extrn ufs_seek          :near
 extrn ufs_close         :near
+extrn ufs_term          :near
 extrn com_outchar       :near
 
 .386p
@@ -274,11 +275,20 @@ mu_Close endp
 ;
 
 mu_Terminate proc far
+        switch_to_preldr
+
         mov  al, 't'
         call com_outchar
 
+        mov  eax, offset _TEXT:muTerminate
+        push eax
+        call call_pm
+        add  sp, 4
+
         mov  al, 'e'
         call com_outchar
+
+        switch_to_ldr
 
         retf
 mu_Terminate endp
@@ -336,6 +346,12 @@ muClose proc near
 
        ret
 muClose endp
+
+muTerminate proc near
+       call ufs_term
+
+       ret
+muTerminate endp
 
 
 _TEXT   ends

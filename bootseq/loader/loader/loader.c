@@ -18,6 +18,7 @@ extern kernel_t kernel_type;
 extern lip2_t *l;
 extern bios_parameters_block *bpb;
 extern FileTable ft;
+extern int cur_addr;
 
 extern struct variable_list_struct {
   char *name;
@@ -144,6 +145,53 @@ extern int menu_height;
 
 int process_cfg(char *cfg);
 
+int getkey (void)
+{
+  return t->getkey();
+}
+
+int checkkey (void)
+{
+  return t->checkkey();
+}
+
+void gotoxy(int x, int y)
+{
+  t->gotoxy(x, y);
+}
+
+int getxy(void)
+{
+  return t->getxy();
+}
+
+int setcursor(int n)
+{
+  return t->setcursor(n);
+}
+
+void setcolorstate(int n)
+{
+  t->setcolorstate(n);
+}
+
+void setcolor(int x, int y)
+{
+  t->setcolor(x, y);
+}
+
+void cls(void)
+{
+  t->cls();
+}
+
+#define EDT_FORCE_START 1
+#define EDT_QUIET       2
+
+int editor (char *cfg,             /* config file address */
+            int length,            /* its length          */
+            unsigned long force);  /* force starting the editor         */
+
 void init(lip2_t *l)
 {
 
@@ -228,6 +276,7 @@ process_cfg_line1(char *line)
     st_prev = st;
     st->s = p + config_len;
     st->last = 1;
+    //st_prev->last = 0;
     sc->num++;
     // copy a line to buffer
     while (p[config_len++] = *s++) ;
@@ -236,7 +285,7 @@ process_cfg_line1(char *line)
   {
     rc = exec_line(line);
     if (!rc)
-      printf("Error occured during execution of %s\r\n", (*b)->name);
+      printf("Error occured during execution of command\r\n");
 
     return rc;
   }
@@ -758,42 +807,78 @@ void cmdline(int item, int shift)
 void menued(int item, int shift)
 {
   int  ch;
-  int  n;
-  int  i;
-  char *p;
+  int  i, k, n;
+  int  len;
+  char *p, *q, *r, *s, *u;
+  char *cfg;
+  char str[0x400];
   script_t *sc;
+  string_t *line, *st = 0, *st_prev = 0;
 
   n = item + 1;
   sc = menu_first;
+  cur_addr = 0x400000;
+  p = (char *)cur_addr;
 
   // find a menu item and execute corresponding script
-  while (n)
-  {
-    n--;
-    if (!n)
-    { /* (sc->scr, sc->num) */
-      p = sc->scr->s;
-      for (i = 0; i < sc->num; i++)
-      {
-        printf("%s\r\n", p);
-        while (*p++) ;
-      }
-    }
+  while (n--)
     sc = sc->next;
-  }
 
-  while (1)
+  // get the first script line
+  line = sc->scr;
+
+  // create a file in memory with script lines
+  for (i = 0; i < sc->num; i++)
   {
-    ch = t->getkey();
-    if (ch == 0x11b) break; // esc
-    switch (ch)
-    {
-      default:
-        printf("%c", ch & 0xff);
-    }
+    strcpy(p, line->s);
+    p += strlen(p);
+    *p++ = '\r';
+    *p++ = '\n';
+    line = line->next;
   }
 
-  t->cls();
+  // set cfg pointing to the file in memory
+  // and len to its length
+  cfg = (char *)cur_addr;
+  len = p - cfg;
+  cur_addr = (int)p;
+
+  // start the editor
+  len = editor (cfg, len, 1);
+  cfg = (char *)cur_addr;
+
+  sc->num = 0;
+  r = cfg;
+
+  // create a new script with edited lines
+  while (*r && r - cfg < len)
+  {
+    // get one line
+    for (i = 0; *r && *r != '\r' && *r != '\n'; i++, r++) str[i] = *r;
+    str[i] = '\0';
+    if (*r == '\r') r++;
+    if (*r == '\n') r++;
+    s = str;
+    if (!*s) continue;
+    p = config_lines;
+    q = menu_items;
+    st = (string_t *)((char *)q + menu_len);
+    st->prev = st_prev;
+    if (st_prev) st_prev->next = st;
+    st->next = 0;
+    menu_len += sizeof(string_t);
+    // if this is a 1st command
+    if (!sc->num) sc->scr = st;
+    st_prev = st;
+    st->s = p + config_len;
+    st->last = 1;
+    //st_prev->last = 0;
+    sc->num++;
+    // copy a line to buffer
+    while (p[config_len++] = *s++) ;
+  }
+
+  cls();
   state = 0;
 }
 

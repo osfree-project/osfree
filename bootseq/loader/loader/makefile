@@ -9,7 +9,7 @@
 # immediate macros substitution
 #
 
-LDR_OBJS         = $(p)ldrstart$(e) $(p)loader$(e) $(p)..$(SEP)wrap$(e) $(p)commands$(e) &
+LDR_OBJS         = $(p)ldrstart$(e) $(p)loader$(e) $(p)..$(SEP)wrap$(e) $(p)commands$(e) $(p)edit$(e) &
                    $(p)boot$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)cfgparse-l$(e) # $(p)varsubst$(e)
 
 MOD_BASE         = LDR_BASE
@@ -53,6 +53,10 @@ F =
 #!else
 #defs=-d$(basename) -dSHIFT=$$(SHIFT)
 #!endif
+
+.c:   $(MYDIR)
+
+.c:   $(MYDIR)..
 
 $(PATH)..$(SEP)cfgparse-l.$(O): $(MYDIR)..$(SEP)cfgparse.c
  $(CC) -dLOADER $(COPT) -fr=$^*.err -fo=$^@ $[@

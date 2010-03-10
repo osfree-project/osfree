@@ -7,7 +7,7 @@
 
 int kprintf(const char *format, ...);
 
-#if 0
+#if 1
 int far pascal _loadds FS_ALLOCATEPAGESPACE(
                                     struct sffsi far *psffsi,       /* ptr to fs independent SFT */
                                     struct sffsd far *psffsd,       /* ptr to fs dependent SFT         */
@@ -15,6 +15,8 @@ int far pascal _loadds FS_ALLOCATEPAGESPACE(
                                     unsigned long        ulWantContig  /* contiguous chunk size         */
                                    )
 {
+    kprintf("**** FS_ALLOCATEPAGESPACE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -25,6 +27,8 @@ int far pascal _loadds FS_DOPAGEIO(
                               struct PageCmdHeader far *pPageCmdList
                              )
 {
+    kprintf("**** FS_DOPAGEIO\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -40,6 +44,8 @@ int far pascal _loadds FS_OPENPAGEFILE(
                                   unsigned long         Reserved
                                  )
 {
+    kprintf("**** FS_OPENPAGEFILE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 #endif
@@ -49,15 +55,19 @@ int far pascal _loadds FS_SETSWAP(
                              struct sffsd far *psffsd
                             )
 {
+    kprintf("**** FS_SETSWAP\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
-#if 0
+#if 1
 int far pascal _loadds FS_VERIFYUNCNAME(
                                    unsigned short     flag,
                                    char           far *pName
                                   )
 {
+    kprintf("**** FS_VERIFYUNCNAME\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 #endif
@@ -68,6 +78,8 @@ int far pascal _loadds FS_CANCELLOCKREQUEST(
                                    struct filelock far *pLockRange        /* pLockRang        */
                                   )
 {
+    kprintf("**** FS_CANCELLOCKREQUEST\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -80,6 +92,8 @@ int far pascal _loadds FS_FILELOCKS(
                                unsigned long           flags
                               )
 {
+    kprintf("**** FS_FILELOCKS\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -93,6 +107,8 @@ int far pascal _loadds FS_FILEIO(
                             unsigned short         IOflag
                            )
 {
+    kprintf("**** FS_FILEIO\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -106,6 +122,8 @@ int far pascal _loadds FS_NMPIPE(
                             char           far *pName
                            )
 {
+    kprintf("**** FS_NMPIPE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -113,6 +131,8 @@ int far pascal _loadds FS_FINDNOTIFYCLOSE(
                                      unsigned short handle
                                     )
 {
+    kprintf("**** FS_FINDNOTIFYCLOSE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -131,6 +151,8 @@ int far pascal _loadds FS_FINDNOTIFYFIRST(
                                      unsigned long          timeout
                                     )
 {
+    kprintf("**** FS_FINDNOTIFYFIRST\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -143,6 +165,8 @@ int far pascal _loadds FS_FINDNOTIFYNEXT(
                                     unsigned long          timeout
                                    )
 {
+    kprintf("**** FS_FINDNOTIFYNEXT\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -153,7 +177,9 @@ int far pascal _loadds FS_COMMIT(
                             struct sffsd   far *psffsd
 )
 {
-  return NO_ERROR;
+    kprintf("**** FS_COMMIT\n");
+
+    return NO_ERROR;
 }
 
 int far pascal _loadds FS_COPY(
@@ -167,9 +193,10 @@ int far pascal _loadds FS_COPY(
                           unsigned short         nameType
 )
 {
+    kprintf("**** FS_COPY\n");
+
     return ERROR_NOT_SUPPORTED;
 }
-
 
 
 
@@ -180,6 +207,8 @@ int far pascal _loadds FS_DELETE(
                             unsigned short         iCurDirEnd
                            )
 {
+    kprintf("**** FS_DELETE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -188,6 +217,8 @@ int far pascal _loadds FS_FLUSHBUF(
                               unsigned short flag
                              )
 {
+    kprintf("**** FS_FLUSHBUF\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -201,6 +232,8 @@ int far pascal _loadds FS_MOVE(
                           unsigned short         flags
                          )
 {
+    kprintf("**** FS_MOVE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -211,6 +244,8 @@ int far pascal _loadds FS_NEWSIZE(
                              unsigned short         IOflag
                             )
 {
+    kprintf("**** FS_NEWSIZE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -219,6 +254,8 @@ int far pascal _loadds FS_SHUTDOWN(
                               unsigned long ulReserved
                              )
 {
+    kprintf("**** FS_SHUTDOWN\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -230,6 +267,8 @@ int far pascal _loadds FS_WRITE(
                            unsigned short         IOflag
                           )
 {
+    kprintf("**** FS_WRITE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -243,6 +282,8 @@ int far pascal _loadds FS_MKDIR(
                            unsigned short         flags
                           )
 {
+    kprintf("**** FS_MKDIR\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -253,19 +294,14 @@ int far pascal _loadds FS_RMDIR(
                            unsigned short         iCurDirEnd
                           )
 {
+    kprintf("**** FS_RMDIR\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
 /***FS_FINDFIRST***/
 
-int     far pascal _loadds FS_FINDCLOSE(
-                               struct fsfsi far *pfsfsi,
-                               struct fsfsd far *pfsfsd
-                              )
-{
-    return ERROR_NOT_SUPPORTED;
-}
-
+/***FS_FINDCLOSE***/
 
 int far pascal _loadds FS_FINDFROMNAME(
                                   struct fsfsi   far *pfsfsi,
@@ -279,6 +315,8 @@ int far pascal _loadds FS_FINDFROMNAME(
                                   unsigned short         flags
                                  )
 {
+    kprintf("**** FS_FINDFROMNAME\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -292,6 +330,8 @@ int     far pascal _loadds  FS_FINDNEXT(
                                unsigned short         flags
                               )
 {
+    kprintf("**** FS_FINDNEXT\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -307,6 +347,8 @@ int far pascal _loadds FS_FILEINFO(
                               unsigned short         IOflag
                              )
 {
+    kprintf("**** FS_FILEINFO\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -324,6 +366,8 @@ int far pascal _loadds FS_PATHINFO(
                               unsigned short         cbData
                              )
 {
+    kprintf("**** FS_PATHINFO\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -340,6 +384,8 @@ int far pascal _loadds FS_FSCTL(
                            unsigned short far *plenDataOut
                           )
 {
+    kprintf("**** FS_FSCTL\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -353,6 +399,8 @@ int far pascal _loadds FS_FILEATTRIBUTE(
                                    unsigned short far *pAttr
                                   )
 {
+    kprintf("**** FS_FILEATTRIBUTE\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -365,6 +413,8 @@ int far pascal _loadds FS_FSINFO(
                             unsigned short         level
                            )
 {
+    kprintf("**** FS_FSINFO\n");
+
     return ERROR_NOT_SUPPORTED;
 }
 
@@ -376,5 +426,7 @@ int far pascal _loadds FS_CHDIR(
                        unsigned short         iCurDirEnd
                       )
 {
+    kprintf("**** FS_CHDIR\n");
+
     return ERROR_NOT_SUPPORTED;
 }

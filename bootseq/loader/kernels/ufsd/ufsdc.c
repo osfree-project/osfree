@@ -31,6 +31,9 @@ extern mu_Read;
 extern mu_Close;
 extern mu_Terminate;
 
+extern unsigned long mfs_start;
+extern unsigned long mfs_len;
+
 extern unsigned short boot_flags;
 extern unsigned long  boot_drive;
 extern FileTable      ft;
@@ -67,6 +70,7 @@ extern char debug;
 #pragma aux ufs_read     "*"
 #pragma aux ufs_seek     "*"
 #pragma aux ufs_close    "*"
+#pragma aux ufs_term     "*"
 #pragma aux boot_flags   "*"
 #pragma aux boot_drive   "*"
 #pragma aux ft           "*"
@@ -76,6 +80,8 @@ extern char debug;
 #pragma aux mu_Terminate "*"
 #pragma aux stack_bottom "*"
 #pragma aux callback     "*"
+#pragma aux mfs_start    "*"
+#pragma aux mfs_len      "*"
 //#pragma aux ldr_stack    "*"
 //#pragma aux ufsd_stack   "*"
 
@@ -144,7 +150,7 @@ ufs_open (char *filename)
 
   if (!strcmp(filename, "OS2LDR.MSG"))
   {
-    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
     kprintf("\n\n\n");
   }
 
@@ -197,7 +203,7 @@ ufs_open (char *filename)
     if (n == mods_count)
     {
       kprintf("0\n");
-      for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+      for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
       kprintf("\n");
       return 0;
     }
@@ -208,13 +214,13 @@ ufs_open (char *filename)
     fileaddr = mod->mod_start;
 
     kprintf("1\n");
-    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
     kprintf("\n");
     return 1;
   }
 
   kprintf("0\n");
-  for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+  for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
   kprintf("\n");
   return 0;
 }
@@ -232,14 +238,14 @@ ufs_read (char *buf, int len)
     memmove(buf, (char *)fileaddr + filepos, len);
 
     kprintf("%lu\n", len);
-    //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
-    //kprintf("\n");
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
+    kprintf("\n");
     return len;
   }
 
   kprintf("0\n");
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
-  //kprintf("\n");
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
+  kprintf("\n");
 
   return 0;
 }
@@ -266,19 +272,41 @@ ufs_close (void)
   int i;
   kprintf("**** ufs_close()\n");
 
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
   kprintf("\n");
+}
+
+void
+ufs_term (void)
+{
+  int i;
+  kprintf("**** ufs_term()\n");
+
+  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
+  kprintf("\n");
+
+  //memmove((char *)0x7c0, (char *)mfs_start, mfs_len);
 }
 
 void
 patch_cfgsys(void)
 {
+  int i;
+
   if (ufs_open("CONFIG.SYS"))
   {
+    kprintf("patch_cfgsys enter\n");
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
+    kprintf("\n");
+
     /* Call config.sys preprocessor/editor
        routine outside microfsd            */
     m = callback(fileaddr, filemax, drvletter, drvletter2, t);
     ufs_close();
+
+    kprintf("patch_cfgsys exit\n");
+    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
+    kprintf("\n");
   }
 }
 
@@ -407,9 +435,9 @@ void cmain (void)
       else
       {
         drvletter   = mode[0];
-        drvletter2  = assign_drvletter(mode2);
+        drvletter2  = assign_drvletter(mode2) + 1;
         /* shift letters forth */
-        if (drvletter <= drvletter2) drvletter2++;
+        //if (drvletter <= drvletter2) drvletter2++;
       }
     }
     else
@@ -493,12 +521,13 @@ void cmain (void)
   if (!mfslen)
   {
     // where to place mbi pointer
+    //q = 0x7c0 + *p - 4;
+    //q = REL1_BASE - 0x200 + 0x2b;
     q = (0x7c0 + *p + 0xf) & 0xfffffff0;
+
     ft.ft_mfslen = *p;
     ft.ft_ripseg = q >> 4;
     ft.ft_riplen = 4;
-    // where to place mbi pointer
-    //q = 0x7c0 + *p - 4;
 
     // pass mbi structure address to mFSD
     // as a variable at its end

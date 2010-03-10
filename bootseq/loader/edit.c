@@ -11,6 +11,9 @@
 
 #define MAX_LINES 8192
 
+#define EDT_FORCE_START 1
+#define EDT_QUIET       2
+
 /* a string list structure */
 struct line
 {
@@ -122,7 +125,7 @@ int save_file (unsigned long addr)
   return (unsigned long)q - addr;
 }
 
-int get_user_input (int *x, int *y)
+int edt_get_user_input (int *x, int *y)
 {
   int c;
   struct line *next_line, *prev_line, *mid_line;
@@ -168,25 +171,33 @@ int get_user_input (int *x, int *y)
       x0 = max(*x - SCREEN_WIDTH + 1, 0);
       break;
     case 0x11b:  // esc
-      gotoxy(0, SCREEN_HEIGHT);
-      setcolor(0x71, 0x62);
-      setcursor(0);
-      printf("* Apply changes: Y(es)/N(o)/any key to Cancel?");
-      c = getkey() & 0xff;
-      if (c == 0x79 || c == 0x59) // 'Y' ('y')
+      if (EDT_QUIET)
       {
         apply = 1;
         return 0;
       }
-      if (c == 0x6e || c == 0x4e) // 'N' ('n')
+      else
       {
-        apply = 0;
-        return 0;
+        gotoxy(0, SCREEN_HEIGHT);
+        setcolor(0x71, 0x62);
+        setcursor(0);
+        printf("* Apply changes: Y(es)/N(o)/any key to Cancel?");
+        c = getkey() & 0xff;
+        if (c == 0x79 || c == 0x59) // 'Y' ('y')
+        {
+          apply = 1;
+          return 0;
+        }
+        if (c == 0x6e || c == 0x4e) // 'N' ('n')
+        {
+          apply = 0;
+          return 0;
+        }
+        gotoxy(0, SCREEN_HEIGHT);
+        printf("                                               ");
+        gotoxy(*x - x0, *y - y0);
+        setcursor(1);
       }
-      gotoxy(0, SCREEN_HEIGHT);
-      printf("                                               ");
-      gotoxy(*x - x0, *y - y0);
-      setcursor(1);
       break;
     case 0x1c0d: // enter
       prev_line = line(*y);
@@ -267,7 +278,7 @@ int get_user_input (int *x, int *y)
     case 0x4:    // del key
       break;
     default:
-    
+
       continue;
     }
     break;
@@ -276,7 +287,7 @@ int get_user_input (int *x, int *y)
   return 1;
 }
 
-void draw_screen (int x, int y)
+void edt_draw_screen (int x, int y)
 {
   char buf[SCREEN_WIDTH + 2];
   int xoff, line, l, oldcursor, cursor;
@@ -320,9 +331,9 @@ void draw_screen (int x, int y)
   setcursor(1);
 }
 
-void editor (char *cfg,             /* config file address */
-             int length,               /* its length          */
-             char force)            /* force starting the editor         */
+int editor (char *cfg,             /* config file address */
+             int length,            /* its length          */
+             unsigned long force)   /* force starting the editor         */
 {
   int  x = 0, y = 0;
 
@@ -335,7 +346,7 @@ void editor (char *cfg,             /* config file address */
   read_file (cfg, length);
 
   /* if force or Alt-E pressed previously */
-  if (force || (checkkey() >= 0 && getkey() == 0x1200))
+  if ((force & EDT_FORCE_START) || (checkkey() >= 0 && getkey() == 0x1200))
   {
     /* x and y coordinates of cursor */
     cls();
@@ -344,10 +355,10 @@ void editor (char *cfg,             /* config file address */
     /* Editor main loop */
     do
     {
-      draw_screen(x, y);
-    } while (get_user_input(&x, &y));
+      edt_draw_screen(x, y);
+    } while (edt_get_user_input(&x, &y));
 
-    cls();
+    if (!EDT_QUIET) cls();
   }
 
   if (apply)
@@ -356,4 +367,6 @@ void editor (char *cfg,             /* config file address */
     cur_addr = (unsigned long)string_table_end;
     len = save_file(cur_addr);
   }
+
+  return len;
 }

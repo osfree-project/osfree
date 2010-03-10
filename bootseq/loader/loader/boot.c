@@ -40,7 +40,8 @@ DLA_Entry *dlae;
 
 int exec_cmd(char *cmd);
 
-static int cur_addr;
+//static
+int cur_addr;
 entry_func entry_addr;
 static struct mod_list mll[99];
 static int linux_mem_size;
@@ -568,7 +569,7 @@ load_module (char *module, char *arg)
   /* if we are supposed to load on 4K boundaries */
   cur_addr = (cur_addr + 0xFFF) & 0xFFFFF000;
 
-  printf ("   * mod '%s' @ 0x%x, 0x%x bytes", module, cur_addr, len);
+  printf ("   * mod '%s'", module);
 
   if (u_open (module, &size))
   {
@@ -589,11 +590,7 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  //printf("cur_addr=0x%x\r\n", cur_addr);
-
   len = u_read ((char *) cur_addr, size);
-
-  //printf("read 0x%x bytes\r\n", len);
 
   if (! len)
     {
@@ -602,8 +599,7 @@ load_module (char *module, char *arg)
       return 0;
     }
 
-  //printf ("   * mod '%s' @ 0x%x, 0x%x bytes\r\n", module, cur_addr, len);
-  printf(" *ok*\r\n");
+  printf(" @ 0x%x, 0x%x bytes *ok*\r\n", cur_addr, len);
 
   /* these two simply need to be set if any modules are loaded at all */
   m->flags |= MB_INFO_MODS;

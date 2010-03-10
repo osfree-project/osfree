@@ -169,6 +169,7 @@ int cmain(void)
   int relshift;
   char *p;
   unsigned short *d;
+  unsigned long  *e;
   unsigned ufs_base = 0;
   long port = 0x3f8;
   long speed = 9600;
@@ -228,6 +229,10 @@ int cmain(void)
   // copy uFSD where needed
   memmove((char *)ufs_base, (char *)&ufsd_start, ufsd_size);
   kprintf("uFSD is moved...\n");
+
+  // save port value in 16-bit area in uFSD header
+  e  = (unsigned long *)(ufs_base + 0x1c);
+  *e = (unsigned long)&mfsd_start;
 
   // save port value in 16-bit area in uFSD header
   d  = (unsigned short *)(ufs_base + 0x24);

@@ -69,8 +69,8 @@ extern char prev_cfg[0x100];
 extern char curr_cfg[0x100];
 
 extern int num_items;
-extern int item_save  = 0;
-extern int shift_save = 0;
+//extern int item_save  = 0;
+//extern int shift_save = 0;
 
 int exec_cfg(char *cfg, int menu_item, int menu_shift);
 

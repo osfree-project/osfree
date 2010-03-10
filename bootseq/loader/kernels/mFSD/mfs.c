@@ -29,6 +29,7 @@ extern struct dpb far *pdpb; // pointer to our DPB
 extern unsigned short hVPB;
 extern int open_files;
 
+extern unsigned long mbi0;
 unsigned long mbi;
 
 unsigned short FlatR0CS;
@@ -125,7 +126,7 @@ char far *fileaddr;
 // our command line
 char cmdline[0x400];
 
-#pragma aux mbi              "*"
+#pragma aux mbi0             "*"
 #pragma aux FS_NAME          "*"
 #pragma aux FlatR0CS         "*"
 #pragma aux FlatR0DS         "*"
@@ -304,8 +305,12 @@ int far pascal _loadds MFS_INIT(
     //  int 3
     //}
 
+    //if (!bpb) MFSH_INTERR("bpb\n", 4);
+
     // mbi as RIPL data
     mbi = *((unsigned long far *)bootdata);
+    //mbi = *((unsigned long far *)((char far *)bpb + 0x20));
+    //mbi = mbi0;
 
     // free a segment used for RIPL data
     if (bootdata) MFSH_SEGFREE(SELECTOROF(bootdata));
@@ -623,9 +628,10 @@ int far pascal _loadds MFS_CLOSE(void) {
 
 int getaddr (char *module,
              char *funcname,
-             void **funcaddr)
+             unsigned long *funcaddr)
 {
   struct p48 p48;
+  unsigned short sel;
 
   if (!GetProcAddr(module,
                    strlen(module),
@@ -633,8 +639,17 @@ int getaddr (char *module,
                    strlen(funcname),
                    &p48))
   {
-    *((unsigned short *)funcaddr) = (unsigned short)p48.off;
-    *((unsigned short *)(funcaddr) + 1) = p48.sel;
+    sel = p48.sel;
+
+    //if (sel != FlatR0CS) // 16:16
+    //{
+      *funcaddr = (unsigned short)p48.off | ((unsigned long)sel << 16);
+    //}
+    //else
+    //{
+    //  funcaddr->sel = sel;
+    //  funcaddr->off = p48.off;
+    //}
 
     kprintf("IFS %s addr: 0x%04x:0x%08lx\n",
             funcname,
@@ -651,21 +666,23 @@ int getaddr (char *module,
 
 int far pascal _loadds MFS_TERM(void)
 {
-  open_t    p_open   = 0;
-  mount_t   p_mount  = 0;
-  attach_t  p_attach = 0;
-  write_t   p_write  = 0;
-  close_t   p_close  = 0;
-  mkdir_t   p_mkdir  = 0;
-  chgfileptr_t p_chgfileptr = 0;
+  open_t       p_open;
+  mount_t      p_mount;
+  attach_t     p_attach;
+  write_t      p_write;
+  close_t      p_close;
+  mkdir_t      p_mkdir;
+  chgfileptr_t p_chgfileptr;
   //unsigned char drv;
   struct vpfsi far *pvpfsi = 0;
   struct vpfsd far *pvpfsd = 0;
   struct cdfsd far *pcdfsd = 0;
   struct cdfsi far *pcdfsi = 0;
-  struct vpfsi far *pvpfsi1 = 0;
-  struct vpfsd far *pvpfsd1 = 0;
+  struct sffsi far *psffsi = 0;
+  struct sffsd far *psffsd = 0;
   int rc, i, j;
+  unsigned long  ulOpenMode;
+  unsigned short usOpenFlag;
   unsigned short hVPB1;
   unsigned short usAction;
   unsigned short flags;
@@ -688,7 +705,7 @@ int far pascal _loadds MFS_TERM(void)
   char str[0x3a];
   char buf[0x3a];
   char fs_name[12];
-  char far *r, far *p, far *s;
+  char far *r, far *p, far *s, far *q;
   void far *dpbhead;
   unsigned short new_hVPB;
   char opened;
@@ -712,19 +729,19 @@ int far pascal _loadds MFS_TERM(void)
     // Get FS_ATTACH address
     if (getaddr(fs_module,
                 attach_name,
-                (void *)(&p_attach))    ||
+                (unsigned long *)(&p_attach))    ||
         getaddr(fs_module,
                 close_name,
-                (void *)(&p_close))     ||
+                (unsigned long *)(&p_close))     ||
         getaddr(fs_module,
                 mkdir_name,
-                (void *)(&p_mkdir))     ||
+                (unsigned long *)(&p_mkdir))     ||
         getaddr(fs_module,
                 write_name,
-                (void *)(&p_write))     ||
+                (unsigned long *)(&p_write))     ||
         getaddr(fs_module,
                 chgfileptr_name,
-                (void *)(&p_chgfileptr)))
+                (unsigned long *)(&p_chgfileptr)))
       return 1;
 
   }
@@ -733,13 +750,13 @@ int far pascal _loadds MFS_TERM(void)
     // Get FS_MOUNT address
     if (getaddr(fs_module,
                 mount_name,
-                (void *)(&p_mount)))
+                (unsigned long *)(&p_mount)))
       return 1;
   }
   // Get FS_OPENCREATE address
   if (getaddr(fs_module,
               open_name,
-              (void *)(&p_open)))
+              (unsigned long *)(&p_open)))
     return 1;
 
   kprintf("p_mount = 0x%08lx\n",  p_mount);
@@ -831,6 +848,49 @@ int far pascal _loadds MFS_TERM(void)
     kprintf("ifs FS_ATTACH()");
     str[0] = drvletter; str[1] = ':'; str[2] = '\0';
     rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
+
+/*
+    __asm {
+    .386p
+      push  ds
+      push  si
+      push  bx
+
+      xor   ax, ax
+      push  ax            // flag
+      lds   si, p
+      push  ds            // str seg
+      push  si            // str offset
+      lds   si, pvpfsd
+      push  ds            // pvpfsd seg
+      push  si            // pvpfsd offset
+      lds   si, pcdfsd
+      push  ds            // pcdfsd seg
+      push  si            // pcdfsd offset
+      push  ax
+      push  ax
+      push  ax
+      push  ax
+
+      lea   si, p_attach
+      mov   bx, word ptr ss:[si + 4]
+      test  bx, bx
+      jz    @@skip
+      call  fword ptr ss:[si]
+      jmp   @@exit
+    @@skip:
+      call  dword ptr ss:[si]
+
+    @@exit:
+      mov   rc, ax
+
+      pop   bx
+      pop   si
+      pop   ds
+    }
+*/
+
+    //rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
     if (rc)
     {
       kprintf(" failed, rc = %u\n", rc);
@@ -843,7 +903,49 @@ int far pascal _loadds MFS_TERM(void)
   {
     // call the FS_MOUNT entry point of the IFS:
     kprintf("ifs FS_MOUNT()");
+
     rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
+
+/*
+    __asm {
+    .386p
+      push  ds
+      push  si
+      push  bx
+
+      xor   ax, ax
+      push  ax            // flag
+      lds   si, pvpfsi
+      push  ds            // pvpfsi seg
+      push  si            // pvpfsi offset
+      lds   si, pvpfsd
+      push  ds            // pvpfsd seg
+      push  si            // pvpfsd offset
+      mov   bx, hVPB
+      push  bx            // hVPB
+      lds   si, boot
+      push  ds            // boot seg
+      push  si            // boot offset
+
+      lea   si, p_mount
+      mov   bx, word ptr ss:[si + 4]
+      test  bx, bx
+      jz    @@skip
+      call  fword ptr ss:[si]
+      jmp   @@exit
+    @@skip:
+      call  dword ptr ss:[si]
+
+    @@exit:
+      mov   rc, ax
+
+      pop   bx
+      pop   si
+      pop   ds
+    }
+*/
+
+    //rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
     if (rc)
     {
       kprintf(" failed, rc = %u\n", rc);
@@ -940,8 +1042,54 @@ int far pascal _loadds MFS_TERM(void)
           }
 
           kprintf("ifs FS_MKDIR(\"%s\")", buf);
-          rc = (*p_mkdir)(&cdfsi, &cdfsd, buf, -1, 0, 0);
+          p = (char far *)buf;
+          pcdfsi = &cdfsi;
+          pcdfsd = &cdfsd;
 
+          rc = (*p_mkdir)(pcdfsi, pcdfsd, buf, -1, 0, 0);
+
+/*
+          __asm {
+         .386p
+            push  ds
+            push  si
+            push  bx
+
+            xor   ax, ax
+            lds   si, pcdfsi
+            push  ds          // pcdfsi seg
+            push  si          // pcdfsi offset
+            lds   si, pcdfsd
+            push  ds          // pcdfsd seg
+            push  si          // pcdfsd offset
+            lds   si, p
+            push  ds          // buf seg
+            push  si          // buf offset
+            mov   bx, -1
+            push  bx
+            push  ax
+            push  ax
+            push  ax
+
+            lea   si, p_mkdir
+            mov   bx, word ptr ss:[si + 4]
+            test  bx, bx
+            jz    @@skip
+            call  fword ptr ss:[si]
+            jmp   @@exit
+          @@skip:
+            call  dword ptr ss:[si]
+
+          @@exit:
+            mov   rc, ax
+
+            pop   bx
+            pop   si
+            pop   ds
+          }
+*/
+
+          //rc = (*p_mkdir)(&cdfsi, &cdfsd, buf, -1, 0, 0);
           if (rc)
             kprintf(" failed, rc = %u\n", rc);
           else
@@ -987,64 +1135,165 @@ int far pascal _loadds MFS_TERM(void)
         strcpy(str, save_pos->pName);
         // change a 'fake bootdrive' drv letter to a CD drv letter
         if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
-
         kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
                 save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
                 save_pos->usOpenFlag);
-        kprintf("ifs FS_OPENCREATE(\"%s\")", str);
-        if(!(rc = (*p_open)(&cdfsi,
-                            &cdfsd,
-                            str,
-                            -1, // not 0 -- needed by ext2_os2.ifs
-                            save_pos->psffsi,
-                            save_pos->psffsd,
-                            save_pos->ulOpenMode,
-                            OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS,
-                            &usAction,             //dummy address
-                            0,
-                            0,
-                            &flags)))
-          kprintf(" = %u\n", rc);
-        else
-        {
-          kprintf(" failed, rc = %u\n", rc);
-          FSH_INTERR(msg_erropen, strlen(msg_erropen));
-        }
+
+        p = (char far *)str;
+        psffsi = save_pos->psffsi;
+        psffsd = save_pos->psffsd;
+        ulOpenMode = save_pos->ulOpenMode;
       }
       else
       {
-        kprintf("ifs FS_OPENCREATE(\"%s\")", s);
         sffsi.sfi_mode = OPEN_ACCESS_WRITEONLY | OPEN_ACCESS_READWRITE | OPEN_SHARE_DENYNONE | OPEN_FLAGS_NOINHERIT;
-        rc = (*p_open)(&cdfsi,
-                       &cdfsd,
-                       s,
-                       -1,
-                       &sffsi,
-                       &sffsd,
-                       sffsi.sfi_mode,
-                       OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS,
-                       &usAction,
-                       0,
-                       0,
-                       &flags);
-        if (rc)
-        {
-          kprintf(" failed, rc = %u\n", rc);
-          FSH_INTERR(msg_erropen, strlen(msg_erropen));
-        }
+
+        p = (char far *)s;
+        psffsi = &sffsi;
+        psffsd = &sffsd;
+        ulOpenMode = sffsi.sfi_mode;
+      }
+
+      kprintf("ifs FS_OPENCREATE(\"%s\")", p);
+
+      rc = (*p_open)(&cdfsi,
+                     &cdfsd,
+                     p,
+                     -1, // not 0 -- needed by ext2_os2.ifs
+                     psffsi,
+                     psffsd,
+                     ulOpenMode,
+                     OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS,
+                     &usAction,             //dummy address
+                     0,
+                     0,
+                     &flags);
+
+/*
+      __asm {
+      .386p
+        push  ds
+        push  si
+        push  ebx
+
+        xor   ax,  ax
+
+        lds   si,  pcdfsi
+        push  ds                  // pcdfsi seg
+        push  si                  // pcdfsi offset
+        lds   si,  pcdfsd
+        push  ds                  // pcdfsd seg
+        push  si                  // pcdfsd offset
+        lds   si,  p
+        push  ds                  // str seg
+        push  si                  // str offset
+        mov   bx,  -1
+        push  bx                  // iCurDirEnd
+        lds   si,  psffsi
+        push  ds                  // savepos->psffsi seg
+        push  si                  // savepos->psffsi offset
+        lds   si,  psffsd
+        push  ds                  // savepos->psffsd seg
+        push  si                  // savepos->psffsd offset
+
+        mov   ebx, ulOpenMode
+        push  ebx                 // ulOpenMode
+        mov   bx,  usOpenFlag
+        push  bx                  // usOpenFlag
+        lds   si,  r
+        push  ds                  // pusAction seg
+        push  si                  // pusAction offset
+        push  ax                  // 0
+        push  ax                  // 0
+        push  ax                  // 0
+        lds   si,  q
+        push  ds                  // &flags seg
+        push  si                  // &flags offset
+
+        lea   si, p_open
+        mov   bx, word ptr ss:[si + 4]
+        test  bx, bx
+        jz    @@skip
+        call  fword ptr ss:[si]
+        jmp   @@exit
+      @@skip:
+        call  dword ptr ss:[si]
+
+      @@exit:
+        mov   rc, ax
+
+        pop   ebx
+        pop   si
+        pop   ds
+      }
+*/
+
+      if (!rc)
         kprintf(" = %u\n", rc);
+      else
+      {
+        kprintf(" failed, rc = %u\n", rc);
+        FSH_INTERR(msg_erropen, strlen(msg_erropen));
       }
 
       kprintf("ifs FS_CHGFILEPTR()");
+
       if (opened)
-        rc = (*p_chgfileptr)(save_pos->psffsi, save_pos->psffsd, 0, 0, 0);
+      {
+        psffsi = save_pos->psffsi;
+        psffsd = save_pos->psffsd;
+      }
       else
-        rc = (*p_chgfileptr)(&sffsi, &sffsd, 0, 0, 0);
+      {
+        psffsi = &sffsi;
+        psffsd = &sffsd;
+      }
+
+      rc = (*p_chgfileptr)(psffsi, psffsd, 0, 0, 0);
+
+/*
+      __asm {
+      .386p
+        push  ds
+        push  si
+        push  bx
+
+        xor   ax,  ax
+
+        lds   si, psffsi
+        push  ds                  // psffsi seg
+        push  si                  // psffsi offset
+        lds   si, psffsd
+        push  ds                  // psffsd seg
+        push  si                  // psffsd offset
+
+        push  ax
+        push  ax
+        push  ax
+        push  ax
+
+        lea   si, p_chgfileptr
+        mov   bx, word ptr ss:[si + 4]
+        test  bx, bx
+        jz    @@skip
+        call  fword ptr ss:[si]
+        jmp   @@exit
+      @@skip:
+        call  dword ptr ss:[si]
+
+      @@exit:
+        mov   rc, ax
+
+        pop   bx
+        pop   si
+        pop   ds
+      }
+*/
 
       if (rc)
       {
         kprintf(" failed, rc = %u\n", rc);
-        FSH_INTERR(msg_errclose, strlen(msg_errptr));
+        FSH_INTERR(msg_errptr, strlen(msg_errptr));
       }
       kprintf(" = %u\n", rc);
 
@@ -1055,10 +1304,62 @@ int far pascal _loadds MFS_TERM(void)
         if (length < l)
           l = length;
         kprintf("ifs FS_WRITE()");
+
         if (opened)
-          rc = (*p_write)(save_pos->psffsi, save_pos->psffsd, data, &l, 0);
+        {
+          psffsi = save_pos->psffsi;
+          psffsd = save_pos->psffsd;
+        }
         else
-          rc = (*p_write)(&sffsi, &sffsd, data, &l, 0);
+        {
+          psffsi = &sffsi;
+          psffsd = &sffsd;
+        }
+        p = (char far *)&l;
+
+        rc = (*p_write)(psffsi, psffsd, data, &l, 0);
+
+/*
+        __asm {
+        .386p
+          push  ds
+          push  si
+          push  bx
+
+          xor   ax,  ax
+
+          lds   si, psffsi
+          push  ds                  // psffsi seg
+          push  si                  // psffsi offset
+          lds   si, psffsd
+          push  ds                  // psffsd seg
+          push  si                  // psffsd offset
+          lds   si, data
+          push  ds                  // data seg
+          push  si                  // data offset
+          lds   si, p
+          push  ds                  // &l seg
+          push  si                  // &l offset
+          push  ax
+
+          lea   si, p_write
+          mov   bx, word ptr ss:[si + 4]
+          test  bx, bx
+          jz    @@skip
+          call  fword ptr ss:[si]
+          jmp   @@exit
+        @@skip:
+          call  dword ptr ss:[si]
+
+        @@exit:
+          mov   rc, ax
+
+          pop   bx
+          pop   si
+          pop   ds
+        }
+*/
+
         if (rc)
         {
           kprintf(" failed, rc = %u\n", rc);
@@ -1083,7 +1384,49 @@ int far pascal _loadds MFS_TERM(void)
       if (!opened)
       {
         kprintf("ifs FS_CLOSE()");
-        rc = (*p_close)(0, 0, &sffsi, &sffsd);
+        //rc = (*p_close)(0, 0, &sffsi, &sffsd);
+
+        psffsi = &sffsi;
+        psffsd = &sffsd;
+
+        rc = (*p_close)(0, 0, psffsi, psffsd);
+
+/*
+        __asm {
+        .386p
+          push  ds
+          push  si
+          push  bx
+
+          xor   ax,  ax
+
+          push  ax
+          push  ax
+          lds   si, psffsi
+          push  ds                  // &sffsi seg
+          push  si                  // &sffsi offset
+          lds   si, psffsd
+          push  ds                  // &sffsd seg
+          push  si                  // &sffsd offset
+
+          lea   si, p_close
+          mov   bx, word ptr ss:[si + 4]
+          test  bx, bx
+          jz    @@skip
+          call  fword ptr ss:[si]
+          jmp   @@exit
+        @@skip:
+          call  dword ptr ss:[si]
+
+        @@exit:
+          mov   rc, ax
+
+          pop   bx
+          pop   si
+          pop   ds
+        }
+*/
+
         if (rc)
         {
           kprintf(" failed, rc = %u\n", rc);
@@ -1119,19 +1462,83 @@ int far pascal _loadds MFS_TERM(void)
         kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
                 save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
                 save_pos->usOpenFlag);
+
         kprintf("ifs FS_OPENCREATE(\"%s\")", str);
-        if(!(rc = (*p_open)(&cdfsi,
-                            &cdfsd,
-                            str,
-                            -1, // not 0 -- needed by ext2_os2.ifs
-                            save_pos->psffsi,
-                            save_pos->psffsd,
-                            save_pos->ulOpenMode,  // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
-                            save_pos->usOpenFlag,
-                            &usAction,             //dummy address
-                            0,
-                            0,
-                            &flags)))
+
+        rc = (*p_open)(&cdfsi,
+                       &cdfsd,
+                       str,
+                       -1, // not 0 -- needed by ext2_os2.ifs
+                       save_pos->psffsi,
+                       save_pos->psffsd,
+                       save_pos->ulOpenMode,  // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
+                       save_pos->usOpenFlag,
+                       &usAction,             //dummy address
+                       0,
+                       0,
+                       &flags);
+
+/*
+        __asm {
+        .386p
+          push  ds
+          push  si
+          push  ebx
+
+          xor   ax,  ax
+
+          lds   si,  pcdfsi
+          push  ds                  // pcdfsi seg
+          push  si                  // pcdfsi offset
+          lds   si,  pcdfsd
+          push  ds                  // pcdfsd seg
+          push  si                  // pcdfsd offset
+
+          lds   si,  p
+          push  ds                  // str seg
+          push  si                  // str offset
+          mov   bx,  -1
+          push  bx                  // iCurDirEnd
+          lds   si,  psffsi
+          push  ds                  // savepos->psffsi seg
+          push  si                  // savepos->psffsi offset
+          lds   si,  psffsd
+          push  ds                  // savepos->psffsd seg
+          push  si                  // savepos->psffsd offset
+
+          mov   ebx, ulOpenMode
+          push  ebx                 // ulOpenMode
+          mov   bx, usOpenFlag
+          push  bx                  // usOpenFlag
+          lds   si, r
+          push  ds                  // pusAction seg
+          push  si                  // pusAction offset
+          push  ax                  // 0
+          push  ax                  // 0
+          push  ax                  // 0
+          lds   si, q
+          push  ds                  // &flags seg
+          push  si                  // &flags offset
+
+          lea   si, p_open
+          mov   bx, word ptr ss:[si + 4]
+          test  bx, bx
+          jz    @@skip
+          call  fword ptr ss:[si]
+          jmp   @@exit
+        @@skip:
+          call  dword ptr ss:[si]
+
+        @@exit:
+          mov   rc, ax
+
+          pop   ebx
+          pop   si
+          pop   ds
+        }
+*/
+
+        if (!rc)
           kprintf(" = %u\n", rc);
         else
         {

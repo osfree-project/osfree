@@ -11,6 +11,9 @@ public m
 public base
 public realmode_init
 
+public mfs_start
+public mfs_len
+
 public boot_flags
 public boot_drive
 public ft
@@ -67,8 +70,9 @@ start:
 
 base               dd      REL1_BASE
 
-                   org     start + 20h
+                   org     start + 1ch
 
+mfs_start          dd      ?
 mfs_len            dd      ?
 port               dw      0
 _debug             db      0
