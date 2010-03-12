@@ -38,11 +38,14 @@ extrn freeldr_close     :near
 include fsd.inc
 
 switch_to_preldr macro
+        push ax
         mov  ax,  ds
         mov  cs:ldr_ds, ax
         mov  ax,  es
         mov  cs:ldr_es, ax
         mov  ax, sp
+        inc  ax                                  ; skip ax in stack
+        inc  ax                                  ;
         mov  word ptr cs:ldr_ss_sp, ax
         mov  ax, ss
         mov  word ptr cs:ldr_ss_sp + 2, ax
@@ -51,26 +54,30 @@ switch_to_preldr macro
         mov  ds,  ax
         mov  ax,  cs:preldr_es
         mov  es,  ax
+        pop  ax
         lss  sp,  cs:preldr_ss_sp
 endm
 
 switch_to_ldr macro
-        mov  bx, ds
-        mov  preldr_ds, bx
-        mov  bx, es
-        mov  preldr_es, bx
-        mov  bx, sp
-        mov  word ptr preldr_ss_sp, bx
-        mov  bx, ss
-        mov  word ptr preldr_ss_sp + 2, bx
+        push ax
+        mov  ax, ds
+        mov  cs:preldr_ds, ax
+        mov  ax, es
+        mov  cs:preldr_es, ax
+        mov  ax, sp
+        inc  ax                                  ; skip ax in stack
+        inc  ax                                  ;
+        mov  word ptr cs:preldr_ss_sp, ax
+        mov  ax, ss
+        mov  word ptr cs:preldr_ss_sp + 2, ax
 
-        mov  bx, ldr_ds
-        mov  ds, bx
-        mov  bx, ldr_es
-        mov  es, bx
-        lss  sp, ldr_ss_sp
+        mov  ax, cs:ldr_ds
+        mov  ds, ax
+        mov  ax, cs:ldr_es
+        mov  es, ax
+        pop  ax
+        lss  sp, cs:ldr_ss_sp
 endm
-
 
 _TEXT16 segment dword public 'CODE' use16
 
@@ -90,7 +97,9 @@ mu_Open proc far
         push bp
         mov  bp, sp
 
-        push es
+        push ebx
+        push ecx
+        push esi
         push edi
 
         ; char far *pName
@@ -132,10 +141,193 @@ noerr1:
 nok1:
         switch_to_ldr
 
+        push es
+        push di
         les  di, dword ptr [bp + 0ah]
         mov  es:[di], edx ; size
         xor  dx, dx
+        pop  di
+        pop  es
 
+        pop  edi
+        pop  esi
+        pop  ecx
+        pop  ebx
+
+        pop  bp
+
+        retf
+mu_Open endp
+
+;
+; unsigned long  __cdecl
+; mu_Read(long loffseek,
+;         char far *pBuf,
+;         unsigned long cbBuf);
+;
+
+mu_Read proc far
+        push bp
+        mov  bp, sp
+
+        push ebx
+        push ecx
+        push esi
+        push edi
+
+        ; long loffseek
+        mov  ebx, dword ptr [bp + 06h]
+        ; char far *pBuf
+        mov  edx, dword ptr [bp + 0ah]
+        ; unsigned long cbBuf
+        mov  ecx, dword ptr [bp + 0eh]
+
+        switch_to_preldr
+
+        ; convert a far ptr in edx
+        ; to a FLAT ptr
+        mov  eax, edx
+        shr  eax, 16
+        shl  eax, 4
+        and  edx, 0ffffh
+        add  edx, eax
+
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
+        ; switch to PM and call muOpen
+        mov  eax, offset _TEXT:muRead
+        add  eax, edi
+        push eax
+        call call_pm
+        add  sp, 4
+
+        ; ebx (count of bytes read) -> dx:ax
+        mov  edx, ebx
+        shr  edx, 16
+        mov  eax, ebx
+        and  eax, 0ffffh
+        ;and  edx, 0ffffh
+
+        switch_to_ldr
+
+        pop  edi
+        pop  esi
+        pop  ecx
+        pop  ebx
+
+        pop  bp
+
+        retf
+mu_Read endp
+
+;
+; void __cdecl
+; mu_Close(void);
+;
+
+mu_Close proc far
+        push edi
+
+        switch_to_preldr
+
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
+        ; switch to PM and call muOpen
+        mov  eax, offset _TEXT:muClose
+        add  eax, edi
+        push eax
+        call call_pm
+        add  sp, 4
+
+        switch_to_ldr
+
+        pop  edi
+
+        retf
+mu_Close endp
+
+;
+; void __cdecl
+; mu_Terminate(void);
+;
+
+mu_Terminate proc far
+        retf
+mu_Terminate endp
+
+if 0
+
+;
+; Open file using MicroFSD
+;
+; unsigned short __cdecl
+; mu_Open(char far *pName,
+;         unsigned long far *pulFileSize);
+;
+
+mu_Open proc far
+        push bp
+        mov  bp, sp
+
+        push es
+        push edi
+        push ebx
+
+        ; char far *pName
+        mov  ebx, dword ptr [bp + 06h]
+
+        switch_to_preldr
+
+        ; convert far ptr in ebx to
+        ; FLAT ptr.
+        mov  ecx, ebx
+        shr  ecx, 16
+        shl  ecx, 4
+        and  ebx, 0ffffh
+        ;and  ecx, 0fffffh
+        add  ebx, ecx
+
+        ; setup 'shift' to pre-loader
+        mov  eax, ds:[0x8]
+        sub  eax, ds:[0x3c]
+        sub  eax, PRELDR_BASE
+        neg  eax
+        mov  edi, eax
+
+        ; switch to PM and call muOpen
+        mov  eax, offset _TEXT:muOpen
+        add  eax, edi
+        push eax
+        call call_pm
+        add  sp, 4
+
+        cmp  ebx, 0
+        jz   noerr1
+err1:
+        ;xor  edx, edx
+        mov  bx, 1
+        jmp  nok1
+noerr1:
+        xor  bx, bx
+nok1:
+        switch_to_ldr
+
+        les  di, dword ptr [bp + 0ah]
+        mov  es:[di], edx ; size
+        xor  edx, edx
+        mov  ax, bx
+
+        pop  ebx
         pop  edi
         pop  es
 
@@ -185,6 +377,8 @@ mu_Read proc far
         call call_pm
         add  sp, 4
 
+        switch_to_ldr
+
         ; ebx (count of bytes read) -> dx:ax
         mov  edx, ebx
         shr  edx, 16
@@ -192,7 +386,7 @@ mu_Read proc far
         and  eax, 0ffffh
         ;and  edx, 0ffffh
 
-        switch_to_ldr
+        ;switch_to_ldr
 
         pop  bp
 
@@ -234,6 +428,8 @@ mu_Terminate proc far
         retf
 mu_Terminate endp
 
+endif
+
 ldr_ds       dw 0
 ldr_ss_sp    dd 0
 ldr_es       dw 0
@@ -251,7 +447,6 @@ _TEXT   segment dword public 'CODE' use32
 
 
 ifndef STAGE1_5
-
 
 muOpen proc near
        mov  eax, ebx
@@ -274,6 +469,8 @@ muRead proc near
        mov  eax, ebx
        call freeldr_seek
 
+       push eax  ; offset
+
        cmp  ecx, 0
        jnz  later1
        mov  ecx, 0ffffffffh
@@ -283,6 +480,11 @@ later1:
        call freeldr_read
 
        mov  ebx, eax
+
+       pop  eax
+
+       add  eax, ebx
+       call freeldr_seek
 
        ret
 muRead endp

@@ -472,7 +472,7 @@ static struct builtin builtin_kernel =
   " must be reloaded after using this command. The option --type is used"
   " to suggest what type of kernel to be loaded. TYPE must be either of"
   " \"netbsd\", \"freebsd\", \"openbsd\", \"linux\", \"biglinux\" and"
-  " \"multiboot\". The option --no-mem-option tells GRUB not to pass a"
+  " \"multiboot\". The option --no-mem-option tells FreeLDR not to pass a"
   " Linux's mem option automatically."
 };
 
@@ -1163,13 +1163,13 @@ toggle_func(char *arg, int flags)
   return 0;
 
 wont_fit:
-  grub_printf("%s: ERR_WONT_FIT\n", __func__);
+  grub_printf("%s: ERR_WONT_FIT\r\n", __func__);
   //getkey();
   errnum = ERR_WONT_FIT;
   return 1;
 
 bad_arg:
-  grub_printf("%s: ERR_BAD_ARGUMENT\n", __func__);
+  grub_printf("%s: ERR_BAD_ARGUMENT\r\n", __func__);
   //getkey();
   errnum = ERR_BAD_ARGUMENT;
   return 1;
@@ -1214,7 +1214,11 @@ static struct builtin builtin_toggle =
   toggle_func,
   BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
   "toggle [command] args...",
-  "Doc me."
+  "Toggles values of of a set of variables. Syntax: a) toggle"
+  " set LETTER {VAR1=val1,VAR2=val2,} {...} ... toggles between"
+  "blocks of variable values when pressing a key. b) toggle select LETTER=blockno"
+  " sets default toggle for letter LETTER. c) toggle trigger VAR==val select LETTER1=blockno1"
+  " LETTER2=blockno2 ... sets defaults triggered by a variable value."
 };
 
 static char var_expand_line_edit = 1;
@@ -1322,7 +1326,7 @@ static struct builtin builtin_boot =
   boot_func,
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
   "boot",
-  "Transfer control to the multiboot kernel."
+  "Transfer control to the multiboot kernel or os2ldr."
 };
 
 int
@@ -1356,7 +1360,7 @@ static struct builtin builtin_timeout =
   timeout_func,
   BUILTIN_HELP_LIST,
   "timeout <interval>",
-  "Set menu timeout."
+  "Set menu timeout. Currently does nothing."
 };
 
 int
@@ -1378,10 +1382,8 @@ static struct builtin builtin_color =
   color_func,
   BUILTIN_HELP_LIST,
   "color <color>",
-  "Set menu colors. 4-byte integer. Lowest byte is menu"
-  "background; second byte is menu foreground. 3rd byte"
-  "is a highlighted background color. 4th byte is a"
-  "highlighted foreground color."
+  "Set menu colors. 2-byte integer. Lowest byte is menu"
+  "background; second byte is menu foreground."
 };
 
 int
@@ -1397,7 +1399,7 @@ static struct builtin builtin_width =
   width_func,
   BUILTIN_HELP_LIST,
   "width <menu width>",
-  "Set menu width."
+  "Set menu width in chars."
 };
 
 int
@@ -1413,7 +1415,7 @@ static struct builtin builtin_height =
   height_func,
   BUILTIN_HELP_LIST,
   "height <menu height>",
-  "Set menu heigt."
+  "Set menu height in chars. "
 };
 
 int
@@ -1435,10 +1437,8 @@ static struct builtin builtin_screen =
   screen_func,
   BUILTIN_HELP_LIST,
   "screen <screen colors>",
-  "Set screen colors. 4-byte integer. Lowest byte is screen"
-  "background; second byte is screen foreground. 3rd byte"
-  "is a highlighted background color. 4th byte is a"
-  "highlighted foreground color."
+  "Set screen colors. 2-byte integer. Lowest byte is screen"
+  "background; second byte is screen foreground."
 };
 
 int
@@ -1478,8 +1478,10 @@ static struct builtin builtin_os2ldr =
   "os2ldr",
   os2ldr_func,
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
-  "os2ldr",
-  "Return control to os2ldr"
+  "os2ldr [--ldrlen=LEN] [--prefix=DIR]",
+  "Return control to os2ldr. This is a way to"
+  " pass control to os2ldr, serving it a microfsd"
+  " routines."
 };
 
 int
@@ -1628,7 +1630,7 @@ static struct builtin builtin_prompt =
   "prompt",
   prompt_func,
   BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
-  "Output a message and wait for a key",
+  "prompt [message]",
   "Output a message and wait for a key"
 };
 
@@ -1637,55 +1639,76 @@ help_func(char *arg, int flags)
 {
   struct builtin **b;
   char flag = 0;
-  char str[0x100];
+  //char str[800];
   char buf[0x800];
-  char *p;
+  char *p, *r, *q;
+  int  i, j;
   int  x = 0, y = 0;
+  int  x0, y0;
+  int  colwidth;
+
+  x0 = 1; y0 = 0;
+  colwidth = (SCREEN_WIDTH - 4) / 2;
 
   if (!*arg)
   {
-    *buf = '\0';
+    j = 0;
     for (b = builtins; *b; b++)
     {
-      grub_sprintf(str, "%s\r\n", (*b)->short_doc);
-      grub_strcat(buf, buf, str);
+      p = q = r = (*b)->short_doc;
+      while (r - q < strlen(q))
+      {
+        if (r > q) // indent 2 chars for remaining description lines
+        {
+          buf[j++] = ' ';
+          buf[j++] = ' ';
+        }
+        for (r = p; *r && r - p < colwidth; j++, r++) buf[j] = *r;
+        buf[j++] = '\0';
+        p = r;
+      }
     }
-    x = 0; y = 0;
-    t->cls();
+    buf[j++] = '\0';
+
     p = buf;
-    while (*p && ((p - buf) < (strlen(buf) / 2)))
+    x = 1; y = 0;
+    while (*p && p - buf < 0x800)
     {
-      while (*p && ((p - buf) < (strlen(buf) / 2)) && x < SCREEN_WIDTH / 2 - 1)
+      t->cls();
+      y = 0;
+      while (*p && p - buf < 0x800 && y < SCREEN_HEIGHT - 1)
       {
-        t->putchar(*p++); x++;
-      }
-      x = 0; y++;
-      t->gotoxy(x, y);
-    }
-/*    x = SCREEN_WIDTH / 2 + 1; y = 0;
-    for (; *p; p++)
-    {
-      t->putchar(*p); x++;
-      if ((p - buf) % (SCREEN_WIDTH / 2 - 1) == 0)
-      {
-        x = SCREEN_WIDTH / 2 + 1; y++;
         t->gotoxy(x, y);
+        printf(p);
+        // next line
+        while (*p++) ;
+        y++;
       }
-    }   */
+      x = colwidth + 3; y = 0;
+      while (*p && p - buf < 0x800 && y < SCREEN_HEIGHT - 1)
+      {
+        t->gotoxy(x, y);
+        printf(p);
+        // next line
+        while (*p++) ;
+        y++;
+      }
+      t->gotoxy(8, SCREEN_HEIGHT - 1);
+      if (p >= buf + strlen(buf))
+        printf("--- press any key to continue ---");
+      t->getkey();
+    }
   }
   else
   {
     for (b = builtins; *b; b++)
-      if (abbrev(arg, (*b)->name, strlen((*b)->name)))
+      if (abbrev(arg, (*b)->name, strlen(arg)))
       {
         flag = 1;
         break;
       }
     if (flag)
-    {
-      printf("\r\n%s\r\n", arg);
-      printf("%s\r\n", (*b)->long_doc);
-    }
+      printf("%s: %s\r\n", arg, (*b)->long_doc);
     else
       printf("No such command!\r\n");
   }
@@ -1698,7 +1721,7 @@ static struct builtin builtin_help =
   "help",
   help_func,
   BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
-  "Get help",
+  "help [command name]",
   "Outputs a long help screen for a command, if a name is"
   "specified. Otherwise, it outputs a short description"
   "for each command"
@@ -1733,3 +1756,4 @@ struct builtin *builtins[] = {
   &builtin_help,
   0
 };
+

@@ -409,8 +409,6 @@ void cmain (void)
   /* set boot flags */
   boot_flags = BOOTFLAG_MICROFSD | BOOTFLAG_MINIFSD;
 
-  if (!mfslen) boot_flags |= BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
-
   if (m->flags & MB_INFO_BOOTDEV)
   {
     boot_drive = m->boot_device >> 24;
@@ -457,12 +455,6 @@ void cmain (void)
   pp[0] = (char)drvletter;
   for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
 
-  /* set freeldr stack before calling it */
-  //__asm {
-  //  mov ufsd_stack, esp
-  //  mov esp, ldr_stack
-  //}
-
   /* Patch the config.sys file with boot drive letter */
   patch_cfgsys();
 
@@ -490,26 +482,13 @@ void cmain (void)
     ufs_read(buf, 512);
   }
 
-  /* restore our stack */
-  //__asm {
-  //  mov esp, ufsd_stack
-  //}
-
   if (get_diskinfo (boot_drive, &geom)
     || ! (geom.flags & BIOSDISK_FLAG_CDROM))
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
     cdrom_drive = boot_drive;
 
-  //boot_drive = 0x80;
-
   /* set filetable */
-
-  if (!mfslen)
-    ft.ft_cfiles = 4;
-  else
-    ft.ft_cfiles = 3;
-
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
@@ -520,6 +499,8 @@ void cmain (void)
 
   if (!mfslen)
   {
+    boot_flags |= BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
+    ft.ft_cfiles = 4;
     // where to place mbi pointer
     //q = 0x7c0 + *p - 4;
     //q = REL1_BASE - 0x200 + 0x2b;
@@ -535,6 +516,7 @@ void cmain (void)
   }
   else
   {
+    ft.ft_cfiles = 3;
     // if alternative os2boot is specified
     ft.ft_mfslen = mfslen;
     ft.ft_ripseg = 0;

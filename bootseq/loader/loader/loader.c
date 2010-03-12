@@ -20,10 +20,30 @@ extern bios_parameters_block *bpb;
 extern FileTable ft;
 extern int cur_addr;
 
+#define VARIABLE_STORE_SIZE 1024
+extern char variable_store[VARIABLE_STORE_SIZE];
+extern unsigned int variable_store_actpos; /* Points to the next free entry */
 extern struct variable_list_struct {
   char *name;
   char *value;
 } variable_list[VARIABLES_MAX];
+
+#define TOGGLES 24
+#define MAX_BLOCKS 24
+#define MAX_VAR_PER_BLOCK 5
+extern struct toggle_data_struct {
+  int key; /* int because of F-keys !? */
+  int current_block;
+  char nr_blocks;
+  struct {
+    char nr_vars;
+    struct {
+      int var;          /* index of variable_list */
+      char *value;      /* pointer to value */
+    } var[MAX_VAR_PER_BLOCK];
+  } block[MAX_BLOCKS];
+} toggle_data[TOGGLES];
+extern int toggles_used;
 
 extern struct builtin *builtins[];
 
@@ -65,6 +85,7 @@ int exec_line(char *line);
 
 void show_background_screen(void);
 void draw_menu(int item, int shift);
+void draw_watches(void);
 
 void create_lip_module(lip2_t **l);
 void multi_boot(void);
@@ -142,6 +163,8 @@ static int promptlen;
 
 extern int menu_width;
 extern int menu_height;
+
+int screen_items;
 
 int process_cfg(char *cfg);
 
@@ -285,7 +308,7 @@ process_cfg_line1(char *line)
   {
     rc = exec_line(line);
     if (!rc)
-      printf("Error occured during execution of command\r\n");
+      printf("Error executing command, rc=%d\r\n", rc);
 
     return rc;
   }
@@ -342,13 +365,13 @@ get_user_input(int *item, int *shift)
       case 0xe:   // down arrow
       {
         ++*item;
-        if (*item == num_items + 1) *item = 0;
+        if (*item >= num_items + 1) *item = 0;
         return 1;
       }
       case 0x10:  // up arrow
       {
         --*item;
-        if (*item == -1) *item = num_items;
+        if (*item <= -1) *item = num_items;
         return 1;
       }
       case 0x6:   // right arrow
@@ -363,13 +386,13 @@ get_user_input(int *item, int *shift)
       }
       case 0x3: // pgdn
       {
-        *item += menu_height - 1;
+        *item += screen_items - 1;
         if (*item >= num_items + 1) *item = 0;
         return 1;
       }
       case 0x7: // pgup
       {
-        *item -= menu_height - 1;
+        *item -= screen_items - 1;
         if (*item < 0) *item = num_items;
         return 1;
       }
@@ -433,7 +456,10 @@ get_user_input(int *item, int *shift)
       default:
        {
          if (toggle_do_key(c & 0xff))
-           toggle_print_status(3, 18);
+         {
+           draw_watches();
+           toggle_print_status(3, 17);
+         }
          t->gotoxy(SCREEN_WIDTH - 7, SCREEN_HEIGHT - 2);
          t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
                      (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
@@ -451,7 +477,8 @@ get_user_input(int *item, int *shift)
 void show_background_screen(void)
 {
   int i, j;
-  char *s1 = "±±±±±±±±±±±±±± FreeLdr v.0.0.4, (c) osFree project, 2009 Oct 22 ±±±±±±±±±±±±±±";
+  char *s1 = "±±±±±±±±±±±±±±± FreeLdr v.0.0.5, (c) osFree project, 2010 Mar 11 ±±±±±±±±±±±±±±±";
+  char buf[SCREEN_WIDTH + 1];
   int  l, n;
 
   if (t->setcolor)
@@ -463,7 +490,9 @@ void show_background_screen(void)
 
   /* draw the frame */
 
-  t->gotoxy(0, 0); t->putchar('É');
+  t->gotoxy(0, 0);
+/*
+  t->putchar('É');
   for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Í');
   t->gotoxy(SCREEN_WIDTH - 1, 0); t->putchar('»');
 
@@ -478,22 +507,26 @@ void show_background_screen(void)
   for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Í');
 
   t->gotoxy(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1); t->putchar('¼');
-
+ */
   /* header line */
-  t->gotoxy(1, 1);
+  //t->gotoxy(1, 1);
+  t->gotoxy(0, 0);
   l = grub_strlen(s1);
   n = (SCREEN_WIDTH - 2 - l) / 2;
-  for (i = 0; i < n; i++) t->putchar(' ');
-  for (i = 0; i < l; i++) t->putchar(s1[i]);
-  for (i = n + l; i < SCREEN_WIDTH - 2; i++) t->putchar(' ');
+  printf(s1);
+  //for (i = 0; i < n; i++) t->putchar(' ');
+  //for (i = 0; i < l; i++) t->putchar(s1[i]);
+  //for (i = n + l; i < SCREEN_WIDTH - 2; i++) t->putchar(' ');
 
   /* the underline */
+/*
   t->gotoxy(0, 2);
   t->putchar('Ç');
   for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Ä');
   t->putchar('¶');
-
+*/
   /* background pattern */
+/*
   for (i = 0; i < SCREEN_HEIGHT - 4; i++)
   {
     t->gotoxy(1, 3 + i);
@@ -502,15 +535,23 @@ void show_background_screen(void)
       t->putchar('±');
     }
   }
-
+ */
   /* status line and help */
+/*
   t->gotoxy(0, SCREEN_HEIGHT - 3);
   t->putchar('Ç');
   for (i = 0; i < SCREEN_WIDTH - 2; i++) t->putchar('Ä');
   t->putchar('¶');
 
   t->gotoxy(1, SCREEN_HEIGHT - 2);
-  printf(" F1 Help, Esc Console, F4 Edit ");
+ */
+  t->gotoxy(0, SCREEN_HEIGHT - 1);
+  strcpy(buf, "± F1 Help, Esc Console, F4 Edit ± [");
+  l = strlen(buf);
+  while (l < SCREEN_WIDTH - 1) buf[l++] = ' ';
+  buf[l++] = ']';
+  buf[l] = '\0';
+  printf(buf);
 }
 
 void
@@ -554,13 +595,19 @@ void draw_menu(int item, int shift)
     t->setcolor((char)foreground_color    | ((char)background_color << 4),
                 (char)foreground_color_hl | ((char)background_color_hl << 4));
 
-  if (menu_width  > SCREEN_WIDTH  - 4) menu_width  = SCREEN_WIDTH  - 4;
-  if (menu_height > SCREEN_HEIGHT - 8) menu_height = SCREEN_HEIGHT - 8;
+  //if (menu_width  > SCREEN_WIDTH  - 4) menu_width  = SCREEN_WIDTH  - 4;
+  //if (menu_height > SCREEN_HEIGHT - 8) menu_height = SCREEN_HEIGHT - 8;
 
-  if (menu_height > num_items) menu_height = num_items + 1;
+  //if (menu_height > num_items) menu_height = num_items + 1;
 
-  x0 = (SCREEN_WIDTH  - menu_width)  / 2 - 1;
-  y0 = (SCREEN_HEIGHT - menu_height) / 2 - 1;
+  //x0 = (SCREEN_WIDTH  - menu_width)  / 2 - 1;
+  //y0 = (SCREEN_HEIGHT - menu_height) / 2 - 1;
+
+  screen_items  = menu_height;
+  if (screen_items > num_items) screen_items = num_items + 1;
+
+  x0 = 0;
+  y0 = 1;
 
   t->gotoxy(x0, y0);
   l = 0;
@@ -571,7 +618,7 @@ void draw_menu(int item, int shift)
 
   grub_memset(buf, 0, sizeof(buf));
 
-  if (item > menu_height - 2) scrollnum = (item - (menu_height - 1));
+  if (item > screen_items - 2) scrollnum = (item - (screen_items - 1));
   if (item == num_items + 1)  scrollnum = 0;
   if (!item) scrollnum = 0;
 
@@ -608,12 +655,21 @@ void draw_menu(int item, int shift)
     //if (l == 1) grub_strcat(str, " ", s);
     //if (l == 2) grub_strcpy(str, s);
     //sprintf(buf, "%s%s. %s", spc, str, sc->title);
-    sprintf((char *)buf, "%s %s", spc, sc->title);
 
-    p = (char *)buf + m;
-    l = grub_strlen(p);
+    if (j > num_items)
+    {
+      *buf = '\0';
+      p = (char *)buf;
+      l = 0;
+    }
+    else
+    {
+      sprintf((char *)buf, "%s %s", spc, sc->title);
+      p = (char *)buf + m;
+      l = grub_strlen(p);
+      while (l > menu_width - 3) p[l--] = '\0';
+    }
 
-    while (l > menu_width - 3) p[l--] = '\0';
     while (l < menu_width - 3) p[l++] = ' ';
     p[l] = '\0';
 
@@ -642,6 +698,40 @@ void draw_menu(int item, int shift)
 
   if (t->setcolor)
     t->setcolor(7, 7);
+}
+
+void draw_watches(void)
+{
+  int  x0, y0;
+  int  i, j;
+
+  menu_width  = SCREEN_WIDTH - 1;
+  menu_height = 2 * (SCREEN_HEIGHT - 1) / 3 - 3;
+
+  x0 = 0;
+  y0 = menu_height + 3;
+
+  if (setcolor)
+    setcolor(0x0107, 0x0107);
+
+  gotoxy(x0, y0);
+  putchar('É');
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) putchar('Í');
+  gotoxy(SCREEN_WIDTH - 1, y0); putchar('»');
+
+  for (i = y0; i < SCREEN_HEIGHT - 2; i++)
+  {
+    gotoxy(0,  1 + i); putchar('º');
+    for (j = 0; j < SCREEN_WIDTH - 2; j++) putchar(' ');
+    gotoxy(SCREEN_WIDTH - 1,  1 + i); putchar('º');
+  }
+
+  gotoxy(0, SCREEN_HEIGHT - 2); putchar('È');
+
+  for (i = 0; i < SCREEN_WIDTH - 2; i++) putchar('Í');
+
+  gotoxy(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 2); putchar('¼');
+
 }
 
 void showpath(void)
@@ -791,7 +881,8 @@ void cmdline(int item, int shift)
     if (ch == 0x11b) break; // esc
     if (cmd = getcmd(ch))
     {
-      printf("\r\n%s\r\n", cmd);
+      //printf("\r\n%s\r\n", cmd);
+      printf("\r\n");
       rc = exec_cmd(cmd);
       if (!rc)
         printf("Error occured during execution of a command\r\n");
@@ -815,12 +906,12 @@ void menued(int item, int shift)
   script_t *sc;
   string_t *line, *st = 0, *st_prev = 0;
 
-  n = item + 1;
+  n = item; // + 1;
   sc = menu_first;
   cur_addr = 0x400000;
   p = (char *)cur_addr;
 
-  // find a menu item and execute corresponding script
+  // find a menu item
   while (n--)
     sc = sc->next;
 
@@ -898,6 +989,8 @@ exec_menu(int item, int shift)
     switch (state)
     {
       case 0: // menu
+        draw_watches();
+        toggle_print_status(3, 17);
         show_background_screen();
         do {
           draw_menu(item, shift);
@@ -998,13 +1091,15 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
 
   if (!rc)           // can't read config file
   {
-    printf("\r\nError opening/reading config file: %s\r\n", buf);
+    printf("Error opening/reading config file: %s\r\n", buf);
     state = 1;       // go to command line
+    num_items = 1;
   }
   else if (rc == -1) // something went wrong during global commands execution
   {
-    printf("\r\nError processing config file: %s\r\n", buf);
+    printf("Error processing config file: %s\r\n", buf);
     state = 1;       // go to command line
+    num_items = 1;
   }
 
   /* If there are items, then show a menu and choose an item */
@@ -1014,8 +1109,8 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
     num_items--;
 
     if (menu_item) item = menu_item;
+    if (item >= screen_items) item = num_items;
     if (!item) item = default_item;
-    if (item > num_items) item = num_items;
 
     shift = menu_shift;
 
@@ -1028,6 +1123,8 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
     if (item & 0x80000000) // return to the previous menu
     {
       item &= ~0x80000000; // clear flag in upper bits
+      if (item >= screen_items) item = num_items;
+      scrollnum = 0;
       return 1;
     }
 
@@ -1114,6 +1211,16 @@ KernelLoader(char **script)
   while (1)
   {
     if (!*curr_cfg) strcpy(curr_cfg, cfg);
+    if (!strcmp(curr_cfg, cfg))
+    {
+      // zero-out initial parameters
+      memset(toggle_data, 0, sizeof(toggle_data));
+      toggles_used = 0;
+      memset(variable_list, 0, sizeof(variable_list));
+      memset(variable_store, 0, sizeof(variable_store));
+      variable_store_actpos = 0;
+      init_vars();
+    }
 
     if (script)
     {
