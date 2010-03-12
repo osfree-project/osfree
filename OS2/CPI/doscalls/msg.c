@@ -15,9 +15,13 @@
 #include <stdio.h>
 #include <string.h>
 
+// Safe functions
+#include <strlcpy.h>
+#include <strnlen.h>
+
 APIRET APIENTRY  DosPutMessage(HFILE hfile,
-                                  ULONG cbMsg,
-                                  PCHAR pBuf)
+                               ULONG cbMsg,
+                               PCHAR pBuf)
 {
   ULONG ulActual;
   return DosWrite(hfile, pBuf, cbMsg, &ulActual);
@@ -54,7 +58,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   // If nothing to insert then just copy message to buffer
   if (!cTable)
   {
-    strcpy(pszMsg, pBuf);
+    strlcpy(pszMsg, pBuf, cbBuf);
     return NO_ERROR;
   } else { // Produce output string
     PCHAR src;
@@ -125,8 +129,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   }
 }
 
-APIRET APIENTRY      DosTrueGetMessage(void)
+APIRET APIENTRY DosTrueGetMessage(void)
 {
-  printf(__FUNCTION__ " not implemented yet\n");
+  ULONG ulActual;
+  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
+  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0;
 }

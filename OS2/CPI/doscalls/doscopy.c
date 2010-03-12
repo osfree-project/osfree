@@ -21,6 +21,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
+// Safe functions
+#include "strnlen.h"
+#include "strlcpy.h"
+#include "strlcat.h"
+#include "strncmp.h"
+
 /*!
    @brief Copies file from one location to another
 
@@ -195,9 +201,10 @@ CheckPath(char *path,int create)
     char   dir[CCHMAXPATH];
     struct stat stbuf;
 
-    strcpy( dir, path );
-    if( dir[strlen(dir)-1] == '/'  &&  dir[strlen(dir)-2] != ':' )
-        dir[strlen(dir)-1] = '\0';
+    strlcpy( dir, path, CCHMAXPATH );
+    if( dir[strnlen(dir, CCHMAXPATH)-1] == '/'  &&  dir[strnlen(dir, CCHMAXPATH)-2] != ':' )
+        dir[strnlen(dir, CCHMAXPATH)-1] = '\0';
+        /* TODO!!!!!! We need to check is directory exists here. Most probably via dosfindfirst...
     if( stat(dir, &stbuf) != 0 )
     {
         if( !create )
@@ -221,7 +228,7 @@ CheckPath(char *path,int create)
 //            Verbose(1,"stat(%s) - no directory",dir);
             return -1;
         }
-    }
+    }*/
     return 0;
 }
 
@@ -251,12 +258,12 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
         struct dirlist_t *next;
     } *pDirListRoot=NULL, *pDirList=NULL, *pHelp;
 
-    nsp = pszSrc + strlen(pszSrc);
-    ndp = pszDst + strlen(pszDst);
+    nsp = pszSrc + strnlen(pszSrc, CCHMAXPATH);
+    ndp = pszDst + strnlen(pszDst, CCHMAXPATH);
 
     /* Search all subdirectories */
 
-    strcpy( nsp, "*" );
+    strlcpy( nsp, "*", CCHMAXPATH );
     hSearch = HDIR_SYSTEM;                      /* use system handle */
     cFound = 1;                                 /* only one at a time */
     rc = DosFindFirst(pszSrc,
@@ -269,17 +276,17 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
     if( !rc )
         do
         {
-            if( !strcmp(findBuffer.achName, ".")
-               ||  !strcmp(findBuffer.achName, "..") )
+            if( !strncmp(findBuffer.achName, ".", CCHMAXPATH)
+               ||  !strncmp(findBuffer.achName, "..", CCHMAXPATH) )
                 continue;
             if( !(findBuffer.attrFile & FILE_DIRECTORY) )
                 continue;
 
-            strcpy( nsp, findBuffer.achName );
-            strcpy( ndp, findBuffer.achName );
+            strlcpy( nsp, findBuffer.achName, CCHMAXPATH );
+            strlcpy( ndp, findBuffer.achName, CCHMAXPATH );
 
-            strcat( pszSrc, "/" );
-            strcat( pszDst, "/" );
+            strlcat( pszSrc, "/", CCHMAXPATH );
+            strlcat( pszDst, "/", CCHMAXPATH );
 
 
             if( pDirList )
@@ -299,8 +306,8 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
 //                assert( pDirList != NULL );
             }
             pDirList->next = NULL;
-            strcpy( pDirList->src, pszSrc );
-            strcpy( pDirList->dst, pszDst );
+            strlcpy( pDirList->src, pszSrc, CCHMAXPATH );
+            strlcpy( pDirList->dst, pszDst, CCHMAXPATH );
         }
         while( !(rc=DosFindNext(hSearch, &findBuffer,
                                 sizeof(findBuffer), &cFound)) );
@@ -322,7 +329,7 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
 
     /* Copy the files in actual directory */
 
-    strcpy( nsp, "*" );
+    strlcpy( nsp, "*", CCHMAXPATH );
     hSearch = HDIR_SYSTEM;                      /* use system handle */
     cFound = 1;                                 /* only one at a time */
     rc = DosFindFirst(pszSrc, &hSearch, FILE_NORMAL,
@@ -333,8 +340,8 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
             if( findBuffer.attrFile & FILE_DIRECTORY )
                 continue;
 
-            strcpy( nsp, findBuffer.achName );
-            strcpy( ndp, findBuffer.achName );
+            strlcpy( nsp, findBuffer.achName, CCHMAXPATH );
+            strlcpy( ndp, findBuffer.achName, CCHMAXPATH );
             i = CopyFile( pszSrc, pszDst, ulOptions );
             if( i != 0 )
                 result = i;

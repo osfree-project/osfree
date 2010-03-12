@@ -8,6 +8,11 @@ PROJ     = doscalls
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) &
            $(p)doscopy$(e) &
+           $(p)dllstart$(e) &
+           $(p)strlcpy$(e) &
+           $(p)strlcat$(e) &
+           $(p)strnlen$(e) &
+           $(p)strncmp$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
            $(p)doslistio$(e) &
@@ -22,7 +27,7 @@ srcfiles = $(p)msg$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s
-ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
+ADD_LINKOPT  = op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 #OPTIONS = manyautodata

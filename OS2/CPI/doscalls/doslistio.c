@@ -8,7 +8,6 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
 {
   PLISTIOL pListIOL;
 
-  printf(__FUNCTION__ " not implemented yet\n");
 
   return 0;
 

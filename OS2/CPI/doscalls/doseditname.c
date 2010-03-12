@@ -20,6 +20,10 @@
 #define INCL_DOSFILEMGR
 #include <os2.h>
 
+// Safe functions
+#include <strlcpy.c>
+#include <strlcat.c>
+
 void myfnsplit( const char *path,
                       char *drv,
                       char *dir,
@@ -72,19 +76,19 @@ void myfnmerge( char *path, const char *drive, const char *dir,
                             const char *fname, const char *ext )
 {
     if( *drive ) {
-        strcpy( path, drive );
+        strlcpy( path, drive, CCHMAXPATH );
     } else ( *path ) = 0;
 
     if( *dir ) {
-        strcat( path, dir );
+        strlcat( path, dir, CCHMAXPATH );
         if( *( dir + strlen( dir ) - 1 ) != '\\' )
-            strcat( path, "\\" );
+            strlcat( path, "\\", CCHMAXPATH );
     }
 
     if( *fname ) {
-        strcat( path, fname );
+        strlcat( path, fname, CCHMAXPATH );
         if( *ext ) {
-            strcat( path, ext );
+            strlcat( path, ext, CCHMAXPATH );
         }
     }
 }
@@ -148,7 +152,7 @@ void fillFnam(char *dest, const char * const pattern
   assert(pattern);
 
   if(strchr(pattern, '?') == 0 && strchr(pattern, '*') == 0)
-    strcpy(dest, pattern);
+    strlcpy(dest, pattern, CCHMAXPATH);
 
   myfnsplit(pattern, dr, pa, fn, ex);
   myfnsplit(fnam, 0, 0, pfn, pex);
