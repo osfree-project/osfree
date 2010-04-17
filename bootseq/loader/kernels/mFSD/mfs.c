@@ -339,7 +339,7 @@ int far pascal _loadds MFS_INIT(
         ramdisk  = 1;
         remotefs = 1;
       }
-    // if we're booting from remote fs
+      // if we're booting from remote fs
       if (pp = strstr(cmdline, "--remote-fs"))
       {
         remotefs = 1;
@@ -1443,7 +1443,7 @@ int far pascal _loadds MFS_TERM(void)
   {
     kprintf("open_files = %u\n", open_files);
 
-    // reopen by an IFS all files open by minifsd
+    // reopen by an IFS all files opened by minifsd
     for (save_index = 0; save_index < 0x80; save_index++)
     {
       if (save_map[save_index]) // if a file is open

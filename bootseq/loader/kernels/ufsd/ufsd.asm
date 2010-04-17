@@ -37,6 +37,7 @@ extrn  cmain_       :near
 extrn  call_rm      :near
 extrn  idt_init     :near
 extrn  gdtdesc      :fword
+extrn  gdtsrc       :byte
 
 extrn  preldr_ds    :word
 extrn  preldr_ss_sp :dword
@@ -290,7 +291,8 @@ loop1:
 
 set_gdt:
                    ; fix gdt descriptors base
-                   mov  ebx, GDT_ADDR
+                   ;mov  ebx, GDT_ADDR
+                   mov  ebx, offset _TEXT:gdtsrc
                    mov  eax, REL1_BASE
                    mov  ecx, eax
                    sub  ecx, 10200h
@@ -308,31 +310,10 @@ set_gdt:
                    mov  [ebx][2*8].ds_basehi2, 0
 
                    mov  [ebx][1*8].ds_acclo, 0x9a
-                   mov  [ebx][2*8].ds_acclo, 0x92
+                   mov  [ebx][2*8].ds_acclo, 0x93
 
                    mov  [ebx][1*8].ds_acchi, 0xcf
                    mov  [ebx][2*8].ds_acchi, 0xcf
-
-                   ; Pseudo RM SS
-                   mov  [ebx][5*8].ds_limit, 0xffff
-
-                   mov  [ebx][5*8].ds_baselo, cx
-
-                   ror  ecx, 16
-
-                   mov  [ebx][5*8].ds_basehi1, cl
-
-                   ror  ecx, 8
-
-                   mov  [ebx][5*8].ds_basehi2, cl
-
-                   mov  [ebx][5*8].ds_acclo, 0x92
-
-                   mov  [ebx][5*8].ds_acchi, 0x0
-
-                   ror  ecx, 8
-                   shr  ecx, 4
-                   mov  word ptr ds:[RMSTACK + 2], cx
 
                    ; pseudo RM DS and CS
                    mov  [ebx][8*8].ds_limit, 0xffff
@@ -348,14 +329,73 @@ set_gdt:
                    mov  [ebx][9*8].ds_basehi2, al
 
                    mov  [ebx][8*8].ds_acclo, 0x9e
-                   mov  [ebx][9*8].ds_acclo, 0x92
+                   mov  [ebx][9*8].ds_acclo, 0x93
 
                    mov  [ebx][8*8].ds_acchi, 0
                    mov  [ebx][9*8].ds_acchi, 0
 
+                   mov  eax, STAGE0_BASE - SHIFT
+
+                   mov  [ebx][3*8].ds_limit, 0xffff
+                   mov  [ebx][4*8].ds_limit, 0xffff
+
+                   mov  [ebx][3*8].ds_baselo, ax
+                   mov  [ebx][4*8].ds_baselo, ax
+                   ror  eax, 16
+                   mov  [ebx][3*8].ds_basehi1, al
+                   mov  [ebx][4*8].ds_basehi1, al
+                   ror  eax, 8
+                   mov  [ebx][3*8].ds_basehi2, al
+                   mov  [ebx][4*8].ds_basehi2, al
+
+                   mov  [ebx][3*8].ds_acclo, 0x9e
+                   mov  [ebx][4*8].ds_acclo, 0x93
+
+                   mov  [ebx][3*8].ds_acchi, 0
+                   mov  [ebx][4*8].ds_acchi, 0
+
+                   ; Pseudo RM SS
+                   mov  [ebx][5*8].ds_limit, 0xffff
+
+                   mov  [ebx][5*8].ds_baselo, cx
+                   ror  ecx, 16
+                   mov  [ebx][5*8].ds_basehi1, cl
+                   ror  ecx, 8
+                   mov  [ebx][5*8].ds_basehi2, cl
+
+                   mov  [ebx][5*8].ds_acclo, 0x93
+                   mov  [ebx][5*8].ds_acchi, 0x0
+
+                   ror  ecx, 8
+                   shr  ecx, 4
+                   mov  word ptr ds:[RMSTACK + 2], cx
+
+                   mov  eax, EXT2HIBUF_BASE + 0x14    ; relshift offset
+                   mov  eax, [eax]
+                   add  eax, TERMLO_BASE
+
+                   mov  [ebx][6*8].ds_limit, 0xffff
+                   mov  [ebx][7*8].ds_limit, 0xffff
+
+                   mov  [ebx][6*8].ds_baselo, ax
+                   mov  [ebx][7*8].ds_baselo, ax
+                   ror  eax, 16
+                   mov  [ebx][6*8].ds_basehi1, al
+                   mov  [ebx][7*8].ds_basehi1, al
+                   ror  eax, 8
+                   mov  [ebx][6*8].ds_basehi2, al
+                   mov  [ebx][7*8].ds_basehi2, al
+
+                   mov  [ebx][6*8].ds_acclo, 0x9e
+                   mov  [ebx][7*8].ds_acclo, 0x93
+                   
+                   mov  [ebx][6*8].ds_acchi, 0x0
+                   mov  [ebx][7*8].ds_acchi, 0x0
+
                    ; fill GDT descriptor
+                   ;mov  eax, GDT_ADDR
+                   mov  eax, ebx
                    mov  ebx, offset _TEXT:gdtdesc
-                   mov  eax, GDT_ADDR
                    mov  [ebx].g_base, eax
                    mov  [ebx].g_limit, 10*8 - 1
 

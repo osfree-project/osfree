@@ -43,7 +43,7 @@ ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
 
-ADD_COPT   = -dOS2 -dMINIFSD -dMB_KERN
+ADD_COPT   = -dOS2 -dMB_KERN #-dMINIFSD
 ADD_ASMOPT = -i=$(PATH)
 CLEAN_ADD  = ufsd.inc mfsd.inc urel.inc
 

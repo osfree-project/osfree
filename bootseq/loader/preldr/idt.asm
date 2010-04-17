@@ -12,6 +12,11 @@
 
 name trapscreen
 
+extrn  gdtsrc         :byte
+
+extrn  idtdesc        :fword
+extrn  idtdesc_old    :fword
+
 public idt_init
 public idt_initted
 
@@ -249,7 +254,8 @@ go_on:
         mov   ebp, esp
         add   [ebp]._esp, _stk - _ss
 
-        mov   ebx, GDT_ADDR
+        ;mov   ebx, GDT_ADDR
+        mov  ebx, offset _TEXT:gdtsrc
         xor   eax, eax
 
         mov   ax, cs
@@ -504,7 +510,8 @@ idt_init:
 
         cld
         mov   ecx, 20h
-        mov   edi, IDT_ADDR     ; IDT start
+        ;mov   edi, IDT_ADDR     ; IDT start
+        mov   edi, offset _TEXT:idtsrc     ; IDT start
         ;xor   edx, edx         ; zero selector
         lea   ebx, trap_handlers
 hloop:
@@ -524,9 +531,11 @@ hloop:
 
         ;mov   byte ptr idt_initted, 1
 initted:
-        mov   eax, IDTR
+        ;mov   eax, IDTR
+        mov   eax, offset _TEXT:idtdesc
         mov   [eax].g_limit, 20h * 8 - 1
-        mov   [eax].g_base, IDT_ADDR
+        ;mov   [eax].g_base, IDT_ADDR
+        mov   [eax].g_base, offset _TEXT:idtsrc
         lidt  fword ptr [eax]
 
         popad
@@ -630,6 +639,9 @@ char_color      db      ATTR
 
 ; A flag which defines, that IDT is initted or not
 idt_initted     db      0
+
+; IDT
+idtsrc      desc   20h     dup (?)
 
 _DATA   ends
 

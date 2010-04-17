@@ -20,6 +20,8 @@
 
 #include "shared.h"
 
+//int kprintf(const char *format, ...);
+
 /* These are defined in asm.S, and never be used elsewhere, so declare the
    prototypes here.  */
 extern int __cdecl biosdisk_int13_extensions (int ax, int drive, void *dap);
@@ -223,16 +225,19 @@ get_diskinfo (int drive, struct geometry *geometry)
       int version;
       unsigned long total_sectors = 0;
 
-      //low_stack();
+      //kprintf("-2\n");
       version = check_int13_extensions (drive);
-      //high_stack();
+      //kprintf("-1\n");
 
 #ifndef STAGE1_5
+      //kprintf("0\n");
       if (drive >= 0x88 || version)
         {
           /* Possible CD-ROM - check the status.  */
           //low_stack();
+          //kprintf("1\n");
           err = get_cdinfo (drive, geometry);
+          //kprintf("2: err=%d\n", err);
           //high_stack();
 
           if (err)

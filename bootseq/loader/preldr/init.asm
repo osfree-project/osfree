@@ -149,7 +149,8 @@ rel1:
 
         ; Save physical boot drive
         mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
-        mov  byte ptr [eax], dl
+        mov  dword ptr [eax], 0
+        mov  byte  ptr [eax], dl
 
         ; save boot flags in dx
         mov  eax, offset _TEXT:boot_flags - STAGE0_BASE
@@ -237,34 +238,36 @@ skip_reloc_ufsd:
 
 skip_reloc_stage0:
         ; clear BSS
-        ;mov  ecx, offset _TEXT:bss_end
-        ;mov  eax, offset _TEXT:exe_end
-        ;sub  ecx, eax    ; BSS length
-        ;mov  ebx, STAGE0_BASE
-        ;sub  eax, ebx
-        ;shr  ebx, 4
-        ;mov  es, bx
-        ;mov  edi, eax
-        ;xor  ax, ax
+        mov  ecx, offset _TEXT:bss_end
+        mov  eax, offset _TEXT:exe_end
+        sub  ecx, eax    ; BSS length
+        mov  ebx, STAGE0_BASE
+        sub  eax, ebx
+        shr  ebx, 4
+        mov  es, bx
+        mov  edi, eax
+        xor  eax, eax
 
-        ;rep  stosb
+        rep  stosb
 
-        ;push es
+        push es
+        push ebx
 
         ; clear BSS of uFSD
-        ;mov  bx, 6c00h
-        ;mov  es, bx
-        ;xor  bx, bx
-        ;mov  edi, dword ptr es:[bx + 2] ; bss start
+        mov  bx, 73e0h
+        mov  es, bx
+        xor  bx, bx
+        mov  edi, dword ptr es:[bx + 5] ; bss start
         ; now es:di->bss
-        ;mov  ecx, dword ptr es:[bx + 6] ; bss end
-        ;sub  ecx, edi
+        mov  ecx, dword ptr es:[bx + 9] ; bss end
+        sub  ecx, edi
         ; now ecx contains bss length
-        ;xor  eax, eax
+        xor  eax, eax
 
-        ;rep  stosb
+        rep  stosb
 
-        ;pop  es
+        pop  ebx
+        pop  es
 
         ; relocate boot sector to safe place
         push ds
@@ -316,22 +319,27 @@ reloc:
         ; copy GDT
         push es
 
-        xor  bx, bx
-        mov  es, bx
-
-        cld
-        mov  cx, 0x180
-        mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
-        mov  edi, GDT_ADDR
-
-        push di
-        rep  movsb
-        pop  di
+        ;xor  bx, bx
+        ;mov  es, bx
+        ;
+        ;cld
+        ;mov  cx, 0x180
+        ;mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
+        ;mov  edi, GDT_ADDR
+        ;
+        ;push di
+        ;rep  movsb
+        ;pop  di
 
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
         mov  ebx, STAGE0_BASE
         shl  eax, 4
+
+        ;mov  esi, ebx
+        ;shr  esi, 4
+        ;mov  es, si
+        mov  edi, offset _TEXT:gdtsrc - STAGE0_BASE
 
         mov  es:[di][3*8].ds_baselo, bx
         mov  es:[di][4*8].ds_baselo, bx
@@ -351,7 +359,8 @@ reloc:
 
         ; fill GDT descriptor
         mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
-        mov  eax, GDT_ADDR
+        ;mov  eax, GDT_ADDR
+        mov  eax, offset _TEXT:gdtsrc
         mov  [bx].g_base, eax
 
         lgdt fword ptr [ebx]

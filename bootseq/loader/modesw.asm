@@ -11,11 +11,13 @@ name modesw
 ;public  base
 extrn    base        :dword
 
+;extrn    com_outchar :near
+
 ;extrn   set_pm_idt  :near
 ;extrn   set_rm_idt  :near
 
-;public  idtr
-;public  idtr_old
+public  idtdesc
+public  idtdesc_old
 
 public  gdtsrc
 public  gdtdesc
@@ -82,6 +84,7 @@ call_pm proc near
         push bp
         mov  bp, sp
 
+        push edi
         push esi
 
         ; Disable interrupts
@@ -92,7 +95,8 @@ ifndef  MICROFSD
         mov  esi, relshift16
 
         ; Load GDTR
-        mov  eax, 0x640
+        ;mov  eax, GDT_ADDR
+        mov  eax, offset _TEXT:gdtsrc
         push eax
         mov  ax, 2fh
         push ax
@@ -158,6 +162,7 @@ endif
         mov  eax, esi
 
         pop  esi
+        pop  edi
 
         call fword ptr [eax]
 
@@ -220,14 +225,17 @@ endif
 ;
 
 rmode_switch proc far
+        ;mov  al, '+'
+        ;call com_outchar
+
         ; switch to real mode
         mov  eax, cr0
         and  al,  0feh
         mov  cr0, eax
 
-;ifndef STAGE1_5
-;        call set_rm_idt
-;endif
+;;ifndef STAGE1_5
+;;        call set_rm_idt
+;;endif
         ; set segment registers
         mov  eax, base
         shr  eax, 4
@@ -252,6 +260,8 @@ else
         mov  ds,  ax
 endif
 endif
+        ;mov  al, '+'
+        ;call com_outchar
 
         ; do a far jump to reload a
         ; real mode CS
@@ -259,8 +269,18 @@ endif
         push rmode1
         retf
 rmode1:
+        ;mov  al, '+'
+        ;call com_outchar
+
+;;ifndef STAGE1_5
+;;        call set_rm_idt
+;;endif
+
         ; enable interrupts
         sti
+
+        ;mov  al, '+'
+        ;call com_outchar
 
         ; Now we are in a real mode
         ; call a function with address in ebp
@@ -270,6 +290,7 @@ rmode1:
         push bp
         xor  ebp, ebp
         mov  bp, sp
+
         call dword ptr [bp]
         add  sp, 4
 
@@ -281,9 +302,13 @@ rmode1:
         or   al, 1
         mov  cr0, eax
 
-;ifndef STAGE1_5
-;        call set_pm_idt
-;endif
+        ;mov  al, '+'
+        ;call com_outchar
+
+;;ifndef STAGE1_5
+;;        call set_pm_idt
+;;endif
+
         ; load segment registers
         mov  ax, PSEUDO_RM_DSEG
         mov  ds, ax
@@ -605,7 +630,8 @@ set_pm_idt:
         ;mov   eax, IDTR_OLD
         ;sidt  fword ptr [eax]
 
-        mov   eax, IDTR
+        ;mov   eax, IDTR
+        mov   eax, offset _TEXT:idtdesc
         lidt  fword ptr [eax]
 
         ret
@@ -622,7 +648,8 @@ set_rm_idt:
         ;mov   eax, IDTR_OLD
         ;lidt  fword ptr [eax]
 
-        mov   eax, IDTR_OLD
+        ;mov   eax, IDTR_OLD
+        mov   eax, offset _TEXT:idtdesc_old
         mov   [eax].g_limit, 400h
         mov   [eax].g_base, 0
         lidt  fword ptr [eax]
@@ -702,8 +729,9 @@ boot_drive        dd   0
 ; */
 
 
-gdtaddr dd    GDT_ADDR
+;gdtaddr dd    GDT_ADDR
 
+gdtaddr label byte
 gdtsrc  desc  <0,0,0,0,0,0>                  ;
         desc  <0FFFFh,0,0,09Ah,0CFh,0>       ; flat DS
         desc  <0FFFFh,0,0,092h,0CFh,0>       ; flat CS
@@ -724,11 +752,10 @@ gdtdesc gdtr  <gdtsize - 1, ?>
 address dd    ?
         dw    ?
 
-;; A flag which defines, that IDT is initted or not
-;idt_initted    db      0
-
-;idtr           gdtr    <>
-;idtr_old       gdtr    <>
+; IDT descriptor
+idtdesc     gdtr   ?
+; realmode IDT descriptor
+idtdesc_old gdtr   ?
 
 _DATA   ends
 

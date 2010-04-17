@@ -114,10 +114,12 @@ ok:
       int 3
 ;      jmp     $
 
+if 0
 
 set_gdt:
         ; copy GDT
-        mov  ebx, GDT_ADDR
+        ;mov  ebx, GDT_ADDR
+        mov  ebx, offset _TEXT:gdtsrc
 
         ; set 16-bit segment (_TEXT16) base
         ; in GDT for protected mode
@@ -138,6 +140,8 @@ set_gdt:
         lgdt fword ptr [ebx]
 
         ret
+
+endif
 
 return_to_preldr_:
       mov  esp, oldstack

@@ -20,8 +20,8 @@ int assign_drvletter (char *mode);
 struct multiboot_info *
 (*callback)(unsigned long addr,
             unsigned long size,
-            char drvletter,
-            char drvletter2,
+            int drvltr,
+            int drvltr2,
             struct term_entry *term);
 
 extern struct term_entry *t;
@@ -56,10 +56,8 @@ int fileaddr;
 //unsigned long ldr_stack;
 
 unsigned long cdrom_drive;
-char drvletter;
-char drvletter2;
-char mode[12];
-char mode2[12];
+int drvletter;
+int drvletter2;
 
 extern char debug;
 
@@ -322,7 +320,9 @@ void cmain (void)
   bios_parameters_block *bpb;
   long port = 0x3f8, t;
   long speed = 9600;
-  char *pp, *r;
+  char mode2[12];
+  char mode[12];
+  char *pp, *pp0, *r;
   int  i;
 
   // init terminal
@@ -365,8 +365,21 @@ void cmain (void)
     }
     part_types[i] = '\0';
 
+    memset(mode, 0, sizeof(mode));
+    if (pp0 = strstr((char *)m->cmdline, "--drv="))
+    {
+      pp0 = skip_to(1, pp0);
+      // find name end
+      for (r = pp0; *r && *r != ' '; r++) ;
+      memmove(mode, pp0, r - pp0);
+      mode[r - pp0] = '\0';
+      // make name uppercase
+      r = mode;
+      while (*r) *r++ = toupper(*r);
+    }
+
     memset(mode2, 0, sizeof(mode2));
-    if (pp = strstr((char *)m->cmdline, "--drv2"))
+    if (pp = strstr((char *)m->cmdline, "--drv2="))
     {
       pp = skip_to(1, pp);
       // find name end
@@ -375,19 +388,6 @@ void cmain (void)
       mode2[r - pp] = '\0';
       // make name uppercase
       r = mode2;
-      while (*r) *r++ = toupper(*r);
-    }
-
-    memset(mode, 0, sizeof(mode));
-    if (pp = strstr((char *)m->cmdline, "--drv"))
-    {
-      pp = skip_to(1, pp);
-      // find name end
-      for (r = pp; *r && *r != ' '; r++) ;
-      memmove(mode, pp, r - pp);
-      mode[r - pp] = '\0';
-      // make name uppercase
-      r = mode;
       while (*r) *r++ = toupper(*r);
     }
   }
@@ -427,15 +427,15 @@ void cmain (void)
     {
       if (!strcmp(mode, "AUTO"))
       {
-        drvletter2  = assign_drvletter(mode2);
+        drvletter2  = assign_drvletter("AUTO");
         drvletter = drvletter2 + 1;
       }
       else
       {
+        drvletter2  = assign_drvletter("AUTO");
         drvletter   = mode[0];
-        drvletter2  = assign_drvletter(mode2) + 1;
         /* shift letters forth */
-        //if (drvletter <= drvletter2) drvletter2++;
+        if (drvletter <= drvletter2) drvletter2++;
       }
     }
     else
@@ -449,11 +449,12 @@ void cmain (void)
 
   kprintf("assign_drvletter() exited\n");
 
+  // correct the command line according the drive letter got
+  pp0[0] = (char)drvletter;
+  for (i = 1; i < grub_strlen(mode); i++) pp0[i] = ' '; // pad with spaces
+  //
   pp[0] = (char)drvletter2;
   for (i = 1; i < grub_strlen(mode2); i++) pp[i] = ' '; // pad with spaces
-  // correct the command line according the drive letter got
-  pp[0] = (char)drvletter;
-  for (i = 1; i < grub_strlen(mode); i++) pp[i] = ' '; // pad with spaces
 
   /* Patch the config.sys file with boot drive letter */
   patch_cfgsys();

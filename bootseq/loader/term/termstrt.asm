@@ -6,10 +6,11 @@
 
 name termstart
 
+public  relshift
 public  set_gdt
 public  base
 
-extrn   relshift      :dword
+;extrn   relshift      :dword
 
 extrn   gdtsrc        :byte
 extrn   gdtdesc       :fword
@@ -39,12 +40,13 @@ header_begin:
            dd   offset _TEXT:start2 - EXT_BUF_BASE - 5
            ; return
            db   0c3h
-           org 8h 
+           org 8h
            ; a sort of header signature
            db   '$header$'
            org 10h
            ; base of realmode part segment
 base       dd  TERMLO_BASE
+relshift   dd  0
            ; padding with NOP's
            ;db   HEADER_SIZE  - ($ - header_begin)       dup (90h)
            org 20h
@@ -70,7 +72,8 @@ set_gdt:
         ;rep  movsd
 
         ; fix gdt descriptors base
-	mov  ebx, GDT_ADDR
+        ;mov  ebx, GDT_ADDR
+        mov  ebx, eax                     ; get GDT addr from pre-loader
         mov  eax, offset _TEXT:relshift
         mov  eax, [eax]
         add  eax, TERMLO_BASE
@@ -83,10 +86,11 @@ set_gdt:
         mov  [ebx][6*8].ds_basehi2, al
         mov  [ebx][7*8].ds_basehi2, al
 
-	; fill GDT descriptor
-	mov  ebx, offset _TEXT:gdtdesc
-	mov  eax, GDT_ADDR
-	mov  [ebx].g_base, eax
+        ; fill GDT descriptor
+        ;mov  eax, GDT_ADDR
+        mov  eax, ebx
+        mov  ebx, offset _TEXT:gdtdesc
+        mov  [ebx].g_base, eax
 
         lgdt fword ptr [ebx]
 

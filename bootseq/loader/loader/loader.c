@@ -308,7 +308,7 @@ process_cfg_line1(char *line)
   {
     rc = exec_line(line);
     if (!rc)
-      printf("Error executing command, rc=%d\r\n", rc);
+      printf("Error executing command, rc=%d, line=%s\r\n", rc, line);
 
     return rc;
   }

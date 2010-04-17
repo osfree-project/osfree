@@ -26,8 +26,8 @@ ufsd_OBJS        = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)mo
                    $(p)cmdline$(e) $(p)term$(e) $(p)console$(e) $(p)consolec$(e) $(p)bios$(e)
 common_OBJS      = $(p)end$(e)
 
-ADD_COPT   = -dOS2 -dMICROFSD -dMINIFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
-ADD_ASMOPT = -dOS2 -dMICROFSD -dMINIFSD -dTERM_CONSOLE -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT   = -dOS2 -dMICROFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_ASMOPT = -dOS2 -dMICROFSD -dTERM_CONSOLE -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 
 OBJS             = $(ufsd_OBJS) $(common_OBJS)
 

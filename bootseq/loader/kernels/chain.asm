@@ -163,13 +163,32 @@ real_start:
 
         mov  eax, offset _TEXT:_boot_cs - KERN_BASE
         mov  eax, [eax]
-        push ax                                    ; push CS
+        mov  jseg, ax
+        ;push ax                                    ; push CS
 
         mov  eax, offset _TEXT:_boot_ip - KERN_BASE
         mov  eax, [eax]
-        push ax                                    ; push IP
+        mov  joff, ax
+        ;push ax                                    ; push IP
 
-        retf                                       ; "return" to bootsector
+        xor  ax, ax
+        mov  ds, ax
+        mov  es, ax
+        mov  fs, ax
+        mov  gs, ax
+
+        mov  bp, 7c00h
+
+        cli
+        xor  ax, ax
+        mov  ss, ax
+        mov  sp, 600h
+        sti
+
+        ;retf                                       ; "return" to bootsector
+        db   0eah
+joff    dw   ?
+jseg    dw   ?
 
 gateA20_rm:
         mov     ax, 2400h
@@ -306,7 +325,8 @@ set_gdt:
         ;rep  movsd
 
         ; fix gdt descriptors base
-        mov  ebx, GDT_ADDR
+        ;mov  ebx, GDT_ADDR
+        mov  ebx, offset _TEXT:gdtsrc
         mov  eax, REAL_BASE
         mov  [ebx][8*8].ds_baselo, ax
         mov  [ebx][9*8].ds_baselo, ax
@@ -318,8 +338,9 @@ set_gdt:
         mov  [ebx][9*8].ds_basehi2, al
 
         ; fill GDT descriptor
+        ;mov  eax, GDT_ADDR
+        mov  eax, ebx
         mov  ebx, offset _TEXT:gdtdesc
-        mov  eax, GDT_ADDR
         mov  [ebx].g_base, eax
 
         lgdt fword ptr [ebx]

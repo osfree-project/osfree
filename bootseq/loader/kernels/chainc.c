@@ -50,8 +50,10 @@ unsigned long saved_partition;
 
 
 unsigned long load_addr = 0;
+unsigned long bootsec_segment = -1;
 unsigned long load_segment = -1;
 unsigned long load_offset = -1;
+unsigned long skip_length = 0;
 unsigned long __ebx = -1;
 unsigned long __edx = -1;
 int boot_cs = 0;
@@ -175,6 +177,12 @@ void cmain(void)
       safe_parse_maxint(&s, (long *)&boot_ip);
     }
 
+    if (s = grub_strstr(cmdline, "--skip-length"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (long *)&skip_length);
+    }
+
     if (s = grub_strstr(cmdline, "--ebx"))
     {
       s = skip_to(1, s);
@@ -186,6 +194,18 @@ void cmain(void)
       s = skip_to(1, s);
       safe_parse_maxint(&s, (long *)&__edx);
     }
+
+    if (s = grub_strstr(cmdline, "--bootsec-segment"))
+    {
+      s = skip_to(1, s);
+      safe_parse_maxint(&s, (long *)&bootsec_segment);
+    }
+
+    if (bootsec_segment == -1)
+      bootsec_segment = 0x7c0;
+
+    if (skip_length)
+      kernel_len = skip_length;
 
     // Copy myself to conventional memory
     grub_memmove((char *)REL_BASE, (char *)KERN_BASE, (int)&bss_end - (int)KERN_BASE);
@@ -251,7 +271,11 @@ void cmain(void)
       if (strstr((char *)mod->cmdline, "*bootsec*"))
       {
         /* if "*bootsec*" line is in the command line */
-        memmove((char *)0x7c00, (char *)mod->mod_start, mod->mod_end - mod->mod_start);
+        memmove((char *)(bootsec_segment << 4), (char *)mod->mod_start, mod->mod_end - mod->mod_start);
+        p = (unsigned char *)0x7c24;
+        *p = 0x80;
+        p = (unsigned char *)0x7c15;
+        *p = 0xF8;
         break;
       }
     }

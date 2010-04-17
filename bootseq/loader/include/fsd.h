@@ -74,18 +74,18 @@
 #define BOOT_MAGIC  0x2BADB002 // extended boot info magic
 
 // ; Protected mode stack address
-#define PROTSTACK  0x600
+#define PROTSTACK  0x500
 // ; Real mode stack address
-#define RMSTACK  0x604
+#define RMSTACK  0x504
 // ; protect mode IDT save
-#define IDTR  0x608
+//#define IDTR  0x508
 // ; real mode IDT save
-#define IDTR_OLD  0x610
+//#define IDTR_OLD  0x510
 
 // ; GDT location
-#define GDT_ADDR  0x640
+//#define GDT_ADDR  0x520
 // ; IDT location
-#define IDT_ADDR  0x6a0
+//#define IDT_ADDR  0x600
 
 // ; stacks initial values
 #define PROTSTACKINIT  STACK_SP - 10h

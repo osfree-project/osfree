@@ -75,18 +75,18 @@ FSYS_MAX        equ 0x20                  ; max number of filesystems
 BOOT_MAGIC      equ 0x2BADB002            ; extended boot info magic
 
 ; Protected mode stack address
-PROTSTACK         equ  0x600
+PROTSTACK         equ  0x500
 ; Real mode stack address
-RMSTACK           equ  0x604
+RMSTACK           equ  0x504
 ; protect mode IDT save
-IDTR              equ  0x608
+;IDTR              equ  0x508
 ; real mode IDT save
-IDTR_OLD          equ  0x610
+;IDTR_OLD          equ  0x510
 
 ; GDT location
-GDT_ADDR          equ 0x640
+;GDT_ADDR          equ 0x520
 ; IDT location
-IDT_ADDR          equ 0x6a0
+;IDT_ADDR          equ 0x600
 
 ; stacks initial values
 PROTSTACKINIT   equ STACK_SP - 10h

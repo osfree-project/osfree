@@ -322,7 +322,8 @@ set_gdt:
                    ; in GDT for protected mode
 
                    ; fix gdt descriptors base
-                   mov     ebx, GDT_ADDR
+                   ;mov     ebx, GDT_ADDR
+                   mov     ebx, offset _TEXT:gdtsrc
                    mov     eax, REAL_BASE
                    mov     [ebx][8*8].ds_baselo, ax
                    mov     [ebx][9*8].ds_baselo, ax
@@ -334,8 +335,9 @@ set_gdt:
                    mov     [ebx][9*8].ds_basehi2, al
 
                    ; fill GDT descriptor
+                   ;mov     eax, GDT_ADDR
+                   mov     eax, ebx
                    mov     ebx, offset _TEXT:gdtdesc
-                   mov     eax, GDT_ADDR
                    mov     [ebx].g_base, eax
 
                    lgdt    fword ptr [ebx]

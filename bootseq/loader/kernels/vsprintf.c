@@ -47,15 +47,15 @@ int sprintf(char * buf, const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list args);
 
 
-#ifndef MINIFSD
+//#ifndef MINIFSD
 /*
  * Routines accessed in interrupt context (here through the 'printk' call)
  */
-#pragma alloc_text(EXT2_FIXED_CODE, sprintf)
-#pragma alloc_text(EXT2_FIXED_CODE, vsprintf)
-#pragma alloc_text(EXT2_FIXED_CODE, number)
-#pragma alloc_text(EXT2_FIXED_CODE, skip_atoi)
-#endif
+//#pragma alloc_text(EXT2_FIXED_CODE, sprintf)
+//#pragma alloc_text(EXT2_FIXED_CODE, vsprintf)
+//#pragma alloc_text(EXT2_FIXED_CODE, number)
+//#pragma alloc_text(EXT2_FIXED_CODE, skip_atoi)
+//#endif
 
 #endif
 

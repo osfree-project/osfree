@@ -16,6 +16,8 @@ public get_diskinfo_standard
 extrn  call_rm       :near
 extrn  force_lba     :byte
 
+;extrn  com_outchar   :near
+
 ifndef MICROFSD
 ifndef REAL_BASE
 extrn  stage0base   :dword
@@ -39,6 +41,7 @@ biosdisk_int13_extensions_rm proc far
       xor     ax, ax
       mov     ds, ax
       ; back to protected mode
+
       retf
 biosdisk_int13_extensions_rm endp
 

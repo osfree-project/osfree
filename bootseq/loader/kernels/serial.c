@@ -11,7 +11,18 @@
 #include <stdarg.h>
 #include <serial.h>
 
+#ifndef MINIFSD
+#define memmove grub_memmove
+#else
+#define grub_memmove memmove
+#endif
+
+/* An input buffer.  */
+//static char input_buf[8];
+//static int npending = 0;
+
 int vsprintf(char *buf, const char *fmt, va_list args);
+void *memmove (void *_to, const void *_from, int _len);
 
 char buf[0x400];
 
@@ -22,7 +33,7 @@ struct divisor
 };
 
 /* Store the port number of a serial unit.  */
-static unsigned short serial_hw_port = 0;
+unsigned short serial_hw_port = 0;
 extern char debug;
 
 /* The table which lists common configurations.  */
@@ -70,6 +81,18 @@ void comwait(unsigned short port)
   while (!(inb(port + 5) & 0x20)) ; // wait while comport is ready
 }
 
+/* Fetch a key.  */
+/*
+int
+serial_hw_fetch (void)
+{
+  if (inb (serial_hw_port + UART_LSR) & UART_DATA_READY)
+    return inb (serial_hw_port + UART_RX);
+
+  return -1;
+}
+*/
+
 void comout(unsigned short port, unsigned char c)
 {
   if (!debug)
@@ -97,6 +120,70 @@ void serout(unsigned short port, char *s)
     p++;
   }
 }
+
+#if 0
+
+static int __cdecl
+fill_input_buf (int nowait)
+{
+  int i;
+
+  for (i = 0; i < 10000 && npending < sizeof (input_buf); i++)
+    {
+      int c;
+
+      c = serial_hw_fetch ();
+      if (c >= 0)
+        {
+          input_buf[npending++] = c;
+
+          /* Reset the counter to zero, to wait for the same interval.  */
+          i = 0;
+        }
+
+      if (nowait)
+        break;
+    }
+
+  /* Translate some key sequences.  */
+  //serial_translate_key_sequence ();
+
+  return npending;
+}
+
+/* The serial version of getkey.  */
+int __cdecl
+serial_getkey (void)
+{
+  int c;
+
+  while (! fill_input_buf (0))
+    ;
+
+  npending--;
+  if ((c = input_buf[0]))
+        memmove (input_buf, input_buf + 1, npending);
+  else
+  {
+        npending--;
+        c = *(unsigned short *)input_buf;
+        memmove (input_buf, input_buf + 2, npending);
+  }
+
+  return c;
+}
+
+/* The serial version of checkkey.  */
+int __cdecl
+serial_checkkey (void)
+{
+  if (fill_input_buf (1))
+    return input_buf[0] ? input_buf[0] : *(unsigned short *)input_buf;
+
+  return -1;
+}
+
+#endif
 
 int
 serial_init (long port, long speed,
@@ -144,7 +231,7 @@ serial_init (long port, long speed,
 
   /* Drain the input buffer.  */
   //while (serial_checkkey () != -1)
-  //  (void) serial_getkey ();
+  //  serial_getkey ();
 
   /* Get rid of TERM_NEED_INIT from the serial terminal.  */
   /*
@@ -175,6 +262,10 @@ int kprintf(const char *format, ...)
   va_end(arg);
 
   serout(serial_hw_port, buf);
+
+  /* Drain the input buffer.  */
+  //while (serial_checkkey () != -1)
+  //  serial_getkey ();
 
   return 0;
 }

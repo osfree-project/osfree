@@ -480,8 +480,8 @@ int load_modules (char *cfg, int len)
 struct multiboot_info *
 callback(unsigned long addr,
          unsigned long size,
-         char drvletter,
-         char drvletter2,
+         int drvletter,
+         int drvletter2,
          struct term_entry *term)
 {
   int i;

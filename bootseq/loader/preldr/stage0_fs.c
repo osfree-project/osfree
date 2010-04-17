@@ -108,9 +108,9 @@ extern unsigned short preldr_es;
 extern unsigned long  preldr_ss_sp;
 
 /* GDT */
-#pragma aux gdt     "*"
+#pragma aux gdtsrc  "*"
 #pragma aux gdtdesc "*"
-extern struct desc gdt[5];
+extern struct desc gdtsrc[10];
 extern struct gdtr gdtdesc;
 
 #pragma aux set_fsys    "*"
@@ -1194,7 +1194,7 @@ void init_term(void)
  */
 int blackbox_load(char *path, int bufno, void *p)
 {
-  void (*blackbox_init)(lip1_t *l, void *p, unsigned int shift);
+  void (*blackbox_init)(lip1_t *l, void *p, unsigned int shift, char *gdt);
   //char buf[EXT_LEN];
   char rel_file[0x100];
   char *lodest, *hidest;
@@ -1252,7 +1252,7 @@ int blackbox_load(char *path, int bufno, void *p)
 
   /* init blackbox */
   blackbox_init = (void *)hidest;
-  blackbox_init(l1, p, relshift);
+  blackbox_init(l1, p, relshift, (char *)&gdtsrc);
 
   return 1;
 }
@@ -1463,7 +1463,8 @@ void __cdecl set_addr (void)
   fsd_init(l1);
 
   //z = &gdt;
-  z = (struct desc *)GDT_ADDR;
+  //z = (struct desc *)GDT_ADDR;
+  z = &gdtsrc;
 
   /* fix bases of gdt descriptors */
   //base = STAGE0_BASE;
@@ -1482,7 +1483,9 @@ void __cdecl set_addr (void)
   (z + i)->ds_basehi2 = (base & 0xff000000) >> 24;
 
   // GDT base
-  gdtdesc.g_base = GDT_ADDR;
+  //gdtdesc.g_base = GDT_ADDR;
+  gdtdesc.g_base = (unsigned long)z;
+
 
   /* set new gdt */
   __asm {
@@ -1725,6 +1728,9 @@ void init(void)
 #ifndef STAGE1_5
   // backup uFSD
   grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
+
+  // zero-out FS buffer
+  memset((char *)FSYS_BUF, 0, 0x8000);
 
   /* call uFSD init (set linkage) */
   if (!filetab_ptr)

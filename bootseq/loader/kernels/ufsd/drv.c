@@ -10,6 +10,9 @@
 
 #include <lvm_data.h>
 
+extern unsigned short serial_hw_port;
+void comwait(unsigned short port);
+
 int vsprintf(char *buf, const char *fmt, va_list args);
 int toupper (int c);
 int grub_strcmp (const char *s1, const char *s2);
@@ -88,6 +91,7 @@ int get_num_parts(int diskno)
       part_start += ext_start;
 
     kprintf("part_start=%lu\n", part_start);
+
     // read EBR
     rawread(diskno, part_start, PART_TABLE_OFFSET, 0x40, buf);
 
@@ -342,24 +346,24 @@ int assign_default(void)
   return 'C';
 }
 
-int assign_drvletter (char *mode)
+int assign_drvletter (char *__mode)
 {
   int letter = 'C';
 
-  kprintf("mode=%s\n", mode);
+  kprintf("mode=%s\n", __mode);
 
-  if (!*mode) // if mode is not set
+  if (!*__mode) // if mode is not set
   {
     // set defaults
     kprintf("mode: defaults\n");
     letter = assign_default();
   }
-  else if (!grub_strcmp(mode, "AUTO"))
+  else if (!grub_strcmp(__mode, "AUTO"))
   {
     kprintf("mode: auto\n");
     letter = assign_auto();
   }
-  else if (!grub_strcmp(mode, "DLAT"))
+  else if (!grub_strcmp(__mode, "DLAT"))
   {
     kprintf("mode: dlat\n");
     letter = assign_dlat();
@@ -367,7 +371,7 @@ int assign_drvletter (char *mode)
   else
   {
     kprintf("drv letter is explicitly specified\n");
-    letter = toupper(mode[0]);
+    letter = toupper(__mode[0]);
   }
 
   kprintf("letter = %c:\r\n", letter);

@@ -52,14 +52,14 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
        */
       if (buf_drive != drive)
         {
-          //kprintf("enter\n");
+          kprintf("enter\n");
           if (get_diskinfo (drive, &buf_geom))
             {
               errnum = ERR_NO_DISK;
               return 0;
             }
-          //kprintf("exit\n");
-          //kprintf("errnum=0x%x\n", errnum);
+          kprintf("exit\n");
+          kprintf("errnum=0x%x\n", errnum);
           buf_drive = drive;
           buf_track = -1;
           sector_size_bits = log2 (buf_geom.sector_size);
@@ -104,10 +104,10 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
               bufaddr = (char *) BUF_ADDR + byte_offset;
             }
 
-          //kprintf("biosdisk1 enter\n");
+          kprintf("biosdisk1 enter\n");
           bios_err = biosdisk (BIOSDISK_READ, drive, &buf_geom,
                                read_start, read_len, BUF_ADDR >> 4);
-          //kprintf("biosdisk1 exit\n");
+          kprintf("biosdisk1 exit\n");
           if (bios_err)
             {
               buf_track = -1;
@@ -120,13 +120,13 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
                    *  If there was an error, try to load only the
                    *  required sector(s) rather than failing completely.
                    */
-                  //kprintf("biosdisk2 enter\n");
+                  kprintf("biosdisk2 enter\n");
                   if (slen > num_sect
                       || biosdisk (BIOSDISK_READ, drive, &buf_geom,
                                    sector, slen, BUF_ADDR >> 4))
                     errnum = ERR_READ;
 
-                  //kprintf("biosdisk2 exit\n");
+                  kprintf("biosdisk2 exit\n");
 
                   bufaddr = (char *) BUF_ADDR + byte_offset;
                 }
@@ -150,11 +150,11 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
                 }
               else
                 {
-                  //kprintf("biosdisk3 enter\n");
+                  kprintf("biosdisk3 enter\n");
                   if (biosdisk (BIOSDISK_READ, drive, &buf_geom,
                                 1, 1, BUF_ADDR >> 4))
                     errnum = ERR_READ;
-                  //kprintf("biosdisk3 exit\n");
+                  kprintf("biosdisk3 exit\n");
                 }
             }
         }
@@ -184,7 +184,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
             }
         }
 #endif
-      grub_memmove (buf, bufaddr, size);
+      memmove (buf, bufaddr, size);
 
       buf += size;
       byte_len -= size;

@@ -77,7 +77,7 @@ _end3    ends
 _end4    segment dword public 'BSS'   use32
 _end4    ends
 
-DGROUP   group _TEXT,_DATA,CONST,CONST2,_BSS,_end1,_end2,_end3,_end4
+DGROUP   group _TEXT,_DATA,CONST,CONST2,_end1,_end2,_BSS,_end3,_end4
 
 ;lala     equ 'ext2fs'
 

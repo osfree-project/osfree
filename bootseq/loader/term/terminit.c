@@ -15,11 +15,11 @@
 
 #pragma aux u_msg "*"
 
-void set_gdt(void);
+void set_gdt(char *);
 
 extern base;
 struct term_entry *t;
-unsigned int relshift;
+extern unsigned int relshift;
 unsigned int base32;
 unsigned int s;
 
@@ -77,7 +77,7 @@ int           *pfsmax;
 //int      debug = 0;
 struct geometry *pbuf_geom;
 
-void init(lip1_t *l, struct term_entry *te, unsigned int shift)
+void init(lip1_t *l, struct term_entry *te, unsigned int shift, char *gdt)
 {
    unsigned int *p;
    t = te;
@@ -190,7 +190,7 @@ void init(lip1_t *l, struct term_entry *te, unsigned int shift)
   *p += shift;
   base32 += shift;
   // set bases of GDT descriptors
-  set_gdt();
+  set_gdt(gdt);
 }
 
 void cmain(void)
