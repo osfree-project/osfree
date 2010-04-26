@@ -29,7 +29,7 @@
 #define min(a,b) ((a)<(b)?(a):(b))
 
 /* VERSION should come from configure */
-const char *FLAC__VERSION_STRING = VERSION;
+const char *FLAC__VERSION_STRING = "" VERSION "";
 
 #if defined _MSC_VER || defined __MINW32__
 /* yet one more hack because of MSVC6: */
