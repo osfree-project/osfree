@@ -5,10 +5,16 @@
 PROJ = libflac
 !define DEB
 
-!ifdef DEB
-defines= -dVERSION="1.0.4" -dFLAC__CPU_IA32 -dFLAC__NO_NASM -dFLAC__OVERFLOW_DETECT -dSTRICT -d_DEBUG
+!ifeq UNIX TRUE
+-dVERSION=\"1.0.4\"
 !else
-defines= -dVERSION="1.0.4" -dFLAC__CPU_IA32 -dFLAC__NO_NASM -dSTRICT -dNODEBUG -dFLAC__ALIGN_MALLOC_DATA
+-dVERSION="1.0.4"
+!endif 
+
+!ifdef DEB
+defines= $(def) -dFLAC__CPU_IA32 -dFLAC__NO_NASM -dFLAC__OVERFLOW_DETECT -dSTRICT -d_DEBUG
+!else
+defines= $(def) -dFLAC__CPU_IA32 -dFLAC__NO_NASM -dSTRICT -dNODEBUG -dFLAC__ALIGN_MALLOC_DATA
 !endif
 
 ADD_COPT = $(defines) -i=$(MYDIR)include
