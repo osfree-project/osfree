@@ -33,17 +33,17 @@ $(mf): $(MYDIR)makefile
  @%append $(mf) !include $(MYDIR)makefile
  @%append $(mf)
  # generate ordinary .obj's lists
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e=.$$$$$$$$(O) p=$$$$$$$$(PATH) gen_obj_defs
+ @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= e='.$$$$$$$$(O)' p='$$$$$$$$(PATH)' gen_obj_defs
  # generate shifted  .obj's lists
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e=.$$$$$$$$(SO) p=$$$$$$$$(PATH) gen_obj_defs
+ @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh e='.$$$$$$$$(SO)' p='$$$$$$$$(PATH)' gen_obj_defs
  # generate ordinary files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E=$$$$(OUT) gen_link_rules
+ @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= S= E='$$$$(OUT)' gen_link_rules
  # generate shifted  files link rules
- @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E=$$$$(SOUT) gen_link_rules
+ @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E='$$$$(SOUT)' gen_link_rules
  # generate compile rules for ordinary files
- @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=    gen_compile_rules_wrapper
+ @for %i in ($(spec_SRCS)) do $(MAKE) $(MAKEOPT) file=%i sh=    gen_compile_rules_wrapper
  # generate compile rules for shifted files
- @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=sh_ gen_compile_rules_wrapper
+ @for %i in ($(spec_SRCS)) do $(MAKE) $(MAKEOPT) file=%i sh=sh_ gen_compile_rules_wrapper
  # generate dependencies
  @$(MAKE) $(MAKEOPT) gen_deps_wrapper
 

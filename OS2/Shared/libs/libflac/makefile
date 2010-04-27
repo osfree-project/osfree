@@ -5,11 +5,13 @@
 PROJ = libflac
 !define DEB
 
+!include $(%ROOT)/mk/site.mk
+
 !ifeq UNIX TRUE
--dVERSION=\"1.0.4\"
+def=-dVERSION=\"1.0.4\"
 !else
--dVERSION="1.0.4"
-!endif 
+def=-dVERSION="1.0.4"
+!endif
 
 !ifdef DEB
 defines= $(def) -dFLAC__CPU_IA32 -dFLAC__NO_NASM -dFLAC__OVERFLOW_DETECT -dSTRICT -d_DEBUG
