@@ -12,7 +12,7 @@ uses bsedos default;
 uses base;
 uses doserrors;
 uses dosdevioctl;
-uses bsedev;
+uses bsedev default;
 uses bsesub;
 uses dosprocess;
 uses dos;

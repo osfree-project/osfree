@@ -1,5 +1,5 @@
 group bsesub;
 
-uses sub;
+uses sub default;
 
 end.
