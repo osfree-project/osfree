@@ -8,7 +8,7 @@ group pm;
 
 uses pmdef;
 uses pmwin;        (* OS/2 Window Manager definitions    *)
-uses win;
+uses win default;
 uses winload;
 uses pmgpi;        (* OS/2 GPI definitions               *)
 uses pmdev;        (* OS/2 Device Context definitions    *)

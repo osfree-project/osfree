@@ -111,6 +111,6 @@ function WinSetClassMsgInterest(in hab: HAB;
                                            in msg_class: ULONG;
                                            in control: LONG): BOOL;
 
-uses winmessagemgrcommon;
+uses winmessagemgrcommon default;
 
 end.

@@ -7,7 +7,7 @@
 
 #define INCL_BASE
 #define INCL_PM
-#include <osfree.h>
+#include <os2.h>
 
 
 typedef VOID (APIENTRY STHOOK)( HMQ );
