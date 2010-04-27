@@ -1,0 +1,12 @@
+Use the ATTRIB command to display or change file attributes.
+Syntax:
+  ATTRIB [+R or -R][+S or -S][+H or -H][+A or -A][drive:][path]filename
+         [/S]
+where:
+  +R or -R     Sets or cancels the read-only attribute.
+  +S or -S     Sets or cancels the system file attribute.
+  +H or -H     Sets or cancels the hidden file attribute.
+  +A or -A     Sets or cancels the archive file attribute.
+  drive:\path  Specifies the drive and directory.
+  filename     Specifies the file you want to change.
+  /S           Processes all subdirectories.
