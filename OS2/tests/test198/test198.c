@@ -1,0 +1,2 @@
+DosSuppressPopUps(SPU_ENABLESUPPRESSION, 'A');
+DosSuppressPopUps(SPU_DISABLESUPPRESSION, 0);
