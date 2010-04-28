@@ -187,3 +187,748 @@ KbdGetConsole	test214
 KbdGetCp	test215
 KbdGetHWID	test216
 KbdGetLayout	test217
+# GpiAnimatePalette
+# GpiAssociate
+# GpiBeginArea
+# GpiBeginElement
+# GpiBeginPath
+# GpiBitBlt
+# GpiBox
+# GpiCallSegmentMatrix
+# GpiCharString
+# GpiCharStringAt
+# GpiCharStringPos
+# GpiCharStringPosAt
+# GpiCloseFigure
+# GpiCloseSegment
+# GpiCombineRegion
+# GpiComment
+# GpiConvert
+# GpiConvertWithMatrix
+# GpiCopyMetaFile
+# GpiCorrelateChain
+# GpiCorrelateFrom
+# GpiCorrelateSegment
+# GpiCreateBitmap
+# GpiCreateLogColorTable
+# GpiCreateLogFont
+# GpiCreatePalette
+# GpiCreatePS
+# GpiCreateRegion
+# GpiDeleteBitmap
+# GpiDeleteElement
+# GpiDeleteElementRange
+# GpiDeleteElementsBetweenLabels
+# GpiDeleteMetaFile
+# GpiDeletePalette
+# GpiDeleteSegment
+# GpiDeleteSegments
+# GpiDeleteSetId
+# GpiDestroyPS
+# GpiDestroyRegion
+# GpiDrawBits
+# GpiDrawChain
+# GpiDrawDynamics
+# GpiDrawFrom
+# GpiDrawSegment
+# GpiElement
+# GpiEndArea
+# GpiEndElement
+# GpiEndPath
+# GpiEqualRegion
+# GpiErase
+# GpiErrorSegmentData
+# GpiExcludeClipRectangle
+# GpiFillPath
+# GpiFloodFill
+# GpiFrameRegion
+# GpiFullArc
+# GpiGetData
+# GpiImage
+# GpiIntersectClipRectangle
+# GpiLabel
+# GpiLine
+# GpiLoadBitmap
+# GpiLoadFonts
+# GpiLoadMetaFile
+# GpiLoadPublicFonts
+# GpiMarker
+# GpiModifyPath
+# GpiMove
+# GpiOffsetClipRegion
+# GpiOffsetElementPointer
+# GpiOffsetRegion
+# GpiOpenSegment
+# GpiOutlinePath
+# GpiPaintRegion
+# GpiPartialArc
+# GpiPathToRegion
+# GpiPlayMetaFile
+# GpiPointArc
+# GpiPolyFillet
+# GpiPolyFilletSharp
+# GpiPolygons
+# GpiPolyLine
+# GpiPolyLineDisjoint
+# GpiPolyMarker
+# GpiPolySpline
+# GpiPop
+# GpiPtInRegion
+# GpiPtVisible
+# GpiPutData
+# GpiQueryArcParams
+# GpiQueryAttrMode
+# GpiQueryAttrs
+# GpiQueryBackColor
+# GpiQueryBackMix
+# GpiQueryBitmapBits
+# GpiQueryBitmapDimension
+# GpiQueryBitmapHandle
+# GpiQueryBitmapInfoHeader
+# GpiQueryBitmapParameters
+# GpiQueryBoundaryData
+# GpiQueryCharAngle
+# GpiQueryCharBox
+# GpiQueryCharBreakExtra
+# GpiQueryCharDirection
+# GpiQueryCharExtra
+# GpiQueryCharMode
+# GpiQueryCharSet
+# GpiQueryCharShear
+# GpiQueryCharStringPos
+# GpiQueryCharStringPosAt
+# GpiQueryClipBox
+# GpiQueryClipRegion
+# GpiQueryColor
+# GpiQueryColorData
+# GpiQueryColorIndex
+# GpiQueryCp
+# GpiQueryCurrentPosition
+# GpiQueryDefArcParams
+# GpiQueryDefAttrs
+# GpiQueryDefaultViewMatrix
+# GpiQueryDefCharBox
+# GpiQueryDefTag
+# GpiQueryDefViewingLimits
+# GpiQueryDevice
+# GpiQueryDeviceBitmapFormats
+# GpiQueryDrawControl
+# GpiQueryDrawingMode
+# GpiQueryEditMode
+# GpiQueryElement
+# GpiQueryElementPointer
+# GpiQueryElementType
+# GpiQueryFaceString
+# GpiQueryFontAction
+# GpiQueryFontFileDescriptions
+# GpiQueryFontMetrics
+# GpiQueryFonts
+# GpiQueryFullFontFileDescs
+# GpiQueryGraphicsField
+# GpiQueryInitialSegmentAttrs
+# GpiQueryKerningPairs
+# GpiQueryLineEnd
+# GpiQueryLineJoin
+# GpiQueryLineType
+# GpiQueryLineWidth
+# GpiQueryLineWidthGeom
+# GpiQueryLogColorTable
+# GpiQueryLogicalFont
+# GpiQueryMarker
+# GpiQueryMarkerBox
+# GpiQueryMarkerSet
+# GpiQueryMetaFileBits
+# GpiQueryMetaFileLength
+# GpiQueryMix
+# GpiQueryModelTransformMatrix
+# GpiQueryNearestColor
+# GpiQueryNumberSetIds
+# GpiQueryPageViewport
+# GpiQueryPalette
+# GpiQueryPaletteInfo
+# GpiQueryPattern
+# GpiQueryPatternRefPoint
+# GpiQueryPatternSet
+# GpiQueryPel
+# GpiQueryPickAperturePosition
+# GpiQueryPickApertureSize
+# GpiQueryPS
+# GpiQueryRealColors
+# GpiQueryRegionBox
+# GpiQueryRegionRects
+# GpiQueryRGBColor
+# GpiQuerySegmentAttrs
+# GpiQuerySegmentNames
+# GpiQuerySegmentPriority
+# GpiQuerySegmentTransformMatrix
+# GpiQuerySetIds
+# GpiQueryStopDraw
+# GpiQueryTag
+# GpiQueryTextAlignment
+# GpiQueryTextBox
+# GpiQueryViewingLimits
+# GpiQueryViewingTransformMatrix
+# GpiQueryWidthTable
+# GpiRectInRegion
+# GpiRectVisible
+# GpiRemoveDynamics
+# GpiResetBoundaryData
+# GpiResetPS
+# GpiRestorePS
+# GpiRotate
+# GpiSaveMetaFile
+# GpiSavePS
+# GpiScale
+# GpiSelectPalette
+# GpiSetArcParams
+# GpiSetAttrMode
+# GpiSetAttrs
+# GpiSetBackColor
+# GpiSetBackMix
+# GpiSetBitmap
+# GpiSetBitmapBits
+# GpiSetBitmapDimension
+# GpiSetBitmapId
+# GpiSetCharAngle
+# GpiSetCharBox
+# GpiSetCharBreakExtra
+# GpiSetCharDirection
+# GpiSetCharExtra
+# GpiSetCharMode
+# GpiSetCharSet
+# GpiSetCharShear
+# GpiSetClipPath
+# GpiSetClipRegion
+# GpiSetColor
+# GpiSetCp
+# GpiSetCurrentPosition
+# GpiSetDefArcParams
+# GpiSetDefAttrs
+# GpiSetDefaultViewMatrix
+# GpiSetDefTag
+# GpiSetDefViewingLimits
+# GpiSetDrawControl
+# GpiSetDrawingMode
+# GpiSetEditMode
+# GpiSetElementPointer
+# GpiSetElementPointerAtLabel
+# GpiSetGraphicsField
+# GpiSetInitialSegmentAttrs
+# GpiSetLineEnd
+# GpiSetLineJoin
+# GpiSetLineType
+# GpiSetLineWidth
+# GpiSetLineWidthGeom
+# GpiSetMarker
+# GpiSetMarkerBox
+# GpiSetMarkerSet
+# GpiSetMetaFileBits
+# GpiSetMix
+# GpiSetModelTransformMatrix
+# GpiSetPageViewport
+# GpiSetPaletteEntries
+# GpiSetPattern
+# GpiSetPatternRefPoint
+# GpiSetPatternSet
+# GpiSetPel
+# GpiSetPickAperturePosition
+# GpiSetPickApertureSize
+# GpiSetPS
+# GpiSetRegion
+# GpiSetSegmentAttrs
+# GpiSetSegmentPriority
+# GpiSetSegmentTransformMatrix
+# GpiSetStopDraw
+# GpiSetTag
+# GpiSetTextAlignment
+# GpiSetViewingLimits
+# GpiSetViewingTransformMatrix
+# GpiStrokePath
+# GpiTranslate
+# GpiUnloadFonts
+# GpiUnloadPublicFonts
+# GpiWCBitBlt 
+# Device Functions
+
+    * DevCloseDC
+    * DevEscape
+    * DevOpenDC
+    * DevPostDeviceModes
+    * DevQueryCaps
+    * DevQueryDeviceNames
+    * DevQueryHardcopyCaps 
+
+# Direct Manipulation Functions
+
+    * DrgAcceptDroppedFiles
+    * DrgAccessDraginfo
+    * DrgAddStrHandle
+    * DrgAllocDraginfo
+    * DrgAllocDragtransfer
+    * DrgCancelLazyDrag
+    * DrgDeleteDraginfoStrHandles
+    * DrgDeleteStrHandle
+    * DrgDrag
+    * DrgDragFiles
+    * DrgFreeDraginfo
+    * DrgFreeDragtransfer
+    * DrgGetPS
+    * DrgLazyDrag
+    * DrgLazyDrop
+    * DrgPostTransferMsg
+    * DrgPushDraginfo
+    * DrgQueryDraginfoPtr
+    * DrgQueryDraginfoPtrFromDragitem
+    * DrgQueryDraginfoPtrFromHwnd
+    * DrgQueryDragitem
+    * DrgQueryDragitemCount
+    * DrgQueryDragitemPtr
+    * DrgQueryDragStatus
+    * DrgQueryNativeRMF
+    * DrgQueryNativeRMFLen
+    * DrgQueryStrName
+    * DrgQueryStrNameLen
+    * DrgQueryTrueType
+    * DrgQueryTrueTypeLen
+    * DrgReallocDragInfo
+    * DrgReleasePS
+    * DrgSendTransferMsg
+    * DrgSetDragImage
+    * DrgSetDragitem
+    * DrgSetDragPointer
+    * DrgVerifyNativeRMF
+    * DrgVerifyRMF
+    * DrgVerifyTrueType
+    * DrgVerifyType
+    * DrgVerifyTypeSet 
+
+# Dynamic Data Formatting Functions
+
+    * DdfBeginList
+    * DdfBitmap
+    * DdfEndList
+    * DdfHyperText
+    * DdfInform
+    * DdfInitialize
+    * DdfListItem
+    * DdfMetafile
+    * DdfPara
+    * DdfSetColor
+    * DdfSetFont
+    * DdfSetFontStyle
+    * DdfSetFormat
+    * DdfSetTextAlign
+    * DdfText 
+
+# Hooks and Procedures
+
+    * Hook Functions
+    * CheckMsgFilterHook
+    * CodePageChangedHook
+    * DestroyWindowHook
+    * DialogProc
+    * FindWordHook
+    * FlushBufHook
+    * HelpHook
+    * InputHook
+    * JournalPlaybackHook
+    * JournalRecordHook
+    * LoaderHook
+    * LockupHook
+    * MsgControlHook
+    * MsgFilterHook
+    * MsgInputHook
+    * ProgramListEntryHook
+    * ProgramListExitHook
+    * RegisterUserHook
+    * SendMsgHook
+    * ThunkProc
+    * WindowDCHook
+    * WndProc 
+
+# Profile Functions
+
+    * PrfCloseProfile
+    * PrfOpenProfile
+    * PrfQueryProfile
+    * PrfQueryProfileData
+    * PrfQueryProfileInt
+    * PrfQueryProfileSize
+    * PrfQueryProfileString
+    * PrfReset
+    * PrfWriteProfileData
+    * PrfWriteProfileString 
+
+# Spooler Functions
+
+    * SplControlDevice
+    * SplCopyJob
+    * SplCreateDevice
+    * SplCreatePort
+    * SplCreateQueue
+    * SplDeleteDevice
+    * SplDeleteJob
+    * SplDeletePort
+    * SplDeleteQueue
+    * SplDisable
+    * SplDisplayControlPanel
+    * SplEnable
+    * SplEnumDevice
+    * SplEnumDriver
+    * SplEnumJob
+    * SplEnumPort
+    * SplEnumPrinter
+    * SplEnumQueue
+    * SplEnumQueueProcessor
+    * SplGetControlPanelList
+    * SplGetPortFromQ
+    * SplHoldJob
+    * SplHoldQueue
+    * SplMessageBox
+    * SplPurgeQueue
+    * SplQmAbort
+    * SplQmAbortDoc
+    * SplQmClose
+    * SplQmEndDoc
+    * SplQmGetJobID
+    * SplQmNewPage
+    * SplQmOpen
+    * SplQmStartDoc
+    * SplQmWrite
+    * SplQueryControlPanel
+    * SplQueryDevice
+    * SplQueryJob
+    * SplQueryPath
+    * SplQueryPort
+    * SplQueryQueue
+    * SplRegister
+    * SplRegisterControlPanel
+    * SplReleaseJob
+    * SplReleaseQueue
+    * SplSetDevice
+    * SplSetJob
+    * SplSetPort
+    * SplSetQueue
+    * SplUnRegister 
+
+    * Window Functions
+          o WinAddAtom
+          o WinAddSwitchEntry
+          o WinAlarm
+          o WinAssociateHelpInstance
+          o WinBeginEnumWindows
+          o WinBeginPaint
+          o WinBroadcastMsg
+          o WinCalcFrameRect
+          o WinCallMsgFilter
+          o WinCancelShutdown
+          o WinChangeSwitchEntry
+          o WinCheckButton
+          o WinCheckInput
+          o WinCheckMenuItem
+          o WinCloseClipbrd
+          o WinCompareStrings
+          o WinCopyAccelTable
+          o WinCopyObject
+          o WinCopyRect
+          o WinCpTranslateChar
+          o WinCpTranslateString
+          o WinCreateAccelTable
+          o WinCreateAtomTable
+          o WinCreateCursor
+          o WinCreateDlg
+          o WinCreateFrameControls
+          o WinCreateHelpInstance
+          o WinCreateHelpTable
+          o WinCreateMenu
+          o WinCreateMsgQueue
+          o WinCreateObject
+          o WinCreatePointer
+          o WinCreatePointerIndirect
+          o WinCreateShadow
+          o WinCreateStdWindow
+          o WinCreateSwitchEntry
+          o WinCreateWindow
+          o WinDdeInitiate
+          o WinDdePostMsg
+          o WinDdeRespond
+          o WinDefDlgProc
+          o WinDefFileDlgProc
+          o WinDefFontDlgProc
+          o WinDefWindowProc
+          o WinDeleteAtom
+          o WinDeleteLboxItem
+          o WinDeleteLibrary
+          o WinDeleteProcedure
+          o WinDeregisterObjectClass
+          o WinDestroyAccelTable
+          o WinDestroyAtomTable
+          o WinDestroyCursor
+          o WinDestroyHelpInstance
+          o WinDestroyMsgQueue
+          o WinDestroyObject
+          o WinDestroyPointer
+          o WinDestroyWindow
+          o WinDismissDlg
+          o WinDispatchMsg
+          o WinDlgBox
+          o WinDrawBitmap
+          o WinDrawBorder
+          o WinDrawPointer
+          o WinDrawText
+          o WinEmptyClipbrd
+          o WinEnableControl
+          o WinEnableMenuItem
+          o WinEnablePhysInput
+          o WinEnableWindow
+          o WinEnableWindowUpdate
+          o WinEndEnumWindows
+          o WinEndPaint
+          o WinEnumClipbrdFmts
+          o WinEnumDlgItem
+          o WinEnumObjectClasses
+          o WinEqualRect
+          o WinExcludeUpdateRegion
+          o WinFileDlg
+          o WinFillRect
+          o WinFindAtom
+          o WinFlashWindow
+          o WinFocusChange
+          o WinFontDlg
+          o WinFreeErrorInfo
+          o WinFreeFileDlgList
+          o WinFreeFileIcon
+          o WinGetClipPS
+          o WinGetCurrentTime
+          o WinGetDlgMsg
+          o WinGetErrorInfo
+          o WinGetKeyState
+          o WinGetLastError
+          o WinGetMaxPosition
+          o WinGetMinPosition
+          o WinGetMsg
+          o WinGetNextWindow
+          o WinGetPhysKeyState
+          o WinGetPS
+          o WinGetScreenPS
+          o WinGetSysBitmap
+          o WinInflateRect
+          o WinInitialize
+          o WinInSendMsg
+          o WinInsertLboxItem
+          o WinIntersectRect
+          o WinInvalidateRect
+          o WinInvalidateRegion
+          o WinInvertRect
+          o WinIsChild
+          o WinIsControlEnabled
+          o WinIsMenuItemChecked
+          o WinIsMenuItemEnabled
+          o WinIsMenuItemValid
+          o WinIsPhysInputEnabled
+          o WinIsRectEmpty
+          o WinIsSOMDDReady
+          o WinIsThreadActive
+          o WinIsWindow
+          o WinIsWindowEnabled
+          o WinIsWindowShowing
+          o WinIsWindowVisible
+          o WinIsWPDServerReady
+          o WinLoadAccelTable
+          o WinLoadDlg
+          o WinLoadFileIcon
+          o WinLoadHelpTable
+          o WinLoadLibrary
+          o WinLoadMenu
+          o WinLoadMessage
+          o WinLoadPointer
+          o WinLoadProcedure
+          o WinLoadString
+          o WinLockPointerUpdate
+          o WinLockupSystem
+          o WinLockVisRegions
+          o WinLockWindowUpdate
+          o WinMakePoints
+          o WinMakeRect
+          o WinMapDlgPoints
+          o WinMapWindowPoints
+          o WinMessageBox
+          o WinMessageBox2
+          o WinMoveObject
+          o WinMultWindowFromIDs
+          o WinNextChar
+          o WinOffsetRect
+          o WinOpenClipbrd
+          o WinOpenObject
+          o WinOpenWindowDC
+          o WinPeekMsg
+          o WinPopupMenu
+          o WinPostMsg
+          o WinPostQueueMsg
+          o WinPrevChar
+          o WinProcessDlg
+          o WinPtInRect
+          o WinQueryAccelTable
+          o WinQueryActiveDesktopPathname
+          o WinQueryActiveWindow
+          o WinQueryAnchorBlock
+          o WinQueryAtomLength
+          o WinQueryAtomName
+          o WinQueryAtomUsage
+          o WinQueryButtonCheckstate
+          o WinQueryCapture
+          o WinQueryClassInfo
+          o WinQueryClassName
+          o WinQueryClassThunkProc
+          o WinQueryClipbrdData
+          o WinQueryClipbrdFmtInfo
+          o WinQueryClipbrdOwner
+          o WinQueryClipbrdViewer
+          o WinQueryControlColors
+          o WinQueryCp
+          o WinQueryCpList
+          o WinQueryCursorInfo
+          o WinQueryDesktopBkgnd
+          o WinQueryDesktopWindow
+          o WinQueryDlgItemShort
+          o WinQueryDlgItemText
+          o WinQueryDlgItemTextLength
+          o WinQueryFocus
+          o WinQueryHelpInstance
+          o WinQueryLboxCount
+          o WinQueryLboxItemText
+          o WinQueryLboxItemTextLength
+          o WinQueryLboxSelectedItem
+          o WinQueryMsgPos
+          o WinQueryMsgTime
+          o WinQueryObject
+          o WinQueryObjectPath
+          o WinQueryObjectWindow
+          o WinQueryPointer
+          o WinQueryPointerInfo
+          o WinQueryPointerPos
+          o WinQueryPresParam
+          o WinQueryQueueInfo
+          o WinQueryQueueStatus
+          o WinQuerySessionTitle
+          o WinQuerySwitchEntry
+          o WinQuerySwitchHandle
+          o WinQuerySwitchList
+          o WinQuerySysColor
+          o WinQuerySysModalWindow
+          o WinQuerySysPointer
+          o WinQuerySysPointerData
+          o WinQuerySystemAtomTable
+          o WinQuerySysValue
+          o WinQueryTaskSizePos
+          o WinQueryTaskTitle
+          o WinQueryUpdateRect
+          o WinQueryUpdateRegion
+          o WinQueryVersion
+          o WinQueryVisibleRegion
+          o WinQueryWindow
+          o WinQueryWindowDC
+          o WinQueryWindowModel
+          o WinQueryWindowPos
+          o WinQueryWindowProcess
+          o WinQueryWindowPtr
+          o WinQueryWindowRect
+          o WinQueryWindowText
+          o WinQueryWindowTextLength
+          o WinQueryWindowThunkProc
+          o WinQueryWindowULong
+          o WinQueryWindowUShort
+          o WinRealizePalette
+          o WinRegisterClass
+          o WinRegisterObjectClass
+          o WinRegisterUserDatatype
+          o WinRegisterUserMsg
+          o WinReleaseHook
+          o WinReleasePS
+          o WinRemovePresParam
+          o WinRemoveSwitchEntry
+          o WinReplaceObjectClass
+          o WinRequestMutexSem
+          o WinRestartSOMDD
+          o WinRestartWPDServer
+          o WinRestoreWindowPos
+          o WinSaveObject
+          o WinSaveWindowPos
+          o WinScrollWindow
+          o WinSendDlgItemMsg
+          o WinSendMsg
+          o WinSetAccelTable
+          o WinSetActiveWindow
+          o WinSetCapture
+          o WinSetClassMsgInterest
+          o WinSetClassThunkProc
+          o WinSetClipbrdData
+          o WinSetClipbrdOwner
+          o WinSetClipbrdViewer
+          o WinSetControlColors
+          o WinSetCp
+          o WinSetDesktopBkgnd
+          o WinSetDlgItemShort
+          o WinSetDlgItemText
+          o WinSetFileIcon
+          o WinSetFocus
+          o WinSetHook
+          o WinSetKeyboardStateTable
+          o WinSetLboxItemText
+          o WinSetMenuItemText
+          o WinSetMsgInterest
+          o WinSetMsgMode
+          o WinSetMultWindowPos
+          o WinSetObjectData
+          o WinSetOwner
+          o WinSetParent
+          o WinSetPointer
+          o WinSetPointerOwner
+          o WinSetPointerPos
+          o WinSetPresParam
+          o WinSetRect
+          o WinSetRectEmpty
+          o WinSetSynchroMode
+          o WinSetSysColors
+          o WinSetSysModalWindow
+          o WinSetSysPointerData
+          o WinSetSysValue
+          o WinSetVisibleRegionNotify
+          o WinSetWindowBits
+          o WinSetWindowPos
+          o WinSetWindowPtr
+          o WinSetWindowText
+          o WinSetWindowThunkProc
+          o WinSetWindowULong
+          o WinSetWindowUShort
+          o WinShowCursor
+          o WinShowPointer
+          o WinShowTrackRect
+          o WinShowWindow
+          o WinShutdownSystem
+          o WinStartApp
+          o WinStartTimer
+          o WinStopTimer
+          o WinStoreWindowPos
+          o WinStretchPointer
+          o WinSubclassWindow
+          o WinSubstituteStrings
+          o WinSubtractRect
+          o WinSwitchToProgram
+          o WinTerminate
+          o WinTerminateApp
+          o WinTrackRect
+          o WinTranslateAccel
+          o WinUnionRect
+          o WinUnlockSystem
+          o WinUpdateWindow
+          o WinUpper
+          o WinUpperChar
+          o WinValidateRect
+          o WinValidateRegion
+          o WinWaitEventSem
+          o WinWaitMsg
+          o WinWaitMuxWaitSem
+          o WinWindowFromDC
+          o WinWindowFromID
+          o WinWindowFromPoint 
