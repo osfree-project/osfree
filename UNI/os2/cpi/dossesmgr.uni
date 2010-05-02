@@ -92,6 +92,6 @@ function  DosStopSession(in scope: ULONG;
                          in idSession: ULONG): APIRET;
 
 function DosQueryAppType(in  pszName: PCSZ;
-                         out pFlags: PULONG): APIRET;
+                         out pFlags: ULONG): APIRET;
 
 end.

@@ -596,8 +596,12 @@ typedef struct
 
 #define INCL_BASE
 #define INCL_DOSNLS
+#define INCL_DOSQUEUES
 #define INCL_DOSDEVIOCTL
+#define INCL_DOSDATETIME
 #define INCL_DOSFILEMGR
+#define INCL_DOSEXCEPTIONS
+#define INCL_DOSSESMGR
 #define INCL_WIN
 #define INCL_PM
 #include <os2.h>

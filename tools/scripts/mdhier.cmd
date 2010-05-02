@@ -49,7 +49,7 @@ do while path \= ''
   if pos(':', dir) = 2 & length(dir) = 2
   then
     iterate
-  
+
   if dir = '' then iterate
 
   cdir=directory()

@@ -10,4 +10,6 @@ DESC = Minimalistic Command line processor
 srcfiles = $(p)minicmd$(e) $(p)commands$(e)
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
+IMPORTS = KbdStringIn        EMXWRAP.209
+
 !include $(%ROOT)/mk/appsos2.mk
