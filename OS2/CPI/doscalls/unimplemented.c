@@ -48,7 +48,7 @@ APIRET APIENTRY      DosISysSemSet(void)
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; 
+  return 0;
 }
 
 APIRET APIENTRY      DosISemWait(void)
@@ -63,7 +63,7 @@ APIRET APIENTRY      DosSGSwitch(void)
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; 
+  return 0;
 }
 
 APIRET APIENTRY      DosSGSwitchMe(void)
@@ -1581,7 +1581,7 @@ APIRET APIENTRY      DosQueryModFromCS(void)
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
-APIRET APIENTRY DosQueryModFromEIP(HMODULE *  phMod, ULONG *  pObjNum, ULONG BuffLen, PCHAR pBuff, ULONG *  pOffset, ULONG Address)
+APIRET APIENTRY DosQueryModFromEIP(HMODULE const *  phMod, ULONG const *  pObjNum, ULONG BuffLen, PCHAR pBuff, ULONG const *  pOffset, ULONG Address)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
