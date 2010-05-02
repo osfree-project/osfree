@@ -30,6 +30,12 @@ unsigned long bufferaddr;
 #pragma aux stage0base      "*"
 
 #ifndef STAGE1_5
+
+int print_possibilities;
+static int do_completion;
+static int unique;
+static char *unique_string;
+
 extern void *filetab_ptr = 0;
 
 extern int mem_lower;
@@ -262,6 +268,12 @@ u_open (char *name, unsigned int *size)
   }
 
   return 1;
+}
+
+int __cdecl
+u_dir (char *dirname)
+{
+  return freeldr_dir(dirname);
 }
 
 /*  read count bytes to buf buffer and return
@@ -783,6 +795,14 @@ freeldr_open (char *filename)
 #endif
 }
 
+#ifndef STAGE1_5
+int
+freeldr_dir (char *name)
+{
+  return dir (name);
+}
+#endif
+
 int
 freeldr_read (char *buf, int len)
 {
@@ -866,6 +886,7 @@ void setlip2(lip2_t *l2)
 {
   l2->u_lip2magic       = LIP2_MAGIC;
   l2->u_open            = &u_open;
+  l2->u_dir             = &u_dir;
   l2->u_read            = &u_read;
   l2->u_seek            = &u_seek;
   l2->u_close           = &u_close;
@@ -878,6 +899,39 @@ void setlip2(lip2_t *l2)
   l2->u_termctl         = &u_termctl;
   l2->u_msg             = &u_msg;
   l2->u_setlip          = &u_setlip;
+}
+
+/* If DO_COMPLETION is true, just print NAME. Otherwise save the unique
+   part into UNIQUE_STRING.  */
+void
+print_a_completion (char *name)
+{
+  /* If NAME is "." or "..", do not count it.  */
+  if (grub_strcmp (name, ".") == 0 || grub_strcmp (name, "..") == 0)
+    return;
+
+  if (do_completion)
+    {
+      char *buf = unique_string;
+
+      if (! unique)
+        while ((*buf++ = *name++))
+          ;
+      else
+        {
+          while (*buf && (*buf == *name))
+            {
+              buf++;
+              name++;
+            }
+          /* mismatch, strip it.  */
+          *buf = '\0';
+        }
+    }
+  else
+    grub_printf (" %s", name);
+
+  unique++;
 }
 
 #endif
@@ -930,6 +984,10 @@ void setlip1(lip1_t *l1)
   l1->lip_part_length   = &part_length;
   l1->lip_fsmax         = &fsmax;
 #ifndef STAGE1_5
+  l1->lip_print_possibilities = &print_possibilities;
+  l1->lip_print_a_completion  = &print_a_completion;
+  l1->lip_printf        = &printf;
+
   l1->lip_printmsg      = &printmsg;
   l1->lip_printb        = &printb;
   l1->lip_printw        = &printw;

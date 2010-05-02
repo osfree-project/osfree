@@ -49,6 +49,10 @@ public   _ppart_start
 public   _ppart_length
 public   _pfsmax
 
+public   _pprint_possibilities
+public   _pprint_a_completion
+public   _pprintf
+
 include fsd.inc
 ;include fsname.inc
 
@@ -139,6 +143,9 @@ _pcurrent_slice  dd 0
 _ppart_start     dd 0
 _ppart_length    dd 0
 _pfsmax          dd 0
+_pprint_possibilities dd 0
+_pprint_a_completion  dd 0
+_pprintf         dd 0
 
 real_start:
 _TEXT    ends

@@ -65,8 +65,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 /* used for filesystem map blocks */
 static int mapblock;
 static int mapblock_offset;
@@ -267,7 +265,7 @@ loop:
     {
       if (loc >= INODE_UFS2->di_size)
         {
-          if (print_possibilities < 0)
+          if (*pprint_possibilities < 0)
             return 1;
 
           *perrnum = ERR_FILE_NOT_FOUND;
@@ -294,18 +292,18 @@ loop:
       loc += dp->d_reclen;
 
 #ifndef STAGE1_5
-      if (dp->d_ino && print_possibilities && ch != '/'
+      if (dp->d_ino && *pprint_possibilities && ch != '/'
           && (!*dirname || (*psubstring) (dirname, dp->d_name) <= 0))
         {
-          if (print_possibilities > 0)
-            print_possibilities = -print_possibilities;
+          if (*pprint_possibilities > 0)
+            *pprint_possibilities = - *pprint_possibilities;
 
-          //print_a_completion (dp->d_name);
+          (*pprint_a_completion) (dp->d_name);
         }
 #endif /* STAGE1_5 */
     }
   while (!dp->d_ino || ((*psubstring) (dirname, dp->d_name) != 0
-                        || (print_possibilities && ch != '/')));
+                        || (*pprint_possibilities && ch != '/')));
 
   /* only get here if we have a matching directory entry */
 

@@ -27,8 +27,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 struct fat_superblock
 {
   int fat_offset;
@@ -356,7 +354,7 @@ fat_dir (char *dirname)
   *rest = 0;
 
 # ifndef STAGE1_5
-  if (print_possibilities && ch != '/')
+  if (*pprint_possibilities && ch != '/')
     do_possibilities = 1;
 # endif
 
@@ -368,7 +366,7 @@ fat_dir (char *dirname)
           if (!(*perrnum))
             {
 # ifndef STAGE1_5
-              if (print_possibilities < 0)
+              if (*pprint_possibilities < 0)
                 {
 #if 0
                   putchar ('\n');
@@ -472,9 +470,9 @@ fat_dir (char *dirname)
         print_filename:
           if ((*psubstring) (dirname, filename) <= 0)
             {
-              if (print_possibilities > 0)
-                print_possibilities = -print_possibilities;
-              //print_a_completion (filename);
+              if (*pprint_possibilities > 0)
+                *pprint_possibilities = - *pprint_possibilities;
+              (*pprint_a_completion) (filename);
             }
           continue;
         }

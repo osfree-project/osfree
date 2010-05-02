@@ -39,8 +39,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 /* iso9660 super-block data in memory */
 struct iso_sb_info {
   unsigned long vol_sector;
@@ -373,7 +371,7 @@ iso9660_dir (char *dirname)
               if (name_len >= pathlen
                   && !(*pgrub_memcmp)(name, dirname, pathlen))
                 {
-                  if (dirname[pathlen] == '/' || !print_possibilities)
+                  if (dirname[pathlen] == '/' || !*pprint_possibilities)
                     {
                       /*
                        *  DIRNAME is directory component of pathname,
@@ -404,11 +402,11 @@ iso9660_dir (char *dirname)
                   else  /* Completion */
                     {
 #ifndef STAGE1_5
-                      if (print_possibilities > 0)
-                        print_possibilities = -print_possibilities;
+                      if (*pprint_possibilities > 0)
+                        *pprint_possibilities = - *pprint_possibilities;
                       (*pgrub_memmove)(NAME_BUF, name, name_len);
                       NAME_BUF[name_len] = '\0';
-                      //print_a_completion (NAME_BUF);
+                      (*pprint_a_completion) ((char *)NAME_BUF);
 #endif
                     }
                 }
@@ -417,7 +415,7 @@ iso9660_dir (char *dirname)
           size -= ISO_SECTOR_SIZE;
         } /* size>0 */
 
-      if (dirname[pathlen] == '/' || print_possibilities >= 0)
+      if (dirname[pathlen] == '/' || *pprint_possibilities >= 0)
         {
           *perrnum = ERR_FILE_NOT_FOUND;
           return 0;

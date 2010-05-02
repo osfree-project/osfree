@@ -488,6 +488,8 @@ callback(unsigned long addr,
   char *cfg, *p;
   struct mod_list *mod;
 
+  kprintf("callback() started\r\n");
+
   t = term;
   drv = drvletter;
   cfg = (char *)addr;
@@ -512,6 +514,7 @@ callback(unsigned long addr,
   }
 
   /* Start config.sys editor */
+  kprintf("Hello editor!\r\n");
   printf ("Hello editor!\r\n");
   editor (cfg, size, cfged);
 

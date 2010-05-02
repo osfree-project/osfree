@@ -20,8 +20,6 @@
 
 #if defined(fsys_jfs) || defined(FSYS_JFS)
 
-int print_possibilities = 0;
-
 #include "shared.h"
 #include "filesys.h"
 #include "jfs.h"
@@ -367,12 +365,12 @@ jfs_dir (char *dirname)
 
                         cmp = (!*dirname) ? -1 : substring (dirname, namebuf);
 #ifndef STAGE1_5
-//                        if (print_possibilities && ch != '/'
-//                            && cmp <= 0) {
-//                                if (print_possibilities > 0)
-//                                        print_possibilities = -print_possibilities;
-//                                print_a_completion (namebuf);
-//                        } else
+                        if (*pprint_possibilities && ch != '/'
+                            && cmp <= 0) {
+                                if (*pprint_possibilities > 0)
+                                        *pprint_possibilities = - *pprint_possibilities;
+                                (*pprint_a_completion) (namebuf);
+                        } else
 #endif
                         if (cmp == 0) {
                                 parent_inum = inum;
@@ -382,7 +380,7 @@ jfs_dir (char *dirname)
                         }
                         de = next_dentry ();
                         if (de == NULL) {
-                                if (print_possibilities < 0)
+                                if (*pprint_possibilities < 0)
                                         return 1;
 
                                 *perrnum = ERR_FILE_NOT_FOUND;

@@ -287,7 +287,9 @@ get_diskinfo (int drive, struct geometry *geometry)
           drp.size = sizeof (drp) - sizeof (drp.dummy);
 
           //low_stack();
+          //kprintf("3: err=%d\n", err);
           err = biosdisk_int13_extensions (0x4800, drive, &drp);
+          //kprintf("4: err=%d\n", err);
           //high_stack();
 
           if (! err)

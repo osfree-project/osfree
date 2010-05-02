@@ -28,8 +28,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 #define MAX_LINK_COUNT  8
 
 typedef struct xad {
@@ -633,10 +631,10 @@ xfs_dir (char *dirname)
                 for (;;) {
                         cmp = (!*dirname) ? -1 : (*psubstring) (dirname, name);
 #ifndef STAGE1_5
-                        if (print_possibilities && ch != '/' && cmp <= 0) {
-                                if (print_possibilities > 0)
-                                        print_possibilities = -print_possibilities;
-                                //print_a_completion (name);
+                        if (*pprint_possibilities && ch != '/' && cmp <= 0) {
+                                if (*pprint_possibilities > 0)
+                                        *pprint_possibilities = - *pprint_possibilities;
+                                (*pprint_a_completion) (name);
                         } else
 #endif
                         if (cmp == 0) {
@@ -648,7 +646,7 @@ xfs_dir (char *dirname)
                         }
                         name = next_dentry (&new_ino);
                         if (name == NULL) {
-                                if (print_possibilities < 0)
+                                if (*pprint_possibilities < 0)
                                         return 1;
 
                                 *perrnum = ERR_FILE_NOT_FOUND;

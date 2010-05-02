@@ -77,6 +77,9 @@ typedef struct lip1
    unsigned long         *lip_part_start;
    unsigned long         *lip_part_length;
    int                   *lip_fsmax;
+   int                   *lip_print_possibilities;
+   void                  (*lip_print_a_completion)(char *);
+   void                  (*lip_printf) (const char *format,...);
 
    /* Misc functions */
    void                  (*lip_printmsg) (char *);
@@ -92,11 +95,12 @@ typedef struct lip2
 {
   unsigned int           u_lip2magic;
   unsigned int __cdecl   (*u_open) (char *name, unsigned int *size);
+  int          __cdecl   (*u_dir)  (char *name);
   unsigned int __cdecl   (*u_read) (char *buf, unsigned int count);
   unsigned int __cdecl   (*u_seek) (int loffseek);
   void         __cdecl   (*u_close) (void);
   void         __cdecl   (*u_terminate) (void);
-  int          __cdecl   (*u_diskctl) (int func, int drive, struct geometry *geometry, 
+  int          __cdecl   (*u_diskctl) (int func, int drive, struct geometry *geometry,
                                        int sector, int nsec, int addr);
   int          __cdecl   (*u_vbectl)  (int func, int mode_number, void *info);
   struct term_entry * __cdecl (*u_termctl) (int termno);

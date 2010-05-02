@@ -1727,6 +1727,41 @@ static struct builtin builtin_help =
   "for each command"
 };
 
+
+int
+ls_func(char *arg, int flags)
+{
+  if (!*arg || *arg == '\t' || *arg == ' ')
+    return !u_dir("/");
+
+  return !u_dir(arg);
+}
+
+static struct builtin builtin_ls =
+{
+  "ls",
+  ls_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "ls [directory]",
+  "Lists a directory entries. When no parameters, it shows"
+  "the contents of a root directory."
+};
+
+int
+dir_func(char *arg, int flags)
+{
+  return ls_func(arg, flags);
+}
+
+static struct builtin builtin_dir =
+{
+  "dir",
+  dir_func,
+  BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
+  "dir [directory]",
+  "An alias for `ls' command."
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1754,6 +1789,8 @@ struct builtin *builtins[] = {
   &builtin_echo,
   &builtin_prompt,
   &builtin_help,
+  &builtin_ls,
+  &builtin_dir,
   0
 };
 

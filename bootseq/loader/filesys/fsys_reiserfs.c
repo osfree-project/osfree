@@ -26,8 +26,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 #undef REISERDEBUG
 
 /* Some parts of this code (mainly the structures and defines) are
@@ -1156,7 +1154,7 @@ reiserfs_dir (char *dirname)
       *rest = 0;
 
 # ifndef STAGE1_5
-      if (print_possibilities && ch != '/')
+      if (*pprint_possibilities && ch != '/')
         do_possibilities = 1;
 # endif /* ! STAGE1_5 */
 
@@ -1203,10 +1201,10 @@ reiserfs_dir (char *dirname)
                     {
                       if (cmp <= 0)
                         {
-                          if (print_possibilities > 0)
-                            print_possibilities = -print_possibilities;
+                          if (*pprint_possibilities > 0)
+                            *pprint_possibilities = - *pprint_possibilities;
                           *name_end = 0;
-                          //print_a_completion (filename);
+                          (*pprint_a_completion) (filename);
                           *name_end = tmp;
                         }
                     }
@@ -1224,7 +1222,7 @@ reiserfs_dir (char *dirname)
         }
 
 # ifndef STAGE1_5
-      if (print_possibilities < 0)
+      if (*pprint_possibilities < 0)
         return 1;
 # endif /* ! STAGE1_5 */
 

@@ -26,8 +26,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 static int mapblock1, mapblock2;
 
 /* sizes are always in bytes, BLOCK values are always in DEV_BSIZE (sectors) */
@@ -729,7 +727,7 @@ ext2fs_dir (char *dirname)
              give up */
           if (loc >= INODE->i_size)
             {
-              if (print_possibilities < 0)
+              if (*pprint_possibilities < 0)
                 {
 # if 0
                   putchar ('\n');
@@ -740,7 +738,7 @@ ext2fs_dir (char *dirname)
                   *perrnum = ERR_FILE_NOT_FOUND;
                   *rest = ch;
                 }
-              return (print_possibilities < 0);
+              return (*pprint_possibilities < 0);
             }
 
           /* else, find the (logical) block component of our location */
@@ -781,12 +779,12 @@ ext2fs_dir (char *dirname)
               str_chk = (*psubstring) (dirname, dp->name);
 
 # ifndef STAGE1_5
-              if (print_possibilities && ch != '/'
+              if (*pprint_possibilities && ch != '/'
                   && (!*dirname || str_chk <= 0))
                 {
-                  if (print_possibilities > 0)
-                    print_possibilities = -print_possibilities;
-                  //print_a_completion (dp->name);
+                  if (*pprint_possibilities > 0)
+                    *pprint_possibilities = - *pprint_possibilities;
+                  (*pprint_a_completion) (dp->name);
                 }
 # endif
 
@@ -794,7 +792,7 @@ ext2fs_dir (char *dirname)
             }
 
         }
-      while (!dp->inode || (str_chk || (print_possibilities && ch != '/')));
+      while (!dp->inode || (str_chk || (*pprint_possibilities && ch != '/')));
 
       current_ino = dp->inode;
       *(dirname = rest) = ch;

@@ -52,6 +52,10 @@ extern unsigned long *ppart_start;
 extern unsigned long *ppart_length;
 extern int           *pfsmax;
 
+extern int *pprint_possibilities;
+extern void (*pprint_a_completion)(char *);
+extern void (*pprintf) (const char *format,...);
+
 int __cdecl
 init(lip1_t *l)
 {
@@ -92,6 +96,10 @@ init(lip1_t *l)
    ppart_start    = l->lip_part_start;
    ppart_length   = l->lip_part_length;
    pfsmax         = l->lip_fsmax;
+
+   pprint_possibilities = l->lip_print_possibilities;
+   pprint_a_completion  = l->lip_print_a_completion;
+   pprintf        = l->lip_printf;
 
    /* Set pointers to our functions */
    l->lip_fs_mount = &fs_mount;

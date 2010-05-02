@@ -34,7 +34,7 @@ extern char at_drive[16];
 #endif
 
 extern grub_error_t errnum;
-int print_possibilities;
+extern int print_possibilities;
 
 //int  saved_fsys_type;
 //int  saved_current_slice;

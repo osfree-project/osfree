@@ -49,6 +49,8 @@ int rawread (int drive, int sector, int byte_offset, int byte_len, char *buf);
 
 unsigned int __cdecl
 u_open (char *name, unsigned int *size);
+int __cdecl
+u_dir  (char *dirname);
 unsigned int __cdecl
 u_read (char *buf, unsigned int count);
 unsigned int __cdecl
@@ -117,6 +119,7 @@ struct pmif
 #define PARM_AT_DRIVE             18
 
 #pragma aux u_open   "*"
+#pragma aux u_dir    "*"
 #pragma aux u_read   "*"
 #pragma aux u_seek   "*"
 #pragma aux u_close  "*"
@@ -162,6 +165,7 @@ void panic(char *msg, char *file);
 #pragma aux grub_seek  "*"
 #pragma aux grub_close "*"
 #pragma aux freeldr_open  "*"
+#pragma aux freeldr_dir   "*"
 #pragma aux freeldr_read  "*"
 #ifndef STAGE1_5
 #pragma aux freeldr_seek  "*"
@@ -175,6 +179,7 @@ void stage0_close(void);
 int  stage0_embed(int *start_sector, int needed_sectors);
 
 int  freeldr_open (char *filename);
+int  freeldr_dir  (char *dirname);
 int  freeldr_read (char *buf, int len);
 #ifndef STAGE1_5
 int  freeldr_seek (int offset);
@@ -223,6 +228,11 @@ extern int           *pcurrent_slice;
 extern unsigned long *ppart_start;
 extern unsigned long *ppart_length;
 extern int           *pfsmax;
+
+extern int           *pprint_possibilities;
+extern void          (*pprint_a_completion) (char *);
+extern void          (*pprintf) (const char *format,...);
+
 
 //extern int      debug = 0;
 extern struct geometry *pbuf_geom;

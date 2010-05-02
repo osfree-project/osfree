@@ -32,8 +32,6 @@
  */
 #if defined(fsys_ntfs) || defined(FSYS_NTFS)
 
-int print_possibilities = 0;
-
 //#define DEBUG_NTFS 1
 
 /*
@@ -326,9 +324,9 @@ static int find_attribute(char *mft, int type, char *name, char **attr, int *siz
                         for(; i < namelen; i++)
                             name[i] = attr_name[i];
                         name[i] = '\0';
-                        if(print_possibilities > 0)
-                            print_possibilities = -print_possibilities;
-                        //print_a_completion(fnbuf);
+                        if(*pprint_possibilities > 0)
+                            *pprint_possibilities = - *pprint_possibilities;
+                        (*pprint_a_completion) (fnbuf);
                         name[n] = '\0';
                     }
                 }
@@ -942,7 +940,7 @@ loop:
     {
 #ifndef STAGE1_5
 #ifndef NO_ALTERNATE_DATASTREAM
-        if (*dirname==':' && print_possibilities) {
+        if (*dirname==':' && *pprint_possibilities) {
             char *tmp;
 
             /* preparing ADS name completion */
@@ -956,7 +954,7 @@ loop:
             is_ads_completion = 0;
 
             if(*perrnum==0) {
-                if(print_possibilities < 0)
+                if(*pprint_possibilities < 0)
                     return 1;
                 *perrnum = ERR_FILE_NOT_FOUND;
             }
@@ -1022,11 +1020,11 @@ loop:
     record_offset = -1;
 
 #ifndef STAGE1_5
-    if (print_possibilities && ch != '/' && ch != ':' && !*dirname)
+    if (*pprint_possibilities && ch != '/' && ch != ':' && !*dirname)
     {
-        print_possibilities = -print_possibilities;
+        *pprint_possibilities = - *pprint_possibilities;
         /* fake '.' for empty directory */
-        //print_a_completion (".");
+        (*pprint_a_completion) (".");
     }
 #endif
 
@@ -1065,7 +1063,7 @@ loop:
                !read_attribute(cmft, record_offset*my_index_record_size, index_data, my_index_record_size, 0)){
                 if (!*perrnum)
                 {
-                    if (print_possibilities < 0)
+                    if (*pprint_possibilities < 0)
                     {
 #if 0
                         putchar ('\n');
@@ -1108,7 +1106,7 @@ loop:
         //if(index_data[0x48]&2) printf("hidden file\n");
 #ifndef STAGE1_5
         /* skip short file name */
-        if( flag == 2 && print_possibilities && ch != '/' && ch != ':' )
+        if( flag == 2 && *pprint_possibilities && ch != '/' && ch != ':' )
             continue;
 #endif
 
@@ -1129,17 +1127,17 @@ loop:
 
         chk_sfn = nsubstring(dirname,fnbuf);
 #ifndef STAGE1_5
-        if (print_possibilities && ch != '/' && ch != ':'
+        if (*pprint_possibilities && ch != '/' && ch != ':'
             && (!*dirname || chk_sfn <= 0))
         {
-            if (print_possibilities > 0)
-                print_possibilities = -print_possibilities;
-            //print_a_completion (fnbuf);
+            if (*pprint_possibilities > 0)
+                *pprint_possibilities = - *pprint_possibilities;
+            (*pprint_a_completion) (fnbuf);
         }
 #endif /* STAGE1_5 */
     }
     while (chk_sfn != 0 ||
-           (print_possibilities && ch != '/' && ch != ':'));
+           (*pprint_possibilities && ch != '/' && ch != ':'));
 
     *(dirname = rest) = ch;
 

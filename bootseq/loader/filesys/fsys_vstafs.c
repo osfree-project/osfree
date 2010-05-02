@@ -27,8 +27,6 @@
 #include "misc.h"
 #include "fsd.h"
 
-int print_possibilities = 0;
-
 static void get_file_info (int sector);
 static struct dir_entry *vstafs_readdir (long sector);
 static struct dir_entry *vstafs_nextdir (void);
@@ -151,13 +149,13 @@ vstafs_dir (char *dirname)
             continue;
 
 #ifndef STAGE1_5
-          if (print_possibilities && ch != '/'
+          if (*pprint_possibilities && ch != '/'
               && (! *dirname || (*pgrub_strcmp) (dirname, d->name) <= 0))
             {
-              if (print_possibilities > 0)
-                print_possibilities = -print_possibilities;
+              if (*pprint_possibilities > 0)
+                *pprint_possibilities = - *pprint_possibilities;
 
-              //(*pgrub_printf) ("  %s", d->name);
+              (*pprintf) ("  %s", d->name);
             }
 #endif
           if (! (*pgrub_strcmp) (dirname, d->name))
@@ -173,7 +171,7 @@ vstafs_dir (char *dirname)
       *(dirname = fn) = ch;
       if (! d)
         {
-          //if (print_possibilities < 0)
+          //if (*pprint_possibilities < 0)
           //  {
           //    putchar ('\n');
           //    return 1;

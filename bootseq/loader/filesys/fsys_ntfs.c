@@ -28,8 +28,6 @@
 
 #if defined(fsys_ntfs) || defined(FSYS_NTFS)
 
-int print_possibilities = 0;
-
 #include "shared.h"
 #include "filesys.h"
 
@@ -1069,21 +1067,21 @@ static int list_file(char* cur_mft,char *fn,char *pos)
       np=pos+0x52;
       ns=valueat(np,-2,unsigned char);
       uni2ansi((unsigned short *)np, (char *)utf8, ns);
-      if (((print_possibilities) && (ns>=len)) ||
-          ((! print_possibilities) && (ns==len)))
+      if (((*pprint_possibilities) && (ns>=len)) ||
+          ((! *pprint_possibilities) && (ns==len)))
         {
           for (i=0;i<len;i++)
             if (tolower(fn[i])!=tolower(utf8[i]/*np[i*2]*/))
               break;
           if (i>=len)
             {
-              if (print_possibilities)
+              if (*pprint_possibilities)
                 {
                   if ((i) || ((utf8[0]!='$') && ((utf8[0]!='.') || (ns!=1))))
                     {
 #ifndef STAGE1_5
-                      if (print_possibilities>0)
-                        print_possibilities=-print_possibilities;
+                      if (*pprint_possibilities>0)
+                        *pprint_possibilities=- *pprint_possibilities;
 #endif
 //                    for (i=1;i<ns;i++)
 //                      np[i]=np[i*2];
@@ -1091,7 +1089,7 @@ static int list_file(char* cur_mft,char *fn,char *pos)
 #ifdef FS_UTIL
                       //print_completion_ex(utf8,valueat(pos,0,unsigned long),valueat(pos,0x40,unsigned long),(valueat(pos,0x48,unsigned long) & ATTR_DIRECTORY)?FS_ATTR_DIRECTORY:0);
 #else
-                      //print_a_completion((char *)utf8);
+                      (*pprint_a_completion) ((char *)utf8);
 #endif
                     }
                 }
@@ -1231,7 +1229,7 @@ static int scan_dir(char* cur_mft,char *fn)
         }
     }
 
-  ret=(print_possibilities<0);
+  ret=(*pprint_possibilities<0);
 
 done:
   if (! ret)
@@ -1321,7 +1319,7 @@ int ntfs_dir (char *dirname)
 {
   int ret;
 #ifndef STAGE1_5
-  int is_print=print_possibilities;
+  int is_print=*pprint_possibilities;
 #endif
 
   *pfilepos = *pfilemax = 0;
@@ -1362,7 +1360,7 @@ int ntfs_dir (char *dirname)
 
       *next = 0;
 #ifndef STAGE1_5
-      print_possibilities=(ch=='/')?0:is_print;
+      *pprint_possibilities=(ch=='/')?0:is_print;
 #endif
 
       ret=scan_dir(cmft,dirname);
@@ -1379,7 +1377,7 @@ int ntfs_dir (char *dirname)
     }
 
 #ifndef STAGE1_5
-  print_possibilities=is_print;
+  *pprint_possibilities=is_print;
 #endif
   return ret;
 }
