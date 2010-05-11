@@ -1516,7 +1516,7 @@ void __cdecl set_addr (void)
   setlip();
 
   /* save boot drive uFSD */
-  grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
+  //grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
@@ -1676,13 +1676,13 @@ void determine_boot_drive(void)
 
   memset(at_drive, 0, sizeof(at_drive));
 
-  if (current_drive == cdrom_drive && cdrom_drive != 0xff)
+  if (boot_drive == cdrom_drive && cdrom_drive != 0xff)
   {
     /* cd-rom */
     grub_strcpy(at_drive, "(cd");
     c = 0;
   }
-  else if (current_drive & 0x80)
+  else if (boot_drive & 0x80)
   {
     /* hard disk */
     grub_strcpy(at_drive, "(hd");
@@ -1696,7 +1696,7 @@ void determine_boot_drive(void)
   }
 
   /* clear high bits */
-  drv = current_drive & 0xff;
+  drv = boot_drive & 0xff;
   /* clear hard disk bit */
   drv = drv & ~0x80;
 
@@ -1704,12 +1704,12 @@ void determine_boot_drive(void)
   {
     grub_strcat(at_drive, at_drive, ltoa(drv, buf, 10));
     /* shift and clear high bits */
-    drv = (current_partition >> 16) & 0xff;
+    drv = (install_partition >> 16) & 0xff;
     if (drv != 0xff)
     {
       grub_strcat(at_drive, at_drive, ",");
       grub_strcat(at_drive, at_drive, ltoa(drv, buf, 10));
-      drv = (current_partition >> 8) & 0xff;
+      drv = (install_partition >> 8) & 0xff;
       if (drv != 0xff)
       {
         /* a sub-partition */

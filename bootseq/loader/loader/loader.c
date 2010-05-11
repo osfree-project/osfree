@@ -1180,8 +1180,8 @@ exec_cfg(char *cfg, int menu_item, int menu_shift)
 void
 KernelLoader(char **script)
 {
-  char *cfg = "/boot/loader/boot.cfg";
   char **cmd;
+  char *cfg = macro_subst("()/boot/loader/boot.cfg");
   int item = 0;
   int shift = 0;
   int rc;
