@@ -29,9 +29,10 @@ unsigned long bufferaddr;
 
 #pragma aux stage0base      "*"
 
+int print_possibilities = 0;
+
 #ifndef STAGE1_5
 
-int print_possibilities;
 static int do_completion;
 static int unique;
 static char *unique_string;
@@ -983,8 +984,8 @@ void setlip1(lip1_t *l1)
   l1->lip_part_start    = &part_start;
   l1->lip_part_length   = &part_length;
   l1->lip_fsmax         = &fsmax;
-#ifndef STAGE1_5
   l1->lip_print_possibilities = &print_possibilities;
+#ifndef STAGE1_5
   l1->lip_print_a_completion  = &print_a_completion;
   l1->lip_printf        = &printf;
 

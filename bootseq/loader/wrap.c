@@ -16,10 +16,10 @@ u_open (char *name, unsigned int *size)
   return l->u_open(name, size);
 }
 
-void __cdecl
+int __cdecl
 u_dir (char *path)
 {
-  l->u_dir(path);
+  return l->u_dir(path);
 }
 
 unsigned int __cdecl

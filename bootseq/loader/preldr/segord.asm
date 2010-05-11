@@ -24,7 +24,7 @@ BASE1      equ STAGE0_BASE - 10000h
 ; hardcoded for now
 ; ! todo: fix
 ifndef STAGE1_5
-BASE       equ (BASE1 + 870h)    ; 600h; TEXT16_LEN
+BASE       equ (BASE1 + 8c0h)    ; 600h; TEXT16_LEN
 else
 BASE       equ (BASE1 + 440h)    ; 233h
 endif
