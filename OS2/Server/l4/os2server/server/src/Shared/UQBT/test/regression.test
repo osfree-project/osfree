@@ -1,0 +1,1619 @@
+#
+# Copyright (C) 2000-2001, Sun Microsystems, Inc
+# Copyright (C) 2000-2001, The University of Queensland
+#
+# See the file "LICENSE.TERMS" for information on usage and
+# redistribution of this file, and for a DISCLAIMER OF ALL
+# WARRANTIES.
+#
+
+#######################################################################
+# FILE: regression.test
+# OVERVIEW: Tcl Script file to test uqbt translations of machine code
+#
+# Copyright (C) 2000-2001, Sun Microsystems, Inc
+# Copyright (C) 2000-2001, The University of Queensland, BT group
+#######################################################################
+
+# To run: 
+#       tclsh regression.test <source> <target>
+#       where <source> and <target> is one of 'sparc' or 'pentium'  
+# You need to change the paths (if needed) in the PATHS Section below
+
+# 1.27
+# 03 Aug 00 - Cristina: rewrote from July 00 shell script 
+# 06 Aug 00 - Brian: added execToVars() to support stdout and stderr
+#       (exec returns an error if its command exits abnormally or 
+#       if the command writes to stderr and stderr was not redirected).
+#       added md5 support for sieve test 
+#       sieve and banner tests work ok now
+# 07 Aug 00 - Cristina: upgraded other tests to support stdout and stderr
+# 13 Aug 00 - Brian: added a few comments
+# 15 Aug 00 - Cristina: merged sparc and pentium tests into this file
+# 16 Aug 00 - Cristina: now differentiate between TESTPATH and OUTPATH
+# 17 Aug 00 - Cristina: added support for Mike's torture.c tests
+# 18 Aug 00 - Mike: condcodexform tests, started switch tests
+# 21 Aug 00 - Mike: removed UQBT_OPTIONS, now 8 switch tests, patterns
+#               Also removed torture.c tests (superceeded by new tests)
+# 22 Aug 00 - Brian: improved argument handling, modified to use more of the
+#             tcltest test harness's capabilities (see tcltest man page).
+# 28 Aug 00 - Mike: Work around Pentium Fibo and Factorial with -e
+# 29 Aug 00 - Mike: Work around Pentium condcodexform with sed script; most
+#             switch tests use argc instead of scanf now
+# 08 Sep 00 - Mike: Added returnparam test
+# 15 Sep 00 - Mike: Added callchain test
+# 18 Sep 00 - Mike: Added paramchain test
+# 21 Sep 00 - Mike: Fixed jvm as target; updated usage {}
+# 26 Sep 00 - Mike: Added param7float and interleavedcc tests
+# 20 Nov 00 - Mike: Added workaround for pentium param7float
+#  6 Dec 00 - Brian: Replaced uses of makej with make since the newly generated
+#               Makefiles have the necessary targets to build and run Java
+#               programs.
+# 14 Dec 00 - Brian: Added translateToJava option (-j) to the *ToJVM tests.
+# 18 Dec 00 - Mike: Fixed condcode.3 test to use -o, no arg for -d, and name
+#               of file is fixed to condcodexform_cc.one.dot
+# 18 Dec 00 - Mike: Added returncallee.1 test
+# 21 Dec 00 - Mike: Added addressparam.1 test
+# 11 Jan 01 - Brian: Added compress.1 test
+# 12 Feb 01 - Mike: Fixed paths for UQ (mango/luma)
+# 12 Feb 01 - Brian: Fixed path to JVM runtime
+# 13 Feb 01 - Mike: Added third.1 test for overlapping registers and the
+#               "second half of 64 bit var" problem
+# 13 Feb 01 - Brian: You no longer need to edit regression.test to specify
+#               the location of your UQBT directory. You must run the tests
+#               in the <uqbt>/test subdirectory now, and the UQBT location is
+#               derived from the name of the current directory.
+# 02 Mar 01 - Mike: Added ninths.1 test for 32/64 bit interaction where write
+#               2x32 bits and read 1x64; more overlapping registers
+# 08 Mar 01 - Mike: Fixed pentium condcode.3 test (args were not changed for
+#               Cristina's recent changes); also changes to returnparam.1
+# 12 Mar 01 - Mike: Pentium compress.1 test uses binary compress95.x86; however
+#               this test does not yet work
+# 26 Mar 01 - Mike: Updated some comments re pentium workarounds
+# 30 Mar 01 - Brian: Added rm commands to clean up target translation
+#               directories to avoid test runs reusing previous translations.
+# 05 Apr 01 - Mike: Added minmax tests for use/def of CF and sparc SUBX instr
+# 06 Apr 01 - Brian: Restored missing assign to "result" in banner.1.
+# 16 Apr 01 - Brian: Restored ${UQBTOPT} variable so that options may be passed
+#               to all UQBT translator runs. Needed to test Expander and VPO
+#               backends.
+# 16 Apr 01 - Brian: The NJTK Expander backend doesn't support endianness
+#               swaps yet, so pass "-e" to paramchain Pentium->SPARC test.
+# 24 Apr 01 - Brian: Need to set tempOption var in paramchain test.
+# 31 May 01 - Brian: Disable switch.7 and 8 if using VPO backend until
+#               infinite loop in switch.7 is fixed.
+# 01 Jun 01 - Brian: Added mbanner.1 and mbanner.2 tests but only for SPARC
+#               initially.
+# 10 Sep 01 - Cristina: Added qsort2.{1,2} tests to test type analysis 
+#				(recovery of pointer to code through pointers).
+# 01 Oct 01 - Brian: Added missing close-brace.
+# 16 Oct 01 - Mike: Added fparamchain test; compress.1 uses makeg0 (till we
+#               get a fixed gcc); also hppa source machine
+# 22 Oct 01 - Mike: Added -C as now required for a few tests
+# 25 Oct 01 - Mike: Removed single quotes from compress.1 test; updated cksum
+# 07 Nov 01 - Mike: Added sed script for pent compress.1
+
+###
+### Turn on/off verbose output by uncommenting out the line below
+###
+ 
+# set ::tcltest::verbose p
+
+############################################################################## 
+### Workarounds and problems present in this test set
+############################################################################## 
+# In order to pass some of the tests in this set, there are a few workarounds
+# to overcome known bugs or known limitations, which we expect to fix in the
+# future. These are enumerated here.
+# 1. Pentium Fibo: use -e to overcome "pointer to data passed to library
+#   function" problem. In this case, lib function is scanf
+# 2. Pentium Factorial: uses -e as above; also scanf
+# 3. Pentium condcode.1, condcode.4, and condcode.5: overlapping registers
+# 4. Sparc switch.7: "can't find all the switch support code" problem 
+# 5. Pentium switch.3: something causes v0 to be set at the wrong position.
+#    Requires investigation
+# 6. Pentium returnparam.1 has problems with stale stack parameters (we assumed
+#     this would never happen!) (Worked around with .sed script)
+# 7. Pentium param7float.1 the last argument for work is changed to floatmax
+#     from an int. This is wrong, it should be a float, and because the types
+#     are different, we have to kill the prototype in uqbt.h. Finally, there
+#     is the xor eax,eax problem (appears to use return value of work).
+#     All the above are worked around in two .sed scripts
+# 8. Pentium compress.1: There are alignment problems with the Sun compiler
+#       which I can't see any way around at present. So for now the test
+#       program is a gcc version (aligned by default). Also uses __iob instead
+#       of the original _iob (needs more investigation for why)
+############################################################################## 
+
+
+############################################################################## 
+### Support routines for paths 
+############################################################################## 
+
+###
+### usage: displays usage information for this test script and exits
+###
+
+proc usage {} {
+    puts "Usage: tclsh regression.test <source> <target> <other tcltest args>"
+    puts "       where <source> is \"sparc\", \"pentium\", or \"hppa\";"
+    puts "       <target> is \"sparc\", \"pentium\", or \"jvm\"."
+    puts "       For the other arguments, see the tcltest man page:"
+    puts "       e.g., -debug 1 turns on debugging."
+        exit
+}
+
+###
+### Process command-line arguments
+###
+
+if {($argc < 3) && ($argc % 2) != 0} {
+    usage
+}
+
+set SOURCE [lindex $argv 0]
+set TARGET [lindex $argv 1]
+
+if {[string equal $TARGET "jvm"] && ![string equal $SOURCE "sparc"]} {
+    puts "For \"jvm\" target, source must be \"sparc\""
+    exit
+}
+
+###
+### Load the test support: <tclhome>/library/tcltest1.0/tcltest.tcl
+###
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import -force ::tcltest::*
+}
+
+if {$::tcltest::debug >= 1} {
+    puts "Source = $SOURCE"
+    puts "Target = $TARGET"
+}
+
+set dirList [file split [pwd]]
+set lastDir [lindex $dirList end]
+if {[string compare $lastDir "test"] != 0} {
+    puts "Error: the UQBT tests can only be run in the directory <uqbt>/test"
+    exit
+}
+set UQBTPATH [file dirname [pwd]]
+set JAVAOPT   "-cp $UQBTPATH/backend/jvm/runtime:."
+
+# Set non-empty to add options for each UQBT translator run: e.g., -En to use
+# the NJTK Expander backend or -O to run the SPARC IRTL to VPO backend.
+#set UQBTOPT   "-OA"
+#set UQBTOPT   "-En"
+set UQBTOPT   ""
+
+
+############################## PATHS Section #############################
+################ Start of changes to the local environment ###############
+########## You can change the local paths to the programs below ##########
+
+###
+### Set up paths according to your site. 
+###
+
+set MD5SUM    md5sum
+
+if {[string equal $SOURCE "sparc"] && [string equal $TARGET "sparc"]} {
+        set UQBT uqbtss
+        set TESTPATH $UQBTPATH/test/sparc
+        set OUTPATH /tmp
+} elseif {[string equal $SOURCE "pentium"] && [string equal $TARGET "sparc"]} {
+        set UQBT uqbtps
+        set TESTPATH $UQBTPATH/test/pentium
+        set OUTPATH /tmp
+} elseif {[string equal $SOURCE "hppa"] && [string equal $TARGET "sparc"]} {
+        set UQBT uqbths
+        set TESTPATH $UQBTPATH/test/hppa
+        set OUTPATH /tmp
+        set UQBTOPT "-C "
+} elseif {[string equal $SOURCE "sparc"] && [string equal $TARGET "jvm"]} {
+        set UQBT uqbtss
+        set TESTPATH $UQBTPATH/test/sparc
+        set OUTPATH /tmp
+} else {
+    usage
+}
+if {$::tcltest::debug >= 1} {
+    puts "UQBTPATH     = $UQBTPATH"
+    puts "MD5SUM       = $MD5SUM"
+    puts "UQBT         = $UQBT"
+    puts "TESTPATH     = $TESTPATH"
+    puts "OUTPATH      = $OUTPATH"
+    puts "JAVAOPT      = $JAVAOPT"
+}
+
+
+################# End of changes to the local environment #################
+########## You shouldn't need to change anything below this line ##########
+########################################################################### 
+
+
+############################################################################## 
+### Support routines for tests 
+############################################################################## 
+
+
+###
+### Determine the processor on which the tests are running 
+###
+
+set PROCESSOR [exec uname -p]
+puts "UQBT Tests: Host processor is $PROCESSOR"
+
+
+###
+### execToVars: executes a command while redirecting its stdout and stderr
+###
+
+proc execToVars {cmd stdoutVarName stderrVarName} {
+    upvar $stdoutVarName stdoutVar
+    upvar $stderrVarName stderrVar
+    ::tcltest::makeFile "" uq-test-stderr.file
+    set result [catch {eval exec $cmd 2> uq-test-stderr.file} stdoutVar]
+    set stderrVar [::tcltest::viewFile uq-test-stderr.file]
+    ::tcltest::removeFile uq-test-stderr.file
+    return $result
+}
+
+###
+### execSed: executes a sed command; redirects output to the file
+###
+
+proc execSed { scriptName fileName} {
+    set myStdOut ""
+    set myStdErr ""
+    execToVars "mv $fileName $fileName.orig" myStdOut myStdErr
+    set myStdOut ""
+    execToVars "sed -f $scriptName $fileName.orig" myStdOut myStdErr
+    if {[catch {open $fileName w} f] == 0} {
+        puts $f $myStdOut
+        close $f
+        execToVars "rm $fileName.orig" myStdOut myStdErr
+    }
+}
+
+
+############################################################################## 
+### Tests start here
+############################################################################## 
+
+###
+### Firstly, the non-jvm tests
+###
+
+if {![string equal $TARGET "jvm"]} {
+
+
+###
+### Hello
+###
+
+if {[string equal $SOURCE "sparc"]} {
+    test hello.1 {$UQBT hello} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.hello}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.hello $TESTPATH/hello" myStdout myStderr
+        cd $OUTPATH/$UQBT.hello
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./hello" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {hello from sparc!} {}}
+} elseif {[string equal $SOURCE "pentium"]} {
+    test hello.1 {$UQBT hello} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.hello}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.hello $TESTPATH/hello" myStdout myStderr
+        cd $OUTPATH/$UQBT.hello
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./hello" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {hello from Pentium!} {}}
+    # Note: additional test for Pentium source machine. This version has a
+    # different encoding for the mov ebp, esp instruction
+    test hello.2 {$UQBT hello} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.hello_2.7}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.hello_2.7 $TESTPATH/hello_2.7" myStdout myStderr
+        cd $OUTPATH/$UQBT.hello_2.7
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./hello_2.7" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {hello from pentium!} {}}
+} elseif {[string equal $SOURCE "hppa"]} {
+    test hello.1 {$UQBT hello} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.hello}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.hello $TESTPATH/hello" myStdout myStderr
+        cd $OUTPATH/$UQBT.hello
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./hello" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {hello from pa/risc!} {}}
+}
+
+
+###
+### Fibonacci
+###
+
+# Note: Fibo uses scanf, which has a pd (pointer to data) argument. Until type
+# analysis, this means that we need a manual edit to fix this problem.
+# It turns out that fibo has no initialised data, so you don't need endianness
+# swaps at all, so we use the -e switch to prevent them altogether
+if {[string equal $SOURCE "pentium"]} {
+    set TEMP_OPT "-e"
+} else {
+    set TEMP_OPT ""
+}
+
+test fiboO0.1 {$UQBT fibo-O0 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O0 $TEMP_OPT $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O0 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(10) = 55} {}}
+
+
+test fiboO0.2 {$UQBT fibo-O0 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O0 $TEMP_OPT $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O0 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(20) = 6765} {}}
+
+
+test fiboO0.3 {$UQBT fibo-O0 30} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O0 $TEMP_OPT $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O0 << 30" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(30) = 832040} {}}
+
+
+test fiboO4.1 {$UQBT fibo-O4 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O4 $TEMP_OPT $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O4 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(10) = 55} {}}
+
+
+test fiboO4.2 {$UQBT fibo-O4 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O4 $TEMP_OPT $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O4 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(20) = 6765} {}}
+
+
+test fiboO4.3 {$UQBT fibo-O4 30} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fibo-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.fibo-O4 $TEMP_OPT $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fibo-O4 << 30" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(30) = 832040} {}}
+
+
+###
+### Factorial
+###
+
+# Note: factorial uses scanf and has no initialised data, so like fibo, it
+# needs the -e switch (see notes above fibo for more details)
+
+test factorialO0.1 {$UQBT factorial-O0 5} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O0 $TEMP_OPT $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O0 << 5" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(5) = 120} {}}
+
+
+test factorialO0.2 {$UQBT factorial-O0 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O0 $TEMP_OPT $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O0 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(10) = 3628800} {}}
+
+
+test factorialO0.3 {$UQBT factorial-O0 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O0 $TEMP_OPT $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O0 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(20) = -2102132736} {}}
+
+
+test factorialO4.1 {$UQBT factorial-O4 5} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O4 $TEMP_OPT $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O4 << 5" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(5) = 120} {}}
+
+
+test factorialO4.2 {$UQBT factorial-O4 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O4 $TEMP_OPT $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O4 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(10) = 3628800} {}}
+
+
+test factorialO4.3 {$UQBT factorial-O4 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.factorial-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.factorial-O4 $TEMP_OPT $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./factorial-O4 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(20) = -2102132736} {}}
+
+
+###
+### Quicksort 
+###
+
+if {0} {
+test qsort2O0.1 {$UQBT qsort2-O0} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.qsort2-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -T -o $OUTPATH/$UQBT.qsort2-O0 $TEMP_OPT $TESTPATH/qsort2-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.qsort2-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./qsort2-O0" myStdout myStderr]
+    set result2 [execToVars "cat qsort2-O0.type" myStdout myStderr]
+    list $result $result2 $myStdout $myStderr
+} {0 {Size of the data is 24
+j and k and n are 576 and 27 and 6
+After the sort:
+blat
+bleet!
+is
+of
+the
+this} {**** output of .type file goes here **** 
+{}}
+
+### similar for qsort2-O4
+}
+
+} ; # end of if {0}
+
+
+###
+### DON'T DO THESE TESTS YET
+###
+
+if {0} {
+    test ptrtest.1 {$UQBT ptrtest} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.ptrtest}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.ptrtest $TESTPATH/ptrtest" myStdout myStderr
+        cd $OUTPATH/$UQBT.ptrtest
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./ptrtest" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {addr myStr ffbef018
+addr myStr = s = ffbef018
+content of myStr = hello there
+content of *s = hello there
+addr of there = ffbef01e} {}}
+    
+    test ptrtest.2 {$UQBT ptrtest-O4} {
+        set myStdout ""
+        set myStderr ""
+        catch {exec rm -r -f $OUTPATH/$UQBT.ptrtest-O4}
+        execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.ptrtest-O4 $TESTPATH/ptrtest-O4" myStdout myStderr
+        cd $OUTPATH/$UQBT.ptrtest-O4
+        execToVars "make clean" myStdout myStderr
+        execToVars "makeas" myStdout myStderr
+        set result [execToVars "./ptrtest-O4" myStdout myStderr]
+        list $result $myStdout $myStderr
+    } {0 {addr myStr ffbef018
+addr myStr = s = ffbef018
+content of myStr = hello there
+content of *s = hello there
+addr of there = ffbef01e} {}}
+} ; # end of if {0}
+
+
+
+###
+### Sieve
+###
+
+test sieve.1 {$UQBT sieve3000-O0} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.sieve3000-O0}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.sieve3000-O0 $TESTPATH/sieve3000-O0" myStdout myStderr
+    cd $OUTPATH/$UQBT.sieve3000-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [file delete -force /tmp/uq-test-stdout.file]
+    catch [file delete -force /tmp/uq-test-stderr.file]
+    catch {eval exec "./sieve3000-O0" > /tmp/uq-test-stdout.file \
+                                    2> /tmp/uq-test-stderr.file}
+    catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{1335190dd2b572e356b615502b75528c  /tmp/uq-test-stdout.file} {} {}}
+
+
+test sieve.2 {$UQBT sieve3000-O4} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.sieve3000-O4}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.sieve3000-O4 $TESTPATH/sieve3000-O4" myStdout myStderr
+    cd $OUTPATH/$UQBT.sieve3000-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [file delete -force /tmp/uq-test-stdout.file]
+    catch [file delete -force /tmp/uq-test-stderr.file]
+    catch {eval exec "./sieve3000-O4" > /tmp/uq-test-stdout.file \
+                                    2> /tmp/uq-test-stderr.file}
+    catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{1335190dd2b572e356b615502b75528c  /tmp/uq-test-stdout.file} {} {}}
+
+
+###
+### Banner
+###
+
+test banner.1 {$UQBT banner6} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.banner6}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.banner6 $TESTPATH/banner6" myStdout myStderr
+    cd $OUTPATH/$UQBT.banner6
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./banner6 29 June 2000" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 { #####   #####
+#     # #     #
+      # #     #
+ #####   ######
+#             #
+#       #     #
+#######  #####
+
+      #
+      #  #    #  #    #  ######
+      #  #    #  ##   #  #
+      #  #    #  # #  #  #####
+#     #  #    #  #  # #  #
+#     #  #    #  #   ##  #
+ #####    ####   #    #  ######
+
+ #####    ###     ###     ###
+#     #  #   #   #   #   #   #
+      # #     # #     # #     #
+ #####  #     # #     # #     #
+#       #     # #     # #     #
+#        #   #   #   #   #   #
+#######   ###     ###     ###
+} {}}
+
+
+test banner.2 {$UQBT banner6} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.banner6}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.banner6 $TESTPATH/banner6" myStdout myStderr
+    cd $OUTPATH/$UQBT.banner6
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./banner6" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {1 {Usage: banner "up to 10 char arg string" . . .
+child process exited abnormally} {}}
+
+
+###
+### MBanner (prints the one argument 500,000 times)
+###
+
+if {[string equal $SOURCE "sparc"]} {
+    test mbanner.1 {$UQBT banner6} {
+	set myStdout ""
+	set myStderr ""
+	catch {exec rm -r -f $OUTPATH/$UQBT.mbanner-O0}
+	execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.mbanner-O0 $TESTPATH/mbanner-O0" myStdout myStderr
+	cd $OUTPATH/$UQBT.mbanner-O0
+	execToVars "make clean" myStdout myStderr
+	execToVars "makeas" myStdout myStderr
+	set myStdout ""     ;# ignore any normal-case make output
+	catch [file delete -force /tmp/uq-test-stdout.file]
+	catch [file delete -force /tmp/uq-test-stderr.file]
+	catch {eval exec "./mbanner-O0 Hello" > /tmp/uq-test-stdout.file \
+		   2> /tmp/uq-test-stderr.file}
+	catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+		   2> /tmp/uq-test-stderr.file} result
+	if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+	    set myStderr [read $f]
+	    close $f
+	}
+	list $result $myStdout $myStderr
+    } {{04c0200a17fcf715e237a0c0fc1cdd58  /tmp/uq-test-stdout.file} {} {}}
+    
+    test mbanner.2 {$UQBT banner6} {
+	set myStdout ""
+	set myStderr ""
+	catch {exec rm -r -f $OUTPATH/$UQBT.mbanner-O4}
+	execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.mbanner-O4 $TESTPATH/mbanner-O4" myStdout myStderr
+	cd $OUTPATH/$UQBT.mbanner-O4
+	execToVars "make clean" myStdout myStderr
+	execToVars "makeas" myStdout myStderr
+	set myStdout ""     ;# ignore any normal-case make output
+	catch [file delete -force /tmp/uq-test-stdout.file]
+	catch [file delete -force /tmp/uq-test-stderr.file]
+	catch {eval exec "./mbanner-O4 Hello" > /tmp/uq-test-stdout.file \
+		   2> /tmp/uq-test-stderr.file}
+	catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+		   2> /tmp/uq-test-stderr.file} result
+	if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+	    set myStderr [read $f]
+	    close $f
+	}
+	list $result $myStdout $myStderr
+    }  {{04c0200a17fcf715e237a0c0fc1cdd58  /tmp/uq-test-stdout.file} {} {}}
+}
+
+
+###
+### Condition Code transformation test. Also tests output of dotty file
+###
+
+test condcode.1 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.condcodexform_gcc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.condcodexform_gcc $TESTPATH/condcodexform_gcc" myStdout myStderr
+    cd $OUTPATH/$UQBT.condcodexform_gcc
+    if {[string equal $SOURCE "pentium"]} {
+        # Temporarily work around the overlapping register problem with sed
+        execSed $UQBTPATH/test/source/condcodexform_gcc.sed main.c
+    }
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./condcodexform_gcc" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Pass {}}
+
+
+# Note: this test is not stand alone; assumes first ran condcode.1
+test condcode.2 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    cd $OUTPATH/$UQBT.condcodexform_gcc
+    set result [execToVars "./condcodexform_gcc x" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Pass {}}
+
+
+# Just test the dotty file
+if {[string equal $SOURCE "sparc"]} {
+test condcode.3 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f /tmp/condcodexform_cc.one.dot}
+    execToVars "$UQBTPATH/$UQBT -b -o /tmp -d $TESTPATH/condcodexform_cc" myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch {eval exec "$MD5SUM /tmp/condcodexform_cc.one.dot" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{87cecc03157c7465703d74e62c029d4c  /tmp/condcodexform_cc.one.dot} {} {}}
+}
+
+if {[string equal $SOURCE "pentium"]} {
+test condcode.3 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f /tmp/condcodexform_cc.one.dot}
+    execToVars "$UQBTPATH/$UQBT -b -o /tmp -d $TESTPATH/condcodexform_cc" myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch {eval exec "$MD5SUM /tmp/condcodexform_cc.one.dot" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{a1c3f1e5e6f47fb6fb65e64f2d45cfde  /tmp/condcodexform_cc.one.dot} {} {}}
+}
+
+test condcode.4 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.condcodexform_cc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.condcodexform_cc $TESTPATH/condcodexform_cc" myStdout myStderr
+    cd $OUTPATH/$UQBT.condcodexform_cc
+    if {[string equal $SOURCE "pentium"]} {
+        # Temporarily work around the overlapping register problem with sed
+        execSed $UQBTPATH/test/source/condcodexform_cc.sed main.c
+    }
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./condcodexform_cc" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Pass {}}
+
+
+test condcode.5 {$UQBT condcodexform} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.condcodexform_cc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.condcodexform_cc $TESTPATH/condcodexform_cc" myStdout myStderr
+    cd $OUTPATH/$UQBT.condcodexform_cc
+    if {[string equal $SOURCE "pentium"]} {
+        # Temporarily work around the overlapping register problem with sed
+        execSed $UQBTPATH/test/source/condcodexform_cc.sed main.c
+    }
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./condcodexform_cc x" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Pass {}}
+
+
+###
+### Switch tests
+###
+
+if {[string equal $SOURCE "sparc"]} {
+test switch.1 {$UQBT switch} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.switch_epc2}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.switch_epc2 $TESTPATH/switch_epc2" myStdout myStderr
+    cd $OUTPATH/$UQBT.switch_epc2
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./switch_epc2 << a b c" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Three! {}}
+
+
+test switch.2 {$UQBT switch} {
+    cd $OUTPATH/$UQBT.switch_epc2
+    set result [execToVars "./switch_epc2 << a b c d e f g h" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Other! {}}
+}
+
+
+test switch.3 {$UQBT switch} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.switch_gcc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.switch_gcc $TESTPATH/switch_gcc" myStdout myStderr
+    cd $OUTPATH/$UQBT.switch_gcc
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./switch_gcc << 1 2" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Two! {}}
+
+
+test switch.4 {$UQBT switch} {
+    cd $OUTPATH/$UQBT.switch_gcc
+    set result [execToVars "./switch_gcc" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Other! {}}
+
+
+test switch.5 {$UQBT switch} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.switch_cc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.switch_cc $TESTPATH/switch_cc" myStdout myStderr
+    cd $OUTPATH/$UQBT.switch_cc
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./switch_cc << 1 2 3 4 5 6 7" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Seven! {}}
+
+
+test switch.6 {$UQBT switch} {
+    cd $OUTPATH/$UQBT.switch_cc
+    set result [execToVars "./switch_cc << 1 2 3 4 5 6 7 8" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 Other! {}}
+
+if {[string equal $SOURCE "sparc"] && ([string first "-O" $UQBTOPT] == -1)} {
+test switch.7 {$UQBT switch} {
+    set myStdout ""
+    set myStderr ""
+    set tempOption ""
+    if {[string equal $SOURCE "pentium"]} {
+        # Work around the "pointer to data passed to library function" problem
+        set tempOption "-e"
+    }
+    catch {exec rm -r -f $OUTPATH/$UQBT.switch_formh}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.switch_formh $tempOption \
+        $TESTPATH/switch_formh" myStdout myStderr
+    cd $OUTPATH/$UQBT.switch_formh
+    # Work around the "find all the switch support code" problem
+    execSed $UQBTPATH/test/source/switch_formh.sed main.c
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./switch_formh << 2000000" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input a number, please: Two million!} {}}
+
+
+# Note: this test requires running switch.7 before running this one
+test switch.8 {$UQBT switch} {
+    cd $OUTPATH/$UQBT.switch_formh
+    set result [execToVars "./switch_formh << 2" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input a number, please: Two!} {}}
+}
+
+###
+### Many sparc pattern tests (all in one test case)
+###
+
+if {[string equal $SOURCE "sparc"]} {
+test sparcpatt.1 {$UQBT sparcpatt} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.sparcpatt}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.sparcpatt $TESTPATH/sparcpatt" myStdout myStderr
+    cd $OUTPATH/$UQBT.sparcpatt
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./sparcpatt" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Call/add test: result is Correct!
+Elements are 55 and 99
+Call/restore/unimp with register: 999
+Call/restore/unimp with immediate: 777
+Call/restore with immediate: 55
+Call/restore with register: 99
+Move/call/move
+Move/x/call/move
+Jump Restore with immediate: 77
+Jump Restore with register: 66
+Same register window
+New register window large
+Same register window large
+Return with reg+reg in restore: 555
+Return with reg+imm in restore: 333
+Done} {}}
+}
+
+###
+### returnparam test: when a function is just a return instruction, but it
+### takes a parameter and returns it (in the same register, for Sparc). This
+### causes a few problems, which are fixed now by re-analysing as a caller
+### under some circumstances
+### When translating pentium to sparc, and vice versa, it tests the swap
+### macros (4 and 2 byte)
+###
+
+test returnparam.1 {$UQBT returnparam} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.returnparam}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.returnparam $TESTPATH/returnparam" myStdout myStderr
+    cd $OUTPATH/$UQBT.returnparam
+    if {[string equal $SOURCE "pentium"]} {
+        # Work around stale stack parameters problem
+        execSed $UQBTPATH/test/source/returnparam.sed main.c
+    }
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./returnparam" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {s.a = 'Hello' 99
+s.b = 'World' 99
+Elements are Hello and World} {}}
+    
+
+###
+### callchain test: when a call is followed by another call with no important
+### code between the calls, it is possible (in Sparc and probably others) that
+### the first call returns a value that is passed to the next call. To get this
+### right requires re-analysis; this test is for that case.
+###
+
+test callchain.1 {$UQBT callchain} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.callchain}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.callchain $TESTPATH/callchain" myStdout myStderr
+    cd $OUTPATH/$UQBT.callchain
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./callchain" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Fifty five is 55} {}}
+    
+
+###
+### paramchain test: when a procedure calls another procedure without doing
+### anything visible, it can be passing multiple parameters to the callee.
+### In Sparc, this often happens with the move/call/move pattern (when it's
+##  the whole procedre)
+###
+
+test paramchain.1 {$UQBT paramchain} {
+    set myStdout ""
+    set myStderr ""
+    set tempOption ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.paramchain}
+    if {([string equal $SOURCE "pentium"]) && ([string equal $UQBTOPT "-En"])} {
+        # TEMP TEMP TEMP
+        # The NJTK Expander backend doesn't support endianness swaps yet 
+        set tempOption "-e"
+        # TEMP TEMP TEMP 
+    }
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT $tempOption -o $OUTPATH/$UQBT.paramchain $TESTPATH/paramchain" myStdout myStderr
+    cd $OUTPATH/$UQBT.paramchain
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./paramchain" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Fifty five is 55} {}}
+ 
+
+###
+### fparamchain test: As above, but it uses different types in passem and addem.
+### In Sparc, this tests same_reg_win procedures; in pa-risc, tests parameter
+##  passing
+###
+
+test fparamchain.1 {$UQBT fparamchain} {
+    set myStdout ""
+    set myStderr ""
+    set tempOption ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.fparamchain}
+    if {([string equal $SOURCE "pentium"]) && ([string equal $UQBTOPT "-En"])} {
+        # TEMP TEMP TEMP
+        # The NJTK Expander backend doesn't support endianness swaps yet 
+        set tempOption "-e"
+        # TEMP TEMP TEMP 
+    }
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -C $tempOption -o $OUTPATH/$UQBT.fparamchain $TESTPATH/fparamchain" myStdout myStderr
+    cd $OUTPATH/$UQBT.fparamchain
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./fparamchain" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Fifty five is 55} {}}
+ 
+
+###
+### returncallee test: when a call doesn't appear to use the return value
+### from a call, but it's parent uses the return location, we need some extra
+### analysis to make sure that the callee is translated in such a way that it
+### returns a value. Happens in sparc (under some circumstances) and pentium,
+### and probably all architectures
+###
+
+test returncallee.1 {$UQBT returncallee} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.returncallee}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.returncallee $TESTPATH/returncallee" myStdout myStderr
+    cd $OUTPATH/$UQBT.returncallee
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./returncallee" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Fifty five is 55} {}}
+ 
+    
+###
+### param7float test: 7th parameter is a float
+###
+
+test param7float.1 {$UQBT param7float} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.param7float}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.param7float $TESTPATH/param7float" myStdout myStderr
+    cd $OUTPATH/$UQBT.param7float
+    if {[string equal $SOURCE "pentium"]} {
+        # Work around "tmp1 and the push" problem
+        execSed $UQBTPATH/test/source/param7float.sed work.c
+        execSed $UQBTPATH/test/source/param7float2.sed uqbt.h
+    }
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./param7float" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Burn up arguments: 1 2 3 4 5 6
+Fifty five is 55.0000000000000} {}}
+
+
+###
+### addressparam test: make sure that taking the address of a parameter works
+### correctly
+###
+
+test addressparam.1 {$UQBT addressparam} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.addressparam}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.addressparam $TESTPATH/addressparam" myStdout myStderr
+    cd $OUTPATH/$UQBT.addressparam
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./addressparam" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Testing, 1, 2, 3, 4, 5...
+Fifty five is 55} {}}
+ 
+    
+###
+### Simple float operations test. Tests sparc overlapping registers, and also
+### passing a double as two integers to a library function
+###
+
+test thirds.1 {$UQBT thirds} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.thirds}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.thirds $TESTPATH/thirds" myStdout myStderr
+    cd $OUTPATH/$UQBT.thirds
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./thirds" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Two thirds is 0.666666666667} {}}
+ 
+
+###
+### Another simple float test. Tests sparc overlapping registers, and also
+### where a var is written as two 32 bit halves, then read as 1 64 bit qty
+###
+
+test ninths.1 {$UQBT ninths} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.ninths}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -C -o $OUTPATH/$UQBT.ninths $TESTPATH/ninths" myStdout myStderr
+    cd $OUTPATH/$UQBT.ninths
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./ninths" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Two ninths is 0.222222222222} {}}
+ 
+
+###
+### A simple test for matching definitions and uses of the carry flag, and
+### also tests the simplification of RTLs, particularly the sparc SUBX instr
+### where the two operands are both registers
+###
+
+test minmax.1 {$UQBT minmax} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.minmax}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.minmax $TESTPATH/minmax" myStdout myStderr
+    cd $OUTPATH/$UQBT.minmax
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./minmax" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {MinMax adjusted number of arguments is 1} {}}
+ 
+
+# Note: relies on previous run of minmax.1 to translate the program
+test minmax.2 {$UQBT minmax with 6 args} {
+    cd $OUTPATH/$UQBT.minmax
+    set result [execToVars "./minmax 2 3 4 5 6" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {MinMax adjusted number of arguments is 3} {}}
+ 
+
+###
+### interleavedcc test: interleaved integer and floating point define and use
+### At this stage, sparc only
+###
+
+if {[string equal $SOURCE "sparc"]} {
+test interleavedcc.1 {$UQBT interleavedcc} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.interleavedcc}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.interleavedcc $TESTPATH/interleavedcc" myStdout myStderr
+    cd $OUTPATH/$UQBT.interleavedcc
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set result [execToVars "./interleavedcc" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Call with  1, 2.0, 3.0: 0
+Call with -1, 2.0, 3.0: 1
+Call with  1, 2.0, 2.0: 2
+Call with -1, 2.0, 2.0: 3} {}}
+}
+
+
+###
+### SPEC95 compress
+###
+
+if {[string equal $SOURCE "sparc"]} {
+test compress.1 {$UQBT compress95.v8} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.compress95.v8}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -C -o $OUTPATH/$UQBT.compress95.v8 $TESTPATH/compress95.v8" myStdout myStderr
+    cd $OUTPATH/$UQBT.compress95.v8
+    execToVars "make clean" myStdout myStderr
+    if {0} {
+        execToVars "makeas" myStdout myStderr
+    } else {
+        execToVars "makeg0" myStdout myStderr
+    }
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [file delete -force /tmp/uq-test-stdout.file]
+    catch [file delete -force /tmp/uq-test-stderr.file]
+    catch {eval exec "echo 30000   e       2231 | compress95.v8" \
+                                     > /tmp/uq-test-stdout.file \
+                                    2> /tmp/uq-test-stderr.file}
+    catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{42585d05aed29bd257b18b7790df7699  /tmp/uq-test-stdout.file} {} {}}
+} elseif {[string equal $SOURCE "pentium"]} {
+test compress.1 {$UQBT compress95.x86} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/$UQBT.compress95.x86}
+    execToVars "$UQBTPATH/$UQBT $UQBTOPT -o $OUTPATH/$UQBT.compress95.x86 $TESTPATH/compress95.x86" myStdout myStderr
+    cd $OUTPATH/$UQBT.compress95.x86
+    execSed $UQBTPATH/test/source/compress.sed main.c
+    execToVars "make clean" myStdout myStderr
+    execToVars "makeas" myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [file delete -force /tmp/uq-test-stdout.file]
+    catch [file delete -force /tmp/uq-test-stderr.file]
+    catch {eval exec "echo 30000   e       2231 | compress95.x86" \
+                                     > /tmp/uq-test-stdout.file \
+                                    2> /tmp/uq-test-stderr.file}
+    catch {eval exec "$MD5SUM /tmp/uq-test-stdout.file" \
+                              2> /tmp/uq-test-stderr.file} result
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    list $result $myStdout $myStderr
+} {{42585d05aed29bd257b18b7790df7699  /tmp/uq-test-stdout.file} {} {}}
+}
+
+###
+### End non jvm tests
+###   
+}
+
+
+
+###############################################################
+###             Sparc to JVM translation tests              ###
+###############################################################
+
+if {[string equal $TARGET "jvm"]} {
+test sparcToJVM.hello.1 {Sparc to Java: uqbtss hello} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.hello}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.hello $TESTPATH/hello" myStdout myStderr
+    cd $OUTPATH/uqbtss.hello
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Hello" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {hello from sparc!} {}}
+
+
+test sparcToJVM.fiboO0.1 {Sparc to Java: uqbtss fibo-O0 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O0 $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O0 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(10) = 55} {}}
+
+
+test sparcToJVM.fiboO0.2 {Sparc to Java: uqbtss fibo-O0 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O0 $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O0 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(20) = 6765} {}}
+
+
+test sparcToJVM.fiboO0.3 {Sparc to Java: uqbtss fibo-O0 30} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O0 $TESTPATH/fibo-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O0 << 30" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(30) = 832040} {}}
+
+
+test sparcToJVM.fiboO4.1 {Sparc to Java: uqbtss fibo-O4 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O4 $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O4 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(10) = 55} {}}
+
+
+test sparcToJVM.fiboO4.2 {Sparc to Java: uqbtss fibo-O4 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O4 $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O4 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(20) = 6765} {}}
+
+
+test sparcToJVM.fiboO4.3 {Sparc to Java: uqbtss fibo-O4 30} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.fibo-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.fibo-O4 $TESTPATH/fibo-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.fibo-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Fibo-O4 << 30" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: fibonacci(30) = 832040} {}}
+
+
+test sparcToJVM.factorialO0.1 {Sparc to Java: uqbtss factorial-O0 5} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O0 $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O0 << 5" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(5) = 120} {}}
+
+
+test sparcToJVM.factorialO0.2 {Sparc to Java: uqbtss factorial-O0 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O0 $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O0 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(10) = 3628800} {}}
+
+
+test sparcToJVM.factorialO0.3 {Sparc to Java: uqbtss factorial-O0 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O0 $TESTPATH/factorial-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O0 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(20) = -2102132736} {}}
+
+test sparcToJVM.factorialO4.1 {Sparc to Java: uqbtss factorial-O4 5} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O4 $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O4 << 5" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(5) = 120} {}}
+
+
+test sparcToJVM.factorialO4.2 {Sparc to Java: uqbtss factorial-O4 10} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O4 $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O4 << 10" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(10) = 3628800} {}}
+
+
+test sparcToJVM.factorialO4.3 {Sparc to Java: uqbtss factorial-O4 20} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.factorial-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.factorial-O4 $TESTPATH/factorial-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.factorial-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Factorial-O4 << 20" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {Input number: Factorial(20) = -2102132736} {}}
+
+if {0} {
+test sparcToJVM.ptrtest.1 {Sparc to Java: uqbtss ptrtest} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.ptrtest}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.ptrtest $TESTPATH/ptrtest" myStdout myStderr
+    cd $OUTPATH/uqbtss.ptrtest
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Ptrtest" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {addr myStr ffbef018
+addr myStr = s = ffbef018
+content of myStr = hello there
+content of *s = hello there
+addr of there = ffbef01e} {}}
+
+
+test sparcToJVM.ptrtest.2 {Sparc to Java: uqbtss ptrtest-O4} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.ptrtest-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.ptrtest-O4 $TESTPATH/ptrtest-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.ptrtest-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Ptrtest-O4" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 {addr myStr ffbef018
+addr myStr = s = ffbef018
+content of myStr = hello there
+content of *s = hello there
+addr of there = ffbef01e} {}}
+}
+
+test sparcToJVM.sieve.1 {Sparc to Java: uqbtss sieve3000-O0} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.sieve3000-O0}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.sieve3000-O0 $TESTPATH/sieve3000-O0" myStdout myStderr
+    cd $OUTPATH/uqbtss.sieve3000-O0
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java"  myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [::tcltest::removeFile /tmp/uq-test-stdout.file]
+    catch [::tcltest::removeFile /tmp/uq-test-stderr.file]
+    ::tcltest::makeFile "" /tmp/uq-test-stdout.file
+    ::tcltest::makeFile "" /tmp/uq-test-stderr.file
+    catch {eval exec "java $JAVAOPT Sieve3000-O0" \
+            > /tmp/uq-test-stdout.file \
+           2> /tmp/uq-test-stderr.file} result
+    if {$result == ""} {
+    catch {eval exec $MD5SUM /tmp/uq-test-stdout.file \
+                              2> /tmp/uq-test-stderr.file} result
+    }
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+        close $f
+    }
+    ::tcltest::removeFile /tmp/uq-test-stdout.file
+    ::tcltest::removeFile /tmp/uq-test-stderr.file
+    list $result $myStdout $myStderr
+} {{1335190dd2b572e356b615502b75528c  /tmp/uq-test-stdout.file} {} {}}
+
+
+test sparcToJVM.sieve.2 {Sparc to Java: uqbtss sieve3000-O4} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.sieve3000-O4}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.sieve3000-O4 $TESTPATH/sieve3000-O4" myStdout myStderr
+    cd $OUTPATH/uqbtss.sieve3000-O4
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java"  myStdout myStderr
+    set myStdout ""     ;# ignore any normal-case make output
+    catch [::tcltest::removeFile /tmp/uq-test-stdout.file]
+    catch [::tcltest::removeFile /tmp/uq-test-stderr.file]
+    ::tcltest::makeFile "" /tmp/uq-test-stdout.file
+    ::tcltest::makeFile "" /tmp/uq-test-stderr.file
+    catch {eval exec "java $JAVAOPT Sieve3000-O4" \
+            > /tmp/uq-test-stdout.file \
+           2> /tmp/uq-test-stderr.file} result
+    if {$result == ""} {
+    catch {eval exec $MD5SUM /tmp/uq-test-stdout.file \
+           2> /tmp/uq-test-stderr.file} result
+    }
+    if {[catch {open /tmp/uq-test-stderr.file r} f] == 0} {
+    set myStderr [read $f]
+    close $f
+    }
+    ::tcltest::removeFile /tmp/uq-test-stdout.file
+    ::tcltest::removeFile /tmp/uq-test-stderr.file
+    list $result $myStdout $myStderr
+} {{1335190dd2b572e356b615502b75528c  /tmp/uq-test-stdout.file} {} {}}
+
+
+test sparcToJVM.banner.1 {Sparc to Java: uqbtss banner} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.banner6}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.banner6 $TESTPATH/banner6" myStdout myStderr
+    cd $OUTPATH/uqbtss.banner6
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Banner6 29 June 2000" \
+            myStdout myStderr]
+    list $result $myStdout $myStderr
+} {0 { #####   #####
+#     # #     #
+      # #     #
+ #####   ######
+#             #
+#       #     #
+#######  #####
+
+      #
+      #  #    #  #    #  ######
+      #  #    #  ##   #  #
+      #  #    #  # #  #  #####
+#     #  #    #  #  # #  #
+#     #  #    #  #   ##  #
+ #####    ####   #    #  ######
+
+ #####    ###     ###     ###
+#     #  #   #   #   #   #   #
+      # #     # #     # #     #
+ #####  #     # #     # #     #
+#       #     # #     # #     #
+#        #   #   #   #   #   #
+#######   ###     ###     ###
+} {}}
+
+
+test sparcToJVM.banner.2 {Sparc to Java: uqbtss banner} {
+    set myStdout ""
+    set myStderr ""
+    catch {exec rm -r -f $OUTPATH/uqbtss.banner6}
+    execToVars "$UQBTPATH/uqbtss -j -o $OUTPATH/uqbtss.banner6 $TESTPATH/banner6" myStdout myStderr
+    cd $OUTPATH/uqbtss.banner6
+    execToVars "make clean" myStdout myStderr
+    execToVars "make java" myStdout myStderr
+    set result [execToVars "java $JAVAOPT Banner6" myStdout myStderr]
+    list $result $myStdout $myStderr
+} {1 {Usage: banner "up to 10 char arg string" . . .
+child process exited abnormally} {}}
+}
+
+###
+### Print statistics about tests run and clean up temporary files.
+###
+
+::tcltest::cleanupTests
+

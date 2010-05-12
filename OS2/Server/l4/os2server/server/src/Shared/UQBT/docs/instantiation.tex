@@ -1,0 +1,435 @@
+
+\chapter{Instantiation of Translators}
+\label{ch-instantiation} 
+
+{\small
+\begin{flushright}
+Design: Cristina; Documentation: Cristina [Apr 01]
+\end{flushright}
+}
+
+
+This document is based on the experience gained by the 
+UQBT team in instantiating binary translators out of the UQBT framework.  
+The following translators have served as test beds for the 
+development of this process: 
+
+\begin{itemize}
+\item SPARC to Pentium
+\item Pentium to SPARC
+\item MC68000 to MC68000
+\item PA-RISC to SPARC 
+\end{itemize}
+
+The UQBT framework, described in Chapter~\ref{ch-uqbt-framework} 
+and replicated below in Figure~\ref{fig-uqbt-framework}, provides 
+the basis for a step-wise process of instantiating modules out of
+the framework.  
+
+\psfigbegin{figures/uqbtImplementation.eps}{10cm}
+\psfigend{fig-uqbt-framework}{The UQBT Framework}
+
+In order to instantiate a new translator, the APIs and specification 
+files for the source platform need to be described. 
+The output of the module that services each API or specification is 
+tested in order to ensure correctness of the intermediate output.  
+
+The instantiation process consists of the following steps: 
+\begin{enumerate}
+\item Binary-file decoder support
+
+\item Instruction decoding support 
+
+\item Instruction semantics support
+
+\item Control transfer support
+
+\item Procedural abstraction support
+
+\item Machine-specific support
+
+\item Code generation support
+\end{enumerate}
+
+Each step is described in some detail in the following sections.
+Throughout this presentation, the steps have been divided into 
+the three logical parts of the translator, that is, instantiating
+a front-end, instantiating to HRTL level, and instantiating
+a back-end.
+
+
+\section{Instantiating a New Front-end}
+In order to support a new front-end for a machine M$_s$, we 
+need to provide support for the binary-file format in which 
+the executable file is stored in, as well as the syntax and 
+semantics of the machine M$_s$ instructions.  
+
+\subsection{Binary-file Decoder Support}
+In order to support different binary-file formats, such as 
+ELF, PE, PRC, etc, UQBT exports a loader API called 
+\texttt{BinaryFile}.  \texttt{BinaryFile} is an abstract class 
+that makes available functions to:
+
+\begin{itemize}
+\item construct, load and unload binary files, 
+\item extract information from sections, 
+\item extract information from symbol tables (if any), 
+\item extract information from relocation tables (if any),
+\item display/dump the contents of all headers, and 
+\item obtain initial program state information, such as entry 
+	point(s), and determine whether a given address is a dynamically-linked 
+	address or not.  
+\end{itemize}
+
+For a given binary-file format BFF$_i$, the \texttt{BinaryFile} 
+API is satisfied by implementing the derived BFF$_i$BinaryFile 
+class.  In this class, some extra functions are used to 
+implement the \texttt{BinaryFile} interface, depending on 
+the complexity of implementing the API functionality.  
+
+Testing of this step is done by displaying/dumping to the screen 
+the contents of all headers and sections read from the file. 
+This contents is then checked manually against the contents 
+produced by a binary-file dump tool, commonly distributed with
+operating systems these days.  For example, under Unix, the  
+\texttt{elfdump} tool displays the contents of an ELF's file 
+headers.  A typical size of information dumped is around 500 
+lines of ascii text.  Similar results are achieved by using 
+GNU's \texttt{objdump} tool. 
+
+Modules to bring across from the UQBT source code (we use the
+following command: \texttt{cvs co -N -d . uqbt/dirName} 
+and then rename the \texttt{uqbt} directory to a suitable 
+name): 
+\begin{itemize}
+\item The \texttt{uqbt/loader} directory and all its files
+\item The \texttt{uqbt/include} directory and all its files
+\item The driver and Makefile for the bffDump program 
+	(\texttt{uqbt/loader/bffDump}); these programs 
+	need to be placed at top level. 
+\end{itemize}
+
+The skeleton file \texttt{bffDump.cc} provides the basis 
+for creating a binary-file dumper, also known by others as object 
+dumper, which displays the raw contents of each of the headers and 
+fields of the given binary-file.
+
+The \texttt{BinaryFile::DisplayDetails} function needs to be overridden 
+and implement the displaying of the BFF's header, its program 
+header and section headers, as well as the information within 
+those sections. 
+
+Using \texttt{elfdump} on Solaris, the following options 
+show parts of the Elf file; invoking \texttt{elfdump} with 
+a file name displays all the section information in the file. 
+Options (from the man page): 
+\begin{itemize}
+\item \texttt{-e}: dump the elf header,
+\item \texttt{-p}: dump the program headers, 
+\item \texttt{-c}: dump section header information,
+\item \texttt{-d}: dump the contents of the .dynamic section,
+\item \texttt{-s}: dump the contents of the symbol table sections (that
+           is, .dynsym and/or .symtab).
+\end{itemize}
+
+Testing against a tool like \texttt{objdump} requires different
+options to be set in order to see different parts of the file: 
+\begin{itemize}
+\item \texttt{--file-headers}: displays the Elf header
+\item \texttt{--section-headers}: displays the section headers 
+\item \texttt{--headers}: displays the section headers only (it 
+	does not include the program headers)
+\item \texttt{--syms}: displays the contents of the symbol table
+\item \texttt{--dynamic-syms}: displays the contents of the dynamic symbol 
+	table
+\item \texttt{--all-headers}: displays all section headers and the 
+	contents of the symbol table.
+\end{itemize}
+
+
+\subsection{Instruction Decoding Support}
+	This is the most time consuming step in the process as the 
+	binary translator writer needs to become fully familiar with 
+	the instruction set to be supported.  This step involves 
+	reading through architecture manuals and representing the 
+	information for instructions in terms of the SLED language. 
+	SLED allows for the description of the types of instructions 
+	in a given machine, the fields of such instructions, the 
+	values of particular fields of instructions, and the description
+	of what individual instructions are, in essence, allowing for
+	the mapping of binary bit streams to assembler instructions. 
+	In our experience, depending on how complex the instruction 
+	set is, and how familiar the writer is with the instruction 
+	set, this step can take anywhere from 2 weeks to 2 months. 
+
+    The New Jersey Machine Code toolkit (NJMCTK) not only supports 
+	the SLED language, but also supports an abstraction to decode and 
+	encode machine instructions.  The decoding abstraction provides for
+    a \emph{matching} statement whose syntax resembles that of
+    a C switch statement, and whose semantics is equivalent to
+    matching the series of bits that form an instruction and
+    returning the values of the variable fields of an instruction.
+    In this way, a decoder (disassembler) of machine instructions 
+	can be written, and the time to do this is minimal (less than 
+	1 day), in fact, it is possible to automatically generate such
+	a decoder.  This decoder is tested against an existing 
+	disassembler for the source machine through a series of test 
+	cases.  This is possible as most Unix systems include a \emph{dis} 
+	utility in their distribution or one is included as part of 
+	the GNU \emph{binutils}.
+
+The following files/directories need to be downloaded: 
+\begin{itemize}
+\item \texttt{uqbt/loader}
+\item \texttt{uqbt/include}
+\item \texttt{uqbt/machine}
+\item \texttt{uqbt/disasm} and put the files 
+	from this directory at top level (disasm.cc, disassembler.m, mltk.sh 
+	and Makefile)
+\item rename directory \texttt{uqbt} to something else (e.g.
+	\texttt{disasm})
+\end{itemize}
+
+Write the SLED spec for the architecture of choice.  
+New machine descriptions are to be placed in the 
+\texttt{machine/machineName} directory. 
+Write a decoder based on the spec; sample decoders are given 
+in the machine directory; for example, the 
+\texttt{machine/sparc/disassembler.m} 
+file is the decoder for the SPARC. 
+
+The decoder to be written is a ``matching'' file, which gets 
+processed by the New Jersey Machine Code toolkit (NJMCTK), along
+with the SLED spec, into a C++ file which performs the matching
+of bits to instructions.  
+For information on SLED specifications refer to Ramsey and 
+Fern\'{a}ndez~\cite{Rams97} and Chapter~\ref{ch-decoding} of 
+this documentation.  
+
+Appendix~\ref{ch-config} contains notes on how to configure
+UQBT to generate disassemblers. 
+
+
+\subsection{Instruction Semantics Support}
+	The writing of the SSL spec is not too hard to do once the 
+	SLED spec has been written, basically because by then the 
+	writer is very familiar with the instruction set being 
+	described.  In our experience, writing the SSL spec takes 
+	less than one third of the time that it takes to write the
+	SLED spec.  
+
+	Our current testing of the SSL spec is in terms of an extension
+	to the decoder.  Instead of the decoder dumping raw assembly 
+	information, it dumps RTL information.  Such information is 
+	manually tested against the assembly output. 
+
+In the decoder file, you need to add support to return semantic
+strings rather than plain strings.  Further, an extra function 
+will be needed to cater with numbers and predefined register 
+names (e.g. dis\_Reg() and dis\_Num()). 
+
+Except for the PA-RISC, all other CISC and RISC architectures we have 
+dealt with were almost straight forward supported by SSL.  However, 
+in the case of PA-RISC, a more expressive language was needed in order 
+to support pre and post semantics of instructions based on bits of 
+an instruction.  This mean that an extension to the language was 
+done and it took far longer than expected.   
+
+
+\section{Instantiating to HRTL Level}
+The M$_s$-RTL to \hrtl\ translator is composed of support for 
+control transfer instructions, procedural information, and 
+any extra code to support source machine-specific details. 
+
+\subsection{Control Transfer Support}
+	The New Jersey Machine Code toolkit (NJMCTK) supports the 
+	SLED language as well as an abstraction to decode and encode 
+	machine instructions.  The decoding abstraction provides for 
+	a \emph{matching} statement whose syntax resembles that of 
+	a C switch statement, and whose semantics is equivalent to 
+	matching the series of bits that form an instruction and 
+	returning the values of the variable fields of an instruction.
+	In this way, a decoder of machine instructions can be written. 
+	The support for the control transfer API is in terms of 
+	extra instructions that get added to this matching driver 
+	statement, so that control transfer information gets 
+	encoded into the decoded $M_s$-RTLs.    	
+
+	This API is very loose and not formally specified per se, 
+	though it is hardcoded into the code.  The M$_s$-RTL instructions
+	to which control transfer support has been applied, are an 
+	``in between'' RTL form that we call IRTL.  IRTL stands for 
+	``independent RTL'', and they resemble HRTL instructions, 
+	with the exception that their operands have not been obtained 
+	yet (these are obtained through procedural abstraction 
+	recovery). 
+
+	This step is almost trivial and can be implemented in 1 day 
+	after looking at skeletons of existing translators. 
+
+\subsection{Procedural Abstraction Support}
+    The PAL spec is based on the operating system ABI conventions
+    for setting up the call stack frame, parameter passing and
+    calling conventions.  Specifying this information takes
+    little time (2 days) once the information to be specified has
+    been determined.  
+
+    Testing of the PAL spec is done by compilation into the
+    source binary form.  In this way, a translator of mc68328 Palm
+    to mc68328 Palm binaries is instantiated for testing purposes.
+    We test the SSL and PAL specs by determining if the translated
+    programs behave in the same way as the original program.
+    In our experience, we do not introduce performance degradation,
+    in fact, the generated binaries compare favourably to native
+    code geneated on the target machine, and in some cases it
+    performs faster (due to optimization choices).  However, before
+	being able to perform this test, the next step may need to 
+	be applied. 
+
+	Programs do not necessarily only adhere to the OS' ABI calling 
+	conventions, therefore, some of the calling conventions that 
+	we have included in PAL specs have been determined by trail and 
+	error, after testing a program that does not adhere to the 
+	ABI conventions.  We normally just include the new convention in
+	the PAL spec. 
+
+\subsection{Machine-specific Support}
+	Add any extra analysis that is too machine-specific: 
+	In order to remove all the peculiarities of a given source 
+	machine, there may be need for an extra analysis to be added. 
+
+	In our experience, each machine has a particular peculiarity 
+	that is too machine-specific to be supported in the framework. 
+	For example, SPARC has delayed transfers of control, x86 has 
+	a stack-based representation for their floating point instructions, 
+	mc68k makes use of a data pointer as a global pointer into data, 
+	etc.  We normally try to address these issues in a fairly 
+	generic way, though it is not always necessary to solve them 
+	in that way.  In the case of delayed transfers of control, our 
+	generic solution has been useful for reusing it for PA-RISC 
+	code.  
+
+
+\section{Instantiating a New Back-end}
+Throughout the last few years, the UQBT's back-end has interfaced 
+to a C compiler in order to optimize the intermediate code 
+generated by UQBT.  In that framework, HRTL code is translated
+to low-level C code, effectively using the C compiler as an 
+assembler.  
+We are now extending the framework to integrate with existing 
+retargetable optimizers at the RTL level.  In this way, HRTL 
+code is translated to $M_t$-RTL code and fed into an optimizer
+such as VPO~\cite{Beni88} using the new VPO interfaces from the
+Zephyr project~\cite{Vpo98}.  
+Figure~\ref{fig-newUqbt} illustrates the new UQBT framework.  
+
+\psfigbegin{figures/uqbtOverall2001.eps}{10cm}
+\psfigend{fig-newUqbt}{The 2001 UQBT Framework}
+
+In order to generate $M_t$-RTL code we need to solve several 
+problems that are not discussed in this paper; these are: 
+\begin{itemize}
+\item Transform HRTL code to $M_t$-RTL code in a machine-independent way. 
+      This step requires a few extensions to the PAL language in 
+      order to support code generation of procedure call information 
+      in a retargetable way, for example, by being able to use 
+      specified calling conventions and parameter passing conventions, 
+      as well as being able to set up the stack frame in the way expected
+      in the target machine. 
+
+\item Satisfy the $M_t$-RTL invariant that some optimizers require. 
+      This invariant basically asks for an RTL to be equivalent to 
+      an assembly instruction in the target machine.  This invariant 
+      allows retargetable optimizers to perform not only machine-independent 
+      optimizations but also machine-dependent ones. 
+\end{itemize}
+
+
+\subsection*{Translation via low-level C}
+The C code generator back-end generates low-level C code, effectively
+using the C language as a macro assembler.  Figure~\ref{fig-cgen-eg} 
+shows the code generated by this back-end for the sample program. 
+As can be seen from the code, type casting is used very often  
+due to the need to ensure that the C compiler does not infer different
+semantics to the one expected.  
+
+\centerfigbegin
+\begin{fnverbatim}
+#include "uqbt.h"
+void proc1(int16 v0, int32 v1, int16 v2) {
+	int16 v3;
+	int32 v4;
+	int16 v5;
+	int16 v6;
+	int16 v7;
+	int16 v8;
+	int32 r3, r4, r5, r8;
+	int32 temp1;
+	int32 tmp1;
+	/* 3c6 */
+
+	*(int16*)&r5=v0;
+	*(int16*)&r4=v2;
+	temp1= *(int16*)&r4;
+	v5=temp1;
+	v4=33566720;
+	v3=proc3(v4,v5);
+	temp1=v3;
+	*(int16*)&r3=temp1;
+	tmp1=(unsigned int16)( *(unsigned int16*)&r3);
+	v6=tmp1;
+	if ((*(int32*)&v6)==(0)) goto L1;
+	temp1=(int32)( *(int16*)&r3);
+	r8=temp1;
+	temp1=r8;
+	*(int32*)&v3=temp1;
+	goto L2;
+L1:		/* 3f0 */
+	temp1= *(int16*)&r5;
+	v3=temp1;
+	v7=v3;
+	if ((*(int32*)&v7)==(0)) goto L3;
+	goto L4;
+L3:		/* 3f6 */
+	v3=proc2();
+	temp1=v3;
+	 *(int16*)&r3=temp1;
+	tmp1=(unsigned int16)( *(unsigned int16*)&r3);
+	v8=tmp1;
+	if ((*(int32*)&v8)==(0)) goto L5;
+	temp1=(int32)( *(int16*)&r3);
+	r8=temp1;
+	temp1=r8;
+	*(int32*)&v3=temp1;
+	goto L2;
+L5:		/* 406 */
+	v5=1000;
+	FrmGotoForm(v5);
+	proc4();
+	proc5();
+L4:		/* 418 */
+	*(int32*)&v3=0;
+L2:		/* 41a */
+	return;
+}
+\end{fnverbatim}
+\centerfigend{fig-cgen-eg}{Generated C code for the example in Figure~\ref{fig-hrtl-eg}}
+
+
+\subsection{Translation via RTL code} 
+Please refer to documentation in Chapter~\ref{ch-vpobackend}. 
+
+
+\subsection{Translation to JVML code}
+
+Translators to bytecode require extra environment support
+to compliment the strengths of the JVM.  The lack of a generic memory
+model on the JVM forces us to emulate the data and stack of a translated
+program.  Library functions from the source architecture must also be
+supplied to the translated program.  This is facilitated by a superclass
+from which each translated program is inherited.  The superclass provides
+simulated memory access in preloaded byte arrays and wrapper routines to 
+library functions which invoke the native Java subsystems.
+
+For more information, please refer to Chapter~\ref{ch-jvm}. 
+

@@ -1,0 +1,34 @@
+#==============================================================================
+# FILE:       solaris.link
+# OVERVIEW:   This is the prototype solaris linker map file (or a copy of it)
+#               used to build Solaris binaries with the data sections at the
+#               correct (original) addresses. The start addresses of the
+#               sections in this file are strings starting with "$", e.g.
+#               $ dstartro for the start of the read only data section; these
+#               strings are changed to the actual values using linker.sed and
+#               the "sed" stream editing tool.
+# NOTE:       If a block move is required (about 50% of the time when going from
+#               small pagesize machines (e.g. Pentium) to larger page size
+#               machines (e.g. Sparc), then solaris_bm.link will be used instead
+#
+# (C) 1999-2001 The University of Queensland, BT group
+#============================================================================*/
+
+# $Revision: 1.5 $
+
+# These 2 lines are for the first segment. The first segment will always have
+# the elf header at the start of it, and this would otherwise muck up the load
+# address of the first section. The .interp section is forced to this first
+# segment (its address doesn't matter), and the other segments and sections
+# can float after that.
+# Address 0 is used, because otherwise the segment with the lowest address will
+# get the elf header. Thus, segments at low addresses should have .align
+# statements (especially pa-risc code segments).
+dummy = V0;
+dummy : .interp;
+
+seg.code = LOAD V0x$cstart;
+seg.code: .uqbt.code;
+seg.code: .uqbt.rodata;
+seg.data = LOAD V0x$dstartrw;
+seg.data: .uqbt.data;

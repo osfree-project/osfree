@@ -1,0 +1,676 @@
+%
+% 22 Aug 01 - Cristina: created 
+% 23 Aug 01 - Mike: 286, gcc v3, bison++
+% 23 Aug 01 - Cristina: Added "Running the translator" subsection
+% 24 Aug 01 - Mike: Subsections on "how configure works", "make depend"
+% 27 Aug 01 - Mike: Started small subsection with "warnings from make"
+% 10 Sep 01 - Cristina: Some notes on regression testing
+%
+
+\chapter{Configuring UQBT}
+\label{ch-config}
+
+This chapter contains notes on how to configure the UQBT framework
+for a given platform.  It also states what compiles we use to compile
+the code base. 
+
+
+\section{Compilers and Tools Needed to build UQBT}
+We have used gcc 2.8.1 and gcc 2.95-2 over the years, we are currently
+using gcc 2.95.3, however, we do not make use of any of the new 
+classes that are not available in 2.95-2, such as sstream. 
+Note that we make use of namespaces sparsely in the code and these
+are not supported by the gcc 2.8.1 version of the compiler. 
+
+For debugging, gdb 5.0 works well with gcc 2.95.3.
+
+It is not recommended that the casual user attempts to use gcc version 3 to
+make UQBT. Although this has been tried, and dozens of small changes have
+been booked in to satisfy gcc3's stricter compliance with the
+C++ standard, it is very easy for small errors (e.g. forgetting to specify
+a namespace) to slip into the code, and we don't check regularly with
+gcc3 to find all of these. Experienced programmers will not have much trouble
+using gcc3, however. The main issues when using gcc v3 are:
+\begin{itemize}
+\item Gcc3 strictly enforces namespaces.
+\item Some of the more obscure include files are at different paths.
+\item Gcc3 will not allow the use of pointers where iterators are expected.
+\item Gcc3 is more strict on const correctness, and the use of
+\verb!const_cast!.
+\end{itemize}
+
+
+\subsection{Special tools needed to build UQBT}
+
+UQBT has many source files that are generated from other source files,
+or from specifications. It is possible to make UQBT without installing
+these tools, but if you want to make significant changes to UQBT, you will
+need those tools.
+
+To make UQBT without the special tools, use the \texttt{--enable-remote}
+configuration script (see above).
+
+The special tools are as follows.
+
+\begin{itemize}
+\item The New Jersey Machine Code Toolkit, ML version. This tool reads machine
+specifications, and in association with a matcher (\texttt{.m}) file, generates
+binary decoders. For details and downloading, see
+\texttt{http://www.eecs.harvard.edu/~nr/toolkit/ml.html}.
+\item Bison++ and Flex++, C++ versions. Note that the GNU tool bison++ is
+{\it not} suitable; UQBT needs the special versions from France, which are
+C++ aware. If you get lots of errors from running bison++, you have probably
+got the wrong version! Download these tools from
+\texttt{ ftp://ftp.th-darmstadt.de/pub/programming/languages/C++/tools/flex++bison++/LATEST/} or mirror sites such as
+\texttt{http://sunsite.bilkent.edu.tr/pub/languages/c++/tools/flex++bison++/LATEST/}.
+To test if you have the correct version, you should get results similar to:
+\begin{verbatim}
+%  bison++ --version
+bison++ Version 1.21-7, adapted from GNU bison by coetmeur@icdc.fr
+\end{verbatim}
+If searching the web for these tooks, include the author's name ("coetmeur")
+as a keyword.
+\item The Tcl shell (\texttt{tclsh}). This tool is only needed to run the
+regression testscript (\texttt{test/regression.test}). This is part of the
+common Tcl/tk system; you may well find that tclsh is already installed on
+your Linux or other Unix system. Otherwise, see web pages such as
+\texttt{http://www.sco.com/Technology/tcl/Tcl.html}.
+\end{itemize}
+
+
+\section{Configuration Notes}
+In order to instantiate a translator out of the UQBT framework, 
+you need to configure UQBT to run on your host machine by instantiating 
+a set of source and target machines.  Figure~\ref{fig-mach-names} 
+lists the names used within UQBT to describe machine specs, and 
+the associated version of the instruction set which is specified.  
+The 1-letter column refers to the letter used to refer to this 
+machine in the instantiated translator.  For example, a SPARC to 
+Pentium translator would get the name uqbtsp (source machine is SPARC
+and target machine is Pentium). 
+Figure~\ref{fig-machs} lists the source and target machines currently 
+supported (Aug 2001), note that not all combinations of machines 
+have been currently tested in any detail/thoroughly. 
+
+\centerfigbegin
+\begin{tabular}{|l|c|l|} \hline
+Name	& 1-letter	& Description \\ \hline
+sparc	& s			& SPARC V8 (integers and floats) \\
+pent	& p			& 80386 (integers and floats) \\
+mc68k 	& m			& mc68328 \\
+hppa	& h			& PA-RISC V1.1 \\
+jvm		& 			& JVM  \\
+arm		& 			& ARM  \\
+286     & 2         & 80286 realmode (wildly experimental) \\ \hline
+\end{tabular}
+\centerfigend{fig-mach-names}{Names of Machines and Versions Supported 
+	by the UQBT Framework}
+
+\centerfigbegin
+\begin{tabular}{|c|c|} \hline
+Source Machine & Target Machine \\ \hline
+sparc		& sparc \\
+pent		& pent \\
+mc68k		& mc68k \\
+hppa		& jvm \\
+286			& arm \\ \hline
+\end{tabular}
+\centerfigend{fig-machs}{Source and Target Machines Supported by the UQBT 
+	Framework}
+
+You can get help from the configure program at any point in time by 
+emitting the following command: 
+\begin{verbatim}
+   ./configure --help
+\end{verbatim}
+
+Figure~\ref{fig-config} shows the options used by UQBT from the 
+\verb!configure! program. 
+
+\centerfigbegin
+\begin{tabular}{|l|l|} \hline
+Option 	& Description \\ \hline
+  --enable-uqbt-only    & only build the uqbt translator \\
+  --enable-remote       & don't try to regenerate generated files \\
+  --enable-debug[=$<what>$] & enable debugging suport, $<what>$ is one of \\
+                    &   ANALYSIS, DECODER, CSR, SWITCH, SS\_SIMP, SSLPARSER \\
+  --with-source=$<arch>$  & translate from $<arch>$ architecture,
+                          one of sparc, pent, mc68k, hppa, 286 \\
+  --with-target=$<arch>$  & translate to $<arch>$ architecture,
+                          either arm or one of above architectures \\
+  --with-instrm=$<dir>$   & add instrumentation to emulator using files in $<dir>$ \\ 
+  --disable-jvm         & disable JVM backend \\
+  --disable-po          & disable post-optimizer backend (sparc only) \\
+  --disable-vpo         & disable vpo backend (sparc only) \\ \hline
+\end{tabular}
+\centerfigend{fig-config}{Configure Options}
+
+
+\subsection{Instantiating Translators out of the UQBT Framework}
+
+To instantiate translators, we recommend users to use the ``remote'' 
+option as this option does not require them to have different types 
+of tools installed in their system, it only requires a C++ compiler 
+and an assembler to be available.  Users using the JVM backend will 
+need to have the Jasmin assembler and a Java virtual machine.  
+Note that the UQBT distribution does not contain files relating to 
+the integration with the VPO optimizer, hence, all translators that 
+have SPARC as a target architecture should disable the VPO option. 
+The following notes are for the 5 translators that were used for 
+experimentation purposes.
+
+\subsubsection{Instantiating a SPARC to SPARC Translator}
+
+To instantiate a SPARC to SPARC translator, \texttt{uqbtss}, configure 
+UQBT in the following way: 
+
+\begin{verbatim}
+  ./configure --with-source=sparc --with-target=sparc --enable-remote --disable-vpo
+  make
+\end{verbatim}
+
+
+\subsubsection{Instantiating a SPARC to Pentium Translator}
+
+To instantiate a SPARC to Pentium translator, \texttt{uqbtsp}, configure 
+UQBT in the following way: 
+
+\begin{verbatim}
+   ./configure --with-source=sparc --with-target=pentium --enable-remote 
+   make
+\end{verbatim}
+
+
+\subsubsection{Instantiating a Pentium to SPARC Translator}
+
+To instantiate a Pentium to SPARC translator, \texttt{uqbtps}, configure 
+UQBT in the following way: 
+
+\begin{verbatim}
+   ./configure --with-source=pentium --with-target=sparc --enable-remote --disable-vpo
+   make
+\end{verbatim}
+
+
+\subsubsection{Instantiating a Pentium to Pentium Translator} 
+
+To instantiate a Pentium to Pentium translator, \texttt{uqbtpp}, configure
+UQBT in the following way:
+
+\begin{verbatim}
+   ./configure --with-source=pentium --with-target=pentium --enable-remote 
+   make
+\end{verbatim}
+
+
+\subsubsection{Instantiating the SPARC to JVM Translator} 
+
+Translations to JVM are included in the \texttt{uqbtss} translator, 
+a runtime switch needs to be activated, as described in \S\ref{sec-jvmeg}.  
+
+
+
+\section{How the Configuration Process Works}
+A complete description of the autoconfigure process is beyond the scope of
+this document; the interested reader can read any of the publicly available
+documentation, such as \texttt{http://www.gnu.org/manual/autoconf/index.html}.
+
+In brief, the developer writes a file called \texttt{configure.in}. The program
+\texttt{autoconf} processes this file, and produces a script file called
+\texttt{configure} that users can run to configure their system. We have
+already done that, so unless you need to change the configuration, you
+only need to run \texttt{./configure}. If you do make a change to
+\verb!configure.in!, then you should run
+\begin{verbatim}
+   autoconf; autoheader
+\end{verbatim}
+
+When \texttt{./configure} is run, various files are read, including a file
+specific to the source machine. For example, if you configure with
+\texttt{--with-source=sparc}, the file \texttt{machine/sparc/sparc.rules}
+is read for sparc specific information. It also reads the file
+\texttt{Makefile.in}, and from it and the configuration information, it
+creates the \texttt{Makefile}. As a result, the \texttt{Makefile} isn't even
+booked in. That's the main reason you need to run \texttt{./configure} as
+the very first thing, before even \texttt{make}. It also means that you
+should not make changes (at least, changes that are meant to be permanent)
+to \verb!Makefile!; they should be made to \texttt{Makefile.in}.
+
+Another important file created by \verb!./configure! is \verb!include/config.h!.
+This file is included by \verb!include/global.h!, which in turn is included
+by almost every source file. Therefore, \verb!configure! goes to some trouble
+not to touch \verb!include/config.h! if there is no change to it (and it says
+so at the end of the \verb!configure! run). A significant change to the
+configuration (e.g. choosing a new source or target machine) will cause a
+change to \verb!include/config.h!, and therefore almost everything will
+have to be recompiled.
+
+A note about the version of \texttt{autoconf}; we have found that 
+version 2.9 does not work well but version 2.13 works fine with 
+our \texttt{configure} files. 
+
+
+\subsection{Dependencies and ``\texttt{make depend}''}
+The first time you \verb!make! UQBT, there won't be a file called
+\verb!.depend!. This file will contain the dependencies for the whole project.
+For example, there will be an entry similar to this:
+
+\begin{verbatim}
+coverage.o: ./coverage.cc include/coverage.h include/global.h \
+ include/config.h
+\end{verbatim}
+
+which says that the \verb!coverage.o! file depends on the files
+\verb!./coverage.cc!, \verb!include/coverage.h!, and so on. There can be
+dozens of dependencies; the above is one of the very smallest. This information
+takes a minute or two to generate, and so is only generated (a) by \verb!make!
+itself if 
+\verb!.depend! does not exist, and (b) if the user types \verb!make depend!.
+
+It is possible to change the dependencies quite readily, e.g. by adding a
+\verb!#include! line to a source file. If you do this, and forget to run
+\verb!make depend!, then you can end up with very subtle make problems that
+are very hard to track down. For example, suppose you add
+``\verb!#include "foo.h"!'' to the \verb!worker.cc! source file,
+so that \verb!worker.cc! can use the last virtual method in class \verb!foo!.
+Everything compiles and works fine. A week later, you add a virtual method to
+the middle of \verb!class foo!. The \verb!.depend! file doesn't have the
+dependency for \verb!worker.cc! on \verb!foo.h!, and so \verb!worker.o! isn't
+remade. Your code in \verb!worker.o! is then calling the second last method
+in \verb!class foo!, instead of the last method as it used to! However,
+you are not thinking about \verb!worker.cc! now, since your latest changes
+are elsewhere. This sort of problem can take a long time to fix.
+
+One solution is to ``\verb!make clean!'' as soon as you get unexpected
+results. However, you can save a lot of time if instead you just
+\verb!make depend; make! instead. In fact, it's a good idea to run
+\verb!make depend! regularly, or after any significant change to the source
+files.
+
+\subsection{Warnings from the \texttt{make}}
+
+During the making of UQBT, it is normal to see quite a lot of output. We try to
+ensure that ordinary warnings from gcc are prevented, but some warnings are much
+harder to suppress, and some warnings are quite normal. For example:
+
+\verb!typeAnalysis/typeAnalysis.y contains 2 shift/reduce conflicts.!
+
+These are normal, and the bison++ parser automatically resolves these conflicts
+in a sensible way.
+
+
+\section{Running the Translator}
+
+Once you have a translator, you can run it by giving the translator 
+the source (input) binary file and the translator will create a 
+directory with C and possibly JVM files to be compiled.  
+For example, if you have the translator \verb!uqbtsp! and you 
+have a SPARC Solaris \verb!hello! binary, you can emit the following
+command: 
+
+\begin{verbatim}
+   uqbtsp test/sparc/hello
+\end{verbatim}
+
+and the translator will create the directory \verb!uqbtsp.hello! 
+with the following files: 
+
+\begin{verbatim}
+   _globals.s    link.sed      rodata.s
+   Makefile      _globals.s    hello.map     main.c        rwdata.s
+   _globals.chg  changerel     link.sed      rodata.s      uqbt.h
+\end{verbatim}
+
+The translator currently generates for you both C and JVM files 
+(for any target).  These files need to be compiled by using your 
+C compiler.  To compile: 
+
+\begin{verbatim}
+   make
+\end{verbatim}
+
+and the following files should be generated: 
+
+\begin{verbatim}
+Makefile      _globals.s    hello.map     main.o        rwdata.o
+_globals.chg  changerel     link.sed      rodata.o      rwdata.s
+_globals.o    hello         main.c        rodata.s      uqbt.h
+\end{verbatim}
+
+Note that the \verb!hello! program in this directory is the one
+generated by the translator.  
+
+The Makefile sets up the path for the C, assembler, linker, Jasmin, and 
+VPO tools, as well as the GNU \texttt{head} utility.  These can be 
+overwritten in a make script of your own.  For example, the Makefile's
+content may be this: 
+
+\begin{verbatim}
+CC = /proj/uqbt/bin/gcc -w -O4
+AS = /proj/uqbt/bin/as
+LD = /proj/uqbt/bin/gcc
+OBJCOPY = /proj/uqbt/bin/objcopy
+JASMIN = /proj/uqbt/bin/jasmin
+HEAD = head #make sure you use GNU's head
+VPO = /proj/uqbt/bin/vpo
+OBJS = main.o rodata.o rwdata.o _globals.o
+
+all:     hello
+
+hello: ${OBJS}
+    ${CC} -Wl,-Mhello.map -o hello ${OBJS}
+    changerel hello -f _globals.chg
+
+clean:
+    rm -f hello ${OBJS} hello.class Uqbt.j rodata rwdata *.dec
+
+rodata: rodata.o rwdata.o
+    ${OBJCOPY} rodata.o rodata -O binary -R .text -R .data -R .bss
+    ${OBJCOPY} rwdata.o rwdata -O binary -R .text -R .data -R .bss
+    ${HEAD} -c 32 /dev/zero > bssdata
+
+java: hello.class rodata rwdata bssdata
+
+hello.class: Uqbt.j
+    ${JASMIN} -g Uqbt.j
+
+Uqbt.j: hello.j readData.j
+    cat hello.j readData.j > Uqbt.j
+\end{verbatim}
+
+and a ``makeas'' script can overwrite the assembler and head programs
+like this: 
+
+\begin{verbatim}
+make AS="/usr/local/bin/as"
+make HEAD="/usr/local/bin/head"
+\end{verbatim}
+
+In this case, if you have a makeas script, you do a \texttt{makeas} instead
+of a \texttt{make}. 
+
+In order to remove all object files and associated generated files, 
+you can emit the following command: 
+\begin{verbatim}
+   make clean
+\end{verbatim}
+
+
+\subsection{Generating JVM files}
+\label{sec-jvmeg}
+
+The JVM backend is integrated into the UQBT system in a different 
+way to other machine-code backends.  Instead of instantiating a 
+``uqbtxj'' translator, generated translators will support a ``-j'' 
+option to generate JVM code in the form of Java bytecode assembler
+files (.j files).  
+Note that this translator is experimental at best, it has only 
+been tested with integer-based programs in a SPARC environment. 
+There are some issues that have not been addressed for x86 (their
+addresses are too high and so lots of memory needs to be reserved,
+which makes JVMs run out of memory).  
+
+If you have built a uqbtss translator, use the -j option: 
+\begin{verbatim}
+   uqbtss -j test/sparc/hello
+\end{verbatim}
+
+which will create several .j files as well as the standard .cc files 
+generated by this command: 
+\begin{verbatim}
+Makefile      changerel     link.sed      rodata.s
+_globals.chg  hello.j       main.c        rwdata.s
+_globals.s    hello.map     readData.j    uqbt.h
+\end{verbatim}
+
+To build a Java executable file (.class) you emit the following make
+command (make sure the ``head'' program is the GNU version of this
+program): 
+\begin{verbatim}
+   make java
+\end{verbatim}
+
+If you cannot setup your paths to have the right tools in the path, 
+you can use a script to overwrite some of the paths of tools given
+in the generated Makefile.  For example, if I want to overwrite the
+path to the \texttt{head} program, but leave the paths for the 
+C compiler, the assembler and jasmin as is, I can have the following 
+\texttt{makej} script: 
+\begin{verbatim}
+#!/bin/sh
+cc1=c++
+jas=jasmin
+as=as
+head="/proj/uqbt/bin/head"
+make CCONE=$cc1 JASMIN=$jas AS=$as HEAD=$head $*
+\end{verbatim}
+and I would invoke such as script instead of \texttt{make} using the
+same arguments as before, i.e. 
+\begin{verbatim}
+   makej java
+\end{verbatim}
+
+After you emit the make command, you will have a Hello.class file 
+which is a Java executable: 
+\begin{verbatim}
+Hello.class   _globals.s    hello.map     rodata        rwdata.s
+Makefile      bssdata       link.sed      rodata.o      uqbt.h
+Uqbt.j        changerel     main.c        rodata.s
+_globals.chg  hello         main.o        rwdata
+_globals.o    hello.j       readData.j    rwdata.o
+\end{verbatim}
+ 
+To run the generated file, you need to make use of the runtime library 
+that UQBT has for Java programs; this library is located in the 
+uqbt/backend/jvm/runtime directory.  For the above program, you would 
+emit the following command: 
+\begin{verbatim}
+java -cp /path-to-uqbt/backend/jvm/runtime:. Hello
+\end{verbatim}
+
+In a similar way, you can translate the banner program.  If you execute
+the following commands: 
+\begin{verbatim}
+  uqbtss -j banner6
+  cd uqbtss.banner6/
+  makej java
+\end{verbatim}
+
+you generate the \texttt{Banner6.class} JVM binary.  You can run this 
+binary: 
+\begin{verbatim}
+  java -cp ../../../backend/jvm/runtime:. Banner6
+  Usage: banner "up to 10 char arg string" . . .
+\end{verbatim}
+
+or give it arguments as the program expects, e.g.: 
+\begin{verbatim}
+  java -cp ../../../backend/jvm/runtime:. Banner6 31 Dec 2001
+ #####     #
+#     #   ##
+      #  # #
+ #####     #
+      #    #
+#     #    #
+ #####   #####
+
+######
+#     #  ######   ####
+#     #  #       #    #
+#     #  #####   #
+#     #  #       #
+#     #  #       #    #
+######   ######   ####
+
+ #####    ###     ###      #
+#     #  #   #   #   #    ##
+      # #     # #     #  # #
+ #####  #     # #     #    #
+#       #     # #     #    #
+#        #   #   #   #     #
+#######   ###     ###    #####
+\end{verbatim}
+
+
+\section{UQBT Options}
+The UQBT framework provides a series of options for each 
+instantiated translator, these options are listed in Figure~\ref{fig-options}
+for the \texttt{uqbtss} translator, other translators will show the
+same options.
+
+\centerfigbegin
+\begin{verbatim}
+Usage: uqbtss {-<option>} binFileName
+        -D: generate .dot file for all procedures
+        -G: generate call Graph (.cg.dot) including library calls
+        -h: this Help file
+        -o dir: put Output files into <dir> (default is ./uqbtss.<binFileName>)
+        -q: Quiet (no display of each procedure name)
+        -r: display RTLs as decoded (.rtl)
+        -R: display High Level RTLs after decoding (.hrtl)
+        -T: perform type analysis and output type info to a .type file
+        -A: display Advanced options (useful for debugging of the translator)
+\end{verbatim}
+\centerfigend{fig-options}{UQBT Translator Options}
+
+These general options allow you to: 
+
+\begin{itemize}
+\item display graphs about the program (call graph or control flow graphs) 
+	using the AT\&T dotty format (\texttt{.dot} files), 
+
+\item change the output directory where generated files are placed in 
+	(by default, a new directory is created with the name of the translator
+	you are running, followed by a full stop and the name of the program 
+	you are translating.  For example, for if running the \texttt{uqbtss} 
+	translator and translating the file \texttt{test/fibo}, the generated 
+	directory will be \texttt{uqbtss.fibo} relative to the directory where
+	the translator was invoked from),  
+
+\item dump textual RTL information for each procedure processed, in a 
+	\texttt{.rtl} file, 
+
+\item dump textual HRTL information in a \texttt{.hrtl} file, and 
+
+\item dump type analysis information into a \texttt{.type} file. 
+\end{itemize}
+
+The UQBT framework provides several advanced options which are not 
+recommended for normal users, they are mainly used by developers of
+the framework for display of extra information or to constrain the 
+tool to only process one procedure.  These options are: 
+
+\begin{verbatim}
+Usage: uqbtss {-<switch>} binFileName
+        -b: no Backend
+        -Bx: use Binary file format x (e.g. h=HP PA/Risc SOM format)
+        -c: print Coverage of text section, no analysis or backend
+        -C: copy the Code section to the target binary
+        -d: generate .one.dot file for main or procedure selected with -S
+        -e: don't generate Endianness swaps even if required
+        -Ex: use the expander backend (e.g. c=C j=JVM n=NJMCTK v=VPO)
+        -f: use Fast but not as exact instruction mapping
+        -H: emit High level C using structuring algorithms
+        -j: emit Java bytecodes (JVM classfiles)
+        -lLibString: use dollar separated list of libraries, e.g. -lm$dl
+        -L: no Library functions in runtime address map
+        -m: Make the output file immediately after translation
+        -O: use the VPO optimizer backend
+        -s Symbol: use symbol instead of main as entry point
+        -S Symbol: as above, but only parse Single procedure
+        -t: print a Trace of basic blocks and procedures visited
+        -v: Verbose
+        -V: Very Verbose: detailed dump of input binary file
+        -y: Suppress dYnamic global processing, if there is only 1 entry
+\end{verbatim} 
+
+
+\section{Regression Testing}
+The \uqbt\ framework provides for a set of regression tests for 
+some of its instantiated translators.  We commonly test with 
+the Sparc to Sparc (uqbtss), the Pentium to Sparc (uqbtps) and
+the Sparc to JVM (uqbtss using the jvm configure option) options. 
+
+The script that is used for regression testing is called 
+\texttt{test/regression.test}.  This is a Tcl/Tk script that 
+can be customized to have more/different tests.  The script 
+has a name for each test, it runs the test and compares it 
+against an expected result, if not the same, it reports on its
+findings.  At the end of all the tests, there is a 1-line report
+on the number of tests run, the number passed, skilled and failed.   
+
+To run the Sparc to Sparc test: 
+\begin{verbatim}
+    cd test
+    tclsh regression.test sparc sparc
+\end{verbatim}
+
+To run the Pentium to Sparc test: 
+\begin{verbatim}
+    cd test
+    tclsh regression.test pentium sparc
+\end{verbatim}
+
+To run the Sparc to JVM test: 
+\begin{verbatim}
+    cd test
+    tclsh regression.test sparc jvm
+\end{verbatim}
+
+
+\section{Generating and Running Disassemblers}
+
+Disassemblers are a useful tool on their own and they can be 
+generated out of the UQBT framework when going through the
+instantiation process (see Chapter~\ref{ch-instantiation}).  
+The following notes explain how to generate a disassembler using
+the C or the Java programming languages.  
+
+\subsubsection{C-based Version}
+To generate a C-version of a disassembler:
+\begin{verbatim}
+   ./configure --with-source=sparc --enable-remote
+\end{verbatim}
+
+\begin{verbatim}
+   make disasm
+\end{verbatim}
+
+The disassembler is placed in the \texttt{./disasm} directory.
+For SPARC, the \texttt{sparcDis} program is created.
+
+To run:
+\begin{verbatim}
+   cd disasm
+   sparcDis ../test/sparc/hello
+\end{verbatim}
+
+
+\subsubsection{Java-based Disassemblers Using the Unsafe Class}
+For a Java-based disassembler using methods of Java's \texttt{Unsafe} class:
+Ensure that your path points to Java JDK 1.4;
+if it does not, you must fix your path,
+then rerun configure.
+\begin{verbatim}
+   make sparcdisj
+\end{verbatim}
+
+The disassembler is placed in the \texttt{./disasm} directory.
+For SPARC and other platforms, the \texttt{disasm.class} file is
+generated; this file invokes the machine-specific disassembler
+(e.g., \texttt{sparcdis.class} in the case of SPARC).
+
+To run the disassembler,
+the classpath needs to point to the \texttt{./disasm} directory.
+For help, run:
+\begin{verbatim}
+   cd disasm
+   java -cp . disasm
+\end{verbatim}
+
+To run:
+\begin{verbatim}
+   java -cp . disasm ../test/sparc/hello
+\end{verbatim}
+
+

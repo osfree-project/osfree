@@ -1,0 +1,24 @@
+% Style file for Springer-Verlag's Lecture Notes in Computer Science
+% series.
+% Uses the ``12pt chars on 16x23.5cm output size'' option and center
+% on A4 page.
+% Martin Jourdan, INRIA (jourdan@minos.inria.fr), Thu May 17 1990
+\ifnum \@ptsize < 2 % check char size
+    \edef\@tempc{A paper for the LNCS series should be
+	set in 12pt base character size.^^JAbort immediately by typing `x' and
+	use `12pt' as a documentstyle option.}%
+    \expandafter\errhelp\expandafter{\@tempc}%
+    \errmessage{Not in 12pt base size}
+\fi
+\oddsidemargin 0 in
+\evensidemargin 0 in
+\marginparwidth 0 in
+\textheight=23.5cm
+\textwidth=16cm
+\headheight 0pt
+\headsep 0pt
+\topmargin -1.2cm               % to center vertically
+\pagestyle{empty}
+% \setlength{\bibparindent}{2.0cm}
+\renewcommand{\floatpagefraction}{0.7}
+
