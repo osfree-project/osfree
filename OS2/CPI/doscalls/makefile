@@ -24,19 +24,20 @@ srcfiles = $(p)msg$(e) &
            $(p)dosprotectsetfilesize$(e) &
            $(p)dosprotectsetfilelocks$(e) &
            $(p)dosquerysysinfo$(e) &
+           $(p)doswrite$(e) &
+           $(p)dosexit$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
-ADD_COPT = -s
+ADD_COPT = -s -od
 ADD_LINKOPT  = op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 #OPTIONS = manyautodata
-IMPORTS = DosFSCtl        KAL.KalFSCtl.2, &
-          DosWrite        KAL.KalWrite.3, &
-          DosExit         KAL.KalExit.4,  &
-          DosOpenL        KAL.KalOpenL.5, &
-          DosWrite        KAL.KalWrite.6, &
-          DosClose        KAL.KalClose.7
+IMPORTS = DosFSCtl        KAL.KalFSCtl, &
+          _KalWrite       KAL.KalWrite, &
+          _KalExit        KAL.KalExit,  &
+          DosOpenL        KAL.KalOpenL, &
+          DosClose        KAL.KalClose
 
 EXPORTS = &
      DosICreateThread       .1, &
