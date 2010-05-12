@@ -462,13 +462,6 @@ APIRET APIENTRY  DosErrClass(ULONG code,
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
-APIRET APIENTRY DosError(ULONG errorno)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
-}
 
 APIRET APIENTRY      DosCreateVDM(void)
 {
@@ -492,13 +485,6 @@ APIRET APIENTRY  DosSetPathInfo(PCSZ    pszPathName,
                                 PVOID pInfoBuf,
                                 ULONG cbInfoBuf,
                                 ULONG flOptions)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-
-APIRET APIENTRY  DosSetDefaultDisk(ULONG disknum)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
@@ -789,12 +775,6 @@ APIRET APIENTRY  DosResetBuffer(HFILE hFile)
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
-APIRET APIENTRY  DosSetCurrentDir(PCSZ  pszDir)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
 
 
 APIRET APIENTRY  DosClose(HFILE hFile)
@@ -878,22 +858,7 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
 
 
 
-APIRET APIENTRY  DosQueryCurrentDir(ULONG disknum,
-                                    PBYTE pBuf,
-                                    PULONG pcbBuf)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
 
-APIRET APIENTRY  DosQueryCurrentDisk(PULONG pdisknum,
-                                     PULONG plogical)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
 
 APIRET APIENTRY  DosQueryFHState(HFILE hFile,
                                  PULONG pMode)
@@ -955,19 +920,6 @@ APIRET APIENTRY  DosRead(HFILE hFile,
   DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
-
-APIRET APIENTRY DosExecPgm(PCHAR pObjname,
-                           LONG cbObjname,
-                           ULONG execFlag,
-                           PCSZ  pArg,
-                           PCSZ  pEnv,
-                           PRESULTCODES pRes,
-                           PCSZ  pName)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
 
 APIRET APIENTRY DosDevIOCtl(HFILE hDevice, ULONG category, ULONG xfunction, PVOID pParams, ULONG cbParmLenMax, PULONG pcbParmLen, PVOID pData, ULONG cbDataLenMax, PULONG pcbDataLen)
 {

@@ -1,5 +1,5 @@
 #
-# A Makefile for ANSI
+# A Makefile for doscalls.dll
 # (c) osFree project,
 # author, date
 #
@@ -26,6 +26,12 @@ srcfiles = $(p)msg$(e) &
            $(p)dosquerysysinfo$(e) &
            $(p)doswrite$(e) &
            $(p)dosexit$(e) &
+           $(p)doserror$(e) &
+           $(p)dosexecpgm$(e) &
+           $(p)dossetcurrentdir$(e) &
+           $(p)dosquerycurrentdir$(e) &
+           $(p)dosquerycurrentdisk$(e) &
+           $(p)dossetdefaultdisk$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
@@ -33,11 +39,17 @@ ADD_LINKOPT  = op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 #OPTIONS = manyautodata
-IMPORTS = DosFSCtl        KAL.KalFSCtl, &
-          _KalWrite       KAL.KalWrite, &
-          _KalExit        KAL.KalExit,  &
-          DosOpenL        KAL.KalOpenL, &
-          DosClose        KAL.KalClose
+IMPORTS = DosFSCtl             KAL.KalFSCtl, &
+          _KalWrite            KAL.KalWrite, &
+          _KalExit             KAL.KalExit,  &
+          DosOpenL             KAL.KalOpenL, &
+          DosClose             KAL.KalClose, &
+          _KalSetCurrentDir    KAL.KalSetCurrentDir, &
+          _KalQueryCurrentDir  KAL.KalQueryCurrentDir, &
+          _KalQueryCurrentDisk KAL.KalQueryCurrentDisk, &
+          _KalSetDefaultDisk   KAL.KalSetDefaultDisk, &
+          _KalError            KAL.KalError, &
+          _KalExecPgm          KAL.KalExecPgm
 
 EXPORTS = &
      DosICreateThread       .1, &
