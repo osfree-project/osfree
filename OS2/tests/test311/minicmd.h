@@ -24,11 +24,4 @@ int cmds_cmd(int argc, char **argv);
 int exit_cmd(int argc, char **argv);
 int chdir_cmd(int argc, char **argv);
 
-BUILTIN commands[] =
-{
-  "??", cmds_cmd,
-  "exit", exit_cmd,
-  "help", cmds_cmd,
-  "cd", chdir_cmd,
-  "chdir", chdir_cmd
-};
+extern BUILTIN commands[];

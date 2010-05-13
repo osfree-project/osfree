@@ -69,7 +69,10 @@ BOOL parse_cmd(char * cmd)
   char *Argv[10];      // argument pointers
   char *pszTemp;
 
-  VioWrtTTY("1\n\r", 3, 0);
+  if (strnlen(cmd, 250)==0)
+  {
+    return FALSE;
+  }
 
   if (strnlen(cmd,250)==2)
     if (cmd[1]==':')
@@ -78,8 +81,6 @@ BOOL parse_cmd(char * cmd)
         DosSetDefaultDisk(cmd[0]-'a'+1);
       return FALSE;
     }
-
-  VioWrtTTY("2\n\r", 3, 0);
 
   while (( *cmd == ' ' ) || ( *cmd == '\t' ))
           cmd++;
@@ -108,29 +109,19 @@ BOOL parse_cmd(char * cmd)
 
   Argv[Argc] = NULL;
 
-  VioWrtTTY("3\n\r", 3, 0);
-
   if (!strncmp(Argv[0], "exit", 250))
   {
     return TRUE;
   }
 
-  VioWrtTTY("4\n\r", 3, 0);
-
   for (i=0;i<5;i++)
   {
-    VioWrtTTY("4.1\n\r", 3, 0);
     if (!strncmp(Argv[0], commands[i].cmdname, 50))
     {
-      VioWrtTTY("4.2\n\r", 3, 0);
       (*(commands[i].func))(Argc, Argv);
-      VioWrtTTY("4.3\n\r", 3, 0);
       return FALSE;
     }
-    VioWrtTTY("4.4\n\r", 3, 0);
   }
-
-  VioWrtTTY("5\n\r", 3, 0);
 
   execute_external(Argc, Argv);
 
