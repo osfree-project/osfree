@@ -13,7 +13,7 @@ USHORT APIENTRY VioWrtTTY(const PCHAR Str, const USHORT Count, const HVIO Handle
 
   if (Handle==0)
   {
-    rc=DosWrite(2, Str, Count, &ulActual);
+    rc=DosWrite(1, Str, Count, &ulActual);
   } else {
     rc=ERROR_VIO_INVALID_HANDLE;
   }
