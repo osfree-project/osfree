@@ -66,6 +66,11 @@ BOOL parse_cmd(char * cmd)
   char *Argv[10];      // argument pointers
   char *pszTemp;
 
+  if (strlen(cmd)==0)
+  {
+    return FALSE;
+  }
+  
   if (strlen(cmd)==2)
     if (cmd[1]==':')
     {
