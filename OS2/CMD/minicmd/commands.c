@@ -1,5 +1,14 @@
 #include "minicmd.h"
 
+BUILTIN commands[] =
+{
+  "?", cmds_cmd,
+  "exit", exit_cmd,
+  "help", cmds_cmd,
+  "cd", chdir_cmd,
+  "chdir", chdir_cmd
+};
+
 int cmds_cmd(int argc, char **argv)
 {
   unsigned int i;
