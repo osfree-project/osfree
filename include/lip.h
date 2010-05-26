@@ -79,6 +79,8 @@ typedef struct lip1
    int                   *lip_fsmax;
    int                   *lip_print_possibilities;
    void                  (*lip_print_a_completion)(char *);
+   void                  (*lip_disk_read_hook) (int, int, int);
+   void                  (*lip_disk_read_func) (int, int, int);
    void                  (*lip_printf) (const char *format,...);
 
    /* Misc functions */

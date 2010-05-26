@@ -449,12 +449,12 @@ ext2fs_read (char *buf, int len)
       if (map == 0) {
         (*pgrub_memset) ((char *) buf, 0, size);
       } else {
-        disk_read_func = disk_read_hook;
+        *pdisk_read_func = *pdisk_read_hook;
 
         (*pdevread) (map * (EXT2_BLOCK_SIZE (SUPERBLOCK) / DEV_BSIZE),
                  offset, size, buf);
 
-        disk_read_func = NULL;
+        *pdisk_read_func = NULL;
       }
 
       buf += size;

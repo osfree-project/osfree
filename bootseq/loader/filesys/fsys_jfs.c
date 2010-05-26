@@ -251,11 +251,10 @@ jfs_read (char *buf, int len)
                         toread = (endofcur >= endpos)
                                   ? len : (endofcur - *pfilepos);
 
-                        //disk_read_func = disk_read_hook;
-                        disk_read_func = NULL;
+                        *pdisk_read_func = *pdisk_read_hook;
                         (*pdevread) (addressXAD (xad) << jfs.bdlog,
                                  *pfilepos - (offset << jfs.l2bsize), toread, buf);
-                        //disk_read_func = NULL;
+                        *pdisk_read_func = NULL;
 
                         buf += toread;
                         len -= toread;

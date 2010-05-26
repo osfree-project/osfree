@@ -22,21 +22,29 @@ int open_partition_hiddensecs(void);
 
 #ifndef STAGE1_5
 
+extern char freeldr_path[];
+
 extern unsigned long current_drive;
+extern unsigned long current_partition;
+extern int current_slice;
+extern int fsys_type;
 extern int           fsmax;
+
+extern char install_filesys[0x10];
+#pragma aux install_filesys "*"
 
 int mem_lower;
 int mem_upper = 16384;
 
 extern char *strpos;
 extern char at_drive[16];
+extern int do_completion;
 
 #endif
 
 extern grub_error_t errnum;
 extern int print_possibilities;
 
-//int  saved_fsys_type;
 //int  saved_current_slice;
 //int  saved_fsmax;
 //int  saved_buf_drive;
@@ -52,6 +60,8 @@ extern int print_possibilities;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
+extern int saved_slice;
+extern int saved_fsys_type;
 extern unsigned long cdrom_drive;
 
 //int debug = 0;
@@ -59,6 +69,10 @@ struct geometry buf_geom;
 
 /* filesystem type */
 int fsys_type = -1;
+int saved_fsys_type = -1;
+//unsigned long old_slice = -1;
+//unsigned long old_drive = -1;
+//unsigned long old_partition = -1;
 #ifndef NO_BLOCK_FILES
 static int block_file = 0;
 #endif /* NO_BLOCK_FILES */
@@ -74,8 +88,72 @@ sane_partition (void);
 
 #ifndef STAGE1_5
 
+/* Print the root device information.  */
+void
+print_root_device (void)
+{
+  if (saved_drive == NETWORK_DRIVE)
+    {
+      /* Network drive.  */
+      grub_printf (" (nd):");
+    }
+  else if (saved_drive == cdrom_drive)
+         grub_printf (" (cd):");
+  else if (saved_drive & 0x80)
+    {
+      /* Hard disk drive.  */
+      grub_printf (" (hd%d", saved_drive - 0x80);
+
+      if ((saved_partition & 0xFF0000) != 0xFF0000)
+        grub_printf (",%d", saved_partition >> 16);
+
+      if ((saved_partition & 0x00FF00) != 0x00FF00)
+        grub_printf (",%c", ((saved_partition >> 8) & 0xFF) + 'a');
+
+      grub_printf ("):");
+    }
+  else
+    {
+      /* Floppy disk drive.  */
+      grub_printf (" (fd%d):", saved_drive);
+    }
+
+  /* Print the filesystem information.  */
+  current_partition = saved_partition;
+  current_drive = saved_drive;
+  current_slice = saved_slice;
+  fsys_type = saved_fsys_type;
+  print_fsys_type ();
+}
+
+/*
+ *  This prints the filesystem type or gives relevant information.
+ */
+
+void
+print_fsys_type (void)
+{
+  if (! do_completion)
+    {
+      printf (" Filesystem type ");
+
+      if (fsys_type == -1) // the boot one
+        printf ("is %s, ", install_filesys);
+      else if (fsys_type != num_fsys)
+        printf ("is %s, ", fsys_list[fsys_type]);
+      else
+        printf ("unknown, ");
+
+      if (current_partition == 0xFFFFFF)
+        printf ("using whole disk\n");
+      else
+        printf ("partition type 0x%x\n", current_slice & 0xFF);
+    }
+}
+
 void set_boot_fsys(void)
 {
+  saved_fsys_type = fsys_type;
   fsys_type = -1; // boot filesystem
   /* move boot drive uFSD to working buffer */
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)(UFSD_BASE));
@@ -185,8 +263,8 @@ void fsys_by_num(int n, char *buf)
   char *fsys_name;
   int m, t, k;
   // buf -> path to filesystem driver
-  m = grub_strlen(preldr_path);
-  grub_memmove((void *)buf, preldr_path, m);
+  m = grub_strlen(freeldr_path);
+  grub_memmove((void *)buf, freeldr_path, m);
   t = grub_strlen(fsd_dir);
   grub_memmove((void *)(buf + m), fsd_dir, t);
   fsys_name = fsys_list[n];
@@ -231,13 +309,19 @@ open_device2(void)
   unsigned int cd = current_drive;
   unsigned int cp = current_partition;
 
+  /* First try to open device by current FS */
+
   if (open_device())
     return 1;
+
+  /* Then try the boot one */
 
   set_boot_fsys();
 
   if (open_device())
     return 1;
+
+  /* If that won't help, try each FS from list */
 
   for (fst = 0; fst < num_fsys; fst++) {
     fsys_type = fst;
@@ -250,6 +334,11 @@ open_device2(void)
     if (open_device())
       return 1;
   }
+
+  saved_fsys_type = fsys_type = -1;
+  saved_drive = boot_drive;
+  saved_partition = install_partition;
+
   errnum = ERR_FSYS_MOUNT;
   return 0;
 }
@@ -299,6 +388,8 @@ setup_part (char *filename)
     {
       current_drive = saved_drive;
       current_partition = saved_partition;
+      current_slice = saved_slice;
+      fsys_type = saved_fsys_type;
       /* allow for the error case of "no filesystem" after the partition
          is found.  This makes block files work fine on no filesystem */
 # ifndef NO_BLOCK_FILES

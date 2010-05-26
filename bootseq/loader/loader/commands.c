@@ -47,6 +47,8 @@ static char *mb_cmdline;
 
 //#pragma aux skip_to "*"
 
+unsigned long cdrom_drive;
+
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);
 int create_bs_module(char *arg);
@@ -84,6 +86,11 @@ int menu_width  = MENU_WIDTH;
 int menu_height = MENU_HEIGHT;
 
 int slot;
+
+int start_sector;
+int num_sectors  = 0;
+int num_entries  = 0;
+int last_length  = 0;
 
 #define VARIABLE_STORE_SIZE 1024
 char variable_store[VARIABLE_STORE_SIZE];
@@ -1747,19 +1754,126 @@ static struct builtin builtin_ls =
   "the contents of a root directory."
 };
 
-int
-dir_func(char *arg, int flags)
-{
-  return ls_func(arg, flags);
-}
-
 static struct builtin builtin_dir =
 {
   "dir",
-  dir_func,
+  ls_func,
   BUILTIN_CMDLINE | BUILTIN_MENU | BUILTIN_HELP_LIST,
   "dir [directory]",
   "An alias for `ls' command."
+};
+
+/* Collect contiguous blocks into one entry as many as possible,
+   and print the blocklist notation on the screen.  */
+void disk_read_blocklist_func (int sector, int offset, int length)
+{
+  u_parm(PARM_PART_START, ACT_GET, (unsigned int *)&part_start);
+
+  if (num_sectors > 0)
+  {
+    if (start_sector + num_sectors == sector
+        && offset == 0 && last_length == SECTOR_SIZE)
+    {
+      num_sectors++;
+      last_length = length;
+      return;
+    }
+    else
+    {
+      if (last_length == SECTOR_SIZE)
+        grub_printf ("%s%d+%d", num_entries ? "," : "",
+                     start_sector - part_start, num_sectors);
+      else if (num_sectors > 1)
+        grub_printf ("%s%d+%d,%d[0-%d]", num_entries ? "," : "",
+                     start_sector - part_start, num_sectors-1,
+                     start_sector + num_sectors-1 - part_start,
+                     last_length);
+      else
+        grub_printf ("%s%d[0-%d]", num_entries ? "," : "",
+                     start_sector - part_start, last_length);
+      num_entries++;
+      num_sectors = 0;
+    }
+  }
+
+  if (offset > 0)
+  {
+    grub_printf("%s%d[%d-%d]", num_entries ? "," : "",
+                sector-part_start, offset, offset+length);
+    num_entries++;
+  }
+  else
+  {
+    start_sector = sector;
+    num_sectors = 1;
+    last_length = length;
+  }
+}
+
+/* blocklist */
+static int
+blocklist_func (char *arg, int flags)
+{
+  char *dummy = (char *) RAW_ADDR (0x100000);
+  void (*disk_read_hook) (int, int, int);
+  unsigned int size;
+
+  num_sectors  = 0;
+  num_entries  = 0;
+  last_length  = 0;
+
+  /* Open the file.  */
+  if (u_open (arg, &size))
+    return 1;
+
+  u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
+  u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
+  u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
+
+  /* Print the device name.  */
+  if (current_drive == cdrom_drive)
+    grub_printf("(cd");
+  else
+    grub_printf ("(%cd%d",
+                 (current_drive & 0x80) ? 'h' : 'f',
+                 current_drive & ~0x80);
+
+  if ((current_partition & 0xFF0000) != 0xFF0000)
+    grub_printf (",%d", (current_partition >> 16) & 0xFF);
+
+  if ((current_partition & 0x00FF00) != 0x00FF00)
+    grub_printf (",%c", 'a' + ((current_partition >> 8) & 0xFF));
+
+  grub_printf (")");
+
+  /* Read in the whole file to DUMMY.  */
+  disk_read_hook = disk_read_blocklist_func;
+  u_parm(PARM_DISK_READ_HOOK, ACT_SET, (unsigned int *)&disk_read_hook);
+  if (! u_read (dummy, -1))
+    goto fail;
+
+  /* The last entry may not be printed yet.  Don't check if it is a
+   * full sector, since it doesn't matter if we read too much. */
+  if (num_sectors > 0)
+    grub_printf ("%s%d+%d", num_entries ? "," : "",
+                  start_sector - part_start, num_sectors);
+
+  grub_printf ("\n");
+
+ fail:
+  disk_read_hook = 0;
+  u_parm(PARM_DISK_READ_HOOK, ACT_SET, (unsigned int *)&disk_read_hook);
+  u_close ();
+  return errnum;
+}
+
+static struct builtin builtin_blocklist =
+{
+  "blocklist",
+  blocklist_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "blocklist FILE",
+  "Print the blocklist notation of the file FILE."
 };
 
 struct builtin *builtins[] = {
@@ -1791,6 +1905,7 @@ struct builtin *builtins[] = {
   &builtin_help,
   &builtin_ls,
   &builtin_dir,
+  &builtin_blocklist,
   0
 };
 

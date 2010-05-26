@@ -1181,13 +1181,16 @@ void
 KernelLoader(char **script)
 {
   char **cmd;
-  char *cfg = macro_subst("()/boot/loader/boot.cfg");
+  char cfg[0x100];
   int item = 0;
   int shift = 0;
   int rc;
   int i, n = 0;
 
   printf("\r\nKernel loader started.\r\n");
+
+  memset(cfg, 0, 0x100);
+  grub_strcat(cfg, (char const *)at_drive, "/boot/loader/boot.cfg");
 
   config_lines = (char *)m->drives_addr + m->drives_length;
 

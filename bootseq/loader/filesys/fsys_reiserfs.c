@@ -957,14 +957,14 @@ reiserfs_read (char *buf, int len)
           if (to_read > len)
             to_read = len;
 
-          if (disk_read_hook != NULL)
+          if (*pdisk_read_hook != NULL)
             {
-              disk_read_func = disk_read_hook;
+              *pdisk_read_func = *pdisk_read_hook;
 
               block_read (INFO->blocks[DISK_LEAF_NODE_LEVEL],
                           (INFO->current_item - LEAF + offset), to_read, buf);
 
-              disk_read_func = NULL;
+              *pdisk_read_func = NULL;
             }
           else
             (*pgrub_memmove) (buf, INFO->current_item + offset, to_read);
@@ -988,7 +988,7 @@ reiserfs_read (char *buf, int len)
               if (to_read > len)
                 to_read = len;
 
-              disk_read_func = disk_read_hook;
+              *pdisk_read_func = *pdisk_read_hook;
 
               /* Journal is only for meta data.  Data blocks can be read
                * directly without using block_read
@@ -996,7 +996,7 @@ reiserfs_read (char *buf, int len)
               (*pdevread) (blocknr << INFO->blocksize_shift,
                        blk_offset, to_read, buf);
 
-              disk_read_func = NULL;
+              *pdisk_read_func = NULL;
             update_buf_len:
               len -= to_read;
               buf += to_read;

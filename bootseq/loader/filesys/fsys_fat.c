@@ -281,11 +281,11 @@ fat_read (char *buf, int len)
       if (size > len)
         size = len;
 
-      disk_read_func = disk_read_hook;
+      *pdisk_read_func = *pdisk_read_hook;
 
       (*pdevread)(sector, offset, size, buf);
 
-      disk_read_func = NULL;
+      *pdisk_read_func = NULL;
 
       len -= size;
       buf += size;

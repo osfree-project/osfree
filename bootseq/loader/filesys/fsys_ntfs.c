@@ -392,10 +392,10 @@ back:
         {
           void (*save_hook)(int, int, int);
 
-          save_hook=disk_read_func;
-          disk_read_func=NULL;
+          save_hook=*pdisk_read_func;
+          *pdisk_read_func=NULL;
           run=find_attr(cur_mft,(unsigned char)*ofs2ptr(attr_cur));
-          disk_read_func=save_hook;
+          *pdisk_read_func=save_hook;
           if (run)
             {
               if (run[8]==0)
@@ -858,7 +858,7 @@ static int read_data(char* cur_mft,char* pa,char* dest,unsigned long ofs,unsigne
     ret = 0;
 
     if ((cached) && (valueat(pa,0xC,unsigned short) & (FLAG_COMPRESSED + FLAG_SPARSE))==0)
-        disk_read_func = disk_read_hook;
+        *pdisk_read_func = *pdisk_read_hook;
     //else if (write == 0x900ddeed)       /* write */
     //{
     //    grub_printf("Fatal: Cannot write compressed or sparse file!\n");
@@ -960,7 +960,7 @@ static int read_data(char* cur_mft,char* pa,char* dest,unsigned long ofs,unsigne
 done:
     ret = 1;
 fail:
-    disk_read_func = NULL;
+    *pdisk_read_func = NULL;
     return ret;
 }
 
@@ -1390,7 +1390,7 @@ unsigned long ntfs_read(char *buf, unsigned long len) //, unsigned long write)
   if (valueat(cur_mft,0x16,unsigned short) & 2)
     goto error;
 
-  if (disk_read_hook)
+  if (*pdisk_read_hook)
     save_pos=1;
 
   if (! read_attr(cmft,buf,*pfilepos,len,1)) //,write))

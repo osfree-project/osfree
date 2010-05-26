@@ -13,8 +13,8 @@ public   bss_end
 public   bss_start
 public   bss_len
 
-public   _disk_read_func
-public   _disk_read_hook
+public   _pdisk_read_func
+public   _pdisk_read_hook
 public   _pdevread
 public   _prawread
 public   _psubstring
@@ -108,8 +108,8 @@ __bss_start     dd (exe_end - EXT_BUF_BASE)
 __bss_end       dd (bss_end - EXT_BUF_BASE)
 
            org EXT_BUF_BASE + 0x18
-_disk_read_func  dd 0
-_disk_read_hook  dd 0
+_pdisk_read_func dd 0
+_pdisk_read_hook dd 0
 _pdevread        dd 0
 _prawread        dd 0
 _psubstring      dd 0

@@ -272,12 +272,12 @@ minix_read (char *buf, int len)
       if (size > len)
         size = len;
 
-      disk_read_func = disk_read_hook;
+      *pdisk_read_func = *pdisk_read_hook;
 
       (*pdevread) (map * (BLOCK_SIZE / DEV_BSIZE),
                offset, size, buf);
 
-      disk_read_func = NULL;
+      *pdisk_read_func = NULL;
 
       buf += size;
       len -= size;

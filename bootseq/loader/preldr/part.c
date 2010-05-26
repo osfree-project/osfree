@@ -8,6 +8,8 @@
 
 #include "fsd.h"
 
+int saved_slice;
+
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
@@ -20,7 +22,7 @@ extern unsigned long install_partition;
 
 unsigned long current_drive = -1;
 unsigned long current_partition = -1;
-int           current_slice;
+int           current_slice = -1;
 unsigned long part_start;
 unsigned long part_length;
 int           fsmax;
@@ -35,15 +37,13 @@ extern grub_error_t errnum;
 
 #ifndef STAGE1_5
 
-unsigned long saved_slice;
-
 static void
 check_and_print_mount (int flags);
 
 int
 stage0_mount (void);
 
-static int do_completion;
+int do_completion;
 
 extern int bsd_evil_hack;
 

@@ -14,8 +14,8 @@ extern int  fs_mount(void);
 extern int  fs_read(char *buf, int len);
 extern int  fs_dir(char *dirname);
 
-extern void (*disk_read_func) (int, int, int);
-extern void (*disk_read_hook) (int, int, int);
+extern void (*pdisk_read_func) (int, int, int);
+extern void (*pdisk_read_hook) (int, int, int);
 
 extern int    (*pdevread)      (int sector, int byte_offset, int byte_len, char *buf);
 extern int    (*prawread)      (int drive, int sector, int byte_offset, int byte_len, char *buf);
@@ -60,7 +60,8 @@ int __cdecl
 init(lip1_t *l)
 {
    /* Do a linkage between FSD and other parts of loader */
-   disk_read_func = disk_read_hook = 0;
+   pdisk_read_hook = l->lip_disk_read_hook;
+   pdisk_read_func = l->lip_disk_read_func;
 
    /* Set pointers to external variables */
    pdevread = l->lip_devread;

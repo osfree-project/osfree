@@ -544,10 +544,10 @@ xfs_read (char *buf, int len)
                         toread = (endofcur >= endpos)
                                   ? len : (endofcur - *pfilepos);
 
-                        disk_read_func = disk_read_hook;
+                        *pdisk_read_func = *pdisk_read_hook;
                         (*pdevread) (fsb2daddr (xad->start),
                                  *pfilepos - (offset << xfs.blklog), toread, buf);
-                        disk_read_func = NULL;
+                        *pdisk_read_func = NULL;
 
                         buf += toread;
                         len -= toread;

@@ -137,8 +137,12 @@ hpfs_read (char *buf, int len)
         if (length < l)
           l = length;
 
+        *pdisk_read_func = *pdisk_read_hook;
+
         if (!(*pdevread)(sec, boff, l, pos))
-           return read;
+          return read;
+
+        *pdisk_read_func = NULL;
 
         length -= l;
         read   += l;

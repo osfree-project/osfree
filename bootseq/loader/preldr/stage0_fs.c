@@ -33,7 +33,8 @@ int print_possibilities = 0;
 
 #ifndef STAGE1_5
 
-static int do_completion;
+extern int do_completion;
+
 static int unique;
 static char *unique_string;
 
@@ -183,6 +184,7 @@ _Packed struct {
 
 char *redir_list[] = {"OS2LDR", "OS2LDR.MSG", "OS2KRNL", "OS2LDR.INI", "OS2DUMP", "OS2LDR.FNT", "OS2DBCS.FNT", 0};
 
+char freeldr_path[0x20];
 char *preldr_path = "/boot/loader/"; // freeldr path
 char *fsd_dir     = "fsd/";           // uFSD's subdir
 char *term_dir    = "term/";          // term   subdir
@@ -203,7 +205,8 @@ extern FileTable ft;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
-extern unsigned long saved_slice;
+extern int saved_slice;
+extern int saved_fsys_type;
 extern unsigned long cdrom_drive;
 
 extern unsigned long current_drive;
@@ -556,6 +559,24 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       }
+    case PARM_DISK_READ_HOOK:
+      {
+        if (action == ACT_GET)
+          *val = (unsigned int)disk_read_hook;
+        else
+          disk_read_hook = (disk_read_hook_t)*val;
+
+        return 0;
+      }
+    case PARM_DISK_READ_FUNC:
+      {
+        if (action == ACT_GET)
+          *val = (unsigned int)disk_read_func;
+        else
+          disk_read_func = (disk_read_hook_t)*val;
+
+        return 0;
+      }
     default:
       ;
   }
@@ -631,8 +652,8 @@ u_termctl(int termno)
     n = termno;
 
   /* build a path to term blackbox */
-  i = grub_strlen(preldr_path);
-  grub_strcpy(term, preldr_path);
+  i = grub_strlen(freeldr_path);
+  grub_strcpy(term, freeldr_path);
   grub_strcpy(term + i, term_dir);
   i = grub_strlen(term);
   grub_strcpy(term + i, conf.term.term_list[n]);
@@ -694,8 +715,9 @@ freeldr_open (char *filename)
    unsigned short ret;
    char buf[0x200];
 
-   if (*filename == '(' && (p = strstr(filename + 1, ")")) &&
-      (p - filename < 9) && strlen(filename) == p - filename + 1)
+   if ((*filename == '(' && (p = strstr(filename + 1, ")")) &&
+      (p - filename < 9) && strlen(filename) == p - filename + 1) ||
+      !*filename)
    {
      //printf("rt %s\r\n", filename);
      rc = mkroot(filename);
@@ -985,6 +1007,8 @@ void setlip1(lip1_t *l1)
   l1->lip_part_length   = &part_length;
   l1->lip_fsmax         = &fsmax;
   l1->lip_print_possibilities = &print_possibilities;
+  l1->lip_disk_read_hook      = (disk_read_hook_t)&disk_read_hook;
+  l1->lip_disk_read_func      = (disk_read_hook_t)&disk_read_func;
 #ifndef STAGE1_5
   l1->lip_print_a_completion  = &print_a_completion;
   l1->lip_printf        = &printf;
@@ -1802,7 +1826,6 @@ void init(void)
 
 
   /* build config filename */
-  //grub_memmove(cfg, "()", 2); /* boot partition number */
   rc = grub_strlen(preldr_path);
   grub_strcpy(cfg, preldr_path);
   grub_strcpy(cfg + rc, cfg_file);
@@ -1819,8 +1842,16 @@ void init(void)
     panic("Load error!", "");
   }
 
+  /* After process_cfg() current_partition is set to
+     the same partition, on which config file is installed,
+     i.e., install_partition. We set the latter to the first. */
+  install_partition = current_partition;
+  saved_partition = current_partition;
+  saved_drive = current_drive;
+  saved_slice = current_slice;
   /* determine a drive string for '@' config file macro */
   determine_boot_drive();
+  grub_strcat(freeldr_path, at_drive, preldr_path);
 
   relshift = 0;
   //init_term();
@@ -1833,8 +1864,8 @@ void init(void)
                EXT_LEN);
 
   /* build filesystem driver .rel file path */
-  grub_strcpy(str, preldr_path);
-  i = grub_strlen(preldr_path);
+  grub_strcpy(str, freeldr_path);
+  i = grub_strlen(freeldr_path);
   grub_strcpy(str + i, fsd_dir);
   k = grub_strlen(fsd_dir);
   grub_strcpy(str + i + k, install_filesys);

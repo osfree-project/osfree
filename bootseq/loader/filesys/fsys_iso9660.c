@@ -114,7 +114,7 @@ iso9660_devread (int sector, int byte_offset, int byte_len, char *buf)
   }
 
 //#if !defined(STAGE1_5)
-//  if (disk_read_hook && debug)
+//  if (*pdisk_read_hook && debug)
 //    printf ("<%d, %d, %d>", sector, byte_offset, byte_len);
 //#endif /* !STAGE1_5 */
 
@@ -446,12 +446,12 @@ iso9660_read (char *buf, int len)
       if (size > len)
         size = len;
 
-      disk_read_func = disk_read_hook;
+      *pdisk_read_func = *pdisk_read_hook;
 
       if (!iso9660_devread(INODE->file_start + sector, blkoffset, size, buf))
         return 0;
 
-      disk_read_func = NULL;
+      *pdisk_read_func = NULL;
 
       len -= size;
       buf += size;

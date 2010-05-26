@@ -13,6 +13,17 @@
 
 extern unsigned long scratchaddr;
 
+extern unsigned long boot_drive;
+extern unsigned long current_drive;
+extern unsigned long current_partition;
+extern int current_slice;
+extern int fsys_type;
+
+extern unsigned long saved_drive;
+extern unsigned long saved_partition;
+extern int saved_slice;
+extern int saved_fsys_type;
+
 /* The boot device.  */
 static int bootdev;
 int bsd_evil_hack;
@@ -24,6 +35,9 @@ unsigned long boot_part_addr;
 
 int open_device2(void);
 
+void print_root_device (void);
+void print_fsys_type (void);
+
 int
 real_mkroot (char *arg, int attempt_mount)
 {
@@ -34,11 +48,11 @@ real_mkroot (char *arg, int attempt_mount)
   errnum = 0;
 
   /* If ARG is empty, just print the current root device.  */
-  //if (! *arg)
-  //  {
-  //    print_root_device ();
-  //    return 0;
-  //  }
+  if (! *arg)
+    {
+      print_root_device ();
+      return 0;
+    }
 
   /* Call set_device to get the drive and the partition in ARG.  */
   next = set_device (arg);
@@ -48,7 +62,7 @@ real_mkroot (char *arg, int attempt_mount)
   /* Ignore ERR_FSYS_MOUNT.  */
   if (attempt_mount)
     {
-      if (! open_device2 () && errnum != ERR_FSYS_MOUNT)
+      if (! open_device2 ())
         return 1;
     }
   else
@@ -67,6 +81,12 @@ real_mkroot (char *arg, int attempt_mount)
   errnum = 0;
   saved_partition = current_partition;
   saved_drive = current_drive;
+  saved_slice = current_slice;
+
+  if (current_drive == boot_drive)
+    fsys_type = -1;
+
+  saved_fsys_type = fsys_type;
 
   if (attempt_mount)
     {
@@ -79,7 +99,7 @@ real_mkroot (char *arg, int attempt_mount)
         return 1;
 
       /* Print the type of the filesystem.  */
-      //print_fsys_type ();
+      print_fsys_type ();
     }
 
   return 0;
@@ -141,4 +161,5 @@ set_bootdev (int hdbias)
                       ((saved_drive - hdbias) & 0x7F),
                       ((saved_partition >> 8) & 0xFF));
 }
+
 #endif /* STAGE1_5 */

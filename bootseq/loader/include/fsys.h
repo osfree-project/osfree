@@ -29,6 +29,10 @@ extern unsigned int relshift;
 
 #endif
 
+typedef void (*disk_read_hook_t) (int, int, int);
+extern  disk_read_hook_t *pdisk_read_hook;
+extern  disk_read_hook_t *pdisk_read_func;
+
 void *grub_memset (void *addr, int c, int n);
 void *grub_memmove (void *dest, const void *src, int count);
 void *grub_memcpy (void *dest, const void *src, int count);
@@ -117,6 +121,8 @@ struct pmif
 #define PARM_LDRLEN               16
 #define PARM_BUF_DRIVE            17
 #define PARM_AT_DRIVE             18
+#define PARM_DISK_READ_HOOK       19
+#define PARM_DISK_READ_FUNC       20
 
 #pragma aux u_open   "*"
 #pragma aux u_dir    "*"
