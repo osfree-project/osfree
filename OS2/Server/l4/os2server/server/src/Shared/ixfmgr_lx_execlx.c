@@ -69,9 +69,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//static int locked = 0;
 l4semaphore_t sem = L4SEMAPHORE_INIT(0);
 
+/* GDT/LDT descriptor structure */
 struct desc
 {
   short limit_lo :16;
@@ -83,21 +83,25 @@ struct desc
   short base_hi  :8;
 };
 
-#if 1 
+/* trampoline() params */
+struct param
+{
+  unsigned long eip;
+  unsigned long esp;
+  PTIB          tib;
+  PPIB          pib;
+};
+
 void DICE_CV
 os2server_wakeup_component (CORBA_Object _dice_corba_obj,
                             CORBA_Server_Environment *_dice_corba_env)
 {
   LOG("wakeup called");
   l4semaphore_up(&sem);
-  //locked = 0;
 }
-#endif
 
 static void
-trampoline(PTIB tib, 
-           unsigned long esp_data,
-           unsigned long eip_data)
+trampoline(struct param *param)
 {
   CORBA_Environment env = dice_default_environment;
   l4_threadid_t     dest, preempter, pager, myid;
@@ -109,7 +113,7 @@ trampoline(PTIB tib,
   unsigned short    sel;
 
   /* TIB base */
-  base = tib;	
+  base = param->tib;	
               
   /* Prepare TIB GDT descriptor */
   desc.limit_lo = 0x30; desc.limit_hi = 0;
@@ -120,14 +124,15 @@ trampoline(PTIB tib,
         
   /* Allocate GDT descriptor */
   fiasco_gdt_set(&desc, 8, 0, l4_myself());
+
   /* Get a selector */
   sel = 8 * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
   
   // mini33 stack
-  tib->tib_pstack = esp_data;
+  param->tib->tib_pstack = param->esp;
 
-  LOG("eip=%x, esp=%x, tib=%x", eip_data, esp_data, tib);
+  LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
   asm(
       "movl %[sel], %%eax \n"
       "movw %%ax, %%fs \n"              /* TIB selector */
@@ -138,72 +143,25 @@ trampoline(PTIB tib,
       "call *%%ecx \n"                  /* Call our main() */
       :
       :[sel] "m" (sel),
-       [esp_data] "m" (esp_data),       /* esp+ data_mmap+8+ */
-       [eip_data] "m" (eip_data));
+       [esp_data] "m" (param->esp),       /* esp+ data_mmap+8+ */
+       [eip_data] "m" (param->eip));
 
-  LOG("task end");
+  LOG("exe ended");
   // query OS/2 server task id
-  names_query_name("os2server", &dest) ;
-  LOG("os2server uid=%x.%x", dest.id.task, dest.id.lthread);
+  names_query_name("os2srv", &dest) ;
+  LOG("OS/2 server uid=%x.%x", dest.id.task, dest.id.lthread);
+
   // send a signal about termination to OS/2 server
-  //dest.id.lthread = 1;
-  //env.utcb = l4_utcb_get();
   os2server_wakeup_call (&dest, &env);
   
   if (DICE_HAS_EXCEPTION(&env))
-    LOG("Error: %x.%x", 
+    LOG("IPC error: %x.%x", 
         DICE_EXCEPTION_MAJOR(&env),
         DICE_EXCEPTION_MINOR(&env));
-  //locked = 0;
-  //if (!names_waitfor_name("os2server.wakeup", &dest, 30000))
-  //    LOG("wakeup thread not found");
-  //else
-  //    LOG("wakeup thread found, uid=%x.%x", dest.id.task, dest.id.lthread);
-  //w0 = 0; w1 = 0;
-  //if (l4_ipc_send(dest,
-  //                  L4_IPC_SHORT_MSG,
-  //                  w0,
-  //                  w1,
-  //                  L4_IPC_NEVER,
-  //                  &result))
-  //{
-  //    LOG("IPC error");
-  //    LOG("err from msgdope: %x", L4_IPC_IS_ERROR(result));
-  //}
+  
   LOG("task exit");
-  //enter_kdebug("debug");
+  l4_ipc_sleep(L4_IPC_NEVER);  
 }
-
-#if 0
-
-static void
-os2server_wakeup_thread (void)
-{
-  l4_msgdope_t  result;
-  l4_threadid_t src;
-  l4_umword_t   w0, w1;
-
-  /* because of l4thread_create(..., L4THREAD_CREATE_SYNC) */
-  l4thread_started(0);
-
-  names_register("os2server.wakeup");
-    
-  while (1)
-  {
-    LOG("waiting for message");
-    l4_ipc_wait (&src,
-                 L4_IPC_SHORT_MSG, &w0, &w1,
-	         L4_IPC_NEVER, &result);
-    LOG("message received");
-    if (w0 == 0 && w1 == 0)
-    {
-      l4semaphore_up(&sem);
-      LOG("semaphore reset");
-    }
-  }
-}
-
-#endif
 
 static void
 app_pager(void *unused)
@@ -216,6 +174,9 @@ app_pager(void *unused)
 
   /* because of l4thread_create(..., L4THREAD_CREATE_SYNC) */
   l4thread_started(0);
+
+  if (!names_register("os2srv.pager"))
+    LOG("error registering on the name server");
 
   for (;;)
     {
@@ -422,16 +383,16 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
         unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
         unsigned long esp = get_esp(lx_exe_mod);
 
-        void * main_ptr = (void *)eip;
-        void * data_mmap = (void *)stack_obj->o32_base;
-	l4_umword_t app_stack[4096];
-        unsigned long int real_esp;
+        void *main_ptr  = (void *)eip;
+        void *data_mmap = (void *)stack_obj->o32_base;
 
+        #define STACK_SIZE 0x1000
+
+	l4_umword_t    app_stack[STACK_SIZE];
+        unsigned long  real_esp;
+	struct param   param;
         int            t, th;
 	l4_threadid_t  pager;
-
-        /* Thread Info block */
-        PTIB           tib = proc->main_tib;
 
         /* start pager thread */
         pager = l4thread_l4_id(t = l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));
@@ -444,34 +405,34 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
           return;
         }
 
-        /* Prepare Thread Info Block */
-        LOG("tib=%x", tib);
+        param.eip = main_ptr;
+	param.esp = data_mmap + esp;
+	param.tib = proc->main_tib;
+	param.pib = proc->lx_pib;
 
-        real_esp = app_stack + 4096;
-        l4util_stack_push_mword   (&real_esp, main_ptr);
-        l4util_stack_push_mword   (&real_esp, data_mmap + esp);
-        l4util_stack_push_mword   (&real_esp, tib);
+        /* push task params on stack */
+        real_esp = app_stack + STACK_SIZE - 4;
+        l4util_stack_push_mword   (&real_esp, &param);
         l4util_stack_push_mword   (&real_esp, 0);
 
         int task_status = l4ts_allocate_task(0, &taskid);
-	if (task_status)
-        LOG("Error allocating task!");
 
-        int r = l4ts_create_task(&taskid, (l4_addr_t)trampoline,  real_esp, 
+	if (task_status)
+          LOG("Error allocating task!");
+
+        int r = l4ts_create_task(&taskid, (l4_addr_t)trampoline, real_esp,
                                  0x90, &pager, 
                                  0x21, "", 0);
+
 	LOG("l4ts_create_task() returned: %d, taskid=%x.%x", r, taskid.id.task, taskid.id.lthread);
 
         // wait protshell task termination
-	//src = l4_myself();
-	//LOG("my thread id: %x.%x", src.id.task, src.id.lthread);
-        /* start wait thread */
-        //src = l4thread_l4_id(l4thread_create(os2server_wakeup_thread, 0, L4THREAD_CREATE_SYNC));
-	//LOG("wakeup thread started, UID=%x.%x", src.id.task, src.id.lthread);
-        //locked = 1;
-        //while (locked)
-	//  l4_sleep(L4_TIMEOUT_ABS_V512_ms);
 	l4semaphore_down(&sem);
+        // terminated, kill it	
+        if ((t = l4ts_kill_task(taskid, L4TS_KILL_SYNC)))
+	  LOG("Error %d killing task\n", t);
+	else
+	  LOG("trampoline() task killed");
 }
 
 #endif /* L4API_l4v2 */

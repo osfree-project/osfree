@@ -49,7 +49,7 @@
  #include "l4/names/libnames.h"
  #include "l4/l4con/l4con.h"
  #include "l4/l4con/l4con-client.h"
- 
+ #include <l4/thread/thread.h>
  #include "l4/log/l4log.h"
  #include "l4/generic_ts/generic_ts.h"
 #endif
@@ -83,6 +83,31 @@ void usage(void)
       See also other error codes
 
 */
+
+void executeprotshell(cfg_opts *options)
+{
+  int rc;
+
+  if (!names_register("os2srv.pshell"))
+    LOG("error registering on the name server");
+    
+  rc = PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options->protshell);
+  if (rc != NO_ERROR) 
+    LOG("Error execute: %d ('%s')", rc, options->protshell);
+
+  // Clean up config data
+  rc = CfgCleanup();
+  if (rc != NO_ERROR)
+  {
+    LOG("CONFIG.SYS parser cleanup error.");
+    //return rc;
+  }
+
+  LOG("OS/2 Server ended");
+
+  l4_ipc_sleep(L4_IPC_NEVER);
+}
+
 int main(int argc, const char **argv)
 {
   l4_threadid_t tid;
@@ -110,7 +135,7 @@ int main(int argc, const char **argv)
                 
   #if defined(L4API_l4v2)
   init_globals();
-  if (!names_register("os2server"))
+  if (!names_register("os2srv"))
   {
     LOG("Error registering in name server");
     return 1;
@@ -234,20 +259,9 @@ int main(int argc, const char **argv)
     io_printf("No PROTSHELL statement in CONFIG.SYS");
     return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
-    rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
-    if(rc!=NO_ERROR) LOG("Error execute: %d ('%s')", rc, options.protshell);
+    l4thread_create(executeprotshell, (void *)&options, L4THREAD_CREATE_ASYNC);
+    os2server_server_loop(0);
   }
-
-  // Clean up config data
-  rc=CfgCleanup();
-  if (rc!=NO_ERROR)
-  {
-    LOG("CONFIG.SYS parser cleanup error.");
-    return rc;
-  }
-
-  LOG("OS/2 Server ended");
-
- 
-  return rc;
+  
+  return 0;
 }

@@ -83,6 +83,7 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
 }
 
 void PrcDestroy(struct t_os2process * proc) {
+#ifndef L4API_l4v2
         /* Avmappar filen. */
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
         int ret_munmap = munmap((void*) kod_obj->o32_base,
@@ -93,6 +94,7 @@ void PrcDestroy(struct t_os2process * proc) {
                 io_printf("Error at unmapping of fh: %p\n", proc->lx_mod->fh);
         else
                 io_printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
+#endif
 
         free(proc->lx_pib);
         free(proc->main_tib);
@@ -546,7 +548,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   PrcDestroy(tiny_process);                         /* Removes the process.
              Maybe use garbage collection here? Based on reference counter?
                 And when the counter reeches zero, release process. */
-
   return rc; /*NO_ERROR;*/
 }
 
