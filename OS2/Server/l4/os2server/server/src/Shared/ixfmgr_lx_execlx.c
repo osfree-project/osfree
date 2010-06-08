@@ -55,48 +55,151 @@
 #include <l4/names/libnames.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/thread/thread.h>
+#include <l4/semaphore/semaphore.h>
 #include <l4/generic_ts/generic_ts.h>
 #include <l4/util/stack.h>
 #include <l4/util/l4_macros.h>
+#include <l4/sys/kdebug.h>
+#include <l4/sys/segment.h>
+
+#include "os2server-client.h"
+#include "os2server-server.h"
 
 /* other includes */
 #include <stdio.h>
 #include <stdlib.h>
 
-static void
-trampoline(unsigned long esp_data, unsigned long eip_data)
+//static int locked = 0;
+l4semaphore_t sem = L4SEMAPHORE_INIT(0);
+
+struct desc
 {
-//  unsigned long esp_data;
-  unsigned long ebp_data;
-  unsigned long tmp_ptr_data_mmap_16;
-  unsigned long tmp_ptr_data_mmap_21;
-  
-//  esp_data=l4util_stack_get_sp();
-//  LOG("eip=%x, esp=%x", eip_data, esp_data);
+  short limit_lo :16;
+  short base_lo1 :16;
+  short base_lo2 :8;
+  short acc_lo   :8;
+  short limit_hi :4;
+  short acc_hi   :4;
+  short base_hi  :8;
+};
 
-  enter_kdebug("stop");
-  asm(
-      "pop %%eax\n"
-      "pop %%eax\n"
-      "movl %[esp_data], %%eax \n"    /* Put old esp in eax */
-//      "movl %[ebp_data], %%ebx \n"    /* Put old ebp in ebx */
-      "movl %[eip_data], %%ecx \n"
-
-    "movl %%ebp, %%edx \n" /* Copy ebp to edx. Base pointer for this functions local variables.*/
-    "movl %%eax, %%esp \n" /* Copy eax to esp. Stack pointer*/
-//    "movl %%ebx, %%ebp \n"
-    /* We have changed the stack so it now points to out LX image.*/
-//    "push %%edx \n" /* Put the value of our ebp on our new stack*/
-    /* "push $0$ */
-    "call %%ecx \n" /* Call our main() */
-      :
-      :[esp_data] "m" (esp_data), /* esp+ data_mmap+8+*/
-       [ebp_data] "m" (ebp_data), /* esp+ data_mmap+8+*/
-       [eip_data] "m" (eip_data) 
-       );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+#if 1 
+void DICE_CV
+os2server_wakeup_component (CORBA_Object _dice_corba_obj,
+                                    CORBA_Server_Environment *_dice_corba_env)
+{
+  LOG("wakeup called");
+  l4semaphore_up(&sem);
+  //locked = 0;
 }
-                                                                                                  
+#endif
+
+static void
+trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4_threadid_t     dest, preempter, pager, myid;
+  l4_msgdope_t      result;
+  l4_umword_t       w0, w1, dummy;
+  int               err;
+  struct desc       desc;
+  unsigned long     base;
+  unsigned short    sel;
+  //PTIB tib = (PTIB)malloc(sizeof(TIB));
+
+  /* TIB base */
+  base = tib;	
+              
+  /* Prepare TIB GDT descriptor */
+  desc.limit_lo = 0x30; desc.limit_hi = 0;
+  desc.acc_lo   = 0xF3; desc.acc_hi   = 0;
+  desc.base_lo1 = base & 0xffff;
+  desc.base_lo2 = (base >> 16) & 0xff;
+  desc.base_hi  = base >> 24;
+        
+  /* Allocate GDT descriptor */
+  fiasco_gdt_set(&desc, 8, 0, l4_myself());
+  /* Get a selector */
+  sel = 8 * fiasco_gdt_get_entry_offset();
+  LOG("sel=%x", sel);
+
+  LOG("eip=%x, esp=%x, tib=%x", eip_data, esp_data, tib);
+  asm(
+      "movl %[sel], %%eax \n"
+      "movw %%ax, %%fs \n"              /* TIB selector */
+      "movl %[esp_data], %%eax \n"      /* Put old esp in eax */
+      "movl %[eip_data], %%ecx \n"
+      "movl %%eax, %%esp \n"            /* Copy eax to esp. Stack pointer */
+      /* We have changed the stack so it now points to our LX image. */
+      "call *%%ecx \n"                  /* Call our main() */
+      :
+      :[sel] "m" (sel),
+       [esp_data] "m" (esp_data),       /* esp+ data_mmap+8+ */
+       [eip_data] "m" (eip_data));
+
+  LOG("task end");
+  // query OS/2 server task id
+  names_query_name("os2server", &dest) ;
+  LOG("os2server uid=%x.%x", dest.id.task, dest.id.lthread);
+  // send a signal about termination to OS/2 server
+  //dest.id.lthread = 1;
+  env.utcb = l4_utcb_get();
+  os2server_wakeup_call (&dest, &env);
+  
+  if (DICE_HAS_EXCEPTION(&env))
+    LOG("Error: %x.%x", 
+        DICE_EXCEPTION_MAJOR(&env),
+        DICE_EXCEPTION_MINOR(&env));
+  //locked = 0;
+  //if (!names_waitfor_name("os2server.wakeup", &dest, 30000))
+  //    LOG("wakeup thread not found");
+  //else
+  //    LOG("wakeup thread found, uid=%x.%x", dest.id.task, dest.id.lthread);
+  //w0 = 0; w1 = 0;
+  //if (l4_ipc_send(dest,
+  //                  L4_IPC_SHORT_MSG,
+  //                  w0,
+  //                  w1,
+  //                  L4_IPC_NEVER,
+  //                  &result))
+  //{
+  //    LOG("IPC error");
+  //    LOG("err from msgdope: %x", L4_IPC_IS_ERROR(result));
+  //}
+  LOG("task exit");
+  enter_kdebug("debug");
+}
+
+#if 0
+
+static void
+os2server_wakeup_thread (void)
+{
+  l4_msgdope_t  result;
+  l4_threadid_t src;
+  l4_umword_t   w0, w1;
+
+  /* because of l4thread_create(..., L4THREAD_CREATE_SYNC) */
+  l4thread_started(0);
+
+  names_register("os2server.wakeup");
+    
+  while (1)
+  {
+    LOG("waiting for message");
+    l4_ipc_wait (&src,
+                 L4_IPC_SHORT_MSG, &w0, &w1,
+	         L4_IPC_NEVER, &result);
+    LOG("message received");
+    if (w0 == 0 && w1 == 0)
+    {
+      l4semaphore_up(&sem);
+      LOG("semaphore reset");
+    }
+  }
+}
+
+#endif
 
 static void
 app_pager(void *unused)
@@ -117,35 +220,29 @@ app_pager(void *unused)
 			      L4_IPC_NEVER, &result);
       while (!error)
 	{
-
 	  /* implement Sigma0 pagefault protocol */
 	  reply_type = L4_IPC_SHORT_FPAGE;
 	  if ((dw1 == 1) && ((dw2 & 0xff) == 1))
 	    {
-	      printf("kernel info page requested, giving up ...\n");
+	      LOG("kernel info page requested, giving up ...\n");
 	      exit(-1);
 	    }
 	  else if (dw1 >= 0x40000000)
 	    {
-	      printf("adapter pages requested, giving up ...\n");
+	      LOG("adapter pages requested, giving up ...\n");
 	      exit(-1);
 	    }
 	  else if ((dw1 & 0xfffffffc) == 0)
 	    {
-	      printf("null pointer exception thread "l4util_idfmt
+	      LOG("null pointer exception thread "l4util_idfmt
 		     ", (%08lx at %08lx)\n", l4util_idstr(src_thread), dw1, dw2);
 	      enter_kdebug("stop");
 	    }
 	  else
 	    {
               dw1 &= L4_PAGEMASK;
-                            dw2 = l4_fpage(dw1, L4_LOG2_PAGESIZE,
-                                                              L4_FPAGE_RW, L4_FPAGE_MAP).fpage;
-                                                              
-                                                              //	      printf("unknown pagefault at %08lx (eip %08lx) from "l4util_idfmt
-//		     "\n",
-//		      dw1, dw2, l4util_idstr(src_thread));
-//	      enter_kdebug("stop");
+              dw2 = l4_fpage(dw1, L4_LOG2_PAGESIZE,
+                             L4_FPAGE_RW, L4_FPAGE_MAP).fpage;
 	    }
 
 	  error = l4_ipc_reply_and_wait(src_thread, reply_type, dw1, dw2,
@@ -155,7 +252,8 @@ app_pager(void *unused)
 					&result);
 	}
 
-      printf("pager: IPC error %x\n", error);
+      if (error)
+        LOG("IPC error %x", error);
     }
 }
 
@@ -313,49 +411,63 @@ void do_mmap_code_stack(struct LX_module * lx_exe_mod) {
 
 extern l4_taskid_t taskid;
 
-
-void l4_exec_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc)
+void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 {
-
-                void * my_execute;
-                unsigned long int tmp_data_mmap;
-                unsigned long int tmp_ptr_data_mmap_16;
-                unsigned long int tmp_ptr_data_mmap_21;
-                unsigned int esp_data;
-                unsigned int ebp_data;
-                unsigned long int tmp_ptr_data_mmap;
-                unsigned long int real_esp;
-
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
-
         struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
-
         unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
         unsigned long esp = get_esp(lx_exe_mod);
 
         void * main_ptr = (void *)eip;
         void * data_mmap = (void *)stack_obj->o32_base;
+        unsigned long int real_esp;
 
-  l4_threadid_t  pager;
+        int            t, th;
+	l4_threadid_t  pager;
 
-  /* start pager thread */
-  pager = l4thread_l4_id(l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));
+        /* Thread Info block */
+        PTIB           tib = proc->main_tib;
 
-  //io_printf("Pager is up.\n");
-        
-//        l4_taskid_t taskid;
-      /* put app number and myself on top of stack as parameter */
-      real_esp=data_mmap+esp;
-      l4util_stack_push_mword   (&real_esp, main_ptr);
-      l4util_stack_push_mword   (&real_esp, data_mmap+esp);
-      l4util_stack_push_mword   (&real_esp, 0);
+        /* start pager thread */
+        pager = l4thread_l4_id(t = l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));
+
+        if (t > 0)
+          LOG("Pager started, thread id: %x.%x", pager.id.task, pager.id.lthread);
+        else
+        {
+          LOG("Pager not started, rc=%d", t);
+          return;
+        }
+
+        /* Prepare Thread Info Block */
+        real_esp = data_mmap + esp;
+        tib->tib_pstack = real_esp;
+        LOG("tib=%x", tib);
+
+        l4util_stack_push_mword   (&real_esp, tib);
+        l4util_stack_push_mword   (&real_esp, main_ptr);
+        l4util_stack_push_mword   (&real_esp, data_mmap+esp);
+        l4util_stack_push_mword   (&real_esp, 0);
 
         int task_status = l4ts_allocate_task(0, &taskid);
-//        LOG("Show time! ts=%d, ip=0x0%x, sp=%x\n", task_status, main_ptr, data_mmap+esp);
-        int r = l4ts_create_task(&taskid,  (l4_addr_t)trampoline,  real_esp, 
-                                 0, &pager, 
-                                 L4ENV_DEFAULT_PRIO, "", 0);
-//        io_printf("r=%d", r);
+	if (task_status)
+        LOG("Error allocating task!");
+
+        int r = l4ts_create_task(&taskid, (l4_addr_t)trampoline,  real_esp, 
+                                 0x90, &pager, 
+                                 0x21, "", 0);
+	LOG("l4ts_create_task() returned: %d, taskid=%x.%x", r, taskid.id.task, taskid.id.lthread);
+
+        // wait protshell task termination
+	//src = l4_myself();
+	//LOG("my thread id: %x.%x", src.id.task, src.id.lthread);
+        /* start wait thread */
+        //src = l4thread_l4_id(l4thread_create(os2server_wakeup_thread, 0, L4THREAD_CREATE_SYNC));
+	//LOG("wakeup thread started, UID=%x.%x", src.id.task, src.id.lthread);
+        //locked = 1;
+        //while (locked)
+	//  l4_sleep(L4_TIMEOUT_ABS_V512_ms);
+	l4semaphore_down(&sem);
 }
 
 #endif /* L4API_l4v2 */

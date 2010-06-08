@@ -28,6 +28,8 @@
 #include <sys/mman.h>
 #include <string.h>
 
+#include <l4/sys/types.h>
+#include <l4/sys/ipc.h>
 #include <l4/log/l4log.h>
 
 #include <token.h>
@@ -39,6 +41,8 @@
 #include <ixfmgr.h>
 #include <io.h>
 
+
+void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 
 extern struct module_rec module_root; /* Root for module list.*/
 
@@ -56,7 +60,7 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
 
     struct t_os2process * c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
     c->lx_pib   = (PPIB) malloc(sizeof(PIB));
-    c->main_tid = (PTIB) malloc(sizeof(TIB));
+    c->main_tib = (PTIB) malloc(sizeof(TIB));
 
     if (c != NULL) {
         c->pid = 1;
@@ -91,7 +95,7 @@ void PrcDestroy(struct t_os2process * proc) {
                 io_printf("\nUnmapping fh: %p\n\n", proc->lx_mod->fh);
 
         free(proc->lx_pib);
-        free(proc->main_tid);
+        free(proc->main_tib);
         free(proc);
 }
 
@@ -417,7 +421,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   int relative_jmp;
   struct module_rec * prev;
 
-  if (options.debugprcmgr) LOG("PrcExecuteModule: Loading executable %s\n", pName);
+  if (options.debugprcmgr) LOG("PrcExecuteModule: Loading executable %s", pName);
 
   // Try to load file (consider fully-qualified name specified)
   rc=io_load_file(pName, &addr, &size);
@@ -429,14 +433,14 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
   if (rc!=0/*NO_ERROR*/)
   {
-    LOG("PrcExecuteModule: Can't find %s module\n", pName);
+    LOG("PrcExecuteModule: Can't find %s module", pName);
     return rc;
   }
 
   rc=IXFIdentifyModule(addr, size, &ixfModule);
   if (rc!=0/*NO_ERROR*/)
   {
-    LOG("PrcExecuteModule: Error identifing %s module\n", pName);
+    LOG("PrcExecuteModule: Error identifying %s module", pName);
     return rc;
   }
 
@@ -444,7 +448,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   rc=IXFLoadModule(addr, size, &ixfModule);
   if (rc!=0/*NO_ERROR*/)
   {
-    LOG("PrcExecuteModule: Error loading %s module\n", pName);
+    LOG("PrcExecuteModule: Error loading %s module", pName);
     return rc;
   }
 
@@ -466,20 +470,20 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     strcat(name, ".dll");
     rc=ModLoadModule(uchLoadError, sizeof(uchLoadError),
                               name, (unsigned long *)&hmod);
-                              
-                              LOG("%s loaded.", name);
     if (rc!=0/*NO_ERROR*/)
     {
-      LOG("PrcExecuteModule: Error loading %s module\n", ixfModule.Modules[module_counter-1]);
+      LOG("PrcExecuteModule: Error loading %s module", ixfModule.Modules[module_counter-1]);
       return rc;
     }
+    else
+      LOG("%s loaded.", name);
   }
 
   // Fixup module
   rc=IXFFixupModule(&ixfModule);
   if (rc!=0/*NO_ERROR*/)
   {
-    LOG("PrcExecuteModule: Error %s module fixup\n", pName);
+    LOG("PrcExecuteModule: Error %s module fixup", pName);
     return rc;
   }
 
@@ -521,7 +525,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     }
     if (options.debugprcmgr)
     {
-      LOG("src=%x, dst=%x, rel=%d\n",(ixfModule.Fixups[imports_counter-1].SrcAddress) , (ixfModule.Fixups[imports_counter-1].ImportEntry.Address), relative_jmp);
+      LOG("src=%x, dst=%x, rel=%d",(ixfModule.Fixups[imports_counter-1].SrcAddress) , (ixfModule.Fixups[imports_counter-1].ImportEntry.Address), relative_jmp);
     }
     *((int *) ixfModule.Fixups[imports_counter-1].SrcAddress) = relative_jmp;
 
@@ -531,15 +535,15 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   //print_used_mem(&tiny_process->root_mem_area);
   if(rc == 0/*NO_ERROR*/) {
     /* Starts to execute the process. */
-    if (options.debugprcmgr) LOG("Executing exe...\n");
+    if (options.debugprcmgr) LOG("Executing exe...");
     #if defined(L4API_l4v2)
     l4_exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
     #endif
 //    exec_lx(&ixfModule, tiny_process);
-    if (options.debugprcmgr) LOG("Done executing exe.\n");
+    if (options.debugprcmgr) LOG("Done executing exe.");
   }
 
-  PrcDestroy(tiny_process); /* Removes the process.
+  PrcDestroy(tiny_process);                         /* Removes the process.
              Maybe use garbage collection here? Based on reference counter?
                 And when the counter reeches zero, release process. */
 
@@ -624,7 +628,7 @@ void exec_lx(IXFModule * ixfModule, struct t_os2process * proc)
        module_counter<ixfModule->cbModules;
        module_counter++)
   {
-    PrcInitializeModule(ixfModule->Modules[module_counter], (void *)esp);
+    PrcInitializeModule((PSZ)ixfModule->Modules[module_counter], esp);
   }
 
         my_execute = (void *)(ixfModule->EntryPoint);

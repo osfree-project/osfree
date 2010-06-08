@@ -31,18 +31,19 @@ void __attribute((__cdecl__)) api_DosWrite(HFILE hFile, PVOID pBuffer,
 //  io_printf("pulactual=%x", esp);
   
 
-  io_printf("hfile=%x, pBuffer=%x, cbWrite=%x, pcbActial=%x", hFile, pBuffer, cbWrite, pcbActual);
+  io_printf("hfile=%x, pBuffer=%x, cbWrite=%x, pcbActial=%x\n", hFile, pBuffer, cbWrite, pcbActual);
 
   if (hFile != 1) return 6/*ERROR_INVALID_HANDLE*/;
   memcpy(buf, pBuffer, cbWrite+1);
   buf[cbWrite] = '\0';
 
-  io_printf("%s", buf);
+  io_printf("%s\n", buf);
 
   return 0/*NO_ERROR*/;
 }
 
-VOID APIENTRY
+//VOID APIENTRY
+void __attribute((__cdecl__)) 
 api_DosExit(ULONG action, ULONG result)
 {
   io_printf("action=%d, result=%d\n", action, result);

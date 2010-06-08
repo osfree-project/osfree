@@ -31,7 +31,7 @@ Shared/processmgr.c
 SERVERIDL	= os2server.idl
 
 # list additional library paths and libraries here
-LIBS		= -lparsecmdline -lthread -lcon -lcontxt -lconstream-server
+LIBS		=  -los2server -lparsecmdline -lthread -lcon -lcontxt -lconstream-server
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
 CFLAGS          = -I$(PKGDIR)/include
 MODE=l4env_base

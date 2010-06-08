@@ -164,12 +164,12 @@ unsigned long ModLoadModule(char *          pszName,
   // Specail case - EMXWRAP.DLL. Read more in docs\os2\sub32.txt
   if (!strcasecmp(mname, "EMXWRAP"))
   {
-    if (options.debugmodmgr) LOG("ModLoadModule: EXMWRAP module replaced by SUB32 module.\n");
+    if (options.debugmodmgr) LOG("ModLoadModule: EXMWRAP module replaced by SUB32 module.");
     mname="SUB32";
     pszModname="SUB32.DLL";
   }
 
-  if (options.debugmodmgr) LOG("ModLoadModule: Loading module %s...\n", mname);
+  if (options.debugmodmgr) LOG("ModLoadModule: Loading module %s...", mname);
 
 
   // First search in the module list
@@ -181,8 +181,10 @@ unsigned long ModLoadModule(char *          pszName,
       if(prev->load_status == LOADING)
       {
         *phmod=NULL;
+	LOG("rc=8");
         if (cbName<=strlen(mname)) return 8 /*ERROR_NOT_ENOUGH_MEMORY*/;
         strcpy(pszName, mname);
+	LOG("rc=5");
         return 5 /*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
       }
       // @todo use handles here
@@ -199,11 +201,14 @@ unsigned long ModLoadModule(char *          pszName,
   if (rc)
   {
     // Searches for module name and returns the full path in the buffer p_buf.
+    LOG("io_load_file1: rc=%u", rc);
     rc=find_module_path(pszModname, p_buf);
+    LOG("find_module_path: rc=%u, p_buf=%s", rc, p_buf);
     if (!rc) rc=io_load_file(p_buf, &addr, &size);
   }
   if (rc)
   {
+    LOG("io_load_file2: rc=%u", rc);
     strcpy(pszName, pszModname);
     *phmod=NULL;
     return rc;
@@ -214,6 +219,7 @@ unsigned long ModLoadModule(char *          pszName,
   rc=IXFIdentifyModule(addr, size, ixfModule);
   if (rc)
   {
+    LOG("IXFIdentifyModule: rc=%u", rc);
     strcpy(pszName, pszModname);
     *phmod=NULL;
     free(ixfModule);
@@ -224,6 +230,7 @@ unsigned long ModLoadModule(char *          pszName,
   rc=IXFLoadModule(addr, size, ixfModule);
   if (rc)
   {
+    LOG("IXFLoadModule: rc=%u", rc);
     strcpy(pszName, pszModname);
     *phmod=NULL;
     free(ixfModule);
@@ -272,6 +279,7 @@ unsigned long ModLoadModule(char *          pszName,
   rc=IXFFixupModule(ixfModule);
   if (rc)
   {
+    LOG("IXFFixupModule: rc=%u", rc);
     strcpy(pszName, pszModname);
     *phmod=NULL;
     free(ixfModule);
@@ -309,7 +317,7 @@ unsigned long ModLoadModule(char *          pszName,
        imports_counter<ixfModule->cbFixups+1;
        imports_counter++)
   {
-    LOG("Import entrie %d of %d",imports_counter, ixfModule->cbFixups);
+    LOG("Import entry %d of %d",imports_counter, ixfModule->cbFixups);
     LOG("Module=%s", ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName);
     
     prev = (struct module_rec *) module_root.next;
@@ -388,19 +396,19 @@ unsigned long ModInitialize(void)
   ixf->Entries[0].FunctionName="1KalWrite";
   ixf->Entries[0].Address=&api_DosWrite;
   ixf->Entries[0].ModuleName=NULL;
-  ixf->Entries[0].Ordinal=0;
+  ixf->Entries[0].Ordinal=1;
   ixf->Entries[1].FunctionName="2KalWrite";
   ixf->Entries[1].Address=&api_DosWrite;
   ixf->Entries[1].ModuleName=NULL;
-  ixf->Entries[1].Ordinal=0;
+  ixf->Entries[1].Ordinal=2;
   ixf->Entries[2].FunctionName="KalWrite";
   ixf->Entries[2].Address=&api_DosWrite;
   ixf->Entries[2].ModuleName=NULL;
-  ixf->Entries[2].Ordinal=0;
+  ixf->Entries[2].Ordinal=3;
   ixf->Entries[3].FunctionName="KalExit";
   ixf->Entries[3].Address=&api_DosExit;
   ixf->Entries[3].ModuleName=NULL;
-  ixf->Entries[3].Ordinal=0;
+  ixf->Entries[3].Ordinal=4;
   ixf->cbModules=0;
   ixf->Modules=NULL;
   ixf->cbFixups=0;

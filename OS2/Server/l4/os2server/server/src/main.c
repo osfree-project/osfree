@@ -106,26 +106,26 @@ int main(int argc, const char **argv)
   LOG("osFree OS/2 Personality Server");
 
 
-  int task_status = l4ts_allocate_task2(0, &taskid);
+  //int task_status = l4ts_allocate_task2(0, &taskid);
                 
   #if defined(L4API_l4v2)
   init_globals();
   if (!names_register("os2server"))
   {
-    LOG("Error registering in name server\n");
+    LOG("Error registering in name server");
     return 1;
   }
   #endif
 
   if (!names_waitfor_name("fstab", &tid, 10000))
   {
-    LOG("fstab doesn't answer for 10 seconds. Exiting.\n");
+    LOG("fstab doesn't answer for 10 seconds. Exiting.");
     return 2;
   };
 
   if (!names_waitfor_name(CON_NAMES_STR, &tid, 10000))
   {
-    LOG("Console doesn't answer for 10 seconds. Exiting.\n");
+    LOG("Console doesn't answer for 10 seconds. Exiting.");
     return 2;
   };
   
@@ -135,7 +135,7 @@ int main(int argc, const char **argv)
   rc=CfgInitOptions();
   if (rc!=NO_ERROR)
   {
-    LOG("Can't initialize CONFIG.SYS parser\n");
+    LOG("Can't initialize CONFIG.SYS parser");
     return rc;
   }
 
@@ -205,7 +205,7 @@ int main(int argc, const char **argv)
   rc=ModInitialize();
   if (rc!=NO_ERROR)
   {
-    io_printf("Can't initialize module manager\n");
+    io_printf("Can't initialize module manager");
     return rc;
   }
 
@@ -213,7 +213,7 @@ int main(int argc, const char **argv)
   rc=io_load_file(options.configfile, &addr, &size);
   if (rc!=NO_ERROR)
   {
-    io_printf("Can't load CONFIG.SYS\n");
+    io_printf("Can't load CONFIG.SYS");
     return rc;
   }
 
@@ -221,7 +221,7 @@ int main(int argc, const char **argv)
   rc=CfgParseConfig(addr, size);
   if (rc!=NO_ERROR)
   {
-    io_printf("Error parse CONFIG.SYS\n");
+    io_printf("Error parse CONFIG.SYS");
     return rc;
   }
 
@@ -231,22 +231,23 @@ int main(int argc, const char **argv)
   // Check PROTSHELL statament value
   if (!options.protshell||(strlen(options.protshell)==0))
   {
-    io_printf("No PROTSHELL statement in CONFIG.SYS\n");
+    io_printf("No PROTSHELL statement in CONFIG.SYS");
     return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
     rc=PrcExecuteModule(NULL, 0, 0, NULL, NULL, NULL, options.protshell);
-    if(rc!=NO_ERROR) LOG("Error execute: %d ('%s')\n", rc, options.protshell);
+    if(rc!=NO_ERROR) LOG("Error execute: %d ('%s')", rc, options.protshell);
   }
 
   // Clean up config data
   rc=CfgCleanup();
   if (rc!=NO_ERROR)
   {
-    LOG("CONFIG.SYS parser cleanup error.\n");
+    LOG("CONFIG.SYS parser cleanup error.");
     return rc;
   }
 
-  LOG("OS/2 Server ended\n");
+  LOG("OS/2 Server ended");
 
+ 
   return rc;
 }

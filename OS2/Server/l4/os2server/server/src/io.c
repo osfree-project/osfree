@@ -29,6 +29,7 @@ void io_printf(const char* chrFormat, ...)
 
 int io_load_file(const char * filename, void ** addr, unsigned long * size)
 {
+  char ch;
   FILE *f=0;
   char * newfilename;
   char * newdirectory;
@@ -36,20 +37,27 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
 
   char drv = get_drv(filename);
 
+  LOG("drv=%c:", drv);
+
   if(drv == '\0') 
   {
     return 2; /* ERROR_FILE_NOT_FOUND */
   }
 
   char * directory = get_directory(filename);
+  LOG("directory=%s", directory);
   if (directory==NULL)
   {
     return 2; /* ERROR_FILE_NOT_FOUND */
   }
   char * name = get_name(filename);
+  LOG("name=%s", name);
 
   DosNameConversion(directory);
   DosNameConversion(name);
+
+  LOG("directory=%s", directory);
+  LOG("name=%s", name);
 
   struct I_Fs_srv *target_fs_srv = FSRouter_route(&fsrouter, drv);
 
@@ -65,15 +73,20 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
 
 //  LOG("%s => %s", filename, newfilename);
 
-  LOG("%s", newdirectory); // If I remove this then next line return NULL. Why?
+  //if (newdirectory[strlen(newdirectory) - 1] == '/')
+  //  newdirectory[strlen(newdirectory) - 1] = '\0';
 
+  if (!strcmp(name, "sub32.dll")) LOG("%s", newdirectory); // If I remove this then next line return NULL. Why?
+  //enter_kdebug("stop"); // break into debugger
   DIR *dir = opendir(newdirectory);
 
   if (dir==NULL)
   {
-    LOG("Error opening directory\n");
+    LOG("Error opening directory");
     return 2; /* ERROR_FILE_NOT_FOUND */
   }
+  else
+    LOG("opendir() successful");
 
   while(diren = readdir(dir)) 
   {
@@ -82,13 +95,25 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
         if(strcasecmp(diren->d_name, name)==0) {
             break;
         }
-    }
-    closedir(dir);
-
+  }
+  
+  if (!diren)
+  {
+    LOG("diren=0");
+    return 2;
+  }
+  
+  LOG("directory read");
+  LOG("newdirectory=%s", newdirectory);
+  LOG("diren->d_name=%s", diren->d_name);
   strcpy(newfilename, newdirectory);
   newfilename=strcat(newfilename, diren->d_name);
 
+  closedir(dir);
+
+  LOG("newfilename=%s", newfilename);
   f = fopen(newfilename, "rb");
+  LOG("file opened");
   if(f) {
      fseek(f, 0, SEEK_END);
      *size = ftell(f);  /* Extract the size of the file and reads it into a buffer.*/
@@ -96,6 +121,7 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
      *addr = (void *)malloc(*size+1);
      fread(*addr, *size, 1, f);
      fclose(f);
+     LOG("successful return");
      return 0; /*NO_ERROR;*/
   }
 
