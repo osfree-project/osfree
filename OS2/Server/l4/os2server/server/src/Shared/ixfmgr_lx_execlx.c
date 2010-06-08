@@ -86,7 +86,7 @@ struct desc
 #if 1 
 void DICE_CV
 os2server_wakeup_component (CORBA_Object _dice_corba_obj,
-                                    CORBA_Server_Environment *_dice_corba_env)
+                            CORBA_Server_Environment *_dice_corba_env)
 {
   LOG("wakeup called");
   l4semaphore_up(&sem);
@@ -95,7 +95,9 @@ os2server_wakeup_component (CORBA_Object _dice_corba_obj,
 #endif
 
 static void
-trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
+trampoline(PTIB tib, 
+           unsigned long esp_data,
+           unsigned long eip_data)
 {
   CORBA_Environment env = dice_default_environment;
   l4_threadid_t     dest, preempter, pager, myid;
@@ -105,7 +107,6 @@ trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
   struct desc       desc;
   unsigned long     base;
   unsigned short    sel;
-  //PTIB tib = (PTIB)malloc(sizeof(TIB));
 
   /* TIB base */
   base = tib;	
@@ -122,6 +123,9 @@ trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
   /* Get a selector */
   sel = 8 * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
+  
+  // mini33 stack
+  tib->tib_pstack = esp_data;
 
   LOG("eip=%x, esp=%x, tib=%x", eip_data, esp_data, tib);
   asm(
@@ -143,7 +147,7 @@ trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
   LOG("os2server uid=%x.%x", dest.id.task, dest.id.lthread);
   // send a signal about termination to OS/2 server
   //dest.id.lthread = 1;
-  env.utcb = l4_utcb_get();
+  //env.utcb = l4_utcb_get();
   os2server_wakeup_call (&dest, &env);
   
   if (DICE_HAS_EXCEPTION(&env))
@@ -167,7 +171,7 @@ trampoline(unsigned long esp_data, unsigned long eip_data, PTIB tib)
   //    LOG("err from msgdope: %x", L4_IPC_IS_ERROR(result));
   //}
   LOG("task exit");
-  enter_kdebug("debug");
+  //enter_kdebug("debug");
 }
 
 #if 0
@@ -420,6 +424,7 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 
         void * main_ptr = (void *)eip;
         void * data_mmap = (void *)stack_obj->o32_base;
+	l4_umword_t app_stack[4096];
         unsigned long int real_esp;
 
         int            t, th;
@@ -440,13 +445,12 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
         }
 
         /* Prepare Thread Info Block */
-        real_esp = data_mmap + esp;
-        tib->tib_pstack = real_esp;
         LOG("tib=%x", tib);
 
-        l4util_stack_push_mword   (&real_esp, tib);
+        real_esp = app_stack + 4096;
         l4util_stack_push_mword   (&real_esp, main_ptr);
-        l4util_stack_push_mword   (&real_esp, data_mmap+esp);
+        l4util_stack_push_mword   (&real_esp, data_mmap + esp);
+        l4util_stack_push_mword   (&real_esp, tib);
         l4util_stack_push_mword   (&real_esp, 0);
 
         int task_status = l4ts_allocate_task(0, &taskid);
