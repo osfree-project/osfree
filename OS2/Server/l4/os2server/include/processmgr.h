@@ -138,7 +138,7 @@ typedef struct t_os2process {
         void * code_mmap;
         void * stack_mmap;
         PPIB lx_pib;
-        PTIB main_tid;
+        PTIB main_tib;
         struct t_mem_area root_mem_area;
 };
 
