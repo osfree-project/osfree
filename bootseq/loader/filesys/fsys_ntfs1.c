@@ -854,7 +854,8 @@ int ntfs_mount (void)
     int mft_record;
     int spc;
 
-  if (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+  if ( ((*pcurrent_drive < 0xC0) || (*pcurrent_drive > 0xC7))
+       && ((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
        && (*pcurrent_slice != /*PC_SLICE_TYPE_NTFS*/7)
        && (*pcurrent_slice != /*PC_SLICE_TYPE_NTFS*/0x17))
       return 0;

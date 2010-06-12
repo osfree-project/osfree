@@ -33,6 +33,8 @@ int print_possibilities = 0;
 
 #ifndef STAGE1_5
 
+extern unsigned long sector_size;
+
 extern int do_completion;
 
 static int unique;
@@ -577,6 +579,14 @@ u_parm (int parm, int action, unsigned int *val)
 
         return 0;
       }
+    case PARM_SECTSIZE:
+      {
+        if (action == ACT_GET)
+        {
+          *val = (unsigned int)buf_geom.sector_size;
+          return 0;
+        }
+      }
     default:
       ;
   }
@@ -759,6 +769,16 @@ freeldr_open (char *filename)
      }
      else
      {
+       if (*filename == '(')
+       {
+         char *s = filename;
+
+         while (*s != ')') s++;
+         s++;
+         if (*s != '/') // block file
+           return grub_open(filename);
+       }
+
        /* prepend "/" to filename */
        if (*filename != '/' && *filename != '(') {
          buf[0] = '/';
@@ -1799,6 +1819,7 @@ void init(void)
     //part_length = geom.total_sectors;
     //current_slice = 0;
   }
+  sector_size = geom.sector_size;
 #else
   cdrom_drive = GRUB_INVALID_DRIVE;
 #endif

@@ -50,7 +50,8 @@ vstafs_mount (void)
 {
   int retval = 1;
 
-  if( (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+  if ( (((*pcurrent_drive < 0xC0) || (*pcurrent_drive > 0xC7))
+       && ((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
        && *pcurrent_slice != PC_SLICE_TYPE_VSTAFS)
       ||  ! (*pdevread) (0, 0, BLOCK_SIZE, (char *) FSYS_BUF)
       ||  FIRST_SECTOR->fs_magic != 0xDEADFACE)
@@ -245,7 +246,12 @@ vstafs_read (char *addr, int len)
           curr_len += size;
         }
 
+      *pdisk_read_func = *pdisk_read_hook; //vs
+
       (*pdevread) (a[curr_ext].a_start,offset, curr_len, curr_pos);
+
+      *pdisk_read_func = NULL; //vs
+
       offset = 0;
     }
 

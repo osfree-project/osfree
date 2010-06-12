@@ -1087,7 +1087,7 @@ static int list_file(char* cur_mft,char *fn,char *pos)
 //                      np[i]=np[i*2];
 //                    np[ns]=0;
 #ifdef FS_UTIL
-                      //print_completion_ex(utf8,valueat(pos,0,unsigned long),valueat(pos,0x40,unsigned long),(valueat(pos,0x48,unsigned long) & ATTR_DIRECTORY)?FS_ATTR_DIRECTORY:0);
+                      print_completion_ex(utf8,valueat(pos,0,unsigned long),valueat(pos,0x40,unsigned long),(valueat(pos,0x48,unsigned long) & ATTR_DIRECTORY)?FS_ATTR_DIRECTORY:0);
 #else
                       (*pprint_a_completion) ((char *)utf8);
 #endif
@@ -1245,7 +1245,8 @@ error:
 int ntfs_mount (void)
 {
 #if 0
-  if (((current_drive & 0x80) || (current_slice != 0))
+  if ( ((*pcurrent_drive < 0xC0) || (*pcurrent_drive > 0xC7))
+      && ((current_drive & 0x80) || (current_slice != 0))
       && (current_slice != 7) && (current_slice != 0x17))
     return 0;
 #endif

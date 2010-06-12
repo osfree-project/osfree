@@ -123,6 +123,7 @@ struct pmif
 #define PARM_AT_DRIVE             18
 #define PARM_DISK_READ_HOOK       19
 #define PARM_DISK_READ_FUNC       20
+#define PARM_SECTSIZE             21
 
 #pragma aux u_open   "*"
 #pragma aux u_dir    "*"

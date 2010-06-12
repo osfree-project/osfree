@@ -70,7 +70,7 @@ BOOL parse_cmd(char * cmd)
   {
     return FALSE;
   }
-  
+
   if (strlen(cmd)==2)
     if (cmd[1]==':')
     {
@@ -170,12 +170,17 @@ void main(void)
 
   hello();
 
+/*
   exitflag=FALSE;
   // Ok. Here we just in endless loop. Except for EXIT command.
+
   while (!exitflag)
   {
     showpath();
     read_cmd(&cmd);
     exitflag=parse_cmd(cmd);
-  }
+  } */
+
+  //while (1) ;
+  exit(0);
 }

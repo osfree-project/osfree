@@ -62,12 +62,17 @@
 #include <l4/sys/kdebug.h>
 #include <l4/sys/segment.h>
 
+#include <modmgr.h>
+#include <ixfmgr.h>
+
 #include "os2server-client.h"
 #include "os2server-server.h"
 
 /* other includes */
 #include <stdio.h>
 #include <stdlib.h>
+
+extern struct module_rec module_root; /* Root for module list.*/
 
 l4semaphore_t sem = L4SEMAPHORE_INIT(0);
 
@@ -100,17 +105,38 @@ os2server_wakeup_component (CORBA_Object _dice_corba_obj,
   l4semaphore_up(&sem);
 }
 
+void exe_end(void)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4_threadid_t     dest;
+
+  LOG("exe ended");
+  // query OS/2 server task id
+  names_query_name("os2srv", &dest) ;
+  LOG("OS/2 server uid=%x.%x", dest.id.task, dest.id.lthread);
+
+  // send a signal about termination to OS/2 server
+  os2server_wakeup_call (&dest, &env);
+  
+  if (DICE_HAS_EXCEPTION(&env))
+    LOG("IPC error: %x.%x", 
+        DICE_EXCEPTION_MAJOR(&env),
+        DICE_EXCEPTION_MINOR(&env));
+  
+  LOG("task exit");
+  l4_ipc_sleep(L4_IPC_NEVER);  
+}
+
 static void
 trampoline(struct param *param)
 {
-  CORBA_Environment env = dice_default_environment;
-  l4_threadid_t     dest, preempter, pager, myid;
-  l4_msgdope_t      result;
-  l4_umword_t       w0, w1, dummy;
-  int               err;
   struct desc       desc;
   unsigned long     base;
   unsigned short    sel;
+
+  PCHAR argv = param->pib->pib_pchcmd = (PCHAR){"c:\\minicmd.exe", 0};
+  PCHAR envp = param->pib->pib_pchenv = (PCHAR){"PATH=c:\\;", 0};
+  ULONG hmod = param->pib->pib_hmte;
 
   /* TIB base */
   base = param->tib;	
@@ -128,39 +154,38 @@ trampoline(struct param *param)
   /* Get a selector */
   sel = 8 * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
-  
-  // mini33 stack
-  param->tib->tib_pstack = param->esp;
+
+  //contxt_init(65535, 11);
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
+
+  //enter_kdebug("debug");
   asm(
-      "movl %[sel], %%eax \n"
-      "movw %%ax, %%fs \n"              /* TIB selector */
-      "movl %[esp_data], %%eax \n"      /* Put old esp in eax */
-      "movl %[eip_data], %%ecx \n"
-      "movl %%eax, %%esp \n"            /* Copy eax to esp. Stack pointer */
+      "movl  %[sel], %%eax \n"
+      "movw  %%ax, %%fs \n"              /* TIB selector */
+      "movl  %[esp_data], %%eax \n"      /* Put old esp in eax */
+      "movl  %[eip_data], %%ecx \n"
+      "movl  %%eax, %%esp \n"            /* Copy eax to esp. Stack pointer */
       /* We have changed the stack so it now points to our LX image. */
-      "call *%%ecx \n"                  /* Call our main() */
+      "movl  %[argv], %%eax \n"
+      "pushl %%eax \n"                   /* argc  */
+      "movl  %[envp], %%eax \n"
+      "pushl %%eax \n"                   /* envp  */
+      "movl  $0, %%eax \n"
+      "pushl %%eax \n"                   /* sizec */
+      "movl  %[hmod], %%eax \n"
+      "pushl %%eax \n"                   /* hmod  */
+      "call  *%%ecx \n"                  /* Call our main() */
+      "addl  $0x10, %%esp \n"            /* clear stack     */
       :
-      :[sel] "m" (sel),
+      :[sel]      "m" (sel),
+       [argv]     "m" (argv),
+       [envp]     "m" (envp),
+       [hmod]     "m" (hmod),
        [esp_data] "m" (param->esp),       /* esp+ data_mmap+8+ */
        [eip_data] "m" (param->eip));
 
-  LOG("exe ended");
-  // query OS/2 server task id
-  names_query_name("os2srv", &dest) ;
-  LOG("OS/2 server uid=%x.%x", dest.id.task, dest.id.lthread);
-
-  // send a signal about termination to OS/2 server
-  os2server_wakeup_call (&dest, &env);
-  
-  if (DICE_HAS_EXCEPTION(&env))
-    LOG("IPC error: %x.%x", 
-        DICE_EXCEPTION_MAJOR(&env),
-        DICE_EXCEPTION_MINOR(&env));
-  
-  LOG("task exit");
-  l4_ipc_sleep(L4_IPC_NEVER);  
+  exe_end();
 }
 
 static void
@@ -189,25 +214,27 @@ app_pager(void *unused)
 	  reply_type = L4_IPC_SHORT_FPAGE;
 	  if ((dw1 == 1) && ((dw2 & 0xff) == 1))
 	    {
-	      LOG("kernel info page requested, giving up ...\n");
+	      LOG("kernel info page requested, giving up ...");
 	      exit(-1);
 	    }
 	  else if (dw1 >= 0x40000000)
 	    {
-	      LOG("adapter pages requested, giving up ...\n");
+	      LOG("adapter pages requested, giving up ...");
+	      //LOG("dw1=%x, dw2=%x", dw1, dw2);
 	      exit(-1);
 	    }
 	  else if ((dw1 & 0xfffffffc) == 0)
 	    {
 	      LOG("null pointer exception thread "l4util_idfmt
 		     ", (%08lx at %08lx)\n", l4util_idstr(src_thread), dw1, dw2);
-	      enter_kdebug("stop");
+	      //enter_kdebug("stop");
+	      break;
 	    }
 	  else
 	    {
               dw1 &= L4_PAGEMASK;
-              dw2 = l4_fpage(dw1, L4_LOG2_PAGESIZE,
-                             L4_FPAGE_RW, L4_FPAGE_MAP).fpage;
+              dw2 =  l4_fpage(dw1, L4_LOG2_PAGESIZE,
+                              L4_FPAGE_RW, L4_FPAGE_MAP).fpage;
 	    }
 
 	  error = l4_ipc_reply_and_wait(src_thread, reply_type, dw1, dw2,
@@ -378,8 +405,8 @@ extern l4_taskid_t taskid;
 
 void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 {
-        struct o32_obj * kod_obj = (struct o32_obj *) get_code(lx_exe_mod);
-        struct o32_obj * stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
+        struct o32_obj *kod_obj   = (struct o32_obj *) get_code(lx_exe_mod);
+        struct o32_obj *stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
         unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
         unsigned long esp = get_esp(lx_exe_mod);
 
@@ -393,6 +420,10 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	struct param   param;
         int            t, th;
 	l4_threadid_t  pager;
+
+        IXFModule *ixf;
+        struct module_rec *mod;
+        int cnt;
 
         /* start pager thread */
         pager = l4thread_l4_id(t = l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));
@@ -410,29 +441,51 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	param.tib = proc->main_tib;
 	param.pib = proc->lx_pib;
 
+        mod = (struct module_rec *) module_root.next;
+        while (mod)
+        {
+          LOG("module: %s", mod->mod_name);
+          ixf = (IXFModule *)mod->module_struct;
+          if (strcasecmp(mod->mod_name, "minicmd.exe"))
+	  {
+	    for (cnt = 0; cnt < ixf->cbEntries; cnt++)
+              LOG("%s.%u", ixf->Entries[cnt].FunctionName, ixf->Entries[cnt].Ordinal);
+          }
+          mod = (struct module_rec *) mod->next;
+        }
+#if 0
         /* push task params on stack */
         real_esp = app_stack + STACK_SIZE - 4;
         l4util_stack_push_mword   (&real_esp, &param);
-        l4util_stack_push_mword   (&real_esp, 0);
+        /* return address (zero) */
+	l4util_stack_push_mword   (&real_esp, 0);
 
         int task_status = l4ts_allocate_task(0, &taskid);
+
+        // task stack
+        param.tib->tib_pstack = param.esp;
+	/* Current thread identifier. 
+	 * @todo change l4 tid's to OS/2 tid's
+	 */
+	param.tib->tib_ptib2->tib2_ultid = taskid.raw;        
 
 	if (task_status)
           LOG("Error allocating task!");
 
         int r = l4ts_create_task(&taskid, (l4_addr_t)trampoline, real_esp,
-                                 0x90, &pager, 
+                                 0xA0, &pager, 
                                  0x21, "", 0);
 
 	LOG("l4ts_create_task() returned: %d, taskid=%x.%x", r, taskid.id.task, taskid.id.lthread);
 
         // wait protshell task termination
 	l4semaphore_down(&sem);
-        // terminated, kill it	
+        // task ended, kill it	
         if ((t = l4ts_kill_task(taskid, L4TS_KILL_SYNC)))
 	  LOG("Error %d killing task\n", t);
 	else
 	  LOG("trampoline() task killed");
+#endif
 }
 
 #endif /* L4API_l4v2 */

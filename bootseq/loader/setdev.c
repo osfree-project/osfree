@@ -37,7 +37,8 @@ sane_partition (void)
 
   if (!(current_partition & 0xFF000000uL)
       && ((current_drive & 0xFFFFFF7F) < 8
-          || current_drive == cdrom_drive)
+          || current_drive == cdrom_drive
+          || (current_drive & 0xC0) == 0xC0)
       && (current_partition & 0xFF) == 0xFF
       && ((current_partition & 0xFF00) == 0xFF00
           || (current_partition & 0xFF00) < 0x800)
@@ -96,10 +97,12 @@ set_device (char *device)
 
           if (*device == 'f' || *device == 'h'
               || (*device == 'n' && network_ready)
-              || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE))
+              || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE)
+              || (*device == 'l'))
 #else
           if (*device == 'f' || *device == 'h'
-              || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE))
+              || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE)
+              || (*device == 'l'))
 #endif /* SUPPORT_NETBOOT */
             {
               /* user has given '([fhn]', check for resp. add 'd' and
@@ -120,7 +123,8 @@ set_device (char *device)
 #ifdef SUPPORT_NETBOOT
                || (*device == 'n' && network_ready)
 #endif
-               || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE))
+               || (*device == 'c' && cdrom_drive != GRUB_INVALID_DRIVE)
+               || (*device == 'l'))
               && (device += 2, (*(device - 1) != 'd')))
             errnum = ERR_NUMBER_PARSING;
 
@@ -139,6 +143,8 @@ set_device (char *device)
                   disk_choice = 0;
                   if (ch == 'h')
                     current_drive += 0x80;
+                  else if (ch == 'l')
+                    current_drive += 0xC0;
                 }
             }
         }

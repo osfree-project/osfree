@@ -50,7 +50,7 @@ extern PVOID entry_Table[];
      We use static array of modules structures here. We limit now to 1024 module handles.
      Such approach is much protected in comparation of allowing direct access to module structure.
 
-@todo: Add option MAXLOADEDMODULES=xxxx to config.sys for more flexability?
+@todo: Add option MAXLOADEDMODULES=xxxx to config.sys for more flexibility?
 */
 
 struct module_rec modulehandles[1024];
@@ -241,17 +241,17 @@ unsigned long ModLoadModule(char *          pszName,
   if (options.debugixfmgr)
   {
     unsigned long entries_counter;
-    io_printf("Module entry table\n");
-    io_printf("------------------\n");
+    LOG("Module entry table");
+    LOG("------------------");
     for (entries_counter=1;
          entries_counter<ixfModule->cbEntries+1;
          entries_counter++)
     {
       if (ixfModule->Entries[entries_counter-1].ModuleName)
       {
-        io_printf("%s.%d\n", ixfModule->Entries[entries_counter-1].ModuleName, ixfModule->Entries[entries_counter-1].Ordinal);
+        LOG("%s.%d", ixfModule->Entries[entries_counter-1].ModuleName, ixfModule->Entries[entries_counter-1].Ordinal);
       } else {
-        io_printf("%x\n", ixfModule->Entries[entries_counter-1].Address);
+        LOG("%x", ixfModule->Entries[entries_counter-1].Address);
       }
     }
 

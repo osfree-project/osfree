@@ -61,9 +61,9 @@ char * get_directory(const char *s_path)
   }
   
   if (e==0) return NULL;
-  
   char *dir=malloc(e-s+2);
   strncpy(dir, &s_path[s], e-s+1);
+  dir[e - s + 1] = '\0';
   return dir;
 }
 

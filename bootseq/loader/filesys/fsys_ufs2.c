@@ -91,7 +91,8 @@ ufs2_mount (void)
   sblockloc = -1;
   type = 0;
 
-  if (! (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+  if ( ((*pcurrent_drive < 0xC0) || (*pcurrent_drive > 0xC7))
+         && ! (((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
          && ! IS_PC_SLICE_TYPE_BSD_WITH_FS (*pcurrent_slice, FS_BSDFFS)))
     {
       for (i = 0; sblock_try[i] != -1; ++i)

@@ -20,6 +20,8 @@ void (*disk_read_hook) (int, int, int) = 0;
 
 int open_partition_hiddensecs(void);
 
+unsigned long sector_size = SECTOR_SIZE;
+
 #ifndef STAGE1_5
 
 extern char freeldr_path[];
@@ -63,9 +65,6 @@ extern unsigned long saved_partition;
 extern int saved_slice;
 extern int saved_fsys_type;
 extern unsigned long cdrom_drive;
-
-//int debug = 0;
-struct geometry buf_geom;
 
 /* filesystem type */
 int fsys_type = -1;
@@ -315,7 +314,6 @@ open_device2(void)
     return 1;
 
   /* Then try the boot one */
-
   set_boot_fsys();
 
   if (open_device())
@@ -423,13 +421,13 @@ int
 grub_open (char *filename)
 {
 #ifndef STAGE1_5
-#define buf_size 1500
+//#define buf_size 1500
 //const int buf_size = 1500;
-  const char *try_filenames[] = { "menu.lst", "m" };
+//  const char *try_filenames[] = { "menu.lst", "m" };
 
-  char fn[buf_size]; /* arbitrary... */
-  char *filename_orig = filename;
-  int trycount = 0;
+  //char fn[buf_size]; /* arbitrary... */
+  //char *filename_orig = filename;
+  //int trycount = 0;
 
   //if (grub_strlen(filename) > buf_size)
   //  {
@@ -438,12 +436,12 @@ grub_open (char *filename)
   //  }
 
   /* initially, we need to copy filename to fn */
-  grub_strcpy(fn, filename_orig);
-  fn[grub_strlen(filename_orig)] = 0;
+  //grub_strcpy(fn, filename_orig);
+  //fn[grub_strlen(filename_orig)] = 0;
 
-restart:
+//restart:
   errnum = 0; /* hrm... */
-  filename = fn;
+  //filename = fn;
 #endif
 
 #ifndef NO_DECOMPRESSION
@@ -456,9 +454,9 @@ restart:
 
   if (!(filename = (char *)setup_part (filename)))
     {
-      if (errnum == ERR_FILE_NOT_FOUND)
-        goto retry;
-      else
+      //if (errnum == ERR_FILE_NOT_FOUND)
+      //  goto retry;
+      //else
         return 0;
     }
 
@@ -556,8 +554,8 @@ restart:
 #endif /* NO_DECOMPRESSION */
     }
 
-retry:
-# ifndef STAGE1_5
+//retry:
+# if 0 // ndef STAGE1_5
   if (trycount < sizeof(try_filenames) / sizeof(*try_filenames))
     {
       unsigned int l = grub_strlen(filename_orig);

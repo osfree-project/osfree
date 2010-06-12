@@ -67,12 +67,13 @@ int abbrev(char *s1, char *s2, int n)
 {
   char *p = s1;
   char *q = s2;
-  int  i = 1;
+  int  i;
 
-  while (*p++ == *q++ && *p != '\0') i++;
-  if (i >= n) return 1;
+  for (i = 0; i < n; i++, p++, q++)
+    if (!*p || !*q || *p != *q)
+      return 0;
 
-  return 0;
+  return 1;
 }
 
 /*  Strip leading and trailing

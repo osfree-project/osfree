@@ -35,6 +35,7 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
   char * newdirectory;
   struct dirent *diren;
 
+  LOG("filename=%s", filename);
   char drv = get_drv(filename);
 
   LOG("drv=%c:", drv);
@@ -76,7 +77,7 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
   //if (newdirectory[strlen(newdirectory) - 1] == '/')
   //  newdirectory[strlen(newdirectory) - 1] = '\0';
 
-  if (!strcmp(name, "sub32.dll")) LOG("%s", newdirectory); // If I remove this then next line return NULL. Why?
+  //LOG("%s", newdirectory); // If I remove this then next line return NULL. Why?
   //enter_kdebug("stop"); // break into debugger
   DIR *dir = opendir(newdirectory);
 
@@ -87,6 +88,7 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
   }
   else
     LOG("opendir() successful");
+
 
   while(diren = readdir(dir)) 
   {
@@ -102,16 +104,16 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
     LOG("diren=0");
     return 2;
   }
-  
-  LOG("directory read");
-  LOG("newdirectory=%s", newdirectory);
-  LOG("diren->d_name=%s", diren->d_name);
+ 
+  //LOG("directory read");
+  //LOG("newdirectory=%s", newdirectory);
+  //LOG("diren->d_name=%s", diren->d_name);
   strcpy(newfilename, newdirectory);
   newfilename=strcat(newfilename, diren->d_name);
 
   closedir(dir);
 
-  LOG("newfilename=%s", newfilename);
+  //LOG("newfilename=%s", newfilename);
   f = fopen(newfilename, "rb");
   LOG("file opened");
   if(f) {

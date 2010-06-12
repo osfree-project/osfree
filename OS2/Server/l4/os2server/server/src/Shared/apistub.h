@@ -4,7 +4,7 @@
  */
 #include <gcc_os2def.h>
 
-void __attribute__((__cdecl__)) //APIRET APIENTRY
+unsigned long __attribute__((__cdecl__)) //APIRET APIENTRY
 api_DosWrite
 (HFILE hFile, PVOID pBuffer,
          ULONG cbWrite, PULONG pcbActual);

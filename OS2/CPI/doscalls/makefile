@@ -173,8 +173,8 @@ EXPORTS = &
      DosQueryFSInfo        .278  , &
      DosQueryFileInfo      .279  , &
      DosWaitChild          .280  , &
-     DosRead               .281  , &
-     DosWrite              .282  , &
+     DosRead               .137  , &
+     DosWrite              .138  , &
      DosExecPgm            .283  , &
      DosDevIOCtl           .284  , &
      DosFSCtl              .285  , &

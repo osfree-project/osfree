@@ -334,7 +334,8 @@ exec_line(char *line)
 
   for (b = builtins; *b; b++)
   {
-    if (abbrev(line, (*b)->name, strlen((*b)->name)))
+    i = strlen((*b)->name);
+    if (abbrev(line, (*b)->name, i) && (line[i] == ' ' || line[i] == '\0'))
     {
       s = skip_to(1, line);
       /* substitute macros, like '()' for a bootdrive */

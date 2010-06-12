@@ -30,6 +30,9 @@ FSYS_BUFLEN     equ 0x8000
 ;
 ; buffers at the end of 3rd megabyte
 ;
+STRINGBUF         equ 0x3bc000            ; a string buffer
+LOOPARRAY         equ 0x3c0000            ; strings corresponding to ld0..ld7
+STRBUF_SIZE       equ 8192
 PRELDR_BASE       equ 0x3d0000            ; final location of a pre-loader
 FSYS_BUF          equ 0x3e0000            ;
 EXT1HIBUF_BASE    equ 0x3e8000            ; blackbox high memory buffer1
@@ -39,7 +42,7 @@ EXT4HIBUF_BASE    equ 0x3f4000
 UFSD_BASE         equ 0x3e8000            ; EXT1HIBUF_BASE ; boot drive uFSD save buffer base
 TERM_BASE         equ 0x3ec000            ; EXT3HIBUF_BASE
 
-NEW_STACK_SP    equ 0x3fe000              ; stack
+;NEW_STACK_SP    equ 0x3fe000              ; stack
 STACKLEN        equ 0x4000
 
 ;STACK_SP        equ (0x64800 + SHIFT)     ; stack

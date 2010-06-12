@@ -29,6 +29,10 @@
 // ;
 // ; buffers at the end of 3rd megabyte
 // ;
+#define STRINGBUF    0x3bc000 // a string buffer
+#define LOOPARRAY    0x3c0000 // strings corresponding to ld0..ld7
+#define STRBUF_SIZE  8192
+
 #define PRELDR_BASE  0x3d0000 // final location of a pre-loader
 #define FSYS_BUF  0x3e0000 //
 #define EXT1HIBUF_BASE  0x3e8000 // blackbox high memory buffer1
@@ -38,7 +42,7 @@
 #define UFSD_BASE  0x3e8000 // EXT1HIBUF_BASE ; boot drive uFSD save buffer base
 #define TERM_BASE  0x3ec000 // EXT3HIBUF_BASE
 
-#define NEW_STACK_SP  0x3fe000 // stack
+//#define NEW_STACK_SP  0x3fe000 // stack
 #define STACKLEN  0x4000
 
 // ;STACK_SP        equ (0x64800 + SHIFT)     ; stack

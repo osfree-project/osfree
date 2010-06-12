@@ -16,8 +16,12 @@
 
   char buf[0x100];
 
+  void exe_end(void);
+
+
 //APIRET APIENTRY
-void __attribute((__cdecl__)) api_DosWrite(HFILE hFile, PVOID pBuffer,
+ULONG __attribute((__cdecl__)) 
+api_DosWrite(HFILE hFile, PVOID pBuffer,
          ULONG cbWrite, PULONG pcbActual)
 {
 //  unsigned long esp;
@@ -29,9 +33,8 @@ void __attribute((__cdecl__)) api_DosWrite(HFILE hFile, PVOID pBuffer,
 //  io_printf("cbwrite=%x", esp);
 //  asm ("pop %[esp]\n"::[esp] "m" (esp));
 //  io_printf("pulactual=%x", esp);
-  
 
-  io_printf("hfile=%x, pBuffer=%x, cbWrite=%x, pcbActial=%x\n", hFile, pBuffer, cbWrite, pcbActual);
+  io_printf("hFile=%x, pBuffer=%x, cbWrite=%x, pcbActial=%x\n", hFile, pBuffer, cbWrite, pcbActual);
 
   if (hFile != 1) return 6/*ERROR_INVALID_HANDLE*/;
   memcpy(buf, pBuffer, cbWrite+1);
@@ -46,7 +49,7 @@ void __attribute((__cdecl__)) api_DosWrite(HFILE hFile, PVOID pBuffer,
 void __attribute((__cdecl__)) 
 api_DosExit(ULONG action, ULONG result)
 {
-  io_printf("action=%d, result=%d\n", action, result);
-//  exit;
+  //io_printf("action=%d, result=%d\n", action, result);
+  exe_end();
 }
 

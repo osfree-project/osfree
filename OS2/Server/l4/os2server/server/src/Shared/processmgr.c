@@ -61,6 +61,7 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
     struct t_os2process * c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
     c->lx_pib   = (PPIB) malloc(sizeof(PIB));
     c->main_tib = (PTIB) malloc(sizeof(TIB));
+    c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
 
     if (c != NULL) {
         c->pid = 1;
@@ -456,6 +457,10 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   /* Creates an simple process (keeps info about it, does not start to execute). */
   tiny_process = PrcCreate(ixfModule);
+  //tiny_process->lx_pib->pib_pchcmd = (PCHAR)malloc(strlen(pArg) + 2);
+  //tiny_process->lx_pib->pib_pchenv = (PCHAR)malloc(strlen(pEnv) + 2);
+  //strcpy(tiny_process->lx_pib->pib_pchcmd, pArg);
+  //strcpy(tiny_process->lx_pib->pib_pchenv, pEnv);
 
   /* Register the exe with the module table. With the complete path. */
   /* @todo Is we really need to register executable??? Don't see any reason */

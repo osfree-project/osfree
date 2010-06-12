@@ -48,6 +48,7 @@ static char *mb_cmdline;
 //#pragma aux skip_to "*"
 
 unsigned long cdrom_drive;
+unsigned long sectsize;
 
 extern lip2_t *l;
 void create_lip_module(lip2_t **l);
@@ -1734,7 +1735,6 @@ static struct builtin builtin_help =
   "for each command"
 };
 
-
 int
 ls_func(char *arg, int flags)
 {
@@ -1767,12 +1767,15 @@ static struct builtin builtin_dir =
    and print the blocklist notation on the screen.  */
 void disk_read_blocklist_func (int sector, int offset, int length)
 {
+  char *s = (char *)STRINGBUF;
+  int  x;
+
   u_parm(PARM_PART_START, ACT_GET, (unsigned int *)&part_start);
 
   if (num_sectors > 0)
   {
     if (start_sector + num_sectors == sector
-        && offset == 0 && last_length == SECTOR_SIZE)
+        && offset == 0 && last_length == sectsize)
     {
       num_sectors++;
       last_length = length;
@@ -1780,17 +1783,18 @@ void disk_read_blocklist_func (int sector, int offset, int length)
     }
     else
     {
-      if (last_length == SECTOR_SIZE)
-        grub_printf ("%s%d+%d", num_entries ? "," : "",
+      if (last_length == sectsize)
+        grub_sprintf (s + strlen(s), "%s%d+%d", num_entries ? "," : "",
                      start_sector - part_start, num_sectors);
       else if (num_sectors > 1)
-        grub_printf ("%s%d+%d,%d[0-%d]", num_entries ? "," : "",
-                     start_sector - part_start, num_sectors-1,
-                     start_sector + num_sectors-1 - part_start,
-                     last_length);
+        grub_sprintf (s + strlen(s), "%s%d+%d,%d+%d", num_entries ? "," : "",
+                     start_sector - part_start, num_sectors - 1,
+                     start_sector + num_sectors - 1 - part_start,
+                     (x = last_length / sectsize) ? x : 1);
       else
-        grub_printf ("%s%d[0-%d]", num_entries ? "," : "",
-                     start_sector - part_start, last_length);
+        grub_sprintf (s + strlen(s), "%s%d+%d", num_entries ? "," : "",
+                     start_sector - part_start,
+                     (x = last_length / sectsize) ? x : 1);
       num_entries++;
       num_sectors = 0;
     }
@@ -1798,7 +1802,7 @@ void disk_read_blocklist_func (int sector, int offset, int length)
 
   if (offset > 0)
   {
-    grub_printf("%s%d[%d-%d]", num_entries ? "," : "",
+    grub_sprintf(s + strlen(s), "%s%d[%d-%d]", num_entries ? "," : "",
                 sector-part_start, offset, offset+length);
     num_entries++;
   }
@@ -1811,10 +1815,11 @@ void disk_read_blocklist_func (int sector, int offset, int length)
 }
 
 /* blocklist */
-static int
+int
 blocklist_func (char *arg, int flags)
 {
   char *dummy = (char *) RAW_ADDR (0x100000);
+  char *s = (char *)STRINGBUF;
   void (*disk_read_hook) (int, int, int);
   unsigned int size;
 
@@ -1829,22 +1834,23 @@ blocklist_func (char *arg, int flags)
   u_parm(PARM_CDROM_DRIVE, ACT_GET, (unsigned int *)&cdrom_drive);
   u_parm(PARM_CURRENT_DRIVE, ACT_GET, (unsigned int *)&current_drive);
   u_parm(PARM_CURRENT_PARTITION, ACT_GET, (unsigned int *)&current_partition);
+  u_parm(PARM_SECTSIZE, ACT_GET, (unsigned int *)&sectsize);
 
   /* Print the device name.  */
   if (current_drive == cdrom_drive)
-    grub_printf("(cd");
+    grub_sprintf((char *)STRINGBUF, "(cd");
   else
-    grub_printf ("(%cd%d",
+    grub_sprintf ((char *)STRINGBUF, "(%cd%d",
                  (current_drive & 0x80) ? 'h' : 'f',
                  current_drive & ~0x80);
 
   if ((current_partition & 0xFF0000) != 0xFF0000)
-    grub_printf (",%d", (current_partition >> 16) & 0xFF);
+    grub_sprintf (s + strlen(s), ",%d", (current_partition >> 16) & 0xFF);
 
   if ((current_partition & 0x00FF00) != 0x00FF00)
-    grub_printf (",%c", 'a' + ((current_partition >> 8) & 0xFF));
+    grub_sprintf (s + strlen(s), ",%c", 'a' + ((current_partition >> 8) & 0xFF));
 
-  grub_printf (")");
+  grub_sprintf (s + strlen(s), ")");
 
   /* Read in the whole file to DUMMY.  */
   disk_read_hook = disk_read_blocklist_func;
@@ -1855,10 +1861,10 @@ blocklist_func (char *arg, int flags)
   /* The last entry may not be printed yet.  Don't check if it is a
    * full sector, since it doesn't matter if we read too much. */
   if (num_sectors > 0)
-    grub_printf ("%s%d+%d", num_entries ? "," : "",
+    grub_sprintf (s + strlen(s), "%s%d+%d", num_entries ? "," : "",
                   start_sector - part_start, num_sectors);
 
-  grub_printf ("\n");
+  grub_printf ("%s\n", s);
 
  fail:
   disk_read_hook = 0;
@@ -1874,6 +1880,34 @@ static struct builtin builtin_blocklist =
   BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
   "blocklist FILE",
   "Print the blocklist notation of the file FILE."
+};
+
+/* loop */
+int
+loop_func (char *arg, int flags)
+{
+  int  n = 0;
+  int  drv = -1;
+  safe_parse_maxint(&arg, (long *)&n);
+
+  if (!blocklist_func(skip_to(1, arg), 1)) // &&
+      //strlen((char *)STRINGBUF) < STRBUF_SIZE)
+  {
+    strcpy((char *)(LOOPARRAY + STRBUF_SIZE * n), (char *)STRINGBUF);
+    u_parm(PARM_BUF_DRIVE, ACT_SET, (unsigned *)&drv);
+    return 0;
+  }
+
+  return 1;
+}
+
+static struct builtin builtin_loop =
+{
+  "loop",
+  loop_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "loop <number 0..7> FILE",
+  "Associate a loop device ld0..ld7 to FILE."
 };
 
 struct builtin *builtins[] = {
@@ -1906,6 +1940,7 @@ struct builtin *builtins[] = {
   &builtin_ls,
   &builtin_dir,
   &builtin_blocklist,
+  &builtin_loop,
   0
 };
 

@@ -311,17 +311,20 @@ real_open_partition (int flags)
   current_slice = 0;
   part_start = 0;
 
-  /* Make sure that buf_geom is valid. */
-  if (buf_drive != current_drive)
+  if (0xC0 > current_drive || current_drive > 0xC7)
+  {
+    /* Make sure that buf_geom is valid. */
+    if (buf_drive != current_drive)
     {
       if (get_diskinfo (current_drive, &buf_geom))
-        {
-          errnum = ERR_NO_DISK;
-          return 0;
-        }
+      {
+        errnum = ERR_NO_DISK;
+        return 0;
+      }
       buf_drive = current_drive;
       buf_track = -1;
     }
+  }
   part_length = buf_geom.total_sectors;
 
   /* If this is the whole disk, return here.  */

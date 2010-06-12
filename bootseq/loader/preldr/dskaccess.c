@@ -21,6 +21,8 @@ extern void (*disk_read_hook) (int, int, int);
 extern unsigned long scratchaddr;
 extern unsigned long bufferaddr;
 
+extern unsigned long sector_size;
+
 #if 0
 
 #ifndef u_diskctl
@@ -41,6 +43,16 @@ get_diskinfo (int drive, struct geometry *geometry)
 #endif
 
 #endif
+
+int
+rawread_loop (int num, int sector, int byte_offset, int byte_len, char *buf);
+
+int open_device(void);
+void fsys_by_num(int n, char *buf);
+int set_fsys(char *fsname);
+
+#pragma aux fsys_by_num "*"
+#pragma aux set_fsys    "*"
 
 static inline unsigned long
 log2 (unsigned long word)
@@ -66,10 +78,15 @@ int
 rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
 {
   int slen, sectors_per_vtrack;
-  int sector_size_bits = log2 (buf_geom.sector_size);
+  int sector_size_bits = log2 (sector_size); //buf_geom.sector_size);
 
   if (byte_len <= 0)
     return 1;
+
+#ifndef STAGE1_5
+  if (0xC0 <= drive && drive <= 0xC7)
+    return rawread_loop (drive - 0xC0, sector, byte_offset, byte_len, buf);
+#endif
 
   while (byte_len > 0 && !errnum)
     {
@@ -89,7 +106,8 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
             }
           buf_drive = drive;
           buf_track = -1;
-          sector_size_bits = log2 (buf_geom.sector_size);
+          sector_size = buf_geom.sector_size;    //
+          sector_size_bits = log2 (sector_size); //buf_geom.sector_size);
         }
 
       /* Make sure that SECTOR is valid.  */
@@ -99,7 +117,7 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
           return 0;
         }
 
-      slen = ((byte_offset + byte_len + buf_geom.sector_size - 1)
+      slen = ((byte_offset + byte_len + sector_size - 1) // buf_geom.sector_size - 1)
               >> sector_size_bits);
 
       /* Eliminate a buffer overflow.  */
@@ -167,8 +185,8 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
                 {
                   /* We already read the sector 1, copy it to sector 0 */
                   memmove ((char *) bufferaddr,
-                           (char *) bufferaddr + buf_geom.sector_size,
-                           buf_geom.sector_size);
+                           (char *) bufferaddr + sector_size, // buf_geom.sector_size,
+                           sector_size); // buf_geom.sector_size);
                 }
               else
                 {
@@ -188,17 +206,17 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
       if (disk_read_func)
         {
           int sector_num = sector;
-          int length = buf_geom.sector_size - byte_offset;
+          int length = sector_size - byte_offset; // buf_geom.sector_size - byte_offset;
           if (length > size)
             length = size;
           (*disk_read_func) (sector_num++, byte_offset, length);
           length = size - length;
           if (length > 0)
             {
-              while (length > buf_geom.sector_size)
+              while (length > sector_size) // buf_geom.sector_size)
                 {
-                  (*disk_read_func) (sector_num++, 0, buf_geom.sector_size);
-                  length -= buf_geom.sector_size;
+                  (*disk_read_func) (sector_num++, 0, sector_size); // buf_geom.sector_size);
+                  length -= sector_size; // buf_geom.sector_size;
                 }
               (*disk_read_func) (sector_num, 0, length);
             }
@@ -216,6 +234,39 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
 }
 
 #ifndef STAGE1_5
+
+int
+rawread_loop (int num, int sector, int byte_offset, int byte_len, char *buf)
+{
+  char s[0x100];
+  unsigned size;
+  unsigned cd = current_drive;
+  unsigned cp = current_partition;
+  unsigned cs = current_slice;
+  int      rc;
+  int      ss = buf_geom.sector_size;
+
+  sector_size = SECTOR_SIZE; // image sector size is here
+  if (u_open((char *)(LOOPARRAY + STRBUF_SIZE * num), &size))
+    return 0;
+
+  sector_size = SECTOR_SIZE; // image sector size is here
+
+  if (u_seek((sector * sector_size) + byte_offset) == -1)
+    return 0;
+
+  sector_size = ss;
+
+  if (u_read(buf, byte_len) != byte_len)
+    return 0;
+
+  sector_size = ss;
+  current_drive = cd;
+  current_partition = cp;
+  current_slice = cs;
+
+  return (!errnum);
+}
 
 int
 rawwrite (int drive, int sector, char *buf)

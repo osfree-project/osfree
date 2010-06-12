@@ -7,8 +7,6 @@
 
 #if defined(fsys_hpfs) || defined(FSYS_HPFS)
 
-int print_possibilities = 0;
-
 #include "shared.h"
 #include "filesys.h"
 #include "hpfs.h"
@@ -73,13 +71,14 @@ hpfs_mount (void)
 {
   char *c = (char *)BOOT->sig_hpfs;
 
-  if  ((*pcurrent_slice != 0x07)
-      || !(*pdevread) (0, 0, sizeof(struct hpfs_boot_block), (char *)BOOT)
-      || c[0] != 'H' || c[1] != 'P' || c[2] != 'F' || c[3] !=  'S'
-      || (BOOT->sig_28h != 0x28)
-      || !(*pdevread) (16, 0, sizeof(struct hpfs_super_block), (char *)SUPER)
-      || (SUPER->magic != SB_MAGIC)
-      || (SUPER->version != 2))
+  if   ((!(*pcurrent_drive & 0x80) && (*pcurrent_slice != 0))
+     ||  ((*pcurrent_drive & 0x80) && (*pcurrent_slice != 0x07)
+     || !(*pdevread) (0, 0, sizeof(struct hpfs_boot_block), (char *)BOOT)
+     || c[0] != 'H' || c[1] != 'P' || c[2] != 'F' || c[3] !=  'S'
+     || (BOOT->sig_28h != 0x28)
+     || !(*pdevread) (16, 0, sizeof(struct hpfs_super_block), (char *)SUPER)
+     || (SUPER->magic != SB_MAGIC)
+     || (SUPER->version != 2)))
     return 0;
 
   return 1;
@@ -93,7 +92,7 @@ hpfs_read (char *buf, int len)
   unsigned sec;
   int l, length, read;
   char *pos;
-  int i, n, boff, b, p, sl;
+  int i, n, boff, b, p, sl, rc;
 
   btree = (struct bplus_header *)(&(FNODE->btree));
   btree0 = btree;
@@ -139,10 +138,12 @@ hpfs_read (char *buf, int len)
 
         *pdisk_read_func = *pdisk_read_hook;
 
-        if (!(*pdevread)(sec, boff, l, pos))
-          return read;
+        rc = (*pdevread)(sec, boff, l, pos);
 
         *pdisk_read_func = NULL;
+
+        if (! rc)
+          return read;
 
         length -= l;
         read   += l;
@@ -226,112 +227,93 @@ hpfs_dir (char *dirname)
         (*pprintf) ("\n");
         return 1;
       }
+
       (*pgrub_memmove) (filename, dirent->name, dirent->namelen);
       filename[dirent->namelen] = '\0';
       n = strocmp (locase(fn), locase(filename));
 
-      if (n <= 0)
+      // need to traverse all DIRBLK's tree
+      // if need to print possibilities
+      if (*pprint_possibilities)
       {
-        // need to traverse all DIRBLK's tree
-        if (*pprint_possibilities && *dirname != '/')
+        // it's the last path component
+        if (*dirname != '/' && strocmp (locase(fn), locase(filename)) <= 0)
         {
-          if ((*psubstring) (fn, filename) <= 0)
-          {
-            if (*pprint_possibilities > 0)
-              *pprint_possibilities = - *pprint_possibilities;
-            (*pprint_a_completion) (filename);
-          }
-        }
-        else
-        {
-          if (!n)
-          {
-            /* name found */
-            if (!(*pdevread) (dirent->fnode, 0, sizeof(struct fnode), (char *)FNODE)
-                || (FNODE->magic != FNODE_MAGIC))
-            {
-               *perrnum = ERR_FILE_NOT_FOUND;
-               return 0;
-            }
-            if (*dirname == '/')
-              /* goto next_path_component; */
-              break;
-            else
-            {
-              *pfilepos = 0;
-              *pfilemax = dirent->file_size;
-              break;
-            }
-          }
-        }
-
-        if (n < 0)
-        {
-          if (!(dirent->down))
-          {
-            if (*pprint_possibilities)
-            {
-              /* next dirent */
-              dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
-              continue;
-            }
-
-            *perrnum = ERR_FILE_NOT_FOUND;
-            return 0;
-          }
-          else
-          {
-      go_down:
-            /* round up to the next dword boundary */
-            down = *(unsigned *)((char *)dirent + dirent->length - 4);
-            sec = down;
-            if (!(*pdevread)(down, 0, sizeof(struct dnode), (char *)DNODE)
-                || (DNODE->magic != DNODE_MAGIC))
-              return 0;
-            dirent = (struct hpfs_dirent *)(DNODE->dirent);
-            continue;
-          }
+          if (*pprint_possibilities > 0)
+            *pprint_possibilities = - *pprint_possibilities;
+          (*pprint_a_completion) (filename);
         }
       }
-      else /* n > 0 */
+
+      if (n < 0)
       {
-        if (!(dirent->last))
+        if (dirent->down)
         {
-          /* next dirent */
-          dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
-          continue; /* go to the next dirent in the same dirblk */
+      go_down:
+          /* round up to the next dword boundary */
+          down = *(unsigned *)((char *)dirent + dirent->length - 4);
+          sec = down;
+          if (!(*pdevread)(down, 0, sizeof(struct dnode), (char *)DNODE)
+              || (DNODE->magic != DNODE_MAGIC))
+            return 0;
+          dirent = (struct hpfs_dirent *)(DNODE->dirent);
+          continue;
         }
         else
         {
           if (*pprint_possibilities)
           {
-            if (DNODE->root_dnode)
-              continue;
-            else
+            if (!dirent->last)
             {
-              /* return one level upper */
-              up = DNODE->up;
-              if (!(*pdevread)(up, 0, sizeof(struct dnode), (char *)DNODE)
-                  || (DNODE->magic != DNODE_MAGIC))
-                return 0;
-              dirent = (struct hpfs_dirent *)(DNODE->dirent);
-              /* return to parent dirent */
-              flag = 0;
-              while (!flag || dirent->last) /* next dirent */
-              {
-                dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
-                // exit flag
-                flag = flag || (dirent->down && (*(unsigned *)((char *)dirent + dirent->length - 4) == sec));
-              }
-              /* next */
-              if (!dirent->last)
-                dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
-
+              /* next dirent */
+              dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
               continue;
             }
+            else
+              //continue;
+              goto go_down;
           }
 
-          goto go_down;
+          *perrnum = ERR_FILE_NOT_FOUND;
+          return 0;
+        }
+      }
+      else
+      {
+        if (n > 0)
+        {
+          if (!(dirent->last))
+          {
+            /* next dirent */
+            dirent = (struct hpfs_dirent *)((char *)dirent + dirent->length);
+            continue; /* go to the next dirent in the same dirblk */
+          }
+          else if (dirent->down)
+            goto go_down;
+          else
+          {
+            *perrnum = ERR_FILE_NOT_FOUND;
+            return 0;
+          }
+        }
+        else // n == 0
+        {
+          /* name found */
+          if (!(*pdevread) (dirent->fnode, 0, sizeof(struct fnode), (char *)FNODE)
+              || (FNODE->magic != FNODE_MAGIC))
+          {
+             *perrnum = ERR_FILE_NOT_FOUND;
+             return 0;
+          }
+          if (*dirname == '/')
+            /* goto next_path_component; */
+            break;
+          else
+          {
+            *pfilepos = 0;
+            *pfilemax = dirent->file_size;
+            break;
+          }
         }
       }
     }
