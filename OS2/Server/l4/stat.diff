@@ -1,0 +1,42 @@
+diff -rNu l4vfs_/lib/libc_backends/io/operations.c l4vfs/lib/libc_backends/io/operations.c
+--- l4vfs_/lib/libc_backends/io/operations.c	2010-06-12 10:01:22.000000000 -0900
++++ l4vfs/lib/libc_backends/io/operations.c	2010-06-09 11:36:52.000000000 -0900
+@@ -705,6 +705,8 @@
+     buf->st_mode  = stat_buf.st_mode;
+     buf->st_nlink = stat_buf.st_nlink;
+     buf->st_size  = stat_buf.st_size;
++    //vs
++    buf->st_blksize = stat_buf.st_blksize;
+     LOGd(_DEBUG,"exit: 0");
+ 
+ 
+@@ -755,6 +757,8 @@
+     buf->st_mode  = stat_buf.st_mode;
+     buf->st_nlink = stat_buf.st_nlink;
+     buf->st_size  = stat_buf.st_size;
++    //vs
++    buf->st_blksize = stat_buf.st_blksize;
+     LOGd(_DEBUG,"exit: 0");
+ 
+     return 0;
+diff -rNu l4vfs_/simple_file_server/server/basic_io.c l4vfs/simple_file_server/server/basic_io.c
+--- l4vfs_/simple_file_server/server/basic_io.c	2010-06-12 10:02:34.000000000 -0900
++++ l4vfs/simple_file_server/server/basic_io.c	2010-06-11 00:32:46.000000000 -0900
+@@ -192,6 +192,8 @@
+         buf->st_mode  = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
+         buf->st_nlink = 1;
+         buf->st_size  = 0;
++	//vs
++	buf->st_blksize = 512;
+         ret = 0;
+     }
+     else
+@@ -218,6 +220,8 @@
+                         S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+         buf->st_nlink = 1;
+         buf->st_size  = s_file->length;
++	//vs
++	buf->st_blksize = 512;
+         ret = 0;
+     }
+ 
