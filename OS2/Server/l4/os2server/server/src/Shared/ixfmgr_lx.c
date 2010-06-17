@@ -256,7 +256,7 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
       cptr_ent_tbl = (char*)i_cptr_ent_tbl;
       entry_table= (struct b32_bundle *)cptr_ent_tbl;
     } else if (entry_table->b32_type == ENTRYFWD)
-    { /* Jump over the that bundle. */
+    { /* Jump over that bundle. */
       cptr_ent_tbl = (char*)entry_table;
       cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
       i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
@@ -323,10 +323,10 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
 
       for (i=ixfModule->cbEntries;i<ixfModule->cbEntries+entry_table->b32_cnt;i++)
       {
-        ixfModule->Entries[i-1].FunctionName=NULL;
-        ixfModule->Entries[i-1].Address=((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_offset.offset32+get_obj(lx_mod, entry_table->b32_obj)->o32_base;
-        ixfModule->Entries[i-1].Ordinal=NULL;
-        ixfModule->Entries[i-1].ModuleName=NULL;
+        ixfModule->Entries[i-1].FunctionName = NULL;
+        ixfModule->Entries[i-1].Address = ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_offset.offset32 + get_obj(lx_mod, entry_table->b32_obj)->o32_base;
+        ixfModule->Entries[i-1].Ordinal = 0;
+        ixfModule->Entries[i-1].ModuleName = NULL;
         i_cptr_ent_tbl += _32BIT_ENTRY_SIZE;
       }
 
@@ -344,9 +344,9 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
       {
         ixfModule->Entries[i-1].FunctionName=NULL;
         ixfModule->Entries[i-1].Address=NULL;
-        ixfModule->Entries[i-1].Ordinal=((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.value;
+        ixfModule->Entries[i-1].Ordinal = ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.value;
         copy_pas_str(&buf, get_imp_mod_name((struct LX_module *)(ixfModule->FormatStruct), ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.modord));
-        ixfModule->Entries[i-1].ModuleName=malloc(strlen(buf)+1);
+        ixfModule->Entries[i-1].ModuleName=malloc(strlen(buf) + 1);
         strcpy(ixfModule->Entries[i-1].ModuleName,buf);
         i_cptr_ent_tbl += FORWARD_ENTRY_SIZE;
       }

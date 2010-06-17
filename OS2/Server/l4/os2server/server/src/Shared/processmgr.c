@@ -43,6 +43,7 @@
 
 
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
+void link_module (IXFModule *ixfModule, unsigned long *phmod);
 
 extern struct module_rec module_root; /* Root for module list.*/
 
@@ -419,7 +420,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   char *p_buf = (char *) &buf;
   unsigned long module_counter;
   unsigned long imports_counter;
-  unsigned long hmod;
+  unsigned long hmod, *phmod;
   UCHAR uchLoadError[260] = {0}; /* Error info from ModLoadModule */
   int relative_jmp;
   struct module_rec * prev;
@@ -467,6 +468,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   // @todo extract filename only because can be fullname with path
   ModRegister(pName, &ixfModule);
 
+#if 1
   // Load import modules
   for (module_counter=1;
        module_counter<ixfModule.cbModules+1;
@@ -484,7 +486,17 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     }
     else
       LOG("%s loaded.", name);
+    
+    //rc=IXFFixupModule(&hmod);
+    if (rc)
+    {
+      LOG("PrcExecuteModule: Error %s module fixup", name);
+      return rc;
+    }
+    
+    link_module(&hmod, &hmod);
   }
+#endif
 
   // Fixup module
   rc=IXFFixupModule(&ixfModule);
@@ -494,6 +506,18 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     return rc;
   }
 
+  
+  LOG("mods:");
+  LOG("-----------");
+  prev = (struct module_rec *) module_root.next;
+  while(prev)
+  {
+    LOG("%s", prev->mod_name);
+    prev = prev->next;
+  }
+
+  link_module (&ixfModule, &hmod);  
+#if 0
   // Link module (import table resolving)
   for (imports_counter=1;
        imports_counter<ixfModule.cbFixups+1;
@@ -502,6 +526,8 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     prev = (struct module_rec *) module_root.next;
     while(prev)
     {
+      LOG("mdl: %s", prev->mod_name);
+      LOG("ModuleName: %s", ixfModule.Fixups[imports_counter-1].ImportEntry.ModuleName);
       if(strcasecmp(ixfModule.Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name)==0)
       {
         if(prev->load_status == LOADING)
@@ -516,6 +542,11 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       prev = (struct module_rec *) prev->next;
     }
 
+    if (!prev) // ModuleName not found
+    {
+      hmod = NULL;
+      return 5;/*ERROR_ACCESS_DENIED*/ // what error code should be here?
+    }
 
     ModQueryProcAddr(hmod,
                      ixfModule.Fixups[imports_counter-1].ImportEntry.Ordinal,
@@ -537,6 +568,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     *((int *) ixfModule.Fixups[imports_counter-1].SrcAddress) = relative_jmp;
 
   }
+#endif
 
   /* Print info about used memory loaded modules. */
   //print_used_mem(&tiny_process->root_mem_area);

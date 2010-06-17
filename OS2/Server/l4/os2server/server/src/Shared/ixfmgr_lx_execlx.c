@@ -227,9 +227,15 @@ app_pager(void *unused)
 	    {
 	      LOG("null pointer exception thread "l4util_idfmt
 		     ", (%08lx at %08lx)\n", l4util_idstr(src_thread), dw1, dw2);
-	      //enter_kdebug("stop");
-	      break;
+	      enter_kdebug("stop");
+	      //break;
 	    }
+	  else if ((dw1 & L4_PAGEMASK) == 0x10825000)
+	  {
+	     LOG("illegal access"l4util_idfmt
+	         ", (%08lx at %x08lx)\n", l4util_idstr(src_thread), dw1, dw2);
+	     enter_kdebug("error");
+	  }
 	  else
 	    {
               dw1 &= L4_PAGEMASK;
@@ -423,6 +429,7 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 
         IXFModule *ixf;
         struct module_rec *mod;
+	unsigned long hmod, addr;
         int cnt;
 
         /* start pager thread */
@@ -440,20 +447,44 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	param.esp = data_mmap + esp;
 	param.tib = proc->main_tib;
 	param.pib = proc->lx_pib;
-
-        mod = (struct module_rec *) module_root.next;
-        while (mod)
-        {
-          LOG("module: %s", mod->mod_name);
-          ixf = (IXFModule *)mod->module_struct;
-          if (strcasecmp(mod->mod_name, "minicmd.exe"))
-	  {
-	    for (cnt = 0; cnt < ixf->cbEntries; cnt++)
-              LOG("%s.%u", ixf->Entries[cnt].FunctionName, ixf->Entries[cnt].Ordinal);
-          }
-          mod = (struct module_rec *) mod->next;
-        }
 #if 0
+        mod = (struct module_rec *) module_root.next;
+	while (mod)
+	{
+	  LOG("module: %s", mod->mod_name);
+	  mod = mod->next;
+	}
+        mod = (struct module_rec *) module_root.next;
+        while(mod)
+	{
+	/*
+	  if (!strcasecmp(mod->mod_name, "DOSCALLS"))
+	  {
+	    hmod = (unsigned long)mod->module_struct;
+	    //for (cnt = 0; cnt < hmod->cbEntries; cnt++)
+	    {
+	      cnt = 119;
+              ModQueryProcAddr(hmod, cnt, 0, &addr);
+	      LOG("module: DOSCALLS");
+	      LOG("ord: %d, addr: %x", cnt, addr); 
+	    }
+	  } */
+	  if (!strcasecmp(mod->mod_name, "SUB32"))
+	  {
+	    hmod = (unsigned long)mod->module_struct;
+	    {
+              LOG("module: SUB32");
+	      for (cnt = 1; cnt < ((IXFModule *)hmod)->cbEntries + 1; cnt++)
+	      {
+                ModQueryProcAddr(hmod, cnt, 0, &addr);
+	        LOG("ord: %d, addr: %x", cnt, addr); 
+	      }
+	    }
+	  }
+	  mod = mod->next;
+	}
+#endif
+#if 1
         /* push task params on stack */
         real_esp = app_stack + STACK_SIZE - 4;
         l4util_stack_push_mword   (&real_esp, &param);

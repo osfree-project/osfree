@@ -46,6 +46,7 @@ struct module_rec module_root; /* Root for module list.*/
 
 extern PVOID entry_Table[];
 
+void link_module (IXFModule *ixfModule, unsigned long *phmod);
 /* Some general ideas here:
      We use static array of modules structures here. We limit now to 1024 module handles.
      Such approach is much protected in comparation of allowing direct access to module structure.
@@ -165,7 +166,7 @@ unsigned long ModLoadModule(char *          pszName,
   if (!strcasecmp(mname, "EMXWRAP"))
   {
     if (options.debugmodmgr) LOG("ModLoadModule: EXMWRAP module replaced by SUB32 module.");
-    mname="SUB32";
+    //mname="SUB32";
     pszModname="SUB32.DLL";
   }
 
@@ -273,98 +274,55 @@ unsigned long ModLoadModule(char *          pszName,
     rc=ModLoadModule(chLoadError, sizeof(chLoadError),
                               name, (unsigned long *)&hmod);
                               LOG("%s loaded",name);
-  }
-
-  // Fixup module
-  rc=IXFFixupModule(ixfModule);
-  if (rc)
-  {
-    LOG("IXFFixupModule: rc=%u", rc);
-    strcpy(pszName, pszModname);
-    *phmod=NULL;
-    free(ixfModule);
-    return rc;
-  }
-  else
-  { /*
-    if (!strcmp(pszModname, "KAL"))
+    if (rc)
     {
-      IXFMODULEENTRY *e;
-      char *name;
-      int  ord;
-      APIRET APIENTRY (*func) ();
+      LOG("Error loading module: %s", name);
+      return rc;
+    }
 
-      e = ixfModule->Entries;
-      ord  = e->Ordinal;
-      name = e->FunctionName;
-      if (!strcmp(name, "KalInit") && ord == 1)
-      {
-        func = e->Address;
-        func(entry_Table);
-        io_printf("KalInit() found and called @ 0x%x\n", func);
-      }
-      else
-      {
-        io_printf("No KalInit.1 function in KAL.dll, fatal!");
-        rc = ERROR_INVALID_FUNCTION;
-      }
-    } */
-  }
-
-
-  // Link module (import table resolving)
-  for (imports_counter=1;
-       imports_counter<ixfModule->cbFixups+1;
-       imports_counter++)
-  {
-    LOG("Import entry %d of %d",imports_counter, ixfModule->cbFixups);
-    LOG("Module=%s", ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName);
-    
-    prev = (struct module_rec *) module_root.next;
-    while(prev)
+    // Fixup module
+    rc=IXFFixupModule(ixfModule);
+    if (rc)
     {
-      if(strcasecmp(ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name)==0)
+      LOG("IXFFixupModule: rc=%u", rc);
+      strcpy(pszName, pszModname);
+      *phmod=NULL;
+      free(ixfModule);
+      return rc;
+    }
+    else
+    { /*
+      if (!strcmp(pszModname, "KAL"))
       {
-        if(prev->load_status == LOADING)
+        IXFMODULEENTRY *e;
+        char *name;
+        int  ord;
+        APIRET APIENTRY (*func) ();
+
+        e = ixfModule->Entries;
+        ord  = e->Ordinal;
+        name = e->FunctionName;
+        if (!strcmp(name, "KalInit") && ord == 1)
         {
-          *phmod=NULL;
-          return 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
+          func = e->Address;
+          func(entry_Table);
+          io_printf("KalInit() found and called @ 0x%x\n", func);
         }
-        // @todo use handles here
-        *phmod=(unsigned long)prev->module_struct;
-        break;
-      }
-      prev = (struct module_rec *) prev->next;
+        else
+        {
+          io_printf("No KalInit.1 function in KAL.dll, fatal!");
+          rc = ERROR_INVALID_FUNCTION;
+        }
+      } */
+      link_module(&hmod, phmod);
     }
-
-    LOG("%s.%d", ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal);
-    ModQueryProcAddr(*phmod,
-                     ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal,
-                     ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
-                     &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
-
-    if (options.debugmodmgr) 
-    {
-      //LOG("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
-    }
-    
-    /* Is the EXE module placed under the DLL module in memory? */
-    if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
-    {
-      relative_jmp = (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule->Fixups[imports_counter-1].SrcAddress)-4;
-    } else {
-      relative_jmp = 0xffffffff-((int)(ixfModule->Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address))-3;
-    }
-    LOG("jmp=%x=%x", (int)(ixfModule->Fixups[imports_counter-1].SrcAddress), relative_jmp);
-    *((int *) ixfModule->Fixups[imports_counter-1].SrcAddress) = relative_jmp;
-
   }
+
+
+  link_module(ixfModule, phmod);
   //@todo use handle table
   *phmod=(unsigned long)ixfModule;
-
-
   new_module_el->load_status = DONE_LOADING;
-
 
   return rc; /*NO_ERROR;*/
 }
@@ -446,6 +404,9 @@ struct module_rec * ModRegister(const char * name, void * mod_struct)
 
   new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
   prev->next = new_mod;  /*struct module_rec module_struct*/
+
+  //if (!strcasecmp(name, "SUB32"))
+  //   name = "EMXWRAP";
 
   new_mod->mod_name = (char *)malloc(strlen(name)+1);
   strcpy(new_mod->mod_name, name);
@@ -847,36 +808,42 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
   }
 
 
-  if (ordinal!=0)
+  if (ordinal > 0)
   { // Search by ordinal
     if (ixfModule->Entries[ordinal-1].ModuleName!=NULL)
     { // This is forward to another module. Call ourself...
       // First search in the module list
+      LOG("ModuleName=%x", ixfModule->Entries[ordinal].ModuleName);
       prev = (struct module_rec *) module_root.next;
       while(prev)
       {
+        LOG("1");
         if(strcasecmp(ixfModule->Entries[ordinal-1].ModuleName, prev->mod_name)==0)
         {
+	  LOG("2");
           if(prev->load_status == LOADING)
           {
             searched_hmod=NULL;
             return 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
           }
+	  LOG("module: %d", prev->mod_name);
           // @todo use handles here
           searched_hmod=(unsigned long)prev->module_struct;
           break;
         }
+        LOG("3");
         prev = (struct module_rec *) prev->next;
       }
-
+      
       return ModQueryProcAddr(searched_hmod,
                                   ixfModule->Entries[ordinal-1].Ordinal,
                                   ixfModule->Entries[ordinal-1].FunctionName,
                                   ppfn);
     }
 
-
+    LOG("lalala");
     *ppfn=ixfModule->Entries[ordinal-1].Address;
+    LOG("ModQueryProcAddr(%u, %u, %s, %p)", hmod, ordinal, pszName, *ppfn);
     return 0;
   }
 
@@ -916,8 +883,69 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
                                 ppfn);
       }
 
+      LOG("bebebe");
       *ppfn=ixfModule->Entries[entries_counter-1].Address;
+      LOG("ModQueryProcAddr(%u, %u, %s, %p)", hmod, ordinal, pszName, *ppfn);
       return 0;
     }
   }
 }
+
+void link_module (IXFModule *ixfModule, unsigned long *phmod)
+{
+  int imports_counter;
+  int relative_jmp;
+  char name[256];
+  struct module_rec *prev;
+
+  // Link module (import table resolving)
+  for (imports_counter=1;
+       imports_counter<ixfModule->cbFixups+1;
+       imports_counter++)
+  {
+    LOG("Import entry %d of %d",imports_counter, ixfModule->cbFixups);
+    LOG("Module=%s", ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName);
+    
+    prev = (struct module_rec *) module_root.next;
+    while(prev)
+    {
+      //strcpy(name, prev->mod_name);
+      
+      //if (!strcasecmp(name, "EMXWRAP"))
+      //  strcpy(name, "SUB32");
+	
+      if (!strcasecmp(ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name))
+      {
+        if(prev->load_status == LOADING)
+        {
+          *phmod=NULL;
+          return; // 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
+        }
+	break;
+      }
+      prev = (struct module_rec *) prev->next;
+    }
+    // @todo use handles here
+    *phmod=(unsigned long)prev->module_struct;
+    LOG("%s.%d", ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal);
+    ModQueryProcAddr(*phmod,
+                     ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal,
+                     ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
+                     &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
+
+    if (options.debugmodmgr) 
+    {
+      //LOG("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
+    }
+    
+    /* Is the EXE module placed under the DLL module in memory? */
+    if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
+      relative_jmp = (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule->Fixups[imports_counter-1].SrcAddress)-4;
+    else
+      relative_jmp = 0xffffffff-((int)(ixfModule->Fixups[imports_counter-1].SrcAddress) - (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address))-3;
+
+    LOG("jmp=%x=%x", (int)(ixfModule->Fixups[imports_counter-1].SrcAddress), relative_jmp);
+    *((int *) ixfModule->Fixups[imports_counter-1].SrcAddress) = relative_jmp;
+  }
+}
+

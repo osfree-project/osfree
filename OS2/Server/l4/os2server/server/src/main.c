@@ -90,7 +90,7 @@ void executeprotshell(cfg_opts *options)
 
   if (!names_register("os2srv.pshell"))
     LOG("error registering on the name server");
-    
+
   rc = PrcExecuteModule(NULL, 0, 0, (PCHAR){"", 0}, (PCHAR){"", 0}, NULL, options->protshell);
   if (rc != NO_ERROR) 
     LOG("Error execute: %d ('%s')", rc, options->protshell);
