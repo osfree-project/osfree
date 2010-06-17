@@ -38,6 +38,8 @@ int chdir_cmd(int argc, char **argv)
   ULONG   ulDriveMap   = 0;      /* Mapping of valid drives              */
   ULONG   i            = 0;      /* A loop index                         */
 
+#if 0
+
   if (argc==1)
   {
   rc = DosQueryCurrentDisk (&ulDriveNum, &ulDriveMap);
@@ -55,6 +57,9 @@ int chdir_cmd(int argc, char **argv)
     DosSetCurrentDir(argv[1]);
   };
 
+#endif
+
   return 0;
 
 }
+

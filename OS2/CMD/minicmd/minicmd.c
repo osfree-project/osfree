@@ -9,6 +9,9 @@
 // expect command or feature REALLY required for minimal functionality.
 
 // returns 1 if the specified drive is ready, 0 if it isn't
+
+#if 0
+
 int QueryDriveReady( int drive )
 {
     char curdir[255];
@@ -54,10 +57,14 @@ void execute_external(int argc, char **argv)
   } /* endif */
 }
 
+#endif
+
 int isdelim( char c )
 {
         return (( c == '\0' ) || ( c == ' ' ) || ( c == '\t' ) || ( c == ',' ));
 }
+
+#if 0
 
 BOOL parse_cmd(char * cmd)
 {
@@ -135,10 +142,14 @@ void read_cmd(char * cmd)
   VioWrtTTY("\n\r", 2, 0);
 }
 
+#endif
+
 void hello(void)
 {
   VioWrtTTY("MiniCMD. (C) osFree project.\n\r\n\r", 32, 0);
 }
+
+#if 0
 
 void showpath(void)
 {
@@ -162,6 +173,8 @@ void showpath(void)
   VioWrtTTY(achDirName, cbDirPathLen-1, 0);
   VioWrtTTY(">", 1, 0);
 }
+
+#endif
 
 void main(void)
 {
