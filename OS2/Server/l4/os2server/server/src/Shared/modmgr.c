@@ -355,8 +355,8 @@ unsigned long ModInitialize(void)
   ixf->Entries[0].Address=&api_DosWrite;
   ixf->Entries[0].ModuleName=NULL;
   ixf->Entries[0].Ordinal=1;
-  ixf->Entries[1].FunctionName="2KalWrite";
-  ixf->Entries[1].Address=&api_DosWrite;
+  ixf->Entries[1].FunctionName="KalQueryCurrentDisk";
+  ixf->Entries[1].Address=&api_DosQueryCurrentDisk;
   ixf->Entries[1].ModuleName=NULL;
   ixf->Entries[1].Ordinal=2;
   ixf->Entries[2].FunctionName="KalWrite";

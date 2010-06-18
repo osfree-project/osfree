@@ -53,3 +53,11 @@ api_DosExit(ULONG action, ULONG result)
   exe_end();
 }
 
+
+ULONG __attribute((__cdecl__)) 
+api_DosQueryCurrentDisk(PULONG pdisknum,
+                        PULONG plogical)
+{
+  
+}
+

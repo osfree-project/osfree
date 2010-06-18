@@ -16,8 +16,12 @@ api_DosFSCtl(PVOID pData, ULONG cbData,
          ULONG xfunction, PCSZ pszRoute,
          HFILE hFile, ULONG method);
 
-VOID APIENTRY
+void __attribute__((__cdecl__))
 api_DosExit(ULONG action, ULONG result);
+
+unsigned long __attribute__((__cdecl__))
+api_DosQueryCurrentDisk(PULONG pdisknum,
+                        PULONG plogical);
 
 APIRET APIENTRY
 api_DosQuerySysInfo(ULONG iStart, ULONG iLast,
