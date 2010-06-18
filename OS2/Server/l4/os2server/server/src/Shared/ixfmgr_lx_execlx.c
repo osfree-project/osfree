@@ -95,6 +95,7 @@ struct param
   unsigned long esp;
   PTIB          tib;
   PPIB          pib;
+  BYTE		curdisk;
 };
 
 void DICE_CV
@@ -134,6 +135,7 @@ trampoline(struct param *param)
   unsigned long     base;
   unsigned short    sel;
 
+  // Todo!! Fill real data
   PCHAR argv = param->pib->pib_pchcmd = (PCHAR){"c:\\minicmd.exe", 0};
   PCHAR envp = param->pib->pib_pchenv = (PCHAR){"PATH=c:\\;", 0};
   ULONG hmod = param->pib->pib_hmte;
@@ -447,6 +449,7 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	param.esp = data_mmap + esp;
 	param.tib = proc->main_tib;
 	param.pib = proc->lx_pib;
+	param.curdisk = 2; // "C:" !!todo!! add support for real data
 #if 0
         mod = (struct module_rec *) module_root.next;
 	while (mod)
