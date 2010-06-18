@@ -23,6 +23,10 @@ unsigned long __attribute__((__cdecl__))
 api_DosQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical);
 
+unsigned long __attribute__((__cdecl__))
+api_DosQueryCurrentDir(ULONG disknum, BYTE * pBuf, PULONG pcbBuf);
+
 APIRET APIENTRY
 api_DosQuerySysInfo(ULONG iStart, ULONG iLast,
                 PVOID pBuf, ULONG cbBuf);
+

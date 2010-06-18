@@ -351,8 +351,8 @@ unsigned long ModInitialize(void)
   ixf->FormatStruct=NULL;
   ixf->cbEntries=4;
   ixf->Entries=malloc(sizeof(IXFMODULEENTRY)*ixf->cbEntries);
-  ixf->Entries[0].FunctionName="1KalWrite";
-  ixf->Entries[0].Address=&api_DosWrite;
+  ixf->Entries[0].FunctionName="KalQueryCirrentDir";
+  ixf->Entries[0].Address=&api_DosQueryCurrentDir;
   ixf->Entries[0].ModuleName=NULL;
   ixf->Entries[0].Ordinal=1;
   ixf->Entries[1].FunctionName="KalQueryCurrentDisk";

@@ -61,3 +61,11 @@ api_DosQueryCurrentDisk(PULONG pdisknum,
   
 }
 
+ULONG __attribute((__cdecl__)) 
+api_DosQueryCurrentDir(ULONG disknum,
+                       PBYTE pBuf,
+                       PULONG pcbBuf)
+{
+
+}
+                                                                        
