@@ -10,6 +10,7 @@
 #include <os2.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 // array used for internal commands (indirect function calls)
 typedef struct

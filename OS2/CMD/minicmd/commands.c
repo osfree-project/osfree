@@ -13,13 +13,13 @@ int cmds_cmd(int argc, char **argv)
 {
   unsigned int i;
 
-  VioWrtTTY("Commands:\n\r", 11, 0);
+  VioWrtTTY("Commands:\r\n", 11, 0);
   for (i=0;i<5;i++)
   {
     VioWrtTTY(commands[i].cmdname, strlen(commands[i].cmdname), 0);
     VioWrtTTY("\x9", 1, 0);
   }
-  VioWrtTTY("\n\r", 2, 0);
+  VioWrtTTY("\r\n", 2, 0);
   return 0;
 }
 
@@ -47,12 +47,11 @@ int chdir_cmd(int argc, char **argv)
 
   cbDirPathLen = 0;
   rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
-  rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
 
   VioWrtTTY(&chDisk, 1, 0);
   VioWrtTTY(":\\", 2, 0);
   VioWrtTTY(achDirName, cbDirPathLen-1, 0);
-  VioWrtTTY("\n\r", 2, 0);
+  VioWrtTTY("\r\n", 2, 0);
   } else {
     DosSetCurrentDir(argv[1]);
   };

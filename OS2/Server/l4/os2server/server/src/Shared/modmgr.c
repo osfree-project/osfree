@@ -159,7 +159,7 @@ unsigned long ModLoadModule(char *          pszName,
   *phmod=0;
 
   // @todo extract filename only because can be fullname with path
-  
+
   char * mname=get_fname(pszModname);
 
   // Specail case - EMXWRAP.DLL. Read more in docs\os2\sub32.txt
@@ -182,10 +182,10 @@ unsigned long ModLoadModule(char *          pszName,
       if(prev->load_status == LOADING)
       {
         *phmod=NULL;
-	LOG("rc=8");
+        LOG("rc=8");
         if (cbName<=strlen(mname)) return 8 /*ERROR_NOT_ENOUGH_MEMORY*/;
         strcpy(pszName, mname);
-	LOG("rc=5");
+        LOG("rc=5");
         return 5 /*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
       }
       // @todo use handles here
@@ -349,7 +349,7 @@ unsigned long ModInitialize(void)
   ixf->Load=NULL;
   ixf->Fixup=NULL;
   ixf->FormatStruct=NULL;
-  ixf->cbEntries=4;
+  ixf->cbEntries=5;
   ixf->Entries=malloc(sizeof(IXFMODULEENTRY)*ixf->cbEntries);
   ixf->Entries[0].FunctionName="KalQueryCirrentDir";
   ixf->Entries[0].Address=&api_DosQueryCurrentDir;
@@ -367,6 +367,10 @@ unsigned long ModInitialize(void)
   ixf->Entries[3].Address=&api_DosExit;
   ixf->Entries[3].ModuleName=NULL;
   ixf->Entries[3].Ordinal=4;
+  ixf->Entries[4].FunctionName="KalRead";
+  ixf->Entries[4].Address=&api_DosRead;
+  ixf->Entries[4].ModuleName=NULL;
+  ixf->Entries[4].Ordinal=5;
   ixf->cbModules=0;
   ixf->Modules=NULL;
   ixf->cbFixups=0;
@@ -506,7 +510,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
     {
       strcat(p_buf, hostsep);
     }
-    
+
     strcat(p_buf, name);
 
     buf[0] = '\0';
@@ -524,7 +528,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
 
     LOG(p_buf);
     LOG(os2_fname_to_vfs_fname(p_buf));
-    
+
     f = fopen(os2_fname_to_vfs_fname(p_buf), "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
     if(f)
     {
@@ -820,13 +824,13 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
         LOG("1");
         if(strcasecmp(ixfModule->Entries[ordinal-1].ModuleName, prev->mod_name)==0)
         {
-	  LOG("2");
+          LOG("2");
           if(prev->load_status == LOADING)
           {
             searched_hmod=NULL;
             return 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
           }
-	  LOG("module: %d", prev->mod_name);
+          LOG("module: %d", prev->mod_name);
           // @todo use handles here
           searched_hmod=(unsigned long)prev->module_struct;
           break;
@@ -834,7 +838,7 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
         LOG("3");
         prev = (struct module_rec *) prev->next;
       }
-      
+
       return ModQueryProcAddr(searched_hmod,
                                   ixfModule->Entries[ordinal-1].Ordinal,
                                   ixfModule->Entries[ordinal-1].FunctionName,
@@ -905,15 +909,15 @@ void link_module (IXFModule *ixfModule, unsigned long *phmod)
   {
     LOG("Import entry %d of %d",imports_counter, ixfModule->cbFixups);
     LOG("Module=%s", ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName);
-    
+
     prev = (struct module_rec *) module_root.next;
     while(prev)
     {
       //strcpy(name, prev->mod_name);
-      
+
       //if (!strcasecmp(name, "EMXWRAP"))
       //  strcpy(name, "SUB32");
-	
+
       if (!strcasecmp(ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name))
       {
         if(prev->load_status == LOADING)
@@ -921,7 +925,7 @@ void link_module (IXFModule *ixfModule, unsigned long *phmod)
           *phmod=NULL;
           return; // 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
         }
-	break;
+        break;
       }
       prev = (struct module_rec *) prev->next;
     }
@@ -933,11 +937,11 @@ void link_module (IXFModule *ixfModule, unsigned long *phmod)
                      ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
                      &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
 
-    if (options.debugmodmgr) 
+    if (options.debugmodmgr)
     {
       //LOG("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
     }
-    
+
     /* Is the EXE module placed under the DLL module in memory? */
     if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
       relative_jmp = (int)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (int)(ixfModule->Fixups[imports_counter-1].SrcAddress)-4;

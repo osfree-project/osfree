@@ -4,29 +4,33 @@
  */
 #include <gcc_os2def.h>
 
-unsigned long __attribute__((__cdecl__)) //APIRET APIENTRY
+APIRET CDECL
+api_DosRead(HFILE hFile, PVOID pBuffer,
+            ULONG cbRead, PULONG pcbActual);
+
+APIRET CDECL
 api_DosWrite
 (HFILE hFile, PVOID pBuffer,
          ULONG cbWrite, PULONG pcbActual);
 
-APIRET APIENTRY
+APIRET CDECL
 api_DosFSCtl(PVOID pData, ULONG cbData,
          PULONG pcbData, PVOID pParms,
          ULONG cbParms, PULONG pcbParms,
          ULONG xfunction, PCSZ pszRoute,
          HFILE hFile, ULONG method);
 
-void __attribute__((__cdecl__))
+VOID CDECL
 api_DosExit(ULONG action, ULONG result);
 
-unsigned long __attribute__((__cdecl__))
+APIRET CDECL
 api_DosQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical);
 
-unsigned long __attribute__((__cdecl__))
+APIRET CDECL
 api_DosQueryCurrentDir(ULONG disknum, BYTE * pBuf, PULONG pcbBuf);
 
-APIRET APIENTRY
+APIRET CDECL
 api_DosQuerySysInfo(ULONG iStart, ULONG iLast,
                 PVOID pBuf, ULONG cbBuf);
 

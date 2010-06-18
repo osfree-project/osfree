@@ -52,15 +52,15 @@ function KbdPeek (out pkbci: KBDKEYINFO;
    (* structure for KbdStringIn() *)
 
 type STRINGINBUF=structure     (* kbsi *)
-      cb: USHORT;
-      cchIn: USHORT;
+      cb:    ULONG;
+      cchIn: ULONG;
    end;
 type PSTRINGINBUF=^STRINGINBUF;
 
 function KbdStringIn(out pch: CHAR;
                                      inout pchIn: STRINGINBUF;
-                                     in fsWait: USHORT;
-                                     in hkbd: HKBD): USHORT;
+                                     in fsWait: ULONG;
+                                     in hkbd: HKBD): ULONG;
 
 function KbdFlushBuffer (in hkbd: HKBD): USHORT;
 

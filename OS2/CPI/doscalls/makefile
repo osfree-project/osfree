@@ -24,6 +24,7 @@ srcfiles = $(p)msg$(e) &
            $(p)dosprotectsetfilesize$(e) &
            $(p)dosprotectsetfilelocks$(e) &
            $(p)dosquerysysinfo$(e) &
+           $(p)dosread$(e)  &
            $(p)doswrite$(e) &
            $(p)dosexit$(e) &
            $(p)doserror$(e) &
@@ -40,6 +41,7 @@ DLL     = 1
 DLLOPT  = initinstance terminstance
 #OPTIONS = manyautodata
 IMPORTS = DosFSCtl             KAL.KalFSCtl, &
+          _KalRead             KAL.KalRead,  &
           _KalWrite            KAL.KalWrite, &
           _KalExit             KAL.KalExit,  &
           DosOpenL             KAL.KalOpenL, &
@@ -173,8 +175,8 @@ EXPORTS = &
      DosQueryFSInfo        .278  , &
      DosQueryFileInfo      .279  , &
      DosWaitChild          .280  , &
-     DosRead               .137  , &
-     DosWrite              .138  , &
+     DosRead               .281  , &
+     DosWrite              .282  , &
      DosExecPgm            .283  , &
      DosDevIOCtl           .284  , &
      DosFSCtl              .285  , &

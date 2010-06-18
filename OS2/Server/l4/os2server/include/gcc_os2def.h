@@ -65,6 +65,8 @@
 #define APIENTRY16 _Far16 _Pascal
 #define PASCAL16   _Far16 _Pascal
 
+#define CDECL __attribute__((__cdecl__))
+
 #ifdef __OS2__
 #define EXPENTRY  _System
 #define APIENTRY  _System

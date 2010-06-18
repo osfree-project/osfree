@@ -8,15 +8,14 @@
 
 PROJ        = sub32
 DESC        = Base Subsystems API
-srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e)
+srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)kbd$(e)
 ADD_COPT    = -i=..\include -s
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata #This is required because each application has
                        #its own AnsiState
-IMPORTS = &
-          _DosWrite             DOSCALLS.138
+#IMPORTS =
 #
 #          MOUGETPTRSHAPE       DOSCALLS.719, &
 #          MOUSETPTRSHAPE       DOSCALLS.720, &
@@ -50,8 +49,8 @@ IMPORTS = &
 EXPORTS = &
 #VioGetAnsi                  .103, &
 #            VioSetAnsi                  .105, &
-            VioWrtTTY                    .119
-#            KbdStringIn                 .209
+            VioWrtTTY                    .119, &
+            KbdStringIn                  .209
 
 #  EMX_REVISION.1 RESIDENT, &
 #  WinDefAVioWindowProc        .30, &

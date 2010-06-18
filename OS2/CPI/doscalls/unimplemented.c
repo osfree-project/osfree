@@ -910,17 +910,6 @@ APIRET APIENTRY DosWaitChild(ULONG action,
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
-APIRET APIENTRY  DosRead(HFILE hFile,
-                         PVOID pBuffer,
-                         ULONG cbRead,
-                         PULONG pcbActual)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-
-
 APIRET APIENTRY DosDevIOCtl(HFILE hDevice, ULONG category, ULONG xfunction, PVOID pParams, ULONG cbParmLenMax, PULONG pcbParmLen, PVOID pData, ULONG cbDataLenMax, PULONG pcbDataLen)
 {
   ULONG ulActual;
