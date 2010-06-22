@@ -70,9 +70,12 @@
 
 /* other includes */
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 extern struct module_rec module_root; /* Root for module list.*/
+extern l4_threadid_t os2srv;
 
 l4semaphore_t sem = L4SEMAPHORE_INIT(0);
 
@@ -109,15 +112,10 @@ os2server_wakeup_component (CORBA_Object _dice_corba_obj,
 void exe_end(void)
 {
   CORBA_Environment env = dice_default_environment;
-  l4_threadid_t     dest;
 
   LOG("exe ended");
-  // query OS/2 server task id
-  names_query_name("os2srv", &dest) ;
-  LOG("OS/2 server uid=%x.%x", dest.id.task, dest.id.lthread);
-
   // send a signal about termination to OS/2 server
-  os2server_wakeup_call (&dest, &env);
+  os2server_wakeup_call (&os2srv, &env);
   
   if (DICE_HAS_EXCEPTION(&env))
     LOG("IPC error: %x.%x", 
@@ -134,6 +132,7 @@ trampoline(struct param *param)
   struct desc       desc;
   unsigned long     base;
   unsigned short    sel;
+  int               fd;
 
   // Todo!! Fill real data
   PCHAR argv = param->pib->pib_pchcmd = (PCHAR){"c:\\minicmd.exe", 0};
@@ -157,6 +156,19 @@ trampoline(struct param *param)
   sel = 8 * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
 
+  // close predefined file descriptors
+  //close(0); close(1); close(2);
+  // open initial file descriptors
+  // stdin
+  //fd = open("/dev/vc0", O_RDONLY);
+  //LOG("stdin: fd=%d, errno=%d", fd, errno);
+  // strout
+  //fd = open("/dev/vc0", O_WRONLY);
+  //LOG("stdout: fd=%d, errno=%d", fd, errno);
+  // stderr
+  //fd = open("/dev/vc0", O_WRONLY);
+  //LOG("stderr: fd=%d, errno=%d", fd, errno);
+  //init_io();
   //contxt_init(65535, 11);
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);

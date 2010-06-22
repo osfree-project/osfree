@@ -55,7 +55,7 @@
 #endif
 
 struct t_mem_area os2server_root_mem_area;
-
+l4_threadid_t os2srv;
 l4_taskid_t taskid;
 
 #define  size_t unsigned long int
@@ -111,6 +111,7 @@ void executeprotshell(cfg_opts *options)
 int main(int argc, const char **argv)
 {
   l4_threadid_t tid;
+  CORBA_Server_Environment env = dice_default_server_environment;
   int rc;               // Return code
   int step = 0;
   int opt = 0;
@@ -150,11 +151,15 @@ int main(int argc, const char **argv)
 
   if (!names_waitfor_name(CON_NAMES_STR, &tid, 10000))
   {
-    LOG("Console doesn't answer for 10 seconds. Exiting.");
-    return 2;
+      LOG("Console doesn't answer for 10 seconds. Exiting.");
+      return 2;
   };
   
-  contxt_init(65535, 11);
+  // query OS/2 server task id
+  names_query_name("os2srv", &os2srv) ;
+  LOG("OS/2 server uid=%x.%x", os2srv.id.task, os2srv.id.lthread);
+  
+  //contxt_init(65535, 11);
 
   // Initialize initial values from CONFIG.SYS
   rc=CfgInitOptions();
@@ -260,7 +265,11 @@ int main(int argc, const char **argv)
     return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
     l4thread_create(executeprotshell, (void *)&options, L4THREAD_CREATE_ASYNC);
-    os2server_server_loop(0);
+
+    // server loop
+    env.malloc = (dice_malloc_func)malloc;
+    env.free = (dice_free_func)free;
+    os2server_server_loop(&env);
   }
   
   return 0;

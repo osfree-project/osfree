@@ -1,6 +1,31 @@
 /* This file is part of osFree project */
 
+import <l4/os2server/gcc_os2def.h>
+
 interface os2server
 {
     void wakeup(void);
+    
+    [allow_reply_only]
+    APIRET dos_Read([in] HFILE hFile,
+                    [out, size_is(count), ref, prealloc_client,
+                    prealloc_server] char **buf,
+                    [in, out] ULONG *count);
+
+    [allow_reply_only]
+    APIRET dos_Write([in] HFILE handle,
+                     [in, prealloc_server, 
+		     ref, size_is(count)] char *buf,
+                     [in, out] ULONG *count);
+    
+    [oneway]
+    void   dos_Exit ([in] ULONG action, 
+                     [in] ULONG result);
+		    
+    APIRET dos_QueryCurrentDisk([in] ULONG *pdisknum, 
+                                [out] ULONG *plogical);
+			       
+    APIRET dos_QueryCurrentDir ([in] ULONG disknum,   
+                                [out, string] char **pBuf, 
+		                [out] ULONG *pcbBuf);
 };

@@ -6,7 +6,7 @@
 
 APIRET CDECL
 api_DosRead(HFILE hFile, PVOID pBuffer,
-            ULONG cbRead, PULONG pcbActual);
+            ULONG cbRead, PULONG pcbRead);
 
 APIRET CDECL
 api_DosWrite

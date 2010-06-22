@@ -21,6 +21,7 @@ Shared/ixfmgr_lx_execlx.c \
 Shared/ixfmgr_lx_debuglx.c \
 Shared/memmgr.c \
 Shared/api/apistub.c \
+Shared/api/api.c \
 Shared/cfgparser.c \
 Shared/processmgr.c 
 
@@ -31,7 +32,7 @@ Shared/processmgr.c
 SERVERIDL	= os2server.idl
 
 # list additional library paths and libraries here
-LIBS		=  -los2server -lparsecmdline -lthread -lcon -lcontxt -lconstream-server
+LIBS		=  -los2server -lparsecmdline -lthread # -lcon -lcontxt -lconstream-server
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
 CFLAGS          = -I$(PKGDIR)/include
 MODE=l4env_base
