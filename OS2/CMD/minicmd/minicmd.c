@@ -136,8 +136,6 @@ void read_cmd(char *cmd)
   sin.cb=255;
   KbdStringIn(cmd, &sin, 0, 0);
   cmd[sin.cchIn]='\0';
-  //VioWrtTTY("\r\n", 2, 0);
-  //VioWrtTTY(cmd, strlen(cmd), 0);
   VioWrtTTY("\r\n", 2, 0);
 }
 

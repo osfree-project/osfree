@@ -22,7 +22,7 @@ interface os2server
     void   dos_Exit ([in] ULONG action, 
                      [in] ULONG result);
 		    
-    APIRET dos_QueryCurrentDisk([in] ULONG *pdisknum, 
+    APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum, 
                                 [out] ULONG *plogical);
 			       
     APIRET dos_QueryCurrentDir ([in] ULONG disknum,   

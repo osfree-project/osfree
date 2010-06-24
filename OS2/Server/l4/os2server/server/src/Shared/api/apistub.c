@@ -1,6 +1,8 @@
 /*
- *  Some minimal API
- *  functions stubs.
+ *  API implementations
+ *  parts (on the client side)
+ *  These functions are those which are
+ *  exported from the KAL.DLL virtual library.
  */
 
 #include <gcc_os2def.h>
@@ -44,7 +46,10 @@ api_DosExit(ULONG action, ULONG result)
 {
   CORBA_Environment env = dice_default_environment;
 
+  // send OS/2 server a message that we want to terminate
   os2server_dos_Exit_send(&os2srv, action, result, &env);
+  // wait until OS/2 server kills us
+  l4_ipc_sleep(L4_IPC_NEVER);
 }
 
 

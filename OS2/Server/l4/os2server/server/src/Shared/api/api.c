@@ -1,5 +1,5 @@
 /* API implementations
- *
+ * (on the server side)
  */
 #define INCL_DOSERRORS
 #define INCL_DOSFILEMGR
@@ -16,11 +16,13 @@
 #include <l4/sys/types.h>
 #include <l4/sys/syscalls.h>
 #include <l4/log/l4log.h>
+#include <l4/semaphore/semaphore.h>
 
 #include <dice/dice.h>
 
 char buf[0x100];
 void exe_end(void);
+extern l4semaphore_t sem;
 
 extern l4_threadid_t os2srv;
 
@@ -83,8 +85,7 @@ os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
                              ULONG action, ULONG result,
                              CORBA_Server_Environment *_dice_corba_env)
 {
-  //io_printf("action=%d, result=%d\n", action, result);
-  exe_end();
+  l4semaphore_up(&sem);
 }
 
 APIRET

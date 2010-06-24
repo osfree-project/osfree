@@ -133,6 +133,6 @@ APIRET APIENTRY DosTrueGetMessage(void)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(0, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
+  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0;
 }

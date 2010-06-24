@@ -244,7 +244,7 @@ app_pager(void *unused)
 	      enter_kdebug("stop");
 	      //break;
 	    }
-	  else if ((dw1 & L4_PAGEMASK) == 0x10825000)
+	  else if ((dw1 & L4_PAGEMASK) == 0x18025000)
 	  {
 	     LOG("illegal access"l4util_idfmt
 	         ", (%08lx at %x08lx)\n", l4util_idstr(src_thread), dw1, dw2);

@@ -22,11 +22,14 @@ KbdStringIn (PCH pch,
   if (flag)
     return 373; // ERROR_KBD_PARAMETER;
 
+  if (!pch || !pchin || !pchin->cb)
+    return 373; //ERROR_KBD_PARAMETER
+
   if (DosRead (0, pch, pchin->cb, &nread) == 0 /* NO_ERROR */)
   {
     if (nread)
     {
-      nread--;
+      nread--; // skip '\n'
       pch[nread] = '\0';
       pchin->cchIn = nread;
     }
