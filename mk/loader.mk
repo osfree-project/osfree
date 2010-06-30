@@ -142,21 +142,40 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !ifeq sh
  # compile rules for ordinary files
+!ifdef __UNIX__
  $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(O)'  sh=$(sh) basename=$[& gen_compile_rules
 !else
+ $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  sh=$(sh) basename=$[& gen_compile_rules
+!endif
+!else
  # compile rules for shifted files
+!ifdef __UNIX__
  $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(SO)' sh=$(sh) basename=$[& gen_compile_rules
+!else
+ $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) sh=$(sh) basename=$[& gen_compile_rules
+!endif
 !endif
 
 gen_deps_wrapper:
  # file.rel: file.mdl file.mds
+!ifdef __UNIX__ 
  @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).rel' &
-   deps='$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-' gen_deps
+   deps="'$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-'" gen_deps
  # file.fsd: file.$(OUT)
  @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mdl' &
    deps='$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$-' gen_deps
  # file.fss: file.$(SOUT)
  @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mds' &
    deps='$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-' gen_deps
+!else
+ @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
+   deps="$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-" gen_deps
+ # file.fsd: file.$(OUT)
+ @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mdl &
+   deps=$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$- gen_deps
+ # file.fss: file.$(SOUT)
+ @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mds &
+   deps=$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$- gen_deps
+!endif
 
 !endif
