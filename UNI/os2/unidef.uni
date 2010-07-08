@@ -1,15 +1,15 @@
 group unidef;
 
-
 (* compiler dependent include files *)
 #include <stddef.h>             (* define size_t and wchar_t types *)
 #include <time.h>               (* define tm struct *)
 
 (* ULS include files *)
-#include <os2def.h>
-#include <ulserrno.h>           (* uls return code defs *)
-#include <errcmpat.h>
-#include <ulsitem.h>            (* define LocaleItem type *)
+uses os2def;
+
+uses ulserrno;           (* uls return code defs *)
+uses errcmpat;
+uses ulsitem;            (* define LocaleItem type *)
 
 (*
  * ulsBool Type
@@ -120,12 +120,12 @@ function UniLocaleTokenToStr   ( locale_token: LocaleToken;
 function UniQueryLocaleInfo ( locale_object: LocaleObject;
                          unilconv_addr_ptr: ^^UNILCONV ): int;
 function UniFreeLocaleInfo ( unilconv_addr: ^UNILCONV ): int;
-int     CALLCONV UniQueryLocaleItem ( constant LocaleObject locale_object,
-                         LocaleItem item,
-                         UniChar **info_item_addr_ptr );
-int     CALLCONV UniQueryLocaleValue ( constant LocaleObject locale_object,
-                         LocaleItem item,
-                         int *info_item);
+function niQueryLocaleItem ( in locale_object: LocaleObject;
+                          item: LocaleItem;
+                          info_item_addr_ptr: ^PUniChar ): int;
+function UniQueryLocaleValue ( in locale_object: LocaleObject;
+                          item; LocaleItem;
+                          info_item: ^int): int;
 
 (*
  * Date and Time Function Prototypes
