@@ -1,0 +1,25 @@
+group time;
+
+constant CLOCKS_PER_SEC=1000;
+constant CLK_TCK=CLOCKS_PER_SEC;
+constant CLK_PER_SEC=CLOCKS_PER_SEC;
+
+type size_t=UINT;
+
+type clock_t=UINT;
+
+type time_t=LONGINT;
+
+type tm=structure
+         tm_sec: int;      (* seconds after the minute [0-61]        *)
+         tm_min: int;      (* minutes after the hour [0-59]          *)
+         tm_hour: int;     (* hours since midnight [0-23]            *)
+         tm_mday: int;     (* day of the month [1-31]                *)
+         tm_mon: int;      (* months since January [0-11]            *)
+         tm_year: int;     (* years since 1900                       *)
+         tm_wday: int;     (* days since Sunday [0-6]                *)
+         tm_yday: int;     (* days since January 1 [0-365]           *)
+         tm_isdst: int;    (* Daylight Saving Time flag              *)
+  end;
+
+end.

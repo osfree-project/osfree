@@ -1,8 +1,8 @@
 group unidef;
 
 (* compiler dependent include files *)
-#include <stddef.h>             (* define size_t and wchar_t types *)
-#include <time.h>               (* define tm struct *)
+uses stddef;             (* define size_t and wchar_t types *)
+uses time;               (* define tm struct *)
 
 (* ULS include files *)
 uses os2def;
