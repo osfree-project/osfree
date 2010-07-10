@@ -130,30 +130,30 @@ function UniQueryLocaleValue ( in locale_object: LocaleObject;
 (*
  * Date and Time Function Prototypes
  *)
-size_t       CALLCONV UniStrftime ( constant LocaleObject locale_object,
-                       UniChar *ucs, size_t maxsize,
-                       constant UniChar *format, constant struct tm *time_ptr );
-UniChar    * CALLCONV UniStrptime ( constant LocaleObject locale_object,
-                       constant UniChar *buf, constant UniChar *format,
-                       struct tm *time_ptr );
+function UniStrftime ( in locale_object:LocaleObject;
+                       ucs: ^UniChar, maxsize:size_t;
+                       in format:^UniChar; in  time_ptr: ^tm ): size_t;
+function UniStrptime ( in locale_object: LocaleObject;
+                       in buf: ^UniChar; in format: ^UniChar,
+                       time_ptr: ^tm ): ^UniChar;
 
 (*
  * Monetary Formatting Function Prototype
  *)
-int          CALLCONV UniStrfmon  ( constant LocaleObject locale_object,
-                       UniChar *ucs, size_t maxsize,
-                       constant UniChar *format, ... );
+function UniStrfmon  ( in locale_object: LocaleObject;
+                       ucs: ^UniChar; maxsize: size_t;
+                       in format: ^UniChar; ... ): int;
 
 (*
  * String/Character Function Prototypes
  *)
-UniChar    * CALLCONV UniStrcat  ( UniChar *ucs1, constant UniChar *ucs2 );
-UniChar    * CALLCONV UniStrchr  ( constant UniChar *ucs, UniChar uc );
-int          CALLCONV UniStrcmp  ( constant UniChar *ucs1, constant UniChar *ucs2 );
-UniChar    * CALLCONV UniStrcpy  ( UniChar *ucs1, constant UniChar *ucs2 );
-size_t       CALLCONV UniStrcspn ( constant UniChar *ucs1, constant UniChar *ucs2 );
-size_t       CALLCONV UniStrlen  ( constant UniChar *ucs1 );
-UniChar    * CALLCONV UniStrncat ( UniChar *ucs1, constant UniChar *ucs2, size_t n );
+function UniStrcat  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
+function UniStrchr  ( in ucs: ^UniChar; uc: UniChar ): ^UniChar;
+function UniStrcmp  ( in ucs1: ^UniChar; in ucs2:^UniChar ): int;
+function UniStrcpy  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
+function UniStrcspn ( in ucs1: ^UniChar; in ucs2: ^UniChar ): size_t;
+function UniStrlen  ( in ucs1: ^UniChar ): size_t;
+function UiStrncat ( ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): ^UniChar;
 int          CALLCONV UniStrncmp ( constant UniChar *ucs1, constant UniChar *ucs2, size_t n );
 UniChar    * CALLCONV UniStrncpy ( UniChar *ucs1, constant UniChar *ucs2, size_t n );
 UniChar    * CALLCONV UniStrpbrk ( constant UniChar *ucs1, constant UniChar *ucs2 );
@@ -214,64 +214,64 @@ int   CALLCONV UniStrtoul ( constant LocaleObject locale_object, constant UniCha
 (*
  * String Comparison Function Prototypes
  *)
-int      CALLCONV UniStrcoll  ( constant LocaleObject locale_object,
-                     constant UniChar *ucs1, constant UniChar *ucs2 );
-size_t   CALLCONV UniStrxfrm  ( constant LocaleObject locale_object,
-                     UniChar *ucs1, constant UniChar *ucs2, size_t n );
-int      CALLCONV UniStrcmpi  ( constant LocaleObject locale_object,
-                     constant UniChar *ucs1, constant UniChar *ucs2 );
-int      CALLCONV UniStrncmpi ( constant LocaleObject locale_object,
-                     constant UniChar *ucs1, constant UniChar *ucs2, constant size_t n );
+function UniStrcoll  ( in locale_object: LocaleObject;
+                     in ucs1: ^UniChar; in ucs2:^UniChar ): int;
+function UniStrxfrm  ( in locale_object: LocaleObject;
+                     ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): size_t;
+function UniStrcmpi  ( in locale_object:LocaleObject;
+                     in ucs1: ^UniChar; in ucs2: ^UniChar ):int;
+function UniStrncmpi ( in locale_object: LocaleObject;
+                       in ucs1: ^UniChar; in ucs2: ^UniChar; in n: size_t ): int;
 
 (*
  * Unicode Case Mapping Function Prototypes
  *)
-UniChar   CALLCONV UniToupper ( UniChar uc );
-UniChar   CALLCONV UniTolower ( UniChar uc );
-UniChar * CALLCONV UniStrupr  ( UniChar * ucs );
-UniChar * CALLCONV UniStrlwr  ( UniChar * ucs );
+function UniToupper ( uc: UniChar ): UniChar;
+function UniTolower ( uc: UniChar ): UniChar;
+function UniStrupr  ( ucs: ^UniChar ): ^UniChar;
+function UniStrlwr  ( ucs: ^UniChar ): ^UniChar;
 
 
-int CALLCONV UniMapCtryToLocale( unsigned long Country,
-                                 UniChar *LocaleName, size_t n );
+function UniMapCtryToLocale( Country: ULONG;
+                                 LocaleName: ^UniChar;  n: size_t ):int;
 
 (*
  * Functions for user locales.  These are designed to be externalizable,
  * and are used by WPShell, but are currently private functions.
  * These functions are in ulx.c
  *)
-int CALLCONV UniSetUserLocaleItem(UniChar * locale, int item, int type, void * value);
-int CALLCONV UniMakeUserLocale(UniChar * name, UniChar * basename);
-int CALLCONV UniDeleteUserLocale(UniChar * locale);
-int CALLCONV UniCompleteUserLocale(void);
-int CALLCONV UniQueryLocaleList(int, UniChar *, int);
-int CALLCONV UniQueryLanguageName(UniChar *lang, UniChar *isolang,
-                                  UniChar **infoitem);
-int CALLCONV UniQueryCountryName(UniChar *country, UniChar *isolang,
-                                  UniChar **infoitem);
+function UniSetUserLocaleItem(locale: ^UniChar; item: int; type: int; value: PVOID): int;
+function UniMakeUserLocale(name: ^UniChar; basename:^UniChar):int;
+function UniDeleteUserLocale(locale: ^UniChar): int;
+function UniCompleteUserLocale(): int;
+function UniQueryLocaleList(a: int; b: ^UniChar; c:int): int;
+function UniQueryLanguageName(lang: ^UniChar; isolang: ^UniChar;
+                                  infoitem: ^^UniChar):int;
+function UniQueryCountryName(country: ^UniChar; isolang: ^UniChar;
+                                  infoitem: ^^UniChar): int;
 
 
 (*
  * Typedef for QueryCharType and UniQueryStringType indexed
  *)
-typedef struct {
-    USHORT  itype;        (* CTYPE1 - xpg4 attributes     *)
-    CHAR    bidi;         (* CTYPE2 - Bidi attributes     *)
-    CHAR    charset;      (* CHARSET- Character set       *)
-    USHORT  extend;       (* CTYPE3 - Extended attributes *)
-    USHORT  codepage;     (* Codepage mask (CCP)          *)
-} UNICTYPE;
+type UNICTYPE=structure
+      itype: USHORT;        (* CTYPE1 - xpg4 attributes     *)
+      bidi: CHAR;         (* CTYPE2 - Bidi attributes     *)
+      charset: CHAR;      (* CHARSET- Character set       *)
+      extend: USHORT;       (* CTYPE3 - Extended attributes *)
+      codepage: USHORT;     (* Codepage mask (CCP)          *)
+end;
 
 
 (*
  * Locale independent character classification
  *)
-int   CALLCONV UniQueryChar          ( UniChar uc, ULONG attr);
-ULONG CALLCONV UniQueryAttr          ( UniChar * name);
-ULONG CALLCONV UniQueryStringType    ( UniChar * ustr, int size, USHORT * outstr, int kind );
-UNICTYPE * CALLCONV UniQueryCharType ( UniChar uchr);
-ULONG CALLCONV UniQueryCharTypeTable ( ULONG * count, UNICTYPE * * unictype);
-int   CALLCONV UniQueryNumericValue  ( UniChar   uc);
+function UniQueryChar          ( uc: UniChar; attr: ULONG): int;
+function UniQueryAttr          ( name: ^UniChar): ULONG;
+function UniQueryStringType    ( ustr: ^UniChar; size: int; outstr:^USHORT;  kind: int ): ULONG;
+function UniQueryCharType ( uchr: UniChar): ^UNICTYPE;
+function UniQueryCharTypeTable ( count: ^ULONG; unictype: ^^UNICTYPE): ULONG;
+function UniQueryNumericValue  ( uc: UniChar): int;
 
 (*
  * Character type constants
