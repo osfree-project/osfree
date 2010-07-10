@@ -186,7 +186,11 @@ begin
       wrt(TPasRecordType(AType).Name);
   end else if AType.ClassType = TPasArrayType then
   begin
-    wrt(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + ']');
+    if ATypeDecl then
+      wrt(ConvertToCType(TPasArrayType(AType).ElType.Name)+' '+TPasAliasType(AType).Name+'[' + TPasArrayType(AType).IndexRange + ']')
+    else
+      wrt(TPasAliasType(AType).Name);
+
     if ATypeDecl then WrtLn(';');
   end else if AType.ClassType = TPasFunctionType then
   begin
@@ -204,7 +208,7 @@ procedure THWriter.WriteModule(AModule: TPasModule);
 begin
   WrtLn( '/*****************************************************************************');
   WrtLn( '    '+AModule.Name+'.h');
-  WrtLn( '    (C) 2004-2009 osFree project');
+  WrtLn( '    (C) 2004-2010 osFree project');
   WrtLn;
   WrtLn( '    WARNING! Automaticaly generated file! Don''t edit it manually!');
   WrtLn( '*****************************************************************************/');

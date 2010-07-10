@@ -4,7 +4,7 @@ This directory contains OS/2 Server prototype by osFree project.
 Logic of os2server is folowing:
 1. It loads config.sys file using file provider
 2. Parses config.sys
-3. Executes task with LOADER server using PROTSHELL variabla
+3. Executes task using PROTSHELL variabla
 
 After this server goes to server loop. Only one library in OS/2
 personality allowed to access OS2Server. It is libkal.so.

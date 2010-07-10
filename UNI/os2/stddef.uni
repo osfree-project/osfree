@@ -6,7 +6,7 @@ type size_t=UINT;
 
 type wchar_t=USHORT;
 
-type NULL=nil;
+(* type NULL=nil; *)
 
 (* #define offsetof(s_name, s_member) (size_t)&(((s_name * )0)->s_member) *)
 

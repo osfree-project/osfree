@@ -51,7 +51,7 @@ typedef struct {
 
 #define CONTROLDATASIZE ((IDI_ID_MAX - IDI_BASE + 1) * sizeof(IDI_CONTROL))
 
-MRESULT EXPENTRY wpConfigDlg(HWND, ULONG, MPARAM, MPARAM);
+MRESULT APIENTRY wpConfigDlg(HWND, ULONG, MPARAM, MPARAM);
 
 // Define configuration notebook pages and header
 NBPAGE ConfigNBPages[] = {
@@ -107,7 +107,7 @@ void ConfigNotebook(void)
 
 
 // Dialog procedure for the configuration dialog pages
-MRESULT EXPENTRY wpConfigDlg(HWND hDlg, ULONG uMsg, MPARAM mp1, MPARAM mp2 )
+MRESULT APIENTRY wpConfigDlg(HWND hDlg, ULONG uMsg, MPARAM mp1, MPARAM mp2 )
 {
         unsigned int i, nIDIValue;
         int nCtlType, nRadioCnt, nIntDataValue, nIntNewValue;

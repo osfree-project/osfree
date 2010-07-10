@@ -158,6 +158,13 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)os2mm.h &
      $(OUT)$(SEP)os2$(SEP)meerror.h &
      $(OUT)$(SEP)os2$(SEP)udsk.h &
+     $(OUT)$(SEP)os2$(SEP)unidef.h &
+     $(OUT)$(SEP)os2$(SEP)ulserrno.h &
+     $(OUT)$(SEP)os2$(SEP)errcmpat.h &
+     $(OUT)$(SEP)os2$(SEP)ulsitem.h &
+     $(OUT)$(SEP)os2$(SEP)uconv.h &
+     $(OUT)$(SEP)os2$(SEP)stddef.h &
+     $(OUT)$(SEP)os2$(SEP)time.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -435,6 +442,20 @@ $(OUT)$(SEP)dos$(SEP)os2mm.h: dos$(SEP)os2mm.uni
 $(OUT)$(SEP)dos$(SEP)meerror.h: dos$(SEP)meerror.uni
 
 $(OUT)$(SEP)os2$(SEP)udsk.h: os2$(SEP)udsk.uni
+
+$(OUT)$(SEP)os2$(SEP)ulserrno.h: os2$(SEP)ulserrno.uni
+
+$(OUT)$(SEP)os2$(SEP)errcmpat.h: os2$(SEP)errcmpat.uni
+
+$(OUT)$(SEP)os2$(SEP)ulsitem.h: os2$(SEP)ulsitem.uni
+
+$(OUT)$(SEP)os2$(SEP)unidef.h: os2$(SEP)unidef.uni
+
+$(OUT)$(SEP)os2$(SEP)uconv.h: os2$(SEP)uconv.uni
+
+$(OUT)$(SEP)os2$(SEP)stddef.h: os2$(SEP)stddef.uni
+
+$(OUT)$(SEP)os2$(SEP)time.h: os2$(SEP)time.uni
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h

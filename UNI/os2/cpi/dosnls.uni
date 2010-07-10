@@ -43,7 +43,7 @@ function DosQueryDBCSEnv(in  cb: ULONG;
 
 function DosMapCase(in    cb: ULONG;
                                         in    pcc: PCOUNTRYCODE;
-                                        inout pch: PCHAR): APIRET;
+                                        inout pch: CHAR): APIRET;
 
 function DosQueryCollate(in  cb: ULONG;
                                                  in  pcc: PCOUNTRYCODE;

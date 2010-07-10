@@ -33,6 +33,9 @@ APIRET __cdecl KalWrite(const HFILE hFile, const PVOID pBuffer, const ULONG cbWr
    API
      KalWrite
 
+   Function logic
+     Function calls KalWrite which is placed in KAL.DLL
+
 */
 
 APIRET APIENTRY DosWrite(const HFILE hFile, const PVOID pBuffer, const ULONG cbWrite, ULONG * pcbActual)

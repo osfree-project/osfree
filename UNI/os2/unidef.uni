@@ -1,63 +1,45 @@
 group unidef;
 
 (* compiler dependent include files *)
-uses stddef;             (* define size_t and wchar_t types *)
-uses time;               (* define tm struct *)
+uses stddef default;             (* define size_t and wchar_t types *)
+uses time default;               (* define tm struct *)
 
 (* ULS include files *)
-uses os2def;
+uses os2def default;
 
-uses ulserrno;           (* uls return code defs *)
-uses errcmpat;
-uses ulsitem;            (* define LocaleItem type *)
+uses ulserrno default;           (* uls return code defs *)
+uses errcmpat default;
+uses ulsitem default;            (* define LocaleItem type *)
 
-(*
- * ulsBool Type
- *)
+(* ulsBool Type *)
 type ulsBool=int;
 
-(*
- * UniChar Type
- *)
+(* UniChar Type *)
 type UniChar=USHORT;
+type PUniChar=^UniChar;
 
-(*
- * LocaleObject Type
- *)
+(* LocaleObject Type *)
 type LocaleObject=PVOID;
 
-(*
- * LocaleToken Type
- *)
+(* LocaleToken Type *)
 type LocaleToken=UINT;
 
-(*
- * AttrObject Type
- *)
+(* AttrObject Type *)
 type AttrObject=PVOID;
 
-(*
- * XformObject type
- *)
+(* XformObject type *)
 type XformObject=PVOID;
 
-(*
- * LocaleSpecType Values
- *)
+(* LocaleSpecType Values *)
 constant UNI_TOKEN_POINTER      = 1;
 constant UNI_MBS_STRING_POINTER = 2;
 constant UNI_UCS_STRING_POINTER = 3;
 
-(*
- * Locale Types
- *)
+(* Locale Types *)
 constant UNI_SYSTEM_LOCALES     = 1;
 constant UNI_USER_LOCALES       = 2;
 
-(*
- * Categories
- *)
-
+(* Categories *)
 constant LANG         =(-2);
 constant LC_ALL       =(-1);
 constant LC_COLLATE   = 0;
@@ -70,190 +52,290 @@ constant LC_MESSAGES  = 5;
 constant N_LC_CATEGORIES = 6;     (* Number of categories                   *)
 constant ULS_LNAMEMAX    = 32;    (* Maxlen of locale name (including null) *)
 
-(*
- * UniLconv locale conventions structure
- *)
-type UNILCONV=structucre
-   decimal_point: ^UniChar;      (* non-monetary decimal point           *)
-   thousands_sep: ^UniChar;      (* non-monetary thousands separator     *)
-   grouping: ^short;           (* non-monetary size of grouping        *)
-   int_curr_symbol: ^UniChar;    (* int'l currency symbol and separator  *)
-   currency_symbol: ^UniChar;    (* local  currency symbol               *)
-   mon_decimal_point: ^UniChar;  (* monetary decimal point               *)
-   mon_thousands_sep: ^UniChar;  (* monetary thousands separator         *)
-   mon_grouping: ^short;       (* monetary size of grouping            *)
-   positive_sign: ^UniChar;      (* non-negative values sign             *)
-   negative_sign: ^UniChar;      (* negative values sign                 *)
-   int_frac_digits: short;     (* no of fractional digits int currency *)
-   frac_digits: short;         (* no of fractional digits loc currency *)
-   p_cs_precedes: short;       (* nonneg curr sym 1-precedes,0-succeeds*)
-   p_sep_by_space: short;      (* nonneg curr sym 1-space,0-no space   *)
-   n_cs_precedes: short;       (* neg curr sym 1-precedes,0-succeeds   *)
-   n_sep_by_space: short;      (* neg curr sym 1-space 0-no space      *)
-   p_sign_posn: short;         (* positioning of nonneg monetary sign  *)
-   n_sign_posn: short;         (* positioning of negative monetary sign*)
-   os2_mondecpt: short;        (* os2 curr sym positioning             *)
+(* UniLconv locale conventions structure *)
+type UNILCONV=structure
+   decimal_point: PUniChar;      (* non-monetary decimal point           *)
+   thousands_sep: PUniChar;      (* non-monetary thousands separator     *)
+   grouping: PSHORT;             (* non-monetary size of grouping        *)
+   int_curr_symbol: PUniChar;    (* int'l currency symbol and separator  *)
+   currency_symbol: PUniChar;    (* local  currency symbol               *)
+   mon_decimal_point: PUniChar;  (* monetary decimal point               *)
+   mon_thousands_sep: PUniChar;  (* monetary thousands separator         *)
+   mon_grouping: PSHORT;         (* monetary size of grouping            *)
+   positive_sign: PUniChar;      (* non-negative values sign             *)
+   negative_sign: PUniChar;      (* negative values sign                 *)
+   int_frac_digits: short;       (* no of fractional digits int currency *)
+   frac_digits: short;           (* no of fractional digits loc currency *)
+   p_cs_precedes: short;         (* nonneg curr sym 1-precedes,0-succeeds*)
+   p_sep_by_space: short;        (* nonneg curr sym 1-space,0-no space   *)
+   n_cs_precedes: short;         (* neg curr sym 1-precedes,0-succeeds   *)
+   n_sep_by_space: short;        (* neg curr sym 1-space 0-no space      *)
+   p_sign_posn: short;           (* positioning of nonneg monetary sign  *)
+   n_sign_posn: short;           (* positioning of negative monetary sign*)
+   os2_mondecpt: short;          (* os2 curr sym positioning             *)
    reserved: short;
-   debit_sign: ^UniChar;         (* non-neg-valued monetary sym - "DB"   *)
-   credit_sign: ^UniChar;        (* negative-valued monetary sym - "CR"  *)
-   left_parenthesis: ^UniChar;   (* negative-valued monetary sym - "("   *)
-   right_parenthesis: ^UniChar;  (* negative-valued monetary sym - ")"   *)
+   debit_sign: PUniChar;         (* non-neg-valued monetary sym - "DB"   *)
+   credit_sign: PUniChar;        (* negative-valued monetary sym - "CR"  *)
+   left_parenthesis: PUniChar;   (* negative-valued monetary sym - "("   *)
+   right_parenthesis: PUniChar;  (* negative-valued monetary sym - ")"   *)
 end;
 
+(* Locale Management Function Prototypes *)
+function UniCreateLocaleObject(in  locale_spec_type: int;
+                               in  locale_spec: PVOID;
+                               out locale_object_ptr: LocaleObject): int;
+
+function UniQueryLocaleObject(in  locale_object: LocaleObject;
+                              in  category: int;
+                              in  locale_spec_type: int;
+                              out locale_spec_ptr: PVOID): int;
+
+function UniFreeLocaleObject(in locale_object: LocaleObject): int;
+
+function UniFreeMem(in memory_ptr: PVOID): int;
+
+function UniLocaleStrToToken(in  locale_string_type: int;
+                             in  locale_string: PVOID;
+                             out locale_token_ptr: LocaleToken): int;
+
+function UniLocaleTokenToStr(in  locale_token: LocaleToken;
+                             in  locale_string_type: int;
+                             out locale_string_ptr: PVOID): int;
+
+(* Locale Information Function Prototypes *)
+function UniQueryLocaleInfo(in  locale_object: LocaleObject;
+                            out unilconv_addr_ptr: ^UNILCONV): int;
+
+function UniFreeLocaleInfo(in unilconv_addr: ^UNILCONV): int;
+
+function UniQueryLocaleItem(in locale_object: LocaleObject;
+                            in item: LocaleItem;
+                            in info_item_addr_ptr: ^PUniChar): int;
+
+function UniQueryLocaleValue(in locale_object: LocaleObject;
+                             in item: LocaleItem;
+                             in info_item: ^int): int;
+
+(* Date and Time Function Prototypes *)
+function UniStrftime(in locale_object:LocaleObject;
+                     in ucs: PUniChar;
+                     in maxsize:size_t;
+                     in format:PUniChar;
+                     in time_ptr: ^tm): size_t;
+
+function UniStrptime(in locale_object: LocaleObject;
+                     in buf: PUniChar;
+                     in format: PUniChar,
+                     in time_ptr: ^tm): PUniChar;
+
+(* Monetary Formatting Function Prototype *)
 (*
- * Locale Management Function Prototypes
- *)
-function UniCreateLocaleObject (locale_spec_type: int;  locale_spec: PVOID;
-                            locale_object_ptr: LocaleObject ): int;
-function UniQueryLocaleObject  (locale_object: LocaleObject; category: int;
-                            locale_spec_type: int; locale_spec_ptr: ^PVOID ): int;
-function UniFreeLocaleObject   ( locale_object: LocaleObject ): int;
-function UniFreeMem            ( memory_ptr: PVOID ): int;
-function UniLocaleStrToToken   ( locale_string_type: int; locale_string: PVOID;
-                            locale_token_ptr: ^LocaleToken ): int;
-function UniLocaleTokenToStr   ( locale_token: LocaleToken;
-                             locale_string_type: int; locale_string_ptr:^PVOID ): int;
+function UniStrfmon(in locale_object: LocaleObject;
+                    in ucs: PUniChar;
+                    in maxsize: size_t;
+                    in format: PUniChar; ... ): int;
+*)
 
-(*
- * Locale Information Function Prototypes
- *)
-function UniQueryLocaleInfo ( locale_object: LocaleObject;
-                         unilconv_addr_ptr: ^^UNILCONV ): int;
-function UniFreeLocaleInfo ( unilconv_addr: ^UNILCONV ): int;
-function niQueryLocaleItem ( in locale_object: LocaleObject;
-                          item: LocaleItem;
-                          info_item_addr_ptr: ^PUniChar ): int;
-function UniQueryLocaleValue ( in locale_object: LocaleObject;
-                          item; LocaleItem;
-                          info_item: ^int): int;
+(* String/Character Function Prototypes *)
+function UniStrcat(in ucs1: PUniChar;
+                   in ucs2: PUniChar): PUniChar;
 
-(*
- * Date and Time Function Prototypes
- *)
-function UniStrftime ( in locale_object:LocaleObject;
-                       ucs: ^UniChar, maxsize:size_t;
-                       in format:^UniChar; in  time_ptr: ^tm ): size_t;
-function UniStrptime ( in locale_object: LocaleObject;
-                       in buf: ^UniChar; in format: ^UniChar,
-                       time_ptr: ^tm ): ^UniChar;
+function UniStrchr(in ucs: PUniChar;
+                   in uc: UniChar): PUniChar;
 
-(*
- * Monetary Formatting Function Prototype
- *)
-function UniStrfmon  ( in locale_object: LocaleObject;
-                       ucs: ^UniChar; maxsize: size_t;
-                       in format: ^UniChar; ... ): int;
+function UniStrcmp(in ucs1: PUniChar;
+                   in ucs2:PUniChar): int;
 
-(*
- * String/Character Function Prototypes
- *)
-function UniStrcat  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
-function UniStrchr  ( in ucs: ^UniChar; uc: UniChar ): ^UniChar;
-function UniStrcmp  ( in ucs1: ^UniChar; in ucs2:^UniChar ): int;
-function UniStrcpy  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
-function UniStrcspn ( in ucs1: ^UniChar; in ucs2: ^UniChar ): size_t;
-function UniStrlen  ( in ucs1: ^UniChar ): size_t;
-function UiStrncat ( ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): ^UniChar;
-function UniStrncmp ( in ucs1: ^UniChar; in ucs2:^UniChar; n: size_t ): int;
-function UniStrncpy ( ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): ^UniChar;
-function UniStrpbrk ( in ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
-function UniStrrchr ( in ucs: ^UniChar; uc: UniChar ): ^UniChar;
-function UniStrspn  ( in ucs1: ^UniChar; in ucs2: ^UniChar ): size_t;
-function UniStrstr  ( in ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
-function UniStrtok  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
+function UniStrcpy(in ucs1: PUniChar;
+                   in ucs2: PUniChar): PUniChar;
+
+function UniStrcspn(in ucs1: PUniChar;
+                    in ucs2: PUniChar): size_t;
+
+function UniStrlen(in ucs1: PUniChar): size_t;
+
+function UniStrncat(in ucs1: PUniChar;
+                    in ucs2: PUniChar;
+                    in n: size_t): PUniChar;
+
+function UniStrncmp(in ucs1: PUniChar;
+                    in ucs2:PUniChar;
+                    in n: size_t): int;
+
+function UniStrncpy(in ucs1: PUniChar;
+                    in ucs2: PUniChar;
+                    in n: size_t): PUniChar;
+
+function UniStrpbrk(in ucs1: PUniChar;
+                    in ucs2: PUniChar): PUniChar;
+
+function UniStrrchr(in ucs: PUniChar;
+                    in uc: UniChar): PUniChar;
+
+function UniStrspn(in ucs1: PUniChar;
+                   in ucs2: PUniChar): size_t;
+
+function UniStrstr(in ucs1: PUniChar;
+                   in ucs2: PUniChar): PUniChar;
+
+function UniStrtok(in ucs1: PUniChar;
+                   in ucs2: PUniChar): PUniChar;
 
 
-(*
- * Character Attribute Function Prototypes
- *)
-function UniCreateAttrObject ( in locale_object: LocaleObject;
-                           in attr_name: ^UniChar;
-                           attr_object_ptr: ^AttrObject ): int;
-function UniQueryCharAttr    ( attr_object: AttrObject; uc:UniChar ): int;
-function UniScanForAttr      ( attr_object: AttrObject; in ucs: ^UniChar;
-                            num_elems: size_t; inverse_op: ulsBool;
-                            offset_ptr: ^size_t ): int;
-function UniFreeAttrObject   ( attr_object: AttrObject ): int;
-function UniQueryAlnum       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryAlpha       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryBlank       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryCntrl       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryDigit       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryGraph       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryLower       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryPrint       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryPunct       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQuerySpace       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryUpper       ( in loc: LocaleObject; uc: UniChar ): int;
-function UniQueryXdigit      ( in loc: LocaleObject; uc: UniChar ): int;
+(* Character Attribute Function Prototypes *)
+function UniCreateAttrObject(in locale_object: LocaleObject;
+                             in attr_name: PUniChar;
+                             in attr_object_ptr: ^AttrObject): int;
+
+function UniQueryCharAttr(in attr_object: AttrObject;
+                          in uc:UniChar): int;
+
+function UniScanForAttr(in attr_object: AttrObject;
+                        in ucs: PUniChar;
+                        in num_elems: size_t;
+                        in inverse_op: ulsBool;
+                        in offset_ptr: ^size_t ): int;
+
+function UniFreeAttrObject(in attr_object: AttrObject): int;
+
+function UniQueryAlnum(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryAlpha(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryBlank(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryCntrl(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryDigit(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryGraph(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryLower(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryPrint(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryPunct(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQuerySpace(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryUpper(in loc: LocaleObject;
+                       in uc: UniChar): int;
+
+function UniQueryXdigit(in loc: LocaleObject;
+                        in uc: UniChar): int;
 
 
-(*
- * String Transformation Function Prototypes
- *)
-function UniCreateTransformObject ( in locale_object: LocaleObject;
-                                in xtype: ^UniChar;
-                                xform_object_ptr: ^XformObject ): int;
-function UniTransformStr          ( xform_object: XformObject;
-                                in inp_buf: ^UniChar; inp_size: ^int;
-                                in out_buf: ^UniChar; out_size: ^int ): int;
-function UniFreeTransformObject   ( xform_object: XformObject ): int;
-function UniTransLower        ( in locale_object: LocaleObject; uc: UniChar ): UniChar;
-function UniTransUpper        ( in locale_object: LocaleObject; uc: UniChar ): UniChar;
+(* String Transformation Function Prototypes *)
+function UniCreateTransformObject(in locale_object: LocaleObject;
+                                  in xtype: PUniChar;
+                                  in xform_object_ptr: ^XformObject): int;
 
-(*
- * String Conversion Function Prototypes
- *)
-function UniStrtod  ( in locale_object: LocaleObject; in ucs: ^UniChar;
-                  end_ptr: ^^UniChar; result_ptr: ^double ): int;
-function UniStrtol  ( in locale_object: LocaleObject; in ucs: ^UniChar;
-                  end_ptr: ^^UniChar; base: int; result_ptr: ^LONG ): int;
-function UniStrtoul ( in locale_object: LocaleObject; in ucs: UniChar;
-                  end_ptr: ^^UniChar; base: int; result_ptr: ^ULONG ): int;
+function UniTransformStr(in xform_object: XformObject;
+                         in inp_buf: PUniChar;
+                         in inp_size: ^int;
+                         in out_buf: PUniChar;
+                         in out_size: ^int): int;
 
-(*
- * String Comparison Function Prototypes
- *)
-function UniStrcoll  ( in locale_object: LocaleObject;
-                     in ucs1: ^UniChar; in ucs2:^UniChar ): int;
-function UniStrxfrm  ( in locale_object: LocaleObject;
-                     ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): size_t;
-function UniStrcmpi  ( in locale_object:LocaleObject;
-                     in ucs1: ^UniChar; in ucs2: ^UniChar ):int;
-function UniStrncmpi ( in locale_object: LocaleObject;
-                       in ucs1: ^UniChar; in ucs2: ^UniChar; in n: size_t ): int;
+function UniFreeTransformObject(in xform_object: XformObject): int;
 
-(*
- * Unicode Case Mapping Function Prototypes
- *)
-function UniToupper ( uc: UniChar ): UniChar;
-function UniTolower ( uc: UniChar ): UniChar;
-function UniStrupr  ( ucs: ^UniChar ): ^UniChar;
-function UniStrlwr  ( ucs: ^UniChar ): ^UniChar;
+function UniTransLower(in locale_object: LocaleObject;
+                       in uc: UniChar): UniChar;
+
+function UniTransUpper(in locale_object: LocaleObject;
+                       in uc: UniChar): UniChar;
+
+(* String Conversion Function Prototypes *)
+function UniStrtod(in locale_object: LocaleObject;
+                   in ucs: PUniChar;
+                   in end_ptr: ^PUniChar;
+                   in result_ptr: ^double): int;
+
+function UniStrtol(in locale_object: LocaleObject;
+                   in ucs: PUniChar;
+                   in end_ptr: ^PUniChar;
+                   in base: int;
+                   in result_ptr: ^LONG): int;
+
+function UniStrtoul(in locale_object: LocaleObject;
+                    in ucs: UniChar;
+                    in end_ptr: ^PUniChar;
+                    in base: int;
+                    in result_ptr: ^ULONG): int;
+
+(* String Comparison Function Prototypes *)
+function UniStrcoll(in locale_object: LocaleObject;
+                    in ucs1: PUniChar;
+                    in ucs2:PUniChar): int;
+
+function UniStrxfrm(in locale_object: LocaleObject;
+                    in ucs1: PUniChar;
+                    in ucs2: PUniChar;
+                    in n: size_t): size_t;
+
+function UniStrcmpi(in locale_object:LocaleObject;
+                    in ucs1: PUniChar;
+                    in ucs2: PUniChar):int;
+
+function UniStrncmpi(in locale_object: LocaleObject;
+                     in ucs1: PUniChar;
+                     in ucs2: PUniChar;
+                     in n: size_t): int;
+
+(* Unicode Case Mapping Function Prototypes *)
+function UniToupper(in uc: UniChar): UniChar;
+
+function UniTolower(in uc: UniChar): UniChar;
+
+function UniStrupr(in ucs: PUniChar): PUniChar;
+
+function UniStrlwr(in ucs: PUniChar): PUniChar;
 
 
-function UniMapCtryToLocale( Country: ULONG;
-                                 LocaleName: ^UniChar;  n: size_t ):int;
+function UniMapCtryToLocale(in Country: ULONG;
+                            in LocaleName: PUniChar;
+                            in n: size_t):int;
 
 (*
  * Functions for user locales.  These are designed to be externalizable,
  * and are used by WPShell, but are currently private functions.
  * These functions are in ulx.c
  *)
-function UniSetUserLocaleItem(locale: ^UniChar; item: int; type: int; value: PVOID): int;
-function UniMakeUserLocale(name: ^UniChar; basename:^UniChar):int;
-function UniDeleteUserLocale(locale: ^UniChar): int;
+function UniSetUserLocaleItem(in locale: PUniChar;
+                              in item: int;
+                              in utype: int;
+                              in value: PVOID): int;
+
+function UniMakeUserLocale(in name: PUniChar;
+                           in basename:PUniChar):int;
+
+function UniDeleteUserLocale(in locale: PUniChar): int;
+
 function UniCompleteUserLocale(): int;
-function UniQueryLocaleList(a: int; b: ^UniChar; c:int): int;
-function UniQueryLanguageName(lang: ^UniChar; isolang: ^UniChar;
-                                  infoitem: ^^UniChar):int;
-function UniQueryCountryName(country: ^UniChar; isolang: ^UniChar;
-                                  infoitem: ^^UniChar): int;
+
+function UniQueryLocaleList(in a: int;
+                            in b: PUniChar;
+                            in c: int): int;
+
+function UniQueryLanguageName(in lang: PUniChar;
+                              in isolang: PUniChar;
+                              in infoitem: ^PUniChar):int;
+
+function UniQueryCountryName(in country: PUniChar;
+                             in isolang: PUniChar;
+                             in infoitem: ^PUniChar): int;
 
 
-(*
- * Typedef for QueryCharType and UniQueryStringType indexed
- *)
+(* Typedef for QueryCharType and UniQueryStringType indexed *)
 type UNICTYPE=structure
       itype: USHORT;        (* CTYPE1 - xpg4 attributes     *)
       bidi: CHAR;         (* CTYPE2 - Bidi attributes     *)
@@ -266,16 +348,25 @@ end;
 (*
  * Locale independent character classification
  *)
-function UniQueryChar          ( uc: UniChar; attr: ULONG): int;
-function UniQueryAttr          ( name: ^UniChar): ULONG;
-function UniQueryStringType    ( ustr: ^UniChar; size: int; outstr:^USHORT;  kind: int ): ULONG;
-function UniQueryCharType ( uchr: UniChar): ^UNICTYPE;
-function UniQueryCharTypeTable ( count: ^ULONG; unictype: ^^UNICTYPE): ULONG;
-function UniQueryNumericValue  ( uc: UniChar): int;
+function UniQueryChar(in uc: UniChar;
+                      in attr: ULONG): int;
 
-(*
- * Character type constants
- *)
+function UniQueryAttr(in name: PUniChar): ULONG;
+
+function UniQueryStringType(in ustr: PUniChar;
+                            in size: int;
+                            in outstr:^USHORT;
+                            in kind: int): ULONG;
+
+function UniQueryCharType(in uchr: UniChar): ^UNICTYPE;
+
+function UniQueryCharTypeTable(in  count: ^ULONG;
+                               in unictype: ^^UNICTYPE): ULONG;
+
+function UniQueryNumericValue(in uc: UniChar): int;
+
+
+(* Character type constants *)
 constant CT_UPPER           = $0001;      (* Upper case alphabetic character *)
 constant CT_LOWER           = $0002;      (* Lower case alphabetic character *)
 constant CT_DIGIT           = $0004;      (* Digits 0-9                      *)

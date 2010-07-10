@@ -48,8 +48,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ulsitem.h>
+#include <stddef.h>
+#include <time.h>
 #include <unidef.h>
 #include <uconv.h>
+#define CALLCONV APIENTRY
 
 // XWP's setup.h replaces strchr and the like, and
 // we want the originals in here

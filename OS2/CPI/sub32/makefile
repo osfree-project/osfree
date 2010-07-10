@@ -8,9 +8,9 @@
 
 PROJ        = sub32
 DESC        = Base Subsystems API
-srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)kbd$(e)
+srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e)
 ADD_COPT    = -i=..\include -s
-ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
+ADD_LINKOPT = segment type DATA shared op nod
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata #This is required because each application has
