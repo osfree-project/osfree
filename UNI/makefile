@@ -209,7 +209,7 @@ $(OUT)$(SEP)os2$(SEP)mou.h: os2$(SEP)mou.uni
 
 $(OUT)$(SEP)os2$(SEP)dos.h: os2$(SEP)cpi$(SEP)dos.uni
 
-$(OUT)$(SEP)os2$(SEP)win.h: os2$(SEP)win$(SEP)win.uni
+$(OUT)$(SEP)os2$(SEP)win.h: os2$(SEP)pm$(SEP)win$(SEP)win.uni
 
 $(OUT)$(SEP)os2$(SEP)dosprocesscommon.h: os2$(SEP)cpi$(SEP)dosprocesscommon.uni
 
@@ -277,65 +277,65 @@ $(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pm$(SEP)pmstddlg.uni
 
 $(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pm$(SEP)pmhelp.uni
 
-$(OUT)$(SEP)os2$(SEP)winhelp.h: os2$(SEP)win$(SEP)winhelp.uni
+$(OUT)$(SEP)os2$(SEP)winhelp.h: os2$(SEP)pm$(SEP)win$(SEP)winhelp.uni
 
 $(OUT)$(SEP)os2$(SEP)pmtypes.h: os2$(SEP)pm$(SEP)pmtypes.uni
 
-$(OUT)$(SEP)os2$(SEP)wintypes.h: os2$(SEP)win$(SEP)wintypes.uni
+$(OUT)$(SEP)os2$(SEP)wintypes.h: os2$(SEP)pm$(SEP)win$(SEP)wintypes.uni
 
-$(OUT)$(SEP)os2$(SEP)winstddrag.h: os2$(SEP)win$(SEP)winstddrag.uni
+$(OUT)$(SEP)os2$(SEP)winstddrag.h: os2$(SEP)pm$(SEP)win$(SEP)winstddrag.uni
 
-$(OUT)$(SEP)os2$(SEP)wincircularslider.h: os2$(SEP)win$(SEP)wincircularslider.uni
+$(OUT)$(SEP)os2$(SEP)wincircularslider.h: os2$(SEP)pm$(SEP)win$(SEP)wincircularslider.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdcnr.h: os2$(SEP)win$(SEP)winstdcnr.uni
+$(OUT)$(SEP)os2$(SEP)winstdcnr.h: os2$(SEP)pm$(SEP)win$(SEP)winstdcnr.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdcontainer.h: os2$(SEP)win$(SEP)winstdcontainer.uni
+$(OUT)$(SEP)os2$(SEP)winstdcontainer.h: os2$(SEP)pm$(SEP)win$(SEP)winstdcontainer.uni
 
-$(OUT)$(SEP)os2$(SEP)winstatics.h: os2$(SEP)win$(SEP)winstatics.uni
+$(OUT)$(SEP)os2$(SEP)winstatics.h: os2$(SEP)pm$(SEP)win$(SEP)winstatics.uni
 
-$(OUT)$(SEP)os2$(SEP)winrectangles.h: os2$(SEP)win$(SEP)winrectangles.uni
+$(OUT)$(SEP)os2$(SEP)winrectangles.h: os2$(SEP)pm$(SEP)win$(SEP)winrectangles.uni
 
-$(OUT)$(SEP)os2$(SEP)winscrollbars.h: os2$(SEP)win$(SEP)winscrollbars.uni
+$(OUT)$(SEP)os2$(SEP)winscrollbars.h: os2$(SEP)pm$(SEP)win$(SEP)winscrollbars.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)win$(SEP)winstdbook.uni
+$(OUT)$(SEP)os2$(SEP)winstdbook.h: os2$(SEP)pm$(SEP)win$(SEP)winstdbook.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdfont.h: os2$(SEP)win$(SEP)winstdfont.uni
+$(OUT)$(SEP)os2$(SEP)winstdfont.h: os2$(SEP)pm$(SEP)win$(SEP)winstdfont.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdvalset.h: os2$(SEP)win$(SEP)winstdvalset.uni
+$(OUT)$(SEP)os2$(SEP)winstdvalset.h: os2$(SEP)pm$(SEP)win$(SEP)winstdvalset.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdspin.h: os2$(SEP)win$(SEP)winstdspin.uni
+$(OUT)$(SEP)os2$(SEP)winstdspin.h: os2$(SEP)pm$(SEP)win$(SEP)winstdspin.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdslider.h: os2$(SEP)win$(SEP)winstdslider.uni
+$(OUT)$(SEP)os2$(SEP)winstdslider.h: os2$(SEP)pm$(SEP)win$(SEP)winstdslider.uni
 
-$(OUT)$(SEP)os2$(SEP)winsei.h: os2$(SEP)win$(SEP)winsei.uni
+$(OUT)$(SEP)os2$(SEP)winsei.h: os2$(SEP)pm$(SEP)win$(SEP)winsei.uni
 
 $(OUT)$(SEP)os2$(SEP)pmsei.h: os2$(SEP)pm$(SEP)pmsei.uni
 
-$(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)win$(SEP)winswitchlist.uni
+$(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)pm$(SEP)win$(SEP)winswitchlist.uni
 
-$(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)win$(SEP)winswitchlistcommon.uni
+$(OUT)$(SEP)os2$(SEP)winswitchlistcommon.h: os2$(SEP)pm$(SEP)win$(SEP)winswitchlistcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)win$(SEP)winframemgr.uni
+$(OUT)$(SEP)os2$(SEP)winframemgr.h: os2$(SEP)pm$(SEP)win$(SEP)winframemgr.uni
 
-$(OUT)$(SEP)os2$(SEP)winframectls.h: os2$(SEP)win$(SEP)winframectls.uni
+$(OUT)$(SEP)os2$(SEP)winframectls.h: os2$(SEP)pm$(SEP)win$(SEP)winframectls.uni
 
-$(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)win$(SEP)winload.uni
+$(OUT)$(SEP)os2$(SEP)winload.h: os2$(SEP)pm$(SEP)win$(SEP)winload.uni
 
-$(OUT)$(SEP)os2$(SEP)winpalette.h: os2$(SEP)win$(SEP)winpalette.uni
+$(OUT)$(SEP)os2$(SEP)winpalette.h: os2$(SEP)pm$(SEP)win$(SEP)winpalette.uni
 
-$(OUT)$(SEP)os2$(SEP)winstddlgs.h: os2$(SEP)win$(SEP)winstddlgs.uni
+$(OUT)$(SEP)os2$(SEP)winstddlgs.h: os2$(SEP)pm$(SEP)win$(SEP)winstddlgs.uni
 
-$(OUT)$(SEP)os2$(SEP)winstdfile.h: os2$(SEP)win$(SEP)winstdfile.uni
+$(OUT)$(SEP)os2$(SEP)winstdfile.h: os2$(SEP)pm$(SEP)win$(SEP)winstdfile.uni
 
-$(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)win$(SEP)winatom.uni
+$(OUT)$(SEP)os2$(SEP)winatom.h: os2$(SEP)pm$(SEP)win$(SEP)winatom.uni
 
-$(OUT)$(SEP)os2$(SEP)wincursors.h: os2$(SEP)win$(SEP)wincursors.uni
+$(OUT)$(SEP)os2$(SEP)wincursors.h: os2$(SEP)pm$(SEP)win$(SEP)wincursors.uni
 
-$(OUT)$(SEP)os2$(SEP)wintrackrect.h: os2$(SEP)win$(SEP)wintrackrect.uni
+$(OUT)$(SEP)os2$(SEP)wintrackrect.h: os2$(SEP)pm$(SEP)win$(SEP)wintrackrect.uni
 
-$(OUT)$(SEP)os2$(SEP)winpointers.h: os2$(SEP)win$(SEP)winpointers.uni
+$(OUT)$(SEP)os2$(SEP)winpointers.h: os2$(SEP)pm$(SEP)win$(SEP)winpointers.uni
 
-$(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)win$(SEP)winframemgrcommon.uni
+$(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)pm$(SEP)win$(SEP)winframemgrcommon.uni
 
 $(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pm$(SEP)pmwp.uni
 
@@ -343,39 +343,39 @@ $(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pm$(SEP)pmwin.uni
 
 $(OUT)$(SEP)shared$(SEP)rexxsaa.h: shared$(SEP)rexxsaa.uni
 
-$(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)win$(SEP)winprogramlist.uni
+$(OUT)$(SEP)os2$(SEP)winprogramlist.h: os2$(SEP)pm$(SEP)win$(SEP)winprogramlist.uni
 
-$(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)win$(SEP)winsys.uni
+$(OUT)$(SEP)os2$(SEP)winsys.h: os2$(SEP)pm$(SEP)win$(SEP)winsys.uni
 
-$(OUT)$(SEP)os2$(SEP)windde.h: os2$(SEP)win$(SEP)windde.uni
+$(OUT)$(SEP)os2$(SEP)windde.h: os2$(SEP)pm$(SEP)win$(SEP)windde.uni
 
-$(OUT)$(SEP)os2$(SEP)winmle.h: os2$(SEP)win$(SEP)winmle.uni
+$(OUT)$(SEP)os2$(SEP)winmle.h: os2$(SEP)pm$(SEP)win$(SEP)winmle.uni
 
-$(OUT)$(SEP)os2$(SEP)windesktop.h: os2$(SEP)win$(SEP)windesktop.uni
+$(OUT)$(SEP)os2$(SEP)windesktop.h: os2$(SEP)pm$(SEP)win$(SEP)windesktop.uni
 
-$(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)win$(SEP)winwindowmgrcommon.uni
+$(OUT)$(SEP)os2$(SEP)winwindowmgrcommon.h: os2$(SEP)pm$(SEP)win$(SEP)winwindowmgrcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)winwindowmgr.h: os2$(SEP)win$(SEP)winwindowmgr.uni
+$(OUT)$(SEP)os2$(SEP)winwindowmgr.h: os2$(SEP)pm$(SEP)win$(SEP)winwindowmgr.uni
 
-$(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)win$(SEP)winmessagemgrcommon.uni
+$(OUT)$(SEP)os2$(SEP)winmessagemgrcommon.h: os2$(SEP)pm$(SEP)win$(SEP)winmessagemgrcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)winmessagemgr.h: os2$(SEP)win$(SEP)winmessagemgr.uni
+$(OUT)$(SEP)os2$(SEP)winmessagemgr.h: os2$(SEP)pm$(SEP)win$(SEP)winmessagemgr.uni
 
-$(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)win$(SEP)winclipboard.uni
+$(OUT)$(SEP)os2$(SEP)winclipboard.h: os2$(SEP)pm$(SEP)win$(SEP)winclipboard.uni
 
-$(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)win$(SEP)winclipboarddde.uni
+$(OUT)$(SEP)os2$(SEP)winclipboarddde.h: os2$(SEP)pm$(SEP)win$(SEP)winclipboarddde.uni
 
-$(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)win$(SEP)wininput.uni
+$(OUT)$(SEP)os2$(SEP)wininput.h: os2$(SEP)pm$(SEP)win$(SEP)wininput.uni
 
-$(OUT)$(SEP)os2$(SEP)winaccelerators.h: os2$(SEP)win$(SEP)winaccelerators.uni
+$(OUT)$(SEP)os2$(SEP)winaccelerators.h: os2$(SEP)pm$(SEP)win$(SEP)winaccelerators.uni
 
-$(OUT)$(SEP)os2$(SEP)wininputcommon.h: os2$(SEP)win$(SEP)wininputcommon.uni
+$(OUT)$(SEP)os2$(SEP)wininputcommon.h: os2$(SEP)pm$(SEP)win$(SEP)wininputcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)win$(SEP)winshelldata.uni
+$(OUT)$(SEP)os2$(SEP)winshelldata.h: os2$(SEP)pm$(SEP)win$(SEP)winshelldata.uni
 
-$(OUT)$(SEP)os2$(SEP)winmenus.h: os2$(SEP)win$(SEP)winmenus.uni
+$(OUT)$(SEP)os2$(SEP)winmenus.h: os2$(SEP)pm$(SEP)win$(SEP)winmenus.uni
 
-$(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)win$(SEP)winerrors.uni
+$(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)pm$(SEP)win$(SEP)winerrors.uni
 
 $(OUT)$(SEP)os2$(SEP)shlerrors.h: os2$(SEP)shlerrors.uni
 
@@ -383,31 +383,31 @@ $(OUT)$(SEP)os2$(SEP)pmerr.h: os2$(SEP)pm$(SEP)pmerr.uni
 
 $(OUT)$(SEP)os2$(SEP)wperrors.h: os2$(SEP)wperrors.uni
 
-$(OUT)$(SEP)os2$(SEP)gpierrors.h: os2$(SEP)gpi$(SEP)gpierrors.uni
+$(OUT)$(SEP)os2$(SEP)gpierrors.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpierrors.uni
 
 $(OUT)$(SEP)os2$(SEP)splerrors.h: os2$(SEP)splerrors.uni
 
 $(OUT)$(SEP)os2$(SEP)picerrors.h: os2$(SEP)picerrors.uni
 
-$(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)win$(SEP)winhooks.uni
+$(OUT)$(SEP)os2$(SEP)winhooks.h: os2$(SEP)pm$(SEP)win$(SEP)winhooks.uni
 
-$(OUT)$(SEP)os2$(SEP)wintimer.h: os2$(SEP)win$(SEP)wintimer.uni
+$(OUT)$(SEP)os2$(SEP)wintimer.h: os2$(SEP)pm$(SEP)win$(SEP)wintimer.uni
 
-$(OUT)$(SEP)os2$(SEP)winthunkapi.h: os2$(SEP)win$(SEP)winthunkapi.uni
+$(OUT)$(SEP)os2$(SEP)winthunkapi.h: os2$(SEP)pm$(SEP)win$(SEP)winthunkapi.uni
 
-$(OUT)$(SEP)os2$(SEP)winhprogram.h: os2$(SEP)win$(SEP)winhprogram.uni
+$(OUT)$(SEP)os2$(SEP)winhprogram.h: os2$(SEP)pm$(SEP)win$(SEP)winhprogram.uni
 
-$(OUT)$(SEP)os2$(SEP)wincountry.h: os2$(SEP)win$(SEP)wincountry.uni
+$(OUT)$(SEP)os2$(SEP)wincountry.h: os2$(SEP)pm$(SEP)win$(SEP)wincountry.uni
 
-$(OUT)$(SEP)os2$(SEP)windialogscommon.h: os2$(SEP)win$(SEP)windialogscommon.uni
+$(OUT)$(SEP)os2$(SEP)windialogscommon.h: os2$(SEP)pm$(SEP)win$(SEP)windialogscommon.uni
 
-$(OUT)$(SEP)os2$(SEP)windialogs.h: os2$(SEP)win$(SEP)windialogs.uni
+$(OUT)$(SEP)os2$(SEP)windialogs.h: os2$(SEP)pm$(SEP)win$(SEP)windialogs.uni
 
-$(OUT)$(SEP)os2$(SEP)winentryfields.h: os2$(SEP)win$(SEP)winentryfields.uni
+$(OUT)$(SEP)os2$(SEP)winentryfields.h: os2$(SEP)pm$(SEP)win$(SEP)winentryfields.uni
 
-$(OUT)$(SEP)os2$(SEP)winbuttons.h: os2$(SEP)win$(SEP)winbuttons.uni
+$(OUT)$(SEP)os2$(SEP)winbuttons.h: os2$(SEP)pm$(SEP)win$(SEP)winbuttons.uni
 
-$(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)win$(SEP)winlistboxes.uni
+$(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)pm$(SEP)win$(SEP)winlistboxes.uni
 
 $(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pm$(SEP)pmgpi.uni
 
@@ -415,17 +415,17 @@ $(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pm$(SEP)pmdev.uni
 
 $(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)cpi$(SEP)devcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)gpi$(SEP)gpiprimitives.uni
+$(OUT)$(SEP)os2$(SEP)gpiprimitives.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpiprimitives.uni
 
-$(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)gpi$(SEP)gpilcids.uni
+$(OUT)$(SEP)os2$(SEP)gpilcids.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpilcids.uni
 
-$(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)gpi$(SEP)gpibitmapscommon.uni
+$(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpibitmapscommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)gpi$(SEP)gpibitmaps.uni
+$(OUT)$(SEP)os2$(SEP)gpibitmaps.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpibitmaps.uni
 
-$(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)gpi$(SEP)gpicontrolcommon.uni
+$(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpicontrolcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)gpi$(SEP)gpilogcoltable.uni
+$(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpilogcoltable.uni
 
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: dos$(SEP)os2me.uni
@@ -449,9 +449,9 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .uni: $(MYDIR)shared
 .uni: $(MYDIR)os2
 .uni: $(MYDIR)os2$(SEP)cpi
-.uni: $(MYDIR)os2$(SEP)gpi
-.uni: $(MYDIR)os2$(SEP)win
 .uni: $(MYDIR)os2$(SEP)pm
+.uni: $(MYDIR)os2$(SEP)pm$(SEP)gpi
+.uni: $(MYDIR)os2$(SEP)pm$(SEP)win
 .uni: $(MYDIR)dos
 
 .lib: $(PATH)
