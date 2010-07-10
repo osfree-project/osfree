@@ -265,21 +265,21 @@ $(OUT)$(SEP)os2$(SEP)dosdebug.h: os2$(SEP)cpi$(SEP)dosdebug.uni
 
 $(OUT)$(SEP)os2$(SEP)hevdef.h: os2$(SEP)hevdef.uni
 
-$(OUT)$(SEP)os2$(SEP)pm.h: os2$(SEP)pm.uni
+$(OUT)$(SEP)os2$(SEP)pm.h: os2$(SEP)pm$(SEP)pm.uni
 
-$(OUT)$(SEP)os2$(SEP)pmbase.h: os2$(SEP)pmbase.uni
+$(OUT)$(SEP)os2$(SEP)pmbase.h: os2$(SEP)pm$(SEP)pmbase.uni
 
-$(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pmdef.uni
+$(OUT)$(SEP)os2$(SEP)pmdef.h: os2$(SEP)pm$(SEP)pmdef.uni
 
-$(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pmshl.uni
+$(OUT)$(SEP)os2$(SEP)pmshl.h: os2$(SEP)pm$(SEP)pmshl.uni
 
-$(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pmstddlg.uni
+$(OUT)$(SEP)os2$(SEP)pmstddlg.h: os2$(SEP)pm$(SEP)pmstddlg.uni
 
-$(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pmhelp.uni
+$(OUT)$(SEP)os2$(SEP)pmhelp.h: os2$(SEP)pm$(SEP)pmhelp.uni
 
 $(OUT)$(SEP)os2$(SEP)winhelp.h: os2$(SEP)win$(SEP)winhelp.uni
 
-$(OUT)$(SEP)os2$(SEP)pmtypes.h: os2$(SEP)pmtypes.uni
+$(OUT)$(SEP)os2$(SEP)pmtypes.h: os2$(SEP)pm$(SEP)pmtypes.uni
 
 $(OUT)$(SEP)os2$(SEP)wintypes.h: os2$(SEP)win$(SEP)wintypes.uni
 
@@ -309,7 +309,7 @@ $(OUT)$(SEP)os2$(SEP)winstdslider.h: os2$(SEP)win$(SEP)winstdslider.uni
 
 $(OUT)$(SEP)os2$(SEP)winsei.h: os2$(SEP)win$(SEP)winsei.uni
 
-$(OUT)$(SEP)os2$(SEP)pmsei.h: os2$(SEP)pmsei.uni
+$(OUT)$(SEP)os2$(SEP)pmsei.h: os2$(SEP)pm$(SEP)pmsei.uni
 
 $(OUT)$(SEP)os2$(SEP)winswitchlist.h: os2$(SEP)win$(SEP)winswitchlist.uni
 
@@ -337,9 +337,9 @@ $(OUT)$(SEP)os2$(SEP)winpointers.h: os2$(SEP)win$(SEP)winpointers.uni
 
 $(OUT)$(SEP)os2$(SEP)winframemgrcommon.h: os2$(SEP)win$(SEP)winframemgrcommon.uni
 
-$(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pmwp.uni
+$(OUT)$(SEP)os2$(SEP)pmwp.h: os2$(SEP)pm$(SEP)pmwp.uni
 
-$(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pmwin.uni
+$(OUT)$(SEP)os2$(SEP)pmwin.h: os2$(SEP)pm$(SEP)pmwin.uni
 
 $(OUT)$(SEP)shared$(SEP)rexxsaa.h: shared$(SEP)rexxsaa.uni
 
@@ -379,7 +379,7 @@ $(OUT)$(SEP)os2$(SEP)winerrors.h: os2$(SEP)win$(SEP)winerrors.uni
 
 $(OUT)$(SEP)os2$(SEP)shlerrors.h: os2$(SEP)shlerrors.uni
 
-$(OUT)$(SEP)os2$(SEP)pmerr.h: os2$(SEP)pmerr.uni
+$(OUT)$(SEP)os2$(SEP)pmerr.h: os2$(SEP)pm$(SEP)pmerr.uni
 
 $(OUT)$(SEP)os2$(SEP)wperrors.h: os2$(SEP)wperrors.uni
 
@@ -409,9 +409,9 @@ $(OUT)$(SEP)os2$(SEP)winbuttons.h: os2$(SEP)win$(SEP)winbuttons.uni
 
 $(OUT)$(SEP)os2$(SEP)winlistboxes.h: os2$(SEP)win$(SEP)winlistboxes.uni
 
-$(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pmgpi.uni
+$(OUT)$(SEP)os2$(SEP)pmgpi.h: os2$(SEP)pm$(SEP)pmgpi.uni
 
-$(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pmdev.uni
+$(OUT)$(SEP)os2$(SEP)pmdev.h: os2$(SEP)pm$(SEP)pmdev.uni
 
 $(OUT)$(SEP)os2$(SEP)devcommon.h: os2$(SEP)cpi$(SEP)devcommon.uni
 
