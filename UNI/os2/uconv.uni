@@ -72,30 +72,30 @@ type UniChar=USHORT;
        end;
 
    type uconv_attribute_t=structure
-       unsigned long  version;       (* Q/S Version (must be zero)        *)
-       char           mb_min_len;    (* Q   Minimum char size             *)
-       char           mb_max_len;    (* Q   Maximum char size             *)
-       char           usc_min_len;   (* Q   UCS min size                  *)
-       char           usc_max_len;   (* Q   UCS max size                  *)
-       unsigned short esid;          (* Q   Encoding scheme ID            *)
-       char           options;       (* Q/S Substitution options          *)
-       char           state;         (* Q/S State for stateful convert    *)
-       conv_endian_t  endian;        (* Q/S Source and target endian      *)
-       unsigned long  displaymask;   (* Q/S Display/data mask             *)
-       unsigned long  converttype;   (* Q/S Conversion type               *)
-       unsigned short subchar_len;   (* Q/S MBCS sub len      0=table     *)
-       unsigned short subuni_len;    (* Q/S Unicode sub len   0=table     *)
-       char           subchar[16];   (* Q/S MBCS sub characters           *)
-       UniChar        subuni[8];     (* Q/S Unicode sub characters        *)
+        version: ULONG;       (* Q/S Version (must be zero)        *)
+        mb_min_len: char;    (* Q   Minimum char size             *)
+        mb_max_len: char;    (* Q   Maximum char size             *)
+        usc_min_len: char;   (* Q   UCS min size                  *)
+        usc_max_len: char;   (* Q   UCS max size                  *)
+        esid: USHORT;          (* Q   Encoding scheme ID            *)
+        options: char;       (* Q/S Substitution options          *)
+        state: char;         (* Q/S State for stateful convert    *)
+        endian: conv_endian_t;        (* Q/S Source and target endian      *)
+        displaymask: ULONG;   (* Q/S Display/data mask             *)
+        converttype: ULONG;   (* Q/S Conversion type               *)
+        subchar_len: USHORT;   (* Q/S MBCS sub len      0=table     *)
+        subuni_len: USHORT;    (* Q/S Unicode sub len   0=table     *)
+        subchar: Array [0..15] of char;   (* Q/S MBCS sub characters           *)
+        subuni: Array [0..7] of UniChar;     (* Q/S Unicode sub characters        *)
    end;
 
    (*
     * User defined character range
     *)
-   typedef struct {                (* User Defined character range      *)
-       unsigned short   first;     (* First codepoint                   *)
-       unsigned short   last;      (* Last codepoint                    *)
-   } udcrange_t;
+   type udcrange_t=structure                (* User Defined character range      *)
+          first: USHORT;     (* First codepoint                   *)
+          last: USHORT;      (* Last codepoint                    *)
+   end;
 
 type uconv_error_t=int;
 
@@ -112,9 +112,9 @@ type uconv_error_t=int;
     *                    implementation.
     *
     *)
-   int CALLCONV UniCreateUconvObject(
-             UniChar     * code_set,   (* I  - Unicode name of uconv table *)
-             UconvObject * uobj  );    (* O  - Uconv object handle         *)
+function UniCreateUconvObject(
+             code_set: ^UniChar,   (* I  - Unicode name of uconv table *)
+             uobj: ^UconvObject  ):   int;    (* O  - Uconv object handle         *)
 
    (*
     * UniQueryUconvObject: Query Unicode Coversion Object
@@ -124,13 +124,13 @@ type uconv_error_t=int;
     *    UCONV_EBADF   - The conversion object specified is not
     *                    recognized by the implementation.
     *)
-   int CALLCONV UniQueryUconvObject(
-             UconvObject         uobj, (* I  - Uconv object handle         *)
-             uconv_attribute_t * attr, (* O  - Uconv attributes            *)
-             size_t              size, (* I  - Size of attribute structure *)
-             char          first[256], (* O  - First byte of multibyte     *)
-             char          other[256], (* O  - Other byte of multibyte     *)
-             udcrange_t udcrange[32]); (* O  - User defined char range     *)
+function UniQueryUconvObject(
+                      uobj: UconvObject; (* I  - Uconv object handle         *)
+                      attr: ^uconv_attribute_t; (* O  - Uconv attributes            *)
+                      size: size_t; (* I  - Size of attribute structure *)
+                      first: Array [0..255] of char; (* O  - First byte of multibyte     *)
+                      other: Array [0..255] of char; (* O  - Other byte of multibyte     *)
+                      udcrange: Array [0..31] of udcrange_t): int; (* O  - User defined char range     *)
 
    (*
     * UniSetUconvObject:  Set Unicode Conversion Object
@@ -142,9 +142,9 @@ type uconv_error_t=int;
     *    UCONV_BADATTR - attribute supplied contains invalid attribute
     *                    for the conversion object
     *)
-   int CALLCONV UniSetUconvObject(
-             UconvObject         uobj, (* I  - Uconv object handle         *)
-             uconv_attribute_t * attr); (* I  - Uconv attributes            *)
+function UniSetUconvObject(
+                      uobj:cUconvObject; (* I  - Uconv object handle         *)
+                      attr: ^uconv_attribute_t): int; (* I  - Uconv attributes            *)
 
    (*
     * UniUconvToUcs:  Convert string to unicode
@@ -161,13 +161,13 @@ type uconv_error_t=int;
     *    UCONV_EILSEQ  - Input conversion stopped due to an input byte
     *                    that does not belong to the input code set.
     *)
-   int CALLCONV UniUconvToUcs(
-             UconvObject uobj,         (* I  - Uconv object handle         *)
-             void    * * inbuf,        (* IO - Input buffer                *)
-             size_t    * inbytes,      (* IO - Input buffer size (bytes)   *)
-             UniChar * * outbuf,       (* IO - Output buffer size          *)
-             size_t    * outchars,     (* IO - Output size (chars)         *)
-             size_t    * subst  );     (* IO - Substitution count          *)
+function UniUconvToUcs(
+              uobj: UconvObject;         (* I  - Uconv object handle         *)
+              inbuf: ^PVOID;        (* IO - Input buffer                *)
+              inbytes: ^size_t;      (* IO - Input buffer size (bytes)   *)
+              outbuf: ^^UniChar;       (* IO - Output buffer size          *)
+              outchars: ^size_t;     (* IO - Output size (chars)         *)
+              subst: ^size_t  ): int;     (* IO - Substitution count          *)
 
    (*
     * UniUconvFromUcs:  Convert string from unicode
@@ -182,13 +182,13 @@ type uconv_error_t=int;
     *    UCONV_EILSEQ  - Input conversion stopped due to an input byte
     *                    that does not belong to the input code set.
     *)
-   int CALLCONV UniUconvFromUcs(
-             UconvObject uobj,         (* I  - Uconv object handle         *)
-             UniChar * * inbuf,        (* IO - Input buffer                *)
-             size_t    * inchars,      (* IO - Input buffer size (bytes)   *)
-             void    * * outbuf,       (* IO - Output buffer size          *)
-             size_t    * outbytes,     (* IO - Output size (chars)         *)
-             size_t    * subst   );    (* IO - Substitution count          *)
+function UniUconvFromUcs(
+              uobj: UconvObject;         (* I  - Uconv object handle         *)
+              inbuf: ^^UniChar;        (* IO - Input buffer                *)
+              inchars: ^size_t;      (* IO - Input buffer size (bytes)   *)
+              outbuf: ^PVOID;       (* IO - Output buffer size          *)
+              outbytes: ^size_t;     (* IO - Output size (chars)         *)
+              subst: ^size_t   ): int;    (* IO - Substitution count          *)
 
    (*
     * UniFreeUconvObject: Close Unicode Conversion Object
@@ -196,8 +196,8 @@ type uconv_error_t=int;
     *    UCONV_EBADF   - The conversion object specified is not
     *                    recognized by the implementation.
     *)
-   int CALLCONV UniFreeUconvObject(
-             UconvObject   uobj   );   (* I  - Uconv object handle         *)
+function UniFreeUconvObject(
+                uobj: UconvObject   ): int;   (* I  - Uconv object handle         *)
 
    (*
     * UniMapCpToUcsCp: Convert a codepage number to unicode name
@@ -211,10 +211,10 @@ type uconv_error_t=int;
     *
     *     Output buffer must be large enough to hold terminating null.
     *)
-   int CALLCONV UniMapCpToUcsCp(
-             unsigned long ulCodePage, (* I  - Codepage to convert         *)
-             UniChar * ucsCodePage,    (* O  - Output buffer               *)
-             size_t    n );            (* I  - UniChars in output buffer   *)
+function UniMapCpToUcsCp(
+             ulCodePage: ULONG; (* I  - Codepage to convert         *)
+             ucsCodePage: ^UniChar;    (* O  - Output buffer               *)
+             n: size_t ): int;            (* I  - UniChars in output buffer   *)
 
    (*
     * UniStrFromUcs: Convert a null-terminated string from Unicode.
@@ -229,11 +229,11 @@ type uconv_error_t=int;
     *     Output buffer must be large enough to hold terminating null
     *
     *)
-    int CALLCONV UniStrFromUcs(
-              UconvObject   co,        (* I  - Conversion object           *)
-              char        * target,    (* O  - Buffer for converted string *)
-              UniChar     * source,    (* I  - String to convert           *)
-              int           len);      (* I  - Bytes in target buffer      *)
+function UniStrFromUcs(
+              co: UconvObject;        (* I  - Conversion object           *)
+              target: ^char;    (* O  - Buffer for converted string *)
+              source: ^UniChar;    (* I  - String to convert           *)
+              len: int): int;      (* I  - Bytes in target buffer      *)
 
    (*
     * UniStrToUcs: Convert a null-terminated string to Unicode.
@@ -247,11 +247,11 @@ type uconv_error_t=int;
     * Note:
     *     Output buffer must be large enough to hold terminating null
     *)
-   int CALLCONV UniStrToUcs(
-             UconvObject  co,          (* I  - Conversion object           *)
-             UniChar    * target,      (* O  - Buffer for converted string *)
-             char       * source,      (* I  - Character string to convert *)
-             int          len);        (* I  - UniChars in target buffer   *)
+function UniStrToUcs(
+               co: UconvObject;          (* I  - Conversion object           *)
+               target: ^UniChar,      (* O  - Buffer for converted string *)
+               source: ^char,      (* I  - Character string to convert *)
+               len: int): int;        (* I  - UniChars in target buffer   *)
 
  (*
   * for compatibility with old return codes for ULS
