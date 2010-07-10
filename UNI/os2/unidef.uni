@@ -154,62 +154,62 @@ function UniStrcpy  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
 function UniStrcspn ( in ucs1: ^UniChar; in ucs2: ^UniChar ): size_t;
 function UniStrlen  ( in ucs1: ^UniChar ): size_t;
 function UiStrncat ( ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): ^UniChar;
-int          CALLCONV UniStrncmp ( constant UniChar *ucs1, constant UniChar *ucs2, size_t n );
-UniChar    * CALLCONV UniStrncpy ( UniChar *ucs1, constant UniChar *ucs2, size_t n );
-UniChar    * CALLCONV UniStrpbrk ( constant UniChar *ucs1, constant UniChar *ucs2 );
-UniChar    * CALLCONV UniStrrchr ( constant UniChar *ucs, UniChar uc );
-size_t       CALLCONV UniStrspn  ( constant UniChar *ucs1, constant UniChar *ucs2 );
-UniChar    * CALLCONV UniStrstr  ( constant UniChar *ucs1, constant UniChar *ucs2 );
-UniChar    * CALLCONV UniStrtok  ( UniChar *ucs1, constant UniChar *ucs2 );
+function UniStrncmp ( in ucs1: ^UniChar; in ucs2:^UniChar; n: size_t ): int;
+function UniStrncpy ( ucs1: ^UniChar; in ucs2: ^UniChar; n: size_t ): ^UniChar;
+function UniStrpbrk ( in ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
+function UniStrrchr ( in ucs: ^UniChar; uc: UniChar ): ^UniChar;
+function UniStrspn  ( in ucs1: ^UniChar; in ucs2: ^UniChar ): size_t;
+function UniStrstr  ( in ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
+function UniStrtok  ( ucs1: ^UniChar; in ucs2: ^UniChar ): ^UniChar;
 
 
 (*
  * Character Attribute Function Prototypes
  *)
-int   CALLCONV UniCreateAttrObject ( constant LocaleObject locale_object,
-                           constant UniChar *attr_name,
-                           AttrObject *attr_object_ptr );
-int   CALLCONV UniQueryCharAttr    ( AttrObject attr_object, UniChar uc );
-int   CALLCONV UniScanForAttr      ( AttrObject attr_object, constant UniChar *ucs,
-                           size_t num_elems, ulsBool inverse_op,
-                           size_t *offset_ptr );
-int   CALLCONV UniFreeAttrObject   ( AttrObject attr_object );
-int   CALLCONV UniQueryAlnum       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryAlpha       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryBlank       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryCntrl       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryDigit       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryGraph       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryLower       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryPrint       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryPunct       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQuerySpace       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryUpper       ( constant LocaleObject loc, UniChar uc );
-int   CALLCONV UniQueryXdigit      ( constant LocaleObject loc, UniChar uc );
+function UniCreateAttrObject ( in locale_object: LocaleObject;
+                           in attr_name: ^UniChar;
+                           attr_object_ptr: ^AttrObject ): int;
+function UniQueryCharAttr    ( attr_object: AttrObject; uc:UniChar ): int;
+function UniScanForAttr      ( attr_object: AttrObject; in ucs: ^UniChar;
+                            num_elems: size_t; inverse_op: ulsBool;
+                            offset_ptr: ^size_t ): int;
+function UniFreeAttrObject   ( attr_object: AttrObject ): int;
+function UniQueryAlnum       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryAlpha       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryBlank       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryCntrl       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryDigit       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryGraph       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryLower       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryPrint       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryPunct       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQuerySpace       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryUpper       ( in loc: LocaleObject; uc: UniChar ): int;
+function UniQueryXdigit      ( in loc: LocaleObject; uc: UniChar ): int;
 
 
 (*
  * String Transformation Function Prototypes
  *)
-int   CALLCONV UniCreateTransformObject ( constant LocaleObject locale_object,
-                                constant UniChar *xtype,
-                                XformObject *xform_object_ptr );
-int   CALLCONV UniTransformStr          ( XformObject xform_object,
-                                constant UniChar *inp_buf, int *inp_size,
-                                UniChar *out_buf, int *out_size );
-int   CALLCONV UniFreeTransformObject   ( XformObject xform_object );
-UniChar   CALLCONV UniTransLower        ( constant LocaleObject locale_object, UniChar uc );
-UniChar   CALLCONV UniTransUpper        ( constant LocaleObject locale_object, UniChar uc );
+function UniCreateTransformObject ( in locale_object: LocaleObject;
+                                in xtype: ^UniChar;
+                                xform_object_ptr: ^XformObject ): int;
+function UniTransformStr          ( xform_object: XformObject;
+                                in inp_buf: ^UniChar; inp_size: ^int;
+                                in out_buf: ^UniChar; out_size: ^int ): int;
+function UniFreeTransformObject   ( xform_object: XformObject ): int;
+function UniTransLower        ( in locale_object: LocaleObject; uc: UniChar ): UniChar;
+function UniTransUpper        ( in locale_object: LocaleObject; uc: UniChar ): UniChar;
 
 (*
  * String Conversion Function Prototypes
  *)
-int   CALLCONV UniStrtod  ( constant LocaleObject locale_object, constant UniChar *ucs,
-                  UniChar **end_ptr, double *result_ptr );
-int   CALLCONV UniStrtol  ( constant LocaleObject locale_object, constant UniChar *ucs,
-                  UniChar **end_ptr, int base, long int *result_ptr );
-int   CALLCONV UniStrtoul ( constant LocaleObject locale_object, constant UniChar *ucs,
-                  UniChar **end_ptr, int base, unsigned long int *result_ptr );
+function UniStrtod  ( in locale_object: LocaleObject; in ucs: ^UniChar;
+                  end_ptr: ^^UniChar; result_ptr: ^double ): int;
+function UniStrtol  ( in locale_object: LocaleObject; in ucs: ^UniChar;
+                  end_ptr: ^^UniChar; base: int; result_ptr: ^LONG ): int;
+function UniStrtoul ( in locale_object: LocaleObject; in ucs: UniChar;
+                  end_ptr: ^^UniChar; base: int; result_ptr: ^ULONG ): int;
 
 (*
  * String Comparison Function Prototypes
