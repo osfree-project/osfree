@@ -1,3 +1,10 @@
+.nameit symbol=date     text='2 Sep'
+.nameit symbol=4verprev text='3.03'
+.nameit symbol=4ver     text='3.04'
+.nameit symbol=4verrev  text='3.04B'
+.nameit symbol=4OS2     text='CMD.EXE'
+.nameit symbol=4OS2INI  text='CMD.INI'
+
 :userdoc.
 
 :h1 name=External.External Commands
@@ -10,7 +17,7 @@ To Do...
 commands by topic and will help you find the ones that you need.
 :p.
 System configuration&colon.
-:lm margin=4.:table rules=none frame=box cols='12 12 12 12 12'.
+:lm margin=4.:table rules=none frame=box cols='12 12 12 12'.
 :row.
 :c.:link reftype=hd refid=ANSI.ANSI:elink.
 :c.:link reftype=hd refid=LABEL.LABEL:elink.
@@ -19,7 +26,7 @@ System configuration&colon.
 :etable.
 :p.
 File and directory management&colon.
-:lm margin=4.:table rules=none frame=box cols='12 12 12 12 12'.
+:lm margin=4.:table rules=none frame=box cols='12 12 12 12'.
 :row.
 :c.:link reftype=hd refid=BLDLEVEL.BLDLEVEL:elink.
 :c.:link reftype=hd refid=BACKUP.BACKUP:elink.
@@ -91,4 +98,4 @@ internal revision levels (if any), plus your &4OS2. serial number and
 registered name.
 :eparml.:lm margin=1.
 
-:userdoc.
+:euserdoc.
