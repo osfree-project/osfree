@@ -11,7 +11,7 @@ group os2;
 
 uses os2def default;
 uses bse default;
-uses utlapi default;
+uses utlapi;
 uses pm default;
 
 end.
