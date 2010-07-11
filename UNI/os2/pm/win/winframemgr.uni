@@ -52,7 +52,7 @@ function WinCreateFrameControls(in hwndFrame: HWND;
                                          in pszTitle: PCSZ): BOOL;
 
 function WinCalcFrameRect(in hwndFrame: HWND;
-                                   in prcl: RECTL;
+                                   in prcl: PRECTL;
                                    in fClient: BOOL): BOOL;
 
 function WinGetMinPosition(in hwnd: HWND;

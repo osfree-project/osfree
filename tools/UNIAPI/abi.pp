@@ -5,7 +5,7 @@ interface
 
 var
   abifile: string;
-  
+
 type
   TAbiType=(AbiDynamicLibrary, AbiStaticLibrary, AbiInterrupt, AbiTypeDef);
 
@@ -96,10 +96,7 @@ begin
     if T='TYPE' then
     begin
       Result.AbiType:=AbiTypeDef;
-      Result.CallingConvertion:=Copy(S, 1, Pos(' ', S)-1);
-      Delete(S, 1, Pos(' ', S));
-      While Copy(S, 1, 1)=' ' do Delete(S, 1, 1);
-      Result.LibraryName:=S;
+      Result.CallingConvertion:=S;
     end else
     if T='LIB' then
     begin

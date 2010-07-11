@@ -19,8 +19,8 @@ type FIXED114=USHORT; (* fx114 *)
 (* return code on GpiQueryLogColorTable,GpiQueryRealColors and GpiQueryPel *)
 constant CLR_NOINDEX              =    (-254);
 
-uses gpiprimitives;
-uses gpilcids;
+uses gpiprimitives default;
+uses gpilcids default;
 uses gpicontrolcommon;
 uses gpibitmapscommon;
 uses gpibitmaps;

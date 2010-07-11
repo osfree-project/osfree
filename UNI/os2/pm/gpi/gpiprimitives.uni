@@ -327,7 +327,7 @@ function GpiSetAttrs(in hps: HPS;
 function GpiQueryAttrs(in hps: HPS;
                                       in lPrimType: LONG;
                                       in flAttrMask: ULONG,
-                                      out ppbunAttrs: BUNDLE): LONG;
+                                      in ppbunAttrs: PBUNDLE): LONG;
 
 
 

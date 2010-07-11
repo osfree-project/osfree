@@ -29,14 +29,14 @@ uses dosnmpipes default;
 uses dosprocess default;
 uses dosprofile;
 uses dosqueues default;
-uses dosresources;
+uses dosresources default;
 uses dossemaphores default;
 uses dossesmgr default;
 uses dosmemmgrcommon;
 uses dosprocesscommon;
 uses dosfilemgrcommon default;
 uses dossemaphorescommon;
-uses dosresourcescommon;
+uses dosresourcescommon default;
 uses dossesmgrfilemgr; (* Need to move to both areas *)
 uses dosspinlock;
 uses bdcalls;

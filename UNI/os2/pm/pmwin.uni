@@ -12,7 +12,7 @@ uses winframemgrcommon;
 uses winframemgr;
 uses winsys;
 uses wininput;
-uses wininputcommon;
+uses wininputcommon default;
 uses winerrors;
 uses winhooks;
 uses windialogscommon default;

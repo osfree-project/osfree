@@ -37,7 +37,7 @@ UINT gaIniKeys[2 * INI_KEYMAX];
 //#define ID_RESOURCE 1
 
 char * path_part( char * );
-extern MRESULT EXPENTRY ClientWndProc( HWND, ULONG, MPARAM, MPARAM );
+extern MRESULT APIENTRY ClientWndProc( HWND, ULONG, MPARAM, MPARAM );
 
 HWND hParentFrame;
 static HAB hab;
@@ -130,7 +130,7 @@ int main( int argc, char **argv )
 }
 
 
-MRESULT EXPENTRY ClientWndProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
+MRESULT APIENTRY ClientWndProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
 {
         switch (msg) {
         case WM_USER:
