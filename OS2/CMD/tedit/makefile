@@ -1,6 +1,6 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:05 prokushev Exp $
 
-PROJ = TEDIT
+PROJ = tedit
 DESC = Tiny Editor
 OBJ1 = $(p)box$(e) $(p)colour$(e) $(p)comm1$(e) $(p)comm2$(e) $(p)comm3$(e) $(p)comm4$(e) $(p)comm5$(e) &
        $(p)commset1$(e) $(p)commset2$(e) $(p)commsos$(e) $(p)cursor$(e) $(p)default$(e) &
@@ -22,7 +22,8 @@ ADD_LINKOPT = LIB rexx,pdcurses,os2386,clib3r
 STACK=65536
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 INSTALL_ADD = 1
-INPORTS = KbdGetStatus                EMXWRAP.210, &
+IMPORTS = KbdGetStatus                EMXWRAP.210, &
+          KbdSetStatus                EMXWRAP.211, &
           MouGetNumQueEl              EMXWRAP.313, &
           KbdPeek                     EMXWRAP.222, &
           MouReadEventQue             EMXWRAP.320, &
