@@ -22,6 +22,17 @@ ADD_LINKOPT = LIB rexx,pdcurses,os2386,clib3r
 STACK=65536
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 INSTALL_ADD = 1
+INPORTS = KbdGetStatus                EMXWRAP.210, &
+          MouGetNumQueEl              EMXWRAP.313, &
+          KbdPeek                     EMXWRAP.222, &
+          MouReadEventQue             EMXWRAP.320, &
+          KbdCharIn                   EMXWRAP.204, &
+          MouFlushQue                 EMXWRAP.307, &
+          KbdFlushBuffer              EMXWRAP.213, &
+          MouOpen                     EMXWRAP.317, &
+          MouDrawPtr                  EMXWRAP.326, &
+          MouClose                    EMXWRAP.309, &
+          MouSetEventMask             EMXWRAP.316
 
 !include $(%ROOT)/mk/appsos2.mk
 

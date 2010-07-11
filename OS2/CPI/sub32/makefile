@@ -15,8 +15,10 @@ DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata #This is required because each application has
                        #its own AnsiState
-#IMPORTS =
-#
+IMPORTS = DosRead               DOSCALLS.281  , &
+          DosWrite              DOSCALLS.282
+
+
 #          MOUGETPTRSHAPE       DOSCALLS.719, &
 #          MOUSETPTRSHAPE       DOSCALLS.720, &
 #          MOUGETNUMMICKEYS     DOSCALLS.721, &

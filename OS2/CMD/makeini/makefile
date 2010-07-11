@@ -12,6 +12,7 @@ srcfiles = $(p)xmakeini$(e) $(p)linklist$(e) $(p)stringh$(e) $(p)xprf$(e) $(p)xs
 # defines additional options for C compiler
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 OPTIONS  = caseexact
+IMPORTS     = KbdCharIn                   EMXWRAP.204
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 
 !include $(%ROOT)/mk/appsos2.mk

@@ -11,5 +11,7 @@ ADD_COPT    = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
 ADD_LINKOPT = lib math387s, os2$(SEP)os2, os2386
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
+IMPORTS     = KbdStringIn                 EMXWRAP.209, &
+              KbdCharIn                   EMXWRAP.204
 
 !include $(%ROOT)/mk/appsos2.mk

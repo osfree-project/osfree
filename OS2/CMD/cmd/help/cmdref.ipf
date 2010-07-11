@@ -11689,7 +11689,7 @@ See :link reftype=hd refid=Piping.Piping:elink. for more information.
 
 .* --------------------------------------------------------------------------
 
-.im external.ipf
+.* im external.ipf
 
 .* --------------------------------------------------------------------------
 
