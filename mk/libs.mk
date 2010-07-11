@@ -20,7 +20,11 @@ DEST     = ..$(SEP)build$(SEP)lib
 library: $(OBJS) $(LIBS)
  $(SAY) Creating library $(library)...
 !ifndef NODELETE
- -@if exist $(library) @$(DC) $(library)
+!ifeq UNIX TRUE
+ -$(DC) $(library)
+!else
+ -@if exist $(library) $(DC) $(library) $(BLACKHOLE)
+!endif
 !endif
 !ifdef OBJS
  @$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
@@ -31,11 +35,20 @@ library: $(OBJS) $(LIBS)
 !ifdef OBJS16
  @$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
  @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2
- @$(DC) $(library).tmp1
- @$(DC) $(library).tmp2
+!ifeq UNIX TRUE
+ $(DC) $(library).tmp1
+ $(DC) $(library).tmp2
+!else
+ @if exist $(library).tmp1 $(DC) $(library).tmp1 $(BLACKHOLE)
+ @if exist $(library).tmp2 $(DC) $(library).tmp2 $(BLACKHOLE)
+!endif
 !else
  @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
- @$(DC) $(library).tmp1
+!ifeq UNIX TRUE
+ $(DC) $(library).tmp1
+!else
+ @if exist $(library).tmp1 $(DC) $(library).tmp1 $(BLACKHOLE)
+!endif
 !endif
 
 !endif

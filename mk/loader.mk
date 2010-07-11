@@ -58,17 +58,37 @@ LOUT         = lbi
 
 .mdl.rel
  $(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@
+!ifeq UNIX TRUE
  $(DC) $[*.mds
+!else
+ @if exist $[*.mds $(DC) $[*.mds $(BLACKHOLE)
+!endif
 
 .$(OUT).mdl:
+!ifeq UNIX TRUE
  $(DC) $^@
+!else
+ @if exist $^@ $(DC) $^@ $(BLACKHOLE)
+!endif
  $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
+!ifeq UNIX TRUE
  $(DC) $[@
+!else
+ @if exist $[@ $(DC) $[@ $(BLACKHOLE)
+!endif
 
 .$(SOUT).mds:
+!ifeq UNIX TRUE
  $(DC) $^@
+!else
+ @if exist $^@ $(DC) $^@ $(BLACKHOLE)
+!endif
  $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+!ifeq UNIX TRUE
  $(DC) $[@
+!else
+ @if exist $[@ $(DC) $[@ $(BLACKHOLE)
+!endif
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  $(SAY) Linking $< $(LOG)

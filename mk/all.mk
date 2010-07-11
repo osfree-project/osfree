@@ -178,7 +178,7 @@ FINDFILE  = findfile
 
 if_not_exist_mkdir = ./if_not_exist_mkdir.sh
 
-CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @if exist $(PATH)%i $(DC) $(PATH)%i $(BLACKHOLE)
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do $(DC) $(PATH)%i
 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
@@ -253,12 +253,21 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 .ipf: $(MYDIR)
 
 .l.c: .AUTODEPEND
+!ifeq UNIX TRUE
  $(DC) $^@
+!else
+ @if exist $^@ $(DC) $^@ $(BLACKHOLE)
+!endif
  lex -t $[@ >$^@
 
 .y.c: .AUTODEPEND
+!ifeq UNIX TRUE
  $(DC) $^*.h
  $(DC) $^*.c
+!else
+ @if exist $^*.h $(DC) $^*.h $(BLACKHOLE)
+ @if exist $^*.c $(DC) $^*.c $(BLACKHOLE)
+!endif
  yacc.exe -y -d -o $^@ $[@
 
 .c:   $(MYDIR)
