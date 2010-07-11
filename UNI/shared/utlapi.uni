@@ -1,5 +1,5 @@
 group utlapi;
 
-uses utlrectangles;
+uses utlrectangles default;
 
 end.

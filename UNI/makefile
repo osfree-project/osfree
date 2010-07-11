@@ -165,6 +165,8 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)uconv.h &
      $(OUT)$(SEP)os2$(SEP)stddef.h &
      $(OUT)$(SEP)os2$(SEP)time.h &
+     $(OUT)$(SEP)shared$(SEP)utlapi.h &
+     $(OUT)$(SEP)shared$(SEP)utlrectangles.h &
      .symbolic
 
 #     $(OUT)$(SEP)os2$(SEP)bsexcpt.h &
@@ -453,9 +455,16 @@ $(OUT)$(SEP)os2$(SEP)unidef.h: os2$(SEP)unidef.uni
 
 $(OUT)$(SEP)os2$(SEP)uconv.h: os2$(SEP)uconv.uni
 
+$(OUT)$(SEP)shared$(SEP)utlapi.h: shared$(SEP)utlapi.uni
+
+$(OUT)$(SEP)shared$(SEP)utlrectangles.h: shared$(SEP)utlapi$(SEP)utlrectangles.uni
+
+## POSIX API
+
 $(OUT)$(SEP)os2$(SEP)stddef.h: os2$(SEP)stddef.uni
 
 $(OUT)$(SEP)os2$(SEP)time.h: os2$(SEP)time.uni
+
 
 ## DOS Personality files
 dos: $(OUT)$(SEP)dos$(SEP)dos.h .symbolic # $(OUT)$(SEP)dos$(SEP)os2vdm.h
@@ -468,6 +477,7 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .SUFFIXES: .lib .h .uni
 
 .uni: $(MYDIR)shared
+.uni: $(MYDIR)shared$(SEP)utlapi
 .uni: $(MYDIR)os2
 .uni: $(MYDIR)os2$(SEP)cpi
 .uni: $(MYDIR)os2$(SEP)pm

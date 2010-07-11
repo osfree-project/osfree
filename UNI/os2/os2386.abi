@@ -1666,3 +1666,16 @@ DosMonRead                 DLL APIENTRY EMXWRAP 402 SUB32
 DosMonClose                DLL APIENTRY EMXWRAP 403 SUB32
 DosMonOpen                 DLL APIENTRY EMXWRAP 404 SUB32
 DosMonReg                  DLL APIENTRY EMXWRAP 405 SUB32
+RectCopy                   DLL APIENTRY UTLAPI  1   OS2386
+RectSet                    DLL APIENTRY UTLAPI  2   OS2386
+RectIsEmpty                DLL APIENTRY UTLAPI  3   OS2386
+RectEqual                  DLL APIENTRY UTLAPI  4   OS2386
+RectSetEmpty               DLL APIENTRY UTLAPI  5   OS2386
+RectOffset                 DLL APIENTRY UTLAPI  6   OS2386
+RectInflate                DLL APIENTRY UTLAPI  7   OS2386
+RectPtIn                   DLL APIENTRY UTLAPI  8   OS2386
+RectIntersect              DLL APIENTRY UTLAPI  9   OS2386
+RectUnion                  DLL APIENTRY UTLAPI  10  OS2386
+RectSubtract               DLL APIENTRY UTLAPI  11  OS2386
+RectMakeRect               DLL APIENTRY UTLAPI  12  OS2386
+RectMakePoints             DLL APIENTRY UTLAPI  13  OS2386
