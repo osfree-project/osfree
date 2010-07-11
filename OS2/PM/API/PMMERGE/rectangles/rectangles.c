@@ -7,11 +7,7 @@
    pm/winrectangles.h and utlapi/librectangles.h */
 
 
-#ifndef LIBRECTANGLES_INCLUDED
-#define INCL_UTLAPI
-#define INCL_LIBRECTANGLES
 #include <osfree.h>
-#endif
 
 /* copies rectangles form prclSrc to prclDst, rturn TRUE if successfull, else
    return FALSE */

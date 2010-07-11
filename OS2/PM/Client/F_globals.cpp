@@ -29,9 +29,9 @@ int _FreePM_shutting_down = 0;
 int _FreePM_FatalInProgress = 0;
 
 /* time variables */
-DATETIME  _FreePM_curtime;
-DATETIME _FreePM_current_time;
-DATETIME _FreePM_start;
+time_t _FreePM_curtime;
+time_t _FreePM_current_time;
+time_t _FreePM_start;
 double _FreePM_current_dtime = 0.;
 
 

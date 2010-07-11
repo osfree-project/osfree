@@ -9,6 +9,7 @@
       extern "C" {
 #endif
 
+#include <time.h>
 #include <os2.h>
 
 /*+---------------------------------+*/

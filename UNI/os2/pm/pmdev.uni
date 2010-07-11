@@ -1,5 +1,5 @@
 group pmdev;
 
-uses devcommon;
+uses devcommon default;
 
 end.

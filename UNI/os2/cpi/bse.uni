@@ -9,8 +9,8 @@ group bse;
 uses cdeftypes2 default;
 
 uses bsedos default;
-uses base;
-uses doserrors;
+uses base default;
+uses doserrors default;
 uses dosdevioctl;
 uses bsedev default;
 uses bsesub;

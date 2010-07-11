@@ -36,6 +36,7 @@
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/
 /*+---------------------------------+*/
+time_t getCurrentTime(void);
 
 /*+---------------------------------+*/
 /*| Internal function prototypes.   |*/

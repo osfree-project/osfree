@@ -42,6 +42,7 @@ extern time_t _FreePM_start;
 
 extern double _FreePM_current_dtime;  /* 0. */
 
+#include "F_utils.hpp"
 
 extern struct FreePM_Config _FreePMconfig;
 

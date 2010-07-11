@@ -1,5 +1,5 @@
 group basemid;
 
-uses bseerr;
+uses bseerr default;
 
 end.

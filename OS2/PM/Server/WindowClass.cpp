@@ -13,6 +13,8 @@
 #include "Fs_WND.hpp"
 
 
+time_t getCurrentTime(void);
+
 //////////////// CreateFPM_Window/ WinCreateWindow /////////////////////////////////////////////
 /*
  The appearance and behavior of a window are determined by its style, which is the combination of the

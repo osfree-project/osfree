@@ -1,8 +1,3 @@
-/*
- $Id: F_utils.cpp,v 1.5 2002/11/18 13:24:53 evgen2 Exp $
-*/
-/* F_utils.cpp */
-/* ver 0.00 22.08.2002       */
 
 #include <stdio.h>
 #include <time.h>
@@ -26,8 +21,8 @@ getCurrentTime(void)
     struct _timeb timebuffer;
 
     _ftime(&timebuffer);
-    _FreePM_current_time.seconds  = (long) timebuffer.time;
-    _FreePM_current_time.hundredths = (long) timebuffer.millitm * 1000;
+    _FreePM_current_time  = (long) timebuffer.time;
+    //_FreePM_current_time.hundredths = (long) timebuffer.millitm * 1000;
 
     _FreePM_current_dtime = (double)timebuffer.time   +
        (double) timebuffer.millitm / 1000.0;

@@ -18,6 +18,8 @@
 #include "FreePM_err.hpp"
 //#include "F_GPI.hpp"
 
+time_t getCurrentTime(void);
+
 #define LOCK_DESKTOP                            \
     {   int ilps_raz = 0, ilps_rc;              \
         do                                      \

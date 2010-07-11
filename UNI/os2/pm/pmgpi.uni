@@ -21,9 +21,9 @@ constant CLR_NOINDEX              =    (-254);
 
 uses gpiprimitives default;
 uses gpilcids default;
-uses gpicontrolcommon;
-uses gpibitmapscommon;
-uses gpibitmaps;
-uses gpilogcoltable;
+uses gpicontrolcommon default;
+uses gpibitmapscommon default;
+uses gpibitmaps default;
+uses gpilogcoltable default;
 
 end.

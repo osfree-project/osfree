@@ -8,6 +8,8 @@
 #include <string.h>
 //#include <FreePM.hpp>
 
+#include "F_config.hpp"
+
 //#include <bsedos.h>
 //#include <bseerr.h>
 
