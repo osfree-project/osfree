@@ -1,6 +1,6 @@
 group pmwin;
 
-uses pmbase;
+uses pmbase default;
 uses pmshl;
 uses winwindowmgr;
 uses winwindowmgrcommon default;
@@ -8,8 +8,8 @@ uses winmessagemgr default ;
 uses winmessagemgrcommon default;
 uses winclipboard;
 uses winclipboarddde default;
-uses winframemgrcommon;
-uses winframemgr;
+uses winframemgrcommon default;
+uses winframemgr default;
 uses winsys;
 uses wininput;
 uses wininputcommon default;
