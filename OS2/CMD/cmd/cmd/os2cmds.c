@@ -950,7 +950,7 @@ int window_cmd( int argc, char **argv )
         char *arg;
         int x, y, cx, cy;
 
-        if ( ghwndWindowHandle == NULL )
+        if ( ghwndWindowHandle == NULLHANDLE )
                 return ( error( ERROR_4DOS_NOT_WINDOWED, NULL ));
 
         if ( argc == 1 )

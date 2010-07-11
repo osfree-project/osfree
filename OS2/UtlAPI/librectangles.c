@@ -1,9 +1,4 @@
-#ifndef LIBRECTANGLES_INCLUDED
-#define INCL_UTLAPI
-#define INCL_LIBRECTANGLES  /* Rect* functions declarations */
 #include <osfree.h>
-#include <pmdef.h>
-#endif
 
 /* TODO:
     - documentation states that if language supports it WRECT type can be

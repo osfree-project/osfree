@@ -4661,9 +4661,9 @@ APIRET doshQuickStartSession(PCSZ pcszPath,         // in: program to start
             SData.PgmTitle = (PSZ)pcszPath;
 
         SData.PgmName = (PSZ)pcszPath;
-        SData.PgmInputs = (PSZ)pcszParams;
+        SData.PgmInputs = (PBYTE)pcszParams;
 
-        SData.TermQ = (fWait) ? (PSZ)pcszQueueName : NULL;
+        SData.TermQ = (PBYTE)((fWait) ? (PSZ)pcszQueueName : NULL);
         SData.Environment = 0;
         SData.InheritOpt = SSF_INHERTOPT_PARENT;
 //      SData.SessionType = SSF_TYPE_DEFAULT;

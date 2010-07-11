@@ -914,7 +914,7 @@ APIRET xprfQueryProfileData(PXINI pXIni,          // in: profile opened with xpr
     if (!pszAppName)
     {
         PLISTNODE pAppNode = lstQueryFirstNode(&pXIni->llApps);
-        PBYTE   pbTarget = (PSZ)pBuffer;
+        PBYTE   pbTarget = (PBYTE)pBuffer;
         ULONG   cbCopied = 0;
         while (pAppNode)
         {
@@ -953,7 +953,7 @@ APIRET xprfQueryProfileData(PXINI pXIni,          // in: profile opened with xpr
                 // app != NULL, but key == NULL:
                 // return size of keys list
                 PLISTNODE pKeyNode = lstQueryFirstNode(&pAppData->llKeys);
-                PBYTE   pbTarget = (PSZ)pBuffer;
+                PBYTE   pbTarget = (PBYTE)pBuffer;
                 ULONG   cbCopied = 0;
                 while (pKeyNode)
                 {

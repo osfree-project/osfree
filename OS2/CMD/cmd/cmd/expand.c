@@ -2889,7 +2889,7 @@ static char * var_internal( char *var )
                         SWCNTRL swctl;
                         HSWITCH hswitch;
 
-                        if (( pfnWQSH != 0L ) && (( hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULL )) {
+                        if (( pfnWQSH != 0L ) && (( hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE )) {
                                 swctl.szSwtitle[0] = '\0';
                                 (void)(*pfnWQSE)( hswitch, &swctl );
                                 var = swctl.szSwtitle;

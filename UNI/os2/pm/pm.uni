@@ -7,7 +7,7 @@
 group pm;
 
 uses pmdef default;
-uses pmwin;        (* OS/2 Window Manager definitions    *)
+uses pmwin default;        (* OS/2 Window Manager definitions    *)
 uses win default;
 uses winload;
 uses pmgpi;        (* OS/2 GPI definitions               *)

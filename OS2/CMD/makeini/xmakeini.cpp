@@ -350,7 +350,7 @@ APIRET ApplyRCFile(PXINI pIni,
                     break;
                 }
 
-                pbValue = pStartOfValue + 1;
+                pbValue = (PBYTE)(pStartOfValue + 1);
                 *pEndOfValue = '\0';
                 cbValue = pEndOfValue - pStartOfValue; // include null byte
             }

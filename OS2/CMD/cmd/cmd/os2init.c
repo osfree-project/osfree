@@ -526,7 +526,7 @@ static void InitSystemVariables( void )
         DosQueryProcAddr( hmod2, ORD_PRF32WRITEPROFILEDATA, NULL, (PFN *)&pfnPWPD );
         DosQueryProcAddr( hmod2, ORD_PRF32CLOSEPROFILE, NULL, (PFN *)&pfnPCP );
 
-        if (( hSwitch = (HSWITCH)(*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULL ) {
+        if (( hSwitch = (HSWITCH)(*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
             (*pfnWQSE)( hSwitch, &swctl );
             ghwndWindowHandle = swctl.hwnd;
         }
@@ -677,7 +677,7 @@ void SaveIniData( void )
 // Set our window position if requested
 static void set_window( void )
 {
-    if ( ghwndWindowHandle != NULL ) {
+    if ( ghwndWindowHandle != NULLHANDLE ) {
         // Pick window position. Default does nothing ==> OS/2 standard window
         // is used
         switch ( gpIniptr->WindowState ) {

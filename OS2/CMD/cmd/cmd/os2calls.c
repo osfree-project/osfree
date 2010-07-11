@@ -1788,7 +1788,7 @@ void update_task_list( char *pszWindowTitle )
     szWindowTitle[0] = '\0';
 
     // WinQuerySwitchHandle
-    if (( hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULL ) {
+    if (( hswitch = (*pfnWQSH)( 0, gpLIS->pidCurrent )) != NULLHANDLE ) {
         swctl.szSwtitle[0] = '\0';
 
         // WinQuerySwitchEntry
