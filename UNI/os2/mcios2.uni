@@ -329,16 +329,15 @@ group mcios2;
       constant ULONG_HIWD(ul)  (*((USHORT *)((ULONG *)(&ul))+1)) (* High Word           *)
 
 
-      #pragma pack(1)
+(*      #pragma pack(1)  *)
 
       (*********************************************************************)
       (* parameters for default command messages with empty parameter lists*)
       (*********************************************************************)
-      typedef struct _MCI_GENERIC_PARMS
-      {
-         HWND   hwndCallback;     (* PM window handle for MCI notify message *)
-      } MCI_GENERIC_PARMS;
-      typedef MCI_GENERIC_PARMS   *PMCI_GENERIC_PARMS;
+      type MCI_GENERIC_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+      end;
+      type PMCI_GENERIC_PARMS=^MCI_GENERIC_PARMS;
 
 
       (*********************************************************************)
@@ -362,13 +361,12 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_CAPTURE message                   *)
       (*********************************************************************)
-      typedef struct _MCI_CAPTURE_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         RECTL   rect;            (* Rectangle array specifying the area to  *)
-         (* be captured                             *)
-      } MCI_CAPTURE_PARMS;
-      typedef MCI_CAPTURE_PARMS   *PMCI_CAPTURE_PARMS;
+      type MCI_CAPTURE_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+         rect: RECTL;            (* Rectangle array specifying the area to  *)
+                                 (* be captured                             *)
+      end;
+      type PMCI_CAPTURE_PARMS=^MCI_CAPTURE_PARMS;
 
 
       (*********************************************************************)
@@ -421,31 +419,29 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_CONNECTION message                *)
       (*********************************************************************)
-      typedef struct _MCI_CONNECTION_PARMS
-      {
-         HWND    hwndCallback;       (* PM window handle for MCI notify message *)
-         ULONG   ulConnectorType;    (* Connector type                          *)
-         ULONG   ulConnectorIndex;   (* Connector index                         *)
-         PSZ     pszAlias;           (* Connection device alias                 *)
-         USHORT  usToDeviceID;       (* Connected to device ID                  *)
-         USHORT  usReserved0;        (* Reserved field                          *)
-         ULONG   ulToConnectorType;  (* Connection to Connector type            *)
-         ULONG   ulToConnectorIndex; (* Connection to Connector index           *)
-      } MCI_CONNECTION_PARMS;
-      typedef MCI_CONNECTION_PARMS   *PMCI_CONNECTION_PARMS;
+      type MCI_CONNECTION_PARMS=structure
+            hwndCallback: HWND;       (* PM window handle for MCI notify message *)
+            ulConnectorType: ULONG;    (* Connector type                          *)
+            ulConnectorIndex: ULONG;   (* Connector index                         *)
+            pszAlias: PSZ;           (* Connection device alias                 *)
+            usToDeviceID: USHORT;       (* Connected to device ID                  *)
+            usReserved0: USHORT;        (* Reserved field                          *)
+            ulToConnectorType: ULONG;  (* Connection to Connector type            *)
+            ulToConnectorIndex: ULONG; (* Connection to Connector index           *)
+      end;
+      type PMCI_CONNECTION_PARMS=^MCI_CONNECTION_PARMS;
 
       (*********************************************************************)
       (* parameter structure for the MCI_CONNECTOR message                 *)
       (*********************************************************************)
-      typedef struct _MCI_CONNECTOR_PARMS
-      {
-         HWND   hwndCallback;     (* PM window handle for MCI notify message    *)
-         ULONG  ulReturn;         (* Return information                         *)
-         ULONG  ulConnectorType;  (* If specified, ulConnectorIndex is relative *)
+      type MCI_CONNECTOR_PARMS=structure
+         hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+         ulReturn: ULONG;         (* Return information                         *)
+         ulConnectorType: ULONG;  (* If specified, ulConnectorIndex is relative *)
          (* to the specified connector type            *)
-         ULONG  ulConnectorIndex; (* Connector number                           *)
-      } MCI_CONNECTOR_PARMS;
-      typedef MCI_CONNECTOR_PARMS   *PMCI_CONNECTOR_PARMS;
+         ulConnectorIndex: ULONG; (* Connector number                           *)
+      end;
+      type PMCI_CONNECTOR_PARMS=^MCI_CONNECTOR_PARMS;
 
 
       (*********************************************************************)
@@ -461,19 +457,18 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_BUFFER    message                 *)
       (*********************************************************************)
-      typedef struct _MCI_MIX_BUFFER
-      {
-         ULONG      ulStructLength;   (* Length of the structure          *)
-         PVOID      pBuffer;          (* Pointer to a buffer              *)
-         ULONG      ulBufferLength;   (* Length of the buffer             *)
-         ULONG      ulFlags;          (* Flags                            *)
-         ULONG      ulUserParm;       (* Caller parameter                 *)
-         ULONG      ulTime;           (* OUT--Current time in MS          *)
-         ULONG      ulReserved1;      (* Unused.                          *)
-         ULONG      ulReserved2;      (* Unused.                          *)
-      } MCI_MIX_BUFFER;
+      type MCI_MIX_BUFFER=structure
+               ulStructLength: ULONG;   (* Length of the structure          *)
+               pBuffer: PVOID;          (* Pointer to a buffer              *)
+               ulBufferLength: ULONG;   (* Length of the buffer             *)
+               ulFlags: ULONG;          (* Flags                            *)
+               ulUserParm: ULONG;       (* Caller parameter                 *)
+               ulTime: ULONG;           (* OUT--Current time in MS          *)
+               ulReserved1: ULONG;      (* Unused.                          *)
+               ulReserved2: ULONG;      (* Unused.                          *)
+      end;
 
-      typedef MCI_MIX_BUFFER *PMCI_MIX_BUFFER;
+      type PMCI_MIX_BUFFER=^MCI_MIX_BUFFER;
 
 
       (*********************************************************************)
@@ -485,18 +480,18 @@ group mcios2;
 
 
 
-      typedef LONG (APIENTRY MIXERPROC)
-                    ( ULONG            ulHandle,
-                    PMCI_MIX_BUFFER  pBuffer,
-                    ULONG            ulFlags        );
+      type MIXERPROC=function
+                    (in ulHandle: ULONG;
+                     in pBuffer: PMCI_MIX_BUFFER;
+                     in ulFlags: ULONG): LONG;
 
-      typedef MIXERPROC *PMIXERPROC;
-      typedef LONG (APIENTRY MIXEREVENT)
-                    ( ULONG            ulStatus,
-                    PMCI_MIX_BUFFER  pBuffer,
-                    ULONG            ulFlags        );
+      type PMIXERPROC=^MIXERPROC;
+      type MIXEREVENT=function
+                    ( in ulStatus: ULONG;
+                      in pBuffer: PMCI_MIX_BUFFER;
+                      in ulFlags: ULONG): LONG;
 
-      typedef MIXEREVENT  *PMIXEREVENT;
+      type PMIXEREVENT=^MIXEREVENT;
 
       (*********************************************************************)
       (* valid returns for the ulFlags param of the MIXEREVENT entry       *)
@@ -512,25 +507,24 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_MIXSETUP_PARMS message            *)
       (*********************************************************************)
-      typedef struct _MCI_MIXSETUP_PARMS
-      {
-         HWND         hwndCallback;     (* PM window handle for MCI notify message      *)
-         ULONG        ulBitsPerSample;  (* IN Number of Bits per Sample                 *)
-         ULONG        ulFormatTag;      (* IN Format Tag                                *)
-         ULONG        ulSamplesPerSec;  (* IN Sampling Rate                             *)
-         ULONG        ulChannels;       (* IN Number of channels                        *)
-         ULONG        ulFormatMode;     (* IN Either MCI_RECORD or MCI_PLAY             *)
-         ULONG        ulDeviceType;     (* IN MCI_DEVTYPE (i.e. DEVTYPE_WAVEFORM etc.)  *)
-         ULONG        ulMixHandle;      (* OUT--mixer returns handle for write/read     *)
-         PMIXERPROC   pmixWrite;        (* OUT-Mixer Write Routine entry point          *)
-         PMIXERPROC   pmixRead;         (* OUT-Mixer Read Routine entry point           *)
-         PMIXEREVENT  pmixEvent;        (* IN--Mixer Read Routine entry point           *)
-         PVOID        pExtendedInfo;    (* Ptr to extended wave information             *)
-         ULONG        ulBufferSize;     (* OUT--suggested buffer size for current mode  *)
-         ULONG        ulNumBuffers;     (* OUT--suggested # of buffers for current mode *)
-      } MCI_MIXSETUP_PARMS;
+      type MCI_MIXSETUP_PARMS=structure
+                 hwndCallback: HWND;     (* PM window handle for MCI notify message      *)
+                 ulBitsPerSample: ULONG;  (* IN Number of Bits per Sample                 *)
+                 ulFormatTag: ULONG;      (* IN Format Tag                                *)
+                 ulSamplesPerSec: ULONG;  (* IN Sampling Rate                             *)
+                 ulChannels: ULONG;       (* IN Number of channels                        *)
+                 ulFormatMode: ULONG;     (* IN Either MCI_RECORD or MCI_PLAY             *)
+                 ulDeviceType: ULONG;     (* IN MCI_DEVTYPE (i.e. DEVTYPE_WAVEFORM etc.)  *)
+                 ulMixHandle: ULONG;      (* OUT--mixer returns handle for write/read     *)
+                 pmixWrite: PMIXERPROC;        (* OUT-Mixer Write Routine entry point          *)
+                 pmixRead: PMIXERPROC;         (* OUT-Mixer Read Routine entry point           *)
+                 pmixEvent: PMIXEREVENT;        (* IN--Mixer Read Routine entry point           *)
+                 pExtendedInfo: PVOID;    (* Ptr to extended wave information             *)
+                 ulBufferSize: ULONG;     (* OUT--suggested buffer size for current mode  *)
+                 ulNumBuffers: ULONG;     (* OUT--suggested # of buffers for current mode *)
+      end;
 
-      typedef MCI_MIXSETUP_PARMS   *PMCI_MIXSETUP_PARMS;
+      type PMCI_MIXSETUP_PARMS=^MCI_MIXSETUP_PARMS;
 
       (*********************************************************************)
       (* Flags for use with ulParam1                                       *)
@@ -547,37 +541,35 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_BUFFER    message                 *)
       (*********************************************************************)
-      typedef struct _MCI_BUFFER_PARMS
-      {
-         HWND       hwndCallback;     (* PM window handle for MCI notify message    *)
-         ULONG      ulStructLength;   (* Length of the MCI Buffer command           *)
-         ULONG      ulNumBuffers;     (* Number of buffers MCI driver should use    *)
-         ULONG      ulBufferSize;     (* Size of buffers MCI driver should use      *)
-         ULONG      ulMinToStart;     (* Min number of buffers to create a stream.  *)
-         ULONG      ulSrcStart;       (* # of EMPTY buffers required to start Source*)
-         ULONG      ulTgtStart;       (* # of FULL buffers required to start Target *)
+      type MCI_BUFFER_PARMS=structure
+                hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+                ulStructLength: ULONG;   (* Length of the MCI Buffer command           *)
+                ulNumBuffers: ULONG;     (* Number of buffers MCI driver should use    *)
+                ulBufferSize: ULONG;     (* Size of buffers MCI driver should use      *)
+                ulMinToStart: ULONG;     (* Min number of buffers to create a stream.  *)
+                ulSrcStart: ULONG;       (* # of EMPTY buffers required to start Source*)
+                ulTgtStart: ULONG;       (* # of FULL buffers required to start Target *)
 
-         PVOID      pBufList;         (* Pointer to a list of buffers               *)
+                pBufList: PVOID;         (* Pointer to a list of buffers               *)
 
-      } MCI_BUFFER_PARMS;
-      typedef MCI_BUFFER_PARMS   *PMCI_BUFFER_PARMS;
+      end;
+      type PMCI_BUFFER_PARMS=^MCI_BUFFER_PARMS;
 
 
       (*********************************************************************)
       (* parameter structure for the MCI_CONNECTORINFO message             *)
       (*********************************************************************)
-      typedef struct _MCI_CONNECTORINFO_PARMS
-      {
-         HWND   hwndCallback;      (* PM window handle for MCI notify message    *)
-         ULONG  ulReturn;          (* Return information                         *)
-         ULONG  ulDeviceTypeID;    (* MCI device type                            *)
-         ULONG  ulConnectorType;   (* If specified, ulConnectorIndex is relative *)
+      type MCI_CONNECTORINFO_PARMS=structure
+            hwndCallback: HWND;      (* PM window handle for MCI notify message    *)
+            ulReturn: ULONG;          (* Return information                         *)
+            ulDeviceTypeID: ULONG;    (* MCI device type                            *)
+            ulConnectorType: ULONG;   (* If specified, ulConnectorIndex is relative *)
          (* to the specified connector type            *)
-         ULONG  ulConnectorIndex;  (* Connector number                           *)
-         ULONG  ulToConnectorType; (* Connector type to test if                  *)
+            ulConnectorIndex: ULONG;  (* Connector number                           *)
+            ulToConnectorType: ULONG; (* Connector type to test if                  *)
          (* MCI_QUERY_VALID_CONNECTION is specified    *)
-      } MCI_CONNECTORINFO_PARMS;
-      typedef MCI_CONNECTORINFO_PARMS   *PMCI_CONNECTORINFO_PARMS;
+      end;
+      type PMCI_CONNECTORINFO_PARMS=^MCI_CONNECTORINFO_PARMS;
 
       (*********************************************************************)
       (* flags for the MCI_CUE message                                     *)
@@ -598,33 +590,32 @@ group mcios2;
       (*****************************************************************************)
       (* the MCI_CONNLIST structure used in the NETWORK_DEFAULT_CONNECTION message *)
       (*****************************************************************************)
-      typedef struct _MCI_CONNLIST
+      type MCI_CONNLIST=structure
       {
-         ULONG ulFromDevice;  (* Ordinal position of device within pDevices array *)
-         ULONG ulSrcConnType; (* Type of source connector                         *)
-         ULONG ulSrcConnNum;  (* Source Connector Number                          *)
-         ULONG ulToDevice;    (* Ordinal position of device within pDevices array *)
-         ULONG ulTgtConnType; (* Type of target connector                         *)
-         ULONG ulTgtConnNum;  (* Target Connector Number                          *)
-      } MCI_CONNLIST;
-      typedef MCI_CONNLIST *PMCI_CONNLIST;
+          ulFromDevice: ULONG;  (* Ordinal position of device within pDevices array *)
+          ulSrcConnType: ULONG; (* Type of source connector                         *)
+          ulSrcConnNum: ULONG;  (* Source Connector Number                          *)
+          ulToDevice: ULONG;    (* Ordinal position of device within pDevices array *)
+          ulTgtConnType: ULONG; (* Type of target connector                         *)
+          ulTgtConnNum: ULONG;  (* Target Connector Number                          *)
+      end;
+      type PMCI_CONNLIST=^MCI_CONNLIST;
 
 
       (*****************************************************************************)
       (* parameter structure for the MCI_NETWORK_DEFAULT_CONNECTION message        *)
       (*****************************************************************************)
-      typedef struct _MCI_NETWORK_DEFAULT_CONNECTION_PARMS
-      {
-         HWND            hwndCallback;                   (* PM window handle for MCI notify message    *)
-         CHAR            szInstallName[MAX_DEVICE_NAME]; (* Name of section containing default conn.   *)
-         ULONG           ulNumDevices;                   (* Number of additional devices in connection *)
-         ULONG           ulNumPlayConnections;           (* Number of Play connections                 *)
-         ULONG           ulNumRecordConnections;         (* Number of Record connections               *)
-         CHAR           (*pDevices)[MAX_DEVICE_NAME];    (* Pointer to array of device names to open   *)
-         PMCI_CONNLIST   pPlayConnections;               (* Pointer to array of connections to "make"  *)
-         PMCI_CONNLIST   pRecordConnections;             (* Pointer to array of connections to "make"  *)
-      } MCI_NETWORK_DEFAULT_CONNECTION_PARMS;
-      typedef MCI_NETWORK_DEFAULT_CONNECTION_PARMS *PMCI_NETWORK_DEFAULT_CONNECTION_PARMS;
+      type MCI_NETWORK_DEFAULT_CONNECTION_PARMS=structure
+                     hwndCallback: HWND;                   (* PM window handle for MCI notify message    *)
+                     szInstallName: array[MAX_DEVICE_NAME] of CHAR; (* Name of section containing default conn.   *)
+                     ulNumDevices: ULONG;                   (* Number of additional devices in connection *)
+                     ulNumPlayConnections: ULONG;           (* Number of Play connections                 *)
+                     ulNumRecordConnections: ULONG;         (* Number of Record connections               *)
+                     pDevices:^array[MAX_DEVICE_NAME] of CHAR;    (* Pointer to array of device names to open   *)
+                     pPlayConnections: PMCI_CONNLIST;               (* Pointer to array of connections to "make"  *)
+                     pRecordConnections: PMCI_CONNLIST;             (* Pointer to array of connections to "make"  *)
+      end;
+      type PMCI_NETWORK_DEFAULT_CONNECTION_PARMS=^MCI_NETWORK_DEFAULT_CONNECTION_PARMS;
 
 
       (*******************************************************)
@@ -637,46 +628,43 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_DEFAULT_CONNECTION message        *)
       (*********************************************************************)
-      typedef struct _MCI_DEFAULT_CONNECTION_PARMS
-      {
-         HWND  hwndCallback;       (* PM window handle for MCI notify message    *)
-         PSZ   pszDevice;          (* Device name                                *)
-         ULONG ulConnectorType;    (* If specified, ulConnectorIndex is relative *)
+      type MCI_DEFAULT_CONNECTION_PARMS=structure
+           hwndCallback: HWND;       (* PM window handle for MCI notify message    *)
+           pszDevice: PSZ;          (* Device name                                *)
+           ulConnectorType: ULONG;    (* If specified, ulConnectorIndex is relative *)
          (* to the specified connector type            *)
-         ULONG ulConnectorIndex;   (* Connector number                           *)
-         PSZ   pszToDevice;        (* Return device name to which the connection *)
+           ulConnectorIndex: ULONG;   (* Connector number                           *)
+           pszToDevice: PSZ;        (* Return device name to which the connection *)
          (* exists                                     *)
-         ULONG ulToConnectorType;  (* Connector type                             *)
-         ULONG ulToConnectorIndex; (* Connector number                           *)
-      } MCI_DEFAULT_CONNECTION_PARMS;
-      typedef MCI_DEFAULT_CONNECTION_PARMS    *PMCI_DEFAULT_CONNECTION_PARMS;
+           ulToConnectorType: ULONG;  (* Connector type                             *)
+           ulToConnectorIndex: ULONG; (* Connector number                           *)
+      end;
+      type PMCI_DEFAULT_CONNECTION_PARMS=^MCI_DEFAULT_CONNECTION_PARMS;
 
       (*********************************************************************)
       (* parameter structure for the MCI_DEVICESETTINGS message            *)
       (*********************************************************************)
-      typedef struct _MCI_DEVICESETTINGS_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message    *)
-         HWND    hwndNotebook;    (* Hwhd to notebook window                    *)
-         USHORT  usDeviceType;    (* Device type                                *)
-         PSZ     pszDeviceName;   (* Device name                                *)
-      } MCI_DEVICESETTINGS_PARMS;
-      typedef MCI_DEVICESETTINGS_PARMS   *PMCI_DEVICESETTINGS_PARMS;
+      type MCI_DEVICESETTINGS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message    *)
+             hwndNotebook: HWND;    (* Hwhd to notebook window                    *)
+             usDeviceType: USHORT;    (* Device type                                *)
+             pszDeviceName: PSZ;   (* Device name                                *)
+      end;
+      type PMCI_DEVICESETTINGS_PARMS=^MCI_DEVICESETTINGS_PARMS;
 
       (**********************************************************************)
       (* parameter structure for the MCI_CUT / COPY / DELETE / UNDO / etc...*)
       (**********************************************************************)
-      typedef struct _MCI_EDIT_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message     *)
-         ULONG   ulStructLen;     (* Length of the Structure                     *)
-         ULONG   ulFrom;          (* Beginning Point of Range                    *)
-         ULONG   ulTo;            (* ending point of range                       *)
-         PVOID   pBuff;           (* user buffer                                 *)
-         ULONG   ulBufLen;        (* length of user buffer                       *)
-         PVOID   pHeader;         (* header which describes the buffer           *)
-      } MCI_EDIT_PARMS;
-      typedef MCI_EDIT_PARMS   *PMCI_EDIT_PARMS;
+      type MCI_EDIT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             ulStructLen: ULONG;     (* Length of the Structure                     *)
+             ulFrom: ULONG;          (* Beginning Point of Range                    *)
+             ulTo: ULONG;            (* ending point of range                       *)
+             pBuff: PVOID;           (* user buffer                                 *)
+             ulBufLen: ULONG;        (* length of user buffer                       *)
+             pHeader: PVOID;         (* header which describes the buffer           *)
+      end;
+      type PMCI_EDIT_PARMS=^MCI_EDIT_PARMS;
 
       (*********************************************************************)
       (* flags and parameter structure for the MCI_ESCAPE message          *)
@@ -684,12 +672,11 @@ group mcios2;
       (*********************************************************************)
       constant MCI_ESCAPE_STRING                  = $00000100;
 
-      typedef struct _MCI_ESCAPE_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message    *)
-         PSZ     pszCommand;      (* Command to send to the device              *)
-      } MCI_ESCAPE_PARMS;
-      typedef MCI_ESCAPE_PARMS   *PMCI_ESCAPE_PARMS;
+      type MCI_ESCAPE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message    *)
+             pszCommand: PSZ;      (* Command to send to the device              *)
+      end;
+      type PMCI_ESCAPE_PARMS=^MCI_ESCAPE_PARMS;
 
       (*********************************************************************)
       (* flags for the MCI_FREEZE message                                  *)
@@ -814,34 +801,32 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_GETDEVCAPS message                *)
       (*********************************************************************)
-      typedef struct _MCI_GETDEVCAPS_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulReturn;        (* Return field                            *)
-         ULONG   ulItem;          (* Item field for GETDEVCAPS item to query *)
-         USHORT  usMessage;       (* Field to hold MCI message to query      *)
-         USHORT  usReserved0;     (* Reserved field                          *)
-      } MCI_GETDEVCAPS_PARMS;
-      typedef MCI_GETDEVCAPS_PARMS   * PMCI_GETDEVCAPS_PARMS;
+      type MCI_GETDEVCAPS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for GETDEVCAPS item to query *)
+             usMessage: USHORT;       (* Field to hold MCI message to query      *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+      end;
+      type PMCI_GETDEVCAPS_PARMS=^MCI_GETDEVCAPS_PARMS;
 
       (*********************************************************************)
       (* parameter structure for the MCI_WAVE_GETDEVCAPS                   *)
       (*********************************************************************)
-      typedef struct _MCI_WAVE_GETDEVCAPS_PARMS
-      {
-         HWND    hwndCallback;     (* PM window handle for MCI notify message *)
-         ULONG   ulReturn;         (* Return field                            *)
-         ULONG   ulItem;           (* Item field for GETDEVCAPS item to query *)
-         USHORT  usMessage;        (* Field to hold MCI message to query      *)
-         USHORT  usReserved0;      (* Reserved field                          *)
-         ULONG   ulLength;         (* Length of structure in ULONGS           *)
-         ULONG   ulBitsPerSample;  (* Number of Bits per Sample               *)
-         ULONG   ulFormatTag;      (* Format Tag                              *)
-         ULONG   ulSamplesPerSec;  (* Sampling Rate                           *)
-         ULONG   ulChannels;       (* Number of channels                      *)
-         ULONG   ulFormatMode;     (* Either MCI_RECORD or MCI_PLAY           *)
-      } MCI_WAVE_GETDEVCAPS_PARMS;
-      typedef MCI_WAVE_GETDEVCAPS_PARMS   * PMCI_WAVE_GETDEVCAPS_PARMS;
+      type MCI_WAVE_GETDEVCAPS_PARMS=structure
+             hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;         (* Return field                            *)
+             ulItem: ULONG;           (* Item field for GETDEVCAPS item to query *)
+             usMessage: USHORT;        (* Field to hold MCI message to query      *)
+             usReserved0: USHORT;      (* Reserved field                          *)
+             ulLength: ULONG;         (* Length of structure in ULONGS           *)
+             ulBitsPerSample: ULONG;  (* Number of Bits per Sample               *)
+             ulFormatTag: ULONG;      (* Format Tag                              *)
+             ulSamplesPerSec: ULONG;  (* Sampling Rate                           *)
+             ulChannels: ULONG;       (* Number of channels                      *)
+             ulFormatMode: ULONG;     (* Either MCI_RECORD or MCI_PLAY           *)
+      end;
+      type PMCI_WAVE_GETDEVCAPS_PARMS=^MCI_WAVE_GETDEVCAPS_PARMS;
 
       (*********************************************************************)
       (* potential values for the ulValue field of MCI_AMP_GETDEVCAPS  *)
@@ -877,19 +862,18 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_AMP_GETDEVCAPS                    *)
       (*********************************************************************)
-      typedef struct _MCI_AMP_GETDEVCAPS_PARMS
-      {
-         ULONG   hwndCallback;     (* PM window handle for MCI notify message *)
-         ULONG   ulReturn;         (* Return field                            *)
-         ULONG   ulItem;           (* Item field for GETDEVCAPS item to query *)
-         USHORT  usMessage;        (* Field to hold MCI message to query      *)
-         USHORT  usReserved0;      (* Reserved field                          *)
-         ULONG   ulLength;         (* Length of structure in ULONGS           *)
-         ULONG   ulValue;          (* Value to determine caps                 *)
-         ULONG   ulAttribute;      (* Flags to modified the extended parms    *)
-         ULONG   ulExtended;       (* Extended flags field                    *)
-      } MCI_AMP_GETDEVCAPS_PARMS;
-      typedef MCI_AMP_GETDEVCAPS_PARMS   * PMCI_AMP_GETDEVCAPS_PARMS;
+      type MCI_AMP_GETDEVCAPS_PARMS=structure
+            hwndCallback: ULONG;     (* PM window handle for MCI notify message *)
+            ulReturn: ULONG;         (* Return field                            *)
+            ulItem: ULONG;           (* Item field for GETDEVCAPS item to query *)
+            usMessage: USHORT;        (* Field to hold MCI message to query      *)
+            usReserved0: USHORT;      (* Reserved field                          *)
+            ulLength: ULONG;         (* Length of structure in ULONGS           *)
+            ulValue: ULONG;          (* Value to determine caps                 *)
+            ulAttribute: ULONG;      (* Flags to modified the extended parms    *)
+            ulExtended: ULONG;       (* Extended flags field                    *)
+      end;
+      type PMCI_AMP_GETDEVCAPS_PARMS=^MCI_AMP_GETDEVCAPS_PARMS;
 
 
       (*********************************************************************)
@@ -915,24 +899,23 @@ group mcios2;
       (*********************************************************************)
       (* parameter structure for the MCI_MIXEVENT_PARMS                    *)
       (*********************************************************************)
-      typedef struct _MCI_MIXEVENT_PARMS
-      {
-         ULONG  ulLength;        (* Length of struct                          *)
-         HWND   hwndMixer;       (* window to inform of mixer changes         *)
-         ULONG  ulFlags;         (* Either MCI_MIX_ATTRIBUTE                  *)
+      type MCI_MIXEVENT_PARMS=structure
+           ulLength: ULONG;        (* Length of struct                          *)
+           hwndMixer: HWND;       (* window to inform of mixer changes         *)
+           ulFlags: ULONG;         (* Either MCI_MIX_ATTRIBUTE                  *)
          (*      or MCI_MIX_CONNECTOR                 *)
-         USHORT usDeviceID;      (* device id to notify of the change         *)
-         ULONG  ulDeviceType;    (* Device Type which generated the change    *)
-         ULONG  ulDeviceOrdinal; (* Ordinal of device Type                    *)
-         ULONG  ulAttribute;     (* Attribute that changed(volume, bass etc.) *)
-         ULONG  ulValue;         (* new value of the attribute which changed  *)
-         ULONG  ulConnectorType; (* Connector Type                            *)
-         ULONG  ulConnectorIndex;(* Connector Index                           *)
-         ULONG  ulConnStatus;    (* Is connector enabled/disabled.            *)
+          usDeviceID: USHORT;      (* device id to notify of the change         *)
+          ulDeviceType: ULONG;    (* Device Type which generated the change    *)
+          ulDeviceOrdinal: ULONG; (* Ordinal of device Type                    *)
+          ulAttribute: ULONG;     (* Attribute that changed(volume, bass etc.) *)
+          ulValue: ULONG;         (* new value of the attribute which changed  *)
+          ulConnectorType: ULONG; (* Connector Type                            *)
+          ulConnectorIndex: ULONG;(* Connector Index                           *)
+          ulConnStatus: ULONG;    (* Is connector enabled/disabled.            *)
 
-      } MCI_MIXEVENT_PARMS;
+      end;
 
-      typedef MCI_MIXEVENT_PARMS *PMCI_MIXEVENT_PARMS;
+      type PMCI_MIXEVENT_PARMS=^MCI_MIXEVENT_PARMS;
 
 
       (*********************************************************************)
@@ -948,21 +931,20 @@ group mcios2;
       (* parm structure for MCI_GETIMAGEBUFFER and       *)
       (*                    MCI_SETIMAGEBUFFER messages  *)
       (***************************************************)
-      typedef  struct _MCI_IMAGE_PARMS
-      {
-         HWND    hwndCallback;       (* PM window handle for MCI notify message *)
-         ULONG   ulPelFormat;        (* Format of the image data returned       *)
-         USHORT  usBitCount;         (* Number of bitsimage data returned       *)
-         USHORT  usReserved0;        (* Reserved field                          *)
-         ULONG   ulImageCompression; (*                                         *)
-         RECTL   rect;               (* Image area to get/set                   *)
-         PVOID   pPelBuffer;         (* Pel data buffer                         *)
-         ULONG   ulPelBufferHeight;  (* Number of rows in buffer                *)
-         ULONG   ulPelBufferWidth;   (* Pels per row in buffer                  *)
-         ULONG   ulBufLen;           (* Pel data buffer length in bytes         *)
+      type MCI_IMAGE_PARMS=structure
+             hwndCallback: HWND;       (* PM window handle for MCI notify message *)
+             ulPelFormat: ULONG;        (* Format of the image data returned       *)
+             usBitCount: USHORT;         (* Number of bitsimage data returned       *)
+             usReserved0: USHORT;        (* Reserved field                          *)
+             ulImageCompression: ULONG; (*                                         *)
+             rect: RECTL;               (* Image area to get/set                   *)
+             pPelBuffer: PVOID;         (* Pel data buffer                         *)
+             ulPelBufferHeight: ULONG;  (* Number of rows in buffer                *)
+             ulPelBufferWidth: ULONG;   (* Pels per row in buffer                  *)
+             ulBufLen: ULONG;           (* Pel data buffer length in bytes         *)
 
-      } MCI_IMAGE_PARMS;
-      typedef MCI_IMAGE_PARMS   *PMCI_IMAGE_PARMS;
+      end;
+      type PMCI_IMAGE_PARMS=^MCI_IMAGE_PARMS;
 
       (*********************************************************************)
       (* flags for the MCI_GETIMAGEPALETTE message                         *)
@@ -977,41 +959,38 @@ group mcios2;
       (* parameter structure for MCI_GETIMAGEPALETTE and *)
       (*    MCI_SETIMAGEPALETTE messages                 *)
       (***************************************************)
-      typedef  struct _MCI_PALETTE_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message   *)
-         USHORT  usRegisteredMap; (* Id of the palette from the registed color *)
+      type MCI_PALETTE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message   *)
+             usRegisteredMap: USHORT; (* Id of the palette from the registed color *)
          (* map                                       *)
-         USHORT  usReserved0;     (* Reserved field                            *)
-         ULONG   ulPalEntries;    (* size of the palette returned              *)
-         PVOID   pPalette;        (* pointer to the palette                    *)
-      } MCI_PALETTE_PARMS;
-      typedef MCI_PALETTE_PARMS   *PMCI_PALETTE_PARMS;
+             usReserved0: USHORT;     (* Reserved field                            *)
+             ulPalEntries: ULONG;    (* size of the palette returned              *)
+             pPalette: PVOID;        (* pointer to the palette                    *)
+      end;
+      type PMCI_PALETTE_PARMS=^MCI_PALETTE_PARMS;
 
 
       (*********************************************************************)
       (* Parameter structure for the MCI_GETTOC message                    *)
       (*********************************************************************)
-      typedef struct _MCI_TOC_REC
-      {
-         BYTE      TrackNum;      (* Returned Track Number                          *)
-         ULONG     ulStartAddr;   (* Starting address of the track in MMTIME format *)
-         ULONG     ulEndAddr;     (* Ending address of the track in MMTIME format   *)
-         BYTE      Control;       (* Track Control information                      *)
-         USHORT    usCountry;     (* Country                                        *)
-         ULONG     ulOwner;       (* Owner                                          *)
-         ULONG     ulSerialNum;   (* Serial Number                                  *)
-      } MCI_TOC_REC;
-      typedef MCI_TOC_REC   *PTOCREC;
+      type MCI_TOC_REC=structure
+               TrackNum: BYTE;      (* Returned Track Number                          *)
+               ulStartAddr: ULONG;   (* Starting address of the track in MMTIME format *)
+               ulEndAddr: ULONG;     (* Ending address of the track in MMTIME format   *)
+               Control: BYTE;       (* Track Control information                      *)
+               usCountry: USHORT;     (* Country                                        *)
+               ulOwner: ULONG;       (* Owner                                          *)
+               ulSerialNum: ULONG;   (* Serial Number                                  *)
+      end;
+      type PMCI_TOC_REC=^TOCREC;
 
-      typedef struct _MCI_TOC_PARMS
-      {
-         HWND      hwndCallback;  (* PM window handle for MCI notify message    *)
-         PTOCREC   pBuf;          (* Pointer to array MCI_TOC_REC structures to *)
+      type MCI_TOC_PARMS=structure
+               hwndCallback: HWND;  (* PM window handle for MCI notify message    *)
+               pBuf: PTOCREC;          (* Pointer to array MCI_TOC_REC structures to *)
          (* be filled in by the mci device             *)
-         ULONG     ulBufSize;     (* Size of the array                          *)
-      } MCI_TOC_PARMS;
-      typedef MCI_TOC_PARMS   * PMCI_TOC_PARMS;
+               ulBufSize: ULONG;     (* Size of the array                          *)
+      end;
+      type PMCI_TOC_PARMS=^MCI_TOC_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_GROUP message                              *)
@@ -1024,19 +1003,18 @@ group mcios2;
       constant MCI_GROUP_ALIAS                    = $00001000;
       constant MCI_GROUP_MASTER                   = $00002000;
 
-      typedef struct _MCI_GROUP_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message.    *)
-         USHORT  usGroupID;       (* GroupID                                     *)
-         USHORT  usReserved0;     (* RESERVED                                    *)
-         ULONG   ulStructLength;  (* Length of Structure in ULONGS.              *)
-         USHORT  usMasterID;      (* ID of Master device in Synchrounous groups. *)
-         USHORT  usReserved1;     (* RESERVED                                    *)
-         PSZ     pszGroupAlias;   (* Pointer to Alias Name.                      *)
-         ULONG   ulNumDevices;    (* Number of Devices in group.                 *)
-         PULONG  paulDeviceID;    (* Array of Device ids in the group.           *)
-      } MCI_GROUP_PARMS;
-      typedef MCI_GROUP_PARMS *PMCI_GROUP_PARMS;
+      type MCI_GROUP_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message.    *)
+             usGroupID: USHORT;       (* GroupID                                     *)
+             usReserved0: USHORT;     (* RESERVED                                    *)
+             ulStructLength: ULONG;  (* Length of Structure in ULONGS.              *)
+             usMasterID: USHORT;      (* ID of Master device in Synchrounous groups. *)
+             usReserved1: USHORT;     (* RESERVED                                    *)
+             pszGroupAlias: PSZ;   (* Pointer to Alias Name.                      *)
+             ulNumDevices: ULONG;    (* Number of Devices in group.                 *)
+             paulDeviceID: PULONG;    (* Array of Device ids in the group.           *)
+      end;
+      type PMCI_GROUP_PARMS=^MCI_GROUP_PARMS;
 
 
       (*********************************************************************)
@@ -1072,24 +1050,22 @@ group mcios2;
       constant MCI_OVLY_INFO_TEXT                 = $00010000;
 
 
-      typedef struct _MCI_INFO_PARMS
-      {
-         HWND      hwndCallback;  (* PM window handle for MCI notify message *)
-         PSZ       pszReturn;     (* Pointer to return buffer                *)
-         ULONG     ulRetSize;     (* Return buffer size                      *)
-      } MCI_INFO_PARMS;
-      typedef MCI_INFO_PARMS   *PMCI_INFO_PARMS;
+      type MCI_INFO_PARMS=structure
+               hwndCallback: HWND;  (* PM window handle for MCI notify message *)
+               pszReturn: PSZ;     (* Pointer to return buffer                *)
+               ulRetSize: ULONG;     (* Return buffer size                      *)
+      end;
+      type PMCI_INFO_PARMS=^MCI_INFO_PARMS;
 
       (*********************************************************************)
       (* parameters and flags for the MCI_LOAD message                     *)
       (*     $00000X00 are reserved for MCI_LOAD flags                    *)
       (*********************************************************************)
-      typedef struct _MCI_LOAD_PARMS
-      {
-         HWND   hwndCallback;     (* PM window handle for MCI notify message *)
-         PSZ    pszElementName;   (* File name to loads                      *)
-      } MCI_LOAD_PARMS;
-      typedef MCI_LOAD_PARMS   *PMCI_LOAD_PARMS;
+      type MCI_LOAD_PARMS=structure
+            hwndCallback: HWND;     (* PM window handle for MCI notify message *)
+            pszElementName: PSZ;   (* File name to loads                      *)
+      end;
+      type PMCI_LOAD_PARMS=^MCI_LOAD_PARMS;
 
       (*********************************************************************)
       (* parameters and flags for the MCI_MASTERAUDIO                      *)
@@ -1105,13 +1081,12 @@ group mcios2;
       constant MCI_QUERYCURRENTSETTING            = $00008000;
 
 
-      typedef struct _MCI_MASTERAUDIO_PARMS
-      {
-         HWND    hwndDummyCallback; (* Notify not allowed for this message     *)
-         ULONG   ulReturn;          (* Return field for query information      *)
-         ULONG   ulMasterVolume;    (* Master volume field                     *)
-      } MCI_MASTERAUDIO_PARMS;
-      typedef MCI_MASTERAUDIO_PARMS   *PMCI_MASTERAUDIO_PARMS;
+      type MCI_MASTERAUDIO_PARMS=structure
+             hwndDummyCallback: HWND; (* Notify not allowed for this message     *)
+             ulReturn: ULONG;          (* Return field for query information      *)
+             ulMasterVolume: ULONG;    (* Master volume field                     *)
+      end;
+      type PMCI_MASTERAUDIO_PARMS=^MCI_MASTERAUDIO_PARMS;
 
       (*********************************************************************)
       (* parameters and flags for the MCI_OPEN message                     *)
@@ -1134,52 +1109,49 @@ group mcios2;
       constant MCI_DGV_OPEN_PARENT                = MCI_VID_OPEN_PARENT;
       constant MCI_OVLY_OPEN_PARENT               = MCI_VID_OPEN_PARENT;
 
-      typedef struct _MCI_OPEN_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         USHORT  usDeviceID;      (* Device ID returned to user              *)
-         USHORT  usReserved0;     (* Reserved                                *)
-         PSZ     pszDeviceType;   (* Device name from SYSTEM.INI             *)
-         PSZ     pszElementName;  (* Typically a file name or NULL           *)
-         PSZ     pszAlias;        (* Optional device alias                   *)
-      } MCI_OPEN_PARMS;
-      typedef MCI_OPEN_PARMS   *PMCI_OPEN_PARMS;
+      type MCI_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved                                *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+      end;
+      type PMCI_OPEN_PARMS=^MCI_OPEN_PARMS;
 
       (**********************************************************)
       (* parameters for the AMP MCI_OPEN message                *)
       (**********************************************************)
-      typedef struct _MCI_AMP_OPEN_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         USHORT  usDeviceID;      (* Device ID returned to user              *)
-         USHORT  usReserved0;     (* Reserved field                          *)
-         PSZ     pszDeviceType;   (* Device name from SYSTEM.INI             *)
-         PSZ     pszElementName;  (* Typically a file name or NULL           *)
-         PSZ     pszAlias;        (* Optional device alias                   *)
-         PVOID   pDevDataPtr;     (* Pointer to device data                  *)
-      } MCI_AMP_OPEN_PARMS;
-      typedef MCI_AMP_OPEN_PARMS   *PMCI_AMP_OPEN_PARMS;
+      type MCI_AMP_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+             pDevDataPtr: PVOID;     (* Pointer to device data                  *)
+      end;
+      type PMCI_AMP_OPEN_PARMS=^MCI_AMP_OPEN_PARMS;
 
       (**********************************************************)
       (* parameters for MCI_OPEN message for video devices      *)
       (**********************************************************)
 
-      typedef  struct _MCI_VID_OPEN_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         USHORT  usDeviceID;      (* Device ID returned to user              *)
-         USHORT  usReserved0;     (* Reserved field                          *)
-         PSZ     pszDeviceType;   (* Device name from SYSTEM.INI             *)
-         PSZ     pszElementName;  (* Typically a file name or NULL           *)
-         PSZ     pszAlias;        (* Optional device alias                   *)
-         HWND    hwndParent;      (* Parent window handle                    *)
-      } MCI_VID_OPEN_PARMS;
+      type MCI_VID_OPEN_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             usDeviceID: USHORT;      (* Device ID returned to user              *)
+             usReserved0: USHORT;     (* Reserved field                          *)
+             pszDeviceType: PSZ;   (* Device name from SYSTEM.INI             *)
+             pszElementName: PSZ;  (* Typically a file name or NULL           *)
+             pszAlias: PSZ;        (* Optional device alias                   *)
+             hwndParent: HWND;      (* Parent window handle                    *)
+      end;
 
-      typedef MCI_VID_OPEN_PARMS   MCI_DGV_OPEN_PARMS;
-      typedef MCI_DGV_OPEN_PARMS   *PMCI_DGV_OPEN_PARMS;
+      type MCI_VID_OPEN_PARMS= MCI_DGV_OPEN_PARMS;
+      type PMCI_DGV_OPEN_PARMS=^MCI_DGV_OPEN_PARMS;
 
-      typedef MCI_VID_OPEN_PARMS    MCI_OVLY_OPEN_PARMS;
-      typedef MCI_OVLY_OPEN_PARMS   *PMCI_OVLY_OPEN_PARMS;
+      type MCI_VID_OPEN_PARMS  =  MCI_OVLY_OPEN_PARMS;
+      type PMCI_OVLY_OPEN_PARMS  =^MCI_OVLY_OPEN_PARMS;
 
       (***************************************************)
       (* MCI_PLAY flag values for videodisc              *)
@@ -1200,31 +1172,28 @@ group mcios2;
       constant MCI_DGV_PLAY_SLOW                  = $00010000;
       constant MCI_DGV_PLAY_REPEAT                = $00020000;
 
-      typedef struct _MCI_PLAY_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulFrom;          (* Play from this position                 *)
-         ULONG   ulTo;            (* Play to this position                   *)
-      } MCI_PLAY_PARMS;
-      typedef MCI_PLAY_PARMS   *PMCI_PLAY_PARMS;
+      type MCI_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+      end;
+      type PMCI_PLAY_PARMS=^MCI_PLAY_PARMS;
 
-      typedef struct _MCI_VD_PLAY_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulFrom;          (* Play from this position                 *)
-         ULONG   ulTo;            (* Play to this position                   *)
-         ULONG   ulFactor;        (* Play at this speed factor               *)
-      } MCI_VD_PLAY_PARMS;
-      typedef MCI_VD_PLAY_PARMS   *PMCI_VD_PLAY_PARMS;
+      type MCI_VD_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+             ulFactor: ULONG;        (* Play at this speed factor               *)
+      end;
+      type PMCI_VD_PLAY_PARMS=^MCI_VD_PLAY_PARMS;
 
-      typedef  struct _MCI_DGV_PLAY_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulFrom;          (* Play from this position                 *)
-         ULONG   ulTo;            (* Play to this position                   *)
-         ULONG   ulSpeed;         (* Specifies the play rate in frames per second *)
-      } MCI_DGV_PLAY_PARMS;
-      typedef MCI_DGV_PLAY_PARMS   *PMCI_DGV_PLAY_PARMS;
+      type MCI_DGV_PLAY_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Play from this position                 *)
+             ulTo: ULONG;            (* Play to this position                   *)
+             ulSpeed: ULONG;         (* Specifies the play rate in frames per second *)
+      end;
+      type PMCI_DGV_PLAY_PARMS=^MCI_DGV_PLAY_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_PUT  message                               *)
@@ -1255,18 +1224,17 @@ group mcios2;
       (* MCI_FREEZE, and MCI_UNFREEZE                    *)
       (***************************************************)
 
-      typedef  struct _MCI_VID_RECT_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         RECTL   rc;              (* rectangle array specifying the offset   *)
+      type MCI_VID_RECT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             rc: RECTL;              (* rectangle array specifying the offset   *)
          (* and size of a rectangle                 *)
-      } MCI_VID_RECT_PARMS;
+      end;
 
-      typedef MCI_VID_RECT_PARMS   MCI_DGV_RECT_PARMS;
-      typedef MCI_DGV_RECT_PARMS   *PMCI_DGV_RECT_PARMS;
+      type MCI_VID_RECT_PARMS =  MCI_DGV_RECT_PARMS;
+      type PMCI_DGV_RECT_PARMS  =^MCI_DGV_RECT_PARMS;
 
-      typedef MCI_VID_RECT_PARMS   MCI_OVLY_RECT_PARMS;
-      typedef MCI_OVLY_RECT_PARMS  *PMCI_OVLY_RECT_PARMS;
+      type MCI_VID_RECT_PARMS =  MCI_OVLY_RECT_PARMS;
+      type PMCI_OVLY_RECT_PARMS =^MCI_OVLY_RECT_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_RECORD message                             *)
@@ -1277,13 +1245,12 @@ group mcios2;
 
       constant MCI_DGV_RECORD_RECT                = $00000400;
 
-      typedef struct _MCI_RECORD_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulFrom;          (* Record from position                    *)
-         ULONG   ulTo;            (* Record to position                      *)
-      } MCI_RECORD_PARMS;
-      typedef MCI_RECORD_PARMS   *PMCI_RECORD_PARMS;
+      type MCI_RECORD_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulFrom: ULONG;          (* Record from position                    *)
+             ulTo: ULONG;            (* Record to position                      *)
+      end;
+      type PMCI_RECORD_PARMS =^MCI_RECORD_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_RELEASEDEVICE message                      *)
@@ -1299,15 +1266,14 @@ group mcios2;
       constant MCI_RESTORE_SRC_RECT               = $00000100;
       constant MCI_RESTORE_DEST_RECT              = $00000200;
 
-      typedef struct _MCI_RESTORE_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message     *)
-         RECTL   SrcRect;         (* Rectangle array specifying the source       *)
+      type MCI_RESTORE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             SrcRect: RECTL;         (* Rectangle array specifying the source       *)
          (* area to be restored                         *)
-         RECTL   DestRect;        (* Rectangle array specifying the destination  *)
+             DestRect: RECTL;        (* Rectangle array specifying the destination  *)
          (* area to be restored                         *)
-      } MCI_RESTORE_PARMS;
-      typedef MCI_RESTORE_PARMS   *PMCI_RESTORE_PARMS;
+      end;
+      type PMCI_RESTORE_PARMS=^MCI_RESTORE_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_SAVE  message                              *)
@@ -1322,12 +1288,11 @@ group mcios2;
       constant MCI_DGV_SAVE_VIDEO_FILE            = $00001000;
       constant MCI_DGV_SAVE_IMAGE_FILE            = $00002000;
 
-      typedef struct _MCI_SAVE_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message     *)
-         PSZ     pszFileName;     (* Filename to save data to                    *)
-      } MCI_SAVE_PARMS;
-      typedef MCI_SAVE_PARMS   *PMCI_SAVE_PARMS;
+      type MCI_SAVE_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             pszFileName: PSZ;     (* Filename to save data to                    *)
+      end;
+      type PMCI_SAVE_PARMS=^MCI_SAVE_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_SEEK message                               *)
@@ -1347,12 +1312,11 @@ group mcios2;
       (*************************************************)
       constant MCI_VD_SEEK_REVERSE                = $00001000;
 
-      typedef struct _MCI_SEEK_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message     *)
-         ULONG   ulTo;            (* Seek to this position                       *)
-      } MCI_SEEK_PARMS;
-      typedef MCI_SEEK_PARMS   *PMCI_SEEK_PARMS;
+      type MCI_SEEK_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message     *)
+             ulTo: ULONG;            (* Seek to this position                       *)
+      end;
+      type PMCI_SEEK_PARMS=^MCI_SEEK_PARMS;
 
       (*********************************************************************)
       (* Flags for the MCI_SET message                                     *)
@@ -1638,112 +1602,107 @@ group mcios2;
       constant MIDI_MAPPER                     = $20000000;
       constant MCI_MIDI_MAPPER                 = MIDI_MAPPER;
 
-      typedef struct _MCI_SET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulTimeFormat;    (* Time format to be used by the device           *)
-         ULONG   ulSpeedFormat;   (* Speed format used by this device               *)
-         ULONG   ulAudio;         (* Channel number for this operation              *)
+      type MCI_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
          (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
          (*  MCI_SET_AUDIO_ALL)                            *)
-         ULONG   ulLevel;         (* Volume, treble or bass level as % of max.      *)
-         ULONG   ulOver;          (* Delay time for vectored change in milliseconds *)
-         ULONG   ulItem;          (* Item field for set item flags                  *)
-         ULONG   ulValue;         (* Value associated with item flag                *)
-      } MCI_SET_PARMS;
-      typedef MCI_SET_PARMS       *PMCI_SET_PARMS;
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+      end;
+      type PMCI_SET_PARMS =^MCI_SET_PARMS;
 
-      typedef MCI_SET_PARMS       MCI_AMP_SET_PARMS;
-      typedef MCI_AMP_SET_PARMS   *PMCI_AMP_SET_PARMS;
+      type MCI_SET_PARMS  =     MCI_AMP_SET_PARMS;
+      type PMCI_AMP_SET_PARMS  =^MCI_AMP_SET_PARMS;
 
-      typedef MCI_SET_PARMS       MCI_DGV_SET_PARMS;
-      typedef MCI_DGV_SET_PARMS   *PMCI_DGV_SET_PARMS;
+      type MCI_SET_PARMS   =    MCI_DGV_SET_PARMS;
+      type PMCI_DGV_SET_PARMS=^MCI_DGV_SET_PARMS;
 
-      typedef MCI_SET_PARMS       MCI_OVLY_SET_PARMS;
-      typedef MCI_OVLY_SET_PARMS  *PMCI_OVLY_SET_PARMS;
+      type MCI_SET_PARMS     =  MCI_OVLY_SET_PARMS;
+      type PMCI_OVLY_SET_PARMS=^MCI_OVLY_SET_PARMS;
 
-      typedef struct _MCI_CDXA_SET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulTimeFormat;    (* Time format to be used by the device           *)
-         ULONG   ulSpeedFormat;   (* Speed format used by this device               *)
-         ULONG   ulAudio;         (* Channel number for this operation              *)
+      type MCI_CDXA_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
          (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
          (*  MCI_SET_AUDIO_ALL)                            *)
-         ULONG   ulLevel;         (* Volume, treble or bass level as % of max.      *)
-         ULONG   ulOver;          (* Delay time for vectored change in milliseconds *)
-         ULONG   ulItem;          (* Item field for set item flags                  *)
-         ULONG   ulValue;         (* Value associated with item flag                *)
-         ULONG   ulChannel;       (* Channel number                                 *)
-         PVOID   pPlayList;       (* Pointer to play list                           *)
-         ULONG   ulPlayListSize;  (* Play list size                                 *)
-      } MCI_CDXA_SET_PARMS;
-      typedef MCI_CDXA_SET_PARMS   *PMCI_CDXA_SET_PARMS;
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+             ulChannel: ULONG;       (* Channel number                                 *)
+             pPlayList: PVOID;       (* Pointer to play list                           *)
+             ulPlayListSize: ULONG;  (* Play list size                                 *)
+      end;
+      type PMCI_CDXA_SET_PARMS=^MCI_CDXA_SET_PARMS;
 
-      typedef struct _MCI_VD_SET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulTimeFormat;    (* Time format to be used by the device           *)
-         ULONG   ulSpeedFormat;   (* Speed format used by this device               *)
-         ULONG   ulAudio;         (* Channel number for this operation              *)
+      type MCI_VD_SET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+             ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+             ulAudio: ULONG;         (* Channel number for this operation              *)
          (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
          (*  MCI_SET_AUDIO_ALL)                            *)
-         ULONG   ulLevel;         (* Volume, treble or bass level as % of max.      *)
-         ULONG   ulOver;          (* Delay time for vectored change in milliseconds *)
-         ULONG   ulItem;          (* Item field for set item flags                  *)
-         ULONG   ulValue;         (* Value associated with item flag                *)
-         ULONG   ulChannel;       (* Videodisc channel                              *)
-      } MCI_VD_SET_PARMS;
-      typedef MCI_VD_SET_PARMS   *PMCI_VD_SET_PARMS;
+             ulLevel: ULONG;         (* Volume, treble or bass level as % of max.      *)
+             ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+             ulItem: ULONG;          (* Item field for set item flags                  *)
+             ulValue: ULONG;         (* Value associated with item flag                *)
+             ulChannel: ULONG;       (* Videodisc channel                              *)
+      end;
+      type PMCI_VD_SET_PARMS=^MCI_VD_SET_PARMS;
 
-      typedef struct _MCI_WAVE_SET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulTimeFormat;    (* Time format to be used by the device           *)
-         ULONG   ulSpeedFormat;   (* Speed format used by this device               *)
-         ULONG   ulAudio;         (* Channel number for this operation              *)
+      type MCI_WAVE_SET_PARMS=structure
+            hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+            ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+            ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+            ulAudio: ULONG;         (* Channel number for this operation              *)
          (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
          (*  MCI_SET_AUDIO_ALL)                            *)
-         ULONG   ulLevel;         (* Volume, trebble or bass level as % of max.     *)
-         ULONG   ulOver;          (* Delay time for vectored change in milliseconds *)
-         ULONG   ulItem;          (* Item field for set item flags                  *)
-         ULONG   ulValue;         (* Value associated with item flag                *)
-         USHORT  usInput;         (* Channel for input                              *)
-         USHORT  usReserved0;     (* Reserved field                                 *)
-         USHORT  usOutput;        (* Channel for output                             *)
-         USHORT  usReserved1;     (* Reserved field                                 *)
-         USHORT  usFormatTag;     (* Format tag                                     *)
-         USHORT  usReserved2;     (* Reserved field                                 *)
-         USHORT  usChannels;      (* mono(1) or stereo(2)                           *)
-         USHORT  usReserved3;     (* Reserved field                                 *)
-         ULONG   ulSamplesPerSec; (* Samples per seconds                            *)
-         ULONG   ulAvgBytesPerSec;(* Bytes per seconds                              *)
-         USHORT  usBlockAlign;    (* Block alignment of data                        *)
-         USHORT  usReserved4;     (* Reserved field                                 *)
-         USHORT  usBitsPerSample; (* Bits per seconds                               *)
-         USHORT  usReserved5;     (* Reserved field                                 *)
-      } MCI_WAVE_SET_PARMS;
-      typedef MCI_WAVE_SET_PARMS   *PMCI_WAVE_SET_PARMS;
+            ulLevel: ULONG;         (* Volume, trebble or bass level as % of max.     *)
+            ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+            ulItem: ULONG;          (* Item field for set item flags                  *)
+            ulValue: ULONG;         (* Value associated with item flag                *)
+            usInput: USHORT;         (* Channel for input                              *)
+            usReserved0: USHORT;     (* Reserved field                                 *)
+            usOutput: USHORT;        (* Channel for output                             *)
+            usReserved1: USHORT;     (* Reserved field                                 *)
+            usFormatTag: USHORT;     (* Format tag                                     *)
+            usReserved2: USHORT;     (* Reserved field                                 *)
+            usChannels: USHORT;      (* mono(1) or stereo(2)                           *)
+            usReserved3: USHORT;     (* Reserved field                                 *)
+            ulSamplesPerSec: ULONG; (* Samples per seconds                            *)
+            ulAvgBytesPerSec: ULONG;(* Bytes per seconds                              *)
+            usBlockAlign: USHORT;    (* Block alignment of data                        *)
+            usReserved4: USHORT;     (* Reserved field                                 *)
+            usBitsPerSample: USHORT; (* Bits per seconds                               *)
+            usReserved5: USHORT;     (* Reserved field                                 *)
+      end;
+      type PMCI_WAVE_SET_PARMS=^MCI_WAVE_SET_PARMS;
 
-      typedef struct _MCI_SEQ_SET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulTimeFormat;    (* Time format to be used by the device           *)
-         ULONG   ulSpeedFormat;   (* Speed format used by this device               *)
-         ULONG   ulAudio;         (* Channel number for this operation              *)
+      type MCI_SEQ_SET_PARMS=structure
+            hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+            ulTimeFormat: ULONG;    (* Time format to be used by the device           *)
+            ulSpeedFormat: ULONG;   (* Speed format used by this device               *)
+            ulAudio: ULONG;         (* Channel number for this operation              *)
          (* (MCI_SET_AUDIO_LEFT, MCI_SET_AUDIO_RIGHT,      *)
          (*  MCI_SET_AUDIO_ALL)                            *)
-         ULONG   ulLevel;         (* Volume, trebble or bass level as % of max.     *)
-         ULONG   ulOver;          (* Delay time for vectored change in milliseconds *)
-         ULONG   ulItem;          (* Item field for set item flags                  *)
-         ULONG   ulValue;         (* Value associated with item flag                *)
-         ULONG   ulTempo;         (* Specified the tempo                            *)
-         ULONG   ulPort;          (* Output port                                    *)
-         ULONG   ulSlave;         (* Unused field                                   *)
-         ULONG   ulMaster;        (* Unused field                                   *)
-         ULONG   ulOffset;        (* Specified the data offset                      *)
-      } MCI_SEQ_SET_PARMS;
-      typedef MCI_SEQ_SET_PARMS   *PMCI_SEQ_SET_PARMS;
+            ulLevel: ULONG;         (* Volume, trebble or bass level as % of max.     *)
+            ulOver: ULONG;          (* Delay time for vectored change in milliseconds *)
+            ulItem: ULONG;          (* Item field for set item flags                  *)
+            ulValue: ULONG;         (* Value associated with item flag                *)
+            ulTempo: ULONG;         (* Specified the tempo                            *)
+            ulPort: ULONG;          (* Output port                                    *)
+            ulSlave: ULONG;         (* Unused field                                   *)
+            ulMaster: ULONG;        (* Unused field                                   *)
+            ulOffset: ULONG;        (* Specified the data offset                      *)
+      end;
+      type PMCI_SEQ_SET_PARMS=^MCI_SEQ_SET_PARMS;
 
 
       (*********************************************************************)
@@ -1753,15 +1712,14 @@ group mcios2;
       constant MCI_SET_CUEPOINT_ON                = $00000100;
       constant MCI_SET_CUEPOINT_OFF               = $00000200;
 
-      typedef struct _MCI_CUEPOINT_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulCuepoint;      (* Specifies the cuepoint location                *)
-         USHORT  usUserParm;      (* User parmameter returned on cuepoint           *)
+      type MCI_CUEPOINT_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulCuepoint: ULONG;      (* Specifies the cuepoint location                *)
+             usUserParm: USHORT;      (* User parmameter returned on cuepoint           *)
          (* notify message                                 *)
-         USHORT  usReserved0;     (* Reserved field                                 *)
-      } MCI_CUEPOINT_PARMS;
-      typedef MCI_CUEPOINT_PARMS   *PMCI_CUEPOINT_PARMS;
+             usReserved0: USHORT;     (* Reserved field                                 *)
+      end;
+      type PMCI_CUEPOINT_PARMS=^MCI_CUEPOINT_PARMS;
 
       (*********************************************************************)
       (* parameters for the MCI_SETIMAGEPALETTE message                    *)
@@ -1776,28 +1734,26 @@ group mcios2;
       constant MCI_SET_POSITION_ADVISE_ON         = $00000100;
       constant MCI_SET_POSITION_ADVISE_OFF        = $00000200;
 
-      typedef struct _MCI_POSITION_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulUnits;         (* Specifies position change notifiication        *)
+      type MCI_POSITION_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulUnits: ULONG;         (* Specifies position change notifiication        *)
          (* granularity                                    *)
-         USHORT  usUserParm;      (* User parameter returned on position change     *)
+             usUserParm: USHORT;      (* User parameter returned on position change     *)
          (* notification message.                          *)
-         USHORT  Reserved0;       (* Reserved field                                 *)
-         ULONG   Reserved1;       (* Reserved field                                 *)
-      } MCI_POSITION_PARMS;
-      typedef MCI_POSITION_PARMS   *PMCI_POSITION_PARMS;
+             Reserved0: USHORT;       (* Reserved field                                 *)
+             Reserved1: ULONG;       (* Reserved field                                 *)
+      end;
+      type PMCI_POSITION_PARMS=^MCI_POSITION_PARMS;
 
       (*********************************************************************)
       (* parameter structure for the MCI_SET_SYNC_OFFSET message           *)
       (*********************************************************************)
-      typedef struct _MCI_SYNC_OFFSET_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message        *)
-         ULONG   ulOffset;        (* Specifies the device media position offset     *)
+      type MCI_SYNC_OFFSET_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message        *)
+             ulOffset: ULONG;        (* Specifies the device media position offset     *)
          (* in the currently specified device units.       *)
-      } MCI_SYNC_OFFSET_PARMS;
-      typedef MCI_SYNC_OFFSET_PARMS   *PMCI_SYNC_OFFSET_PARMS;
+      end;
+      type PMCI_SYNC_OFFSET_PARMS=^MCI_SYNC_OFFSET_PARMS;
 
       (*********************************************************************)
       (* flags for the MCI_SPIN message                                    *)
@@ -2070,33 +2026,31 @@ group mcios2;
       constant MCI_FORWARD                        = $00000000;
       constant MCI_REVERSE                        = $00000001;
 
-      typedef struct _MCI_STATUS_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulReturn;        (* Return field                            *)
-         ULONG   ulItem;          (* Item field for STATUS item to query     *)
-         ULONG   ulValue;         (* Status value field (this used to be)    *)
+      type MCI_STATUS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for STATUS item to query     *)
+             ulValue: ULONG;         (* Status value field (this used to be)    *)
          (*  ulTrack but was changed in Rel 1.1     *)
          (*  to extend the status structure.        *)
          (*  See the programming reference on when  *)
          (*  ulValue is used and how...             *)
-      } MCI_STATUS_PARMS;
-      typedef MCI_STATUS_PARMS   *PMCI_STATUS_PARMS;
+      end;
+      type PMCI_STATUS_PARMS=^MCI_STATUS_PARMS;
 
 
-      typedef struct _MCI_CDXA_STATUS_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulReturn;        (* Return field                            *)
-         ULONG   ulItem;          (* Item field for STATUS item to query     *)
-         ULONG   ulValue;         (* Status value field (this used to be)    *)
+      type MCI_CDXA_STATUS_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulReturn: ULONG;        (* Return field                            *)
+             ulItem: ULONG;          (* Item field for STATUS item to query     *)
+             ulValue: ULONG;         (* Status value field (this used to be)    *)
          (*  ulTrack but was changed in Rel 1.1     *)
          (*  to extend the status structure.        *)
          (*  See the programming reference on when  *)
          (*  ulValue is used and how...             *)
-         ULONG   ulChannel;       (* Channel                                 *)
-      } MCI_CDXA_STATUS_PARMS;
-      typedef MCI_CDXA_STATUS_PARMS   *PMCI_CDXA_STATUS_PARMS;
+             ulChannel: ULONG;       (* Channel                                 *)
+      end;
+      type PMCI_CDXA_STATUS_PARMS=^MCI_CDXA_STATUS_PARMS;
 
       (*********************************************************************)
       (* flags and parameter structure for the MCI_STEP message            *)
@@ -2105,12 +2059,11 @@ group mcios2;
       constant MCI_STEP_FRAMES                    = $00000100;
       constant MCI_STEP_REVERSE                   = $00000200;
 
-      typedef struct _MCI_STEP_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         ULONG   ulStep;          (* amount to step in current time format   *)
-      } MCI_STEP_PARMS;
-      typedef MCI_STEP_PARMS   *PMCI_STEP_PARMS;
+      type MCI_STEP_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             ulStep: ULONG;          (* amount to step in current time format   *)
+      end;
+      type PMCI_STEP_PARMS=^MCI_STEP_PARMS;
 
       (*********************************************************************)
       (* flags for the MCI_SYSINFO message                                 *)
@@ -2152,111 +2105,100 @@ group mcios2;
       (*********************************************************************)
       (* parameter structures for the MCI_SYSINFO message                  *)
       (*********************************************************************)
-      typedef struct _MCI_SYSINFO_PARMS
-      {
-         HWND    hwndDummyCallback; (* NOTIFY not allowed for SYSINFO          *)
-         PSZ     pszReturn;         (* Pointer to return buffer                *)
-         ULONG   ulRetSize;         (* Return buffer size                      *)
-         ULONG   ulNumber;          (* Ordinal Number                          *)
-         USHORT  usDeviceType;      (* MCI device type number                  *)
-         USHORT  usReserved0;       (* Reserved field                          *)
-         ULONG   ulItem;            (* Used to indicate the MCI_SYSINFO        *)
+      type MCI_SYSINFO_PARMS=structure
+             hwndDummyCallback: HWND; (* NOTIFY not allowed for SYSINFO          *)
+             pszReturn: PSZ;         (* Pointer to return buffer                *)
+             ulRetSize: ULONG;         (* Return buffer size                      *)
+             ulNumber: ULONG;          (* Ordinal Number                          *)
+             usDeviceType: USHORT;      (* MCI device type number                  *)
+             usReserved0: USHORT;       (* Reserved field                          *)
+             ulItem: ULONG;            (* Used to indicate the MCI_SYSINFO        *)
          (* extended function to perform            *)
-         PVOID   pSysInfoParm;
-      } MCI_SYSINFO_PARMS;
-      typedef MCI_SYSINFO_PARMS   *PMCI_SYSINFO_PARMS;
+             pSysInfoParm: PVOID;
+      end;
+      type PMCI_SYSINFO_PARMS=^MCI_SYSINFO_PARMS;
 
-      typedef struct _MCI_SYSINFO_LOGDEVICE
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name            *)
-         USHORT  usDeviceType;                         (* Device type number             *)
-         ULONG   ulDeviceFlag;                         (* Flag indicating whether device *)
+      type MCI_SYSINFO_LOGDEVICE=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usDeviceType: USHORT;                         (* Device type number             *)
+             ulDeviceFlag: ULONG;                         (* Flag indicating whether device *)
          (*  device is controllable or not *)
-         CHAR    szVersionNumber[MAX_VERSION_NUMBER];  (* INI file version number        *)
-         CHAR    szProductInfo[MAX_PRODINFO];          (* Textual product description    *)
-         CHAR    szMCDDriver[MAX_DEVICE_NAME];         (* MCI Driver dll name            *)
-         CHAR    szVSDDriver[MAX_DEVICE_NAME];         (* VSD dll name                   *)
-         CHAR    szPDDName[MAX_PDD_NAME];              (* Device PDD name                *)
-         CHAR    szMCDTable[MAX_DEVICE_NAME];          (* Device type command table      *)
-         CHAR    szVSDTable[MAX_DEVICE_NAME];          (* Device specific command table  *)
-         USHORT  usShareType;                          (* Device sharing mode            *)
-         CHAR    szResourceName[MAX_DEVICE_NAME];      (* Resource name                  *)
-         USHORT  usResourceUnits;                      (* Total resource units available *)
+             szVersionNumber: array[MAX_VERSION_NUMBER] of CHAR;  (* INI file version number        *)
+             szProductInfo: array[MAX_PRODINFO] of CHAR;          (* Textual product description    *)
+             szMCDDriver: array[MAX_DEVICE_NAME] of CHAR;         (* MCI Driver dll name            *)
+             szVSDDriver: array[MAX_DEVICE_NAME] of CHAR;         (* VSD dll name                   *)
+             szPDDName: array[MAX_PDD_NAME] of CHAR;              (* Device PDD name                *)
+             szMCDTable: array[MAX_DEVICE_NAME] of CHAR;          (* Device type command table      *)
+             szVSDTable: array[MAX_DEVICE_NAME] of CHAR;          (* Device specific command table  *)
+             usShareType: USHORT;                          (* Device sharing mode            *)
+             szResourceName: array[MAX_DEVICE_NAME] of CHAR;      (* Resource name                  *)
+             usResourceUnits: USHORT;                      (* Total resource units available *)
          (*  for this device               *)
-         USHORT  usResourceClasses;                    (* Number of resource classes for *)
+             usResourceClasses: USHORT;                    (* Number of resource classes for *)
          (*  this device                   *)
-         USHORT  ausClassArray[MAX_CLASSES];           (* Maximum number of resource     *)
+             ausClassArray: array[MAX_CLASSES] of USHORT;           (* Maximum number of resource     *)
          (*  units for each class          *)
-         USHORT  ausValidClassArray[MAX_CLASSES][MAX_CLASSES]; (* Valid class combinations *)
-      } MCI_SYSINFO_LOGDEVICE;
-      typedef MCI_SYSINFO_LOGDEVICE  *PMCI_SYSINFO_LOGDEVICE;
+             ausValidClassArray:array[MAX_CLASSES][MAX_CLASSES] of USHORT; (* Valid class combinations *)
+      end;
+      type PMCI_SYSINFO_LOGDEVICE=^MCI_SYSINFO_LOGDEVICE;
 
 
-      typedef struct _MCI_SYSINFO_DEVPARAMS
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name            *)
-         CHAR    szDevParams[MAX_DEV_PARAMS];          (* Device specific parameters     *)
-      } MCI_SYSINFO_DEVPARAMS;
-      typedef MCI_SYSINFO_DEVPARAMS *PMCI_SYSINFO_DEVPARAMS;
+      type MCI_SYSINFO_DEVPARAMS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             szDevParams: array[MAX_DEV_PARAMS] of CHAR;          (* Device specific parameters     *)
+      end;
+      type PMCI_SYSINFO_DEVPARAMS=^MCI_SYSINFO_DEVPARAMS;
 
-      typedef struct _CONNECT
-      {
-         USHORT usConnectType;                         (* Connector type                 *)
-         CHAR   szToInstallName[MAX_DEVICE_NAME];      (* Install name this connector    *)
+      type CONNECT=structure
+          usConnectType: USHORT;                         (* Connector type                 *)
+          szToInstallName: array[MAX_DEVICE_NAME] of CHAR;      (* Install name this connector    *)
          (*  is connected to               *)
-         USHORT usToConnectIndex;                      (* Connector index this connector *)
+          usToConnectIndex: USHORT;                      (* Connector index this connector *)
          (*  is connected to               *)
-      } CONNECT;
-      typedef CONNECT *PCONNECT;
+      end;
+      type PCONNECT=^CONNECT;
 
+      type MCI_SYSINFO_CONPARAMS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usNumConnectors: USHORT;                      (* Number of device connectors    *)
+             ConnectorList: array[MAX_CONNECTORS] of CONNECT;        (* Connector list array           *)
+      end;
+      type PMCI_SYSINFO_CONPARAMS=^MCI_SYSINFO_CONPARAMS;
 
-      typedef struct _MCI_SYSINFO_CONPARAMS
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name            *)
-         USHORT  usNumConnectors;                      (* Number of device connectors    *)
-         CONNECT ConnectorList[MAX_CONNECTORS];        (* Connector list array           *)
-      } MCI_SYSINFO_CONPARAMS;
-      typedef MCI_SYSINFO_CONPARAMS *PMCI_SYSINFO_CONPARAMS;
-
-      typedef struct _MCI_SYSINFO_EXTENSION
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name            *)
-         USHORT  usNumExtensions;                      (* Number of extensions           *)
-         CHAR    szExtension[MAX_EXTENSIONS][MAX_EXTENSION_NAME];
+      type MCI_SYSINFO_EXTENSION=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name            *)
+             usNumExtensions: USHORT;                      (* Number of extensions           *)
+             szExtension: array[MAX_EXTENSIONS][MAX_EXTENSION_NAME] of CHAR;
          (* Extension name array           *)
-      } MCI_SYSINFO_EXTENSION;
-      typedef MCI_SYSINFO_EXTENSION *PMCI_SYSINFO_EXTENSION;
+      end;
+      type PMCI_SYSINFO_EXTENSION=^MCI_SYSINFO_EXTENSION;
 
-      typedef struct _MCI_SYSINFO_ALIAS
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name  *)
-         CHAR    szAliasName[MAX_ALIAS_NAME];          (* Alias name           *)
-      } MCI_SYSINFO_ALIAS;
-      typedef MCI_SYSINFO_ALIAS *PMCI_SYSINFO_ALIAS;
+      type MCI_SYSINFO_ALIAS=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szAliasName: array[MAX_ALIAS_NAME] of CHAR;          (* Alias name           *)
+      end;
+      type PMCI_SYSINFO_ALIAS=^MCI_SYSINFO_ALIAS;
 
-      typedef struct _MCI_SYSINFO_DEFAULTDEVICE
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name  *)
-         USHORT  usDeviceType;                         (* Device type number   *)
-      } MCI_SYSINFO_DEFAULTDEVICE;
-      typedef MCI_SYSINFO_DEFAULTDEVICE *PMCI_SYSINFO_DEFAULTDEVICE;
+      type MCI_SYSINFO_DEFAULTDEVICE=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             usDeviceType: USHORT;                         (* Device type number   *)
+      end;
+      type PMCI_SYSINFO_DEFAULTDEVICE=^MCI_SYSINFO_DEFAULTDEVICE;
 
-      typedef struct _MCI_SYSINFO_QUERY_NAME
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name  *)
-         CHAR    szLogicalName[MAX_DEVICE_NAME];       (* Logical device name  *)
-         CHAR    szAliasName[MAX_ALIAS_NAME];          (* Alias name           *)
-         USHORT  usDeviceType;                         (* Device type number   *)
-         USHORT  usDeviceOrd;                          (* Device type ordinal  *)
-      } MCI_SYSINFO_QUERY_NAME;
-      typedef MCI_SYSINFO_QUERY_NAME *PMCI_SYSINFO_QUERY_NAME;
+      type MCI_SYSINFO_QUERY_NAME=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szLogicalName: array[MAX_DEVICE_NAME] of CHAR;       (* Logical device name  *)
+             szAliasName: arrray[MAX_ALIAS_NAME] of CHAR;          (* Alias name           *)
+             usDeviceType: USHORT;                         (* Device type number   *)
+             usDeviceOrd: USHORT;                          (* Device type ordinal  *)
+      end;
+      type PMCI_SYSINFO_QUERY_NAME=^MCI_SYSINFO_QUERY_NAME;
 
-      typedef struct _MCI_SYSINFO_TYPES
-      {
-         CHAR    szInstallName[MAX_DEVICE_NAME];       (* Device install name  *)
-         CHAR    szTypes[MAX_TYPEBUFFER+1];            (* EA types             *)
-      } MCI_SYSINFO_TYPES;
-      typedef MCI_SYSINFO_TYPES *PMCI_SYSINFO_TYPES;
+      type MCI_SYSINFO_TYPES=structure
+             szInstallName: array[MAX_DEVICE_NAME] of CHAR;       (* Device install name  *)
+             szTypes: array[MAX_TYPEBUFFER+1] of CHAR;            (* EA types             *)
+      end;
+      type PMCI_SYSINFO_TYPES=^MCI_SYSINFO_TYPES;
 
 
       (*********************************************************************)
@@ -2302,22 +2244,21 @@ group mcios2;
       constant MCI_OVLY_WINDOW_TEXT               = MCI_VID_WINDOW_TEXT;
       constant MCI_OVLY_WINDOW_DEFAULT            = MCI_VID_WINDOW_DEFAULT;
 
-      typedef  struct _MCI_VID_WINDOW_PARMS
-      {
-         HWND    hwndCallback;    (* PM window handle for MCI notify message *)
-         HWND    hwndDest;        (* Handle to the client window used for    *)
+      type MCI_VID_WINDOW_PARMS=structure
+             hwndCallback: HWND;    (* PM window handle for MCI notify message *)
+             hwndDest: HWND;        (* Handle to the client window used for    *)
          (* the destination of the video image      *)
-         USHORT  usCmdShow;       (* Specifies how the window is displayed   *)
-         USHORT  usReserved1;     (* Reserved                                *)
-         PSZ     pszText;         (* The text to use as the window caption   *)
-         PSZ     pszAlias;        (* The window alias for the display window *)
-      } MCI_VID_WINDOW_PARMS;
+             usCmdShow: USHORT;       (* Specifies how the window is displayed   *)
+             usReserved1: USHORT;     (* Reserved                                *)
+             pszText: PSZ;         (* The text to use as the window caption   *)
+             pszAlias: PSZ;        (* The window alias for the display window *)
+      end;
 
-      typedef MCI_VID_WINDOW_PARMS   MCI_DGV_WINDOW_PARMS;
-      typedef MCI_DGV_WINDOW_PARMS   *PMCI_DGV_WINDOW_PARMS;
+      type MCI_VID_WINDOW_PARMS =  MCI_DGV_WINDOW_PARMS;
+      type PMCI_DGV_WINDOW_PARMS=^MCI_DGV_WINDOW_PARMS;
 
-      typedef MCI_VID_WINDOW_PARMS   MCI_OVLY_WINDOW_PARMS;
-      typedef MCI_OVLY_WINDOW_PARMS  *PMCI_OVLY_WINDOW_PARMS;
+      type MCI_VID_WINDOW_PARMS   =MCI_OVLY_WINDOW_PARMS;
+      type PMCI_OVLY_WINDOW_PARMS =^MCI_OVLY_WINDOW_PARMS;
 
 
       (*********************************************************************)
@@ -2334,20 +2275,19 @@ group mcios2;
       constant MCI_DGV_POLARIZATION               = $00800000;
       constant MCI_DGV_QUERY                      = $01000000;
 
-      typedef struct _MCI_DGV_TUNER_PARMS
-      {
-         HWND   hwndCallback;     (* PM window handle for MCI notify message    *)
-         ULONG  ulFrequency;      (* Tuner Frequency                            *)
-         ULONG  ulAudioChannel;   (* Audio Channel                              *)
-         ULONG  ulTVChannel;      (* TV Channel                                 *)
-         LONG   lFineTune;        (* Fine tuning adjustments.                   *)
-         PSZ    pszRegion;        (* TV Channel Region                          *)
-         ULONG  ulReserved1;      (* Reserved 1                                 *)
-         ULONG  ulReserved2;      (* Reserved 2                                 *)
-      } MCI_DGV_TUNER_PARMS;
-      typedef MCI_DGV_TUNER_PARMS   *LPMCI_DGV_TUNER_PARMS;
+      type MCI_DGV_TUNER_PARMS=structure
+            hwndCallback: HWND;     (* PM window handle for MCI notify message    *)
+            ulFrequency: ULONG;      (* Tuner Frequency                            *)
+            ulAudioChannel: ULONG;   (* Audio Channel                              *)
+            ulTVChannel: ULONG;      (* TV Channel                                 *)
+            lFineTune: LONG;        (* Fine tuning adjustments.                   *)
+            pszRegion: PSZ;        (* TV Channel Region                          *)
+            ulReserved1: ULONG;      (* Reserved 1                                 *)
+            ulReserved2: ULONG;      (* Reserved 2                                 *)
+      end;
+      type LPMCI_DGV_TUNER_PARMS=^MCI_DGV_TUNER_PARMS;
 
-      #pragma pack()
+(*      #pragma pack() *)
       (*********************************************************************)
       (*                                                                   *)
       (*  MCI system value defines                                         *)
