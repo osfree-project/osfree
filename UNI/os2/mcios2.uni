@@ -249,6 +249,9 @@ group mcios2;
       (*  Time format conversions macros                                   *)
       (*                                                                   *)
       (*********************************************************************)
+
+(*
+
       constant MSECTOMM(value)      (((value) > (0xFFFFFFFF /3)) ? 0L : \
       ((value) * 3))
 
@@ -315,19 +318,20 @@ group mcios2;
       constant MSF_MINUTE(time)     (*(BYTE *)(&(time)))
       constant MSF_SECOND(time)     (*((BYTE *)(&(time))+1))
       constant MSF_FRAME(time)      (*((BYTE *)(&(time))+2))
-
+*)
       (*********************************************************************)
       (*                                                                   *)
       (*  BYTE ACCESS WITH A DWORD MACROS                                  *)
       (*                                                                   *)
       (*********************************************************************)
+(*
       constant ULONG_LWLB(ul)  (*(BYTE *)((ULONG *)(&ul)))       (* Low  Word Low Byte  *)
       constant ULONG_LWHB(ul)  (*((BYTE *)((ULONG *)(&ul))+1))   (* Low  Word High Byte *)
       constant ULONG_HWLB(ul)  (*((BYTE *)((ULONG *)(&ul))+2))   (* High Word Low Byte  *)
       constant ULONG_HWHB(ul)  (*((BYTE *)((ULONG *)(&ul))+3))   (* High Word High Byte *)
       constant ULONG_LOWD(ul)  (*(USHORT *)((ULONG *)(&ul)))     (* Low  Word           *)
       constant ULONG_HIWD(ul)  (*((USHORT *)((ULONG *)(&ul))+1)) (* High Word           *)
-
+*)
 
 (*      #pragma pack(1)  *)
 
