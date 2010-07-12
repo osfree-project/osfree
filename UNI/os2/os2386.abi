@@ -9,6 +9,7 @@ RexxFunctionHandler                         TYPE APIENTRY
 RexxExitHandler                             TYPE APIENTRY
 MIXERPROC                                   TYPE APIENTRY
 MIXEREVENT                                  TYPE APIENTRY
+MMIOPROC                                    TYPE APIENTRY
 DosGetMessage                               LIB APIENTRY OS2386
 DosQueryMessageCP                           LIB APIENTRY OS2386
 NLS16CONVERTBIDINUMERICS                    DLL APIENTRY BDCALLS  1    OS2386
