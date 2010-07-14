@@ -17,7 +17,7 @@
 // By default, we live with this overhead:
 {$DEFINE CHECK_NO_PM}
 
-{$I vptypes.pas}
+{$I os2types.pas}
 
 function SysGetBootDrive: Char;
 Var
