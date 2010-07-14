@@ -5,9 +5,9 @@ Program osFree_Install;
 DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
 }
 
-Uses Os2def, Util, SysLow,
-{$IFNDEF FPC} Os2base, {$ELSE}
-     Doscalls, {$ENDIF}
+Uses Os2def,
+{$IFNDEF FPC} VpUtils, VpSysLow, Os2base, {$ELSE}
+      Utl, SysLow, Doscalls, {$ENDIF}
      Strings, SysUtils, Crt, Dos;
 
 
