@@ -303,7 +303,7 @@ Begin
 ulDataLen := 0;
 ulParamSize := sizeof( ulDeadFace );
 
-rc := DosFSCtl( nil , 0, uldatalen,
+rc := DosFSCtl( nil , 0, PULONG(uldatalen),
                @ulDeadFace, ulParamSize, ulParamSize,
                FAT32_SECTORIO,
                nil,
