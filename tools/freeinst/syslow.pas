@@ -11,7 +11,7 @@
 {&OrgName+,Speed+,AlignCode+,AlignRec-,CDecl-,Far16-,Frame+,Delphi+}
 {$X+,I-,H-,R-,S-,Q-,T-}
 //W-,J+.Delphi+,Use32+,B-
-unit VPSysLow;
+unit SysLow;
 
 interface
 
@@ -208,19 +208,19 @@ end;
 // Include platform specific implementations
 
 {$IFDEF OS2}
-  {$I VpSysOs2.Pas}
+  {$I Os2.Pas}
 {$ENDIF}
 
 {$IFDEF WIN32}
-  {$I VpSysW32.Pas}
+  {$I W32.Pas}
 {$ENDIF}
 
 {$IFDEF DPMI32}
-  {$I VpSysD32.Pas}
+  {$I D32.Pas}
 {$ENDIF}
 
 {$IFDEF LINUX}
-  {$I VpSysLnx.Pas}
+  {$I Lnx.Pas}
 {$ENDIF}
 
 {initialization}

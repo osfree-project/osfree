@@ -5,7 +5,7 @@ Program osFree_Install;
 DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
 }
 
-Uses Os2def, VPUtils, VPSysLow,
+Uses Os2def, Util, SysLow,
 {$IFNDEF FPC} Os2base, {$ELSE}
      Doscalls, {$ENDIF}
      Strings, SysUtils, Crt, Dos;
@@ -19,7 +19,7 @@ Uses Os2def, VPUtils, VPSysLow,
 {$M 32768}
 
 {$IFDEF FPC}
-{$I vptypes.pas}
+{$I os2types.pas}
 {$ENDIF}
 
 Type
@@ -130,7 +130,7 @@ Procedure MBR_Sector(VAR Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
 
 Var
   rc            : ApiRet;       // Return code
-  MBRhandle     : Word;         // Filehandle
+  MBRhandle     : LongInt; // Word;         // Filehandle
   ulDataLen     : ULong;        // Data return buffer length
   ulDataLen2    : ULong;        // Data return buffer length
 //  Action        : ULong;      // Open action
@@ -143,14 +143,17 @@ Var
     sec0        : UShort;
     size0       : UShort;
     End;
-  ParmLen       : ULong;        // Parameter length in bytes
-  DataLen       : ULong;        // Data length in bytes
+  ParmLen,ParmLen1 : ULong;        // Parameter length in bytes
+  DataLen,DataLen1 : ULong;        // Data length in bytes
   FH            : Integer;
   s3            : String[3];
   Drivenumber   : String[3];
 
 Begin
 Drivenumber := Drivenum + ':' + #0;
+//Drivenumber[0] := Drivenum;
+//Drivenumber[1] := ':';
+//Drivenumber[2] := #0;
 ulDataLen  := 2; //Sizeof(MBRHandle);
 ulDataLen2 := 3; //SizeOf(DriveNumber);
 
@@ -191,13 +194,13 @@ rc := DosDevIOCtl(
   MBRHandle,            // Handle to device
   ioctl_PhysicalDisk,   // Category of request
   IOcmd,                // Function being requested
-  ParmRec,              // Input/Output parameter list
+  ParmRec,             // Input/Output parameter list
   ParmLen,              // Maximum output parameter size
-  ParmLen,              // Input:  size of parameter list
+  ParmLen1,             // Input:  size of parameter list
                         // Output: size of parameters returned
-  MBRbuffer,            // Input/Output data area
+  MBRbuffer,           // Input/Output data area
   Datalen,              // Maximum output data size
-  DataLen);             // Input:  size of input data area
+  DataLen1);            // Input:  size of input data area
 {$ELSE}
 rc := DosDevIOCtl(
   MBRHandle,            // Handle to device

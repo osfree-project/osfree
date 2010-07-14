@@ -6,7 +6,7 @@
 {Û                                                       Û}
 {ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß}
 
-Unit VPUtils;
+Unit Utils;
 
 Interface
 
@@ -21,7 +21,7 @@ uses
   {$IFDEF OS2}    Os2Def, {Os2Base,} {$ENDIF}
   {$IFDEF WIN32}  Windows,         {$ENDIF}
   {$IFDEF DPMI32} Dpmi32,          {$ENDIF}
-  VPSysLow, Strings;
+  SysLow, Strings;
 
 { --- System Information functions --- }
 
