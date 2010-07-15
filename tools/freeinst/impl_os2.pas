@@ -226,7 +226,7 @@ Begin
 ulDataLen := 0;
 ulParamSize := sizeof( ulDeadFace );
 
-rc := DosFSCtl( nil , 0, {$IFNDEF FPC} PULONG(ulDataLen), {$ELSE} ulDataLen, {$ENDIF}
+rc := DosFSCtl( nil , 0, ulDataLen,
                @ulDeadFace, ulParamSize, ulParamSize,
                FAT32_SECTORIO,
                nil,
