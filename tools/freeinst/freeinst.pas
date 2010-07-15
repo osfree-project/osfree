@@ -130,11 +130,11 @@ Procedure MBR_Sector(VAR Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
 
 Var
   rc            : ApiRet;       // Return code
-  MBRhandle     : LongInt; // Word;         // Filehandle
+  MBRhandle     : Word;         // Filehandle
   ulDataLen     : ULong;        // Data return buffer length
   ulDataLen2    : ULong;        // Data return buffer length
 //  Action        : ULong;      // Open action
-  ParmRec       : record        // Input parameter record
+  ParmRec       : packed record        // Input parameter record
     Command     : Byte;         // specific to the call we make
     Head        : UShort;
     Cyl         : UShort;
@@ -143,17 +143,14 @@ Var
     sec0        : UShort;
     size0       : UShort;
     End;
-  ParmLen,ParmLen1 : ULong;        // Parameter length in bytes
-  DataLen,DataLen1 : ULong;        // Data length in bytes
+  ParmLen       : ULong;        // Parameter length in bytes
+  DataLen       : ULong;        // Data length in bytes
   FH            : Integer;
   s3            : String[3];
   Drivenumber   : String[3];
 
 Begin
 Drivenumber := Drivenum + ':' + #0;
-//Drivenumber[0] := Drivenum;
-//Drivenumber[1] := ':';
-//Drivenumber[2] := #0;
 ulDataLen  := 2; //Sizeof(MBRHandle);
 ulDataLen2 := 3; //SizeOf(DriveNumber);
 
@@ -169,7 +166,6 @@ begin
   Writeln('DosPhysicalDisk GetHandle error: return code = ', rc);
   Halt(1);
 end;
-
 
 // Length of input parameters
 ParmLen := sizeof(ParmRec);
@@ -194,13 +190,13 @@ rc := DosDevIOCtl(
   MBRHandle,            // Handle to device
   ioctl_PhysicalDisk,   // Category of request
   IOcmd,                // Function being requested
-  ParmRec,             // Input/Output parameter list
+  ParmRec,              // Input/Output parameter list
   ParmLen,              // Maximum output parameter size
-  ParmLen1,             // Input:  size of parameter list
+  ParmLen,              // Input:  size of parameter list
                         // Output: size of parameters returned
-  MBRbuffer,           // Input/Output data area
-  Datalen,              // Maximum output data size
-  DataLen1);            // Input:  size of input data area
+  MBRbuffer,            // Input/Output data area
+  DataLen,              // Maximum output data size
+  DataLen);             // Input:  size of input data area
 {$ELSE}
 rc := DosDevIOCtl(
   MBRHandle,            // Handle to device
@@ -211,7 +207,7 @@ rc := DosDevIOCtl(
   @ParmLen,             // Input:  size of parameter list
                         // Output: size of parameters returned
   @MBRbuffer,           // Input/Output data area
-  Datalen,              // Maximum output data size
+  DataLen,              // Maximum output data size
   @DataLen);            // Input:  size of input data area
 {$ENDIF}
 
