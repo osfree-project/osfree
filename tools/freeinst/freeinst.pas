@@ -207,7 +207,7 @@ Writeln('Logical partitions are numbered from 5-255');
 Writeln;
 Write('Which Partition number do you want to boot from (see numbers above) ? ');
 Readln(BootNr);
-MBR_Sector(drive,sector0,PDSK_READPHYSTRACK);
+Read_MBR_Sector(drive, sector0);
 FH := FileOpen( drive1+'\boot\sectors\mbr.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
@@ -217,7 +217,7 @@ If FH > 0 Then
   FreeMBR[$1bc] := chr(BootNr);                     //  Insert partition bootnumber
   FreeMBR[$1bd] := chr($80);                        //  Insert disk boot number
   Sector0 := FreeMBR;
-  MBR_Sector(drive,sector0,PDSK_WritePHYSTRACK);
+  Write_MBR_Sector(drive, sector0);
   Writeln(#10,'Your MBR have been upgraded to FreeLDR , Press <Enter> to continue ');
   Readln;
   End
@@ -238,11 +238,11 @@ Var
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
 PartNr := 0;
-Open_Drive(Drive,DevHandle);            // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);            // Get drivehandle
+Lock_Disk(devhandle);
 Read_Disk(devhandle,Sector0,Sector0Len);
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 FH := FileOpen( drive1+'\boot\sectors\fatboot.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
@@ -262,11 +262,11 @@ If FH > 0 Then
   Writeln('OS/2 Error ',-FH,' opening FatBoot.bin');
   Halt(1);
   End;
-Open_Drive(Drive,DevHandle);            // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);            // Get drivehandle
+Lock_Disk(devhandle);
 Write_Disk(devhandle,Sector0,Sector0Len);
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 Fix_Preldr0(DriveT);
 Writeln('Installation of osFree on partition ',drive1,' ended successfully.');
 Write('Press <Enter> to continue... ');
@@ -300,11 +300,11 @@ Var
 
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
-Open_Drive(Drive,DevHandle);            // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);            // Get drivehandle
+Lock_Disk(devhandle);
 Read_Disk(devhandle,F32Buf,BblockLen);
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 F32bb := @F32Buf;
 FH := FileOpen( drive1+'\boot\sectors\bootsect_1.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
@@ -360,12 +360,12 @@ With F32Buf Do
   FS := fat;
   End;
 
-Open_Drive(Drive,DevHandle);    // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);    // Get drivehandle
+Lock_Disk(devhandle);
 Fat32FSctrl(Devhandle);
 fat32WriteSector( DevHandle, 0, BBlockLen DIV 512, F32Buf );
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 Fix_Preldr0(DriveT);
 Writeln('Installation of osFree Bootsectors on FAT32 partition ',drive1,' ended successfully.');
 Write('Press <Enter> to continue... ');
@@ -404,11 +404,11 @@ Var
 Begin
 FillChar(HPbuf,SizeOf(HPbuf),0);
 PartNr := 0;
-Open_Drive(Drive,DevHandle);                   // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);                   // Get drivehandle
+Lock_Disk(devhandle);
 Read_Disk(devhandle,HPbuf,BblockLen);          // Read 8k
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 F32bb := @HPbuf;
 FH := FileOpen( drive1+'\boot\sectors\bootsect_1.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
@@ -462,11 +462,11 @@ With HPbuf Do
   FS := hpfs;
   End;
 
-Open_Drive(Drive,DevHandle);            // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);            // Get drivehandle
+Lock_Disk(devhandle);
 Write_Disk(DevHandle,HPbuf,BBlockLen);
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 
 Fix_Preldr0(DriveT);
 Writeln('Installation of osFree bootsectors on partition ',drive1,' ended successfully.');
@@ -580,11 +580,11 @@ Var
 
 Begin
 //JFS_version_check;
-Open_Drive(Drive,DevHandle);                    // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);                    // Get drivehandle
+Lock_Disk(devhandle);
 Read_Disk(devhandle,HPbuf,BblockLen);           // Read boot block
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 F32bb := @HPbuf;
 FH := FileOpen( drive1+'\boot\sectors\bootsect_1.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
@@ -641,11 +641,11 @@ With HPbuf Do
   FS := jfs;
   End;
 
-Open_Drive(Drive,DevHandle);            // Get drivehandle
-lock_drive(devhandle);
+Open_Disk(Drive,DevHandle);            // Get drivehandle
+Lock_Disk(devhandle);
 Write_Disk(DevHandle,HPbuf,BBlockLen);
-unlock_drive(devhandle);
-Close_Drive(DevHandle);
+Unlock_Disk(devhandle);
+Close_Disk(DevHandle);
 
 Fix_Preldr0(DriveT);
 Writeln('FreeLDR installed successfully on JFS volumen ',drive1,' ');
@@ -659,11 +659,11 @@ End;
 Procedure Backup_BootBlock;
 Begin
 FillChar(Bbuf,SizeOf(Bbuf),0);
-Open_Drive(Drive,DevHandle);
+Open_Disk(Drive,DevHandle);
 Read_Disk(DevHandle,Bbuf,BblockLen);
 Writeln('Press Enter to continue...');
 Readln;
-Close_Drive(DevHandle);
+Close_Disk(DevHandle);
 End;
 
 Procedure Restore_BootBlock;
@@ -696,16 +696,16 @@ If FH > 0 Then
     key := upcase(readkey);
     If key <> 'B' Then BufSize := 512;
     End;
-  Open_Drive(Drive,DevHandle);
-  lock_drive(devhandle);
+  Open_Disk(Drive,DevHandle);
+  Lock_Disk(devhandle);
   If DriveT = dtHDFAT32 Then
     Begin
     Fat32FSctrl(Devhandle);
     fat32WriteSector( DevHandle, 0, BBlockLen DIV 512, BBuf );
     End
    Else Write_Disk(devhandle,BBuf,BufSize);
-  Unlock_drive(devhandle);
-  Close_Drive(DevHandle);
+  Unlock_Disk(devhandle);
+  Close_Disk(DevHandle);
   End;
 Writeln('Press Enter to continue...');
 Readln;

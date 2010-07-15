@@ -1,3 +1,6 @@
+@echo off
+rem VP path:
 set VPCPATH=f:\dev\vp21
-set binpath=%vpcpath%\bin.os2
-%binpath%\vpc.exe -B -R%vpcpath%\res.os2 -E%vpcpath%\out.os2 -O%vpcpath%\out.os2\units -L%vpcpath%\lib.os2 -L%vpcpath%\units.os2 -I. -I%vpcpath%\source\rtl -I%vpcpath%\source\tv -U. -U%vpcpath%\units.os2 -U%vpcpath%\source\rtl -U%vpcpath%\source\os2 -U%vpcpath%\source\tv freeinst.pas
+set p=os2
+set binpath=%vpcpath%\bin.%p%
+%binpath%\vpc.exe -B -R%vpcpath%\res.%p% -E%vpcpath%\out.%p% -O%vpcpath%\out.%p%\units -L%vpcpath%\lib.%p% -L%vpcpath%\units.%p% -I. -I%vpcpath%\source\rtl -I%vpcpath%\source\tv -U. -U%vpcpath%\units.%p% -U%vpcpath%\source\rtl -U%vpcpath%\source\%p% -U%vpcpath%\source\tv freeinst.pas

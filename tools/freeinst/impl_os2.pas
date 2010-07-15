@@ -1,23 +1,28 @@
+{*************************************
+ *  System-dependent implementation  *
+ *  of low-level functions for OS/2  *
+ *************************************}
+
 unit Impl_OS2;
 
 interface
 
 {$I os2types.pas}
 
-Procedure MBR_Sector(VAR Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
-Procedure Backup_MBR_sector;
-Procedure Restore_MBR_sector;
+procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
+procedure Write_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
+procedure Close_Disk(DevHandle: Hfile);
+procedure Lock_Disk(DevHandle: Hfile);
+procedure Unlock_Disk(DevHandle: Hfile);
 
-Procedure Read_Disk(VAR devhandle: Hfile; VAR buf; buf_len: Ulong);
-Procedure Write_Disk(VAR devhandle: Hfile; VAR buf; buf_len: Ulong);
+procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Backup_MBR_Sector;
+procedure Restore_MBR_Sector;
 
-Procedure Fat32FSctrl(DevHandle: Hfile);
-Procedure Fat32WriteSector( DevHandle: hfile; ulSector: ULONG; nSectors: USHORT; VAR buf );
-
-Procedure Open_Drive(Drive: PChar; VAR DevHandle: Hfile);
-Procedure Close_Drive(VAR DevHandle: Hfile);
-Procedure Lock_Drive(VAR DevHandle: Hfile);
-Procedure Unlock_Drive(DevHandle: Hfile);
+procedure Fat32FSctrl(DevHandle: Hfile);
+procedure Fat32WriteSector(DevHandle: hfile; ulSector: ULONG; nSectors: USHORT; var buf);
 
 implementation
 
@@ -30,7 +35,7 @@ uses
 {$ENDIF}
    Strings, SysUtils, Crt, Dos;
 
-Procedure MBR_Sector(VAR Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
+Procedure MBR_Sector(Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
 
 Var
   rc            : ApiRet;       // Return code
@@ -153,7 +158,98 @@ if rc <> No_Error then
   end;
 end;
 
-Procedure Read_Disk(VAR devhandle: Hfile; VAR buf; buf_len: Ulong);
+procedure read_MBR_Sector(DriveNum: char; var MBRBuffer);
+begin
+  MBR_Sector(DriveNum, MBRBuffer, PDSK_READPHYSTRACK)
+end;
+
+procedure write_MBR_Sector(DriveNum: char; var MBRBuffer);
+begin
+  MBR_Sector(DriveNum, MBRBuffer, PDSK_WRITEPHYSTRACK)
+end;
+
+// Backup MBR sector to a file
+Procedure Backup_MBR_sector;
+
+Var
+  usNumDrives : UShort; // Data return buffer
+  ulDataLen   : ULong;  // Data return buffer length
+  rc          : ApiRet; // Return code
+  Drive       : Char;
+
+Begin
+ulDataLen := sizeof(UShort);
+// Request a count of the number of partitionable disks in the system
+rc := DosPhysicalDisk(
+  info_Count_Partitionable_Disks,
+  @usNumDrives, // Pointer to returned data
+  ulDataLen,    // Size of data buffer
+  nil,          // No parameter for this function
+  0);
+if rc <> No_Error then
+  Begin
+  Writeln('DosPhysicalDisk error: return code = ', rc);
+  Halt(1);
+  End;
+Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
+Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
+Readln(Drive);
+
+MBR_Sector(drive,sector0,PDSK_READPHYSTRACK);
+Writeln('Press Enter to continue...');
+Readln;
+End;
+
+// Restore MBRsector from a file
+Procedure Restore_MBR_sector;
+
+Var
+  usNumDrives : UShort; // Data return buffer
+  ulDataLen   : ULong;  // Data return buffer length
+  //ulDataLen2   : ULong; // Data return buffer length
+  rc          : ApiRet; // Return code
+  DevHandle1   : Ushort;
+  Drive         : Char;
+  Filename:     String;
+  FH:   Integer;
+
+Begin
+ulDataLen := sizeof(UShort);
+// Request a count of the number of partitionable disks in the system
+rc := DosPhysicalDisk(
+  info_Count_Partitionable_Disks,
+  @usNumDrives, // Pointer to returned data
+  ulDataLen,    // Size of data buffer
+  nil,          // No parameter for this function
+  0);
+if rc <> No_Error then
+begin
+  Writeln('DosPhysicalDisk error: return code = ', rc);
+  Halt(1);
+end;
+Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
+Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
+Readln(Drive);
+ulDataLen := sizeof(DevHandle1);
+//ulDataLen2 := 3;
+Writeln('Enter name of the bootsectorfile to restore');
+Write('(Default is MBR_sect.000): ');
+Readln(filename);
+If filename = '' Then Filename := 'MBR_sect.000';
+FH := FileOpen( filename, fmOpenRead OR fmShareDenyNone);
+If FH > 0 Then
+  Begin
+  Writeln('Restoring ',filename, 'to bootsector');
+  FileRead( FH, Sector0, Sector0Len );
+  FileClose( FH );
+  MBR_Sector(drive,sector0,PDSK_WritePHYSTRACK);
+  End
+ Else Writeln('Sorry, the file ',filename,' returned error ',-FH);
+Writeln('Press Enter to continue...');
+Readln;
+End;
+
+Procedure Read_Disk(devhandle: Hfile; VAR buf; buf_len: Ulong);
 Var
   ulBytesRead   : ULONG;          // Number of bytes read by DosRead
   rc            : APIRET;         // Return code
@@ -189,7 +285,7 @@ FileClose( FH );
 End;
 
 
-Procedure Write_Disk(VAR devhandle: Hfile; VAR buf; buf_len: Ulong);
+Procedure Write_Disk(devhandle: Hfile; VAR buf; buf_len: Ulong);
 Var
   ulWrote       : ULONG;        // Number of bytes written by DosWrite
   //ulLocal       : ULONG;        // File pointer position after DosSetFilePtr
@@ -282,7 +378,7 @@ If rc <> No_Error Then
 
 End;
 
-Procedure Open_Drive(Drive: PChar; VAR DevHandle: Hfile);
+Procedure Open_Disk(Drive: PChar; VAR DevHandle: Hfile);
 
 Var
   rc          : ApiRet; // Return code
@@ -316,7 +412,7 @@ If rc <> No_Error Then
   End;
 End;
 
-Procedure Close_Drive(VAR DevHandle: Hfile);
+Procedure Close_Disk(DevHandle: Hfile);
 
 Var
   rc          : ApiRet; // Return code
@@ -331,7 +427,7 @@ If rc <> No_Error Then
 End;
 
 
-Procedure lock_Drive(VAR DevHandle: Hfile);
+Procedure Lock_Disk(DevHandle: Hfile);
 
 Var
   rc          : ApiRet;   // Return code
@@ -388,7 +484,7 @@ else
 End;
 
 
-Procedure Unlock_Drive(DevHandle: Hfile);
+Procedure Unlock_Disk(DevHandle: Hfile);
 
 Var
   rc          : ApiRet; // Return code
@@ -441,88 +537,6 @@ Else
   //  Writeln('Drive UNLOCKed successfully ');
   End;
 
-End;
-
-
-// Backup MBR sector to a file
-Procedure Backup_MBR_sector;
-
-Var
-  usNumDrives : UShort; // Data return buffer
-  ulDataLen   : ULong;  // Data return buffer length
-  rc          : ApiRet; // Return code
-  Drive       : Char;
-
-Begin
-ulDataLen := sizeof(UShort);
-// Request a count of the number of partitionable disks in the system
-rc := DosPhysicalDisk(
-  info_Count_Partitionable_Disks,
-  @usNumDrives, // Pointer to returned data
-  ulDataLen,    // Size of data buffer
-  nil,          // No parameter for this function
-  0);
-if rc <> No_Error then
-  Begin
-  Writeln('DosPhysicalDisk error: return code = ', rc);
-  Halt(1);
-  End;
-Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
-Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
-Readln(Drive);
-
-MBR_Sector(drive,sector0,PDSK_READPHYSTRACK);
-Writeln('Press Enter to continue...');
-Readln;
-End;
-
-// Restore MBRsector from a file
-Procedure Restore_MBR_sector;
-
-Var
-  usNumDrives : UShort; // Data return buffer
-  ulDataLen   : ULong;  // Data return buffer length
-  //ulDataLen2   : ULong; // Data return buffer length
-  rc          : ApiRet; // Return code
-  DevHandle1   : Ushort;
-  Drive         : Char;
-  Filename:     String;
-  FH:   Integer;
-
-Begin
-ulDataLen := sizeof(UShort);
-// Request a count of the number of partitionable disks in the system
-rc := DosPhysicalDisk(
-  info_Count_Partitionable_Disks,
-  @usNumDrives, // Pointer to returned data
-  ulDataLen,    // Size of data buffer
-  nil,          // No parameter for this function
-  0);
-if rc <> No_Error then
-begin
-  Writeln('DosPhysicalDisk error: return code = ', rc);
-  Halt(1);
-end;
-Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
-Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
-Readln(Drive);
-ulDataLen := sizeof(DevHandle1);
-//ulDataLen2 := 3;
-Writeln('Enter name of the bootsectorfile to restore');
-Write('(Default is MBR_sect.000): ');
-Readln(filename);
-If filename = '' Then Filename := 'MBR_sect.000';
-FH := FileOpen( filename, fmOpenRead OR fmShareDenyNone);
-If FH > 0 Then
-  Begin
-  Writeln('Restoring ',filename, 'to bootsector');
-  FileRead( FH, Sector0, Sector0Len );
-  FileClose( FH );
-  MBR_Sector(drive,sector0,PDSK_WritePHYSTRACK);
-  End
- Else Writeln('Sorry, the file ',filename,' returned error ',-FH);
-Writeln('Press Enter to continue...');
-Readln;
 End;
 
 {$IFNDEF FPC}
