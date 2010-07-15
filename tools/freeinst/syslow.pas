@@ -7,10 +7,10 @@
 // |                                                         |
 // |---------------------------------------------------------|
 
-//{.$MODE ObjFPC}
+{.$MODE ObjFPC}
 {&OrgName+,Speed+,AlignCode+,AlignRec-,CDecl-,Far16-,Frame+,Delphi+}
 {$X+,I-,H-,R-,S-,Q-,T-}
-//W-,J+.Delphi+,Use32+,B-
+{$IFNDEF FPC}{$W-,J+.Delphi+,Use32+,B-}{$ENDIF}
 unit SysLow;
 
 interface
