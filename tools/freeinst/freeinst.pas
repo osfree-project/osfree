@@ -45,7 +45,7 @@ Const
 
 Type
   Sector0Buf =  ARRAY [0..511] of Char;
-  hdr =         Record                 // Total size 60 bytes
+  hdr =         Packed Record                 // Total size 60 bytes
                 jmp:            Word;
                 FS_Len:         Word;
                 Preldr_Len:     Word;
@@ -58,7 +58,7 @@ Type
 
 
   BblockBuf =   Array[0..Bblocklen-1] of Char;
-  FAT32Buf =    Record
+  FAT32Buf =    Packed Record
                 // Bootsector (sector 0 = 512 bytes)
                 jmp1:           Array[0..2] Of Byte;
                 Oem_Id:         Str8;
@@ -81,7 +81,7 @@ Type
                 Data4:          Array[0..BblockLen-(61+1024)] Of Char;
                 End;
 
-  HPFSBuf =     Record
+  HPFSBuf =     Packed Record
                 // Bootsector (sector 0 = 512 bytes)
                 jmp1:           Array[0..2] Of Byte;
                 Oem_Id:         Str8;
@@ -134,7 +134,7 @@ Var
   ulDataLen     : ULong;        // Data return buffer length
   ulDataLen2    : ULong;        // Data return buffer length
 //  Action        : ULong;      // Open action
-  ParmRec       : packed record        // Input parameter record
+  ParmRec       : packed record // Input parameter record
     Command     : Byte;         // specific to the call we make
     Head        : UShort;
     Cyl         : UShort;
@@ -347,7 +347,7 @@ Const
  FAT32_WRITESECTOR =  $FF;
 
 Var
-  wsd: Record
+  wsd: Packed Record
        ulSector:  ULONG;
        nSectors:  USHORT;
        End;
@@ -437,7 +437,7 @@ Procedure lock_Drive(VAR DevHandle: Hfile);
 Var
   rc          : ApiRet;   // Return code
   //Action      : ULong;    // Open action
-  //ParmRec     : record    // Input parameter record
+  //ParmRec     : packed record    // Input parameter record
   //  Command : ULong;      // specific to the call we make
   //  Addr0   : ULong;
   //  Bytes   : UShort;
@@ -494,7 +494,7 @@ Procedure Unlock_Drive(DevHandle: Hfile);
 Var
   rc          : ApiRet; // Return code
   //Action      : ULong;  // Open action
-  //ParmRec     : record  // Input parameter record
+  //ParmRec     : packed record  // Input parameter record
   //  Command : ULong;    // specific to the call we make
   //  Addr0   : ULong;
   //  Bytes   : UShort;
@@ -549,7 +549,7 @@ Procedure Fix_Preldr0(DriveT:TdriveType);
 Var
   FH:           Integer;
   Count:        Word;
-  ldr0:         Record
+  ldr0:         Packed Record
                 head:   Array[0..1] Of Byte;
                 l1:     Word;
                 l2:     Word;
@@ -601,7 +601,7 @@ End;
 
 Procedure Install_MBR;
 Type
-  drvtype = record
+  drvtype = packed record
     drvletter: char;
     PartNr: byte;
     partname: String[16];
@@ -769,7 +769,7 @@ End;
 //
 Procedure Install_Fat32;
 Type
-  Free0 = Record
+  Free0 = Packed Record
         jmp:            Array[0..2] Of Byte;
         Oem_Id:         Str8;
         Bpb:            Array[0..78] Of Char;
@@ -872,7 +872,7 @@ Const
     osFree: Str8  = 'IBM Free' ;
 
 Type
-  Free0 = Record
+  Free0 = Packed Record
         jmp:            Array[0..2] Of Byte;
         Oem_Id:         Str8;
         Bpb:            Array[0..50] Of Char;
@@ -1049,7 +1049,7 @@ Const
     osFree: Str8  = '[osFree]' ;
 
 Type
-  Free0 = Record
+  Free0 = Packed Record
         jmp:            Array[0..2] Of Byte;
         Oem_Id:         Str8;
         Bpb:            Array[0..50] Of Char;
