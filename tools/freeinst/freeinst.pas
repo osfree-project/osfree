@@ -13,7 +13,7 @@ Uses
               Impl_OS2,
 {$ENDIF}
 {$IFDEF WIN32}
-              Impl_WIN,
+              Impl_W32,
 {$ENDIF}
 {$IFDEF DPMI32}
               Impl_D32,

@@ -223,8 +223,8 @@ end;
   {$I Lnx.Pas}
 {$ENDIF}
 
+{$IFDEF FPC}
 {initialization}
-{$IFNDEF FPC}
 begin
 {$ENDIF}
 end.

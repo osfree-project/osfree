@@ -21,7 +21,7 @@ ADD_COPT   =          $(ADD_COPT) -bd
 
 ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%WATCOM)$(SEP)h &
-#                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
+//                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &

@@ -539,7 +539,7 @@ Else
 
 End;
 
-{$IFNDEF FPC}
+{$IFDEF FPC}
 {initialisation}
 begin
 {$ENDIF}

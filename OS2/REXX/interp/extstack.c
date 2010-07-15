@@ -21,10 +21,13 @@ static char *RCSid = "$Id: extstack.c,v 1.21 2005/08/04 11:28:40 mark Exp $";
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+//#ifdef __OSFREE__
+//#else
 #if defined(__WATCOMC__) && defined(OS2)
 # include <sys/types.h>
 # include <os2/types.h>
 #endif
+//#endif
 #include "rexx.h"
 
 #if defined(WIN32)

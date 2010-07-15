@@ -30,8 +30,8 @@ TRG  =
 #
 # Preprocessor defines
 #
-C_DEFS    = -zq -d__WATCOM__
-ASM_DEFS  = -zq -d__WATCOM__
+C_DEFS    = -zq -d__WATCOM__ -d__OSFREE__
+ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in

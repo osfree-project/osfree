@@ -109,7 +109,8 @@ begin
 end;
  *)
 
-{$IFNDEF FPC}
+{$IFDEF FPC}
+{initialization}
 begin
 {$ENDIF}
 end.
