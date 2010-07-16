@@ -88,26 +88,15 @@ end;
 { Get a list of all valid drive letters }
 procedure GetValidDrives( var Drives : DriveSet );
 var
-  DrivesWord : Longint absolute Drives;
+  DrivesWord : Longint; // absolute Drives;
+  i: integer;
 begin
-  DrivesWord := SysGetValidDrives shl 1;
+  DrivesWord := SysGetValidDrives;
+  Drives := [];
+  for i := 0 to 31 do
+    if ((DrivesWord shr i) and 1) = 1 then
+        Drives := Drives + [chr(ord('A') + i)];
 end;
-
-(*
-function DirExists( _Path: String ): Boolean;
-var
-  DirInfo: SearchRec;
-begin
-  // Remove trailing backslash, if any
-  if _Path[Length(_Path)] = SysPathSep then
-    Delete( _Path, Length(_Path), 1 );
-  // FindFirst: Allow any attribute; require Directory attribute
-  FindFirst( _Path, $3F, DirInfo );
-  Result := DosError = 0;
-  if Result then
-    FindClose(DirInfo);
-end;
- *)
 
 {$IFDEF FPC}
 {initialization}

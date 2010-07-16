@@ -88,10 +88,12 @@ end;
 
 function SysGetValidDrives: Longint;
 var
-  CurDrive: Longint;
+  CurDrive, res: Longint;
 begin
-  DosQueryCurrentDisk(CurDrive, Result);
-  Result := 0;
+  DosQueryCurrentDisk(CurDrive, res);
+  if res <> 0
+    then result := res
+    else result := 0;
 end;
 
 function SysOsVersion: Longint;

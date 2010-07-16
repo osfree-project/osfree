@@ -3,7 +3,7 @@
  *  of low-level functions for DPMI32 *
  **************************************}
 
-unit Impl_D32
+unit Impl_D32;
 
 interface
 
@@ -24,6 +24,9 @@ procedure Restore_MBR_Sector;
 //procedure Fat32WriteSector(DevHandle: hfile; ulSector: ULONG; nSectors: USHORT; var buf);
 
 implementation
+
+uses
+  System;
 
 type
   PRModeCall = ^TRModeCall;
@@ -47,9 +50,11 @@ type
       si, di: Word;
   end;
 
+  CMDS = (READ_CMD, WRITE_CMD, PARA_CMD);
+
 {*
  *  Performs a real mode interrupt from protected mode
- *  routines dpmi_rmode_intr and real_int86x are 'stolen' from A.Schulman's
+ *  routines dpmi_rmode_intr and int86x are 'stolen' from A.Schulman's
  *  Undocumented DOS
  *}
 function dpmi_rmode_intr(intno, flags, copywords: Word, rmc: PRModeCall): boolean; assembler; {$ASMMODE intel}
@@ -60,7 +65,7 @@ asm
   mov ax, 0300h             // simulate real mode interrupt
   mov bx, intno             // interrupt number, flags
   mov cx, copywords         // words to copy from pmode to rmode stack
-  les di, rmc               // ES:DI = address of rmode call struct
+  lea di, rmc               // ES:DI = address of rmode call struct
   int 31h                   // call DPMI
   jc error
   mov ax, 1                 // return TRUE
@@ -73,7 +78,7 @@ asm
   pop di
 end;
 
-function real_int86x(intno: integer; inregs, outregs: PREGS, sregs: PSREGS): integer;
+function int86x(intno: integer; inregs, outregs: PREGS, sregs: PSREGS): integer;
 var
   r: TRModeCall;
 begin
@@ -93,6 +98,7 @@ begin
   begin
     outregs^.cflag := 1;          { error: set carry flag! }
     result := -1;
+    exit;
   end
 
   sregs^.es := r.es;
@@ -106,8 +112,71 @@ begin
   outregs^.si := r.esi;
   outregs^.di := r.edi;
   outregs^.cflag := r.flags and 1;  { carry flag }
+
   result := outregs^.ax;
 end;
+
+function biosdisk(cmd: CMDS; drive, head, cyl, sector, nsects: LongInt; var buffer): integer;
+  lparam: Pointer;
+  rmSegment, pmSelektor: LongInt;
+  regs: TRegs;
+  sregs: TSRegs;
+begin
+    if cmd = READ_CMD then
+    begin
+        { allocate DOS-Memory }
+        GetMem(lparam, nsects);
+        if lparam = 0 then
+        begin
+            Writeln("cannot allocate DOS memory");
+            exit(-1);
+        end;
+        //rmSegment  := HIWORD(lparam);
+        //pmSelektor := LOWORD(lparam);
+        sregs.cs := 0;
+        sregs.ds := 0;
+        sregs.es := rmSegment;
+        regs.bx  := 0;
+        regs.dl  := drive;
+        regs.dh  := head;
+        regs.cl  := (sector & 0x3F) + ((cyl >> 2) & 0xC0);
+        regs.ch  := cyl;
+        regs.al  := nsects;
+        regs.ah  := 0x02;
+        int86x($13, @regs, @regs, @sregs);                /*Bios Disk Read Interrupt */
+        if (regs.x.flags)
+        {
+            GlobalDosFree(pmSelektor);                          /*free DOS-Memory */
+            return -1;                                          /*Fehler */
+        }
+        _fmemcpy(buffer, MK_FP(pmSelektor, 0), DISK_BLOCK_SIZE * nsects);
+        GlobalDosFree(pmSelektor);                              /*free DOS-Memory */
+        return (regs.x.ax) & 0xFF00;
+    end else if cmd = PARA_CMD then
+    begin
+
+        DebugOut(2,"---PARA_CMD----\n");
+
+        regs.h.ah = 0x08;
+        regs.h.dl = drive;
+        real_int86x(0x13, &regs, &regs, &sregs);                /*Bios Disk Read Interrupt */
+        if (regs.x.flags)
+        {
+            return -1;                                          /*Fehler */
+        }
+        buffer[0] = regs.h.cl;                                  /*no of sectors */
+        buffer[1] = regs.h.ch;                                  /*no of cylinders */
+        buffer[2] = regs.h.dl;                                  /*no of drives */
+        buffer[3] = regs.h.dh;                                  /*no of heads */
+        return (regs.x.ax) & 0xFF00;
+    } else if (cmd == WRITE_CMD)
+    {
+        fprintf(STDERR,"Sorry, lwrite currently not supported under Windows GUI. Use DOS box\n");
+    } else
+        fprintf(STDERR,"Illegal command in function biosdisk()\n");
+
+    return -1;
+}
 
 procedure Read_Sectors(Drive: char; var Buf; StartSec, Sectors: ULong);
 begin
