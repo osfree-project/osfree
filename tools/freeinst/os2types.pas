@@ -38,7 +38,7 @@ type
   PHmodule = ^HModule;
   PPid     = ^Pid;
   PTid     = ^Tid;
-  HFile    = SHandle;
+  HFile    = LongInt; //SHandle;
   pHFile   = ^HFile;
 
 { Common SUP types }

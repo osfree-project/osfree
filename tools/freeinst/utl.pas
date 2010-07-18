@@ -20,7 +20,7 @@ Interface
 uses
   {$IFDEF OS2}    Os2Def, {Os2Base,} {$ENDIF}
   {$IFDEF WIN32}  Windows,         {$ENDIF}
-  {$IFDEF DPMI32} Dpmi32,          {$ENDIF}
+  {$IFDEF DPMI32} {Dpmi32,}          {$ENDIF}
   SysLow, Strings;
 
 { --- System Information functions --- }
@@ -30,10 +30,6 @@ uses
 type
   DriveSet   = Set of 'A'..'Z';
 
-{ Get the volume label of the specified drive letter }
-function GetVolumeLabel( Drive : Char ) : String;
-{ Search for fName in Current Dir, then in the PATH }
-function FileExistsOnPath( FName : string; var FullName : string ) : Boolean;
 { Get the current boot drive letter }
 function GetBootDrive : Char;
 { Get the format of a drive letter }
@@ -46,32 +42,6 @@ Implementation
 
 uses
   Dos;
-
-//threadvar
-//  SaveCursor : Word;     { Used for show/hide cursor }
-
-{ Returns the volume label of the specified drive }
-function GetVolumeLabel( Drive : Char ) : String;
-begin
-  Result := SysGetVolumeLabel(Drive);
-end;
-
-{ Search for fName in Current Dir, then PATH environment }
-function FileExistsOnPath(FName : string; var FullName : string) : Boolean;
-Var
-  FNameZ  : array [0..259] of Char;
-  Buffer  : Array [0..259] of Char;
-  Path    : String;
-
-begin
-  FileExistsOnPath := False;
-
-  Path := Dos.GetEnv('PATH')+#0;
-  StrPCopy( FNameZ, FName );
-  SysFileSearch(Buffer, FNameZ, @Path[1]);
-  FullName := StrPas( Buffer );
-  Result := Buffer[0] <> #0;
-end;
 
 { Get the current boot drive letter }
 function GetBootDrive : Char;
@@ -95,7 +65,7 @@ begin
   Drives := [];
   for i := 0 to 31 do
     if ((DrivesWord shr i) and 1) = 1 then
-        Drives := Drives + [chr(ord('A') + i)];
+      Drives := Drives + [chr(ord('A') + i)];
 end;
 
 {$IFDEF FPC}

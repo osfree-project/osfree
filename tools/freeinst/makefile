@@ -7,5 +7,6 @@
 #
 
 PROJ  = freeinst
+ADD_PCOPT = #-Tgo32v2 -dDPMI32
 DESC  = FreeLDR installer by Yoda
 !include $(%ROOT)/mk/toolspas.mk

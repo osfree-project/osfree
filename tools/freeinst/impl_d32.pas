@@ -7,6 +7,10 @@ unit Impl_D32;
 
 interface
 
+type
+  Hfile  = LongInt;
+  ULong  = LongWord;
+  UShort = Word;
 
 procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
 procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
@@ -15,8 +19,8 @@ procedure Close_Disk(DevHandle: Hfile);
 procedure Lock_Disk(DevHandle: Hfile);
 procedure Unlock_Disk(DevHandle: Hfile);
 
-procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
-procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: Char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: Char; var MBRBuffer);
 procedure Backup_MBR_Sector;
 procedure Restore_MBR_Sector;
 
@@ -25,162 +29,407 @@ procedure Restore_MBR_Sector;
 
 implementation
 
+{ FreePascal only :( As VirtualPascal does not support DPMI32 }
+
 uses
-  System;
+  Common, Strings, SysUtils, Crt, Dos;
 
-type
-  PRModeCall = ^TRModeCall;
-  TRModeCall = record
-    edi, esi, ebp, reserved, ebx, edx, ecx, eax: ULong;
-    flags, es, ds, fs, gs, ip, cs, sp, ss: UShort;
-  end;
+const
+  BIOSDISK_READ               : LongWord    = $0;
+  BIOSDISK_WRITE              : LongWord    = $1;
+  BIOSDISK_GEO                : LongWord    = $2;
+  BIOSDISK_ERROR_GEOMETRY     : LongWord    = $100;
+  BIOSDISK_FLAG_LBA_EXTENSION : LongWord    = $1;
+  BIOSDISK_FLAG_CDROM         : LongWord    = $2;
 
-  PSREGS = ^TSREGS;
-  TSREGS = packed record
-    es, cs, ss, ds, fs, gs: Word;
-  end;
+  carryflag = 1;
 
-  PREGS  = ^TREGS;
-  TREGS  = packed record
-    case n of
-      0:
-        ax, bx, cx, dx: Word;
-      1:
-        al, ah, bl, bh, cl, ch, dl, dh: Byte;
-      si, di: Word;
-  end;
-
-  CMDS = (READ_CMD, WRITE_CMD, PARA_CMD);
-
-{*
- *  Performs a real mode interrupt from protected mode
- *  routines dpmi_rmode_intr and int86x are 'stolen' from A.Schulman's
- *  Undocumented DOS
- *}
-function dpmi_rmode_intr(intno, flags, copywords: Word, rmc: PRModeCall): boolean; assembler; {$ASMMODE intel}
-asm
-  push di
-  push bx
-  push cx
-  mov ax, 0300h             // simulate real mode interrupt
-  mov bx, intno             // interrupt number, flags
-  mov cx, copywords         // words to copy from pmode to rmode stack
-  lea di, rmc               // ES:DI = address of rmode call struct
-  int 31h                   // call DPMI
-  jc error
-  mov ax, 1                 // return TRUE
-  jmp short done
-@error:
-  mov ax, 0                 // return FALSE
-@done:
-  pop cx
-  pop bx
-  pop di
-end;
-
-function int86x(intno: integer; inregs, outregs: PREGS, sregs: PSREGS): integer;
 var
-  r: TRModeCall;
+  filepos: LongWord; // global seek position
+
+procedure getinoutres(def : word);
+var
+  regs : TRealRegs;
 begin
-  FillChar(@r, sizeof(r), 0);   { initialize all fields to zero: important! }
-  r.edi := inregs^.di;
-  r.esi := inregs^.si;
-  r.ebx := inregs^.bx;
-  r.edx := inregs^.dx;
-  r.ecx := inregs^.cx;
-  r.eax := inregs^.ax;
-  r.flags := inregs^.cflag;
-  r.es := sregs^.es;
-  r.ds := sregs^.ds;
-  r.cs := sregs^.cs;
-
-  if not dpmi_rmode_intr(intno, 0, 0, @r) then
-  begin
-    outregs^.cflag := 1;          { error: set carry flag! }
-    result := -1;
-    exit;
-  end
-
-  sregs^.es := r.es;
-  sregs^.cs := r.cs;
-  sregs^.ss := r.ss;
-  sregs^.ds := r.ds;
-  outregs^.ax := r.eax;
-  outregs^.bx := r.ebx;
-  outregs^.cx := r.ecx;
-  outregs^.dx := r.edx;
-  outregs^.si := r.esi;
-  outregs^.di := r.edi;
-  outregs^.cflag := r.flags and 1;  { carry flag }
-
-  result := outregs^.ax;
+  regs.realeax:=$5900;
+  regs.realebx:=$0;
+  sysrealintr($21,regs);
+  InOutRes:=lo(regs.realeax);
+  case InOutRes of
+   19 : InOutRes:=150;
+   21 : InOutRes:=152;
+   32 : InOutRes:=5;
+  end;
+  if InOutRes=0 then
+    InOutRes:=Def;
 end;
 
-function biosdisk(cmd: CMDS; drive, head, cyl, sector, nsects: LongInt; var buffer): integer;
-  lparam: Pointer;
-  rmSegment, pmSelektor: LongInt;
-  regs: TRegs;
-  sregs: TSRegs;
+function tb_size : longint;
 begin
-    if cmd = READ_CMD then
+  tb_size := go32_info_block.size_of_transfer_buffer;
+end;
+
+function tb_segment : longint;
+begin
+  tb_segment := go32_info_block.linear_address_of_transfer_buffer shr 4;
+end;
+
+function biosdisk(ahreg, drive,
+                  coff, hoff, soff,
+                  nsec: LongInt; var buf): LongInt;
+var
+  regs: TRealRegs;
+  seg, offs: Word;
+begin
+  seg  := LongWord(buf) shr 16;
+  offs := LongWord(buf) and $f;
+  regs.realeax := (nsec and $ff) or ((ahreg and $ff) shl 8);
+  regs.realebx := offs;
+  regs.realedx := (drive and $ff) or ((hoff and $ff) shl 8);
+  regs.realecx := ((coff and $ff) shl 8) or (((soff and $ff) shl 2) shr 2);
+  regs.reales  := seg;
+
+  SysRealIntr($13, regs);
+
+  result := (regs.realeax shr 8) and $ff;
+end;
+
+function dosdisk_read(drive, sector, nsec, segment: LongInt;
+                      var bytes_read: LongInt): LongInt;
+type
+  read_pkt = packed record
+    sector : LongWord;
+    nsect  : Word;
+    addr   : LongWord;
+  end;
+
+var
+  regs : TRealRegs;
+  pkt  : read_pkt;
+
+begin
+  regs.realeax := drive and $ff;
+  regs.realecx := $ffff;
+  regs.realds  := LongWord(@pkt) shr 4;
+  regs.realebx := LongWord(@pkt) and $f;
+
+  pkt.sector := sector;
+  pkt.nsect  := nsec;
+  pkt.addr   := segment shl 16;
+
+  SysRealIntr($25, regs);
+
+  bytes_read := pkt.nsect shl 9;
+
+  if (regs.realflags and CARRYFLAG) = CARRYFLAG then
     begin
-        { allocate DOS-Memory }
-        GetMem(lparam, nsects);
-        if lparam = 0 then
+      result := 1;
+      exit;
+    end;
+
+  result := 0;
+end;
+
+function dosdisk_write(drive, sector, nsec, segment: LongInt;
+                       var bytes_written: LongInt): LongInt;
+type
+  write_pkt = packed record
+    sector : LongWord;
+    nsect  : Word;
+    addr   : LongWord;
+  end;
+
+var
+  regs : TRealRegs;
+  pkt  : write_pkt;
+
+begin
+  regs.realeax := drive and $ff;
+  regs.realecx := $ffff;
+  regs.realds  := LongWord(@pkt) shr 4;
+  regs.realebx := LongWord(@pkt) and $f;
+
+  pkt.sector := sector;
+  pkt.nsect  := nsec;
+  pkt.addr   := segment shl 16;
+
+  SysRealIntr($26, regs);
+
+  bytes_written := pkt.nsect shl 9;
+
+  if (regs.realflags and CARRYFLAG) = CARRYFLAG then
+    begin
+      result := 1;
+      exit;
+    end;
+
+  result := 0;
+end;
+
+function GetLastHardDisk: Byte;
+var
+  regs   : TRealRegs;
+  ah, i  : byte;
+
+begin
+  regs.realeax := $15ff;
+  regs.realecx := $ffff;
+
+  i := $80;
+  repeat
+    regs.realedx := i;
+    SysRealIntr($13, regs);
+    ah := (regs.realeax shl 8) and $ff;
+    if (regs.realflags and CARRYFLAG) = CARRYFLAG then
+      begin
+        result := 0;
+        exit;
+      end;
+    inc(i);
+  until ah <> $03;
+
+  result := i - $80;
+end;
+
+function AbsRead(drive: char; lba, len, addr: LongInt) : LongInt;
+var
+  size,
+  readsize,
+  bytes_read    : LongInt;
+  err           : integer;
+  drv           : LongInt;
+
+begin
+  drv := ord(upcase(drive)) - ord('A');
+  readsize:=0;
+  while len > 0 do
+    begin
+      if len > tb_size then
+        size := tb_size
+      else
+        size := len;
+      err := dosdisk_read(drv, lba, len, tb_segment, bytes_read);
+      if err <> 0 then
         begin
-            Writeln("cannot allocate DOS memory");
-            exit(-1);
+          GetInOutRes(lo(bytes_read));
+          result := 0;
+          exit;
         end;
-        //rmSegment  := HIWORD(lparam);
-        //pmSelektor := LOWORD(lparam);
-        sregs.cs := 0;
-        sregs.ds := 0;
-        sregs.es := rmSegment;
-        regs.bx  := 0;
-        regs.dl  := drive;
-        regs.dh  := head;
-        regs.cl  := (sector & 0x3F) + ((cyl >> 2) & 0xC0);
-        regs.ch  := cyl;
-        regs.al  := nsects;
-        regs.ah  := 0x02;
-        int86x($13, @regs, @regs, @sregs);                /*Bios Disk Read Interrupt */
-        if (regs.x.flags)
-        {
-            GlobalDosFree(pmSelektor);                          /*free DOS-Memory */
-            return -1;                                          /*Fehler */
-        }
-        _fmemcpy(buffer, MK_FP(pmSelektor, 0), DISK_BLOCK_SIZE * nsects);
-        GlobalDosFree(pmSelektor);                              /*free DOS-Memory */
-        return (regs.x.ax) & 0xFF00;
-    end else if cmd = PARA_CMD then
-    begin
+       SysCopyFromDOS(addr + readsize, lo(bytes_read));
+       inc(readsize,lo(bytes_read));
+       dec(len,lo(bytes_read));
+       { stop when not the specified size is read }
+       if lo(bytes_read) < size then
+         break;
+    end;
+  result := readsize;
+end;
 
-        DebugOut(2,"---PARA_CMD----\n");
+function AbsWrite(drive: char; lba, len, addr: LongInt) : LongInt;
+var
+  size,
+  writesize       : LongInt;
+  bytes_written   : LongInt;
+  err             : integer;
+  drv             : LongInt;
 
-        regs.h.ah = 0x08;
-        regs.h.dl = drive;
-        real_int86x(0x13, &regs, &regs, &sregs);                /*Bios Disk Read Interrupt */
-        if (regs.x.flags)
-        {
-            return -1;                                          /*Fehler */
-        }
-        buffer[0] = regs.h.cl;                                  /*no of sectors */
-        buffer[1] = regs.h.ch;                                  /*no of cylinders */
-        buffer[2] = regs.h.dl;                                  /*no of drives */
-        buffer[3] = regs.h.dh;                                  /*no of heads */
-        return (regs.x.ax) & 0xFF00;
-    } else if (cmd == WRITE_CMD)
-    {
-        fprintf(STDERR,"Sorry, lwrite currently not supported under Windows GUI. Use DOS box\n");
-    } else
-        fprintf(STDERR,"Illegal command in function biosdisk()\n");
-
-    return -1;
-}
-
-procedure Read_Sectors(Drive: char; var Buf; StartSec, Sectors: ULong);
 begin
+  drv := ord(upcase(drive)) - ord('A');
+  writesize := 0;
+  while len > 0 do
+    begin
+      if len > tb_size then
+        size := tb_size
+      else
+        size := len;
+      SysCopyToDOS(addr + writesize, size);
+      err := dosdisk_write(drv, lba, len, tb_segment, bytes_written);
+      if err <> 0 then
+        begin
+          GetInOutRes(lo(bytes_written));
+          result := writesize;
+          exit;
+        end;
+      inc(writesize, lo(bytes_written));
+      dec(len, lo(bytes_written));
+      { stop when not the specified size is written }
+      if lo(bytes_written) < size then
+        break;
+    end;
+  result := writesize;
+end;
 
+procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+begin
+  DevHandle := ord(drive^);
+  filepos := 0;
+end;
+
+procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
+var
+  rc            : LongInt;        // Return code
+  s3            : String[3];
+  FH            : integer;        // File handle for backup file
+begin
+  rc := AbsRead(chr(DevHandle),
+                filepos,
+                buf_len,
+                LongInt(buf));
+  if (rc = 0) then
+    begin
+      writeln('DosRead error');
+      halt(1);
+    end;
+
+  inc(filepos, rc); // increment seek position
+
+  // Write backup file of data read
+  i := 0;
+  repeat
+    str(i:3, s3);
+    if pos(' ',s3) = 1 then s3[1] := '0';
+    if pos(' ',s3) = 2 then s3[2] := '0';
+    i := succ(i);
+    if i > 999 then exit;
+  until not FileExists ('Drive-' + drive1[1] + '.' + s3);
+  writeln('Backup bootsector file created:  Drive-', drive1[1], '.', s3);
+  FH := FileCreate('Drive-' + drive1[1] + '.' + s3);
+  FileWrite(FH, buf, rc);
+  FileClose(FH);
+end;
+
+procedure Write_Disk(devhandle: Hfile; VAR buf; buf_len: Ulong);
+var
+  rc            : LongInt;       // Return code
+
+begin
+  rc := AbsWrite(chr(DevHandle), // File handle
+                 filepos,
+                 buf_len,        // Size of string to be written
+                 LongInt(buf));       // Bytes actually written
+
+  if (rc = 0) then
+    begin
+      writeln('DosWrite error');
+      halt(1);
+    end;
+
+  inc(filepos, rc);
+  writeln(rc,' Bytes written to disk');
+end;
+
+procedure Close_Disk(DevHandle: Hfile);
+begin
+end;
+
+procedure Lock_Disk(DevHandle: Hfile);
+begin
+end;
+
+procedure Unlock_Disk(DevHandle: Hfile);
+begin
+end;
+
+procedure MBR_Sector(DriveNum: Char; var MBRBuffer; IOcmd: LongInt);
+var
+  FH            : Integer;
+  s3            : String[3];
+  drv           : Byte;
+  rc            : LongInt;
+
+begin
+  drv := ord(DriveNum) - $31 + $80; // 1: means bios device $80
+
+  rc := biosdisk(2 + IOcmd, drv, 0, 0, 1, 1, MBRBuffer);
+
+  if rc <> 0 then
+    begin
+      writeln('biosdisk (Disk_I/O MBR sector) error: return code = ', rc);
+      halt(1);
+    end;
+
+  i := 0;
+  repeat
+    str(i:3, s3);
+    if pos(' ',s3) = 1 then s3[1] := '0';
+    if pos(' ',s3) = 2 then s3[2] := '0';
+    i := succ(i);
+    if i > 999 then exit;
+  until not FileExists ('MBR_sect.'+s3);
+  writeln('Backup bootsector file = MBR_sect.',s3);
+  FH := FileCreate( 'MBR_sect.'+s3);
+  FileWrite(FH, Sector0, Sector0Len);
+  FileClose(FH);
+end;
+
+procedure Read_MBR_Sector(DriveNum: Char; var MBRBuffer);
+begin
+  MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_READ)
+end;
+
+procedure Write_MBR_Sector(DriveNum: Char; var MBRBuffer);
+begin
+  MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_WRITE)
+end;
+
+// Backup MBR sector to a file
+procedure Backup_MBR_sector;
+var
+  usNumDrives : Word;
+  Drive       : Byte;
+
+begin
+  Drive := GetLastHardDisk;
+  if Drive = 0 then
+    begin
+      writeln('GetLastHardDisk error');
+      halt(1);
+    end;
+  usNumDrives := Drive - $7f;
+  writeln('DOS reports ', usNumDrives, ' partitionable disk(s) available.');
+  write('Input disknumber for MBR backup (1..', usNumDrives, '): ');
+  readln(Drive);
+
+  Read_MBR_Sector(Char(usNumDrives), sector0);
+  writeln('Press Enter to continue...');
+  readln;
+end;
+
+// Restore MBRsector from a file
+procedure Restore_MBR_sector;
+var
+  usNumDrives : Word;
+  Drive       : Byte;
+  Filename    : String;
+  FH          : Integer;
+
+begin
+  Drive := GetLastHardDisk;
+  if Drive = 0 then
+    begin
+      writeln('GetLastHardDisk error');
+      halt(1);
+    end;
+  usNumDrives := Drive - $7f;
+  writeln('OS/2 reports ', usNumDrives, ' partitionable disk(s) available.');
+  write('Input disknumber for MBR backup (1..', usNumDrives, '): ');
+  readln(Drive);
+  writeln('Enter name of the bootsectorfile to restore');
+  write('(Default is MBR_sect.000): ');
+  readln(filename);
+  if filename = '' then filename := 'MBR_sect.000';
+  FH := FileOpen(filename, fmOpenRead or fmShareDenyNone);
+  if FH > 0 then
+    begin
+      writeln('Restoring ', filename, 'to bootsector');
+      FileRead(FH, Sector0, Sector0Len);
+      FileClose(FH);
+      Write_MBR_Sector(Char(usNumDrives), sector0);
+    end
+  else
+    writeln('Sorry, the file ', filename, ' returned error ', -FH);
+  writeln('Press Enter to continue...');
+  readln;
 end;
 
 {$IFDEF FPC}

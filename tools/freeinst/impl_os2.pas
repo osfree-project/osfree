@@ -158,12 +158,12 @@ if rc <> No_Error then
   end;
 end;
 
-procedure read_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, PDSK_READPHYSTRACK)
 end;
 
-procedure write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, PDSK_WRITEPHYSTRACK)
 end;
@@ -378,13 +378,11 @@ If rc <> No_Error Then
 
 End;
 
-Procedure Open_Disk(Drive: PChar; VAR DevHandle: Hfile);
+Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
 
 Var
   rc          : ApiRet; // Return code
   Action      : ULong;  // Open action
-  //CbFile      : Comp;
-  hdl         : LongInt;
 
 Begin
 // Opens the device to get a handle
@@ -392,7 +390,7 @@ Begin
 //  DosOpen can be changed to DosOpenL if VP has been updated to support it
 rc := DosOpen(
   Drive,                            // File path name
-  hdl,                        // File handle
+  DevHandle,                        // File handle
   Action,                           // Action taken
   0,                                // File primary allocation
   file_Normal,                      // File attribute
@@ -402,8 +400,6 @@ rc := DosOpen(
   open_Access_ReadWrite Or
   OPEN_FLAGS_DASD ,                 // Open mode of the file
   nil);                             // No extended attribute
-
-  DevHandle := hdl;
 
 If rc <> No_Error Then
   Begin
