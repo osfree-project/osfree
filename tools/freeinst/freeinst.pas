@@ -8,9 +8,9 @@ DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:
 Uses
               Common,
 {$IFNDEF FPC} VpUtils, VpSysLow, Os2base,
-{$ELSE}       Utl, SysLow, {$ENDIF}
+{$ELSE}       Utl, SysLow, Doscalls, {$ENDIF}
 {$IFDEF OS2}
-              Os2def, Doscalls, Impl_OS2,
+              Os2def, Impl_OS2,
 {$ENDIF}
 {$IFDEF WIN32}
               Impl_W32,
@@ -43,7 +43,6 @@ Var
   HPbuf:        HPFSbuf;
 //  i:            Integer;
   DevHandle:    Hfile;
-//  Drive1:       String;
   Drive2:       Array[0..2] of Char ;
   Drive:        PChar;
   DriveT:       tDrivetype;     // FS type on selected drive
@@ -313,7 +312,7 @@ If FH > 0 Then
   FileClose( FH );
   With FreeSect0 Do
     Begin
-    Oem_Id := osFree;
+    Oem_Id := Str8(osFree);
     //  Rewrite BPB from HD
     //  For FAT32:                 79 bytes
     StrMove( bpb, @F32Bb[11], 79);

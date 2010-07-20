@@ -383,6 +383,7 @@ Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
 Var
   rc          : ApiRet; // Return code
   Action      : ULong;  // Open action
+  hdl         : LongInt;
 
 Begin
 // Opens the device to get a handle
@@ -390,7 +391,7 @@ Begin
 //  DosOpen can be changed to DosOpenL if VP has been updated to support it
 rc := DosOpen(
   Drive,                            // File path name
-  DevHandle,                        // File handle
+  Hdl,
   Action,                           // Action taken
   0,                                // File primary allocation
   file_Normal,                      // File attribute
@@ -400,6 +401,8 @@ rc := DosOpen(
   open_Access_ReadWrite Or
   OPEN_FLAGS_DASD ,                 // Open mode of the file
   nil);                             // No extended attribute
+
+DevHandle := Word(hdl);
 
 If rc <> No_Error Then
   Begin
