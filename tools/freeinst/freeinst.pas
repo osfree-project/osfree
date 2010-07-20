@@ -6,10 +6,11 @@ DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:
 }
 
 Uses
-              Common, Utl, SysLow,
+              Common,
+{$IFNDEF FPC} VpUtils, VpSysLow, Os2base,
+{$ELSE}       Utl, SysLow, {$ENDIF}
 {$IFDEF OS2}
-              Os2def, Impl_OS2,
-{$IFNDEF FPC} Os2base, {$ELSE} Doscalls, {$ENDIF}
+              Os2def, Doscalls, Impl_OS2,
 {$ENDIF}
 {$IFDEF WIN32}
               Impl_W32,
@@ -55,7 +56,7 @@ Var
 // Rewrite start of preldr0 file acording to filesystem needs
 Procedure Fix_Preldr0(DriveT:TdriveType);
 Var
-  FH:           LongInt;
+  FH:           Integer;
   Count:        Word;
   ldr0:         Packed Record
                 head:   Array[0..1] Of Byte;
@@ -73,8 +74,8 @@ FillChar(ldr0, sizeof(ldr0),0);
 FH := FileOpen( Drive1+'\boot\loader\preldr0.mdl', fmOpenReadWrite OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count := Word(Fileread(FH, ldr0, 60));
-  length := Word(FileSeek(FH, 0, 2));
+  Count  := Word(Fileread( FH, ldr0, 60 ));
+  length := Word(FileSeek( FH, 0, 2 ));
   End
  Else
   Begin
@@ -111,8 +112,8 @@ Procedure Install_MBR;
 Type
   drvtype = packed record
     drvletter: char;
-    PartNr: byte;
-    partname: String[16];
+    PartNr   : Word;
+    partname : String[16];
     End;
 
 VAR
@@ -123,9 +124,9 @@ VAR
   drvletterbuf: ARRAY [0..255] of Drvtype;
   line1:        String;
   File1:        Text;
-  LetterNr, i : integer;
-  ReadLetters : Boolean;
-  Prim, Log   : Byte;
+  LetterNr:     Word;
+  ReadLetters:  Boolean;
+  Prim, Log, i: Word;
 
 
 Begin
@@ -134,7 +135,7 @@ Readln(Drive);
 ClrScr;
 Writeln;
 Writeln('  Your disk number ',drive,' has the following partitions available for booting: ');
-exec('cmd.exe','/C lvm.exe /Query:All,'+Drive+' > lvmtemp.tmp');
+exec('cmd.exe', '/C lvm.exe /query:all,' + Drive + ' > lvmtemp.tmp');
 assign(file1,'lvmtemp.tmp');
 reset(file1);
 readln(file1,line1);  // not used
@@ -312,7 +313,7 @@ If FH > 0 Then
   FileClose( FH );
   With FreeSect0 Do
     Begin
-    Oem_Id := Str8(osFree);
+    Oem_Id := osFree;
     //  Rewrite BPB from HD
     //  For FAT32:                 79 bytes
     StrMove( bpb, @F32Bb[11], 79);
@@ -331,7 +332,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\preldr_mini.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count := Word(FileRead(FH, F32bb[1024], Sizeof( Blockbuf )));
+  Count := Word(FileRead( FH, F32bb[1024], Sizeof( Blockbuf ) ));
   FileClose( FH );
   End
  Else
@@ -342,7 +343,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\fsd\fat.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count1 := Word(FileRead(FH, F32bb[1024+count], Sizeof(Blockbuf) - count));
+  Count1 := Word(FileRead( FH, F32bb[1024+count], Sizeof( Blockbuf ) - count ));
   FileClose( FH );
   End
  Else
@@ -353,8 +354,8 @@ If FH > 0 Then
 
 With F32Buf Do
   Begin
-  FS_Len      := Word(Count1);
-  Preldr_Len  := Word(Count);
+  FS_Len      := Count1;
+  Preldr_Len  := Count;
   PartitionNr := 0;             // Previous = PartNr not used anymore
   FS := fat;
   End;
@@ -362,10 +363,10 @@ With F32Buf Do
 Open_Disk(Drive,DevHandle);    // Get drivehandle
 Lock_Disk(devhandle);
 {$ifdef OS2}
-Fat32FSctrl(Devhandle);
-fat32WriteSector( DevHandle, 0, BBlockLen DIV 512, F32Buf );
+      Fat32FSctrl(Devhandle);
+      fat32WriteSector(DevHandle, 0, BBlockLen DIV 512, F32Buf);
 {$else}
-Write_Disk(DevHandle, F32Buf, BBlockLen);
+      Write_Disk(DevHandle, BBuf, BBlockLen);
 {$endif}
 Unlock_Disk(devhandle);
 Close_Disk(DevHandle);
@@ -437,7 +438,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\preldr_mini.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count := Word(FileRead(FH, F32bb[512], BblockLen - 512));
+  Count := Word(FileRead( FH, F32bb[512], BblockLen - 512 ));
   FileClose( FH );
   End
  Else
@@ -448,7 +449,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\fsd\hpfs.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count1 := Word(FileRead(FH, F32bb[512+count], BblockLen - (count + 512)));
+  Count1 := Word(FileRead( FH, F32bb[512+count], BblockLen - ( count + 512 ) ));
   FileClose( FH );
   End
  Else
@@ -488,7 +489,7 @@ Var
 
 Begin
 result := False;
-FH := FileOpen( GetBootDrive + ':\os2\JFS.IFS', fmOpenRead OR fmShareDenyNone);
+FH := FileOpen( GetBootDrive+':\os2\JFS.IFS', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
   ifsPbuf := ifsbuf;
@@ -616,7 +617,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\preldr_mini.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count := Word(FileRead(FH, F32bb[512], BblockLen - 512));
+  Count := Word(FileRead( FH, F32bb[512], BblockLen - 512 ));
   FileClose( FH );
   End
  Else
@@ -627,7 +628,7 @@ If FH > 0 Then
 FH := FileOpen( drive1+'\boot\loader\fsd\jfs.mdl', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count1 := Word(FileRead(FH, F32bb[512+count], BblockLen - (count + 512)));
+  Count1 := Word(FileRead( FH, F32bb[512+count], BblockLen - ( count + 512 ) ));
   FileClose( FH );
   End
  Else
@@ -786,7 +787,7 @@ end;
   *********************************************************************************************************** }
 
 Begin
-//Drive := Drive2;
+Drive := Drive2;
 {
 If ParamCount > 0 Then
   Drive1 := ParamStr(1)  // Driveletter expected as first parameter on cmd line.

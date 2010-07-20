@@ -8,7 +8,7 @@ unit Impl_D32;
 interface
 
 type
-  Hfile  = LongInt;
+  Hfile  = Word;
   ULong  = LongWord;
   UShort = Word;
 

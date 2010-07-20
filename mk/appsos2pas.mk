@@ -7,7 +7,7 @@
 !define __appsos2pas_mk__
 
 32_BITS  = 1
-CLEAN_ADD = *.oo2 *.ppo
+CLEAN_ADD = *.oo2 *.ppo *.o
 
 !ifndef DEST
 DEST    = os2

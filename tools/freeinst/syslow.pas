@@ -15,11 +15,13 @@ unit SysLow;
 
 interface
 
+{$ifndef DPMI32}
 uses
-{$IFDEF OS2}    Os2Def, Sysutils, {$ifdef FPC} Doscalls {$else} Os2Base {$endif}; {$Undef KeyDll} {$ENDIF}
-{$IFDEF LINUX}  Linux;                           {$ENDIF}
-{$IFDEF WIN32}  Windows;                         {$ENDIF}
-{$IFDEF DPMI32} {$ifndef FPC} Dpmi32df, {$endif} Impl_D32;              {$ENDIF}
+{$endif}
+{$IFDEF OS2}    Os2Def, {Os2Base} Sysutils, Doscalls; {$Undef KeyDll} {$ENDIF}
+{$IFDEF LINUX}  Linux;                            {$ENDIF}
+{$IFDEF WIN32}  Windows;                          {$ENDIF}
+{$IFDEF DPMI32} {$ifndef FPC } Dpmi32df; {$endif} {$ENDIF}
 
 type
   TDriveType = (dtFloppy, dtHDFAT, dtHDHPFS, dtInvalid,
@@ -51,14 +53,13 @@ function SysGetBootDrive: Char;
 function SysGetDriveType(Drive: Char): TDriveType;
 function SysGetValidDrives: Longint;
 
-
 implementation
 
 {&OrgName-}
 
 uses
   {$Ifdef Win32} {$Ifndef KeyDll}
-  VpKbdW32,
+  VpKbdW32,  // Statically linked default Win32 keyboard handler
   {$Endif} {$Endif}
   {$Ifdef DPMI32}
   {$ifndef FPC} Dpmi32, D32Res, {$endif} // Dpmi support files
@@ -66,10 +67,12 @@ uses
   {$IFDEF LINUX}
   LnxRes,
   {$ELSE}
+  //ExeHdr,
   {$ENDIF}
   Strings;
 
 // Include platform specific implementations
+
 {$IFDEF OS2}
   {$I Os2.Pas}
 {$ENDIF}

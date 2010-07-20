@@ -1,6 +1,6 @@
 @echo off
 
-set vpbase=O:\vp21
+set vpbase=f:\dev\vp21
 set PATH=%vpbase%\bin.os2;%PATH%
 set BEGINLIBPATH = %vpbase%\bin.os2;
 
@@ -57,11 +57,11 @@ vpc %vpcopt% unLock.pas
 if errorlevel == 1 goto Error
 :skip8
 
-copy out\lxLite.exe	..\lxLite\	1>nul
-copy out\chCase.exe	..\lxLite\	1>nul
-copy out\noEA.exe	..\lxLite\	1>nul
-copy out\sysIcons.exe	..\lxLite\	1>nul
-copy out\unLock.exe	..\lxLite\	1>nul
+copy out\lxLite.exe     ..\lxLite\      1>nul
+copy out\chCase.exe     ..\lxLite\      1>nul
+copy out\noEA.exe       ..\lxLite\      1>nul
+copy out\sysIcons.exe   ..\lxLite\      1>nul
+copy out\unLock.exe     ..\lxLite\      1>nul
 
 echo Well done. Now change to ..\ directory and run m_lxLite.cmd
 

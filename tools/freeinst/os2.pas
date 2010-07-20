@@ -40,6 +40,7 @@ Var
   Ordinal   : Word;
   aName     : pChar;
   rc        : Word;
+  //DiskSize  : Word;
 
 begin
   Result := dtInvalid;
@@ -47,13 +48,11 @@ begin
   GetMem( FSQb, BufLen );
   DrvName := Drive+':'#0;
   Ordinal := 0;
-  rc := DosQueryFSAttach( @DrvName[1], Ordinal, fsail_QueryName,
-{$ifdef FPC} FSqb^ {$else} FSqb {$endif},
-  BufLen );
+  rc := DosQueryFSAttach( @DrvName[1], Ordinal, fsail_QueryName, FSqb^, BufLen );
   if rc = 0 then
     With FsqB^ do
     begin
-      //aName := @Name + NameLen + 1;
+      aName := @Name + NameLen + 1;
       If strComp( aName, 'FAT' ) = 0 then
         If Drive <= 'B' then
           Result := dtFloppy
@@ -93,8 +92,7 @@ var
 begin
   DosQueryCurrentDisk(CurDrive, res);
   if res <> 0
-    then
-      result := res
-    else
-      result := 0;
+    then result := res
+    else result := 0;
 end;
+

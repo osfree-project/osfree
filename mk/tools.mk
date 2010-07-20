@@ -15,8 +15,6 @@ DEST    = tools
 !include $(%ROOT)/mk/all.mk
 
 CLEAN_ADD = *.c *.h
-#ADD_LINKOPT = $(ADD_LINKOPT) lib libmmap
-ADD_COPT = -i=. -i=..$(SEP)..$(SEP)include $(ADD_COPT)
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
