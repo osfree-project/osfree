@@ -48,11 +48,15 @@ begin
   GetMem( FSQb, BufLen );
   DrvName := Drive+':'#0;
   Ordinal := 0;
-  rc := DosQueryFSAttach( @DrvName[1], Ordinal, fsail_QueryName, FSqb^, BufLen );
+  rc := DosQueryFSAttach( @DrvName[1], Ordinal, fsail_QueryName, {$ifdef FPC} FSqb^, {$else} FSqb, {$endif} BufLen );
   if rc = 0 then
     With FsqB^ do
     begin
+    {$ifdef FPC}
       aName := @Name + NameLen + 1;
+    {$else}
+      aName := szName + cbName + 1;
+    {$endif}
       If strComp( aName, 'FAT' ) = 0 then
         If Drive <= 'B' then
           Result := dtFloppy

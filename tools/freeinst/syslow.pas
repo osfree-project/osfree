@@ -18,7 +18,8 @@ interface
 {$ifndef DPMI32}
 uses
 {$endif}
-{$IFDEF OS2}    Os2Def, {Os2Base} Sysutils, Doscalls; {$Undef KeyDll} {$ENDIF}
+{$IFDEF OS2}    Os2Def, {Os2Base} Sysutils,
+{$ifdef FPC} Doscalls; {$else} Os2base; {$endif} {$Undef KeyDll} {$ENDIF}
 {$IFDEF LINUX}  Linux;                            {$ENDIF}
 {$IFDEF WIN32}  Windows;                          {$ENDIF}
 {$IFDEF DPMI32} {$ifndef FPC } Dpmi32df; {$endif} {$ENDIF}

@@ -6,11 +6,11 @@ DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:
 }
 
 Uses
-              Common,
-{$IFNDEF FPC} VpUtils, VpSysLow, Os2base,
-{$ELSE}       Utl, SysLow, Doscalls, {$ENDIF}
+              Common, Utl, SysLow,
 {$IFDEF OS2}
-              Os2def, Impl_OS2,
+              Os2def,
+{$IFNDEF FPC} Os2base, {$ELSE} Doscalls, {$ENDIF}
+              Impl_OS2,
 {$ENDIF}
 {$IFDEF WIN32}
               Impl_W32,
