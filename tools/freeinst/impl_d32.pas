@@ -347,12 +347,13 @@ var
   FH            : Integer;
   s3            : String[3];
   drv           : Byte;
-  rc            : LongInt;
+  rc, nsec      : LongInt;
 
 begin
   drv := ord(DriveNum) - $31 + $80; // 1: means bios device $80
 
-  rc := biosdisk(2 + IOcmd, drv, 0, 0, 1, 1, MBRBuffer);
+  nsec := 1;
+  rc := biosdisk(2 + IOcmd, drv, 0, 0, 1, nsec, MBRBuffer);
 
   if rc <> 0 then
     begin
