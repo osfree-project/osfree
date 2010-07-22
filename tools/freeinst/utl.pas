@@ -46,13 +46,13 @@ uses
 { Get the current boot drive letter }
 function GetBootDrive : Char;
 begin
-  Result := SysGetBootDrive;
+  GetBootDrive := SysGetBootDrive;
 end;
 
 { Get the format of a drive letter }
 function GetDriveType( Ch: Char ) : TDriveType;
 begin
-  Result := SysGetDriveType(Ch);
+  GetDriveType := SysGetDriveType(Ch);
 end;
 
 { Get a list of all valid drive letters }

@@ -37,10 +37,6 @@ uses
 const
   BIOSDISK_READ               : LongWord    = $0;
   BIOSDISK_WRITE              : LongWord    = $1;
-  BIOSDISK_GEO                : LongWord    = $2;
-  BIOSDISK_ERROR_GEOMETRY     : LongWord    = $100;
-  BIOSDISK_FLAG_LBA_EXTENSION : LongWord    = $1;
-  BIOSDISK_FLAG_CDROM         : LongWord    = $2;
 
   carryflag = 1;
 
@@ -75,23 +71,40 @@ begin
 end;
 
 function biosdisk(ahreg, drive,
-                  coff, hoff, soff,
-                  nsec: LongInt; var buf): LongInt;
+                  coff, hoff, soff: LongInt;
+                  var nsec: LongInt; var buf): LongInt;
 var
-  regs: TRealRegs;
-  seg, offs: Word;
+  regs              : TRealRegs;
+  bytes_transferred : LongWord;
+  err               : LongWord;
 begin
-  seg  := LongWord(buf) shr 16;
-  offs := LongWord(buf) and $f;
+  writeln('biosdisk(', ahreg, ', ', drive, ', ', coff, ', ', hoff, ', ', soff, ', ', nsec, ', ', LongInt(buf), ')');
   regs.realeax := (nsec and $ff) or ((ahreg and $ff) shl 8);
-  regs.realebx := offs;
   regs.realedx := (drive and $ff) or ((hoff and $ff) shl 8);
-  regs.realecx := ((coff and $ff) shl 8) or (((soff and $ff) shl 2) shr 2);
-  regs.reales  := seg;
+  regs.realecx := ((coff and $ff) shl 8) or (((coff shr 8) and 3) shl 6) or (soff and $3f);
+  regs.reales  := tb_segment;
+  regs.realebx := 0;
+
+  if ahreg = BIOSDISK_WRITE + 2 then
+    SysCopyToDOS(LongInt(@buf), lo(nsec << 9));
 
   SysRealIntr($13, regs);
+  err := (regs.realeax shr 8) and $ff;
 
-  result := (regs.realeax shr 8) and $ff;
+  if (err <> 0) or ((regs.realflags and CARRYFLAG) = CARRYFLAG) then
+    begin
+      bytes_transferred := 0;
+      nsec := 0;
+      GetInOutRes(lo(bytes_transferred));
+      biosdisk := err;
+      exit;
+    end;
+  bytes_transferred := nsec shl 9;
+
+  if ahreg = BIOSDISK_READ + 2 then
+    SysCopyFromDOS(LongInt(@buf), lo(bytes_transferred));
+
+  biosdisk := err;
 end;
 
 function dosdisk_read(drive, sector, nsec, segment: LongInt;
@@ -123,11 +136,11 @@ begin
 
   if (regs.realflags and CARRYFLAG) = CARRYFLAG then
     begin
-      result := 1;
+      dosdisk_read := 1;
       exit;
     end;
 
-  result := 0;
+  dosdisk_read := 0;
 end;
 
 function dosdisk_write(drive, sector, nsec, segment: LongInt;
@@ -159,17 +172,18 @@ begin
 
   if (regs.realflags and CARRYFLAG) = CARRYFLAG then
     begin
-      result := 1;
+      dosdisk_write := 1;
       exit;
     end;
 
-  result := 0;
+  dosdisk_write := 0;
 end;
 
 function GetLastHardDisk: Byte;
 var
   regs   : TRealRegs;
   ah, i  : byte;
+  carry  : LongInt;
 
 begin
   regs.realeax := $15ff;
@@ -179,16 +193,14 @@ begin
   repeat
     regs.realedx := i;
     SysRealIntr($13, regs);
-    ah := (regs.realeax shl 8) and $ff;
-    if (regs.realflags and CARRYFLAG) = CARRYFLAG then
-      begin
-        result := 0;
-        exit;
-      end;
-    inc(i);
+    ah := (regs.realeax shr 8) and $ff;
+    carry := regs.realflags and CARRYFLAG;
+    if carry = CARRYFLAG then
+      break;
+    if ah = 3 then inc(i);
   until ah <> $03;
 
-  result := i - $80;
+  GetLastHardDisk := i - $80;
 end;
 
 function AbsRead(drive: char; lba, len, addr: LongInt) : LongInt;
@@ -212,7 +224,7 @@ begin
       if err <> 0 then
         begin
           GetInOutRes(lo(bytes_read));
-          result := 0;
+          AbsRead := 0;
           exit;
         end;
        SysCopyFromDOS(addr + readsize, lo(bytes_read));
@@ -222,7 +234,7 @@ begin
        if lo(bytes_read) < size then
          break;
     end;
-  result := readsize;
+  AbsRead := readsize;
 end;
 
 function AbsWrite(drive: char; lba, len, addr: LongInt) : LongInt;
@@ -247,7 +259,7 @@ begin
       if err <> 0 then
         begin
           GetInOutRes(lo(bytes_written));
-          result := writesize;
+          AbsWrite := writesize;
           exit;
         end;
       inc(writesize, lo(bytes_written));
@@ -256,7 +268,7 @@ begin
       if lo(bytes_written) < size then
         break;
     end;
-  result := writesize;
+  AbsWrite := writesize;
 end;
 
 procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
@@ -274,10 +286,10 @@ begin
   rc := AbsRead(chr(DevHandle),
                 filepos,
                 buf_len,
-                LongInt(buf));
-  if (rc = 0) then
+                LongInt(@buf));
+  if rc = 0 then
     begin
-      writeln('DosRead error');
+      writeln('AbsRead error');
       halt(1);
     end;
 
@@ -306,9 +318,9 @@ begin
   rc := AbsWrite(chr(DevHandle), // File handle
                  filepos,
                  buf_len,        // Size of string to be written
-                 LongInt(buf));       // Bytes actually written
+                 LongInt(@buf));       // Bytes actually written
 
-  if (rc = 0) then
+  if rc = 0 then
     begin
       writeln('DosWrite error');
       halt(1);
@@ -390,7 +402,7 @@ begin
   write('Input disknumber for MBR backup (1..', usNumDrives, '): ');
   readln(Drive);
 
-  Read_MBR_Sector(Char(usNumDrives), sector0);
+  Read_MBR_Sector(Char(Drive), sector0);
   writeln('Press Enter to continue...');
   readln;
 end;
@@ -424,7 +436,7 @@ begin
       writeln('Restoring ', filename, 'to bootsector');
       FileRead(FH, Sector0, Sector0Len);
       FileClose(FH);
-      Write_MBR_Sector(Char(usNumDrives), sector0);
+      Write_MBR_Sector(Char(Drive), sector0);
     end
   else
     writeln('Sorry, the file ', filename, ' returned error ', -FH);

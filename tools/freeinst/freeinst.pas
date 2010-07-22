@@ -133,11 +133,14 @@ Write('Input disknumber for new MBR install (1''st disk is nr 1): ');
 Readln(Drive);
 ClrScr;
 Writeln;
+
+{$ifdef OS2}
+
 Writeln('  Your disk number ',drive,' has the following partitions available for booting: ');
 exec('cmd.exe', '/C lvm.exe /query:all,' + Drive + ' > lvmtemp.tmp');
-assign(file1,'lvmtemp.tmp');
+assign(file1, 'lvmtemp.tmp');
 reset(file1);
-readln(file1,line1);  // not used
+readln(file1, line1);  // not used
 letterNr := 1;
 readletters := true;
 Prim := 0;
@@ -200,13 +203,16 @@ For i := 1 To letterNr-1 Do With drvletterbuf[i] Do
 Close(file1);
 DeleteFile('lvmtemp.tmp');
 
+{$endif}
+
 Writeln;
 Writeln('Primary partitions are numbered from 1-4    ');
 Writeln('Logical partitions are numbered from 5-255');
 Writeln;
 Write('Which Partition number do you want to boot from (see numbers above) ? ');
 Readln(BootNr);
-Read_MBR_Sector(drive, sector0);
+//BootNr := ord(readkey);
+Read_MBR_Sector(Drive, sector0);
 FH := FileOpen( drive1+'\boot\sectors\mbr.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
@@ -216,7 +222,7 @@ If FH > 0 Then
   FreeMBR[$1bc] := chr(BootNr);                     //  Insert partition bootnumber
   FreeMBR[$1bd] := chr($80);                        //  Insert disk boot number
   Sector0 := FreeMBR;
-  Write_MBR_Sector(drive, sector0);
+  Write_MBR_Sector(Drive, sector0);
   Writeln(#10,'Your MBR have been upgraded to FreeLDR , Press <Enter> to continue ');
   Readln;
   End
@@ -487,7 +493,7 @@ Var
   ifsPbuf:      Pchar;
 
 Begin
-result := False;
+JFS_version_check := False;
 FH := FileOpen( GetBootDrive+':\os2\JFS.IFS', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
   Begin
@@ -505,7 +511,7 @@ If FH > 0 Then
       If pos('pasha',s1) > 0 Then
         Begin
         Writeln('Version is from Pasha, it is OK ! ');
-        Result := True;
+        JFS_version_check := True;
         End
         Else
           Begin
@@ -540,7 +546,7 @@ If FH > 0 Then
       jver := copy(s1,p2+6,pos('#',copy(s1,p2+6,255))-1);
       Writeln(s1);
       Writeln('IBM JFS version is: ',jver);
-      Result := True;
+      JFS_version_check := True;
       End;
     l1 := length(s1);
     If l1 = 0 Then l1 := 1;

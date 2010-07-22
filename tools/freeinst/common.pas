@@ -3,8 +3,7 @@ unit common;
 interface
 
 uses
-{$IFNDEF FPC} VpSysLow;
-{$ELSE}       SysLow; {$ENDIF}
+  SysLow;
 
 Type
   Str3 =        Array[0..2] Of Char;
@@ -14,12 +13,9 @@ Type
 
 Const
   version       = 'osFree installer by osFree Project 2010';
-//  Possible_IFS: ARRAY [1..4] of tDrivetype = (dtHDFAT,DThdfat32,dtHDHPFS,dtHDJFS);
   osFree: Str8  = '[osFree]' ;
   Sector0Len    = 512;
   BblockLen     = 8192;
-//  8kLen         = 8192;
-//  16kLen        = 16384;
   cdfs: Str16   = 'cdfs'#0#0#0#0#0#0#0#0#0#0#0#0;
   ntfs: Str16   = 'ntfs'#0#0#0#0#0#0#0#0#0#0#0#0;
   ext2: Str16   = 'ext2'#0#0#0#0#0#0#0#0#0#0#0#0;
