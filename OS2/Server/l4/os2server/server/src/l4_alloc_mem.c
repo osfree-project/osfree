@@ -110,11 +110,11 @@ void l4_test_mem_alloc(void) {
    above this comment.
      l4dm_map_pages has some difficulities, it needs to be run (I guess) 
    from the thread it allocates mem to. */
-void * l4_alloc_mem(int base, int size, int flags, unsigned long PIC) {
+void * l4_alloc_mem(int base, int size, int flags, unsigned long PIC, l4dm_dataspace_t *ds) {
     /* L4/Fiasco example*/
     int st;
     //printf("l4_alloc_mem( %d, %d, 0x%x\n", base, size, flags);
-    l4dm_dataspace_t ds;
+    //l4dm_dataspace_t ds;
     void *addr;
     int l4_flags = l4_translate_os2_flags(flags); /* PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE */
                                                   /* L4RM_MAP   L4DM_RW     L4DM_RO or L4DM_RW */
@@ -124,7 +124,7 @@ void * l4_alloc_mem(int base, int size, int flags, unsigned long PIC) {
                 l4_threadid_t,    l4_size_t, l4_addr_t, l4_uint32_t, const char *,  l4dm_dataspace_t
     */
  /* l4dm_mem_open(L4DM_DEFAULT_DSM, 8192,    0,         0,           "L4 RM Example", &ds); */
-    l4dm_mem_open(L4DM_DEFAULT_DSM, size,    4096,      l4_flags,    "L4 RM Example", &ds);
+    l4dm_mem_open(L4DM_DEFAULT_DSM, size,    4096,      l4_flags,    "L4 RM Example", ds);
 
     /*          ds,               size,      ds_offs,   flags,       addr
                 l4dm_dataspace_t, l4_size_t, l4_offs_t, l4_uint32_t, void **
@@ -134,9 +134,9 @@ void * l4_alloc_mem(int base, int size, int flags, unsigned long PIC) {
 //    io_printf("PIC=%d\n",PIC);
     if (PIC)
     {
-      st =  l4rm_attach(&ds,             size,      0,      l4_flags,    &addr);
+      st =  l4rm_attach(ds,             size,      0,      l4_flags,    &addr);
     } else {
-      st = l4rm_attach_to_region(&ds,    base,      size,   0,         l4_flags);
+      st = l4rm_attach_to_region(ds,    base,      size,   0,         l4_flags);
       addr = base;
     }
 

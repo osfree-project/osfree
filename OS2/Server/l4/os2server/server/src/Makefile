@@ -23,7 +23,8 @@ Shared/memmgr.c \
 Shared/api/apistub.c \
 Shared/api/api.c \
 Shared/cfgparser.c \
-Shared/processmgr.c 
+Shared/processmgr.c \
+#Shared/startup.c
 
 #Shared/ow_dlfcn.c \
 

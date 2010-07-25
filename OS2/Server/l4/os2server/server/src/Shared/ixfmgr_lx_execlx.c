@@ -52,6 +52,7 @@
 #include <l4/sys/syscalls.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/log/l4log.h>
+#include <l4/env/env.h>
 #include <l4/names/libnames.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/thread/thread.h>
@@ -74,7 +75,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-extern struct module_rec module_root; /* Root for module list.*/
+extern l4env_infopage_t *l4env_infopage; /* l4env infopage from OS/2 server startup code */
+extern struct module_rec module_root;    /* Root for module list.*/
 extern l4_threadid_t os2srv;
 
 l4semaphore_t sem = L4SEMAPHORE_INIT(0);
@@ -91,9 +93,13 @@ struct desc
   short base_hi  :8;
 };
 
-/* trampoline() params */
+/* trampoline() params    */
 struct param
 {
+  /* a system-dependent structure*/
+  IXFSYSDEP *sysdep;
+
+  /* OS/2-specific params */
   unsigned long eip;
   unsigned long esp;
   PTIB          tib;
@@ -126,17 +132,26 @@ void exe_end(void)
   l4_ipc_sleep(L4_IPC_NEVER);  
 }
 
+/* OS/2 app thread 0 (l4 startup, semaphore, thread libs init,
+ * region mapper service loop) 
+ */
 static void
+__startup(struct param *param)
+{
+  __os2_main(param);
+  exe_end();
+}
+
+/* OS/2 app main thread */
+int
 trampoline(struct param *param)
 {
   struct desc       desc;
   unsigned long     base;
   unsigned short    sel;
-  int               fd;
 
-  // Todo!! Fill real data
-  PCHAR argv = param->pib->pib_pchcmd = (PCHAR){"c:\\minicmd.exe", 0};
-  PCHAR envp = param->pib->pib_pchenv = (PCHAR){"PATH=c:\\;", 0};
+  PCHAR argv = param->pib->pib_pchcmd;
+  PCHAR envp = param->pib->pib_pchenv;
   ULONG hmod = param->pib->pib_hmte;
 
   /* TIB base */
@@ -155,21 +170,6 @@ trampoline(struct param *param)
   /* Get a selector */
   sel = 8 * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
-
-  // close predefined file descriptors
-  //close(0); close(1); close(2);
-  // open initial file descriptors
-  // stdin
-  //fd = open("/dev/vc0", O_RDONLY);
-  //LOG("stdin: fd=%d, errno=%d", fd, errno);
-  // strout
-  //fd = open("/dev/vc0", O_WRONLY);
-  //LOG("stdout: fd=%d, errno=%d", fd, errno);
-  // stderr
-  //fd = open("/dev/vc0", O_WRONLY);
-  //LOG("stderr: fd=%d, errno=%d", fd, errno);
-  //init_io();
-  //contxt_init(65535, 11);
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
 
@@ -198,8 +198,11 @@ trampoline(struct param *param)
        [hmod]     "m" (hmod),
        [esp_data] "m" (param->esp),       /* esp+ data_mmap+8+ */
        [eip_data] "m" (param->eip));
-
+#if 1
   exe_end();
+#else   
+  return 0;
+#endif
 }
 
 static void
@@ -423,28 +426,29 @@ void do_mmap_code_stack(struct LX_module * lx_exe_mod) {
 
 extern l4_taskid_t taskid;
 
-void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
+void l4_exec_lx(IXFModule *ixfModule, struct t_os2process *proc)
 {
+        struct LX_module *lx_exe_mod = (struct LX_module *)(ixfModule->FormatStruct);
         struct o32_obj *kod_obj   = (struct o32_obj *) get_code(lx_exe_mod);
         struct o32_obj *stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
-        unsigned long eip = get_eip(lx_exe_mod) + kod_obj->o32_base;
+        unsigned long eip = get_eip(lx_exe_mod);
         unsigned long esp = get_esp(lx_exe_mod);
-
-        void *main_ptr  = (void *)eip;
+        void *main_ptr  = (void *)kod_obj->o32_base;
         void *data_mmap = (void *)stack_obj->o32_base;
+
+	IXFSYSDEP        *sysdep;
+	l4_msgdope_t     result;
+	l4_snd_fpage_t   fp;
+	int              i;
 
         #define STACK_SIZE 0x1000
 
-	l4_umword_t    app_stack[STACK_SIZE];
-        unsigned long  real_esp;
-	struct param   param;
-        int            t, th;
-	l4_threadid_t  pager;
-
-        IXFModule *ixf;
-        struct module_rec *mod;
-	unsigned long hmod, addr;
-        int cnt;
+        //l4env_infopage_t *ipg;
+	l4_umword_t      app_stack[STACK_SIZE];
+        unsigned long    real_esp;
+	struct param     param;
+        int              t, th;
+	l4_threadid_t    pager;
 
         /* start pager thread */
         pager = l4thread_l4_id(t = l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));
@@ -456,50 +460,30 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
           LOG("Pager not started, rc=%d", t);
           return;
         }
+#if 0
+	sysdep = (IXFSYSDEP *)(ixfModule->hdlSysDep);
 
-        param.eip = main_ptr;
-	param.esp = data_mmap + esp;
+	LOG("sysdep->section_num=%u", sysdep->section_num);
+	
+	for (i = 0; i < sysdep->section_num; i++)
+	  LOG_printf("  "l4_addr_fmt"-"l4_addr_fmt" at "l4util_idfmt
+	             " type %04x\n",
+	      sysdep->section[i].addr,
+	      sysdep->section[i].addr + sysdep->section[i].size,
+	      l4util_idstr(sysdep->section[i].ds.manager),
+	      sysdep->section[i].info.type);
+#endif
+	// copy IXFSYSDEP into param structure
+        param.eip = main_ptr  + eip;
+	param.esp = data_mmap + esp; // data_mmap + esp;
+	// copy TIB structure
+	//memmove(&param.tib, proc->main_tib, sizeof(TIB));
 	param.tib = proc->main_tib;
+	// copy PIB structure
+	//memmove(&param.pib, proc->lx_pib, sizeof(PIB));
 	param.pib = proc->lx_pib;
 	param.curdisk = 2; // "C:" !!todo!! add support for real data
-#if 0
-        mod = (struct module_rec *) module_root.next;
-	while (mod)
-	{
-	  LOG("module: %s", mod->mod_name);
-	  mod = mod->next;
-	}
-        mod = (struct module_rec *) module_root.next;
-        while(mod)
-	{
-	/*
-	  if (!strcasecmp(mod->mod_name, "DOSCALLS"))
-	  {
-	    hmod = (unsigned long)mod->module_struct;
-	    //for (cnt = 0; cnt < hmod->cbEntries; cnt++)
-	    {
-	      cnt = 119;
-              ModQueryProcAddr(hmod, cnt, 0, &addr);
-	      LOG("module: DOSCALLS");
-	      LOG("ord: %d, addr: %x", cnt, addr); 
-	    }
-	  } */
-	  if (!strcasecmp(mod->mod_name, "SUB32"))
-	  {
-	    hmod = (unsigned long)mod->module_struct;
-	    {
-              LOG("module: SUB32");
-	      for (cnt = 1; cnt < ((IXFModule *)hmod)->cbEntries + 1; cnt++)
-	      {
-                ModQueryProcAddr(hmod, cnt, 0, &addr);
-	        LOG("ord: %d, addr: %x", cnt, addr); 
-	      }
-	    }
-	  }
-	  mod = mod->next;
-	}
-#endif
-#if 1
+
         /* push task params on stack */
         real_esp = app_stack + STACK_SIZE - 4;
         l4util_stack_push_mword   (&real_esp, &param);
@@ -507,7 +491,14 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	l4util_stack_push_mword   (&real_esp, 0);
 
         int task_status = l4ts_allocate_task(0, &taskid);
-
+#if 0
+        // share dataspaces of OS/2 app sections with app task
+	for (i = 0; i < sysdep->section_num; i++)
+          l4dm_share(&(sysdep->section[i].ds), // dataspace
+	             taskid,                   // taskid
+	             (l4_uint32_t)(sysdep->section[i].info.type &               // rights
+        	     (L4_DSTYPE_READ | L4_DSTYPE_WRITE | L4_DSTYPE_EXECUTE)));  //
+#endif    
         // task stack
         param.tib->tib_pstack = param.esp;
 	/* Current thread identifier. 
@@ -517,13 +508,31 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 
 	if (task_status)
           LOG("Error allocating task!");
-
+#if 1
         int r = l4ts_create_task(&taskid, (l4_addr_t)trampoline, real_esp,
+                                 0xA0, &pager, 
+                                 0x21, "", 0);
+#else
+        int r = l4ts_create_task(&taskid, (l4_addr_t)__startup, real_esp,
                                  0xA0, &pager, 
                                  0x21, "", 0);
 
 	LOG("l4ts_create_task() returned: %d, taskid=%x.%x", r, taskid.id.task, taskid.id.lthread);
 
+	fp.snd_base = 0x8000;
+        fp.fpage    = l4_fpage(sysdep, L4_LOG2_PAGESIZE,
+                    	       L4_FPAGE_RW, L4_FPAGE_MAP);
+
+        // map sysdep page to the client @ addr=0x8000
+	l4_ipc_send(taskid,
+        	    L4_IPC_SHORT_FPAGE,
+        	    fp.snd_base,
+        	    fp.fpage.fpage,
+        	    L4_IPC_NEVER,
+        	    &result);
+
+        LOG("msgdope: error_code=%u", result.md.error_code);
+#endif
         // wait protshell task termination
 	l4semaphore_down(&sem);
         // task ended, kill it	
@@ -531,7 +540,6 @@ void l4_exec_lx(struct LX_module *lx_exe_mod, struct t_os2process *proc)
 	  LOG("Error %d killing task\n", t);
 	else
 	  LOG("trampoline() task killed");
-#endif
 }
 
 #endif /* L4API_l4v2 */

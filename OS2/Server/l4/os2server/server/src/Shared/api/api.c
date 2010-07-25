@@ -17,14 +17,15 @@
 #include <l4/sys/syscalls.h>
 #include <l4/log/l4log.h>
 #include <l4/semaphore/semaphore.h>
+#include <l4/thread/thread.h>
 
 #include <dice/dice.h>
 
 char buf[0x100];
 void exe_end(void);
-extern l4semaphore_t sem;
 
 extern l4_threadid_t os2srv;
+extern l4semaphore_t sem;
 
 APIRET
 os2server_dos_Read_component(CORBA_Object _dice_corba_obj,
@@ -85,7 +86,18 @@ os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
                              ULONG action, ULONG result,
                              CORBA_Server_Environment *_dice_corba_env)
 {
-  l4semaphore_up(&sem);
+  //struct t_os2process *proc;
+  //l4semaphore_t sem;
+
+  //if (action) // EXIT_PROCESS
+  //{
+  //    proc = PrcGetProc(l4thread_id(*_dice_corba_obj));
+  //    sem = proc->term_sem;
+  //    proc->term_code = result;
+    l4semaphore_up(&sem);
+  //}
+  //else        // EXIT_THREAD
+  //    l4thread_shutdown(l4thread_id(*_dice_corba_obj));
 }
 
 APIRET

@@ -41,6 +41,7 @@
 #include <ixfmgr.h>
 #include <io.h>
 
+struct list *proc_root = NULL;
 
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void link_module (IXFModule *ixfModule, unsigned long *phmod);
@@ -56,23 +57,38 @@ extern struct module_rec module_root; /* Root for module list.*/
   ULONG     pib_ultype;     Process' type code. */
 
 /* Creates a process for an LX-module. */
-struct t_os2process * PrcCreate(IXFModule ixfModule)
+struct t_os2process * PrcCreate(IXFModule *ixfModule)
 {
 
     struct t_os2process * c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
-    c->lx_pib   = (PPIB) malloc(sizeof(PIB));
-    c->main_tib = (PTIB) malloc(sizeof(TIB));
-    c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
+    //struct list *e;
 
+    
     if (c != NULL) {
-        c->pid = 1;
+        //e = (struct list *)malloc(sizeof(struct list));
+	//if (e)
+	//{
+        //  insert_elem(proc_root, e);
+	//  e->data = (void *)c;
+	//}
+	//else
+	//{
+	//  free(c);
+	//  return MULL;
+	//}
+    
+        c->lx_pib   = (PPIB) malloc(sizeof(PIB));
+        c->main_tib = (PTIB) malloc(sizeof(TIB));
+        c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
+        
+	c->pid = 1;
         c->code_mmap = 0;
         c->stack_mmap = 0;
-        c->lx_mod = (struct LX_module *)(ixfModule.FormatStruct);
+        c->lx_mod = (struct LX_module *)(ixfModule->FormatStruct);
 
         c->lx_pib->pib_ulpid = 1;
         c->lx_pib->pib_ulppid = 0;
-        c->lx_pib->pib_hmte = (ULONG) (struct LX_module *)(ixfModule.FormatStruct);
+        c->lx_pib->pib_hmte = (ULONG) (struct LX_module *)(ixfModule->FormatStruct);
         c->lx_pib->pib_pchcmd = "";
         c->lx_pib->pib_pchenv = "";
 
@@ -85,6 +101,7 @@ struct t_os2process * PrcCreate(IXFModule ixfModule)
 }
 
 void PrcDestroy(struct t_os2process * proc) {
+	//struct list *e;
 #ifndef L4API_l4v2
         /* Avmappar filen. */
         struct o32_obj * kod_obj = (struct o32_obj *) get_code(proc->lx_mod);
@@ -102,6 +119,25 @@ void PrcDestroy(struct t_os2process * proc) {
         free(proc->main_tib);
         free(proc);
 }
+
+#if 0
+struct t_os2process *PrcGetProc(ULONG pid)
+{
+  struct list *e = proc_root;
+  struct t_os2process *proc;
+  
+  while (*e)
+  {
+    proc = ((struct t_os2process *)e)->data;
+    if (proc->pid == pid)
+      return proc;
+    else
+      e = e->next;
+  }
+  
+  return NULL;
+}
+#endif
 
 unsigned long find_path(char * name, char * full_path_name);
 
@@ -424,6 +460,10 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   UCHAR uchLoadError[260] = {0}; /* Error info from ModLoadModule */
   int relative_jmp;
   struct module_rec * prev;
+#ifdef L4API_l4v2
+  l4_addr_t pageaddr, addr2;
+  IXFSYSDEP *ixfSysDep;
+#endif
 
   if (options.debugprcmgr) LOG("PrcExecuteModule: Loading executable %s", pName);
 
@@ -441,6 +481,24 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     return rc;
   }
 
+#ifdef L4API_l4v2
+  // l4v2+l4env host
+  // initialize section number to zero
+  pageaddr  = (l4_addr_t)malloc(2 * L4_PAGESIZE);
+  addr2 = pageaddr & L4_PAGEMASK;
+
+  if (addr2 < pageaddr)
+    addr2 += L4_PAGESIZE;
+
+  ixfSysDep = (IXFSYSDEP *)addr2;
+  ixfModule.hdlSysDep = (unsigned int)ixfSysDep;
+  ixfSysDep->pageaddr  = pageaddr; // save malloc'ed address
+  ixfSysDep->section_num = 0;
+#else
+  // other hosts
+  // ...
+#endif
+
   rc=IXFIdentifyModule(addr, size, &ixfModule);
   if (rc!=0/*NO_ERROR*/)
   {
@@ -457,7 +515,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
 
   /* Creates an simple process (keeps info about it, does not start to execute). */
-  tiny_process = PrcCreate(ixfModule);
+  tiny_process = PrcCreate(&ixfModule);
   //tiny_process->lx_pib->pib_pchcmd = (PCHAR)malloc(strlen(pArg) + 2);
   //tiny_process->lx_pib->pib_pchenv = (PCHAR)malloc(strlen(pEnv) + 2);
   //strcpy(tiny_process->lx_pib->pib_pchcmd, pArg);
@@ -576,7 +634,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     /* Starts to execute the process. */
     if (options.debugprcmgr) LOG("Executing exe...");
     #if defined(L4API_l4v2)
-    l4_exec_lx((struct LX_module *)(ixfModule.FormatStruct), tiny_process);
+    l4_exec_lx(&ixfModule, tiny_process);
     #endif
 //    exec_lx(&ixfModule, tiny_process);
     if (options.debugprcmgr) LOG("Done executing exe.");

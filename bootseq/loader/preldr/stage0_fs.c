@@ -1788,11 +1788,13 @@ void init(void)
   int    rc;
   char   *buf;
 
+  // ...
+
   stage0base  = STAGE0_BASE;
   scratchaddr = SCRATCHADDR;
   bufferaddr  = BUFFERADDR;
 
-  gateA20(1);
+  //gateA20(1);
 
 #ifndef STAGE1_5
   memset(prefix, 0, sizeof(prefix));

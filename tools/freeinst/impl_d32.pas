@@ -116,23 +116,60 @@ type
     addr   : LongWord;
   end;
 
+  param_blk = packed record
+    reserved : Byte;
+    head,
+    cyl,
+    sec,
+    nsec     : Word;
+    addr     : LongWord;
+  end;
+
 var
-  regs : TRealRegs;
-  pkt  : read_pkt;
+  regs  : TRealRegs;
+  param : ^param_blk;
+  p     : Pointer;
 
 begin
+  writeln('dosdisk_read(', drive, ', ', sector, ', ', nsec, ', ', segment, ', ', bytes_read, ')');
+{
+  pkt := Pointer((tb_segment shl 4) + tb_size - sizeof(read_pkt));
+  pkt^.sector := sector;
+  pkt^.nsect  := nsec;
+  pkt^.addr   := segment shl 16;
+
   regs.realeax := drive and $ff;
   regs.realecx := $ffff;
-  regs.realds  := LongWord(@pkt) shr 4;
-  regs.realebx := LongWord(@pkt) and $f;
+  regs.realds  := LongWord(pkt) shr 4;
+  regs.realebx := LongWord(pkt) and $f;
+------
+  regs.realeax := 2; //drive and $ff;
+  regs.realecx := 1; //nsec and $ffff;
+  regs.realedx := 0; //(sector) and $ffff;
+  regs.realds  := segment;
+  regs.realebx := 0;
+}
+  param := Pointer($5000); //Pointer((segment shl 4) + (nsec shl 9));
+  param^.reserved := 0;
+  param^.cyl  := 0;
+  param^.head := 0;
+  param^.sec  := sector;
+  param^.nsec := nsec;
+  param^.addr := segment shl 4;
 
-  pkt.sector := sector;
-  pkt.nsect  := nsec;
-  pkt.addr   := segment shl 16;
+  regs.realeax := $440d;                 // Generic block device ioctl
+  regs.realebx := (drive + 1) and $ff;   // drive number
+  regs.realecx := $0861;                 // category: 08=disk drive; func: 61=read logical device track
+  regs.realds  := LongWord(param) shr 4;
+  regs.realedx := LongWord(param) and $f;
 
-  SysRealIntr($25, regs);
+  SysRealIntr($21, regs);
 
-  bytes_read := pkt.nsect shl 9;
+  writeln('eax=', regs.realeax);
+  writeln(regs.realflags and CARRYFLAG);
+  writeln(tb_size);
+  readln;
+  bytes_read := nsec shl 9;
 
   if (regs.realflags and CARRYFLAG) = CARRYFLAG then
     begin
@@ -154,21 +191,22 @@ type
 
 var
   regs : TRealRegs;
-  pkt  : write_pkt;
+  pkt  : ^write_pkt;
 
 begin
+  pkt := Pointer((segment shl 4) + (nsec shl 9));
+  pkt^.sector := sector;
+  pkt^.nsect  := nsec;
+  pkt^.addr   := segment shl 16;
+
   regs.realeax := drive and $ff;
   regs.realecx := $ffff;
-  regs.realds  := LongWord(@pkt) shr 4;
-  regs.realebx := LongWord(@pkt) and $f;
-
-  pkt.sector := sector;
-  pkt.nsect  := nsec;
-  pkt.addr   := segment shl 16;
+  regs.realds  := segment + (nsec shl 5);
+  regs.realebx := 0;
 
   SysRealIntr($26, regs);
 
-  bytes_written := pkt.nsect shl 9;
+  bytes_written := nsec shl 9;
 
   if (regs.realflags and CARRYFLAG) = CARRYFLAG then
     begin
@@ -180,27 +218,8 @@ begin
 end;
 
 function GetLastHardDisk: Byte;
-var
-  regs   : TRealRegs;
-  ah, i  : byte;
-  carry  : LongInt;
-
 begin
-  regs.realeax := $15ff;
-  regs.realecx := $ffff;
-
-  i := $80;
-  repeat
-    regs.realedx := i;
-    SysRealIntr($13, regs);
-    ah := (regs.realeax shr 8) and $ff;
-    carry := regs.realflags and CARRYFLAG;
-    if carry = CARRYFLAG then
-      break;
-    if ah = 3 then inc(i);
-  until ah <> $03;
-
-  GetLastHardDisk := i - $80;
+  GetLastHardDisk := Mem[$475];
 end;
 
 function AbsRead(drive: char; lba, len, addr: LongInt) : LongInt;
@@ -220,20 +239,27 @@ begin
         size := tb_size
       else
         size := len;
-      err := dosdisk_read(drv, lba, len, tb_segment, bytes_read);
+      writeln('len=', len, ', size=', size);
+      readln;
+      err := dosdisk_read(drv, lba, size shr 9, tb_segment, bytes_read);
       if err <> 0 then
         begin
+          bytes_read := 0;
           GetInOutRes(lo(bytes_read));
           AbsRead := 0;
           exit;
         end;
+       writeln('1');
+       writeln('bytes_read=', bytes_read);
        SysCopyFromDOS(addr + readsize, lo(bytes_read));
+       writeln('2');
        inc(readsize,lo(bytes_read));
        dec(len,lo(bytes_read));
        { stop when not the specified size is read }
        if lo(bytes_read) < size then
          break;
     end;
+  writeln('3');
   AbsRead := readsize;
 end;
 
@@ -254,10 +280,13 @@ begin
         size := tb_size
       else
         size := len;
+      readln; // !!!!
       SysCopyToDOS(addr + writesize, size);
-      err := dosdisk_write(drv, lba, len, tb_segment, bytes_written);
+      readln; //
+      err := dosdisk_write(drv, lba, size shr 9, tb_segment, bytes_written);
       if err <> 0 then
         begin
+          bytes_written := 0;
           GetInOutRes(lo(bytes_written));
           AbsWrite := writesize;
           exit;
@@ -284,7 +313,7 @@ var
   FH            : integer;        // File handle for backup file
 begin
   rc := AbsRead(chr(DevHandle),
-                filepos,
+                filepos shr 9,
                 buf_len,
                 LongInt(@buf));
   if rc = 0 then
@@ -316,7 +345,7 @@ var
 
 begin
   rc := AbsWrite(chr(DevHandle), // File handle
-                 filepos,
+                 filepos shr 9,
                  buf_len,        // Size of string to be written
                  LongInt(@buf));       // Bytes actually written
 
@@ -389,21 +418,19 @@ end;
 procedure Backup_MBR_sector;
 var
   usNumDrives : Word;
-  Drive       : Byte;
+  Drive       : Char;
 
 begin
-  Drive := GetLastHardDisk;
-  if Drive = 0 then
+  usNumDrives := GetLastHardDisk;
+  if usNumDrives = 0 then
     begin
       writeln('GetLastHardDisk error');
       halt(1);
     end;
-  usNumDrives := Drive - $7f;
   writeln('DOS reports ', usNumDrives, ' partitionable disk(s) available.');
   write('Input disknumber for MBR backup (1..', usNumDrives, '): ');
   readln(Drive);
-
-  Read_MBR_Sector(Char(Drive), sector0);
+  Read_MBR_Sector(Drive, sector0);
   writeln('Press Enter to continue...');
   readln;
 end;
@@ -412,19 +439,18 @@ end;
 procedure Restore_MBR_sector;
 var
   usNumDrives : Word;
-  Drive       : Byte;
+  Drive       : Char;
   Filename    : String;
   FH          : Integer;
 
 begin
-  Drive := GetLastHardDisk;
-  if Drive = 0 then
+  usNumDrives := GetLastHardDisk;
+  if usNumDrives = 0 then
     begin
       writeln('GetLastHardDisk error');
       halt(1);
     end;
-  usNumDrives := Drive - $7f;
-  writeln('OS/2 reports ', usNumDrives, ' partitionable disk(s) available.');
+  writeln('DOS reports ', usNumDrives, ' partitionable disk(s) available.');
   write('Input disknumber for MBR backup (1..', usNumDrives, '): ');
   readln(Drive);
   writeln('Enter name of the bootsectorfile to restore');
@@ -437,7 +463,7 @@ begin
       writeln('Restoring ', filename, 'to bootsector');
       FileRead(FH, Sector0, Sector0Len);
       FileClose(FH);
-      Write_MBR_Sector(Char(Drive), sector0);
+      Write_MBR_Sector(Drive, sector0);
     end
   else
     writeln('Sorry, the file ', filename, ' returned error ', -FH);

@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#include <l4/env/env.h>
 #include <l4/log/l4log.h>
 
 #include <token.h>
@@ -132,6 +133,10 @@ unsigned long ModLoadModule(char *          pszName,
                             char const *    pszModname,
                             unsigned long * phmod)
 {
+  IXFSYSDEP *ixfSysDep;
+#ifdef L4API_l4v2
+  l4_addr_t pageaddr, addr2;
+#endif
   struct module_rec * new_module_el;
   #define buf_size 4096
   char buf[buf_size+1];
@@ -215,7 +220,24 @@ unsigned long ModLoadModule(char *          pszName,
     return rc;
   }
 
-  ixfModule = (IXFModule *) malloc(sizeof(IXFModule));
+  ixfModule = (IXFModule *)malloc(sizeof(IXFModule));
+#ifdef L4API_l4v2
+  // l4v2+l4env host
+  // initialize section number to zero
+  pageaddr  = (l4_addr_t)malloc(2 * L4_PAGESIZE);
+  addr2 = pageaddr & L4_PAGEMASK;
+
+  if (addr2 < pageaddr)
+    addr2 += L4_PAGESIZE;
+
+  ixfSysDep = (IXFSYSDEP *)addr2;
+  ixfModule->hdlSysDep = (unsigned int)ixfSysDep;
+  ixfSysDep->pageaddr  = pageaddr; // save malloc'ed address
+  ixfSysDep->section_num = 0;
+#else
+  // other hosts
+  // ...
+#endif
 
   rc=IXFIdentifyModule(addr, size, ixfModule);
   if (rc)

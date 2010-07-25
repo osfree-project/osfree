@@ -370,7 +370,7 @@ ifndef STAGE1_5
         call getmem
 endif
         ; enable A20 address line
-        ;call EnableA20Line
+        call EnableA20Line
 
         pusha
         mov     al, '*'
@@ -451,15 +451,15 @@ getmem:
         ret
 endif
 
-;EnableA20Line:
-;    ; Enable A20 address line:
-;    push ax
-;    in   al, 0x92
-;    or   al, 2
-;    out  0x92, al
-;    pop  ax
-;
-;    ret
+EnableA20Line:
+    ; Enable A20 address line:
+    push ax
+    in   al, 0x92
+    or   al, 2
+    out  0x92, al
+    pop  ax
+
+    ret
 
 getaddr:
     mov  bp, sp

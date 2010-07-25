@@ -109,9 +109,12 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_os2process * p
        Some GNU/Linux specific flags to mmap(MAP_GROWSDOWN). */
 unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj) 
 {
-  struct LX_module * lx_exe_mod=(struct LX_module *)(ixfModule->FormatStruct);
-  void * mmap_obj = 0;
-
+  struct LX_module *lx_exe_mod=(struct LX_module *)(ixfModule->FormatStruct);
+  struct o32_obj *stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
+  l4dm_dataspace_t ds;
+  IXFSYSDEP        *ixfSysDep;
+  l4exec_section_t *section;
+  void             *mmap_obj = 0;
 #if 0 /*!defined(__OS2__) && !defined(__LINUX__) */
         mmap_obj = mmap((void *)lx_obj->o32_base, lx_obj->o32_size,
                                  PROT_WRITE | PROT_READ | PROT_EXEC  ,       /* | PROT_EXEC */
@@ -126,7 +129,25 @@ unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
     #ifdef L4API_l4v2
         #include <l4_alloc_mem.h>
         mmap_obj = l4_alloc_mem(lx_obj->o32_base, lx_obj->o32_size,
-                                 PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC);
+                                 PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC, &ds);
+	// Host-dependent part of IXFMODULE structure (data for L4 host)
+	ixfSysDep = (IXFSYSDEP *)(ixfModule->hdlSysDep);
+
+        if (lx_obj == stack_obj)
+	{
+	  ixfSysDep->stack_high = lx_obj->o32_base + get_esp(lx_exe_mod);
+	  ixfSysDep->stack_low  = ixfSysDep->stack_high - lx_exe_mod->lx_head_e32_exe->e32_stacksize;
+	}
+	// fill in the section info
+	section = ixfSysDep->section + ixfSysDep->section_num;
+        section->ds   = ds;
+	LOG("ds=%u @ %u", ds, ds.manager);
+	section->addr = lx_obj->o32_base; // mmap_obj;
+	section->size = lx_obj->o32_size;
+	section->info.type = L4_DSTYPE_READ | L4_DSTYPE_WRITE | L4_DSTYPE_EXECUTE;
+	section->info.id   = (unsigned short)ixfSysDep->section_num;
+	ixfSysDep->section_num++;
+	LOG("section_num=%u", ixfSysDep->section_num);
     #else
         DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
     #endif

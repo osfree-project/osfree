@@ -308,6 +308,7 @@ rmode1:
 ;;ifndef STAGE1_5
 ;;        call set_pm_idt
 ;;endif
+        ;;;; good
 
         ; load segment registers
         mov  ax, PSEUDO_RM_DSEG
@@ -332,8 +333,9 @@ endif
         mov  ax, PSEUDO_RM_CSEG
         push ax
         push pmode1
-        retf
+        retf                  ;;; reboot on mitra is here (when returning from check_int13_extensions_rm)!!!!
 pmode1:
+
         ; return to 32-bit segment
         ; use jmp instead of retf
         ; because retf uses 16-bit offset,
