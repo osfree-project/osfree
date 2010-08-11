@@ -18,13 +18,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
-
+#if defined(OS2) || defined(__OS2__)
 #define INCL_ERRORS
 #include <os2.h>
-
+#endif
 #include <stdarg.h>
 
 #include "handlemgr.h"
+#include <string.h>
+#include <stdlib.h>
 
 /**************************************************************************
  *      HndInitializeHandleTable
@@ -77,7 +79,7 @@ APIRET APIENTRY HndDestroyHandleTable(HANDLE_TABLE * pHandleTable)
     if (!pHandleTable) return ERROR_INVALID_PARAMETER;
     // @todo: Here we need to make checks to free linked memory in
     // struct members
-    free((pHandleTable->ulFirstHandle));
+    free((pHandleTable->pFirstHandle));
 }
 
 /**************************************************************************
@@ -97,39 +99,39 @@ APIRET APIENTRY HndpAllocateSomeHandles(HANDLE_TABLE * pHandleTable)
     // Check arguments
     if (!pHandleTable) return ERROR_INVALID_PARAMETER;
 
-    if (!pHandleTable->FirstHandle)
+    if (!pHandleTable->pFirstHandle)
     {
         PVOID pFirstHandleAddr = NULL;
-        ULONG ulMaxSize = HandleTable->ulMaxHandleCount * HandleTable->ulHandleSize;
+        ULONG MaxSize = pHandleTable->ulMaxHandleCount * pHandleTable->ulHandleSize;
 
         /* reserve memory for the handles, but don't commit it yet because we
          * probably won't use most of it and it will use up physical memory */
         pFirstHandleAddr = malloc(MaxSize);
         pHandleTable->pFirstHandle = pFirstHandleAddr;
-        pHandleTable->ReservedMemory = HandleTable->FirstHandle;
-        pHandleTable->ulMaxHandle = (char *)HandleTable->FirstHandle + MaxSize;
+        pHandleTable->pReservedMemory = pHandleTable->pFirstHandle;
+        pHandleTable->pMaxHandle = (char *)pHandleTable->pFirstHandle + MaxSize;
     }
-    if (!HandleTable->NextFree)
+    if (!pHandleTable->pNextFree)
     {
         SIZE_T Offset, CommitSize = 4096; /* one page */
-        RTL_HANDLE * FreeHandle = NULL;
-        PVOID NextAvailAddr = HandleTable->ReservedMemory;
+        HANDLE * FreeHandle = NULL;
+        PVOID NextAvailAddr = pHandleTable->pReservedMemory;
 
-        if (HandleTable->ReservedMemory >= HandleTable->MaxHandle)
+        if (pHandleTable->pReservedMemory >= pHandleTable->pMaxHandle)
             return STATUS_NO_MEMORY; /* the handle table is completely full */
 
-        for (Offset = 0; Offset < CommitSize; Offset += HandleTable->HandleSize)
+        for (Offset = 0; Offset < CommitSize; Offset += pHandleTable->ulHandleSize)
         {
             /* make sure we don't go over handle limit, even if we can
              * because of rounding of the table size up to the next page
              * boundary */
-            if ((char *)HandleTable->ReservedMemory + Offset >= (char *)HandleTable->MaxHandle)
+            if ((char *)pHandleTable->pReservedMemory + Offset >= (char *)pHandleTable->pMaxHandle)
                 break;
 
-            FreeHandle = (RTL_HANDLE *)((char *)HandleTable->ReservedMemory + Offset);
+            FreeHandle = (HANDLE *)((char *)pHandleTable->pReservedMemory + Offset);
 
-            FreeHandle->Next = (RTL_HANDLE *)((char *)HandleTable->ReservedMemory +
-                Offset + HandleTable->HandleSize);
+            FreeHandle->pNext = (HANDLE *)((char *)pHandleTable->pReservedMemory +
+                Offset + pHandleTable->ulHandleSize);
         }
 
         /* shouldn't happen because we already test for this above, but
@@ -140,11 +142,11 @@ APIRET APIENTRY HndpAllocateSomeHandles(HANDLE_TABLE * pHandleTable)
         /* set the last handle's Next pointer to NULL so that when we run
          * out of free handles we trigger another commit of memory and
          * initialize the free pointers */
-        FreeHandle->Next = NULL;
+        FreeHandle->pNext = NULL;
 
-        HandleTable->NextFree = HandleTable->ReservedMemory;
+        pHandleTable->pNextFree = pHandleTable->pReservedMemory;
 
-        HandleTable->ReservedMemory = (char *)HandleTable->ReservedMemory + CommitSize;
+        pHandleTable->pReservedMemory = (char *)pHandleTable->pReservedMemory + CommitSize;
     }
     return STATUS_SUCCESS;
 }
@@ -175,18 +177,18 @@ APIRET APIENTRY HndpAllocateSomeHandles(HANDLE_TABLE * pHandleTable)
  * SEE
  *  HndFreeHandle().
  */
-RTL_HANDLE * APIENTRY HndAllocateHandle(RTL_HANDLE_TABLE * HandleTable, ULONG * HandleIndex)
+HANDLE * APIENTRY HndAllocateHandle(HANDLE_TABLE * HandleTable, ULONG * HandleIndex)
 {
-    RTL_HANDLE * ret;
+    HANDLE * ret;
 
-    if (!HandleTable->NextFree && HndpAllocateSomeHandles(HandleTable) != STATUS_SUCCESS)
+    if (!HandleTable->pNextFree && HndpAllocateSomeHandles(HandleTable) != STATUS_SUCCESS)
         return NULL;
 
-    ret = (RTL_HANDLE *)HandleTable->NextFree;
-    HandleTable->NextFree = ret->Next;
+    ret = (HANDLE *)HandleTable->pNextFree;
+    HandleTable->pNextFree = ret->pNext;
 
     if (HandleIndex)
-        *HandleIndex = (ULONG)(((PCHAR)ret - (PCHAR)HandleTable->FirstHandle) / HandleTable->HandleSize);
+        *HandleIndex = (ULONG)(((PCHAR)ret - (PCHAR)HandleTable->pFirstHandle) / HandleTable->ulHandleSize);
 
     return ret;
 }
@@ -207,16 +209,16 @@ RTL_HANDLE * APIENTRY HndAllocateHandle(RTL_HANDLE_TABLE * HandleTable, ULONG * 
  * SEE
  *  HndAllocateHandle().
  */
-BOOL APIENTRY HndFreeHandle(RTL_HANDLE_TABLE * HandleTable, RTL_HANDLE * Handle)
+BOOL APIENTRY HndFreeHandle(HANDLE_TABLE * HandleTable, HANDLE * Handle)
 {
-    TRACE("(%p, %p)\n", HandleTable, Handle);
+//    TRACE("(%p, %p)\n", HandleTable, Handle);
     /* NOTE: we don't validate the handle and we don't make Handle->Next even
      * again to signal that it is no longer in user - that is done as a side
      * effect of setting Handle->Next to the previously next free handle in
      * the handle table */
-    memset(Handle, 0, HandleTable->HandleSize);
-    Handle->Next = (RTL_HANDLE *)HandleTable->NextFree;
-    HandleTable->NextFree = Handle;
+    memset(Handle, 0, HandleTable->ulHandleSize);
+    Handle->pNext = (HANDLE *)HandleTable->pNextFree;
+    HandleTable->pNextFree = Handle;
     return TRUE;
 }
 
@@ -233,16 +235,16 @@ BOOL APIENTRY HndFreeHandle(RTL_HANDLE_TABLE * HandleTable, RTL_HANDLE * Handle)
  *  Valid: TRUE.
  *  Invalid: FALSE.
  */
-BOOL APIENTRY HndIsValidHandle(const RTL_HANDLE_TABLE * HandleTable, const RTL_HANDLE * Handle)
+BOOL APIENTRY HndIsValidHandle(const HANDLE_TABLE * HandleTable, const HANDLE * Handle)
 {
-//    TRACE("(%p, %p)\n", HandleTable, Handle);
+    TRACE("(%p, %p)\n", HandleTable, Handle);
     /* make sure handle is within used region and that it is aligned on
      * a HandleTable->HandleSize boundary and that Handle->Next is odd,
      * indicating that the handle is active */
-    if ((Handle >= (RTL_HANDLE *)HandleTable->FirstHandle) &&
-      (Handle < (RTL_HANDLE *)HandleTable->ReservedMemory) &&
-      !((ULONG_PTR)Handle & (HandleTable->HandleSize - 1)) &&
-      ((ULONG_PTR)Handle->Next & 1))
+    if ((Handle >= (HANDLE *)HandleTable->pFirstHandle) &&
+      (Handle < (HANDLE *)HandleTable->pReservedMemory) &&
+      !((ULONG_PTR)Handle & (HandleTable->ulHandleSize - 1)) &&
+      ((ULONG_PTR)Handle->pNext & 1))
         return TRUE;
     else
         return FALSE;
@@ -262,13 +264,13 @@ BOOL APIENTRY HndIsValidHandle(const RTL_HANDLE_TABLE * HandleTable, const RTL_H
  *  Valid: TRUE.
  *  Invalid: FALSE.
  */
-BOOL APIENTRY HndIsValidIndexHandle(const RTL_HANDLE_TABLE * HandleTable, ULONG Index, RTL_HANDLE ** ValidHandle)
+BOOL APIENTRY HndIsValidIndexHandle(const HANDLE_TABLE * HandleTable, ULONG Index, HANDLE ** ValidHandle)
 {
-    RTL_HANDLE * Handle;
+    HANDLE * Handle;
 
 //    TRACE("(%p, %u, %p)\n", HandleTable, Index, ValidHandle);
-    Handle = (RTL_HANDLE *)
-        ((char *)HandleTable->FirstHandle + Index * HandleTable->HandleSize);
+    Handle = (HANDLE *)
+        ((char *)HandleTable->pFirstHandle + Index * HandleTable->ulHandleSize);
 
     if (HndIsValidHandle(HandleTable, Handle))
     {
@@ -277,4 +279,4 @@ BOOL APIENTRY HndIsValidIndexHandle(const RTL_HANDLE_TABLE * HandleTable, ULONG 
     }
     return FALSE;
 }
-#endif
+/* #endif */

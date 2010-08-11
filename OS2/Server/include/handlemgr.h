@@ -21,7 +21,13 @@
 #ifndef __HANDLEMGR_H
 #define __HANDLEMGR_H
 
+#if defined(OS2) || defined(__OS2__)
 #include <os2.h>
+#endif
+
+#ifdef __LINUX__
+#include <gcc_os2def.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +38,15 @@ typedef struct _RTL_HANDLE
     struct _RTL_HANDLE * pNext;
 } HANDLE;
 
+/*Viking: Some porting defines. A bit mixed style between OS/2 and the original handlemgr. */
+#define ULONG_PTR         ULONG      /* Makes an integer of a pointer! */
+/* typedef ULONG*   ULONG_PTR; */
+#define SIZE_T            size_t
+#define STATUS_NO_MEMORY  ERROR_NOT_ENOUGH_MEMORY
+#define STATUS_SUCCESS    NO_ERROR
+
+#define TRACE  printf
+/* End of porting defines */
 
 typedef struct _RTL_HANDLE_TABLE
 {
@@ -46,7 +61,9 @@ typedef struct _RTL_HANDLE_TABLE
 
 APIRET APIENTRY HndInitializeHandleTable(ULONG ulMaxHandleCount, ULONG ulHandleSize, HANDLE_TABLE * phtHandleTable);
 APIRET APIENTRY HndDestroyHandleTable(HANDLE_TABLE * phtHandleTable);
-APIRET APIENTRY HndAllocateHandle(HANDLE_TABLE * phtHandleTable, ULONG * pulHandleIndex, HANDLE * pHandle);
+/* Different number of arguments
+APIRET APIENTRY HndAllocateHandle(HANDLE_TABLE * phtHandleTable, ULONG * pulHandleIndex, HANDLE * pHandle);  */
+HANDLE *  APIENTRY HndAllocateHandle(HANDLE_TABLE * HandleTable, ULONG * HandleIndex);
 APIRET APIENTRY HndFreeHandle(HANDLE_TABLE * HandleTable, HANDLE * pHandle);
 APIRET APIENTRY HndIsValidHandle(const HANDLE_TABLE * HandleTable, const HANDLE * pHandle);
 APIRET APIENTRY HndIsValidIndexHandle(const HANDLE_TABLE * HandleTable, ULONG ulIndex, HANDLE ** ValidHandle);
