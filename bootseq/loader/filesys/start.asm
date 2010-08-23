@@ -10,8 +10,8 @@ public  fsd_init
 
 public   exe_end
 public   bss_end
-public   bss_start
-public   bss_len
+;public   bss_start
+;public   bss_len
 
 public   _pdisk_read_func
 public   _pdisk_read_hook

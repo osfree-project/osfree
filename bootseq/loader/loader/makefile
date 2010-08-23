@@ -10,7 +10,7 @@
 #
 
 LDR_OBJS         = $(p)ldrstart$(e) $(p)loader$(e) $(p)..$(SEP)wrap$(e) $(p)commands$(e) $(p)edit$(e) &
-                   $(p)boot$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)cfgparse-l$(e) # $(p)varsubst$(e)
+                   $(p)boot$(e) $(p)pp$(e) $(p)..$(SEP)cmdline$(e) $(p)..$(SEP)cfgparse-l$(e) # $(p)varsubst$(e)
 
 MOD_BASE         = LDR_BASE
 DEST             = boot$(SEP)loader

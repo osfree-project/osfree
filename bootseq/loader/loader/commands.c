@@ -75,6 +75,7 @@ extern int num_items;
 //extern int item_save  = 0;
 //extern int shift_save = 0;
 
+int preprocess(char *file);
 int exec_cfg(char *cfg, int menu_item, int menu_shift);
 
 int abbrev(char *s1, char *s2, int n);
@@ -1910,6 +1911,22 @@ static struct builtin builtin_loop =
   "Associate a loop device ld0..ld7 to FILE."
 };
 
+/* preproc */
+int
+preproc_func (char *arg, int flags)
+{
+  return preprocess(arg);
+}
+
+static struct builtin builtin_preproc =
+{
+  "preproc",
+  preproc_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "preproc FILE",
+  "Load and preprocess a text file."
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1941,6 +1958,7 @@ struct builtin *builtins[] = {
   &builtin_dir,
   &builtin_blocklist,
   &builtin_loop,
+  &builtin_preproc,
   0
 };
 

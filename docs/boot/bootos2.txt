@@ -41,8 +41,7 @@ port is 0x3f8. The default port speed is 9600 baud.
 
 --drv=<drive letter|dlat|auto> specifies a drive letter assignment.
 
-a) '--drv=u:'     means to assign an 'u:' drive letter to the boot drive
-b) '--drv=auto'   is intended for booting with danidasd.dmd. When using this
+a) '--drv=auto'   is intended for booting with danidasd.dmd. When using this
                   assignment mode, uFSD scans all available drives for supported
                   partitions and finds the 1st available drive letter. This drive
                   letter is assigned to the boot drive. This mode is mainly intended
@@ -51,10 +50,11 @@ b) '--drv=auto'   is intended for booting with danidasd.dmd. When using this
                   that a removable drives are assigned a drive letters immediately
                   after the fixed drives, and no unused drive letters allowed between
                   fixed and removable drives.
-c) '--drv=dlat'   is intended for booting when usind os2lvm.dmd. In this mode,
+b) '--drv=dlat'   is intended for booting when usind os2lvm.dmd. In this mode,
                   a drive letter is taken from the LVM DLAT info and assigned
                   to a boot drive. This is mainly intended for booting from
                   fixed drives.
+c) '--drv=u:'     means to assign an 'u:' drive letter to the boot drive
 
 --fs=<FS name>            specifies a Filesystem name. FS name is a value of a FS_NAME
                           exported symbol of an IFS. A value of FS name of miniFSD must

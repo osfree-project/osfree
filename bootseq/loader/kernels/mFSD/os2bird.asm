@@ -904,13 +904,13 @@ obj_3:
     mov     es, cx
     ASSUME es:_DATA
     test    [eax].ote_flags, OBJEXEC
-    jz      obj_3_DS
+    jz      obj_3ds
     mov     cx, es:FlatR0CS
     jmp storeptr
 
-obj_3_DS:
+obj_3ds:
     mov     cx, es:FlatR0DS
-    jmp storeptr
+    ;jmp storeptr
 
 
     ;
@@ -976,7 +976,7 @@ GetDPBHead proc near
 
     les     bx, ss:[bp + 4]             ; pointer to where to store the 16:16 pointer
     mov     es:[bx + 2], ax
-    mov     ax, 0x12
+    mov     ax, 12h
     mov     es:[bx], ax
 
     xor     ax, ax
