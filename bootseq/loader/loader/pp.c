@@ -65,7 +65,7 @@ void subst_if(char *to, char *from, int *len)
 {
   char *line = from;
   char *p    = to;
-  char *s;
+  char *s, *r;
   char var[24];
   char val[24];
   int  m     = *len;
@@ -74,6 +74,7 @@ void subst_if(char *to, char *from, int *len)
 
   do {
     /* process a line */
+    r = line;
     if (strstr(line, "!ifeq ") == line)
     {
       count++;
@@ -92,6 +93,7 @@ void subst_if(char *to, char *from, int *len)
         while (*line == ' ') line++;
         if (*line == '\r' || *line == '\n') line++;
         if (*line == '\r' || *line == '\n') line++;
+        *len -= line - r;
         skip = !flag;
       }
       else
@@ -112,16 +114,22 @@ void subst_if(char *to, char *from, int *len)
         while (*line == ' ') line++;
         if (*line == '\r' || *line == '\n') line++;
         if (*line == '\r' || *line == '\n') line++;
+        *len -= line - r;
       }
       else if (skip)
+      {
         while (*line != '\r' && *line != '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
+        *len -= line - r;
+      }
       else
       {
         while (*line != '\r' && *line != '\n') *p++ = *line++;
         *p++ = '\r'; *p++ = '\n';
+        if (*line == '\r' || *line == '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
       }
-      if (*line == '\r' || *line == '\n') line++;
-      if (*line == '\r' || *line == '\n') line++;
       continue;
     }
     else if (strstr(line, "!endif") == line)
@@ -130,22 +138,27 @@ void subst_if(char *to, char *from, int *len)
       {
         while (*line != '\r' && *line != '\n') *p++ = *line++;
         *p++ = '\r'; *p++ = '\n';
+        if (*line == '\r' || *line == '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
       }
       else if (skip)
+      {
         while (*line != '\r' && *line != '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
+        if (*line == '\r' || *line == '\n') line++;
+        *len -= line - r;
+      }
       else
       {
         line += strlen("!endif");
         while (*line == ' ') line++;
+        *len -= line - r;
       }
 
       if (count == 1)
         skip = flag = 0;
 
       count--;
-
-      if (*line == '\r' || *line == '\n') line++;
-      if (*line == '\r' || *line == '\n') line++;
     }
     else
     {
@@ -154,6 +167,7 @@ void subst_if(char *to, char *from, int *len)
         while (*line != '\r' && *line != '\n') line++;
         if (*line == '\r' || *line == '\n') line++;
         if (*line == '\r' || *line == '\n') line++;
+        *len -= line - r;
         continue;
       }
 
