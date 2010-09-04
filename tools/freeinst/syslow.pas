@@ -60,7 +60,8 @@ implementation
 
 uses
   {$Ifdef Win32} {$Ifndef KeyDll}
-  VpKbdW32,  // Statically linked default Win32 keyboard handler
+  {$Ifndef FPC}VpKbdW32,  // Statically linked default Win32 keyboard handler
+  {$Endif}
   {$Endif} {$Endif}
   {$Ifdef DPMI32}
   {$ifndef FPC} Dpmi32, D32Res, {$endif} // Dpmi support files

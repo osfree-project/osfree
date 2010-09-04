@@ -24,9 +24,6 @@ procedure Write_MBR_Sector(DriveNum: Char; var MBRBuffer);
 procedure Backup_MBR_Sector;
 procedure Restore_MBR_Sector;
 
-//procedure Fat32FSctrl(DevHandle: Hfile);
-//procedure Fat32WriteSector(DevHandle: hfile; ulSector: ULONG; nSectors: USHORT; var buf);
-
 implementation
 
 { FreePascal only :( As VirtualPascal does not support DPMI32 }
