@@ -15,7 +15,9 @@ begin
   Result := dtInvalid;
   if GetVolumeInformation(Root, nil, 0, nil, MaxLength, FSFlags, FSName, sizeof(FSName)) then
     begin
-      if StrLComp(FSName, 'FAT', 3) = 0 then
+      if StrComp(FSName, 'FAT32') = 0 then
+        Result := dtHDFAT32
+      else if StrLComp(FSName, 'FAT', 3) = 0 then
         Result := dtHDFAT
       else if StrComp(FSName, 'HPFS') = 0 then
         Result := dtHDHPFS
