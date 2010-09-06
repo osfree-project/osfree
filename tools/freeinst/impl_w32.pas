@@ -7,8 +7,11 @@ unit Impl_W32;
 
 interface
 
+uses
+  Windows;
+
 type
-  Hfile  = LongInt;
+  Hfile  = HANDLE;
   ULong  = LongWord;
   UShort = Word;
 
@@ -27,7 +30,7 @@ procedure Restore_MBR_Sector;
 implementation
 
 uses
-  Windows, Common, Strings, SysUtils, Crt, Dos;
+  Common, Strings, SysUtils, Crt, Dos;
 
 const
   BIOSDISK_READ               = $0;
@@ -173,7 +176,7 @@ Var
 Begin
   usNumDrives := GetNumDrives;
 
-  Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
+  Writeln('Windows reports ',usNumDrives,' partitionable disk(s) available.');
   Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
   Readln(Drive);
   Writeln('Enter name of the bootsectorfile to restore');
@@ -263,7 +266,7 @@ Begin
                     FILE_SHARE_READ or FILE_SHARE_WRITE,
                     nil, OPEN_EXISTING, 0, 0);
 
-  DevHandle := Word(hdl);
+  DevHandle := Hfile(hdl);
 
   If hdl = INVALID_HANDLE_VALUE Then
   Begin
@@ -280,7 +283,6 @@ End;
 
 Procedure Lock_Disk(DevHandle: Hfile);
 Var
-  lpov  : LPOVERLAPPED;
   bytes : LongWord;
 Begin
   if DeviceIoControl(DevHandle,
@@ -289,19 +291,17 @@ Begin
                      0,
                      nil,
                      0,
-                     bytes,
-                     @lpov) = false then
+                     @bytes,
+                     nil) = false then
   begin
-    writeln('Drive lock error!');
+    writeln('Drive lock error, rc = ', GetLastError);
     halt(1);
   end;
 End;
 
 
 Procedure Unlock_Disk(DevHandle: Hfile);
-
 Var
-  lpov  : LPOVERLAPPED;
   bytes : LongWord;
 Begin
   if DeviceIoControl(DevHandle,
@@ -310,10 +310,10 @@ Begin
                      0,
                      nil,
                      0,
-                     bytes,
-                     @lpov) = false then
+                     @bytes,
+                     nil) = false then
   begin
-    writeln('Drive lock error!');
+    writeln('Drive unlock error, rc = ', GetLastError);
     halt(1);
   end;
 End;
