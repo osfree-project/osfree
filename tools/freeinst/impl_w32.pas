@@ -1,6 +1,6 @@
 {*************************************
  *  System-dependent implementation  *
- *  of low-level functions for OS/2  *
+ *  of low-level functions for Win32 *
  *************************************}
 
 unit Impl_W32;
@@ -8,7 +8,7 @@ unit Impl_W32;
 interface
 
 type
-  Hfile  = Word;
+  Hfile  = LongInt;
   ULong  = LongWord;
   UShort = Word;
 
@@ -27,27 +27,71 @@ procedure Restore_MBR_Sector;
 implementation
 
 uses
-   Windows, Common, Strings, SysUtils, Crt, Dos;
+  Windows, Common, Strings, SysUtils, Crt, Dos;
 
 const
-  BIOSDISK_READ               : LongWord    = $0;
-  BIOSDISK_WRITE              : LongWord    = $1;
+  BIOSDISK_READ               = $0;
+  BIOSDISK_WRITE              = $1;
+
+  METHOD_BUFFERED             = $00000000;
+  FILE_ANY_ACCESS             = $00000000;
+  FILE_DEVICE_FILE_SYSTEM     = $00000009;
+
+  FSCTL_LOCK_VOLUME           = (FILE_DEVICE_FILE_SYSTEM shl 16) or
+                                (FILE_ANY_ACCESS shl 14) or 
+                                ($6 shl 2) or METHOD_BUFFERED;
+  FSCTL_UNLOCK_VOLUME         = (FILE_DEVICE_FILE_SYSTEM shl 16) or
+                                (FILE_ANY_ACCESS shl 14) or 
+                                ($7 shl 2) or METHOD_BUFFERED;
+
+function GetNumDrives: Word;
+var
+  Drive    : char;
+  hdl      : HANDLE;
+  usDrives : Word;
+begin
+  usDrives := 0;
+  for Drive := #$30 to #$37 do
+  begin
+    // create a handle to the device
+    hdl     := CreateFileA(PChar('\\.\PhysicalDrive' + Drive),
+                          GENERIC_READ or GENERIC_WRITE,
+                          FILE_SHARE_READ or FILE_SHARE_WRITE,
+                          nil,
+                          OPEN_EXISTING,
+                          0,
+                          0);
+
+    if hdl = INVALID_HANDLE_VALUE then
+    begin
+       // Not a good way to check because there could be cases
+       // where a drive could be removed, for example a USB drive,
+       // which might result in the \\.\PHYSICALDRIVE%d numbering
+       // to have a gap
+       break;
+    end
+    else
+    begin
+      inc(usDrives);
+      CloseHandle(hdl);
+    end;
+  end;
+  result := usDrives;
+end;
 
 Procedure MBR_Sector(Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
 
 Var
-  MBRhandle     : Word;         // Filehandle
-  DataLen       : ULong;        // Data length in bytes
   FH            : Integer;
   s3            : String[3];
-  Drivenumber   : String[3];
   hdl           : HANDLE;
+  DataLen       : LongWord;
 
 Begin
-  hdl := CreateFile('\\.\PhysicalDrive' + Drivenum,
-		    GENERIC_READ or GENERIC_WRITE,
-		    FILE_SHARE_READ or FILE_SHARE_WRITE,
-		    0, OPEN_EXISTING, 0, 0);
+  hdl := CreateFile(Pchar('\\.\PhysicalDrive' + Drivenum),
+                    GENERIC_READ or GENERIC_WRITE,
+                    FILE_SHARE_READ or FILE_SHARE_WRITE,
+                    nil, OPEN_EXISTING, 0, 0);
 
   if hdl = INVALID_HANDLE_VALUE then
   begin
@@ -58,7 +102,7 @@ Begin
   case IOcmd of
     BIOSDISK_READ:
     begin
-      if ReadFile(hdl, MBRbuffer, 512, DataLen, nil) = 0 then
+      if ReadFile(hdl, MBRbuffer, 512, DataLen, nil) = false then
       begin
         Writeln('ReadFile (Disk_I/O MBR sector) error');
         CloseHandle(hdl);
@@ -78,7 +122,7 @@ Begin
       FileClose( FH );
     end;
     BIOSDISK_WRITE:
-    if WriteFile(hdl, MBRbuffer, 512, DataLen, nil) = 0 then
+    if WriteFile(hdl, MBRbuffer, 512, DataLen, nil) = false then
     begin
       Writeln('WriteFile (Disk_I/O MBR sector) error');
       CloseHandle(hdl);
@@ -104,31 +148,18 @@ Procedure Backup_MBR_sector;
 
 Var
   usNumDrives : UShort; // Data return buffer
-  ulDataLen   : ULong;  // Data return buffer length
-  rc          : ApiRet; // Return code
   Drive       : Char;
-
 Begin
-ulDataLen := sizeof(UShort);
-// Request a count of the number of partitionable disks in the system
-rc := DosPhysicalDisk(
-  info_Count_Partitionable_Disks,
-  @usNumDrives, // Pointer to returned data
-  ulDataLen,    // Size of data buffer
-  nil,          // No parameter for this function
-  0);
-if rc <> No_Error then
-  Begin
-  Writeln('DosPhysicalDisk error: return code = ', rc);
-  Halt(1);
-  End;
-Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
-Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
-Readln(Drive);
+  // Request a count of the number of partitionable disks in the system
+  usNumDrives := GetNumDrives;
 
-MBR_Sector(drive,sector0,PDSK_READPHYSTRACK);
-Writeln('Press Enter to continue...');
-Readln;
+  Writeln('Windows reports ',usNumDrives,' partitionable disk(s) available.');
+  Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
+  Readln(Drive);
+
+  Read_MBR_Sector(drive,sector0);
+  Writeln('Press Enter to continue...');
+  Readln;
 End;
 
 // Restore MBRsector from a file
@@ -136,264 +167,155 @@ Procedure Restore_MBR_sector;
 
 Var
   usNumDrives : UShort; // Data return buffer
-  ulDataLen   : ULong;  // Data return buffer length
-  //ulDataLen2   : ULong; // Data return buffer length
-  rc          : ApiRet; // Return code
-  DevHandle1   : Ushort;
   Drive         : Char;
   Filename:     String;
   FH:   Integer;
-
 Begin
-ulDataLen := sizeof(UShort);
-// Request a count of the number of partitionable disks in the system
-rc := DosPhysicalDisk(
-  info_Count_Partitionable_Disks,
-  @usNumDrives, // Pointer to returned data
-  ulDataLen,    // Size of data buffer
-  nil,          // No parameter for this function
-  0);
-if rc <> No_Error then
-begin
-  Writeln('DosPhysicalDisk error: return code = ', rc);
-  Halt(1);
-end;
-Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
-Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
-Readln(Drive);
-ulDataLen := sizeof(DevHandle1);
-//ulDataLen2 := 3;
-Writeln('Enter name of the bootsectorfile to restore');
-Write('(Default is MBR_sect.000): ');
-Readln(filename);
-If filename = '' Then Filename := 'MBR_sect.000';
-FH := FileOpen( filename, fmOpenRead OR fmShareDenyNone);
-If FH > 0 Then
+  usNumDrives := GetNumDrives;
+
+  Writeln('OS/2 reports ',usNumDrives,' partitionable disk(s) available.');
+  Write('Input disknumber for MBR backup (1..',usNumDrives,'): ');
+  Readln(Drive);
+  Writeln('Enter name of the bootsectorfile to restore');
+  Write('(Default is MBR_sect.000): ');
+  Readln(filename);
+
+  If filename = '' Then Filename := 'MBR_sect.000';
+  FH := FileOpen( filename, fmOpenRead OR fmShareDenyNone);
+  If FH > 0 Then
   Begin
-  Writeln('Restoring ',filename, 'to bootsector');
-  FileRead( FH, Sector0, Sector0Len );
-  FileClose( FH );
-  MBR_Sector(drive,sector0,PDSK_WritePHYSTRACK);
+    Writeln('Restoring ',filename, 'to bootsector');
+    FileRead( FH, Sector0, Sector0Len );
+    FileClose( FH );
+    Write_MBR_Sector(drive,sector0);
   End
- Else Writeln('Sorry, the file ',filename,' returned error ',-FH);
-Writeln('Press Enter to continue...');
-Readln;
+  Else
+    Writeln('Sorry, the file ',filename,' returned error ',-FH);
+  Writeln('Press Enter to continue...');
+  Readln;
 End;
 
 Procedure Read_Disk(devhandle: Hfile; VAR buf; buf_len: Ulong);
 Var
   ulBytesRead   : ULONG;          // Number of bytes read by DosRead
-  rc            : APIRET;         // Return code
   s3            : STRING[3];
   FH            : Integer;        // File handle for backup file
+  rc            : LongBool;
 
 Begin
-rc := DosRead (DevHandle,               // File Handle
-               buf,                     // String to be read
-               buf_len,                 // Length of string to be read
-               ulBytesRead);            // Bytes actually read
-If (rc <> NO_ERROR) Then
+  rc := ReadFile(devhandle,               // File Handle
+                 buf,                     // String to be read
+                 buf_len,                 // Length of string to be read
+                 ulBytesRead,             // Bytes actually read
+                 nil);
+  If rc = false Then
   Begin
-  Writeln('DosRead error: return code = ', rc);
-  Halt(1);
+    Writeln('ReadFile error!');
+    Halt(1);
   End;
 
-// Writeln('Read_Disk: ', ulBytesRead,' Bytes read.' );
-
-// Write backup file of data read
-i := 0;
-Repeat
-  Str(i:3,s3);
-  If pos(' ',s3) = 1 Then s3[1] := '0';
-  If pos(' ',s3) = 2 Then s3[2] := '0';
-  i:=succ(i);
-  If I > 999 Then exit;
-Until NOT FileExists ('Drive-'+drive1[1]+'.'+s3);
-Writeln('Backup bootsector file created:  Drive-',drive1[1],'.',s3);
-FH := FileCreate( 'Drive-'+drive1[1]+'.'+s3);
-FileWrite( FH, buf, ulBytesRead );
-FileClose( FH );
+  // Write backup file of data read
+  i := 0;
+  Repeat
+    Str(i:3,s3);
+    If pos(' ',s3) = 1 Then s3[1] := '0';
+    If pos(' ',s3) = 2 Then s3[2] := '0';
+    i:=succ(i);
+    If I > 999 Then exit;
+  Until NOT FileExists ('Drive-'+drive1[1]+'.'+s3);
+  Writeln('Backup bootsector file created:  Drive-',drive1[1],'.',s3);
+  FH := FileCreate( 'Drive-'+drive1[1]+'.'+s3);
+  FileWrite( FH, buf, ulBytesRead );
+  FileClose( FH );
 End;
 
 
 Procedure Write_Disk(devhandle: Hfile; VAR buf; buf_len: Ulong);
 Var
   ulWrote       : ULONG;        // Number of bytes written by DosWrite
-  //ulLocal       : ULONG;        // File pointer position after DosSetFilePtr
-  rc            : APIRET;       // Return code
+  rc            : LongBool;     // Return code
 
 Begin
-rc := DosWrite (DevHandle,      // File handle
-                buf,            // String to be written
-                buf_len,        // Size of string to be written
-                ulWrote);       // Bytes actually written
-If (rc <> NO_ERROR) Then
+  rc := WriteFile(devhandle,               // File Handle
+                 buf,                     // String to be read
+                 buf_len,                 // Length of string to be read
+                 ulWrote,                 // Bytes actually read
+                 nil);
+  If rc = false Then
   Begin
-  Writeln('DosWrite error: return code = ', rc);
-  Halt(1);
+    Writeln('WriteFile error!');
+    Halt(1);
   End;
-Writeln(ulWrote,' Bytes written to disk');
+  Writeln(ulWrote,' Bytes written to disk');
 End;
 
 
 Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
-
 Var
-  rc          : ApiRet; // Return code
-  Action      : ULong;  // Open action
-  hdl         : LongInt;
+  hdl         : HANDLE;
 
 Begin
-// Opens the device to get a handle
-//cbfile := 0;
-//  DosOpen can be changed to DosOpenL if VP has been updated to support it
-rc := DosOpen(
-  Drive,                            // File path name
-  Hdl,
-  Action,                           // Action taken
-  0,                                // File primary allocation
-  file_Normal,                      // File attribute
-  open_Action_Open_if_Exists,       // Open function type
-//  open_Flags_NoInherit Or
-  open_Share_DenyNone  Or
-  open_Access_ReadWrite Or
-  OPEN_FLAGS_DASD ,                 // Open mode of the file
-  nil);                             // No extended attribute
+  // Opens the device to get a handle
+  //cbfile := 0;
+  //  DosOpen can be changed to DosOpenL if VP has been updated to support it
+  hdl := CreateFile(PChar('\\.\' + Drive),
+                    GENERIC_READ or GENERIC_WRITE,
+                    FILE_SHARE_READ or FILE_SHARE_WRITE,
+                    nil, OPEN_EXISTING, 0, 0);
 
-DevHandle := Word(hdl);
+  DevHandle := Word(hdl);
 
-If rc <> No_Error Then
+  If hdl = INVALID_HANDLE_VALUE Then
   Begin
-  Writeln('DosOpen error on drive ',drive,'  Errorcode = ',rc);
-  Halt(1);
+    Writeln('CreateFile error on drive ', drive);
+    Halt(1);
   End;
 End;
 
 Procedure Close_Disk(DevHandle: Hfile);
-
-Var
-  rc          : ApiRet; // Return code
-  //Action      : ULong;  // Open action
-
 Begin
-rc := DosClose(DevHandle);
-If rc <> No_Error Then
-  Begin
-  Writeln('DosClose ERROR. RC = ',rc);
-  End;
+  CloseHandle(DevHandle)
 End;
 
 
 Procedure Lock_Disk(DevHandle: Hfile);
-
 Var
-  rc          : ApiRet;   // Return code
-  //Action      : ULong;    // Open action
-  //ParmRec     : packed record    // Input parameter record
-  //  Command : ULong;      // specific to the call we make
-  //  Addr0   : ULong;
-  //  Bytes   : UShort;
-  //  end;
-  //ParmLen     : ULong;    // Parameter length in bytes
-  //DataLen     : ULong;    // Data length in bytes
-  lockbyte    : ULong;      //command and data parameter
-
+  lpov  : LPOVERLAPPED;
+  bytes : LongWord;
 Begin
-// First open the device to get a handle
-
-{$IFDEF FPC}
-rc := DosDevIOCtl(
-  DevHandle,                  // Handle to device
-  ioctl_Disk,                 // Category of request
-  dsk_LockDrive,              // Function being requested
-  LockByte,                   // Input/Output parameter list
-  1,                          // Maximum output parameter size
-  LockByte,                   // Input:  size of parameter list
-                              // Output: size of parameters returned
-  LockByte,                   // Input/Output data area
-  1,                          // Maximum output data size
-  LockByte);                  // Input:  size of input data area
-                              // Output: size of data returned
-{$ELSE}
-rc := DosDevIOCtl(
-  DevHandle,                  // Handle to device
-  ioctl_Disk,                 // Category of request
-  dsk_LockDrive,              // Function being requested
-  @LockByte,                  // Input/Output parameter list
-  1,                          // Maximum output parameter size
-  @LockByte,                  // Input:  size of parameter list
-                              // Output: size of parameters returned
-  @LockByte,                  // Input/Output data area
-  1,                          // Maximum output data size
-  @LockByte);                 // Input:  size of input data area
-                              // Output: size of data returned
-{$ENDIF}
-
-If rc <> No_Error Then
-  Begin
-  Writeln('Drive lock error: return code = ', rc);
-  // Halt(1);
-  End
-else
-  Begin
-  // Writeln('Drive is now locked !!!');
-  End;
+  if DeviceIoControl(DevHandle,
+                     FSCTL_LOCK_VOLUME,
+                     nil,
+                     0,
+                     nil,
+                     0,
+                     bytes,
+                     @lpov) = false then
+  begin
+    writeln('Drive lock error!');
+    halt(1);
+  end;
 End;
 
 
 Procedure Unlock_Disk(DevHandle: Hfile);
 
 Var
-  rc          : ApiRet; // Return code
-  //Action      : ULong;  // Open action
-  //ParmRec     : packed record  // Input parameter record
-  //  Command : ULong;    // specific to the call we make
-  //  Addr0   : ULong;
-  //  Bytes   : UShort;
-  //end;
-  //ParmLen     : ULong;  // Parameter length in bytes
-  //DataLen     : ULong;  // Data length in bytes
-  lockbyte    : LongInt;   //command and data parameter
-
+  lpov  : LPOVERLAPPED;
+  bytes : LongWord;
 Begin
-
-{$IFDEF FPC}
-rc := DosDevIOCtl(
-  DevHandle,                   // Handle to device
-  ioctl_Disk,                  // Category of request
-  dsk_UnlockDrive,             // Function being requested
-  LockByte,                    // Input/Output parameter list
-  1,                           // Maximum output parameter size
-  LockByte,                    // Input:  size of parameter list
-                               // Output: size of parameters returned
-  LockByte,                    // Input/Output data area
-  1,                           // Maximum output data size
-  LockByte);                   // Input:  size of input data area
-                               // Output: size of data returned
-{$ELSE}
-rc := DosDevIOCtl(
-  DevHandle,                   // Handle to device
-  ioctl_Disk,                  // Category of request
-  dsk_UnlockDrive,             // Function being requested
-  @LockByte,                   // Input/Output parameter list
-  1,                           // Maximum output parameter size
-  @LockByte,                   // Input:  size of parameter list
-                               // Output: size of parameters returned
-  @LockByte,                   // Input/Output data area
-  1,                           // Maximum output data size
-  @LockByte);                  // Input:  size of input data area
-{$ENDIF}
-
-If rc <> No_Error Then
-  Begin
-  Writeln('DosDevIOCtl (UNLOCK) error: return code = ', rc);
-  //  Halt(1);
-  End
-Else
-  Begin
-  //  Writeln('Drive UNLOCKed successfully ');
-  End;
-
+  if DeviceIoControl(DevHandle,
+                     FSCTL_UNLOCK_VOLUME,
+                     nil,
+                     0,
+                     nil,
+                     0,
+                     bytes,
+                     @lpov) = false then
+  begin
+    writeln('Drive lock error!');
+    halt(1);
+  end;
 End;
 
 {$IFDEF FPC}
