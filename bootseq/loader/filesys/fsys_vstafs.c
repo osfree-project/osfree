@@ -50,10 +50,9 @@ vstafs_mount (void)
 {
   int retval = 1;
 
-  if ( (((*pcurrent_drive < 0xC0) || (*pcurrent_drive > 0xC7))
-       && ((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
+  if ( /* ((*pcurrent_drive & 0x80) || (*pcurrent_slice != 0))
        && *pcurrent_slice != PC_SLICE_TYPE_VSTAFS)
-      ||  ! (*pdevread) (0, 0, BLOCK_SIZE, (char *) FSYS_BUF)
+      || */  ! (*pdevread) (0, 0, BLOCK_SIZE, (char *) FSYS_BUF)
       ||  FIRST_SECTOR->fs_magic != 0xDEADFACE)
     retval = 0;
 

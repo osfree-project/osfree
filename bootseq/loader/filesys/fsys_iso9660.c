@@ -132,9 +132,9 @@ iso9660_mount (void)
    *  (2) if current partition is BSD style sub-partition whose ID is
    *  ISO-9660.
    */
-  if ((*pcurrent_partition != 0xFFFFFF)
-      && !IS_PC_SLICE_TYPE_BSD_WITH_FS(*pcurrent_slice, FS_ISO9660))
-    return 0;
+  //if ((*pcurrent_partition != 0xFFFFFF)
+  //    && !IS_PC_SLICE_TYPE_BSD_WITH_FS(*pcurrent_slice, FS_ISO9660))
+  //  return 0;
 
   /*
    *  Currently, only FIRST session of MultiSession disks are supported !!!

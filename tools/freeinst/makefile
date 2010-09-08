@@ -7,6 +7,18 @@
 #
 
 PROJ  = freeinst
-ADD_PCOPT = -dOS2 #-Tgo32v2 -dDPMI32
+!ifeq ENV OS/2
+defs = -dOS2
+!endif
+!ifeq ENV WIN32
+defs = -dWIN32
+!endif
+!ifeq ENV DOS
+defs = -dDPMI32
+!endif
+!ifeq ENV LINUX
+defs = -dLINUX
+!endif
+ADD_PCOPT = $(defs)
 DESC  = FreeLDR installer by Yoda
 !include $(%ROOT)/mk/toolspas.mk

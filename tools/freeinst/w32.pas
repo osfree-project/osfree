@@ -8,8 +8,8 @@ const
   Root: Array[0..4] of char = 'C:\'#0;
 var
   FSName: Array[0..255] of char;
-  MaxLength: LongWord;
-  FSFlags: LongWord;
+  MaxLength: LongInt;
+  FSFlags: LongInt;
 begin
   Root[0] := Drive;
   Result := dtInvalid;

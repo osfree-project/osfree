@@ -514,7 +514,7 @@ int open_partition_hiddensecs(void)
 {
   partsect *p;
   unsigned long id = 0, offset = 0, off;
-  unsigned long bsd = 0xff, n, lba;
+  unsigned long bsd = 0xff, n = 0xff, lba;
   int      i;
   char     buf[0x200];
   desc     *q;
@@ -523,63 +523,70 @@ int open_partition_hiddensecs(void)
   part_start  = p->bpb.hidden_secs;
   part_length = p->bpb.n_sect;
   if (!part_length) part_length = p->bpb.n_sect_ext;
-  lba = p->bpb.hidden_secs - p->bpb.track_size;
 
-  /* read MBR */
-  rawread (boot_drive, 0, 0, 512, buf);
-  p = (partsect *)buf;
-
-  q = p->pt;
-  for (i = 0; i < 4; i++, q++)
+  if (p->bpb.hidden_secs)
   {
-    id = q->id;
-#ifndef STAGE1_5
-    n = i;
-    if (id == 0x5 || id == 0xf)
-      offset = q->start_lba;
-#endif
-    /* if this partition is contained inside a BSD slice */
-    if (IS_PC_SLICE_TYPE_BSD(id) &&
-        q->start_lba <= part_start &&
-        part_start + part_length <= q->start_lba + q->len)
-      break;
+    lba = p->bpb.hidden_secs - p->bpb.track_size;
 
-    /* if this partition is found in PT */
-    if (q->start_lba == part_start)
-      break;
-  }
-
-  /* logical partition, EBR */
-  if (i == 4)
-  {
-#ifndef STAGE1_5
-    n = 3;
-    off = 0;
-    while (1)
-    {
-      n++;
-      /* read next EBR */
-      rawread(boot_drive, offset + off, 0, 512, buf);
-      p = (partsect *)buf;
-      q = p->pt;
-      if (offset + off < lba)
-      {
-        q++;
-        off = q->start_lba;
-      }
-      else
-        break;
-    };
-#else
-    /* read EBR */
-    rawread (boot_drive, lba, 0, 512, buf);
+    /* read MBR */
+    rawread (boot_drive, 0, 0, 512, buf);
     p = (partsect *)buf;
-    /* 1st partition descriptor */
-    q = p->pt;
-#endif
-  }
 
-  current_slice = q->id;
+    q = p->pt;
+    for (i = 0; i < 4; i++, q++)
+    {
+      id = q->id;
+#ifndef STAGE1_5
+      n = i;
+      if (id == 0x5 || id == 0xf)
+        offset = q->start_lba;
+#endif
+      /* if this partition is contained inside a BSD slice */
+      if (IS_PC_SLICE_TYPE_BSD(id) &&
+          q->start_lba <= part_start &&
+          part_start + part_length <= q->start_lba + q->len)
+        break;
+
+      /* if this partition is found in PT */
+      if (q->start_lba == part_start)
+        break;
+    }
+
+    /* logical partition, EBR */
+    if (i == 4)
+    {
+#ifndef STAGE1_5
+      n = 3;
+      off = 0;
+      while (1)
+      {
+        n++;
+        /* read next EBR */
+        rawread(boot_drive, offset + off, 0, 512, buf);
+        p = (partsect *)buf;
+        q = p->pt;
+        if (offset + off < lba)
+        {
+          q++;
+          off = q->start_lba;
+        }
+        else
+          break;
+      };
+#else
+      /* read EBR */
+      rawread (boot_drive, lba, 0, 512, buf);
+      p = (partsect *)buf;
+      /* 1st partition descriptor */
+      q = p->pt;
+#endif
+    }
+
+    current_slice = q->id;
+  }
+  else
+    current_slice = 0;
+
   current_drive = boot_drive;
 #ifndef STAGE1_5
   current_partition = 0xff | (bsd << 8) | (n << 16);
