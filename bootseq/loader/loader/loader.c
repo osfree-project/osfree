@@ -20,6 +20,12 @@ extern bios_parameters_block *bpb;
 extern FileTable ft;
 extern int cur_addr;
 
+#define PROCESS_ALL           0
+#define PROCESS_TRIGGERS_ONLY 1
+int process_what = PROCESS_ALL;
+
+char last_key_pressed = '\0';
+
 #define VARIABLE_STORE_SIZE 1024
 extern char variable_store[VARIABLE_STORE_SIZE];
 extern unsigned int variable_store_actpos; /* Points to the next free entry */
@@ -342,6 +348,11 @@ exec_line(char *line)
       s = macro_subst(s);
       strpos = s;
       var_sprint(str, s);
+
+      /* if PROCESS_TRIGGERS_ONLY then process only 'trigger' lines */
+      if (process_what == PROCESS_TRIGGERS_ONLY)
+        if (abbrev(str, "set", 3)) continue;
+
       if (((*b)->func)(str, 0x2)) return 0;
       break;
     }
@@ -355,6 +366,8 @@ int
 get_user_input(int *item, int *shift)
 {
   int c;
+
+  process_what = PROCESS_ALL;
 
   // scan code
   for (;;)
@@ -456,11 +469,19 @@ get_user_input(int *item, int *shift)
       }
       default:
        {
-         if (toggle_do_key(c & 0xff))
+         last_key_pressed = c & 0xff;
+         if (toggle_do_key(last_key_pressed))
          {
            draw_watches();
-           toggle_print_status(3, 17);
+           if (toggle_print_status(3, 17))
+           {
+             process_what = PROCESS_TRIGGERS_ONLY;
+             state = 0;
+             return -1;
+           }
          }
+         else
+
          t->gotoxy(SCREEN_WIDTH - 7, SCREEN_HEIGHT - 2);
          t->setcolor((char)screen_fg_color    | ((char)screen_bg_color << 4),
                      (char)screen_fg_color_hl | ((char)screen_bg_color_hl << 4));
@@ -705,6 +726,8 @@ void draw_watches(void)
 {
   int  x0, y0;
   int  i, j;
+  char title[] = "variables list: [key]variable=value";
+  int  len;
 
   menu_width  = SCREEN_WIDTH - 1;
   menu_height = 2 * (SCREEN_HEIGHT - 1) / 3 - 3;
@@ -717,7 +740,12 @@ void draw_watches(void)
 
   gotoxy(x0, y0);
   putchar('É');
-  for (i = 0; i < SCREEN_WIDTH - 2; i++) putchar('Í');
+  len = (SCREEN_WIDTH - strlen(title) - 2) / 2 + 1;
+  for (i = 0; i < len; i++) putchar('Í');
+  gotoxy(len + 1, y0);
+  printf(title);
+  gotoxy(len + strlen(title) + 1, y0);
+  for (i = 0; i < len; i++) putchar('Í');
   gotoxy(SCREEN_WIDTH - 1, y0); putchar('»');
 
   for (i = y0; i < SCREEN_HEIGHT - 2; i++)
@@ -1190,6 +1218,8 @@ KernelLoader(char **script)
 
   printf("\r\nKernel loader started.\r\n");
 
+  process_what = PROCESS_ALL;
+
   memset(cfg, 0, 0x100);
   grub_strcat(cfg, (char const *)at_drive, "/boot/loader/boot.cfg");
 
@@ -1215,7 +1245,7 @@ KernelLoader(char **script)
   while (1)
   {
     if (!*curr_cfg) strcpy(curr_cfg, cfg);
-    if (!strcmp(curr_cfg, cfg))
+    if (!strcmp(curr_cfg, cfg) && (process_what != PROCESS_TRIGGERS_ONLY))
     {
       // zero-out initial parameters
       memset(toggle_data, 0, sizeof(toggle_data));
@@ -1240,6 +1270,9 @@ KernelLoader(char **script)
     }
     else
       rc = exec_cfg(curr_cfg, item, shift);
+
+    //if (process_what != PROCESS_ALL)
+    //  process_what = PROCESS_ALL;
 
     switch (rc)
     {

@@ -34,6 +34,21 @@ extern grub_error_t errnum;
 extern struct builtin *builtins[];
 extern struct term_entry *t;
 
+extern char last_key_pressed;
+
+#define PROCESS_ALL           0
+#define PROCESS_TRIGGERS_ONLY 1
+extern int process_what;
+
+enum {
+  COMMAND_INITIAL,
+  COMMAND_NONE,
+  COMMAND_SET,
+  COMMAND_SELECT,
+  COMMAND_TRIGGER,
+};
+int prev_cmd = COMMAND_INITIAL;
+
 /* The address for Multiboot command-line buffer.  */
 static char *mb_cmdline;
 
@@ -819,9 +834,12 @@ int toggle_print_status(int x, int y)
                    * of the printed string and we don't want to use another
                    * buffer for sprintf
                    */
+                  grub_putchar('[');
+                  grub_putchar((char)toggle_data[tg].key);
+                  grub_putchar(']');
                   grub_putstr(variable_list[i].name);
                   grub_putchar('=');
-                  len = grub_strlen(variable_list[i].name) + 1;
+                  len = grub_strlen(variable_list[i].name) + 4;
 
                   vals = var_sprint_buf(variable_list[i].value, &dummy);
                   grub_putstr(vals);
@@ -982,12 +1000,6 @@ toggle_func(char *arg, int flags)
   int  key, block = 0, i;
   char *a = arg, *eb;
   int command;
-  enum {
-    COMMAND_SET,
-    COMMAND_SELECT,
-    COMMAND_TRIGGER,
-  };
-
 
   /* parse args */
   /* proceed to next arg */
@@ -1090,6 +1102,7 @@ toggle_func(char *arg, int flags)
 
       /* finally, set all vars from the first block */
       toggle_do_block(slot, 0);
+      prev_cmd = COMMAND_SET;
     }
   else if (command == COMMAND_SELECT)
     {
@@ -1100,6 +1113,10 @@ toggle_func(char *arg, int flags)
           /* there's something between a and eb-1 now*/
           /* *a is a key and *(a+1) == '=' */
           k = *a++;
+
+          if ((k == last_key_pressed) ||
+              ((prev_cmd != COMMAND_TRIGGER) && (process_what == PROCESS_TRIGGERS_ONLY)))
+            return 0;
 
           if (*a++ != '=')
             goto bad_arg;
@@ -1117,6 +1134,7 @@ toggle_func(char *arg, int flags)
 
           a = skip_ws(a);
         }
+      prev_cmd = COMMAND_SELECT;
     }
   else if (command == COMMAND_TRIGGER)
     {
@@ -1165,9 +1183,12 @@ toggle_func(char *arg, int flags)
 
       a = skip_ws(a);
 
+      prev_cmd = COMMAND_TRIGGER;
+
       if (!cmp)
         toggle_func(a, 0);
     }
+  prev_cmd = COMMAND_NONE;
 
   return 0;
 
