@@ -12,6 +12,8 @@ type
     f_Spare: array[0..5] of LongInt;
   end;
 
+function LnxStatFS(Path: PChar; var StatFS: TStatFS): LongInt; forward;
+
 function SysGetBootDrive: Char;
 begin
   Result := 'C';
@@ -47,9 +49,13 @@ begin
 end;
 
 function LnxStatFS(Path: PChar; var StatFS: TStatFS): LongInt; {&uses ebx,ecx,edx,esi,edi}
+begin
+{$ASMMODE intel}
 asm
   mov eax, 99;
   mov ebx, Path;
   mov ecx, StatFS;
   int $80;
+end; 
 end;
+
