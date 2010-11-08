@@ -9,7 +9,7 @@ extern  init:NEAR
 public  fsd_init
 
 public   exe_end
-public   bss_end
+;public   bss_end
 ;public   bss_start
 ;public   bss_len
 
@@ -104,8 +104,8 @@ _TEXT    segment dword public 'CODE'  use32
 ;           org EXT_BUF_BASE + 40h
 fsd_init:
          jmp  real_start
-__bss_start     dd (exe_end - EXT_BUF_BASE)
-__bss_end       dd (bss_end - EXT_BUF_BASE)
+_bss_start     dd (exe_end - EXT_BUF_BASE)
+_bss_end       dd (bss_end - EXT_BUF_BASE)
 
            org EXT_BUF_BASE + 0x18
 _pdisk_read_func dd 0

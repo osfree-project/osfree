@@ -24,7 +24,7 @@ unsigned long sector_size = SECTOR_SIZE;
 
 #ifndef STAGE1_5
 
-extern char freeldr_path[];
+extern char *preldr_path;
 
 extern unsigned long current_drive;
 extern unsigned long current_partition;
@@ -195,7 +195,10 @@ int set_fsys(char *fsname)
   buf = (char *)EXT4HIBUF_BASE;
 
   if (rc)
+  {
     rc = freeldr_read(buf, -1);
+    freeldr_close();
+  }
   else
     panic("can't open filesystem: ", fsname);
 
@@ -262,8 +265,8 @@ void fsys_by_num(int n, char *buf)
   char *fsys_name;
   int m, t, k;
   // buf -> path to filesystem driver
-  m = grub_strlen(freeldr_path);
-  grub_memmove((void *)buf, freeldr_path, m);
+  m = grub_strlen(preldr_path);
+  grub_memmove((void *)buf, preldr_path, m);
   t = grub_strlen(fsd_dir);
   grub_memmove((void *)(buf + m), fsd_dir, t);
   fsys_name = fsys_list[n];

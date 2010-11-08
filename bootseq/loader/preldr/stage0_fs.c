@@ -15,6 +15,8 @@
 #include "fsd.h"
 #include "struc.h"
 
+#define RM2PHYS(x) (((*((unsigned short *)(x + 1))) << 4) + *((unsigned short *)(x)))
+
 lip1_t *l1, lip1;
 int __cdecl (*fsd_init)(lip1_t *l);
 
@@ -40,7 +42,11 @@ extern int do_completion;
 static int unique;
 static char *unique_string;
 
-extern void *filetab_ptr = 0;
+#pragma aux filetab_ptr "*"
+extern unsigned long filetab_ptr;
+
+#pragma aux bpb_ptr "*"
+extern unsigned long bpb_ptr;
 
 extern int mem_lower;
 extern int mem_upper;
@@ -58,19 +64,19 @@ int lastpos(char c, char *s);
 void setlip2(lip2_t *l2);
 int blackbox_load(char *path, int bufno, void *p);
 
-unsigned short __cdecl
+unsigned short
   mu_Open_wr(char *pName,
              unsigned long *pulFileSize);
 
-unsigned long  __cdecl
+unsigned long
   mu_Read_wr(long loffseek,
              char *pBuf,
              unsigned long cbBuf);
 
-void __cdecl
+void
   mu_Close_wr(void);
 
-void __cdecl
+void
   mu_Terminate_wr(void);
 
 char test = 0;
@@ -181,15 +187,15 @@ _Packed struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, 2, {0, fsys_list}, {"/boot/loader/freeldr.mdl", 0x20000, 0xf}, {"/os2ldr", 0x10000, 0xf},
-          {"/os2boot", 0x7c0}, {0, term_list},};
+} conf = {0x80, 2, {0, fsys_list}, {"\\boot\\loader\\freeldr.mdl", 0x20000, 0xf}, {"\\os2ldr", 0x10000, 0xf},
+          {"\\os2boot", 0x7c0}, {0, term_list},};
 
 char *redir_list[] = {"OS2LDR", "OS2LDR.MSG", "OS2KRNL", "OS2LDR.INI", "OS2DUMP", "OS2LDR.FNT", "OS2DBCS.FNT", 0};
 
 char freeldr_path[0x20];
-char *preldr_path = "/boot/loader/"; // freeldr path
-char *fsd_dir     = "fsd/";           // uFSD's subdir
-char *term_dir    = "term/";          // term   subdir
+char *preldr_path = "\\boot\\loader\\"; // freeldr path
+char *fsd_dir     = "fsd\\";           // uFSD's subdir
+char *term_dir    = "term\\";          // term   subdir
 char *cfg_file    = "preldr.ini";     // .INI file
 
 #pragma aux lip2 "*"
@@ -242,6 +248,8 @@ unsigned long ldrlen = 0;
 
 #pragma aux stop_floppy "*"
 void stop_floppy(void);
+
+int open_partition_hiddensecs(void);
 
 /*   u_* functions are designed to be more like
  *   original IBM's microfsd functions, than GRUB
@@ -662,8 +670,8 @@ u_termctl(int termno)
     n = termno;
 
   /* build a path to term blackbox */
-  i = grub_strlen(freeldr_path);
-  grub_strcpy(term, freeldr_path);
+  i = grub_strlen(preldr_path);
+  grub_strcpy(term, preldr_path);
   grub_strcpy(term + i, term_dir);
   i = grub_strlen(term);
   grub_strcpy(term + i, conf.term.term_list[n]);
@@ -715,10 +723,9 @@ int redir_file(char *file)
 int
 freeldr_open (char *filename)
 {
+   char *p;
 
 #ifndef STAGE1_5
-
-   char *p;
    int  i, l, k;
    int  i0 = 0;
    int  rc;
@@ -737,13 +744,36 @@ freeldr_open (char *filename)
 
    if (filetab_ptr)
    {
+     filepos = 0;
+     filemax = 0;
+
+     p = filename;
+
+     if (*filename == '(')
+     {
+       while (*p != ')') p++;
+       p++;
+     }
+
+     //for (i = 0; *p  && i < 0x200; p++, i++) buf[i] = *p;
+     strcpy(buf, p);
+     i = grub_index(' ', buf);
+     if (i > 0) buf[i - 1] = '\0';
+
+     for (i = 0; buf[i] && i < 0x200; i++) {
+       /* change "\" to "/" */
+       if (buf[i] == '/')
+         buf[i] = '\\';
+     }
+
      // we're using 16-bit uFSD
-     ret = mu_Open_wr(filename,
+     ret = mu_Open_wr(buf,
                       (unsigned long *)&rc);
 
      if (!ret)
      {
        // success
+       filemax = rc;
        return rc;
      }
      else
@@ -780,7 +810,7 @@ freeldr_open (char *filename)
        }
 
        /* prepend "/" to filename */
-       if (*filename != '/' && *filename != '(') {
+       if (*filename != '/' && *filename != '\\' && *filename != '(') {
          buf[0] = '/';
          i0 = 1;
        }
@@ -849,13 +879,28 @@ freeldr_dir (char *name)
 int
 freeldr_read (char *buf, int len)
 {
-   int rc;
+   int  rc;
 #ifndef STAGE1_5
-   //printf("r 0x%x %d", buf, len);
+   #define BSIZ 0x400
+   char b[BSIZ];
+   char *pos = buf;
+   int  rd = 0;
+
    if (filetab_ptr)
    {
-     // use 16-bit uFSD
-     rc = mu_Read_wr(filepos, buf, len);
+     if (len == -1)
+       len = filemax;
+
+     while (rd < len && filepos < filemax)
+     {
+       // use 16-bit uFSD
+       rc = mu_Read_wr(filepos, b, BSIZ);
+       memmove(pos, b, rc);
+       filepos += rc;
+       pos += rc;
+       rd  += rc;
+     }
+     rc = rd;
    }
    else
 #endif
@@ -863,9 +908,6 @@ freeldr_read (char *buf, int len)
      // use 32-bit uFSD
      rc = grub_read(buf, len);
    }
-#ifndef STAGE1_5
-   //printf(" sz %d\r\n", rc);
-#endif
    return rc;
 }
 
@@ -1336,6 +1378,7 @@ int blackbox_load(char *path, int bufno, void *p)
   if (rc)
   {
     rc = freeldr_read(hidest, -1);
+    freeldr_close();
   }
   else
   {
@@ -1396,6 +1439,7 @@ void reloc(char *base, char *rel_file, unsigned long shift)
   if (rc) {
     // buf = (char *)(EXT2BUF_BASE);
     rc  = freeldr_read(buf, -1);
+    freeldr_close();
   } else {
     panic("Can't open .rel file: ", rel_file);
   }
@@ -1794,7 +1838,7 @@ void init(void)
   scratchaddr = SCRATCHADDR;
   bufferaddr  = BUFFERADDR;
 
-  //gateA20(1);
+  gateA20(1);
 
 #ifndef STAGE1_5
   memset(prefix, 0, sizeof(prefix));
@@ -1853,6 +1897,14 @@ void init(void)
   grub_strcpy(cfg, preldr_path);
   grub_strcpy(cfg + rc, cfg_file);
 
+  if (filetab_ptr &&
+      (boot_drive != cdrom_drive) &&
+      (boot_drive >= 0x80))
+  {
+    memmove((char *)BOOTSEC_BASE + 0xb, (char *)RM2PHYS((unsigned short *)&bpb_ptr), 0x200 - 0xb);
+    open_partition_hiddensecs ();
+  }
+
   /* parse config file */
   process_cfg_line = process_cfg_line1;
 
@@ -1881,32 +1933,35 @@ void init(void)
   /* use putchar() implementation through term blackbox */
   //use_term = 1;
 
-  /* move uFSD */
-  grub_memmove((char *)(EXT3HIBUF_BASE),
-               (char *)(EXT_BUF_BASE),
-               EXT_LEN);
+  if (!filetab_ptr)
+  {
 
-  /* build filesystem driver .rel file path */
-  grub_strcpy(str, freeldr_path);
-  i = grub_strlen(freeldr_path);
-  grub_strcpy(str + i, fsd_dir);
-  k = grub_strlen(fsd_dir);
-  grub_strcpy(str + i + k, install_filesys);
-  l = grub_strlen(install_filesys);
-  grub_strcpy(str + i + k + l, ".rel\0");
+    /* move uFSD */
+    grub_memmove((char *)(EXT3HIBUF_BASE),
+                 (char *)(EXT_BUF_BASE),
+                 EXT_LEN);
 
-  /* fixup uFSD */
-  reloc((char *)(EXT3HIBUF_BASE), str, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+    /* build filesystem driver .rel file path */
+    grub_strcpy(str, preldr_path);
+    i = grub_strlen(preldr_path);
+    grub_strcpy(str + i, fsd_dir);
+    k = grub_strlen(fsd_dir);
+    grub_strcpy(str + i + k, install_filesys);
+    l = grub_strlen(install_filesys);
+    grub_strcpy(str + i + k + l, ".rel\0");
 
-  /* call uFSD init (set linkage) */
-  //if (!filetab_ptr)
-  //{
+    /* fixup uFSD */
+    reloc((char *)(EXT3HIBUF_BASE), str, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
+
+    /* call uFSD init (set linkage) */
     fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
     fsd_init(l1);
-  //}
 
-  // backup uFSD
-  grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
+    // backup uFSD
+    grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
+  }
+
+
 
   /* Init terminal */
   init_term();

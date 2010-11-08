@@ -93,15 +93,15 @@ ok:
       ;call set_gdt
 
       ; clear bss
-      ;cld
-      ;xor  eax, eax
-      ;lea  edi, exe_end
-      ;lea  ecx, bss_end
-      ;sub  ecx, edi
-      ;shr  ecx, 2
-      ;inc  ecx
+      pushad
+      cld
+      xor  eax, eax
+      lea  edi, exe_end
+      lea  ecx, bss_end
+      sub  ecx, edi
 
-      ;rep  stosd
+      rep  stosb
+      popad
 
       assume cs:_TEXT
 
