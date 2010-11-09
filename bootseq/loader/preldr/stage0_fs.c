@@ -879,22 +879,27 @@ freeldr_dir (char *name)
 int
 freeldr_read (char *buf, int len)
 {
-   int  rc;
-#ifndef STAGE1_5
    #define BSIZ 0x400
+   int  rc = BSIZ;
+#ifndef STAGE1_5
    char b[BSIZ];
    char *pos = buf;
    int  rd = 0;
+   int  rest = len;
 
    if (filetab_ptr)
    {
      if (len == -1)
        len = filemax;
 
-     while (rd < len && filepos < filemax)
+     while (rest && filepos < filemax)
      {
+       rest = len - rd;
+       
+       if (rest < rc)
+         rc = rest;
        // use 16-bit uFSD
-       rc = mu_Read_wr(filepos, b, BSIZ);
+       rc = mu_Read_wr(filepos, b, rc);
        memmove(pos, b, rc);
        filepos += rc;
        pos += rc;
