@@ -1,8 +1,8 @@
 @echo off
 rem VP path:
-set VPCPATH=\data\dev\vp21
+set VPCPATH=\dev\vp21
 rem Platform:
-set p=w32
+set p=os2
 set path=%path%;%vpcpath%\bin.%p%
 set beginlibpath=%vpcpath%\bin.%p%
 set binpath=%vpcpath%\bin.%p%

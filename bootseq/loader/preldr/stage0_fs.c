@@ -895,7 +895,7 @@ freeldr_read (char *buf, int len)
      while (rest && filepos < filemax)
      {
        rest = len - rd;
-       
+
        if (rest < rc)
          rc = rest;
        // use 16-bit uFSD

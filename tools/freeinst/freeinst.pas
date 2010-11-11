@@ -58,13 +58,16 @@ Var
   FH:           Integer;
   Count:        Word;
   ldr0:         Packed Record
-                head:   Array[0..1] Of Byte;
-                l1:     Word;
-                l2:     Word;
-                head2:  Array[0..7] Of Byte;
-                PartNr: Byte;                   // NOT used anymore
-                head3:  Array[0..28] Of Byte;
-                FS:     str16;
+                head:           Array[0..1] Of Byte;
+                l1:             Word;
+                l2:             Word;
+                force_lba:      Byte;
+                Bundle:         Byte;
+                head2:          Array[0..3] Of Byte;
+                head3:          Array[0..29] Of Byte;
+                PartNr:         Byte;                   // NOT used anymore
+                Zero1:          Byte;
+                FS:             str16;
                 End;
   Length :      Word;
 
@@ -361,6 +364,7 @@ With F32Buf Do
   Begin
   FS_Len      := Count1;
   Preldr_Len  := Count;
+  Bundle      := $80;
   PartitionNr := 0;             // Previous = PartNr not used anymore
   FS := fat;
   End;
@@ -467,6 +471,7 @@ With HPbuf Do
   Begin
   FS_Len      := Count1;
   Preldr_Len  := Count;
+  Bundle      := $80;
   PartitionNr := PartNr;        // not used anymore
   FS := hpfs;
   End;
@@ -646,6 +651,7 @@ With HPbuf Do
   Begin
   FS_Len      := Count1;
   Preldr_Len  := Count;
+  Bundle      := $80;
   PartitionNr := 0;             // WAS PartNr;
   FS := jfs;
   End;

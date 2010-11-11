@@ -29,12 +29,16 @@ call charout ofile, buf, bootsec_size + 1
 buf = charin(ufsd, 1, ufsd_size)
 call charout ofile, buf, preldr0_size + bootsec_size + 1
 
+/*
 buf = x2c(rev(d2x(ufsd_size)))
 call charout ofile, buf, bootsec_size + 3
 
 buf = x2c(rev(d2x(preldr0_size)))
 call charout ofile, buf, bootsec_size + 5
+*/
 
+buf = x2c(80)
+call charout ofile, buf, bootsec_size + 8
 
 exit 0
 /* --------------------------------------- */

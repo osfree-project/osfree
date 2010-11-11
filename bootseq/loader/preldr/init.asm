@@ -90,6 +90,7 @@ CONF_VARS_SIZE     equ  40h
 uFSD_size          dw    0
 stage0_size        dw    0
 force_lba          db    0
+bundle             db    0
 
                    org   8h
 
@@ -152,41 +153,64 @@ rel1:
 ;;;;;;;;;;;;;;
         pusha
 
-        mov  cx, uFSD_size
-        jcxz skip_reloc_ufsd  ; if uFSD_size == 0, it means that
-                              ; uFSD and stage0 are already loaded
-                              ; to proper places by the bootsector.
+        ;mov  cx, uFSD_size
+        ;jcxz skip_reloc_ufsd  ; if uFSD_size == 0, it means that
+        ;                      ; uFSD and stage0 are already loaded
+        ;                      ; to proper places by the bootsector.
+
+        cmp  bundle, 0
+        jz   skip_reloc_ufsd
+
+        xor  eax, eax
+        mov  ax,  cs
+        mov  ds,  ax
+
+        mov  ebx, eax
+        shl  ebx, 4
+
+        mov  eax, STAGE0_BASE
+        mov  esi,  offset _TEXT:exe_end
+        sub  esi,  eax
+
+        mov  cx, EXT_LEN
 
         ; relocate uFSD to EXT_BUF_BASE
         shr  cx, 1
         inc  cx
 
         ; preldr0 size = uFSD begin
-        mov  si, stage0_size
-        ;push si
+        ;mov  si, stage0_size
+        ;;push si
 
         mov  eax, EXT_BUF_BASE
         shr  eax, 4
         mov  es,  ax
         xor  di,  di
 
+        push esi
         rep  movsw
+        pop  esi
+
+        mov  ecx,  esi
 
         ;pop  ds
 skip_reloc_ufsd:
         ; relocate itself to STAGE0_BASE
 
-        ;pop  cx          ; stage0 length
-        mov  cx, stage0_size
-        jcxz skip_reloc_stage0
-        ;push cx
+        ;mov  cx, stage0_size
+        ;jcxz skip_reloc_stage0
+
+        mov  eax, STAGE0_BASE
+
+        cmp  eax, ebx
+        jz   skip_reloc_stage0
 
         shr  cx, 1
         inc  cx
 
         xor  si, si
 
-        mov  eax, STAGE0_BASE
+        ;mov  eax, STAGE0_BASE
         shr  eax, 4
         mov  es, ax
         xor  di, di
