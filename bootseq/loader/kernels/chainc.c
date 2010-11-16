@@ -262,12 +262,9 @@ void cmain(void)
 
     if (!load_addr) load_addr = BOOTSEC_LOCATION;
 
-    // Copy kernel
-    grub_memmove((char *)load_addr, kernel, kernel_len);
-
     if (mods_count > 1)
     {
-      for (i = 0; i < mods_count; i++, mod++)
+      for (i = 0, mod = (struct mod_list *)mods_addr; i < mods_count; i++, mod++)
       if (strstr((char *)mod->cmdline, "*bootsec*"))
       {
         /* if "*bootsec*" line is in the command line */
@@ -279,6 +276,9 @@ void cmain(void)
         break;
       }
     }
+
+    // Copy kernel
+    grub_memmove((char *)load_addr, kernel, kernel_len);
 
     kernel_ldr(kernel, kernel_len);
   }

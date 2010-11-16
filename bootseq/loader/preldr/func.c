@@ -285,6 +285,7 @@ open_device (void)
 {
   if (!(
         ((current_drive == boot_drive) &&
+         (current_partition == 0xffffff) &&
          (boot_drive != cdrom_drive) &&
          (boot_drive >= 0x80) &&
          open_partition_hiddensecs () &&

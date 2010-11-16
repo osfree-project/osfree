@@ -964,7 +964,7 @@ void menued(int item, int shift)
   cur_addr = (int)p;
 
   // start the editor
-  len = editor (cfg, len, 1);
+  len = editor (cfg, len, 3);
   cfg = (char *)cur_addr;
 
   sc->num = 0;

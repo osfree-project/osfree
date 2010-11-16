@@ -81,12 +81,13 @@ void read_file (char *cfg, int len)
   lines = 0;
   line = cfg;
 
-  for (;;)
+  while (line - cfg < len)
   {
     s->str = line;
-    for (p = line, n = 0; *p != '\r' && *p != '\n'; p++, n++) ;
+    for (p = line, n = 0; *p &&  *p != '\r' && *p != '\n'; p++, n++) ;
     if (*p == '\r') p++;
     if (*p == '\n') p++;
+    if (*p == '\0') p++;
     s->len = n;
     s->dirty = 0;
 
@@ -125,7 +126,7 @@ int save_file (unsigned long addr)
   return (unsigned long)q - addr;
 }
 
-int edt_get_user_input (int *x, int *y)
+int edt_get_user_input (int *x, int *y, unsigned long force)
 {
   int c;
   struct line *next_line, *prev_line, *mid_line;
@@ -171,33 +172,31 @@ int edt_get_user_input (int *x, int *y)
       x0 = max(*x - SCREEN_WIDTH + 1, 0);
       break;
     case 0x11b:  // esc
-      if (EDT_QUIET)
+      gotoxy(0, SCREEN_HEIGHT);
+      setcolor(0x71, 0x62);
+      setcursor(0);
+      printf("* Apply changes: Y(es)/N(o)/any key to Cancel?");
+      c = getkey();
+      if (c == 0x11b && (force & EDT_QUIET))
+      {
+        apply = 0;
+        return 0;
+      }
+      c = c & 0xff;
+      if (c == 0x79 || c == 0x59) // 'Y' ('y')
       {
         apply = 1;
         return 0;
       }
-      else
+      if (c == 0x6e || c == 0x4e) // 'N' ('n')
       {
-        gotoxy(0, SCREEN_HEIGHT);
-        setcolor(0x71, 0x62);
-        setcursor(0);
-        printf("* Apply changes: Y(es)/N(o)/any key to Cancel?");
-        c = getkey() & 0xff;
-        if (c == 0x79 || c == 0x59) // 'Y' ('y')
-        {
-          apply = 1;
-          return 0;
-        }
-        if (c == 0x6e || c == 0x4e) // 'N' ('n')
-        {
-          apply = 0;
-          return 0;
-        }
-        gotoxy(0, SCREEN_HEIGHT);
-        printf("                                               ");
-        gotoxy(*x - x0, *y - y0);
-        setcursor(1);
+        apply = 0;
+        return 0;
       }
+      gotoxy(0, SCREEN_HEIGHT);
+      printf("                                               ");
+      gotoxy(*x - x0, *y - y0);
+      setcursor(1);
       break;
     case 0x1c0d: // enter
       prev_line = line(*y);
@@ -332,8 +331,8 @@ void edt_draw_screen (int x, int y)
 }
 
 int editor (char *cfg,             /* config file address */
-             int length,            /* its length          */
-             unsigned long force)   /* force starting the editor         */
+            int length,            /* its length          */
+            unsigned long force)   /* force starting the editor         */
 {
   int  x = 0, y = 0;
 
@@ -356,9 +355,9 @@ int editor (char *cfg,             /* config file address */
     do
     {
       edt_draw_screen(x, y);
-    } while (edt_get_user_input(&x, &y));
+    } while (edt_get_user_input(&x, &y, force));
 
-    if (!EDT_QUIET) cls();
+    if (!(force & EDT_QUIET)) cls();
   }
 
   if (apply)
