@@ -60,6 +60,9 @@ extern unsigned long extended_memory;
 #pragma aux mu_Close_wr     "*"
 #pragma aux mu_Terminate_wr "*"
 
+int set_fsys(char *fsname);
+void fsys_by_num(int n, char *buf);
+
 int lastpos(char c, char *s);
 void setlip2(lip2_t *l2);
 int blackbox_load(char *path, int bufno, void *p);
@@ -161,7 +164,9 @@ struct term_entry trm, *t = 0;
 _Packed struct {
   unsigned char driveletter;
   unsigned char multiboot;
+  unsigned char root;
   struct {
+    char microfsd;
     char ignorecase;
     char **fsys_list;
   } mufsd;
@@ -187,7 +192,7 @@ _Packed struct {
     char *name;
     char *alias;
   } alias[MAX_ALIAS];
-} conf = {0x80, 2, {0, fsys_list}, {"\\boot\\loader\\freeldr.mdl", 0x20000, 0xf}, {"\\os2ldr", 0x10000, 0xf},
+} conf = {0x80, 2, 0, {0, 0, fsys_list}, {"\\boot\\loader\\freeldr.mdl", 0x20000, 0xf}, {"\\os2ldr", 0x10000, 0xf},
           {"\\os2boot", 0x7c0}, {0, term_list},};
 
 char *redir_list[] = {"OS2LDR", "OS2LDR.MSG", "OS2KRNL", "OS2LDR.INI", "OS2DUMP", "OS2LDR.FNT", "OS2DBCS.FNT", 0};
@@ -250,6 +255,7 @@ unsigned long ldrlen = 0;
 void stop_floppy(void);
 
 int open_partition_hiddensecs(void);
+int open_device2(void);
 
 /*   u_* functions are designed to be more like
  *   original IBM's microfsd functions, than GRUB
@@ -764,11 +770,13 @@ freeldr_open (char *filename)
        /* change "\" to "/" */
        if (buf[i] == '/')
          buf[i] = '\\';
+       /* uppercase */
+       if (0x60 < buf[i] && buf[i] < 0x7b)
+         buf[i] = buf[i] - 0x20;
      }
 
      // we're using 16-bit uFSD
-     ret = mu_Open_wr(buf,
-                      (unsigned long *)&rc);
+     ret = mu_Open_wr(buf, (unsigned long *)&rc);
 
      if (!ret)
      {
@@ -1114,6 +1122,8 @@ int process_cfg_line1(char *line)
    static char section[0x20];
    static int sec_to_load;
 
+   //printf(line);
+
    if (!*line) return 1;
 
    i = grub_strlen(line) - 1;
@@ -1148,7 +1158,16 @@ int process_cfg_line1(char *line)
          n = 2;
        else
          n = 0;
-       conf.multiboot = n;
+       conf.multiboot = (char)n;
+     }
+     else if (abbrev(line, "root", 4))
+     {
+       line = strip(skip_to(1, line));
+       if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
+         n = 1;
+       else
+         n = 0;
+       conf.root = (char)n;
      }
      else
      {
@@ -1177,12 +1196,21 @@ int process_cfg_line1(char *line)
      }
      else if (abbrev(line, "ignorecase", 10))
      {
-        line = skip_to(1, line);
+        line = strip(skip_to(1, line));
         if (!grub_strcmp(line, "yes") || !grub_strcmp(line, "on"))
           n = 1;
         else
           n = 0;
-        conf.mufsd.ignorecase = n;
+        conf.mufsd.ignorecase = (char)n;
+     }
+     else if (abbrev(line, "microfsd", 8))
+     {
+        line = strip(skip_to(1, line));
+        if (!grub_strcmp(line, "own"))
+          n = 1;
+        else
+          n = 0;
+        conf.mufsd.microfsd = (char)n;
      }
      else
      {
@@ -1194,7 +1222,7 @@ int process_cfg_line1(char *line)
    {
      if (abbrev(line, "list", 4))
      {
-       line = skip_to(1, line);
+       line = strip(skip_to(1, line));
        grub_strcpy(strpos, line);
        s = strpos;
        r = strpos;
@@ -1211,9 +1239,9 @@ int process_cfg_line1(char *line)
      }
      else if (abbrev(line, "default", 7))
      {
-       line = skip_to(1, line);
+       line = strip(skip_to(1, line));
        if (safe_parse_maxint(&line, (long *)&n))
-         conf.term._default = n;
+         conf.term._default = (char)n;
        else
          panic("process_cfg_line: incorrect default terminal!", "");
      }
@@ -1824,6 +1852,7 @@ void init(void)
   char cfg[0x20];
   char str[0x80];
   char *s;
+  char save[3];
   unsigned short *p;
   unsigned long  *q;
   struct desc *z;
@@ -1881,9 +1910,6 @@ void init(void)
   setlip();
 
 #ifndef STAGE1_5
-  // backup uFSD
-  grub_memmove((void *)(UFSD_BASE), (void *)(EXT_BUF_BASE), EXT_LEN);
-
   // zero-out FS buffer
   memset((char *)FSYS_BUF, 0, 0x8000);
 
@@ -1896,10 +1922,15 @@ void init(void)
   }
 #ifndef STAGE1_5
 
-
   /* build config filename */
-  rc = grub_strlen(preldr_path);
-  grub_strcpy(cfg, preldr_path);
+  if (!filetab_ptr)
+  {
+    rc = grub_strlen(preldr_path);
+    grub_strcpy(cfg, preldr_path);
+  }
+  else
+    rc = 0;
+
   grub_strcpy(cfg + rc, cfg_file);
 
   if (filetab_ptr &&
@@ -1922,6 +1953,27 @@ void init(void)
     panic("Load error!", "");
   }
 
+  if (conf.root)
+  {
+    save[0] = *preldr_path;
+    *preldr_path = '\0';
+    save[1] = *fsd_dir;
+    *fsd_dir     = '\0';
+    save[2] = *term_dir;
+    *term_dir    = '\0';
+  }
+
+  if (conf.mufsd.microfsd && filetab_ptr)
+  {
+    open_device2();
+    buf = (void *)EXT3HIBUF_BASE;
+  }
+  else
+    buf = (void *)EXT_BUF_BASE;
+
+  // backup uFSD
+  grub_memmove((void *)(UFSD_BASE), (void *)buf, EXT_LEN);
+
   /* After process_cfg() current_partition is set to
      the same partition, on which config file is installed,
      i.e., install_partition. We set the latter to the first. */
@@ -1931,6 +1983,8 @@ void init(void)
   saved_slice = current_slice;
   /* determine a drive string for '@' config file macro */
   determine_boot_drive();
+  printf("\n\nat_drive=\"%s\"\n", at_drive);
+
   grub_strcat(freeldr_path, at_drive, preldr_path);
 
   relshift = 0;
@@ -1965,8 +2019,18 @@ void init(void)
     // backup uFSD
     grub_memmove((void *)(UFSD_BASE), (void *)(EXT3HIBUF_BASE), EXT_LEN);
   }
+  else if (conf.mufsd.microfsd)
+  {
+    filetab_ptr = 0;
+    bpb_ptr = 0;
+  }
 
-
+  if (conf.root)
+  {
+    *preldr_path = save[0];
+    *fsd_dir     = save[1];
+    *term_dir    = save[2];
+  }
 
   /* Init terminal */
   init_term();

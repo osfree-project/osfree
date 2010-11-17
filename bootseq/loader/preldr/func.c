@@ -26,9 +26,51 @@ unsigned long sector_size = SECTOR_SIZE;
 
 extern char *preldr_path;
 
+#pragma aux filetab_ptr "*"
+extern unsigned long filetab_ptr;
+
+// max count of file aliases
+#define MAX_ALIAS 0x10
+
+/* Configuration got
+   from .INI file      */
+extern _Packed struct {
+  unsigned char driveletter;
+  unsigned char multiboot;
+  unsigned char root;
+  struct {
+    char microfsd;
+    char ignorecase;
+    char **fsys_list;
+  } mufsd;
+  struct {
+    char name[0x20];
+    int  base;
+    int  len;
+  } loader;
+  struct {
+    char name[0x20];
+    int  base;
+    int  len;
+  } extloader;
+  struct {
+    char name[0x20];
+    int  base;
+  } mini;
+  struct {
+    int  _default;
+    char **term_list;
+  } term;
+  struct {
+    char *name;
+    char *alias;
+  } alias[MAX_ALIAS];
+} conf;
+
 extern unsigned long current_drive;
 extern unsigned long current_partition;
 extern int current_slice;
+extern int num_fsys;
 extern int fsys_type;
 extern int           fsmax;
 
@@ -189,7 +231,7 @@ int set_fsys(char *fsname)
   //grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
 
   fst = fsys_type;
-  set_boot_fsys();
+  if (!filetab_ptr) set_boot_fsys();
   rc = freeldr_open(fsname);
 
   buf = (char *)EXT4HIBUF_BASE;
@@ -200,7 +242,7 @@ int set_fsys(char *fsname)
     freeldr_close();
   }
   else
-    panic("can't open filesystem: ", fsname);
+    return 0;
 
   /* clear the BSS of the uFSD */
   //start = *((unsigned long *)(buf + 2));
@@ -255,7 +297,7 @@ int set_fsys(char *fsname)
 
 
   //printmsg("filesystem is not mounted!\r\n");
-  return 0;
+  return 1;
 }
 
 #pragma aux fsys_by_num "*"
@@ -314,21 +356,27 @@ open_device2(void)
 
   /* First try to open device by current FS */
 
-  if (open_device())
-    return 1;
+  if (!filetab_ptr)
+  {
+    if (open_device())
+      return 1;
 
-  /* Then try the boot one */
-  set_boot_fsys();
+    /* Then try the boot one */
+    set_boot_fsys();
 
-  if (open_device())
-    return 1;
+    if (open_device())
+      return 1;
+  }
 
   /* If that won't help, try each FS from list */
 
-  for (fst = 0; fst < num_fsys; fst++) {
+  for (fst = 0; fst < num_fsys; fst++)
+  {
     fsys_type = fst;
     fsys_by_num(fst, buf);
-    set_fsys(buf);
+
+    if (!set_fsys(buf))
+      continue;
 
     current_drive = cd;
     current_partition = cp;

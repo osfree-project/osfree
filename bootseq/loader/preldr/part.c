@@ -515,18 +515,20 @@ int open_partition_hiddensecs(void)
   partsect *p;
   unsigned long id = 0, offset = 0, off;
   unsigned long bsd = 0xff, n = 0xff, lba;
+  unsigned long tracksize;
   int      i;
   char     buf[0x200];
   desc     *q;
 
   p = (partsect *)(BOOTSEC_BASE);
   part_start  = p->bpb.hidden_secs;
+  tracksize   = p->bpb.track_size;
   part_length = p->bpb.n_sect;
   if (!part_length) part_length = p->bpb.n_sect_ext;
 
-  if (p->bpb.hidden_secs)
+  if (part_start)
   {
-    lba = p->bpb.hidden_secs - p->bpb.track_size;
+    lba = part_start - tracksize;
 
     /* read MBR */
     rawread (boot_drive, 0, 0, 512, buf);
@@ -556,7 +558,7 @@ int open_partition_hiddensecs(void)
     if (i == 4)
     {
 #ifndef STAGE1_5
-      n = 3;
+      n = 2;
       off = 0;
       while (1)
       {
