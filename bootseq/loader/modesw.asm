@@ -96,7 +96,12 @@ ifndef  MICROFSD
 
         ; Load GDTR
         ;mov  eax, GDT_ADDR
-        mov  eax, offset _TEXT:gdtsrc
+        mov  eax, offset _TEXT:gdtsrc     ; !!!
+        test edi, edi
+        jz   skip_relshift
+        add  eax, edi
+        add  eax, esi
+skip_relshift:
         push eax
         mov  ax, 2fh
         push ax
@@ -144,7 +149,7 @@ endif
 ifndef  MICROFSD
         mov  eax, esi
 endif
-        mov  esi, offset _TEXT:address
+        mov  esi, offset _TEXT:address   ; !!!
         sub  esi, base
 ifndef  MICROFSD
         add  esi, eax

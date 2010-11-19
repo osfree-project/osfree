@@ -1586,11 +1586,13 @@ void __cdecl set_addr (void)
     add  [esp + 0x10], eax       // return addr of set_addr()
 
     mov  eax, relshift
+    add  [esp + 0xa8], eax
     add  [esp + 0xb8], eax
-    add  [esp + 0xd0], eax
-    add  [esp + 0xd8], eax
+    add  [esp + 0xbc], eax
+    add  [esp + 0xd4], eax
     add  [esp + 0xdc], eax
-    add  [esp + 0xec], eax
+    add  [esp + 0xe0], eax
+    add  [esp + 0xf0], eax
     /* fix up stack base */
     shr  eax, 4
     add  word ptr ds:[RMSTACK + 2], ax
@@ -1983,7 +1985,6 @@ void init(void)
   saved_slice = current_slice;
   /* determine a drive string for '@' config file macro */
   determine_boot_drive();
-  printf("\n\nat_drive=\"%s\"\n", at_drive);
 
   grub_strcat(freeldr_path, at_drive, preldr_path);
 
@@ -2071,14 +2072,15 @@ void init(void)
       call [esp]
       add  esp, 4
     }
-    /* Relocate itself to an address before os2ldr */
-    set_addr();
-    /* Init terminal */
-    init_term();
-    use_term = 1;
-    /* Set filetable values for os2ldr */
-    set_ftable(1);
   }
+    /* Relocate itself to an address before os2ldr */
+  set_addr();
+  /* Init terminal */
+  init_term();
+  use_term = 1;
+  /* Set filetable values for os2ldr */
+  set_ftable(1);
+  //}
 #else
   /* Load a pre-loader full version */
   rc = freeldr_open(preldr);
