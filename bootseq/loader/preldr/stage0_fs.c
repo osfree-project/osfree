@@ -32,10 +32,10 @@ unsigned long bufferaddr;
 #pragma aux stage0base      "*"
 
 int print_possibilities = 0;
+extern unsigned long sector_size;
+extern struct geometry buf_geom;
 
 #ifndef STAGE1_5
-
-extern unsigned long sector_size;
 
 extern int do_completion;
 
@@ -1895,13 +1895,9 @@ void init(void)
       || ! (geom.flags & BIOSDISK_FLAG_CDROM))
     cdrom_drive = GRUB_INVALID_DRIVE;
   else
-  {
     cdrom_drive = boot_drive;
-    //part_start = 0;
-    //part_length = geom.total_sectors;
-    //current_slice = 0;
-  }
-  sector_size = geom.sector_size;
+  //sector_size   = geom.sector_size;
+  //buf_drive     = boot_drive;
 #else
   cdrom_drive = GRUB_INVALID_DRIVE;
 #endif

@@ -20,10 +20,11 @@ void (*disk_read_hook) (int, int, int) = 0;
 
 int open_partition_hiddensecs(void);
 
-unsigned long sector_size = SECTOR_SIZE;
+unsigned long sector_size; // = SECTOR_SIZE;
 
 #ifndef STAGE1_5
 
+extern int buf_drive;
 extern char *preldr_path;
 
 #pragma aux filetab_ptr "*"
@@ -88,19 +89,6 @@ extern int do_completion;
 
 extern grub_error_t errnum;
 extern int print_possibilities;
-
-//int  saved_current_slice;
-//int  saved_fsmax;
-//int  saved_buf_drive;
-//int  saved_buf_track;
-//struct geometry saved_buf_geom;
-//unsigned long   saved_current_partition;
-//unsigned long   saved_current_drive;
-//unsigned long   saved_cdrom;
-//unsigned long   saved_part_start;
-//unsigned long   saved_part_length;
-//unsigned long   saved_filemax;
-//unsigned long   saved_filepos;
 
 extern unsigned long saved_drive;
 extern unsigned long saved_partition;
@@ -216,20 +204,6 @@ int set_fsys(char *fsname)
   int  fst;
   int  start, len;
 
-  //saved_fsys_type     = fsys_type;
-  //saved_current_drive = current_drive;
-  //saved_current_partition = current_partition;
-  //saved_cdrom = cdrom_drive;
-  //saved_current_slice = current_slice;
-  //saved_fsmax = fsmax;
-  //saved_part_start  = part_start;
-  //saved_part_length = part_length;
-  //saved_filemax   = filemax;
-  //saved_filepos   = filepos;
-  //saved_buf_drive = buf_drive;
-  //saved_buf_track = buf_track;
-  //grub_memmove(&saved_buf_geom, &buf_geom, sizeof(struct geometry));
-
   fst = fsys_type;
   if (!filetab_ptr) set_boot_fsys();
   rc = freeldr_open(fsname);
@@ -245,58 +219,19 @@ int set_fsys(char *fsname)
     return 0;
 
   /* clear the BSS of the uFSD */
-  //start = *((unsigned long *)(buf + 2));
-  //len   = *((unsigned long *)(buf + 6)) - start;
-  //memset((void *)start, 0, len);
-
-  //printmsg("uFSD file read, size: %d\r\n", rc);
-  //printd(rc);
-  //printmsg("\r\n");
-
   grub_strcpy(sbuf, fsname);
   s = grub_strstr(sbuf, ".mdl") + 1;
   // Change ".fsd" extension to ".rel"
   grub_strcpy(s, "rel");
-  //swap_fsys_bufs((void *)EXT3HIBUF_BASE, (void *)UFSD_BASE);
-
-  // fixup the loaded filesystem
   reloc(buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
-  //printmsg("fs relocated\r\n");
-  //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)UFSD_BASE);
-  //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), buf);
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
-  //printmsg("fs moved\r\n");
-  //fsys_type = saved_fsys_type;
-  //current_drive = saved_current_drive;
-  //current_partition = saved_current_partition;
-  //cdrom_drive = saved_cdrom;
-  //current_slice = saved_current_slice;
-  //fsmax = saved_fsmax;
-  //part_start = saved_part_start;
-  //part_length = saved_part_length;
-  //filemax = saved_filemax;
-  //filepos = saved_filepos;
-  //buf_drive = saved_buf_drive;
-  //buf_track = saved_buf_track;
-  //grub_memmove(&buf_geom, &saved_buf_geom, sizeof(struct geometry));
   fsys_type = fst;
 
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
 
   printmsg(".\r\n");
-  //printd(fsys_type);
-  //printmsg("\r\n");
 
-  //printmsg("trying to mount a filesystem\r\n");
-  //if (open_partition() && stage0_mount())
-  //{
-  //  printmsg("filesystem is mounted\r\n");
-  //  return 1;
-  //}
-
-
-  //printmsg("filesystem is not mounted!\r\n");
   return 1;
 }
 

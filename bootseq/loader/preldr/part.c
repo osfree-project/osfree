@@ -16,6 +16,7 @@ extern unsigned long cdrom_drive;
 
 extern unsigned long boot_drive;
 extern unsigned long install_partition;
+extern unsigned long sector_size;
 
 #pragma aux boot_drive        "*"
 #pragma aux install_partition "*"
@@ -322,6 +323,7 @@ real_open_partition (int flags)
         return 0;
       }
       buf_drive = current_drive;
+      sector_size = buf_geom.sector_size;
       buf_track = -1;
     }
   }

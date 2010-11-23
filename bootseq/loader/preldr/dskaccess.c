@@ -14,6 +14,7 @@ extern unsigned long current_drive;
 
 extern int buf_drive;
 extern int buf_track;
+extern struct geometry buf_geom;
 
 extern void (*disk_read_func) (int, int, int);
 extern void (*disk_read_hook) (int, int, int);
@@ -78,7 +79,10 @@ int
 rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
 {
   int slen, sectors_per_vtrack;
-  int sector_size_bits = log2 (sector_size); //buf_geom.sector_size);
+  int sector_size_bits;
+
+  //sector_size = buf_geom.sector_size;
+  sector_size_bits = log2 (sector_size);
 
   if (byte_len <= 0)
     return 1;
