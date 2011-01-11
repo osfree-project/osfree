@@ -15,7 +15,7 @@ DIRS = ufsd mFSD
 # filesystems list with path (p) and extension (e) placeholder
 #
 header           = $(p)ufsd.inc
-kernels          = $(p)linux$(e) $(p)chain$(e) $(p)ufsd$(e) $(i) $(p)bootos2$(e)
+kernels          = $(p)linux$(e) $(p)chain$(e) $(p)ufsd$(e) $(p)bootos2$(e)
 
 msw              = $(p)modesw-npc$(e) $(p)modesw-npl$(e)
 
@@ -23,7 +23,7 @@ msw              = $(p)modesw-npc$(e) $(p)modesw-npl$(e)
 
 p                =
 e                =
-i                =
+#i                =
 bbx              = $+$(kernels)$-
 
 linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) &
@@ -38,7 +38,7 @@ bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)cfgsys$(e) $(p)serial$(e)
                    $(p)vsprintf$(e) $(p)istable$(e) $(p)edit$(e) $(p)cfgparsr$(e) &
                    $(p)cmdline$(e)
 
-ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
+#ufsd_OBJS        = $(p)ufsd$(e) $(p)ufsdc$(e)
 
 common_SRCS      = #..$(SEP)cmdline.c ..$(SEP)wrap.c ..$(SEP)end.asm
 common_OBJS      = $(p)..$(SEP)end$(e)
@@ -70,12 +70,12 @@ DEST             = boot$(SEP)loader
 # so it must be included before this place:
 p            = $(PATH)
 e            = .rel
-i            =
+#i            =
 rels         = $+$(kernels)$-
 
 p            = $(PATH)
 e            = .mdl
-i            = $(PATH)ufsd.inc
+#i            = $(PATH)ufsd.inc
 TARGETS      = subdirs $+$(kernels)$- # $(rels)
 
 files     = $(bbx)

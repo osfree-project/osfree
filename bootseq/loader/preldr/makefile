@@ -18,7 +18,7 @@ STAGE0_OBJS      = $(p)segord$(e) $(p)init$(e) $(p)modesw$(e) $(p)asmcode$(e) $(
                    $(p)video$(e) $(p)vbe$(e) $(p)common$(e) $(p)stage0_fs$(e) $(p)func$(e) $(p)setdev$(e) $(p)cmdline$(e) &
                    $(p)dskaccess$(e) $(p)part$(e) $(p)cfgparse$(e) $(p)root$(e) $(p)idt$(e) $(p)bios$(e) $(p)end$(e)
 
-ADD_COPT         = -s -j
+
 MOD_BASE         = STAGE0_BASE
 
 #
@@ -32,7 +32,7 @@ e                =
 bbx              = $+$(ldrfiles)$-
 
 OBJS             = $(STAGE0_OBJS)
-ALIASES          = mem_lower=_mem_lower
+#ALIASES          = mem_lower=_mem_lower
 
 !include $(%ROOT)/mk/loader.mk
 
@@ -73,12 +73,6 @@ $(PATH)..$(SEP)func.$(LO): $(MYDIR)..$(SEP)func.c
 
 $(PATH)..$(SEP)func.$(SO): $(MYDIR)..$(SEP)func.c
  $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
-
-#$(PATH)segord.$(O): $(MYDIR)segord.asm
-# $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
-#
-#$(PATH)segord.$(SO): $(MYDIR)segord.asm
-# $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)..$(SEP)cfgparse.$(O): $(MYDIR)..$(SEP)cfgparse.c
 

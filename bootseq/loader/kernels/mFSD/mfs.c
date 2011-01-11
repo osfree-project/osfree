@@ -844,10 +844,17 @@ int far pascal _loadds MFS_TERM(void)
 
   if (remotefs)
   {
-    // call the FS_ATTACH entry point of the IFS
-    kprintf("ifs FS_ATTACH()");
-    str[0] = drvletter; str[1] = ':'; str[2] = '\0';
-    rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
+    //
+    if (daemon)
+    {
+      
+    }
+    else
+    {
+      // call the FS_ATTACH entry point of the IFS
+      kprintf("ifs FS_ATTACH()");
+      str[0] = drvletter; str[1] = ':'; str[2] = '\0';
+      rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
 
 /*
     __asm {
@@ -890,14 +897,15 @@ int far pascal _loadds MFS_TERM(void)
     }
 */
 
-    //rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
-    if (rc)
-    {
-      kprintf(" failed, rc = %u\n", rc);
-      FSH_INTERR(msg_errmount, strlen(msg_errmount));
+      //rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
+      if (rc)
+      {
+        kprintf(" failed, rc = %u\n", rc);
+        FSH_INTERR(msg_errmount, strlen(msg_errmount));
+      }
+      else
+        kprintf(" = %u\n", rc);
     }
-    else
-      kprintf(" = %u\n", rc);
   }
   else
   {

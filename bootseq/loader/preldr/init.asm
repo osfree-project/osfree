@@ -21,14 +21,15 @@ public  install_partition
 
 public  _text16_begin
 extrn   _text16_end  :dword
-extrn   bss_end      :dword
-extrn   exe_end  :dword
+extrn   bss_end      :near
+extrn   exe_end      :near
 
 extrn   gdtaddr      :dword
 extrn   gdtsrc       :byte
 extrn   gdtdesc      :fword
 extrn   init         :near
 extrn   call_pm      :near
+extrn   call_rm      :near
 extrn   lip1         :dword
 
 ifndef STAGE1_5
@@ -40,7 +41,7 @@ public  filetab_ptr16
 public  install_filesys
 public  boot_flags
 
-extrn   mem_lower    :dword
+;extrn   mem_lower    :dword
 
 extrn   preldr_ss_sp :dword
 extrn   preldr_ds    :word
@@ -64,6 +65,8 @@ include fsd.inc
 include struc.inc
 include loader.inc
 include bpb.inc
+include mb_info.inc
+include mb_header.inc
 
 .386p
 
@@ -109,6 +112,22 @@ relshift16         dd    0
 ;padsize  equ  CONF_VARS_SIZE - ($ - stage0_init - 2)
 ;pad           db    padsize dup (0)
                    org   40h
+
+ifndef STAGE1_5
+
+; Multiboot header
+__magic          equ     0x1badb002
+__flags          equ     0x00010001
+__checksum       equ     - __magic - __flags
+__start          equ     KERN_BASE                                           ; executable address in memory
+__exe_end        equ     (offset _TEXT:exe_end + KERN_BASE - STAGE0_BASE)        ; executable end address
+__bss_end        equ     (offset _TEXT:bss_end + KERN_BASE - STAGE0_BASE)        ; bss end address
+__entry          equ     (offset _TEXT:kernel_entry + KERN_BASE - STAGE0_BASE)             ; entry point
+
+__mbhdr          multiboot_header  <__magic,__flags,__checksum,__start+__mbhdr,__start,__exe_end+70000h,__bss_end+70000h,__entry,0,0,0,0>
+
+endif
+
 real_start:
         ; Set segment registers
         ; to CS value, set stack
@@ -360,71 +379,10 @@ ifndef STAGE1_5
         rep  movsb
 
 endif
-        ; init stack position variables
-        push ds
-
-        mov  ax, ss
-
-        xor  bx, bx
-        mov  ds, bx
-        mov  ebx, PROTSTACK
-        mov  dword ptr [ebx], PROTSTACKINIT
-        mov  word ptr ds:[RMSTACK + 2], ax
-
-        pop  ds
-
-        ; copy GDT
-        push es
-
-        ;xor  bx, bx
-        ;mov  es, bx
-        ;
-        ;cld
-        ;mov  cx, 0x180
-        ;mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
-        ;mov  edi, GDT_ADDR
-        ;
-        ;push di
-        ;rep  movsb
-        ;pop  di
-
-        ; set 16-bit segment (_TEXT16) base
-        ; in GDT for protected mode
-        mov  ebx, STAGE0_BASE
-        shl  eax, 4
-
-        ;mov  esi, ebx
-        ;shr  esi, 4
-        ;mov  es, si
-        mov  edi, offset _TEXT:gdtsrc - STAGE0_BASE
-
-        mov  es:[di][3*8].ds_baselo, bx
-        mov  es:[di][4*8].ds_baselo, bx
-        mov  es:[di][5*8].ds_baselo, ax
-        ror  eax, 16
-        ror  ebx, 16
-        mov  es:[di][3*8].ds_basehi1, bl
-        mov  es:[di][4*8].ds_basehi1, bl
-        mov  es:[di][5*8].ds_basehi1, al
-        ror  eax, 8
-        ror  ebx, 8
-        mov  es:[di][3*8].ds_basehi2, bl
-        mov  es:[di][4*8].ds_basehi2, bl
-        mov  es:[di][5*8].ds_basehi2, al
-
-        pop  es
-
-        ; fill GDT descriptor
-        mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
-        ;mov  eax, GDT_ADDR
-        mov  eax, offset _TEXT:gdtsrc
-        mov  [bx].g_base, eax
-
-        lgdt fword ptr [ebx]
-
+        call set_gdt
 ifndef STAGE1_5
         ; get available memory
-        call getmem
+        ;call getmem
 endif
         ; enable A20 address line
         ;call EnableA20Line
@@ -495,14 +453,16 @@ endif
 
 ;endif
 
-ifndef STAGE1_5
-getmem:
-        xor  eax, eax
-        int  12h
-        mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
-        mov  [ebx], eax
-        ret
-endif
+;ifndef STAGE1_5
+;getmem:
+;        xor  eax, eax
+;        int  12h
+;        mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
+;        ;lea  ebx, _TEXT:mem_lower
+;        ;sub  ebx, STAGE0_BASE
+;        mov  [ebx], eax
+;        ret
+;endif
 
 ;EnableA20Line:
 ;    ; Enable A20 address line:
@@ -536,6 +496,71 @@ charout:
 ;fname   db "/boot/bootblock",0
 ;fsize   dd 0
 
+set_gdt:
+        ; init stack position variables
+        push ds
+
+        mov  ax, ss
+
+        xor  bx, bx
+        mov  ds, bx
+        mov  ebx, PROTSTACK
+        mov  dword ptr [ebx], PROTSTACKINIT
+        mov  word ptr ds:[RMSTACK + 2], ax
+
+        pop  ds
+
+        ; copy GDT
+        push es
+
+        ;xor  bx, bx
+        ;mov  es, bx
+        ;
+        ;cld
+        ;mov  cx, 0x180
+        ;mov  esi, offset _TEXT:gdtsrc  - STAGE0_BASE
+        ;mov  edi, GDT_ADDR
+        ;
+        ;push di
+        ;rep  movsb
+        ;pop  di
+
+        ; set 16-bit segment (_TEXT16) base
+        ; in GDT for protected mode
+        mov  ebx, STAGE0_BASE
+        shl  eax, 4
+
+        ;mov  esi, ebx
+        ;shr  esi, 4
+        ;mov  es, si
+        mov  edi, offset _TEXT:gdtsrc - STAGE0_BASE
+
+        mov  es:[di][3*8].ds_baselo, bx
+        mov  es:[di][4*8].ds_baselo, bx
+        mov  es:[di][5*8].ds_baselo, ax
+        ror  eax, 16
+        ror  ebx, 16
+        mov  es:[di][3*8].ds_basehi1, bl
+        mov  es:[di][4*8].ds_basehi1, bl
+        mov  es:[di][5*8].ds_basehi1, al
+        ror  eax, 8
+        ror  ebx, 8
+        mov  es:[di][3*8].ds_basehi2, bl
+        mov  es:[di][4*8].ds_basehi2, bl
+        mov  es:[di][5*8].ds_basehi2, al
+
+        pop  es
+
+        ; fill GDT descriptor
+        mov  ebx, offset _TEXT:gdtdesc - STAGE0_BASE
+        ;mov  eax, GDT_ADDR
+        mov  eax, offset _TEXT:gdtsrc
+        mov  [bx].g_base, eax
+
+        lgdt fword ptr [ebx]
+
+        ret
+
 ifndef STAGE1_5
 
 filetab_ptr16      dd 0
@@ -564,11 +589,104 @@ filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got 
 boot_flags         dw 0         ; <-- DX
 ft                 FileTable <>
 
+errmsg             db   "This is not a multiboot loader or no LIP module!",0
+VIDEO_BUF          equ  0b8000h
+
 ;
 ; void jmp_reloc(unsigned long addr);
 ;
 jmp_reloc:
         add   [esp], eax
+        ret
+
+; Multiboot kernel entry
+kernel_entry:
+        cmp   eax, MULTIBOOT_VALID
+        jne   stop
+
+        cli
+
+        mov   esp, 10000h
+
+        push  edx
+
+        ; copy myself to the intended address
+        mov   edi, STAGE0_BASE
+        mov   ecx, offset _TEXT:exe_end
+        sub   ecx, STAGE0_BASE
+        mov   esi, KERN_BASE
+        rep   movsb
+
+        mov   edx, [ebx].mods_addr       ; 1st module address
+
+        ; copy uFSD (1st module)
+        mov   edi, EXT_BUF_BASE
+        mov   ecx, [edx].mod_end
+        mov   esi, [edx].mod_start
+        sub   ecx, esi
+        rep   movsb
+
+        call  set_gdt2
+
+        pop   edx
+
+        mov  eax, STAGE0_BASE - 600h
+        mov  esp, eax
+
+        mov   eax, STAGE0_BASE
+        shr   eax, 4
+        push  ax
+        xor   ax, ax
+        push  ax
+        call  call_rm
+        add   esp, 4
+
+        cli
+        hlt
+
+stop:
+        cld
+        lea   esi, errmsg
+        mov   edi, VIDEO_BUF
+        mov   ah, 02h  ; attribute
+loop1:
+        lodsb          ; symbol
+        stosw
+        test  al, al   ; copy a string to video buffer
+        jnz   loop1
+
+        cli
+        hlt
+
+set_gdt2:
+        ; fix gdt descriptors base
+        mov  edi, offset _TEXT:gdtsrc
+
+        mov  ebx, STAGE0_BASE
+        mov  eax, ebx
+        sub  eax, 10600h       ; 0x10000 + 0x200
+
+        mov  [edi][3*8].ds_baselo, bx
+        mov  [edi][4*8].ds_baselo, bx
+        mov  [edi][5*8].ds_baselo, ax
+        ror  eax, 16
+        ror  ebx, 16
+        mov  [edi][3*8].ds_basehi1, bl
+        mov  [edi][4*8].ds_basehi1, bl
+        mov  [edi][5*8].ds_basehi1, al
+        ror  eax, 8
+        ror  ebx, 8
+        mov  [edi][3*8].ds_basehi2, bl
+        mov  [edi][4*8].ds_basehi2, bl
+        mov  [edi][5*8].ds_basehi2, al
+
+        ; fill GDT descriptor
+        mov  eax, edi
+        mov  ebx, offset _TEXT:gdtdesc
+        mov  [ebx].g_base, eax
+
+        lgdt fword ptr [ebx]
+
         ret
 
 endif

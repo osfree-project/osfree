@@ -77,9 +77,10 @@ extern int           fsmax;
 
 extern char install_filesys[0x10];
 #pragma aux install_filesys "*"
+//#pragma aux mem_lower "*"
 
-int mem_lower;
-int mem_upper = 16384;
+//int mem_lower;
+//int mem_upper = 16384;
 
 extern char *strpos;
 extern char at_drive[16];

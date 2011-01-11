@@ -48,12 +48,13 @@ extern unsigned long filetab_ptr;
 #pragma aux bpb_ptr "*"
 extern unsigned long bpb_ptr;
 
-extern int mem_lower;
-extern int mem_upper;
+//extern int mem_lower;
+//extern int mem_upper;
 
 extern unsigned char use_term;
 
 extern unsigned long extended_memory;
+//#pragma aux mem_lower       "*"
 #pragma aux extended_memory "*"
 #pragma aux mu_Open_wr      "*"
 #pragma aux mu_Read_wr      "*"
@@ -1061,8 +1062,8 @@ void setlip1(lip1_t *l1)
   l1->lip_rawread   = &rawread;
 
 #ifndef STAGE1_5
-  l1->lip_mem_lower = &mem_lower;
-  l1->lip_mem_upper = &mem_upper;
+  l1->lip_mem_lower = (int *)&mbi.mem_lower;
+  l1->lip_mem_upper = (int *)&mbi.mem_upper;
 #endif
   l1->lip_filepos   = &filepos;
   l1->lip_filemax   = &filemax;
@@ -1513,7 +1514,7 @@ void __cdecl set_addr (void)
     /* size of the loader */
     ldrlen  = filemax;
 
-    printf("mem_lower=0x%x\r\n", mem_lower);
+    printf("mem_lower=0x%x\r\n", mbi.mem_lower);
 
     ldrlen = (ldrlen + 0x1280 + 0x1000 + 0xfff) >> PAGESHIFT;
   } /* os2ldr stack size--^       ^----arena info size  */
@@ -1521,9 +1522,9 @@ void __cdecl set_addr (void)
   /* calculate highest available address
      -- os2ldr base or top of low memory  */
   if (!conf.multiboot || *conf.extloader.name) // os2ldr
-    ldrbase = ((mem_lower >> (PAGESHIFT - KSHIFT)) - ldrlen) << PAGESHIFT;
+    ldrbase = ((mbi.mem_lower >> (PAGESHIFT - KSHIFT)) - ldrlen) << PAGESHIFT;
   else
-    ldrbase = mem_lower << KSHIFT;
+    ldrbase = mbi.mem_lower << KSHIFT;
 
   printf("ldr base 0x%x\r\n", ldrbase);
 

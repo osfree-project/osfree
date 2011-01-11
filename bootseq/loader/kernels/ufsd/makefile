@@ -12,16 +12,19 @@
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-kernels          = $(p)mbi$(e)
+kernels          = $(p)mbi$(e) $(p)zip$(e)
 
 # filesys without $(p) and $(e):
 
 p                =
 e                =
-i                =
+#i                =
 bbx              = $+$(kernels)$-
 
-ufsd_OBJS        = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
+mbi_OBJS         = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)mbifunc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
+                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) &
+                   $(p)cmdline$(e) $(p)term$(e) $(p)console$(e) $(p)consolec$(e) $(p)bios$(e)
+zip_OBJS         = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)zipfunc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
                    $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) &
                    $(p)cmdline$(e) $(p)term$(e) $(p)console$(e) $(p)consolec$(e) $(p)bios$(e)
 common_OBJS      = $(p)end$(e)
@@ -29,7 +32,13 @@ common_OBJS      = $(p)end$(e)
 ADD_COPT   = -dOS2 -dMICROFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 ADD_ASMOPT = -dOS2 -dMICROFSD -dTERM_CONSOLE -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 
-OBJS             = $(ufsd_OBJS) $(common_OBJS)
+#OBJS             = $(ufsd_OBJS) $(common_OBJS)
+
+!     ifeq basename mbi
+OBJS                    = $(mbi_OBJS) $(common_OBJS)
+!else ifeq basename zip
+OBJS                    = $(zip_OBJS) $(common_OBJS)
+!endif
 
 MOD_BASE         = REL1_BASE
 
@@ -41,19 +50,19 @@ DEST             = none
 # so it must be included before this place:
 p            = $(PATH)
 e            = .rel
-i            =
+#i            =
 rels         = $+$(kernels)$-
 
 p            = $(PATH)
 e            = .mdl
-i            = $(PATH)ufsd.inc
+#i            = $(PATH)ufsd.inc
 TARGETS      = subdirs $+$(kernels)$- $(rels)
 
 files     = $(bbx)
 
-p =
-e = .asm
-spec_SRCS = $+$(kernels) $(msw)$- startup.asm
+#p =
+#e = .asm
+#spec_SRCS = $+$(kernels) $(msw)$- startup.asm
 
 F =
 

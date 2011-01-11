@@ -657,7 +657,7 @@ set_rm_idt:
 
         ;mov   eax, IDTR_OLD
         mov   eax, offset _TEXT:idtdesc_old
-        mov   [eax].g_limit, 400h
+        mov   [eax].g_limit, 0ffffh
         mov   [eax].g_base, 0
         lidt  fword ptr [eax]
 
