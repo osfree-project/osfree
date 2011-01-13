@@ -23,6 +23,8 @@ public  _text16_begin
 extrn   _text16_end  :dword
 extrn   bss_end      :near
 extrn   exe_end      :near
+extrn   bss_end_off  :dword
+extrn   exe_end_off  :dword
 
 extrn   gdtaddr      :dword
 extrn   gdtsrc       :byte
@@ -120,8 +122,11 @@ __magic          equ     0x1badb002
 __flags          equ     0x00010001
 __checksum       equ     - __magic - __flags
 __start          equ     KERN_BASE                                           ; executable address in memory
+; here wasm for some strange reason generates a 16-bit offset
 __exe_end        equ     (offset _TEXT:exe_end + KERN_BASE - STAGE0_BASE)        ; executable end address
+; and here too
 __bss_end        equ     (offset _TEXT:bss_end + KERN_BASE - STAGE0_BASE)        ; bss end address
+; but here is a full 32-bit offset, strange isn't it? So, as a temporary workaround, I add 70000h in two places
 __entry          equ     (offset _TEXT:kernel_entry + KERN_BASE - STAGE0_BASE)             ; entry point
 
 __mbhdr          multiboot_header  <__magic,__flags,__checksum,__start+__mbhdr,__start,__exe_end+70000h,__bss_end+70000h,__entry,0,0,0,0>
@@ -606,9 +611,8 @@ kernel_entry:
 
         cli
 
-        mov   esp, 10000h
-
-        push  edx
+        mov  eax, STAGE0_BASE - 600h
+        mov  esp, eax
 
         ; copy myself to the intended address
         mov   edi, STAGE0_BASE
@@ -626,12 +630,11 @@ kernel_entry:
         sub   ecx, esi
         rep   movsb
 
+        ; physical boot device
+        mov   edx, [ebx].boot_device
+        shr   edx, 24 
+
         call  set_gdt2
-
-        pop   edx
-
-        mov  eax, STAGE0_BASE - 600h
-        mov  esp, eax
 
         mov   eax, STAGE0_BASE
         shr   eax, 4
