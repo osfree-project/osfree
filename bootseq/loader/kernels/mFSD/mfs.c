@@ -845,11 +845,11 @@ int far pascal _loadds MFS_TERM(void)
   if (remotefs)
   {
     //
-    if (daemon)
-    {
-      
-    }
-    else
+    //if (daemon)
+    //{
+    //
+    //}
+    //else
     {
       // call the FS_ATTACH entry point of the IFS
       kprintf("ifs FS_ATTACH()");

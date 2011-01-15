@@ -26,7 +26,7 @@ BASE1      equ STAGE0_BASE - 10000h
 ifndef STAGE1_5
 BASE       equ (BASE1 + 900h)    ; 600h; TEXT16_LEN
 else
-BASE       equ (BASE1 + 3f0h)    ; 440h
+BASE       equ (BASE1 + 440h)    ; 440h
 endif
 
 _TEXT    segment dword public 'CODE'  use32

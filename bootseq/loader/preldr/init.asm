@@ -463,8 +463,6 @@ endif
 ;        xor  eax, eax
 ;        int  12h
 ;        mov  ebx, offset _TEXT:mem_lower - STAGE0_BASE
-;        ;lea  ebx, _TEXT:mem_lower
-;        ;sub  ebx, STAGE0_BASE
 ;        mov  [ebx], eax
 ;        ret
 ;endif
