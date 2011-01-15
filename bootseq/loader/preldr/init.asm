@@ -276,7 +276,7 @@ reloc:
 
         cli
 
-        sub  ax, 1060h       ; 0x1000 + 0x20
+        sub  ax, 1060h       ; 0x1000 + 0x20*3
         mov  ss, ax
         mov  sp, 0ffffh
 
@@ -617,7 +617,7 @@ kernel_entry:
         ; copy myself to the intended address
         mov   edi, STAGE0_BASE
         mov   ecx, offset _TEXT:exe_end
-        sub   ecx, STAGE0_BASE
+        sub   ecx, edi
         mov   esi, KERN_BASE
         rep   movsb
 
@@ -632,10 +632,20 @@ kernel_entry:
 
         ; physical boot device
         mov   edx, [ebx].boot_device
-        shr   edx, 24 
 
+        ; fill in install_part
+        mov   eax, edx
+        and   eax, 0ffffffh
+        mov   ebx, offset _TEXT16:install_part + STAGE0_BASE
+        mov   [ebx], eax
+
+        ; physical drive number in DL
+        shr   edx, 24
+
+        ; setup GDT
         call  set_gdt2
 
+        ; switch to real mode and jump to STAGE0_BASE
         mov   eax, STAGE0_BASE
         shr   eax, 4
         push  ax
