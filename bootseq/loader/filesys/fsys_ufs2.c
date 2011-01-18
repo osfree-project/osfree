@@ -65,6 +65,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "ufs2";
+
 /* used for filesystem map blocks */
 static int mapblock;
 static int mapblock_offset;

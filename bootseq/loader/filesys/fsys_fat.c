@@ -27,6 +27,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "fat";
+
 struct fat_superblock
 {
   int fat_offset;

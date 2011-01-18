@@ -21,6 +21,8 @@
 #define   DNODE ((struct dnode *)(FSYS_BUF + 1536))
 #define   ANODE ((struct anode *)(DNODE + 2048))
 
+char fs_name[] = "hpfs";
+
 /* OS/2 character sort order (without national ones) */
 static char order[] = "!#$%&'()+,-.0123456789;=@abcdefghijklmnopqrstuvwxyz[]^`{}~_";
 

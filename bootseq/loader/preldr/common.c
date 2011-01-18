@@ -49,10 +49,8 @@ extern unsigned long stage0base;
 
 extern struct multiboot_info mbi;
 extern unsigned long  boot_drive;
-extern unsigned long  install_partition;
 
 #pragma aux mbi "*"
-#pragma aux install_partition "*"
 #pragma aux boot_drive "*"
 
 unsigned short io_map[(IO_MAP_SIZE + 1) * 2];
@@ -295,7 +293,6 @@ init_bios_info (void)
 
   /* Set boot drive and partition.  */
   //saved_drive = boot_drive;
-  //saved_partition = install_partition;
 
   /* Set cdrom drive.  */
   //{

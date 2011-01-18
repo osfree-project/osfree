@@ -39,6 +39,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "iso9660";
+
 /* iso9660 super-block data in memory */
 struct iso_sb_info {
   unsigned long vol_sector;

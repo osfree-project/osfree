@@ -1990,6 +1990,10 @@ void init(void)
   /* use putchar() implementation through term blackbox */
   //use_term = 1;
 
+  // get file system name from uFSD header
+  q = (unsigned long *)(EXT_BUF_BASE + 0xd);
+  strcpy(install_filesys, (char *)(*q));
+
   if (!filetab_ptr)
   {
 
@@ -2080,7 +2084,7 @@ void init(void)
   //}
 #else
   /* Load a pre-loader full version */
-  rc = freeldr_open(preldr);
+  rc = freeldr_open("/boot/loader/preldr0.mdl");
 
   buf = (char *)(0x10000);
 

@@ -222,8 +222,8 @@ int dla(char *driveletter)
 
 
   memset(buf, 0, sizeof(buf));
-  rawread(boot_drive, 0, PART_TABLE_OFFSET, 0x40, buf);
   part_no = (m->boot_device >> 16) & 0xff;
+  rawread(boot_drive, 0, PART_TABLE_OFFSET, 0x40, buf);
   kprintf("part_no=%u\n", part_no);
 
   // dump PT

@@ -28,6 +28,8 @@
 
 #undef REISERDEBUG
 
+char fs_name[] = "reiserfs";
+
 /* Some parts of this code (mainly the structures and defines) are
  * from the original reiser fs code, as found in the linux kernel.
  */

@@ -100,11 +100,9 @@ bundle             db    0
                    org   8h
 
 base               dd    STAGE0_BASE
-                   db    '/boot/loader/preldr0.mdl'
-                   db    4 dup (0)
-install_part       dd    0ffffffh
-install_fsys       db    "iso9660"
-                   db    9 dup (0)
+                   db    28 dup (0)
+install_part       dd    0
+install_fsys       db    16 dup (0)
 
                    org   38h
 
@@ -121,15 +119,16 @@ ifndef STAGE1_5
 __magic          equ     0x1badb002
 __flags          equ     0x00010001
 __checksum       equ     - __magic - __flags
-__start          equ     KERN_BASE                                           ; executable address in memory
+__start          equ     KERN_BASE                                 ; executable address in memory
+__base           equ     (offset _TEXT:stage0_init)
 ; here wasm for some strange reason generates a 16-bit offset
-__exe_end        equ     (offset _TEXT:exe_end + KERN_BASE - STAGE0_BASE)        ; executable end address
+__exe_end        equ     (offset _TEXT:exe_end + KERN_BASE - STAGE0_BASE + 70000h)        ; executable end address
 ; and here too
-__bss_end        equ     (offset _TEXT:bss_end + KERN_BASE - STAGE0_BASE)        ; bss end address
+__bss_end        equ     (offset _TEXT:bss_end + KERN_BASE - STAGE0_BASE + 70000h)        ; bss end address
 ; but here is a full 32-bit offset, strange isn't it? So, as a temporary workaround, I add 70000h in two places
 __entry          equ     (offset _TEXT:kernel_entry + KERN_BASE - STAGE0_BASE)             ; entry point
 
-__mbhdr          multiboot_header  <__magic,__flags,__checksum,__start+__mbhdr,__start,__exe_end+70000h,__bss_end+70000h,__entry,0,0,0,0>
+__mbhdr          multiboot_header  <__magic,__flags,__checksum,__start+__mbhdr,__start,__exe_end,__bss_end,__entry,0,0,0,0>
 
 endif
 
@@ -377,11 +376,11 @@ non_16bit_ufsd:
 
 ifndef STAGE1_5
 
-        cld
-        lea  esi, install_part
-        mov  edi, offset _TEXT:install_partition - STAGE0_BASE
-        mov  cx, 20
-        rep  movsb
+        ;cld
+        ;lea  esi, install_part
+        ;mov  edi, offset _TEXT:install_partition - STAGE0_BASE
+        ;mov  cx, 20
+        ;rep  movsb
 
 endif
         call set_gdt
@@ -578,14 +577,12 @@ _TEXT   segment dword public 'CODE' use32
 boot_drive         dd 0         ; <-- DL
 ; copied from pre-loader header
 _preldr            label byte
-                   db    '/boot/loader/preldr0.mdl'
-                   db    4 dup (0)
+                   db    28 dup (0)
 
 ifndef STAGE1_5
 
-install_partition  dd    0
-install_filesys    db    "iso9660"
-                   db    9 dup (0)
+install_partition  dd    0ffffffh
+install_filesys    db    16 dup (0)
 
 bpb_ptr            dd 0         ; pointer to the BPB
 filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got called from 16-bit uFSD
@@ -623,8 +620,8 @@ kernel_entry:
 
         ; copy uFSD (1st module)
         mov   edi, EXT_BUF_BASE
-        mov   ecx, [edx].mod_end
         mov   esi, [edx].mod_start
+        mov   ecx, [edx].mod_end
         sub   ecx, esi
         rep   movsb
 
@@ -634,7 +631,7 @@ kernel_entry:
         ; fill in install_part
         mov   eax, edx
         and   eax, 0ffffffh
-        mov   ebx, offset _TEXT16:install_part + STAGE0_BASE
+        mov   ebx, offset _TEXT:install_partition
         mov   [ebx], eax
 
         ; physical drive number in DL
@@ -645,10 +642,8 @@ kernel_entry:
 
         ; switch to real mode and jump to STAGE0_BASE
         mov   eax, STAGE0_BASE
-        shr   eax, 4
-        push  ax
-        xor   ax, ax
-        push  ax
+        shl   eax, 12
+        push  eax
         call  call_rm
         add   esp, 4
 
@@ -675,7 +670,7 @@ set_gdt2:
 
         mov  ebx, STAGE0_BASE
         mov  eax, ebx
-        sub  eax, 10600h       ; 0x10000 + 0x200
+        sub  eax, 10600h       ; 0x10000 + 0x600
 
         mov  [edi][3*8].ds_baselo, bx
         mov  [edi][4*8].ds_baselo, bx

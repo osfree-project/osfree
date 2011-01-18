@@ -33,6 +33,8 @@
 #define DTTYPE_INLINE   0
 #define DTTYPE_PAGE     1
 
+char fs_name[] = "jfs";
+
 struct jfs_info
 {
         int bsize;

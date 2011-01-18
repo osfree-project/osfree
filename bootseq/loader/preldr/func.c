@@ -183,11 +183,15 @@ print_fsys_type (void)
 
 void set_boot_fsys(void)
 {
+  unsigned long *q;
   saved_fsys_type = fsys_type;
   fsys_type = -1; // boot filesystem
   /* move boot drive uFSD to working buffer */
   //swap_fsys_bufs((void *)(EXT3HIBUF_BASE), (void *)(UFSD_BASE));
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(UFSD_BASE), EXT_LEN);
+  // get file system name from uFSD header
+  q = (unsigned long *)(EXT3HIBUF_BASE + 0xd);
+  strcpy(install_filesys, (char *)(*q));
   /* call uFSD init (set linkage) */
   fsd_init = (void *)(EXT3HIBUF_BASE); // uFSD base address
   fsd_init(l1);
@@ -198,6 +202,7 @@ void set_boot_fsys(void)
 
 int set_fsys(char *fsname)
 {
+  unsigned long *q;
   char *buf; //[EXT_LEN];
   char sbuf[0x100];
   char *s;
@@ -227,6 +232,10 @@ int set_fsys(char *fsname)
   reloc(buf, sbuf, EXT3HIBUF_BASE - EXT_BUF_BASE + SHIFT);
   grub_memmove((void *)(EXT3HIBUF_BASE), (void *)(buf), EXT_LEN);
   fsys_type = fst;
+
+  // get file system name from uFSD header
+  q = (unsigned long *)(EXT3HIBUF_BASE + 0xd);
+  strcpy(install_filesys, (char *)(*q));
 
   fsd_init = (void *)(EXT3HIBUF_BASE);
   fsd_init(l1);
@@ -321,9 +330,9 @@ open_device2(void)
       return 1;
   }
 
-  saved_fsys_type = fsys_type = -1;
-  saved_drive = boot_drive;
-  saved_partition = install_partition;
+  //saved_fsys_type = fsys_type = -1;
+  //saved_drive = boot_drive;
+  //saved_partition = install_partition;
 
   errnum = ERR_FSYS_MOUNT;
   return 0;

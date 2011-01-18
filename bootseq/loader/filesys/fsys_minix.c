@@ -32,6 +32,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "minix";
+
 /* #define DEBUG_MINIX */
 
 /* indirect blocks */

@@ -27,6 +27,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "vstafs";
+
 static void get_file_info (int sector);
 static struct dir_entry *vstafs_readdir (long sector);
 static struct dir_entry *vstafs_nextdir (void);

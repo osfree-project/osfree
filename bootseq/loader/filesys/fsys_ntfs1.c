@@ -58,6 +58,9 @@
 #ifdef STAGE1_5
 /* safe turn off non-resident attribute list if MFT fragments < 4000 */
 //#define NO_NON_RESIDENT_ATTRIBUTE_LIST 1
+
+char fs_name[] = "ntfs";
+
 #define NO_NTFS_DECOMPRESSION 1
 #endif
 

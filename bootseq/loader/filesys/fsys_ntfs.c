@@ -35,6 +35,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "ntfs";
+
 //#define NTFS_DEBUG    1
 
 #ifdef FS_UTIL

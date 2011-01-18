@@ -128,14 +128,14 @@ int preload_module(char *module, int three_dirs)
   {
     for (p = dirs; *p; p++)
     {
-      sprintf(str, "module ()%s/%s", *p, s);
+      sprintf(str, "module %s/%s", *p, s);
       if (rc = exec_cmd(str))
         break;
     }
   }
   else
   {
-    sprintf(str, "module ()/%s", s);
+    sprintf(str, "module /%s", s);
     rc = exec_cmd(str);
   }
 

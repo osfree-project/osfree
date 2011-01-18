@@ -15,11 +15,9 @@ extern unsigned long saved_partition;
 extern unsigned long cdrom_drive;
 
 extern unsigned long boot_drive;
-extern unsigned long install_partition;
 extern unsigned long sector_size;
 
 #pragma aux boot_drive        "*"
-#pragma aux install_partition "*"
 
 unsigned long current_drive = -1;
 unsigned long current_partition = -1;

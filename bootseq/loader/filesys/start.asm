@@ -5,7 +5,9 @@
 
 name start
 
-extern  init:NEAR
+extern  init:near
+extern  _fs_name:dword
+
 public  fsd_init
 
 public   exe_end
@@ -106,6 +108,7 @@ fsd_init:
          jmp  real_start
 _bss_start     dd (exe_end - EXT_BUF_BASE)
 _bss_end       dd (bss_end - EXT_BUF_BASE)
+fsname_ptr     dd _fs_name
 
            org EXT_BUF_BASE + 0x18
 _pdisk_read_func dd 0

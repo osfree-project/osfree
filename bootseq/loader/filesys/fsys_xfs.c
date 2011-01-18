@@ -28,6 +28,8 @@
 #include "misc.h"
 #include "fsd.h"
 
+char fs_name[] = "xfs";
+
 #define MAX_LINK_COUNT  8
 
 typedef struct xad {
