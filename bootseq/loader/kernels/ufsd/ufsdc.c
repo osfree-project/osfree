@@ -15,6 +15,7 @@ int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
 
 int assign_drvletter (char *mode);
+int offset (int part_no, int flag);
 
 /* Config.sys preprocessor/editor callback */
 struct multiboot_info *
@@ -23,6 +24,11 @@ struct multiboot_info *
             int drvltr,
             int drvltr2,
             struct term_entry *term);
+
+/* a dummy for minilibc */
+void u_msg (char *s)
+{
+}
 
 extern struct term_entry *t;
 
@@ -52,15 +58,13 @@ int filemax;
 int filepos;
 int fileaddr;
 
-//unsigned long ufsd_stack;
-//unsigned long ldr_stack;
-
 unsigned long cdrom_drive;
 int drvletter;
 int drvletter2;
 
 extern char debug;
 
+#pragma aux u_msg        "*"
 #pragma aux m            "*"
 #pragma aux filemax      "*"
 #pragma aux filepos      "*"
@@ -80,8 +84,6 @@ extern char debug;
 #pragma aux callback     "*"
 #pragma aux mfs_start    "*"
 #pragma aux mfs_len      "*"
-//#pragma aux ldr_stack    "*"
-//#pragma aux ufsd_stack   "*"
 
 int toupper (int c);
 
@@ -97,7 +99,6 @@ void ufs_term (void);
 
 void init (void)
 {
-
 }
 
 void
@@ -108,8 +109,6 @@ patch_cfgsys(void)
   if (ufs_open("CONFIG.SYS"))
   {
     kprintf("patch_cfgsys enter\n");
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-    kprintf("\n");
 
     /* Call config.sys preprocessor/editor
        routine outside microfsd            */
@@ -117,8 +116,6 @@ patch_cfgsys(void)
     ufs_close();
 
     kprintf("patch_cfgsys exit\n");
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-    kprintf("\n");
   }
 }
 
@@ -280,6 +277,14 @@ void cmain (void)
     buf = (char *)ldrbase;
     ldrlen = ufs_read(buf, -1);
   }
+  else
+  {
+    printf("os2ldr not found!\n");
+    __asm {
+      cli
+      hlt
+    }
+  }
 
   // load os2boot (if it exists)
   if (ufs_open("os2boot"))
@@ -369,14 +374,6 @@ void cmain (void)
   }
 
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
-  bpb->log_drive   = 0x80 + (drvletter - 'C'); // c:;
-  //bpb->hidden_secs = 0; //part_start;
-
-  //bpb->disk_num    = 0x3;
-  //bpb->log_drive   = 0x48;
-  //bpb->marker      = 0x41;
-  //bpb->vol_ser_no  = 0x00000082;
-  //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *((char *)(0x7c0 + i)));
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
-  kprintf("\n");
+  bpb->log_drive   = 0x80 + (drvletter - 'C');
+  bpb->hidden_secs = offset((m->boot_device >> 16) & 0xff, 1);
 }

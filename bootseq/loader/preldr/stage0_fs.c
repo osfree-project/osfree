@@ -1964,6 +1964,8 @@ void init(void)
 
   if (conf.mufsd.microfsd && filetab_ptr)
   {
+    current_drive = boot_drive;
+    current_partition = 0xffffff;
     open_device2();
     buf = (void *)EXT3HIBUF_BASE;
   }

@@ -213,11 +213,6 @@ int cmain(void)
   kprintf("Hello MBI OS/2 booter!\n");
   kprintf("comport = 0x%x\n", port);
 
-  // relocate mbi info after all modules
-  //kprintf("Relocating MBI info...\n");
-  //mbi_reloc();
-  //kprintf("done.\n");
-
   // where to copy uFSD
   ufs_base = ((m->mem_lower << 10) - 0x10000 - ufsd_size - 0x3000 - 0x200) & 0xfffc000;
   kprintf("uFSD base: 0x%08lx\n", ufs_base);

@@ -39,15 +39,12 @@ ufs_read (char *buf, int len)
 int
 ufs_seek (int offset)
 {
-  int i;
   kprintf("**** ufs_seek(\"%ld\")\n", offset);
 
   if (offset > filemax || offset < 0)
     return -1;
 
   filepos = offset;
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
-  //kprintf("\n");
 
   return offset;
 }
@@ -55,19 +52,11 @@ ufs_seek (int offset)
 void
 ufs_close (void)
 {
-  int i;
   kprintf("**** ufs_close()\n");
-
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
 }
 
 void
 ufs_term (void)
 {
-  int i;
   kprintf("**** ufs_close()\n");
-
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
 }

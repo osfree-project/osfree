@@ -1,16 +1,15 @@
-/*
- *
- *
+/*   minifsd FS_*-entry points
+ *   (c) osFree, 2008-2011,
+ *   author valerius,
+ *   _valerius (dog) mail (dot) ru
  *
  */
 
-#include <const.h>                // From the "Developer Connection Device Driver Kit" version 2.0
+#include <const.h>
 #include <mb_info.h>
 
 #include "ifs.h"
 #include "struct.h"
-
-#pragma aux mbi              "*"
 
 extern char boot[0x800];
 extern unsigned long mbi;
@@ -27,7 +26,7 @@ void advance_ptr(void);
 int open_files = 0;
 unsigned long volsize = 0;
 unsigned long secsize = 0;
-unsigned short hVPB   = 0;
+unsigned short my_hVPB   = 0;
 struct dpb far *pdpb  = 0; // pointer to our DPB
 
 #define CCHMAXPATHCOMP 256
@@ -89,58 +88,19 @@ int strcmp (const char *s1, const char *s2);
 void *memset (void *start, int c, int len);
 int strlen (const char *str);
 
-int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
-int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
-
-//int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
-int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
-                               unsigned short usLen,
-                               unsigned short far *pusSel);
-int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
-
-int  far pascal FSH_DOVOLIO    (unsigned short operation,
-                               unsigned short fAllowed,
-                               unsigned short hVPB,
-                               char far *pData,
-                               unsigned short far *pcSec,
-                               unsigned long iSec);
-int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
-                               unsigned short far *phVPB);
-void far pascal FSH_GETVOLPARM(unsigned short hVPB,
-                               struct vpfsi far * far *ppVPBfsi,
-                               struct vpfsd far * far *ppVPBfsd);
-int  far pascal FSH_DEVIOCTL  (unsigned short flag,
-                               unsigned long hDev,
-                               unsigned short sfn,
-                               unsigned short cat,
-                               unsigned short func,
-                               char far *pParm,
-                               unsigned short cbParm,
-                               char far *pData,
-                               unsigned short cbData);
-int  far pascal FSH_PROBEBUF  (unsigned short operation,
-                               char far *pdata,
-                               unsigned short cbData);
-void far pascal FSH_INTERR(char far *pMsg,
-                           unsigned short cbMsg);
-int  far pascal FSH_UPPERCASE(char far *szPathName,
-                              unsigned short cbPathBuf,
-                              char far *pPathBuf);
-
+#pragma aux mbi             "*"
 #pragma aux DevHlp          "*"
 #pragma aux FS_NAME         "*"
 #pragma aux FS_ATTRIBUTE    "*"
 #pragma aux FS_MPSAFEFLAGS2 "*"
 
 char FS_NAME[12];
-unsigned long FS_ATTRIBUTE         = 0; //0x2C0CL;
+unsigned long FS_ATTRIBUTE         = 0x0;
 unsigned long long FS_MPSAFEFLAGS2 = 0x0LL;
 
 char read_panic[] = "Error reading boot sector from the boot drive!\n";
 struct devcaps devcaps;
 char volchars[0x20];
-struct vpfsi far *pVPfsi;
-struct vpfsd far *pVPfsd;
 
 int far pascal _loadds FS_INIT(
                           char              *szParm,
@@ -157,18 +117,6 @@ int far pascal _loadds FS_INIT(
 
   DevHlp = DevHelp;
 
-  __asm {
-    mov  ax, cs
-    mov  selector, ax
-  }
-  p = (char far *)MAKEP(selector, 0);
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1386 + i));
-  //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", p[i]);
-  kprintf("\n");
-
-  //__asm {
-  //  int 3
-  //}
 
   return NO_ERROR;
 }
@@ -191,24 +139,21 @@ int far pascal _loadds FS_READ(
 
   kprintf("sfi_size = %lu, sfi_position = %lu\n", filemax, filepos);
   kprintf("buf = 0x%08lx, size = %u\n", pData, *pLen);
-  //kprintf("1\n");
 
   if (*((unsigned long far *)psffsd + 1)) // direct read flag
   {
-    //kprintf("2\n");
     if (!(rc = FSH_PROBEBUF(1, pData, *pLen)))
     {
       unsigned short cbSec = *pLen / secsize;
       if (rc = FSH_DOVOLIO(8,                    // return errors directly, don't use harderr daemon
                            1 + 2 + 4,            // ABORT | RETRY | FAIL
-                           hVPB,
+                           psffsi->sfi_hVPB,
                            pData,
                            &cbSec,
                            filepos / secsize))
         kprintf("FSH_DOVOLIO failed, rc = %u\n", rc);
       else
       {
-        //kprintf("3\n");
         kprintf("FSH_DOVOLIO(buf = 0x%08lx, len = %u, start = %lu sectors) succeeded\n",
                 pData,
                 cbSec,
@@ -227,7 +172,6 @@ int far pascal _loadds FS_READ(
   }
   else
   {
-    //kprintf("4\n");
     filebase = *((unsigned long far *)psffsd);
     advance_ptr();
     if (rc = MFS_READ(pData, pLen))
@@ -235,7 +179,6 @@ int far pascal _loadds FS_READ(
       kprintf("MFS_READ failed, rc = %u\n", rc);
     }
   }
-  //kprintf("5\n");
   psffsi->sfi_position = filepos;
 
   return rc;
@@ -270,12 +213,9 @@ int far pascal _loadds FS_CHGFILEPTR(
 
   psffsi->sfi_position = off;
 
-  //filemax = psffsi->sfi_size;
-  //filepos = psffsi->sfi_position;
   if (!*((unsigned long far *)psffsd + 1)) // direct read flag
   {
     filebase = *((unsigned long far *)psffsd);
-    //advance_ptr();
   }
 
   kprintf("FS_CHGFILEPTR: sfi_size = %lu\n", psffsi->sfi_size);
@@ -371,65 +311,28 @@ int far pascal _loadds FS_MOUNT(
   int rc;
   int i;
 
-  //__asm {
-  //  int 3
-  //}
-
   kprintf("**** FS_MOUNT\n");
-
-  __asm {
-    mov  ax, cs
-    mov  selector, ax
-  }
-  p = (char far *)MAKEP(selector, 0);
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1386 + i));
-  kprintf("\n");
 
   if (flag)
     return ERROR_NOT_SUPPORTED;
 
-  if (!oncecntr)
-    kprintf("mounting a DASD partition...\n");
-  else
-    kprintf("the drive is remounted.\nmounting a real boot partition...\n");
-
-  kprintf("hVPB = 0x%04x\n", hVPB);
-  if (!FSH_FINDDUPHVPB(hVPB, &old_hVPB))
-  {
-    //hVPB = old_hVPB;
-    //FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
-    kprintf("found a dup hVPB = 0x%04x\n", old_hVPB);
-    return NO_ERROR;
-  }
-
   memset(pvpfsd, 0, sizeof(struct vpfsd));
-
-  //if (!oncecntr)
-  //{
-  //  pvpfsi->vpi_vid = 0x12345678;
-  //  strcpy(pvpfsi->vpi_text, "MBI_TEST");
-  //}
 
   secsize = pvpfsi->vpi_bsize;
   volsize = pvpfsi->vpi_totsec * secsize;
   kprintf("volume size: %lu bytes, sector size: 0x%x\n", volsize, secsize);
   pdpb = (struct dpb far *)pvpfsi->vpi_hDEV;
   kprintf("DPB addr: pvpfsi->vpi_hDEV = 0x%08lx\n", pdpb);
-  //boot = pBoot;
 
-  //FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
-  pdpb = (struct dpb far *)pvpfsi->vpi_hDEV;
-  kprintf("DPB addr: pvpfsi->vpi_hDEV = 0x%08lx\n", pdpb);
   kprintf("vpi_pDCS = 0x%08lx, vpi_pVCS = 0x%08lx\n",
           pvpfsi->vpi_pDCS,
           pvpfsi->vpi_pVCS);
   kprintf("hVPB: 0x%04x\n", hVPB);
 
-  if (!strcmp(FS_NAME, "CDFS") && pvpfsi->vpi_bsize != 0x800)
-    return ERROR_NOT_SUPPORTED;
-
-  if (!oncecntr)
+  if (drvletter == 'A' + pvpfsi->vpi_drive)
   {
+    my_hVPB = hVPB;
+    // ...
     memset(boot, 0, sizeof(boot));
     rc = FSH_DOVOLIO(8,               // return errors directly, not through harderr daemon
                      1 + 2 + 4 + 8,   // ABORT | RETRY | FAIL | IGNORE
@@ -437,31 +340,27 @@ int far pascal _loadds FS_MOUNT(
                      boot,
                      &cbSec,
                      0);
+
     kprintf("FSH_DOVOLIO: rc = 0x%x\n", rc);
     if (rc) FSH_INTERR(read_panic, strlen(read_panic));
     kprintf("read %u sectors\n", cbSec);
+    // ...
+    // save devcaps structure to the safe place
+    memmove(&devcaps, pvpfsi->vpi_pDCS, sizeof(struct devcaps));
+    // save volume characteristics
+    memmove(&volchars, pvpfsi->vpi_pVCS, sizeof(volchars));
+    // volume label
+    memmove(pvpfsi->vpi_text, "MBI", 4);
+    // volume serial number
 
-    if (drvletter == 'A' + pdpb->dpb_drive)
-    {
-      // save devcaps structure to the safe place
-      memmove(&devcaps, pvpfsi->vpi_pDCS, sizeof(struct devcaps));
-      // save volume characteristics
-      memmove(&volchars, pvpfsi->vpi_pVCS, sizeof(volchars));
+    pvpfsi->vpi_vid = 0x11111111;
 
-      //boot[25] = 0x80; boot[26] = 0x80; // fixme!!!
-      //boot[31] = 0x12; boot[30] = 0x34; boot[29] = 0x56; boot[28] = 0x78;
-      //strcpy(boot + 32, "MBI_TEST");
-      //strcpy(boot + 43, FS_NAME);
-    }
-
-    // zero out open files indicate area
     memset(save_map, 0, sizeof(save_map));
+
+    return NO_ERROR; // volume is recognized
   }
 
-  //pVPfsi = pvpfsi; pVPfsd = pvpfsd;
-  oncecntr++; // for this block of code to execute only once
-
-  return NO_ERROR;
+  return NO_ERROR + 1; // volume is not recognized
 }
 
 int far pascal _loadds file_open(char far *name,
@@ -506,13 +405,16 @@ int far pascal _loadds FS_OPENCREATE(
                                 unsigned short far *pfgenFlag
                                )
 {
-  unsigned long size;
+  unsigned long  size;
+  unsigned short hVPB;
   char msg_toomany[] = "Open file limit exceeded!\n";
   char far *p;
   int rc, i;
 
   kprintf("**** FS_OPENCREATE(\"%s\")\n", pName);
   kprintf("iCurDirEnd=%d, curdir=%s, cdi_end=%d\n", iCurDirEnd, pcdfsi->cdi_curdir, pcdfsi->cdi_end);
+
+  my_hVPB = psffsi->sfi_hVPB;
 
   if (ulOpenMode & OPEN_FLAGS_DASD) // opening whole drive for a direct read
   {
@@ -522,20 +424,10 @@ int far pascal _loadds FS_OPENCREATE(
       *((unsigned long far *)psffsd + 1) = 1; // direct read flag
       psffsi->sfi_size = volsize;
       psffsi->sfi_position = 0;
-      hVPB = psffsi->sfi_hVPB;
+      hVPB = my_hVPB;
       open_files++;
       kprintf("sfi_size = %lu\n", volsize);
       kprintf("hVPB: 0x%04x\n", hVPB);
-
-      if (!strcmp(FS_NAME, "CDFS"))
-      {
-        FSH_GETVOLPARM(hVPB, &pVPfsi, &pVPfsd);
-        memset(pVPfsd, 0, sizeof(struct vpfsd));
-        secsize = pVPfsi->vpi_bsize = 0x800;
-        volsize = pVPfsi->vpi_totsec = 0 ;
-        pdpb = (struct dpb far *)pVPfsi->vpi_hDEV;
-        kprintf("DPB addr: pvpfsi->vpi_hDEV = 0x%08lx\n", pdpb);
-      }
 
       rc = NO_ERROR;
     }
@@ -583,21 +475,6 @@ int far pascal _loadds FS_PROCESSNAME(
   int rc;
   kprintf("**** FS_PROCESSNAME(\"%s\")\n", pNameBuf);
 
-  // If volume is remounted as a CD, then change a driveletter to a CD's one
-  //if (oncecntr == 2 && pNameBuf[0] == drvletter)
-  //if (strstr(pNameBuf, "msg.dll") ||
-  //    strstr(pNameBuf, "MSG.DLL"))
-  //{
-    // msg.dll is loading after CDFS.IFS. At this point
-    // we need to access a CD drive letter. So, we 'transform'
-    // to the 'local' IFS by changing FS_ATTRIBUTE
-    //drvflag = 1;
-    //FS_ATTRIBUTE &= ~0x1; // clear 'remote fs' bit
-
-    //kprintf("FS_PROCESSNAME: %s\n", pNameBuf);
-  //}
-  //if (drvflag) pNameBuf[0] = 'V';
-
   return NO_ERROR;
 }
 
@@ -605,19 +482,20 @@ int far pascal _loadds FS_ATTACH(
                          unsigned short     flag,        /* flag                */
                          char           far *pDev,       /* pDev                */
                          struct vpfsd   far *pvpfsd,     /* if remote drive
-                                                           struct vpfsd far *
-                                                           else if remote device
-                                                                  null ptr (0L)    */
-                         struct cdfsd   far *pcdfsd,        /* if remote drive
-                                                           struct cdfsd far *
-                                                          else
-                                                          struct devfsd far * */
-                         char           far *pParm,      /* pParm        */
+                                                            struct vpfsd far *
+                                                            else if remote device
+                                                               null ptr (0L)    */
+                         struct cdfsd   far *pcdfsd,     /* if remote drive
+                                                            struct cdfsd far *
+                                                            else
+                                                            struct devfsd far * */
+                         char           far *pParm,      /* pParm               */
                          unsigned short far *pLen        /* pLen                */
                         )
 {
   int rc;
   kprintf("**** FS_ATTACH(\"%s\")\n", pDev);
+
   // zero out open files indicate area
   memset(save_map, 0, sizeof(save_map));
   oncecntr++;
@@ -657,7 +535,6 @@ int     far pascal _loadds FS_FINDFIRST(
   *pcMatch = 0; rc = 2; // file not found
   if (!MFS_OPEN(p, &size))
   {
-    //pName += 3;
     // file found
     switch (level)
     {
@@ -690,12 +567,6 @@ int     far pascal _loadds FS_FINDFIRST(
         else
           p = pName;
 
-        //memmove(pcdfsi->cdi_curdir, pName, p - pName + 1);
-        //pcdfsi->cdi_curdir[p - pName + 1] = '\0';
-        //pcdfsi->cdi_end = iCurDirEnd = p - pName + 1;
-        //p++;
-
-        //cbData = sizeof(FILEFINDBUF2) - CCHMAXPATHCOMP - 1;
         ff->cchName = strlen(p);
         if (attr & 0x0040)
         {

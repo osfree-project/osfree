@@ -92,3 +92,55 @@ struct fsfsd {
 };
 
 #pragma pack()
+
+/* IFS entry points */
+int far pascal _loadds MFS_OPEN(char far *pszName, unsigned long far *pulSize);
+int far pascal _loadds MFS_READ(char far *pcData,  unsigned short far *pusLength);
+
+/* IFS helpers */
+int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
+
+int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
+
+int far pascal MFSH_SEGFREE(unsigned short usSel);
+
+int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
+                               unsigned short usLen,
+                               unsigned short far *pusSel);
+
+int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
+
+int far pascal FSH_INTERR(char far *pMsg,
+                          unsigned short cbMsg);
+
+void far pascal FSH_GETVOLPARM(unsigned short hVPB,
+                               struct vpfsi far * far *ppVPBfsi,
+                               struct vpfsd far * far *ppVPBfsd);
+
+int far pascal FSH_DOVOLIO(unsigned short operation,
+                           unsigned short fAllowed,
+                           unsigned short hVPB,
+                           char far *pData,
+                           unsigned short far *pcSec,
+                           unsigned long iSec);
+
+int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
+                               unsigned short far *phVPB);
+
+int  far pascal FSH_DEVIOCTL  (unsigned short flag,
+                               unsigned long hDev,
+                               unsigned short sfn,
+                               unsigned short cat,
+                               unsigned short func,
+                               char far *pParm,
+                               unsigned short cbParm,
+                               char far *pData,
+                               unsigned short cbData);
+
+int  far pascal FSH_PROBEBUF  (unsigned short operation,
+                               char far *pdata,
+                               unsigned short cbData);
+
+int  far pascal FSH_UPPERCASE(char far *szPathName,
+                              unsigned short cbPathBuf,
+                              char far *pPathBuf);

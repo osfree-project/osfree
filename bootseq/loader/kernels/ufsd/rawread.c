@@ -16,9 +16,6 @@ int kprintf(const char *format, ...);
 static inline unsigned long
 log2 (unsigned long word)
 {
-  //asm volatile ("bsfl %1,%0"
-  //              : "=r" (word)
-  //              : "r" (word));
   unsigned long l;
 
   l = word;

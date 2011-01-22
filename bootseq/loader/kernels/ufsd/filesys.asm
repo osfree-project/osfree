@@ -88,22 +88,6 @@ mu_Open proc far
         ; char far *pName
         mov  ebx, dword ptr [bp + 06h]
 
-        push bx
-
-        mov  al, '='
-        call com_outchar
-
-        xor  ax, ax
-        mov  gs, ax
-        mov  bx, 1f41h
-        mov  al, byte ptr gs:[bx]
-        call com_outchar
-
-        mov  al, '='
-        call com_outchar
-
-        pop  bx
-
         switch_to_preldr
 
         ; convert far ptr in ebx to
@@ -115,49 +99,11 @@ mu_Open proc far
         ;and  ecx, 0fffffh
         add  ebx, ecx
 
-        mov  al, 'o'
-        call com_outchar
-
-        push bx
-
-        mov  al, '-'
-        call com_outchar
-
-        xor  ax, ax
-        mov  gs, ax
-        mov  bx, 1f41h
-        mov  al, byte ptr gs:[bx]
-        call com_outchar
-
-        mov  al, '-'
-        call com_outchar
-
-        pop  bx
-
         ; switch to PM and call muOpen
         mov  eax, offset _TEXT:muOpen
         push eax
         call call_pm
         add  sp, 4
-
-        mov  al, 'e'
-        call com_outchar
-
-        push bx
-
-        mov  al, '+'
-        call com_outchar
-
-        xor  ax, ax
-        mov  gs, ax
-        mov  bx, 1f41h
-        mov  al, byte ptr gs:[bx]
-        call com_outchar
-
-        mov  al, '+'
-        call com_outchar
-
-        pop  bx
 
         cmp  ebx, 0
         jz   noerr1
@@ -217,23 +163,16 @@ mu_Read proc far
         and  edx, 0ffffh
         add  edx, eax
 
-        mov  al, 'r'
-        call com_outchar
-
         mov  eax, offset _TEXT:muRead
         push eax
         call call_pm
         add  sp, 4
-
-        mov  al, 'e'
-        call com_outchar
 
         ; ebx (count of bytes read) -> dx:ax
         mov  edx, ebx
         shr  edx, 16
         mov  eax, ebx
         and  eax, 0ffffh
-        ;and  edx, 0ffffh
 
         switch_to_ldr
 
@@ -253,16 +192,10 @@ mu_Read endp
 mu_Close proc far
         switch_to_preldr
 
-        mov  al, 'c'
-        call com_outchar
-
         mov  eax, offset _TEXT:muClose
         push eax
         call call_pm
         add  sp, 4
-
-        mov  al, 'e'
-        call com_outchar
 
         switch_to_ldr
 
@@ -277,16 +210,10 @@ mu_Close endp
 mu_Terminate proc far
         switch_to_preldr
 
-        mov  al, 't'
-        call com_outchar
-
         mov  eax, offset _TEXT:muTerminate
         push eax
         call call_pm
         add  sp, 4
-
-        mov  al, 'e'
-        call com_outchar
 
         switch_to_ldr
 

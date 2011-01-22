@@ -18,7 +18,6 @@ kernels          = $(p)mbi$(e) $(p)zip$(e)
 
 p                =
 e                =
-#i                =
 bbx              = $+$(kernels)$-
 
 mbi_OBJS         = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)mbifunc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
@@ -50,19 +49,13 @@ DEST             = none
 # so it must be included before this place:
 p            = $(PATH)
 e            = .rel
-#i            =
 rels         = $+$(kernels)$-
 
 p            = $(PATH)
 e            = .mdl
-#i            = $(PATH)ufsd.inc
 TARGETS      = subdirs $+$(kernels)$- $(rels)
 
 files     = $(bbx)
-
-#p =
-#e = .asm
-#spec_SRCS = $+$(kernels) $(msw)$- startup.asm
 
 F =
 

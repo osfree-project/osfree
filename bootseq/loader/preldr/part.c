@@ -528,7 +528,7 @@ int open_partition_hiddensecs(void)
 
   if (part_start)
   {
-    lba = part_start - tracksize;
+    lba = part_start; // - tracksize;
 
     /* read MBR */
     rawread (boot_drive, 0, 0, 512, buf);

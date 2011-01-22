@@ -8,7 +8,6 @@ public mbi0
 
 public _small_code_
 public _cstart_
-;public __STK
 
 _TEXT    segment byte  public 'CODE'  use16
 _TEXT    ends

@@ -60,10 +60,6 @@ int get_num_parts(int diskno)
   // read the Partition table
   rawread(diskno, 0, PART_TABLE_OFFSET, 0x40, buf);
 
-  // dump PT
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
-  kprintf("\n");
-
   pte = buf;
   ext = 0;
   // a loop by the number of primary partitions
@@ -94,10 +90,6 @@ int get_num_parts(int diskno)
 
     // read EBR
     rawread(diskno, part_start, PART_TABLE_OFFSET, 0x40, buf);
-
-    // dump PT
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
-    kprintf("\n");
 
     pte = buf;
     ext = 0;
@@ -201,34 +193,20 @@ unsigned long crc32(unsigned char *buf, unsigned long len)
     return crc;
 }
 
-/*  Determine a drive letter through DLA tables
- *  (DLA stands for Drive Letter Assignment)
- */
-int dla(char *driveletter)
+int
+offset (int part_no, int flag)
 {
   char buf[0x40];
-  char buff[0x220];
-  char part_no = 0;
-  unsigned long    sec;
-  struct geometry  geo;
-  unsigned long CRC32, crc;
-  char *pte, *p, *ext;
+  unsigned long sec;
+  char *pte, *ext;
   int i;
   int parts = 1;
   unsigned long ext_start = 0;
   unsigned long part_start = 0;
-  DLA_Table_Sector *dlat;
-  DLA_Entry *dlae;
-
 
   memset(buf, 0, sizeof(buf));
-  part_no = (m->boot_device >> 16) & 0xff;
   rawread(boot_drive, 0, PART_TABLE_OFFSET, 0x40, buf);
   kprintf("part_no=%u\n", part_no);
-
-  // dump PT
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
-  kprintf("\n");
 
   ext = 0;
   pte = buf;
@@ -236,11 +214,11 @@ int dla(char *driveletter)
   if (part_no < 4) // primary partition
   {
     pte += 0x10 * part_no;
-    part_start   = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
+    part_start  = (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
   }
   else // logical partition
   {
-    parts = 3;
+    parts = 4;
     ext = 0;
     for (i = 0; i < 4; i++, pte += 0x10)
     {
@@ -266,10 +244,6 @@ int dla(char *driveletter)
       // read EBR
       rawread(boot_drive, part_start, PART_TABLE_OFFSET, 0x40, buf);
 
-      // dump PT
-      for (i = 0; i < 0x40; i++) kprintf("0x%02x,", buf[i]);
-      kprintf("\n");
-
       pte = buf;
       ext = 0;
       for (i = 0; i < 2; i++, pte += 0x10)
@@ -283,14 +257,51 @@ int dla(char *driveletter)
     }
   }
 
-  // get drive geometry
-  get_diskinfo(boot_drive, &geo);
+  if (flag)
+  {
+    // read the last EBR
+    rawread(boot_drive, part_start, PART_TABLE_OFFSET, 0x40, buf);
+
+    // find needed pte
+    pte = buf;
+    for (i = 0; i < 2; i++, pte += 0x10)
+      if (pte[4] != 0x5 && pte[4] != 0xf)
+        break;
+
+    // get partition offset
+    part_start += (pte[11] << 24) | (pte[10] << 16) | (pte[9] << 8) | pte[8];
+  }
+
+  return part_start;
+}
+
+/*  Determine a drive letter through DLA tables
+ *  (DLA stands for Drive Letter Assignment)
+ */
+int dla(char *driveletter)
+{
+  char buff[0x220];
+  unsigned long CRC32, crc;
+  DLA_Table_Sector *dlat;
+  DLA_Entry *dlae;
+  char      *p;
+  char      part_no;
+  unsigned long sec;
+  int       add;
+  struct geometry geom;
+
+  part_no = (m->boot_device >> 16) & 0xff;
+
+  if (get_diskinfo(boot_drive, &geom))
+    return 0;
+
+  add = geom.sectors - 1;
 
   // DLAT info sector
   if (part_no < 4) // primary partition
-    sec = geo.sectors - 1;
+    sec = add;
   else // logical partition
-    sec = part_start + geo.sectors - 1;
+    sec = offset(part_no, 0) + add;
 
   p = buff;
 

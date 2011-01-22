@@ -303,6 +303,7 @@ int load_modules (char *cfg, int len)
 
   /* load DCP files according to config.sys */
   p = options.devinfo_kbd;
+
   /* find 1st ',' */
   for (t = p; *t && *t != ','; t++) ;
   /* skip it */

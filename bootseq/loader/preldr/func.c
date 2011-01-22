@@ -214,6 +214,8 @@ int set_fsys(char *fsname)
   if (!filetab_ptr) set_boot_fsys();
   rc = freeldr_open(fsname);
 
+  //printmsg(fsname);
+
   buf = (char *)EXT4HIBUF_BASE;
 
   if (rc)

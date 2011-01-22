@@ -166,25 +166,6 @@ entry:
                    ; set stack
                    mov   esp, 9e000h
 
-                   ; copy bootos2 parts at REL_BASE (below 1 Mb)
-                   ;cld                                               ; move forward
-                   ;mov     esi, ufsd_start                           ; begin of startup
-                   ;mov     ecx, ufsd_size
-                   ;shr     ecx, 2
-                   ;inc     ecx
-                   ;mov     edi, REL1_BASE                            ; copy to
-
-                   ;rep     movsd                                     ; copy
-
-                   ; copy mFSD at 0x7c0
-                   ;mov     esi, mfsd_start
-                   ;mov     ecx, mfsd_size
-                   ;shr     ecx, 2
-                   ;inc     ecx
-                   ;mov     edi, 0x7c0
-                   ;
-                   ;rep     movsd
-
                    push    eax
 
                    call    cmain_

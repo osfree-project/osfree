@@ -12,12 +12,7 @@
   @author Sascha Schmidt <sascha.schmidt@asamnet.de>
 
 */
-//#define INCL_DOSERRORS
-//#include <os2.h>
 
-
-// uLibC defines
-//#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +20,6 @@
 #include <fcntl.h>
 #include <ctype.h>
 
-//#include <io.h>
 #include "cfgparsr.h"
 
 void error(char *);
@@ -97,6 +91,17 @@ char *options_list[]={"AUTOFAIL","BUFFERS","CLOCKSCALE","CLOSEFILES",
 "DEBUGMODMGR",
 "DEBUGIXFMGR",
 "DEBUGPRCMGR"};
+
+char *
+upcase (char *s)
+{
+  char *p;
+
+  for (p = s; *p; p++)
+    *p = toupper(*p);
+
+  return s;
+}
 
 
 /*! @brief Sets the default values in the options structure
@@ -218,13 +223,13 @@ unsigned long CfgParseLine(char line[], int len, int lineno)
         case 5: // COUNTRY
           if(!(pc=(char *)malloc((size_t)len + 1)))
                   error("Memory could not be allocated!");
-          strcpy(pc,line);
+          strcpy(pc,upcase(line));
           options.country=pc;
           break;
         case 6: // DEVINFO
           if(!(pc=(char *)malloc((size_t)len + 1)))
                   error("Memory could not be allocated!");
-          strcpy(pc,line);
+          strcpy(pc,upcase(line));
           if (pc[0] == 'K' && pc[1] == 'B' && pc[2] == 'D')
             options.devinfo_kbd=pc; else
           if (pc[0] == 'S' && pc[1] == 'C' && pc[2] == 'R')
@@ -233,13 +238,13 @@ unsigned long CfgParseLine(char line[], int len, int lineno)
       /*  case 7: // DEVINFO_VIO
           if(!(pc=(char *)malloc((size_t)len + 1)))
                   error("Memory could not be allocated!");
-          strcpy(pc,line);
+          strcpy(pc,upcase(line));
           options.devinfo_vio=pc;
           break; */
         case 7: // DISKCACHE
           if(!(pc=(char *)malloc((size_t)len + 1)))
                   error("Memory could not be allocated!");
-          strcpy(pc,line);
+          strcpy(pc,upcase(line));
           options.diskcache=pc;
           break;
         case 8: // DLLBASING

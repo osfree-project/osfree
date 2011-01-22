@@ -1,5 +1,6 @@
-/*
- *
+/*  MFS_*-minifsd functions
+ *  (c) osFree project, 2009-1011
+ *  author valerius (_valerius (dog) mail (dot) ru)
  *
  */
 
@@ -9,7 +10,6 @@
 #include "serial.h"
 #include "struct.h"
 
-//#include <string.h>
 #include <ifs.h>
 
 #define CHECKRC \
@@ -26,7 +26,7 @@ int serial_init (long port, long speed,
 extern char FS_NAME[12];
 extern unsigned long FS_ATTRIBUTE;
 extern struct dpb far *pdpb; // pointer to our DPB
-extern unsigned short hVPB;
+extern unsigned short my_hVPB;
 extern int open_files;
 
 extern unsigned long mbi0;
@@ -84,8 +84,8 @@ int save_index = 0;
 
 extern struct devcaps devcaps;
 extern char volchars[0x20];
-extern struct vpfsi far *pVPfsi;
-extern struct vpfsd far *pVPfsd;
+//extern struct vpfsi far *pVPfsi;
+//extern struct vpfsd far *pVPfsd;
 
 #pragma pack(1)
 
@@ -107,6 +107,50 @@ int _cdecl _loadds GetModule(char far *fpszModName,
                              unsigned short cchModName,
                              struct p48 far *fpMte48);
 int _cdecl _loadds GetDPBHead(void far * far *addr);
+
+typedef int far pascal (*mount_t)(unsigned short flag,
+                                  struct vpfsi far *pvpfsi,
+                                  struct vpfsd far *pvpfsd,
+                                  unsigned short hVPB,
+                                  char far *pBoot);
+typedef int far pascal (*open_t)(struct cdfsi far *pcdfsi,
+                                 struct cdfsd far *pcdfsd,
+                                 char far *pName,
+                                 unsigned short iCurDirEnd,
+                                 struct sffsi far *psffsi,
+                                 struct sffsd far *psffsd,
+                                 unsigned long ulOpenMode,
+                                 unsigned short usOpenFlag,
+                                 unsigned short far *pusAction,
+                                 unsigned short usAttr,
+                                 char far *pcEABuf,
+                                 unsigned short far *pfgenflag);
+typedef int far pascal (*attach_t)(unsigned short flag,
+                                 char far *pDev,
+                                 struct vpfsd far *pvpfsd,
+                                 struct cdfsd far *pcdfsd,
+                                 char far *pParm,
+                                 unsigned short far *p);
+typedef int far pascal (*write_t)(struct sffsi far *psffsi,
+                                 struct sffsd far *psffsd,
+                                 char far *pData,
+                                 unsigned short far *pLen,
+                                 unsigned short IOfl€);
+typedef int far pascal (*close_t)(unsigned short type,
+                                  unsigned short IOflag,
+                                  struct sffsi far *psffsi,
+                                  struct sffsd far *psffsd);
+typedef int far pascal (*mkdir_t)(struct cdfsi far * pcdfsi,
+                                  struct cdfsd far *pcdfsd,
+                                  char far *pName,
+                                  unsigned short iCurDirEnd,
+                                  char far *pEABuf,
+                                  unsigned short fl);
+typedef int far pascal (*chgfileptr_t)(struct sffsi far * psffsi,
+                                  struct sffsd far * psffsd,
+                                  long offset,
+                                  unsigned short type,
+                                  unsigned short IOfl);
 
 unsigned char drvletter = 0;
 unsigned char cd_drvletter = 0;
@@ -153,72 +197,6 @@ int strcmp (const char *s1, const char *s2);
 char *strcpy (char *dest, const char *src);
 void *memmove (void *_to, const void *_from, int _len);
 void *memset (void *start, int c, int len);
-
-int far pascal MFSH_INTERR(char far *pcMsg, unsigned short cbMsg);
-int far pascal MFSH_SETBOOTDRIVE(unsigned short usDrive);
-int far pascal MFSH_PHYSTOVIRT(unsigned long ulAddr,
-                               unsigned short usLen,
-                               unsigned short far *pusSel);
-int far pascal MFSH_UNPHYSTOVIRT(unsigned short usSel);
-void far pascal FSH_GETVOLPARM(unsigned short hVPB,
-                               struct vpfsi far * far *ppVPBfsi,
-                               struct vpfsd far * far *ppVPBfsd);
-int far pascal MFSH_SEGFREE(unsigned short usSel);
-
-void far pascal FSH_INTERR(char far *pMsg,
-                           unsigned short cbMsg);
-int far pascal FSH_DOVOLIO(unsigned short operation,
-                           unsigned short fAllowed,
-                           unsigned short hVPB,
-                           char far *pData,
-                           unsigned short far *pcSec,
-                           unsigned long iSec);
-int far pascal FSH_FINDDUPHVPB(unsigned short hVPB,
-                               unsigned short far *phVPB);
-
-typedef int far pascal (*mount_t)(unsigned short flag,
-                                  struct vpfsi far *pvpfsi,
-                                  struct vpfsd far *pvpfsd,
-                                  unsigned short hVPB,
-                                  char far *pBoot);
-typedef int far pascal (*open_t)(struct cdfsi far *pcdfsi,
-                                 struct cdfsd far *pcdfsd,
-                                 char far *pName,
-                                 unsigned short iCurDirEnd,
-                                 struct sffsi far *psffsi,
-                                 struct sffsd far *psffsd,
-                                 unsigned long ulOpenMode,
-                                 unsigned short usOpenFlag,
-                                 unsigned short far *pusAction,
-                                 unsigned short usAttr,
-                                 char far *pcEABuf,
-                                 unsigned short far *pfgenflag);
-typedef int far pascal (*attach_t)(unsigned short flag,
-                                 char far *pDev,
-                                 struct vpfsd far *pvpfsd,
-                                 struct cdfsd far *pcdfsd,
-                                 char far *pParm,
-                                 unsigned short far *p);
-typedef int far pascal (*write_t)(struct sffsi far *psffsi,
-                                 struct sffsd far *psffsd,
-                                 char far *pData,
-                                 unsigned short far *pLen,
-                                 unsigned short IOfl€);
-typedef int far pascal (*close_t)(unsigned short type,
-                                  unsigned short IOflag,
-                                  struct sffsi far *psffsi,
-                                  struct sffsd far *psffsd);
-typedef int far pascal (*mkdir_t)(struct cdfsi far * pcdfsi,
-                                  struct cdfsd far *pcdfsd,
-                                  char far *pName,
-                                  unsigned short iCurDirEnd,
-                                  char far *pEABuf,
-                                  unsigned short fl);
-typedef int far pascal (*chgfileptr_t)(struct sffsi far * psffsi,
-                                  struct sffsd far * psffsd,
-                                  long offset,
-                                  unsigned short type,
-                                  unsigned short IOfl);
 
 void serout(char *s);
 int kprintf(const char *format, ...);
@@ -300,12 +278,6 @@ int far pascal _loadds MFS_INIT(
     char *pp, *r;
     char panic_msg[] = "MBI:mbi uninitialized, panic!\n";
     unsigned short selector;
-
-    //__asm {
-    //  int 3
-    //}
-
-    //if (!bpb) MFSH_INTERR("bpb\n", 4);
 
     // mbi as RIPL data
     mbi = *((unsigned long far *)bootdata);
@@ -390,24 +362,12 @@ int far pascal _loadds MFS_INIT(
         pp = skip_to(1, pp);
         drvletter = toupper(pp[0]);
       }
-
-      //if (pp = strstr(cmdline, "--cd"))
-      //{
-      //  pp = skip_to(1, pp);
-      //  cd_drvletter = toupper(pp[0]);
-      //}
     }
-
-    //debug = 1;
-    //port = 0x3f8;
-    //speed = 115200;
-    //strcpy(FS_NAME, "CDFS");
-    //strcpy(fs_module, "CDFSD");
-    //drvletter = 'C';
 
     memset(&mfsdata, 0, sizeof(struct mfsdata));
     *pMiniFSD = (unsigned long)&mfsdata;
 
+    // for [Pasha]' versions of JFS and FAT32
     if (!strcmp(FS_NAME, "JFS") ||
         !strcmp(FS_NAME, "FAT32"))
       **((unsigned long far * far *)pMiniFSD) = 0x1961;
@@ -425,15 +385,6 @@ int far pascal _loadds MFS_INIT(
 
     kprintf("**** MFS_INIT\n");
     kprintf("Hello MBI minifsd!\n");
-
-    __asm {
-      mov  ax, cs
-      mov  selector, ax
-    }
-    p = (char far *)MAKEP(selector, 0);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1386 + i));
-    //for (i = 0; i < 0x2b36; i++) kprintf("0x%02x,", *(p + i));
-    kprintf("\n");
 
     kprintf("comport = 0x%x\n", port);
     kprintf("ifs: %s\n", FS_NAME);
@@ -476,25 +427,15 @@ int far pascal _loadds MFS_INIT(
       MFSH_UNPHYSTOVIRT(sl);
     }
 
-    rc = MFSH_SETBOOTDRIVE(drvletter - 'A'); // t:
+    rc = MFSH_SETBOOTDRIVE(drvletter - 'A');
     kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
-
-    //*FS_NAME = 0;
-
-    __asm {
-      mov  ax, cs
-      mov  selector, ax
-    }
-    p = (char far *)MAKEP(selector, 0);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *(p + 0x1386 + i));
-    kprintf("\n");
 
     return NO_ERROR;
 }
 
 int far pascal _loadds MFS_OPEN(
-    char far *name,                     /* name         */
-    long far *size             /* size         */
+    char far *name,            /* name         */
+    unsigned long far *size    /* size         */
 )
 {
     char far buf1[0x100];
@@ -595,7 +536,7 @@ int far pascal _loadds MFS_OPEN(
 }
 
 int far pascal _loadds MFS_READ(
-    char far *data,             /* data         */
+    char far *data,              /* data         */
     unsigned short far *length   /* length       */
 )
 {
@@ -641,15 +582,7 @@ int getaddr (char *module,
   {
     sel = p48.sel;
 
-    //if (sel != FlatR0CS) // 16:16
-    //{
-      *funcaddr = (unsigned short)p48.off | ((unsigned long)sel << 16);
-    //}
-    //else
-    //{
-    //  funcaddr->sel = sel;
-    //  funcaddr->off = p48.off;
-    //}
+    *funcaddr = (unsigned short)p48.off | ((unsigned long)sel << 16);
 
     kprintf("IFS %s addr: 0x%04x:0x%08lx\n",
             funcname,
@@ -683,7 +616,7 @@ int far pascal _loadds MFS_TERM(void)
   int rc, i, j;
   unsigned long  ulOpenMode;
   unsigned short usOpenFlag;
-  unsigned short hVPB1;
+  unsigned short hVPB;
   unsigned short usAction;
   unsigned short flags;
   unsigned short l;
@@ -701,22 +634,17 @@ int far pascal _loadds MFS_TERM(void)
   struct cdfsd cdfsd;
   struct sffsi sffsi;
   struct sffsd sffsd;
-  char far *pBoot = 0;
-  char str[0x3a];
+  char str[0x40];
   char buf[0x3a];
   char fs_name[12];
   char far *r, far *p, far *s, far *q;
   void far *dpbhead;
-  unsigned short new_hVPB;
   char opened;
   struct dpb far *pdpb1 = 0;
   struct mod_list far *mod;
 
   kprintf("**** MFS_TERM\n");
   kprintf("hello stage3!\n");
-
-  //rc = MFSH_SETBOOTDRIVE('U' - 'A'); // u:
-  //kprintf("MFSH_SETBOOTDRIVE() returned: 0x%x\n", rc);
 
   // Get FLAT selectors
   if (!GetFlatSelectors())
@@ -767,11 +695,7 @@ int far pascal _loadds MFS_TERM(void)
   kprintf("p_mkdir  = 0x%08lx\n", p_mkdir);
   kprintf("p_chgfileptr = 0x%08lx\n", p_chgfileptr);
 
-  kprintf("hard disk partition hVPB: 0x%04x\n", hVPB);
-
-  hVPB1 = hVPB;
-  FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
-
+/* --------------------------
   GetDPBHead(&dpbhead);
   kprintf("dpbhead = 0x%08lx\n", dpbhead);
 
@@ -782,7 +706,6 @@ int far pascal _loadds MFS_TERM(void)
     kprintf("drive: %c:, pdpb = 0x%08lx, ", 'a' + pdpb->dpb_drive, pdpb);
     kprintf("hVPB: 0x%04x\n", pdpb->dpb_hVPB);
     if (pdpb->dpb_drive == drvletter - 'A')  pdpb1 = pdpb;
-    //if (pdpb->dpb_drive == 'v' - 'a')  pdpb1 = pdpb;
     if ((int)pdpb->dpb_next_dpb == -1) break;
     pdpb = pdpb->dpb_next_dpb;
   }
@@ -792,23 +715,17 @@ int far pascal _loadds MFS_TERM(void)
   {
     kprintf("pdpb = 0x%08lx\n", pdpb);
     hVPB = pdpb->dpb_hVPB;
-    cd_drvletter = 'A' + pdpb->dpb_drive;
+    //cd_drvletter = 'A' + pdpb->dpb_drive;
   }
-  else
-    cd_drvletter = drvletter;
+  //else
+    //cd_drvletter = drvletter;
+   -------------------------- */
 
-  kprintf("boot drive: %c:, its hVPB: 0x%04x\n", cd_drvletter, hVPB);
+  kprintf("hVPB: 0x%04x\n", my_hVPB);
 
-  //if (!FSH_FINDDUPHVPB(hVPB, &new_hVPB)) hVPB = new_hVPB;
-  //kprintf("hVPB: 0x%04x\n", hVPB);
-
-  FSH_GETVOLPARM(hVPB, &pvpfsi, &pvpfsd);
-  if (drvletter == cd_drvletter)  // if booting from a harddrive
-  {
-    pvpfsi->vpi_pDCS = &devcaps;
-    pvpfsi->vpi_pVCS = &volchars;
-    pBoot = boot;
-  }
+  FSH_GETVOLPARM(my_hVPB, &pvpfsi, &pvpfsd);
+  pvpfsi->vpi_pDCS = &devcaps;
+  pvpfsi->vpi_pVCS = &volchars;
 
   kprintf("vpi_pDCS = 0x%08lx, vpi_pVCS = 0x%08lx\n",
           pvpfsi->vpi_pDCS,
@@ -816,144 +733,42 @@ int far pascal _loadds MFS_TERM(void)
 
   memset(pvpfsd, 0, sizeof(struct vpfsd));
 
-  //FS_ATTRIBUTE = 1;
-  //c = pvpfsi1->vpi_unit;
-  //d = pvpfsi1->vpi_drive;
-  //memmove(pvpfsi1, pvpfsi, sizeof(struct vpfsi));
-  //pvpfsi1->vpi_unit  = c;
-  //pvpfsi1->vpi_drive = d;
-  //pdpb->dpb_unit  = c;
-  //pdpb->dpb_drive = d;
-  //pdpb->dpb_hVPB  = hVPB1;
-  //strcpy(pvpfsi1->vpi_text, pvpfsi->vpi_text);
-
-  ////pdpb->dpb_drive   = 'c' - 'a';
-  ////pvpfsi->vpi_drive = 'c' - 'a';
+  kprintf("hard disk partition hVPB: 0x%04x\n", my_hVPB);
 
   kprintf("vpi_vid    = 0x%08lx\n", pvpfsi->vpi_vid);
   kprintf("vpi_hDEV   = 0x%08lx\n", pvpfsi->vpi_hDEV);
-  kprintf("vpi_bsize  = 0x%04x\n", pvpfsi->vpi_bsize);
+  kprintf("vpi_bsize  = 0x%04x\n",  pvpfsi->vpi_bsize);
   kprintf("vpi_totsec = 0x%08lx\n", pvpfsi->vpi_totsec);
-  kprintf("vpi_trksec = 0x%04x\n", pvpfsi->vpi_trksec);
-  kprintf("vpi_nhead  = 0x%04x\n", pvpfsi->vpi_nhead);
-  kprintf("vpi_text   = %s\n", pvpfsi->vpi_text);
+  kprintf("vpi_trksec = 0x%04x\n",  pvpfsi->vpi_trksec);
+  kprintf("vpi_nhead  = 0x%04x\n",  pvpfsi->vpi_nhead);
+  kprintf("vpi_text   = %s\n",      pvpfsi->vpi_text);
   kprintf("vpi_pDCS   = 0x%08lx\n", pvpfsi->vpi_pDCS);
   kprintf("vpi_pVCS   = 0x%08lx\n", pvpfsi->vpi_pVCS);
   kprintf("vpi_drive  = %c:\n", 'a' + pvpfsi->vpi_drive);
-  kprintf("vpi_unit   = %01u\n", pvpfsi->vpi_unit);
+  kprintf("vpi_unit   = %01u\n",    pvpfsi->vpi_unit);
 
   if (remotefs)
   {
-    //
-    //if (daemon)
-    //{
-    //
-    //}
-    //else
+    // call the FS_ATTACH entry point of the IFS
+    kprintf("ifs FS_ATTACH()");
+    str[0] = drvletter; str[1] = ':'; str[2] = '\0';
+    rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
+
+    if (rc)
     {
-      // call the FS_ATTACH entry point of the IFS
-      kprintf("ifs FS_ATTACH()");
-      str[0] = drvletter; str[1] = ':'; str[2] = '\0';
-      rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
-
-/*
-    __asm {
-    .386p
-      push  ds
-      push  si
-      push  bx
-
-      xor   ax, ax
-      push  ax            // flag
-      lds   si, p
-      push  ds            // str seg
-      push  si            // str offset
-      lds   si, pvpfsd
-      push  ds            // pvpfsd seg
-      push  si            // pvpfsd offset
-      lds   si, pcdfsd
-      push  ds            // pcdfsd seg
-      push  si            // pcdfsd offset
-      push  ax
-      push  ax
-      push  ax
-      push  ax
-
-      lea   si, p_attach
-      mov   bx, word ptr ss:[si + 4]
-      test  bx, bx
-      jz    @@skip
-      call  fword ptr ss:[si]
-      jmp   @@exit
-    @@skip:
-      call  dword ptr ss:[si]
-
-    @@exit:
-      mov   rc, ax
-
-      pop   bx
-      pop   si
-      pop   ds
+      kprintf(" failed, rc = %u\n", rc);
+      FSH_INTERR(msg_errmount, strlen(msg_errmount));
     }
-*/
-
-      //rc = (*p_attach)(0, str, pvpfsd, pcdfsd, 0, 0);
-      if (rc)
-      {
-        kprintf(" failed, rc = %u\n", rc);
-        FSH_INTERR(msg_errmount, strlen(msg_errmount));
-      }
-      else
-        kprintf(" = %u\n", rc);
-    }
+    else
+      kprintf(" = %u\n", rc);
   }
   else
   {
     // call the FS_MOUNT entry point of the IFS:
     kprintf("ifs FS_MOUNT()");
 
-    rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
+    rc = (*p_mount)(0, pvpfsi, pvpfsd, my_hVPB, boot);
 
-/*
-    __asm {
-    .386p
-      push  ds
-      push  si
-      push  bx
-
-      xor   ax, ax
-      push  ax            // flag
-      lds   si, pvpfsi
-      push  ds            // pvpfsi seg
-      push  si            // pvpfsi offset
-      lds   si, pvpfsd
-      push  ds            // pvpfsd seg
-      push  si            // pvpfsd offset
-      mov   bx, hVPB
-      push  bx            // hVPB
-      lds   si, boot
-      push  ds            // boot seg
-      push  si            // boot offset
-
-      lea   si, p_mount
-      mov   bx, word ptr ss:[si + 4]
-      test  bx, bx
-      jz    @@skip
-      call  fword ptr ss:[si]
-      jmp   @@exit
-    @@skip:
-      call  dword ptr ss:[si]
-
-    @@exit:
-      mov   rc, ax
-
-      pop   bx
-      pop   si
-      pop   ds
-    }
-*/
-
-    //rc = (*p_mount)(0, pvpfsi, pvpfsd, hVPB, boot);
     if (rc)
     {
       kprintf(" failed, rc = %u\n", rc);
@@ -980,8 +795,8 @@ int far pascal _loadds MFS_TERM(void)
       CHECKRC
       s = MAKEP(sel, 0);
 
-      strcpy(str, s);
-      s = str;
+      strcpy(str + 3, s);
+      s = str + 3;
 
       /* skip (...,...) */
       if (*s == '(')
@@ -1028,7 +843,7 @@ int far pascal _loadds MFS_TERM(void)
       // zero out cdfsi buffer
       memset(&cdfsi, 0, sizeof(struct cdfsi));
       memset(&cdfsd, 0, sizeof(struct cdfsd));
-      cdfsi.cdi_hVPB = hVPB;
+      cdfsi.cdi_hVPB = my_hVPB;
 
       memset(buf, 0, sizeof(buf));
       /* create parent dirs for s */
@@ -1056,48 +871,6 @@ int far pascal _loadds MFS_TERM(void)
 
           rc = (*p_mkdir)(pcdfsi, pcdfsd, buf, -1, 0, 0);
 
-/*
-          __asm {
-         .386p
-            push  ds
-            push  si
-            push  bx
-
-            xor   ax, ax
-            lds   si, pcdfsi
-            push  ds          // pcdfsi seg
-            push  si          // pcdfsi offset
-            lds   si, pcdfsd
-            push  ds          // pcdfsd seg
-            push  si          // pcdfsd offset
-            lds   si, p
-            push  ds          // buf seg
-            push  si          // buf offset
-            mov   bx, -1
-            push  bx
-            push  ax
-            push  ax
-            push  ax
-
-            lea   si, p_mkdir
-            mov   bx, word ptr ss:[si + 4]
-            test  bx, bx
-            jz    @@skip
-            call  fword ptr ss:[si]
-            jmp   @@exit
-          @@skip:
-            call  dword ptr ss:[si]
-
-          @@exit:
-            mov   rc, ax
-
-            pop   bx
-            pop   si
-            pop   ds
-          }
-*/
-
-          //rc = (*p_mkdir)(&cdfsi, &cdfsd, buf, -1, 0, 0);
           if (rc)
             kprintf(" failed, rc = %u\n", rc);
           else
@@ -1112,8 +885,8 @@ int far pascal _loadds MFS_TERM(void)
       memset(&cdfsd, 0, sizeof(struct cdfsd));
       memset(&sffsi, 0, sizeof(struct sffsi));
       memset(&sffsd, 0, sizeof(struct sffsd));
-      cdfsi.cdi_hVPB = hVPB;
-      sffsi.sfi_hVPB = hVPB;
+      cdfsi.cdi_hVPB = my_hVPB;
+      sffsi.sfi_hVPB = my_hVPB;
 
       /* determine whether this file is opened by minifsd */
       opened = 0;
@@ -1138,11 +911,11 @@ int far pascal _loadds MFS_TERM(void)
       {
         // zero out cdfsi buffer
         // change hVPB of 'fake bootdrive' to hVPB of a real one
-        save_pos->psffsi->sfi_hVPB = hVPB;
+        save_pos->psffsi->sfi_hVPB = my_hVPB;
 
         strcpy(str, save_pos->pName);
         // change a 'fake bootdrive' drv letter to a CD drv letter
-        if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+        //if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
         kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
                 save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
                 save_pos->usOpenFlag);
@@ -1177,65 +950,6 @@ int far pascal _loadds MFS_TERM(void)
                      0,
                      &flags);
 
-/*
-      __asm {
-      .386p
-        push  ds
-        push  si
-        push  ebx
-
-        xor   ax,  ax
-
-        lds   si,  pcdfsi
-        push  ds                  // pcdfsi seg
-        push  si                  // pcdfsi offset
-        lds   si,  pcdfsd
-        push  ds                  // pcdfsd seg
-        push  si                  // pcdfsd offset
-        lds   si,  p
-        push  ds                  // str seg
-        push  si                  // str offset
-        mov   bx,  -1
-        push  bx                  // iCurDirEnd
-        lds   si,  psffsi
-        push  ds                  // savepos->psffsi seg
-        push  si                  // savepos->psffsi offset
-        lds   si,  psffsd
-        push  ds                  // savepos->psffsd seg
-        push  si                  // savepos->psffsd offset
-
-        mov   ebx, ulOpenMode
-        push  ebx                 // ulOpenMode
-        mov   bx,  usOpenFlag
-        push  bx                  // usOpenFlag
-        lds   si,  r
-        push  ds                  // pusAction seg
-        push  si                  // pusAction offset
-        push  ax                  // 0
-        push  ax                  // 0
-        push  ax                  // 0
-        lds   si,  q
-        push  ds                  // &flags seg
-        push  si                  // &flags offset
-
-        lea   si, p_open
-        mov   bx, word ptr ss:[si + 4]
-        test  bx, bx
-        jz    @@skip
-        call  fword ptr ss:[si]
-        jmp   @@exit
-      @@skip:
-        call  dword ptr ss:[si]
-
-      @@exit:
-        mov   rc, ax
-
-        pop   ebx
-        pop   si
-        pop   ds
-      }
-*/
-
       if (!rc)
         kprintf(" = %u\n", rc);
       else
@@ -1258,45 +972,6 @@ int far pascal _loadds MFS_TERM(void)
       }
 
       rc = (*p_chgfileptr)(psffsi, psffsd, 0, 0, 0);
-
-/*
-      __asm {
-      .386p
-        push  ds
-        push  si
-        push  bx
-
-        xor   ax,  ax
-
-        lds   si, psffsi
-        push  ds                  // psffsi seg
-        push  si                  // psffsi offset
-        lds   si, psffsd
-        push  ds                  // psffsd seg
-        push  si                  // psffsd offset
-
-        push  ax
-        push  ax
-        push  ax
-        push  ax
-
-        lea   si, p_chgfileptr
-        mov   bx, word ptr ss:[si + 4]
-        test  bx, bx
-        jz    @@skip
-        call  fword ptr ss:[si]
-        jmp   @@exit
-      @@skip:
-        call  dword ptr ss:[si]
-
-      @@exit:
-        mov   rc, ax
-
-        pop   bx
-        pop   si
-        pop   ds
-      }
-*/
 
       if (rc)
       {
@@ -1327,47 +1002,6 @@ int far pascal _loadds MFS_TERM(void)
 
         rc = (*p_write)(psffsi, psffsd, data, &l, 0);
 
-/*
-        __asm {
-        .386p
-          push  ds
-          push  si
-          push  bx
-
-          xor   ax,  ax
-
-          lds   si, psffsi
-          push  ds                  // psffsi seg
-          push  si                  // psffsi offset
-          lds   si, psffsd
-          push  ds                  // psffsd seg
-          push  si                  // psffsd offset
-          lds   si, data
-          push  ds                  // data seg
-          push  si                  // data offset
-          lds   si, p
-          push  ds                  // &l seg
-          push  si                  // &l offset
-          push  ax
-
-          lea   si, p_write
-          mov   bx, word ptr ss:[si + 4]
-          test  bx, bx
-          jz    @@skip
-          call  fword ptr ss:[si]
-          jmp   @@exit
-        @@skip:
-          call  dword ptr ss:[si]
-
-        @@exit:
-          mov   rc, ax
-
-          pop   bx
-          pop   si
-          pop   ds
-        }
-*/
-
         if (rc)
         {
           kprintf(" failed, rc = %u\n", rc);
@@ -1392,48 +1026,11 @@ int far pascal _loadds MFS_TERM(void)
       if (!opened)
       {
         kprintf("ifs FS_CLOSE()");
-        //rc = (*p_close)(0, 0, &sffsi, &sffsd);
 
         psffsi = &sffsi;
         psffsd = &sffsd;
 
         rc = (*p_close)(0, 0, psffsi, psffsd);
-
-/*
-        __asm {
-        .386p
-          push  ds
-          push  si
-          push  bx
-
-          xor   ax,  ax
-
-          push  ax
-          push  ax
-          lds   si, psffsi
-          push  ds                  // &sffsi seg
-          push  si                  // &sffsi offset
-          lds   si, psffsd
-          push  ds                  // &sffsd seg
-          push  si                  // &sffsd offset
-
-          lea   si, p_close
-          mov   bx, word ptr ss:[si + 4]
-          test  bx, bx
-          jz    @@skip
-          call  fword ptr ss:[si]
-          jmp   @@exit
-        @@skip:
-          call  dword ptr ss:[si]
-
-        @@exit:
-          mov   rc, ax
-
-          pop   bx
-          pop   si
-          pop   ds
-        }
-*/
 
         if (rc)
         {
@@ -1459,13 +1056,13 @@ int far pascal _loadds MFS_TERM(void)
         save_pos = save_area + save_index;
         // zero out cdfsi buffer
         memset(&cdfsi, 0, sizeof(struct cdfsi));
-        cdfsi.cdi_hVPB = hVPB;
+        cdfsi.cdi_hVPB = my_hVPB;
         // change hVPB of 'fake bootdrive' to hVPB of a real one
-        save_pos->psffsi->sfi_hVPB = hVPB;
+        save_pos->psffsi->sfi_hVPB = my_hVPB;
 
         strcpy(str, save_pos->pName);
         // change a 'fake bootdrive' drv letter to a CD drv letter
-        if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
+        //if (cd_drvletter && *str == drvletter) *str = cd_drvletter;
 
         kprintf("ulOpenMode: 0x%08lx, usOpenFlag: 0x%04x\n",
                 save_pos->ulOpenMode, // & ~(OPEN_ACCESS_READWRITE | OPEN_ACCESS_WRITEONLY),
@@ -1485,66 +1082,6 @@ int far pascal _loadds MFS_TERM(void)
                        0,
                        0,
                        &flags);
-
-/*
-        __asm {
-        .386p
-          push  ds
-          push  si
-          push  ebx
-
-          xor   ax,  ax
-
-          lds   si,  pcdfsi
-          push  ds                  // pcdfsi seg
-          push  si                  // pcdfsi offset
-          lds   si,  pcdfsd
-          push  ds                  // pcdfsd seg
-          push  si                  // pcdfsd offset
-
-          lds   si,  p
-          push  ds                  // str seg
-          push  si                  // str offset
-          mov   bx,  -1
-          push  bx                  // iCurDirEnd
-          lds   si,  psffsi
-          push  ds                  // savepos->psffsi seg
-          push  si                  // savepos->psffsi offset
-          lds   si,  psffsd
-          push  ds                  // savepos->psffsd seg
-          push  si                  // savepos->psffsd offset
-
-          mov   ebx, ulOpenMode
-          push  ebx                 // ulOpenMode
-          mov   bx, usOpenFlag
-          push  bx                  // usOpenFlag
-          lds   si, r
-          push  ds                  // pusAction seg
-          push  si                  // pusAction offset
-          push  ax                  // 0
-          push  ax                  // 0
-          push  ax                  // 0
-          lds   si, q
-          push  ds                  // &flags seg
-          push  si                  // &flags offset
-
-          lea   si, p_open
-          mov   bx, word ptr ss:[si + 4]
-          test  bx, bx
-          jz    @@skip
-          call  fword ptr ss:[si]
-          jmp   @@exit
-        @@skip:
-          call  dword ptr ss:[si]
-
-        @@exit:
-          mov   rc, ax
-
-          pop   ebx
-          pop   si
-          pop   ds
-        }
-*/
 
         if (!rc)
           kprintf(" = %u\n", rc);

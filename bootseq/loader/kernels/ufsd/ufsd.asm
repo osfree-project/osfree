@@ -28,7 +28,7 @@ public _debug
 
 public _small_code_
 
-;extrn  ldr_stack    :dword
+extrn  _drvletter   :byte
 extrn  callback     :dword
 extrn  idt_initted  :byte
 extrn  kprintf_     :near
@@ -52,7 +52,7 @@ include loader.inc
 include bpb.inc
 
 BASE1              equ     REL1_BASE - 0x10000
-_16BIT_SIZE        equ     0x800
+_16BIT_SIZE        equ     0x840
 VIDEO_BUF          equ     0xb8000
 
 _TEXT16  segment dword public 'CODE' use16
@@ -100,40 +100,6 @@ realmode_init:
                    mov  ax, ss
                    mov  word ptr cs:preldr_ss_sp + 2, ax
 
-                   ;push ebx
-
-                   ;mov  al, '|'
-                   ;call com_outchar
-
-                   ;xor  ax, ax
-                   ;mov  gs, ax
-                   ;mov  bx, 1f41h
-                   ;mov  al, byte ptr gs:[bx]
-                   ;call com_outchar
-
-                   ;mov  al, ';'
-                   ;call com_outchar
-
-                   ;push cx
-
-                   ;mov  ebx, dword ptr cs:preldr_ss_sp
-                   ;mov  cx, 8
-;lp1:
-                   ;mov  al, bl
-                   ;and  al, 0fh
-                   ;add  al, 30h
-                   ;call com_outchar
-                   ;ror  ebx, 4
-
-                   ;loop lp1
-
-                   ;pop  cx
-
-                   ;mov  al, '|'
-                   ;call com_outchar
-
-                   ;pop  ebx
-
                    ;
                    ; pass structures to os2ldr
                    ;
@@ -160,7 +126,7 @@ realmode_init:
                    push OS2LDR_SEG
                    push 0
 
-                   pusha
+                   pushad
 
                    mov    al, '*'
                    xor    bx, bx
@@ -168,7 +134,7 @@ realmode_init:
 
                    int    10h
 
-                   popa
+                   popad
 
                    retf
 
@@ -240,12 +206,6 @@ entry0:
 entry:
                    cmp     eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne     stop                                        ; is present in eax
-
-                   ; setup stack
-                   ;mov     eax, offset _TEXT:ldr_stack
-                   ;mov     [eax], esp
-
-                   ;mov     esp, PM_STACK_INIT
 
                    mov     ds:m, ebx                                   ; save multiboot structure address
 
@@ -388,7 +348,7 @@ set_gdt:
 
                    mov  [ebx][6*8].ds_acclo, 0x9e
                    mov  [ebx][7*8].ds_acclo, 0x93
-                   
+
                    mov  [ebx][6*8].ds_acchi, 0x0
                    mov  [ebx][7*8].ds_acchi, 0x0
 

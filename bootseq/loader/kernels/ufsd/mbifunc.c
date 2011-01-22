@@ -72,15 +72,8 @@ ufs_open (char *filename)
   char buf2[0x100];
   char *p, *q, *l;
   int  n;
-  int  i;
 
   kprintf("**** ufs_open(\"%s\") = ", filename);
-
-  if (!strcmp(filename, "OS2LDR.MSG"))
-  {
-    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-    kprintf("\n\n\n");
-  }
 
   memset(buf1, 0, sizeof(buf1));
   memset(buf2, 0, sizeof(buf2));
@@ -129,34 +122,22 @@ ufs_open (char *filename)
 
     // we have gone through all mods, and no given filename
     if (n == mods_count)
-    {
-      kprintf("0\n");
-      for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-      kprintf("\n");
       return 0;
-    }
 
     // filename found
     filepos  = 0;
     filemax  = mod->mod_end - mod->mod_start;
     fileaddr = mod->mod_start;
 
-    kprintf("1\n");
-    for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-    kprintf("\n");
     return 1;
   }
 
-  kprintf("0\n");
-  for (i = 0; i < 8 * 10; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
   return 0;
 }
 
 int
 ufs_read (char *buf, int len)
 {
-  int i;
   kprintf("**** ufs_read(0x%08x, %ld) = ", buf, len);
 
   if (fileaddr && buf && len)
@@ -166,14 +147,9 @@ ufs_read (char *buf, int len)
     memmove(buf, (char *)fileaddr + filepos, len);
 
     kprintf("%lu\n", len);
-    for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-    kprintf("\n");
+
     return len;
   }
-
-  kprintf("0\n");
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
 
   return 0;
 }
@@ -181,15 +157,12 @@ ufs_read (char *buf, int len)
 int
 ufs_seek (int offset)
 {
-  int i;
   kprintf("**** ufs_seek(\"%ld\")\n", offset);
 
   if (offset > filemax || offset < 0)
     return -1;
 
   filepos = offset;
-  //for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1386 + i)));
-  //kprintf("\n");
 
   return offset;
 }
@@ -197,21 +170,11 @@ ufs_seek (int offset)
 void
 ufs_close (void)
 {
-  int i;
   kprintf("**** ufs_close()\n");
-
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
 }
 
 void
 ufs_term (void)
 {
-  int i;
   kprintf("**** ufs_term()\n");
-
-  for (i = 0; i < 0x40; i++) kprintf("0x%02x,", *((char *)(0x7c0 + 0x3fa + 0x1426 + i)));
-  kprintf("\n");
-
-  //memmove((char *)0x7c0, (char *)mfs_start, mfs_len);
 }
