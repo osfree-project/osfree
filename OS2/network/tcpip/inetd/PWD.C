@@ -135,7 +135,7 @@ int getuid(void)
   if (!pw) return 0;
 
   return pw->pw_uid;
-}  
+}
 
 int setpwnam(const char *name, const char *crypted)
 {
@@ -171,7 +171,7 @@ int setpwnam(const char *name, const char *crypted)
     if (strcmp(name, pw->pw_name) == 0)
     {
       sprintf(line, "%s:%s:%d:%d:%s:%s:%s\n", pw->pw_name, crypted,
-	      pw->pw_uid, pw->pw_gid, pw->pw_gecos, pw->pw_dir, pw->pw_shell);
+              pw->pw_uid, pw->pw_gid, pw->pw_gecos, pw->pw_dir, pw->pw_shell);
       found=1;
     }
 

@@ -488,6 +488,8 @@ callback(unsigned long addr,
   int i;
   char *cfg, *p;
   struct mod_list *mod;
+  struct AddrRangeDesc *pp;
+  unsigned long sz;
 
   kprintf("callback() started\r\n");
 
@@ -561,6 +563,23 @@ callback(unsigned long addr,
 
   // copy mFSD at 0x7c0
   memmove((char *)0x7c0, (char *)&mfsd_start, mfsd_size);
+
+  sz = m->mmap_length;
+  pp = (struct AddrRangeDesc *)(m->mmap_addr);
+  i = 0;
+
+  kprintf("The memory map: \n");
+  kprintf("mmap_addr=0x%x, mmap_length=%u\n", pp, sz);
+
+  while (sz > 0)
+  {
+    kprintf("%u. addr=0x%x:%x, len=0x%x:%x\n", i,
+            *((unsigned long *)&(pp->BaseAddr)+1), (unsigned long)(pp->BaseAddr),
+            *((unsigned long *)&(pp->Length)+1),   (unsigned long)(pp->Length));
+    sz -= (pp->size + 4);
+    pp = (struct AddrRangeDesc *)(((char *)pp) + pp->size + 4);
+    i++;
+  }
 
   cls ();
 

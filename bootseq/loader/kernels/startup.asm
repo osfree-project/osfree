@@ -19,19 +19,19 @@ extrn cmain_          :near
 extrn exe_end         :near
 extrn bss_end         :near
 extrn kprintf_        :near
-
-public rel_start
-public ufsd_start
-public ufsd_size
-public mfsd_start
-public mfsd_size
+extrn call_rm         :near
+extrn mfsd_size       :dword
+extrn gdtsrc          :byte
+extrn gdtdesc         :fword
 
 public stop
 public base
 
 public m
 
-_16BIT_SIZE equ 100h                                                 ; 16-bit part size
+public getlowmem_
+
+_16BIT_SIZE equ 600h                                                 ; 16-bit part size
 
 ;
 ; segments ordering
@@ -122,6 +122,11 @@ _mbhdr_ext      multiboot_header_ext <_magic,_flags_ext,_checksum_ext,offset _TE
 
                    org     start + 100h
 real_start:
+getlowmem_rm:
+                   int  12h
+                   mov  ebx, eax
+
+                   retf
 
 _TEXT16  ends
 
@@ -131,32 +136,12 @@ _TEXT    segment dword public 'CODE'  use32
 entry0:
                    ; start of 32-bit part
                    org     BASE1 + _16BIT_SIZE + 100h
-ufsd_start:
-; here uFSD image begins
-include ufsd.inc
-; here it ends
-; its size
-ufsd_size          dd $ - ufsd_start
-
-mfsd_start:
-; here mFSD image begins
-include mfsd.inc
-; here it ends
-; its size
-mfsd_size          dd $ - mfsd_start
-
-rel_start:
-; here uFSD reloc. info begins
-include urel.inc
-; here it ends
-; its size
-rel_size           dd $ - rel_start
 
                    ;
                    ; 32-bit entry point. Invokes by multiboot
                    ; loader from multiboot header
                    ;
-
+.386p
 entry:
                    cmp   eax, MULTIBOOT_VALID                        ; check if multiboot magic (0x2badb002)
                    jne   stop                                        ; is present in eax
@@ -168,8 +153,10 @@ entry:
 
                    push    eax
 
+                   call    set_gdt
+
                    call    cmain_
-.386p
+
                    ; pass mfsd_size to uFSD emulator
                    mov     esi, eax                                  ; uFSD copying address
                    add     esi, 0x20                                 ; mfs_len address in uFSD emulator
@@ -219,6 +206,75 @@ entry:
                    hlt                                               ; machine
                    jmp     $                                         ;
 
+                   ;
+                   ; get lower memory
+                   ;
+getlowmem_:
+                   mov  eax, REL1_BASE
+                   shr  eax, 4
+                   push ax
+                   mov  eax, offset _TEXT:getlowmem_rm
+                   push ax
+                   call call_rm
+                   add  esp, 4
+                   mov  eax, ebx
+
+                   ret
+
+set_gdt:
+                   ; fix gdt descriptors base
+                   ;mov  ebx, GDT_ADDR
+                   mov  ebx, offset _TEXT:gdtsrc
+                   mov  eax, REL1_BASE
+                   ; FLAT DS and CS
+                   mov  [ebx][1*8].ds_limit, 0xffff
+                   mov  [ebx][2*8].ds_limit, 0xffff
+
+                   mov  [ebx][1*8].ds_baselo, 0
+                   mov  [ebx][2*8].ds_baselo, 0
+
+                   mov  [ebx][1*8].ds_basehi1, 0
+                   mov  [ebx][2*8].ds_basehi1, 0
+
+                   mov  [ebx][1*8].ds_basehi2, 0
+                   mov  [ebx][2*8].ds_basehi2, 0
+
+                   mov  [ebx][1*8].ds_acclo, 0x9a
+                   mov  [ebx][2*8].ds_acclo, 0x93
+
+                   mov  [ebx][1*8].ds_acchi, 0xcf
+                   mov  [ebx][2*8].ds_acchi, 0xcf
+
+                   ; pseudo RM DS and CS
+                   mov  [ebx][8*8].ds_limit, 0xffff
+                   mov  [ebx][9*8].ds_limit, 0xffff
+
+                   mov  [ebx][8*8].ds_baselo, ax
+                   mov  [ebx][9*8].ds_baselo, ax
+                   ror  eax, 16
+                   mov  [ebx][8*8].ds_basehi1, al
+                   mov  [ebx][9*8].ds_basehi1, al
+                   ror  eax, 8
+                   mov  [ebx][8*8].ds_basehi2, al
+                   mov  [ebx][9*8].ds_basehi2, al
+
+                   mov  [ebx][8*8].ds_acclo, 0x9e
+                   mov  [ebx][9*8].ds_acclo, 0x93
+
+                   mov  [ebx][8*8].ds_acchi, 0
+                   mov  [ebx][9*8].ds_acchi, 0
+
+                   ; fill GDT descriptor
+                   ;mov  eax, GDT_ADDR
+                   mov  eax, ebx
+                   mov  ebx, offset _TEXT:gdtdesc
+                   mov  [ebx].g_base, eax
+                   mov  [ebx].g_limit, 10*8 - 1
+
+                   lgdt fword ptr [ebx]
+
+                   ret
+
 stop:
                    cld
                    lea     esi, errmsg
@@ -246,7 +302,6 @@ m                  dd   ?
 mid_msg            db   "cmain() finished.",10
                    db   "mFSD size: %lu, uFSD base: 0x%lx",10,0
 pass_msg           db   "passing control to uFSD @ 0x%x",10,10,0
-
 _DATA    ends
 
          end entry

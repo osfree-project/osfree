@@ -170,6 +170,9 @@ char far *fileaddr;
 // our command line
 char cmdline[0x400];
 
+// VectorRIPL
+char VectorRIPL[9] = "IBMTRLAN";
+
 #pragma aux mbi0             "*"
 #pragma aux FS_NAME          "*"
 #pragma aux FlatR0CS         "*"
@@ -380,6 +383,9 @@ int far pascal _loadds MFS_INIT(
       FS_ATTRIBUTE  |= 0x1;
     }
 
+    // VectorRIPL
+    *vectorripl = (struct ripl far *)VectorRIPL;
+
     // init serial port
     serial_init(port, speed, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
 
@@ -540,6 +546,7 @@ int far pascal _loadds MFS_READ(
     unsigned short far *length   /* length       */
 )
 {
+  unsigned long chunk;
   kprintf("**** MFS_READ(0x%04x:0x%04x, ",
           (unsigned long)data >> 16,
           (unsigned long)data & 0xffff);
@@ -547,8 +554,14 @@ int far pascal _loadds MFS_READ(
 
   if (fileaddr && data && *length)
   {
-    memmove(data, fileaddr, *length);
-    filepos += *length;
+    chunk = filemax - filepos;
+
+    if (chunk > *length)
+      chunk = *length;
+
+    memmove(data, fileaddr, chunk);
+    filepos += chunk;
+    *length = chunk;
   }
   else
     return 1;

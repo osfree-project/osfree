@@ -34,7 +34,7 @@ chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                    $(p)chainc$(e) $(p)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)setdev$(e) &
                    $(p)bios$(e)
 
-bootos2_OBJS     = $(p)startup$(e) $(p)bootos2$(e) $(p)cfgsys$(e) $(p)serial$(e) &
+bootos2_OBJS     = $(p)startup$(e) $(p)modesw-npo$(e) $(p)bootos2$(e) $(p)os2inc$(e) $(p)cfgsys$(e) $(p)serial$(e) &
                    $(p)vsprintf$(e) $(p)istable$(e) $(p)edit$(e) $(p)cfgparsr$(e) &
                    $(p)cmdline$(e)
 
@@ -113,6 +113,9 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .asm: $(MYDIR)..$(SEP)preldr
 
 .inc: $(PATH)
+
+$(PATH)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
+ $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
  $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@

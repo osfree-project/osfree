@@ -45,3 +45,15 @@ APIRET APIENTRY DosSetVerify(BOOL32);
 APIRET APIENTRY DosShutdown(ULONG);
 #endif
 
+APIRET APIENTRY  DosClose(HFILE hFile)
+{
+  return KalClose(hFile);
+}
+
+APIRET APIENTRY  DosQueryHType(HFILE hFile,
+                               PULONG pType,
+                               PULONG pAttr)
+{
+  return KalQueryHType(hFile, pType, pAttr);
+}
+

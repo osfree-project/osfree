@@ -12,7 +12,7 @@
 #
 # filesystems list with path (p) and extension (e) placeholder
 #
-kernels          = $(p)mbi$(e) $(p)zip$(e)
+kernels          = $(p)mbi$(e)
 
 # filesys without $(p) and $(e):
 
@@ -21,14 +21,11 @@ e                =
 bbx              = $+$(kernels)$-
 
 mbi_OBJS         = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)mbifunc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
-                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) &
-                   $(p)cmdline$(e) $(p)term$(e) $(p)console$(e) $(p)consolec$(e) $(p)bios$(e)
-zip_OBJS         = $(p)ufsd$(e) $(p)drv$(e) $(p)ufsdc$(e) $(p)zipfunc$(e) $(p)filesys$(e) $(p)modesw$(e) $(p)idt$(e) &
-                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) &
-                   $(p)cmdline$(e) $(p)term$(e) $(p)console$(e) $(p)consolec$(e) $(p)bios$(e)
+                   $(p)vsprintf$(e) $(p)serial$(e) $(p)istable$(e) $(p)biosdisk$(e) $(p)rawread$(e) $(p)cmdline$(e) $(p)term$(e) &
+                   $(p)console$(e) $(p)consolec$(e) $(p)bios$(e) $(p)pxe$(e) $(p)asmcode$(e) $(p)undi$(e)
 common_OBJS      = $(p)end$(e)
 
-ADD_COPT   = -dOS2 -dMICROFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
+ADD_COPT   = -dOS2 -dMICROFSD -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)netboot
 ADD_ASMOPT = -dOS2 -dMICROFSD -dTERM_CONSOLE -i=$(PATH) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include
 
 #OBJS             = $(ufsd_OBJS) $(common_OBJS)
@@ -74,4 +71,11 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .asm:   $(MYDIR)..$(SEP)..
 .c:     $(MYDIR)..$(SEP)..
 .c:     $(MYDIR)..
+.c:     $(MYDIR)netboot
+.asm:   $(MYDIR)netboot
 
+$(PATH)asmcode.$(O): $(MYDIR)..$(SEP)..$(SEP)preldr$(SEP)asmcode.asm
+ $(ASM) -dSTAGE1_5 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+
+$(PATH)asmcode.$(SO): $(MYDIR)..$(SEP)..$(SEP)preldr$(SEP)asmcode.asm
+ $(ASM) -dSTAGE1_5 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@

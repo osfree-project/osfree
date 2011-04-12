@@ -1,37 +1,17 @@
-# $Id: MAKEFILE,v 1.3 2004/08/16 06:26:36 prokushev Exp $
+#
+# A Makefile for inetd
+# (c) osFree project,
+# author, date
+#
 
-ROOT=..\..\..\..\..
-
-DIR = $(ROOT)\bin\os2
 PROJ = inetd
-DESC = PING utility
-OBJS = $(PROJ).obj FIX_ENV.obj GETOPT.obj GETOPT1.obj PWD.obj SYSLOG.obj
+DESC = INETD superserver
+#defines object file names in format objname.$(O)
+srcfiles = $(p)inetd$(e) $(p)fix_env$(e) $(p)getopt$(e) $(p)pwd$(e) $(p)syslog$(e)
+# defines additional options for C compiler
+ADD_COPT = -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_LINKOPT = lib os2386, tcpip32
+STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+STACKSIZE=65535
 
-ADD_COPT = -i=..\include
-ADD_LIB = cmd_shared.lib,all_shared.lib,tcpip32.lib
-
-!include $(ROOT)\makefile.inc
-
-all: $(DIR)\$(PROJ).exe $(DIR)\$(PROJ).sym
-
-$(DIR)\$(PROJ).exe: $(OBJS)
- %create $^&.lnk
- %append $^&.lnk NAME $^@ OPTION MODNAME=$^&
- %append $^&.lnk FORMAT OS2 LX PMCOMPATIBLE
- %append $^&.lnk OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
- %append $^&.lnk OPTION STACK=65536
- %append $^&.lnk OPTION MAP=$^&.wmp
- %append $^&.lnk LIBRARY $(LINKLIB)
- @for %i in ($(OBJS)) do @%append $^&.lnk FILE %i
- $(SAY) Linking $^@
- @$(LINKER) $(LINKOPT) @$^&.lnk $(LOG)
-
-# Clean all
-
-clean: .symbolic
- -@del *.obj $(LOG)
- -@del *.sbr $(LOG)
- -@del *.map $(LOG)
- -@del *.err $(LOG)
- -@del *.wmp $(LOG)
- -@del *.lnk $(LOG)
+!include $(%ROOT)/mk/appsos2.mk

@@ -13,6 +13,7 @@ public realmode_init
 
 public mfs_start
 public mfs_len
+public ufs_len
 
 public boot_flags
 public boot_drive
@@ -52,7 +53,7 @@ include loader.inc
 include bpb.inc
 
 BASE1              equ     REL1_BASE - 0x10000
-_16BIT_SIZE        equ     0x840
+_16BIT_SIZE        equ     0x960    ; 0x840
 VIDEO_BUF          equ     0xb8000
 
 _TEXT16  segment dword public 'CODE' use16
@@ -78,6 +79,7 @@ mfs_len            dd      ?
 port               dw      0
 _debug             db      0
 force_lba          db      0
+ufs_len            dd      0
 
                    ;
                    ; end of header

@@ -519,6 +519,7 @@ APIRET APIENTRY  DosQueryPathInfo(PCSZ    pszPathName,
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
+/*-----
 APIRET APIENTRY  DosQueryHType(HFILE hFile,
                                PULONG pType,
                                PULONG pAttr)
@@ -527,6 +528,7 @@ APIRET APIENTRY  DosQueryHType(HFILE hFile,
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+-----*/
 
 APIRET APIENTRY  DosQueryVerify(PBOOL32 pBool)
 {
@@ -776,13 +778,14 @@ APIRET APIENTRY  DosResetBuffer(HFILE hFile)
   return 0; }
 
 
-
+/*-----
 APIRET APIENTRY  DosClose(HFILE hFile)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+-----*/
 
 APIRET APIENTRY  DosDelete(PCSZ  pszFile)
 {
@@ -973,12 +976,14 @@ APIRET APIENTRY      DosStopTimer(ULONG tmr)
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
+/*-----
 APIRET APIENTRY      DosQueryCp(void)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+-------*/
 
 APIRET APIENTRY   DosSetDateTime(PDATETIME pdt)
 {
@@ -1033,6 +1038,7 @@ APIRET  APIENTRY DosAliasMem(PVOID pb,
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
+/*-----
 APIRET APIENTRY  DosAllocMem(PPVOID ppb,
                              ULONG cb,
                              ULONG flag)
@@ -1041,6 +1047,7 @@ APIRET APIENTRY  DosAllocMem(PPVOID ppb,
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+-----*/
 
 APIRET APIENTRY  DosAllocSharedMem(PPVOID ppb,
                                    PCSZ  pszName,
@@ -1078,12 +1085,14 @@ APIRET APIENTRY  DosGiveSharedMem(PVOID pb,
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
+/*----
 APIRET APIENTRY  DosFreeMem(PVOID pb)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+----*/
 
 APIRET APIENTRY  DosSetMem(PVOID pb,
                            ULONG cb,
@@ -1720,12 +1729,14 @@ APIRET APIENTRY      DosQueryCtryInfo(void)
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
 
+/*-----
 APIRET APIENTRY      DosQueryDBCSEnv(void)
 {
   ULONG ulActual;
   PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
   return 0; }
+------*/
 
 APIRET APIENTRY      DosMapCase(void)
 {

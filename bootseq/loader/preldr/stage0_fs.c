@@ -9,6 +9,7 @@
 #include <bpb.h>
 
 #include <shared.h>
+//#include <mb_info.h>
 
 #include "term.h"
 #include "fsys.h"
@@ -36,6 +37,8 @@ extern unsigned long sector_size;
 extern struct geometry buf_geom;
 
 #ifndef STAGE1_5
+
+extern struct multiboot_info *m = 0;
 
 extern int do_completion;
 
@@ -1727,67 +1730,70 @@ void set_ftable (int which_ldr)
     }
   }
 
-  /* set boot flags */
-  boot_flags = BOOTFLAG_MICROFSD;
+  if (which_ldr < 2)
+  {
+    /* set boot flags */
+    boot_flags = BOOTFLAG_MICROFSD;
 
-  files = 2;
-  if (*fn) { // if minifsd present
-    files++;
-    boot_flags |=  BOOTFLAG_MINIFSD;
-  }
+    files = 2;
+    if (*fn) { // if minifsd present
+      files++;
+      boot_flags |=  BOOTFLAG_MINIFSD;
+    }
 
-  /* set filetable */
-  ft.ft_cfiles = files;
-  ft.ft_ldrseg = ldrbase >> 4;
-  ft.ft_ldrlen = ldrlen; // 0x3800;
-  ft.ft_museg  = (scratchaddr) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
+    /* set filetable */
+    ft.ft_cfiles = files;
+    ft.ft_ldrseg = ldrbase >> 4;
+    ft.ft_ldrlen = ldrlen; // 0x3800;
+    ft.ft_museg  = (scratchaddr) >> 4; // 0x8500; -- OS/2 2.0       // 0x8600; -- OS/2 2.1
                                          // 0x8400; -- Merlin & Warp3 // 0x8100; -- Aurora
-  ft.ft_mulen  = 0x1000 + 0x4e00 + 0x2000 + 0x2000; // 0x10000;     // It is empirically found maximal value
-  ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
-  ft.ft_mfslen = mfslen;  // 0x95f0;
-  ft.ft_ripseg = 0; // 0x800;   // end of mfs
-  ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
+    ft.ft_mulen  = 0x1000 + 0x4e00 + 0x2000 + 0x2000; // 0x10000;     // It is empirically found maximal value
+    ft.ft_mfsseg = mfsbase >> 4;    // 0x7c;
+    ft.ft_mfslen = mfslen;  // 0x95f0;
+    ft.ft_ripseg = 0; // 0x800;   // end of mfs
+    ft.ft_riplen = 0; // 62*1024 - mfslen; //0x3084;  // max == 62k - mfslen
 
-  ft.ft_muOpen.seg       = (stage0base) >> 4;
-  ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
+    ft.ft_muOpen.seg       = (stage0base) >> 4;
+    ft.ft_muOpen.off       = (unsigned short)(&mu_Open);
 
-  ft.ft_muRead.seg       = (stage0base) >> 4;
-  ft.ft_muRead.off       = (unsigned short)(&mu_Read);
+    ft.ft_muRead.seg       = (stage0base) >> 4;
+    ft.ft_muRead.off       = (unsigned short)(&mu_Read);
 
-  ft.ft_muClose.seg      = (stage0base) >> 4;
-  ft.ft_muClose.off      = (unsigned short)(&mu_Close);
+    ft.ft_muClose.seg      = (stage0base) >> 4;
+    ft.ft_muClose.off      = (unsigned short)(&mu_Close);
 
-  ft.ft_muTerminate.seg  = (stage0base) >> 4;
-  ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
+    ft.ft_muTerminate.seg  = (stage0base) >> 4;
+    ft.ft_muTerminate.off  = (unsigned short)(&mu_Terminate);
 
-  /* set BPB */
-  bpb = (bios_parameters_block *)(stage0base - 0x200 + 0xb);
+    /* set BPB */
+    bpb = (bios_parameters_block *)(stage0base - 0x200 + 0xb);
 
-  if (boot_drive == cdrom_drive) { // booting from CDROM drive
-    // fill fake BPB
-    grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
+    if (boot_drive == cdrom_drive) { // booting from CDROM drive
+      // fill fake BPB
+      grub_memset((void *)bpb, 0, sizeof(bios_parameters_block));
 
-    bpb->sect_size  = 0x800;
-    bpb->clus_size  = 0x40;
-    bpb->n_sect_ext = geom.total_sectors; // 0x30d;
-    bpb->media_desc = 0xf8;
-    bpb->track_size = 0x3f;
-    bpb->heads_cnt  = 0xff;
-    bpb->marker     = 0x29;
+      bpb->sect_size  = 0x800;
+      bpb->clus_size  = 0x40;
+      bpb->n_sect_ext = geom.total_sectors; // 0x30d;
+      bpb->media_desc = 0xf8;
+      bpb->track_size = 0x3f;
+      bpb->heads_cnt  = 0xff;
+      bpb->marker     = 0x29;
+    }
+
+    bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
+    bpb->log_drive   = conf.driveletter; // 0x92;
+    bpb->hidden_secs = part_start;
+
+    /* copy filetable down to 1st megabyte */
+    old_ft_addr = (char *)(&ft) - (PRELDR_BASE - stage0base);
+    memmove(old_ft_addr, &ft, sizeof(FileTable));
+
+    //bpb->disk_num    = 0x3;
+    //bpb->log_drive   = 0x48;
+    //bpb->marker      = 0x41;
+    //bpb->vol_ser_no  = 0x00000082;
   }
-
-  bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
-  bpb->log_drive   = conf.driveletter; // 0x92;
-  bpb->hidden_secs = part_start;
-
-  /* copy filetable down to 1st megabyte */
-  old_ft_addr = (char *)(&ft) - (PRELDR_BASE - stage0base);
-  memmove(old_ft_addr, &ft, sizeof(FileTable));
-
-  //bpb->disk_num    = 0x3;
-  //bpb->log_drive   = 0x48;
-  //bpb->marker      = 0x41;
-  //bpb->vol_ser_no  = 0x00000082;
 }
 
 #if 1
@@ -1862,8 +1868,11 @@ void init(void)
   unsigned long ldrlen = 0, mfslen = 0;
   unsigned long ldrbase;
   unsigned long base;
-  int i, k, l;
-  int key;
+  int  i, k, l;
+  int  key;
+  char ufsd16;
+  unsigned long bpb_ptr_save;
+  unsigned long filetab_ptr_save;
 #endif
   extern char preldr[];
   int    rc;
@@ -1889,6 +1898,13 @@ void init(void)
   saved_drive = boot_drive;
   saved_partition = install_partition;
 
+  //printf("boot_device=0x%x\n", m->boot_device);
+  //
+  //__asm {
+  //  cli
+  //  hlt
+  //}
+
 #ifndef STAGE1_5
   /* Set cdrom drive.   */
   /* Get the geometry.  */
@@ -1912,17 +1928,25 @@ void init(void)
   // zero-out FS buffer
   memset((char *)FSYS_BUF, 0, 0x8000);
 
+  // 16-bit uFSD flag
+  ufsd16 = (filetab_ptr) ? 1 : 0;
+
   /* call uFSD init (set linkage) */
-  if (!filetab_ptr)
-#endif
+  if (!ufsd16)
   {
+#endif
     fsd_init = (void *)(EXT_BUF_BASE); // uFSD base address
     fsd_init(l1);
-  }
 #ifndef STAGE1_5
+  }
+
+  filetab_ptr_save = filetab_ptr;
+  bpb_ptr_save = bpb_ptr;
+
+  //printf("filetab_ptr=0x%x, bpb_ptr=0x%x\n", filetab_ptr, bpb_ptr);
 
   /* build config filename */
-  if (!filetab_ptr)
+  if (!ufsd16)
   {
     rc = grub_strlen(preldr_path);
     grub_strcpy(cfg, preldr_path);
@@ -1932,7 +1956,7 @@ void init(void)
 
   grub_strcpy(cfg + rc, cfg_file);
 
-  if (filetab_ptr &&
+  if (ufsd16 &&
       (boot_drive != cdrom_drive) &&
       (boot_drive >= 0x80))
   {
@@ -1952,6 +1976,8 @@ void init(void)
     panic("Load error!", "");
   }
 
+  // ...
+
   if (conf.root)
   {
     save[0] = *preldr_path;
@@ -1962,7 +1988,7 @@ void init(void)
     *term_dir    = '\0';
   }
 
-  if (conf.mufsd.microfsd && filetab_ptr)
+  if (conf.mufsd.microfsd && ufsd16)
   {
     current_drive = boot_drive;
     current_partition = 0xffffff;
@@ -1996,7 +2022,7 @@ void init(void)
   q = (unsigned long *)(EXT_BUF_BASE + 0xd);
   strcpy(install_filesys, (char *)(*q));
 
-  if (!filetab_ptr)
+  if (!ufsd16)
   {
 
     /* move uFSD */
@@ -2076,14 +2102,23 @@ void init(void)
       add  esp, 4
     }
   }
+  if (ufsd16)
+  {
+    set_ftable(2);
+    filetab_ptr = filetab_ptr_save;
+    bpb_ptr = bpb_ptr_save;
+    //printf("filetab_ptr=0x%x, bpb_ptr=0x%x\n", filetab_ptr, bpb_ptr);
+  }
+  else
+  {
     /* Relocate itself to an address before os2ldr */
-  set_addr();
-  /* Init terminal */
-  init_term();
-  use_term = 1;
-  /* Set filetable values for os2ldr */
-  set_ftable(1);
-  //}
+    set_addr();
+    /* Init terminal */
+    init_term();
+    use_term = 1;
+    /* Set filetable values for os2ldr */
+    set_ftable(1);
+  }
 #else
   /* Load a pre-loader full version */
   rc = freeldr_open("/boot/loader/preldr0.mdl");

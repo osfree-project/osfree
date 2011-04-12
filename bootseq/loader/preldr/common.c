@@ -26,6 +26,7 @@
 //# include <grub.h>
 //#endif
 
+unsigned long ml1, ml2;
 
 /*
  *  Shared BIOS/boot data.
@@ -131,6 +132,8 @@ init_bios_info (void)
   mbi.mem_lower = get_memsize (0);
   mbi.mem_upper = get_memsize (1);
 
+  ml1 = mbi.mem_lower;
+
   /*
    *  We need to call this somewhere before trying to put data
    *  above 1 MB, since without calling it, address line 20 will be wired
@@ -180,6 +183,8 @@ init_bios_info (void)
        */
       mbi.mem_lower = mmap_avail_at (0) >> 10;
       mbi.mem_upper = mmap_avail_at (0x100000) >> 10;
+
+      ml2 = mbi.mem_lower;
 
       /* Find the maximum available address. Ignore any memory holes.  */
       for (max_addr = 0, addr = mbi.mmap_addr;

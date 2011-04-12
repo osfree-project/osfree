@@ -12,7 +12,7 @@
 #define BOOTFLAG_NOVOLIO   0x0100
 #define BOOTFLAG_RIPL      0x0200
 #define BOOTFLAG_MINIFSD   0x0400
-#define BOOTFLAG_RESERVED3 0x0800
+#define BOOTFLAG_NOPICINIT 0x0800
 #define BOOTFLAG_MICROFSD  0x1000
 #define BOOTFLAG_RESERVED5 0x2000
 #define BOOTFLAG_RESERVED6 0x4000
@@ -36,6 +36,10 @@ typedef _Packed struct _FileTable {
     fp_t  ft_muRead;
     fp_t  ft_muClose;
     fp_t  ft_muTerminate;
+
+    // protected mode RIPL info
+    unsigned long ft_resofs;
+    unsigned long ft_reslen;
 
 } FileTable;
 

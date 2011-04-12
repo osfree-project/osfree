@@ -349,11 +349,6 @@ int far pascal _loadds FS_MOUNT(
     memmove(&devcaps, pvpfsi->vpi_pDCS, sizeof(struct devcaps));
     // save volume characteristics
     memmove(&volchars, pvpfsi->vpi_pVCS, sizeof(volchars));
-    // volume label
-    memmove(pvpfsi->vpi_text, "MBI", 4);
-    // volume serial number
-
-    pvpfsi->vpi_vid = 0x11111111;
 
     memset(save_map, 0, sizeof(save_map));
 

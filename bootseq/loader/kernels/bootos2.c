@@ -34,6 +34,8 @@ char cfged = 0;
 char debug = 0;
 unsigned long cur_addr;
 
+int getlowmem(void);
+
 int kprintf(const char *format, ...);
 int serial_init (long port, long speed,
                 int word_len, int parity, int stop_bit_len);
@@ -166,7 +168,7 @@ void mbi_reloc(void)
 
 int cmain(void)
 {
-  int relshift;
+  int relshift, mem_lower;
   char *p;
   unsigned short *d;
   unsigned long  *e;
@@ -213,8 +215,15 @@ int cmain(void)
   kprintf("Hello MBI OS/2 booter!\n");
   kprintf("comport = 0x%x\n", port);
 
+  memmove((char *)REL1_BASE, (char *)KERN_BASE, 0x8000);
+  mem_lower = getlowmem();
+  kprintf("getlowmem()=0x%x\n", mem_lower);
+
+  if (mem_lower > m->mem_lower)
+    mem_lower = m->mem_lower;
+
   // where to copy uFSD
-  ufs_base = ((m->mem_lower << 10) - 0x10000 - ufsd_size - 0x3000 - 0x200) & 0xfffc000;
+  ufs_base = ((mem_lower << 10) - 0x10000 - ufsd_size - 0x3000 - 0x200 + 0xfff) & 0xfffff000; // -0x14000
   kprintf("uFSD base: 0x%08lx\n", ufs_base);
 
   // a shift relative to REL1_BASE
@@ -229,13 +238,17 @@ int cmain(void)
   e  = (unsigned long *)(ufs_base + 0x1c);
   *e = (unsigned long)&mfsd_start;
 
+  // save ufs_len in 16-bit area in uFSD header
+  e  = (unsigned long *)(ufs_base + 0x28);
+  *e = (unsigned long)ufsd_size;
+
   // save port value in 16-bit area in uFSD header
   d  = (unsigned short *)(ufs_base + 0x24);
   *d = port;
 
   // save debug flag into the same area
-  d = (unsigned short *)(ufs_base + 0x26);
-  *((char *)d) = debug;
+  p = (char *)(ufs_base + 0x26);
+  *p = debug;
 
   // fixup uFSD
   reloc((char *)ufs_base, (char *)&rel_start, relshift);

@@ -7,12 +7,15 @@
 PROJ     = doscalls
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) &
+           $(p)nls$(e) &
            $(p)doscopy$(e) &
            $(p)dllstart$(e) &
            $(p)strlcpy$(e) &
            $(p)strlcat$(e) &
            $(p)strnlen$(e) &
            $(p)strncmp$(e) &
+           $(p)file$(e) &
+           $(p)memory$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
            $(p)doslistio$(e) &
@@ -51,7 +54,13 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalQueryCurrentDisk KAL.KalQueryCurrentDisk, &
           _KalSetDefaultDisk   KAL.KalSetDefaultDisk, &
           _KalError            KAL.KalError, &
-          _KalExecPgm          KAL.KalExecPgm
+          _KalExecPgm          KAL.KalExecPgm, &
+          KalClose_            KAL.KalClose, &
+          KalAllocMem_         KAL.KalAllocMem, &
+          KalFreeMem_          KAL.KalFreeMem, &
+          KalQueryCp_          KAL.KalQueryCp, &
+          KalQueryDBCSEnv_     KAL.KalQueryDBCSEnv, &
+          KalQueryHType_       KAL.KalQueryHType
 
 EXPORTS = &
      DosICreateThread       .1, &

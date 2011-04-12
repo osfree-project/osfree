@@ -1948,6 +1948,32 @@ static struct builtin builtin_preproc =
   "Load and preprocess a text file."
 };
 
+/* exit/quit */
+int
+exit_func (char *arg, int flags)
+{
+  os2ldr_func (arg, flags);
+  return boot_func (arg, flags);
+}
+
+static struct builtin builtin_exit =
+{
+  "exit",
+  exit_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "exit",
+  "Exit from FreeLDR (to os2ldr or DOS)."
+};
+
+static struct builtin builtin_quit =
+{
+  "quit",
+  exit_func,
+  BUILTIN_CMDLINE | BUILTIN_HELP_LIST,
+  "quit",
+  "Exit from FreeLDR (to os2ldr or DOS)."
+};
+
 struct builtin *builtins[] = {
   &builtin_kernel,
   &builtin_module,
@@ -1980,6 +2006,8 @@ struct builtin *builtins[] = {
   &builtin_blocklist,
   &builtin_loop,
   &builtin_preproc,
+  &builtin_exit,
+  &builtin_quit,
   0
 };
 

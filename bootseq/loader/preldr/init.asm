@@ -36,6 +36,8 @@ extrn   lip1         :dword
 
 ifndef STAGE1_5
 
+extrn   _m           :dword
+
 public  bpb_ptr
 public  filetab_ptr
 public  filetab_ptr16
@@ -119,14 +121,14 @@ ifndef STAGE1_5
 __magic          equ     0x1badb002
 __flags          equ     0x00010001
 __checksum       equ     - __magic - __flags
-__start          equ     KERN_BASE                                 ; executable address in memory
+__start          equ     KERN_BASE                                                        ; executable address in memory
 __base           equ     (offset _TEXT:stage0_init)
 ; here wasm for some strange reason generates a 16-bit offset
 __exe_end        equ     (offset _TEXT:exe_end + KERN_BASE - STAGE0_BASE + 70000h)        ; executable end address
 ; and here too
 __bss_end        equ     (offset _TEXT:bss_end + KERN_BASE - STAGE0_BASE + 70000h)        ; bss end address
 ; but here is a full 32-bit offset, strange isn't it? So, as a temporary workaround, I add 70000h in two places
-__entry          equ     (offset _TEXT:kernel_entry + KERN_BASE - STAGE0_BASE)             ; entry point
+__entry          equ     (offset _TEXT:kernel_entry + KERN_BASE - STAGE0_BASE)            ; entry point
 
 __mbhdr          multiboot_header  <__magic,__flags,__checksum,__start+__mbhdr,__start,__exe_end,__bss_end,__entry,0,0,0,0>
 
@@ -136,6 +138,7 @@ real_start:
         ; Set segment registers
         ; to CS value, set stack
         ; to the end of this segment
+
         xor  eax, eax
         xor  ebx, ebx
         mov  ax,  cs
@@ -387,6 +390,12 @@ endif
 ifndef STAGE1_5
         ; get available memory
         ;call getmem
+
+        ; save original boot_flags
+        mov  eax,   offset _TEXT:boot_flags - STAGE0_BASE
+        mov  edx,   offset _TEXT:boot_flg - STAGE0_BASE
+        mov  ax,    word ptr cs:[eax]
+        mov  word ptr cs:[edx], ax
 endif
         ; enable A20 address line
         ;call EnableA20Line
@@ -415,6 +424,49 @@ ifndef STAGE1_5
         mov  ax, ss
         mov  word ptr preldr_ss_sp + 2, ax
 
+        mov  eax, offset _TEXT:filetab_ptr - STAGE0_BASE
+        mov  eax, dword ptr cs:[eax]
+
+        ;mov  esi, eax
+        ;call printhex8
+
+        ;mov     al, '*'
+        ;call    charout
+
+        test eax, eax
+        jz   set32
+
+        mov  di, ax
+        shr  eax, 16
+        mov  es, ax
+
+        mov  eax, offset _TEXT:bpb_ptr - STAGE0_BASE
+        mov  eax, dword ptr cs:[eax]
+
+        ;mov  esi, eax
+        ;call printhex8
+
+        ;mov     al, '*'
+        ;call    charout
+
+        mov  si, ax
+        shr  eax, 16
+        mov  ds, ax
+
+        mov  eax, offset _TEXT:boot_flg - STAGE0_BASE
+        ; set bootflags
+        mov  dx, word ptr cs:[eax]
+
+        ;push si
+        ;mov  si, dx
+        ;call printhex4
+        ;pop  si
+
+        ;mov     al, '*'
+        ;call    charout
+
+        jmp  retctl
+set32:
         mov  edi, offset _TEXT:ft - STAGE0_BASE
 
         ;
@@ -424,13 +476,7 @@ ifndef STAGE1_5
         mov  eax, offset _TEXT:boot_flags - STAGE0_BASE
         ; set bootflags
         mov  dx, [eax]
-
 endif
-
-        ; set bootdrive
-        mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
-        mov  dl, [eax]
-
         ; set BPB
         ;mov  eax, BOOTSEC_BASE
         ;shr  eax, 4
@@ -439,10 +485,18 @@ endif
         mov  ds,  ax
         mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
 
+        ; set bootdrive
+        mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
+        mov  dl, [eax]
+
+retctl:
 ifndef STAGE1_5
         ; set LIP pointer and magic
         mov  ebx, offset _TEXT:lip1
         mov  eax, BOOT_MAGIC
+
+        ;cli
+        ;hlt
 endif
 
         ; return to os2ldr
@@ -565,7 +619,7 @@ set_gdt:
 
 ifndef STAGE1_5
 
-filetab_ptr16      dd 0
+filetab_ptr16      dd    0
 
 endif
 
@@ -574,7 +628,7 @@ _TEXT16 ends
 _TEXT   segment dword public 'CODE' use32
 
 ; these we get on entry to a pre-loader
-boot_drive         dd 0         ; <-- DL
+boot_drive         dd    0         ; <-- DL
 ; copied from pre-loader header
 _preldr            label byte
                    db    28 dup (0)
@@ -584,9 +638,10 @@ ifndef STAGE1_5
 install_partition  dd    0ffffffh
 install_filesys    db    16 dup (0)
 
-bpb_ptr            dd 0         ; pointer to the BPB
-filetab_ptr        dd 0         ; pointer to the FileTable. If <> 0 then we got called from 16-bit uFSD
-boot_flags         dw 0         ; <-- DX
+bpb_ptr            dd    0         ; pointer to the BPB
+filetab_ptr        dd    0         ; pointer to the FileTable. If <> 0 then we got called from 16-bit uFSD
+boot_flags         dw    0         ; <-- DX
+boot_flg           dw    0
 ft                 FileTable <>
 
 errmsg             db   "This is not a multiboot loader or no LIP module!",0
@@ -617,6 +672,9 @@ kernel_entry:
         rep   movsb
 
         mov   edx, [ebx].mods_addr       ; 1st module address
+
+        ;mov   eax, offset _TEXT:_m
+        ;mov   [eax], ebx
 
         ; copy uFSD (1st module)
         mov   edi, EXT_BUF_BASE

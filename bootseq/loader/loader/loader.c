@@ -89,6 +89,7 @@ int toggle_do_key(int key);
 
 int exec_line(char *line);
 
+void return_to_preldr(void);
 void show_background_screen(void);
 void draw_menu(int item, int shift);
 void draw_watches(void);
@@ -466,6 +467,11 @@ get_user_input(int *item, int *shift)
         }
         else
           return 1;
+      }
+      case 0x2d00: // alt-x
+      {
+        /* quit to pre-loader */
+        return_to_preldr();
       }
       default:
        {

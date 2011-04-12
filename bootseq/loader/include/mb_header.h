@@ -21,6 +21,8 @@
  *  MultiBoot Header description
  */
 
+#pragma pack(1)
+
 struct multiboot_header
 {
   /* Must be MULTIBOOT_MAGIC - see below.  */
@@ -117,3 +119,5 @@ struct multiboot_header_ext
 
 /* This flag indicates the use of the address fields in the header.  */
 #define MULTIBOOT_AOUT_KLUDGE           0x00010000
+
+#pragma pack()

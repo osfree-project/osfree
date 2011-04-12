@@ -10,7 +10,6 @@
 
 // returns 1 if the specified drive is ready, 0 if it isn't
 
-#if 0
 
 int QueryDriveReady( int drive )
 {
@@ -57,7 +56,6 @@ void execute_external(int argc, char **argv)
   } /* endif */
 }
 
-#endif
 
 int isdelim( char c )
 {
@@ -75,7 +73,7 @@ BOOL parse_cmd(char *cmd)
   {
     return FALSE;
   }
-/*
+
   if (strlen(cmd)==2)
     if (cmd[1]==':')
     {
@@ -83,7 +81,7 @@ BOOL parse_cmd(char *cmd)
         DosSetDefaultDisk(cmd[0]-'a'+1);
       return FALSE;
     }
- */
+
   while (( *cmd == ' ' ) || ( *cmd == '\t' ))
           cmd++;
 
@@ -125,7 +123,7 @@ BOOL parse_cmd(char *cmd)
     }
   }
 
-  //execute_external(Argc, Argv);
+  execute_external(Argc, Argv);
 
   return FALSE;
 }
@@ -146,25 +144,24 @@ void hello(void)
 
 void showpath(void)
 {
+  UCHAR   chDisk;
+  UCHAR   achDirName[256]     = "";          /* Directory name for queries */
+  ULONG   cbDirPathLen    = 0;               /* Length of directory path   */
+  APIRET  rc           = NO_ERROR;      /* Return code                     */
+  ULONG   ulDriveNum   = 0;      /* Drive number (A=1, B=2, C=3, ...)    */
+  ULONG   ulDriveMap   = 0;      /* Mapping of valid drives              */
+  ULONG   i            = 0;      /* A loop index                         */
 
-//  UCHAR   chDisk;
-//  UCHAR   achDirName[256]     = "";          /* Directory name for queries */
-//  ULONG   cbDirPathLen    = 0;               /* Length of directory path   */
-//  APIRET  rc           = NO_ERROR;      /* Return code                     */
-//  ULONG   ulDriveNum   = 0;      /* Drive number (A=1, B=2, C=3, ...)    */
-//  ULONG   ulDriveMap   = 0;      /* Mapping of valid drives              */
-//  ULONG   i            = 0;      /* A loop index                         */
-/*
   rc = DosQueryCurrentDisk (&ulDriveNum, &ulDriveMap);
   chDisk=(UCHAR)(ulDriveNum+'A'-1);
 
   cbDirPathLen = 0;
   rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
+  rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
 
   VioWrtTTY(&chDisk, 1, 0);
   VioWrtTTY(":\\", 2, 0);
   VioWrtTTY(achDirName, cbDirPathLen-1, 0);
- */
   VioWrtTTY(">", 1, 0);
 }
 

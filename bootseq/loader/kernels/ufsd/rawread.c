@@ -49,14 +49,11 @@ rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
        */
       if (buf_drive != drive)
         {
-          kprintf("enter\n");
           if (get_diskinfo (drive, &buf_geom))
             {
               errnum = ERR_NO_DISK;
               return 0;
             }
-          kprintf("exit\n");
-          kprintf("errnum=0x%x\n", errnum);
           buf_drive = drive;
           buf_track = -1;
           sector_size_bits = log2 (buf_geom.sector_size);

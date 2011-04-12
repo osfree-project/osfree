@@ -138,17 +138,23 @@ ufs_open (char *filename)
 int
 ufs_read (char *buf, int len)
 {
+  unsigned long chunk;
   kprintf("**** ufs_read(0x%08x, %ld) = ", buf, len);
 
   if (fileaddr && buf && len)
   {
     if (len == -1) len = filemax;
+    chunk = filemax - filepos;
 
-    memmove(buf, (char *)fileaddr + filepos, len);
+    if (chunk > len)
+      chunk = len;
 
-    kprintf("%lu\n", len);
+    memmove(buf, (char *)fileaddr + filepos, chunk);
+    filepos += chunk;
 
-    return len;
+    kprintf("%lu\n", chunk);
+
+    return chunk;
   }
 
   return 0;

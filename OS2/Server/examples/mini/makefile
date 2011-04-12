@@ -9,7 +9,7 @@ DEST = .
 srcfiles  = $(p)mini33$(e)
 # defines additional options for C compiler
 ADD_COPT  = -db -d2 -s -g=DGROUP -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
-OPTIONS   = start=startup,internalrelocs
+OPTIONS   = start=startup #,internalrelocs
 IMPORTS   = DosPutMessage MSG.5
 STACKSIZE = 32k
 

@@ -50,7 +50,7 @@
  * to receive further messages on, or ``take over the socket'',
  * processing all arriving datagrams and, eventually, timing
  * out.  The first type of server is said to be ``multi-threaded'';
- * the second type of server ``single-threaded''. 
+ * the second type of server ``single-threaded''.
  *
  * Inetd uses a configuration file which is read at startup
  * and, possibly, at some later time in response to a hangup signal.
@@ -74,6 +74,7 @@
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 #include <malloc.h>
+#include <types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -120,8 +121,8 @@ void    endconfig(void);
 void    freeconfig(struct servtab *);
 void    print_service(char *, struct servtab *);
 int     fd_isset(int, int *, int);
-void    fd_set(int, int *, int *);
-void    fd_clr(int, int *, int *);
+void    _fd_set(int, int *, int *);
+void    _fd_clr(int, int *, int *);
 
 int     retrytime = RETRYTIME;
 int     debug = 0;
@@ -294,7 +295,7 @@ int main(int argc, char *argv[], char *envp[])
               syslog(LOG_ERR,
                      "%s/%s server failing (looping), service terminated\n",
                      sep->se_service, sep->se_proto);
-              fd_clr(sep->se_fd, allsock, &nsock);
+              _fd_clr(sep->se_fd, allsock, &nsock);
               soclose(sep->se_fd);
               sep->se_fd = -1;
               sep->se_count = 0;
@@ -351,7 +352,7 @@ int main(int argc, char *argv[], char *envp[])
           if (pid && sep->se_wait) {
             sep->se_wait = pid;
             if (sep->se_fd >=0) {
-              fd_clr(sep->se_fd, allsock, &nsock);
+              _fd_clr(sep->se_fd, allsock, &nsock);
             }
           }
           DosResumeThread(reapthread);
@@ -371,18 +372,18 @@ int     fd_isset(int sock, int arr[], int nsock)
   return 1;
 }
 
-void    fd_set(int sock, int arr[], int *nsock)
+void    _fd_set(int sock, int arr[], int *nsock)
 {
   int i=0;
 
   if (*nsock>=MAXSOCK) return;
   while((i < *nsock) && (arr[i]!=sock)) i++;
   if (i!= *nsock) return;
-  arr[*nsock]=sock;  
+  arr[*nsock]=sock;
   (*nsock)++;
 }
 
-void    fd_clr(int sock, int arr[], int *nsock)
+void    _fd_clr(int sock, int arr[], int *nsock)
 {
   int i=0;
 
@@ -395,8 +396,8 @@ void    fd_clr(int sock, int arr[], int *nsock)
   {
     arr[i]=arr[i+1];
     i++;
-  }  
-}  
+  }
+}
 
 void reapchild(void *dummy)
 {
@@ -428,7 +429,7 @@ void reapchild(void *dummy)
           if (debug)
             fprintf(stderr, "restored %s, fd %d\n",
               sep->se_service, sep->se_fd);
-          fd_set(sep->se_fd,allsock, &nsock);
+          _fd_set(sep->se_fd,allsock, &nsock);
           sep->se_wait = 1;
           if (sep->se_socktype==SOCK_STREAM) {
             so_cancel(sep->se_sock);
@@ -462,10 +463,10 @@ void config(int x)
       /*
        * sep->se_wait may be holding the pid of a daemon
        * that we're waiting for.  If so, don't overwrite
-       * it unless the config file explicitly says don't 
+       * it unless the config file explicitly says don't
        * wait.
        */
-      if (cp->se_bi == 0 && 
+      if (cp->se_bi == 0 &&
         (sep->se_wait == 1 || cp->se_wait == 0))
         sep->se_wait = cp->se_wait;
 #define SWAP(a, b) { char *c = a; a = b; b = c; }
@@ -516,7 +517,7 @@ void config(int x)
     }
     *sepp = sep->se_next;
     if (sep->se_fd != -1) {
-      fd_clr(sep->se_fd,allsock, &nsock);
+      _fd_clr(sep->se_fd,allsock, &nsock);
       soclose(sep->se_fd);
     }
     if (debug)
@@ -571,7 +572,7 @@ setsockopt(fd, SOL_SOCKET, opt, (char *)&on, sizeof (on))
   }
   if (sep->se_socktype == SOCK_STREAM)
     listen(sep->se_fd, 10);
-  fd_set(sep->se_fd, allsock, &nsock);
+  _fd_set(sep->se_fd, allsock, &nsock);
     if (sep->se_fd > maxsock)
   maxsock = sep->se_fd;
 }

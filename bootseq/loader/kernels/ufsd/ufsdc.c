@@ -9,6 +9,8 @@
 #include "fsd.h"
 #include "serial.h"
 
+int pxe_probe(void);
+
 int scrprintf(const char *format, ...);
 
 int serial_init (long port, long speed,
@@ -30,6 +32,9 @@ void u_msg (char *s)
 {
 }
 
+#pragma aux stage0base "*"
+unsigned long stage0base = REL1_BASE;
+
 extern struct term_entry *t;
 
 extern mu_Open;
@@ -37,8 +42,9 @@ extern mu_Read;
 extern mu_Close;
 extern mu_Terminate;
 
-extern unsigned long mfs_start;
-extern unsigned long mfs_len;
+extern unsigned long  mfs_start;
+extern unsigned long  mfs_len;
+extern unsigned short ufs_len;
 
 extern unsigned short boot_flags;
 extern unsigned long  boot_drive;
@@ -84,6 +90,7 @@ extern char debug;
 #pragma aux callback     "*"
 #pragma aux mfs_start    "*"
 #pragma aux mfs_len      "*"
+#pragma aux ufs_len      "*"
 
 int toupper (int c);
 
@@ -122,10 +129,10 @@ patch_cfgsys(void)
 void cmain (void)
 {
   int  ldrbase = 0, mfsbase = 0;
-  int  ldrlen = 0, mfslen = 0;
+  int  ldrlen = 0, mfslen = 0, ufslen = 0;
   char *buf;
   char type[8];
-  unsigned long *p;
+  unsigned long *p, *qq;
   unsigned long q;
   struct geometry geom;
   bios_parameters_block *bpb;
@@ -312,8 +319,10 @@ void cmain (void)
   ft.ft_ldrseg = ldrbase >> 4;
   ft.ft_ldrlen = ldrlen;
 
+  qq = (unsigned long *)(REL1_BASE + 0x28);
+  ufslen = *qq;
   ft.ft_museg  = (REL1_BASE - 0x200 - 0x2000 - 0x1000) >> 4;
-  ft.ft_mulen  = (unsigned long)&stack_bottom - REL1_BASE + 0x200 + 0x2000;
+  ft.ft_mulen  = ufslen + 0x2000 + 0x1000 + 0x200; // (unsigned long)&stack_bottom - REL1_BASE + 0x200 + 0x2000;
 
   ft.ft_mfsseg = 0x7c0 >> 4;
 
@@ -326,6 +335,7 @@ void cmain (void)
     //q = REL1_BASE - 0x200 + 0x2b;
     q = (0x7c0 + *p + 0xf) & 0xfffffff0;
 
+    ft.ft_mfsseg = 0x7c;
     ft.ft_mfslen = *p;
     ft.ft_ripseg = q >> 4;
     ft.ft_riplen = 4;
@@ -338,6 +348,7 @@ void cmain (void)
   {
     ft.ft_cfiles = 3;
     // if alternative os2boot is specified
+    ft.ft_mfsseg = 0x7c;
     ft.ft_mfslen = mfslen;
     ft.ft_ripseg = 0;
     ft.ft_riplen = 0;
@@ -376,4 +387,20 @@ void cmain (void)
   bpb->disk_num    = (unsigned char)(boot_drive & 0xff);
   bpb->log_drive   = 0x80 + (drvletter - 'C');
   bpb->hidden_secs = offset((m->boot_device >> 16) & 0xff, 1);
+
+  kprintf("boot_flags=0x%x, boot_drive=0x%x\n", boot_flags ,boot_drive);
+  kprintf("cfiles=%u\n", ft.ft_cfiles);
+
+  kprintf("mfslen=%lu, mfsseg=0x%x\n", ft.ft_mfslen, ft.ft_mfsseg);
+  kprintf("riplen=%lu, ripseg=0x%x\n", ft.ft_riplen, ft.ft_ripseg);
+  kprintf("mulen=%lu, museg=0x%x\n", ft.ft_mulen, ft.ft_museg);
+  kprintf("ldrlen=%lu, ldrseg=0x%x\n", ft.ft_ldrlen, ft.ft_ldrseg);
+
+  kprintf("mu_Open=0x%x:0x%x\n", ft.ft_muOpen.seg, ft.ft_muOpen.off);
+  kprintf("mu_Read=0x%x:0x%x\n", ft.ft_muRead.seg, ft.ft_muRead.off);
+  kprintf("mu_Close=0x%x:0x%x\n", ft.ft_muClose.seg, ft.ft_muClose.off);
+  kprintf("mu_Terminate=0x%x:0x%x\n", ft.ft_muTerminate.seg, ft.ft_muTerminate.off);
+
+  // detect and disable UNDI, if any
+  //kprintf("pxe_probe() returned %d", pxe_probe());
 }

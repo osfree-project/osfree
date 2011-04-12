@@ -1,0 +1,123 @@
+/* This file is part of osFree project */
+
+import <l4/os3/gcc_os2def.h>
+import <l4/os3/processmgr.h>
+import <l4/execsrv/loader.h>
+
+import <l4/semaphore/semaphore.h>
+
+interface os2server
+{
+    /* misc RPC calls */
+
+    /* wakeup caller parent */
+    void wakeup(void);
+
+    /* notify os2srv about module params after os2app
+       loaded an OS/2 executable (needed to set data in PIB) */
+    void app_notify([in] os2exec_module_t *s);
+    
+    /* get environment variable from config.sys */
+    APIRET cfg_getenv([in, string]  char *name,
+                      [out, string, 
+		      prealloc_client,
+		      prealloc_server] char **value);    /* get configuration value from config.sys  */
+    APIRET cfg_getopt([in, string] char *name, /* parameter name */
+                      [out] int *is_int,         /* which [out] param contains value, value_int/value_str */ 
+                      [out] int *value_int,     /* int [out] value*/
+                      [out, string, 
+		      prealloc_client,
+		      prealloc_server] char **value_str); /* string [out] value */
+
+    /* CPAPI implementation in server      */
+    
+    [allow_reply_only]
+    APIRET dos_Read([in] HFILE hFile,
+                    [out, size_is(count), ref, prealloc_client,
+                    prealloc_server] char **buf,
+                    [in, out] ULONG *count);
+
+    [allow_reply_only]
+    APIRET dos_Write([in] HFILE handle,
+                     [in, prealloc_server, 
+		     ref, size_is(count)] char *buf,
+                     [in, out] ULONG *count);
+
+    APIRET dos_ResetBuffer([in] HFILE handle);
+    
+    APIRET dos_SetFilePtr([in] HFILE handle,
+                          [in] long ib,
+			  [in] ULONG method,
+			  [out] ULONG *ibActual);
+    
+    [oneway]
+    void   dos_Exit ([in] ULONG action, 
+                     [in] ULONG result);
+
+    APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum, 
+                                [out] ULONG *plogical);
+			       
+    APIRET dos_QueryCurrentDir ([in] ULONG disknum,   
+                                [out, prealloc_server,
+				prealloc_client,
+				ref, size_is(pcbBuf)] char **pBuf, 
+		                [in, out] ULONG *pcbBuf);
+
+    APIRET dos_SetCurrentDir([in, string] char *pszDir);
+
+    [allow_reply_only]				
+    APIRET dos_ExecPgm ([in, out, ref,
+                        size_is(cbObjname),
+                        prealloc_client,
+			prealloc_server] char **pObjname,
+                        [in, out] long *cbObjname,
+		        [in] unsigned long execFlag,
+		        [in, size_is(arglen),
+			prealloc_server] char *pArg,
+			[in] l4_uint32_t arglen,
+		        [in, size_is(envlen),
+			prealloc_server] char *pEnv,
+			[in] l4_uint32_t envlen,
+		        [in, out] struct _RESULTCODES *pRes,
+		        [in, string] char *pName);
+
+    /* notify function for DosExecPgm */
+    void dos_ExecPgm_notify([in] l4_threadid_t job,
+                            [in, size_is(cbObjname),
+			    prealloc_client,
+			    prealloc_server] char *pObjname,
+			    [in] int cbObjname,
+			    [in] struct _RESULTCODES *pRes,
+                            [in] int result);
+
+    APIRET dos_Error ([in] ULONG error);
+    
+    APIRET dos_SetDefaultDisk ([in] ULONG disknum);
+    
+    APIRET dos_Close([in] HFILE handle);
+    
+    APIRET dos_QueryHType([in] HFILE handle,
+                          [out] ULONG *pType,
+			  [out] ULONG *pAttr);
+			  
+    APIRET dos_QueryDBCSEnv([in, out] ULONG *cb,
+                            [out] COUNTRYCODE *pcc,
+			    [out, prealloc_server,
+			    prealloc_client,
+			    ref, size_is(cb)] char **pBuf);
+
+    APIRET dos_QueryCp([in] ULONG cb,
+                       [in, out, ref, 
+		       transmit_as(unsigned char),
+		       prealloc_client,
+		       prealloc_server,
+		       size_is(pcCP)] ULONG *arCP,
+		       [out] ULONG *pcCP);
+
+    /* gets a dataspace with info blocks and all data they point to.
+       and offsets of TIB and PIB in this dataspace. All the pointers
+       in infoblocks are based from dataspace start (need to fixup them) */
+    APIRET dos_GetInfoBlocks([out] l4dm_dataspace_t *ds,
+                             [out] l4_offs_t *tib_offs,
+			     [out] l4_offs_t *pib_offs);
+};
