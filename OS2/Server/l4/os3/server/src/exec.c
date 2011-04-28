@@ -78,9 +78,9 @@
 //extern l4env_infopage_t *l4env_infopage; /* l4env infopage from OS/2 server startup code */
 //extern struct module_rec module_root;    /* Root for module list.*/
 extern l4_threadid_t os2srv;
-extern l4_threadid_t    loader_id;
-extern l4_threadid_t    fprov_id;
-extern l4_threadid_t    dm_id;
+extern l4_threadid_t loader_id;
+extern l4_threadid_t fprov_id;
+extern l4_threadid_t dsm_id;
 
 //l4semaphore_t sem = L4SEMAPHORE_INIT(0);
 
@@ -486,11 +486,11 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
   int error;
 
   /* RPC call to DM_PHYS (create a dataspace) */
-  if (if_l4dm_mem_open_call(&dm_id, 1024, 0, 0,
+  if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
                             name, &ds, &env))
     {
       LOG("Can't allocate a dataspace!");
-      while (1) l4_sleep(0.1);
+      while (1) {l4_sleep(0.1);}
     }
   LOG("dataspace created");
       
@@ -505,6 +505,9 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
   strcat((char *)addr, params);
   strcat((char *)addr, "\"");
   strcat((char *)addr, "\n\n  priority 0xA0");
+
+  /* detach dataspace */
+  l4rm_detach(addr);
 
   /* transfer dataspace to loader */
   l4dm_transfer(&ds,              // dataspace
@@ -528,10 +531,10 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
   *taskid = task_ids[0];
 }
 
-extern l4_taskid_t taskid;
+//extern l4_taskid_t taskid;
 
 //void l4_exec_lx(IXFModule *ixfModule, struct t_os2process *proc)
-void l4os2_exec(char *pName, char *pArg, char *pEnv, struct t_os2process *proc)
+void l4_os2_exec(char *pName, char *pArg, char *pEnv, struct t_os2process *proc)
 {
 #if 0
         struct LX_module *lx_exe_mod = (struct LX_module *)(ixfModule->FormatStruct);
@@ -558,6 +561,7 @@ void l4os2_exec(char *pName, char *pArg, char *pEnv, struct t_os2process *proc)
         char cmdbuf[1024];
         int              t, th;
         l4_threadid_t    task;
+        l4_threadid_t    taskid;
 #if 0
         /* start pager thread */
         pager = l4thread_l4_id(t = l4thread_create(app_pager, 0, L4THREAD_CREATE_SYNC));

@@ -55,12 +55,12 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalSetDefaultDisk   KAL.KalSetDefaultDisk, &
           _KalError            KAL.KalError, &
           _KalExecPgm          KAL.KalExecPgm, &
-          KalClose_            KAL.KalClose, &
-          KalAllocMem_         KAL.KalAllocMem, &
-          KalFreeMem_          KAL.KalFreeMem, &
-          KalQueryCp_          KAL.KalQueryCp, &
-          KalQueryDBCSEnv_     KAL.KalQueryDBCSEnv, &
-          KalQueryHType_       KAL.KalQueryHType
+          _KalClose            KAL.KalClose, &
+          _KalAllocMem         KAL.KalAllocMem, &
+          _KalFreeMem          KAL.KalFreeMem, &
+          _KalQueryCp          KAL.KalQueryCp, &
+          _KalQueryDBCSEnv     KAL.KalQueryDBCSEnv, &
+          _KalQueryHType       KAL.KalQueryHType
 
 EXPORTS = &
      DosICreateThread       .1, &
@@ -506,7 +506,9 @@ EXPORTS = &
      DosListIOL                                  .990, &
      DosSystemService                            .995, &
      DosListIO                                   .996, &
-     DosCreateThread2                            .997
+     DosCreateThread2                            .997, &
+#     DosTrueGetMessage                          .384, & # 16-bit, not needed
+     DosTrueGetMessage                           .388
 
 # alias     DosSetSignalExceptionFoc                  @378
 # conflict? DOS16PMSEMWAIT                              @574
@@ -521,8 +523,6 @@ EXPORTS = &
 #     DosPutMessage             .387, &
 #     DosR3ExitAddr                  .552              , &
 #     DosR3ExitAddr                  .553              , &
-#     DosTrueGetMessage          .384   , &
-#     DosTrueGetMessage              .388, &
 #     DosIQueryMessageCP             .389, &
 #     DosIQueryMessageCP             .390, &
 #     Dos16IRead               .79, &

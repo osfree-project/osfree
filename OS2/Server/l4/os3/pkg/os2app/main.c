@@ -31,6 +31,8 @@
 #include <l4/execsrv/os2exec-client.h>
 /* DICE includes                 */
 #include <dice/dice.h>
+/* local includes*/
+#include "stacksw.h"
 
 /* l4rm heap address (thus, moved from 0xa000 higher) */
 const l4_addr_t l4rm_heap_start_addr = 0xb9000000;
@@ -38,7 +40,12 @@ const l4_addr_t l4rm_heap_start_addr = 0xb9000000;
 const l4_addr_t l4thread_stack_area_addr = 0xbc000000;
 /* l4thread TCB table map address */
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
+/* previous stack (when switching between 
+   task and os2app stacks)        */
+unsigned long __stack;
 
+/* fs server thread id */
+l4_threadid_t fs;
 /* OS/2 server thread id */
 l4_threadid_t os2srv;
 /* exec server thread id */
@@ -101,8 +108,9 @@ trampoline(struct param *param)
   unsigned long     base;
   struct desc       desc;
 
-  int  i;
-  char *p;
+  int  i, k;
+  char *p, *s;
+  char buf[0x100];
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
 
@@ -112,21 +120,43 @@ trampoline(struct param *param)
 
   LOG("hmod: %x", hmod);
 
-  i = 0; p = argv;
-  while (*p)	
+  p = argv;
+  p -= 2;
+  while (*p) p--;
+  p++;
+  LOG("argv[0]=%s", p);
+  
+  i = 0;
+  p = argv;
+  while (*p) p++;
+  p++;
+  while (*p)
   {
-    LOG("argv[%u]=%s", i, p);
-    p += strlen(p) + 1;
+    s = buf;
+    while (*p != ' ' && *p) *s++ = *p++;
+    while (*p == ' ') if (*p) *s++ = *p++;
+    *s = '\0';
+    s++;
+    p++;
     i++;
+    LOG("argv[%u]=%s", i, buf);
   }
+
+  k = p - envp;
 
   i = 0; p = envp;
   while (*p)
   {
-    LOG("envp[%u]=%s", i, p);
-    p += strlen(p) + 1;
-    i++;
+      LOG("envp[%u]=%s", i, p);
+      p += strlen(p) + 1;
+      i++;
   }
+
+  for (i = 0; i < k; i++)
+  if (envp[i])
+    LOG("%c", envp[i]);
+  else
+    LOG("\\0");    
   
   /* TIB base */
   base = param->tib;	
@@ -145,17 +175,16 @@ trampoline(struct param *param)
   sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();
   LOG("sel=%x", sel);
 
+  /* save the previous stack to __stack
+     and set current one to OS/2 app stack */
+  STKINIT(s.sp - 0x10)
+  
+  /* We have changed the stack so it now points to our LX image. */
   //enter_kdebug("debug");
   asm(
       "movl  %[sel], %%edx \n"
       "movw  %%dx, %%fs \n"              /* TIB selector */
-      "movl  %[eip_data], %%ecx \n"
-      "movl  %[esp_data], %%edx \n"      /* Put old esp in eax */
       "pushl %%ebp \n"                   /* save ebp on the old stack      */
-      "movl  %%esp, %%eax \n"            /* Copy esp to eax. Stack pointer */
-      "movl  %%edx, %%esp \n"            /* Copy edx to esp. Stack pointer */
-      "pushl %%eax \n"                   /* old esp on the new stack       */
-      /* We have changed the stack so it now points to our LX image. */
       "movl  %[argv], %%edx \n"
       "pushl %%edx \n"                   /* argv  */
       "movl  %[envp], %%edx \n"
@@ -164,22 +193,23 @@ trampoline(struct param *param)
       "pushl %%edx \n"                   /* sizec */
       "movl  %[hmod], %%edx \n"
       "pushl %%edx \n"                   /* hmod  */
-      "movl  %%esp, %%ebp \n"
+      "movl  %[eip_data], %%ecx \n"
       "call  *%%ecx \n"                  /* Call the startup code of an OS/2 executable */
       "addl  $0x10, %%esp \n"            /* clear stack            */
-      "popl  %%esp \n"                   /* restored the esp from the old stack */
       "popl  %%ebp \n"                   /* restored the old ebp   */
       :
-      :[sel]      "m" (sel),
-       [argv]     "m" (argv),
-       [envp]     "m" (envp),
-       [hmod]     "m" (hmod),
-       [esp_data] "m" (param->esp),       /* esp+ data_mmap+8+ */
-       [eip_data] "m" (param->eip));
+      :[argv]     "m"  (argv),
+       [envp]     "m"  (envp),
+       [hmod]     "m"  (hmod),
+       [sel]      "m"  (sel),      
+       [eip_data] "m"  (param->eip));
+
+  STKOUT
 
       return 0;
 }
  
+
 void main (int argc, char *argv[])
 {
   CORBA_Environment env = dice_default_environment;
@@ -187,7 +217,7 @@ void main (int argc, char *argv[])
   /* Error info from LoadModule */
   char uchLoadError[260];
   unsigned long hmod;
-  ULONG curdisk = 2, map = 1 << 2;
+  ULONG curdisk, map;
   PPIB ppib;
   PTIB ptib;
   char buf[1024];
@@ -197,6 +227,12 @@ void main (int argc, char *argv[])
   if (!names_waitfor_name("os2exec", &execsrv, 30000))
     {
       LOG("Can't find os2exec on names, exiting...");
+      return;
+    }
+
+  if (!names_waitfor_name("os2fs", &fs, 30000))
+    {
+      LOG("Can't find os2fs on names, exiting...");
       return;
     }
 
@@ -224,6 +260,8 @@ void main (int argc, char *argv[])
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify_call (&os2srv, &s, &env);
 
+  STKINIT(__stack - 0x800)
+
   rc = KalQueryCurrentDisk(&curdisk, &map);
 
   if (rc)
@@ -236,12 +274,14 @@ void main (int argc, char *argv[])
 
   param.pib = ppib;
   param.tib = ptib;
-   
+
   l4rm_show_region_list();
 
   LOG("Starting %s LX exe...", argv[1]);
   rc = trampoline (&param);
   LOG("... %s finished.", argv[1]);
+
+  STKOUT
 
   /* wait for our termination */
   KalExit(1, 0); // successful return

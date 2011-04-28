@@ -19,6 +19,8 @@
 #include <strlcpy.h>
 #include <strnlen.h>
 
+APIRET unimplemented(char *func);
+
 APIRET APIENTRY  DosPutMessage(HFILE hfile,
                                ULONG cbMsg,
                                PCHAR pBuf)
@@ -129,10 +131,9 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   }
 }
 
-APIRET APIENTRY DosTrueGetMessage(void)
+APIRET APIENTRY DosTrueGetMessage(PCHAR *pTable, ULONG cTable, PCHAR pBuf,
+                                  ULONG cbBuf, ULONG msgnumber,
+                                  PSZ pszFile, PULONG pcbMsg)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }

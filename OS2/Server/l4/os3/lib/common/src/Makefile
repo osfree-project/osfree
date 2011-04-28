@@ -5,6 +5,6 @@ L4DIR ?= $(PKGDIR)/../..
 TARGET	= libos2common.a
 
 # list your .c files here
-SRC_C	= globals.c io.c mountreg.c token.c utility.c string.c
+SRC_C	= path.c token.c string.c io.c env.c
 
 include $(L4DIR)/mk/lib.mk

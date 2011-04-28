@@ -5,6 +5,14 @@ typedef struct _COUNTRYCODE {
   ULONG codepage;
 } COUNTRYCODE, *PCOUNTRYCODE;
 
+APIRET __cdecl       KalQueryCp(ULONG   cb,
+                                PULONG  arCP,
+                                PULONG  pcCP);
+
+APIRET __cdecl       KalQueryDBCSEnv(ULONG cb,
+                                     COUNTRYCODE *pcc,
+                                     PBYTE pBuf);
+
 APIRET APIENTRY      DosQueryCp(ULONG   cb,
                                 PULONG  arCP,
                                 PULONG  pcCP)

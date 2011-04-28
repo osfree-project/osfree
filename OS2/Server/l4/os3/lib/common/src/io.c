@@ -7,16 +7,19 @@
 
 // L4 headers
 #include <l4/sys/types.h>
-#include <l4/env/errno.h>
+#include <l4/env/env.h>
 #include <l4/sys/syscalls.h>
 #include <l4/log/l4log.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/util/util.h>
 #include <l4/env/env.h>
 #include <l4/names/libnames.h>
-#include <l4/l4con/l4con.h>
-#include <l4/l4con/l4con-client.h>
-#include <l4/l4con/l4contxt.h>
+
+#include <l4/generic_fprov/generic_fprov-client.h>
+
+extern l4_threadid_t fs;
+
+l4_threadid_t dsm = L4_INVALID_ID;
 
 void io_printf(const char* chrFormat, ...)
 {
@@ -27,6 +30,64 @@ void io_printf(const char* chrFormat, ...)
     va_end (arg_ptr);
 }
 
+int io_load_file(const char * filename, void **addr, unsigned long *size)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4dm_dataspace_t ds;
+  int  rc;
+
+  /* query default dataspace manager id */
+  if (l4_is_invalid_id(dsm))
+    dsm = l4env_get_default_dsm();
+
+  if (l4_is_invalid_id(dsm))
+  {
+    LOG("No dataspace manager found\n");
+    return 2;
+  }
+
+  /* get a file from a file provider */
+  rc = l4fprov_file_open_call(&fs, filename, &dsm, 0,
+                       &ds, size, &env);
+
+  if (rc == 2)
+    return rc; /* ERROR_FILE_NOT_FOUND */
+
+  /* attach the created dataspace to our address space */
+  rc = l4rm_attach(&ds, *size, 0, L4DM_RW, addr);
+
+  if (rc < 0)
+    return 8; /* What to return? */
+
+  return 0;
+}
+
+int io_close_file(void *address)
+{
+  int rc;
+  l4dm_dataspace_t ds;
+  l4_addr_t addr;
+  l4_size_t size;
+  l4_offs_t offset;
+  l4_threadid_t pager;
+  
+  rc = l4rm_lookup_region(address, &addr, &size, &ds,
+                          &offset, &pager);
+
+  if (rc < 0)
+    return -rc;
+
+  if (rc == L4RM_REGION_DATASPACE)
+  {  
+    l4rm_detach(addr);
+    l4dm_close(&ds);
+  }
+
+  return 0;
+}
+
+#if 0
+
 int io_load_file(const char * filename, void ** addr, unsigned long * size)
 {
   char ch;
@@ -35,7 +96,7 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
   char * newdirectory;
   struct dirent *diren;
   char buf[256];
-  int  len;
+  int  len, i;
 
   LOG("filename=%s", filename);
   char drv = get_drv(filename);
@@ -61,8 +122,19 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
 
   LOG("directory=%s", directory);
   LOG("name=%s", name);
-
+#if 0
+  LOG("srv_num_=%d", fsrouter.srv_num_);
+  for(i=0; i< fsrouter.srv_num_; i++)
+  {
+    I_Fs_srv_t *srv = fsrouter.fs_srv_arr_[i];
+    if (srv)
+    {
+      LOG("srv->drive=%s, srv->mountpoint=%s", srv->drive, srv->mountpoint);
+    }
+  }    
+#endif
   struct I_Fs_srv *target_fs_srv = FSRouter_route(&fsrouter, drv);
+
   LOG("-1");
   newfilename=malloc(strlen(target_fs_srv->mountpoint)+
                      strlen(directory)+
@@ -143,7 +215,6 @@ int io_load_file(const char * filename, void ** addr, unsigned long * size)
   return 2; /* ERROR_FILE_NOT_FOUND; */
 }
 
-#if 0
 /* OBS! For fsrouter to work it must be initialized from globals.c:init_globals() */
 int io_load_file33(const char * filename, void ** addr, unsigned long * size) {
 

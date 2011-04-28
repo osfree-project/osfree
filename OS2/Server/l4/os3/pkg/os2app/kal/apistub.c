@@ -24,8 +24,12 @@
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/sys/kdebug.h>>
 
+#include "../stacksw.h"
+
+extern l4_threadid_t fs;
 extern l4_threadid_t os2srv;
 extern l4_threadid_t execsrv;
+extern unsigned long __stack;
 
 unsigned long
 PvtLoadModule(char *pszName,
@@ -33,6 +37,7 @@ PvtLoadModule(char *pszName,
               char const *pszModname,
               os2exec_module_t *s,
               unsigned long *phmod);
+
 
 int
 strlstlen(char *p)
@@ -67,16 +72,22 @@ KalRead (HFILE hFile, PVOID pBuffer,
   CORBA_Environment env = dice_default_environment;
   APIRET  rc;
 
+  STKIN
+
   LOG("started");
   
   if (!cbRead)
+  {
+    STKOUT
     return 0; /* NO_ERROR */
-  
-  rc = os2server_dos_Read_call(&os2srv, hFile, &pBuffer, &cbRead, &env);
+  }
+
+  rc = os2fs_dos_Read_call(&fs, hFile, &pBuffer, &cbRead, &env);
 
   *pcbActual = cbRead;
 
   LOG("ended");
+  STKOUT
   return rc;
 }
 
@@ -88,6 +99,8 @@ KalWrite (HFILE hFile, PVOID pBuffer,
   CORBA_Environment env = dice_default_environment;
   APIRET  rc;
 
+  STKIN
+
   LOG("started");
   LOG("hFile=%x", hFile);
   LOG("pBuffer=%x", pBuffer);
@@ -95,13 +108,17 @@ KalWrite (HFILE hFile, PVOID pBuffer,
   LOG("pcbActual=%x", pcbActual);
 
   if (!cbWrite)
+  {
+    STKOUT
     return 0; /* NO_ERROR */
+  }
 
-  rc = os2server_dos_Write_call(&os2srv, hFile, pBuffer, &cbWrite, &env);
+  rc = os2fs_dos_Write_call(&fs, hFile, pBuffer, &cbWrite, &env);
 
   *pcbActual = cbWrite;
 
   LOG("ended");
+  STKOUT
   return rc;
 }
 
@@ -111,10 +128,12 @@ KalExit(ULONG action, ULONG result)
 {
   CORBA_Environment env = dice_default_environment;
 
+  STKIN
   // send OS/2 server a message that we want to terminate
   os2server_dos_Exit_send(&os2srv, action, result, &env);
   // wait until OS/2 server kills us
   l4_ipc_sleep(L4_IPC_NEVER);
+  STKOUT
 }
 
 
@@ -123,21 +142,33 @@ KalQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, plogical, &env);
+  int rc;
+  STKIN
+  rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, plogical, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
 KalSetCurrentDir(PSZ pszDir)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_SetCurrentDir_call(&os2srv, pszDir, &env);
+  int rc;
+  STKIN
+  rc = os2server_dos_SetCurrentDir_call(&os2srv, pszDir, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
 KalSetDefaultDisk(ULONG disknum)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_SetDefaultDisk_call(&os2srv, disknum, &env);
+  int rc;
+  STKIN
+  rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -146,7 +177,11 @@ KalQueryCurrentDir(ULONG disknum,
                        PULONG pcbBuf)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_QueryCurrentDir_call(&os2srv, disknum, &pBuf, pcbBuf, &env);
+  int rc;
+  STKIN
+  rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, &pBuf, pcbBuf, &env);
+  STKOUT
+  return rc;
 }
 
 
@@ -157,8 +192,12 @@ KalQueryProcAddr(ULONG hmod,
                      void  **ppfn)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
+  int rc;
+  STKIN
+  rc = os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
                                      pszName, (void **)ppfn, &env);
+  STKOUT
+  return rc;
 }
 
 /** attach dataspace to our address space. (any free address) */
@@ -181,7 +220,6 @@ attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr)
 	  error, l4env_errstr(error));
       return error;
     }
-
   return 0;
 }
 
@@ -353,8 +391,12 @@ KalLoadModule(PSZ pszName,
                   PULONG phmod)
 {
   os2exec_module_t s;
-  return PvtLoadModule(pszName, cbName, pszModname,
+  int rc;
+  STKIN
+  rc = PvtLoadModule(pszName, cbName, pszModname,
                        &s, phmod);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -370,6 +412,7 @@ KalExecPgm(char * pObjname,
   APIRET rc;
   int i, j;
 
+  STKIN
   if (pArg == NULL)
   {
     pArg = "\0\0";
@@ -396,6 +439,7 @@ KalExecPgm(char * pObjname,
 			pEnv, j,
                         pRes, pName, &env);
   LOG("ended");
+  STKOUT
   return rc;
 }
 
@@ -403,7 +447,11 @@ APIRET CDECL
 KalError(ULONG error)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_Error_call (&os2srv, error, &env);
+  int rc;
+  STKIN
+  rc = os2server_dos_Error_call (&os2srv, error, &env);
+  STKOUT
+  return rc;
 }
 
 
@@ -425,6 +473,11 @@ KalAllocMem(PVOID *ppb,
   l4_addr_t addr;
   int rc;
 
+  //enter_kdebug(">");
+  STKIN
+  LOG("cb=%d", cb);
+  LOG("&flags=%x", &flags);
+
   if (flags & PAG_READ)
     rights |= L4DM_READ;
 
@@ -436,16 +489,26 @@ KalAllocMem(PVOID *ppb,
            4096, rights, "DosAllocMem dataspace", &ds);
 
   if (rc < 0)
+  {
+    STKOUT
     return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+  }
 
   /* attach the created dataspace to our address space */
   rc = attach_ds(&ds, rights, &addr);
 
   if (rc)
+  {
+    STKOUT
     return 8; /* What to return? */
+  }
+  
+  LOG("addr=%x", addr);
   
   *ppb = (void *)addr;
-  
+
+  //enter_kdebug(">");
+  STKOUT
   return 0; /* NO_ERROR */
 }
 
@@ -458,23 +521,36 @@ KalFreeMem(PVOID pb)
   l4_offs_t offset;
   l4_threadid_t pager;
   l4dm_dataspace_t ds;
+
+  STKIN
+  LOG("&pb=%x", &pb);
   
   rc = l4rm_lookup_region((l4_addr_t)pb, &addr, &size, &ds,
                      &offset, &pager);
   
   if (rc)
+  {
+    STKOUT
     return 487; /* ERROR_INVALID_ADDRESS */
+  }
     
   rc = l4rm_detach(addr);
   
   if (rc)
+  {
+    STKOUT
     return 5; /* ERROR_ACCESS_DENIED */
+  }
     
   rc = l4dm_close(&ds);
   
   if (rc)
+  {
+    STKOUT
     return 5; /* ERROR_ACCESS_DENIED */      
-  
+  }
+
+  STKOUT
   return 0; /* NO_ERROR */
 }
 
@@ -482,7 +558,12 @@ APIRET CDECL
 KalResetBuffer(HFILE handle)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_ResetBuffer_call (&os2srv, handle, &env);
+  int rc;
+  STKIN
+  LOG("&handle=%x", &handle);
+  rc = os2fs_dos_ResetBuffer_call (&fs, handle, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -492,15 +573,25 @@ KalSetFilePtr(HFILE handle,
 	      PULONG ibActual)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_SetFilePtr_call (&os2srv, handle, ib,
+  int rc;
+  STKIN
+  LOG("&handle=%x", &handle);
+  rc = os2fs_dos_SetFilePtr_call (&fs, handle, ib,
                                         method, ibActual, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
 KalClose(HFILE handle)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_Close_call (&os2srv, handle, &env);
+  int rc;
+  STKIN
+  LOG("&handle=%x", &handle);
+  rc = os2fs_dos_Close_call (&fs, handle, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -509,7 +600,12 @@ KalQueryHType(HFILE handle,
 	      PULONG pAttr)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_QueryHType_call (&os2srv, handle, pType, pAttr, &env);
+  int rc;
+  STKIN
+  LOG("&handle=%x", &handle);
+  rc = os2fs_dos_QueryHType_call(&fs, handle, pType, pAttr, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -518,7 +614,12 @@ KalQueryDBCSEnv(ULONG cb,
 		PBYTE pBuf)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_QueryDBCSEnv_call (&os2srv, &cb, pcc, &pBuf, &env);
+  int rc;
+  STKIN
+  LOG("&pBuf=%x", &pBuf);
+  rc = os2server_dos_QueryDBCSEnv_call (&os2srv, &cb, pcc, &pBuf, &env);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -527,7 +628,14 @@ KalQueryCp(ULONG cb,
 	   PULONG pcCP)
 {
   CORBA_Environment env = dice_default_environment;
-  return os2server_dos_QueryCp_call (&os2srv, cb, arCP, pcCP, &env);
+  APIRET rc;
+  //enter_kdebug(">");
+  STKIN
+  rc = os2server_dos_QueryCp_call (&os2srv, &cb, &arCP, &env);
+  //enter_kdebug(">");
+  *pcCP = cb;
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -539,18 +647,23 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
   l4_offs_t tib_offs, pib_offs;
   APIRET rc;
 
+  STKIN
   /* get the dataspace with info blocks */
   rc = os2server_dos_GetInfoBlocks_call (&os2srv, &ds,
                            &tib_offs, &pib_offs, &env);
 
   if (rc)
+  {
+    STKOUT
     return rc;
-
+  }
+ 
   /* attach it */ 
   rc = attach_ds(&ds, L4DM_RW, &addr);
   if (rc)
   {
     LOG("error attaching ds!");
+    STKOUT
     return rc;
   }
   else
@@ -571,6 +684,7 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
   if (rc)
   {
     LOG("error detaching ds!");
+    STKOUT
     return rc;
   }
   else
@@ -582,10 +696,12 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
   if (rc)
   {
     LOG("error attaching ds ro!");
+    STKOUT
     return rc;
   }
   else
     LOG("ds attached again ro");
 
+  STKOUT
   return 0; /* NO_ERROR */
 }

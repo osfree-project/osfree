@@ -16,9 +16,7 @@
 #include <l4/os3/processmgr.h>
 #include <l4/os3/execlx.h>
 
-l4_threadid_t    loader_id;
-l4_threadid_t    fprov_id;
-l4_threadid_t    dm_id;
+extern l4_threadid_t fs;
 
 void exec_runserver(void);
 void executeprotshell(cfg_opts *options);
@@ -60,9 +58,6 @@ void executeprotshell(cfg_opts *options)
 {
   int rc;
 
-  if (!names_register("os2srv.pshell"))
-    LOG("error registering on the name server");
-
   rc = PrcExecuteModule(NULL, 0, 0, "", "", NULL, options->protshell, 0);
   if (rc != NO_ERROR) 
     LOG("Error execute: %d ('%s')", rc, options->protshell);
@@ -102,8 +97,21 @@ exec_runserver(void)
         s = type[i].sp[j].string;
 	p = getcmd (s);
 	s = skipto(0, s);
-	l4_exec (p, params, &tid);
 
+	l4_exec (p, params, &tid);
+        LOG("started task: %x.%x", tid.id.task, tid.id.lthread);
+
+        // os2fs server id
+	if (strstr(p, "os2fs"))
+	{
+          LOG("os2fs started");
+          if (!names_waitfor_name("os2fs", &fs, 30000))
+	  {
+	    LOG("Can't find os2fs on the name server!");
+	    return;
+	  }
+        }
+	
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
 	strcpy (server, srv);
 	to      = getcmd (skipto(0, strstr(s, "-TIMEOUT")));
@@ -123,50 +131,30 @@ exec_runserver(void)
   return;
 }
 
-int sysinit (void)
+int exec_run_call(void)
 {
-  CORBA_Server_Environment env = dice_default_server_environment;
+  return 0;
+}
 
-  /* Wait for servers to be started */
-  LOG("waiting for LOADER server to be started...");
-  if (!names_waitfor_name("LOADER", &loader_id, 30000))
-    {
-      LOG("Dynamic loader LOADER not found -- terminating");
-      while (1) l4_sleep(0.1);
-    }
-  LOG("loader id: %x.%x", loader_id.id.task, loader_id.id.lthread);
-  
-  if (!names_waitfor_name("fprov_proxy_fs", &fprov_id, 30000))
-    {
-      LOG("File provider \"fprov_proxy_fs\" not found, fatal!");
-      while (1) l4_sleep(0.1);
-    }
-  LOG("fprov_id=%x.%x", fprov_id.id.task, fprov_id.id.lthread);
-
-  if (!names_waitfor_name("DM_PHYS", &dm_id, 30000))
-    {
-      LOG("Dataspace manager \"dm_phys\" not found, fatal!");
-      while (1) l4_sleep(0.1);
-    }
-  LOG("dm_id=%x.%x", dm_id.id.task, dm_id.id.lthread);
+int sysinit (cfg_opts *options)
+{
+  if (!names_register("os2srv.sysinit"))
+    LOG("error registering on the name server");
 
   /* Start servers */
   exec_runserver();
+
+  /* Start run=/call= */
+  exec_run_call();
  
   // Check PROTSHELL statement value
-  if (!options.protshell||(strlen(options.protshell)==0))
+  if (!options->protshell || !*(options->protshell))
   {
     io_printf("No PROTSHELL statement in CONFIG.SYS");
     return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
-    l4thread_create(executeprotshell, (void *)&options, L4THREAD_CREATE_ASYNC);
-
+    executeprotshell(options);
   }
 
-  // server loop
-  env.malloc = (dice_malloc_func)malloc;
-  env.free = (dice_free_func)free;
-  os2server_server_loop(&env);
-  
   return 0;  
 }

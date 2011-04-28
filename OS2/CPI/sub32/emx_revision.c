@@ -14,6 +14,8 @@
 #include <os2.h>
 #include <rexxsaa.h>
 
+#pragma aux EMX_REVISION "*"
+
 // We use revision number 70 because latest EMXWRAP revision is 60.
 // It is clear we never will have newer revision so we use next number here.
 static const char revision[] = "70";

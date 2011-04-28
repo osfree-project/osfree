@@ -1,5 +1,11 @@
 #include <os2.h>
 
+APIRET __cdecl  KalClose(HFILE hFile);
+
+APIRET __cdecl  KalQueryHType(HFILE hFile,
+                              PULONG pType,
+                              PULONG pAttr);
+
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 

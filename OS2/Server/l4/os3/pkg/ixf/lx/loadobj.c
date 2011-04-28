@@ -165,7 +165,7 @@ unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 	else                 // for DLL files
 	  section->addr = mmap_obj;
 	section->size = lx_obj->o32_size;
-	LOG("ds=%x @ %x, size %u", ds, section->addr, section->size);
+	LOG_printf("ds=%x @ %x, size %u\n", ds, section->addr, section->size);
 	section->info.type = L4_DSTYPE_READ | L4_DSTYPE_WRITE | L4_DSTYPE_EXECUTE;
 	section->info.id   = (unsigned short)ixfSysDep->secnum;
 	ixfSysDep->secnum++;

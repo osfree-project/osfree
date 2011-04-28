@@ -121,12 +121,12 @@ unsigned long CfgInitOptions()
   options.debugixfmgr=0;
   options.debugprcmgr=0;
   options.debugmemmgr=0;
-  if(!(p=(char *)malloc(14)))
+  if(!(p=(char *)malloc(24)))
   {
     error("init_options: memory could not be allocated!");
     return 87/*ERROR_INVALID_PARAMETER*/;
   }
-  strcpy(p,"C:\\CONFIG.SYS");
+  strcpy(p,"/file/system/config.sys");
   options.configfile=p;
   if(!(p=(char *)malloc(3)))
   {

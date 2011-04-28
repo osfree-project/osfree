@@ -27,7 +27,11 @@ os2server_cfg_getenv_component (CORBA_Object _dice_corba_obj,
                                 char* *value /* out */,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
-  return CfgGetenv(name, value);
+  APIRET rc;
+  LOG("name=%s", name);
+  rc = CfgGetenv(name, value);
+  LOG("path=%s", *value);
+  return rc;
 }
 
 

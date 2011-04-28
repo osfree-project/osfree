@@ -1,4 +1,5 @@
 #include <strnlen.h>
+
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
 #define INCL_DOSSEMAPHORES
@@ -6,479 +7,415 @@
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
-APIRET APIENTRY      DosICreateThread(void)
+APIRET unimplemented(char *func)
 {
   ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
+  PCSZ pcszMsg =" not implemented yet\n";
+  DosWrite(1, func, strnlen(func, 250), &ulActual);
   DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return 0;
+}
+
+APIRET APIENTRY      DosICreateThread(void)
+{
+  return unimplemented(__FUNCTION__);
+}
 
 APIRET APIENTRY      DosIExecPgm(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      DosPtrace(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISysSemClear(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosISemRequest(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISysSemSet(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosISemWait(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSGSwitch(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosSGSwitchMe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRead(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIWrite(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQTraceInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosICanonicalize(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetFgnd(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSwapTaskInit(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosReadPhys(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSGSwitchProc2(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetRelMaxFH(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIDevIOCtl(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY DosKillThread(TID tid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryRASInfo(ULONG Index, PPVOID Addr)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosDumpProcess(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSuppressPopUps(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOpen2Compt(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGetSTDA(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSGSwitchProc(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRamSemWake(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRamSemRequest(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetCP(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGlobalSeg(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosProfile(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQProcStatus(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosICallBack(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRetForward(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIMakeNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosICallNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIConnectNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIDisconnectNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIPeekNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIQNmPipeInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIQNmPHandState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetNmPHandState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosITransactNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIWaitNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetNmPipeSem(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIQNmPipeSemState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRawReadNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRawWriteNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetTraceInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLogMode(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLogEntry(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGetLogBuffer(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLogRegister(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLogRead(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosFindFromName(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOPLockRelease(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOPLockWait(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosICopy(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIQAppType(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOPLockShutdown(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetVerify(BOOL32 bFlag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosErrClass(ULONG code,
                              PULONG pClass,
                              PULONG pAction,
                              PULONG pLocus)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      DosCreateVDM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetFileInfo(HFILE hf,
                                 ULONG ulInfoLevel,
                                 PVOID pInfoBuf,
                                 ULONG cbInfoBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetPathInfo(PCSZ    pszPathName,
                                 ULONG ulInfoLevel,
@@ -486,71 +423,58 @@ APIRET APIENTRY  DosSetPathInfo(PCSZ    pszPathName,
                                 ULONG cbInfoBuf,
                                 ULONG flOptions)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetFHState(HFILE hFile,
                                ULONG mode)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetFSInfo(ULONG disknum,
                               ULONG infolevel,
                               PVOID pBuf,
                               ULONG cbBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryPathInfo(PCSZ    pszPathName,
                                   ULONG ulInfoLevel,
                                   PVOID pInfoBuf,
                                   ULONG cbInfoBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
-/*-----
-APIRET APIENTRY  DosQueryHType(HFILE hFile,
-                               PULONG pType,
-                               PULONG pAttr)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
------*/
+
+//APIRET APIENTRY  DosQueryHType(HFILE hFile,
+//                               PULONG pType,
+//                               PULONG pAttr)
+
 
 APIRET APIENTRY  DosQueryVerify(PBOOL32 pBool)
+
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
                             PCSZ  *ppszValue)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSearchPath(ULONG flag,
                                PCSZ  pszPathOrName,
@@ -558,81 +482,69 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
                                PBYTE pBuf,
                                ULONG cbBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosSleep(ULONG msec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosDevConfig(PSZ pdevinfo, ULONG item)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosEnterCritSec(VOID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY DosKillProcess(ULONG action,
                                PID pid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetPriority(ULONG scope,
                                 ULONG ulClass,
                                 LONG  delta,
                                 ULONG PorTid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosResumeThread(TID tid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosSuspendThread(TID tid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosCreatePipe(PHFILE phfRead,
                                PHFILE phfWrite,
                                ULONG cb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosCallNPipe(PCSZ  pszName,
                               PVOID pInbuf,
@@ -642,24 +554,21 @@ APIRET APIENTRY  DosCallNPipe(PCSZ  pszName,
                               PULONG pcbActual,
                               ULONG msec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosConnectNPipe(HPIPE hpipe)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosDisConnectNPipe(HPIPE hpipe)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosCreateNPipe(PCSZ  pszName,
                                 PHPIPE pHpipe,
@@ -669,10 +578,9 @@ APIRET APIENTRY  DosCreateNPipe(PCSZ  pszName,
                                 ULONG cbOutbuf,
                                 ULONG msec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosPeekNPipe(HPIPE hpipe,
                               PVOID pBuf,
@@ -681,74 +589,66 @@ APIRET APIENTRY  DosPeekNPipe(HPIPE hpipe,
                               PAVAILDATA pAvail,
                               PULONG pState)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryNPHState(HPIPE hpipe,
                                   PULONG pState)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET  APIENTRY  DosRawReadNPipe(HPIPE hPipe,
                                   PVOID pBuffer,
                                   ULONG cbRead,
                                   PULONG pcbActual)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET  APIENTRY  DosRawWriteNPipe(HPIPE hPipe,
                                    PVOID pBuffer,
                                    ULONG cbWrite,
                                    PULONG pcbActual)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryNPipeInfo(HPIPE hpipe,
                                    ULONG infolevel,
                                    PVOID pBuf,
                                    ULONG cbBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryNPipeSemState(HSEM hsem,
                                        PPIPESEMSTATE pnpss,
                                        ULONG cbBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetNPHState(HPIPE hpipe,
                                 ULONG state)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetNPipeSem(HPIPE hpipe,
                                 HSEM hsem,
                                 ULONG key)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosTransactNPipe(HPIPE hpipe,
                                   PVOID pOutbuf,
@@ -757,57 +657,44 @@ APIRET APIENTRY  DosTransactNPipe(HPIPE hpipe,
                                   ULONG cbIn,
                                   PULONG pcbRead)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosWaitNPipe(PCSZ  pszName,
                               ULONG msec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosResetBuffer(HFILE hFile)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
-/*-----
-APIRET APIENTRY  DosClose(HFILE hFile)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
------*/
+//APIRET APIENTRY  DosClose(HFILE hFile)
+
 
 APIRET APIENTRY  DosDelete(PCSZ  pszFile)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosDupHandle(HFILE hFile,
                               PHFILE pHfile)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosFindClose(HDIR hDir)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosFindFirst(PCSZ     pszFileSpec,
                               PHDIR  phdir,
@@ -817,20 +704,18 @@ APIRET APIENTRY  DosFindFirst(PCSZ     pszFileSpec,
                               PULONG pcFileNames,
                               ULONG  ulInfoLevel)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosFindNext(HDIR   hDir,
                              PVOID  pfindbuf,
                              ULONG  cbfindbuf,
                              PULONG pcFilenames)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
                              PCSZ  pszFilesystem,
@@ -838,38 +723,30 @@ APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
                              ULONG cbData,
                              ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
                               PEAOP2 peaop2)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosMove(PCSZ  pszOld,
                          PCSZ  pszNew)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-
-
-
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY  DosQueryFHState(HFILE hFile,
                                  PULONG pMode)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryFSAttach(PCSZ     pszDeviceName,
                                   ULONG  ulOrdinal,
@@ -877,30 +754,27 @@ APIRET APIENTRY  DosQueryFSAttach(PCSZ     pszDeviceName,
                                   PFSQBUFFER2 pfsqb,
                                   PULONG pcbBuffLength)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryFSInfo(ULONG disknum,
                                 ULONG infolevel,
                                 PVOID pBuf,
                                 ULONG cbBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
                                   ULONG ulInfoLevel,
                                   PVOID pInfo,
                                   ULONG cbInfoBuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosWaitChild(ULONG action,
                              ULONG option,
@@ -908,18 +782,15 @@ APIRET APIENTRY DosWaitChild(ULONG action,
                              PPID ppid,
                              PID pid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosDevIOCtl(HFILE hDevice, ULONG category, ULONG xfunction, PVOID pParams, ULONG cbParmLenMax, PULONG pcbParmLen, PVOID pData, ULONG cbDataLenMax, PULONG pcbDataLen)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosFSCtl(PVOID pData,
                           ULONG cbData,
@@ -932,215 +803,168 @@ APIRET APIENTRY  DosFSCtl(PVOID pData,
                           HFILE hFile,
                           ULONG method)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosBeep(ULONG freq,
                         ULONG dur)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
 
 APIRET APIENTRY DosPhysicalDisk(ULONG xfunction, PVOID pBuf, ULONG cbBuf, PVOID pParams, ULONG cbParams)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosSetCp(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetProcessCp(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosStopTimer(ULONG tmr)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
-/*-----
-APIRET APIENTRY      DosQueryCp(void)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
--------*/
+
+//APIRET APIENTRY      DosQueryCp(void)
+
 
 APIRET APIENTRY   DosSetDateTime(PDATETIME pdt)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      Thk32AllocBlock(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      Thk32FreeBlock(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      Thk32R3DS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 APIRET APIENTRY DosExitList(ULONG ordercode,
                             PFNEXITLIST pfn)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosAllocProtectedMem(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET  APIENTRY DosAliasMem(PVOID pb,
                              ULONG cb,
                              PPVOID ppbAlias,
                              ULONG fl)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
-/*-----
-APIRET APIENTRY  DosAllocMem(PPVOID ppb,
-                             ULONG cb,
-                             ULONG flag)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
------*/
+
+//APIRET APIENTRY  DosAllocMem(PPVOID ppb,
+//                             ULONG cb,
+//                             ULONG flag)
 
 APIRET APIENTRY  DosAllocSharedMem(PPVOID ppb,
                                    PCSZ  pszName,
                                    ULONG cb,
                                    ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosGetNamedSharedMem(PPVOID ppb,
                                       PCSZ  pszName,
                                       ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosGetSharedMem(PVOID pb,
                                  ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosGiveSharedMem(PVOID pb,
                                   PID pid,
                                   ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
-/*----
-APIRET APIENTRY  DosFreeMem(PVOID pb)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-----*/
+
+//APIRET APIENTRY  DosFreeMem(PVOID pb)
+
 
 APIRET APIENTRY  DosSetMem(PVOID pb,
                            ULONG cb,
                            ULONG flag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosQueryMem(PVOID pb,
                              PULONG pcb,
                              PULONG pFlag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET  APIENTRY DosQueryMemState(PVOID pb,
                                   PULONG cb,
                                   PULONG pFlag)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOpenVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRequestVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosCloseVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosCreateThread(PTID ptid,
                                 PFNTHREAD pfn,
@@ -1148,474 +972,377 @@ APIRET APIENTRY DosCreateThread(PTID ptid,
                                 ULONG flag,
                                 ULONG cbStack)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
                                  PPIB *pppib)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosAllocProtSeg(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosAllocShrProtSeg(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosAllocProtHuge(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosDynamicTrace(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosDebug(PVOID pdbgbuf)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
                                ULONG cbName,
                                PCSZ  pszModname,
                                PHMODULE phmod)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryModuleHandle(const PSZ pszModname, PHMODULE phmod)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosFreeModule(HMODULE hmod)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosQueryAppType(PCSZ pszName,
                                      PULONG pFlags)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCreateEventSem(PCSZ pszName, PHEV phev, ULONG flAttr, BOOL32 fState)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosOpenEventSem(PCSZ pszName, PHEV phev)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCloseEventSem(HEV hev)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosResetEventSem(HEV hev, PULONG pulPostCt)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosPostEventSem(HEV hev)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosWaitEventSem(HEV hev, ULONG ulTimeout)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryEventSem(HEV hev, PULONG pulPostCt)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCreateMutexSem(PCSZ pszName, PHMTX phmtx, ULONG flAttr, BOOL32 fState)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosOpenMutexSem(PCSZ pszName, PHMTX phmtx)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCloseMutexSem(HMTX hmtx)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosRequestMutexSem(HMTX hmtx, ULONG ulTimeout)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosReleaseMutexSem(HMTX hmtx)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryMutexSem(HMTX hmtx, PPID ppid, PTID ptid, PULONG pulCount)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCreateMuxWaitSem(PCSZ pszName, PHMUX phmux, ULONG cSemRec, PSEMRECORD pSemRec, ULONG flAttr)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosOpenMuxWaitSem(PCSZ pszName, PHMUX phmux)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosCloseMuxWaitSem(HMUX hmux)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosWaitMuxWaitSem(HMUX hmux, ULONG ulTimeout, PULONG pulUser)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosAddMuxWaitSem(HMUX hmux, PSEMRECORD pSemRec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosDeleteMuxWaitSem(HMUX hmux, HSEM hSem)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryMuxWaitSem(HMUX hmux, PULONG pcSemRec, PSEMRECORD pSemRec, PULONG pflAttr)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosSubSetMem(PVOID pbBase,
                               ULONG flag,
                               ULONG cb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosSubAllocMem(PVOID pbBase,
                                 PPVOID ppb,
                                 ULONG cb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosSubFreeMem(PVOID pbBase,
                                PVOID pb,
                                ULONG cb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
 
 
 APIRET APIENTRY DosWaitThread(PTID ptid,
                               ULONG option)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosAsyncTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosStartTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosGetResource(HMODULE hmod, ULONG idType, ULONG idName, PPVOID ppb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosFreeResource(PVOID pb)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRaiseException(PEXCEPTIONREPORTRECORD pexcept)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
                                         PVOID pTargetIP,
                                         PEXCEPTIONREPORTRECORD pERepRec)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryPageUsage(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryModFromCS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryModFromEIP(HMODULE const *  phMod, ULONG const *  pObjNum, ULONG BuffLen, PCHAR pBuff, ULONG const *  pOffset, ULONG Address)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosFPDataArea(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosTmrQueryFreq(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosTmrQueryTime(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosAliasPerfCtrs(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosConfigPerf(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosDeconPerf(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRegisterPerfCtrs(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQuerySysState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosFlatCS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosFlatDS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryABIOSSupport(ULONG reserved)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY  DosEnumAttribute(ULONG  ulRefType,
                                   PVOID  pvFile,
@@ -1625,1386 +1352,1173 @@ APIRET APIENTRY  DosEnumAttribute(ULONG  ulRefType,
                                   PULONG pulCount,
                                   ULONG  ulInfoLevel)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryDOSProperty(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetDOSProperty(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      DosSetSignalExceptionFocus(BOOL32 flag,
                                                 PULONG pulTimes)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 APIRET APIENTRY      DosSendSignalException(PID apid,
                                             ULONG exception)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosEnterMustComplete(PULONG pulNesting)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosExitMustComplete(PULONG pulNesting)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
                                 PULONG pcbCurMaxFH)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-
+  return unimplemented(__FUNCTION__);
+}
 
 
 
 
 APIRET APIENTRY      DosIQueryMessageCP(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosCaseMap(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGetCollate(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGetCtryInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosGetDBCSEv(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryCtryInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
-/*-----
-APIRET APIENTRY      DosQueryDBCSEnv(void)
-{
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
-------*/
+
+//APIRET APIENTRY      DosQueryDBCSEnv(void)
+
 
 APIRET APIENTRY      DosMapCase(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryCollate(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMakeNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQNmPipeInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosConnectNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosDisconnectNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQNmPHandState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetNmPHandState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosPeekNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosWaitNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosTransactNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosCallNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRawReadNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosRawWriteNmPipe(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSetNmPipeSem(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQNmPipeSemState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      StartLazyWriter(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      _QueInst_Data(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosShutdown(ULONG ulReserved)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosICacheModule(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosReplaceModule(const PSZ pszOldModule, const PSZ pszNewModule, const PSZ pszBackupModule)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      DosAcknowledgeSignalException(ULONG ulSignalNum)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosTIB(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      DosIODelayCnt(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      LogOpen(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogClose(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogAddEntries(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogGetEntries(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogSetState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogSetName(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      LogQueryState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosOpenChangeNotify(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosResetChangeNotify(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosCloseChangeNotify(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosForceSystemDump(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosAllocThreadLocalMemory(ULONG cb, PULONG *p)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosFreeThreadLocalMemory(ULONG *p)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosVerifyPidTid(PID Pid, TID Tid)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      PTDA_LANMAN_SEC(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_PID(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      SAS_SEL(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_OPCOOKIE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_OPFLAGS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_NEWFLAGS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_USER_ID(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_PROC_ID(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_FSHARING(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_SRVATTRIB(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_ALLOWED(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_PRTCB(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_NUMBER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_THISSFT(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TCB_THISCDS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TKOPTDA(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_CRITSEC(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_HOLDSIGCNT(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_PPTDAPARENT(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_PGDATA(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_HANDLE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_MODULE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_LDTHANDLE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_CODEPAGE_TAG(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_JFN_LENGTH(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_JFN_PTABLE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_JFN_FLG_PTR(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_EXTERR_LOCUS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_EXTERR(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_EXTERR_ACTION(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_EXTERR_CLASS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_PPID(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_PROCTYPE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      PTDA_CURRTCB(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_CURRTSD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      PTDA_SIGNATURE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32EXITLIST(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ALLOCPROTECTEDMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ALIASMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ALLOCMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ALLOCSHAREDMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32GETNAMEDSHAREDMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32GETSHAREDMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32GIVESHAREDMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32FREEMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32SETMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYMEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYMEMSTATE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32OPENVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32REQUESTVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CLOSEVDD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CREATETHREAD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32DYNAMICTRACE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32DEBUG(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYPROCADDR(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CREATEEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32OPENEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CLOSEEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32RESETEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32POSTEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32WAITEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYEVENTSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CREATEMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32OPENMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CLOSEMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32REQUESTMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32RELEASEMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYMUTEXSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CREATEMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32OPENMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CLOSEMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32WAITMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ADDMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32DELETEMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYMUXWAITSEM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYSYSINFO(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32WAITTHREAD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32GETRESOURCE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32FREERESOURCE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32EXCEPTIONCALLBACK(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYPAGEUSAGE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosExceptionCallBack(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TI32ASYNCTIMER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TI32STARTTIMER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosR3ExceptionDispatcher(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLibiDisp(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLibiDisp16(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLibiDisp32(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosR3ExitAddr(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      T32IREAD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32IWRITE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32TMRQUERYFREQ(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32TMRQUERYTIME(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ALIASPERFCTRS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CONFIGUREPERF(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32DECONPERF(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32REGISTERPERFCTRS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYSYSSTATE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetFileInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetPathInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYDOSPROPERTY(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32SETDOSPROPERTY(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIFindNext(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32PROFILE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYRESOURCESIZE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryResourceSize(HMODULE hmod, ULONG idt, ULONG idn, PULONG pulsize)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      T32SETSIGNALEXCEPTIONFOCUS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32SENDSIGNALEXCEPTION(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32STARTTIMER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32STOPTIMER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ASYNCTIMER(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32INITIALIZEPORTHOLE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosInitializePorthole(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYHEADERINFO(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryHeaderInfo(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32QUERYPROCTYPE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosQueryProcType(HMODULE hmod, ULONG ordinal, const PSZ pszName, PULONG pulproctype)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY      T32IEXITMUSTCOMPLETE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISigDispatch(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ICACHEMODULE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32DLLTERM(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosDllTermDisp(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32IRAISEEXCEPTION(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIRaiseException(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32ACKNOWLEDGESIGNALEXC(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosPM16SemChk(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIQueryFHState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosISetFHState(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosLDTSel(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosR3Frestor(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosIFindFirst(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32SETFILELOCKS(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32CANCELLOCKREQUEST(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32IMONREAD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32IMONWRITE(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMonOpen(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMonClose(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMonRead(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMonWrite(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosMonReg(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      T32KILLTHREAD(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      TQUERYRASINFO(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY  DosProtectEnumAttribute(ULONG ulRefType,
@@ -3016,19 +2530,15 @@ APIRET APIENTRY  DosProtectEnumAttribute(ULONG ulRefType,
                                          ULONG ulInfoLevel,
                                          FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY  DosProtectClose(HFILE hFile,
                                  FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY  DosProtectRead(HFILE hFile,
@@ -3037,10 +2547,9 @@ APIRET APIENTRY  DosProtectRead(HFILE hFile,
                                 PULONG pcbActual,
                                 FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectWrite(HFILE hFile,
                                  PVOID pBuffer,
@@ -3048,10 +2557,9 @@ APIRET APIENTRY  DosProtectWrite(HFILE hFile,
                                  PULONG pcbActual,
                                  FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectSetFileInfo(HFILE hf,
                                        ULONG ulInfoLevel,
@@ -3059,28 +2567,25 @@ APIRET APIENTRY  DosProtectSetFileInfo(HFILE hf,
                                        ULONG cbInfoBuf,
                                        FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectSetFHState(HFILE hFile,
                                       ULONG mode,
                                       FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectQueryFHState(HFILE hFile,
                                         PULONG pMode,
                                         FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectQueryFileInfo(HFILE hf,
                                          ULONG ulInfoLevel,
@@ -3088,62 +2593,53 @@ APIRET APIENTRY  DosProtectQueryFileInfo(HFILE hf,
                                          ULONG cbInfoBuf,
                                          FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosCloseMessageFile(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosSetExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
+
 
 APIRET APIENTRY DosQueryExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSysCtl(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosQueryThreadContext(TID atid,
                                            ULONG level,
                                            PCONTEXTRECORD pcxt)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosSGQueryTopmost(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY      DosPerfSysCall(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosOpenL(PCSZ  pszFileName,
                          PHFILE phf,
@@ -3154,10 +2650,9 @@ APIRET APIENTRY DosOpenL(PCSZ  pszFileName,
                          ULONG fsOpenMode,
                          PEAOP2 peaop2)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectOpenL(PCSZ  pszFileName,
                                  PHFILE phf,
@@ -3169,10 +2664,9 @@ APIRET APIENTRY  DosProtectOpenL(PCSZ  pszFileName,
                                  PEAOP2 peaop2,
                                  PFHLOCK pfhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosProtectSetFileLocksL(HFILE hFile,
                                         PFILELOCKL pflUnlock,
@@ -3180,10 +2674,9 @@ APIRET APIENTRY DosProtectSetFileLocksL(HFILE hFile,
                                         ULONG timeout, ULONG flags,
                                         FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosProtectSetFilePtrL(HFILE hFile,
                                        LONGLONG ib,
@@ -3191,19 +2684,17 @@ APIRET APIENTRY  DosProtectSetFilePtrL(HFILE hFile,
                                        PLONGLONG ibActual,
                                        FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY   DosProtectSetFileSizeL(HFILE hFile,
                                          LONGLONG cbSize,
                                          FHLOCK fhFileHandleLockID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosSetFileLocksL(HFILE hFile,
                                  PFILELOCKL pflUnlock,
@@ -3211,62 +2702,52 @@ APIRET APIENTRY DosSetFileLocksL(HFILE hFile,
                                  ULONG timeout,
                                  ULONG flags)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
                                       PFILELOCKL pflLock)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,
                                 ULONG method,
                                 PLONGLONG ibActual)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
                                  LONGLONG cbSize)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
 
 
 APIRET APIENTRY      DosSystemService(void)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY  DosListIOL(LONG CmdMODE,
                             LONG NumEntries,
                             PLISTIOL pListIO)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }
 
 
 APIRET  APIENTRY        DosCreateThread2(PTHREADCREATE ptc)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosEditName(ULONG metalevel,
                             PCSZ pszSource,
@@ -3274,15 +2755,11 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
                             PSZ pszTarget,
                             ULONG cbTarget)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0; }
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET APIENTRY DosExitCritSec(VOID)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =__FUNCTION__" not implemented yet\n";
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
-  return 0;
+  return unimplemented(__FUNCTION__);
 }

@@ -42,6 +42,7 @@ cfg_opts options;
 //struct t_mem_area os2server_root_mem_area;
 
 l4_threadid_t os2srv;
+l4_threadid_t fs;
 l4_threadid_t execsrv;
 l4_threadid_t loader;
 
@@ -281,20 +282,6 @@ os2exec_query_procaddr_component (CORBA_Object _dice_corba_obj,
 }
 
 
-unsigned long CfgGetenv(char *name, char **value)
-{
-  CORBA_Environment env = dice_default_environment;
-  return os2server_cfg_getenv_call(&os2srv, name, value, &env);
-}
-
-
-unsigned long CfgGetopt(const char *name, int *is_int, int *value_int, char **value_str)
-{
-  CORBA_Environment env = dice_default_environment;
-  return os2server_cfg_getopt_call (&os2srv, name, is_int, value_int,
-                                    value_str, &env);
-}
-
 /** attach dataspace to our address space. */
 int
 attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr)
@@ -429,7 +416,7 @@ void main (int argc, char *argv[])
   char buf[0x1000];
   char *p = buf;
 
-  init_globals();
+  //init_globals();
 
   if (!names_register("os2exec"))
     {
@@ -442,6 +429,13 @@ void main (int argc, char *argv[])
       LOG("os2srv not found on name server!");
       return;
     }
+
+  if (!names_waitfor_name("os2fs", &fs, 30000))
+    {
+      LOG("os2fs not found on name server!");
+      return;
+    }
+  LOG("os2fs tid:%x.%x", fs.id.task, fs.id.lthread);
 
   if (!names_waitfor_name("LOADER", &loader, 30000))
     {

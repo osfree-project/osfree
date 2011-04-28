@@ -75,6 +75,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosdatetime.h &
      $(OUT)$(SEP)os2$(SEP)pm.h &
      $(OUT)$(SEP)os2$(SEP)pmdef.h &
+     $(OUT)$(SEP)os2$(SEP)pmavio.h &
      $(OUT)$(SEP)os2$(SEP)pmbase.h &
      $(OUT)$(SEP)os2$(SEP)pmdev.h &
      $(OUT)$(SEP)os2$(SEP)devcommon.h &

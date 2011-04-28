@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <string.h>
 
+#include "strnlen.h"
+
 size_t
 strlcat(char *dst, const char *src, size_t siz)
 {
@@ -19,9 +21,9 @@ strlcat(char *dst, const char *src, size_t siz)
 
   if (n == 0)
     return(dlen + strnlen(s, siz));
-  while (*s != '\0') 
+  while (*s != '\0')
   {
-    if (n != 1) 
+    if (n != 1)
     {
       *d++ = *s;
       n--;
@@ -30,5 +32,5 @@ strlcat(char *dst, const char *src, size_t siz)
   }
   *d = '\0';
 
-  return(dlen + (s - src));	/* count does not include NUL */
+  return(dlen + (s - src));     /* count does not include NUL */
 }

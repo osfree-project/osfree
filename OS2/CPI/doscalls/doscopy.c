@@ -228,7 +228,8 @@ CheckPath(char *path,int create)
 //            Verbose(1,"stat(%s) - no directory",dir);
             return -1;
         }
-    }*/
+    }
+*/
     return 0;
 }
 
@@ -291,7 +292,7 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
 
             if( pDirList )
             {
-                rc = DosAllocMem(&(pDirList->next),
+                rc = DosAllocMem((void **)&(pDirList->next),
                                  sizeof(struct dirlist_t),
                                  fPERM|PAG_COMMIT);
 //                assert( pDirList->next != NULL );
@@ -299,7 +300,7 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
             }
             else
             {
-                rc = DosAllocMem(&(pDirListRoot),
+                rc = DosAllocMem((void **)&(pDirListRoot),
                                  sizeof(struct dirlist_t),
                                  fPERM|PAG_COMMIT);
                 pDirList = pDirListRoot;

@@ -101,11 +101,13 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
     {
       c->curdisk = parentproc->curdisk;
       strcpy(c->curdir, parentproc->curdir);
+      //c->session = parentproc->session;
     }
     else
     {
       c->curdisk = 'c' - 'a' + 1;
       *(c->curdir) = '\0';
+      //c->session = 
     }
 
     pid++;
@@ -152,7 +154,7 @@ os2server_app_notify_component (CORBA_Object _dice_corba_obj,
   proc->lx_pib->pib_hmte = s->hmod;
   proc->main_tib->tib_pstack = s->sp;
   proc->main_tib->tib_pstacklimit = s->sp_limit;
-  proc->main_tib->tib_ptib2->tib2_ultid = 1;
+  proc->main_tib->tib_ptib2->tib2_ultid = 1;  // @todo: implement real thread ids
 }
 
 
@@ -169,7 +171,7 @@ void PrcDestroy(struct t_os2process * proc) {
       next->prev = prev;
       
     free(proc->lx_pib->pib_pchenv);
-    free(proc->lx_pib->pib_pchcmd);
+    //free(proc->lx_pib->pib_pchcmd);
     free(proc->lx_pib);
     free(proc->main_tib);
     free(proc);
@@ -564,7 +566,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   unsigned long cbName;
   char *arg, *env;
   char *p, *q;
-  int  i, l, len;
+  int  i, k, l, envlen, arglen, len;
 #ifdef L4API_l4v2
   l4_addr_t pageaddr, addr2;
   IXFSYSDEP *ixfSysDep;
@@ -702,7 +704,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     if (pName[0] != '\\' && (pName[1] != ':' || pName[2] != '\\')) // absolute path
     {
     // Searches for module name and returns the full path in the buffer p_buf.
-      rc=find_path(pName, &p_buf);
+      rc=find_path(pName, p_buf);
       if (rc!=0/*NO_ERROR*/)
       {
         LOG("PrcExecuteModule: Can't find %s module", pName);
@@ -718,31 +720,19 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     if (!pEnv || !*pEnv)
       pEnv = "\0\0";
     
+    k = strlen(p_buf) + 1;
+
+    LOG("k=%d", k);
+
     /* get args length */
-    len = strlstlen(pArg);
+    arglen = strlstlen(pArg);
 
-    LOG("len=%d", len);
-
-    l = strlen(p_buf);
-
-    LOG("l=%d", l);
-
-    arg = (char *)malloc(len + l + 1);
-
-    if (!arg)
-    {
-      LOG("malloc: not enough memory!");
-      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
-    } 
-
-    strcpy(arg, p_buf);
-    memmove(arg + l + 1, pArg, len);
-
-    for (i = 0; i < len + l + 1; i++) LOG("%02x ", arg[i]);
-    LOG("\n");
+    LOG("arglen=%d", arglen);
 
     /* get env length */
-    len = strlstlen(pEnv);
+    envlen = strlstlen(pEnv);
+
+    LOG("envlen=%d", envlen);
     
     if (ppid) // ordinary process, inherits parent env
     {
@@ -751,7 +741,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
       l = strlstlen(parentproc->lx_pib->pib_pchenv);
 
-      env = (char *)malloc(len + l);
+      env = (char *)malloc(envlen + l + arglen + k);
       
       if (!env)
       {
@@ -762,7 +752,11 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       /* copy without last NULL */
       memmove(env, parentproc->lx_pib->pib_pchenv, l - 1);
       /* copy with last NULL (inherited env) */
-      memmove(env + l - 1, pEnv, len);
+      /* @todo: add env vars redefining, not just appending */
+      memmove(env + l - 1, pEnv, envlen);
+      l += envlen - 1;
+      if (env[l] == NULL)
+        l--;
     }
     else // started as protshell=/call=/run=, uses env from config.sys
     {
@@ -770,16 +764,16 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       int  i;
       char *s;
     
-      len = 0;
+      envlen = 0;
 
       /* get a sum of all strings lengths */
       for (i = 0; i < n; i++)
         if (type[3].sp[i].string)
-          len += strlen(type[3].sp[i].string) + 1;
+          envlen += strlen(type[3].sp[i].string) + 1;
       /* count the ending NULL */
-      len++;
+      envlen++;
       
-      env = (char *)malloc(len);
+      env = (char *)malloc(envlen + arglen + k + 1);
       
       if (!env)
       {
@@ -794,10 +788,46 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       }
       env[l++] = '\0';
     }
-    
+
+    // the first copy of program name
+    // at the end of the environment
+    strcpy(env + l, p_buf);
+
+    for (i = 0; i < k - 1; i++)
+      env[l + i] = toupper(env[l + i]);
+
+    arg = env + l + k;
+    // second '\0'
+    //arg[0] = '\0';
+    //arg++;
+
+    // program name (2nd copy)
+    strcpy(arg, p_buf);
+
+    for (i = 0; i < k - 1; i++)
+      arg[i] = toupper(arg[i]);
+
+    for (i = 0, p = pArg; p[i]; i += len + 1)
+    {
+      len = strlen(p + i);
+      strcpy(arg + k + i, p + i);
+      arg[k + i + len] = ' ';
+    }
+    while (arg[k + i] == ' ') i++;
+    if (arg[k + i]) i--;
+    arg[k + i] = '\0'; i++;
+    arg[k + i] = '\0'; i++;
+
+    k = arg - env + k + i;
+    for (i = 0; i < k; i++)
+    if (env[i])
+      LOG("%c", env[i]);
+    else
+      LOG("\\0");    
+
     #if defined(L4API_l4v2)
     /* execute it */
-    l4os2_exec(p_buf, arg, env, PrcCreate(ppid));
+    l4_os2_exec(p_buf, arg, env, PrcCreate(ppid));
     #endif
 
     if (options.debugprcmgr) LOG("Done executing exe.");
@@ -824,54 +854,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
 //APIRET APIENTRY DosSearchPath(ULONG,PCSZ,PCSZ,PBYTE,ULONG);
 
-
-unsigned int find_path(const char * name, char **full_path_name)
-{
-  FILE *f;
-  char *p;
-  #define buf_size 4096
-  char buf[buf_size+1];
-  char *path = (char *) buf;
-  STR_SAVED_TOKENS st;
-  char * p_buf = *full_path_name;
-  char *sep="\\";
-  char *psep=";";
-
-  //CfgGetenv("PATH", &path);
-  //LOG("path=%s", path);
-  //LOG("name=%s", name);
-  //LOG("strlen(name)=%d", strlen(name));
-  strcpy(buf, "=c:");
-  path = buf + 1;
-
-  p = path - 1;
-
-  StrTokSave(&st);
-  if((p = StrTokenize((char*)path, psep)) != 0) do if(*p)
-  {
-    p_buf = *full_path_name;
-    p_buf[0] = 0;
-    LOG(p);
-    if (!strcmp(p,"."))
-    {
-      strcat(p_buf, options.bootdrive);
-      strcat(p_buf, "\\"); // For OS2Server current directory is always root
-    } else {
-      strcat(p_buf, p);
-      strcat(p_buf, sep);
-    }
-    strcat(p_buf, name);
-    f = fopen(os2_fname_to_vfs_fname(p_buf), "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-    if(f)
-    {
-      StrTokStop();
-      return 0/*NO_ERROR*/;
-    }
-  } while((p = StrTokenize(0, psep)) != 0);
-  StrTokRestore(&st);
-
-  return 2/*ERROR_FILE_NOT_FOUND*/;
-}
 
 
 #if 0

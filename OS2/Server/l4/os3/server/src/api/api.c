@@ -29,114 +29,14 @@
 
 #include <dice/dice.h>
 
+#include <l4/os2fs/os2fs-client.h>
+
+extern l4_threadid_t fs;
 extern l4_threadid_t os2srv;
 extern struct t_os2process *proc_root;
 
 int
 attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr);
-
-
-APIRET
-os2server_dos_Read_component(CORBA_Object _dice_corba_obj,
-                             HFILE hFile, void **pBuffer,
-                             ULONG *pcbRead,
-                             short *dice_reply,
-                             CORBA_Server_Environment *_dice_corba_env)
-{
-  int  c;
-  int  nread = 0;
-  int  total = 1;
-
-  nread = read(hFile, (char *)*pBuffer, *pcbRead);
-  if (nread == -1)
-  {
-    LOG("read() error, errno=%d", errno);
-    switch (errno)
-    {
-      // @todo: more accurate error handling
-      default:
-        return 232; //ERROR_NO_DATA
-    }
-  }
-  *pcbRead = nread;
-
-
-  return 0; // NO_ERROR
-}
-
-APIRET
-os2server_dos_Write_component(CORBA_Object _dice_corba_obj,
-                              HFILE hFile, PVOID pBuffer,
-                              ULONG *pcbWrite,
-                              short *dice_reply,
-	 		      CORBA_Server_Environment *_dice_corba_env)
-{
-  char *s;
-  int  nwritten;
-
-  LOG("entered");
-  nwritten = write(hFile, pBuffer, *pcbWrite);
-  LOG("in the middle");
-  if (nwritten == -1)
-  {
-    LOG("write() error, errno=%d", errno);
-    switch (errno)
-    {
-      // @todo: more accurate error handling
-      default:
-        return 232; //ERROR_NO_DATA
-    }
-  }
-
-  LOG("nwritten=%u", nwritten);
-  *pcbWrite = nwritten;
-  LOG("exited");
-  return 0/*NO_ERROR*/;
-}
-
-APIRET
-os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
-                             ULONG action, ULONG result,
-                             CORBA_Server_Environment *_dice_corba_env)
-{
-  int t, ret;
-  unsigned long ppid;
-  struct t_os2process *proc, *parentproc;  
-  
-  // get caller t_os2process structure
-  proc = PrcGetProcL4(*_dice_corba_obj);
-
-  // kill calling thread
-  if ((t = l4ts_kill_task(*_dice_corba_obj, L4TS_KILL_SYNC)))
-    LOG("Error %d killing task\n", t);
-  else
-    LOG("task killed");
-
-  LOG("0");
-  // get parent pid
-  ppid = proc->lx_pib->pib_ulppid;
-  
-  LOG("1");
-  if (ppid) // if not protshell (which has no parent)
-  {
-    // get parent proc
-    LOG("2");
-    parentproc = PrcGetProc(ppid);
-
-    // unblock parent thread
-    LOG("3");
-    l4semaphore_up(&parentproc->term_sem);
-    LOG("4");
-  }
-  
-  // destroy calling thread's proc
-  LOG("5");
-  PrcDestroy(proc);
-  LOG("6");
-
-  return 0;
-}
-
 
 APIRET DICE_CV
 os2server_dos_QueryCurrentDisk_component (CORBA_Object _dice_corba_obj,
@@ -144,6 +44,7 @@ os2server_dos_QueryCurrentDisk_component (CORBA_Object _dice_corba_obj,
                                           ULONG *plogical /* out */,
                                           CORBA_Server_Environment *_dice_corba_env)
 {
+  CORBA_Environment env = dice_default_environment;
   ULONG n;
   struct t_os2process *proc;
   LOG("1");
@@ -153,7 +54,11 @@ os2server_dos_QueryCurrentDisk_component (CORBA_Object _dice_corba_obj,
   LOG("2");
   n = proc->curdisk;
   *pdisknum = n;
-  *plogical = 1 << (n - 1);
+
+  // get drive map from fs server  
+  LOG("os2fs tid: %x.%x", fs.id.task, fs.id.lthread);
+  os2fs_get_drivemap_call(&fs, plogical, &env);
+  //*plogical = 1 << (n - 1);
   LOG("3");
 
   return 0; /* NO_ERROR */
@@ -167,17 +72,19 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object _dice_corba_obj,
                                          ULONG *pcbBuf /* out */,
                                          CORBA_Server_Environment *_dice_corba_env)
 {
+  CORBA_Environment env = dice_default_environment;
   ULONG disk, map;
   struct t_os2process *proc;
   struct I_Fs_srv *fs_srv;
-  char *curdir;
+  char buf[0x100];
+  char *curdir = buf;
   char drv;
   int i;
 
   LOG("1");
   proc = PrcGetProcL4(*_dice_corba_obj);
   curdir = proc->curdir;
-  
+
   LOG("2");
   if (!disknum)
     os2server_dos_QueryCurrentDisk_component(_dice_corba_obj, &disk, &map, _dice_corba_env);
@@ -185,6 +92,7 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object _dice_corba_obj,
     disk = disknum;
 
   LOG("3");
+#if 0
   for (i = 0; i < fsrouter.srv_num_; i++)
   {
     fs_srv = fsrouter.fs_srv_arr_[i];
@@ -196,6 +104,10 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object _dice_corba_obj,
   LOG("4");
   if (i == fsrouter.srv_num_)
      return 15; /* ERROR_INVALID_DRIVE */
+#endif
+
+  if (!((1 << (disk - 1)) & map))
+    return 15; /* ERROR_INVALID_DRIVE */
 
   LOG("5");
   if (!*pcbBuf)
@@ -253,15 +165,18 @@ os2server_dos_SetCurrentDir_component (CORBA_Object _dice_corba_obj,
                                        PSZ pszDir /* in */,
                                        CORBA_Server_Environment *_dice_corba_env)
 {
+  CORBA_Environment env = dice_default_environment;
   struct t_os2process *proc;
+  ULONG disknum;
   char str[0x100];
-  char *s;
+  char buf[0x100];
+  char *s = buf;
   char *p, *q, *r;
 
   proc = PrcGetProcL4(*_dice_corba_obj);
   
   if (proc == NULL)
-    return 303; /* ERROR_INVALID_PROCID */
+      return 303; /* ERROR_INVALID_PROCID */
   
   s = proc->curdir;
 
@@ -303,6 +218,88 @@ os2server_dos_SetCurrentDir_component (CORBA_Object _dice_corba_obj,
   
   return 0; /* NO_ERROR */
 }
+
+APIRET DICE_CV
+os2server_dos_SetDefaultDisk_component (CORBA_Object _dice_corba_obj,
+                                        ULONG disknum /* in */,
+                                        CORBA_Server_Environment *_dice_corba_env)
+{
+  CORBA_Environment env = dice_default_environment;
+  struct t_os2process *proc;
+  struct I_Fs_srv *fs_srv;
+  ULONG  map;
+  char   drv;
+  int    i;
+
+  proc = PrcGetProcL4(*_dice_corba_obj);
+#if 0
+  for (i = 0; i < fsrouter.srv_num_; i++)
+  {
+    fs_srv = fsrouter.fs_srv_arr_[i];
+    drv = tolower(*(fs_srv->drive));
+    if (disknum == drv - 'a' + 1)
+      break;
+  }
+
+  if (i == fsrouter.srv_num_)
+     return 15; /* ERROR_INVALID_DRIVE */
+#endif
+
+  // get drive map from fs server  
+  os2fs_get_drivemap_call(&fs, &map, &env);
+
+  if (!((1 << (disknum - 1)) & map))
+    return 15; /* ERROR_INVALID_DRIVE */
+
+  proc->curdisk = disknum;
+
+
+  return 0; /* NO_ERROR */
+}
+
+APIRET
+os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
+                             ULONG action, ULONG result,
+                             CORBA_Server_Environment *_dice_corba_env)
+{
+  int t, ret;
+  unsigned long ppid;
+  struct t_os2process *proc, *parentproc;  
+  
+  // get caller t_os2process structure
+  proc = PrcGetProcL4(*_dice_corba_obj);
+
+  // kill calling thread; @todo: implement real thread termination!
+  if ((t = l4ts_kill_task(*_dice_corba_obj, L4TS_KILL_SYNC)))
+    LOG("Error %d killing task\n", t);
+  else
+    LOG("task killed");
+
+  LOG("0");
+  // get parent pid
+  ppid = proc->lx_pib->pib_ulppid;
+  
+  LOG("1");
+  if (ppid) // if not protshell (which has no parent)
+  {
+    // get parent proc
+    LOG("2");
+    parentproc = PrcGetProc(ppid);
+
+    // unblock parent thread
+    LOG("3");
+    l4semaphore_up(&parentproc->term_sem);
+    LOG("4");
+  }
+  
+  // destroy calling thread's proc
+  LOG("5");
+  PrcDestroy(proc);
+  LOG("6");
+
+  return 0;
+}
+
 
 struct DosExecPgm_params {
   struct t_os2process *proc;
@@ -438,199 +435,8 @@ os2server_dos_ExecPgm_component (CORBA_Object _dice_corba_obj,
   return 0;
 }
 
-APIRET DICE_CV
-os2server_dos_Error_component (CORBA_Object _dice_corba_obj,
-                               ULONG error /* in */,
-                               CORBA_Server_Environment *_dice_corba_env)
-{
-  return 0; /* NO_ERROR */
-}
-
-
-APIRET DICE_CV
-os2server_dos_SetDefaultDisk_component (CORBA_Object _dice_corba_obj,
-                                        ULONG disknum /* in */,
-                                        CORBA_Server_Environment *_dice_corba_env)
-{
-  struct t_os2process *proc;
-  struct I_Fs_srv *fs_srv;
-  char   drv;
-  int    i;
-
-  proc = PrcGetProcL4(*_dice_corba_obj);
-
-  for (i = 0; i < fsrouter.srv_num_; i++)
-  {
-    fs_srv = fsrouter.fs_srv_arr_[i];
-    drv = tolower(*(fs_srv->drive));
-    if (disknum == drv - 'a' + 1)
-      break;
-  }
-
-  if (i == fsrouter.srv_num_)
-     return 15; /* ERROR_INVALID_DRIVE */
-
-  proc->curdisk = disknum;
-
-  return 0; /* NO_ERROR */
-}
-
-APIRET DICE_CV
-os2server_dos_ResetBuffer_component (CORBA_Object _dice_corba_obj,
-                                     HFILE handle /* in */,
-                                     CORBA_Server_Environment *_dice_corba_env)
-{
-  return 0; /* NO_ERROR */
-}
-
-#define FILE_BEGIN   0
-#define FILE_CURRENT 1
-#define FILE_END     2
-
-APIRET DICE_CV
-os2server_dos_SetFilePtr_component (CORBA_Object _dice_corba_obj,
-                                    HFILE handle /* in */,
-                                    long ib /* in */,
-                                    ULONG method /* in */,
-                                    ULONG *ibActual /* out */,
-                                    CORBA_Server_Environment *_dice_corba_env)
-{
-  long pos, ret;
-  unsigned long len;
-  struct stat stat;
-  
-  ret = fstat(handle, &stat);
-
-  if (ret == -1)
-    return 6; /* ERROR_INVALID_HANDLE */
-
-  /* get length */
-  len = stat.st_size;
-  /* get current position */
-  pos = lseek(handle, 0L, SEEK_CUR);
-
-  switch (method)
-  {
-  case FILE_BEGIN:
-    pos = ib;
-    break;
-  case FILE_CURRENT:
-    pos += ib;
-    break;
-  case FILE_END:
-    pos = len + ib;
-    break;
-  default:
-    pos = ib;
-  }
-
-  if (pos < 0)
-    return 131; /* ERROR_NEGATIVE_SEEK */
-
-  *ibActual = pos;
-  ret = lseek(handle, pos, SEEK_SET);
-
-  if (ret == -1)
-    return 132; /* ERROR_SEEK_ON_DEVICE */
-
-  return 0; /* NO_ERROR */
-}
-
-APIRET DICE_CV
-os2server_dos_Close_component (CORBA_Object _dice_corba_obj,
-                               HFILE handle /* in */,
-                               CORBA_Server_Environment *_dice_corba_env)
-{
-  int ret;
-  
-  ret = close(handle);
-  
-  if (ret == - 1)
-  {
-    if (errno == EBADF)
-      return 6; /* ERROR_INVALID_HANDLE */
-      
-    return 5; /* ERROR_ACCESS_DENIED */
-  }
-  
-  return 0; /* NO_ERROR */
-}
-
-
-APIRET DICE_CV
-os2server_dos_QueryHType_component (CORBA_Object _dice_corba_obj,
-                                    HFILE handle /* in */,
-                                    ULONG *pType /* out */,
-                                    ULONG *pAttr /* out */,
-                                    CORBA_Server_Environment *_dice_corba_env)
-{
-  int ret;
-  unsigned short m;
-  struct stat stat;
-  
-  ret = fstat(handle, &stat);
-
-  if (ret == -1)
-    return 6; /* ERROR_INVALID_HANDLE */
-
-  m = stat.st_mode;
-
-  if (S_ISREG(m))
-  {
-    *pType = 0; // disk file
-    *pAttr = 0;
-    return 0;
-  }
-
-  if (S_ISCHR(m))
-  {
-    *pType = 1; // character device
-    *pAttr = 0;
-    return 0;
-  }
-
-  if (S_ISFIFO(m))
-  {
-    *pType = 2; // pipe
-    *pAttr = 0;
-    return 0;
-  }
-  
-  return 0; /* NO_ERROR */
-}
-
-
-APIRET DICE_CV
-os2server_dos_QueryDBCSEnv_component (CORBA_Object _dice_corba_obj,
-                                      ULONG *cb /* in, out */,
-                                      COUNTRYCODE *pcc /* out */,
-                                      const char **pBuf /* in */,
-                                      CORBA_Server_Environment *_dice_corba_env)
-{
-  if (cb)
-    memset(*pBuf, 0, *cb); // empty
-    
-  return 0; /* NO_ERROR */
-}
-
-
-APIRET DICE_CV
-os2server_dos_QueryCp_component (CORBA_Object _dice_corba_obj,
-                                 ULONG cb /* in */,
-                                 ULONG *arCP /* out */,
-                                 ULONG *pcCP /* out */,
-                                 CORBA_Server_Environment *_dice_corba_env)
-{
-  if (cb < 3 * sizeof(ULONG))
-    return 473; /* ERROR_CPLIST_TOO_SMALL */
-
-  arCP[0] = 437; /* current codepage   */
-  arCP[1] = 437; /* primary codepage   */
-  arCP[2] = 850; /* secondary codepage */
-  *pcCP = 3 * sizeof(ULONG);
-  
-  return 0; /* NO_ERROR */
-}
+int
+strlstlen(char *p);
 
 /* copy string lists */
 int
@@ -668,7 +474,7 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
   PTIB  ptib, pt;
   PTIB2 ptib2, pt2;
   PPIB  ppib, pp;
-  char *s1, *s2;
+  char *s1, *s2, *s3;
 
   int   len, rc;
   
@@ -681,8 +487,22 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
   ptib2 = proc->main_tib->tib_ptib2;
   
   /* total size of all info */
-  size = sizeof(PIB) + sizeof(TIB) + sizeof(TIB2) + 
-         strlen(ppib->pib_pchcmd) + 1 + strlen(ppib->pib_pchenv) + 1; 
+  size = sizeof(PIB) + sizeof(TIB) + sizeof(TIB2);
+  
+  // size of pEnv (a stringlist)
+  len   = strlstlen(ppib->pib_pchenv);
+  LOG("env len: %d", len);
+  size += len;
+  
+  // size of pPrg (a string)
+  len   = strlen(ppib->pib_pchenv + len) + 1;
+  LOG("prg len: %d", len);
+  size += len;
+
+  // size of pArg (a stringlist)
+  len   = strlstlen(ppib->pib_pchcmd);
+  LOG("arg len: %d", len);
+  size += len; 
 
   /* allocate a dataspace of a given size */	 
   rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, "OS/2 app info blocks", ds);
@@ -707,16 +527,24 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
   memmove(pp, ppib, sizeof(PIB));
 
   /* copy argv and envp */
+  // pEnv
   s1 = (char *)pp + sizeof(PIB);
-  len = strlstcpy(s1, ppib->pib_pchcmd);
+  len = strlstcpy(s1, ppib->pib_pchenv);
+  LOG("env len: %d", len);
+  // pPrg
   s2 = s1 + len;
-  len = strlstcpy(s2, ppib->pib_pchenv);
+  strcpy(s2, ppib->pib_pchenv + len);
+  LOG("prg len: %d", strlen(s2) + 1);
+  // pArg
+  s3 = s2 + strlen(s2) + 1;
+  len = strlstcpy(s3, ppib->pib_pchcmd);
+  LOG("arg len: %d", len);
 
   /* fixup addresses -- make them addr-based */
   s1 -= addr;
-  s2 -= addr;
-  pp->pib_pchcmd = s1;
-  pp->pib_pchenv = s2;
+  s3 -= addr;
+  pp->pib_pchenv = s1;
+  pp->pib_pchcmd = s3;
   pt2 = (char *)pt2 - addr;
   pt->tib_ptib2 = pt2;
   pt  = (char *)pt - addr;
@@ -737,6 +565,48 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
 
   /* detach the dataspace */
   l4rm_detach(addr);
+  
+  return 0; /* NO_ERROR */
+}
+
+APIRET DICE_CV
+os2server_dos_Error_component (CORBA_Object _dice_corba_obj,
+                               ULONG error /* in */,
+                               CORBA_Server_Environment *_dice_corba_env)
+{
+  return 0; /* NO_ERROR */
+}
+
+APIRET DICE_CV
+os2server_dos_QueryDBCSEnv_component (CORBA_Object _dice_corba_obj,
+                                      ULONG *cb /* in, out */,
+                                      COUNTRYCODE *pcc /* out */,
+                                      const char **pBuf /* in */,
+                                      CORBA_Server_Environment *_dice_corba_env)
+{
+  if (cb && *cb)
+    memset(*pBuf, 0, *cb); // empty
+    
+  return 0; /* NO_ERROR */
+}
+
+
+APIRET DICE_CV
+os2server_dos_QueryCp_component (CORBA_Object _dice_corba_obj,
+                                 ULONG *cb /* in, out */,
+                                 ULONG **arCP /* out */,
+                                 CORBA_Server_Environment *_dice_corba_env)
+{
+  if (*cb < 3 * sizeof(ULONG))
+    return 473; /* ERROR_CPLIST_TOO_SMALL */
+
+  LOG("cb=%d", *cb);
+  LOG("arCP=%x", *arCP);
+
+  (*arCP)[0] = 437; /* current codepage   */
+  (*arCP)[1] = 437; /* primary codepage   */
+  (*arCP)[2] = 850; /* secondary codepage */
+  *cb = 3 * sizeof(ULONG);
   
   return 0; /* NO_ERROR */
 }

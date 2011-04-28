@@ -218,6 +218,7 @@ unsigned long OpenModule(char *          pszName,
     }
     else if (t == -1)
     {
+      LOG("mod not loaded!");
       *phmod=NULL;
       if (cbName<=strlen(mname)) return 8 /*ERROR_NOT_ENOUGH_MEMORY*/;
       strcpy(pszName, mname);
@@ -225,6 +226,7 @@ unsigned long OpenModule(char *          pszName,
     }
 
   // Ok. No module found. Try to load file
+  LOG("open: %s", pszModname);
   // Consider fully-qualified name specified.
   rc=io_load_file(pszModname, &addr, &size);
   if (rc)
@@ -240,6 +242,9 @@ unsigned long OpenModule(char *          pszName,
     LOG("find_module_path: rc=%u, p_buf=%s", rc, p_buf);
     if (!rc) rc=io_load_file(p_buf, &addr, &size);
   }
+  else
+    LOG("successful");
+  
   if (rc)
   {
     LOG("io_load_file2: rc=%u", rc);
@@ -415,6 +420,8 @@ unsigned long LoadModule(char *          pszName,
 
   if (!strcasecmp(mname, "SUB32"))
     mname = "EMXWRAP";
+  LOG("mname=%s", mname);
+  LOG("exeflag=%d", exeflag);
   // Register in module list
   // @todo extract filename only because can be fullname with path
   new_module_el = ModRegister(mname, ixfModule, exeflag);
@@ -955,120 +962,6 @@ int find_case_file(char *file_to_find, char *path, char *buffer_of_found_file, i
 }
 #endif
 
-// This function searches LIBPATH option. Only OS/2 path formats are supported.
-
-unsigned int find_module_path(const char * name, char * full_path_name)
-{
-  FILE *f;
-  char *p = options.libpath - 1;
-  STR_SAVED_TOKENS st;
-  char * p_buf = full_path_name;
-  char *sep="\\";
-#ifdef __LINUX__
-  char *hostsep="/";
-#else
-  char *hostsep="\\";
-#endif
-  char *psep=";";
-
-  StrTokSave(&st);
-  if((p = StrTokenize((char*)options.libpath, psep)) != 0)
-  do if(*p)
-  {
-    int B_LEN = 250;
-    char buf[251];
-    char *str_buf=(char*) &buf;
-    char buf2[251];
-    char * file_to_find=(char*) &buf2;
-    long i=0;
-
-    p_buf = full_path_name;
-    p_buf[0] = '\0';
-    while (p[i]!='\0')
-    {
-      if (p[i]=='\\') p[i]=*hostsep; ++i;
-    }
-
-    strcat(p_buf, p);
-    if (p[strlen(p)-1]!=*hostsep)
-    {
-      strcat(p_buf, hostsep);
-    }
-
-    strcat(p_buf, name);
-
-    buf[0] = '\0';
-    buf2[0] = '\0';
-    strcat(file_to_find, name);
-    #ifndef L4API_l4v2
-      if(find_case_file(file_to_find, p, str_buf, B_LEN))
-      {
-        p_buf[0] = 0;
-        strcat(p_buf, p);
-        strcat(p_buf, hostsep);
-        strcat(p_buf, str_buf); /* Case corrected for file, Needed on Linux. */
-      }
-    #endif
-
-    LOG(p_buf);
-    LOG(os2_fname_to_vfs_fname(p_buf));
-
-    f = fopen(os2_fname_to_vfs_fname(p_buf), "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-    if(f)
-    {
-      StrTokStop();
-      return NO_ERROR;
-    }
-  } while((p = StrTokenize(0, psep)) != 0);
-  StrTokRestore(&st);
-
-  return 2 /*ERROR_FILE_NOT_FOUND*/;
-}
-
-unsigned int find_path(const char *name, char *full_path_name)
-{
-  FILE *f;
-  char *p;
-  #define buf_size 4096
-  char buf[buf_size+1];
-  char *path = (char *) &buf;
-  STR_SAVED_TOKENS st;
-  char * p_buf = full_path_name;
-  char *sep="\\";
-  char *psep=";";
-
-  LOG("name=%s", name);
-  LOG("full_path_name=%s", full_path_name);
-  CfgGetenv("PATH", &path);
-
-  p = path - 1;
-
-  StrTokSave(&st);
-  if((p = StrTokenize((char*)path, psep)) != 0) do if(*p)
-  {
-    p_buf = full_path_name;
-    p_buf[0] = 0;
-    LOG(p);
-    if (!strcmp(p,"."))
-    {
-      strcat(p_buf, options.bootdrive);
-      strcat(p_buf, "\\"); // For OS2Server current directory is always root
-    } else {
-      strcat(p_buf, p);
-      strcat(p_buf, sep);
-    }
-    strcat(p_buf, name);
-    f = fopen(os2_fname_to_vfs_fname(p_buf), "rb"); /* Tries to open the file, if it works f is a valid pointer.*/
-    if(f)
-    {
-      StrTokStop();
-      return 0/*NO_ERROR*/;
-    }
-  } while((p = StrTokenize(0, psep)) != 0);
-  StrTokRestore(&st);
-
-  return 2/*ERROR_FILE_NOT_FOUND*/;
-}
 
 void print_module_table()
 {

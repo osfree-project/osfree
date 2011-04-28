@@ -248,6 +248,30 @@ constant VR_VIOSETFONT              = $00000040;
 constant VR_VIOGETSTATE             = $00000080;
 constant VR_VIOSETSTATE             = $00000100;
 
+(* structure for VioGetPhysBuf() *)
+type VIOPHYSBUF = structure
+  pBuf:    PBYTE;
+  cb:      ULONG;
+  asel:    array[1] of SEL;
+end;
+
+type PVIOPHYSBUF=^VIOPHYSBUF;
+
+(* structure for VioGet/SetFont() *)
+type VIOFONTINFO = structure
+  cb:       USHORT;
+  type:     USHORT;
+  cxCell:   USHORT;
+  cyCell:   USHORT;
+  pbData:   PVOID16;
+  cbData:   USHORT;
+end;
+
+type PVIOFONTINFO=^VIOFONTINFO;
+
+constant VGFI_GETCURFONT           = 0;
+constant VGFI_GETROMFONT           = 1;
+
 function VioDeRegister       (): USHORT;
 function VioRegister         (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG): USHORT;
 function VioGlobalReg        (in pszModName: PSZ; in pszEntryName: PSZ; in flFun1: ULONG; in flFun2: ULONG; in usReturn: USHORT): USHORT;
