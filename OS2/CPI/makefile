@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls quecalls viocalls &
+DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls moncalls quecalls viocalls &
        doscalls nampipes startlw bkscalls bmscalls bvscalls os2char sub32 &
        udsk
 
