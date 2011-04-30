@@ -1,0 +1,5 @@
+Error! E2044: exported symbol KBDPROCESSINIT not found
+Error! E2044: exported symbol KBDLOADINSTANCE not found
+Error! E2044: exported symbol KBDSWITCHFGND not found
+Error! E2044: exported symbol KBDSHELLINIT not found
+Error! E2044: exported symbol KBDFREE not found

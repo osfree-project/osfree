@@ -6,68 +6,67 @@
 
 PROJ     = moucalls
 DESC     = Mouse API
-OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
-ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
+srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
+ADD_COPT    = -i=..\include -s
+ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS = MOUGETPTRSHAPE       DOSCALLS.719, &
-	  MOUSETPTRSHAPE       DOSCALLS.720, &
-	  MOUGETNUMMICKEYS     DOSCALLS.721, &
-	  MOUGETHOTKEY         DOSCALLS.853, &
-	  MOUSHELLINIT         DOSCALLS.723, &
-	  MOUGETSCALEFACT      DOSCALLS.724, &
-	  MOUFLUSHQUE          DOSCALLS.725, &
-	  MOUGETNUMBUTTONS     DOSCALLS.726, &
-	  MOUCLOSE             DOSCALLS.727, &
-	  MOUSETHOTKEY         DOSCALLS.854, &
-	  MOUSETSCALEFACT      DOSCALLS.729, &
-	  MOUGETNUMQUEEL       DOSCALLS.730, &
-	  MOUDEREGISTER        DOSCALLS.731, &
-	  MOUGETEVENTMASK      DOSCALLS.732, &
-	  MOUSETEVENTMASK      DOSCALLS.733, &
-	  MOUOPEN              DOSCALLS.734, &
-	  MOUREMOVEPTR         DOSCALLS.735, &
-	  MOUGETPTRPOS         DOSCALLS.736, &
-	  MOUREADEVENTQUE      DOSCALLS.737, &
-	  MOUSETPTRPOS         DOSCALLS.738, &
-	  MOUGETDEVSTATUS      DOSCALLS.739, &
-	  MOUSYNCH             DOSCALLS.740, &
-	  MOUREGISTER          DOSCALLS.741, &
-	  MOUSETDEVSTATUS      DOSCALLS.742, &
-	  MOUDRAWPTR           DOSCALLS.743, &
-	  MOUINITREAL          DOSCALLS.744, &
-	  MOUGETTHRESHOLD      DOSCALLS.722, &
-	  MOUSETTHRESHOLD      DOSCALLS.728
+IMPORTS =  MouGetPtrShape              SUB32.301, &
+           MouSetPtrShape              SUB32.302, &
+           MouGetNumMickeys            SUB32.303, &
+           MouGetScaleFact             SUB32.306, &
+           MouFlushQue                 SUB32.307, &
+           MouGetNumButtons            SUB32.308, &
+           MouClose                    SUB32.309, &
+           MouSetScaleFact             SUB32.311, &
+           MouGetNumQueEl              SUB32.313, &
+           MouDeRegister               SUB32.314, &
+           MouGetEventMask             SUB32.315, &
+           MouSetEventMask             SUB32.316, &
+           MouOpen                     SUB32.317, &
+           MouRemovePtr                SUB32.318, &
+           MouGetPtrPos                SUB32.319, &
+           MouReadEventQue             SUB32.320, &
+           MouSetPtrPos                SUB32.321, &
+           MouGetDevStatus             SUB32.322, &
+           MouSynch                    SUB32.323, &
+           MouRegister                 SUB32.324, &
+           MouSetDevStatus             SUB32.325, &
+           MouDrawPtr                  SUB32.326, &
+           MouInitReal                 SUB32.327, &
+           MouSetThreshold             SUB32.329, &
+           MouGetThreshold             SUB32.330
+
 EXPORTS = MOUGETPTRSHAPE.1,    &
-	  MOUSETPTRSHAPE.2,    &
-	  MOUGETNUMMICKEYS.3,  &
-	  MOUGETHOTKEY.4,      &
-	  MOUSHELLINIT.5,      &
-	  MOUGETSCALEFACT.6,   &
-	  MOUFLUSHQUE.7,       &
-	  MOUGETNUMBUTTONS.8,  &
-	  MOUCLOSE.9,          &
-	  MOUSETHOTKEY.10,     &
-	  MOUSETSCALEFACT.11,  &
-	  MOUGETNUMQUEEL.13,   &
-	  MOUDEREGISTER.14,    &
-	  MOUGETEVENTMASK.15,  &
-	  MOUSETEVENTMASK.16,  &
-	  MOUOPEN.17,          &
-	  MOUREMOVEPTR.18,     &
-	  MOUGETPTRPOS.19,     &
-	  MOUREADEVENTQUE.20,  &
-	  MOUSETPTRPOS.21,     &
-	  MOUGETDEVSTATUS.22,  &
-	  MOUSYNCH.23,         &
-	  MOUREGISTER.24,      &
-	  MOUSETDEVSTATUS.25,  &
-	  MOUDRAWPTR.26,       &
-	  MOUINITREAL.27,      &
-	  MOUGETTHRESHOLD.29,  &
-	  MOUSETTHRESHOLD.30
-DEST    = os2$(SEP)dll
+          MOUSETPTRSHAPE.2,    &
+          MOUGETNUMMICKEYS.3,  &
+#          MOUGETHOTKEY.4,      &
+#          MOUSHELLINIT.5,      &
+          MOUGETSCALEFACT.6,   &
+          MOUFLUSHQUE.7,       &
+          MOUGETNUMBUTTONS.8,  &
+          MOUCLOSE.9,          &
+#          MOUSETHOTKEY.10,     &
+          MOUSETSCALEFACT.11,  &
+          MOUGETNUMQUEEL.13,   &
+          MOUDEREGISTER.14,    &
+          MOUGETEVENTMASK.15,  &
+          MOUSETEVENTMASK.16,  &
+          MOUOPEN.17,          &
+          MOUREMOVEPTR.18,     &
+          MOUGETPTRPOS.19,     &
+          MOUREADEVENTQUE.20,  &
+          MOUSETPTRPOS.21,     &
+          MOUGETDEVSTATUS.22,  &
+          MOUSYNCH.23,         &
+          MOUREGISTER.24,      &
+          MOUSETDEVSTATUS.25,  &
+          MOUDRAWPTR.26,       &
+          MOUINITREAL.27,      &
+          MOUGETTHRESHOLD.29,  &
+          MOUSETTHRESHOLD.30
+
+DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

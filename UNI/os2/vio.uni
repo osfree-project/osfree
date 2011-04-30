@@ -331,7 +331,23 @@ function VioScrollLeft       (in TopRow:   USHORT;
                               in Cell:     PBYTE;
                               in Handle:   HVIO): USHORT;
 
+function VioScrollLf         (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
 function VioScrollRight      (in TopRow:   USHORT;
+                              in LeftCol:  USHORT;
+                              in BotRow:   USHORT;
+                              in RightCol: USHORT;
+                              in Columns:  USHORT;
+                              in Cell:     PBYTE;
+                              in Handle:   HVIO): USHORT;
+
+function VioScrollRt         (in TopRow:   USHORT;
                               in LeftCol:  USHORT;
                               in BotRow:   USHORT;
                               in RightCol: USHORT;
@@ -419,5 +435,58 @@ function VioSetState         (in pState: PVOID; in Handle: HVIO): USHORT;
 function VioGetConfig        (in  ConfigId: USHORT;
                               out vioin:    VIOCONFIGINFO;
                               in  hvio:     HVIO): USHORT;
+
+function VioPopUp            (out Options:USHORT;
+                              in  VioHandle:HVIO): USHORT;
+
+function VioEndPopUp         (in  VioHandle:HVIO): USHORT;
+
+function VioGetPhysBuf       (out pvioPhysBuf:VIOPHYSBUF;
+                              in  usReserved:USHORT): USHORT;
+
+function VioPrtSc            (in  hvio:HVIO): USHORT;
+
+function VioPrtScToggle      (in  hvio:HVIO): USHORT;
+
+function VioShowBuf          (in  offLVB:USHORT;
+                              in  cb:USHORT;
+                              in  hvio:HVIO): USHORT;
+
+function VioScrLock          (in  fWait:USHORT;
+                              out pfNotLocked:UCHAR;
+                              in  hvio:HVIO): USHORT;
+
+function VioScrUnLock        (in  hvio:HVIO): USHORT;
+
+function VioSavRedrawWait    (in  usRedrawInd:USHORT;
+                              out pNotifyType:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioSavRedrawUndo    (in  usOwnerInd:USHORT;
+                              in  usKillInd:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioModeWait         (in  usReqType:USHORT;
+                              out pNotifyType:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioModeUndo         (in  usOwnerInd:USHORT;
+                              in  usKillInd:USHORT;
+                              in  usReserved:USHORT): USHORT;
+
+function VioGetFont          (out pviofi:VIOFONTINFO;
+                              in  hvio:HVIO): USHORT;
+
+function VioSetFont          (out pviofi:VIOFONTINFO;
+                              in  hvio:HVIO): USHORT;
+
+function VioGetBuf           (out pLVB:ULONG;
+                              out pcbLVB:USHORT;
+                              in  hvio:HVIO): USHORT;
+
+function VioCheckCharType    (out pType:USHORT;
+                              in  usRow:USHORT;
+                              in  usColumn:USHORT;
+                              in  hvio:HVIO): USHORT;
 
 end.
