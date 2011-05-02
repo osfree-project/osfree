@@ -659,7 +659,7 @@ void l4_os2_exec(char *pName, char *pArg, char *pEnv, struct t_os2process *proc)
       l4_exec("os2app", pName, &taskid);
 
       proc->task = taskid;
-      printf("Successfully started task #%d\n", proc->pid);
+      //printf("Successfully started task #%d\n", proc->pid);
 #endif
         // wait protshell task termination
 	//l4semaphore_down(&proc->term_sem);

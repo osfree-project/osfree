@@ -88,7 +88,7 @@ os2fs_dos_ResetBuffer_component (CORBA_Object _dice_corba_obj,
 #define FILE_END     2
 
 APIRET DICE_CV
-os2fs_dos_SetFilePtr_component (CORBA_Object _dice_corba_obj,
+os2fs_dos_SetFilePtrL_component (CORBA_Object _dice_corba_obj,
                                     HFILE handle /* in */,
                                     long ib /* in */,
                                     ULONG method /* in */,

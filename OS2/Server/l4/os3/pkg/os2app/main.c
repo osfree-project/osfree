@@ -220,6 +220,7 @@ void main (int argc, char *argv[])
   ULONG curdisk, map;
   PPIB ppib;
   PTIB ptib;
+  unsigned long ulActual;
   char buf[1024];
   char *p = buf;
   int i, rc = 0;
@@ -276,6 +277,10 @@ void main (int argc, char *argv[])
   param.tib = ptib;
 
   l4rm_show_region_list();
+
+  // write PID to the screen
+  sprintf(p, "The process id is %x\n", ppib->pib_ulpid);
+  KalWrite(1, p, strlen(p) + 1, &ulActual);
 
   LOG("Starting %s LX exe...", argv[1]);
   rc = trampoline (&param);

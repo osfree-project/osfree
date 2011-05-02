@@ -328,10 +328,24 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   CORBA_Environment env = dice_default_environment;
   struct t_os2process *proc;
   APIRET rc;
+  char *p;
+  int  i, l;
 
   LOG("worker start");
   /* get caller t_os2process structure */
   proc = parm->proc;
+ 
+  l = strlstlen(parm->pArg);
+  LOG("pArg len=%d", l);
+  LOG("pEnv len=%d", strlstlen(parm->pEnv));
+
+  LOG("pArg=%x", parm->pArg);
+  
+  for (i = 0, p = parm->pArg; i < l; i++)
+    if (p[i])
+      LOG("%c", p[i]);
+    else
+      LOG("\\0");
  
   LOG("begin exec");
   /* try executing the new task */
@@ -355,6 +369,8 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
                                     *(parm->cbObjname), parm->pRes, rc, &env);
   LOG("1");
   /* free our parameters structure */
+  free(parm->pArg);
+  free(parm->pEnv);
   free(parm);
   LOG("worker terminate");
   /* terminate the worker thread */
@@ -400,6 +416,7 @@ os2server_dos_ExecPgm_component (CORBA_Object _dice_corba_obj,
   l4_threadid_t thread;
   APIRET rc;
   int    ret;
+  char *arg, *env;
 
   /* caller thread id */
   thread = *_dice_corba_obj;
@@ -417,14 +434,20 @@ os2server_dos_ExecPgm_component (CORBA_Object _dice_corba_obj,
 
   LOG("len of pArg=%d", strlstlen(pArg));
 
+  arg = malloc(arglen);
+  env = malloc(envlen);
+  
+  strlstcpy(arg, pArg);
+  strlstcpy(env, pEnv);
+
   /* fill in the params structure */
   parm->proc = proc;
   parm->thread = thread;
   parm->pObjname = pObjname;
   parm->cbObjname = cbObjname;
   parm->execFlag = execFlag;
-  parm->pArg = pArg;
-  parm->pEnv = pEnv;
+  parm->pArg = arg;
+  parm->pEnv = env;
   parm->pRes = pRes;
   parm->pName = pName;
   
@@ -500,7 +523,8 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
   size += len;
 
   // size of pArg (a stringlist)
-  len   = strlstlen(ppib->pib_pchcmd);
+  len   = strlen(ppib->pib_pchcmd) + 1;
+  len  += strlen(ppib->pib_pchcmd + len) + 2;
   LOG("arg len: %d", len);
   size += len; 
 
@@ -537,7 +561,10 @@ os2server_dos_GetInfoBlocks_component (CORBA_Object _dice_corba_obj,
   LOG("prg len: %d", strlen(s2) + 1);
   // pArg
   s3 = s2 + strlen(s2) + 1;
-  len = strlstcpy(s3, ppib->pib_pchcmd);
+  strcpy(s3, ppib->pib_pchcmd);
+  len = strlen(s3) + 1;
+  strcpy(s3 + len, ppib->pib_pchcmd + len);
+  len += strlen(s3 + len) + 2;
   LOG("arg len: %d", len);
 
   /* fixup addresses -- make them addr-based */

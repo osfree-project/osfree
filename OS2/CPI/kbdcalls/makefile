@@ -12,26 +12,26 @@ ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS =  KbdSetCustXt                SUB32.201, &
-           KbdGetCp                    SUB32.203, &
-           KbdCharIn                   SUB32.204, &
-           KbdSetCp                    SUB32.205, &
-           KbdSynch                    SUB32.207, &
-           KbdRegister                 SUB32.208, &
-           KbdStringIn                 SUB32.209, &
-           KbdGetStatus                SUB32.210, &
-           KbdSetStatus                SUB32.211, &
-           KbdGetFocus                 SUB32.212, &
-           KbdFlushBuffer              SUB32.213, &
-           KbdXlate                    SUB32.214, &
-           KbdClose                    SUB32.217, &
-           KbdFreeFocus                SUB32.218, &
-           KbdDeRegister               SUB32.220, &
-           KbdSetFgnd                  SUB32.221, &
-           KbdPeek                     SUB32.222, &
-           KbdOpen                     SUB32.223, &
-           KbdGetHWID                  SUB32.224, &
-           KbdSetHWID                  SUB32.225
+IMPORTS =  KbdSetCustXt                EMXWRAP.201, &
+           KbdGetCp                    EMXWRAP.203, &
+           KbdCharIn                   EMXWRAP.204, &
+           KbdSetCp                    EMXWRAP.205, &
+           KbdSynch                    EMXWRAP.207, &
+           KbdRegister                 EMXWRAP.208, &
+           KbdStringIn                 EMXWRAP.209, &
+           KbdGetStatus                EMXWRAP.210, &
+           KbdSetStatus                EMXWRAP.211, &
+           KbdGetFocus                 EMXWRAP.212, &
+           KbdFlushBuffer              EMXWRAP.213, &
+           KbdXlate                    EMXWRAP.214, &
+           KbdClose                    EMXWRAP.217, &
+           KbdFreeFocus                EMXWRAP.218, &
+           KbdDeRegister               EMXWRAP.220, &
+           KbdSetFgnd                  EMXWRAP.221, &
+           KbdPeek                     EMXWRAP.222, &
+           KbdOpen                     EMXWRAP.223, &
+           KbdGetHWID                  EMXWRAP.224, &
+           KbdSetHWID                  EMXWRAP.225
 
 EXPORTS =  KBDSETCUSTXT.1,     &
 #           KBDPROCESSINIT.2,   &

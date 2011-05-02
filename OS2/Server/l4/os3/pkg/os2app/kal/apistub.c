@@ -64,6 +64,45 @@ strlstlen(char *p)
   return len;
 }
 
+APIRET CDECL
+KalOpenL (PSZ pszFileName,
+          HFILE *phFile,
+	  ULONG *pulAction,
+	  LONGLONG cbFile,
+	  ULONG ulAttribute,
+	  ULONG fsOpenFlags,
+	  ULONG fsOpenMode,
+	  PEAOP2 peaop2)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET  rc;
+
+  STKIN
+  //
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalFSCtl (PVOID pData,
+          ULONG cbData,
+	  PULONG pcbData,
+	  PVOID pParms,
+	  ULONG cbParms,
+	  PULONG pcbParms,
+	  ULONG function,
+	  PSZ pszRoute,
+	  HFILE hFile,
+	  ULONG method)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET  rc;
+
+  STKIN
+  //
+  STKOUT
+  return rc;
+}
 
 APIRET CDECL
 KalRead (HFILE hFile, PVOID pBuffer,
@@ -122,6 +161,14 @@ KalWrite (HFILE hFile, PVOID pBuffer,
   return rc;
 }
 
+APIRET CDECL
+KalLogWrite (PSZ s)
+{
+  STKIN
+  LOG_printf("%s", s);
+  STKOUT
+  return 0; /* NO_ERROR */
+}
 
 VOID CDECL
 KalExit(ULONG action, ULONG result)
@@ -196,6 +243,31 @@ KalQueryProcAddr(ULONG hmod,
   STKIN
   rc = os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
                                      pszName, (void **)ppfn, &env);
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalQueryModuleHandle(const char *pszModname,
+                     unsigned long *phmod)
+{
+  CORBA_Environment env = dice_default_environment;
+  int rc;
+  STKIN
+  rc = os2exec_query_modhandle_call(&execsrv, pszModname,
+                                    phmod, &env);
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf)
+{
+  CORBA_Environment env = dice_default_environment;
+  int rc;
+  STKIN
+  rc = os2exec_query_modname_call(&execsrv, hmod,
+                                  cbBuf, &pBuf, &env);
   STKOUT
   return rc;
 }
@@ -410,7 +482,8 @@ KalExecPgm(char * pObjname,
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
-  int i, j;
+  int i, j, k, l;
+  char *p;
 
   STKIN
   if (pArg == NULL)
@@ -433,7 +506,19 @@ KalExecPgm(char * pObjname,
   LOG("pRes=%x", pRes);
   LOG("pObjname=%x",  pObjname);
   LOG("cbObjname=%x", cbObjname);
-  LOG("len of pArg=%d", strlstlen(pArg));
+
+  l = strlstlen(pArg);
+  LOG("pArg len=%d", l);
+  LOG("pEnv len=%d", strlstlen(pEnv));
+
+  LOG("pArg=%x", pArg);
+  
+  LOG("len of pArg=%d", l);
+  for (k = 0, p = pArg; k < l; k++)
+    if (p[k])
+      LOG("%c", p[k]);
+    else
+      LOG("\\0");
   rc =  os2server_dos_ExecPgm_call (&os2srv, &pObjname,
                         &cbObjname, execFlag, pArg, i,
 			pEnv, j,
@@ -567,17 +652,17 @@ KalResetBuffer(HFILE handle)
 }
 
 APIRET CDECL
-KalSetFilePtr(HFILE handle,
-              long ib,
-	      ULONG method,
-	      PULONG ibActual)
+KalSetFilePtrL(HFILE handle,
+               LONGLONG ib,
+	       ULONG method,
+	       PLONGLONG ibActual)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
   STKIN
   LOG("&handle=%x", &handle);
-  rc = os2fs_dos_SetFilePtr_call (&fs, handle, ib,
-                                        method, ibActual, &env);
+  rc = os2fs_dos_SetFilePtrL_call (&fs, handle, ib,
+                                  method, ibActual, &env);
   STKOUT
   return rc;
 }

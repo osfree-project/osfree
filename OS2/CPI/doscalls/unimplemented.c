@@ -792,19 +792,16 @@ APIRET APIENTRY DosDevIOCtl(HFILE hDevice, ULONG category, ULONG xfunction, PVOI
 }
 
 
-APIRET APIENTRY  DosFSCtl(PVOID pData,
-                          ULONG cbData,
-                          PULONG pcbData,
-                          PVOID pParms,
-                          ULONG cbParms,
-                          PULONG pcbParms,
-                          ULONG function,
-                          PCSZ  pszRoute,
-                          HFILE hFile,
-                          ULONG method)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosFSCtl(PVOID pData,
+//                          ULONG cbData,
+//                          PULONG pcbData,
+//                          PVOID pParms,
+//                          ULONG cbParms,
+//                          PULONG pcbParms,
+//                          ULONG function,
+//                          PCSZ  pszRoute,
+//                          HFILE hFile,
+//                          ULONG method)
 
 
 APIRET APIENTRY DosBeep(ULONG freq,
@@ -1013,31 +1010,19 @@ APIRET APIENTRY DosDebug(PVOID pdbgbuf)
 }
 
 
-APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
-                               ULONG cbName,
-                               PCSZ  pszModname,
-                               PHMODULE phmod)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
+//                               ULONG cbName,
+//                               PCSZ  pszModname,
+//                               PHMODULE phmod);
 
 
-APIRET APIENTRY DosQueryModuleHandle(const PSZ pszModname, PHMODULE phmod)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosQueryModuleHandle(const PSZ pszModname, PHMODULE phmod);
 
 
-APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch);
 
 
-APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn);
 
 
 APIRET APIENTRY DosFreeModule(HMODULE hmod)
@@ -2641,17 +2626,14 @@ APIRET APIENTRY      DosPerfSysCall(void)
 }
 
 
-APIRET APIENTRY DosOpenL(PCSZ  pszFileName,
-                         PHFILE phf,
-                         PULONG pulAction,
-                         LONGLONG cbFile,
-                         ULONG ulAttribute,
-                         ULONG fsOpenFlags,
-                         ULONG fsOpenMode,
-                         PEAOP2 peaop2)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosOpenL(PCSZ  pszFileName,
+//                         PHFILE phf,
+//                         PULONG pulAction,
+//                         LONGLONG cbFile,
+//                         ULONG ulAttribute,
+//                         ULONG fsOpenFlags,
+//                         ULONG fsOpenMode,
+//                         PEAOP2 peaop2)
 
 
 APIRET APIENTRY  DosProtectOpenL(PCSZ  pszFileName,
@@ -2713,13 +2695,10 @@ APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
 }
 
 
-APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
-                                LONGLONG ib,
-                                ULONG method,
-                                PLONGLONG ibActual)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
+//                                LONGLONG ib,
+//                                ULONG method,
+//                                PLONGLONG ibActual)
 
 
 APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,

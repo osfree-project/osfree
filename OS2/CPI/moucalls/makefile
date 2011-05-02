@@ -12,31 +12,31 @@ ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS =  MouGetPtrShape              SUB32.301, &
-           MouSetPtrShape              SUB32.302, &
-           MouGetNumMickeys            SUB32.303, &
-           MouGetScaleFact             SUB32.306, &
-           MouFlushQue                 SUB32.307, &
-           MouGetNumButtons            SUB32.308, &
-           MouClose                    SUB32.309, &
-           MouSetScaleFact             SUB32.311, &
-           MouGetNumQueEl              SUB32.313, &
-           MouDeRegister               SUB32.314, &
-           MouGetEventMask             SUB32.315, &
-           MouSetEventMask             SUB32.316, &
-           MouOpen                     SUB32.317, &
-           MouRemovePtr                SUB32.318, &
-           MouGetPtrPos                SUB32.319, &
-           MouReadEventQue             SUB32.320, &
-           MouSetPtrPos                SUB32.321, &
-           MouGetDevStatus             SUB32.322, &
-           MouSynch                    SUB32.323, &
-           MouRegister                 SUB32.324, &
-           MouSetDevStatus             SUB32.325, &
-           MouDrawPtr                  SUB32.326, &
-           MouInitReal                 SUB32.327, &
-           MouSetThreshold             SUB32.329, &
-           MouGetThreshold             SUB32.330
+IMPORTS =  MouGetPtrShape              EMXWRAP.301, &
+           MouSetPtrShape              EMXWRAP.302, &
+           MouGetNumMickeys            EMXWRAP.303, &
+           MouGetScaleFact             EMXWRAP.306, &
+           MouFlushQue                 EMXWRAP.307, &
+           MouGetNumButtons            EMXWRAP.308, &
+           MouClose                    EMXWRAP.309, &
+           MouSetScaleFact             EMXWRAP.311, &
+           MouGetNumQueEl              EMXWRAP.313, &
+           MouDeRegister               EMXWRAP.314, &
+           MouGetEventMask             EMXWRAP.315, &
+           MouSetEventMask             EMXWRAP.316, &
+           MouOpen                     EMXWRAP.317, &
+           MouRemovePtr                EMXWRAP.318, &
+           MouGetPtrPos                EMXWRAP.319, &
+           MouReadEventQue             EMXWRAP.320, &
+           MouSetPtrPos                EMXWRAP.321, &
+           MouGetDevStatus             EMXWRAP.322, &
+           MouSynch                    EMXWRAP.323, &
+           MouRegister                 EMXWRAP.324, &
+           MouSetDevStatus             EMXWRAP.325, &
+           MouDrawPtr                  EMXWRAP.326, &
+           MouInitReal                 EMXWRAP.327, &
+           MouSetThreshold             EMXWRAP.329, &
+           MouGetThreshold             EMXWRAP.330
 
 EXPORTS = MOUGETPTRSHAPE.1,    &
           MOUSETPTRSHAPE.2,    &

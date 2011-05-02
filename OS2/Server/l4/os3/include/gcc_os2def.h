@@ -94,7 +94,7 @@
 #define LONG     long
 #define INT      int
 #define VOID     void
-
+#define LONGLONG long long
 
 typedef unsigned long   APIRET;
 typedef unsigned short  APIRET16;
@@ -136,6 +136,7 @@ typedef CHAR     *PCHAR;
 typedef SHORT    *PSHORT;
 typedef INT      *PINT;
 typedef LONG     *PLONG;
+typedef LONGLONG *PLONGLONG;
 /*
 typedef CHAR     * _Seg16 PCHAR16;
 typedef UCHAR    * _Seg16 PUCHAR16;
@@ -172,6 +173,65 @@ typedef struct _COUNTRYCODE {
   ULONG country;
   ULONG codepage;
 } COUNTRYCODE, *PCOUNTRYCODE;
+
+/* extended attribute structures */
+
+typedef struct _GEA {
+  BYTE   cbName;
+  CHAR   szName[1];
+} GEA, *PGEA;
+
+typedef struct _GEALIST {
+  ULONG  cbList;
+  GEA    list[1];
+} GEALIST, *PGEALIST;
+
+typedef struct _FEA {
+  BYTE   fEA;
+  BYTE   cbName;
+  USHORT cbValue;
+} FEA, *PFEA;
+
+#define FEA_NEEDEA 0x80
+
+typedef struct _FEALIST {
+  ULONG  cbList;
+  FEA    list[1];
+} FEALIST, *PFEALIST;
+
+#pragma pack(1)
+
+typedef struct _FEA2 {
+  ULONG   oNextEntryOffset;
+  BYTE    fEA;
+  BYTE    cbName;
+  USHORT  cbValue;
+  CHAR    szName[1];
+} FEA2, *PFEA2;
+
+typedef struct _FEA2LIST {
+  ULONG   cbList;
+  FEA2    list[1];
+} FEA2LIST, *PFEA2LIST;
+
+typedef struct _GEA2 {
+  ULONG   oNextEntryOffset;
+  BYTE    cbName;
+  CHAR    szName;
+} GEA2, *PGEA2;
+
+typedef struct _GEA2LIST {
+  ULONG   cbList;
+  GEA2    list[1];
+} GEA2LIST, *PGEA2LIST;
+
+typedef struct _EAOP2 {
+  PGEA2LIST  fpGEA2List;
+  PFEA2LIST  fpFEA2List;
+  ULONG      oError;
+} EAOP2, *PEAOP2;
+
+#pragma pack()
 
 #if 0
 #ifndef __OS2__

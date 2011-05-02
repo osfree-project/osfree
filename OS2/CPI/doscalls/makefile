@@ -36,6 +36,8 @@ srcfiles = $(p)msg$(e) &
            $(p)dosquerycurrentdir$(e) &
            $(p)dosquerycurrentdisk$(e) &
            $(p)dossetdefaultdisk$(e) &
+           $(p)modmgr$(e) &
+           $(p)log$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
@@ -47,20 +49,27 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalRead             KAL.KalRead,  &
           _KalWrite            KAL.KalWrite, &
           _KalExit             KAL.KalExit,  &
-          DosOpenL             KAL.KalOpenL, &
-          DosClose             KAL.KalClose, &
+          _KalOpenL            KAL.KalOpenL, &
+          _KalClose            KAL.KalClose, &
           _KalSetCurrentDir    KAL.KalSetCurrentDir, &
           _KalQueryCurrentDir  KAL.KalQueryCurrentDir, &
           _KalQueryCurrentDisk KAL.KalQueryCurrentDisk, &
           _KalSetDefaultDisk   KAL.KalSetDefaultDisk, &
           _KalError            KAL.KalError, &
           _KalExecPgm          KAL.KalExecPgm, &
-          _KalClose            KAL.KalClose, &
           _KalAllocMem         KAL.KalAllocMem, &
           _KalFreeMem          KAL.KalFreeMem, &
           _KalQueryCp          KAL.KalQueryCp, &
           _KalQueryDBCSEnv     KAL.KalQueryDBCSEnv, &
-          _KalQueryHType       KAL.KalQueryHType
+          _KalQueryHType       KAL.KalQueryHType,   &
+          _KalLoadModule       KAL.KalLoadModule,   &
+          _KalQueryModuleHandle KAL.KalQueryModuleHandle, &
+          _KalQueryModuleName  KAL.KalQueryModuleName, &
+          _KalQueryProcAddr    KAL.KalQueryProcAddr, &
+          _KalLogWrite         KAL.KalLogWrite, &
+          _KalGetInfoBlocks    KAL.KalGetInfoBlocks, &
+          _KalResetBuffer      KAL.KalResetBuffer, &
+          _KalSetFilePtrL      KAL.KalSetFilePtrL
 
 EXPORTS = &
      DosICreateThread       .1, &
@@ -508,7 +517,9 @@ EXPORTS = &
      DosListIO                                   .996, &
      DosCreateThread2                            .997, &
 #     DosTrueGetMessage                          .384, & # 16-bit, not needed
-     DosTrueGetMessage                           .388
+     DosTrueGetMessage                           .388, &
+                                                       &
+     DosLogWrite                                 .1112
 
 # alias     DosSetSignalExceptionFoc                  @378
 # conflict? DOS16PMSEMWAIT                              @574

@@ -25,10 +25,10 @@ interface os2fs : l4fprov::file // inherits file provider interface
 
     APIRET dos_ResetBuffer([in] HFILE handle);
     
-    APIRET dos_SetFilePtr([in] HFILE handle,
-                          [in] long ib,
-			  [in] ULONG method,
-			  [out] ULONG *ibActual);
+    APIRET dos_SetFilePtrL([in]  HFILE handle,
+                           [in]  long long ib,
+			   [in]  ULONG method,
+			   [out] long long *ibActual);
 
     APIRET dos_Close([in] HFILE handle);
     

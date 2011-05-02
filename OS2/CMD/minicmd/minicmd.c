@@ -1,6 +1,9 @@
 // This is minimal CMD.EXE. It is goal is to provide minimal testing base
 // for CPI API implementation. Note only OS/2 API allowed here.
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #include "minicmd.h"
 
 // here minimal set of commands. We need to have possibility to change
@@ -9,6 +12,13 @@
 // expect command or feature REALLY required for minimal functionality.
 
 // returns 1 if the specified drive is ready, 0 if it isn't
+
+// DosLogWrite ordinal
+#define LOG_ORD 1112
+typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
+
+static logwrt_t DosLogWrite = 0;
+static char greeting[] = "MiniCMD. (C) osFree project.\r\n\r\n";
 
 
 int QueryDriveReady( int drive )
@@ -139,7 +149,7 @@ void read_cmd(char *cmd)
 
 void hello(void)
 {
-  VioWrtTTY("MiniCMD. (C) osFree project.\r\n\r\n", 32, 0);
+  VioWrtTTY(greeting, strlen(greeting), 0);
 }
 
 void showpath(void)
@@ -165,12 +175,49 @@ void showpath(void)
   VioWrtTTY(">", 1, 0);
 }
 
+void log_init(void)
+{
+  long __syscall (*pfn)(void);
+  APIRET  rc;
+  HMODULE handle;
+
+  /* now check if DosLogWrite is available */
+  rc = DosQueryModuleHandle("DOSCALLS", &handle);
+
+  if (rc) return;
+
+  rc = DosQueryProcAddr(handle, LOG_ORD, 0, &pfn);
+
+  if (rc != 182) // ERROR_INVALID_ORDINAL
+    DosLogWrite = (logwrt_t)pfn;
+}
+
+void log(const char *fmt, ...)
+{
+  va_list arg_ptr;
+  char buf[1024];
+
+  if (!DosLogWrite)
+    return;
+
+  va_start(arg_ptr, fmt);
+  vsprintf(buf, fmt, arg_ptr);
+  va_end(arg_ptr);
+
+  DosLogWrite(buf);
+}
+
 void main(void)
 {
   UCHAR cmd[255];
   BOOL exitflag;
 
+  log_init();
+
   hello();
+
+  log(greeting);
+  log("DosLogWrite address: %x\n", DosLogWrite);
 
   exitflag=FALSE;
   // Ok. Here we just in endless loop. Except for EXIT command.

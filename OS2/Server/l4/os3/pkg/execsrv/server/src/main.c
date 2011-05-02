@@ -306,6 +306,26 @@ attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr)
   return 0;
 }
 
+long DICE_CV
+os2exec_query_modhandle_component (CORBA_Object _dice_corba_obj,
+                                   const char* pszModname /* in */,
+                                   unsigned long *phmod /* out */,
+                                   CORBA_Server_Environment *_dice_corba_env)
+{
+  return ModQueryModuleHandle(pszModname, phmod);
+}
+
+
+long DICE_CV
+os2exec_query_modname_component (CORBA_Object _dice_corba_obj,
+                                 unsigned long hmod /* in */,
+                                 unsigned long cbBuf /* in */,
+                                 char* *pBuf /* out */,
+                                 CORBA_Server_Environment *_dice_corba_env)
+{
+  return ModQueryModuleName(hmod, cbBuf, pBuf);
+}
+
 #if 0
 int
 loadso (void)

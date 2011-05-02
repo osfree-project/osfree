@@ -714,6 +714,18 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     else
       strcpy(p_buf, pName);
 
+    l = strlstlen(pArg);
+    LOG("pArg len=%d", l);
+    LOG("pEnv len=%d", strlstlen(pEnv));
+
+    LOG("pArg=%x", pArg);
+
+    for (i = 0, p = pArg; i < l; i++)
+     if (p[i])
+       LOG("%c", p[i]);
+     else
+       LOG("\\0");
+
     if (!pArg || !*pArg)
       pArg = "\0\0";
 
@@ -750,13 +762,16 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       }
 
       /* copy without last NULL */
-      memmove(env, parentproc->lx_pib->pib_pchenv, l - 1);
+      memmove(env, parentproc->lx_pib->pib_pchenv, l);
       /* copy with last NULL (inherited env) */
       /* @todo: add env vars redefining, not just appending */
-      memmove(env + l - 1, pEnv, envlen);
-      l += envlen - 1;
-      if (env[l] == NULL)
-        l--;
+      if (envlen > 2) // empty list
+      {
+        memmove(env + l - 1, pEnv, envlen);
+        l += envlen - 1;
+      }
+      //if (env[l] == NULL)
+      //    l--;
     }
     else // started as protshell=/call=/run=, uses env from config.sys
     {
@@ -807,14 +822,18 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     for (i = 0; i < k - 1; i++)
       arg[i] = toupper(arg[i]);
 
+    //£ÂÂ£Â£Â£arg[k - 1] = ' ';
+
     for (i = 0, p = pArg; p[i]; i += len + 1)
     {
       len = strlen(p + i);
       strcpy(arg + k + i, p + i);
       arg[k + i + len] = ' ';
     }
-    while (arg[k + i] == ' ') i++;
-    if (arg[k + i]) i--;
+    // skip last space
+    i--;
+    //while (arg[k + i] == ' ') i++; // ???
+    //if (arg[k + i]) i--;
     arg[k + i] = '\0'; i++;
     arg[k + i] = '\0'; i++;
 
@@ -830,7 +849,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     l4_os2_exec(p_buf, arg, env, PrcCreate(ppid));
     #endif
 
-    if (options.debugprcmgr) LOG("Done executing exe.");
+    //if (options.debugprcmgr) LOG("Done executing exe.");
   }
 
 

@@ -14,10 +14,13 @@ KalWrite
          ULONG cbWrite, PULONG pcbActual);
 
 APIRET CDECL
+KalLogWrite (PSZ s);
+
+APIRET CDECL
 KalFSCtl(PVOID pData, ULONG cbData,
          PULONG pcbData, PVOID pParms,
          ULONG cbParms, PULONG pcbParms,
-         ULONG xfunction, PCSZ pszRoute,
+         ULONG function, PSZ pszRoute,
          HFILE hFile, ULONG method);
 
 VOID CDECL
@@ -67,16 +70,16 @@ KalAllocMem(PVOID *ppb,
 	    ULONG flags);
 
 APIRET CDECL
-KalFreemem(PVOID pb);
+KalFreeMem(PVOID pb);
 
 APIRET CDECL
 KalResetBuffer(HFILE handle);
 
 APIRET CDECL
-KalSetFilePtr(HFILE handle,
-              long ib,
-	      ULONG method,
-	      PULONG ibActual);
+KalSetFilePtrL(HFILE handle,
+               LONGLONG ib,
+	       ULONG method,
+	       PLONGLONG ibActual);
 	      
 APIRET CDECL
 KalClose(HFILE handle);

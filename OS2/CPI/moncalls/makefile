@@ -12,11 +12,11 @@ ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS =  DosMonWrite                 SUB32.401, &
-           DosMonRead                  SUB32.402, &
-           DosMonClose                 SUB32.403, &
-           DosMonOpen                  SUB32.404, &
-           DosMonReg                   SUB32.405
+IMPORTS =  DosMonWrite                 EMXWRAP.401, &
+           DosMonRead                  EMXWRAP.402, &
+           DosMonClose                 EMXWRAP.403, &
+           DosMonOpen                  EMXWRAP.404, &
+           DosMonReg                   EMXWRAP.405
 
 EXPORTS =  DOSMONWRITE.1, &
            DOSMONREAD.2,  &

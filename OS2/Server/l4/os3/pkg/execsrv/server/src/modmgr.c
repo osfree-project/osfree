@@ -157,6 +157,30 @@ getrec(char *mname, struct module_rec **p)
   return 1;
 }
 
+int
+getrec2(unsigned long hmod, struct module_rec **p)
+{
+  struct module_rec *prev;
+  
+  // First search in the module list
+  prev = (struct module_rec *) module_root.next;
+
+  while(prev)
+  {
+    if(hmod == (unsigned long)prev)
+    {
+      if(prev->load_status == LOADING)
+        return -1;
+	
+      *p = prev;
+      return 0;
+    }
+    prev = (struct module_rec *) prev->next;
+  }
+  
+  return 1;
+}
+
 
 unsigned long OpenModule(char *          pszName,
                          unsigned long   cbName,
@@ -559,6 +583,40 @@ unsigned long ModLoadExeModule(char *          pszName,
   
   rc = LoadModule(pszName, cbName, phmod);
   return rc;
+}
+
+unsigned long ModQueryModuleHandle(const char *pszModname, unsigned long *phmod)
+{
+  struct module_rec *prev;
+  char *mname;
+  
+  mname = get_fname(pszModname);
+  if (getrec(mname, &prev))
+  {
+    LOG("module not found");
+    *phmod = 0;
+    return 123; /* ERROR_INVALID_NAME */
+  }
+  *phmod = prev->module_struct;
+  return 0; /* NO_ERROR */
+}
+
+unsigned long ModQueryModuleName(unsigned long hmod, unsigned long cbName, char *pchName)
+{
+  struct module_rec *prev;
+  
+  if (getrec2(hmod, &prev))
+  {
+    LOG("module not found");
+    *pchName = '\0';
+    return 6; /* ERROR_INVALID_HANDLE */
+  }
+
+  if (strlen(prev->mod_name) + 1 > cbName)
+    return 24; /* ERROR_BAD_LENGTH */
+    
+  strcpy(pchName, prev->mod_name);
+  return 0; /* NO_ERROR */
 }
 
 int
