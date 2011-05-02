@@ -796,32 +796,32 @@ end;
 // Starts after the "uses" token
 procedure TPasParser.ParseUsesList(ASection: TPasSection);
 var
-  UnitName: String;
+  UnitName1: String;
   Element: TPasElement;
 begin
-    UnitName := ExpectIdentifier;
+    UnitName1 := ExpectIdentifier;
 
     NextToken;
 
         while CurToken = tkAlias do
         begin
-          UnitName:=UnitName+'|'+ExpectIdentifier;
+          UnitName1:=UnitName1+'|'+ExpectIdentifier;
       NextToken;
         end;
 
         if CurToken = tkDefault then
         begin
-          UnitName:='!'+UnitName;
+          UnitName1:='!'+UnitName1;
       NextToken;
         end;
 
     if CurToken = tkSemicolon then
     begin
-      Element := Engine.FindModule(UnitName);
+      Element := Engine.FindModule(UnitName1);
       if Assigned(Element) then
         Element.AddRef
       else
-        Element := TPasType(CreateElement(TPasUnresolvedTypeRef, UnitName,
+        Element := TPasType(CreateElement(TPasUnresolvedTypeRef, UnitName1,
           ASection));
       ASection.UsesList.Add(Element);
       exit;
