@@ -6,6 +6,8 @@ APIRET __cdecl  KalQueryHType(HFILE hFile,
                               PULONG pType,
                               PULONG pAttr);
 
+APIRET __cdecl  KalResetBuffer(HFILE);
+
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 
@@ -63,3 +65,7 @@ APIRET APIENTRY  DosQueryHType(HFILE hFile,
   return KalQueryHType(hFile, pType, pAttr);
 }
 
+APIRET APIENTRY DosResetBuffer(HFILE hFile)
+{
+  return KalResetBuffer(hFile);
+}

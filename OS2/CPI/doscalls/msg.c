@@ -31,7 +31,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 
 
 /*!
-   @brief Inserts arguments on places of %n (Similar to CLib sprintf function but much simple)
+   @brief Inserts arguments on places of %n (Similar to CLib sprintf function but much simpler)
 
    @param pTable             pointer table of arguments
    @param cTable             number of variable insertion text strings

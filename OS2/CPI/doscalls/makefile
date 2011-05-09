@@ -38,6 +38,7 @@ srcfiles = $(p)msg$(e) &
            $(p)dossetdefaultdisk$(e) &
            $(p)modmgr$(e) &
            $(p)log$(e) &
+           $(p)env$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
@@ -69,7 +70,8 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalLogWrite         KAL.KalLogWrite, &
           _KalGetInfoBlocks    KAL.KalGetInfoBlocks, &
           _KalResetBuffer      KAL.KalResetBuffer, &
-          _KalSetFilePtrL      KAL.KalSetFilePtrL
+          _KalSetFilePtrL      KAL.KalSetFilePtrL, &
+          _KalScanEnv          KAL.KalScanEnv
 
 EXPORTS = &
      DosICreateThread       .1, &
@@ -758,3 +760,4 @@ EXPORTS = &
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
+

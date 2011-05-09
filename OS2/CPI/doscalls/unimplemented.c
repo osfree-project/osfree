@@ -469,11 +469,8 @@ APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
 }
 
 
-APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
-                            PCSZ  *ppszValue)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
+//                            PCSZ  *ppszValue)
 
 
 APIRET APIENTRY  DosSearchPath(ULONG flag,
@@ -668,10 +665,7 @@ APIRET APIENTRY  DosWaitNPipe(PCSZ  pszName,
 }
 
 
-APIRET APIENTRY  DosResetBuffer(HFILE hFile)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosResetBuffer(HFILE hFile)
 
 
 //APIRET APIENTRY  DosClose(HFILE hFile)
@@ -973,11 +967,8 @@ APIRET APIENTRY DosCreateThread(PTID ptid,
 }
 
 
-APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
-                                 PPIB *pppib)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
+//                                 PPIB *pppib)
 
 
 APIRET APIENTRY      DosAllocProtSeg(void)
