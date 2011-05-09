@@ -123,8 +123,8 @@ typedef unsigned long   ULONG, *PULONG;
 typedef unsigned short  SHANDLE;
 typedef unsigned long   LHANDLE;
 
-typedef char *PSZ;
-typedef char *PCH;
+typedef char *PSZ, **PPSZ;
+typedef char *PCH, **PPCH;
 typedef const char *PCSZ;
 
 #ifndef __WIN32__

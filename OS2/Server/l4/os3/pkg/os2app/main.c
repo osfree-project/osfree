@@ -54,7 +54,7 @@ l4_threadid_t execsrv;
    other module parameters */
 os2exec_module_t s;
 
-void term_wait (void);
+//void term_wait (void);
 int  trampoline(struct param *param);
 
 unsigned long
@@ -117,7 +117,6 @@ trampoline(struct param *param)
   LOG("sp: %x", param->tib->tib_pstack);
   LOG("sp_limit: %x", param->tib->tib_pstacklimit);
   LOG("tid: %x", param->tib->tib_ptib2->tib2_ultid);
-
   LOG("hmod: %x", hmod);
 
   p = argv;
@@ -206,7 +205,7 @@ trampoline(struct param *param)
 
   STKOUT
 
-      return 0;
+  return 0;
 }
  
 
@@ -257,6 +256,8 @@ void main (int argc, char *argv[])
 
   param.eip = s.ip;
   param.esp = s.sp;
+
+  strcpy(s.path, argv[1]);
 
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify_call (&os2srv, &s, &env);

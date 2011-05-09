@@ -84,3 +84,6 @@ KalSetFilePtrL(HFILE handle,
 APIRET CDECL
 KalClose(HFILE handle);
 
+APIRET CDECL
+KalScanEnv(PSZ pszName,
+           PPSZ ppszValue);

@@ -637,3 +637,42 @@ os2server_dos_QueryCp_component (CORBA_Object _dice_corba_obj,
   
   return 0; /* NO_ERROR */
 }
+
+APIRET DICE_CV
+os2server_dos_ScanEnv_component (CORBA_Object _dice_corba_obj,
+                                 PSZ pszName /* in */,
+                                 PSZ *ppszValue /* out */,
+                                 CORBA_Server_Environment *_dice_corba_env)
+{
+  struct t_os2process *proc;
+  char varname[256];
+  char *env;
+  char *p, *q;
+  int  i;
+
+  /* Get the caller process structure   */
+  proc = PrcGetProcL4(*_dice_corba_obj);
+  /* get application environment */
+  env  = proc->lx_pib->pib_pchenv;  
+  
+  /* search for needed env variable */
+  for (p = env; *p; p += strlen(p) + 1)
+  {
+    // move until '=' sign is encountered
+    for (i = 0, q = p; *q && *q != '=' && i < 256; q++, i++) ;
+    
+    /* copy to name buffer  */
+    strncpy(varname, p, i);
+    /* add ending zero byte */
+    varname[i] = '\0';
+
+    if (!strcasecmp(varname, pszName))
+    {
+      /* variable found */
+      strcpy(*ppszValue, q + 1);
+      return 0; /* NO_ERROR */
+    }
+  }
+  
+  return 203; /* ERROR_ENVVAR_NOT_FOUND */
+}

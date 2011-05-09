@@ -137,26 +137,6 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
     return c;
 }
 
-/* is called by os2app, and notifies os2srv
-   about some module parameters got from execsrv */
-void DICE_CV
-os2server_app_notify_component (CORBA_Object _dice_corba_obj,
-                                os2exec_module_t *s,
-                                CORBA_Server_Environment *_dice_corba_env)
-{
-  struct t_os2process *proc;
-  
-  proc = PrcGetProcL4(*_dice_corba_obj);
-
-  proc->ip = s->ip;
-  proc->sp = s->sp;
-  proc->hmte = s->hmod;
-  proc->lx_pib->pib_hmte = s->hmod;
-  proc->main_tib->tib_pstack = s->sp;
-  proc->main_tib->tib_pstacklimit = s->sp_limit;
-  proc->main_tib->tib_ptib2->tib2_ultid = 1;  // @todo: implement real thread ids
-}
-
 
 void PrcDestroy(struct t_os2process * proc) {
     struct t_os2process *prev, *next;
@@ -216,6 +196,178 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
   
   return NULL;
 }
+
+void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
+{
+  struct t_os2process *parentproc;
+  int  i, l, k;
+  int  arglen, envlen, len;
+  char *p;
+  char *arg, *env;
+
+    l = strlstlen(pArg);
+    LOG("pArg len=%d", l);
+    LOG("pEnv len=%d", strlstlen(pEnv));
+
+    LOG("pArg=%x", pArg);
+
+    for (i = 0, p = pArg; i < l; i++)
+     if (p[i])
+       LOG("%c", p[i]);
+     else
+       LOG("\\0");
+
+    if (!pArg || !*pArg)
+      pArg = "\0\0";
+
+    if (!pEnv || !*pEnv)
+      pEnv = "\0\0";
+    
+    k = strlen(pPrg) + 1;
+
+    LOG("k=%d", k);
+
+    /* get args length */
+    arglen = strlstlen(pArg);
+
+    LOG("arglen=%d", arglen);
+
+    /* get env length */
+    envlen = strlstlen(pEnv);
+
+    LOG("envlen=%d", envlen);
+    
+    if (proc->lx_pib->pib_ulppid) // ordinary process, inherits parent env
+    {
+      /* parent proc */
+      parentproc = PrcGetProc(proc->lx_pib->pib_ulppid);
+
+      l = strlstlen(parentproc->lx_pib->pib_pchenv);
+
+      env = (char *)malloc(envlen + l + arglen + k);
+      
+      if (!env)
+      {
+        LOG("malloc: not enough memory!");
+        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+      }
+
+      /* copy without last NULL */
+      memmove(env, parentproc->lx_pib->pib_pchenv, l);
+      /* copy with last NULL (inherited env) */
+      /* @todo: add env vars redefining, not just appending */
+      if (envlen > 2) // empty list
+      {
+        memmove(env + l - 1, pEnv, envlen);
+        l += envlen - 1;
+      }
+      //if (env[l] == NULL)
+      //    l--;
+    }
+    else // started as protshell=/call=/run=, uses env from config.sys
+    {
+      int  n = type[3].ip;
+      char *s;
+    
+      envlen = 0;
+
+      /* get a sum of all strings lengths */
+      for (i = 0; i < n; i++)
+        if (type[3].sp[i].string)
+          envlen += strlen(type[3].sp[i].string) + 1;
+      /* count the ending NULL */
+      envlen++;
+      
+      env = (char *)malloc(envlen + arglen + k + 1);
+      
+      if (!env)
+      {
+        LOG("malloc: not enough memory!");
+        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+      }
+
+      for (i = 0, l = 0; i < n; i++, l += strlen(s) + 1)
+      {
+        s = type[3].sp[i].string;
+	if (s) memmove(env + l, s, strlen(s) + 1);
+      }
+      env[l++] = '\0';
+    }
+
+    // the first copy of program name
+    // at the end of the environment
+    strcpy(env + l, pPrg);
+
+    for (i = 0; i < k - 1; i++)
+      env[l + i] = toupper(env[l + i]);
+
+    arg = env + l + k;
+    // second '\0'
+    //arg[0] = '\0';
+    //arg++;
+
+    // program name (2nd copy)
+    strcpy(arg, pPrg);
+
+    for (i = 0; i < k - 1; i++)
+      arg[i] = toupper(arg[i]);
+
+    //£ÂÂ£Â£Â£arg[k - 1] = ' ';
+
+    for (i = 0, p = pArg; p[i]; i += len + 1)
+    {
+      len = strlen(p + i);
+      strcpy(arg + k + i, p + i);
+      arg[k + i + len] = ' ';
+    }
+    // skip last space
+    i--;
+    //while (arg[k + i] == ' ') i++; // ???
+    //if (arg[k + i]) i--;
+    arg[k + i] = '\0'; i++;
+    arg[k + i] = '\0'; i++;
+
+    k = arg - env + k + i;
+    for (i = 0; i < k; i++)
+    if (env[i])
+      LOG("%c", env[i]);
+    else
+      LOG("\\0");    
+
+    proc->lx_pib->pib_pchcmd = arg;
+    proc->lx_pib->pib_pchenv = env;
+}
+
+/* is called by os2app, and notifies os2srv
+   about some module parameters got from execsrv */
+void DICE_CV
+os2server_app_notify_component (CORBA_Object _dice_corba_obj,
+                                os2exec_module_t *s,
+                                CORBA_Server_Environment *_dice_corba_env)
+{
+  struct t_os2process *proc;
+  
+  proc = PrcGetProcL4(*_dice_corba_obj);
+
+  if (!proc) // it indicates that os2app is started from other 
+  {          // means, than using PrcExecuteModule, so proc is not created
+    /* create process structure and assign args and env */
+    proc = PrcCreate(0);
+    /* set task number */
+    proc->task = *_dice_corba_obj;
+    /* assign params and environment */
+    PrcSetArgsEnv(s->path, "", "", proc);
+  }
+
+  proc->ip = s->ip;
+  proc->sp = s->sp;
+  proc->hmte = s->hmod;
+  proc->lx_pib->pib_hmte = s->hmod;
+  proc->main_tib->tib_pstack = s->sp;
+  proc->main_tib->tib_pstacklimit = s->sp_limit;
+  proc->main_tib->tib_ptib2->tib2_ultid = 1;  // @todo: implement real thread ids
+}
+
 
 unsigned int find_path(const char *name, char **full_path_name);
 
@@ -549,309 +701,33 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 				 unsigned long ppid)
 {
   int rc=NO_ERROR;
-  void * addr;
-  unsigned long size;
-  IXFModule ixfModule;
-  struct t_os2process *proc, *parentproc;
+  struct t_os2process *proc;
   #define buf_size 4096
   char buf[buf_size+1];
   char *p_buf = (char *)buf;
-  unsigned long module_counter;
-  unsigned long imports_counter;
-  unsigned long hmod, *phmod;
-  UCHAR uchLoadError[260] = {0}; /* Error info from ModLoadModule */
-  int relative_jmp;
-  struct module_rec * prev;
-  char pszName[CCHMAXPATH];
-  unsigned long cbName;
-  char *arg, *env;
-  char *p, *q;
-  int  i, k, l, envlen, arglen, len;
-#ifdef L4API_l4v2
-  l4_addr_t pageaddr, addr2;
-  IXFSYSDEP *ixfSysDep;
-#endif
 
-  if (options.debugprcmgr) LOG("PrcExecuteModule: Loading executable %s", pName);
+  /* Starts to execute the process. */
+  if (options.debugprcmgr) LOG("Executing exe...");
 
-
-#if 0
-  // Try to load file (consider fully-qualified name specified)
-  rc=io_load_file(pName, &addr, &size);
-  if (rc!=0/*NO_ERROR*/) // if error then
+  if (pName[0] != '\\' && (pName[1] != ':' || pName[2] != '\\')) // absolute path
   {
     // Searches for module name and returns the full path in the buffer p_buf.
-    rc=find_path(pName, &p_buf);
-    if (!rc) rc=io_load_file(p_buf, &addr, &size);
-  }
-  if (rc!=0/*NO_ERROR*/)
-  {
-    LOG("PrcExecuteModule: Can't find %s module", pName);
-    return rc;
-  }
-
-#ifdef L4API_l4v2
-  // l4v2+l4env host
-  // initialize section number to zero
-  pageaddr  = (l4_addr_t)malloc(2 * L4_PAGESIZE);
-  addr2 = pageaddr & L4_PAGEMASK;
-
-  if (addr2 < pageaddr)
-    addr2 += L4_PAGESIZE;
-
-  ixfSysDep = (IXFSYSDEP *)addr2;
-  ixfModule.hdlSysDep = (unsigned int)ixfSysDep;
-  ixfSysDep->pageaddr  = pageaddr; // save malloc'ed address
-  ixfSysDep->section_num = 0;
-#else
-  // other hosts
-  // ...
-#endif
-
-  rc=IXFIdentifyModule(addr, size, &ixfModule);
-  if (rc!=0/*NO_ERROR*/)
-  {
-    LOG("PrcExecuteModule: Error identifying %s module", pName);
-    return rc;
-  }
-
-  // Load module
-  rc=IXFLoadModule(addr, size, &ixfModule);
-  if (rc!=0/*NO_ERROR*/)
-  {
-    LOG("PrcExecuteModule: Error loading %s module", pName);
-    return rc;
-  }
-
-  /* Creates an simple process (keeps info about it, does not start to execute). */
-  tiny_process = PrcCreate(&ixfModule);
-  //tiny_process->lx_pib->pib_pchcmd = (PCHAR)malloc(strlen(pArg) + 2);
-  //tiny_process->lx_pib->pib_pchenv = (PCHAR)malloc(strlen(pEnv) + 2);
-  //strcpy(tiny_process->lx_pib->pib_pchcmd, pArg);
-  //strcpy(tiny_process->lx_pib->pib_pchenv, pEnv);
-
-  /* Register the exe with the module table. With the complete path. */
-  /* @todo Is we really need to register executable??? Don't see any reason */
-  // @todo extract filename only because can be fullname with path
-  ModRegister(pName, &ixfModule);
-
-  // Load import modules
-  for (module_counter=1;
-       module_counter<ixfModule.cbModules+1;
-       module_counter++)
-  {
-    char * name = malloc(strlen(ixfModule.Modules[module_counter-1])+5);
-    strcpy(name, ixfModule.Modules[module_counter-1]);
-    strcat(name, ".dll");
-    rc=ModLoadModule(uchLoadError, sizeof(uchLoadError),
-                              name, (unsigned long *)&hmod);
+    rc=find_path(pName, p_buf);
     if (rc!=0/*NO_ERROR*/)
     {
-      LOG("PrcExecuteModule: Error loading %s module", ixfModule.Modules[module_counter-1]);
+      LOG("PrcExecuteModule: Can't find %s module", pName);
       return rc;
     }
-    else
-      LOG("%s loaded.", name);
-    
-    //rc=IXFFixupModule(&hmod);
-    if (rc)
-    {
-      LOG("PrcExecuteModule: Error %s module fixup", name);
-      return rc;
-    }
-    
-    ModLinkModule(&hmod, &hmod);
   }
+  else
+    strcpy(p_buf, pName);
 
-  // Fixup module
-  rc=IXFFixupModule(&ixfModule);
-  if (rc!=0/*NO_ERROR*/)
-  {
-    LOG("PrcExecuteModule: Error %s module fixup", pName);
-    return rc;
-  }
-
-  
-  LOG("mods:");
-  LOG("-----------");
-  prev = (struct module_rec *) module_root.next;
-  while(prev)
-  {
-    LOG("%s", prev->mod_name);
-    prev = prev->next;
-  }
-
-  ModLinkModule (&ixfModule, &hmod);  
-
-  /* Load file as an executable module */
-  //rc = ModLoadExeModule(pszName, cbName, pName, &hmod);
-  //if (rc)
-  //    return rc;
-
-  /* Creates an simple process (keeps info about it, does not start to execute). */
-  //tiny_process = PrcCreate(); //&ixfModule);
-  //tiny_process->lx_pib->pib_pchcmd = (PCHAR)malloc(strlen(pArg) + 2);
-  //tiny_process->lx_pib->pib_pchenv = (PCHAR)malloc(strlen(pEnv) + 2);
-  //strcpy(tiny_process->lx_pib->pib_pchcmd, pArg);
-  //strcpy(tiny_process->lx_pib->pib_pchenv, pEnv);
-#endif
-  /* Print info about used memory loaded modules. */
-  //print_used_mem(&tiny_process->root_mem_area);
-  //if(rc == 0/*NO_ERROR*/) 
-  {
-    /* Starts to execute the process. */
-    if (options.debugprcmgr) LOG("Executing exe...");
-    if (pName[0] != '\\' && (pName[1] != ':' || pName[2] != '\\')) // absolute path
-    {
-    // Searches for module name and returns the full path in the buffer p_buf.
-      rc=find_path(pName, p_buf);
-      if (rc!=0/*NO_ERROR*/)
-      {
-        LOG("PrcExecuteModule: Can't find %s module", pName);
-        return rc;
-      }
-    }
-    else
-      strcpy(p_buf, pName);
-
-    l = strlstlen(pArg);
-    LOG("pArg len=%d", l);
-    LOG("pEnv len=%d", strlstlen(pEnv));
-
-    LOG("pArg=%x", pArg);
-
-    for (i = 0, p = pArg; i < l; i++)
-     if (p[i])
-       LOG("%c", p[i]);
-     else
-       LOG("\\0");
-
-    if (!pArg || !*pArg)
-      pArg = "\0\0";
-
-    if (!pEnv || !*pEnv)
-      pEnv = "\0\0";
-    
-    k = strlen(p_buf) + 1;
-
-    LOG("k=%d", k);
-
-    /* get args length */
-    arglen = strlstlen(pArg);
-
-    LOG("arglen=%d", arglen);
-
-    /* get env length */
-    envlen = strlstlen(pEnv);
-
-    LOG("envlen=%d", envlen);
-    
-    if (ppid) // ordinary process, inherits parent env
-    {
-      /* parent proc */
-      parentproc = PrcGetProc(ppid);
-
-      l = strlstlen(parentproc->lx_pib->pib_pchenv);
-
-      env = (char *)malloc(envlen + l + arglen + k);
-      
-      if (!env)
-      {
-        LOG("malloc: not enough memory!");
-        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
-      }
-
-      /* copy without last NULL */
-      memmove(env, parentproc->lx_pib->pib_pchenv, l);
-      /* copy with last NULL (inherited env) */
-      /* @todo: add env vars redefining, not just appending */
-      if (envlen > 2) // empty list
-      {
-        memmove(env + l - 1, pEnv, envlen);
-        l += envlen - 1;
-      }
-      //if (env[l] == NULL)
-      //    l--;
-    }
-    else // started as protshell=/call=/run=, uses env from config.sys
-    {
-      int  n = type[3].ip;
-      int  i;
-      char *s;
-    
-      envlen = 0;
-
-      /* get a sum of all strings lengths */
-      for (i = 0; i < n; i++)
-        if (type[3].sp[i].string)
-          envlen += strlen(type[3].sp[i].string) + 1;
-      /* count the ending NULL */
-      envlen++;
-      
-      env = (char *)malloc(envlen + arglen + k + 1);
-      
-      if (!env)
-      {
-        LOG("malloc: not enough memory!");
-        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
-      }
-
-      for (i = 0, l = 0; i < n; i++, l += strlen(s) + 1)
-      {
-        s = type[3].sp[i].string;
-	if (s) memmove(env + l, s, strlen(s) + 1);
-      }
-      env[l++] = '\0';
-    }
-
-    // the first copy of program name
-    // at the end of the environment
-    strcpy(env + l, p_buf);
-
-    for (i = 0; i < k - 1; i++)
-      env[l + i] = toupper(env[l + i]);
-
-    arg = env + l + k;
-    // second '\0'
-    //arg[0] = '\0';
-    //arg++;
-
-    // program name (2nd copy)
-    strcpy(arg, p_buf);
-
-    for (i = 0; i < k - 1; i++)
-      arg[i] = toupper(arg[i]);
-
-    //£ÂÂ£Â£Â£arg[k - 1] = ' ';
-
-    for (i = 0, p = pArg; p[i]; i += len + 1)
-    {
-      len = strlen(p + i);
-      strcpy(arg + k + i, p + i);
-      arg[k + i + len] = ' ';
-    }
-    // skip last space
-    i--;
-    //while (arg[k + i] == ' ') i++; // ???
-    //if (arg[k + i]) i--;
-    arg[k + i] = '\0'; i++;
-    arg[k + i] = '\0'; i++;
-
-    k = arg - env + k + i;
-    for (i = 0; i < k; i++)
-    if (env[i])
-      LOG("%c", env[i]);
-    else
-      LOG("\\0");    
-
-    #if defined(L4API_l4v2)
-    /* execute it */
-    l4_os2_exec(p_buf, arg, env, PrcCreate(ppid));
-    #endif
-
-    //if (options.debugprcmgr) LOG("Done executing exe.");
-  }
-
+  /* create process structure */
+  proc = PrcCreate(ppid);
+  /* assign args and env      */
+  PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
+  /* execute it */
+  l4_os2_exec(p_buf, proc);
 
   return rc; /*NO_ERROR;*/
 }

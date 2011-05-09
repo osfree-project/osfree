@@ -94,4 +94,10 @@ interface os2server
     APIRET dos_GetInfoBlocks([out] l4dm_dataspace_t *ds,
                              [out] l4_offs_t *tib_offs,
 			     [out] l4_offs_t *pib_offs);
+
+    /* scan the environment */
+    APIRET dos_ScanEnv([in, string] char *pszName,
+                       [out, string,
+		       prealloc_client,
+		       prealloc_server] char **ppszValue);
 };

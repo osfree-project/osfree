@@ -113,12 +113,18 @@ exec_runserver(void)
         }
 	
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
+
+        /* skip spaces and quotes */
+        for (p = srv; *p == '"' || *p == ' '; p++) ;
+	srv = p;
+	for (p = srv + strlen(srv) - 1; *p == '"' || *p == ' '; p--) *p = '\0';
 	strcpy (server, srv);
+
 	to      = getcmd (skipto(0, strstr(s, "-TIMEOUT")));
 	timeout = atoi (to);
 
         LOG("LOOKFOR:%s, TIMEOUT:%d", server, timeout);
-	if (*server && names_waitfor_name(server, &tid, timeout))
+	if (*server && !names_waitfor_name(server, &tid, timeout))
 	{
 	  LOG("Timeout waiting for %s", server);
 	  return;

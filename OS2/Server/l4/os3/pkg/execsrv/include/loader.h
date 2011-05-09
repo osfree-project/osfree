@@ -11,10 +11,11 @@
 typedef 
 struct
 {
-  l4_addr_t    ip;
-  l4_addr_t    sp;
-  l4_addr_t    sp_limit;
-  l4_uint32_t  hmod;
+  l4_addr_t     ip;
+  l4_addr_t     sp;
+  l4_addr_t     sp_limit;
+  l4_uint32_t   hmod;
+  char          path[0x100];
 } os2exec_module_t;
 
 #endif

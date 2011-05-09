@@ -78,7 +78,7 @@ KalOpenL (PSZ pszFileName,
   APIRET  rc;
 
   STKIN
-  //
+  // ...
   STKOUT
   return rc;
 }
@@ -99,7 +99,7 @@ KalFSCtl (PVOID pData,
   APIRET  rc;
 
   STKIN
-  //
+  // ...
   STKOUT
   return rc;
 }
@@ -242,7 +242,7 @@ KalQueryProcAddr(ULONG hmod,
   int rc;
   STKIN
   rc = os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
-                                     pszName, (void **)ppfn, &env);
+                                   pszName, (void **)ppfn, &env);
   STKOUT
   return rc;
 }
@@ -554,6 +554,7 @@ KalAllocMem(PVOID *ppb,
 	    ULONG flags)
 {
   l4_uint32_t rights = 0;
+  l4_uint32_t area;
   l4dm_dataspace_t ds;
   l4_addr_t addr;
   int rc;
@@ -569,23 +570,36 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_WRITE)
     rights |= L4DM_WRITE;
 
-  /* Create a dataspace of a given size */
-  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
-           4096, rights, "DosAllocMem dataspace", &ds);
-
-  if (rc < 0)
+  if (flags & PAG_COMMIT)
   {
-    STKOUT
-    return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    /* Create a dataspace of a given size */
+    rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
+               4096, rights, "DosAllocMem dataspace", &ds);
+
+    if (rc < 0)
+    {
+      STKOUT
+      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    }
+
+    /* attach the created dataspace to our address space */
+    rc = attach_ds(&ds, rights, &addr);
+
+    if (rc)
+    {
+      STKOUT
+      return 8; /* What to return? */
+    }
   }
-
-  /* attach the created dataspace to our address space */
-  rc = attach_ds(&ds, rights, &addr);
-
-  if (rc)
+  else
   {
-    STKOUT
-    return 8; /* What to return? */
+    rc = l4rm_area_reserve(cb, 0, &addr, &area);
+
+    if (rc < 0)
+    {
+      STKOUT
+      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    }
   }
   
   LOG("addr=%x", addr);
@@ -789,4 +803,18 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
 
   STKOUT
   return 0; /* NO_ERROR */
+}
+
+
+APIRET CDECL
+KalScanEnv(PSZ pszName,
+           PPSZ ppszValue)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2server_dos_ScanEnv_call(&os2srv, pszName, ppszValue, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
 }
