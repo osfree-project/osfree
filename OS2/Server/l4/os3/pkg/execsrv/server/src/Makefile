@@ -15,7 +15,7 @@ LDFLAGS		= --no-undefined \
 LDSCRIPT	= $(call findfile,main_dyn.ld,$(L4LIBDIR))
 LIBS		= -Bdynamic -lmemmgr.s -ldl.s -Bstatic \
 		  -los2common -los2server -los2exec -los2fs -ll4sys -ll4sys.p \
-                  -ldm_phys -ll4env_err -ll4rm -lloaderif
+                  -ldm_phys -ll4env_err -ll4rm -lloaderif -levents
 DEFAULT_RELOC   = 0xba000000
 SERVERIDL	= os2exec.idl
 CFLAGS          = -I$(PKGDIR)/include

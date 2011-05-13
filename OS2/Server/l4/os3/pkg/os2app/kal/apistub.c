@@ -23,6 +23,7 @@
 #include <l4/dm_generic/consts.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/sys/kdebug.h>>
+#include <l4/generic_ts/generic_ts.h>>
 
 #include "../stacksw.h"
 
@@ -178,8 +179,9 @@ KalExit(ULONG action, ULONG result)
   STKIN
   // send OS/2 server a message that we want to terminate
   os2server_dos_Exit_send(&os2srv, action, result, &env);
-  // wait until OS/2 server kills us
-  l4_ipc_sleep(L4_IPC_NEVER);
+  // tell L4 task server that we want to terminate
+  //l4_ipc_sleep(L4_IPC_NEVER);
+  l4ts_exit();
   STKOUT
 }
 

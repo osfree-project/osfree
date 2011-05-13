@@ -20,6 +20,7 @@ typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
 static logwrt_t DosLogWrite = 0;
 static char greeting[] = "MiniCMD. (C) osFree project.\r\n\r\n";
 
+void log(const char *fmt, ...);
 
 int QueryDriveReady( int drive )
 {
@@ -46,6 +47,13 @@ void execute_external(int argc, char **argv)
   PSZ         Envs;
   RESULTCODES ChildRC;
   APIRET      rc;  /* Return code */
+  int         i;
+
+  log("execute_external():\n");
+  log("argc=%d\n", argc);
+
+  for (i = 0; i < argc; i++)
+    log("argv[%d]=%s\n", i, argv[i]);
 
   rc = DosExecPgm(LoadError,           /* Object name buffer           */
                   sizeof(LoadError),   /* Length of object name buffer */
@@ -76,7 +84,8 @@ BOOL parse_cmd(char *cmd)
 {
   unsigned int i, rc;
   int Argc;                // argument count
-  char *Argv[10];      // argument pointers
+  #define MAXARGS 32
+  char *Argv[MAXARGS];      // argument pointers
   char *pszTemp;
 
   if (strlen(cmd)==0)
@@ -96,7 +105,7 @@ BOOL parse_cmd(char *cmd)
           cmd++;
 
   // loop through arguments
-  for ( Argc = 0; (( Argc < 10 ) && ( *cmd )); Argc++ )  {
+  for ( Argc = 0; (( Argc < MAXARGS ) && ( *cmd )); Argc++ )  {
 
           pszTemp = cmd;              // save start of argument
 
@@ -111,13 +120,22 @@ BOOL parse_cmd(char *cmd)
 
           // update the Argv pointer
           Argv[ Argc ] = pszTemp;
+          log("Argv[%d]=%s\n", Argc, pszTemp);
 
           // skip delimiters for Argv[2] onwards
           while (( *cmd ) && ( isdelim( *cmd )))
                   cmd++;
   }
 
+  while (*cmd && isdelim(*cmd))
+    cmd--;
+
+  // change the first trailing delimiter to '\0'
+  cmd++;
+  *cmd = '\0'; /* second NULL terminator */
+
   Argv[Argc] = NULL;
+  log("Argv[%d]=%s\n", Argc, 0);
 
   if (!strcmp(Argv[0], "exit"))
   {
@@ -132,6 +150,11 @@ BOOL parse_cmd(char *cmd)
       return FALSE;
     }
   }
+
+  //log("argc=%d\n", Argc);
+
+  //for (i = 0; i < Argc; i++)
+  //  log("argv[%d]=%s\n", i, Argv[i]);
 
   execute_external(Argc, Argv);
 
@@ -209,7 +232,7 @@ void log(const char *fmt, ...)
 
 void main(void)
 {
-  UCHAR cmd[255];
+  UCHAR cmd[0x8000];
   BOOL exitflag;
 
   log_init();

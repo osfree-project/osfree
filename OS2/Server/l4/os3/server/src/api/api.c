@@ -26,6 +26,7 @@
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/sys/kdebug.h>>
+#include <l4/generic_ts/generic_ts.h>
 
 #include <dice/dice.h>
 
@@ -33,6 +34,7 @@
 
 extern l4_threadid_t fs;
 extern l4_threadid_t os2srv;
+extern l4_threadid_t sysinit_id;
 extern struct t_os2process *proc_root;
 
 int
@@ -231,6 +233,7 @@ os2server_dos_SetDefaultDisk_component (CORBA_Object _dice_corba_obj,
   char   drv;
   int    i;
 
+  LOG("0");
   proc = PrcGetProcL4(*_dice_corba_obj);
 #if 0
   for (i = 0; i < fsrouter.srv_num_; i++)
@@ -248,9 +251,12 @@ os2server_dos_SetDefaultDisk_component (CORBA_Object _dice_corba_obj,
   // get drive map from fs server  
   os2fs_get_drivemap_call(&fs, &map, &env);
 
+  LOG("1");
   if (!((1 << (disknum - 1)) & map))
     return 15; /* ERROR_INVALID_DRIVE */
 
+  LOG("map=%x", map);
+  LOG("2");
   proc->curdisk = disknum;
 
 
@@ -270,30 +276,27 @@ os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
   proc = PrcGetProcL4(*_dice_corba_obj);
 
   // kill calling thread; @todo: implement real thread termination!
-  if ((t = l4ts_kill_task(*_dice_corba_obj, L4TS_KILL_SYNC)))
-    LOG("Error %d killing task\n", t);
-  else
-    LOG("task killed");
+  //if ((t = l4ts_kill_task(*_dice_corba_obj, L4TS_KILL_SYNC)))
+  //    LOG("Error %d killing task\n", t);
+  //else
+  //    LOG("task killed");
 
   LOG("0");
   // get parent pid
   ppid = proc->lx_pib->pib_ulppid;
-  
   LOG("1");
-  if (ppid) // if not protshell (which has no parent)
+  // get parent proc
+  parentproc = PrcGetProc(ppid);
+  if (!parentproc)
   {
-    // get parent proc
-    LOG("2");
-    parentproc = PrcGetProc(ppid);
-
-    // unblock parent thread
-    LOG("3");
-    l4semaphore_up(&parentproc->term_sem);
-    LOG("4");
+    LOG("parent proc is 0");
+    return 1;
   }
-  
+  // unblock parent thread
+  if (ppid || l4_thread_equal(parentproc->task, sysinit_id))
+    l4semaphore_up(&parentproc->term_sem);
+  LOG("4");
   // destroy calling thread's proc
-  LOG("5");
   PrcDestroy(proc);
   LOG("6");
 
@@ -312,14 +315,6 @@ struct DosExecPgm_params {
   struct _RESULTCODES *pRes;
   char *pName;
 };
-
-#define EXEC_SYNC           0
-#define EXEC_ASYNC          1
-#define EXEC_ASYNCRESULT    2
-#define EXEC_TRACE          3
-#define EXEC_BACKGROUND     4
-#define EXEC_LOAD           5
-#define EXEC_ASYNCRESULTDB  6
 
 /* DosExecPgm worker thread */
 void

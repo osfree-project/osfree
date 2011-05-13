@@ -9,7 +9,7 @@ SRC_C		= main.c $(PKGDIR)/shared/startup/startup.c \
 		  kal/apistub.c
 CFLAGS          = -I$(PKGDIR)/include
 LDFLAGS         = -Map os2app.mp
-LIBS		= -los2exec -los2fs -los2server -lloaderif
+LIBS		= -los2exec -los2fs -los2server -lloaderif -levents
 DEFAULT_RELOC   = 0xbb000000
 
 include $(L4DIR)/mk/prog.mk

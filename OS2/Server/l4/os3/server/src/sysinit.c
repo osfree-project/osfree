@@ -12,11 +12,17 @@
 #include <l4/thread/thread.h>
 #include <l4/os3/gcc_os2def.h>
 #include <l4/log/l4log.h>
+#include <l4/events/events.h>
+#include <l4/generic_ts/generic_ts.h>
 
 #include <l4/os3/processmgr.h>
 #include <l4/os3/execlx.h>
 
 extern l4_threadid_t fs;
+extern l4_threadid_t sysinit_id;
+
+// use events server
+extern char use_events;
 
 void exec_runserver(void);
 void executeprotshell(cfg_opts *options);
@@ -58,7 +64,7 @@ void executeprotshell(cfg_opts *options)
 {
   int rc;
 
-  rc = PrcExecuteModule(NULL, 0, 0, "", "", NULL, options->protshell, 0);
+  rc = PrcExecuteModule(NULL, 0, EXEC_SYNC, "", "", NULL, options->protshell, 0);
   if (rc != NO_ERROR) 
     LOG("Error execute: %d ('%s')", rc, options->protshell);
 
@@ -70,9 +76,8 @@ void executeprotshell(cfg_opts *options)
     //return rc;
   }
 
-  LOG("OS/2 Server ended");
 
-  l4_ipc_sleep(L4_IPC_NEVER);
+  //l4_ipc_sleep(L4_IPC_NEVER);
 }
 
 void
@@ -85,7 +90,7 @@ exec_runserver(void)
   char *srv, *to;
   int  timeout = 30000;
   l4_threadid_t tid;
-
+  
   for (i = 0; i < 5; i++)
   {
     name = type[i].name;
@@ -101,17 +106,16 @@ exec_runserver(void)
 	l4_exec (p, params, &tid);
         LOG("started task: %x.%x", tid.id.task, tid.id.lthread);
 
-        // os2fs server id
-	if (strstr(p, "os2fs"))
+        if (strstr(p, "os2fs"))
 	{
-          LOG("os2fs started");
-          if (!names_waitfor_name("os2fs", &fs, 30000))
+	  LOG("os2fs started");
+	  if (!names_waitfor_name("os2fs", &fs, 30000))
 	  {
-	    LOG("Can't find os2fs on the name server!");
+	    LOG("Can't find os2fs on name server!");
 	    return;
 	  }
-        }
-	
+	}
+
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
 
         /* skip spaces and quotes */
@@ -144,6 +148,20 @@ int exec_run_call(void)
 
 int sysinit (cfg_opts *options)
 {
+  struct t_os2process *proc; // sysinit's PTDA/proc
+  l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
+  l4events_nr_t event_nr = L4EVENTS_NO_NR;
+  l4events_event_t event;
+  APIRET rc;
+
+  // Create the sysinit process PTDA structure (pid == ppid == 0)
+  proc = PrcCreate(0);
+  /* set task number */
+  sysinit_id = l4_myself();
+  proc->task = sysinit_id;
+  /* assign params and environment */
+  PrcSetArgsEnv("sysinit", "", "", proc);
+
   if (!names_register("os2srv.sysinit"))
     LOG("error registering on the name server");
 
@@ -157,10 +175,34 @@ int sysinit (cfg_opts *options)
   if (!options->protshell || !*(options->protshell))
   {
     io_printf("No PROTSHELL statement in CONFIG.SYS");
-    return ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
+    rc = ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
     executeprotshell(options);
+    rc = 0; /* NO_ERROR */
   }
 
-  return 0;  
+  if (!rc) // wait until child process (protshell) terminates (it will unblock us)
+    l4semaphore_down(&proc->term_sem);
+
+  if (use_events) // use events server
+  {
+    // terminate by sending an exit event
+    event.len = sizeof(l4_threadid_t);
+    *(l4_threadid_t*)event.str = l4_myself();
+    // send exit event
+    l4events_send(event_ch, &event, &event_nr, L4EVENTS_SEND_ACK);
+    // get acknowledge
+    l4events_get_ack(&event_nr, L4_IPC_NEVER);
+  }
+
+  // unregister at names
+  if (!names_unregister_task(sysinit_id))
+      LOG("Cannot unregister at name server!");
+
+  LOG("OS/2 Server ended");
+  // terminate OS/2 Server
+  //l4ts_exit(); // this will send an exit event through events server too
+  exit(rc);
+
+  return rc;  
 }

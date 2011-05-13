@@ -10,9 +10,6 @@ interface os2server
 {
     /* misc RPC calls */
 
-    /* wakeup caller parent */
-    void wakeup(void);
-
     /* notify os2srv about module params after os2app
        loaded an OS/2 executable (needed to set data in PIB) */
     void app_notify([in] os2exec_module_t *s);

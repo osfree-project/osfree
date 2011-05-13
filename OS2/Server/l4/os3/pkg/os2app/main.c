@@ -8,6 +8,7 @@
 
 /* standard C includes */
 //#include <stdio.h>
+#include <getopt.h>
 /* L4 includes */
 #include <l4/sys/types.h>
 #include <l4/log/l4log.h>
@@ -18,6 +19,8 @@
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/dm_generic/consts.h>
 #include <l4/l4rm/l4rm.h>
+#include <l4/events/events.h>
+#include <l4/generic_ts/generic_ts.h>
 #include <l4/env/env.h>
 #include <l4/env/errno.h>
 #include <l4/log/l4log.h>
@@ -43,6 +46,8 @@ const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 /* previous stack (when switching between 
    task and os2app stacks)        */
 unsigned long __stack;
+// use events server flag
+char use_events = 0;
 
 /* fs server thread id */
 l4_threadid_t fs;
@@ -207,7 +212,51 @@ trampoline(struct param *param)
 
   return 0;
 }
- 
+
+void usage(void)
+{
+  LOG("os2app usage:\n");
+  LOG("-e:  Use events server");
+} 
+
+void event_thread(void)
+{
+  l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
+  l4events_nr_t event_nr = L4EVENTS_NO_NR;
+  l4events_event_t event;
+  l4_threadid_t tid;
+  int rc;
+
+  if (!l4events_init())
+  {
+    LOG_Error("l4events_init() failed");
+    KalExit(1, 1);
+  }
+
+  if ((rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
+  {
+    LOG_Error("l4events_register failed");
+    KalExit(1, 1);
+  }
+
+  while(1)
+  {
+    /* wait for event */
+    if ((rc = l4events_give_ack_and_receive(&event_ch, &event, &event_nr,
+					    L4_IPC_NEVER,
+					    L4EVENTS_RECV_ACK))<0)
+    {
+      l4env_perror("l4events_give_ack_and_receive()", -rc);
+      continue;
+    }
+    tid = *(l4_threadid_t *)event.str;
+    LOG("Got exit event for "l4util_idfmt, l4util_idstr(tid));
+
+    /* exit myself */
+    if (l4_task_equal(tid, os2srv))
+      exit(rc);
+  }
+}
 
 void main (int argc, char *argv[])
 {
@@ -223,28 +272,62 @@ void main (int argc, char *argv[])
   char buf[1024];
   char *p = buf;
   int i, rc = 0;
+  int optionid;
+  int opt = 0;
+  const struct option long_options[] =
+                {
+                { "events",      no_argument, NULL, 'e'},
+		{ 0, 0, 0, 0}
+                };
 
   if (!names_waitfor_name("os2exec", &execsrv, 30000))
     {
       LOG("Can't find os2exec on names, exiting...");
-      return;
+      KalExit(1, 1);
     }
 
   if (!names_waitfor_name("os2fs", &fs, 30000))
     {
       LOG("Can't find os2fs on names, exiting...");
-      return;
+      KalExit(1, 1);
     }
 
   if (!names_waitfor_name("os2srv", &os2srv, 30000))
     {
       LOG("Can't find os2srv on names, exiting...");
-      return;
+      KalExit(1, 1);
     }
+
+  // Parse command line arguments
+  for (;;)
+  {
+    opt = getopt_long(argc, argv, "e", long_options, &optionid);
+    if (opt == -1) break;
+    switch (opt)
+    {
+      case 'e':
+        LOG("using events server");
+	use_events = 1;
+	break;
+      
+      default:
+        LOG("Error: Unknown option %c", opt);
+        usage();
+        KalExit(1, 2);
+    }
+  }
+
+  // start events thread
+  if (use_events)
+  {
+    // start events thread
+    l4thread_create(event_thread, 0, L4THREAD_CREATE_ASYNC);
+    LOG("event thread started");
+  }
 
   /* Load the LX executable */
   rc = PvtLoadModule(uchLoadError, sizeof(uchLoadError), 
-                     argv[1], &s, &hmod);
+                     argv[argc - 1], &s, &hmod);
   
   if (rc)
   {
@@ -257,7 +340,7 @@ void main (int argc, char *argv[])
   param.eip = s.ip;
   param.esp = s.sp;
 
-  strcpy(s.path, argv[1]);
+  strcpy(s.path, argv[argc - 1]);
 
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify_call (&os2srv, &s, &env);
@@ -283,9 +366,9 @@ void main (int argc, char *argv[])
   sprintf(p, "The process id is %x\n", ppib->pib_ulpid);
   KalWrite(1, p, strlen(p) + 1, &ulActual);
 
-  LOG("Starting %s LX exe...", argv[1]);
+  LOG("Starting %s LX exe...", argv[argc - 1]);
   rc = trampoline (&param);
-  LOG("... %s finished.", argv[1]);
+  LOG("... %s finished.", argv[argc - 1]);
 
   STKOUT
 

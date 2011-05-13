@@ -50,7 +50,7 @@
 extern struct types type[];
 
 struct t_os2process *proc_root = NULL;
-static int pid = 0;
+static int pid = -1;
 
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
@@ -95,9 +95,11 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
       c->prev = p;
     }
 
+    pid++;
+
     /* support for setting current disk and directory */
     parentproc = PrcGetProc(ppid);
-    if (parentproc)
+    if (parentproc && ppid && pid)
     {
       c->curdisk = parentproc->curdisk;
       strcpy(c->curdir, parentproc->curdir);
@@ -109,8 +111,6 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
       *(c->curdir) = '\0';
       //c->session = 
     }
-
-    pid++;
 
     c->lx_pib   = (PPIB) malloc(sizeof(PIB));
     c->main_tib = (PTIB) malloc(sizeof(TIB));
@@ -162,7 +162,7 @@ struct t_os2process *PrcGetProc(ULONG pid)
   struct t_os2process *proc;
   proc = proc_root;
   
-  if (proc == NULL || pid == 0)
+  if (proc == NULL)
     return NULL;
   
   do

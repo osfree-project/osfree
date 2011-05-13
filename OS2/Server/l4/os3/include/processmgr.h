@@ -165,6 +165,15 @@ struct t_os2process *PrcCreate(ULONG ppid);
 
 void PrcDestroy(struct t_os2process * proc);
 
+void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc);
+
+#define EXEC_SYNC           0
+#define EXEC_ASYNC          1
+#define EXEC_ASYNCRESULT    2
+#define EXEC_TRACE          3
+#define EXEC_BACKGROUND     4
+#define EXEC_LOAD           5
+#define EXEC_ASYNCRESULTDB  6
 
 APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  long cbObjname,

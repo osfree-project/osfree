@@ -21,7 +21,7 @@ api/api.c
 SERVERIDL	= os2fs.idl
 
 # list additional library paths and libraries here
-LIBS		= -los2exec -los2fs -lthread -lgeneric_fprov-server # -los2common
+LIBS		= -los2exec -los2fs -lthread -lgeneric_fprov-server -levents
 
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
 CFLAGS          = -I$(PKGDIR)/include

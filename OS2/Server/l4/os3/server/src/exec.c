@@ -62,6 +62,7 @@
 #include <l4/util/l4_macros.h>
 #include <l4/sys/kdebug.h>
 #include <l4/sys/segment.h>
+#include <l4/generic_ts/generic_ts.h>
 
 #include <l4/os3/modmgr.h>
 #include <l4/os3/ixfmgr.h>
@@ -82,149 +83,10 @@ extern l4_threadid_t loader_id;
 extern l4_threadid_t fprov_id;
 extern l4_threadid_t dsm_id;
 
-//l4semaphore_t sem = L4SEMAPHORE_INIT(0);
-
-void get_strlist_len(char *p, int *length);
-
-/* trampoline() params    */
-struct param
-{
-  /* a system-dependent structure*/
-  IXFSYSDEP *sysdep;
-
-  /* OS/2-specific params */
-  unsigned long  eip;
-  unsigned long  esp;
-  unsigned short sel;
-  PTIB           tib;
-  PPIB           pib;
-  BYTE		 curdisk;
-};
-
-void DICE_CV
-os2server_wakeup_component (CORBA_Object _dice_corba_obj,
-                            CORBA_Server_Environment *_dice_corba_env)
-{
-  struct t_os2process *proc, *parentproc;
-  int ppid;
-  
-  LOG("wakeup called");
-  proc = PrcGetProcL4(*_dice_corba_obj);
-  
-  ppid = proc->lx_pib->pib_ulppid;
-  
-  if (ppid) // if not protshell (which has no parent)
-  {
-    // get parent proc
-    parentproc = PrcGetProc(ppid);
-
-    // unblock parent thread
-    l4semaphore_up(&parentproc->term_sem);
-  }
-}
+// use events server
+extern char use_events;
 
 #if 0
-
-/* GDT/LDT descriptor structure */
-struct desc
-{
-  short limit_lo :16;
-  short base_lo1 :16;
-  short base_lo2 :8;
-  short acc_lo   :8;
-  short limit_hi :4;
-  short acc_hi   :4;
-  short base_hi  :8;
-};
-
-/* OS/2 app main thread */
-int
-trampoline(struct param *param)
-{
-  PCHAR argv = param->pib->pib_pchcmd;
-  PCHAR envp = param->pib->pib_pchenv;
-  ULONG hmod = param->pib->pib_hmte;
-
-  unsigned short    sel;
-  unsigned long     base;
-  struct desc       desc;
-
-  LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
-  /* TIB base */
-  base = param->tib;	
-              
-  /* Prepare TIB GDT descriptor */
-  desc.limit_lo = 0x30; desc.limit_hi = 0;
-  desc.acc_lo   = 0xF3; desc.acc_hi   = 0;
-  desc.base_lo1 = base & 0xffff;
-  desc.base_lo2 = (base >> 16) & 0xff;
-  desc.base_hi  = base >> 24;
-        
-  /* Allocate GDT descriptor */
-  fiasco_gdt_set(&desc, 8, 0, l4_myself());
-
-  /* Get a selector */
-  sel = 8 * fiasco_gdt_get_entry_offset();
-  LOG("sel=%x", sel);
-
-  //enter_kdebug("debug");
-  asm(
-      "movl  %[sel], %%edx \n"
-      "movw  %%dx, %%fs \n"              /* TIB selector */
-      "movl  %[esp_data], %%edx \n"      /* Put old esp in eax */
-      "movl  %[eip_data], %%ecx \n"
-      "movl  %%edx, %%esp \n"            /* Copy eax to esp. Stack pointer */
-      /* We have changed the stack so it now points to our LX image. */
-      "movl  %[argv], %%edx \n"
-      "pushl %%edx \n"                   /* argv  */
-      "movl  %[envp], %%edx \n"
-      "pushl %%edx \n"                   /* envp  */
-      "movl  $0, %%edx \n"
-      "pushl %%edx \n"                   /* sizec */
-      "movl  %[hmod], %%edx \n"
-      "pushl %%edx \n"                   /* hmod  */
-      "call  *%%ecx \n"                  /* Call the startup code of an OS/2 executable */
-      "addl  $0x10, %%esp \n"            /* clear stack     */
-      :
-      :[sel]      "m" (sel),
-       [argv]     "m" (argv),
-       [envp]     "m" (envp),
-       [hmod]     "m" (hmod),
-       [esp_data] "m" (param->esp),       /* esp+ data_mmap+8+ */
-       [eip_data] "m" (param->eip));
-#if 0
-  exe_end();
-#else   
-  return 0;
-#endif
-}
-
-void exe_end(void)
-{
-  CORBA_Environment env = dice_default_environment;
-
-  LOG("exe ended");
-  // send a signal about termination to OS/2 server
-  os2server_wakeup_call (&os2srv, &env);
-  
-  if (DICE_HAS_EXCEPTION(&env))
-    LOG("IPC error: %x.%x", 
-        DICE_EXCEPTION_MAJOR(&env),
-        DICE_EXCEPTION_MINOR(&env));
-  
-  LOG("task exit");
-  l4_ipc_sleep(L4_IPC_NEVER);  
-}
-
-/* OS/2 app thread 0 (l4 startup, semaphore, thread libs init,
- * region mapper service loop) 
- */
-static void
-__startup(struct param *param)
-{
-  __os2_main(param);
-  exe_end();
-}
 
 static void
 app_pager(void *unused)
@@ -292,6 +154,7 @@ app_pager(void *unused)
         LOG("IPC error %x", error);
     }
 }
+
 
 /*
 Systemfel - OS/2 - fönster
@@ -477,13 +340,27 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
   #define MAX_TASK_ID 16
   CORBA_Environment env = dice_default_environment;
   char name[] = "os2app.cfg";
+  char parm[1024] = "";
   char cmd_buf[0x20];
-  l4_taskid_t      task_ids[MAX_TASK_ID];
+  l4_taskid_t task_ids[MAX_TASK_ID];
   char error_msg[1024];
   char *ptr = error_msg;
   l4dm_dataspace_t ds = L4DM_INVALID_DATASPACE;
   l4_addr_t addr;
   int error;
+
+  // If we use events server, pass this option
+  // to other servers/apps too
+  if (use_events)
+  {
+    LOG("using events");
+    strcat(parm, " --events ");
+  }
+
+  strcat(parm, params);
+  
+  LOG("cmd=%s", cmd);
+  LOG("parm=\"%s\"", parm);
 
   /* RPC call to DM_PHYS (create a dataspace) */
   if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
@@ -502,7 +379,7 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
   strcpy((char *)addr, "modpath \"/file/system\"\n\ntask \"");
   strcat((char *)addr, cmd);
   strcat((char *)addr, "\"  \"--stdin /dev/vc0 --stdout /dev/vc0 --stderr /dev/vc0 ");
-  strcat((char *)addr, params);
+  strcat((char *)addr, parm);
   strcat((char *)addr, "\"");
   strcat((char *)addr, "\n\n  priority 0xA0");
 
@@ -535,7 +412,7 @@ l4_exec(char *cmd, char *params, l4_taskid_t *taskid)
 void l4_os2_exec(char *pName, struct t_os2process *proc)
 {
     l4_threadid_t    taskid;
-
+    
     l4_exec("os2app", pName, &taskid);
     proc->task = taskid;
 }

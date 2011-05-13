@@ -265,7 +265,7 @@ __main(void)
   if (!strcmp(l4util_argv[0], "os2app") && l4util_argc > 7)
   {
     char *p = LOG_tag;        // the log tag
-    char *q = l4util_argv[7]; // program path
+    char *q = l4util_argv[l4util_argc - 1]; // program path
     // start from the path end
     q = q + strlen(q);
     // search for the last backslash

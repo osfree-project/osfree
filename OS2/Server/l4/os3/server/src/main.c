@@ -59,9 +59,12 @@
 
 struct t_mem_area os2server_root_mem_area;
 char fprov[20] = "BMODFS";
+// use events server
+char use_events = 0;
 
 l4_threadid_t fs;
 l4_threadid_t os2srv;
+l4_threadid_t sysinit_id;
 l4_threadid_t dsm_id;
 l4_threadid_t fprov_id;
 l4_threadid_t loader_id;
@@ -151,11 +154,12 @@ int main(int argc, const char **argv)
                 { "config",      1, NULL, 'c'},
                 { "bootdrive",   1, NULL, 'b'},
                 { "fprov",       1, NULL, 'f'},
+                { "events",      no_argument, NULL, 'e'},
 		{ 0, 0, 0, 0}
                 };
 
   LOG("osFree OS/2 Personality Server");
-
+  LOG("argc=%d", argc);
 
   //int task_status = l4ts_allocate_task2(0, &taskid);
                 
@@ -170,10 +174,11 @@ int main(int argc, const char **argv)
   }
 
   // Parse command line arguments
-  do
-  {
-    opt = getopt_long(argc, argv, "s:c:b:f:", long_options, &optionid);
-        switch (opt)
+  for (;;)
+    {
+      opt = getopt_long(argc, argv, "s:c:b:f:e", long_options, &optionid);
+      if (opt == -1) break;
+      switch (opt)
         {
 #if 0
         case 'd':
@@ -218,7 +223,13 @@ int main(int argc, const char **argv)
             break;
 
         case 'f':
+            LOG("fprov is %s", optarg);
 	    strcpy(fprov, optarg);
+	    break;
+
+        case 'e':
+            LOG("using events server");
+	    use_events = 1;
 	    break;
 
         case -1:
@@ -226,18 +237,17 @@ int main(int argc, const char **argv)
             break;
 	    
         default:
-            io_printf("Error: Unknown option %c", opt);
+            LOG("Error: Unknown option \"%c\"", opt);
             usage();
             return 1;
 
-            break;
         }
-    } while (opt != -1);
+    }
 
   /* Wait for servers to be started */
   if (!names_waitfor_name(fprov, &fprov_id, 10000))
   {
-    printf("Server \"%s\" not found\n", fprov);
+    LOG("Server \"%s\" not found\n", fprov);
     return 1;
   }
 
