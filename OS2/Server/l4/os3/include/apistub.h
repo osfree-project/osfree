@@ -87,3 +87,9 @@ KalClose(HFILE handle);
 APIRET CDECL
 KalScanEnv(PSZ pszName,
            PPSZ ppszValue);
+
+APIRET CDECL
+KalSetMaxFH(ULONG cFH);
+
+APIRET CDECL
+KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH);

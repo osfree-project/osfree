@@ -129,10 +129,7 @@ APIRET APIENTRY      DosIDevIOCtl(void)
 }
 
 
-APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 
 
 APIRET APIENTRY DosKillThread(TID tid)
@@ -463,10 +460,7 @@ APIRET APIENTRY  DosQueryVerify(PBOOL32 pBool)
   return unimplemented(__FUNCTION__);
 }
 
-APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
 
 
 //APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
@@ -483,10 +477,7 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
 }
 
 
-APIRET APIENTRY DosSleep(ULONG msec)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosSleep(ULONG msec)
 
 
 APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
@@ -671,17 +662,11 @@ APIRET APIENTRY  DosWaitNPipe(PCSZ  pszName,
 //APIRET APIENTRY  DosClose(HFILE hFile)
 
 
-APIRET APIENTRY  DosDelete(PCSZ  pszFile)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosDelete(PCSZ  pszFile)
 
 
-APIRET APIENTRY  DosDupHandle(HFILE hFile,
-                              PHFILE pHfile)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosDupHandle(HFILE hFile,
+//                              PHFILE pHfile)
 
 
 APIRET APIENTRY  DosFindClose(HDIR hDir)
@@ -721,11 +706,8 @@ APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
 }
 
 
-APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
-                              PEAOP2 peaop2)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
+//                              PEAOP2 peaop2)
 
 
 APIRET APIENTRY  DosMove(PCSZ  pszOld,

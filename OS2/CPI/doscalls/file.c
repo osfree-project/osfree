@@ -8,6 +8,18 @@ APIRET __cdecl  KalQueryHType(HFILE hFile,
 
 APIRET __cdecl  KalResetBuffer(HFILE);
 
+APIRET __cdecl  KalDupHandle(HFILE hFile,
+                             PHFILE pHfile);
+
+APIRET __cdecl  KalDelete(PCSZ  pszFile);
+
+APIRET __cdecl  KalForceDelete(PCSZ  pszFile);
+
+APIRET __cdecl  KalDeleteDir(PCSZ  pszDir);
+
+APIRET __cdecl  KalCreateDir(PCSZ  pszDirName,
+                             PEAOP2 peaop2);
+
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 
@@ -68,4 +80,31 @@ APIRET APIENTRY  DosQueryHType(HFILE hFile,
 APIRET APIENTRY DosResetBuffer(HFILE hFile)
 {
   return KalResetBuffer(hFile);
+}
+
+APIRET APIENTRY  DosDupHandle(HFILE hFile,
+                              PHFILE pHfile)
+{
+  return KalDupHandle(hFile, pHfile);
+}
+
+APIRET APIENTRY  DosDelete(PCSZ  pszFile)
+{
+  return KalDelete(pszFile);
+}
+
+APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
+{
+  return KalDelete(pszFile);
+}
+
+APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
+{
+  return KalDeleteDir(pszDir);
+}
+
+APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
+                              PEAOP2 peaop2)
+{
+  return KalCreateDir(pszDirName, peaop2);
 }

@@ -32,6 +32,8 @@ extern l4_threadid_t os2srv;
 extern l4_threadid_t execsrv;
 extern unsigned long __stack;
 
+static ULONG CurMaxFH = 20;
+
 unsigned long
 PvtLoadModule(char *pszName,
               unsigned long cbName,
@@ -65,6 +67,7 @@ strlstlen(char *p)
   return len;
 }
 
+
 APIRET CDECL
 KalOpenL (PSZ pszFileName,
           HFILE *phFile,
@@ -76,10 +79,17 @@ KalOpenL (PSZ pszFileName,
 	  PEAOP2 peaop2)
 {
   CORBA_Environment env = dice_default_environment;
+  EAOP2 eaop2;
   APIRET  rc;
 
   STKIN
-  // ...
+  LOG("pszFileName=%s", pszFileName);
+  if (peaop2 == NULL)
+    peaop2 = &eaop2;
+  rc = os2fs_dos_OpenL_call (&fs, pszFileName, phFile,
+                      pulAction, cbFile, ulAttribute,
+                      fsOpenFlags, fsOpenMode, peaop2, &env);
+  LOG("exit");
   STKOUT
   return rc;
 }
@@ -817,6 +827,93 @@ KalScanEnv(PSZ pszName,
 
   STKIN
   rc = os2server_dos_ScanEnv_call(&os2srv, pszName, ppszValue, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalSetMaxFH(ULONG cFH)
+{
+  CurMaxFH = cFH;
+
+  return 0; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH)
+{
+  CurMaxFH += *pcbReqCount;
+  *pcbCurMaxFH = CurMaxFH;
+
+  return 0; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalSleep(ULONG ms)
+{
+  STKIN
+  l4_sleep(ms);
+  STKOUT
+
+  return 0; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalDupHandle(HFILE hFile, HFILE *phFile2)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2server_dos_ScanEnv_call(&os2srv, hFile, phFile2, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalDelete(PSZ pszFileName)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2fs_dos_Delete_call (&fs, pszFileName, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalForceDelete(PSZ pszFileName)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2fs_dos_ForceDelete_call (&fs, pszFileName, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalDeleteDir(PSZ pszDirName)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2fs_dos_DeleteDir_call (&fs, pszDirName, &env);
+  STKOUT
+  return rc; /* NO_ERROR */
+}
+
+APIRET CDECL
+KalCreateDir(PSZ pszDirName, PEAOP2 peaop2)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  rc = os2fs_dos_CreateDir_call (&fs, pszDirName, peaop2, &env);
   STKOUT
   return rc; /* NO_ERROR */
 }

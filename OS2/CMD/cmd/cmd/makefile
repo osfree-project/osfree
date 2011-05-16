@@ -8,10 +8,14 @@ srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(
            $(p)iofmt32$(e) $(p)select$(e) $(p)os2tty$(e) $(p)iparse$(e)     &
            $(p)bcd32$(e) $(p)os32util$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
 ADD_COPT    = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
-ADD_LINKOPT = lib math387s, os2$(SEP)os2, os2386
-STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
+ADD_LINKOPT = # lib math387s, os2$(SEP)os2, os2386
+#STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
 IMPORTS     = KbdStringIn                 EMXWRAP.209, &
-              KbdCharIn                   EMXWRAP.204
+              KbdCharIn                   EMXWRAP.204, &
+              KbdPeek                     EMXWRAP.222, &
+              DOSGETINFOSEG               DOSCALLS.8,  &
+              DOSQFILEMODE                DOSCALLS.75, &
+              DOSSETFILEMODE              DOSCALLS.84
 
 !include $(%ROOT)/mk/appsos2.mk

@@ -24,6 +24,7 @@
 #include <string.h>                     /* strchr */
 #include <fcntl.h>
 #include <dos.h>
+#include <io.h>                         /* read, write, close */
 
 /* assert we are running in small model */
 /* else pointer below has to be done correctly */
@@ -473,12 +474,12 @@ int get_char(int file) {
     if (getlrem <= 0)
       return -1; /* fail: read error / EOF */
     getlp = getlbuf; /* init pointer */
-  } else { /* consume byte from buffer */
-    rval = getlp[0];
-    getlp++;
-    getlrem--;
   }
 
+  /* consume byte from buffer */
+  rval = getlp[0];
+  getlp++;
+  getlrem--;
 
 
   return rval;
@@ -528,7 +529,6 @@ int get_line (int file, char *istr, int size)
   } /* while */
 
   str[0] = '\0'; /* terminate buffer */
-
 
   return success;
 

@@ -35,4 +35,25 @@ interface os2fs : l4fprov::file // inherits file provider interface
     APIRET dos_QueryHType([in] HFILE handle,
                           [out] ULONG *pType,
 			  [out] ULONG *pAttr);
+
+    APIRET dos_OpenL([in, string] char *pszFileName,
+                     [out] HFILE *phFile,
+		     [out] ULONG *pulAction,
+		     [in] long long cbFile,
+		     [in] ULONG ulAttribute,
+		     [in] ULONG fsOpenFlags,
+		     [in] ULONG fsOpenMode,
+		     [in, out] EAOP2 *peaop2);
+
+    APIRET dos_DupHandle([in] HFILE hFile,
+                         [in, out] HFILE *phFile2);
+
+    APIRET dos_Delete([in, string] char *pszFileName);
+
+    APIRET dos_ForceDelete([in, string] char *pszFileName);
+
+    APIRET dos_DeleteDir([in, string] char *pszDirName);
+
+    APIRET dos_CreateDir([in, string] char *pszDirName,
+                         [in] EAOP2 *peaop2);
 };

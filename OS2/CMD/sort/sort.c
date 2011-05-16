@@ -23,6 +23,7 @@
 
 #include "kitten.h"
 #include <fcntl.h> /* O_RDONLY */
+#include <io.h>    /* write */
 #define StdIN  0
 #define StdOUT 1
 #define StdERR 2
@@ -157,6 +158,8 @@ usage(nl_catd cat)
 
 }
 
+typedef int (*cmpr_t)(const void *, const void *);
+
 int main(int argc, char **argv)
 {
     char        filename[MAXPATH];
@@ -281,7 +284,7 @@ int main(int argc, char **argv)
         catclose(cat);
         exit(4);
     }
-    qsort((void *) list, nr, sizeof(char *), cmpr);
+    qsort((void *) list, nr, sizeof(char *), (cmpr_t)cmpr);
     for (i = 0; i < nr; i++) {
         WriteString(list[i], StdOUT);
         WriteString("\r\n",StdOUT);

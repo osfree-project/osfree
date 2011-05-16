@@ -37,8 +37,10 @@ srcfiles = $(p)msg$(e) &
            $(p)dosquerycurrentdisk$(e) &
            $(p)dossetdefaultdisk$(e) &
            $(p)modmgr$(e) &
-           $(p)log$(e) &
-           $(p)env$(e) &
+           $(p)log$(e)    &
+           $(p)env$(e)    &
+           $(p)thunk$(e)  &
+           $(p)sched$(e)  &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
@@ -71,7 +73,13 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalGetInfoBlocks    KAL.KalGetInfoBlocks, &
           _KalResetBuffer      KAL.KalResetBuffer, &
           _KalSetFilePtrL      KAL.KalSetFilePtrL, &
-          _KalScanEnv          KAL.KalScanEnv
+          _KalScanEnv          KAL.KalScanEnv,     &
+          _KalSleep            KAL.KalSleep,       &
+          _KalDupHandle        KAL.KalDupHandle,   &
+          _KalDelete           KAL.KalDelete,      &
+          _KalForceDelete      KAL.KalForceDelete, &
+          _KalDeleteDir        KAL.KalDeleteDir,   &
+          _KalCreateDir        KAL.KalCreateDir
 
 EXPORTS = &
      DosICreateThread       .1, &
@@ -521,7 +529,10 @@ EXPORTS = &
 #     DosTrueGetMessage                          .384, & # 16-bit, not needed
      DosTrueGetMessage                           .388, &
                                                        &
-     DosLogWrite                                 .1112
+     DosLogWrite                                 .1112, &
+                                                       &
+     DosFlatToSel                                .425, &
+     DosSelToFlat                                .426
 
 # alias     DosSetSignalExceptionFoc                  @378
 # conflict? DOS16PMSEMWAIT                              @574
@@ -580,8 +591,6 @@ EXPORTS = &
 #         function ;-)
 
 #DOSCOPY.201 RESIDENT, &
-#     DosFlatToSel                   .425  , &
-#     DosSelToFlat                   .426  , &
 #          DOSICOPY.200,         &
 #     DosIExecPgm            .4, &
 #          Dos32Copy.258,        &

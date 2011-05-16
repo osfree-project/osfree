@@ -73,33 +73,22 @@ char * get_name(const char *s_path)
   return name;
 }
 
-long DICE_CV
-l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
-                      const char* fname /* in */,
-                      const l4_threadid_t *dm /* in */,
-                      unsigned long flags /* in */,
-                      l4dm_dataspace_t *ds /* out */,
-                      l4_size_t *size /* out */,
-                      CORBA_Server_Environment *_dice_corba_env)
+int
+pathconv(char **converted, char *fname)
 {
   struct I_Fs_srv *fsrv;
-  struct stat stat;
-  l4_addr_t addr;
-  char buf[0x100];
   char drv;
   char *directory;
   char *name;
   char *newfilename;
   char *newdirectory;
-  int  handle;
-  int  rc;
 
   drv = tolower(get_drv(fname));
   LOG("drv=%c:", drv);
 
   if(drv == '\0') 
   {
-    return 2; /* ERROR_FILE_NOT_FOUND */
+    return 1;
   }
 
   directory = get_directory(fname);
@@ -107,7 +96,7 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
   
   if (directory==NULL)
   {
-    return 2; /* ERROR_FILE_NOT_FOUND */
+    return 1;
   }
   
   name = get_name(fname);
@@ -142,6 +131,29 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
   newfilename=strcat(newfilename, name);
 
   LOG("newfilename=%s", newfilename);
+  *converted = newfilename;
+
+  return 0;
+}
+
+long DICE_CV
+l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
+                      const char* fname /* in */,
+                      const l4_threadid_t *dm /* in */,
+                      unsigned long flags /* in */,
+                      l4dm_dataspace_t *ds /* out */,
+                      l4_size_t *size /* out */,
+                      CORBA_Server_Environment *_dice_corba_env)
+{
+  struct stat stat;
+  l4_addr_t addr;
+  char *newfilename;
+  int  handle;
+  int  rc;
+
+  /* convert OS/2 path to PN path */
+  if (pathconv(&newfilename, fname))
+   return 2; /* ERROR_FILE_NOT_FOUND */
 
   handle = open(newfilename, O_RDONLY);
 

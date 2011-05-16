@@ -44,6 +44,18 @@ void    kittenclose (void);
 
 int get_line (int file, char *buffer, int size);
 
+//int dos_open(char *filename, int mode);
+//#define open(filename,mode) dos_open(filename,mode)
+
+//int dos_read(int file, void *ptr, unsigned count);
+//#define read(file, ptr, count) dos_read(file,ptr,count)
+
+//int dos_write(int file, void *ptr, unsigned count);
+//#define write(file, ptr, count) dos_write(file,ptr,count)
+
+//void dos_close(int file);
+//#define close(file) dos_close(file)
+
 #ifdef __cplusplus
 }
 #endif
