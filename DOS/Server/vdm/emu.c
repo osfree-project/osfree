@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <l4/l4con/l4contxt.h>
 
@@ -138,7 +139,7 @@ X86API my_wrl(u32 addr, u32 val)
 static void 
 X86API VDM_int_10(void)
 {
-  LOG("INT 10h AH=%02x\n", M.x86.R_AH);
+//  LOG("INT 10h AH=%02x\n", M.x86.R_AH);
   if (M.x86.R_AH==0x0e) printf("%c", M.x86.R_AL);
 };
 
@@ -146,7 +147,7 @@ X86API VDM_int_10(void)
 static void 
 X86API VDM_int_11(void)
 {
-  M.x86.R_AX=0;
+  M.x86.R_AX=1; // One floppy
 };
 
 // Int 12 Handler
@@ -156,11 +157,117 @@ X86API VDM_int_12(void)
   M.x86.R_AX=1024; // Size of memory in 1k blocks
 };
 
+// Int 13 Handler
+static void 
+X86API VDM_int_13(void)
+{
+  LOG("%02x", M.x86.R_AH);
+  if (M.x86.R_AH==0) // reset drive
+  {
+    return;
+  }
+  else if (M.x86.R_AH==8) // get geometry
+  {
+    LOG("DL=%02x", M.x86.R_DL);
+    if (M.x86.R_DL<0x80) // floppy
+    {
+      M.x86.R_BL=4;
+      M.x86.R_DL=1;
+      return;
+    } else {
+      M.x86.R_FLG=FB_CF; // error
+      M.x86.R_DL=0;
+    }
+    return;
+  }
+  else if (M.x86.R_AH==0x15) // get disk type
+  {
+    if (M.x86.R_DL<0x80)
+    {
+      M.x86.R_AH=2; // diskette with changing logic
+    } else
+    {
+      M.x86.R_AH=0; // no device
+    }
+    return;
+  }
+  else if (M.x86.R_AH==0x41) // get extended disk support
+  {
+    M.x86.R_FLG=FB_CF; // Return 'interface not present'
+//    exit(1);
+    return;
+  }
+  
+  exit(1);
+};
+
 // Int 16 Handler
 static void 
 X86API VDM_int_16(void)
 {
   LOG("%02x", M.x86.R_AH);
+  if (M.x86.R_AH==1)
+  {
+    M.x86.R_FLG=FB_ZF; // Return 'key not ready'
+    return;
+  }
+  exit(1);
+};
+
+int bcd2dec(int b)
+{
+  return ((b >> 4) & 0x0f) * 10 + (b & 0x0f);
+}
+
+int dec2bcd(int d)
+{
+  return ((d / 10) << 4) | (d % 10);
+}
+
+
+// Int 1a Handler
+static void 
+X86API VDM_int_1a(void)
+{
+  struct tm *t;
+  time_t t1;
+  LOG("%02x", M.x86.R_AH);
+  if (M.x86.R_AH==0) // getticks
+  {
+    return;
+  }
+  else if (M.x86.R_AH==1) // setticks
+  {
+    return;
+  }
+  else if (M.x86.R_AH==2) // gettime
+  {
+    t1=time(NULL);
+    t=localtime(&t1);
+    M.x86.R_CH=dec2bcd(t->tm_hour);
+    M.x86.R_CL=dec2bcd(t->tm_min);
+    M.x86.R_BH=dec2bcd(t->tm_sec);
+    return;
+  }
+  else if (M.x86.R_AH==3) // settime
+  {
+    return;
+  }
+  else if (M.x86.R_AH==4) // getdate
+  {
+    t1=time(NULL);
+    t=localtime(&t1);
+    M.x86.R_CH=dec2bcd(19+(t->tm_year/100));
+    M.x86.R_CL=dec2bcd(t->tm_year-100*(19+(t->tm_year/100)));
+    M.x86.R_DH=dec2bcd(t->tm_mon);
+    M.x86.R_DL=dec2bcd(t->tm_mday);
+    return;
+  }
+  else if (M.x86.R_AH==5) // setdate
+  {
+    return;
+  }
+
   exit(1);
 };
 
@@ -168,11 +275,13 @@ X86API VDM_int_16(void)
 static void 
 X86API VDM_int(int num)
 {
-  LOG("INT %02x\n", num);
+  if (num!=0x10) LOG("INT %02x", num);
   if (num==0x10) VDM_int_10();
   else if (num==0x11) VDM_int_11();
   else if (num==0x12) VDM_int_12();
+  else if (num==0x13) VDM_int_13();
   else if (num==0x16) VDM_int_16();
+  else if (num==0x1a) VDM_int_1a();
   else
   exit(1);
 };
