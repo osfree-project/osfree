@@ -935,7 +935,7 @@ KalDupHandle(HFILE hFile, HFILE *phFile2)
 
   STKIN
   LOG("hFile=%x", hFile);
-  rc = os2server_dos_ScanEnv_call(&os2srv, hFile, phFile2, &env);
+  rc = os2server_dos_DupHandle_call(&os2srv, hFile, phFile2, &env);
   LOG("*phFile2=%x", *phFile2);
   STKOUT
   return rc; /* NO_ERROR */
