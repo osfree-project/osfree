@@ -12,12 +12,26 @@
 #define INCL_DOSMONITORS
 #include <os2.h>
 
+#include <stdio.h>
+#include <stdarg.h>
+
+APIRET APIENTRY DosLogWrite(PSZ s);
+
+void log(const char *fmt, ...)
+{
+  va_list arg_ptr;
+  char buf[1024];
+
+  va_start(arg_ptr, fmt);
+  vsprintf(buf, fmt, arg_ptr);
+  va_end(arg_ptr);
+
+  DosLogWrite(buf);
+}
+
 APIRET unimplemented(char *func)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =" not implemented yet\n";
-  DosWrite(1, func, strnlen(func, 250), &ulActual);
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
+  log("%s is not yet implemented!\n", func);
   return 0;
 }
 

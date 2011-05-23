@@ -44,10 +44,10 @@ srcfiles = $(p)msg$(e) &
            $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
-ADD_LINKOPT  = op nod segment   type DATA shared
+ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
-#OPTIONS = manyautodata
+OPTIONS = manyautodata
 IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalRead             KAL.KalRead,  &
           _KalWrite            KAL.KalWrite, &
@@ -79,7 +79,9 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalDelete           KAL.KalDelete,      &
           _KalForceDelete      KAL.KalForceDelete, &
           _KalDeleteDir        KAL.KalDeleteDir,   &
-          _KalCreateDir        KAL.KalCreateDir
+          _KalCreateDir        KAL.KalCreateDir,   &
+          _KalSetMaxFH         KAL.KalSetMaxFH,    &
+          _KalSetRelMaxFH      KAL.KalSetRelMaxFH
 
 EXPORTS = &
      DosICreateThread       .1, &

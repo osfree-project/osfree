@@ -7,12 +7,26 @@
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
+#include <stdio.h>
+#include <stdarg.h>
+
+APIRET __cdecl KalLogWrite(PSZ s);
+
+void log(const char *fmt, ...)
+{
+  va_list arg_ptr;
+  char buf[1024];
+
+  va_start(arg_ptr, fmt);
+  vsprintf(buf, fmt, arg_ptr);
+  va_end(arg_ptr);
+
+  KalLogWrite(buf);
+}
+
 APIRET unimplemented(char *func)
 {
-  ULONG ulActual;
-  PCSZ pcszMsg =" not implemented yet\n";
-  DosWrite(1, func, strnlen(func, 250), &ulActual);
-  DosWrite(1, pcszMsg, strnlen(pcszMsg, 250), &ulActual);
+  log("%s is not yet implemented!\n", func);
   return 0;
 }
 
@@ -378,10 +392,7 @@ APIRET APIENTRY      DosOPLockShutdown(void)
 }
 
 
-APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
 
 
 APIRET APIENTRY  DosSetVerify(BOOL32 bFlag)
@@ -488,6 +499,8 @@ APIRET APIENTRY   DosGetDateTime(PDATETIME pdt)
 
 APIRET APIENTRY DosDevConfig(PSZ pdevinfo, ULONG item)
 {
+  log("pdevinfo=%lx\n", pdevinfo);
+  log("item=%lx\n", item);
   return unimplemented(__FUNCTION__);
 }
 
@@ -730,6 +743,11 @@ APIRET APIENTRY  DosQueryFSAttach(PCSZ     pszDeviceName,
                                   PFSQBUFFER2 pfsqb,
                                   PULONG pcbBuffLength)
 {
+  log("pszDeviceName=%s\n", pszDeviceName);
+  log("ulOrdinal=%lu\n", ulOrdinal);
+  log("ulFSAInfoLevel=%lu\n", ulFSAInfoLevel);
+  log("pfsqb=%lx\n", pfsqb);
+  log("pcbBuffLength=%lx\n", pcbBuffLength);
   return unimplemented(__FUNCTION__);
 }
 
@@ -1351,11 +1369,8 @@ APIRET APIENTRY      DosExitMustComplete(PULONG pulNesting)
 }
 
 
-APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
-                                PULONG pcbCurMaxFH)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
+//                                PULONG pcbCurMaxFH)
 
 
 

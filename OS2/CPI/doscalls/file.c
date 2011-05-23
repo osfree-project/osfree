@@ -20,6 +20,11 @@ APIRET __cdecl  KalDeleteDir(PCSZ  pszDir);
 APIRET __cdecl  KalCreateDir(PCSZ  pszDirName,
                              PEAOP2 peaop2);
 
+APIRET __cdecl  KalSetRelMaxFH(PLONG pcbReqCount,
+                               PULONG pcbCurMaxFH);
+
+APIRET __cdecl  KalSetMaxFH(ULONG cFH);
+
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 
@@ -107,4 +112,15 @@ APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
                               PEAOP2 peaop2)
 {
   return KalCreateDir(pszDirName, peaop2);
+}
+
+APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
+                                PULONG pcbCurMaxFH)
+{
+  return KalSetRelMaxFH(pcbReqCount, pcbCurMaxFH);
+}
+
+APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
+{
+  return KalSetMaxFH(cFH);
 }

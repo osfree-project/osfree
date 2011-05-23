@@ -11,14 +11,19 @@ DESC        = Base Subsystems API
 srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e) &
               $(p)strnlen$(e) $(p)unimplemented$(e)
 ADD_COPT    = -i=..\include -s
-ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib
+ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib,clib3r
 NOLIBS  = 1
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata #This is required because each application has
                        #its own AnsiState
 IMPORTS = DosRead               DOSCALLS.281, &
-          DosWrite              DOSCALLS.282
+          DosWrite              DOSCALLS.282, &
+          DosLogWrite           DOSCALLS.1112, &
+          DosQueryDBCSEnv       DOSCALLS.396, &
+          DosQueryCp            DOSCALLS.291, &
+          DosQuerySysInfo       DOSCALLS.348, &
+          DosExit               DOSCALLS.234
 
 
 #          MOUGETPTRSHAPE       DOSCALLS.719, &

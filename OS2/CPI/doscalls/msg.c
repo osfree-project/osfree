@@ -19,6 +19,7 @@
 #include <strlcpy.h>
 #include <strnlen.h>
 
+void log(const char *fmt, ...);
 APIRET unimplemented(char *func);
 
 APIRET APIENTRY  DosPutMessage(HFILE hfile,
@@ -131,9 +132,17 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   }
 }
 
-APIRET APIENTRY DosTrueGetMessage(PCHAR *pTable, ULONG cTable, PCHAR pBuf,
+APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCHAR pBuf,
                                   ULONG cbBuf, ULONG msgnumber,
                                   PSZ pszFile, PULONG pcbMsg)
 {
+  log("msgSeg=%lx\n", msgSeg);
+  log("*pTable=%lx\n", *pTable);
+  log("cTable=%lu\n", cTable);
+  log("pBuf=%lx\n", pBuf);
+  log("cbBuf=%lu\n", cbBuf);
+  log("msgnumber=%lu\n", msgnumber);
+  log("pszFile=%s\n", pszFile);
+  log("*pcbMsg=%lu\n", *pcbMsg);
   return unimplemented(__FUNCTION__);
 }
