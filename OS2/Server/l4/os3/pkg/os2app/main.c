@@ -109,12 +109,13 @@ trampoline(struct param *param)
   PCHAR envp = param->pib->pib_pchenv;
   ULONG hmod = param->pib->pib_hmte;
 
+  unsigned long     stacksize;
   unsigned short    sel;
   unsigned long     base;
   struct desc       desc;
 
   int  i, k;
-  char *p, *s;
+  char *p, *str;
   char buf[0x100];
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
@@ -123,6 +124,10 @@ trampoline(struct param *param)
   LOG("sp_limit: %x", param->tib->tib_pstacklimit);
   LOG("tid: %x", param->tib->tib_ptib2->tib2_ultid);
   LOG("hmod: %x", hmod);
+
+  //stacksize = param->tib->tib_pstack - param->tib->tib_pstacklimit;
+  /* clear stack area */
+  //memset((void *)param->tib->tib_pstacklimit, 0, stacksize);
 
   p = argv;
   p -= 2;
@@ -136,11 +141,11 @@ trampoline(struct param *param)
   p++;
   while (*p)
   {
-    s = buf;
-    while (*p != ' ' && *p) *s++ = *p++;
-    while (*p == ' ') if (*p) *s++ = *p++;
-    *s = '\0';
-    s++;
+    str = buf;
+    while (*p != ' ' && *p) *str++ = *p++;
+    while (*p == ' ') if (*p) *str++ = *p++;
+    *str = '\0';
+    str++;
     p++;
     i++;
     LOG("argv[%u]=%s", i, buf);
@@ -205,7 +210,7 @@ trampoline(struct param *param)
       :[argv]     "m"  (argv),
        [envp]     "m"  (envp),
        [hmod]     "m"  (hmod),
-       [sel]      "m"  (sel),      
+       [sel]      "m"  (sel),
        [eip_data] "m"  (param->eip));
 
   STKOUT

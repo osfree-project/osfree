@@ -42,7 +42,8 @@ l4util_mb_info_t *l4env_multiboot_info;
 l4env_infopage_t *l4env_infopage;
 
 /* list of reserved VM regions (binary segments, boot modules, ...) */
-#define MAX_FIXED  32
+//#define MAX_FIXED  32
+#define MAX_FIXED  128
 static l4rm_vm_range_t  fixed[MAX_FIXED];
 static int              fixed_type[MAX_FIXED];
 static int              num_fixed;

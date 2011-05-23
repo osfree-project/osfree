@@ -488,7 +488,7 @@ unsigned long LoadModule(char *          pszName,
     // Fixup module
     if (!exeflag)
     {
-#if 0
+#if 1
       rc=IXFFixupModule(ixfModule);
       if (rc)
       {

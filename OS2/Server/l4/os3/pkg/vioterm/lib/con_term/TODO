@@ -1,0 +1,5 @@
+ - use only one global thread for repeat key events
+ - protect data with locks against concurrent access (1/2)
+ - use a (not yet existing) clientlib to operate directly on a
+   framebuffer mapped from con for redrawing (currently we send many
+   ipcs to draw strings)

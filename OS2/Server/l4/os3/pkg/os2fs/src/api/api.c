@@ -94,13 +94,14 @@ os2fs_dos_ResetBuffer_component (CORBA_Object _dice_corba_obj,
 APIRET DICE_CV
 os2fs_dos_SetFilePtrL_component (CORBA_Object _dice_corba_obj,
                                     HFILE handle /* in */,
-                                    long ib /* in */,
+                                    long long ib /* in */,
                                     ULONG method /* in */,
-                                    ULONG *ibActual /* out */,
+                                    long long *ibActual /* out */,
                                     CORBA_Server_Environment *_dice_corba_env)
 {
-  long pos, ret;
-  unsigned long len;
+  long ret;
+  long long pos;
+  long long len;
   struct stat stat;
   
   ret = fstat(handle, &stat);
@@ -132,6 +133,7 @@ os2fs_dos_SetFilePtrL_component (CORBA_Object _dice_corba_obj,
     return 131; /* ERROR_NEGATIVE_SEEK */
 
   *ibActual = pos;
+    
   ret = lseek(handle, pos, SEEK_SET);
 
   if (ret == -1)
