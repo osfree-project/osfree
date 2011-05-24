@@ -3,8 +3,8 @@ unit Impl_LNX;
 interface
 type
   //Hfile  = Word;
-  Hfile  = LongWord;
-  ULong  = LongWord;
+  Hfile  = LongInt;
+  ULong  = LongInt;
   UShort = Word;
 
 procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
