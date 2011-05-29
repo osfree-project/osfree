@@ -107,31 +107,34 @@ X86API my_rdb(u32 addr)
 
 static u16
 X86API my_rdw(u32 addr)
-{
-  return *(u16*)(M.mem_base + addr);
+{  return *(u16*)(M.mem_base + addr);
 }
 
 static u32
 X86API my_rdl(u32 addr)
 {
+//  if (addr<0x600) LOG("%06x->", addr);
   return *(u32*)(M.mem_base + addr);
 }
 
 static void 
 X86API my_wrb(u32 addr, u8 val)
 {
+  if (addr<0x600) LOG("%06x<-%02x", addr, val);
   *(u8*)(M.mem_base + addr) = val;
 }
 
 static void 
 X86API my_wrw(u32 addr, u16 val)
 {
+  if (addr<0x600) LOG("%06x<-%04x", addr, val);
   *(u16*)(M.mem_base + addr) = val;
 }
 
 static void 
 X86API my_wrl(u32 addr, u32 val)
 {
+  if (addr<0x600) LOG("%06x<-%08x", addr, val);
   *(u32*)(M.mem_base + addr) = val;
 }
 
@@ -154,17 +157,22 @@ X86API VDM_int_11(void)
 static void 
 X86API VDM_int_12(void)
 {
-  M.x86.R_AX=1024; // Size of memory in 1k blocks
+  M.x86.R_AX=300; // Size of memory in 1k blocks
 };
 
 // Int 13 Handler
 static void 
 X86API VDM_int_13(void)
 {
-  LOG("%02x", M.x86.R_AH);
+  LOG("AH=%02x", M.x86.R_AH);
   if (M.x86.R_AH==0) // reset drive
   {
     return;
+  }
+  else if (M.x86.R_AH==0x02) // read sector
+  {
+    LOG("DL=%02x", M.x86.R_DL);
+    exit(02);
   }
   else if (M.x86.R_AH==8) // get geometry
   {
@@ -173,15 +181,17 @@ X86API VDM_int_13(void)
     {
       M.x86.R_BL=4;
       M.x86.R_DL=1;
-      return;
+      LOG("Floppydisk DL=%02x", M.x86.R_DL);
     } else {
-      M.x86.R_FLG=FB_CF; // error
-      M.x86.R_DL=0;
+      M.x86.R_FLG=1; //FB_CF; // error
+      M.x86.R_DL=0; // no disk
+      LOG("Harddisk DL=%02x", M.x86.R_DL);
     }
     return;
   }
   else if (M.x86.R_AH==0x15) // get disk type
   {
+    LOG("DL=%02x", M.x86.R_DL);
     if (M.x86.R_DL<0x80)
     {
       M.x86.R_AH=2; // diskette with changing logic
@@ -191,14 +201,23 @@ X86API VDM_int_13(void)
     }
     return;
   }
+  else if (M.x86.R_AH==0x16) // change disk line activity 
+  {
+    LOG("DL=%02x", M.x86.R_DL);
+    M.x86.R_FLG=0;//FB_CF; // no activity
+    M.x86.R_AH=0; //  no change
+    return;
+  }
   else if (M.x86.R_AH==0x41) // get extended disk support
   {
-    M.x86.R_FLG=FB_CF; // Return 'interface not present'
+    LOG("DL=%02x", M.x86.R_DL);
+    M.x86.R_FLG=1;//FB_CF; // Return 'interface not present'
+    M.x86.R_AH=1; // invalid function
 //    exit(1);
     return;
   }
   
-  exit(1);
+  exit(13);
 };
 
 // Int 16 Handler
@@ -275,15 +294,31 @@ X86API VDM_int_1a(void)
 static void 
 X86API VDM_int(int num)
 {
-  if (num!=0x10) LOG("INT %02x", num);
+  
+  // If interrupt vector installed then run it
+  if (*(u32*)(M.mem_base + num*4))
+  {
+    if (num!=0x29) LOG("INT %02x vector address=%08x", num, *(u32*)(M.mem_base + num*4));
+    // Special hook before interrupt handler
+    if (num==0x21) LOG("AH=%02x", M.x86.R_AH);
+    X86EMU_prepareForInt(num);
+  }
+  else // hook it
+  {
+    if (num!=0x10) LOG("INT %02x (hook)", num);
   if (num==0x10) VDM_int_10();
   else if (num==0x11) VDM_int_11();
   else if (num==0x12) VDM_int_12();
   else if (num==0x13) VDM_int_13();
   else if (num==0x16) VDM_int_16();
   else if (num==0x1a) VDM_int_1a();
-  else
-  exit(1);
+  else // Unhandler interrupt
+  {
+    LOG("No interrupt vector or hook.");
+    exit(2);
+  }
+  }
+  
 };
 
 X86EMU_pioFuncs my_pioFuncs =
@@ -341,7 +376,7 @@ X86EMU_intrFuncs VDM_int_table[256]=
   VDM_int,  // 1e
   VDM_int,  // 1f
   VDM_int,  // 20
-  NULL,     // 21
+  VDM_int,  // 21
   VDM_int,  // 22
   VDM_int,  // 23
   VDM_int,  // 24
@@ -349,13 +384,13 @@ X86EMU_intrFuncs VDM_int_table[256]=
   VDM_int,  // 26
   VDM_int,  // 27
   VDM_int,  // 28
-  NULL,     // 29
-  NULL,     // 2a
-  VDM_int,
-  VDM_int,
-  VDM_int,
-  VDM_int,
-  VDM_int,
+  VDM_int,  // 29
+  VDM_int,  // 2a
+  VDM_int,  // 2b
+  VDM_int,  // 2c
+  VDM_int,  // 2d
+  VDM_int,  // 2e
+  VDM_int,  // 2f
   VDM_int,
   VDM_int,
   VDM_int,
@@ -607,13 +642,15 @@ LOG("1");
   M.mem_size = 1024*1024;
   M.x86.debug = 0;
   
-  LOG("1\n");
+  LOG("1");
   X86EMU_setupPioFuncs(&my_pioFuncs);
-  LOG("2\n");
+  LOG("2");
   X86EMU_setupMemFuncs(&my_memFuncs);
-  LOG("3\n");
+  LOG("3");
   X86EMU_setupIntrFuncs(VDM_int_table);
-  LOG("4\n");
+  LOG("4");
+//  X86EMU_trace_on();
+//  LOG("5");
 
 #ifdef TEST
 
