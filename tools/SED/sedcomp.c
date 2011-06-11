@@ -71,7 +71,7 @@ static char const       NEEDB[] = "sed: error processing: %s\n";
 static char const       INERR[] = "sed: internal error: %s\n";
 static char const       SMCNT[] = "sed: bad value for match count on s command %s\n";
 static char const       UNCLS[] = "sed: invalid character class name %s\n";
-static char const       *USAGE[] = { 
+static char const       *USAGE[] = {
     "Usage: sed [-g] [-n] script file ...",
     "       sed [-g] [-n] -e script ... -f script_file ... file ...",
     "",
@@ -1075,6 +1075,7 @@ static void usage( void )
 
     for( cpp = USAGE; *cpp != NULL; cpp++ )
         fprintf( stderr, "%s\n", *cpp );
+
     myexit( 2 );
 }
 

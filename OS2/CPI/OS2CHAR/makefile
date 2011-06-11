@@ -1,5 +1,5 @@
 #
-# A Makefile for sesmgr.dll
+# A Makefile for os2char.dll
 # (c) osFree project,
 # author, date
 #
@@ -12,32 +12,33 @@ ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS = Undocumented1   DOSCALLS.682, &
-          Undocumented2   DOSCALLS.683, &
-          Undocumented3   DOSCALLS.684, &
-          Undocumented4   DOSCALLS.685, &
-          Undocumented5   DOSCALLS.858, &
-          Undocumented6   DOSCALLS.859, &
-          Undocumented7   DOSCALLS.860, &
-          Undocumented8   DOSCALLS.862, &
-          Undocumented9   DOSCALLS.864, &
-          Undocumented99  DOSCALLS.861, &
-          Undocumented148 DOSCALLS.865, &
-          Undocumented149 DOSCALLS.863, &
-          Undocumented152 DOSCALLS.718
-EXPORTS = Undocumented1   .1, &
-          Undocumented2   .2, &
-          Undocumented3   .3, &
-          Undocumented4   .4, &
-          Undocumented5   .5, &
-          Undocumented6   .6, &
-          Undocumented7   .7, &
-          Undocumented8   .8, &
-          Undocumented9   .9, &
-          Undocumented99  .99, &
-          Undocumented148 .148, &
-          Undocumented149 .149, &
-          Undocumented152 .152
+IMPORTS = Dos16SMGetmem   DOSCALLS.682, &
+          Dos16SMFreemem  DOSCALLS.683, &
+          Dos16SMGetSGCB  DOSCALLS.684, &
+          Dos16SMInitSGCB DOSCALLS.685, &
+          SMQueueRamSem   DOSCALLS.858, &
+          SMArray         DOSCALLS.859, &
+          SMPIDArray      DOSCALLS.860, &
+          SMArraySize     DOSCALLS.862, &
+          SMGINSTANCE     DOSCALLS.864, &
+          SMInitialized   DOSCALLS.861, &
+          BVHINSTANCE     DOSCALLS.865, &
+          BVSGLOBAL       DOSCALLS.863, &
+          OS2BaseInit     DOSCALLS.718
+
+EXPORTS = Dos16SMGetmem   .1, &
+          Dos16SMFreemem  .2, &
+          Dos16SMGetSGCB  .3, &
+          Dos16SMInitSGCB .4, &
+          SMQueueRamSem   .5, &
+          SMArray         .6, &
+          SMPIDArray      .7, &
+          SMArraySize     .8, &
+          SMGINSTANCE     .9, &
+          SMInitialized   .99, &
+          BVHINSTANCE     .148, &
+          BVSGLOBAL       .149, &
+          OS2BaseInit     .152
 DEST    = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
