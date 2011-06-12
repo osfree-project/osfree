@@ -87,8 +87,8 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
 
 EXPORTS = &
         DosICreateThread           .1, &
-        DosCwait                   .2, &
-        DosEnterCritSec            .3, &
+        Dos16Cwait                 .2, &
+        Dos16EnterCritSec          .3, &
         DosIExecPgm                .4, &
         Dos16Exit                  .5, &
         Dos16ExitCritSec           .6, &
@@ -639,9 +639,9 @@ EXPORTS = &
         DosLibiDisp32              .551, &
         Dos16R3ExitAddr            .552, &
         Dos32R3ExitAddr            .553, &
-        DosIRead                   .554, &
+        Dos32IRead                 .554, &
         T32IREAD                   .555, &
-        DosIWrite                  .556, &
+        Dos32IWrite                .556, &
         T32IWRITE                  .557, &
         T32TMRQUERYFREQ            .558, &
         T32TMRQUERYTIME            .559, &
