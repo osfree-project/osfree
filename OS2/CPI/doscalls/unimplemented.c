@@ -2730,3 +2730,668 @@ APIRET APIENTRY DosExitCritSec(VOID)
 {
   return unimplemented(__FUNCTION__);
 }
+
+APIRET APIENTRY         THK32FREESTACK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALLOCMEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32FREEMEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALLOCSTACK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32Profile(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32TrueGetMessage(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IQueryMessageCP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32GetProcessorStatus(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32SetProcessorStatus(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32TestPSD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32R3ExitAddr(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IRead(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IWrite(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryResourceSize(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryProcType(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IProtectWrite(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IProtectSetFileInfo(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IProtectSetFHState(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IProtectQueryFHState(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IProtectRead(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosLDRDirtyWorker(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32IGetInfoBlocks(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32IGETINFOBLOCKS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32GETPROCESSORSTATUS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SETPROCESSORSTATUS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32TESTPSD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32QUERYTHREADAFFINITY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SETTHREADAFFINITY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32ReadQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PurgeQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32CloseQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PeekQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32WriteQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32OpenQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32CreateQueue(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32StartSession(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32SelectSession(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32SetSession(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32StopSession(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosRegisterNotification(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         AnsiInject(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         AnsiKeydef(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         AnsiInterp(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALIASMEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32FREEALIAS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALLOCVARLEN(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32HANDLEBOUNDARY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32HANDLESTRING(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32DEALLOC(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32XHNDLR(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32SetExtLIBPATH(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryExtLIBPATH(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryThreadContext(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32FORCESYSTEMDUMP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32QUERYABIOSSUPPORT(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32QUERYMODFROMEIP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32ACKNOWLEDGESIGNALEXCEPTION(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32DUMPPROCESS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SUPPRESSPOPUPS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32IPROTECTWRITE(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PROTECTSETFILELOCKS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32IPROTECTREAD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMPOSTEVENTSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMWAITEVENTSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMREQUESTMUTEXSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMWAITMUXWAITSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PM16SEMCHK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32ALLOCTHREADLOCALMEMORY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32FREETHREADLOCALMEMORY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SETEXTLIBPATH(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32QUERYEXTLIBPATH(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PM16SEMRST(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32VERIFYPIDTID(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SYSCTL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32QUERYTHREADCONTEXT(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PERFSYSCALL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32LISTIO(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMR3WAITEVENTSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PMR3POSTEVENTSEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32CREATETHREAD2(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32PROTECTSETFILELOCKSL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32IPROTECTSETFILEPTRL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32SETFILELOCKSL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32CANCELLOCKREQUESTL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32ISETFILEPTRL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32LISTIOL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32ISETFILEPTR(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         T32IPROTECTSETFILEPTR(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32CreateRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY                Dos32CloseRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32OpenRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32RequestRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32ReleaseRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryProcessInfo(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryThreadInfo(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32FindFromName(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosIProtectSetFileInfo(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosIProtectRead(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosIProtectWrite(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY         OS2BaseInit(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         QhKeybdHandle(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         QhMouseHandle(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         SMQueueRamSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         SMArray(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         SMPIDArray(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         SMInitialized(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         SMArraySize(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALLOCBLOCK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32FREEBLOCK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32R3DS(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+

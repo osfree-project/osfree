@@ -43,7 +43,7 @@ srcfiles = $(p)msg$(e) &
            $(p)env$(e)    &
            $(p)thunk$(e)  &
            $(p)sched$(e)  &
-           $(p)unimplemented$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
+           $(p)unimplemented$(e) $(p)unimp16$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
 
 ADD_COPT = -s -od
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
@@ -87,110 +87,110 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
 
 EXPORTS = &
         DosICreateThread           .1, &
-        Dos16Cwait                 .2, &
-        Dos16EnterCritSec          .3, &
+        DOS16CWAIT                 .2, &
+        DOS16ENTERCRITSEC          .3, &
         DosIExecPgm                .4, &
-        Dos16Exit                  .5, &
-        Dos16ExitCritSec           .6, &
-        Dos16ExitList              .7, &
-        Dos16GetInfoSeg            .8, &
-        Dos16GetPrty               .9, &
-        Dos16KillProcess           .10, &
-        Dos16SetPrty               .11, &
-        Dos16Ptrace                .12, &
-        Dos16HoldSignal            .13, &
-        Dos16SetSigHandler         .14, &
-        Dos16FlagProcess           .15, &
-        Dos16MakePipe              .16, &
+        DOS16EXIT                  .5, &
+        DOS16EXITCRITSEC           .6, &
+        DOS16EXITLIST              .7, &
+        DOS16GETINFOSEG            .8, &
+        DOS16GETPRTY               .9, &
+        DOS16KILLPROCESS           .10, &
+        DOS16SETPRTY               .11, &
+        DOS16PTRACE                .12, &
+        DOS16HOLDSIGNAL            .13, &
+        DOS16SETSIGHANDLER         .14, &
+        DOS16FLAGPROCESS           .15, &
+        DOS16MAKEPIPE              .16, &
         DosISysSemClear            .17, &
         DosISemRequest             .18, &
         DosISysSemSet              .19, &
-        Dos16SemSetWait            .20, &
+        DOS16SEMSETWAIT            .20, &
         DosISemWait                .21, &
-        Dos16MuxSemWait            .22, &
-        Dos16CloseSem              .23, &
-        Dos16CreateSem             .24, &
-        Dos16OpenSem               .25, &
-        Dos16ResumeThread          .26, &
-        Dos16SuspendThread         .27, &
-        Dos16SetDateTime           .28, &
-        Dos16TimerAsync            .29, &
-        Dos16TimerStart            .30, &
-        Dos16TimerStop             .31, &
-        Dos16Sleep                 .32, &
-        Dos16GetDateTime           .33, &
-        Dos16AllocSeg              .34, &
-        Dos16AllocShrSeg           .35, &
-        Dos16GetShrSeg             .36, &
-        Dos16GiveSeg               .37, &
-        Dos16ReallocSeg            .38, &
-        Dos16FreeSeg               .39, &
-        Dos16AllocHuge             .40, &
-        Dos16GetHugeShift          .41, &
-        Dos16ReallocHuge           .42, &
-        Dos16CreateCSAlias         .43, &
-        Dos16LoadModule            .44, &
-        Dos16GetProcAddr           .45, &
-        Dos16FreeModule            .46, &
-        Dos16GetModHandle          .47, &
-        Dos16GetModName            .48, &
-        Dos16GetMachineMode        .49, &
-        Dos16Beep                  .50, &
-        Dos16CLIAccess             .51, &
-        Dos16DevConfig             .52, &
-        Dos16DevIOCtl              .53, &
-        Dos16SGSwitch              .54, &
-        Dos16SGSwitchMe            .55, &
-        Dos16BufReset              .56, &
-        Dos16ChDir                 .57, &
-        Dos16ChgFilePtr            .58, &
-        Dos16Close                 .59, &
-        Dos16Delete                .60, &
-        Dos16DupHandle             .61, &
-        Dos16FileLocks             .62, &
-        Dos16FindClose             .63, &
-        Dos16FindFirst             .64, &
-        Dos16FindNext              .65, &
-        Dos16MkDir                 .66, &
-        Dos16Move                  .67, &
-        Dos16NewSize               .68, &
-        Dos16PortAccess            .69, &
-        Dos16Open                  .70, &
-        Dos16QCurDir               .71, &
-        Dos16QCurDisk              .72, &
-        Dos16QFHandState           .73, &
-        Dos16QFileInfo             .74, &
-        Dos16QFileMode             .75, &
-        Dos16QFSInfo               .76, &
-        Dos16QHandType             .77, &
-        Dos16QVerify               .78, &
+        DOS16MUXSEMWAIT            .22, &
+        DOS16CLOSESEM              .23, &
+        DOS16CREATESEM             .24, &
+        DOS16OPENSEM               .25, &
+        DOS16RESUMETHREAD          .26, &
+        DOS16SUSPENDTHREAD         .27, &
+        DOS16SETDATETIME           .28, &
+        DOS16TIMERASYNC            .29, &
+        DOS16TIMERSTART            .30, &
+        DOS16TIMERSTOP             .31, &
+        DOS16SLEEP                 .32, &
+        DOS16GETDATETIME           .33, &
+        DOS16ALLOCSEG              .34, &
+        DOS16ALLOCSHRSEG           .35, &
+        DOS16GETSHRSEG             .36, &
+        DOS16GIVESEG               .37, &
+        DOS16REALLOCSEG            .38, &
+        DOS16FREESEG               .39, &
+        DOS16ALLOCHUGE             .40, &
+        DOS16GETHUGESHIFT          .41, &
+        DOS16REALLOCHUGE           .42, &
+        DOS16CREATECSALIAS         .43, &
+        DOS16LOADMODULE            .44, &
+        DOS16GETPROCADDR           .45, &
+        DOS16FREEMODULE            .46, &
+        DOS16GETMODHANDLE          .47, &
+        DOS16GETMODNAME            .48, &
+        DOS16GETMACHINEMODE        .49, &
+        DOS16BEEP                  .50, &
+        DOS16CLIACCESS             .51, &
+        DOS16DEVCONFIG             .52, &
+        DOS16DEVIOCTL              .53, &
+        DOS16SGSWITCH              .54, &
+        DOS16SGSWITCHME            .55, &
+        DOS16BUFRESET              .56, &
+        DOS16CHDIR                 .57, &
+        DOS16CHGFILEPTR            .58, &
+        DOS16CLOSE                 .59, &
+        DOS16DELETE                .60, &
+        DOS16DUPHANDLE             .61, &
+        DOS16FILELOCKS             .62, &
+        DOS16FINDCLOSE             .63, &
+        DOS16FINDFIRST             .64, &
+        DOS16FINDNEXT              .65, &
+        DOS16MKDIR                 .66, &
+        DOS16MOVE                  .67, &
+        DOS16NEWSIZE               .68, &
+        DOS16PORTACCESS            .69, &
+        DOS16OPEN                  .70, &
+        DOS16QCURDIR               .71, &
+        DOS16QCURDISK              .72, &
+        DOS16QFHANDSTATE           .73, &
+        DOS16QFILEINFO             .74, &
+        DOS16QFILEMODE             .75, &
+        DOS16QFSINFO               .76, &
+        DOS16QHANDTYPE             .77, &
+        DOS16QVERIFY               .78, &
         DosIRead                   .79, &
-        Dos16RmDir                 .80, &
-        Dos16SelectDisk            .81, &
-        Dos16SetFHandState         .82, &
-        Dos16SetFileInfo           .83, &
-        Dos16SetFileMode           .84, &
-        Dos16SetMaxFH              .85, &
-        Dos16SetVerify             .86, &
+        DOS16RMDIR                 .80, &
+        DOS16SELECTDISK            .81, &
+        DOS16SETFHANDSTATE         .82, &
+        DOS16SETFILEINFO           .83, &
+        DOS16SETFILEMODE           .84, &
+        DOS16SETMAXFH              .85, &
+        DOS16SETVERIFY             .86, &
         DosIWrite                  .87, &
-        Dos16SystemService         .88, &
-        Dos16SetVec                .89, &
-        Dos16SysTrace              .90, &
-        Dos16GetEnv                .91, &
-        Dos16GetVersion            .92, &
-        Dos16QTraceInfo            .93, &
-        Dos16GetPID                .94, &
-        Dos16Open2                 .95, &
-        Dos16LibInit               .96, &
-        Dos16SetFSInfo             .97, &
-        Dos16QPathInfo             .98, &
-        Dos16DevIOCtl2             .99, &
+        DOS16SYSTEMSERVICE         .88, &
+        DOS16SETVEC                .89, &
+        DOS16SYSTRACE              .90, &
+        DOS16GETENV                .91, &
+        DOS16GETVERSION            .92, &
+        DOS16QTRACEINFO            .93, &
+        DOS16GETPID                .94, &
+        DOS16OPEN2                 .95, &
+        DOS16LIBINIT               .96, &
+        DOS16SETFSINFO             .97, &
+        DOS16QPATHINFO             .98, &
+        DOS16DEVIOCTL2             .99, &
         DosICanonicalize           .100, &
-        Dos16SetFgnd               .101, &
-        Dos16SwapTaskInit          .102, &
-        Dos16ReadPhys              .103, &
-        Dos16SetPathInfo           .104, &
-        Dos16SGSwitchProc2         .105, &
+        DOS16SETFGND               .101, &
+        DOS16SWAPTASKINIT          .102, &
+        DOS16READPHYS              .103, &
+        DOS16SETPATHINFO           .104, &
+        DOS16SGSWITCHPROC2         .105, &
         STRUCHECK                  .106, &
         STRURESUPDATE              .107, &
         DosISetRelMaxFH            .108, &
@@ -200,58 +200,58 @@ EXPORTS = &
         DosQueryRASInfo            .112, &
         DosDumpProcess             .113, &
         DosSuppressPopUps          .114, &
-        THK32ALLOCMEM              .115, &
+        THK32ALLOCMEM             .115, &
         THK32FREEMEM               .116, &
         THK32ALLOCSTACK            .117, &
         DosOpen2Compt              .118, &
-        Dos16GetSTDA               .119, &
-        Dos16Error                 .120, &
-        Dos16GetSeg                .121, &
-        Dos16LockSeg               .122, &
-        Dos16UnlockSeg             .123, &
-        Dos16SGSwitchProc          .124, &
+        DOS16GETSTDA               .119, &
+        DOS16ERROR                 .120, &
+        DOS16GETSEG                .121, &
+        DOS16LOCKSEG               .122, &
+        DOS16UNLOCKSEG             .123, &
+        DOS16SGSWITCHPROC          .124, &
         DosIRamSemWake             .125, &
-        Dos16SizeSeg               .126, &
-        Dos16MemAvail              .127, &
+        DOS16SIZESEG               .126, &
+        DOS16MEMAVAIL              .127, &
         DosIRamSemRequest          .128, &
-        Dos16PhysicalDisk          .129, &
-        Dos16GetCP                 .130, &
+        DOS16PHYSICALDISK          .129, &
+        DOS16GETCP                 .130, &
         DosISetCP                  .131, &
-        Dos16GlobalSeg             .132, &
-        Dos16Profile               .133, &
-        Dos16SendSignal            .134, &
-        Dos16HugeShift             .135, &
-        Dos16HugeIncr              .136, &
-        Dos16Read                  .137, &
-        Dos16Write                 .138, &
-        Dos16ErrClass              .139, &
-        Dos16SemRequest            .140, &
-        Dos16SemClear              .141, &
-        Dos16SemWait               .142, &
-        Dos16SemSet                .143, &
-        Dos16ExecPgm               .144, &
-        Dos16CreateThread          .145, &
-        Dos16SubSet                .146, &
-        Dos16SubAlloc              .147, &
-        Dos16SubFree               .148, &
-        Dos16ReadAsync             .149, &
-        Dos16WriteAsync            .150, &
-        Dos16SearchPath            .151, &
-        Dos16ScanEnv               .152, &
-        Dos16SetCP                 .153, &
-        Dos16QProcStatus           .154, &
-        Dos16GetResource           .155, &
-        Dos16GetPPID               .156, &
-        Dos16CallBack              .157, &
+        DOS16GLOBALSEG             .132, &
+        DOS16PROFILE               .133, &
+        DOS16SENDSIGNAL            .134, &
+        DOS16HUGESHIFT             .135, &
+        DOS16HUGEINCR              .136, &
+        DOS16READ                  .137, &
+        DOS16WRITE                 .138, &
+        DOS16ERRCLASS              .139, &
+        DOS16SEMREQUEST            .140, &
+        DOS16SEMCLEAR              .141, &
+        DOS16SEMWAIT               .142, &
+        DOS16SEMSET                .143, &
+        DOS16EXECPGM               .144, &
+        DOS16CREATETHREAD          .145, &
+        DOS16SUBSET                .146, &
+        DOS16SUBALLOC              .147, &
+        DOS16SUBFREE               .148, &
+        DOS16READASYNC             .149, &
+        DOS16WRITEASYNC            .150, &
+        DOS16SEARCHPATH            .151, &
+        DOS16SCANENV               .152, &
+        DOS16SETCP                 .153, &
+        DOS16QPROCSTATUS           .154, &
+        DOS16GETRESOURCE           .155, &
+        DOS16GETPPID               .156, &
+        DOS16CALLBACK              .157, &
         DosICallBack               .158, &
-        Dos16RetForward            .159, &
-        Dos16R2StackRealloc        .160, &
-        Dos16FSRamSemRequest       .161, &
-        Dos16FSRamSemClear         .162, &
-        Dos16QAppType              .163, &
-        Dos16SetProcCP             .164, &
-        Dos16DynamicTrace          .165, &
-        Dos16QSysInfo              .166, &
+        DOS16RETFORWARD            .159, &
+        DOS16R2STACKREALLOC        .160, &
+        DOS16FSRAMSEMREQUEST       .161, &
+        DOS16FSRAMSEMCLEAR         .162, &
+        DOS16QAPPTYPE              .163, &
+        DOS16SETPROCCP             .164, &
+        DOS16DYNAMICTRACE          .165, &
+        DOS16QSYSINFO              .166, &
         DosIMakeNmPipe             .167, &
         DosICallNmPipe             .168, &
         DosIConnectNmPipe          .169, &
@@ -266,43 +266,43 @@ EXPORTS = &
         DosIQNmPipeSemState        .178, &
         DosIRawReadNmPipe          .179, &
         DosIRawWriteNmPipe         .180, &
-        Dos16FSAttach              .181, &
-        Dos16QFSAttach             .182, &
-        Dos16FSCtl                 .183, &
-        Dos16FindFirst2            .184, &
-        Dos16MkDir2                .185, &
-        Dos16FileIO                .186, &
-        Dos16FindNotifyClose       .187, &
-        Dos16FindNotifyFirst       .188, &
-        Dos16FindNotifyNext        .189, &
-        Dos16SetTraceInfo          .190, &
-        Dos16EditName              .191, &
-        Dos16LogMode               .192, &
-        Dos16LogEntry              .193, &
-        Dos16GetLogBuffer          .194, &
-        Dos16LogRegister           .195, &
-        Dos16LogRead               .196, &
-        Dos16FindFromName          .197, &
-        Dos16OPLockRelease         .198, &
-        Dos16OPLockWait            .199, &
+        DOS16FSATTACH              .181, &
+        DOS16QFSATTACH             .182, &
+        DOS16FSCTL                 .183, &
+        DOS16FINDFIRST2            .184, &
+        DOS16MKDIR2                .185, &
+        DOS16FILEIO                .186, &
+        DOS16FINDNOTIFYCLOSE       .187, &
+        DOS16FINDNOTIFYFIRST       .188, &
+        DOS16FINDNOTIFYNEXT        .189, &
+        DOS16SETTRACEINFO          .190, &
+        DOS16EDITNAME              .191, &
+        DOS16LOGMODE               .192, &
+        DOS16LOGENTRY              .193, &
+        DOS16GETLOGBUFFER          .194, &
+        DOS16LOGREGISTER           .195, &
+        DOS16LOGREAD               .196, &
+        DOS16FINDFROMNAME          .197, &
+        DOS16OPLOCKRELEASE         .198, &
+        DOS16OPLOCKWAIT            .199, &
         DosICopy                   .200, &
-        Dos16Copy                  .201, &
+        DOS16COPY                  .201, &
         DosIQAppType               .202, &
-        Dos16ForceDelete           .203, &
-        Dos16EnumAttribute         .204, &
-        Dos16OPLockShutdown        .205, &
-        Dos16Shutdown              .206, &
-        Dos16GetResource2          .207, &
-        Dos16FreeResource          .208, &
+        DOS16FORCEDELETE           .203, &
+        DOS16ENUMATTRIBUTE         .204, &
+        DOS16OPLOCKSHUTDOWN        .205, &
+        DOS16SHUTDOWN              .206, &
+        DOS16GETRESOURCE2          .207, &
+        DOS16FREERESOURCE          .208, &
         DosSetMaxFH                .209, &
         DosSetVerify               .210, &
         DosErrClass                .211, &
         DosError                   .212, &
         DosCreateVDM               .213, &
-        Dos16MaxPathLen            .214, &
-        Dos16PageSize              .215, &
-        Dos16LocalInfo             .216, &
-        Dos16GlobalInfo            .217, &
+        DOS16MAXPATHLEN            .214, &
+        DOS16PAGESIZE              .215, &
+        DOS16LOCALINFO             .216, &
+        DOS16GLOBALINFO            .217, &
         DosSetFileInfo             .218, &
         DosSetPathInfo             .219, &
         DosSetDefaultDisk          .220, &
@@ -353,9 +353,9 @@ EXPORTS = &
         DosFindClose               .263, &
         DosFindFirst               .264, &
         DosFindNext                .265, &
-        Dos16OpenVDD               .266, &
-        Dos16RequestVDD            .267, &
-        Dos16CloseVDD              .268, &
+        DOS16OPENVDD               .266, &
+        DOS16REQUESTVDD            .267, &
+        DOS16CLOSEVDD              .268, &
         DosFSAttach                .269, &
         DosCreateDir               .270, &
         DosMove                    .271, &
@@ -380,9 +380,9 @@ EXPORTS = &
         DosStopTimer               .290, &
         DosQueryCp                 .291, &
         DosSetDateTime             .292, &
-        Thk32AllocBlock            .293, &
-        Thk32FreeBlock             .294, &
-        Thk32R3DS                  .295, &
+        THK32ALLOCBLOCK            .293, &
+        THK32FREEBLOCK             .294, &
+        THK32R3DS                  .295, &
         DosExitList                .296, &
         DosAllocProtectedMem       .297, &
         DosAliasMem                .298, &
@@ -400,9 +400,9 @@ EXPORTS = &
         DosCloseVDD                .310, &
         DosCreateThread            .311, &
         DosGetInfoBlocks           .312, &
-        Dos16AllocProtSeg          .313, &
-        Dos16AllocShrProtSeg       .314, &
-        Dos16AllocProtHuge         .315, &
+        DOS16ALLOCPROTSEG          .313, &
+        DOS16ALLOCSHRPROTSEG       .314, &
+        DOS16ALLOCPROTHUGE         .315, &
         DosDynamicTrace            .316, &
         DosDebug                   .317, &
         DosLoadModule              .318, &
@@ -462,8 +462,8 @@ EXPORTS = &
         DosEnumAttribute           .372, &
         DosQueryDOSProperty        .373, &
         DosSetDOSProperty          .374, &
-        Dos16QueryDosProperty      .375, &
-        Dos16SetDosProperty        .376, &
+        DOS16QUERYDOSPROPERTY      .375, &
+        DOS16SETDOSPROPERTY        .376, &
         Dos32Profile               .377, &
         DosSetSignalExceptionFocus .378, &
         DosSendSignalException     .379, &
@@ -471,38 +471,38 @@ EXPORTS = &
         DosExitMustComplete        .381, &
         DosSetRelMaxFH             .382, &
 # msg
-        Dos16PutMessage            .383, &
-        Dos16TrueGetMessage        .384, &
-        Dos16InsMessage            .385, &
+        DOS16PUTMESSAGE            .383, &
+        DOS16TRUEGETMESSAGE        .384, &
+        DOS16INSMESSAGE            .385, &
         DosInsertMessage           .386, &
         DosPutMessage              .387, &
         Dos32TrueGetMessage        .388, &
-        Dos16IQueryMessageCP       .389, &
+        DOS16IQUERYMESSAGECP       .389, &
         Dos32IQueryMessageCP       .390, &
 # nls
-        Dos16CaseMap               .391, &
-        Dos16GetCollate            .392, &
-        Dos16GetCtryInfo           .393, &
-        Dos16GetDBCSEv             .394, &
+        DOS16CASEMAP               .391, &
+        DOS16GETCOLLATE            .392, &
+        DOS16GETCTRYINFO           .393, &
+        DOS16GETDBCSEV             .394, &
         DosQueryCtryInfo           .395, &
         DosQueryDBCSEnv            .396, &
         DosMapCase                 .397, &
         DosQueryCollate            .398, &
 # nampipes
-        Dos16MakeNmPipe            .399, &
-        Dos16QNmPipeInfo           .400, &
-        Dos16ConnectNmPipe         .401, &
-        Dos16DisconnectNmPipe      .402, &
-        Dos16QNmPHandState         .403, &
-        Dos16SetNmPHandState       .404, &
-        Dos16PeekNmPipe            .405, &
-        Dos16WaitNmPipe            .406, &
-        Dos16TransactNmPipe        .407, &
-        Dos16CallNmPipe            .408, &
-        Dos16RawReadNmPipe         .409, &
-        Dos16RawWriteNmPipe        .410, &
-        Dos16SetNmPipeSem          .411, &
-        Dos16QNmPipeSemState       .412, &
+        DOS16MAKENMPIPE            .399, &
+        DOS16QNMPIPEINFO           .400, &
+        DOS16CONNECTNMPIPE         .401, &
+        DOS16DISCONNECTNMPIPE      .402, &
+        DOS16QNMPHANDSTATE         .403, &
+        DOS16SETNMPHANDSTATE       .404, &
+        DOS16PEEKNMPIPE            .405, &
+        DOS16WAITNMPIPE            .406, &
+        DOS16TRANSACTNMPIPE        .407, &
+        DOS16CALLNMPIPE            .408, &
+        DOS16RAWREADNMPIPE         .409, &
+        DOS16RAWWRITENMPIPE        .410, &
+        DOS16SETNMPIPESEM          .411, &
+        DOS16QNMPIPESEMSTATE       .412, &
 # startlw
         StartLazyWriter            .413, &
 # some data ???
@@ -513,11 +513,11 @@ EXPORTS = &
         DosReplaceModule           .417, &
         DosAcknowledgeSignalException .418, &
         DosTIB                     .419, &
-        Dos16TmrQueryFreq          .420, &
-        Dos16TmrQueryTime          .421, &
-        Dos16RegisterPerfCtrs      .422, &
-        Dos16FlatToSel             .423, &
-        Dos16SelToFlat             .424, &
+        DOS16TMRQUERYFREQ          .420, &
+        DOS16TMRQUERYTIME          .421, &
+        DOS16REGISTERPERFCTRS      .422, &
+        DOS16FLATTOSEL             .423, &
+        DOS16SELTOFLAT             .424, &
         DosFlatToSel               .425, &
         DosSelToFlat               .426, &
         DosIODelayCnt              .427, &
@@ -530,21 +530,21 @@ EXPORTS = &
         LogSetState                .434, &
         LogSetName                 .435, &
         LogQueryState              .436, &
-        Dos16OpenChangeNotify      .437, &
-        Dos16ResetChangeNotify     .438, &
-        Dos16CloseChangeNotify     .439, &
+        DOS16OPENCHANGENOTIFY      .437, &
+        DOS16RESETCHANGENOTIFY     .438, &
+        DOS16CLOSECHANGENOTIFY     .439, &
         DosOpenChangeNotify        .440, &
         DosResetChangeNotify       .441, &
         DosCloseChangeNotify       .442, &
-        Dos16QueryABIOSSupport     .443, &
+        DOS16QUERYABIOSSUPPORT     .443, &
         DosForceSystemDump         .444, &
                                          &
         Dos32GetProcessorStatus    .447, &
         Dos32SetProcessorStatus    .448, &
-        Dos16CreateSpinLock        .449, &
-        Dos16AcquireSpinLock       .450, &
-        Dos16ReleaseSpinLock       .451, &
-        Dos16FreeSpinLock          .452, &
+        DOS16CREATESPINLOCK        .449, &
+        DOS16ACQUIRESPINLOCK       .450, &
+        DOS16RELEASESPINLOCK       .451, &
+        DOS16FREESPINLOCK          .452, &
         Dos32TestPSD               .453, &
         DosAllocThreadLocalMemory  .454, &
         DosFreeThreadLocalMemory   .455, &
@@ -639,7 +639,7 @@ EXPORTS = &
         DosLibiDisp                .549, &
         DosLibiDisp16              .550, &
         DosLibiDisp32              .551, &
-        Dos16R3ExitAddr            .552, &
+        DOS16R3EXITADDR            .552, &
         Dos32R3ExitAddr            .553, &
         Dos32IRead                 .554, &
         T32IREAD                   .555, &
@@ -660,7 +660,7 @@ EXPORTS = &
         T32PROFILE                 .570, &
         T32QUERYRESOURCESIZE       .571, &
         Dos32QueryResourceSize     .572, &
-        Dos16QueryResourceSize     .573, &
+        DOS16QUERYRESOURCESIZE     .573, &
         T32SETSIGNALEXCEPTIONFOCUS .574, &
         T32SENDSIGNALEXCEPTION     .575, &
         T32STARTTIMER              .576, &
@@ -670,11 +670,11 @@ EXPORTS = &
         DosInitializePorthole      .580, &
         T32QUERYHEADERINFO         .581, &
         DosQueryHeaderInfo         .582, &
-        Dos16InitializePorthole    .583, &
-        Dos16QueryHeaderInfo       .584, &
+        DOS16INITIALIZEPORTHOLE    .583, &
+        DOS16QUERYHEADERINFO       .584, &
         T32QUERYPROCTYPE           .585, &
         Dos32QueryProcType         .586, &
-        Dos16QueryProcType         .587, &
+        DOS16QUERYPROCTYPE         .587, &
         T32IEXITMUSTCOMPLETE       .588, &
         DosISigDispatch            .589, &
         T32ICACHEMODULE            .590, &
@@ -683,7 +683,7 @@ EXPORTS = &
         T32IRAISEEXCEPTION         .593, &
         DosIRaiseException         .594, &
         T32ACKNOWLEDGESIGNALEXC    .595, &
-        DosPM16SemChk              .596, &
+        DOSPM16SEMCHK              .596, &
         DosIQueryFHState           .597, &
         DosISetFHState             .598, &
         DosLDTSel                  .599, &
@@ -710,20 +710,20 @@ EXPORTS = &
         Dos32IProtectSetFHState    .619, &
         Dos32IProtectQueryFHState  .620, &
         DosProtectSetFilePtr       .621, &
-        Dos16ProtectClose          .622, &
-        Dos16ProtectFileIO         .623, &
-        Dos16ProtectFileLocks      .624, &
+        DOS16PROTECTCLOSE          .622, &
+        DOS16PROTECTFILEIO         .623, &
+        DOS16PROTECTFILELOCKS      .624, &
         DosIProtectRead            .625, &
         DosIProtectWrite           .626, &
-        Dos16ProtectNewSize        .627, &
-        Dos16ProtectOpen           .628, &
-        Dos16ProtectQFHandState    .629, &
-        Dos16ProtectSetFHandState  .630, &
-        Dos16ProtectQFileInfo      .631, &
-        Dos16ProtectSetFileInfo    .632, &
+        DOS16PROTECTNEWSIZE        .627, &
+        DOS16PROTECTOPEN           .628, &
+        DOS16PROTECTQFHANDSTATE    .629, &
+        DOS16PROTECTSETFHANDSTATE  .630, &
+        DOS16PROTECTQFILEINFO      .631, &
+        DOS16PROTECTSETFILEINFO    .632, &
                                          &
-        Dos16ProtectChgFilePtr     .634, &
-        Dos16ProtectEnumAttribute  .635, &
+        DOS16PROTECTCHGFILEPTR     .634, &
+        DOS16PROTECTENUMATTRIBUTE  .635, &
         DosProtectEnumAttribute    .636, &
         DosProtectOpen             .637, &
         DosProtectClose            .638, &
@@ -740,7 +740,7 @@ EXPORTS = &
         DosCloseMessageFile        .649, &
 #
         DosLDRDirtyWorker          .650, &
-        Dos16LDRDirtyWorker        .651, &
+        DOS16LDRDIRTYWORKER        .651, &
         Dos32IGetInfoBlocks        .652, &
         T32IGETINFOBLOCKS          .653, &
                                          &
@@ -765,183 +765,183 @@ EXPORTS = &
         Dos32StopSession           .672, &
         DosRegisterNotification    .673, &
 # quecalls 16
-        Dos16ReadQueue             .674, &
-        Dos16PurgeQueue            .675, &
-        Dos16CloseQueue            .676, &
-        Dos16QueryQueue            .677, &
-        Dos16PeekQueue             .678, &
-        Dos16WriteQueue            .679, &
-        Dos16OpenQueue             .680, &
-        Dos16CreateQueue           .681, &
+        DOS16READQUEUE             .674, &
+        DOS16PURGEQUEUE            .675, &
+        DOS16CLOSEQUEUE            .676, &
+        DOS16QUERYQUEUE            .677, &
+        DOS16PEEKQUEUE             .678, &
+        DOS16WRITEQUEUE            .679, &
+        DOS16OPENQUEUE             .680, &
+        DOS16CREATEQUEUE           .681, &
 # os2char 16
-        Dos16SMGetmem              .682, &
-        Dos16SMFreemem             .683, &
-        Dos16SMGetSGCB             .684, &
-        Dos16SMInitSGCB            .685, &
+        DOS16SMGETMEM              .682, &
+        DOS16SMFREEMEM             .683, &
+        DOS16SMGETSGCB             .684, &
+        DOS16SMINITSGCB            .685, &
 # sesmgr 16
-        Dos16SMSGDoPopup           .686, &
-        Dos16SMSwitch              .687, &
-        Dos16SMServeAppReq         .688, &
-        Dos16GetTimes              .689, &
-        Dos16SMSetTitle            .690, &
-        Dos16ScrUnlock             .691, &
-        Dos16SMDoAppReq            .692, &
-        Dos16StopSession           .693, &
-        Dos16SelectSession         .694, &
-        Dos16ScrLock               .695, &
-        Dos16SavRedrawWait         .696, &
-        Dos16SavRedrawUndo         .697, &
-        Dos16SMSGEndPopup          .698, &
-        Dos16SetSession            .699, &
-        Dos16SetMNLockTime         .700, &
-        Dos16ModeUndo              .701, &
-        Dos16StartSession          .702, &
-        Dos16SMGetStatus           .703, &
-        Dos16ModeWait              .704, &
-        Dos16SMTerminate           .705, &
-        Dos16SMGetAppReq           .706, &
-        Dos16SMInitialize          .707, &
-        Dos16SMStart               .708, &
-        Dos16SMParentSwitch        .709, &
-        Dos16SMPause               .710, &
-        Dos16SMHDeinit             .711, &
-        Dos16SMPMPresent           .712, &
-        Dos16SMRegisterDD          .713, &
-        Dos16SMNotifyDD            .714, &
-        Dos16SMNotifyDD2           .715, &
-        Dos16SMOpenDD              .716, &
-        Dos16SMSetSessionType      .717, &
+        DOS16SMSGDOPOPUP           .686, &
+        DOS16SMSWITCH              .687, &
+        DOS16SMSERVEAPPREQ         .688, &
+        DOS16GETTIMES              .689, &
+        DOS16SMSETTITLE            .690, &
+        DOS16SCRUNLOCK             .691, &
+        DOS16SMDOAPPREQ            .692, &
+        DOS16STOPSESSION           .693, &
+        DOS16SELECTSESSION         .694, &
+        DOS16SCRLOCK               .695, &
+        DOS16SAVREDRAWWAIT         .696, &
+        DOS16SAVREDRAWUNDO         .697, &
+        DOS16SMSGENDPOPUP          .698, &
+        DOS16SETSESSION            .699, &
+        DOS16SETMNLOCKTIME         .700, &
+        DOS16MODEUNDO              .701, &
+        DOS16STARTSESSION          .702, &
+        DOS16SMGETSTATUS           .703, &
+        DOS16MODEWAIT              .704, &
+        DOS16SMTERMINATE           .705, &
+        DOS16SMGETAPPREQ           .706, &
+        DOS16SMINITIALIZE          .707, &
+        DOS16SMSTART               .708, &
+        DOS16SMPARENTSWITCH        .709, &
+        DOS16SMPAUSE               .710, &
+        DOS16SMHDEINIT             .711, &
+        DOS16SMPMPRESENT           .712, &
+        DOS16SMREGISTERDD          .713, &
+        DOS16SMNOTIFYDD            .714, &
+        DOS16SMNOTIFYDD2           .715, &
+        DOS16SMOPENDD              .716, &
+        DOS16SMSETSESSIONTYPE      .717, &
 # os2char
         OS2BaseInit                .718, &
 # moucalls
-        MouGetPtrShape             .719, &
-        MouSetPtrShape             .720, &
-        MouGetNumMickeys           .721, &
-        MouGetThreshold            .722, &
-        MouShellInit               .723, &
-        MouGetScaleFact            .724, &
-        MouFlushQue                .725, &
-        MouGetNumButtons           .726, &
-        MouClose                   .727, &
-        MouSetThreshold            .728, &
-        MouSetScaleFact            .729, &
-        MouGetNumQueEl             .730, &
-        MouDeRegister              .731, &
-        MouGetEventMask            .732, &
-        MouSetEventMask            .733, &
-        MouOpen                    .734, &
-        MouRemovePtr               .735, &
-        MouGetPtrPos               .736, &
-        MouReadEventQue            .737, &
-        MouSetPtrPos               .738, &
-        MouGetDevStatus            .739, &
-        MouSynch                   .740, &
-        MouRegister                .741, &
-        MouSetDevStatus            .742, &
-        MouDrawPtr                 .743, &
-        MouInitReal                .744, &
+        MOUGETPTRSHAPE             .719, &
+        MOUSETPTRSHAPE             .720, &
+        MOUGETNUMMICKEYS           .721, &
+        MOUGETTHRESHOLD            .722, &
+        MOUSHELLINIT               .723, &
+        MOUGETSCALEFACT            .724, &
+        MOUFLUSHQUE                .725, &
+        MOUGETNUMBUTTONS           .726, &
+        MOUCLOSE                   .727, &
+        MOUSETTHRESHOLD            .728, &
+        MOUSETSCALEFACT            .729, &
+        MOUGETNUMQUEEL             .730, &
+        MOUDEREGISTER              .731, &
+        MOUGETEVENTMASK            .732, &
+        MOUSETEVENTMASK            .733, &
+        MOUOPEN                    .734, &
+        MOUREMOVEPTR               .735, &
+        MOUGETPTRPOS               .736, &
+        MOUREADEVENTQUE            .737, &
+        MOUSETPTRPOS               .738, &
+        MOUGETDEVSTATUS            .739, &
+        MOUSYNCH                   .740, &
+        MOUREGISTER                .741, &
+        MOUSETDEVSTATUS            .742, &
+        MOUDRAWPTR                 .743, &
+        MOUINITREAL                .744, &
 # kbdcalls
-        KbdSetCustXt               .745, &
-        KbdInit                    .746, &
-        KbdGetCp                   .747, &
-        KbdCharIn                  .748, &
-        KbdSetCp                   .749, &
-        KbdLoadInstance            .750, &
-        KbdSynch                   .751, &
-        KbdRegister                .752, &
-        KbdStringIn                .753, &
-        KbdGetStatus               .754, &
-        KbdSetStatus               .755, &
-        KbdGetFocus                .756, &
-        KbdFlushBuffer             .757, &
-        KbdXlate                   .758, &
-        KbdSwitchFgnd              .759, &
-        KbdShellInit               .760, &
-        KbdClose                   .761, &
-        KbdFreeFocus               .762, &
-        KbdFree                    .763, &
-        KbdDeRegister              .764, &
-        KbdSetFgnd                 .765, &
-        KbdPeek                    .766, &
-        KbdOpen                    .767, &
-        KbdGetHWId                 .768, &
-        KbdSetHWId                 .769, &
+        KBDSETCUSTXT               .745, &
+        KBDINIT                    .746, &
+        KBDGETCP                   .747, &
+        KBDCHARIN                  .748, &
+        KBDSETCP                   .749, &
+        KBDLOADINSTANCE            .750, &
+        KBDSYNCH                   .751, &
+        KBDREGISTER                .752, &
+        KBDSTRINGIN                .753, &
+        KBDGETSTATUS               .754, &
+        KBDSETSTATUS               .755, &
+        KBDGETFOCUS                .756, &
+        KBDFLUSHBUFFER             .757, &
+        KBDXLATE                   .758, &
+        KBDSWITCHFGND              .759, &
+        KBDSHELLINIT               .760, &
+        KBDCLOSE                   .761, &
+        KBDFREEFOCUS               .762, &
+        KBDFREE                    .763, &
+        KBDDEREGISTER              .764, &
+        KBDSETFGND                 .765, &
+        KBDPEEK                    .766, &
+        KBDOPEN                    .767, &
+        KBDGETHWID                 .768, &
+        KBDSETHWID                 .769, &
 # viocalls
-        VioEndPopup                .770, &
-        VioGetPhysBuf              .771, &
-        VioGetAnsi                 .772, &
-        VioFree                    .773, &
-        VioSetAnsi                 .774, &
-        VioDeRegister              .775, &
-        VioScrollUp                .776, &
-        VioPrtSc                   .777, &
-        VioGetCurPos               .778, &
-        VioWrtCellStr              .779, &
-        VioPopUp                   .780, &
-        VioScrollRt                .781, &
-        VioWrtCharStr              .782, &
-        Avs_Prtsc                  .783, &
-        VioSetCurPos               .784, &
-        VioSrfUnblock              .785, &
-        VioSrfBlock                .786, &
-        VioScrUnlock               .787, &
-        VioWrtTty                  .788, &
-        VioSave                    .789, &
-        VioGetMode                 .790, &
-        VioSetMode                 .791, &
-        VioScrLock                 .792, &
-        VioReadCellStr             .793, &
-        VioSavRedrawWait           .794, &
-        VioWrtNAttr                .795, &
-        VioGetCurType              .796, &
-        VioSavRedrawUndo           .797, &
-        VioGetFont                 .798, &
-        VioReadCharStr             .799, &
-        VioGetBuf                  .800, &
-        VioSetCurType              .801, &
-        VioSetFont                 .802, &
-        VioHetInit                 .803, &
-        VioModeUndo                .804, &
-        VioSswSwitch               .805, &
-        VioModeWait                .806, &
-        Avs_PrtscToggle            .807, &
-        VioGetCp                   .808, &
-        VioRestore                 .809, &
-        VioSetCp                   .810, &
-        VioShowBuf                 .811, &
-        VioScrollLf                .812, &
-        VioRegister                .813, &
-        VioGetConfig               .814, &
-        VioScrollDn                .815, &
-        VioWrtCharStrAtt           .816, &
-        VioGetState                .817, &
-        VioPrtScToggle             .818, &
-        VioSetState                .819, &
-        VioWrtNCell                .820, &
-        VioWrtNChar                .821, &
-        VioShellInit               .822, &
-        VioAssociate               .823, &
-        VioCreatePS                .824, &
-        VioDeleteSetId             .825, &
-        VioGetDeviceCellSize       .826, &
-        VioGetOrg                  .827, &
-        VioCreateLogFont           .828, &
-        VioDestroyPS               .829, &
-        VioQuerySetIds             .830, &
-        VioSetOrg                  .831, &
-        VioQueryFonts              .832, &
-        VioSetDeviceCellSize       .833, &
-        VioShowPS                  .834, &
-        VioGetPSAddress            .835, &
-        VioQueryConsole            .836, &
-        VioRedrawSize              .837, &
-        VioGlobalReg               .838, &
-        XVioSetCAState             .839, &
-        XVioCheckCharType          .840, &
-        XVioDestroyCA              .841, &
-        XVioCreateCA               .842, &
-        VioCheckCharType           .843, &
-        XVioGetCAState             .844, &
+        VIOENDPOPUP                .770, &
+        VIOGETPHYSBUF              .771, &
+        VIOGETANSI                 .772, &
+        VIOFREE                    .773, &
+        VIOSETANSI                 .774, &
+        VIODEREGISTER              .775, &
+        VIOSCROLLUP                .776, &
+        VIOPRTSC                   .777, &
+        VIOGETCURPOS               .778, &
+        VIOWRTCELLSTR              .779, &
+        VIOPOPUP                   .780, &
+        VIOSCROLLRT                .781, &
+        VIOWRTCHARSTR              .782, &
+        AVS_PRTSC                  .783, &
+        VIOSETCURPOS               .784, &
+        VIOSRFUNBLOCK              .785, &
+        VIOSRFBLOCK                .786, &
+        VIOSCRUNLOCK               .787, &
+        VIOWRTTTY                  .788, &
+        VIOSAVE                    .789, &
+        VIOGETMODE                 .790, &
+        VIOSETMODE                 .791, &
+        VIOSCRLOCK                 .792, &
+        VIOREADCELLSTR             .793, &
+        VIOSAVREDRAWWAIT           .794, &
+        VIOWRTNATTR                .795, &
+        VIOGETCURTYPE              .796, &
+        VIOSAVREDRAWUNDO           .797, &
+        VIOGETFONT                 .798, &
+        VIOREADCHARSTR             .799, &
+        VIOGETBUF                  .800, &
+        VIOSETCURTYPE              .801, &
+        VIOSETFONT                 .802, &
+        VIOHETINIT                 .803, &
+        VIOMODEUNDO                .804, &
+        VIOSSWSWITCH               .805, &
+        VIOMODEWAIT                .806, &
+        AVS_PRTSCTOGGLE            .807, &
+        VIOGETCP                   .808, &
+        VIORESTORE                 .809, &
+        VIOSETCP                   .810, &
+        VIOSHOWBUF                 .811, &
+        VIOSCROLLLF                .812, &
+        VIOREGISTER                .813, &
+        VIOGETCONFIG               .814, &
+        VIOSCROLLDN                .815, &
+        VIOWRTCHARSTRATT           .816, &
+        VIOGETSTATE                .817, &
+        VIOPRTSCTOGGLE             .818, &
+        VIOSETSTATE                .819, &
+        VIOWRTNCELL                .820, &
+        VIOWRTNCHAR                .821, &
+        VIOSHELLINIT               .822, &
+        VIOASSOCIATE               .823, &
+        VIOCREATEPS                .824, &
+        VIODELETESETID             .825, &
+        VIOGETDEVICECELLSIZE       .826, &
+        VIOGETORG                  .827, &
+        VIOCREATELOGFONT           .828, &
+        VIODESTROYPS               .829, &
+        VIOQUERYSETIDS             .830, &
+        VIOSETORG                  .831, &
+        VIOQUERYFONTS              .832, &
+        VIOSETDEVICECELLSIZE       .833, &
+        VIOSHOWPS                  .834, &
+        VIOGETPSADDRESS            .835, &
+        VIOQUERYCONSOLE            .836, &
+        VIOREDRAWSIZE              .837, &
+        VIOGLOBALREG               .838, &
+        XVIOSETCASTATE             .839, &
+        XVIOCHECKCHARTYPE          .840, &
+        XVIODESTROYCA              .841, &
+        XVIOCREATECA               .842, &
+        VIOCHECKCHARTYPE           .843, &
+        XVIOGETCASTATE             .844, &
 # bvscalls
         BVSMAIN                    .845, &
         BVSREDRAWSIZE              .846, &
@@ -955,10 +955,10 @@ EXPORTS = &
 # bmscalls
         BMSMAIN                    .852, &
 # moucalls
-        MouGetHotKey               .853, &
-        MouSetHotKey               .854, &
+        MOUGETHOTKEY               .853, &
+        MOUSETHOTKEY               .854, &
 # sesmgr
-        Dos16SMSysInit             .855, &
+        DOS16SMSYSINIT             .855, &
 # queue handle variables ???
         QhKeybdHandle              .856, &
         QhMouseHandle              .857, &
@@ -981,7 +981,7 @@ EXPORTS = &
         THK32XHNDLR                .872, &
         Dos32SetExtLIBPATH         .873, &
         Dos32QueryExtLIBPATH       .874, &
-        DosPM16SemRst              .875, &
+        DOSPM16SEMRST              .875, &
         DosSysCtl                  .876, &
         Dos32QueryThreadContext    .877, &
         DosSGQueryTopmost          .878, &
@@ -998,16 +998,16 @@ EXPORTS = &
         DosSetFilePtrL             .988, &
         DosSetFileSizeL            .989, &
         DosListIOL                 .990, &
-        Dos16FSRamSemRequest2      .991, &
-        Dos16FSRamSemClear2        .992, &
+        DOS16FSRAMSEMREQUEST2      .991, &
+        DOS16FSRAMSEMCLEAR2        .992, &
                                          &
 # Needed for Java
         DosSystemService           .995, &
 #
         DosListIO                  .996, &
         DosCreateThread2           .997, &
-        Dos16SetExtLIBPATH         .998, &
-        Dos16QueryExtLIBPATH       .999, &
+        DOS16SETEXTLIBPATH         .998, &
+        DOS16QUERYEXTLIBPATH       .999, &
         T32EXITLIST                .1000, &
         T32ALLOCPROTECTEDMEM       .1001, &
         T32ALIASMEM                .1002, &

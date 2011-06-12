@@ -1,0 +1,25 @@
+Список "полиморфных" фунок, вроде бы, неполный. Эти функи
+16-битные, но якобы (по словам AlexT), могут вызываться
+с FLAT указателем вместо 16:16. При этом тип указателя
+задается битом, поднимаемым в некоем байте, расположенном
+по фиксированному адресу в shared арене. А вызывает их
+и взводит оный бит якобы, PM...
+
+DOSCHDIR
+DOSDELETE
+DOSIFINDFIRST
+DOSIFINDNEXT
+DOSICOPY
+DOSISETFILEINFO
+DOSISETPATHINFO
+DOSISETRELMAXFH
+DOSMKDIR2
+DOSMOVE
+DOSOPEN2
+DOSQCURDIR
+DOSQCURDISK
+DOSQFILEINFO
+DOSQFSATTACH
+DOSQPATHINFO
+DOSRMDIR
+DOSSHUTDOWN
