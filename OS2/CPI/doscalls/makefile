@@ -97,11 +97,11 @@ EXPORTS = &
         Dos16GetPrty               .9, &
         Dos16KillProcess           .10, &
         Dos16SetPrty               .11, &
-        DosPtrace                  .12, &
-        DosHoldSignal              .13, &
-        DosSetSigHandler           .14, &
-        DosFlagProcess             .15, &
-        DosMakePipe                .16, &
+        Dos16Ptrace                .12, &
+        Dos16HoldSignal            .13, &
+        Dos16SetSigHandler         .14, &
+        Dos16FlagProcess           .15, &
+        Dos16MakePipe              .16, &
         DosISysSemClear            .17, &
         DosISemRequest             .18, &
         DosISysSemSet              .19, &
@@ -190,7 +190,7 @@ EXPORTS = &
         Dos16SwapTaskInit          .102, &
         Dos16ReadPhys              .103, &
         Dos16SetPathInfo           .104, &
-        DosSGSwitchProc2           .105, &
+        Dos16SGSwitchProc2         .105, &
         STRUCHECK                  .106, &
         STRURESUPDATE              .107, &
         DosISetRelMaxFH            .108, &
@@ -204,7 +204,7 @@ EXPORTS = &
         THK32FREEMEM               .116, &
         THK32ALLOCSTACK            .117, &
         DosOpen2Compt              .118, &
-        DosGetSTDA                 .119, &
+        Dos16GetSTDA               .119, &
         Dos16Error                 .120, &
         Dos16GetSeg                .121, &
         Dos16LockSeg               .122, &
@@ -275,22 +275,22 @@ EXPORTS = &
         Dos16FindNotifyClose       .187, &
         Dos16FindNotifyFirst       .188, &
         Dos16FindNotifyNext        .189, &
-        DosSetTraceInfo            .190, &
+        Dos16SetTraceInfo          .190, &
         Dos16EditName              .191, &
-        DosLogMode                 .192, &
-        DosLogEntry                .193, &
-        DosGetLogBuffer            .194, &
-        DosLogRegister             .195, &
-        DosLogRead                 .196, &
-        DosFindFromName            .197, &
-        DosOPLockRelease           .198, &
-        DosOPLockWait              .199, &
+        Dos16LogMode               .192, &
+        Dos16LogEntry              .193, &
+        Dos16GetLogBuffer          .194, &
+        Dos16LogRegister           .195, &
+        Dos16LogRead               .196, &
+        Dos16FindFromName          .197, &
+        Dos16OPLockRelease         .198, &
+        Dos16OPLockWait            .199, &
         DosICopy                   .200, &
         Dos16Copy                  .201, &
         DosIQAppType               .202, &
         Dos16ForceDelete           .203, &
         Dos16EnumAttribute         .204, &
-        DosOPLockShutdown          .205, &
+        Dos16OPLockShutdown        .205, &
         Dos16Shutdown              .206, &
         Dos16GetResource2          .207, &
         Dos16FreeResource          .208, &
@@ -324,6 +324,7 @@ EXPORTS = &
         DosSetPriority             .236, &
         DosResumeThread            .237, &
         DosSuspendThread           .238, &
+# pipes 32-bit API
         DosCreatePipe              .239, &
         DosCallNPipe               .240, &
         DosConnectNPipe            .241, &
@@ -339,6 +340,7 @@ EXPORTS = &
         DosSetNPipeSem             .251, &
         DosTransactNPipe           .252, &
         DosWaitNPipe               .253, &
+#
         DosResetBuffer             .254, &
         DosSetCurrentDir           .255, &
         DosSetFilePtr              .256, &
@@ -398,9 +400,9 @@ EXPORTS = &
         DosCloseVDD                .310, &
         DosCreateThread            .311, &
         DosGetInfoBlocks           .312, &
-        DosAllocProtSeg            .313, &
-        DosAllocShrProtSeg         .314, &
-        DosAllocProtHuge           .315, &
+        Dos16AllocProtSeg          .313, &
+        Dos16AllocShrProtSeg       .314, &
+        Dos16AllocProtHuge         .315, &
         DosDynamicTrace            .316, &
         DosDebug                   .317, &
         DosLoadModule              .318, &
@@ -478,32 +480,32 @@ EXPORTS = &
         Dos16IQueryMessageCP       .389, &
         Dos32IQueryMessageCP       .390, &
 # nls
-        DosCaseMap                 .391, &
-        DosGetCollate              .392, &
-        DosGetCtryInfo             .393, &
-        DosGetDBCSEv               .394, &
+        Dos16CaseMap               .391, &
+        Dos16GetCollate            .392, &
+        Dos16GetCtryInfo           .393, &
+        Dos16GetDBCSEv             .394, &
         DosQueryCtryInfo           .395, &
         DosQueryDBCSEnv            .396, &
         DosMapCase                 .397, &
         DosQueryCollate            .398, &
 # nampipes
-        DosMakeNmPipe              .399, &
-        DosQNmPipeInfo             .400, &
-        DosConnectNmPipe           .401, &
-        DosDisconnectNmPipe        .402, &
-        DosQNmPHandState           .403, &
-        DosSetNmPHandState         .404, &
-        DosPeekNmPipe              .405, &
-        DosWaitNmPipe              .406, &
-        DosTransactNmPipe          .407, &
-        DosCallNmPipe              .408, &
-        DosRawReadNmPipe           .409, &
-        DosRawWriteNmPipe          .410, &
-        DosSetNmPipeSem            .411, &
-        DosQNmPipeSemState         .412, &
+        Dos16MakeNmPipe            .399, &
+        Dos16QNmPipeInfo           .400, &
+        Dos16ConnectNmPipe         .401, &
+        Dos16DisconnectNmPipe      .402, &
+        Dos16QNmPHandState         .403, &
+        Dos16SetNmPHandState       .404, &
+        Dos16PeekNmPipe            .405, &
+        Dos16WaitNmPipe            .406, &
+        Dos16TransactNmPipe        .407, &
+        Dos16CallNmPipe            .408, &
+        Dos16RawReadNmPipe         .409, &
+        Dos16RawWriteNmPipe        .410, &
+        Dos16SetNmPipeSem          .411, &
+        Dos16QNmPipeSemState       .412, &
 # startlw
         StartLazyWriter            .413, &
-# ???
+# some data ???
         _QueInst_Data              .414, &
 #
         DosShutdown                .415, &
