@@ -2639,3 +2639,20 @@ USHORT __pascal         DOSPM16SEMCHK(void)
 }
 
 
+USHORT __pascal         THK16_UNITHUNK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT __pascal         HT16_STARTUP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT __pascal         HT16_CLEANUP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+

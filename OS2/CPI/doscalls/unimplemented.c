@@ -3395,3 +3395,147 @@ APIRET APIENTRY         THK32R3DS(void)
   return unimplemented(__FUNCTION__);
 }
 
+APIRET APIENTRY         DosIOpenL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosIProtectOpenL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosISetFileSizeL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosIProtectSetFileSizeL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32STRLEN(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32_UNITHUNK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32CreateSpinLock(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32AcquireSpinLock(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32ReleaseSpinLock(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32FreeSpinLock(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMR3WaitEventSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMR3PostEventSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32QueryThreadAffinity(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32SetThreadAffinity(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosPMSemWait(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         DosPMMuxSemWait(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         HT32_STARTUP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         HT32_CLEANUP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Mon32MonRead(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Mon32MonWrite(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMPostEventSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMWaitEventSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMRequestMutexSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         Dos32PMWaitMuxWaitSem(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+

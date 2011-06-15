@@ -200,7 +200,7 @@ EXPORTS = &
         DosQueryRASInfo            .112, &
         DosDumpProcess             .113, &
         DosSuppressPopUps          .114, &
-        THK32ALLOCMEM             .115, &
+        THK32ALLOCMEM              .115, &
         THK32FREEMEM               .116, &
         THK32ALLOCSTACK            .117, &
         DosOpen2Compt              .118, &
@@ -551,6 +551,7 @@ EXPORTS = &
                                          &
         DosVerifyPidTid            .460, &
                                          &
+# not valid after HPFS & LS init:
         PTDA_LANMAN_SEC            .464, &
         PTDA_PID                   .465, &
         SAS_SEL                    .466, &
@@ -587,54 +588,16 @@ EXPORTS = &
         PTDA_CURRTCB               .497, &
         PTDA_CURRTSD               .498, &
         PTDA_SIGNATURE             .499, &
-        T32EXITLIST                .500, &
-        T32ALLOCPROTECTEDMEM       .501, &
-        T32ALIASMEM                .502, &
-        T32ALLOCMEM                .503, &
-        T32ALLOCSHAREDMEM          .504, &
-        T32GETNAMEDSHAREDMEM       .505, &
-        T32GETSHAREDMEM            .506, &
-        T32GIVESHAREDMEM           .507, &
-        T32FREEMEM                 .508, &
-        T32SETMEM                  .509, &
-        T32QUERYMEM                .510, &
-        T32QUERYMEMSTATE           .511, &
-        T32OPENVDD                 .512, &
-        T32REQUESTVDD              .513, &
-        T32CLOSEVDD                .514, &
-        T32CREATETHREAD            .515, &
-        T32DYNAMICTRACE            .516, &
-        T32DEBUG                   .517, &
-        T32QUERYPROCADDR           .518, &
-        T32CREATEEVENTSEM          .519, &
-        T32OPENEVENTSEM            .520, &
-        T32CLOSEEVENTSEM           .521, &
-        T32RESETEVENTSEM           .522, &
-        T32POSTEVENTSEM            .523, &
-        T32WAITEVENTSEM            .524, &
-        T32QUERYEVENTSEM           .525, &
-        T32CREATEMUTEXSEM          .526, &
-        T32OPENMUTEXSEM            .527, &
-        T32CLOSEMUTEXSEM           .528, &
-        T32REQUESTMUTEXSEM         .529, &
-        T32RELEASEMUTEXSEM         .530, &
-        T32QUERYMUTEXSEM           .531, &
-        T32CREATEMUXWAITSEM        .532, &
-        T32OPENMUXWAITSEM          .533, &
-        T32CLOSEMUXWAITSEM         .534, &
-        T32WAITMUXWAITSEM          .535, &
-        T32ADDMUXWAITSEM           .536, &
-        T32DELETEMUXWAITSEM        .537, &
-        T32QUERYMUXWAITSEM         .538, &
-        T32QUERYSYSINFO            .539, &
-        T32WAITTHREAD              .540, &
-        T32GETRESOURCE             .541, &
-        T32FREERESOURCE            .542, &
-        T32EXCEPTIONCALLBACK       .543, &
-        T32QUERYPAGEUSAGE          .544, &
+                                         &
+# hole
+                                         &
+        DosIOpenL                  .541, &
+        DosIProtectOpenL           .542, &
+        DosISetFileSizeL           .543, &
+        DosIProtectSetFileSizeL    .544, &
         DosExceptionCallBack       .545, &
-        TI32ASYNCTIMER             .546, &
-        TI32STARTTIMER             .547, &
+        THK32STRLEN                .546, &
+        THK32_UNITHUNK             .547, &
         DosR3ExceptionDispatcher   .548, &
         DosLibiDisp                .549, &
         DosLibiDisp16              .550, &
@@ -642,66 +605,59 @@ EXPORTS = &
         DOS16R3EXITADDR            .552, &
         Dos32R3ExitAddr            .553, &
         Dos32IRead                 .554, &
-        T32IREAD                   .555, &
+                                         &
         Dos32IWrite                .556, &
-        T32IWRITE                  .557, &
-        T32TMRQUERYFREQ            .558, &
-        T32TMRQUERYTIME            .559, &
-        T32ALIASPERFCTRS           .560, &
-        T32CONFIGUREPERF           .561, &
-        T32DECONPERF               .562, &
-        T32REGISTERPERFCTRS        .563, &
-        T32QUERYSYSSTATE           .564, &
+        Dos32CreateSpinLock        .557, &
+        Dos32AcquireSpinLock       .558, &
+        Dos32ReleaseSpinLock       .559, &
+        Dos32FreeSpinLock          .560, &
+        Dos32PMR3WaitEventSem      .561, &
+        Dos32PMR3PostEventSem      .562, &
+        Dos32QueryThreadAffinity   .563, &
+        Dos32SetThreadAffinity     .564, &
         DosISetFileInfo            .565, &
         DosISetPathInfo            .566, &
-        T32QUERYDOSPROPERTY        .567, &
-        T32SETDOSPROPERTY          .568, &
+                                         &
         DosIFindNext               .569, &
-        T32PROFILE                 .570, &
-        T32QUERYRESOURCESIZE       .571, &
+        DosSetFileSizeL            .570, &
+                                         &
         Dos32QueryResourceSize     .572, &
         DOS16QUERYRESOURCESIZE     .573, &
-        T32SETSIGNALEXCEPTIONFOCUS .574, &
-        T32SENDSIGNALEXCEPTION     .575, &
-        T32STARTTIMER              .576, &
-        T32STOPTIMER               .577, &
-        T32ASYNCTIMER              .578, &
-        T32INITIALIZEPORTHOLE      .579, &
+        DosPMSemWait               .574, &
+        DosPMMuxSemWait            .575, &
+        THK16_UNITHUNK             .576, &
+        HT16_STARTUP               .577, &
+        HT16_CLEANUP               .578, &
+        HT32_STARTUP               .579, &
         DosInitializePorthole      .580, &
-        T32QUERYHEADERINFO         .581, &
+        HT32_CLEANUP               .581, &
         DosQueryHeaderInfo         .582, &
         DOS16INITIALIZEPORTHOLE    .583, &
         DOS16QUERYHEADERINFO       .584, &
-        T32QUERYPROCTYPE           .585, &
+        Mon32MonRead               .585, &
         Dos32QueryProcType         .586, &
         DOS16QUERYPROCTYPE         .587, &
-        T32IEXITMUSTCOMPLETE       .588, &
+        Mon32MonWrite              .588, &
         DosISigDispatch            .589, &
-        T32ICACHEMODULE            .590, &
-        T32DLLTERM                 .591, &
+        Dos32PMPostEventSem        .590, &
+        Dos32PMWaitEventSem        .591, &
         DosDllTermDisp             .592, &
-        T32IRAISEEXCEPTION         .593, &
+        Dos32PMRequestMutexSem     .593, &
         DosIRaiseException         .594, &
-        T32ACKNOWLEDGESIGNALEXC    .595, &
+        Dos32PMWaitMuxWaitSem      .595, &
         DOSPM16SEMCHK              .596, &
         DosIQueryFHState           .597, &
         DosISetFHState             .598, &
         DosLDTSel                  .599, &
         DosR3Frestor               .600, &
         DosIFindFirst              .601, &
-        T32SETFILELOCKS            .602, &
-        T32CANCELLOCKREQUEST       .603, &
-        T32IMONREAD                .604, &
-        T32IMONWRITE               .605, &
+                                         &
 # moncalls
         DosMonOpen                 .606, &
         DosMonClose                .607, &
         DosMonRead                 .608, &
         DosMonWrite                .609, &
         DosMonReg                  .610, &
-#
-        T32KILLTHREAD              .611, &
-        TQUERYRASINFO              .612, &
                                          &
         Dos32IProtectWrite         .615, &
                                          &
@@ -742,6 +698,7 @@ EXPORTS = &
         DosLDRDirtyWorker          .650, &
         DOS16LDRDIRTYWORKER        .651, &
         Dos32IGetInfoBlocks        .652, &
+#
         T32IGETINFOBLOCKS          .653, &
                                          &
         T32GETPROCESSORSTATUS      .656, &
@@ -979,6 +936,7 @@ EXPORTS = &
         THK32HANDLESTRING          .870, &
         THK32DEALLOC               .871, &
         THK32XHNDLR                .872, &
+#
         Dos32SetExtLIBPATH         .873, &
         Dos32QueryExtLIBPATH       .874, &
         DOSPM16SEMRST              .875, &
@@ -1008,6 +966,7 @@ EXPORTS = &
         DosCreateThread2           .997, &
         DOS16SETEXTLIBPATH         .998, &
         DOS16QUERYEXTLIBPATH       .999, &
+#
         T32EXITLIST                .1000, &
         T32ALLOCPROTECTEDMEM       .1001, &
         T32ALIASMEM                .1002, &
