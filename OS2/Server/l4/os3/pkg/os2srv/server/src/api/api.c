@@ -307,8 +307,8 @@ os2server_dos_Exit_component(CORBA_Object _dice_corba_obj,
 struct DosExecPgm_params {
   struct t_os2process *proc;
   l4_threadid_t thread;
-  char **pObjname;
-  long *cbObjname;
+  char *pObjname;
+  long cbObjname;
   unsigned long execFlag;
   char *pArg;
   char *pEnv;
@@ -344,7 +344,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
  
   LOG("begin exec");
   /* try executing the new task */
-  rc =  PrcExecuteModule(*(parm->pObjname), *(parm->cbObjname), parm->execFlag,
+  rc =  PrcExecuteModule(parm->pObjname, parm->cbObjname, parm->execFlag,
                          parm->pArg, parm->pEnv, parm->pRes, parm->pName, proc->pid);
   LOG("end exec");
 
@@ -358,10 +358,10 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   /* notify the server loop to return API result */
   LOG("0");
   LOG("pRes=%x", parm->pRes);
-  LOG("pObjname=%x",  *(parm->pObjname));
-  LOG("cbObjname=%x", *(parm->cbObjname));
-  os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, *(parm->pObjname), 
-                                    *(parm->cbObjname), parm->pRes, rc, &env);
+  LOG("pObjname=%x",  parm->pObjname);
+  LOG("cbObjname=%x", parm->cbObjname);
+  os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, parm->pObjname, 
+                                    parm->cbObjname, parm->pRes, rc, &env);
   LOG("1");
   /* free our parameters structure */
   free(parm->pArg);
@@ -438,8 +438,8 @@ os2server_dos_ExecPgm_component (CORBA_Object _dice_corba_obj,
   /* fill in the params structure */
   parm->proc = proc;
   parm->thread = thread;
-  parm->pObjname = pObjname;
-  parm->cbObjname = cbObjname;
+  parm->pObjname = *pObjname;
+  parm->cbObjname = *cbObjname;
   parm->execFlag = execFlag;
   parm->pArg = arg;
   parm->pEnv = env;

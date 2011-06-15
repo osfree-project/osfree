@@ -461,27 +461,25 @@ unsigned long LoadModule(char *          pszName,
     strcat(name, ".dll");
 
     /* if module is not loaded, then load it */
-    if (getrec(ixfModule->Modules[module_counter-1], &prev))
+    if (t = getrec(ixfModule->Modules[module_counter-1], &prev))
     {
       LOG("opening %s", name);
       rc = OpenModule(chLoadError, sizeof(chLoadError), name,
                       0, (unsigned long *)&hmod);
-      if (!rc) LOG("successful");
+      if (!rc) LOG("open successful");
       if (rc)
       {
         LOG("Error opening module: %s", name);
-        LOG("1");
         return rc;
       }
 
       LOG("loading %s", name);
       rc = LoadModule(chLoadError, sizeof(chLoadError), (unsigned long *)&hmod);
-      if (!rc) LOG("successful");
+      if (!rc) LOG("load successful");
     
       if (rc)
       {
         LOG("Error loading module: %s", name);
-        LOG("2");
         return rc;
       }
     }
@@ -524,8 +522,11 @@ unsigned long LoadModule(char *          pszName,
         } */
       }
 #endif
-      LOG("000");
-      ModLinkModule(&hmod, phmod);
+      //if (t)
+      //{
+        //LOG("000");
+        //ModLinkModule(&hmod, phmod);
+      //}
     }
   }
 
