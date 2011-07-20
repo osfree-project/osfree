@@ -6,7 +6,8 @@ BUILTIN commands[] =
   "exit", exit_cmd,
   "help", cmds_cmd,
   "cd", chdir_cmd,
-  "chdir", chdir_cmd
+  "chdir", chdir_cmd,
+  "dir", dir_cmd
 };
 
 int cmds_cmd(int argc, char **argv)
@@ -14,7 +15,7 @@ int cmds_cmd(int argc, char **argv)
   unsigned int i;
 
   VioWrtTTY("Commands:\r\n", 11, 0);
-  for (i=0;i<5;i++)
+  for (i=0;i<6;i++)
   {
     VioWrtTTY(commands[i].cmdname, strlen(commands[i].cmdname), 0);
     VioWrtTTY("\x9", 1, 0);

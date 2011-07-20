@@ -24,6 +24,7 @@
 #include <l4/env/env.h>
 #include <l4/env/errno.h>
 #include <l4/log/l4log.h>
+#include <l4/util/rdtsc.h>
 /* OS/2 server internal includes */
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/ixfmgr.h>
@@ -113,9 +114,16 @@ trampoline(struct param *param)
   unsigned long     base;
   struct desc       desc;
 
+  struct desc *dsc;
+
+  int  stop, start;
   int  i, k;
   char *p, *str;
   char buf[0x100];
+
+  l4_threadid_t task;
+
+  l4_calibrate_tsc();
 
   LOG("call exe: eip=%x, esp=%x, tib=%x", param->eip, param->esp, param->tib);
 
@@ -165,7 +173,32 @@ trampoline(struct param *param)
     LOG("%c", envp[i]);
   else
     LOG("\\0");    
-  
+
+  task = l4_myself();
+
+#if 1
+  dsc = malloc(0x1000);
+
+  for (i = 0; i < 512; i++)
+  {
+    base = i * 0x10000;
+
+    dsc[i].limit_lo = 0xffff; dsc[i].limit_hi = 0;
+    dsc[i].acc_lo   = 0xFE;   dsc[i].acc_hi = 0;
+    dsc[i].base_lo1 = base & 0xffff;
+    dsc[i].base_lo2 = (base >> 16) & 0xff;
+    dsc[i].base_hi  = base >> 24;
+  }
+  LOG("---");
+  start = l4_rdtsc();
+  fiasco_ldt_set(dsc, 0x1000, 0, task.id.task);
+  stop  = l4_rdtsc();
+  LOG("+++");
+  free(dsc);
+  LOG("===");
+  LOG("LDT switch time=%u ns", l4_tsc_to_ns(stop - start));
+#endif  
+
   /* TIB base */
   base = param->tib;	
               
@@ -177,7 +210,7 @@ trampoline(struct param *param)
   desc.base_hi  = base >> 24;
         
   /* Allocate a GDT descriptor */
-  fiasco_gdt_set(&desc, sizeof(struct desc), 0, l4_myself());
+  fiasco_gdt_set(&desc, sizeof(struct desc), 0, task);
 
   /* Get a selector */
   sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();

@@ -25,6 +25,40 @@ APIRET __cdecl  KalSetRelMaxFH(PLONG pcbReqCount,
 
 APIRET __cdecl  KalSetMaxFH(ULONG cFH);
 
+APIRET __cdecl  KalFindFirst(PCSZ   pszFileSpec,
+                             PHDIR  phdir,
+                             ULONG  flAttribute,
+                             PVOID  pfindbuf,
+                             ULONG  cbBuf,
+                             PULONG pcFileNames,
+                             ULONG  ulInfoLevel);
+
+APIRET __cdecl  KalFindNext(HDIR   hDir,
+                            PVOID  pfindbuf,
+                            ULONG  cbfindbuf,
+                            PULONG pcFilenames);
+
+APIRET __cdecl  KalFindClose(HDIR hDir);
+
+APIRET __cdecl  KalQueryFHState(HFILE hFile,
+                                PULONG pMode);
+
+APIRET __cdecl  KalSetFHState(HFILE hFile,
+                              ULONG mode);
+
+APIRET __cdecl  KalQueryFileInfo(HFILE hf,
+                                 ULONG ulInfoLevel,
+                                 PVOID pInfo,
+                                 ULONG cbInfoBuf);
+
+APIRET __cdecl  KalQueryPathInfo(PCSZ  pszPathName,
+                                 ULONG ulInfoLevel,
+                                 PVOID pInfoBuf,
+                                 ULONG cbInfoBuf);
+
+APIRET __cdecl  KalSetFileSizeL(HFILE hFile,
+                                LONGLONG cbSize);
+
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
 
@@ -123,4 +157,64 @@ APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
 APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
 {
   return KalSetMaxFH(cFH);
+}
+
+
+APIRET APIENTRY  DosFindFirst(PCSZ   pszFileSpec,
+                              PHDIR  phdir,
+                              ULONG  flAttribute,
+                              PVOID  pfindbuf,
+                              ULONG  cbBuf,
+                              PULONG pcFileNames,
+                              ULONG  ulInfoLevel)
+{
+  return KalFindFirst(pszFileSpec, phdir, flAttribute,
+                      pfindbuf, cbBuf, pcFileNames, ulInfoLevel);
+}
+
+APIRET APIENTRY  DosFindNext(HDIR   hDir,
+                             PVOID  pfindbuf,
+                             ULONG  cbfindbuf,
+                             PULONG pcFilenames)
+{
+  return KalFindNext(hDir, pfindbuf, cbfindbuf, pcFilenames);
+}
+
+APIRET APIENTRY  DosFindClose(HDIR hDir)
+{
+  return KalFindClose(hDir);
+}
+
+APIRET APIENTRY  DosQueryFHState(HFILE hFile,
+                                 PULONG pMode)
+{
+  return KalQueryFHState(hFile, pMode);
+}
+
+APIRET APIENTRY  DosSetFHState(HFILE hFile,
+                               ULONG mode)
+{
+  return KalSetFHState(hFile, mode);
+}
+
+APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
+                                  ULONG ulInfoLevel,
+                                  PVOID pInfo,
+                                  ULONG cbInfoBuf)
+{
+  return KalQueryFileInfo(hf, ulInfoLevel, pInfo, cbInfoBuf);
+}
+
+APIRET APIENTRY  DosQueryPathInfo(PSZ   pszPathName,
+                                  ULONG ulInfoLevel,
+                                  PVOID pInfo,
+                                  ULONG cbInfoBuf)
+{
+  return KalQueryPathInfo(pszPathName, ulInfoLevel, pInfo, cbInfoBuf);
+}
+
+APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
+                                 LONGLONG cbSize)
+{
+  return KalSetFileSizeL(hFile, cbSize);
 }

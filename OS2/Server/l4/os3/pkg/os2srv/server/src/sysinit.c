@@ -181,7 +181,7 @@ int sysinit (cfg_opts *options)
     rc = 0; /* NO_ERROR */
   }
 
-  if (!rc) // wait until child process (protshell) terminates (it will unblock us)
+  if (!rc) // wait until child process (protshell) terminates (this will unblock us)
     l4semaphore_down(&proc->term_sem);
 
   if (use_events) // use events server

@@ -985,3 +985,199 @@ KalCreateDir(PSZ pszDirName, PEAOP2 peaop2)
   STKOUT
   return rc; /* NO_ERROR */
 }
+
+
+APIRET CDECL
+KalFindFirst(char  *pszFileSpec,
+             HDIR  *phDir,
+             ULONG flAttribute,
+             PVOID pFindBuf,
+             ULONG cbBuf,
+             ULONG *pcFileNames,
+             ULONG ulInfolevel)
+{
+  CORBA_Environment env = dice_default_environment;
+  char  buf[256];
+  char  str[256];
+  ULONG disk, map;
+  char  drv;
+  int   len = 0, i;
+  char  *s;
+  APIRET rc;
+
+  STKIN
+  LOG("pszFileSpec=%s", pszFileSpec);
+  LOG("*phDir=%d", *phDir);
+  LOG("flAttribute=%x", flAttribute);
+  LOG("ulInfolevel=%d", ulInfolevel);
+  LOG("pFindBuf=%x", pFindBuf);
+  LOG("cbBuf=%u", cbBuf);
+
+  /* if no path specified, add the current dir */
+  if (!strchr(pszFileSpec, '\\'))
+  {
+    /* query current disk */
+    rc = os2server_dos_QueryCurrentDisk_call(&os2srv, &disk, &map, &env);    
+    drv = disk - 1 + 'A';
+  
+    /* query current dir  */
+    rc = KalQueryCurrentDir(0, buf, &len);
+    rc = KalQueryCurrentDir(0, buf, &len);
+
+    if (len + strlen(pszFileSpec) + 3 > 256)
+      return ERROR_FILENAME_EXCED_RANGE;
+
+    i = 0;
+    str[i++] = drv;
+    str[i++] = ':';
+    if (buf[0] != '\\') str[i++] = '\\';
+    strncpy(str + i, buf, len - 1);
+    if (str[len + 1] != '\\') 
+    {
+      str[len + i - 1] = '\\';
+      len++;
+    }
+    str[len + i - 1] = '\0';
+    s = strcat(str, pszFileSpec);
+  }
+  else
+    s = pszFileSpec;
+
+  LOG("buf=%s", buf);
+  LOG("filespec=%s", s);
+  rc = os2fs_dos_FindFirst_call(&fs, s, phDir,
+                                flAttribute, &pFindBuf, &cbBuf,
+                                pcFileNames, ulInfolevel, &env);
+  LOG("*pcFileNames=%u", *pcFileNames);
+  LOG("pFindBuf=%x", pFindBuf);
+  LOG("cbBuf=%u", cbBuf);
+  LOG("filename=%s", ((FILEFINDBUF3 *)pFindBuf)->achName);
+  LOG("achname offset=%u", (ULONG)&(((PFILEFINDBUF3)pFindBuf)->achName) - (ULONG)pFindBuf);
+  LOG("rc=%u", rc);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalFindNext(HDIR  hDir,
+            PVOID pFindBuf,
+            ULONG cbBuf,
+            ULONG *pcFileNames)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hDir=%d", hDir);
+  LOG("pFindBuf=%x", pFindBuf);
+  LOG("cbBuf=%u", cbBuf);
+  rc = os2fs_dos_FindNext_call(&fs, hDir, &pFindBuf,
+                               &cbBuf, pcFileNames, &env);
+  LOG("*pcFileNames=%d", *pcFileNames);
+  LOG("pFindBuf=%x", pFindBuf);
+  LOG("cbBuf=%u", cbBuf);
+  LOG("filename=%s", ((FILEFINDBUF3 *)pFindBuf)->achName);
+  LOG("rc=%u", rc);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalFindClose(HDIR hDir)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hDir=%d", hDir);
+  rc = os2fs_dos_FindClose_call(&fs, hDir, &env);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalQueryFHState(HFILE hFile,
+                PULONG pMode)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hFile=%u", hFile);
+  rc = os2fs_dos_QueryFHState_call(&fs, hFile, pMode, &env);
+  LOG("*pMode=%x", *pMode);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalSetFHState(HFILE hFile,
+              ULONG pMode)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hFile=%u", hFile);
+  LOG("pMode=%x", pMode);
+  rc = os2fs_dos_SetFHState_call(&fs, hFile, pMode, &env);
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalQueryFileInfo(HFILE hf,
+                 ULONG ulInfoLevel,
+                 char *pInfo,
+                 ULONG cbInfoBuf)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hf=%x", hf);
+  LOG("ulInfoLevel=%u", ulInfoLevel);
+  rc = os2fs_dos_QueryFileInfo_call(&fs, hf, ulInfoLevel,
+                                    &pInfo, &cbInfoBuf, &env);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalQueryPathInfo(PSZ pszPathName,
+                 ULONG ulInfoLevel,
+                 PVOID pInfo,
+                 ULONG cbInfoBuf)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("pszPathName=%x", pszPathName);
+  LOG("ulInfoLevel=%u", ulInfoLevel);
+  rc = os2fs_dos_QueryPathInfo_call(&fs, pszPathName, ulInfoLevel,
+                                    &pInfo, &cbInfoBuf, &env);
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+KalSetFileSizeL(HFILE hFile,
+                long long cbSize)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("hFile=%x", hFile);
+  LOG("cbSize=%u", cbSize);
+  rc = os2fs_dos_SetFileSizeL_call(&fs, hFile, cbSize, &env);
+  STKOUT
+  return rc;
+}

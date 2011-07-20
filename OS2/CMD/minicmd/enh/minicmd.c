@@ -20,8 +20,6 @@ typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
 static logwrt_t DosLogWrite = 0;
 static char greeting[] = "MiniCMD. (C) osFree project.\r\n\r\n";
 
-void log(const char *fmt, ...);
-
 int QueryDriveReady( int drive )
 {
     char curdir[255];
@@ -142,7 +140,7 @@ BOOL parse_cmd(char *cmd)
     return TRUE;
   }
 
-  for (i=0;i<5;i++)
+  for (i=0;i<6;i++)
   {
     if (!strcmp(Argv[0], commands[i].cmdname))
     {

@@ -22,5 +22,8 @@ typedef struct
 int cmds_cmd(int argc, char **argv);
 int exit_cmd(int argc, char **argv);
 int chdir_cmd(int argc, char **argv);
+int dir_cmd(int argc, char **argv);
 
 extern BUILTIN commands[];
+
+void log(const char *fmt, ...);

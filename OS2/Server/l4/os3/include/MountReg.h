@@ -18,7 +18,7 @@ struct FSRouter {
     int srv_num_; /* Fritt nummer att lägga in enhetsserver på. */
 };
 
-
+int pathconv(char **converted, char *fname);
 
 void I_Fs_srv_init(I_Fs_srv_t *s); 
 

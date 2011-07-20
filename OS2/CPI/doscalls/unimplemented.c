@@ -435,11 +435,8 @@ APIRET APIENTRY  DosSetPathInfo(PCSZ    pszPathName,
 }
 
 
-APIRET APIENTRY  DosSetFHState(HFILE hFile,
-                               ULONG mode)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetFHState(HFILE hFile,
+//                               ULONG mode)
 
 
 APIRET APIENTRY  DosSetFSInfo(ULONG disknum,
@@ -451,13 +448,10 @@ APIRET APIENTRY  DosSetFSInfo(ULONG disknum,
 }
 
 
-APIRET APIENTRY  DosQueryPathInfo(PCSZ    pszPathName,
-                                  ULONG ulInfoLevel,
-                                  PVOID pInfoBuf,
-                                  ULONG cbInfoBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosQueryPathInfo(PCSZ    pszPathName,
+//                                  ULONG ulInfoLevel,
+//                                  PVOID pInfoBuf,
+//                                  ULONG cbInfoBuf)
 
 
 //APIRET APIENTRY  DosQueryHType(HFILE hFile,
@@ -682,31 +676,22 @@ APIRET APIENTRY  DosWaitNPipe(PCSZ  pszName,
 //                              PHFILE pHfile)
 
 
-APIRET APIENTRY  DosFindClose(HDIR hDir)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosFindClose(HDIR hDir)
 
 
-APIRET APIENTRY  DosFindFirst(PCSZ     pszFileSpec,
-                              PHDIR  phdir,
-                              ULONG  flAttribute,
-                              PVOID  pfindbuf,
-                              ULONG  cbBuf,
-                              PULONG pcFileNames,
-                              ULONG  ulInfoLevel)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosFindFirst(PCSZ     pszFileSpec,
+//                              PHDIR  phdir,
+//                              ULONG  flAttribute,
+//                              PVOID  pfindbuf,
+//                              ULONG  cbBuf,
+//                              PULONG pcFileNames,
+//                              ULONG  ulInfoLevel)
 
 
-APIRET APIENTRY  DosFindNext(HDIR   hDir,
-                             PVOID  pfindbuf,
-                             ULONG  cbfindbuf,
-                             PULONG pcFilenames)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosFindNext(HDIR   hDir,
+//                             PVOID  pfindbuf,
+//                             ULONG  cbfindbuf,
+//                             PULONG pcFilenames)
 
 
 APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
@@ -730,11 +715,8 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
 }
 
 
-APIRET APIENTRY  DosQueryFHState(HFILE hFile,
-                                 PULONG pMode)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosQueryFHState(HFILE hFile,
+//                                 PULONG pMode)
 
 
 APIRET APIENTRY  DosQueryFSAttach(PCSZ     pszDeviceName,
@@ -761,13 +743,10 @@ APIRET APIENTRY  DosQueryFSInfo(ULONG disknum,
 }
 
 
-APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
-                                  ULONG ulInfoLevel,
-                                  PVOID pInfo,
-                                  ULONG cbInfoBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
+//                                  ULONG ulInfoLevel,
+//                                  PVOID pInfo,
+//                                  ULONG cbInfoBuf)
 
 
 APIRET APIENTRY DosWaitChild(ULONG action,
@@ -2689,11 +2668,8 @@ APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
 //                                PLONGLONG ibActual)
 
 
-APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
-                                 LONGLONG cbSize)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
+//                                 LONGLONG cbSize)
 
 
 APIRET APIENTRY      DosSystemService(void)

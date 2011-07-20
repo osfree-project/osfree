@@ -99,4 +99,46 @@ KalSetMaxFH(ULONG cFH);
 APIRET CDECL
 KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH);
 
+APIRET CDECL
+KalFindFirst(char  *pszFileSpec,
+             HDIR  *phDir,
+             ULONG flAttribute,
+             PVOID pFindBuf,
+             ULONG cbBuf,
+             ULONG *pcFileNames,
+             ULONG ulInfolevel);
+
+APIRET CDECL
+KalFindNext(HDIR  hDir,
+            PVOID pFindBuf,
+            ULONG cbBuf,
+            ULONG *pcFileNames);
+
+APIRET CDECL
+KalFindClose(HDIR hDir);
+
+APIRET CDECL
+KalQueryFHState(HFILE hFile,
+                PULONG pMode);
+
+APIRET CDECL
+KalSetFHState(HFILE hFile,
+              ULONG pMode);
+
+APIRET CDECL
+KalQueryFileInfo(HFILE hf,
+                 ULONG ulInfoLevel,
+                 char *pInfo,
+                 ULONG cbInfoBuf);
+
+APIRET CDECL
+KalQueryPathInfo(PSZ pszPathName,
+                 ULONG ulInfoLevel,
+                 PVOID pInfo,
+                 ULONG cbInfoBuf);
+
+APIRET CDECL
+KalSetFileSizeL(HFILE hFile,
+                long long cbSize);
+
 #endif

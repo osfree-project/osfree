@@ -83,7 +83,15 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalDeleteDir        KAL.KalDeleteDir,   &
           _KalCreateDir        KAL.KalCreateDir,   &
           _KalSetMaxFH         KAL.KalSetMaxFH,    &
-          _KalSetRelMaxFH      KAL.KalSetRelMaxFH
+          _KalSetRelMaxFH      KAL.KalSetRelMaxFH, &
+          _KalFindFirst        KAL.KalFindFirst,   &
+          _KalFindNext         KAL.KalFindNext,    &
+          _KalFindClose        KAL.KalFindClose,   &
+          _KalQueryFHState     KAL.KalQueryFHState,  &
+          _KalSetFHState       KAL.KalSetFHState,    &
+          _KalQueryFileInfo    KAL.KalQueryFileInfo, &
+          _KalQueryPathInfo    KAL.KalQueryPathInfo, &
+          _KalSetFileSizeL     KAL.KalSetFileSizeL
 
 EXPORTS = &
         DosICreateThread           .1, &
@@ -619,7 +627,8 @@ EXPORTS = &
         DosISetPathInfo            .566, &
                                          &
         DosIFindNext               .569, &
-        DosSetFileSizeL            .570, &
+                                         &
+# ???        Dos16SetFileSizeL            .570
                                          &
         Dos32QueryResourceSize     .572, &
         DOS16QUERYRESOURCESIZE     .573, &

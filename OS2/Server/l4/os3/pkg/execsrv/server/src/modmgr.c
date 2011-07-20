@@ -388,23 +388,23 @@ unsigned long LoadModule(char *          pszName,
     if (!*phmod)
       return 6; /* ERROR_INVALID_HANDLE */
   
-    //if (!exeflag)
-    //{
-    //  LOG("already loaded, dll");
-      LOG("already loaded");
-    //  *phmod = (unsigned long)prev->module_struct;
+    if (!exeflag)
+    {
+      LOG("already loaded, dll");
+      *phmod = (unsigned long)prev->module_struct;
       return 0;
-    //}
-    //else
-    //{
-    //  /* get the last instance */
-    //  while (prev->up)
-    //    prev = prev->up;
+    }
+    else
+    {
+      /* get the last instance */
+      while (prev->up)
+        prev = prev->up;
 	
-    //  LOG("already loaded, exe");
-    //  *phmod = (unsigned long)prev->module_struct;
-    //  return 0;
-    //}
+      LOG("already loaded, exe");
+      *phmod = (unsigned long)prev->module_struct;
+      prev->load_status = DONE_LOADING;
+      return 0;
+    }
   }
  
   if ((t == 1) || (!t && prev->load_status != DONE_LOADING));
