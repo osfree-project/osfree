@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
+// Some macros for easy code reading
+#define VERBOSE (!strcmp(verbose, "-v"))
+
 void usage(void)
 {
   printf("usage: sc [-C:D:E:I:S:VU:cd:hi:m:prsvw] f1 f2 ...\n");
@@ -58,7 +61,7 @@ void usage(void)
   printf("                : add or no '*' to C bindings for interface references.\n");
 }
 
-void main(void)
+int main(int argc, char **argv)
 {
   char * emitters;
   char * tmpstr;
@@ -71,11 +74,25 @@ void main(void)
   char * smclasses;
   char * tmpdir;
   char * comment;
-  char * verbose;
-  char * somcpp;
-  char * somipc;
+  char * verbose;    // be verbose or not
+  char * somcpp;     // name of preprocessor
+  char * somipc;     // name of abstrach and object graph builder
+  char * sourcefile; // filename to compile
   long addstar;
 
+
+  int i;             // parameter counter
+  char str[280];
+
+
+  ////////////////////////////
+  // prepare working variables
+  ////////////////////////////
+
+  // initial source file
+  sourcefile="";
+
+  // list of emitters from environment or set default
   emitters=getenv("SMEMIT");
   if (!emitters) emitters="h;ih";
 
@@ -106,38 +123,43 @@ void main(void)
   verbose="";
   somcpp="somcpp.exe";
   somipc="somipc.exe";
+
+  // parse arguments
+  if(argc <= 1) {
+    printf("fatal error: No source file specified.\n");
+  }
+
+  for (i=1; i<argc; i++)
+  {
+    if ((!strcmp(argv[i], "-h"))||(!strcmp(argv[i], "-?")))
+    {
+      usage();
+      return(0);
+    } else
+    if (!strcmp(argv[i], "-v"))
+    {
+      verbose="-v";
+    } else
+    if (!strcmp(argv[i], "-c"))
+    {
+      comment="";
+    }
+  }
+
+  if VERBOSE printf("Running shell command:\n");
+
+  sprintf(str, "%s -D__OS2__  -I. -IC:\os2tk45\h -IC:\os2tk45\idl -IC:\os2tk45\som\include -D__SOMIDL_VERSION_1__  -D__SOMIDL__  %s %s> %s\\e8100000.CTN\n", somcpp, comment, sourcefile, tmpdir);
+  if VERBOSE printf(str);
+  system(str);
+
+  sprintf(str, "%s -mppfile=%s\\e8100000.CTN %s -e emith -e emitih -e emitctm -e emitc  -o somcls %s\n", somipc, tmpdir, verbose, sourcefile);
+  if VERBOSE printf(str);
+  system(str);
+
+  sprintf(str, "del /q %s\\e8100000.CTN\n", tmpdir);
+  if VERBOSE printf(str);
+  system(str);
+
+  if VERBOSE printf("Removed \"%s\\e8100000.CTN\"\n", tmpdir);
 }
 
-/*
-
-if arg() then
-  do i=1 to arg()
-    if pos('-', arg(i))>0 then
-    do
-      if arg(i)='-V' then
-        'bldlevel sc.exe'
-      else
-      if arg(i)='-c' then
-        comment=''
-      else
-      if arg(i)='-v' then
-        verbose='-v'
-      else
-      if arg(i)='-h' then
-        call usage;
-    end
-    else
-    do
-      if verbose='-v' then   printf("Running shell command:'
-      '@'||somcpp||' -D__OS2__  -I. -IC:\os2tk45\h -IC:\os2tk45\idl -IC:\os2tk45\som\include -D__SOMIDL_VERSION_1__  -D__SOMIDL__  '||comment||' '||arg(i)||' > '||tmpdir||'e8100000.CTN'
-      '@'||somipc||' -mppfile='||tmpdir||'e8100000.CTN    '||verbose||' -e emith -e emitih -e emitctm -e emitc  -o somcls '||arg(i)
-      if verbose='-v' then   printf("Removed "'||tmpdir||'e8100000.CTN".'
-      '@del /q '||tmpdir||'e8100000.CTN'
-    end
-  end
-else
-    printf("fatal error: No source file specified.'
-
-return
-
-*/
