@@ -1014,15 +1014,19 @@ KalFindFirst(char  *pszFileSpec,
   LOG("cbBuf=%u", cbBuf);
 
   /* if no path specified, add the current dir */
-  if (!strchr(pszFileSpec, '\\'))
+  if (pszFileSpec[1] != ':')
   {
     /* query current disk */
-    rc = os2server_dos_QueryCurrentDisk_call(&os2srv, &disk, &map, &env);    
+    rc = KalQueryCurrentDisk(&disk, &map);
     drv = disk - 1 + 'A';
   
-    /* query current dir  */
-    rc = KalQueryCurrentDir(0, buf, &len);
-    rc = KalQueryCurrentDir(0, buf, &len);
+    len = 0; buf[0] = '\0';
+    if (pszFileSpec[0] != '\\')
+    {
+      /* query current dir  */
+      rc = KalQueryCurrentDir(0, buf, &len);
+      rc = KalQueryCurrentDir(0, buf, &len);
+    }
 
     if (len + strlen(pszFileSpec) + 3 > 256)
       return ERROR_FILENAME_EXCED_RANGE;
@@ -1030,14 +1034,22 @@ KalFindFirst(char  *pszFileSpec,
     i = 0;
     str[i++] = drv;
     str[i++] = ':';
-    if (buf[0] != '\\') str[i++] = '\\';
-    strncpy(str + i, buf, len - 1);
-    if (str[len + 1] != '\\') 
+    str[i] = '\0';
+
+    if (pszFileSpec[0] != '\\') 
     {
-      str[len + i - 1] = '\\';
-      len++;
+      str[i++] = '\\';
+      str[i] = '\0';
+      strcat(str, buf);
+      
+      if (str[len + i - 2] != '\\') 
+      {
+        str[len + i - 1] = '\\';
+        len++;
+      }
+      str[len + i - 1] = '\0';
     }
-    str[len + i - 1] = '\0';
+
     s = strcat(str, pszFileSpec);
   }
   else

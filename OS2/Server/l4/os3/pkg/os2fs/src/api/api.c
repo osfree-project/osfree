@@ -1,7 +1,7 @@
 /*  file/directory API implementations
  *  (on the server side)
  */
- 
+
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/MountReg.h>
 
@@ -57,14 +57,14 @@ os2fs_dos_Read_component(CORBA_Object _dice_corba_obj,
   int  total = 1;
   filehandle_t *h;
   HFILE handle;
-  
+
   if (hFile != 0)
   {
     h = (filehandle_t *)hFile;
-    handle = h->hfile;    
+    handle = h->hfile;
   }
   else
-    handle = hFile;    
+    handle = hFile;
 
   nread = read(handle, (char *)*pBuffer, *count);
   if (nread == -1)
@@ -89,21 +89,21 @@ os2fs_dos_Write_component(CORBA_Object _dice_corba_obj,
                               HFILE handle, const char *pBuffer,
                               ULONG *count,
                               short *dice_reply,
-	 		      CORBA_Server_Environment *_dice_corba_env)
+                              CORBA_Server_Environment *_dice_corba_env)
 {
   char *s;
   int  nwritten;
   filehandle_t *h;
   HFILE hdl;
-  
+
   if (handle != 0 && handle != 1 && handle != 2)
   {
     h = (filehandle_t *)handle;
-    hdl = h->hfile;    
+    hdl = h->hfile;
   }
   else
-    hdl = handle;    
-  
+    hdl = handle;
+
   LOG("entered");
   nwritten = write(hdl, pBuffer, *count);
   LOG("in the middle");
@@ -143,15 +143,15 @@ os2fs_dos_SetFilePtrL_component (CORBA_Object _dice_corba_obj,
   struct stat stat;
   filehandle_t *h;
   HFILE hdl;
-  
+
   if (handle != 0 && handle != 1 && handle != 2)
   {
     h = (filehandle_t *)handle;
-    hdl = h->hfile;    
+    hdl = h->hfile;
   }
   else
-    hdl = handle;    
-  
+    hdl = handle;
+
   ret = fstat(hdl, &stat);
 
   if (ret == -1)
@@ -181,7 +181,7 @@ os2fs_dos_SetFilePtrL_component (CORBA_Object _dice_corba_obj,
     return 131; /* ERROR_NEGATIVE_SEEK */
 
   *ibActual = pos;
-    
+
   ret = lseek(hdl, pos, SEEK_SET);
 
   if (ret == -1)
@@ -198,25 +198,25 @@ os2fs_dos_Close_component (CORBA_Object _dice_corba_obj,
   int ret;
   filehandle_t *h;
   HFILE hdl;
-  
+
   if (handle != 0 && handle != 1 && handle != 2)
   {
     h = (filehandle_t *)handle;
-    hdl = h->hfile;    
+    hdl = h->hfile;
   }
   else
-    hdl = handle;    
-  
+    hdl = handle;
+
   ret = close(hdl);
-  
+
   if (ret == - 1)
   {
     if (errno == EBADF)
       return 6; /* ERROR_INVALID_HANDLE */
-      
+
     return 5; /* ERROR_ACCESS_DENIED */
   }
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -233,22 +233,22 @@ os2fs_dos_QueryHType_component (CORBA_Object _dice_corba_obj,
   struct stat stat;
   filehandle_t *h;
   HFILE hdl;
-  
+
   if (handle != 0 && handle != 1 && handle != 2)
   {
     h = (filehandle_t *)handle;
-    hdl = h->hfile;    
+    hdl = h->hfile;
   }
   else
-    hdl = handle;    
-  
+    hdl = handle;
+
   if (isatty(hdl))
   {
     *pType = 1; // character device
     *pAttr = 0;
     return 0;
   }
-  
+
   ret = fstat(hdl, &stat);
 
   if (ret == -1)
@@ -276,7 +276,7 @@ os2fs_dos_QueryHType_component (CORBA_Object _dice_corba_obj,
     *pAttr = 0;
     return 0;
   }
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -399,7 +399,7 @@ os2fs_dos_OpenL_component (CORBA_Object _dice_corba_obj,
 
     if (errno == EMFILE)
       return 4; /* ERROR_TOO_MANY_OPEN_FILES */
-      
+
     if (errno == ENOENT)
       return 2; /* ERROR_FILE_NOT_FOUND */
   }
@@ -419,7 +419,7 @@ os2fs_dos_OpenL_component (CORBA_Object _dice_corba_obj,
     else if (!file_existed)
       *pulAction = FILE_CREATED;
   }
-  
+
   h = (filehandle_t *)malloc(sizeof(filehandle_t));
   h->openmode = fsOpenMode;
   h->hfile = handle;
@@ -428,7 +428,7 @@ os2fs_dos_OpenL_component (CORBA_Object _dice_corba_obj,
 
   *phFile = (HFILE)h;
 
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -442,24 +442,24 @@ os2fs_dos_DupHandle_component (CORBA_Object _dice_corba_obj,
   HFILE handle, hdl;
   APIRET rc;
   filehandle_t *h, *h2;
-  
+
   if (hFile != 0 && hFile != 1 && hFile != 2)
   {
     h = (filehandle_t *)hFile;
-    hdl = h->hfile;    
+    hdl = h->hfile;
   }
   else
-    hdl = hFile;   
-  
+    hdl = hFile;
+
   if (*phFile2 == -1)
   {
     handle = dup(hdl);
-  
+
     if (handle == -1)
     {
       if (errno == EBADF)
         return 6; /* ERROR_INVALID_HANDLE */
-	
+
       if (errno == EMFILE)
         return 4; /* ERROR_TOO_MANY_OPEN_FILES */
     }
@@ -474,11 +474,11 @@ os2fs_dos_DupHandle_component (CORBA_Object _dice_corba_obj,
       if (errno == EBADF)
       {
         rc = fstat(hFile, &st);
-	
-	if (rc == -1)
-	  return 6;   /* ERROR_INVALID_HANDLE */
-	else
-	  return 114; /* ERROR_INVALID_TARGET_HANDLE */
+
+        if (rc == -1)
+          return 6;   /* ERROR_INVALID_HANDLE */
+        else
+          return 114; /* ERROR_INVALID_TARGET_HANDLE */
       }
       else if (errno == EMFILE)
         return 4; /* ERROR_TOO_MANY_OPEN_FILES */
@@ -491,7 +491,7 @@ os2fs_dos_DupHandle_component (CORBA_Object _dice_corba_obj,
   h2->openmode = h->openmode;
   h2->hfile = handle;
   *phFile2 = (HFILE)h2;
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -510,20 +510,20 @@ os2fs_dos_Delete_component (CORBA_Object _dice_corba_obj,
 
     if (errno == ENOTDIR)
       return 3; /* ERROR_PATH_NOT_FOUND */
-      
+
     if (errno == EISDIR)
       return 87; /* ERROR_INVALID_PARAMETER */
-      
+
     if (errno == ENOENT)
       return 2; /* ERROR_FILE_NOT_FOUND */
-      
+
     if (errno == EACCES)
       return 5; /* ERROR_ACCESS_DENIED */
-      
+
     if (errno == EPERM)
       return 32; /* ERROR_SHARING_VIOLATION */
    }
-   
+
    return 0; /* NO_ERROR */
 }
 
@@ -540,20 +540,20 @@ os2fs_dos_ForceDelete_component (CORBA_Object _dice_corba_obj,
 
     if (errno == ENOTDIR)
       return 3; /* ERROR_PATH_NOT_FOUND */
-      
+
     if (errno == EISDIR)
       return 87; /* ERROR_INVALID_PARAMETER */
-      
+
     if (errno == ENOENT)
       return 2; /* ERROR_FILE_NOT_FOUND */
-      
+
     if (errno == EACCES)
       return 5; /* ERROR_ACCESS_DENIED */
-      
+
     if (errno == EPERM)
       return 32; /* ERROR_SHARING_VIOLATION */
    }
-   
+
    return 0; /* NO_ERROR */
 }
 
@@ -567,26 +567,26 @@ os2fs_dos_DeleteDir_component (CORBA_Object _dice_corba_obj,
   {
     if (errno == ENAMETOOLONG)
       return 206; /* ERROR_FILENAME_EXCED_RANGE */
-      
+
     if (errno == ENOTDIR)
       return 3; /* ERROR_PATH_NOT_FOUND */
-      
+
     if (errno == ENOENT)
       return 2; /* ERROR_FILE_NOT_FOUND */
-      
+
     if (errno == EACCES)
       return 5; /* ERROR_ACCESS_DENIED */
-      
+
     if (errno == EPERM)
       return 32; /* ERROR_SHARING_VIOLATION */
-    
+
     if (errno == EBUSY)
       return 16; /* ERROR_CURRENT_DIRECTORY */
-      
+
     if (errno)
       return 5; /* ERROR_ACCESS_DENIED */
   }
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -598,28 +598,28 @@ os2fs_dos_CreateDir_component (CORBA_Object _dice_corba_obj,
                                CORBA_Server_Environment *_dice_corba_env)
 {
   EAOP2 eaop2;
-  
+
   if (peaop2 == NULL)
     peaop2 = &eaop2;
-  
+
   if (mkdir(pszDirName, 0) == -1)
   {
     if (errno == ENAMETOOLONG)
       return 206; /* ERROR_FILENAME_EXCED_RANGE */
-      
+
     if (errno == ENOTDIR)
       return 3; /* ERROR_PATH_NOT_FOUND */
-    
+
     if (errno == EACCES)
       return 5; /* ERROR_ACCESS_DENIED */
-      
+
     if (errno == EPERM)
       return 32; /* ERROR_SHARING_VIOLATION */
 
     if (errno)
       return 5; /* ERROR_ACCESS_DENIED */
   }
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -636,6 +636,7 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
                                CORBA_Server_Environment *_dice_corba_env)
 {
   CORBA_Environment env = dice_default_environment;
+  char path[256];
   int   len = 0;
   filefindstruc_t *hdir;
   struct stat statbuf;
@@ -643,13 +644,14 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
   char *s, *t, *p;
   char *fname;
   int  rc, i, j;
+  ULONG disk, logical;
 
   // no support for EA's for now
   if (ulInfolevel != FIL_STANDARD)
     return ERROR_INVALID_LEVEL;
-    
+
   // check for buffer overflow, and whether it is <= 64k
-  if (*cbBuf == 0 || *cbBuf > 0x10000 || 
+  if (*cbBuf == 0 || *cbBuf > 0x10000 ||
       *pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
     return ERROR_BUFFER_OVERFLOW;
 
@@ -661,9 +663,7 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
     return ERROR_INVALID_HANDLE;
 
   hdir->attr = flAttribute;
-
-  if (hdir->ctr == hdir->g.gl_pathc)
-    return ERROR_NO_MORE_FILES;
+  hdir->ctr  = 0;
 
   if (strlen(pszFileSpec) > 255)
     return ERROR_FILENAME_EXCED_RANGE;
@@ -674,10 +674,10 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
   // check for filename length overflow
   if (strlen(t) > 255)
     return ERROR_META_EXPANSION_TOO_LONG;
-    
+
   // perform the search
   glob(t, 0, NULL, &hdir->g);
-  
+
   for (i = 0, j = 0; j < *pcFileNames && i < hdir->g.gl_pathc; i++)
   {
     if (j + 1 == *pcFileNames)
@@ -693,27 +693,27 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
     rc = stat(fname, &statbuf);
 
     // must have flags
-    if ((hdir->attr & MUST_HAVE_ARCHIVED) && 
+    if ((hdir->attr & MUST_HAVE_ARCHIVED) &&
         (!(hdir->attr & FILE_ARCHIVED) || !(statbuf.st_mode & S_IARCHIVED)) &&
          ((hdir->attr & FILE_ARCHIVED) || (statbuf.st_mode & S_IARCHIVED)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_DIRECTORY) && 
+    if ((hdir->attr & MUST_HAVE_DIRECTORY) &&
         (!(hdir->attr & FILE_DIRECTORY) || !(statbuf.st_mode & S_IDIRECTORY)) &&
          ((hdir->attr & FILE_DIRECTORY) || (statbuf.st_mode & S_IDIRECTORY)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_SYSTEM) && 
+    if ((hdir->attr & MUST_HAVE_SYSTEM) &&
         (!(hdir->attr & FILE_SYSTEM) || !(statbuf.st_mode & S_ISYSTEM)) &&
          ((hdir->attr & FILE_SYSTEM) || (statbuf.st_mode & S_ISYSTEM)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_HIDDEN) && 
+    if ((hdir->attr & MUST_HAVE_HIDDEN) &&
         (!(hdir->attr & FILE_HIDDEN) || !(statbuf.st_mode & S_IHIDDEN)) &&
          ((hdir->attr & FILE_HIDDEN) || (statbuf.st_mode & S_IHIDDEN)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_READONLY) && 
+    if ((hdir->attr & MUST_HAVE_READONLY) &&
         (!(hdir->attr & FILE_READONLY) || !(statbuf.st_mode & S_IREADONLY)) &&
          ((hdir->attr & FILE_READONLY) || (statbuf.st_mode & S_IREADONLY)))
       continue;
@@ -722,23 +722,23 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
     {
       switch (rc)
       {
-	 case EACCES:
-	   return ERROR_ACCESS_DENIED;
-	 case ENAMETOOLONG:
-	   return ERROR_FILENAME_EXCED_RANGE;
-	 case ENOTDIR:
-	   return ERROR_PATH_NOT_FOUND;
+         case EACCES:
+           return ERROR_ACCESS_DENIED;
+         case ENAMETOOLONG:
+           return ERROR_FILENAME_EXCED_RANGE;
+         case ENOTDIR:
+           return ERROR_PATH_NOT_FOUND;
          case ENOENT:
-	   return ERROR_FILE_NOT_FOUND;
+           return ERROR_FILE_NOT_FOUND;
          case ENOMEM:
-	   return ERROR_NOT_ENOUGH_MEMORY;
-	 default:
-	   return ERROR_INVALID_PARAMETER;
+           return ERROR_NOT_ENOUGH_MEMORY;
+         default:
+           return ERROR_INVALID_PARAMETER;
       }
     }
-    
+
     localtime_r(&statbuf.st_ctime, &tt);
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year  = tt.tm_year - 80;
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month = tt.tm_mon  + 1;
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day   = tt.tm_mday;
@@ -766,38 +766,38 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours   = tt.tm_hour;
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes = tt.tm_min;
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs = tt.tm_sec / 2;
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->attrFile = 0;
-    
+
     if (statbuf.st_mode & S_IREADONLY)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_READONLY;
 
     if (statbuf.st_mode & S_IHIDDEN)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_HIDDEN;
-    
+
     if (statbuf.st_mode & S_ISYSTEM)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_SYSTEM;
-    
+
     if (statbuf.st_mode & S_IDIRECTORY)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_DIRECTORY;
 
     if (statbuf.st_mode & S_IARCHIVED)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_ARCHIVED;
-    
+
     // search for the last slash
     for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
     if (*p == '/') p++;
 
     ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p) + 1;
     strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->cbFile = statbuf.st_size;
     ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc = statbuf.st_blksize * statbuf.st_blocks;
 
     *pFindBuf += sizeof(FILEFINDBUF3);
     j++;
   }
-    
+
   *cbBuf = j * sizeof(FILEFINDBUF3);
   *pFindBuf    -= *cbBuf;
   *pcFileNames = (ULONG)j;
@@ -807,8 +807,8 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
     *phDir = HDIR_SYSTEM;
   else
     *phDir = (HDIR)hdir;
-  
- 
+
+
   return NO_ERROR;
 }
 
@@ -830,7 +830,7 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
   hdir = (filefindstruc_t *)(hDir);
 
   // check for buffer overflow, and whether it is <= 64k
-  if (*cbBuf == 0 || *cbBuf > 0x10000 || 
+  if (*cbBuf == 0 || *cbBuf > 0x10000 ||
       *pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
     return ERROR_BUFFER_OVERFLOW;
 
@@ -852,27 +852,27 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
     rc = stat(fname, &statbuf);
 
     // must have flags
-    if ((hdir->attr & MUST_HAVE_ARCHIVED) && 
+    if ((hdir->attr & MUST_HAVE_ARCHIVED) &&
         (!(hdir->attr & FILE_ARCHIVED) || !(statbuf.st_mode & S_IARCHIVED)) &&
          ((hdir->attr & FILE_ARCHIVED) || (statbuf.st_mode & S_IARCHIVED)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_DIRECTORY) && 
+    if ((hdir->attr & MUST_HAVE_DIRECTORY) &&
         (!(hdir->attr & FILE_DIRECTORY) || !(statbuf.st_mode & S_IDIRECTORY)) &&
          ((hdir->attr & FILE_DIRECTORY) || (statbuf.st_mode & S_IDIRECTORY)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_SYSTEM) && 
+    if ((hdir->attr & MUST_HAVE_SYSTEM) &&
         (!(hdir->attr & FILE_SYSTEM) || !(statbuf.st_mode & S_ISYSTEM)) &&
          ((hdir->attr & FILE_SYSTEM) || (statbuf.st_mode & S_ISYSTEM)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_HIDDEN) && 
+    if ((hdir->attr & MUST_HAVE_HIDDEN) &&
         (!(hdir->attr & FILE_HIDDEN) || !(statbuf.st_mode & S_IHIDDEN)) &&
          ((hdir->attr & FILE_HIDDEN) || (statbuf.st_mode & S_IHIDDEN)))
       continue;
 
-    if ((hdir->attr & MUST_HAVE_READONLY) && 
+    if ((hdir->attr & MUST_HAVE_READONLY) &&
         (!(hdir->attr & FILE_READONLY) || !(statbuf.st_mode & S_IREADONLY)) &&
          ((hdir->attr & FILE_READONLY) || (statbuf.st_mode & S_IREADONLY)))
       continue;
@@ -881,23 +881,23 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
     {
       switch (rc)
       {
-	 case EACCES:
-	   return ERROR_ACCESS_DENIED;
-	 case ENAMETOOLONG:
-	   return ERROR_FILENAME_EXCED_RANGE;
-	 case ENOTDIR:
-	   return ERROR_PATH_NOT_FOUND;
+         case EACCES:
+           return ERROR_ACCESS_DENIED;
+         case ENAMETOOLONG:
+           return ERROR_FILENAME_EXCED_RANGE;
+         case ENOTDIR:
+           return ERROR_PATH_NOT_FOUND;
          case ENOENT:
-	   return ERROR_FILE_NOT_FOUND;
+           return ERROR_FILE_NOT_FOUND;
          case ENOMEM:
-	   return ERROR_NOT_ENOUGH_MEMORY;
-	 default:
-	   return ERROR_INVALID_PARAMETER;
+           return ERROR_NOT_ENOUGH_MEMORY;
+         default:
+           return ERROR_INVALID_PARAMETER;
       }
     }
 
     localtime_r(&statbuf.st_ctime, &tt);
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year  = tt.tm_year - 80;
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month = tt.tm_mon  + 1;
     ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day   = tt.tm_mday;
@@ -925,18 +925,18 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours   = tt.tm_hour;
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes = tt.tm_min;
     ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs = tt.tm_sec / 2;
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->attrFile = 0;
-    
+
     if (statbuf.st_mode & S_IREADONLY)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_READONLY;
 
     if (statbuf.st_mode & S_IHIDDEN)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_HIDDEN;
-    
+
     if (statbuf.st_mode & S_ISYSTEM)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_SYSTEM;
-    
+
     if (statbuf.st_mode & S_IDIRECTORY)
       ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_DIRECTORY;
 
@@ -946,13 +946,13 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
     // search for the last slash
     for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
     if (*p == '/') p++;
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p) + 1;
     strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
-    
+
     ((PFILEFINDBUF3)*pFindBuf)->cbFile = statbuf.st_size;
     ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc = statbuf.st_blksize * statbuf.st_blocks;
-      
+
     *pFindBuf += sizeof(FILEFINDBUF3);
     k++;
   }
@@ -979,15 +979,10 @@ os2fs_dos_FindClose_component (CORBA_Object _dice_corba_obj,
 {
   filefindstruc_t *hdir;
 
-  if (hDir == HDIR_SYSTEM)
-    hdir = &thehdir;
-  else if (hDir == HDIR_CREATE)
-    hdir = (glob_t *)(hDir);
-  else
-    return ERROR_INVALID_HANDLE;
+  hdir = (filefindstruc_t *)hDir;
 
-  globfree(&hdir->g);  
-  
+  globfree(&hdir->g);
+
   if (hdir != &thehdir)
     free(hdir);
 
@@ -997,9 +992,9 @@ os2fs_dos_FindClose_component (CORBA_Object _dice_corba_obj,
 
 APIRET DICE_CV
 os2fs_dos_QueryFHState_component(CORBA_Object _dice_corba_obj,
-                                 HFILE hFile, 
-		                 PULONG pMode,
-		                 CORBA_Server_Environment *_dice_corba_env)
+                                 HFILE hFile,
+                                 PULONG pMode,
+                                 CORBA_Server_Environment *_dice_corba_env)
 {
   filehandle_t *h;
 
@@ -1010,7 +1005,7 @@ os2fs_dos_QueryFHState_component(CORBA_Object _dice_corba_obj,
     h = (filehandle_t *)hFile;
     *pMode = h->openmode;
   }
-  
+
   return NO_ERROR;
 }
 
@@ -1024,25 +1019,25 @@ os2fs_dos_SetFHState_component (CORBA_Object _dice_corba_obj,
   filehandle_t *h;
   int mode;
   int rc;
-  
+
   if (hFile != 0 && hFile != 1 && hFile != 2) // stdin/stdout/stderr
   {
     h = (filehandle_t *)hFile;
     mode = h->openmode;
-    
+
     if (pMode & OPEN_FLAGS_WRITE_THROUGH)
       mode |= O_SYNC;
 
     if (pMode & OPEN_ACTION_REPLACE_IF_EXISTS)
       mode |= O_TRUNC;
-      
+
     if (pMode & OPEN_ACCESS_READONLY)
       mode |= O_RDONLY;
     else if (pMode & OPEN_ACCESS_WRITEONLY)
       mode |= O_WRONLY;
     else
       mode |= O_RDWR;
-  
+
     rc = fcntl(h->hfile, F_SETFL, mode);
 
     if (rc)
@@ -1086,37 +1081,37 @@ os2fs_dos_QueryFileInfo_component (CORBA_Object _dice_corba_obj,
     /* get the file status */
     pfh = (filehandle_t *)hf;
     rc = fstat(pfh->hfile, &buf);
-    if (rc == -1) 
+    if (rc == -1)
     {
         switch (errno)
-	{
+        {
         case EBADF:
           return ERROR_INVALID_HANDLE;
         default:
           return ERROR_ACCESS_DENIED;
         }
     }
-    
+
     localtime_r(&buf.st_ctime, &brokentime);
-    
+
     ((PFILESTATUS3)*pInfo)->fdateCreation.day = (UINT)brokentime.tm_mday;
     ((PFILESTATUS3)*pInfo)->fdateCreation.month = (UINT)brokentime.tm_mon + 1;
     ((PFILESTATUS3)*pInfo)->fdateCreation.year = (UINT)brokentime.tm_year - 80;
     ((PFILESTATUS3)*pInfo)->ftimeCreation.twosecs = (USHORT)brokentime.tm_sec / 2;
     ((PFILESTATUS3)*pInfo)->ftimeCreation.minutes = (USHORT)brokentime.tm_min;
     ((PFILESTATUS3)*pInfo)->ftimeCreation.hours = (USHORT)brokentime.tm_hour;
-    
+
     localtime_r(&buf.st_atime, &brokentime);
-    
+
     ((PFILESTATUS3)*pInfo)->fdateLastAccess.day = (UINT)brokentime.tm_mday;
     ((PFILESTATUS3)*pInfo)->fdateLastAccess.month = (UINT)brokentime.tm_mon + 1;
     ((PFILESTATUS3)*pInfo)->fdateLastAccess.year = (UINT)brokentime.tm_year - 80;
     ((PFILESTATUS3)*pInfo)->ftimeLastAccess.twosecs = (USHORT)brokentime.tm_sec / 2;
     ((PFILESTATUS3)*pInfo)->ftimeLastAccess.minutes = (USHORT)brokentime.tm_min;
     ((PFILESTATUS3)*pInfo)->ftimeLastAccess.hours = (USHORT)brokentime.tm_hour;
-    
+
     localtime_r(&buf.st_mtime, &brokentime);
-    
+
     ((PFILESTATUS3)*pInfo)->fdateLastWrite.day = (UINT)brokentime.tm_mday;
     ((PFILESTATUS3)*pInfo)->fdateLastWrite.month = (UINT)brokentime.tm_mon + 1;
     ((PFILESTATUS3)*pInfo)->fdateLastWrite.year = (UINT)brokentime.tm_year - 80;
@@ -1160,25 +1155,25 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
         if (pszNewName == NULL)
           return ERROR_SHARING_BUFFER_EXCEEDED;
 
-	pathconv(&pszNewName, pszPathName);
-        
-	/* get the file status */
+        pathconv(&pszNewName, pszPathName);
+
+        /* get the file status */
         rc = stat(pszNewName, &buf);
 
         if (rc == -1)
-	{
+        {
             switch (errno)
-	    {
+            {
             case EBADF:
               return ERROR_INVALID_HANDLE;
             default:
               return ERROR_ACCESS_DENIED;
             }
         }
-        
-	localtime_r(&buf.st_ctime, &brokentime);
-        
-	((PFILESTATUS3)*pInfo)->fdateCreation.day = (UINT)brokentime.tm_mday;
+
+        localtime_r(&buf.st_ctime, &brokentime);
+
+        ((PFILESTATUS3)*pInfo)->fdateCreation.day = (UINT)brokentime.tm_mday;
         ((PFILESTATUS3)*pInfo)->fdateCreation.month =
             (UINT)brokentime.tm_mon + 1;
         ((PFILESTATUS3)*pInfo)->fdateCreation.year =
@@ -1189,10 +1184,10 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
             (USHORT)brokentime.tm_min;
         ((PFILESTATUS3)*pInfo)->ftimeCreation.hours =
             (USHORT)brokentime.tm_hour;
-        
-	localtime_r(&buf.st_atime, &brokentime);
-        
-	((PFILESTATUS3)*pInfo)->fdateLastAccess.day = (UINT)brokentime.tm_mday;
+
+        localtime_r(&buf.st_atime, &brokentime);
+
+        ((PFILESTATUS3)*pInfo)->fdateLastAccess.day = (UINT)brokentime.tm_mday;
         ((PFILESTATUS3)*pInfo)->fdateLastAccess.month =
             (UINT)brokentime.tm_mon + 1;
         ((PFILESTATUS3)*pInfo)->fdateLastAccess.year =
@@ -1203,10 +1198,10 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
             (USHORT)brokentime.tm_min;
         ((PFILESTATUS3)*pInfo)->ftimeLastAccess.hours =
             (USHORT)brokentime.tm_hour;
-        
-	localtime_r(&buf.st_mtime, &brokentime);
-        
-	((PFILESTATUS3)*pInfo)->fdateLastWrite.day = (UINT)brokentime.tm_mday;
+
+        localtime_r(&buf.st_mtime, &brokentime);
+
+        ((PFILESTATUS3)*pInfo)->fdateLastWrite.day = (UINT)brokentime.tm_mday;
         ((PFILESTATUS3)*pInfo)->fdateLastWrite.month =
             (UINT)brokentime.tm_mon + 1;
         ((PFILESTATUS3)*pInfo)->fdateLastWrite.year =
@@ -1248,7 +1243,7 @@ os2fs_dos_ResetBuffer_component (CORBA_Object _dice_corba_obj,
   //if (strcmp(pfh->id, "FIL") == 0)
   {
     rc = fsync(pfh->hfile);
-    
+
     if (rc == -1) {
       switch (errno)
       {
@@ -1306,8 +1301,8 @@ os2fs_dos_SetFileSizeL_component (CORBA_Object _dice_corba_obj,
 }
 
 
-/* 1) no EA support yet :( 
- * 2) only times are changed 
+/* 1) no EA support yet :(
+ * 2) only times are changed
  */
 APIRET DICE_CV
 os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
@@ -1329,27 +1324,27 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
 
   pfh = (filehandle_t *)hf;
   mode = pfh->openmode;
-  
+
   if (!(mode & OPEN_ACCESS_READWRITE))
     return ERROR_ACCESS_DENIED;
-    
+
   if (!(mode & OPEN_SHARE_DENYREADWRITE))
     return ERROR_ACCESS_DENIED;
-    
+
   if (ulInfoLevel != FIL_STANDARD)
     return ERROR_INVALID_LEVEL;
-    
+
   /* check args */
   if (*cbInfoBuf < sizeof(FILESTATUS3))
     return ERROR_BUFFER_OVERFLOW;
 
   rc = fstat(pfh->hfile, &buf);
-  
+
   if (rc)
     return ERROR_INVALID_HANDLE;
 
   localtime_r(buf.st_atime, &brokentime);
-    
+
   if (((PFILESTATUS3)*pInfoBuf)->fdateLastAccess.day)
     brokentime.tm_mday = ((PFILESTATUS3)*pInfoBuf)->fdateLastAccess.day;
 
@@ -1358,7 +1353,7 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
 
   if (((PFILESTATUS3)*pInfoBuf)->fdateLastAccess.year)
     brokentime.tm_year = ((PFILESTATUS3)*pInfoBuf)->fdateLastAccess.year - 1900;
-  
+
   if (((PFILESTATUS3)*pInfoBuf)->ftimeLastAccess.twosecs)
     brokentime.tm_sec = ((PFILESTATUS3)*pInfoBuf)->ftimeLastAccess.twosecs * 2;
 
@@ -1372,7 +1367,7 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
   tv[0].tv_usec = 0;
 
   localtime_r(buf.st_mtime, &brokentime);
-    
+
   if (((PFILESTATUS3)*pInfoBuf)->fdateLastWrite.day)
     brokentime.tm_mday = ((PFILESTATUS3)*pInfoBuf)->fdateLastWrite.day;
 
@@ -1381,7 +1376,7 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
 
   if (((PFILESTATUS3)*pInfoBuf)->fdateLastWrite.year)
     brokentime.tm_year = ((PFILESTATUS3)*pInfoBuf)->fdateLastWrite.year - 1900;
-  
+
   if (((PFILESTATUS3)*pInfoBuf)->ftimeLastWrite.twosecs)
     brokentime.tm_sec = ((PFILESTATUS3)*pInfoBuf)->ftimeLastWrite.twosecs * 2;
 
@@ -1393,11 +1388,11 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
 
   tv[1].tv_sec  = timelocal(&brokentime);
   tv[1].tv_usec = 0;
-  
+
   if (hf != 0 && hf != 1 && hf != 2)
   {
     rc = utimes(pfh->filename, tv);
-    
+
     if (rc)
     {
       switch (rc)
@@ -1410,7 +1405,7 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
     }
   }
 #endif
-  
+
   return NO_ERROR;
 }
 
