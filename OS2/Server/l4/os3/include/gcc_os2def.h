@@ -787,6 +787,25 @@ typedef struct _COUNTRYCODE {
   ULONG codepage;
 } COUNTRYCODE, *PCOUNTRYCODE;
 
+// DOS-style file attributes mapping to POSIX attributes
+#define S_IREADONLY      (S_IREAD & ~S_IWRITE)
+#define S_IHIDDEN        0x20000000
+#define S_ISYSTEM        0x40000000
+#define S_IDIRECTORY     (S_IFDIR)
+#define S_IARCHIVED      0x80000000
+
+#define FILE_READONLY   0x00000001
+#define FILE_HIDDEN     0x00000002
+#define FILE_SYSTEM     0x00000004
+#define FILE_DIRECTORY  0x00000100
+#define FILE_ARCHIVED   0x00000200
+
+#define MUST_HAVE_READONLY   0x00000100
+#define MUST_HAVE_HIDDEN     0x00000200
+#define MUST_HAVE_SYSTEM     0x00000400
+#define MUST_HAVE_DIRECTORY  0x00001000
+#define MUST_HAVE_ARCHIVED   0x00002000
+
 #define FIL_STANDARD           1
 #define FIL_QUERYEASIZE        2
 #define FIL_QUERYEASFROMLIST   3

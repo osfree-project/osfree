@@ -34,10 +34,14 @@ typedef struct
   char filename[256];
 } filehandle_t;
 
-// glob_t 
-static glob_t thehdir;
-// counter
-static int ctr = 0;
+typedef struct
+{
+  glob_t g;
+  int ctr;
+  int attr;
+} filefindstruc_t;
+
+static filefindstruc_t thehdir;
 
 int pathconv(char **converted, char *fname);
 
@@ -619,47 +623,6 @@ os2fs_dos_CreateDir_component (CORBA_Object _dice_corba_obj,
   return 0; /* NO_ERROR */
 }
 
-/* The next three functions were borrowed from os2linux
- * added by valerius, Jul 13, 2011  
- */
-/*-- C -----------------------------------------------------------------------*/
-/*                                                                            */
-/* Module:      filemgr.c                                                     */
-/*                                                                            */
-/* Description: This file includes the code to support the file manager.      */
-/*                                                                            */
-/* Copyright (C) IBM Corporation 2003. All Rights Reserved.                   */
-/* Copyright (C) W. David Ashley 2004-2010. All Rights Reserved.              */
-/*                                                                            */
-/* This program and the accompanying materials are made available under       */
-/* the terms of the Common Public License v1.0 which accompanies this         */
-/* distribution. A copy is also available at the following address:           */
-/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
-/*                                                                            */
-/* Redistribution and use in source and binary forms, with or                 */
-/* without modification, are permitted provided that the following            */
-/* conditions are met:                                                        */
-/*                                                                            */
-/* Redistributions of source code must retain the above copyright             */
-/* notice, this list of conditions and the following disclaimer.              */
-/* Redistributions in binary form must reproduce the above copyright          */
-/* notice, this list of conditions and the following disclaimer in            */
-/* the documentation and/or other materials provided with the distribution.   */
-/*                                                                            */
-/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS        */
-/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT          */
-/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS          */
-/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   */
-/* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,      */
-/* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
-/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,        */
-/* OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY     */
-/* OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING    */
-/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
-/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
-/*                                                                            */
-/*----------------------------------------------------------------------------*/
-
 
 APIRET DICE_CV
 os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
@@ -674,160 +637,178 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
 {
   CORBA_Environment env = dice_default_environment;
   int   len = 0;
-  glob_t *hdir;
+  filefindstruc_t *hdir;
   struct stat statbuf;
   struct tm tt;
   char *s, *t, *p;
   char *fname;
-  int  rc, i;
+  int  rc, i, j;
 
-  // No support for EA's for the 1st time
+  // no support for EA's for now
   if (ulInfolevel != FIL_STANDARD)
-  {
-    LOG("ulInfolevel=%d", ulInfolevel);
-    return ERROR_INVALID_PARAMETER;
-  }
+    return ERROR_INVALID_LEVEL;
     
-  if (*cbBuf == 0)
-    return ERROR_BUFFER_OVERFLOW;
-    
-  if (*pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
+  // check for buffer overflow, and whether it is <= 64k
+  if (*cbBuf == 0 || *cbBuf > 0x10000 || 
+      *pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
     return ERROR_BUFFER_OVERFLOW;
 
-  /* convert the filespec to PN format */
-  s = strdup(pszFileSpec);
-  //LOG("s=%s", s);
-  rc = pathconv(&t, s);
-  //DosNameConversion(s);
-  LOG("rc=%u", rc);
-  LOG("t=%s", t);
-  
   if (*phDir == HDIR_SYSTEM)
     hdir = &thehdir;
   else if (*phDir == HDIR_CREATE)
-    hdir = malloc(sizeof(glob_t));
+    hdir = (filefindstruc_t *)malloc(sizeof(filefindstruc_t));
   else
-  {
-    LOG("*phDir=%d", *phDir);
-    return ERROR_INVALID_PARAMETER;
-  }
-    
-  /* perform the search */    
-  hdir->gl_offs = 0;
-  rc = glob(t, 0, NULL, hdir);
-  free(t);
+    return ERROR_INVALID_HANDLE;
 
-  LOG("rc=%x", rc);
-  
-  if (rc)
-  {
-    if (*phDir == HDIR_CREATE)
-      free(hdir);
-      
-    switch (rc)
-    {
-    case GLOB_ABORTED:
-      return ERROR_NO_MORE_SEARCH_HANDLES;
-    case GLOB_NOSPACE:
-      return ERROR_NOT_ENOUGH_MEMORY;
-    default:
-      return ERROR_FILE_NOT_FOUND;
-    }
-  }
-  
-  /* fill the FindBuf */
-  for (i = 0; i < *pcFileNames; i++, *pFindBuf += sizeof(FILEFINDBUF3))
-  {
-    if (i == hdir->gl_pathc)
-      break;
+  hdir->attr = flAttribute;
+
+  if (hdir->ctr == hdir->g.gl_pathc)
+    return ERROR_NO_MORE_FILES;
+
+  if (strlen(pszFileSpec) > 255)
+    return ERROR_FILENAME_EXCED_RANGE;
+
+  // convert the pathname from OS/2 style to PN one
+  pathconv(&t, pszFileSpec);
+
+  // check for filename length overflow
+  if (strlen(t) > 255)
+    return ERROR_META_EXPANSION_TOO_LONG;
     
-    if (i == *pcFileNames)
+  // perform the search
+  glob(t, 0, NULL, &hdir->g);
+  
+  for (i = 0, j = 0; j < *pcFileNames && i < hdir->g.gl_pathc; i++)
+  {
+    if (j + 1 == *pcFileNames)
       ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = 0;
     else
       ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = sizeof(FILEFINDBUF3);
 
-    fname = hdir->gl_pathv[i];
-    // search for the last slash
-    for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
-    if (*p == '/') p++;
+    fname = hdir->g.gl_pathv[i];
+
+    if (strlen(fname) > 255)
+      return ERROR_FILENAME_EXCED_RANGE;
+
+    rc = stat(fname, &statbuf);
+
+    // must have flags
+    if ((hdir->attr & MUST_HAVE_ARCHIVED) && 
+        (!(hdir->attr & FILE_ARCHIVED) || !(statbuf.st_mode & S_IARCHIVED)) &&
+         ((hdir->attr & FILE_ARCHIVED) || (statbuf.st_mode & S_IARCHIVED)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_DIRECTORY) && 
+        (!(hdir->attr & FILE_DIRECTORY) || !(statbuf.st_mode & S_IDIRECTORY)) &&
+         ((hdir->attr & FILE_DIRECTORY) || (statbuf.st_mode & S_IDIRECTORY)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_SYSTEM) && 
+        (!(hdir->attr & FILE_SYSTEM) || !(statbuf.st_mode & S_ISYSTEM)) &&
+         ((hdir->attr & FILE_SYSTEM) || (statbuf.st_mode & S_ISYSTEM)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_HIDDEN) && 
+        (!(hdir->attr & FILE_HIDDEN) || !(statbuf.st_mode & S_IHIDDEN)) &&
+         ((hdir->attr & FILE_HIDDEN) || (statbuf.st_mode & S_IHIDDEN)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_READONLY) && 
+        (!(hdir->attr & FILE_READONLY) || !(statbuf.st_mode & S_IREADONLY)) &&
+         ((hdir->attr & FILE_READONLY) || (statbuf.st_mode & S_IREADONLY)))
+      continue;
+
+    if (rc)
+    {
+      switch (rc)
+      {
+	 case EACCES:
+	   return ERROR_ACCESS_DENIED;
+	 case ENAMETOOLONG:
+	   return ERROR_FILENAME_EXCED_RANGE;
+	 case ENOTDIR:
+	   return ERROR_PATH_NOT_FOUND;
+         case ENOENT:
+	   return ERROR_FILE_NOT_FOUND;
+         case ENOMEM:
+	   return ERROR_NOT_ENOUGH_MEMORY;
+	 default:
+	   return ERROR_INVALID_PARAMETER;
+      }
+    }
     
-    ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p);
-    strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
-    
-    LOG("filename=%s", hdir->gl_pathv[i]);
-    
-    /* get file info by stat'ing it */
-    rc = stat(hdir->gl_pathv[i], &statbuf);
     localtime_r(&statbuf.st_ctime, &tt);
     
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.hours =
-        (USHORT)tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day   = tt.tm_mday;
+
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.twosecs = tt.tm_sec / 2;
 
     localtime_r(&statbuf.st_atime, &tt);
 
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.hours =
-        (USHORT)tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.day   = tt.tm_mday;
+
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.twosecs = tt.tm_sec / 2;
 
     localtime_r(&statbuf.st_mtime, &tt);
 
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours =
-        (USHORT)tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.day   = tt.tm_mday;
 
-    ((PFILEFINDBUF3)*pFindBuf)->cbFile = (ULONG)statbuf.st_size;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs = tt.tm_sec / 2;
+    
+    ((PFILEFINDBUF3)*pFindBuf)->attrFile = 0;
+    
+    if (statbuf.st_mode & S_IREADONLY)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_READONLY;
 
-    ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc =
-        (ULONG)(statbuf.st_blksize * statbuf.st_blocks);
+    if (statbuf.st_mode & S_IHIDDEN)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_HIDDEN;
+    
+    if (statbuf.st_mode & S_ISYSTEM)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_SYSTEM;
+    
+    if (statbuf.st_mode & S_IDIRECTORY)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_DIRECTORY;
 
-    if (S_ISDIR(statbuf.st_mode)) {
-        ((PFILEFINDBUF3)*pFindBuf)->attrFile = FILE_DIRECTORY;
-    }
-    else {
-        ((PFILEFINDBUF3)*pFindBuf)->attrFile = (ULONG)0;
-    }
+    if (statbuf.st_mode & S_IARCHIVED)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_ARCHIVED;
+    
+    // search for the last slash
+    for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
+    if (*p == '/') p++;
+
+    ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p) + 1;
+    strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
+    
+    ((PFILEFINDBUF3)*pFindBuf)->cbFile = statbuf.st_size;
+    ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc = statbuf.st_blksize * statbuf.st_blocks;
+
+    *pFindBuf += sizeof(FILEFINDBUF3);
+    j++;
   }
-  
-  ctr = i;
-  *pcFileNames = (ULONG)i;
+    
+  *cbBuf = j * sizeof(FILEFINDBUF3);
+  *pFindBuf    -= *cbBuf;
+  *pcFileNames = (ULONG)j;
+  hdir->ctr = j;
 
-  if (*phDir == HDIR_CREATE)
+  if (hdir == &thehdir)
+    *phDir = HDIR_SYSTEM;
+  else
     *phDir = (HDIR)hdir;
-
-  *cbBuf = *pcFileNames * sizeof(FILEFINDBUF3); // vs
-  *pFindBuf -= *cbBuf; // vs
-
-  //if (i == hdir->gl_pathc)
-  //    return ERROR_NO_MORE_FILES;
-
+  
+ 
   return NO_ERROR;
 }
 
@@ -840,116 +821,152 @@ os2fs_dos_FindNext_component (CORBA_Object _dice_corba_obj,
                               ULONG *pcFileNames /* in, out */,
                               CORBA_Server_Environment *_dice_corba_env)
 {
-  glob_t *hdir;
+  filefindstruc_t *hdir;
   struct stat statbuf;
   struct tm tt;
   char *p, *fname;
-  int  rc, i, j;
+  int  rc, i, j, k;
 
-  /* check args */
-  if (*cbBuf == 0)
-      return ERROR_BUFFER_OVERFLOW;
+  hdir = (filefindstruc_t *)(hDir);
 
-  if (*pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
-      return ERROR_BUFFER_OVERFLOW;
+  // check for buffer overflow, and whether it is <= 64k
+  if (*cbBuf == 0 || *cbBuf > 0x10000 || 
+      *pcFileNames * sizeof(FILEFINDBUF3) > *cbBuf)
+    return ERROR_BUFFER_OVERFLOW;
 
-  /* set HDIR (glob_t) */
-  if (hDir == HDIR_SYSTEM)
-    hdir = &thehdir;
-  else
-    hdir = (glob_t *)hDir;
+  if (hdir->ctr == hdir->g.gl_pathc)
+    return ERROR_NO_MORE_FILES;
 
-  if (ctr == hdir->gl_pathc)
-      return ERROR_NO_MORE_FILES;
-
-  /* build FILEFINDBUF3 entries */
-  for (i = ctr, j = 0; j < *pcFileNames;
-       i++, j++, *pFindBuf += sizeof(FILEFINDBUF3)) 
+  for (i = hdir->ctr, j = 0, k = 0; k < *pcFileNames && i < hdir->g.gl_pathc; i++, j++)
   {
-    if (i == hdir->gl_pathc)
-      break;
-
-    if (j == *pcFileNames - 1)
-        ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = 0;
+    if (k + 1 == *pcFileNames)
+      ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = 0;
     else
-        ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = sizeof(FILEFINDBUF3);
+      ((PFILEFINDBUF3)*pFindBuf)->oNextEntryOffset = sizeof(FILEFINDBUF3);
 
-    fname = hdir->gl_pathv[i];
-    // search for the last slash
-    for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
-    if (*p == '/') p++;
-	    
-    ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p);
-    strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
+    fname = hdir->g.gl_pathv[i];
 
-    LOG("filename=%s", hdir->gl_pathv[i]);
+    if (strlen(fname) > 255)
+      return ERROR_FILENAME_EXCED_RANGE;
 
-    /* stat the file to get it's  info */
-    rc = stat(hdir->gl_pathv[i], &statbuf);
+    rc = stat(fname, &statbuf);
+
+    // must have flags
+    if ((hdir->attr & MUST_HAVE_ARCHIVED) && 
+        (!(hdir->attr & FILE_ARCHIVED) || !(statbuf.st_mode & S_IARCHIVED)) &&
+         ((hdir->attr & FILE_ARCHIVED) || (statbuf.st_mode & S_IARCHIVED)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_DIRECTORY) && 
+        (!(hdir->attr & FILE_DIRECTORY) || !(statbuf.st_mode & S_IDIRECTORY)) &&
+         ((hdir->attr & FILE_DIRECTORY) || (statbuf.st_mode & S_IDIRECTORY)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_SYSTEM) && 
+        (!(hdir->attr & FILE_SYSTEM) || !(statbuf.st_mode & S_ISYSTEM)) &&
+         ((hdir->attr & FILE_SYSTEM) || (statbuf.st_mode & S_ISYSTEM)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_HIDDEN) && 
+        (!(hdir->attr & FILE_HIDDEN) || !(statbuf.st_mode & S_IHIDDEN)) &&
+         ((hdir->attr & FILE_HIDDEN) || (statbuf.st_mode & S_IHIDDEN)))
+      continue;
+
+    if ((hdir->attr & MUST_HAVE_READONLY) && 
+        (!(hdir->attr & FILE_READONLY) || !(statbuf.st_mode & S_IREADONLY)) &&
+         ((hdir->attr & FILE_READONLY) || (statbuf.st_mode & S_IREADONLY)))
+      continue;
+
+    if (rc)
+    {
+      switch (rc)
+      {
+	 case EACCES:
+	   return ERROR_ACCESS_DENIED;
+	 case ENAMETOOLONG:
+	   return ERROR_FILENAME_EXCED_RANGE;
+	 case ENOTDIR:
+	   return ERROR_PATH_NOT_FOUND;
+         case ENOENT:
+	   return ERROR_FILE_NOT_FOUND;
+         case ENOMEM:
+	   return ERROR_NOT_ENOUGH_MEMORY;
+	 default:
+	   return ERROR_INVALID_PARAMETER;
+      }
+    }
 
     localtime_r(&statbuf.st_ctime, &tt);
     
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.hours =
-	(USHORT)tt.tm_hour;
-        
-    localtime_r(&statbuf.st_atime, &tt);
-    
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.hours =
-        (USHORT)tt.tm_hour;
-        
-    localtime_r(&statbuf.st_mtime, &tt);
-    
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.day =
-        (UINT)tt.tm_mday;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.month =
-        (UINT)tt.tm_mon + 1;
-    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.year =
-        (UINT)tt.tm_year - 80;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs =
-        (USHORT)tt.tm_sec / 2;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes =
-        (USHORT)tt.tm_min;
-    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours =
-        (USHORT)tt.tm_hour;
-    ((PFILEFINDBUF3)*pFindBuf)->cbFile = (ULONG)statbuf.st_size;
-        ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc =
-        (ULONG)(statbuf.st_blksize * statbuf.st_blocks);
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateCreation.day   = tt.tm_mday;
 
-    if (S_ISDIR(statbuf.st_mode))
-        ((PFILEFINDBUF3)*pFindBuf)->attrFile = FILE_DIRECTORY;
-    else
-        ((PFILEFINDBUF3)*pFindBuf)->attrFile = (ULONG)0;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeCreation.twosecs = tt.tm_sec / 2;
+
+    localtime_r(&statbuf.st_atime, &tt);
+
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastAccess.day   = tt.tm_mday;
+
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastAccess.twosecs = tt.tm_sec / 2;
+
+    localtime_r(&statbuf.st_mtime, &tt);
+
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.year  = tt.tm_year - 80;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.month = tt.tm_mon  + 1;
+    ((PFILEFINDBUF3)*pFindBuf)->fdateLastWrite.day   = tt.tm_mday;
+
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.hours   = tt.tm_hour;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.minutes = tt.tm_min;
+    ((PFILEFINDBUF3)*pFindBuf)->ftimeLastWrite.twosecs = tt.tm_sec / 2;
+    
+    ((PFILEFINDBUF3)*pFindBuf)->attrFile = 0;
+    
+    if (statbuf.st_mode & S_IREADONLY)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_READONLY;
+
+    if (statbuf.st_mode & S_IHIDDEN)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_HIDDEN;
+    
+    if (statbuf.st_mode & S_ISYSTEM)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_SYSTEM;
+    
+    if (statbuf.st_mode & S_IDIRECTORY)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_DIRECTORY;
+
+    if (statbuf.st_mode & S_IARCHIVED)
+      ((PFILEFINDBUF3)*pFindBuf)->attrFile |= FILE_ARCHIVED;
+
+    // search for the last slash
+    for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
+    if (*p == '/') p++;
+    
+    ((PFILEFINDBUF3)*pFindBuf)->cchName = strlen(p) + 1;
+    strcpy(((PFILEFINDBUF3)*pFindBuf)->achName, p);
+    
+    ((PFILEFINDBUF3)*pFindBuf)->cbFile = statbuf.st_size;
+    ((PFILEFINDBUF3)*pFindBuf)->cbFileAlloc = statbuf.st_blksize * statbuf.st_blocks;
+      
+    *pFindBuf += sizeof(FILEFINDBUF3);
+    k++;
   }
 
-  ctr = i;
+  *cbBuf = k * sizeof(FILEFINDBUF3);
+  *pFindBuf    -= *cbBuf;
+  *pcFileNames = (ULONG)k;
+  hdir->ctr = i;
 
-  *pcFileNames = (ULONG)j;
+  if (hdir == &thehdir)
+    hDir = HDIR_SYSTEM;
+  else
+    hDir = (HDIR)hdir;
 
-  *cbBuf = *pcFileNames * sizeof(FILEFINDBUF3); // vs
-  *pFindBuf -= *cbBuf; // vs
-
-  //if (i == hdir->gl_pathc)
-  //    return ERROR_NO_MORE_FILES;
 
   return NO_ERROR;
 }
@@ -960,27 +977,19 @@ os2fs_dos_FindClose_component (CORBA_Object _dice_corba_obj,
                                HDIR hDir /* in */,
                                CORBA_Server_Environment *_dice_corba_env)
 {
-  glob_t *hdir;
-  
-  LOG("0");
-  /* set HDIR (glob_t) */
+  filefindstruc_t *hdir;
+
   if (hDir == HDIR_SYSTEM)
     hdir = &thehdir;
-  else if (hDir != HDIR_CREATE)
-    hdir = (glob_t *)hDir;
+  else if (hDir == HDIR_CREATE)
+    hdir = (glob_t *)(hDir);
+  else
+    return ERROR_INVALID_HANDLE;
 
-  LOG("1");
-
-  if (hdir != HDIR_CREATE)
-  {
-    /* free the memory */
-    globfree(hdir);
-
-    LOG("2");
-    if (hdir != &thehdir)
-      free(hdir);
-  }
-  LOG("3");
+  globfree(&hdir->g);  
+  
+  if (hdir != &thehdir)
+    free(hdir);
 
   return NO_ERROR;
 }
@@ -1151,8 +1160,6 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
         if (pszNewName == NULL)
           return ERROR_SHARING_BUFFER_EXCEEDED;
 
-        //strcpy(pszNewName, pszPathName);
-	//DosNameConversion(pszNewName, "\\", "/", FALSE);
 	pathconv(&pszNewName, pszPathName);
         
 	/* get the file status */
@@ -1298,10 +1305,6 @@ os2fs_dos_SetFileSizeL_component (CORBA_Object _dice_corba_obj,
 #endif
 }
 
-/* -------- End os2linux -----------
- */
-
-#if 0
 
 /* 1) no EA support yet :( 
  * 2) only times are changed 
@@ -1321,6 +1324,8 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
   struct stat buf;
   ULONG mode;
   int rc;
+
+#if 0
 
   pfh = (filehandle_t *)hf;
   mode = pfh->openmode;
@@ -1404,6 +1409,7 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
       }
     }
   }
+#endif
   
   return NO_ERROR;
 }
@@ -1421,4 +1427,3 @@ os2fs_dos_SetPathInfo_component (CORBA_Object _dice_corba_obj,
 {
 }
 
-#endif
