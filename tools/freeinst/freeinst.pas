@@ -1,4 +1,4 @@
-
+                          
 Program osFree_Install;
 
 {&Linker
@@ -375,7 +375,7 @@ Lock_Disk(devhandle);
       Fat32FSctrl(Devhandle);
       fat32WriteSector(DevHandle, 0, BBlockLen DIV 512, F32Buf);
 {$else}
-      Write_Disk(DevHandle, BBuf, BBlockLen);
+      Write_Disk(DevHandle, F32Buf, BBlockLen);
 {$endif}
 Unlock_Disk(devhandle);
 Close_Disk(DevHandle);

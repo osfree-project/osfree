@@ -3,6 +3,10 @@
  *  of low-level functions for Win32 *
  *************************************}
 
+{$IFDEF PC}
+{$LongStrings ON}
+{$ENDIF}
+
 unit Impl_W32;
 
 interface
@@ -11,7 +15,7 @@ uses
   Windows;
 
 type
-  Hfile  = HANDLE;
+  Hfile  = LongInt;
   ULong  = LongWord;
   UShort = Word;
 
@@ -52,12 +56,14 @@ var
   Drive    : char;
   hdl      : HANDLE;
   usDrives : Word;
+  s        : AnsiString;
 begin
   usDrives := 0;
   for Drive := #$30 to #$37 do
   begin
     // create a handle to the device
-    hdl     := CreateFileA(PChar('\\.\PhysicalDrive' + Drive),
+    s := '\\.\PhysicalDrive' + Drive;
+    hdl     := CreateFileA(PChar(s),
                           GENERIC_READ or GENERIC_WRITE,
                           FILE_SHARE_READ or FILE_SHARE_WRITE,
                           nil,
@@ -79,7 +85,7 @@ begin
       CloseHandle(hdl);
     end;
   end;
-  result := usDrives;
+  GetNumDrives := usDrives;
 end;
 
 Procedure MBR_Sector(Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
@@ -89,9 +95,12 @@ Var
   s3            : String[3];
   hdl           : HANDLE;
   DataLen       : LongWord;
+  s             : AnsiString;
 
 Begin
-  hdl := CreateFile(Pchar('\\.\PhysicalDrive' + Drivenum),
+  Drivenum := pred(DriveNum); // Physical drives in windoze begin from 0 not 1 
+  s := '\\.\PhysicalDrive' + Drivenum;
+  hdl := CreateFile(PChar(s),
                     GENERIC_READ or GENERIC_WRITE,
                     FILE_SHARE_READ or FILE_SHARE_WRITE,
                     nil, OPEN_EXISTING, 0, 0);
@@ -256,12 +265,14 @@ End;
 Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
 Var
   hdl         : HANDLE;
+  s           : AnsiString;
 
 Begin
   // Opens the device to get a handle
   //cbfile := 0;
   //  DosOpen can be changed to DosOpenL if VP has been updated to support it
-  hdl := CreateFile(PChar('\\.\' + Drive),
+  s := '\\.\' + Drive;
+  hdl := CreateFile(PChar(s),
                     GENERIC_READ or GENERIC_WRITE,
                     FILE_SHARE_READ or FILE_SHARE_WRITE,
                     nil, OPEN_EXISTING, 0, 0);

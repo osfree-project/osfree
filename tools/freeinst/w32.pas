@@ -1,6 +1,6 @@
 function SysGetBootDrive: Char;
 begin
-  Result := 'C';
+  SysGetBootDrive := 'C';
 end;
 
 function SysGetDriveType(Drive: Char): TDriveType;
@@ -12,37 +12,37 @@ var
   FSFlags: LongInt;
 begin
   Root[0] := Drive;
-  Result := dtInvalid;
-  if GetVolumeInformation(Root, nil, 0, nil, MaxLength, FSFlags, FSName, sizeof(FSName)) then
+  SysGetDriveType := dtInvalid;
+  if GetVolumeInformation(Root, nil, 0, nil, LongWord(MaxLength), LongWord(FSFlags), FSName, sizeof(FSName)) then
     begin
       if StrComp(FSName, 'FAT32') = 0 then
-        Result := dtHDFAT32
+        SysGetDriveType := dtHDFAT32
       else if StrLComp(FSName, 'FAT', 3) = 0 then
-        Result := dtHDFAT
+        SysGetDriveType := dtHDFAT
       else if StrComp(FSName, 'HPFS') = 0 then
-        Result := dtHDHPFS
+        SysGetDriveType := dtHDHPFS
       else if StrComp(FSName, 'NTFS') = 0 then
-        Result := dtHDNTFS
+        SysGetDriveType := dtHDNTFS
       else if StrLComp(FSName, 'CD', 2) = 0 then
-        Result := dtCDROM
+        SysGetDriveType := dtCDROM
       else if StrComp(FSName, 'LAN') = 0 then
-        Result := dtLan
+        SysGetDriveType := dtLan
       else if StrComp(FSName, 'NOVELL') = 0 then
-        Result := dtNovellNet;
+        SysGetDriveType := dtNovellNet;
     end;
 
-  if Result = dtInvalid then
+  if SysGetDriveType = dtInvalid then
     case GetDriveType(Root) of
-      Drive_Fixed     : Result := dtHDFAT;
-      Drive_Removable : Result := dtFloppy;
-      Drive_CDRom     : Result := dtCDROM;
-      Drive_Remote    : Result := dtLAN;
-      0, 1            : Result := dtInvalid;
-    else                Result := dtUnknown;
+      Drive_Fixed     : SysGetDriveType := dtHDFAT;
+      Drive_Removable : SysGetDriveType := dtFloppy;
+      Drive_CDRom     : SysGetDriveType := dtCDROM;
+      Drive_Remote    : SysGetDriveType := dtLAN;
+      0, 1            : SysGetDriveType := dtInvalid;
+    else                SysGetDriveType := dtUnknown;
     end;
 end;
 
 function SysGetValidDrives: Longint;
 begin
-  Result := GetLogicalDrives;
+  SysGetValidDrives := GetLogicalDrives;
 end;
