@@ -119,7 +119,7 @@ Type
     End;
 
 VAR
-  Drive:        Char;
+  Drive:        AnsiString;
   bootNr:       Byte;
   FH:           Integer;
   FreeMBR:      Sector0Buf;

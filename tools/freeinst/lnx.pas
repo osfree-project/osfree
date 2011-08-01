@@ -16,7 +16,7 @@ function LnxStatFS(Path: PChar; var StatFS: TStatFS): LongInt; forward;
 
 function SysGetBootDrive: Char;
 begin
-  Result := 'C';
+  SysGetBootDrive := 'C';
 end;
 
 function SysGetDriveType(Drive: Char): TDriveType;
@@ -25,7 +25,7 @@ var
 begin
   if (Drive <> 'C') and (Drive <> 'c') then
   begin
-    Result := dtInvalid;
+    SysGetDriveType := dtInvalid;
     Exit;
   end;
 
@@ -33,19 +33,19 @@ begin
   with StatFS do
   begin
     if f_fsid[0] = $00004D44 then
-      Result := dtHDFAT
+      SysGetDriveType := dtHDFAT
     else if f_fsid[0] = $F995E849 then
-      Result := dtHDHPFS
+      SysGetDriveType := dtHDHPFS
     else if (f_fsid[0] = $0000EF51) or (f_fsid[0] = $0000EF53) then
-      Result := dtHDEXT2
+      SysGetDriveType := dtHDEXT2
     else
-      Result := dtInvalid;
+      SysGetDriveType := dtInvalid;
   end;
 end;
 
 function SysGetValidDrives: Longint;
 begin
-  Result := 4; // 000..000100 -- drive C: only
+  SysGetValidDrives := 4; // 000..000100 -- drive C: only
 end;
 
 function LnxStatFS(Path: PChar; var StatFS: TStatFS): LongInt; {&uses ebx,ecx,edx,esi,edi}

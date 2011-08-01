@@ -9,15 +9,15 @@ interface
 
 {$I os2types.pas}
 
-procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Write_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Close_Disk(DevHandle: Hfile);
 procedure Lock_Disk(DevHandle: Hfile);
 procedure Unlock_Disk(DevHandle: Hfile);
 
-procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
-procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 procedure Backup_MBR_Sector;
 procedure Restore_MBR_Sector;
 
@@ -35,7 +35,7 @@ uses
 {$ENDIF}
    Strings, SysUtils, Crt, Dos;
 
-Procedure MBR_Sector(Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
+Procedure MBR_Sector(Drivenum: AnsiString; VAR MBRbuffer; IOcmd: Ulong);
 
 Var
   rc            : ApiRet;       // Return code
@@ -59,7 +59,7 @@ Var
   Drivenumber   : String[3];
 
 Begin
-Drivenumber := Drivenum + ':' + #0;
+Drivenumber := PChar(Drivenum)^ + ':' + #0;
 ulDataLen  := 2; //Sizeof(MBRHandle);
 ulDataLen2 := 3; //SizeOf(DriveNumber);
 
@@ -158,12 +158,12 @@ if rc <> No_Error then
   end;
 end;
 
-procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, PDSK_READPHYSTRACK)
 end;
 
-procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, PDSK_WRITEPHYSTRACK)
 end;
@@ -378,7 +378,7 @@ If rc <> No_Error Then
 
 End;
 
-Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+Procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 
 Var
   rc          : ApiRet; // Return code

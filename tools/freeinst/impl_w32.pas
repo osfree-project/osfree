@@ -19,15 +19,15 @@ type
   ULong  = LongWord;
   UShort = Word;
 
-procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Write_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Close_Disk(DevHandle: Hfile);
 procedure Lock_Disk(DevHandle: Hfile);
 procedure Unlock_Disk(DevHandle: Hfile);
 
-procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
-procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 procedure Backup_MBR_Sector;
 procedure Restore_MBR_Sector;
 
@@ -88,8 +88,7 @@ begin
   GetNumDrives := usDrives;
 end;
 
-Procedure MBR_Sector(Drivenum:Char; VAR MBRbuffer; IOcmd: Ulong);
-
+Procedure MBR_Sector(Drivenum: AnsiString; VAR MBRbuffer; IOcmd: Ulong);
 Var
   FH            : Integer;
   s3            : String[3];
@@ -98,7 +97,7 @@ Var
   s             : AnsiString;
 
 Begin
-  Drivenum := pred(DriveNum); // Physical drives in windoze begin from 0 not 1 
+  Drivenum := pred((PChar(DriveNum)^)); // Physical drives in windoze begin from 0 not 1 
   s := '\\.\PhysicalDrive' + Drivenum;
   hdl := CreateFile(PChar(s),
                     GENERIC_READ or GENERIC_WRITE,
@@ -145,12 +144,12 @@ Begin
   CloseHandle(hdl);
 End;
 
-procedure Read_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_READ)
 end;
 
-procedure Write_MBR_Sector(DriveNum: char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_WRITE)
 end;
@@ -262,7 +261,7 @@ Begin
 End;
 
 
-Procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+Procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 Var
   hdl         : HANDLE;
   s           : AnsiString;
