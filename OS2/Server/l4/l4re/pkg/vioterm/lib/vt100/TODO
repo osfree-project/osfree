@@ -1,0 +1,9 @@
+ - implement resizing
+ - implement scrolling with ring buffer and not with copying
+ - protect data with locks against concurrent access (1/2)
+ - add more vt100 sequences
+ - generalize lib, such that it can be used for other vt100 servers too
+ - update american keymap
+ - make keymap switchable at runtime
+ - unify generated keycodes to one standard, e.g. VT100, maybe specify
+   via termcap mechanism

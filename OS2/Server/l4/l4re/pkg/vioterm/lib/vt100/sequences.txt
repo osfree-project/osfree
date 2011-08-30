@@ -1,0 +1,99 @@
+<Esc> ::= \033
+CSI   ::= <Esc>[
+
+Implemented VT100 / VT220 / VT320 sequences:
+============================================
+
+Cursor movement:
+CSI <params> A  - move cursor up
+CSI <params> B  - move cursor down
+CSI <params> C  - move cursor right
+CSI <params> D  - move cursor left
+<Esc> 7         - save cursor position _and_ attributes
+<Esc> 8         - load stored cursor position _and_ attributes
+
+Clearing parts of screen:
+CSI H           - move cursor to top left position
+CSI <params> H  - move cursor to absolute position
+CSI <0|1|2> J   - 0 = clear lines from current to end of screen
+                  1 = clear from (0,0) to current line
+                  2 = clear screen  
+CSI <0|1|2> K   - 0 = clean from cursor to end of line
+                  1 = clean from start of line to cursor
+                  2 = clean whole line
+
+Scrolling:
+CSI <params> r  - set scrolling region between params
+<Esc>M          - scroll up one line
+
+Screen attributes:
+CSI <params> m  - set screen attributes (colors, bold, blink...)
+CSI ? 5 h       - inverse screen
+CSI ? 5 l       - normal screen
+CSI ? 8h        - auto repeat mode on
+CSI ? 8l        - auto repeat mode off
+CSI ? 25 h      - cursor on
+CSI ? 25 l      - cursor off
+CSI 12 h        - echo on
+CSI 12 l        - echo off
+CSI 20 h        - \n = go to start of next line
+CSI 20 l        - \n = go to next line, maintain column
+<Esc> c         - reset all settings to default
+
+
+
+Not yet implemented sequences:
+==============================
+
+Status sequences (would that be sane?):
+
+CSI c           - query device code
+CSI <params> 0c - generate device code params
+CSI 5n          - query device status
+CSI 0n          - report device OK
+CSI 3n          - report device failure
+CSI 6n          - query cursor position
+CSI <params> R  - report cursor position
+
+Terminal setup:
+CSI 2h          - lock keyboard
+CSI 2l          - unlock keyboard
+CSI 4h          - insert mode
+CSI 4l          - replace mode
+CSI ? 6h        - Home = top left of scrolling region, cannot leave
+                  scrolling region
+CSI ? 6l        - Home = top left of screen
+CSI ? 7h        - enable line wrap
+CSI ? 7l        - disable line wrap
+CSI <params> p  - assign keyboard key to specific string
+
+Font selection:
+<Esc>(A         - select default font UK
+<Esc>)A         - select alternate font UK
+<Esc>(B         - select default font US
+<Esc>)B         - select alternate font US
+<Esc>(0         - select default font special graphics
+<Esc>)0         - select alternate font special graphics
+<Esc>(1         - select default font (alternate US)
+<Esc>)1         - select alternate font (alternate US)
+<Esc>(2         - select default font (alternate US + special graphics)
+<Esc>)2         - select alternate font (altern. US + special graphics)
+
+Clearing parts of screen:
+CSI <params> P  - delete <params> characters
+CSI <params> X  - erase <params> characters
+CSI <params> M  - delete <params> lines
+CSI <params> L  - insert <params> lines
+
+!!! erase vs. delete: - erase blanks all characters, the cursor 
+position remains constant.
+                      - delete removes characters / lines
+
+CSI u           - load stored cursor position
+<Esc> H         - set tab at current cursor position
+CSI g           - clear tab at current cursor position
+CSI 3g          - clear all tabs
+
+Scrolling:
+<Esc>D          - scroll down
+<Esc>E          - new line
