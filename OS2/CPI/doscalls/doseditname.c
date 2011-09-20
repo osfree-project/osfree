@@ -20,6 +20,10 @@
 #define INCL_DOSFILEMGR
 #include <os2.h>
 
+#include <string.h>
+
+#if 0
+
 // Safe functions
 #include <strlcpy.c>
 #include <strlcat.c>
@@ -100,46 +104,91 @@ char * const dst
  , int len)
 */
 
+#endif
+
 APIRET APIENTRY DosEditName(ULONG metalevel,
                             PSZ pszSource,
                             PSZ pszEdit,
                             PSZ pszTarget,
                             ULONG cbTarget)
-{ char *s;
+{
+  char *s;
 
-  assert(len);
-  assert(dst);
+  // only metalevel == 1 is supported
+  if (metalevel != 1)
+    return ERROR_INVALID_PARAMETER;
 
-  if(!pattern)
-    pattern = "";
-  if(!src)
-    src = "";
+  if (!cbTarget)
+    return ERROR_INVALID_PARAMETER;
 
-  s = dst;
-  while(--len) {
-    switch(*s = *pattern++) {
-    case '\0':
-      goto ende;
-    case '?':
-        if(!*src)
-                continue;
-/*      if(*src) do not keep ? bejond end-of-filename */
-        *s = *src;
-    default:
-      ++s;
-      break;
-    case '*':
-      memcpy(s, src, len);
-      s[len] = '\0';
-      return;
+  if (!pszTarget)
+    return ERROR_INVALID_PARAMETER;
+
+  if (!pszEdit)
+    pszEdit = "";
+
+  if (!pszSource)
+    pszSource = "";
+
+  s = pszTarget;
+  while (--cbTarget)
+  {
+    switch (*s = *pszEdit++)
+    {
+      case '?':
+        // '.' does not copy a character when the end of
+        // filename or extension is reached
+        if (*pszSource == '.' || !*pszSource)
+          continue;
+
+        *s++ = *pszSource;
+        if (*pszSource)
+          ++pszSource;
+        break;
+      case '*':
+        for (;;)
+        {
+          *s = *pszSource;
+          cbTarget--;
+          if (*pszSource)
+            pszSource++;
+          else
+            break;
+          if (*s == *pszEdit)
+            break;
+          if (*s == '\0')
+            break;
+          s++;
+        }
+        *s = *pszEdit;
+        cbTarget++;
+        break;
+      case '\0':
+        goto ende;
+      case '.':
+        s++;
+        break;
+      default:
+        if (*pszSource)
+          ++pszSource;
+        s++;
+        break;
     }
-    if(*src)
-      ++src;
   }
+
 ende:
   *s = '\0';
-  assert(strchr(dst, '?') == 0);
+
+  if (!strchr(pszTarget, '?'))
+    return ERROR_INVALID_NAME;
+
+  if (!strchr(pszTarget, '*'))
+    return ERROR_INVALID_NAME;
+
+  return NO_ERROR;
 }
+
+/*
 
 void fillFnam(char *dest, const char * const pattern
  , const char * const fnam)
@@ -162,3 +211,5 @@ void fillFnam(char *dest, const char * const pattern
 
   myfnmerge(dest, dr, pa, dfn, dex);
 }
+
+*/

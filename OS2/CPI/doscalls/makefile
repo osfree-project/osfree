@@ -43,7 +43,7 @@ srcfiles = $(p)msg$(e) &
            $(p)env$(e)    &
            $(p)thunk$(e)  &
            $(p)sched$(e)  &
-           $(p)unimplemented$(e) $(p)unimp16$(e) # $(p)monitors$(e) $(p)dossearchpath$(e) # $(p)doseditname$(e)
+           $(p)unimplemented$(e) $(p)unimp16$(e) $(p)doseditname$(e) # $(p)monitors$(e) $(p)dossearchpath$(e)
 
 ADD_COPT = -s -od
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
@@ -79,6 +79,7 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalSleep            KAL.KalSleep,       &
           _KalDupHandle        KAL.KalDupHandle,   &
           _KalDelete           KAL.KalDelete,      &
+          _KalMove             KAL.KalMove,        &
           _KalForceDelete      KAL.KalForceDelete, &
           _KalDeleteDir        KAL.KalDeleteDir,   &
           _KalCreateDir        KAL.KalCreateDir,   &
@@ -91,7 +92,10 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalSetFHState       KAL.KalSetFHState,    &
           _KalQueryFileInfo    KAL.KalQueryFileInfo, &
           _KalQueryPathInfo    KAL.KalQueryPathInfo, &
-          _KalSetFileSizeL     KAL.KalSetFileSizeL
+          _KalSetFileSizeL     KAL.KalSetFileSizeL,  &
+          _KalSetMem           KAL.KalSetMem,        &
+          _KalQueryMem         KAL.KalQueryMem,      &
+          _KalAllocSharedMem   KAL.KalAllocSharedMem
 
 EXPORTS = &
         DosICreateThread           .1, &

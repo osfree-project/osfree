@@ -4,7 +4,7 @@
 
 #include "freepm.hpp"
 
-//#include <queue.hpp>
+#include <fs_queue.hpp>
 
 #include <builtin.h>
 /* Add message to queue */
@@ -105,7 +105,7 @@ int FreePM_Queue::DelFirst(void)
    rc = 2 - pmsg is NULL
 */
 
-int FreePM_Queue::Get(PFPMQMSG pmsg)
+int FreePM_Queue::Get(PFMPQMSG pmsg)
 {  int rcS;
    if(length == 0)
              return 1;

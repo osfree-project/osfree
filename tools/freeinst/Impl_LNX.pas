@@ -37,17 +37,6 @@ const
   BIOSDISK_READ               = $0;
   BIOSDISK_WRITE              = $1;
 
-  METHOD_BUFFERED             = $00000000;
-  FILE_ANY_ACCESS             = $00000000;
-  FILE_DEVICE_FILE_SYSTEM     = $00000009;
-
-  FSCTL_LOCK_VOLUME           = (FILE_DEVICE_FILE_SYSTEM shl 16) or
-                                (FILE_ANY_ACCESS shl 14) or 
-                                ($6 shl 2) or METHOD_BUFFERED;
-  FSCTL_UNLOCK_VOLUME         = (FILE_DEVICE_FILE_SYSTEM shl 16) or
-                                (FILE_ANY_ACCESS shl 14) or 
-                                ($7 shl 2) or METHOD_BUFFERED;
-
 procedure GetDrives;
 var
   line     : String;

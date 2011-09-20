@@ -36,12 +36,10 @@ Uses
 {$ENDIF}
 
 Var
-//  Sector0:      Sector0Buf;
   BlockBuf:     Hdr;
   Bbuf:         BBlockbuf;
   F32Buf:       FAT32Buf;
   HPbuf:        HPFSbuf;
-//  i:            Integer;
   DevHandle:    Hfile;
   Drive2:       Array[0..2] of Char ;
   Drive:        PChar;
@@ -214,7 +212,6 @@ Writeln('Logical partitions are numbered from 5-255');
 Writeln;
 Write('Which Partition number do you want to boot from (see numbers above) ? ');
 Readln(BootNr);
-//BootNr := ord(readkey);
 Read_MBR_Sector(Drive, sector0);
 FH := FileOpen( drive1+'\boot\sectors\mbr.bin', fmOpenRead OR fmShareDenyNone);
 If FH > 0 Then
@@ -763,7 +760,8 @@ Header;
 Writeln( 'This system has the following drives available for install: ' );
 Writeln;
 for Drive3 := 'A' to 'Z' do
-  if Drive3 in Drives then IF GetDriveType(drive3) IN [dtFloppy,dthdfat,dthdfat32,dthdhpfs,dthdjfs] Then
+  if Drive3 in Drives then IF GetDriveType(drive3) IN [dtFloppy,dthdfat,dthdfat32,dthdhpfs,dthdjfs,
+                                                       dthdntfs, dthdext2] Then
     begin
       case GetDriveType( Drive3 ) of
         dtFloppy    : Desc := 'Floppy drive';

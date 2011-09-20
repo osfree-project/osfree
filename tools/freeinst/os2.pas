@@ -81,6 +81,8 @@ begin
         Result := dthdJFS
       else If StrComp( aName, 'FAT32' ) = 0 then
         Result := dthdFAT32
+      else If StrComp( aName, 'NTFS' ) = 0 then
+        Result := dthdNTFS
       else If StrComp( aName, 'RAMFS' ) = 0 then
         Result := dtRAMFS
       else If StrComp( aName, 'NDFS32' ) = 0 then

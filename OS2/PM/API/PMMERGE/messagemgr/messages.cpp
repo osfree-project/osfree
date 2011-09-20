@@ -21,8 +21,8 @@ extern class _FreePM_HAB  _hab;
 
 /* time variables */
 time_t  _FreePM_curtime = 0;
-struct timeval _FreePM_current_time;
-struct timeval _FreePM_start;
+time_t _FreePM_current_time;
+time_t _FreePM_start;
 double _FreePM_current_dtime = 0.;
 
 time_t
@@ -31,8 +31,9 @@ getCurrentTime(void)
     struct _timeb timebuffer;
 
     _ftime(&timebuffer);
-    _FreePM_current_time.tv_sec  = (long) timebuffer.time;
-    _FreePM_current_time.tv_usec = (long) timebuffer.millitm * 1000;
+    _FreePM_current_time = (long)timebuffer.time;
+    //_FreePM_current_time.tv_sec  = (long) timebuffer.time;
+    //_FreePM_current_time.tv_usec = (long) timebuffer.millitm * 1000;
 
     _FreePM_current_dtime = (double)timebuffer.time   +
        (double) timebuffer.millitm / 1000.0;
@@ -121,7 +122,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     int rc,rcs;
     FPMQMSG fpmqmsg;
 
- debug(3, 2)("WinGetMsg call\n");
+    debug(3, 2)("WinGetMsg call\n");
 
     if(pqmsg == NULL)
     {  _hab.SetError(ihab, FPMERR_NULL_POINTER);
@@ -139,7 +140,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     {
        rc = _hab.hab[ihab].pQueue->GetLength();
        if(rc)
-       {  rc =  _hab.hab[ihab].pQueue->Get(&fpmqmsg /*pqmsg*/);
+       {  rc =  _hab.hab[ihab].pQueue->Get((PQMSG)&fpmqmsg /*pqmsg*/);
           if(rc == 0)
           {  debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
             if(fpmqmsg.msg == WM_QUIT) brc = FALSE;
@@ -285,7 +286,7 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
            {    _hab.SetError(iHAB, FPMERR_NULL_WINDPROC);
                 return NULL;
            }
-           rcf = _hab.hab[iHAB].pHwnd[indpw].pw->proc(&msg);
+           rcf = _hab.hab[iHAB].pHwnd[indpw].pw->proc((PQMSG)&msg);
        } else {
 //todo: how to call proc from thread iHABto ?
 
@@ -294,7 +295,7 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
        }
   } else {      /* внешнее сообщение */
      SQMSG sqmsg;
-     sqmsg.qmsg = msg;
+     sqmsg.qmsg = *((PQMSG)&msg);
      sqmsg.ihfrom = _hab.GetCurrentHAB();
      rc =  _F_SendCmdToServer(F_CMD_WINSENDMSG, sizeof(SQMSG));
      rc =  _F_SendDataToServer((void *)&sqmsg, sizeof(SQMSG));

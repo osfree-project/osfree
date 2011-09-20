@@ -2,7 +2,7 @@
 
    @file doscopy.c
 
-   @brief DosCopy API implementation. Based on RCOPY.
+   @brief DosCopy and DosMove API's implementation. Based on RCOPY.
 
    (c) osFree Project 2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
@@ -28,7 +28,7 @@
 #include "strncmp.h"
 
 /*!
-   @brief Copies file from one location to another
+   @brief Copies/moves file trees from one location to another
 
    @param pszSrc             name of source file
    @param pszDst             name of destination (may be existent)
@@ -47,8 +47,18 @@
      DosRead
      DosWrite
      DosSetFilePtrL
-
+     DosCreateDir
+     DosDeleteDir
+     DosDelete
+     DosFindFirst
+     DosFindNext
+     DosFindClose
+     DosQueryPathInfo
+     KalMove
 */
+
+APIRET __cdecl   KalMove(PCSZ  pszOld,
+                         PCSZ  pszNew);
 
 #define IOBUF_SIZ       32768U                  /* enough? (performance)
                                                    Most probably here
@@ -245,7 +255,7 @@ CheckPath(char *path,int create)
         NO_ERROR               OK
 
  */
-APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
+APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions, ULONG ulNeedDel)
 {
     FILEFINDBUF3  findBuffer;
     HDIR         hSearch;
@@ -323,7 +333,7 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
         }
         else
         {
-            CopyTree( pHelp->src, pHelp->dst, ulOptions );
+            CopyTree( pHelp->src, pHelp->dst, ulOptions, ulNeedDel );
         }
         DosFreeMem(pHelp);
     }
@@ -344,12 +354,23 @@ APIRET CopyTree(PSZ pszSrc, PSZ pszDst, ULONG ulOptions)
             strlcpy( nsp, findBuffer.achName, CCHMAXPATH );
             strlcpy( ndp, findBuffer.achName, CCHMAXPATH );
             i = CopyFile( pszSrc, pszDst, ulOptions );
+
+            // Delete original file,
+            // if needed
+            if (ulNeedDel)
+              DosDelete(pszSrc);
+
             if( i != 0 )
                 result = i;
         }
         while( !(rc=DosFindNext(hSearch, &findBuffer,
                                 sizeof(findBuffer), &cFound)) );
     DosFindClose( hSearch );
+
+    // Delete original dir,
+    // if needed
+    if (ulNeedDel)
+      DosDeleteDir(pszSrc);
 
     *nsp = '\0';
     *ndp = '\0';
@@ -428,11 +449,49 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
   if (rc) return rc;
 
   // Perfom action based on source path type
-  if ((fileStatus.attrFile&FILE_DIRECTORY)==FILE_DIRECTORY)
+  if (fileStatus.attrFile & FILE_DIRECTORY)
   {
     // DCPY_APPEND flag not valid in directory copy
-    return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND);
+    return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND, 0);
   } else {
     return CopyFile(pszOld, pszNew, ulOptions); // @todo pass options
   };
+}
+
+
+APIRET APIENTRY  DosMove(PCSZ  pszOld,
+                         PCSZ  pszNew)
+{
+  FILESTATUS3 fileStatus;
+  APIRET rc;
+
+  //Check arguments
+  if ((!pszOld) || (!pszNew)) return ERROR_INVALID_PARAMETER;
+
+  // if move pszOld->pszNew crosses the volume
+  // boundary, then copy files and delete the old ones
+  if (KalMove(pszOld, pszNew))
+  {
+    //Detect is source dir or file (also check is it exists)
+    rc = DosQueryPathInfo(pszOld,               // Path
+                          FIL_STANDARD,         // Level 1 information
+                          &fileStatus,          // Address of return buffer
+                          sizeof(FILESTATUS3)); // Size of buffer
+
+    if (rc) return rc;
+
+    // Perfom action based on source path type
+    if (fileStatus.attrFile & FILE_DIRECTORY)
+      // DCPY_APPEND flag not valid in directory copy
+      rc = CopyTree(pszOld, pszNew, 0, 1);
+    else
+    {
+      if (rc = CopyFile(pszOld, pszNew, 0))
+        return rc;
+        
+      rc = DosDelete(pszOld);
+    }
+  }
+
+  return rc;
 }

@@ -708,11 +708,8 @@ APIRET APIENTRY  DosFSAttach(PCSZ  pszDevice,
 //                              PEAOP2 peaop2)
 
 
-APIRET APIENTRY  DosMove(PCSZ  pszOld,
-                         PCSZ  pszNew)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosMove(PCSZ  pszOld,
+//                         PCSZ  pszNew)
 
 
 //APIRET APIENTRY  DosQueryFHState(HFILE hFile,
@@ -859,13 +856,10 @@ APIRET  APIENTRY DosAliasMem(PVOID pb,
 //                             ULONG cb,
 //                             ULONG flag)
 
-APIRET APIENTRY  DosAllocSharedMem(PPVOID ppb,
-                                   PCSZ  pszName,
-                                   ULONG cb,
-                                   ULONG flag)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosAllocSharedMem(PPVOID ppb,
+//                                   PCSZ  pszName,
+//                                   ULONG cb,
+//                                   ULONG flag)
 
 
 APIRET APIENTRY  DosGetNamedSharedMem(PPVOID ppb,
@@ -894,20 +888,14 @@ APIRET APIENTRY  DosGiveSharedMem(PVOID pb,
 //APIRET APIENTRY  DosFreeMem(PVOID pb)
 
 
-APIRET APIENTRY  DosSetMem(PVOID pb,
-                           ULONG cb,
-                           ULONG flag)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSetMem(PVOID pb,
+//                           ULONG cb,
+//                           ULONG flag)
 
 
-APIRET APIENTRY  DosQueryMem(PVOID pb,
-                             PULONG pcb,
-                             PULONG pFlag)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosQueryMem(PVOID pb,
+//                             PULONG pcb,
+//                             PULONG pFlag)
 
 
 APIRET  APIENTRY DosQueryMemState(PVOID pb,
@@ -2678,13 +2666,9 @@ APIRET APIENTRY      DosSystemService(void)
 }
 
 
-APIRET APIENTRY  DosListIOL(LONG CmdMODE,
-                            LONG NumEntries,
-                            PLISTIOL pListIO)
-{
-  return unimplemented(__FUNCTION__);
-}
-
+//APIRET APIENTRY  DosListIOL(LONG CmdMODE,
+//                            LONG NumEntries,
+//                            PLISTIOL pListIO)
 
 APIRET  APIENTRY        DosCreateThread2(PTHREADCREATE ptc)
 {
@@ -2692,14 +2676,11 @@ APIRET  APIENTRY        DosCreateThread2(PTHREADCREATE ptc)
 }
 
 
-APIRET APIENTRY DosEditName(ULONG metalevel,
-                            PCSZ pszSource,
-                            PSZ pszEdit,
-                            PSZ pszTarget,
-                            ULONG cbTarget)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosEditName(ULONG metalevel,
+//                            PCSZ pszSource,
+//                            PSZ pszEdit,
+//                            PSZ pszTarget,
+//                            ULONG cbTarget)
 
 
 APIRET APIENTRY DosExitCritSec(VOID)

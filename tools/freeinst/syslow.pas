@@ -64,7 +64,7 @@ uses
   {$Endif}
   {$Endif} {$Endif}
   {$Ifdef DPMI32}
-  {$ifndef FPC} Dpmi32, D32Res, {$endif} // Dpmi support files
+  {$ifndef FPC} Dpmi32, D32Res, {$else} Impl_d32, {$endif} // Dpmi support files
   {$Endif}
   {$IFDEF LINUX}
   LnxRes,

@@ -8,21 +8,23 @@ unit Impl_D32;
 interface
 
 type
-  Hfile  = Word;
+  Hfile  = LongInt;
   ULong  = LongWord;
   UShort = Word;
 
-procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Write_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Close_Disk(DevHandle: Hfile);
 procedure Lock_Disk(DevHandle: Hfile);
 procedure Unlock_Disk(DevHandle: Hfile);
 
-procedure Read_MBR_Sector(DriveNum: Char; var MBRBuffer);
-procedure Write_MBR_Sector(DriveNum: Char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 procedure Backup_MBR_Sector;
 procedure Restore_MBR_Sector;
+
+function AbsRead(drive: AnsiString; lba, len, addr: LongInt) : LongInt;
 
 implementation
 
@@ -44,17 +46,17 @@ procedure getinoutres(def : word);
 var
   regs : TRealRegs;
 begin
-  regs.realeax:=$5900;
-  regs.realebx:=$0;
+  regs.realeax := $5900;
+  regs.realebx := $0;
   sysrealintr($21,regs);
-  InOutRes:=lo(regs.realeax);
+  InOutRes := lo(regs.realeax);
   case InOutRes of
-   19 : InOutRes:=150;
-   21 : InOutRes:=152;
-   32 : InOutRes:=5;
+   19 : InOutRes := 150;
+   21 : InOutRes := 152;
+   32 : InOutRes := 5;
   end;
-  if InOutRes=0 then
-    InOutRes:=Def;
+  if InOutRes = 0 then
+    InOutRes := Def;
 end;
 
 function tb_size : longint;
@@ -75,7 +77,6 @@ var
   bytes_transferred : LongWord;
   err               : LongWord;
 begin
-  writeln('biosdisk(', ahreg, ', ', drive, ', ', coff, ', ', hoff, ', ', soff, ', ', nsec, ', ', LongInt(buf), ')');
   regs.realeax := (nsec and $ff) or ((ahreg and $ff) shl 8);
   regs.realedx := (drive and $ff) or ((hoff and $ff) shl 8);
   regs.realecx := ((coff and $ff) shl 8) or (((coff shr 8) and 3) shl 6) or (soff and $3f);
@@ -92,7 +93,9 @@ begin
     begin
       bytes_transferred := 0;
       nsec := 0;
+
       GetInOutRes(lo(bytes_transferred));
+
       biosdisk := err;
       exit;
     end;
@@ -106,66 +109,17 @@ end;
 
 function dosdisk_read(drive, sector, nsec, segment: LongInt;
                       var bytes_read: LongInt): LongInt;
-type
-  read_pkt = packed record
-    sector : LongWord;
-    nsect  : Word;
-    addr   : LongWord;
-  end;
-
-  param_blk = packed record
-    reserved : Byte;
-    head,
-    cyl,
-    sec,
-    nsec     : Word;
-    addr     : LongWord;
-  end;
-
 var
-  regs  : TRealRegs;
-  param : ^param_blk;
-  p     : Pointer;
-
+  regs : TRealRegs;
 begin
-  writeln('dosdisk_read(', drive, ', ', sector, ', ', nsec, ', ', segment, ', ', bytes_read, ')');
-{
-  pkt := Pointer((tb_segment shl 4) + tb_size - sizeof(read_pkt));
-  pkt^.sector := sector;
-  pkt^.nsect  := nsec;
-  pkt^.addr   := segment shl 16;
-
-  regs.realeax := drive and $ff;
-  regs.realecx := $ffff;
-  regs.realds  := LongWord(pkt) shr 4;
-  regs.realebx := LongWord(pkt) and $f;
-------
-  regs.realeax := 2; //drive and $ff;
-  regs.realecx := 1; //nsec and $ffff;
-  regs.realedx := 0; //(sector) and $ffff;
-  regs.realds  := segment;
+  regs.realeax := drive   and $ff;
+  regs.realecx := nsec    and $ffff;
+  regs.realedx := sector  and $ffff;
+  regs.realds  := segment and $ffff;
   regs.realebx := 0;
-}
-  param := Pointer($5000); //Pointer((segment shl 4) + (nsec shl 9));
-  param^.reserved := 0;
-  param^.cyl  := 0;
-  param^.head := 0;
-  param^.sec  := sector;
-  param^.nsec := nsec;
-  param^.addr := segment shl 4;
 
-  regs.realeax := $440d;                 // Generic block device ioctl
-  regs.realebx := (drive + 1) and $ff;   // drive number
-  regs.realecx := $0861;                 // category: 08=disk drive; func: 61=read logical device track
-  regs.realds  := LongWord(param) shr 4;
-  regs.realedx := LongWord(param) and $f;
+  SysRealIntr($25, regs);
 
-  SysRealIntr($21, regs);
-
-  writeln('eax=', regs.realeax);
-  writeln(regs.realflags and CARRYFLAG);
-  writeln(tb_size);
-  readln;
   bytes_read := nsec shl 9;
 
   if (regs.realflags and CARRYFLAG) = CARRYFLAG then
@@ -177,28 +131,16 @@ begin
   dosdisk_read := 0;
 end;
 
+
 function dosdisk_write(drive, sector, nsec, segment: LongInt;
                        var bytes_written: LongInt): LongInt;
-type
-  write_pkt = packed record
-    sector : LongWord;
-    nsect  : Word;
-    addr   : LongWord;
-  end;
-
 var
   regs : TRealRegs;
-  pkt  : ^write_pkt;
-
 begin
-  pkt := Pointer((segment shl 4) + (nsec shl 9));
-  pkt^.sector := sector;
-  pkt^.nsect  := nsec;
-  pkt^.addr   := segment shl 16;
-
-  regs.realeax := drive and $ff;
-  regs.realecx := $ffff;
-  regs.realds  := segment + (nsec shl 5);
+  regs.realeax := drive   and $ff;
+  regs.realecx := nsec    and $ffff;
+  regs.realedx := sector  and $ffff;
+  regs.realds  := segment and $ffff;
   regs.realebx := 0;
 
   SysRealIntr($26, regs);
@@ -219,7 +161,7 @@ begin
   GetLastHardDisk := Mem[$475];
 end;
 
-function AbsRead(drive: char; lba, len, addr: LongInt) : LongInt;
+function AbsRead(drive: AnsiString; lba, len, addr: LongInt) : LongInt;
 var
   size,
   readsize,
@@ -228,7 +170,7 @@ var
   drv           : LongInt;
 
 begin
-  drv := ord(upcase(drive)) - ord('A');
+  drv := ord(upcase(PChar(drive)^)) - ord('A');
   readsize:=0;
   while len > 0 do
     begin
@@ -236,31 +178,31 @@ begin
         size := tb_size
       else
         size := len;
-      writeln('len=', len, ', size=', size);
-      readln;
+
       err := dosdisk_read(drv, lba, size shr 9, tb_segment, bytes_read);
+
       if err <> 0 then
         begin
           bytes_read := 0;
+
           GetInOutRes(lo(bytes_read));
+
           AbsRead := 0;
           exit;
         end;
-       writeln('1');
-       writeln('bytes_read=', bytes_read);
+
        SysCopyFromDOS(addr + readsize, lo(bytes_read));
-       writeln('2');
+
        inc(readsize,lo(bytes_read));
        dec(len,lo(bytes_read));
        { stop when not the specified size is read }
        if lo(bytes_read) < size then
          break;
     end;
-  writeln('3');
   AbsRead := readsize;
 end;
 
-function AbsWrite(drive: char; lba, len, addr: LongInt) : LongInt;
+function AbsWrite(drive: AnsiString; lba, len, addr: LongInt) : LongInt;
 var
   size,
   writesize       : LongInt;
@@ -269,7 +211,7 @@ var
   drv             : LongInt;
 
 begin
-  drv := ord(upcase(drive)) - ord('A');
+  drv := ord(upcase(PChar(drive)^)) - ord('A');
   writesize := 0;
   while len > 0 do
     begin
@@ -277,14 +219,15 @@ begin
         size := tb_size
       else
         size := len;
-      readln; // !!!!
+
       SysCopyToDOS(addr + writesize, size);
-      readln; //
       err := dosdisk_write(drv, lba, size shr 9, tb_segment, bytes_written);
       if err <> 0 then
         begin
           bytes_written := 0;
+
           GetInOutRes(lo(bytes_written));
+
           AbsWrite := writesize;
           exit;
         end;
@@ -297,9 +240,9 @@ begin
   AbsWrite := writesize;
 end;
 
-procedure Open_Disk(Drive: PChar; var DevHandle: Hfile);
+procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 begin
-  DevHandle := ord(drive^);
+  DevHandle := ord(PChar(drive)^);
   filepos := 0;
 end;
 
@@ -368,7 +311,7 @@ procedure Unlock_Disk(DevHandle: Hfile);
 begin
 end;
 
-procedure MBR_Sector(DriveNum: Char; var MBRBuffer; IOcmd: LongInt);
+procedure MBR_Sector(DriveNum: AnsiString; var MBRBuffer; IOcmd: LongInt);
 var
   FH            : Integer;
   s3            : String[3];
@@ -376,7 +319,7 @@ var
   rc, nsec      : LongInt;
 
 begin
-  drv := ord(DriveNum) - $31 + $80; // 1: means bios device $80
+  drv := ord(PChar(DriveNum)^) - $31 + $80; // 1: means bios device $80
 
   nsec := 1;
   rc := biosdisk(2 + IOcmd, drv, 0, 0, 1, nsec, MBRBuffer);
@@ -401,12 +344,12 @@ begin
   FileClose(FH);
 end;
 
-procedure Read_MBR_Sector(DriveNum: Char; var MBRBuffer);
+procedure Read_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_READ)
 end;
 
-procedure Write_MBR_Sector(DriveNum: Char; var MBRBuffer);
+procedure Write_MBR_Sector(DriveNum: AnsiString; var MBRBuffer);
 begin
   MBR_Sector(DriveNum, MBRBuffer, BIOSDISK_WRITE)
 end;

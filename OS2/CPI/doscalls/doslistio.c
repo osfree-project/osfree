@@ -1,19 +1,57 @@
+#define  INCL_DOSFILEMGR
 #include <os2.h>
 
 #include <stdio.h>
+
+APIRET unimplemented(char *func);
+
+APIRET APIENTRY  DosListIOL(LONG ulCmdMode,
+                            LONG ulNumentries,
+                            PLISTIOL pListIOL)
+{
+  return unimplemented(__FUNCTION__);
+}
+
 
 APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
                                   ULONG ulNumentries,
                                   PLISTIO pListIO)
 {
   PLISTIOL pListIOL;
+  ULONG rc, rc2;
+  int i;
 
+  rc2 = DosAllocMem((void **)&pListIOL, ulNumentries * sizeof(LISTIOL),
+                   PAG_COMMIT | PAG_READ | PAG_WRITE);
 
-  return 0;
+  if (rc2) return rc2;
 
-//  return DosListIO(ulCmdMode,
-//                   ulNumentries,
-//                   pListIOL);
+  for (i = 0; i < ulNumentries; i++, pListIOL++, pListIO++)
+  {
+    pListIOL->hFile         = pListIO->hFile;
+    pListIOL->CmdFlag       = pListIO->CmdFlag;
+    pListIOL->Offset.ulLo   = pListIO->Offset;
+    pListIOL->Offset.ulHi   = 0;
+    pListIOL->pBuffer       = pListIO->pBuffer;
+    pListIOL->NumBytes      = pListIO->NumBytes;
+  }
+
+  rc = DosListIOL(ulCmdMode,
+                  ulNumentries,
+                  pListIOL);
+
+  for (i = 0; i < ulNumentries; i++, pListIOL++, pListIO++)
+  {
+    pListIO->Offset = pListIOL->Offset.ulLo;
+    pListIO->pBuffer = pListIOL->pBuffer;
+    pListIO->Actual = pListIOL->Actual;
+  }
+
+  rc2 = DosFreeMem(pListIOL);
+
+  if (rc2) return rc2;
+
+  return rc;
 }
 
 #if 0

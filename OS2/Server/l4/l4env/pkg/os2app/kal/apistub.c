@@ -95,6 +95,7 @@ KalOpenL (PSZ pszFileName,
                       pulAction, cbFile, ulAttribute,
                       fsOpenFlags, fsOpenMode, peaop2, &env);
   LOG("hFile=%x", *phFile);
+  LOG("rc=%x", rc);
   LOG("exit");
   STKOUT
   return rc;
@@ -374,6 +375,34 @@ attach_ds_reg(l4dm_dataspace_t ds, l4_uint32_t flags, l4_addr_t addr)
   return 0;
 }
 
+/** attach dataspace to our address space. (concrete address) */
+int
+attach_ds_area(l4dm_dataspace_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t addr)
+{
+  int error;
+  l4_size_t size;
+  l4_addr_t a = addr;
+
+  /* get dataspace size */
+  if ((error = l4dm_mem_size(&ds, &size)))
+    {
+      printf("Error %d (%s) getting size of dataspace\n",
+	  error, l4env_errstr(error));
+      return error;
+    }
+
+  /* attach it to a given region */  
+  if (error = l4rm_area_attach_to_region(&ds, area,
+                       addr, size, 0, flags))
+    {
+      printf("Error %d (%s) attaching dataspace\n",
+	  error, l4env_errstr(error));
+      return error;
+    }
+
+  return 0;
+}
+
 /*  Attaches all sections
  *  for a given module
  */
@@ -599,6 +628,13 @@ KalError(ULONG error)
 //#define PAG_WRITE    0x00000002
 //#define PAG_GUARD    0x00000008
 
+typedef struct
+{
+  char name[256];        // name for named shared mem
+  l4_uint32_t   rights;  // OS/2-style access flags
+  l4_uint32_t   area;    // area id
+} vmdata_t;
+
 APIRET CDECL
 KalAllocMem(PVOID *ppb,
             ULONG cb,
@@ -608,9 +644,9 @@ KalAllocMem(PVOID *ppb,
   l4_uint32_t area;
   l4dm_dataspace_t ds;
   l4_addr_t addr;
+  vmdata_t  *ptr;
   int rc;
 
-  //enter_kdebug(">");
   STKIN
   LOG("cb=%d", cb);
   LOG("flags=%x", flags);
@@ -621,14 +657,36 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_WRITE)
     rights |= L4DM_WRITE;
 
+  if (flags & PAG_EXECUTE)
+    rights |= L4DM_READ;
+
+  rc = l4rm_area_reserve(cb, 0, &addr, &area);
+
+  if (rc < 0)
+  {
+    STKOUT
+    switch (-rc)
+    {
+      case L4_ENOMEM:
+      case L4_ENOTFOUND:
+        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+      default:
+        return ERROR_ACCESS_DENIED;
+    }
+  }
+
+  ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+  l4rm_set_userptr(addr, ptr);
+
+  ptr->rights = (l4_uint32_t)flags;
+  ptr->area   = area;
+
   if (flags & PAG_COMMIT)
   {
-    //enter_kdebug(">");
     /* Create a dataspace of a given size */
     rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
                4096, rights, "DosAllocMem dataspace", &ds);
 
-    //enter_kdebug(">");
     if (rc < 0)
     {
       STKOUT
@@ -636,7 +694,8 @@ KalAllocMem(PVOID *ppb,
     }
 
     /* attach the created dataspace to our address space */
-    rc = attach_ds(&ds, rights, &addr);
+    //rc = attach_ds(&ds, rights, &addr);
+    rc = attach_ds_area(ds, area, rights, addr);
 
     //enter_kdebug(">");
     if (rc)
@@ -645,17 +704,7 @@ KalAllocMem(PVOID *ppb,
       return 8; /* What to return? */
     }
   }
-  else
-  {
-    rc = l4rm_area_reserve(cb, 0, &addr, &area);
 
-    if (rc < 0)
-    {
-      STKOUT
-      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
-    }
-  }
-  
   *ppb = (void *)addr;
 
   LOG("*ppb=%x", addr);
@@ -667,43 +716,313 @@ KalAllocMem(PVOID *ppb,
 APIRET CDECL
 KalFreeMem(PVOID pb)
 {
-  int rc;
+  CORBA_Environment env = dice_default_environment;
+  vmdata_t *ptr;
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
   l4_threadid_t pager;
   l4dm_dataspace_t ds;
+  int rc, ret;
 
   STKIN
   LOG("pb=%x", pb);
   
-  rc = l4rm_lookup_region((l4_addr_t)pb, &addr, &size, &ds,
+  ret = l4rm_lookup_region((l4_addr_t)pb, &addr, &size, &ds,
                      &offset, &pager);
   
-  if (rc)
+  switch (ret)
   {
-    STKOUT
-    return 487; /* ERROR_INVALID_ADDRESS */
+    case L4RM_REGION_RESERVED:
+      break;
+    case L4RM_REGION_DATASPACE:
+      rc = l4rm_detach(addr);
+      if (ret)
+      {
+        STKOUT
+        return 5; /* ERROR_ACCESS_DENIED */
+      }
+      break;
+    default:
+      STKOUT
+      return ERROR_INVALID_ADDRESS;
   }
     
-  rc = l4rm_detach(addr);
+  rc = l4rm_area_release(addr);
   
   if (rc)
   {
     STKOUT
-    return 5; /* ERROR_ACCESS_DENIED */
+    return ERROR_ACCESS_DENIED;
   }
-    
-  rc = l4dm_close(&ds);
-  
-  if (rc)
+
+  if (ptr = l4rm_get_userptr(addr)) 
   {
-    STKOUT
-    return 5; /* ERROR_ACCESS_DENIED */      
+    if (ptr->rights & PAG_SHARED)
+      os2exec_release_sharemem_call(&execsrv, addr, &env);
+    
+    l4rm_area_release(ptr->area);    
+  }
+  
+  if (ret == L4RM_REGION_DATASPACE)
+  {
+    rc = l4dm_close(&ds);
+  
+    if (rc)
+    {
+      STKOUT
+      return 5; /* ERROR_ACCESS_DENIED */      
+    }
   }
 
   STKOUT
   return 0; /* NO_ERROR */
+}
+
+
+APIRET CDECL
+KalSetMem(PVOID pb,
+          ULONG cb,
+	  ULONG flags)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4_uint32_t area;
+  vmdata_t *ptr;
+  l4_uint32_t rights = 0;
+  l4_addr_t addr;
+  l4_size_t size;
+  l4_offs_t offset;
+  l4_threadid_t pager;
+  l4dm_dataspace_t ds;
+  int rc, ret;
+
+  STKIN
+  LOG("pb=%x", pb);
+  LOG("cb=%u", cb);
+  LOG("flags=%x", flags);
+  
+  if (flags & PAG_READ)
+    rights |= L4DM_READ;
+
+  if (flags & PAG_WRITE)
+    rights |= L4DM_WRITE;
+
+  if (flags & PAG_EXECUTE)
+    rights |= L4DM_READ;
+  
+  rc = l4rm_lookup_region((l4_addr_t)pb, &addr, &size, &ds,
+                     &offset, &pager);
+		       
+  switch (rc)
+  {
+    case L4RM_REGION_RESERVED:
+      break;
+    case L4RM_REGION_DATASPACE:
+      rc = l4rm_detach(addr);
+      if (rc)
+      {
+        STKOUT
+        return ERROR_ACCESS_DENIED;
+      }
+      break;
+    default:
+      STKOUT
+      return ERROR_INVALID_ADDRESS;
+  }
+
+  ptr = l4rm_get_userptr(addr);  
+  if (ptr) area = ptr->area;
+
+  if (rc == L4RM_REGION_RESERVED)
+  {
+    /* Create a dataspace of a given size */
+    ret = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
+               4096, rights, "DosAllocMem dataspace", &ds);
+
+    //enter_kdebug(">");
+    if (ret < 0)
+    {
+      STKOUT
+      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    }
+  }
+  else if (rc == L4RM_REGION_DATASPACE)
+  {
+    /* decommit memory */
+    ret = l4rm_detach(addr);
+  
+    if (ret)
+    {
+      STKOUT
+      return 5; /* ERROR_ACCESS_DENIED */
+    }
+  }
+  
+  if (!(flags & PAG_DECOMMIT))
+  {
+    if (flags & PAG_DEFAULT)
+    {
+      rc = l4dm_mem_resize(&ds, cb);
+
+      if (rc)
+      {
+        switch (-rc)
+        {
+  	  case L4_ENOMEM:
+	    return ERROR_NOT_ENOUGH_MEMORY;
+	  default:
+	    return ERROR_ACCESS_DENIED;
+        }
+      }
+    }
+
+    if (flags & PAG_COMMIT)
+    {
+      /* attach the created dataspace to our address space */
+      //rc = attach_ds_reg(ds, rights, addr);
+      rc = attach_ds_area(ds, area, rights, addr);
+
+      if (rc)
+      {
+        STKOUT
+        return 8; /* What to return? */
+      }
+    }
+  }
+
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalQueryMem(PVOID  pb,
+            PULONG pcb,
+	    PULONG pflags)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4_uint32_t area;
+  vmdata_t *ptr;
+  l4_uint32_t rights = 0;
+  l4_addr_t addr;
+  l4_size_t size = 0;
+  l4_offs_t offset;
+  l4_threadid_t pager;
+  l4dm_dataspace_t ds;
+  int rc, ret;
+
+  STKIN
+  rc = l4rm_lookup_region((l4_addr_t)pb, &addr, &size, &ds,
+                     &offset, &pager);
+  
+  switch (rc)
+  {
+    case L4RM_REGION_RESERVED:
+    case L4RM_REGION_DATASPACE:
+      if (ptr = l4rm_get_userptr(addr)) 
+	rights = ptr->rights;
+      break;
+    case L4RM_REGION_FREE:
+      rights = PAG_FREE; 
+      break;
+    default:
+      STKOUT
+      return ERROR_INVALID_ADDRESS;
+  }
+
+  if ((l4_addr_t)pb - addr <= L4_PAGESIZE)
+    rights |= PAG_BASE;
+
+  *pcb = size;
+  *pflags = rights;
+
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalAllocSharedMem(PPVOID ppb,
+                  PSZ    pszName,
+		  ULONG  cb,
+		  ULONG  flags)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4_uint32_t rights = 0;
+  l4_uint32_t area;
+  l4dm_dataspace_t ds;
+  l4_addr_t addr;
+  vmdata_t  *ptr;
+  int rc;
+
+  STKIN
+  if (flags & PAG_READ)
+    rights |= L4DM_READ;
+
+  if (flags & PAG_WRITE)
+    rights |= L4DM_WRITE;
+
+  if (flags & PAG_EXECUTE)
+    rights |= L4DM_READ;
+
+  rc = os2exec_alloc_sharemem_call (&execsrv, cb, 0, &addr, &env);
+
+  if (rc)
+  {
+    STKOUT
+    return ERROR_NOT_ENOUGH_MEMORY;
+  }
+
+  rc = l4rm_area_reserve_region(addr, cb, 0, &area);
+
+  if (rc < 0)
+  {
+    STKOUT
+    switch (-rc)
+    {
+      case L4_ENOMEM:
+      case L4_ENOTFOUND:
+        return ERROR_NOT_ENOUGH_MEMORY;
+      default:
+        return ERROR_ACCESS_DENIED;
+    }
+  }
+
+  ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+  l4rm_set_userptr(addr, ptr);
+
+  ptr->rights = (l4_uint32_t)flags;
+  ptr->rights |= PAG_SHARED;
+  ptr->area   = area;
+  if (pszName) strcpy(ptr->name, pszName);
+
+  if (flags & PAG_COMMIT)
+  {
+    /* Create a dataspace of a given size */
+    rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
+               4096, rights, "DosAllocMem dataspace", &ds);
+
+    if (rc < 0)
+    {
+      STKOUT
+      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    }
+
+    /* attach the created dataspace to our address space */
+    //rc = attach_ds(&ds, rights, &addr);
+    rc = attach_ds_area(ds, area, rights, addr);
+
+    //enter_kdebug(">");
+    if (rc)
+    {
+      STKOUT
+      return 8; /* What to return? */
+    }
+  }
+
+  *ppb = (void *)addr;
+
+  LOG("*ppb=%x", addr);
+  STKOUT
+  return rc;
 }
 
 APIRET CDECL
@@ -1190,6 +1509,21 @@ KalSetFileSizeL(HFILE hFile,
   LOG("hFile=%x", hFile);
   LOG("cbSize=%u", cbSize);
   rc = os2fs_dos_SetFileSizeL_call(&fs, hFile, cbSize, &env);
+  STKOUT
+  return rc;
+}
+
+APIRET CDECL
+KalMove(PSZ pszOld, PSZ pszNew)
+{
+  CORBA_Environment env = dice_default_environment;
+  APIRET rc;
+
+  STKIN
+  LOG("pszOld=%s", pszOld);
+  LOG("pszNew=%s", pszNew);
+  // return an error while it is unimplemented
+  rc = ERROR_INVALID_PARAMETER;
   STKOUT
   return rc;
 }
