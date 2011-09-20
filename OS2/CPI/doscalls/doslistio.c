@@ -17,7 +17,8 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
                                   ULONG ulNumentries,
                                   PLISTIO pListIO)
 {
-  PLISTIOL pListIOL;
+  PLISTIO  q;
+  PLISTIOL pListIOL, p;
   ULONG rc, rc2;
   int i;
 
@@ -26,25 +27,25 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
 
   if (rc2) return rc2;
 
-  for (i = 0; i < ulNumentries; i++, pListIOL++, pListIO++)
+  for (i = 0, p = pListIOL, q = pListIO; i < ulNumentries; i++, p++, q++)
   {
-    pListIOL->hFile         = pListIO->hFile;
-    pListIOL->CmdFlag       = pListIO->CmdFlag;
-    pListIOL->Offset.ulLo   = pListIO->Offset;
-    pListIOL->Offset.ulHi   = 0;
-    pListIOL->pBuffer       = pListIO->pBuffer;
-    pListIOL->NumBytes      = pListIO->NumBytes;
+    p->hFile         = q->hFile;
+    p->CmdFlag       = q->CmdFlag;
+    p->Offset.ulLo   = q->Offset;
+    p->Offset.ulHi   = 0;
+    p->pBuffer       = q->pBuffer;
+    p->NumBytes      = q->NumBytes;
   }
 
   rc = DosListIOL(ulCmdMode,
                   ulNumentries,
                   pListIOL);
 
-  for (i = 0; i < ulNumentries; i++, pListIOL++, pListIO++)
+  for (i = 0, p = pListIOL, q = pListIO; i < ulNumentries; i++, p++, q++)
   {
-    pListIO->Offset = pListIOL->Offset.ulLo;
-    pListIO->pBuffer = pListIOL->pBuffer;
-    pListIO->Actual = pListIOL->Actual;
+    q->Offset  = p->Offset.ulLo;
+    q->pBuffer = p->pBuffer;
+    q->Actual  = p->Actual;
   }
 
   rc2 = DosFreeMem(pListIOL);
