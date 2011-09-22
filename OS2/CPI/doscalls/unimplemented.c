@@ -1342,10 +1342,7 @@ APIRET APIENTRY      DosExitMustComplete(PULONG pulNesting)
 
 
 
-APIRET APIENTRY      DosIQueryMessageCP(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosIQueryMessageCP(void)
 
 
 APIRET APIENTRY      DosCaseMap(void)

@@ -19,6 +19,8 @@
 #include <strlcpy.h>
 #include <strnlen.h>
 
+#include "msg.h"
+
 void log(const char *fmt, ...);
 APIRET unimplemented(char *func);
 
@@ -144,5 +146,13 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   log("msgnumber=%lu\n", msgnumber);
   log("pszFile=%s\n", pszFile);
   log("*pcbMsg=%lu\n", *pcbMsg);
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
+                                        PSZ pszFile,
+                                        PULONG cbBuf, void *msgSeg)
+{
   return unimplemented(__FUNCTION__);
 }
