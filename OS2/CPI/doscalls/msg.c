@@ -157,6 +157,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
        DosQueryPathInfo
        DosAllocMem
        DosFreeMem
+       DosInsertMessage
  */
 
 APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCHAR pBuf,
@@ -173,7 +174,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   ULONG  ulActual;
   char   *buf, *msg;
   msghdr_t *hdr = (msghdr_t *)msgSeg;
-  int    msgoff;
+  int    msgoff, msgend, msglen;
 
   ULONG  len;
 
@@ -210,12 +211,13 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     // additional checks, if any
   }
 
+  // try opening file from DASD
   if (!msgSeg)
   {
-    // try opening file from DASD
     // do some checks first
     if (!pszFile || !*pszFile)
       return ERROR_INVALID_PARAMETER;
+
     // try opening the file from the root dir/as is
     rc = DosOpenL(pszFile,                    // File name
                   &hf,                        // File handle
@@ -231,45 +233,48 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     if (rc && rc != ERROR_FILE_NOT_FOUND)
       return rc;
 
-    // if filename is fully qualified, return an error
-    if (pszFile[1] ==':' && pszFile[2] == '\\')
-      return rc;
+    if (rc) // file not found
+    {
+      // if filename is fully qualified, return an error
+      if (pszFile[1] ==':' && pszFile[2] == '\\')
+        return rc;
 
-    // otherwise, try searchin in the currentdir and on path
-    rc = DosSearchPath(SEARCH_IGNORENETERRS |
-                       SEARCH_ENVIRONMENT   |
-                       SEARCH_CUR_DIRECTORY,
-                       "DPATH",
-                       pszFile,
-                       fn,
-                       strlen(fn) + 1);
+      // otherwise, try searchin in the currentdir and on path
+      rc = DosSearchPath(SEARCH_IGNORENETERRS |
+                         SEARCH_ENVIRONMENT   |
+                         SEARCH_CUR_DIRECTORY,
+                         "DPATH",
+                         pszFile,
+                         fn,
+                         strlen(fn) + 1);
 
-    if (rc)
-      return rc;
+      if (rc)
+        return rc;
 
-    // file is found, so get file size
-    rc = DosQueryPathInfo(fn,
-                          FIL_STANDARD,
-                          &fileinfo,
-                          sizeof(FILESTATUS3));
+      // file is found, so get file size
+      rc = DosQueryPathInfo(fn,
+                            FIL_STANDARD,
+                            &fileinfo,
+                            sizeof(FILESTATUS3));
 
-    if (rc)
-      return rc;
+      if (rc)
+        return rc;
 
-    // open it
-    rc = DosOpenL(fn,
-                  &hf,
-                  &ulAction,
-                  ll,
-                  0,
-                  OPEN_ACTION_FAIL_IF_NEW |
-                  OPEN_ACTION_OPEN_IF_EXISTS,
-                  OPEN_SHARE_DENYNONE |
-                  OPEN_ACCESS_READONLY,
-                  NULL);
+      // open it
+      rc = DosOpenL(fn,
+                    &hf,
+                    &ulAction,
+                    ll,
+                    0,
+                    OPEN_ACTION_FAIL_IF_NEW |
+                    OPEN_ACTION_OPEN_IF_EXISTS,
+                    OPEN_SHARE_DENYNONE |
+                    OPEN_ACCESS_READONLY,
+                    NULL);
 
-    if (rc)
-      return rc;
+      if (rc)
+        return rc;
+    }
 
     // allocate a buffer for the file
     rc = DosAllocMem((void **)&buf, fileinfo.cbFile,
@@ -287,6 +292,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     if (rc)
       return rc;
 
+    // close file
+    DosClose(hf);
+
     msgSeg = buf;
   }
 
@@ -300,29 +308,39 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   else // it is 32 bits
     msgoff = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * msgnumber));
 
+  if (msgnumber + 1 == hdr->msgs_no) // last message
+    msgend = hdr->next_ctry_info;
+  else
+  {
+    // get next message offset
+    if (hdr->is_offs_16bits) // if offset is 16 bits
+      msgend = (int)(*(unsigned short *)(hdr->idx_ofs + 2 * (msgnumber + 1)));
+    else // it is 32 bits
+      msgend = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * (msgnumber + 1)));
+  }
+  
+  // message length
+  msglen = msgend - msgoff - 1;
+
   if (msgoff > fileinfo.cbFile)
     return ERROR_MR_MSG_TOO_LONG;
 
   // msg now points to the desired message
   msg += msgoff;
 
-  switch (*msg)
-  {
-    case 'E': // Error
-      break;
-    case 'W': // Warning
-      break;
-    case 'P': // Prompt
-      break;
-    case '?': // No message
-      break;
-    case 'I': // Info
-      break;
-    case 'H': // Help
-      break;
-    default:  // unexpected
-      break;
-  }
+  if (*msg != 'E' && *msg != 'W' &&
+      *msg != 'P' && *msg != 'I' &&
+      *msg != 'H' && *msg != '?')
+    rc = ERROR_MR_INV_MSGF_FORMAT;
+
+  msg++;
+  rc = DosInsertMessage(pTable, cTable,
+                        msg, msglen,
+                        pBuf, cbBuf,
+                        pcbMsg);
+
+  // finally, free file buffer
+  DosFreeMem(buf);
 
 
   return rc;
