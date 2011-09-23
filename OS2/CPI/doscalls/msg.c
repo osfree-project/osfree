@@ -134,6 +134,13 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   }
 }
 
+APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
+                                        PSZ pszFile,
+                                        PULONG cbBuf, void *msgSeg)
+{
+  return unimplemented(__FUNCTION__);
+}
+
 /*!  @brief Searches for a message in a message file, with a given message number and
             returns it with a number of string substituted to %i placeholders.
 
@@ -173,6 +180,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   ULONG  fisize;
   ULONG  ulActual;
   char   *buf, *msg;
+  char   id[4];
   msghdr_t *hdr = (msghdr_t *)msgSeg;
   int    msgoff, msgend, msglen;
 
@@ -284,8 +292,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
       return rc;
 
     // read the file into memory
-    rc = DosRead(hf,
-                 buf,
+    rc = DosRead(hf,                 buf,
                  fileinfo.cbFile,
                  &ulActual);
 
@@ -318,38 +325,50 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     else // it is 32 bits
       msgend = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * (msgnumber + 1)));
   }
-  
+
+  if (msgoff > fileinfo.cbFile || msgend > fileinfo.cbFile)
+    return ERROR_MR_MSG_TOO_LONG;
+
   // message length
   msglen = msgend - msgoff - 1;
-
-  if (msgoff > fileinfo.cbFile)
-    return ERROR_MR_MSG_TOO_LONG;
 
   // msg now points to the desired message
   msg += msgoff;
 
-  if (*msg != 'E' && *msg != 'W' &&
-      *msg != 'P' && *msg != 'I' &&
-      *msg != 'H' && *msg != '?')
-    rc = ERROR_MR_INV_MSGF_FORMAT;
+  // OS/2 actually does not check for prefixes
+  //if (*msg != 'E' && *msg != 'W' &&
+  //    *msg != 'P' && *msg != 'I' &&
+  //    *msg != 'H' && *msg != '?')
+  //  rc = ERROR_MR_INV_MSGF_FORMAT;
 
+  // message file ID
+  strncpy(id, hdr->id, 3);
+
+  switch (*msg)
+  {
+    case 'E': // Error
+    case 'W': // Warning
+      printf("%s%u: ", id, msgnumber + 1);
+      break;
+    default:
+      break;
+  }
+
+  // skip message type letter
   msg++;
+
+  // substitute %? to the actual parameters
   rc = DosInsertMessage(pTable, cTable,
                         msg, msglen,
                         pBuf, cbBuf,
                         pcbMsg);
+
+  // display the actual message
+  printf("%s\n", msg);
 
   // finally, free file buffer
   DosFreeMem(buf);
 
 
   return rc;
-}
-
-
-APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
-                                        PSZ pszFile,
-                                        PULONG cbBuf, void *msgSeg)
-{
-  return unimplemented(__FUNCTION__);
 }
