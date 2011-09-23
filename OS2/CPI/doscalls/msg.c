@@ -153,7 +153,6 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
        DosOpenL
        DosRead
        DosClose
-       DosQueryCurrentDir
        DosSearchPath
        DosQueryPathInfo
        DosAllocMem
@@ -167,7 +166,6 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   APIRET rc;
   HFILE hf;
   ULONG  ulAction;
-  PSZ    DPathValue;
   char   fn[CCHMAXPATH];
   FILESTATUS3 fileinfo;
   LONGLONG ll;
@@ -215,6 +213,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   if (!msgSeg)
   {
     // try opening file from DASD
+    // do some checks first
+    if (!pszFile || !*pszFile)
+      return ERROR_INVALID_PARAMETER;
     // try opening the file from the root dir/as is
     rc = DosOpenL(pszFile,                    // File name
                   &hf,                        // File handle
@@ -227,72 +228,66 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                   OPEN_ACCESS_READONLY,
                   NULL);                      // EA
 
-    if (rc == ERROR_FILE_NOT_FOUND)
-    {
-      // if filename is fully qualified, return an error
-      if (pszFile[1] ==':' && pszFile[2] == '\\')
-        return rc;
-
-      // else, try opening in the current dir
-      rc = DosQueryCurrentDir(0, fn, &len);
-      rc = DosQueryCurrentDir(0, fn, &len);
-
-      strlcat(fn, pszFile, CCHMAXPATH);
-
-      rc = DosOpenL(fn,
-                    &hf,
-                    &ulAction,
-                    ll,
-                    0,
-                    OPEN_ACTION_FAIL_IF_NEW |
-                    OPEN_ACTION_OPEN_IF_EXISTS,
-                    OPEN_SHARE_DENYNONE |
-                    OPEN_ACCESS_READONLY,
-                    NULL);
-
-      if (rc == ERROR_FILE_NOT_FOUND)
-      {
-        // otherwise, try searchin on path
-        rc = DosSearchPath(SEARCH_IGNORENETERRS |
-                           SEARCH_ENVIRONMENT   |
-                           SEARCH_CUR_DIRECTORY,
-                           "DPATH",
-                           pszFile,
-                           fn,
-                           strlen(fn) + 1);
-
-        if (rc)
-          return rc;
-
-        // file is opened, so get its size
-        rc = DosQueryPathInfo(fn,
-                              FIL_STANDARD,
-                              &fileinfo,
-                              sizeof(FILESTATUS3));
-
-        if (rc)
-          return rc;
-
-        rc = DosAllocMem((void **)&buf, fileinfo.cbFile,
-                         PAG_READ | PAG_WRITE | PAG_COMMIT);
-
-        if (rc)
-          return rc;
-
-        // read the file into memory
-        rc = DosRead(hf,
-                     buf,
-                     fileinfo.cbFile,
-                     &ulActual);
-
-        if (rc)
-          return rc;
-
-        msgSeg = buf;
-      }
-    }
-    else
+    if (rc && rc != ERROR_FILE_NOT_FOUND)
       return rc;
+
+    // if filename is fully qualified, return an error
+    if (pszFile[1] ==':' && pszFile[2] == '\\')
+      return rc;
+
+    // otherwise, try searchin in the currentdir and on path
+    rc = DosSearchPath(SEARCH_IGNORENETERRS |
+                       SEARCH_ENVIRONMENT   |
+                       SEARCH_CUR_DIRECTORY,
+                       "DPATH",
+                       pszFile,
+                       fn,
+                       strlen(fn) + 1);
+
+    if (rc)
+      return rc;
+
+    // file is found, so get file size
+    rc = DosQueryPathInfo(fn,
+                          FIL_STANDARD,
+                          &fileinfo,
+                          sizeof(FILESTATUS3));
+
+    if (rc)
+      return rc;
+
+    // open it
+    rc = DosOpenL(fn,
+                  &hf,
+                  &ulAction,
+                  ll,
+                  0,
+                  OPEN_ACTION_FAIL_IF_NEW |
+                  OPEN_ACTION_OPEN_IF_EXISTS,
+                  OPEN_SHARE_DENYNONE |
+                  OPEN_ACCESS_READONLY,
+                  NULL);
+
+    if (rc)
+      return rc;
+
+    // allocate a buffer for the file
+    rc = DosAllocMem((void **)&buf, fileinfo.cbFile,
+                     PAG_READ | PAG_WRITE | PAG_COMMIT);
+
+    if (rc)
+      return rc;
+
+    // read the file into memory
+    rc = DosRead(hf,
+                 buf,
+                 fileinfo.cbFile,
+                 &ulActual);
+
+    if (rc)
+      return rc;
+
+    msgSeg = buf;
   }
 
   // from this point, the file/msg seg is loaded at msgSeg address
