@@ -7,7 +7,7 @@
 #define __MSG_H__
 
 /* message file header magic */
-#define HDR_MAGIC {0xff, 0x4d, 0x4b, 0x4d, 0x53, 0x47, 0x46, 0x00}
+#define HDR_MAGIC "ÿMKMSGF"
 
 /* are offsets 16/32 bits? */
 #define OFS_32BITS 0
@@ -22,34 +22,35 @@
 /* MSG file header */
 typedef struct
 {
-  char magic[8];
-  char id[3];
-  unsigned short msgs_no;
-  unsigned short firstmsgno;
-  char is_offs_16bits;
-  unsigned short version;
-  unsigned short idx_ofs;
-  unsigned short ctry_info_ofs;
-  unsigned short next_ctry_info;
+  char magic[8];                  /* file header magic                       */
+  char id[3];                     /* message file ID (SYS, NET, REX or etc.) */
+  unsigned short msgs_no;         /* total number of messages in file        */
+  unsigned short firstmsgno;      /* first message number                    */
+  char is_offs_16bits;            /* are offsets 32/16 bits?                 */
+  unsigned short version;         /* file format version                     */
+  unsigned short idx_ofs;         /* file index offset                       */
+  unsigned short ctry_info_ofs;   /* country info offset                     */
+  unsigned short next_ctry_info;  /* next country info (if the file is a multi-language) */
+  char pad[7];                    /* padding/reserved                        */
 } msghdr_t;
 
 /* country info block list header */
 typedef struct
 {
-  unsigned short block_size;
-  unsigned short blocks_cnt;
+  unsigned short block_size;      /* country info block size                  */
+  unsigned short blocks_cnt;      /* total number of blocks                   */
 } ctry_block_hdr_t;
 
 /* contry info block */
 typedef struct
 {
-  char bytes_per_char;
-  char reserved1[2];
-  unsigned short lang_family_id;
-  unsigned short lang_dialect_id;
-  unsigned short codepages_no;
-  unsigned short codepages[16];
-  char filename[260];
+  char bytes_per_char;            /* char size (SBCS/DBCS)                    */
+  char reserved1[2];              /* reserved                                 */
+  unsigned short lang_family_id;  /* language family ID                       */
+  unsigned short lang_dialect_id; /* language dialect ID                      */
+  unsigned short codepages_no;    /* number of codepages                      */
+  unsigned short codepages[16];   /* codepage list                            */
+  char filename[260];             /* filename                                 */
 } ctry_block_t;
 
 #pragma pack()

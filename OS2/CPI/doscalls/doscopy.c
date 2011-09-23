@@ -25,7 +25,7 @@
 #include "strnlen.h"
 #include "strlcpy.h"
 #include "strlcat.h"
-#include "strncmp.h"
+//#include "strlcmp.h"
 
 /*!
    @brief Copies/moves file trees from one location to another
@@ -488,7 +488,7 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
     {
       if (rc = CopyFile(pszOld, pszNew, 0))
         return rc;
-        
+
       rc = DosDelete(pszOld);
     }
   }

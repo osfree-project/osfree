@@ -134,10 +134,51 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMs
   }
 }
 
+/*!  @brief Searches for a message in a message file, with a given message number and
+            returns it with a number of string substituted to %i placeholders.
+
+     @param msgSeg        a message segment address (if it's contained in an executable)
+     @param pTable        an array of substitution strings
+     @param cTable        a substitution strings number
+     @param pBuf          a user buffer
+     @param cbBuf         a user buffer size
+     @param msgnumber     a message number
+     @param pszFile       a message file name
+     @param pcbMsg        an actual returned message length
+
+     @return
+       NO_ERROR           a successful return from the API
+
+     API
+       DosOpenL
+       DosRead
+       DosClose
+       DosQueryCurrentDir
+       DosSearchPath
+       DosQueryPathInfo
+       DosAllocMem
+       DosFreeMem
+ */
+
 APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCHAR pBuf,
                                   ULONG cbBuf, ULONG msgnumber,
                                   PSZ pszFile, PULONG pcbMsg)
 {
+  APIRET rc;
+  HFILE hf;
+  ULONG  ulAction;
+  PSZ    DPathValue;
+  char   fn[CCHMAXPATH];
+  FILESTATUS3 fileinfo;
+  LONGLONG ll;
+  ULONG  fisize;
+  ULONG  ulActual;
+  char   *buf, *msg;
+  msghdr_t *hdr = (msghdr_t *)msgSeg;
+  int    msgoff;
+
+  ULONG  len;
+
   log("msgSeg=%lx\n", msgSeg);
   log("*pTable=%lx\n", *pTable);
   log("cTable=%lu\n", cTable);
@@ -146,7 +187,150 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   log("msgnumber=%lu\n", msgnumber);
   log("pszFile=%s\n", pszFile);
   log("*pcbMsg=%lu\n", *pcbMsg);
-  return unimplemented(__FUNCTION__);
+
+  ll.ulLo = 0;
+  ll.ulHi = 0;
+
+  /* Check arguments */
+  if (cTable > 9)
+    return ERROR_MR_INV_IVCOUNT;
+
+  if (!pBuf || !cbBuf)
+    return ERROR_INVALID_PARAMETER;
+
+  if (!pTable)
+  {
+    pTable[0] = "";
+    cTable = 1;
+  }
+
+  if (msgSeg)
+  {
+    if (strncmp(msgSeg, HDR_MAGIC, 8))
+      // header is invalid
+      msgSeg = 0;
+    // additional checks, if any
+  }
+
+  if (!msgSeg)
+  {
+    // try opening file from DASD
+    // try opening the file from the root dir/as is
+    rc = DosOpenL(pszFile,                    // File name
+                  &hf,                        // File handle
+                  &ulAction,                  // Action
+                  ll,                          // Initial file size
+                  0,                          // Attributes
+                  OPEN_ACTION_FAIL_IF_NEW |   // Open type
+                  OPEN_ACTION_OPEN_IF_EXISTS,
+                  OPEN_SHARE_DENYNONE |       // Open mode
+                  OPEN_ACCESS_READONLY,
+                  NULL);                      // EA
+
+    if (rc == ERROR_FILE_NOT_FOUND)
+    {
+      // if filename is fully qualified, return an error
+      if (pszFile[1] ==':' && pszFile[2] == '\\')
+        return rc;
+
+      // else, try opening in the current dir
+      rc = DosQueryCurrentDir(0, fn, &len);
+      rc = DosQueryCurrentDir(0, fn, &len);
+
+      strlcat(fn, pszFile, CCHMAXPATH);
+
+      rc = DosOpenL(fn,
+                    &hf,
+                    &ulAction,
+                    ll,
+                    0,
+                    OPEN_ACTION_FAIL_IF_NEW |
+                    OPEN_ACTION_OPEN_IF_EXISTS,
+                    OPEN_SHARE_DENYNONE |
+                    OPEN_ACCESS_READONLY,
+                    NULL);
+
+      if (rc == ERROR_FILE_NOT_FOUND)
+      {
+        // otherwise, try searchin on path
+        rc = DosSearchPath(SEARCH_IGNORENETERRS |
+                           SEARCH_ENVIRONMENT   |
+                           SEARCH_CUR_DIRECTORY,
+                           "DPATH",
+                           pszFile,
+                           fn,
+                           strlen(fn) + 1);
+
+        if (rc)
+          return rc;
+
+        // file is opened, so get its size
+        rc = DosQueryPathInfo(fn,
+                              FIL_STANDARD,
+                              &fileinfo,
+                              sizeof(FILESTATUS3));
+
+        if (rc)
+          return rc;
+
+        rc = DosAllocMem((void **)&buf, fileinfo.cbFile,
+                         PAG_READ | PAG_WRITE | PAG_COMMIT);
+
+        if (rc)
+          return rc;
+
+        // read the file into memory
+        rc = DosRead(hf,
+                     buf,
+                     fileinfo.cbFile,
+                     &ulActual);
+
+        if (rc)
+          return rc;
+
+        msgSeg = buf;
+      }
+    }
+    else
+      return rc;
+  }
+
+  // from this point, the file/msg seg is loaded at msgSeg address
+  msg = (char *)msgSeg; // message pointer
+  msgnumber -= hdr->firstmsgno;
+
+  // get message offset
+  if (hdr->is_offs_16bits) // if offset is 16 bits
+    msgoff = (int)(*(unsigned short *)(hdr->idx_ofs + 2 * msgnumber));
+  else // it is 32 bits
+    msgoff = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * msgnumber));
+
+  if (msgoff > fileinfo.cbFile)
+    return ERROR_MR_MSG_TOO_LONG;
+
+  // msg now points to the desired message
+  msg += msgoff;
+
+  switch (*msg)
+  {
+    case 'E': // Error
+      break;
+    case 'W': // Warning
+      break;
+    case 'P': // Prompt
+      break;
+    case '?': // No message
+      break;
+    case 'I': // Info
+      break;
+    case 'H': // Help
+      break;
+    default:  // unexpected
+      break;
+  }
+
+
+  return rc;
 }
 
 
