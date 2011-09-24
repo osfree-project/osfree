@@ -150,11 +150,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         pBuf[cbBuf - 1] = '\0';
         return ERROR_MR_MSG_TOO_LONG;
       }
-      else
-        pBuf[dstlen] = '\0';
-
-      *pcbMsg = dstlen;
     }
+
+    pBuf[dstlen] = '\0';
+    *pcbMsg = dstlen;
 
     return NO_ERROR;
   }
