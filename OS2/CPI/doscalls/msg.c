@@ -143,11 +143,14 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         dstlen++;
       }
 
+      // terminating zero byte
       pBuf[dstlen] = '\0';
 
+      // if no bytes remaining for zero, return an error
       if (dstlen == rest)
       {
         *pcbMsg = cbBuf;
+        pBuf[--dstlen] = '\0';
         return ERROR_MR_MSG_TOO_LONG;
       }
 
