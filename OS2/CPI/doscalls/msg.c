@@ -63,7 +63,6 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
   if (!pszMsg) return ERROR_INVALID_PARAMETER;                 // Nothing to proceed
   if (!pBuf) return ERROR_INVALID_PARAMETER;                   // No target buffer
   if ((cTable) && (!pTable)) return ERROR_INVALID_PARAMETER;   // No inserting strings array
-  if (cTable > 9) return ERROR_MR_INV_IVCOUNT;
   if (cbMsg > cbBuf) return ERROR_MR_MSG_TOO_LONG;             // Target buffer too small
 
   // If nothing to insert then just copy message to buffer
@@ -125,6 +124,9 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
       }
 
       *pcbMsg = dstlen;
+
+      if (cTable > 9)
+        return ERROR_MR_INV_IVCOUNT;
 
       if (dstlen > CCHMAXPATH)
         return ERROR_MR_MSG_TOO_LONG;
