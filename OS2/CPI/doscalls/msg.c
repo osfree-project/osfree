@@ -76,6 +76,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
     ULONG srclen;
     ULONG dstlen;
     ULONG len;
+    int   ivcount = 0;
 
     src    = pszMsg;
     dst    = pBuf;
@@ -88,6 +89,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
       {
         src++;
         dstlen++;
+        ivcount++;
+
+        if (ivcount > 9)
+          return ERROR_MR_INV_IVCOUNT;
 
         switch (*src)
         {
@@ -124,9 +129,6 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
       }
 
       *pcbMsg = dstlen;
-
-      if (cTable > 9)
-        return ERROR_MR_INV_IVCOUNT;
 
       if (dstlen > CCHMAXPATH)
         return ERROR_MR_MSG_TOO_LONG;
