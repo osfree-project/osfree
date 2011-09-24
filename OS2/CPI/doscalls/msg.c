@@ -85,6 +85,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
       {
         src++;
         dstlen++;
+
         switch (*src)
         {
           case '%': // %%
@@ -109,6 +110,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           default:  // Can't perfom action?
             return ERROR_MR_UN_PERFORM;
         }
+
         src++;
       }
       else
@@ -117,7 +119,13 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         srclen--;
         dstlen++;
       }
+
+      *pcbMsg = dstlen;
+
+      if (dstlen > CCHMAXPATH)
+        return ERROR_MR_MSG_TOO_LONG;
     }
+
     return NO_ERROR;
   }
 }
