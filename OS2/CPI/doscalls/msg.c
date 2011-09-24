@@ -89,7 +89,6 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
     PCHAR dst;
     ULONG srclen;
     ULONG dstlen;
-    ULONG len;
     int   ivcount = 0;
 
     src    = pszMsg;
@@ -124,10 +123,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '7': // %7
           case '8': // %8
           case '9': // %9
-            strlcpy(dst, pTable[*src], cbBuf);
-            len    =  strnlen(pTable[*src], cbBuf);
+            len = strnlen(pTable[*src], cbBuf - dstlen);
+            strlcpy(dst, pTable[*src], len);
             dst    += len;
-            dstlen += len;
+            dstlen += strlen(pTable[*src]);
             break;
           default:  // Can't perfom action?
             return ERROR_MR_UN_PERFORM;
@@ -147,7 +146,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         *pcbMsg = cbBuf;
         return ERROR_MR_MSG_TOO_LONG;
       }
-      
+
       *pcbMsg = dstlen;
     }
 
