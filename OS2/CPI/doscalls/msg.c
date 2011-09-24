@@ -51,84 +51,72 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 
 */
 
-APIRET APIENTRY DosInsertMessage(const PCHAR *  pTable, ULONG cTable, PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf, ULONG cbBuf, PULONG pcbMsg)
+APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
+                                 PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf,
+                                 ULONG cbBuf, PULONG pcbMsg)
 {
   // Check arguments
-  if (!pcbMsg) return ERROR_INVALID_PARAMETER;               // No result size variable
-  if (!pszMsg) return ERROR_INVALID_PARAMETER;               // Nothing to proceed
-  if (!pBuf) return ERROR_INVALID_PARAMETER;                 // No target buffer
-  if ((cTable) && (!pTable)) return ERROR_INVALID_PARAMETER; // No inserting strings array
-  if (cbMsg>cbBuf) return ERROR_MR_MSG_TOO_LONG;             // Target buffer too small
+  //if (!pcbMsg) return ERROR_INVALID_PARAMETER;               // No result size variable
+  if (!pszMsg) return ERROR_INVALID_PARAMETER;                 // Nothing to proceed
+  if (!pBuf) return ERROR_INVALID_PARAMETER;                   // No target buffer
+  if ((cTable) && (!pTable)) return ERROR_INVALID_PARAMETER;   // No inserting strings array
+  if (cbMsg > cbBuf) return ERROR_MR_MSG_TOO_LONG;             // Target buffer too small
 
   // If nothing to insert then just copy message to buffer
   if (!cTable)
   {
-    strlcpy(pszMsg, pBuf, cbBuf);
+    strlcpy(pBuf, pszMsg, cbBuf);
     return NO_ERROR;
   } else { // Produce output string
     PCHAR src;
     PCHAR dst;
     ULONG srclen;
     ULONG dstlen;
+    ULONG len;
 
-    src=pszMsg;
-    dst=pBuf;
-    srclen=cbMsg;
-    dstlen=0;
+    src    = pszMsg;
+    dst    = pBuf;
+    srclen = cbMsg;
+    dstlen = 0;
 
-    while (srclen!=0)
+    while (srclen)
     {
-      if (*src=='%')
+      if (*src == '%')
       {
         src++;
+        dstlen++;
         switch (*src)
         {
-          case '%': { *dst=*src; break; } // %%
+          case '%': // %%
+            *dst = *src;
+            break;
+          case '0': // %0
+            break;
           case '1': // %1
-          {
-            break;
-          }
           case '2': // %2
-          {
-            break;
-          }
           case '3': // %3
-          {
-            break;
-          }
           case '4': // %4
-          {
-            break;
-          }
           case '5': // %5
-          {
-            break;
-          }
           case '6': // %6
-          {
-            break;
-          }
           case '7': // %7
-          {
-            break;
-          }
           case '8': // %8
-          {
-            break;
-          }
           case '9': // %9
-          {
+            strlcpy(dst, pTable[*src], CCHMAXPATH);
+            len    =  strnlen(pTable[*src], CCHMAXPATH);
+            dst    += len;
+            dstlen += len;
             break;
-          }
-          default: return ERROR_MR_UN_PERFORM; // Can't perfom action?
+          default:  // Can't perfom action?
+            return ERROR_MR_UN_PERFORM;
         }
-      } else {
-        *dst=*src;
+        src++;
       }
-      src++;
-      dst++;
-      srclen--;
-      dstlen++;
+      else
+      {
+        *dst++ = *src++;
+        srclen--;
+        dstlen++;
+      }
     }
     return NO_ERROR;
   }
@@ -172,7 +160,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                                   PSZ pszFile, PULONG pcbMsg)
 {
   APIRET rc;
-  HFILE hf;
+  HFILE  hf;
   ULONG  ulAction;
   char   fn[CCHMAXPATH];
   FILESTATUS3 fileinfo;
@@ -292,7 +280,8 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
       return rc;
 
     // read the file into memory
-    rc = DosRead(hf,                 buf,
+    rc = DosRead(hf,
+                 buf,
                  fileinfo.cbFile,
                  &ulActual);
 
@@ -364,7 +353,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                         pcbMsg);
 
   // display the actual message
-  printf("%s\n", msg);
+  printf("%s\n", pBuf);
 
   // finally, free file buffer
   DosFreeMem(buf);
