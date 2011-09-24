@@ -90,6 +90,11 @@ fi(le): dfnsearc.c
 #define INCL_OS2DEF
 #include <os2.h>
 
+void log(const char *fmt, ...);
+APIRET unimplemented(char *func);
+
+#if 0
+
 typedef unsigned char FLAG;
 
 enum {
@@ -197,11 +202,6 @@ foundIT:
         //DBG_RETURN_I(NOT_FOUND);
 }
 
-APIRET APIENTRY  DosSearchPath(ULONG flag,
-                               PCSZ  pszPathOrName,
-                               PCSZ  pszFilename,
-                               PBYTE pBuf,
-                               ULONG cbBuf);
 
 char *dfnsearch(const char * const fnam
         , const char * const Xsearchpath
@@ -345,4 +345,16 @@ errRet:
         }
 
         //DBG_RETURN_S(0)
+}
+
+#endif
+
+
+APIRET APIENTRY  DosSearchPath(ULONG flag,
+                               PCSZ  pszPathOrName,
+                               PCSZ  pszFilename,
+                               PBYTE pBuf,
+                               ULONG cbBuf)
+{
+  return unimplemented(__FUNCTION__);
 }

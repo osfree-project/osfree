@@ -30,58 +30,6 @@ APIRET unimplemented(char *func)
   return 0;
 }
 
-APIRET APIENTRY      DosICreateThread(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosIExecPgm(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosPtrace(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISysSemClear(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISemRequest(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISysSemSet(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISemWait(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSGSwitch(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSGSwitchMe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 APIRET APIENTRY      DosIRead(void)
 {
@@ -472,14 +420,11 @@ APIRET APIENTRY  DosQueryVerify(PBOOL32 pBool)
 //                            PCSZ  *ppszValue)
 
 
-APIRET APIENTRY  DosSearchPath(ULONG flag,
-                               PCSZ  pszPathOrName,
-                               PCSZ  pszFilename,
-                               PBYTE pBuf,
-                               ULONG cbBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosSearchPath(ULONG flag,
+//                               PCSZ  pszPathOrName,
+//                               PCSZ  pszFilename,
+//                               PBYTE pBuf,
+//                               ULONG cbBuf)
 
 
 //APIRET APIENTRY DosSleep(ULONG msec)

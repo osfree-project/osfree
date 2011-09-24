@@ -14,6 +14,12 @@
 APIRET unimplemented(char *func);
 
 
+APIRET APIENTRY      DosICreateThread(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16CWAIT(void)
 {
   return unimplemented(__FUNCTION__);
@@ -21,6 +27,12 @@ USHORT __pascal         DOS16CWAIT(void)
 
 
 USHORT __pascal         DOS16ENTERCRITSEC(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosIExecPgm(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -98,7 +110,31 @@ USHORT __pascal         DOS16MAKEPIPE(void)
 }
 
 
+APIRET APIENTRY      DosISysSemClear(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosISemRequest(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosISysSemSet(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16SEMSETWAIT(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosISemWait(void)
 {
   return unimplemented(__FUNCTION__);
 }

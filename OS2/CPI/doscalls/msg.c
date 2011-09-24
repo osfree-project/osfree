@@ -24,6 +24,20 @@
 void log(const char *fmt, ...);
 APIRET unimplemented(char *func);
 
+/*!
+   @brief Outputs a message to file
+
+   @param hfile              file handle
+   @param pBuf               message buffer
+   @param cbMsg              message length
+
+   @return
+     NO_ERROR                successful return
+
+   API
+     DosWrite
+*/
+
 APIRET APIENTRY  DosPutMessage(HFILE hfile,
                                ULONG cbMsg,
                                PCHAR pBuf)
@@ -52,7 +66,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
      ERROR_MR_INV_IVCOUNT    invalid subst. vars. count
 
    API
-
+     none
 */
 
 APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
@@ -110,8 +124,8 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '7': // %7
           case '8': // %8
           case '9': // %9
-            strlcpy(dst, pTable[*src], CCHMAXPATH);
-            len    =  strnlen(pTable[*src], CCHMAXPATH);
+            strlcpy(dst, pTable[*src], cbBuf);
+            len    =  strnlen(pTable[*src], cbBuf);
             dst    += len;
             dstlen += len;
             break;
@@ -128,15 +142,34 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         dstlen++;
       }
 
-      *pcbMsg = dstlen;
-
-      if (dstlen > CCHMAXPATH)
+      if (dstlen > cbBuf)
+      {
+        *pcbMsg = cbBuf;
         return ERROR_MR_MSG_TOO_LONG;
+      }
+      
+      *pcbMsg = dstlen;
     }
 
     return NO_ERROR;
   }
 }
+
+/*!
+     @brief Queries message file codepage data
+
+     @param pb            user supplied buffer for CP data
+     @param cb            buffer length
+     @param pszFile       message file specification
+     @param cbBuf         returned data actual size
+     @param msgSeg        bound message segment address, if any
+
+     @return
+       NO_ERROR           successful return
+
+     API
+
+*/
 
 APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
                                         PSZ pszFile,
