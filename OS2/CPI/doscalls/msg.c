@@ -46,6 +46,10 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 
    @return
      NO_ERROR                message processed succesfully
+     ERROR_MR_UN_PERFORM     can't perform an action
+     ERROR_MR_MSG_TOO_LONG   message exceeds CCHMAXPATH
+     ERROR_INVALID_PARAMETER invalid parameter
+     ERROR_MR_INV_IVCOUNT    invalid subst. vars. count
 
    API
 
@@ -56,10 +60,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
                                  ULONG cbBuf, PULONG pcbMsg)
 {
   // Check arguments
-  //if (!pcbMsg) return ERROR_INVALID_PARAMETER;               // No result size variable
   if (!pszMsg) return ERROR_INVALID_PARAMETER;                 // Nothing to proceed
   if (!pBuf) return ERROR_INVALID_PARAMETER;                   // No target buffer
   if ((cTable) && (!pTable)) return ERROR_INVALID_PARAMETER;   // No inserting strings array
+  if (cTable > 9) return ERROR_MR_INV_IVCOUNT;
   if (cbMsg > cbBuf) return ERROR_MR_MSG_TOO_LONG;             // Target buffer too small
 
   // If nothing to insert then just copy message to buffer
@@ -151,6 +155,9 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
 
      @return
        NO_ERROR           a successful return from the API
+       ERROR_MR_MSG_TOO_LONG   message exceeds CCHMAXPATH
+       ERROR_INVALID_PARAMETER invalid parameter
+       ERROR_MR_INV_IVCOUNT    invalid subst. vars. count
 
      API
        DosOpenL
