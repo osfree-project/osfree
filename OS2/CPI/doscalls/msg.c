@@ -125,10 +125,10 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '8': // %8
           case '9': // %9
             rest = cbBuf - dstlen;
-            len = strnlen(pTable[*src], rest);
-            strlcpy(dst, pTable[*src], len - 1);
-            dst    += len - 1;
-            dstlen += len - 1;
+            len = strnlen(pTable[*src], rest - 1);
+            strlcpy(dst, pTable[*src], len);
+            dst    += len;
+            dstlen += len;
             break;
           default:  // Can't perfom action?
             return ERROR_MR_UN_PERFORM;
