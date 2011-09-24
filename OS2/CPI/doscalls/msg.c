@@ -125,7 +125,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '8': // %8
           case '9': // %9
             rest = cbBuf - dstlen;
-            len = strnlen(pTable[*src], rest - 1);
+            len = strnlen(pTable[*src], rest);
             strlcpy(dst, pTable[*src], len);
             dst    += len;
             dstlen += len;
@@ -143,15 +143,15 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         dstlen++;
       }
 
-      if (dstlen + 1 == rest)
+      pBuf[dstlen] = '\0';
+
+      if (dstlen == rest)
       {
         *pcbMsg = cbBuf;
-        pBuf[dstlen] = '\0';
         return ERROR_MR_MSG_TOO_LONG;
       }
 
       *pcbMsg = dstlen;
-      pBuf[dstlen] = '\0';
     }
 
     return NO_ERROR;
