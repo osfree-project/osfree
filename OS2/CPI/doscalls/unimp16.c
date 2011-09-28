@@ -482,6 +482,12 @@ USHORT __pascal         DOS16QVERIFY(void)
 }
 
 
+APIRET APIENTRY      DosIRead(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16RMDIR(void)
 {
   return unimplemented(__FUNCTION__);
@@ -519,6 +525,12 @@ USHORT __pascal         DOS16SETMAXFH(void)
 
 
 USHORT __pascal         DOS16SETVERIFY(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosIWrite(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -596,6 +608,12 @@ USHORT __pascal         DOS16DEVIOCTL2(void)
 }
 
 
+APIRET APIENTRY      DosICanonicalize(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16SETFGND(void)
 {
   return unimplemented(__FUNCTION__);
@@ -638,6 +656,18 @@ USHORT __pascal         STRURESUPDATE(void)
 }
 
 
+APIRET APIENTRY      DosISetRelMaxFH(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosIDevIOCtl(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16GETSTDA(void)
 {
   return unimplemented(__FUNCTION__);
@@ -674,6 +704,12 @@ USHORT __pascal         DOS16SGSWITCHPROC(void)
 }
 
 
+APIRET APIENTRY      DosIRamSemWake(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16SIZESEG(void)
 {
   return unimplemented(__FUNCTION__);
@@ -686,6 +722,12 @@ USHORT __pascal         DOS16MEMAVAIL(void)
 }
 
 
+APIRET APIENTRY      DosIRamSemRequest(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 USHORT __pascal         DOS16PHYSICALDISK(void)
 {
   return unimplemented(__FUNCTION__);
@@ -693,6 +735,12 @@ USHORT __pascal         DOS16PHYSICALDISK(void)
 
 
 USHORT __pascal         DOS16GETCP(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosISetCP(void)
 {
   return unimplemented(__FUNCTION__);
 }

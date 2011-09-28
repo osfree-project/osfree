@@ -31,66 +31,6 @@ APIRET unimplemented(char *func)
 }
 
 
-APIRET APIENTRY      DosIRead(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosIWrite(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosQTraceInfo(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosICanonicalize(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSetFgnd(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSwapTaskInit(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosReadPhys(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSGSwitchProc2(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISetRelMaxFH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosIDevIOCtl(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 //APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 
 
@@ -118,49 +58,25 @@ APIRET APIENTRY      DosSuppressPopUps(void)
 }
 
 
+APIRET APIENTRY         THK32ALLOCMEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32FREEMEM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY         THK32ALLOCSTACK(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
 APIRET APIENTRY      DosOpen2Compt(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosGetSTDA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSGSwitchProc(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosIRamSemWake(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosIRamSemRequest(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosISetCP(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosGlobalSeg(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosProfile(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2631,24 +2547,6 @@ APIRET APIENTRY DosExitCritSec(VOID)
 }
 
 APIRET APIENTRY         THK32FREESTACK(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         THK32ALLOCMEM(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         THK32FREEMEM(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         THK32ALLOCSTACK(void)
 {
   return unimplemented(__FUNCTION__);
 }

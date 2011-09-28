@@ -143,7 +143,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         dstlen++;
       }
 
-      // if no bytes remaining for zero, return an error
+      // if no bytes remaining for terminating zero, return an error
       if (dstlen >= cbBuf)
       {
         *pcbMsg = cbBuf;
@@ -152,7 +152,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
       }
     }
 
-    pBuf[dstlen] = '\0';
+    pBuf[dstlen++] = '\0';
     *pcbMsg = dstlen;
 
     return NO_ERROR;
