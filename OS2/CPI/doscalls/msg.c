@@ -87,22 +87,30 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
   } else { // Produce output string
     PCHAR src;
     PCHAR dst;
-    ULONG srclen;
-    ULONG dstlen;
-    ULONG len, rest;
+    int   srclen;
+    int   dstlen;
+    int   len, rest, maxlen = 0;
     int   ivcount = 0;
+    int   i;
 
-    src    = pszMsg;
+    src    = (char *)pszMsg;
     dst    = pBuf;
     srclen = cbMsg;
+    maxlen = srclen;
     dstlen = 0;
 
-    while (srclen)
+    // add params lenths (without zeroes)
+    for (i = 0; i < cTable; i++)
+      maxlen += strnlen(pTable[i], cbBuf) - 1;
+
+    srclen = maxlen;
+
+    for (;;)
     {
       if (*src == '%')
       {
         src++;
-        dstlen++;
+        srclen--;
         ivcount++;
 
         if (ivcount > 9)
@@ -111,9 +119,12 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         switch (*src)
         {
           case '%': // %%
-            *dst = *src;
+            *dst++ = *src;
+            srclen--;
+            dstlen++;
             break;
           case '0': // %0
+            srclen--;
             break;
           case '1': // %1
           case '2': // %2
@@ -124,16 +135,18 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '7': // %7
           case '8': // %8
           case '9': // %9
-            rest = cbBuf - dstlen;
-            len = strnlen(pTable[*src], rest);
-            strlcpy(dst, pTable[*src], len);
+            len = strnlen(pTable[*src - '1'], cbBuf);
+            strncpy(dst, pTable[*src - '1'],  len);
             dst    += len;
             dstlen += len;
+            srclen -= len;
             break;
           default:  // Can't perfom action?
+            if (srclen <= 0)
+              break;
+
             return ERROR_MR_UN_PERFORM;
         }
-
         src++;
       }
       else
@@ -143,8 +156,11 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
         dstlen++;
       }
 
+      if (srclen <= 0)
+        break;
+
       // if no bytes remaining for terminating zero, return an error
-      if (dstlen >= cbBuf)
+      if (dstlen > maxlen)
       {
         *pcbMsg = cbBuf;
         pBuf[cbBuf - 1] = '\0';
@@ -282,7 +298,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                   OPEN_ACCESS_READONLY,
                   NULL);                      // EA
 
-    if (rc && rc != ERROR_FILE_NOT_FOUND)
+    if (rc && rc != ERROR_FILE_NOT_FOUND && rc != ERROR_OPEN_FAILED)
       return rc;
 
     if (rc) // file not found
@@ -298,7 +314,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                          "DPATH",
                          pszFile,
                          fn,
-                         strlen(fn) + 1);
+                         CCHMAXPATH);
 
       if (rc)
         return rc;
@@ -351,14 +367,15 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   }
 
   // from this point, the file/msg seg is loaded at msgSeg address
-  msg = (char *)msgSeg; // message pointer
+  msg = (char *)msgSeg;  // message pointer
+  hdr = (msghdr_t *)msg; // message header
   msgnumber -= hdr->firstmsgno;
 
   // get message offset
   if (hdr->is_offs_16bits) // if offset is 16 bits
-    msgoff = (int)(*(unsigned short *)(hdr->idx_ofs + 2 * msgnumber));
+    msgoff = (int)(*(unsigned short *)(msg + hdr->idx_ofs + 2 * msgnumber));
   else // it is 32 bits
-    msgoff = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * msgnumber));
+    msgoff = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * msgnumber));
 
   if (msgnumber + 1 == hdr->msgs_no) // last message
     msgend = hdr->next_ctry_info;
@@ -366,9 +383,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   {
     // get next message offset
     if (hdr->is_offs_16bits) // if offset is 16 bits
-      msgend = (int)(*(unsigned short *)(hdr->idx_ofs + 2 * (msgnumber + 1)));
+      msgend = (int)(*(unsigned short *)(msg + hdr->idx_ofs + 2 * (msgnumber + 1)));
     else // it is 32 bits
-      msgend = (int)(*(unsigned long *)(hdr->idx_ofs + 4 * (msgnumber + 1)));
+      msgend = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * (msgnumber + 1)));
   }
 
   if (msgoff > fileinfo.cbFile || msgend > fileinfo.cbFile)
@@ -393,7 +410,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   {
     case 'E': // Error
     case 'W': // Warning
-      printf("%s%u: ", id, msgnumber + 1);
+      printf("%s%04u: ", id, msgnumber + 1);
       break;
     default:
       break;
@@ -413,7 +430,6 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   // finally, free file buffer
   DosFreeMem(buf);
-
 
   return rc;
 }
