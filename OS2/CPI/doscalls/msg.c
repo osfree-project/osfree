@@ -6,7 +6,7 @@
 
    @author Yuri Prokushev <prokushev@freemail.ru>
    @author Valery Sedletski <_valerius@mail.ru>
-   
+
 */
 
 #define INCL_DOSMISC
@@ -23,7 +23,6 @@
 #include "msg.h"
 
 void log(const char *fmt, ...);
-APIRET unimplemented(char *func);
 
 /*!
    @brief Outputs a message to file
@@ -44,6 +43,10 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
                                PCHAR pBuf)
 {
   ULONG ulActual;
+
+  log("hfile=0x%x\n", hfile);
+  log("cbMsg=%lu\n", cbMsg);
+  log("pBuf=%s\n", pBuf);
   return DosWrite(hfile, pBuf, cbMsg, &ulActual);
 }
 
@@ -74,6 +77,25 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
                                  PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf,
                                  ULONG cbBuf, PULONG pcbMsg)
 {
+  int i;
+
+  // output args to log
+  log("pszMsg=");
+
+  for (i = 0; i < cbMsg; i++)
+    log("%c", pszMsg[i]);
+
+  log("\n");
+  log("cbMsg=%u", cbMsg);
+
+  log("cTable=%u\n", cTable);
+
+  for (i = 0; i < cTable; i++)
+    log("pTable[%u]=%s\n", i, pTable[i]);
+
+  log("pBuf=0x%x\n", pBuf);
+  log("cbBuf=%lu\n", cbBuf);
+
   // Check arguments
   if (!pszMsg) return ERROR_INVALID_PARAMETER;                 // Nothing to proceed
   if (!pBuf) return ERROR_INVALID_PARAMETER;                   // No target buffer
@@ -100,7 +122,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
     maxlen = srclen;
     dstlen = 0;
 
-    // add params lenths (without zeroes)
+    // add params lenths (without zeroes, and minus 2 == strlen("%?"))
     for (i = 0; i < cTable; i++)
       maxlen += strnlen(pTable[i], cbBuf) - 1;
 
@@ -171,6 +193,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
 
     pBuf[dstlen++] = '\0';
     *pcbMsg = dstlen;
+    log("*pcbMsg=%lu\n", *pcbMsg);
 
     return NO_ERROR;
   }
@@ -331,6 +354,14 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   msghdr_t *hdr;
   ctry_block_t *ctry;
 
+  log("pb=0x%lx\n", pb);
+  log("cb=%lu\n", cb);
+
+  if (!pszFile && !*pszFile)
+    log("pszFile=%s\n", pszFile);
+
+  log("msgSeg=0x%lx\n", msgSeg);
+
   if (!pb || !cb || !pszFile || !*pszFile)
     return ERROR_INVALID_PARAMETER;
 
@@ -373,18 +404,25 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
     return ERROR_BUFFER_OVERFLOW;
 
   *((USHORT *)p) = cp_cnt;
+  log("codepage cnt=%u\n", cp_cnt);
   p += 2;
 
   for (i = 0; i < cp_cnt; i++, p += 2)
+  {
     *((USHORT *)p) = ctry->codepages[i];
+    log("codepage%u=%u\n", i, ctry->codepages[i]);
+  }
 
   *((USHORT *)p) = ctry->lang_family_id;
+  log("language family id=%u\n", ctry->lang_family_id);
   p += 2;
   *((USHORT *)p) = ctry->lang_dialect_id;
+  log("language dialect id=%u\n", ctry->lang_dialect_id);
   p += 2;
 
   // returned data size
   *cbBuf =  p - pb;
+  log("*cbBuf=%lu\n", *cbBuf);
 
   // finally, free file buffer
   DosFreeMem(buf);
@@ -438,18 +476,22 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   char   *msg;
   char   id[4];
   msghdr_t *hdr = (msghdr_t *)msgSeg;
-  int    msgoff, msgend, msglen;
+  int    msgoff, msgend, msglen, i;
 
   ULONG  len;
 
-  log("msgSeg=%lx\n", msgSeg);
-  log("*pTable=%lx\n", *pTable);
-  log("cTable=%lu\n", cTable);
-  log("pBuf=%lx\n", pBuf);
+  log("msgSeg=0x%lx\n", msgSeg);
+
+  // output args to log
+  log("cTable=%u\n", cTable);
+
+  for (i = 0; i < cTable; i++)
+    log("pTable[%u]=%s\n", i, pTable[i]);
+
+  log("pBuf=0x%x\n", pBuf);
   log("cbBuf=%lu\n", cbBuf);
   log("msgnumber=%lu\n", msgnumber);
   log("pszFile=%s\n", pszFile);
-  log("*pcbMsg=%lu\n", *pcbMsg);
 
   /* Check arguments */
   if (cTable > 9)
@@ -546,6 +588,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   // display the actual message
   printf("%s\n", pBuf);
+  log("*pcbMsg=%lu\n", *pcbMsg);
 
   // finally, free file buffer
   DosFreeMem(buf);
