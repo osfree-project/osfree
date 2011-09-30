@@ -5,7 +5,8 @@
    @brief MSG API implementation.
 
    @author Yuri Prokushev <prokushev@freemail.ru>
-
+   @author Valery Sedletski <_valerius@mail.ru>
+   
 */
 
 #define INCL_DOSMISC
@@ -200,7 +201,7 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
   rc = DosOpenL(pszFile,                    // File name
                 &hf,                        // File handle
                 &ulAction,                  // Action
-                ll,                          // Initial file size
+                ll,                         // Initial file size
                 0,                          // Attributes
                 OPEN_ACTION_FAIL_IF_NEW |   // Open type
                 OPEN_ACTION_OPEN_IF_EXISTS,
@@ -277,6 +278,17 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
   return rc;
 }
 
+APIRET APIENTRY      PvtChkMsgFileFmt(void *msgSeg)
+{
+
+  if (strncmp(msgSeg, HDR_MAGIC, 8))
+    return ERROR_MR_INV_MSGF_FORMAT; // invalid message format
+  // additional checks, if any
+  // ...
+
+  return NO_ERROR;
+}
+
 /*!
      @brief Queries message file codepage data
 
@@ -288,8 +300,22 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
 
      @return
        NO_ERROR           successful return
+       ERROR_FILENAME_EXCED_RANGE   filename too long
+       ERROR_OPEN_FAILED            open failed
+       ERROR_FILE_NOT_FOUND         file not found
+       ERROR_MR_UN_ACC_MSGF         message file unaccessible
+       ERROR_BUFFER_OVERFLOW        buffer too small
+       ERROR_MR_INV_MSGF_FORMAT     invalid message format
+       ERROR_MR_UN_PERFORM          can't perform an action
 
      API
+       DosOpenL
+       DosRead
+       DosClose
+       DosAllocMem
+       DosFreeMem
+       DosSearchPath
+       DosQueryPathInfo
 
 */
 
@@ -308,6 +334,13 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   if (!pb || !cb || !pszFile || !*pszFile)
     return ERROR_INVALID_PARAMETER;
 
+  if (msgSeg)
+  {
+    if (PvtChkMsgFileFmt(msgSeg))
+      // file format is invalid
+      msgSeg = 0;
+  }
+
   if (!msgSeg)
   {
     // try opening file from DASD
@@ -315,8 +348,11 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
     msgSeg = buf;
   }
 
-  if (!msgSeg && rc)
+  if (!msgSeg || rc)
     return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+
+  if (PvtChkMsgFileFmt(msgSeg))
+    return ERROR_MR_INV_MSGF_FORMAT; // invalid message format
 
   // from this point, the file/msg seg is loaded at msgSeg address
   msg = (char *)msgSeg;  // message pointer
@@ -324,7 +360,11 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
 
   // country info
   ctry = (ctry_block_t *)(msg + hdr->ctry_info_ofs);
+  // codepages count
   cp_cnt = ctry->codepages_no;
+
+  if (!cp_cnt)
+    return ERROR_MR_UN_PERFORM;
 
   if (cp_cnt > 16)
     return ERROR_INVALID_PARAMETER;
@@ -337,6 +377,17 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
 
   for (i = 0; i < cp_cnt; i++, p += 2)
     *((USHORT *)p) = ctry->codepages[i];
+
+  *((USHORT *)p) = ctry->lang_family_id;
+  p += 2;
+  *((USHORT *)p) = ctry->lang_dialect_id;
+  p += 2;
+
+  // returned data size
+  *cbBuf =  p - pb;
+
+  // finally, free file buffer
+  DosFreeMem(buf);
 
 
   return NO_ERROR;
@@ -355,10 +406,16 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
      @param pcbMsg        an actual returned message length
 
      @return
-       NO_ERROR           a successful return from the API
-       ERROR_MR_MSG_TOO_LONG   message exceeds CCHMAXPATH
-       ERROR_INVALID_PARAMETER invalid parameter
-       ERROR_MR_INV_IVCOUNT    invalid subst. vars. count
+       NO_ERROR                     a successful return from the API
+       ERROR_FILENAME_EXCED_RANGE   filename too long
+       ERROR_OPEN_FAILED            open failed
+       ERROR_FILE_NOT_FOUND         file not found
+       ERROR_MR_MSG_TOO_LONG        message exceeds CCHMAXPATH
+       ERROR_INVALID_PARAMETER      invalid parameter
+       ERROR_MR_INV_IVCOUNT         invalid subst. vars. count
+       ERROR_MR_UN_ACC_MSGF         unable to access message file
+       ERROR_MR_INV_MSGF_FORMAT     invalid message format
+       ERROR_MR_UN_PERFORM          can't perform an action
 
      API
        DosOpenL
@@ -409,10 +466,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   if (msgSeg)
   {
-    if (strncmp(msgSeg, HDR_MAGIC, 8))
-      // header is invalid
+    if (PvtChkMsgFileFmt(msgSeg))
+      // file format is invalid
       msgSeg = 0;
-    // additional checks, if any
   }
 
   if (!msgSeg)
@@ -422,8 +478,11 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     msgSeg = buf;
   }
 
-  if (!msgSeg && rc)
+  if (!msgSeg || rc)
     return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+
+  if (PvtChkMsgFileFmt(msgSeg))
+    return ERROR_MR_INV_MSGF_FORMAT; // invalid message format
 
   // from this point, the file/msg seg is loaded at msgSeg address
   msg = (char *)msgSeg;  // message pointer
@@ -469,6 +528,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   {
     case 'E': // Error
     case 'W': // Warning
+      // prepend the Warning/Error ID (like SYS3175: )
       printf("%s%04u: ", id, msgnumber + 1);
       break;
     default:
