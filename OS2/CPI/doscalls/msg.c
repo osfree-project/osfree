@@ -175,6 +175,108 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
   }
 }
 
+
+APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
+{
+  FILESTATUS3 fileinfo;
+  HFILE    hf;
+  ULONG    ulAction;
+  LONGLONG ll;
+  char     fn[CCHMAXPATH];
+  ULONG    fisize;
+  ULONG    ulActual;
+  APIRET   rc;
+
+  ll.ulLo = 0;
+  ll.ulHi = 0;
+
+  if (!pszFile || !*pszFile)
+    return ERROR_INVALID_PARAMETER;
+
+  if (strnlen(pszFile, CCHMAXPATH) == CCHMAXPATH)
+    return ERROR_FILENAME_EXCED_RANGE;
+
+  // try opening the file from the root dir/as is
+  rc = DosOpenL(pszFile,                    // File name
+                &hf,                        // File handle
+                &ulAction,                  // Action
+                ll,                          // Initial file size
+                0,                          // Attributes
+                OPEN_ACTION_FAIL_IF_NEW |   // Open type
+                OPEN_ACTION_OPEN_IF_EXISTS,
+                OPEN_SHARE_DENYNONE |       // Open mode
+                OPEN_ACCESS_READONLY,
+                NULL);                      // EA
+
+  if (rc && rc != ERROR_FILE_NOT_FOUND && rc != ERROR_OPEN_FAILED)
+    return rc;
+
+  if (rc) // file not found
+  {
+    // if filename is fully qualified, return an error
+    if (pszFile[1] ==':' && pszFile[2] == '\\')
+      return rc;
+
+    // otherwise, try searchin in the currentdir and on path
+    rc = DosSearchPath(SEARCH_IGNORENETERRS |
+                       SEARCH_ENVIRONMENT   |
+                       SEARCH_CUR_DIRECTORY,
+                       "DPATH",
+                       pszFile,
+                       fn,
+                       CCHMAXPATH);
+
+    if (rc)
+      return rc;
+
+    // open it
+    rc = DosOpenL(fn,
+                  &hf,
+                  &ulAction,
+                  ll,
+                  0,
+                  OPEN_ACTION_FAIL_IF_NEW |
+                  OPEN_ACTION_OPEN_IF_EXISTS,
+                  OPEN_SHARE_DENYNONE |
+                  OPEN_ACCESS_READONLY,
+                  NULL);
+  }
+
+  if (rc)
+    return rc;
+
+  // file is found, so get file size
+  rc = DosQueryPathInfo(fn,
+                        FIL_STANDARD,
+                        &fileinfo,
+                        sizeof(FILESTATUS3));
+
+  if (rc)
+    return rc;
+
+  // allocate a buffer for the file
+  rc = DosAllocMem(buf, fileinfo.cbFile,
+                   PAG_READ | PAG_WRITE | PAG_COMMIT);
+
+  if (rc)
+    return rc;
+
+  // read the file into memory
+  rc = DosRead(hf,
+               *buf,
+               fileinfo.cbFile,
+               &ulActual);
+
+  if (rc)
+    return rc;
+
+  // close file
+  DosClose(hf);
+  *pcbFile = fileinfo.cbFile;
+
+  return rc;
+}
+
 /*!
      @brief Queries message file codepage data
 
@@ -195,7 +297,49 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
                                         PSZ pszFile,
                                         PULONG cbBuf, void *msgSeg)
 {
-  return unimplemented(__FUNCTION__);
+  APIRET   rc;
+  ULONG    cbFile;
+  int      cp_cnt, i;
+  void     *buf;
+  char     *msg, *p = pb;
+  msghdr_t *hdr;
+  ctry_block_t *ctry;
+
+  if (!pb || !cb || !pszFile || !*pszFile)
+    return ERROR_INVALID_PARAMETER;
+
+  if (!msgSeg)
+  {
+    // try opening file from DASD
+    rc = PvtLoadMsgFile(pszFile, &buf, &cbFile);
+    msgSeg = buf;
+  }
+
+  if (!msgSeg && rc)
+    return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+
+  // from this point, the file/msg seg is loaded at msgSeg address
+  msg = (char *)msgSeg;  // message pointer
+  hdr = (msghdr_t *)msg; // message header
+
+  // country info
+  ctry = (ctry_block_t *)(msg + hdr->ctry_info_ofs);
+  cp_cnt = ctry->codepages_no;
+
+  if (cp_cnt > 16)
+    return ERROR_INVALID_PARAMETER;
+
+  if (6 + 2 * cp_cnt > cb)
+    return ERROR_BUFFER_OVERFLOW;
+
+  *((USHORT *)p) = cp_cnt;
+  p += 2;
+
+  for (i = 0; i < cp_cnt; i++, p += 2)
+    *((USHORT *)p) = ctry->codepages[i];
+
+
+  return NO_ERROR;
 }
 
 /*!  @brief Searches for a message in a message file, with a given message number and
@@ -232,14 +376,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                                   PSZ pszFile, PULONG pcbMsg)
 {
   APIRET rc;
-  HFILE  hf;
-  ULONG  ulAction;
-  char   fn[CCHMAXPATH];
-  FILESTATUS3 fileinfo;
-  LONGLONG ll;
-  ULONG  fisize;
-  ULONG  ulActual;
-  char   *buf, *msg;
+  ULONG  cbFile;
+  void   *buf;
+  char   *msg;
   char   id[4];
   msghdr_t *hdr = (msghdr_t *)msgSeg;
   int    msgoff, msgend, msglen;
@@ -254,9 +393,6 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   log("msgnumber=%lu\n", msgnumber);
   log("pszFile=%s\n", pszFile);
   log("*pcbMsg=%lu\n", *pcbMsg);
-
-  ll.ulLo = 0;
-  ll.ulHi = 0;
 
   /* Check arguments */
   if (cTable > 9)
@@ -279,92 +415,15 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     // additional checks, if any
   }
 
-  // try opening file from DASD
   if (!msgSeg)
   {
-    // do some checks first
-    if (!pszFile || !*pszFile)
-      return ERROR_INVALID_PARAMETER;
-
-    // try opening the file from the root dir/as is
-    rc = DosOpenL(pszFile,                    // File name
-                  &hf,                        // File handle
-                  &ulAction,                  // Action
-                  ll,                          // Initial file size
-                  0,                          // Attributes
-                  OPEN_ACTION_FAIL_IF_NEW |   // Open type
-                  OPEN_ACTION_OPEN_IF_EXISTS,
-                  OPEN_SHARE_DENYNONE |       // Open mode
-                  OPEN_ACCESS_READONLY,
-                  NULL);                      // EA
-
-    if (rc && rc != ERROR_FILE_NOT_FOUND && rc != ERROR_OPEN_FAILED)
-      return rc;
-
-    if (rc) // file not found
-    {
-      // if filename is fully qualified, return an error
-      if (pszFile[1] ==':' && pszFile[2] == '\\')
-        return rc;
-
-      // otherwise, try searchin in the currentdir and on path
-      rc = DosSearchPath(SEARCH_IGNORENETERRS |
-                         SEARCH_ENVIRONMENT   |
-                         SEARCH_CUR_DIRECTORY,
-                         "DPATH",
-                         pszFile,
-                         fn,
-                         CCHMAXPATH);
-
-      if (rc)
-        return rc;
-
-      // file is found, so get file size
-      rc = DosQueryPathInfo(fn,
-                            FIL_STANDARD,
-                            &fileinfo,
-                            sizeof(FILESTATUS3));
-
-      if (rc)
-        return rc;
-
-      // open it
-      rc = DosOpenL(fn,
-                    &hf,
-                    &ulAction,
-                    ll,
-                    0,
-                    OPEN_ACTION_FAIL_IF_NEW |
-                    OPEN_ACTION_OPEN_IF_EXISTS,
-                    OPEN_SHARE_DENYNONE |
-                    OPEN_ACCESS_READONLY,
-                    NULL);
-
-      if (rc)
-        return rc;
-    }
-
-    // allocate a buffer for the file
-    rc = DosAllocMem((void **)&buf, fileinfo.cbFile,
-                     PAG_READ | PAG_WRITE | PAG_COMMIT);
-
-    if (rc)
-      return rc;
-
-    // read the file into memory
-    rc = DosRead(hf,
-                 buf,
-                 fileinfo.cbFile,
-                 &ulActual);
-
-    if (rc)
-      return rc;
-
-    // close file
-    DosClose(hf);
-
+    // try opening file from DASD
+    rc = PvtLoadMsgFile(pszFile, &buf, &cbFile);
     msgSeg = buf;
   }
+
+  if (!msgSeg && rc)
+    return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
 
   // from this point, the file/msg seg is loaded at msgSeg address
   msg = (char *)msgSeg;  // message pointer
@@ -388,7 +447,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
       msgend = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * (msgnumber + 1)));
   }
 
-  if (msgoff > fileinfo.cbFile || msgend > fileinfo.cbFile)
+  if (msgoff > cbFile || msgend > cbFile)
     return ERROR_MR_MSG_TOO_LONG;
 
   // message length
