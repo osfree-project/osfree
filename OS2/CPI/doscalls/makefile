@@ -43,7 +43,12 @@ srcfiles = $(p)msg$(e) &
            $(p)env$(e)    &
            $(p)thunk$(e)  &
            $(p)sched$(e)  &
-           $(p)unimplemented$(e) $(p)unimp16$(e) $(p)doseditname$(e) $(p)dossearchpath$(e) # $(p)monitors$(e)
+           $(p)unimplemented$(e) &
+           $(p)unimp16$(e) &
+           $(p)doseditname$(e) &
+           $(p)dossearchpath$(e) &
+           $(p)token$(e) &
+           $(p)monitors$(e)
 
 ADD_COPT = -s -od
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared

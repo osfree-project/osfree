@@ -90,8 +90,11 @@ fi(le): dfnsearc.c
 #define INCL_OS2DEF
 #include <os2.h>
 
+#include "token.h"
+#include "strnlen.h"
+#include "strlcpy.h"
+
 void log(const char *fmt, ...);
-APIRET unimplemented(char *func);
 
 #if 0
 
@@ -349,6 +352,34 @@ errRet:
 
 #endif
 
+/*!
+  @brief     Searches for a file on a path. Path is explicitly specified,
+             or by path name
+
+  @param  flag   includes:
+                   SEARCH_IGNORENETERRS: Ignore network errors, while searching
+                   SEARCH_ENVIRONMENT:   Search for the env. var., in pszPathOrName, in ENVIRONMENT
+                   SEARCH_CUR_DIRECTORY: search in a current directory first
+  @param  pszPathOrName   path name (if SEARCH_ENVIRONMENT is specified), or the path itself, othrewise
+  @param  pszFilename     filename to search for
+  @param  pBuf            user buffer for a resulting filename
+  @param  cbBuf           user buffer size
+
+  @return
+    NO_ERROR                        if successful
+    ERROR_INVALID_PARAMETER         input parameters are incorrect
+    ERROR_FILE_NOT_FOUND            file not found on the path
+    ERROR_BUFFER_OVERFLOW           input buffer is too small
+    ERROR_ENVVAR_NOT_FOUND          env. variable not found
+    ERROR_INVAID_FUNCTION           incorrect flag value
+
+  API:
+    DosAllocMem
+    DosFreeMem
+    DosOpen
+    DosCLose
+    DosScanEnv
+*/
 
 APIRET APIENTRY  DosSearchPath(ULONG flag,
                                PCSZ  pszPathOrName,
@@ -356,5 +387,94 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
                                PBYTE pBuf,
                                ULONG cbBuf)
 {
-  return unimplemented(__FUNCTION__);
+  STR_SAVED_TOKENS st;
+  char   *psep = ";";
+  char   *sep  = "\\";
+  char   *path;
+  char   *pathtmp, *pathval;
+  char   *p;
+  ULONG  ulAction;
+  HFILE  hf;
+  APIRET rc;
+
+  if (!pszPathOrName || !*pszPathOrName ||
+      !pszFilename   || !*pszFilename   ||
+      !pBuf || !cbBuf)
+    return ERROR_INVALID_PARAMETER;
+
+  // if incorrect flag is specified
+  if (flag & ~(SEARCH_ENVIRONMENT | SEARCH_CUR_DIRECTORY | SEARCH_IGNORENETERRS))
+    return ERROR_INVALID_FUNCTION;
+
+  // need to find 'path' value first
+  if (flag & SEARCH_ENVIRONMENT)
+  {
+    // search for path on the environment
+    rc = DosScanEnv(pszPathOrName, &pathtmp);
+
+    if (flag & SEARCH_CUR_DIRECTORY)
+    {
+      rc = DosAllocMem((void **)&pathval, strlen(pathtmp) + 3,
+                       PAG_READ | PAG_WRITE | PAG_COMMIT);
+      pathval[0] = '.';
+      pathval[1] = *psep;
+      strcpy(pathval + 2, pathtmp);
+      path = pathval;
+    }
+    else
+      path = pathtmp;
+  }
+  else // path is specified immediately as pszPathOrName
+    path = pszPathOrName;
+
+  StrTokSave(&st);
+
+  if (p = StrTokenize(path, psep))
+    do if (*p)
+    {
+      pBuf[0] = '\0';
+
+      strlcat(pBuf, p, cbBuf);
+
+      if (p[strnlen(p, CCHMAXPATH) - 1] != *sep)
+        strlcat(pBuf, sep, cbBuf);
+
+      strlcat(pBuf, pszFilename, cbBuf);
+
+      if (strnlen(pBuf, cbBuf) == cbBuf)
+      {
+        StrTokStop();
+        return ERROR_BUFFER_OVERFLOW;
+      }
+
+      // try to DosOpen it
+      if (rc = DosOpen(pBuf,
+                       &hf,
+                       &ulAction,
+                       0,
+                       0,
+                       OPEN_ACTION_FAIL_IF_NEW |
+                       OPEN_ACTION_OPEN_IF_EXISTS,
+                       OPEN_SHARE_DENYNONE |
+                       OPEN_ACCESS_READONLY,
+                       NULL))
+        continue;
+
+      // file found, return
+      DosClose(hf);
+      StrTokStop();
+
+      if (flag & SEARCH_CUR_DIRECTORY)
+        DosFreeMem(pathval);
+
+      return NO_ERROR;
+    } while ((p = StrTokenize(0, psep)) != 0);
+
+  if (flag & SEARCH_CUR_DIRECTORY)
+    DosFreeMem(pathval);
+
+  StrTokRestore(&st);
+
+
+  return ERROR_FILE_NOT_FOUND;
 }

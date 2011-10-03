@@ -122,7 +122,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
     maxlen = srclen;
     dstlen = 0;
 
-    // add params lenths (without zeroes, and minus 2 == strlen("%?"))
+    // add params lenths (without zeroes)
     for (i = 0; i < cTable; i++)
       maxlen += strnlen(pTable[i], cbBuf) - 1;
 
@@ -241,7 +241,7 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
     if (pszFile[1] ==':' && pszFile[2] == '\\')
       return rc;
 
-    // otherwise, try searchin in the currentdir and on path
+    // otherwise, try searching in the currentdir and on path
     rc = DosSearchPath(SEARCH_IGNORENETERRS |
                        SEARCH_ENVIRONMENT   |
                        SEARCH_CUR_DIRECTORY,

@@ -5,12 +5,12 @@
 APIRET __cdecl   KalSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,
                                 ULONG method,
-                                PLONGLONG ibActual);
+                                PULONGLONG ibActual);
 
 APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,
                                 ULONG method,
-                                PLONGLONG ibActual)
+                                PULONGLONG ibActual)
 {
   return KalSetFilePtrL(hFile, ib, method, ibActual);
 }
@@ -22,7 +22,7 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
                                PULONG ibActual)
 {
   LONGLONG ibL;
-  LONGLONG ibActualL;
+  ULONGLONG ibActualL;
   APIRET rc;
 
   if (ibActual==NULL)
@@ -38,12 +38,10 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
                     method,
                     &ibActualL);
 
-  if (ibActualL.ulHi!=0)
-  {
-    rc=ERROR_SEEK_ON_DEVICE;
-  }
-
   *ibActual=ibActualL.ulLo;
+
+  //if (ibActualL.ulHi)
+  //  rc = ERROR_SEEK_ON_DEVICE;
 
   return rc;
 }
