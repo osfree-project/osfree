@@ -289,6 +289,12 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
   if (rc)
     return rc;
 
+  if (!fileinfo.cbFile)
+  {
+    log("DosQueryPathInfo returned zero .msg file size!\n");
+    return ERROR_INVALID_PARAMETER;
+  }
+
   // allocate a buffer for the file
   rc = DosAllocMem(buf, fileinfo.cbFile,
                    PAG_READ | PAG_WRITE | PAG_COMMIT);

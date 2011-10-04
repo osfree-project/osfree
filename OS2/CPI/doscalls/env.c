@@ -2,13 +2,12 @@
  *  InfoBlocks etc.
  */
 
+#define  INCL_DOSERRORS
 #define  INCL_DOS
 #include <os2.h>
 
 #include <string.h>
 
-//APIRET __cdecl   KalScanEnv(PCSZ  pszName,
-//                            PCSZ  *ppszValue);
 
 APIRET __cdecl   KalGetInfoBlocks(PTIB *pptib,
                                   PPIB *pppib);
@@ -19,10 +18,24 @@ APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
   return KalGetInfoBlocks(pptib, pppib);
 }
 
+/*!
+  @brief         Gets an environment variable by name
+
+  @param         pszName       variable name
+  @param         ppszValue     pointer to returned pointer variable (to an environment variable)
+
+  @return
+    NO_ERROR                   if env. var found successfully
+    ERROR_ENVVAR_NOT_FOUND     env. var. not found
+
+  API
+    DosGetInfoBlocks
+*/
+
 APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
-                            PCSZ  *ppszValue)
+                            PSZ  *ppszValue)
 {
-  char varname[0x100];
+  char varname[CCHMAXPATH];
   PPIB pib;
   PTIB tib;
   int  i;
@@ -38,7 +51,7 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
   for (p = env; *p; p += strlen(p) + 1)
   {
     // move until '=' sign is encountered
-    for (i = 0, q = p; *q && *q != '=' && i < 256; q++, i++) ;
+    for (i = 0, q = p; *q && *q != '=' && i < CCHMAXPATH - 1; q++, i++) ;
 
     /* copy to name buffer  */
     strncpy(varname, p, i);
@@ -48,7 +61,8 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
     if (!strcasecmp(varname, pszName))
     {
       /* variable found */
-      strcpy(*ppszValue, q + 1);
+      *ppszValue = q + 1;
+
       return NO_ERROR;
     }
   }

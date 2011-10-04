@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <io.h>
+#include <stdio.h>
 
 #include "token.h"
 #include "strnlen.h"
@@ -68,52 +69,64 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
                                PBYTE pBuf,
                                ULONG cbBuf)
 {
-  STR_SAVED_TOKENS st;
   char   *psep = ";";
   char   *sep  = "\\";
+  STR_SAVED_TOKENS st;
+  int    pathlen;
+  char   *pathtmp;
   char   *path;
-  char   *pathtmp, *pathval;
   char   *p;
   ULONG  ulAction;
   HFILE  hf;
   APIRET rc;
+
+  log("flag=%08x\n", flag);
+  log("pszPathOrName=%s\n", pszPathOrName);
+  log("pszFilename=%s\n", pszFilename);
+  log("pBuf=%08x\n", pBuf);
+  log("cbBuf=%lu\n", cbBuf);
 
   if (!pszPathOrName || !*pszPathOrName ||
       !pszFilename   || !*pszFilename   ||
       !pBuf || !cbBuf)
     return ERROR_INVALID_PARAMETER;
 
-  log("flag=0x%lx\n", flag);
-  log("pszPathOrName=%s\n", pszPathOrName);
-  log("pszFilename=%s\n", pszFilename);
-  log("pBuf=0x%08x\n", pBuf);
-  log("cbBuf=%lu\n", cbBuf);
-
   // if incorrect flag is specified
   if (flag & ~(SEARCH_ENVIRONMENT | SEARCH_CUR_DIRECTORY | SEARCH_IGNORENETERRS))
     return ERROR_INVALID_FUNCTION;
 
   // need to find 'path' value first
+  // search for path on the environment
   if (flag & SEARCH_ENVIRONMENT)
   {
-    // search for path on the environment
     rc = DosScanEnv(pszPathOrName, &pathtmp);
 
-    if (flag & SEARCH_CUR_DIRECTORY)
-    {
-      rc = DosAllocMem((void **)&pathval, strlen(pathtmp) + 3,
-                       PAG_READ | PAG_WRITE | PAG_COMMIT);
-      pathval[0] = '.';
-      pathval[1] = *psep;
-      strcpy(pathval + 2, pathtmp);
-      path = pathval;
-    }
-    else
-      path = pathtmp;
+    pathlen = strlen(pathtmp) + 1;
   }
-  else // path is specified immediately as pszPathOrName
-    path = (char *)pszPathOrName;
+  else
+  {
+    pathtmp = (char *)pszPathOrName;
+    pathlen = strlen(pszPathOrName) + 1;
+  }
 
+  if (flag & SEARCH_CUR_DIRECTORY)
+    pathlen += 2;
+
+  // create an area with read-write access
+  rc = DosAllocMem((void **)&path, pathlen,
+                   PAG_READ | PAG_WRITE | PAG_COMMIT);
+
+  p = path;
+
+  if (flag & SEARCH_CUR_DIRECTORY)
+  {
+    // add current dir in front of path
+    p[0] = '.';
+    p[1] = *psep;
+    p += 2;
+  }
+
+  strcpy(p, pathtmp);
   StrTokSave(&st);
 
   if (p = StrTokenize(path, psep))
@@ -123,7 +136,7 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
 
       strlcat(pBuf, p, cbBuf);
 
-      if (p[strnlen(p, CCHMAXPATH) - 1] != *sep)
+      if (p[strnlen(p, cbBuf) - 1] != *sep)
         strlcat(pBuf, sep, cbBuf);
 
       strlcat(pBuf, pszFilename, cbBuf);
@@ -131,6 +144,7 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
       if (strnlen(pBuf, cbBuf) == cbBuf)
       {
         StrTokStop();
+        DosFreeMem(path);
         return ERROR_BUFFER_OVERFLOW;
       }
 
@@ -150,19 +164,14 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
       // file found, return
       DosClose(hf);
       StrTokStop();
-
-      if (flag & SEARCH_CUR_DIRECTORY)
-        DosFreeMem(pathval);
-
+      DosFreeMem(path);
       log("pBuf=%s\n", pBuf);
 
       return NO_ERROR;
-    } while ((p = StrTokenize(0, psep)) != 0);
-
-  if (flag & SEARCH_CUR_DIRECTORY)
-    DosFreeMem(pathval);
+    } while (p = StrTokenize(0, psep));
 
   StrTokRestore(&st);
+  DosFreeMem(path);
   *pBuf = '\0';
 
 
