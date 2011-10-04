@@ -83,6 +83,12 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
       !pBuf || !cbBuf)
     return ERROR_INVALID_PARAMETER;
 
+  log("flag=0x%lx\n", flag);
+  log("pszPathOrName=%s\n", pszPathOrName);
+  log("pszFilename=%s\n", pszFilename);
+  log("pBuf=0x%08x\n", pBuf);
+  log("cbBuf=%lu\n", cbBuf);
+
   // if incorrect flag is specified
   if (flag & ~(SEARCH_ENVIRONMENT | SEARCH_CUR_DIRECTORY | SEARCH_IGNORENETERRS))
     return ERROR_INVALID_FUNCTION;
@@ -147,6 +153,8 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
 
       if (flag & SEARCH_CUR_DIRECTORY)
         DosFreeMem(pathval);
+
+      log("pBuf=%s\n", pBuf);
 
       return NO_ERROR;
     } while ((p = StrTokenize(0, psep)) != 0);

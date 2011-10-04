@@ -2558,10 +2558,7 @@ APIRET APIENTRY         Dos32Profile(void)
 }
 
 
-APIRET APIENTRY         Dos32TrueGetMessage(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY         Dos32TrueGetMessage(void)
 
 
 APIRET APIENTRY         Dos32IQueryMessageCP(void)

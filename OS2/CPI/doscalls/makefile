@@ -80,7 +80,6 @@ IMPORTS = DosFSCtl             KAL.KalFSCtl, &
           _KalGetInfoBlocks    KAL.KalGetInfoBlocks, &
           _KalResetBuffer      KAL.KalResetBuffer, &
           _KalSetFilePtrL      KAL.KalSetFilePtrL, &
-          _KalScanEnv          KAL.KalScanEnv,     &
           _KalSleep            KAL.KalSleep,       &
           _KalDupHandle        KAL.KalDupHandle,   &
           _KalDelete           KAL.KalDelete,      &
@@ -493,9 +492,9 @@ EXPORTS = &
         DOS16INSMESSAGE            .385, &
         DosInsertMessage           .386, &
         DosPutMessage              .387, &
-        Dos32TrueGetMessage        .388, &
+        DosTrueGetMessage          .388, &
         DOS16IQUERYMESSAGECP       .389, &
-        Dos32IQueryMessageCP       .390, &
+        DosIQueryMessageCP         .390, &
 # nls
         DOS16CASEMAP               .391, &
         DOS16GETCOLLATE            .392, &

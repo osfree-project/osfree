@@ -90,8 +90,11 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
 
   log("cTable=%u\n", cTable);
 
-  for (i = 0; i < cTable; i++)
-    log("pTable[%u]=%s\n", i, pTable[i]);
+  if (pTable)
+    for (i = 0; i < cTable; i++)
+      log("pTable[%u]=%s\n", i, pTable[i]);
+  else
+    log("pTable=0\n");
 
   log("pBuf=0x%x\n", pBuf);
   log("cbBuf=%lu\n", cbBuf);
@@ -105,7 +108,7 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
   // If nothing to insert then just copy message to buffer
   if (!cTable)
   {
-    strlcpy(pBuf, pszMsg, cbBuf);
+    strlcpy(pBuf, pszMsg, cbMsg);
     return NO_ERROR;
   } else { // Produce output string
     PCHAR src;
@@ -122,11 +125,11 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
     maxlen = srclen;
     dstlen = 0;
 
+    printf("srclen=%u\n", srclen);
+
     // add params lenths (without zeroes)
     for (i = 0; i < cTable; i++)
       maxlen += strnlen(pTable[i], cbBuf) - 1;
-
-    srclen = maxlen;
 
     for (;;)
     {
@@ -158,11 +161,17 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '7': // %7
           case '8': // %8
           case '9': // %9
+            if (*src >= cTable)
+            {
+              src++; dst++;
+              srclen--; dstlen++;
+              break;
+            }
             len = strnlen(pTable[*src - '1'], cbBuf);
             strncpy(dst, pTable[*src - '1'],  len);
             dst    += len;
             dstlen += len;
-            srclen -= len;
+            //srclen -= len;
             break;
           default:  // Can't perfom action?
             if (srclen <= 0)
@@ -232,7 +241,9 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
                 OPEN_ACCESS_READONLY,
                 NULL);                      // EA
 
-  if (rc && rc != ERROR_FILE_NOT_FOUND && rc != ERROR_OPEN_FAILED)
+  if (rc && rc != ERROR_FILE_NOT_FOUND &&
+            rc != ERROR_OPEN_FAILED    &&
+            rc != ERROR_PATH_NOT_FOUND)
     return rc;
 
   if (rc) // file not found
@@ -500,12 +511,6 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   if (!pBuf || !cbBuf)
     return ERROR_INVALID_PARAMETER;
 
-  if (!pTable)
-  {
-    pTable[0] = "";
-    cTable = 1;
-  }
-
   if (msgSeg)
   {
     if (PvtChkMsgFileFmt(msgSeg))
@@ -547,6 +552,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     else // it is 32 bits
       msgend = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * (msgnumber + 1)));
   }
+
+  printf("msgoff=0x%lx\n", msgoff);
+  printf("msgend=0x%lx\n", msgend);
 
   if (msgoff > cbFile || msgend > cbFile)
     return ERROR_MR_MSG_TOO_LONG;
