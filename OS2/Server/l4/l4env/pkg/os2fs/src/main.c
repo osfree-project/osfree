@@ -27,6 +27,8 @@ l4_threadid_t os2srv;
 // use events server flag
 char use_events = 0;
 
+int FSR_INIT(void);
+
 void usage(void)
 {
   LOG("os2fs usage:\n");
@@ -85,6 +87,7 @@ int main(int argc, char **argv)
   int  rc;
 
   init_globals();
+  //FSR_INIT();
 
   if (!names_register("os2fs"))
   {

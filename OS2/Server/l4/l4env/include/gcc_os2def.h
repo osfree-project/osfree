@@ -81,20 +81,28 @@
 #define ERROR_INVALID_PARAMETER 87
 #define NO_ERROR                0
 #define ERROR_ENVVAR_NOT_FOUND	203
-#define PAG_READ		0x0001
-#define PAG_WRITE		0x0002
-#define PAG_EXECUTE		0x0004
-#define PAG_GUARD		0x0008
-#define PAG_COMMIT		0x0010
-#define OBJ_TILE                0x0040
+#define PAG_READ		0x00000001
+#define PAG_WRITE		0x00000002
+#define PAG_EXECUTE		0x00000004
+#define PAG_GUARD		0x00000008
+#define PAG_COMMIT		0x00000010
+#define PAG_DECOMMIT            0x00000020
+#define OBJ_TILE                0x00000040
+#define OBJ_GETTABLE            0x00000100
+#define OBJ_GIVETABLE           0x00000200
+#define PAG_DEFAULT             0x00000400
+#define PAG_SHARED              0x00002000
+#define PAG_FREE                0x00004000
+#define PAG_BASE                0x00010000
 #endif
 
-#define CHAR     char
-#define SHORT    short
-#define LONG     long
-#define INT      int
-#define VOID     void
-#define LONGLONG long long
+#define CHAR       char
+#define SHORT      short
+#define LONG       long
+#define INT        int
+#define VOID       void
+#define LONGLONG   long long
+#define ULONGLONG  unsigned long long
 
 typedef unsigned long   APIRET;
 typedef unsigned short  APIRET16;
@@ -132,11 +140,12 @@ typedef unsigned long BOOL, *PBOOL;
 #endif
 typedef unsigned LONG BOOL32, *PBOOL32;
 
-typedef CHAR     *PCHAR;
-typedef SHORT    *PSHORT;
-typedef INT      *PINT;
-typedef LONG     *PLONG;
-typedef LONGLONG *PLONGLONG;
+typedef CHAR      *PCHAR;
+typedef SHORT     *PSHORT;
+typedef INT       *PINT;
+typedef LONG      *PLONG;
+typedef LONGLONG  *PLONGLONG;
+typedef ULONGLONG *PULONGLONG;
 /*
 typedef CHAR     * _Seg16 PCHAR16;
 typedef UCHAR    * _Seg16 PUCHAR16;

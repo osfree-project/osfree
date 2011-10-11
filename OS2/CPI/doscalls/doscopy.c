@@ -21,6 +21,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "dl.h"
+
 // Safe functions
 #include "strnlen.h"
 #include "strlcpy.h"
@@ -57,8 +59,8 @@
      KalMove
 */
 
-APIRET __cdecl   KalMove(PCSZ  pszOld,
-                         PCSZ  pszNew);
+//APIRET __cdecl   KalMove(PCSZ  pszOld,
+//                         PCSZ  pszNew);
 
 #define IOBUF_SIZ       32768U                  /* enough? (performance)
                                                    Most probably here

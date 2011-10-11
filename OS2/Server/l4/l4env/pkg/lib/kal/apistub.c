@@ -5,14 +5,6 @@
  *  exported from the KAL.DLL virtual library.
  */
 
-#include <l4/os3/gcc_os2def.h>
-#include <l4/os3/apistub.h>
-
-#include <dice/dice.h>
-
-#include <l4/os2srv/os2server-client.h>
-#include <l4/execsrv/os2exec-client.h>
-
 #include <l4/l4rm/l4rm.h>
 #include <l4/env/env.h>
 #include <l4/env/errno.h>
@@ -25,22 +17,182 @@
 #include <l4/sys/kdebug.h>
 #include <l4/generic_ts/generic_ts.h>
 
-#include "../stacksw.h"
+#include <l4/os3/gcc_os2def.h>
+#include <l4/os3/apistub.h>
 
-extern l4_threadid_t fs;
-extern l4_threadid_t os2srv;
-extern l4_threadid_t execsrv;
-extern unsigned long __stack;
+#include <dice/dice.h>
+
+#include <l4/os2srv/os2server-client.h>
+#include <l4/execsrv/os2exec-client.h>
+
+#include <stacksw.h>
+
+char LOG_tag[9];
+
+struct kal_init_struct
+{
+  l4_threadid_t fs;
+  l4_threadid_t os2srv;
+  l4_threadid_t execsrv;
+  unsigned long stack;
+  void *l4rm_detach;
+  void *l4rm_do_attach;
+  void *l4rm_lookup;
+  void *l4rm_lookup_region;
+  void *l4rm_do_reserve;
+  void *l4rm_set_userptr;
+  void *l4rm_get_userptr;
+  void *l4rm_area_release;
+  void *l4rm_area_release_addr;
+  void *l4env_get_default_dsm;
+  CORBA_Environment *env;
+  char *logtag;
+};
+
+l4_threadid_t fs;
+l4_threadid_t os2srv;
+l4_threadid_t execsrv;
+unsigned long __stack;
 
 static ULONG CurMaxFH = 20;
 
+L4_CV int
+(*l4rm_do_attach_ptr)(const l4dm_dataspace_t * ds, l4_uint32_t area, l4_addr_t * addr,
+               l4_size_t size, l4_offs_t ds_offs, l4_uint32_t flags);
+
+L4_CV int
+(*l4rm_detach_ptr)(const void * addr);
+
+L4_CV int
+(*l4rm_lookup_ptr)(const void * addr, l4_addr_t * map_addr, l4_size_t * map_size,
+            l4dm_dataspace_t * ds, l4_offs_t * offset, l4_threadid_t * pager);
+
+L4_CV int
+(*l4rm_lookup_region_ptr)(const void * addr, l4_addr_t * map_addr,
+                   l4_size_t * map_size, l4dm_dataspace_t * ds,
+                   l4_offs_t * offset, l4_threadid_t * pager);
+
+L4_CV int
+(*l4rm_do_reserve_ptr)(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
+                l4_uint32_t * area);
+
+L4_CV int
+(*l4rm_set_userptr_ptr)(const void * addr, void * ptr);
+
+L4_CV void *
+(*l4rm_get_userptr_ptr)(const void * addr);
+
+L4_CV int
+(*l4rm_area_release_ptr)(l4_uint32_t area);
+
+L4_CV int
+(*l4rm_area_release_addr_ptr)(const void * ptr);
+
+L4_CV l4_threadid_t
+(*l4env_get_default_dsm_ptr)(void);
+
+//int l4env_argc;
+//char **l4env_argv;
+
 unsigned long
-PvtLoadModule(char *pszName,
+pvtLoadModule(char *pszName,
               unsigned long cbName,
               char const *pszModname,
               os2exec_module_t *s,
               unsigned long *phmod);
 
+void kalInit(struct kal_init_struct *s)
+{
+  strncpy(LOG_tag, s->logtag, 9);
+  LOG_tag[8] = '\0';
+  LOG("s=0x%x", s);
+  fs      = s->fs;
+  os2srv  = s->os2srv;
+  execsrv = s->execsrv;
+  LOG("execsrv=%u.%u", s->execsrv.id.task, s->execsrv.id.lthread);
+  LOG("execsrv2=%u.%u", execsrv.id.task, execsrv.id.lthread);
+  __stack = s->stack;
+  l4rm_do_attach_ptr = s->l4rm_do_attach;
+  l4rm_detach_ptr    = s->l4rm_detach;
+  l4rm_lookup_ptr    = s->l4rm_lookup;
+  l4rm_lookup_region_ptr = s->l4rm_lookup_region;
+  l4rm_do_reserve_ptr    = s->l4rm_do_reserve;
+  l4rm_set_userptr_ptr   = s->l4rm_set_userptr; 
+  l4rm_get_userptr_ptr   = s->l4rm_get_userptr; 
+  l4rm_area_release_ptr  = s->l4rm_area_release;
+  l4rm_area_release_addr_ptr = s->l4rm_area_release_addr;
+  l4env_get_default_dsm_ptr  = s->l4env_get_default_dsm;
+}
+  
+/* Wrappers */
+
+L4_CV int
+l4rm_do_attach(const l4dm_dataspace_t * ds, l4_uint32_t area, l4_addr_t * addr,
+               l4_size_t size, l4_offs_t ds_offs, l4_uint32_t flags)
+{
+  return l4rm_do_attach_ptr(ds, area, addr,
+               size, ds_offs, flags);
+}
+
+L4_CV int
+l4rm_detach(const void * addr)
+{
+  return l4rm_detach_ptr(addr);
+}
+
+L4_CV int
+l4rm_lookup(const void * addr, l4_addr_t * map_addr, l4_size_t * map_size,
+            l4dm_dataspace_t * ds, l4_offs_t * offset, l4_threadid_t * pager)
+{
+  return l4rm_lookup_ptr(addr, map_addr, map_size,
+            ds, offset, pager);
+}
+
+L4_CV int
+l4rm_lookup_region(const void * addr, l4_addr_t * map_addr,
+                   l4_size_t * map_size, l4dm_dataspace_t * ds,
+                   l4_offs_t * offset, l4_threadid_t * pager)
+{
+  return l4rm_lookup_region_ptr(addr, map_addr,
+                   map_size, ds, offset, pager);
+}
+
+L4_CV int
+l4rm_do_reserve(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
+                l4_uint32_t * area)
+{
+  return l4rm_do_reserve_ptr(addr, size, flags, area);
+}
+
+L4_CV int
+l4rm_set_userptr(const void * addr, void * ptr)
+{
+  return l4rm_set_userptr_ptr(addr, ptr);
+}
+
+L4_CV void *
+l4rm_get_userptr(const void * addr)
+{
+  return l4rm_get_userptr_ptr(addr);
+}
+
+L4_CV int
+l4rm_area_release(l4_uint32_t area)
+{
+  return l4rm_area_release_ptr(area);
+}
+
+L4_CV int
+l4rm_area_release_addr(const void * ptr)
+{
+  return l4rm_area_release_addr_ptr(ptr);
+}
+
+L4_CV l4_threadid_t
+l4env_get_default_dsm(void)
+{
+  return l4env_get_default_dsm_ptr();
+}
 
 int
 strlstlen(char *p)
@@ -69,7 +221,7 @@ strlstlen(char *p)
 
 
 APIRET CDECL
-KalOpenL (PSZ pszFileName,
+kalOpenL (PSZ pszFileName,
           HFILE *phFile,
 	  ULONG *pulAction,
 	  LONGLONG cbFile,
@@ -102,7 +254,7 @@ KalOpenL (PSZ pszFileName,
 }
 
 APIRET CDECL
-KalFSCtl (PVOID pData,
+kalFSCtl (PVOID pData,
           ULONG cbData,
 	  PULONG pcbData,
 	  PVOID pParms,
@@ -133,7 +285,7 @@ KalFSCtl (PVOID pData,
 }
 
 APIRET CDECL
-KalRead (HFILE hFile, PVOID pBuffer,
+kalRead (HFILE hFile, PVOID pBuffer,
             ULONG cbRead, PULONG pcbActual)
 {
   CORBA_Environment env = dice_default_environment;
@@ -164,7 +316,7 @@ KalRead (HFILE hFile, PVOID pBuffer,
 
 
 APIRET CDECL
-KalWrite (HFILE hFile, PVOID pBuffer,
+kalWrite (HFILE hFile, PVOID pBuffer,
               ULONG cbWrite, PULONG pcbActual)
 {
   CORBA_Environment env = dice_default_environment;
@@ -194,7 +346,7 @@ KalWrite (HFILE hFile, PVOID pBuffer,
 }
 
 APIRET CDECL
-KalLogWrite (PSZ s)
+kalLogWrite (PSZ s)
 {
   STKIN
   LOG_printf("%s", s);
@@ -203,10 +355,9 @@ KalLogWrite (PSZ s)
 }
 
 VOID CDECL
-KalExit(ULONG action, ULONG result)
+kalExit(ULONG action, ULONG result)
 {
   CORBA_Environment env = dice_default_environment;
-
   STKIN
   // send OS/2 server a message that we want to terminate
   LOG("action=%u", action);
@@ -220,7 +371,7 @@ KalExit(ULONG action, ULONG result)
 
 
 APIRET CDECL
-KalQueryCurrentDisk(PULONG pdisknum,
+kalQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical)
 {
   CORBA_Environment env = dice_default_environment;
@@ -234,7 +385,7 @@ KalQueryCurrentDisk(PULONG pdisknum,
 }
 
 APIRET CDECL
-KalSetCurrentDir(PSZ pszDir)
+kalSetCurrentDir(PSZ pszDir)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -246,7 +397,7 @@ KalSetCurrentDir(PSZ pszDir)
 }
 
 APIRET CDECL
-KalSetDefaultDisk(ULONG disknum)
+kalSetDefaultDisk(ULONG disknum)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -258,7 +409,7 @@ KalSetDefaultDisk(ULONG disknum)
 }
 
 APIRET CDECL
-KalQueryCurrentDir(ULONG disknum,
+kalQueryCurrentDir(ULONG disknum,
                        PBYTE pBuf,
                        PULONG pcbBuf)
 {
@@ -277,7 +428,7 @@ KalQueryCurrentDir(ULONG disknum,
 
 
 APIRET CDECL
-KalQueryProcAddr(ULONG hmod,
+kalQueryProcAddr(ULONG hmod,
                      ULONG ordinal,
                      const PSZ  pszName,
                      void  **ppfn)
@@ -296,7 +447,7 @@ KalQueryProcAddr(ULONG hmod,
 }
 
 APIRET CDECL
-KalQueryModuleHandle(const char *pszModname,
+kalQueryModuleHandle(const char *pszModname,
                      unsigned long *phmod)
 {
   CORBA_Environment env = dice_default_environment;
@@ -311,7 +462,7 @@ KalQueryModuleHandle(const char *pszModname,
 }
 
 APIRET CDECL
-KalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf)
+kalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -357,6 +508,7 @@ attach_ds_reg(l4dm_dataspace_t ds, l4_uint32_t flags, l4_addr_t addr)
   l4_addr_t a = addr;
 
   /* get dataspace size */
+  LOG("1");
   if ((error = l4dm_mem_size(&ds, &size)))
     {
       printf("Error %d (%s) getting size of dataspace\n",
@@ -365,6 +517,7 @@ attach_ds_reg(l4dm_dataspace_t ds, l4_uint32_t flags, l4_addr_t addr)
     }
 
   /* attach it to a given region */  
+  LOG("2");
   if ((error = l4rm_attach_to_region(&ds, a, size, 0, flags)))
     {
       printf("Error %d (%s) attaching dataspace\n",
@@ -372,6 +525,7 @@ attach_ds_reg(l4dm_dataspace_t ds, l4_uint32_t flags, l4_addr_t addr)
       return error;
     }
 
+  LOG("3");
   return 0;
 }
 
@@ -438,10 +592,13 @@ attach_module (ULONG hmod)
     if (type & L4_DSTYPE_WRITE)
       flags |= L4DM_WRITE;
 
+    LOG("1");
     if ((rc = l4rm_lookup(addr, &map_addr, &map_size,
                     &area_ds, &offset, &pager)) != L4RM_REGION_DATASPACE)
     {
+      LOG("2");
       rc = attach_ds_reg (ds, flags, addr);
+      LOG("3");
       if (!rc) 
         LOG("attached");
       else
@@ -458,6 +615,7 @@ attach_module (ULONG hmod)
     }
   }
 
+  LOG("3");
 
   return 0; //rc;
 }
@@ -493,9 +651,8 @@ attach_all (ULONG hmod)
   return rc;
 }
 
-
 unsigned long
-PvtLoadModule(char *pszName,
+pvtLoadModule(char *pszName,
               unsigned long cbName,
               char const *pszModname,
               os2exec_module_t *s,
@@ -506,6 +663,9 @@ PvtLoadModule(char *pszName,
   ULONG hmod, rc;
 
   LOG("PvtLoadModule called");
+  LOG("execsrv=%u.%u", execsrv.id.task, execsrv.id.lthread);
+  LOG("env=0x%x", env);
+  LOG("pszModname=%s", pszModname);
   rc = os2exec_open_call (&execsrv, pszModname, &ds,
                           1, &hmod, &env);
   if (rc)
@@ -538,7 +698,7 @@ PvtLoadModule(char *pszName,
 
 
 APIRET CDECL
-KalLoadModule(PSZ pszName,
+kalLoadModule(PSZ pszName,
                   ULONG cbName,
                   char const *pszModname,
                   PULONG phmod)
@@ -548,7 +708,7 @@ KalLoadModule(PSZ pszName,
   STKIN
   LOG("pszName=%s");
   LOG("cbName=%u", cbName);
-  rc = PvtLoadModule(pszName, cbName, pszModname,
+  rc = pvtLoadModule(pszName, cbName, pszModname,
                        &s, phmod);
   LOG("pszModname=%s", pszModname);
   LOG("*phmod=%x", *phmod);
@@ -556,8 +716,43 @@ KalLoadModule(PSZ pszName,
   return rc;
 }
 
+#define PT_16BIT 0
+#define PT_32BIT 1
+
 APIRET CDECL
-KalExecPgm(char *pObjname,
+kalQueryProcType(HMODULE hmod,
+                 ULONG ordinal,
+		 PSZ pszName,
+		 PULONG pulProcType)
+{
+  void *pfn;
+  APIRET rc;
+
+  STKIN
+  rc = kalQueryProcAddr(hmod, ordinal, pszName, &pfn);
+  if (rc) return rc;
+  if (pfn)
+    *pulProcType = PT_32BIT; 
+  STKOUT
+  return NO_ERROR;
+}
+
+
+APIRET CDECL
+kalQueryAppType(PSZ pszName,
+                PULONG pFlags)
+{
+  APIRET rc;
+
+  STKIN
+  // ...
+  STKOUT
+  return rc;
+}
+
+
+APIRET CDECL
+kalExecPgm(char *pObjname,
            long cbObjname,
            unsigned long execFlag,
            char *pArg,
@@ -608,7 +803,7 @@ KalExecPgm(char *pObjname,
 }
 
 APIRET CDECL
-KalError(ULONG error)
+kalError(ULONG error)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -636,7 +831,7 @@ typedef struct
 } vmdata_t;
 
 APIRET CDECL
-KalAllocMem(PVOID *ppb,
+kalAllocMem(PVOID *ppb,
             ULONG cb,
 	    ULONG flags)
 {
@@ -660,7 +855,9 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
 
+  LOG("0");
   rc = l4rm_area_reserve(cb, 0, &addr, &area);
+  LOG("1");
 
   if (rc < 0)
   {
@@ -675,15 +872,19 @@ KalAllocMem(PVOID *ppb,
     }
   }
 
+  LOG("2");
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+  LOG("3");
   l4rm_set_userptr(addr, ptr);
 
   ptr->rights = (l4_uint32_t)flags;
   ptr->area   = area;
 
+  LOG("4");
   if (flags & PAG_COMMIT)
   {
     /* Create a dataspace of a given size */
+    LOG("5");
     rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
                4096, rights, "DosAllocMem dataspace", &ds);
 
@@ -695,6 +896,7 @@ KalAllocMem(PVOID *ppb,
 
     /* attach the created dataspace to our address space */
     //rc = attach_ds(&ds, rights, &addr);
+    LOG("6");
     rc = attach_ds_area(ds, area, rights, addr);
 
     //enter_kdebug(">");
@@ -705,6 +907,7 @@ KalAllocMem(PVOID *ppb,
     }
   }
 
+  LOG("7");
   *ppb = (void *)addr;
 
   LOG("*ppb=%x", addr);
@@ -714,7 +917,7 @@ KalAllocMem(PVOID *ppb,
 }
 
 APIRET CDECL
-KalFreeMem(PVOID pb)
+kalFreeMem(PVOID pb)
 {
   CORBA_Environment env = dice_default_environment;
   vmdata_t *ptr;
@@ -781,7 +984,7 @@ KalFreeMem(PVOID pb)
 
 
 APIRET CDECL
-KalSetMem(PVOID pb,
+kalSetMem(PVOID pb,
           ULONG cb,
 	  ULONG flags)
 {
@@ -895,7 +1098,7 @@ KalSetMem(PVOID pb,
 }
 
 APIRET CDECL
-KalQueryMem(PVOID  pb,
+kalQueryMem(PVOID  pb,
             PULONG pcb,
 	    PULONG pflags)
 {
@@ -940,7 +1143,7 @@ KalQueryMem(PVOID  pb,
 }
 
 APIRET CDECL
-KalAllocSharedMem(PPVOID ppb,
+kalAllocSharedMem(PPVOID ppb,
                   PSZ    pszName,
 		  ULONG  cb,
 		  ULONG  flags)
@@ -1026,7 +1229,7 @@ KalAllocSharedMem(PPVOID ppb,
 }
 
 APIRET CDECL
-KalResetBuffer(HFILE handle)
+kalResetBuffer(HFILE handle)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -1038,10 +1241,10 @@ KalResetBuffer(HFILE handle)
 }
 
 APIRET CDECL
-KalSetFilePtrL(HFILE handle,
+kalSetFilePtrL(HFILE handle,
                LONGLONG ib,
 	       ULONG method,
-	       PLONGLONG ibActual)
+	       PULONGLONG ibActual)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -1051,13 +1254,14 @@ KalSetFilePtrL(HFILE handle,
   LOG("method=%x", method);
   rc = os2fs_dos_SetFilePtrL_call (&fs, handle, ib,
                                   method, ibActual, &env);
-  LOG("ibActual=%u", *ibActual);
+  LOG("*ibActual=%d", *ibActual);
+  LOG("rc=%u", rc);
   STKOUT
   return rc;
 }
 
 APIRET CDECL
-KalClose(HFILE handle)
+kalClose(HFILE handle)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
@@ -1069,7 +1273,7 @@ KalClose(HFILE handle)
 }
 
 APIRET CDECL
-KalQueryHType(HFILE handle,
+kalQueryHType(HFILE handle,
               PULONG pType,
 	      PULONG pAttr)
 {
@@ -1085,7 +1289,7 @@ KalQueryHType(HFILE handle,
 }
 
 APIRET CDECL
-KalQueryDBCSEnv(ULONG cb,
+kalQueryDBCSEnv(ULONG cb,
                 COUNTRYCODE *pcc,
 		PBYTE pBuf)
 {
@@ -1101,7 +1305,7 @@ KalQueryDBCSEnv(ULONG cb,
 }
 
 APIRET CDECL
-KalQueryCp(ULONG cb,
+kalQueryCp(ULONG cb,
            PULONG arCP,
 	   PULONG pcCP)
 {
@@ -1122,7 +1326,7 @@ KalQueryCp(ULONG cb,
 }
 
 APIRET CDECL
-KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
+kalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
 {
   CORBA_Environment env = dice_default_environment;
   l4dm_dataspace_t ds;
@@ -1191,24 +1395,8 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
   return 0; /* NO_ERROR */
 }
 
-
 APIRET CDECL
-KalScanEnv(PSZ pszName,
-           PPSZ ppszValue)
-{
-  CORBA_Environment env = dice_default_environment;
-  APIRET rc;
-
-  STKIN
-  LOG("pszName=%s", pszName);
-  rc = os2server_dos_ScanEnv_call(&os2srv, pszName, ppszValue, &env);
-  LOG("*ppszValue=%s", *ppszValue);
-  STKOUT
-  return rc; /* NO_ERROR */
-}
-
-APIRET CDECL
-KalSetMaxFH(ULONG cFH)
+kalSetMaxFH(ULONG cFH)
 {
   CurMaxFH = cFH;
   LOG("cFH=%u", cFH);
@@ -1217,7 +1405,7 @@ KalSetMaxFH(ULONG cFH)
 }
 
 APIRET CDECL
-KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH)
+kalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH)
 {
   CurMaxFH += *pcbReqCount;
   *pcbCurMaxFH = CurMaxFH;
@@ -1228,7 +1416,7 @@ KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH)
 }
 
 APIRET CDECL
-KalSleep(ULONG ms)
+kalSleep(ULONG ms)
 {
   STKIN
   LOG("ms=%u", ms);
@@ -1239,21 +1427,21 @@ KalSleep(ULONG ms)
 }
 
 APIRET CDECL
-KalDupHandle(HFILE hFile, HFILE *phFile2)
+kalDupHandle(HFILE hFile, HFILE *phFile2)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   STKIN
   LOG("hFile=%x", hFile);
-  rc = os2server_dos_ScanEnv_call(&os2srv, hFile, phFile2, &env);
+  rc = os2fs_dos_DupHandle_call(&fs, hFile, phFile2, &env);
   LOG("*phFile2=%x", *phFile2);
   STKOUT
   return rc; /* NO_ERROR */
 }
 
 APIRET CDECL
-KalDelete(PSZ pszFileName)
+kalDelete(PSZ pszFileName)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
@@ -1266,7 +1454,7 @@ KalDelete(PSZ pszFileName)
 }
 
 APIRET CDECL
-KalForceDelete(PSZ pszFileName)
+kalForceDelete(PSZ pszFileName)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
@@ -1279,7 +1467,7 @@ KalForceDelete(PSZ pszFileName)
 }
 
 APIRET CDECL
-KalDeleteDir(PSZ pszDirName)
+kalDeleteDir(PSZ pszDirName)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
@@ -1292,7 +1480,7 @@ KalDeleteDir(PSZ pszDirName)
 }
 
 APIRET CDECL
-KalCreateDir(PSZ pszDirName, PEAOP2 peaop2)
+kalCreateDir(PSZ pszDirName, PEAOP2 peaop2)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
@@ -1307,7 +1495,7 @@ KalCreateDir(PSZ pszDirName, PEAOP2 peaop2)
 
 
 APIRET CDECL
-KalFindFirst(char  *pszFileSpec,
+kalFindFirst(char  *pszFileSpec,
              HDIR  *phDir,
              ULONG flAttribute,
              PVOID pFindBuf,
@@ -1336,15 +1524,15 @@ KalFindFirst(char  *pszFileSpec,
   if (pszFileSpec[1] != ':')
   {
     /* query current disk */
-    rc = KalQueryCurrentDisk(&disk, &map);
+    rc = kalQueryCurrentDisk(&disk, &map);
     drv = disk - 1 + 'A';
   
     len = 0; buf[0] = '\0';
     if (pszFileSpec[0] != '\\')
     {
       /* query current dir  */
-      rc = KalQueryCurrentDir(0, buf, &len);
-      rc = KalQueryCurrentDir(0, buf, &len);
+      rc = kalQueryCurrentDir(0, buf, &len);
+      rc = kalQueryCurrentDir(0, buf, &len);
     }
 
     if (len + strlen(pszFileSpec) + 3 > 256)
@@ -1391,7 +1579,7 @@ KalFindFirst(char  *pszFileSpec,
 
 
 APIRET CDECL
-KalFindNext(HDIR  hDir,
+kalFindNext(HDIR  hDir,
             PVOID pFindBuf,
             ULONG cbBuf,
             ULONG *pcFileNames)
@@ -1416,7 +1604,7 @@ KalFindNext(HDIR  hDir,
 
 
 APIRET CDECL
-KalFindClose(HDIR hDir)
+kalFindClose(HDIR hDir)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
@@ -1430,7 +1618,7 @@ KalFindClose(HDIR hDir)
 
 
 APIRET CDECL
-KalQueryFHState(HFILE hFile,
+kalQueryFHState(HFILE hFile,
                 PULONG pMode)
 {
   CORBA_Environment env = dice_default_environment;
@@ -1446,7 +1634,7 @@ KalQueryFHState(HFILE hFile,
 
 
 APIRET CDECL
-KalSetFHState(HFILE hFile,
+kalSetFHState(HFILE hFile,
               ULONG pMode)
 {
   CORBA_Environment env = dice_default_environment;
@@ -1461,7 +1649,7 @@ KalSetFHState(HFILE hFile,
 }
 
 APIRET CDECL
-KalQueryFileInfo(HFILE hf,
+kalQueryFileInfo(HFILE hf,
                  ULONG ulInfoLevel,
                  char *pInfo,
                  ULONG cbInfoBuf)
@@ -1480,7 +1668,7 @@ KalQueryFileInfo(HFILE hf,
 
 
 APIRET CDECL
-KalQueryPathInfo(PSZ pszPathName,
+kalQueryPathInfo(PSZ pszPathName,
                  ULONG ulInfoLevel,
                  PVOID pInfo,
                  ULONG cbInfoBuf)
@@ -1489,7 +1677,7 @@ KalQueryPathInfo(PSZ pszPathName,
   APIRET rc;
 
   STKIN
-  LOG("pszPathName=%x", pszPathName);
+  LOG("pszPathName=%s", pszPathName);
   LOG("ulInfoLevel=%u", ulInfoLevel);
   rc = os2fs_dos_QueryPathInfo_call(&fs, pszPathName, ulInfoLevel,
                                     &pInfo, &cbInfoBuf, &env);
@@ -1499,7 +1687,7 @@ KalQueryPathInfo(PSZ pszPathName,
 
 
 APIRET CDECL
-KalSetFileSizeL(HFILE hFile,
+kalSetFileSizeL(HFILE hFile,
                 long long cbSize)
 {
   CORBA_Environment env = dice_default_environment;
@@ -1514,7 +1702,7 @@ KalSetFileSizeL(HFILE hFile,
 }
 
 APIRET CDECL
-KalMove(PSZ pszOld, PSZ pszNew)
+kalMove(PSZ pszOld, PSZ pszNew)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;

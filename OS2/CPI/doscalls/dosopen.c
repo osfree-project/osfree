@@ -1,13 +1,15 @@
 #include <os2.h>
 
-APIRET __cdecl   KalOpenL(PCSZ     pszFileName,
-                         PHFILE pHf,
-                         PULONG pulAction,
-                         LONGLONG  cbFile,
-                         ULONG  ulAttribute,
-                         ULONG  fsOpenFlags,
-                         ULONG  fsOpenMode,
-                         PEAOP2 peaop2);
+#include "dl.h"
+
+//APIRET __cdecl   KalOpenL(PCSZ     pszFileName,
+//                         PHFILE pHf,
+//                         PULONG pulAction,
+//                         LONGLONG  cbFile,
+//                         ULONG  ulAttribute,
+//                         ULONG  fsOpenFlags,
+//                         ULONG  fsOpenMode,
+//                         PEAOP2 peaop2);
 
 APIRET APIENTRY  DosOpenL(PCSZ     pszFileName,
                          PHFILE pHf,

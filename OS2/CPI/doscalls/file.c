@@ -1,63 +1,65 @@
 #include <os2.h>
 
-APIRET __cdecl  KalClose(HFILE hFile);
+#include "dl.h"
 
-APIRET __cdecl  KalQueryHType(HFILE hFile,
-                              PULONG pType,
-                              PULONG pAttr);
+//APIRET __cdecl  KalClose(HFILE hFile);
 
-APIRET __cdecl  KalResetBuffer(HFILE);
+//APIRET __cdecl  KalQueryHType(HFILE hFile,
+//                              PULONG pType,
+//                              PULONG pAttr);
 
-APIRET __cdecl  KalDupHandle(HFILE hFile,
-                             PHFILE pHfile);
+//APIRET __cdecl  KalResetBuffer(HFILE);
 
-APIRET __cdecl  KalDelete(PCSZ  pszFile);
+//APIRET __cdecl  KalDupHandle(HFILE hFile,
+//                             PHFILE pHfile);
 
-APIRET __cdecl  KalForceDelete(PCSZ  pszFile);
+//APIRET __cdecl  KalDelete(PCSZ  pszFile);
 
-APIRET __cdecl  KalDeleteDir(PCSZ  pszDir);
+//APIRET __cdecl  KalForceDelete(PCSZ  pszFile);
 
-APIRET __cdecl  KalCreateDir(PCSZ  pszDirName,
-                             PEAOP2 peaop2);
+//APIRET __cdecl  KalDeleteDir(PCSZ  pszDir);
 
-APIRET __cdecl  KalSetRelMaxFH(PLONG pcbReqCount,
-                               PULONG pcbCurMaxFH);
+//APIRET __cdecl  KalCreateDir(PCSZ  pszDirName,
+//                             PEAOP2 peaop2);
 
-APIRET __cdecl  KalSetMaxFH(ULONG cFH);
+//APIRET __cdecl  KalSetRelMaxFH(PLONG pcbReqCount,
+//                               PULONG pcbCurMaxFH);
 
-APIRET __cdecl  KalFindFirst(PCSZ   pszFileSpec,
-                             PHDIR  phdir,
-                             ULONG  flAttribute,
-                             PVOID  pfindbuf,
-                             ULONG  cbBuf,
-                             PULONG pcFileNames,
-                             ULONG  ulInfoLevel);
+//APIRET __cdecl  KalSetMaxFH(ULONG cFH);
 
-APIRET __cdecl  KalFindNext(HDIR   hDir,
-                            PVOID  pfindbuf,
-                            ULONG  cbfindbuf,
-                            PULONG pcFilenames);
+//APIRET __cdecl  KalFindFirst(PCSZ   pszFileSpec,
+//                             PHDIR  phdir,
+//                             ULONG  flAttribute,
+//                             PVOID  pfindbuf,
+//                             ULONG  cbBuf,
+//                             PULONG pcFileNames,
+//                             ULONG  ulInfoLevel);
 
-APIRET __cdecl  KalFindClose(HDIR hDir);
+//APIRET __cdecl  KalFindNext(HDIR   hDir,
+//                            PVOID  pfindbuf,
+//                            ULONG  cbfindbuf,
+//                            PULONG pcFilenames);
 
-APIRET __cdecl  KalQueryFHState(HFILE hFile,
-                                PULONG pMode);
+//APIRET __cdecl  KalFindClose(HDIR hDir);
 
-APIRET __cdecl  KalSetFHState(HFILE hFile,
-                              ULONG mode);
+//APIRET __cdecl  KalQueryFHState(HFILE hFile,
+//                                PULONG pMode);
 
-APIRET __cdecl  KalQueryFileInfo(HFILE hf,
-                                 ULONG ulInfoLevel,
-                                 PVOID pInfo,
-                                 ULONG cbInfoBuf);
+//APIRET __cdecl  KalSetFHState(HFILE hFile,
+//                              ULONG mode);
 
-APIRET __cdecl  KalQueryPathInfo(PCSZ  pszPathName,
-                                 ULONG ulInfoLevel,
-                                 PVOID pInfoBuf,
-                                 ULONG cbInfoBuf);
+//APIRET __cdecl  KalQueryFileInfo(HFILE hf,
+//                                 ULONG ulInfoLevel,
+//                                 PVOID pInfo,
+//                                 ULONG cbInfoBuf);
 
-APIRET __cdecl  KalSetFileSizeL(HFILE hFile,
-                                LONGLONG cbSize);
+//APIRET __cdecl  KalQueryPathInfo(PCSZ  pszPathName,
+//                                 ULONG ulInfoLevel,
+//                                 PVOID pInfoBuf,
+//                                 ULONG cbInfoBuf);
+
+//APIRET __cdecl  KalSetFileSizeL(HFILE hFile,
+//                                LONGLONG cbSize);
 
 #if 0
 // Implementation of kernel-independed functions via kernel-depended functions
@@ -106,7 +108,7 @@ APIRET APIENTRY DosShutdown(ULONG);
 
 APIRET APIENTRY  DosClose(HFILE hFile)
 {
-  return KalClose(hFile);
+  return KalClose (hFile);
 }
 
 APIRET APIENTRY  DosQueryHType(HFILE hFile,
@@ -134,7 +136,7 @@ APIRET APIENTRY  DosDelete(PCSZ  pszFile)
 
 APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 {
-  return KalDelete(pszFile);
+  return KalForceDelete(pszFile);
 }
 
 APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)

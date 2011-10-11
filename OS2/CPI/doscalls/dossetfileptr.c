@@ -2,10 +2,12 @@
 #define INCL_ERRORS
 #include <os2.h>
 
-APIRET __cdecl   KalSetFilePtrL(HFILE hFile,
-                                LONGLONG ib,
-                                ULONG method,
-                                PULONGLONG ibActual);
+#include "dl.h"
+
+//APIRET __cdecl   KalSetFilePtrL(HFILE hFile,
+//                                LONGLONG ib,
+//                                ULONG method,
+//                                PULONGLONG ibActual);
 
 APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,

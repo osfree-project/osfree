@@ -17,6 +17,7 @@ srcfiles = $(p)msg$(e) &
            $(p)strnlen$(e) &
            $(p)strncmp$(e) &
            $(p)file$(e) &
+           $(p)dosfsctl$(e) &
            $(p)memory$(e) &
            $(p)doscancellockrequest$(e) &
            $(p)dosopen$(e) &
@@ -55,51 +56,7 @@ ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
-IMPORTS = DosFSCtl             KAL.KalFSCtl, &
-          _KalRead             KAL.KalRead,  &
-          _KalWrite            KAL.KalWrite, &
-          _KalExit             KAL.KalExit,  &
-          _KalOpenL            KAL.KalOpenL, &
-          _KalClose            KAL.KalClose, &
-          _KalSetCurrentDir    KAL.KalSetCurrentDir, &
-          _KalQueryCurrentDir  KAL.KalQueryCurrentDir, &
-          _KalQueryCurrentDisk KAL.KalQueryCurrentDisk, &
-          _KalSetDefaultDisk   KAL.KalSetDefaultDisk, &
-          _KalError            KAL.KalError, &
-          _KalExecPgm          KAL.KalExecPgm, &
-          _KalAllocMem         KAL.KalAllocMem, &
-          _KalFreeMem          KAL.KalFreeMem, &
-          _KalQueryCp          KAL.KalQueryCp, &
-          _KalQueryDBCSEnv     KAL.KalQueryDBCSEnv, &
-          _KalQueryHType       KAL.KalQueryHType,   &
-          _KalLoadModule       KAL.KalLoadModule,   &
-          _KalQueryModuleHandle KAL.KalQueryModuleHandle, &
-          _KalQueryModuleName  KAL.KalQueryModuleName, &
-          _KalQueryProcAddr    KAL.KalQueryProcAddr, &
-          _KalLogWrite         KAL.KalLogWrite, &
-          _KalGetInfoBlocks    KAL.KalGetInfoBlocks, &
-          _KalResetBuffer      KAL.KalResetBuffer, &
-          _KalSetFilePtrL      KAL.KalSetFilePtrL, &
-          _KalSleep            KAL.KalSleep,       &
-          _KalDupHandle        KAL.KalDupHandle,   &
-          _KalDelete           KAL.KalDelete,      &
-          _KalMove             KAL.KalMove,        &
-          _KalForceDelete      KAL.KalForceDelete, &
-          _KalDeleteDir        KAL.KalDeleteDir,   &
-          _KalCreateDir        KAL.KalCreateDir,   &
-          _KalSetMaxFH         KAL.KalSetMaxFH,    &
-          _KalSetRelMaxFH      KAL.KalSetRelMaxFH, &
-          _KalFindFirst        KAL.KalFindFirst,   &
-          _KalFindNext         KAL.KalFindNext,    &
-          _KalFindClose        KAL.KalFindClose,   &
-          _KalQueryFHState     KAL.KalQueryFHState,  &
-          _KalSetFHState       KAL.KalSetFHState,    &
-          _KalQueryFileInfo    KAL.KalQueryFileInfo, &
-          _KalQueryPathInfo    KAL.KalQueryPathInfo, &
-          _KalSetFileSizeL     KAL.KalSetFileSizeL,  &
-          _KalSetMem           KAL.KalSetMem,        &
-          _KalQueryMem         KAL.KalQueryMem,      &
-          _KalAllocSharedMem   KAL.KalAllocSharedMem
+IMPORTS = _DlRoute                DL.DlRoute
 
 EXPORTS = &
         DosICreateThread           .1, &

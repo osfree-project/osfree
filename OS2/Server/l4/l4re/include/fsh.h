@@ -4,36 +4,37 @@
  *
  */
 
+#ifndef  __FSH_H__
+#define  __FSH_H__
+
 #include <gcc_os2def.h>
+#include <fsd.h>
 
-#define FSHRET    int
-#define FSHENTRY  _System
-
-FSHRET FSHENTRY FSH_ADDSHARE(char *pName,
+FSRET FSENTRY FSH_ADDSHARE(char *pName,
                              USHORT mode,
                              USHORT hVPB,
                              ULONG *phShare);
 
-FSHRET FSHENTRY FSH_CALLDRIVER(void *pPkt,
+FSRET FSENTRY FSH_CALLDRIVER(void *pPkt,
                                USHORT hVPB,
                                USHORT fControl);
 
-FSHRET FSHENTRY FSH_CANONICALIZE(char *pPathName,
+FSRET FSENTRY FSH_CANONICALIZE(char *pPathName,
                                  USHORT cbPathBuf,
                                  char *pPathBuf,
                                  USHORT *pFl);
 
-FSHRET FSHENTRY FSH_CHECKEANAME(USHORT iLevel,
+FSRET FSENTRY FSH_CHECKEANAME(USHORT iLevel,
                                 ULONG cbEAName,
                                 char *szEAN);
 
-FSHRET FSHENTRY FSH_CRITERROR(USHORT cbMessage,
+FSRET FSENTRY FSH_CRITERROR(USHORT cbMessage,
                               char *pMessage,
                               USHORT nSubs,
                               char *pSubs,
                               USHORT fAll);
 
-FSHRET FSHENTRY FSH_DEVIOCTL(USHORT flag,
+FSRET FSENTRY FSH_DEVIOCTL(USHORT flag,
                              ULONG hDev,
                              USHORT sfn,
                              USHORT cat,
@@ -43,7 +44,7 @@ FSHRET FSHENTRY FSH_DEVIOCTL(USHORT flag,
                              char *pData,
                              USHORT cbData);
 
-FSHRET FSHENTRY FSH_DOVOLIO(USHORT operation,
+FSRET FSENTRY FSH_DOVOLIO(USHORT operation,
                             USHORT fAllowed,
                             USHORT hVPB,
                             char *pData,
@@ -51,7 +52,7 @@ FSHRET FSHENTRY FSH_DOVOLIO(USHORT operation,
                             ULONG iSec);
 
 
-FSHRET FSHENTRY FSH_DOVOLIO2(ULONG hDev,
+FSRET FSENTRY FSH_DOVOLIO2(ULONG hDev,
                              USHORT sfn,
                              USHORT cat,
                              USHORT func,
@@ -60,88 +61,95 @@ FSHRET FSHENTRY FSH_DOVOLIO2(ULONG hDev,
                              char *pData
                              USHORT cbData);
 
-FSHRET FSHENTRY FSH_FINDCHAR(USHORT nChars,
+FSRET FSENTRY FSH_FINDCHAR(USHORT nChars,
                              char *pChars,
                              char **ppStr);
 
-FSHRET FSHENTRY FSH_FINDDUPHVPB(USHOR hVPB,
+FSRET FSENTRY FSH_FINDDUPHVPB(USHOR hVPB,
                                 USHORT *phVPB);
 
-FSHRET FSHENTRY FSH_FORCENOSWAP(USHORT sel);
+FSRET FSENTRY FSH_FORCENOSWAP(USHORT sel);
 
-FSHRET FSHENTRY FSH_GETPRIORITY(void);
+FSRET FSENTRY FSH_GETPRIORITY(void);
 
-void  FSHENTRY  FSH_GETVOLPARM(USHORT hVPB,
+FSRET FSENTRY FSH_GETOVERLAPBUF(USHORT hVPB,
+    ULONG iSec,
+    ULONG iSec2,     // (?)
+    ULONG *pisecBuf,
+    char **ppBuf);
+
+void  FSENTRY  FSH_GETVOLPARM(USHORT hVPB,
                                struct vpfsi **ppVPBfsi,
                                struct vpfsd **ppVPBfsd);
 
-void  FSHENTRY  FSH_INTERR(char *pMsg,
+void  FSENTRY  FSH_INTERR(char *pMsg,
                            USHORT cbMsg);
 
-void  FSHENTRY  FSH_IOBOOST(void);
+void  FSENTRY  FSH_IOBOOST(void);
 
-FSHRET FSHENTRY FSH_IOSEMCLEAR(HEV pSem);
+FSRET FSENTRY FSH_IOSEMCLEAR(HEV pSem);
 
-FSHRET FSHENTRY FSH_ISCURDIRPREFIX(char *pMsg);
+FSRET FSENTRY FSH_ISCURDIRPREFIX(char *pMsg);
 
-void   FSHENTRY FSH_LOADCHAR(char **ppStr,
+void  FSENTRY FSH_LOADCHAR(char **ppStr,
                              USHORT *pChar);
 
-FSHRET FSHENTRY FSH_NAMEFROMSFN(USHORT sfn,
+FSRET FSENTRY FSH_NAMEFROMSFN(USHORT sfn,
                                 char *pName,
                                 USHORT *pcbName);
 
-void   FSHENTRY FSH_PREVCHAR(char *pBeg,
+void  FSENTRY FSH_PREVCHAR(char *pBeg,
                              char **ppStr);
 
-FSHRET FSHENTRY FSH_PROBEBUF(USHOR operation,
+FSRET FSENTRY FSH_PROBEBUF(USHOR operation,
                              char *pData,
                              USHORT cbData);
 
-FSHRET FSHENTRY FSH_QSYSINFO(USHORT index,
+FSRET FSENTRY FSH_QSYSINFO(USHORT index,
                              char *pData,
                              USHORT cbData);
 
-FSHRET FSHENTRY FSH_REGISTERPERFCTRS(void *pDataBlk,
+FSRET FSENTRY FSH_REGISTERPERFCTRS(void *pDataBlk,
                                      void * pTextBlk,
                                      USHORT fsFlags);
 
-void   FSHENTRY FSH_REMOVESHARE(ULONG hShare);
+void  FSENTRY FSH_REMOVESHARE(ULONG hShare);
 
-FSHRET FSHENTRY FSH_SEGALLOC(USHORT flags,
+FSRET FSENTRY FSH_SEGALLOC(USHORT flags,
                              ULONG cbSeg,
                              USHORT *pSel);
 
-FSHRET FSHENTRY FSH_SEGFREE(USHORT sel);
+FSRET FSENTRY FSH_SEGFREE(USHORT sel);
 
-FSHRET FSHENTRY FSH_SEGREALLOC(USHORT sel,
+FSRET FSENTRY FSH_SEGREALLOC(USHORT sel,
                                ULONG cbSeg);
 
-FSHRET FSHENTRY FSH_SEMCLEAR(void *pSem);
+FSRET FSENTRY FSH_SEMCLEAR(void *pSem);
 
-FSHRET FSHENTRY FSH_SEMREQUEST(void *pSem,
+FSRET FSENTRY FSH_SEMREQUEST(void *pSem,
                                ULONG cmsTimeout);
 
-FSHRET FSHENTRY FSH_SEMSET(void *pSem);
+FSRET FSENTRY FSH_SEMSET(void *pSem);
 
-FSHRET FSHENTRY FSH_SEMSETWAIT(void *pSem,
+FSRET FSENTRY FSH_SEMSETWAIT(void *pSem,
                                ULONG cmsTimeout);
 
-FSHRET FSHENTRY FSH_SEMWAIT(void *pSem,
+FSRET FSENTRY FSH_SEMWAIT(void *pSem,
                             ULONG cmsTimeout);
 
-FSHRET FSHENTRY FSH_SETVOLUME(USHORT hVPB,
+FSRET FSENTRY FSH_SETVOLUME(USHORT hVPB,
                               USHORT fControl);
 
-FSHRET FSHENTRY FSH_STORECHAR(USHORT chDBCS,
+FSRET FSENTRY FSH_STORECHAR(USHORT chDBCS,
                               char **ppStr);
 
-FSHRET FSHENTRY FSH_UPPERCASE(char *szPathName,
+FSRET FSENTRY FSH_UPPERCASE(char *szPathName,
                               USHORT cbPathBuf,
                               char *pPathBuf);
 
-FSHRET FSHENTRY FSH_WILDMATCH(char *pPat,
+FSRET FSENTRY FSH_WILDMATCH(char *pPat,
                               char *pStr);
 
-void   FSHENTRY FSH_YIELD(void);
+void  FSENTRY FSH_YIELD(void);
 
+#endif

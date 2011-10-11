@@ -624,35 +624,6 @@ unsigned long ModQueryModuleName(unsigned long hmod, unsigned long cbName, char 
   return 0; /* NO_ERROR */
 }
 
-int
-get_kal_funcs (IXFMODULEENTRY *entries[], int numentries)
-{
-  void *hdl, *func;
-  IXFMODULEENTRY *p = entries;
-  int i;
-  
-  hdl = dlopen("libkal.s.so", 2);
-  if (!hdl)
-  {
-    LOG("Error opening %s", "libkal.s.so");
-    return 0;
-  }
-  
-  for (i = 0; i < numentries; i++, p++)
-  {
-    func = dlsym(hdl, p->FunctionName);
-    if (!func)
-    { 
-      LOG("Error getting %s addr!", p->FunctionName);
-      return 0;
-    }
-    LOG_printf ("%s addr: %x\n", p->FunctionName, func);
-    p->Address = func;
-    p->Ordinal = i + 1;
-  }
-
-  return hdl;
-}
 
 slist_t *
 next_slist (slist_t *s)
@@ -683,7 +654,7 @@ getline (char **from, char *to)
 }
 
 int
-kal_get_funcs (int *numentries, IXFMODULEENTRY **entries)
+dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 {
   unsigned long addr, size;
   char buf[0x100];
@@ -695,7 +666,7 @@ kal_get_funcs (int *numentries, IXFMODULEENTRY **entries)
   int i, n, rc;
 
   memset(line, 0, 0x100);  
-  rc = io_load_file("c:\\kal.map", &addr, &size);
+  rc = io_load_file("c:\\dl.map", &addr, &size);
   
   if (rc)
     return rc;
@@ -731,7 +702,7 @@ kal_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 
 /* @brief Initializes the root node in the linked list, which itself
    is not used. Only to make sure the list at least always has one
-   element allocated. Registers fake KAL.DLL which contains host
+   element allocated. Registers fake DL.DLL which contains host
    specific functions. */
 unsigned long ModInitialize(void)
 {
@@ -747,21 +718,10 @@ unsigned long ModInitialize(void)
   l4_threadid_t pager;
   unsigned i;
   int rc;
-  int (*kal_init)(CORBA_Environment *e);
+  int (*dl_init)(CORBA_Environment *e);
   void *execsym, *hdl;
   struct module_rec * new_module_el;
   static IXFMODULEENTRY *entries;
-#if 0
-  /* FunctionName, Address, ModuleName, Ordinal */
-  {{"KalQueryCurrentDir", &KalQueryCurrentDir, NULL, 1},
-   {"KalQueryCurrentDisk", &KalQueryCurrentDisk, NULL, 2},
-   {"KalWrite", &KalWrite, NULL, 3},
-   {"KalExit",  &KalExit, NULL, 4},
-   {"KalRead",  &KalRead, NULL, 5},
-   {"KalLoadModule",  &KalLoadModule, NULL, 6},
-   {"KalQueryProcAddr",  &KalQueryProcAddr, NULL, 7},
-   {"KalExecPgm", &KalExecPgm, NULL, 8}};
-#endif
 
   // Create root node
 
@@ -769,18 +729,18 @@ unsigned long ModInitialize(void)
   module_root.module_struct = 0;
   module_root.next = 0;
 
-  // Register KAL.DLL
+  // Register DL.DLL
 
   ixf=malloc(sizeof(IXFModule));
 
   ixf->name  = (char *)malloc(4);
-  strcpy(ixf->name, "KAL");
+  strcpy(ixf->name, "DL");
   
   ixf->Load  = NULL;
   ixf->Fixup = NULL;
   ixf->FormatStruct = NULL;
 
-  if (rc = kal_get_funcs (&ixf->cbEntries, &ixf->Entries))
+  if (rc = dl_get_funcs (&ixf->cbEntries, &ixf->Entries))
     return rc;
 
   ixf->cbModules=0;
@@ -791,7 +751,7 @@ unsigned long ModInitialize(void)
   ixf->PIC=0;
 
   /* add execsrv sections from l4env infopage
-     as KAL.DLL sections list */
+     as DL.DLL sections list */
   sysdep = (IXFSYSDEP *)malloc(sizeof(IXFSYSDEP));
   memset(sysdep, 0, sizeof(IXFSYSDEP));
   ixf->hdlSysDep  = sysdep;
@@ -853,8 +813,8 @@ unsigned long ModInitialize(void)
 
     LOG("ds=%x",   region->data.ds.ds.id);
 
-    if ((void *)region->start <= kal_init &&
-        kal_init <= (void *)region->end)
+    if ((void *)region->start <= dl_init &&
+        dl_init <= (void *)region->end)
     {
       LOG("is code section");
       s = r;
@@ -911,7 +871,7 @@ unsigned long ModInitialize(void)
   }
 #endif  
 
-  new_module_el = ModRegister("KAL", ixf, 0);
+  new_module_el = ModRegister("DL", ixf, 0);
   //new_module_el->load_status = DONE_LOADING;
 
   return NO_ERROR;

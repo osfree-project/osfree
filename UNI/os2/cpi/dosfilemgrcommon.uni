@@ -850,7 +850,7 @@ function  DosSetFilePtr(in  hFile: HFILE;
 function  DosSetFilePtrL(in  hFile: HFILE;
                          in  ib:LONGLONG;
                          in  method:ULONG;
-                         out ibActual: LONGLONG): APIRET;
+                         out ibActual: ULONGLONG): APIRET;
 
 function  DosProtectSetFilePtr(in  hFile: HFILE;
                                in  ib: LONG;

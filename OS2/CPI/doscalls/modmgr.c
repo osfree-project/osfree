@@ -5,22 +5,24 @@
 #define  INCL_DOSMODULEMGR
 #include <os2.h>
 
-APIRET __cdecl   KalLoadModule(PCSZ  pszName,
-                               ULONG cbName,
-                               PCSZ  pszModname,
-                               PHMODULE phmod);
+#include "dl.h"
 
-APIRET __cdecl   KalQueryModuleHandle(const PSZ pszModname,
-                                      PHMODULE phmod);
-                               
-APIRET __cdecl   KalQueryModuleName(HMODULE hmod,
-                                    ULONG cbName,
-                                    PCHAR pch);
+//APIRET __cdecl   KalLoadModule(PCSZ  pszName,
+//                               ULONG cbName,
+//                               PCSZ  pszModname,
+//                               PHMODULE phmod);
 
-APIRET __cdecl   KalQueryProcAddr(HMODULE hmod,
-                                  ULONG ordinal,
-                                  const PSZ pszName,
-                                  PFN   *ppfn);
+//APIRET __cdecl   KalQueryModuleHandle(const PSZ pszModname,
+//                                      PHMODULE phmod);
+
+//APIRET __cdecl   KalQueryModuleName(HMODULE hmod,
+//                                    ULONG cbName,
+//                                    PCHAR pch);
+
+//APIRET __cdecl   KalQueryProcAddr(HMODULE hmod,
+//                                  ULONG ordinal,
+//                                  const PSZ pszName,
+//                                  PFN   *ppfn);
 
 APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
                                ULONG cbName,

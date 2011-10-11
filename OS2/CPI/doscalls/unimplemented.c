@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-APIRET __cdecl KalLogWrite(PSZ s);
+#include "dl.h"
+
+//APIRET __cdecl KalLogWrite(PSZ s);
 
 void log(const char *fmt, ...)
 {
@@ -21,7 +23,7 @@ void log(const char *fmt, ...)
   vsprintf(buf, fmt, arg_ptr);
   va_end(arg_ptr);
 
-  KalLogWrite(buf);
+  KalLogWrite (buf);
 }
 
 APIRET unimplemented(char *func)

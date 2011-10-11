@@ -14,10 +14,11 @@
 
 #include <os2.h>
 
+#include "dl.h"
+
 /*
   This is real implementation of DosWrite in Kernel Abstraction Layer
 */
-APIRET __cdecl KalWrite(const HFILE hFile, const PVOID pBuffer, const ULONG cbWrite, ULONG * pcbActual);
 
 /*!
 

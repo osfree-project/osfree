@@ -1,6 +1,6 @@
 #include <os2.h>
 
-APIRET __cdecl KalError(ULONG errorno);
+#include "dl.h"
 
 APIRET APIENTRY DosError(ULONG errorno)
 {

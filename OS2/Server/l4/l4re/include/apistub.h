@@ -10,55 +10,63 @@
 #include <l4/os3/processmgr.h>
 
 APIRET CDECL
-KalRead(HFILE hFile, PVOID pBuffer,
+kalRead(HFILE hFile, PVOID pBuffer,
             ULONG cbRead, PULONG pcbRead);
 
 APIRET CDECL
-KalWrite
-(HFILE hFile, PVOID pBuffer,
+kalWrite(HFILE hFile, PVOID pBuffer,
          ULONG cbWrite, PULONG pcbActual);
 
 APIRET CDECL
-KalLogWrite (PSZ s);
+kalLogWrite (PSZ s);
 
 APIRET CDECL
-KalFSCtl(PVOID pData, ULONG cbData,
+kalFSCtl(PVOID pData, ULONG cbData,
          PULONG pcbData, PVOID pParms,
          ULONG cbParms, PULONG pcbParms,
          ULONG function, PSZ pszRoute,
          HFILE hFile, ULONG method);
 
 VOID CDECL
-KalExit(ULONG action, ULONG result);
+kalExit(ULONG action, ULONG result);
 
 APIRET CDECL
-KalQueryCurrentDisk(PULONG pdisknum,
+kalQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical);
 
 APIRET CDECL
-KalSetDefaultDisk(ULONG disknum);
+kalSetCurrentDir(PSZ pszDir);
 
 APIRET CDECL
-KalQueryCurrentDir(ULONG disknum, BYTE * pBuf, PULONG pcbBuf);
+kalSetDefaultDisk(ULONG disknum);
 
 APIRET CDECL
-KalQuerySysInfo(ULONG iStart, ULONG iLast,
-                PVOID pBuf, ULONG cbBuf);
+kalQueryCurrentDir(ULONG disknum, BYTE * pBuf, PULONG pcbBuf);
 
 APIRET CDECL
-KalLoadModule(PSZ pszName,
+kalLoadModule(PSZ pszName,
                   ULONG cbName,
                   char const *pszModname,
                   PULONG phmod);
 
 APIRET CDECL
-KalQueryProcAddr(ULONG hmod,
+kalQueryProcAddr(ULONG hmod,
                      ULONG ordinal,
                      const PSZ  pszName,
                      void  **ppfn);
 
 APIRET CDECL
-KalExecPgm(char *pObjname,
+kalQueryProcType(HMODULE hmod,
+                 ULONG ordinal,
+		 PSZ pszName,
+		 PULONG pulProcType);
+
+APIRET CDECL
+kalQueryAppType(PSZ pszName,
+                PULONG pFlags);
+
+APIRET CDECL
+kalExecPgm(char *pObjname,
            long cbObjname,
            unsigned long execFlag,
            char *pArg,
@@ -67,40 +75,36 @@ KalExecPgm(char *pObjname,
            char *pName);
 
 APIRET CDECL
-KalError(ULONG error);
+kalError(ULONG error);
 
 APIRET CDECL
-KalAllocMem(PVOID *ppb,
+kalAllocMem(PVOID *ppb,
             ULONG cb,
 	    ULONG flags);
 
 APIRET CDECL
-KalFreeMem(PVOID pb);
+kalFreeMem(PVOID pb);
 
 APIRET CDECL
-KalResetBuffer(HFILE handle);
+kalResetBuffer(HFILE handle);
 
 APIRET CDECL
-KalSetFilePtrL(HFILE handle,
+kalSetFilePtrL(HFILE handle,
                LONGLONG ib,
 	       ULONG method,
-	       PLONGLONG ibActual);
+	       PULONGLONG ibActual);
 	      
 APIRET CDECL
-KalClose(HFILE handle);
+kalClose(HFILE handle);
 
 APIRET CDECL
-KalScanEnv(PSZ pszName,
-           PPSZ ppszValue);
+kalSetMaxFH(ULONG cFH);
 
 APIRET CDECL
-KalSetMaxFH(ULONG cFH);
+kalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH);
 
 APIRET CDECL
-KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH);
-
-APIRET CDECL
-KalFindFirst(char  *pszFileSpec,
+kalFindFirst(char  *pszFileSpec,
              HDIR  *phDir,
              ULONG flAttribute,
              PVOID pFindBuf,
@@ -109,36 +113,109 @@ KalFindFirst(char  *pszFileSpec,
              ULONG ulInfolevel);
 
 APIRET CDECL
-KalFindNext(HDIR  hDir,
+kalFindNext(HDIR  hDir,
             PVOID pFindBuf,
             ULONG cbBuf,
             ULONG *pcFileNames);
 
 APIRET CDECL
-KalFindClose(HDIR hDir);
+kalFindClose(HDIR hDir);
 
 APIRET CDECL
-KalQueryFHState(HFILE hFile,
+kalQueryFHState(HFILE hFile,
                 PULONG pMode);
 
 APIRET CDECL
-KalSetFHState(HFILE hFile,
+kalSetFHState(HFILE hFile,
               ULONG pMode);
 
 APIRET CDECL
-KalQueryFileInfo(HFILE hf,
+kalQueryFileInfo(HFILE hf,
                  ULONG ulInfoLevel,
                  char *pInfo,
                  ULONG cbInfoBuf);
 
 APIRET CDECL
-KalQueryPathInfo(PSZ pszPathName,
+kalQueryPathInfo(PSZ pszPathName,
                  ULONG ulInfoLevel,
                  PVOID pInfo,
                  ULONG cbInfoBuf);
 
 APIRET CDECL
-KalSetFileSizeL(HFILE hFile,
+kalSetFileSizeL(HFILE hFile,
                 long long cbSize);
+
+APIRET CDECL
+kalAllocSharedMem(PPVOID ppb,
+                  PSZ    pszName,
+		  ULONG  cb,
+		  ULONG  flags);
+
+APIRET CDECL
+kalCreateDir(PSZ pszDirName, PEAOP2 peaop2);
+
+APIRET CDECL
+kalDupHandle(HFILE hFile, HFILE *phFile2);
+
+APIRET CDECL
+kalDelete(PSZ pszFileName);
+
+APIRET CDECL
+kalForceDelete(PSZ pszFileName);
+
+APIRET CDECL
+kalDeleteDir(PSZ pszDirName);
+
+APIRET CDECL
+kalGetInfoBlocks(PTIB *pptib, PPIB *pppib);
+
+APIRET CDECL
+kalMove(PSZ pszOld, PSZ pszNew);
+
+APIRET CDECL
+kalOpenL (PSZ pszFileName,
+          HFILE *phFile,
+	  ULONG *pulAction,
+	  LONGLONG cbFile,
+	  ULONG ulAttribute,
+	  ULONG fsOpenFlags,
+	  ULONG fsOpenMode,
+	  PEAOP2 peaop2);
+	  
+APIRET CDECL
+kalQueryHType(HFILE handle,
+              PULONG pType,
+	      PULONG pAttr);
+
+APIRET CDECL
+kalQueryDBCSEnv(ULONG cb,
+                COUNTRYCODE *pcc,
+		char *pBuf);
+
+APIRET CDECL
+kalQueryCp(ULONG cb,
+           PULONG arCP,
+	   PULONG pcCP);
+
+APIRET CDECL
+kalQueryMem(PVOID  pb,
+            PULONG pcb,
+	    PULONG pflags);
+
+APIRET CDECL
+kalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf);
+
+APIRET CDECL
+kalQueryModuleHandle(const char *pszModname,
+                     unsigned long *phmod);
+
+
+APIRET CDECL
+kalSleep(ULONG ms);
+
+APIRET CDECL
+kalSetMem(PVOID pb,
+          ULONG cb,
+	  ULONG flags);
 
 #endif

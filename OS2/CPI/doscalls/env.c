@@ -8,9 +8,10 @@
 
 #include <string.h>
 
+#include "dl.h"
 
-APIRET __cdecl   KalGetInfoBlocks(PTIB *pptib,
-                                  PPIB *pppib);
+//APIRET __cdecl   KalGetInfoBlocks(PTIB *pptib,
+//                                  PPIB *pppib);
 
 APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
                                  PPIB *pppib)

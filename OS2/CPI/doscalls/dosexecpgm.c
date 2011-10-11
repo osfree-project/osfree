@@ -1,12 +1,6 @@
 #include <os2.h>
 
-APIRET __cdecl KalExecPgm(PCHAR pObjname,
-                           LONG cbObjname,
-                           ULONG execFlag,
-                           PCSZ  pArg,
-                           PCSZ  pEnv,
-                           PRESULTCODES pRes,
-                           PCSZ  pName);
+#include "dl.h"
 
 APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                            LONG cbObjname,

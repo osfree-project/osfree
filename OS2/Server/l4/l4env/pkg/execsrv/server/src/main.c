@@ -159,7 +159,7 @@ share_sections (unsigned long hmod, l4_threadid_t client)
   index = 0;
   while (!(rc = getimp (hmod, &index, &imp_hmod)))
   {
-    if (!imp_hmod) continue; // KAL, no sections to share
+    if (!imp_hmod) continue; // DL, no sections to share
     rc = share_sections(imp_hmod, client);
     LOG("module %x sections shared", imp_hmod);
     if (rc) break;
@@ -217,8 +217,8 @@ getimp(unsigned long hmod,
 #if 0
   ixf = (IXFModule *)hmod2;
 
-  /* skip fake KAL module */
-  if (!strcasecmp(ixf->name, "KAL"))
+  /* skip fake DL module */
+  if (!strcasecmp(ixf->name, "DL"))
     hmod2 = 0;
 #endif
   *imp_hmod = hmod2;
@@ -331,6 +331,133 @@ os2exec_query_modname_component (CORBA_Object _dice_corba_obj,
 {
   return ModQueryModuleName(hmod, cbBuf, pBuf);
 }
+
+
+typedef struct
+{
+  char name[256];        // name for named shared mem
+  l4_uint32_t   rights;  // OS/2-style access flags
+  l4_uint32_t   area;    // area id
+} vmdata_t;
+
+/*   get a free area of specified size and reserve it in shared arena
+ */
+long DICE_CV
+os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
+                                    l4_uint32_t size /* in */,
+				    const char *name /* in */,
+                                    l4_addr_t *addr /* out */,
+                                    CORBA_Server_Environment *_dice_corba_env)
+{
+  l4_uint32_t area;
+  vmdata_t *ptr; 
+  int rc;
+  
+  rc =  l4rm_area_reserve(size, 0, addr, &area);
+  ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+  if (!ptr) return 1;
+  ptr->area = area;
+  if (name) strcpy(ptr->name, name);
+  l4rm_set_userptr(addr, ptr);
+  
+  return rc;
+}
+
+long DICE_CV
+os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
+                                l4_addr_t pb /* in */,
+                                l4_addr_t *addr /* out */,
+                                l4_uint32_t *size /* out */,
+                                CORBA_Server_Environment *_dice_corba_env)
+{
+  vmdata_t *ptr;
+  l4_uint32_t rights = 0;
+  l4_addr_t address;
+  l4_size_t sz = 0;
+  l4_offs_t offset;
+  l4_threadid_t pager;
+  l4dm_dataspace_t ds;
+  int rc;
+
+  rc = l4rm_lookup_region((l4_addr_t)pb, &address, &sz, &ds,
+                     &offset, &pager);
+  switch (rc)
+  {
+    case L4RM_REGION_RESERVED:
+    case L4RM_REGION_DATASPACE:
+      if (ptr = l4rm_get_userptr(addr)) 
+	rights = ptr->rights;
+      break;
+    default:
+      return ERROR_INVALID_ADDRESS;
+  }
+  
+  *addr = address;
+  *size = sz;
+  
+  return NO_ERROR;
+}
+
+
+long DICE_CV
+os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
+                                     const char* name /* in */,
+                                     l4_addr_t *addr /* out */,
+                                     l4_uint32_t *size /* out */,
+                                     CORBA_Server_Environment *_dice_corba_env)
+{
+  vmdata_t *ptr;
+  l4rm_region_desc_t *desc;
+  l4_uint32_t rights = 0;
+  l4_addr_t address;
+  l4_size_t sz = 0;
+  l4_offs_t offset;
+  l4_threadid_t pager;
+  l4dm_dataspace_t ds;
+  int rc, found = 0;
+
+  /* get region list */
+  desc = l4rm_get_region_list();
+
+  while (desc)
+  {
+    ptr = (vmdata_t *)desc->userptr;
+    
+    if (ptr && !strcmp(name, ptr->name))
+    {
+      found = 1;
+      break;
+    }
+    desc = desc->next;
+  }  
+  
+  if (found)
+  {
+    *addr = desc->start;
+    *size = desc->end - desc->start;
+    return NO_ERROR;
+  }
+
+  return ERROR_FILE_NOT_FOUND;
+}
+
+/*  release the reserved sharemem area
+ */
+long DICE_CV
+os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
+                                    l4_addr_t addr /* in */,
+                                    CORBA_Server_Environment *_dice_corba_env)
+{
+  l4_uint32_t area;
+  vmdata_t *ptr;
+
+  ptr = l4rm_get_userptr(addr);
+  if (!ptr) return 1;
+  area = ptr->area;
+  free(ptr);
+  return l4rm_area_release(area);
+}
+
 
 #if 0
 int

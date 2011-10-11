@@ -4,7 +4,9 @@
 
 #include <os2.h>
 
-APIRET __cdecl KalLogWrite(PSZ s);
+#include "dl.h"
+
+//APIRET __cdecl KalLogWrite(PSZ s);
 
 APIRET APIENTRY DosLogWrite(PSZ s)
 {

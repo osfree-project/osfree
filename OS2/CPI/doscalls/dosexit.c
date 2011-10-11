@@ -1,6 +1,6 @@
 #include <os2.h>
 
-VOID __cdecl KalExit(const ULONG action, const ULONG result);
+#include "dl.h"
 
 VOID APIENTRY DosExit(const ULONG action, const ULONG result)
 {

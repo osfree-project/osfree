@@ -33,6 +33,7 @@ struct vpfsi {
     void          *vpi_pVCS;      /* volume characteristics */
     UCHAR         vpi_drive;      /* drive (0=A) */
     UCHAR         vpi_unit;       /* unit code */
+    USHORT        vpi_flags;      /* flags for memory restrictions */
 };
 
 /* file system dependent - volume parameters */
@@ -45,8 +46,13 @@ struct cdfsi {
     USHORT        cdi_hVPB;        /* VPB handle for associated device */
     USHORT        cdi_end;         /* offset to root of path */
     char          cdi_flags;       /* FS independent flags */
-    char          cdi_curdir[260]; /* text of current directory */
+    char          cdi_curdir[CCHMAXPATH]; /* text of current directory */
 };
+
+/* bit values for cdi_flags (state of cdfsd structure */
+#define CDI_ISVALID 0x80		/* format is known */
+#define CDI_ISROOT  0x40		/* cur dir == root */
+#define CDI_ISCURRENT	0x20
 
 /* file system dependent - current directories */
 struct cdfsd {
@@ -76,6 +82,8 @@ struct sffsi {
     USHORT        sfi_type;        /* type of object opened */
     ULONG         sfi_pPVDBFil;    /* performance counter data block pointer */
     UCHAR         sfi_DOSattr;     /* DOS file attributes D/S/A/H/R */
+    LONGLONG        sfi_sizel;     /* size of file */
+    LONGLONG        sfi_positionl; /* read/write pointer */
 };
 
 /* file system dependent - file instance */

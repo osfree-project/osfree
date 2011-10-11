@@ -2,14 +2,14 @@ PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../..
 
 TARGET		= os2app
-TRG             = kal.map
+TRG             = dl.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c $(PKGDIR)/shared/startup/startup.c \
-		  kal/apistub.c
+SRC_C		= main.c $(PKGDIR)/shared/startup/startup.c dl.c
 CFLAGS          = -I$(PKGDIR)/include
-LDFLAGS         = -Map os2app.mp
-LIBS		= -los2exec -los2fs -los2server -lloaderif -levents
+NO_DEFAULT_RELOC= 1
+LIBS		= -los2exec -los2fs -los2server -lloaderif -levents \
+                  -ldl -llist_alloc -lgeneric_fprov -ldemangle
 DEFAULT_RELOC   = 0xbb000000
 
 include $(L4DIR)/mk/prog.mk
@@ -32,9 +32,9 @@ $(BINTARGET) $(BINTARGET_LOCAL): $(TARGET)
 
 .PHONY: $(BINTARGET)
 
-$(OBJ_BASE)/bin/$(subst -,/,$(SYSTEM)/$(TRG)): os2app.mp
-	awk -f $(PKGDIR)/tools/map.awk $< | sort >os2app.mp1
-	wc -l os2app.mp1 | awk '{print $$1}' >os2app.mp2
-	cat os2app.mp2 os2app.mp1 >$@
+$(OBJ_BASE)/bin/$(subst -,/,$(SYSTEM)/$(TRG)): $(filter os2app, $(TARGET))
+	nm $< | grep Dl | awk '{printf "0x%s %s\n", $$1, $$3}' >$<.1
+	wc -l $<.1 | awk '{print $$1}' >$@
+	cat $<.1   >>$@
 
 endif

@@ -1,6 +1,6 @@
 #include <os2.h>
 
-APIRET __cdecl  KalSleep(ULONG msec);
+#include "dl.h"
 
 APIRET APIENTRY DosSleep(ULONG msec)
 {

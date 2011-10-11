@@ -1,11 +1,12 @@
 #include <os2.h>
 
-APIRET __cdecl KalQueryCurrentDisk(PULONG pdisknum,
-                                   PULONG plogical);
+#include "dl.h"
+
+//APIRET __cdecl KalQueryCurrentDisk(PULONG pdisknum,
+//                                   PULONG plogical);
 
 APIRET APIENTRY  DosQueryCurrentDisk(PULONG pdisknum,
                                      PULONG plogical)
 {
-  return KalQueryCurrentDisk(pdisknum,
-                             plogical);
+  return KalQueryCurrentDisk(pdisknum, plogical);
 }

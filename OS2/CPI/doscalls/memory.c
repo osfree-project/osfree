@@ -1,23 +1,25 @@
 #include <os2.h>
 
-APIRET __cdecl   KalAllocMem(PPVOID ppb,
-                             ULONG cb,
-                             ULONG flag);
+#include "dl.h"
 
-APIRET __cdecl   KalFreeMem(PVOID pb);
+//APIRET __cdecl   KalAllocMem(PPVOID ppb,
+//                             ULONG cb,
+//                             ULONG flag);
 
-APIRET __cdecl   KalSetMem(PVOID pb,
-                           ULONG cb,
-                           ULONG flag);
+//APIRET __cdecl   KalFreeMem(PVOID pb);
 
-APIRET __cdecl   KalQueryMem(PVOID pb,
-                             PULONG pcb,
-                             PULONG pFlag);
+//APIRET __cdecl   KalSetMem(PVOID pb,
+//                           ULONG cb,
+//                           ULONG flag);
 
-APIRET __cdecl   KalAllocSharedMem(PPVOID ppb,
-                                   PCSZ  pszName,
-                                   ULONG cb,
-                                   ULONG flag);
+//APIRET __cdecl   KalQueryMem(PVOID pb,
+//                             PULONG pcb,
+//                             PULONG pFlag);
+
+//APIRET __cdecl   KalAllocSharedMem(PPVOID ppb,
+//                                   PCSZ  pszName,
+//                                   ULONG cb,
+//                                   ULONG flag);
 
 APIRET APIENTRY  DosAllocMem(PPVOID ppb,
                              ULONG cb,

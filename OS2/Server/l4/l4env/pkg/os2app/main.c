@@ -11,24 +11,24 @@
 #include <getopt.h>
 /* L4 includes */
 #include <l4/sys/types.h>
-#include <l4/log/l4log.h>
 #include <l4/util/stack.h>
 #include <l4/util/l4_macros.h>
 #include <l4/sys/kdebug.h>
 #include <l4/sys/segment.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/dm_generic/consts.h>
-#include <l4/l4rm/l4rm.h>
 #include <l4/events/events.h>
 #include <l4/generic_ts/generic_ts.h>
 #include <l4/env/env.h>
 #include <l4/env/errno.h>
 #include <l4/log/l4log.h>
 #include <l4/util/rdtsc.h>
+#include <l4/l4rm/l4rm.h>
 /* OS/2 server internal includes */
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/ixfmgr.h>
 #include <l4/os3/processmgr.h>
+#include <l4/os3/dl.h>
 /* OS/2 server RPC call includes */
 #include <l4/os2srv/os2server-client.h>
 /* exec server RPC call includes */
@@ -36,7 +36,7 @@
 /* DICE includes                 */
 #include <dice/dice.h>
 /* local includes*/
-#include "stacksw.h"
+#include <stacksw.h>
 
 /* l4rm heap address (thus, moved from 0xa000 higher) */
 const l4_addr_t l4rm_heap_start_addr = 0xb9000000;
@@ -50,28 +50,65 @@ unsigned long __stack;
 // use events server flag
 char use_events = 0;
 
-/* fs server thread id */
+/* fs server thread id   */
 l4_threadid_t fs;
 /* OS/2 server thread id */
 l4_threadid_t os2srv;
 /* exec server thread id */
 l4_threadid_t execsrv;
+/* dataspace manager id  */
+l4_threadid_t dsm;
+/* l4env infopage        */
+l4env_infopage_t infopg;
+extern l4env_infopage_t *l4env_infopage;
+/* file provider name    */
+char fprov[20] = "fprov_proxy_fs";
+/* file provider id      */
+l4_threadid_t fprov_id;
+
 /* entry point, stack and 
    other module parameters */
 os2exec_module_t s;
 
+ULONG kalHandle;
+
+struct kal_init_struct
+{
+  l4_threadid_t fs;
+  l4_threadid_t os2srv;
+  l4_threadid_t execsrv;
+  unsigned long stack;
+  void *l4rm_detach;
+  void *l4rm_do_attach;
+  void *l4rm_lookup;
+  void *l4rm_lookup_region;
+  void *l4rm_do_reserve;
+  void *l4rm_set_userptr;
+  void *l4rm_get_userptr;
+  void *l4rm_area_release;
+  void *l4rm_area_release_addr;
+  void *l4env_get_default_dsm;
+  CORBA_Environment *env;
+  char *logtag;
+};
+
 //void term_wait (void);
 
-unsigned long
-PvtLoadModule(char *pszName,
-              unsigned long cbName,
-              char const *pszModname,
-              os2exec_module_t *s,
-              unsigned long *phmod);
+CORBA_Environment e;
 
-APIRET KalGetInfoBlocks(PTIB *pptib, PPIB *pppib);
-APIRET KalQueryCurrentDisk(PULONG pdisknum, PULONG plogical);
-VOID KalExit(ULONG action, ULONG result);
+struct kal_init_struct initstr;
+
+#define PvtLoadModule(a, b, c, d, e)  DlRoute(0, "PvtLoadModule", a, b, c, d, e)
+
+//unsigned long
+//PvtLoadModule(char *pszName,
+//              unsigned long cbName,
+//              char const *pszModname,
+//              os2exec_module_t *s,
+//              unsigned long *phmod);
+//APIRET KalGetInfoBlocks(PTIB *pptib, PPIB *pppib);
+//APIRET KalQueryCurrentDisk(PULONG pdisknum, PULONG plogical);
+//VOID KalExit(ULONG action, ULONG result);
 
 /* trampoline() params    */
 struct param
@@ -256,6 +293,20 @@ void usage(void)
   LOG("-e:  Use events server");
 } 
 
+void __exit(ULONG action, ULONG result)
+{
+  CORBA_Environment env = dice_default_environment;
+  STKIN
+  // send OS/2 server a message that we want to terminate
+  LOG("action=%u", action);
+  LOG("result=%u", result);
+  os2server_dos_Exit_send(&os2srv, action, result, &env);
+  // tell L4 task server that we want to terminate
+  //l4_ipc_sleep(L4_IPC_NEVER);
+  l4ts_exit();
+  STKOUT
+}
+
 void event_thread(void)
 {
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
@@ -267,13 +318,13 @@ void event_thread(void)
   if (!l4events_init())
   {
     LOG_Error("l4events_init() failed");
-    KalExit(1, 1);
+    __exit(1, 1);
   }
 
   if ((rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
   {
     LOG_Error("l4events_register failed");
-    KalExit(1, 1);
+    __exit(1, 1);
   }
 
   while(1)
@@ -291,7 +342,7 @@ void event_thread(void)
 
     /* exit myself */
     if (l4_task_equal(tid, os2srv))
-      exit(rc);
+      __exit(1, rc);
   }
 }
 
@@ -299,6 +350,7 @@ void main (int argc, char *argv[])
 {
   CORBA_Environment env = dice_default_environment;
   struct param param;
+  l4_uint32_t area;
   /* Error info from LoadModule */
   char uchLoadError[260];
   unsigned long hmod;
@@ -317,23 +369,87 @@ void main (int argc, char *argv[])
 		{ 0, 0, 0, 0}
                 };
 
+  e = env;
+
   if (!names_waitfor_name("os2exec", &execsrv, 30000))
     {
       LOG("Can't find os2exec on names, exiting...");
-      KalExit(1, 1);
+      __exit(1, 1);
     }
 
   if (!names_waitfor_name("os2fs", &fs, 30000))
     {
       LOG("Can't find os2fs on names, exiting...");
-      KalExit(1, 1);
+      __exit(1, 1);
     }
 
   if (!names_waitfor_name("os2srv", &os2srv, 30000))
     {
       LOG("Can't find os2srv on names, exiting...");
-      KalExit(1, 1);
+      __exit(1, 1);
     }
+
+  if (!names_waitfor_name(fprov, &fprov_id, 30000))
+    {
+      LOG("Can't find %s on names, exiting...", fprov);
+      __exit(1, 1);
+    }
+
+  /* query default dataspace manager id */
+  dsm = l4env_get_default_dsm();
+  if (l4_is_invalid_id(dsm))
+  {
+    LOG("No dataspace manager found\n");
+    __exit(1, 1);
+  }
+
+  LOG("dsm=%u.%u", dsm.id.task, dsm.id.lthread);
+  LOG("frov_id=%u.%u", fprov_id.id.task, fprov_id.id.lthread);
+
+  l4env_infopage = &infopg;
+  l4env_infopage->fprov_id = fprov_id;
+  l4env_infopage->memserv_id = dsm;
+
+  // reserve the lower 64 Mb for OS/2 app
+  rc = l4rm_area_reserve_region(0x10000, 0x04000000 - 0x10000, 0, &area);
+  if (rc < 0)
+  {
+    LOG("Panic: something is using memory within the 1st 64 Mb!");
+    __exit(1, 1);
+  }
+
+  if (rc = DlOpen("/file/system/libkal.s.so", &kalHandle))
+  {
+    LOG("Can't load libkal.s.so");
+    __exit(1, 1);
+  }
+
+  LOG("kalHandle=%u", kalHandle);
+
+  // fill in the parameter structure for KalInit
+  initstr.fs      = fs;
+  initstr.os2srv  = os2srv;
+  initstr.execsrv = execsrv;
+  initstr.stack   = __stack;
+  initstr.l4rm_do_attach = l4rm_do_attach;
+  initstr.l4rm_detach = l4rm_detach;
+  initstr.l4rm_lookup        = l4rm_lookup;
+  initstr.l4rm_lookup_region = l4rm_lookup_region;
+  initstr.l4rm_do_reserve  = l4rm_do_reserve;
+  initstr.l4rm_set_userptr   = l4rm_set_userptr; 
+  initstr.l4rm_get_userptr   = l4rm_get_userptr;
+  initstr.l4rm_area_release  = l4rm_area_release;
+  initstr.l4rm_area_release_addr = l4rm_area_release_addr;
+  initstr.l4env_get_default_dsm  = l4env_get_default_dsm;
+  initstr.env = &e;
+  initstr.logtag = LOG_tag;
+
+  LOG("l4rm_do_reserve=0x%x", l4rm_do_reserve);
+  LOG("execsrv=%u.%u", execsrv.id.task, execsrv.id.lthread);
+  LOG("&initstr=0x%x", &initstr);
+ 
+  // init kal.dll
+  DlRoute(0, "KalInit", &initstr);
 
   // Parse command line arguments
   for (;;)
@@ -350,7 +466,7 @@ void main (int argc, char *argv[])
       default:
         LOG("Error: Unknown option %c", opt);
         usage();
-        KalExit(1, 2);
+        __exit(1, 2);
     }
   }
 
@@ -362,6 +478,9 @@ void main (int argc, char *argv[])
     LOG("event thread started");
   }
 
+  // release the reserved area for application
+  rc = l4rm_area_release(area);
+
   /* Load the LX executable */
   rc = PvtLoadModule(uchLoadError, sizeof(uchLoadError), 
                      argv[argc - 1], &s, &hmod);
@@ -369,7 +488,7 @@ void main (int argc, char *argv[])
   if (rc)
   {
     LOG("LX load error!");
-    KalExit(1, 1);
+    __exit(1, 1);
   }
 
   LOG("LX loaded successfully");
@@ -410,5 +529,5 @@ void main (int argc, char *argv[])
   STKOUT
 
   /* wait for our termination */
-  KalExit(1, 0); // successful return
+  __exit(1, 0); // successful return
 }

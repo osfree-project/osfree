@@ -55,4 +55,23 @@ interface os2exec
 		     [out, string,
 		     prealloc_client,
 		     prealloc_server] char **pBuf);
+
+  /*  shared memory manupulation functions
+   */
+
+  /*  get free sharemem addres for specified size
+   */
+  long alloc_sharemem([in]  l4_uint32_t size,
+			[in, string] char *name,
+                        [out] l4_addr_t   *addr);
+
+  long get_sharemem([in]  l4_addr_t   pb,
+                    [out] l4_addr_t   *addr,
+		    [out] l4_uint32_t *size);
+
+  long get_namedsharemem([in, string] char *name,
+                         [out] l4_addr_t   *addr,
+		         [out] l4_uint32_t *size);
+
+  long release_sharemem([in] l4_addr_t addr);
 };

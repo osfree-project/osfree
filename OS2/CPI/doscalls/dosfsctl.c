@@ -12,18 +12,9 @@
 
 */
 #define INCL_DOSFILEMGR
-#include <osfree.h>
+#include <os2.h>
 
-APIRET __cdecl   KalFSCtl(PVOID pData,
-                             ULONG cbData,
-                             PULONG pcbData,
-                             PVOID pParms,
-                             ULONG cbParms,
-                             PULONG pcbParms,
-                             ULONG function,
-                             PCSZ  pszRoute,
-                             HFILE hFile,
-                             ULONG method);
+#include "dl.h"
 
 APIRET APIENTRY  DosFSCtl(PVOID pData,
                              ULONG cbData,

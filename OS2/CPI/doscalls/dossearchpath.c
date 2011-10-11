@@ -81,8 +81,17 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   APIRET rc;
 
   log("flag=%08x\n", flag);
-  log("pszPathOrName=%s\n", pszPathOrName);
-  log("pszFilename=%s\n", pszFilename);
+
+  if (pszPathOrName)
+    log("pszPathOrName=%s\n", pszPathOrName);
+  else
+    log("pszPathOrName=NULL\n");
+
+  if (pszFilename)
+    log("pszFilename=%s\n", pszFilename);
+  else
+    log("pszFilename=NULL\n");
+
   log("pBuf=%08x\n", pBuf);
   log("cbBuf=%lu\n", cbBuf);
 
@@ -100,7 +109,6 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   if (flag & SEARCH_ENVIRONMENT)
   {
     rc = DosScanEnv(pszPathOrName, &pathtmp);
-
     pathlen = strlen(pathtmp) + 1;
   }
   else
