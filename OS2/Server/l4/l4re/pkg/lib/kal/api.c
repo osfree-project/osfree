@@ -12,6 +12,7 @@
 #include <l4/names/libnames.h>
 #include <l4/thread/thread.h>
 #include <l4/semaphore/semaphore.h>
+#include <l4/lock/lock.h>
 #include <l4/dm_generic/consts.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/sys/kdebug.h>
@@ -25,6 +26,7 @@
 #include <l4/os2srv/os2server-client.h>
 #include <l4/execsrv/os2exec-client.h>
 
+#include <handlemgr.h>
 #include <stacksw.h>
 
 char LOG_tag[9];
@@ -48,6 +50,28 @@ struct kal_init_struct
   CORBA_Environment *env;
   char *logtag;
 };
+
+#define SEMTYPE_EVENT    0
+#define SEMTYPE_MUTEX    1
+#define SEMTYPR_MUXWAIT  2
+
+/* Semaphore handle table pointer */
+HANDLE_TABLE *htSem;
+/* Handle table element           */
+typedef struct _SEM
+{
+  struct _SEM *pNext;
+  char        szName[CCHMAXPATH];
+  char        cShared;
+  char        cType;
+  ULONG       ulRefCnt; 
+  union
+  {
+    l4semaphore_t evt;
+    l4lock_t mtx;
+    struct _SEM *mux;
+  }           uSem;
+} SEM, *PSEM;
 
 l4_threadid_t fs;
 l4_threadid_t os2srv;
@@ -1714,4 +1738,120 @@ kalMove(PSZ pszOld, PSZ pszNew)
   rc = ERROR_INVALID_PARAMETER;
   STKOUT
   return rc;
+}
+
+APIRET CDECL
+kalOpenEventSem(PSZ pszName,
+                PHEV phev)
+{
+  APIRET rc;
+  SEM    *sem;
+
+  if (phev && (pszName || *pszName))
+    return ERROR_INVALID_PARAMETER;
+
+  if (*phev)
+  {
+    // open by handle
+    if (!HndIsValidIndexHandle(htSem, *phev, (HANDLE **)&sem))
+    {
+      if (sem->cType == SEMTYPE_EVENT && sem->cShared)
+      {
+        if (!sem->ulRefCnt)
+	  return ERROR_TOO_MANY_OPENS;
+
+        // increment refcount
+        sem->ulRefCnt++;
+	
+        return NO_ERROR;
+      }
+    }
+    else
+      return ERROR_INVALID_HANDLE;
+  }
+  else
+  {
+    // open by name
+    if (strstr(pszName, "\\SEM32\\") != pszName)
+      return ERROR_INVALID_NAME;
+      
+    for (sem = (SEM *)(htSem->pFirstHandle); sem; sem = sem->pNext)
+      if (sem->szName && !strcmp(sem->szName, pszName))
+        break;
+	
+    if (sem)
+    {
+      if (!sem->ulRefCnt)
+        return ERROR_TOO_MANY_OPENS;
+  
+      // increment refcount
+      sem->ulRefCnt++;
+
+      *phev = (ULONG)(((PCHAR)sem - (PCHAR)htSem->pFirstHandle) / htSem->ulHandleSize);
+      return NO_ERROR;
+    }
+    else
+      return ERROR_SEM_NOT_FOUND;
+  }
+
+  return NO_ERROR;
+}
+
+APIRET CDECL
+kalCloseEventSem(HEV hev)
+{
+
+}
+
+APIRET CDECL
+kalCreateEventSem(PSZ pszName,
+                  PHEV phev,
+		  ULONG flags,
+		  BOOL32 fState)
+{
+  APIRET rc;
+  HEV    hev;
+  SEM    *sem;
+
+  STKIN
+
+  if (fState > 1 || flags > DC_SEM_SHARED)
+    return ERROR_INVALID_PARAMETER;
+
+  if (pszName && *pszName && strstr(pszName, "\\SEM32\\") != pszName)
+    return ERROR_INVALID_NAME;
+
+  if (!kalOpenEventSemaphore(pszName, &hev))
+  {
+    kalCloseEventSem(hev);
+    return ERROR_DUPLICATE_NAME;
+  }
+
+  /* allocate a hev for a new event semaphore */
+  if (rc = HndAllocateHandle(htSem, &hev, (HANDLE **)&sem))
+    return rc;
+
+  if (!pszName || !*pszName)
+  {
+    // shared semaphore
+    sem->cShared = flags;
+  }
+  else
+  {
+    // set name  
+    strncpy(sem->szName, pszName, CCHMAXPATH);
+    sem->szName[CCHMAXPATH - 1] = '\0';
+    sem->cShared = TRUE;
+  }
+
+  sem->cType = SEMTYPE_EVENT;
+
+  // set initial state
+  sem->uSem.evt  = L4SEMAPHORE_INIT(fState);
+  sem->ulRefCnt = 1;
+  
+  // return handle
+  *phev = hev;
+  STKOUT
+  return NO_ERROR;
 }

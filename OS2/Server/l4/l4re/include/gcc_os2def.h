@@ -164,6 +164,9 @@ typedef LHANDLE HMODULE, *PHMODULE;
 #endif
 //typedef LHANDLE PID, *PPID;
 //typedef LHANDLE TID, *PTID;
+
+#define DC_SEM_SHARED 1
+
 typedef ULONG   HEV,  *PHEV;
 typedef ULONG   HMTX, *PHMTX;
 typedef ULONG   HMUX, *PHMUX;

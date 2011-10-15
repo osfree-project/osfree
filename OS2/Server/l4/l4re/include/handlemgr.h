@@ -61,7 +61,7 @@ typedef struct _RTL_HANDLE_TABLE
 
 APIRET APIENTRY HndInitializeHandleTable(ULONG ulMaxHandleCount, ULONG ulHandleSize, HANDLE_TABLE * phtHandleTable);
 APIRET APIENTRY HndDestroyHandleTable(HANDLE_TABLE * phtHandleTable);
-APIRET APIENTRY HndAllocateHandle(HANDLE_TABLE * phtHandleTable, ULONG * pulHandleIndex, HANDLE * pHandle);
+APIRET APIENTRY HndAllocateHandle(HANDLE_TABLE * phtHandleTable, ULONG * pulHandleIndex, HANDLE ** pHandle);
 APIRET APIENTRY HndFreeHandle(HANDLE_TABLE * HandleTable, HANDLE * pHandle);
 APIRET APIENTRY HndIsValidHandle(const HANDLE_TABLE * HandleTable, const HANDLE * pHandle);
 APIRET APIENTRY HndIsValidIndexHandle(const HANDLE_TABLE * HandleTable, ULONG ulIndex, HANDLE ** ValidHandle);

@@ -161,12 +161,6 @@ APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
           case '7': // %7
           case '8': // %8
           case '9': // %9
-            if (*src >= cTable)
-            {
-              src++; dst++;
-              srclen--; dstlen++;
-              break;
-            }
             len = strnlen(pTable[*src - '1'], cbBuf);
             strncpy(dst, pTable[*src - '1'],  len);
             dst    += len;
