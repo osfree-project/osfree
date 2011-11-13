@@ -11,6 +11,15 @@ WinGetLastError2
  -1 = hab not exist or not used, or
   the last nonzero error code, and sets the error code to zero.
 */
+
+#include <FreePM.hpp>
+#include <pmclient.h>
+#include <habmgr.hpp>
+
+#define debug(...)
+
+extern class _FreePM_HAB  _hab;
+
 ERRORID     APIENTRY    WinGetLastError(HAB iHAB)
 {   int rc;
     rc = _hab.QueryHABexist(iHAB);

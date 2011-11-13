@@ -33,6 +33,7 @@ void _FPM_PMWinStart(void *param)
   FPM_DeviceStart(param);
 }
 
+
 int FreePM_session::AddDesktop(int _dev_type, int nx, int ny, int bytesPerPixel,  struct WinPresParam * pp)
 {
   int i;
@@ -73,20 +74,41 @@ int FreePM_session::DelDesktop(int ind)
 }
 
 int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
-{  int rc,id,idd,nx,ny, bytes_PerPixel;
-static int params[4];
+{
+  int rc,id,idd,nx,ny, bytes_PerPixel;
+  static int params[4];
+  PBYTE pBmpBuffer = NULL;
+  static int LbmpBuffOld = 0;
+  int LbmpBuff;
+
    switch(_dev_type)
    {
       case FPM_DEV_PMWIN: /* */
- debug(7, 0) ("FreePM_session::InitDevice PMWIN: %d \n", _dev_type);
-      pDesktop->GetPar(nx, ny, bytes_PerPixel);
-      pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
- /* start separate thread for PM window */
-      params[0] = (int)pDesktop;
-      params[1] = (int)pDesktop->pVBuffmem;
-      params[2] = 0;
-      id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)&params[0]);
-         break;
+        debug(7, 0) ("FreePM_session::InitDevice PMWIN: %d \n", _dev_type);
+
+        pDesktop->GetPar(nx, ny, bytes_PerPixel);
+        printf ("nx=%u, ny=%u, bpp=%u\n", nx, ny, bytes_PerPixel);
+
+        if(pBmpBuffer)
+        {
+           LbmpBuff = bytes_PerPixel * nx * (ny+2)+4;
+           if(LbmpBuff != LbmpBuffOld)
+             pBmpBuffer = (BYTE *) realloc(pBmpBuffer,LbmpBuff);
+        } else {
+          LbmpBuff = bytes_PerPixel * nx * (ny+2)+4;
+          pBmpBuffer = (BYTE *)malloc(LbmpBuff);
+        }
+        LbmpBuffOld = LbmpBuff;
+
+        //pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
+        pDesktop->pVBuffmem = pBmpBuffer;
+
+        /* start separate thread for PM window */
+        params[0] = (int)pDesktop;
+        params[1] = (int)pDesktop->pVBuffmem;
+        params[2] = 0;
+        id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)&params[0]);
+        break;
       case  FPM_DEV_PMWIN_DIR:
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device PMWIN_DIR not yet supported\n");
          break;

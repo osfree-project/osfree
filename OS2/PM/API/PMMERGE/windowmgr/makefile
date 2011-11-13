@@ -4,7 +4,7 @@
 # author, date
 #
 
-srcfiles = $(p)WindowClass$(e) $(p)windowmgr$(e)
+srcfiles = $(p)windowmgr$(e) $(p)WindowClass$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 DEST = none
 

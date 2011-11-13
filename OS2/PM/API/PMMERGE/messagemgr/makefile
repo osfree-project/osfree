@@ -5,7 +5,7 @@
 #
 
 srcfiles = $(p)messages$(e) $(p)queue$(e)
-ADD_COPT = -i=$(MYDIR)..$(SEP)include
+ADD_COPT = -i=$(MYDIR).. -bd
 DEST = none
 
 !include $(%ROOT)/mk/appsos2.mk

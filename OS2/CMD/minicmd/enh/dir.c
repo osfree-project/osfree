@@ -1,5 +1,5 @@
 #define INCL_DOSFILEMGR   /* File Manager values */
-#define INCL_DOSERRORS    /* DOS error values */
+#define INCL_DOSERRORS    /* DOS error values    */
 #include <os2.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +23,7 @@ int dir_cmd (int argc, char **argv)
     else
       mask = argv[1];
 
-    rc = DosFindFirst( mask,                 /* File pattern - all files     */
+    rc = DosFindFirst (mask,                 /* File pattern - all files     */
                        &hdirFindHandle,      /* Directory search handle      */
                        FILE_NORMAL,          /* Search attribute             */
                        &FindBuffer,          /* Result buffer                */

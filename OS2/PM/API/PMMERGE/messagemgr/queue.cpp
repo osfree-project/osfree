@@ -13,7 +13,7 @@
    rc = 2 - pmsg is NULL
    rc = 3 - First message was overwrited for circle queue
 */
-int FreePM_Queue::Add(PFPMQMSG pmsg)
+int Fs_Queue::Add(PSQMSG pmsg)
 {   int ind,rc=0,rcS;
     if(pmsg == NULL)
            return 2;
@@ -50,7 +50,7 @@ int FreePM_Queue::Add(PFPMQMSG pmsg)
 /* rc = 0 - Ok
    rc = 1 - no message (bad ind)
 */
-int FreePM_Queue::Del(int ind)
+int Fs_Queue::Del(int ind)
 {   int i,l, i_ind,i_ind1,rcS;
     if(length == 0)
              return 1;
@@ -82,7 +82,7 @@ int FreePM_Queue::Del(int ind)
 /* rc = 0 - Ok
    rc = 1 - no messages
 */
-int FreePM_Queue::DelFirst(void)
+int Fs_Queue::DelFirst(void)
 {  int rcS;
    if(length == 0)
              return 1;
@@ -105,7 +105,7 @@ int FreePM_Queue::DelFirst(void)
    rc = 2 - pmsg is NULL
 */
 
-int FreePM_Queue::Get(PFMPQMSG pmsg)
+int Fs_Queue::Get(PSQMSG pmsg)
 {  int rcS;
    if(length == 0)
              return 1;

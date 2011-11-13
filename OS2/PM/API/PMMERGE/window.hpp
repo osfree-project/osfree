@@ -1,6 +1,6 @@
 /*  int dev_class;   device class */
 
-int _FreePM_id_index   = 0;
+extern int _FreePM_id_index;
 
 #define FPM_W_DEV_MEMORY    0
 #define FPM_W_DEV_VIDEO     1

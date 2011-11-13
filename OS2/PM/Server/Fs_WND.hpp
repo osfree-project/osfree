@@ -4,7 +4,7 @@
 /* Fs_WND.hpp */
 /* ver 0.00 4.09.2002       */
 #ifndef FREEPMS_WND
-  #define FREEPMS_WND
+#define FREEPMS_WND
 
 /* The Window Structure (WND) */
 /* This structure represents a window. It is created by WinCreateWindow.

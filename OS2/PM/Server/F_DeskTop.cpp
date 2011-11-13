@@ -9,6 +9,7 @@
 #include <memory.h>
 #include <builtin.h>
 #include <time.h>
+
 #include "FreePM.hpp"
 #include "FreePMs.hpp"
 #include "F_hab.hpp"
@@ -20,6 +21,7 @@
 
 time_t getCurrentTime(void);
 
+#define LONGFromRGB(R,G,B) (LONG)(((LONG)R<<16)+((LONG)G<<8)+(LONG)B)
 #define LOCK_DESKTOP                            \
     {   int ilps_raz = 0, ilps_rc;              \
         do                                      \
@@ -50,11 +52,32 @@ int DeskTopWindow::CreateDeskTopWindow( ULONG _flStyle,    /*  Window style. */
   return rc;
 }
 
+int InitBuffer(void *pBmpBuffer, int nx, int ny, int bpp)
+{
+   int x, y, iR, iG, iB, *pBuf, col;
+
+   for (y = 0; y < ny; y++)
+   {
+      for (x = 0; x < nx; x++)
+      {
+         pBuf = (int *) ((char *)pBmpBuffer + (y*nx+x) * bpp);
+         iR = y%256;
+         iG = x%256;
+         iB = ((x*y)*30)%256;
+
+         *pBuf = LONGFromRGB(iR,iG,iB);
+      }
+   }
+
+   return 0;
+}
+
 /***********************************************************************/
 /* Init desktop window: get iHAB, create queue, create  desktop window */
 /***********************************************************************/
 int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
-{   int i, ordinal,tid,rc, len,inf[2];
+{
+    int i, ordinal,tid,rc, len,inf[2];
 
 /* desktop is a usual application with its HAB, queue and procedure */
 /* initialize hab */
@@ -83,7 +106,10 @@ int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
 /* Init device i.e. memory, PM, gradd or else */
    rc = pSession->InitDevice(FPM_DEV_PMWIN, this);
    /*rc = pSession->InitDevice(FPM_DEV_SERVERMEM, this);*/
-/* init videomode */
+   /* init videomode */
+
+   /* Draw a picture in a buffer */
+   InitBuffer(this->pVBuffmem, nx, ny, bytesPerPixel);
    debug(8, 0) ("FreePM_DeskTop::Init OK\n");
 
 /* создание остальных окон     */

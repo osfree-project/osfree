@@ -1,12 +1,13 @@
-# Makefile for PM library manager function
+#
+# A Makefile for pmmerge.dll
+# (c) osFree project,
+# author, date
+#
 
-PROJ = win_dialog
-ADD_COPT = -i=..$(SEP)include
 srcfiles = $(p)windlgbox$(e)
+ADD_COPT = -i=$(MYDIR).. -bd
+DEST = none
 
-!include $(%ROOT)/mk/libsos2.mk
+!include $(%ROOT)/mk/appsos2.mk
 
-TARGETS  = $(PATH)$(PROJ).lib
-
-$(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+TARGETS = $(OBJS)

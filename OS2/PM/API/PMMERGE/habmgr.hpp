@@ -36,7 +36,7 @@ struct _FreePM_HABinf
    int clientId;        /* magic number, assigned to client */
    int iHAB;            /* HAB index from server  */
 
-   class  FreePM_Queue   *pQueue;
+   class  Fs_Queue   *pQueue;
    volatile int msgSendTo;/* (iHAB+1 ?? ) to msg is sent, semaphore for msg send state */
    QMSG msgSend;        /* Buffer for one message which sent from one thread to another */
 

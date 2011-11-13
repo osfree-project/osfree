@@ -18,6 +18,7 @@
 #define debug(...)
 
 class _FreePM_HAB  _hab;
+int _FreePM_id_index = 0;
 
 /***********************************/
 

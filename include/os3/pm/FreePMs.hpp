@@ -12,7 +12,7 @@
 #define FPM_DEV_SERVERMEM      1   /* In server memory only */
 #define FPM_DEV_PMWIN          2   /* server write to memory and then bitbit memory as bitmap to window */
 #define FPM_DEV_PMWIN_DIR      3   /* server write directly to PM window  */
-#define FPM_DEV_GENGRADD       4  
+#define FPM_DEV_GENGRADD       4
 #define FPM_DEV_SDDNUCLEUS     5
 
 class FreePM_session;
@@ -44,22 +44,21 @@ class FreePM_DeskTop
    FPM_Window **pWindows; /* указатель на массив указателей на окна */
    volatile int Access; /* fast access semaphor, use when pWND is realloced  */
 
-
+   int dev_type;    /* тип устройства: 0-память, 1-PM Window, 2 - GENGRADD, 3 - SDDNUCLEUS */
+public:
    int nx; /* размер по X в pixel'ах */
    int ny; /* размер по Y в pixel'ах */
    int bytesPerPixel;  /* байт на пиксел */
    int bitsPerPixel;   /* бит на пиксел */
    int nColors;        /* число цветов на пиксел: 2,16,256, 32k, 64k ... */
-   int dev_type;    /* тип устройства: 0-память, 1-PM Window, 2 - GENGRADD, 3 - SDDNUCLEUS */
-public:
    HWND hwnd;       /* desktop window handle */
 private:
    struct WinPresParam pp;
 public:
    FreePM_session *pSession;  /* pointer to parent session */
-   FreePM_Queue *pQueue;        /* master Queue */
-   DeskTopWindow  *pWindow; /* desktop window */
-   int *pVBuffmem;          /* pointer to videobuffer in memory */ 
+   FreePM_Queue *pQueue;      /* master Queue */
+   DeskTopWindow  *pWindow;   /* desktop window */
+   void *pVBuffmem;           /* pointer to videobuffer in memory */
 public:
    FreePM_DeskTop(void)
    { numWindows = 0;

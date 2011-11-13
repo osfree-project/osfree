@@ -16,7 +16,6 @@ INT main ( VOID )
 {
    HAB         habAnchor ;
    HMQ         hmqQueue ;
-   BOOL        bLoop ;
    QMSG        qmMsg ;
 
    // Initialize this thread
@@ -24,26 +23,18 @@ INT main ( VOID )
 
    hmqQueue = WinCreateMsgQueue ( habAnchor, 0 ) ;
 
-   bLoop = WinGetMsg ( habAnchor,
-                       &qmMsg,
-                       NULLHANDLE,
-                       0,
-                       0 ) ;
-
-   while ( bLoop ) {
-         WinDispatchMsg ( habAnchor, &qmMsg ) ;
-         bLoop = WinGetMsg ( habAnchor,
-                             &qmMsg,
-                             NULLHANDLE,
-                             0,
-                             0 ) ;
-   } /* endwhile */
+   while (WinGetMsg (habAnchor,
+                     &qmMsg,
+                     NULLHANDLE,
+                     0,
+                     0))
+     WinDispatchMsg (habAnchor, &qmMsg);
 
 
-   WinDestroyMsgQueue ( hmqQueue ) ;
+   WinDestroyMsgQueue (hmqQueue);
 
    // Terminate this thread
-   WinTerminate ( habAnchor ) ;
+   WinTerminate (habAnchor);
    return 0 ;
 }
 

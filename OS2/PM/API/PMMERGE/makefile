@@ -4,17 +4,19 @@
 # author, date
 #
 
-PROJ     = pmmerge
+PROJ     = fmmerge
 DESC     = OS/2 PM Merged Library
-DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs
+DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
 srcfiles = $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
-           $(p)input$(SEP)input$(e) $(p)windowmgr$(SEP)WindowClass$(e) &
-           $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) $(p)windowmgr$(SEP)windowmgr$(e)
+           $(p)input$(SEP)input$(e) $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) &
+           $(p)windowmgr$(SEP)windowmgr$(e) $(p)windowmgr$(SEP)WindowClass$(e) &
+           $(p)errors$(SEP)errors$(e) $(p)errors$(SEP)f_errors$(e) $(p)load$(SEP)load$(e) &
+           # $(p)dialogs$(SEP)windlgbox$(e)
 ADD_COPT = -bd -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib lib win_load.lib &
-               segment type DATA shared
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib &
+               # segment type DATA shared
 DLL     = 1
-DLLOPT  = pm initinstance terminstance
+DLLOPT  = initinstance terminstance pm
 OPTIONS = manyautodata
 IMPORTS = RectCopy utlapi.1,                    &
           RectSet utlapi.2,                     &

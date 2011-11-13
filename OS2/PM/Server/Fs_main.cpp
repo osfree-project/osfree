@@ -252,12 +252,12 @@ pstr = FREEPM_MUTEX_NAME;
           printf("DosCreateMutexSem error: return code = %u\n", rc);
           return 1;
        }
-     }
+    }
 //  if(!detachedMode)
 //       printf("DosCreateMutexSem %i \n",__LINE__);
          /* This would normally be done by another unit of work */
-    rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,      /* Semaphore name */
-                         &FREEPM_hmtx);            /* Handle returned */
+    rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,      /* Semaphore name  */
+                         &FREEPM_hmtx);          /* Handle returned */
     if (rc != NO_ERROR) {
        printf("DosOpenMutexSem error: return code = %u\n", rc);
        return 1;

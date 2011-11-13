@@ -7,8 +7,8 @@ DESC = FreePM Server
 DIRS = drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
            $(p)Fs_hab$(e) $(p)Fs_main$(e) $(p)Fs_pipe$(e) &
-           $(p)Fs_queue$(e) $(p)Fs_wnd$(e) $(p)F_debug$(e) $(p)F_DeskTop$(e) &
-           $(p)F_errors$(e) $(p)F_GPI$(e) $(p)F_hab$(e) $(p)WindowClass$(e)
+           $(p)Fs_queue$(e) $(p)Fs_wnd$(e) $(p)F_debug$(e) &
+           $(p)F_GPI$(e) $(p)F_errors$(e) $(p)F_DeskTop$(e) $(p)F_hab$(e) $(p)WindowClass$(e)
 
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.

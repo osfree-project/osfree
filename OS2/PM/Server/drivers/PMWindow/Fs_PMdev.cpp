@@ -19,6 +19,9 @@
 
  #include "os2.h"
 
+ #include "FreePM.hpp"
+ #include "FreePMs.hpp"
+
 //#define F_INCL_DOS
 //#include "F_base.hpp"
 //#include "F_GPI.hpp"
@@ -59,7 +62,9 @@ static HDC     hdcBMP =  NULLHANDLE;
 static HWND    hwndFrame;
 static HWND    hwndClient;
 //temporary static int     MainThreadOrdinal;
-static int     *pVBuffmem = NULL;
+static void    *pVBuffmem = NULL;
+static int     bytesPerPixel = 0;
+FreePM_DeskTop *pDesktop;
 //extern class VideoPowerPresentation videopres;
 //extern const char *const _FreePM_Application_Name;
 
@@ -69,13 +74,13 @@ void APIENTRY FPM_DeviceStart(void *param)
    //ULONG       ulFlags;
    //BOOL        bLoop;
    //QMSG        qmMsg;
-   void       *pDesktop;
    int        *pParams;
 /**********************************************/
 //{
   PPIB pib;
   PTIB tib;
-  int  tid;
+  int  tid, cx, cy, bpp;
+
   printf("In console\n");
   DosGetInfoBlocks(&tib, &pib);
 
@@ -86,12 +91,18 @@ void APIENTRY FPM_DeviceStart(void *param)
 //temporary   MainThreadOrdinal = QueryThreadOrdinal(tid);
 //}
    pParams = (int *)param;
-   pDesktop  = (void *)pParams[0];
-   pVBuffmem = (int *) pParams[1];
-   if(pDesktop == NULL || pVBuffmem == NULL)
-   {    printf("FS_PMdev.cpp:85 pDesktop=%p, pVBuffmem=%p\n", pDesktop, pVBuffmem);
-                printf(" Error, not initialized resources! \n");
-       //DosBeep(500,500);
+   pDesktop  = (FreePM_DeskTop *)pParams[0];
+   pVBuffmem = (void *) pParams[1];
+   bytesPerPixel = pDesktop->bytesPerPixel;
+   cx = pDesktop->nx;
+   cy = pDesktop->ny;
+
+   printf("FS_PMdev.cpp:85 pDesktop=%p, pVBuffmem=%p\n", pDesktop, pVBuffmem);
+
+   if(pDesktop == NULL || bytesPerPixel == 0 || pVBuffmem == NULL)
+   {
+       printf(" Error, not initialized resources! \n");
+       DosBeep(500,500);
        exit(2);
    }
    habAnchor = WinInitialize ( 0 ) ;
@@ -112,18 +123,26 @@ void APIENTRY FPM_DeviceStart(void *param)
                       sizeof(int *)
                       ) ;
 
-   ulFlags = FCF_TITLEBAR | FCF_SYSMENU | FCF_SIZEBORDER |
-             FCF_MINMAX | FCF_SHELLPOSITION | FCF_TASKLIST |FCF_VERTSCROLL|FCF_HORZSCROLL;
+   ulFlags = FCF_TITLEBAR | FCF_BORDER | FCF_SYSMENU | // FCF_SIZEBORDER |
+             FCF_MINMAX | FCF_SHELLPOSITION | FCF_TASKLIST; // |FCF_VERTSCROLL|FCF_HORZSCROLL;
 
    hwndFrame = WinCreateStdWindow ( HWND_DESKTOP,
                                     WS_VISIBLE,
                                     &ulFlags,
                                     CLS_CLIENT,
                                     "FreePM Server Window",
-                                    CS_SIZEREDRAW|CS_MOVENOTIFY,
+                                    CS_SIZEREDRAW | CS_MOVENOTIFY,
                                     NULLHANDLE,
                                     0,
                                     &hwndClient ) ;
+
+   WinSetWindowPos(hwndFrame,
+                   NULLHANDLE,
+                   0,
+                   0,
+                   cx,
+                   cy,
+                   SWP_SIZE);
 
    if ( hwndFrame != NULLHANDLE ) {
       bLoop = WinGetMsg ( habAnchor,
@@ -180,7 +199,7 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
    case WM_ERASEBACKGROUND:
       return MRFROMSHORT ( TRUE ) ;
 
-      case WM_PAINT:
+   case WM_PAINT:
       {   RECTL rclClient;
           RECTL RectField;
           HPS hps;
@@ -193,17 +212,16 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
 //      printf("Rect= %i %i % i %i\n",rclClient.xLeft,rclClient.yBottom, rclClient.xRight,rclClient.yTop);
           WinQueryWindowRect(hwndWnd,&RectField);
           open_Vbuff( RectField);
-          InitBuffer();
           DisplayVbuf(hwndWnd,hpsDrawBMPBuffer,RectField,1);
 
       WinEndPaint(hps);
 
       }
-    break;
+      break;
 
-      case MYM_SHOWMESSAGE: /* показать сообщение из бэкгpаунда */
-   WinAlarm( HWND_DESKTOP,WA_ERROR ); /* type of alarm */
-   WinMessageBox( HWND_DESKTOP,    /* parent window handle    */
+   case MYM_SHOWMESSAGE: /* показать сообщение из бэкгpаунда */
+     WinAlarm( HWND_DESKTOP,WA_ERROR ); /* type of alarm */
+     WinMessageBox( HWND_DESKTOP,    /* parent window handle    */
          HWND_DESKTOP,             /* owner window handle     */
          (PCSZ) mpParm1,           /* pointer to message text */
          "FreePM"/*_FreePM_Application_Name*/, /* pointer to title text   */
@@ -279,8 +297,8 @@ void DisplayVbuf(HWND hwnd, HPS  hpsBuffer,RECTL rect, int isChange);
 /* Статические переменные */
 /**************************/
 static int BytesPerBmpPixel=1;
-PBYTE pBmpBuffer= NULL;
-int ZbNx,ZbNy,y_ZbNx[1284]; /* пpоизведение y*ZbNx */
+PBYTE pBmpBuffer = NULL;
+int ZbNx, ZbNy, y_ZbNx[1284]; /* пpоизведение y*ZbNx */
 
  HBITMAP hbm = 0;
  BITMAPINFOHEADER2 bmp;
@@ -341,41 +359,23 @@ int VideoPowerPresentation::Draw(HWND hwnd, RECTL rect, HPS hps, int x,int y)
 
 #endif
 
-int InitBuffer(void)
-{
-   int x,y,iR,iG,iB, *pBuf,col;
-
-   for(y=0;y<ZbNy;y++)
-   {
-      for(x=0;x<ZbNx;x++)
-      {  pBuf = (int *) (pBmpBuffer + (y*ZbNx+x) * BytesPerBmpPixel);
-         iR = y%256;
-         iG = x%256;
-         iB = 0; //((x*y)/256)%256;
-
-         *pBuf = LONGFromRGB(iR,iG,iB);
-        }
-   }
-
-   return 0;
-}
-
 
 int open_Vbuff(RECTL rclRect)
 {
-static int LbmpBuffOld=0;
-   int LbmpBuff;
-   PSZ pszData[4] = { "Display", NULL, NULL, NULL };
-   SIZEL sizlPage = {0, 0};
-   LONG alData[2];
+    static int LbmpBuffOld = 0;
+    int LbmpBuff;
+    PSZ pszData[4] = { "Display", NULL, NULL, NULL };
+    SIZEL sizlPage = {0, 0};
+    LONG alData[2];
 //   RGB2 rgb, *prgb;
-   int Numcolors,ii,s;
-extern ULONG ColorTable[256];
+    int Numcolors,ii,s;
+    extern ULONG ColorTable[256];
 
 /*
-   if(UseDive)
-   { return  open_VbuffDive(rclRect, &BytesPerBmpPixel);
-   }
+    if (UseDive)
+    {
+        return  open_VbuffDive(rclRect, &BytesPerBmpPixel);
+    }
 */
 
 //    else if(pVC_Caps[CAPS_COLOR_BITCOUNT] < 8) BytesPerBmpPixel = 3;
@@ -383,41 +383,29 @@ extern ULONG ColorTable[256];
 /*********** !!!!!!!!!!!!! **********/
 //BytesPerBmpPixel = 1;
 
-    ZbNx = rclRect.xRight - rclRect.xLeft+1;
-    ZbNy = rclRect.yTop - rclRect.yBottom + 1;
-    ZbNx = 640;
-    ZbNy = 480;
-    ZbNx = ((ZbNx-1)/32+1)*32;
-    ZbNy = ((ZbNy-1)/32+1)*32;
-    if(ZbNy > 1280) ZbNy = 1280;
-/* пеpесчет y_ZbNx */
+    ZbNx = rclRect.xRight - rclRect.xLeft   + 1;
+    ZbNy = rclRect.yTop   - rclRect.yBottom + 1;
+    //ZbNx = 640;
+    //ZbNy = 480;
+    //ZbNx = ((ZbNx-1)/32+1)*32;
+    //ZbNy = ((ZbNy-1)/32+1)*32;
+    if (ZbNx > 960)  ZbNx = 960;
+    if (ZbNy > 1280) ZbNy = 1280;
+
+    /* пеpесчет y_ZbNx */
     for(ii=0,s=0;ii<=ZbNy;ii++,s+= ZbNx) y_ZbNx[ii] = s;
 
-    if(pBmpBuffer)
-    {
-       LbmpBuff = BytesPerBmpPixel * ZbNx * (ZbNy+2)+4;
-       if(LbmpBuff != LbmpBuffOld)
-            pBmpBuffer = (BYTE *) realloc(pBmpBuffer,LbmpBuff);
-    } else {
+    // valerius: changed to PM server buffer
+    pBmpBuffer = (PBYTE)pVBuffmem;
+    printf("pBmpBuffer=%lx\n", pBmpBuffer);
 
-       LONG *pVC_Caps;
-       pVC_Caps = GetVideoConfig(NULLHANDLE);
-       if(pVC_Caps[CAPS_COLOR_BITCOUNT] > 8)
-                 BytesPerBmpPixel = pVC_Caps[CAPS_COLOR_BITCOUNT]/8;
-
-BytesPerBmpPixel = 3;
-//BytesPerBmpPixel = 2;
-
-       LbmpBuff = BytesPerBmpPixel * ZbNx * (ZbNy+2)+4;
-       pBmpBuffer = (BYTE *)malloc(LbmpBuff);
-    }
     if(pBmpBuffer == NULL)
-       {
-          ErrInfoMsg2("Критическая ошибка: нет памяти");
-          DosSleep(4000);
-          exit(1);
-       }
-   LbmpBuffOld = LbmpBuff;
+    {
+      ErrInfoMsg2("Критическая ошибка: нет памяти");
+      DosSleep(4000);
+      exit(1);
+    }
+
 /**************/
 /*
 { char str[128];
@@ -425,7 +413,6 @@ BytesPerBmpPixel = 3;
   SetStatusStr(NULL,str,2);
   sprintf(str,"Rect=%i,%i %i,%i",rclRect.xLeft,rclRect.yBottom,rclRect.xRight,rclRect.yTop);
   SetStatusStr(NULL,str,3);
-
 }
 */
 /**************/
@@ -433,6 +420,9 @@ BytesPerBmpPixel = 3;
 /* Create the memory device context and presentation space so they
  * are compatible with the screen device context and presentation space.
  */
+
+     printf("pBmpBuffer=%lx\n", pBmpBuffer);
+
      if(hbm)
      {
         bmp.cx = ZbNx;
@@ -440,7 +430,7 @@ BytesPerBmpPixel = 3;
         pbmi->cx = bmp.cx;
         pbmi->cy = bmp.cy;
         pbmi->cbImage = bmp.cbImage;
-         return 0;
+        return 0;
      }
           /* PSZ pszData[4] = { "Display", NULL, NULL, NULL }; */
       /* SIZEL sizlPage = {0, 0}; */
@@ -452,19 +442,19 @@ BytesPerBmpPixel = 3;
       /* Determine the device's plane/bit-count format. */
       GpiQueryDeviceBitmapFormats(hpsMem, 2, alData);
 
-
       bmp.cbFix = (ULONG) sizeof(BITMAPINFOHEADER2);
       bmp.cx = 16;
       bmp.cy = 16;
       bmp.cPlanes = alData[0];
       bmp.cBitCount = alData[1];
 
-      if(bmp.cBitCount < 8)
+      if (bmp.cBitCount < 8)
       {   bmp.cPlanes = 1;
           bmp.cBitCount = 8;
       }
       bmp.cPlanes = 1;
       bmp.cBitCount = 8;
+
 //!!
 bmp.cBitCount = 24;
 
@@ -473,8 +463,8 @@ bmp.cBitCount = 24;
       bmp.cxResolution = 70;
       bmp.cyResolution = 70;
       Numcolors = 230;
-      bmp.cclrUsed = Numcolors;
-      bmp.cclrImportant = Numcolors-30;
+      //bmp.cclrUsed = Numcolors;
+      //bmp.cclrImportant = Numcolors-30;
 //!!
 bmp.cclrUsed = 0;
 bmp.cclrImportant = 0;
@@ -513,9 +503,9 @@ pbmi->cclrImportant = 0;
       pbmi->usReserved = 0;
       pbmi->usRecording = BRA_BOTTOMUP;
       pbmi->usRendering = BRH_NOTHALFTONED;
-/*  pbmi->usRendering = BRH_ERRORDIFFUSION; */
-/*  pbmi->usRendering = BRH_PANDA; */
-/*  pbmi->usRendering = BRH_SUPERCIRCLE; */
+//  pbmi->usRendering = BRH_ERRORDIFFUSION;
+//  pbmi->usRendering = BRH_PANDA;
+//  pbmi->usRendering = BRH_SUPERCIRCLE;
       pbmi->cSize1 = 0;
       pbmi->cSize2 = 0;
       pbmi->ulColorEncoding = BCE_RGB;
@@ -549,44 +539,46 @@ void close_Vbuff(void)
 }
 
 
-void DisplayVbuf( HWND hwnd, HPS  hpsBuffer,RECTL rect, int isChange)
+void DisplayVbuf(HWND hwnd, HPS  hpsBuffer, RECTL rect, int isChange)
 {
-     POINTL aptl[4];
-     LONG lhits;
+    POINTL aptl[4];
+    LONG   lhits;
 /*
-   if(UseDive)
-   {   DisplayVbufDive(hwnd, hpsBuffer,isChange);
-       return;
-   }
+    if (UseDive)
+    {
+        DisplayVbufDive(hwnd, hpsBuffer,isChange);
+        return;
+    }
 */
-  /* Create a bit map that is compatible with the display.            */
-      if(isChange)
-      {  if(hbm) GpiDeleteBitmap(hbm);
-         hbm = GpiCreateBitmap(hpsMem, &bmp, CBM_INIT, (PBYTE) pBmpBuffer, pbmi);
-         GpiSetBitmap(hpsMem,hbm);
-  GpiSetBitmapBits(hpsMem, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi); //?????
-      }
-      else
-      {  // GpiSetBitmap(hpsBuffer,hbm);
-         // ii = GpiSetBitmapBits(hpsBuffer, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
-           GpiSetBitmap(hpsMem,hbm);
-           GpiSetBitmapBits(hpsMem, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
-      }
+    /* Create a bit map that is compatible with the display.            */
+    if (isChange)
+    {
+        if (hbm) GpiDeleteBitmap(hbm);
+        hbm = GpiCreateBitmap(hpsMem, &bmp, CBM_INIT, (PBYTE) pBmpBuffer, pbmi);
+        GpiSetBitmap(hpsMem,hbm);
+        GpiSetBitmapBits(hpsMem, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi); //?????
+    }
+    else
+    {
+        // GpiSetBitmap(hpsBuffer,hbm);
+        // ii = GpiSetBitmapBits(hpsBuffer, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
+        GpiSetBitmap(hpsMem,hbm);
+        GpiSetBitmapBits(hpsMem, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
+    }
 
+    aptl[0].x = rect.xLeft;       /* Lower-left corner of destination rectangle  */
+    aptl[0].y = rect.yBottom;     /* Lower-left corner of destination rectangle  */
+    aptl[1].x = rect.xRight;      /* Upper-right corner of destination rectangle */
+    aptl[1].y = rect.yTop;        /* Upper-right corner of destination rectangle */
+    /* Source-rectangle dimensions (in device coordinates)                       */
+    aptl[2].x = 0;                /* Lower-left corner of source rectangle       */
+    aptl[2].y = 0;                /* Lower-left corner of source rectangle       */
+    aptl[3].x = bmp.cx;           //  bmp.cx;
+    aptl[3].y = bmp.cy;           // bmp.cy;
 
-      aptl[0].x = rect.xLeft;       /* Lower-left corner of destination rectangle  */
-      aptl[0].y = rect.yBottom;       /* Lower-left corner of destination rectangle  */
-      aptl[1].x = rect.xRight;  /* Upper-right corner of destination rectangle */
-      aptl[1].y = rect.yTop; /* Upper-right corner of destination rectangle */
-     /* Source-rectangle dimensions (in device coordinates)              */
-      aptl[2].x = 0;      /* Lower-left corner of source rectangle       */
-      aptl[2].y = 0;    /* Lower-left corner of source rectangle       */
-      aptl[3].x = bmp.cx;  //  bmp.cx;
-      aptl[3].y = bmp.cy;    // bmp.cy;
+    pbmi->cy = bmp.cy;
 
-     pbmi->cy = bmp.cy;
-
-/* >>>>>>>>>>>>>>>>>>>>>>>>>>> */
+    /* >>>>>>>>>>>>>>>>>>>>>>>>>>> */
     lhits = GpiBitBlt(hpsBuffer , hpsMem,
          3,   /* 3-source rect=dest rect 4 Number of points in aptl */
          aptl, ROP_SRCCOPY,  BBO_IGNORE/* | BBO_PAL_COLORS*/ );
@@ -597,11 +589,9 @@ void DisplayVbuf( HWND hwnd, HPS  hpsBuffer,RECTL rect, int isChange)
 //            ierr++;
 //       }
 
-      GpiSetBitmap(hpsMem,0);
+    GpiSetBitmap(hpsMem,0);
 
-//      rc = GpiDeleteBitmap(hbm);
-
-
+//  rc = GpiDeleteBitmap(hbm);
 }
 
 /* Получить видеоконфигуpацию по полной пpогpамме */
@@ -622,5 +612,3 @@ LONG *GetVideoConfig(HDC hdc)
    }
    return NULL;
 }
-
-
