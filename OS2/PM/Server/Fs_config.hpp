@@ -10,6 +10,7 @@ class F_ServerConfig
    char deviceName[80];
    int DesktopNx;
    int DesktopNy;
+   int BytesPerPel;
    int DesktopBackColor;
    char DesktopBackgroundPicture[_MAX_PATH];
    char debugOptions[256];
@@ -17,6 +18,7 @@ class F_ServerConfig
    {
       DesktopNx = 640;
       DesktopNy = 480;
+      BytesPerPel = 3;
       DesktopBackColor = 0x606060;
       DesktopBackgroundPicture[0]=0;
       strcpy(deviceName,"PM");

@@ -76,7 +76,7 @@ M: pstr= fgets(str,128,fp);
 int F_ServerConfig::AnalizeRecodrRead(char *name, char *par)
 {   static char *lsNames[]=
      { "debugOptions","device",
-        "DesktopNx", "DesktopNy","DesktopBackColor","DesktopBackgroundPicture",
+        "DesktopNx", "DesktopNy", "BytesPerPel", "DesktopBackColor", "DesktopBackgroundPicture",
         NULL
 
      };
@@ -104,10 +104,13 @@ int F_ServerConfig::AnalizeRecodrRead(char *name, char *par)
         case 3:  /* DesktopNy */
            sscanf(par,"%i",&DesktopNy);
          break;
-        case 4:  /* DesktopBackColor */
+        case 4:
+           sscanf(par,"%i",&BytesPerPel);
+         break;
+        case 5:  /* DesktopBackColor */
            sscanf(par,"%x",&DesktopBackColor);
          break;
-        case 5:
+        case 6:
            sscanf(par,"%s", DesktopBackgroundPicture);
          break;
 

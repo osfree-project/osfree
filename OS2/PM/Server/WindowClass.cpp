@@ -332,11 +332,13 @@ debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
 /* HPS     APIENTRY WinGetPS(HWND hwnd); */
 
 HPS FPM_Window::GetPS(void)
-{ HPS hps;
+{
+  HPS hps = NULLHANDLE;
 debug(3, 0)(__FUNCTION__"call\n");
 //  hps = ::F_WinGetPS(handle);
   return hps;
 }
+
 
 BOOL FPM_Window::ReleasePS(HPS hps)
 {

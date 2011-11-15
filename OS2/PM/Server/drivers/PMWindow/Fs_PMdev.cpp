@@ -68,6 +68,8 @@ FreePM_DeskTop *pDesktop;
 //extern class VideoPowerPresentation videopres;
 //extern const char *const _FreePM_Application_Name;
 
+typedef int  (*callback_t)(void *pDClass, QMSG  *pqmMsg);
+
 void APIENTRY FPM_DeviceStart(void *param)
 {
    //HMQ         hmqQueue;
@@ -80,6 +82,7 @@ void APIENTRY FPM_DeviceStart(void *param)
   PPIB pib;
   PTIB tib;
   int  tid, cx, cy, bpp;
+  int  (*_DeskTopSendQueue)(void *pDClass, QMSG  *pqmMsg);
 
   printf("In console\n");
   DosGetInfoBlocks(&tib, &pib);
@@ -93,6 +96,7 @@ void APIENTRY FPM_DeviceStart(void *param)
    pParams = (int *)param;
    pDesktop  = (FreePM_DeskTop *)pParams[0];
    pVBuffmem = (void *) pParams[1];
+   _DeskTopSendQueue = (callback_t)pParams[2];
    bytesPerPixel = pDesktop->bytesPerPixel;
    cx = pDesktop->nx;
    cy = pDesktop->ny;
@@ -105,14 +109,13 @@ void APIENTRY FPM_DeviceStart(void *param)
        DosBeep(500,500);
        exit(2);
    }
+
    habAnchor = WinInitialize ( 0 ) ;
 
    HMQ         hmqQueue;
    ULONG       ulFlags;
    BOOL        bLoop;
    QMSG        qmMsg;
-
-
 
    hmqQueue = WinCreateMsgQueue ( habAnchor, 0 ) ;
 
@@ -136,6 +139,26 @@ void APIENTRY FPM_DeviceStart(void *param)
                                     0,
                                     &hwndClient ) ;
 
+   if (hwndFrame == NULLHANDLE)
+   {
+     WinDestroyMsgQueue (hmqQueue);
+     WinTerminate (habAnchor);
+     return;
+   }
+
+   RECTL rect;
+
+   rect.xLeft = 0; rect.yBottom = 0;
+   rect.xRight = cx; rect.yTop = cy;
+
+   /* convert client boundary coordinates to screen coordinates */
+   WinMapWindowPoints(hwndClient, HWND_DESKTOP, (PPOINTL)&rect, 2);
+
+   // get frame rectangle from the client one
+   WinCalcFrameRect(hwndFrame,
+                    &rect,
+                    FALSE);
+
    WinSetWindowPos(hwndFrame,
                    NULLHANDLE,
                    0,
@@ -144,31 +167,22 @@ void APIENTRY FPM_DeviceStart(void *param)
                    cy,
                    SWP_SIZE);
 
-   if ( hwndFrame != NULLHANDLE ) {
-      bLoop = WinGetMsg ( habAnchor,
-                          &qmMsg,
-                          NULLHANDLE,
-                          0,
-                          0 ) ;
-//temporary        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
-//temporary                _DeskTopSendQueue(pDesktop, &qmMsg);
-      while ( bLoop ) {
-         WinDispatchMsg ( habAnchor, &qmMsg ) ;
-         bLoop = WinGetMsg ( habAnchor,
-                             &qmMsg,
-                             NULLHANDLE,
-                             0,
-                             0 ) ;
-//temporary        if(qmMsg.hwnd == hwndClient)  /* translate only client messages */
-//temporary                _DeskTopSendQueue(pDesktop, &qmMsg);
-      } /* endwhile */
+   while (WinGetMsg (habAnchor,
+                     &qmMsg,
+                     NULLHANDLE,
+                     0,
+                     0))
+   {
+     WinDispatchMsg (habAnchor, &qmMsg);
 
-      WinDestroyWindow ( hwndFrame ) ;
-   } /* endif */
+     /* translate only client messages */
+     if(qmMsg.hwnd == hwndClient)
+        _DeskTopSendQueue(pDesktop, &qmMsg);
+   } /* endwhile */
 
-   WinDestroyMsgQueue ( hmqQueue ) ;
-   WinTerminate ( habAnchor ) ;
-//   return 0 ;
+   WinDestroyWindow (hwndFrame);
+   WinDestroyMsgQueue (hmqQueue);
+   WinTerminate (habAnchor);
 }
 
 MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
@@ -397,7 +411,6 @@ int open_Vbuff(RECTL rclRect)
 
     // valerius: changed to PM server buffer
     pBmpBuffer = (PBYTE)pVBuffmem;
-    printf("pBmpBuffer=%lx\n", pBmpBuffer);
 
     if(pBmpBuffer == NULL)
     {

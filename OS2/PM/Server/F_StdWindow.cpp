@@ -137,7 +137,7 @@ int STD_Window::CreateSTD_Window(HWND hwndParent,  /*  Parent-window handle. */
     return 0;
 }
 
-/*
+
 int FPM_Window::proc( PQMSG pqmsg)
 {
  //todo
@@ -151,8 +151,3 @@ int FPM_Window::Draw(HPS hps)
   return NULL;
 }
 
-HPS FPM_Window::GetPS(void)
-{
-
-}
-*/

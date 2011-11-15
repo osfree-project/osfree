@@ -21,6 +21,8 @@
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
 
+extern "C" int  _DeskTopSendQueue(void *pDClass, QMSG  *pqmMsg);
+
 /*int initGD(int DimX, int DimY);*/
 int initGD(int DimX, int DimY) {
         return (int)gdImageCreate(DimX, DimY);
@@ -106,8 +108,9 @@ int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
         /* start separate thread for PM window */
         params[0] = (int)pDesktop;
         params[1] = (int)pDesktop->pVBuffmem;
-        params[2] = 0;
-        id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)&params[0]);
+        params[2] = (int)(&_DeskTopSendQueue);
+        params[3] = 0;
+        id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)params);
         break;
       case  FPM_DEV_PMWIN_DIR:
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device PMWIN_DIR not yet supported\n");

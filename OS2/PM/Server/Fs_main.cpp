@@ -181,11 +181,20 @@ int main(int narg, char *arg[], char *envp[])
 
   startServerThreads();
 
+//  rc = session.AddDesktop(FPM_DEV_PMWIN,
+//                           _FreePMconfig.desktop.nx,
+//                           _FreePMconfig.desktop.ny,
+//                           _FreePMconfig.desktop.bytesPerPixel,
+//                           &_FreePMconfig.desktop.pp);
+  printf("nx=%lu, ny=%lu, bpp=%lu\n", FPMs_config.DesktopNx,
+                                      FPMs_config.DesktopNy,
+                                      FPMs_config.BytesPerPel);
   rc = session.AddDesktop(FPM_DEV_PMWIN,
-                           _FreePMconfig.desktop.nx,
-                           _FreePMconfig.desktop.ny,
-                           _FreePMconfig.desktop.bytesPerPixel,
+                           FPMs_config.DesktopNx,
+                           FPMs_config.DesktopNy,
+                           FPMs_config.BytesPerPel,
                            &_FreePMconfig.desktop.pp);
+
   debug(1, 1)("session.AddDesktop rc=%i\n",rc);
 
   debug(1, 1)("SRV main: Main idle loop\n");

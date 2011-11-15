@@ -3,7 +3,6 @@
 /* DEBUG: section 8 server class FreePM_DeskTop */
 /* ver 0.01 12.09.2002       */
 
-
 #include <stdio.h>
 #include <malloc.h>
 #include <memory.h>
@@ -17,6 +16,7 @@
 #include "F_globals.hpp"
 #include "Fs_globals.hpp"
 #include "FreePM_err.hpp"
+#include "Fs_HPS.hpp"
 //#include "F_GPI.hpp"
 
 time_t getCurrentTime(void);
@@ -36,6 +36,16 @@ time_t getCurrentTime(void);
 #define UNLOCK_DESKTOP  {__lxchg(&Access,UNLOCKED);}
 
 extern "C" int  _DeskTopSendQueue(void *pDClass, QMSG  *qmMsg);
+
+static int BytesPerBmpPixel=1;
+PBYTE pBmpBuffer = NULL;
+int ZbNx, ZbNy, y_ZbNx[1284]; /* пpоизведение y*ZbNx */
+
+HBITMAP hbm = 0;
+BITMAPINFOHEADER2 bmp;
+BITMAPINFO2 _bmi;
+PBITMAPINFO2 pbmi = NULL; //&_bmi;
+HPS hpsDesktop;
 
 int DeskTopWindow::CreateDeskTopWindow( ULONG _flStyle,    /*  Window style. */
                    LONG _nx,          /*  Width of window, in window coordinates. */
@@ -109,6 +119,7 @@ int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
    /* init videomode */
 
    /* Draw a picture in a buffer */
+   //pBmpBuffer = (PBYTE)this->pVBuffmem;
    InitBuffer(this->pVBuffmem, nx, ny, bytesPerPixel);
    debug(8, 0) ("FreePM_DeskTop::Init OK\n");
 
@@ -282,14 +293,204 @@ int DeskTopWindow::proc( PQMSG pqmsg)
   return NULL;
 }
 
-int DeskTopWindow::Draw(HPS hps)
+int open_Vbuff(RECTL rclRect)
 {
-   POINTL ptlPoint;/*  Corner point. */
-   int lControl;
-/* background */
-/*todo: if background == picture */
-/* rectangle 0,0, nx-1,ny-1, bytesPerPixel color pp.BackgroungColor */
-//   F_GpiBox(hps, lControl,&ptlPoint,0,0);
-   return 0; /* Just to make OW compile it. */
+    static int LbmpBuffOld = 0;
+    int LbmpBuff;
+    PSZ pszData[4] = { "Display", NULL, NULL, NULL };
+    SIZEL sizlPage = {0, 0};
+    LONG alData[2];
+//   RGB2 rgb, *prgb;
+    int Numcolors,ii,s;
+    extern ULONG ColorTable[256];
+
+    ZbNx = rclRect.xRight - rclRect.xLeft   + 1;
+    ZbNy = rclRect.yTop   - rclRect.yBottom + 1;
+    //ZbNx = 640;
+    //ZbNy = 480;
+    //ZbNx = ((ZbNx-1)/32+1)*32;
+    //ZbNy = ((ZbNy-1)/32+1)*32;
+    if (ZbNx > 960)  ZbNx = 960;
+    if (ZbNy > 1280) ZbNy = 1280;
+
+    /* пеpесчет y_ZbNx */
+    for(ii=0,s=0;ii<=ZbNy;ii++,s+= ZbNx) y_ZbNx[ii] = s;
+
+    if(pBmpBuffer == NULL)
+    {
+      printf("Критическая ошибка: нет памяти");
+      DosSleep(4000);
+      exit(1);
+    }
+
+/* Create the memory device context and presentation space so they
+ * are compatible with the screen device context and presentation space.
+ */
+
+     printf("pBmpBuffer=%lx\n", pBmpBuffer);
+
+     if(hbm)
+     {
+        bmp.cx = ZbNx;
+        bmp.cy = ZbNy;
+        pbmi->cx = bmp.cx;
+        pbmi->cy = bmp.cy;
+        pbmi->cbImage = bmp.cbImage;
+        return 0;
+     }
+          /* PSZ pszData[4] = { "Display", NULL, NULL, NULL }; */
+      /* SIZEL sizlPage = {0, 0}; */
+
+      /* Determine the device's plane/bit-count format. */
+      GpiQueryDeviceBitmapFormats(hpsDesktop, 2, alData);
+
+      bmp.cbFix = (ULONG) sizeof(BITMAPINFOHEADER2);
+      bmp.cx = 16;
+      bmp.cy = 16;
+      bmp.cPlanes = alData[0];
+      bmp.cBitCount = alData[1];
+
+      if (bmp.cBitCount < 8)
+      {   bmp.cPlanes = 1;
+          bmp.cBitCount = 8;
+      }
+      bmp.cPlanes = 1;
+      bmp.cBitCount = 8;
+
+//!!
+bmp.cBitCount = 24;
+
+      bmp.ulCompression = BCA_UNCOMP;
+      bmp.cbImage = 0;
+      bmp.cxResolution = 70;
+      bmp.cyResolution = 70;
+      Numcolors = 230;
+      //bmp.cclrUsed = Numcolors;
+      //bmp.cclrImportant = Numcolors-30;
+//!!
+bmp.cclrUsed = 0;
+bmp.cclrImportant = 0;
+
+      bmp.usUnits = BRU_METRIC;
+      bmp.usReserved = 0;
+      bmp.usRecording = BRA_BOTTOMUP;
+      bmp.usRendering = BRH_NOTHALFTONED;//BRH_ERRORDIFFUSION;
+      bmp.cSize1 = 0;
+      bmp.cSize2 = 0;
+      bmp.ulColorEncoding = BCE_RGB;
+      bmp.ulIdentifier = 1;
+
+      ii = (sizeof(RGB2) * (1 << bmp.cPlanes) * (1 << bmp.cBitCount));
+      if(bmp.cBitCount  > 8)
+                           ii = 16;
+      ii += sizeof(BITMAPINFO2);
+      pbmi = (BITMAPINFO2 *) malloc(ii);
+
+      pbmi->cbFix = bmp.cbFix;
+      pbmi->cx = bmp.cx;
+      pbmi->cy = bmp.cy;
+      pbmi->cPlanes = bmp.cPlanes;
+      pbmi->cBitCount = bmp.cBitCount;
+      pbmi->ulCompression = BCA_UNCOMP;
+      pbmi->cbImage = 1;
+      pbmi->cxResolution = 70;
+      pbmi->cyResolution = 70;
+
+      pbmi->cclrUsed = Numcolors;
+      pbmi->cclrImportant = Numcolors-20;
+//!!
+pbmi->cclrUsed = 0;
+pbmi->cclrImportant = 0;
+      pbmi->usUnits = BRU_METRIC;
+      pbmi->usReserved = 0;
+      pbmi->usRecording = BRA_BOTTOMUP;
+      pbmi->usRendering = BRH_NOTHALFTONED;
+//  pbmi->usRendering = BRH_ERRORDIFFUSION;
+//  pbmi->usRendering = BRH_PANDA;
+//  pbmi->usRendering = BRH_SUPERCIRCLE;
+      pbmi->cSize1 = 0;
+      pbmi->cSize2 = 0;
+      pbmi->ulColorEncoding = BCE_RGB;
+      pbmi->ulIdentifier = 1;
+
+    bmp.cbImage = 0;//((ZbNx+31)/32) * ZbNy;
+    bmp.cx = ZbNx;
+    bmp.cy = ZbNy;
+    pbmi->cx = bmp.cx;
+    pbmi->cy = bmp.cy;
+    pbmi->cbImage = bmp.cbImage;
+
+//      prgb = (RGB2 *) (((PBYTE)pbmi)+bmp.cbFix);
+
+   return 0;
 }
 
+
+void DisplayVbuf(HPS  hpsBuffer, RECTL rect, int isChange)
+{
+    POINTL aptl[4];
+    LONG   lhits;
+
+    /* Create a bit map that is compatible with the display.            */
+    if (isChange)
+    {
+        if (hbm) GpiDeleteBitmap(hbm);
+        hbm = GpiCreateBitmap(hpsDesktop, &bmp, CBM_INIT, (PBYTE) pBmpBuffer, pbmi);
+        GpiSetBitmap(hpsDesktop,hbm);
+        GpiSetBitmapBits(hpsDesktop, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi); //?????
+    }
+    else
+    {
+        // GpiSetBitmap(hpsBuffer,hbm);
+        // ii = GpiSetBitmapBits(hpsBuffer, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
+        GpiSetBitmap(hpsDesktop,hbm);
+        GpiSetBitmapBits(hpsDesktop, 0,bmp.cy,(PBYTE) pBmpBuffer, pbmi);
+    }
+
+    aptl[0].x = rect.xLeft;       /* Lower-left corner of destination rectangle  */
+    aptl[0].y = rect.yBottom;     /* Lower-left corner of destination rectangle  */
+    aptl[1].x = rect.xRight;      /* Upper-right corner of destination rectangle */
+    aptl[1].y = rect.yTop;        /* Upper-right corner of destination rectangle */
+    /* Source-rectangle dimensions (in device coordinates)                       */
+    aptl[2].x = 0;                /* Lower-left corner of source rectangle       */
+    aptl[2].y = 0;                /* Lower-left corner of source rectangle       */
+    aptl[3].x = bmp.cx;           //  bmp.cx;
+    aptl[3].y = bmp.cy;           // bmp.cy;
+
+    pbmi->cy = bmp.cy;
+
+    /* >>>>>>>>>>>>>>>>>>>>>>>>>>> */
+    //lhits = GpiBitBlt(hpsBuffer , hpsMem,
+    //     3,   /* 3-source rect=dest rect 4 Number of points in aptl */
+    //     aptl, ROP_SRCCOPY,  BBO_IGNORE/* | BBO_PAL_COLORS*/ );
+
+//       if(ii != GPI_OK)
+//       {    ERRORID errid;
+//            errid = WinGetLastError(hab);
+//            ierr++;
+//       }
+
+    GpiSetBitmap(hpsDesktop,0);
+
+//  rc = GpiDeleteBitmap(hbm);
+}
+
+extern "C" BOOL APIENTRY GpiQueryBoundaryData(HPS hps, PRECTL prclBoundary);
+
+int DeskTopWindow::Draw(HPS hps)
+{
+   RECTL rect;
+   //POINTL ptlPoint;/*  Corner point. */
+   //int lControl;
+   /* background */
+   /*todo: if background == picture */
+   /* rectangle 0,0, nx-1,ny-1, bytesPerPixel color pp.BackgroungColor */
+   //GpiBox(hps, lControl, &ptlPoint, 0, 0);
+   //printf("hpsDesktop=%lx\n", hps);
+   //hpsDesktop = hps;
+   //GpiQueryBoundaryData(hpsDesktop, &rect);
+   //open_Vbuff(rect);
+   //DisplayVbuf(hpsDesktop, rect, 1);
+
+   return 0; /* Just to make OW compile it. */
+}
