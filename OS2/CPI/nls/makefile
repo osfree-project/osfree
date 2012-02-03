@@ -14,10 +14,10 @@ DLLOPT  = initglobal
 OPTIONS = manyautodata
 IMPORTS = &
 # 16
-#          DosCaseMap       DOSCALLS.391, &
-#          DosGetCollate    DOSCALLS.392, &
-#          DosGetCtryInfo   DOSCALLS.393, &
-#          DosGetDBCSEv     DOSCALLS.394, &
+          DosCaseMap       DOSCALLS.391, &
+          DosGetCollate    DOSCALLS.392, &
+          DosGetCtryInfo   DOSCALLS.393, &
+          DosGetDBCSEv     DOSCALLS.394, &
 # 32
           DosQueryCtryInfo DOSCALLS.395, &
           DosQueryDBCSEnv DOSCALLS.396,  &
@@ -26,10 +26,10 @@ IMPORTS = &
 
 EXPORTS = &
 # 16
-#          DosCaseMap.1, &
-#          DosGetCollate.2, &
-#          DosGetCtryInfo.3, &
-#          DosGetDBCSEv.4, &
+          DosCaseMap.1, &
+          DosGetCollate.2, &
+          DosGetCtryInfo.3, &
+          DosGetDBCSEv.4, &
 # 32
           DosQueryCtryInfo.5, &
           DosQueryDBCSEnv.6,  &

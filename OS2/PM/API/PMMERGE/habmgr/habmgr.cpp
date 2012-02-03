@@ -23,7 +23,7 @@ int _FreePM_id_index = 0;
 /***********************************/
 
 /*
- HAB - "Handle Ancor Block"
+ HAB - "Handle Anchor Block"
  HAB handles thread-specific info:
 - last PM error per thread
 - whats else ?

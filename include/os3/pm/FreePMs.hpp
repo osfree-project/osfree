@@ -4,7 +4,7 @@
 /* FreePMs.hpp */
 /* ver 0.00 10.09.2002 */
 #ifndef FREEPM_FREEPMS
-  #define FREEPM_FREEPMS
+#define FREEPM_FREEPMS
 #include "Fs_queue.hpp"
 #include "Fs_hab.hpp"
 
@@ -17,7 +17,7 @@
 
 class FreePM_session;
 
-class DeskTopWindow:public FPM_Window
+class DeskTopWindow: public FPM_Window
 {
  public:
      DeskTopWindow(void):FPM_Window()
@@ -95,15 +95,15 @@ public:
    int Init(int nx, int ny, int bytes_PerPixel);
    HPS AddPS(HWND hwnd);
    int DelPS(HPS hps);
-
 };
 
 
 class FreePM_session
-{  int id; /* идентификатор */
+{
+   int id;                     /* идентификатор */
 public:
-   int numDeskTops;          /* число рабочих столов */
-   int numpDeskTopsAllocated; /* выделено памяти под массив указателей на рабочие столы */
+   int numDeskTops;            /* число рабочих столов */
+   int numpDeskTopsAllocated;  /* выделено памяти под массив указателей на рабочие столы */
    FreePM_DeskTop **pDeskTops; /* указатель на массив указателей на рабочие столы */
    int indCurrentDesktop;      /* индекс текущего десктопа */
    class _FreePM_HAB_serverlist  hab_list;

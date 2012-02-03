@@ -6,7 +6,7 @@
 
 PROJ     = viocalls
 DESC     = Video API
-OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
+OBJS     = $(PATH)..$(SEP)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment   type DATA shared
 DLL     = 1

@@ -182,8 +182,8 @@ public:
 //   int proc( HWND hwndWnd, ULONG ulMsg, MPARAM mpParm1,MPARAM mpParm2 );  /*  Window procedure pointer  (?) */
  virtual int proc(PQMSG pqmsg);
  int proc( HWND hwndWnd, ULONG ulMsg, MPARAM mpParm1,MPARAM mpParm2 ); /* From F_Window.cpp */
-// int GetPS(F_PS *pps);
- HPS  GetPS(void);
+ //int GetPS(F_PS *pps);
+ HPS GetPS(void);
  BOOL ReleasePS(HPS hps);
 
  virtual int Draw(HPS hps);

@@ -12,6 +12,8 @@
 #define INCL_GPI
 #include <os2.h>
 
+#include <stdio.h>
+
 INT main ( VOID )
 {
    HAB         habAnchor ;
@@ -29,7 +31,6 @@ INT main ( VOID )
                      0,
                      0))
      WinDispatchMsg (habAnchor, &qmMsg);
-
 
    WinDestroyMsgQueue (hmqQueue);
 

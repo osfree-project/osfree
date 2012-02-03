@@ -6,7 +6,7 @@
 
 PROJ     = kbdcalls
 DESC     = Keyboard API
-OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
+OBJS     = $(PATH)..$(SEP)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
 DLL     = 1
