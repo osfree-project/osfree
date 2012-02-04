@@ -16,12 +16,6 @@
 /* private defs  */
 #include <os2ini.h>
 
-typedef unsigned long ULONG;
-
-#define CCHMAXPATH 260
-
-#define BYTESWAP(x) ((x >> 24) | ((x & 0xff0000) >> 8) | ((x & 0xff00) << 8) | ((x & 0xff) << 24))
-
 void showhelp (int argc, char **argv)
 {
   printf ("%s: missing arguments\n"

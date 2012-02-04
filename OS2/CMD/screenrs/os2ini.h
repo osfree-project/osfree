@@ -9,7 +9,11 @@
 #ifndef __OS2INI_H__
 #define __OS2INI_H__
 
-#include <os2def.h>
+typedef unsigned long  ULONG;
+typedef unsigned short USHORT;
+
+#define CCHMAXPATH 260
+#define BYTESWAP(x) ((x >> 24) | ((x & 0xff0000) >> 8) | ((x & 0xff00) << 8) | ((x & 0xff) << 24))
 
 #define INI_SIG 0xffffffff
 #define INI_VER 0x14
