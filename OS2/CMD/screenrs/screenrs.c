@@ -26,7 +26,7 @@ void showhelp (int argc, char **argv)
 {
   printf ("%s: missing arguments\n"
           "\n"
-          "Synopsys:\n"
+          "Synopsis:\n"
           "%s <IniFile> <cxScreen> <cyScreen> <ColorBits> <TEST>\n"
           "\n"
           "Example:\n"
@@ -189,7 +189,7 @@ int main (int argc, char **argv)
   printf("\n\n");
 
   keyval[0] = cx; keyval[1] = cy;
-  keyval[2] = bpp;
+  keyval[2] = 1 << bpp;
   keyval[3] = keyval[4] = 0;
 
   printf("new data: ");
