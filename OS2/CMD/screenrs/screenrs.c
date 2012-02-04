@@ -105,6 +105,12 @@ int main (int argc, char **argv)
       exit(1);
     }
 
+    if (app.appname > filesize)
+    {
+      printf("Seek beyond the filesize!\n");
+      exit(5);
+    }
+
     /* seek to appname */
     lseek(fd, app.appname, SEEK_SET);
     rd = app.applen[0];
@@ -123,7 +129,19 @@ int main (int argc, char **argv)
     if (!app.nextapp)
       break;
 
+    if (app.nextapp > filesize)
+    {
+      printf("Seek beyond the filesize!\n");
+      exit(5);
+    }
+
     lseek(fd, app.nextapp, SEEK_SET);
+  }
+
+  if (app.key > filesize)
+  {
+    printf("Seek beyond the filesize!\n");
+    exit(5);
   }
 
   /* PM_DISPLAYDRIVERS found, now search for DEFAULTSYSTEMRESOLUTION key */
@@ -139,6 +157,12 @@ int main (int argc, char **argv)
     {
       printf("Error reading file: %s!\n", inipath);
       exit(1);
+    }
+
+    if (key.keyname > filesize)
+    {
+      printf("Seek beyond the filesize!\n");
+      exit(5);
     }
 
     /* seek to keyname */
@@ -159,7 +183,19 @@ int main (int argc, char **argv)
     if (!key.nextkey)
       break;
 
+    if (key.nextkey > filesize)
+    {
+      printf("Seek beyond the filesize!\n");
+      exit(5);
+    }
+
     lseek(fd, key.nextkey, SEEK_SET);
+  }
+
+  if (key.val > filesize)
+  {
+    printf("Seek beyond the filesize!\n");
+    exit(5);
   }
 
   /* DEFAULTSYSTEMRESOLUTION key found */
