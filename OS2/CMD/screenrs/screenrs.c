@@ -1,5 +1,5 @@
 /*  Set/query video mode in os2.ini
- *  screenres.exe clone by valerius (_valerius (dog) mail (dot) ru)
+ *  screenrs.exe clone by valerius (_valerius (dog) mail (dot) ru)
  *  original version was written for eComStation (closed source)
  *  2012, Feb 4
  */
@@ -127,7 +127,10 @@ int main (int argc, char **argv)
       break;
 
     if (!app.nextapp)
-      break;
+    {
+      printf("PM_DISPLAYDRIVERS app not found!\n");
+      exit(6);
+    }
 
     if (app.nextapp > filesize)
     {
@@ -181,7 +184,10 @@ int main (int argc, char **argv)
       break;
 
     if (!key.nextkey)
-      break;
+    {
+      printf("DEFAULTSYSTEMRESOLUTION key not found!\n");
+      exit(7);
+    }
 
     if (key.nextkey > filesize)
     {
