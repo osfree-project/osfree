@@ -9,10 +9,18 @@
 #ifndef __OS2INI_H__
 #define __OS2INI_H__
 
-typedef unsigned long  ULONG;
-typedef unsigned short USHORT;
+#ifndef ULONG
+#define ULONG unsigned long
+#endif
 
+#ifndef USHORT
+#define USHORT unsigned short
+#endif
+
+#ifndef CCHMAXPATH
 #define CCHMAXPATH 260
+#endif
+
 #define BYTESWAP(x) ((x >> 24) | ((x & 0xff0000) >> 8) | ((x & 0xff00) << 8) | ((x & 0xff) << 24))
 
 #define INI_SIG 0xffffffff
@@ -36,7 +44,7 @@ typedef struct
   ULONG nextapp;     /* next application ptr     */
   ULONG key;         /* INI key data pointer     */
   ULONG reserved;
-  INI_len applen;   /* appname length           */
+  INI_len applen;    /* appname length           */
   ULONG appname;     /* appname pointer          */
 } INI_app;
 
@@ -45,9 +53,9 @@ typedef struct
 {
   ULONG nextkey;     /* next key ptr             */
   ULONG reserved;
-  INI_len keylen;   /* key length               */
+  INI_len keylen;    /* key length               */
   ULONG keyname;     /* key name (ASCIIZ)        */
-  INI_len vallen;   /* value length             */
+  INI_len vallen;    /* value length             */
   ULONG val;         /* value (ASCIIZ)           */
 } INI_key;
 

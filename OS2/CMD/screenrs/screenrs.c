@@ -18,15 +18,17 @@
 
 void showhelp (int argc, char **argv)
 {
-  printf ("%s: missing arguments\n"
+  printf ("\n%s: missing arguments\n"
           "\n"
           "Synopsis:\n"
-          "%s <IniFile> <cxScreen> <cyScreen> <ColorBits> <TEST>\n"
+          "screenrs <inifile> [[<cx> <cy> <bpp>] [<test>]]\n"
           "\n"
           "Example:\n"
-          "%s d:\\os2\\os2.ini 1024 768 24 TEST\n"
+          "> screenrs d:\\os2\\os2.ini 1024 768 24 TEST\n\n"
           "will test setting the screen resolution at 1024 x 768 pixel with a\n"
-          "color depth of 24 bit per pixel\n", argv[0], argv[0], argv[0]);
+          "color depth of 24 bit per pixel\n\n", argv[0]);
+
+  exit(4);
 }
 
 int main (int argc, char **argv)
@@ -39,24 +41,36 @@ int main (int argc, char **argv)
   char    keyname[CCHMAXPATH];
   char    *inipath;
   char    *test = 0;
-  ULONG   cx, cy, bpp;
+  ULONG   cx = 0, cy = 0, bpp = 0;
   int     fd;
   int     len, rd;
   int     filesize;
   int     i;
 
-  if (argc == 1 || argc < 5 || argc > 6)
+  if (argc > 1 &&
+      (argv[1][0] == '-' || argv[1][0] == '/') &&
+      (argv[1][1] == '?' || argv[1][1] == 'h'))
     showhelp(argc, argv);
 
-  inipath = argv[1];
+  if (argc == 2)
+  {
+    inipath = argv[1];
+    test = (char *)1;
+  }
+  else
+    if (argc == 1 || argc < 5 || argc > 6)
+      showhelp(argc, argv);
+    else
+    {
+      inipath = argv[1];
 
-  if (argc == 6)
-    test = argv[5];
+      if (argc == 6)
+        test = argv[5];
 
-  cx  = atol(argv[2]); cy = atol(argv[3]);
-  bpp = atol(argv[4]);
-
-  //printf("Set video mode: %ux%ux%u\n", cx, cy, bpp);
+      cx  = atol(argv[2]);
+      cy  = atol(argv[3]);
+      bpp = atol(argv[4]);
+    }
 
   fd = open(inipath, O_RDWR | O_BINARY);
 
@@ -76,9 +90,6 @@ int main (int argc, char **argv)
     printf("Error reading file: %s!\n", inipath);
     exit(1);
   }
-
-  //printf("Ini fmt version: 0x%lx\n", hdr.version);
-  //printf("Ini size: %lu\n", hdr.filesize);
 
   filesize = hdr.filesize;
 
@@ -105,8 +116,6 @@ int main (int argc, char **argv)
       printf("Error reading file: %s!\n", inipath);
       exit(1);
     }
-
-    //printf("app: %s\n", appname);
 
     if (!strcasecmp(appname, "PM_DISPLAYDRIVERS"))
       break;
@@ -144,8 +153,6 @@ int main (int argc, char **argv)
       exit(1);
     }
 
-    //printf("key: %s\n", keyname);
-
     if (!strcasecmp(keyname, "DEFAULTSYSTEMRESOLUTION"))
       break;
 
@@ -156,7 +163,6 @@ int main (int argc, char **argv)
   }
 
   /* DEFAULTSYSTEMRESOLUTION key found */
-
   /* now seek to key value             */
   lseek(fd, key.val, SEEK_SET);
   rd = key.vallen[0];
@@ -180,18 +186,26 @@ int main (int argc, char **argv)
   for (i = 0; i < len / 4; i++)
     printf("%08lx ", BYTESWAP(keyval[i]));
 
-  printf("\n\n");
+  printf("\n  ...that means %lux%lux%lu colors\n",
+         keyval[0], keyval[1], keyval[2]);
 
-  keyval[0] = cx; keyval[1] = cy;
-  keyval[2] = 1 << bpp;
-  keyval[3] = keyval[4] = 0;
+  /* set new values */
+  keyval[0] = cx;        // screen width
+  keyval[1] = cy;        // screen height
+  keyval[2] = 1 << bpp;  // color depth
+  keyval[3] = 1;         // unknown
+  keyval[4] = 0x40;      // unknown
 
-  printf("new data: ");
+  if (argc > 2)
+  {
+    printf("new data:     ");
 
-  for (i = 0; i < len / 4; i++)
-    printf("%08lx ", BYTESWAP(keyval[i]));
+    for (i = 0; i < len / 4; i++)
+      printf("%08lx ", BYTESWAP(keyval[i]));
 
-  printf("\n");
+    printf("\n  ...that means %lux%lux%lu colors\n",
+           keyval[0], keyval[1], keyval[2]);
+  }
 
   if (!test)
   {
@@ -199,15 +213,13 @@ int main (int argc, char **argv)
     lseek(fd, key.val, SEEK_SET);
     len = write(fd, (void *)keyval, 20);
 
-    //printf("len=%lu\n", len);
-
     if (len < rd)
     {
       printf("Error writing data to file: %s!\n", inipath);
       exit(3);
     }
 
-    printf("written\n");
+    printf("  ...written.\n");
   }
 
   close(fd);
