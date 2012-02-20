@@ -1,0 +1,163 @@
+Open Watcom Executable Image Dump Utility Version 1.9
+Portions Copyright (c) 1984-2002 Sybase, Inc. All Rights Reserved.
+Source code is available under the Sybase Open Watcom Public License.
+See http://www.openwatcom.org/ for details.
+
+                                DOS EXE Header                                
+==============================================================================
+length of load module mod 200H                       =     01B0H
+number of 200H pages in load module                  =     0001H
+number of relocation items                           =     0000H
+size of header in paragraphs                         =     0004H
+minimum number of paragraphs required above load mod =     0000H
+maximum number of paragraphs required above load mod =     FFFFH
+offset of stack segment in load module               =     0008H
+initial value of SP                                  =     0200H
+checksum                                             =     0000H
+initial value of IP                                  =     0000H
+offset of code segment within load module (segment)  =     0000H
+file offset of first relocation item                 =     0040H
+overlay number                                       =     0000H
+load module length                                   = 000001B0H
+
+load module =
+0000:  0E 1F BA 0E 00 B4 09 CD  21 B8 01 4C CD 21 54 68            !  L !Th
+0010:  69 73 20 70 72 6F 67 72  61 6D 20 63 61 6E 6E 6F    is program canno
+0020:  74 20 62 65 20 72 75 6E  20 69 6E 20 61 20 44 4F    t be run in a DO
+0030:  53 20 73 65 73 73 69 6F  6E 2E 0D 0A 24 00 00 00    S session.  $   
+0040:  4C 58 00 00 00 00 00 00  02 00 01 00 00 00 02 00    LX              
+0050:  02 80 00 00 01 00 00 00  00 00 00 00 00 00 00 00                    
+0060:  00 00 00 00 00 00 00 00  00 10 00 00 02 00 00 00                    
+0070:  10 00 00 00 00 00 00 00  5A 00 00 00 00 00 00 00            Z       
+0080:  C4 00 00 00 01 00 00 00  DC 00 00 00 00 00 00 00                    
+0090:  00 00 00 00 00 00 00 00  E4 00 00 00 ED 00 00 00                    
+00A0:  00 00 00 00 00 00 00 00  1E 01 00 00 26 01 00 00                &   
+00B0:  26 01 00 00 01 00 00 00  2E 01 00 00 00 00 00 00    &       .       
+00C0:  B0 01 00 00 00 00 00 00  B4 01 00 00 8E 00 00 00                    
+00D0:  00 00 00 00 02 00 00 00  00 00 00 00 00 00 00 00                    
+00E0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+00F0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+0100:  00 00 00 00 10 00 00 00  00 00 01 00 15 20 00 00                    
+0110:  01 00 00 00 01 00 00 00  00 00 00 00 00 00 00 00                    
+0120:  04 00 00 00 05 4D 4D 53  48 44 00 00 00 01 00 06         MMSHD      
+0130:  04 00 00 01 01 00 FA 00  00 00 01 01 00 FB 00 00                    
+0140:  00 01 01 00 FC 00 00 00  01 01 00 FD 00 00 00 01                    
+0150:  01 00 FE 00 00 00 01 01  00 FF 00 00 00 00 00 00                    
+0160:  00 00 00 00 00 00 07 4D  4D 50 41 52 54 53 00 00           MMPARTS  
+
+
+                      Linear EXE Header (OS/2 V2.x) - LX                      
+==============================================================================
+file offset = 00000080H
+
+byte order (0==little endian, 1==big endian)      =       00H
+word order       "                "               =       00H
+linear EXE format level                           = 00000000H
+cpu type                                          =     0002H
+os type (1==OS/2, 2==Windows, 3==DOS4, 4==Win386) =     0001H
+module version                                    = 00020000H
+module flags                                      = 00008002H
+# module pages                                    = 00000001H
+object # for initial EIP                          = 00000000H
+initial EIP                                       = 00000000H
+object # for initial ESP                          = 00000000H
+initial ESP                                       = 00000000H
+page size                                         = 00001000H
+last page size (LE)/page shift (LX)               = 00000002H
+fixup section size                                = 00000010H
+fixup section checksum                            = 00000000H
+loader section size                               = 0000005AH
+loader section checksum                           = 00000000H
+object table offset                               = 000000C4H
+# of objects in module                            = 00000001H
+object page map offset                            = 000000DCH
+object iterated data map offset                   = 00000000H
+offset of resource table                          = 00000000H
+# of resource entries                             = 00000000H
+offset of resident name table                     = 000000E4H
+offset of entry table                             = 000000EDH
+offset of module directive table                  = 00000000H
+# of module directives                            = 00000000H
+offset of fixup page table                        = 0000011EH
+offset of fixup record table                      = 00000126H
+offset of import module name table                = 00000126H
+# of entries in import module name table          = 00000001H
+offset of import procedure name table             = 0000012EH
+offset of per-page checksum table                 = 00000000H
+offset of enumerated data pages                   = 000001B0H
+# of pre-load pages                               = 00000000H
+offset of non-resident names table (rel file)     = 000001B4H
+size of non-resident names table                  = 0000008EH
+non-resident names table checksum                 = 00000000H
+object # for automatic data object                = 00000002H
+offset of the debugging information               = 00000000H
+size of the debugging information                 = 00000000H
+# of instance pages in the preload section        = 00000000H
+# of instance pages in the demand load section    = 00000000H
+size of heap (for 16-bit apps)                    = 00000000H
+size of stack                                     = 00000000H
+Module Flags = LIBRARY
+
+                                 Object Table                                 
+==============================================================================
+object 1: virtual memory size              = 00000010H
+          relocation base address          = 00010000H
+          object flag bits                 = 00002015H
+          object page table index          = 00000001H
+          # of object page table entries   = 00000001H
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|DISCARDABLE|BIG
+    page # 1  map page = 00000000H size = 0004H flgs = 00H Valid
+
+segment # 1   offset: 000001B0
+===========
+0000:  C3 00 00 00                                             
+
+
+
+                             Resident Names Table                             
+==============================================================================
+ordinal 0000: MMSHD
+
+                               Fixup Page Table                               
+==============================================================================
+ 00:00000000      01:00000000
+
+                              Fixup Record Table                              
+==============================================================================
+Source  Target
+  type  flags
+  ====  ====
+
+                           Import Module Name Table                           
+==============================================================================
+MMPARTS
+
+                              Entry Point Table                               
+==============================================================================
+
+number of entries in bundle = 01
+type = 00
+
+
+number of entries in bundle = 06
+type = 04
+object number = 0000
+
+ordinal = 0002   flags = 01   module ordinal = 0001   offset or ordinal = 000000FA  EXPORTED
+ordinal = 0003   flags = 01   module ordinal = 0001   offset or ordinal = 000000FB  EXPORTED
+ordinal = 0004   flags = 01   module ordinal = 0001   offset or ordinal = 000000FC  EXPORTED
+ordinal = 0005   flags = 01   module ordinal = 0001   offset or ordinal = 000000FD  EXPORTED
+ordinal = 0006   flags = 01   module ordinal = 0001   offset or ordinal = 000000FE  EXPORTED
+ordinal = 0007   flags = 01   module ordinal = 0001   offset or ordinal = 000000FF  EXPORTED
+
+
+                           Nonresident Names Table                            
+==============================================================================
+ordinal 0000: @#IBM:9.23#@
+ordinal 0003: MMShadowClassData
+ordinal 0004: MMShadowNewClass
+ordinal 0002: MMShadowCClassData
+ordinal 0007: M_MMShadowNewClass
+ordinal 0006: M_MMShadowClassData
+ordinal 0005: M_MMShadowCClassData

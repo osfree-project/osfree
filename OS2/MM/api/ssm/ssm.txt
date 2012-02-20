@@ -1,0 +1,375 @@
+Open Watcom Executable Image Dump Utility Version 1.9
+Portions Copyright (c) 1984-2002 Sybase, Inc. All Rights Reserved.
+Source code is available under the Sybase Open Watcom Public License.
+See http://www.openwatcom.org/ for details.
+
+                                DOS EXE Header
+==============================================================================
+length of load module mod 200H                       =     0000H
+number of 200H pages in load module                  =     0003H
+number of relocation items                           =     0000H
+size of header in paragraphs                         =     0004H
+minimum number of paragraphs required above load mod =     0000H
+maximum number of paragraphs required above load mod =     FFFFH
+offset of stack segment in load module               =     0008H
+initial value of SP                                  =     0200H
+checksum                                             =     0000H
+initial value of IP                                  =     0000H
+offset of code segment within load module (segment)  =     0000H
+file offset of first relocation item                 =     0040H
+overlay number                                       =     0000H
+load module length                                   = 00000600H
+
+load module =
+0000:  0E 1F BA 0E 00 B4 09 CD  21 B8 01 4C CD 21 54 68            !  L !Th
+0010:  69 73 20 70 72 6F 67 72  61 6D 20 63 61 6E 6E 6F    is program canno
+0020:  74 20 62 65 20 72 75 6E  20 69 6E 20 61 20 44 4F    t be run in a DO
+0030:  53 20 73 65 73 73 69 6F  6E 2E 0D 0D 0A 24 00 00    S session.   $
+0040:  4C 58 00 00 00 00 00 00  02 00 01 00 02 00 02 00    LX
+0050:  04 80 00 40 01 00 00 00  01 00 00 00 00 00 00 00       @
+0060:  00 00 00 00 00 00 00 00  00 10 00 00 02 00 00 00
+0070:  13 00 00 00 00 00 00 00  0C 04 00 00 00 00 00 00
+0080:  C4 00 00 00 02 00 00 00  F4 00 00 00 00 00 00 00
+0090:  00 00 00 00 00 00 00 00  FC 00 00 00 CF 03 00 00
+00A0:  00 00 00 00 00 00 00 00  D0 04 00 00 D8 04 00 00
+00B0:  DE 04 00 00 01 00 00 00  E3 04 00 00 00 00 00 00
+00C0:  00 10 00 00 00 00 00 00  04 10 00 00 12 00 00 00
+00D0:  00 00 00 00 02 00 00 00  00 00 00 00 00 00 00 00
+00E0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+00F0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0100:  00 00 00 00 10 00 00 00  00 00 01 00 05 20 00 00
+0110:  01 00 00 00 01 00 00 00  00 00 00 00 10 00 00 00
+0120:  00 00 02 00 23 20 00 00  02 00 00 00 00 00 00 00        #
+0130:  00 00 00 00 00 00 00 00  04 00 00 00 03 73 73 6D                 ssm
+0140:  00 00 14 53 70 69 53 74  6F 70 53 74 72 65 61 6D       SpiStopStream
+0150:  4E 65 74 77 6F 72 6B 1F  00 15 53 70 69 45 6E 61    Network   SpiEna
+0160:  62 6C 65 4E 65 74 77 6F  72 6B 45 76 65 6E 74 21    bleNetworkEvent!
+0170:  00 15 53 70 69 41 64 64  53 74 72 65 61 6D 54 6F      SpiAddStreamTo
+0180:  4E 65 74 77 6F 72 6B 15  00 15 53 70 69 45 6E 75    Network   SpiEnu
+0190:  6D 65 72 61 74 65 50 72  6F 74 6F 63 6F 6C 73 11    merateProtocols
+01A0:  00 15 53 70 69 53 74 61  72 74 53 74 72 65 61 6D      SpiStartStream
+01B0:  4E 65 74 77 6F 72 6B 1E  00 15 53 70 69 43 6C 6F    Network   SpiClo
+01C0:  73 65 53 74 72 65 61 6D  4E 65 74 77 6F 72 6B 17    seStreamNetwork
+01D0:  00 16 53 70 69 44 65 74  65 72 6D 69 6E 65 53 79      SpiDetermineSy
+01E0:  6E 63 4D 61 73 74 65 72  13 00 0C 53 70 69 41 73    ncMaster   SpiAs
+01F0:  73 6F 63 69 61 74 65 05  00 0D 53 70 69 53 65 65    sociate   SpiSee
+0200:  6B 53 74 72 65 61 6D 07  00 0D 53 70 69 47 65 74    kStream   SpiGet
+0210:  48 61 6E 64 6C 65 72 03  00 0D 53 70 69 45 6E 61    Handler   SpiEna
+0220:  62 6C 65 53 79 6E 63 0B  00 0D 53 70 69 53 74 6F    bleSync   SpiSto
+0230:  70 53 74 72 65 61 6D 08  00 0D 53 4D 48 45 6E 74    pStream   SMHEnt
+0240:  72 79 50 6F 69 6E 74 01  00 0E 53 70 69 47 65 74    ryPoint   SpiGet
+0250:  48 61 6E 64 6C 65 72 32  24 00 0E 53 70 69 44 69    Handler2$  SpiDi
+0260:  73 61 62 6C 65 53 79 6E  63 0C 00 0E 53 70 69 45    sableSync   SpiE
+0270:  6E 61 62 6C 65 45 76 65  6E 74 09 00 18 53 70 69    nableEvent   Spi
+0280:  41 73 73 65 6D 62 6C 65  53 74 72 65 61 6D 4E 65    AssembleStreamNe
+0290:  74 77 6F 72 6B 16 00 0E  53 70 69 53 74 61 72 74    twork   SpiStart
+02A0:  53 74 72 65 61 6D 04 00  0E 53 70 69 47 65 74 50    Stream   SpiGetP
+02B0:  72 6F 74 6F 63 6F 6C 0E  00 0F 53 70 69 44 69 73    rotocol   SpiDis
+02C0:  61 62 6C 65 45 76 65 6E  74 0A 00 0F 53 70 69 43    ableEvent   SpiC
+02D0:  72 65 61 74 65 53 74 72  65 61 6D 02 00 10 53 70    reateStream   Sp
+02E0:  69 55 6E 6C 6F 61 64 48  61 6E 64 6C 65 72 23 00    iUnloadHandler#
+02F0:  1A 53 70 69 55 6E 61 73  73 65 6D 62 6C 65 53 74     SpiUnassembleSt
+0300:  72 65 61 6D 4E 65 74 77  6F 72 6B 20 00 10 53 70    reamNetwork   Sp
+0310:  69 43 6F 6E 6E 65 63 74  53 74 72 65 61 6D 18 00    iConnectStream
+0320:  1A 53 70 69 52 65 6D 6F  76 65 53 74 72 65 61 6D     SpiRemoveStream
+0330:  46 72 6F 6D 4E 65 74 77  6F 72 6B 1C 00 10 53 70    FromNetwork   Sp
+0340:  69 44 65 73 74 72 6F 79  53 74 72 65 61 6D 06 00    iDestroyStream
+0350:  11 53 70 69 47 65 74 4E  65 74 77 6F 72 6B 54 69     SpiGetNetworkTi
+0360:  6D 65 22 00 12 53 70 69  51 75 65 72 79 53 74 72    me"  SpiQueryStr
+0370:  65 61 6D 49 6E 66 6F 1A  00 12 53 70 69 49 6E 73    eamInfo   SpiIns
+0380:  74 61 6C 6C 50 72 6F 74  6F 63 6F 6C 0D 00 08 53    tallProtocol   S
+0390:  70 69 44 65 62 75 67 14  00 13 53 70 69 52 65 61    piDebug   SpiRea
+03A0:  63 74 69 76 61 74 65 53  74 72 65 61 6D 1B 00 0A    ctivateStream
+03B0:  53 70 69 53 65 6E 64 4D  73 67 12 00 0A 53 70 69    SpiSendMsg   Spi
+03C0:  47 65 74 54 69 6D 65 0F  00 14 53 70 69 53 65 65    GetTime   SpiSee
+03D0:  6B 53 74 72 65 61 6D 4E  65 74 77 6F 72 6B 1D 00    kStreamNetwork
+03E0:  14 53 70 69 4F 70 65 6E  53 74 72 65 61 6D 4E 65     SpiOpenStreamNe
+03F0:  74 77 6F 72 6B 19 00 14  53 70 69 45 6E 75 6D 65    twork   SpiEnume
+0400:  72 61 74 65 48 61 6E 64  6C 65 72 73 10 00 00 24    rateHandlers   $
+0410:  04 00 00 01 01 00 83 00  00 00 01 01 00 84 00 00
+0420:  00 01 01 00 85 00 00 00  01 01 00 86 00 00 00 01
+0430:  01 00 87 00 00 00 01 01  00 88 00 00 00 01 01 00
+0440:  89 00 00 00 01 01 00 8A  00 00 00 01 01 00 8B 00
+0450:  00 00 01 01 00 8C 00 00  00 01 01 00 8D 00 00 00
+0460:  01 01 00 8E 00 00 00 01  01 00 8F 00 00 00 01 01
+0470:  00 90 00 00 00 01 01 00  91 00 00 00 01 01 00 92
+0480:  00 00 00 01 01 00 93 00  00 00 01 01 00 94 00 00
+0490:  00 01 01 00 95 00 00 00  01 01 00 96 00 00 00 01
+04A0:  01 00 D3 00 00 00 01 01  00 D4 00 00 00 01 01 00
+04B0:  D5 00 00 00 01 01 00 D6  00 00 00 01 01 00 D7 00
+04C0:  00 00 01 01 00 D8 00 00  00 01 01 00 D9 00 00 00
+04D0:  01 01 00 DA 00 00 00 01  01 00 DB 00 00 00 01 01
+04E0:  00 DC 00 00 00 01 01 00  DD 00 00 00 01 01 00 DE
+04F0:  00 00 00 01 01 00 DF 00  00 00 01 01 00 E0 00 00
+0500:  00 01 01 00 E5 00 00 00  01 01 00 E6 00 00 00 00
+0510:  00 00 00 00 06 00 00 00  08 81 03 00 01 BD 04 4D                   M
+0520:  4D 50 4D 00 00 00 00 00  00 00 00 00 00 00 00 00    MPM
+0530:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0540:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0550:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0560:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0570:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0580:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0590:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+05A0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+05B0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+
+
+                      Linear EXE Header (OS/2 V2.x) - LX
+==============================================================================
+file offset = 00000080H
+
+byte order (0==little endian, 1==big endian)      =       00H
+word order       "                "               =       00H
+linear EXE format level                           = 00000000H
+cpu type                                          =     0002H
+os type (1==OS/2, 2==Windows, 3==DOS4, 4==Win386) =     0001H
+module version                                    = 00020002H
+module flags                                      = 40008004H
+# module pages                                    = 00000001H
+object # for initial EIP                          = 00000001H
+initial EIP                                       = 00000000H
+object # for initial ESP                          = 00000000H
+initial ESP                                       = 00000000H
+page size                                         = 00001000H
+last page size (LE)/page shift (LX)               = 00000002H
+fixup section size                                = 00000013H
+fixup section checksum                            = 00000000H
+loader section size                               = 0000040CH
+loader section checksum                           = 00000000H
+object table offset                               = 000000C4H
+# of objects in module                            = 00000002H
+object page map offset                            = 000000F4H
+object iterated data map offset                   = 00000000H
+offset of resource table                          = 00000000H
+# of resource entries                             = 00000000H
+offset of resident name table                     = 000000FCH
+offset of entry table                             = 000003CFH
+offset of module directive table                  = 00000000H
+# of module directives                            = 00000000H
+offset of fixup page table                        = 000004D0H
+offset of fixup record table                      = 000004D8H
+offset of import module name table                = 000004DEH
+# of entries in import module name table          = 00000001H
+offset of import procedure name table             = 000004E3H
+offset of per-page checksum table                 = 00000000H
+offset of enumerated data pages                   = 00001000H
+# of pre-load pages                               = 00000000H
+offset of non-resident names table (rel file)     = 00001004H
+size of non-resident names table                  = 00000012H
+non-resident names table checksum                 = 00000000H
+object # for automatic data object                = 00000002H
+offset of the debugging information               = 00000000H
+size of the debugging information                 = 00000000H
+# of instance pages in the preload section        = 00000000H
+# of instance pages in the demand load section    = 00000000H
+size of heap (for 16-bit apps)                    = 00000000H
+size of stack                                     = 00000000H
+Module Flags = LIBRARY | INITINSTANCE | TERMINSTANCE
+
+                                 Object Table
+==============================================================================
+object 1: virtual memory size              = 00000010H
+          relocation base address          = 00010000H
+          object flag bits                 = 00002005H
+          object page table index          = 00000001H
+          # of object page table entries   = 00000001H
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|BIG
+    page # 1  map page = 00000000H size = 0004H flgs = 00H Valid
+
+segment # 1   offset: 00001000
+===========
+0000:  B0 02 E9 00
+
+
+
+object 2: virtual memory size              = 00000010H
+          relocation base address          = 00020000H
+          object flag bits                 = 00002023H
+          object page table index          = 00000002H
+          # of object page table entries   = 00000000H
+          reserved                         = 00000000H
+          flags = READABLE|WRITABLE|SHARED|BIG
+
+                             Resident Names Table
+==============================================================================
+ordinal 0000: ssm
+ordinal 001F: SpiStopStreamNetwork
+ordinal 0021: SpiEnableNetworkEvent
+ordinal 0015: SpiAddStreamToNetwork
+ordinal 0011: SpiEnumerateProtocols
+ordinal 001E: SpiStartStreamNetwork
+ordinal 0017: SpiCloseStreamNetwork
+ordinal 0013: SpiDetermineSyncMaster
+ordinal 0005: SpiAssociate
+ordinal 0007: SpiSeekStream
+ordinal 0003: SpiGetHandler
+ordinal 000B: SpiEnableSync
+ordinal 0008: SpiStopStream
+ordinal 0001: SMHEntryPoint
+ordinal 0024: SpiGetHandler2
+ordinal 000C: SpiDisableSync
+ordinal 0009: SpiEnableEvent
+ordinal 0016: SpiAssembleStreamNetwork
+ordinal 0004: SpiStartStream
+ordinal 000E: SpiGetProtocol
+ordinal 000A: SpiDisableEvent
+ordinal 0002: SpiCreateStream
+ordinal 0023: SpiUnloadHandler
+ordinal 0020: SpiUnassembleStreamNetwork
+ordinal 0018: SpiConnectStream
+ordinal 001C: SpiRemoveStreamFromNetwork
+ordinal 0006: SpiDestroyStream
+ordinal 0022: SpiGetNetworkTime
+ordinal 001A: SpiQueryStreamInfo
+ordinal 000D: SpiInstallProtocol
+ordinal 0014: SpiDebug
+ordinal 001B: SpiReactivateStream
+ordinal 0012: SpiSendMsg
+ordinal 000F: SpiGetTime
+ordinal 001D: SpiSeekStreamNetwork
+ordinal 0019: SpiOpenStreamNetwork
+ordinal 0010: SpiEnumerateHandlers
+
+                               Fixup Page Table
+==============================================================================
+ 00:00000000      01:00000006
+
+                              Fixup Record Table
+==============================================================================
+Source  Target
+  type  flags
+  ====  ====
+   08    81   src off = 0003   mod ord #   = 01   import ord #     = BD
+
+                           Import Module Name Table
+==============================================================================
+MMPM
+
+                              Entry Point Table
+==============================================================================
+
+number of entries in bundle = 24
+type = 04
+object number = 0000
+
+ordinal = 0001   flags = 01   module ordinal = 0001   offset or ordinal = 00000083  EXPORTED
+ordinal = 0002   flags = 01   module ordinal = 0001   offset or ordinal = 00000084  EXPORTED
+ordinal = 0003   flags = 01   module ordinal = 0001   offset or ordinal = 00000085  EXPORTED
+ordinal = 0004   flags = 01   module ordinal = 0001   offset or ordinal = 00000086  EXPORTED
+ordinal = 0005   flags = 01   module ordinal = 0001   offset or ordinal = 00000087  EXPORTED
+ordinal = 0006   flags = 01   module ordinal = 0001   offset or ordinal = 00000088  EXPORTED
+ordinal = 0007   flags = 01   module ordinal = 0001   offset or ordinal = 00000089  EXPORTED
+ordinal = 0008   flags = 01   module ordinal = 0001   offset or ordinal = 0000008A  EXPORTED
+ordinal = 0009   flags = 01   module ordinal = 0001   offset or ordinal = 0000008B  EXPORTED
+ordinal = 000A   flags = 01   module ordinal = 0001   offset or ordinal = 0000008C  EXPORTED
+ordinal = 000B   flags = 01   module ordinal = 0001   offset or ordinal = 0000008D  EXPORTED
+ordinal = 000C   flags = 01   module ordinal = 0001   offset or ordinal = 0000008E  EXPORTED
+ordinal = 000D   flags = 01   module ordinal = 0001   offset or ordinal = 0000008F  EXPORTED
+ordinal = 000E   flags = 01   module ordinal = 0001   offset or ordinal = 00000090  EXPORTED
+ordinal = 000F   flags = 01   module ordinal = 0001   offset or ordinal = 00000091  EXPORTED
+ordinal = 0010   flags = 01   module ordinal = 0001   offset or ordinal = 00000092  EXPORTED
+ordinal = 0011   flags = 01   module ordinal = 0001   offset or ordinal = 00000093  EXPORTED
+ordinal = 0012   flags = 01   module ordinal = 0001   offset or ordinal = 00000094  EXPORTED
+ordinal = 0013   flags = 01   module ordinal = 0001   offset or ordinal = 00000095  EXPORTED
+ordinal = 0014   flags = 01   module ordinal = 0001   offset or ordinal = 00000096  EXPORTED
+ordinal = 0015   flags = 01   module ordinal = 0001   offset or ordinal = 000000D3  EXPORTED
+ordinal = 0016   flags = 01   module ordinal = 0001   offset or ordinal = 000000D4  EXPORTED
+ordinal = 0017   flags = 01   module ordinal = 0001   offset or ordinal = 000000D5  EXPORTED
+ordinal = 0018   flags = 01   module ordinal = 0001   offset or ordinal = 000000D6  EXPORTED
+ordinal = 0019   flags = 01   module ordinal = 0001   offset or ordinal = 000000D7  EXPORTED
+ordinal = 001A   flags = 01   module ordinal = 0001   offset or ordinal = 000000D8  EXPORTED
+ordinal = 001B   flags = 01   module ordinal = 0001   offset or ordinal = 000000D9  EXPORTED
+ordinal = 001C   flags = 01   module ordinal = 0001   offset or ordinal = 000000DA  EXPORTED
+ordinal = 001D   flags = 01   module ordinal = 0001   offset or ordinal = 000000DB  EXPORTED
+ordinal = 001E   flags = 01   module ordinal = 0001   offset or ordinal = 000000DC  EXPORTED
+ordinal = 001F   flags = 01   module ordinal = 0001   offset or ordinal = 000000DD  EXPORTED
+ordinal = 0020   flags = 01   module ordinal = 0001   offset or ordinal = 000000DE  EXPORTED
+ordinal = 0021   flags = 01   module ordinal = 0001   offset or ordinal = 000000DF  EXPORTED
+ordinal = 0022   flags = 01   module ordinal = 0001   offset or ordinal = 000000E0  EXPORTED
+ordinal = 0023   flags = 01   module ordinal = 0001   offset or ordinal = 000000E5  EXPORTED
+ordinal = 0024   flags = 01   module ordinal = 0001   offset or ordinal = 000000E6  EXPORTED
+
+
+                           Nonresident Names Table
+==============================================================================
+ordinal 0000: @#IBM:14.075#@
+
+
+-------------------------------------------------
+
+
+ordinal 0001: SMHEntryPoint
+ordinal 0002: SpiCreateStream
+ordinal 0003: SpiGetHandler
+ordinal 0004: SpiStartStream
+ordinal 0005: SpiAssociate
+ordinal 0006: SpiDestroyStream
+ordinal 0007: SpiSeekStream
+ordinal 0008: SpiStopStream
+ordinal 0009: SpiEnableEvent
+ordinal 000A: SpiDisableEvent
+ordinal 000B: SpiEnableSync
+ordinal 000C: SpiDisableSync
+ordinal 000D: SpiInstallProtocol
+ordinal 000E: SpiGetProtocol
+ordinal 000F: SpiGetTime
+ordinal 0010: SpiEnumerateHandlers
+ordinal 0011: SpiEnumerateProtocols
+ordinal 0013: SpiDetermineSyncMaster
+ordinal 0012: SpiSendMsg
+ordinal 0014: SpiDebug
+ordinal 0015: SpiAddStreamToNetwork
+ordinal 0016: SpiAssembleStreamNetwork
+ordinal 0017: SpiCloseStreamNetwork
+ordinal 0018: SpiConnectStream
+ordinal 0019: SpiOpenStreamNetwork
+ordinal 001A: SpiQueryStreamInfo
+ordinal 001B: SpiReactivateStream
+ordinal 001C: SpiRemoveStreamFromNetwork
+ordinal 001D: SpiSeekStreamNetwork
+ordinal 001E: SpiStartStreamNetwork
+ordinal 001F: SpiStopStreamNetwork
+ordinal 0020: SpiUnassembleStreamNetwork
+ordinal 0021: SpiEnableNetworkEvent
+ordinal 0022: SpiGetNetworkTime
+ordinal 0023: SpiUnloadHandler
+ordinal 0024: SpiGetHandler2
+
+ordinal = 0001   flags = 01   module ordinal = 0001   offset or ordinal = 00000083  EXPORTED
+ordinal = 0002   flags = 01   module ordinal = 0001   offset or ordinal = 00000084  EXPORTED
+ordinal = 0003   flags = 01   module ordinal = 0001   offset or ordinal = 00000085  EXPORTED
+ordinal = 0004   flags = 01   module ordinal = 0001   offset or ordinal = 00000086  EXPORTED
+ordinal = 0005   flags = 01   module ordinal = 0001   offset or ordinal = 00000087  EXPORTED
+ordinal = 0006   flags = 01   module ordinal = 0001   offset or ordinal = 00000088  EXPORTED
+ordinal = 0007   flags = 01   module ordinal = 0001   offset or ordinal = 00000089  EXPORTED
+ordinal = 0008   flags = 01   module ordinal = 0001   offset or ordinal = 0000008A  EXPORTED
+ordinal = 0009   flags = 01   module ordinal = 0001   offset or ordinal = 0000008B  EXPORTED
+ordinal = 000A   flags = 01   module ordinal = 0001   offset or ordinal = 0000008C  EXPORTED
+ordinal = 000B   flags = 01   module ordinal = 0001   offset or ordinal = 0000008D  EXPORTED
+ordinal = 000C   flags = 01   module ordinal = 0001   offset or ordinal = 0000008E  EXPORTED
+ordinal = 000D   flags = 01   module ordinal = 0001   offset or ordinal = 0000008F  EXPORTED
+ordinal = 000E   flags = 01   module ordinal = 0001   offset or ordinal = 00000090  EXPORTED
+ordinal = 000F   flags = 01   module ordinal = 0001   offset or ordinal = 00000091  EXPORTED
+ordinal = 0010   flags = 01   module ordinal = 0001   offset or ordinal = 00000092  EXPORTED
+ordinal = 0011   flags = 01   module ordinal = 0001   offset or ordinal = 00000093  EXPORTED
+ordinal = 0012   flags = 01   module ordinal = 0001   offset or ordinal = 00000094  EXPORTED
+ordinal = 0013   flags = 01   module ordinal = 0001   offset or ordinal = 00000095  EXPORTED
+ordinal = 0014   flags = 01   module ordinal = 0001   offset or ordinal = 00000096  EXPORTED
+ordinal = 0015   flags = 01   module ordinal = 0001   offset or ordinal = 000000D3  EXPORTED
+ordinal = 0016   flags = 01   module ordinal = 0001   offset or ordinal = 000000D4  EXPORTED
+ordinal = 0017   flags = 01   module ordinal = 0001   offset or ordinal = 000000D5  EXPORTED
+ordinal = 0018   flags = 01   module ordinal = 0001   offset or ordinal = 000000D6  EXPORTED
+ordinal = 0019   flags = 01   module ordinal = 0001   offset or ordinal = 000000D7  EXPORTED
+ordinal = 001A   flags = 01   module ordinal = 0001   offset or ordinal = 000000D8  EXPORTED
+ordinal = 001B   flags = 01   module ordinal = 0001   offset or ordinal = 000000D9  EXPORTED
+ordinal = 001C   flags = 01   module ordinal = 0001   offset or ordinal = 000000DA  EXPORTED
+ordinal = 001D   flags = 01   module ordinal = 0001   offset or ordinal = 000000DB  EXPORTED
+ordinal = 001E   flags = 01   module ordinal = 0001   offset or ordinal = 000000DC  EXPORTED
+ordinal = 001F   flags = 01   module ordinal = 0001   offset or ordinal = 000000DD  EXPORTED
+ordinal = 0020   flags = 01   module ordinal = 0001   offset or ordinal = 000000DE  EXPORTED
+ordinal = 0021   flags = 01   module ordinal = 0001   offset or ordinal = 000000DF  EXPORTED
+ordinal = 0022   flags = 01   module ordinal = 0001   offset or ordinal = 000000E0  EXPORTED
+ordinal = 0023   flags = 01   module ordinal = 0001   offset or ordinal = 000000E5  EXPORTED
+ordinal = 0024   flags = 01   module ordinal = 0001   offset or ordinal = 000000E6  EXPORTED

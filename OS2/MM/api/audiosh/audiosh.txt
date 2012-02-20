@@ -1,0 +1,152 @@
+Open Watcom Executable Image Dump Utility Version 1.9
+Portions Copyright (c) 1984-2002 Sybase, Inc. All Rights Reserved.
+Source code is available under the Sybase Open Watcom Public License.
+See http://www.openwatcom.org/ for details.
+
+                                DOS EXE Header                                
+==============================================================================
+length of load module mod 200H                       =     0000H
+number of 200H pages in load module                  =     0001H
+number of relocation items                           =     0000H
+size of header in paragraphs                         =     0004H
+minimum number of paragraphs required above load mod =     0007H
+maximum number of paragraphs required above load mod =     FFFFH
+offset of stack segment in load module               =     0008H
+initial value of SP                                  =     0200H
+checksum                                             =     0000H
+initial value of IP                                  =     0000H
+offset of code segment within load module (segment)  =     0000H
+file offset of first relocation item                 =     0040H
+overlay number                                       =     0000H
+load module length                                   = 00000200H
+
+load module =
+0000:  0E 1F BA 0E 00 B4 09 CD  21 B8 01 4C CD 21 54 68            !  L !Th
+0010:  69 73 20 70 72 6F 67 72  61 6D 20 63 61 6E 6E 6F    is program canno
+0020:  74 20 62 65 20 72 75 6E  20 69 6E 20 61 20 44 4F    t be run in a DO
+0030:  53 20 73 65 73 73 69 6F  6E 2E 0D 0D 0A 24 00 00    S session.   $  
+0040:  4C 58 00 00 00 00 00 00  02 00 01 00 02 00 02 00    LX              
+0050:  04 80 00 40 01 00 00 00  01 00 00 00 00 00 00 00       @            
+0060:  00 00 00 00 00 00 00 00  00 10 00 00 02 00 00 00                    
+0070:  13 00 00 00 00 00 00 00  44 00 00 00 00 00 00 00            D       
+0080:  C4 00 00 00 02 00 00 00  F4 00 00 00 00 00 00 00                    
+0090:  00 00 00 00 00 00 00 00  FC 00 00 00 07 01 00 00                    
+00A0:  00 00 00 00 00 00 00 00  08 01 00 00 10 01 00 00                    
+00B0:  16 01 00 00 01 00 00 00  1B 01 00 00 00 00 00 00                    
+00C0:  00 10 00 00 00 00 00 00  04 10 00 00 12 00 00 00                    
+00D0:  00 00 00 00 02 00 00 00  00 00 00 00 00 00 00 00                    
+00E0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+00F0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+0100:  00 00 00 00 10 00 00 00  00 00 01 00 05 20 00 00                    
+0110:  01 00 00 00 01 00 00 00  00 00 00 00 10 00 00 00                    
+0120:  00 00 02 00 23 20 00 00  02 00 00 00 00 00 00 00        #           
+0130:  00 00 00 00 00 00 00 00  04 00 00 00 07 61 75 64                 aud
+0140:  69 6F 73 68 00 00 00 00  00 00 00 00 06 00 00 00    iosh            
+0150:  08 81 03 00 01 CF 04 4D  4D 50 4D 00 00 00 00 00           MMPM     
+0160:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+0170:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+0180:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+0190:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+01A0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+01B0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00                    
+
+
+                      Linear EXE Header (OS/2 V2.x) - LX                      
+==============================================================================
+file offset = 00000080H
+
+byte order (0==little endian, 1==big endian)      =       00H
+word order       "                "               =       00H
+linear EXE format level                           = 00000000H
+cpu type                                          =     0002H
+os type (1==OS/2, 2==Windows, 3==DOS4, 4==Win386) =     0001H
+module version                                    = 00020002H
+module flags                                      = 40008004H
+# module pages                                    = 00000001H
+object # for initial EIP                          = 00000001H
+initial EIP                                       = 00000000H
+object # for initial ESP                          = 00000000H
+initial ESP                                       = 00000000H
+page size                                         = 00001000H
+last page size (LE)/page shift (LX)               = 00000002H
+fixup section size                                = 00000013H
+fixup section checksum                            = 00000000H
+loader section size                               = 00000044H
+loader section checksum                           = 00000000H
+object table offset                               = 000000C4H
+# of objects in module                            = 00000002H
+object page map offset                            = 000000F4H
+object iterated data map offset                   = 00000000H
+offset of resource table                          = 00000000H
+# of resource entries                             = 00000000H
+offset of resident name table                     = 000000FCH
+offset of entry table                             = 00000107H
+offset of module directive table                  = 00000000H
+# of module directives                            = 00000000H
+offset of fixup page table                        = 00000108H
+offset of fixup record table                      = 00000110H
+offset of import module name table                = 00000116H
+# of entries in import module name table          = 00000001H
+offset of import procedure name table             = 0000011BH
+offset of per-page checksum table                 = 00000000H
+offset of enumerated data pages                   = 00001000H
+# of pre-load pages                               = 00000000H
+offset of non-resident names table (rel file)     = 00001004H
+size of non-resident names table                  = 00000012H
+non-resident names table checksum                 = 00000000H
+object # for automatic data object                = 00000002H
+offset of the debugging information               = 00000000H
+size of the debugging information                 = 00000000H
+# of instance pages in the preload section        = 00000000H
+# of instance pages in the demand load section    = 00000000H
+size of heap (for 16-bit apps)                    = 00000000H
+size of stack                                     = 00000000H
+Module Flags = LIBRARY | INITINSTANCE | TERMINSTANCE
+
+                                 Object Table                                 
+==============================================================================
+object 1: virtual memory size              = 00000010H
+          relocation base address          = 00010000H
+          object flag bits                 = 00002005H
+          object page table index          = 00000001H
+          # of object page table entries   = 00000001H
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|BIG
+    page # 1  map page = 00000000H size = 0004H flgs = 00H Valid
+
+segment # 1   offset: 00001000
+===========
+0000:  B0 02 E9 00                                             
+
+
+
+object 2: virtual memory size              = 00000010H
+          relocation base address          = 00020000H
+          object flag bits                 = 00002023H
+          object page table index          = 00000002H
+          # of object page table entries   = 00000000H
+          reserved                         = 00000000H
+          flags = READABLE|WRITABLE|SHARED|BIG
+
+                             Resident Names Table                             
+==============================================================================
+ordinal 0000: audiosh
+
+                               Fixup Page Table                               
+==============================================================================
+ 00:00000000      01:00000006
+
+                              Fixup Record Table                              
+==============================================================================
+Source  Target
+  type  flags
+  ====  ====
+   08    81   src off = 0003   mod ord #   = 01   import ord #     = CF
+
+                           Import Module Name Table                           
+==============================================================================
+MMPM
+
+                           Nonresident Names Table                            
+==============================================================================
+ordinal 0000: @#IBM:14.075#@

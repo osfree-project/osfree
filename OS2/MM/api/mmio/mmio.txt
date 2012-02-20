@@ -1,0 +1,782 @@
+Open Watcom Executable Image Dump Utility Version 1.9
+Portions Copyright (c) 1984-2002 Sybase, Inc. All Rights Reserved.
+Source code is available under the Sybase Open Watcom Public License.
+See http://www.openwatcom.org/ for details.
+
+                                DOS EXE Header
+==============================================================================
+length of load module mod 200H                       =     0000H
+number of 200H pages in load module                  =     0007H
+number of relocation items                           =     0000H
+size of header in paragraphs                         =     0004H
+minimum number of paragraphs required above load mod =     0000H
+maximum number of paragraphs required above load mod =     FFFFH
+offset of stack segment in load module               =     0008H
+initial value of SP                                  =     0200H
+checksum                                             =     0000H
+initial value of IP                                  =     0000H
+offset of code segment within load module (segment)  =     0000H
+file offset of first relocation item                 =     0040H
+overlay number                                       =     0000H
+load module length                                   = 00000E00H
+
+load module =
+0000:  0E 1F BA 0E 00 B4 09 CD  21 B8 01 4C CD 21 54 68            !  L !Th
+0010:  69 73 20 70 72 6F 67 72  61 6D 20 63 61 6E 6E 6F    is program canno
+0020:  74 20 62 65 20 72 75 6E  20 69 6E 20 61 20 44 4F    t be run in a DO
+0030:  53 20 73 65 73 73 69 6F  6E 2E 0D 0D 0A 24 00 00    S session.   $
+0040:  4C 58 00 00 00 00 00 00  02 00 01 00 02 00 02 00    LX
+0050:  04 80 00 40 01 00 00 00  01 00 00 00 00 00 00 00       @
+0060:  00 00 00 00 00 00 00 00  00 10 00 00 02 00 00 00
+0070:  13 00 00 00 00 00 00 00  89 0B 00 00 00 00 00 00
+0080:  C4 00 00 00 02 00 00 00  F4 00 00 00 00 00 00 00
+0090:  00 00 00 00 00 00 00 00  FC 00 00 00 67 09 00 00                g
+00A0:  00 00 00 00 00 00 00 00  4D 0C 00 00 55 0C 00 00            M   U
+00B0:  5B 0C 00 00 01 00 00 00  60 0C 00 00 00 00 00 00    [       `
+00C0:  00 10 00 00 00 00 00 00  04 10 00 00 12 00 00 00
+00D0:  00 00 00 00 02 00 00 00  00 00 00 00 00 00 00 00
+00E0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+00F0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0100:  00 00 00 00 10 00 00 00  00 00 01 00 05 20 00 00
+0110:  01 00 00 00 01 00 00 00  00 00 00 00 10 00 00 00
+0120:  00 00 02 00 23 20 00 00  02 00 00 00 00 00 00 00        #
+0130:  00 00 00 00 00 00 00 00  04 00 00 00 04 6D 6D 69                 mmi
+0140:  6F 00 00 14 6D 6D 69 6F  51 75 65 72 79 46 6F 72    o   mmioQueryFor
+0150:  6D 61 74 43 6F 75 6E 74  4A 00 15 6D 6D 69 6F 51    matCountJ  mmioQ
+0160:  75 65 72 79 48 65 61 64  65 72 4C 65 6E 67 74 68    ueryHeaderLength
+0170:  4C 00 15 6D 6D 69 6F 68  6C 70 4C 6F 61 64 44 65    L  mmiohlpLoadDe
+0180:  66 49 4F 50 72 6F 63 73  13 00 15 6D 6D 69 6F 44    fIOProcs   mmioD
+0190:  65 74 65 72 6D 69 6E 65  46 46 49 4F 50 72 6F 63    etermineFFIOProc
+01A0:  59 00 15 6D 6D 69 6F 68  6C 70 47 72 6F 77 48 6D    Y  mmiohlpGrowHm
+01B0:  6D 69 6F 54 61 62 6C 65  0E 00 15 6D 6D 69 6F 68    mioTable   mmioh
+01C0:  6C 70 44 69 73 63 61 72  64 4D 6D 69 6F 53 65 6D    lpDiscardMmioSem
+01D0:  11 00 15 6D 6D 69 6F 68  6C 70 46 72 65 65 48 6D       mmiohlpFreeHm
+01E0:  6D 69 6F 45 6E 74 72 79  0D 00 15 6D 6D 69 6F 68    mioEntry   mmioh
+01F0:  6C 70 4C 6F 61 64 4E 65  78 74 49 4F 50 72 6F 63    lpLoadNextIOProc
+0200:  60 00 15 6D 6D 69 6F 44  65 74 65 72 6D 69 6E 65    `  mmioDetermine
+0210:  53 53 49 4F 50 72 6F 63  58 00 15 6D 6D 69 6F 68    SSIOProcX  mmioh
+0220:  6C 70 41 63 71 75 69 72  65 4D 6D 69 6F 53 65 6D    lpAcquireMmioSem
+0230:  10 00 16 6D 6D 69 6F 68  6C 70 41 64 64 43 74 6F       mmiohlpAddCto
+0240:  63 49 6E 73 74 61 6E 63  65 3F 00 16 6D 6D 69 6F    cInstance?  mmio
+0250:  68 6C 70 43 6C 65 61 6E  75 70 49 6E 73 74 61 6E    hlpCleanupInstan
+0260:  63 65 02 00 16 6D 6D 69  6F 49 64 65 6E 74 69 66    ce   mmioIdentif
+0270:  79 46 69 6C 65 46 6F 72  6D 61 74 56 00 0B 6D 6D    yFileFormatV  mm
+0280:  69 6F 43 46 43 6C 6F 73  65 2D 00 16 6D 6D 69 6F    ioCFClose-  mmio
+0290:  68 6C 70 47 65 74 46 75  6C 6C 50 61 74 68 4E 61    hlpGetFullPathNa
+02A0:  6D 65 3E 00 16 6D 6D 69  6F 68 6C 70 47 65 74 46    me>  mmiohlpGetF
+02B0:  6F 72 6D 61 74 53 74 72  69 6E 67 52 00 0B 6D 6D    ormatStringR  mm
+02C0:  69 6F 41 64 76 61 6E 63  65 2A 00 0B 6D 6D 69 6F    ioAdvance*  mmio
+02D0:  44 65 73 63 65 6E 64 25  00 0B 6D 6D 69 6F 47 65    Descend%  mmioGe
+02E0:  74 44 61 74 61 6A 00 16  6D 6D 69 6F 68 6C 70 41    tDataj  mmiohlpA
+02F0:  64 64 53 68 61 72 69 6E  67 45 6E 74 72 79 46 00    ddSharingEntryF
+0300:  16 6D 6D 69 6F 68 6C 70  4F 70 65 6E 54 65 6D 70     mmiohlpOpenTemp
+0310:  45 6C 65 6D 65 6E 74 42  00 16 6D 6D 69 6F 68 6C    ElementB  mmiohl
+0320:  70 47 65 74 45 6C 65 6D  65 6E 74 53 74 61 72 74    pGetElementStart
+0330:  5E 00 0B 6D 6D 69 6F 47  65 74 49 6E 66 6F 27 00    ^  mmioGetInfo'
+0340:  0B 6D 6D 69 6F 53 65 74  49 6E 66 6F 28 00 0D 6D     mmioSetInfo(  m
+0350:  6D 69 6F 43 46 43 6F 6D  70 61 63 74 64 00 0D 6D    mioCFCompactd  m
+0360:  6D 69 6F 47 65 74 48 65  61 64 65 72 4D 00 0D 6D    mioGetHeaderM  m
+0370:  6D 69 6F 68 6C 70 43 46  4E 61 6D 65 67 00 0D 6D    miohlpCFNameg  m
+0380:  6D 69 6F 53 65 74 48 65  61 64 65 72 4E 00 0D 6D    mioSetHeaderN  m
+0390:  6D 69 6F 43 46 47 65 74  49 6E 66 6F 33 00 0D 6D    mioCFGetInfo3  m
+03A0:  6D 69 6F 53 65 74 42 75  66 66 65 72 2B 00 0D 6D    mioSetBuffer+  m
+03B0:  6D 69 6F 43 46 53 65 74  49 6E 66 6F 34 00 17 6D    mioCFSetInfo4  m
+03C0:  6D 69 6F 68 6C 70 43 68  65 63 6B 53 68 61 72 69    miohlpCheckShari
+03D0:  6E 67 4D 6F 64 65 47 00  17 6D 6D 69 6F 68 6C 70    ngModeG  mmiohlp
+03E0:  55 70 64 61 74 65 43 74  6F 63 48 65 61 64 65 72    UpdateCtocHeader
+03F0:  3A 00 0E 6D 6D 69 6F 68  6C 70 49 73 46 63 63 46    :  mmiohlpIsFccF
+0400:  46 5C 00 0E 6D 6D 69 6F  43 46 41 64 64 45 6E 74    F\  mmioCFAddEnt
+0410:  72 79 2E 00 17 6D 6D 69  6F 68 6C 70 43 68 61 6E    ry.  mmiohlpChan
+0420:  67 65 43 74 6F 63 48 65  61 64 65 72 3B 00 17 6D    geCtocHeader;  m
+0430:  6D 69 6F 44 65 74 65 72  6D 69 6E 65 4C 61 73 74    mioDetermineLast
+0440:  49 4F 50 72 6F 63 5A 00  0E 6D 6D 69 6F 68 6C 70    IOProcZ  mmiohlp
+0450:  49 73 46 63 63 53 53 5B  00 17 6D 6D 69 6F 68 6C    IsFccSS[  mmiohl
+0460:  70 47 65 74 52 65 6D 61  69 6E 69 6E 67 53 69 7A    pGetRemainingSiz
+0470:  65 3C 00 17 6D 6D 69 6F  68 6C 70 55 6E 6C 6F 61    e<  mmiohlpUnloa
+0480:  64 44 65 66 49 4F 50 72  6F 63 73 14 00 0E 6D 6D    dDefIOProcs   mm
+0490:  69 6F 68 6C 70 4C 69 73  74 41 64 64 04 00 17 6D    iohlpListAdd   m
+04A0:  6D 69 6F 68 6C 70 4C 69  73 74 54 72 61 6E 73 66    miohlpListTransf
+04B0:  65 72 4E 6F 64 65 49 00  17 6D 6D 69 6F 68 6C 70    erNodeI  mmiohlp
+04C0:  43 6C 6F 73 65 54 65 6D  70 45 6C 65 6D 65 6E 74    CloseTempElement
+04D0:  43 00 0E 6D 6D 69 6F 47  65 74 46 6F 72 6D 61 74    C  mmioGetFormat
+04E0:  73 4B 00 18 6D 6D 69 6F  51 75 65 72 79 43 4F 44    sK  mmioQueryCOD
+04F0:  45 43 4E 61 6D 65 4C 65  6E 67 74 68 69 00 17 6D    ECNameLengthi  m
+0500:  6D 69 6F 68 6C 70 52 65  73 74 6F 72 65 49 6E 66    miohlpRestoreInf
+0510:  6F 53 74 61 74 65 15 00  0E 6D 6D 69 6F 68 6C 70    oState   mmiohlp
+0520:  4C 69 73 74 47 65 74 05  00 19 6D 6D 69 6F 49 64    ListGet   mmioId
+0530:  65 6E 74 69 66 79 53 74  6F 72 61 67 65 53 79 73    entifyStorageSys
+0540:  74 65 6D 57 00 19 6D 6D  69 6F 68 6C 70 52 65 6D    temW  mmiohlpRem
+0550:  6F 76 65 43 74 6F 63 49  6E 73 74 61 6E 63 65 40    oveCtocInstance@
+0560:  00 19 6D 6D 69 6F 68 6C  70 43 68 61 6E 67 65 53      mmiohlpChangeS
+0570:  68 61 72 69 6E 67 45 6E  74 72 79 5F 00 19 6D 6D    haringEntry_  mm
+0580:  69 6F 68 6C 70 52 65 6D  6F 76 65 53 68 61 72 69    iohlpRemoveShari
+0590:  6E 67 45 6E 74 72 79 45  00 0F 6D 6D 69 6F 43 72    ngEntryE  mmioCr
+05A0:  65 61 74 65 43 68 75 6E  6B 26 00 10 6D 6D 69 6F    eateChunk&  mmio
+05B0:  43 46 41 64 64 45 6C 65  6D 65 6E 74 32 00 10 6D    CFAddElement2  m
+05C0:  6D 69 6F 49 6E 69 46 69  6C 65 43 4F 44 45 43 63    mioIniFileCODECc
+05D0:  00 0F 6D 6D 69 6F 53 65  6E 64 4D 65 73 73 61 67      mmioSendMessag
+05E0:  65 29 00 10 6D 6D 69 6F  49 64 65 6E 74 69 66 79    e)  mmioIdentify
+05F0:  46 69 6C 65 4F 00 0F 6D  6D 69 6F 43 46 46 69 6E    FileO  mmioCFFin
+0600:  64 45 6E 74 72 79 31 00  0F 6D 6D 69 6F 68 6C 70    dEntry1  mmiohlp
+0610:  54 65 6D 70 4E 61 6D 65  44 00 0F 6D 6D 69 6F 68    TempNameD  mmioh
+0620:  6C 70 4C 69 73 74 46 69  6E 64 06 00 10 6D 6D 69    lpListFind   mmi
+0630:  6F 68 6C 70 42 75 69 6C  64 43 74 6F 63 36 00 11    ohlpBuildCtoc6
+0640:  6D 6D 69 6F 4C 6F 61 64  43 4F 44 45 43 50 72 6F    mmioLoadCODECPro
+0650:  63 68 00 11 6D 6D 69 6F  43 46 43 68 61 6E 67 65    ch  mmioCFChange
+0660:  45 6E 74 72 79 30 00 11  6D 6D 69 6F 68 6C 70 43    Entry0  mmiohlpC
+0670:  72 65 61 74 65 43 74 6F  63 37 00 11 6D 6D 69 6F    reateCtoc7  mmio
+0680:  68 6C 70 47 65 74 4E 4C  53 44 61 74 61 53 00 10    hlpGetNLSDataS
+0690:  6D 6D 69 6F 47 65 74 4C  61 73 74 45 72 72 6F 72    mmioGetLastError
+06A0:  19 00 11 6D 6D 69 6F 47  65 74 46 6F 72 6D 61 74       mmioGetFormat
+06B0:  4E 61 6D 65 50 00 11 6D  6D 69 6F 68 6C 70 4C 6F    NameP  mmiohlpLo
+06C0:  61 64 49 4F 50 72 6F 63  61 00 11 6D 6D 69 6F 68    adIOProca  mmioh
+06D0:  6C 70 4C 69 73 74 43 72  65 61 74 65 03 00 11 6D    lpListCreate   m
+06E0:  6D 69 6F 43 46 44 65 6C  65 74 65 45 6E 74 72 79    mioCFDeleteEntry
+06F0:  2F 00 11 6D 6D 69 6F 68  6C 70 4C 69 73 74 44 65    /  mmiohlpListDe
+0700:  6C 65 74 65 09 00 11 6D  6D 69 6F 68 6C 70 4C 69    lete   mmiohlpLi
+0710:  73 74 43 68 61 6E 67 65  08 00 11 6D 6D 69 6F 49    stChange   mmioI
+0720:  6E 73 74 61 6C 6C 49 4F  50 72 6F 63 1A 00 11 6D    nstallIOProc   m
+0730:  6D 69 6F 68 6C 70 4C 69  73 74 49 6E 73 65 72 74    miohlpListInsert
+0740:  07 00 12 6D 6D 69 6F 68  6C 70 52 65 61 64 49 6E       mmiohlpReadIn
+0750:  69 46 69 6C 65 12 00 12  6D 6D 69 6F 4D 69 67 72    iFile   mmioMigr
+0760:  61 74 65 49 6E 69 46 69  6C 65 62 00 12 6D 6D 69    ateIniFileb  mmi
+0770:  6F 49 6E 69 46 69 6C 65  48 61 6E 64 6C 65 72 55    oIniFileHandlerU
+0780:  00 1B 6D 6D 69 6F 51 75  65 72 79 49 4F 50 72 6F      mmioQueryIOPro
+0790:  63 4D 6F 64 75 6C 65 48  61 6E 64 6C 65 5D 00 12    cModuleHandle]
+07A0:  6D 6D 69 6F 51 75 65 72  79 43 4F 44 45 43 4E 61    mmioQueryCODECNa
+07B0:  6D 65 66 00 1C 6D 6D 69  6F 68 6C 70 43 68 65 63    mef  mmiohlpChec
+07C0:  6B 48 6D 6D 63 66 53 68  61 72 69 6E 67 4D 6F 64    kHmmcfSharingMod
+07D0:  65 48 00 12 6D 6D 69 6F  68 6C 70 52 65 77 72 69    eH  mmiohlpRewri
+07E0:  74 65 43 74 6F 63 38 00  08 6D 6D 69 6F 52 65 61    teCtoc8  mmioRea
+07F0:  64 1C 00 12 6D 6D 69 6F  68 6C 70 4C 61 73 74 4D    d   mmiohlpLastM
+0800:  6F 64 54 69 6D 65 41 00  08 6D 6D 69 6F 53 65 65    odTimeA  mmioSee
+0810:  6B 1E 00 07 6D 6D 69 6F  53 65 74 65 00 1C 6D 6D    k   mmioSete  mm
+0820:  69 6F 68 6C 70 47 65 74  46 6F 72 6D 61 74 53 74    iohlpGetFormatSt
+0830:  72 69 6E 67 4C 65 6E 67  74 68 51 00 08 6D 6D 69    ringLengthQ  mmi
+0840:  6F 4F 70 65 6E 1B 00 12  6D 6D 69 6F 53 74 72 69    oOpen   mmioStri
+0850:  6E 67 54 6F 46 4F 55 52  43 43 18 00 1C 6D 6D 69    ngToFOURCC   mmi
+0860:  6F 68 6C 70 43 6F 6E 76  65 72 74 41 64 64 72 65    ohlpConvertAddre
+0870:  73 73 54 6F 48 6D 6D 69  6F 0B 00 08 43 46 49 4F    ssToHmmio   CFIO
+0880:  50 72 6F 63 54 00 1C 6D  6D 69 6F 68 6C 70 43 6F    ProcT  mmiohlpCo
+0890:  6E 76 65 72 74 48 6D 6D  69 6F 54 6F 41 64 64 72    nvertHmmioToAddr
+08A0:  65 73 73 0C 00 1D 6D 6D  69 6F 68 6C 70 41 6C 6C    ess   mmiohlpAll
+08B0:  6F 63 61 74 65 49 6E 74  65 72 6E 61 6C 42 75 66    ocateInternalBuf
+08C0:  66 65 72 16 00 09 42 4E  44 49 4F 50 72 6F 63 23    fer   BNDIOProc#
+08D0:  00 09 6D 6D 69 6F 43 6C  6F 73 65 20 00 09 6D 6D      mmioClose   mm
+08E0:  69 6F 57 72 69 74 65 1D  00 09 4D 45 4D 49 4F 50    ioWrite   MEMIOP
+08F0:  72 6F 63 22 00 09 6D 6D  69 6F 46 6C 75 73 68 1F    roc"  mmioFlush
+0900:  00 09 44 4F 53 49 4F 50  72 6F 63 21 00 0A 6D 6D      DOSIOProc!  mm
+0910:  69 6F 41 73 63 65 6E 64  24 00 13 6D 6D 69 6F 68    ioAscend$  mmioh
+0920:  6C 70 46 69 6E 64 4F 70  65 6E 43 74 6F 63 3D 00    lpFindOpenCtoc=
+0930:  0A 6D 6D 69 6F 43 46 43  6F 70 79 35 00 14 6D 6D     mmioCFCopy5  mm
+0940:  69 6F 68 6C 70 47 65 74  48 65 61 64 65 72 49 6E    iohlpGetHeaderIn
+0950:  66 6F 39 00 0A 6D 6D 69  6F 43 46 4F 70 65 6E 2C    fo9  mmioCFOpen,
+0960:  00 14 6D 6D 69 6F 68 6C  70 45 78 70 61 6E 64 4D      mmiohlpExpandM
+0970:  65 6D 46 69 6C 65 17 00  14 6D 6D 69 6F 68 6C 70    emFile   mmiohlp
+0980:  47 65 6E 65 72 61 74 65  48 6D 6D 69 6F 0F 00 14    GenerateHmmio
+0990:  6D 6D 69 6F 68 6C 70 4C  69 73 74 47 65 74 48 65    mmiohlpListGetHe
+09A0:  61 64 65 72 0A 00 00 01  00 69 04 00 00 01 01 00    ader     i
+09B0:  0F 00 00 00 01 01 00 10  00 00 00 01 01 00 11 00
+09C0:  00 00 01 01 00 12 00 00  00 01 01 00 13 00 00 00
+09D0:  01 01 00 14 00 00 00 01  01 00 15 00 00 00 01 01
+09E0:  00 16 00 00 00 01 01 00  17 00 00 00 01 01 00 18
+09F0:  00 00 00 01 01 00 19 00  00 00 01 01 00 1A 00 00
+0A00:  00 01 01 00 1B 00 00 00  01 01 00 1C 00 00 00 01
+0A10:  01 00 1D 00 00 00 01 01  00 1E 00 00 00 01 01 00
+0A20:  1F 00 00 00 01 01 00 20  00 00 00 01 01 00 21 00                  !
+0A30:  00 00 01 01 00 22 00 00  00 01 01 00 23 00 00 00         "      #
+0A40:  01 01 00 24 00 00 00 01  01 00 25 00 00 00 01 01       $      %
+0A50:  00 26 00 00 00 01 01 00  27 00 00 00 01 01 00 28     &      '      (
+0A60:  00 00 00 01 01 00 29 00  00 00 01 01 00 2A 00 00          )      *
+0A70:  00 01 01 00 2B 00 00 00  01 01 00 2C 00 00 00 01        +      ,
+0A80:  01 00 2D 00 00 00 01 01  00 2E 00 00 00 01 01 00      -      .
+0A90:  2F 00 00 00 01 01 00 30  00 00 00 01 01 00 31 00    /      0      1
+0AA0:  00 00 01 01 00 32 00 00  00 01 01 00 33 00 00 00         2      3
+0AB0:  01 01 00 34 00 00 00 01  01 00 35 00 00 00 01 01       4      5
+0AC0:  00 36 00 00 00 01 01 00  37 00 00 00 01 01 00 38     6      7      8
+0AD0:  00 00 00 01 01 00 39 00  00 00 01 01 00 3A 00 00          9      :
+0AE0:  00 01 01 00 3B 00 00 00  01 01 00 3C 00 00 00 01        ;      <
+0AF0:  01 00 3D 00 00 00 01 01  00 3E 00 00 00 01 01 00      =      >
+0B00:  3F 00 00 00 01 01 00 40  00 00 00 01 01 00 41 00    ?      @      A
+0B10:  00 00 01 01 00 42 00 00  00 01 01 00 43 00 00 00         B      C
+0B20:  01 01 00 44 00 00 00 01  01 00 45 00 00 00 01 01       D      E
+0B30:  00 46 00 00 00 01 01 00  47 00 00 00 01 01 00 48     F      G      H
+0B40:  00 00 00 01 01 00 49 00  00 00 01 01 00 4A 00 00          I      J
+0B50:  00 01 01 00 4B 00 00 00  01 01 00 4C 00 00 00 01        K      L
+0B60:  01 00 4D 00 00 00 01 01  00 4E 00 00 00 01 01 00      M      N
+0B70:  4F 00 00 00 01 01 00 50  00 00 00 01 01 00 51 00    O      P      Q
+0B80:  00 00 01 01 00 52 00 00  00 01 01 00 53 00 00 00         R      S
+0B90:  01 01 00 54 00 00 00 01  01 00 55 00 00 00 01 01       T      U
+0BA0:  00 56 00 00 00 01 01 00  57 00 00 00 01 01 00 58     V      W      X
+0BB0:  00 00 00 01 01 00 59 00  00 00 01 01 00 5A 00 00          Y      Z
+0BC0:  00 01 01 00 5B 00 00 00  01 01 00 5C 00 00 00 01        [      \
+0BD0:  01 00 5D 00 00 00 01 01  00 5E 00 00 00 01 01 00      ]      ^
+0BE0:  5F 00 00 00 01 01 00 60  00 00 00 01 01 00 61 00    _      `      a
+0BF0:  00 00 01 01 00 62 00 00  00 01 01 00 63 00 00 00         b      c
+0C00:  01 01 00 64 00 00 00 01  01 00 65 00 00 00 01 01       d      e
+0C10:  00 66 00 00 00 01 01 00  67 00 00 00 01 01 00 68     f      g      h
+0C20:  00 00 00 01 01 00 69 00  00 00 01 01 00 6A 00 00          i      j
+0C30:  00 01 01 00 6B 00 00 00  01 01 00 6C 00 00 00 01        k      l
+0C40:  01 00 6D 00 00 00 01 01  00 6E 00 00 00 01 01 00      m      n
+0C50:  6F 00 00 00 01 01 00 70  00 00 00 01 01 00 71 00    o      p      q
+0C60:  00 00 01 01 00 72 00 00  00 01 01 00 73 00 00 00         r      s
+0C70:  01 01 00 74 00 00 00 01  01 00 75 00 00 00 01 01       t      u
+0C80:  00 76 00 00 00 01 01 00  77 00 00 00 00 00 00 00     v      w
+0C90:  00 06 00 00 00 08 81 03  00 01 BC 04 4D 4D 50 4D                MMPM
+0CA0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0CB0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0CC0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0CD0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0CE0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0CF0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D00:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D10:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D20:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D30:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D40:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D50:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D60:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D70:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D80:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D90:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0DA0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+0DB0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+
+
+                      Linear EXE Header (OS/2 V2.x) - LX
+==============================================================================
+file offset = 00000080H
+
+byte order (0==little endian, 1==big endian)      =       00H
+word order       "                "               =       00H
+linear EXE format level                           = 00000000H
+cpu type                                          =     0002H
+os type (1==OS/2, 2==Windows, 3==DOS4, 4==Win386) =     0001H
+module version                                    = 00020002H
+module flags                                      = 40008004H
+# module pages                                    = 00000001H
+object # for initial EIP                          = 00000001H
+initial EIP                                       = 00000000H
+object # for initial ESP                          = 00000000H
+initial ESP                                       = 00000000H
+page size                                         = 00001000H
+last page size (LE)/page shift (LX)               = 00000002H
+fixup section size                                = 00000013H
+fixup section checksum                            = 00000000H
+loader section size                               = 00000B89H
+loader section checksum                           = 00000000H
+object table offset                               = 000000C4H
+# of objects in module                            = 00000002H
+object page map offset                            = 000000F4H
+object iterated data map offset                   = 00000000H
+offset of resource table                          = 00000000H
+# of resource entries                             = 00000000H
+offset of resident name table                     = 000000FCH
+offset of entry table                             = 00000967H
+offset of module directive table                  = 00000000H
+# of module directives                            = 00000000H
+offset of fixup page table                        = 00000C4DH
+offset of fixup record table                      = 00000C55H
+offset of import module name table                = 00000C5BH
+# of entries in import module name table          = 00000001H
+offset of import procedure name table             = 00000C60H
+offset of per-page checksum table                 = 00000000H
+offset of enumerated data pages                   = 00001000H
+# of pre-load pages                               = 00000000H
+offset of non-resident names table (rel file)     = 00001004H
+size of non-resident names table                  = 00000012H
+non-resident names table checksum                 = 00000000H
+object # for automatic data object                = 00000002H
+offset of the debugging information               = 00000000H
+size of the debugging information                 = 00000000H
+# of instance pages in the preload section        = 00000000H
+# of instance pages in the demand load section    = 00000000H
+size of heap (for 16-bit apps)                    = 00000000H
+size of stack                                     = 00000000H
+Module Flags = LIBRARY | INITINSTANCE | TERMINSTANCE
+
+                                 Object Table
+==============================================================================
+object 1: virtual memory size              = 00000010H
+          relocation base address          = 00010000H
+          object flag bits                 = 00002005H
+          object page table index          = 00000001H
+          # of object page table entries   = 00000001H
+          reserved                         = 00000000H
+          flags = READABLE|EXECUTABLE|BIG
+    page # 1  map page = 00000000H size = 0004H flgs = 00H Valid
+
+segment # 1   offset: 00001000
+===========
+0000:  B0 02 E9 00
+
+
+
+object 2: virtual memory size              = 00000010H
+          relocation base address          = 00020000H
+          object flag bits                 = 00002023H
+          object page table index          = 00000002H
+          # of object page table entries   = 00000000H
+          reserved                         = 00000000H
+          flags = READABLE|WRITABLE|SHARED|BIG
+
+                             Resident Names Table
+==============================================================================
+ordinal 0000: mmio
+ordinal 004A: mmioQueryFormatCount
+ordinal 004C: mmioQueryHeaderLength
+ordinal 0013: mmiohlpLoadDefIOProcs
+ordinal 0059: mmioDetermineFFIOProc
+ordinal 000E: mmiohlpGrowHmmioTable
+ordinal 0011: mmiohlpDiscardMmioSem
+ordinal 000D: mmiohlpFreeHmmioEntry
+ordinal 0060: mmiohlpLoadNextIOProc
+ordinal 0058: mmioDetermineSSIOProc
+ordinal 0010: mmiohlpAcquireMmioSem
+ordinal 003F: mmiohlpAddCtocInstance
+ordinal 0002: mmiohlpCleanupInstance
+ordinal 0056: mmioIdentifyFileFormat
+ordinal 002D: mmioCFClose
+ordinal 003E: mmiohlpGetFullPathName
+ordinal 0052: mmiohlpGetFormatString
+ordinal 002A: mmioAdvance
+ordinal 0025: mmioDescend
+ordinal 006A: mmioGetData
+ordinal 0046: mmiohlpAddSharingEntry
+ordinal 0042: mmiohlpOpenTempElement
+ordinal 005E: mmiohlpGetElementStart
+ordinal 0027: mmioGetInfo
+ordinal 0028: mmioSetInfo
+ordinal 0064: mmioCFCompact
+ordinal 004D: mmioGetHeader
+ordinal 0067: mmiohlpCFName
+ordinal 004E: mmioSetHeader
+ordinal 0033: mmioCFGetInfo
+ordinal 002B: mmioSetBuffer
+ordinal 0034: mmioCFSetInfo
+ordinal 0047: mmiohlpCheckSharingMode
+ordinal 003A: mmiohlpUpdateCtocHeader
+ordinal 005C: mmiohlpIsFccFF
+ordinal 002E: mmioCFAddEntry
+ordinal 003B: mmiohlpChangeCtocHeader
+ordinal 005A: mmioDetermineLastIOProc
+ordinal 005B: mmiohlpIsFccSS
+ordinal 003C: mmiohlpGetRemainingSize
+ordinal 0014: mmiohlpUnloadDefIOProcs
+ordinal 0004: mmiohlpListAdd
+ordinal 0049: mmiohlpListTransferNode
+ordinal 0043: mmiohlpCloseTempElement
+ordinal 004B: mmioGetFormats
+ordinal 0069: mmioQueryCODECNameLength
+ordinal 0015: mmiohlpRestoreInfoState
+ordinal 0005: mmiohlpListGet
+ordinal 0057: mmioIdentifyStorageSystem
+ordinal 0040: mmiohlpRemoveCtocInstance
+ordinal 005F: mmiohlpChangeSharingEntry
+ordinal 0045: mmiohlpRemoveSharingEntry
+ordinal 0026: mmioCreateChunk
+ordinal 0032: mmioCFAddElement
+ordinal 0063: mmioIniFileCODEC
+ordinal 0029: mmioSendMessage
+ordinal 004F: mmioIdentifyFile
+ordinal 0031: mmioCFFindEntry
+ordinal 0044: mmiohlpTempName
+ordinal 0006: mmiohlpListFind
+ordinal 0036: mmiohlpBuildCtoc
+ordinal 0068: mmioLoadCODECProc
+ordinal 0030: mmioCFChangeEntry
+ordinal 0037: mmiohlpCreateCtoc
+ordinal 0053: mmiohlpGetNLSData
+ordinal 0019: mmioGetLastError
+ordinal 0050: mmioGetFormatName
+ordinal 0061: mmiohlpLoadIOProc
+ordinal 0003: mmiohlpListCreate
+ordinal 002F: mmioCFDeleteEntry
+ordinal 0009: mmiohlpListDelete
+ordinal 0008: mmiohlpListChange
+ordinal 001A: mmioInstallIOProc
+ordinal 0007: mmiohlpListInsert
+ordinal 0012: mmiohlpReadIniFile
+ordinal 0062: mmioMigrateIniFile
+ordinal 0055: mmioIniFileHandler
+ordinal 005D: mmioQueryIOProcModuleHandle
+ordinal 0066: mmioQueryCODECName
+ordinal 0048: mmiohlpCheckHmmcfSharingMode
+ordinal 0038: mmiohlpRewriteCtoc
+ordinal 001C: mmioRead
+ordinal 0041: mmiohlpLastModTime
+ordinal 001E: mmioSeek
+ordinal 0065: mmioSet
+ordinal 0051: mmiohlpGetFormatStringLength
+ordinal 001B: mmioOpen
+ordinal 0018: mmioStringToFOURCC
+ordinal 000B: mmiohlpConvertAddressToHmmio
+ordinal 0054: CFIOProc
+ordinal 000C: mmiohlpConvertHmmioToAddress
+ordinal 0016: mmiohlpAllocateInternalBuffer
+ordinal 0023: BNDIOProc
+ordinal 0020: mmioClose
+ordinal 001D: mmioWrite
+ordinal 0022: MEMIOProc
+ordinal 001F: mmioFlush
+ordinal 0021: DOSIOProc
+ordinal 0024: mmioAscend
+ordinal 003D: mmiohlpFindOpenCtoc
+ordinal 0035: mmioCFCopy
+ordinal 0039: mmiohlpGetHeaderInfo
+ordinal 002C: mmioCFOpen
+ordinal 0017: mmiohlpExpandMemFile
+ordinal 000F: mmiohlpGenerateHmmio
+ordinal 000A: mmiohlpListGetHeader
+
+                               Fixup Page Table
+==============================================================================
+ 00:00000000      01:00000006
+
+                              Fixup Record Table
+==============================================================================
+Source  Target
+  type  flags
+  ====  ====
+   08    81   src off = 0003   mod ord #   = 01   import ord #     = BC
+
+                           Import Module Name Table
+==============================================================================
+MMPM
+
+                              Entry Point Table
+==============================================================================
+
+number of entries in bundle = 01
+type = 00
+
+
+number of entries in bundle = 69
+type = 04
+object number = 0000
+
+ordinal = 0002   flags = 01   module ordinal = 0001   offset or ordinal = 0000000F  EXPORTED
+ordinal = 0003   flags = 01   module ordinal = 0001   offset or ordinal = 00000010  EXPORTED
+ordinal = 0004   flags = 01   module ordinal = 0001   offset or ordinal = 00000011  EXPORTED
+ordinal = 0005   flags = 01   module ordinal = 0001   offset or ordinal = 00000012  EXPORTED
+ordinal = 0006   flags = 01   module ordinal = 0001   offset or ordinal = 00000013  EXPORTED
+ordinal = 0007   flags = 01   module ordinal = 0001   offset or ordinal = 00000014  EXPORTED
+ordinal = 0008   flags = 01   module ordinal = 0001   offset or ordinal = 00000015  EXPORTED
+ordinal = 0009   flags = 01   module ordinal = 0001   offset or ordinal = 00000016  EXPORTED
+ordinal = 000A   flags = 01   module ordinal = 0001   offset or ordinal = 00000017  EXPORTED
+ordinal = 000B   flags = 01   module ordinal = 0001   offset or ordinal = 00000018  EXPORTED
+ordinal = 000C   flags = 01   module ordinal = 0001   offset or ordinal = 00000019  EXPORTED
+ordinal = 000D   flags = 01   module ordinal = 0001   offset or ordinal = 0000001A  EXPORTED
+ordinal = 000E   flags = 01   module ordinal = 0001   offset or ordinal = 0000001B  EXPORTED
+ordinal = 000F   flags = 01   module ordinal = 0001   offset or ordinal = 0000001C  EXPORTED
+ordinal = 0010   flags = 01   module ordinal = 0001   offset or ordinal = 0000001D  EXPORTED
+ordinal = 0011   flags = 01   module ordinal = 0001   offset or ordinal = 0000001E  EXPORTED
+ordinal = 0012   flags = 01   module ordinal = 0001   offset or ordinal = 0000001F  EXPORTED
+ordinal = 0013   flags = 01   module ordinal = 0001   offset or ordinal = 00000020  EXPORTED
+ordinal = 0014   flags = 01   module ordinal = 0001   offset or ordinal = 00000021  EXPORTED
+ordinal = 0015   flags = 01   module ordinal = 0001   offset or ordinal = 00000022  EXPORTED
+ordinal = 0016   flags = 01   module ordinal = 0001   offset or ordinal = 00000023  EXPORTED
+ordinal = 0017   flags = 01   module ordinal = 0001   offset or ordinal = 00000024  EXPORTED
+ordinal = 0018   flags = 01   module ordinal = 0001   offset or ordinal = 00000025  EXPORTED
+ordinal = 0019   flags = 01   module ordinal = 0001   offset or ordinal = 00000026  EXPORTED
+ordinal = 001A   flags = 01   module ordinal = 0001   offset or ordinal = 00000027  EXPORTED
+ordinal = 001B   flags = 01   module ordinal = 0001   offset or ordinal = 00000028  EXPORTED
+ordinal = 001C   flags = 01   module ordinal = 0001   offset or ordinal = 00000029  EXPORTED
+ordinal = 001D   flags = 01   module ordinal = 0001   offset or ordinal = 0000002A  EXPORTED
+ordinal = 001E   flags = 01   module ordinal = 0001   offset or ordinal = 0000002B  EXPORTED
+ordinal = 001F   flags = 01   module ordinal = 0001   offset or ordinal = 0000002C  EXPORTED
+ordinal = 0020   flags = 01   module ordinal = 0001   offset or ordinal = 0000002D  EXPORTED
+ordinal = 0021   flags = 01   module ordinal = 0001   offset or ordinal = 0000002E  EXPORTED
+ordinal = 0022   flags = 01   module ordinal = 0001   offset or ordinal = 0000002F  EXPORTED
+ordinal = 0023   flags = 01   module ordinal = 0001   offset or ordinal = 00000030  EXPORTED
+ordinal = 0024   flags = 01   module ordinal = 0001   offset or ordinal = 00000031  EXPORTED
+ordinal = 0025   flags = 01   module ordinal = 0001   offset or ordinal = 00000032  EXPORTED
+ordinal = 0026   flags = 01   module ordinal = 0001   offset or ordinal = 00000033  EXPORTED
+ordinal = 0027   flags = 01   module ordinal = 0001   offset or ordinal = 00000034  EXPORTED
+ordinal = 0028   flags = 01   module ordinal = 0001   offset or ordinal = 00000035  EXPORTED
+ordinal = 0029   flags = 01   module ordinal = 0001   offset or ordinal = 00000036  EXPORTED
+ordinal = 002A   flags = 01   module ordinal = 0001   offset or ordinal = 00000037  EXPORTED
+ordinal = 002B   flags = 01   module ordinal = 0001   offset or ordinal = 00000038  EXPORTED
+ordinal = 002C   flags = 01   module ordinal = 0001   offset or ordinal = 00000039  EXPORTED
+ordinal = 002D   flags = 01   module ordinal = 0001   offset or ordinal = 0000003A  EXPORTED
+ordinal = 002E   flags = 01   module ordinal = 0001   offset or ordinal = 0000003B  EXPORTED
+ordinal = 002F   flags = 01   module ordinal = 0001   offset or ordinal = 0000003C  EXPORTED
+ordinal = 0030   flags = 01   module ordinal = 0001   offset or ordinal = 0000003D  EXPORTED
+ordinal = 0031   flags = 01   module ordinal = 0001   offset or ordinal = 0000003E  EXPORTED
+ordinal = 0032   flags = 01   module ordinal = 0001   offset or ordinal = 0000003F  EXPORTED
+ordinal = 0033   flags = 01   module ordinal = 0001   offset or ordinal = 00000040  EXPORTED
+ordinal = 0034   flags = 01   module ordinal = 0001   offset or ordinal = 00000041  EXPORTED
+ordinal = 0035   flags = 01   module ordinal = 0001   offset or ordinal = 00000042  EXPORTED
+ordinal = 0036   flags = 01   module ordinal = 0001   offset or ordinal = 00000043  EXPORTED
+ordinal = 0037   flags = 01   module ordinal = 0001   offset or ordinal = 00000044  EXPORTED
+ordinal = 0038   flags = 01   module ordinal = 0001   offset or ordinal = 00000045  EXPORTED
+ordinal = 0039   flags = 01   module ordinal = 0001   offset or ordinal = 00000046  EXPORTED
+ordinal = 003A   flags = 01   module ordinal = 0001   offset or ordinal = 00000047  EXPORTED
+ordinal = 003B   flags = 01   module ordinal = 0001   offset or ordinal = 00000048  EXPORTED
+ordinal = 003C   flags = 01   module ordinal = 0001   offset or ordinal = 00000049  EXPORTED
+ordinal = 003D   flags = 01   module ordinal = 0001   offset or ordinal = 0000004A  EXPORTED
+ordinal = 003E   flags = 01   module ordinal = 0001   offset or ordinal = 0000004B  EXPORTED
+ordinal = 003F   flags = 01   module ordinal = 0001   offset or ordinal = 0000004C  EXPORTED
+ordinal = 0040   flags = 01   module ordinal = 0001   offset or ordinal = 0000004D  EXPORTED
+ordinal = 0041   flags = 01   module ordinal = 0001   offset or ordinal = 0000004E  EXPORTED
+ordinal = 0042   flags = 01   module ordinal = 0001   offset or ordinal = 0000004F  EXPORTED
+ordinal = 0043   flags = 01   module ordinal = 0001   offset or ordinal = 00000050  EXPORTED
+ordinal = 0044   flags = 01   module ordinal = 0001   offset or ordinal = 00000051  EXPORTED
+ordinal = 0045   flags = 01   module ordinal = 0001   offset or ordinal = 00000052  EXPORTED
+ordinal = 0046   flags = 01   module ordinal = 0001   offset or ordinal = 00000053  EXPORTED
+ordinal = 0047   flags = 01   module ordinal = 0001   offset or ordinal = 00000054  EXPORTED
+ordinal = 0048   flags = 01   module ordinal = 0001   offset or ordinal = 00000055  EXPORTED
+ordinal = 0049   flags = 01   module ordinal = 0001   offset or ordinal = 00000056  EXPORTED
+ordinal = 004A   flags = 01   module ordinal = 0001   offset or ordinal = 00000057  EXPORTED
+ordinal = 004B   flags = 01   module ordinal = 0001   offset or ordinal = 00000058  EXPORTED
+ordinal = 004C   flags = 01   module ordinal = 0001   offset or ordinal = 00000059  EXPORTED
+ordinal = 004D   flags = 01   module ordinal = 0001   offset or ordinal = 0000005A  EXPORTED
+ordinal = 004E   flags = 01   module ordinal = 0001   offset or ordinal = 0000005B  EXPORTED
+ordinal = 004F   flags = 01   module ordinal = 0001   offset or ordinal = 0000005C  EXPORTED
+ordinal = 0050   flags = 01   module ordinal = 0001   offset or ordinal = 0000005D  EXPORTED
+ordinal = 0051   flags = 01   module ordinal = 0001   offset or ordinal = 0000005E  EXPORTED
+ordinal = 0052   flags = 01   module ordinal = 0001   offset or ordinal = 0000005F  EXPORTED
+ordinal = 0053   flags = 01   module ordinal = 0001   offset or ordinal = 00000060  EXPORTED
+ordinal = 0054   flags = 01   module ordinal = 0001   offset or ordinal = 00000061  EXPORTED
+ordinal = 0055   flags = 01   module ordinal = 0001   offset or ordinal = 00000062  EXPORTED
+ordinal = 0056   flags = 01   module ordinal = 0001   offset or ordinal = 00000063  EXPORTED
+ordinal = 0057   flags = 01   module ordinal = 0001   offset or ordinal = 00000064  EXPORTED
+ordinal = 0058   flags = 01   module ordinal = 0001   offset or ordinal = 00000065  EXPORTED
+ordinal = 0059   flags = 01   module ordinal = 0001   offset or ordinal = 00000066  EXPORTED
+ordinal = 005A   flags = 01   module ordinal = 0001   offset or ordinal = 00000067  EXPORTED
+ordinal = 005B   flags = 01   module ordinal = 0001   offset or ordinal = 00000068  EXPORTED
+ordinal = 005C   flags = 01   module ordinal = 0001   offset or ordinal = 00000069  EXPORTED
+ordinal = 005D   flags = 01   module ordinal = 0001   offset or ordinal = 0000006A  EXPORTED
+ordinal = 005E   flags = 01   module ordinal = 0001   offset or ordinal = 0000006B  EXPORTED
+ordinal = 005F   flags = 01   module ordinal = 0001   offset or ordinal = 0000006C  EXPORTED
+ordinal = 0060   flags = 01   module ordinal = 0001   offset or ordinal = 0000006D  EXPORTED
+ordinal = 0061   flags = 01   module ordinal = 0001   offset or ordinal = 0000006E  EXPORTED
+ordinal = 0062   flags = 01   module ordinal = 0001   offset or ordinal = 0000006F  EXPORTED
+ordinal = 0063   flags = 01   module ordinal = 0001   offset or ordinal = 00000070  EXPORTED
+ordinal = 0064   flags = 01   module ordinal = 0001   offset or ordinal = 00000071  EXPORTED
+ordinal = 0065   flags = 01   module ordinal = 0001   offset or ordinal = 00000072  EXPORTED
+ordinal = 0066   flags = 01   module ordinal = 0001   offset or ordinal = 00000073  EXPORTED
+ordinal = 0067   flags = 01   module ordinal = 0001   offset or ordinal = 00000074  EXPORTED
+ordinal = 0068   flags = 01   module ordinal = 0001   offset or ordinal = 00000075  EXPORTED
+ordinal = 0069   flags = 01   module ordinal = 0001   offset or ordinal = 00000076  EXPORTED
+ordinal = 006A   flags = 01   module ordinal = 0001   offset or ordinal = 00000077  EXPORTED
+
+
+                           Nonresident Names Table
+==============================================================================
+ordinal 0000: @#IBM:14.075#@
+
+------------------------------------------------
+
+
+ordinal 0002: mmiohlpCleanupInstance
+ordinal 0003: mmiohlpListCreate
+ordinal 0004: mmiohlpListAdd
+ordinal 0005: mmiohlpListGet
+ordinal 0006: mmiohlpListFind
+ordinal 0007: mmiohlpListInsert
+ordinal 0008: mmiohlpListChange
+ordinal 0009: mmiohlpListDelete
+ordinal 000A: mmiohlpListGetHeader
+ordinal 000B: mmiohlpConvertAddressToHmmio
+ordinal 000C: mmiohlpConvertHmmioToAddress
+ordinal 000D: mmiohlpFreeHmmioEntry
+ordinal 000E: mmiohlpGrowHmmioTable
+ordinal 000F: mmiohlpGenerateHmmio
+ordinal 0010: mmiohlpAcquireMmioSem
+ordinal 0011: mmiohlpDiscardMmioSem
+ordinal 0012: mmiohlpReadIniFile
+ordinal 0013: mmiohlpLoadDefIOProcs
+ordinal 0014: mmiohlpUnloadDefIOProcs
+ordinal 0015: mmiohlpRestoreInfoState
+ordinal 0016: mmiohlpAllocateInternalBuffer
+ordinal 0017: mmiohlpExpandMemFile
+ordinal 0018: mmioStringToFOURCC
+ordinal 0019: mmioGetLastError
+ordinal 001A: mmioInstallIOProc
+ordinal 001B: mmioOpen
+ordinal 001C: mmioRead
+ordinal 001D: mmioWrite
+ordinal 001E: mmioSeek
+ordinal 001F: mmioFlush
+ordinal 0020: mmioClose
+ordinal 0021: DOSIOProc
+ordinal 0022: MEMIOProc
+ordinal 0023: BNDIOProc
+ordinal 0024: mmioAscend
+ordinal 0025: mmioDescend
+ordinal 0026: mmioCreateChunk
+ordinal 0027: mmioGetInfo
+ordinal 0028: mmioSetInfo
+ordinal 0029: mmioSendMessage
+ordinal 002A: mmioAdvance
+ordinal 002B: mmioSetBuffer
+ordinal 002C: mmioCFOpen
+ordinal 002D: mmioCFClose
+ordinal 002E: mmioCFAddEntry
+ordinal 002F: mmioCFDeleteEntry
+ordinal 0030: mmioCFChangeEntry
+ordinal 0031: mmioCFFindEntry
+ordinal 0032: mmioCFAddElement
+ordinal 0033: mmioCFGetInfo
+ordinal 0034: mmioCFSetInfo
+ordinal 0035: mmioCFCopy
+ordinal 0036: mmiohlpBuildCtoc
+ordinal 0037: mmiohlpCreateCtoc
+ordinal 0038: mmiohlpRewriteCtoc
+ordinal 0039: mmiohlpGetHeaderInfo
+ordinal 003A: mmiohlpUpdateCtocHeader
+ordinal 003B: mmiohlpChangeCtocHeader
+ordinal 003C: mmiohlpGetRemainingSize
+ordinal 003D: mmiohlpFindOpenCtoc
+ordinal 003E: mmiohlpGetFullPathName
+ordinal 003F: mmiohlpAddCtocInstance
+ordinal 0040: mmiohlpRemoveCtocInstance
+ordinal 0041: mmiohlpLastModTime
+ordinal 0042: mmiohlpOpenTempElement
+ordinal 0043: mmiohlpCloseTempElement
+ordinal 0044: mmiohlpTempName
+ordinal 0045: mmiohlpRemoveSharingEntry
+ordinal 0046: mmiohlpAddSharingEntry
+ordinal 0047: mmiohlpCheckSharingMode
+ordinal 0048: mmiohlpCheckHmmcfSharingMode
+ordinal 0049: mmiohlpListTransferNode
+ordinal 004A: mmioQueryFormatCount
+ordinal 004B: mmioGetFormats
+ordinal 004C: mmioQueryHeaderLength
+ordinal 004D: mmioGetHeader
+ordinal 004E: mmioSetHeader
+ordinal 004F: mmioIdentifyFile
+ordinal 0050: mmioGetFormatName
+ordinal 0051: mmiohlpGetFormatStringLength
+ordinal 0052: mmiohlpGetFormatString
+ordinal 0053: mmiohlpGetNLSData
+ordinal 0054: CFIOProc
+ordinal 0055: mmioIniFileHandler
+ordinal 0056: mmioIdentifyFileFormat
+ordinal 0057: mmioIdentifyStorageSystem
+ordinal 0058: mmioDetermineSSIOProc
+ordinal 0059: mmioDetermineFFIOProc
+ordinal 005A: mmioDetermineLastIOProc
+ordinal 005B: mmiohlpIsFccSS
+ordinal 005C: mmiohlpIsFccFF
+ordinal 005D: mmioQueryIOProcModuleHandle
+ordinal 005E: mmiohlpGetElementStart
+ordinal 005F: mmiohlpChangeSharingEntry
+ordinal 0060: mmiohlpLoadNextIOProc
+ordinal 0061: mmiohlpLoadIOProc
+ordinal 0062: mmioMigrateIniFile
+ordinal 0063: mmioIniFileCODEC
+ordinal 0064: mmioCFCompact
+ordinal 0065: mmioSet
+ordinal 0066: mmioQueryCODECName
+ordinal 0067: mmiohlpCFName
+ordinal 0068: mmioLoadCODECProc
+ordinal 0069: mmioQueryCODECNameLength
+ordinal 006A: mmioGetData
+
+ordinal = 0002   flags = 01   module ordinal = 0001   offset or ordinal = 0000000F  EXPORTED
+ordinal = 0003   flags = 01   module ordinal = 0001   offset or ordinal = 00000010  EXPORTED
+ordinal = 0004   flags = 01   module ordinal = 0001   offset or ordinal = 00000011  EXPORTED
+ordinal = 0005   flags = 01   module ordinal = 0001   offset or ordinal = 00000012  EXPORTED
+ordinal = 0006   flags = 01   module ordinal = 0001   offset or ordinal = 00000013  EXPORTED
+ordinal = 0007   flags = 01   module ordinal = 0001   offset or ordinal = 00000014  EXPORTED
+ordinal = 0008   flags = 01   module ordinal = 0001   offset or ordinal = 00000015  EXPORTED
+ordinal = 0009   flags = 01   module ordinal = 0001   offset or ordinal = 00000016  EXPORTED
+ordinal = 000A   flags = 01   module ordinal = 0001   offset or ordinal = 00000017  EXPORTED
+ordinal = 000B   flags = 01   module ordinal = 0001   offset or ordinal = 00000018  EXPORTED
+ordinal = 000C   flags = 01   module ordinal = 0001   offset or ordinal = 00000019  EXPORTED
+ordinal = 000D   flags = 01   module ordinal = 0001   offset or ordinal = 0000001A  EXPORTED
+ordinal = 000E   flags = 01   module ordinal = 0001   offset or ordinal = 0000001B  EXPORTED
+ordinal = 000F   flags = 01   module ordinal = 0001   offset or ordinal = 0000001C  EXPORTED
+ordinal = 0010   flags = 01   module ordinal = 0001   offset or ordinal = 0000001D  EXPORTED
+ordinal = 0011   flags = 01   module ordinal = 0001   offset or ordinal = 0000001E  EXPORTED
+ordinal = 0012   flags = 01   module ordinal = 0001   offset or ordinal = 0000001F  EXPORTED
+ordinal = 0013   flags = 01   module ordinal = 0001   offset or ordinal = 00000020  EXPORTED
+ordinal = 0014   flags = 01   module ordinal = 0001   offset or ordinal = 00000021  EXPORTED
+ordinal = 0015   flags = 01   module ordinal = 0001   offset or ordinal = 00000022  EXPORTED
+ordinal = 0016   flags = 01   module ordinal = 0001   offset or ordinal = 00000023  EXPORTED
+ordinal = 0017   flags = 01   module ordinal = 0001   offset or ordinal = 00000024  EXPORTED
+ordinal = 0018   flags = 01   module ordinal = 0001   offset or ordinal = 00000025  EXPORTED
+ordinal = 0019   flags = 01   module ordinal = 0001   offset or ordinal = 00000026  EXPORTED
+ordinal = 001A   flags = 01   module ordinal = 0001   offset or ordinal = 00000027  EXPORTED
+ordinal = 001B   flags = 01   module ordinal = 0001   offset or ordinal = 00000028  EXPORTED
+ordinal = 001C   flags = 01   module ordinal = 0001   offset or ordinal = 00000029  EXPORTED
+ordinal = 001D   flags = 01   module ordinal = 0001   offset or ordinal = 0000002A  EXPORTED
+ordinal = 001E   flags = 01   module ordinal = 0001   offset or ordinal = 0000002B  EXPORTED
+ordinal = 001F   flags = 01   module ordinal = 0001   offset or ordinal = 0000002C  EXPORTED
+ordinal = 0020   flags = 01   module ordinal = 0001   offset or ordinal = 0000002D  EXPORTED
+ordinal = 0021   flags = 01   module ordinal = 0001   offset or ordinal = 0000002E  EXPORTED
+ordinal = 0022   flags = 01   module ordinal = 0001   offset or ordinal = 0000002F  EXPORTED
+ordinal = 0023   flags = 01   module ordinal = 0001   offset or ordinal = 00000030  EXPORTED
+ordinal = 0024   flags = 01   module ordinal = 0001   offset or ordinal = 00000031  EXPORTED
+ordinal = 0025   flags = 01   module ordinal = 0001   offset or ordinal = 00000032  EXPORTED
+ordinal = 0026   flags = 01   module ordinal = 0001   offset or ordinal = 00000033  EXPORTED
+ordinal = 0027   flags = 01   module ordinal = 0001   offset or ordinal = 00000034  EXPORTED
+ordinal = 0028   flags = 01   module ordinal = 0001   offset or ordinal = 00000035  EXPORTED
+ordinal = 0029   flags = 01   module ordinal = 0001   offset or ordinal = 00000036  EXPORTED
+ordinal = 002A   flags = 01   module ordinal = 0001   offset or ordinal = 00000037  EXPORTED
+ordinal = 002B   flags = 01   module ordinal = 0001   offset or ordinal = 00000038  EXPORTED
+ordinal = 002C   flags = 01   module ordinal = 0001   offset or ordinal = 00000039  EXPORTED
+ordinal = 002D   flags = 01   module ordinal = 0001   offset or ordinal = 0000003A  EXPORTED
+ordinal = 002E   flags = 01   module ordinal = 0001   offset or ordinal = 0000003B  EXPORTED
+ordinal = 002F   flags = 01   module ordinal = 0001   offset or ordinal = 0000003C  EXPORTED
+ordinal = 0030   flags = 01   module ordinal = 0001   offset or ordinal = 0000003D  EXPORTED
+ordinal = 0031   flags = 01   module ordinal = 0001   offset or ordinal = 0000003E  EXPORTED
+ordinal = 0032   flags = 01   module ordinal = 0001   offset or ordinal = 0000003F  EXPORTED
+ordinal = 0033   flags = 01   module ordinal = 0001   offset or ordinal = 00000040  EXPORTED
+ordinal = 0034   flags = 01   module ordinal = 0001   offset or ordinal = 00000041  EXPORTED
+ordinal = 0035   flags = 01   module ordinal = 0001   offset or ordinal = 00000042  EXPORTED
+ordinal = 0036   flags = 01   module ordinal = 0001   offset or ordinal = 00000043  EXPORTED
+ordinal = 0037   flags = 01   module ordinal = 0001   offset or ordinal = 00000044  EXPORTED
+ordinal = 0038   flags = 01   module ordinal = 0001   offset or ordinal = 00000045  EXPORTED
+ordinal = 0039   flags = 01   module ordinal = 0001   offset or ordinal = 00000046  EXPORTED
+ordinal = 003A   flags = 01   module ordinal = 0001   offset or ordinal = 00000047  EXPORTED
+ordinal = 003B   flags = 01   module ordinal = 0001   offset or ordinal = 00000048  EXPORTED
+ordinal = 003C   flags = 01   module ordinal = 0001   offset or ordinal = 00000049  EXPORTED
+ordinal = 003D   flags = 01   module ordinal = 0001   offset or ordinal = 0000004A  EXPORTED
+ordinal = 003E   flags = 01   module ordinal = 0001   offset or ordinal = 0000004B  EXPORTED
+ordinal = 003F   flags = 01   module ordinal = 0001   offset or ordinal = 0000004C  EXPORTED
+ordinal = 0040   flags = 01   module ordinal = 0001   offset or ordinal = 0000004D  EXPORTED
+ordinal = 0041   flags = 01   module ordinal = 0001   offset or ordinal = 0000004E  EXPORTED
+ordinal = 0042   flags = 01   module ordinal = 0001   offset or ordinal = 0000004F  EXPORTED
+ordinal = 0043   flags = 01   module ordinal = 0001   offset or ordinal = 00000050  EXPORTED
+ordinal = 0044   flags = 01   module ordinal = 0001   offset or ordinal = 00000051  EXPORTED
+ordinal = 0045   flags = 01   module ordinal = 0001   offset or ordinal = 00000052  EXPORTED
+ordinal = 0046   flags = 01   module ordinal = 0001   offset or ordinal = 00000053  EXPORTED
+ordinal = 0047   flags = 01   module ordinal = 0001   offset or ordinal = 00000054  EXPORTED
+ordinal = 0048   flags = 01   module ordinal = 0001   offset or ordinal = 00000055  EXPORTED
+ordinal = 0049   flags = 01   module ordinal = 0001   offset or ordinal = 00000056  EXPORTED
+ordinal = 004A   flags = 01   module ordinal = 0001   offset or ordinal = 00000057  EXPORTED
+ordinal = 004B   flags = 01   module ordinal = 0001   offset or ordinal = 00000058  EXPORTED
+ordinal = 004C   flags = 01   module ordinal = 0001   offset or ordinal = 00000059  EXPORTED
+ordinal = 004D   flags = 01   module ordinal = 0001   offset or ordinal = 0000005A  EXPORTED
+ordinal = 004E   flags = 01   module ordinal = 0001   offset or ordinal = 0000005B  EXPORTED
+ordinal = 004F   flags = 01   module ordinal = 0001   offset or ordinal = 0000005C  EXPORTED
+ordinal = 0050   flags = 01   module ordinal = 0001   offset or ordinal = 0000005D  EXPORTED
+ordinal = 0051   flags = 01   module ordinal = 0001   offset or ordinal = 0000005E  EXPORTED
+ordinal = 0052   flags = 01   module ordinal = 0001   offset or ordinal = 0000005F  EXPORTED
+ordinal = 0053   flags = 01   module ordinal = 0001   offset or ordinal = 00000060  EXPORTED
+ordinal = 0054   flags = 01   module ordinal = 0001   offset or ordinal = 00000061  EXPORTED
+ordinal = 0055   flags = 01   module ordinal = 0001   offset or ordinal = 00000062  EXPORTED
+ordinal = 0056   flags = 01   module ordinal = 0001   offset or ordinal = 00000063  EXPORTED
+ordinal = 0057   flags = 01   module ordinal = 0001   offset or ordinal = 00000064  EXPORTED
+ordinal = 0058   flags = 01   module ordinal = 0001   offset or ordinal = 00000065  EXPORTED
+ordinal = 0059   flags = 01   module ordinal = 0001   offset or ordinal = 00000066  EXPORTED
+ordinal = 005A   flags = 01   module ordinal = 0001   offset or ordinal = 00000067  EXPORTED
+ordinal = 005B   flags = 01   module ordinal = 0001   offset or ordinal = 00000068  EXPORTED
+ordinal = 005C   flags = 01   module ordinal = 0001   offset or ordinal = 00000069  EXPORTED
+ordinal = 005D   flags = 01   module ordinal = 0001   offset or ordinal = 0000006A  EXPORTED
+ordinal = 005E   flags = 01   module ordinal = 0001   offset or ordinal = 0000006B  EXPORTED
+ordinal = 005F   flags = 01   module ordinal = 0001   offset or ordinal = 0000006C  EXPORTED
+ordinal = 0060   flags = 01   module ordinal = 0001   offset or ordinal = 0000006D  EXPORTED
+ordinal = 0061   flags = 01   module ordinal = 0001   offset or ordinal = 0000006E  EXPORTED
+ordinal = 0062   flags = 01   module ordinal = 0001   offset or ordinal = 0000006F  EXPORTED
+ordinal = 0063   flags = 01   module ordinal = 0001   offset or ordinal = 00000070  EXPORTED
+ordinal = 0064   flags = 01   module ordinal = 0001   offset or ordinal = 00000071  EXPORTED
+ordinal = 0065   flags = 01   module ordinal = 0001   offset or ordinal = 00000072  EXPORTED
+ordinal = 0066   flags = 01   module ordinal = 0001   offset or ordinal = 00000073  EXPORTED
+ordinal = 0067   flags = 01   module ordinal = 0001   offset or ordinal = 00000074  EXPORTED
+ordinal = 0068   flags = 01   module ordinal = 0001   offset or ordinal = 00000075  EXPORTED
+ordinal = 0069   flags = 01   module ordinal = 0001   offset or ordinal = 00000076  EXPORTED
+ordinal = 006A   flags = 01   module ordinal = 0001   offset or ordinal = 00000077  EXPORTED
