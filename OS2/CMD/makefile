@@ -33,6 +33,7 @@ DIRS = shared ansi   &
               newmbr &
 #              print &
               recover &
+              screenrs &
               sort &
               sysinstx &
               syslevel &
