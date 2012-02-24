@@ -915,20 +915,31 @@ long QueryFileSize( char *fname, int fAllocated )
 // Get the file attributes
 int QueryFileMode( char *fname, unsigned int *attrib)
 {
-    APIRET16 APIENTRY16 DosQFileMode( PSZ, PUSHORT, ULONG );
+    //APIRET16 APIENTRY16 DosQFileMode( PSZ, PUSHORT, ULONG );
+    FILESTATUS3 stat;
+    APIRET rc;
 
     // clear out the upper 16 bits when INT = 32bit
-    *attrib = 0;
-    return ( DosQFileMode( fname, (PUSHORT)attrib, 0L ));
+    //*attrib = 0;
+    rc = DosQueryPathInfo(fname, FIL_STANDARD, &stat, sizeof(stat));
+    *attrib = stat.attrFile;
+    //return ( DosQFileMode( fname, (PUSHORT)attrib, 0L ));
+    return rc;
 }
 
 
-// Get the file attributes
+// Set the file attributes
 int SetFileMode( char *fname, unsigned int attrib)
 {
-    APIRET16 APIENTRY16 DosSetFileMode(PSZ, USHORT, ULONG);
+    //APIRET16 APIENTRY16 DosSetFileMode(PSZ, USHORT, ULONG);
+    FILESTATUS3 stat;
+    APIRET rc;
 
-    return ( DosSetFileMode( fname,attrib,0L ));
+    stat.attrFile = attrib;
+    rc = DosSetPathInfo(fname, FIL_STANDARD, &stat, sizeof(stat), DSPI_WRTTHRU);
+
+    //return ( DosSetFileMode( fname,attrib,0L ));
+    return rc;
 }
 
 
