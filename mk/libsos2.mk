@@ -9,9 +9,8 @@
 CLEAN_ADD = *.c *.h
 ADD_COPT =            $(ADD_COPT) &
                       -i=$(%WATCOM)$(SEP)h &
-#                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
+                      -i=$(%ADD_INC) &
                       -i=$(ROOT)$(SEP)build$(SEP)include &
-                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)shared &
                       -i=$(%ROOT)$(SEP)include &
                       -i=$(ROOT)$(SEP)include$(SEP)os3 &

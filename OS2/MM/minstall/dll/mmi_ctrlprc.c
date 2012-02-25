@@ -23,12 +23,15 @@
 // #define INCL_OS2MM                          // Include MMIO functions
 // #define INCL_MMIO_CODEC                     //  ...
 // #define INCL_AUDIO_CODEC_ONLY
+// vs
+#define  INCL_WIN
 #include <os2.h>
-#include <pmdef.h>
-#include <pmshl.h>
+//#include <pmdef.h>
+//#include <pmshl.h>
 #include <pmwp.h>
 #define INCL_MCIOS2
-#include <os2me.h>
+//#include <os2me.h>
+#include <mcios2.h>
 
 #include <malloc.h>
 #include <string.h>

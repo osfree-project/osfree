@@ -24,7 +24,8 @@
 #define INCL_WINWINDOWMGR
 #define INCL_OS2MM
 #include <os2.h>
-#include <os2me.h>
+//#include <os2me.h>
+#include <mcios2.h>
 
 #include <malloc.h>
 #include <string.h>

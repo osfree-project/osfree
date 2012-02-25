@@ -211,6 +211,12 @@ int far pascal _loadds FS_CHGFILEPTR(
     return ERROR_INVALID_PARAMETER;
   }
 
+  //if (off > psffsi->sfi_size)
+  //  return ERROR_SEEK;
+
+  //if (off < 0)
+  //  return ERROR_NEGATIVE_SEEK;
+
   psffsi->sfi_position = off;
 
   if (!*((unsigned long far *)psffsd + 1)) // direct read flag

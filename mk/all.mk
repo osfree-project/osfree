@@ -67,7 +67,7 @@ LINKER    = @wlink
 # as it breaks all non-LX executables, for ex., bootsectors
 LINKOPT   = libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
 
-LIB       = @wlib
+LIB       = wlib
 LIBOPT    = -q -n -fo
 
 # Don't add @ sign here. Will break build system

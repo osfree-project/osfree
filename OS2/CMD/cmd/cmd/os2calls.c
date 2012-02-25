@@ -935,6 +935,7 @@ int SetFileMode( char *fname, unsigned int attrib)
     FILESTATUS3 stat;
     APIRET rc;
 
+    rc = DosQueryPathInfo(fname, FIL_STANDARD, &stat, sizeof(stat));
     stat.attrFile = attrib;
     rc = DosSetPathInfo(fname, FIL_STANDARD, &stat, sizeof(stat), DSPI_WRTTHRU);
 

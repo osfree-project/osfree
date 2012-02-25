@@ -146,6 +146,12 @@ ufs_read (char *buf, int len)
     if (len == -1) len = filemax;
     chunk = filemax - filepos;
 
+    if (filepos > filemax)
+      return 0;
+
+    //if (filepos + len > filemax)
+    //  chunk = filemax - filepos;
+
     if (chunk > len)
       chunk = len;
 
@@ -165,8 +171,8 @@ ufs_seek (int offset)
 {
   kprintf("**** ufs_seek(\"%ld\")\n", offset);
 
-  if (offset > filemax || offset < 0)
-    return -1;
+  //if (offset > filemax || offset < 0)
+  //  return -1;
 
   filepos = offset;
 

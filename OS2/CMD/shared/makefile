@@ -5,7 +5,8 @@
 DIRS = msg
 PROJ = cmd_shared
 ADD_COPT = -d2 -db -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT = debug all
+NOLIBS      = 1
+ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
 
 
 # For performance/compatibility reasons, we build a "_System" and

@@ -21,9 +21,8 @@ ADD_COPT   =          $(ADD_COPT) -bd
 
 ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%WATCOM)$(SEP)h &
-#                      -i=$(%WATCOM)$(SEP)h$(SEP)os2 &
+                      -i=$(%ADD_INC) &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
                       -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
@@ -95,6 +94,9 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS)
 !endif
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+!ifdef NODEFAULTLIBS
+ @%append $^@ OPTION NODEFAULTLIBS
+!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif

@@ -8,31 +8,15 @@ srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(
            $(p)iofmt32$(e) $(p)select$(e) $(p)os2tty$(e) $(p)iparse$(e)     &
            $(p)bcd32$(e) $(p)os32util$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
 ADD_COPT    = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
-ADD_LINKOPT = lib math387s, os2$(SEP)os2, os2386
+NODEFAULTLIBS = 1
+ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib, clibext.lib, clib3r.lib, math387r.lib, emu387.lib, sub32.lib
+#ADD_LINKOPT =
 #STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
-IMPORTS     = KbdStringIn                 EMXWRAP.209, &
-              KbdCharIn                   EMXWRAP.204, &
-              KbdPeek                     EMXWRAP.222, &
-	      VioReadcellStr              EMXWRAP.124, &
-	      VioWrtNAttr                 EMXWRAP.126, &
-	      VioSetCurType		  EMXWRAP.132, &
-	      VioWrtNCell		  EMXWRAP.152, &
-	      VioScrollUp                 EMXWRAP.107, &
-	      VioScrollDn                 EMXWRAP.147, &
-	      VioGetCurPos		  EMXWRAP.109, &
-	      VioSetCurPos		  EMXWRAP.115, &
-	      VioWrtCellStr		  EMXWRAP.110, &
-	      VioGetAnsi                  EMXWRAP.103, &
-	      VioSetAnsi                  EMXWRAP.105, &
-	      VioGetMode	          EMXWRAP.121, &
-	      VioGetCp		 	  EMXWRAP.140, &
-	      VioSetCp		 	  EMXWRAP.142, &
-	      VioWrtTTY                   EMXWRAP.119, &
-	      VioGetConfig		  EMXWRAP.146, &
-	      VioReadCellStr		  EMXWRAP.124, &
-	      VioWrtCharStrAtt		  EMXWRAP.148, &
-	      VioSetState		  EMXWRAP.151, &
+IMPORTS     = &
+#              KBD16CHARIN                 KBDCALLS.4,  &
+#              KBD16PEEK                   KBDCALLS.22, &
+#	       VIO16WRTTTY                 VIOCALLS.19, &
               DOSGETINFOSEG               DOSCALLS.8
 
 !include $(%ROOT)/mk/appsos2.mk

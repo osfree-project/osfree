@@ -8,7 +8,7 @@
 # 1. UniAPI must come first here because used to produce API headers
 
 DIRS = scripts yacc LEX SED  UNIAPI awk &
-       mkmsgf sc somcpp mkctxt critstrs freeinst libmmap &
+       mkmsgf sc somcpp mkctxt critstrs freeinst libmmap os2386 &
        #shared winrc somipc genext2fs qemu-img hlldump  rexxwrap mapsym ipfc ltools renmodul
 
 !include $(%ROOT)/mk/all.mk

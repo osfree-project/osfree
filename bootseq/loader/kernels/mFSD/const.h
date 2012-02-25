@@ -12,6 +12,8 @@ typedef USHORT far     *PUSHORT;
 #define MAKEP(x, y)      (void far *)(((ULONG)(x) << 16) | (ULONG)(y))
 
 #define NO_ERROR                0
+#define ERROR_NEGATIVE_SEEK     131
+#define ERROR_SEEK              25
 #define ERROR_INVALID_PARAMETER 87
 #define ERROR_NOT_SUPPORTED     50
 #define ERROR_FILE_NOT_FOUND    2

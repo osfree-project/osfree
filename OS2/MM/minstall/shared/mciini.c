@@ -25,8 +25,9 @@
 #define INCL_DOSMODULEMGR
 #define INCL_OS2MM
 #include <os2.h>
-#include <pmdef.h>
-#include <os2me.h>
+//#include <pmdef.h>
+//#include <os2me.h>
+#include <mcios2.h>
 
 #include <string.h>
 #include <stdlib.h>

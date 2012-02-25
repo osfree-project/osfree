@@ -6,7 +6,7 @@
 
 PROJ = cfgsys
 DESC = CFGSYS
-ADD_COPT = -i=$(MYDIR)..$(SEP)include
+ADD_COPT = -j -i=$(MYDIR)..$(SEP)include
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)configsys$(e) $(p)dosh$(e) $(p)stringh$(e) &
            $(p)xstring$(e) $(p)nls$(e) $(p)prfh$(e)

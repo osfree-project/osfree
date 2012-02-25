@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#define  INCL_DOSMISC
 #include <all_shared.h> /* comand line tools' shared functions and defines */
 
 #define BUFSIZE 300 /*!< buffer size for arguments table - see prepareArgTable */

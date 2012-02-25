@@ -47,8 +47,7 @@ ULONG DosFlatToSel(ULONG);
   @bug due Watcom's bug/feature we need to use environ here instead of envp...
 */
 
-
-APIRET16 (* APIENTRY16 func16)(short, char _far16 * _far16 *, char _far16 * _far16 *);
+APIRET16 APIENTRY16 (*func16)(USHORT, char * _Seg16 * _Seg16, char * _Seg16 * _Seg16);
 
 APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
                        ULONG ulArgc, char **argv, char **envp)
@@ -57,12 +56,16 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   ULONG ulType;
   int i;
   ULONG ulEnvpCount;
-  VOID *pvFSEntry;
   PSZ pszUtilDllName=NULL;
   HMODULE hUtilDllHandle;
   UCHAR LoadError[256] =""; /* area for load failure information */
-  char  _far16 * _far16 *newargv; /* 16bit pointers for argv and envp */
-  char  _far16 * _far16 *newenvp;
+  char    **_Seg16 buf;
+  char    * _Seg16 * _Seg16 newargv; /* 16bit pointers for argv and envp */
+  ULONG   *pulnewargv = (PULONG)&newargv;
+  char    * _Seg16 * _Seg16 newenvp;
+  void    * _Seg16 pWork16;
+  ULONG   *pulW16 = (PULONG)&pWork16;
+  PFN     func;
   ULONG p;
 
 /*!
@@ -74,6 +77,11 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   @todo fix return codes
 */
 
+  printf("pszFSName=%s, pszEntryName=%s, fVerbose=%lu, argc=%lu\n",
+         pszFSName, pszEntryName, fVerbose, ulArgc);
+
+  for (i = 0; i < ulArgc; i++)
+    printf("argv[%lu]=%s\n", i, argv[i]);
 
   pszUtilDllName=(PSZ)calloc(strlen(pszFSName)+1,1);
   if (pszUtilDllName==NULL) return cmd_ERROR_EXIT;
@@ -85,6 +93,8 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   rc=DosLoadModule(LoadError,sizeof(LoadError),
                    pszUtilDllName,&hUtilDllHandle);
 
+  printf("0\n");
+
   if (rc!=NO_ERROR)
   {
    printf(all_GetSystemErrorMessage(rc));
@@ -94,7 +104,7 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
 
   /* get requested entry procedure address */
   rc= DosQueryProcAddr(hUtilDllHandle,0L,
-                       strupr(pszEntryName),(PFN*)&pvFSEntry);
+                       strupr(pszEntryName),(PFN*)&func16);
 
   if (rc!=NO_ERROR)
   {
@@ -103,22 +113,27 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
    return cmd_ERROR_EXIT;
   };
 
+  //printf("pvFSEntry=0x%lx\n", pvFSEntry);
+  printf("1\n");
+
 //  func16 = (PVOID) (ULONG) (PVOID16) func16;
 
-  /* this was only for debug purposes ;)
+  /* this was only for debug purposes ;) */
   DosQueryProcType(hUtilDllHandle,0L,strupr(pszEntryName),&ulType);
 
   if (ulType==0) printf("\n 16bit Proc!!\n"); else printf("\n 32bit Proc\n");
-  */
+ /* */
 
   /* unfortunatelly we need to convert current argv and envp, to 16bit
      pointers */
-  newargv = malloc(ulArgc*sizeof(char _far16 *));
+  buf = malloc(ulArgc * sizeof(char * _Seg16));
+
+  printf("2\n");
 
   for (i = 0; i < ulArgc; i++)
   {
     p = (ULONG)DosFlatToSel((ULONG)argv[i]);
-    newargv[i] = (char  _far16 *)p; //MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
+    buf[i] = (char * _Seg16)p; //MAKE16P(SELECTOROF(argv[i]),OFFSETOF(argv[i]));
   }
     /* get number of envs */
   for (ulEnvpCount = 0; environ[ulEnvpCount]; ulEnvpCount++) ;
@@ -127,7 +142,7 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
 
   //newenvp = malloc((ulEnvpCount + 1)*sizeof(char _far16 *));
 
-  //for (i = 0; i < ulEnvpCount; i++) 
+  //for (i = 0; i < ulEnvpCount; i++)
   //{
   //  p = (ULONG)DosFlatToSel((ULONG)environ[i]);
   //  newenvp[i] = (char  _far16 *)p; // MAKE16P(SELECTOROF(environ[i]),OFFSETOF(environ[i]));
@@ -136,21 +151,41 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
 
   //newenvp[ulEnvpCount] = NULL;
 
+  printf("3\n");
+
   if (fVerbose)
      cmd_ShowSystemMessage(cmd_MSG_FSUTIL_HAS_STARTED,1L,"%s",pszFSName);
 
-  func16 = pvFSEntry;
-  
-  newargv = (char  _far16 * _far16 *)DosFlatToSel((ULONG)argv); //MAKE16P(SELECTOROF(newargv), OFFSETOF(newargv));
+  //func16 = pvFSEntry;
+
+  printf("4\n");
+
+  newargv = (char * _Seg16 * _Seg16)DosFlatToSel((ULONG)buf); //MAKE16P(SELECTOROF(newargv), OFFSETOF(newargv));
   //newenvp = (char  _far16 * _far16 *)DosFlatToSel((ULONG)newenvp); //MAKE16P(SELECTOROF(newenvp), OFFSETOF(newenvp));
 
   //rc=func16((short)ulArgc, newargv, newenvp);
   //printf("newargv = 0x%x, newenvp = 0x%x\n", newargv, newenvp);
+  printf("newargv = 0x%lx\n", newargv);
+
+  // KLUDGE for WATCOM C problems in converting a pointer to a 16-bit segment.
+  // We have to convert to a long first, then store it, otherwise Watcom C
+  // converts it to 16-bit and immediately back to 32-bit
+
+  //*pulW16 = ( selLocalSeg << 16 );
+  //gpLIS = (PLINFOSEG)(void * _Seg16)pWork16;
+
+  //newargv = (char * _Seg16)(PULONG)
+
+  func16 = (void * _Seg16)DosSelToFlat(func16);  
+
+  printf("func16=%lx\n", (ULONG)func16);
 
   rc=func16((short)ulArgc, newargv, 0);
 
 //  rc=FSENTRY16(pvFSEntry, (short)ulArgc, newargv, newenvp);
 //  rc=(pvFSEntry)((short)ulArgc, newargv, newenvp);
+
+  printf("5\n");
 
   DosFreeModule(hUtilDllHandle);
   free(pszUtilDllName);

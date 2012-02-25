@@ -87,9 +87,16 @@ end; else do
   beginlibpath = ''; libos2 = '';
 end
 
-lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || root || '\lib'
+/* whether to use osFree or Watcom headers */
+if headers == 'watcom' then
+  add_inc = watcom || '\h\os2'
+else
+  add_inc = root || '\build\include\os2'
 
-vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
+
+lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
+
+vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH ADD_INC INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 

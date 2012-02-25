@@ -4,7 +4,7 @@
 # author, date
 #
 
-PROJ     = fmmerge
+PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
 srcfiles = $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &

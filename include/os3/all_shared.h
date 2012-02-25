@@ -17,6 +17,7 @@
 
 #undef __cdecl  /* 06/07/2002: fix for Toolkit libc headers */
 
+#define  INCL_DOSERRORS
 #include <osfree.h>
 
 #include "all_dlist.h"

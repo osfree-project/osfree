@@ -41,7 +41,7 @@ int main (int argc, char* argv[], char* envp[])
    if (((argv[1][0]==PARAM_CHAR1) || (argv[1][0]==PARAM_CHAR2)) &&
       (argv[1][1]=='?') && (argv[1][2]=='\0'))
  {
-  printf("We should print here some info usuage...\n");
+  printf("We should print here some usage info...\n");
 /*   cmd_ShowSystemMessage(cmd_MSG_SYSINSTX_HELP,0L); */
    return NO_ERROR;
  };
@@ -57,7 +57,7 @@ int main (int argc, char* argv[], char* envp[])
  /* get name of FS for the specified disk */
  pszFSName=calloc(CCHMAXPATH,1);
 
- /* execute appriate function from FS utility dll */
+ /* execute the appropriate function from FS utility dll */
  if (cmd_QueryFSName(disk,pszFSName))
  {
    free(pszFSName);

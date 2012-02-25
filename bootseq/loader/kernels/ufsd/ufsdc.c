@@ -329,16 +329,16 @@ void cmain (void)
   if (!mfslen)
   {
     boot_flags |= BOOTFLAG_NOVOLIO | BOOTFLAG_RIPL;
-    ft.ft_cfiles = 4;
+    ft.ft_cfiles = 4; // 3;
     // where to place mbi pointer
     //q = 0x7c0 + *p - 4;
-    //q = REL1_BASE - 0x200 + 0x2b;
+    //q = REL1_BASE - 0x200 + 0x11; // + 0x2b;
     q = (0x7c0 + *p + 0xf) & 0xfffffff0;
 
     ft.ft_mfsseg = 0x7c;
     ft.ft_mfslen = *p;
-    ft.ft_ripseg = q >> 4;
-    ft.ft_riplen = 4;
+    ft.ft_ripseg = q >> 4; // 0;
+    ft.ft_riplen = 4; // 0;
 
     // pass mbi structure address to mFSD
     // as a variable at its end
@@ -401,6 +401,13 @@ void cmain (void)
   kprintf("mu_Close=0x%x:0x%x\n", ft.ft_muClose.seg, ft.ft_muClose.off);
   kprintf("mu_Terminate=0x%x:0x%x\n", ft.ft_muTerminate.seg, ft.ft_muTerminate.off);
 
+  kprintf("mbi addr=0x%lx\n", m);
+/*
+  kprintf("bpb dump:\n");
+
+  for (i = 0; i < 0x200 - 0xb; i++)
+    kprintf("0x%02x ", *((char *)bpb + i));
+ */
   // detect and disable UNDI, if any
   //kprintf("pxe_probe() returned %d", pxe_probe());
 }

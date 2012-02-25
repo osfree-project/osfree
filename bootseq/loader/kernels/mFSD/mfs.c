@@ -259,6 +259,13 @@ int far pascal _loadds MFS_CHGFILEPTR(
   default:
     return 1;
   }
+
+  //if (filepos > filemax)
+  //  return ERROR_SEEK;
+
+  //if (filepos < 0)
+  //  return ERROR_NEGATIVE_SEEK;
+
   advance_ptr();
 
   return NO_ERROR;
@@ -284,8 +291,25 @@ int far pascal _loadds MFS_INIT(
 
     // mbi as RIPL data
     mbi = *((unsigned long far *)bootdata);
-    //mbi = *((unsigned long far *)((char far *)bpb + 0x20));
+    //mbi = *((unsigned long far *)((char far *)bpb + 6)); // + 0x20
     //mbi = mbi0;
+
+/*******
+    debug = 1;
+    port  = 0x3f8;
+    speed = 115200;
+
+    serial_init(port, speed, UART_8BITS_WORD, UART_NO_PARITY, UART_1_STOP_BIT);
+
+    kprintf("bpb dump:\n");
+
+    for (i = 0; i < 0x200 - 0xb; i++)
+      kprintf("0x%02x ", *((char far *)bpb + i));
+
+    __asm {
+      int 3
+    }
+*******/
 
     // free a segment used for RIPL data
     if (bootdata) MFSH_SEGFREE(SELECTOROF(bootdata));
@@ -556,6 +580,12 @@ int far pascal _loadds MFS_READ(
   {
     chunk = filemax - filepos;
 
+    if (filepos > filemax)
+      return ERROR_SEEK;
+
+    //if (filepos + *length > filemax)
+    //  chunk = filemax - filepos;
+
     if (chunk > *length)
       chunk = *length;
 
@@ -564,7 +594,7 @@ int far pascal _loadds MFS_READ(
     *length = chunk;
   }
   else
-    return 1;
+    return ERROR_INVALID_PARAMETER;
 
   advance_ptr();
 

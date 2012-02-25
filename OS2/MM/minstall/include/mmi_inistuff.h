@@ -213,10 +213,10 @@ typedef LHANDLE HAPP;
 typedef LHANDLE HINI;
 typedef HINI *PHINI;
 
-HINI APIENTRY PrfOpenProfile(HAB hab, PSZ pszFileName);
+HINI APIENTRY PrfOpenProfile(HAB hab, PCSZ pszFileName);
 BOOL APIENTRY PrfCloseProfile(HINI hini);
-BOOL APIENTRY PrfWriteProfileString(HINI hini, PSZ pszApp, PSZ pszKey, PSZ pszData);
-BOOL APIENTRY PrfWriteProfileData(HINI hini, PSZ pszApp, PSZ pszKey, PVOID pData, ULONG cchDataLen);
+BOOL APIENTRY PrfWriteProfileString(HINI hini, PCSZ pszApp, PCSZ pszKey, PCSZ pszData);
+BOOL APIENTRY PrfWriteProfileData(HINI hini, PCSZ pszApp, PCSZ pszKey, PVOID pData, ULONG cchDataLen);
 
 typedef struct _SPI_SPIINSTALL {
    MINSTINIHEADER Header;

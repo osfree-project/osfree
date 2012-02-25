@@ -18,6 +18,7 @@
 #include <os2.h>
 
 /* C standard library headers */
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 

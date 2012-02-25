@@ -594,7 +594,19 @@ typedef struct
 
 #include "version.h"
 
-#define INCL_BASE
+#define INCL_SUB
+#define INCL_DOSMONITORS
+
+#define INCL_DOSDEVICES
+#define INCL_DOSMEMMGR
+#define INCL_DOSMISC
+#define INCL_DOSMODULEMGR
+#define INCL_DOSNMPIPES
+#define INCL_DOSPROCESS
+#define INCL_DOSPROFILE
+#define INCL_DOSRESOURCES
+#define INCL_DOSSEMAPHORES
+
 #define INCL_DOSNLS
 #define INCL_DOSQUEUES
 #define INCL_DOSDEVIOCTL
@@ -602,9 +614,18 @@ typedef struct
 #define INCL_DOSFILEMGR
 #define INCL_DOSEXCEPTIONS
 #define INCL_DOSSESMGR
+
+#define INCL_DEV
+#define INCL_ERRORS
 #define INCL_WIN
-#define INCL_PM
+#define INCL_GPI
+
 #include <os2.h>
+
+//#define INCL_SUB
+//#define INCL_DOSMONITORS
+//#include "sub32.h"
+
 #include <cmd_shared.h>         // Include file for cmd tools
 #include "4os2.h"
 
