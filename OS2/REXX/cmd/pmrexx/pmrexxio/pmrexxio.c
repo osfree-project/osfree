@@ -252,8 +252,8 @@ void RexxDestroyIOWindow(HWND hwnd)
 {
   PRHWINDATA pWinData = NULL;          /* pointer to the windata structure    */
 
-  pWinData = WinQueryWindowPtr(WinWindowFromID(hwnd, (USHORT)FID_CLIENT),
-      (SHORT)0);
+  pWinData = WinQueryWindowPtr(WinWindowFromID(hwnd, (ULONG)FID_CLIENT),  //(USHORT)FID_CLIENT),
+      (LONG)0); // (SHORT)0);
    /* And now, clean everything up.                                    */
    if (pWinData->HelpInst) {
       WinDestroyHelpInstance(pWinData->HelpInst);
@@ -281,7 +281,7 @@ void RexxDestroyIOWindow(HWND hwnd)
 /*   FUNCTION:                                                                */
 /*               Initializes the input queues and their semaphores, set up    */
 /*               the file handles for redirection of standard input/output and*/
-/*               error streams, allocate stacks for and begin the threads.     /
+/*               error streams, allocate stacks for and begin the threads.    */
 /*               subcommand environments.                                     */
 /*                                                                            */
 /*   NOTES:                                                                   */
@@ -576,7 +576,7 @@ void RexxDestroyIOWindow(HWND hwnd)
           WinReleasePS(hps);
                                        /* Create the child MLE for            */
                                        /* output                              */
-          pWinData->outmle = WinCreateWindow(pWinData->client, WC_MLE, NULL,
+          pWinData->outmle = WinCreateWindow(pWinData->client, (PCSZ)WC_MLE, NULL,
               flCreate, 0, 0, 0, 0, pWinData->client, HWND_TOP,
               MLE_WNDW, NULL, NULL);
 

@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = rexxtry
+DIRS = rexxtry pmrexx
 
 !include $(%ROOT)/mk/all.mk
 

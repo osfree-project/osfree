@@ -868,6 +868,8 @@ ULONG  MapButtonText(PSZ pszText)
 
   if (!strcmp(pszText, enter))
     return (MBID_ENTER);
+
+  return 0;
 }
 
 

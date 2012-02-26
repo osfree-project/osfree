@@ -150,6 +150,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)winhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmgpi.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &
+     $(OUT)$(SEP)os2$(SEP)gpiprimitives2.h &
      $(OUT)$(SEP)os2$(SEP)gpilcids.h &
      $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h &
      $(OUT)$(SEP)os2$(SEP)gpibitmapscommon.h &

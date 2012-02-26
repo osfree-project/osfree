@@ -17,7 +17,7 @@ TARGETS  = $(PATH)$(PROJ).lib subdirs
 .SUFFIXES: .lib .lbc .def .obj .asm
 
 LOPT = -q -n
-DEST = $(BLD)lib
+#DEST = $(BLD)lib
 
 .lib: $(PATH)
 

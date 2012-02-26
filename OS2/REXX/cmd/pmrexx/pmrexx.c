@@ -929,6 +929,8 @@ MRESULT PMRXCmds(HWND hwnd, MPARAM mp1, MPARAM mp2)
       default  :
         return (*SuperProc)(hwnd, WM_COMMAND, mp1, mp2);
     }
+
+    return 0; // ?
 }
 
 /************************** START OF SPECIFICATIONS ***************************/

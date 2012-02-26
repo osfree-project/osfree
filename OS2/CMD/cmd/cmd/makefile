@@ -13,10 +13,6 @@ ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib, clibext.lib, clib3r.lib, math
 #ADD_LINKOPT =
 #STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
-IMPORTS     = &
-#              KBD16CHARIN                 KBDCALLS.4,  &
-#              KBD16PEEK                   KBDCALLS.22, &
-#	       VIO16WRTTTY                 VIOCALLS.19, &
-              DOSGETINFOSEG               DOSCALLS.8
+IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
 
 !include $(%ROOT)/mk/appsos2.mk

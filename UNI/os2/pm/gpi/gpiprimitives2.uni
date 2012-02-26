@@ -1,0 +1,146 @@
+group gpiprimitives2;
+   
+   (* default color table indices *)
+
+constant CLR_FALSE = -5;
+constant CLR_TRUE  = -4;
+   
+constant CLR_ERROR       = -255;
+constant CLR_DEFAULT     = -3;
+constant CLR_WHITE       = -2;
+constant CLR_BLACK       = -1;
+constant CLR_BACKGROUND  = 0;
+constant CLR_BLUE        = 1;
+constant CLR_RED         = 2;
+constant CLR_PINK        = 3;
+constant CLR_GREEN       = 4;
+constant CLR_CYAN        = 5;
+constant CLR_YELLOW      = 6;
+constant CLR_NEUTRAL     = 7;
+   
+constant CLR_DARKGRAY    = 8;
+constant CLR_DARKBLUE    = 9;
+constant CLR_DARKRED     = 10;
+constant CLR_DARKPINK    = 11;
+constant CLR_DARKGREEN   = 12;
+constant CLR_DARKCYAN    = 13;
+constant CLR_BROWN       = 14;
+constant CLR_PALEGRAY    = 15;
+   
+   (* rgb colors *)
+constant RGB_ERROR       = -255;
+constant RGB_BLACK       = $00000000;
+constant RGB_BLUE        = $000000FF;
+constant RGB_GREEN       = $0000FF00;
+constant RGB_CYAN        = $0000FFFF;
+constant RGB_RED         = $00FF0000;
+constant RGB_PINK        = $00FF00FF;
+constant RGB_YELLOW      = $00FFFF00;
+constant RGB_WHITE       = $00FFFFFF;
+   
+   (* control flags used by GpiBeginArea *)
+constant BA_NOBOUNDARY   = 0;
+constant BA_BOUNDARY     = $0001;
+   
+   
+constant BA_ALTERNATE    = 0;
+constant BA_WINDING      = $0002;
+   
+constant BA_INCL         = 0;
+constant BA_EXCL         = 8;
+   
+   
+   (* fill options for GpiBox/GpiFullArc/GpiOval *)
+constant DRO_FILL        = 1;
+constant DRO_OUTLINE     = 2;
+constant DRO_OUTLINEFILL = 3;
+constant DRO_EXCLUSIVE   = $10000000 (* exclusive right and bottom in device *)
+   (* exclusive in         *)
+   (* device coordinate.   *)
+   
+   (* basic pattern symbols *)
+constant PATSYM_ERROR    = -1;
+constant PATSYM_DEFAULT  = 0;
+constant PATSYM_DENSE1   = 1;
+constant PATSYM_DENSE2   = 2;
+constant PATSYM_DENSE3   = 3;
+constant PATSYM_DENSE4   = 4;
+constant PATSYM_DENSE5   = 5;
+constant PATSYM_DENSE6   = 6;
+constant PATSYM_DENSE7   = 7;
+constant PATSYM_DENSE8   = 8;
+constant PATSYM_VERT     = 9;
+constant PATSYM_HORIZ    = 10;
+constant PATSYM_DIAG1    = 11;
+constant PATSYM_DIAG2    = 12;
+constant PATSYM_DIAG3    = 13;
+constant PATSYM_DIAG4    = 14;
+constant PATSYM_NOSHADE  = 15;
+constant PATSYM_SOLID    = 16;
+
+(*   #ifndef INCL_SAADEFS   *)
+constant PATSYM_HALFTONE = 17;
+(*   #endif no INCL_SAADEFS *)
+
+constant PATSYM_HATCH    = 18;
+constant PATSYM_DIAGHATCH = 19;
+constant PATSYM_BLANK    = 64;
+   
+   (* lcid values for GpiSet/QueryPattern and others *)
+constant LCID_ERROR      = -1;
+constant LCID_DEFAULT    = 0;
+   
+(*   #ifndef INCL_DDIDEFS *)
+      
+      (*** global primitive functions *)
+      function GpiSetColor(in hps: HPS;
+                           in lColor: LONG): BOOL;
+      
+      function GpiQueryColor(in hps: HPS): LONG;
+      
+      (*** line primitive functions *)
+      
+      function GpiBox(in hps: HPS;
+                      in lControl: LONG;
+                      out pptlPoint: POINTL;
+                      in lHRound: LONG;
+                      in lVRound: LONG): LONG;
+      
+      function GpiMove(in hps: HPS;
+                       out pptlPoint: POINTL): BOOL;
+      
+      function GpiLine(in hps: HPS;
+                       out pptlEndPoint: POINTL): LONG;
+      
+      function GpiPolyLine(in hps: HPS;
+                           in lCount: LONG;
+                           out aptlPoints: POINTL): LONG;
+      
+      function GpiPolyLineDisjoint(in hps: HPS;
+                                   in lCount: LONG;
+                                   out aptlPoints: POINTL): LONG;
+      
+      (*** area primitive functions *)
+      function GpiSetPattern(in hps: HPS;
+                             in lPatternSymbol: LONG): BOOL;
+      
+      function GpiQueryPattern(in hps: HPS): LONG;
+      
+      function GpiBeginArea(in hps: HPS;
+                            in flOptions: ULONG): BOOL;
+      
+      function GpiEndArea(in hps: HPS): LONG;
+      
+      (*** character primitive functions *)
+      function GpiCharString(in hps: HPS;
+                             in lCount: LONG;
+                             in pchString: PCH): LONG;
+      
+      function GpiCharStringAt(in hps: HPS;
+                               out pptlPoint: POINTL;
+                               in lCount: LONG;
+                               in pchString: PCH): LONG;
+      
+(*   #endif  no INCL_DDIDEFS *)
+
+end.

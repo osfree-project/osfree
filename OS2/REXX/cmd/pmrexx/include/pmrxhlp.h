@@ -13,7 +13,7 @@
 #define  IDH_DID_FILETEXT      06
 #define  IDH_OKBUTTON          07
 #define  IDH_DID_PATHEDIT      08
-#define  IDH_RXHA_EXIT         09
+#define  IDH_RXHA_EXIT         9
 #define  IDH_RXHM_EDIT         10
 #define  IDH_RXHA_COPY         11
 #define  IDH_RXHA_PASTE        12
