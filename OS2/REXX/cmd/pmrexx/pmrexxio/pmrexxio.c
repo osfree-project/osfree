@@ -163,13 +163,13 @@ HWND RexxCreateIOWindow(
    /* We set the creation flags to be the standard window frame flags         */
    /*    but without scroll bars and without a task list entry.               */
 
-  ULONG flCreate = FCF_STANDARD&~(FCF_VERTSCROLL|FCF_HORZSCROLL|FCF_ACCELTABLE);
+  ULONG flCreate = FCF_STANDARD & ~(FCF_VERTSCROLL|FCF_HORZSCROLL|FCF_ACCELTABLE);
   PUCHAR windowtext;                   /* Text for title bar                  */
   ULONG  argnum = 1;                   /* Counter for looking at arguments    */
   HAB    hab;                          /* anchor block                        */
   HMODULE handle;                      /* module handle                       */
   HWND    hwndFrame;                   /* frame handle                        */
-
+  ULONG   err;
                                        /* get desktop anchor                  */
   hab = WinQueryAnchorBlock(hwndOwner);
   if (!hab) {                          /* no anchor block?                    */
@@ -190,11 +190,9 @@ HWND RexxCreateIOWindow(
   }                                    /* class                               */
 
    /* Get the title bar text                                                  */
-
   windowtext = getstring(hab, handle, WINDOW_TEXT);
 
    /* Create the standard window                                              */
-
   hwndFrame = WinCreateStdWindow(hwndOwner,/* Supplied owner                  */
       0,                               /* Frame Style                         */
       &flCreate,                       /* Control Data                        */
@@ -204,6 +202,7 @@ HWND RexxCreateIOWindow(
       handle,                          /* Module handle==this module          */
       RXHOST_WIN,                      /* Window ID                           */
       phwndClient);                    /* Client Window handle                */
+
                                        /* set the window text                 */
   WinSetWindowText(WinWindowFromID(hwndFrame, (USHORT)FID_TITLEBAR),
       windowtext);
@@ -947,6 +946,7 @@ void RexxDestroyIOWindow(HWND hwnd)
     return (WinDefWindowProc(hwnd, msg, mp1, mp2));
 
   }
+
 
 /************************** START OF SPECIFICATIONS ***************************/
 /*                                                                            */

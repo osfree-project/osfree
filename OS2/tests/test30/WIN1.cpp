@@ -26,6 +26,7 @@ MRESULT EXPENTRY ClientWndProc ( HWND hwndWnd,
 INT main ( VOID )
 {
    HAB         habAnchor ;
+   HAB         habDesktop;
    HMQ         hmqQueue ;
    ULONG       ulFlags ;
    HWND        hwndFrame ;

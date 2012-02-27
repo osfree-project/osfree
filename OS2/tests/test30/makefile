@@ -14,7 +14,7 @@ srcfiles = $(p)win1$(e)
 # Increased the stack for threads
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
-
+WINDOWCOMPAT = 1
 ADD_COPT    = -bm -od -mf -sg -d2 -mf
 DEST        = os2$(SEP)test
 

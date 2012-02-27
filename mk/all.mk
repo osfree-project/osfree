@@ -48,7 +48,7 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 # Tools:
 #
 !ifeq 32_BITS 1
-CC        = wcc386
+CC        = @wcc386
 CPPC      = @wpp386
 !else
 CC        = @wcc
