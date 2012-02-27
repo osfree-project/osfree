@@ -1,27 +1,24 @@
 #
-# A Makefile for ANSI
+# A Makefile for genext2fs
 # (c) osFree project,
-# author, date
+# valerius, 2006/10/30
 #
 
-!include $(%ROOT)/build.conf
-!include $(%ROOT)/mk/site.mk
+DEST    = os2
 
-32_BITS  = 1
+!include $(%ROOT)/mk/appsos2.mk
 
-PROJ = rexxtry
-DESC = Show help info
+TARGETS = copy
 
-!include $(%ROOT)/mk/all.mk
+list = $(FILESDIR) $(FILESDIR)$(SEP)os2
+filelist = *.cmd
+srcdir - $(MYDIR)
+dstdir = $(FILESDIR)$(SEP)os2
 
+copy: .SYMBOLIC
+ @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
+ #@for %i in ($(filelist)) do $(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
+ @cd $(srcdir)
+ @for %i in ($(filelist)) do $(CP) %i $(DEST)
+ $(CD) $(MYDIR)
 
-all: install .SYMBOLIC
-
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)
-
-install: .SYMBOLIC
- $(SAY) Making install... $(LOG)
- $(CP) $(PROJ).cmd $(FILESDIR)$(SEP)os2

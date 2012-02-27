@@ -17,7 +17,7 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "rexx_charset.h"
+//#include "rexx_charset.h"
 
 #include "rexxsaa.h"
 #define DONT_TYPEDEF_PFN
