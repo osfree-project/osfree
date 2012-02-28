@@ -53,7 +53,7 @@ void APIENTRY RxInitThread (void *param)
   HMODULE       hmod;
   buf_t         *pbuf;
   APIRET        rc;
-  USHORT        a;
+  USHORT        cmd;
 
   DosCreateMutexSem(rexxApiMtx, &hmtx, 0, 0);
   DosCreateEventSem(rexxMemEvt, &hev,  0, 0);
@@ -63,12 +63,12 @@ void APIENTRY RxInitThread (void *param)
   {
     DosReadQueue(hq, &request, &cbData, (void **)&pbuf, 0, 0, &priority, evq);
 
-    a = (USHORT)request.ulData; 
+    cmd = (USHORT)request.ulData; 
 
-    if (a == CMD_QUIT) // 0xffff
+    if (cmd == CMD_QUIT) // 0xffff
       break;
 
-    switch (a)
+    switch (cmd)
     {
       case CMD_INIT:   // 0xfff8
         DosSubSetMem(pbuf, DOSSUB_INIT | DOSSUB_SPARSE_OBJ, cb);
