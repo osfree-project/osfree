@@ -11,7 +11,7 @@ ADD_COPT     = -i=. -sg -3s -d3
 ADD_LINKOPT  = debug all segment type DATA shared lib clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 DLL          = 1
 DLLOPT       = initinstance
-OPTIONS      = manyautodata, caseexact, heapsize=40960
+OPTIONS      = manyautodata, caseexact, heapsize=40960, start=dllinit
 STACKSIZE    = 81920
 EXPORTS      = RxApiInit.1, &
                dllinit.2

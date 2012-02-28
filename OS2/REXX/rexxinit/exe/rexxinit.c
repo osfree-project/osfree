@@ -11,7 +11,6 @@
 #include <stdio.h>
 
 char pszModname[] = "REXXINIT";
-char pszLoadErr[] = "error loading REXXINIT.DLL (rc=%u)\n";
 
 int main (int argc, char **argv)
 {

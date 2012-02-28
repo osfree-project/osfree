@@ -29,9 +29,7 @@ void   APIENTRY RxInitThread (void *param);
 /* structure passed through the queue */
 typedef struct
 {
-  HMTX          hmtx;
+  char          something[0x10];
   HEV           hev;
-  HQUEUE        hq;
-  HMTX          hmtxa;
-  HMODULE       hmod;
+  HMTX          hmtx;
 } buf_t;

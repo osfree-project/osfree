@@ -44,20 +44,24 @@ APIRET APIENTRY RxApiInit (ULONG param)
 void APIENTRY RxInitThread (void *param)
 {
   BYTE          priority = 0;
+  ULONG         unused1;
   ULONG         cbData   = 0;
-  REQUESTDATA   request  = {0};
-  buf_t         buf      = {0, 0, 0, 0, 0};
-  buf_t         *pb      = &buf;
+  REQUESTDATA   request  = {0, 0};
+  HEV           hev;
+  HQUEUE        hq;
+  HMTX          hmtx;
+  HMODULE       hmod;
+  buf_t         *pbuf;
   APIRET        rc;
   USHORT        a;
 
-  DosCreateMutexSem(rexxApiMtx, &pb->hmtxa, 0, 0);
-  DosCreateEventSem(rexxMemEvt, &pb->hev,  0, 0);
-  DosCreateQueue(&pb->hq, 0, rexxQue);
+  DosCreateMutexSem(rexxApiMtx, &hmtx, 0, 0);
+  DosCreateEventSem(rexxMemEvt, &hev,  0, 0);
+  DosCreateQueue(&hq, 0, rexxQue);
   
   for (;;) 
   {
-    DosReadQueue(pb->hq, &request, &cbData, (void **)&pb, 0, 0, &priority, evq);
+    DosReadQueue(hq, &request, &cbData, (void **)&pbuf, 0, 0, &priority, evq);
 
     a = (USHORT)request.ulData; 
 
@@ -67,30 +71,30 @@ void APIENTRY RxInitThread (void *param)
     switch (a)
     {
       case CMD_INIT:   // 0xfff8
-        DosSubSetMem(pb, DOSSUB_INIT | DOSSUB_SPARSE_OBJ, cb);
-        DosPostEventSem(pb->hev);
+        DosSubSetMem(pbuf, DOSSUB_INIT | DOSSUB_SPARSE_OBJ, cb);
+        DosPostEventSem(hev);
         continue;
       case CMD_DONE:   // 0xfff9
-        DosSubUnsetMem(pb);
-        DosFreeMem(pb);
+        DosSubUnsetMem(pbuf);
+        DosFreeMem(pbuf);
         continue;
       case CMD_FREE:   // 0xfffa
-        DosFreeMem(pb);
+        DosFreeMem(pbuf);
         continue;
       case CMD_CLOSE:  // 0xfffb
-        DosCloseMutexSem(pb->hmtx);
-        DosPostEventSem(pb->hev);
-        DosCloseEventSem(pb->hev);
+        DosCloseMutexSem(pbuf->hmtx);
+        DosPostEventSem(pbuf->hev);
+        DosCloseEventSem(pbuf->hev);
         continue;
       case CMD_OPEN:   // 0xfffc
-        DosOpenMutexSem(0, &pb->hmtx);
-        DosOpenEventSem(0, &pb->hev);
-        DosPostEventSem(pb->hev);
+        DosOpenMutexSem(0, &pbuf->hmtx);
+        DosOpenEventSem(0, &pbuf->hev);
+        DosPostEventSem(pbuf->hev);
         continue;
       case CMD_LOAD:   // 0xfffd
-        if (pb->hmod)
+        if (hmod)
           continue;
-        DosLoadModule(0, 0, pszModName, &pb->hmod);
+        DosLoadModule(0, 0, pszModName, &hmod);
         continue;
       default:
         continue;
@@ -101,7 +105,7 @@ void APIENTRY RxInitThread (void *param)
   
   initflag = 1;
 
-  DosCloseQueue(pb->hq);
-  DosFreeModule(pb->hmod);
-  DosCloseMutexSem(pb->hmtxa);
+  DosCloseQueue(hq);
+  DosFreeModule(hmod);
+  DosCloseMutexSem(hmtx);
 }
