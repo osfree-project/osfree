@@ -71,31 +71,37 @@ void APIENTRY RxInitThread (void *param)
     switch (cmd)
     {
       case CMD_INIT:   // 0xfff8
-        DosSubSetMem(pbuf, DOSSUB_INIT | DOSSUB_SPARSE_OBJ, cb);
+        DosSubSetMem(pbuf, DOSSUB_INIT | DOSSUB_SPARSE_OBJ, POOL_SIZE);
         DosPostEventSem(hev);
         continue;
+
       case CMD_DONE:   // 0xfff9
         DosSubUnsetMem(pbuf);
         DosFreeMem(pbuf);
         continue;
+
       case CMD_FREE:   // 0xfffa
         DosFreeMem(pbuf);
         continue;
+
       case CMD_CLOSE:  // 0xfffb
         DosCloseMutexSem(pbuf->hmtx);
         DosPostEventSem(pbuf->hev);
         DosCloseEventSem(pbuf->hev);
         continue;
+
       case CMD_OPEN:   // 0xfffc
         DosOpenMutexSem(0, &pbuf->hmtx);
         DosOpenEventSem(0, &pbuf->hev);
         DosPostEventSem(pbuf->hev);
         continue;
+
       case CMD_LOAD:   // 0xfffd
         if (hmod)
           continue;
         DosLoadModule(0, 0, pszModName, &hmod);
         continue;
+
       default:
         continue;
     }

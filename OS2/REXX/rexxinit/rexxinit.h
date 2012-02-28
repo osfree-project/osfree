@@ -10,7 +10,10 @@
 
 #define  INCL_REXXSAA
 
+// worker thread stack size
 #define  THREAD_STACK 0x400
+// DosSubSetMem pool size
+#define  POOL_SIZE 0x10000
 
 // commands received in REQUESTDATA structure
 #define CMD_INIT  0xfff8
