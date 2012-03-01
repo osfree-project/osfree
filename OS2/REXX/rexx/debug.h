@@ -3,4 +3,4 @@
 //
 
 
-#define debug(x)
+#define debug printf

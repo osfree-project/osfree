@@ -3,7 +3,7 @@
 #
 #
 
-PROJ      = REGINA
+PROJ      = regina
 DESC      = Regina interpreter DLL
 DEST      = os2$(SEP)dll
 STACKSIZE = 0x20000

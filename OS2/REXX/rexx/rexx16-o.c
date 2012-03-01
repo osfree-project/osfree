@@ -62,9 +62,9 @@ USHORT _Far16 _Pascal RXTRACERESET(
 {
   APIRET rc;
 
-  debug("RXTRACESET\n");
+  printf("RXTRACESET\n");
   rc = RexxResetTrace(pid, tid);
-  debug("rc=%lx\n", rc);
+  printf("rc=%lx\n", rc);
 
   return rc;
 }
@@ -97,12 +97,12 @@ USHORT _Far16 _Pascal RXVAR(
          PSHVBLOCK16 _Far16 PSHV16)              /* Pointer to list of SHVBLOCKs*/
 {
   PSHVBLOCK PSHV;
-  APIRET rc;
 
-  debug("RXVAR\n");
-  rc = RexxVariablePool(PSHV);
-  debug("rc=%lx\n", rc);
-  return rc;
+  // Convert 16-bit structure to 32-bit
+//  return RexxVariablePool(PSHV);
+  // Free allocated memory
+  printf("RXVAR\n");
+  return 0;
 }
 
 typedef struct {
@@ -147,73 +147,35 @@ SHORT _Far16 _Pascal REXXSAA(
          PSHORT _Far16 retc,                /* Ret code from if numeric   */
          PRXSTRING16 retv )                 /* Retvalue from the rexx proc*/
 {
-  PRXSTRING    a;
-  PRXSTRING16  r;
-  int          ulArgNum   = 0;
-  RXSTRING     bf[2];
-  PRXSYSEXIT   p;
-  PRXSYSEXIT16 q;
-  int          ulSysexNum = 0;
-  PRXSTRING    retvar;
-  PRXSTRING    arg   = (RXSTRING *)argv;
-  PRXSTRING    sysex = (RXSTRING *)sysexit;
-  APIRET       rc;
-  int          i;
+  UCHAR       LoadError[255];
+  RESULTCODES ChildRC;
+  APIRET      rc;  /* Return code */
+  CHAR prg[CCHMAXPATH];
 
-  debug("REXXSAA\n");
+  printf("REXXSAA\n");
 
-  for (; !RXZEROLENSTRING(*arg); arg++, ulArgNum++) ;
+  memset(prg, 0, sizeof(prg));
+  strcpy(prg, "rexx.exe\0");
+  sprintf(prg + 9, "%s", MAKEFLATP(path));
 
-  a = (PRXSTRING) malloc (ulArgNum * sizeof(RXSTRING));
+//  rc = DosExecPgm(LoadError,           /* Object name buffer           */
+//                  sizeof(LoadError),   /* Length of object name buffer */
+//                  EXEC_SYNC,           /* Asynchronous/Trace flags     */
+//                  (PSZ) &prg,          /* Argument string              */
+//                  NULL, //Envs,        /* Environment string           */
+//                  &ChildRC,            /* Termination codes            */
+//                  "rexx.exe");             /* Program file name            */
 
-  for (i = 0, r = argv; i < ulArgNum; r++, i++)
-  {
-    a[i].strlength  = r->strlength;
-    a[i].strptr     = r->strptr;
-  }
+  if (rc != NO_ERROR) {
+     printf("DosExecPgm error: return code = %u\n", rc);
+     return 0;
+  } else {
+     printf("DosExecPgm complete.  Termination Code: %u  Return Code: %u\n",
+             ChildRC.codeTerminate,
+             ChildRC.codeResult);  /* This is explicitly set by other pgm */
+  } /* endif */
 
-  bf[0].strlength = buf[0].strlength;
-  bf[0].strptr    = buf[0].strptr;
-  bf[1].strlength = buf[1].strlength;
-  bf[1].strptr    = buf[1].strptr;
-
-  // count the number of elements in sysexit array
-  for (; sysex != RXENDLST; sysex++, ulSysexNum++) ;
-
-  // create an array of 32-bit RXSYSEXIT structures
-  p = (PRXSYSEXIT) malloc (ulSysexNum * sizeof(RXSYSEXIT));
-
-  // convert sysexits array to 32 bits
-  for (i = 0, q = sysexit; i < ulSysexNum; q++, i++)
-  {
-    p[i].sysexit_name = q->sysexit_name;
-    p[i].sysexit_code = q->sysexit_code;
-  }
-
-  rc = RexxStart(argc,
-                 a,
-                 path,
-                 bf,
-                 env,
-                 type,
-                 p,
-                 retc,
-                 retvar);
-
-  debug("RexxStart returned\n");
-  
-  retv->strlength = retvar->strlength;
-  strcpy(retv->strptr, retvar->strptr);
-
-  debug("rc=%lx\n", rc);
-
-  free(retvar);
-  free(a);
-  free(p);
-
-  debug("memory released\n");
-
-  return rc;
+  return 0;
 }
 
 USHORT _Far16 _Pascal RXHALTSET(
@@ -226,9 +188,9 @@ USHORT _Far16 _Pascal RXHALTSET(
 {
   APIRET rc;
 
-  debug("REXXSETHALT\n");
+  printf("REXXSETHALT\n");
   rc = RexxSetHalt(PID, TID);
-  debug("rc=%lx\n", rc);
+  printf("rc=%lx\n", rc);
 
   return rc;
 }
@@ -243,25 +205,19 @@ USHORT _Far16 _Pascal RXTRACESET(
 {
   APIRET rc;
 
-  debug("REXXSETTRACE\n");
+  printf("REXXSETTRACE\n");
   rc = RexxSetTrace(PID, TID);
-  debug("rc=%lx\n", rc);
+  printf("rc=%lx\n", rc);
 
   return rc;
 }
 
-APIRET APIENTRY RexxBreakCleanup(VOID);
 
 // This function not found in any of OS/2 Toolkits
 USHORT _Far16 _Pascal RXBREAKCLEANUP(VOID);
 
 USHORT _Far16 _Pascal RXBREAKCLEANUP(VOID)
 {
-  APIRET rc;
-
-  debug("RXBREAKCLEANUP\n");
-  rc = RexxBreakCleanup();
-  debug("rc=%lx\n", rc);
-
-  return rc;
+  printf("RXBREAKCLEANUP\n");
+  return 0;
 }

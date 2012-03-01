@@ -1,46 +1,14 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:08 prokushev Exp $
 
 PROJ = rexxapi
-DESC = Classic REXX API
-srcfiles     = $(p)rexxapi$(e)
-ADD_COPT     = -i=. -bd -s
-ADD_LINKOPT  = lib clib3r.lib,math387r.lib,emu387.lib,rexx.lib
+DESC = REXX API forwarder for Regina
+srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e)
+ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -bd -s
+ADD_LINKOPT  = lib clib3r.lib,math387r.lib,emu387.lib
 DLL          = 1
-DLLOPT       = initinstance terminstance
+DLLOPT       = initinstance
 OPTIONS      = manyautodata, caseexact, heapsize=40960
-STACKSIZE    = 0x20000
-IMPORTS      = &
-# IBM Classic REXX functions
-    RexxDeregisterExit REGINA.RexxDeregisterExit, &
-    RexxDeregisterFunction REGINA.RexxDeregisterFunction, &
-    RexxDeregisterSubcom REGINA.RexxDeregisterSubcom, &
-    RexxQueryExit REGINA.RexxQueryExit, &
-    RexxQueryFunction REGINA.RexxQueryFunction, &
-    RexxQuerySubcom REGINA.RexxQuerySubcom, &
-    RexxRegisterExitDll REGINA.RexxRegisterExitDll, &
-    RexxRegisterExitExe REGINA.RexxRegisterExitExe, &
-    RexxRegisterFunctionDll REGINA.RexxRegisterFunctionDll, &
-    RexxRegisterFunctionExe REGINA.RexxRegisterFunctionExe, &
-    RexxRegisterSubcomDll REGINA.RexxRegisterSubcomDll, &
-    RexxRegisterSubcomExe REGINA.RexxRegisterSubcomExe, &
-    RexxAddMacro REGINA.RexxAddMacro, &
-    RexxAddQueue REGINA.RexxAddQueue, &
-    RexxClearMacroSpace REGINA.RexxClearMacroSpace, &
-    RexxCreateQueue REGINA.RexxCreateQueue, &
-    RexxDeleteQueue REGINA.RexxDeleteQueue, &
-    RexxDropMacro REGINA.RexxDropMacro, &
-    RexxLoadMacroSpace REGINA.RexxLoadMacroSpace, &
-    RexxPullQueue REGINA.RexxPullQueue, &
-    RexxQueryMacro REGINA.RexxQueryMacro, &
-    RexxQueryQueue REGINA.RexxQueryQueue, &
-    RexxReorderMacro REGINA.RexxReorderMacro, &
-    RexxSaveMacroSpace REGINA.RexxSaveMacroSpace, &
-# Regina REXX extensions
-    RexxAllocateMemory REGINA.RexxAllocateMemory, &
-    RexxFreeMemory REGINA.RexxFreeMemory, &
-    ReginaVersion REGINA.ReginaVersion, &
-    __regina_faked_main REGINA.__regina_faked_main, &
-    RexxCallBack REGINA.RexxCallBack
+STACKSIZE    = 81920
 EXPORTS      = &
     RexxCreateQueue.1, &
     RexxDeleteQueue.2, &
@@ -67,17 +35,17 @@ EXPORTS      = &
     RexxReorderMacro.27, &
     RexxSaveMacroSpace.28, &
 # Undocumented IBM Classic REXX functions
-    RexxLoadSubcom.10, &
-    RexxCallExit.15, &
-    RexxCallSubcom.16, &
-    RexxCallFunction.21, &
-    RexxExecuteMacroFunction.29, &
+#    RexxLoadSubcom.10, &
+#    RexxCallExit.15, &
+#    RexxCallSubcom.16, &
+#    RexxCallFunction.21, &
+#    RexxExecuteMacroFunction.29, &
 # Regina extensions (export without ordinals)
-    RexxAllocateMemory, &
-    RexxFreeMemory, &
-    ReginaVersion, &
-    __regina_faked_main, &
-    RexxCallBack, &
+#    RexxAllocateMemory, &
+#    RexxFreeMemory, &
+#    ReginaVersion, &
+#    __regina_faked_main, &
+#    RexxCallBack, &
 # 16bit versions of calls
     RXMACROLOAD.30 RESIDENT, &
     RXMACROSAVE.31 RESIDENT, &
@@ -102,4 +70,3 @@ EXPORTS      = &
 DEST         = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
-

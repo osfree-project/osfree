@@ -30,7 +30,4 @@ EXPORTS     = &
   RegExp_Match
 
 !include $(%ROOT)/mk/appsos2.mk
-
-qwe: .symbolic
- @echo $(COPT)
  

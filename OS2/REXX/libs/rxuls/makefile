@@ -30,6 +30,6 @@ EXPORTS     = &
             ULSPutUnicodeClipboard.11	 = ULSPutUnicodeClipboard, &
             ULSGetUnicodeClipboard.12	 = ULSGetUnicodeClipboard
 
-DEST         = os2$(SEP)dll
+DEST        = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

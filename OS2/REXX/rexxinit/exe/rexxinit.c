@@ -15,11 +15,12 @@ char pszModname[] = "REXXINIT";
 int main (int argc, char **argv)
 {
   HMODULE   hmod;
-  char      pszName[20];
+  #define   NAME_LENGTH  20
+  char      pszName[NAME_LENGTH];
   ULONG     flag;
   APIRET    rc = NO_ERROR;
 
-  if (rc = DosLoadModule(pszName, 0x14, pszModname, &hmod))
+  if (rc = DosLoadModule(pszName, NAME_LENGTH, pszModname, &hmod))
   {
     printf("error loading REXXINIT.DLL (rc=%u)\n", rc);
     return rc;
