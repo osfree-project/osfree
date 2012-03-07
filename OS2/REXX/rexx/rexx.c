@@ -113,7 +113,8 @@ static char TraceFileName[256];
 static int Trace = 0;
 static int InterpreterIdx = -1;
 
-static void TraceString( char *fmt, ... )
+//static
+void TraceString( char *fmt, ... )
 {
    FILE *fp=NULL;
    int using_stderr = 0;
@@ -505,6 +506,7 @@ APIRET APIENTRY RexxBreakCleanup(
    return rc;
 }
 
+/*
 APIRET APIENTRY RexxSAA(
                 VOID              )
 {
@@ -526,3 +528,4 @@ APIRET APIENTRY RexxSAA(
    }
    return rc;
 }
+ */

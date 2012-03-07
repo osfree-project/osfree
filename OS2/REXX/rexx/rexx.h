@@ -2,6 +2,11 @@
  *
  */
 
+#include <rexxsaa.h>
+
+void TraceString( char *fmt, ... );
+#define debug printf
+
 // To extract offset or selector from any FAR (16:16) pointer
 #define OFFSETOF16(p)   (((PWORD)&(p))[0])
 #define SEGMENTOF16(p)  (((PWORD)&(p))[1])
@@ -12,6 +17,10 @@
 typedef unsigned short WORD;            // w
 
 typedef WORD FAR *PWORD;                // pw
+
+typedef USHORT _Far16 *PUSHORT16;
+
+typedef SHORT _Far16 *PSHORT16;
 
 #pragma pack(2)
 
@@ -58,8 +67,8 @@ SHORT _Far16 _Pascal REXXSAA(
          PSZ16 env,                         /* ASCIIZ initial environment.*/
          SHORT type,                        /* type (command,subrtn,funct)*/
          PRXSYSEXIT16 sysexit,              /* SysExit env. names &  codes*/
-         PSHORT _Far16 retc,                /* Ret code from if numeric   */
-         PRXSTRING16 retv );                /* Retvalue from the rexx proc*/
+         PSHORT16      retc,                /* Ret code from if numeric   */
+         PRXSTRING16   retv);               /* Retvalue from the rexx proc*/
 
 USHORT _Far16 _Pascal RXHALTSET(
          LONG PID,                         /* Process Id                  */

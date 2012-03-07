@@ -10,6 +10,12 @@
 
 #include "rexxsaa.h"
 
+void TraceString( char *fmt, ... );
+void null(char *fmt, ...);
+
+//define debug null
+#define debug printf
+
 typedef unsigned short WORD;            // w
 
 typedef WORD FAR *PWORD;                // pw
@@ -25,15 +31,26 @@ typedef WORD FAR *PWORD;                // pw
 // To convert a tiled 16:16 address to a 0:32 address
 #define MAKEFLATP(fp)   ((PVOID)((SEGMENTOF16(fp)&~7)<<13 | OFFSETOF16(fp)))
 
-typedef char _far16 * PSZ16;
+#pragma pack(2)
 
-typedef int (APIENTRY16 _PFN16)(char far *);
-typedef _PFN16 _Far16 *PFN16;
+typedef void _Far16 *PVOID16;
+
+typedef char _Far16 * PSZ16;
+
+typedef void _Far16 *PFN16;
 typedef PSZ16 PCH16;
+
+typedef unsigned short WORD;            // w
+
+typedef WORD FAR *PWORD;                // pw
+
+typedef USHORT _Far16 *PUSHORT16;
+
+typedef SHORT _Far16 *PSHORT16;
 
 typedef struct {
    ULONG           strlength;          /*   length of string         */
-   PCH16   _Far16  strptr;             /*   far pointer to string    */
+   PCH16           strptr;             /*   far pointer to string    */
    } RXSTRING16;
 
 typedef RXSTRING16 _Far16 *PRXSTRING16;       /* pointer to a RXSTRING      */
@@ -43,7 +60,7 @@ typedef struct subcom_node {
     PSZ16  scbname;                    /* subcom environment name    */
     PSZ16  scbdll_name;                /* subcom module name         */
     PSZ16  scbdll_proc;                /* subcom procedure name      */
-    double scbuser;                    /* user area                  */
+    ULONG  scbuser[2];                 /* user area                  */
     PFN16  scbaddr;                    /* subcom environment address */
     USHORT scbmod_handle;              /* dynalink module handle     */
     USHORT scbdrop_auth;               /* Permission to drop         */
@@ -53,6 +70,7 @@ typedef struct subcom_node {
 
 typedef SCBLOCK16 _pascal _far16 *PSCBLOCK16;
 
+#pragma pack()
 
 //typedef APIRET APIENTRY (*RexxSubcomHandler)(/* CONST */ PRXSTRING, PUSHORT, PRXSTRING);
 
@@ -165,58 +183,58 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
                                     PSZ * FuncNames,
                                     PSZ MacroLibFile);
 
-USHORT APIENTRY16 RXSUBCOMREGISTER(PSCBLOCK16 PSCB);
+USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 PSCB);
 
-USHORT APIENTRY16 RXMACROLOAD (
+USHORT _Far16 _Pascal RXMACROLOAD (
          USHORT argc,                      /* Argument count (0==save all)*/
          PSZ16 _Far16 *argv,                   /* List of funct names to save */
          PSZ16 file );
 
-USHORT APIENTRY16 RXMACROSAVE (
+USHORT _Far16 _Pascal RXMACROSAVE (
          USHORT argc,                      /* Argument count (0==save all)*/
          PSZ16 _Far16 *argv,                   /* List of funct names to save */
          PSZ16 file );                       /* File to save functions in   */
 
-USHORT APIENTRY16 RXSUBCOMLOAD(
+USHORT _Far16 _Pascal RXSUBCOMLOAD(
          PSZ16 env,                          /* Name of the Environment    */
          PSZ16 dll);                         /* DLL Module Name            */
 
-USHORT APIENTRY16 RXMACRODROP (
+USHORT _Far16 _Pascal RXMACRODROP (
          PSZ16 fn );                        /* Name of function to remove */
 
-USHORT APIENTRY16 RXEXITQUERY (
+USHORT _Far16 _Pascal RXEXITQUERY (
          PSZ16 fn,                          /* Exit name                  */
          PSZ16 dll,                          /* DLL Module name.           */
          PUSHORT _Far16 flag,                      /* Existance flag.            */
          double _Far16 *data ) ;              /* User data.                 */
 
-USHORT APIENTRY16 RXMACROERASE(
+USHORT _Far16 _Pascal RXMACROERASE(
          VOID );                      /* No Arguments.               */
 
-USHORT APIENTRY16 RXSUBCOMDROP(
+USHORT _Far16 _Pascal RXSUBCOMDROP(
          PSZ16 env,                          /* Name of the Environment    */
          PSZ16 dll);                         /* DLL Module Name            */
 
-USHORT APIENTRY16 RXMACROQUERY (
+USHORT _Far16 _Pascal RXMACROQUERY (
          PSZ16 fn,                         /* Function to search for      */
          PUSHORT _Far16 flag);             /* Ptr for position flag return*/
 
-USHORT APIENTRY16 RXSUBCOMDROP(
+USHORT _Far16 _Pascal RXSUBCOMDROP(
          PSZ16 env,                          /* Name of the Environment    */
          PSZ16 dll);                         /* DLL Module Name            */
 
-USHORT APIENTRY16 RXMACROCHANGE (
+USHORT _Far16 _Pascal RXMACROCHANGE (
          PSZ16 fn,                         /* Function to add/change      */
          PSZ16 file,                         /* Name of file to get function*/
          USHORT flag);                    /* Flag indicating search pos  */
 
-USHORT APIENTRY16 RXSUBCOMQUERY(
+USHORT _Far16 _Pascal RXSUBCOMQUERY(
          PSZ16 env,                          /* Name of the Environment    */
          PSZ16 dll,                          /* DLL Module Name            */
          PUSHORT _Far16 codestor,                      /* Stor for existance code    */
          double _Far16 *userstor);                /* Stor for user word         */
 
-USHORT APIENTRY16 RXFUNCTIONCALL (
+USHORT _Far16 _Pascal RXFUNCTIONCALL (
         PSZ16 fn,                           /* Name of function to call   */
         USHORT argc,                        /* Number of arguments        */
         PRXSTRING16 argv,                     /* Array of argument strings  */
@@ -224,14 +242,14 @@ USHORT APIENTRY16 RXFUNCTIONCALL (
         PRXSTRING16 stor,                     /* Storage for returned data  */
         PSZ16 data);                         /* Name of active data queue  */
 
-USHORT APIENTRY16 RXEXITREGISTER (
+USHORT _Far16 _Pascal RXEXITREGISTER (
          PSCBLOCK16 scb ) ;                  /* Ptr to SCBLOCK to register */
 
-USHORT APIENTRY16 RXMACROREORDER(
+USHORT _Far16 _Pascal RXMACROREORDER(
          PSZ16 fn,                         /* Name of funct change order  */
          USHORT pos);                    /* New position for function   */
 
-USHORT APIENTRY16 RXSUBCOMEXECUTE(
+USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
          PSZ16 env,                          /* Name of Subcommand Environ */
          PSZ16 dll,                          /* Module name of its' DLL    */
          PRXSTRING16 cmd,                    /* Command string to be passed*/
@@ -239,19 +257,19 @@ USHORT APIENTRY16 RXSUBCOMEXECUTE(
          PUSHORT _Far16 rc,                      /* Stor for rc from handler   */
          PRXSTRING16 stor );                  /* Stor for returned string   */
 
-USHORT APIENTRY16 RXFUNCTIONQUERY( PSZ16 fn);
+USHORT _Far16 _Pascal RXFUNCTIONQUERY( PSZ16 fn);
 
-USHORT APIENTRY16 RXFUNCTIONQUERY(
+USHORT _Far16 _Pascal RXFUNCTIONQUERY(
         PSZ16 fn);                         /* Name of function to find   */
 
-USHORT APIENTRY16 RXFUNCTIONDEREGISTER (
+USHORT _Far16 _Pascal RXFUNCTIONDEREGISTER (
         PSZ16 fn );                         /* Name of function to remove */
 
-USHORT APIENTRY16 RXEXITDROP (
+USHORT _Far16 _Pascal RXEXITDROP (
          PSZ16 fn,                          /* Exit name                  */
          PSZ16 dll ) ;                       /* DLL module name            */
 
-USHORT APIENTRY16 RXFUNCTIONREGISTER(
+USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
         PSZ16 fn,                           /* Name of function to add    */
         PSZ16 dll,                           /* Dll file name (if in dll)  */
         PSZ16 entry,                           /* Entry in dll OR mem address*/
