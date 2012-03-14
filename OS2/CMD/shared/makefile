@@ -14,7 +14,6 @@ ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
 # Watcom compiler. $(p)segord$(e)
 srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_setcurrentdisk$(e) &
              $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
-#srcfiles16 = $(p)cmd_FSEntry16$(e)
 
 TARGETS  = $(PATH)$(PROJ).lib # subdirs
 
