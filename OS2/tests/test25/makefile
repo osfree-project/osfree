@@ -12,5 +12,6 @@ OPTIONS   = start=startup,internalrelocs
 #IMPORTS   = DosPutMessage MSG.5
 IMPORTS   = DosPutMessage DOSCALLS.387
 STACKSIZE = 32k
+DEST        = os2$(SEP)test
 
 !include $(%ROOT)/mk/appsos2.mk

@@ -2,12 +2,12 @@
 
 PROJ = rexxapi
 DESC = REXX API forwarder for Regina
-srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e)
-ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -bd -s
+srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e)
+ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -sg -of+
 ADD_LINKOPT  = segment   type DATA nonshared lib clib3r.lib,math387r.lib,emu387.lib
 DLL          = 1
 DLLOPT       = initinstance
-OPTIONS      = manyautodata, caseexact, heapsize=40960
+OPTIONS      = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 STACKSIZE    = 81920
 EXPORTS      = &
     RexxCreateQueue.1, &

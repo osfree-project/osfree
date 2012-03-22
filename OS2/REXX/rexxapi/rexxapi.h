@@ -13,8 +13,11 @@
 void TraceString( char *fmt, ... );
 void null(char *fmt, ...);
 
-//define debug null
+//#define debug null
 #define debug printf
+
+APIRET APIENTRY DosSelToFlat(ULONG addr);
+APIRET APIENTRY DosFlatToSel(ULONG addr);
 
 typedef unsigned short WORD;            // w
 
@@ -69,6 +72,20 @@ typedef struct subcom_node {
     } SCBLOCK16;
 
 typedef SCBLOCK16 _pascal _far16 *PSCBLOCK16;
+
+typedef APIRET APIENTRY (*PSUBCOM)
+  (
+    PRXSTRING cmd,
+    PUSHORT   flags,
+    PRXSTRING retstr
+  );
+
+typedef USHORT _Far16 _Pascal (*PSUBCOM16)
+  (
+    PRXSTRING cmd16,
+    PUSHORT   flags16,
+    PRXSTRING retstr16
+  );
 
 #pragma pack()
 

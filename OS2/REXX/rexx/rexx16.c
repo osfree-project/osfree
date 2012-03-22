@@ -44,6 +44,8 @@
 APIRET APIENTRY DosSelToFlat(ULONG addr);
 APIRET APIENTRY DosFlatToSel(ULONG addr);
 
+void null(char *fmt, ...) {};
+
 USHORT _Far16 _Pascal RXTRACERESET(
          LONG pid,                        /* Process Id                  */
          LONG tid)                        /* Thread Id                   */

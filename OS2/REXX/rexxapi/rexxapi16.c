@@ -50,6 +50,7 @@
 #endif
 
 #include "rexxapi.h"
+#include "stk.h"
 
 /*
 APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
@@ -201,24 +202,8 @@ USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
   return 0;
 }
 
-APIRET APIENTRY DosSelToFlat(ULONG addr);
-APIRET APIENTRY DosFlatToSel(ULONG addr);
 
-typedef APIRET APIENTRY (*PSUBCOM)
-  (
-    PRXSTRING cmd,
-    PUSHORT   flags,
-    PRXSTRING retstr
-  );
-
-typedef USHORT _Far16 _Pascal (*PSUBCOM16)
-  (
-    PRXSTRING cmd16,
-    PUSHORT   flags16,
-    PRXSTRING retstr16
-  );
-
-APIRET APIENTRY SubCom_wrapper32(
+APIRET APIENTRY Subcom_wrapper32(
   PRXSTRING cmd,
   PUSHORT   flags,
   PRXSTRING retstr,
@@ -228,7 +213,7 @@ APIRET APIENTRY SubCom_wrapper32(
   PRXSTRING16 cmd16;
   PUSHORT16   flags16;
   PRXSTRING16 retstr16;
-  PSUBCOM16    handler16;
+  PSUBCOM16   handler16;
   APIRET rc;
 
   cmd16 = (void _Far16 *)cmd;
@@ -254,10 +239,11 @@ APIRET APIENTRY SubCom_wrapper32(
   return rc;  
 }
 
+// wrapper template
 #define SUBCOM_HANDLER(N) \ 
   APIRET APIENTRY Subcom_Handler##N (PRXSTRING cmd, PUSHORT flags, PRXSTRING retstr) \
   { \
-    return SubCom_wrapper32(cmd, flags, retstr, sub[N]); \
+    return Subcom_wrapper32(cmd, flags, retstr, sub[N]); \
   }
 
 // 32-bit handler wrappers pool
@@ -283,14 +269,16 @@ PVOID sethand(PSUBCOM hand)
   int  i  = 1;
   void *p = NULL;
 
+  // find first free array element
   while (i < SUBCOM_COUNT && sub[i]) i++;
   
   if (i >= SUBCOM_COUNT)
     return NULL;
 
   sub[i] = hand;
-  p = (void *)(((ULONG)&Subcom_Handler2 - (ULONG)&Subcom_Handler1) * (i - 1) + 
-               (ULONG)&Subcom_Handler1);
+
+  p = (PVOID)(((ULONG)&Subcom_Handler2 - (ULONG)&Subcom_Handler1) * (i - 1) + 
+              (ULONG)&Subcom_Handler1);
 
   return p;
 }
@@ -300,9 +288,10 @@ USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 PSCB)
   PSZ        subcom_name;
   PVOID      subcom_addr;
   PVOID      subcom_user;
+  PVOID      p;
   APIRET     rc;
-  void       *p;
 
+  stkon();
   subcom_name = (PSZ)PSCB->scbname;
   subcom_addr = (PVOID)PSCB->scbaddr;
   subcom_user = (PVOID)PSCB->scbuser;
@@ -322,6 +311,7 @@ USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 PSCB)
                              p,              // subcommand handler proc
                              subcom_user);   // user area
   debug("rc=%lu\n", rc);  
+  stkoff();
 
   return rc;
 }

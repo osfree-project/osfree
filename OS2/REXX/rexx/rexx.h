@@ -5,6 +5,9 @@
 #include <rexxsaa.h>
 
 void TraceString( char *fmt, ... );
+void null(char *fmt, ...);
+
+//#define debug null
 #define debug printf
 
 // To extract offset or selector from any FAR (16:16) pointer
