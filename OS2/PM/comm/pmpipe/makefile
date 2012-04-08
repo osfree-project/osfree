@@ -2,8 +2,8 @@
 #
 #  Viking
 
-PROJ = pmclient
-DESC = PM client library
+PROJ = pmpipe
+DESC = PM pipe communication backend
 srcfiles = $(p)Fc_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) $(p)Fc_config$(e) &
            $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e)
 DEST    = os2$(SEP)dll
@@ -18,14 +18,17 @@ DEST    = os2$(SEP)dll
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
 ADD_COPT =-bm -od -mf -sg -d2 -mf -bd
-DLL      = 1
-EXPORTS  = InitServerConnection.1,      &
-           CloseServerConnection.2,     &
+ADD_LINKOPT  = segment type DATA nonshared
+DLL     = 1
+DLLOPT  = initinstance terminstance
+EXPORTS  = _InitServerConnection.1,      &
+           _CloseServerConnection.2,     &
            _F_SendCmdToServer.3,        &
            _F_SendDataToServer.4,       &
            _F_RecvDataFromServer.5,     &
            _F_SendGenCmdToServer.6,     &
            _F_SendGenCmdDataToServer.7, &
-           fatal.8
+           _F_RecvCmdFromClient.8,      &
+           _fatal.9
 
 !include $(%ROOT)/mk/appsos2.mk

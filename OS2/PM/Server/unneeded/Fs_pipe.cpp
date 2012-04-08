@@ -13,13 +13,15 @@
 #include <time.h>
 #include <process.h>
 
-//#include "FreePM.hpp"
+#include "FreePM.hpp"
 
 
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
 #include <os2.h>
+
+#include <pmclient.h>
 
 #include "F_pipe.hpp"
 #include "F_config.hpp"
@@ -238,7 +240,7 @@ void /*_Optlink*/ SQDR_ClientWork(void *param)
    do
    {
       SQDRthreads.state[threadNum]=0;
-      rc = SQDR_pipe[threadNum].RecvCmdFromClient(&ncmd,&data);
+      rc = F_RecvCmdFromClient(&SQDR_pipe[threadNum], &ncmd,&data);
       if(rc)
       {
          if(rc == -1)

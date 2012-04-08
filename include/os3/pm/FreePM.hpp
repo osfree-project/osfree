@@ -5,22 +5,24 @@
   #define FREEPM_FREEPM
 
 // OS/2 Headers
-#define INCL_OS2
-#define INCL_BSE
-#define INCL_BSEDOS
-#define INCL_PM
+//#define INCL_OS2
+//#define INCL_BSE
+//#define INCL_BSEDOS
+//#define INCL_PM
+#define INCL_DOS
+#define INCL_GPI
 #define INCL_WIN
-#define INCL_ERRORS
-#define INCL_SHLERRORS
-#define INCL_WINERRORS
+//#define INCL_ERRORS
+//#define INCL_SHLERRORS
+//#define INCL_WINERRORS
 #define INCL_DOSERRORS
 #define INCL_DOSPROCESS
 #define INCL_DOSNMPIPES
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSMODULEMGR
-#define INCL_WINFRAMEMGR
-#include <osfree.h>
-#include <pmerr.h>
+//#define INCL_WINFRAMEMGR
+#include <os2.h>
+//#include <pmerr.h>
 
 // FreePM specific headers
 #include "F_config.hpp"
@@ -255,8 +257,8 @@ class STD_Window:public FRAME_Window
    int CreateSTD_Window(HWND hwndParent,
                ULONG flStyle,
                PULONG pflCreateFlags,
-               PSZ pszClientClass,
-               PSZ pszTitle,
+               PCSZ pszClientClass,
+               PCSZ pszTitle,
                ULONG styleClient,
                HMODULE hmod,
                ULONG idResources,

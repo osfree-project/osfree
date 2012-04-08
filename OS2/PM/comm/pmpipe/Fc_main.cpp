@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "FreePM.hpp"
+#include "FreePM_err.hpp"
 #include "Fc_config.hpp"
 
 /*+---------------------------------+*/
@@ -77,7 +79,7 @@ void ExecuteFreePMServer(void)
   DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
 }
 
-APIRET APIENTRY InitServerConnection(char *remotemachineName)
+APIRET APIENTRY _InitServerConnection(char *remotemachineName)
 {
   int rc;
   char buf[256];
@@ -158,24 +160,24 @@ APIRET APIENTRY InitServerConnection(char *remotemachineName)
         if(rc)
         {
           debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-          fatal("FreePM server not running");
+          _fatal("FreePM server not running");
         }
       } else {
           debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-          fatal("FreePM server not running");
+          _fatal("FreePM server not running");
       }
    }
     rc = pF_pipe->HandShake();
     if(rc ==  HAND_SHAKE_ERROR)
     {   debug(1, 0)("Error handshake %i, pipe %s\n",rc,PipeName);
-        fatal("Error handshake  pipe");
+        _fatal("Error handshake  pipe");
     }
 //todo
     rc = 0;
     return rc;
 }
 
-APIRET APIENTRY  CloseServerConnection(void)
+APIRET APIENTRY  _CloseServerConnection(void)
 {   if(pF_pipe)
     {
     LOCK_PIPE;
@@ -228,12 +230,12 @@ APIRET APIENTRY  _F_SendGenCmdToServer(int cmd, int par)
     rc = _F_SendCmdToServer(cmd, par);
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       fatal("SendCmdToServer Error\n");
+       _fatal("SendCmdToServer Error\n");
     }
     rc = _F_RecvDataFromServer(&retcode, &len, sizeof(int));
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":RecvDataFromServer Error: %s\n",GetOS2ErrorMessage(rc));
-       fatal("RecvDataFromServer Error\n");
+       _fatal("RecvDataFromServer Error\n");
     }
     debug(1, 3)( __FUNCTION__ "(cmd=%x, par=%x) ret =%x\n",cmd, par, retcode);
 
@@ -247,7 +249,7 @@ APIRET APIENTRY  _F_SendGenCmdDataToServer(int cmd, int par, void *data, int dat
 M:  rc = _F_SendCmdToServer(cmd, par);
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       fatal("SendCmdToServer Error\n");
+       _fatal("SendCmdToServer Error\n");
     }
     rc =  _F_SendDataToServer(data, datalen * sizeof(int));
     if(rc)
@@ -256,7 +258,7 @@ M:  rc = _F_SendCmdToServer(cmd, par);
            goto M;/* attempt to reconnect till timeout */
        }
        debug(1, 0)("WARNING:"__FUNCTION__":SendDataToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       fatal("SendCmdToServer Error\n");
+       _fatal("SendCmdToServer Error\n");
     }
 
     rc = _F_RecvDataFromServer(&retcode, &len, sizeof(int));
@@ -266,7 +268,7 @@ M:  rc = _F_SendCmdToServer(cmd, par);
            goto M;/* attempt to reconnect till timeout */
        }
        debug(1, 0)("WARNING:"__FUNCTION__":RecvDataFromServer Error: %s\n",GetOS2ErrorMessage(rc));
-       fatal("RecvDataFromServer Error\n");
+       _fatal("RecvDataFromServer Error\n");
     }
     debug(1, 3)( __FUNCTION__ " retcode =%x\n",retcode);
 
@@ -295,4 +297,16 @@ APIRET APIENTRY  _F_RecvDataFromServer(void *data, int *len, int maxlen)
     UNLOCK_PIPE;
    return rc;
 }
+
+
+APIRET APIENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
+{    int rc;
+     LOCK_PIPE;
+
+     rc = ((class NPipe *)(recvobj))->RecvCmdFromClient(ncmd, data);
+
+     UNLOCK_PIPE;
+     return rc;
+}
+
 

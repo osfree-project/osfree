@@ -12,21 +12,28 @@ RCOPT = &
                       -i=$(%WATCOM)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
+ADD_INC = $(%ADD_INC)
 
 !ifeq DLL 1
 ADD_COPT   =          $(ADD_COPT) -bd
 !endif
-
-ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
-                      -i=$(%WATCOM)$(SEP)h &
-                      -i=$(%ADD_INC) &
+!ifeq ADD_INC
+ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+!endif
+ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
+!ifneq ADD_INC
+ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
+                      -i=$(%WATCOM)$(SEP)h &
+                      -i=$(%ADD_INC)
+!endif
+ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)lpng &

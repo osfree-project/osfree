@@ -18,7 +18,10 @@
 
 /*#include "FreePM_win.hpp" Maybe Constants ? */
 //#include "FreePM_winConstants.hpp"
-#include "F_pipe.hpp"
+//#include "F_pipe.hpp"
+
+#include <pmclient.h>
+
 #include "FreePM_cmd.hpp"
 #include "Fs_WND.hpp"
   #define FREEPMS_HPS
@@ -103,8 +106,10 @@ struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
 class FreePM_session session;
 
 int tst__lxchg(int volatile * a, int  b);
-extern void fix_asm_Fs_ClientWork(void *);
+extern void fix_asm_(void *);
 void /*_Optlink*/  Fs_ClientWork( void * /* *param */);
+
+APIRET APIENTRY init (ULONG flag);
 
 //
 // Main function
@@ -123,7 +128,10 @@ int main(int narg, char *arg[], char *envp[])
   int i,j,rc;
   HMODULE hDeviceLib;
 
-/* semaphore setup */
+  /* init pm comm. lib */
+  init(0);
+
+  /* semaphore setup */
   rc = SetupSemaphore();
   if(rc)
   {
@@ -418,25 +426,22 @@ HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 
 
 /*************************************************************************/
-/*
-int tst__lxchg(int volatile * a, int  b) {
-        //printf("FIXME: builtin.h:%s (%d, %d)\n", __func__, *a, b);
-        //DosEnterCritSec();
-        int ret = 1;
-        if(*a == 0 && b == 1) {
-                *a = b;
-                ret = 0;
-        }
-        if(*a == 1 && b == 0) {
-                //*a = b;
-                ret = 1; //0
-        }
-
-        //DosExitCritSec();
-        return ret;
-}
-*/
-
+//int tst__lxchg(int volatile * a, int  b) {
+//        //printf("FIXME: builtin.h:%s (%d, %d)\n", __func__, *a, b);
+//        //DosEnterCritSec();
+//        int ret = 1;
+//        if(*a == 0 && b == 1) {
+//                *a = b;
+//                ret = 0;
+//        }
+//        if(*a == 1 && b == 0) {
+//                //*a = b;
+//                ret = 1; //0
+//        }
+//
+//        //DosExitCritSec();
+//        return ret;
+//}
 
 class NPipe FreePM_pipe[FREEPMS_MAX_NUM_THREADS];
 
@@ -444,7 +449,7 @@ int ThreadStart = 0;
 
 
 
-void /*_Optlink*/  Fs_ClientWork( void * /* *param */)
+void /*_Optlink*/  Fs_ClientWork(void *param)
 {
 
 
@@ -590,7 +595,7 @@ DosSleep(1);
 /*****************/
    do
    {  LSthreads.state[threadNum] = 3;
-      rc = FreePM_pipe[threadNum].RecvCmdFromClient(&ncmd,&data);
+      rc = F_RecvCmdFromClient(&FreePM_pipe[threadNum], &ncmd,&data);
       if(rc)
       {  if(rc == -1)
          {  rc = FreePM_pipe[threadNum].QueryState();
@@ -604,6 +609,7 @@ DosSleep(1);
 
     LSthreads.state[threadNum] = 4;
    debug(0, 9) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
+
       switch(ncmd)
       {
         case F_CMD_GET_IHAB:

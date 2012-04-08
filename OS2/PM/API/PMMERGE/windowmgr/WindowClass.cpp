@@ -184,7 +184,7 @@ int FPM_Window::CreateFPM_Window
 //   nx = _nx;
 //   ny = _ny;
 //create hwnd
-    rc = _F_SendCmdToServer(F_CMD_WINCREATE_HWND, iHab);
+    rc = F_SendCmdToServer(F_CMD_WINCREATE_HWND, iHab);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -193,7 +193,7 @@ int FPM_Window::CreateFPM_Window
        fatal("SendCmdToServer Error\n");
     }
 
-    rc = _F_RecvDataFromServer(&hwnd, &len, sizeof(HWND));
+    rc = F_RecvDataFromServer(&hwnd, &len, sizeof(HWND));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -206,7 +206,7 @@ int FPM_Window::CreateFPM_Window
 
     if(hwndParent)
     {
-       rc = _F_SendCmdToServer(F_CMD_WINSET_PARENT_HWND, handle);
+       rc = F_SendCmdToServer(F_CMD_WINSET_PARENT_HWND, handle);
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
@@ -214,13 +214,13 @@ int FPM_Window::CreateFPM_Window
           debug(3, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",rc);
           fatal("SendCmdToServer Error\n");
        }
-       rc =  _F_SendDataToServer((void *)&hwndParent, sizeof(HWND));
+       rc =  F_SendDataToServer((void *)&hwndParent, sizeof(HWND));
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
           }
-          debug(3, 0)("WARNING:__FUNCTION__:_F_SendDataToServer Error: %s\n",rc);
-          fatal("_F_SendDataToServer Error\n");
+          debug(3, 0)("WARNING:__FUNCTION__:F_SendDataToServer Error: %s\n",rc);
+          fatal("F_SendDataToServer Error\n");
        }
     }
 //send WM_CREATE
@@ -367,7 +367,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = nx;
              data[1] = ny;
              SendMsg_to_proc(WM_SIZE, mp1, mp2);
-             _F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
        if(fl & SWP_MOVE) /* Change the window x,y position */
        {     x = _x;
@@ -375,7 +375,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = x;
              data[1] = y;
              SendMsg_to_proc(WM_MOVE, NULL, NULL);
-             _F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
     }
 
@@ -389,7 +389,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
         if(fl & SWP_HIDE) /* Hide the window. */
                  mp1 = (MPARAM)FALSE;
         data[0] = (int) mp1;
-        rc = _F_SendGenCmdDataToServer(F_CMD_WIN_SHOW, handle, data, 1);
+        rc = F_SendGenCmdDataToServer(F_CMD_WIN_SHOW, handle, data, 1);
         SendMsg_to_proc(WM_SHOW, mp1, NULL);
     }
 
@@ -546,7 +546,6 @@ int FPM_Window::GetPS(F_PS *pps)
 }
 */
 
-
 /* создание стандартного окна */
 int STD_Window::CreateSTD_Window(HWND hwndParent,  /*  Parent-window handle. */
                ULONG _flStyle,           /*  Frame Window style. */
@@ -569,104 +568,105 @@ int STD_Window::CreateSTD_Window(HWND hwndParent,  /*  Parent-window handle. */
    rid = idResources;
 //   pszName  = _pszName;
 
-
-//debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
+debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 
 // todo: determinate titlebar size
 //warp style: frame border = 1+1+2, titlebar = 2+20 (1border)  + 22 menu if present
 //frame window
-//        CreateFPM_Window(hwndParent,  /*  Parent-window handle. */
-//                        WC_FRAME, /*  Registered-class name. */
-//                        NULL,     /*  Window text. */
-//                        flStyle, /*  Window style. */
-//                        x,        /*  x-coordinate of window position relative to the origin of the parent window */
-//                        y,        /*  y-coordinate of window position relative to the origin of the parent window */
-//                        nx,       /*  Width of window, in window coordinates. */
-//                        ny,       /*  Height of window, in window coordinates. */
-//                        hwndParent,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        NULL,     /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+        CreateFPM_Window(hwndParent,  /*  Parent-window handle. */
+                        WC_FRAME, /*  Registered-class name. */
+                        NULL,     /*  Window text. */
+                        flStyle, /*  Window style. */
+                        x,        /*  x-coordinate of window position relative to the origin of the parent window */
+                        y,        /*  y-coordinate of window position relative to the origin of the parent window */
+                        nx,       /*  Width of window, in window coordinates. */
+                        ny,       /*  Height of window, in window coordinates. */
+                        hwndParent,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        NULL,     /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
 
 //   FPM_Window Client;
-//    pClient = new(FRAME_Window);
-//    pClient->CreateFPM_Window(handle,  /*  Parent-window handle. */
-//                        pszClientClass,    /*  Registered-class name. */
-//                        NULL,     /*  Window text. */
-//                        styleClient,     /*  Window style. */
-//                        4,      /*  x-coordinate of window position. */
-//                        4,      /*  y-coordinate of window position. */
-//                        nx-4-22,  /*  Width of window, in window coordinates. */
-//                        ny-4-22,  /*  Height of window, in window coordinates. */
-//                        handle,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        FID_CLIENT,     /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+    pClient = new(FPM_Window);
+    pClient->CreateFPM_Window(handle,  /*  Parent-window handle. */
+                        pszClientClass,    /*  Registered-class name. */
+                        NULL,     /*  Window text. */
+                        styleClient,     /*  Window style. */
+                        4,      /*  x-coordinate of window position. */
+                        4,      /*  y-coordinate of window position. */
+                        nx-4-22,  /*  Width of window, in window coordinates. */
+                        ny-4-22,  /*  Height of window, in window coordinates. */
+                        handle,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        FID_CLIENT,     /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
 
 //   FPM_Window SysMenu;
-//    pSysMenu = new(FRAME_Window);
-//    pSysMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-//                        WC_MENU,    /*  Registered-class name. */
-//                        NULL,     /*  Window text. */
-//                        WS_VISIBLE,     /*  Window style. */
-//                        4,       /*  x-coordinate of window position. */
-//                        ny-4-22, /*  y-coordinate of window position. */
-//                        22,  /*  Width of window, in window coordinates. */
-//                        22,  /*  Height of window, in window coordinates. */
-//                        handle,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        FID_SYSMENU, /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+    pSysMenu = new(FPM_Window);
+    pSysMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
+                        WC_MENU,    /*  Registered-class name. */
+                        NULL,     /*  Window text. */
+                        WS_VISIBLE,     /*  Window style. */
+                        4,       /*  x-coordinate of window position. */
+                        ny-4-22, /*  y-coordinate of window position. */
+                        22,  /*  Width of window, in window coordinates. */
+                        22,  /*  Height of window, in window coordinates. */
+                        handle,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        FID_SYSMENU, /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
 
 //todo:determinate size of menu (yet 22*3 x 22)
 //   FPM_Window MinMax Menu;
-//    pMinMaxMenu = new(FRAME_Window);
-//    pMinMaxMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-//                        WC_MENU,   /*  Registered-class name. */
-//                        NULL,      /*  Window text. */
-//                        WS_VISIBLE,/*  Window style. */
-//                        nx-4-22*3, /*  x-coordinate of window position. */
-//                        ny-4-22,   /*  y-coordinate of window position. */
-//                        22,  /*  Width of window, in window coordinates. */
-//                        22,  /*  Height of window, in window coordinates. */
-//                        handle,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        FID_MINMAX, /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+    pMinMaxMenu = new(FPM_Window);
+    pMinMaxMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
+                        WC_MENU,   /*  Registered-class name. */
+                        NULL,      /*  Window text. */
+                        WS_VISIBLE,/*  Window style. */
+                        nx-4-22*3, /*  x-coordinate of window position. */
+                        ny-4-22,   /*  y-coordinate of window position. */
+                        22,  /*  Width of window, in window coordinates. */
+                        22,  /*  Height of window, in window coordinates. */
+                        handle,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        FID_MINMAX, /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
+
 //   FPM_Window Menu;
-//    pMenu = new(FRAME_Window);
-//    pMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-//                        WC_MENU ,   /*  Registered-class name. */
-//                        pszTitle,      /*  Window text. */
-//                        WS_VISIBLE,/*  Window style. */
-//                        22+1, /*  x-coordinate of window position. */
-//                        ny-4-22-2,   /*  y-coordinate of window position. */
-//                        nx-4-22*4,  /*  Width of window, in window coordinates. */
-//                        22,  /*  Height of window, in window coordinates. */
-//                        handle,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        FID_MENU, /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+    pMenu = new(FPM_Window);
+    pMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
+                        WC_MENU ,   /*  Registered-class name. */
+                        pszTitle,      /*  Window text. */
+                        WS_VISIBLE,/*  Window style. */
+                        22+1, /*  x-coordinate of window position. */
+                        ny-4-22-2,   /*  y-coordinate of window position. */
+                        nx-4-22*4,  /*  Width of window, in window coordinates. */
+                        22,  /*  Height of window, in window coordinates. */
+                        handle,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        FID_MENU, /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
+
 //   FPM_Window TitleBar;
-//    pTitleBar = new(FRAME_Window);
-//    pTitleBar->CreateFPM_Window(handle,  /*  Parent-window handle. */
-//                        WC_TITLEBAR ,   /*  Registered-class name. */
-//                        pszTitle,      /*  Window text. */
-//                        WS_VISIBLE,/*  Window style. */
-//                        22+1, /*  x-coordinate of window position. */
-//                        ny-4-22-2,   /*  y-coordinate of window position. */
-//                        nx-4-22*4,  /*  Width of window, in window coordinates. */
-//                        22,  /*  Height of window, in window coordinates. */
-//                        handle,   /*  Owner-window handle. */
-//                        NULL,     /*  Sibling-window handle. */
-//                        FID_TITLEBAR, /*  Window resource identifier. */
-//                        NULL,     /*  Pointer to control data. */
-//                        NULL);    /*  Presentation parameters. */
+    pTitleBar = new(FPM_Window);
+    pTitleBar->CreateFPM_Window(handle,  /*  Parent-window handle. */
+                        WC_TITLEBAR ,   /*  Registered-class name. */
+                        pszTitle,      /*  Window text. */
+                        WS_VISIBLE,/*  Window style. */
+                        22+1, /*  x-coordinate of window position. */
+                        ny-4-22-2,   /*  y-coordinate of window position. */
+                        nx-4-22*4,  /*  Width of window, in window coordinates. */
+                        22,  /*  Height of window, in window coordinates. */
+                        handle,   /*  Owner-window handle. */
+                        NULL,     /*  Sibling-window handle. */
+                        FID_TITLEBAR, /*  Window resource identifier. */
+                        NULL,     /*  Pointer to control data. */
+                        NULL);    /*  Presentation parameters. */
 
 //todo:    FPM_Window VertScroll;
 //todo:    FPM_Window HorizScroll;

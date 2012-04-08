@@ -469,7 +469,7 @@ fatal_common(const char *message)
 }
 
 /* fatal */
-void APIENTRY fatal(const char *message)
+void APIENTRY _fatal(const char *message)
 {
 //todo
 // for future usage with sockets
@@ -502,6 +502,6 @@ fatalvf(const char *fmt, va_list args)
 {
     static char fatal_str[BUFSIZ];
     vsnprintf(fatal_str, sizeof(fatal_str), fmt, args);
-    fatal(fatal_str);
+    _fatal(fatal_str);
 }
 

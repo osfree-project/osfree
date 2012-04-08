@@ -150,7 +150,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
        } else {
             int len,nmsg;
 //Query number of messages on server
-            rc = _F_SendCmdToServer(F_CMD_WINQUERY_MSG, ihab);
+            rc = F_SendCmdToServer(F_CMD_WINQUERY_MSG, ihab);
             if(rc)
             {  if(rc == ERROR_BROKEN_PIPE)
                {      /* todo: attempt to reconnect till timeout */
@@ -159,12 +159,12 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                fatal("WinGetMsg Error\n");
             }
 //todo check rc
-            rc = _F_RecvDataFromServer(&nmsg, &len, sizeof(int));
+            rc = F_RecvDataFromServer(&nmsg, &len, sizeof(int));
             if(rc == 0 && nmsg > 0)
-            {     rc = _F_SendCmdToServer(F_CMD_WINGET_MSG, ihab);
-                  rc = _F_RecvDataFromServer(&rcs, &len, sizeof(int));
+            {     rc = F_SendCmdToServer(F_CMD_WINGET_MSG, ihab);
+                  rc = F_RecvDataFromServer(&rcs, &len, sizeof(int));
                   if(rc == 0 && rcs == 1)
-                  {   rc = _F_RecvDataFromServer(pqmsg, &len, sizeof(QMSG));
+                  {   rc = F_RecvDataFromServer(pqmsg, &len, sizeof(QMSG));
                       if(rc == 0)
                       {  if(pqmsg->msg == WM_QUIT) brc = FALSE;
                          return brc;
@@ -297,8 +297,8 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
      SQMSG sqmsg;
      sqmsg.qmsg = *((PQMSG)&msg);
      sqmsg.ihfrom = _hab.GetCurrentHAB();
-     rc =  _F_SendCmdToServer(F_CMD_WINSENDMSG, sizeof(SQMSG));
-     rc =  _F_SendDataToServer((void *)&sqmsg, sizeof(SQMSG));
+     rc =  F_SendCmdToServer(F_CMD_WINSENDMSG, sizeof(SQMSG));
+     rc =  F_SendDataToServer((void *)&sqmsg, sizeof(SQMSG));
 /* цикл ожидания */
 //todo
 
@@ -409,8 +409,8 @@ BOOL    APIENTRY WinPostMsg(HWND hwnd,
      SQMSG sqmsg;
      sqmsg.qmsg = msg;
      sqmsg.ihfrom = _hab.GetCurrentHAB();
-     rc =  _F_SendCmdToServer(F_CMD_WINPOSTMSG, sizeof(SQMSG));
-     rc =  _F_SendDataToServer((void *)&sqmsg, sizeof(SQMSG));
+     rc =  F_SendCmdToServer(F_CMD_WINPOSTMSG, sizeof(SQMSG));
+     rc =  F_SendDataToServer((void *)&sqmsg, sizeof(SQMSG));
   }
 
     brc = TRUE;

@@ -18,6 +18,9 @@
 #include "Fs_globals.hpp"
 #include "Fs_driver.h"
 #include <gd.h>
+
+#include <pmclient.h>
+
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
 

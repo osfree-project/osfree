@@ -23,7 +23,7 @@
 #define INCL_DOSPROCESS
 #include <os2.h>
 
-#include "F_pipe.hpp"
+//#include "F_pipe.hpp"
 
 #include "F_globals.hpp"
 /* #include "snprintf.h" */

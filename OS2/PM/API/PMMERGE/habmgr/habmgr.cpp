@@ -13,6 +13,9 @@
 
 #include <freepm.hpp>
 #include <habmgr.hpp>
+
+#include "FreePM_err.hpp"
+
 #include <pmclient.h>
 
 #define debug(...)
@@ -425,8 +428,8 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   }
 
   // Query HAB information from server
-  rc = _F_SendCmdToServer(F_CMD_GET_IHAB,  0);
-  rc = _F_RecvDataFromServer(inf, &len, sizeof(inf));
+  rc = F_SendCmdToServer(F_CMD_GET_IHAB,  0);
+  rc = F_RecvDataFromServer(inf, &len, sizeof(inf));
   if(rc)
   {
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
@@ -462,7 +465,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
   }
 
   // Inform server we terinate this thread
-  rc = _F_SendCmdToServer(F_CMD_CLIENT_EXIT, ihab);
+  rc = F_SendCmdToServer(F_CMD_CLIENT_EXIT, ihab);
 
   // Close connection with server
   rc = CloseServerConnection();

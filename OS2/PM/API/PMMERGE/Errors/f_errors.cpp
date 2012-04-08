@@ -8,6 +8,7 @@
 #include <errno.h>
 
 #include "FreePM.hpp"
+#include "FreePM_err.hpp"
 
 #include "os2_ErrCodes.h"
 #include "FreePM_ErrCodes.h"

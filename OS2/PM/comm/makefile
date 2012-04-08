@@ -2,7 +2,7 @@
 #  Handle makefiles in subdirs
 #
 
-DIRS = comm Server API
+DIRS = pmpipe
 
 !include $(%ROOT)/mk/all.mk
 

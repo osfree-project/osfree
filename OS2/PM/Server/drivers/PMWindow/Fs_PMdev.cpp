@@ -5,13 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 //Things marked as 'temporary' need to resolve. For now no messages from
 //hardware.
 
 #define POKA 0
 
 /* Includes to use OS/2 PM. */
+ #define INCL_DOSERRORS
  #define INCL_DOSPROCESS
  #define INCL_WIN
  #define INCL_GPI

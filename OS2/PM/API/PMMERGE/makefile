@@ -7,39 +7,47 @@
 PROJ     = pmmerge
 DESC     = OS/2 PM Merged Library
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
-srcfiles = $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
+srcfiles = $(p)init$(e) $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
            $(p)input$(SEP)input$(e) $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) &
            $(p)windowmgr$(SEP)windowmgr$(e) $(p)windowmgr$(SEP)WindowClass$(e) &
            $(p)errors$(SEP)errors$(e) $(p)errors$(SEP)f_errors$(e) $(p)load$(SEP)load$(e) &
            # $(p)dialogs$(SEP)windlgbox$(e)
-ADD_COPT = -bd -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib &
-               # segment type DATA shared
+ADD_COPT = -i=$(MYDIR)..$(SEP)include  -sg -of+
+ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
 DLL     = 1
-DLLOPT  = initinstance terminstance pm
-OPTIONS = manyautodata
-IMPORTS = RectCopy utlapi.1,                    &
-          RectSet utlapi.2,                     &
-          RectIsEmpty utlapi.3,                 &
-          RectEqual utlapi.4,                   &
-          RectSetEmpty utlapi.5,                &
-          RectOffset utlapi.6,                  &
-          RectInflate utlapi.7,                 &
-          RectPtIn utlapi.8,                    &
-          RectIntersect utlapi.9,               &
-          RectUnion utlapi.10,                  &
-          RectSubtract utlapi.11,               &
-          RectMakeRect utlapi.12,               &
-          RectMakePoints utlapi.13,             &
+DLLOPT  = initinstance terminstance
+OPTIONS = manyautodata, caseexact, start=dll_initterm
+IMPORTS = RectCopy_ utlapi.1,                    &
+          RectSet_ utlapi.2,                     &
+          RectIsEmpty_ utlapi.3,                 &
+          RectEqual_ utlapi.4,                   &
+          RectSetEmpty_ utlapi.5,                &
+          RectOffset_ utlapi.6,                  &
+          RectInflate_ utlapi.7,                 &
+          RectPtIn_ utlapi.8,                    &
+          RectIntersect_ utlapi.9,               &
+          RectUnion_ utlapi.10,                  &
+          RectSubtract_ utlapi.11,               &
+          RectMakeRect_ utlapi.12,               &
+          RectMakePoints_ utlapi.13
 # PMClient communication library
-          InitServerConnection pmclient.1,      &
-          CloseServerConnection pmclient.2,     &
-          _F_SendCmdToServer pmclient.3,        &
-          _F_SendDataToServer pmclient.4,       &
-          _F_RecvDataFromServer pmclient.5,     &
-          _F_SendGenCmdToServer pmclient.6,     &
-          _F_SendGenCmdDataToServer pmclient.7, &
-          fatal pmclient.8
+#ALIASES = _InitServerConnection = InitServerConnection,   &
+#          _CloseServerConnection = CloseServerConnection, &
+#          _F_SendCmdToServer = F_SendCmdToServer,       &
+#          _F_SendDataToServer = F_SendDataToServer,     &
+#          _F_RecvDataFromServer = F_RecvDataFromServer, &
+#          _F_SendGenCmdToServer = F_SendGenCmdToServer, &
+#          _F_SendGenCmdDataToServer = F_SendGenCmdDataToServer, &
+#          _F_RecvCmdFromClient = F_RecvCmdFromClient,   &
+#          _fatal = fatal
+#          InitServerConnection pmclient.1,      &
+#          CloseServerConnection pmclient.2,     &
+#          _F_SendCmdToServer pmclient.3,        &
+#          _F_SendDataToServer pmclient.4,       &
+#          _F_RecvDataFromServer pmclient.5,     &
+#          _F_SendGenCmdToServer pmclient.6,     &
+#          _F_SendGenCmdDataToServer pmclient.7, &
+#          fatal pmclient.8
 EXPORTS = WinCopyRect.05127,             &
           WinCreateMsgQueue.05136,       &
           WinCreateStdWindow.05139,      &
@@ -79,6 +87,3 @@ TARGET = all
 #install_add: .SYMBOLIC
 # renmodul /r $^@ $^& fmmerge
 # $(CP) pmmerge.dll fmmerge.dll
-
-qwe: .SYMBOLIC
- $(SAY) $(COPT)

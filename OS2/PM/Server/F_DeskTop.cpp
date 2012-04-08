@@ -19,6 +19,8 @@
 #include "Fs_HPS.hpp"
 //#include "F_GPI.hpp"
 
+#include <pmclient.h>
+
 time_t getCurrentTime(void);
 
 #define LONGFromRGB(R,G,B) (LONG)(((LONG)R<<16)+((LONG)G<<8)+(LONG)B)
