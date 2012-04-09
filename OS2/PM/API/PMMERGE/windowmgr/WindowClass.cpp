@@ -184,7 +184,7 @@ int FPM_Window::CreateFPM_Window
 //   nx = _nx;
 //   ny = _ny;
 //create hwnd
-    rc = F_SendCmdToServer(F_CMD_WINCREATE_HWND, iHab);
+    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -193,7 +193,7 @@ int FPM_Window::CreateFPM_Window
        fatal("SendCmdToServer Error\n");
     }
 
-    rc = F_RecvDataFromServer(&hwnd, &len, sizeof(HWND));
+    rc = F_RecvDataFromServer(client_obj, &hwnd, &len, sizeof(HWND));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -206,7 +206,7 @@ int FPM_Window::CreateFPM_Window
 
     if(hwndParent)
     {
-       rc = F_SendCmdToServer(F_CMD_WINSET_PARENT_HWND, handle);
+       rc = F_SendCmdToServer(client_obj, F_CMD_WINSET_PARENT_HWND, handle);
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
@@ -214,7 +214,7 @@ int FPM_Window::CreateFPM_Window
           debug(3, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",rc);
           fatal("SendCmdToServer Error\n");
        }
-       rc =  F_SendDataToServer((void *)&hwndParent, sizeof(HWND));
+       rc =  F_SendDataToServer(client_obj, (void *)&hwndParent, sizeof(HWND));
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
@@ -367,7 +367,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = nx;
              data[1] = ny;
              SendMsg_to_proc(WM_SIZE, mp1, mp2);
-             F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
        if(fl & SWP_MOVE) /* Change the window x,y position */
        {     x = _x;
@@ -375,7 +375,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = x;
              data[1] = y;
              SendMsg_to_proc(WM_MOVE, NULL, NULL);
-             F_SendGenCmdDataToServer(F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
     }
 
@@ -389,7 +389,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
         if(fl & SWP_HIDE) /* Hide the window. */
                  mp1 = (MPARAM)FALSE;
         data[0] = (int) mp1;
-        rc = F_SendGenCmdDataToServer(F_CMD_WIN_SHOW, handle, data, 1);
+        rc = F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SHOW, handle, data, 1);
         SendMsg_to_proc(WM_SHOW, mp1, NULL);
     }
 

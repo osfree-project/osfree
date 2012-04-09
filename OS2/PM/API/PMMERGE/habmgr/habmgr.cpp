@@ -428,8 +428,8 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   }
 
   // Query HAB information from server
-  rc = F_SendCmdToServer(F_CMD_GET_IHAB,  0);
-  rc = F_RecvDataFromServer(inf, &len, sizeof(inf));
+  rc = F_SendCmdToServer(client_obj, F_CMD_GET_IHAB,  0);
+  rc = F_RecvDataFromServer(client_obj, inf, &len, sizeof(inf));
   if(rc)
   {
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
@@ -465,7 +465,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
   }
 
   // Inform server we terinate this thread
-  rc = F_SendCmdToServer(F_CMD_CLIENT_EXIT, ihab);
+  rc = F_SendCmdToServer(client_obj, F_CMD_CLIENT_EXIT, ihab);
 
   // Close connection with server
   rc = CloseServerConnection();

@@ -21,14 +21,19 @@ ADD_COPT =-bm -od -mf -sg -d2 -mf -bd
 ADD_LINKOPT  = segment type DATA nonshared
 DLL     = 1
 DLLOPT  = initinstance terminstance
-EXPORTS  = _InitServerConnection.1,      &
-           _CloseServerConnection.2,     &
-           _F_SendCmdToServer.3,        &
-           _F_SendDataToServer.4,       &
-           _F_RecvDataFromServer.5,     &
-           _F_SendGenCmdToServer.6,     &
-           _F_SendGenCmdDataToServer.7, &
-           _F_RecvCmdFromClient.8,      &
-           _fatal.9
+EXPORTS  = _client_obj.1,                &
+           _server_obj.2,                &
+           _num_threads.3,               &
+           _InitServerConnection.4,      &
+           _CloseServerConnection.5,     &
+           _startServerThreads.6,        &
+           _F_SendCmdToServer.7,         &
+           _F_SendDataToServer.8,        &
+           _F_RecvDataFromServer.9,      &
+           _F_SendGenCmdToServer.10,     &
+           _F_SendGenCmdDataToServer.11, &
+           _F_RecvCmdFromClient.12,      &
+           _F_RecvDataFromClient.13,     &
+           _fatal.14
 
 !include $(%ROOT)/mk/appsos2.mk

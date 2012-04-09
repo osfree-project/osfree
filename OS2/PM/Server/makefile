@@ -13,17 +13,6 @@ srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e
 ADD_COPT    = -bm -od -mf -sg -s
 ADD_LIB     = cmd_shared.lib,all_shared.lib
 ADD_LINKOPT = lib gdlib.lib lib os2386.lib lib clib3r.lib
-# PMClient communication library
-#ALIASES = _InitServerConnection = InitServerConnection,   &
-#          _CloseServerConnection = CloseServerConnection, &
-#          _F_SendCmdToServer = F_SendCmdToServer,       &
-#          _F_SendDataToServer = F_SendDataToServer,     &
-#          _F_RecvDataFromServer = F_RecvDataFromServer, &
-#          _F_SendGenCmdToServer = F_SendGenCmdToServer, &
-#          _F_SendGenCmdDataToServer = F_SendGenCmdDataToServer, &
-#          _F_RecvCmdFromClient = F_RecvCmdFromClient,   &
-#          _fatal = fatal
-
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
 # Found it! To little heapsize! Was only 287 KiB while it assumed 2.6 MiB!

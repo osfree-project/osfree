@@ -48,7 +48,7 @@ extern "C" void   FreePM_cleanup(void);
 extern "C" void   FreePM_cleanupHandler(int sig);
 extern "C" void   FreePM_cleanupHandlerFP(int sig);
 
-int startServerThreads(void);
+void handler (void *obj, int ncmd, int data, int l, int len, int threadNum);
 int SetupSemaphore(void);
 int SetupSignals(void);
 
@@ -77,6 +77,12 @@ static int nxDefault=800, nyDefault=600,  bytesPerPixelDefault=4;
 #define S_DEBUG       0x104
 #define S_KILL        0x105
 
+class FreePM_session session;
+
+int tst__lxchg(int volatile * a, int  b);
+extern void fix_asm_(void *);
+void /*_Optlink*/  Fs_ClientWork( void * /* *param */);
+
 /*+---------------------------------+*/
 /*|     local variables.            |*/
 /*+---------------------------------+*/
@@ -102,12 +108,6 @@ struct LS_threads
 };
 
 struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
-
-class FreePM_session session;
-
-int tst__lxchg(int volatile * a, int  b);
-extern void fix_asm_(void *);
-void /*_Optlink*/  Fs_ClientWork( void * /* *param */);
 
 APIRET APIENTRY init (ULONG flag);
 
@@ -187,7 +187,7 @@ int main(int narg, char *arg[], char *envp[])
 
 /* init pipes  */
 
-  startServerThreads();
+  startServerThreads(&handler);
 
 //  rc = session.AddDesktop(FPM_DEV_PMWIN,
 //                           _FreePMconfig.desktop.nx,
@@ -443,172 +443,11 @@ HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 //        return ret;
 //}
 
-class NPipe FreePM_pipe[FREEPMS_MAX_NUM_THREADS];
+extern APIRET server_obj;
 
-int ThreadStart = 0;
-
-
-
-void /*_Optlink*/  Fs_ClientWork(void *param)
+void handler (void *obj, int ncmd, int data, int l, int len, int threadNum)
 {
-
-
-    int i,rc, threadNum,id,idd;
-    int ncmd,data,l, len;
-//    char PipeName[256];
-    char str[512];
-    char buf[MAX_PIPE_BUF], bufout[MAX_PIPE_BUF];
-
-    _control87(EM_UNDERFLOW,EM_UNDERFLOW);
-
-   int bla = 0;
-   while(__lxchg(&LSthreads.semaphore, LOCKED))
-                                       DosSleep(1);
-
-   //int volatile * a, int  b) {
-        /*printf("FIXME: builtin.h:%s (%d, %d)\n", __func__, *a, b);*/
-        //DosEnterCritSec();
-        /*int ret = 1;
-        while(ret) {
-        ret = 1;
-        if(LSthreads.semaphore == 0 && LOCKED == 1) {
-                LSthreads.semaphore = LOCKED;
-                ret = 0;
-        }
-        if(LSthreads.semaphore == 1 && LOCKED == 0) {
-                //*a = b;
-                ret = 1; //0
-        }
-        //DosSleep(1);
-        //sleep(1);
-        for(double di=0; di>100; di++)
-                di++;
-        }
-        */
-        //DosExitCritSec();
-        //return ret;
-    threadNum =  LSthreads.next_free;
-    LSthreads.state[threadNum] = -1;
-    if(LSthreads.n < threadNum)
-              LSthreads.n = threadNum;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe creating  (%i)\n",threadNum,LSthreads.thread_id[threadNum]);
-    fflush(stdout);
-    ThreadStart++;
-   DosSleep(1);
-
-
-   __lxchg(&LSthreads.semaphore, UNLOCKED);
-   do
-   { DosSleep(1);
-   } while(ThreadStart != 3);
-
-//    if(param)
-//           threadNum = * ((int *)param);
-
-    DosSleep(1);
-
-
-    FreePM_pipe[threadNum]  = NPipe(FREEPM_BASE_PIPE_NAME,SERVER_MODE,FREEPMS_MAX_NUM_THREADS,threadNum);
-
-    rc = FreePM_pipe[threadNum].Create();
-    if(rc == ERROR_TOO_MANY_OPEN_FILES)
-    {     rc = OS2SetRelMaxFH(8);
-          rc = FreePM_pipe[threadNum].Create();
-    }
-
-    if(rc)
-    {  snprintf(str,256, "Error pipe creating  %s rc=%i",FreePM_pipe[threadNum].name,rc);
-       if(rc == ERROR_INVALID_PARAMETER)
-                   strcat(str,"(INVALID PARAMETER)");
-       else
-          if (rc == ERROR_PIPE_BUSY)
-                   strcat(str,"(PIPE_BUSY)");
-       if (rc == ERROR_PIPE_BUSY)
-       {    debug(0, 0) ("WARNING: Fs_ClientWork: %s\n",str);
-            goto ENDTHREAD;
-       }
-       fatal(str);
-    }
-    LSthreads.state[threadNum] = 0;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe create %s %x %x\n",threadNum,FreePM_pipe[threadNum].name, threadNum ,FreePM_pipe[threadNum].Hpipe);
-M_CONNECT:
-    rc = FreePM_pipe[threadNum].Connect();
-    if(rc)
-    {   debug(0, 0) ("WARNING: Error connecting pipe %s: %s\n",FreePM_pipe[threadNum].name,xstdio_strerror());
-        goto ENDTHREAD;
-    }
-    debug(0, 2) ("Fs_ClientWork%i: Connecting pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum].name);
-    LSthreads.state[threadNum] = 1;
-    rc = FreePM_pipe[threadNum].HandShake();
-    if(rc)
-    {   debug(0, 0) ("WARNING: Error HandShake pipe %s: %s\n",FreePM_pipe[threadNum].name,xstdio_strerror());
-
-        rc = DosDisConnectNPipe(FreePM_pipe[threadNum].Hpipe);
-        goto M_CONNECT;
-    }
-    debug(0, 2) ("Fs_ClientWork%i: HandShake pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum].name);
-
-/***********/
-   for(i = 0; i < FREEPMS_MAX_NUM_THREADS; i++)
-      {
-//    debug(0, 0) ("(%i %i)",i,LSthreads.thread_id[i]);
-         if(LSthreads.thread_id[i] == -1)
-         {     break;
-         }
-     }
-   idd = LSthreads.next_free;
-//    debug(0, 0) ("idd=%i",idd);
-   ThreadStart = 1;
-
-    LSthreads.state[threadNum] = 2;
-
-
-    id = _beginthread(Fs_ClientWork,NULL, THREAD_STACK_SIZE,&idd);
-
-   do
-   { DosSleep(1);
-   } while(ThreadStart == 1);
-
-
-   while(__lxchg(&LSthreads.semaphore, LOCKED)) DosSleep(1);
-
-   LSthreads.Nclients++;     // число живых клиентов
-   LSthreads.working = 1;    // =0 на старте, =1 после появления первого живого клиента (защелка)
-   LSthreads.num++;
-   LSthreads.thread_id[LSthreads.next_free] = id;
-
-
-   for(i = 0; i < FREEPMS_MAX_NUM_THREADS; i++)
-      {
-// l = (i + LSthreads.next_free)%MAX_NUM_THREADS;
-//    debug(0, 0) ("[%i %i]",i,LSthreads.thread_id[i]);
-         if(LSthreads.thread_id[i] == -1)
-         {     LSthreads.next_free = i;
-               break;
-         }
-      }
-
-   ThreadStart = 3;
-   __lxchg(&LSthreads.semaphore, UNLOCKED);
-DosSleep(1);
-    debug(0, 2) ("Fs_ClientWork%i: Pipe working %s\n",threadNum,FreePM_pipe[threadNum].name);
-/*****************/
-   do
-   {  LSthreads.state[threadNum] = 3;
-      rc = F_RecvCmdFromClient(&FreePM_pipe[threadNum], &ncmd,&data);
-      if(rc)
-      {  if(rc == -1)
-         {  rc = FreePM_pipe[threadNum].QueryState();
-            if(rc == ERROR_BAD_PIPE || rc == ERROR_PIPE_NOT_CONNECTED)
-                                  break; // клиент подох ??
-         }
-         debug(0, 0) ("WARNING: Fs_ClientWork: RecvCmdFromClient error %x %s\n",rc,xstdio_strerror());
-         goto ENDTHREAD;
-      }
-      LSthreads.state[threadNum]=1;
-
-    LSthreads.state[threadNum] = 4;
-   debug(0, 9) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
+   int  rc;
 
       switch(ncmd)
       {
@@ -619,7 +458,7 @@ DosSleep(1);
              iHAB = session.hab_list.Add(iClientId,threadNum);
              inf[0] = iHAB;
              inf[1] = iClientId;
-           rc=  FreePM_pipe[threadNum].SendDataToServer(inf , sizeof(inf));
+           rc=  F_SendDataToServer(obj, inf , sizeof(inf));
          }
            break;
         case F_CMD_CLIENT_EXIT:
@@ -629,7 +468,7 @@ DosSleep(1);
         case F_CMD_WINPOSTMSG:
          {  SQMSG sqmsg;
             int rc1,ihabto;
-             rc = FreePM_pipe[threadNum].RecvDataFromClient(&sqmsg, &l, sizeof(SQMSG));
+             rc = F_RecvDataFromClient(obj, &sqmsg, &l, sizeof(SQMSG));
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINPOSTMSG get %i bytes\n",l);
              if(rc == 0 && l == sizeof(SQMSG))
              {   rc1 = _WndList.QueryHab(sqmsg.qmsg.hwnd, ihabto);
@@ -643,7 +482,7 @@ DosSleep(1);
         case F_CMD_WINSENDMSG:
          {  SQMSG sqmsg;
             int rc1,ihabto;
-             rc = FreePM_pipe[threadNum].RecvDataFromClient(&sqmsg, &l, sizeof(SQMSG));
+             rc = F_RecvDataFromClient(obj, &sqmsg, &l, sizeof(SQMSG));
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINPOSTMSG get %i bytes\n",l);
              if(rc == 0 && l == sizeof(SQMSG))
              {   rc1 = _WndList.QueryHab(sqmsg.qmsg.hwnd, ihabto);
@@ -664,7 +503,7 @@ DosSleep(1);
              nmsg  = session.hab_list.Queue.QueryNmsg(ihabto);
              if(nmsg)
                 debug(0, 2) ("Fs_ClientWork: F_CMD_WINQUERY_MSG, nmsg=%i\n",nmsg);
-             rc=  FreePM_pipe[threadNum].SendDataToServer(&nmsg , sizeof(int));
+             rc=  F_SendDataToServer(obj, &nmsg , sizeof(int));
           }
            break;
         case F_CMD_WINGET_MSG:  /* Get message for ihab = data */
@@ -679,9 +518,9 @@ DosSleep(1);
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG for %i, msg=%x\n",ihabto, sqmsg.qmsg.msg);
            else
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG, No msg  for %i\n",ihabto);
-             rc=  FreePM_pipe[threadNum].SendDataToServer(&nmsg , sizeof(int));
+             rc=  F_SendDataToServer(obj, &nmsg , sizeof(int));
              if(nmsg)
-             { rc=  FreePM_pipe[threadNum].SendDataToServer(&sqmsg.qmsg , sizeof(QMSG));
+             { rc=  F_SendDataToServer(obj, &sqmsg.qmsg , sizeof(QMSG));
              }
           }
            break;
@@ -692,14 +531,14 @@ DosSleep(1);
            iHab = data;
            hwnd = _WndList.Add(iHab);
 //todo: set _WndList with thread info and cleanup at thread(client exit) end
-           rc=  FreePM_pipe[threadNum].SendDataToServer(&hwnd , sizeof(HWND));
+           rc=  F_SendDataToServer(obj, &hwnd , sizeof(HWND));
          }
 
            break;
         case F_CMD_WINSET_PARENT_HWND:
           {   HWND hwnd, hwndParent;
               hwnd = data;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&hwndParent, &len, sizeof(HWND));
+              rc = F_RecvDataFromClient(obj, (void *)&hwndParent, &len, sizeof(HWND));
               rc = _WndList.SetParent(hwnd, hwndParent);
           }
            break;
@@ -709,7 +548,7 @@ DosSleep(1);
               HPS hps;
               hwnd = data;
               hps = _WndList.GetHPS(hwnd);
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&hps, sizeof(HPS));
+              rc=  F_SendDataToServer(obj, &hps, sizeof(HPS));
           }
            break;
         case F_CMD_RELEASE_HPS:
@@ -718,26 +557,26 @@ DosSleep(1);
               int rc1;
               hps = data;
               rc1 = _WndList.ReleaseHPS(hps);
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_WIN_SET_WND_SIZE:
           {   HWND hwnd = data;
               int par[2],rc1;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&par[0], &len, sizeof(int)*2);
+              rc = F_RecvDataFromClient(obj, (void *)&par[0], &len, sizeof(int)*2);
               rc1 = 0;
               //todo
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
 
         case F_CMD_WIN_SET_WND_POS:
           {   HWND hwnd = data;
               int par[2],rc1;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&par[0], &len, sizeof(int)*2);
+              rc = F_RecvDataFromClient(obj, (void *)&par[0], &len, sizeof(int)*2);
               rc1 = 0;
               //todo
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
 
@@ -745,17 +584,17 @@ DosSleep(1);
           {   HWND hwnd = data;
               SWP swp;
               //todo
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&swp, sizeof(SWP));
+              rc=  F_SendDataToServer(obj, &swp, sizeof(SWP));
           }
            break;
 
         case F_CMD_WIN_SHOW:
           {   HWND hwnd = data;
               int par,rc1;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&par, &len, sizeof(int));
+              rc = F_RecvDataFromClient(obj, (void *)&par, &len, sizeof(int));
               rc1 = 0;
               //todo
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
 
@@ -763,14 +602,14 @@ DosSleep(1);
           {   HPS hps;
               int color, len, rc1=FALSE;
               hps = data;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&color, &len, sizeof(int));
+              rc = F_RecvDataFromClient(obj, (void *)&color, &len, sizeof(int));
               debug(0, 0) ("F_CMD_GPI_SET_COLOR: get hps=%x, color=%x, len=%i\n",hps,color,len);
               if(hps >= 0 && hps < _WndList.numPS)
               {  if(_WndList.pPS[hps].used)
                                         /* rc1 = F_GpiSetColor(&_WndList.pPS[hps], color); */
                      rc1 = F_PS_GpiSetColor(&_WndList.pPS[hps], color);
               }
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_MOVE:
@@ -778,14 +617,14 @@ DosSleep(1);
               int rc1=FALSE;
               POINTL Point;
               hps = data;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&Point, &len, sizeof(POINTL));
+              rc = F_RecvDataFromClient(obj, (void *)&Point, &len, sizeof(POINTL));
               debug(0, 0) ("F_CMD_GPI_MOVE: get hps=%x,len=%i\n",hps,len);
 
               if(hps >= 0 && hps < _WndList.numPS)
               {  if(_WndList.pPS[hps].used)
                     rc1 = F_PS_GpiMove(&_WndList.pPS[hps], &Point);
               }
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_LINE:
@@ -793,13 +632,13 @@ DosSleep(1);
               int rc1=FALSE;
               POINTL Point;
               hps = data;
-              rc = FreePM_pipe[threadNum].RecvDataFromClient((void *)&Point, &len, sizeof(POINTL));
+              rc = F_RecvDataFromClient(obj, (void *)&Point, &len, sizeof(POINTL));
 
               if(hps >= 0 && hps < _WndList.numPS)
               {  if(_WndList.pPS[hps].used)
                     rc1 = F_PS_GpiLine(&_WndList.pPS[hps], &Point);
               }
-              rc=  FreePM_pipe[threadNum].SendDataToServer(&rc1, sizeof(int));
+              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_DRAW_LINE:
@@ -814,7 +653,7 @@ DosSleep(1);
 #if POKA
      case 1:
              debug(0, 2) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
-             rc=FreePM_pipe[threadNum].SendCmdToServer(ncmd,data);
+             rc=F_SendCmdToServer(obj, ncmd, data);
              switch(data)
              {  case S_SHUTDOWN:
 //                 squid_signal(SIGTERM, shut_down, SA_NODEFER | SA_RESETHAND | SA_RESTART);
@@ -847,90 +686,4 @@ debug(0, 2) ("Fs_ClientWork:WARNING: Unimplemented cmd %x\n",ncmd);
            break;
 
       } //endof switch(ncmd)
-
-   } while(ncmd);
-/*****************/
-
-ENDTHREAD:
-    LSthreads.state[threadNum]= 5;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe Closing %s %x %x\n",threadNum,FreePM_pipe[threadNum].name, threadNum ,FreePM_pipe[threadNum].Hpipe);
-//     DosSleep(3000);
-//     rc = DosDisConnectNPipe(FreePM_pipe[threadNum].Hpipe);
-//     rc += DosClose(FreePM_pipe[threadNum].Hpipe);
-    rc = FreePM_pipe[threadNum].Close();
-    debug(0, 2) ("Fs_ClientWork%i: Pipe Close %s, Thread %i, ThId=%i, rc=%x\n",
-                    threadNum,FreePM_pipe[threadNum].name, LSthreads.thread_id[threadNum],rc);
-    fflush(stdout);
-
-//todo: call timeout_handler to kill windows with closed habs
-   while(__lxchg(&LSthreads.semaphore, LOCKED))
-                                       DosSleep(1);
-
-//   sgLogError("End thread %i\n",threadNum);
-   LSthreads.num--;
-   LSthreads.thread_id[threadNum] = -1;
-   LSthreads.state[threadNum] = -1;
-   if(LSthreads.thread_id[LSthreads.next_free] != -1 || LSthreads.next_free > threadNum)
-                                                               LSthreads.next_free = threadNum;
-    if(LSthreads.n < threadNum)
-             LSthreads.n = threadNum;
-   for(i=0; i < FREEPMS_MAX_NUM_THREADS; i++)
-      {
-// l = (i + LSthreads.next_free)%MAX_NUM_THREADS;
-//    debug(0, 0) ("[%i %i]",i,LSthreads.thread_id[i]);
-         if(LSthreads.thread_id[i] == -1)
-         {     LSthreads.next_free = i;
-               break;
-         }
-      }
-
-   LSthreads.Nclients--;     // число живых клиентов
-   __lxchg(&LSthreads.semaphore, UNLOCKED);
-
-    DosSleep(1);
-
 }
-
-
-int startServerThreads(void)
-{  int i,ii, id, idd;
-//   id = _beginthread(TestTest,NULL, STACK_SIZE*16,NULL);
-//DosSleep(1000);
-//DosSleep(1000);
-// return;
-   for(i=0;i < FREEPMS_MAX_NUM_THREADS;i++)
-   { LSthreads.thread_id[i] = -1;
-   }
-   LSthreads.next_free = 0;
-M0:
-   LSthreads.working = 0; // нужно для организации задержки ожидания запуска первого клиента
-
-   idd = LSthreads.next_free;
-   ThreadStart = 1;
-
-
-   id = _beginthread(&Fs_ClientWork,NULL, THREAD_STACK_SIZE, (void *) &idd);
-   // ((void*) (void*))
-   //id = _beginthread( ((void(*) (void*))fix_asm_Fs_ClientWork), NULL, hack_thread_size, (void *) &idd);
-
-   do
-   { DosSleep(1);
-   } while(ThreadStart == 1);
-
-   while(__lxchg(&LSthreads.semaphore, LOCKED)) DosSleep(1);
-   LSthreads.num++;
-   LSthreads.thread_id[LSthreads.next_free] = id;
-   for(i = 0; i < FREEPMS_MAX_NUM_THREADS; i++)
-      {  ii = (i + LSthreads.next_free) % FREEPMS_MAX_NUM_THREADS;
-         if(LSthreads.thread_id[ii] == -1)
-         {     LSthreads.next_free = ii;
-               break;
-         }
-      }
-   ThreadStart = 3;
-
-   __lxchg(&LSthreads.semaphore, UNLOCKED);
-
-   return 0;
-}
-

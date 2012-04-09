@@ -128,7 +128,7 @@ BOOL   APIENTRY WinSetWindowPos(HWND hwnd,
   }
 /*
 
-    rc = F_SendCmdToServer(F_CMD_WIN_SET_WND_POS, hwnd);
+    rc = F_SendCmdToServer(client_obj, F_CMD_WIN_SET_WND_POS, hwnd);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      / * todo: attempt to reconnect till timeout * /
@@ -144,7 +144,7 @@ BOOL   APIENTRY WinSetWindowPos(HWND hwnd,
     data[5] = (int) fl;
     data[6] = 0;    / * z * /
 
-    rc =  F_SendDataToServer((void *)&data, sizeof(data));
+    rc =  F_SendDataToServer(client_obj, (void *)&data, sizeof(data));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      / * todo: attempt to reconnect till timeout * /
@@ -152,7 +152,7 @@ BOOL   APIENTRY WinSetWindowPos(HWND hwnd,
        debug(3, 0)("WARNING:__FUNCTION__:F_SendDataToServer Error: %s\n",GetOS2ErrorMessage(rc));
        fatal("F_SendDataToServer Error\n");
     }
-    rc = F_RecvDataFromServer(&rc1, &len, sizeof(HPS));
+    rc = F_RecvDataFromServer(client_obj, &rc1, &len, sizeof(HPS));
     if(!rc && rc1 == TRUE)
           rc0 = TRUE;
 */
@@ -305,12 +305,12 @@ BOOL    APIENTRY WinEndPaint(HPS hps)
 
 BOOL    APIENTRY WinReleasePS(HPS hps)
 {   int rc;
-    rc =  F_SendGenCmdToServer(F_CMD_RELEASE_HPS, hps);
+    rc =  F_SendGenCmdToServer(client_obj, F_CMD_RELEASE_HPS, hps);
     return rc;
 }
 
 HPS     APIENTRY WinGetPS(HWND hwnd)
 {   HPS hps;
-    hps = (HPS) F_SendGenCmdToServer(F_CMD_GET_HPS, hwnd);
+    hps = (HPS) F_SendGenCmdToServer(client_obj, F_CMD_GET_HPS, hwnd);
     return hps;
 }
