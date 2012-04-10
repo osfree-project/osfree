@@ -8,19 +8,19 @@
 
 #include <stdio.h>
 
-void   *client_obj;
-void   *server_obj;
-APIRET num_threads;
-APIRET APIENTRY (*InitServerConnection)(char *remotemachineName);
+extern "C" APIRET client_obj  = 0;
+extern "C" APIRET server_obj  = 0;
+extern "C" APIRET num_threads = 0;
+APIRET APIENTRY (*InitServerConnection)(char *remotemachineName, ULONG *obj);
 APIRET APIENTRY (*CloseServerConnection)(void);
 APIRET APIENTRY (*startServerThreads)(void *handl);
-APIRET APIENTRY (*F_SendCmdToServer)(void *obj, int cmd, int data);
-APIRET APIENTRY (*F_SendDataToServer)(void *obj, void *data, int len);
-APIRET APIENTRY (*F_RecvDataFromServer)(void *obj, void *data, int *len, int maxlen);
-APIRET APIENTRY (*F_SendGenCmdToServer)(void *obj, int cmd, int par);
-APIRET APIENTRY (*F_SendGenCmdDataToServer)(void *obj, int cmd, int par, void *data, int datalen);
-APIRET APIENTRY (*F_RecvCmdFromClient)(void *obj, int *ncmd, int *data);
-APIRET APIENTRY (*F_RecvDataFromClient)(void *obj, void *sqmsg, int *l, int size);
+APIRET APIENTRY (*F_SendCmdToServer)(ULONG obj, int cmd, int data);
+APIRET APIENTRY (*F_SendDataToServer)(ULONG obj, void *data, int len);
+APIRET APIENTRY (*F_RecvDataFromServer)(ULONG obj, void *data, int *len, int maxlen);
+APIRET APIENTRY (*F_SendGenCmdToServer)(ULONG obj, int cmd, int par);
+APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int par, void *data, int datalen);
+APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data);
+APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size);
 void APIENTRY   (*fatal)(const char *message);
 
 HMODULE   hmodBE = 0;

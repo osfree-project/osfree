@@ -104,7 +104,7 @@ void ExecuteFreePMServer(void)
   DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
 }
 
-APIRET APIENTRY _InitServerConnection(char *remotemachineName)
+APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
 {
   int rc;
   char buf[256];
@@ -198,6 +198,9 @@ APIRET APIENTRY _InitServerConnection(char *remotemachineName)
         _fatal("Error handshake  pipe");
     }
 //todo
+    client_obj  = (APIRET)pF_pipe;
+    *obj        = client_obj;
+
     rc = 0;
     return rc;
 }
@@ -350,20 +353,19 @@ class NPipe FreePM_pipe[FREEPMS_MAX_NUM_THREADS];
 
 int ThreadStart = 0;
 
-void (*handler) (void *obj, int ncmd, int data, int l, int len, int threadNum);
+void (*handler) (void *obj, int ncmd, int data, int threadNum);
 
-extern "C" APIRET num_threads = 0;
-
-extern "C" APIRET client_obj = 0;
-
-extern "C" APIRET server_obj = 0;
+// dummy vars
+extern "C" ULONG client_obj  = 0;
+extern "C" ULONG server_obj  = 0;
+extern "C" ULONG num_threads = 0;
 
 void /*_Optlink*/  Fs_ClientWork(void *param)
 {
 
 
     int i,rc, threadNum,id,idd;
-    int ncmd,data,l, len;
+    int ncmd,data;
 //    char PipeName[256];
     char str[512];
     char buf[MAX_PIPE_BUF], bufout[MAX_PIPE_BUF];
@@ -519,7 +521,7 @@ DosSleep(1);
    debug(0, 9) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
 
      // handle the command
-     handler(FreePM_pipe + threadNum, ncmd, data, l, len, threadNum);
+     handler(FreePM_pipe + threadNum, ncmd, data, threadNum);
 
    } while(ncmd);
 /*****************/
@@ -568,7 +570,7 @@ ENDTHREAD:
 APIRET APIENTRY _startServerThreads(void *handl)
 {  
   int i,ii, id, idd;
-  typedef void (*handler_t) (void *obj, int ncmd, int data, int l, int len, int threadNum);
+  typedef void (*handler_t) (void *obj, int ncmd, int data, int threadNum);
 
 //   id = _beginthread(TestTest,NULL, STACK_SIZE*16,NULL);
 //DosSleep(1000);
@@ -577,7 +579,6 @@ APIRET APIENTRY _startServerThreads(void *handl)
    handler = (handler_t)handl;
    num_threads = FREEPMS_MAX_NUM_THREADS;
    server_obj  = (APIRET)FreePM_pipe;
-   client_obj  = (APIRET)pF_pipe;
 
    for(i=0;i < FREEPMS_MAX_NUM_THREADS;i++)
    { LSthreads.thread_id[i] = -1;

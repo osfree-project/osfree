@@ -1,5 +1,5 @@
 #define INCL_WIN
-#include <osfree.h>
+#include <os2.h>
 
 #define debug(...)
 /*** Keyboard and mouse input COMMON subsection *************************/

@@ -23,6 +23,7 @@
 class _FreePM_HAB  _hab;
 int _FreePM_id_index = 0;
 
+
 /***********************************/
 
 /*
@@ -420,18 +421,20 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
 
   // If we executed in this thread first time, register at server
   /* Connect to server */
-  rc =  InitServerConnection(NULL);
+  rc = InitServerConnection(NULL, &client_obj);
   if(rc)
   {
+    printf("got no connection!\n");
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
     return NULLHANDLE;
   }
 
   // Query HAB information from server
-  rc = F_SendCmdToServer(client_obj, F_CMD_GET_IHAB,  0);
-  rc = F_RecvDataFromServer(client_obj, inf, &len, sizeof(inf));
+  rc = (*F_SendCmdToServer)(client_obj, F_CMD_GET_IHAB,  0);
+  rc = (*F_RecvDataFromServer)(client_obj, inf, &len, sizeof(inf));
   if(rc)
   {
+    printf("got no hab!\n");
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
     return NULLHANDLE;
   }
@@ -465,7 +468,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
   }
 
   // Inform server we terinate this thread
-  rc = F_SendCmdToServer(client_obj, F_CMD_CLIENT_EXIT, ihab);
+  rc = (*F_SendCmdToServer)(client_obj, F_CMD_CLIENT_EXIT, ihab);
 
   // Close connection with server
   rc = CloseServerConnection();

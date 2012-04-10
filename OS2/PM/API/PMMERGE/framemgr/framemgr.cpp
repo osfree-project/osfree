@@ -47,7 +47,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
     }
 
 //create hwndClient
-    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
+    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -56,7 +56,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
        fatal("SendCmdToServer Error\n");
     }
 
-    rc = F_RecvDataFromServer(client_obj, &hwnd, &len, sizeof(HWND));
+    rc = (*F_RecvDataFromServer)(client_obj, &hwnd, &len, sizeof(HWND));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -127,14 +127,14 @@ HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
   hwndFrame = pStdW->GetHandle();
 
 ////create hwndClient
-//    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
+//    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
 ////todo check rc
-//    rc = F_RecvDataFromServer(client_obj, &hwndFrame, &len, sizeof(HWND));
+//    rc = (*F_RecvDataFromServer)(client_obj, &hwndFrame, &len, sizeof(HWND));
 ////todo check rc
 ////create hwndFrame
-//    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
+//    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
 ////todo check rc
-//    rc = F_RecvDataFromServer(client_obj, &hwndClient, &len, sizeof(HWND));
+//    rc = (*F_RecvDataFromServer)(client_obj, &hwndClient, &len, sizeof(HWND));
 ////todo check rc
 //  *phwndClient = hwndClient;
 ////todo:

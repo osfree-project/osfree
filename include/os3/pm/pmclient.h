@@ -9,10 +9,10 @@
       extern "C" {
 #endif
 
-//void *_client_obj;
-//void *_server_obj;
+//ULONG _client_obj;
+//ULONG _server_obj;
 //ULONG _num_threads;
-APIRET APIENTRY _InitServerConnection(char *remotemachineName);
+APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj);
 APIRET APIENTRY _CloseServerConnection(void);
 APIRET APIENTRY _startServerThreads(void *handl);
 APIRET APIENTRY _F_SendCmdToServer(void *obj, int cmd, int data);
@@ -28,17 +28,17 @@ void APIENTRY   _fatal(const char *message);
   }
 #endif
 
-extern "C" APIRET _client_obj;
-extern "C" APIRET _server_obj;
-extern "C" ULONG  _num_threads;
-extern APIRET APIENTRY (*InitServerConnection)(char *remotemachineName);
+extern "C" ULONG  client_obj;
+extern "C" ULONG  server_obj;
+extern "C" ULONG  num_threads;
+extern APIRET APIENTRY (*InitServerConnection)(char *remotemachineName, ULONG *obj);
 extern APIRET APIENTRY (*CloseServerConnection)(void);
 extern APIRET APIENTRY (*startServerThreads)(void *handl);
-extern APIRET APIENTRY (*F_SendCmdToServer)(void *obj, int cmd, int data);
-extern APIRET APIENTRY (*F_SendDataToServer)(void *obj, void *data, int len);
-extern APIRET APIENTRY (*F_RecvDataFromServer)(void *obj, void *data, int *len, int maxlen);
-extern APIRET APIENTRY (*F_SendGenCmdToServer)(void *obj, int cmd, int par);
-extern APIRET APIENTRY (*F_SendGenCmdDataToServer)(void *obj, int cmd, int par, void *data, int datalen);
-extern APIRET APIENTRY (*F_RecvCmdFromClient)(void *obj, int *ncmd, int *data);
-extern APIRET APIENTRY (*F_RecvDataFromClient)(void *obj, void *sqmsg, int *l, int size);
+extern APIRET APIENTRY (*F_SendCmdToServer)(ULONG obj, int cmd, int data);
+extern APIRET APIENTRY (*F_SendDataToServer)(ULONG obj, void *data, int len);
+extern APIRET APIENTRY (*F_RecvDataFromServer)(ULONG obj, void *data, int *len, int maxlen);
+extern APIRET APIENTRY (*F_SendGenCmdToServer)(ULONG obj, int cmd, int par);
+extern APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int par, void *data, int datalen);
+extern APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data);
+extern APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size);
 extern void APIENTRY   (*fatal)(const char *message);

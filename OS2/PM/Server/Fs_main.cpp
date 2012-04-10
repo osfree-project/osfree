@@ -48,7 +48,7 @@ extern "C" void   FreePM_cleanup(void);
 extern "C" void   FreePM_cleanupHandler(int sig);
 extern "C" void   FreePM_cleanupHandlerFP(int sig);
 
-void handler (void *obj, int ncmd, int data, int l, int len, int threadNum);
+void handler (ULONG obj, int ncmd, int data, int threadNum);
 int SetupSemaphore(void);
 int SetupSignals(void);
 
@@ -445,9 +445,9 @@ HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 
 extern APIRET server_obj;
 
-void handler (void *obj, int ncmd, int data, int l, int len, int threadNum)
+void handler (ULONG obj, int ncmd, int data, int threadNum)
 {
-   int  rc;
+   int  rc, l, len;
 
       switch(ncmd)
       {
@@ -463,7 +463,7 @@ void handler (void *obj, int ncmd, int data, int l, int len, int threadNum)
            break;
         case F_CMD_CLIENT_EXIT:
 //todo: clear ihab = data
-             debug(0, 2) ("Fs_ClientWork: F_CMD_CLIENT_EXIT %x ; not yet implemented\n",data);
+             debug(0, 2) ("Fs_ClientWork: F_CMD_CLIENT_EXIT %x ; not yet implemented\n", data);
            break;
         case F_CMD_WINPOSTMSG:
          {  SQMSG sqmsg;
@@ -652,7 +652,7 @@ void handler (void *obj, int ncmd, int data, int l, int len, int threadNum)
 #define POKA 0
 #if POKA
      case 1:
-             debug(0, 2) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
+             debug(0, 2) ("Fs_ClientWork: Get ncmd %x %x\n", ncmd, data);
              rc=F_SendCmdToServer(obj, ncmd, data);
              switch(data)
              {  case S_SHUTDOWN:
@@ -681,7 +681,7 @@ void handler (void *obj, int ncmd, int data, int l, int len, int threadNum)
 #endif
      //POKA
          default:
-debug(0, 2) ("Fs_ClientWork:WARNING: Unimplemented cmd %x\n",ncmd);
+debug(0, 2) ("Fs_ClientWork:WARNING: Unimplemented cmd %x\n", ncmd);
             ncmd = 0;
            break;
 
