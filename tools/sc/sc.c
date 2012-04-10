@@ -161,5 +161,7 @@ int main(int argc, char **argv)
   system(str);
 
   if VERBOSE printf("Removed \"%s\\e8100000.CTN\"\n", tmpdir);
+
+  return 0;
 }
 
