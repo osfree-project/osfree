@@ -23,8 +23,8 @@ extern const char *const _FreePM_Application_Name;
 extern const char *const _FreePM_Application_Vers;
 
 /* debug support */
-extern int _FreePM_db_level;           /* 7 */
-extern int _FreePM_debugLevels[MAX_DEBUG_SECTIONS];
+extern "C" int FreePM_db_level;           /* 7 */
+extern "C" int FreePM_debugLevels[MAX_DEBUG_SECTIONS];
 extern int _FreePM_opt_debug_stderr;   /* 5 */
 extern FILE *_FreePM_debug_log;        /* NULL */
 extern const char *const w_space;      /* " \t\n\r" */

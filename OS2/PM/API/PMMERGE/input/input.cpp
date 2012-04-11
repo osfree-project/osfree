@@ -1,7 +1,16 @@
-#define INCL_WIN
+#include <freepm.hpp>
+#include <habmgr.hpp>
+#include <pmclient.h>
+
+#include "FreePM_err.hpp"
+#include "F_def.hpp"
+#include "exp.h"
+
+#define  INCL_WIN
 #include <os2.h>
 
-#define debug(...)
+//#define debug(...)
+
 /*** Keyboard and mouse input COMMON subsection *************************/
 
 BOOL  APIENTRY WinSetFocus(HWND hwndDesktop,

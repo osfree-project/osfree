@@ -12,6 +12,9 @@
 #include <sys/types.h>
 #include <sys/timeb.h>
 
+#include "debug.h"
+#include <pmclient.h>
+
 //DATETIME
 time_t
 getCurrentTime(void)

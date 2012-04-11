@@ -11,20 +11,33 @@
 #include "FreePM.hpp"
 #include "FreePM_err.hpp"
 #include "Fc_config.hpp"
+#include "F_def.hpp"
 
-/*+---------------------------------+*/
-/*| External function prototypes.   |*/
-/*+---------------------------------+*/
-#include <pmclient.h>
 /*+---------------------------------+*/
 /*| Global variables                |*/
 /*+---------------------------------+*/
 #include "F_globals.hpp"
 
+/*+---------------------------------+*/
+/*| External function prototypes.   |*/
+/*+---------------------------------+*/
+#include <pmclient.h>
+
 class F_ClientConfig FPM_config;
 
 const char *const _FreePM_Application_Name = FREEPM_CLIENT_APPLICATION_NAME;
 const char *const _FreePM_Application_Vers = FREEPM_VERSION;
+
+extern "C" APIRET APIENTRY  _InitServerConnection(char *remotemachineName, ULONG *obj);
+extern "C" APIRET APIENTRY  _CloseServerConnection(void);
+extern "C" APIRET APIENTRY  _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size);
+extern "C" APIRET APIENTRY  _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data);
+extern "C" APIRET APIENTRY  _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen);
+extern "C" APIRET APIENTRY  _F_SendDataToServer(void *recvobj, void *data, int len);
+extern "C" APIRET APIENTRY  _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen);
+extern "C" APIRET APIENTRY  _F_SendGenCmdToServer(void *recvobj, int cmd, int par);
+extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data);
+extern "C" void APIENTRY    _db_print(const char *format,...);
 
 /*+---------------------------------+*/
 /*| Static  variables               |*/
@@ -36,7 +49,6 @@ static char *ExternMachine = NULL;   /* Name of external machine for pipes like 
 /*|     local constants.            |*/
 /*+---------------------------------+*/
 char PipeName[256];
-
 
 //class FreePM_session session;
 class NPipe *pF_pipe;
@@ -104,7 +116,8 @@ void ExecuteFreePMServer(void)
   DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
 }
 
-APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
+
+extern "C" APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
 {
   int rc;
   char buf[256];
@@ -120,33 +133,33 @@ APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
   FPM_config.Read("FreePM.ini");
 
 /* init debug */
-  _db_init(_FreePMconfig.Log.log, FPM_config.debugOptions);
+  //_db_init(_FreePMconfig.Log.log, FPM_config.debugOptions);
 
   rc = QueryProcessType();
   if(rc == 4)
     _FreePM_detachedMode = 1;
 
-  if(_FreePM_detachedMode)
-  {
-    debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-  } else {
-    debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-  }
+  //if(_FreePM_detachedMode)
+  //{
+  //  debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  //} else {
+  //  debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
+  //}
 
-  if(remotemachineName)
-  {
-    strcpy(FPM_config.ExternMachineName,remotemachineName);
-    ExternMachine = &FPM_config.ExternMachineName[0];
-  } else {
+   if(remotemachineName)
+   {
+     strcpy(FPM_config.ExternMachineName,remotemachineName);
+     ExternMachine = &FPM_config.ExternMachineName[0];
+   } else {
 /* test for FreePM's semaphore  at local machine */
-       debug(1, 0)("Fc_main: FREEPM_MUTEX_NAME=%s \n", FREEPM_MUTEX_NAME );
+       //debug(1, 0)("Fc_main: FREEPM_MUTEX_NAME=%s \n", FREEPM_MUTEX_NAME );
        HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
        rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,    /* Semaphore name */
                             &FREEPM_hmtx);        /* Handle returned */
        DosCloseMutexSem(FREEPM_hmtx);
        if(rc)
        {  /* FreePM server is not running at local machine, let's look for FreePM.ini */
-         debug(1, 1)("FreePM server is not running at local machine, test for server at %s\n",FPM_config.ExternMachineName);
+         //debug(1, 1)("FreePM server is not running at local machine, test for server at %s\n",FPM_config.ExternMachineName);
          ExternMachine = &FPM_config.ExternMachineName[0];
        } else {
          ExternMachine = NULL;
@@ -162,16 +175,16 @@ APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
    }
    strcpy(PipeName,buf);
 
-   debug(1, 0)("Pipe: FREEPM_BASE_PIPE_NAME=%s \n", FREEPM_BASE_PIPE_NAME);
+   //debug(1, 0)("Pipe: FREEPM_BASE_PIPE_NAME=%s \n", FREEPM_BASE_PIPE_NAME);
    pF_pipe = new NPipe(PipeName,CLIENT_MODE);
 
    rc = pF_pipe->Open();
    if(rc)
    {
-      debug(1, 0)("F_pipe.Open rc = %i (%s)\n",rc,GetOS2ErrorMessage(rc));
+      //debug(1, 0)("F_pipe.Open rc = %i (%s)\n",rc,GetOS2ErrorMessage(rc));
       if(ExternMachine)
       {
-        debug(1, 0)("%s is not running at remote machine %s. Starting local server...\n",FREEPM_SERVER_APPLICATION_NAME,ExternMachine);
+        //debug(1, 0)("%s is not running at remote machine %s. Starting local server...\n",FREEPM_SERVER_APPLICATION_NAME,ExternMachine);
         ExecuteFreePMServer();
 
         DosSleep(1000);
@@ -182,20 +195,21 @@ APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
         pF_pipe = new NPipe(PipeName,CLIENT_MODE);
 
         rc = pF_pipe->Open();
-        if(rc)
-        {
-          debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-          _fatal("FreePM server not running");
-        }
-      } else {
-          debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-          _fatal("FreePM server not running");
-      }
+        //if(rc)
+        //{
+        //  debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
+        //  _fatal_common("FreePM server not running");
+        //}
+      } //else {
+      //    debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
+      //    _fatal_common("FreePM server not running");
+      //}
    }
     rc = pF_pipe->HandShake();
     if(rc ==  HAND_SHAKE_ERROR)
-    {   debug(1, 0)("Error handshake %i, pipe %s\n",rc,PipeName);
-        _fatal("Error handshake  pipe");
+    {   //debug(1, 0)("Error handshake %i, pipe %s\n",rc,PipeName);
+        //_fatal_common("Error handshake  pipe");
+        return 1;
     }
 //todo
     client_obj  = (APIRET)pF_pipe;
@@ -205,7 +219,8 @@ APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
     return rc;
 }
 
-APIRET APIENTRY  _CloseServerConnection(void)
+
+extern "C" APIRET APIENTRY  _CloseServerConnection(void)
 {   if(pF_pipe)
     {
     LOCK_PIPE;
@@ -218,7 +233,8 @@ APIRET APIENTRY  _CloseServerConnection(void)
     return 0;
 }
 
-APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data)
+
+extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data)
 {   int rc;
     LOCK_PIPE;
 
@@ -251,33 +267,35 @@ APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data)
    return rc;
 }
 
+
 /* Послать команду cmd c параметром par на сервер, получить ответ и вернуть его */
 /* застрелиться при ошибках */
-APIRET APIENTRY  _F_SendGenCmdToServer(void *recvobj, int cmd, int par)
+extern "C" APIRET APIENTRY  _F_SendGenCmdToServer(void *recvobj, int cmd, int par)
 {   int rc,len,retcode;
     rc = _F_SendCmdToServer(recvobj, cmd, par);
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       _fatal("SendCmdToServer Error\n");
+       _fatal_common("SendCmdToServer Error\n");
     }
     rc = _F_RecvDataFromServer(recvobj, &retcode, &len, sizeof(int));
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":RecvDataFromServer Error: %s\n",GetOS2ErrorMessage(rc));
-       _fatal("RecvDataFromServer Error\n");
+       _fatal_common("RecvDataFromServer Error\n");
     }
     debug(1, 3)( __FUNCTION__ "(cmd=%x, par=%x) ret =%x\n",cmd, par, retcode);
 
     return retcode;
 }
 
+
 /* Послать команду cmd c параметром par, данные data длиной datalen*sizeof(int) на сервер, получить ответ и вернуть его */
 /* застрелиться при ошибках */
-APIRET APIENTRY  _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen)
+extern "C" APIRET APIENTRY  _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen)
 {   int rc,len,retcode;
 M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
     if(rc)
     {  debug(1, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       _fatal("SendCmdToServer Error\n");
+       _fatal_common("SendCmdToServer Error\n");
     }
     rc =  _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
     if(rc)
@@ -286,7 +304,7 @@ M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
            goto M;/* attempt to reconnect till timeout */
        }
        debug(1, 0)("WARNING:"__FUNCTION__":SendDataToServer Error: %s\n",GetOS2ErrorMessage(rc));
-       _fatal("SendCmdToServer Error\n");
+       _fatal_common("SendCmdToServer Error\n");
     }
 
     rc = _F_RecvDataFromServer(recvobj, &retcode, &len, sizeof(int));
@@ -296,7 +314,7 @@ M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
            goto M;/* attempt to reconnect till timeout */
        }
        debug(1, 0)("WARNING:"__FUNCTION__":RecvDataFromServer Error: %s\n",GetOS2ErrorMessage(rc));
-       _fatal("RecvDataFromServer Error\n");
+       _fatal_common("RecvDataFromServer Error\n");
     }
     debug(1, 3)( __FUNCTION__ " retcode =%x\n",retcode);
 
@@ -304,7 +322,7 @@ M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
 }
 
 
-APIRET APIENTRY  _F_SendDataToServer(void *recvobj, void *data, int len)
+extern "C" APIRET APIENTRY  _F_SendDataToServer(void *recvobj, void *data, int len)
 {   int rc;
     LOCK_PIPE;
 
@@ -315,7 +333,8 @@ APIRET APIENTRY  _F_SendDataToServer(void *recvobj, void *data, int len)
    return rc;
 }
 
-APIRET APIENTRY  _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen)
+
+extern "C" APIRET APIENTRY  _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen)
 {   int rc;
     LOCK_PIPE;
 
@@ -327,7 +346,7 @@ APIRET APIENTRY  _F_RecvDataFromServer(void *recvobj, void *data, int *len, int 
 }
 
 
-APIRET APIENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
+extern "C" APIRET APIENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
 {    int rc;
      LOCK_PIPE;
 
@@ -337,7 +356,7 @@ APIRET APIENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
      return rc;
 }
 
-APIRET APIENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
+extern "C" APIRET APIENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
 {    int rc;
      LOCK_PIPE;
 
@@ -437,7 +456,7 @@ void /*_Optlink*/  Fs_ClientWork(void *param)
        {    debug(0, 0) ("WARNING: Fs_ClientWork: %s\n",str);
             goto ENDTHREAD;
        }
-       _fatal(str);
+       _fatal_common(str);
     }
     LSthreads.state[threadNum] = 0;
     debug(0, 2) ("Fs_ClientWork%i: Pipe create %s %x %x\n",threadNum,FreePM_pipe[threadNum].name, threadNum ,FreePM_pipe[threadNum].Hpipe);
@@ -567,7 +586,7 @@ ENDTHREAD:
 }
 
 
-APIRET APIENTRY _startServerThreads(void *handl)
+extern "C" APIRET APIENTRY _startServerThreads(void *handl)
 {  
   int i,ii, id, idd;
   typedef void (*handler_t) (void *obj, int ncmd, int data, int threadNum);

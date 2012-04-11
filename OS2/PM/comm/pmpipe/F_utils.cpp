@@ -7,7 +7,11 @@
 
 #include <sys/types.h>
 //#include <sys/timeb.h>
+#include "F_def.hpp"
 
+#include <pmclient.h>
+
+extern "C" void APIENTRY _db_print(const char *format,...);
 
 /* добавить процессу ReqCount файловых хендлов, возвращает текущее число хендлов (новое) */
 int OS2SetRelMaxFH(int ReqCount)

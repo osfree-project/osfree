@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include "F_globals.hpp"
 
+#include "debug.h"
+#include <pmclient.h>
 
 #define FREPM_SERVER
 

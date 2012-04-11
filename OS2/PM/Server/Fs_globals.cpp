@@ -34,8 +34,8 @@ int _FreePM_detachedMode = 0;
 PFPM_DeviceStart_FN FPM_DeviceStart;
 
 /* debug support */
-int _FreePM_db_level    = 7;
-int _FreePM_debugLevels[MAX_DEBUG_SECTIONS];
+extern "C" int _FreePM_db_level    = 7;
+extern "C" int _FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
 int _FreePM_opt_debug_stderr = 5;
 FILE *_FreePM_debug_log=NULL;
 

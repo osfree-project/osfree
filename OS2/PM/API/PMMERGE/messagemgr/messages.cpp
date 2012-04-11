@@ -16,6 +16,9 @@
 #include <sys/timeb.h>
 //#include <sys/time.h>
 
+#include "F_def.hpp"
+#include "exp.h"
+
 extern class _FreePM_HAB  _hab;
 
 
@@ -73,7 +76,7 @@ HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
   if(rc < 1)
   {
     _hab.SetError(PMERR_INVALID_HAB);
-    //debug(3, 0)("WARNING: "__FUNCTION__": bad ihab %x\n",ihab);
+    debug(3, 0)("WARNING: "__FUNCTION__": bad ihab %x\n",ihab);
     return NULLHANDLE;
   }
 
@@ -122,7 +125,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     int rc,rcs;
     FPMQMSG fpmqmsg;
 
-    //debug(3, 2)("WinGetMsg call\n");
+    debug(3, 2)("WinGetMsg call\n");
 
     if(pqmsg == NULL)
     {  _hab.SetError(ihab, FPMERR_NULL_POINTER);
@@ -132,7 +135,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     rc =  _hab.QueryHABexist(ihab);
     if(rc != 1)
     {  //_hab.SetError(ihab - bad! , PMERR_INVALID_HAB);
-       //debug(3, 0)("WARNING: WinGetMsg: bad ihab %x\n",ihab);
+       debug(3, 0)("WARNING: WinGetMsg: bad ihab %x\n",ihab);
        return brc;
     }
 /***  Wait messages loop */
@@ -142,7 +145,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
        if(rc)
        {  rc =  _hab.hab[ihab].pQueue->Get((PSQMSG)&fpmqmsg /*pqmsg*/);
           if(rc == 0)
-          {  //debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
+          {  debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
             if(fpmqmsg.msg == WM_QUIT) brc = FALSE;
             // Здесь копируем кусок сообщения, т.к. мы используем расширенное
             return brc;
@@ -155,7 +158,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
             {  if(rc == ERROR_BROKEN_PIPE)
                {      /* todo: attempt to reconnect till timeout */
                }
-               //debug(3, 0)("WinGetMsg Error: %s\n",rc);
+               debug(3, 0)("WinGetMsg Error: %s\n",rc);
                fatal("WinGetMsg Error\n");
             }
 //todo check rc
@@ -172,14 +175,14 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                          if(rc == ERROR_BROKEN_PIPE)
                          {      /* todo: attempt to reconnect till timeout */
                          }
-                         //debug(3, 0)("WinGetMsg Error(2): %s\n",rc);
+                         debug(3, 0)("WinGetMsg Error(2): %s\n",rc);
                          fatal("WinGetMsg Error(2)\n");
                       }
                   }
             }
        }
 //No messages: Let's sleep
-       //debug(3, 9)("WinGetMsg Sleep\n");
+       debug(3, 9)("WinGetMsg Sleep\n");
        DosSleep(1);
     } while(1);
 
@@ -194,7 +197,7 @@ MRESULT APIENTRY WinDispatchMsg(HAB hab,
    rc = _hab.QueryOrdinalUsed(ordinal,Q_ORDINAL_HAB);
    if(rc == -1)
        {  _hab.SetError(PMERR_INVALID_HAB);
-          //debug(3, 0)("WARNING: WinDispatchMsg: error PMERR_INVALID_HAB\n");
+          debug(3, 0)("WARNING: WinDispatchMsg: error PMERR_INVALID_HAB\n");
          return NULL;
        }
    iHab = rc;
@@ -211,7 +214,7 @@ MRESULT APIENTRY WinDispatchMsg(HAB hab,
        rcf = _hab.hab[indiHabto].pHwnd[indpw].pw->proc(pqmsg);
 
   } else {
-       //debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND ?");
+       debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND ?");
   }
 
   return NULL;
@@ -268,7 +271,7 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
        rc = _hab.QueryOrdinalUsed(ordinal,Q_ORDINAL_HAB);
        if(rc == -1)
        {  _hab.SetError(PMERR_INVALID_HAB);
-          //debug(3, 0)("WARNING: WinSendMsg: error PMERR_INVALID_HAB\n");
+          debug(3, 0)("WARNING: WinSendMsg: error PMERR_INVALID_HAB\n");
 
          return NULL;
        }
@@ -314,7 +317,7 @@ BOOL    APIENTRY WinQueryQueueInfo(HMQ hmq,
                                    PMQINFO pmqi,
                                    ULONG cbCopy)
 {
- //debug(3, 2)( __FUNCTION__ "is not yet implemented\n");
+ debug(3, 2)( __FUNCTION__ "is not yet implemented\n");
 //todo
     return TRUE;
 }
@@ -344,7 +347,7 @@ BOOL    APIENTRY WinPeekMsg(HAB ihab,
     rc =  _hab.QueryHABexist(ihab);
     if(rc != 1)
     {  //_hab.SetError(ihab - bad!, PMERR_INVALID_HAB);
-       //debug(3, 0)("WARNING: WinPeekMsg: bad ihab %x\n",ihab);
+       debug(3, 0)("WARNING: WinPeekMsg: bad ihab %x\n",ihab);
        return TRUE;
     }
 //todo
@@ -394,7 +397,7 @@ BOOL    APIENTRY WinPostMsg(HWND hwnd,
        rc =  _hab.QueryHABexist(iHABto);
        if(rc != 1)
        {  _hab.SetError(PMERR_INVALID_HAB);
-          //debug(3, 0)("WARNING: WinPostMsg: bad iHABto %x for hwnd %x\n",iHABto,hwnd);
+          debug(3, 0)("WARNING: WinPostMsg: bad iHABto %x for hwnd %x\n",iHABto,hwnd);
 
           return NULL;
        }
@@ -427,7 +430,7 @@ BOOL    APIENTRY WinRegisterUserMsg(HAB hab,
                                     LONG datatyper)
 {
 //todo
- //debug(3, 2)( __FUNCTION__ "is not yet implemented\n");
+ debug(3, 2)( __FUNCTION__ "is not yet implemented\n");
     return TRUE;
 }
 

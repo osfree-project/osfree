@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include "F_globals.hpp"
 
+#include "debug.h"
+#include <pmclient.h>
+
 /* добавить окно с HABом _ihab в список окон.
    return: индекс окна в этом списке.
            сей индекс будет называться потом хендлом окна (hwnd)

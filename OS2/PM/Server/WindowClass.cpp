@@ -15,6 +15,8 @@
 
 #include "FreePMs.hpp"
 
+#include "debug.h"
+#include <pmclient.h>
 
 time_t getCurrentTime(void);
 

@@ -2,10 +2,12 @@
 #include <pmclient.h>
 #include <habmgr.hpp>
 
-#define debug(...)
+//#define debug(...)
+
+#include "F_def.hpp"
+#include "exp.h"
 
 extern class _FreePM_HAB  _hab;
-
 
 BOOL    APIENTRY WinShowWindow(HWND hwnd, BOOL fShow)
 {

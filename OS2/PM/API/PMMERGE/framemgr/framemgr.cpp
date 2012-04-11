@@ -1,11 +1,13 @@
 #include <freepm.hpp>
 #include <pmclient.h>
 #include <habmgr.hpp>
+#include "F_def.hpp"
+#include "exp.h"
 //#include <window.hpp>
 
 extern class _FreePM_HAB  _hab;
 
-#define debug(...)
+//#define debug(...)
 
 BOOL    APIENTRY WinRegisterClass(HAB ihab,
                                   PCSZ  pszClassName,
@@ -47,7 +49,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
     }
 
 //create hwndClient
-    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
+    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -56,7 +58,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
        fatal("SendCmdToServer Error\n");
     }
 
-    rc = (*F_RecvDataFromServer)(client_obj, &hwnd, &len, sizeof(HWND));
+    rc = F_RecvDataFromServer(client_obj, &hwnd, &len, sizeof(HWND));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
@@ -120,7 +122,7 @@ HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
                           idResources,    /*  Window resource identifier. */
                           phwndClient);    /*  return: client window hwnd */
 
-// debug(3, 2)( __FUNCTION__ "is not yet full implemented\n");
+ debug(3, 2)( __FUNCTION__ "is not yet full implemented\n");
 
 
 //create hwndFrame

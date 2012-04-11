@@ -30,24 +30,6 @@ IMPORTS = RectCopy_ utlapi.1,                    &
           RectSubtract_ utlapi.11,               &
           RectMakeRect_ utlapi.12,               &
           RectMakePoints_ utlapi.13
-# PMClient communication library
-#ALIASES = _InitServerConnection = InitServerConnection,   &
-#          _CloseServerConnection = CloseServerConnection, &
-#          _F_SendCmdToServer = F_SendCmdToServer,       &
-#          _F_SendDataToServer = F_SendDataToServer,     &
-#          _F_RecvDataFromServer = F_RecvDataFromServer, &
-#          _F_SendGenCmdToServer = F_SendGenCmdToServer, &
-#          _F_SendGenCmdDataToServer = F_SendGenCmdDataToServer, &
-#          _F_RecvCmdFromClient = F_RecvCmdFromClient,   &
-#          _fatal = fatal
-#          InitServerConnection pmclient.1,      &
-#          CloseServerConnection pmclient.2,     &
-#          _F_SendCmdToServer pmclient.3,        &
-#          _F_SendDataToServer pmclient.4,       &
-#          _F_RecvDataFromServer pmclient.5,     &
-#          _F_SendGenCmdToServer pmclient.6,     &
-#          _F_SendGenCmdDataToServer pmclient.7, &
-#          fatal pmclient.8
 EXPORTS = WinCopyRect.05127,             &
           WinCreateMsgQueue.05136,       &
           WinCreateStdWindow.05139,      &

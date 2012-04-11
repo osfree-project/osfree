@@ -19,7 +19,9 @@
 #include "Fs_driver.h"
 #include <gd.h>
 
+#include "debug.h"
 #include <pmclient.h>
+#include "F_def.hpp"
 
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
@@ -127,7 +129,7 @@ int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
          break;
       default:
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device %i not supported\n", _dev_type);
-        fatal("Device not supported");
+        fatalf("Device not supported");
 
          break;
    }

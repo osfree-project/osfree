@@ -31,6 +31,9 @@
 #define F_CMD_GPI_DRAW_LINE	0x103
 #define F_CMD_GPI_DRAW_RECT	0x104
 
+#define F_CMD_DB_PRINT	        0x200
+#define F_CMD_FATAL_COMMON	0x201
+
 //OpenGL cmds, all & 0x10000
 //wgl  subset  all & 0x11000
 //glut subset  all & 0x12000

@@ -13,6 +13,8 @@
 #include "FreePM.hpp"
 #include "F_hab.hpp"
 #include "F_globals.hpp"
+#include "debug.h"
+#include <pmclient.h>
 
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/

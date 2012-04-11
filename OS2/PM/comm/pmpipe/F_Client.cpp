@@ -1,6 +1,6 @@
 /* F_Client.cpp*/
 #define POKA 0
-#define DEBUG 0
+//#define DEBUG 0
 /* ver 0.01 24.08.2002       */
 
 #include <stdio.h>
@@ -31,14 +31,14 @@ struct LogFileStat *LogFileStat;
 char **globalArgv ;
 char **globalEnvp ;
 
-int globalDebug = 0;
-int globalPid = 0;
-char *globalLogDir = NULL;
+//int globalDebug = 0;
+//int globalPid = 0;
+//char *globalLogDir = NULL;
 
-int sockSquid= -1;
-static const char *hello_string = "hi there\n";
-char *progname;
-char *ExternMachine = NULL;
+//int sockSquid= -1;
+//static const char *hello_string = "hi there\n";
+//char *progname;
+//char *ExternMachine = NULL;
 
 #define LOCKED    1
 #define UNLOCKED  0

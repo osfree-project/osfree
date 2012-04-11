@@ -13,12 +13,13 @@
 
 #include <freepm.hpp>
 #include <habmgr.hpp>
-
-#include "FreePM_err.hpp"
-
 #include <pmclient.h>
 
-#define debug(...)
+#include "FreePM_err.hpp"
+#include "F_def.hpp"
+#include "exp.h"
+
+//#define debug(...)
 
 class _FreePM_HAB  _hab;
 int _FreePM_id_index = 0;
@@ -424,7 +425,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   rc = InitServerConnection(NULL, &client_obj);
   if(rc)
   {
-    printf("got no connection!\n");
+    debug(2, 0)(__FUNCTION__": got no connection!\n");
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
     return NULLHANDLE;
   }
@@ -434,7 +435,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   rc = (*F_RecvDataFromServer)(client_obj, inf, &len, sizeof(inf));
   if(rc)
   {
-    printf("got no hab!\n");
+    debug(2, 0)(__FUNCTION__": got no hab!\n");
     _hab.SetError(FPMERR_INITSERVER_CONNECTION);
     return NULLHANDLE;
   }
@@ -446,6 +447,8 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
     iHAB = NULLHANDLE;
   else
     iHAB = inf[0];
+
+  debug(2, 0)(__FUNCTION__": successful\n");
 
   return iHAB;
 }

@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
- #include <signal.h>
- #include <unistd.h>
+#include <signal.h>
+#include <unistd.h>
 #include <float.h>
 #include <time.h>
 #include <process.h>
@@ -19,8 +19,6 @@
 /*#include "FreePM_win.hpp" Maybe Constants ? */
 //#include "FreePM_winConstants.hpp"
 //#include "F_pipe.hpp"
-
-#include <pmclient.h>
 
 #include "FreePM_cmd.hpp"
 #include "Fs_WND.hpp"
@@ -35,6 +33,8 @@
 #include "F_utils.hpp"
 /* #include "snprintf.h" */
 
+#include "debug.h"
+#include <pmclient.h>
 
 /*+---------------------------------+*/
 /*| External function prototypes.   |*/
@@ -448,6 +448,7 @@ extern APIRET server_obj;
 void handler (ULONG obj, int ncmd, int data, int threadNum)
 {
    int  rc, l, len;
+   char buf[256];
 
       switch(ncmd)
       {
@@ -647,7 +648,16 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
         case F_CMD_GPI_DRAW_RECT:
 //TODO
            break;
-
+        case F_CMD_DB_PRINT:
+           {
+             F_RecvDataFromClient(obj, (char *)buf, &len, sizeof(buf));
+             _db_print(buf);
+           }
+           break;
+        case F_CMD_FATAL_COMMON:
+           F_RecvDataFromClient(obj, (char *)buf, &len, sizeof(buf));
+           _fatal_common(buf);
+           break;
 
 #define POKA 0
 #if POKA

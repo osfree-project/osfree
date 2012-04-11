@@ -28,7 +28,7 @@
 #include "F_globals.hpp"
 /* #include "snprintf.h" */
 
-
+#include "debug.h"
 
 void fatalf(const char *fmt,...);
 const char * xstrerror_type(int type);
@@ -454,13 +454,13 @@ ctx_get_descr(int ctx)
 /*   fatal* functions family        */
 /************************************/
 static void fatalvf(const char *fmt, va_list args);
-static void fatal_common(const char *message);
 
+void _fatal_common(const char *message);
 void fatal(const char *message);
 void fatalf(const char *fmt,...);
 
-static void
-fatal_common(const char *message)
+void
+_fatal_common(const char *message)
 {
  if(_FreePM_FatalInProgress) return;
  _FreePM_FatalInProgress = 1;
@@ -503,7 +503,7 @@ fatal(const char *message)
 //todo
 //    KillAllChilds();
 
-    fatal_common(message);
+    _fatal_common(message);
     if (_FreePM_shutting_down)
        exit(0);
     else

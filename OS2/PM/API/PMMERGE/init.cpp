@@ -5,23 +5,27 @@
 #define  INCL_DOSMISC
 #define  INCL_DOSMODULEMGR
 #include <os2.h>
-
+#include "F_def.hpp"
 #include <stdio.h>
+#include "exp.h"
 
 extern "C" APIRET client_obj  = 0;
 extern "C" APIRET server_obj  = 0;
 extern "C" APIRET num_threads = 0;
-APIRET APIENTRY (*InitServerConnection)(char *remotemachineName, ULONG *obj);
-APIRET APIENTRY (*CloseServerConnection)(void);
-APIRET APIENTRY (*startServerThreads)(void *handl);
-APIRET APIENTRY (*F_SendCmdToServer)(ULONG obj, int cmd, int data);
-APIRET APIENTRY (*F_SendDataToServer)(ULONG obj, void *data, int len);
-APIRET APIENTRY (*F_RecvDataFromServer)(ULONG obj, void *data, int *len, int maxlen);
-APIRET APIENTRY (*F_SendGenCmdToServer)(ULONG obj, int cmd, int par);
-APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int par, void *data, int datalen);
-APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data);
-APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size);
-void APIENTRY   (*fatal)(const char *message);
+extern "C" APIRET APIENTRY (*InitServerConnection)(char *remotemachineName, ULONG *obj) = 0;
+extern "C" APIRET APIENTRY (*CloseServerConnection)(void) = 0;
+extern "C" APIRET APIENTRY (*startServerThreads)(void *handl) = 0;
+extern "C" APIRET APIENTRY (*F_SendCmdToServer)(ULONG obj, int cmd, int data) = 0;
+extern "C" APIRET APIENTRY (*F_SendDataToServer)(ULONG obj, void *data, int len) = 0;
+extern "C" APIRET APIENTRY (*F_RecvDataFromServer)(ULONG obj, void *data, int *len, int maxlen) = 0;
+extern "C" APIRET APIENTRY (*F_SendGenCmdToServer)(ULONG obj, int cmd, int par) = 0;
+extern "C" APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int par, void *data, int datalen) = 0;
+extern "C" APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data) = 0;
+extern "C" APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size) = 0;
+extern "C" void APIENTRY   (*fatal)(const char *message) = 0;
+extern "C" void APIENTRY   (*db_print)(const char *format,...) = 0;
+extern "C" APIRET FreePM_db_level = 0;
+extern "C" APIRET FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
 
 HMODULE   hmodBE = 0;
 
@@ -120,6 +124,21 @@ extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
      return 0;
 
     rc = DosQueryProcAddr(hmodBE, 14, 0, (PFN *)&fatal);
+
+    if (rc)
+      return 0;
+
+    rc = DosQueryProcAddr(hmodBE, 15, 0, (PFN *)&db_print);
+
+    if (rc)
+      return 0;
+
+    rc = DosQueryProcAddr(hmodBE, 16, 0, (PFN *)&FreePM_db_level);
+
+    if (rc)
+      return 0;
+
+    rc = DosQueryProcAddr(hmodBE, 17, 0, (PFN *)&FreePM_debugLevels);
 
     if (rc)
       return 0;

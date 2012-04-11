@@ -18,7 +18,8 @@
 #include "FreePM_err.hpp"
 #include "Fs_HPS.hpp"
 //#include "F_GPI.hpp"
-
+#include "F_def.hpp"
+#include "debug.h"
 #include <pmclient.h>
 
 time_t getCurrentTime(void);
@@ -98,7 +99,7 @@ int FreePM_DeskTop::Init(int nx, int ny, int bytesPerPixel)
     rc = _shab.QueryOrdinalUsed(ordinal, Q_ORDINAL_HAB);
     if(rc != -1)
     {  _shab.SetError(rc, PMERR_ALREADY_INITIALIZED);
-       fatal("FreePM_DeskTop::Init WARNING: Tread Ordinal already used\n");
+       fatalf("FreePM_DeskTop::Init WARNING: Tread Ordinal already used\n");
        return NULLHANDLE;
     }
 

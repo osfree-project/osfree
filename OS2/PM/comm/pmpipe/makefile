@@ -34,6 +34,9 @@ EXPORTS  = _client_obj.1,                &
            _F_SendGenCmdDataToServer.11, &
            _F_RecvCmdFromClient.12,      &
            _F_RecvDataFromClient.13,     &
-           _fatal.14
+           _fatal_common.14,             &
+           _db_print.15,                 &
+           _FreePM_db_level.16,          &
+           _FreePM_debugLevels.17
 
 !include $(%ROOT)/mk/appsos2.mk
