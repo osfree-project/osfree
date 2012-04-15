@@ -8,7 +8,8 @@
 
 #include <FreePM.hpp>
 
-#include "habmgr.hpp"
+//#include "habmgr.hpp"
+#include <F_hab.hpp>
 
 #include <pmclient.h>
 
@@ -125,7 +126,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     int rc,rcs;
     FPMQMSG fpmqmsg;
 
-    debug(3, 2)("WinGetMsg call\n");
+    debug(3, 0)("WinGetMsg call\n"); // 2
 
     if(pqmsg == NULL)
     {  _hab.SetError(ihab, FPMERR_NULL_POINTER);
@@ -145,7 +146,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
        if(rc)
        {  rc =  _hab.hab[ihab].pQueue->Get((PSQMSG)&fpmqmsg /*pqmsg*/);
           if(rc == 0)
-          {  debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
+          {  debug(3, 0)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2); // 1
             if(fpmqmsg.msg == WM_QUIT) brc = FALSE;
             // Здесь копируем кусок сообщения, т.к. мы используем расширенное
             return brc;
@@ -182,16 +183,19 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
             }
        }
 //No messages: Let's sleep
-       debug(3, 9)("WinGetMsg Sleep\n");
+       debug(3, 9)("WinGetMsg Sleep\n"); // 9
        DosSleep(1);
-    } while(1);
+    } while(0);
 
+    return brc;
 }
 
 MRESULT APIENTRY WinDispatchMsg(HAB hab,
                                    PQMSG pqmsg)
 { int ordinal, iHab, tid,iHABto, indiHabto, indpw;
   int rc,rcf;
+
+   debug(3, 0)("WinDispatchMsg call\n"); // 2
 
    ordinal = QueryThreadOrdinal(tid);
    rc = _hab.QueryOrdinalUsed(ordinal,Q_ORDINAL_HAB);
@@ -214,7 +218,7 @@ MRESULT APIENTRY WinDispatchMsg(HAB hab,
        rcf = _hab.hab[indiHabto].pHwnd[indpw].pw->proc(pqmsg);
 
   } else {
-       debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND ?");
+       debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND ?\n");
   }
 
   return NULL;

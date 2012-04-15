@@ -19,22 +19,31 @@ struct _FreePM_hwnd
    FPM_Window *pw;  /* pointer to window class */
 };
 
+struct _FreePM_ClassInfo
+{
+  CLASSINFO ci;
+  char      classname[128];
+};
+
 struct _FreePM_HABinf
-{  volatile int Access; /* fast access semaphor  */
-   int ordinal;         /* Thread ordinal        */
-   int lastError;       /* last error for thread */
-   int used;            /* 0-free, 1-used (??)   */
-   int clientId;        /* magic number, assigned to client */
-   int iHAB;            /* HAB index from server */
+{  volatile int Access;      /* fast access semaphor  */
+   int ordinal;              /* Thread ordinal        */
+   int lastError;            /* last error for thread */
+   int used;                 /* 0-free, 1-used (??)   */
+   int clientId;             /* magic number, assigned to client */
+   int iHAB;                 /* HAB index from server */
 
-   class  FreePM_Queue   *pQueue;
-   volatile int msgSendTo;/* (iHAB+1 ?? ) to msg is sent, semaphor for msg send state */
-   QMSG msgSend;        /* буфер для одного сообщения, посылаемого из одной нитки в другую */
+   class  Fs_Queue   *pQueue;
+   volatile int msgSendTo;   /* (iHAB+1 ?? ) to msg is sent, semaphor for msg send state */
+   QMSG msgSend;             /* буфер для одного сообщения, посылаемого из одной нитки в другую */
 
-   int nHwnd;      /* число окон клиентской задачи */
-   int lAllocpHwnd;/* размер буфера pHwnd */
+   int nHwnd;                /* число окон клиентской задачи */
+   int lAllocpHwnd;          /* размер буфера pHwnd */
    _FreePM_hwnd *pHwnd;
-/* буффер длиной lAllocpHwnd*sizeof(_FreePM_hwnd) со списком hwnd окон, принадлежащих HABу */
+   /* буффер длиной lAllocpHwnd*sizeof(_FreePM_hwnd) со списком hwnd окон, принадлежащих HABу */
+   int numWinClasses;
+   int lAllocWinClasses;
+   struct _FreePM_ClassInfo *pWinClassList; /* Private window classes list */
 };
 
 class _FreePM_HAB
@@ -47,7 +56,6 @@ public:
 
    _FreePM_HAB(void)
    {  n = 0;
-      nTaskHwnd = 0;
 //      pHwnd = NULL;
 //      lAllocpHwnd = 0;
    }

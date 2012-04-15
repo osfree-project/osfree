@@ -12,7 +12,8 @@
 #include <time.h>
 
 #include <freepm.hpp>
-#include <habmgr.hpp>
+//#include <habmgr.hpp>
+#include <F_hab.hpp>
 #include <pmclient.h>
 
 #include "FreePM_err.hpp"
@@ -156,6 +157,9 @@ int _FreePM_HAB::AddHAB(int ordinal, int iHAB,  int clientId)
     hab[i].nHwnd     = 0;
     hab[i].lAllocpHwnd = 0;
     hab[i].pHwnd  = NULL;
+    hab[i].numWinClasses = 0;
+    hab[i].pWinClassList = NULL;
+    hab[i].lAllocWinClasses = 16;
 
     return 0;
 }

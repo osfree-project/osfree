@@ -16,6 +16,7 @@
 #include <bseerr.h>
 
 #define NO_ERROR          0
+#define BUFSIZE           256
 
 /*#define ERROR_INVALID_FUNCTION -3
 #define EBADNAME               -4
@@ -112,11 +113,11 @@ xstrerror_type(int type)
 /*  xstdio_strerror() - strerror() wrapper */
 const char *
 xstdio_strerror(void)
-{   static char xstrerror_buf[BUFSIZ];
+{   static char xstrerror_buf[BUFSIZE];
     int fix_errno;
     fix_errno = errno;
     if (fix_errno < 0 || fix_errno >= EOS2ERR+1)
-       snprintf(xstrerror_buf, BUFSIZ, "(%d) Unknown", fix_errno);
+       snprintf(xstrerror_buf, BUFSIZE, "(%d) Unknown", fix_errno);
     else
     {
        if(EOS2ERR == fix_errno)
@@ -125,13 +126,13 @@ xstdio_strerror(void)
 
           for(i=0; i< sizeof(OS2_ErrMessages) / sizeof(struct OS2_ErrMsg); i++)
            {  if(ierr == OS2_ErrMessages[i].ierrcode)
-               {  snprintf(xstrerror_buf, BUFSIZ, "OS/2 error(%d) %s", ierr, OS2_ErrMessages[i].msg);
+               {  snprintf(xstrerror_buf, BUFSIZE, "OS/2 error(%d) %s", ierr, OS2_ErrMessages[i].msg);
                   return xstrerror_buf;
                }
            }
-           snprintf(xstrerror_buf, BUFSIZ, "Unknown errcode: %d OS/2 err=%d", fix_errno, ierr);
+           snprintf(xstrerror_buf, BUFSIZE, "Unknown errcode: %d OS/2 err=%d", fix_errno, ierr);
        } else
-            snprintf(xstrerror_buf, BUFSIZ, "%s (%d)",  StdStrError(fix_errno),fix_errno);
+            snprintf(xstrerror_buf, BUFSIZE, "%s (%d)",  StdStrError(fix_errno),fix_errno);
     }
     return xstrerror_buf;
 }

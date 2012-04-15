@@ -14,6 +14,8 @@
 #include "F_globals.hpp"
 #include <pmclient.h>
 
+#define BUFSIZE 256
+
 extern class NPipe *pF_pipe;
 
 void fatalf(const char *fmt,...);
@@ -50,16 +52,19 @@ extern "C" void APIENTRY    _db_print(const char *format,...);
 extern "C" void APIENTRY
 _db_print(const char *format,...)
 {
-  char f[BUFSIZ];
+  char f[BUFSIZE];
   va_list args;
 
+  memset(&f, 0, BUFSIZE);
   va_start(args, format);
-  snprintf(f, BUFSIZ, format, args);
+  vsprintf(f, format, args);
+
   if (pF_pipe) 
   {
     if (!_F_SendCmdToServer(pF_pipe, F_CMD_DB_PRINT, 0))
-      _F_SendDataToServer(pF_pipe, (void *)f, strlen(f));
+      _F_SendDataToServer(pF_pipe, (void *)f, BUFSIZE);
   }
+  
   va_end(args);
 }
 
@@ -130,7 +135,7 @@ fatalf(const char *fmt,...)
 void
 fatalvf(const char *fmt, va_list args)
 {
-    static char fatal_str[BUFSIZ];
+    static char fatal_str[BUFSIZE];
     vsnprintf(fatal_str, sizeof(fatal_str), fmt, args);
     _fatal(fatal_str);
 }

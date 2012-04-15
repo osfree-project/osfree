@@ -23,6 +23,8 @@
 #define INCL_DOSPROCESS
 #include <os2.h>
 
+#define BUFSIZE 256
+
 //#include "F_pipe.hpp"
 
 #include "F_globals.hpp"
@@ -50,7 +52,7 @@ int DebugCount=0;
 void
 _db_print(const char *format,...)
 {
-    char f[BUFSIZ];
+    char f[BUFSIZE];
     va_list args1;
     va_list args2;
     va_list args3;
@@ -66,10 +68,10 @@ static char strOldLogTime[32]="";
     va_start(args3, format);
     strcpy(strLogTime, (char *)debugLogTime((time_t)_FreePM_curtime));
     if(strcmp(strLogTime,strOldLogTime) || DebugCount < 1)
-    {  snprintf(f, BUFSIZ, "%i %s|%s",DebugCount ,strLogTime, format);
+    {  snprintf(f, BUFSIZE, "%i %s|%s",DebugCount ,strLogTime, format);
        strcpy(strOldLogTime,strLogTime);
     } else
-       snprintf(f, BUFSIZ, "%i|%s",DebugCount ,format);
+       snprintf(f, BUFSIZE, "%i|%s",DebugCount ,format);
 DebugCount++;
 
     if (_FreePM_debug_log != stderr || DebugCount >= 10)
@@ -129,15 +131,15 @@ _db_print_stderr(const char *format, va_list args)
 static void
 _db_print_syslog(const char *format, va_list args)
 {
-    LOCAL_ARRAY(char, tmpbuf, BUFSIZ);
+    LOCAL_ARRAY(char, tmpbuf, BUFSIZE);
     /* level 0,1 go to syslog */
     if (_FreePM_db_level > 1)
        return;
     if (0 == opt_syslog_enable)
        return;
     tmpbuf[0] = '\0';
-    vsnprintf(tmpbuf, BUFSIZ, format, args);
-    tmpbuf[BUFSIZ - 1] = '\0';
+    vsnprintf(tmpbuf, BUFSIZE, format, args);
+    tmpbuf[BUFSIZE - 1] = '\0';
     syslog(_FreePM_db_level == 0 ? LOG_WARNING : LOG_NOTICE, "%s", tmpbuf);
 }
 #endif /* HAVE_SYSLOG */
@@ -526,7 +528,7 @@ fatalf(const char *fmt,...)
 static void
 fatalvf(const char *fmt, va_list args)
 {
-    static char fatal_str[BUFSIZ];
+    static char fatal_str[BUFSIZE];
     vsnprintf(fatal_str, sizeof(fatal_str), fmt, args);
     fatal(fatal_str);
 }

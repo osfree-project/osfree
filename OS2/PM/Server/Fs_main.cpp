@@ -194,7 +194,7 @@ int main(int narg, char *arg[], char *envp[])
 //                           _FreePMconfig.desktop.ny,
 //                           _FreePMconfig.desktop.bytesPerPixel,
 //                           &_FreePMconfig.desktop.pp);
-  printf("nx=%lu, ny=%lu, bpp=%lu\n", FPMs_config.DesktopNx,
+  debug(1, 0)("nx=%lu, ny=%lu, bpp=%lu\n", FPMs_config.DesktopNx,
                                       FPMs_config.DesktopNy,
                                       FPMs_config.BytesPerPel);
   rc = session.AddDesktop(FPM_DEV_PMWIN,
