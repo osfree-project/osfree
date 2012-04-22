@@ -109,7 +109,7 @@ struct LS_threads
 
 struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
 
-APIRET APIENTRY init (ULONG flag);
+//APIRET APIENTRY init (ULONG flag);
 
 //
 // Main function
@@ -123,13 +123,13 @@ APIRET APIENTRY init (ULONG flag);
 //   Add desktop
 //   Infinite loop
 
-int main(int narg, char *arg[], char *envp[])
+extern "C" int cmain(int narg, char *arg[], char *envp[])
 {
   int i,j,rc;
   HMODULE hDeviceLib;
 
   /* init pm comm. lib */
-  init(0);
+  //init(0);
 
   /* semaphore setup */
   rc = SetupSemaphore();
@@ -143,6 +143,7 @@ int main(int narg, char *arg[], char *envp[])
   SetupSignals();
 
   rc = QueryProcessType();
+
   if(rc == 4)
     _FreePM_detachedMode = 1;
 
@@ -443,8 +444,6 @@ HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 //        return ret;
 //}
 
-extern APIRET server_obj;
-
 void handler (ULONG obj, int ncmd, int data, int threadNum)
 {
    int  rc, l, len;
@@ -453,13 +452,15 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
       switch(ncmd)
       {
         case F_CMD_GET_IHAB:
-         {  int iHAB = 1, iClientId = 2,inf[2];
-             debug(0, 2) ("Fs_ClientWork: F_CMD_GET_IHAB not yet full implemented\n");
-
-             iHAB = session.hab_list.Add(iClientId,threadNum);
+         {  
+             int iHAB = 1, inf[2];
+             static int iClientId = 1;
+             printf("Fs_ClientWork: F_CMD_GET_IHAB not yet full implemented\n"); // debug(0, 2)
+             iClientId++;
+             iHAB = session.hab_list.Add(iClientId ,threadNum);
              inf[0] = iHAB;
              inf[1] = iClientId;
-           rc=  F_SendDataToServer(obj, inf , sizeof(inf));
+           rc=  F_SendDataToClient(obj, inf , sizeof(inf));
          }
            break;
         case F_CMD_CLIENT_EXIT:
@@ -504,7 +505,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
              nmsg  = session.hab_list.Queue.QueryNmsg(ihabto);
              if(nmsg)
                 debug(0, 2) ("Fs_ClientWork: F_CMD_WINQUERY_MSG, nmsg=%i\n",nmsg);
-             rc=  F_SendDataToServer(obj, &nmsg , sizeof(int));
+             rc=  F_SendDataToClient(obj, &nmsg , sizeof(int));
           }
            break;
         case F_CMD_WINGET_MSG:  /* Get message for ihab = data */
@@ -519,9 +520,9 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG for %i, msg=%x\n",ihabto, sqmsg.qmsg.msg);
            else
              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG, No msg  for %i\n",ihabto);
-             rc=  F_SendDataToServer(obj, &nmsg , sizeof(int));
+             rc=  F_SendDataToClient(obj, &nmsg , sizeof(int));
              if(nmsg)
-             { rc=  F_SendDataToServer(obj, &sqmsg.qmsg , sizeof(QMSG));
+             { rc=  F_SendDataToClient(obj, &sqmsg.qmsg , sizeof(QMSG));
              }
           }
            break;
@@ -532,7 +533,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
            iHab = data;
            hwnd = _WndList.Add(iHab);
 //todo: set _WndList with thread info and cleanup at thread(client exit) end
-           rc=  F_SendDataToServer(obj, &hwnd , sizeof(HWND));
+           rc=  F_SendDataToClient(obj, &hwnd , sizeof(HWND));
          }
 
            break;
@@ -549,7 +550,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               HPS hps;
               hwnd = data;
               hps = _WndList.GetHPS(hwnd);
-              rc=  F_SendDataToServer(obj, &hps, sizeof(HPS));
+              rc=  F_SendDataToClient(obj, &hps, sizeof(HPS));
           }
            break;
         case F_CMD_RELEASE_HPS:
@@ -558,7 +559,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               int rc1;
               hps = data;
               rc1 = _WndList.ReleaseHPS(hps);
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_WIN_SET_WND_SIZE:
@@ -567,7 +568,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               rc = F_RecvDataFromClient(obj, (void *)&par[0], &len, sizeof(int)*2);
               rc1 = 0;
               //todo
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
 
@@ -577,7 +578,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               rc = F_RecvDataFromClient(obj, (void *)&par[0], &len, sizeof(int)*2);
               rc1 = 0;
               //todo
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
 
@@ -585,7 +586,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
           {   HWND hwnd = data;
               SWP swp;
               //todo
-              rc=  F_SendDataToServer(obj, &swp, sizeof(SWP));
+              rc=  F_SendDataToClient(obj, &swp, sizeof(SWP));
           }
            break;
 
@@ -595,7 +596,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               rc = F_RecvDataFromClient(obj, (void *)&par, &len, sizeof(int));
               rc1 = 0;
               //todo
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
 
@@ -610,7 +611,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
                                         /* rc1 = F_GpiSetColor(&_WndList.pPS[hps], color); */
                      rc1 = F_PS_GpiSetColor(&_WndList.pPS[hps], color);
               }
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_MOVE:
@@ -625,7 +626,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               {  if(_WndList.pPS[hps].used)
                     rc1 = F_PS_GpiMove(&_WndList.pPS[hps], &Point);
               }
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_LINE:
@@ -639,7 +640,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
               {  if(_WndList.pPS[hps].used)
                     rc1 = F_PS_GpiLine(&_WndList.pPS[hps], &Point);
               }
-              rc=  F_SendDataToServer(obj, &rc1, sizeof(int));
+              rc=  F_SendDataToClient(obj, &rc1, sizeof(int));
           }
            break;
         case F_CMD_GPI_DRAW_LINE:

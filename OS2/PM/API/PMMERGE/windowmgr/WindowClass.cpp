@@ -522,7 +522,7 @@ debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
 
 int FRAME_Window::proc( PQMSG pqmsg)
 {
-  debug(3, 1)(__FUNCTION__"call with message %x\n",pqmsg->msg);
+  //debug(3, 1)(__FUNCTION__"call with message %x\n",pqmsg->msg);
   switch(pqmsg->msg)
   {
      case WM_PAINT:

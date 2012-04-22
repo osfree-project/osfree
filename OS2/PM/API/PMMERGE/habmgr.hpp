@@ -27,6 +27,12 @@ struct _FreePM_hwnd
 //  void *pw;  /* pointer to window class */
 };
 
+struct _FreePM_ClassInfo
+{
+  CLASSINFO ci;
+  char      classname[128];
+};
+
 struct _FreePM_HABinf
 {
    volatile int Access; /* fast access semaphore  */
@@ -43,6 +49,9 @@ struct _FreePM_HABinf
    int nHwnd;           /* Number of client's windows */
    int lAllocpHwnd;     /* Size of pHwnd buffer */
    _FreePM_hwnd *pHwnd; /* Buffer with pointers to windows handles of current anchor block */
+   int numWinClasses;
+   int lAllocWinClasses;
+   struct _FreePM_ClassInfo *pWinClassList; /* Private window classes list */
 };
 /* буффер длиной lAllocpHwnd*sizeof(_FreePM_hwnd) со списком hwnd окон, принадлежащих HABу */
   \

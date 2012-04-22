@@ -8,8 +8,8 @@
 
 #include <FreePM.hpp>
 
-//#include "habmgr.hpp"
-#include <F_hab.hpp>
+#include "habmgr.hpp"
+//#include <F_hab.hpp>
 
 #include <pmclient.h>
 
@@ -72,6 +72,7 @@ HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
 {
   int ordinal,tid,rc, iHAB;
 
+  //debug(3, 0)("WinCreateMsgQueue called\n");
   // Check for correct HAB
   rc = _hab.QueryHABexist(ihab);
   if(rc < 1)
@@ -82,6 +83,7 @@ HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
   }
 
   _hab.hab[ihab].pQueue = new Fs_Queue(ihab);
+  //debug(3, 0)("WinCreateMsgQueue(): successful\n");
 
   return ihab; /* ihab = hmq */
 }
@@ -128,6 +130,9 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
 
     debug(3, 0)("WinGetMsg call\n"); // 2
 
+    //for (;;)
+    //  DosSleep(1000);
+
     if(pqmsg == NULL)
     {  _hab.SetError(ihab, FPMERR_NULL_POINTER);
        return brc;
@@ -159,7 +164,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
             {  if(rc == ERROR_BROKEN_PIPE)
                {      /* todo: attempt to reconnect till timeout */
                }
-               debug(3, 0)("WinGetMsg Error: %s\n",rc);
+               debug(3, 0)("WinGetMsg Error: %lu\n",rc);
                fatal("WinGetMsg Error\n");
             }
 //todo check rc
@@ -176,7 +181,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                          if(rc == ERROR_BROKEN_PIPE)
                          {      /* todo: attempt to reconnect till timeout */
                          }
-                         debug(3, 0)("WinGetMsg Error(2): %s\n",rc);
+                         debug(3, 0)("WinGetMsg Error(2): %lu\n",rc);
                          fatal("WinGetMsg Error(2)\n");
                       }
                   }
@@ -218,7 +223,7 @@ MRESULT APIENTRY WinDispatchMsg(HAB hab,
        rcf = _hab.hab[indiHabto].pHwnd[indpw].pw->proc(pqmsg);
 
   } else {
-       debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND ?\n");
+       debug(3, 0)( "WARNING:" __FUNCTION__ "is called for external HWND?\n");
   }
 
   return NULL;

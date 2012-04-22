@@ -20,9 +20,7 @@ BOOL    APIENTRY WinRegisterClass(HAB ihab,
    struct _FreePM_ClassInfo *ci;
 
    debug(3, 0)( __FUNCTION__ " called\n");
-
    i  = _hab.hab[ihab].numWinClasses;
-   debug(3, 0)("WinRegisterClass: numWinClasses = %u\n", i);
 
    if (!_hab.hab[ihab].lAllocWinClasses)
      _hab.hab[ihab].lAllocWinClasses = 16;
@@ -34,40 +32,18 @@ BOOL    APIENTRY WinRegisterClass(HAB ihab,
      _hab.hab[ihab].pWinClassList = (struct _FreePM_ClassInfo *)realloc((void *)_hab.hab[ihab].pWinClassList, 
                                     _hab.hab[ihab].lAllocWinClasses * sizeof(struct _FreePM_ClassInfo));
 
-   debug(3, 0)("WinRegisterClass: 1\n");
-
    // current class info
    ci = _hab.hab[ihab].pWinClassList;
-
-   debug(3, 0)("WinRegisterClass: lAllocWinClasses = %lx\n", _hab.hab[ihab].lAllocWinClasses);
-   debug(3, 0)("WinRegisterClass: pWinClassList = %lx\n", ci);
 
    _hab.hab[ihab].numWinClasses++;
    ci += i;
 
-   debug(3, 0)("WinRegisterClass: 2\n");
-
-   if (!pszClassName)
-   {
-     debug(3, 0)("WinRegisterClass: pszClassName == 0\n");
+   if (!pszClassName || !pfnWndProc)
      return FALSE;
-   }
-
-   debug(3, 0)("WinRegisterClass: 3\n");
-
-   if (!pfnWndProc)
-   {
-     debug(3, 0)("WinRegisterClass: pfnWndProc == 0\n");
-     return FALSE;
-   }
-
-   debug(3, 0)("WinRegisterClass: 4\n");
 
    ci->ci.pfnWindowProc = pfnWndProc;
    ci->ci.flClassStyle  = flStyle;
    ci->ci.cbWindowData  = cbWindowData;
-
-   debug(3, 0)("WinRegisterClass: 5\n");
 
    strncpy(ci->classname, pszClassName, 128);
    ci->classname[strlen(pszClassName)] = '\0';

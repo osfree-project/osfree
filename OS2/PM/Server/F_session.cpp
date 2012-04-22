@@ -49,6 +49,8 @@ int FreePM_session::AddDesktop(int _dev_type, int nx, int ny, int bytesPerPixel,
 /* create Desktop */
   pDeskTop = new FreePM_DeskTop(_dev_type,nx,ny, bytesPerPixel, pp, this);
 
+  debug(7, 0)("pDesktop=%lx\n", pDeskTop);
+
   if(numDeskTops == 0 && pDeskTops == NULL)
    {  numpDeskTopsAllocated = 16;
       pDeskTops = (FreePM_DeskTop * *) calloc(sizeof(FreePM_DeskTop *),numpDeskTopsAllocated);
@@ -107,6 +109,8 @@ int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
         }
         LbmpBuffOld = LbmpBuff;
 
+        debug(7, 0) ("pDesktop=%lx\n", pDesktop);
+
         //pDesktop->pVBuffmem = (int *) initGD(nx,  ny);
         pDesktop->pVBuffmem = pBmpBuffer;
 
@@ -115,7 +119,7 @@ int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
         params[1] = (int)pDesktop->pVBuffmem;
         params[2] = (int)(&_DeskTopSendQueue);
         params[3] = 0;
-        id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE*2,(void *)params);
+        id = _beginthread(_FPM_PMWinStart,NULL, THREAD_STACK_SIZE * 16, (void *)params);
         break;
       case  FPM_DEV_PMWIN_DIR:
  debug(7, 0) ("WARNING:FreePM_session::InitDevice device PMWIN_DIR not yet supported\n");

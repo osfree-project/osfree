@@ -45,6 +45,7 @@ EXPORTS = WinCopyRect.05127,             &
           WinInitialize.05201,           &
           WinIntersectRect.05203,        &
           WinIsRectEmpty.05209,          &
+          WinIsWindow.05211,             &
           WinLoadLibrary.05219,          &
           WinLoadProcedure.05223,        &
           WinMakePoints.05229,           &

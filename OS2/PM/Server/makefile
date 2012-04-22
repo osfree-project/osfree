@@ -2,7 +2,7 @@
 #
 #  Viking
 
-PROJ = freepm
+PROJ = fpmsrv #freepm
 DESC = FreePM Server
 DIRS = drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
@@ -10,9 +10,12 @@ srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e
            $(p)Fs_queue$(e) $(p)Fs_wnd$(e) $(p)F_debug$(e) &
            $(p)F_GPI$(e) $(p)F_errors$(e) $(p)F_DeskTop$(e) $(p)WindowClass$(e) $(p)F_hab$(e) $(p)init$(e) 
            # $(p)Fs_pipe$(e)
-ADD_COPT    = -bm -od -mf -sg -s
-ADD_LIB     = cmd_shared.lib,all_shared.lib
-ADD_LINKOPT = lib gdlib.lib lib os2386.lib lib clib3r.lib
+ADD_COPT = -bm -od -mf -sg -s
+#ADD_LINKOPT  = lib gdlib.lib
+ADD_LINKOPT  = segment type DATA nonshared lib gdlib.lib
+DLL     = 1
+DLLOPT  = initinstance terminstance
+OPTIONS = manyautodata, caseexact, start=init
 #  option stack=3m
 # Strange, the server crashes with debug build! No, it crashes for some else reason.
 # Found it! To little heapsize! Was only 287 KiB while it assumed 2.6 MiB!

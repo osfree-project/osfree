@@ -17,26 +17,24 @@ DEST    = os2$(SEP)dll
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
-ADD_COPT =-bm -od -mf -sg -d2 -mf -bd
+ADD_COPT = -bm -sg -s
 ADD_LINKOPT  = segment type DATA nonshared
 DLL     = 1
 DLLOPT  = initinstance terminstance
-EXPORTS  = _client_obj.1,                &
-           _server_obj.2,                &
-           _num_threads.3,               &
-           _InitServerConnection.4,      &
-           _CloseServerConnection.5,     &
-           _startServerThreads.6,        &
-           _F_SendCmdToServer.7,         &
-           _F_SendDataToServer.8,        &
-           _F_RecvDataFromServer.9,      &
-           _F_SendGenCmdToServer.10,     &
-           _F_SendGenCmdDataToServer.11, &
-           _F_RecvCmdFromClient.12,      &
-           _F_RecvDataFromClient.13,     &
-           _fatal_common.14,             &
-           _db_print.15,                 &
-           _FreePM_db_level.16,          &
-           _FreePM_debugLevels.17
+EXPORTS  = _InitServerConnection.1,      &
+           _CloseServerConnection.2,     &
+           _startServerThreads.3,        &
+           _F_SendCmdToServer.4,         &
+           _F_SendDataToServer.5,        &
+           _F_RecvDataFromServer.6,      &
+           _F_SendGenCmdToServer.7,      &
+           _F_SendGenCmdDataToServer.8,  &
+           _F_RecvCmdFromClient.9,       &
+           _F_RecvDataFromClient.10,     &
+           _F_SendDataToClient.11,       &
+           _fatal_common.12,             &
+           _db_print.13,                 &
+           _FreePM_db_level.14,          &
+           _FreePM_debugLevels.15
 
 !include $(%ROOT)/mk/appsos2.mk

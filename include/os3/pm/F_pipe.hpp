@@ -364,7 +364,8 @@ M:   rc =   DosRead(Hpipe, data, maxlen,(PULONG) &len0);
       maxlen = sizeof(int) * 2;
       len = 0;
 
-M:    rc =  DosRead(Hpipe, (void *)pdata, maxlen,&ulBytesDone);
+M:
+      rc =  DosRead(Hpipe, (void *)pdata, maxlen,&ulBytesDone);
       if(rc == ERROR_MORE_DATA)
       {  maxlen -= ulBytesDone;
          pdata += ulBytesDone;

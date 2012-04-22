@@ -1,0 +1,15 @@
+#  Makefile for pmshell
+#
+#  valerius Mar 24 '2012
+
+PROJ = pmshell
+DESC = PM/WPS starter program
+srcfiles = $(p)pmshell$(e)
+
+ADD_COPT     = -i=. -bm -od -mf -sg -d2 -mf
+ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+
+!include $(%ROOT)/mk/appsos2.mk
+
+TARGETS = subdirs $(PATH)$(PROJ).exe
+TARGET  = all

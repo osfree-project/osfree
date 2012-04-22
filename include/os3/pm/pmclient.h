@@ -31,6 +31,7 @@ extern "C" APIRET APIENTRY (*F_SendGenCmdToServer)(ULONG obj, int cmd, int par);
 extern "C" APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int par, void *data, int datalen);
 extern "C" APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data);
 extern "C" APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size);
+extern "C" APIRET APIENTRY (*F_SendDataToClient)(ULONG obj, void *data, int len);
 #ifndef FPM_SERVER
 extern "C" void APIENTRY   (*fatal)(const char *message);
 extern "C" void APIENTRY   (*db_print)(const char *format,...);

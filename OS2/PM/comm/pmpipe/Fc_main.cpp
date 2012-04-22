@@ -52,11 +52,13 @@ char PipeName[256];
 
 //class FreePM_session session;
 class NPipe *pF_pipe;
-static volatile int AccessF_pipe = UNLOCKED;
-#define LOCK_PIPE                               \
+static volatile int AccessF_pipe_srv = UNLOCKED;
+static volatile int AccessF_pipe_cli = UNLOCKED;
+
+#define LOCK(sem)                               \
     {   int ilps_raz = 0, ilps_rc;              \
         do                                      \
-        {  ilps_rc =  __lxchg(&AccessF_pipe,LOCKED);  \
+        {  ilps_rc =  __lxchg(&sem,LOCKED);     \
            if(ilps_rc)                          \
            { if(++ilps_raz  < 3)  DosSleep(0);  \
              else            DosSleep(1);       \
@@ -64,7 +66,7 @@ static volatile int AccessF_pipe = UNLOCKED;
         } while(ilps_rc);          \
     }
 
-#define UNLOCK_PIPE  {__lxchg(&AccessF_pipe,UNLOCKED);}
+#define UNLOCK(sem)  {__lxchg(&sem,UNLOCKED);}
 
 /*+---------------------------------+*/
 /*|     local variables.            |*/
@@ -90,10 +92,27 @@ struct LS_threads
    int state [FREEPMS_MAX_NUM_THREADS];
 };
 
+/*
+void _srvThread(void *param)
+{
+  HMODULE  hmod;
+  char     LoadErr[256];
+
+  DosLoadModule(LoadErr, sizeof(LoadErr), "FPMSRV", &hmod);
+
+  for (;;)
+    DosSleep(100000);
+}
+ */
+
 void ExecuteFreePMServer(void)
 {
   char Buffer[CCHMAXPATH];
 //  char srcdir[CCHMAXPATH];
+  HMODULE  hmod;
+  char     LoadErr[256];
+  //int idd;
+/*
   char CmdLineBuf[2048];
   char *CmdLine;
   char *P;
@@ -114,6 +133,8 @@ void ExecuteFreePMServer(void)
   *P = 0;
 
   DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
+ */
+  DosLoadModule(LoadErr, sizeof(LoadErr), "FPMSRV", &hmod);
 }
 
 
@@ -212,8 +233,7 @@ extern "C" APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG 
         return 1;
     }
 //todo
-    client_obj  = (APIRET)pF_pipe;
-    *obj        = client_obj;
+    *obj = (APIRET)pF_pipe;
 
     rc = 0;
     return rc;
@@ -221,14 +241,14 @@ extern "C" APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG 
 
 
 extern "C" APIRET APIENTRY  _CloseServerConnection(void)
-{   if(pF_pipe)
+{   
+
+    if(pF_pipe)
     {
-    LOCK_PIPE;
-    debug(1, 0) ("CloseServerConnection\n");
+       debug(1, 0) ("CloseServerConnection\n");
        delete pF_pipe;
        pF_pipe = NULL;
-    UNLOCK_PIPE;
-     }
+    }
 
     return 0;
 }
@@ -236,12 +256,12 @@ extern "C" APIRET APIENTRY  _CloseServerConnection(void)
 
 extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data)
 {   int rc;
-    LOCK_PIPE;
+    LOCK(AccessF_pipe_cli);
 
     rc = ((class NPipe *)(recvobj))->SendCmdToServer(ncmd,  data);
     if(rc == ERROR_BROKEN_PIPE) /* attempt to reconnect till timeout */
     { int raz;
-      debug(1, 1) (__FUNCTION__ " Broken Pipe, Try to reconnect...\n");
+      debug(1, 1)(__FUNCTION__ " Broken Pipe, Try to reconnect...\n");
       for(raz = 0;raz < 10; raz++)
       {  delete ((class NPipe *)(recvobj));
          recvobj = NULL;
@@ -249,7 +269,7 @@ extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data
          recvobj = new NPipe(PipeName,CLIENT_MODE);
          rc = ((class NPipe *)(recvobj))->Open();
          if(rc)
-         {    debug(1, 1) (__FUNCTION__ " Broken Pipe, Server still down...\n");
+         {    debug(1, 1)(__FUNCTION__ " Broken Pipe, Server still down...\n");
          } else {
            rc = ((class NPipe *)(recvobj))->HandShake();
            if(rc ==  HAND_SHAKE_ERROR)
@@ -261,9 +281,7 @@ extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data
       }
     }
 
-    debug(1, 8) ("Send cmd %x %x, rc=%i\n",ncmd, data, rc);
-
-    UNLOCK_PIPE;
+   UNLOCK(AccessF_pipe_cli);
    return rc;
 }
 
@@ -323,61 +341,71 @@ M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
 
 
 extern "C" APIRET APIENTRY  _F_SendDataToServer(void *recvobj, void *data, int len)
-{   int rc;
-    LOCK_PIPE;
+{
+   int rc;
+   LOCK(AccessF_pipe_cli);
 
-    rc = ((class NPipe *)(recvobj))->SendDataToServer(data,  len);
-     debug(1, 9) ("Send data %i bytes, rc=%i\n", len, rc);
+   rc = ((class NPipe *)(recvobj))->SendDataToServer(data,  len);
+   debug(1, 9) ("Send data %i bytes, rc=%i\n", len, rc);
 
-    UNLOCK_PIPE;
+   UNLOCK(AccessF_pipe_cli);
    return rc;
 }
 
+extern "C" APIRET APIENTRY  _F_SendDataToClient(void *recvobj, void *data, int len)
+{
+   int rc;
+   LOCK(AccessF_pipe_srv);
+
+   rc = ((class NPipe *)(recvobj))->SendDataToServer(data,  len);
+   debug(1, 9) ("Send data %i bytes, rc=%i\n", len, rc);
+
+   UNLOCK(AccessF_pipe_srv);
+   return rc;
+}
 
 extern "C" APIRET APIENTRY  _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen)
-{   int rc;
-    LOCK_PIPE;
+{
+   int rc;
+   LOCK(AccessF_pipe_cli);
 
-    rc = ((class NPipe *)(recvobj))->RecvDataFromClient(data, len, maxlen);
-     debug(1, 9) ("Recv data %i bytes, rc=%i\n", *len, rc);
+   rc = ((class NPipe *)(recvobj))->RecvDataFromClient(data, len, maxlen);
+   debug(1, 9) ("Recv data %i bytes, rc=%i\n", *len, rc);
 
-    UNLOCK_PIPE;
+   UNLOCK(AccessF_pipe_cli);
    return rc;
 }
 
 
 extern "C" APIRET APIENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
-{    int rc;
-     LOCK_PIPE;
+{
+    int rc;
+    LOCK(AccessF_pipe_srv);
 
-     rc = ((class NPipe *)(recvobj))->RecvCmdFromClient(ncmd, data);
+    rc = ((class NPipe *)(recvobj))->RecvCmdFromClient(ncmd, data);
 
-     UNLOCK_PIPE;
-     return rc;
+    UNLOCK(AccessF_pipe_srv);
+    return rc;
 }
 
 extern "C" APIRET APIENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
 {    int rc;
-     LOCK_PIPE;
+    LOCK(AccessF_pipe_srv);
 
      rc = ((class NPipe *)(recvobj))->RecvDataFromClient(sqmsg, l, size);
 
-     UNLOCK_PIPE;
-     return rc;
+    UNLOCK(AccessF_pipe_srv);
+    return rc;
 }
+
 
 struct LS_threads  LSthreads = { 0,0,0,0,0,0 };
 
-class NPipe FreePM_pipe[FREEPMS_MAX_NUM_THREADS];
+class NPipe *FreePM_pipe[FREEPMS_MAX_NUM_THREADS];
 
 int ThreadStart = 0;
 
 void (*handler) (void *obj, int ncmd, int data, int threadNum);
-
-// dummy vars
-extern "C" ULONG client_obj  = 0;
-extern "C" ULONG server_obj  = 0;
-extern "C" ULONG num_threads = 0;
 
 void /*_Optlink*/  Fs_ClientWork(void *param)
 {
@@ -420,11 +448,10 @@ void /*_Optlink*/  Fs_ClientWork(void *param)
     LSthreads.state[threadNum] = -1;
     if(LSthreads.n < threadNum)
               LSthreads.n = threadNum;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe creating  (%i)\n",threadNum,LSthreads.thread_id[threadNum]);
+    debug(0, 2) ("Fs_ClientWork%i: Pipe creating  (%i)\n",threadNum,LSthreads.thread_id[threadNum]); // 2
     fflush(stdout);
     ThreadStart++;
    DosSleep(1);
-
 
    __lxchg(&LSthreads.semaphore, UNLOCKED);
    do
@@ -436,17 +463,16 @@ void /*_Optlink*/  Fs_ClientWork(void *param)
 
     DosSleep(1);
 
+    FreePM_pipe[threadNum]  = new NPipe(FREEPM_BASE_PIPE_NAME,SERVER_MODE,FREEPMS_MAX_NUM_THREADS,threadNum);
 
-    FreePM_pipe[threadNum]  = NPipe(FREEPM_BASE_PIPE_NAME,SERVER_MODE,FREEPMS_MAX_NUM_THREADS,threadNum);
-
-    rc = FreePM_pipe[threadNum].Create();
+    rc = FreePM_pipe[threadNum]->Create();
     if(rc == ERROR_TOO_MANY_OPEN_FILES)
     {     rc = OS2SetRelMaxFH(8);
-          rc = FreePM_pipe[threadNum].Create();
+          rc = FreePM_pipe[threadNum]->Create();
     }
 
     if(rc)
-    {  snprintf(str,256, "Error pipe creating  %s rc=%i",FreePM_pipe[threadNum].name,rc);
+    {  snprintf(str,256, "Error pipe creating  %s rc=%i",FreePM_pipe[threadNum]->name,rc);
        if(rc == ERROR_INVALID_PARAMETER)
                    strcat(str,"(INVALID PARAMETER)");
        else
@@ -459,23 +485,23 @@ void /*_Optlink*/  Fs_ClientWork(void *param)
        _fatal_common(str);
     }
     LSthreads.state[threadNum] = 0;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe create %s %x %x\n",threadNum,FreePM_pipe[threadNum].name, threadNum ,FreePM_pipe[threadNum].Hpipe);
+    debug(0, 2) ("Fs_ClientWork%i: Pipe create %s %x %x\n",threadNum,FreePM_pipe[threadNum]->name, threadNum ,FreePM_pipe[threadNum]->Hpipe);
 M_CONNECT:
-    rc = FreePM_pipe[threadNum].Connect();
+    rc = FreePM_pipe[threadNum]->Connect();
     if(rc)
-    {   debug(0, 0) ("WARNING: Error connecting pipe %s: %s\n",FreePM_pipe[threadNum].name,xstdio_strerror());
+    {   debug(0, 0) ("WARNING: Error connecting pipe %s: %s\n",FreePM_pipe[threadNum]->name,xstdio_strerror());
         goto ENDTHREAD;
     }
-    debug(0, 2) ("Fs_ClientWork%i: Connecting pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum].name);
+    debug(0, 2) ("Fs_ClientWork%i: Connecting pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum]->name);
     LSthreads.state[threadNum] = 1;
-    rc = FreePM_pipe[threadNum].HandShake();
+    rc = FreePM_pipe[threadNum]->HandShake();
     if(rc)
-    {   debug(0, 0) ("WARNING: Error HandShake pipe %s: %s\n",FreePM_pipe[threadNum].name,xstdio_strerror());
+    {   debug(0, 0) ("WARNING: Error HandShake pipe %s: %s\n",FreePM_pipe[threadNum]->name,xstdio_strerror());
 
-        rc = DosDisConnectNPipe(FreePM_pipe[threadNum].Hpipe);
+        rc = DosDisConnectNPipe(FreePM_pipe[threadNum]->Hpipe);
         goto M_CONNECT;
     }
-    debug(0, 2) ("Fs_ClientWork%i: HandShake pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum].name);
+    debug(0, 2) ("Fs_ClientWork%i: HandShake pipe: %s Ok\n",threadNum,FreePM_pipe[threadNum]->name);
 
 /***********/
    for(i = 0; i < FREEPMS_MAX_NUM_THREADS; i++)
@@ -491,13 +517,11 @@ M_CONNECT:
 
     LSthreads.state[threadNum] = 2;
 
-
     id = _beginthread(Fs_ClientWork,NULL, THREAD_STACK_SIZE,&idd);
 
-   do
-   { DosSleep(1);
-   } while(ThreadStart == 1);
-
+    do
+    { DosSleep(1);
+    } while(ThreadStart == 1);
 
    while(__lxchg(&LSthreads.semaphore, LOCKED)) DosSleep(1);
 
@@ -519,41 +543,44 @@ M_CONNECT:
 
    ThreadStart = 3;
    __lxchg(&LSthreads.semaphore, UNLOCKED);
-DosSleep(1);
-    debug(0, 2) ("Fs_ClientWork%i: Pipe working %s\n",threadNum,FreePM_pipe[threadNum].name);
+   DosSleep(1);
+   debug(0, 2)("Fs_ClientWork%i: Pipe working %s\n",threadNum,FreePM_pipe[threadNum]->name);
 /*****************/
    do
-   {  LSthreads.state[threadNum] = 3;
-      rc = _F_RecvCmdFromClient(&FreePM_pipe[threadNum], &ncmd,&data);
+   {  
+      LSthreads.state[threadNum] = 3;
+      rc = _F_RecvCmdFromClient((void *)FreePM_pipe[threadNum], &ncmd,&data);
+
       if(rc)
       {  if(rc == -1)
-         {  rc = FreePM_pipe[threadNum].QueryState();
+         {  
+            rc = FreePM_pipe[threadNum]->QueryState();
             if(rc == ERROR_BAD_PIPE || rc == ERROR_PIPE_NOT_CONNECTED)
                                   break; // клиент подох ??
          }
-         debug(0, 0) ("WARNING: Fs_ClientWork: RecvCmdFromClient error %x %s\n",rc,xstdio_strerror());
+         debug(0, 9)("WARNING: Fs_ClientWork: RecvCmdFromClient error %x %s\n",rc,xstdio_strerror()); 
          goto ENDTHREAD;
       }
       LSthreads.state[threadNum]=1;
 
-    LSthreads.state[threadNum] = 4;
-   debug(0, 9) ("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
-
-     // handle the command
-     handler(FreePM_pipe + threadNum, ncmd, data, threadNum);
+      LSthreads.state[threadNum] = 4;
+      debug(0, 9)("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
+ 
+      // handle the command
+      handler((void *)FreePM_pipe[threadNum], ncmd, data, threadNum);
 
    } while(ncmd);
 /*****************/
 
 ENDTHREAD:
     LSthreads.state[threadNum]= 5;
-    debug(0, 2) ("Fs_ClientWork%i: Pipe Closing %s %x %x\n",threadNum,FreePM_pipe[threadNum].name, threadNum ,FreePM_pipe[threadNum].Hpipe);
+    debug(0, 2) ("Fs_ClientWork%i: Pipe Closing %s %x %x\n",threadNum,FreePM_pipe[threadNum]->name, threadNum ,FreePM_pipe[threadNum]->Hpipe);
 //     DosSleep(3000);
 //     rc = DosDisConnectNPipe(FreePM_pipe[threadNum].Hpipe);
 //     rc += DosClose(FreePM_pipe[threadNum].Hpipe);
-    rc = FreePM_pipe[threadNum].Close();
+    rc = FreePM_pipe[threadNum]->Close();
     debug(0, 2) ("Fs_ClientWork%i: Pipe Close %s, Thread %i, ThId=%i, rc=%x\n",
-                    threadNum,FreePM_pipe[threadNum].name, LSthreads.thread_id[threadNum],rc);
+                    threadNum,FreePM_pipe[threadNum]->name, LSthreads.thread_id[threadNum],rc);
     fflush(stdout);
 
 //todo: call timeout_handler to kill windows with closed habs
@@ -596,8 +623,6 @@ extern "C" APIRET APIENTRY _startServerThreads(void *handl)
 //DosSleep(1000);
 // return;
    handler = (handler_t)handl;
-   num_threads = FREEPMS_MAX_NUM_THREADS;
-   server_obj  = (APIRET)FreePM_pipe;
 
    for(i=0;i < FREEPMS_MAX_NUM_THREADS;i++)
    { LSthreads.thread_id[i] = -1;
@@ -609,8 +634,7 @@ M0:
    idd = LSthreads.next_free;
    ThreadStart = 1;
 
-
-   id = _beginthread(&Fs_ClientWork,NULL, THREAD_STACK_SIZE, (void *) &idd);
+   id = _beginthread(&Fs_ClientWork,NULL, THREAD_STACK_SIZE * 2, (void *) &idd);
    // ((void*) (void*))
    //id = _beginthread( ((void(*) (void*))fix_asm_Fs_ClientWork), NULL, hack_thread_size, (void *) &idd);
 

@@ -84,7 +84,7 @@ void APIENTRY FPM_DeviceStart(void *param)
   int  tid, cx, cy, bpp;
   int  (*_DeskTopSendQueue)(void *pDClass, QMSG  *pqmMsg);
 
-  printf("In console\n");
+  //printf("In console\n");
   DosGetInfoBlocks(&tib, &pib);
 
 //   if(pib->pib_ultype == 2)          /* VIO */
@@ -101,11 +101,11 @@ void APIENTRY FPM_DeviceStart(void *param)
    cx = pDesktop->nx;
    cy = pDesktop->ny;
 
-   printf("FS_PMdev.cpp:85 pDesktop=%p, pVBuffmem=%p\n", pDesktop, pVBuffmem);
+   //printf("FS_PMdev.cpp:85 pDesktop=%p, pVBuffmem=%p\n", pDesktop, pVBuffmem);
 
    if(pDesktop == NULL || bytesPerPixel == 0 || pVBuffmem == NULL)
    {
-       printf(" Error, not initialized resources! \n");
+       //printf(" Error, not initialized resources! \n");
        DosBeep(500,500);
        exit(2);
    }

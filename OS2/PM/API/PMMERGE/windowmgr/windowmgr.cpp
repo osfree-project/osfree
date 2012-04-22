@@ -209,9 +209,12 @@ HWND    APIENTRY WinQueryWindow(HWND hwnd,
 BOOL    APIENTRY WinIsWindow(HAB hab,
                              HWND hwnd)
 {
- debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
-   //todo
-    return TRUE;
+   debug(6, 0)( __FUNCTION__ " called\n");
+
+   if (!_hab.QueryHwnd(hwnd))
+     return FALSE;
+
+   return TRUE;
 }
 
 

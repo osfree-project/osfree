@@ -466,11 +466,12 @@ BOOL APIENTRY WinTerminate(HAB ihab)
 {
   int rc;
 
+  debug(2, 0)("WinTerminate called\n");
   rc =  _hab.QueryHABexist(ihab);
   if(rc != 1)
   {
      _hab.SetError(PMERR_INVALID_HAB);
-     debug(3, 0)("WARNING: "__FUNCTION__": bad ihab %x\n",ihab);
+     debug(2, 0)("WARNING: "__FUNCTION__": bad ihab %x\n",ihab);
      return FALSE;
   }
 
@@ -482,6 +483,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
 
   // Delete HAB for this thread
   _hab.DelHAB(ihab);
+  debug(2, 0)("WinTerminate(): successful\n");
 
   return TRUE;
 }
