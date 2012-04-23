@@ -5,7 +5,7 @@
 PROJ = pmpipe
 DESC = PM pipe communication backend
 srcfiles = $(p)Fc_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) &
-           $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e) # $(p)Fc_config$(e)
+           $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e)
 DEST    = os2$(SEP)dll
 
 #  option stack=3m
@@ -31,10 +31,6 @@ EXPORTS  = _InitServerConnection.1,      &
            _F_SendGenCmdDataToServer.8,  &
            _F_RecvCmdFromClient.9,       &
            _F_RecvDataFromClient.10,     &
-           _F_SendDataToClient.11,       &
-           _fatal_common.12,             &
-           _db_print.13,                 &
-           _FreePM_db_level.14,          &
-           _FreePM_debugLevels.15
+           _F_SendDataToClient.11
 
 !include $(%ROOT)/mk/appsos2.mk

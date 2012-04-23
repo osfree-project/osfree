@@ -142,7 +142,7 @@ int main (int argc, char **argv)
   int    nowps = 0;  
 
   DosGetInfoBlocks(&ptib, &ppib);
-  ppib->pib_ultype = 3;
+  ppib->pib_ultype = 3; // "morph" into a PM application
 
   if (argc > 1 && (!strcasecmp(argv[1], "/nowps") || 
       !strcasecmp(argv[1], "-nowps")))

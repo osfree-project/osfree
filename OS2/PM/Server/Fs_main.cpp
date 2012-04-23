@@ -6,11 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
-#include <unistd.h>
 #include <float.h>
 #include <time.h>
-#include <process.h>
 
 #include "FreePM.hpp"
 #include "FreePMs.hpp"
@@ -64,7 +61,7 @@ class F_ServerConfig FPMs_config;
 /*+---------------------------------+*/
 /*| Static  variables               |*/
 /*+---------------------------------+*/
-static HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
+HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
 
 static int nxDefault=800, nyDefault=600,  bytesPerPixelDefault=4;
 /*+---------------------------------+*/
@@ -139,8 +136,8 @@ extern "C" int cmain(int narg, char *arg[], char *envp[])
           printf("%s %s already running\n",_FreePM_Application_Name, _FreePM_Application_Vers);
       exit(rc);
   }
-  atexit(&FreePM_cleanup);
-  SetupSignals();
+  //atexit(&FreePM_cleanup);
+  //SetupSignals();
 
   rc = QueryProcessType();
 
@@ -234,20 +231,6 @@ extern "C" int cmain(int narg, char *arg[], char *envp[])
 }
 
 /**************************************/
-void /*_Optlink*/  FreePM_cleanup(void)
-{   int rc;
-
-//   WriteParameters();
-
-//    lprgs.Write(szConfigFname);
-
-/* в последнюю очередь освобождаем семафор */
-    if(FREEPM_hmtx)
-    {   rc = DosReleaseMutexSem(FREEPM_hmtx);        /* Relinquish ownership */
-        rc = DosCloseMutexSem(FREEPM_hmtx);          /* Close mutex semaphore */
-    }
-}
-
 /* rc = 0 (NO_ERROR) - Ok
       = 1 - error
       = 2 - DUPLICATE_NAME
@@ -311,90 +294,6 @@ pstr = FREEPM_MUTEX_NAME;
 }
 
 
-int SetupSignals(void)
- {
-    if (SIG_ERR == signal(SIGABRT, FreePM_cleanupHandler)) {
-       perror("Could not set SIGABRT");
-       return EXIT_FAILURE;
-    }
-
-    if (SIG_ERR == signal(SIGBREAK, FreePM_cleanupHandler)) {
-       perror("Could not set SIGBREAK");
-       return EXIT_FAILURE;
-    }
-
-    if (SIG_ERR == signal(SIGINT, FreePM_cleanupHandler)) {
-       perror("Could not set SIGINT");
-       return EXIT_FAILURE;
-    }
-
-   if (SIG_ERR == signal(SIGFPE, FreePM_cleanupHandlerFP)) {
-       perror("Could not set SIGFPE");
-       return EXIT_FAILURE;
-    }
-    if (SIG_ERR == signal(SIGSEGV, FreePM_cleanupHandler)) {
-       perror("Could not set SIGSEGV");
-       return EXIT_FAILURE;
-    }
-    if (SIG_ERR == signal(SIGILL, FreePM_cleanupHandler)) {
-       perror("Could not set SIGILL");
-       return EXIT_FAILURE;
-    }
-    return 0;
- }
-
-void showSigString(int s) {
-        char * str="";
-        switch (s) {
-                case SIGABRT:  str="SIGABRT"; break;
-                case SIGBREAK: str="SIGBREAK"; break;
-                case SIGINT:  str="SIGINT"; break;
-                case SIGFPE:  str="SIGFPE"; break;
-                case SIGSEGV: str="SIGSEGV"; break;
-                case SIGILL:  str="SIGILL"; break;
-        }
-        printf("Signal: %d = %s\n", s, str);
-}
-
-extern "C"  void   FreePM_cleanupHandler(int sig)
- {
-    char str[100];
-    ULONG Wrote;
-
-    _FreePM_NeedToExit = 1; /* всем остальным ниткам надо срочно сваливать */
-    sprintf(str, "\nSignal occurred %x.\n\r", sig);
-        showSigString(sig);
-    DosWrite(2, (PVOID)str, strlen(str), &Wrote);
-
-    DosSleep(10);
-    DosBeep(3000,5);
-    DosSleep(10);
-    DosBeep(4200,4);
-    exit(1);
- }
-
-/* На случай ошибки fp      */
-extern "C"  void   FreePM_cleanupHandlerFP(int sig)
-{  static int raz=0;
-  _fpreset();
-
-  if(++raz  > 1000000)
-           _FreePM_NeedToExit = 1; /* всем остальным ниткам надо срочно сваливать */
-
-    debug(1, 0)("FP Signal occurred %i",sig);
-    DosBeep(5000,10);
-//    DosWrite(2, (PVOID)str, strlen(str), &Wrote);
-//    exit(10);
-   if (SIG_ERR == signal(SIGFPE, FreePM_cleanupHandler)) {
-       perror("Could not set SIGFPE");
-       debug(1, 0)("Could not set SIGFPE");
-       exit(10);
-    }
-  if(++raz  > 2000000)
-       exit(20);
-
-}
-
 //!!!!!!!!!!!!!!! Move this code to Fs_PMdev !!!!!!!!!!
 #define APIENTRY  _System
 extern "C" LONG   APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint);
@@ -444,6 +343,8 @@ HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 //        return ret;
 //}
 
+// the callback in the server called by a communication backend 
+// on each comm. protocol command
 void handler (ULONG obj, int ncmd, int data, int threadNum)
 {
    int  rc, l, len;
@@ -455,7 +356,7 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
          {  
              int iHAB = 1, inf[2];
              static int iClientId = 1;
-             printf("Fs_ClientWork: F_CMD_GET_IHAB not yet full implemented\n"); // debug(0, 2)
+             debug(0, 2)("Fs_ClientWork: F_CMD_GET_IHAB not yet full implemented\n");
              iClientId++;
              iHAB = session.hab_list.Add(iClientId ,threadNum);
              inf[0] = iHAB;

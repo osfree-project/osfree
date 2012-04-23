@@ -37,8 +37,8 @@ HWND  F_convertHandleToPM(HWND hwnd);
 /* Debug messages & info */
 #define MAX_DEBUG_SECTIONS         64
 #define debug(SECTION, LEVEL) \
-        ((FreePM_db_level = (LEVEL)) > FreePM_debugLevels[SECTION]) ? (void)0 : db_print
-//extern void APIENTRY _db_print(const char *,...);
+        ((_FreePM_db_level = (LEVEL)) > _FreePM_debugLevels[SECTION]) ? (void)0 : _db_print
+void APIENTRY _db_print(const char *,...);
 extern void _db_init(const char *logfile, const char *options);
 extern void _db_rotate_log(void);
 extern const char * xstdio_strerror(void);

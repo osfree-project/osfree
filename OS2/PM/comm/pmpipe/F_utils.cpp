@@ -12,6 +12,8 @@
 #include <pmclient.h>
 
 extern "C" void APIENTRY _db_print(const char *format,...);
+extern "C" APIRET _FreePM_db_level;
+extern "C" APIRET _FreePM_debugLevels[MAX_DEBUG_SECTIONS];
 
 /* добавить процессу ReqCount файловых хендлов, возвращает текущее число хендлов (новое) */
 int OS2SetRelMaxFH(int ReqCount)

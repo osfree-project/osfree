@@ -18,6 +18,7 @@
 //#include <sys/time.h>
 
 #include "F_def.hpp"
+#include "debug.h"
 
 extern class _FreePM_HAB  _hab;
 
@@ -121,23 +122,23 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
           }
        } else {
 //Query number of messages on server
-            rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINQUERY_MSG, ihab);
+            rc = F_SendCmdToServer(client_obj, F_CMD_WINQUERY_MSG, ihab);
             if(rc)
             {
                if(rc == ERROR_BROKEN_PIPE)
                {      /* todo: attempt to reconnect till timeout */
                }
                debug(3, 0)("WinGetMsg Error: %lu\n",rc);
-               fatal("WinGetMsg Error\n");
+               _fatal("WinGetMsg Error\n");
             }
 //todo check rc
-            rc = (*F_RecvDataFromServer)(client_obj, &nmsg, &len, sizeof(int));
+            rc = F_RecvDataFromServer(client_obj, &nmsg, &len, sizeof(int));
             if (rc == 0 && nmsg > 0)
             {
-		  rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINGET_MSG, ihab);
-                  rc = (*F_RecvDataFromServer)(client_obj, &rcs, &len, sizeof(int));
+		  rc = F_SendCmdToServer(client_obj, F_CMD_WINGET_MSG, ihab);
+                  rc = F_RecvDataFromServer(client_obj, &rcs, &len, sizeof(int));
                   if (rc == 0 && rcs == 1)
-                  {   rc = (*F_RecvDataFromServer)(client_obj, pqmsg, &len, sizeof(QMSG));
+                  {   rc = F_RecvDataFromServer(client_obj, pqmsg, &len, sizeof(QMSG));
                       if(rc == 0)
                       {  
                          if(pqmsg->msg == WM_QUIT) brc = FALSE;
@@ -147,7 +148,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                          {      /* todo: attempt to reconnect till timeout */
                          }
                          debug(3, 0)("WinGetMsg Error(2): %lu\n",rc);
-                         fatal("WinGetMsg Error(2)\n");
+                         _fatal("WinGetMsg Error(2)\n");
                       }
                   }
             }
@@ -274,8 +275,8 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
      SQMSG sqmsg;
      sqmsg.qmsg = *((PQMSG)&msg);
      sqmsg.ihfrom = _hab.GetCurrentHAB();
-     rc =  (*F_SendCmdToServer)(client_obj, F_CMD_WINSENDMSG, sizeof(SQMSG));
-     rc =  (*F_SendDataToServer)(client_obj, (void *)&sqmsg, sizeof(SQMSG));
+     rc =  F_SendCmdToServer(client_obj, F_CMD_WINSENDMSG, sizeof(SQMSG));
+     rc =  F_SendDataToServer(client_obj, (void *)&sqmsg, sizeof(SQMSG));
 /* цикл ожидания */
 //todo
 
@@ -386,8 +387,8 @@ BOOL    APIENTRY WinPostMsg(HWND hwnd,
      SQMSG sqmsg;
      sqmsg.qmsg = msg;
      sqmsg.ihfrom = _hab.GetCurrentHAB();
-     rc =  (*F_SendCmdToServer)(client_obj, F_CMD_WINPOSTMSG, sizeof(SQMSG));
-     rc =  (*F_SendDataToServer)(client_obj, (void *)&sqmsg, sizeof(SQMSG));
+     rc =  F_SendCmdToServer(client_obj, F_CMD_WINPOSTMSG, sizeof(SQMSG));
+     rc =  F_SendDataToServer(client_obj, (void *)&sqmsg, sizeof(SQMSG));
   }
 
     brc = TRUE;

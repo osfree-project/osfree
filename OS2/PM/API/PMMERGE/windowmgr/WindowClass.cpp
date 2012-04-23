@@ -6,9 +6,9 @@
 //#define debug(...)
 
 #include "F_def.hpp"
+#include "debug.h"
 
 extern class _FreePM_HAB  _hab;
-
 
 //////////////// CreateFPM_Window/ WinCreateWindow /////////////////////////////////////////////
 /*
@@ -181,50 +181,50 @@ int FPM_Window::CreateFPM_Window
     if(iHab < 0)
     {  //_hab.SetError(ihab - bad! , PMERR_INVALID_HAB);
        debug(3, 0)("WARNING:"__FUNCTION__": bad ihab %x\n",iHab);
-       fatal("Thread don't initialized to FreePM");
+       _fatal("Thread don't initialized to FreePM");
     }
 //   x = _x;
 //   y = _y;
 //   nx = _nx;
 //   ny = _ny;
 //create hwnd
-    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
+    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
        }
        debug(3, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",rc);
-       fatal("SendCmdToServer Error\n");
+       _fatal("SendCmdToServer Error\n");
     }
 
-    rc = (*F_RecvDataFromServer)(client_obj, &hwnd, &len, sizeof(HWND));
+    rc = F_RecvDataFromServer(client_obj, &hwnd, &len, sizeof(HWND));
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {      /* todo: attempt to reconnect till timeout */
        }
        debug(3, 0)("WARNING:"__FUNCTION__":RecvDataFromServer Error: %s\n",rc);
-       fatal("RecvDataFromServer Error\n");
+       _fatal("RecvDataFromServer Error\n");
     }
     handle = hwnd;
     _hab.AddHwnd(hwnd,iHab, this);
 
     if(hwndParent)
     {
-       rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINSET_PARENT_HWND, handle);
+       rc = F_SendCmdToServer(client_obj, F_CMD_WINSET_PARENT_HWND, handle);
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
           }
           debug(3, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",rc);
-          fatal("SendCmdToServer Error\n");
+          _fatal("SendCmdToServer Error\n");
        }
-       rc =  (*F_SendDataToServer)(client_obj, (void *)&hwndParent, sizeof(HWND));
+       rc =  F_SendDataToServer(client_obj, (void *)&hwndParent, sizeof(HWND));
        if(rc)
        {  if(rc == ERROR_BROKEN_PIPE)
           {      /* todo: attempt to reconnect till timeout */
           }
           debug(3, 0)("WARNING:__FUNCTION__:F_SendDataToServer Error: %s\n",rc);
-          fatal("F_SendDataToServer Error\n");
+          _fatal("F_SendDataToServer Error\n");
        }
     }
 //send WM_CREATE
@@ -371,7 +371,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = nx;
              data[1] = ny;
              SendMsg_to_proc(WM_SIZE, mp1, mp2);
-             (*F_SendGenCmdDataToServer)(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
        if(fl & SWP_MOVE) /* Change the window x,y position */
        {     x = _x;
@@ -379,7 +379,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
              data[0] = x;
              data[1] = y;
              SendMsg_to_proc(WM_MOVE, NULL, NULL);
-             (*F_SendGenCmdDataToServer)(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
+             F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SET_WND_SIZE, handle, data, 2);
        }
     }
 
@@ -393,7 +393,7 @@ WinSetWindowPos(HWND hwndInsertBehind,
         if(fl & SWP_HIDE) /* Hide the window. */
                  mp1 = (MPARAM)FALSE;
         data[0] = (int) mp1;
-        rc = (*F_SendGenCmdDataToServer)(client_obj, F_CMD_WIN_SHOW, handle, data, 1);
+        rc = F_SendGenCmdDataToServer(client_obj, F_CMD_WIN_SHOW, handle, data, 1);
         SendMsg_to_proc(WM_SHOW, mp1, NULL);
     }
 

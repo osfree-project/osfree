@@ -27,10 +27,13 @@ extern "C" APIRET APIENTRY (*F_SendGenCmdDataToServer)(ULONG obj, int cmd, int p
 extern "C" APIRET APIENTRY (*F_RecvCmdFromClient)(ULONG obj, int *ncmd, int *data) = 0;
 extern "C" APIRET APIENTRY (*F_RecvDataFromClient)(ULONG obj, void *sqmsg, int *l, int size) = 0;
 extern "C" APIRET APIENTRY (*F_SendDataToClient)(ULONG obj, void *data, int len) = 0;
-extern "C" void APIENTRY   (*fatal)(const char *message) = 0;
-extern "C" void APIENTRY   (*db_print)(const char *format,...) = 0;
-extern "C" APIRET FreePM_db_level = 0;
-extern "C" APIRET FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
+//extern "C" void APIENTRY   (*fatal)(const char *message) = 0;
+//extern "C" void APIENTRY   (*db_print)(const char *format,...) = 0;
+
+void APIENTRY _fatal(const char *message);
+extern "C" void   APIENTRY _db_print(const char *format,...);
+extern "C" APIRET _FreePM_db_level;
+extern "C" APIRET _FreePM_debugLevels[MAX_DEBUG_SECTIONS];
 
 HMODULE   hmodBE = 0;
 ULONG *addr = 0;
@@ -157,6 +160,9 @@ extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
   }
   else
   {
+    //fatal    = &_fatal;
+    //db_print = &_db_print;
+
     // init
     rc = DosScanEnv("PM_COMM_BACKEND", &pszValue);
     if (rc) pszValue = "PMPIPE";
@@ -219,7 +225,7 @@ extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
 
     if (rc)
      return 0;
-
+/*
     rc = DosQueryProcAddr(hmodBE, 12, 0, (PFN *)&fatal);
 
     if (rc)
@@ -240,7 +246,7 @@ extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
 
     if (rc)
       return 0;
-
+ */
     //memset(FreePM_debugLevels, 0, sizeof(FreePM_debugLevels));
   }
 

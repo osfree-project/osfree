@@ -17,8 +17,8 @@ int _FreePM_detachedMode = 0;
 */
 
 /* debug support */
-extern "C" APIRET FreePM_db_level = 7;
-extern "C" APIRET FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
+extern "C" APIRET _FreePM_db_level = 7;
+extern "C" APIRET _FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
 int _FreePM_opt_debug_stderr = 5;
 FILE *_FreePM_debug_log=NULL;
 
@@ -33,8 +33,6 @@ time_t _FreePM_curtime;
 time_t _FreePM_current_time;
 time_t _FreePM_start;
 double _FreePM_current_dtime = 0.;
-
-
 
 struct FreePM_Config _FreePMconfig =
 {

@@ -18,6 +18,7 @@
 
 #include "FreePM_err.hpp"
 #include "F_def.hpp"
+#include "debug.h"
 
 //#define debug(...)
 
@@ -406,6 +407,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   // If we executed in this thread first time, register at server
   /* Connect to server */
   rc = InitSrvConn(NULL, &client_obj);
+
   if(rc)
   {
     debug(2, 0)(__FUNCTION__": got no connection!\n");
@@ -414,8 +416,9 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   }
 
   // Query HAB information from server
-  rc = (*F_SendCmdToServer)(client_obj, F_CMD_GET_IHAB,  0);
-  rc = (*F_RecvDataFromServer)(client_obj, inf, &len, sizeof(inf));
+  rc = F_SendCmdToServer(client_obj, F_CMD_GET_IHAB,  0);
+  rc = F_RecvDataFromServer(client_obj, inf, &len, sizeof(inf));
+
   if(rc)
   {
     debug(2, 0)(__FUNCTION__": got no hab!\n");
@@ -426,6 +429,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
   // inf[0] = HAB, inf[1] - ClientId
   // Register hab in local HAB list
   rc =  _hab.AddHAB(ordinal,inf[0],inf[1]);
+
   if(rc)
     iHAB = NULLHANDLE;
   else
@@ -455,7 +459,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
   }
 
   // Inform server we terinate this thread
-  rc = (*F_SendCmdToServer)(client_obj, F_CMD_CLIENT_EXIT, ihab);
+  rc = F_SendCmdToServer(client_obj, F_CMD_CLIENT_EXIT, ihab);
 
   // Close connection with server
   rc = CloseSrvConn();

@@ -38,6 +38,8 @@ extern "C" APIRET APIENTRY  _F_SendGenCmdDataToServer(void *recvobj, int cmd, in
 extern "C" APIRET APIENTRY  _F_SendGenCmdToServer(void *recvobj, int cmd, int par);
 extern "C" APIRET APIENTRY  _F_SendCmdToServer(void *recvobj, int ncmd, int data);
 extern "C" void APIENTRY    _db_print(const char *format,...);
+extern "C" APIRET _FreePM_db_level;
+extern "C" APIRET _FreePM_debugLevels[MAX_DEBUG_SECTIONS];
 
 /*+---------------------------------+*/
 /*| Static  variables               |*/
@@ -443,7 +445,7 @@ M_CONNECT:
    ThreadStart = 3;
    __lxchg(&LSthreads.semaphore, UNLOCKED);
    DosSleep(1);
-   debug(0, 2)("Fs_ClientWork%i: Pipe working %s\n",threadNum,FreePM_pipe[threadNum]->name);
+   debug(0, 2)("Fs_ClientWork%i: Pipe working %s\n", threadNum, FreePM_pipe[threadNum]->name);
 /*****************/
    do
    {  
@@ -457,14 +459,14 @@ M_CONNECT:
             if(rc == ERROR_BAD_PIPE || rc == ERROR_PIPE_NOT_CONNECTED)
                                   break; // клиент подох ??
          }
-         debug(0, 9)("WARNING: Fs_ClientWork: RecvCmdFromClient error %x %s\n",rc,xstdio_strerror()); 
+         debug(0, 9)("WARNING: Fs_ClientWork: RecvCmdFromClient error %x %s\n", rc, xstdio_strerror()); 
          goto ENDTHREAD;
       }
-      LSthreads.state[threadNum]=1;
+      LSthreads.state[threadNum] = 1;
 
       LSthreads.state[threadNum] = 4;
       debug(0, 9)("Fs_ClientWork: Get ncmd %x %x\n",ncmd, data);
- 
+
       // handle the command
       handler((void *)FreePM_pipe[threadNum], ncmd, data, threadNum);
 

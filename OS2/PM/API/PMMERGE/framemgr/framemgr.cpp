@@ -3,6 +3,7 @@
 #include <string.h>
 #include <F_hab.hpp>
 #include "F_def.hpp"
+#include "debug.h"
 
 extern class _FreePM_HAB  _hab;
 
@@ -74,7 +75,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
     if(iHab < 0)
     {  //_hab.SetError(ihab - bad! , PMERR_INVALID_HAB);
        debug(3, 0)("WARNING: __FUNCTION__: bad ihab %x\n",iHab);
-       fatal("Thread don't initialized to FreePM");
+       _fatal("Thread don't initialized to FreePM");
        return NULL;
     }
 
@@ -85,7 +86,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
        {      /* todo: attempt to reconnect till timeout */
        }
        debug(3, 0)("WARNING:__FUNCTION__:SendCmdToServer Error: %s\n",rc);
-       fatal("SendCmdToServer Error\n");
+       _fatal("SendCmdToServer Error\n");
     }
 
     rc = F_RecvDataFromServer(client_obj, &hwnd, &len, sizeof(HWND));
@@ -94,7 +95,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
        {      /* todo: attempt to reconnect till timeout */
        }
        debug(3, 0)("WARNING:__FUNCTION__:RecvDataFromServer Error: %s\n",rc);
-       fatal("RecvDataFromServer Error\n");
+       _fatal("RecvDataFromServer Error\n");
     }
 
     pw = new FPM_Window();
@@ -137,7 +138,7 @@ HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
     if(iHab < 0)
     {  //_hab.SetError(ihab - bad! , PMERR_INVALID_HAB);
        debug(3, 0)("WARNING: WinCreateStdWindow: bad ihab %x\n",iHab);
-       fatal("Thread don't initialized to FreePM");
+       _fatal("Thread don't initialized to FreePM");
        return NULL;
     }
 
@@ -159,14 +160,14 @@ HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
   hwndFrame = pStdW->GetHandle();
 
 ////create hwndClient
-//    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
+//    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
 ////todo check rc
-//    rc = (*F_RecvDataFromServer)(client_obj, &hwndFrame, &len, sizeof(HWND));
+//    rc = F_RecvDataFromServer(client_obj, &hwndFrame, &len, sizeof(HWND));
 ////todo check rc
 ////create hwndFrame
-//    rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINCREATE_HWND, iHab);
+//    rc = F_SendCmdToServer(client_obj, F_CMD_WINCREATE_HWND, iHab);
 ////todo check rc
-//    rc = (*F_RecvDataFromServer)(client_obj, &hwndClient, &len, sizeof(HWND));
+//    rc = F_RecvDataFromServer(client_obj, &hwndClient, &len, sizeof(HWND));
 ////todo check rc
 //  *phwndClient = hwndClient;
 ////todo:
