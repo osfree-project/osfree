@@ -18,7 +18,6 @@
 
 #include "FreePM_err.hpp"
 #include "F_def.hpp"
-#include "exp.h"
 
 //#define debug(...)
 
@@ -36,29 +35,9 @@ int _FreePM_id_index = 0;
 
 */
 
-int QueryThreadOrdinal(int &tid)
-{
-   PTIB   ptib;           /* Thread information block structure  */
-   PPIB   ppib;           /* Process information block structure */
-   APIRET rc;             /* Return code                         */
-   PTIB2 pt2;
-   int ordinal;
-
-   ptib=NULL;
-   ppib=NULL;
-   rc=NO_ERROR;
-
-    rc = DosGetInfoBlocks(&ptib, &ppib);
-    if (rc != NO_ERROR)
-    {  printf ("DosGetInfoBlocks error : rc = %u\n", rc);
-          return 1;
-    }
-    ordinal = ptib->tib_ordinal;
-    pt2 = ptib->tib_ptib2;
-    tid = pt2->tib2_ultid;
-    return ordinal;
-}
-
+extern "C" APIRET APIENTRY InitSrvConn(char *remotemachineName, ULONG *obj);
+extern "C" APIRET APIENTRY CloseSrvConn (void);
+int QueryThreadOrdinal(int &tid);
 
 
 /* return:
@@ -426,7 +405,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
 
   // If we executed in this thread first time, register at server
   /* Connect to server */
-  rc = InitServerConnection(NULL, &client_obj);
+  rc = InitSrvConn(NULL, &client_obj);
   if(rc)
   {
     debug(2, 0)(__FUNCTION__": got no connection!\n");
@@ -479,7 +458,7 @@ BOOL APIENTRY WinTerminate(HAB ihab)
   rc = (*F_SendCmdToServer)(client_obj, F_CMD_CLIENT_EXIT, ihab);
 
   // Close connection with server
-  rc = CloseServerConnection();
+  rc = CloseSrvConn();
 
   // Delete HAB for this thread
   _hab.DelHAB(ihab);

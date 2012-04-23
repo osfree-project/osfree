@@ -5,7 +5,6 @@
 
 #include "FreePM_err.hpp"
 #include "F_def.hpp"
-#include "exp.h"
 
 #define  INCL_WIN
 #include <os2.h>

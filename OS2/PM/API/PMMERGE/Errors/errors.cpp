@@ -14,7 +14,7 @@ WinGetLastError2
 
 #include <FreePM.hpp>
 #include <pmclient.h>
-//#include <habmgr.hpp>
+#include <string.h>
 #include <F_hab.hpp>
 
 //#define debug(...)

@@ -162,7 +162,7 @@ extern "C" int cmain(int narg, char *arg[], char *envp[])
   }
 
 /* read config */
-  FPMs_config.Read("FreePMServer.ini");
+  FPMs_config.Read("fpmsrv.ini");
 /* init debug again */
   _db_init(_FreePMconfig.Log.log, FPMs_config.debugOptions);
 
@@ -499,31 +499,34 @@ void handler (ULONG obj, int ncmd, int data, int threadNum)
            break;
 
         case F_CMD_WINQUERY_MSG: /* Query messages for ihab = data */
-          {  int nmsg=0;
+          {  
+             int nmsg=0;
              int ihabto;
-             ihabto  = data;
-             nmsg  = session.hab_list.Queue.QueryNmsg(ihabto);
-             if(nmsg)
+             ihabto = data;
+             nmsg = session.hab_list.Queue.QueryNmsg(ihabto);
+             if (nmsg)
                 debug(0, 2) ("Fs_ClientWork: F_CMD_WINQUERY_MSG, nmsg=%i\n",nmsg);
-             rc=  F_SendDataToClient(obj, &nmsg , sizeof(int));
+             rc = F_SendDataToClient(obj, &nmsg , sizeof(int));
           }
            break;
         case F_CMD_WINGET_MSG:  /* Get message for ihab = data */
-          {  SQMSG sqmsg;
-             int rc, ihabto;
-             int nmsg=0;
-             ihabto = data;
-             rc = session.hab_list.Queue.GetForIhab(&sqmsg, ihabto);
-             if(rc == 0) nmsg = 1;
+          { 
+            SQMSG sqmsg;
+            int rc, ihabto;
+            int nmsg=0;
+            ihabto = data;
+            rc = session.hab_list.Queue.GetForIhab(&sqmsg, ihabto);
+            if (rc == 0) nmsg = 1;
 
-           if(nmsg == 1)
-             debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG for %i, msg=%x\n",ihabto, sqmsg.qmsg.msg);
-           else
-             debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG, No msg  for %i\n",ihabto);
-             rc=  F_SendDataToClient(obj, &nmsg , sizeof(int));
-             if(nmsg)
-             { rc=  F_SendDataToClient(obj, &sqmsg.qmsg , sizeof(QMSG));
-             }
+            if (nmsg == 1)
+              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG for %i, msg=%x\n", ihabto, sqmsg.qmsg.msg);
+            else
+              debug(0, 2) ("Fs_ClientWork: F_CMD_WINGET_MSG, No msg  for %i\n", ihabto);
+
+            rc = F_SendDataToClient(obj, &nmsg , sizeof(int));
+
+            if(nmsg)
+              rc = F_SendDataToClient(obj, &sqmsg.qmsg , sizeof(QMSG));
           }
            break;
 

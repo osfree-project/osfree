@@ -18,55 +18,17 @@
 //#include <sys/time.h>
 
 #include "F_def.hpp"
-#include "exp.h"
 
 extern class _FreePM_HAB  _hab;
 
+int QueryThreadOrdinal(int &tid);
+time_t getCurrentTime(void);
 
 /* time variables */
 time_t  _FreePM_curtime = 0;
 time_t _FreePM_current_time;
 time_t _FreePM_start;
 double _FreePM_current_dtime = 0.;
-
-time_t
-getCurrentTime(void)
-{
-    struct _timeb timebuffer;
-
-    _ftime(&timebuffer);
-    _FreePM_current_time = (long)timebuffer.time;
-    //_FreePM_current_time.tv_sec  = (long) timebuffer.time;
-    //_FreePM_current_time.tv_usec = (long) timebuffer.millitm * 1000;
-
-    _FreePM_current_dtime = (double)timebuffer.time   +
-       (double) timebuffer.millitm / 1000.0;
-    return _FreePM_curtime = timebuffer.time;
-}
-
-int QueryThreadOrdinal(int &tid)
-{
-   PTIB   ptib;           /* Thread information block structure  */
-   PPIB   ppib;           /* Process information block structure */
-   APIRET rc;             /* Return code                         */
-   PTIB2 pt2;
-   int ordinal;
-
-   ptib=NULL;
-   ppib=NULL;
-   rc=NO_ERROR;
-
-    rc = DosGetInfoBlocks(&ptib, &ppib);
-    if (rc != NO_ERROR)
-    {  printf ("DosGetInfoBlocks error : rc = %u\n", rc);
-          return 1;
-    }
-    ordinal = ptib->tib_ordinal;
-    pt2 = ptib->tib_ptib2;
-    tid = pt2->tib2_ultid;
-    return ordinal;
-}
-
 
 HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
 {
@@ -124,14 +86,13 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
                            HWND hwndFilter,      /* Window filter          */
                            ULONG msgFilterFirst, /* First message identity */
                            ULONG msgFilterLast)  /* Last message identity  */
-{   BOOL brc = TRUE;
-    int rc,rcs;
+{
+    BOOL    brc = TRUE;
+    int     len, nmsg;
+    int     rc, rcs;
     FPMQMSG fpmqmsg;
 
     debug(3, 0)("WinGetMsg call\n"); // 2
-
-    //for (;;)
-    //  DosSleep(1000);
 
     if(pqmsg == NULL)
     {  _hab.SetError(ihab, FPMERR_NULL_POINTER);
@@ -149,19 +110,21 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     {
        rc = _hab.hab[ihab].pQueue->GetLength();
        if(rc)
-       {  rc =  _hab.hab[ihab].pQueue->Get((PSQMSG)&fpmqmsg /*pqmsg*/);
+       {  
+          rc =  _hab.hab[ihab].pQueue->Get((PSQMSG)&fpmqmsg /*pqmsg*/);
           if(rc == 0)
-          {  debug(3, 0)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2); // 1
+          {  
+            debug(3, 1)("WinGetMsg Getmsg: hwnd %x, msg %x, mp1 %x, mp2 %x\n",pqmsg->hwnd,pqmsg->msg,pqmsg->mp1,pqmsg->mp2);
             if(fpmqmsg.msg == WM_QUIT) brc = FALSE;
             // Здесь копируем кусок сообщения, т.к. мы используем расширенное
             return brc;
           }
        } else {
-            int len,nmsg;
 //Query number of messages on server
             rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINQUERY_MSG, ihab);
             if(rc)
-            {  if(rc == ERROR_BROKEN_PIPE)
+            {
+               if(rc == ERROR_BROKEN_PIPE)
                {      /* todo: attempt to reconnect till timeout */
                }
                debug(3, 0)("WinGetMsg Error: %lu\n",rc);
@@ -169,13 +132,15 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
             }
 //todo check rc
             rc = (*F_RecvDataFromServer)(client_obj, &nmsg, &len, sizeof(int));
-            if(rc == 0 && nmsg > 0)
-            {     rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINGET_MSG, ihab);
+            if (rc == 0 && nmsg > 0)
+            {
+		  rc = (*F_SendCmdToServer)(client_obj, F_CMD_WINGET_MSG, ihab);
                   rc = (*F_RecvDataFromServer)(client_obj, &rcs, &len, sizeof(int));
-                  if(rc == 0 && rcs == 1)
+                  if (rc == 0 && rcs == 1)
                   {   rc = (*F_RecvDataFromServer)(client_obj, pqmsg, &len, sizeof(QMSG));
                       if(rc == 0)
-                      {  if(pqmsg->msg == WM_QUIT) brc = FALSE;
+                      {  
+                         if(pqmsg->msg == WM_QUIT) brc = FALSE;
                          return brc;
                       } else {
                          if(rc == ERROR_BROKEN_PIPE)
@@ -188,9 +153,9 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
             }
        }
 //No messages: Let's sleep
-       debug(3, 9)("WinGetMsg Sleep\n"); // 9
+       debug(3, 9)("WinGetMsg Sleep\n");
        DosSleep(1);
-    } while(0);
+    } while (nmsg == 0);
 
     return brc;
 }

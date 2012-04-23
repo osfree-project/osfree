@@ -10,7 +10,7 @@
 
 #include "FreePM.hpp"
 #include "FreePM_err.hpp"
-#include "Fc_config.hpp"
+#include "F_pipe.hpp"
 #include "F_def.hpp"
 
 /*+---------------------------------+*/
@@ -23,7 +23,7 @@
 /*+---------------------------------+*/
 #include <pmclient.h>
 
-class F_ClientConfig FPM_config;
+//class F_ClientConfig FPM_config;
 
 const char *const _FreePM_Application_Name = FREEPM_CLIENT_APPLICATION_NAME;
 const char *const _FreePM_Application_Vers = FREEPM_VERSION;
@@ -43,16 +43,17 @@ extern "C" void APIENTRY    _db_print(const char *format,...);
 /*| Static  variables               |*/
 /*+---------------------------------+*/
 static int nxDefault=800, nyDefault=600,  bytesPerPixelDefault=4;
-static char *ExternMachine = NULL;   /* Name of external machine for pipes like \\MACHINE\PIPE\SQDR   */
 
 /*+---------------------------------+*/
 /*|     local constants.            |*/
 /*+---------------------------------+*/
 char PipeName[256];
 
-//class FreePM_session session;
+// pipe object
 class NPipe *pF_pipe;
+// server side mutex
 static volatile int AccessF_pipe_srv = UNLOCKED;
+// client side mutex
 static volatile int AccessF_pipe_cli = UNLOCKED;
 
 #define LOCK(sem)                               \
@@ -92,161 +93,59 @@ struct LS_threads
    int state [FREEPMS_MAX_NUM_THREADS];
 };
 
-/*
-void _srvThread(void *param)
+
+extern "C" APIRET APIENTRY _InitServerConnection(char *ExternMachine, ULONG *obj)
 {
-  HMODULE  hmod;
-  char     LoadErr[256];
-
-  DosLoadModule(LoadErr, sizeof(LoadErr), "FPMSRV", &hmod);
-
-  for (;;)
-    DosSleep(100000);
-}
- */
-
-void ExecuteFreePMServer(void)
-{
-  char Buffer[CCHMAXPATH];
-//  char srcdir[CCHMAXPATH];
-  HMODULE  hmod;
-  char     LoadErr[256];
-  //int idd;
-/*
-  char CmdLineBuf[2048];
-  char *CmdLine;
-  char *P;
-  RESULTCODES ResultCodes;
-  char ApplierEXE[] = "FreePM.exe";
-
-  CmdLine = CmdLineBuf;
-  if((((ULONG)CmdLine+1024)&0xFFFF) < 1024)
-      CmdLine += 1024;
-  P = strcpy(CmdLine, ApplierEXE)+strlen(ApplierEXE)+1;
-  *P = '"';
-  P++;
-  P = strcpy(P, Buffer)+strlen(Buffer);
-  *P = '"';
-  P++;
-  *P = 0;
-  P++;
-  *P = 0;
-
-  DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
- */
-  DosLoadModule(LoadErr, sizeof(LoadErr), "FPMSRV", &hmod);
-}
-
-
-extern "C" APIRET APIENTRY _InitServerConnection(char *remotemachineName, ULONG *obj)
-{
-  int rc;
   char buf[256];
+  int  rc;
 
-/* init time */
-
-  //DosGetDateTime(&_FreePM_current_time);
-  _FreePM_current_time=time(NULL);
-  
-  _FreePM_start = _FreePM_current_time;
-
-/* First  let's look for FreePM.ini and read it if any */
-  FPM_config.Read("FreePM.ini");
-
-/* init debug */
-  //_db_init(_FreePMconfig.Log.log, FPM_config.debugOptions);
+  /* init time */
+  _FreePM_current_time = time(NULL);
+  _FreePM_start        = _FreePM_current_time;
 
   rc = QueryProcessType();
+
   if(rc == 4)
     _FreePM_detachedMode = 1;
 
-  //if(_FreePM_detachedMode)
-  //{
-  //  debug(1, 0) ("Starting in detached mode %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-  //} else {
-  //  debug(1, 0) ("Starting %s version %s...\n",_FreePM_Application_Name, _FreePM_Application_Vers);
-  //}
+  if (ExternMachine)
+  {
+     sprintf(buf,"\\\\%s\\%s",ExternMachine, FREEPM_BASE_PIPE_NAME);
+  } else {
+     strcpy(buf, FREEPM_BASE_PIPE_NAME);
+  }
+  strcpy(PipeName, buf);
 
-   if(remotemachineName)
-   {
-     strcpy(FPM_config.ExternMachineName,remotemachineName);
-     ExternMachine = &FPM_config.ExternMachineName[0];
-   } else {
-/* test for FreePM's semaphore  at local machine */
-       //debug(1, 0)("Fc_main: FREEPM_MUTEX_NAME=%s \n", FREEPM_MUTEX_NAME );
-       HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
-       rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,    /* Semaphore name */
-                            &FREEPM_hmtx);        /* Handle returned */
-       DosCloseMutexSem(FREEPM_hmtx);
-       if(rc)
-       {  /* FreePM server is not running at local machine, let's look for FreePM.ini */
-         //debug(1, 1)("FreePM server is not running at local machine, test for server at %s\n",FPM_config.ExternMachineName);
-         ExternMachine = &FPM_config.ExternMachineName[0];
-       } else {
-         ExternMachine = NULL;
-       }
-   }
+  pF_pipe = new NPipe(PipeName, CLIENT_MODE);
 
-/* init connection to FreePM server */
-   if(ExternMachine)
-   {
-      sprintf(buf,"\\\\%s\\%s",ExternMachine,FREEPM_BASE_PIPE_NAME);
-   } else {
-      strcpy(buf,FREEPM_BASE_PIPE_NAME);
-   }
-   strcpy(PipeName,buf);
+  rc = pF_pipe->Open();
 
-   //debug(1, 0)("Pipe: FREEPM_BASE_PIPE_NAME=%s \n", FREEPM_BASE_PIPE_NAME);
-   pF_pipe = new NPipe(PipeName,CLIENT_MODE);
-
-   rc = pF_pipe->Open();
-   if(rc)
-   {
-      //debug(1, 0)("F_pipe.Open rc = %i (%s)\n",rc,GetOS2ErrorMessage(rc));
-      if(ExternMachine)
-      {
-        //debug(1, 0)("%s is not running at remote machine %s. Starting local server...\n",FREEPM_SERVER_APPLICATION_NAME,ExternMachine);
-        ExecuteFreePMServer();
-
-        DosSleep(1000);
-
-        strcpy(PipeName, FREEPM_BASE_PIPE_NAME);
-
-        delete pF_pipe;
-        pF_pipe = new NPipe(PipeName,CLIENT_MODE);
-
-        rc = pF_pipe->Open();
-        //if(rc)
-        //{
-        //  debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-        //  _fatal_common("FreePM server not running");
-        //}
-      } //else {
-      //    debug(1, 0)("%s is not running at local machine, exitting...\n",FREEPM_SERVER_APPLICATION_NAME);
-      //    _fatal_common("FreePM server not running");
-      //}
-   }
-    rc = pF_pipe->HandShake();
-    if(rc ==  HAND_SHAKE_ERROR)
-    {   //debug(1, 0)("Error handshake %i, pipe %s\n",rc,PipeName);
-        //_fatal_common("Error handshake  pipe");
-        return 1;
-    }
-//todo
-    *obj = (APIRET)pF_pipe;
-
-    rc = 0;
+  if (rc)
     return rc;
+
+  rc = pF_pipe->HandShake();
+
+  if (rc ==  HAND_SHAKE_ERROR)
+  {
+      pF_pipe->Close();
+      delete pF_pipe;
+
+      return rc;
+  }
+  //todo
+  *obj = (APIRET)pF_pipe;
+
+  return 0;
 }
 
 
 extern "C" APIRET APIENTRY  _CloseServerConnection(void)
 {   
-
     if(pF_pipe)
     {
        debug(1, 0) ("CloseServerConnection\n");
        delete pF_pipe;
+
        pF_pipe = NULL;
     }
 

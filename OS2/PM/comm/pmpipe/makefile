@@ -4,8 +4,8 @@
 
 PROJ = pmpipe
 DESC = PM pipe communication backend
-srcfiles = $(p)Fc_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) $(p)Fc_config$(e) &
-           $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e)
+srcfiles = $(p)Fc_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) &
+           $(p)F_errors$(e) $(p)F_debug$(e) # $(p)F_Client$(e) $(p)F_messages$(e) # $(p)Fc_config$(e)
 DEST    = os2$(SEP)dll
 
 #  option stack=3m

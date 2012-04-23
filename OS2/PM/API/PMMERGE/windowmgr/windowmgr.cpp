@@ -6,7 +6,6 @@
 //#define debug(...)
 
 #include "F_def.hpp"
-#include "exp.h"
 
 extern class _FreePM_HAB  _hab;
 

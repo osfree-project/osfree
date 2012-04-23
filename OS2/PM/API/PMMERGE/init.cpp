@@ -2,13 +2,18 @@
  *  (Load the communication backend)
  */
 
+// libc includes
+#include <string.h>
+#include <stdio.h>
+// FreePM includes
+#include "FreePM.hpp"
+#include "FreePM_err.hpp"
+#include "Fc_config.hpp"
+#include "F_def.hpp"
+// OS/2 includes
 #define  INCL_DOSMISC
 #define  INCL_DOSMODULEMGR
 #include <os2.h>
-#include "F_def.hpp"
-#include <string.h>
-#include <stdio.h>
-#include "exp.h"
 
 extern "C" APIRET client_obj = 0;
 extern "C" APIRET APIENTRY (*InitServerConnection)(char *remotemachineName, ULONG *obj) = 0;
@@ -30,7 +35,106 @@ extern "C" APIRET FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
 HMODULE   hmodBE = 0;
 ULONG *addr = 0;
 
+class F_ClientConfig FPM_config;
+
+/* Name of external machine for pipes like \\MACHINE\PIPE\SQDR   */
+static char *ExternMachine = NULL;
+
 extern "C" APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
+
+void ExecuteFreePMServer(void)
+{
+  //char Buffer[CCHMAXPATH];
+  char     LoadErr[256];
+  HMODULE  hmod;
+  //PTIB     ptib;
+  //PPIB     ppib;
+  //char     *p, *q;
+
+  //DosGetInfoBlocks(&ptib, &ppib);
+
+  // find last backslash in the file path
+  //for (p = strstr(ppib->pib_pchcmd, "\\"), q = p; p; q = p + 1, p = strstr(q, "\\")) ;
+  //printf("\"%s\"\n", q);
+
+  DosLoadModule(LoadErr, sizeof(LoadErr), "PMSRV", &hmod);
+/*
+  // check our command line
+  if (strcasecmp(q, "fmshell.exe")) // "pmshell.exe"
+  {
+    // we're executing in a context other than pmshell.exe
+    printf("lalala\n");
+    char CmdLineBuf[2048];
+    char *CmdLine;
+    char *P;
+    RESULTCODES ResultCodes;
+    char ApplierEXE[] = "fmshell.exe";
+
+    CmdLine = CmdLineBuf;
+
+    if ((((ULONG)CmdLine+1024)&0xFFFF) < 1024)
+        CmdLine += 1024;
+
+    P = strcpy(CmdLine, ApplierEXE)+strlen(ApplierEXE)+1;
+    *P = '"';
+    P++;
+    P = strcpy(P, Buffer)+strlen(Buffer);
+    *P = '"';
+    P++;
+    *P = 0;
+    P++;
+    *P = 0;
+
+    DosExecPgm(NULL, 0, EXEC_ASYNC, CmdLine, NULL, &ResultCodes, ApplierEXE);
+  }
+ */
+}
+
+extern "C" APIRET APIENTRY InitSrvConn(char *remotemachineName, ULONG *obj)
+{
+  int  rc;
+
+  /* First  let's look for FreePM.ini and read it if any */
+  FPM_config.Read("fpm.ini");
+
+  if (remotemachineName)
+  {
+    strcpy(FPM_config.ExternMachineName, remotemachineName);
+    ExternMachine = &FPM_config.ExternMachineName[0];
+  } else {
+    /* test for FreePM's semaphore  at local machine */
+
+    HMTX    FREEPM_hmtx     = NULLHANDLE; /* Mutex semaphore handle */
+
+    rc = DosOpenMutexSem(FREEPM_MUTEX_NAME,    /* Semaphore name */
+                         &FREEPM_hmtx);        /* Handle returned */
+
+    DosCloseMutexSem(FREEPM_hmtx);
+
+    if (rc)
+      /* FreePM server is not running at local machine, let's look for FreePM.ini */
+      ExternMachine = &FPM_config.ExternMachineName[0];
+    else
+      ExternMachine = NULL;
+  }
+
+  /* init connection to FreePM server */
+  rc = InitServerConnection(ExternMachine, obj);
+
+  if (rc && ExternMachine)
+  {
+     ExecuteFreePMServer();
+     DosSleep(1000);
+     rc = InitServerConnection(NULL, obj);
+  }
+
+  return rc;
+}
+
+extern "C" APIRET APIENTRY CloseSrvConn (void)
+{
+  return CloseServerConnection();
+}
 
 extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
 {

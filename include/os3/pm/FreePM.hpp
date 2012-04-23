@@ -24,14 +24,22 @@
 #include <os2.h>
 //#include <pmerr.h>
 
+#include <builtin.h>
+#include <stdio.h>
+
 // FreePM specific headers
 #include "F_config.hpp"
 #include "F_def.hpp"
-#include "F_pipe.hpp"
+//#include "F_pipe.hpp"
 #include "F_globals.hpp"
 #include "F_utils.hpp"
 #include "f_Err.h"
 
+#define LOCKED    1
+#define UNLOCKED  0
+
+#define SERVER_MODE              1
+#define CLIENT_MODE              2
 
 /*+---------------------------------+*/
 /*| Global variables                |*/

@@ -2,7 +2,7 @@
 #
 #  Viking
 
-PROJ = fpmsrv #freepm
+PROJ = pmsrv
 DESC = FreePM Server
 DIRS = drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &

@@ -1,10 +1,8 @@
 #include <freepm.hpp>
 #include <pmclient.h>
-//#include <habmgr.hpp>
+#include <string.h>
 #include <F_hab.hpp>
 #include "F_def.hpp"
-#include "exp.h"
-//#include <window.hpp>
 
 extern class _FreePM_HAB  _hab;
 

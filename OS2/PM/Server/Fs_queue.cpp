@@ -134,40 +134,54 @@ int Fs_Queue::Get(PSQMSG pmsg)
    rc = 2 - pmsg is NULL
 */
 int Fs_Queue::GetForIhab(PSQMSG pmsg, int iHab)
-{  int i,rcS,rc=1,ind,ind1;
-   if(length == 0)
-             return 1;
-    if(pmsg == NULL)
-           return 2;
-   do
-   {  rcS =  __lxchg(&Access,LOCKED);
-      if(rcS) DosSleep(0);
-   } while(rcS);     // доступ закрыт
+{
+   int i,rcS,rc=1,ind,ind1;
+ 
+   if (length == 0)
+     return 1;
 
-    for(i=0; i < length; i++)
-    { ind = (start+i) % lQueuesize;
-      if(queue[ind].ihto == iHab)
-      {  *pmsg = queue[ind];
+   if (pmsg == NULL)
+     return 2;
+
+   do
+   {
+      rcS = __lxchg(&Access,LOCKED);
+      if (rcS) DosSleep(0);
+   } while (rcS);     // доступ закрыт
+
+   for (i = 0; i < length; i++)
+   { 
+      ind = (start+i) % lQueuesize;
+
+      if (queue[ind].ihto == iHab)
+      {  
+         *pmsg = queue[ind];
          rc = 0;
          break;
       }
-    }
-    if(rc == 0)  /* delete message from queue */
-    {
-      if(ind == start)
-      {  start = (start + 1) % lQueuesize;
-      } else {
-         for(  ; i < length-1; i++)
-         {  ind  = (start + i)   % lQueuesize;
-            ind1 = (start + i+1) % lQueuesize;
-            queue[ind] = queue[ind1];
-         }
-      }
-      length--;
-    }
-    __lxchg(&Access,UNLOCKED);
-    return rc;
+   }
+
+   if (rc == 0)  /* delete message from queue */
+   {
+     if (ind == start)
+     {
+       start = (start + 1) % lQueuesize;
+     } else {
+        for ( ; i < length-1; i++)
+        {
+           ind  = (start + i)   % lQueuesize;
+           ind1 = (start + i+1) % lQueuesize;
+           queue[ind] = queue[ind1];
+        }
+     }
+     length--;
+   }
+
+   __lxchg(&Access,UNLOCKED);
+
+   return rc;
 }
+
 /* посчитать количество сообщений для ihabto */
 int Fs_Queue::QueryNmsg(int ihabto)
 {   int i, ind,rc = 0;

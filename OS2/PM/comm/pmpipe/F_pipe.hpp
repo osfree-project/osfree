@@ -6,7 +6,8 @@
 #include <builtin.h>
 #include <stdio.h>
 #include <string.h>
-//#include <FreePM.hpp>
+
+#include <FreePM.hpp>
 
 #include "F_config.hpp"
 
@@ -20,12 +21,6 @@
 #define FREEPM_BASE_PIPE_NAME        "\\PIPE\\FREEPM"  /* Base pipe name */
 
 #define MAX_NUM_PIPES 32
-
-#define LOCKED    1
-#define UNLOCKED  0
-
-#define SERVER_MODE              1
-#define CLIENT_MODE              2
 
 // temporary added (while UniAPI don't work yet)
 #define NP_WMESG                   0x0400 /* write messages          */

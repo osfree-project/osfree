@@ -1,5 +1,7 @@
 /* FreePM Client config */
 
+#define _MAX_FNAME 256
+
 class F_ClientConfig
 {
    public:
