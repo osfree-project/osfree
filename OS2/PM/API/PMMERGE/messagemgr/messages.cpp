@@ -31,7 +31,7 @@ time_t _FreePM_current_time;
 time_t _FreePM_start;
 double _FreePM_current_dtime = 0.;
 
-HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
+extern "C" HMQ     APIENTRY Win32CreateMsgQueue(HAB ihab, LONG cmsg)
 {
   int ordinal,tid,rc, iHAB;
 
@@ -51,7 +51,7 @@ HMQ     APIENTRY WinCreateMsgQueue(HAB ihab, LONG cmsg)
   return ihab; /* ihab = hmq */
 }
 
-BOOL    APIENTRY WinDestroyMsgQueue(HMQ hmq)
+extern "C" BOOL    APIENTRY Win32DestroyMsgQueue(HMQ hmq)
 {
   if(_hab.hab[hmq].pQueue)
   {
@@ -82,7 +82,7 @@ ERRORS:
 ***********************************************************************************/
 //todo: filter implementation
 //todo: semaphore implementation with client-server
-BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.         */
+extern "C" BOOL    APIENTRY Win32GetMsg(HAB ihab,             /* Anchor-block handle.         */
                            PQMSG pqmsg,          /* Pointer to Message structure */
                            HWND hwndFilter,      /* Window filter          */
                            ULONG msgFilterFirst, /* First message identity */
@@ -161,7 +161,7 @@ BOOL    APIENTRY WinGetMsg(HAB ihab,             /* Anchor-block handle.        
     return brc;
 }
 
-MRESULT APIENTRY WinDispatchMsg(HAB hab,
+extern "C" MRESULT APIENTRY Win32DispatchMsg(HAB hab,
                                    PQMSG pqmsg)
 { int ordinal, iHab, tid,iHABto, indiHabto, indpw;
   int rc,rcf;
@@ -220,7 +220,7 @@ Errors:
 PMERR_INVALID_HAB
 */
 
-MRESULT APIENTRY WinSendMsg(HWND hwnd,
+extern "C" MRESULT APIENTRY Win32SendMsg(HWND hwnd,
                             ULONG umsg,
                             MPARAM mp1,
                             MPARAM mp2)
@@ -288,7 +288,7 @@ MRESULT APIENTRY WinSendMsg(HWND hwnd,
 
 #if 0
 
-BOOL    APIENTRY WinQueryQueueInfo(HMQ hmq,
+extern "C" BOOL    APIENTRY Win32QueryQueueInfo(HMQ hmq,
                                    PMQINFO pmqi,
                                    ULONG cbCopy)
 {
@@ -310,7 +310,7 @@ Errors:
 
 ***********************************************************************************/
 
-BOOL    APIENTRY WinPeekMsg(HAB ihab,
+extern "C" BOOL    APIENTRY Win32PeekMsg(HAB ihab,
                             PQMSG pqmsg,
                             HWND hwndFilter,
                             ULONG msgFilterFirst,
@@ -346,7 +346,7 @@ Errors:
 PMERR_NO_MSG_QUEUE
 
 */
-BOOL    APIENTRY WinPostMsg(HWND hwnd,
+extern "C" BOOL    APIENTRY Win32PostMsg(HWND hwnd,
                                ULONG umsg,
                                MPARAM mp1,
                                MPARAM mp2)
@@ -396,7 +396,7 @@ BOOL    APIENTRY WinPostMsg(HWND hwnd,
 }
 
 
-BOOL    APIENTRY WinRegisterUserMsg(HAB hab,
+extern "C" BOOL    APIENTRY Win32RegisterUserMsg(HAB hab,
                                     ULONG msgid,
                                     LONG datatype1,
                                     LONG dir1,

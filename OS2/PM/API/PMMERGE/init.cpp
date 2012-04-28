@@ -43,6 +43,8 @@ class F_ClientConfig FPM_config;
 /* Name of external machine for pipes like \\MACHINE\PIPE\SQDR   */
 static char *ExternMachine = NULL;
 
+extern "C" void log_init(void);
+
 extern "C" APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
 
 void ExecuteFreePMServer(void)
@@ -248,6 +250,9 @@ extern "C" APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
       return 0;
  */
     //memset(FreePM_debugLevels, 0, sizeof(FreePM_debugLevels));
+
+    // init osFree DosLogWrite output
+    log_init();
   }
 
   return 1;

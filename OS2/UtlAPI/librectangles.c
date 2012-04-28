@@ -143,7 +143,6 @@ BOOL APIENTRY RectPtIn(PRECTL prcl, PPOINTL pptl)
 };
 
 /* intersection helper functions */
-
 BOOL intRectIntersectRectX(PRECTL prclDst, PRECTL prclSrc1,
                          PRECTL prclSrc2)
 {

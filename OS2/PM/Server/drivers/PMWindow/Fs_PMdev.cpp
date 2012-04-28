@@ -126,7 +126,7 @@ void APIENTRY FPM_DeviceStart(void *param)
                       sizeof(int *)
                       ) ;
 
-   ulFlags = FCF_TITLEBAR | FCF_BORDER | FCF_SYSMENU | // FCF_SIZEBORDER |
+   ulFlags = FCF_TITLEBAR | FCF_BORDER | FCF_SYSMENU | FCF_SIZEBORDER |
              FCF_MINMAX | FCF_SHELLPOSITION | FCF_TASKLIST; // |FCF_VERTSCROLL|FCF_HORZSCROLL;
 
    hwndFrame = WinCreateStdWindow ( HWND_DESKTOP,

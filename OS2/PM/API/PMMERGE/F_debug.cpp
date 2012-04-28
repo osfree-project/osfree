@@ -42,6 +42,10 @@ extern "C" APIRET _FreePM_debugLevels[MAX_DEBUG_SECTIONS] = {0};
 
 int DebugCount = 0;
 
+typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
+
+logwrt_t DosLogWrite;
+
 //extern "C" APIRET APIENTRY  (*InitServerConnection)(char *remotemachineName, ULONG *obj);
 //extern "C" APIRET APIENTRY  (*CloseServerConnection)(void);
 //extern "C" APIRET APIENTRY  (*F_RecvDataFromClient)(void *recvobj, void *sqmsg, int *l, int size);
@@ -63,13 +67,16 @@ _db_print(const char *format,...)
   va_start(args, format);
   vsprintf(f, format, args);
 
+  // send to FreePM error log
   if (client_obj) 
   {
     if (!F_SendCmdToServer(client_obj, F_CMD_DB_PRINT, 0))
       F_SendDataToServer(client_obj, (void *)f, BUFSIZE);
   }
 
-  printf(f);
+  // send to osFree system log, if available
+  if (DosLogWrite)
+    DosLogWrite(f);
   
   va_end(args);
 }

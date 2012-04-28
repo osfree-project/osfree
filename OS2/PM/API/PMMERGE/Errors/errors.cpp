@@ -21,7 +21,7 @@ WinGetLastError2
 
 extern class _FreePM_HAB  _hab;
 
-ERRORID     APIENTRY    WinGetLastError(HAB iHAB)
+extern "C" ERRORID     APIENTRY    Win32GetLastError(HAB iHAB)
 {   int rc;
     rc = _hab.QueryHABexist(iHAB);
     if(rc != 1)
@@ -32,7 +32,7 @@ ERRORID     APIENTRY    WinGetLastError(HAB iHAB)
 
 }
 #if 0
-ERRORID     APIENTRY    WinGetLastError2(void)
+extern "C" ERRORID     APIENTRY    Win32GetLastError2(void)
 {   int ordinal,tid,rc, ind;
     ordinal = QueryThreadOrdinal(tid);
     ind = _hab.QueryOrdinalUsed(ordinal,Q_ORDINAL_INDEX);
@@ -65,7 +65,7 @@ ERRORID     APIENTRY    WinGetLastError2(void)
 */
 //todo: handle "thread not initialized to FreePM (PMERR_INVALID_HAB)"
 
-PERRINFO    APIENTRY    WinGetErrorInfo(HAB iHAB)
+extern "C" PERRINFO    APIENTRY    Win32GetErrorInfo(HAB iHAB)
 {  int rc, errid,l;
    ERRINFO *perrInf;
    char *perrstr, *perrInfStr, * *ptr;
@@ -87,7 +87,7 @@ PERRINFO    APIENTRY    WinGetErrorInfo(HAB iHAB)
    return perrInf;
 }
 
-BOOL        APIENTRY    WinFreeErrorInfo(PERRINFO perrinfo)
+extern "C" BOOL        APIENTRY    Win32FreeErrorInfo(PERRINFO perrinfo)
 {  if(perrinfo == NULL) return FALSE;
    free(perrinfo);
    return TRUE;

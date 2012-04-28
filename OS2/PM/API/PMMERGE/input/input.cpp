@@ -14,7 +14,7 @@
 
 /*** Keyboard and mouse input COMMON subsection *************************/
 
-BOOL  APIENTRY WinSetFocus(HWND hwndDesktop,
+extern "C" BOOL  APIENTRY Win32SetFocus(HWND hwndDesktop,
                             HWND hwndSetFocus)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -22,7 +22,7 @@ BOOL  APIENTRY WinSetFocus(HWND hwndDesktop,
 }
 
 
-BOOL  APIENTRY WinFocusChange(HWND hwndDesktop,
+extern "C" BOOL  APIENTRY Win32FocusChange(HWND hwndDesktop,
                               HWND hwndSetFocus,
                               ULONG flFocusChange)
 {

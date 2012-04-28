@@ -389,7 +389,7 @@ Errors:
     FPMERR_INITSERVER_CONNECTION
 */
 
-HAB APIENTRY WinInitialize(ULONG flOptions)
+extern "C" HAB APIENTRY Win32Initialize(ULONG flOptions)
 {
   int ordinal, tid, rc, iHAB, len, inf[2];
 
@@ -445,7 +445,7 @@ HAB APIENTRY WinInitialize(ULONG flOptions)
 //   FALSE - failed
 // Errors:
 //    PMERR_INVALID_HAB
-BOOL APIENTRY WinTerminate(HAB ihab)
+extern "C" BOOL APIENTRY Win32Terminate(HAB ihab)
 {
   int rc;
 

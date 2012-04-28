@@ -3,7 +3,7 @@
 #define INCL_WINLOAD
 #include <os2.h>
 
-HLIB APIENTRY WinLoadLibrary(HAB hab, PCSZ pszLibName)
+HLIB APIENTRY Win32LoadLibrary(HAB hab, PCSZ pszLibName)
 {
   APIRET rc;
   HMODULE hmod;
@@ -15,7 +15,7 @@ HLIB APIENTRY WinLoadLibrary(HAB hab, PCSZ pszLibName)
   return (HLIB)hmod;
 };
 
-PFNWP APIENTRY WinLoadProcedure(HAB a, HLIB b, PCSZ c)
+PFNWP APIENTRY Win32LoadProcedure(HAB a, HLIB b, PCSZ c)
 {
   APIRET rc;
   PFN ModuleAddr;
@@ -29,7 +29,7 @@ PFNWP APIENTRY WinLoadProcedure(HAB a, HLIB b, PCSZ c)
   return (PFNWP)ModuleAddr;
 };
 
-BOOL  APIENTRY WinDeleteLibrary(HAB a, HLIB hlib)
+BOOL  APIENTRY Win32DeleteLibrary(HAB a, HLIB hlib)
 {
   APIRET rc;
 
@@ -39,7 +39,7 @@ BOOL  APIENTRY WinDeleteLibrary(HAB a, HLIB hlib)
   return FALSE;
 };
 
-BOOL  APIENTRY WinDeleteProcedure(HAB a, PFNWP b)
+BOOL  APIENTRY Win32DeleteProcedure(HAB a, PFNWP b)
 {
   return TRUE;
 };

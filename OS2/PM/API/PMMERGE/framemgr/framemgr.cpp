@@ -9,7 +9,7 @@ extern class _FreePM_HAB  _hab;
 
 //#define debug(...)
 
-BOOL    APIENTRY WinRegisterClass(HAB ihab,
+extern "C" BOOL    APIENTRY Win32RegisterClass(HAB ihab,
                                   PCSZ  pszClassName,
                                   PFNWP pfnWndProc,
                                   ULONG flStyle,
@@ -52,7 +52,7 @@ BOOL    APIENTRY WinRegisterClass(HAB ihab,
 }
 
 /* Create general Window */
-HWND    APIENTRY WinCreateWindow(HWND hwndParent,
+extern "C" HWND    APIENTRY Win32CreateWindow(HWND hwndParent,
                                  PCSZ  pszClass,
                                  PCSZ  pszName,
                                  ULONG flStyle,
@@ -119,7 +119,7 @@ HWND    APIENTRY WinCreateWindow(HWND hwndParent,
 }
 
 /* Create standard Window */
-HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
+extern "C" HWND  APIENTRY Win32CreateStdWindow(HWND hwndParent,
                                      ULONG flStyle,
                                      PULONG pflCreateFlags,
                                      PCSZ  pszClientClass,
@@ -175,7 +175,7 @@ HWND  APIENTRY WinCreateStdWindow(HWND hwndParent,
   return hwndFrame;
 }
 
-MRESULT APIENTRY WinDefWindowProc(HWND hwnd,
+extern "C" MRESULT APIENTRY Win32DefWindowProc(HWND hwnd,
                                   ULONG msg,
                                   MPARAM mp1,
                                   MPARAM mp2)
@@ -184,14 +184,14 @@ MRESULT APIENTRY WinDefWindowProc(HWND hwnd,
      return NULL;
 }
 
-BOOL    APIENTRY WinDestroyWindow(HWND hwnd)
+extern "C" BOOL    APIENTRY Win32DestroyWindow(HWND hwnd)
 {
    //todo
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
     return TRUE;
 }
 
-BOOL APIENTRY WinSetActiveWindow(HWND hwndDesktop,  HWND hwnd)
+extern "C" BOOL APIENTRY Win32SetActiveWindow(HWND hwndDesktop,  HWND hwnd)
 {
   return WinFocusChange(hwndDesktop, hwnd,0);  /* ??? is it really must be 0 ? */
 }

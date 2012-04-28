@@ -10,7 +10,7 @@
 
 extern class _FreePM_HAB  _hab;
 
-BOOL    APIENTRY WinShowWindow(HWND hwnd, BOOL fShow)
+extern "C" BOOL    APIENTRY Win32ShowWindow(HWND hwnd, BOOL fShow)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
@@ -18,14 +18,14 @@ BOOL    APIENTRY WinShowWindow(HWND hwnd, BOOL fShow)
 }
 
 
-BOOL    APIENTRY WinQueryWindowRect(HWND hwnd, PRECTL prclDest)
+extern "C" BOOL    APIENTRY Win32QueryWindowRect(HWND hwnd, PRECTL prclDest)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL   APIENTRY WinQueryWindowPos(HWND hwnd,
+extern "C" BOOL   APIENTRY Win32QueryWindowPos(HWND hwnd,
                                   PSWP pswp)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -34,7 +34,7 @@ BOOL   APIENTRY WinQueryWindowPos(HWND hwnd,
 }
 
 
-BOOL   APIENTRY WinSetMultWindowPos(HAB hab,
+extern "C" BOOL   APIENTRY Win32SetMultWindowPos(HAB hab,
                                     PSWP pswp,
                                     ULONG cswp)
 {
@@ -111,7 +111,7 @@ BOOL   APIENTRY WinSetMultWindowPos(HAB hab,
 ///////////////////////////////////////////////////////////////////
 
 
-BOOL   APIENTRY WinSetWindowPos(HWND hwnd,
+extern "C" BOOL   APIENTRY Win32SetWindowPos(HWND hwnd,
                                 HWND hwndInsertBehind,
                                 LONG x,
                                 LONG y,
@@ -162,7 +162,7 @@ BOOL   APIENTRY WinSetWindowPos(HWND hwnd,
     return rc0;
 }
 
-BOOL   APIENTRY WinSetOwner(HWND hwnd,
+extern "C" BOOL   APIENTRY Win32SetOwner(HWND hwnd,
                             HWND hwndNewOwner)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -170,7 +170,7 @@ BOOL   APIENTRY WinSetOwner(HWND hwnd,
     return TRUE;
 }
 
-BOOL   APIENTRY WinIsChild(HWND hwnd,
+extern "C" BOOL   APIENTRY Win32IsChild(HWND hwnd,
                            HWND hwndParent)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -178,7 +178,7 @@ BOOL   APIENTRY WinIsChild(HWND hwnd,
     return TRUE;
 }
 
-BOOL   APIENTRY WinSetParent(HWND hwnd,
+extern "C" BOOL   APIENTRY Win32SetParent(HWND hwnd,
                              HWND hwndNewParent,
                              BOOL fRedraw)
 {
@@ -188,7 +188,7 @@ BOOL   APIENTRY WinSetParent(HWND hwnd,
 }
 
 
-LONG    APIENTRY WinMultWindowFromIDs(HWND hwndParent,
+extern "C" LONG    APIENTRY Win32MultWindowFromIDs(HWND hwndParent,
                                       PHWND prghwnd,
                                       ULONG idFirst,
                                       ULONG idLast)
@@ -198,7 +198,7 @@ LONG    APIENTRY WinMultWindowFromIDs(HWND hwndParent,
     return 0;
 }
 
-HWND    APIENTRY WinQueryWindow(HWND hwnd,
+extern "C" HWND    APIENTRY Win32QueryWindow(HWND hwnd,
                                 LONG cmd)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -206,7 +206,7 @@ HWND    APIENTRY WinQueryWindow(HWND hwnd,
     return NULL;
 }
 
-BOOL    APIENTRY WinIsWindow(HAB hab,
+extern "C" BOOL    APIENTRY Win32IsWindow(HAB hab,
                              HWND hwnd)
 {
    debug(6, 0)( __FUNCTION__ " called\n");
@@ -224,7 +224,7 @@ BOOL    APIENTRY WinIsWindow(HAB hab,
  HWND    hwnd;   Window handle.
  HDC     hdc;    Device-context handle.
 */
-HDC     APIENTRY WinQueryWindowDC(HWND hwnd)
+extern "C" HDC     APIENTRY Win32QueryWindowDC(HWND hwnd)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
@@ -232,14 +232,14 @@ HDC     APIENTRY WinQueryWindowDC(HWND hwnd)
 }
 
 
-HWND    APIENTRY WinWindowFromDC(HDC hdc)
+extern "C" HWND    APIENTRY Win32WindowFromDC(HDC hdc)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return NULL;
 }
 
-HWND    APIENTRY WinWindowFromID(HWND hwndParent,
+extern "C" HWND    APIENTRY Win32WindowFromID(HWND hwndParent,
                                  ULONG id)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -247,7 +247,7 @@ HWND    APIENTRY WinWindowFromID(HWND hwndParent,
     return NULL;
 }
 
-LONG    APIENTRY WinQueryWindowTextLength(HWND hwnd)
+extern "C" LONG    APIENTRY Win32QueryWindowTextLength(HWND hwnd)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
@@ -255,7 +255,7 @@ LONG    APIENTRY WinQueryWindowTextLength(HWND hwnd)
 }
 
 
-BOOL    APIENTRY WinSetWindowText(HWND hwnd,
+extern "C" BOOL    APIENTRY Win32SetWindowText(HWND hwnd,
                                   PCSZ  pszText)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
@@ -264,7 +264,7 @@ BOOL    APIENTRY WinSetWindowText(HWND hwnd,
 }
 
 
-LONG    APIENTRY WinQueryWindowText(HWND hwnd,
+extern "C" LONG    APIENTRY Win32QueryWindowText(HWND hwnd,
                                     LONG cchBufferMax,
                                     PCH pchBuffer)
 {
@@ -273,48 +273,48 @@ LONG    APIENTRY WinQueryWindowText(HWND hwnd,
     return 0;
 }
 
-BOOL    APIENTRY WinIsWindowVisible(HWND hwnd)
+extern "C" BOOL    APIENTRY Win32IsWindowVisible(HWND hwnd)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL    APIENTRY WinEnableWindowUpdate(HWND hwnd, BOOL fEnable)
+extern "C" BOOL    APIENTRY Win32EnableWindowUpdate(HWND hwnd, BOOL fEnable)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL    APIENTRY WinIsWindowEnabled(HWND hwnd)
+extern "C" BOOL    APIENTRY Win32IsWindowEnabled(HWND hwnd)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL    APIENTRY WinEnableWindow(HWND hwnd,  BOOL fEnable)
+extern "C" BOOL    APIENTRY Win32EnableWindow(HWND hwnd,  BOOL fEnable)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL    APIENTRY WinEndPaint(HPS hps)
+extern "C" BOOL    APIENTRY Win32EndPaint(HPS hps)
 {
  debug(6, 2)( __FUNCTION__ "is not yet implemented\n");
    //todo
     return TRUE;
 }
 
-BOOL    APIENTRY WinReleasePS(HPS hps)
+extern "C" BOOL    APIENTRY Win32ReleasePS(HPS hps)
 {   int rc;
     rc =  F_SendGenCmdToServer(client_obj, F_CMD_RELEASE_HPS, hps);
     return rc;
 }
 
-HPS     APIENTRY WinGetPS(HWND hwnd)
+extern "C" HPS     APIENTRY Win32GetPS(HWND hwnd)
 {   HPS hps;
     hps = (HPS) F_SendGenCmdToServer(client_obj, F_CMD_GET_HPS, hwnd);
     return hps;

@@ -96,7 +96,7 @@ int FreePM_session::InitDevice(int _dev_type, FreePM_DeskTop *pDesktop)
         debug(7, 0) ("FreePM_session::InitDevice PMWIN: %d \n", _dev_type);
 
         pDesktop->GetPar(nx, ny, bytes_PerPixel);
-        printf ("nx=%u, ny=%u, bpp=%u\n", nx, ny, bytes_PerPixel);
+        debug(7, 0)("nx=%u, ny=%u, bpp=%u\n", nx, ny, bytes_PerPixel);
 
         if(pBmpBuffer)
         {
