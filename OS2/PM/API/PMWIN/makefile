@@ -623,11 +623,11 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WINREALLOCFARMEM             PMMERGE.2182,  &
           WINGETERASEPS                PMMERGE.5184,  &
           WINRELEASEERASEPS            PMMERGE.5320,  &
-          Undocumented1                PMMERGE.5005,  &
-          Undocumented2                PMMERGE.5006,  &
-          Undocumented3                PMMERGE.5004,  &
-          Undocumented4                PMMERGE.5003,  &
-          Undocumented5                PMMERGE.5145,  &
+          DEBUG32INPUT                 PMMERGE.5005,  &
+          DEBUG32OUTPUT                PMMERGE.5006,  &
+          DEBUG32CURPOS                PMMERGE.5004,  &
+          DEBUG32CLS                   PMMERGE.5003,  &
+          Win32DebugBreak              PMMERGE.5145,  &
           WINSETCLASSTHUNKPROC         PMMERGE.3248,  &
           WINQUERYCLASSTHUNKPROC       PMMERGE.3179,  &
           WINSETWINDOWTHUNKPROC        PMMERGE.3275,  &
@@ -638,8 +638,8 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinSetAccelTableValue        PMMERGE.5336,  &
           WinQueryAccelTableValue      PMMERGE.5250,  &
           WinStretchPointer            PMMERGE.5388,  &
-          Undocumented6                 PMMERGE.5000,  &
-          Undocumented7                 PMMERGE.5001,  &
+          AAB32GETREG                  PMMERGE.5000,  &
+          AAB32SETREG                  PMMERGE.5001,  &
           WinSetPointerOwner           PMMERGE.5361,  &
           WinGetFrameTreePPSize        PMMERGE.5187,  &
           WinGetFrameTreePPs           PMMERGE.5186,  &
@@ -667,7 +667,7 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinSetSysFont                PMMERGE.5369,  &
           WinLockPointerUpdate         PMMERGE.5226,  &
           WinCheckInput                PMMERGE.5123,  &
-          Undocumented8                PMMERGE.5044,  &
+          Far32LockupHook              PMMERGE.5044,  &
           WinQueryVisibleRegion        PMMERGE.5300,  &
           WinSetVisibleRegionNotify    PMMERGE.5373,  &
           WinSetSysPointerData         PMMERGE.5371,  &
@@ -680,8 +680,8 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinMspInit                   PMMERGE.5420,  &
           WinMspAlloc                  PMMERGE.5418,  &
           WinMspFree                   PMMERGE.5419,  &
-          Undocumented9                PMMERGE.5109,  &
-          Undocumented10               PMMERGE.5068,  &
+          ThkDos16SetFgnd              PMMERGE.5109,  &
+          InputGetDeviceInfo           PMMERGE.5068,  &
           WinRegisterPen               PMMERGE.5316,  &
           WinMessageBox2               PMMERGE.5417,  &
           fPenAvail                    PMMERGE.6201,  &
@@ -702,13 +702,13 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinXxQueryMemSize            PMMERGE.5439,  &
           WinSetClipRegion             PMMERGE.5440,  &
           WinQueryClipRegion           PMMERGE.5441,  &
-          Undocumented11               PMMERGE.5442,  &
-          Undocumented12               PMMERGE.5443,  &
-          Undocumented13               PMMERGE.5444,  &
-          Undocumented14               PMMERGE.5445,  &
-          Undocumented15               PMMERGE.5446,  &
-          Undocumented16               PMMERGE.5448,  &
-          Undocumented17               PMMERGE.5447,  &
+          Win32AddClipbrdViewer        PMMERGE.5442,  &
+          Win32RemoveClipbrdViewer     PMMERGE.5443,  &
+          Win32QueryClipbrdViewerChain PMMERGE.5444,  &
+          Win32IncrementAtomUsage      PMMERGE.5445,  &
+          DaxQueryOpenClipbrdWindow    PMMERGE.5446,  &
+          WinSetDaxData                PMMERGE.5448,  &
+          WinQueryDaxData              PMMERGE.5447,  &
           WINENUMPROPERTIES            PMMERGE.5449,  &
           WINQUERYPROPERTY             PMMERGE.5450,  &
           WINREMOVEPROPERTY            PMMERGE.5451,  &
@@ -717,22 +717,22 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WINQUERYCLASSPROPERTY        PMMERGE.5454,  &
           WINREMOVECLASSPROPERTY       PMMERGE.5455,  &
           WINSETCLASSPROPERTY          PMMERGE.5456,  &
-          Undocumented18               PMMERGE.5458,  &
-          Undocumented19               PMMERGE.5461,  &
-          Undocumented20               PMMERGE.5462,  &
+          Win32SetKbdLayout            PMMERGE.5458,  &
+          Win32GetAFCValue             PMMERGE.5461,  &
+          Win32SetAFCValue             PMMERGE.5462,  &
           WinLoadVkeyGlyphXlatetbl     PMMERGE.5463,  &
           WinSetVKeyGlyphXlatetbl      PMMERGE.5464,  &
           WinQueryVKeyGlyphXlatetbl    PMMERGE.5465,  &
           WinTrackWindow               PMMERGE.5466,  &
           WinSemEnterTimeout           PMMERGE.5467,  &
-          Undocumented21               PMMERGE.5468,  &
-          Undocumented22               PMMERGE.5469,  &
-          Undocumented23               PMMERGE.5473,  &
-          Undocumented24               PMMERGE.5474,  &
-          Undocumented25               PMMERGE.5475,  &
-          Undocumented26               PMMERGE.5476,  &
-          Undocumented27               PMMERGE.5477,  &
-          Undocumented28               PMMERGE.5478,  &
+          WinSetDesktopWorkArea        PMMERGE.5468,  &
+          WinQueryDesktopWorkArea      PMMERGE.5469,  &
+          Win32TranslateChar2          PMMERGE.5473,  &
+          Win32WaitForIdleThread       PMMERGE.5474,  &
+          WinXXCreateHeap2             PMMERGE.5475,  &
+          WinQuerySharedHeapData       PMMERGE.5476,  &
+          Win32QueryActiveOtherWindow  PMMERGE.5477,  &
+          Win32EnumVkeyScanIDs         PMMERGE.5478,  &
           WINSETLANGINFO               PMMERGE.3500,  &
           WINQUERYLANGINFO             PMMERGE.3501,  &
           WINSETKBDLAYER               PMMERGE.3502,  &
@@ -742,16 +742,17 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WINPOUREVENT                 PMMERGE.3600,  &
           WINSETMSGQIMINFO             PMMERGE.3601,  &
           WINQUERYMSGQIMINFO           PMMERGE.3602,  &
-          Undocumented29               PMMERGE.10000,  &
-          Undocumented30               PMMERGE.10001,  &
-          Undocumented31               PMMERGE.10002,  &
-          Undocumented32               PMMERGE.10004,  &
-          Undocumented33               PMMERGE.10005,  &
-          Undocumented34               PMMERGE.10007,  &
-          Undocumented35               PMMERGE.10018,  &
-          Undocumented36               PMMERGE.10019,  &
-          Undocumented37               PMMERGE.10020,  &
-          Undocumented38               PMMERGE.10021
+          DaxCreateCaret               PMMERGE.10000,  &
+          DaxDestroyCaret              PMMERGE.10001,  &
+          DaxGetCaretBlinkTime         PMMERGE.10002,  &
+          DaxHideCaret                 PMMERGE.10004,  &
+          DaxSetCaretBlinkTime         PMMERGE.10005,  &
+          DaxShowCaret                 PMMERGE.10007,  &
+          DaxShowCursor                PMMERGE.10018,  &
+          DaxSwapMouseButton           PMMERGE.10019,  &
+          LookupAtom                   PMMERGE.10020,  &
+          DaxOpenClipbrd               PMMERGE.10021
+
 EXPORTS = WinInitialize.              00763,  &
           WinTerminate.               00888,  &
           WinCreateMsgQueue.          00716,  &
@@ -1382,19 +1383,19 @@ EXPORTS = WinInitialize.              00763,  &
           WINREALLOCFARMEM            .00951,  &
           WinGetErasePS               .00952,  &
           WinReleaseErasePS           .00953,  &
-          Undocumented1               .00954,  &
-          Undocumented2               .00955,  &
-          Undocumented3               .00956,  &
-          Undocumented4               .00957,  &
-          Undocumented5               .00958,  &
+          DEBUG32INPUT                .00954,  &
+          DEBUG32OUTPUT               .00955,  &
+          DEBUG32CURPOS               .00956,  &
+          DEBUG32CLS                  .00957,  &
+          Win32DebugBreak             .00958,  &
           WinSystemShutdown           .00963,  &
           WinBuildPtrHandle           .00964,  &
           WinExplodeWindow            .00965,  &
           WinSetAccelTableValue       .00966,  &
           WinQueryAccelTableValue     .00967,  &
           WinStretchPointer           .00968,  &
-          Undocumented6               .00969,  &
-          Undocumented7               .00970,  &
+          AAB32GETREG                 .00969,  &
+          AAB32SETREG                 .00970,  &
           WinSetPointerOwner          .00971,  &
           WinGetFrameTreePPSize       .00972,  &
           WinGetFrameTreePPs          .00973,  &
@@ -1422,7 +1423,7 @@ EXPORTS = WinInitialize.              00763,  &
           WinSetSysFont               .00996,  &
           WinLockPointerUpdate        .00997,  &
           WinCheckInput               .00998,  &
-          Undocumented8               .00999,  &
+          Far32LockupHook             .00999,  &
           WinQueryVisibleRegion       .01000,  &
           WinSetVisibleRegionNotify   .01001,  &
           WinSetSysPointerData        .01002,  &
@@ -1435,8 +1436,8 @@ EXPORTS = WinInitialize.              00763,  &
           WinMspInit                  .01009,  &
           WinMspAlloc                 .01010,  &
           WinMspFree                  .01011,  &
-          Undocumented9               .01012,  &
-          Undocumented10              .01013,  &
+          ThkDos16SetFgnd             .01012,  &
+          InputGetDeviceInfo          .01013,  &
           WinRegisterPen              .01014,  &
           WinMessageBox2              .01015,  &
           fPenAvail                   .01026,  &
@@ -1457,39 +1458,41 @@ EXPORTS = WinInitialize.              00763,  &
           WinXxQueryMemSize           .01042,  &
           WinSetClipRegion            .01043,  &
           WinQueryClipRegion          .01044,  &
-          Undocumented11              .01045,  &
-          Undocumented12              .01046,  &
-          Undocumented13              .01047,  &
-          Undocumented14              .01048,  &
-          Undocumented15              .01049,  &
-          Undocumented16              .01050,  &
-          Undocumented17              .01051,  &
-          Undocumented18              .01060,  &
-          Undocumented19              .01061,  &
-          Undocumented20              .01062,  &
+          Win32AddClipbrdViewer       .01045,  &
+          Win32RemoveClipbrdViewer    .01046,  &
+          Win32QueryClipbrdViewerChain .01047,  &
+          Win32IncrementAtomUsage     .01048,  &
+          DaxQueryOpenClipbrdWindow   .01049,  &
+          WinSetDaxData               .01050,  &
+          WinQueryDaxData             .01051,  &
+          Win32SetKbdLayout           .01060,  &
+          Win32GetAFCValue            .01061,  &
+          Win32SetAFCValue            .01062,  &
           WinLoadVkeyGlyphXlatetbl    .01063,  &
           WinSetVKeyGlyphXlatetbl     .01064,  &
           WinQueryVKeyGlyphXlatetbl   .01065,  &
           WinTrackWindow              .01066,  &
           WinSemEnterTimeout          .01067,  &
-          Undocumented21              .01068,  &
-          Undocumented22              .01069,  &
-          Undocumented23              .01070,  &
-          Undocumented24              .01071,  &
-          Undocumented25              .01072,  &
-          Undocumented26              .01073,  &
-          Undocumented27              .01074,  &
-          Undocumented28              .01075,  &
-          Undocumented29              .10000,  &
-          Undocumented30              .10001,  &
-          Undocumented31              .10002,  &
-          Undocumented32              .10004,  &
-          Undocumented33              .10005,  &
-          Undocumented34              .10007,  &
-          Undocumented35              .10018,  &
-          Undocumented36              .10019,  &
-          Undocumented37              .10020,  &
-          Undocumented38              .10021
+          WinSetDesktopWorkArea       .01068,  &
+          WinQueryDesktopWorkArea     .01069,  &
+          Win32TranslateChar2         .01070,  &
+          Win32WaitForIdleThread      .01071,  &
+          WinXXCreateHeap2            .01072,  &
+          WinQuerySharedHeapData      .01073,  &
+          Win32QueryActiveOtherWindow .01074,  &
+          Win32EnumVkeyScanIDs        .01075,  &
+#
+          DaxCreateCaret              .10000,  &
+          DaxDestroyCaret             .10001,  &
+          DaxGetCaretBlinkTime        .10002,  &
+          DaxHideCaret                .10004,  &
+          DaxSetCaretBlinkTime        .10005,  &
+          DaxShowCaret                .10007,  &
+          DaxShowCursor               .10018,  &
+          DaxSwapMouseButton          .10019,  &
+          LookupAtom                  .10020,  &
+          DaxOpenClipbrd              .10021
+
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk

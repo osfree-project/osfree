@@ -41,7 +41,7 @@ IMPORTS = &
         LPFNICONWNDPROC                PMMERGE.3003, &
         WINSWITCHTOTASKMANAGER         PMMERGE.3292, &
         FNBADAPPDLGPROC                PMMERGE.3001, &
-        WINSWITCHTOPROGRAM2            PMMERGE.3291, &
+        WINSWITCHTOPROGRAM2            PMMERGE.3290, &
         WINPROCESSHOTKEY               PMMERGE.5421, &
 #
         WININITSESSION                 PMMERGE.3143, &

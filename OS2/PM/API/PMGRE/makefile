@@ -27,10 +27,6 @@ IMPORTS = INNERGREENTRY      PMMERGE.2035,  &
           SETDRIVERINFO      PMMERGE.2047,  &
           POSTDEVICEMODES    PMMERGE.2048,  &
           BITMAPLIMITWARNING PMMERGE.2049,  &
-          GETDRIVERINFO32    PMMERGE.5046,  &
-          SETDRIVERINFO32    PMMERGE.5098,  &
-          POSTDEVICEMODES32  PMMERGE.5073,  &
-          POSTESCAPE32       PMMERGE.5460,  &
           PMWINGREENTRY2     PMMERGE.2050,  &
           PMWINGREENTRY3     PMMERGE.2051,  &
           PMWINGREENTRY4     PMMERGE.2052,  &
@@ -40,6 +36,10 @@ IMPORTS = INNERGREENTRY      PMMERGE.2035,  &
           PMWINGREENTRY8     PMMERGE.2056,  &
           PMWINGREENTRY9     PMMERGE.2057,  &
           PMWINGREENTRY10    PMMERGE.2058,  &
+          GETDRIVERINFO32    PMMERGE.5046,  &
+          SETDRIVERINFO32    PMMERGE.5098,  &
+          POSTDEVICEMODES32  PMMERGE.5073,  &
+          POSTESCAPE32       PMMERGE.5460,  &
           GRE32ENTRY2        PMMERGE.5049,  &
           GRE32ENTRY3        PMMERGE.5050,  &
           GRE32ENTRY4        PMMERGE.5051,  &
@@ -64,17 +64,9 @@ IMPORTS = INNERGREENTRY      PMMERGE.2035,  &
           SSFLUSHSEGS        PMMERGE.2062,  &
           SSALLOCMEM         PMMERGE.5104,  &
           SSFREEMEM          PMMERGE.5105,  &
-          ENABLE_CALL_16     PMMERGE.4010,  &
           DEVMODE_CALL_16    PMMERGE.4000,  &
-          DELETEBITMAP16CALL PMMERGE.4021,  &
-          PFN4R2             PMMERGE.4015,  &
-          PFN5R2             PMMERGE.4016,  &
-          PFN6R2             PMMERGE.4017,  &
-          PFN7R2             PMMERGE.4018,  &
-          PFN8R2             PMMERGE.4019,  &
-          PFN9R2             PMMERGE.4020,  &
-          PFN10R2            PMMERGE.4014,  &
           DEVNAME_CALL_16    PMMERGE.4001,  &
+          DISPATCH16GATE10   PMMERGE.4002,  &
           DISPATCH16GATE3    PMMERGE.4003,  &
           DISPATCH16GATE4    PMMERGE.4004,  &
           DISPATCH16GATE5    PMMERGE.4005,  &
@@ -82,7 +74,15 @@ IMPORTS = INNERGREENTRY      PMMERGE.2035,  &
           DISPATCH16GATE7    PMMERGE.4007,  &
           DISPATCH16GATE8    PMMERGE.4008,  &
           DISPATCH16GATE9    PMMERGE.4009,  &
-          DISPATCH16GATE10   PMMERGE.4002,  &
+          ENABLE_CALL_16     PMMERGE.4010,  &
+          PFN10R2            PMMERGE.4014,  &
+          PFN4R2             PMMERGE.4015,  &
+          PFN5R2             PMMERGE.4016,  &
+          PFN6R2             PMMERGE.4017,  &
+          PFN7R2             PMMERGE.4018,  &
+          PFN8R2             PMMERGE.4019,  &
+          PFN9R2             PMMERGE.4020,  &
+          DELETEBITMAP16CALL PMMERGE.4021,  &
           RAMSEMREQUEST32    PMMERGE.5097,  &
           RAMSEMCLEAR32      PMMERGE.5096,  &
           RAMSEMREQUEST16    PMMERGE.2063,  &
