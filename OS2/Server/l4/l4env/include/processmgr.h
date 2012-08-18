@@ -154,6 +154,9 @@ struct t_os2process {
         struct t_os2process *prev;
 };
 
+APIRET CDECL PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env);
+APIRET CDECL PrcCreateTIB(PTIB *addr);
+
 struct t_os2process *PrcGetProc(ULONG pid);
 struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
 
@@ -161,11 +164,11 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
 //                           struct t_os2process * process);
 
 //struct t_os2process *PrcCreate(IXFModule *ixfModule);
-struct t_os2process *PrcCreate(ULONG ppid);
+struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv);
 
 void PrcDestroy(struct t_os2process * proc);
 
-void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc);
+APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc);
 
 #define EXEC_SYNC           0
 #define EXEC_ASYNC          1

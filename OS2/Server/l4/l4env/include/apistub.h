@@ -218,4 +218,10 @@ kalSetMem(PVOID pb,
           ULONG cb,
 	  ULONG flags);
 
+APIRET CDECL
+kalCreateEventSem(PSZ pszName,
+                  PHEV phev,
+		  ULONG flags,
+		  BOOL32 fState);
+
 #endif

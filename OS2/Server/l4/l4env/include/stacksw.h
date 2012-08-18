@@ -5,7 +5,11 @@
 
 #ifndef __STACK_SW__
 #define __STACK_SW__
- 
+
+L4_INLINE unsigned long getstack(void);
+L4_INLINE void stackin(unsigned long new_stack);
+L4_INLINE void stackout(void);
+
 L4_INLINE unsigned long
 getstack(void)
 {

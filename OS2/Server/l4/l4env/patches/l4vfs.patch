@@ -1,0 +1,370 @@
+diff -urN -x .svn pkg/l4vfs/lib/client/Makefile pkg/l4vfs-new/lib/client/Makefile
+--- pkg/l4vfs/lib/client/Makefile	2012-05-07 11:07:32.525399883 +1200
++++ pkg/l4vfs-new/lib/client/Makefile	2011-06-10 16:13:36.000000000 +1200
+@@ -14,6 +14,7 @@
+            libl4vfs_select.a               \
+            libl4vfs_common_io_notify.a
+ 
++LIBS     = -llog
+ MODE     = l4env_minimal
+ 
+ SRC_C_libl4vfs_basic_name_server.a   = basic_name_server.c
+diff -urN -x .svn pkg/l4vfs/lib/client/basic_io.c pkg/l4vfs-new/lib/client/basic_io.c
+--- pkg/l4vfs/lib/client/basic_io.c	2012-05-07 11:07:32.521399932 +1200
++++ pkg/l4vfs-new/lib/client/basic_io.c	2011-06-10 16:13:36.000000000 +1200
+@@ -11,6 +11,7 @@
+  */
+ #include <l4/l4vfs/basic_io.h>
+ #include <l4/l4vfs/basic_io-client.h>
++#include <l4/log/l4log.h>
+ 
+ #include <l4/sys/types.h>
+ 
+@@ -84,12 +85,15 @@
+     CORBA_Environment _dice_corba_env = dice_default_environment;
+     _dice_corba_env.malloc = (dice_malloc_func)malloc;
+     _dice_corba_env.free = (dice_free_func)free;
++    int ret;
+ 
+-    return l4vfs_basic_io_getdents_call(&server,
++    ret = l4vfs_basic_io_getdents_call(&server,
+                                         fd,
+                                         &dirp,
+                                         &count,
+                                         &_dice_corba_env);
++    LOG("ret=%d", ret);
++    return ret;
+ }
+ 
+ l4_int32_t l4vfs_stat(l4_threadid_t server,
+diff -urN -x .svn pkg/l4vfs/lib/libc_backends/io/mmap_normal.c pkg/l4vfs-new/lib/libc_backends/io/mmap_normal.c
+--- pkg/l4vfs/lib/libc_backends/io/mmap_normal.c	2012-05-07 11:07:32.685400151 +1200
++++ pkg/l4vfs-new/lib/libc_backends/io/mmap_normal.c	2011-06-10 16:13:39.000000000 +1200
+@@ -25,9 +25,11 @@
+ #include <l4/libc_backends_l4env/mmap_util.h>
+ #include <l4/util/macros.h>
+ 
++#define DEBUG 1
++
+ #ifdef DEBUG
+ static int _DEBUG = 1;
+-#define DEBUG_MSG(x, ...) do { \
++//#define DEBUG_MSG(x, ...) do { \
+     LOG_printf("\033[32m%s: "x"\033[0m\n", __func__, ##__VA_ARGS__); \
+     while (0);
+ #else
+@@ -54,6 +56,7 @@
+     void *ret;
+     int temp;
+ 
++    LOG("mmap: start=%x, length=%d", start, length);
+     LOGd(_DEBUG,"io backend, fd %d",fd);
+ 
+     // 1.
+@@ -240,7 +243,7 @@
+     l4_size_t map_size;
+     l4_threadid_t dummy;
+ 
+-    DEBUG_MSG(l4util_idfmt" %p, %d", l4util_idstr(current->id), start, length);
++    LOG(l4util_idfmt" %p, %d", l4util_idstr(current->id), start, length);
+     if (! current)
+     {
+         errno = EFAULT;
+@@ -250,7 +253,7 @@
+     // fixme: we were probably called by munmap, which already did an
+     //        l4rm_lookup(), maybe we should not do it again ???
+     res = l4rm_lookup(start, &map_addr, &map_size, &ds, &offset, &dummy);
+-    DEBUG_MSG("l4rm_lookup = %d, map_addr %p, map_size %d",
++    LOG("l4rm_lookup = %d, map_addr %p, map_size %d",
+               res, (void*)map_addr, map_size);
+ 
+     if (res != L4RM_REGION_DATASPACE)
+@@ -263,7 +266,7 @@
+     }
+ 
+     res = l4vfs_munmap(current->id, &ds, offset, length);
+-    DEBUG_MSG("l4vfs_unmap() = %d", res);
++    LOG("l4vfs_unmap() = %d", res);
+ 
+     /*
+      * If remote unmap succeeds, we still have the DS attached and the
+@@ -286,3 +289,4 @@
+ 
+     return res;
+ }
++
+diff -urN -x .svn pkg/l4vfs/lib/libc_backends/io/operations.c pkg/l4vfs-new/lib/libc_backends/io/operations.c
+--- pkg/l4vfs/lib/libc_backends/io/operations.c	2012-05-07 11:07:32.685400151 +1200
++++ pkg/l4vfs-new/lib/libc_backends/io/operations.c	2011-07-16 13:51:55.000000000 +1200
+@@ -40,6 +40,8 @@
+ 
+ #include "operations.h"
+ 
++#define DEBUG 1
++
+ #ifdef DEBUG
+ static int _DEBUG = 1;
+ #else
+@@ -480,6 +482,7 @@
+                              file_desc.object_handle,
+                              (l4vfs_dirent_t*)dirp,
+                              count);
++
+         LOGd(_DEBUG, "ret = '%d'", (int)ret);
+         // fixme: we should fixup dirp here, in order to maintain
+         //        binary compatibility for uclibc.  Problem is, that
+@@ -691,6 +694,7 @@
+     ret = l4vfs_stat(server, object_id, &stat_buf);
+     if (ret != 0)
+     {
++        LOGd(_DEBUG,"exit: -1");
+         errno = ret;
+         return -1;
+     }
+@@ -702,6 +706,10 @@
+     buf->st_mode  = stat_buf.st_mode;
+     buf->st_nlink = stat_buf.st_nlink;
+     buf->st_size  = stat_buf.st_size;
++    //vs
++    buf->st_blksize = stat_buf.st_blksize;
++    LOGd(_DEBUG,"exit: 0");
++
+ 
+     return 0;
+ }
+@@ -721,6 +729,7 @@
+     // 1.
+     if (! ft_is_open(fd))
+     {
++        LOGd(_DEBUG,"exit: -1,1");
+         errno = EBADF;
+         return -1;
+     }
+@@ -737,6 +746,7 @@
+     ret = l4vfs_stat(file_desc.server_id, file_desc.object_id, &stat_buf);
+     if (ret != 0)
+     {
++        LOGd(_DEBUG,"exit: -1,2");
+         errno = ret;
+         return -1;
+     }
+@@ -748,6 +758,9 @@
+     buf->st_mode  = stat_buf.st_mode;
+     buf->st_nlink = stat_buf.st_nlink;
+     buf->st_size  = stat_buf.st_size;
++    //vs
++    buf->st_blksize = stat_buf.st_blksize;
++    LOGd(_DEBUG,"exit: 0");
+ 
+     return 0;
+ }
+diff -urN -x .svn pkg/l4vfs/name_server/server/Makefile pkg/l4vfs-new/name_server/server/Makefile
+--- pkg/l4vfs/name_server/server/Makefile	2012-05-07 12:34:46.969398616 +1200
++++ pkg/l4vfs-new/name_server/server/Makefile	2011-06-10 16:13:41.000000000 +1200
+@@ -12,6 +12,7 @@
+ MODE          = l4env_minimal
+ LIBS         += -ll4vfs_basic_name_server -ll4vfs_name_server-server
+ 
+-DEFAULT_RELOC = 0x0151e000
++DEFAULT_RELOC = 0x01498000
++#DEFAULT_RELOC = 0x0151e000
+ 
+ include $(L4DIR)/mk/prog.mk
+diff -urN -x .svn pkg/l4vfs/simple_file_server/include/simple_file_server.h pkg/l4vfs-new/simple_file_server/include/simple_file_server.h
+--- pkg/l4vfs/simple_file_server/include/simple_file_server.h	2012-05-07 11:07:27.117400708 +1200
++++ pkg/l4vfs-new/simple_file_server/include/simple_file_server.h	2011-06-17 05:34:49.000000000 +1200
+@@ -16,4 +16,6 @@
+ 
+ #define SIMPLE_FILE_SERVER_NAME "simp_fs"
+ 
++//#define DEBUG 1
++
+ #endif
+diff -urN -x .svn pkg/l4vfs/simple_file_server/server/arraylist.c pkg/l4vfs-new/simple_file_server/server/arraylist.c
+--- pkg/l4vfs/simple_file_server/server/arraylist.c	2012-05-07 11:07:27.081399474 +1200
++++ pkg/l4vfs-new/simple_file_server/server/arraylist.c	2011-06-10 21:19:00.000000000 +1200
+@@ -20,7 +20,11 @@
+ 
+ #define MAX_ENTRIES 128		/* maximum amount of entries */
+ 
+-#define _DEBUG 0 
++#ifdef DEBUG
++static int _DEBUG = 1;
++#else
++static int _DEBUG = 0;
++#endif
+ 
+ struct arraylist_struct {
+ 	/*  entry table */
+diff -urN -x .svn pkg/l4vfs/simple_file_server/server/basic_io.c pkg/l4vfs-new/simple_file_server/server/basic_io.c
+--- pkg/l4vfs/simple_file_server/server/basic_io.c	2012-05-07 11:07:27.081399474 +1200
++++ pkg/l4vfs-new/simple_file_server/server/basic_io.c	2011-06-10 21:14:22.000000000 +1200
+@@ -192,6 +192,8 @@
+         buf->st_mode  = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
+         buf->st_nlink = 1;
+         buf->st_size  = 0;
++	//vs
++	buf->st_blksize = 512;
+         ret = 0;
+     }
+     else
+@@ -218,6 +220,8 @@
+                         S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+         buf->st_nlink = 1;
+         buf->st_size  = s_file->length;
++	//vs
++	buf->st_blksize = 512;
+         ret = 0;
+     }
+ 
+@@ -336,12 +340,15 @@
+     if (oid != 0)
+         return -ENOTDIR;
+ 
++    LOG("count before: %d", count);
+     ret = fill_dirents(clients[fd].seek_pos,(l4vfs_dirent_t *)dirp, &count);
+     if (count > 0)
+     {
+         clients[fd].seek_pos += ret;
+         LOGd(_DEBUG, "New seek_pos = %d, offset = %d", clients[fd].seek_pos, ret);
+     }
++    LOG("count after: %d", count);
++    LOG("ret=%d", ret);
+ 
+     return count;
+ }
+diff -urN -x .svn pkg/l4vfs/simple_file_server/server/dirs.c pkg/l4vfs-new/simple_file_server/server/dirs.c
+--- pkg/l4vfs/simple_file_server/server/dirs.c	2012-05-07 11:07:27.073422760 +1200
++++ pkg/l4vfs-new/simple_file_server/server/dirs.c	2011-07-16 14:09:21.000000000 +1200
+@@ -21,7 +21,12 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ 
+-extern int _DEBUG;
++#ifdef DEBUG
++static int _DEBUG = 1;
++#else
++static int _DEBUG = 0;
++#endif
++
+ 
+ int dirent_size(char *fname)
+ {
+@@ -30,6 +35,9 @@
+     // + 1 for the '\0'
+     len = sizeof(temp->d_ino) + sizeof(temp->d_off) +
+           sizeof(temp->d_reclen) + strlen(fname) + 1;
++#ifdef USE_UCLIBC
++    len += sizeof(temp->d_type);
++#endif
+     // round up to align to word size
+     len = (len + sizeof(int) - 1);
+     len = (len / sizeof(int)) * sizeof(int);
+@@ -39,12 +47,15 @@
+ void convert_to_dirent(int object_id, char *fname, l4vfs_dirent_t * entry)
+ {
+ 
++    LOG("fname=%s", fname);
+     entry->d_ino = object_id;
+     entry->d_off = -1; // this is not really defined, linux kernel
+                        // returnes slightly wrong number, at least for
+                        // some FSs
+     strncpy(entry->d_name, fname, L4VFS_MAX_NAME);
+-    entry->d_name[L4VFS_MAX_NAME] = '\0';
++    //entry->d_name[L4VFS_MAX_NAME] = '\0';
++    entry->d_name[strlen(fname)] = '\0';
++    LOG("entry->d_name=%s", entry->d_name);
+ 
+     entry->d_reclen = dirent_size(fname);
+ }
+@@ -55,6 +66,10 @@
+     simple_file_t *actual;
+     actual = NULL;
+ 
++    LOGd(_DEBUG, "*length=%d", *length);
++    LOG("*length=%d", *length);
++    LOG("index=%d", index);
++
+     // '.'
+     if (index == 0)
+     {
+@@ -73,6 +88,8 @@
+                 * length = -1;
+             else
+                 * length = count;
++	    LOGd(_DEBUG, "0");
++	    LOG("0");
+             return 0;
+         }
+     }
+@@ -96,6 +113,8 @@
+                 * length = -1;
+             else
+                 * length = count;
++	    LOGd(_DEBUG, "1");
++	    LOG("1");
+             return 0;
+         }
+     } 
+@@ -105,14 +124,19 @@
+     for (;;) 
+     {
+         actual = (simple_file_t *) arraylist->get_elem(files,index - 2);
++        LOGd(_DEBUG, "actual=%p", actual);
++        //LOG("actual=%p", actual);
+ 
+         if (actual == NULL) break;
+ 
+         len = dirent_size(actual->name);
++        //LOG("actual->name=%s", actual->name);
+ 
+         if (count + len <= *length)
+         {
+             convert_to_dirent(index - 1, actual->name, entry);
++            LOG("entry->d_name=%s", entry->d_name);
++	    LOG("entry->d_reclen=%u", entry->d_reclen);
+             entry = (l4vfs_dirent_t *)(((char *)entry) + entry->d_reclen);
+             count += len;
+         }
+@@ -123,6 +147,8 @@
+                 * length = -1;
+             else
+                 * length = count;
++	    LOGd(_DEBUG, "2");
++	    LOG("2");
+             return index;
+         }
+         index++;
+@@ -130,6 +156,8 @@
+ 
+     // EOF
+     * length = count;
++    LOGd(_DEBUG, "3");
++    LOG("3");
+ 
+     return index;
+ }
+diff -urN -x .svn pkg/l4vfs/simple_file_server/server/main.c pkg/l4vfs-new/simple_file_server/server/main.c
+--- pkg/l4vfs/simple_file_server/server/main.c	2012-05-07 11:07:27.077399244 +1200
++++ pkg/l4vfs-new/simple_file_server/server/main.c	2011-06-10 16:13:45.000000000 +1200
+@@ -177,6 +177,7 @@
+ 
+     ret = clientstate_getdents(fd,*dirp,*count,*_dice_corba_obj);
+ 
++    LOG("ret=%d", ret);
+     return ret;
+ 
+ }
+diff -urN -x .svn pkg/l4vfs/term_server/server/term_con/Makefile pkg/l4vfs-new/term_server/server/term_con/Makefile
+--- pkg/l4vfs/term_server/server/term_con/Makefile	2012-05-07 12:34:29.665398721 +1200
++++ pkg/l4vfs-new/term_server/server/term_con/Makefile	2011-06-10 16:13:58.000000000 +1200
+@@ -12,7 +12,8 @@
+ 
+ TARGET         = term_con
+ MODE           = l4env_minimal
+-DEFAULT_RELOC  = 0x01400000
++#DEFAULT_RELOC  = 0x01400000
++DEFAULT_RELOC  = 0x01450000
+ LIBS           = -u putchar -u puts -u printf                                \
+                  -lcon -lvt100 -lcon_term -lconstream-server                 \
+                  -ll4vfs_object_server-server -ll4vfs_name_server            \

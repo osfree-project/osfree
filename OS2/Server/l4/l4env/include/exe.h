@@ -13,9 +13,9 @@
 #ifndef __EXE__
 #define __EXE__
 
-#if !defined(_ENABLE_AUTODEPEND)
-  #pragma read_only_file;
-#endif
+//#if !defined(_ENABLE_AUTODEPEND)
+//  #pragma read_only_file;
+//#endif
 
 #ifdef __cplusplus
 extern "C" {
