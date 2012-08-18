@@ -28,8 +28,12 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule);
 unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule);
 unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj, int *ret_rc);
+int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
+                                struct o32_obj * lx_obj, int *ret_rc);
 void dump_header_mz(struct exe hdr);
 void dump_header_lx(struct e32_exe hdr);
+
+int LXLoadObjects(IXFModule *ixf);
 
 /* Read in the header for the file from a memory buffer.
    ALso an constructor for struct LX_module. */
@@ -86,7 +90,7 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
          module_counter<ixf->cbModules+1;
          module_counter++)
     {
-      get_imp_mod_name_cstr((struct LX_module *)(ixf->FormatStruct), module_counter, &buf, sizeof(buf));
+      get_imp_mod_name_cstr((struct LX_module *)(ixf->FormatStruct), module_counter, (void *)&buf, sizeof(buf));
       ixf->Modules[module_counter-1]=malloc(strlen(buf)+1);
       strcpy(ixf->Modules[module_counter-1],buf);
     }
@@ -186,28 +190,31 @@ unsigned long LXFixup(void * lx_exe_mod)
 
 unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
 {
-        const int UNUSED_ENTRY_SIZE = 2;
-        const int ENTRY_HEADER_SIZE = 4; /* For all entries except UNUSED ENTRY.*/
-        const int _16BIT_ENTRY_SIZE = 3;
-        const int _286_CALL_GATE_ENTRY_SIZE = 5;
-        const int _32BIT_ENTRY_SIZE         = 5;
-        const int FORWARD_ENTRY_SIZE        = 7;
+  enum
+  {
+     UNUSED_ENTRY_SIZE = 2,
+     ENTRY_HEADER_SIZE = 4, /* For all entries except UNUSED ENTRY.*/
+     _16BIT_ENTRY_SIZE = 3,
+     _286_CALL_GATE_ENTRY_SIZE = 5,
+     _32BIT_ENTRY_SIZE         = 5,
+     FORWARD_ENTRY_SIZE        = 7
+  };
   char buf[256];
-  unsigned long cbEntries;   /* Number of items in entry table */
+  //unsigned long cbEntries;   /* Number of items in entry table */
   struct LX_module * lx_mod; /* LX_format structure */
 
   int offs_to_entry_tbl;
   struct b32_bundle *entry_table_start;
-  struct b32_bundle *entry_table,
-                    *prev_entry_table;
+  struct b32_bundle *entry_table; //,
+  //                  *prev_entry_table;
   char *cptr_ent_tbl;
-  struct e32_entry *entry_post;
-  char bbuf[3];
-  int entry_ord_index;
-  int prev_ord_index;
-  int unused_entry;
+  //struct e32_entry *entry_post;
+  //char bbuf[3];
+  //int entry_ord_index;
+  //int prev_ord_index;
+  //int unused_entry;
   unsigned long int i_cptr_ent_tbl;
-  int elements_in_bundle;
+  //int elements_in_bundle;
   unsigned long i;
 
 
@@ -324,7 +331,7 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
       for (i=ixfModule->cbEntries;i<ixfModule->cbEntries+entry_table->b32_cnt;i++)
       {
         ixfModule->Entries[i-1].FunctionName = NULL;
-        ixfModule->Entries[i-1].Address = ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_offset.offset32 + get_obj(lx_mod, entry_table->b32_obj)->o32_base;
+        ixfModule->Entries[i-1].Address = (void *)((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_offset.offset32 + get_obj(lx_mod, entry_table->b32_obj)->o32_base;
         ixfModule->Entries[i-1].Ordinal = 0;
         ixfModule->Entries[i-1].ModuleName = NULL;
         i_cptr_ent_tbl += _32BIT_ENTRY_SIZE;
@@ -344,8 +351,8 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
       {
         ixfModule->Entries[i-1].FunctionName=NULL;
         ixfModule->Entries[i-1].Address=NULL;
-        ixfModule->Entries[i-1].Ordinal = ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.value;
-        copy_pas_str(&buf, get_imp_mod_name((struct LX_module *)(ixfModule->FormatStruct), ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.modord));
+        ixfModule->Entries[i-1].Ordinal = (void *)((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.value;
+        copy_pas_str((char *)&buf, get_imp_mod_name((struct LX_module *)(ixfModule->FormatStruct), ((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_fwd.modord));
         ixfModule->Entries[i-1].ModuleName=malloc(strlen(buf) + 1);
         strcpy(ixfModule->Entries[i-1].ModuleName,buf);
         i_cptr_ent_tbl += FORWARD_ENTRY_SIZE;
@@ -368,32 +375,32 @@ unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
 {
   unsigned long fixups;
 
-  int ord_found;
-  char *pas_imp_proc_name;
-  int import_name_offs;
-  char buf_import_name[260];
-  char cont_buf_mod_name[255];
-  char * mod_name;
-  char * cont_mod_name;
-  int import_ord;
-  int mod_nr;
-  unsigned long rc;
-  unsigned long int * ptr_source;
-  unsigned long int vm_source;
-  unsigned long int vm_target;
-  unsigned long int vm_start_target_obj;
-  struct o32_obj * target_object;
-  char buf_mod_name[255];
-  char * org_mod_name;
-  struct LX_module *found_module;
-  int trgoffs;
-  int object1;
-  int addit;
-  int srcoff_cnt1;
+  //int ord_found;
+  //char *pas_imp_proc_name;
+  //int import_name_offs;
+  //char buf_import_name[260];
+  //char cont_buf_mod_name[255];
+  //char * mod_name;
+  //char * cont_mod_name;
+  //int import_ord;
+  //int mod_nr;
+  //unsigned long rc;
+  //unsigned long int * ptr_source;
+  //unsigned long int vm_source;
+  //unsigned long int vm_target;
+  //unsigned long int vm_start_target_obj;
+  //struct o32_obj * target_object;
+  //char buf_mod_name[255];
+  //char * org_mod_name;
+  //struct LX_module *found_module;
+  //int trgoffs;
+  //int object1;
+  //int addit;
+  //int srcoff_cnt1;
   int fixup_source_flag;
   int fixup_source;
   int fixup_offset;
-  char *import_name;
+  //char *import_name;
   unsigned long int vm_start_of_page;
   struct r32_rlc * min_rlc;
   int pg_offs_fix;
@@ -481,7 +488,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
   {
     struct o32_obj * obj = get_obj((struct LX_module *)(ixfModule->FormatStruct), i);
     if(obj != 0)
-      ixfModule->cbFixups += calc_imp_fixup_obj_lx((struct LX_module *)(ixfModule->FormatStruct), obj, &ret_rc);
+      ixfModule->cbFixups += calc_imp_fixup_obj_lx((struct LX_module *)(ixfModule->FormatStruct), obj, (int *)&ret_rc);
   }
 
   if (ixfModule->cbFixups==0)
@@ -496,7 +503,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
   {
     struct o32_obj * obj = get_obj((struct LX_module *)(ixfModule->FormatStruct), i);
     if(obj != 0)
-      /*ixfModule->cbFixups +=*/ convert_imp_fixup_obj_lx(ixfModule, obj, &ret_rc);
+      /*ixfModule->cbFixups +=*/ convert_imp_fixup_obj_lx(ixfModule, obj, (int *)&ret_rc);
   }
 
 
@@ -509,26 +516,26 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
 {
   struct LX_module * lx_exe_mod;
 
-  int ord_found;
+  //int ord_found;
   char *pas_imp_proc_name;
   int import_name_offs;
   char buf_import_name[260];
-  char cont_buf_mod_name[255];
+  //char cont_buf_mod_name[255];
   char * mod_name;
-  char * cont_mod_name;
+  //char * cont_mod_name;
   int import_ord;
   int mod_nr;
-  unsigned long rc;
-  unsigned long int * ptr_source;
-  unsigned long int vm_source;
-  unsigned long int vm_target;
-  unsigned long int vm_start_target_obj;
-  struct o32_obj * target_object;
+  //unsigned long rc;
+  //unsigned long int * ptr_source;
+  //unsigned long int vm_source;
+  //unsigned long int vm_target;
+  //unsigned long int vm_start_target_obj;
+  //struct o32_obj * target_object;
   char buf_mod_name[255];
-  char * org_mod_name;
-  struct LX_module *found_module;
-  int trgoffs;
-  int object1;
+  char *org_mod_name;
+  //struct LX_module *found_module;
+  //int trgoffs;
+  //int object1;
   int addit;
   int srcoff_cnt1;
   int fixup_source_flag;
@@ -543,7 +550,7 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
   int page_nr=0;
   int startpage = lx_obj->o32_pagemap;
   int lastpage  = lx_obj->o32_pagemap + lx_obj->o32_mapsize;
-  UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
+  //UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
   unsigned long fixup_counter;
 
   fixup_counter=0;
@@ -612,12 +619,12 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
 
 
 //   io_printf("page=%x", vm_start_of_page);
-            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ vm_start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
             ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName=NULL;
             ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
             strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName, mod_name);
-            ixfModule->Fixups[fixup_counter].ImportEntry.Ordinal=import_ord;
+            ixfModule->Fixups[fixup_counter].ImportEntry.Ordinal=(void *)import_ord;
             fixup_counter++;
 
 
@@ -641,9 +648,9 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
             org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
             copy_pas_str(mod_name, org_mod_name);
 
-            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ vm_start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName=malloc(strlen(import_name)+1);
+            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName = malloc(strlen(import_name)+1);
             strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName, import_name);
             ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
             strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName, mod_name);

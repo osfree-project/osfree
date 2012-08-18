@@ -4,19 +4,22 @@
  *
  */
 
+// libc includes
 #include <ctype.h>
 
-#include <l4/os3/cfgparser.h>
-#include <dice/dice.h>
-#include <l4/names/libnames.h>
-#include <l4/thread/thread.h>
-#include <l4/os3/gcc_os2def.h>
-#include <l4/log/l4log.h>
+// L4 includes
 #include <l4/events/events.h>
-#include <l4/generic_ts/generic_ts.h>
+#include <l4/names/libnames.h>
 
+// osFree includes
+#include <l4/os3/gcc_os2def.h>
+#include <l4/os3/cfgparser.h>
 #include <l4/os3/processmgr.h>
 #include <l4/os3/execlx.h>
+#include <l4/os3/io.h>
+
+// DICE includes
+#include <dice/dice.h>
 
 extern l4_threadid_t fs;
 extern l4_threadid_t sysinit_id;
@@ -26,6 +29,9 @@ extern char use_events;
 
 void exec_runserver(void);
 void executeprotshell(cfg_opts *options);
+int exec_run_call(void);
+int sysinit (cfg_opts *options);
+
 char *skipto (int flag, char *s);
 char *getcmd (char *s);
 
@@ -66,18 +72,12 @@ void executeprotshell(cfg_opts *options)
 
   rc = PrcExecuteModule(NULL, 0, EXEC_SYNC, "", "", NULL, options->protshell, 0);
   if (rc != NO_ERROR) 
-    LOG("Error execute: %d ('%s')", rc, options->protshell);
+    io_printf("Error execute: %d ('%s')", rc, options->protshell);
 
   // Clean up config data
   rc = CfgCleanup();
   if (rc != NO_ERROR)
-  {
-    LOG("CONFIG.SYS parser cleanup error.");
-    //return rc;
-  }
-
-
-  //l4_ipc_sleep(L4_IPC_NEVER);
+    io_printf("CONFIG.SYS parser cleanup error.");
 }
 
 void
@@ -93,8 +93,8 @@ exec_runserver(void)
   
   for (i = 0; i < 5; i++)
   {
-    name = type[i].name;
-    LOG("name=%s", name);
+    name = (char *)type[i].name;
+    io_printf("name=%s", name);
     if (!strcmp(name, "RUNSERVER"))
     {
       for (j = 0; j < type[i].ip; j++)
@@ -104,14 +104,14 @@ exec_runserver(void)
 	s = skipto(0, s);
 
 	l4_exec (p, params, &tid);
-        LOG("started task: %x.%x", tid.id.task, tid.id.lthread);
+        io_printf("started task: %x.%x", tid.id.task, tid.id.lthread);
 
         if (strstr(p, "os2fs"))
 	{
-	  LOG("os2fs started");
+	  io_printf("os2fs started");
 	  if (!names_waitfor_name("os2fs", &fs, 30000))
 	  {
-	    LOG("Can't find os2fs on name server!");
+	    io_printf("Can't find os2fs on name server!");
 	    return;
 	  }
 	}
@@ -127,14 +127,14 @@ exec_runserver(void)
 	to      = getcmd (skipto(0, strstr(s, "-TIMEOUT")));
 	timeout = atoi (to);
 
-        LOG("LOOKFOR:%s, TIMEOUT:%d", server, timeout);
+        io_printf("LOOKFOR:%s, TIMEOUT:%d", server, timeout);
 	if (*server && !names_waitfor_name(server, &tid, timeout))
 	{
-	  LOG("Timeout waiting for %s", server);
+	  io_printf("Timeout waiting for %s", server);
 	  return;
 	}
       }
-      LOG("Server %s started", server);
+      io_printf("Server %s started", server);
     }  
   }
     
@@ -155,15 +155,15 @@ int sysinit (cfg_opts *options)
   APIRET rc;
 
   // Create the sysinit process PTDA structure (pid == ppid == 0)
-  proc = PrcCreate(0);
+  proc = PrcCreate(0, "sysinit", "", "");
   /* set task number */
   sysinit_id = l4_myself();
   proc->task = sysinit_id;
   /* assign params and environment */
-  PrcSetArgsEnv("sysinit", "", "", proc);
+  //PrcSetArgsEnv("sysinit", "", "", proc);
 
   if (!names_register("os2srv.sysinit"))
-    LOG("error registering on the name server");
+    io_printf("error registering on the name server");
 
   /* Start servers */
   exec_runserver();
@@ -197,11 +197,10 @@ int sysinit (cfg_opts *options)
 
   // unregister at names
   if (!names_unregister_task(sysinit_id))
-      LOG("Cannot unregister at name server!");
+      io_printf("Cannot unregister at name server!");
 
-  LOG("OS/2 Server ended");
+  io_printf("OS/2 Server ended");
   // terminate OS/2 Server
-  //l4ts_exit(); // this will send an exit event through events server too
   exit(rc);
 
   return rc;  

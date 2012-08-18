@@ -20,12 +20,17 @@
 #include <getopt.h>
 /* dice includes */
 #include <dice/dice.h>
+/* os2fs server includes */
+#include <os2fs-server.h>
 
 l4_threadid_t fs;
 l4_threadid_t os2srv;
 
 // use events server flag
 char use_events = 0;
+
+void usage(void);
+void event_thread(void);
 
 int FSR_INIT(void);
 
@@ -84,7 +89,7 @@ int main(int argc, char **argv)
                 { "events",      no_argument, NULL, 'e'},
 		{ 0, 0, 0, 0}
                 };
-  int  rc;
+  //int  rc;
 
   init_globals();
   //FSR_INIT();
@@ -128,7 +133,7 @@ int main(int argc, char **argv)
   if (use_events)
   {
     // start events thread
-    l4thread_create(event_thread, 0, L4THREAD_CREATE_ASYNC);
+    l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
     LOG("event thread started");
   }
 

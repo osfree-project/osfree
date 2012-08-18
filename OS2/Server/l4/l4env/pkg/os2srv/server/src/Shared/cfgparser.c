@@ -14,7 +14,6 @@
 */
 
 // uLibC defines
-//#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,6 +35,9 @@ int warn(char *);
 
 void *malloc (unsigned);
 void free(void *);
+
+char *upcase (char *s);
+
 
 // This statament ignored in comparation with original config.sys
 //char *skiplist[]={"DEVICE","BASEDEV","IFS","REM "};

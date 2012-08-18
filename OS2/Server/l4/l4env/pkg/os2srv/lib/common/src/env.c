@@ -9,6 +9,9 @@
 
 extern l4_threadid_t os2srv;
 
+unsigned long cfg_Getenv(char *name, char **value);
+unsigned long cfg_Getopt(const char *name, int *is_int, int *value_int, char **value_str);
+
 unsigned long cfg_Getenv(char *name, char **value)
 {
   CORBA_Environment env = dice_default_environment;

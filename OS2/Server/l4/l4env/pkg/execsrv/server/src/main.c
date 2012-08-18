@@ -49,6 +49,7 @@ l4_threadid_t os2srv;
 l4_threadid_t fs;
 l4_threadid_t execsrv;
 l4_threadid_t loader;
+l4_threadid_t fprov_id;
 
 l4env_infopage_t *infopage;
 
@@ -640,6 +641,7 @@ void main (int argc, char *argv[])
       LOG("os2fs not found on name server!");
       return;
     }
+  fprov_id = fs;
   LOG("os2fs tid:%x.%x", fs.id.task, fs.id.lthread);
 
   if (!names_waitfor_name("LOADER", &loader, 30000))

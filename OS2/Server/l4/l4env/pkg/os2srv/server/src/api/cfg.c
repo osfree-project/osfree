@@ -5,12 +5,12 @@
  
 #include <string.h>
 
-#include <l4/log/l4log.h>
+#include <l4/os3/io.h>
 #include <l4/os3/cfgparser.h>
 #include <l4/os3/gcc_os2def.h>
-#include <os2server-server.h>
+#include <l4/os3/ipc.h>
 
-#include <dice/dice.h>
+#include <os2server-server.h>
 
 #define NO_ERROR 0
 
@@ -21,27 +21,27 @@ extern cfg_opts options;
 /* 'name' structure member offset */
 #define O(name) ((int)(&options) + off(cfg_opts *, name))
 
-APIRET DICE_CV
-os2server_cfg_getenv_component (CORBA_Object _dice_corba_obj,
+APIRET CV
+os2server_cfg_getenv_component (CORBA_Object _obj,
                                 const char* name /* in */,
                                 char* *value /* out */,
-                                CORBA_Server_Environment *_dice_corba_env)
+                                CORBA_srv_env *_env)
 {
   APIRET rc;
-  LOG("name=%s", name);
-  rc = CfgGetenv(name, value);
-  LOG("path=%s", *value);
+  io_printf("name=%s", name);
+  rc = CfgGetenv((char *)name, value);
+  io_printf("path=%s", *value);
   return rc;
 }
 
 
-APIRET DICE_CV
-os2server_cfg_getopt_component (CORBA_Object _dice_corba_obj,
+APIRET CV
+os2server_cfg_getopt_component (CORBA_Object _obj,
                                 const char* name,
                                 int *is_int,
                                 int *value_int,
                                 char* *value_str,
-                                CORBA_Server_Environment *_dice_corba_env)
+                                CORBA_srv_env *_env)
 {
   int  i, rc = 1;
   char f;

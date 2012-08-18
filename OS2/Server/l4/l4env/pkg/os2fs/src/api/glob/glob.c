@@ -25,6 +25,8 @@
 # define attribute_hidden __attribute__ ((visibility ("hidden")))
 # define __hidden_proto_hiddenattr(attrs...) __attribute__ ((visibility ("hidden"), ##attrs))
 
+#define _GNU_SOURCE
+
 #include <features.h>
 #include <stdlib.h>
 #include <string.h>

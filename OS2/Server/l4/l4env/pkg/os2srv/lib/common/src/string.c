@@ -2,6 +2,10 @@
  *
  *
  */
+
+#include <ctype.h>
+
+char *strupr (char *str);
  
 char *
 strupr (char *str)

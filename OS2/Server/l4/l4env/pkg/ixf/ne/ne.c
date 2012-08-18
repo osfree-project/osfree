@@ -8,6 +8,10 @@
 
 //#include <ne.h>
 
+unsigned long NEIdentify(void * addr, unsigned long size);
+unsigned long NELoad(void * addr, unsigned long size, void * ixfModule);
+unsigned long NEFixup(void * Module);
+
 unsigned long NEIdentify(void * addr, unsigned long size)
 {
   unsigned long ne_module_header_offset=0;

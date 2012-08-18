@@ -22,9 +22,10 @@ api/glob/glob.c
 SERVERIDL	= os2fs.idl
 
 # list additional library paths and libraries here
-LIBS		= -lthread -lgeneric_fprov-server -levents -los2server
+LIBS  = -lgeneric_fprov-server -levents -los2server
 
-#LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
 CFLAGS          = -I$(PKGDIR)/include -I$(PKGDIR)/src/api/glob
 MODE            = l4env_base
+
 include $(L4DIR)/mk/prog.mk
+

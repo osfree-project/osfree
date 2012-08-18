@@ -9,9 +9,15 @@
 
 #include <l4/log/l4log.h>
 
+#include <ctype.h>
+
 #include <dice/dice.h>
 
+#include <os2fs-server.h>
+
 static ULONG drivemap = -1;
+
+void setdrivemap(ULONG *map);
 
 void setdrivemap(ULONG *map)
 {
@@ -31,7 +37,7 @@ void setdrivemap(ULONG *map)
     *map |= (1 << diskno);    
   }
 
-  LOG("map=%u", *map);
+  LOG("map=%lu", *map);
 }
  
 int DICE_CV

@@ -58,9 +58,9 @@ os2fs_dos_Read_component(CORBA_Object _dice_corba_obj,
                              short *dice_reply,
                              CORBA_Server_Environment *_dice_corba_env)
 {
-  int  c;
+  //int  c;
   int  nread = 0;
-  int  total = 1;
+  //int  total = 1;
   
   nread = read(hFile, (char *)*pBuffer, *count);
   if (nread == -1)
@@ -87,7 +87,7 @@ os2fs_dos_Write_component(CORBA_Object _dice_corba_obj,
                               short *dice_reply,
 	 		      CORBA_Server_Environment *_dice_corba_env)
 {
-  char *s;
+  //char *s;
   int  nwritten;
   
   LOG("entered");
@@ -244,12 +244,12 @@ os2fs_dos_QueryHType_component (CORBA_Object _dice_corba_obj,
 #define FILE_TRUNCATED 3
 
 /* ulAttribute */
-#define FILE_ARCHIVED  0x00000020
-#define FILE_DIRECTORY 0x00000010
-#define FILE_SYSTEM    0x00000004
-#define FILE_HIDDEN    0x00000002
-#define FILE_READONLY  0x00000001
-#define FILE_NORMAL    0x00000000
+//#define FILE_ARCHIVED  0x00000020
+//#define FILE_DIRECTORY 0x00000010
+//#define FILE_SYSTEM    0x00000004
+//#define FILE_HIDDEN    0x00000002
+//#define FILE_READONLY  0x00000001
+//#define FILE_NORMAL    0x00000000
 
 /* fsOpenFlags */
 #define OPEN_ACTION_FAIL_IF_EXISTS     0x00000000
@@ -425,10 +425,10 @@ os2fs_dos_DupHandle_component (CORBA_Object _dice_corba_obj,
                                HFILE *phFile2 /* in, out */,
                                CORBA_Server_Environment *_dice_corba_env)
 {
-  struct stat st;
+  //struct stat st;
   int handle;
   filehandle_t *h, *h2, *p;
-  APIRET rc;
+  //APIRET rc;
   
   // search for filehandle_t structure, corresponding to hFile
   for (h = fileroot; h->hfile != hFile; h = h->next) ;
@@ -671,16 +671,16 @@ os2fs_dos_FindFirst_component (CORBA_Object _dice_corba_obj,
                                ULONG ulInfolevel /* in */,
                                CORBA_Server_Environment *_dice_corba_env)
 {
-  CORBA_Environment env = dice_default_environment;
-  char path[256];
-  int   len = 0;
+  //CORBA_Environment env = dice_default_environment;
+  //char path[256];
+  //int   len = 0;
   filefindstruc_t *hdir;
   struct stat statbuf;
   struct tm tt;
-  char *s, *t, *p;
+  char *t, *p;
   char *fname;
   int  rc, i, j;
-  ULONG disk, logical;
+  //ULONG disk, logical;
   char fn[CCHMAXPATH];
 
   strcpy(fn, pszFileSpec);
@@ -1307,8 +1307,8 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
           fname[0] = 'A' + ulDrvNum - 1;
           fname[1] = ':';
     
-          rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, fname + 2, &len, &env);
-          rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, fname + 2, &len, &env);
+          rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, (char **)fname + 2, &len, &env);
+          rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, (char **)fname + 2, &len, &env);
 	}
 
         if (*cbInfoBuf <= len)
@@ -1400,13 +1400,13 @@ os2fs_dos_SetFileInfo_component (CORBA_Object _dice_corba_obj,
                                  ULONG *cbInfoBuf /* in, out */,
                                  CORBA_Server_Environment *_dice_corba_env)
 {
-  filehandle_t *h;
-  struct tm brokentime;
-  struct utimbuf tb;
-  struct timeval tv[2];
-  struct stat buf;
-  ULONG mode;
-  int rc;
+  //filehandle_t *h;
+  //struct tm brokentime;
+  //struct utimbuf tb;
+  //struct timeval tv[2];
+  //struct stat buf;
+  //ULONG mode;
+  //int rc;
 
 #if 0
   for (h = fileroot; h->hfile != hf; h = h->next) ;

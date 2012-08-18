@@ -28,6 +28,9 @@
 #include <l4/os3/cfgparser.h>
 #include <l4/os3/modmgr.h>
 
+int LXLoadHeader(struct LX_module * lx_mod);
+int LXLoadLoaderSection(struct LX_module * lx_mod);
+int LXLoadFixupSection(struct LX_module * lx_mod);
 
 struct o32_obj *
     get_data_stack(struct LX_module * lx_mod);
@@ -51,7 +54,8 @@ int get_imp_ord1_rlc(struct r32_rlc * rlc);
 char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx);
 
 int get_e32_pageshift(struct LX_module * lx_mod);
-
+char *get_imp_proc_name_2(struct LX_module * lx_mod, int proc_idx);
+ 
 
 /* fseek(fh, 0, SEEK_SET);
    SEEK_SET move filepos relative to beginning of the file
@@ -448,23 +452,25 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                         int * ret_modord,
                                         int * ret_type) {
 
-
-        const int UNUSED_ENTRY_SIZE = 2;
-        const int ENTRY_HEADER_SIZE = 4; /* For all entries except UNUSED ENTRY.*/
-        const int _16BIT_ENTRY_SIZE = 3;
-        const int _286_CALL_GATE_ENTRY_SIZE = 5;
-        const int _32BIT_ENTRY_SIZE         = 5;
-        const int FORWARD_ENTRY_SIZE        = 7;
+        enum
+        {
+          UNUSED_ENTRY_SIZE = 2,
+          _16BIT_ENTRY_SIZE = 3,
+          ENTRY_HEADER_SIZE = 4, /* For all entries except UNUSED ENTRY.*/
+          _286_CALL_GATE_ENTRY_SIZE = 5,
+          _32BIT_ENTRY_SIZE         = 5,
+          FORWARD_ENTRY_SIZE        = 7
+	};
         /* For testing: lx_mod is null and ret_type contains a pointer to some entry table.*/
         int offs_to_entry_tbl;
         struct b32_bundle *entry_table,
-                          *prev_entry_table;
+                          *prev_entry_table = 0;
         char *cptr_ent_tbl;
         struct e32_entry *entry_post;
         unsigned char * magic;
         char bbuf[3];
         int entry_ord_index;
-        int prev_ord_index;
+        int prev_ord_index = 0;
         int unused_entry;
         unsigned long int i_cptr_ent_tbl;
         int elements_in_bundle;
@@ -582,12 +588,13 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;
                                 i_cptr_ent_tbl = (unsigned long)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
-                                for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                        //io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
-                                                        //entry_ord_to_search, entry_ord_index);
-                                    if(entry_ord_to_search == entry_ord_index)
+                                for (entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) 
+				{
+                                    io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                              entry_ord_to_search, entry_ord_index);
+                                    if (entry_ord_to_search == entry_ord_index)
                                                 break;
-                                        i_cptr_ent_tbl += _32BIT_ENTRY_SIZE;
+                                    i_cptr_ent_tbl += _32BIT_ENTRY_SIZE;
                                 }
                                 /*entry_ord_index += entry_table->b32_cnt;
                                 i_cptr_ent_tbl += _32BIT_ENTRY_SIZE*entry_table->b32_cnt;*/
@@ -605,7 +612,7 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                                 *ret_type = entry_table->b32_type;
                                 return (void *) entry_table;
 
-                } else if(entry_table->b32_type == ENTRY32) { /* Jump over that bundle. */
+                } else if (entry_table->b32_type == ENTRY32) { /* Jump over that bundle. */
                         //io_printf("ENTRY32\n")
                         cptr_ent_tbl = (char*)entry_table;
                         cptr_ent_tbl += ENTRY_HEADER_SIZE;
@@ -631,12 +638,13 @@ void * get_entry(struct LX_module * lx_mod, int entry_ord_to_search,
                         //io_printf("cptr_ent_tbl: %p \n", cptr_ent_tbl);
                                 i_cptr_ent_tbl = (unsigned long int)cptr_ent_tbl;
                                 elements_in_bundle = entry_table->b32_cnt + entry_ord_index;
-                                for(entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) {
-                                    //io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
-                                    //                    entry_ord_to_search, entry_ord_index);
-                                        if(entry_ord_to_search == entry_ord_index)
-                                                break;
-                                        i_cptr_ent_tbl += FORWARD_ENTRY_SIZE;
+                                for (entry_ord_index; entry_ord_index < elements_in_bundle; entry_ord_index++) 
+				{
+                                    io_printf("(entry_ord_to_search %d == entry_ord_index %d)\n",
+                                                        entry_ord_to_search, entry_ord_index);
+                                    if (entry_ord_to_search == entry_ord_index)
+                                           break;
+                                    i_cptr_ent_tbl += FORWARD_ENTRY_SIZE;
                                 }
                                 cptr_ent_tbl = (char*)i_cptr_ent_tbl;
                                 entry_post = (struct e32_entry *)cptr_ent_tbl;

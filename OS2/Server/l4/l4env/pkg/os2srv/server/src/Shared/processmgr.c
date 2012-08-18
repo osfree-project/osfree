@@ -17,35 +17,31 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     Or see <http://www.gnu.org/licenses/>
 */
-//#define INCL_ERRORS
-//#define INCL_DOS
-//#define INCL_BSEDOS
-//#define INCL_DOSEXCEPTIONS
-//#define INCL_DOSPROCESS
-//#include <os2.h>
 
-//#include <stdlib.h>
-//#include <sys/mman.h>
+// libc includes
 #include <string.h>
+#include <ctype.h>
 
+// L4 includes
 #include <l4/sys/types.h>
-//#include <l4/sys/ipc.h>
-#include <l4/log/l4log.h>
-#include <l4/generic_ts/generic_ts.h>
+#include <l4/dm_mem/dm_mem.h>
+#include <l4/l4rm/l4rm.h>
 
+// osFree internal includes
 #include <l4/os3/token.h>
 #include <l4/os3/cfgparser.h>
 #include <l4/os3/processmgr.h>
-//#include <l4/os3/modlx.h>
 #include <l4/os3/execlx.h>
-//#include <l4/os3/modmgr.h>
-//#include <l4/os3/ixfmgr.h>
 #include <l4/os3/io.h>
-
 #include <l4/os3/loader.h>
 
-#include <l4/os2srv/os2server-client.h>
-//#include <l4/execsrv/os2exec-client.h>
+// OS/2 server RPC
+#include "os2server-client.h"
+#include "os2server-server.h"
+
+int attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr);
+int strlstcpy(char *s1, char *s2);
+int strlstlen(char *p);
 
 extern struct types type[];
 
@@ -65,12 +61,169 @@ extern struct module_rec module_root; /* Root for module list.*/
   ULONG     pib_flstatus;   Process' status bits.
   ULONG     pib_ultype;     Process' type code. */
 
+
+/* creates the process info block (PIB) in OS/2 server address space
+ * and returns its address.
+ */
+APIRET CDECL
+PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
+{
+  l4dm_dataspace_t ds;
+  l4_size_t size;
+
+  PPIB pp;
+  char *s1, *s2, *s3;
+
+  int  len, rc;
+  
+  /* get the caller proc structure */
+  //proc  = PrcGetProcL4(*_dice_corba_obj);
+
+  /* info blocks */
+  //ppib  = proc->lx_pib;
+  
+  /* total size of all info */
+  size = sizeof(PIB);
+  
+  // size of pEnv (a stringlist)
+  len   = strlstlen(env);
+  io_printf("env len: %d", len);
+  size += len;
+  
+  // size of pPrg (a string)
+  len   = strlen(prg) + 1;
+  io_printf("prg len: %d", len);
+  size += len;
+
+  // size of pArg (a stringlist)
+  len   = strlen(arg) + 1;
+  len  += strlen(arg + len) + 2;
+  io_printf("arg len: %d", len);
+  size += len; 
+
+  /* allocate a dataspace of a given size */	 
+  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, "OS/2 app process info block", &ds);
+
+  if (rc < 0)
+    return ERROR_NOT_ENOUGH_MEMORY;
+    
+  /* attach it to our address space */
+  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *)addr);
+  
+  if (rc < 0)
+  {
+    io_printf("cannot attach ds");
+    return ERROR_ACCESS_DENIED;
+  }
+  
+  pp = (PPIB) *addr;
+  //memmove(pp, ppib, sizeof(PIB));
+
+  /* copy argv and envp */
+  // pEnv
+  s1 = (char *)pp + sizeof(PIB);
+  len = strlstcpy(s1, env);
+  io_printf("env len: %d", len);
+  // pPrg
+  s2 = s1 + len;
+  strcpy(s2, prg);
+  io_printf("prg len: %d", strlen(s2) + 1);
+  // pArg
+  s3 = s2 + strlen(s2) + 1;
+  strcpy(s3, arg);
+  len = strlen(s3) + 1;
+  strcpy(s3 + len, arg + len);
+  len += strlen(s3 + len) + 2;
+  io_printf("arg len: %d", len);
+
+  /* fixup addresses -- make them addr-based */
+  //s1 -= *addr;
+  //s3 -= *addr;
+
+  pp->pib_pchenv = s1;
+  pp->pib_pchcmd = s3;
+
+  //pp  = (char *)pp - *addr; 
+
+  /* detach the dataspace */
+  //l4rm_detach(*addr);
+  
+  return NO_ERROR;
+}
+
+/* creates the thread info block (TIB) in OS/2 server address space
+ * and returns its address.
+ */
+APIRET CDECL
+PrcCreateTIB(PTIB *addr)
+{
+  l4dm_dataspace_t ds;
+  l4_size_t size;
+
+  PTIB   pt;
+  PTIB2  pt2;
+
+  int   rc;
+
+  /* get the caller proc structure */
+  //proc  = PrcGetProcL4(*_dice_corba_obj);
+
+  //ptib  = proc->main_tib; // @todo: fix for non-main threads!
+  //ptib2 = proc->main_tib->tib_ptib2;
+
+  /* total size of all info */
+  size = sizeof(TIB) + sizeof(TIB2);
+
+  /* allocate a dataspace of a given size */	 
+  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, "OS/2 app thread info block", &ds);
+
+  if (rc < 0)
+    return ERROR_NOT_ENOUGH_MEMORY;
+
+  io_printf("ds id: %u", ds.id);
+  io_printf("ds mgr id: %u.%u", ds.manager.id.task, ds.manager.id.lthread);
+    
+  /* attach it to our address space */
+  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *) addr);
+  
+  if (rc < 0)
+  {
+    io_printf("cannot attach ds");
+    return ERROR_ACCESS_DENIED;
+  }
+
+  io_printf("ds attached at addr: %lx", (ULONG)*addr);
+  
+  pt = (PTIB)(*addr);
+  //memmove(pt, ptib, sizeof(TIB));
+  pt2 = (PTIB2)((char *)*addr + sizeof(TIB));
+  //memmove(pt2, ptib2, sizeof(TIB2));
+
+  //pt2 = (char *)pt2 - *addr;
+  pt->tib_ptib2 = pt2;
+  //pt  = (char *)pt - *addr;
+
+  /* share the dataspace with client */
+  //rc = l4dm_share(ds, *_dice_corba_obj, L4DM_RW);
+
+  //if (rc)
+  //{
+  //    io_printf("cannot share ds");
+  //    return ERROR_ACCESS_DENIED;
+  //}
+
+  /* detach the dataspace */
+  //l4rm_detach(*addr);
+  
+  return NO_ERROR;
+}
+
 /* Creates a process for an LX-module. */
-struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
+struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFModule *ixfModule)
 {
 
     struct t_os2process *parentproc;
-    LOG("proc_root=%x", proc_root);
+    io_printf("proc_root=%lx", (ULONG)proc_root);
 
     struct t_os2process *p;
     struct t_os2process *c = (struct t_os2process *) malloc(sizeof(struct t_os2process));
@@ -112,9 +265,11 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
       //c->session = 
     }
 
-    c->lx_pib   = (PPIB) malloc(sizeof(PIB));
-    c->main_tib = (PTIB) malloc(sizeof(TIB));
-    c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
+    //c->lx_pib   = (PPIB) malloc(sizeof(PIB));
+    //c->main_tib = (PTIB) malloc(sizeof(TIB));
+    //c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
+    PrcCreatePIB(&(c->lx_pib), pPrg, pArg, pEnv);
+    PrcCreateTIB(&(c->main_tib));
         
     c->pid = pid;
     c->ip = 0;
@@ -126,8 +281,8 @@ struct t_os2process * PrcCreate(ULONG ppid) //IXFModule *ixfModule)
     c->lx_pib->pib_ulppid = ppid;
     c->lx_pib->pib_hmte = 0; // (ULONG) (struct LX_module *)(ixfModule->FormatStruct);
 
-    c->lx_pib->pib_pchcmd = "";
-    c->lx_pib->pib_pchenv = "";
+    //c->lx_pib->pib_pchcmd = "";
+    //c->lx_pib->pib_pchenv = "";
 
     //init_memmgr(&c->root_mem_area); /* Initialize the memory registry. */
     /* Registrate base invalid area. */
@@ -197,7 +352,7 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
   return NULL;
 }
 
-void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
+APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 {
   struct t_os2process *parentproc;
   int  i, l, k;
@@ -206,16 +361,16 @@ void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
   char *arg, *env;
 
     l = strlstlen(pArg);
-    LOG("pArg len=%d", l);
-    LOG("pEnv len=%d", strlstlen(pEnv));
+    io_printf("pArg len=%d", l);
+    io_printf("pEnv len=%d", strlstlen(pEnv));
 
-    LOG("pArg=%x", pArg);
+    io_printf("pArg=%lx", (ULONG)pArg);
 
     for (i = 0, p = pArg; i < l; i++)
      if (p[i])
-       LOG("%c", p[i]);
+       io_printf("%c", p[i]);
      else
-       LOG("\\0");
+       io_printf("\\0");
 
     if (!pArg || !*pArg)
       pArg = "\0\0";
@@ -225,17 +380,17 @@ void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
     
     k = strlen(pPrg) + 1;
 
-    LOG("k=%d", k);
+    io_printf("k=%d", k);
 
     /* get args length */
     arglen = strlstlen(pArg);
 
-    LOG("arglen=%d", arglen);
+    io_printf("arglen=%d", arglen);
 
     /* get env length */
     envlen = strlstlen(pEnv);
 
-    LOG("envlen=%d", envlen);
+    io_printf("envlen=%d", envlen);
     
     if (proc->lx_pib->pib_ulppid) // ordinary process, inherits parent env
     {
@@ -248,8 +403,8 @@ void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
       
       if (!env)
       {
-        LOG("malloc: not enough memory!");
-        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+        io_printf("malloc: not enough memory!");
+        return ERROR_NOT_ENOUGH_MEMORY;
       }
 
       /* copy without last NULL */
@@ -282,8 +437,8 @@ void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
       
       if (!env)
       {
-        LOG("malloc: not enough memory!");
-        return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+        io_printf("malloc: not enough memory!");
+        return ERROR_NOT_ENOUGH_MEMORY;
       }
 
       for (i = 0, l = 0; i < n; i++, l += strlen(s) + 1)
@@ -330,41 +485,42 @@ void PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
     k = arg - env + k + i;
     for (i = 0; i < k; i++)
     if (env[i])
-      LOG("%c", env[i]);
+      io_printf("%c", env[i]);
     else
-      LOG("\\0");    
+      io_printf("\\0");    
 
     proc->lx_pib->pib_pchcmd = arg;
     proc->lx_pib->pib_pchenv = env;
+
+    return NO_ERROR;
 }
 
 /* is called by os2app, and notifies os2srv
    about some module parameters got from execsrv */
 void DICE_CV
 os2server_app_notify_component (CORBA_Object _dice_corba_obj,
-                                os2exec_module_t *s,
+                                const os2exec_module_t *s,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
   struct t_os2process *proc;
-  
   proc = PrcGetProcL4(*_dice_corba_obj);
 
   if (!proc) // it indicates that os2app is started from other 
   {          // means, than using PrcExecuteModule, so proc is not created
     /* create process structure and assign args and env */
-    proc = PrcCreate(0);
+    proc = PrcCreate(0, (PSZ)s->path, "", "");
     /* set task number */
     proc->task = *_dice_corba_obj;
     /* assign params and environment */
-    PrcSetArgsEnv(s->path, "", "", proc);
+    //PrcSetArgsEnv(s->path, "", "", proc);
   }
 
-  proc->ip = s->ip;
-  proc->sp = s->sp;
+  proc->ip = (void *)s->ip;
+  proc->sp = (void *)s->sp;
   proc->hmte = s->hmod;
   proc->lx_pib->pib_hmte = s->hmod;
-  proc->main_tib->tib_pstack = s->sp;
-  proc->main_tib->tib_pstacklimit = s->sp_limit;
+  proc->main_tib->tib_pstack = (void *)s->sp;
+  proc->main_tib->tib_pstacklimit = (void *)s->sp_limit;
   proc->main_tib->tib_ptib2->tib2_ultid = 1;  // @todo: implement real thread ids
 }
 
@@ -707,15 +863,15 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   char *p_buf = (char *)buf;
 
   /* Starts to execute the process. */
-  if (options.debugprcmgr) LOG("Executing exe...");
+  if (options.debugprcmgr) io_printf("Executing exe...");
 
   if (pName[0] != '\\' && (pName[1] != ':' || pName[2] != '\\')) // absolute path
   {
     // Searches for module name and returns the full path in the buffer p_buf.
-    rc=find_path(pName, p_buf);
+    rc = find_path(pName, (char **)p_buf);
     if (rc!=0/*NO_ERROR*/)
     {
-      LOG("PrcExecuteModule: Can't find %s module", pName);
+      io_printf("PrcExecuteModule: Can't find %s module", pName);
       return rc;
     }
   }
@@ -723,9 +879,9 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     strcpy(p_buf, pName);
 
   /* create process structure */
-  proc = PrcCreate(ppid);
+  proc = PrcCreate(ppid, p_buf, pArg, pEnv);
   /* assign args and env      */
-  PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
+  //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
   l4_os2_exec(p_buf, proc);
 
@@ -844,7 +1000,7 @@ _asm{
                                           :[esp_data]   "m" (tmp_ptr_data_mmap_16), /* esp+ data_mmap+8+*/
                                            [ebp_data]   "m" (tmp_ptr_data_mmap_21), /* esp+ data_mmap+8+*/
                                            [my_execute] "m" (my_execute) );
-        #endif
+                #endif
                 /* OBS! Stacken <A4>r <A4>ndrad h<A4>r !!!!! */
                 /* Funkar inte, my_execute <A4>r en variabel med en pekare i stacken som
                  inte kan l<A4>sas efter att stacken <A4>ndrats! Baseras p<A5> ebp!
@@ -852,7 +1008,7 @@ _asm{
                  st<A4>llen. */
 
                  #ifdef __WATCOMC__
-                 _asm{   pop ebp ; Restore base pointer so we don't crash as soon we access local variables.
+                 _asm{   pop ebp /* Restore base pointer so we don't crash as soon we access local variables. */
                          pop ebx
                          pop ebx
                      }
@@ -983,7 +1139,7 @@ _asm{
                  st<A4>llen. */
 
                  #ifdef __WATCOMC__
-                 _asm{   pop ebp ; Restore base pointer so we don't crash as soon we access local variables.
+                 _asm{   pop ebp /* Restore base pointer so we don't crash as soon we access local variables. */
                          pop ebx
                          pop ebx
                      }
@@ -996,4 +1152,6 @@ _asm{
                 #endif
 
 }
+
 #endif
+

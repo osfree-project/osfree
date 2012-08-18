@@ -5,6 +5,8 @@
  *  or l4vfs.
  */
 
+#include <stdlib.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -17,6 +19,17 @@
 #include <l4/dm_generic/consts.h>
 
 #include <dice/dice.h>
+
+void DosNameConversion(char * pszName);
+
+long DICE_CV
+l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
+                      const char* fname /* in */,
+                      const l4_threadid_t *dm /* in */,
+                      unsigned long flags /* in */,
+                      l4dm_dataspace_t *ds /* out */,
+                      l4_size_t *size /* out */,
+                      CORBA_Server_Environment *_dice_corba_env);
 
 /* extract drive letter from path */
 char get_drv(const char *s_path) {
@@ -152,7 +165,7 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
   int  rc;
 
   /* convert OS/2 path to PN path */
-  if (pathconv(&newfilename, fname))
+  if (pathconv(&newfilename, (char *)fname))
    return 2; /* ERROR_FILE_NOT_FOUND */
 
   handle = open(newfilename, O_RDONLY);
@@ -179,11 +192,11 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
   if (rc < 0)
     return 8; /* What to return? */
 
-  read(handle, addr, *size);
+  read(handle, (void *)addr, *size);
 
   close(handle);
 
-  l4rm_detach(addr);
+  l4rm_detach((void *)addr);
 
   LOG("caller=%x.%x", _dice_corba_obj->id.task, _dice_corba_obj->id.lthread);  
   rc = l4dm_transfer(ds, *_dice_corba_obj);

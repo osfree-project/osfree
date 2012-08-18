@@ -1,5 +1,8 @@
+#include <stdlib.h>
+
 #include <l4/os3/token.h>
 #include <l4/os3/io.h>
+#include <l4/os3/cfgparser.h>
 
 #include <l4/sys/types.h>
 #include <l4/env/env.h>
@@ -7,24 +10,32 @@
 #include <l4/l4rm/l4rm.h>
 #include <l4/dm_mem/dm_mem.h>
 #include <l4/dm_generic/consts.h>
-#include <l4/os3/cfgparser.h>
 #include <l4/generic_fprov/generic_fprov-client.h>
 
 extern l4_threadid_t fs;
 extern l4_threadid_t dsm;
 extern l4_threadid_t os2srv;
 
-#define NULL '\0'
+char get_drv(const char *s_path);
+char *get_directory(const char *s_path);
+char *get_name(const char *s_path);
+char *get_fname(const char *s_path);
+
+unsigned int find_module_path(const char * name, char * full_path_name);
+unsigned int find_path(const char *name, char *full_path_name);
+
+void cfg_Getenv(const char *path, char **value);
 
 /* extract drive letter from path */
-char get_drv(const char *s_path) {
+char get_drv(const char *s_path)
+{
     if(s_path[1] == ':')
         return s_path[0];
     return '\0';
 }
 
 /* extract directory from path */
-char * get_directory(const char *s_path) 
+char *get_directory(const char *s_path) 
 {
   int s=0;
   int e=0;
@@ -51,7 +62,7 @@ char * get_directory(const char *s_path)
 }
 
 /* extract name from path */
-char * get_name(const char *s_path) 
+char *get_name(const char *s_path) 
 {
   int s=0;
   int e=0;
@@ -72,7 +83,7 @@ char * get_name(const char *s_path)
 }
 
 #if 1
-char * get_fname(const char *s_path) 
+char *get_fname(const char *s_path) 
 {
   //int s=0;
   int e=-1;
@@ -191,7 +202,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   char *p = options.libpath - 1;
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
-  char *sep="\\";
+  //char *sep="\\";
 #ifdef __LINUX__
   char *hostsep="/";
 #else
@@ -203,9 +214,9 @@ unsigned int find_module_path(const char * name, char * full_path_name)
   if((p = StrTokenize((char*)options.libpath, psep)) != 0)
   do if(*p)
   {
-    int B_LEN = 250;
+    //int B_LEN = 250;
     char buf[251];
-    char *str_buf=(char*) &buf;
+    //char *str_buf=(char*) &buf;
     char buf2[251];
     char * file_to_find=(char*) &buf2;
     long i=0;

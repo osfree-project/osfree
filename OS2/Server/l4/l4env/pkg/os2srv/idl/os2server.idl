@@ -85,12 +85,17 @@ interface os2server
 
     APIRET dos_SetDefaultDisk ([in] ULONG disknum);
 
-    /* gets a dataspace with info blocks and all data they point to.
-       and offsets of TIB and PIB in this dataspace. All the pointers
-       in infoblocks are based from dataspace start (need to fixup them) */
-    APIRET dos_GetInfoBlocks([out] l4dm_dataspace_t *ds,
-                             [out] l4_offs_t *tib_offs,
-			     [out] l4_offs_t *pib_offs);
+    /* gets a process info block (PIB)
+     * for the current process. The data structure is returned as a single dataspace,
+     * the adresses are based from the start of the dataspace.
+     */
+    APIRET dos_GetPIB([out] l4dm_dataspace_t *ds);
+
+    /* gets a thread info block (TIB)
+     * for the current thread. The data structure is returned as a single dataspace,
+     * the adresses are based from the start of the dataspace.
+     */
+    APIRET dos_GetTIB([out] l4dm_dataspace_t *ds);
 
     /* scan the environment */
     APIRET dos_ScanEnv([in, string] char *pszName,

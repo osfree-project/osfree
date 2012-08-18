@@ -1,9 +1,11 @@
-
 #include <l4/os3/MountReg.h>
 #include <l4/os3/globals.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 #include <l4/log/l4log.h>
 
 /* Initierar en I_Fs_srv till noll. */

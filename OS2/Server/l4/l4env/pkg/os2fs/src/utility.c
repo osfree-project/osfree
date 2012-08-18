@@ -1,4 +1,8 @@
-#include <stdlib.h>
+#include <ctype.h>
+
+#define NULL '\0'
+
+void DosNameConversion(char * pszName);
 
 void DosNameConversion(char * pszName)
 {

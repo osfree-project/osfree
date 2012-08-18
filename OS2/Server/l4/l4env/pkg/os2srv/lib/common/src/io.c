@@ -17,7 +17,8 @@
 
 #include <l4/generic_fprov/generic_fprov-client.h>
 
-extern l4_threadid_t fs;
+//extern l4_threadid_t fs;
+extern l4_threadid_t fprov_id;
 
 l4_threadid_t dsm = L4_INVALID_ID;
 
@@ -30,11 +31,14 @@ void io_printf(const char* chrFormat, ...)
     va_end (arg_ptr);
 }
 
-int io_load_file(const char * filename, void **addr, unsigned long *size)
+int io_load_file(const char *filename, l4_addr_t *addr, l4_size_t *size)
 {
   CORBA_Environment env = dice_default_environment;
   l4dm_dataspace_t ds;
   int  rc;
+
+  LOG("filename=%s", filename);
+  LOG("fileprov=%lu.%lu", fprov_id.id.task, fprov_id.id.lthread);
 
   /* query default dataspace manager id */
   if (l4_is_invalid_id(dsm))
@@ -46,15 +50,22 @@ int io_load_file(const char * filename, void **addr, unsigned long *size)
     return 2;
   }
 
+  if (!filename || !*filename)
+    return 2;
+
   /* get a file from a file provider */
-  rc = l4fprov_file_open_call(&fs, filename, &dsm, 0,
-                       &ds, size, &env);
+  rc = l4fprov_file_open_call(&fprov_id, filename, &dsm, 0,
+                       &ds, (l4_size_t *)size, &env);
 
   if (rc == 2)
     return rc; /* ERROR_FILE_NOT_FOUND */
 
+  LOG("size=%lu", *size);
+
   /* attach the created dataspace to our address space */
-  rc = l4rm_attach(&ds, *size, 0, L4DM_RW, addr);
+  rc = l4rm_attach(&ds, *size, 0, L4DM_RW | L4RM_MAP, addr);
+
+  LOG("addr=%lu", *addr);
 
   if (rc < 0)
     return 8; /* What to return? */
@@ -62,7 +73,7 @@ int io_load_file(const char * filename, void **addr, unsigned long *size)
   return 0;
 }
 
-int io_close_file(void *address)
+int io_close_file(l4_addr_t address)
 {
   int rc;
   l4dm_dataspace_t ds;
@@ -79,7 +90,7 @@ int io_close_file(void *address)
 
   if (rc == L4RM_REGION_DATASPACE)
   {  
-    l4rm_detach(addr);
+    l4rm_detach((void *)addr);
     l4dm_close(&ds);
   }
 

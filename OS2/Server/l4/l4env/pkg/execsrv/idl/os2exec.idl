@@ -59,7 +59,7 @@ interface os2exec
   /*  shared memory manupulation functions
    */
 
-  /*  get free sharemem addres for specified size
+  /*  get free sharemem address for specified size
    */
   long alloc_sharemem([in]  l4_uint32_t size,
 			[in, string] char *name,
