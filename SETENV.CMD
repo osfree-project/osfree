@@ -1,3 +1,4 @@
+#!/usr/local/bin/rexx
 /*  Set environment variables */
 
 parse arg cfg

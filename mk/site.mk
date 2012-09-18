@@ -15,7 +15,7 @@ ROOT       = $(%ROOT)
 WATCOM     = $(%WATCOM)
 !endif
 
-!include $(ROOT)/build.conf
+!include $(%ROOT)/build.conf
 
 # Version macro. Not to be changed for a long time yet.
 
@@ -71,7 +71,6 @@ REXX    = rexx
 !else
 REXX    = $OS_REXX
 !endif
-
 
 # Files from which HDD image is built
 FILESDIR   = $(ROOT)bin

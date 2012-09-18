@@ -2,12 +2,15 @@
 #
 #
 
-ROOT=/mnt/data1/src/os2/svn/osfree
+ROOT=/media/osfree/
 #WATCOM=/mnt/data1/WATCOM
-watcom=/mnt/data1/watcom
+watcom=/media/watcom
 WATCOM=$watcom
+ENV=LINUX
+SHELL=Bourne
+REXX=/usr/local/bin/rexx
 
-TOOLS=$ROOT/tools/bin
+TOOLS=$ROOT/bin/tools
 INCLUDE=$watcom/h:$watcom/h/dos:$watcom/h/os2
 LIB=$watcom/lib386:$watcom/lib386/dos:$watcom/lib286:$ROOT/lib
 PATH=$watcom/binl:$TOOLS:$ROOT:$PATH
