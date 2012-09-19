@@ -25,7 +25,9 @@ OPTIONS = manyautodata, caseexact, start=init
 # 65 KiB from 32 KB. Hope it works or else I have to change the stack manually.
 # Fixed! With help from Valerius. Added the switch "-sg" which grows the stack.
 
+DEST = os2$(SEP)dll
+
 !include $(%ROOT)/mk/appsos2.mk
 
-TARGETS = subdirs $(PATH)$(PROJ).exe
+TARGETS = subdirs $(PATH)$(PROJ).dll
 TARGET  = all

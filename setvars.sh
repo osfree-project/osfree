@@ -6,6 +6,7 @@ ROOT=/media/osfree/
 #WATCOM=/mnt/data1/WATCOM
 watcom=/media/watcom
 WATCOM=$watcom
+OS=LINUX
 ENV=LINUX
 SHELL=Bourne
 REXX=/usr/local/bin/rexx
@@ -17,4 +18,4 @@ PATH=$watcom/binl:$TOOLS:$ROOT:$PATH
 WD_PATH=$watcom/binl
 LANG=$watcom
 
-export WATCOM ROOT TOOLS INCLUDE LIB PATH WD_PATH LANG
+export OS REXX WATCOM ROOT TOOLS INCLUDE LIB PATH WD_PATH LANG

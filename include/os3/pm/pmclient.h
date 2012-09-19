@@ -3,7 +3,7 @@
 /*+---------------------------------+*/
 
 #include <FreePM_cmd.hpp>
-#include <f_err.h>
+#include <f_Err.h>
 
 #ifndef FREEPMDEF
 #include <F_def.hpp>
