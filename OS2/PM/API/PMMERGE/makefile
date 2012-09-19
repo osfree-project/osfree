@@ -11,7 +11,7 @@ srcfiles = $(p)init$(e) $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e
            $(p)input$(SEP)input$(e) $(p)messagemgr$(SEP)queue$(e) $(p)messagemgr$(SEP)messages$(e) &
            $(p)windowmgr$(SEP)windowmgr$(e) $(p)windowmgr$(SEP)WindowClass$(e) &
            $(p)errors$(SEP)errors$(e) $(p)errors$(SEP)f_errors$(e) $(p)load$(SEP)load$(e) &
-           $(p)fc_config$(e) $(p)util$(e) $(p)F_debug$(e) $(p)unimpl$(e) # $(p)dialogs$(SEP)windlgbox$(e)
+           $(p)Fc_config$(e) $(p)util$(e) $(p)F_debug$(e) $(p)unimpl$(e) # $(p)dialogs$(SEP)windlgbox$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include  -sg -of+
 ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
 DLL     = 1

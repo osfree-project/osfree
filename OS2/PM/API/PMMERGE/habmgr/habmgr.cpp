@@ -11,7 +11,7 @@
 #include <builtin.h>
 #include <time.h>
 
-#include <freepm.hpp>
+#include <FreePM.hpp>
 //#include <habmgr.hpp>
 #include <F_hab.hpp>
 #include <pmclient.h>

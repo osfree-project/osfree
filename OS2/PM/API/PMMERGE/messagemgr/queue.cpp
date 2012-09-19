@@ -2,9 +2,9 @@
 /* class  FreePM_Queue stuff */
 /* ver 0.00 16.08.2002       */
 
-#include "freepm.hpp"
+#include "FreePM.hpp"
 
-#include <fs_queue.hpp>
+#include <Fs_queue.hpp>
 
 #include <builtin.h>
 /* Add message to queue */

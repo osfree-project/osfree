@@ -1,5 +1,0 @@
-file Driver.Obj
-name Driver.Exe
-library OS2386.Lib
-library EntryFld.Lib
-@WCDvr.Def

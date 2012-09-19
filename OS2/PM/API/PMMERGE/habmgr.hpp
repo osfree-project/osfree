@@ -5,7 +5,7 @@
 #ifndef FREEPM_HAB
   #define FREEPM_HAB
 
-#include <freepm.hpp>
+#include <FreePM.hpp>
 //#include <osfree.h>
 #include <malloc.h>
 
