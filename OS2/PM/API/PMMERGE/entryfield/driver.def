@@ -1,0 +1,8 @@
+
+NAME            Driver WINDOWAPI
+
+STACKSIZE 32768
+
+PROTMODE
+
+EXETYPE        OS2

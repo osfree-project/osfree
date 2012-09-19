@@ -1,0 +1,7 @@
+file EntryFld.Obj
+file HeapMgr.Obj
+file EventMgr.Obj
+name EntryFld
+library OS2386.Lib
+@WCEF.Def
+
