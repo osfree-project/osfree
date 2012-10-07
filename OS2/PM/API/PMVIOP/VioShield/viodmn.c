@@ -169,6 +169,8 @@ typedef struct tagKEYPACKET
    USHORT     ddFlag;
 } KEYPACKET, *PKEYPACKET;
 
+APIRET16 _Far16 _Pascal DosSMPause( USHORT );
+
 static MONIN  m_monIn;
 static MONOUT m_monOut;
 
@@ -191,6 +193,8 @@ static TID       m_tid_kbdmon;
 
 static TID      m_tid_packet;
 static HQUEUE   m_hqPacket;
+
+static BOOL m_fPaused = FALSE;
 
 static void init( PSZ pszPid );
 static void done( void );
@@ -321,7 +325,7 @@ void initSGID( void )
     CHAR    szFailName[ 256 ];
     HMODULE hmod;
 
-    DosLoadModule( szFailName, sizeof( szFailName ), "VIOSUB.DLL", &hmod );
+    DosLoadModule( szFailName, sizeof( szFailName ), "VIOSUB", &hmod );
     DosQueryProcAddr( hmod, 0, "getSGID", ( PFN * )&pfn_getSGID );
 
     m_ulSGID = pfn_getSGID();
@@ -421,9 +425,11 @@ void getCurInfo( void )
     USHORT  usRow;
     USHORT  usCol;
     VIOCURSORINFO   ci;
+    PVOID   pKBufBase;
     PCHAR   pKBuf;
 
-    DosGetNamedSharedMem(( PVOID )&pKBuf, m_szMemName, fGETNMSHR );
+    DosGetNamedSharedMem( &pKBufBase, m_szMemName, fGETNMSHR );
+    pKBuf = pKBufBase;
 
     VioGetCurPos( &usRow, &usCol, 0 );
     VioGetCurType( &ci, 0 );
@@ -437,7 +443,7 @@ void getCurInfo( void )
     memcpy( pKBuf, &ci, sizeof( ci ));
     pKBuf += sizeof( ci );
 
-    DosFreeMem( pKBuf );
+    DosFreeMem( pKBufBase );
 }
 
 void getVioInfo( void )
@@ -726,6 +732,7 @@ static BYTE m_abPMScanToVio[256][ 4 ] =
 
 void makeKeyEvent( void )
 {
+    PVOID       pmpBase;
     PULONG      pmp;
     ULONG       mp1;
     ULONG       mp2;
@@ -738,14 +745,15 @@ void makeKeyEvent( void )
     BYTE        abPhysKbdState[ 256 ];
     KEYPACKET   keyPacket;
 
-    DosGetNamedSharedMem(( PVOID )&pmp, m_szMemName, fGETNMSHR );
+    DosGetNamedSharedMem( &pmpBase, m_szMemName, fGETNMSHR );
 
+    pmp = pmpBase;
     mp1 = *pmp++;
     mp2 = *pmp++;
     memcpy( abKbdState, pmp, sizeof( abKbdState ));
     memcpy( abPhysKbdState, (( PBYTE )pmp ) + sizeof( abKbdState ), sizeof( abPhysKbdState ));
 
-    DosFreeMem( pmp );
+    DosFreeMem( pmpBase );
 
     fsFlags = SHORT1FROMMP( mp1 );
     uchRepeat = CHAR3FROMMP( mp1 );
@@ -839,6 +847,21 @@ void makeKeyEvent( void )
 
     if( FKC_KEYUP( fsFlags ))
         keyPacket.ddFlag |= DDF_KEYBREAK;
+    else if( m_fPaused )
+    {
+        // Shift keys and Pause key do not wake up session
+        if(( keyPacket.cp.fbStatus & ST_SHIFT_WITHOUT_CHAR ) ||
+           ( CAS_NONE( fsFlags ) && ( usVk == VK_PAUSE )))
+            return;
+
+        DosSMPause( m_ulSGID );
+
+        m_fPaused = FALSE;
+
+        // not CTRL-C(0x2E) and CTRL-BREAK(0x5F) ?
+        if( !CAS_CTRL( fsFlags ) || (( uchScan != 0x2E ) && ( uchScan != 0x5F)))
+            return;
+    }
 
     if( CAS_ALT( fsFlags ))
     {
@@ -905,13 +928,20 @@ void makeKeyEvent( void )
                ( keyPacket.cp.chScan != 0x37 )))) // PAD Asterisk
             keyPacket.cp.fbStatus |= ST_EXTENDED_KEY;
 
-#if 0
         if( keyPacket.cp.chScan == 0x45 ) // PAUSE key
         {
+            if( !FKC_KEYUP( fsFlags ))
+            {
+                DosSMPause( m_ulSGID );
+
+                m_fPaused = TRUE;
+
+                return;
+            }
+
             keyPacket.ddFlag |= FKC_KEYUP( fsFlags ) ? DDF_UNDEFKEY : DDF_PAUSEKEY;
             keyPacket.cp.fbStatus &= ~ST_EXTENDED_KEY;
         }
-#endif
     }
 
 #if 0
@@ -960,8 +990,7 @@ void termVioSubPipeThread( void )
                       NULL );
         if( rc == ERROR_PIPE_BUSY )
             while( DosWaitNPipe( m_szVioSubPipeName, -1 ) == ERROR_INTERRUPT );
-
-        if( rc )
+        else if( rc )
             DosSleep( 1 );
 
     } while( rc );

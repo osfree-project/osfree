@@ -254,14 +254,11 @@ static VOID convertVio2Win( PRECTL prcl )
 
 static int findXCol( int x )
 {
-    int min_key = 0;
-    int max_key = m_vmi.col;
-    int left = min_key;
-    int right = max_key;
+    int left = 0;
+    int right = m_vmi.col - 1;
     int key = ( left + right ) / 2;
 
-    while(( key > min_key && x < m_aptlPos[ key ].x ) ||
-          ( key < max_key && x >= m_aptlPos[ key + 1 ].x ))
+    while(( left < right ) && ( x < m_aptlPos[ key ].x || x >= m_aptlPos[ key + 1 ].x ))
     {
         if( x < m_aptlPos[ key ].x )
             right = key - 1;
@@ -1176,17 +1173,20 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
 
         case WM_CHAR :
         {
+            USHORT  fsFlags = SHORT1FROMMP( mp1 );
+            USHORT  usVk = SHORT2FROMMP( mp2 );
             PMPARAM pmp;
             BYTE    abKbdState[ 256 ];
             BYTE    abPhysKbdState[ 256 ];
 
             if( pKShellData->ulKShellMode == KSM_MARKING )
             {
-                if(( SHORT1FROMMP( mp1 ) & KC_VIRTUALKEY) &&
-                   !( SHORT1FROMMP( mp1 ) & ( KC_ALT | KC_CTRL | KC_SHIFT )) &&
-                   !( SHORT1FROMMP( mp1 ) & KC_KEYUP ))
+                if(!( fsFlags & KC_KEYUP ) &&
+                   !( fsFlags & ( KC_ALT | KC_CTRL | KC_SHIFT )) &&
+                    ( fsFlags & KC_VIRTUALKEY))
+
                 {
-                    switch( SHORT2FROMMP( mp2 ))
+                    switch( usVk )
                     {
                         case VK_NEWLINE :
                             copyToClipbrd( hwnd, FALSE );
@@ -1200,13 +1200,13 @@ MRESULT EXPENTRY windowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2 )
                 return MRFROMLONG( TRUE );
             }
 
-            if(( SHORT1FROMMP( mp1 ) & KC_VIRTUALKEY ) &&
-               ( SHORT2FROMMP( mp2 ) >= 0x80 ) &&      // 0x80 for VK_DBE_FIRST
-               ( SHORT2FROMMP( mp2 ) <= 0xFF ))        // 0xFF for VK_DBE_LAST
+            if(( fsFlags & KC_VIRTUALKEY ) &&
+               ( usVk >= 0x80 ) &&              // 0x80 for VK_DBE_FIRST
+               ( usVk <= 0xFF ))                // 0xFF for VK_DBE_LAST
                 return MRFROMLONG( TRUE );
 
             if(( pKShellData->ulKShellMode == KSM_SCROLLBACK ) &&
-               !( SHORT1FROMMP( mp1 ) & KC_KEYUP ))
+               !( fsFlags & KC_KEYUP ))
                 doneScrollBackMode( hwnd );
 
             WinSetKeyboardStateTable( HWND_DESKTOP, abKbdState, FALSE );
@@ -1859,8 +1859,7 @@ BOOL    callVioDmn( USHORT usMsg )
 
         if( rc == ERROR_PIPE_BUSY )
             while( DosWaitNPipe( m_szPipeName, -1 ) == ERROR_INTERRUPT );
-
-        if( rc )
+        else if( rc )
             DosSleep( 1 );
 
     } while( rc );

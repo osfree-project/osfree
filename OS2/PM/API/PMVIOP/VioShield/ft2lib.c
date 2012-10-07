@@ -25,7 +25,7 @@ BOOL loadFt2Lib( VOID )
 {
     UCHAR szFailedName[ 256 ];
 
-    if( DosLoadModule( szFailedName, sizeof( szFailedName ), "FT2LIB.DLL", &m_hmodFt2Lib ))
+    if( DosLoadModule( szFailedName, sizeof( szFailedName ), "FT2LIB", &m_hmodFt2Lib ))
         return FALSE;
 
     if( DosQueryProcAddr( m_hmodFt2Lib, 0, "Ft2EnableFontEngine", ( PFN * )&m_pfnFt2EnableFontEngine ))
@@ -75,6 +75,8 @@ BOOL loadFt2Lib( VOID )
 exit_error :
 
     freeFt2Lib();
+
+    return FALSE;
 }
 
 VOID freeFt2Lib( VOID )
