@@ -1,0 +1,153 @@
+<HTML>
+<HEAD>
+<TITLE>Features</TITLE>
+</HEAD>
+<BODY TEXT="#FFFFFF" LINK="#00D0D0" VLINK="#00FFFF" BACKGROUND="img/texture6.gif">
+<H1>Features</H1>
+<P>
+lxLite compresses the files in the same way as LINK386 does. There is NO
+way of implementing an effective (by memory requirements) compression method
+other than those two which Warp kernel knows and will recognize (or the only
+for 2.x) since unlike DOS OS/2 does paging and pages are loaded by kernel
+paging mechanism which runs at ring 0. There is no documented way to intrude
+inside the OS/2 kernel even from device drivers (which also runs in ring 0).
+</P>
+<P>
+So, here is a brief description of these two algorithms:
+</P>
+<OL>
+<LI>Run-length packing. This is generally the same method that Microsoft C
+for DOS uses. It gives VERY bad results because the structure of executable
+files aren`t suited for that kind of packing. For example, PCX files uses
+approximatively the same packing method.
+<LI>Kinda Lempel-Ziv algorithm. Lempel-Ziv is the same method which almost
+all DOS executables packers use - LZEXE, PKLITE, PGMPAK etc. The method
+standartized for OS/2 executable files is not the most effective (IMHO).
+Other thing is that OS/2 executable have a different loading algorithm in
+contrast to DOS executables - parts of OS/2 executables are loaded only when
+they are needed. So, Lempel-Ziv dictionary cannot cross the bound of a
+single page (4096 bytes). Because of this, it gives not such good results as
+it can.
+</OL>
+<P>
+lxLite can use any of these two methods either for packing or unpacking.
+Generally the second gives best compression rates, but may be (?) there are
+some files on which first will work better. Because of this the default is
+to try to pack page using both methods and then choose the smaller result.
+lxLite can be used as well for unpacking the files that previously have been
+packed - either by lxLite, LINK386 or REPACK from IBM. In some (seldom) cases
+you should specify the /F (force) option to force repacking - otherwise lxLite
+can give the "module is already packed" message.
+</P>
+<P>
+What kind of files you can compress? The LX format is used almost
+everywhere in OS/2: almost everything is in LX format. So, you don`t have
+to limit only to .EXE files: you can pack .DLL, .PDR, .QPR, .DRV, .FON, .SYS
+(Virtual Device Drivers (VDDs) in \OS2\MDOS) as well. You can run lxLite on
+virtually any file: if it is not in Linear Executable (LX) format it will
+fail to process it.
+</P>
+<P>
+Versions above 1.1.7 of lxLite can also convert to LX and compress most NE
+executables: this is a tricky thing but seems that in most cases it works
+well. If it cannot be acomplished, lxLite will give you an error message.
+If you don`t like this, you can disable this by using the /N- option on the
+command line. By default lxLite will convert *only* .EXE and .DLL files, which
+doesn`t contain resources, are long-filenames aware (.EXEs) and are not 
+'bound executable's (.EXEs).
+</P>
+<P>
+Some conversion considerations: NE files have a bit in the header that
+shows if the module handles long file names (since OS/2 v1.0 didn`t have long
+file names: HPFS was introduced in version 1.2). Executables with this bit
+set will see files with LFNs, when this bit is not set whey will work just
+like DOS programs do, i.e. won`t see files with LFN. Many NE executables
+doesn`t have this bit set, although they don`t care at all about filenames
+(for example, ARP.EXE, IFCONFIG.EXE from TCP/IP). Moreover, many executables
+that even works with file names will work as well with the long file names
+(for example I tried some UUENCODE/UUDECODE clones). By default lxLite will
+fail to convert such files into LX since LX modules doesn`t have such a bit
+in header, but you can force conversion by using the /NL switch. Default
+configuration file instructs lxLite to ignore this bit for all known to me
+kinds of dynamic-link libraries: DLL, DRV, FON, PDR, QPR (although last
+four extensions, as far as I know, always are LX modules).
+</P>
+<P>
+Also there is a number of NE executables (for example most EXEs from SIO or
+MASM 6.0 package) which are so-called 'bounded' (also known as "Family API")
+executables. A bounded executable can run both under DOS and OS/2, but not
+the way as LX modules do (one file contains TWO different executables; DOS
+executable is binded as stub to OS/2 LX executable), but other way: DOS stub
+is a small program which loads and executes NE executable under plain DOS,
+and emulates a (very) limited set of OS/2 API calls via BIOS and DOS
+interrupts. By default lxLite will also fail to convert such executables
+into LX modules since resulting executables won`t run under DOS anymore:
+however, if you have PROTECTONLY=YES in CONFIG.SYS or simply don`t need the
+executable to run under DOS, you can change the behavior of lxLite using the
+/NB switch on the command line.
+</P>
+<P>
+Another incompatibility between LX and NE files are resources. If NE
+module contains resources and they`re loaded using the Dos16GetResource API
+function, API will return an error code when trying to load same resources
+from an LX file. So, by default, lxLite will fail to convert NE modules that
+contains resources (however, there are not too much such modules). However,
+you can override this by using the /NR switch. As a example of a DLL with
+resources you can look at \TCPIP\DLL\TCPMRI.DLL. Many NE utilites (such as
+ARP, PING etc) uses Dos16GetResource to load resources from TCPMRI.DLL, and
+will display an 'Failure in national language support' instead of almost all
+messages. There is an alternative API function for 16-bit modules:
+DosGetResource2, which will work well for an LX file. So if you`re sure that
+all resources in a file are loaded exclusively through DosLoadModule2, you
+can force lxLite to convert such NE files by using the /NR switch.
+</P>
+<P>
+lxLite version 1.00 and above can replace executable modules even if they
+are currently in use. In this case it will warn you that module is already
+in use by another process, and will propose you either to replace it by its
+packed version or either to skip this module. Choose at your wish, but keep
+in mind that the modules you have replaced are kept now (their old versions)
+in memory, so they eat up your swapfile space. Better reboot as soon as you
+have this opportunity.
+</P>
+<P>
+You can also consider compressing your entire \OS2\*\ directory structure,
+it will give you a lot of extra space and absolutely no overhead! The time
+spent for decompressing executables is recovered by the time which system
+does not spend for reading the executable from HD because it`s much smaller!
+You can even compress the DLLs which are currently locked (lxLite will unlock
+them, but swap file will increase, so you will need to reboot after this).
+For this, you have to type:
+</P>
+<CITE>
+lxLite #:\os2\* /r /yur
+</CITE>
+<P>
+where # is drive letter of your boot drive.
+</P>
+<P>
+Version 1.1.0 and above detects executables which contains some data after
+the LX structure itself (i.e. what`s called in DOS overlay data). For
+example Watcom`s binded executables (such as WCC.EXE versions >= 10.0) and
+Watcom Visual Rexx executables have such structure. In this case lxLite
+shows an warning message and asks for confirmation whenever you really want
+to pack such executable. It is STRONGLY recommended that you backup the
+executable in question before trying to do it because it is VERY possible
+that it will become non-functional if something gets changed in it (because
+lxLite does not change any of possible pointers in data binded to LX as in
+VREXX executables). Default configuration file instructs lxLite to back up
+automatically such executables (by using the /BX switch). All backed up
+filenames are stored by default into the \lxLite.bak directory.
+</P>
+<HR>
+<A HREF="lxlite.html">Title page</A> |
+<A HREF="lxLite_intro.html">Introduction</A> |
+<A HREF="lxLite_switches.html">Command-line switches</A> |
+<A HREF="lxLite_config.html">Configuration file</A> |
+<A HREF="lxLite_errors.html">Error messages</A> |
+<A HREF="lxLite_bugs.html">Bugs and limitations</A> |
+<A HREF="lxLite_thanks.html">Thanks...</A> |
+<A HREF="lxUtil.html">Utility Pack</A> |
+<A HREF="apz.html">Author info</A>
+</BODY>
+</HTML>

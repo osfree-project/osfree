@@ -1,0 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Command-line switches</title>
+</head>
+ <body text="#ffffff" link="#00d0d0" vlink="#00ffff"
+ background="img/texture6.gif">
+ 
+<h1>Command-line switches</h1>
+ 
+<p> There are a lot of options in lxLite. I simply like options :-) So, you 
+can configure almost anything in lxLite. Moreover, to protect the user from 
+need of writing the same options lxLite support multiple configurations which 
+are kept in a single file. lxLite comes with some example configurations (`factory
+defaults`) which are listed below: </p>
+ 
+<hr> 
+<dl>
+  <dt>default (loaded by default) </dt>
+  <dd>It is a `work` configuration. All parameters are set to optimal level
+of compression without too much effort applied. File backup is disabled except
+for files that have extra data after LX structure. Note that this configuration
+is ALWAYS loaded before any other options are in effect, so even /C{#} option
+is executed AFTER default configuration is loaded. </dd>
+  <dt>unpack (loaded for /X option) </dt>
+  <dd>This configuration is loaded when you request to unpack the file (/X).
+By default it is empty; you can add here everything you want to happen when 
+files are unpacked. </dd>
+  <dt>ver2x </dt>
+  <dd>Optimal for pre-Warp versions of OS/2. Versions before Warp (3.0) does
+not know of the Lempel-Ziv (/EXEPACK:2) method. DON`T PACK EXECUTABLES WITH 
+LEMPEL-ZIV`s ALGORITHM if there is a chance to run your program on OS/2 v2.xx
+(except 2.99). </dd>
+  <dt>max </dt>
+  <dd>Tightest compression level. VERY SLOW! It is rarely needed to use this 
+configuration. </dd>
+  <dt>newStub </dt>
+  <dd>This is a particular configuration used to replace one DOS stub in
+LX executable by another without altering anything else. You have to specify 
+a filename for new stub - this configuration only tells lxLite not to depack
+old objects and not to pack unpacked objects. </dd>
+  <dt>minStub </dt>
+  <dd>This is a configuration which is linked to newStub and replaces stubs
+in given files by minimal possible stub of `say-error-and-exit` type. You 
+cannot make it smaller (at least I doubt it), only if you shorten the error 
+message. </dd>
+  <dt>vdmStub </dt>
+  <dd>This configuration tells lxLite to replace in specified files stub
+by a `run-from-VDM`-style one. This is also as short as possible :-) Please 
+read the /T{#} option description for further details. </dd>
+  <dt>info </dt>
+  <dd>Use this configuration to get the most important information about executables
+(see option /V) without altering them. </dd>
+  <dt>exehdr </dt>
+  <dd>Shows complete information about the executable header. Module file
+is not altered in any way. </dd>
+  <dt>exemap </dt>
+  <dd>Shows anything about the executable structure. This can generate sometimes 
+very long data sheets, so use it only if really needed. </dd>
+  <dt>map </dt>
+  <dd>Shows the memory map of the executable: memory objects and pages which 
+makes the object. </dd>
+  <dt>exp </dt>
+  <dd>Shows everything that is exported from the module (exported names and 
+exported entriy points) </dd>
+  <dt>imp </dt>
+  <dd>Shows module import tables </dd>
+  <dt>pdd </dt>
+  <dd>This configuration can be used for physical device drivers (especially
+in NE format). </dd>
+  <dt>dll </dt>
+  <dd>This configuration is useful for dynamic-link libraries. </dd>
+</dl>
+ 
+<hr> 
+<p> To use a specific configuration use the /C:# switch where # is configuration`s
+identifier. Settings are loaded from file lxLite.CFG in the same directory
+where lxLite.EXE resides. You shouldn`t care about paths - lxLite will always
+find it. For example, to use `max` configuration run lxLite /c:Max. For a
+detailed description of .CFG file format see section right below the following. 
+</p>
+ 
+<p> Here is a detailed explanation of what each switch does. Note that any 
+switch which accepts '+' or '-' sign after it (to enable/disable the action 
+which switch symbolizes) can be used without anything after it - this is accepted
+as '+'. For example, /V+ is equivalent to /V. </p>
+ 
+<hr> 
+<dl>
+  <dt><b>/A[{P|S|N{P|S}}{:#}]</b> </dt>
+  <dd>Set alignment method for first and rest of objects. First object can
+be aligned on [P]age shift, [S]ector or [N]o boundary. Note that the last 
+option (No boundary) cannot be achieved by using LINK386, but it works well,
+and the LX format allows it. All objects except first MUST be aligned on
+at least PageShift boundary. PageShift is a value that is specified in LX
+header. You can redefine it too by specifying a semicolon and a decimal value
+after it: for example the /APP:512 switch will place all pages in executable
+on 512 bytes boundary. Note that the # value must be a power of two (i.e.
+1,2,4,8,16,32,...). </dd>
+  <dt><b>/B(D|X|+|-){:%}</b> </dt>
+  <dd>Enable (+) or disable (-) copying original file into *.BAK; optionaly 
+lxLite can do it only when [D]ebug and/or e[X]tra data are detected. Also
+you can specify an directory % for backed up files (relative to root). The
+entire directory tree will be re-created inside the backup directory. For
+example, the /BX:c:\lxlite.bak switch will instruct lxLite to back up files
+only when e[X]tra data is present in module and to place them into the directory
+structure under the c:\lxlite.bak directory. </dd>
+  <dt><b>/C{S}{+|-}</b> </dt>
+  <dd>Enable (+) or disable (-) colored output. You can specify {S} to force 
+lxLite to use StdOut instead of VioXXX functions. </dd>
+  <dt><b>/C[:%]</b> </dt>
+  <dd>Use configuration with ID = %; The two predefined configuration names
+are "default" and "unpack". First is always loaded as lxLite starts and second
+is used when /X+ option is specified (this is NOT equivalent to /c:Unpack). 
+  </dd>
+  <dt><b>/E{#}</b> </dt>
+  <dd>Set [E]xclude filemask. All files that fits given filemask(s) will
+be bypassed by lxLite. All filemasks must be separated by ':' (because it 
+cannot be a part of filemask). For example /D*.zip:*.arj:*.rar switch will
+instruct lxLite to avoid all .zip, .arj and .rar files. Default lxlite configuration
+(/C:default) includes the /C:exclude configuration which instructs lxLite
+to avoid all executables which are known to have problems when packed. Note
+that the /D switches are additive, so /D*.zip /D*.arj /D*.rar is equivalent
+to the example above. To clear exclusion list use specify /D. </dd>
+  <dt><b>/F{+|-}</b> </dt>
+  <dd>Force repacking. Use /F+ to bypass `already processed` message, i.e. 
+when lxLite thinks that file was already processed and it really wasn`t. This
+usually doesn`t happen, but can happen when you try to replace a stub by
+another of the same size in a already packed file. </dd>
+  <dt><b>/I{+|-}</b> </dt>
+  <dd>Force (+) lxLite to run at idle priority. This mean that lxLite will
+do its work only when no other activity in system occurs (waiting for an keyboard/mouse
+event etc). This is the best in my opinion choice because you can run lxLite
+in background and it will not degrade almost at all system performance. However
+if you`ll run an `badly-behaved` VDM session which grabs all CPU time lxLite
+will completely stop. When run with /I- option lxLite does not changes its
+priority (i.e. you can run lxLite /I- via priority.exe program which starts
+programs with given priority). </dd>
+  <dt><b>/J[A|E|L|P|V](E|L|P|V|N|X|+|-)</b> </dt>
+  <dd>Change module type: Leave [A]s-is, [E]xecutable module, [L]ibrary module, 
+[P]hysical or [V]irtual driver. Especially useful when converting NE drivers.
+Optionaly you can restrict this to work only on [E]xecutables, [L]ibraries,
+[P]hysical or [V]irtual drivers, [N]E or L[X] executables and any combination
+of them. [N]E and [L]X conditions are considered with an AND operator; all
+others with OR, i.e. /JPELN will mean: "Change module type into [P]hysical
+device driver for all [E]xecutables OR [L]ibraries which also are (AND) [N]E
+modules" </dd>
+  <dt><b>/L(A|S|U|+|-){:%}</b> </dt>
+  <dd>Instructs lxLite to maintain an log file. If no file name is specified, 
+lxLite.log is used in the home directory of lxLite. Beside the filename, the
+start and final file size is written into log along with the problems (if
+any) that were encountered when processing (for example: 'Executable has
+been used by another process and replaced'). You can also optionaly choose
+to log either [S]uccessful or [U]nsuccessful cases or [A]ll (which means
+more than just /SU+: lxLite will also log 'already processed' files). </dd>
+  <dt><b>/M[R[N|1|2|3]|L[N|1]|F[N|1|2]]</b> </dt>
+  <dd>Set packing method &amp; parameters. Second character (after M) defines
+the method to set-up: `R` stands for run-length (/EXEPACK:1), 'L' for Lempel-Ziv
+(/EXEPACK:2) and 'F' for Fixup packing method. The third character is the
+level of compression using that method; if N is specified the method is disabled.
+Three levels of packing are provided for run-length compression. The level
+1 is the fastest. It searches only for 1-character strings. For example,
+the 'AAAAAAAA' string will be detected and packed as 8, 1, 'A' while 'ABABABAB'
+string will be stored as unpacked text. Level 2 detects repeated strings
+of up to 16 characters length, so the example above will be encoded as 4,2,'AB'. 
+This is the default setting for most 'factory` configurations. And last, 3rd
+level searchs for ALL strings of any length (up to page size/2 = 2048). This
+compreses VERY slow and seldom gives real results, so use it only when you
+really need it. The Lempel-Ziv algorithm can be either disabled (/MLN) or
+enabled (/ML1). When enabled it searchs for all matches using a relatively
+fast hash-table, so there is no need in gradations by compression speed.
+The fixup packing method can be set to [N]one, level 1 end level 2; fixups
+packed using Level 1 are recognized by any OS/2 version above 2.x; however
+level 2 compressed fixups will work only in OS/2 Warp 3.0 with (fixpack #17
+(I believe)) and above (Warp 4.0 too). Note that when /MF1 or /MF2 is in
+use, the /U{+|-} option is ignored - module is always unpacked first. </dd>
+  <dt><b>/N(B|L|A|+|-)</b> </dt>
+  <dd>[N]E executables: convert into LX (+) or reject (-) modules that are 
+[B]ound, not [L]FN-aware or [A]ll. For more information about [B] and [L]
+option see the 'Features' section above. For example, the /NA- option will
+instruct lxLite not to convert NE files into LX, the /NA+ will instruct to
+convert always; the /NA-LB+ will instruct lxLite to convert ONLY non-[L]FN-aware
+and [B]ound executables, the /NA+LB- will instruct lxLite to convert [A]ll
+except non-[L]FN-aware and [B]ound executables. </dd>
+  <dt><b>/O(X|D|S|A|+|-){:%}</b> </dt>
+  <dd>[O]utput e[X]tra/[D]ebug/[S]tub data into an external file; filename
+is determined by applying mask % onto original filename. Data is written [A]lways
+in the A+ state and only when removed in the A- state. For example, the /OD:*.$d$
+switch will have effect on the TEST.EXE executable which contains debug info
+only when you choose to discard it and will place it into the file TEST.$d$. 
+  </dd>
+  <dt><b>/P{+|-}</b> </dt>
+  <dd>Enable (+) or disable (-) pause before each file. The program shows
+the name of file which will be processed and offers a choice to continue
+or to abort. </dd>
+  <dt><b>/Q{+|-}</b> </dt>
+  <dd>Query all configuration options. Basically it simply types a colored 
+version of lxLite.cfg file through a MORE-style filter :-) All other options
+on the command line (if any) are ignored. </dd>
+  <dt><b>/R{+|-}</b> </dt>
+  <dd>Enable (+) or disable (-) [R]ecursive file search through subdirectories. 
+  </dd>
+  <dt><b>/S{+|-}</b> </dt>
+  <dd>Show (+) or don`t show (-) configuration in effect. This is useful
+for examining which settings are stored into .CFG file, especially for linked 
+configurations (see below). For example lxLite /Cdefault /S will show the
+default settings. </dd>
+  <dt><b>/T{:%}</b> </dt>
+  <dd>Use specified file as new DOS stub. DOS stub is (usualy) a tiny DOS
+.EXE file linked to OS/2`s module which is typicaly used to type an error 
+message in the case if the executable is not run from DOS command line. Usually
+this looks like:<br>
+ <br>
+ This is an OS/2 executable module<br>
+ <br>
+ Along with lxLite are enclosed two stubs: stub_min.bin and stub_vdm.bin. 
+First is the standard `type-error-and-exit` type, but it is slightly smaller
+than usual stubs used by various linkers. The second is an stub which starts
+a new OS/2 session and runs program from it again. If OS/2 is not detected
+it types the same error message and exits. The default for stub_vdm.bin is
+to let OS/2 decide the type of your executable itself. Alternatively, you
+can specify the type of session to be started by stub_vdm.bin. For this you
+need any hex editor - find the pattern `SesType-&gt;' in stub and replace
+the byte that comes after arrow (-&gt;) by needed session type. OS/2 recognizes
+next session types: 
+    <ul>
+ <li>00 - OS/2 session manager determines type (default) </li>
+      <li>01 - OS/2 full-screen session </li>
+      <li>02 - OS/2 windowed session </li>
+      <li>03 - PM application </li>
+      <li>04 - VDM full-screen session </li>
+      <li>07 - VDM windowed session </li>
+    </ul>
+ 
+    <p> You can use stubs to do some neat tricks. Say you have two executables: 
+ZIP for OS/2 and ZIP for DOS (I mean GNU ZIP, not PKZIP). They offer the same
+interface, does the same thing and share the same name. To avoid conflicts
+(and avoid placing them in different directories) you can link them both
+together into one EXE file which can be ran either from DOS or OS/2 mode.
+This can be achieved by following command line: </p>
+ <cite>lxLite /t:dos\zip.exe os2\zip.exe</cite> 
+    <p> If stub size is bigger than certain threshold size (default - 1024
+bytes) it will not be replaced. This is done since stubs of bigger size usualy 
+does something useful (for example, this can be already an 'dual-mode' executable).
+It is useful for batch conversions and not too useful when you do tricks
+like described above: so you can wish to change this threshold value to zero.
+This can be achieved using the /Z switch (see below for details). </p>
+ </dd>
+  <dt><b>/U{+|-}</b> </dt>
+  <dd>Enable (+) or disable (-) unpacking file before packing. lxLite know
+how to unpack any of two packing methods described, so default option state 
+is enabled. Disable it only when compression time savings are more important
+than disk space savings. This option is ignored (and file is anyway unpacked)
+when /MF2 packing is enabled. </dd>
+  <dt><b>/V[{0123OCRNMPEFXD}{+|-}]</b> </dt>
+  <dd>[V]erbose (show a lot of file information).<br>
+ This is a switch for curious ones :-) It has different levels of verbosity,
+you can choose which kind of information to include in overall output. For
+example: /V0-12+3-O+. Here is an detailed description of what each key shows: 
+    <ul>
+ <li>0<br>
+ Show basical information about executable: 
+        <ul>
+ <li> module type </li>
+          <li> required CPU </li>
+          <li> module version </li>
+          <li> page size (on Intel platform always 4096 :-) </li>
+          <li> page shift </li>
+          <li> object count </li>
+          <li> resource count </li>
+          <li> imported entries count </li>
+          <li> debug info size </li>
+          <li> start object and EIP </li>
+          <li> stack object and ESP </li>
+          <li> module name </li>
+          <li> module description </li>
+        </ul>
+ </li>
+      <li>1 
+        <ul>
+ <li> OS required to run the executable (always OS/2 :-) </li>
+          <li> Number of pages present in file </li>
+          <li> Fixup table overall size </li>
+          <li> Fixup table overall CRC </li>
+          <li> Resident portion of header size </li>
+          <li> Resident portion of header CRC </li>
+          <li> Automatical data object (valid only for 16-bit executables) 
+          </li>
+          <li> Number of preloaded pages </li>
+          <li> Additional stack size (has no effect in LX files) </li>
+          <li> Heap size (extra auto-data-object size; has no effect in LX
+files) </li>
+        </ul>
+ </li>
+      <li>2 
+        <ul>
+ <li> Uncompressed Page data offset (relative to LX header) </li>
+          <li> Compressed data offset (relative to LX header) </li>
+          <li> Page fixup table offset (relative to LX header) </li>
+          <li> Fixup table offset (relative to LX header) </li>
+          <li> Imported modules table offset (relative to LX header) </li>
+          <li> Debug Info data offset (absolute) </li>
+        </ul>
+ </li>
+      <li>3 
+        <ul>
+ <li> Object Table offset (relative to LX header) </li>
+          <li> Resource Table offset (relative to LX header) </li>
+          <li> Object Page Map Table offset (relative to LX header) </li>
+          <li> Module Directives Table offset (relative to LX header) </li>
+          <li> Non-resident name table offset (relative to LX header) </li>
+          <li> Non-resident name table size </li>
+          <li> Imported procedures table offset (relative to LX header) </li>
+          <li> Entry points table offset (relative to LX header) </li>
+        </ul>
+ </li>
+      <li>O<br>
+ Show object info (i.e. information about objects contained in file). Output
+looks as follows: 
+        <pre>## - Base --- Size --R-W-E-Res-Dis-Shr-Pre-Inv-Swp-Rsd-Loc-A16-32B-Cnf-IOP-<br> 1 00010000 00001000 Y Y Y  Y   Y   Y   Y   Y   Y   Y   Y   Y   Y   Y   Y<br></pre>
+ 
+        <dl>
+          <dt>## </dt>
+          <dd>Object`s ordinal number </dd>
+          <dt>Base </dt>
+          <dd>Object`s base address, i.e. linear address at which it can
+be placed without applying self-addressing fixups </dd>
+          <dt>Size </dt>
+          <dd>Size of the object </dd>
+        </dl>
+ Further follows object`s flags which describe different attributes of object: 
+        <ul>
+ <li> R - Object is readable </li>
+          <li> W - Object is writable </li>
+          <li> E - Object is executable </li>
+          <li> Res - Object is resource </li>
+          <li> Dis - Object is discardable </li>
+          <li> Shr - Object is shared among instances (DLLs only) </li>
+          <li> Pre - Object must be preloaded (this doesn`t work as far as
+I know) </li>
+          <li> Inv - Object is invalid </li>
+          <li> Swp - Object is swappable </li>
+          <li> Rsd - Object is resident (for ring 0 drivers only, AFAIK) </li>
+          <li> Loc - Object can be long-term locked (drivers only) </li>
+          <li> A16 - Alias16, object has an alias in 16:16 format </li>
+          <li> 32B - Object is 32-bit </li>
+          <li> Cnf - Object is code-conforming (16-bit drivers only, never
+seen it) </li>
+          <li> IOP - I/O priviledge. Object is authorised to access I/O ports. 
+          </li>
+        </ul>
+ </li>
+      <li>C<br>
+ Object [C]ontents: show pages which makes object. This key enforces /VO. 
+Output looks something like: 
+        <pre>++- Index --+ FileOffs + Size + Attribute +<br> + 00000001 + 00012340 + 0123 + LZ-packed +<br></pre>
+ 
+        <dl>
+          <dt>Index </dt>
+          <dd>Page number in executable (absolute, not relative) </dd>
+          <dt>FileOffs </dt>
+          <dd>Offset of page data in file (absolute) </dd>
+          <dt>Size </dt>
+          <dd>Size of page data in file </dd>
+          <dt>Attribute </dt>
+          <dd>Page attribute: </dd>
+          <dt>Valid </dt>
+          <dd>An valid unpacked page </dd>
+          <dt>RL-packed </dt>
+          <dd>Compressed using Run-Length encoding (EXEPACK) </dd>
+          <dt>Invalid </dt>
+          <dd>Page is invalid </dd>
+          <dt>Zeroed </dt>
+          <dd>Page must be zeroed </dd>
+          <dt>Range </dt>
+          <dd>???, no info, never seen one </dd>
+          <dt>LZ-packed </dt>
+          <dd>Compressed using Lempel-Ziv encoding (EXEPACK2) </dd>
+        </dl>
+ </li>
+      <li>R<br>
+ [R]esident Names Table: This is an table which usually contains all exported
+by name procedures. First entry always contains module name. Display format: 
+        <pre>+ Indx + Name ----------------------------------------------<br>| 0000 | TCPIPDLL<br>| 0001 | _dn_skipname<br>| 0002 | _res_query<br>| 0003 | _writev<br>[.....................]<br>+ 006F + _gethostent<br></pre>
+ 
+        <dl>
+          <dt>Indx </dt>
+          <dd>This is the index into the Module Entry Table which describes 
+the actual address of routine </dd>
+          <dt>Name </dt>
+          <dd>The name of routine as it is imported into other programs. </dd>
+        </dl>
+ </li>
+      <li>N<br>
+ [N]on-Resident Name Table: This is an table which contains miscelaneous entry
+points which are not exported. First entry contains module description (if
+defined). Display format is the same as above. </li>
+      <li>M<br>
+ Imported [M]odule Names Table: This table contains names of all external
+dynamic-link libraries which uses current module. Display format:<br>
+ 
+        <pre>+ Indx + Offs + Name ---------------------------------------<br>| 0001 | 0000 | SO32DLL<br>| 0002 | 0008 | TCP32DLL<br>| 0003 | 0011 | so32dll<br>| 0004 | 0019 | tcp32dll<br>| 0005 | 0022 | DOSCALLS<br>| 0006 | 002B | NLS<br>| 0007 | 002F | MSG<br>+ 0008 + 0033 + setloc1<br></pre>
+ 
+        <dl>
+          <dt>Indx </dt>
+          <dd>Index into the module names table; This is often used in fixup
+records although lxLite resolve such references automatically and shows directly
+entry name. </dd>
+          <dt>Offs </dt>
+          <dd>Offset in the table = sum of lengths of all previous names.
+This is not used for Module Names Table but is used for Procedure Names Table
+which is displayed in similar format. </dd>
+          <dt>Name </dt>
+          <dd>The name of entry. </dd>
+        </dl>
+ </li>
+      <li>P<br>
+ Imported [P]rocedure Names Table: This table contains names of all external
+procedures which are imported by name. Display format is similar to Module
+Names Table. </li>
+      <li>E<br>
+ Module Entry Table: This is an table which defines some entry points into
+the current module; not neccessarily all entry points are defined here: only
+those which are exported MUST be defined here. Here is an sample display: 
+        <pre>+ Indx + Entry Type + Entry Attributes ---------------------<br>| 0005 |    0:32    | 1:00000000, Exported, Shared Data<br>| 000B |    0:32    | 1:00008C90, Exported, Shared Data<br>| 000C |    0:32    | 1:00008FB4, Exported, Shared Data<br>| 002B |    16:16   | 4:02EC, Exported, Shared Data<br>| 002E |    0:32    | 1:00009468, Exported, Shared Data<br>+ 0056 +    0:32    + 1:00001448, Exported, Shared Data<br></pre>
+ 
+        <dl>
+          <dt>Indx </dt>
+          <dd>Index into the entry table. Entry table is always sequential,
+and all 'holes' between indices are filled with 'unused' entry points (for
+example, entry point index 10 cannot follow index 5: there must be entries
+6,7,8,9 between them marked as 'unused'). lxLite doesn`t show 'unused' entries
+since this is unuseful; however they are there, just for your information. 
+          </dd>
+          <dt>Entry Type </dt>
+          <dd>Type of entry point. Entry points can be located in different 
+segments (16-bit, 32-bit, it can be an Call Gate etc), so OS/2 needs a flag
+which will describe how to handle each entry point. There are also "forwarders"
+- fake entry points into the module which are in fact redirected into another
+module. For example, PMWIN.DLL, PMGPI.DLL and many other DLLs are simply
+a bunch of forwarders which all points to PMMERGE.DLL. </dd>
+          <dt>Entry Attributes </dt>
+          <dd>These depends of the entry type. For example, 0:32 entries
+has Object:Offset32 attribute, 16:16 entries have Object:Offset16 attribute,
+forwarders have attributes which describe to which module and which procedure
+to redirect this entry etc. </dd>
+        </dl>
+ </li>
+      <li>F<br>
+ [F]ixup table. This is useful, I think, only for me and, may be, for those
+who write compilers :-) Display format: 
+        <pre>+ Object index: 1 Page index: 1 Absolute page: 1<br>| 32-bit relative offset of import SETLOC1.4<br>| 045C 0494 04B8<br>| 32-bit relative offset of import SETLOC1.5<br>| 035F 0CBA<br>[.....................]<br>+ Object index: 1 Page index: 2 Absolute page: 2<br>| 32-bit relative offset of import SETLOC1.4<br>| 02B6 0328 0354 090E<br>[.....................]<br>+ Object index: 1 Page index: 42 Absolute page: 42<br>| 32-bit relative offset of import DOSCALLS.256(DosSetFilePtr)<br>| 066F 0C5D 0CD5<br>| 32-bit relative offset of import DOSCALLS.272(DosSetFileSize)<br>| 0CB2<br>| 32-bit relative offset of import DOSCALLS.273(DosOpen)<br>| 0B9D<br>[.....................]<br></pre>
+ Imports by ordinals are handled in a special way: lxLite has a resource table
+which contains information which allows lxLite to transform MODULE:ORDINAL
+form into an MODULE:NAME pair. By default lxLite contains a list of ordinals
+for all base OS/2 DLL`s, but if you want to add your own or if you need something
+special, you can add your module entries to lxLite.rc file in the API subdirectory
+and then to re-attach resources to lxLite (using Resource Compiler). </li>
+      <li>X<br>
+ Always inform about e[X]tra data contained in module (in spite of /ZX{:#}
+setting). </li>
+      <li>D<br>
+ Always inform about [D]ebug info contained in module (in spite of /ZD{:#}
+setting). </li>
+    </ul>
+ </dd>
+  <dt><b>/W(W|S|+|-)</b> </dt>
+  <dd>[W]rite (+) or [S]imulate writing of resulting file. In the /WW- state 
+lxLite will do nothing (useful for /V option); in the /WS+ state lxLite will
+even display compression ratio, but won`t alter the module file on disk.
+Useful for /V{...} switch, but also can be useful for debugging your options. 
+  </dd>
+  <dt><b>/X{+|-}</b> </dt>
+  <dd>e[X]pand (+) or pack (-) given files. Use this switch to decompress
+files. lxLite can decompress files which has been compressed by itself as
+well as by other programs which uses standard methods (i.e. Resource Compiler,
+LINK386, REPACK). It is NOT identical to /c:Unpack option. </dd>
+  <dt><b>/Y[U|X|B|C|D]{?}</b> </dt>
+  <dd>auto-repl[Y] '?' on one of questions: 
+    <ul>
+ <li> file in [U]se /Answer: [R]eplace, [S]kip, [A]bort/ </li>
+      <li> [D]ebug info in file /Answer: [D]iscard, [L]eave, [S]kip, [A]bort/ 
+      </li>
+      <li> e[X]tra data in file /[D]iscard, [L]eave, [S]kip, [A]bort/ </li>
+      <li> [B]ackup file exists /[O]verwrite, [N]o backup, [S]kip, [A]bort/ 
+      </li>
+      <li> [C]onfirmation on /P+ /[P]rocess, [S]kip, [A]bort/ </li>
+    </ul>
+ If reply (?) is missing, lxLite will ask you interactively each time. When 
+lxLite asks you a question, you can press Alt+letter which will set the default
+answer for all following similar questions. </dd>
+  <dt><b>/Z[X|D|S{:#}]</b> </dt>
+  <dd>This option sets the `threshold` si[Z]e for e[X]tra, [D]ebug, or [S]tub
+data contained in the module. If size is under givenšthreshold then the data
+is discarded. When {:#} is ommited, threshold is considered VERY big.</dd>
+  <dd>In stub case this option helps lxLite to determine whether the stub
+is a `dummy` one, or it is a functional program. There are a number of programs
+(for example, \os2\xdfloppy.exe) which runs both under DOS and OS/2 - in
+such programs DOS executable is implemented into OS/2`s LX as a DOS stub.
+By default lxLite considers all stubs bigger than 1024 bytes as functional
+programs, and therefore for such executables the /T{:%} option has no effect.
+If you want stub to be always replaced, use the /ZS option. If you want to
+disable the /T option, use /ZS:-1. </dd>
+  <dt><b>/?,/H</b> </dt>
+  <dd>Show a brief help. This is useful when you forget a particular switch 
+from all that list :-) </dd>
+</dl>
+ 
+<hr> <a href="lxlite.html">Title page</a> | <a href="lxLite_intro.html">Introduction</a>
+| <a href="lxLite_features.html">Features</a> | <a
+ href="lxLite_config.html">Configuration file</a> | <a
+ href="lxLite_errors.html">Error messages</a> | <a
+ href="lxLite_bugs.html">Bugs and limitations</a> | <a
+ href="lxLite_thanks.html">Thanks...</a> | <a href="lxUtil.html">Utility
+Pack</a> | <a href="apz.html">Author info</a> 
+</body>
+</html>

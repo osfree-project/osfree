@@ -1,11 +1,14 @@
 @echo off
 
 set vpbase=f:\dev\vp21
-set PATH=%vpbase%\bin.os2;%PATH%
+set watcom=f:\dev\watcom
+set PATH=%vpbase%\bin.os2;%watcom%\binp;%PATH%
+rem set INCLUDE=f:\os2tk45\h;%INCLUDE%
 set BEGINLIBPATH = %vpbase%\bin.os2;
 
-set vpcopt=/$P+ /$S- /$Speed- /$I- /$AlignCode- /$AlignData- /ucommon;%vpbase%\units.os2;%vpbase%\source\rtl;%vpbase%\source\os2 /i%vpbase%\source\rtl /l%vpbase%\lib.os2 /oout /m
-set rcopt=-r -n -i %vpbase%\source\rtl
+set vpcopt=/$P+ /$S- /$Speed- /$I- /$AlignCode- /$AlignData- /$Delphi+ /ucommon;%vpbase%\units.os2;%vpbase%\source\rtl;%vpbase%\source\os2 /i%vpbase%\source\rtl /l%vpbase%\lib.os2 /oout /m
+rem set rcopt=-r -n -i %vpbase%\source\rtl
+set rcopt=-bt=os2 -r -zm -i=%vpbase%\source\rtl -i=%watcom%\h\os2
 
 if .%_4ver%. == .. goto okay
 echo This batch file is best viewed with CMD.EXE :-)
@@ -17,18 +20,18 @@ mkdir out 1>nul 2>nul
 
 rem ************* first, compile resources ***************
 
-if exist sysIcons.res goto skip1
-rc %rcopt% sysIcons.rc
+if exist out\sysIcons.res goto skip1
+wrc %rcopt% sysIcons.rc -fo=out\sysIcons.res
 if errorlevel == 1 goto Error
 :skip1
 
-if exist lxlite.res goto skip2
-rc %rcopt% lxLite.rc
+if exist out\lxlite.res goto skip2
+wrc %rcopt% lxLite.rc -fo=out\lxLite.res
 if errorlevel == 1 goto Error
 :skip2
 
 if exist os2api.res goto skip3
-rc %rcopt% os2api.rc
+wrc %rcopt% os2api.rc -fo=out\os2api.res
 if errorlevel == 1 goto Error
 :skip3
 
@@ -57,13 +60,13 @@ vpc %vpcopt% unLock.pas
 if errorlevel == 1 goto Error
 :skip8
 
-copy out\lxLite.exe     ..\lxLite\      1>nul
-copy out\chCase.exe     ..\lxLite\      1>nul
-copy out\noEA.exe       ..\lxLite\      1>nul
-copy out\sysIcons.exe   ..\lxLite\      1>nul
-copy out\unLock.exe     ..\lxLite\      1>nul
+rem copy out\lxLite.exe     ..\lxLite\      1>nul
+rem copy out\chCase.exe     ..\lxLite\      1>nul
+rem copy out\noEA.exe       ..\lxLite\      1>nul
+rem copy out\sysIcons.exe   ..\lxLite\      1>nul
+rem copy out\unLock.exe     ..\lxLite\      1>nul
 
-echo Well done. Now change to ..\ directory and run m_lxLite.cmd
+rem echo Well done. Now change to ..\ directory and run m_lxLite.cmd
 
 exit
 

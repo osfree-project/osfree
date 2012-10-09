@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+<TITLE>Known bugs and limitations</TITLE>
+</HEAD>
+<BODY TEXT="#FFFFFF" LINK="#00D0D0" VLINK="#00FFFF" BACKGROUND="img/texture6.gif">
+<H1>Known bugs and limitations</H1>
+<P>
+Here are a list of executables which failed for some reasons to work
+packed; avoid packing them (lxLite will do it automatically, but if you
+renamed them lxLite will not recognize them).</P>
+<UL>
+<LI>PMJPEG. However, even IBM`s REPACK cannot repack it, so I think
+this is because of either a bug in a linker used to generate it (and its
+executable has a strange structure) or a kind of debug protection (executable
+checksum checking?)
+<LI>VX-REXX executables. The main body of such executables (REXX ciphered
+code) is simply appended to a small LX stub. Such executables have an
+unknown structure and after lxLite packs its stub they become completely
+obsolete.
+<LI>Watcom C & C++ v>=10.0. Seems that Watcom likes to append garbage to LX
+files. These executables are meant for running in both OS/2 and DOS sessions
+and also have a strange structure.
+<LI>InterCom since it is protected from any kind of tampering.
+<LI>\OS2BOOT. OS2LDR expects OS2BOOT to be in NE format.
+</UL>
+<HR>
+<A HREF="lxlite.html">Title page</A> |
+<A HREF="lxLite_intro.html">Introduction</A> |
+<A HREF="lxLite_features.html">Features</A> |
+<A HREF="lxLite_switches.html">Command-line switches</A> |
+<A HREF="lxLite_config.html">Configuration file</A> |
+<A HREF="lxLite_errors.html">Error messages</A> |
+<A HREF="lxLite_thanks.html">Thanks...</A> |
+<A HREF="lxUtil.html">Utility Pack</A> |
+<A HREF="apz.html">Author info</A>
+</BODY>
+</HTML>

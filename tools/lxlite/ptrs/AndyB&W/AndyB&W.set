@@ -1,0 +1,24 @@
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+;  Sample OS/2 system pointers definition file for SysIcons
+; Copyright (c) 1995 by FRIENDS software  All Rights Reserved
+;컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
+ARROW           arrow.ptr
+TEXT            text.ptr
+WAIT            wait.ptr
+MOVE            move.ptr
+SIZENESW        sizenesw.ptr
+SIZENWSE        sizenwse.ptr
+SIZEWE          sizewe.ptr
+SIZENS          sizens.ptr
+ILLEGAL         illegal.ptr
+
+; Common pointers
+APPLICATION     ..\AndyPtrs\applicat.ptr
+INFORMATION     ..\AndyPtrs\info.ptr
+QUESTION        ..\AndyPtrs\question.ptr
+ERROR           ..\AndyPtrs\error.ptr
+WARNING         ..\AndyPtrs\warning.ptr
+DEFFILE         ..\AndyPtrs\file.ptr
+DEFFOLDER       ..\AndyPtrs\folder.ptr
+MULTFILE        ..\AndyPtrs\multfile.ptr
+DEFPROGRAM      ..\AndyPtrs\program.ptr
