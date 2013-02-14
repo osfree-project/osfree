@@ -10,8 +10,9 @@ PROJ        = sub32
 DESC        = Base Subsystems API
 srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e) &
               $(p)strnlen$(e) $(p)unimplemented$(e)
-ADD_COPT    = -i=..\include -s
-ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib,clib3r
+ADD_COPT    = -i=..$(SEP)include -s
+# Can't find  ,cmd_shared.lib
+ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,clib3r
 NOLIBS  = 1
 DLL     = 1
 DLLOPT  = initglobal

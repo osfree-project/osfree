@@ -3,10 +3,20 @@
  */
 
 #define  INCL_BSE
-#define  INCL_KBD
+/* #define  INCL_KBD */
 
 #include <os2.h>
 #include <stdio.h>
+
+/* Copy declaration so we don't need INCL_KBD */
+#define  DO_KBD
+#include <copied_decl.h>
+/* Watcoms declaration:
+ USHORT APIENTRY16 KbdStringIn(PCH,PSTRINGINBUF,USHORT,HKBD); */
+
+
+
+
 
 USHORT APIENTRY
 KbdStringIn (PCH pch,

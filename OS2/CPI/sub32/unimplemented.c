@@ -5,12 +5,18 @@
 
 #include <strnlen.h>
 
-#define INCL_KBD
-#define INCL_MOU
-#define INCL_VIO
+/*#define INCL_KBD*/
+/*#define INCL_MOU */
+/*#define INCL_VIO*/
 #define INCL_PMAVIO
-#define INCL_DOSMONITORS
+/*#define INCL_DOSMONITORS*/
 #include <os2.h>
+
+#define  DO_VIO
+#define  DO_KBD
+#define  DO_MOU
+#define  DO_DOSMONITORS
+#include <copied_decl.h>
 
 #include <stdio.h>
 #include <stdarg.h>
