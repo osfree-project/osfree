@@ -1,3 +1,4 @@
+#!/usr/local/bin/rexx
 /*  Set environment variables */
 
 parse arg cfg
@@ -106,6 +107,8 @@ do i = 1 to words(vars)
      then val = translate(val, '/:', '\;')
   call value var, val, env
   say var || '=' || val
+  if os == 'UNIX' | os == 'LINUX'
+     then 'export ' || var
 end
 
 if os == 'OS2' then 'set beginlibpath=' || beginlibpath
