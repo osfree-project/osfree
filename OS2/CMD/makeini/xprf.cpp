@@ -745,8 +745,8 @@ APIRET xprfOpenProfile(const char *pcszFilename,    // in: profile name
                             &ulAction,
                             1024,          // initial size
                             FILE_NORMAL,
-                            OPEN_ACTION_CREATE_IF_NEW
-                               | OPEN_ACTION_OPEN_IF_EXISTS,
+                            /*OPEN_ACTION_CREATE_IF_NEW
+                               |*/ OPEN_ACTION_OPEN_IF_EXISTS,
                             OPEN_FLAGS_FAIL_ON_ERROR
                                | OPEN_FLAGS_SEQUENTIAL
                                | OPEN_SHARE_DENYREADWRITE
@@ -1187,7 +1187,7 @@ APIRET xprfQueryKeysForApp(PXINI hIni,      // in: INI handle
     ULONG   ulSizeOfKeysList = 0;
 
     // get size of keys list for pszApp
-    if (!xprfQueryProfileSize(hIni, pcszApp, NULL, &ulSizeOfKeysList))
+    if (/*!*/ xprfQueryProfileSize(hIni, pcszApp, NULL, &ulSizeOfKeysList))
         arc = PRFERR_KEYSLIST;
     else
     {
@@ -1199,7 +1199,7 @@ APIRET xprfQueryKeysForApp(PXINI hIni,      // in: INI handle
         else
         {
             *pKeys = 0;
-            if (!xprfQueryProfileData(hIni, pcszApp, NULL, pKeys, &ulSizeOfKeysList))
+            if (/*!*/ xprfQueryProfileData(hIni, pcszApp, NULL, pKeys, &ulSizeOfKeysList))
                 arc = PRFERR_KEYSLIST;
         }
     }
