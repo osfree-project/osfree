@@ -16,6 +16,12 @@
 #define INCL_DOSERRORS			/* DOS error values    */
 #include <os2.h>
 
+#ifdef __GNUC__
+#define stricmp strcasecmp
+#include <sys/stat.h> 
+#include <errno.h>
+#endif
+
 #include "stringe.h"
 #include <iostream.h>
 #include <stream.h>

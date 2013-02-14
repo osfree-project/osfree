@@ -137,8 +137,8 @@ $Id: the.h,v 1.28 2002/06/09 09:26:16 mark Exp $
 #  include <ctype.h>
 #  include <fcntl.h>
 #  include <io.h>
-#  include <sys\types.h>
-#  include <sys\stat.h>
+#  include <sys/types.h>
+#  include <sys/stat.h>
 #  define ESLASH '\\'
 #  define ESTR_SLASH (CHARTYPE *)"\\"
 #  if defined(EMX)

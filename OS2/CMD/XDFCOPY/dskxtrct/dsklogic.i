@@ -41,9 +41,9 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
-#include <sys\stat.h>
-#include <sys\utime.h>
-#include <sys\types.h>
+#include <sys/stat.h>
+#include <sys/utime.h>
+#include <sys/types.h>
 #include <time.h>
 #include <direct.h>
 #include <string.h>

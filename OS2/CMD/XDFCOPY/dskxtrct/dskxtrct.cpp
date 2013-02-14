@@ -372,4 +372,3 @@ int main(int argc, char *argv[])
    PrintLogClose();
    return (Ctl.RCHigh);
 }
-

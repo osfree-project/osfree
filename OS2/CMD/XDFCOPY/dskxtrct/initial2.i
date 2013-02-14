@@ -22,6 +22,13 @@
 
 void PrintHelp();
 
+#ifdef __GNUC__
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#define strcmpi strcasecmp
+#include <sys/stat.h> 
+#include <errno.h>
+#endif
 
 /* ------------------ Initialize  ------------------- */
 

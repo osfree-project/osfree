@@ -123,14 +123,15 @@ int query(char *fmt, ... )
   */
 HFILE opendrive(char *drive)
   {
-  USHORT result;
+  /* USHORT result; */
+  ULONG result;
   HFILE  dHandle;
 
   if ((strlen(drive) != 2) || (drive[1] != ':'))
     _DosError = ERROR_INVALID_DATA;
   else
     do
-      {
+      { /* DosOpen(PCSZ,PHFILE,PULONG,ULONG,ULONG,ULONG,ULONG,PEAOP2); */
       _DosError = DosOpen(drive, &dHandle, &result, 0L, 0, FILE_OPEN, OPENFLAGS, 0L);
       if (_DosError == ERROR_NOT_READY)
         {
@@ -180,6 +181,11 @@ int readsource(HFILE hf)
     sourceLayout = NULL;
     gotSource = FALSE;
     }
+   /* Viking: Note, is this program meant to only compile for 16 bit?
+      32 bit
+      APIRET APIENTRY DosDevIOCtl(HFILE,ULONG,ULONG,PVOID,ULONG,PULONG,PVOID,ULONG,PULONG);
+      16 bit
+      USHORT APIENTRY DosDevIOCtl(PVOID,PVOID,USHORT,USHORT,HFILE); */
 
   /* Get source disk parameters */
   _DosError = DosDevIOCtl(&sourceParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);

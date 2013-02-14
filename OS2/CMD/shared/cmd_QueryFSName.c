@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <cmd_shared.h> /* comand line tools' shared functions and defines */
 

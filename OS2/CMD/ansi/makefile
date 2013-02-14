@@ -20,3 +20,5 @@ IMPORTS = &
 
 !include $(%ROOT)/mk/appsos2.mk
 
+qwe: .symbolic
+ $(SAY) $(COPT)

@@ -5,7 +5,7 @@
 
 #ifdef __LINUX__
 POINTER ID_RESOURCE "../shared/4os2.ico"
-#elsif
+#elif
 POINTER ID_RESOURCE "..\\shared\\4os2.ico"
 #endif
 rcinclude "option2.dlg"

@@ -41,18 +41,18 @@ $(PATH)$(PROJ).hlp: $(MYDIR)e.ipf
 HEADERS  = $(MYDIR)sty_dlg.h $(MYDIR)sty_help.h &
            $(MYDIR)sty_main.h $(MYDIR)sty_xtrn.h
 
-$(PATH)sty_main.obj: $(MYDIR)sty_main.c $(HEADERS)
+$(PATH)sty_main.obj: $(MYDIR)sty_main.c #$(HEADERS)
 
-$(PATH)sty_file.obj: $(MYDIR)sty_file.c $(HEADERS)
+$(PATH)sty_file.obj: $(MYDIR)sty_file.c #$(HEADERS)
 
-$(PATH)sty_edit.obj: $(MYDIR)sty_edit.c $(HEADERS)
+$(PATH)sty_edit.obj: $(MYDIR)sty_edit.c #$(HEADERS)
 
-$(PATH)sty_user.obj: $(MYDIR)sty_user.c $(HEADERS)
+$(PATH)sty_user.obj: $(MYDIR)sty_user.c #$(HEADERS)
 
-$(PATH)sty_init.obj: $(MYDIR)sty_init.c $(HEADERS)
+$(PATH)sty_init.obj: $(MYDIR)sty_init.c #$(HEADERS)
 
-$(PATH)sty_pnt.obj:  $(MYDIR)sty_pnt.c  $(HEADERS)
+$(PATH)sty_pnt.obj:  $(MYDIR)sty_pnt.c  #$(HEADERS)
 
-$(PATH)sty_dlg.obj:  $(MYDIR)sty_dlg.c  $(HEADERS)
+$(PATH)sty_dlg.obj:  $(MYDIR)sty_dlg.c  #$(HEADERS)
 
-$(PATH)sty_help.obj: $(MYDIR)sty_help.c $(HEADERS)
+$(PATH)sty_help.obj: $(MYDIR)sty_help.c #$(HEADERS)

@@ -23,8 +23,8 @@ DIRS = shared ansi   &
               helpmsg &
               keyb &
               label &
-              lvm &
-              lvmgui &
+              LVM &
+              LVMGUI &
               makeini &
               minicmd &
               mkdir &

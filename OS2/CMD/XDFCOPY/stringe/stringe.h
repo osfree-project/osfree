@@ -53,4 +53,3 @@ char * quoted(char * target, char * source);
    }
    #endif
 #endif
-
