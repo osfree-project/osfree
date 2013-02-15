@@ -24,13 +24,13 @@
    call usage
    exit - 1
  end
-
- if stream(diskimage, 'c', 'query exist') = '' then do
+say '' diskimage, 'c', 'query exists'
+ if stream(diskimage, 'c', 'query exists') = '' then do
    say diskimage' doesn''t exist!'
    exit -1
  end
 
- if stream(bsfile, 'c', 'query exist') = '' then do
+ if stream(bsfile, 'c', 'query exists') = '' then do
    say bsfile' doesn''t exist!'
    exit -1
  end

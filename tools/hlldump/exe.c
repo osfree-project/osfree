@@ -6,6 +6,10 @@
 #define FOR_EXEHDR          1           /* exe386.h flag */
 
 #include <newexe.h>
+#ifdef __LINUX__
+ #define DWORD unsigned long int 
+ #define WORD unsigned short int 
+#endif
 #include <exe386.h>
 #include <stdio.h>
 #include "hllfuncs.h"

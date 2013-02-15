@@ -1,3 +1,3 @@
 #!/bin/sh
 
-if [ ! -d $1 ] ; then mkdir $1 ; fi 
+if [ ! -d $1 ] ; then mkdir -f $1 ; fi 

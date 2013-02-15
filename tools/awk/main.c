@@ -34,7 +34,9 @@ const char      *version = "version 20040207";
 #include "awk.h"
 #include "ytab.h"
 
-//extern  char    **environ;
+#ifdef __GNUC__
+extern  char    **environ;
+#endif
 extern  int     nfields;
 
 int     dbg     = 0;

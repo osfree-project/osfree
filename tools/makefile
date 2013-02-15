@@ -6,6 +6,7 @@
 
 # Notes:
 # 1. UniAPI must come first here because used to produce API headers
+#Yacc needs z.lib which is built in the shared/z sub directory. Or maybe not?
 
 DIRS = scripts yacc LEX SED  UNIAPI awk &
        mkmsgf sc somcpp mkctxt critstrs freeinst libmmap os2386 &

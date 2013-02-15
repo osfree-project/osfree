@@ -7,15 +7,17 @@
 # First some useful definitions
 
 SHELL     = /bin/sh
-CC        = gcc -Wall -fwritable-strings -fPIC $(TWIN_CFLAGS)
-CXX       = c++ -Wall -fwritable-strings -fPIC $(TWIN_CFLAGS)
+# CC -fwritable-strings  CXX -fwritable-strings
+CC        = gcc -Wall  -fPIC $(TWIN_CFLAGS)
+CXX       = c++ -Wall  -fPIC $(TWIN_CFLAGS)
 CCSHARE   = $(CC)
 MAKE	  = make
 CPP       = gcc -E
 
-AR        = ar rc
+#rc
+AR        = ar
 RANLIB    = ranlib
-RC        = $(TWINDIR)/bin/rc/rc
+RC        = #$(TWINDIR)/bin/rc/rc
 
 YACC      = bison -y
 LEX       = flex
@@ -28,5 +30,6 @@ TOUCH     = touch
 SUBMAKE   = $(MAKE) 'TWINDIR=$(TWINDIR)'
 
 
-include /home/robf/src/twin/3.1.1/makeinclude/Makeinclude.config
+#include /home/robf/src/twin/3.1.1/makeinclude/Makeinclude.config
+include $(TWINDIR)/makeinclude/Makeinclude.config
 

@@ -281,6 +281,24 @@
 #endif
 #endif
 
+#ifdef UNIX
+/*#include <sys/stat.h>*/
+/*#include <unistd.h>*/
+#define NO_EXT_KEYS /* Added because of weird watcom defines for S_IFBLK ...*/
+#undef  S_ISBLK 
+#undef  S_ISLNK 
+#undef  S_ISSOCK
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
+#include "porting.h"
+#include <sys/stat.h>
+     /*#include <sys/types.h>
+       #include <sys/stat.h>
+       #include <fcntl.h>*/
+#endif
+
 extern unsigned short NBLOCK;
 extern unsigned short BLOCK_SIZE;
 extern void *MALLOC(size_t size);

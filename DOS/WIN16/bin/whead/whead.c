@@ -27,8 +27,9 @@
 #define	AWK		"awk"
 
 extern	int errno;
+#ifndef __GNUC__
 extern	char *sys_errlist[];
-
+#endif
 /* Global variables */
 char *entry_tbl;
 char *header_image;

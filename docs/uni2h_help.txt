@@ -1,0 +1,14 @@
+uni2h help
+
+Usage
+
+Switches
+e - emitter
+a - abifile
+
+    uni2h [-e <h | def>] [-a <abifile>] <uni file> <outfile>
+
+
+
+
+

@@ -6,7 +6,7 @@
 
 PROJ     = lzexpand
 DESC     = Windows file expansion library
-srcfiles = $(p)lzexpand$(e)
+srcfiles = $(p)LZExpand$(e)
 # linking dll file
 DLL     = 1
 EXPORTS = LZCOPY          .1, &

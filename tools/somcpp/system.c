@@ -52,7 +52,7 @@
 #else
 #include    "direct.h"
 #endif
-#if __WATCOMC__ < 1280
+#if __WATCOMC__ < 1280 && !defined(__LINUX__)
 #define getcwd( buf, size)  _getcwd( buf, size)
 #endif
 #elif   HOST_COMPILER == BORLANDC

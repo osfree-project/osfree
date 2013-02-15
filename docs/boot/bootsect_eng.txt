@@ -1,0 +1,274 @@
+--------------------------------------------------------------------------------------
+An attempt to translate bootsect.txt to english with Google Translate. Because I can't
+read the russian text, I have only made some minor changes from Google Translate's output.
+--------------------------------------------------------------------------------------
+
+
+Russian version of this document at the end of the file.
+
+
+FreeLdr bootsector description.
+~~~~~~~~~~~~~~~~~~~~~~
+     For now, this text is only available in russian. It will be translated to
+english later.
+
+
+Description of bootsector for FreeLdr.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This bootsector is intended for use in the loader FreeLdr
+system osFree (OS / 3) Download Micro File System Driver (MicroFSD, aka
+blackbox).  BlackBox - a plain DOS executable in the COM-format, ie, its
+size is theoretically limited to 64 Kbytes.  Therefore, this boot is also
+designed to download files up to 64 Kbytes.
+
+     Note. This loader simply loads an arbitrary file size up to
+64 KB as a sequence of sectors and transfers control to that file. File
+Georgia to determine the segment address and control is transferred to
+given at entry points located in this segment. How to segment and
+entry point configured - they can be arbitrary. The downloadable file can
+be any file of this size, but its primary purpose - to contain
+a MicroFSD. The ideology of the following: This boot does not understand any
+file system. His mission - to download Blackbox for a particular file system. 
+The meaning of metaphor BlackBox'a that there is one single executable file,
+who understands the format of a particular file system. 
+The remaining part of the boot independent
+from PS, they use Blackbox as a black box, which can read files
+This FS, all specifics of which is hidden inside this black box (English
+black box - a black box).
+BlackBox for it provides 4 functions: 
+    1) Open the file 
+    2) Close the file 
+    3) Read data from file 
+    4) Shutdown
+with the BlackBox.
+
+
+This boot has two versions. Both of them are compiled from a single
+the same source file. To get the first version must be set in
+makefile bootsector preprocessor symbol OLDCODE (ie, it is necessary
+uncomment to makefile-dOLDCODE). 
+
+The first version differs in that it 1) is compatible with IBM'ovskim
+butsektorom for FAT and can ship IBM FAT MicroFSD 2) Able to handle only
+unfragmented files. (IBM'ovsky FAT-butsektor also not able to ship
+fragmented files, but the size of IBM FAT MicroFSD - only 2-3 sector, but
+for more complex FS is not suitable, because Size MicroFSD much more
+and the likelihood of fragmentation increases. (For example: the size of ext2fs MicroFSD -
+30 sectors)). This version is appropriate when the download is guaranteed
+is not fragmented (or with high probability is
+so), for example, when it is not the file itself, and the remainder butbloka PS after
+butsektora, if such an area for a given FS is provided (for example, JFS, or
+HPFS). 
+
+The second version is not compatible with IBM FAT MicroFSD, but can ship
+fragmented file MicroFSD. It is more suitable when
+special area under bootblock not provided, for example, FAT12, FAT16, or
+"foreign" file systems, such as ext2fs (in front of ext2fs superblock for
+loader provides for only two sectors that are very small for MicroFSD).
+
+
+    Fields in bootsector (from end to beginning):
+
+    1) The bootsector signature: word, is the shift from the beginning 0x1FE
+bootsector and is 0x55AA.
+
+    2) ForceLBA: byte, offset 0x1FD, if this byte is equal to 1, support
+access via the LBA is not verified, and included mandatory.
+
+    i) The parameters of the first version (-dOLDCODE).
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    3) muFSDLen, byte (offset 0x1FC). Specifies the length of the uploaded file in the
+sectors.
+
+    4) muFSDAddr, dword (offset 0x1F8). Specifies the number of start-up sector
+downloadable file. This number is counted from the beginning of the section. (bootsector
+has the number 0).
+
+    5) muFSDEntry, word (offset 0x1F6). Specifies the offset of entry point
+download an executable file from the beginning of the segment.
+
+    6) muFSDLoadSeg, word (offset 0x1F4). Specifies the segment address, the
+which you are downloading.
+
+    ii) The parameters of the second version.
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    Unlike the first version, this version does not contain the address and length
+Download the file directly into bootsector. Instead, bootsector
+contains only the address of the secondary sector with a map location loaded
+File (allocation map sector). 
+
+    Greater detail. The second version includes support for booting bootsector
+fragmented files. The length of this file can be a maximum of 64
+KB. 64 Kb / 512 = 128 sectors. That is, the file may take a max. 128
+sectors. Max version of the fragmented file - the 128 sectors,
+scattered across the disk. To store the address of each sector need 4
+bytes. 4 * 128 == 512, ie, storage location map
+fragmented file length of 64 KB will need exactly one sector. This
+sector is an array of 128 4-byte pointers to the sectors.
+Each 4-byte double word specifies exactly one sector.
+
+    Sector with a map location downloadable file can be located anywhere
+anywhere on the disk. It can be both immediately after bootsector (as
+this is done with us when I boot the partition with the file system ext2fs: in ext2
+under the boot is reserved just 2 sectors, the first of them - bootsector,
+second - distribution map.) as well as anywhere in the FS file (as
+this occurs when booting from a FAT-partition). 
+
+    3) mapAddr: dword (offset 0x1F9), specifies the sector number with the card
+placing a loaded file. Number counted from the beginning of section (bootsector has the number 0).
+
+    4) muFSDEntry: word (offset 0x1F7), defines the entry point to the feed
+file.
+
+    5) mapLoadSeg: word (offset 0x1F5), sets the load address allocation
+map. The downloadable file is loaded immediately after the allocation map (ie, the
+segment address muFSDLoadSeg == mapLoadSeg + 0x20).
+
+    The downloadable file is downloaded in pieces in a sector according to the allocation
+map to be loaded immediately after the allocation map. That is, if we want
+for example, download a file from the segment address 0x5660, then you need to ask
+mapLoadSeg == muFSDLoadSeg - 0x20 == 0x5640.
+
+    Observations.
+
+    1) This bootsector uses LBA sectors to load from disk, if
+int 13h extensions supported by the BIOS. Otherwise, it uses
+function to read sectors through CHS. 
+
+    2) When you boot from a floppy this bootsector uses CHS, except
+order to initialize the floppy controller to work with disks with
+an unusual number of sectors per track.
+
+(c) Valery Sedletski, aka valerius
+(c) Valery Sedletskii, aka valerius,
+osFree project, 2006, Nov 12.
+
+----------------------------------------------------------------
+
+Описание бутсектора для FreeLdr.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+     Данный  бутсектор  предназначен  для  использования  в загрузчике FreeLdr
+системы  osFree  (OS/3)  для  загрузки Micro File System Driver (MicroFSD, aka
+blackbox).  BlackBox -- это обычный DOS executable в COM-формате, то есть, его
+размер  теоретически  ограничен  64  Кбайтами.  Поэтому данный загрузчик также
+рассчитан на загрузку файлов размером до 64 Кбайт.
+
+     Замечание.  Данный  загрузчик просто грузит произвольный файл размером до
+64  Кб как последовательность секторов и передает управление этому файлу. Файл
+грузится  по  определенному  сегментному  адресу  и  управление  передается по
+заданному  адресу точки входа, находящейся в этом сегменте. Как сегмент, так и
+точка  входа  настраиваются  --  они могут быть любыми. Загружаемый файл может
+быть любым файлом такого размера, но его первичное предназначение -- содержать
+в  себе  MicroFSD.  Идеология  следующая: Данный загрузчик не понимает никакой
+файловой  системы. Его предназначение -- загрузить Blackbox для конкретной ФС.
+Смысл  метафоры BlackBox'а в том, что есть один единственный исполняемый файл,
+который  понимает  формат конкретной ФС. Остальные части загрузчика независимы
+от  ФС,  они используют Blackbox как черный ящик, который умеет читать файлы с
+данной  ФС,  вся  специфика которой спрятана внутри этого черного ящика (англ.
+black  box  --  черный  ящик).  BlackBox для этого предоставляет 4 функции: 1)
+Открыть  файл 2) Закрыть файл 3) Прочитать данные из файла 4) Завершить работу
+с BlackBox.
+
+     Данный  загрузчик  имеет две версии. Обе из них компилируются из одного и
+того  же  исходного  файла.  Для  получения  первой версии необходимо задать в
+мейкфайле   бутсектора   препроцессорный   символ   OLDCODE   (т.   е.,   надо
+раскомментировать в мейкфайле -dOLDCODE).
+
+     Первая  версия  отличается  тем,  что  она  1)  совместима  с  IBM'овским
+бутсектором  для  FAT и может грузить IBM FAT MicroFSD 2) Умеет грузить только
+нефрагментированные  файлы.  (IBM'овский  FAT-бутсектор  тоже не умеет грузить
+фрагментированные  файлы,  но размер IBM FAT MicroFSD -- всего 2-3 сектора, но
+для более сложных ФС это не подходит, т.к. размер MicroFSD значительно больше,
+и вероятность фрагментации возрастает. (Для примера: размер ext2fs MicroFSD --
+30  секторов)).  Данная версия подходит, когда загружаемый файл гарантированно
+не  является  фрагментированным  (или  с  высокой  долей  вероятности является
+таким),  например,  когда это не файл как таковой, а остаток бутблока ФС после
+бутсектора,  если такая область для данной ФС предусмотрена (например, JFS или
+HPFS).
+
+     Вторая   версия  несовместима  с  IBM  FAT  MicroFSD,  но  может  грузить
+фрагментированный  файл  MicroFSD.  Она  более  подходит  в  том случае, когда
+специальной  области  под бутблок не предусмотрено, например, FAT12, FAT16 или
+"чужие"  файловые  системы,  такие  как ext2fs (в ext2fs перед суперблоком для
+загрузчика предусмотрено лишь два сектора, что очень мало для MicroFSD).
+
+     Поля бутсектора (от конца к началу):
+
+     1)  Сигнатура  бутсектора:  word,  находится  по смещению 0x1FE от начала
+бутсектора и равна 0x55AA.
+
+     2) ForceLBA: byte, смещение 0x1FD, если данный байт равен 1, то поддержка
+доступа через LBA не проверяется, а включается принудительно.
+
+     i) Параметры первой версии (-dOLDCODE).
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     3)  muFSDLen,  byte  (смещение  0x1FC). Задает длину загружаемого файла в
+секторах.
+
+     4)  muFSDAddr,  dword  (смещение  0x1F8). Задает номер стартового сектора
+загружаемого  файла.  Этот  номер  отсчитывается от начала раздела. (бутсектор
+имеет номер 0).
+
+     5)  muFSDEntry,  word  (смещение  0x1F6).  Задает  смещение точки входа в
+загружаемый исполняемый файл от начала сегмента.
+
+     6)  muFSDLoadSeg,  word  (смещение  0x1F4).  Задает  сегментный адрес, по
+которому производится загрузка.
+
+     ii) Параметры второй версии.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     В  отличие  от  первой  версии,  вторая  версия не содержит адрес и длину
+загружаемого  файла  непосредственно  в  бутсекторе.  Взамен  этого, бутсектор
+содержит только адрес дополнительного сектора с картой размещения загружаемого
+файла (allocation map sector).
+
+     Более  развернуто.  Вторая  версия бутсектора содержит поддержку загрузки
+фрагментированного  файла.  Длина  этого  файла  может  быть  как максимум, 64
+Кбайта. 64 Kb / 512 = 128 секторов. То есть, этот файл может занимать max. 128
+секторов.  Максимальный  вариант фрагментированного файла -- это 128 секторов,
+разбросанные по всему диску. Для хранения адреса каждого сектора потребуется 4
+байта.   4   *   128   ==   512,   то  есть,  для  хранения  карты  размещения
+фрагментированного файла длиной 64 Кб потребуется в точности один сектор. Этот
+сектор  представляет  собой  массив  из 128 4-х-байтных указателей на секторы.
+Каждое 4-байтное двойное слово указывает в точности на один сектор.
+
+     Сектор  с  картой  размещения  загружаемого файла может располагаться где
+угодно на диске. Он может находиться как непосредственно после бутсектора (как
+это  сделано  у  нас при загрузке с раздела с файловой системой ext2fs: в ext2
+под  загрузчик  зарезервировано как раз 2 сектора, первый из них -- бутсектор,
+второй  --  карта  распределения.), так и в любом месте области файлов ФС (как
+это имеет место при загрузке с FAT-раздела).
+
+     3)  mapAddr:  dword (смещение 0x1F9), задает номер сектора с  картой
+размещения загружаемого файла. Номер отсчитывается от начала раздела (бутсектор имеет номер 0).
+
+     4)  muFSDEntry:  word  (смещение 0x1F7), задает точку входа в загружаемый
+файл.
+
+     5)  mapLoadSeg:  word  (смещение 0x1F5), задает адрес загрузки allocation
+map.  Загружаемый  файл  грузится  сразу  после  allocation  map  (т.  е.,  по
+сегментному адресу muFSDLoadSeg == mapLoadSeg + 0x20).
+
+     Загружаемый  файл загружается по кускам в один сектор согласно allocation
+map  и  грузится непосредственно после allocation map. То есть, если мы хотим,
+например,  загрузить  файл  по  сегментному  адресу  0x5660,  то  нужно задать
+mapLoadSeg == muFSDLoadSeg - 0x20 == 0x5640.
+
+     Замечания.
+
+     1)  Данный  бутсектор  использует LBA для загрузки секторов с диска, если
+расширения  int  13h  поддерживаются BIOS'ом. В противном случае он использует
+функцию для чтения секторов через CHS.
+
+     2)  При  загрузке  с  флоппи-диска данный бутсектор использует CHS, кроме
+того,  производится  инициализация флоппи-контроллера для работы с дискетами с
+нестандартным количеством секторов в треке.
+
+
+(c) Valery  Sedletski, aka valerius
+(c) Валерий Седлецкий, aka valerius,
+osFree project, 2006, Nov 12.

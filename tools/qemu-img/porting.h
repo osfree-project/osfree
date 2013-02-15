@@ -2,7 +2,7 @@
  *
  */
 
-
+#undef EOPNOTSUPP
 #define	EOPNOTSUPP	45		/* Operation not supported */
 #define	ENOTSUP		EOPNOTSUPP	/* Operation not supported */
 

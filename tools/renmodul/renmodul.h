@@ -18,6 +18,11 @@ typedef enum
   LIST_NAMES
 } RenameAction;
 
+#ifdef __GNUC__
+#define _System
+#define stricmp strcasecmp
+#endif
+
 /* _System == APIENTRY */
 int _System RenameModule( char* Filename, 
 			  RenameAction action,

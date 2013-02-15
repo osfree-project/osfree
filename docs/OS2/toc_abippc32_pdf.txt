@@ -1,0 +1,159 @@
+abippc32.pdf TOC  osfree/trunk/docs/OS2/toc_abippc32_pdf.txt
+
+       Start page 7 in Evince PDF viewer is page 1 in document
+
+1       Introduction................................................. 1
+1.1         Revision Control......................................... 2
+
+
+2       Instruction Set ............................................. 3
+2.1         Restricted Instructions.................................. 4
+
+
+3       Data Representation.......................................... 5
+3.1         Byte Ordering ........................................... 6
+3.2         Scalar Types - Size and Alignment ....................... 8
+3.2.1            8-bit Integer ...................................... 8
+3.2.2            16-bit Integer ..................................... 8
+3.2.3            32-bit Integer ..................................... 8
+3.2.4            64-bit Integer ..................................... 9
+3.2.5            Pointer ............................................ 9
+3.2.6            Single Precision Floating Point .................... 10
+3.2.7            Double Precision Floating Point .................... 10
+3.2.8            Extended Precision Floating Point .................. 10
+3.3         Aggregates and Unions - Alignment and Padding ........... 12
+3.4         Unaligned Data Access.................................... 14
+3.5         Bit Fields .............................................. 16
+3.6         UTF-8 ................................................... 19
+
+
+4       Procedure Linkage Conventions................................ 21
+4.1         Registers ............................................... 22
+4.2         Stack Frames ............................................ 25
+4.3         Parameter Passing........................................ 28
+4.3.1            Variable Argument Lists ............................ 30
+4.3.1.1               C Language Implementation ..................... 31
+4.4         Return Values ........................................... 34
+
+
+5       System Object Model (SOM) Binary Interface................... 35
+5.1         Addressing, Calling Conventions, and Register Usage ..... 37
+5.2         SOM Class Library Structure ............................. 38
+5.3         SOM Objects and Object References ....................... 41
+5.4         SOM Method Table ........................................ 42
+5.5         SOM Ids ................................................. 43
+5.6         Basic Operations......................................... 44
+5.7         Method Resolution Mechanisms ............................ 45
+5.7.1            Using Offset Method Resolution ..................... 45
+5.7.2            Using Name Lookup Method Resolution ................ 46
+5.7.3            Using Dispatch Method Resolution ................... 47
+5.8         SOM Kernel Functions .................................... 48
+5.8.1            Required Functions ................................. 48
+5.8.2            Optional Functions ................................. 48
+5.8.3            Obsolete Functions ................................. 48
+5.9         SOM Kernel External Variables ........................... 49
+5.9.1            Required External Variables ........................ 49
+
+
+OS/2 Application Binary Interface for PowerPC (32-bit)
+5.9.2            Optional External Variables ........................ 49
+5.10         SOM Kernel Class\u2019 Release Order.................... 50
+5.10.1           SOMObject .......................................... 50
+5.10.2           SOMClassMgr ........................................ 50
+5.10.3           SOMClass ........................................... 50
+6       System Object Exception Handling............................. 53
+
+
+7       Execution Model.............................................. 55
+7.1          Code Model ............................................. 56
+7.2          Function Tags........................................... 58
+7.2.1            Long Form Function Tag Information ................. 60
+7.3          Code Examples .......................................... 63
+7.3.1            Function Prologue and Epilogue ..................... 63
+7.3.2            Static Data Access ................................. 71
+7.3.3            Function Calls ..................................... 73
+7.3.4            Dynamic Stack Space Allocation ..................... 74
+
+
+8       Resource File Format ........................................ 77
+8.1          Resource File .......................................... 78
+8.1.1            Resource File Header ............................... 78
+8.1.2            Resource File Identification ....................... 79
+8.1.3            Resource File PowerPC Processor-specific Information .. 80
+8.2          Resource Collection .................................... 81
+8.2.1            Resource Header .................................... 81
+8.3          Resource Item .......................................... 83
+
+
+9       Object and Load Module File Format .......................... 85
+9.1          ELF .................................................... 86
+9.1.1            ELF Operating System-specific Information .......... 86
+9.1.1.1                Sections ..................................... 86
+9.1.1.1.1                    Special Sections ....................... 88
+9.1.1.2                Symbol Table ................................. 89
+9.1.1.2.1                    Symbol Values .......................... 89
+9.1.1.3                Operating System Information ................. 91
+9.1.1.3.1                    OS/2-specific Information .............. 92
+9.1.1.4                Import Table ................................. 92
+9.1.1.5                Export Table ................................. 94
+9.1.1.6                Resource Collection .......................... 95
+9.1.1.7                Segments ..................................... 95
+9.1.1.7.1                    Segment Permissions .................... 95
+9.1.1.7.2                    Segment Contents ....................... 97
+9.1.1.8                Dynamic Segment .............................. 99
+9.1.1.9                Initialization and Termination Functions ..... 102
+9.1.1.10               Hash Table ................................... 103
+9.1.2            ELF PowerPC Processor-specific Information ......... 104
+9.1.2.1                ELF Header ................................... 104
+
+
+9.1.2.1.1                   Machine Identification .................. 104
+9.1.2.2              Sections ....................................... 105
+9.1.2.2.1                   Special Sections ........................ 105
+9.1.2.3              Relocation ..................................... 106
+9.1.2.3.1                   Relocation Types ........................ 106
+9.1.2.4              Dynamic Segment ................................ 111
+9.2         DWARF ................................................... 114
+9.2.1           DWARF PowerPC Processor-specific Information ........ 114
+9.2.1.1              Register Numbers ............................... 114
+
+
+10       Object Library File Format ................................. 117
+10.1        Archive File Format ..................................... 118
+10.2        Library File Format ..................................... 119
+10.2.1          LIB File Layout ..................................... 119
+10.2.2          LIB Header .......................................... 119
+10.2.3          LIB Members ......................................... 120
+10.2.4          LIB Special Members ................................. 121
+10.2.4.1             Symbol Table Member ............................ 121
+10.2.4.2             Long File Name String Table Member ............. 123
+10.2.4.3             Full File Name String Table Member ............. 123
+
+
+11       Process Creation and Dynamic Loading........................ 125
+11.1        Process Virtual Address Space............................ 126
+11.2        Process Initialization .................................. 131
+11.2.1          OS/2 Process ........................................ 131
+11.2.1.1             Dynamic Linking of Shared Services Dynamic Link Libraries .... 131
+11.2.2          Shared Services Process ............................. 132
+11.2.3          OS/2 Dynamic Link Library Initialization ............ 132
+11.3        Process Termination ..................................... 133
+11.3.1          OS/2 Dynamic Link Library Termination ............... 133
+11.4        Thread Information Block ................................ 134
+11.5        Global Offset Table (GOT) ............................... 135
+11.6        Procedure Linkage Table (PLT) ........................... 137
+
+
+Appendix A Compiler Support Extensions .............................. 141
+A.1         ELF...................................................... 142
+A.1.1           Sections ............................................ 142
+A.1.1.1              COMDAT Section ................................. 143
+A.1.1.2              Symbol Name Demangling ......................... 144
+A.1.1.3              Default Library ................................ 145
+A.1.2           Note Information .................................... 145
+A.1.2.1              Browser Information ............................ 146
+A.1.2.1.1                   Browser Information Records ............. 146
+A.1.2.2              Version Information ............................ 147
+A.1.2.3              Description Information ........................ 147
+
+

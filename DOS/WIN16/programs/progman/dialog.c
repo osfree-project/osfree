@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include "windows.h"
 #include "commdlg.h"
 #include "progman.h"
@@ -600,9 +602,9 @@ static BOOL DIALOG_Browse(HWND hDlg, LPCSTR lpszzFilter,
 static VOID DIALOG_AddFilterItem(LPSTR *p, unsigned int ids, LPCSTR filter)
 {
   LoadString(Globals.hInstance, ids, *p, MAX_STRING_LEN);
-  *p += lstrlen(*p) + 1;
+  *p += strlen(*p) + 1;
   lstrcpy(*p, filter);
-  *p += lstrlen(*p) + 1;
+  *p += strlen(*p) + 1;
   **p = '\0';
 }
 

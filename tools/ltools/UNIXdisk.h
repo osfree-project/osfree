@@ -108,6 +108,14 @@ extern void FREE(void *block);
     #define HDIO_GETGEO DKIOCGGEOM
 #else 
 //LINUX
+   #ifdef __WATCOMC__
+    #define __WATCOM_INT64__
+    #include <io.h> /* _lseeki64 */
+    #include <sys/ioctl.h>
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include "porting.h"
+   #endif
     #include <linux/hdreg.h>
 #endif 
 

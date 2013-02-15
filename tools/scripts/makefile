@@ -19,6 +19,7 @@ copy: .SYMBOLIC
  @if exist $(FILESDIR)$(SEP)tools @%quit
  @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
  #@for %i in ($(filelist)) do $(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
+ @$(SAY)  cd $(srcdir)
  @cd $(srcdir)
  @for %i in ($(filelist)) do $(CP) %i $(DEST)
  $(CD) $(MYDIR)

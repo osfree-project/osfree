@@ -6,7 +6,7 @@
 
 PROJ = qemu-img
 DESC = Generate/convert HDD images
-
+TARGETS = $(PROJ).exe $(PROJ)
 srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-cow$(e) $(p)block-qcow$(e) $(p)aes$(e) &
            $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
            $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e)

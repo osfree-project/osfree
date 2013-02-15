@@ -1,0 +1,22 @@
+These tools have problems with building with Open Watcom for Linux target. So build
+them with gcc instead.
+
+
+Awk (missing _popen/_pclose as used in missing95.c, only prototype exists in stdio.h)
+gcc b.c main.c parse.c proctab.c tran.c lib.c run.c lex.c ytab.c -lm  -o awk
+
+
+yacc (link problems with mktemp, only mkstemp is available)
+gcc -I. -I../include -DHAVE_CONFIG_H lr0.c allocate.c closure.c conflicts.c derives.c files.c getargs.c gram.c lalr.c lex.c main.c nullable.c output.c print.c reader.c reduce.c symtab.c warshall.c getopt.c getopt1.c -o yacc
+
+
+
+ltools (no support for linux/hdreg.h. Errors with macros: S_ISFIFO, S_ISCHR and S_ISDIR
+        Missing members in struct/union hd_geometry. Weird declarations in Watcoms io.h)
+
+gcc -DUNIX -DSANITY_CHECKS -D_FILE_OFFSET_BITS=64  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DNEWOUT main.c readdisk.c dir.c super.c inode.c group.c util.c rfs.c -o ldir
+
+
+
+
+

@@ -15,7 +15,7 @@ type
   Hfile  = LongInt;
   ULong  = LongWord;
   UShort = Word;
-
+{$I os2types.pas}
 procedure Open_Disk(Drive: AnsiString; var DevHandle: Hfile);
 procedure Read_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
 procedure Write_Disk(devhandle: Hfile; var buf; buf_len: Ulong);
@@ -51,7 +51,7 @@ begin
 
     if IOResult <> 0 then
     begin
-       writeln('Can''t open /proc/partitons');
+       writeln('Can''t open /proc/partitions');
        exit;
     end;
     while not eof(f) do

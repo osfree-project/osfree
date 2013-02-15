@@ -10,5 +10,5 @@ srcfiles = $(p)main$(e) $(p)directive$(e) $(p)eval$(e) $(p)expand$(e) &
 #Notes:
 # awk lex and yacc files not added to repository
 
-ADD_COPT = -i=..$(SEP)include -sg
+ADD_COPT = -i=..$(SEP)include -sg -d2
 STACKSIZE = 6553500

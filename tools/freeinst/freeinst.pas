@@ -239,11 +239,13 @@ Procedure Install_Fat;
 Var
   FH          : Integer;
   FreeLdr0:     Sector0Buf;
-
+  wDevHandle: Word;
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
 PartNr := 0;
-Open_Disk(Drive,DevHandle);            // Get drivehandle
+wDevHandle := DevHandle;
+Open_Disk(Drive,wDevHandle);            // Get drivehandle
+DevHandle := wDevHandle;
 Lock_Disk(devhandle);
 Read_Disk(devhandle,Sector0,Sector0Len);
 Unlock_Disk(devhandle);
@@ -267,7 +269,9 @@ If FH > 0 Then
   Writeln('OS/2 Error ',-FH,' opening FatBoot.bin');
   Halt(1);
   End;
-Open_Disk(Drive,DevHandle);            // Get drivehandle
+wDevHandle := DevHandle;
+Open_Disk(Drive,wDevHandle);            // Get drivehandle
+DevHandle := wDevHandle;
 Lock_Disk(devhandle);
 Write_Disk(devhandle,Sector0,Sector0Len);
 Unlock_Disk(devhandle);
@@ -302,10 +306,12 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
+  wDevHandle: Word;
 
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
-Open_Disk(Drive,DevHandle);            // Get drivehandle
+Open_Disk(Drive,wDevHandle);            // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 Read_Disk(devhandle,F32Buf,BblockLen);
 Unlock_Disk(devhandle);
@@ -366,7 +372,8 @@ With F32Buf Do
   FS := fat;
   End;
 
-Open_Disk(Drive,DevHandle);    // Get drivehandle
+Open_Disk(Drive,wDevHandle);    // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 {$ifdef OS2}
       Fat32FSctrl(Devhandle);
@@ -410,11 +417,13 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
+  wDevHandle: Word;
 
 Begin
 FillChar(HPbuf,SizeOf(HPbuf),0);
 PartNr := 0;
-Open_Disk(Drive,DevHandle);                   // Get drivehandle
+Open_Disk(Drive,wDevHandle);                   // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 Read_Disk(devhandle,HPbuf,BblockLen);          // Read 8k
 Unlock_Disk(devhandle);
@@ -473,7 +482,8 @@ With HPbuf Do
   FS := hpfs;
   End;
 
-Open_Disk(Drive,DevHandle);            // Get drivehandle
+Open_Disk(Drive,wDevHandle);            // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 Write_Disk(DevHandle,HPbuf,BBlockLen);
 Unlock_Disk(devhandle);
@@ -588,10 +598,12 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
+  wDevHandle:  Word;
 
 Begin
 //JFS_version_check;
-Open_Disk(Drive,DevHandle);                    // Get drivehandle
+Open_Disk(Drive,wDevHandle);                    // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 Read_Disk(devhandle,HPbuf,BblockLen);           // Read boot block
 Unlock_Disk(devhandle);
@@ -653,7 +665,8 @@ With HPbuf Do
   FS := jfs;
   End;
 
-Open_Disk(Drive,DevHandle);            // Get drivehandle
+Open_Disk(Drive,wDevHandle);            // Get drivehandle
+DevHandle:= wDevHandle;
 Lock_Disk(devhandle);
 Write_Disk(DevHandle,HPbuf,BBlockLen);
 Unlock_Disk(devhandle);
@@ -669,9 +682,12 @@ End;
 
 
 Procedure Backup_BootBlock;
+var
+  wDevHandle: Word;
 Begin
 FillChar(Bbuf,SizeOf(Bbuf),0);
-Open_Disk(Drive,DevHandle);
+Open_Disk(Drive,wDevHandle);
+DevHandle:= wDevHandle;
 Read_Disk(DevHandle,Bbuf,BblockLen);
 Writeln('Press Enter to continue...');
 Readln;
@@ -684,6 +700,7 @@ Var
   FH:   Integer;
   key:  Char;
   BufSize:      Integer;
+  wDevHandle: Word;
 
 Begin
 Writeln(#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8,'Enter name of the bootblockfile to restore ');
@@ -708,7 +725,8 @@ If FH > 0 Then
     key := upcase(readkey);
     If key <> 'B' Then BufSize := 512;
     End;
-  Open_Disk(Drive,DevHandle);
+  Open_Disk(Drive,wDevHandle);
+  DevHandle:= wDevHandle;
   Lock_Disk(devhandle);
   If DriveT = dtHDFAT32 Then
     Begin

@@ -5,7 +5,7 @@ Unified Interface to C/C++ headers bindings
 
 module <name>;
 
-[stataments]
+[statements]
 
 end.
 
@@ -18,7 +18,7 @@ will be converted to
    extern "C" {
 #endif
 
-[stataments]
+[statements]
 
 #ifdef __cplusplus
    }

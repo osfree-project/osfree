@@ -8,14 +8,19 @@
 parse arg dir
 parse source os .
 
+
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
    os = 'WINNT' | os = 'WIN32'
 then
   sep = '\'
 else
   sep = '/'
-
-dir = translate(dir, '\', '/')
+  
+if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
+   os = 'WINNT' | os = 'WIN32'
+then do
+   dir = translate(dir, '\', '/') /* change / to \  */
+end
 drv = ''
 
 do forever
@@ -35,6 +40,6 @@ then do
   drv /* change drive first */
   dir = sep || dir
 end
-
 dir = strip(dir, 'T', '\')
 call directory(dir)
+say '  cd 'dir

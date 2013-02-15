@@ -421,7 +421,8 @@ swab32(uint32 val)
 #define directory_decl \
         udecl32(d_inode)               /* Inode entry */ \
         udecl16(d_rec_len)             /* Total size on record */ \
-        udecl16(d_name_len)            /* Size of entry name */
+        udecl8(d_name_len)  /* 16*/   /* Size of entry name */ \
+        udecl8(d_file_type)  /* Added */
 
 #define decl8(x) int8 x;
 #define udecl8(x) uint8 x;
@@ -674,6 +675,8 @@ xrealloc(void *ptr, size_t size)
 }
 
 #ifndef __CPM__
+#include <unistd.h>
+int readlink(const char *path, char *buf, size_t bufsiz);
 static char *
 xreadlink(const char *path)
 {
@@ -1176,7 +1179,6 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
         int reclen, nlen;
         inode *node;
         inode *pnode;
-
         pnode = get_nod(fs, dnod);
         if((pnode->i_mode & FM_IFMT) != FM_IFDIR)
                 error_msg_and_die("can't add '%s' to a non-directory", name);
@@ -1202,6 +1204,12 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
                                 node = get_nod(fs, nod);
                                 node->i_links_count++;
                                 d->d_name_len = nlen;
+                                int dir_file_type=0;
+                                switch(node->i_mode & FM_IFMT) {
+                                    case FM_IFDIR: dir_file_type=2; break;
+                                    case FM_IFREG: dir_file_type=1;
+                                } 
+                                d->d_file_type = dir_file_type;
                                 strncpy(d->d_name, name, nlen);
                                 return;
                         }
@@ -1217,6 +1225,13 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
                                 node = get_nod(fs, nod);
                                 node->i_links_count++;
                                 d->d_name_len = nlen;
+                                int dir_file_type=0;
+                                switch(node->i_mode & FM_IFMT) {
+                                    case FM_IFDIR: dir_file_type=2; break;
+                                    case FM_IFREG: dir_file_type=1;
+                                } 
+                                d->d_file_type = dir_file_type;
+                                d->d_name_len = nlen;
                                 strncpy(d->d_name, name, nlen);
                                 return;
                         }
@@ -1230,6 +1245,12 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
         node->i_links_count++;
         d->d_rec_len = BLOCKSIZE;
         d->d_name_len = nlen;
+        int dir_file_type=0;
+        switch(node->i_mode & FM_IFMT) {
+            case FM_IFDIR: dir_file_type=2; break;
+            case FM_IFREG: dir_file_type=1;
+        } 
+        d->d_file_type = dir_file_type;
         strncpy(d->d_name, name, nlen);
         extend_blk(fs, dnod, b, 1);
         get_nod(fs, dnod)->i_size += BLOCKSIZE;
@@ -1948,11 +1969,13 @@ init_fs(int nbblocks, int nbinodes, int nbresrvd, int holes, uint32 fs_timestamp
         d->d_inode = EXT2_ROOT_INO;
         d->d_rec_len = sizeof(directory)+4;
         d->d_name_len = 1;
+        d->d_file_type = 2; /*FM_IFDIR*/
         strcpy(d->d_name, ".");
         d = (directory*)(b + d->d_rec_len);
         d->d_inode = EXT2_ROOT_INO;
         d->d_rec_len = BLOCKSIZE - (sizeof(directory)+4);
         d->d_name_len = 2;
+        d->d_file_type = 2; /*FM_IFDIR*/
         strcpy(d->d_name, "..");
         extend_blk(fs, EXT2_ROOT_INO, b, 1);
 
@@ -2123,7 +2146,7 @@ print_dir(filesystem *fs, uint32 nod)
                                 printf("entry '");
                                 for(i = 0; i < d->d_name_len; i++)
                                         putchar(d->d_name[i]);
-                                printf("' (inode %d): rec_len: %d (name_len: %d)\n", d->d_inode, d->d_rec_len, d->d_name_len);
+                                printf("' (inode %d): rec_len: %d (name_len: %d) ftyp %d\n", d->d_inode, d->d_rec_len, d->d_name_len, d->d_file_type);
                         }
         }
 }

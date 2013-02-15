@@ -78,7 +78,16 @@ char *tmptabfile;
 char *tmpdefsfile;
 
 extern int noparserflag;
-
+ #ifdef __WATCOMC__
+ /* #include <io.h> */
+ #include <sys/stat.h>
+ #include <stdlib.h>
+ //_WCRTLINK extern char       *_mktemp( char *__template );
+ _WCRTLINK extern int  unlink(const char *__path);
+ #ifndef __LINUX__
+   #define mktemp mkstemp
+ #endif
+ #endif
 
 #ifdef __OS2__
 #define mktemp _mktemp
