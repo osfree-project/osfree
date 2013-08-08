@@ -13,13 +13,35 @@ all: install .symbolic
 install: build
 
 test: .symbolic
-  echo $(MYDIR)
-  echo $(PATH)
-  echo $(mfh)
+  @echo   $(MYDIR)
+  @echo   $(PATH)
+  @echo   $(mfh)
 
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
 
+#print_vars: .SYMBOLIC
+#        @echo FILESDIR $(FILESDIR)
+#        @echo MYDIR    $(MYDIR) 
+#        @echo ROOT     $(ROOT)  
+#        @echo RELDIR   $(RELDIR)
+#        @echo PATH     $(PATH) 
+#        @echo BLD      $(BLD)
+#        @echo RELDIR   $(RELDIR)
+#        @echo TOOLDIR  $(TOOLDIR)
+#        @echo DEST     $(DEST)
+#        @echo x        $(x)
+#        @echo q        $(q)
+#        @echo OS_REXX  $(OS_REXX)
+#        @echo OS_SHELL $(OS_SHELL)
+#        @echo ENV      $(ENV)
+#        @echo IMGDIR   $(IMGDIR)
+#        @echo IMGDIR1  $(IMGDIR1)
+#        @echo LIBDIR   $(LIBDIR)
+#        @echo LIBC     $(LIBC)
+#        @echo SEP      $(SEP)
+#        @echo TARGETS  $(TARGETS)
+#        @echo DEST     $(DEST)
 
 # build and install each target in sequence
 build: precopy prereq .SYMBOLIC
@@ -37,35 +59,41 @@ ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 # ADD_COPT and ADD_ASMOPT are defined in
 # a file which includes this file.
 #
-COPT      = $(C_DEFS) $(ADD_COPT) &
+# -q for quiet removes the credit from wcc386, wpp386 and wasm 
+COPT      = $(C_DEFS) $(ADD_COPT) -q &
             -i=$(MYDIR) -i=$(MYDIR).. &
             -i=$(PATH)  -i=$(PATH)..
+COPT_LAST = $(DEFINES_LAST)
+
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
-ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT)
+ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT) -q
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
 #
 # Tools:
 #
+# If you want to see the output from wcc... , wasm ... Remove the char '@' in front of the names.
+
 !ifeq 32_BITS 1
-CC        = @wcc386
-CPPC      = @wpp386
+# Removed @ from wpp386 wcc wpp wasm wlink
+CC        = wcc386
+CPPC      = wpp386
 !else
-CC        = @wcc
-CPPC      = @wpp
+CC        = wcc
+CPPC      = wpp
 !endif
 
-CC16      = @wcc
-CPPC16    = @wpp
+CC16      = wcc
+CPPC16    = wpp
 
-ASM       = @wasm
+ASM       = wasm
 
-LINKER    = @wlink
+LINKER    = wlink
 # Note by valerius:
 # don't add the following option to all.mk
 # -----op internalrelocs----
 # as it breaks all non-LX executables, for ex., bootsectors
-LINKOPT   = libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
+LINKOPT   = op q libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
 
 LIB       = wlib
 LIBOPT    = -q -n -fo
@@ -80,7 +108,7 @@ PCOPT     = -Sg2h $(ADD_PCOPT)
 DD        = dd
 
 SED       = sed
-AWK       = @awk
+AWK       = awk
 DOX       = doxygen
 
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
@@ -154,6 +182,7 @@ NULL      = \dev\nul
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 
+EXE_SUF    = .exe
 EXE_SUFFIX = .exe
 LIB_SUFFIX = .lib
 LIB_PREFIX =
@@ -170,13 +199,13 @@ O16       = o16                  # 16-bit obj
 DC        = rm -f                # Delete command is rm on linux and del on OS/2
 CP        = cp                   # Copy command
 RN        = mv                   # Rename command
-SAY       = @echo                # Echo message
+SAY       = echo                 # Echo message
 MKBIN     = mkbin
 GENHDD    = genhdd
 GENFDD    = genfdd
 FINDFILE  = findfile
 
-if_not_exist_mkdir = ./if_not_exist_mkdir.sh
+if_not_exist_mkdir = $(ROOT)$(SEP)if_not_exist_mkdir.sh
 
 CLEAN_CMD    = @for %i in ($(CLEANMASK)) do $(DC) $(PATH)%i
 
@@ -184,6 +213,7 @@ NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = mkdir
 
+EXE_SUF    =
 EXE_SUFFIX = l
 LIB_SUFFIX = .a
 LIB_PREFIX =
@@ -193,10 +223,20 @@ DLL_SUFFIX = .so
 !endif
 !endif
 
+DIR_PWD   = $+ $(%cwd) $-
+#RELDIR       = $(MYDIR:$(ROOT)=)
+RELDIR_PWD       = $+  $(DIR_PWD:$(ROOT)=) $-
+# This tells wmake to always read the current directory each time the variable DIR_PWD is read.
+# Without it, the first time value stays the same (wmake caches it).
+# $(%PWD)
+
 MAPSYM    = @mapsym
 
+TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
-
+            # 2>&1 >> $(ROOT)$(SEP)compile.log
+            # Alternative log command (use manually on cmd line, for bash):
+            #   2>&1 | tee ${ROOT}${SEP}compile.log
 !ifndef OBJS16
 !ifdef  srcfiles16
 p = $(PATH)
@@ -217,6 +257,10 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
+
+# On Linux with Bash %PWD prints out the working directory
+# Can wmake's macro do the same?  $^:  or this  $]:
+#  Wmake has similar stuff in the variable &(%cwd)
 
 .l:   $(MYDIR)
 
@@ -260,6 +304,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 !endif
  lex -t $[@ >$^@
 
+# With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .AUTODEPEND
 !ifeq UNIX TRUE
  $(DC) $^*.h
@@ -268,7 +313,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
  @if exist $^*.h $(DC) $^*.h $(BLACKHOLE)
  @if exist $^*.c $(DC) $^*.c $(BLACKHOLE)
 !endif
- yacc.exe -y -d -o $^@ $[@
+ yacc -y -d -o $^@ $[@
 
 .c:   $(MYDIR)
 
@@ -285,64 +330,68 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 .pp:  $(MYDIR)
 
 .c16.o16: .AUTODEPEND
- $(SAY)  Compiling $[. $(LOG)
+ @$(SAY)        Compiling $[. $(LOG)
  $(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
- $(SAY) Compiling $[. $(LOG)
- $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
+ $(CC) $(COPT)  -fr=$(PATH)$^*.err -fo=$(PATH)$^&.$(O) $< $(LOG)
 
 .asm.obj: .AUTODEPEND
- $(SAY) Assembling $[. $(LOG)
+ @$(SAY)        Assembling $[. $(LOG)
  $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- $(SAY) Compiling $[. $(LOG)
- $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
+ $(CPPC) $(COPT)  -fr=$^*.err -fo=$(PATH)$^&.$(O) $< $(COPT_LAST) $(LOG)
+# @$(SAY) 	Compiling $[. $(LOG)
+# $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cc.obj: .AUTODEPEND
- $(SAY) Compiling $[. $(LOG)
+ @$(SAY)        Compiling $[. $(LOG)
  $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .wmp.map: .AUTODEPEND
- $(SAY) Converting Watcom MAP to VAC MAP $[. $(LOG)
+ @$(SAY)        Converting Watcom MAP to VAC MAP $[. $(LOG)
  $(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
- $(SAY) Converting VAC MAP to OS/2 SYM $[. $(LOG)
+ @$(SAY)        Converting VAC MAP to OS/2 SYM $[. $(LOG)
  $(MAPSYM) $[@
  $(RN) $^. $^:
 
 .ipf.inf: .AUTODEPEND
- $(SAY) Compiling IPF source file $[.... $(LOG)
+ @$(SAY)        Compiling IPF source file $[.... $(LOG)
  $(HC) -i $[@ -o $^@
 
 .ipf.hlp: .AUTODEPEND
- $(SAY) Compiling IPF source file $[.... $(LOG)
+ @$(SAY)        Compiling IPF source file $[.... $(LOG)
  $(HC) $[@ -o $^@
 
 .rc.res: .AUTODEPEND
- $(SAY) Compiling resource file $[.... $(LOG)
+ @$(SAY)        Compiling resource file $[.... $(LOG)
  $(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 .pas.exe: .symbolic
- $(SAY) Compiling $[....
+# @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$<
+# $(PC) $(PCOPT) -FE$(PATH) $<
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$[....
  $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .pp.exe: .symbolic
- $(SAY) Compiling $[....
+ @$(SAY)     Compiling $[....
  $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .lnk.exe: .symbolic
- $(SAY) Linking $^.... $(LOG)
+ @$(SAY)     Linking $^.... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .lnk.dll: .symbolic
- $(SAY) Linking $^.... $(LOG)
+ @$(SAY)     Linking $^.... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
-  $(SAY) Wrapping REXX code $[....
+  @$(SAY)    Wrapping REXX code $[....
   rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #
@@ -350,32 +399,35 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+# @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: precopy .symbolic
  $(MDHIER) $(PATH)
 
 .IGNORE
 clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
+ @$(SAY)       Making clean... $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(CLEAN_CMD)
+# @$(SAY)   "$(TARGETS) -> $(DEST)"
 
 install: build
- $(SAY) Making install... $(LOG)
+ @$(SAY) 	Making install... $(PROJ) $(LOG)
 !ifeq INSTALL_PRE 1
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
- -$(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST)
+# -$(MDHIER) $(DEST)
+ $(MDHIER) $(DEST)
+ @for %i in ($(TARGETS)) do if exist %i $(CP) %i $(DEST)
 !endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
 precopy: .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
+ $(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
 
 .error
  @$(SAY) Error (!)

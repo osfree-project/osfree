@@ -8,13 +8,13 @@
 
 32_BITS = 0
 ADD_COPT =            $(ADD_COPT) &
+                      -bt=dos
 #                     -i=$(ROOT)$(SEP)build$(SEP)include &
 #                     -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
-                      -bt=dos
 
 !include $(%ROOT)/mk/libs.mk
 
 q: .SYMBOLIC
- $(SAY) $(CC)
+ @$(SAY) $(CC)
 
 !endif

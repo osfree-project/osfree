@@ -7,23 +7,44 @@
 
 !include $(%ROOT)/mk/site.mk
 
+# SEP does not have a valid value here. Set it if it's undefined. 
+!ifdef %SEP
+SEP = $(%SEP)
+!endif
+#                     
 MYDIR        = $(%cwd)$(SEP)
 ROOT         = $(%ROOT)
 RELDIR       = $(MYDIR:$(ROOT)=)
+##RELDIR       = $(ROOT:$(MYDIR)=)
 PATH         = $(RELDIR)
 
-BLD  = $(ROOT)build$(SEP)
+# Files from which HDD image is built
+FILESDIR   = $(ROOT)$(SEP)bin
+
+BLD  = $(ROOT)$(SEP)build$(SEP)
 
 q = $(MYDIR:$(BLD)=)
 x = build
 
+# !ifneq q $(MYDIR)
 !ifneq q $(MYDIR)
 # we're starting make in build dir, not in src dir
-PATH  = $(PATH:build=)
+PATH  = $(PATH:$(SEP)build=)
+##PATH  = $(PATH:build=)
 MYDIR = $(PATH:$(x)=)
 !endif
 
-PATH  = $(BLD)$(PATH)
+#mydir  <--  $path:$x
+#path   <--  $reldir
+#x      <--  build
+#reldir <--  $mydir:$root
+#
+#mydir  <--  $path:$x
+#            path   <--  $reldir
+#            x      <--  build
+#                        reldir <--  $mydir:$root
+#                                        $mydir <---- Start at beginning
+PATH  = $(BLD)$(SEP)$(PATH)
 
 # change two slashes into one
 PATH  = $(PATH:\\=\)

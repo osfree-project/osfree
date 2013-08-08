@@ -9,9 +9,10 @@
 !include $(%ROOT)/mk/site.mk
 
 ADD_COPT =            $(ADD_COPT) &
+                      -bt=dos
 #                      -i=$(ROOT)$(SEP)build$(SEP)include &
 #                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
-                      -bt=dos
+
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos
@@ -41,7 +42,7 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
  $(ADDFILES_CMD)
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
- $(SAY) Linking $^@ $(LOG)
+ @$(SAY) Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

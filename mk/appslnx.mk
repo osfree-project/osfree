@@ -93,7 +93,7 @@ $(PATH)$(PROJ).so: $(PATH)$(PROJ).lnk
 !else
 $(PATH)$(PROJ)$(EXE_SUFFIX): $(PATH)$(PROJ).lnk
 !endif
- $(SAY) Linking $^@ $(LOG)
+ @$(SAY)       Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

@@ -16,8 +16,9 @@ DEST    = os2
 ADD_PCOPT = -Tos2
 
 #CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).exe $(PATH)$(PROJ) # $(PATH)$(PROJ).sym
 
 !include $(%ROOT)/mk/all.mk
 
+TARGETS  = $(PATH)$(PROJ).exe $(PATH)$(PROJ)
 !endif

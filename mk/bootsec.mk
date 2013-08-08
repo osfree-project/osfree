@@ -25,7 +25,7 @@ PROJ0 = PROJ
 !endif
 
 $(PATH)$(PROJ).bin: $(PATH)$(PROJ).lnk
- $(SAY) Linking $^@... $(LOG)
+ @$(SAY)     Linking $^@... $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 $(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O)

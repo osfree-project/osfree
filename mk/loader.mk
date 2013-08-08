@@ -70,7 +70,7 @@ LOUT         = lbi
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
+ $(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
 !ifeq UNIX TRUE
  $(DC) $[@
 !else
@@ -83,7 +83,7 @@ LOUT         = lbi
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- $(RIP) $[@ $(MOD_BASE) $(%ROOT)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+ $(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
 !ifeq UNIX TRUE
  $(DC) $[@
 !else
@@ -91,7 +91,7 @@ LOUT         = lbi
 !endif
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
- $(SAY) Linking $< $(LOG)
+ @$(SAY)     Linking $< $(LOG)
  $(LINKER) @$< $(LOG)
 
 $(PATH)$(T)$(S).lnk: .SYMBOLIC
@@ -127,6 +127,7 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 !ifdef ORDER
  @%append $^@ $(ORDER)
 !endif
+ @%append $^@ LIBPATH $(ROOT)$(SEP)bin
  @%append $^@ LIBPATH $(BLD)lib
  @%append $^@ LIBRARY ldr_shared.lib
  @for %%i in ($(OBJS))   do @%append $^@ FILE %%i
@@ -136,21 +137,27 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 .asm: $(MYDIR)
 
 .c.$(O):
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .c.$(SO):
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .c.$(LO):
+ @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(O):
+ @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(LO):
+ @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(SO):
+ @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
  $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .inc.h:
@@ -197,5 +204,18 @@ gen_deps_wrapper:
  @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mds &
    deps=$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$- gen_deps
 !endif
-
+print_deps_info:
+ @$(SAY) OBJS:$(OBJS)
+ @$(SAY) src:$(src)
+ @$(SAY) PATH: $(PATH)
+ @$(SAY) MYDIR: $(MYDIR)
+ @$(SAY) srcfiles: $(srcfiles)
+ @$(SAY) defs: $(defs)
+# @$(SAY) TARGETS: $(TARGETS)
+ @$(SAY) TARGET: $(TARGET)
+ @$(SAY) bbx: $(bbx)
+ @$(SAY) kernels: $(kernels)
+ @$(SAY) spec_SRCS: $(spec_SRCS)
+ @$(SAY) files: $(files)
 !endif
+

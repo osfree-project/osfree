@@ -270,6 +270,52 @@ strlstlen(char *p)
 }
 
 
+/* A becomes 1. */
+int char_to_disknum(unsigned char chr_dsk) {
+    /*'A' + ulDriveNum - 1*/
+    return  toupper(chr_dsk) - 'A' + 1;
+}
+/* 1 becomes A. */
+unsigned char disknum_to_char(int i_dsk) {
+    return 'A' + toupper(i_dsk) - 1;
+}
+
+/* If path begins with everything else but '\' or '/', assume relative path. */
+int isRelativePath(char *path) {
+    if((path[0] == '\\') || (path[0] == '/'))
+        return 0;
+    return 1;
+}
+
+/* Return device from a path or else zero. */
+unsigned char parse_drv(char *path) {
+    int i=0;
+    if((path != NULL) && (path[0] != 0) && (path[1] != 0))
+        i = 2;
+    /*int i = strlen(path);*/
+    if((i >= 2) && (path[1] == ':')) {
+        return path[0];
+    }
+    return '\0';   
+}
+
+/*  
+  Only return path from presumed absolute path.*/
+char *parse_path(char *path, char *ret_buffer, int buf_len) {
+    
+    unsigned char drive = parse_drv(path);
+    if(drive)/*If there is a device letter. */
+        /* Skip drive and copy path. */
+        strncpy(ret_buffer, (char*)&path[2], buf_len);
+
+    else /* Or else copy entire path. */
+        strncpy(ret_buffer, path, buf_len);
+
+    return ret_buffer;
+}
+
+
+
 APIRET CDECL
 kalOpenL (PSZ pszFileName,
           HFILE *phFile,
@@ -293,7 +339,89 @@ kalOpenL (PSZ pszFileName,
   LOG("fsOpenMode=%x", fsOpenMode);
   if (peaop2 == NULL)
     peaop2 = &eaop2;
-  rc = os2fs_dos_OpenL_call (&fs, pszFileName, phFile,
+  
+    /* Support for current/working directory for filenames. 
+    No support yet for devicenames, COM1 etc. That needs to be done 
+    inside os2server and the added current directory in this function needs to
+    be separated from the filename in pszFileName
+    ( add one more argument to os2fs_dos_OpenL_call for current dir). */
+  unsigned char drive = '\0';
+  char *path = "";
+
+  int BUFLEN = 99;
+  char *filbuf = calloc(1,BUFLEN + 1);
+
+  ULONG dsknum=0, plog=0, dirbuf_len=100, dirbuf_len2=100, dirbuf_len_out=100;
+  PBYTE dir_buf=calloc(1,dirbuf_len), 
+         dir_buf2=calloc(1,dirbuf_len2), dir_buf_out=calloc(1,dirbuf_len_out);
+  BYTE /*drive=0,*/ drive2=0;
+
+  LOG("KalQueryCurrentDisk");
+  KalQueryCurrentDisk(&dsknum, &plog); /*For c:\os2 it becomes 3 (drive letter)*/
+                     /*  3     "os2" */
+  KalQueryCurrentDir(dsknum, (PBYTE)dir_buf, &dirbuf_len);
+
+
+  /*char *pszFileName = fil12; */
+
+
+  LOG("2 pszFileName %s", pszFileName);
+  drive = parse_drv(pszFileName);  if(drive==0)  drive2 = disknum_to_char(dsknum);
+  path = parse_path(pszFileName, filbuf, BUFLEN);
+
+  LOG("2 drive '%c', drive2 '%c' ", drive, drive2);
+
+  BYTE drv = 0;
+  if(drive==0) {  /* Is actual device specified? */
+      drv = char_to_disknum(drive2);
+  }else {
+      drv = char_to_disknum(drive);
+  }
+
+  /* Working directory is put into dir_buf2. */
+  KalQueryCurrentDir(drv, (PBYTE)dir_buf2, &dirbuf_len2);
+  char s[10] = "";  /*Create device letter with colon. */
+  s[0] = disknum_to_char(drv);
+  s[1] = 0;
+  strncat((char*)dir_buf_out, s, 1);       
+
+  /*  .\config.sys               ':' */
+  if(isRelativePath(path) ) {/* Add working directory. */
+
+      strncat((char*)dir_buf_out, ":\\", 2);
+      strncat((char*)dir_buf_out, (char*)dir_buf2, dirbuf_len2);
+      if((strcmp((char*)dir_buf2,"")!=0) && isRelativePath((char*)dir_buf2))
+          strncat((char*)dir_buf_out, "\\", 1);
+      strncat((char*)dir_buf_out, path, strlen(path));
+      /* Complete path for filename is now inside dir_buf_out.*/
+      LOG("22dir_buf_out '%s'", dir_buf_out);
+  }
+
+  LOG("3");
+  /*  \config.sys               'c:' */
+  if((!isRelativePath(path)) ) {/* Add working directory from specified disk*/
+
+      strncat((char*)dir_buf_out, ":", 2);
+      LOG("dir_buf2 '%s', dir_buf '%s', path '%s'", dir_buf2, dir_buf, path);
+      /* Is string in working directory? dir_buf2*/
+      /*Is working directory going to be added?*/
+      if( (isRelativePath((char*)path))) { 
+          if((strcmp((char*)dir_buf2,"")!=0) && isRelativePath((char*)dir_buf2)) {
+              strncat((char*)dir_buf_out, "\\", 1);
+              strncat((char*)dir_buf_out, 
+                          (char*)dir_buf2, dirbuf_len2);/*No working directory!*/
+              if(isRelativePath((char*)path))
+                  strncat((char*)dir_buf_out, "\\", 1);
+          }
+      }
+      strncat((char*)dir_buf_out, path, strlen(path));
+      /* Complete path for filename is now inside dir_buf_out.*/
+      LOG("33dir_buf_out(pszFileName) '%s'", dir_buf_out);
+  }
+    
+  /********************************************/
+                                /* pszFileName */
+  rc = os2fs_dos_OpenL_call (&fs, dir_buf_out, phFile,
                       pulAction, cbFile, ulAttribute,
                       fsOpenFlags, fsOpenMode, peaop2, &env);
   LOG("hFile=%x", *phFile);

@@ -5,9 +5,15 @@
 
 !ifndef __appsw16_mk__
 !define __appsw16_mk__
+#  -i=$(ROOT)$(SEP)DOS$(SEP)WIN16$(SEP)include 
 
-ADD_COPT = -bt=windows $(ADD_COPT)
-ADD_LINKOPT = lib clibs.lib,windows.lib,shell.lib
+ADD_COPT = -bt=windows -i=$(WATCOM)$(SEP)h$(SEP)win $(ADD_COPT)
+ADD_LINKOPT = path $(WATCOM)$(SEP)lib286 &
+  path $(WATCOM)$(SEP)lib286$(SEP)dos &
+  path $(WATCOM)$(SEP)lib286$(SEP)win &
+  lib $(WATCOM)$(SEP)lib286$(SEP)dos$(SEP)clibs.lib lib windows.lib &
+  lib shell.lib &
+  file $(WATCOM)$(SEP)lib286$(SEP)dos$(SEP)cstart_t.obj
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos$(SEP)winos2
@@ -65,7 +71,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk $(OBJS)
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
 !endif
- $(SAY) Linking $^@ $(LOG)
+ @$(SAY)     Linking $^@ $(LOG)
  $(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

@@ -13,8 +13,9 @@ DEST    = tools
 !endif
 
 CLEAN_ADD = *.oo2 *.ppo *.o
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ).exe $(PATH)$(PROJ) # $(PATH)$(PROJ).sym
 
 !include $(%ROOT)/mk/all.mk
+TARGETS  = $(PATH)$(PROJ).exe $(PATH)$(PROJ)
 
 !endif
