@@ -8,6 +8,6 @@ srcfiles = $(p)load$(e)
 ADD_COPT = -i=$(MYDIR).. -bd
 DEST = none
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_fpm.mk
 
 TARGETS = $(OBJS)

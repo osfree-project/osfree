@@ -53,7 +53,7 @@
 #include <time.h>
 #include <unidef.h>
 #include <uconv.h>
-//#define CALLCONV APIENTRY
+#define CALLCONV APIENTRY
 
 // XWP's setup.h replaces strchr and the like, and
 // we want the originals in here

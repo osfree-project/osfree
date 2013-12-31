@@ -20,9 +20,6 @@ RCOPT = &
                       -i=$(%WATCOM)$(SEP)h &
                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
-
 !endif
 
 !endif

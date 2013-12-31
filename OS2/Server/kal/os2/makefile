@@ -8,7 +8,7 @@ PROJ     = kal
 DESC     = Kernel Abstraction Layer API
 srcfiles = $(p)stub$(e)
 ADD_COPT = -i=$(MYDIR)..
-ADD_LINKOPT  = op nod lib clib3r.lib segment   type DATA shared
+ADD_LINKOPT  = op nod lib clib3r.lib,$(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)os2386.lib segment   type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata

@@ -1,4 +1,5 @@
-#include <osfree.h>
+//#include <osfree.h>
+#include <os2.h>
 
 /* TODO:
     - documentation states that if language supports it WRECT type can be

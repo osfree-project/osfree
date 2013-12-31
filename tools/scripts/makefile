@@ -12,16 +12,13 @@ TARGETS = copy
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg
-srcdir = $(ROOT)$(SEP)tools$(SEP)scripts
-dstdir = $(FILESDIR)$(SEP)tools
+srcdir = $(%ROOT)$(SEP)tools$(SEP)scripts
 
 copy: .symbolic
- @if exist $(FILESDIR)$(SEP)flag @%quit
+ @if exist $(FILESDIR)$(SEP)base-built-flag @%quit
  @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
- #@for %i in ($(filelist)) do $(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
  @cd $(srcdir)
  @for %i in ($(filelist)) do $(CP) %i $(DEST)
- touch $(FILESDIR)$(SEP)flag
- # touch $<
+ @touch $(FILESDIR)$(SEP)base-built-flag
  @$(CD) .. && $(MAKE) $(MAKEOPTS)
  $(CD) $(MYDIR)

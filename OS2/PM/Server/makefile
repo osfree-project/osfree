@@ -27,7 +27,7 @@ OPTIONS = manyautodata, caseexact, start=init
 
 DEST = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)/mk/appsos2_fpm.mk
 
 TARGETS = subdirs $(PATH)$(PROJ).dll
 TARGET  = all

@@ -8,6 +8,6 @@ srcfiles = $(p)windowmgr$(e) $(p)WindowClass$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 DEST = none
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_fpm.mk
 
 TARGETS = $(OBJS)

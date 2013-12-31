@@ -33,4 +33,4 @@ EXPORTS  = _InitServerConnection.1,      &
            _F_RecvDataFromClient.10,     &
            _F_SendDataToClient.11
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)/mk/appsos2_fpm.mk
