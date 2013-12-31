@@ -15,5 +15,6 @@ IMPORTS     = KbdCharIn                   EMXWRAP.204, &
               KbdGetStatus                EMXWRAP.210, &
               KbdSetStatus                EMXWRAP.211, &
               KbdFlushBuffer              EMXWRAP.213
+UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

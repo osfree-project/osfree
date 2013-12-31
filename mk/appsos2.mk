@@ -8,31 +8,32 @@
 32_BITS = 1
 PLATFORM = os2
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
-RCOPT = &
-                      -i=$(%WATCOM)$(SEP)h &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
-
-ADD_INC = $(%ADD_INC)
 
 !ifeq DLL 1
 ADD_COPT   =          $(ADD_COPT) -bd
 !endif
-!ifeq ADD_INC
-ADD_COPT   =          $(ADD_COPT) &
+
+!ifeq UNI2H 1
+# generated uni2h headers
+
+ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+
+!else
+# use Watcom headers
+
+ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
+                      -i=$(%WATCOM)$(SEP)h &
+                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
+
 !endif
+
 ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
-!ifneq ADD_INC
-ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
-                      -i=$(%WATCOM)$(SEP)h &
-                      -i=$(%ADD_INC)
-!endif
+
 ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
@@ -43,6 +44,8 @@ ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=os2
+
+
 !ifeq NOLIBS 1
 ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK
 !else

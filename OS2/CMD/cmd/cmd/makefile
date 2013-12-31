@@ -16,5 +16,6 @@ ADD_LINKOPT = lib os2386.lib,  clib3r.lib, math387r.lib, emu387.lib, sub32.lib
 #STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
+UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

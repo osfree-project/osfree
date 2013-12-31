@@ -8,6 +8,6 @@ srcfiles = $(p)stub$(e)
 ADD_COPT=-bm -od -mf -sg -d2 -mf
 DEST     = none
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 TARGETS = $(OBJS)

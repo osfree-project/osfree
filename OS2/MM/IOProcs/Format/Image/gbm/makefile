@@ -17,7 +17,7 @@ ADD_LINKOPT  = lib mmpm2.lib, gbm.lib, libtiff.lib, libjpeg.lib, libpng.lib, lib
                segment type DATA shared
 DEST = none
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 .c:   $(PATH)
 

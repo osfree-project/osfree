@@ -8,7 +8,8 @@ srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname
            $(p)all_dlist$(e) $(p)all_pathmanipulation$(e) $(p)all_performrecursiveaction$(e) &
            $(p)all_getopt$(e) $(p)all_debug$(e)
 
-ADD_COPT =  # -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(MYDIR)..$(SEP)include
+UNI2H = 1
+ADD_COPT =  
 ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
 NOLIBS      = 1
 TARGETS  = $(PATH)$(PROJ).lib subdirs

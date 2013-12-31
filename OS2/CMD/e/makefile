@@ -21,10 +21,11 @@ INSTALL_ADD = 1
 DEST1       = os2$(SEP)help
 HEAPSIZE    = 10240
 STACKSIZE   = 24576
+UNI2H = 1
 
 SUF         = .bmp .ico
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 TARGETS = $(PATH)$(PROJ).exe install_add
 

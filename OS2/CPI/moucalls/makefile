@@ -38,6 +38,8 @@ IMPORTS =  MouGetPtrShape              EMXWRAP.301, &
            MouSetThreshold             EMXWRAP.329, &
            MouGetThreshold             EMXWRAP.330
 
+UNI2H = 1
+
 EXPORTS = MOUGETPTRSHAPE.1,    &
           MOUSETPTRSHAPE.2,    &
           MOUGETNUMMICKEYS.3,  &
@@ -69,4 +71,4 @@ EXPORTS = MOUGETPTRSHAPE.1,    &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

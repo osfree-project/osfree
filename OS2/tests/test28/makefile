@@ -19,5 +19,5 @@ ADD_COPT     = -bm -od -mf -sg -d2 -mf
 WINDOWCOMPAT = 1
 DEST         = os2$(SEP)test
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_pm.mk
 

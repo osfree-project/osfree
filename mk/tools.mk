@@ -19,11 +19,11 @@ DEST    = tools
 
 # Building tools for Linux
 # -dUNIX
-!ifdef UNIX
-OS       = UNIX
-NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
-ADD_LINKOPT = $(ADD_LINKOPT) system linux  debug dwarf all
-!endif
+#!ifdef UNIX
+#OS       = UNIX
+#NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
+#ADD_LINKOPT = $(ADD_LINKOPT) system linux  debug dwarf all
+#!endif
 
 # The variable DEFINES is to append more compiler defines and switches from a singular makefile
 # because add_copt is overwritten in this file.

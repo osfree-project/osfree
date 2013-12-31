@@ -6,7 +6,7 @@
 
 DEST    = os2
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 TARGETS = copy
 

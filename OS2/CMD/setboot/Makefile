@@ -2,6 +2,7 @@ CFLAGS = -fomit-frame-pointer -O1 -DNDEBUG
 LDFLAGS = -s -N
 
 VERSION = 1.2
+UNI2H = 1
 
 BINDIR = /usr/bin
 

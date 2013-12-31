@@ -33,4 +33,4 @@ ADD_LINKOPT = lib mm_shared
 
 DEST = mmos2
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_pm.mk

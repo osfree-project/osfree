@@ -44,7 +44,7 @@ ADD_COPT       =  -4s -wx -zq -mf $(THREADING) &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
 
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 .c: $(SRC)
 

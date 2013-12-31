@@ -4,6 +4,6 @@ PROJ = cmdref
 PROJ2 = external
 DEST    = os2$(SEP)book
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 TARGETS = $(PATH)$(PROJ).inf $(PATH)$(PROJ2).inf

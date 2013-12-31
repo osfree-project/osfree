@@ -11,4 +11,4 @@ ADD_LINKOPT  = segment type DATA shared lib os2386.lib,clib3s.lib,math387r.lib,e
 
 DEST         = os2
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

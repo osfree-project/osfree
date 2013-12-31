@@ -12,6 +12,8 @@ ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
+UNI2H = 1
+
 IMPORTS =   VioEndPopUp                 EMXWRAP.101, &
             VioGetPhysBuf               EMXWRAP.102, &
             VioGetAnsi                  EMXWRAP.103, &
@@ -148,4 +150,4 @@ EXPORTS = VIOENDPOPUP.1,            &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

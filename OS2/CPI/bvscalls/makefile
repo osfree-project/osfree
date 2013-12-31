@@ -20,4 +20,4 @@ EXPORTS = BVSGETPTRDRAWNAME .1 RESIDENT, &
           BVSREDRAWSIZE     .4 RESIDENT
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

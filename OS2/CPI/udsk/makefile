@@ -12,6 +12,8 @@ ADD_LINKOPT  = op nod lib clib3r, os2386 segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 
+UNI2H = 1
+
 EXPORTS = &
      DskSecRead             .1, &
      DskSecWrite            .2, &
@@ -22,4 +24,4 @@ EXPORTS = &
 
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

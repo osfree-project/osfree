@@ -15,12 +15,13 @@ filelist = *.cmd *.awk *.cfg
 srcdir = $(ROOT)$(SEP)tools$(SEP)scripts
 dstdir = $(FILESDIR)$(SEP)tools
 
-copy: .SYMBOLIC
- @if exist $(FILESDIR)$(SEP)tools @%quit
+copy: .symbolic
+ @if exist $(FILESDIR)$(SEP)flag @%quit
  @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
  #@for %i in ($(filelist)) do $(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
- @$(SAY)  cd $(srcdir)
  @cd $(srcdir)
  @for %i in ($(filelist)) do $(CP) %i $(DEST)
+ touch $(FILESDIR)$(SEP)flag
+ # touch $<
+ @$(CD) .. && $(MAKE) $(MAKEOPTS)
  $(CD) $(MYDIR)
-

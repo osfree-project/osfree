@@ -33,6 +33,8 @@ IMPORTS =  KbdSetCustXt                EMXWRAP.201, &
            KbdGetHWID                  EMXWRAP.224, &
            KbdSetHWID                  EMXWRAP.225
 
+UNI2H = 1
+
 EXPORTS =  KBDSETCUSTXT.1,     &
 #           KBDPROCESSINIT.2,   &
            KBDGETCP.3,         &
@@ -61,4 +63,4 @@ EXPORTS =  KBDSETCUSTXT.1,     &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

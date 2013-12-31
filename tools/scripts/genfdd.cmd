@@ -75,9 +75,7 @@ add_bootsector: procedure expose opt.
 
   /* Call findfile.cmd to determine muFSD offset
      and length inside the partition image       */
-  say 'NOTICE: findfile.cmd is being run with "rexx findfile.cmd"! Needed on Linux'
-  say 'findfile.cmd 'opt.findfile
-  parse value 'rexx findfile.cmd'(opt.findfile) with mu_offset mu_size
+  parse value findfile(opt.findfile) with mu_offset mu_size
 
   say 'muFSD offset: 0x'mu_offset
   say 'muFSD size:   0x'mu_size
@@ -86,7 +84,7 @@ add_bootsector: procedure expose opt.
         x2c(reverse(pad(mu_size  , 1))) ||,  /* muFSD length            */
         x2c(reverse(pad(mu_offset, 4))) ||,  /* muFSD 1st sector number */
         '55 AA'x                             /* Signature               */
-  say 'Writing bootsector to 'partfile'  length buf'length(buf)
+
   /* Write bootsector into HDD image */
   call charout partfile, buf, offset + 1
 
@@ -105,7 +103,7 @@ if ret = '' then do
   say 'File ' || opt.bpbcfg || ' doesn''t exist!'
   exit -1
 end
-say 'bpbcfg 'opt.bpbcfg
+
 rc = stream(opt.bpbcfg, 'c', 'open read')
 
 do while lines(opt.bpbcfg)
@@ -113,14 +111,12 @@ do while lines(opt.bpbcfg)
   p = pos('#', line)
   if p > 0 then line = delstr(line, p)
   if line = '' then iterate
-  say 'interprete 'line
   interpret(line)
 end
 
 rc = stream(opt.bpbcfg, 'c', 'close')
-say ' nsecs 'nsecs', nsecs_ext 'nsecs_ext', opt.NumSectors 'opt.NumSectors
-if opt.NumSectors > 0 then
-    nsecs = opt.NumSectors
+
+nsecs = opt.NumSectors
 if nsecs >= 65535 then do
   nsecs_ext = nsecs
   nsecs = 0
@@ -143,19 +139,7 @@ bpb        = bpb   ||,
              x2c(reverse(pad(d2x(nsecs_ext), 4)))   ||,
              disknum  || logdrive || marker         ||,
              volserno || vollabel || filesys
-say 'sectorsize 'sectorsize' 'reverse(pad(d2x(sectorsize), 2))
-say 'clustersize 'clustersize' 'reverse(pad(d2x(clustersize), 1))  
-              
-say 'res_sectors 'res_sectors' 'reverse(pad(d2x(res_sectors), 2)) 
-say 'nfats 'nfats' 'reverse(pad(d2x(nfats), 1))       
-say 'rootdirsize 'rootdirsize' 'reverse(pad(d2x(rootdirsize), 2)) 
-say 'nsecs 'nsecs' 'reverse(pad(d2x(nsecs), 2))       
-say 'mediadesc 'mediadesc' 'mediadesc                              
-say 'fatsize 'fatsize' 'reverse(pad(d2x(fatsize), 2))     
-say 'tracksize 'tracksize' 'reverse(pad(d2x(tracksize), 2))   
-say 'headscount 'headscount' 'reverse(pad(d2x(headscount), 2))  
-say 'hiddensecs 'hiddensecs' 'reverse(pad(d2x(hiddensecs), 4))  
-say 'nsecs_ext 'nsecs_ext' 'reverse(pad(d2x(nsecs_ext), 4))   
+
 
 return bpb
 /* ====================================================== */
@@ -173,12 +157,13 @@ n = arg(1)
  end
 
  m = l / 2
- 
+
  q = ''
  do p = 0 to m - 1
    s = substr(n, 2*p + 1, 2)
    q = s || q
  end
+
 
 return q
 /* ====================================================== */
@@ -264,7 +249,7 @@ do while args \= ''
     end
     otherwise do
       say 'opt = "'opt'"'
-      call give_help
+      /* call give_help */
       exit -1
     end
   end

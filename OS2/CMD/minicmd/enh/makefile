@@ -11,8 +11,9 @@ DEBUG = watcom all
 #defines object file names in format objname.$(O)
 srcfiles = $(p)minicmd$(e) $(p)commands$(e) $(p)dir$(e)
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+UNI2H = 1
 
 IMPORTS = KbdStringIn        EMXWRAP.209, &
           VioWrtTTY          EMXWRAP.119
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

@@ -166,4 +166,4 @@ EXPORTS = VIOENDPOPUP.1,            &
           XVIOGETCASTATE.76
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

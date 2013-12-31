@@ -10,7 +10,7 @@ PROJ        = sub32
 DESC        = Base Subsystems API
 srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e) &
               $(p)strnlen$(e) $(p)unimplemented$(e)
-ADD_COPT    = -i=..$(SEP)include -s
+ADD_COPT    = -s
 # Can't find  ,cmd_shared.lib
 ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,clib3r
 NOLIBS  = 1
@@ -18,6 +18,8 @@ DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata #This is required because each application has
                        #its own AnsiState
+UNI2H = 1
+
 IMPORTS = DosRead               DOSCALLS.281, &
           DosWrite              DOSCALLS.282, &
           DosLogWrite           DOSCALLS.1112, &
@@ -174,4 +176,4 @@ EXPORTS = &
 
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

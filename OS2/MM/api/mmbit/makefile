@@ -25,4 +25,4 @@ EXPORTS = MMBitmapCClassData.2,     &
 
 DEST    = mmos2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

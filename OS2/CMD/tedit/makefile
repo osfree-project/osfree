@@ -35,7 +35,7 @@ IMPORTS = KbdGetStatus                EMXWRAP.210, &
           MouClose                    EMXWRAP.309, &
           MouSetEventMask             EMXWRAP.316
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 install_add: .SYMBOLIC
  $(CP) tedit.hlp $(DEST)

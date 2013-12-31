@@ -10,7 +10,8 @@
 
 all: install .symbolic
 
-install: build
+# a double (see the end of file )
+# install: build
 
 test: .symbolic
   @echo   $(MYDIR)
@@ -44,7 +45,7 @@ test: .symbolic
 #        @echo DEST     $(DEST)
 
 # build and install each target in sequence
-build: precopy prereq .SYMBOLIC
+build: precopy prereq prelibs .SYMBOLIC
  $(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
@@ -189,7 +190,7 @@ LIB_PREFIX =
 DLL_PREFIX =
 DLL_SUFFIX = .dll
 
-!else
+!endif
 !ifeq UNIX TRUE                  # UNIX
 
 SEP       = /                    # dir components separator
@@ -215,12 +216,11 @@ MKDIR     = mkdir
 
 EXE_SUF    =
 EXE_SUFFIX = l
-LIB_SUFFIX = .a
+LIB_SUFFIX = .lib
 LIB_PREFIX =
 DLL_PREFIX =
 DLL_SUFFIX = .so
 
-!endif
 !endif
 
 DIR_PWD   = $+ $(%cwd) $-
@@ -262,9 +262,9 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 # Can wmake's macro do the same?  $^:  or this  $]:
 #  Wmake has similar stuff in the variable &(%cwd)
 
-.l:   $(MYDIR)
+.l:   $(PATH)
 
-.y:   $(MYDIR)
+.y:   $(PATH)
 
 .wmp: $(PATH)
 
@@ -334,18 +334,16 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
  $(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(CC) $(COPT)  -fr=$(PATH)$^*.err -fo=$(PATH)$^&.$(O) $< $(LOG)
+ $(SAY) Compiling $[. $(LOG)
+ $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
  @$(SAY)        Assembling $[. $(LOG)
  $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(CPPC) $(COPT)  -fr=$^*.err -fo=$(PATH)$^&.$(O) $< $(COPT_LAST) $(LOG)
-# @$(SAY) 	Compiling $[. $(LOG)
-# $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY) 	Compiling $[. $(LOG)
+ $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cc.obj: .AUTODEPEND
  @$(SAY)        Compiling $[. $(LOG)
@@ -373,8 +371,6 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
  $(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 .pas.exe: .symbolic
-# @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$<
-# $(PC) $(PCOPT) -FE$(PATH) $<
  @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$[....
  $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
@@ -399,8 +395,8 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
-# @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+# @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: precopy .symbolic
  $(MDHIER) $(PATH)
@@ -418,7 +414,7 @@ install: build
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
-# -$(MDHIER) $(DEST)
+ -$(MDHIER) $(DEST)
  $(MDHIER) $(DEST)
  @for %i in ($(TARGETS)) do if exist %i $(CP) %i $(DEST)
 !endif
@@ -427,7 +423,23 @@ install: build
 !endif
 
 precopy: .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile copy
+ $(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
+
+# prebuild libs
+prelibs: .symbolic
+!ifdef __appsos2_mk__
+ # build all_shared.lib
+ $(CD) $(ROOT)OS2/Shared && $(MAKE) $(MAKEOPT) subdirs
+!endif
+!ifdef __apps_os2_cmd_mk__
+ # build cmd_shared.lib
+ $(CD) $(ROOT)OS2/CMD/Shared && $(MAKE) $(MAKEOPT) subdirs
+!endif
+!ifdef __apps_os2_pm_mk__
+ # build pm_shared.lib
+ #$(CD) $(ROOT)OS2/PM/Shared && $(MAKE) $(MAKEOPT) subdirs
+!endif
+
 
 .error
  @$(SAY) Error (!)

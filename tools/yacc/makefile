@@ -19,7 +19,7 @@ inst: $(MYDIR)bison.simple $(MYDIR)bison.hairy $(PATH)yacc.exe
  $(CP) $(MYDIR)bison.simple $(DEST)
  $(CP) $(MYDIR)bison.hairy $(DEST)
  $(CP) $(PATH)yacc.exe $(DEST)
- $(CP) $(PATH)yacc.exe $(DEST)yacc
+ $(CP) $(PATH)yacc.exe $(DEST)
 
 # The variable ADD_COPT is overwritten in mk/tools.mk when under Linux and I had 
 # some problems with using it.

@@ -10,7 +10,7 @@
    It should only be run from 4OS2 or Take Command.
 */
 
-#define INCL_BASE 1
+#define INCL_BASE
 #include <osfree.h>
 
 #include "shralias.h"

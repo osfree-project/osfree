@@ -18,4 +18,4 @@ STACKSIZE = 65536
 
 DEST     = mmos2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

@@ -1,4 +1,3 @@
-#!/usr/local/bin/rexx
 /*  Set environment variables */
 
 parse arg cfg
@@ -65,6 +64,7 @@ if pos(':', root) = 2 then root = substr(root, 3)
 if os == 'UNIX' | os == 'LINUX' then do
   root = translate(root, '/', '\')
 end
+
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 
@@ -89,15 +89,15 @@ end; else do
 end
 
 /* whether to use osFree or Watcom headers */
-if headers == 'watcom' then
+/* if headers == 'watcom' then
   add_inc = watcom || '\h\os2'
 else
-  add_inc = root || '\build\include\os2'
+  add_inc = root || '\build\include\os2' */
 
 
 lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
-vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH ADD_INC INCLUDE ',
+vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 

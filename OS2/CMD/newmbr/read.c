@@ -184,6 +184,7 @@ void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
   /* printf("DosDevIOCtl: read 1 sector.\n"); */
   }
 
+  return 0;
 }
 
 void write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)

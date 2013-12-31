@@ -18,6 +18,8 @@ IMPORTS =  DosMonWrite                 EMXWRAP.401, &
            DosMonOpen                  EMXWRAP.404, &
            DosMonReg                   EMXWRAP.405
 
+UNI2H = 1
+
 EXPORTS =  DOSMONWRITE.1, &
            DOSMONREAD.2,  &
            DOSMONCLOSE.3, &
@@ -26,4 +28,4 @@ EXPORTS =  DOSMONWRITE.1, &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

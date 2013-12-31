@@ -23,12 +23,7 @@ else do
 end
 
 curdir = directory()
-if sep = '\' then do
-   dir = translate(dir, '\', '/')
-end
-if sep = '/' then do
-   dir = translate(dir, '/', '\')
-end
+dir = translate(dir, '\', '/')
 path = dir
 
 absolute = 0
@@ -40,8 +35,7 @@ then do
   drv = substr(dir, 1, 2)
 end
 
-/* if substr(dir, 1, 1) = '\' */
-if substr(dir, 1, 1) = sep
+if substr(dir, 1, 1) = '\'
 then absolute = 1
 
 /* if the path is absolute, then go root */
@@ -49,15 +43,9 @@ if absolute then do
   if drv \= '' then drv /* change drive */
   call directory sep
 end
-str_mkdir='@mkdir'
-if os = 'UNIX' | os = 'LINUX' then do
-  str_mkdir='mkdir -p'
-  /*str_mkdir || ' -pv ' || dir*/
-end
 
 do while path \= ''
   parse value path with dir '\' path
-
   if pos(':', dir) = 2 & length(dir) = 2
   then
     iterate
@@ -66,10 +54,9 @@ do while path \= ''
 
   cdir=directory()
   ndir=directory(dir)
-
   if ((ndir = cdir)|(ndir='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
   then do
-    str_mkdir || ' ' || dir
+    'mkdir ' || dir
     call directory dir
   end
 end

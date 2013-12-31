@@ -13,5 +13,6 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib cmd_shared.lib
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 IMPORTS = DosFlatToSel_ DOSCALLS.425
+UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

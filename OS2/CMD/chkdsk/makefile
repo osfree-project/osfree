@@ -14,5 +14,6 @@ ADD_LINKOPT = debug all
 STACKSIZE = 40960
 OPTIONS = MIXED1632
 IMPORTS = DosFlatToSel_ DOSCALLS.425
+UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

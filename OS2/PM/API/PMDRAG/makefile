@@ -168,5 +168,5 @@ EXPORTS = DRGACCESSDRAGINFO.            00001,  &
           Undocumented2.                00076
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 

@@ -70,4 +70,4 @@ EXPORTS = MOUGETPTRSHAPE.1,    &
           MOUSETTHRESHOLD.30
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

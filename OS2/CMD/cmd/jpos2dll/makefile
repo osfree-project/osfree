@@ -15,6 +15,7 @@ OPTIONS  = manyautodata, caseexact #, mixed1632
 DLLOPT   = initglobal
 EXPORTS  = SendKeys.3, QuitSendKeys.4, &
            StartHook.5, PauseKeys.6, KeystackHookProc.7
+UNI2H = 1
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

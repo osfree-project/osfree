@@ -41,9 +41,6 @@ do i = 1 to size / chunksize + 1
     ch = substr(chunk, j, 1)
     call charout header, '0x' || c2x(ch) || ','
   end
-    /* At the end it tries to read when there is no more data in length(chunk). */
-  if length(chunk) > 0 then do
-    ch = substr(chunk, length(chunk), 1)
-    call charout header, '0x' || c2x(ch) || '0d 0a'x
-  end
+  ch = substr(chunk, length(chunk), 1)
+  call charout header, '0x' || c2x(ch) || '0d 0a'x
 end

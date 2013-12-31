@@ -11,5 +11,6 @@ srcfiles = $(p)find$(e) $(p)find_str$(e) $(p)kitten$(e)
 # defines additional options for C compiler
 ADD_COPT = -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
+UNI2H = 1
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

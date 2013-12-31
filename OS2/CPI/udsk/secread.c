@@ -111,10 +111,13 @@ APIRET APIENTRY DskSecRead(const PSZ pszDisk, const LONGLONG ullLBA, const ULONG
   c=(ll+1-s)/(H*S);
 
   read_chs(buffer, hDevice, c, h, s);
+
+  return NO_ERROR;
 }
 
 APIRET APIENTRY DskSecWrite(const PSZ pszDisk, const LONGLONG ullLBA, const ULONG bufSize, const PVOID buffer)
 {
+  return NO_ERROR;
 }
 
 APIRET APIENTRY DskBootSecRead(const PSZ pszDisk, VOID * buffer)

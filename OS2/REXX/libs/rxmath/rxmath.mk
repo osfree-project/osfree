@@ -19,4 +19,4 @@ DLL         = 1
 DLLOPT      = initinstance terminstance
 EXPORTS     = MATHLOADFUNCS.1 = mathloadfuncs
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk

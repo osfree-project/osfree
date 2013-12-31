@@ -18,5 +18,5 @@ srcfiles = $(p)win1$(e)
 ADD_COPT    = -bm -od -mf -sg -d2 -mf
 DEST        = os2$(SEP)test
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_pm.mk
 

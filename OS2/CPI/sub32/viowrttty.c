@@ -1,11 +1,11 @@
 #define INCL_BSE
-/*#define INCL_VIO*/
+#define INCL_VIO
 #define INCL_DOSERRORS
 #include <os2.h>
 
 /* Copy declaration so we don't need INCL_VIO */
-#define  DO_VIO
-#include <copied_decl.h>
+//#define  DO_VIO
+//#include <copied_decl.h>
 
 
 

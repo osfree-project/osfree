@@ -56,6 +56,8 @@ ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
+UNI2H = 1
+
 IMPORTS = _DlRoute                DL.DlRoute
 
 EXPORTS = &
@@ -1071,7 +1073,7 @@ EXPORTS = &
 
 DEST    = os2$(SEP)dll
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 # <04:47> <_dixie_> объявляецца конкурс знание того, что делает doscalls.995 :)
 # <04:48> <[Pasha]> _dixie_ DosJAVAIOCtl ? ;-)
