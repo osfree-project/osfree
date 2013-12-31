@@ -1179,6 +1179,7 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
         int reclen, nlen;
         inode *node;
         inode *pnode;
+        int dir_file_type=0;
         pnode = get_nod(fs, dnod);
         if((pnode->i_mode & FM_IFMT) != FM_IFDIR)
                 error_msg_and_die("can't add '%s' to a non-directory", name);
@@ -1204,7 +1205,7 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
                                 node = get_nod(fs, nod);
                                 node->i_links_count++;
                                 d->d_name_len = nlen;
-                                int dir_file_type=0;
+                                //int dir_file_type=0;
                                 switch(node->i_mode & FM_IFMT) {
                                     case FM_IFDIR: dir_file_type=2; break;
                                     case FM_IFREG: dir_file_type=1;
@@ -1225,7 +1226,7 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
                                 node = get_nod(fs, nod);
                                 node->i_links_count++;
                                 d->d_name_len = nlen;
-                                int dir_file_type=0;
+                                //int dir_file_type=0;
                                 switch(node->i_mode & FM_IFMT) {
                                     case FM_IFDIR: dir_file_type=2; break;
                                     case FM_IFREG: dir_file_type=1;
@@ -1245,7 +1246,7 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
         node->i_links_count++;
         d->d_rec_len = BLOCKSIZE;
         d->d_name_len = nlen;
-        int dir_file_type=0;
+        dir_file_type=0;
         switch(node->i_mode & FM_IFMT) {
             case FM_IFDIR: dir_file_type=2; break;
             case FM_IFREG: dir_file_type=1;

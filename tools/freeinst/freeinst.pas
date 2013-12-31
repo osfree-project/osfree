@@ -239,7 +239,7 @@ Procedure Install_Fat;
 Var
   FH          : Integer;
   FreeLdr0:     Sector0Buf;
-  wDevHandle: Word;
+  wDevHandle:   LongInt;
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
 PartNr := 0;
@@ -306,7 +306,7 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
-  wDevHandle: Word;
+  wDevHandle:           LongInt;
 
 Begin
 Writeln('Going to install FreeLDR on ',drive1);
@@ -417,7 +417,7 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
-  wDevHandle: Word;
+  wDevHandle:           LongInt;
 
 Begin
 FillChar(HPbuf,SizeOf(HPbuf),0);
@@ -598,7 +598,7 @@ Var
   FH:                   Integer;
   //mini_hdr:             hdr;
   Count, Count1:        Word;
-  wDevHandle:  Word;
+  wDevHandle:           LongInt;
 
 Begin
 //JFS_version_check;
@@ -683,7 +683,7 @@ End;
 
 Procedure Backup_BootBlock;
 var
-  wDevHandle: Word;
+  wDevHandle:     LongInt;
 Begin
 FillChar(Bbuf,SizeOf(Bbuf),0);
 Open_Disk(Drive,wDevHandle);
@@ -700,7 +700,7 @@ Var
   FH:   Integer;
   key:  Char;
   BufSize:      Integer;
-  wDevHandle: Word;
+  wDevHandle:   LongInt;
 
 Begin
 Writeln(#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8,'Enter name of the bootblockfile to restore ');
