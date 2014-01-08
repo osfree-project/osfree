@@ -70,6 +70,8 @@ ADD_LINKOPT =         $(ADD_LINKOPT) lib $(BLD)lib$(SEP)cmd_shared.lib, &
 DEST    = os2
 !endif
 
+ADD_RCOPT = -bt=os2 -i=. -i=$(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2
+
 SUF += .msg .rsf
 
 !include $(%ROOT)/mk/all.mk
@@ -98,8 +100,6 @@ dllopts += $(DLLOPT)
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopts =
 !endif
-RCOPT    = -bt=os2 $(RCOPT)
-
 
 !ifdef RESOURCE
 deps = $(RESOURCE)

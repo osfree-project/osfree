@@ -17,5 +17,6 @@ NODEFAULTLIBS = 1
 RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
 UNI2H = 1
+DEST = os2
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

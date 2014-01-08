@@ -70,6 +70,14 @@ COPT_LAST = $(DEFINES_LAST)
 ASMOPT    = $(ASM_DEFS) $(ADD_ASMOPT) -q
 C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 
+# Watcom 1.7 RC has bug with resource storing. Resources not just added
+# but replaced. So, we still use OS/2 TK RC.EXE
+RC        = @wrc -q
+#RCOPT     = -bt=OS2
+
+RCOPT = -q
+RCOPT +=  $(ADD_RCOPT)
+
 #
 # Tools:
 #
@@ -116,14 +124,6 @@ DD        = dd
 SED       = sed
 AWK       = awk
 DOX       = doxygen
-
-# Watcom 1.7 RC has bug with resource storing. Resources not just added
-# but replaced. So, we still use OS/2 TK RC.EXE
-#RC        = @wrc -q
-#RCOPT     = -bt=OS2
-
-RC        = wrc
-RCOPT     = $(RCOPT) $(ADD_RCOPT)
 
 MC        = mkmsgf.exe
 
@@ -258,7 +258,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)

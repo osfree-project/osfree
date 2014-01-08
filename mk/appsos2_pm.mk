@@ -1,12 +1,10 @@
 !ifndef __apps_os2_pm__
 !define __apps_os2_pm__
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
-
 !ifeq UNI2H 1
 
 
-RCOPT = &
+ADD_RCOPT = &
                       -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
@@ -16,10 +14,12 @@ RCOPT = &
 
 !else
 
-RCOPT = &
+ADD_RCOPT = &
                       -i=$(%WATCOM)$(SEP)h &
                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !endif
+
+!include $(%ROOT)/mk/appsos2_cmd.mk
 
 !endif

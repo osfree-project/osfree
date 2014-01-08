@@ -6,5 +6,6 @@ srcfiles = $(p)shralias$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -ox
 STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 1
+DEST = os2
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
