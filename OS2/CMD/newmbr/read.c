@@ -16,8 +16,8 @@
 
 char sectorBuff[512];
 
-void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
-void write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
+int read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
+int write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector);
 
 int main (int argc, char* argv[], char* envp[])
 {
@@ -135,11 +135,11 @@ int main (int argc, char* argv[], char* envp[])
   else {
 //  printf("DosPhysicalDisk:  Closed Disk 1 handle.\n");
   }
-
+  return 0;
 }
 
 
-void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
+int read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
 {
 
  TRACKLAYOUT trackLayout;
@@ -187,7 +187,7 @@ void read_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
   return 0;
 }
 
-void write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
+int write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
 {
 
  TRACKLAYOUT trackLayout;
@@ -234,5 +234,5 @@ void write_chs(char * buffer,USHORT hDevice, int cyl, int head, int sector)
  else {
   /* printf("DosDevIOCtl: write 1 sector.\n"); */
   }
-
+  return 0;
 }

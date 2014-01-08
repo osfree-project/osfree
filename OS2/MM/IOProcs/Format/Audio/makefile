@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = mmioFLAC mmioMP3 mmioVorbis
+DIRS = mmioMP3 mmioFLAC # mmioVorbis
 
 !include $(%ROOT)/mk/all.mk
 

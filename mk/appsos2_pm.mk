@@ -11,8 +11,8 @@ RCOPT = &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
+# ADD_COPT   =          $(ADD_COPT) &
+#                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
 
 !else
 

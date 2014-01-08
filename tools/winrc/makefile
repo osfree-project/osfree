@@ -12,14 +12,14 @@ $(p)printres$(e) &
 $(p)cmdline$(e) &
 $(p)buffer$(e) &
 $(p)cleanup$(e) &
-#$(p)mac$(e) &
+# $(p)mac$(e)
 $(p)mdc$(e)
 
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)include -i=.
 
 !include $(%ROOT)/mk/tools.mk
 
-TARGETS = $(PATH)$(PROJ).exe # post
+TARGETS = $(PATH)$(PROJ).exe
 
 $(PATH)rclex.obj: $(PATH)rclex.c
 
@@ -27,9 +27,9 @@ $(PATH)rcyacc.obj: $(PATH)rcyacc.c
 
 $(PATH)ifyacc.obj: $(PATH)ifyacc.c post
 
-.c: $(PATH)
+#.c: $(PATH)
 
-.h: $(PATH)
+#.h: $(PATH)
 
 post: .symbolic
   sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c

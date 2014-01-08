@@ -11,6 +11,7 @@ srcfiles = $(p)addch$(e) $(p)addchstr$(e) $(p)addstr$(e) $(p)attr$(e) $(p)beep$(
            $(p)touch$(e) $(p)util$(e) $(p)window$(e) $(p)debug$(e) &
            $(p)pdcclip$(e) $(p)pdcdisp$(e) $(p)pdcgetsc$(e) $(p)pdckbd$(e) $(p)pdcscrn$(e) &
            $(p)pdcsetsc$(e) $(p)pdcutil$(e)
+UNI2H = 1
 
 !include $(%ROOT)/mk/libsos2.mk
 

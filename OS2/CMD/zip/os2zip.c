@@ -34,7 +34,7 @@
 #define INCL_DOSERRORS
 #define INCL_DOSDATETIME
 #define INCL_DOSFILEMGR
-#include <osfree.h>
+#include <os2.h>
 
 #include "os2zip.h"
 #include "os2acl.h"

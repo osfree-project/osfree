@@ -10,6 +10,7 @@ srcfiles = $(p)cgetsos2$(e) $(p)getchos2$(e) $(p)putchos2$(e) $(p)kbhitos2$(e)
 ADD_COPT    =
 NODEFAULTLIBS = 1
 ADD_LINKOPT = lib sub32.lib
+UNI2H = 1
 
 TARGETS  = $(PATH)$(PROJ).lib
 

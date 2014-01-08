@@ -22,9 +22,10 @@ pre: .SYMBOLIC
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file
 
-workaround: cdeftypes2.h
+workaround: cdeftypes2.h dosfilemgrcommon.h
 # Workaround of uniplemented features of uni2h tool
-  $(CP) cdeftypes2.h $(OUT)$(SEP)cdeftypes2.h $(BLACKHOLE)
+  $(CP) cdeftypes2.h $(OUT) $(BLACKHOLE)
+  $(CP) dosfilemgrcommon.h $(OUT)$(SEP)os2 $(BLACKHOLE)
 
 ## OS/2 Personality files
 os2: $(OUT)$(SEP)os2$(SEP)os2.h &
@@ -60,7 +61,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)dosmodulemgr.h &
      $(OUT)$(SEP)os2$(SEP)dossesmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosfilemgr.h &
-     $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
+#     $(OUT)$(SEP)os2$(SEP)dosfilemgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgr.h &
      $(OUT)$(SEP)os2$(SEP)dosmemmgrcommon.h &
      $(OUT)$(SEP)os2$(SEP)dosmonitors.h &

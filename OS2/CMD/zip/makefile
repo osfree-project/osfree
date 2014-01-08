@@ -7,7 +7,7 @@
 PROJ = zip
 DESC = ZIP file archiver
 # defines additional options for C compiler
-ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
+# ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
 ADD_COPT = -i=..$(SEP)include -DOS2 -DNO_ASM -DNO_SYMLINK
 srcfiles = $(p)zip$(e) $(p)zipfile$(e) $(p)zipup$(e) $(p)fileio$(e) $(p)util$(e) &
            $(p)crc32$(e) $(p)crctab$(e) $(p)globals$(e) &

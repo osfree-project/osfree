@@ -63,7 +63,7 @@
 #define INCL_NOPM
 #define INCL_DOS
 #define INCL_DOSERRORS
-#include <osfree.h>
+#include <os2.h>
 
 #include "os2acl.h"
 

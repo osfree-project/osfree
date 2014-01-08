@@ -94,7 +94,12 @@ LINKER    = wlink
 # don't add the following option to all.mk
 # -----op internalrelocs----
 # as it breaks all non-LX executables, for ex., bootsectors
+
+!ifndef NOLIBS 1
 LINKOPT   = op q libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
+!else
+LINKOPT   = op q $(ADD_LINKOPT)
+!endif
 
 LIB       = wlib
 LIBOPT    = -q -n -fo
@@ -253,7 +258,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .y .l .hpp .inc .rc .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .rc .pas .pp .ipf .map .wmp .rexx .cmd
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -262,9 +267,9 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 # Can wmake's macro do the same?  $^:  or this  $]:
 #  Wmake has similar stuff in the variable &(%cwd)
 
-.l:   $(PATH)
+.l:   $(MYDIR)
 
-.y:   $(PATH)
+.y:   $(MYDIR)
 
 .wmp: $(PATH)
 
@@ -286,7 +291,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 
 .c:   $(PATH)
 
-.c16: $(MYDIR)
+.c16: $(PATH)
 
 .h:   $(PATH)
 
@@ -296,7 +301,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
 
 .ipf: $(MYDIR)
 
-.l.c: .AUTODEPEND
+.l.c: .autodepend
 !ifeq UNIX TRUE
  $(DC) $^@
 !else
@@ -305,7 +310,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc 
  lex -t $[@ >$^@
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
-.y.c: .AUTODEPEND
+.y.c: .autodepend
 !ifeq UNIX TRUE
  $(DC) $^*.h
  $(DC) $^*.c

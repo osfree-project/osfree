@@ -42,7 +42,8 @@ ADD_COPT       =  -4s -wx -zq -mf $(THREADING) &
                   -dREGINA_VERSION_MINOR="$(VER_MINOR)" -dREGINA_VERSION_SUPP="$(VER_SUPP)" &
                   -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
-
+# UNI2H = 1
+NOLIBS = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 

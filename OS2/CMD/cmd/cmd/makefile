@@ -11,7 +11,7 @@ ADD_COPT    = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
 NODEFAULTLIBS = 1
 #    $(BLD)$(SEP)lib$(SEP)os2386.lib,
 #   clibext.lib,
-ADD_LINKOPT = lib os2386.lib,  clib3r.lib, math387r.lib, emu387.lib, sub32.lib
+#ADD_LINKOPT = lib os2386.lib,  clib3r.lib, math387r.lib, emu387.lib, sub32.lib
 #ADD_LINKOPT =
 #STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
 RESOURCE    = $(PATH)4os2.res

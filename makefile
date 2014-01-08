@@ -8,7 +8,7 @@
 # DOS target comes first because many dos executables will be joined with
 # some of os/2 executables as dos stubs
 #
-DIRS = OS2 bootseq # DOS
+DIRS = bootseq DOS OS2
 
 !include $(%ROOT)/mk/all.mk
 

@@ -17,23 +17,26 @@ OBJ8 = $(p)os2eas$(e) $(p)mygetopt$(e)
 OBJX = $(XTRAOBJ)
 srcfiles = $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJX)
 
-ADD_COPT = -i=$(MYDIR)..$(SEP)include -dOS2 -dUSE_OS2REXX # -dSTDC_HEADERS -dPROTO -dOS2 -zz -oneatx -ei -zq -mf
-ADD_LINKOPT = LIB rexx,pdcurses,os2386,clib3r
+ADD_COPT = -i=$(MYDIR)..$(SEP)include -dOS2 -dUSE_OS2REXX -sg -ecw # -dSTDC_HEADERS -dPROTO -dOS2 -zz -oneatx -ei -zq -mf
+# ADD_LINKOPT = LIB rexx,pdcurses,os2386,clib3r
+# ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
+NODEFAULTLIBS = 1
 STACK=65536
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 INSTALL_ADD = 1
-IMPORTS = KbdGetStatus                EMXWRAP.210, &
-          KbdSetStatus                EMXWRAP.211, &
-          MouGetNumQueEl              EMXWRAP.313, &
-          KbdPeek                     EMXWRAP.222, &
-          MouReadEventQue             EMXWRAP.320, &
-          KbdCharIn                   EMXWRAP.204, &
-          MouFlushQue                 EMXWRAP.307, &
-          KbdFlushBuffer              EMXWRAP.213, &
-          MouOpen                     EMXWRAP.317, &
-          MouDrawPtr                  EMXWRAP.326, &
-          MouClose                    EMXWRAP.309, &
-          MouSetEventMask             EMXWRAP.316
+UNI2H = 1
+#IMPORTS = KbdGetStatus                EMXWRAP.210, &
+#          KbdSetStatus                EMXWRAP.211, &
+#          MouGetNumQueEl              EMXWRAP.313, &
+#          KbdPeek                     EMXWRAP.222, &
+#          MouReadEventQue             EMXWRAP.320, &
+#          KbdCharIn                   EMXWRAP.204, &
+#          MouFlushQue                 EMXWRAP.307, &
+#          KbdFlushBuffer              EMXWRAP.213, &
+#          MouOpen                     EMXWRAP.317, &
+#          MouDrawPtr                  EMXWRAP.326, &
+#          MouClose                    EMXWRAP.309, &
+#          MouSetEventMask             EMXWRAP.316
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 

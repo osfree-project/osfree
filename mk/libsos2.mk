@@ -16,9 +16,6 @@ ADD_COPT   =          $(ADD_COPT) -i=$(%WATCOM)$(SEP)h -d__OS2__ &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
-ADD_LINKOPT = option nod lib $(BLD)lib$(SEP)sub32.lib,$(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)os2386.lib &
-              lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib,$(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib
-
 !else
 # use Watcom headers
 

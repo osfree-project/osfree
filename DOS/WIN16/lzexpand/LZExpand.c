@@ -71,7 +71,7 @@ WinRealloc(LPVOID ptr, unsigned int size)
    if (!ptr)
       return(WinMalloc(size));
 
-    lpCore = realloc(ptr,dwSize);
+    lpCore = realloc((void *)ptr,dwSize);
     return lpCore;
 }
 

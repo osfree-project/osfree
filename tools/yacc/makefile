@@ -7,24 +7,15 @@ srcfiles = $(p)LR0$(e) $(p)allocate$(e) $(p)closure$(e) $(p)conflicts$(e) &
            $(p)nullable$(e) $(p)output$(e) $(p)print$(e) $(p)reader$(e) $(p)reduce$(e) $(p)symtab$(e) &
            $(p)warshall$(e) $(p)getopt$(e) $(p)getopt1$(e)
 
-!ifdef UNIX
-ALIAS = mktemp=mkstemp_
-!endif
 
 !include $(%ROOT)/mk/tools.mk
 
-TARGETS = inst $(PATH)yacc
-# $(PATH)yacc
+TARGETS = inst
+
 inst: $(MYDIR)bison.simple $(MYDIR)bison.hairy $(PATH)yacc.exe
  $(CP) $(MYDIR)bison.simple $(DEST)
  $(CP) $(MYDIR)bison.hairy $(DEST)
  $(CP) $(PATH)yacc.exe $(DEST)
- $(CP) $(PATH)yacc.exe $(DEST)
-
-# The variable ADD_COPT is overwritten in mk/tools.mk when under Linux and I had 
-# some problems with using it.
-# The variable DEFINES is added to tools.mk
 
 ADD_COPT = -i=..$(SEP)include -dHAVE_CONFIG_H
-DEFINES = -i=..$(SEP)include -dHAVE_CONFIG_H
 STACKSIZE = 65536

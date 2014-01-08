@@ -17,6 +17,7 @@ ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=dll_initterm
+# UNI2H = 1
 
 IMPORTS = RectCopy utlapi.1,                    &
           RectSet utlapi.2,                     &

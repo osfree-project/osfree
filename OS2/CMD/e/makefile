@@ -11,21 +11,23 @@ srcfiles    = $(p)sty_main$(e) $(p)sty_user$(e) $(p)sty_init$(e) &
               $(p)sty_pnt$(e)  $(p)sty_dlg$(e)  $(p)sty_file$(e) &
               $(p)sty_edit$(e) $(p)sty_help$(e)
 # defines additional options for C compiler
-ADD_COPT    = -i=$(MYDIR) -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI modules will be done
-ADD_LINKOPT = lib os2386.lib, clib3r.lib
+#ADD_COPT    = -sg -3s -ecc -i=$(MYDIR) # until UniAPI modules will be done
+ADD_COPT    = -bm -od -mf -sg -d2 -mf -i=$(MYDIR)
+#ADD_LINKOPT = lib os2386.lib, clib3s.lib
 #STUB       = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-!define WINDOWCOMPAT
+WINDOWCOMPAT = 1
+#NOLIBS = 1
 RESOURCE    = $(PATH)sty_main.res
 RCOPT       += -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI modules will be done
 INSTALL_ADD = 1
 DEST1       = os2$(SEP)help
-HEAPSIZE    = 10240
+OPTIONS      = HEAPSIZE=10240
 STACKSIZE   = 24576
-UNI2H = 1
+# UNI2H = 1
 
 SUF         = .bmp .ico
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)/mk/appsos2_pm.mk
 
 TARGETS = $(PATH)$(PROJ).exe install_add
 

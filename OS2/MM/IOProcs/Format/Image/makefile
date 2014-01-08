@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = JPEG GIF gbm
+DIRS = GIF gbm jpeg
 
 !include $(%ROOT)/mk/all.mk
 

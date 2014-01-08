@@ -54,6 +54,7 @@
 /* Include files, macros, defined constants, and externs                */
 
 #define  INCL_WINHELP
+//#define  INCL_WIN
 
 #include <os2.h>
 #include "sty_main.h"
@@ -110,6 +111,7 @@ int main (VOID)
    ULONG ulCtlData;      /* frame control data */
 
    hab = WinInitialize(0);
+
    if(!hab)
    {
       DosBeep(BEEP_WARN_FREQ, BEEP_WARN_DUR);
@@ -117,6 +119,7 @@ int main (VOID)
    }
 
    hmq = WinCreateMsgQueue(hab, 0);
+
    if(!hmq)
    {
       DosBeep(BEEP_WARN_FREQ, BEEP_WARN_DUR);

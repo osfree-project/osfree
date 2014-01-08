@@ -12,7 +12,7 @@ DIRS = shared ansi   &
               cls &
               cmd &
               comp &
-#              diskcomp &
+#              diskcomp
               diskcopy &
               eject &
               fdisk &
@@ -31,7 +31,7 @@ DIRS = shared ansi   &
               mode &
               more &
               newmbr &
-#              print &
+#              print
               recover &
               screenrs &
               sort &
@@ -39,12 +39,13 @@ DIRS = shared ansi   &
               syslevel &
               tedit &
               tree &
-#              tshell &
+#              tshell
               undelete &
               ver &
               vol &
               xcopy &
-              zip # network
+              zip # network &
+							e
 
 !include $(%ROOT)/mk/all.mk
 

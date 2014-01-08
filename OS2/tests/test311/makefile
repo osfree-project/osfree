@@ -13,6 +13,7 @@ STACKSIZE = 32k
 #defines object file names in format objname.$(O)
 srcfiles = $(p)minicmd$(e) $(p)commands$(e) $(p)strnlen$(e) $(p)strncmp$(e)
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+NODEFAULTLIBS = 1
 
 IMPORTS = KbdStringIn           EMXWRAP.209, &
           DosError              DOSCALLS.212, &

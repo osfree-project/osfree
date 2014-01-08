@@ -24,8 +24,14 @@ ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
-ADD_LINKOPT = option nod lib $(BLD)lib$(SEP)sub32.lib,$(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)os2386.lib &
-              lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib,$(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib
+!ifneq NOLIBS 1
+ADD_LINKOPT = option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib,$(%WATCOM)$(SEP)lib386$(SEP)noemu387.lib, &
+              $(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)sub32.lib,tcpip32.lib, &
+              $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib,$(BLD)lib$(SEP)os2386.lib, &
+              rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
+
+#              $(BLD)lib$(SEP)rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
+!endif
 
 !else
 # use Watcom headers
@@ -52,11 +58,12 @@ ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=os2
 
-
+###
 !ifeq NOLIBS 1
-ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK
+ADD_LINKOPT =         $(ADD_LINKOPT) # OPTION REDEFSOK
 !else
-ADD_LINKOPT =         $(ADD_LINKOPT) OPTION REDEFSOK lib all_shared.lib,cmd_shared.lib,sub32.lib # op  internalrelocs
+ADD_LINKOPT =         $(ADD_LINKOPT) lib $(BLD)lib$(SEP)cmd_shared.lib, &
+		      $(BLD)lib$(SEP)all_shared.lib # op  internalrelocs  OPTION REDEFSOK
 !endif
 
 !ifndef DEST

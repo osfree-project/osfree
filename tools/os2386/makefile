@@ -8,6 +8,7 @@ lbcs =  bdcalls.lbc doscalls.lbc helpmgr.lbc sub32.lbc  &
 #       kbdcalls.lbc moncalls.lbc moucalls.lbc viocalls.lbc &
         msg.lbc nampipes.lbc nls.lbc pmctls.lbc pmdrag.lbc pmgpi.lbc &
         pmspl.lbc pmshapi.lbc pmviop.lbc pmwin.lbc pmwp.lbc quecalls.lbc sesmgr.lbc
+UNI2H = 1
 
 TARGETS  = $(PATH)$(PROJ).lib subdirs
 

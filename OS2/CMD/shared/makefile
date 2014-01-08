@@ -6,7 +6,7 @@ DIRS = msg
 PROJ = cmd_shared
 ADD_COPT = -d2 -db -i=$(MYDIR)..$(SEP)include
 NOLIBS      = 1
-ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
+# ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
 UNI2H = 1
 
 

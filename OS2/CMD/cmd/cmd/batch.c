@@ -161,7 +161,7 @@ static int load_btm( void )
         // add the line size to avoid protection violation
         uSize = (UINT)(lOSize + CMDBUFSIZ);
 
-        if (( bframe[cv.bn].in_memory_buffer = AllocMem( &uSize )) == 0L ) {
+        if (( bframe[cv.bn].in_memory_buffer = AllocMem( (UINT *)&uSize )) == 0L ) {
                 FreeMem(fptr);
                 close_batch_file();
                 return (error( ERROR_NOT_ENOUGH_MEMORY, bframe[cv.bn].pszBatchName ));
@@ -169,7 +169,7 @@ static int load_btm( void )
 
         // rewind & read the file (max of 64K)
         RewindFile( bframe[cv.bn].bfd );
-        (void)FileRead( bframe[cv.bn].bfd, bframe[cv.bn].in_memory_buffer, (UINT)lOSize, &uSize );
+        (void)FileRead( bframe[cv.bn].bfd, bframe[cv.bn].in_memory_buffer, (UINT)lOSize, (UINT *)&uSize );
 
         close_batch_file();
 
@@ -258,7 +258,7 @@ int BatchDebugger( void )
         uSize = (UINT)( QueryFileSize( bframe[ cv.bn ].pszBatchName, 0 ) + 0x10 );
 // FIXME - files > 64K??
         if (( lpBuf = AllocMem( &uSize )) != 0L ) {
-                FileRead( n, lpBuf, uSize, &uSize );
+                FileRead( n, lpBuf, uSize, (UINT *)&uSize );
                 lpBuf[uSize] = '\0';
         }
         _close( n );

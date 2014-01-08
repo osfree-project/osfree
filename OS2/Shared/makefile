@@ -10,7 +10,7 @@ srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname
 
 UNI2H = 1
 ADD_COPT =  
-ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
+# ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
 NOLIBS      = 1
 TARGETS  = $(PATH)$(PROJ).lib subdirs
 
