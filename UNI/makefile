@@ -16,7 +16,7 @@ h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
   @%null
 
 pre: .SYMBOLIC
- $(SAY) Creating directories...
+ @$(SAY) Creating directories...
  @for %i in ($(subdirs)) do $(MDHIER) %i
 
 $(OUT)$(SEP)osfree.h: osfree.uni
@@ -24,8 +24,8 @@ $(OUT)$(SEP)osfree.h: osfree.uni
 
 workaround: cdeftypes2.h dosfilemgrcommon.h
 # Workaround of uniplemented features of uni2h tool
-  $(CP) cdeftypes2.h $(OUT) $(BLACKHOLE)
-  $(CP) dosfilemgrcommon.h $(OUT)$(SEP)os2 $(BLACKHOLE)
+  @$(CP) cdeftypes2.h $(OUT) $(BLACKHOLE)
+  @$(CP) dosfilemgrcommon.h $(OUT)$(SEP)os2 $(BLACKHOLE)
 
 ## OS/2 Personality files
 os2: $(OUT)$(SEP)os2$(SEP)os2.h &
@@ -178,9 +178,10 @@ os2libs: $(LIBOUT)sub32.lib &
          .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
- uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
- $(LIB) $(LIBOPT) $^@ @$^*.def
- $(DC) $^*.def
+ @$(SAY)    CREAT $[...
+ @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
+ @$(LIB) $(LIBOPT) $^@ @$^*.def
+ @$(DC) $^*.def
 
 $(OUT)$(SEP)os2$(SEP)os2.h: os2$(SEP)os2.uni
 
@@ -491,8 +492,10 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .lib: $(PATH)
 
 .uni.h: .AUTODEPEND
- uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
+ @$(SAY)    UNI2H $[...
+ @uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
 
 .uni.lib: .AUTODEPEND
- uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
- $(LIB) $(LIBOPT) $^@ @$^*.def
+ @$(SAY)    CREAT $[...
+ @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
+ @$(LIB) $(LIBOPT) $^@ @$^*.def

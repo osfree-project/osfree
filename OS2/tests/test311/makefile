@@ -14,13 +14,13 @@ STACKSIZE = 32k
 srcfiles = $(p)minicmd$(e) $(p)commands$(e) $(p)strnlen$(e) $(p)strncmp$(e)
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 NODEFAULTLIBS = 1
-
-IMPORTS = KbdStringIn           EMXWRAP.209, &
-          DosError              DOSCALLS.212, &
-          DosQueryCurrentDir    DOSCALLS.274  , &
-          DosQueryCurrentDisk   DOSCALLS.275  , &
-          DosSetCurrentDir      DOSCALLS.255  , &
-          DosExecPgm            DOSCALLS.283  , &
-          DosSetDefaultDisk     DOSCALLS.220
+UNI2H = 1
+#IMPORTS = KbdStringIn           EMXWRAP.209, &
+#          DosError              DOSCALLS.212, &
+#          DosQueryCurrentDir    DOSCALLS.274  , &
+#          DosQueryCurrentDisk   DOSCALLS.275  , &
+#          DosSetCurrentDir      DOSCALLS.255  , &
+#          DosExecPgm            DOSCALLS.283  , &
+#          DosSetDefaultDisk     DOSCALLS.220
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

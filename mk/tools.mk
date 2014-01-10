@@ -22,7 +22,7 @@ DEST    = tools
 !ifeq UNIX TRUE
 OS       = UNIX
 NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
-ADD_LINKOPT = $(ADD_LINKOPT) system linux  debug dwarf all
+ADD_LINKOPT    += system linux  debug dwarf all
 !endif
 
 # The variable DEFINES is to append more compiler defines and switches from a singular makefile
@@ -31,7 +31,7 @@ CLEAN_ADD = *.c *.h
 
 TARGETS  = $(PATH)$(PROJ)$.exe $(PATH)$(PROJ)$(EXE_SUF) # $(PATH)$(PROJ).sym
 
-ADD_COPT = -i=. -i=..$(SEP)..$(SEP)include $(ADD_COPT) $(DEFINES)
+ADD_COPT += -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
 
 $(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 

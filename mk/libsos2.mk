@@ -8,29 +8,29 @@
 
 CLEAN_ADD = *.c *.h
 
+!include $(%ROOT)/mk/libs.mk
+
+ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
+
 !ifeq UNI2H 1
 # generated uni2h headers
 
-ADD_COPT   =          $(ADD_COPT) -i=$(%WATCOM)$(SEP)h -d__OS2__ &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include &
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !else
 # use Watcom headers
 
-ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_COPT   +=         -d__OS2__ -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !endif
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include &
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3 &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)ojpeg &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GL &
@@ -42,6 +42,5 @@ ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
                       -bt=os2
 
-!include $(%ROOT)/mk/libs.mk
 
 !endif

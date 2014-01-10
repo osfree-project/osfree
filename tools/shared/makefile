@@ -3,7 +3,7 @@
 32_BITS  = 1
 
 PROJ = tools_shared
-DIRS = z #idl
+DIRS = z idl
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib #$(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
 TARGETS  = subdirs $(PATH)$(PROJ).lib

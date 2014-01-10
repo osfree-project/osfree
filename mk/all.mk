@@ -46,14 +46,14 @@ test: .symbolic
 
 # build and install each target in sequence
 build: precopy prereq prelibs .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
+ @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
 
 #
 # Preprocessor defines
 #
-C_DEFS    = -zq -d__WATCOM__ -d__OSFREE__
+C_DEFS    = -zq -q -d__WATCOM__ -d__OSFREE__
 ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 
 #
@@ -61,9 +61,9 @@ ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
 # a file which includes this file.
 #
 # -q for quiet removes the credit from wcc386, wpp386 and wasm 
-COPT      = $(C_DEFS) $(ADD_COPT) -q &
+COPT      = $(C_DEFS) -q &
             -i=$(MYDIR) -i=$(MYDIR).. &
-            -i=$(PATH)  -i=$(PATH)..
+            -i=$(PATH)  -i=$(PATH).. $(ADD_COPT)
 COPT_LAST = $(DEFINES_LAST)
 
 #            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until UniAPI headers will be ready
@@ -75,8 +75,7 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 RC        = @wrc -q
 #RCOPT     = -bt=OS2
 
-RCOPT = -q
-RCOPT +=  $(ADD_RCOPT)
+RCOPT =  $(ADD_RCOPT)
 
 #
 # Tools:
@@ -302,23 +301,25 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .ipf: $(MYDIR)
 
 .l.c: .autodepend
+ @$(SAY)     LEX $[...
 !ifeq UNIX TRUE
- $(DC) $^@
+ @$(DC) $^@
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- lex -t $[@ >$^@
+ @lex -t $[@ >$^@
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
+ @$(SAY)     YACC $[...
 !ifeq UNIX TRUE
- $(DC) $^*.h
- $(DC) $^*.c
+ @$(DC) $^*.h
+ @$(DC) $^*.c
 !else
  @if exist $^*.h $(DC) $^*.h $(BLACKHOLE)
  @if exist $^*.c $(DC) $^*.c $(BLACKHOLE)
 !endif
- yacc -y -d -o $^@ $[@
+ @yacc -y -d -o $^@ $[@
 
 .c:   $(MYDIR)
 
@@ -335,65 +336,61 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .pp:  $(MYDIR)
 
 .c16.o16: .AUTODEPEND
- @$(SAY)        Compiling $[. $(LOG)
- $(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    CC16 $[...
+ @$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
- $(SAY) Compiling $[. $(LOG)
- $(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    CC $[...
+ @$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
- @$(SAY)        Assembling $[. $(LOG)
- $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    ASM $[...
+ @$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- @$(SAY) 	Compiling $[. $(LOG)
- $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    CXX $[...
+ @$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cc.obj: .AUTODEPEND
- @$(SAY)        Compiling $[. $(LOG)
- $(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    CXX $[...
+ @$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .wmp.map: .AUTODEPEND
- @$(SAY)        Converting Watcom MAP to VAC MAP $[. $(LOG)
- $(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
+ @$(SAY)    WMP2MAP $[...
+ @$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
 
 .map.sym: .AUTODEPEND
- @$(SAY)        Converting VAC MAP to OS/2 SYM $[. $(LOG)
- $(MAPSYM) $[@
- $(RN) $^. $^:
+ @$(SAY)    MAPSYMSYM $[...
+ @$(MAPSYM) $[@
+ @$(RN) $^. $^:
 
 .ipf.inf: .AUTODEPEND
- @$(SAY)        Compiling IPF source file $[.... $(LOG)
- $(HC) -i $[@ -o $^@
+ @$(SAY)    IPFC $[...
+ @$(HC) -i $[@ -o $^@
 
 .ipf.hlp: .AUTODEPEND
- @$(SAY)        Compiling IPF source file $[.... $(LOG)
- $(HC) $[@ -o $^@
-
-.rc.res: .AUTODEPEND
- @$(SAY)        Compiling resource file $[.... $(LOG)
- $(RC) $(RCOPT) $[@ -fo=$^@ -r
+ @$(SAY)    IPFC $[...
+ @$(HC) $[@ -o $^@
 
 .pas.exe: .symbolic
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$[....
- $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
+ @$(SAY)    PPC $[...
+ @$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .pp.exe: .symbolic
- @$(SAY)     Compiling $[....
- $(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
+ @$(SAY)    PPC $[...
+ @$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
 
 .lnk.exe: .symbolic
- @$(SAY)     Linking $^.... $(LOG)
- $(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $@...
+ @$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .lnk.dll: .symbolic
- @$(SAY)     Linking $^.... $(LOG)
- $(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $@...
+ @$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
-  @$(SAY)    Wrapping REXX code $[....
-  rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+  @$(SAY)    WRAPXX $[...
+  @rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -404,41 +401,43 @@ subdirs: .symbolic
  @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: precopy .symbolic
- $(MDHIER) $(PATH)
+ @$(SAY)     MKDIR $(PATH)...
+ @$(MDHIER) $(PATH)
 
 .IGNORE
 clean: .SYMBOLIC
- @$(SAY)       Making clean... $(LOG)
+ @$(SAY)    CLEAN...
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
- $(CLEAN_CMD)
+ @$(CLEAN_CMD)
 # @$(SAY)   "$(TARGETS) -> $(DEST)"
 
 install: build
- @$(SAY) 	Making install... $(PROJ) $(LOG)
+ @$(SAY)    INST $(PROJ)...
 !ifeq INSTALL_PRE 1
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
- -$(MDHIER) $(DEST)
- $(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do if exist %i $(CP) %i $(DEST)
+ #-$(MDHIER) $(DEST)
+ @$(MDHIER) $(DEST)
+ @for %i in ($(TARGETS)) do @if exist %i @$(CP) %i $(DEST)
 !endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
 precopy: .SYMBOLIC
- $(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
+ @$(SAY)     PRECOPY...
+ @$(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
 
 # prebuild libs
 prelibs: .symbolic
 !ifdef __appsos2_mk__
  # build all_shared.lib
- $(CD) $(ROOT)OS2/Shared && $(MAKE) $(MAKEOPT) subdirs
+ @$(CD) $(ROOT)OS2/Shared && @$(MAKE) $(MAKEOPT) subdirs
 !endif
 !ifdef __apps_os2_cmd_mk__
  # build cmd_shared.lib
- $(CD) $(ROOT)OS2/CMD/Shared && $(MAKE) $(MAKEOPT) subdirs
+ @$(CD) $(ROOT)OS2/CMD/Shared && @$(MAKE) $(MAKEOPT) subdirs
 !endif
 !ifdef __apps_os2_pm_mk__
  # build pm_shared.lib

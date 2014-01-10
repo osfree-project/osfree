@@ -15,5 +15,7 @@ OPTIONS  = caseexact
 IMPORTS     = KbdCharIn                   EMXWRAP.204
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 1
+# c++ source
+CXX   = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

@@ -1,6 +1,6 @@
-#ifndef OS2_INCLUDED
+//#ifndef OS2_INCLUDED
    #include <os2.h>
-#endif
+//#endif
 DLGINCLUDE 1 "..\include\resource.h"
 
 DLGTEMPLATE CONFIG_CMDDLGBOX LOADONCALL MOVEABLE DISCARDABLE

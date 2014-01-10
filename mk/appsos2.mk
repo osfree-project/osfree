@@ -9,44 +9,50 @@
 PLATFORM = os2
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 
-!ifeq DLL 1
-ADD_COPT   =          $(ADD_COPT) -bd
-!endif
+!include $(%ROOT)/mk/dirs.mk
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%WATCOM)$(SEP)h
+ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
 !ifeq UNI2H 1
 # generated uni2h headers
 
-ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include &
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !ifneq NOLIBS 1
-ADD_LINKOPT = option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib,$(%WATCOM)$(SEP)lib386$(SEP)noemu387.lib, &
-              $(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)sub32.lib,tcpip32.lib, &
-              $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib,$(BLD)lib$(SEP)os2386.lib, &
-              rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
+ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
+               $(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)sub32.lib, &
+!ifeq CXX 1
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3r.lib, &
+!endif
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib, &
+               $(BLD)lib$(SEP)os2386.lib, &
+               rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
 
-#              $(BLD)lib$(SEP)rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
 !endif
 
 !else
 # use Watcom headers
 
-ADD_COPT   =          $(ADD_COPT) -d__OS2__ &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
-
+ADD_COPT    +=         -i=$(%WATCOM)$(SEP)h$(SEP)os2
 !endif
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include &
+ADD_RCOPT    =         -bt=os2 $(ADD_COPT)
+
+!ifndef DEST
+DEST    = os2
+!endif
+
+SUF += .msg .rsf
+
+!include $(%ROOT)/mk/all.mk
+
+ADD_COPT    +=        -i=$(%ROOT)$(SEP)include &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3
 
-ADD_COPT   =          $(ADD_COPT) &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)ojpeg &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GDlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)GL &
@@ -55,32 +61,29 @@ ADD_COPT   =          $(ADD_COPT) &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
-                      -bt=os2
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib
 
 ###
 !ifeq NOLIBS 1
-ADD_LINKOPT =         $(ADD_LINKOPT) # OPTION REDEFSOK
+ADD_LINKOPT +=        # OPTION REDEFSOK
 !else
-ADD_LINKOPT =         $(ADD_LINKOPT) lib $(BLD)lib$(SEP)cmd_shared.lib, &
+ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared.lib, &
 		      $(BLD)lib$(SEP)all_shared.lib # op  internalrelocs  OPTION REDEFSOK
 !endif
 
-!ifndef DEST
-DEST    = os2
-!endif
 
-ADD_RCOPT = -bt=os2 -i=. -i=$(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2
+###
 
-SUF += .msg .rsf
-
-!include $(%ROOT)/mk/all.mk
+.rc.res: .AUTODEPEND
+ @$(SAY)    RESCMP $[...
+ @$(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 cplist = en pl ru
 
 .rsf: $(PATH)
 
 .rsf.msg:
+ @$(SAY) MKMSGF $[...
  @$(MC) @$<
 
 rsf: .SYMBOLIC .PROCEDURE
@@ -156,7 +159,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
- @$(SAY)     Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)     Linking $^@...
+ @$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

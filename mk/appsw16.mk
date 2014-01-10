@@ -39,8 +39,8 @@ RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(M
 .rc:  $(MYDIR)
 
 .rc.res: .AUTODEPEND
- @$(SAY)        Compiling resource file $[@.... $(LOG)
- $(RC) $(RCOPT) -o $^@ $[@
+ @$(SAY)    WINRES $[...
+ @$(RC) $(RCOPT) -o $^@ $[@
 
 !ifdef RESOURCE
 deps = $(RESOURCE)
@@ -84,6 +84,6 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk $(OBJS)
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
 !endif
  @$(SAY)     Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

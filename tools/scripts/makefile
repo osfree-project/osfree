@@ -21,4 +21,4 @@ copy: .symbolic
  @for %i in ($(filelist)) do $(CP) %i $(DEST)
  @touch $(FILESDIR)$(SEP)base-built-flag
  @$(CD) .. && $(MAKE) $(MAKEOPTS)
- $(CD) $(MYDIR)
+ @$(CD) $(MYDIR)

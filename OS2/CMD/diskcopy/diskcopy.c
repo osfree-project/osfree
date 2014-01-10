@@ -26,8 +26,10 @@
   /* Note, for the lockdrive/unlockdrive macros, the global variable _lockCmd
   **  must be accessable and set to zero!
   */
-#define lockdrive(hf)   (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_LOCKDRIVE,   IOCTL_DISK, hf))
-#define unlockdrive(hf) (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_UNLOCKDRIVE, IOCTL_DISK, hf))
+//#define lockdrive(hf)   (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_LOCKDRIVE,   IOCTL_DISK, hf))
+//#define unlockdrive(hf) (_DosError = DosDevIOCtl(0L, &_lockCmd, DSK_UNLOCKDRIVE, IOCTL_DISK, hf))
+#define lockdrive(hf)   (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_LOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
+#define unlockdrive(hf) (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_UNLOCKDRIVE, &_lockCmd, 0, NULL, NULL, 0L, NULL))
 
 
 /* --------------------------------------------------------------------------
@@ -167,7 +169,8 @@ HFILE opendrive(char *drive)
   */
 int readsource(HFILE hf)
   {
-  BYTE _parmCmd = 1;
+  BYTE _parmCmd[2] = {1, 0};
+  ULONG _sizeParms, _sizeCmd;
   int  trk, hd, cyl;
 
   /* If this isn't the first time here, free memory from last time first */
@@ -188,7 +191,9 @@ int readsource(HFILE hf)
       USHORT APIENTRY DosDevIOCtl(PVOID,PVOID,USHORT,USHORT,HFILE); */
 
   /* Get source disk parameters */
-  _DosError = DosDevIOCtl(&sourceParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
+  _DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_GETDEVICEPARAMS, &_parmCmd, sizeof(_parmCmd), &_sizeCmd,
+                              &sourceParms, sizeof(sourceParms), &_sizeParms);
+  //_DosError = DosDevIOCtl(&sourceParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
   if (!_DosError)
     {
     /* Set all the informational variables and build a track layout table
@@ -237,7 +242,9 @@ int readsource(HFILE hf)
         sourceLayout->usHead = hd;
         if ((sourceBuffer[trk+hd] = (PBYTE)Alloc(bytesPerTrack, sizeof(BYTE))) == NULL)
           errorexit(hf);
-        if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_READTRACK, IOCTL_DISK, hf))
+        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_READTRACK, IOCTL_DISK, hf))
+        if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_READTRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
+                                        sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
         }
       }
@@ -288,13 +295,16 @@ BYTE fmttbl_bytessec(USHORT bytesPerSec)
   */
 int writetarget(HFILE hf)
   {
-  BYTE         _parmCmd = 1;
+  BYTE         _parmCmd[2] = {1, 0};
+  ULONG        _sizeCmd, _sizeParms;
   PTRACKFORMAT trkfmt;
   USHORT       sizeofTrkfmt;
   int          i, trk, hd, cyl, needFormat = FALSE;
 
   /* Get target disk parameters */
-  _DosError = DosDevIOCtl(&targetParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
+  //_DosError = DosDevIOCtl(&targetParms, &_parmCmd, DSK_GETDEVICEPARAMS, IOCTL_DISK, hf);
+  _DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_GETDEVICEPARAMS, &_parmCmd, sizeof(_parmCmd), &_sizeCmd,
+                              &targetParms, sizeof(targetParms), &_sizeParms);
 
   if (_DosError == ERROR_READ_FAULT)
     {
@@ -374,10 +384,14 @@ int writetarget(HFILE hf)
     puts("");
 #endif
 
-          if (_DosError = DosDevIOCtl(&_fmtData, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf))
+          //if (_DosError = DosDevIOCtl(&_fmtData, trkfmt, DSK_FORMATVERIFY, IOCTL_DISK, hf))
+          if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_FORMATVERIFY, trkfmt, sizeof(trkfmt), &_sizeCmd,
+                                          &_fmtData, sizeof(_fmtData), &_sizeParms))
             errorexit(hf);
           }
-        if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_WRITETRACK, IOCTL_DISK, hf))
+        //if (_DosError = DosDevIOCtl(sourceBuffer[trk+hd], sourceLayout, DSK_WRITETRACK, IOCTL_DISK, hf))
+        if (_DosError = DosDevIOCtl(hf, IOCTL_DISK, DSK_WRITETRACK, sourceLayout, sizeof(sourceLayout), &_sizeCmd,
+                                        sourceBuffer[trk+hd], sizeof(sourceBuffer), &_sizeParms))
           errorexit(hf);
         }
       }
@@ -431,7 +445,8 @@ void *Alloc(unsigned num, unsigned size)
   */
 void errorexit(HFILE hf)
   {
-  USHORT cbBuf;
+  //USHORT cbBuf;
+  ULONG cbBuf;
   CHAR   *msgBuf;
 
   if (_DosError == DSKCPY_ERROR_WRONG_FORMAT)

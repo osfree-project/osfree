@@ -57,41 +57,44 @@ LOUT         = lbi
 .$(SOUT): $(PATH)
 
 .mdl.rel
- $(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@
+ @$(SAY)    GENREL $[...
+ @$(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@
 !ifeq UNIX TRUE
- $(DC) $[*.mds
+ @$(DC) $[*.mds
 !else
  @if exist $[*.mds $(DC) $[*.mds $(BLACKHOLE)
 !endif
 
 .$(OUT).mdl:
+ @$(SAY)    RIPZEROES $[...
 !ifeq UNIX TRUE
- $(DC) $^@
+ @$(DC) $^@
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- $(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
+ @$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@
 !ifeq UNIX TRUE
- $(DC) $[@
+ @$(DC) $[@
 !else
  @if exist $[@ $(DC) $[@ $(BLACKHOLE)
 !endif
 
 .$(SOUT).mds:
+ @$(SAY)    RIPZEROES $[...
 !ifeq UNIX TRUE
- $(DC) $^@
+ @$(DC) $^@
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- $(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
+ @$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@
 !ifeq UNIX TRUE
- $(DC) $[@
+ @$(DC) $[@
 !else
  @if exist $[@ $(DC) $[@ $(BLACKHOLE)
 !endif
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
- @$(SAY)     Linking $< $(LOG)
+ @$(SAY)    LINK $[...
  $(LINKER) @$< $(LOG)
 
 $(PATH)$(T)$(S).lnk: .SYMBOLIC
@@ -137,31 +140,32 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 .asm: $(MYDIR)
 
 .c.$(O):
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     CC $[...
+ @$(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .c.$(SO):
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     CC $[...
+ @$(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .c.$(LO):
- @$(SAY) 	Compiling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)    CC $[...
+ @$(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(O):
- @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)    ASM $[...
+ @$(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(LO):
- @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)    ASM $[...
+ @$(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .asm.$(SO):
- @$(SAY) 	Assembling $(RELDIR_PWD)$(SEP)$< $(LOG)
- $(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)    ASM $[...
+ @$(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
 
 .inc.h:
- $(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@
+ @$(SAY) INC2H $[...
+ @$(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@
 
 #
 # See $(%ROOT)/mk/genrules.mk for details

@@ -64,7 +64,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk $(OBJS)
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
 !endif
- @$(SAY)    Linking $^@ $(LOG)
- $(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    Linking $[...
+ @$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif
