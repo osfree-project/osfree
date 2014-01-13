@@ -64,6 +64,7 @@ extern struct dirent *readdir(DIR *);
 extern void seekdir(DIR *, long);
 extern long telldir(DIR *);
 extern void closedir(DIR *);
+extern int rmdir(char *);
 #define rewinddir(dirp) seekdir(dirp, 0L)
 
 int GetFileMode(char *name);
@@ -76,8 +77,8 @@ int IsFileNameValid(char *name);
 int IsFileSystemFAT(char *dir);
 void ChangeNameForFAT(char *name);
 
-char *GetLongNameEA(char *name);
-char *GetLongPathEA(char *name);
+char *GetLongNameEA(const char *name);
+char *GetLongPathEA(const char *name);
 void GetEAs(char *name, char **bufptr, size_t *size,
                         char **cbufptr, size_t *csize);
 

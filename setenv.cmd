@@ -68,7 +68,7 @@ end
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 
-tools = root || '\bin\tools'
+tools = root || 'bin\tools'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
@@ -100,6 +100,9 @@ lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win
 vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
+
+if verbose = 'yes' then
+  vars = vars || ' VERBOSE'
 
 /* Set vars */
 do i = 1 to words(vars)

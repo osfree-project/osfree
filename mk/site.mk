@@ -24,7 +24,7 @@ _VERSION=14.100
 FILEVER=@$#$(_VENDOR):$(_VERSION)$#@
 
 # Shell
-!     ifeq OS_SHELL 4OS/2
+!ifeq OS_SHELL 4OS/2
 SHELL   = 4os2
 !else 
 !ifeq OS_SHELL CMD
@@ -66,7 +66,6 @@ UNIX = TRUE
 !endif
 !endif
 
-
 # Path separator
 !ifeq UNIX FALSE
 SEP        = \
@@ -77,7 +76,7 @@ SEP        = /
 # REXX interpreter
 # (for OS/2 Classic REXX the interreter must be empty,
 # as it is a library, not executable file)
-!     ifeq OS_REXX Classic
+!ifeq OS_REXX Classic
 REXX    =
 !else 
 !ifeq OS_REXX Object

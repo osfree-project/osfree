@@ -11,7 +11,7 @@
 all: install .symbolic
 
 # a double (see the end of file )
-# install: build
+install: build
 
 test: .symbolic
   @echo   $(MYDIR)
@@ -44,8 +44,22 @@ test: .symbolic
 #        @echo TARGETS  $(TARGETS)
 #        @echo DEST     $(DEST)
 
+#prevshared: .symbolic
+# @if not exist $(MYDIR)..$(SEP)..$(SEP)Shared @%quit
+# $(CD) $(MYDIR)..$(SEP)..$(SEP)Shared
+# @$(MAKE) $(MAKEOPTS)
+# $(CD) $(MYDIR)
+#
+# make 'shared' lib on this level
+# before making any programs
+#shared: prevshared .symbolic
+# @if not exist $(MYDIR)..$(SEP)Shared @%quit
+# @cd $(MYDIR)..$(SEP)Shared
+# @$(MAKE) $(MAKEOPTS)
+# $(CD) $(MYDIR)
+
 # build and install each target in sequence
-build: precopy prereq prelibs .SYMBOLIC
+build: precopy prereq .SYMBOLIC
  @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS)
 
 TRG  =
@@ -164,9 +178,9 @@ SEP       = \                    # dir components separator
 PS        = ;                    # paths separator
 O         = obj                  # Object Extension differs from Linux to OS/2
 O16       = o16                  # 16-bit obj
-DC        = @del                 # Delete command is rm on linux and del on OS/2
-CP        = @copy                # Copy command
-SAY       = @echo                # Echo message
+DC        = del                 # Delete command is rm on linux and del on OS/2
+CP        = copy                # Copy command
+SAY       = echo                # Echo message
 MKBIN     = $(REXX) mkbin.cmd
 GENHDD    = $(REXX) genhdd.cmd
 GENFDD    = $(REXX) genfdd.cmd
@@ -181,7 +195,7 @@ NULL      = nul
 !ifeq ENV WIN32
 NULL      = nul
 !else
-NULL      = \dev\nul
+NULL      = nul
 !endif
 !endif
 BLACKHOLE = 2>&1 >$(NULL)
@@ -241,6 +255,13 @@ LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
             # 2>&1 >> $(ROOT)$(SEP)compile.log
             # Alternative log command (use manually on cmd line, for bash):
             #   2>&1 | tee ${ROOT}${SEP}compile.log
+verbose=$(%VERBOSE)
+!ifeq verbose yes
+verbose=
+!else
+verbose=@
+!endif
+
 !ifndef OBJS16
 !ifdef  srcfiles16
 p = $(PATH)
@@ -301,25 +322,25 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .ipf: $(MYDIR)
 
 .l.c: .autodepend
- @$(SAY)     LEX $[...
+ @$(SAY)      LEX $]... $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $^@
 !else
  @if exist $^@ $(DC) $^@ $(BLACKHOLE)
 !endif
- @lex -t $[@ >$^@
+ $(verbose)lex -t $[@ >$^@ $(LOG)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
- @$(SAY)     YACC $[...
+ @$(SAY)    YACC $]... $(LOG)
 !ifeq UNIX TRUE
- @$(DC) $^*.h
- @$(DC) $^*.c
+ @(verbose)$(DC) $^*.h $(BLACKHOLE)
+ @$(DC) $^*.c $(BLACKHOLE)
 !else
  @if exist $^*.h $(DC) $^*.h $(BLACKHOLE)
  @if exist $^*.c $(DC) $^*.c $(BLACKHOLE)
 !endif
- @yacc -y -d -o $^@ $[@
+ $(verbose)yacc -y -d -o $^@ $[@ $(LOG)
 
 .c:   $(MYDIR)
 
@@ -336,61 +357,61 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .pp:  $(MYDIR)
 
 .c16.o16: .AUTODEPEND
- @$(SAY)    CC16 $[...
- @$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)    CC16 $[... $(LOG)
+ $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.obj: .AUTODEPEND
- @$(SAY)    CC $[...
- @$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)      CC $[... $(LOG)
+ $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.obj: .AUTODEPEND
- @$(SAY)    ASM $[...
- @$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cpp.obj: .AUTODEPEND
- @$(SAY)    CXX $[...
- @$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)     CXX $[... $(LOG)
+ $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .cc.obj: .AUTODEPEND
- @$(SAY)    CXX $[...
- @$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY)     CXX $[... $(LOG)
+ $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .wmp.map: .AUTODEPEND
- @$(SAY)    WMP2MAP $[...
- @$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@
+ @$(SAY) WMP2MAP $[... $(LOG)
+ $(verbose)$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG)
 
 .map.sym: .AUTODEPEND
- @$(SAY)    MAPSYMSYM $[...
- @$(MAPSYM) $[@
- @$(RN) $^. $^:
+ @$(SAY)  MAPSYM $[... $(LOG)
+ $(verbose)$(MAPSYM) $[@ $(LOG)
+ @$(RN) $^. $^: $(LOG)
 
 .ipf.inf: .AUTODEPEND
- @$(SAY)    IPFC $[...
- @$(HC) -i $[@ -o $^@
+ @$(SAY)    IPFC $]... $(LOG)
+ $(verbose)$(HC) -i $[@ -o $^@ $(LOG)
 
 .ipf.hlp: .AUTODEPEND
- @$(SAY)    IPFC $[...
- @$(HC) $[@ -o $^@
+ @$(SAY)    IPFC $]... $(LOG)
+ $(verbose)$(HC) $[@ -o $^@ $(LOG)
 
 .pas.exe: .symbolic
- @$(SAY)    PPC $[...
- @$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
+ @$(SAY)    PASC $[... $(LOG)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG)
 
 .pp.exe: .symbolic
- @$(SAY)    PPC $[...
- @$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@
+ @$(SAY)    PASC $[... $(LOG)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG)
 
 .lnk.exe: .symbolic
- @$(SAY)    LINK $@...
- @$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $[... $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .lnk.dll: .symbolic
- @$(SAY)    LINK $@...
- @$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $[... $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 .rexx.exe: .AUTODEPEND
-  @$(SAY)    WRAPXX $[...
-  @rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+  @$(SAY)  WRAPXX $[... $(LOG)
+  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -398,56 +419,64 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 #
 subdirs: .symbolic
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
- @for %%i in ($(DIRS)) do cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+ @for %%i in ($(DIRS)) do  @cd $(MYDIR)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 
 dirhier: precopy .symbolic
- @$(SAY)     MKDIR $(PATH)...
- @$(MDHIER) $(PATH)
+ @$(SAY)   MKDIR $(PATH)... $(LOG)
+ $(verbose)$(MDHIER) $(PATH) $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC
- @$(SAY)    CLEAN...
+ @$(SAY)   CLEAN... $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
- @$(CLEAN_CMD)
-# @$(SAY)   "$(TARGETS) -> $(DEST)"
+ $(verbose)$(CLEAN_CMD)
+ # @$(SAY)   "$(TARGETS) -> $(DEST)"
 
 install: build
- @$(SAY)    INST $(PROJ)...
+!ifeq PROJ
+ %null
+!endif
+ @$(SAY)    INST $(PROJ)... $(LOG)
 !ifeq INSTALL_PRE 1
  @$(MAKE) $(MAKEOPT) install_pre
 !endif
 !ifneq DEST
  #-$(MDHIER) $(DEST)
- @$(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do @if exist %i @$(CP) %i $(DEST)
+ $(verbose)$(MDHIER) $(DEST)
+ @for %i in ($(TARGETS)) do @if exist %i $(CP) %i $(DEST) $(BLACKHOLE)
 !endif
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
 
 precopy: .SYMBOLIC
- @$(SAY)     PRECOPY...
- @$(MAKE) $(MAKEOPT) -f $(ROOT)tools$(SEP)scripts$(SEP)makefile copy
+ @$(SAY) PRECOPY scrpits... $(LOG)
+ @$(MAKE) $(MAKEOPT) -f $(%ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
+
+# $(FILESDIR)$(SEP)libs-built-flag: prelibs .symbolic
 
 # prebuild libs
 prelibs: .symbolic
-!ifdef __appsos2_mk__
+ #!ifdef __appsos2_mk__
  # build all_shared.lib
- @$(CD) $(ROOT)OS2/Shared && @$(MAKE) $(MAKEOPT) subdirs
-!endif
-!ifdef __apps_os2_cmd_mk__
+ @$(SAY) cd $(%ROOT)OS2$(SEP)Shared
+ $(CD) $(%ROOT)OS2$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ #!endif
+ #!ifdef __apps_os2_cmd_mk__
  # build cmd_shared.lib
- @$(CD) $(ROOT)OS2/CMD/Shared && @$(MAKE) $(MAKEOPT) subdirs
-!endif
-!ifdef __apps_os2_pm_mk__
+ @$(SAY) cd $(%ROOT)OS2$(SEP)cmd$(SEP)Shared
+ $(CD) $(%ROOT)OS2$(SEP)CMD$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ #!endif
+ #!ifdef __apps_os2_pm_mk__
  # build pm_shared.lib
- #$(CD) $(ROOT)OS2/PM/Shared && $(MAKE) $(MAKEOPT) subdirs
-!endif
+ @$(SAY) cd $(%ROOT)OS2$(SEP)PM$(SEP)Shared
+ $(CD) $(%ROOT)OS2$(SEP)PM$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ #!endif
+ # @touch $(FILESDIR)$(SEP)libs-built-flag
+ $(CD) $(MYDIR)
 
-
-.error
- @$(SAY) Error (!)
- @%abort
+.error:
+  %abort
 
 !ifndef WRAPPERS
 

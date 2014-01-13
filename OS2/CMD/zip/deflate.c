@@ -1,10 +1,12 @@
 /*
-  Copyright (c) 1990-1999 Info-ZIP.  All rights reserved.
+  deflate.c - Zip 3
 
-  See the accompanying file LICENSE, version 1999-Oct-05 or later
+  Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+
+  See the accompanying file LICENSE, version 2005-Feb-10 or later
   (the contents of which are also included in zip.h) for terms of use.
-  If, for some reason, both of these files are missing, the Info-ZIP license
-  also may be found at:  ftp://ftp.cdrom.com/pub/infozip/license.html
+  If, for some reason, all these files are missing, the Info-ZIP license
+  also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
 */
 /*
  *  deflate.c by Jean-loup Gailly.
@@ -256,7 +258,8 @@ local config configuration_table[10] = {
  */
 
 local void fill_window   OF((void));
-local ulg deflate_fast   OF((void));
+
+local uzoff_t deflate_fast OF((void));    /* now use uzoff_t 7/24/04 EG */
 
       int  longest_match OF((IPos cur_match));
 #if defined(ASMV) && !defined(RISCOS)
@@ -550,15 +553,15 @@ local void check_match(start, match, length)
     /* check that the match is indeed a match */
     if (memcmp((char*)window + match,
                 (char*)window + start, length) != EQUAL) {
-        fprintf(stderr,
+        fprintf(mesg,
             " start %d, match %d, length %d\n",
             start, match, length);
         error("invalid match");
     }
     if (verbose > 1) {
-        fprintf(stderr,"\\[%d,%d]", start-match, length);
+        fprintf(mesg,"\\[%d,%d]", start-match, length);
 #ifndef WINDLL
-        do { putc(window[start++], stderr); } while (--length != 0);
+        do { putc(window[start++], mesg); } while (--length != 0);
 #else
         do { fprintf(stdout,"%c",window[start++]); } while (--length != 0);
 #endif
@@ -567,6 +570,14 @@ local void check_match(start, match, length)
 #else
 #  define check_match(start, match, length)
 #endif
+
+/* ===========================================================================
+ * Flush the current block, with given end-of-file flag.
+ * IN assertion: strstart is set to the end of the current match.
+ */
+#define FLUSH_BLOCK(eof) \
+   flush_block(block_start >= 0L ? (char*)&window[(unsigned)block_start] : \
+                (char*)NULL, (ulg)strstart - (ulg)block_start, (eof))
 
 /* ===========================================================================
  * Fill the window when the lookahead becomes insufficient.
@@ -600,6 +611,12 @@ local void fill_window()
          */
         } else if (strstart >= WSIZE+MAX_DIST && sliding) {
 
+#ifdef FORCE_METHOD
+            /* When methods "stored" or "store_block" are requested, the
+             * current block must be flushed before sliding the window.
+             */
+            if (level <= 2) FLUSH_BLOCK(0), block_start = strstart;
+#endif
             /* By the IN assertion, the window is not empty so we can't confuse
              * more == 0 with more == 64K on a 16 bit machine.
              */
@@ -621,11 +638,29 @@ local void fill_window()
                  */
             }
             more += WSIZE;
+            if (dot_size > 0 && !display_globaldots) {
+              /* initial space */
+              if (noisy && dot_count == -1) {
 #ifndef WINDLL
-            if (verbose) putc('.', stderr);
+                putc(' ', mesg);
+                fflush(mesg);
 #else
-            if (verbose) fprintf(stdout,"%c",'.');
+                fprintf(stdout,"%c",' ');
 #endif
+                dot_count++;
+              }
+              dot_count++;
+              if (dot_size <= (dot_count + 1) * WSIZE) dot_count = 0;
+            }
+            if ((verbose || noisy) && dot_size && !dot_count) {
+#ifndef WINDLL
+              putc('.', mesg);
+              fflush(mesg);
+#else
+              fprintf(stdout,"%c",'.');
+#endif
+              mesg_line_started = 1;
+            }
         }
         if (eofile) return;
 
@@ -652,20 +687,12 @@ local void fill_window()
 }
 
 /* ===========================================================================
- * Flush the current block, with given end-of-file flag.
- * IN assertion: strstart is set to the end of the current match.
- */
-#define FLUSH_BLOCK(eof) \
-   flush_block(block_start >= 0L ? (char*)&window[(unsigned)block_start] : \
-                (char*)NULL, (long)strstart - block_start, (eof))
-
-/* ===========================================================================
  * Processes a new input file and return its compressed length. This
  * function does not perform lazy evaluation of matches and inserts
  * new strings in the dictionary only for unmatched strings or for short
  * matches. It is used only for the fast compression options.
  */
-local ulg deflate_fast()
+local uzoff_t deflate_fast()
 {
     IPos hash_head = NIL;       /* head of the hash chain */
     int flush;                  /* set if current block must be flushed */
@@ -764,7 +791,7 @@ local ulg deflate_fast()
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
-ulg deflate()
+uzoff_t deflate()
 {
     IPos hash_head = NIL;       /* head of hash chain */
     IPos prev_match;            /* previous match */
@@ -772,7 +799,7 @@ ulg deflate()
     int match_available = 0;    /* set if previous match exists */
     register unsigned match_length = MIN_MATCH-1; /* length of best match */
 #ifdef DEBUG
-    extern ulg isize;           /* byte length of input file, for debug only */
+    extern uzoff_t isize;       /* byte length of input file, for debug only */
 #endif
 
     if (level <= 3) return deflate_fast(); /* optimized for speed */

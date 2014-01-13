@@ -42,7 +42,7 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
  $(ADDFILES_CMD)
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
- @$(SAY) Linking $^@...
- @$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $[... $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

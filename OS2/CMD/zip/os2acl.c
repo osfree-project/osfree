@@ -1,10 +1,10 @@
 /*
-  Copyright (c) 1990-1999 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
 
-  See the accompanying file LICENSE, version 1999-Oct-05 or later
+  See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in zip.h) for terms of use.
-  If, for some reason, both of these files are missing, the Info-ZIP license
-  also may be found at:  ftp://ftp.cdrom.com/pub/infozip/license.html
+  If, for some reason, all these files are missing, the Info-ZIP license
+  also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
 */
 /* os2acl.c - access to OS/2 (LAN Server) ACLs
  *
@@ -30,18 +30,12 @@
 
 #ifdef KUR
    static char *rcsid =
-   "$Id: os2acl.c,v 1.1 2004/08/21 14:49:08 prokushev Exp $";
-   static char *rcsrev = "$Revision: 1.1 $";
+   "$Id: os2acl.c,v 1.3 1996/04/03 19:18:27 rommel Exp rommel $";
+   static char *rcsrev = "$Revision: 1.3 $";
 #endif
 
 /*
  * $Log: os2acl.c,v $
- * Revision 1.1  2004/08/21 14:49:08  prokushev
- * * Another set of changes from my local tree
- *
- * Revision 1.1  2004/08/16 06:26:44  prokushev
- * * Another part of files
- *
  * Revision 1.3  1996/04/03 19:18:27  rommel
  * minor fixes
  *
@@ -246,7 +240,7 @@ static void acl_mkpath(char *buffer, const char *source)
   U_INT cdrive;
   ULONG drivemap;
 
-  if (isalpha(source[0]) && source[1] == ':')
+  if (isalpha((int)source[0]) && source[1] == ':')
     buffer[0] = 0; /* fully qualified names */
   else
   {

@@ -76,15 +76,15 @@ ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared.lib, &
 
 .rc.res: .AUTODEPEND
  @$(SAY)    RESCMP $[...
- @$(RC) $(RCOPT) $[@ -fo=$^@ -r
+ $(verbose)$(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 cplist = en pl ru
 
 .rsf: $(PATH)
 
 .rsf.msg:
- @$(SAY) MKMSGF $[...
- @$(MC) @$<
+ @$(SAY)     MKMSGF $[... $(LOG)
+ $(verbose)$(MC) @$<  $(LOG)
 
 rsf: .SYMBOLIC .PROCEDURE
  @%create $(PATH)$(T)
@@ -159,7 +159,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
- @$(SAY)     Linking $^@...
- @$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(SAY)    LINK $[... $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

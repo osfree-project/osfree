@@ -21,4 +21,5 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ) # $(PATH)$(PROJ).sym
 !include $(%ROOT)/mk/all.mk
 
 TARGETS  = $(PATH)$(PROJ).exe $(PATH)$(PROJ)
+
 !endif

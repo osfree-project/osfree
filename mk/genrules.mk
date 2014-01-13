@@ -30,31 +30,31 @@ $(mf): $(MYDIR)makefile
  @%append $(mf) $# don't edit!
  @%append $(mf) $#
  @%append $(mf)
- @%append $(mf) !include $(MYDIR)makefile
+ @%append $(mf) !include $<  # $(MYDIR)makefile
  @%append $(mf)
 !ifdef __UNIX__ 
  # generate ordinary .obj's lists
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= e='.$$$$$$$$(O)' p='$$$$$$$$(PATH)' gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e='.$$$$$$$$(O)' p='$$$$$$$$(PATH)' gen_obj_defs
  # generate shifted  .obj's lists
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh e='.$$$$$$$$(SO)' p='$$$$$$$$(PATH)' gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e='.$$$$$$$$(SO)' p='$$$$$$$$(PATH)' gen_obj_defs
  # generate ordinary files link rules
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= S= E='$$$$(OUT)' gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E='$$$$(OUT)' gen_link_rules
  # generate shifted  files link rules
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E='$$$$(SOUT)' gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E='$$$$(SOUT)' gen_link_rules
 !else
  # generate ordinary .obj's lists
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= e=.$$$$$$$$(O) p=$$$$$$$$(PATH) gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= e=.$$$$$$$$(O) p=$$$$$$$$(PATH) gen_obj_defs
  # generate shifted  .obj's lists
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh e=.$$$$$$$$(SO) p=$$$$$$$$(PATH) gen_obj_defs
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh e=.$$$$$$$$(SO) p=$$$$$$$$(PATH) gen_obj_defs
  # generate ordinary files link rules
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh= S= E=$$$$(OUT) gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh= S= E=$$$$(OUT) gen_link_rules
  # generate shifted  files link rules
- @for %i in ($(files)) do $(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E=$$$$(SOUT) gen_link_rules
+ @for %i in ($(files)) do @$(MAKE) $(MAKEOPT) basename=%i sh=_sh S=s E=$$$$(SOUT) gen_link_rules
 !endif
  # generate compile rules for ordinary files
- @for %i in ($(spec_SRCS)) do $(MAKE) $(MAKEOPT) file=%i sh=    gen_compile_rules_wrapper
+ @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=    gen_compile_rules_wrapper
  # generate compile rules for shifted files
- @for %i in ($(spec_SRCS)) do $(MAKE) $(MAKEOPT) file=%i sh=sh_ gen_compile_rules_wrapper
+ @for %i in ($(spec_SRCS)) do @$(MAKE) $(MAKEOPT) file=%i sh=sh_ gen_compile_rules_wrapper
  # generate dependencies
  @$(MAKE) $(MAKEOPT) gen_deps_wrapper
 
@@ -69,12 +69,12 @@ gen_link_rules: .SYMBOLIC
 
 gen_compile_rules: .SYMBOLIC
  @%append $(mf) $$(PATH)$(file:$(ext)=$(e)): $$(MYDIR)$(file)
- @%append $(mf)  $$(SAY) Compiling $$(MYDIR)$(file)...
+ @%append $(mf)  @$$(SAY)      CC $$(MYDIR)$(file)...
 !ifeq ext .c     # if file extension is .c
- @%append $(mf)  $$(CC)  $(defs) $$(COPT) -fr=$$^*.err -fo=$$^@ $$<
+ @%append $(mf)  @$$(CC)  $(defs) $$(COPT) -fr=$$^*.err -fo=$$^@ $$<
 !else
 !ifeq ext .asm   # if file extension is .asm
- @%append $(mf)  $$(ASM) $(defs) $$(ASMOPT) -fr=$$^*.err -fo=$$^@ $$<
+ @%append $(mf)  @$$(ASM) $(defs) $$(ASMOPT) -fr=$$^*.err -fo=$$^@ $$<
 !endif
 !endif
  @%append $(mf)

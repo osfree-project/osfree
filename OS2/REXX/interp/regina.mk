@@ -68,13 +68,17 @@ $(PATH)client.$(O): $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 $(PATH)rexxsaa.$(O): $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 
 $(PATH)yaccsrc.$(O): $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
+ @$(SAY)      CC $[... $(LOG)
  @$(CC)  $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)drexx.obj: $(MYDIR)..$(SEP)rexx.c $(HFILES)
- $(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)      CC $[... $(LOG)
+ @$(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)eextstack.obj:  $(SRC)extstack.c $(HFILES)
- $(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)      CC $[... $(LOG)
+ @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)erexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
- $(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)      CC $[... $(LOG)
+ @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@

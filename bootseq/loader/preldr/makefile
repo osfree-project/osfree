@@ -66,13 +66,16 @@ F =
 .asm: $(MYDIR)..
 
 $(PATH)..$(SEP)func.$(O): $(MYDIR)..$(SEP)func.c
- $(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)      CC $[... $(LOG)
+ $(verbose)$(CC) -dSTAGE0 -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)..$(SEP)func.$(LO): $(MYDIR)..$(SEP)func.c
- $(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)      CC $[... $(LOG)
+ $(verbose)$(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)..$(SEP)func.$(SO): $(MYDIR)..$(SEP)func.c
- $(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@
+ $(verbose)$(SAY)      CC $[... $(LOG)
+ $(verbose)$(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)..$(SEP)cfgparse.$(O): $(MYDIR)..$(SEP)cfgparse.c
 

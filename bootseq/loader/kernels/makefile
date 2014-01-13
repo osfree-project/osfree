@@ -115,35 +115,45 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .inc: $(PATH)
 
 $(PATH)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npl.$(O): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npc.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npl.$(SO): $(MYDIR)..$(SEP)modesw.asm
- $(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- $(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@
+ @$(SAY)     ASM $[... $(LOG)
+ $(verbose)$(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .rel: $(PATH)ufsd
 
 $(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
 
 $(PATH)ufsd.inc: $(PATH)ufsd$(SEP)mbi.mdl
- $(REXX) mkheader.cmd $< $^@
+ @$(SAY)   INC2H $[... $(LOG)
+ $(verbose)$(REXX) mkheader.cmd $< $^@ $(LOG)
 
 $(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mbi.dll
- $(REXX) mkheader.cmd $< $^@
+ @$(SAY)   INC2H $[... $(LOG)
+ $(verbose)$(REXX) mkheader.cmd $< $^@ $(LOG)
 
 $(PATH)urel.inc: $(PATH)ufsd$(SEP)mbi.rel
- $(REXX) mkheader.cmd $< $^@
+ @$(SAY)   INC2H $[... $(LOG)
+ $(verbose)$(REXX) mkheader.cmd $< $^@  $(LOG)

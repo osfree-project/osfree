@@ -28,27 +28,28 @@ library: $(OBJS) $(LIBS)
 !endif
 
 !ifdef OBJS
- $(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
+ @$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
 !endif
 !ifdef LIBS
  @$(LIB) $(LIBOPT) $(library).tmp1 +$(LIBS) $(LOG)
 !endif
 !ifdef OBJS16
- $(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
- $(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2
+ @$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
+ @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2
 !ifeq UNIX TRUE
- $(DC) $(library).tmp1
- $(DC) $(library).tmp2
+ @$(DC) $(library).tmp1
+ @$(DC) $(library).tmp2
 !else
- @if exist $(library).tmp1 $(DC) $(library).tmp1 $(BLACKHOLE)
- @if exist $(library).tmp2 $(DC) $(library).tmp2 $(BLACKHOLE)
+ @if exist $(library).tmp1 @$(DC) $(library).tmp1 $(BLACKHOLE)
+ @if exist $(library).tmp2 @$(DC) $(library).tmp2 $(BLACKHOLE)
 !endif
 !else
- @$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
+ @$(SAY)    LIB $(library)...
+ $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
 !ifeq UNIX TRUE
- $(DC) $(library).tmp1
+ @$(DC) $(library).tmp1
 !else
- @if exist $(library).tmp1 $(DC) $(library).tmp1 $(BLACKHOLE)
+ @if exist $(library).tmp1 @$(DC) $(library).tmp1 $(BLACKHOLE)
 !endif
 !endif
 

@@ -493,9 +493,9 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 
 .uni.h: .AUTODEPEND
  @$(SAY)    UNI2H $[...
- @uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
+ $(verbose)uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
 
 .uni.lib: .AUTODEPEND
- @$(SAY)    CREAT $[...
- @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
- @$(LIB) $(LIBOPT) $^@ @$^*.def
+ @$(SAY)    LIB $[...
+ $(verbose)uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
+ $(verbose)$(LIB) $(LIBOPT) $^@ @$^*.def

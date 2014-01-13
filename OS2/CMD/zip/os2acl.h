@@ -1,10 +1,10 @@
 /*
-  Copyright (c) 1990-1999 Info-ZIP.  All rights reserved.
+  Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
 
-  See the accompanying file LICENSE, version 1999-Oct-05 or later
+  See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in zip.h) for terms of use.
-  If, for some reason, both of these files are missing, the Info-ZIP license
-  also may be found at:  ftp://ftp.cdrom.com/pub/infozip/license.html
+  If, for some reason, all these files are missing, the Info-ZIP license
+  also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
 */
 /* os2acl.h
  *
@@ -12,16 +12,10 @@
  * Created: Fri Mar 29 1996
  */
 
-/* $Id: os2acl.h,v 1.1 2004/08/21 14:49:09 prokushev Exp $ */
+/* $Id: os2acl.h,v 1.1 1996/03/30 09:35:00 rommel Exp rommel $ */
 
 /*
  * $Log: os2acl.h,v $
- * Revision 1.1  2004/08/21 14:49:09  prokushev
- * * Another set of changes from my local tree
- *
- * Revision 1.1  2004/08/16 06:26:44  prokushev
- * * Another part of files
- *
  * Revision 1.1  1996/03/30 09:35:00  rommel
  * Initial revision
  *
