@@ -2,6 +2,8 @@
 #
 # Converts WLINK map files for processing with IBM's MAPSYM.
 # WARNING: It has only been briefly tested with 32-bit LX output.
+# Feb 27, 2014, valerius
+# Added support for 16-bit NE executables
 
 BEGIN {
  group=1
@@ -11,7 +13,7 @@ BEGIN {
 
 /^Executable Image:/ {
  sub("\\..*$", "", $3)
- printf "\n %s\n\n", toupper($3)
+ printf "\n %s\n\n", $3
 }
 
 /^Entry point address:/ {
@@ -20,6 +22,7 @@ BEGIN {
 
 /^Group *Address *Size/ {
  mode=group
+ groups=0
 }
 
 /^Segment *Class *Group *Address *Size/ {
@@ -45,24 +48,47 @@ BEGIN {
  next
 }
 
-/^[^= ]* *....:........ *........$/ {
+/^[^= ]* *....:........  *........$/ {
  if(mode==group)
  {
-  group_buf[groups++]=sprintf(" %s   %s", $2, $1)
+  group_buf[groups++]=sprintf(" %s   %s", toupper($2), $1)
  }
 }
 
-/^[^= ]* *[^ ]* *[^ ]* *....:........ *........$/ {
- if(mode==segment)
+/^[^= ]* *....:....  *........$/ {
+ if(mode==group)
  {
-  printf " %s 0%sH %-22s %s\n", $4, $5, $1, $2
+  group_buf[groups++]=sprintf(" %s   %s", toupper($2), $1)
  }
 }
 
-/^....:..........[^ ]*$/ {
- if(mode==memory)
+/^[^= ]* *[^ ]* *[^ ]*  *....:....  *........$/ {
+ if(mode==segment && length($4) == 9)
  {
-  printf " %s       %s\n", substr($1, 1, 13), $2
+  printf " %s 0%sH %-22s %s 16-bit\n", toupper($4), toupper($5), $1, $2
+ }
+}
+
+/^[^= ]* *[^ ]* *[^ ]*  *....:........  *........$/ {
+ if(mode==segment && length($4) == 13)
+ {
+  printf " %s 0%sH %-22s %s 32-bit\n", toupper($4), toupper($5), $1, $2
+ }
+}
+
+/^....:....\*?  *[^ ]*$/ {
+ if(mode==memory && length($1) <= 10)
+ {
+  sel = substr($1, 1, 4)
+  off = substr($1, 6, 4)
+  printf " %s:0000%s       %s\n", toupper(sel), toupper(off), $2
+ }
+}
+
+/^....:........\*?  *[^ ]*$/ {
+ if(mode==memory && length($1) >= 13)
+ {
+  printf " %s       %s\n", toupper(substr($1, 1, 13)), $2
  }
 }
 
