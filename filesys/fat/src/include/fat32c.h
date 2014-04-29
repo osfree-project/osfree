@@ -133,4 +133,4 @@ char *get_vol_label(char *path, char *vol);
 void set_vol_label (char *path, char *vol);
 void cleanup ( void );
 void quit (int rc);
-void show_progress (char *str);
+void show_progress (float fPercentWritten);

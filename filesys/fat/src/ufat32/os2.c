@@ -456,14 +456,30 @@ void set_vol_label (char *path, char *vol)
     printf ("Warning: failed to set the volume label, rc=%lu\n", rc);
 }
 
-void show_progress (char *str)
+void show_progress (float fPercentWritten)
 {
-  USHORT row, col;
-  char   chr = ' ';
+  char str[128];
+  static int pos = 0;
+  //USHORT row, col;
+  //char   chr = ' ';
 
+  if (! pos)
+  {
+    pos = 1;
+    // save cursor position
+    printf("[s");
+  }
+
+  //VioGetCurPos(&row, &col, 0);
+  //VioWrtNChar(&chr, 8, row, col, 0);
+  //VioWrtCharStr(str, strlen(str), row, col, 0);
+
+  // construct message
+  sprintf(str, "%.2f%%", fPercentWritten);
+  iShowMessage(NULL, 1312, 2, TYPE_STRING, str, 
+                              TYPE_STRING, "...");
+  DosSleep(100);
+  // restore cursor position
+  printf("[u");
   fflush(stdout); 
-
-  VioGetCurPos(&row, &col, 0);
-  VioWrtNChar(&chr, 8, row, col, 0);
-  VioWrtCharStr(str, strlen(str), row, col, 0);
 }

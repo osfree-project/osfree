@@ -130,7 +130,7 @@ void zero_sectors ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSect, DWORD NumS
     qBytesWritten   = 0;
     fPercentWritten = 0;
 
-    printf("Percent written: ");
+    //printf("Percent written: ");
 
     while ( NumSects )
     {
@@ -147,10 +147,9 @@ void zero_sectors ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSect, DWORD NumS
 
         qBytesWritten += dwWritten;
         fPercentWritten = ( qBytesWritten / qBytesTotal ) * 100;
-        sprintf(Str, "%.2f%%...", fPercentWritten);
 
         // percent written indication
-        show_progress(&Str);
+        show_progress(fPercentWritten);
         
         NumSects -= WriteSize;
     }
