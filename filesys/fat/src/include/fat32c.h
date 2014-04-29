@@ -34,7 +34,7 @@ typedef unsigned int DWORD;
 
 #endif
 
-#pragma pack(push, 1)
+#pragma pack(1)
 typedef struct tagFAT_BOOTSECTOR32
 {
     // Common fields.
@@ -79,7 +79,7 @@ typedef struct {
 } FAT_FSINFO;
 
 
-#pragma pack(pop)
+#pragma pack()
 
 typedef struct 
     {

@@ -19,7 +19,7 @@ all: $(TARGETS)
 
 libc: .symbolic
  @cd libc
- wmake
+ wmake -f makefile.wcc
  @cd ..
 
 OBJS=fat32.obj ifsmount.obj ifsfind.obj ifsdir.obj ifsattr.obj &
