@@ -1,0 +1,19 @@
+;
+; $Header$
+;
+; This is the MS Visual C++ version of ext2flt.def - The only differences are
+; the CONST segment defined by the Microsoft compiler, and the 'EXETYPE OS2'
+; statement needed by Microsoft link V5.6
+;
+; Matthieu WILLM 1995-12-1
+;
+LIBRARY EXT2FLT
+EXETYPE OS2
+DESCRIPTION 'Linux ext2 partition filter (Alpha)'
+PROTMODE
+SEGMENTS
+ _DATA          CLASS 'DATA'
+ _BSS           CLASS 'BSS'
+CONST           CLASS 'CONST'
+ _TEXT          CLASS 'CODE'
+

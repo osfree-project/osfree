@@ -1,0 +1,19 @@
+This sourcecode was/is originaly written by Henk Kelder <henk.kelder@cgey.nl>
+
+Henk Kelder gave the copyright of the sourcecode to netlabs.org in
+January 2002. Because of the amount of work he spent on this sourcecode
+he prefers to have a license that makes sure that no company or individual
+can make profit of it. Because of this we release the sourcecode under the
+GNU LESSER GENERAL PUBLIC LICENSE (LGPL).
+
+You find a copy of the license in this directory under the name lesser.txt
+
+The original license is online at http://www.gnu.org/copyleft/lesser.txt
+
+More information about GNU Software can be found at http://www.gnu.org
+
+
+6. January 2002
+
+Adrian Gschwend <ktk@netlabs.org>
+http://www.netlabs.org

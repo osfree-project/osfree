@@ -1,0 +1,14 @@
+;/*
+; * $Header$
+; */
+
+LIBRARY		PARTFILT
+DESCRIPTION	'General partition filter'
+PROTMODE
+
+SEGMENTS
+ _DATA		CLASS 'DATA'
+ _BSS		CLASS 'BSS'
+CONST		CLASS 'CONST'
+ _TEXT		CLASS 'CODE'
+

@@ -1,0 +1,76 @@
+CC=wcc386
+LNK=wlink op q
+MAPCNV=..\mapsym.awk
+# T=win32
+
+!ifneq T win32
+# create OS/2 binaries
+OBJS1=ufat32.obj format.obj os2.obj msg.obj chkdsk.obj
+OBJS2=format.obh os2.obh msg.obh
+COPT=-3s -s -sg -hw -mf -od -zq -q -i=. -i=.. -i=..\include -i=$(%WATCOM)\h -i=$(%WATCOM)\h\os2
+TARGETS=ufat32.dll fat32fmt.exe ufat32.sym fat32fmt.sym
+SYS=os2v2
+!else
+# create win32 binaries
+OBJS2=format.obj win32.obj
+COPT=-3s -s -sg -hw -mf -od -zq -q -u__OS2__ -i=. -i=.. -i=..\include -i=$(%WATCOM)\h -i=$(%WATCOM)\h\nt
+TARGETS=fat32fmt.exe
+SYS=win32
+!endif
+
+.SUFFIXES:
+.SUFFIXES: .dll .exe .lnk .obh .obj .c .sym .map .wmp
+
+all: $(TARGETS)
+
+ufat32.lnk: $(OBJS1)
+ @%create $^@
+ @%append $^@ SYSTEM $(SYS) dll
+ @%append $^@ NAME $^*.dll
+ @%append $^@ OPTION DESCRIPTION 'UFAT32 Helper DLL, Henk Kelder'
+ @%append $^@ OPTION MIXED1632
+ #@%append $^@ OPTION NODEFAULTLIBS
+ @%append $^@ OPTION ST=81920
+ @%append $^@ DEBUG ALL
+ @%append $^@ segment type DATA LOADONCALL NONSHARED
+ @%append $^@ segment type CODE PRELOAD 
+ @%append $^@ OPTION MANYAUTODATA, CASEEXACT, HEAPSIZE=40960
+ @%append $^@ OPTION MAP=$^*.wmp
+ @%append $^@ EXPORT CHKDSK,FORMAT,RECOVER,SYS
+ @%append $^@ LIBPATH $(%WATCOM)\lib386;$(%WATCOM)\lib386\os2;
+ @%append $^@ LIB os2386,clib3s
+ @for %e in ($(OBJS1)) do @%append $^@ FILE %e
+
+fat32fmt.lnk: $(OBJS2)
+ @%create $^@
+ @%append $^@ SYSTEM $(SYS)
+ @%append $^@ NAME $^*.exe
+ @%append $^@ OPTION MAP=$^*.wmp
+!ifneq T win32
+ @%append $^@ LIBPATH $(%WATCOM)\lib386;$(%WATCOM)\lib386\os2
+!else
+ @%append $^@ LIBPATH $(%WATCOM)\lib386;$(%WATCOM)\lib386\nt
+!endif
+ #@%append $^@ LIB os2,clibdll,os2386,clib3s
+ @for %e in ($(OBJS2)) do @%append $^@ FILE %e
+
+clean: .symbolic
+ @del *.obj *.obh *.lnk *.wmp *.map >nul 2>&1
+
+.lnk.exe:
+ $(LNK) @$<
+
+.lnk.dll:
+ $(LNK) @$<
+
+.c.obh: .AUTODEPEND
+ $(CC) $(COPT) -fo=$@ $<
+
+.c.obj: .AUTODEPEND
+ $(CC) -d__DLL__ -bd $(COPT) $<
+
+.wmp.map:
+ @awk -f $(MAPCNV) $< >$@
+
+.map.sym:
+ @mapsym $< >nul 2>&1

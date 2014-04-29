@@ -1,0 +1,10 @@
+(v1.2b) Ext2flt: See linux partitions in OS/2
+Makes linux partitions visable to OS/2 so
+that ext2-os2.ifs (not included in archive)
+can mount them. It can also make hidden
+primary partitions visable to OS/2 and change
+the order in which OS/2 assigns drive letters
+to partitions. This is work in progress and
+may still have bugs. The source is available.
+GPL copying policy. Deon van der Westhuysen.
+(email: s9577238@itu3.sun.ac.za until Dec 95)

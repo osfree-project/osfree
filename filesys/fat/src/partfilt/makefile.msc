@@ -1,0 +1,108 @@
+#
+# $Header$
+#
+# This is the MS Visual C++ version of ext2flt.flt makefile. I "ported"
+# Deon's filter driver to MSC simply because I don't have Borland C++
+# to compile ext2flt.flt !! Normally I didn't hack the code too much, the
+# main differences are :
+#     - segment definitions (CONST segment) in asm files, and a new linker
+#       definition file to take these into account (ext2flt2.asm) have been
+#       changed to meet MSC requirements.
+#     - memcpy and memset routines in e2wrap.asm are no longer used, but
+#       the builtin MSC version are used instead (MSC inline them). I did this
+#       because of some obscure conflicts with MSC memory models. This change
+#       should be safe because I use builtin memset and memcpy routines in
+#       ext2-os2.ifs for a year now :-))
+#     - macros ENABLE and DISABLE, which use inline assembly, have been replaced
+#       with MSC builtin _enable() and disable() functions ... just to avoid
+#       compiler warnings about inline asm and optimization (the code produced
+#       is the same).
+#
+# These differences shouldn't really affect the way ext2flt.flt works, but in
+# case you encounter a problem, please try to reproduce it with Deon's original
+# Borland C++ compiled version and please drop me a note if it does not
+# behave the same way. Deon's original package can be found either on
+# ftp-os2.nmsu.edu (/os2/diskutil/e2flt12c.zip) or on quark.cs.sun.ac.za
+# (/pub/ext2flt/e2flt12c.zip)
+#
+# The __MSC__ macro is used for MS Visual C++ specific stuff
+# The __MASM__ macro is used for MASM stuff (MASM 5.51 from Devcon DDK 2.0)
+#
+# Matthieu WILLM, 1995-12-1
+#
+
+!include ..\makefile.inc
+
+# Define targets to build
+all:    ext2flt.flt
+
+debug:  ext2flt.flt
+
+# MS Visual C++ 1.51 compiler options
+#       -Answ : small memory model, DS != SS and other goodies !
+#       -G3 : compile for 80386
+#       -O2 : optimise code
+#       -On : disable unsafe optimisation
+#       -Gs : no stack probes
+#       -Lp : protected mode code
+#       -Zp : pack structures on one byte boundaries
+CC_OPT= -Answ -G3 -O2 -On -Gs -Lp -Zp -D__MSC__ -I. -I$(DDKPATH)\h -I$(DDKPATH)\src\dev\dasd\diskh
+AS_OPT= -ml -D__MASM__ -I$(DDKPATH)\inc -l
+LN_OPT= /map /noe
+
+# Include path for files
+INC= include
+
+# Names of complier, assembler and linker.
+CC = cl -c $(CC_OPT)
+AS = $(DDKPATH)\tools\masm $(AS_OPT)
+LINK = link
+
+# Implicit rules
+.c.obj:
+        $(CC) -Fl$(@:.obj=.l) $<
+
+.asm.obj:
+        $(AS) $<;
+
+# Define object files used to build executable from:
+OBJ_1= e2header.obj e2wrap.obj e2data.obj
+OBJ_2= e2router.obj e2filt.obj e2part.obj
+OBJ_3= e2iocmd.obj e2virtio.obj e2init.obj
+OBJ_4= e2inutil.obj
+
+OBJS= $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_4)
+
+# Make sure that the new debug flag is active...
+debug.h: MAKEFILE
+
+# List macros
+EXE_depend = $(OBJS)
+
+# Explicit rules
+ext2flt.flt: $(EXE_depend) ext2flt.def MAKEFILE
+        $(LINK) $(LN_OPT) @<<
+$(OBJ_1) +
+$(OBJ_2) +
+$(OBJ_3) +
+$(OBJ_4)
+ext2flt.flt
+ext2flt.map
+
+ext2flt2.def
+<<
+        mapsym ext2flt.map
+
+install:
+        mapsym ext2flt.map
+        copy ext2flt.flt e:\mwfs
+        copy ext2flt.sym e:\mwfs
+
+clean:
+        -del $(OBJS)
+        -del ext2flt.flt
+        -del ext2flt.sym
+        -del ext2flt.map
+        -del *.l
+        -del *.lst
+

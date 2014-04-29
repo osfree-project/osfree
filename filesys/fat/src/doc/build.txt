@@ -1,0 +1,21 @@
+Just a few notes to get you up and running.
+
+To get a build going you'll need several things, 
+the IFS DDK Build Environment, the DDK Tools, IBM C,
+and the System utilities (including link.exe).
+
+You should have VisualAge installed and it's environment
+variables set.  Then set these 3 variables:
+
+SET DDK=d:\ddk
+SET DDKTOOLS=d:\ddktools
+SET IBMC=d:\ibmc
+
+Correct the paths as neccessary.
+
+Then run the make.cmd script, and if all goes well
+you should have a fresh build of FAT32.IFS.
+
+If you have any comments email me at dbsoft@technologist.com
+
+Brian Smith

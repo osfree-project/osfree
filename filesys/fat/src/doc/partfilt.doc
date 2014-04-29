@@ -1,0 +1,112 @@
+---- ADDED BY HENK KELDER -------------------------------------------------
+This is the original document from the developer of the filter.
+
+Where needed, I added information on the changes.
+
+---------------------------------------------------------------------------
+[$Header: /netlabs.cvs/fat32/src/partfilt.doc,v 1.1 2002/01/06 23:59:49 ktk Exp $]
+NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE
+NOTE                                                                  NOTE
+NOTE       This software is still under development and my contain    NOTE
+NOTE       some bugs.                                                 NOTE
+NOTE                                                                  NOTE
+NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE
+
+What is PARTFILT?
+----------------
+
+PARTFILT.flt is a filter device driver for OS/2 that makes it possible to
+load an IFS for linux partitions. (Without this filter you must patch the
+partition table. On many systems doing so may cause LILO to fail.)
+
+HK: The filter now is NOT specific for Linux.
+
+In addition this driver is capable to control in what order drive letters
+are assigned to partitions on fixed disks. It will also allow you to access
+hidden primary partitions under OS/2.
+
+The goal of this filter is to allow you to use ext2-os2.ifs without breaking
+anything else... :-)
+
+NOTE: You need ext2-os2.ifs to access the files on a linux (ext2) partition.
+
+Conditions of use:
+------------------
+
+You are free to use the filter in any way you wish to, free of charge. I
+would however like it very much if you can drop me a note on a postcard.
+The source code is available under the GPL license. (If you want to use
+the source, but not under GPL, contect me and we can work out something.)
+My address is:
+    Deon van der Westhuysen
+    Keurboomsingel 6
+    Plattekloof
+    Parow
+    7500
+    Republic of South Africa
+
+How it works:
+-------------
+
+A virtual fixed disk is created for each partition under control of the driver.
+These virtual fixed disks each contain one extended partition with a logical
+drive in it. Since OS2DASD.DMD that controls fixed disks first assigns drive
+letters to primary partitions the virtual partitions are tacked on at the end
+of allocated drive letters. (To control the mounting order of all partitions
+OS2DASD is prevented from directly accessing the fixed disks and the filter
+presents it with an alternate list of partitions.)
+
+Installing the filter:
+----------------------
+
+Add a line:
+
+BASEDEV= PARTFILT.FLT <options>
+
+to your config.sys file. The following command line options are allowed:
+
+/Q              Quiet install. Prevents the filter from displaying messages.
+/V              Verbose install. Displays some diagnostic messages.
+/W              Allows the virtual partitions to be written to.
+/A              Virtualize all partitions found. The only good reason to use
+                this is along with the /M option when you want to control
+                the mounting order of all the partitions. You must use the
+                /W option if you use the /A option; otherwise OS/2 may crash
+                 when it tries to write to the partition.
+                PLEASE NOTE: Using the /A option may change your drive
+                letters causing the your system to be unbootable. Use
+                the /M option together with /A. (This may change in the
+                future.
+
+/M <mount list> Mounts the partitions in the order specified in the mount
+                list, which should be a list of numbers separated by commas.
+                The partitions are numbered 0 on a first come basis. (Not
+                the order OS/2 uses.)
+
+--------- ADDED BY HENK KELDER ------------------------------------------
+/P <partition types>
+                Specifies which partition types to virtualize. 
+                Must be specified as hexadecimal numbers.
+                for FAT32 use /P 0B. for Linux use /P 83.
+                If NO /P option is specified, PARTFILT will not load.
+
+-------------------------------------------------------------------------
+
+
+If something goes wrong:
+------------------------
+
+I do not accept any repsonsability for any damage that this driver may
+cause. (Remember, you installed it...) I would like to hear about it so that
+I can try to fix it.
+
+Contacting me:
+--------------
+
+If you have ideas for the driver or feel like general discussion or whatever
+you can contact me at vdwest@quark.cs.sun.ac.za. That address will remain
+valid until November 95. After that please use the snail mail address.
+
+Deon van der Westhuyen
+vdwest@quark.cs.sun.ac.za
+

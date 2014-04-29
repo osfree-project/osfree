@@ -1,0 +1,298 @@
+
+                        === DISCLAIMER ===
+
+
+I allow you to use all software in this package freely under the condition
+that I am in no way responsible for any damage or loss you may suffer.
+
+        >> You should be aware of the fact that PARTFILT might <<
+        >> damage the data stored on your hard disks.           <<
+
+If you cannot agree to these conditions, you should NOT use PARTFILT !
+
+
+
+I CANNOT guarantee that PARTFILT will work for you. However I've done
+my best to test the program and I can only say that It works for me.
+
+
+Henk Kelder
+henk.kelder@capgemini.nl 
+Certified daddy (by my kids)
+
+My homepage for the latest version: 
+
+  http://www.os2ss.com/information/kelder/index.html
+
+
+NOTE: Users report me PARTFILT does not work with Warp Server for E-Business.
+      Appearanlty, the Logical Volume Manager (LVM) can do some of the tasks
+      that PARTFILT does, like creating drive letters for non-standard 
+      partitions like FAT32 and Linux Partitions.
+
+
+PARTFILT.FLT
+============
+
+Before anything else: PARTFILT is based on the excelent work of
+Deon van der Westhuysen. I only made minor modification to it. The source
+code is available under GPL conditions. Please send me a mail if you want 
+the sources. My current homepage lacks space to store the sources.
+
+Also, Once PARTFILT is installed FDISK, Partition Magic and other Partition
+tools can no longer be trusted. Do not use these tools once PARTFILT is 
+installed.
+
+PARTFILT.FLT is a BASEDEV FILTER device that as able to presents (fakes) 
+partition types that are normally unsupported by OS/2 in such a way to OS/2 
+that IFS's can be loaded on these partitions. Such virtualized partition 
+will always be mounted after the non-virualized partitions.
+
+Currently (as far as I know) the filter can be used for two IFS's: 
+This one, FAT32.IFS and the Linux IFS.
+Beside that, PARTFILT.FLT can be used for other purposes such as making
+not-visible partitions visible or using multiple primary partitions.
+
+PARTFILT.FLT supports the following options:
+
+/Q      Load quietly
+/W      Enables Writing to the faked partitions. Without this option
+        the faked partitions are read-only.
+
+/A      This option does two things: 
+             - Disables OS/2 to access all partitions, but:
+             - Virtualizes (or fakes) all known partitions. 
+               Known partitions are the normal FAT partitions, 
+               IFS (=mainly HPFS) partitions and the partitions specified
+               with the /P option. 
+               All primary partitions of known types are also virtualized, 
+               and will be accessable from OS/2.
+
+        This option must be used in conjunction with the /M option.
+
+        When this option is specified, the /W option is automatically set,
+        because otherwise OS/2 will not boot.
+
+/M <mountlist> - Specifies the order in which partitions must be mounted.
+        Must be used with the /M option.
+
+        WARNING: Incorrect usage of the /A and /M options could make your 
+                 system unbootable.
+
+        => USING THE /A and /M OPTIONS is not advised! <=
+
+        if you need more information on these options please see:
+
+        http://www.os2ss.com/information/kelder/
+        or just read on.
+
+
+/P <partition types to fake>
+        This is option is used to tell PARTFILT which partition type are to
+        be faked. You should NOT use partition types already supported by 
+        OS/2 since this would result in a single partition being mounted
+        two times. The list should consist of partition type numbers (in 
+        hexadecimal), separated by comma's. 
+
+
+The partition type number are as follows:
+        
+     01   FAT12       (supported by OS/2)               
+     02   XENIX_1                
+     03   XENIX_2                
+     04   FAT16       (supported by OS/2)             
+     05   EXTENDED               
+     06   HUGE        (supported by OS/2)             
+     07   IFS         (supported by OS/2)             
+     0A   BOOTMANAGER           
+     0B   FAT32                  
+     0C   FAT32_XINT13 or FAT32X          
+     0E   XINT13                 
+     0F   XINT13_EXTENDED        
+     41   PREP                   
+     63   UNIX                   
+     83   LINUX	
+
+     10   Hidden partition (bits OR'd with partition type)
+
+To make PARTFILT.FLT fake a FAT32 partition the /P option should be /P 0B.
+To make PARTFILT.FLT fake a FAT32X partition the /P option should be /P 0C.
+To make PARTFILT.FLT fake a LINUX partition the /P option should be /P 83.
+Or you can use a comination of the types e.g. /P 0B,0C
+
+The best location in the config.sys seems to differ depening on your 
+configuration. Some state FAT32.IFS will only work is PARTFILT is the 
+first basedev, other claim it only works if PARTFILT is the last one.
+
+A specific problem was reported when using a SCSI powersave basedev that
+only seemed to work if PARTFILT was the last basedev.
+
+
+HOW OS/2 SCANS FOR PARTITIONS
+=============================
+
+During the boot process of OS/2 partitions are scanned twice, each using the 
+same algoritm to detect partitions and if OS/2 supports the partition types 
+found drive letters are assigned to them.
+
+The first scan takes place during initial boot. (PARTFILT has no effect on
+this scan!) The main purpose of this scan seems to be to detect the OS/2 boot 
+drive and to assign a drive letter to it. For OS/2 to be able to boot this 
+drive letter may NOT change later on during the second scan. 
+
+The second scan takes place while initializing the file system. Via calls to 
+OS2DASD.DMD the partitions are scanned and drive letters are assigned. 
+Only this second scan is influenced by PARTFILT.
+
+So whatever you do, you must make sure that in both scans the OS/2 boot drive
+gets the same drive letters assigned.
+
+If your FAT32 partition is not a primary partition and you don't care what 
+drive letter the FAT32 partition gets you may stop reading here. Simply do 
+not specify the /A or /M options and the FAT32 partition will get a drive 
+letter higher then all partition normally recognized by OS/2.
+
+But if your FAT32 partition is a primary partition, or you want the FAT32 
+partition to have a drive letter before the OS/2 boot drive you will need to 
+do some extra work.
+
+Just for the record the normal assignment order of OS/2 is:
+1. (Current active) Primary partition on first HD
+2. (Current active) Primary partition on second HD
+3. and so on...
+4. All extended partitions on first HD
+5. All extended partitions on second HD
+6. And so on...
+7. Removeable drives
+
+Should you need to use the /M parameter with PARTFILT you should know the
+the sequence numbers used as arguments are different from the normal order
+OS/2 uses. Here's where DISKINFO comes along. DISKINFO shows the seq# as 
+used by PARTFILT. See below.
+
+Now suppose you have the following scenario:
+
+C: is FAT16 (Primary)
+D: is HPFS  (Extended)
+
+and you consider converting the FAT16 partition to FAT32 (with partition 
+magic) the following will happen after the conversion:
+
+During the first scan the FAT32 partition is skipped and the OS/2 boot 
+drive will get C: assigned. During the 2nd scan FAT32 is recognized because
+you have loaded PARTFILT and is assigned C:. Your HPFS partition will get D: 
+assigned and OS/2 will not boot because OS/2 has already decided to go for C:
+but cannot find its stuff there.
+
+There are two solutions:
+- Reinstall OS/2 on the HPFS partition without PARTFILT installed. OS/2 will
+  install everything on C: (HPFS). Later you could add PARTFILT and FAT32.IFS 
+  without the /A and /M options and the FAT32 partition will become D:.
+
+- Add a fake (preferrably HPFS) partition between the FAT32 and HPFS 
+  partition. During the 1st scan, this partition will get C: and your boot 
+  partition will get D:. 
+  Load PARTFILT with the /A and /M options, where in my example the mountlist
+  should be: /M 0,2. 
+
+Explanation:
+With the Fake partition installed the following partitions exist:
+0 - FAT32
+1 - fake HPFS
+2 - HPFS (boot)
+
+By not specifying seq# 1 in the mountlist, PARTFILT will not virtualize this
+partition and OS/2 will not assign a drive to it.
+By using a HPFS partition, Windows 95 will not recognize the fake partition
+and will not assign a drive letter to it.
+
+
+ABOUT HIDDEN PARTITIONS
+=======================
+PARTFILT can also be used to make hidden partitions visible to OS/2.
+Here the following mechanism is used:
+
+  if /A is not used only the types specified after /P are virtualized.
+  (The /A switch controls whether or not to virtualize all partitions.)
+
+  PARTFILT always unhides the partitions it virtualizes.
+
+  For the partition types PARTFILT virtualizes the following rules apply:
+
+  Normal partition types (types 1, 4, 6, 7, but also 11, 14, 16 and 17) 
+  are reported to OS/2 with their actual -unhidden- partition type. 
+
+  Any other partition types specified after /P are reported as un-hidden IFS
+  partitions. 
+  Any other partition types NOT specified after /P are reported as their 
+  actual -unhidden- type. Note that this will only happen if you use the /A
+  argument.
+  
+  Keep in mind that if you specify /A you must also use the /M argument to
+  tell PARTFILT which partitions you want to mount.
+  
+
+
+
+
+
+
+DISKINFO.EXE
+============
+When run with no options, diskinfo will scan and show all partitions.
+The following options are available:
+
+/V - Verbose mode. Show more info on FAT32 partitions.
+/B - Show the boot sector of FAT32 partitions. Only if /V is only specified.
+/P - Allows you to specify a list of partition types that should also get
+     a partition sequence number. See PARTFILT for more information.
+
+
+An example of the output of PARTFILT without any options:
+-----------------------------------------------------------------------------
+There are 2 disks
+=== Scanning physical disk 1.===
+0:P   06 HUGE           Strt:H:     1 C:   0 S:   1 End:H:   127 C: 258 S:  63
+-:PA  0A BOOTMANAGER    Strt:H:     0 C: 524 S:   1 End:H:   127 C: 524 S:  63
+1:LB  06 HUGE           Strt:H:     1 C: 259 S:   1 End:H:   127 C: 387 S:  63
+2:LB  07 IFS            Strt:H:     1 C: 388 S:   1 End:H:   127 C: 523 S:  63
+=== Scanning physical disk 2.===
+-:L   0B FAT32          Strt:H:     1 C:   1 S:   1 End:H:   127 C: 381 S:  63
+-:L   0B FAT32          Strt:H:     1 C: 382 S:   1 End:H:   127 C: 524 S:  63
+³ ³³³ ³
+³ ³³³ À Partition type (the number the specify after /P to get this
+³ ³³³                   partition type handled by PARTFILT)
+³ ³³ÀÄÄ H = Hidden partition
+³ ³ÀÄÄÄ A = Active / B = Bootable via bootmanager
+³ ÀÄÄÄÄ P = Primary / L = Logical (extended)
+ÀÄÄÄÄÄÄ Seq # to be used in the OPTIONAL /M argument for PARTFILT.
+
+2 FAT32 partitions found!
+WARNING: /P not specified.
+         Only 'normal' partitions are assigned a partition sequence number!
+-----------------------------------------------------------------------------
+
+
+An example of the output of PARTFILT with /P 0B as argument:
+-----------------------------------------------------------------------------
+Also including partition types 0B.
+There are 2 disks
+=== Scanning physical disk 1.===
+0:P   06 HUGE           Strt:H:     1 C:   0 S:   1 End:H:   127 C: 258 S:  63
+-:PA  0A BOOTMANAGER    Strt:H:     0 C: 524 S:   1 End:H:   127 C: 524 S:  63
+1:LB  06 HUGE           Strt:H:     1 C: 259 S:   1 End:H:   127 C: 387 S:  63
+2:LB  07 IFS            Strt:H:     1 C: 388 S:   1 End:H:   127 C: 523 S:  63
+=== Scanning physical disk 2.===
+3:L   0B FAT32          Strt:H:     1 C:   1 S:   1 End:H:   127 C: 381 S:  63
+4:L   0B FAT32          Strt:H:     1 C: 382 S:   1 End:H:   127 C: 524 S:  63
+³ ³³³ ³
+³ ³³³ À Partition type (the number the specify after /P to get this
+³ ³³³                   partition type handled by PARTFILT)
+³ ³³ÀÄÄ H = Hidden partition
+³ ³ÀÄÄÄ A = Active / B = Bootable via bootmanager
+³ ÀÄÄÄÄ P = Primary / L = Logical (extended)
+ÀÄÄÄÄÄÄ Seq # to be used in the OPTIONAL /M argument for PARTFILT.
+
+2 FAT32 partitions found!
+-----------------------------------------------------------------------------
+

@@ -1,0 +1,28 @@
+                          Upload Information Template for Hobbes.nmsu.edu
+                          ===============================================
+
+        Archive Filename: OS2FAT32.ZIP
+       Short Description: FAT32 IFS for OS/2 WARP vs 0.91
+        Long Description: FAT32 IFS allows OS/2 to access FAT32 formattted partitions
+
+      Proposed directory
+           for placement: /pub/os2/system/drivers/filesys/
+
+               Your name: Henk Kelder
+           Email address: henk.kelder@capgemini.nl 
+    Program contact name: (same)
+   Program contact email: (same)
+             Program URL: http://www.os2ss.com/information/kelder/
+
+      Would you like the
+   contact email address
+    included in listings? yes
+
+Operating System/Version: OS2 WARP 4.0
+ Additional requirements: NLS support (LANGUAGE stuff)
+
+                Replaces: previous version
+
+
+
+

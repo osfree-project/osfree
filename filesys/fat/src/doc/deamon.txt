@@ -1,0 +1,51 @@
+3 : 03-17-99  Problem appended as follows
+Henk:
+
+I recieved additional information from another developer regarding your
+question.  Even though Sam had answered you, I'm passing this along.
+
+Let me know if you have any other questions.
+
+Ed
+---------------------------
+
+Subject:
+Re: DUDE Problem L16W0
+Yes. Any IFS should be able to use this. The IFS will be called
+atomatically with the FSCTL_DAEMON_QUERY FSCTL. 
+If the IFS wishes to have extra threads started he just needs to
+fill in the data. Most of the fields are self explantory. I will add some
+comment in the original note below to help explain.
+The basic concept is that the IFS fills in information in this query on 
+the number and type of threads he wants to start. For each thread requested 
+the IFS wil be called back on another FSCTL on the new thread. In the new 
+FSCTL the IFS simply call out to whatever function he wants to run as a new
+thread (lazy writer perhaps). The secondary FSCTL call is not expected to
+ever return.
+
+#define FSCTL_DAEMON_QUERY 4 /* FSD query for daemon rqrmnt */
+
+/* Data associated with an FSD Daemon thread spawning action */
+typedef struct _FSDTHREAD /* fsdthread struct for FSCTL fn 4 */
+{
+USHORT usFunc;          /* FSCTL # to be called back on in new thread */
+USHORT usStackSize;     /* stack size required by new thread */
+ULONG ulPriorityClass;  /* priority class of new thread */
+LONG lPriorityLevel;    /* priority level of new thread */
+} FSDTHREAD;
+/* Data associated with an FSD Daemon thread requirements */
+
+typedef struct _FSDDAEMON /* fsddaemon struct for FSCTL fn 4 */
+{
+USHORT usNumThreads;   /* number of new threads IFS wants to start */
+USHORT usMoreFlag;     /* there are more than 16 so call me again */
+USHORT usCallInstance; /* needed in conjuction with the more flag. */
+FSDTHREAD tdThrds[16]; /* 16 instances of above structure */
+} FSDDAEMON;
+
+Please direct all followups to THEDUDE@us.ibm.com
+Thank you,
+The DDSC Team.
+
+
+

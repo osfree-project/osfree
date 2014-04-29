@@ -1,0 +1,56 @@
+LIBRARY FAT32 NEWFILES
+STUB NONE
+DESCRIPTION 'FAT32 IFS driver, (c) Henk Kelder 1999'
+DATA PRELOAD SHARED SINGLE
+CODE PRELOAD SHARED EXECUTEREAD
+PROTMODE
+
+SEGMENTS
+
+EXPORTS
+    FS_ALLOCATEPAGESPACE
+    FS_ATTACH
+    FS_CANCELLOCKREQUEST             ; Not yet implemented
+    FS_CHDIR
+    FS_CHGFILEPTR
+    FS_CLOSE
+    FS_COMMIT
+    FS_COPY
+    FS_DELETE
+    FS_DOPAGEIO
+    FS_EXIT
+    FS_FILEATTRIBUTE
+    FS_FILEINFO
+    FS_FILEIO                        ; Not yet implemented
+    FS_FILELOCKS                     ; Not yet implemented
+    FS_FINDCLOSE
+    FS_FINDFIRST
+    FS_FINDFROMNAME
+    FS_FINDNEXT
+    FS_FINDNOTIFYCLOSE              ; Obsolete in OS/2 WARP
+    FS_FINDNOTIFYFIRST              ; Obsolete in OS/2 WARP
+    FS_FINDNOTIFYNEXT               ; Obsolete in OS/2 WARP
+    FS_FLUSHBUF
+    FS_FSCTL
+    FS_FSINFO
+    FS_INIT
+    FS_IOCTL
+    FS_MKDIR
+    FS_MOUNT
+    FS_MOVE
+    FS_NEWSIZE
+    FS_NMPIPE
+    FS_OPENCREATE
+    FS_OPENPAGEFILE
+    FS_PATHINFO
+    FS_PROCESSNAME
+    FS_READ
+    FS_RMDIR
+    FS_SETSWAP
+    FS_SHUTDOWN
+;   FS_VERIFYUNCNAME                N/A : local FSD
+    FS_WRITE
+
+    FS_ATTRIBUTE
+    FS_NAME
+

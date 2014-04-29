@@ -1,0 +1,1017 @@
+P:59 U:0 D:0 T:23:312 FS_FSCTL, Func = 8001h
+P:62 U:0 D:0 T:19:671 FS_FSCTL returned 0
+P:62 U:0 D:0 T:19:671 FSH_PROCESSNAME for G:\FAT32.LOG
+P:62 U:0 D:0 T:19:671  FSH_PROCESSNAME returned filename: G:\FAT32.LOG
+P:62 U:0 D:0 T:19:671 FSH_PROCESSNAME for G:\FAT32.LOG
+P:62 U:0 D:0 T:19:671  FSH_PROCESSNAME returned filename: G:\FAT32.LOG
+P:62 U:0 D:0 T:19:671 FS_OPENCREATE for G:\FAT32.LOG mode 20A1, Flag 12, IOMode 0, selfsfn=290
+P:62 U:0 D:0 T:19:671               attribute 20, pEABuf 30000
+P:62 U:0 D:0 T:19:671 FS_OPENCREATE returned 0 (Action = 2, OI=31A802D4)
+P:62 U:0 D:0 T:19:671 FS_CHGFILEPTR, Mode 0 - offset 0, current offset=0
+P:62 U:0 D:0 T:19:671 FS_CHGFILEPTR returned 0
+P:35 U:0 D:0 T:19:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:19:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:19:992 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:992 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:78 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:78 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:85 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:85 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:85 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:85 FS_FSINFO returned 0
+P:1D U:0 D:0 T:21:609 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:21:609 FS_FSINFO returned 0
+P:1D U:0 D:0 T:21:937 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:21:937 FS_FSINFO returned 0
+P:35 U:0 D:0 T:22:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:22:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:22:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:22:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:22:148 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:22:148 FS_FSINFO returned 0
+P:1D U:0 D:0 T:22:281 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:281 FS_FSINFO returned 0
+P:1D U:0 D:0 T:22:625 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:625 FS_FSINFO returned 0
+P:1D U:0 D:0 T:22:968 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:968 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:210 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:210 FS_FSINFO returned 0
+P:1D U:0 D:0 T:23:312 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:23:312 FS_FSINFO returned 0
+P:1D U:0 D:0 T:23:656 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:23:656 FS_FSINFO returned 0
+P:1D U:0 D:0 T:24:0 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:24:0 FS_FSINFO returned 0
+P:35 U:0 D:0 T:24:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:24:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:273 FS_FSINFO returned 0
+P:35 U:0 D:0 T:24:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:273 FS_FSINFO returned 0
+P:1D U:0 D:0 T:24:343 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:24:343 FS_FSINFO returned 0
+P:1D U:0 D:0 T:24:687 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:24:687 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:328 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:328 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:335 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:335 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:335 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:335 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:117 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:117 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:117 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:117 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:125 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:125 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:421 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:421 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:429 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:429 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:429 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:429 FS_FSINFO returned 0
+P:63 U:0 D:0 T:26:656 FS_FSINFO, Flag = 0, Level = 2
+P:63 U:0 D:0 T:26:656 FS_FSINFO returned 0
+P:63 U:0 D:0 T:26:656 FS_FSINFO, Flag = 0, Level = 1
+P:63 U:0 D:0 T:26:656 FS_FSINFO returned 0
+P:63 U:0 D:0 T:26:671 FS_FSINFO, Flag = 0, Level = 2
+P:63 U:0 D:0 T:26:671 FS_FSINFO returned 0
+P:63 U:0 D:0 T:26:671 FS_FSINFO, Flag = 0, Level = 1
+P:63 U:0 D:0 T:26:671 FS_FSINFO returned 0
+P:63 U:0 D:0 T:26:898 FSH_PROCESSNAME for G:\SDA\CD\software\Access_Service
+P:63 U:0 D:0 T:26:898  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:26:898 FS_CHDIR, flag 0
+P:63 U:0 D:0 T:26:898 CHDIR to G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:26:898 FS_CHDIR returned 0
+P:63 U:0 D:0 T:26:898 FSH_PROCESSNAME for G:\SDA
+P:63 U:0 D:0 T:26:898  FSH_PROCESSNAME returned filename: G:\SDA
+P:63 U:0 D:0 T:26:898 FS_FINDFIRST for G:\SDA attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:26:898 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:26:898 1 : SDA
+P:63 U:0 D:0 T:26:898 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:26:898 FS_FINDCLOSE
+P:63 U:0 D:0 T:26:906 FSH_PROCESSNAME for G:\SDA\CD
+P:63 U:0 D:0 T:26:906  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:63 U:0 D:0 T:26:906 FS_FINDFIRST for G:\SDA\CD attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:26:906 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:26:906 10 : CD
+P:63 U:0 D:0 T:26:906 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:26:906 FS_FINDCLOSE
+P:63 U:0 D:0 T:26:906 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:26:906  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:26:906 FS_FINDFIRST for G:\SDA\CD\SOFTWARE attr 77, Level 1, cbData 286, MaxEntries 1
+P:62 U:0 D:0 T:26:906 FS_WRITE, 4096 bytes at offset 0, ioflag 0, size = 0
+P:63 U:0 D:0 T:26:914 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:26:914 15 : software
+P:63 U:0 D:0 T:26:914 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:26:914 FS_FINDCLOSE
+P:63 U:0 D:0 T:26:914 FSH_PROCESSNAME for G:\SDA\CD\software\ACCESS~1
+P:63 U:0 D:0 T:26:914  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:26:914 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\ACCESS~1 attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:26:914 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:26:914 42 : Access_Service
+P:63 U:0 D:0 T:26:914 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:26:914 FS_FINDCLOSE
+P:62 U:0 D:0 T:26:921 FS_WRITE returned 0 (4096 bytes written)
+P:63 U:0 D:0 T:26:953 FSH_PROCESSNAME for G:\SDA\CD\software\Access_Service
+P:63 U:0 D:0 T:26:953  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:26:953 FS_CHDIR, flag 0
+P:63 U:0 D:0 T:26:953 CHDIR to G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:26:953 FS_CHDIR returned 0
+P:63 U:0 D:0 T:27:46 FS_FSINFO, Flag = 0, Level = 2
+P:63 U:0 D:0 T:27:46 FS_FSINFO returned 0
+P:63 U:0 D:0 T:27:46 FS_FSINFO, Flag = 0, Level = 1
+P:63 U:0 D:0 T:27:46 FS_FSINFO returned 0
+P:63 U:0 D:0 T:27:46 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE\ACCESS~1\*.*
+P:63 U:0 D:0 T:27:78  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1\*.*
+P:63 U:0 D:0 T:27:78 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\ACCESS~1\*.* attr 77, Level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:78 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:78 0 : .
+P:63 U:0 D:0 T:27:78 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:78 FS_FINDFROMNAME, curpos = 1, requested 0
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:78 1 : ..
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:78 FS_FINDFROMNAME, curpos = 2, requested 1
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:78 4 : SDA_SERVICE.MDB
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:78 FS_FINDFROMNAME, curpos = 5, requested 4
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:78 6 : generic
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:78 FS_FINDFROMNAME, curpos = 7, requested 6
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:78 FS_FINDNEXT returned 18 (0 entries)
+P:63 U:0 D:0 T:27:78 FS_FINDCLOSE
+P:62 U:0 D:0 T:27:78 FS_WRITE, 4096 bytes at offset 4096, ioflag 0, size = 4096
+P:62 U:0 D:0 T:27:78 FS_WRITE returned 0 (4096 bytes written)
+P:63 U:0 D:0 T:27:85 FSH_PROCESSNAME for G:\SDA\CD\software\Stealth_apps
+P:63 U:0 D:0 T:27:85  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1
+P:63 U:0 D:0 T:27:85 FS_CHDIR, flag 0
+P:63 U:0 D:0 T:27:85 CHDIR to G:\SDA\CD\SOFTWARE\STEALT~1
+P:63 U:0 D:0 T:27:85 FS_CHDIR returned 0
+P:63 U:0 D:0 T:27:85 FS_CHDIR, flag 2
+P:63 U:0 D:0 T:27:85 FS_CHDIR returned 0
+P:63 U:0 D:0 T:27:85 FSH_PROCESSNAME for G:\SDA
+P:63 U:0 D:0 T:27:85  FSH_PROCESSNAME returned filename: G:\SDA
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST for G:\SDA attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:85 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:85 1 : SDA
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:85 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:85 FSH_PROCESSNAME for G:\SDA\CD
+P:63 U:0 D:0 T:27:85  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST for G:\SDA\CD attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:85 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:85 10 : CD
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:85 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:85 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:27:85  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST for G:\SDA\CD\SOFTWARE attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:85 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:85 15 : software
+P:63 U:0 D:0 T:27:85 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:85 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:85 FSH_PROCESSNAME for G:\SDA\CD\software\STEALT~1
+P:63 U:0 D:0 T:27:93  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1
+P:63 U:0 D:0 T:27:93 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\STEALT~1 attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:93 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:93 13 : Stealth_apps
+P:63 U:0 D:0 T:27:93 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:93 FS_FINDCLOSE
+(information lost)
+P:63 U:0 D:0 T:27:109 0 : .
+P:63 U:0 D:0 T:27:109 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 1, requested 0
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 1 : ..
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 2, requested 1
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 3 : dirnames.jpg
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 4, requested 3
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 6 : std_exams.tar.gz
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 7, requested 6
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 9 : cranial_264.tar.gz
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 10, requested 9
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 11 : fn22.tar.gz
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 12, requested 11
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:109 14 : install.tar.gz
+P:63 U:0 D:0 T:27:109 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:109 FS_FINDFROMNAME, curpos = 15, requested 14
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 17 : notinstalled.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 18, requested 17
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 20 : spine_264.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 21, requested 20
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 23 : fn22bdemoexams.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 24, requested 23
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 26 : fn22exams.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 27, requested 26
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 29 : fn22bdemo.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 30, requested 29
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 31 : fn231.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 32, requested 31
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 34 : fn231exams.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 35, requested 34
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 40 : cranial305.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 41, requested 40
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 43 : functional_266.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 44, requested 43
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 46 : immerge_133.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 47, requested 46
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 49 : LandmarX_304.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 50, requested 49
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 52 : spine_305.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 53, requested 52
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 60 : FluoroNavDemoExams_231.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 61, requested 60
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 63 : SNT_bin_fn231.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 64, requested 63
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 66 : fn231plusdemo.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 67, requested 66
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 69 : fn231demo.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 70, requested 69
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 72 : 305upgrade.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 73, requested 72
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 75 : fnav232inst.tar.gz
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 0 (1 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDFROMNAME, curpos = 76, requested 75
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT, level 2, cbData 290, MaxEntries 1
+P:63 U:0 D:0 T:27:117 FS_FINDNEXT returned 18 (0 entries)
+P:63 U:0 D:0 T:27:117 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:125 FSH_PROCESSNAME for G:\SDA\CD\software\Access_Service
+P:63 U:0 D:0 T:27:125  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:27:125 FS_CHDIR, flag 0
+P:63 U:0 D:0 T:27:125 CHDIR to G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:27:125 FS_CHDIR returned 0
+P:63 U:0 D:0 T:27:125 FS_CHDIR, flag 2
+P:63 U:0 D:0 T:27:125 FS_CHDIR returned 0
+P:63 U:0 D:0 T:27:125 FSH_PROCESSNAME for G:\SDA
+P:63 U:0 D:0 T:27:125  FSH_PROCESSNAME returned filename: G:\SDA
+P:63 U:0 D:0 T:27:125 FS_FINDFIRST for G:\SDA attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:125 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:125 1 : SDA
+P:63 U:0 D:0 T:27:125 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:125 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:125 FSH_PROCESSNAME for G:\SDA\CD
+P:63 U:0 D:0 T:27:125  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:63 U:0 D:0 T:27:125 FS_FINDFIRST for G:\SDA\CD attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:125 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:125 10 : CD
+P:63 U:0 D:0 T:27:125 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:125 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:125 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:27:125  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:63 U:0 D:0 T:27:125 FS_FINDFIRST for G:\SDA\CD\SOFTWARE attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:132 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:132 15 : software
+P:63 U:0 D:0 T:27:132 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:132 FS_FINDCLOSE
+P:63 U:0 D:0 T:27:132 FSH_PROCESSNAME for G:\SDA\CD\software\ACCESS~1
+P:63 U:0 D:0 T:27:132  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\ACCESS~1
+P:63 U:0 D:0 T:27:132 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\ACCESS~1 attr 77, Level 1, cbData 286, MaxEntries 1
+P:63 U:0 D:0 T:27:132 pInfo at 31A8040A, pDirEntries at 31A80528
+P:63 U:0 D:0 T:27:132 42 : Access_Service
+P:63 U:0 D:0 T:27:132 FS_FINDFIRST returned 0 (1 entries)
+P:63 U:0 D:0 T:27:132 FS_FINDCLOSE
+P:62 U:0 D:0 T:27:132 FS_WRITE, 4096 bytes at offset 8192, ioflag 0, size = 8192
+P:62 U:0 D:0 T:27:132 FS_WRITE returned 0 (4096 bytes written)
+P:62 U:0 D:0 T:27:132 FS_WRITE, 4096 bytes at offset 12288, ioflag 0, size = 12288
+P:62 U:0 D:0 T:27:132 FS_WRITE returned 0 (4096 bytes written)
+P:35 U:0 D:0 T:27:515 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:515 FS_FSINFO returned 0
+P:35 U:0 D:0 T:27:515 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:515 FS_FSINFO returned 0
+P:35 U:0 D:0 T:27:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:28:578 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:578 FS_FSINFO returned 0
+P:35 U:0 D:0 T:28:578 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:578 FS_FSINFO returned 0
+P:35 U:0 D:0 T:28:585 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:585 FS_FSINFO returned 0
+P:35 U:0 D:0 T:29:640 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:640 FS_FSINFO returned 0
+P:35 U:0 D:0 T:29:648 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:648 FS_FSINFO returned 0
+P:35 U:0 D:0 T:29:648 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:648 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:703 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:703 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:703 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:703 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:710 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:710 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:445 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:445 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:453 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:453 FS_FSINFO returned 0
+P:62 U:0 D:0 T:31:468 FS_WRITE, 4096 bytes at offset 16384, ioflag 0, size = 16384
+P:62 U:0 D:0 T:31:468 FS_WRITE returned 0 (4096 bytes written)
+P:35 U:0 D:0 T:31:765 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:765 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:765 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:765 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:773 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:773 FS_FSINFO returned 0
+P:35 U:0 D:0 T:32:828 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:828 FS_FSINFO returned 0
+P:35 U:0 D:0 T:32:828 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:828 FS_FSINFO returned 0
+P:35 U:0 D:0 T:32:835 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:835 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:890 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:890 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:898 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:898 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:898 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:898 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:953 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:953 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:953 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:953 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:960 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:960 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:15 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:15 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:15 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:15 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:23 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:23 FS_FSINFO returned 0
+P:35 U:0 D:0 T:37:109 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:109 FS_FSINFO returned 0
+P:35 U:0 D:0 T:37:109 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:109 FS_FSINFO returned 0
+P:35 U:0 D:0 T:37:117 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:117 FS_FSINFO returned 0
+P:35 U:0 D:0 T:38:171 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:38:171 FS_FSINFO returned 0
+P:35 U:0 D:0 T:38:179 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:38:179 FS_FSINFO returned 0
+P:35 U:0 D:0 T:38:179 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:38:179 FS_FSINFO returned 0
+P:35 U:0 D:0 T:39:234 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:39:234 FS_FSINFO returned 0
+P:35 U:0 D:0 T:39:234 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:39:234 FS_FSINFO returned 0
+P:35 U:0 D:0 T:39:242 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:39:242 FS_FSINFO returned 0
+P:35 U:0 D:0 T:40:296 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:40:296 FS_FSINFO returned 0
+P:35 U:0 D:0 T:40:296 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:40:296 FS_FSINFO returned 0
+P:35 U:0 D:0 T:40:304 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:40:304 FS_FSINFO returned 0
+P:35 U:0 D:0 T:41:359 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:41:359 FS_FSINFO returned 0
+P:35 U:0 D:0 T:41:359 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:41:359 FS_FSINFO returned 0
+P:35 U:0 D:0 T:41:367 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:41:367 FS_FSINFO returned 0
+P:35 U:0 D:0 T:42:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:42:453 FS_FSINFO returned 0
+P:35 U:0 D:0 T:42:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:42:453 FS_FSINFO returned 0
+P:35 U:0 D:0 T:42:460 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:42:460 FS_FSINFO returned 0
+P:35 U:0 D:0 T:43:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:43:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:43:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:43:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:43:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:43:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:44:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:44:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:44:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:44:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:44:617 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:44:617 FS_FSINFO returned 0
+P:35 U:0 D:0 T:45:671 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:45:671 FS_FSINFO returned 0
+P:35 U:0 D:0 T:45:679 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:45:679 FS_FSINFO returned 0
+P:35 U:0 D:0 T:45:679 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:45:679 FS_FSINFO returned 0
+P:62 U:0 D:0 T:45:687 FS_WRITE, 4096 bytes at offset 20480, ioflag 0, size = 20480
+P:62 U:0 D:0 T:45:687 FS_WRITE returned 0 (4096 bytes written)
+P:35 U:0 D:0 T:46:734 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:46:734 FS_FSINFO returned 0
+P:35 U:0 D:0 T:46:734 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:46:734 FS_FSINFO returned 0
+P:35 U:0 D:0 T:46:742 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:46:742 FS_FSINFO returned 0
+P:35 U:0 D:0 T:47:796 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:47:796 FS_FSINFO returned 0
+P:35 U:0 D:0 T:47:796 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:47:796 FS_FSINFO returned 0
+P:35 U:0 D:0 T:47:804 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:47:804 FS_FSINFO returned 0
+P:35 U:0 D:0 T:48:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:48:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:48:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:48:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:48:867 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:48:867 FS_FSINFO returned 0
+P:35 U:0 D:0 T:49:921 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:49:921 FS_FSINFO returned 0
+P:35 U:0 D:0 T:49:921 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:49:921 FS_FSINFO returned 0
+P:35 U:0 D:0 T:49:929 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:49:929 FS_FSINFO returned 0
+P:35 U:0 D:0 T:50:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:50:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:50:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:50:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:50:992 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:50:992 FS_FSINFO returned 0
+P:35 U:0 D:0 T:52:78 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:52:78 FS_FSINFO returned 0
+P:35 U:0 D:0 T:52:78 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:52:78 FS_FSINFO returned 0
+P:35 U:0 D:0 T:52:85 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:52:85 FS_FSINFO returned 0
+P:35 U:0 D:0 T:53:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:53:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:53:148 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:53:148 FS_FSINFO returned 0
+P:35 U:0 D:0 T:53:148 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:53:148 FS_FSINFO returned 0
+P:35 U:0 D:0 T:54:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:54:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:54:210 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:54:210 FS_FSINFO returned 0
+P:35 U:0 D:0 T:54:210 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:54:210 FS_FSINFO returned 0
+P:35 U:0 D:0 T:55:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:55:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:55:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:55:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:55:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:55:273 FS_FSINFO returned 0
+P:35 U:0 D:0 T:56:328 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:56:328 FS_FSINFO returned 0
+P:35 U:0 D:0 T:56:328 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:56:328 FS_FSINFO returned 0
+P:35 U:0 D:0 T:56:335 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:56:335 FS_FSINFO returned 0
+P:35 U:0 D:0 T:57:390 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:57:390 FS_FSINFO returned 0
+P:35 U:0 D:0 T:57:398 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:57:398 FS_FSINFO returned 0
+P:35 U:0 D:0 T:57:398 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:57:398 FS_FSINFO returned 0
+P:50 U:0 D:0 T:57:406 FSH_PROCESSNAME for G:\sda\cd
+P:50 U:0 D:0 T:57:406  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:50 U:0 D:0 T:57:406 FS_PATHINFO Flag = 0, Level = 1 called for G:\SDA\CD, cbData = 24
+P:50 U:0 D:0 T:57:406 FS_PATHINFO returned 0
+P:50 U:0 D:0 T:57:406 FSH_PROCESSNAME for G:\sda\cd\dir.msg
+P:50 U:0 D:0 T:57:414  FSH_PROCESSNAME returned filename: G:\SDA\CD\dir.msg
+P:50 U:0 D:0 T:57:414 FS_OPENCREATE for G:\SDA\CD\dir.msg mode 140, Flag 1, IOMode 0, selfsfn=301
+P:50 U:0 D:0 T:57:414               attribute 20, pEABuf 30000
+P:50 U:0 D:0 T:57:414 FS_OPENCREATE returned 110 (Action = 0, OI=31A8040A)
+P:62 U:0 D:0 T:57:414 FS_WRITE, 4096 bytes at offset 24576, ioflag 0, size = 24576
+P:62 U:0 D:0 T:57:414 FS_WRITE returned 0 (4096 bytes written)
+P:50 U:0 D:0 T:57:445 FSH_PROCESSNAME for G:\sda\cd
+P:50 U:0 D:0 T:57:445  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:50 U:0 D:0 T:57:445 FS_FINDFIRST for G:\SDA\CD attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:57:445 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:57:445 10 : CD
+P:50 U:0 D:0 T:57:445 FS_FINDFIRST returned 0 (1 entries)
+P:50 U:0 D:0 T:57:445 FS_FINDCLOSE
+P:50 U:0 D:0 T:57:445 FSH_PROCESSNAME for G:\sda\CD\*
+P:50 U:0 D:0 T:57:445  FSH_PROCESSNAME returned filename: G:\SDA\CD\*
+P:50 U:0 D:0 T:57:445 FS_FINDFIRST for G:\SDA\CD\* attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:57:445 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:57:445 0 : .
+P:50 U:0 D:0 T:57:445 1 : ..
+P:50 U:0 D:0 T:57:445 3 : readers
+P:50 U:0 D:0 T:57:445 4 : PICS
+P:50 U:0 D:0 T:57:445 6 : techinfo
+P:50 U:0 D:0 T:57:445 8 : partassy
+P:50 U:0 D:0 T:57:445 9 : 1_README.TXT
+P:50 U:0 D:0 T:57:445 11 : enginst
+P:50 U:0 D:0 T:57:445 12 : ENCYC.HTM
+P:50 U:0 D:0 T:57:445 13 : ENCYC2.HTM
+P:50 U:0 D:0 T:57:445 15 : software
+P:50 U:0 D:0 T:57:445 16 : AUTORUN.INF
+P:50 U:0 D:0 T:57:445 18 : new
+P:50 U:0 D:0 T:57:445 19 : NAVIGATE
+P:50 U:0 D:0 T:57:445 21 : backup
+P:50 U:0 D:0 T:57:445 22 : STEALTH.HTM
+P:50 U:0 D:0 T:57:445 25 : STOCK.HTM
+P:50 U:0 D:0 T:57:445 53 : SOFTWARE.HTM
+P:50 U:0 D:0 T:57:445 56 : PARTINFO.HTM
+P:50 U:0 D:0 T:57:445 111 : TECHINFO.HTM
+P:50 U:0 D:0 T:57:445 117 : 1_INDEX.HTM
+P:50 U:0 D:0 T:57:445 FS_FINDFIRST returned 0 (21 entries)
+P:50 U:0 D:0 T:57:445 FS_FINDFROMNAME, curpos = 256, requested 117
+P:50 U:0 D:0 T:57:445 FS_FINDNEXT, level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:57:445 FS_FINDNEXT returned 18 (0 entries)
+P:50 U:0 D:0 T:57:445 FS_FINDCLOSE
+P:35 U:0 D:0 T:58:484 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:58:484 FS_FSINFO returned 0
+P:35 U:0 D:0 T:58:484 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:58:484 FS_FSINFO returned 0
+P:35 U:0 D:0 T:58:492 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:58:492 FS_FSINFO returned 0
+P:35 U:0 D:0 T:59:546 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:59:546 FS_FSINFO returned 0
+P:35 U:0 D:0 T:59:546 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:59:546 FS_FSINFO returned 0
+P:35 U:0 D:0 T:59:554 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:59:554 FS_FSINFO returned 0
+P:50 U:0 D:0 T:0:171 FSH_PROCESSNAME for G:\sda\cd\software
+P:50 U:0 D:0 T:0:171  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:50 U:0 D:0 T:0:171 FS_PATHINFO Flag = 0, Level = 1 called for G:\SDA\CD\SOFTWARE, cbData = 24
+P:50 U:0 D:0 T:0:171 FS_PATHINFO returned 0
+P:50 U:0 D:0 T:0:171 FSH_PROCESSNAME for G:\sda\cd\software\dir.msg
+P:50 U:0 D:0 T:0:179  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\dir.msg
+P:50 U:0 D:0 T:0:179 FS_OPENCREATE for G:\SDA\CD\SOFTWARE\dir.msg mode 140, Flag 1, IOMode 0, selfsfn=301
+P:50 U:0 D:0 T:0:179               attribute 20, pEABuf 30000
+P:50 U:0 D:0 T:0:179 FS_OPENCREATE returned 110 (Action = 0, OI=31A8040A)
+P:50 U:0 D:0 T:0:210 FSH_PROCESSNAME for G:\sda\cd\software
+P:50 U:0 D:0 T:0:210  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:50 U:0 D:0 T:0:210 FS_FINDFIRST for G:\SDA\CD\SOFTWARE attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:0:210 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:0:210 15 : software
+P:50 U:0 D:0 T:0:210 FS_FINDFIRST returned 0 (1 entries)
+P:50 U:0 D:0 T:0:210 FS_FINDCLOSE
+P:50 U:0 D:0 T:0:210 FSH_PROCESSNAME for G:\sda\cd\software\*
+P:50 U:0 D:0 T:0:210  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\*
+P:50 U:0 D:0 T:0:210 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\* attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:0:210 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:0:210 0 : .
+P:50 U:0 D:0 T:0:210 1 : ..
+P:50 U:0 D:0 T:0:210 2 : DICOM
+P:50 U:0 D:0 T:0:210 3 : UT
+P:50 U:0 D:0 T:0:210 4 : BIOS
+P:50 U:0 D:0 T:0:210 6 : SNT_dupe
+P:50 U:0 D:0 T:0:210 7 : FTP_GUI
+P:50 U:0 D:0 T:0:210 9 : SNT2Analyze
+P:50 U:0 D:0 T:0:210 11 : control
+P:50 U:0 D:0 T:0:210 13 : Stealth_apps
+P:50 U:0 D:0 T:0:210 15 : flashpoint
+P:50 U:0 D:0 T:0:210 17 : stealthnet
+P:50 U:0 D:0 T:0:210 19 : nethog
+P:50 U:0 D:0 T:0:210 21 : tar_cdr
+P:50 U:0 D:0 T:0:210 23 : ProbeModels
+P:50 U:0 D:0 T:0:210 26 : SNT_service_kit
+P:50 U:0 D:0 T:0:210 27 : SVP
+P:50 U:0 D:0 T:0:210 29 : SNT_binaries
+P:50 U:0 D:0 T:0:210 31 : Media_IO
+P:50 U:0 D:0 T:0:210 33 : sounds
+P:50 U:0 D:0 T:0:210 35 : moxascope
+P:50 U:0 D:0 T:0:210 37 : presentation
+P:50 U:0 D:0 T:0:210 39 : exams
+P:50 U:0 D:0 T:0:210 42 : Access_Service
+P:50 U:0 D:0 T:0:210 43 : UT2
+P:50 U:0 D:0 T:0:210 44 : LOGOS
+P:50 U:0 D:0 T:0:210 46 : Embellish
+P:50 U:0 D:0 T:0:210 48 : cd_label
+P:50 U:0 D:0 T:0:210 50 : unix2dos
+P:50 U:0 D:0 T:0:210 51 : README.TXT
+P:50 U:0 D:0 T:0:210 53 : PCI_Card
+P:50 U:0 D:0 T:0:210 55 : FrameModels
+P:50 U:0 D:0 T:0:210 57 : notinstalled
+P:50 U:0 D:0 T:0:210 58 : TIU_PSU
+P:50 U:0 D:0 T:0:210 60 : touchscreen
+P:50 U:0 D:0 T:0:210 62 : versions
+P:50 U:0 D:0 T:0:210 63 : VPN
+P:50 U:0 D:0 T:0:210 65 : emergenc
+P:50 U:0 D:0 T:0:218 67 : files
+P:50 U:0 D:0 T:0:218 70 : standard_presentations
+P:50 U:0 D:0 T:0:218 FS_FINDFIRST returned 0 (40 entries)
+P:62 U:0 D:0 T:0:218 FS_WRITE, 4096 bytes at offset 28672, ioflag 0, size = 28672
+P:62 U:0 D:0 T:0:218 FS_WRITE returned 0 (4096 bytes written)
+P:50 U:0 D:0 T:0:218 FS_FINDFROMNAME, curpos = 256, requested 70
+P:50 U:0 D:0 T:0:218 FS_FINDNEXT, level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:0:218 FS_FINDNEXT returned 18 (0 entries)
+P:50 U:0 D:0 T:0:218 FS_FINDCLOSE
+P:35 U:0 D:0 T:0:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:0:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:0:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:0:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:0:617 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:0:617 FS_FSINFO returned 0
+P:35 U:0 D:0 T:1:671 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:1:671 FS_FSINFO returned 0
+P:35 U:0 D:0 T:1:671 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:1:671 FS_FSINFO returned 0
+P:35 U:0 D:0 T:1:679 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:1:679 FS_FSINFO returned 0
+P:35 U:0 D:0 T:2:734 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:2:734 FS_FSINFO returned 0
+P:35 U:0 D:0 T:2:742 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:2:742 FS_FSINFO returned 0
+P:35 U:0 D:0 T:2:742 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:2:742 FS_FSINFO returned 0
+P:35 U:0 D:0 T:3:796 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:3:796 FS_FSINFO returned 0
+P:35 U:0 D:0 T:3:796 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:3:796 FS_FSINFO returned 0
+P:35 U:0 D:0 T:3:804 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:3:804 FS_FSINFO returned 0
+P:35 U:0 D:0 T:4:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:4:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:4:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:4:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:4:867 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:4:867 FS_FSINFO returned 0
+P:35 U:0 D:0 T:5:921 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:5:921 FS_FSINFO returned 0
+P:35 U:0 D:0 T:5:921 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:5:921 FS_FSINFO returned 0
+P:35 U:0 D:0 T:5:929 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:5:929 FS_FSINFO returned 0
+P:50 U:0 D:0 T:6:632 FSH_PROCESSNAME for G:\sda\cd\software\Stealth_apps
+P:50 U:0 D:0 T:6:632  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1
+P:50 U:0 D:0 T:6:632 FS_PATHINFO Flag = 0, Level = 1 called for G:\SDA\CD\SOFTWARE\STEALT~1, cbData = 24
+P:50 U:0 D:0 T:6:632 FS_PATHINFO returned 0
+P:50 U:0 D:0 T:6:632 FSH_PROCESSNAME for G:\sda\cd\software\Stealth_apps\dir.msg
+P:50 U:0 D:0 T:6:640  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1\dir.msg
+P:50 U:0 D:0 T:6:640 FS_OPENCREATE for G:\SDA\CD\SOFTWARE\STEALT~1\dir.msg mode 140, Flag 1, IOMode 0, selfsfn=301
+P:50 U:0 D:0 T:6:640               attribute 20, pEABuf 30000
+P:50 U:0 D:0 T:6:640 FS_OPENCREATE returned 110 (Action = 0, OI=31A8040A)
+P:62 U:0 D:0 T:6:640 FS_WRITE, 4096 bytes at offset 32768, ioflag 0, size = 32768
+P:62 U:0 D:0 T:6:640 FS_WRITE returned 0 (4096 bytes written)
+P:50 U:0 D:0 T:6:687 FSH_PROCESSNAME for G:\sda\cd\software\Stealth_apps
+P:50 U:0 D:0 T:6:687  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1
+P:50 U:0 D:0 T:6:687 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\STEALT~1 attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:6:687 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:6:687 13 : Stealth_apps
+P:50 U:0 D:0 T:6:687 FS_FINDFIRST returned 0 (1 entries)
+P:50 U:0 D:0 T:6:687 FS_FINDCLOSE
+P:50 U:0 D:0 T:6:687 FSH_PROCESSNAME for G:\sda\cd\software\Stealth_apps\*
+P:50 U:0 D:0 T:6:687  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1\*
+P:50 U:0 D:0 T:6:687 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\STEALT~1\* attr 56, Level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:6:695 pInfo at 31A8040A, pDirEntries at 31A80528
+P:50 U:0 D:0 T:6:695 0 : .
+P:50 U:0 D:0 T:6:695 1 : ..
+P:50 U:0 D:0 T:6:695 3 : dirnames.jpg
+P:50 U:0 D:0 T:6:695 6 : std_exams.tar.gz
+P:50 U:0 D:0 T:6:695 9 : cranial_264.tar.gz
+P:50 U:0 D:0 T:6:695 11 : fn22.tar.gz
+P:50 U:0 D:0 T:6:695 14 : install.tar.gz
+P:50 U:0 D:0 T:6:695 17 : notinstalled.tar.gz
+P:50 U:0 D:0 T:6:695 20 : spine_264.tar.gz
+P:50 U:0 D:0 T:6:695 23 : fn22bdemoexams.tar.gz
+P:50 U:0 D:0 T:6:695 26 : fn22exams.tar.gz
+P:50 U:0 D:0 T:6:695 29 : fn22bdemo.tar.gz
+P:50 U:0 D:0 T:6:695 31 : fn231.tar.gz
+P:50 U:0 D:0 T:6:695 34 : fn231exams.tar.gz
+P:50 U:0 D:0 T:6:695 40 : cranial305.tar.gz
+P:50 U:0 D:0 T:6:695 43 : functional_266.tar.gz
+P:50 U:0 D:0 T:6:695 46 : immerge_133.tar.gz
+P:50 U:0 D:0 T:6:695 49 : LandmarX_304.tar.gz
+P:50 U:0 D:0 T:6:695 52 : spine_305.tar.gz
+P:50 U:0 D:0 T:6:695 60 : FluoroNavDemoExams_231.tar.gz
+P:50 U:0 D:0 T:6:695 63 : SNT_bin_fn231.tar.gz
+P:50 U:0 D:0 T:6:695 66 : fn231plusdemo.tar.gz
+P:50 U:0 D:0 T:6:695 69 : fn231demo.tar.gz
+P:50 U:0 D:0 T:6:695 72 : 305upgrade.tar.gz
+P:50 U:0 D:0 T:6:695 75 : fnav232inst.tar.gz
+P:50 U:0 D:0 T:6:695 FS_FINDFIRST returned 0 (25 entries)
+P:50 U:0 D:0 T:6:695 FS_FINDFROMNAME, curpos = 256, requested 75
+P:50 U:0 D:0 T:6:695 FS_FINDNEXT, level 1, cbData 16384, MaxEntries 16384
+P:50 U:0 D:0 T:6:695 FS_FINDNEXT returned 18 (0 entries)
+P:50 U:0 D:0 T:6:695 FS_FINDCLOSE
+P:35 U:0 D:0 T:6:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:6:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:6:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:6:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:6:992 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:6:992 FS_FSINFO returned 0
+P:35 U:0 D:0 T:8:78 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:8:78 FS_FSINFO returned 0
+P:35 U:0 D:0 T:8:78 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:8:78 FS_FSINFO returned 0
+P:35 U:0 D:0 T:8:85 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:8:85 FS_FSINFO returned 0
+P:35 U:0 D:0 T:9:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:9:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:9:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:9:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:9:148 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:9:148 FS_FSINFO returned 0
+P:35 U:0 D:0 T:10:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:10:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:10:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:10:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:10:210 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:10:210 FS_FSINFO returned 0
+P:35 U:0 D:0 T:11:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:11:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:11:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:11:273 FS_FSINFO returned 0
+P:35 U:0 D:0 T:11:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:11:273 FS_FSINFO returned 0
+P:35 U:0 D:0 T:12:359 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:12:359 FS_FSINFO returned 0
+P:35 U:0 D:0 T:12:359 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:12:359 FS_FSINFO returned 0
+P:35 U:0 D:0 T:12:367 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:12:367 FS_FSINFO returned 0
+P:62 U:0 D:0 T:12:375 FS_WRITE, 4096 bytes at offset 36864, ioflag 0, size = 36864
+P:62 U:0 D:0 T:12:375 FS_WRITE returned 0 (4096 bytes written)
+P:35 U:0 D:0 T:13:421 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:13:421 FS_FSINFO returned 0
+P:35 U:0 D:0 T:13:421 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:13:421 FS_FSINFO returned 0
+P:35 U:0 D:0 T:13:429 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:13:429 FS_FSINFO returned 0
+P:35 U:0 D:0 T:14:484 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:14:484 FS_FSINFO returned 0
+P:35 U:0 D:0 T:14:484 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:14:484 FS_FSINFO returned 0
+P:35 U:0 D:0 T:14:492 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:14:492 FS_FSINFO returned 0
+P:35 U:0 D:0 T:15:546 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:15:546 FS_FSINFO returned 0
+P:35 U:0 D:0 T:15:546 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:15:546 FS_FSINFO returned 0
+P:35 U:0 D:0 T:15:554 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:15:554 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:437 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:437 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:445 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:445 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:445 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:445 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:609 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:609 FS_FSINFO returned 0
+P:35 U:0 D:0 T:16:617 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:16:617 FS_FSINFO returned 0
+P:35 U:0 D:0 T:17:687 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:17:687 FS_FSINFO returned 0
+P:35 U:0 D:0 T:17:687 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:17:687 FS_FSINFO returned 0
+P:35 U:0 D:0 T:17:695 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:17:695 FS_FSINFO returned 0
+P:35 U:0 D:0 T:18:796 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:18:796 FS_FSINFO returned 0
+P:35 U:0 D:0 T:18:804 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:18:804 FS_FSINFO returned 0
+P:35 U:0 D:0 T:18:804 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:18:804 FS_FSINFO returned 0
+P:35 U:0 D:0 T:19:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:19:859 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:859 FS_FSINFO returned 0
+P:35 U:0 D:0 T:19:867 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:19:867 FS_FSINFO returned 0
+P:1D U:0 D:0 T:20:734 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:20:734 FS_FSINFO returned 0
+P:35 U:0 D:0 T:20:921 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:20:921 FS_FSINFO returned 0
+P:35 U:0 D:0 T:20:929 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:20:929 FS_FSINFO returned 0
+P:35 U:0 D:0 T:20:929 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:20:929 FS_FSINFO returned 0
+P:1D U:0 D:0 T:21:62 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:21:62 FS_FSINFO returned 0
+P:1D U:0 D:0 T:21:406 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:21:406 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:804 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:804 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:812 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:812 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:812 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:812 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:984 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:984 FS_FSINFO returned 0
+P:35 U:0 D:0 T:21:992 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:21:992 FS_FSINFO returned 0
+P:1D U:0 D:0 T:22:109 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:109 FS_FSINFO returned 0
+P:1D U:0 D:0 T:22:437 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:437 FS_FSINFO returned 0
+P:62 U:0 D:0 T:22:437 FS_WRITE, 4096 bytes at offset 40960, ioflag 0, size = 40960
+P:62 U:0 D:0 T:22:437 FS_WRITE returned 0 (4096 bytes written)
+P:1D U:0 D:0 T:22:781 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:22:781 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:54 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:54 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:54 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:54 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:62 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:62 FS_FSINFO returned 0
+P:1D U:0 D:0 T:23:125 FS_FSINFO, Flag = 0, Level = 1
+P:1D U:0 D:0 T:23:125 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:23:531 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:23:531 FS_FSINFO returned 0
+P:65 U:0 D:0 T:23:601 FS_EXIT for PID: 65, PDB 0
+P:35 U:0 D:0 T:24:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:24:140 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:140 FS_FSINFO returned 0
+P:35 U:0 D:0 T:24:148 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:24:148 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:203 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:203 FS_FSINFO returned 0
+P:35 U:0 D:0 T:25:210 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:25:210 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:265 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:265 FS_FSINFO returned 0
+P:35 U:0 D:0 T:26:273 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:26:273 FS_FSINFO returned 0
+P:66 U:0 D:0 T:26:507 FSH_PROCESSNAME for G:\sda
+P:66 U:0 D:0 T:26:507  FSH_PROCESSNAME returned filename: G:\SDA
+P:66 U:0 D:0 T:26:507 FS_CHDIR, flag 0
+P:66 U:0 D:0 T:26:507 CHDIR to G:\SDA
+P:66 U:0 D:0 T:26:507 FS_CHDIR returned 0
+P:35 U:0 D:0 T:27:328 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:328 FS_FSINFO returned 0
+P:35 U:0 D:0 T:27:328 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:328 FS_FSINFO returned 0
+P:35 U:0 D:0 T:27:335 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:27:335 FS_FSINFO returned 0
+P:66 U:0 D:0 T:27:593 FSH_PROCESSNAME for G:\SDA\cd
+P:66 U:0 D:0 T:27:593  FSH_PROCESSNAME returned filename: G:\SDA\CD
+P:66 U:0 D:0 T:27:593 FS_CHDIR, flag 0
+P:66 U:0 D:0 T:27:593 CHDIR to G:\SDA\CD
+P:66 U:0 D:0 T:27:593 FS_CHDIR returned 0
+P:66 U:0 D:0 T:27:593 FS_CHDIR, flag 2
+P:66 U:0 D:0 T:27:593 FS_CHDIR returned 0
+P:35 U:0 D:0 T:28:390 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:390 FS_FSINFO returned 0
+P:35 U:0 D:0 T:28:398 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:398 FS_FSINFO returned 0
+P:35 U:0 D:0 T:28:398 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:28:398 FS_FSINFO returned 0
+P:66 U:0 D:0 T:29:257 FSH_PROCESSNAME for G:\SDA\CD\software
+P:66 U:0 D:0 T:29:257  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE
+P:66 U:0 D:0 T:29:257 FS_CHDIR, flag 0
+P:66 U:0 D:0 T:29:257 CHDIR to G:\SDA\CD\SOFTWARE
+P:66 U:0 D:0 T:29:257 FS_CHDIR returned 0
+P:66 U:0 D:0 T:29:257 FS_CHDIR, flag 2
+P:66 U:0 D:0 T:29:257 FS_CHDIR returned 0
+P:35 U:0 D:0 T:29:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:453 FS_FSINFO returned 0
+P:35 U:0 D:0 T:29:453 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:453 FS_FSINFO returned 0
+P:35 U:0 D:0 T:29:460 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:29:460 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:515 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:515 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:30:523 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:30:523 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:578 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:578 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:578 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:578 FS_FSINFO returned 0
+P:35 U:0 D:0 T:31:585 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:31:585 FS_FSINFO returned 0
+P:62 U:0 D:0 T:31:593 FS_WRITE, 4096 bytes at offset 45056, ioflag 0, size = 45056
+P:62 U:0 D:0 T:31:593 FS_WRITE returned 0 (4096 bytes written)
+P:66 U:0 D:0 T:32:187 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE\stealth_apps
+P:66 U:0 D:0 T:32:187  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1
+P:66 U:0 D:0 T:32:187 FS_CHDIR, flag 0
+P:66 U:0 D:0 T:32:187 CHDIR to G:\SDA\CD\SOFTWARE\STEALT~1
+P:66 U:0 D:0 T:32:187 FS_CHDIR returned 0
+P:66 U:0 D:0 T:32:187 FS_CHDIR, flag 2
+P:66 U:0 D:0 T:32:187 FS_CHDIR returned 0
+P:35 U:0 D:0 T:32:640 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:640 FS_FSINFO returned 0
+P:35 U:0 D:0 T:32:640 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:640 FS_FSINFO returned 0
+P:35 U:0 D:0 T:32:648 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:32:648 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:703 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:703 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:710 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:710 FS_FSINFO returned 0
+P:35 U:0 D:0 T:33:710 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:33:710 FS_FSINFO returned 0
+P:66 U:0 D:0 T:34:203 FS_FSINFO, Flag = 0, Level = 2
+P:66 U:0 D:0 T:34:203 FS_FSINFO returned 0
+P:66 U:0 D:0 T:34:203 FSH_PROCESSNAME for G:\SDA\CD\SOFTWARE\STEALT~1\*
+P:66 U:0 D:0 T:34:203  FSH_PROCESSNAME returned filename: G:\SDA\CD\SOFTWARE\STEALT~1\*
+P:66 U:0 D:0 T:34:203 FS_FINDFIRST for G:\SDA\CD\SOFTWARE\STEALT~1\* attr 56, Level 2, cbData 297, MaxEntries 1
+P:66 U:0 D:0 T:34:203 pInfo at 31A8040A, pDirEntries at 31A80528
+P:66 U:0 D:0 T:34:203 0 : .
+P:66 U:0 D:0 T:34:203 FS_FINDFIRST returned 0 (1 entries)
+P:66 U:0 D:0 T:34:203 FS_FINDNEXT, level 2, cbData 65235, MaxEntries 65535
+P:66 U:0 D:0 T:34:203 1 : ..
+P:66 U:0 D:0 T:34:203 3 : dirnames.jpg
+P:66 U:0 D:0 T:34:203 6 : std_exams.tar.gz
+P:66 U:0 D:0 T:34:203 9 : cranial_264.tar.gz
+P:66 U:0 D:0 T:34:203 11 : fn22.tar.gz
+P:66 U:0 D:0 T:34:203 14 : install.tar.gz
+P:66 U:0 D:0 T:34:203 17 : notinstalled.tar.gz
+P:66 U:0 D:0 T:34:203 20 : spine_264.tar.gz
+P:66 U:0 D:0 T:34:203 23 : fn22bdemoexams.tar.gz
+P:66 U:0 D:0 T:34:203 26 : fn22exams.tar.gz
+P:66 U:0 D:0 T:34:203 29 : fn22bdemo.tar.gz
+P:66 U:0 D:0 T:34:203 31 : fn231.tar.gz
+P:66 U:0 D:0 T:34:203 34 : fn231exams.tar.gz
+P:66 U:0 D:0 T:34:203 40 : cranial305.tar.gz
+P:66 U:0 D:0 T:34:203 43 : functional_266.tar.gz
+P:66 U:0 D:0 T:34:203 46 : immerge_133.tar.gz
+P:66 U:0 D:0 T:34:203 49 : LandmarX_304.tar.gz
+P:66 U:0 D:0 T:34:203 52 : spine_305.tar.gz
+P:66 U:0 D:0 T:34:203 60 : FluoroNavDemoExams_231.tar.gz
+P:66 U:0 D:0 T:34:203 63 : SNT_bin_fn231.tar.gz
+P:66 U:0 D:0 T:34:203 66 : fn231plusdemo.tar.gz
+P:66 U:0 D:0 T:34:203 69 : fn231demo.tar.gz
+P:66 U:0 D:0 T:34:203 72 : 305upgrade.tar.gz
+P:66 U:0 D:0 T:34:203 75 : fnav232inst.tar.gz
+P:66 U:0 D:0 T:34:203 FS_FINDNEXT returned 0 (24 entries)
+P:66 U:0 D:0 T:34:203 FS_FINDNEXT, level 2, cbData 63826, MaxEntries 65535
+P:66 U:0 D:0 T:34:203 FS_FINDNEXT returned 18 (0 entries)
+P:66 U:0 D:0 T:34:304 FS_FINDCLOSE
+P:66 U:0 D:0 T:34:312 FS_FSINFO, Flag = 0, Level = 1
+P:66 U:0 D:0 T:34:312 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:765 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:765 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:765 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:765 FS_FSINFO returned 0
+P:35 U:0 D:0 T:34:773 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:34:773 FS_FSINFO returned 0
+P:35 U:0 D:0 T:35:828 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:35:828 FS_FSINFO returned 0
+P:35 U:0 D:0 T:35:828 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:35:828 FS_FSINFO returned 0
+P:35 U:0 D:0 T:35:835 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:35:835 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:890 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:890 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:898 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:898 FS_FSINFO returned 0
+P:35 U:0 D:0 T:36:898 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:36:898 FS_FSINFO returned 0
+P:62 U:0 D:0 T:36:906 FS_WRITE, 4096 bytes at offset 49152, ioflag 0, size = 49152
+P:62 U:0 D:0 T:36:906 FS_WRITE returned 0 (4096 bytes written)
+P:35 U:0 D:0 T:37:953 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:953 FS_FSINFO returned 0
+P:35 U:0 D:0 T:37:953 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:953 FS_FSINFO returned 0
+P:35 U:0 D:0 T:37:960 FS_FSINFO, Flag = 0, Level = 1
+P:35 U:0 D:0 T:37:960 FS_FSINFO returned 0
