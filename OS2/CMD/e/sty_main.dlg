@@ -17,8 +17,14 @@
 *
 *************************************************************************/
 
+//#ifdef __WATCOMC__
+#define  INCL_WINFRAMEMGR
+#include <os2.h>
+//#endif
 
-DLGINCLUDE 1 "STY_DLG.H"
+//DLGINCLUDE 1 "STY_DLG.H"
+#include "sty_dlg.H"
+#include "sty_main.H"
 
 DLGTEMPLATE IDD_BUTTONSDLG LOADONCALL MOVEABLE DISCARDABLE
 BEGIN
