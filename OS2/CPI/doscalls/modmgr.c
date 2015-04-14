@@ -24,7 +24,7 @@
 //                                  const PSZ pszName,
 //                                  PFN   *ppfn);
 
-APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
+APIRET APIENTRY  DosLoadModule(PSZ  pszName,
                                ULONG cbName,
                                PCSZ  pszModname,
                                PHMODULE phmod)
@@ -32,7 +32,7 @@ APIRET APIENTRY  DosLoadModule(PCSZ  pszName,
   return KalLoadModule(pszName, cbName, pszModname, phmod);
 }
 
-APIRET APIENTRY DosQueryModuleHandle(const PSZ pszModname, PHMODULE phmod)
+APIRET APIENTRY DosQueryModuleHandle(const PCSZ pszModname, PHMODULE phmod)
 {
   return KalQueryModuleHandle(pszModname, phmod);
 }
@@ -42,7 +42,7 @@ APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch)
   return KalQueryModuleName(hmod, cbName, pch);
 }
 
-APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn)
+APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PCSZ pszName, PFN *  ppfn)
 {
   return KalQueryProcAddr(hmod, ordinal, pszName, ppfn);
 }

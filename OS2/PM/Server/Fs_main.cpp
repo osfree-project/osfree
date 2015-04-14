@@ -296,31 +296,33 @@ pstr = FREEPM_MUTEX_NAME;
 
 //!!!!!!!!!!!!!!! Move this code to Fs_PMdev !!!!!!!!!!
 #define APIENTRY  _System
-extern "C" LONG   APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint);
-extern "C" BOOL   APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint);
-extern "C" BOOL   APIENTRY GpiSetColor(HPS hps, LONG lColor);
+//extern "C" LONG   APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint);
+//extern "C" BOOL   APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint);
+//extern "C" BOOL   APIENTRY GpiSetColor(HPS hps, LONG lColor);
 extern HPS     hpsDrawBMPBuffer = NULLHANDLE;
+
 
 // This functions must draw into bitmap which painted on WM_PAINT event
 BOOL F_PS_GpiSetColor(struct  F_PS *ps, LONG lColor)
 {
-  GpiSetColor(hpsDrawBMPBuffer, lColor);
+  //GpiSetColor(hpsDrawBMPBuffer, lColor);
   return 0;
 }
 
 BOOL F_PS_GpiLine(struct  F_PS *ps, PPOINTL pptlPoint)
 {
   POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
-  GpiLine(hpsDrawBMPBuffer, pptlPoint);
+  //GpiLine(hpsDrawBMPBuffer, pptlPoint);
   return 0;
 }
 
 BOOL F_PS_GpiMove(struct  F_PS *ps, PPOINTL pptlPoint)
 {
   POINTL ptl[4] = { 0, 0, 100, 100, 0, 100, 100, 0 };
-  GpiMove(hpsDrawBMPBuffer, pptlPoint);
+  //GpiMove(hpsDrawBMPBuffer, pptlPoint);
   return 0;
 }
+
 
 HPS     APIENTRY  F_WinGetPS(HWND hwnd) { return 0; }
 

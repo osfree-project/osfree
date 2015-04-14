@@ -63,43 +63,43 @@ APIRET APIENTRY ShePIInitialise(void)
 }
 
 
-APIRET APIENTRY WinQueryProfileInt(void)
+APIRET APIENTRY Win16QueryProfileInt(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProfileString(void)
+APIRET APIENTRY Win16QueryProfileString(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinWriteProfileString(void)
+APIRET APIENTRY Win16WriteProfileString(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProfileSize(void)
+APIRET APIENTRY Win16QueryProfileSize(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProfileData(void)
+APIRET APIENTRY Win16QueryProfileData(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinWriteProfileData(void)
+APIRET APIENTRY Win16WriteProfileData(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY PrfChangeWriteThru(void)
+APIRET APIENTRY Prf16ChangeWriteThru(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -123,19 +123,19 @@ APIRET APIENTRY SheConvert190ProgramListTo300(void)
 }
 
 
-APIRET APIENTRY PrfCreateGroup(void)
+APIRET APIENTRY Prf16CreateGroup(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY PrfQueryProgramHandle(void)
+APIRET APIENTRY Prf16QueryProgramHandle(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY PrfQueryProgramCategory(void)
+APIRET APIENTRY Prf16QueryProgramCategory(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -351,127 +351,127 @@ APIRET APIENTRY RamSemClear16(void)
 }
 
 
-APIRET APIENTRY WinLockWindow(void)
+APIRET APIENTRY Win16LockWindow(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryWindowLockCount(void)
+APIRET APIENTRY Win16QueryWindowLockCount(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY OldWinQueryPointerInfo(void)
+APIRET APIENTRY OldWin16QueryPointerInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryHungProcess(void)
+APIRET APIENTRY Win16QueryHungProcess(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLoadStringTable(void)
+APIRET APIENTRY Win16LoadStringTable(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLoadVkeyGlyphXlatetbl(void)
+APIRET APIENTRY Win16LoadVkeyGlyphXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLoadCharXlatetbl(void)
+APIRET APIENTRY Win16LoadCharXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetVkeyGlyphXlatetbl(void)
+APIRET APIENTRY Win16SetVkeyGlyphXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryVkeyGlyphXlatetbl(void)
+APIRET APIENTRY Win16QueryVkeyGlyphXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinVkeyToScanID(void)
+APIRET APIENTRY Win16VkeyToScanID(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProcessCP(void)
+APIRET APIENTRY Win16QueryProcessCP(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCreateHeap(void)
+APIRET APIENTRY Win16CreateHeap(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDestroyHeap(void)
+APIRET APIENTRY Win16DestroyHeap(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinAvailMem(void)
+APIRET APIENTRY Win16AvailMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinAllocMem(void)
+APIRET APIENTRY Win16AllocMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinReallocMem(void)
+APIRET APIENTRY Win16ReallocMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinFreeMem(void)
+APIRET APIENTRY Win16FreeMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLockHeap(void)
+APIRET APIENTRY Win16LockHeap(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetLastError(void)
+APIRET APIENTRY Win16SetLastError(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCatch(void)
+APIRET APIENTRY Win16Catch(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinThrow(void)
+APIRET APIENTRY Win16Throw(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -525,43 +525,43 @@ APIRET APIENTRY IdentifyCodeSelector(void)
 }
 
 
-APIRET APIENTRY _WinSetErrorInfo(void)
+APIRET APIENTRY Win16SetErrorInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinTerminateSystem(void)
+APIRET APIENTRY Win16TerminateSystem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDefQueueProc(void)
+APIRET APIENTRY Win16DefQueueProc(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinVisRegionNotify(void)
+APIRET APIENTRY Win16VisRegionNotify(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryKbdLayout(void)
+APIRET APIENTRY Win16QueryKbdLayout(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetKbdLayout(void)
+APIRET APIENTRY Win16SetKbdLayout(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinBuildPtrHandle(void)
+APIRET APIENTRY Win16BuildPtrHandle(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -615,25 +615,25 @@ APIRET APIENTRY GetPMDDCodeSelector(void)
 }
 
 
-APIRET APIENTRY WinQueryPwnd(void)
+APIRET APIENTRY Win16QueryPwnd(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinEnumVKeyScanIDs(void)
+APIRET APIENTRY Win16EnumVKeyScanIDs(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLoadTranslationTable(void)
+APIRET APIENTRY Win16LoadTranslationTable(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetKbdLayout2(void)
+APIRET APIENTRY Win16SetKbdLayout2(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -675,55 +675,55 @@ APIRET APIENTRY DebugRedirect(void)
 }
 
 
-APIRET APIENTRY WinLangsupWindowProc(void)
+APIRET APIENTRY Win16LangsupWindowProc(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLangsupDlgProc(void)
+APIRET APIENTRY Win16LangsupDlgProc(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinPortHoleUtil(void)
+APIRET APIENTRY Win16PortHoleUtil(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCreateFarHeap(void)
+APIRET APIENTRY Win16CreateFarHeap(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDestroyFarHeap(void)
+APIRET APIENTRY Win16DestroyFarHeap(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinAllocFarMem(void)
+APIRET APIENTRY Win16AllocFarMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinFreeFarMem(void)
+APIRET APIENTRY Win16FreeFarMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinReallocFarMem(void)
+APIRET APIENTRY Win16ReallocFarMem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetQueueProc(void)
+APIRET APIENTRY Win16SetQueueProc(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -813,607 +813,607 @@ APIRET APIENTRY StartSystemExecutables(void)
 }
 
 
-APIRET APIENTRY WinCancelMode(void)
+APIRET APIENTRY Win16CancelMode(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinGetMinWindowViewer(void)
+APIRET APIENTRY Win16GetMinWindowViewer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInitializeSystem(void)
+APIRET APIENTRY Win16InitializeSystem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLockStartInput(void)
+APIRET APIENTRY Win16LockStartInput(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinResetSystem(void)
+APIRET APIENTRY Win16ResetSystem(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinScreenSwitch(void)
+APIRET APIENTRY Win16ScreenSwitch(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinTerminateShutdown(void)
+APIRET APIENTRY Win16TerminateShutdown(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinAddProgram(void)
+APIRET APIENTRY Win16AddProgram(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinAddToGroup(void)
+APIRET APIENTRY Win16AddToGroup(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCallHelpHook(void)
+APIRET APIENTRY Win16CallHelpHook(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCanTerminate(void)
+APIRET APIENTRY Win16CanTerminate(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinChangeProgram(void)
+APIRET APIENTRY Win16ChangeProgram(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCplRegister(void)
+APIRET APIENTRY Win16CplRegister(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinCreateGroup(void)
+APIRET APIENTRY Win16CreateGroup(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDebugBreak(void)
+APIRET APIENTRY Win16DebugBreak(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDestroyAniPointer(void)
+APIRET APIENTRY Win16DestroyAniPointer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinDestroyGroup(void)
+APIRET APIENTRY Win16DestroyGroup(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinEndProgram(void)
+APIRET APIENTRY Win16EndProgram(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinEndSession(void)
+APIRET APIENTRY Win16EndSession(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinEndWindowSession(void)
+APIRET APIENTRY Win16EndWindowSession(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinExplodeWindow(void)
+APIRET APIENTRY Win16ExplodeWindow(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinForceMenuRedraw(void)
+APIRET APIENTRY Win16ForceMenuRedraw(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinFormatFrame(void)
+APIRET APIENTRY Win16FormatFrame(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinGetFrameTreePPs(void)
+APIRET APIENTRY Win16GetFrameTreePPs(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinGetFrameTreePPSize(void)
+APIRET APIENTRY Win16GetFrameTreePPSize(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinGetScanState(void)
+APIRET APIENTRY Win16GetScanState(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinHAPPfromPID(void)
+APIRET APIENTRY Win16HAPPfromPID(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinHSWITCHfromHAPP(void)
+APIRET APIENTRY Win16HSWITCHfromHAPP(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInitializePL(void)
+APIRET APIENTRY Win16InitializePL(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInitSession(void)
+APIRET APIENTRY Win16InitSession(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInitSessionMgr(void)
+APIRET APIENTRY Win16InitSessionMgr(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInitSwEntry(void)
+APIRET APIENTRY Win16InitSwEntry(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinInstStartApp(void)
+APIRET APIENTRY Win16InstStartApp(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinIsShuttingDown(void)
+APIRET APIENTRY Win16IsShuttingDown(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinJiggleMouse(void)
+APIRET APIENTRY Win16JiggleMouse(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLoadAniPointer(void)
+APIRET APIENTRY Win16LoadAniPointer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinLockInput(void)
+APIRET APIENTRY Win16LockInput(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinMenuIndexFromID(void)
+APIRET APIENTRY Win16MenuIndexFromID(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinNoShutdown(void)
+APIRET APIENTRY Win16NoShutdown(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinPMFileRegister(void)
+APIRET APIENTRY Win16PMFileRegister(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryAccelTableValue(void)
+APIRET APIENTRY Win16QueryAccelTableValue(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryCharXlatetbl(void)
+APIRET APIENTRY Win16QueryCharXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryDefinition(void)
+APIRET APIENTRY Win16QueryDefinition(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryExtIDFocus(void)
+APIRET APIENTRY Win16QueryExtIDFocus(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryFileExtOpts(void)
+APIRET APIENTRY Win16QueryFileExtOpts(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryMenuData(void)
+APIRET APIENTRY Win16QueryMenuData(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProgramTitles(void)
+APIRET APIENTRY Win16QueryProgramTitles(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProgramType(void)
+APIRET APIENTRY Win16QueryProgramType(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryProgramUse(void)
+APIRET APIENTRY Win16QueryProgramUse(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQuerySendMsg(void)
+APIRET APIENTRY Win16QuerySendMsg(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryState(void)
+APIRET APIENTRY Win16QueryState(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryWindowSGID(void)
+APIRET APIENTRY Win16QueryWindowSGID(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryWorkplaceWindow(void)
+APIRET APIENTRY Win16QueryWorkplaceWindow(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueueFromID(void)
+APIRET APIENTRY Win16QueueFromID(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinRegisterSeamlessProc(void)
+APIRET APIENTRY Win16RegisterSeamlessProc(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinRegisterWindowDestroy(void)
+APIRET APIENTRY Win16RegisterWindowDestroy(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinRemoveFromGroup(void)
+APIRET APIENTRY Win16RemoveFromGroup(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinRemoveProgram(void)
+APIRET APIENTRY Win16RemoveProgram(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinReplyMsg(void)
+APIRET APIENTRY Win16ReplyMsg(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSeamlessBox(void)
+APIRET APIENTRY Win16SeamlessBox(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSemEnter(void)
+APIRET APIENTRY Win16SemEnter(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSemLeave(void)
+APIRET APIENTRY Win16SemLeave(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSemQuery(void)
+APIRET APIENTRY Win16SemQuery(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSendQueueMsg(void)
+APIRET APIENTRY Win16SendQueueMsg(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetAccelTableValue(void)
+APIRET APIENTRY Win16SetAccelTableValue(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetAniPointer(void)
+APIRET APIENTRY Win16SetAniPointer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetAtomTableOwner(void)
+APIRET APIENTRY Win16SetAtomTableOwner(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetCharXlatetbl(void)
+APIRET APIENTRY Win16SetCharXlatetbl(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetExtIDFocus(void)
+APIRET APIENTRY Win16SetExtIDFocus(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetFgndWindow(void)
+APIRET APIENTRY Win16SetFgndWindow(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetFileExtOpts(void)
+APIRET APIENTRY Win16SetFileExtOpts(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetFrameTreePPs(void)
+APIRET APIENTRY Win16SetFrameTreePPs(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetMenuData(void)
+APIRET APIENTRY Win16SetMenuData(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetScanStateTable(void)
+APIRET APIENTRY Win16SetScanStateTable(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetSwEntry(void)
+APIRET APIENTRY Win16SetSwEntry(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetSysClipbrdViewer(void)
+APIRET APIENTRY Win16SetSysClipbrdViewer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetTitle(void)
+APIRET APIENTRY Win16SetTitle(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetTitleAndIcon(void)
+APIRET APIENTRY Win16SetTitleAndIcon(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetWindowDC(void)
+APIRET APIENTRY Win16SetWindowDC(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinStopProgram(void)
+APIRET APIENTRY Win16StopProgram(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinStpRegister(void)
+APIRET APIENTRY Win16StpRegister(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSwitchToProgram2(void)
+APIRET APIENTRY Win16SwitchToProgram2(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSwitchToTaskManager(void)
+APIRET APIENTRY Win16SwitchToTaskManager(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSyncStartPgm(void)
+APIRET APIENTRY Win16SyncStartPgm(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSystemShutdown(void)
+APIRET APIENTRY Win16SystemShutdown(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinThreadAssocQueue(void)
+APIRET APIENTRY Win16ThreadAssocQueue(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinTrackSeamless(void)
+APIRET APIENTRY Win16TrackSeamless(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinTranslateChar(void)
+APIRET APIENTRY Win16TranslateChar(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinVkeyGlyphCharXlate(void)
+APIRET APIENTRY Win16VkeyGlyphCharXlate(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinWakeThread(void)
+APIRET APIENTRY Win16WakeThread(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetTitleAndHwndIcon(void)
+APIRET APIENTRY Win16SetTitleAndHwndIcon(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinTrackWindow(void)
+APIRET APIENTRY Win16TrackWindow(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetLangInfo(void)
+APIRET APIENTRY Win16SetLangInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryLangInfo(void)
+APIRET APIENTRY Win16QueryLangInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetKbdLayer(void)
+APIRET APIENTRY Win16SetKbdLayer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryKbdLayer(void)
+APIRET APIENTRY Win16QueryKbdLayer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetLangViewer(void)
+APIRET APIENTRY Win16SetLangViewer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryLangViewer(void)
+APIRET APIENTRY Win16QueryLangViewer(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinPourEvent(void)
+APIRET APIENTRY Win16PourEvent(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetMsgQimInfo(void)
+APIRET APIENTRY Win16SetMsgQimInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinQueryMsgQimInfo(void)
+APIRET APIENTRY Win16QueryMsgQimInfo(void)
 {
     return unimplemented(__FUNCTION__);
 }
@@ -4438,6 +4438,1687 @@ APIRET APIENTRY DaxOpenClipbrd(void)
 {
     return unimplemented(__FUNCTION__);
 }
+
+
+APIRET APIENTRY Gpi16LoadBitmap(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY KbdPacket(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16AddProgram(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16ChangeProgram(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16CloseProfile(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16DestroyGroup(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16OpenProfile(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryDefinition(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProfile(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProfileData(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProfileInt(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProfileSize(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProfileString(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16QueryProgramTitles(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16RemoveProgram(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16Reset(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16WriteProfileData(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Prf16WriteProfileString(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16AddAtom(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16AddSwitchEntry(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16Alarm(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16BeginEnumWindows(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16BeginPaint(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16BroadcastMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CalcFrameRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CallMsgFilter(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CancelShutdown(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ChangeSwitchEntry(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CheckInput(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CloseClipbrd(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CompareStrings(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CopyAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CopyRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CpTranslateChar(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CpTranslateString(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateAtomTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateCursor(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateDlg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateFrameControls(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateMenu(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateMsgQueue(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreatePointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreatePointerIndirect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateStdWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateSwitchEntry(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16CreateWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DdeInitiate(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DdePostMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DdeRespond(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DefDlgProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DefWindowProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DeleteAtom(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DeleteLibrary(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DeleteProcedure(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyAtomTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyCursor(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyMsgQueue(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DestroyWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DismissDlg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DispatchMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DlgBox(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DrawBitmap(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DrawBorder(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DrawPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16DrawText(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EmptyClipbrd(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EnablePhysInput(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EnableWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EnableWindowUpdate(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EndEnumWindows(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EndPaint(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EnumClipbrdFmts(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EnumDlgItem(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16EqualRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ExcludeUpdateRegion(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16FillRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16FindAtom(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16FlashWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16FocusChange(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16FreeErrorInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetClipPS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetCurrentTime(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetDlgMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetErasePS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetErrorInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetKeyState(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetLastError(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetMaxPosition(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetMinPosition(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetNextWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetPhysKeyState(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetPS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetScreenPS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16GetSysBitmap(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16InflateRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16Initialize(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16InSendMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IntersectRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16InvalidateRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16InvalidateRegion(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16InvertRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsChild(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsPhysInputEnabled(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsRectEmpty(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsThreadActive(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsWindowEnabled(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsWindowShoWin16g(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsWindowVisible(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadDlg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadLibrary(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadMenu(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadMessage(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadProcedure(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LoadString(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LockPointerUpdate(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LockVisRegions(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16LockWindowUpdate(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MakePoints(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MakeRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MapDlgPoints(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MapWindowPoints(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MessageBox(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win32MessageBox2(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MsgMuxSemWait(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MsgSemWait(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16MultWindowFromIDs(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16NextChar(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16OffsetRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16OpenClipbrd(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16OpenWindowDC(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PeekMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PopupMenu(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PostMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PostQueueMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PrevChar(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ProcessDlg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16PtInRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryActiveWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryAnchorBlock(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryAtomLength(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryAtomName(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryAtomUsage(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryCapture(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClassInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClassName(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClassThunkProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClipbrdData(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClipbrdFmtInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClipbrdOwner(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryClipbrdViewer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryCp(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryCpList(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryCursorInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryDesktopBkgnd(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryDesktopWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryDlgItemShort(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryDlgItemText(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryDlgItemTextLength(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryFocus(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryMsgPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryMsgTime(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryObjectWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryPointerInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryPointerPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryPresParam(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryQueueInfo(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryQueueStatus(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySessionTitle(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySwitchEntry(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySwitchHandle(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySwitchList(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySysColor(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySysModalWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySysPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySystemAtomTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QuerySysValue(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryTaskSizePos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryTaskTitle(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryUpdateRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryUpdateRegion(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryVersion(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowDC(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowModel(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowProcess(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowPtr(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowText(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowTextLength(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowThunkProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowULong(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16QueryWindowUShort(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RealizePalette(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RegisterClass(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RegisterUserDatatype(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RegisterUserMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ReleaseErasePS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ReleaseHook(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ReleasePS(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RemovePresParam(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16RemoveSwitchEntry(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SaveWindowPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ScrollWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SendDlgItemMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SendMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetAccelTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetActiveWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetCapture(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetClassMsgInterest(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetClassThunkProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetClipbrdData(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetClipbrdOwner(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetClipbrdViewer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetCp(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetDesktopBkgnd(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetDlgItemShort(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetDlgItemText(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetFocus(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetHook(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetKeyboardStateTable(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetMsgInterest(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetMsgMode(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetMultWindowPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetOwner(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetParent(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetPointerOwner(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetPointerPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetPresParam(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetRectEmpty(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetSynchroMode(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetSysColors(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetSysModalWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetSysValue(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowBits(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowPos(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowPtr(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowText(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowThunkProc(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowULong(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SetWindowUShort(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ShowCursor(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ShowPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ShowTrackRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ShowWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16StartApp(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16StartTimer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16StopTimer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16StretchPointer(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SubclassWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SubstituteStrings(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SubtractRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SwitchProgramRegister(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16SwitchToProgram(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16Terminate(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16TerminateApp(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16TrackRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16TranslateAccel(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16UnionRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16UpdateWindow(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16Upper(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16UpperChar(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ValidateRect(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16ValidateRegion(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16WaitMsg(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16WindowFromDC(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16WindowFromID(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16WindowFromPoint(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY Win16IsWindowShowing(void)
+{
+    return unimplemented(__FUNCTION__);
+}
+
 
 } // extern "C"
 

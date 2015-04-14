@@ -11,6 +11,11 @@
 #define INCL_DOSEXCEPTIONS
 #include <os2.h>
 
+#ifndef HVPS
+typedef USHORT HVPS;
+typedef HVPS *PHVPS;
+#endif
+
 APIRET unimplemented(char *func);
 
 
@@ -1899,13 +1904,15 @@ USHORT __pascal MOUSYNCH(const USHORT pszDvrName)
 }
 
 
-USHORT __pascal MOUGETTHRESHOLD(THRESHOLD * pthreshold, const HMOU hmou)
+//USHORT __pascal MOUGETTHRESHOLD(THRESHOLD *pthreshold, const HMOU hmou)
+USHORT __pascal MOUGETTHRESHOLD(void *pthreshold, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETTHRESHOLD(const PTHRESHOLD pthreshold, const HMOU hmou)
+//USHORT __pascal MOUSETTHRESHOLD(const PTHRESHOLD pthreshold, const HMOU hmou)
+USHORT __pascal MOUSETTHRESHOLD(void *pthreshold, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2204,7 +2211,8 @@ USHORT __pascal VIOWRTCHARSTR(const PCHAR Str, const USHORT Count, const USHORT 
 }
 
 
-USHORT __pascal VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+//USHORT __pascal VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+USHORT __pascal VIOWRTCHARSTRATT(void *pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
 {
   return unimplemented(__FUNCTION__);
 }

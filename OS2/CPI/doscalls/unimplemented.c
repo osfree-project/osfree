@@ -2352,7 +2352,7 @@ APIRET APIENTRY  DosProtectRead(HFILE hFile,
 
 
 APIRET APIENTRY  DosProtectWrite(HFILE hFile,
-                                 PVOID pBuffer,
+                                 ULONG pBuffer,
                                  ULONG cbWrite,
                                  PULONG pcbActual,
                                  FHLOCK fhFileHandleLockID)

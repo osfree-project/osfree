@@ -12,7 +12,7 @@
 APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,
                                 ULONG method,
-                                PULONGLONG ibActual)
+                                PLONGLONG ibActual)
 {
   return KalSetFilePtrL(hFile, ib, method, ibActual);
 }
@@ -38,7 +38,7 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
   rc=DosSetFilePtrL(hFile,
                     ibL,
                     method,
-                    &ibActualL);
+                    (PLONGLONG)&ibActualL);
 
   *ibActual=ibActualL.ulLo;
 

@@ -296,6 +296,8 @@ int DeskTopWindow::proc( PQMSG pqmsg)
   return NULL;
 }
 
+#if 0
+
 int open_Vbuff(RECTL rclRect)
 {
     static int LbmpBuffOld = 0;
@@ -479,6 +481,8 @@ void DisplayVbuf(HPS  hpsBuffer, RECTL rect, int isChange)
 }
 
 extern "C" BOOL APIENTRY GpiQueryBoundaryData(HPS hps, PRECTL prclBoundary);
+
+#endif
 
 int DeskTopWindow::Draw(HPS hps)
 {

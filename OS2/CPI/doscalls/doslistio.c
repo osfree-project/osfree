@@ -5,9 +5,9 @@
 
 APIRET unimplemented(char *func);
 
-APIRET APIENTRY  DosListIOL(LONG ulCmdMode,
-                            LONG ulNumentries,
-                            PLISTIOL pListIOL)
+APIRET APIENTRY  DosListIOL(LONG  ulCmdMode,
+                            LONG  ulNumentries,
+                            PVOID pListIOL)
 {
   return unimplemented(__FUNCTION__);
 }

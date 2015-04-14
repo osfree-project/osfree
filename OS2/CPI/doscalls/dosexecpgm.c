@@ -1,3 +1,4 @@
+#define  INCL_DOSPROCESS
 #include <os2.h>
 
 #include "dl.h"

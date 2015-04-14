@@ -11,17 +11,7 @@ WinGetLastError2
  -1 = hab not exist or not used, or
   the last nonzero error code, and sets the error code to zero.
 */
-
-#include <FreePM.hpp>
-#include <pmclient.h>
-#include <string.h>
-#include <F_hab.hpp>
-
-//#define debug(...)
-
-extern class _FreePM_HAB  _hab;
-
-extern "C" ERRORID     APIENTRY    Win32GetLastError(HAB iHAB)
+ERRORID     APIENTRY    WinGetLastError(HAB iHAB)
 {   int rc;
     rc = _hab.QueryHABexist(iHAB);
     if(rc != 1)
@@ -32,7 +22,7 @@ extern "C" ERRORID     APIENTRY    Win32GetLastError(HAB iHAB)
 
 }
 #if 0
-extern "C" ERRORID     APIENTRY    Win32GetLastError2(void)
+ERRORID     APIENTRY    WinGetLastError2(void)
 {   int ordinal,tid,rc, ind;
     ordinal = QueryThreadOrdinal(tid);
     ind = _hab.QueryOrdinalUsed(ordinal,Q_ORDINAL_INDEX);
@@ -65,7 +55,7 @@ extern "C" ERRORID     APIENTRY    Win32GetLastError2(void)
 */
 //todo: handle "thread not initialized to FreePM (PMERR_INVALID_HAB)"
 
-extern "C" PERRINFO    APIENTRY    Win32GetErrorInfo(HAB iHAB)
+PERRINFO    APIENTRY    WinGetErrorInfo(HAB iHAB)
 {  int rc, errid,l;
    ERRINFO *perrInf;
    char *perrstr, *perrInfStr, * *ptr;
@@ -87,7 +77,7 @@ extern "C" PERRINFO    APIENTRY    Win32GetErrorInfo(HAB iHAB)
    return perrInf;
 }
 
-extern "C" BOOL        APIENTRY    Win32FreeErrorInfo(PERRINFO perrinfo)
+BOOL        APIENTRY    WinFreeErrorInfo(PERRINFO perrinfo)
 {  if(perrinfo == NULL) return FALSE;
    free(perrinfo);
    return TRUE;

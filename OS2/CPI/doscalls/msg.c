@@ -73,7 +73,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
      none
 */
 
-APIRET APIENTRY DosInsertMessage(const PCHAR *pTable, ULONG cTable,
+APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
                                  PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf,
                                  ULONG cbBuf, PULONG pcbMsg)
 {

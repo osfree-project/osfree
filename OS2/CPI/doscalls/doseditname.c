@@ -17,6 +17,7 @@
 
  */
 
+#define INCL_DOSERRORS
 #define INCL_DOSFILEMGR
 #include <os2.h>
 
@@ -107,8 +108,8 @@ char * const dst
 #endif
 
 APIRET APIENTRY DosEditName(ULONG metalevel,
-                            PSZ pszSource,
-                            PSZ pszEdit,
+                            PCSZ pszSource,
+                            PCSZ pszEdit,
                             PSZ pszTarget,
                             ULONG cbTarget)
 {

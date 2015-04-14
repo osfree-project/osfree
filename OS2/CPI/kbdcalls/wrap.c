@@ -3,6 +3,9 @@
 #define INCL_KBD
 #include <os2.h>
 
+USHORT __pascal KBDGETHWID(PKBDHWID * kbdhwid, const HKBD hkbd);
+USHORT __pascal KBDSETHWID(const PKBDHWID pkbdhwid, const HKBD hkbd);
+
 USHORT __pascal KBDREGISTER(const PSZ pszModName, const PSZ pszEntryPt,
                             const ULONG FunMask)
 {
@@ -63,7 +66,7 @@ USHORT __pascal KBDGETCP(const ULONG ulReserved, USHORT * pidCP, const HKBD hkbd
 }
 
 
-USHORT __pascal KBDOPEN(PHKBD * hkbd)
+USHORT __pascal KBDOPEN(PHKBD hkbd)
 {
   return KbdOpen(hkbd);
 }

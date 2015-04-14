@@ -504,19 +504,23 @@ debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
  return NULL;
 }
 
+extern "C" HPS     APIENTRY Win32GetPS(HWND hwnd);
+
 /* HPS     APIENTRY WinGetPS(HWND hwnd); */
 
 HPS FPM_Window::GetPS(void)
 { HPS hps;
 debug(3, 0)(__FUNCTION__"call\n");
-  hps = WinGetPS(handle);
+  hps = Win32GetPS(handle);
   return hps;
 }
+
+extern "C" BOOL    APIENTRY Win32ReleasePS(HPS hps);
 
 BOOL FPM_Window::ReleasePS(HPS hps)
 {
 debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
-   return /*F_*/ WinReleasePS(hps);
+   return /*F_*/ Win32ReleasePS(hps);
 }
 
 int FRAME_Window::proc( PQMSG pqmsg)

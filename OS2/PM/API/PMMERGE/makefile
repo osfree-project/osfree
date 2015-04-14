@@ -19,7 +19,9 @@ DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=dll_initterm
 # UNI2H = 1
 
-IMPORTS = RectCopy utlapi.1,                    &
+IMPORTS = &
+# utlapi
+	  RectCopy utlapi.1,                    &
           RectSet utlapi.2,                     &
           RectIsEmpty utlapi.3,                 &
           RectEqual utlapi.4,                   &
@@ -36,35 +38,35 @@ IMPORTS = RectCopy utlapi.1,                    &
 EXPORTS = &
 # pmshapi
         ShePIInitialise				.2000, &
-	WinQueryProfileInt			.2001, &
-	WinQueryProfileString			.2002, &
-	WinWriteProfileString			.2003, &
-	WinQueryProfileSize			.2004, &
-	WinQueryProfileData			.2005, &
-	WinWriteProfileData			.2006, &
-	PrfChangeWriteThru			.2007, &
+	Win16QueryProfileInt			.2001, &
+	Win16QueryProfileString			.2002, &
+	Win16WriteProfileString			.2003, &
+	Win16QueryProfileSize			.2004, &
+	Win16QueryProfileData			.2005, &
+	Win16WriteProfileData			.2006, &
+	Prf16ChangeWriteThru			.2007, &
 	PMExecRegister				.2008, &
 	ShePIInitIniFiles			.2009, &
 	SheConvert190ProgramListTo300		.2010, &
-	PrfQueryProfileInt			.2011, &
-	PrfQueryProfileString			.2012, &
-	PrfWriteProfileString			.2013, &
-	PrfQueryProfileSize			.2014, &
-	PrfQueryProfileData			.2015, &
-	PrfWriteProfileData			.2016, &
-	PrfOpenProfile				.2017, &
-	PrfCloseProfile				.2018, &
-	PrfReset				.2019, &
-	PrfQueryProfile				.2020, &
-	PrfAddProgram				.2021, &
-	PrfRemoveProgram			.2022, &
-	PrfChangeProgram			.2023, &
-	PrfQueryDefinition			.2024, &
-	PrfQueryProgramTitles			.2025, &
-	PrfCreateGroup				.2026, &
-	PrfQueryProgramHandle			.2027, &
-	PrfQueryProgramCategory			.2028, &
-	PrfDestroyGroup				.2029, &
+	Prf16QueryProfileInt			.2011, &
+	Prf16QueryProfileString			.2012, &
+	Prf16WriteProfileString			.2013, &
+	Prf16QueryProfileSize			.2014, &
+	Prf16QueryProfileData			.2015, &
+	Prf16WriteProfileData			.2016, &
+	Prf16OpenProfile			.2017, &
+	Prf16CloseProfile			.2018, &
+	Prf16Reset				.2019, &
+	Prf16QueryProfile			.2020, &
+	Prf16AddProgram				.2021, &
+	Prf16RemoveProgram			.2022, &
+	Prf16ChangeProgram			.2023, &
+	Prf16QueryDefinition			.2024, &
+	Prf16QueryProgramTitles			.2025, &
+	Prf16CreateGroup			.2026, &
+	Prf16QueryProgramHandle			.2027, &
+	Prf16QueryProgramCategory		.2028, &
+	Prf16DestroyGroup			.2029, &
 	SheProfileHook				.2030, &
 # os2sm, pmshapi, spl1b
 	SheInitializeIniFile			.2031, &
@@ -105,81 +107,81 @@ EXPORTS = &
 	RamSemRequest16				.2063, &
 	RamSemClear16				.2064, &
 # pmwin
-	WinQueryClassInfo			.2065, &
-	WinMultWindowFromIDs			.2066, &
-	WinLockWindow				.2067, &
-	WinQueryWindowLockCount			.2068, &
-	WinLoadPointer				.2069, &
-	WinCreatePointer			.2070, &
-	WinDestroyPointer			.2071, &
-	OldWinQueryPointerInfo			.2072, &
-	WinQuerySysPointer			.2073, &
-	WinGetSysBitmap				.2074, &
-	WinQueryCursorInfo			.2075, &
-	WinLoadAccelTable			.2076, &
-	WinCreateAccelTable			.2077, &
-	WinDestroyAccelTable			.2078, &
-	WinCopyAccelTable			.2079, &
-	WinSetClipbrdData			.2080, &
-	WinQueryClipbrdFmtInfo			.2081, &
-	GpiLoadBitmap				.2082, &
-	WinLoadString				.2083, &
-	WinLoadMessage				.2084, &
-	WinSetRectEmpty				.2085, &
-	WinSetRect				.2086, &
-	WinCopyRect				.2087, &
-	WinIsRectEmpty				.2088, &
-	WinPtInRect				.2089, &
-	WinOffsetRect				.2090, &
-	WinInflateRect				.2091, &
-	WinMakeRect				.2092, &
-	WinMakePoints				.2093, &
-	WinDefWindowProc			.2094, &
-	WinDefDlgProc				.2095, &
-	WinQueryHungProcess			.2096, &
-	WinLoadStringTable			.2097, &
-	WinLoadVkeyGlyphXlatetbl		.2098, &
-	WinLoadCharXlatetbl			.2099, &
-	WinSetVkeyGlyphXlatetbl			.2100, &
-	WinQueryVkeyGlyphXlatetbl		.2101, &
-	WinVkeyToScanID				.2102, &
-	WinQueryProcessCP			.2103, &
-	WinGetKeyState				.2104, &
-	WinSetCp				.2105, &
-	WinQueryCp				.2106, &
-	WinQueryCpList				.2107, &
-	WinCpTranslateString			.2108, &
-	WinCpTranslateChar			.2109, &
-	WinCompareStrings			.2110, &
-	WinUpper				.2111, &
-	WinUpperChar				.2112, &
-	WinNextChar				.2113, &
-	WinPrevChar				.2114, &
-	WinCreateHeap				.2115, &
-	WinDestroyHeap				.2116, &
-	WinAvailMem				.2117, &
-	WinAllocMem				.2118, &
-	WinReallocMem				.2119, &
-	WinFreeMem				.2120, &
-	WinLockHeap				.2121, &
-	WinCreateAtomTable			.2122, &
-	WinDestroyAtomTable			.2123, &
-	WinAddAtom				.2124, &
-	WinFindAtom				.2125, &
-	WinDeleteAtom				.2126, &
-	WinQueryAtomUsage			.2127, &
-	WinQueryAtomLength			.2128, &
-	WinQueryAtomName			.2129, &
-	WinQuerySystemAtomTable			.2130, &
-	WinSetLastError				.2131, &
-	WinGetLastError				.2132, &
-	WinGetErrorInfo				.2133, &
-	WinFreeErrorInfo			.2134, &
-	WinInitialize				.2135, &
-	WinTerminate				.2136, &
-	WinCatch				.2137, &
-	WinThrow				.2138, &
-	WinQueryVersion				.2139, &
+	Win16QueryClassInfo			.2065, &
+	Win16MultWindowFromIDs			.2066, &
+	Win16LockWindow				.2067, &
+	Win16QueryWindowLockCount		.2068, &
+	Win16LoadPointer			.2069, &
+	Win16CreatePointer			.2070, &
+	Win16DestroyPointer			.2071, &
+	OldWin16QueryPointerInfo		.2072, &
+	Win16QuerySysPointer			.2073, &
+	Win16GetSysBitmap			.2074, &
+	Win16QueryCursorInfo			.2075, &
+	Win16LoadAccelTable			.2076, &
+	Win16CreateAccelTable			.2077, &
+	Win16DestroyAccelTable			.2078, &
+	Win16CopyAccelTable			.2079, &
+	Win16SetClipbrdData			.2080, &
+	Win16QueryClipbrdFmtInfo		.2081, &
+	Gpi16LoadBitmap				.2082, &
+	Win16LoadString				.2083, &
+	Win16LoadMessage			.2084, &
+	Win16SetRectEmpty			.2085, &
+	Win16SetRect				.2086, &
+	Win16CopyRect				.2087, &
+	Win16IsRectEmpty			.2088, &
+	Win16PtInRect				.2089, &
+	Win16OffsetRect				.2090, &
+	Win16InflateRect			.2091, &
+	Win16MakeRect				.2092, &
+	Win16MakePoints				.2093, &
+	Win16DefWindowProc			.2094, &
+	Win16DefDlgProc				.2095, &
+	Win16QueryHungProcess			.2096, &
+	Win16LoadStringTable			.2097, &
+	Win16LoadVkeyGlyphXlatetbl		.2098, &
+	Win16LoadCharXlatetbl			.2099, &
+	Win16SetVkeyGlyphXlatetbl		.2100, &
+	Win16QueryVkeyGlyphXlatetbl		.2101, &
+	Win16VkeyToScanID			.2102, &
+	Win16QueryProcessCP			.2103, &
+	Win16GetKeyState			.2104, &
+	Win16SetCp				.2105, &
+	Win16QueryCp				.2106, &
+	Win16QueryCpList			.2107, &
+	Win16CpTranslateString			.2108, &
+	Win16CpTranslateChar			.2109, &
+	Win16CompareStrings			.2110, &
+	Win16Upper				.2111, &
+	Win16UpperChar				.2112, &
+	Win16NextChar				.2113, &
+	Win16PrevChar				.2114, &
+	Win16CreateHeap				.2115, &
+	Win16DestroyHeap			.2116, &
+	Win16AvailMem				.2117, &
+	Win16AllocMem				.2118, &
+	Win16ReallocMem				.2119, &
+	Win16FreeMem				.2120, &
+	Win16LockHeap				.2121, &
+	Win16CreateAtomTable			.2122, &
+	Win16DestroyAtomTable			.2123, &
+	Win16AddAtom				.2124, &
+	Win16FindAtom				.2125, &
+	Win16DeleteAtom				.2126, &
+	Win16QueryAtomUsage			.2127, &
+	Win16QueryAtomLength			.2128, &
+	Win16QueryAtomName			.2129, &
+	Win16QuerySystemAtomTable		.2130, &
+	Win16SetLastError			.2131, &
+	Win16GetLastError			.2132, &
+	Win16GetErrorInfo			.2133, &
+	Win16FreeErrorInfo			.2134, &
+	Win16Initialize				.2135, &
+	Win16Terminate				.2136, &
+	Win16Catch				.2137, &
+	Win16Throw				.2138, &
+	Win16QueryVersion			.2139, &
 	FsrSemExit				.2140, &
 	FsrSemCheck				.2141, &
 	AabGetReg				.2142, &
@@ -188,13 +190,13 @@ EXPORTS = &
 	LoadModuleHandle			.2145, &
 	GetScreenSelector			.2146, &
 	IdentifyCodeSelector			.2147, &
-	_WinSetErrorInfo			.2148, &
-	WinTerminateSystem			.2149, &
-	WinDefQueueProc				.2150, &
-	WinVisRegionNotify			.2151, &
-	WinQueryKbdLayout			.2152, &
-	WinSetKbdLayout				.2153, &
-	WinBuildPtrHandle			.2154, &
+	Win16SetErrorInfo			.2148, &
+	Win16TerminateSystem			.2149, &
+	Win16DefQueueProc			.2150, &
+	Win16VisRegionNotify			.2151, &
+	Win16QueryKbdLayout			.2152, &
+	Win16SetKbdLayout			.2153, &
+	Win16BuildPtrHandle			.2154, &
 	DumWinCreateHelpInstance		.2155, &
 	DimWinDestroyHelpInstance		.2156, &
 	DumWinAssociateHelpInstance		.2157, &
@@ -203,27 +205,27 @@ EXPORTS = &
 	DumWinQueryHelpInstance			.2160, &
 	DummyHelpEntry				.2161, &
 	GetPMDDCodeSelector			.2162, &
-	WinQueryPwnd				.2163, &
-	WinEnumVKeyScanIDs			.2164, &
-	WinLoadTranslationTable			.2165, &
-	WinSetKbdLayout2			.2166, &
+	Win16QueryPwnd				.2163, &
+	Win16EnumVKeyScanIDs			.2164, &
+	Win16LoadTranslationTable		.2165, &
+	Win16SetKbdLayout2			.2166, &
 	DebugInputEnable			.2167, &
 	DebugInput				.2168, &
 	DebugOutput				.2169, &
 	DebugCurPos				.2170, &
 	DebugCls				.2171, &
 	DebugRedirect				.2172, &
-	WinLangsupWindowProc			.2173, &
-	WinLangsupDlgProc			.2174, &
-	WinCreatePointerIndirect		.2175, &
-	WinQueryPointerInfo			.2176, &
-	WinPortHoleUtil				.2177, &
-	WinCreateFarHeap			.2178, &
-	WinDestroyFarHeap			.2179, &
-	WinAllocFarMem				.2180, &
-	WinFreeFarMem				.2181, &
-	WinReallocFarMem			.2182, &
-	WinSetQueueProc				.2183, &
+	Win16LangsupWindowProc			.2173, &
+	Win16LangsupDlgProc			.2174, &
+	Win16CreatePointerIndirect		.2175, &
+	Win16QueryPointerInfo			.2176, &
+	Win16PortHoleUtil			.2177, &
+	Win16CreateFarHeap			.2178, &
+	Win16DestroyFarHeap			.2179, &
+	Win16AllocFarMem			.2180, &
+	Win16FreeFarMem				.2181, &
+	Win16ReallocFarMem			.2182, &
+	Win16SetQueueProc			.2183, &
 # pmwin
 	FarFlushBufHook				.3000, &
 # os2sm, pmshapi, spl1b
@@ -247,379 +249,379 @@ EXPORTS = &
 	StartStartUpDotCmd			.3012, &
 	StartSystemExecutables			.3013, &
 # pmwin
-	WinAlarm				.3014, &
-	WinBeginEnumWindows			.3015, &
-	WinBeginPaint				.3016, &
-	WinBroadcastMsg				.3017, &
-	WinCancelMode				.3018, &
-	WinCancelShutdown			.3019, &
-	WinCreateMsgQueue			.3020, &
-	WinCreateStdWindow			.3021, &
-	WinCreateWindow				.3022, &
-	WinDestroyMsgQueue			.3023, &
-	WinDestroyWindow			.3024, &
-	WinDispatchMsg				.3025, &
-	WinDrawText				.3026, &
-	WinEndPaint				.3027, &
-	WinFillRect				.3028, &
-	WinGetMinWindowViewer			.3029, &
-	WinGetMsg				.3030, &
-	WinGetNextWindow			.3031, &
-	WinInitializeSystem			.3032, &
-	WinInvalidateRect			.3033, &
-	WinIsChild				.3034, &
-	WinIsWindow				.3035, &
-	WinIsWindowVisible			.3036, &
-	WinLoadDlg				.3037, &
-	WinLockStartInput			.3038, &
-	WinMessageBox				.3039, &
-	WinMsgSemWait				.3040, &
-	WinOpenWindowDC				.3041, &
-	WinPeekMsg				.3042, &
-	WinPostMsg				.3043, &
-	WinProcessDlg				.3044, &
-	WinQueryActiveWindow			.3045, &
-	WinQueryAnchorBlock			.3046, &
-	WinQueryDesktopWindow			.3047, &
-	WinQueryFocus				.3048, &
-	WinQueryQueueInfo			.3049, &
-	WinQuerySysModalWindow			.3050, &
-	WinQuerySysValue			.3051, &
-	WinQueryWindow				.3052, &
-	WinQueryWindowPos			.3053, &
-	WinQueryWindowProcess			.3054, &
-	WinQueryWindowRect			.3055, &
-	WinQueryWindowULong			.3056, &
-	WinQueryWindowUShort			.3057, &
-	WinRegisterClass			.3058, &
-	WinResetSystem				.3059, &
-	WinScreenSwitch				.3060, &
-	WinSendDlgItemMsg			.3061, &
-	WinSendMsg				.3062, &
-	WinSetActiveWindow			.3063, &
-	WinSetDlgItemText			.3064, &
-	WinSetFocus				.3065, &
-	WinSetMultWindowPos			.3066, &
-	WinSetParent				.3067, &
-	WinSetPresParam				.3068, &
-	WinSetSysModalWindow			.3069, &
-	WinSetSysValue				.3070, &
-	WinSetWindowBits			.3071, &
-	WinSetWindowPos				.3072, &
-	WinSetWindowText			.3073, &
-	WinShowWindow				.3074, &
-	WinSubclassWindow			.3075, &
-	WinTerminateShutdown			.3076, &
-	WinTrackRect				.3077, &
-	WinWindowFromID				.3078, &
+	Win16Alarm				.3014, &
+	Win16BeginEnumWindows			.3015, &
+	Win16BeginPaint				.3016, &
+	Win16BroadcastMsg			.3017, &
+	Win16CancelMode				.3018, &
+	Win16CancelShutdown			.3019, &
+	Win16CreateMsgQueue			.3020, &
+	Win16CreateStdWindow			.3021, &
+	Win16CreateWindow			.3022, &
+	Win16DestroyMsgQueue			.3023, &
+	Win16DestroyWindow			.3024, &
+	Win16DispatchMsg			.3025, &
+	Win16DrawText				.3026, &
+	Win16EndPaint				.3027, &
+	Win16FillRect				.3028, &
+	Win16GetMinWindowViewer			.3029, &
+	Win16GetMsg				.3030, &
+	Win16GetNextWindow			.3031, &
+	Win16InitializeSystem			.3032, &
+	Win16InvalidateRect			.3033, &
+	Win16IsChild				.3034, &
+	Win16IsWindow				.3035, &
+	Win16IsWindowVisible			.3036, &
+	Win16LoadDlg				.3037, &
+	Win16LockStartInput			.3038, &
+	Win16MessageBox				.3039, &
+	Win16MsgSemWait				.3040, &
+	Win16OpenWindowDC			.3041, &
+	Win16PeekMsg				.3042, &
+	Win16PostMsg				.3043, &
+	Win16ProcessDlg				.3044, &
+	Win16QueryActiveWindow			.3045, &
+	Win16QueryAnchorBlock			.3046, &
+	Win16QueryDesktopWindow			.3047, &
+	Win16QueryFocus				.3048, &
+	Win16QueryQueueInfo			.3049, &
+	Win16QuerySysModalWindow		.3050, &
+	Win16QuerySysValue			.3051, &
+	Win16QueryWindow			.3052, &
+	Win16QueryWindowPos			.3053, &
+	Win16QueryWindowProcess			.3054, &
+	Win16QueryWindowRect			.3055, &
+	Win16QueryWindowULong			.3056, &
+	Win16QueryWindowUShort			.3057, &
+	Win16RegisterClass			.3058, &
+	Win16ResetSystem			.3059, &
+	Win16ScreenSwitch			.3060, &
+	Win16SendDlgItemMsg			.3061, &
+	Win16SendMsg				.3062, &
+	Win16SetActiveWindow			.3063, &
+	Win16SetDlgItemText			.3064, &
+	Win16SetFocus				.3065, &
+	Win16SetMultWindowPos			.3066, &
+	Win16SetParent				.3067, &
+	Win16SetPresParam			.3068, &
+	Win16SetSysModalWindow			.3069, &
+	Win16SetSysValue			.3070, &
+	Win16SetWindowBits			.3071, &
+	Win16SetWindowPos			.3072, &
+	Win16SetWindowText			.3073, &
+	Win16ShowWindow				.3074, &
+	Win16SubclassWindow			.3075, &
+	Win16TerminateShutdown			.3076, &
+	Win16TrackRect				.3077, &
+	Win16WindowFromID			.3078, &
 # pmshapi
-	WinAddProgram				.3079, &
+	Win16AddProgram				.3079, &
 # os2sm, pmshapi, spl1b
-	WinAddSwitchEntry			.3080, &
+	Win16AddSwitchEntry			.3080, &
 # pmshapi
-	WinAddToGroup				.3081, &
+	Win16AddToGroup				.3081, &
 # pmwin
-	WinCalcFrameRect			.3082, &
-	WinCallHelpHook				.3083, &
-	WinCallMsgFilter			.3084, &
+	Win16CalcFrameRect			.3082, &
+	Win16CallHelpHook			.3083, &
+	Win16CallMsgFilter			.3084, &
 # os2sm, pmshapi, spl1b
-	WinCanTerminate				.3085, &
+	Win16CanTerminate			.3085, &
 # pmshapi
-	WinChangeProgram			.3086, &
+	Win16ChangeProgram			.3086, &
 # os2sm, pmshapi, spl1b
-	WinChangeSwitchEntry			.3087, &
+	Win16ChangeSwitchEntry			.3087, &
 # pmwin
-	WinCheckInput				.3088, &
-	WinCloseClipbrd				.3089, &
+	Win16CheckInput				.3088, &
+	Win16CloseClipbrd			.3089, &
 # os2sm, pmshapi, spl1b
-	WinCplRegister				.3090, &
+	Win16CplRegister			.3090, &
 # pmwin
-	WinCreateCursor				.3091, &
-	WinCreateDlg				.3092, &
-	WinCreateFrameControls			.3093, &
+	Win16CreateCursor			.3091, &
+	Win16CreateDlg				.3092, &
+	Win16CreateFrameControls		.3093, &
 # pmshapi
-	WinCreateGroup				.3094, &
+	Win16CreateGroup			.3094, &
 # pmwin
-	WinCreateMenu				.3095, &
+	Win16CreateMenu				.3095, &
 # os2sm, pmshapi, spl1b
-	WinCreateSwitchEntry			.3096, &
+	Win16CreateSwitchEntry			.3096, &
 # pmwin
-	WinDdeInitiate				.3097, &
-	WinDdePostMsg				.3098, &
-	WinDdeRespond				.3099, &
-	WinDebugBreak				.3100, &
-	WinDeleteLibrary			.3101, &
-	WinDeleteProcedure			.3102, &
-	WinDestroyAniPointer			.3103, &
-	WinDestroyCursor			.3104, &
+	Win16DdeInitiate			.3097, &
+	Win16DdePostMsg				.3098, &
+	Win16DdeRespond				.3099, &
+	Win16DebugBreak				.3100, &
+	Win16DeleteLibrary			.3101, &
+	Win16DeleteProcedure			.3102, &
+	Win16DestroyAniPointer			.3103, &
+	Win16DestroyCursor			.3104, &
 # pmshapi
-	WinDestroyGroup				.3105, &
+	Win16DestroyGroup			.3105, &
 # pmwin
-	WinDismissDlg				.3106, &
-	WinDlgBox				.3107, &
-	WinDrawBitmap				.3108, &
-	WinDrawBorder				.3109, &
-	WinDrawPointer				.3110, &
-	WinEmptyClipbrd				.3111, &
-	WinEnablePhysInput			.3112, &
-	WinEnableWindow				.3113, &
-	WinEnableWindowUpdate			.3114, &
-	WinEndEnumWindows			.3115, &
+	Win16DismissDlg				.3106, &
+	Win16DlgBox				.3107, &
+	Win16DrawBitmap				.3108, &
+	Win16DrawBorder				.3109, &
+	Win16DrawPointer			.3110, &
+	Win16EmptyClipbrd			.3111, &
+	Win16EnablePhysInput			.3112, &
+	Win16EnableWindow			.3113, &
+	Win16EnableWindowUpdate			.3114, &
+	Win16EndEnumWindows			.3115, &
 # os2sm, pmshapi, spl1b
-	WinEndProgram				.3116, &
-	WinEndSession				.3117, &
-	WinEndWindowSession			.3118, &
+	Win16EndProgram				.3116, &
+	Win16EndSession				.3117, &
+	Win16EndWindowSession			.3118, &
 # pmwin
-	WinEnumClipbrdFmts			.3119, &
-	WinEnumDlgItem				.3120, &
-	WinEqualRect				.3121, &
-	WinExcludeUpdateRegion			.3122, &
-	WinExplodeWindow			.3123, &
-	WinFlashWindow				.3124, &
-	WinFocusChange				.3125, &
-	WinForceMenuRedraw			.3126, &
-	WinFormatFrame				.3127, &
-	WinGetClipPS				.3128, &
-	WinGetCurrentTime			.3129, &
-	WinGetDlgMsg				.3130, &
-	WinGetErasePS				.3131, &
-	WinGetFrameTreePPs			.3132, &
-	WinGetFrameTreePPSize			.3133, &
-	WinGetMaxPosition			.3134, &
-	WinGetMinPosition			.3135, &
-	WinGetPhysKeyState			.3136, &
-	WinGetPS				.3137, &
-	WinGetScanState				.3138, &
-	WinGetScreenPS				.3139, &
+	Win16EnumClipbrdFmts			.3119, &
+	Win16EnumDlgItem			.3120, &
+	Win16EqualRect				.3121, &
+	Win16ExcludeUpdateRegion		.3122, &
+	Win16ExplodeWindow			.3123, &
+	Win16FlashWindow			.3124, &
+	Win16FocusChange			.3125, &
+	Win16ForceMenuRedraw			.3126, &
+	Win16FormatFrame			.3127, &
+	Win16GetClipPS				.3128, &
+	Win16GetCurrentTime			.3129, &
+	Win16GetDlgMsg				.3130, &
+	Win16GetErasePS				.3131, &
+	Win16GetFrameTreePPs			.3132, &
+	Win16GetFrameTreePPSize			.3133, &
+	Win16GetMaxPosition			.3134, &
+	Win16GetMinPosition			.3135, &
+	Win16GetPhysKeyState			.3136, &
+	Win16GetPS				.3137, &
+	Win16GetScanState			.3138, &
+	Win16GetScreenPS			.3139, &
 # pmshapi
-	WinHAPPfromPID				.3140, &
-	WinHSWITCHfromHAPP			.3141, &
-	WinInitializePL				.3142, &
+	Win16HAPPfromPID			.3140, &
+	Win16HSWITCHfromHAPP			.3141, &
+	Win16InitializePL			.3142, &
 # os2sm, pmshapi, spl1b
-	WinInitSession				.3143, &
-	WinInitSessionMgr			.3144, &
-	WinInitSwEntry				.3145, &
+	Win16InitSession			.3143, &
+	Win16InitSessionMgr			.3144, &
+	Win16InitSwEntry			.3145, &
 # pmwin
-	WinInSendMsg				.3146, &
+	Win16InSendMsg				.3146, &
 # os2sm, pmshapi, spl1b
-	WinInstStartApp				.3147, &
+	Win16InstStartApp			.3147, &
 # pmwin
-	WinIntersectRect			.3148, &
-	WinInvalidateRegion			.3149, &
-	WinInvertRect				.3150, &
-	WinIsPhysInputEnabled			.3151, &
-	WinIsShuttingDown			.3152, &
-	WinIsThreadActive			.3153, &
-	WinIsWindowEnabled			.3154, &
-	WinIsWindowShowing			.3155, &
-	WinJiggleMouse				.3156, &
-	WinLoadAniPointer			.3157, &
-	WinLoadLibrary				.3158, &
-	WinLoadMenu				.3159, &
-	WinLoadProcedure			.3160, &
-	WinLockInput				.3161, &
-	WinLockPointerUpdate			.3162, &
-	WinLockVisRegions			.3163, &
-	WinLockWindowUpdate			.3164, &
-	WinMapDlgPoints				.3165, &
-	WinMapWindowPoints			.3166, &
-	WinMenuIndexFromID			.3167, &
-	WinMsgMuxSemWait			.3168, &
+	Win16IntersectRect			.3148, &
+	Win16InvalidateRegion			.3149, &
+	Win16InvertRect				.3150, &
+	Win16IsPhysInputEnabled			.3151, &
+	Win16IsShuttingDown			.3152, &
+	Win16IsThreadActive			.3153, &
+	Win16IsWindowEnabled			.3154, &
+	Win16IsWindowShowing			.3155, &
+	Win16JiggleMouse			.3156, &
+	Win16LoadAniPointer			.3157, &
+	Win16LoadLibrary			.3158, &
+	Win16LoadMenu				.3159, &
+	Win16LoadProcedure			.3160, &
+	Win16LockInput				.3161, &
+	Win16LockPointerUpdate			.3162, &
+	Win16LockVisRegions			.3163, &
+	Win16LockWindowUpdate			.3164, &
+	Win16MapDlgPoints			.3165, &
+	Win16MapWindowPoints			.3166, &
+	Win16MenuIndexFromID			.3167, &
+	Win16MsgMuxSemWait			.3168, &
 # os2sm, pmshapi, spl1b
-	WinNoShutdown				.3169, &
+	Win16NoShutdown				.3169, &
 # pmwin
-	WinOpenClipbrd				.3170, &
+	Win16OpenClipbrd			.3170, &
 # os2sm, pmshapi, spl1b
-	WinPMFileRegister			.3171, &
+	Win16PMFileRegister			.3171, &
 # pmwin
-	WinPopupMenu				.3172, &
-	WinPostQueueMsg				.3173, &
-	WinQueryAccelTable			.3174, &
-	WinQueryAccelTableValue			.3175, &
-	WinQueryCapture				.3176, &
-	WinQueryCharXlatetbl			.3177, &
-	WinQueryClassName			.3178, &
-	WinQueryClassThunkProc			.3179, &
-	WinQueryClipbrdData			.3180, &
-	WinQueryClipbrdOwner			.3181, &
-	WinQueryClipbrdViewer			.3182, &
+	Win16PopupMenu				.3172, &
+	Win16PostQueueMsg			.3173, &
+	Win16QueryAccelTable			.3174, &
+	Win16QueryAccelTableValue		.3175, &
+	Win16QueryCapture			.3176, &
+	Win16QueryCharXlatetbl			.3177, &
+	Win16QueryClassName			.3178, &
+	Win16QueryClassThunkProc		.3179, &
+	Win16QueryClipbrdData			.3180, &
+	Win16QueryClipbrdOwner			.3181, &
+	Win16QueryClipbrdViewer			.3182, &
 # pmshapi
-	WinQueryDefinition			.3183, &
+	Win16QueryDefinition			.3183, &
 # pmwin
-	WinQueryDesktopBkgnd			.3184, &
-	WinQueryDlgItemShort			.3185, &
-	WinQueryDlgItemText			.3186, &
-	WinQueryDlgItemTextLength		.3187, &
+	Win16QueryDesktopBkgnd			.3184, &
+	Win16QueryDlgItemShort			.3185, &
+	Win16QueryDlgItemText			.3186, &
+	Win16QueryDlgItemTextLength		.3187, &
 # os2sm, pmshapi, spl1b
-	WinQueryExtIDFocus			.3188, &
+	Win16QueryExtIDFocus			.3188, &
 # pmshapi
-	WinQueryFileExtOpts			.3189, &
+	Win16QueryFileExtOpts			.3189, &
 # pmwin
-	WinQueryMenuData			.3190, &
-	WinQueryMsgPos				.3191, &
-	WinQueryMsgTime				.3192, &
-	WinQueryObjectWindow			.3193, &
-	WinQueryPointer				.3194, &
-	WinQueryPointerPos			.3195, &
-	WinQueryPresParam			.3196, &
+	Win16QueryMenuData			.3190, &
+	Win16QueryMsgPos			.3191, &
+	Win16QueryMsgTime			.3192, &
+	Win16QueryObjectWindow			.3193, &
+	Win16QueryPointer			.3194, &
+	Win16QueryPointerPos			.3195, &
+	Win16QueryPresParam			.3196, &
 # pmshapi
-	WinQueryProgramTitles			.3197, &
-	WinQueryProgramType			.3198, &
-	WinQueryProgramUse			.3199, &
+	Win16QueryProgramTitles			.3197, &
+	Win16QueryProgramType			.3198, &
+	Win16QueryProgramUse			.3199, &
 # pmwin
-	WinQueryQueueStatus			.3200, &
-	WinQuerySendMsg				.3201, &
+	Win16QueryQueueStatus			.3200, &
+	Win16QuerySendMsg			.3201, &
 # os2sm, pmshapi, spl1b
-	WinQuerySessionTitle			.3202, &
+	Win16QuerySessionTitle			.3202, &
 # pmwin
-	WinQueryState				.3203, &
+	Win16QueryState				.3203, &
 # os2sm, pmshapi, spl1b
-	WinQuerySwitchEntry			.3204, &
-	WinQuerySwitchHandle			.3205, &
-	WinQuerySwitchList			.3206, &
+	Win16QuerySwitchEntry			.3204, &
+	Win16QuerySwitchHandle			.3205, &
+	Win16QuerySwitchList			.3206, &
 # pmwin
-	WinQuerySysColor			.3207, &
+	Win16QuerySysColor			.3207, &
 # os2sm, pmshapi, spl1b
-	WinQueryTaskSizePos			.3208, &
-	WinQueryTaskTitle			.3209, &
+	Win16QueryTaskSizePos			.3208, &
+	Win16QueryTaskTitle			.3209, &
 # pmwin
-	WinQueryUpdateRect			.3210, &
-	WinQueryUpdateRegion			.3211, &
-	WinQueryWindowDC			.3212, &
-	WinQueryWindowModel			.3213, &
-	WinQueryWindowPtr			.3214, &
-	WinQueryWindowSGID			.3215, &
-	WinQueryWindowText			.3216, &
-	WinQueryWindowTextLength		.3217, &
-	WinQueryWindowThunkProc			.3218, &
-	WinQueryWorkplaceWindow			.3219, &
-	WinQueueFromID				.3220, &
-	WinRealizePalette			.3221, &
-	WinRegisterSeamlessProc			.3222, &
-	WinRegisterUserDatatype			.3223, &
-	WinRegisterUserMsg			.3224, &
-	WinRegisterWindowDestroy		.3225, &
-	WinReleaseErasePS			.3226, &
-	WinReleaseHook				.3227, &
-	WinReleasePS				.3228, &
+	Win16QueryUpdateRect			.3210, &
+	Win16QueryUpdateRegion			.3211, &
+	Win16QueryWindowDC			.3212, &
+	Win16QueryWindowModel			.3213, &
+	Win16QueryWindowPtr			.3214, &
+	Win16QueryWindowSGID			.3215, &
+	Win16QueryWindowText			.3216, &
+	Win16QueryWindowTextLength		.3217, &
+	Win16QueryWindowThunkProc		.3218, &
+	Win16QueryWorkplaceWindow		.3219, &
+	Win16QueueFromID			.3220, &
+	Win16RealizePalette			.3221, &
+	Win16RegisterSeamlessProc		.3222, &
+	Win16RegisterUserDatatype		.3223, &
+	Win16RegisterUserMsg			.3224, &
+	Win16RegisterWindowDestroy		.3225, &
+	Win16ReleaseErasePS			.3226, &
+	Win16ReleaseHook			.3227, &
+	Win16ReleasePS				.3228, &
 # pmshapi
-	WinRemoveFromGroup			.3229, &
+	Win16RemoveFromGroup			.3229, &
 # pmwin
-	WinRemovePresParam			.3230, &
+	Win16RemovePresParam			.3230, &
 # pmshapi
-	WinRemoveProgram			.3231, &
+	Win16RemoveProgram			.3231, &
 # os2sm, pmshapi, spl1b
-	WinRemoveSwitchEntry			.3232, &
+	Win16RemoveSwitchEntry			.3232, &
 # pmwin
-	WinReplyMsg				.3233, &
-	WinSaveWindowPos			.3234, &
-	WinScrollWindow				.3235, &
-	WinSeamlessBox				.3236, &
-	WinSemEnter				.3237, &
-	WinSemLeave				.3238, &
-	WinSemQuery				.3239, &
-	WinSendQueueMsg				.3240, &
-	WinSetAccelTable			.3241, &
-	WinSetAccelTableValue			.3242, &
-	WinSetAniPointer			.3243, &
-	WinSetAtomTableOwner			.3244, &
-	WinSetCapture				.3245, &
-	WinSetCharXlatetbl			.3246, &
-	WinSetClassMsgInterest			.3247, &
-	WinSetClassThunkProc			.3248, &
-	WinSetClipbrdOwner			.3249, &
-	WinSetClipbrdViewer			.3250, &
-	WinSetDesktopBkgnd			.3251, &
-	WinSetDlgItemShort			.3252, &
+	Win16ReplyMsg				.3233, &
+	Win16SaveWindowPos			.3234, &
+	Win16ScrollWindow			.3235, &
+	Win16SeamlessBox			.3236, &
+	Win16SemEnter				.3237, &
+	Win16SemLeave				.3238, &
+	Win16SemQuery				.3239, &
+	Win16SendQueueMsg			.3240, &
+	Win16SetAccelTable			.3241, &
+	Win16SetAccelTableValue			.3242, &
+	Win16SetAniPointer			.3243, &
+	Win16SetAtomTableOwner			.3244, &
+	Win16SetCapture				.3245, &
+	Win16SetCharXlatetbl			.3246, &
+	Win16SetClassMsgInterest		.3247, &
+	Win16SetClassThunkProc			.3248, &
+	Win16SetClipbrdOwner			.3249, &
+	Win16SetClipbrdViewer			.3250, &
+	Win16SetDesktopBkgnd			.3251, &
+	Win16SetDlgItemShort			.3252, &
 # os2sm, pmshapi, spl1b
-	WinSetExtIDFocus			.3253, &
-	WinSetFgndWindow			.3254, &
+	Win16SetExtIDFocus			.3253, &
+	Win16SetFgndWindow			.3254, &
 # pmshapi
-	WinSetFileExtOpts			.3255, &
+	Win16SetFileExtOpts			.3255, &
 # pmwin
-	WinSetFrameTreePPs			.3256, &
-	WinSetHook				.3257, &
-	WinSetKeyboardStateTable		.3258, &
-	WinSetMenuData				.3259, &
-	WinSetMsgInterest			.3260, &
-	WinSetMsgMode				.3261, &
-	WinSetOwner				.3262, &
-	WinSetPointer				.3263, &
-	WinSetPointerOwner			.3264, &
-	WinSetPointerPos			.3265, &
-	WinSetScanStateTable			.3266, &
+	Win16SetFrameTreePPs			.3256, &
+	Win16SetHook				.3257, &
+	Win16SetKeyboardStateTable		.3258, &
+	Win16SetMenuData			.3259, &
+	Win16SetMsgInterest			.3260, &
+	Win16SetMsgMode				.3261, &
+	Win16SetOwner				.3262, &
+	Win16SetPointer				.3263, &
+	Win16SetPointerOwner			.3264, &
+	Win16SetPointerPos			.3265, &
+	Win16SetScanStateTable			.3266, &
 # os2sm, pmshapi, spl1b
-	WinSetSwEntry				.3267, &
+	Win16SetSwEntry				.3267, &
 # pmwin
-	WinSetSynchroMode			.3268, &
-	WinSetSysClipbrdViewer			.3269, &
-	WinSetSysColors				.3270, &
+	Win16SetSynchroMode			.3268, &
+	Win16SetSysClipbrdViewer		.3269, &
+	Win16SetSysColors			.3270, &
 # os2sm, pmshapi, spl1b
-	WinSetTitle				.3271, &
+	Win16SetTitle				.3271, &
 # pmshapi
-	WinSetTitleAndIcon			.3272, &
+	Win16SetTitleAndIcon			.3272, &
 # pmwin
-	WinSetWindowDC				.3273, &
-	WinSetWindowPtr				.3274, &
-	WinSetWindowThunkProc			.3275, &
-	WinSetWindowULong			.3276, &
-	WinSetWindowUShort			.3277, &
-	WinShowCursor				.3278, &
-	WinShowPointer				.3279, &
-	WinShowTrackRect			.3280, &
+	Win16SetWindowDC			.3273, &
+	Win16SetWindowPtr			.3274, &
+	Win16SetWindowThunkProc			.3275, &
+	Win16SetWindowULong			.3276, &
+	Win16SetWindowUShort			.3277, &
+	Win16ShowCursor				.3278, &
+	Win16ShowPointer			.3279, &
+	Win16ShowTrackRect			.3280, &
 # pmshapi
-	WinStartApp				.3281, &
+	Win16StartApp				.3281, &
 # pmwin
-	WinStartTimer				.3282, &
+	Win16StartTimer				.3282, &
 # os2sm, pmshapi, spl1b
-	WinStopProgram				.3283, &
+	Win16StopProgram			.3283, &
 # pmwin
-	WinStopTimer				.3284, &
+	Win16StopTimer				.3284, &
 # os2sm, pmshapi, spl1b
- 	WinStpRegister				.3285, &
+ 	Win16StpRegister			.3285, &
 # pmwin
-	WinStretchPointer			.3286, &
-	WinSubstituteStrings			.3287, &
-	WinSubtractRect				.3288, &
+	Win16StretchPointer			.3286, &
+	Win16SubstituteStrings			.3287, &
+	Win16SubtractRect			.3288, &
 # os2sm, pmshapi, spl1b
-	WinSwitchProgramRegister		.3289, &
-	WinSwitchToProgram2			.3290, &
-	WinSwitchToProgram			.3291, &
-	WinSwitchToTaskManager			.3292, &
+	Win16SwitchProgramRegister		.3289, &
+	Win16SwitchToProgram2			.3290, &
+	Win16SwitchToProgram			.3291, &
+	Win16SwitchToTaskManager		.3292, &
 # pmwin
-	WinSyncStartPgm				.3293, &
-	WinSystemShutdown			.3294, &
+	Win16SyncStartPgm			.3293, &
+	Win16SystemShutdown			.3294, &
 # os2sm, pmshapi, spl1b
-	WinTerminateApp				.3295, &
+	Win16TerminateApp			.3295, &
 # pmwin
-	WinThreadAssocQueue			.3296, &
-	WinTrackSeamless			.3297, &
-	WinTranslateAccel			.3298, &
-	WinTranslateChar			.3299, &
-	WinUnionRect				.3300, &
-	WinUpdateWindow				.3301, &
-	WinValidateRect				.3302, &
-	WinValidateRegion			.3303, &
-	WinVkeyGlyphCharXlate			.3304, &
-	WinWaitMsg				.3305, &
-	WinWakeThread				.3306, &
-	WinWindowFromDC				.3307, &
-	WinWindowFromPoint			.3308, &
+	Win16ThreadAssocQueue			.3296, &
+	Win16TrackSeamless			.3297, &
+	Win16TranslateAccel			.3298, &
+	Win16TranslateChar			.3299, &
+	Win16UnionRect				.3300, &
+	Win16UpdateWindow			.3301, &
+	Win16ValidateRect			.3302, &
+	Win16ValidateRegion			.3303, &
+	Win16VkeyGlyphCharXlate			.3304, &
+	Win16WaitMsg				.3305, &
+	Win16WakeThread				.3306, &
+	Win16WindowFromDC			.3307, &
+	Win16WindowFromPoint			.3308, &
 # pmshapi
-	WinSetTitleAndHwndIcon			.3309, &
+	Win16SetTitleAndHwndIcon		.3309, &
 #
-	WinTrackWindow				.3310, &
+	Win16TrackWindow			.3310, &
 # pmwin
-	WinSetLangInfo				.3500, &
-	WinQueryLangInfo			.3501, &
-	WinSetKbdLayer				.3502, &
-	WinQueryKbdLayer			.3503, &
-	WinSetLangViewer			.3504, &
-	WinQueryLangViewer			.3505, &
+	Win16SetLangInfo			.3500, &
+	Win16QueryLangInfo			.3501, &
+	Win16SetKbdLayer			.3502, &
+	Win16QueryKbdLayer			.3503, &
+	Win16SetLangViewer			.3504, &
+	Win16QueryLangViewer			.3505, &
 # pmwin
-	WinPourEvent				.3600, &
-	WinSetMsgQimInfo			.3601, &
-	WinQueryMsgQimInfo			.3602, &
+	Win16PourEvent				.3600, &
+	Win16SetMsgQimInfo			.3601, &
+	Win16QueryMsgQimInfo			.3602, &
 # pmgre
 	Devmode_Call_16				.4000, &
 	Devname_Call_16				.4001, &
@@ -1124,7 +1126,7 @@ EXPORTS = &
 #
 	WinAugmentPointer			.5416, &
 # pmwin
-	WinMessageBox2				.5417, &
+	Win32MessageBox2			.5417, &
 	WinMspAlloc				.5418, &
 	WinMspFree				.5419, &
 	WinMspInit				.5420, &

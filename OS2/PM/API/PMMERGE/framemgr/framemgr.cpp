@@ -9,6 +9,10 @@ extern class _FreePM_HAB  _hab;
 
 //#define debug(...)
 
+extern "C" BOOL  APIENTRY Win32FocusChange(HWND hwndDesktop,
+                              HWND hwndSetFocus,
+                              ULONG flFocusChange);
+
 extern "C" BOOL    APIENTRY Win32RegisterClass(HAB ihab,
                                   PCSZ  pszClassName,
                                   PFNWP pfnWndProc,
@@ -193,7 +197,7 @@ extern "C" BOOL    APIENTRY Win32DestroyWindow(HWND hwnd)
 
 extern "C" BOOL APIENTRY Win32SetActiveWindow(HWND hwndDesktop,  HWND hwnd)
 {
-  return WinFocusChange(hwndDesktop, hwnd,0);  /* ??? is it really must be 0 ? */
+  return Win32FocusChange(hwndDesktop, hwnd,0);  /* ??? is it really must be 0 ? */
 }
 
 

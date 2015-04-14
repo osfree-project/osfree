@@ -348,7 +348,7 @@ debug(3, 0)(__FUNCTION__"call\n");
 BOOL FPM_Window::ReleasePS(HPS hps)
 {
 debug(3, 0)(__FUNCTION__"call with hps %x\n",hps);
-   return /*F_*/ WinReleasePS(hps);
+   return TRUE; /*F_*/ //WinReleasePS(hps);
 }
 
 int FRAME_Window::proc( PQMSG pqmsg)
