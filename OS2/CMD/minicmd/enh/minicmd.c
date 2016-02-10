@@ -5,6 +5,7 @@
 #include <stdarg.h>
 
 #include "minicmd.h"
+#include "env.h"
 
 // here minimal set of commands. We need to have possibility to change
 // current directory, get some help, change disk, execute external commands
@@ -45,6 +46,7 @@ void execute_external(int argc, char **argv)
   PSZ         Envs;
   RESULTCODES ChildRC;
   APIRET      rc;  /* Return code */
+  char        *env;
   int         i;
 
   log("execute_external():\n");
@@ -53,13 +55,17 @@ void execute_external(int argc, char **argv)
   for (i = 0; i < argc; i++)
     log("argv[%d]=%s\n", i, argv[i]);
 
+  env = env_get();
+
   rc = DosExecPgm(LoadError,           /* Object name buffer           */
                   sizeof(LoadError),   /* Length of object name buffer */
                   EXEC_SYNC,           /* Asynchronous/Trace flags     */
-                  argv[1], //Args,                /* Argument string              */
-                  NULL, //Envs,                /* Environment string           */
+                  argv[0],             /* Argument string              */
+                  env,                 /* Environment string           */
                   &ChildRC,            /* Termination codes            */
-                  argv[0]);                /* Program file name            */
+                  argv[0]);            /* Program file name            */
+
+  env_free(env);
 
   if (rc != NO_ERROR) {
 //     printf("DosExecPgm error: return code = %u\n",rc);
@@ -113,8 +119,10 @@ BOOL parse_cmd(char *cmd)
           }
 
           // check flag for terminators
-          if (( *cmd != '\0' ))
-                  *cmd++ = '\0';
+          if (Argc == 0) { // '\0' after program name only
+                  if (( *cmd != '\0' ))
+                          *cmd++ = '\0';
+          }
 
           // update the Argv pointer
           Argv[ Argc ] = pszTemp;
@@ -140,11 +148,11 @@ BOOL parse_cmd(char *cmd)
     return TRUE;
   }
 
-  for (i=0;i<6;i++)
+  for (i = 0; commands[i]; i ++)
   {
-    if (!strcmp(Argv[0], commands[i].cmdname))
+    if (!strcmp(Argv[0], commands[i]->cmdname))
     {
-      (*(commands[i].func))(Argc, Argv);
+      (*(commands[i]->func))(Argc, Argv);
       return FALSE;
     }
   }
@@ -190,10 +198,11 @@ void showpath(void)
   rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
   rc = DosQueryCurrentDir(0, achDirName, &cbDirPathLen);
 
+  VioWrtTTY("[", 1, 0);
   VioWrtTTY(&chDisk, 1, 0);
   VioWrtTTY(":\\", 2, 0);
   VioWrtTTY(achDirName, cbDirPathLen-1, 0);
-  VioWrtTTY(">", 1, 0);
+  VioWrtTTY("]", 1, 0);
 }
 
 void log_init(void)
@@ -243,12 +252,18 @@ void main(void)
   exitflag=FALSE;
   // Ok. Here we just in endless loop. Except for EXIT command.
 
+  // create the global env. array
+  env_create();
+
   while (!exitflag)
   {
     showpath();
     read_cmd (cmd);
     exitflag = parse_cmd (cmd);
   }
+
+  // destroy the global env. array
+  env_destroy();
 
   exit(0);
 }

@@ -1,13 +1,25 @@
 #include "minicmd.h"
 
-BUILTIN commands[] =
+BUILTIN cmds_desc  = {"?", cmds_cmd};
+BUILTIN help_desc  = {"help", cmds_cmd};
+BUILTIN exit_desc  = {"exit", exit_cmd};
+BUILTIN cd_desc    = {"cd", chdir_cmd};
+BUILTIN chdir_desc = {"chdir", chdir_cmd};
+BUILTIN dir_desc   = {"dir", dir_cmd};
+BUILTIN set_desc   = {"set", set_cmd};
+BUILTIN env_desc   = {"env", env_cmd};
+
+BUILTIN *commands[] =
 {
-  "?", cmds_cmd,
-  "exit", exit_cmd,
-  "help", cmds_cmd,
-  "cd", chdir_cmd,
-  "chdir", chdir_cmd,
-  "dir", dir_cmd
+  &cmds_desc,
+  &help_desc,
+  &exit_desc,
+  &cd_desc,
+  &chdir_desc,
+  &dir_desc,
+  &set_desc,
+  &env_desc,
+  NULL
 };
 
 int cmds_cmd(int argc, char **argv)
@@ -15,9 +27,9 @@ int cmds_cmd(int argc, char **argv)
   unsigned int i;
 
   VioWrtTTY("Commands:\r\n", 11, 0);
-  for (i=0;i<6;i++)
+  for (i = 0; commands[i]; i ++)
   {
-    VioWrtTTY(commands[i].cmdname, strlen(commands[i].cmdname), 0);
+    VioWrtTTY(commands[i]->cmdname, strlen(commands[i]->cmdname), 0);
     VioWrtTTY("\x9", 1, 0);
   }
   VioWrtTTY("\r\n", 2, 0);
