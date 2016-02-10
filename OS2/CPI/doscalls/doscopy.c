@@ -454,9 +454,9 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
   if (fileStatus.attrFile & FILE_DIRECTORY)
   {
     // DCPY_APPEND flag not valid in directory copy
-    return CopyTree((char *)pszOld, (char *)pszNew, ulOptions & ~DCPY_APPEND, 0);
+    return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND, 0);
   } else {
-    return CopyFile((char *)pszOld, (char *)pszNew, ulOptions); // @todo pass options
+    return CopyFile(pszOld, pszNew, ulOptions); // @todo pass options
   };
 }
 
@@ -485,10 +485,10 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
     // Perfom action based on source path type
     if (fileStatus.attrFile & FILE_DIRECTORY)
       // DCPY_APPEND flag not valid in directory copy
-      rc = CopyTree((char *)pszOld, (char *)pszNew, 0, 1);
+      rc = CopyTree(pszOld, pszNew, 0, 1);
     else
     {
-      if (rc = CopyFile((char *)pszOld, (char *)pszNew, 0))
+      if (rc = CopyFile(pszOld, pszNew, 0))
         return rc;
 
       rc = DosDelete(pszOld);

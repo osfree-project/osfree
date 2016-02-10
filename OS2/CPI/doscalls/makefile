@@ -56,7 +56,7 @@ ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
-UNI2H = 1
+# UNI2H = 1
 
 IMPORTS = _DlRoute                DL.DlRoute
 
