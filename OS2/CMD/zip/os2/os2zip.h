@@ -64,6 +64,7 @@ extern struct dirent *readdir(DIR *);
 extern void seekdir(DIR *, long);
 extern long telldir(DIR *);
 extern void closedir(DIR *);
+extern int rmdir(char *);
 #define rewinddir(dirp) seekdir(dirp, 0L)
 
 int GetFileMode(char *name);

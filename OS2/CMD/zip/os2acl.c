@@ -59,7 +59,7 @@
 #define INCL_DOSERRORS
 #include <os2.h>
 
-#include "os2acl.h"
+#include "os2/os2acl.h"
 
 #define UNLEN 20
 

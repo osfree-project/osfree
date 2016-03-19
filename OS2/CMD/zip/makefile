@@ -8,7 +8,7 @@ PROJ = zip
 DESC = ZIP file archiver
 # defines additional options for C compiler
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib
-ADD_COPT = -dOS2 -dNO_ASM -dNO_SYMLINKS -dFAR -zq -Ox -s -sg -Zp1 -ecw
+ADD_COPT = -dOS2 -dNO_ASM -dNO_SYMLINKS -dFAR -d__32BIT__ -zq -Ox -s -sg -Zp1 -ecw -i=$(MYDIR)$(SEP)os2
 # ADD_LINKOPT = op caseexact
 STACK=0x50000
 srcfiles = $(p)zip$(e) $(p)zipfile$(e) $(p)zipup$(e) $(p)fileio$(e) $(p)util$(e) &
