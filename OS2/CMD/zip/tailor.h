@@ -73,7 +73,7 @@
 #endif
 
 #ifdef OS2
-#include "osdep.h"
+#include "os2/osdep.h"
 #endif
 
 #ifdef __riscos
