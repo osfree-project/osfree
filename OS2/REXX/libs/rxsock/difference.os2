@@ -1,0 +1,39 @@
+* Connected-operations on non-connected sockets return error codes
+with this RXSOCK.  Under OS/2 they do not -- you must detect errors
+using other methods.
+
+* SockGetSockOpt() returns a non-error status for invalid optVars
+under OS/2.  The value returned is always 0.  Under this RXSOCK, an
+error code (-1) is returned.
+
+* SockSetSockOpt() returns a non-error status when trying to set an
+invalid optVar under OS/2 (I have no idea what it actually sets).
+Under this implementation, an error code is returned.
+
+* SockSetSockOpt() returns a non-error status when setting an option
+to an non-numeric value under OS/2.  It will set the option to 0 under
+this condition.  This implementation does not change the value of the
+option and returns an error code (-1).
+
+* Certain socket options that exist under OS/2 do not appear to exist
+under Windows.  These are SO_RCVLOWAT, SO_RCVTIMEO, SO_SNDLOWAT,
+SO_SNDTIMEO, and SO_USELOOPBACK.  Trying to set or get those options
+under this implementation returns an error code (-1).
+
+* Windows and OS/2 sometimes return different error codes for a given
+error.  For example, Windows will return ECONNRESET in some instances
+where OS/2 will return EPIPE.  In other instances, both will return
+ECONNRESET, so no simple translation table is possible.
+SockSock_Errno() and SockPSock_Errno() work with the error codes
+returned by the host environment.  For most errors, the codes are
+identical.
+
+* SockPSock_Errno() messages almost certainly differ from their OS/2
+counterpart for some error codes, although I know of none explicity.
+The error messages used are from the comments in EMX's <sys/errno.h>
+header file.
+
+* Added a function RxsockVersion() that returns the current version of
+the RXSOCK DLL.  Currently returns 1.0.  (The DLLs in the dist/
+subdirectories return 0.95 but otherwise are equivalent.  Those were
+submitted by Mark Hessling; I don't have the tools to recompile them.)

@@ -1,0 +1,4 @@
+LIBRARY RXSOCK
+EXPORTS
+    SockLoadFuncs                               @1
+    SockFunctionGateWay                         @2
