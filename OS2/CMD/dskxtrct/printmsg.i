@@ -24,7 +24,7 @@
 
 #include "stringe.h"
 #include <iostream.h>
-#include <stream.h>
+//#include <stream.h>
 #include <stdlib.h>
 #include <stdio.h>
 /* #include <io.h> */

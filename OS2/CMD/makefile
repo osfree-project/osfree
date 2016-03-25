@@ -16,6 +16,7 @@ DIRS =        shared &
               diskcomp &
               diskcopy &
               eject &
+              e &
               fdisk &
               fdiskpm &
               find &

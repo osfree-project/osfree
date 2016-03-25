@@ -161,9 +161,19 @@ APIRET16 (* APIENTRY16 NetAccessSetInfo)(PCHAR16 pszServer, PCHAR16 pszResource,
 APIRET16 (* APIENTRY16 NetAccessAdd)(PCHAR16 pszServer,
   USHORT sLevel, PVOID16 pbBuffer, USHORT cbBuffer);
 
+#if defined(__WATCOM__) && defined(__386__)
+
+PVOID _NetAccessGetInfo;
+PVOID _NetAccessSetInfo;
+PVOID _NetAccessAdd;
+
+#else
+
 #define _NetAccessGetInfo NetAccessGetInfo
 #define _NetAccessSetInfo NetAccessSetInfo
 #define _NetAccessAdd NetAccessAdd
+
+#endif
 
 #if !defined(__IBMC__) || !defined(__TILED__)
 #define _tmalloc malloc
@@ -215,9 +225,14 @@ static BOOL acl_init(void)
     return FALSE;
 
 #if defined(__WATCOMC__) && defined(__386__)
-  NetAccessGetInfo = (PVOID) (ULONG) (PVOID16) NetAccessGetInfo;
-  NetAccessSetInfo = (PVOID) (ULONG) (PVOID16) NetAccessSetInfo;
-  NetAccessAdd     = (PVOID) (ULONG) (PVOID16) NetAccessAdd;
+  NetAccessGetInfo = _NetAccessGetInfo;
+  NetAccessSetInfo = _NetAccessSetInfo;
+  NetAccessAdd     = _NetAccessAdd;
+
+//  NetAccessGetInfo = (PVOID) (ULONG) (PVOID16) _NetAccessGetInfo;
+//  NetAccessSetInfo = (PVOID) (ULONG) (PVOID16) _NetAccessSetInfo;
+//  NetAccessAdd     = (PVOID) (ULONG) (PVOID16) _NetAccessAdd;
+//  (PVOID) (ULONG) (PVOID16)
 #endif
 
   if ((path = _tmalloc(CCHMAXPATH)) == NULL)
@@ -307,7 +322,14 @@ static int acl_bin2text(char *data, char *text)
 int acl_get(char *server, const char *resource, char *buffer)
 {
   USHORT datalen;
+  //char buf[256];
   PSZ srv = NULL;
+
+  //PCHAR16 srv16;
+  //PCHAR16 path16;
+  //PVOID16 data16;
+  //PVOID16 plen16;
+
   int rc;
 
   if (!acl_init())
@@ -318,6 +340,11 @@ int acl_get(char *server, const char *resource, char *buffer)
 
   acl_mkpath(path, resource);
   datalen = 0;
+
+  //srv16  = (PCHAR16)srv;
+  //path16 = (PCHAR16)path;
+  //data16 = (PVOID16)data;
+  //plen16 = (PVOID16)&datalen;
 
   rc = NetAccessGetInfo(srv, path, 1, data, ACL_BUFFERSIZE, &datalen);
 
