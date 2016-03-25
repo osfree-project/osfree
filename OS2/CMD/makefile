@@ -15,6 +15,7 @@ DIRS =        shared &
               comp &
               diskcomp &
               diskcopy &
+              dskxtrct &
               eject &
               e &
               fdisk &
@@ -41,7 +42,7 @@ DIRS =        shared &
               syslevel &
               tedit &
               tree &
-#              tshell
+              tshell &
               undelete &
               ver &
               vol &
