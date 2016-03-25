@@ -4,7 +4,7 @@ DESC = PM REXX I/O dll
 srcfiles     = $(p)pmrexxio$(e) $(p)pmrxsubs$(e)
 inc          = $(MYDIR)..$(SEP)include
 ADD_COPT     = -i=$(inc) -sg -3s
-ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
+ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3s.lib,math387s.lib,emu387.lib,rexx.lib
 DLL          = 1
 OPTIONS      = manyautodata, caseexact, heapsize=8192, quiet
 DLLOPT       = initinstance
