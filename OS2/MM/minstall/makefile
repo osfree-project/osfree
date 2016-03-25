@@ -3,7 +3,7 @@
 # (c) osFree project,
 #
 
-DIRS = shared src dll
+DIRS = shared src dll genin
 
 !include $(%ROOT)/mk/all.mk
 

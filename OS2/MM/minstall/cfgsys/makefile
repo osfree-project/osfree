@@ -14,29 +14,31 @@ DLL     = 1
 DLLOPT  = initinstance terminstance op manyautodata
 # defines additional options for C compiler
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-imports = CONFIGSYS_Process CFGSYS, &
-          CONFIGSYS_DelayInit CFGSYS, &
-          CONFIGSYS_DelayCopyFile CFGSYS, &
-          CONFIGSYS_DelayFinalize CFGSYS
+exports = &
+#          CONFIGSYS_Process.1, &
+#          CONFIGSYS_DelayInit.10, &
+#          CONFIGSYS_DelayFinalize.11, &
+#          CONFIGSYS_DelayCopyFile.12, &
+#          CONFIGSYS_DelayRemoveFile.13, &
+#          CONFIGSYS_DelayCreatePath.14, &
+#          CONFIGSYS_DelayRemovePath.15, &
+#          ConfigSysLoadFuncs.98, &
+#          ConfigSysDropFuncs.99, &
+#          ConfigSysDelayInit.110, &
+#          ConfigSysProcess.101, &
+#          ConfigSysDelayFinalize.111, &
+#          ConfigSysDelayCopyFile.112, &
+          ConfigSysDelayRemoveFile.113, &
+          ConfigSysDelayCreatePath.114, &
+          ConfigSysDelayRemovePath.115, &
+          ConfigSysRegEnumKey.120, &
+          ConfigSysRegCreateKey.122, &
+          ConfigSysRegDeleteKey.123, &
+          ConfigSysRegEnumValue.124, &
+          ConfigSysRegQueryValue.125, &
+          ConfigSysRegSetValue.126, &
+          ConfigSysRegDeleteValue.127
 
-exports = MINSTALL_Init, &
-          MINSTALL_InitPackage, &
-          MINSTALL_InstallPackage, &
-          MINSTALL_GetErrorMsgPtr, &
-          MINSTALL_GetErrorMsgCIDCode, &
-          MINSTALL_GetErrorMsgCIDCodeDescription, &
-          MINSTALL_GetSourcePathPtr, &
-          MINSTALL_GetTargetPathPtr, &
-          MINSTALL_GetPublicGroupArrayPtr, &
-          MINSTALL_GetPublicGroupCustomDataPtr, &
-          MINSTALL_SetPublicGroupCustomData, &
-          MINSTALL_GetPackageTitlePtr, &
-          MINSTALL_SelectGroup, &
-          MINSTALL_DeSelectGroup, &
-          MINSTALL_SetCARDINFOCardCountForGroup, &
-          MINSTALL_GetCARDINFOChoiceForGroup, &
-          MINSTALL_SetCARDINFOChoiceForGroup, &
-          MINSTALL_CleanUp
 ADD_LINKOPT = lib mm_shared
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
