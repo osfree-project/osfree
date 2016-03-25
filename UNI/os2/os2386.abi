@@ -1682,3 +1682,29 @@ RectUnion                  DLL APIENTRY UTLAPI  10  OS2386
 RectSubtract               DLL APIENTRY UTLAPI  11  OS2386
 RectMakeRect               DLL APIENTRY UTLAPI  12  OS2386
 RectMakePoints             DLL APIENTRY UTLAPI  13  OS2386
+WinDeregisterObjectClass                    DLL APIENTRY PMWP     201  OS2386
+WinReplaceObjectClass                       DLL APIENTRY PMWP     219  OS2386
+WinEnumObjectClasses                        DLL APIENTRY PMWP     205  OS2386
+WinCreateObject                             DLL APIENTRY PMWP     281  OS2386
+WinSetObjectData                            DLL APIENTRY PMWP     250  OS2386
+WinDestroyObject                            DLL APIENTRY PMWP     251  OS2386
+WinQueryObject                              DLL APIENTRY PMWP     252  OS2386
+WinSaveObject                               DLL APIENTRY PMWP     285  OS2386
+WinOpenObject                               DLL APIENTRY PMWP     286  OS2386
+WinMoveObject                               DLL APIENTRY PMWP     287  OS2386
+WinCopyObject                               DLL APIENTRY PMWP     288  OS2386
+WinCreateShadow                             DLL APIENTRY PMWP     289  OS2386
+WinQueryActiveDesktopPathname               DLL APIENTRY PMWP     262  OS2386
+WinQueryObjectPath                          DLL APIENTRY PMWP     263  OS2386
+WinRestartWPDServer                         DLL APIENTRY PMWP     463  OS2386
+WinRestartSOMDD                             DLL APIENTRY PMWP     464  OS2386
+WinIsWPDServerReady                         DLL APIENTRY PMWP     465  OS2386
+WinIsSOMDDReady                             DLL APIENTRY PMWP     480  OS2386
+WinSetFileIcon                              DLL APIENTRY PMWP     210  OS2386
+WinSetFileIconN                             DLL APIENTRY PMWP          OS2386
+WinFreeFileIcon                             DLL APIENTRY PMWP     216  OS2386
+WinLoadFileIcon                             DLL APIENTRY PMWP     209  OS2386
+WinLoadFileIconN                            DLL APIENTRY PMWP          OS2386
+WinStoreWindowPos                           DLL APIENTRY PMWP     207  OS2386
+WinRestoreWindowPos                         DLL APIENTRY PMWP     208  OS2386
+WinShutdownSystem                           DLL APIENTRY PMWP     149  OS2386
