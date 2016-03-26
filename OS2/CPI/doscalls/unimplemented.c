@@ -1040,32 +1040,6 @@ APIRET APIENTRY DosFreeResource(PVOID pb)
 }
 
 
-APIRET APIENTRY      DosSetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosUnsetExceptionHandler(PEXCEPTIONREGISTRATIONRECORD pERegRec)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosRaiseException(PEXCEPTIONREPORTRECORD pexcept)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosUnwindException(PEXCEPTIONREGISTRATIONRECORD phandler,
-                                        PVOID pTargetIP,
-                                        PEXCEPTIONREPORTRECORD pERepRec)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      DosQueryPageUsage(void)
 {
   return unimplemented(__FUNCTION__);
@@ -1174,19 +1148,6 @@ APIRET APIENTRY      DosSetDOSProperty(void)
 }
 
 
-APIRET APIENTRY      DosSetSignalExceptionFocus(BOOL32 flag,
-                                                PULONG pulTimes)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosSendSignalException(PID apid,
-                                            ULONG exception)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      DosEnterMustComplete(PULONG pulNesting)
 {
   return unimplemented(__FUNCTION__);
@@ -1241,16 +1202,10 @@ APIRET APIENTRY      DosQueryCtryInfo(void)
 //APIRET APIENTRY      DosQueryDBCSEnv(void)
 
 
-APIRET APIENTRY      DosMapCase(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosMapCase(void)
 
 
-APIRET APIENTRY      DosQueryCollate(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosQueryCollate(void)
 
 
 APIRET APIENTRY      DosMakeNmPipe(void)
