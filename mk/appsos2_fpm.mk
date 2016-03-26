@@ -3,4 +3,7 @@
 
 !include $(%ROOT)/mk/appsos2_pm.mk
 
+ADD_COPT     =        $(ADD_COPT) &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pm
+
 !endif
