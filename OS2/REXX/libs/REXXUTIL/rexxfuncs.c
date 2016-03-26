@@ -50,6 +50,9 @@
 /*                                                                            */
 /******************************************************************************/
 
+#define  INCL_BASE
+#include <os2.h>
+
 #include <stdlib.h>
 #include <string.h>
 

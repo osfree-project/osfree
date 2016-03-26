@@ -65,6 +65,8 @@
 #define INCL_WINWORKPLACE
 #define INCL_WINPOINTERS
 
+#define  INCL_BASE
+#define  INCL_PMWP
 #include <os2.h>
 #include <stdio.h>
 #include <stdlib.h>

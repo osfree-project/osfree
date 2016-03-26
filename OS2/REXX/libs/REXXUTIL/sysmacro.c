@@ -55,6 +55,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define  INCL_BASE
+#include <os2.h>
+
 #include <rexxdefs.h>  // rexxsaa.h include in this header
 
 RexxFunctionHandler SysAddRexxMacro;

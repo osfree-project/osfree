@@ -10,6 +10,7 @@ OPT         = -d0 -oteanx
 
 PROJ        = rexxutil
 DESC        = REXX Utilities API
+# UNI2H       = 1
 ADD_COPT    = -i=$(MYDIR) -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
 ADD_LINKOPT =
 DLL         = 1
