@@ -11,6 +11,7 @@ DESC        = REXX Socket interface
 ADD_COPT    = -dUSE_OS2REXX -dHAVE_CONFIG_H -i=$(MYDIR) -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
 ADD_LINKOPT = #lib libuls.lib, libconv.lib
 DLL         = 1
+# UNI2H       = 1
 DLLOPT      = initinstance
 OPTIONS     = manyautodata
 STACKSIZE   = 0x20000
