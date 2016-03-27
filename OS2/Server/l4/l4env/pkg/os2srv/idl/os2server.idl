@@ -34,7 +34,7 @@ interface os2server
     void   dos_Exit ([in] ULONG action, 
                      [in] ULONG result);
 
-    [allow_reply_only]				
+    [allow_reply_only]
     APIRET dos_ExecPgm ([in, out, ref,
                         size_is(cbObjname),
                         prealloc_client,
@@ -72,19 +72,6 @@ interface os2server
 		       prealloc_client,
 		       prealloc_server] char **arCP);
 
-    APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum, 
-                                [out] ULONG *plogical);
-			       
-    APIRET dos_QueryCurrentDir ([in] ULONG disknum,   
-                                [out, prealloc_server,
-				prealloc_client,
-				ref, size_is(pcbBuf)] char **pBuf, 
-		                [in, out] ULONG *pcbBuf);
-
-    APIRET dos_SetCurrentDir([in, string] char *pszDir);
-
-    APIRET dos_SetDefaultDisk ([in] ULONG disknum);
-
     /* gets a process info block (PIB)
      * for the current process. The data structure is returned as a single dataspace,
      * the adresses are based from the start of the dataspace.
@@ -97,9 +84,18 @@ interface os2server
      */
     APIRET dos_GetTIB([out] l4dm_dataspace_t *ds);
 
-    /* scan the environment */
-    APIRET dos_ScanEnv([in, string] char *pszName,
-                       [out, string,
-		       prealloc_client,
-		       prealloc_server] char **ppszValue);
+    APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum);
+
+    APIRET dos_QueryCurrentDir ([in] ULONG disknum,
+                                [in] ULONG logical,
+                                [out, ref,
+				prealloc_client,
+                                prealloc_server,
+				size_is(pcbBuf)] char **pBuf,
+				[in, out] ULONG *pcbBuf);
+
+    APIRET dos_SetCurrentDir([in, string] char *pszDir);
+
+    APIRET dos_SetDefaultDisk ([in] ULONG disknum,
+                               [in] ULONG logical);
 };

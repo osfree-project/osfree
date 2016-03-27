@@ -253,13 +253,14 @@ unsigned int get_imp_name_size(struct r32_rlc * rlc) {
         /* Gets the size of field ord1_entry (target offset), variable size. */
         /* SRC  FLAGS  SRCOFF/CNT1  ORD(ENTRY)#1  ADDITIVE1,2 ... */
 int get_ord1_entry_size(struct r32_rlc * rlc) {
-        if((rlc->nr_flags & NRSSEG) != NRSSEG) {
-                if((rlc->nr_flags & NR32BITOFF) == NR32BITOFF)  /* 16 bitars entry fixup. */
-                        return 2;
-                else
-                        return 1;   /* 16 bit */
-        }
-        return 0;     /* Not avalable. */
+        //if((rlc->nr_flags & NRSSEG) != NRSSEG) {
+                //if((rlc->nr_flags & NR32BITOFF) == NR32BITOFF)  /* 16 bitars entry fixup. */
+                //        return 2;
+                //else
+                //        return 1;   /* 16 bit */
+        //}
+        //return 0;     /* Not avalable. */
+        return 2;
 }
 /*
                               Fixup Record Table
@@ -487,8 +488,8 @@ int get_reloc_size_rlc(struct r32_rlc * rlc) {
         int reloc_size = 0;
 
         if((rlc->nr_stype & NRCHAIN) == NRCHAIN) { /* Calculate size of source list offsets. */
-                int count1 = get_srcoff_cnt1_rlc(rlc);
-                reloc_size = count1 * 2;
+          int count1 = get_srcoff_cnt1_rlc(rlc);
+          reloc_size = count1 * 2;
         }
 
         if((rlc->nr_flags & NRRTYP) == NRRINT) { /*1*/
@@ -497,17 +498,17 @@ int get_reloc_size_rlc(struct r32_rlc * rlc) {
           return reloc_size;
         }
 
-        if((rlc->nr_flags & NRRORD) == NRRORD) { /*1*/
+        if((rlc->nr_flags & NRRTYP) == NRRORD) { /*1*/
           reloc_size += get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
           get_mod_ord1_size(rlc)+ get_imp_ord1_size(rlc)+get_additive_size(rlc);
           return reloc_size;
         }
-        if((rlc->nr_flags & NRRNAM) == NRRNAM) { /*2*/
+        if((rlc->nr_flags & NRRTYP) == NRRNAM) { /*2*/
           reloc_size += get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
           get_mod_ord1_size(rlc)+ get_imp_name_size(rlc)+get_additive_size(rlc);
           return reloc_size;
         }
-        if((rlc->nr_flags & NRRENT) == NRRENT) { /*3*/
+        if((rlc->nr_flags & NRRTYP) == NRRENT) { /*3*/
           reloc_size += get_SRC_FLAGS_size()  + get_srcoff_cnt1_size(rlc)+
           get_ord1_entry_size(rlc)+get_additive_size(rlc);
           return reloc_size;

@@ -27,7 +27,7 @@ void io_printf(const char* chrFormat, ...)
     va_list arg_ptr;
 
     va_start (arg_ptr, chrFormat);
-    vprintf(chrFormat, arg_ptr);
+    LOG_vprintf(chrFormat, arg_ptr);
     va_end (arg_ptr);
 }
 

@@ -73,12 +73,14 @@ struct name
   char *string;
 };
 
-extern struct types {
+struct types {
         const char *name;       // Name of config.sys command
         const char sep; // Not used so far, perhaps I will delete it
         struct name *sp;              // Pointer to the content
         int ip;         // Number of elements in the arrays
-} type[];
+};
+
+extern struct types type[];
 
 // Function prototypes
 unsigned long CfgInitOptions(void);

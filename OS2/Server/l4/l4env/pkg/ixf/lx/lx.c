@@ -29,7 +29,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule);
 unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
                                 struct o32_obj * lx_obj, int *ret_rc);
 int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
-                                struct o32_obj * lx_obj, int *ret_rc);
+                                struct o32_obj * lx_obj, int *ret_rc, unsigned long *fixup_counter);
 void dump_header_mz(struct exe hdr);
 void dump_header_lx(struct e32_exe hdr);
 
@@ -450,7 +450,8 @@ unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
 
       switch(min_rlc->nr_flags & NRRTYP)
       {
-        case NRRINT :
+        case NRRINT:
+        case NRRENT:
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
         case NRRORD:
@@ -466,8 +467,9 @@ unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
           break;
           }
 
-        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
-                 return 0; /* Is there any OS/2 error number for this? */
+        default:
+          io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
+          return 0; /* Is there any OS/2 error number for this? */
       } /* switch(fixup_source) */
     } /* while(fixup_offset < pg_end_offs_fix) { */
   }
@@ -478,7 +480,7 @@ unsigned long calc_imp_fixup_obj_lx(struct LX_module * lx_exe_mod,
 unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
 {
   unsigned long int i;
-  unsigned long ret_rc;
+  unsigned long ret_rc, fixup_counter;
 
   ixfModule->cbFixups=0;
 
@@ -499,20 +501,22 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
   ixfModule->Fixups=malloc(ixfModule->cbFixups*sizeof(IXFFIXUPENTRY));
 
   /* Fill table... */
+  fixup_counter = 0;
   for(i=1; i<=get_obj_num((struct LX_module *)(ixfModule->FormatStruct)); i++)
   {
     struct o32_obj * obj = get_obj((struct LX_module *)(ixfModule->FormatStruct), i);
     if(obj != 0)
-      /*ixfModule->cbFixups +=*/ convert_imp_fixup_obj_lx(ixfModule, obj, (int *)&ret_rc);
+      /*ixfModule->cbFixups +=*/ convert_imp_fixup_obj_lx(ixfModule, obj, (int *)&ret_rc, &fixup_counter);
   }
 
 
- return 0; /* NO_ERROR */
+  return 0; /* NO_ERROR */
 }
 
 /* Applies fixups for an object. Returns true(1) or false(0) to show status.*/
 int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
-                                struct o32_obj * lx_obj, int *ret_rc)
+                                struct o32_obj * lx_obj, int *ret_rc,
+                                unsigned long *fixup_counter)
 {
   struct LX_module * lx_exe_mod;
 
@@ -551,9 +555,9 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
   int startpage = lx_obj->o32_pagemap;
   int lastpage  = lx_obj->o32_pagemap + lx_obj->o32_mapsize;
   //UCHAR uchLoadError[CCHMAXPATH] = {0}; /* Error info from DosExecPgm */
-  unsigned long fixup_counter;
+  //unsigned long fixup_counter;
 
-  fixup_counter=0;
+  //fixup_counter=0;
   lx_exe_mod=(struct LX_module *)(ixfModule->FormatStruct);
 
   //io_printf("--------------------Listing fixup data ------------------------- %p\n", lx_obj);
@@ -600,9 +604,49 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
 
       switch(min_rlc->nr_flags & NRRTYP)
       {
-        case NRRINT : /* Skip internal */
+        case NRRINT: /* Skip internal */
+        case NRRENT:
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
+        //case NRRENT:
+          //{ /* Internal entry table import */
+            //io_printf("mess4e1\n");
+            //mod_nr = get_mod_ord1_rlc(min_rlc); // Request module number
+            //io_printf("mess4e2\n");
+            //import_ord = get_imp_ord1_rlc(min_rlc); // Request ordinal number
+            //io_printf("mess4e3\n");
+            //srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
+            //io_printf("mess4e4\n");
+            //addit = get_additive_rlc(min_rlc);
+            //io_printf("mess4e3\n");
+
+            //mod_name = (char*)&buf_mod_name;
+
+            /* Get name of imported module. */
+            //io_printf("mess4e6\n");
+            //org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
+            //io_printf("mess4e7\n");
+            //copy_pas_str(mod_name, org_mod_name);
+
+            //ixfModule->Fixups[fixup_counter].SrcVmAddress = ixfModule->Entries[mod_nr].Address;
+            //io_printf("mess4e4\n");
+            //ixfModule->Fixups[fixup_counter].SrcAddress = ixfModule->Entries[mod_nr].Address;
+            //io_printf("mess4e5\n");
+            //ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName=ixfModule->Entries[mod_nr].FunctionName;
+            //io_printf("mess4e6\n");
+            //mod_name = ixfModule->Entries[mod_nr].ModuleName;
+            //io_printf("mess4e7: mod_name=%s\n", mod_name);
+            //ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
+            //io_printf("mess4e8\n");
+            //strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName, mod_name);
+            //io_printf("mess4e9\n");
+            //ixfModule->Fixups[fixup_counter].ImportEntry.Ordinal=ixfModule->Entries[mod_nr].Ordinal;
+            //fixup_counter++;
+            //io_printf("mess4e7\n");
+          //}
+          //fixup_offset += get_reloc_size_rlc(min_rlc);
+          //io_printf("mess4e8\n");
+          //break;
         case NRRORD:
           {/* Import by ordinal */
             /* Indata: lx_exe_mod, min_rlc */
@@ -619,13 +663,13 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
 
 
 //   io_printf("page=%x", vm_start_of_page);
-            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName=NULL;
-            ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
-            strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName, mod_name);
-            ixfModule->Fixups[fixup_counter].ImportEntry.Ordinal=(void *)import_ord;
-            fixup_counter++;
+            ixfModule->Fixups[*fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[*fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[*fixup_counter].ImportEntry.FunctionName=NULL;
+            ixfModule->Fixups[*fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
+            strcpy(ixfModule->Fixups[*fixup_counter].ImportEntry.ModuleName, mod_name);
+            ixfModule->Fixups[*fixup_counter].ImportEntry.Ordinal=(void *)import_ord;
+            (*fixup_counter) ++;
 
 
           }
@@ -648,21 +692,22 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
             org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
             copy_pas_str(mod_name, org_mod_name);
 
-            ixfModule->Fixups[fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
-            ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName = malloc(strlen(import_name)+1);
-            strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.FunctionName, import_name);
-            ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
-            strcpy(ixfModule->Fixups[fixup_counter].ImportEntry.ModuleName, mod_name);
-            ixfModule->Fixups[fixup_counter].ImportEntry.Ordinal=0;
-            fixup_counter++;
+            ixfModule->Fixups[*fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[*fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
+            ixfModule->Fixups[*fixup_counter].ImportEntry.FunctionName = malloc(strlen(import_name)+1);
+            strcpy(ixfModule->Fixups[*fixup_counter].ImportEntry.FunctionName, import_name);
+            ixfModule->Fixups[*fixup_counter].ImportEntry.ModuleName=malloc(strlen(mod_name)+1);
+            strcpy(ixfModule->Fixups[*fixup_counter].ImportEntry.ModuleName, mod_name);
+            ixfModule->Fixups[*fixup_counter].ImportEntry.Ordinal=0;
+            (*fixup_counter) ++;
 
           }
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
 
-        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
-                 return 0; /* Is there any OS/2 error number for this? */
+        default:
+          io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
+          return 0; /* Is there any OS/2 error number for this? */
       } /* switch(fixup_source) */
     } /* while(fixup_offset < pg_end_offs_fix) { */
   }

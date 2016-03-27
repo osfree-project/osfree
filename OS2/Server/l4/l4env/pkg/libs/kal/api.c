@@ -541,6 +541,7 @@ kalExit(ULONG action, ULONG result)
   LOG("action=%u", action);
   LOG("result=%u", result);
   os2server_dos_Exit_send(&os2srv, action, result, &env);
+  LOG("dos_Exit exited");
   // tell L4 task server that we want to terminate
   //l4_ipc_sleep(L4_IPC_NEVER);
   l4ts_exit();
@@ -555,7 +556,8 @@ kalQueryCurrentDisk(PULONG pdisknum,
   CORBA_Environment env = dice_default_environment;
   int rc;
   STKIN
-  rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, plogical, &env);
+  rc = os2fs_get_drivemap_call(&fs, plogical, &env);
+  rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, &env);
   LOG("*pdisknum=%u", *pdisknum);
   LOG("*logical=%x", *plogical);
   STKOUT
@@ -579,9 +581,11 @@ kalSetDefaultDisk(ULONG disknum)
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
+  ULONG map;
   STKIN
   LOG("disknum=%u", disknum);
-  rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, &env);
+  rc = os2fs_get_drivemap_call(&fs, &map, &env);
+  rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, map, &env);
   STKOUT
   return rc;
 }
@@ -593,10 +597,12 @@ kalQueryCurrentDir(ULONG disknum,
 {
   CORBA_Environment env = dice_default_environment;
   int rc;
+  ULONG map;
   char buf[0x100];
   STKIN
   LOG("disknum=%u", disknum);
-  rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, &pBuf, pcbBuf, &env);
+  rc = os2fs_get_drivemap_call(&fs, &map, &env);
+  rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, map, &pBuf, pcbBuf, &env);
   strncpy(buf, pBuf, *pcbBuf);
   buf[*pcbBuf] = '\0';
   LOG("dir=%s", buf);
@@ -957,14 +963,11 @@ kalExecPgm(char *pObjname,
     i = strlstlen(pArg);
 
   if (pEnv == NULL)
-  {
-    pEnv = "\0\0";
-    j = 2;
-  }
-  else
-    j = strlstlen(pEnv);
-  
+    pEnv = ppib->pib_pchenv;
+
+  j = strlstlen(pEnv);
   l = strlstlen(pArg);
+  
   LOG("pArg len=%d", l);
   LOG("pEnv len=%d", strlstlen(pEnv));
   LOG("pArg=%x", (unsigned)pArg);

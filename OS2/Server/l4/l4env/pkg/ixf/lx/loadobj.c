@@ -271,6 +271,65 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
 
 
 
+/* Internal Entry Table Fixup*/
+void apply_internal_entry_table_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rlc, unsigned long int vm_start_of_page)
+{
+#if 0
+  int offs_to_entry_tbl;
+  struct b32_bundle *entry_table_start;
+  struct b32_bundle *entry_table;
+  char              *cptr_ent_tbl;
+  unsigned long int i_cptr_ent_tbl;
+  unsigned long     i, ordinal;
+
+  /* Offset to Entry Table inside the Loader Section. */
+  offs_to_entry_tbl = lx_exe_mod->lx_head_e32_exe->e32_enttab - lx_exe_mod->lx_head_e32_exe->e32_objtab;
+  entry_table_start = (struct b32_bundle *) &lx_exe_mod->loader_section[offs_to_entry_tbl];
+  entry_table       = entry_table_start;
+  cptr_ent_tbl      = &lx_exe_mod->loader_section[offs_to_entry_tbl];
+
+  ordinal   = get_mod_ord1_rlc(min_rlc);
+  cbEntries = 1;
+
+  while (entry_table->b32_cnt)
+  {
+    switch (entry_table->b32_type)
+    {
+      case EMPTY:
+        cptr_ent_tbl += UNUSED_ENTRY_SIZE;
+        entry_table  = (struct b32_bundle *)cptr_ent_tbl;
+        cbEntries    += entry_table->b32_cnt;
+        break;
+      case ENTRYFWD:
+      case ENTRY32:
+        cptr_ent_tbl   = (char*)entry_table;
+        cptr_ent_tbl   += ENTRY_HEADER_SIZE;
+        i_cptr_ent_tbl = (unsigned long)cptr_ent_tbl;
+        
+        vm_start_target_obj = target_object->o32_reserved;
+        //vm_start_target_obj = target_object->o32_base;
+        
+        /* Get address of target offset and put in source offset. */
+        vm_target = vm_start_target_obj + get_imp_ord1_rlc(min_rlc)/*trgoffs*/;
+        vm_source = vm_start_of_page + (void *)((struct e32_entry *)(i_cptr_ent_tbl))->e32_variant.e32_offset.offset32 +
+            get_obj(lx_mod, entry_table->b32_obj)->o32_base;
+        
+        
+        break;
+      default:
+        io_printf("Invalid entry type! %d, entry table %p\n",
+                  entry_table->b32_type, entry_table);
+        return; /* Invalid entry */
+    }
+
+    
+  }
+  cbEntries--;
+
+#endif
+}
+
+
 
 /* Applies fixups for an object. Returns true(1) or false(0) to show status.*/
 int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
@@ -354,8 +413,12 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
 
       switch(min_rlc->nr_flags & NRRTYP)
       {
-        case NRRINT :
+        case NRRINT:
           apply_internal_fixup(lx_exe_mod, min_rlc, vm_start_of_page);
+          fixup_offset += get_reloc_size_rlc(min_rlc);
+          break;
+        case NRRENT:
+          apply_internal_entry_table_fixup(lx_exe_mod, min_rlc, vm_start_of_page);
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
         case NRRORD:
@@ -459,8 +522,9 @@ int do_fixup_obj_lx(struct LX_module * lx_exe_mod,
           fixup_offset += get_reloc_size_rlc(min_rlc);
           break;
 
-        default: io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
-                 return 0; /* Is there any OS/2 error number for this? */
+        default:
+          io_printf("Unsupported Fixup! SRC: 0x%x \n", fixup_source);
+          return 0; /* Is there any OS/2 error number for this? */
       } /* switch(fixup_source) */
     } /* while(fixup_offset < pg_end_offs_fix) { */
   }

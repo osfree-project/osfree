@@ -337,13 +337,25 @@ struct r32_rlc * get_fixup_rec_tbl_obj(struct LX_module * lx_mod, int offs){
 /* Get's a name (pascal string) from Import Module Table at index in mod_idx.*/
 char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx)
 {
-  char * mod_name;
+  char * mod_name, *p;
   long i;
 
   int offs_mod_table = lx_mod->lx_head_e32_exe->e32_impmod -
                      lx_mod->lx_head_e32_exe->e32_fpagetab;
 
   mod_name=(&lx_mod->fixup_section[offs_mod_table]);
+
+  io_printf("mex3: mod_idx=%u, mod_name=", mod_idx);
+
+  for (p = mod_name; *p; p++)
+  {
+    if (*p < 9)
+      io_printf("%c", *p + 0x30);
+    else
+      io_printf("%c", *p);
+  }
+
+  io_printf("\n");
 
   for (i=0;
        i!=(mod_idx-1);

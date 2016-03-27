@@ -476,7 +476,8 @@ unsigned long LoadModule(char *          pszName,
       LOG("loading %s", name);
       rc = LoadModule(chLoadError, sizeof(chLoadError), (unsigned long *)&hmod);
       if (!rc) LOG("load successful");
-    
+
+    
       if (rc)
       {
         LOG("Error loading module: %s", name);
@@ -735,7 +736,7 @@ unsigned long ModInitialize(void)
 
   ixf->name  = (char *)malloc(4);
   strcpy(ixf->name, "DL");
-  
+  
   ixf->Load  = NULL;
   ixf->Fixup = NULL;
   ixf->FormatStruct = NULL;
@@ -901,7 +902,7 @@ struct module_rec * ModRegister(const char * name,
   struct module_rec * new_mod;
   struct module_rec * prev;
   int    t, n = 0;
-  
+  
   new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
 
   if (!(t = getrec(name, &prev)) && exeflag)
@@ -1349,12 +1350,12 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
   struct module_rec *prev;
 
   // Link module (import table resolving)
-  for (imports_counter=1;
-       imports_counter<ixfModule->cbFixups+1;
+  for (imports_counter=0;
+       imports_counter<ixfModule->cbFixups;
        imports_counter++)
   {
-    LOG("Import entry %d of %d",imports_counter, ixfModule->cbFixups);
-    LOG("Module=%s", ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName);
+    LOG("Import entry %d of %d",imports_counter + 1, ixfModule->cbFixups);
+    LOG("Module=%s", ixfModule->Fixups[imports_counter].ImportEntry.ModuleName);
 
     prev = (struct module_rec *) module_root.next;
     while(prev)
@@ -1364,7 +1365,7 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
       //if (!strcasecmp(name, "EMXWRAP"))
       //  strcpy(name, "SUB32");
 
-      if (!strcasecmp(ixfModule->Fixups[imports_counter-1].ImportEntry.ModuleName, prev->mod_name))
+      if (!strcasecmp(ixfModule->Fixups[imports_counter].ImportEntry.ModuleName, prev->mod_name))
       {
         if(prev->load_status == LOADING)
         {
@@ -1377,25 +1378,25 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
     }
     // @todo use handles here
     *phmod=(unsigned long)prev->module_struct;
-    LOG("%s.%d", ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal);
+    LOG("%s.%d", ixfModule->Fixups[imports_counter].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter].ImportEntry.Ordinal);
     ModQueryProcAddr(*phmod,
-                     ixfModule->Fixups[imports_counter-1].ImportEntry.Ordinal,
-                     ixfModule->Fixups[imports_counter-1].ImportEntry.FunctionName,
-                     &(ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
+                     ixfModule->Fixups[imports_counter].ImportEntry.Ordinal,
+                     ixfModule->Fixups[imports_counter].ImportEntry.FunctionName,
+                     &(ixfModule->Fixups[imports_counter].ImportEntry.Address));
 
     if (options.debugmodmgr)
     {
-      //LOG("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter-1].SrcAddress) , (ixfModule->Fixups[imports_counter-1].ImportEntry.Address));
+      LOG("src=%x, dst=%x\n",(ixfModule->Fixups[imports_counter].SrcAddress) , (ixfModule->Fixups[imports_counter].ImportEntry.Address));
     }
 
     /* Is the EXE module placed under the DLL module in memory? */
-    if((ixfModule->Fixups[imports_counter-1].SrcAddress) < (ixfModule->Fixups[imports_counter-1].ImportEntry.Address))
-      relative_jmp = (unsigned long)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address) - (unsigned long)(ixfModule->Fixups[imports_counter-1].SrcAddress)-4;
+    if((ixfModule->Fixups[imports_counter].SrcAddress) < (ixfModule->Fixups[imports_counter].ImportEntry.Address))
+      relative_jmp = (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address) - (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress)-4;
     else
-      relative_jmp = 0xffffffff-((unsigned long)(ixfModule->Fixups[imports_counter-1].SrcAddress) - (unsigned long)(ixfModule->Fixups[imports_counter-1].ImportEntry.Address))-3;
+      relative_jmp = 0xffffffff-((unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress) - (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address))-3;
 
-    LOG("jmp=%x=%x", (unsigned long)(ixfModule->Fixups[imports_counter-1].SrcAddress), relative_jmp);
-    *((unsigned long *) ixfModule->Fixups[imports_counter-1].SrcVmAddress) = relative_jmp;
+    LOG("jmp=%x=%x", (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress), relative_jmp);
+    *((unsigned long *) ixfModule->Fixups[imports_counter].SrcVmAddress) = relative_jmp;
   }
 }
 

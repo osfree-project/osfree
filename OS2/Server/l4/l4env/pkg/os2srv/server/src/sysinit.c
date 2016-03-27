@@ -27,11 +27,15 @@ extern l4_threadid_t sysinit_id;
 // use events server
 extern char use_events;
 
-void exec_runserver(void);
-void executeprotshell(cfg_opts *options);
-int exec_run_call(void);
+void exec_runserver(int ppid);
+void exec_protshell(cfg_opts *options);
+int exec_run_call(int ppid);
 int sysinit (cfg_opts *options);
 
+void create_env(char **pEnv);
+void destroy_env(char *pEnv);
+
+char *basename(char *cmdline);
 char *skipto (int flag, char *s);
 char *getcmd (char *s);
 
@@ -66,11 +70,73 @@ skipto (int flag, char *s)
   return s;
 }
 
-void executeprotshell(cfg_opts *options)
+void create_env(char **pEnv)
 {
-  int rc;
+  int  i, j, cntVars = 0;
+  char **envp = NULL;
+  int  bufsize = 0;
 
-  rc = PrcExecuteModule(NULL, 0, EXEC_SYNC, "", "", NULL, options->protshell, 0);
+  // create global environment array
+  for (i = 0; i < 5; i++)
+  {
+    if (!strcmp(type[i].name, "SET"))
+    {
+      cntVars = type[i].ip;
+      envp = (char **)malloc((cntVars + 1) * sizeof(char *));
+
+      for (j = 0; j < cntVars; j++)
+      {
+        envp[j] = type[i].sp[j].string;
+        bufsize += strlen(envp[j]) + 1;
+      }
+
+      envp[cntVars] = NULL;
+    }
+  }
+
+  // create environment buffer
+  *pEnv = (char *)malloc(bufsize);
+  bufsize = 0;
+
+  // copy the global environment
+  for (j = 0; j < cntVars; j++)
+  {
+    strcpy(*pEnv + bufsize, envp[j]);
+    bufsize += strlen(envp[j]) + 1;
+  }
+
+  (*pEnv)[bufsize] = '\0';
+  free(envp);
+}
+
+void destroy_env(char *pEnv)
+{
+  free(pEnv);
+}
+
+char *basename(char *cmdline)
+{
+  char *p;
+
+  if ((p = strchr(cmdline, ' ')))
+    cmdline[p - cmdline] = '\0';
+
+  return cmdline;
+}
+
+void exec_protshell(cfg_opts *options)
+{
+  int  rc;
+
+  rc = PrcExecuteModule(NULL,
+                        0,
+                        EXEC_SYNC,
+                        NULL,                 // pArgs
+                        NULL,                 // pEnv
+                        NULL,
+                        options->protshell,
+                        0);
+
   if (rc != NO_ERROR) 
     io_printf("Error execute: %d ('%s')", rc, options->protshell);
 
@@ -81,15 +147,16 @@ void executeprotshell(cfg_opts *options)
 }
 
 void
-exec_runserver(void)
+exec_runserver(int ppid)
 {
   int  i, j;
-  char *s, *p, *name;
+  char *s, *p, *q, *name;
   char params[] = "";
   char server[0x20];
   char *srv, *to;
   int  timeout = 30000;
   l4_threadid_t tid;
+  struct t_os2process *proc; // server PTDA/proc
   
   for (i = 0; i < 5; i++)
   {
@@ -103,8 +170,21 @@ exec_runserver(void)
 	p = getcmd (s);
 	s = skipto(0, s);
 
+        q = strdup(p);
+
+        // create proc/PTDA structure
+        proc = PrcCreate(ppid,      // ppid
+                         basename(q), // pPrg
+                         NULL,      // pArg
+                         NULL);     // pEnv
+
+        free(q);
+
 	l4_exec (p, params, &tid);
         io_printf("started task: %x.%x", tid.id.task, tid.id.lthread);
+
+        /* set task number */
+        proc->task = tid;
 
         if (strstr(p, "os2fs"))
 	{
@@ -141,7 +221,7 @@ exec_runserver(void)
   return;
 }
 
-int exec_run_call(void)
+int exec_run_call(int ppid)
 {
   return 0;
 }
@@ -152,37 +232,47 @@ int sysinit (cfg_opts *options)
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
   l4events_nr_t event_nr = L4EVENTS_NO_NR;
   l4events_event_t event;
+  char   *env;
   APIRET rc;
 
+  // create global environment
+  create_env(&env);
+
   // Create the sysinit process PTDA structure (pid == ppid == 0)
-  proc = PrcCreate(0, "sysinit", "", "");
+  proc = PrcCreate(0,         // ppid
+                   "sysinit", // pPrg
+                   NULL,      // pArg
+                   env);      // pEnv
+
   /* set task number */
   sysinit_id = l4_myself();
   proc->task = sysinit_id;
-  /* assign params and environment */
-  //PrcSetArgsEnv("sysinit", "", "", proc);
 
   if (!names_register("os2srv.sysinit"))
-    io_printf("error registering on the name server");
+    io_printf("error registering on the name server\n");
 
   /* Start servers */
-  exec_runserver();
+  exec_runserver(proc->pid);
 
   /* Start run=/call= */
-  exec_run_call();
+  exec_run_call(proc->pid);
  
   // Check PROTSHELL statement value
   if (!options->protshell || !*(options->protshell))
   {
-    io_printf("No PROTSHELL statement in CONFIG.SYS");
+    io_printf("No PROTSHELL statement in CONFIG.SYS\n");
     rc = ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
   } else {
-    executeprotshell(options);
+    exec_protshell(options);
     rc = 0; /* NO_ERROR */
   }
 
+  io_printf("sem wait\n");
+
   if (!rc) // wait until child process (protshell) terminates (this will unblock us)
     l4semaphore_down(&proc->term_sem);
+
+  io_printf("done waiting\n");
 
   if (use_events) // use events server
   {
@@ -195,13 +285,21 @@ int sysinit (cfg_opts *options)
     l4events_get_ack(&event_nr, L4_IPC_NEVER);
   }
 
+  io_printf("event notification sent\n");
+
   // unregister at names
   if (!names_unregister_task(sysinit_id))
-      io_printf("Cannot unregister at name server!");
+      io_printf("Cannot unregister at name server!\n");
 
-  io_printf("OS/2 Server ended");
+  // destroy proc/PTDA
+  PrcDestroy(proc);
+
+  // destroy global environment
+  destroy_env(env);
+
+  io_printf("OS/2 Server ended\n");
   // terminate OS/2 Server
   exit(rc);
 
-  return rc;  
+  return rc;
 }

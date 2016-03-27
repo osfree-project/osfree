@@ -40,6 +40,8 @@
 #include "os2server-server.h"
 
 int attach_ds(l4dm_dataspace_t *ds, l4_uint32_t flags, l4_addr_t *addr);
+void *alloc_mem(int size, char *comment);
+void free_mem(void *addr);
 int strlstcpy(char *s1, char *s2);
 int strlstlen(char *p);
 
@@ -52,6 +54,52 @@ void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
 
 extern struct module_rec module_root; /* Root for module list.*/
+
+// allocate memory allocated via
+// region mapper and dataspace manager
+void *alloc_mem(int size, char *comment)
+{
+  l4_addr_t        addr = 0;
+  l4dm_dataspace_t ds;
+  int              rc;
+
+  /* allocate a dataspace of a given size */	 
+  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds);
+
+  if (rc < 0)
+    return 0;
+
+  /* attach it to our address space */
+  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *)&addr);
+
+  if (rc < 0)
+  {
+    io_printf("cannot attach ds");
+    return 0;
+  }
+
+  return (void *)addr;
+}
+
+// free memory allocated via 
+// region mapper and dataspace manager
+void free_mem(void *addr)
+{
+  l4dm_dataspace_t ds;
+  l4_addr_t     offset;
+  l4_size_t     size;
+  l4_threadid_t pager;
+  int           ret;
+
+  ret = l4rm_lookup_region(addr, (l4_addr_t *)&addr, &size, &ds,
+                     &offset, &pager);
+
+  if (ret != L4RM_REGION_DATASPACE)
+    return;
+
+  l4rm_detach(addr);
+  l4rm_area_release((l4_addr_t)addr);
+}
 
 /*ULONG     pib_ulpid;      Process identifier.
   ULONG     pib_ulppid;     Parent process identifier.
@@ -68,86 +116,51 @@ extern struct module_rec module_root; /* Root for module list.*/
 APIRET CDECL
 PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
 {
-  l4dm_dataspace_t ds;
-  l4_size_t size;
+  int size;
 
   PPIB pp;
-  char *s1, *s2, *s3;
+  char *s1, *s2, *s3, *s;
 
-  int  len, rc;
-  
-  /* get the caller proc structure */
-  //proc  = PrcGetProcL4(*_dice_corba_obj);
+  int  len1, len2, len3, len4;
 
-  /* info blocks */
-  //ppib  = proc->lx_pib;
-  
   /* total size of all info */
   size = sizeof(PIB);
-  
+
   // size of pEnv (a stringlist)
-  len   = strlstlen(env);
-  io_printf("env len: %d", len);
-  size += len;
-  
+  len1   = strlstlen(env);
+  io_printf("env len: %d", len1);
+  size += len1;
+
   // size of pPrg (a string)
-  len   = strlen(prg) + 1;
-  io_printf("prg len: %d", len);
-  size += len;
+  len2   = strlen(prg) + 1;
+  io_printf("prg len: %d", len2);
+  size += len2;
 
   // size of pArg (a stringlist)
-  len   = strlen(arg) + 1;
-  len  += strlen(arg + len) + 2;
-  io_printf("arg len: %d", len);
-  size += len; 
+  len3   = strlen(arg) + 1;
+  len4   = strlen(arg + len3) + 1;
+  io_printf("arg len: %d", len3);
+  size += len3 + len4;
 
-  /* allocate a dataspace of a given size */	 
-  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, "OS/2 app process info block", &ds);
+  // allocate memory for PIB
+  *addr = alloc_mem(size, "OS/2 app process info block");
 
-  if (rc < 0)
-    return ERROR_NOT_ENOUGH_MEMORY;
-    
-  /* attach it to our address space */
-  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *)addr);
-  
-  if (rc < 0)
-  {
-    io_printf("cannot attach ds");
-    return ERROR_ACCESS_DENIED;
-  }
-  
   pp = (PPIB) *addr;
-  //memmove(pp, ppib, sizeof(PIB));
 
   /* copy argv and envp */
   // pEnv
   s1 = (char *)pp + sizeof(PIB);
-  len = strlstcpy(s1, env);
-  io_printf("env len: %d", len);
+  strlstcpy(s1, env);
   // pPrg
-  s2 = s1 + len;
+  s2 = s1 + len1;
   strcpy(s2, prg);
-  io_printf("prg len: %d", strlen(s2) + 1);
   // pArg
-  s3 = s2 + strlen(s2) + 1;
-  strcpy(s3, arg);
-  len = strlen(s3) + 1;
-  strcpy(s3 + len, arg + len);
-  len += strlen(s3 + len) + 2;
-  io_printf("arg len: %d", len);
-
-  /* fixup addresses -- make them addr-based */
-  //s1 -= *addr;
-  //s3 -= *addr;
+  s3 = s2 + len2;
+  strlstcpy(s3, arg);
 
   pp->pib_pchenv = s1;
   pp->pib_pchcmd = s3;
 
-  //pp  = (char *)pp - *addr; 
-
-  /* detach the dataspace */
-  //l4rm_detach(*addr);
-  
   return NO_ERROR;
 }
 
@@ -157,64 +170,22 @@ PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
 APIRET CDECL
 PrcCreateTIB(PTIB *addr)
 {
-  l4dm_dataspace_t ds;
   l4_size_t size;
 
   PTIB   pt;
   PTIB2  pt2;
 
-  int   rc;
-
-  /* get the caller proc structure */
-  //proc  = PrcGetProcL4(*_dice_corba_obj);
-
-  //ptib  = proc->main_tib; // @todo: fix for non-main threads!
-  //ptib2 = proc->main_tib->tib_ptib2;
-
   /* total size of all info */
   size = sizeof(TIB) + sizeof(TIB2);
 
-  /* allocate a dataspace of a given size */	 
-  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, "OS/2 app thread info block", &ds);
+  // allocate memory for TIB
+  *addr = alloc_mem(size, "OS/2 thread process info block");
 
-  if (rc < 0)
-    return ERROR_NOT_ENOUGH_MEMORY;
-
-  io_printf("ds id: %u", ds.id);
-  io_printf("ds mgr id: %u.%u", ds.manager.id.task, ds.manager.id.lthread);
-    
-  /* attach it to our address space */
-  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *) addr);
-  
-  if (rc < 0)
-  {
-    io_printf("cannot attach ds");
-    return ERROR_ACCESS_DENIED;
-  }
-
-  io_printf("ds attached at addr: %lx", (ULONG)*addr);
-  
   pt = (PTIB)(*addr);
-  //memmove(pt, ptib, sizeof(TIB));
   pt2 = (PTIB2)((char *)*addr + sizeof(TIB));
-  //memmove(pt2, ptib2, sizeof(TIB2));
 
-  //pt2 = (char *)pt2 - *addr;
   pt->tib_ptib2 = pt2;
-  //pt  = (char *)pt - *addr;
 
-  /* share the dataspace with client */
-  //rc = l4dm_share(ds, *_dice_corba_obj, L4DM_RW);
-
-  //if (rc)
-  //{
-  //    io_printf("cannot share ds");
-  //    return ERROR_ACCESS_DENIED;
-  //}
-
-  /* detach the dataspace */
-  //l4rm_detach(*addr);
-  
   return NO_ERROR;
 }
 
@@ -265,6 +236,13 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
       //c->session = 
     }
 
+    // if pEnv is NULL, then use parent pEnv
+    if (!pEnv || !*pEnv)
+      pEnv = parentproc->lx_pib->pib_pchenv;
+
+    if (!pArg)
+      pArg = "";
+
     //c->lx_pib   = (PPIB) malloc(sizeof(PIB));
     //c->main_tib = (PTIB) malloc(sizeof(TIB));
     //c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
@@ -281,9 +259,6 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
     c->lx_pib->pib_ulppid = ppid;
     c->lx_pib->pib_hmte = 0; // (ULONG) (struct LX_module *)(ixfModule->FormatStruct);
 
-    //c->lx_pib->pib_pchcmd = "";
-    //c->lx_pib->pib_pchenv = "";
-
     //init_memmgr(&c->root_mem_area); /* Initialize the memory registry. */
     /* Registrate base invalid area. */
     //alloc_mem_area(&c->root_mem_area, (void*) 1, 0xfffd);
@@ -293,22 +268,20 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
 }
 
 
-void PrcDestroy(struct t_os2process * proc) {
+void PrcDestroy(struct t_os2process *proc) {
     struct t_os2process *prev, *next;
 
     prev = proc->prev;
     next = proc->next;
-    
+
     if (prev) 
       prev->next = next;
-      
+
     if (next)
       next->prev = prev;
-      
-    free(proc->lx_pib->pib_pchenv);
-    //free(proc->lx_pib->pib_pchcmd);
-    free(proc->lx_pib);
-    free(proc->main_tib);
+
+    free_mem(proc->lx_pib);
+    free_mem(proc->main_tib);
     free(proc);
 }
 
@@ -352,6 +325,7 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
   return NULL;
 }
 
+#if 0
 APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 {
   struct t_os2process *parentproc;
@@ -423,7 +397,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
     {
       int  n = type[3].ip;
       char *s;
-    
+
       envlen = 0;
 
       /* get a sum of all strings lengths */
@@ -432,9 +406,9 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
           envlen += strlen(type[3].sp[i].string) + 1;
       /* count the ending NULL */
       envlen++;
-      
+
       env = (char *)malloc(envlen + arglen + k + 1);
-      
+
       if (!env)
       {
         io_printf("malloc: not enough memory!");
@@ -494,6 +468,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 
     return NO_ERROR;
 }
+#endif
 
 /* is called by os2app, and notifies os2srv
    about some module parameters got from execsrv */
@@ -861,6 +836,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   #define buf_size 4096
   char buf[buf_size+1];
   char *p_buf = (char *)buf;
+  char *s;
 
   /* Starts to execute the process. */
   if (options.debugprcmgr) io_printf("Executing exe...");
@@ -877,6 +853,10 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
   else
     strcpy(p_buf, pName);
+
+  // convert to upper case
+  for (s = p_buf; *s; s++)
+      *s = toupper(*s);
 
   /* create process structure */
   proc = PrcCreate(ppid, p_buf, pArg, pEnv);

@@ -13,6 +13,7 @@
 //#include <l4/sys/types.h>
 #include <l4/semaphore/semaphore.h>
 #include <l4/thread/thread.h>
+#include <l4/generic_ts/generic_ts.h>
 //#include <l4/dm_mem/dm_mem.h>
 //#include <l4/l4rm/l4rm.h>
 
@@ -59,203 +60,6 @@ struct DosExecPgm_params {
 
 void os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm);
 
-APIRET CV
-os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
-                                          ULONG *pdisknum /* out */,
-                                          ULONG *plogical /* out */,
-                                          CORBA_srv_env *_srv_env)
-{
-  CORBA_Environment env = default_env;
-  ULONG n;
-  struct t_os2process *proc;
-  io_printf("1");
-
-  proc = PrcGetProcL4(*obj);
-  
-  io_printf("2");
-  n = proc->curdisk;
-  *pdisknum = n;
-
-  // get drive map from fs server  
-  io_printf("os2fs tid: %x.%x", fs.id.task, fs.id.lthread);
-  os2fs_get_drivemap_call(&fs, plogical, &env);
-  //*plogical = 1 << (n - 1);
-  io_printf("3");
-
-  return 0; /* NO_ERROR */
-}
-
-
-APIRET CV
-os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
-                                         ULONG disknum /* in */,
-                                         char **pBuf /* out */,
-                                         ULONG *pcbBuf /* out */,
-                                         CORBA_srv_env *_srv_env)
-{
-  //CORBA_Environment env = default_env;
-  ULONG disk, map;
-  struct t_os2process *proc;
-  //struct I_Fs_srv *fs_srv;
-  char buf[0x100];
-  char *curdir = buf;
-  //char drv;
-  //int i;
-
-  io_printf("1");
-  proc = PrcGetProcL4(*obj);
-  curdir = proc->curdir;
-
-  io_printf("2");
-  if (!disknum)
-    os2server_dos_QueryCurrentDisk_component(obj, &disk, &map, _srv_env);
-  else
-    disk = disknum;
-
-  io_printf("3");
-
-  if (!((1 << (disk - 1)) & map))
-    return 15; /* ERROR_INVALID_DRIVE */
-
-  io_printf("5");
-  if (!*pcbBuf)
-  {
-    io_printf("6");
-    *pcbBuf = strlen(curdir) + 1;
-    return 0; /* NO_ERROR */
-  }
-  else
-  {
-    io_printf("7");
-    strncpy(*pBuf, curdir, *pcbBuf);
-    return 0; /* NO_ERROR */
-  }
-
-  return 0; /* NO_ERROR */
-}
-
-/* changes the current directory in '*dir'
-   by one path component in 'component' */
-int cdir(char **dir, char *component)
-{
-  char *p;
-
-  if (!strcmp(component, ".."))
-  {
-    if (**dir)
-    {
-      p = *dir + strlen(*dir);
-
-      // find last backslash position
-      while (p >= *dir && *p != '\\') p--;
-      if (p < *dir) p++;
-      *p = '\0';
-    }
-    return 0; /* NO_ERROR */  
-  }
-
-  if (!strcmp(component, "."))
-    return 0;
-
-  if (*component != '\\')
-  {
-    if (**dir)
-      strcat(*dir, "\\");
-
-    strcat(*dir, component);
-  }
-  else
-    strcpy(*dir, component);
-
-  return 0;
-}
-
-APIRET CV
-os2server_dos_SetCurrentDir_component (CORBA_Object obj,
-                                       PCSZ pszDir /* in */,
-                                       CORBA_srv_env *_srv_env)
-{
-  //CORBA_Environment env = default_env;
-  struct t_os2process *proc;
-  //ULONG disknum;
-  char str[0x100];
-  char buf[0x100];
-  char *s = buf;
-  char *p, *q, *r;
-
-  proc = PrcGetProcL4(*obj);
-
-  if (proc == NULL)
-      return ERROR_INVALID_PROCID;
-
-  s = proc->curdir;
-
-  if (pszDir == NULL)
-  {
-    *s = '\0';
-    return NO_ERROR;
-  }
-
-  p = q = (char *)pszDir;
-
-  for (r = p; *r; r++)
-    if (*r == '/')
-      *r = '\\';
-
-  if (!strcmp(pszDir, "\\"))
-  {
-    *s = '\0';
-    return NO_ERROR;
-  }
-
-  do
-  {
-    p = strstr(p, "\\");
-
-    if (p)
-    {
-      strncpy(str, q, p - q);
-      str[p - q] = '\0';
-      p++;
-    }
-    else
-      strcpy(str, q);
-
-    cdir(&s, str);
-    q = p;
-  }
-  while (p);
-
-  return NO_ERROR;
-}
-
-APIRET CV
-os2server_dos_SetDefaultDisk_component (CORBA_Object obj,
-                                        ULONG disknum /* in */,
-                                        CORBA_srv_env *_srv_env)
-{
-  CORBA_Environment env = default_env;
-  struct t_os2process *proc;
-  ULONG  map;
-
-  io_printf("0");
-  proc = PrcGetProcL4(*obj);
-
-  // get drive map from fs server  
-  os2fs_get_drivemap_call(&fs, &map, &env);
-
-  io_printf("1");
-  if (!((1 << (disknum - 1)) & map))
-    return ERROR_INVALID_DRIVE;
-
-  io_printf("map=%lx", map);
-  io_printf("2");
-  proc->curdisk = disknum;
-
-
-  return NO_ERROR;
-}
-
 void CV
 os2server_dos_Exit_component(CORBA_Object obj,
                              ULONG action, ULONG result,
@@ -263,6 +67,7 @@ os2server_dos_Exit_component(CORBA_Object obj,
 {
   unsigned long ppid;
   struct t_os2process *proc, *parentproc;  
+  //int t;
 
   // get caller t_os2process structure
   proc = PrcGetProcL4(*obj);
@@ -273,24 +78,24 @@ os2server_dos_Exit_component(CORBA_Object obj,
   //else
   //    io_printf("task killed");
 
-  io_printf("0");
+  io_printf("0\n");
   // get parent pid
   ppid = proc->lx_pib->pib_ulppid;
-  io_printf("1");
+  io_printf("1\n");
   // get parent proc
   parentproc = PrcGetProc(ppid);
   if (!parentproc)
   {
-    io_printf("parent proc is 0");
+    io_printf("parent proc is 0\n");
     return;
   }
   // unblock parent thread
   if (ppid || l4_thread_equal(parentproc->task, sysinit_id))
     l4semaphore_up(&parentproc->term_sem);
-  io_printf("4");
+  io_printf("semaphore unblock\n");
   // destroy calling thread's proc
   PrcDestroy(proc);
-  io_printf("6");
+  io_printf("proc destroy\n");
 
   return;
 }
@@ -306,48 +111,56 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   char *p;
   int  i, l;
 
-  io_printf("worker start");
+  io_printf("worker start\n");
   /* get caller t_os2process structure */
   proc = parm->proc;
  
   l = strlstlen(parm->pArg);
-  io_printf("pArg len=%ld", (ULONG)l);
-  io_printf("pEnv len=%ld", (ULONG)strlstlen(parm->pEnv));
+  io_printf("pArg len=%ld\n", (ULONG)l);
+  io_printf("pEnv len=%ld\n", (ULONG)strlstlen(parm->pEnv));
 
-  io_printf("pArg=%lx", (ULONG)parm->pArg);
+  io_printf("pArg=%lx\n", (ULONG)parm->pArg);
   
   for (i = 0, p = parm->pArg; i < l; i++)
     if (p[i])
-      io_printf("%c", p[i]);
+      io_printf("%c\n", p[i]);
     else
-      io_printf("\\0");
- 
-  io_printf("begin exec");
+      io_printf("\\0\n");
+
+  io_printf("pEnv=%lx\n", (ULONG)parm->pEnv);
+  
+  for (i = 0, p = parm->pEnv; i < l; i++)
+    if (p[i])
+      io_printf("%c\n", p[i]);
+    else
+      io_printf("\\0\n");
+
+  io_printf("begin exec\n");
   /* try executing the new task */
   rc =  PrcExecuteModule(parm->pObjname, parm->cbObjname, parm->execFlag,
                          parm->pArg, parm->pEnv, parm->pRes, parm->pName, proc->pid);
-  io_printf("end exec");
+  io_printf("end exec\n");
 
   /* if child execution is synchronous
      and it is started successfully, 
      block until it terminates */
-  io_printf("term wait");
+  io_printf("term wait\n");
   if (!rc && parm->execFlag == EXEC_SYNC)
     l4semaphore_down(&proc->term_sem);
-  io_printf("done waiting");    
+  io_printf("done waiting\n");    
   /* notify the server loop to return API result */
-  io_printf("0");
-  io_printf("pRes=%lx", (ULONG)parm->pRes);
-  io_printf("pObjname=%lx",  (ULONG)parm->pObjname);
-  io_printf("cbObjname=%lx", (ULONG)parm->cbObjname);
+  io_printf("0\n");
+  io_printf("pRes=%lx\n", (ULONG)parm->pRes);
+  io_printf("pObjname=%lx\n",  (ULONG)parm->pObjname);
+  io_printf("cbObjname=%lx\n", (ULONG)parm->cbObjname);
   os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, parm->pObjname, 
                                     parm->cbObjname, parm->pRes, rc, &env);
-  io_printf("1");
+  io_printf("1\n");
   /* free our parameters structure */
   free(parm->pArg);
   free(parm->pEnv);
   free(parm);
-  io_printf("worker terminate");
+  io_printf("worker terminate\n");
   /* terminate the worker thread */
   l4thread_exit();
 }
@@ -362,15 +175,15 @@ os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
                             int result /* in */,
                             CORBA_srv_env *_srv_env)
 {
-  io_printf("111");
-  io_printf("pRes=%lx", (ULONG)pRes);
-  io_printf("pObjname=%lx", (ULONG)pObjname);
-  io_printf("cbObjname=%lx", (ULONG)cbObjname);
-  io_printf("pRes->codeTerminate=%lx", (ULONG)pRes->codeTerminate);
-  io_printf("pRes->codeResult=%lx", (ULONG)pRes->codeResult);
+  io_printf("111\n");
+  io_printf("pRes=%lx\n", (ULONG)pRes);
+  io_printf("pObjname=%lx\n", (ULONG)pObjname);
+  io_printf("cbObjname=%lx\n", (ULONG)cbObjname);
+  io_printf("pRes->codeTerminate=%lx\n", (ULONG)pRes->codeTerminate);
+  io_printf("pRes->codeResult=%lx\n", (ULONG)pRes->codeResult);
   os2server_dos_ExecPgm_reply ((l4_cap_idx_t *)job, result, (char **)&pObjname, 
 			       (long *)&cbObjname, (struct _RESULTCODES *)pRes, _srv_env);
-  io_printf("b");
+  io_printf("b\n");
 }
 
 APIRET CV
@@ -580,40 +393,205 @@ os2server_dos_QueryCp_component (CORBA_Object obj,
 }
 
 APIRET CV
-os2server_dos_ScanEnv_component (CORBA_Object obj,
-                                 PCSZ pszName /* in */,
-                                 PSZ *ppszValue /* out */,
-                                 CORBA_srv_env *_srv_env)
+os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
+                                          ULONG *pdisknum /* out */,
+                                          //ULONG logical /* in */,
+                                          CORBA_srv_env *_srv_env)
 {
+  //CORBA_Environment env = dice_default_environment;
+  ULONG n;
   struct t_os2process *proc;
-  char varname[256];
-  char *env;
-  char *p, *q;
-  int  i;
+  io_printf("aaa1\n");
 
-  /* Get the caller process structure   */
   proc = PrcGetProcL4(*obj);
-  /* get application environment */
-  env  = proc->lx_pib->pib_pchenv;  
   
-  /* search for needed env variable */
-  for (p = env; *p; p += strlen(p) + 1)
-  {
-    // move until '=' sign is encountered
-    for (i = 0, q = p; *q && *q != '=' && i < 256; q++, i++) ;
-    
-    /* copy to name buffer  */
-    strncpy(varname, p, i);
-    /* add ending zero byte */
-    varname[i] = '\0';
+  io_printf("aaa2: proc=%lx\n", (ULONG)proc);
+  n = proc->curdisk;
+  io_printf("aaa3: n=%lx\n", n);
+  *pdisknum = n;
+  io_printf("aaa4\n");
 
-    if (!strcasecmp(varname, pszName))
-    {
-      /* variable found */
-      strcpy(*ppszValue, q + 1);
-      return 0; /* NO_ERROR */
-    }
+  // get drive map from fs server  
+  io_printf("os2fs tid: %x.%x\n", fs.id.task, fs.id.lthread);
+  //os2fs_get_drivemap_call(&fs, &logical, &env);
+  //*plogical = 1 << (n - 1);
+  io_printf("aaa5\n");
+
+  return 0; /* NO_ERROR */
+}
+
+
+APIRET CV
+os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
+                                         ULONG disknum /* in */,
+                                         ULONG logical /* in */,
+                                         char **pBuf /* out */,
+                                         ULONG *pcbBuf /* out */,
+                                         CORBA_srv_env *_srv_env)
+{
+  //CORBA_Environment env = dice_default_environment;
+  ULONG disk;
+  struct t_os2process *proc;
+  //struct I_Fs_srv *fs_srv;
+  char buf[0x100];
+  char *curdir = buf;
+  //char drv;
+  //int i;
+
+  io_printf("bbb1\n");
+  proc = PrcGetProcL4(*obj);
+  curdir = proc->curdir;
+
+  io_printf("bbb2\n");
+  if (!disknum)
+  {
+    disk = proc->curdisk;
+    //os2fs_get_drivemap_call(&fs, &map, &env);
   }
-  
-  return 203; /* ERROR_ENVVAR_NOT_FOUND */
+  else
+    disk = disknum;
+
+  io_printf("bbb3: disk=%lx\n", disk);
+
+  if (!((1 << (disk - 1)) & logical))
+    return 15; /* ERROR_INVALID_DRIVE */
+
+  io_printf("bbb5\n");
+  if (*pcbBuf < strlen(curdir) + 1)
+    return ERROR_BUFFER_OVERFLOW;
+  else
+  {
+    io_printf("bbb6\n");
+    *pcbBuf = strlen(curdir) + 1;
+    io_printf("bbb7\n");
+    strcpy(*pBuf, curdir);
+    io_printf("bbb8\n");
+    return NO_ERROR;
+  }
+
+  io_printf("bbb9\n");
+  return 0; /* NO_ERROR */
+}
+
+/* changes the current directory in '*dir'
+   by one path component in 'component' */
+int cdir(char **dir, char *component)
+{
+  char *p;
+
+  if (!strcmp(component, ".."))
+  {
+    if (**dir)
+    {
+      p = *dir + strlen(*dir);
+
+      // find last backslash position
+      while (p >= *dir && *p != '\\') p--;
+      if (p < *dir) p++;
+      *p = '\0';
+    }
+    return 0; /* NO_ERROR */  
+  }
+
+  if (!strcmp(component, "."))
+    return 0;
+
+  if (*component != '\\')
+  {
+    if (**dir)
+      strcat(*dir, "\\");
+
+    strcat(*dir, component);
+  }
+  else
+    strcpy(*dir, component);
+
+  return 0;
+}
+
+APIRET CV
+os2server_dos_SetCurrentDir_component (CORBA_Object obj,
+                                       PCSZ pszDir /* in */,
+                                       CORBA_srv_env *_srv_env)
+{
+  //CORBA_Environment env = dice_default_environment;
+  struct t_os2process *proc;
+  //ULONG disknum;
+  char str[0x100];
+  char buf[0x100];
+  char *s = buf;
+  char *p, *q, *r;
+
+  proc = PrcGetProcL4(*obj);
+
+  if (proc == NULL)
+      return ERROR_INVALID_PROCID;
+
+  s = proc->curdir;
+
+  if (pszDir == NULL)
+  {
+    *s = '\0';
+    return NO_ERROR;
+  }
+
+  p = q = (char *)pszDir;
+
+  for (r = p; *r; r++)
+    if (*r == '/')
+      *r = '\\';
+
+  if (!strcmp(pszDir, "\\"))
+  {
+    *s = '\0';
+    return NO_ERROR;
+  }
+
+  do
+  {
+    p = strstr(p, "\\");
+
+    if (p)
+    {
+      strncpy(str, q, p - q);
+      str[p - q] = '\0';
+      p++;
+    }
+    else
+      strcpy(str, q);
+
+    cdir(&s, str);
+    q = p;
+  }
+  while (p);
+
+  return NO_ERROR;
+}
+
+APIRET CV
+os2server_dos_SetDefaultDisk_component (CORBA_Object obj,
+                                        ULONG disknum /* in */,
+                                        ULONG logical /* in */,
+                                        CORBA_srv_env *_srv_env)
+{
+  //CORBA_Environment env = dice_default_environment;
+  struct t_os2process *proc;
+  //ULONG  map;
+
+  io_printf("0");
+  proc = PrcGetProcL4(*obj);
+
+  // get drive map from fs server
+  //os2fs_get_drivemap_call(&fs, &map, &env);
+
+  io_printf("1");
+  if (!((1 << (disknum - 1)) & logical))
+    return ERROR_INVALID_DRIVE;
+
+  io_printf("map=%lx", logical);
+  io_printf("2");
+  proc->curdisk = disknum;
+
+
+  return NO_ERROR;
 }
