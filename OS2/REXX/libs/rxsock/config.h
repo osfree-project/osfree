@@ -45,11 +45,14 @@
 /* Define if linking with uni-REXX.  */
 #undef USE_UNIREXX
 
-/* Define if you have the getopt function.  */
-#undef HAVE_GETOPT
+/* Define if linking with OS/2 Classic Rexx.  */
+#define USE_OS2REXX 1
 
 /* Define if you have the getopt function.  */
-#undef HAVE_GETHOSTID
+#define HAVE_GETOPT 1
+
+/* Define if you have the getopt function.  */
+#define HAVE_GETHOSTID 1
 
 /* Define if you have the strerror function.  */
 #undef HAVE_STRERROR
@@ -127,4 +130,10 @@
 #define HAVE_NETDB_H 1
 
 /* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 1
+
+#define HAVE_IO_H 1
+
+#define HAVE_TCPUSTD_H 1
+
+#define HAVE_TYPES_H 1

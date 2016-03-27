@@ -194,11 +194,12 @@ int r2c_sockaddr_in(SOCKADDR_IN *newValue, PRXSTRING rx) {
     * REXX!
     * All implementations set the length of shvvalue.strptr in
     * shvvaluelen, except when shvret == RXSHV_TRUNC
+    */
    for (rc = 0; rc < 3; rc++) {
       if (query[rc].shvret != RXSHV_TRUNC)
          query[rc].shvvalue.strlength = query[rc].shvvaluelen;
    }
-    */
+    
 
    /* Zero out the sin_zero of newValue. */
    memset(newValue->sin_zero, 0, sizeof(newValue->sin_zero));

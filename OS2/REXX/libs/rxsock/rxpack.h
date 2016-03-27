@@ -31,6 +31,10 @@
 # include <ctype.h>
 #endif
 
+#ifdef HAVE_TYPES_H
+# include <types.h>
+#endif
+
 #ifdef HAVE_STDLIB_H
 # include <stdlib.h>
 #endif
@@ -81,6 +85,10 @@
 
 #ifdef HAVE_IO_H
 # include <io.h>
+#endif
+
+#ifdef HAVE_TCPUSTD_H
+# include <tcpustd.h>
 #endif
 
 /*

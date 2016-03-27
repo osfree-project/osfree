@@ -8,46 +8,45 @@ OPT         = -d0 -oteanx
 
 PROJ        = rxsock
 DESC        = REXX Socket interface
-ADD_COPT    = -dUSE_OS2REXX -dHAVE_CONFIG_H -i=$(MYDIR) -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
+ADD_COPT    = -dDYNAMIC -dHAVE_CONFIG_H -i=$(MYDIR) -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
 ADD_LINKOPT = #lib libuls.lib, libconv.lib
 DLL         = 1
 # UNI2H       = 1
-DLLOPT      = initinstance
+DLLOPT      = initinstance terminstance
 OPTIONS     = manyautodata
 STACKSIZE   = 0x20000
 
 srcfiles    = $(p)conversions$(e) $(p)getopt$(e) $(p)loader$(e) $(p)rxpack$(e) $(p)rxsock$(e)
 EXPORTS     = &
-        SockLoadFuncs.1       = SockLoadFuncs, &
-        SockAccept, &
-        SockBind, &
-        SockClose, &
-        SockConnect, &
-        SockDropFuncs, &
-        SockGetHostByAddr, &
-        SockGetHostByName, &
-        SockGetHostId, &
-        SockGetPeerName, &
-        SockGetSockName, &
-        SockGetSockOpt, &
-        SockInit, &
-        SockIoctl, &
-        SockListen, &
-        SockLoadFuncs, &
-        SockPSock_Errno, &
-        SockRecv, &
-        SockRecvFrom, &
-        SockSelect, &
-        SockSend, &
-        SockSendTo, &
-        SockSetSockOpt, &
-        SockShutDown, &
-        SockSock_Errno, &
-        SockSocket, &
-        SockSoClose, &
-        SockVersion, &
-        SockVariable, &
-        RxsockVersion
+        SOCKACCEPT.1          = SockAccept, &
+        SOCKBIND.2            = SockBind, &
+        SOCKCLOSE.3           = SockClose, &
+        SOCKCONNECT.4         = SockConnect, &
+        SOCKDROPFUNCS.5       = SockDropFuncs, &
+        SOCKGETHOSTBYADDR.6   = SockGetHostByAddr, &
+        SOCKGETHOSTBYNAME.7   = SockGetHostByName, &
+        SOCKGETHOSTID.8       = SockGetHostId, &
+        SOCKGETPEERNAME.9     = SockGetPeerName, &
+        SOCKGETSOCKNAME.10    = SockGetSockName, &
+        SOCKGETSOCKOPT.11     = SockGetSockOpt, &
+        SOCKINIT.12           = SockInit, &
+        SOCKIOCTL.13          = SockIoctl, &
+        SOCKLISTEN.14         = SockListen, &
+        SOCKPSOCK_ERRNO.15    = SockPSock_Errno, &
+        SOCKRECV.16           = SockRecv, &
+        SOCKRECVFROM.17       = SockRecvFrom, &
+        SOCKSELECT.18         = SockSelect, &
+        SOCKSEND.19           = SockSend, &
+        SOCKSENDTO.20         = SockSendTo, &
+        SOCKSETSOCKOPT.21     = SockSetSockOpt, &
+        SOCKSHUTDOWN.22       = SockShutDown, &
+        SOCKSOCK_ERRNO.23     = SockSock_Errno, &
+        SOCKSOCKET.24         = SockSocket, &
+        SOCKSOCLOSE.25        = SockSoClose, &
+        SOCKVERSION.26        = SockVersion, &
+        RXSOCKVERSION.27      = RxsockVersion, &
+        SOCKVARIABLE.28       = SockVariable, &
+        SOCKLOADFUNCS.29      = SockLoadFuncs
 
 # missing!
 #        SockFunctionGateWay.2 = SockFunctionGateWay

@@ -237,7 +237,7 @@ typedef CHAR *PCH;
 #  define RFH_ARG3_TYPE        PSZ
 #  define RFH_ARG4_TYPE        PRXSTRING
 #  define RRFE_ARG0_TYPE       PSZ
-#  define RRFE_ARG1_TYPE       PFN
+#  define RRFE_ARG1_TYPE       RexxFunctionHandler *
 #  define RRFD_ARG0_TYPE       PSZ
 #  define RRFD_ARG1_TYPE       PSZ
 #  define RRFD_ARG2_TYPE       PSZ
