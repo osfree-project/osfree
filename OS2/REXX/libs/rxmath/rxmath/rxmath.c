@@ -76,7 +76,7 @@ static int setresult(char * str, double dbl, int argc, PRXSTRING argv)
    return sprintf(str, "%.*g", precision, dbl);
 }
 
-static rxfunc(mathfunc1)
+rxfunc(mathfunc1)
 {
     struct funclist * theFunc;
     char * arg;
@@ -98,7 +98,7 @@ static rxfunc(mathfunc1)
 
 }
 
-static rxfunc(trigfunc1)
+rxfunc(trigfunc1)
 {
     struct funclist * theFunc;
     double argval;
@@ -150,7 +150,7 @@ static rxfunc(trigfunc1)
 
 }
 
-static rxfunc(trigfunc2)
+rxfunc(trigfunc2)
 {
     struct funclist * theFunc;
     double res;
@@ -274,6 +274,7 @@ rxfunc(mathloadfuncs)
        fflush(stdout);
     }
 
+#ifndef DYNAMIC
     for (i = 0; i < DIM(funclist); i++) {
 	RexxRegisterFunctionExe(funclist[i].name, funclist[i].funcptr);
     }
@@ -289,6 +290,23 @@ rxfunc(mathloadfuncs)
     for (i = 0; i < DIM(mathfuncs); i++) {
 	RexxRegisterFunctionExe(mathfuncs[i].name, mathfunc1);
     }
+#else
+    for (i = 0; i < DIM(funclist); i++) {
+	RexxRegisterFunctionDll(funclist[i].name, "rxmath", funclist[i].name);
+    }
+
+    for (i = 0; i < DIM(trigfuncs); i++) {
+	RexxRegisterFunctionDll(trigfuncs[i].name, "rxmath", trigfuncs[i].name);
+    }
+
+    for (i = 0; i < DIM(trigresults); i++) {
+	RexxRegisterFunctionDll(trigresults[i].name, "rxmath", trigresults[i].name);
+    }
+
+    for (i = 0; i < DIM(mathfuncs); i++) {
+	RexxRegisterFunctionDll(mathfuncs[i].name, "rxmath", mathfuncs[i].name);
+    }
+#endif
 
     result_zero();
 

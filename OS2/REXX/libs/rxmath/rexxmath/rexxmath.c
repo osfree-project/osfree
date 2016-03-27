@@ -208,6 +208,7 @@ rxfunc(mathloadfuncs)
 
     checkparam(0,0);
 
+#ifndef DYNAMIC
     for (i = 0; i < DIM(funclist); i++) {
 	RexxRegisterFunctionExe(funclist[i].name, funclist[i].funcptr);
     }
@@ -215,6 +216,15 @@ rxfunc(mathloadfuncs)
     for (i = 0; i < DIM(mathfuncs); i++) {
 	RexxRegisterFunctionExe(mathfuncs[i].name, mathfunc1);
     }
+#else
+    for (i = 0; i < DIM(funclist); i++) {
+	RexxRegisterFunctionDll(funclist[i].name, "rexxmath", funclist[i].name);
+    }
+
+    for (i = 0; i < DIM(mathfuncs); i++) {
+	RexxRegisterFunctionDll(mathfuncs[i].name, "rexxmath", mathfuncs[i].name);
+    }
+#endif
 
     result_zero();
 
