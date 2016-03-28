@@ -3,7 +3,7 @@
 PROJ = rexxapi
 DESC = REXX API forwarder for Regina
 srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e)
-ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -sg -of+
+ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -i=$(PATH) -sg -of+
 ADD_LINKOPT  = segment   type DATA nonshared lib clib3r.lib,math387r.lib,emu387.lib
 DLL          = 1
 DLLOPT       = initinstance
@@ -69,4 +69,16 @@ EXPORTS      = &
 
 DEST         = os2$(SEP)dll
 
+# number of 16-bit subcommand wrappers (see rexxapi16.c)
+NUMWRAP = 1024
+
+.h: $(PATH)
+
+all: $(PATH)wrappers.h
+
 !include $(%ROOT)/mk/appsos2_cmd.mk
+
+$(PATH)rexxapi16.obj: $(PATH)wrappers.h
+
+$(PATH)wrappers.h:
+ $(REXX) genwrap.cmd $(NUMWRAP) >$^@

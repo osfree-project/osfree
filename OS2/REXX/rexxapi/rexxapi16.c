@@ -246,27 +246,11 @@ APIRET APIENTRY Subcom_wrapper32(
     return Subcom_wrapper32(cmd, flags, retstr, sub[N]); \
   }
 
-// 32-bit handler wrappers pool
-SUBCOM_HANDLER(0)
-SUBCOM_HANDLER(1)
-SUBCOM_HANDLER(2)
-SUBCOM_HANDLER(3)
-SUBCOM_HANDLER(4)
-SUBCOM_HANDLER(5)
-SUBCOM_HANDLER(6)
-SUBCOM_HANDLER(7)
-SUBCOM_HANDLER(8)
-SUBCOM_HANDLER(9)
-SUBCOM_HANDLER(10)
-SUBCOM_HANDLER(11)
-SUBCOM_HANDLER(12)
-SUBCOM_HANDLER(13)
-SUBCOM_HANDLER(14)
-SUBCOM_HANDLER(16)
+#include <wrappers.h>
 
 PVOID sethand(PSUBCOM hand)
 {
-  int  i  = 1;
+  int  i  = 0;
   void *p = NULL;
 
   // find first free array element
@@ -277,8 +261,8 @@ PVOID sethand(PSUBCOM hand)
 
   sub[i] = hand;
 
-  p = (PVOID)(((ULONG)&Subcom_Handler2 - (ULONG)&Subcom_Handler1) * (i - 1) + 
-              (ULONG)&Subcom_Handler1);
+  p = (PVOID)(((ULONG)&Subcom_Handler1 - (ULONG)&Subcom_Handler0) * i + 
+              (ULONG)&Subcom_Handler0);
 
   return p;
 }
