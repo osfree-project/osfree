@@ -1,6 +1,9 @@
 #ifndef _ixfmgr_h_
 #define _ixfmgr_h_
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
 
 // @todo replace visible structure and pointers with handles
 
@@ -56,7 +59,7 @@ typedef
     char * FunctionName;   // Name of function (NULL if none)
     void * Address;        // Address of function
     char * ModuleName;     // Name of module
-    char * Ordinal;        // Ordinal of function
+    int    Ordinal;        // Ordinal of function
   } IXFMODULEENTRY;
 
 
@@ -94,5 +97,8 @@ unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixf
 unsigned long IXFLoadModule(void * addr, unsigned long size, IXFModule * ixfModule);
 unsigned long IXFFixupModule(IXFModule * ixfModule);
 
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

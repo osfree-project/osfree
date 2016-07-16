@@ -74,4 +74,6 @@ int      mderegister(mmap_reg_t *pReg);
 #if defined (__cplusplus)
 }
 #endif
+
 #endif /* not _SYS_MMAN_H */
+

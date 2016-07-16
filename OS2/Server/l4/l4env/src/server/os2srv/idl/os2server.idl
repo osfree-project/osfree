@@ -1,0 +1,129 @@
+/* This file is part of osFree project */
+
+import <l4/os3/gcc_os2def.h>
+import <l4/os3/processmgr.h>
+import <l4/os3/loader.h>
+
+import <l4/semaphore/semaphore.h>
+
+interface os2server
+{
+    /* misc RPC calls */
+
+    /* notify os2srv about module params after os2app
+       loaded an OS/2 executable (needed to set data in PIB) */
+    void app_notify([in] os2exec_module_t *s);
+
+    /* get environment variable from config.sys */
+    APIRET cfg_getenv([in, string]  char *name,
+                      [out, string, 
+		      prealloc_client,
+		      prealloc_server] char **value);    
+		      
+    /* get configuration value from config.sys  */
+    APIRET cfg_getopt([in, string] char *name, /* parameter name */
+                      [out] int *is_int,         /* which [out] param contains value, value_int/value_str */ 
+                      [out] int *value_int,     /* int [out] value*/
+                      [out, string, 
+		      prealloc_client,
+		      prealloc_server] char **value_str); /* string [out] value */
+
+    /* CPAPI implementation in server      */
+    
+    [oneway]
+    void   dos_Exit ([in] ULONG action, 
+                     [in] ULONG result);
+
+    [allow_reply_only]
+    APIRET dos_ExecPgm ([in, out, ref,
+                        size_is(cbObjname),
+                        prealloc_client,
+			prealloc_server] char **pObjname,
+                        [in, out] long *cbObjname,
+		        [in] unsigned long execFlag,
+		        [in, size_is(arglen),
+			prealloc_server] char *pArg,
+			[in] l4_uint32_t arglen,
+		        [in, size_is(envlen),
+			prealloc_server] char *pEnv,
+			[in] l4_uint32_t envlen,
+		        [in, out] struct _RESULTCODES *pRes,
+		        [in, string] char *pName);
+
+    /* notify function for DosExecPgm */
+    void dos_ExecPgm_notify([in] l4_threadid_t job,
+                            [in, size_is(cbObjname),
+			    prealloc_client,
+			    prealloc_server] char *pObjname,
+			    [in] int cbObjname,
+			    [in] struct _RESULTCODES *pRes,
+                            [in] int result);
+
+    APIRET dos_Error ([in] ULONG error);
+    
+    APIRET dos_QueryDBCSEnv([in, out] ULONG *cb,
+                            [in] COUNTRYCODE *pcc,
+			    [in, out, ref, prealloc_server,
+                            prealloc_client,
+			    size_is(cb)] char **pBuf);
+
+    APIRET dos_QueryCp([in, out] ULONG *cb,
+                       [out, size_is(cb), ref,
+		       prealloc_client,
+		       prealloc_server] char **arCP);
+
+    /* gets a process info block (PIB)
+     * for the current process. The data structure is returned as a single dataspace,
+     * the adresses are based from the start of the dataspace.
+     */
+    APIRET dos_GetPIB([out] l4dm_dataspace_t *ds);
+
+    /* gets a thread info block (TIB)
+     * for the current thread. The data structure is returned as a single dataspace,
+     * the adresses are based from the start of the dataspace.
+     */
+    APIRET dos_GetTIB([out] l4dm_dataspace_t *ds);
+
+    APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum);
+
+    APIRET dos_QueryCurrentDir ([in] ULONG disknum,
+                                [in] ULONG logical,
+                                [out, ref,
+				prealloc_client,
+                                prealloc_server,
+				size_is(pcbBuf)] char **pBuf,
+				[in, out] ULONG *pcbBuf);
+
+    APIRET dos_SetCurrentDir([in, string] char *pszDir);
+
+    APIRET dos_SetDefaultDisk ([in] ULONG disknum,
+                               [in] ULONG logical);
+
+    APIRET dos_CreateEventSem ([in, string] char *pszName,
+                               [out] HEV *phev,
+                               [in]  ULONG flAttr,
+                               [in]  BOOL32 fState);
+
+    APIRET dos_OpenEventSem ([in, string] char *pszName,
+                             [in, out] HEV *phev);
+
+    APIRET dos_CloseEventSem ([in] HEV hev);
+
+    APIRET dos_GetTID([out] TID *ptid);
+
+    APIRET dos_GetPID([out] PID *ppid);
+
+    APIRET dos_GetL4ID([in] PID pid,
+                       [in] TID tid,
+                       [out] l4thread_t *id);
+
+    APIRET dos_GetTIDL4([in] l4_threadid_t id,
+                        [out] TID *ptid);
+
+    APIRET dos_NewTIB([in] PID pid,
+                      [in] TID tid,
+                      [in] l4thread_t id);
+
+    APIRET dos_DestroyTIB([in] PID pid,
+                          [in] TID tid);
+};

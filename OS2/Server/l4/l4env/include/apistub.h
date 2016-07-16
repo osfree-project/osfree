@@ -6,6 +6,10 @@
 #ifndef __APISTUB_H__
 #define __APISTUB_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/processmgr.h>
 
@@ -223,5 +227,9 @@ kalCreateEventSem(PSZ pszName,
                   PHEV phev,
 		  ULONG flags,
 		  BOOL32 fState);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

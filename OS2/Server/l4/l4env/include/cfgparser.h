@@ -1,3 +1,10 @@
+#ifndef __CFGPARSER_H__
+#define __CFGPARSER_H__
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 /* Structure containing some environment options. For more information*
  * see http://www.os2world.com/goran/cfgtool.htm for example.         */
 typedef struct {
@@ -88,3 +95,9 @@ unsigned long CfgParseLine(char line[], int len, int lineno);
 unsigned long CfgCleanup(void);
 unsigned long CfgParseConfig(void * addr, int size);
 unsigned long CfgGetenv(char *name, char **value);
+
+#ifdef __cplusplus
+  }
+#endif
+
+#endif

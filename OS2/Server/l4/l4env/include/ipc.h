@@ -1,6 +1,10 @@
 #ifndef __OS3_IPC_H__
 #define __OS3_IPC_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <dice/dice.h>
 
 #define CORBA_env       CORBA_Environment
@@ -10,5 +14,9 @@
 #define default_srv_env dice_default_server_environment
 
 #define CV              DICE_CV
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

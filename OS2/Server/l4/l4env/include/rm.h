@@ -1,7 +1,9 @@
 #ifndef __OS3_RM_H__
 #define __OS3_RM_H__
 
-#include <l4/l4rm/l4rm.h>
+#ifdef __cplusplus
+  extern "C" {
+#endif
 
 enum l4re_rm_flags_t {
   L4RE_RM_READ_ONLY    = 0x01, /**< \brief Region is read-only */
@@ -17,19 +19,28 @@ enum l4re_rm_flags_t {
   L4RE_RM_ATTACH_FLAGS = 0xf0, /**< \brief Mask of all attach flags */
 };
 
-L4_CV L4_INLINE int
-l4re_rm_attach(void **start, unsigned long size, unsigned long flags,
-               l4re_ds_t const mem, l4_addr_t offs,
-               unsigned char align);
+#include <l4/os3/dataspace.h>
 
-// implementation
+inline int
+l4os3_rm_attach(void **start, unsigned long size, unsigned long flags,
+                l4os3_ds_t mem, l4_addr_t offs,
+                unsigned char align);
 
-L4_CV L4_INLINE int
-l4re_rm_attach(void **start, unsigned long size, unsigned long flags,
-               l4re_ds_t const mem, l4_addr_t offs,
-               unsigned char align)
-{
-  return l4rm_attach(mem, size, offs, flags, start);
-}
+
+#if defined(L4API_l4v2)
+
+#include <l4/l4rm/l4rm.h>
+
+#elif defined(L4API_l4f)
+
+#include <l4/re/c/rm.h>
+
+#else
+#error "Not implemented!"
+#endif
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

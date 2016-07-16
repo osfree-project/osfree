@@ -5,6 +5,10 @@
 #ifndef __DL_H__
 #define __DL_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <gcc_os2def.h>
 
 /* DL.DLL functions      */
@@ -76,5 +80,9 @@ APIRET CDECL  DlRoute(ULONG handle, PSZ name, ...);
 #define KalSetRelMaxFH(pcbReqCount, pcbCurMaxFH)     DlRoute(0, "KalSetRelMaxFH", pcbReqCount, pcbCurMaxFH)
 #define KalSleep(ms)                                 DlRoute(0, "KalSleep",ms)
 #define KalWrite(hFile, pBuffer, cbWrite, pcbActual) DlRoute(0, "KalWrite", hFile, pBuffer, cbWrite, pcbActual)
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

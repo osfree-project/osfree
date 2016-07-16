@@ -99,6 +99,9 @@ typedef struct _TIB {
   PTIB2     tib_ptib2;        /*  Pointer to a system-specific thread information block. */
   ULONG     tib_version;      /*  Version number for this Thread Information Block. */
   ULONG     tib_ordinal;      /*  Thread ordinal number. */
+  // private fields:
+  ULONG       tib_eip_saved;
+  ULONG       tib_esp_saved;
 } TIB;
 
 typedef TIB *PTIB;
@@ -139,14 +142,16 @@ struct t_os2process {
 	int pid;
 
 #ifdef L4API_l4v2
-        l4semaphore_t term_sem;
+        l4semaphore_t term_sem; // child program termination wait semaphore
         l4_taskid_t task;
 #endif
-	ULONG term_code;
+	ULONG term_code; // termination code of last child program
         void *ip;
         void *sp;
         PPIB lx_pib;
-        PTIB main_tib;
+        //PTIB main_tib;
+        PTIB tib_array[128]; // array of pointers to TIB with (TID-1) index
+        char tid_array[128]; // array of l4thread ID's   with (TID-1) index
 	char curdisk;
 	char curdir[256];
         struct t_mem_area root_mem_area;
@@ -154,11 +159,19 @@ struct t_os2process {
         struct t_os2process *prev;
 };
 
+#define MAX_TID 128
+
 APIRET CDECL PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env);
 APIRET CDECL PrcCreateTIB(PTIB *addr);
 
+APIRET CDECL PrcNewTIB(PID pid, TID tid, l4thread_t id);
+APIRET CDECL PrcDestroyTIB(PID pid, TID tid);
+
 struct t_os2process *PrcGetProc(ULONG pid);
 struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
+
+TID PrcGetTIDL4(l4_threadid_t thread);
+l4thread_t PrcGetL4ID(PID pid, TID tid);
 
 // APIRET APIENTRY PrcCreate(IXFModule ixfModule,
 //                           struct t_os2process * process);

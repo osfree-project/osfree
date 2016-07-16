@@ -1,6 +1,10 @@
 #ifndef _MOUNTREG_H_
 #define _MOUNTREG_H_
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 struct I_Fs_srv {
     char *mountpoint;
     char *drive;
@@ -41,5 +45,9 @@ I_Fs_srv_t* FSRouter_route(struct FSRouter *s, char);
 void FSRouter_test(struct FSRouter *s);
 
 void FSRouter_init(struct FSRouter *s);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

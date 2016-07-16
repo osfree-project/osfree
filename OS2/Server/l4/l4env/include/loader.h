@@ -5,6 +5,10 @@
 
 #ifndef __OS2EXEC_LOADER_H__
 #define __OS2EXEC_LOADER_H__
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
  
 #include <l4/sys/types.h>
  
@@ -17,5 +21,9 @@ struct
   l4_uint32_t   hmod;
   char          path[0x100];
 } os2exec_module_t;
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

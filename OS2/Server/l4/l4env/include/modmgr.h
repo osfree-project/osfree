@@ -12,6 +12,10 @@
 #ifndef _modmgr_H_
 #define _modmgr_H_
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <l4/os3/exe.h>
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/exe386.h>
@@ -99,6 +103,10 @@ APIRET APIENTRY  DosQueryModFromEIP(HMODULE *phMod,
    #define HW_CFG_PENTIUM_CPU      0x00000040
 
 
+#endif
+
+#ifdef __cplusplus
+  }
 #endif
 
 #endif

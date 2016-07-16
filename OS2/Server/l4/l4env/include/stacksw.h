@@ -6,6 +6,10 @@
 #ifndef __STACK_SW__
 #define __STACK_SW__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 L4_INLINE unsigned long getstack(void);
 L4_INLINE void stackin(unsigned long new_stack);
 L4_INLINE void stackout(void);
@@ -56,6 +60,10 @@ stackout(void)
 #define STKINIT(a)
 #define STKIN
 #define STKOUT
+#endif
+
+#ifdef __cplusplus
+  }
 #endif
 
 #endif

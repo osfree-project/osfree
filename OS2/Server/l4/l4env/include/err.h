@@ -1,15 +1,16 @@
 #ifndef __OS3_ERR_H__
 #define __OS3_ERR_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <l4/env/errno.h>
 
-L4_CV char const *l4sys_errtostr(long err);
+char const *l4os3_errtostr(long err);
 
-// implementation
-
-L4_CV char const *l4sys_errtostr(long err)
-{
-  return l4env_errstr(err);
-}
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

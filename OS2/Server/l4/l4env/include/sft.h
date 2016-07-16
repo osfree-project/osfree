@@ -6,6 +6,10 @@
 #ifndef __SFT_H__
 #define __SFT_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 typedef struct SFT
 {
   struct SFT              *sft_next;         /* next SFT entry                */
@@ -17,5 +21,9 @@ typedef struct SFT
   /* file system-independent portion                                          */
   struct sffsi            sft_sffsi;
 } SFT, *PSFT;
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

@@ -6,6 +6,10 @@
 #ifndef __VPB_H__
 #define __VPB_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <fsd.h>
 
 /* max VPB's limit */
@@ -25,5 +29,9 @@ typedef struct VPB
   /* file system-independent part                                */
   struct vpfsi      vpb_vpfsi;
 } VPB, *PVPB;
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

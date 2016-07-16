@@ -13,10 +13,6 @@
 #ifndef __EXE386__
 #define __EXE386__
 
-//#if !defined(_ENABLE_AUTODEPEND)
-//  #pragma read_only_file;
-//#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

@@ -5,6 +5,10 @@
 #ifndef __OS2DEF_H__
 #define __OS2DEF_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #ifndef NULL
 #define NULL  0
 #endif
@@ -162,8 +166,22 @@ typedef USHORT  SEL, *PSEL;
 typedef LHANDLE HFILE, *PHFILE;
 typedef LHANDLE HMODULE, *PHMODULE;
 #endif
-//typedef LHANDLE PID, *PPID;
-//typedef LHANDLE TID, *PTID;
+typedef LHANDLE PID, *PPID;
+typedef LHANDLE TID, *PTID;
+
+typedef VOID (APIENTRY FNTHREAD)(const ULONG ul);
+typedef VOID (APIENTRY *PFNTHREAD)(const ULONG ul);
+
+#define CREATE_READY       0x00000000
+#define CREATE_SUSPENDED   0x00000001
+#define STATCK_SPARSE      0x00000000
+#define STACK_COMMITED     0x00000002
+
+#define DCWW_WAIT   0
+#define DCWW_NOWAIT 1
+
+#define EXIT_THREAD  0
+#define EXIT_PROCESS 1
 
 #define DC_SEM_SHARED 1
 
@@ -1094,5 +1112,8 @@ typedef struct _ICONINFO {
 #endif
 #endif
 
+#ifdef __cplusplus
+  }
 #endif
 
+#endif

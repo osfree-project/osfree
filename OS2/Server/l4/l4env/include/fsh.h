@@ -7,6 +7,10 @@
 #ifndef  __FSH_H__
 #define  __FSH_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <gcc_os2def.h>
 #include <fsd.h>
 
@@ -151,5 +155,9 @@ FSRET FSENTRY FSH_WILDMATCH(char *pPat,
                               char *pStr);
 
 void  FSENTRY FSH_YIELD(void);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

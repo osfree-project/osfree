@@ -1,6 +1,10 @@
 #ifndef HDLMAN_H
 #define HDLMAN_H
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <os2.h>
 
 VOID hdlInit();
@@ -23,5 +27,9 @@ VOID SysRWMutexLockWrite(PRWMTX psRWMtx);
 VOID SysRWMutexUnlockWrite(PRWMTX psRWMtx);
 VOID SysRWMutexLockRead(PRWMTX psRWMtx);
 VOID SysRWMutexUnlockRead(PRWMTX psRWMtx);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif // HDLMAN_H

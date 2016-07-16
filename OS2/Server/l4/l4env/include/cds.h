@@ -6,6 +6,10 @@
 #ifndef __CDS_H__
 #define __CDS_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 /* Handle table size */
 #define MAX_CDS  0x2000
 
@@ -20,5 +24,10 @@ typedef struct CDS
   /* file system-independent part                                 */
   struct cdfsi      cds_cdfsi;
 } CDS, *PCDS;
+
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif

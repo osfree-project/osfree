@@ -13,25 +13,23 @@
 #ifndef __EXE__
 #define __EXE__
 
-//#if !defined(_ENABLE_AUTODEPEND)
-//  #pragma read_only_file;
-//#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 #define EXEID   0x5a4d
 
-#ifndef BYTE_DEFINED
-#define BYTE_DEFINED
-typedef unsigned char   BYTE;
-#endif
+#include <l4/os3/gcc_os2def.h>
 
-#ifndef WORD_DEFINED
-#define WORD_DEFINED
-typedef unsigned short  WORD;
-#endif
+//#ifndef BYTE_DEFINED
+//#define BYTE_DEFINED
+//typedef unsigned char   BYTE;
+//#endif
+
+//#ifndef WORD_DEFINED
+//#define WORD_DEFINED
+//typedef unsigned short  WORD;
+//#endif
 
 typedef WORD    bbmask;
 
@@ -61,4 +59,3 @@ struct exe {
 #endif
 
 #endif
-

@@ -6,6 +6,10 @@
 #ifndef  __FSD_H__
 #define  __FSD_H__
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 #include <gcc_os2def.h>
 
 /* time stamping */
@@ -537,5 +541,9 @@ FSRET FSENTRY FS_WRITE(struct sffsi *psffsi,
                        char *pData,
                        unsigned short *pLen,
                        USHORT IOflag);
+
+#ifdef __cplusplus
+  }
+#endif
 
 #endif
