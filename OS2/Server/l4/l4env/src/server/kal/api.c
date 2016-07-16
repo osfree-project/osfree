@@ -1911,7 +1911,7 @@ void exit_func(l4thread_t tid, void *data)
   io_log("exit_func: t=%x.%x\n", t.id.task, t.id.lthread);
   io_log("tid=%d\n", tid);
   l4_ipc_send(t, (void *)(L4_IPC_SHORT_MSG | L4_IPC_DECEIT_MASK),
-              tid, 0, L4_IPC_NEVER, &dope);
+              tid, 0, L4_IPC_SEND_TIMEOUT_0, &dope);
 }
 L4THREAD_EXIT_FN_STATIC(fn, exit_func);
 
@@ -1926,8 +1926,13 @@ static void thread_func(void *data)
   struct start_data *start_data = (struct start_data *)data;
   PFNTHREAD pfn = start_data->pfn;
   ULONG param   = start_data->param;
-
-  // @todo implement fs register setting to TIB selector
+  l4thread_t        id;
+  l4_threadid_t     thread;
+  unsigned long     base;
+  unsigned short    sel;
+  struct desc       desc;
+  PID pid;
+  TID tid;
 
   //register exit func
   if ( l4thread_on_exit(&fn, NULL) < 0 )
@@ -1935,6 +1940,40 @@ static void thread_func(void *data)
   else
     io_log("exit function set successfully\n");
 
+  // get current process id
+  kalGetPID(&pid);
+  // get current thread id
+  kalGetTID(&tid);
+  // get l4thread thread id
+  kalGetL4ID(pid, tid, &id);
+  // get L4 native thread id
+  thread = l4thread_l4_id(id);
+
+  /* TIB base */
+  base = (unsigned long)ptib;
+
+  /* Prepare TIB GDT descriptor */
+  desc.limit_lo = 0x30; desc.limit_hi = 0;
+  desc.acc_lo   = 0xF3; desc.acc_hi   = 0;
+  desc.base_lo1 = base & 0xffff;
+  desc.base_lo2 = (base >> 16) & 0xff;
+  desc.base_hi  = base >> 24;
+
+  /* Allocate a GDT descriptor */
+  __fiasco_gdt_set(&desc, sizeof(struct desc), 0, thread);
+
+  /* Get a selector */
+  sel = (sizeof(struct desc)) * __fiasco_gdt_get_entry_offset();
+
+  // set fs register to TIB selector
+  //enter_kdebug("debug");
+  asm(
+      "movw  %[sel], %%dx \n"
+      "movw  %%dx, %%fs \n"
+      :
+      :[sel]  "m"  (sel));
+
+  // execute OS/2 thread function
   (*pfn)(param);
 }
 
@@ -1961,12 +2000,8 @@ kalCreateThread(PTID ptid,
   if (flag & STACK_COMMITED)
     flags |= L4THREAD_CREATE_MAP;
 
-  io_log("000\n");
-
   data.pfn = pfn;
   data.param = param;
-
-  io_log("001\n");
 
   if ( (rc = l4thread_create_long(L4THREAD_INVALID_ID,
                        thread_func, "OS/2 thread",
@@ -2200,6 +2235,7 @@ kalKillThread(TID tid)
   APIRET rc;
 
   kalEnter();
+  io_log("kalKillThread\n");
   io_log("tid=%u\n", tid);
 
   // get current task pid
@@ -2214,7 +2250,7 @@ kalKillThread(TID tid)
     return ERROR_INVALID_THREADID;
   }
 
-  if ( (rc = l4thread_shutdown(id)) > 0 )
+  if (! (rc = l4thread_shutdown(id)) )
     io_log("thread killed\n");
   else
     io_log("thread kill failed!\n");
@@ -2226,6 +2262,7 @@ kalKillThread(TID tid)
   return rc;
 }
 
+/* Get tid of current thread */
 APIRET CDECL
 kalGetTID(TID *ptid)
 {
@@ -2238,6 +2275,7 @@ kalGetTID(TID *ptid)
   return rc;
 }
 
+/* Get pid of current process */
 APIRET CDECL
 kalGetPID(PID *ppid)
 {
@@ -2286,6 +2324,7 @@ kalNewTIB(PID pid, TID tid, l4thread_t id)
   return rc;
 }
 
+/* Destroy TIB of thread with given pid/tid */
 APIRET CDECL
 kalDestroyTIB(PID pid, TID tid)
 {
@@ -2298,6 +2337,7 @@ kalDestroyTIB(PID pid, TID tid)
   return rc;
 }
 
+/* Get TIB of current thread */
 APIRET CDECL
 kalGetTIB(PTIB *ptib)
 {
@@ -2334,6 +2374,7 @@ kalGetTIB(PTIB *ptib)
   return rc;
 }
 
+/* Get PPIB of current process */
 APIRET CDECL
 kalGetPIB(PPIB *ppib)
 {
@@ -2375,6 +2416,7 @@ kalGetPIB(PPIB *ppib)
   return rc;
 }
 
+/* Map info blocks when starting up process */
 APIRET CDECL
 kalMapInfoBlocks(PTIB *ptib, PPIB *ppib)
 {
@@ -2394,6 +2436,7 @@ kalMapInfoBlocks(PTIB *ptib, PPIB *ppib)
   return NO_ERROR;
 }
 
+/* Get PTIB and PPIB of current process/thread */
 APIRET CDECL
 kalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
 {
