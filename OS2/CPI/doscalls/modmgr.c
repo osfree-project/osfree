@@ -24,6 +24,14 @@
 //                                  const PSZ pszName,
 //                                  PFN   *ppfn);
 
+//APIRET __cdecl   KalQueryProcType(HMODULE hmod,
+//                                  ULONG ordinal,
+//                                  const PSZ pszName,
+//                                  PULONG pulproctype);
+
+//APIRET __cdecl   KalQueryAppType(PCSZ pszName,
+//                                 PULONG pFlags);
+
 APIRET APIENTRY  DosLoadModule(PSZ  pszName,
                                ULONG cbName,
                                PCSZ  pszModname,
@@ -45,4 +53,20 @@ APIRET APIENTRY DosQueryModuleName(HMODULE hmod, ULONG cbName, PCHAR pch)
 APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PCSZ pszName, PFN *  ppfn)
 {
   return KalQueryProcAddr(hmod, ordinal, pszName, ppfn);
+}
+
+APIRET APIENTRY DosQueryProcType(HMODULE hmod, ULONG ordinal, const PCSZ pszName, PULONG pulproctype)
+{
+  return KalQueryProcType(hmod, ordinal, pszName, pulproctype);
+}
+
+APIRET APIENTRY DosQueryAppType(PCSZ pszName,
+                                PULONG pFlags)
+{
+  return KalQueryAppType(pszName, pFlags);
+}
+
+APIRET APIENTRY DosFreeModule(HMODULE hmod)
+{
+  return 0;
 }

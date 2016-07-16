@@ -18,7 +18,12 @@ APIRET __cdecl  DlRoute(ULONG handle, PSZ name, ...);
 #define KalAllocMem(ppb, cb, flags)                  DlRoute(0, "KalAllocMem", ppb, cb, flags)
 #define KalAllocSharedMem(ppb, pszName, cb, flags)   DlRoute(0, "KalAllocSharedMem", ppb, pszName, cb, flags)
 #define KalClose(handle)                             DlRoute(0, "KalClose", handle)
+#define KalCloseEventSem(hev)                        DlRoute(0, "KalCloseEventSem", hev)
 #define KalCreateDir(pszDirName, peaop2)             DlRoute(0, "KalCreateDir", pszDirName, peaop2)
+#define KalCreateEventSem(pszName, phev, \
+                          flags, fState)             DlRoute(0, "KalCreateEventSem", pszName, phev, flags, fState)
+#define KalCreateThread(ptid, pfn, param, \
+                        flag, cbStack)               DlRoute(0, "KalCreateThread", ptid, pfn, param, flag, cbStack)
 #define KalDelete(pszFileName)                       DlRoute(0, "KalDelete", pszFileName)
 #define KalDeleteDir(pszDirName)                     DlRoute(0, "KalDeleteDir", pszDirName)
 #define KalDupHandle(hFile, phFile2)                 DlRoute(0, "KalDupHandle",hFile, phFile2)
@@ -40,9 +45,11 @@ APIRET __cdecl  DlRoute(ULONG handle, PSZ name, ...);
 #define KalForceDelete(pszFileName)                  DlRoute(0, "KalForceDelete", pszFileName)
 #define KalFreeMem(pb)                               DlRoute(0, "KalFreeMem", pb)
 #define KalGetInfoBlocks(pptib, pppib)               DlRoute(0, "KalGetInfoBlocks", pptib, pppib)
+#define KalKillThread(tid)                           DlRoute(0, "KalKillThread", tid)
 #define KalLoadModule(pszName, cbName, pszModname, phmod) DlRoute(0, "KalLoadModule", pszName, cbName, pszModname, phmod)
 #define KalLogWrite(s)                               DlRoute(0, "KalLogWrite", s)
 #define KalMove(pszOld, pszNew)                      DlRoute(0, "KalMove", pszOld, pszNew)
+#define KalOpenEventSem(pszName, phev)               DlRoute(0, "KalOpenEventSem", pszName, phev)
 #define KalOpenL(pszFileName, phFile, pulAction, \
          cbFile, ulAttribute, fsOpenFlags, \
          fsOpenMode, peaop2)                         DlRoute(0, "KalOpenL", pszFileName, phFile, pulAction, cbFile, ulAttribute, \
@@ -62,9 +69,11 @@ APIRET __cdecl  DlRoute(ULONG handle, PSZ name, ...);
 #define KalQueryPathInfo(pszPathName, ulInfoLevel, \
                          pInfo, cbInfoBuf)           DlRoute(0, "KalQueryPathInfo", pszPathName, ulInfoLevel, pInfo, cbInfoBuf)
 #define KalQueryProcAddr(hmod, ordinal, pszName, ppfn) DlRoute(0, "KalQueryProcAddr", hmod, ordinal, pszName, ppfn)
-#define KalQueryProcType(hmod, ordinal, pszName, pulProcType) DlRoute(0, "KalQueryProcType", hmod, ordinal, pszName, pulProcType)
+#define KalQueryProcType(hmod, ordinal, pszName, \
+                         pulProcType)                DlRoute(0, "KalQueryProcType", hmod, ordinal, pszName, pulProcType)
 #define KalRead(hFile, pBuffer, cbRead, pcbRead)     DlRoute(0, "KalRead", hFile, pBuffer, cbRead, pcbRead)
 #define KalResetBuffer(handle)                       DlRoute(0, "KalResetBuffer", handle)
+#define KalResumeThread(tid)                         DlRoute(0, "KalResumeThread", tid)
 #define KalSetCurrentDir(pszDir)                     DlRoute(0, "KalSetCurrentDir", pszDir)
 #define KalSetDefaultDisk(disknum)                   DlRoute(0, "KalSetDefaultDisk", disknum)
 #define KalSetFHState(hFile, pMode)                  DlRoute(0, "KalSetFHState", hFile, pMode)
@@ -73,7 +82,9 @@ APIRET __cdecl  DlRoute(ULONG handle, PSZ name, ...);
 #define KalSetMaxFH(cFH)                             DlRoute(0, "KalSetMaxFH", cFH)
 #define KalSetMem(pb, cb, flags)                     DlRoute(0, "KalSetMem", pb, cb, flags)
 #define KalSetRelMaxFH(pcbReqCount, pcbCurMaxFH)     DlRoute(0, "KalSetRelMaxFH", pcbReqCount, pcbCurMaxFH)
-#define KalSleep(ms)                                 DlRoute(0, "KalSleep",ms)
+#define KalSleep(ms)                                 DlRoute(0, "KalSleep", ms)
+#define KalSuspendThread(tid)                        DlRoute(0, "KalSuspendThread", tid)
+#define KalWaitThread(ptid, option)                  DlRoute(0, "KalWaitThread", ptid, option)
 #define KalWrite(hFile, pBuffer, cbWrite, pcbActual) DlRoute(0, "KalWrite", hFile, pBuffer, cbWrite, pcbActual)
 
 #endif

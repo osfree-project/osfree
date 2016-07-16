@@ -43,8 +43,10 @@ srcfiles = $(p)msg$(e) &
            $(p)modmgr$(e) &
            $(p)log$(e)    &
            $(p)env$(e)    &
+           $(p)thread$(e) &
            $(p)thunk$(e)  &
            $(p)sched$(e)  &
+           $(p)sem$(e)    &
            $(p)unimplemented$(e) &
            $(p)unimp16$(e) &
            $(p)doseditname$(e) &

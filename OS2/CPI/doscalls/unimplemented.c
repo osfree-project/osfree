@@ -36,10 +36,7 @@ APIRET unimplemented(char *func)
 //APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 
 
-APIRET APIENTRY DosKillThread(TID tid)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosKillThread(TID tid)
 
 
 APIRET APIENTRY DosQueryRASInfo(ULONG Index, PPVOID Addr)
@@ -383,17 +380,10 @@ APIRET APIENTRY  DosSetPriority(ULONG scope,
   return unimplemented(__FUNCTION__);
 }
 
-
-APIRET APIENTRY DosResumeThread(TID tid)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosResumeThread(TID tid)
 
 
-APIRET APIENTRY DosSuspendThread(TID tid)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosSuspendThread(TID tid)
 
 
 APIRET APIENTRY  DosCreatePipe(PHFILE phfRead,
@@ -787,14 +777,11 @@ APIRET APIENTRY      DosCloseVDD(void)
 }
 
 
-APIRET APIENTRY DosCreateThread(PTID ptid,
-                                PFNTHREAD pfn,
-                                ULONG param,
-                                ULONG flag,
-                                ULONG cbStack)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosCreateThread(PTID ptid,
+//                                PFNTHREAD pfn,
+//                                ULONG param,
+//                                ULONG flag,
+//                                ULONG cbStack)
 
 
 //APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
@@ -846,35 +833,16 @@ APIRET APIENTRY DosDebug(PVOID pdbgbuf)
 //APIRET APIENTRY DosQueryProcAddr(HMODULE hmod, ULONG ordinal, const PSZ pszName, PFN *  ppfn);
 
 
-APIRET APIENTRY DosFreeModule(HMODULE hmod)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosFreeModule(HMODULE hmod)
 
 
-APIRET APIENTRY      DosQueryAppType(PCSZ pszName,
-                                     PULONG pFlags)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosCreateEventSem(PCSZ pszName, PHEV phev, ULONG flAttr, BOOL32 fState)
 
 
-APIRET APIENTRY DosCreateEventSem(PCSZ pszName, PHEV phev, ULONG flAttr, BOOL32 fState)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosOpenEventSem(PCSZ pszName, PHEV phev)
 
 
-APIRET APIENTRY DosOpenEventSem(PCSZ pszName, PHEV phev)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY DosCloseEventSem(HEV hev)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosCloseEventSem(HEV hev)
 
 
 APIRET APIENTRY DosResetEventSem(HEV hev, PULONG pulPostCt)
@@ -1009,11 +977,8 @@ APIRET APIENTRY  DosSubUnsetMem(PVOID pbBase)
 }
 
 
-APIRET APIENTRY DosWaitThread(PTID ptid,
-                              ULONG option)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY DosWaitThread(PTID ptid,
+//                              ULONG option)
 
 
 APIRET APIENTRY      DosAsyncTimer(ULONG msec, HSEM hsem, PHTIMER phtimer)
@@ -2115,12 +2080,6 @@ APIRET APIENTRY      DosQueryHeaderInfo(void)
 
 
 APIRET APIENTRY      T32QUERYPROCTYPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY DosQueryProcType(HMODULE hmod, ULONG ordinal, const PSZ pszName, PULONG pulproctype)
 {
   return unimplemented(__FUNCTION__);
 }
