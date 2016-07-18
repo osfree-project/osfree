@@ -1,11 +1,11 @@
-PKGDIR		?= .
+PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../../../..
 
 TARGET		= os2app
 TRG             = dl.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c dl.c
+SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c dl.c api/api.c
 CFLAGS          = -I$(PKGDIR)/../../../include
 # NO_DEFAULT_RELOC= 1
 LIBS		= -los2exec -los2fs -los2server -los2compat -lloaderif -levents \
