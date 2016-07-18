@@ -109,7 +109,8 @@ os2server_dos_Exit_component(CORBA_Object obj,
   // set termination code
   parentproc->term_code = result;
   // unblock parent thread
-  if (ppid || l4_thread_equal(parentproc->task, sysinit_id))
+  if ( parentproc->exec_sync &&
+       (ppid || l4_thread_equal(parentproc->task, sysinit_id)) )
     l4semaphore_up(&parentproc->term_sem);
   io_log("semaphore unblock\n");
   // destroy calling thread's proc
@@ -165,7 +166,13 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
      block until it terminates */
   io_log("term wait\n");
   if (!rc && parm->execFlag == EXEC_SYNC)
+  {
+    // do a sync wait
+    proc->exec_sync = 1;
     l4semaphore_down(&proc->term_sem);
+  }
+  // sync wait done
+  proc->exec_sync = 0;
   io_log("done waiting\n");
   /* set termination code */
   parm->pRes->codeTerminate = 0; /* TC_EXIT, @todo add real termination cause */

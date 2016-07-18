@@ -27,6 +27,8 @@
 /* OS/2 server call includes */
 #include <l4/os2srv/os2server-client.h>
 
+#include "os2app-server.h"
+
 extern char LOG_tag[9];
 
 /* l4rm heap address (thus, moved from 0xa000 higher) */
@@ -52,6 +54,9 @@ extern l4env_infopage_t *l4env_infopage;
 char fprov[20] = "fprov_proxy_fs";
 /* file provider id      */
 l4os3_cap_idx_t fprov_id;
+
+char pszLoadError[260];
+ULONG rcCode;
 
 void usage(void);
 VOID CDECL __exit(ULONG action, ULONG result);
@@ -142,7 +147,7 @@ unsigned __fiasco_gdt_get_entry_offset(void)
 
 int main (int argc, char *argv[])
 {
-  //CORBA_Environment env = dice_default_environment;
+  CORBA_srv_env env = default_srv_env;
   l4_uint32_t area;
   int rc = 0;
   int optionid;
@@ -253,7 +258,11 @@ int main (int argc, char *argv[])
   rc = l4rm_area_release(area);
 
   io_log("calling KalStartApp...\n");
-  DlRoute(0, "KalStartApp", argv[argc - 1]);
+  rcCode = DlRoute(0, "KalStartApp", argv[argc - 1], pszLoadError, sizeof(pszLoadError));
 
+  // server loop
+  env.malloc = (dice_malloc_func)malloc;
+  env.free = (dice_free_func)free;
+  os2app_server_loop(&env);
   return 0;
 }

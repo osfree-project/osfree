@@ -39,6 +39,7 @@
 // OS/2 server RPC
 #include "os2server-client.h"
 #include "os2server-server.h"
+#include <l4/os2app/os2app-client.h>
 
 void *alloc_mem(int size, char *comment);
 void free_mem(void *addr);
@@ -289,6 +290,7 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
     c->ip = 0;
     c->sp = 0;
     c->hmte = 0;
+    c->exec_sync = 0;
     //c->lx_mod = 0; //(struct LX_module *)(ixfModule->FormatStruct);
 
     c->lx_pib->pib_ulpid = pid;
@@ -898,6 +900,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  char * pName,
 				 unsigned long ppid)
 {
+  CORBA_Environment env = dice_default_environment;
   int rc=NO_ERROR;
   struct t_os2process *proc;
   #define buf_size 4096
@@ -931,6 +934,12 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
   l4os3_os2_exec(p_buf, proc);
+  // get pObjname and cbObjname from os2app
+  os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
+
+  // Terminate os2app on LX load error
+  if (rc)
+    os2app_app_Terminate_call(&proc->task, &env);
 
   return rc; /*NO_ERROR;*/
 }

@@ -130,8 +130,9 @@ l4os3_exec(char *cmd, char *params, l4_taskid_t *taskid)
 void l4os3_os2_exec(char *pName, struct t_os2process *proc)
 {
     l4os3_cap_idx_t    taskid;
-    
+
     l4os3_exec("os2app", pName, &taskid);
     proc->task = taskid;
+    
 }
 

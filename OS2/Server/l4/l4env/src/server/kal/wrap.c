@@ -21,9 +21,13 @@ APIRET CDECL
 KalStartApp(va_list a)
 {
   char *name;
+  char *pszLoadError;
+  ULONG cbLoadError;
 
-  name = va_arg(a, char *);
-  return kalStartApp(name);
+  name         = va_arg(a, char *);
+  pszLoadError = va_arg(a, char *);
+  cbLoadError  = va_arg(a, ULONG);
+  return kalStartApp(name, pszLoadError, cbLoadError);
 }
 
 unsigned long

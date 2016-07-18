@@ -22,7 +22,7 @@ api/cfg.c
 SERVERIDL	= os2server.idl
 
 # list additional library paths and libraries here
-LIBS		= -los2common -los2compat -lgeneric_fprov -los2server -los2fs -lthread -lloaderif -ldm_phys \
+LIBS		= -los2common -los2app -los2compat -lgeneric_fprov -los2server -los2fs -lthread -lloaderif -ldm_phys \
 		  -lparsecmdline -ll4env_err -levents -lhandle
 
 #LDFLAGS		= --dynamic-linker libkal.s.so \

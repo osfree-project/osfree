@@ -110,13 +110,13 @@ trampoline(struct param *param)
   return 0;
 }
 
-APIRET CDECL kalStartApp(char *name)
+APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
   CORBA_Environment env = dice_default_environment;
   struct param param;
   APIRET rc;
   /* Error info from LoadModule */
-  char uchLoadError[260];
+  //char uchLoadError[260];
   unsigned long hmod;
   ULONG curdisk, map;
   unsigned long ulActual;
@@ -143,7 +143,7 @@ APIRET CDECL kalStartApp(char *name)
     }
 
   /* Load the LX executable */
-  rc = kalPvtLoadModule(uchLoadError, sizeof(uchLoadError), 
+  rc = kalPvtLoadModule(pszLoadError, cbLoadError,
                        name, &s, &hmod);
 
   if (rc)

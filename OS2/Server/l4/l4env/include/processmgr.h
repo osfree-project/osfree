@@ -142,6 +142,7 @@ struct t_os2process {
 	int pid;
 
 #ifdef L4API_l4v2
+        char exec_sync;  // synchronous execution flag (whether to use term_sem or not)
         l4semaphore_t term_sem; // child program termination wait semaphore
         l4_taskid_t task;
 #endif
@@ -205,4 +206,3 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 #endif
 
 #endif
-

@@ -88,7 +88,7 @@ void kalEnter(void);
 
 void kalQuit(void);
 
-APIRET CDECL kalStartApp(char *name);
+APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError);
 
 APIRET CDECL
 kalOpenL (PSZ pszFileName,
