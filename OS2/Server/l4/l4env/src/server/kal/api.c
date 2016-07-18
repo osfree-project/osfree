@@ -1950,7 +1950,7 @@ static void thread_func(void *data)
   thread = l4thread_l4_id(id);
 
   /* TIB base */
-  base = (unsigned long)ptib;
+  base = (unsigned long)ptib[tid - 1];
 
   /* Prepare TIB GDT descriptor */
   desc.limit_lo = 0x30; desc.limit_hi = 0;
@@ -1975,6 +1975,23 @@ static void thread_func(void *data)
 
   // execute OS/2 thread function
   (*pfn)(param);
+}
+
+static void wait_func(void)
+{
+  l4_threadid_t src;
+  l4_umword_t dw1, dw2;
+  l4_msgdope_t dope;
+
+  for (;;)
+  {
+    if ( l4_ipc_wait(&src, L4_IPC_SHORT_MSG,
+                      &dw1, &dw2, L4_IPC_NEVER,
+                      &dope) < 0 )
+    {
+      io_log("IPC error\n");
+    }
+  }
 }
 
 APIRET CDECL
@@ -2050,10 +2067,10 @@ kalCreateThread(PTID ptid,
 APIRET CDECL
 kalSuspendThread(TID tid)
 {
+  l4_threadid_t preempter = L4_INVALID_ID;
+  l4_threadid_t pager     = L4_INVALID_ID;
   l4thread_t id;
   l4_threadid_t id1;
-  l4_threadid_t preempter;// = L4_INVALID_ID;
-  l4_threadid_t pager; //     = L4_INVALID_ID;
   l4_umword_t eflags, eip, esp;
   PTIB tib;
   PID pid;
@@ -2068,28 +2085,20 @@ kalSuspendThread(TID tid)
   kalGetL4ID(pid, tid, &id);
   id1 = l4thread_l4_id(id);
 
-  io_log("000\n");
-
   if (l4_thread_equal(id1, L4_INVALID_ID))
   {
     kalQuit();
     return ERROR_INVALID_THREADID;
   }
 
-  io_log("001\n");
-
   // suspend thread execution: set eip to -1
-  l4_thread_ex_regs(id1, 0, 0,
+  l4_thread_ex_regs(id1, (l4_umword_t)wait_func, ~0,
                     &preempter, &pager,
                     &eflags, &eip, &esp);
 
-  io_log("002\n");
-
   tib = ptib[tid - 1];
-  io_log("003\n");
   tib->tib_eip_saved = eip;
   tib->tib_esp_saved = esp;
-  io_log("004\n");
   kalQuit();
   return NO_ERROR;
 }
@@ -2099,8 +2108,8 @@ kalResumeThread(TID tid)
 {
   l4thread_t id;
   l4_threadid_t id1;
-  l4_threadid_t preempter; // = L4_INVALID_ID;
-  l4_threadid_t pager; //     = L4_INVALID_ID;
+  l4_threadid_t preempter = L4_INVALID_ID;
+  l4_threadid_t pager     = L4_INVALID_ID;
   l4_umword_t eflags, eip, esp, new_eip, new_esp;
   PTIB tib;
   PID pid;
@@ -2162,15 +2171,10 @@ kalWaitThread(PTID ptid, ULONG option)
   // get pid
   kalGetPID(&pid);
 
-  io_log("000\n");
-
   if (! ptid)
     ptid = &tid;
 
-  io_log("001\n");
-
   // get native L4 id
-  io_log("004\n");
   kalGetL4ID(pid, *ptid, &id);
   id1 = l4thread_l4_id(id);
 
@@ -2180,29 +2184,24 @@ kalWaitThread(PTID ptid, ULONG option)
     case DCWW_WAIT:
       for (;;)
       {
-        io_log("002\n");
         if (! l4_ipc_wait(&src, L4_IPC_SHORT_MSG,
                           &dw1, &dw2, L4_IPC_NEVER,
                           &dope) &&
             l4_task_equal(src, me) )
         {
-          io_log("003\n");
           if (*ptid)
           {
-            io_log("005\n");
             if (l4_thread_equal(id1, L4_INVALID_ID))
             {
               rc = ERROR_INVALID_THREADID;
               break;
             }
 
-            io_log("006\n");
             if (l4_thread_equal(src, id1))
               break;
           }
           else
           {
-            io_log("007\n");
             kalGetTIDL4(src, ptid);
             break;
           }
@@ -2232,7 +2231,7 @@ kalKillThread(TID tid)
   l4thread_t id;
   l4_threadid_t id1;
   PID pid;
-  APIRET rc;
+  APIRET rc = NO_ERROR;
 
   kalEnter();
   io_log("kalKillThread\n");
