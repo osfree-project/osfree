@@ -13,11 +13,23 @@ interface os2exec
   long open ([in,  string] char *fname,
              [in]  l4dm_dataspace_t img_ds,
              [in]  unsigned long flags,
+             [in, out,
+             ref,
+             prealloc_client,
+             prealloc_server,
+             size_is(cbLoadError)] char **chLoadError,
+             [in, out] unsigned long *cbLoadError,
    	     [out] unsigned long *hmod);
 
   /*  load a given module
    */
   long load ([in]  unsigned long hmod,
+             [in, out,
+             ref,
+             prealloc_client,
+             prealloc_server,
+             size_is(cbLoadError)] char **chLoadError,
+             [in, out] unsigned long *cbLoadError,
              [out] os2exec_module_t *s);
 
   /*  request the execsrv to share all

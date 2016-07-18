@@ -89,29 +89,33 @@ os2exec_open_component (CORBA_Object _dice_corba_obj,
                         const char* fname /* in */,
                         const l4dm_dataspace_t *img_ds /* in */,
                         unsigned long flags /* in */,
+                        char **chLoadError /* in, out */,
+                        unsigned long *cbLoadError /* out */,
                         unsigned long *hmod /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
   char exeflag = flags & OPENFLAG_EXEC;
   /* Error info from ModLoadModule */
-  char chLoadError[CCHMAXPATH];
-  
-  return OpenModule(chLoadError, sizeof(chLoadError), fname, exeflag, hmod);
+  //char chLoadError[CCHMAXPATH];
+
+  return OpenModule(*chLoadError, *cbLoadError, fname, exeflag, hmod);
 }
 
 
 long DICE_CV
 os2exec_load_component (CORBA_Object _dice_corba_obj,
                         unsigned long hmod /* in */,
-			os2exec_module_t *s /* out */,
+                        char **chLoadError /* in, out */,
+                        unsigned long *cbLoadError /* out */,
+                        os2exec_module_t *s /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
   unsigned long rc;
-  char chLoadError[CCHMAXPATH];
+  //char chLoadError[CCHMAXPATH];
   IXFModule *ixf;
   IXFSYSDEP *sysdep;
 
-  rc = LoadModule(chLoadError, sizeof(chLoadError), &hmod);
+  rc = LoadModule(*chLoadError, *cbLoadError, &hmod);
 
   ixf = (IXFModule *)hmod;
   s->ip = (ULONG)ixf->EntryPoint;

@@ -888,14 +888,14 @@ kalPvtLoadModule(char *pszName,
   io_log("env=0x%x\n", env);
   io_log("pszModname=%s\n", pszModname);
   rc = os2exec_open_call (&execsrv, pszModname, &ds,
-                          1, &hmod, &env);
+                          1, &pszName, &cbName, &hmod, &env);
   if (rc)
     return rc;
 
   *phmod = hmod;
 
   io_log("os2exec_open_call() called, rc=%d\n", rc);
-  rc = os2exec_load_call (&execsrv, hmod, s, &env);
+  rc = os2exec_load_call (&execsrv, hmod, &pszName, &cbName, s, &env);
 
   if (rc)
     return rc;
