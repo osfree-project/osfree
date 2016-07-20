@@ -14,6 +14,9 @@
 struct kal_init_struct
 {
   unsigned long stack;
+  l4_addr_t shared_memory_base;
+  l4_size_t shared_memory_size;
+  l4_uint32_t shared_memory_area;
   void *l4rm_detach;
   void *l4rm_do_attach;
   void *l4rm_lookup;
@@ -77,8 +80,8 @@ unsigned char disknum_to_char(int i_dsk);
 int isRelativePath(char *path);
 unsigned char parse_drv(char *path);
 char *parse_path(char *path, char *ret_buffer, int buf_len);
-int attach_module (ULONG hmod);
-int attach_all (ULONG hmod);
+int attach_module (ULONG hmod, l4_uint32_t area);
+int attach_all (ULONG hmod, l4_uint32_t area);
 APIRET CDECL kalMapInfoBlocks(PTIB *pptib, PPIB *pppib);
 
 

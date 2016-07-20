@@ -9,6 +9,7 @@
 /* standard C includes */
 #include <getopt.h>
 /* L4 includes */
+#include <l4/util/rdtsc.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/names/libnames.h>
 #include <l4/generic_ts/generic_ts.h>
@@ -37,6 +38,12 @@ const l4_addr_t l4rm_heap_start_addr = 0xb9000000;
 const l4_addr_t l4thread_stack_area_addr = 0xbc000000;
 /* l4thread TCB table map address */
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
+
+/* shared memory arena settings */
+l4_addr_t   shared_memory_base = 0x60000000;
+l4_size_t   shared_memory_size = 1024*1024*1024;
+l4_uint32_t shared_memory_area;
+
 // use events server flag
 char use_events = 0;
 /* previous stack (when switching between 
@@ -149,6 +156,10 @@ int main (int argc, char *argv[])
 {
   CORBA_srv_env env = default_srv_env;
   l4_uint32_t area;
+  //struct desc *dsc;
+  //int i, stop, start;
+  //unsigned long base;
+  //l4_threadid_t task;
   int rc = 0;
   int optionid;
   int opt = 0;
@@ -179,6 +190,14 @@ int main (int argc, char *argv[])
     __exit(1, 1);
   }
 
+  // reserve the upper 1 Gb for shared memory arena
+  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, &shared_memory_area);
+  if (rc < 0)
+  {
+    io_log("Panic: cannot reserve memory for shared arena!\n");
+    __exit(1, 1);
+  }
+
   /* query default dataspace manager id */
   dsm = l4env_get_default_dsm();
   if (l4_is_invalid_id(dsm))
@@ -203,6 +222,9 @@ int main (int argc, char *argv[])
 
   //fill in the parameter structure for KalInit
   initstr.stack   = __stack;
+  initstr.shared_memory_base = shared_memory_base;
+  initstr.shared_memory_size = shared_memory_size;
+  initstr.shared_memory_area = shared_memory_area;
   initstr.l4rm_do_attach = l4rm_do_attach;
   initstr.l4rm_detach = l4rm_detach;
   initstr.l4rm_lookup        = l4rm_lookup;
@@ -245,6 +267,31 @@ int main (int argc, char *argv[])
         __exit(1, 2);
     }
   }
+
+  /* task = l4_myself();
+
+  dsc = malloc(0x8);
+
+  for (i = 0; i < 512; i++)
+  {
+    base = i * 0x10000;
+
+    dsc[0].limit_lo = 0xffff; dsc[0].limit_hi = 0;
+    dsc[0].acc_lo   = 0xFE;   dsc[0].acc_hi = 0;
+    dsc[0].base_lo1 = base & 0xffff;
+    dsc[0].base_lo2 = (base >> 16) & 0xff;
+    dsc[0].base_hi  = base >> 24;
+    io_log("--- %d\n", i);
+    fiasco_ldt_set(dsc, 0x8, i, task.id.task);
+  }
+  io_log("---\n");
+  start = l4_rdtsc();
+  //fiasco_ldt_set(dsc, 0x10000, 0, task.id.task);
+  stop  = l4_rdtsc();
+  io_log("+++\n");
+  free(dsc);
+  io_log("===\n");
+  io_log("LDT switch time=%u ns\n", l4_tsc_to_ns(stop - start)); */
 
   // start events thread
   /* if (use_events)

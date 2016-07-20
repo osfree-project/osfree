@@ -60,6 +60,11 @@ l4os3_cap_idx_t os2srv;
 /* Exec server cap      */
 l4os3_cap_idx_t execsrv;
 
+/* shared memory arena settings */
+l4_addr_t     shared_memory_base;
+l4_size_t     shared_memory_size;
+l4_uint32_t   shared_memory_area;
+
 /* old FS selector value          */
 unsigned short old_sel;
 /* TIB new FS selector value      */
@@ -284,6 +289,9 @@ void kalInit(struct kal_init_struct *s)
   strncpy(LOG_tag, s->logtag, 9);
   LOG_tag[8] = '\0';
   __stack = s->stack;
+  shared_memory_base = s->shared_memory_base;
+  shared_memory_size = s->shared_memory_size;
+  shared_memory_area = s->shared_memory_area;
   l4rm_do_attach_ptr = s->l4rm_do_attach;
   l4rm_detach_ptr    = s->l4rm_detach;
   l4rm_lookup_ptr    = s->l4rm_lookup;
@@ -772,7 +780,7 @@ attach_ds_area(l4os3_ds_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t add
       return error;
     }
 
-  /* attach it to a given region */  
+  /* attach it to a given region */
   if ( (error = l4rm_area_attach_to_region(&ds, area,
                        (void *)a, size, 0, flags)) )
     {
@@ -788,7 +796,7 @@ attach_ds_area(l4os3_ds_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t add
  *  for a given module
  */
 int
-attach_module (ULONG hmod)
+attach_module (ULONG hmod, l4_uint32_t area)
 {
   CORBA_Environment env = dice_default_environment;
   l4exec_section_t sect;
@@ -822,12 +830,13 @@ attach_module (ULONG hmod)
     if ((rc = l4rm_lookup((void *)addr, &map_addr, &map_size,
                     &area_ds, &offset, &pager)) != L4RM_REGION_DATASPACE)
     {
-      rc = attach_ds_reg (ds, flags, addr);
+      rc = attach_ds_area (ds, area, flags, addr);
+      //rc = attach_ds_reg (ds, flags, addr);
       if (!rc) 
         io_log("attached\n");
-      else
+      else if (rc != -L4_EUSED)
       {
-        io_log("attach_ds_reg returned %u\n", rc);
+        io_log("attach_ds_area returned %d\n", rc);
         break;
       }
     }
@@ -847,14 +856,14 @@ attach_module (ULONG hmod)
  *  all its dependencies
  */
 int
-attach_all (ULONG hmod)
+attach_all (ULONG hmod, l4_uint32_t area)
 {
   CORBA_Environment env = dice_default_environment;
   ULONG imp_hmod, rc = 0;
   int index = 0;
 
   io_log("attach_all called\n");
-  rc = attach_module(hmod);
+  rc = attach_module(hmod, area);
 
   if (rc)
     return rc;
@@ -864,7 +873,7 @@ attach_all (ULONG hmod)
     if (!imp_hmod) // KAL fake module: no need to attach sections
       continue;
 
-    rc = attach_all(imp_hmod);
+    rc = attach_all(imp_hmod, shared_memory_area);
   }
 
   io_log("attach_all returned: %u\n", rc);
@@ -881,6 +890,7 @@ kalPvtLoadModule(char *pszName,
 {
   CORBA_Environment env = dice_default_environment;
   l4dm_dataspace_t ds = L4DM_INVALID_DATASPACE;
+  l4_uint32_t area;
   ULONG hmod, rc;
 
   io_log("kalPvtLoadModule called\n");
@@ -900,6 +910,11 @@ kalPvtLoadModule(char *pszName,
   if (rc)
     return rc;
 
+  if (s->exeflag)
+    area = L4RM_DEFAULT_REGION_AREA;
+  else
+    area = shared_memory_area;
+
   io_log("os2exec_load_call() called, rc=%d\n", rc);
   rc = os2exec_share_call (&execsrv, hmod, &env);
 
@@ -907,7 +922,7 @@ kalPvtLoadModule(char *pszName,
     return rc;
 
   io_log("os2exec_share_call() called, rc=%d\n", rc);
-  rc = attach_all(hmod);
+  rc = attach_all(hmod, area);
 
   if (rc)
     return rc;
@@ -1357,15 +1372,14 @@ kalQueryMem(PVOID  pb,
 APIRET CDECL
 kalAllocSharedMem(PPVOID ppb,
                   PSZ    pszName,
-		  ULONG  cb,
-		  ULONG  flags)
+                  ULONG  cb,
+                  ULONG  flags)
 {
   CORBA_Environment env = dice_default_environment;
   l4_uint32_t rights = 0;
   l4_uint32_t area;
   l4dm_dataspace_t ds;
   l4_addr_t addr;
-  vmdata_t  *ptr;
   int rc;
 
   kalEnter();
@@ -1378,7 +1392,8 @@ kalAllocSharedMem(PPVOID ppb,
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = os2exec_alloc_sharemem_call (&execsrv, cb, 0, &addr, &env);
+  // reserve area on os2exec and attach data to it (user pointer)
+  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &area, &addr, &env);
 
   if (rc)
   {
@@ -1386,34 +1401,11 @@ kalAllocSharedMem(PPVOID ppb,
     return ERROR_NOT_ENOUGH_MEMORY;
   }
 
-  rc = l4rm_area_reserve_region(addr, cb, 0, &area);
-
-  if (rc < 0)
-  {
-    kalQuit();
-    switch (-rc)
-    {
-      case L4_ENOMEM:
-      case L4_ENOTFOUND:
-        return ERROR_NOT_ENOUGH_MEMORY;
-      default:
-        return ERROR_ACCESS_DENIED;
-    }
-  }
-
-  ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
-  l4rm_set_userptr((void *)addr, ptr);
-
-  ptr->rights = (l4_uint32_t)flags;
-  ptr->rights |= PAG_SHARED;
-  ptr->area   = area;
-  if (pszName) strcpy(ptr->name, pszName);
-
   if (flags & PAG_COMMIT)
   {
     /* Create a dataspace of a given size */
     rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
-               4096, rights, "DosAllocMem dataspace", &ds);
+               4096, rights, "DosAllocSharedMem dataspace", &ds);
 
     if (rc < 0)
     {
@@ -1422,10 +1414,8 @@ kalAllocSharedMem(PPVOID ppb,
     }
 
     /* attach the created dataspace to our address space */
-    //rc = attach_ds(&ds, rights, &addr);
     rc = attach_ds_area(ds, area, rights, addr);
 
-    //enter_kdebug(">");
     if (rc)
     {
       kalQuit();
@@ -1438,6 +1428,12 @@ kalAllocSharedMem(PPVOID ppb,
   io_log("*ppb=%x\n", addr);
   kalQuit();
   return rc;
+}
+
+APIRET CDECL
+kalGetSharedMem(PVOID pb,
+                ULONG flag)
+{
 }
 
 APIRET CDECL

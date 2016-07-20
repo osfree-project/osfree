@@ -41,6 +41,10 @@
 #include <l4/os3/dataspace.h>
 #include <l4/os3/MountReg.h>
 
+/* shared memory arena settings */
+extern l4_addr_t    shared_memory_base;
+extern l4_addr_t    shared_memory_size;
+extern l4_uint32_t  shared_memory_area;
 
 unsigned int  find_module_path(const char *name, char *full_path_name);
 unsigned int  find_path(const char *name, char *full_path_name);
@@ -288,6 +292,11 @@ unsigned long OpenModule(char *          pszName,
   ixfModule = (IXFModule *)malloc(sizeof(IXFModule));
 #ifdef L4API_l4v2
   ixfSysDep = (IXFSYSDEP *)malloc(sizeof(IXFSYSDEP));
+
+  if (exeflag)
+    ixfModule->area = L4RM_DEFAULT_REGION_AREA;
+  else
+    ixfModule->area = shared_memory_area;
 
   if (!t && exeflag)
   {
@@ -1395,4 +1404,3 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
     *((unsigned long *) ixfModule->Fixups[imports_counter].SrcVmAddress) = relative_jmp;
   }
 }
-

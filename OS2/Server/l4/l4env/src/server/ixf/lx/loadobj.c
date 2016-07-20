@@ -129,12 +129,12 @@ unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 // Under OS/2 return always unique address
   #if defined(__LINUX__) || defined(__WIN32__)
         mmap_obj = malloc(lx_obj->o32_size);
-  /* void * l4_alloc_mem(int base, int size, int flags) */
+  /* void * l4_alloc_mem(unsigned long area, int base, int size, int flags) */
   #else
     #ifdef L4API_l4v2
         #include <l4/os3/l4_alloc_mem.h>
         // object map address in execsrv address space
-        mmap_obj = l4_alloc_mem(lx_obj->o32_base, lx_obj->o32_size,
+        mmap_obj = l4_alloc_mem(ixfModule->area, lx_obj->o32_base, lx_obj->o32_size,
                                  PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC, &ds);
 	// Host-dependent part of IXFMODULE structure (data for L4 host)
 	ixfSysDep = (IXFSYSDEP *)(ixfModule->hdlSysDep);

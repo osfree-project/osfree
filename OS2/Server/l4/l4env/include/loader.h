@@ -19,6 +19,7 @@ struct
   l4_addr_t     sp;
   l4_addr_t     sp_limit;
   l4_uint32_t   hmod;
+  char          exeflag;
   char          path[0x100];
 } os2exec_module_t;
 

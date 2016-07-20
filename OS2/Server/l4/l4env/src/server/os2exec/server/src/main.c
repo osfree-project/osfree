@@ -47,6 +47,11 @@ const l4_addr_t l4thread_stack_area_addr = 0xbc000000;
 /* l4thread TCB table map address */
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 
+/* shared memory arena settings */
+l4_addr_t    shared_memory_base = 0x60000000;
+l4_addr_t    shared_memory_size = 1024*1024*1024;
+l4_uint32_t  shared_memory_area;
+
 cfg_opts options;
 //struct t_mem_area os2server_root_mem_area;
 
@@ -119,6 +124,11 @@ os2exec_load_component (CORBA_Object _dice_corba_obj,
 
   ixf = (IXFModule *)hmod;
   s->ip = (ULONG)ixf->EntryPoint;
+
+  if (ixf->area == L4RM_DEFAULT_REGION_AREA)
+    s->exeflag = 1;
+  else
+    s->exeflag = 0;
 
   sysdep = (IXFSYSDEP *)(ixf->hdlSysDep);
   s->sp = sysdep->stack_high;
@@ -338,21 +348,24 @@ typedef struct
 long DICE_CV
 os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
                                     l4_uint32_t size /* in */,
-				    const char *name /* in */,
+                                    const char *name /* in */,
+                                    unsigned long rights /* in */,
+                                    l4_uint32_t *area /* out */,
                                     l4_addr_t *addr /* out */,
                                     CORBA_Server_Environment *_dice_corba_env)
 {
-  l4_uint32_t area;
-  vmdata_t *ptr; 
-  int rc;
-  
-  rc =  l4rm_area_reserve(size, 0, addr, &area);
+  //l4_uint32_t area;
+  vmdata_t *ptr;
+  int rc = 0;
+
+  rc =  l4rm_area_reserve(size, 0, addr, area);
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
   if (!ptr) return 1;
   ptr->area = area;
   if (name) strcpy(ptr->name, name);
+  ptr->rights = rights;
   l4rm_set_userptr(addr, ptr);
-  
+
   return rc;
 }
 
@@ -374,20 +387,23 @@ os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
 
   rc = l4rm_lookup_region((void *)pb, &address, &sz, &ds,
                      &offset, &pager);
-  switch (rc)
+  if (rc < 0)
   {
-    case L4RM_REGION_RESERVED:
-    case L4RM_REGION_DATASPACE:
-      if ( (ptr = l4rm_get_userptr(addr)) )
-	rights = ptr->rights;
-      break;
-    default:
-      return ERROR_INVALID_ADDRESS;
+    switch (rc)
+    {
+      case L4RM_REGION_RESERVED:
+      case L4RM_REGION_DATASPACE:
+        if ( (ptr = l4rm_get_userptr(addr)) )
+          rights = ptr->rights;
+        break;
+      default:
+        return ERROR_INVALID_ADDRESS;
+    }
   }
-  
+
   *addr = address;
   *size = sz;
-  
+
   return NO_ERROR;
 }
 
@@ -687,6 +703,15 @@ int main (int argc, char *argv[])
       l4rm_show_region_list();
       enter_kdebug("PANIC");
     }
+
+  // reserve the upper 1 Gb for shared memory arena
+  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, &shared_memory_area);
+  if (rc < 0)
+  {
+    io_log("Panic: cannot reserve memory for shared arena!\n");
+    return -1;
+  }
+
   memset (&options, 0, sizeof(options));
 
 #if 0

@@ -76,6 +76,7 @@ typedef
   {
     fnLoad * Load;            // Fill format structure
     fnFixup * Fixup;          // Fixup module address
+    unsigned long area;       // memory area identifier (for example, shared memory area)
     void *addr;               // Load address
     unsigned long size;       // File size
     char *name;               // Fully-qualified filename
