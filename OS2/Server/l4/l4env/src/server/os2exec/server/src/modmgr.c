@@ -152,7 +152,7 @@ int
 getrec(char *mname, struct module_rec **p)
 {
   struct module_rec *prev;
-  
+
   // First search in the module list
   prev = (struct module_rec *) module_root.next;
 
@@ -162,13 +162,13 @@ getrec(char *mname, struct module_rec **p)
     {
       if(prev->load_status == LOADING)
         return -1;
-	
+
       *p = prev;
       return 0;
     }
     prev = (struct module_rec *) prev->next;
   }
-  
+
   return 1;
 }
 
@@ -176,7 +176,7 @@ int
 getrec2(unsigned long hmod, struct module_rec **p)
 {
   struct module_rec *prev;
-  
+
   // First search in the module list
   prev = (struct module_rec *) module_root.next;
 
@@ -186,13 +186,13 @@ getrec2(unsigned long hmod, struct module_rec **p)
     {
       if(prev->load_status == LOADING)
         return -1;
-	
+
       *p = prev;
       return 0;
     }
     prev = (struct module_rec *) prev->next;
   }
-  
+
   return 1;
 }
 
@@ -493,7 +493,7 @@ unsigned long LoadModule(char *          pszName,
       rc = LoadModule(chLoadError, sizeof(chLoadError), (unsigned long *)&hmod);
       if (!rc) io_log("load successful\n");
 
-    
+
       if (rc)
       {
         io_log("Error loading module: %s\n", name);
@@ -577,7 +577,7 @@ unsigned long ModLoadModule(char *          pszName,
 
   if (rc) 
     return rc;
-  
+
   rc = LoadModule(pszName, cbName, phmod);
   return rc;
 }
@@ -676,16 +676,16 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 
   memset(line, 0, 0x100);  
   rc = io_load_file("c:\\dl.map", &addr, &size);
-  
+
   if (rc)
     return rc;
-    
-  p = (char *)addr;    
+
+  p = (char *)addr;
 
   getline(&p, line);
 
   n = atol(line);
-  
+
   *numentries = n;
   *entries = (IXFMODULEENTRY *)malloc(n * sizeof(IXFMODULEENTRY));
   if (!*entries) return 1;
@@ -704,7 +704,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
     (*entries)[i].Ordinal  = i + 1;
     (*entries)[i].ModuleName = NULL;
   }
-  
+
   return 0;
 }
 
@@ -903,14 +903,14 @@ int lcase(char* dest, const char* src)
  * otherwise, if it exists and is an EXE module,
  * then add it to the end of (->up) list
  */
-struct module_rec * ModRegister(const char * name, 
-                                void * mod_struct, 
-				unsigned long exeflag)
+struct module_rec * ModRegister(const char * name,
+                                void * mod_struct,
+                                unsigned long exeflag)
 {
   struct module_rec * new_mod;
   struct module_rec * prev;
   int    t, n = 0;
-  
+
   new_mod = (struct module_rec *) malloc(sizeof(struct module_rec));
 
   if (!(t = getrec((char *)name, &prev)) && exeflag)
@@ -1116,7 +1116,7 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
       }
       else
       {
-        io_log("forward_found_module == 0, prev_mod = 0x%x", prev_mod);
+        io_log("forward_found_module == 0, prev_mod = 0x%x\n", prev_mod);
       }
       *ret_rc = rc;
       if(!forward_found_module) { /* Unable to find and load module. */
@@ -1193,9 +1193,9 @@ int apply_import_fixup(struct LX_module * this_module, struct LX_module * found_
     io_log("Error, can't find entrypoint: %d, in module: %d (%s) \n",
                     import_ord, mod_nr, copy_pas_str(entry_mod_name,get_imp_mod_name(found_module, mod_nr)));
     if(frw_mod_name != 0)
-      io_log("frw_mod_name=%s", frw_mod_name);
+      io_log("frw_mod_name=%s\n", frw_mod_name);
     if(mod_name != 0)
-      io_log(" mod_name=%s", mod_name);
+      io_log(" mod_name=%s\n", mod_name);
     io_log("\n");
     return 0; /* Error can't find an entry point.*/
   }
@@ -1272,7 +1272,7 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
     if (ixfModule->Entries[ordinal-1].ModuleName!=NULL)
     { // This is forward to another module. Call ourself...
       // First search in the module list
-      io_log("ModuleName=%x", ixfModule->Entries[ordinal].ModuleName);
+      io_log("ModuleName=%x\n", ixfModule->Entries[ordinal].ModuleName);
       prev = (struct module_rec *) module_root.next;
       while(prev)
       {
@@ -1283,7 +1283,7 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
             searched_hmod=0;
             return 5/*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
           }
-          io_log("module: %d", prev->mod_name);
+          io_log("module: %d\n", prev->mod_name);
           // @todo use handles here
           searched_hmod=(unsigned long)prev->module_struct;
           break;
@@ -1298,7 +1298,7 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
     }
 
     *ppfn=ixfModule->Entries[ordinal-1].Address;
-    io_log("ModQueryProcAddr(%u, %u, %s, %p)", hmod, ordinal, pszName, *ppfn);
+    io_log("ModQueryProcAddr(%u, %u, %s, %p)\n", hmod, ordinal, pszName, *ppfn);
     return 0;
   }
 
@@ -1339,7 +1339,7 @@ unsigned long ModQueryProcAddr(unsigned long hmod,
       }
 
       *ppfn=ixfModule->Entries[entries_counter-1].Address;
-      io_log("ModQueryProcAddr(%u, %u, %s, %p)", hmod, ordinal, pszName, *ppfn);
+      io_log("ModQueryProcAddr(%u, %u, %s, %p)\n", hmod, ordinal, pszName, *ppfn);
       return 0;
     }
   }
@@ -1359,8 +1359,8 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
        imports_counter<ixfModule->cbFixups;
        imports_counter++)
   {
-    io_log("Import entry %d of %d",imports_counter + 1, ixfModule->cbFixups);
-    io_log("Module=%s", ixfModule->Fixups[imports_counter].ImportEntry.ModuleName);
+    io_log("Import entry %d of %d\n",imports_counter + 1, ixfModule->cbFixups);
+    io_log("Module=%s\n", ixfModule->Fixups[imports_counter].ImportEntry.ModuleName);
 
     prev = (struct module_rec *) module_root.next;
     while(prev)
@@ -1383,7 +1383,7 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
     }
     // @todo use handles here
     *phmod=(unsigned long)prev->module_struct;
-    io_log("%s.%d", ixfModule->Fixups[imports_counter].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter].ImportEntry.Ordinal);
+    io_log("%s.%d\n", ixfModule->Fixups[imports_counter].ImportEntry.FunctionName, ixfModule->Fixups[imports_counter].ImportEntry.Ordinal);
     ModQueryProcAddr(*phmod,
                      ixfModule->Fixups[imports_counter].ImportEntry.Ordinal,
                      ixfModule->Fixups[imports_counter].ImportEntry.FunctionName,
@@ -1400,7 +1400,7 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
     else
       relative_jmp = 0xffffffff-((unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress) - (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address))-3;
 
-    io_log("jmp=%x=%x", (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress), relative_jmp);
+    io_log("jmp=%x=%x\n", (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress), relative_jmp);
     *((unsigned long *) ixfModule->Fixups[imports_counter].SrcVmAddress) = relative_jmp;
   }
 }

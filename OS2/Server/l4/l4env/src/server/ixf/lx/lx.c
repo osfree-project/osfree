@@ -662,7 +662,7 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
             copy_pas_str(mod_name, org_mod_name);
 
 
-//   io_log("page=%x", vm_start_of_page);
+//   io_log("page=%x\n", vm_start_of_page);
             ixfModule->Fixups[*fixup_counter].SrcVmAddress=/*lx_obj->o32_base*/ (void *)vm_start_of_page + srcoff_cnt1;
             ixfModule->Fixups[*fixup_counter].SrcAddress=/*lx_obj->o32_base*/ (void *)start_of_page + srcoff_cnt1;
             ixfModule->Fixups[*fixup_counter].ImportEntry.FunctionName=NULL;

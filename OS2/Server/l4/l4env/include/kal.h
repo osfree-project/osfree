@@ -22,12 +22,14 @@ struct kal_init_struct
   void *l4rm_lookup;
   void *l4rm_lookup_region;
   void *l4rm_do_reserve;
+  void *l4rm_do_reserve_in_area;
   void *l4rm_set_userptr;
   void *l4rm_get_userptr;
   void *l4rm_area_release;
   void *l4rm_area_release_addr;
   void *l4rm_show_region_list;
   void *l4rm_region_mapper_id;
+  void *l4dm_memphys_copy;
   void *l4env_get_default_dsm;
   void *l4thread_exit;
   void *l4thread_on_exit;
@@ -66,6 +68,17 @@ struct desc
   short acc_hi   :4;
   short base_hi  :8;
 };
+
+typedef struct vmdata
+{
+  char name[256];        // name for named shared mem
+  l4_uint32_t   rights;  // OS/2-style access flags
+  l4_uint32_t   area;    // area id
+  l4_addr_t     addr;    // area address
+  l4_size_t     size;    // area size
+  struct vmdata *next;   // link to the next record
+  struct vmdata *prev;   // link to the previous record
+} vmdata_t;
 
 int
 trampoline(struct param *param);

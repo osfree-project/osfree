@@ -8,6 +8,7 @@
 /* L4 includes */
 #include <l4/generic_ts/generic_ts.h> // l4ts_exit
 #include <l4/semaphore/semaphore.h>
+#include <l4/dm_phys/dm_phys.h>
 #include <l4/lock/lock.h>
 #include <l4/sys/syscalls.h>
 #include <l4/sys/types.h>
@@ -78,6 +79,8 @@ extern PTIB ptib[MAX_TID];
 /* Process Info Block pointer     */
 extern PPIB ppib;
 
+vmdata_t *areas_list = NULL;
+
 struct start_data;
 
 void exit_func(l4thread_t tid, void *data);
@@ -104,6 +107,10 @@ L4_CV int
                 l4_uint32_t * area);
 
 L4_CV int
+(*l4rm_do_reserve_in_area_ptr)(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
+                l4_uint32_t * area);
+
+L4_CV int
 (*l4rm_set_userptr_ptr)(const void * addr, void * ptr);
 
 L4_CV void *
@@ -120,6 +127,13 @@ L4_CV void
 
 L4_CV l4os3_cap_idx_t
 (*l4rm_rm_id)(void);
+
+L4_CV int
+(*l4dm_memphys_copy_)(const l4dm_dataspace_t * ds, l4_offs_t src_offs,
+                  l4_offs_t dst_offs, l4_size_t num, int dst_pool,
+                  l4_addr_t dst_addr, l4_size_t dst_size,
+                  l4_addr_t dst_align, l4_uint32_t flags,
+                  const char * name, l4dm_dataspace_t * copy);
 
 L4_CV l4os3_cap_idx_t
 (*l4env_get_default_dsm_ptr)(void);
@@ -191,6 +205,13 @@ l4rm_do_reserve(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
 }
 
 L4_CV int
+l4rm_do_reserve_in_area(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
+                l4_uint32_t * area)
+{
+  return l4rm_do_reserve_in_area_ptr(addr, size, flags, area);
+}
+
+L4_CV int
 l4rm_set_userptr(const void * addr, void * ptr)
 {
   return l4rm_set_userptr_ptr(addr, ptr);
@@ -224,6 +245,17 @@ L4_CV l4os3_cap_idx_t
 l4rm_region_mapper_id(void)
 {
   return l4rm_rm_id();
+}
+
+L4_CV int
+l4dm_memphys_copy(const l4dm_dataspace_t * ds, l4_offs_t src_offs,
+                  l4_offs_t dst_offs, l4_size_t num, int dst_pool,
+                  l4_addr_t dst_addr, l4_size_t dst_size,
+                  l4_addr_t dst_align, l4_uint32_t flags,
+                  const char * name, l4dm_dataspace_t * copy)
+{
+  return l4dm_memphys_copy_(ds, src_offs, dst_offs, num, dst_pool,
+                  dst_addr, dst_size, dst_align, flags, name, copy);
 }
 
 L4_CV l4os3_cap_idx_t
@@ -297,12 +329,14 @@ void kalInit(struct kal_init_struct *s)
   l4rm_lookup_ptr    = s->l4rm_lookup;
   l4rm_lookup_region_ptr = s->l4rm_lookup_region;
   l4rm_do_reserve_ptr    = s->l4rm_do_reserve;
+  l4rm_do_reserve_in_area_ptr = s->l4rm_do_reserve_in_area;
   l4rm_set_userptr_ptr   = s->l4rm_set_userptr; 
   l4rm_get_userptr_ptr   = s->l4rm_get_userptr; 
   l4rm_area_release_ptr  = s->l4rm_area_release;
   l4rm_area_release_addr_ptr = s->l4rm_area_release_addr;
   l4rm_show_region_list_ptr = s->l4rm_show_region_list;
   l4rm_rm_id = s->l4rm_region_mapper_id;
+  l4dm_memphys_copy_ = s->l4dm_memphys_copy;
   l4env_get_default_dsm_ptr  = s->l4env_get_default_dsm;
   l4thread_exit_ = s->l4thread_exit;
   l4thread_on_exit_ = s->l4thread_on_exit;
@@ -497,10 +531,10 @@ kalRead (HFILE hFile, PVOID pBuffer,
 
   kalEnter();
 
-  io_log("started\n");
-  io_log("hFile=%x\n", hFile);
-  io_log("pBuffer=%x\n", pBuffer);
-  io_log("cbRead=%u\n", cbRead);
+  //io_log("started\n");
+  //io_log("hFile=%x\n", hFile);
+  //io_log("pBuffer=%x\n", pBuffer);
+  //io_log("cbRead=%u\n", cbRead);
   
   if (!cbRead)
   {
@@ -511,7 +545,7 @@ kalRead (HFILE hFile, PVOID pBuffer,
   rc = os2fs_dos_Read_call(&fs, hFile, (char **)&pBuffer, &cbRead, &env);
   *pcbActual = cbRead;
 
-  io_log("*pcbActual=%u\n", *pcbActual);
+  //io_log("*pcbActual=%u\n", *pcbActual);
 
   kalQuit();
 
@@ -528,10 +562,10 @@ kalWrite (HFILE hFile, PVOID pBuffer,
 
   kalEnter();
 
-  io_log("started\n");
-  io_log("hFile=%x\n", hFile);
-  io_log("pBuffer=%x\n", pBuffer);
-  io_log("cbWrite=%u\n", cbWrite);
+  //io_log("started\n");
+  //io_log("hFile=%x\n", hFile);
+  //io_log("pBuffer=%x\n", pBuffer);
+  //io_log("cbWrite=%u\n", cbWrite);
 
   if (!cbWrite)
   {
@@ -542,7 +576,7 @@ kalWrite (HFILE hFile, PVOID pBuffer,
   rc = os2fs_dos_Write_call(&fs, hFile, pBuffer, &cbWrite, &env);
   *pcbActual = cbWrite;
 
-  io_log("*pcbActual=%u\n", *pcbActual);
+  //io_log("*pcbActual=%u\n", *pcbActual);
 
   kalQuit();
 
@@ -910,9 +944,9 @@ kalPvtLoadModule(char *pszName,
   if (rc)
     return rc;
 
-  if (s->exeflag)
+  if (s->exeflag) // store .exe sections in default (private) area
     area = L4RM_DEFAULT_REGION_AREA;
-  else
+  else // and .dll sections in shared area
     area = shared_memory_area;
 
   io_log("os2exec_load_call() called, rc=%d\n", rc);
@@ -1056,12 +1090,31 @@ kalError(ULONG error)
 //#define PAG_WRITE    0x00000002
 //#define PAG_GUARD    0x00000008
 
-typedef struct
+vmdata_t *get_area(l4_addr_t addr)
 {
-  char name[256];        // name for named shared mem
-  l4_uint32_t   rights;  // OS/2-style access flags
-  l4_uint32_t   area;    // area id
-} vmdata_t;
+  vmdata_t *ptr;
+
+  for (ptr = areas_list; ptr; ptr = ptr->next)
+  {
+    if (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
+      break;
+  }
+
+  return ptr;
+}
+
+vmdata_t *get_mem_by_name(char *pszName)
+{
+  vmdata_t *ptr;
+
+  for (ptr = areas_list; ptr; ptr = ptr->next)
+  {
+    if (ptr->name[0] && ! strcmp(ptr->name, pszName))
+      break;
+  }
+
+  return ptr;
+}
 
 APIRET CDECL
 kalAllocMem(PVOID *ppb,
@@ -1104,10 +1157,17 @@ kalAllocMem(PVOID *ppb,
   }
 
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
-  l4rm_set_userptr((void *)addr, ptr);
+  //l4rm_set_userptr((void *)addr, ptr);
 
   ptr->rights = (l4_uint32_t)flags;
   ptr->area   = area;
+  ptr->name[0] = '\0';
+  ptr->addr   = addr;
+  ptr->size   = cb;
+  if (areas_list) areas_list->prev = ptr;
+  ptr->next   = areas_list;
+  ptr->prev   = 0;
+  areas_list  = ptr;
 
   if (flags & PAG_COMMIT)
   {
@@ -1154,81 +1214,257 @@ kalFreeMem(PVOID pb)
   int rc, ret;
 
   kalEnter();
+  io_log("kalFreeMem\n");
   io_log("pb=%x\n", pb);
 
-  ret = l4rm_lookup_region(pb, &addr, &size, &ds,
-                     &offset, &pager);
+  ptr = get_area((l4_addr_t)pb);
 
-  switch (ret)
+  if (! ptr)
+    return ERROR_INVALID_ADDRESS;
+
+  io_log("000\n");
+  addr = ptr->addr;
+
+  io_log("001\n");
+  // detach and release all dataspaces in ptr->area
+  while (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
   {
-    case L4RM_REGION_RESERVED:
-      break;
-    case L4RM_REGION_DATASPACE:
-      rc = l4rm_detach((void *)addr);
-      if (ret)
+    io_log("002\n");
+    ret = l4rm_lookup_region((void *)addr, &addr, &size, &ds,
+                             &offset, &pager);
+
+    if (ret < 0)
+      return ERROR_INVALID_ADDRESS;
+
+    io_log("003: ret=%d\n", ret);
+    switch (ret)
+    {
+      case L4RM_REGION_RESERVED:
+      case L4RM_REGION_FREE:
+        break;
+      case L4RM_REGION_DATASPACE:
+        l4rm_detach((void *)addr);
+        break;
+      default:
+        kalQuit();
+        return ERROR_INVALID_ADDRESS;
+    }
+
+    io_log("004\n");
+    if (ret == L4RM_REGION_DATASPACE)
+    {
+      rc = l4dm_close(&ds);
+
+      if (rc)
       {
         kalQuit();
-        return 5; /* ERROR_ACCESS_DENIED */
+        return ERROR_ACCESS_DENIED;
       }
-      break;
-    default:
-      kalQuit();
-      return ERROR_INVALID_ADDRESS;
+    }
+
+    io_log("005\n");
+    addr += size;
   }
 
-  rc = l4rm_area_release(addr);
+  io_log("006\n");
+  rc = l4rm_area_release_addr((void *)ptr->addr);
 
-  if (rc)
+  if (rc < 0)
   {
     kalQuit();
     return ERROR_ACCESS_DENIED;
   }
 
-  if ( (ptr = l4rm_get_userptr((void *)addr)) )
-  {
-    if (ptr->rights & PAG_SHARED)
-      os2exec_release_sharemem_call(&execsrv, addr, &env);
+  io_log("007\n");
+  if (ptr->area == shared_memory_area)
+    // release area at os2exec
+    os2exec_release_sharemem_call(&execsrv, ptr->addr, &env);
 
-    l4rm_area_release(ptr->area);
-  }
-
-  if (ret == L4RM_REGION_DATASPACE)
-  {
-    rc = l4dm_close(&ds);
-
-    if (rc)
-    {
-      kalQuit();
-      return 5; /* ERROR_ACCESS_DENIED */
-    }
-  }
+  io_log("008\n");
+  free(ptr);
+  //l4rm_set_userptr((void *)addr, NULL);
 
   kalQuit();
   return 0; /* NO_ERROR */
 }
 
+/* commit cb bytes starting from pb address */
+int commit_pages(PVOID pb,
+                 ULONG cb,
+                 l4_uint32_t rights)
+{
+  l4_addr_t addr;
+  l4_size_t size;
+  l4_offs_t offset;
+  l4os3_cap_idx_t pager;
+  l4dm_dataspace_t ds;
+  vmdata_t *ptr;
+  int rc;
+
+  ptr = get_area((l4_addr_t)pb);
+
+  if (! ptr)
+    return ERROR_INVALID_ADDRESS;
+
+  for (;;)
+  {
+    rc = l4rm_lookup_region(pb, &addr, &size, &ds,
+                            &offset, &pager);
+
+    if (rc < 0)
+      return ERROR_INVALID_ADDRESS;
+
+    switch (rc)
+    {
+      case L4RM_REGION_RESERVED:
+        rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb, 4096,
+                           rights, "DosAllocMem dataspace", &ds);
+        if (rc < 0)
+          return ERROR_NOT_ENOUGH_MEMORY;
+
+        rc = attach_ds_area(ds, ptr->area, rights, (l4_addr_t)pb);
+
+        if (rc < 0)
+          return ERROR_NOT_ENOUGH_MEMORY;
+
+        break;
+
+      default:
+        ;
+    }
+
+    if ((l4_addr_t)pb + cb <= addr + size)
+      break;
+
+    cb -= addr + size - (l4_addr_t)pb;
+    pb += addr + size - (l4_addr_t)pb;
+  }
+
+  return NO_ERROR;
+}
+
+/* decommit cb bytes starting from pb address */
+int decommit_pages(PVOID pb,
+                   ULONG cb,
+                   l4_uint32_t rights)
+{
+  l4_addr_t addr;
+  l4_size_t size;
+  l4_offs_t offset;
+  l4os3_cap_idx_t pager;
+  l4dm_dataspace_t ds, ds1, ds2;
+  vmdata_t *ptr;
+  int rc;
+
+  ptr = get_area((l4_addr_t)pb);
+
+  if (! ptr)
+    return ERROR_INVALID_ADDRESS;
+
+  for (;;)
+  {
+    rc = l4rm_lookup_region(pb, &addr, &size, &ds,
+                            &offset, &pager);
+
+    if (rc < 0)
+      return ERROR_INVALID_ADDRESS;
+
+    switch (rc)
+    {
+      case L4RM_REGION_DATASPACE:
+        // detach dataspace first
+        l4rm_detach((void *)addr);
+
+        if ((l4_addr_t)pb > addr)
+        {
+          // copy dataspace before hole
+          rc = l4dm_memphys_copy(&ds, 0, 0, (l4_addr_t)pb - addr,
+                                 L4DM_MEMPHYS_DEFAULT, L4DM_MEMPHYS_ANY_ADDR,
+                                 (l4_addr_t)pb - addr, 4096, 0,
+                                 "DosAllocMem dataspace", &ds1);
+
+          if (rc < 0)
+          {
+            kalQuit();
+            return 8; /* What to return? */
+          }
+
+          // attach dataspace part before hole
+          rc = l4rm_area_attach_to_region(&ds1, ptr->area, (void *)addr,
+                                          (l4_addr_t)pb - addr, 0, rights);
+
+          if (rc < 0)
+          {
+            kalQuit();
+            return 8; /* What to return? */
+          }
+        }
+
+        if ((l4_addr_t)pb + cb < addr + size)
+        {
+          // copy dataspace after hole
+          rc = l4dm_memphys_copy(&ds, (l4_addr_t)pb + cb - addr, 0, addr + size - (l4_addr_t)pb - cb,
+                                 L4DM_MEMPHYS_DEFAULT, L4DM_MEMPHYS_ANY_ADDR,
+                                 addr + size - (l4_addr_t)pb - cb, 4096, 0,
+                                 "DosAllocMem dataspace", &ds2);
+
+          if (rc < 0)
+          {
+            kalQuit();
+            return 8; /* What to return? */
+          }
+
+          // attach dataspace part after hole
+          rc = l4rm_area_attach_to_region(&ds2, ptr->area, pb + cb,
+                                          addr + size - (l4_addr_t)pb - cb, 0, rights);
+
+          if (rc < 0)
+          {
+            kalQuit();
+            return 8; /* What to return? */
+          }
+        }
+
+        l4dm_close(&ds);
+        break;
+
+      default:
+        ;
+    }
+
+    if ((l4_addr_t)pb + cb <= addr + size)
+      break;
+
+    cb -= addr + size - (l4_addr_t)pb;
+    pb += addr + size - (l4_addr_t)pb;
+  }
+
+  return NO_ERROR;
+}
 
 APIRET CDECL
 kalSetMem(PVOID pb,
           ULONG cb,
 	  ULONG flags)
 {
-  //CORBA_Environment env = dice_default_environment;
-  l4_uint32_t area = 0;
   vmdata_t *ptr;
   l4_uint32_t rights = 0;
-  l4_addr_t addr;
-  l4_size_t size;
-  l4_offs_t offset;
-  l4os3_cap_idx_t pager;
-  l4dm_dataspace_t ds;
-  int rc, ret;
+  int rc = 0;
 
   kalEnter();
+
   io_log("pb=%x\n", pb);
   io_log("cb=%u\n", cb);
   io_log("flags=%x\n", flags);
-  
+
+  ptr = get_area((l4_addr_t)pb);
+
+  if (! ptr)
+    return ERROR_INVALID_ADDRESS;
+
+  if (flags & PAG_DEFAULT)
+    flags |= ptr->rights;
+
   if (flags & PAG_READ)
     rights |= L4DM_READ;
 
@@ -1238,87 +1474,25 @@ kalSetMem(PVOID pb,
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = l4rm_lookup_region(pb, &addr, &size, &ds,
-                     &offset, &pager);
+  if ( !(flags & PAG_DECOMMIT) && !(flags & PAG_DEFAULT) &&
+       !(flags & PAG_READ) && !(flags & PAG_WRITE) && !(flags & PAG_EXECUTE) )
+    return ERROR_INVALID_PARAMETER;
 
-  switch (rc)
+  if ( (flags & PAG_COMMIT) && (flags & PAG_DECOMMIT) )
+    return ERROR_INVALID_PARAMETER;
+
+  if (flags & PAG_COMMIT)
   {
-    case L4RM_REGION_RESERVED:
-      break;
-    case L4RM_REGION_DATASPACE:
-      rc = l4rm_detach((void *)addr);
-      if (rc)
-      {
-        kalQuit();
-        return ERROR_ACCESS_DENIED;
-      }
-      break;
-    default:
-      kalQuit();
-      return ERROR_INVALID_ADDRESS;
+    ptr->rights |= PAG_COMMIT;
+    rc = commit_pages(pb, cb, rights);
+  }
+  else if (flags & PAG_DECOMMIT)
+  {
+    ptr->rights &= ~PAG_COMMIT;
+    rc = decommit_pages(pb, cb, rights);
   }
 
-  ptr = l4rm_get_userptr((void *)addr);
-
-  if (ptr)
-    area = ptr->area;
-
-  if (rc == L4RM_REGION_RESERVED)
-  {
-    /* Create a dataspace of a given size */
-    ret = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
-               4096, rights, "DosAllocMem dataspace", &ds);
-
-    //enter_kdebug(">");
-    if (ret < 0)
-    {
-      kalQuit();
-      return 8; /* ERROR_NOT_ENOUGH_MEMORY */
-    }
-  }
-  else if (rc == L4RM_REGION_DATASPACE)
-  {
-    /* decommit memory */
-    ret = l4rm_detach((void *)addr);
-
-    if (ret)
-    {
-      kalQuit();
-      return 5; /* ERROR_ACCESS_DENIED */
-    }
-  }
-
-  if (!(flags & PAG_DECOMMIT))
-  {
-    if (flags & PAG_DEFAULT)
-    {
-      rc = l4dm_mem_resize(&ds, cb);
-
-      if (rc)
-      {
-        switch (-rc)
-        {
-  	  case L4_ENOMEM:
-	    return ERROR_NOT_ENOUGH_MEMORY;
-	  default:
-	    return ERROR_ACCESS_DENIED;
-        }
-      }
-    }
-
-    if (flags & PAG_COMMIT)
-    {
-      /* attach the created dataspace to our address space */
-      //rc = attach_ds_reg(ds, rights, addr);
-      rc = attach_ds_area(ds, area, rights, addr);
-
-      if (rc)
-      {
-        kalQuit();
-        return 8; /* What to return? */
-      }
-    }
-  }
+  // @todo Implement PAG_GUARD (need exceptions implementation)
 
   kalQuit();
   return rc;
@@ -1329,8 +1503,6 @@ kalQueryMem(PVOID  pb,
             PULONG pcb,
 	    PULONG pflags)
 {
-  //CORBA_Environment env = dice_default_environment;
-  //l4_uint32_t area;
   vmdata_t *ptr;
   l4_uint32_t rights = 0;
   l4_addr_t addr;
@@ -1338,31 +1510,59 @@ kalQueryMem(PVOID  pb,
   l4_offs_t offset;
   l4os3_cap_idx_t pager;
   l4os3_ds_t ds;
-  int rc;
+  int rc = 0, ret;
+  void *base;
+  ULONG totsize = 0;
 
   kalEnter();
-  rc = l4rm_lookup_region(pb, &addr, &size, &ds,
-                          &offset, &pager);
 
-  switch (rc)
+  io_log("kalQueryMem\n");
+
+  if (! pcb || ! pflags)
+    return ERROR_INVALID_PARAMETER;
+
+  ptr = get_area((l4_addr_t)pb);
+
+  if (! ptr)
+    return ERROR_INVALID_ADDRESS;
+
+  base = pb;
+
+  io_log("000\n");
+
+  do
   {
-    case L4RM_REGION_RESERVED:
-    case L4RM_REGION_DATASPACE:
-      if ( (ptr = l4rm_get_userptr((void *)addr)) )
-	rights = ptr->rights;
-      break;
-    case L4RM_REGION_FREE:
-      rights = PAG_FREE; 
-      break;
-    default:
-      kalQuit();
-      return ERROR_INVALID_ADDRESS;
-  }
+    io_log("001\n");
+    ret = l4rm_lookup_region(base, &addr, &size, &ds,
+                             &offset, &pager);
 
-  if ((l4_addr_t)pb - addr <= L4_PAGESIZE)
+    switch (ret)
+    {
+      case L4RM_REGION_DATASPACE:
+        io_log("002 addr=%x, size=%x, ds=%x\n", addr, size, ds.id);
+        rights  = ptr->rights;
+        if (addr + size <= pb + *pcb)
+          totsize += size;
+        break;
+      case L4RM_REGION_RESERVED:
+        break;
+      case L4RM_REGION_FREE:
+        rights = PAG_FREE;
+        break;
+      default:
+        kalQuit();
+        return ERROR_INVALID_ADDRESS;
+    }
+
+    base = (void *)addr + size;
+  } while (base < pb + *pcb);
+
+  io_log("003\n");
+
+  if ((l4_addr_t)pb - ptr->addr <= L4_PAGESIZE)
     rights |= PAG_BASE;
 
-  *pcb = size;
+  *pcb = totsize;
   *pflags = rights;
 
   kalQuit();
@@ -1377,12 +1577,28 @@ kalAllocSharedMem(PPVOID ppb,
 {
   CORBA_Environment env = dice_default_environment;
   l4_uint32_t rights = 0;
-  l4_uint32_t area;
+  l4_uint32_t area = shared_memory_area;
   l4dm_dataspace_t ds;
   l4_addr_t addr;
+  vmdata_t  *ptr;
+  char *p;
   int rc;
 
   kalEnter();
+
+  if (! ppb)
+    return ERROR_INVALID_PARAMETER;
+
+  // uppercase pszName
+  for (p = pszName; *p; p++)
+    *p = toupper(*p);
+
+  if (strstr(pszName, "\\SHAREMEM\\") != pszName)
+    return ERROR_INVALID_NAME;
+
+  if (get_mem_by_name(pszName))
+    return ERROR_ALREADY_EXISTS;
+
   if (flags & PAG_READ)
     rights |= L4DM_READ;
 
@@ -1393,13 +1609,40 @@ kalAllocSharedMem(PPVOID ppb,
     rights |= L4DM_READ;
 
   // reserve area on os2exec and attach data to it (user pointer)
-  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &area, &addr, &env);
+  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &env);
 
   if (rc)
   {
     kalQuit();
     return ERROR_NOT_ENOUGH_MEMORY;
   }
+
+  // reserve the same area in local region mapper
+  rc = l4rm_area_reserve_in_area(cb, 0, &addr, &area);
+
+  if (rc)
+  {
+    kalQuit();
+    return ERROR_NOT_ENOUGH_MEMORY;
+  }
+
+  ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+
+  if (! ptr)
+  {
+    kalQuit();
+    return ERROR_NOT_ENOUGH_MEMORY;
+  }
+
+  ptr->area = area;
+  ptr->rights = flags;
+  ptr->addr = addr;
+  ptr->size = cb;
+  if (pszName) strcpy(ptr->name, pszName);
+  if (areas_list) areas_list->prev = ptr;
+  ptr->next = areas_list;
+  ptr->prev = 0;
+  areas_list = ptr;
 
   if (flags & PAG_COMMIT)
   {

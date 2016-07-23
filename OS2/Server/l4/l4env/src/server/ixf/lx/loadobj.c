@@ -149,7 +149,7 @@ unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 	  ixfModule->EntryPoint = lx_obj->o32_base + get_eip(lx_exe_mod);
 	  
 	section = (l4exec_section_t *)malloc(sizeof(l4exec_section_t));
-        io_log("section=%x", section);
+        io_log("section=%x\n", section);
 	s = (slist_t *)malloc(sizeof(slist_t));
 	s->next = 0;
 	s->section = section;
@@ -169,7 +169,7 @@ unsigned int vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 	section->info.type = L4_DSTYPE_READ | L4_DSTYPE_WRITE | L4_DSTYPE_EXECUTE;
 	section->info.id   = (unsigned short)ixfSysDep->secnum;
 	ixfSysDep->secnum++;
-	io_log("secnum=%u", ixfSysDep->secnum);
+	io_log("secnum=%u\n", ixfSysDep->secnum);
     #else
         DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
     #endif
@@ -263,7 +263,7 @@ void apply_internal_fixup(struct LX_module * lx_exe_mod, struct r32_rlc * min_rl
   vm_target = vm_start_target_obj + get_imp_ord1_rlc(min_rlc)/*trgoffs*/;
   vm_source = vm_start_of_page + srcoff_cnt1;
 
-  io_log("!source=%x, target=%x, addit=%d", vm_source, vm_target, addit);
+  io_log("!source=%x, target=%x, addit=%d\n", vm_source, vm_target, addit);
 
   ptr_source = (unsigned long int *)vm_source;
   *ptr_source = vm_target;

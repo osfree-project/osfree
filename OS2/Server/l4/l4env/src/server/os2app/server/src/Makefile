@@ -9,7 +9,7 @@ SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c dl.c api/api.c
 CFLAGS          = -I$(PKGDIR)/../../../include
 # NO_DEFAULT_RELOC= 1
 LIBS		= -los2exec -los2fs -los2server -los2compat -lloaderif -levents \
-                  -ldl -llist_alloc -lgeneric_fprov -ldemangle
+                  -ldl -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
 #                  -Bdynamic -lkal.s
 # LDFLAGS		= -shared
 DEFAULT_RELOC   = 0xbb000000

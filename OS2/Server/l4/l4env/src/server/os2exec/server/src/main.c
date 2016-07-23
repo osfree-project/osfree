@@ -32,6 +32,7 @@ extern "C" {
 #include <l4/os3/dataspace.h>
 #include <l4/os3/thread.h>
 #include <l4/os3/types.h>
+#include <l4/os3/kal.h>
 #include <l4/os3/io.h>
 
 /* OS/2 Server includes */
@@ -70,6 +71,8 @@ extern struct module_rec module_root;
 /* Root mem area for memmgr */
 struct t_mem_area root_area;
 
+vmdata_t *areas_list = NULL;
+
 void app_pager(void *unused);
 
 extern IXFHandler *IXFHandlers;
@@ -100,9 +103,6 @@ os2exec_open_component (CORBA_Object _dice_corba_obj,
                         CORBA_Server_Environment *_dice_corba_env)
 {
   char exeflag = flags & OPENFLAG_EXEC;
-  /* Error info from ModLoadModule */
-  //char chLoadError[CCHMAXPATH];
-
   return OpenModule(*chLoadError, *cbLoadError, fname, exeflag, hmod);
 }
 
@@ -135,7 +135,7 @@ os2exec_load_component (CORBA_Object _dice_corba_obj,
   s->sp_limit = sysdep->stack_low;
   s->hmod = hmod;
 
-  io_log("load_component exited\n");  
+  io_log("load_component exited\n");
 
   return rc;
 }
@@ -249,9 +249,9 @@ getimp(unsigned long hmod,
     hmod2 = 0;
 #endif
   *imp_hmod = hmod2;
-  ++ *index;  
+  ++ *index;
 
-  return rc;  
+  return rc;
 }
 
 long DICE_CV
@@ -277,7 +277,7 @@ os2exec_getsect_component (CORBA_Object _dice_corba_obj,
   IXFSYSDEP *sysdep;
   slist_t   *s, *r = NULL;
   int i;
-  
+
   ixf = (IXFModule *)hmod;
   sysdep = (IXFSYSDEP *)(ixf->hdlSysDep);
   s = sysdep->seclist;
@@ -298,7 +298,7 @@ os2exec_getsect_component (CORBA_Object _dice_corba_obj,
 
   memmove((char *)sect, (char *)r->section, sizeof(l4exec_section_t));
   ++ *index;
-  
+
   return 0;
 }
 
@@ -335,36 +335,50 @@ os2exec_query_modname_component (CORBA_Object _dice_corba_obj,
   return ModQueryModuleName(hmod, cbBuf, *pBuf);
 }
 
-
-typedef struct
+vmdata_t *get_area(l4_addr_t addr)
 {
-  char name[256];        // name for named shared mem
-  l4_uint32_t   rights;  // OS/2-style access flags
-  l4_uint32_t   area;    // area id
-} vmdata_t;
+  vmdata_t *ptr;
 
-/*   get a free area of specified size and reserve it in shared arena
- */
+  for (ptr = areas_list; ptr; ptr = ptr->next)
+  {
+    if (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
+      break;
+  }
+
+  return ptr;
+}
+
 long DICE_CV
 os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
                                     l4_uint32_t size /* in */,
                                     const char *name /* in */,
                                     unsigned long rights /* in */,
-                                    l4_uint32_t *area /* out */,
                                     l4_addr_t *addr /* out */,
                                     CORBA_Server_Environment *_dice_corba_env)
 {
-  //l4_uint32_t area;
+  l4_uint32_t area = shared_memory_area;
   vmdata_t *ptr;
   int rc = 0;
 
-  rc =  l4rm_area_reserve(size, 0, addr, area);
+  rc =  l4rm_area_reserve_in_area(size, 0, addr, &area);
+
+  if (rc < 0)
+    return ERROR_NOT_ENOUGH_MEMORY;
+
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
-  if (!ptr) return 1;
+
+  if (!ptr) 
+    return ERROR_NOT_ENOUGH_MEMORY;
+
   ptr->area = area;
+  ptr->addr = *addr;
+  ptr->size = size;
   if (name) strcpy(ptr->name, name);
   ptr->rights = rights;
-  l4rm_set_userptr(addr, ptr);
+  if (areas_list) areas_list->prev = ptr;
+  ptr->next = areas_list;
+  ptr->prev = 0;
+  areas_list = ptr;
 
   return rc;
 }
@@ -431,15 +445,15 @@ os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
   while (desc)
   {
     ptr = (vmdata_t *)desc->userptr;
-    
+
     if (ptr && !strcmp(name, ptr->name))
     {
       found = 1;
       break;
     }
     desc = desc->next;
-  }  
-  
+  }
+
   if (found)
   {
     *addr = desc->start;
@@ -461,7 +475,7 @@ os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
   vmdata_t *ptr;
 
   ptr = l4rm_get_userptr((void *)addr);
-  if (!ptr) return 1;
+  if (!ptr) return 1; // ???
   area = ptr->area;
   free(ptr);
   return l4rm_area_release(area);
@@ -550,7 +564,7 @@ load_ixfs (void)
   if (!rc) return 1;
 
   io_log("Identify=%x, Load=%x, Fixup=%x\n",
-             handler->Identify, handler->Load, handler->Fixup);  
+             handler->Identify, handler->Load, handler->Fixup);
 
   IXFHandlers = handler;
 
@@ -558,7 +572,7 @@ load_ixfs (void)
   if (!rc) return 1;
 
   io_log("Identify=%x, Load=%x, Fixup=%x\n",
-             handler->next->Identify, handler->next->Load, handler->next->Fixup);  
+             handler->next->Identify, handler->next->Load, handler->next->Fixup);
 
   return 0;
 }
@@ -567,7 +581,7 @@ void usage(void)
 {
   io_log("execsrv usage:\n");
   io_log("-e:  Use events server");
-} 
+}
 
 #if 0
 void event_thread(void)
@@ -594,8 +608,8 @@ void event_thread(void)
   {
     /* wait for event */
     if ((rc = l4events_give_ack_and_receive(&event_ch, &event, &event_nr,
-					    L4_IPC_NEVER,
-					    L4EVENTS_RECV_ACK))<0)
+                                            L4_IPC_NEVER,
+                                            L4EVENTS_RECV_ACK))<0)
     {
       io_log("l4events_give_ack_and_receive()\n");
       continue;
@@ -629,7 +643,7 @@ int main (int argc, char *argv[])
   const struct option long_options[] =
                 {
                 { "events",      no_argument, NULL, 'e'},
-		{ 0, 0, 0, 0}
+                { 0, 0, 0, 0}
                 };
 
   //init_globals();
@@ -671,9 +685,9 @@ int main (int argc, char *argv[])
     {
       case 'e':
         io_log("using events server\n");
-	use_events = 1;
-	break;
-      
+        use_events = 1;
+        break;
+
       default:
         io_log("Error: Unknown option %c\n", opt);
         usage();
@@ -693,13 +707,13 @@ int main (int argc, char *argv[])
      (not for use by libraries, loaded by execsrv) */
   addr = 0x2f000; size = 0x04000000 - addr;
   if ((rc  = l4rm_direct_area_setup_region(addr,
-					   size,
-					   L4RM_DEFAULT_REGION_AREA,
-					   L4RM_REGION_BLOCKED, 0,
-					   L4_INVALID_ID)) < 0)
+                                           size,
+                                           L4RM_DEFAULT_REGION_AREA,
+                                           L4RM_REGION_BLOCKED, 0,
+                                           L4_INVALID_ID)) < 0)
     {
       io_log("main(): setup region %x-%x failed (%d)!\n",
-	  addr, addr + size, rc);
+        addr, addr + size, rc);
       l4rm_show_region_list();
       enter_kdebug("PANIC");
     }
@@ -740,7 +754,7 @@ int main (int argc, char *argv[])
   /* get our l4env infopage as a dataspace */
   rc = l4loader_app_info_call(&loader, l4_myself().id.task,
                               0, &p, &ds, &e);
-  /* attach it */  
+  /* attach it */
   attach_ds(&ds, L4DM_RO, (l4_addr_t *)&infopage);
 
 #if 0

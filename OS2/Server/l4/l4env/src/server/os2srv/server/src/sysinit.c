@@ -140,12 +140,12 @@ void exec_protshell(cfg_opts *options)
                         0);
 
   if (rc != NO_ERROR) 
-    io_log("Error execute: %d ('%s')", rc, options->protshell);
+    io_log("Error execute: %d ('%s')\n", rc, options->protshell);
 
   // Clean up config data
   rc = CfgCleanup();
   if (rc != NO_ERROR)
-    io_log("CONFIG.SYS parser cleanup error.");
+    io_log("CONFIG.SYS parser cleanup error.\n");
 }
 
 void
@@ -163,7 +163,7 @@ exec_runserver(int ppid)
   for (i = 0; i < 5; i++)
   {
     name = (char *)type[i].name;
-    io_log("name=%s", name);
+    io_log("name=%s\n", name);
     if (!strcmp(name, "RUNSERVER"))
     {
       for (j = 0; j < type[i].ip; j++)
@@ -183,17 +183,17 @@ exec_runserver(int ppid)
         free(q);
 
 	l4os3_exec (p, params, &tid);
-        io_log("started task: %x.%x", tid.id.task, tid.id.lthread);
+        io_log("started task: %x.%x\n", tid.id.task, tid.id.lthread);
 
         /* set task number */
         proc->task = tid;
 
         if (strstr(p, "os2fs"))
 	{
-	  io_log("os2fs started");
+	  io_log("os2fs started\n");
 	  if (!names_waitfor_name("os2fs", &fs, 30000))
 	  {
-	    io_log("Can't find os2fs on name server!");
+	    io_log("Can't find os2fs on name server!\n");
 	    return;
 	  }
 	}
@@ -209,14 +209,14 @@ exec_runserver(int ppid)
 	to      = getcmd (skipto(0, strstr(s, "-TIMEOUT")));
 	timeout = atoi (to);
 
-        io_log("LOOKFOR:%s, TIMEOUT:%d", server, timeout);
+        io_log("LOOKFOR:%s, TIMEOUT:%d\n", server, timeout);
 	if (*server && !names_waitfor_name(server, &tid, timeout))
 	{
-	  io_log("Timeout waiting for %s", server);
+	  io_log("Timeout waiting for %s\n", server);
 	  return;
 	}
       }
-      io_log("Server %s started", server);
+      io_log("Server %s started\n", server);
     }  
   }
     

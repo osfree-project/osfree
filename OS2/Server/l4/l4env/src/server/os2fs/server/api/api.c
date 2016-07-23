@@ -96,10 +96,10 @@ os2fs_dos_Write_component(CORBA_Object _dice_corba_obj,
 {
   //char *s;
   int  nwritten;
-  
-  io_log("entered\n");
+
+  //io_log("entered\n");
   nwritten = write(handle, pBuffer, *count);
-  io_log("in the middle\n");
+  //io_log("in the middle\n");
   if (nwritten == -1)
   {
     io_log("write() error, errno=%d\n", errno);
@@ -111,9 +111,9 @@ os2fs_dos_Write_component(CORBA_Object _dice_corba_obj,
     }
   }
 
-  io_log("nwritten=%u\n", nwritten);
+  //io_log("nwritten=%u\n", nwritten);
   *count = nwritten;
-  io_log("exited\n");
+  //io_log("exited\n");
   return 0/*NO_ERROR*/;
 }
 

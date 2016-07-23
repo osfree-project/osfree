@@ -10,6 +10,7 @@
 #include <getopt.h>
 /* L4 includes */
 #include <l4/util/rdtsc.h>
+#include <l4/dm_phys/dm_phys.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/names/libnames.h>
 #include <l4/generic_ts/generic_ts.h>
@@ -230,11 +231,13 @@ int main (int argc, char *argv[])
   initstr.l4rm_lookup        = l4rm_lookup;
   initstr.l4rm_lookup_region = l4rm_lookup_region;
   initstr.l4rm_do_reserve  = l4rm_do_reserve;
+  initstr.l4rm_do_reserve_in_area  = l4rm_do_reserve_in_area;
   initstr.l4rm_set_userptr   = l4rm_set_userptr; 
   initstr.l4rm_get_userptr   = l4rm_get_userptr;
   initstr.l4rm_area_release  = l4rm_area_release;
   initstr.l4rm_area_release_addr = l4rm_area_release_addr;
   initstr.l4rm_show_region_list = l4rm_show_region_list;
+  initstr.l4dm_memphys_copy = l4dm_memphys_copy;
   initstr.l4env_get_default_dsm  = l4env_get_default_dsm;
   initstr.l4thread_exit = l4thread_exit;
   initstr.l4thread_on_exit = l4thread_on_exit;
