@@ -1,0 +1,55 @@
+//
+//   COMPONENT_NAME: some
+//
+//   ORIGINS: 27
+//
+//
+//    25H7912  (C)  COPYRIGHT International Business Machines Corp. 1992,1994,1996 
+//   All Rights Reserved
+//   Licensed Materials - Property of IBM
+//   US Government Users Restricted Rights - Use, duplication or
+//   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+//
+//#  @(#) somc/scseqnce.idl 2.8 5/9/96 15:31:24 [12/22/96 21:12:11]
+
+
+#ifndef scseqnce_idl
+#define scseqnce_idl
+
+#include <scentry.idl>
+
+interface SOMTSequenceEntryC : SOMTEntryC
+{
+  readonly attribute long somtSeqLength;
+  // The length of the sequence.
+
+  readonly attribute SOMTEntryC somtSeqType;
+  // The type of the sequence.
+
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somtSeqLength, _get_somtSeqType, _get_somtSeqTypedef;
+  
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scseqnce;
+#ifdef _WIN32
+    dllname = "some.dll";
+#endif
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    somDumpSelfInt: override;
+    somtSetSymbolsOnEntry: override;
+  
+    //# Attribute Modifiers
+    somtSeqLength: nodata;
+    somtSeqType: nodata;
+    somtSeqTypedef: nodata;
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scseqnce*/

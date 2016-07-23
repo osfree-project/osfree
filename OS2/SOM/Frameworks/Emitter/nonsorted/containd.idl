@@ -1,0 +1,165 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: containd.idl 3923 2013-01-18 22:11:57Z rogerb $
+ */
+
+#ifndef containd_idl
+#define containd_idl
+
+#include <somobj.idl>
+
+struct somModifier
+{
+	string name;
+	string value;
+};
+
+#ifndef containr_idl
+   interface Container;
+   typedef string Identifier;
+#endif
+
+typedef string RepositoryId;
+
+
+interface Contained : 
+	SOMObject
+{
+	/**********************************************************
+	 * attributes are all owned by the object (unless remote...)
+	 */
+	struct Description
+	{
+		/**********************************
+		 * CORBA 2.1 changes this to a kind enum
+		 */
+		Identifier name;
+		any value;
+	};
+	/*************************************************
+	 * CORBA 2.1 spec says this should be a readonly Container 
+	 */
+	attribute RepositoryId defined_in;
+	attribute Identifier name;
+	attribute RepositoryId id;
+
+	typedef sequence<somModifier> somModifierSeq;
+	attribute somModifierSeq somModifiers;
+	typedef sequence<Container> ContainerSeq;
+
+    /*****************************************
+	 * within() result should be free'd by
+	 * doing somFree on each element of _buffer
+	 * SOMFree on the buffer
+	 */
+
+	ContainerSeq within();
+
+	/*********************************
+	 * describe() result should be free'd by
+	 * doing SOMFree on result.value._value 
+	 */
+
+	Description describe();
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		_get_somModifiers: dual_owned_result;
+		_get_name: dual_owned_result;
+		_get_id: dual_owned_result;
+		_get_defined_in: dual_owned_result;
+		describe: dual_owned_result;
+		_set_name : caller_owns_parameters="name";
+		_set_id : caller_owns_parameters="id";
+		_set_defined_in : caller_owns_parameters="defined_in";
+		_set_somModifiers : caller_owns_parameters="somModifiers";
+
+		releaseorder : 
+			within,
+			describe,
+			_get_name,
+			_set_name,
+			_get_id,
+			_set_id,
+			_get_defined_in,
+			_set_defined_in,
+			_get_somModifiers,
+			_set_somModifiers,
+			_get_repository,
+			_set_repository,
+			_get_reference_list,
+			_set_reference_list,
+			_get_iid,
+			_get_defined_in_obj,
+			getFixedPersistentSize,
+			getVariablePersistentSize,
+			putDataInFixedBuf,
+			putDataInVariableBuf,
+			getDataFromFixedBuf,
+			getDataFromVariableBuf,
+			saveToIR,
+			fixedDirty,
+			variableDirty,
+			addToReferenceList,
+			allocDef,
+			removeFromReferenceList,
+			incrementUseCount,
+			deleteFromIR,
+			forceFree,
+			freeUnreferenced,
+			decrementUseCount
+			;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		dllname = "somir.dll";
+		filestem = containd;
+        /*************************************
+		 * the TC_Contained_td is a more correct version than IBM defined
+		 * as it did not deal with 64bit and potential alignment issues 
+		 * not sure which module is supposed to provide the actual thing
+		 */
+
+		passthru C_h="#include <somir.h>"
+			"#define RepositoryId string"
+			"#define _IDL_SEQUENCE_RepositoryId _IDL_SEQUENCE_string"
+			"#define TC_Contained ((TypeCode) &TC__Contained)"
+			"typedef struct {TCKind tag; short align; unsigned char version; unsigned char flags; string interfaceId;} TC_Contained_td;"
+			"SOMEXTERN TC_Contained_td SOMDLINK TC__Contained;"
+			"";
+
+		passthru C_xh="#include <somir.xh>"
+			"#define RepositoryId string"
+			"#define _IDL_SEQUENCE_RepositoryId _IDL_SEQUENCE_string"
+			"#define TC_Contained ((TypeCode) &TC__Contained)"
+			"typedef struct {TCKind tag; short align; unsigned char version; unsigned char flags; string interfaceId;} TC_Contained_td;"
+			"SOMEXTERN TC_Contained_td SOMDLINK TC__Contained;"
+			"";
+
+
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* containd_idl */

@@ -1,0 +1,4630 @@
+/* generated from somos.idl */
+/* internal conditional is SOM_Module_somos_Source */
+#ifndef SOM_Module_somos_Header_xh
+	#define SOM_Module_somos_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	#include <somdserv.xh>
+	#include <somdtype.xh>
+	#include <containd.xh>
+	#include <snglicls.xh>
+	#include <somcls.xh>
+	#include <xnaming.xh>
+	#include <naming.xh>
+	#include <somdcprx.xh>
+	#include <somproxy.xh>
+	#include <somdobj.xh>
+	#include <unotypes.xh>
+	#include <xmscssae.xh>
+	#include <omgidobj.xh>
+		class somOS_Server;
+		#ifndef _IDL_SEQUENCE_somOS_Server_defined
+			#define _IDL_SEQUENCE_somOS_Server_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(somOS_Server * ,sequence(somOS_Server));
+		#endif /* _IDL_SEQUENCE_somOS_Server_defined */
+		class somOS_ServiceBase;
+		#ifndef _IDL_SEQUENCE_somOS_ServiceBase_defined
+			#define _IDL_SEQUENCE_somOS_ServiceBase_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(somOS_ServiceBase * ,sequence(somOS_ServiceBase));
+		#endif /* _IDL_SEQUENCE_somOS_ServiceBase_defined */
+		class somOS_ServiceBasePRef;
+		#ifndef _IDL_SEQUENCE_somOS_ServiceBasePRef_defined
+			#define _IDL_SEQUENCE_somOS_ServiceBasePRef_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(somOS_ServiceBasePRef * ,sequence(somOS_ServiceBasePRef));
+		#endif /* _IDL_SEQUENCE_somOS_ServiceBasePRef_defined */
+		class somOS_ServiceBaseCORBA;
+		#ifndef _IDL_SEQUENCE_somOS_ServiceBaseCORBA_defined
+			#define _IDL_SEQUENCE_somOS_ServiceBaseCORBA_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(somOS_ServiceBaseCORBA * ,sequence(somOS_ServiceBaseCORBA));
+		#endif /* _IDL_SEQUENCE_somOS_ServiceBaseCORBA_defined */
+		class somOS_ServiceBasePRefCORBA;
+		#ifndef _IDL_SEQUENCE_somOS_ServiceBasePRefCORBA_defined
+			#define _IDL_SEQUENCE_somOS_ServiceBasePRefCORBA_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(somOS_ServiceBasePRefCORBA * ,sequence(somOS_ServiceBasePRefCORBA));
+		#endif /* _IDL_SEQUENCE_somOS_ServiceBasePRefCORBA_defined */
+		#ifndef somOS_service_id_defined
+			#define somOS_service_id_defined
+			typedef unsigned long somOS_service_id;
+			#ifndef somOS_somOSNaming
+				#define somOS_somOSNaming 1UL
+			#endif /* somOS_somOSNaming */
+			#ifndef somOS_somOSEvents
+				#define somOS_somOSEvents 2UL
+			#endif /* somOS_somOSEvents */
+			#ifndef somOS_somOSLifeCycle
+				#define somOS_somOSLifeCycle 3UL
+			#endif /* somOS_somOSLifeCycle */
+			#ifndef somOS_somOSPersistence
+				#define somOS_somOSPersistence 4UL
+			#endif /* somOS_somOSPersistence */
+			#ifndef somOS_somOSSecurity
+				#define somOS_somOSSecurity 5UL
+			#endif /* somOS_somOSSecurity */
+			#ifndef somOS_somOSObjectIdentity
+				#define somOS_somOSObjectIdentity 6UL
+			#endif /* somOS_somOSObjectIdentity */
+			#ifndef somOS_somOSTransactions
+				#define somOS_somOSTransactions 7UL
+			#endif /* somOS_somOSTransactions */
+			#ifndef somOS_somOSConcurrency
+				#define somOS_somOSConcurrency 8UL
+			#endif /* somOS_somOSConcurrency */
+			#ifndef somOS_somOSExternalization
+				#define somOS_somOSExternalization 9UL
+			#endif /* somOS_somOSExternalization */
+			#ifndef somOS_somOSAttributePersistence
+				#define somOS_somOSAttributePersistence 10UL
+			#endif /* somOS_somOSAttributePersistence */
+			#ifndef somOS_somOSLastEnum
+				#define somOS_somOSLastEnum 11UL
+			#endif /* somOS_somOSLastEnum */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_service_id
+					#if defined(service_id)
+						#undef service_id
+						#define SOMGD_service_id
+					#else
+						#define service_id somOS_service_id
+					#endif
+				#endif /* SOMGD_service_id */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* somOS_service_id_defined */
+		typedef somOS_service_id somOS_service_id_e;
+		#ifndef _IDL_SEQUENCE_somOS_service_id_defined
+			#define _IDL_SEQUENCE_somOS_service_id_defined
+			SOM_SEQUENCE_TYPEDEF(somOS_service_id);
+		#endif /* _IDL_SEQUENCE_somOS_service_id_defined */
+		typedef struct somOS_metastate_struct
+		{
+			somOS_service_id_e svc_id;
+			unsigned short version_major;
+			unsigned short version_minor;
+			any service_metastate;
+		} somOS_metastate_struct;
+		#ifndef _IDL_SEQUENCE_somOS_metastate_struct_defined
+			#define _IDL_SEQUENCE_somOS_metastate_struct_defined
+			SOM_SEQUENCE_TYPEDEF(somOS_metastate_struct);
+		#endif /* _IDL_SEQUENCE_somOS_metastate_struct_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_metastate_struct
+				#if defined(metastate_struct)
+					#undef metastate_struct
+					#define SOMGD_metastate_struct
+				#else
+					#define metastate_struct somOS_metastate_struct
+				#endif
+			#endif /* SOMGD_metastate_struct */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_metastate_struct_defined
+				#define _IDL_SEQUENCE_metastate_struct_defined
+				#define _IDL_SEQUENCE_metastate_struct _IDL_SEQUENCE_somOS_metastate_struct
+			#endif /* _IDL_SEQUENCE_metastate_struct_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef somOS_metastate_struct somOS_metastate_struct_t;
+#ifndef somOS_Server_API
+#define somOS_Server_API
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_make_persistent_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_make_persistent_ref,system)
+			typedef somTP_somOS_Server_make_persistent_ref *somTD_somOS_Server_make_persistent_ref;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_make_persistent_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_delete_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_delete_ref,system)
+			typedef somTP_somOS_Server_delete_ref *somTD_somOS_Server_delete_ref;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_delete_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_has_persistent_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_has_persistent_ref,system)
+			typedef somTP_somOS_Server_has_persistent_ref *somTD_somOS_Server_has_persistent_ref;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_has_persistent_ref)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_passivate_object)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_passivate_object,system)
+			typedef somTP_somOS_Server_passivate_object *somTD_somOS_Server_passivate_object;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_passivate_object)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_passivate_all_objects)(
+				somOS_Server * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_Server_passivate_all_objects,system)
+			typedef somTP_somOS_Server_passivate_all_objects *somTD_somOS_Server_passivate_all_objects;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_passivate_all_objects)(
+				somOS_Server * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_store_service_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object,
+				/* in */ somOS_service_id_e somos_service_id,
+				/* in */ any *service_metadata);
+			#pragma linkage(somTP_somOS_Server_store_service_metastate,system)
+			typedef somTP_somOS_Server_store_service_metastate *somTD_somOS_Server_store_service_metastate;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_store_service_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object,
+				/* in */ somOS_service_id_e somos_service_id,
+				/* in */ any *service_metadata);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_store_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_store_metastate,system)
+			typedef somTP_somOS_Server_store_metastate *somTD_somOS_Server_store_metastate;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_store_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_restore_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+			#pragma linkage(somTP_somOS_Server_restore_metastate,system)
+			typedef somTP_somOS_Server_restore_metastate *somTD_somOS_Server_restore_metastate;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_restore_metastate)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * referenced_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMDObject * (somTP_somOS_Server_somdRefFromSOMObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj);
+			#pragma linkage(somTP_somOS_Server_somdRefFromSOMObj,system)
+			typedef somTP_somOS_Server_somdRefFromSOMObj *somTD_somOS_Server_somdRefFromSOMObj;
+		#else /* __IBMC__ */
+			typedef SOMDObject * (SOMLINK * somTD_somOS_Server_somdRefFromSOMObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somdSOMObjFromRef)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMDObject * objref);
+			#pragma linkage(somTP_somOS_Server_somdSOMObjFromRef,system)
+			typedef somTP_somOS_Server_somdSOMObjFromRef *somTD_somOS_Server_somdSOMObjFromRef;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somdSOMObjFromRef)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMDObject * objref);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somdDispatchMethod)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_Server_somdDispatchMethod,system)
+			typedef somTP_somOS_Server_somdDispatchMethod *somTD_somOS_Server_somdDispatchMethod;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somdDispatchMethod)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somdCreateObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string objclass,
+				/* in */ string hints);
+			#pragma linkage(somTP_somOS_Server_somdCreateObj,system)
+			typedef somTP_somOS_Server_somdCreateObj *somTD_somOS_Server_somdCreateObj;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somdCreateObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string objclass,
+				/* in */ string hints);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somdDeleteObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj);
+			#pragma linkage(somTP_somOS_Server_somdDeleteObj,system)
+			typedef somTP_somOS_Server_somdDeleteObj *somTD_somOS_Server_somdDeleteObj;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somdDeleteObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ SOMObject * somobj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_Server_somdGetClassObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string objclass);
+			#pragma linkage(somTP_somOS_Server_somdGetClassObj,system)
+			typedef somTP_somOS_Server_somdGetClassObj *somTD_somOS_Server_somdGetClassObj;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_Server_somdGetClassObj)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string objclass);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somdObjReferencesCached)(
+				somOS_Server * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_Server_somdObjReferencesCached,system)
+			typedef somTP_somOS_Server_somdObjReferencesCached *somTD_somOS_Server_somdObjReferencesCached;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somdObjReferencesCached)(
+				somOS_Server * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somdCreateFactory)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string className,
+				/* in */ ExtendedNaming_PropertyList *props);
+			#pragma linkage(somTP_somOS_Server_somdCreateFactory,system)
+			typedef somTP_somOS_Server_somdCreateFactory *somTD_somOS_Server_somdCreateFactory;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somdCreateFactory)(
+				somOS_Server * somSelf,
+				Environment *ev,
+				/* in */ string className,
+				/* in */ ExtendedNaming_PropertyList *props);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_Server__get_ImplDefObject
+		#error somTD_somOS_Server__get_ImplDefObject already defined
+	#else /* somTD_somOS_Server__get_ImplDefObject */
+		#define somTD_somOS_Server__get_ImplDefObject somTD_somOS_Server_somC_get_ImplDefObject
+	#endif /* somTD_somOS_Server__get_ImplDefObject */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_somOS_Server__get_ImplDefObject
+		#error somTP_somOS_Server__get_ImplDefObject already defined
+	#else /* somTP_somOS_Server__get_ImplDefObject */
+		#define somTP_somOS_Server__get_ImplDefObject somTP_somOS_Server_somC_get_ImplDefObject
+	#endif /* somTP_somOS_Server__get_ImplDefObject */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef ImplementationDef * (somTP_somOS_Server__get_ImplDefObject)(
+				somOS_Server * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_Server__get_ImplDefObject,system)
+			typedef somTP_somOS_Server__get_ImplDefObject *somTD_somOS_Server__get_ImplDefObject;
+		#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_Server__get_ImplDefObject
+		#error somTD_somOS_Server__get_ImplDefObject already defined
+	#else /* somTD_somOS_Server__get_ImplDefObject */
+		#define somTD_somOS_Server__get_ImplDefObject somTD_somOS_Server_somC_get_ImplDefObject
+	#endif /* somTD_somOS_Server__get_ImplDefObject */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef ImplementationDef * (SOMLINK * somTD_somOS_Server__get_ImplDefObject)(
+				somOS_Server * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somInit)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somInit,system)
+			typedef somTP_somOS_Server_somInit *somTD_somOS_Server_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somInit)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somUninit)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somUninit,system)
+			typedef somTP_somOS_Server_somUninit *somTD_somOS_Server_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somUninit)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somFree)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somFree,system)
+			typedef somTP_somOS_Server_somFree *somTD_somOS_Server_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somFree)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_Server_somGetClass)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somGetClass,system)
+			typedef somTP_somOS_Server_somGetClass *somTD_somOS_Server_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_Server_somGetClass)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_somOS_Server_somGetClassName)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somGetClassName,system)
+			typedef somTP_somOS_Server_somGetClassName *somTD_somOS_Server_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_somOS_Server_somGetClassName)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_somOS_Server_somGetSize)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somGetSize,system)
+			typedef somTP_somOS_Server_somGetSize *somTD_somOS_Server_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_somOS_Server_somGetSize)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somIsA)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_Server_somIsA,system)
+			typedef somTP_somOS_Server_somIsA *somTD_somOS_Server_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somIsA)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somIsInstanceOf)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_Server_somIsInstanceOf,system)
+			typedef somTP_somOS_Server_somIsInstanceOf *somTD_somOS_Server_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somIsInstanceOf)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somRespondsTo)(
+				somOS_Server * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_somOS_Server_somRespondsTo,system)
+			typedef somTP_somOS_Server_somRespondsTo *somTD_somOS_Server_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somRespondsTo)(
+				somOS_Server * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somDispatch)(
+				somOS_Server * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_Server_somDispatch,system)
+			typedef somTP_somOS_Server_somDispatch *somTD_somOS_Server_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somDispatch)(
+				somOS_Server * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somClassDispatch)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_Server_somClassDispatch,system)
+			typedef somTP_somOS_Server_somClassDispatch *somTD_somOS_Server_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somClassDispatch)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somCastObj)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_somOS_Server_somCastObj,system)
+			typedef somTP_somOS_Server_somCastObj *somTD_somOS_Server_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somCastObj)(
+				somOS_Server * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_Server_somResetObj)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somResetObj,system)
+			typedef somTP_somOS_Server_somResetObj *somTD_somOS_Server_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_Server_somResetObj)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somPrintSelf)(
+				somOS_Server * somSelf);
+			#pragma linkage(somTP_somOS_Server_somPrintSelf,system)
+			typedef somTP_somOS_Server_somPrintSelf *somTD_somOS_Server_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somPrintSelf)(
+				somOS_Server * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDumpSelf)(
+				somOS_Server * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_Server_somDumpSelf,system)
+			typedef somTP_somOS_Server_somDumpSelf *somTD_somOS_Server_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDumpSelf)(
+				somOS_Server * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDumpSelfInt)(
+				somOS_Server * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_Server_somDumpSelfInt,system)
+			typedef somTP_somOS_Server_somDumpSelfInt *somTD_somOS_Server_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDumpSelfInt)(
+				somOS_Server * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDefaultInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_somOS_Server_somDefaultInit,system)
+			typedef somTP_somOS_Server_somDefaultInit *somTD_somOS_Server_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDefaultInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDefaultCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultCopyInit,system)
+			typedef somTP_somOS_Server_somDefaultCopyInit *somTD_somOS_Server_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDefaultCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDefaultConstCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultConstCopyInit,system)
+			typedef somTP_somOS_Server_somDefaultConstCopyInit *somTD_somOS_Server_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDefaultConstCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDefaultVCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultVCopyInit,system)
+			typedef somTP_somOS_Server_somDefaultVCopyInit *somTD_somOS_Server_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDefaultVCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDefaultConstVCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultConstVCopyInit,system)
+			typedef somTP_somOS_Server_somDefaultConstVCopyInit *somTD_somOS_Server_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDefaultConstVCopyInit)(
+				somOS_Server * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somDefaultAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultAssign,system)
+			typedef somTP_somOS_Server_somDefaultAssign *somTD_somOS_Server_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somDefaultAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somDefaultConstAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultConstAssign,system)
+			typedef somTP_somOS_Server_somDefaultConstAssign *somTD_somOS_Server_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somDefaultConstAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somDefaultVAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultVAssign,system)
+			typedef somTP_somOS_Server_somDefaultVAssign *somTD_somOS_Server_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somDefaultVAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_Server_somDefaultConstVAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_Server_somDefaultConstVAssign,system)
+			typedef somTP_somOS_Server_somDefaultConstVAssign *somTD_somOS_Server_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_Server_somDefaultConstVAssign)(
+				somOS_Server * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_Server_somDestruct)(
+				somOS_Server * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_somOS_Server_somDestruct,system)
+			typedef somTP_somOS_Server_somDestruct *somTD_somOS_Server_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_Server_somDestruct)(
+				somOS_Server * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef somOS_Server_MajorVersion
+			#define somOS_Server_MajorVersion   3
+		#endif /* somOS_Server_MajorVersion */
+		#ifndef somOS_Server_MinorVersion
+			#define somOS_Server_MinorVersion   0
+		#endif /* somOS_Server_MinorVersion */
+		typedef struct somOS_ServerClassDataStructure
+		{
+			SOMMSingleInstance * classObject;
+			somMToken make_persistent_ref;
+			somMToken delete_ref;
+			somMToken passivate_object;
+			somMToken passivate_all_objects;
+			somMToken store_metastate;
+			somMToken restore_metastate;
+			somMToken has_persistent_ref;
+			somMToken store_service_metastate;
+		} somOS_ServerClassDataStructure;
+		typedef struct somOS_ServerCClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} somOS_ServerCClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_Server_Class_Source)
+				SOMEXTERN struct somOS_ServerClassDataStructure _somOS_ServerClassData;
+				#ifndef somOS_ServerClassData
+					#define somOS_ServerClassData    _somOS_ServerClassData
+				#endif /* somOS_ServerClassData */
+			#else
+				SOMEXTERN struct somOS_ServerClassDataStructure * SOMLINK resolve_somOS_ServerClassData(void);
+				#ifndef somOS_ServerClassData
+					#define somOS_ServerClassData    (*(resolve_somOS_ServerClassData()))
+				#endif /* somOS_ServerClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_Server_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+			struct somOS_ServerClassDataStructure SOMDLINK somOS_ServerClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_Server_Class_Source)
+				SOMEXTERN struct somOS_ServerCClassDataStructure _somOS_ServerCClassData;
+				#ifndef somOS_ServerCClassData
+					#define somOS_ServerCClassData    _somOS_ServerCClassData
+				#endif /* somOS_ServerCClassData */
+			#else
+				SOMEXTERN struct somOS_ServerCClassDataStructure * SOMLINK resolve_somOS_ServerCClassData(void);
+				#ifndef somOS_ServerCClassData
+					#define somOS_ServerCClassData    (*(resolve_somOS_ServerCClassData()))
+				#endif /* somOS_ServerCClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_Server_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+			struct somOS_ServerCClassDataStructure SOMDLINK somOS_ServerCClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_somos_Source) || defined(somOS_Server_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_somos_Source || somOS_Server_Class_Source */
+		SOMMSingleInstance * SOMLINK somOS_ServerNewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_somOS_Server (somOS_ServerClassData.classObject)
+		#ifndef SOMGD_somOS_Server
+			#if (defined(_somOS_Server) || defined(__somOS_Server))
+				#undef _somOS_Server
+				#undef __somOS_Server
+				#define SOMGD_somOS_Server 1
+			#else
+				#define _somOS_Server _SOMCLASS_somOS_Server
+			#endif /* _somOS_Server */
+		#endif /* SOMGD_somOS_Server */
+		#define somOS_Server_classObj _SOMCLASS_somOS_Server
+		#define _SOMMTOKEN_somOS_Server(method) ((somMToken)(somOS_ServerClassData.method))
+#endif /* somOS_Server_API */
+
+		class somOS_Server : public SOMDServer
+		{
+		protected:
+			somOS_Server(somMethodTab & mtab)
+				: SOMDServer(mtab)
+			{}
+		public:
+
+			inline SOMObject * make_persistent_ref(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				return SOM_Resolve((void *)this,somOS_Server,make_persistent_ref)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline void delete_ref(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				SOM_Resolve((void *)this,somOS_Server,delete_ref)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline boolean has_persistent_ref(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				return SOM_Resolve((void *)this,somOS_Server,has_persistent_ref)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline void passivate_object(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				SOM_Resolve((void *)this,somOS_Server,passivate_object)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline void passivate_all_objects(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_Server,passivate_all_objects)
+						((somOS_Server *)(void *)this,ev);
+			};
+
+			inline void store_service_metastate(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object,
+			/* in */ somOS_service_id_e somos_service_id,
+			/* in */ any *service_metadata)
+			{
+				SOM_Resolve((void *)this,somOS_Server,store_service_metastate)
+						((somOS_Server *)(void *)this,ev,referenced_object,somos_service_id,service_metadata);
+			};
+
+			inline void store_metastate(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				SOM_Resolve((void *)this,somOS_Server,store_metastate)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline void restore_metastate(
+			Environment *ev,
+			/* in */ SOMObject * referenced_object)
+			{
+				SOM_Resolve((void *)this,somOS_Server,restore_metastate)
+						((somOS_Server *)(void *)this,ev,referenced_object);
+			};
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!somOS_ServerClassData.classObject)
+				{ somOS_ServerNewClass(somOS_Server_MajorVersion,somOS_Server_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)somOS_ServerClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)somOS_ServerClassData.classObject);
+			};
+			somOS_Server()
+				: SOMDServer(*(somOS_ServerCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServerCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			somOS_Server(somOS_Server *fromObj)
+				: SOMDServer(*(somOS_ServerCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServerCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+#ifndef somOS_ServiceBase_API
+#define somOS_ServiceBase_API
+		typedef _IDL_SEQUENCE_somOS_metastate_struct somOS_ServiceBase_metastate_t;
+		#ifndef _IDL_SEQUENCE_somOS_ServiceBase_metastate_t_defined
+			#define _IDL_SEQUENCE_somOS_ServiceBase_metastate_t_defined
+			SOM_SEQUENCE_TYPEDEF(somOS_ServiceBase_metastate_t);
+		#endif /* _IDL_SEQUENCE_somOS_ServiceBase_metastate_t_defined */
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_reinit)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBase_reinit,system)
+			typedef somTP_somOS_ServiceBase_reinit *somTD_somOS_ServiceBase_reinit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_reinit)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_capture)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBase_capture,system)
+			typedef somTP_somOS_ServiceBase_capture *somTD_somOS_ServiceBase_capture;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_capture)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_GetInstanceManager)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_GetInstanceManager,system)
+			typedef somTP_somOS_ServiceBase_GetInstanceManager *somTD_somOS_ServiceBase_GetInstanceManager;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_GetInstanceManager)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_init_for_object_creation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_init_for_object_creation,system)
+			typedef somTP_somOS_ServiceBase_init_for_object_creation *somTD_somOS_ServiceBase_init_for_object_creation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_init_for_object_creation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_init_for_object_reactivation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_init_for_object_reactivation,system)
+			typedef somTP_somOS_ServiceBase_init_for_object_reactivation *somTD_somOS_ServiceBase_init_for_object_reactivation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_init_for_object_reactivation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_init_for_object_copy)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_init_for_object_copy,system)
+			typedef somTP_somOS_ServiceBase_init_for_object_copy *somTD_somOS_ServiceBase_init_for_object_copy;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_init_for_object_copy)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_uninit_for_object_move)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_uninit_for_object_move,system)
+			typedef somTP_somOS_ServiceBase_uninit_for_object_move *somTD_somOS_ServiceBase_uninit_for_object_move;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_uninit_for_object_move)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_uninit_for_object_passivation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_uninit_for_object_passivation,system)
+			typedef somTP_somOS_ServiceBase_uninit_for_object_passivation *somTD_somOS_ServiceBase_uninit_for_object_passivation;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_uninit_for_object_passivation)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_uninit_for_object_destruction)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase_uninit_for_object_destruction,system)
+			typedef somTP_somOS_ServiceBase_uninit_for_object_destruction *somTD_somOS_ServiceBase_uninit_for_object_destruction;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_uninit_for_object_destruction)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBase__get_constant_random_id
+		#error somTD_somOS_ServiceBase__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBase__get_constant_random_id */
+		#define somTD_somOS_ServiceBase__get_constant_random_id somTD_somOS_ServiceBase_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBase__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_somOS_ServiceBase__get_constant_random_id
+		#error somTP_somOS_ServiceBase__get_constant_random_id already defined
+	#else /* somTP_somOS_ServiceBase__get_constant_random_id */
+		#define somTP_somOS_ServiceBase__get_constant_random_id somTP_somOS_ServiceBase_somC_get_constant_random_id
+	#endif /* somTP_somOS_ServiceBase__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (somTP_somOS_ServiceBase__get_constant_random_id)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBase__get_constant_random_id,system)
+			typedef somTP_somOS_ServiceBase__get_constant_random_id *somTD_somOS_ServiceBase__get_constant_random_id;
+		#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBase__get_constant_random_id
+		#error somTD_somOS_ServiceBase__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBase__get_constant_random_id */
+		#define somTD_somOS_ServiceBase__get_constant_random_id somTD_somOS_ServiceBase_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBase__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (SOMLINK * somTD_somOS_ServiceBase__get_constant_random_id)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_is_identical)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+			#pragma linkage(somTP_somOS_ServiceBase_is_identical,system)
+			typedef somTP_somOS_ServiceBase_is_identical *somTD_somOS_ServiceBase_is_identical;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_is_identical)(
+				somOS_ServiceBase * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somInit)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somInit,system)
+			typedef somTP_somOS_ServiceBase_somInit *somTD_somOS_ServiceBase_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somInit)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somUninit)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somUninit,system)
+			typedef somTP_somOS_ServiceBase_somUninit *somTD_somOS_ServiceBase_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somUninit)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somFree)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somFree,system)
+			typedef somTP_somOS_ServiceBase_somFree *somTD_somOS_ServiceBase_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somFree)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_ServiceBase_somGetClass)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somGetClass,system)
+			typedef somTP_somOS_ServiceBase_somGetClass *somTD_somOS_ServiceBase_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_ServiceBase_somGetClass)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_somOS_ServiceBase_somGetClassName)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somGetClassName,system)
+			typedef somTP_somOS_ServiceBase_somGetClassName *somTD_somOS_ServiceBase_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_somOS_ServiceBase_somGetClassName)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_somOS_ServiceBase_somGetSize)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somGetSize,system)
+			typedef somTP_somOS_ServiceBase_somGetSize *somTD_somOS_ServiceBase_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_somOS_ServiceBase_somGetSize)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somIsA)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somIsA,system)
+			typedef somTP_somOS_ServiceBase_somIsA *somTD_somOS_ServiceBase_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somIsA)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somIsInstanceOf)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somIsInstanceOf,system)
+			typedef somTP_somOS_ServiceBase_somIsInstanceOf *somTD_somOS_ServiceBase_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somIsInstanceOf)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somRespondsTo)(
+				somOS_ServiceBase * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_somOS_ServiceBase_somRespondsTo,system)
+			typedef somTP_somOS_ServiceBase_somRespondsTo *somTD_somOS_ServiceBase_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somRespondsTo)(
+				somOS_ServiceBase * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somDispatch)(
+				somOS_ServiceBase * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBase_somDispatch,system)
+			typedef somTP_somOS_ServiceBase_somDispatch *somTD_somOS_ServiceBase_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somDispatch)(
+				somOS_ServiceBase * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somClassDispatch)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBase_somClassDispatch,system)
+			typedef somTP_somOS_ServiceBase_somClassDispatch *somTD_somOS_ServiceBase_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somClassDispatch)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somCastObj)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_somOS_ServiceBase_somCastObj,system)
+			typedef somTP_somOS_ServiceBase_somCastObj *somTD_somOS_ServiceBase_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somCastObj)(
+				somOS_ServiceBase * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBase_somResetObj)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somResetObj,system)
+			typedef somTP_somOS_ServiceBase_somResetObj *somTD_somOS_ServiceBase_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBase_somResetObj)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_somPrintSelf)(
+				somOS_ServiceBase * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBase_somPrintSelf,system)
+			typedef somTP_somOS_ServiceBase_somPrintSelf *somTD_somOS_ServiceBase_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_somPrintSelf)(
+				somOS_ServiceBase * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDumpSelf)(
+				somOS_ServiceBase * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBase_somDumpSelf,system)
+			typedef somTP_somOS_ServiceBase_somDumpSelf *somTD_somOS_ServiceBase_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDumpSelf)(
+				somOS_ServiceBase * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDumpSelfInt)(
+				somOS_ServiceBase * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBase_somDumpSelfInt,system)
+			typedef somTP_somOS_ServiceBase_somDumpSelfInt *somTD_somOS_ServiceBase_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDumpSelfInt)(
+				somOS_ServiceBase * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDefaultInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultInit,system)
+			typedef somTP_somOS_ServiceBase_somDefaultInit *somTD_somOS_ServiceBase_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDefaultInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDefaultCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultCopyInit,system)
+			typedef somTP_somOS_ServiceBase_somDefaultCopyInit *somTD_somOS_ServiceBase_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDefaultCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDefaultConstCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultConstCopyInit,system)
+			typedef somTP_somOS_ServiceBase_somDefaultConstCopyInit *somTD_somOS_ServiceBase_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDefaultConstCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDefaultVCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultVCopyInit,system)
+			typedef somTP_somOS_ServiceBase_somDefaultVCopyInit *somTD_somOS_ServiceBase_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDefaultVCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDefaultConstVCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultConstVCopyInit,system)
+			typedef somTP_somOS_ServiceBase_somDefaultConstVCopyInit *somTD_somOS_ServiceBase_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDefaultConstVCopyInit)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_somDefaultAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultAssign,system)
+			typedef somTP_somOS_ServiceBase_somDefaultAssign *somTD_somOS_ServiceBase_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_somDefaultAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_somDefaultConstAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultConstAssign,system)
+			typedef somTP_somOS_ServiceBase_somDefaultConstAssign *somTD_somOS_ServiceBase_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_somDefaultConstAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_somDefaultVAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultVAssign,system)
+			typedef somTP_somOS_ServiceBase_somDefaultVAssign *somTD_somOS_ServiceBase_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_somDefaultVAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBase_somDefaultConstVAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBase_somDefaultConstVAssign,system)
+			typedef somTP_somOS_ServiceBase_somDefaultConstVAssign *somTD_somOS_ServiceBase_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBase_somDefaultConstVAssign)(
+				somOS_ServiceBase * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBase_somDestruct)(
+				somOS_ServiceBase * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBase_somDestruct,system)
+			typedef somTP_somOS_ServiceBase_somDestruct *somTD_somOS_ServiceBase_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBase_somDestruct)(
+				somOS_ServiceBase * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef somOS_ServiceBase_MajorVersion
+			#define somOS_ServiceBase_MajorVersion   3
+		#endif /* somOS_ServiceBase_MajorVersion */
+		#ifndef somOS_ServiceBase_MinorVersion
+			#define somOS_ServiceBase_MinorVersion   0
+		#endif /* somOS_ServiceBase_MinorVersion */
+		typedef struct somOS_ServiceBaseClassDataStructure
+		{
+			SOMClass * classObject;
+			somMToken reinit;
+			somMToken capture;
+			somMToken init_for_object_creation;
+			somMToken init_for_object_reactivation;
+			somMToken init_for_object_copy;
+			somMToken uninit_for_object_move;
+			somMToken uninit_for_object_passivation;
+			somMToken uninit_for_object_destruction;
+			somMToken _get_som_uuid;
+			somMToken GetInstanceManager;
+		} somOS_ServiceBaseClassDataStructure;
+		typedef struct somOS_ServiceBaseCClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} somOS_ServiceBaseCClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBase_Class_Source)
+				SOMEXTERN struct somOS_ServiceBaseClassDataStructure _somOS_ServiceBaseClassData;
+				#ifndef somOS_ServiceBaseClassData
+					#define somOS_ServiceBaseClassData    _somOS_ServiceBaseClassData
+				#endif /* somOS_ServiceBaseClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBaseClassDataStructure * SOMLINK resolve_somOS_ServiceBaseClassData(void);
+				#ifndef somOS_ServiceBaseClassData
+					#define somOS_ServiceBaseClassData    (*(resolve_somOS_ServiceBaseClassData()))
+				#endif /* somOS_ServiceBaseClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBase_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+			struct somOS_ServiceBaseClassDataStructure SOMDLINK somOS_ServiceBaseClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBase_Class_Source)
+				SOMEXTERN struct somOS_ServiceBaseCClassDataStructure _somOS_ServiceBaseCClassData;
+				#ifndef somOS_ServiceBaseCClassData
+					#define somOS_ServiceBaseCClassData    _somOS_ServiceBaseCClassData
+				#endif /* somOS_ServiceBaseCClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBaseCClassDataStructure * SOMLINK resolve_somOS_ServiceBaseCClassData(void);
+				#ifndef somOS_ServiceBaseCClassData
+					#define somOS_ServiceBaseCClassData    (*(resolve_somOS_ServiceBaseCClassData()))
+				#endif /* somOS_ServiceBaseCClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBase_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+			struct somOS_ServiceBaseCClassDataStructure SOMDLINK somOS_ServiceBaseCClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBase_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_somos_Source || somOS_ServiceBase_Class_Source */
+		SOMClass * SOMLINK somOS_ServiceBaseNewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_somOS_ServiceBase (somOS_ServiceBaseClassData.classObject)
+		#ifndef SOMGD_somOS_ServiceBase
+			#if (defined(_somOS_ServiceBase) || defined(__somOS_ServiceBase))
+				#undef _somOS_ServiceBase
+				#undef __somOS_ServiceBase
+				#define SOMGD_somOS_ServiceBase 1
+			#else
+				#define _somOS_ServiceBase _SOMCLASS_somOS_ServiceBase
+			#endif /* _somOS_ServiceBase */
+		#endif /* SOMGD_somOS_ServiceBase */
+		#define somOS_ServiceBase_classObj _SOMCLASS_somOS_ServiceBase
+		#define _SOMMTOKEN_somOS_ServiceBase(method) ((somMToken)(somOS_ServiceBaseClassData.method))
+#endif /* somOS_ServiceBase_API */
+
+		class somOS_ServiceBase : public CosObjectIdentity_IdentifiableObject
+		{
+		protected:
+			somOS_ServiceBase(somMethodTab & mtab)
+				: CosObjectIdentity_IdentifiableObject(mtab)
+			{}
+		public:
+
+			inline void reinit(
+			Environment *ev,
+			/* in */ somOS_ServiceBase_metastate_t *meta_data)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,reinit)
+						((somOS_ServiceBase *)(void *)this,ev,meta_data);
+			};
+
+			inline void capture(
+			Environment *ev,
+			/* inout */ somOS_ServiceBase_metastate_t *meta_data)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,capture)
+						((somOS_ServiceBase *)(void *)this,ev,meta_data);
+			};
+
+			inline SOMObject * GetInstanceManager(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,GetInstanceManager)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline SOMObject * init_for_object_creation(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_creation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline SOMObject * init_for_object_reactivation(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_reactivation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline SOMObject * init_for_object_copy(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_copy)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline void uninit_for_object_move(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_move)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline void uninit_for_object_passivation(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_passivation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline void uninit_for_object_destruction(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_destruction)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!somOS_ServiceBaseClassData.classObject)
+				{ somOS_ServiceBaseNewClass(somOS_ServiceBase_MajorVersion,somOS_ServiceBase_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)somOS_ServiceBaseClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)somOS_ServiceBaseClassData.classObject);
+			};
+			somOS_ServiceBase()
+				: CosObjectIdentity_IdentifiableObject(*(somOS_ServiceBaseCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBaseCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			somOS_ServiceBase(somOS_ServiceBase *fromObj)
+				: CosObjectIdentity_IdentifiableObject(*(somOS_ServiceBaseCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBaseCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+#ifndef somOS_ServiceBasePRef_API
+#define somOS_ServiceBasePRef_API
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_reinit)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_reinit,system)
+			typedef somTP_somOS_ServiceBasePRef_reinit *somTD_somOS_ServiceBasePRef_reinit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_reinit)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_capture)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_capture,system)
+			typedef somTP_somOS_ServiceBasePRef_capture *somTD_somOS_ServiceBasePRef_capture;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_capture)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_GetInstanceManager)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_GetInstanceManager,system)
+			typedef somTP_somOS_ServiceBasePRef_GetInstanceManager *somTD_somOS_ServiceBasePRef_GetInstanceManager;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_GetInstanceManager)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_init_for_object_creation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_init_for_object_creation,system)
+			typedef somTP_somOS_ServiceBasePRef_init_for_object_creation *somTD_somOS_ServiceBasePRef_init_for_object_creation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_init_for_object_creation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_init_for_object_reactivation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_init_for_object_reactivation,system)
+			typedef somTP_somOS_ServiceBasePRef_init_for_object_reactivation *somTD_somOS_ServiceBasePRef_init_for_object_reactivation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_init_for_object_reactivation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_init_for_object_copy)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_init_for_object_copy,system)
+			typedef somTP_somOS_ServiceBasePRef_init_for_object_copy *somTD_somOS_ServiceBasePRef_init_for_object_copy;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_init_for_object_copy)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_uninit_for_object_move)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_uninit_for_object_move,system)
+			typedef somTP_somOS_ServiceBasePRef_uninit_for_object_move *somTD_somOS_ServiceBasePRef_uninit_for_object_move;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_uninit_for_object_move)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_uninit_for_object_passivation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_uninit_for_object_passivation,system)
+			typedef somTP_somOS_ServiceBasePRef_uninit_for_object_passivation *somTD_somOS_ServiceBasePRef_uninit_for_object_passivation;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_uninit_for_object_passivation)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_uninit_for_object_destruction)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_uninit_for_object_destruction,system)
+			typedef somTP_somOS_ServiceBasePRef_uninit_for_object_destruction *somTD_somOS_ServiceBasePRef_uninit_for_object_destruction;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_uninit_for_object_destruction)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBasePRef__get_constant_random_id
+		#error somTD_somOS_ServiceBasePRef__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBasePRef__get_constant_random_id */
+		#define somTD_somOS_ServiceBasePRef__get_constant_random_id somTD_somOS_ServiceBasePRef_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBasePRef__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_somOS_ServiceBasePRef__get_constant_random_id
+		#error somTP_somOS_ServiceBasePRef__get_constant_random_id already defined
+	#else /* somTP_somOS_ServiceBasePRef__get_constant_random_id */
+		#define somTP_somOS_ServiceBasePRef__get_constant_random_id somTP_somOS_ServiceBasePRef_somC_get_constant_random_id
+	#endif /* somTP_somOS_ServiceBasePRef__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (somTP_somOS_ServiceBasePRef__get_constant_random_id)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRef__get_constant_random_id,system)
+			typedef somTP_somOS_ServiceBasePRef__get_constant_random_id *somTD_somOS_ServiceBasePRef__get_constant_random_id;
+		#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBasePRef__get_constant_random_id
+		#error somTD_somOS_ServiceBasePRef__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBasePRef__get_constant_random_id */
+		#define somTD_somOS_ServiceBasePRef__get_constant_random_id somTD_somOS_ServiceBasePRef_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBasePRef__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (SOMLINK * somTD_somOS_ServiceBasePRef__get_constant_random_id)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_is_identical)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_is_identical,system)
+			typedef somTP_somOS_ServiceBasePRef_is_identical *somTD_somOS_ServiceBasePRef_is_identical;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_is_identical)(
+				somOS_ServiceBasePRef * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somInit)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somInit *somTD_somOS_ServiceBasePRef_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somInit)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somUninit)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somUninit,system)
+			typedef somTP_somOS_ServiceBasePRef_somUninit *somTD_somOS_ServiceBasePRef_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somUninit)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somFree)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somFree,system)
+			typedef somTP_somOS_ServiceBasePRef_somFree *somTD_somOS_ServiceBasePRef_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somFree)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_ServiceBasePRef_somGetClass)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somGetClass,system)
+			typedef somTP_somOS_ServiceBasePRef_somGetClass *somTD_somOS_ServiceBasePRef_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_ServiceBasePRef_somGetClass)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_somOS_ServiceBasePRef_somGetClassName)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somGetClassName,system)
+			typedef somTP_somOS_ServiceBasePRef_somGetClassName *somTD_somOS_ServiceBasePRef_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_somOS_ServiceBasePRef_somGetClassName)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_somOS_ServiceBasePRef_somGetSize)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somGetSize,system)
+			typedef somTP_somOS_ServiceBasePRef_somGetSize *somTD_somOS_ServiceBasePRef_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_somOS_ServiceBasePRef_somGetSize)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somIsA)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somIsA,system)
+			typedef somTP_somOS_ServiceBasePRef_somIsA *somTD_somOS_ServiceBasePRef_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somIsA)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somIsInstanceOf)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somIsInstanceOf,system)
+			typedef somTP_somOS_ServiceBasePRef_somIsInstanceOf *somTD_somOS_ServiceBasePRef_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somIsInstanceOf)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somRespondsTo)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somRespondsTo,system)
+			typedef somTP_somOS_ServiceBasePRef_somRespondsTo *somTD_somOS_ServiceBasePRef_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somRespondsTo)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somDispatch)(
+				somOS_ServiceBasePRef * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDispatch,system)
+			typedef somTP_somOS_ServiceBasePRef_somDispatch *somTD_somOS_ServiceBasePRef_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somDispatch)(
+				somOS_ServiceBasePRef * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somClassDispatch)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somClassDispatch,system)
+			typedef somTP_somOS_ServiceBasePRef_somClassDispatch *somTD_somOS_ServiceBasePRef_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somClassDispatch)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somCastObj)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somCastObj,system)
+			typedef somTP_somOS_ServiceBasePRef_somCastObj *somTD_somOS_ServiceBasePRef_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somCastObj)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRef_somResetObj)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somResetObj,system)
+			typedef somTP_somOS_ServiceBasePRef_somResetObj *somTD_somOS_ServiceBasePRef_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRef_somResetObj)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_somPrintSelf)(
+				somOS_ServiceBasePRef * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somPrintSelf,system)
+			typedef somTP_somOS_ServiceBasePRef_somPrintSelf *somTD_somOS_ServiceBasePRef_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_somPrintSelf)(
+				somOS_ServiceBasePRef * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDumpSelf)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDumpSelf,system)
+			typedef somTP_somOS_ServiceBasePRef_somDumpSelf *somTD_somOS_ServiceBasePRef_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDumpSelf)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDumpSelfInt)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDumpSelfInt,system)
+			typedef somTP_somOS_ServiceBasePRef_somDumpSelfInt *somTD_somOS_ServiceBasePRef_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDumpSelfInt)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDefaultInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultInit *somTD_somOS_ServiceBasePRef_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDefaultCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultCopyInit *somTD_somOS_ServiceBasePRef_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDefaultConstCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultConstCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultConstCopyInit *somTD_somOS_ServiceBasePRef_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultConstCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDefaultVCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultVCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultVCopyInit *somTD_somOS_ServiceBasePRef_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultVCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDefaultConstVCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultConstVCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultConstVCopyInit *somTD_somOS_ServiceBasePRef_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultConstVCopyInit)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_somDefaultAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultAssign,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultAssign *somTD_somOS_ServiceBasePRef_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_somDefaultConstAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultConstAssign,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultConstAssign *somTD_somOS_ServiceBasePRef_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultConstAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_somDefaultVAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultVAssign,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultVAssign *somTD_somOS_ServiceBasePRef_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultVAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRef_somDefaultConstVAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDefaultConstVAssign,system)
+			typedef somTP_somOS_ServiceBasePRef_somDefaultConstVAssign *somTD_somOS_ServiceBasePRef_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRef_somDefaultConstVAssign)(
+				somOS_ServiceBasePRef * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRef_somDestruct)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBasePRef_somDestruct,system)
+			typedef somTP_somOS_ServiceBasePRef_somDestruct *somTD_somOS_ServiceBasePRef_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRef_somDestruct)(
+				somOS_ServiceBasePRef * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef somOS_ServiceBasePRef_MajorVersion
+			#define somOS_ServiceBasePRef_MajorVersion   3
+		#endif /* somOS_ServiceBasePRef_MajorVersion */
+		#ifndef somOS_ServiceBasePRef_MinorVersion
+			#define somOS_ServiceBasePRef_MinorVersion   0
+		#endif /* somOS_ServiceBasePRef_MinorVersion */
+		typedef struct somOS_ServiceBasePRefClassDataStructure
+		{
+			SOMClass * classObject;
+		} somOS_ServiceBasePRefClassDataStructure;
+		typedef struct somOS_ServiceBasePRefCClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} somOS_ServiceBasePRefCClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRef_Class_Source)
+				SOMEXTERN struct somOS_ServiceBasePRefClassDataStructure _somOS_ServiceBasePRefClassData;
+				#ifndef somOS_ServiceBasePRefClassData
+					#define somOS_ServiceBasePRefClassData    _somOS_ServiceBasePRefClassData
+				#endif /* somOS_ServiceBasePRefClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBasePRefClassDataStructure * SOMLINK resolve_somOS_ServiceBasePRefClassData(void);
+				#ifndef somOS_ServiceBasePRefClassData
+					#define somOS_ServiceBasePRefClassData    (*(resolve_somOS_ServiceBasePRefClassData()))
+				#endif /* somOS_ServiceBasePRefClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRef_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+			struct somOS_ServiceBasePRefClassDataStructure SOMDLINK somOS_ServiceBasePRefClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRef_Class_Source)
+				SOMEXTERN struct somOS_ServiceBasePRefCClassDataStructure _somOS_ServiceBasePRefCClassData;
+				#ifndef somOS_ServiceBasePRefCClassData
+					#define somOS_ServiceBasePRefCClassData    _somOS_ServiceBasePRefCClassData
+				#endif /* somOS_ServiceBasePRefCClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBasePRefCClassDataStructure * SOMLINK resolve_somOS_ServiceBasePRefCClassData(void);
+				#ifndef somOS_ServiceBasePRefCClassData
+					#define somOS_ServiceBasePRefCClassData    (*(resolve_somOS_ServiceBasePRefCClassData()))
+				#endif /* somOS_ServiceBasePRefCClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRef_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+			struct somOS_ServiceBasePRefCClassDataStructure SOMDLINK somOS_ServiceBasePRefCClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRef_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRef_Class_Source */
+		SOMClass * SOMLINK somOS_ServiceBasePRefNewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_somOS_ServiceBasePRef (somOS_ServiceBasePRefClassData.classObject)
+		#ifndef SOMGD_somOS_ServiceBasePRef
+			#if (defined(_somOS_ServiceBasePRef) || defined(__somOS_ServiceBasePRef))
+				#undef _somOS_ServiceBasePRef
+				#undef __somOS_ServiceBasePRef
+				#define SOMGD_somOS_ServiceBasePRef 1
+			#else
+				#define _somOS_ServiceBasePRef _SOMCLASS_somOS_ServiceBasePRef
+			#endif /* _somOS_ServiceBasePRef */
+		#endif /* SOMGD_somOS_ServiceBasePRef */
+		#define somOS_ServiceBasePRef_classObj _SOMCLASS_somOS_ServiceBasePRef
+		#define _SOMMTOKEN_somOS_ServiceBasePRef(method) ((somMToken)(somOS_ServiceBasePRefClassData.method))
+#endif /* somOS_ServiceBasePRef_API */
+
+		class somOS_ServiceBasePRef : public somOS_ServiceBase
+		{
+		protected:
+			somOS_ServiceBasePRef(somMethodTab & mtab)
+				: somOS_ServiceBase(mtab)
+			{}
+		public:
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!somOS_ServiceBasePRefClassData.classObject)
+				{ somOS_ServiceBasePRefNewClass(somOS_ServiceBasePRef_MajorVersion,somOS_ServiceBasePRef_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)somOS_ServiceBasePRefClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)somOS_ServiceBasePRefClassData.classObject);
+			};
+			somOS_ServiceBasePRef()
+				: somOS_ServiceBase(*(somOS_ServiceBasePRefCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBasePRefCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			somOS_ServiceBasePRef(somOS_ServiceBasePRef *fromObj)
+				: somOS_ServiceBase(*(somOS_ServiceBasePRefCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBasePRefCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+#ifndef somOS_ServiceBaseCORBA_API
+#define somOS_ServiceBaseCORBA_API
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_reinit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_reinit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_reinit *somTD_somOS_ServiceBaseCORBA_reinit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_reinit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_capture)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_capture,system)
+			typedef somTP_somOS_ServiceBaseCORBA_capture *somTD_somOS_ServiceBaseCORBA_capture;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_capture)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_GetInstanceManager)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_GetInstanceManager,system)
+			typedef somTP_somOS_ServiceBaseCORBA_GetInstanceManager *somTD_somOS_ServiceBaseCORBA_GetInstanceManager;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_GetInstanceManager)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_init_for_object_creation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_init_for_object_creation,system)
+			typedef somTP_somOS_ServiceBaseCORBA_init_for_object_creation *somTD_somOS_ServiceBaseCORBA_init_for_object_creation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_init_for_object_creation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_init_for_object_reactivation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_init_for_object_reactivation,system)
+			typedef somTP_somOS_ServiceBaseCORBA_init_for_object_reactivation *somTD_somOS_ServiceBaseCORBA_init_for_object_reactivation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_init_for_object_reactivation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_init_for_object_copy)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_init_for_object_copy,system)
+			typedef somTP_somOS_ServiceBaseCORBA_init_for_object_copy *somTD_somOS_ServiceBaseCORBA_init_for_object_copy;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_init_for_object_copy)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_uninit_for_object_move)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_uninit_for_object_move,system)
+			typedef somTP_somOS_ServiceBaseCORBA_uninit_for_object_move *somTD_somOS_ServiceBaseCORBA_uninit_for_object_move;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_uninit_for_object_move)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_uninit_for_object_passivation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_uninit_for_object_passivation,system)
+			typedef somTP_somOS_ServiceBaseCORBA_uninit_for_object_passivation *somTD_somOS_ServiceBaseCORBA_uninit_for_object_passivation;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_uninit_for_object_passivation)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_uninit_for_object_destruction)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_uninit_for_object_destruction,system)
+			typedef somTP_somOS_ServiceBaseCORBA_uninit_for_object_destruction *somTD_somOS_ServiceBaseCORBA_uninit_for_object_destruction;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_uninit_for_object_destruction)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBaseCORBA__get_constant_random_id
+		#error somTD_somOS_ServiceBaseCORBA__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBaseCORBA__get_constant_random_id */
+		#define somTD_somOS_ServiceBaseCORBA__get_constant_random_id somTD_somOS_ServiceBaseCORBA_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBaseCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_somOS_ServiceBaseCORBA__get_constant_random_id
+		#error somTP_somOS_ServiceBaseCORBA__get_constant_random_id already defined
+	#else /* somTP_somOS_ServiceBaseCORBA__get_constant_random_id */
+		#define somTP_somOS_ServiceBaseCORBA__get_constant_random_id somTP_somOS_ServiceBaseCORBA_somC_get_constant_random_id
+	#endif /* somTP_somOS_ServiceBaseCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (somTP_somOS_ServiceBaseCORBA__get_constant_random_id)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA__get_constant_random_id,system)
+			typedef somTP_somOS_ServiceBaseCORBA__get_constant_random_id *somTD_somOS_ServiceBaseCORBA__get_constant_random_id;
+		#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBaseCORBA__get_constant_random_id
+		#error somTD_somOS_ServiceBaseCORBA__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBaseCORBA__get_constant_random_id */
+		#define somTD_somOS_ServiceBaseCORBA__get_constant_random_id somTD_somOS_ServiceBaseCORBA_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBaseCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (SOMLINK * somTD_somOS_ServiceBaseCORBA__get_constant_random_id)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_is_identical)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_is_identical,system)
+			typedef somTP_somOS_ServiceBaseCORBA_is_identical *somTD_somOS_ServiceBaseCORBA_is_identical;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_is_identical)(
+				somOS_ServiceBaseCORBA * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somInit)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somInit *somTD_somOS_ServiceBaseCORBA_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somInit)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somUninit)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somUninit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somUninit *somTD_somOS_ServiceBaseCORBA_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somUninit)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somFree)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somFree,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somFree *somTD_somOS_ServiceBaseCORBA_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somFree)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_ServiceBaseCORBA_somGetClass)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somGetClass,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somGetClass *somTD_somOS_ServiceBaseCORBA_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somGetClass)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_somOS_ServiceBaseCORBA_somGetClassName)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somGetClassName,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somGetClassName *somTD_somOS_ServiceBaseCORBA_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_somOS_ServiceBaseCORBA_somGetClassName)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_somOS_ServiceBaseCORBA_somGetSize)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somGetSize,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somGetSize *somTD_somOS_ServiceBaseCORBA_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_somOS_ServiceBaseCORBA_somGetSize)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somIsA)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somIsA,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somIsA *somTD_somOS_ServiceBaseCORBA_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somIsA)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somIsInstanceOf)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somIsInstanceOf,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somIsInstanceOf *somTD_somOS_ServiceBaseCORBA_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somIsInstanceOf)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somRespondsTo)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somRespondsTo,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somRespondsTo *somTD_somOS_ServiceBaseCORBA_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somRespondsTo)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somDispatch)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDispatch,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDispatch *somTD_somOS_ServiceBaseCORBA_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDispatch)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somClassDispatch)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somClassDispatch,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somClassDispatch *somTD_somOS_ServiceBaseCORBA_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somClassDispatch)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somCastObj)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somCastObj,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somCastObj *somTD_somOS_ServiceBaseCORBA_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somCastObj)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBaseCORBA_somResetObj)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somResetObj,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somResetObj *somTD_somOS_ServiceBaseCORBA_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBaseCORBA_somResetObj)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_somPrintSelf)(
+				somOS_ServiceBaseCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somPrintSelf,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somPrintSelf *somTD_somOS_ServiceBaseCORBA_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somPrintSelf)(
+				somOS_ServiceBaseCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDumpSelf)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDumpSelf,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDumpSelf *somTD_somOS_ServiceBaseCORBA_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDumpSelf)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDumpSelfInt)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDumpSelfInt,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDumpSelfInt *somTD_somOS_ServiceBaseCORBA_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDumpSelfInt)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDefaultInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultInit *somTD_somOS_ServiceBaseCORBA_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDefaultCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultCopyInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultCopyInit *somTD_somOS_ServiceBaseCORBA_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDefaultConstCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultConstCopyInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultConstCopyInit *somTD_somOS_ServiceBaseCORBA_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultConstCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDefaultVCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultVCopyInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultVCopyInit *somTD_somOS_ServiceBaseCORBA_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultVCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDefaultConstVCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultConstVCopyInit,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultConstVCopyInit *somTD_somOS_ServiceBaseCORBA_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultConstVCopyInit)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_somDefaultAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultAssign,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultAssign *somTD_somOS_ServiceBaseCORBA_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_somDefaultConstAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultConstAssign,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultConstAssign *somTD_somOS_ServiceBaseCORBA_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultConstAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_somDefaultVAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultVAssign,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultVAssign *somTD_somOS_ServiceBaseCORBA_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultVAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBaseCORBA_somDefaultConstVAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDefaultConstVAssign,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDefaultConstVAssign *somTD_somOS_ServiceBaseCORBA_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDefaultConstVAssign)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBaseCORBA_somDestruct)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBaseCORBA_somDestruct,system)
+			typedef somTP_somOS_ServiceBaseCORBA_somDestruct *somTD_somOS_ServiceBaseCORBA_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBaseCORBA_somDestruct)(
+				somOS_ServiceBaseCORBA * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef somOS_ServiceBaseCORBA_MajorVersion
+			#define somOS_ServiceBaseCORBA_MajorVersion   3
+		#endif /* somOS_ServiceBaseCORBA_MajorVersion */
+		#ifndef somOS_ServiceBaseCORBA_MinorVersion
+			#define somOS_ServiceBaseCORBA_MinorVersion   0
+		#endif /* somOS_ServiceBaseCORBA_MinorVersion */
+		typedef struct somOS_ServiceBaseCORBAClassDataStructure
+		{
+			SOMClass * classObject;
+		} somOS_ServiceBaseCORBAClassDataStructure;
+		typedef struct somOS_ServiceBaseCORBACClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} somOS_ServiceBaseCORBACClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBaseCORBA_Class_Source)
+				SOMEXTERN struct somOS_ServiceBaseCORBAClassDataStructure _somOS_ServiceBaseCORBAClassData;
+				#ifndef somOS_ServiceBaseCORBAClassData
+					#define somOS_ServiceBaseCORBAClassData    _somOS_ServiceBaseCORBAClassData
+				#endif /* somOS_ServiceBaseCORBAClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBaseCORBAClassDataStructure * SOMLINK resolve_somOS_ServiceBaseCORBAClassData(void);
+				#ifndef somOS_ServiceBaseCORBAClassData
+					#define somOS_ServiceBaseCORBAClassData    (*(resolve_somOS_ServiceBaseCORBAClassData()))
+				#endif /* somOS_ServiceBaseCORBAClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBaseCORBA_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+			struct somOS_ServiceBaseCORBAClassDataStructure SOMDLINK somOS_ServiceBaseCORBAClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBaseCORBA_Class_Source)
+				SOMEXTERN struct somOS_ServiceBaseCORBACClassDataStructure _somOS_ServiceBaseCORBACClassData;
+				#ifndef somOS_ServiceBaseCORBACClassData
+					#define somOS_ServiceBaseCORBACClassData    _somOS_ServiceBaseCORBACClassData
+				#endif /* somOS_ServiceBaseCORBACClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBaseCORBACClassDataStructure * SOMLINK resolve_somOS_ServiceBaseCORBACClassData(void);
+				#ifndef somOS_ServiceBaseCORBACClassData
+					#define somOS_ServiceBaseCORBACClassData    (*(resolve_somOS_ServiceBaseCORBACClassData()))
+				#endif /* somOS_ServiceBaseCORBACClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBaseCORBA_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+			struct somOS_ServiceBaseCORBACClassDataStructure SOMDLINK somOS_ServiceBaseCORBACClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBaseCORBA_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_somos_Source || somOS_ServiceBaseCORBA_Class_Source */
+		SOMClass * SOMLINK somOS_ServiceBaseCORBANewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_somOS_ServiceBaseCORBA (somOS_ServiceBaseCORBAClassData.classObject)
+		#ifndef SOMGD_somOS_ServiceBaseCORBA
+			#if (defined(_somOS_ServiceBaseCORBA) || defined(__somOS_ServiceBaseCORBA))
+				#undef _somOS_ServiceBaseCORBA
+				#undef __somOS_ServiceBaseCORBA
+				#define SOMGD_somOS_ServiceBaseCORBA 1
+			#else
+				#define _somOS_ServiceBaseCORBA _SOMCLASS_somOS_ServiceBaseCORBA
+			#endif /* _somOS_ServiceBaseCORBA */
+		#endif /* SOMGD_somOS_ServiceBaseCORBA */
+		#define somOS_ServiceBaseCORBA_classObj _SOMCLASS_somOS_ServiceBaseCORBA
+		#define _SOMMTOKEN_somOS_ServiceBaseCORBA(method) ((somMToken)(somOS_ServiceBaseCORBAClassData.method))
+#endif /* somOS_ServiceBaseCORBA_API */
+
+		class somOS_ServiceBaseCORBA : public somOS_ServiceBase
+		{
+		protected:
+			somOS_ServiceBaseCORBA(somMethodTab & mtab)
+				: somOS_ServiceBase(mtab)
+			{}
+		public:
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!somOS_ServiceBaseCORBAClassData.classObject)
+				{ somOS_ServiceBaseCORBANewClass(somOS_ServiceBaseCORBA_MajorVersion,somOS_ServiceBaseCORBA_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)somOS_ServiceBaseCORBAClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)somOS_ServiceBaseCORBAClassData.classObject);
+			};
+			somOS_ServiceBaseCORBA()
+				: somOS_ServiceBase(*(somOS_ServiceBaseCORBACClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBaseCORBACClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			somOS_ServiceBaseCORBA(somOS_ServiceBaseCORBA *fromObj)
+				: somOS_ServiceBase(*(somOS_ServiceBaseCORBACClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBaseCORBACClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+#ifndef somOS_ServiceBasePRefCORBA_API
+#define somOS_ServiceBasePRefCORBA_API
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_reinit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_reinit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_reinit *somTD_somOS_ServiceBasePRefCORBA_reinit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_reinit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* in */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_capture)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_capture,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_capture *somTD_somOS_ServiceBasePRefCORBA_capture;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_capture)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* inout */ somOS_ServiceBase_metastate_t *meta_data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_GetInstanceManager)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_GetInstanceManager,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_GetInstanceManager *somTD_somOS_ServiceBasePRefCORBA_GetInstanceManager;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_GetInstanceManager)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_init_for_object_creation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_init_for_object_creation,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_init_for_object_creation *somTD_somOS_ServiceBasePRefCORBA_init_for_object_creation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_init_for_object_creation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_init_for_object_reactivation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_init_for_object_reactivation,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_init_for_object_reactivation *somTD_somOS_ServiceBasePRefCORBA_init_for_object_reactivation;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_init_for_object_reactivation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_init_for_object_copy)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_init_for_object_copy,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_init_for_object_copy *somTD_somOS_ServiceBasePRefCORBA_init_for_object_copy;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_init_for_object_copy)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_move)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_move,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_move *somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_move;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_move)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_passivation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_passivation,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_passivation *somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_passivation;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_passivation)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_destruction)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_destruction,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_uninit_for_object_destruction *somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_destruction;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_uninit_for_object_destruction)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id
+		#error somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+		#define somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id somTD_somOS_ServiceBasePRefCORBA_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id
+		#error somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id already defined
+	#else /* somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+		#define somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id somTP_somOS_ServiceBasePRefCORBA_somC_get_constant_random_id
+	#endif /* somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA__get_constant_random_id *somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id;
+		#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id
+		#error somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id already defined
+	#else /* somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+		#define somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id somTD_somOS_ServiceBasePRefCORBA_somC_get_constant_random_id
+	#endif /* somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+			typedef CosObjectIdentity_ObjectIdentifier (SOMLINK * somTD_somOS_ServiceBasePRefCORBA__get_constant_random_id)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_is_identical)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_is_identical,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_is_identical *somTD_somOS_ServiceBasePRefCORBA_is_identical;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_is_identical)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				Environment *ev,
+				/* in */ CosObjectIdentity_IdentifiableObject * other_object);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somInit)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somInit *somTD_somOS_ServiceBasePRefCORBA_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somInit)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somUninit)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somUninit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somUninit *somTD_somOS_ServiceBasePRefCORBA_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somUninit)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somFree)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somFree,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somFree *somTD_somOS_ServiceBasePRefCORBA_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somFree)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_somOS_ServiceBasePRefCORBA_somGetClass)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somGetClass,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somGetClass *somTD_somOS_ServiceBasePRefCORBA_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somGetClass)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_somOS_ServiceBasePRefCORBA_somGetClassName)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somGetClassName,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somGetClassName *somTD_somOS_ServiceBasePRefCORBA_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somGetClassName)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_somOS_ServiceBasePRefCORBA_somGetSize)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somGetSize,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somGetSize *somTD_somOS_ServiceBasePRefCORBA_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somGetSize)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somIsA)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somIsA,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somIsA *somTD_somOS_ServiceBasePRefCORBA_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somIsA)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somIsInstanceOf)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somIsInstanceOf,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somIsInstanceOf *somTD_somOS_ServiceBasePRefCORBA_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somIsInstanceOf)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somRespondsTo)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somRespondsTo,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somRespondsTo *somTD_somOS_ServiceBasePRefCORBA_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somRespondsTo)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somDispatch)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDispatch,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDispatch *somTD_somOS_ServiceBasePRefCORBA_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDispatch)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somClassDispatch)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somClassDispatch,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somClassDispatch *somTD_somOS_ServiceBasePRefCORBA_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somClassDispatch)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somCastObj)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somCastObj,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somCastObj *somTD_somOS_ServiceBasePRefCORBA_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somCastObj)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_somOS_ServiceBasePRefCORBA_somResetObj)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somResetObj,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somResetObj *somTD_somOS_ServiceBasePRefCORBA_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somResetObj)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_somPrintSelf)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somPrintSelf,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somPrintSelf *somTD_somOS_ServiceBasePRefCORBA_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somPrintSelf)(
+				somOS_ServiceBasePRefCORBA * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDumpSelf)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDumpSelf,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDumpSelf *somTD_somOS_ServiceBasePRefCORBA_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDumpSelf)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDumpSelfInt)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDumpSelfInt,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDumpSelfInt *somTD_somOS_ServiceBasePRefCORBA_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDumpSelfInt)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDefaultInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultInit *somTD_somOS_ServiceBasePRefCORBA_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDefaultCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultCopyInit *somTD_somOS_ServiceBasePRefCORBA_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDefaultConstCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultConstCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultConstCopyInit *somTD_somOS_ServiceBasePRefCORBA_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultConstCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDefaultVCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultVCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultVCopyInit *somTD_somOS_ServiceBasePRefCORBA_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultVCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVCopyInit,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVCopyInit *somTD_somOS_ServiceBasePRefCORBA_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultConstVCopyInit)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_somDefaultAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultAssign,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultAssign *somTD_somOS_ServiceBasePRefCORBA_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_somDefaultConstAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultConstAssign,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultConstAssign *somTD_somOS_ServiceBasePRefCORBA_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultConstAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_somDefaultVAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultVAssign,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultVAssign *somTD_somOS_ServiceBasePRefCORBA_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultVAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVAssign,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDefaultConstVAssign *somTD_somOS_ServiceBasePRefCORBA_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDefaultConstVAssign)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_somOS_ServiceBasePRefCORBA_somDestruct)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_somOS_ServiceBasePRefCORBA_somDestruct,system)
+			typedef somTP_somOS_ServiceBasePRefCORBA_somDestruct *somTD_somOS_ServiceBasePRefCORBA_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_somOS_ServiceBasePRefCORBA_somDestruct)(
+				somOS_ServiceBasePRefCORBA * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef somOS_ServiceBasePRefCORBA_MajorVersion
+			#define somOS_ServiceBasePRefCORBA_MajorVersion   3
+		#endif /* somOS_ServiceBasePRefCORBA_MajorVersion */
+		#ifndef somOS_ServiceBasePRefCORBA_MinorVersion
+			#define somOS_ServiceBasePRefCORBA_MinorVersion   0
+		#endif /* somOS_ServiceBasePRefCORBA_MinorVersion */
+		typedef struct somOS_ServiceBasePRefCORBAClassDataStructure
+		{
+			SOMClass * classObject;
+		} somOS_ServiceBasePRefCORBAClassDataStructure;
+		typedef struct somOS_ServiceBasePRefCORBACClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} somOS_ServiceBasePRefCORBACClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRefCORBA_Class_Source)
+				SOMEXTERN struct somOS_ServiceBasePRefCORBAClassDataStructure _somOS_ServiceBasePRefCORBAClassData;
+				#ifndef somOS_ServiceBasePRefCORBAClassData
+					#define somOS_ServiceBasePRefCORBAClassData    _somOS_ServiceBasePRefCORBAClassData
+				#endif /* somOS_ServiceBasePRefCORBAClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBasePRefCORBAClassDataStructure * SOMLINK resolve_somOS_ServiceBasePRefCORBAClassData(void);
+				#ifndef somOS_ServiceBasePRefCORBAClassData
+					#define somOS_ServiceBasePRefCORBAClassData    (*(resolve_somOS_ServiceBasePRefCORBAClassData()))
+				#endif /* somOS_ServiceBasePRefCORBAClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRefCORBA_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+			struct somOS_ServiceBasePRefCORBAClassDataStructure SOMDLINK somOS_ServiceBasePRefCORBAClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRefCORBA_Class_Source)
+				SOMEXTERN struct somOS_ServiceBasePRefCORBACClassDataStructure _somOS_ServiceBasePRefCORBACClassData;
+				#ifndef somOS_ServiceBasePRefCORBACClassData
+					#define somOS_ServiceBasePRefCORBACClassData    _somOS_ServiceBasePRefCORBACClassData
+				#endif /* somOS_ServiceBasePRefCORBACClassData */
+			#else
+				SOMEXTERN struct somOS_ServiceBasePRefCORBACClassDataStructure * SOMLINK resolve_somOS_ServiceBasePRefCORBACClassData(void);
+				#ifndef somOS_ServiceBasePRefCORBACClassData
+					#define somOS_ServiceBasePRefCORBACClassData    (*(resolve_somOS_ServiceBasePRefCORBACClassData()))
+				#endif /* somOS_ServiceBasePRefCORBACClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRefCORBA_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+			struct somOS_ServiceBasePRefCORBACClassDataStructure SOMDLINK somOS_ServiceBasePRefCORBACClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_somos_Source) || defined(somOS_ServiceBasePRefCORBA_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_somos_Source || somOS_ServiceBasePRefCORBA_Class_Source */
+		SOMClass * SOMLINK somOS_ServiceBasePRefCORBANewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_somOS_ServiceBasePRefCORBA (somOS_ServiceBasePRefCORBAClassData.classObject)
+		#ifndef SOMGD_somOS_ServiceBasePRefCORBA
+			#if (defined(_somOS_ServiceBasePRefCORBA) || defined(__somOS_ServiceBasePRefCORBA))
+				#undef _somOS_ServiceBasePRefCORBA
+				#undef __somOS_ServiceBasePRefCORBA
+				#define SOMGD_somOS_ServiceBasePRefCORBA 1
+			#else
+				#define _somOS_ServiceBasePRefCORBA _SOMCLASS_somOS_ServiceBasePRefCORBA
+			#endif /* _somOS_ServiceBasePRefCORBA */
+		#endif /* SOMGD_somOS_ServiceBasePRefCORBA */
+		#define somOS_ServiceBasePRefCORBA_classObj _SOMCLASS_somOS_ServiceBasePRefCORBA
+		#define _SOMMTOKEN_somOS_ServiceBasePRefCORBA(method) ((somMToken)(somOS_ServiceBasePRefCORBAClassData.method))
+#endif /* somOS_ServiceBasePRefCORBA_API */
+
+		class somOS_ServiceBasePRefCORBA : public somOS_ServiceBasePRef, public somOS_ServiceBaseCORBA
+		{
+		protected:
+			somOS_ServiceBasePRefCORBA(somMethodTab & mtab)
+				: somOS_ServiceBasePRef(mtab)
+				, somOS_ServiceBaseCORBA(mtab)
+			{}
+		public:
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!somOS_ServiceBasePRefCORBAClassData.classObject)
+				{ somOS_ServiceBasePRefCORBANewClass(somOS_ServiceBasePRefCORBA_MajorVersion,somOS_ServiceBasePRefCORBA_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)somOS_ServiceBasePRefCORBAClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)somOS_ServiceBasePRefCORBAClassData.classObject);
+			};
+			somOS_ServiceBasePRefCORBA()
+				: somOS_ServiceBasePRef(*(somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab))
+				, somOS_ServiceBaseCORBA(*(somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			somOS_ServiceBasePRefCORBA(somOS_ServiceBasePRefCORBA *fromObj)
+				: somOS_ServiceBasePRef(*(somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab))
+				, somOS_ServiceBaseCORBA(*(somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==somOS_ServiceBasePRefCORBACClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+			inline void reinit(
+			Environment *ev,
+			/* in */ somOS_ServiceBase_metastate_t *meta_data)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,reinit)
+						((somOS_ServiceBase *)(void *)this,ev,meta_data);
+			};
+			inline void capture(
+			Environment *ev,
+			/* inout */ somOS_ServiceBase_metastate_t *meta_data)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,capture)
+						((somOS_ServiceBase *)(void *)this,ev,meta_data);
+			};
+			inline SOMObject * GetInstanceManager(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,GetInstanceManager)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline SOMObject * init_for_object_creation(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_creation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline SOMObject * init_for_object_reactivation(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_reactivation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline SOMObject * init_for_object_copy(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,somOS_ServiceBase,init_for_object_copy)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline void uninit_for_object_move(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_move)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline void uninit_for_object_passivation(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_passivation)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline void uninit_for_object_destruction(
+			Environment *ev)
+			{
+				SOM_Resolve((void *)this,somOS_ServiceBase,uninit_for_object_destruction)
+						((somOS_ServiceBase *)(void *)this,ev);
+			};
+			inline CosObjectIdentity_ObjectIdentifier _get_constant_random_id(
+			Environment *ev)
+			{
+				return SOM_Resolve((void *)this,CosObjectIdentity_IdentifiableObject,_get_constant_random_id)
+						((CosObjectIdentity_IdentifiableObject *)(void *)this,ev);
+			};
+			inline boolean is_identical(
+			Environment *ev,
+			/* in */ CosObjectIdentity_IdentifiableObject * other_object)
+			{
+				return SOM_Resolve((void *)this,CosObjectIdentity_IdentifiableObject,is_identical)
+						((CosObjectIdentity_IdentifiableObject *)(void *)this,ev,other_object);
+			};
+			inline void somInit(
+			)
+			{
+				SOM_Resolve((void *)this,SOMObject,somInit)
+						((SOMObject *)(void *)this);
+			};
+			inline void somUninit(
+			)
+			{
+				SOM_Resolve((void *)this,SOMObject,somUninit)
+						((SOMObject *)(void *)this);
+			};
+			inline void somFree(
+			)
+			{
+				SOM_Resolve((void *)this,SOMObject,somFree)
+						((SOMObject *)(void *)this);
+			};
+			inline SOMClass * somGetClass(
+			)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somGetClass)
+						((SOMObject *)(void *)this);
+			};
+			inline string somGetClassName(
+			)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somGetClassName)
+						((SOMObject *)(void *)this);
+			};
+			inline long somGetSize(
+			)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somGetSize)
+						((SOMObject *)(void *)this);
+			};
+			inline boolean somIsA(
+			/* in */ SOMClass * aClassObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somIsA)
+						((SOMObject *)(void *)this,aClassObj);
+			};
+			inline boolean somIsInstanceOf(
+			/* in */ SOMClass * aClassObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somIsInstanceOf)
+						((SOMObject *)(void *)this,aClassObj);
+			};
+			inline boolean somRespondsTo(
+			/* in */ somId mId)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somRespondsTo)
+						((SOMObject *)(void *)this,mId);
+			};
+			inline boolean SOMObject_somDispatch(
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somDispatch)
+						((SOMObject *)(void *)this,retValue,methodId,ap);
+			};
+			inline boolean somDispatch(
+					somToken *retValue,
+					somId methodId,
+					...)
+			{
+				boolean _somC_result;
+				va_list ap;
+				va_start(ap,methodId);
+				_somC_result=SOM_Resolve(this,SOMObject,somDispatch)
+						((SOMObject *)(void *)this,retValue,methodId,ap);
+				va_end(ap);
+				return _somC_result;
+			};
+			inline boolean SOMObject_somClassDispatch(
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somClassDispatch)
+						((SOMObject *)(void *)this,clsObj,retValue,methodId,ap);
+			};
+			inline boolean somClassDispatch(
+					SOMClass * clsObj,
+					somToken *retValue,
+					somId methodId,
+					...)
+			{
+				boolean _somC_result;
+				va_list ap;
+				va_start(ap,methodId);
+				_somC_result=SOM_Resolve(this,SOMObject,somClassDispatch)
+						((SOMObject *)(void *)this,clsObj,retValue,methodId,ap);
+				va_end(ap);
+				return _somC_result;
+			};
+			inline boolean somCastObj(
+			/* in */ SOMClass * castedCls)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somCastObj)
+						((SOMObject *)(void *)this,castedCls);
+			};
+			inline boolean somResetObj(
+			)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somResetObj)
+						((SOMObject *)(void *)this);
+			};
+			inline SOMObject * somPrintSelf(
+			)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somPrintSelf)
+						((SOMObject *)(void *)this);
+			};
+			inline void somDumpSelf(
+			/* in */ long level)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDumpSelf)
+						((SOMObject *)(void *)this,level);
+			};
+			inline void somDumpSelfInt(
+			/* in */ long level)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDumpSelfInt)
+						((SOMObject *)(void *)this,level);
+			};
+			inline void somDefaultInit(
+			/* inout */ somInitCtrl *ctrl)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDefaultInit)
+						((SOMObject *)(void *)this,ctrl);
+			};
+			inline void somDefaultCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDefaultCopyInit)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline void somDefaultConstCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDefaultConstCopyInit)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline void somDefaultVCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDefaultVCopyInit)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline void somDefaultConstVCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDefaultConstVCopyInit)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline SOMObject * somDefaultAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somDefaultAssign)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline SOMObject * somDefaultConstAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somDefaultConstAssign)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline SOMObject * somDefaultVAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somDefaultVAssign)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline SOMObject * somDefaultConstVAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+			{
+				return SOM_Resolve((void *)this,SOMObject,somDefaultConstVAssign)
+						((SOMObject *)(void *)this,ctrl,fromObj);
+			};
+			inline void somDestruct(
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl)
+			{
+				SOM_Resolve((void *)this,SOMObject,somDestruct)
+						((SOMObject *)(void *)this,doFree,ctrl);
+			};
+		};
+#endif /* SOM_Module_somos_Header_xh */

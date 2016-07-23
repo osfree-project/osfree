@@ -1,0 +1,754 @@
+/* generated from containr.idl */
+/* internal conditional is SOM_Module_containr_Source */
+#ifndef SOM_Module_containr_Header_xh
+	#define SOM_Module_containr_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	class Contained;
+	#ifndef _IDL_SEQUENCE_Contained_defined
+		#define _IDL_SEQUENCE_Contained_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(Contained * ,sequence(Contained));
+	#endif /* _IDL_SEQUENCE_Contained_defined */
+	class Container;
+	#ifndef _IDL_SEQUENCE_Container_defined
+		#define _IDL_SEQUENCE_Container_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(Container * ,sequence(Container));
+	#endif /* _IDL_SEQUENCE_Container_defined */
+#ifndef Container_API
+#define Container_API
+	typedef string Container_InterfaceName;
+	#ifndef _IDL_SEQUENCE_string_defined
+		#define _IDL_SEQUENCE_string_defined
+		SOM_SEQUENCE_TYPEDEF(string);
+	#endif /* _IDL_SEQUENCE_string_defined */
+	typedef struct Container_ContainerDescription
+	{
+		Contained * contained_object;
+		Identifier name;
+		any value;
+	} Container_ContainerDescription;
+	#ifndef _IDL_SEQUENCE_Container_ContainerDescription_defined
+		#define _IDL_SEQUENCE_Container_ContainerDescription_defined
+		SOM_SEQUENCE_TYPEDEF(Container_ContainerDescription);
+	#endif /* _IDL_SEQUENCE_Container_ContainerDescription_defined */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_ContainerDescription
+			#if defined(ContainerDescription)
+				#undef ContainerDescription
+				#define SOMGD_ContainerDescription
+			#else
+				#define ContainerDescription Container_ContainerDescription
+			#endif
+		#endif /* SOMGD_ContainerDescription */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef _IDL_SEQUENCE_ContainerDescription_defined
+			#define _IDL_SEQUENCE_ContainerDescription_defined
+			#define _IDL_SEQUENCE_ContainerDescription _IDL_SEQUENCE_Container_ContainerDescription
+		#endif /* _IDL_SEQUENCE_ContainerDescription_defined */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	typedef _IDL_SEQUENCE_Contained Container_ContainedSeq;
+	#ifndef _IDL_SEQUENCE_Container_ContainedSeq_defined
+		#define _IDL_SEQUENCE_Container_ContainedSeq_defined
+		SOM_SEQUENCE_TYPEDEF(Container_ContainedSeq);
+	#endif /* _IDL_SEQUENCE_Container_ContainedSeq_defined */
+	typedef _IDL_SEQUENCE_Container_ContainerDescription Container_ContainerDescriptionSeq;
+	#ifndef _IDL_SEQUENCE_Container_ContainerDescriptionSeq_defined
+		#define _IDL_SEQUENCE_Container_ContainerDescriptionSeq_defined
+		SOM_SEQUENCE_TYPEDEF(Container_ContainerDescriptionSeq);
+	#endif /* _IDL_SEQUENCE_Container_ContainerDescriptionSeq_defined */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainedSeq (somTP_Container_contents)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+		#pragma linkage(somTP_Container_contents,system)
+		typedef somTP_Container_contents *somTD_Container_contents;
+	#else /* __IBMC__ */
+		typedef Container_ContainedSeq (SOMLINK * somTD_Container_contents)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainedSeq (somTP_Container_lookup_name)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+		#pragma linkage(somTP_Container_lookup_name,system)
+		typedef somTP_Container_lookup_name *somTD_Container_lookup_name;
+	#else /* __IBMC__ */
+		typedef Container_ContainedSeq (SOMLINK * somTD_Container_lookup_name)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainerDescriptionSeq (somTP_Container_describe_contents)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs);
+		#pragma linkage(somTP_Container_describe_contents,system)
+		typedef somTP_Container_describe_contents *somTD_Container_describe_contents;
+	#else /* __IBMC__ */
+		typedef Container_ContainerDescriptionSeq (SOMLINK * somTD_Container_describe_contents)(
+			Container * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somInit)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somInit,system)
+		typedef somTP_Container_somInit *somTD_Container_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somInit)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somUninit)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somUninit,system)
+		typedef somTP_Container_somUninit *somTD_Container_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somUninit)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somFree)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somFree,system)
+		typedef somTP_Container_somFree *somTD_Container_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somFree)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_Container_somGetClass)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somGetClass,system)
+		typedef somTP_Container_somGetClass *somTD_Container_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_Container_somGetClass)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_Container_somGetClassName)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somGetClassName,system)
+		typedef somTP_Container_somGetClassName *somTD_Container_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_Container_somGetClassName)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_Container_somGetSize)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somGetSize,system)
+		typedef somTP_Container_somGetSize *somTD_Container_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_Container_somGetSize)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somIsA)(
+			Container * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_Container_somIsA,system)
+		typedef somTP_Container_somIsA *somTD_Container_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somIsA)(
+			Container * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somIsInstanceOf)(
+			Container * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_Container_somIsInstanceOf,system)
+		typedef somTP_Container_somIsInstanceOf *somTD_Container_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somIsInstanceOf)(
+			Container * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somRespondsTo)(
+			Container * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_Container_somRespondsTo,system)
+		typedef somTP_Container_somRespondsTo *somTD_Container_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somRespondsTo)(
+			Container * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somDispatch)(
+			Container * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_Container_somDispatch,system)
+		typedef somTP_Container_somDispatch *somTD_Container_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somDispatch)(
+			Container * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somClassDispatch)(
+			Container * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_Container_somClassDispatch,system)
+		typedef somTP_Container_somClassDispatch *somTD_Container_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somClassDispatch)(
+			Container * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somCastObj)(
+			Container * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_Container_somCastObj,system)
+		typedef somTP_Container_somCastObj *somTD_Container_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somCastObj)(
+			Container * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Container_somResetObj)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somResetObj,system)
+		typedef somTP_Container_somResetObj *somTD_Container_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Container_somResetObj)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Container_somPrintSelf)(
+			Container * somSelf);
+		#pragma linkage(somTP_Container_somPrintSelf,system)
+		typedef somTP_Container_somPrintSelf *somTD_Container_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Container_somPrintSelf)(
+			Container * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDumpSelf)(
+			Container * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_Container_somDumpSelf,system)
+		typedef somTP_Container_somDumpSelf *somTD_Container_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDumpSelf)(
+			Container * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDumpSelfInt)(
+			Container * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_Container_somDumpSelfInt,system)
+		typedef somTP_Container_somDumpSelfInt *somTD_Container_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDumpSelfInt)(
+			Container * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDefaultInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_Container_somDefaultInit,system)
+		typedef somTP_Container_somDefaultInit *somTD_Container_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDefaultInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDefaultCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultCopyInit,system)
+		typedef somTP_Container_somDefaultCopyInit *somTD_Container_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDefaultCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDefaultConstCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultConstCopyInit,system)
+		typedef somTP_Container_somDefaultConstCopyInit *somTD_Container_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDefaultConstCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDefaultVCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultVCopyInit,system)
+		typedef somTP_Container_somDefaultVCopyInit *somTD_Container_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDefaultVCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDefaultConstVCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultConstVCopyInit,system)
+		typedef somTP_Container_somDefaultConstVCopyInit *somTD_Container_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDefaultConstVCopyInit)(
+			Container * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Container_somDefaultAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultAssign,system)
+		typedef somTP_Container_somDefaultAssign *somTD_Container_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Container_somDefaultAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Container_somDefaultConstAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultConstAssign,system)
+		typedef somTP_Container_somDefaultConstAssign *somTD_Container_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Container_somDefaultConstAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Container_somDefaultVAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultVAssign,system)
+		typedef somTP_Container_somDefaultVAssign *somTD_Container_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Container_somDefaultVAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Container_somDefaultConstVAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Container_somDefaultConstVAssign,system)
+		typedef somTP_Container_somDefaultConstVAssign *somTD_Container_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Container_somDefaultConstVAssign)(
+			Container * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Container_somDestruct)(
+			Container * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_Container_somDestruct,system)
+		typedef somTP_Container_somDestruct *somTD_Container_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Container_somDestruct)(
+			Container * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef Container_MajorVersion
+		#define Container_MajorVersion   2
+	#endif /* Container_MajorVersion */
+	#ifndef Container_MinorVersion
+		#define Container_MinorVersion   1
+	#endif /* Container_MinorVersion */
+	typedef struct ContainerClassDataStructure
+	{
+		SOMClass * classObject;
+		somMToken contents;
+		somMToken lookup_name;
+		somMToken describe_contents;
+		somMToken internalNameLookup;
+		somMToken private1;
+		somMToken private2;
+		somMToken addToContents;
+		somMToken removeFromContents;
+		somMToken getContainerFixedPersistentSize;
+		somMToken putContainerDataInFixedBuf;
+		somMToken getContainerDataFromFixedBuf;
+		somMToken _set_iidDirectory;
+		somMToken _get_iidDirectory;
+		somMToken saveContents;
+		somMToken restoreContents;
+		somMToken getContentsSize;
+		somMToken deleteContainerFromIR;
+		somMToken _get_dirdirtybit;
+		somMToken _set_dirdirtybit;
+		somMToken gatherSubclasses;
+		somMToken _get_mycontents;
+		somMToken _set_mycontents;
+	} ContainerClassDataStructure;
+	typedef struct ContainerCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} ContainerCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_containr_Source) || defined(Container_Class_Source)
+			SOMEXTERN struct ContainerClassDataStructure _ContainerClassData;
+			#ifndef ContainerClassData
+				#define ContainerClassData    _ContainerClassData
+			#endif /* ContainerClassData */
+		#else
+			SOMEXTERN struct ContainerClassDataStructure * SOMLINK resolve_ContainerClassData(void);
+			#ifndef ContainerClassData
+				#define ContainerClassData    (*(resolve_ContainerClassData()))
+			#endif /* ContainerClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_containr_Source) || defined(Container_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_containr_Source || Container_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_containr_Source || Container_Class_Source */
+		struct ContainerClassDataStructure SOMDLINK ContainerClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_containr_Source) || defined(Container_Class_Source)
+			SOMEXTERN struct ContainerCClassDataStructure _ContainerCClassData;
+			#ifndef ContainerCClassData
+				#define ContainerCClassData    _ContainerCClassData
+			#endif /* ContainerCClassData */
+		#else
+			SOMEXTERN struct ContainerCClassDataStructure * SOMLINK resolve_ContainerCClassData(void);
+			#ifndef ContainerCClassData
+				#define ContainerCClassData    (*(resolve_ContainerCClassData()))
+			#endif /* ContainerCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_containr_Source) || defined(Container_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_containr_Source || Container_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_containr_Source || Container_Class_Source */
+		struct ContainerCClassDataStructure SOMDLINK ContainerCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_containr_Source) || defined(Container_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_containr_Source || Container_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_containr_Source || Container_Class_Source */
+	SOMClass * SOMLINK ContainerNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_Container (ContainerClassData.classObject)
+	#ifndef SOMGD_Container
+		#if (defined(_Container) || defined(__Container))
+			#undef _Container
+			#undef __Container
+			#define SOMGD_Container 1
+		#else
+			#define _Container _SOMCLASS_Container
+		#endif /* _Container */
+	#endif /* SOMGD_Container */
+	#define Container_classObj _SOMCLASS_Container
+	#define _SOMMTOKEN_Container(method) ((somMToken)(ContainerClassData.method))
+#endif /* Container_API */
+
+	class Container : public SOMObject
+	{
+	protected:
+		Container(somMethodTab & mtab)
+			: SOMObject(mtab)
+		{}
+	public:
+
+		inline Container_ContainedSeq contents(
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited)
+		{
+			return SOM_Resolve((void *)this,Container,contents)
+					((Container *)(void *)this,ev,limit_type,exclude_inherited);
+		};
+
+		inline Container_ContainedSeq lookup_name(
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited)
+		{
+			return SOM_Resolve((void *)this,Container,lookup_name)
+					((Container *)(void *)this,ev,search_name,levels_to_search,limit_type,exclude_inherited);
+		};
+
+		inline Container_ContainerDescriptionSeq describe_contents(
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs)
+		{
+			return SOM_Resolve((void *)this,Container,describe_contents)
+					((Container *)(void *)this,ev,limit_type,exclude_inherited,max_returned_objs);
+		};
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!ContainerClassData.classObject)
+			{ ContainerNewClass(Container_MajorVersion,Container_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)ContainerClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)ContainerClassData.classObject);
+		};
+		Container()
+			: SOMObject(*(ContainerCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ContainerCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		Container(Container *fromObj)
+			: SOMObject(*(ContainerCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ContainerCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+	};
+#endif /* SOM_Module_containr_Header_xh */

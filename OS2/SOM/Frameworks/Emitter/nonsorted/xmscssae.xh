@@ -1,0 +1,869 @@
+/* generated from xmscssae.idl */
+/* internal conditional is SOM_Module_xmscssae_Source */
+#ifndef SOM_Module_xmscssae_Header_xh
+	#define SOM_Module_xmscssae_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	class SysAdminException;
+	#ifndef _IDL_SEQUENCE_SysAdminException_defined
+		#define _IDL_SEQUENCE_SysAdminException_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(SysAdminException * ,sequence(SysAdminException));
+	#endif /* _IDL_SEQUENCE_SysAdminException_defined */
+#ifndef SysAdminException_API
+#define SysAdminException_API
+#define ex_SysAdminException_Exception   "::SysAdminException::Exception"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_Exception
+#ifndef ex_Exception
+#define ex_Exception  ex_SysAdminException_Exception
+#else
+#define SOMTGD_ex_Exception
+#undef ex_Exception
+#endif /* ex_Exception */
+#endif /* SOMTGD_ex_Exception */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_Exception
+{
+	somToken dummy;
+} SysAdminException_Exception;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_Exception
+		#if defined(Exception)
+			#undef Exception
+			#define SOMGD_Exception
+		#else
+			#define Exception SysAdminException_Exception
+		#endif
+	#endif /* SOMGD_Exception */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#ifndef _IDL_SEQUENCE_octet_defined
+		#define _IDL_SEQUENCE_octet_defined
+		SOM_SEQUENCE_TYPEDEF(octet);
+	#endif /* _IDL_SEQUENCE_octet_defined */
+	typedef _IDL_SEQUENCE_octet SysAdminException_MsgContext;
+	#ifndef _IDL_SEQUENCE_SysAdminException_MsgContext_defined
+		#define _IDL_SEQUENCE_SysAdminException_MsgContext_defined
+		SOM_SEQUENCE_TYPEDEF(SysAdminException_MsgContext);
+	#endif /* _IDL_SEQUENCE_SysAdminException_MsgContext_defined */
+#define ex_SysAdminException_ExException   "::SysAdminException::ExException"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExException
+#ifndef ex_ExException
+#define ex_ExException  ex_SysAdminException_ExException
+#else
+#define SOMTGD_ex_ExException
+#undef ex_ExException
+#endif /* ex_ExException */
+#endif /* SOMTGD_ex_ExException */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExException
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+} SysAdminException_ExException;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExException
+		#if defined(ExException)
+			#undef ExException
+			#define SOMGD_ExException
+		#else
+			#define ExException SysAdminException_ExException
+		#endif
+	#endif /* SOMGD_ExException */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExFailed   "::SysAdminException::ExFailed"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExFailed
+#ifndef ex_ExFailed
+#define ex_ExFailed  ex_SysAdminException_ExFailed
+#else
+#define SOMTGD_ex_ExFailed
+#undef ex_ExFailed
+#endif /* ex_ExFailed */
+#endif /* SOMTGD_ex_ExFailed */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExFailed
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string operation_name;
+} SysAdminException_ExFailed;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExFailed
+		#if defined(ExFailed)
+			#undef ExFailed
+			#define SOMGD_ExFailed
+		#else
+			#define ExFailed SysAdminException_ExFailed
+		#endif
+	#endif /* SOMGD_ExFailed */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExInvalid   "::SysAdminException::ExInvalid"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExInvalid
+#ifndef ex_ExInvalid
+#define ex_ExInvalid  ex_SysAdminException_ExInvalid
+#else
+#define SOMTGD_ex_ExInvalid
+#undef ex_ExInvalid
+#endif /* ex_ExInvalid */
+#endif /* SOMTGD_ex_ExInvalid */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExInvalid
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string resource_name;
+} SysAdminException_ExInvalid;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExInvalid
+		#if defined(ExInvalid)
+			#undef ExInvalid
+			#define SOMGD_ExInvalid
+		#else
+			#define ExInvalid SysAdminException_ExInvalid
+		#endif
+	#endif /* SOMGD_ExInvalid */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExNotFound   "::SysAdminException::ExNotFound"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExNotFound
+#ifndef ex_ExNotFound
+#define ex_ExNotFound  ex_SysAdminException_ExNotFound
+#else
+#define SOMTGD_ex_ExNotFound
+#undef ex_ExNotFound
+#endif /* ex_ExNotFound */
+#endif /* SOMTGD_ex_ExNotFound */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExNotFound
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string resource_name;
+} SysAdminException_ExNotFound;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExNotFound
+		#if defined(ExNotFound)
+			#undef ExNotFound
+			#define SOMGD_ExNotFound
+		#else
+			#define ExNotFound SysAdminException_ExNotFound
+		#endif
+	#endif /* SOMGD_ExNotFound */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExExists   "::SysAdminException::ExExists"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExExists
+#ifndef ex_ExExists
+#define ex_ExExists  ex_SysAdminException_ExExists
+#else
+#define SOMTGD_ex_ExExists
+#undef ex_ExExists
+#endif /* ex_ExExists */
+#endif /* SOMTGD_ex_ExExists */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExExists
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string resource_name;
+} SysAdminException_ExExists;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExExists
+		#if defined(ExExists)
+			#undef ExExists
+			#define SOMGD_ExExists
+		#else
+			#define ExExists SysAdminException_ExExists
+		#endif
+	#endif /* SOMGD_ExExists */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExFileIO   "::SysAdminException::ExFileIO"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExFileIO
+#ifndef ex_ExFileIO
+#define ex_ExFileIO  ex_SysAdminException_ExFileIO
+#else
+#define SOMTGD_ex_ExFileIO
+#undef ex_ExFileIO
+#endif /* ex_ExFileIO */
+#endif /* SOMTGD_ex_ExFileIO */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExFileIO
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string resource_name;
+} SysAdminException_ExFileIO;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExFileIO
+		#if defined(ExFileIO)
+			#undef ExFileIO
+			#define SOMGD_ExFileIO
+		#else
+			#define ExFileIO SysAdminException_ExFileIO
+		#endif
+	#endif /* SOMGD_ExFileIO */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExObjNotFound   "::SysAdminException::ExObjNotFound"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExObjNotFound
+#ifndef ex_ExObjNotFound
+#define ex_ExObjNotFound  ex_SysAdminException_ExObjNotFound
+#else
+#define SOMTGD_ex_ExObjNotFound
+#undef ex_ExObjNotFound
+#endif /* ex_ExObjNotFound */
+#endif /* SOMTGD_ex_ExObjNotFound */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExObjNotFound
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string resource_name;
+} SysAdminException_ExObjNotFound;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExObjNotFound
+		#if defined(ExObjNotFound)
+			#undef ExObjNotFound
+			#define SOMGD_ExObjNotFound
+		#else
+			#define ExObjNotFound SysAdminException_ExObjNotFound
+		#endif
+	#endif /* SOMGD_ExObjNotFound */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_SysAdminException_ExNoMoreMemory   "::SysAdminException::ExNoMoreMemory"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_ExNoMoreMemory
+#ifndef ex_ExNoMoreMemory
+#define ex_ExNoMoreMemory  ex_SysAdminException_ExNoMoreMemory
+#else
+#define SOMTGD_ex_ExNoMoreMemory
+#undef ex_ExNoMoreMemory
+#endif /* ex_ExNoMoreMemory */
+#endif /* SOMTGD_ex_ExNoMoreMemory */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct SysAdminException_ExNoMoreMemory
+{
+	string type_name;
+	string catalog;
+	long key;
+	string default_msg;
+	long time_stamp;
+	SysAdminException_MsgContext msg_context;
+	string message;
+	long size;
+} SysAdminException_ExNoMoreMemory;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_ExNoMoreMemory
+		#if defined(ExNoMoreMemory)
+			#undef ExNoMoreMemory
+			#define SOMGD_ExNoMoreMemory
+		#else
+			#define ExNoMoreMemory SysAdminException_ExNoMoreMemory
+		#endif
+	#endif /* SOMGD_ExNoMoreMemory */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somInit)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somInit,system)
+		typedef somTP_SysAdminException_somInit *somTD_SysAdminException_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somInit)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somUninit)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somUninit,system)
+		typedef somTP_SysAdminException_somUninit *somTD_SysAdminException_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somUninit)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somFree)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somFree,system)
+		typedef somTP_SysAdminException_somFree *somTD_SysAdminException_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somFree)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_SysAdminException_somGetClass)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somGetClass,system)
+		typedef somTP_SysAdminException_somGetClass *somTD_SysAdminException_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_SysAdminException_somGetClass)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_SysAdminException_somGetClassName)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somGetClassName,system)
+		typedef somTP_SysAdminException_somGetClassName *somTD_SysAdminException_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_SysAdminException_somGetClassName)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_SysAdminException_somGetSize)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somGetSize,system)
+		typedef somTP_SysAdminException_somGetSize *somTD_SysAdminException_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_SysAdminException_somGetSize)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somIsA)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_SysAdminException_somIsA,system)
+		typedef somTP_SysAdminException_somIsA *somTD_SysAdminException_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somIsA)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somIsInstanceOf)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_SysAdminException_somIsInstanceOf,system)
+		typedef somTP_SysAdminException_somIsInstanceOf *somTD_SysAdminException_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somIsInstanceOf)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somRespondsTo)(
+			SysAdminException * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_SysAdminException_somRespondsTo,system)
+		typedef somTP_SysAdminException_somRespondsTo *somTD_SysAdminException_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somRespondsTo)(
+			SysAdminException * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somDispatch)(
+			SysAdminException * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_SysAdminException_somDispatch,system)
+		typedef somTP_SysAdminException_somDispatch *somTD_SysAdminException_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somDispatch)(
+			SysAdminException * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somClassDispatch)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_SysAdminException_somClassDispatch,system)
+		typedef somTP_SysAdminException_somClassDispatch *somTD_SysAdminException_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somClassDispatch)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somCastObj)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_SysAdminException_somCastObj,system)
+		typedef somTP_SysAdminException_somCastObj *somTD_SysAdminException_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somCastObj)(
+			SysAdminException * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_SysAdminException_somResetObj)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somResetObj,system)
+		typedef somTP_SysAdminException_somResetObj *somTD_SysAdminException_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_SysAdminException_somResetObj)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_SysAdminException_somPrintSelf)(
+			SysAdminException * somSelf);
+		#pragma linkage(somTP_SysAdminException_somPrintSelf,system)
+		typedef somTP_SysAdminException_somPrintSelf *somTD_SysAdminException_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_SysAdminException_somPrintSelf)(
+			SysAdminException * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDumpSelf)(
+			SysAdminException * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_SysAdminException_somDumpSelf,system)
+		typedef somTP_SysAdminException_somDumpSelf *somTD_SysAdminException_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDumpSelf)(
+			SysAdminException * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDumpSelfInt)(
+			SysAdminException * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_SysAdminException_somDumpSelfInt,system)
+		typedef somTP_SysAdminException_somDumpSelfInt *somTD_SysAdminException_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDumpSelfInt)(
+			SysAdminException * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDefaultInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_SysAdminException_somDefaultInit,system)
+		typedef somTP_SysAdminException_somDefaultInit *somTD_SysAdminException_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDefaultInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDefaultCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultCopyInit,system)
+		typedef somTP_SysAdminException_somDefaultCopyInit *somTD_SysAdminException_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDefaultCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDefaultConstCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultConstCopyInit,system)
+		typedef somTP_SysAdminException_somDefaultConstCopyInit *somTD_SysAdminException_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDefaultConstCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDefaultVCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultVCopyInit,system)
+		typedef somTP_SysAdminException_somDefaultVCopyInit *somTD_SysAdminException_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDefaultVCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDefaultConstVCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultConstVCopyInit,system)
+		typedef somTP_SysAdminException_somDefaultConstVCopyInit *somTD_SysAdminException_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDefaultConstVCopyInit)(
+			SysAdminException * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_SysAdminException_somDefaultAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultAssign,system)
+		typedef somTP_SysAdminException_somDefaultAssign *somTD_SysAdminException_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_SysAdminException_somDefaultAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_SysAdminException_somDefaultConstAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultConstAssign,system)
+		typedef somTP_SysAdminException_somDefaultConstAssign *somTD_SysAdminException_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_SysAdminException_somDefaultConstAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_SysAdminException_somDefaultVAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultVAssign,system)
+		typedef somTP_SysAdminException_somDefaultVAssign *somTD_SysAdminException_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_SysAdminException_somDefaultVAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_SysAdminException_somDefaultConstVAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_SysAdminException_somDefaultConstVAssign,system)
+		typedef somTP_SysAdminException_somDefaultConstVAssign *somTD_SysAdminException_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_SysAdminException_somDefaultConstVAssign)(
+			SysAdminException * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_SysAdminException_somDestruct)(
+			SysAdminException * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_SysAdminException_somDestruct,system)
+		typedef somTP_SysAdminException_somDestruct *somTD_SysAdminException_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_SysAdminException_somDestruct)(
+			SysAdminException * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef SysAdminException_MajorVersion
+		#define SysAdminException_MajorVersion   3
+	#endif /* SysAdminException_MajorVersion */
+	#ifndef SysAdminException_MinorVersion
+		#define SysAdminException_MinorVersion   0
+	#endif /* SysAdminException_MinorVersion */
+	typedef struct SysAdminExceptionClassDataStructure
+	{
+		SOMClass * classObject;
+	} SysAdminExceptionClassDataStructure;
+	typedef struct SysAdminExceptionCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} SysAdminExceptionCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_xmscssae_Source) || defined(SysAdminException_Class_Source)
+			SOMEXTERN struct SysAdminExceptionClassDataStructure _SysAdminExceptionClassData;
+			#ifndef SysAdminExceptionClassData
+				#define SysAdminExceptionClassData    _SysAdminExceptionClassData
+			#endif /* SysAdminExceptionClassData */
+		#else
+			SOMEXTERN struct SysAdminExceptionClassDataStructure * SOMLINK resolve_SysAdminExceptionClassData(void);
+			#ifndef SysAdminExceptionClassData
+				#define SysAdminExceptionClassData    (*(resolve_SysAdminExceptionClassData()))
+			#endif /* SysAdminExceptionClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_xmscssae_Source) || defined(SysAdminException_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+		struct SysAdminExceptionClassDataStructure SOMDLINK SysAdminExceptionClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_xmscssae_Source) || defined(SysAdminException_Class_Source)
+			SOMEXTERN struct SysAdminExceptionCClassDataStructure _SysAdminExceptionCClassData;
+			#ifndef SysAdminExceptionCClassData
+				#define SysAdminExceptionCClassData    _SysAdminExceptionCClassData
+			#endif /* SysAdminExceptionCClassData */
+		#else
+			SOMEXTERN struct SysAdminExceptionCClassDataStructure * SOMLINK resolve_SysAdminExceptionCClassData(void);
+			#ifndef SysAdminExceptionCClassData
+				#define SysAdminExceptionCClassData    (*(resolve_SysAdminExceptionCClassData()))
+			#endif /* SysAdminExceptionCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_xmscssae_Source) || defined(SysAdminException_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+		struct SysAdminExceptionCClassDataStructure SOMDLINK SysAdminExceptionCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_xmscssae_Source) || defined(SysAdminException_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_xmscssae_Source || SysAdminException_Class_Source */
+	SOMClass * SOMLINK SysAdminExceptionNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_SysAdminException (SysAdminExceptionClassData.classObject)
+	#ifndef SOMGD_SysAdminException
+		#if (defined(_SysAdminException) || defined(__SysAdminException))
+			#undef _SysAdminException
+			#undef __SysAdminException
+			#define SOMGD_SysAdminException 1
+		#else
+			#define _SysAdminException _SOMCLASS_SysAdminException
+		#endif /* _SysAdminException */
+	#endif /* SOMGD_SysAdminException */
+	#define SysAdminException_classObj _SOMCLASS_SysAdminException
+	#define _SOMMTOKEN_SysAdminException(method) ((somMToken)(SysAdminExceptionClassData.method))
+#endif /* SysAdminException_API */
+
+	class SysAdminException : public SOMObject
+	{
+	protected:
+		SysAdminException(somMethodTab & mtab)
+			: SOMObject(mtab)
+		{}
+	public:
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!SysAdminExceptionClassData.classObject)
+			{ SysAdminExceptionNewClass(SysAdminException_MajorVersion,SysAdminException_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)SysAdminExceptionClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)SysAdminExceptionClassData.classObject);
+		};
+		SysAdminException()
+			: SOMObject(*(SysAdminExceptionCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==SysAdminExceptionCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		SysAdminException(SysAdminException *fromObj)
+			: SOMObject(*(SysAdminExceptionCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==SysAdminExceptionCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+	};
+#endif /* SOM_Module_xmscssae_Header_xh */

@@ -1,0 +1,1506 @@
+/* generated from scconst.idl */
+/* internal conditional is SOM_Module_scconst_Source */
+#ifndef SOM_Module_scconst_Header_xih
+	#define SOM_Module_scconst_Header_xih 1
+	#ifndef SOM_Module_scconst_Source
+		#define SOM_Module_scconst_Source
+	#endif /* SOM_Module_scconst_Source */
+	#include <scconst.xh>
+	#ifndef SOM_Scope
+		#define SOM_Scope static
+	#endif /* SOM_Scope */
+	#ifdef SOMTConstEntryC_Class_Source
+		typedef void SOMTConstEntryCData;
+	#endif /* SOMTConstEntryC_Class_Source */
+	#ifdef SOMTConstEntryC_Class_Source
+	#ifndef static_somMN__get_somtConstTypeObj
+		#define static_somMN__get_somtConstTypeObj
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstTypeObj
+		#error somMN__get_somtConstTypeObj already defined
+	#else /* somMN__get_somtConstTypeObj */
+		#define somMN__get_somtConstTypeObj somMN_somC_get_somtConstTypeObj
+	#endif /* somMN__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstTypeObj="_get_somtConstTypeObj";
+	#endif /* static_somMN__get_somtConstTypeObj */
+	#ifndef static_somId__get_somtConstTypeObj
+		#define static_somId__get_somtConstTypeObj
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstTypeObj
+		#error somId__get_somtConstTypeObj already defined
+	#else /* somId__get_somtConstTypeObj */
+		#define somId__get_somtConstTypeObj somId_somC_get_somtConstTypeObj
+	#endif /* somId__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstTypeObj=&somMN__get_somtConstTypeObj;
+	#endif /* static_somId__get_somtConstTypeObj */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstTypeObj
+		#define static_somDS_SOMTConstEntryC__get_somtConstTypeObj
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstTypeObj
+		#error somDS_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somDS_SOMTConstEntryC__get_somtConstTypeObj somDS_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somDS_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstTypeObj="SOMTConstEntryC::_get_somtConstTypeObj";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstTypeObj */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstTypeObj
+		#define static_somDI_SOMTConstEntryC__get_somtConstTypeObj
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstTypeObj
+		#error somDI_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somDI_SOMTConstEntryC__get_somtConstTypeObj somDI_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somDI_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstTypeObj=&somDS_SOMTConstEntryC__get_somtConstTypeObj;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstTypeObj */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope SOMTEntryC * SOMLINK _get_somtConstTypeObj(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstTypeObj,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstTypeObj   0
+	#define somAP_SOMTConstEntryC__get_somtConstTypeObj   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstTypeObj
+		#error somRD_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somRD_SOMTConstEntryC__get_somtConstTypeObj somRD_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somRD_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static SOMTEntryC * SOMLINK somRD_SOMTConstEntryC__get_somtConstTypeObj(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstTypeObj,system)
+	#endif /* __IBMC__ */
+	static SOMTEntryC * SOMLINK somRD_SOMTConstEntryC__get_somtConstTypeObj(
+			SOMTConstEntryC * somSelf)
+	{
+		SOMTEntryC * _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstTypeObj,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstTypeObj
+		#error somAP_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somAP_SOMTConstEntryC__get_somtConstTypeObj somAP_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somAP_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstTypeObj(
+		SOMTConstEntryC * somSelf,
+		SOMTEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstTypeObj,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstTypeObj(
+		SOMTConstEntryC * somSelf,
+		SOMTEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstTypeObj)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj somMethodInfo_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj somApRdInfo_SOMTConstEntryC_somC_get_somtConstTypeObj
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstTypeObj,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstTypeObj,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstTypeObj};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstType
+		#define static_somMN__get_somtConstType
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstType
+		#error somMN__get_somtConstType already defined
+	#else /* somMN__get_somtConstType */
+		#define somMN__get_somtConstType somMN_somC_get_somtConstType
+	#endif /* somMN__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstType="_get_somtConstType";
+	#endif /* static_somMN__get_somtConstType */
+	#ifndef static_somId__get_somtConstType
+		#define static_somId__get_somtConstType
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstType
+		#error somId__get_somtConstType already defined
+	#else /* somId__get_somtConstType */
+		#define somId__get_somtConstType somId_somC_get_somtConstType
+	#endif /* somId__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstType=&somMN__get_somtConstType;
+	#endif /* static_somId__get_somtConstType */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstType
+		#define static_somDS_SOMTConstEntryC__get_somtConstType
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstType
+		#error somDS_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstType */
+		#define somDS_SOMTConstEntryC__get_somtConstType somDS_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somDS_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstType="SOMTConstEntryC::_get_somtConstType";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstType */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstType
+		#define static_somDI_SOMTConstEntryC__get_somtConstType
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstType
+		#error somDI_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstType */
+		#define somDI_SOMTConstEntryC__get_somtConstType somDI_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somDI_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstType=&somDS_SOMTConstEntryC__get_somtConstType;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstType */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtConstType(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstType,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstType   0
+	#define somAP_SOMTConstEntryC__get_somtConstType   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstType
+		#error somRD_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstType */
+		#define somRD_SOMTConstEntryC__get_somtConstType somRD_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somRD_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstType(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstType,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstType(
+			SOMTConstEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstType,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstType
+		#error somAP_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstType */
+		#define somAP_SOMTConstEntryC__get_somtConstType somAP_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somAP_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstType(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstType,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstType(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstType)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstType
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstType */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstType somMethodInfo_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstType={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstType
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstType already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstType */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstType somApRdInfo_SOMTConstEntryC_somC_get_somtConstType
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstType */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstType={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstType,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstType,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstType};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstStringVal
+		#define static_somMN__get_somtConstStringVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstStringVal
+		#error somMN__get_somtConstStringVal already defined
+	#else /* somMN__get_somtConstStringVal */
+		#define somMN__get_somtConstStringVal somMN_somC_get_somtConstStringVal
+	#endif /* somMN__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstStringVal="_get_somtConstStringVal";
+	#endif /* static_somMN__get_somtConstStringVal */
+	#ifndef static_somId__get_somtConstStringVal
+		#define static_somId__get_somtConstStringVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstStringVal
+		#error somId__get_somtConstStringVal already defined
+	#else /* somId__get_somtConstStringVal */
+		#define somId__get_somtConstStringVal somId_somC_get_somtConstStringVal
+	#endif /* somId__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstStringVal=&somMN__get_somtConstStringVal;
+	#endif /* static_somId__get_somtConstStringVal */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstStringVal
+		#define static_somDS_SOMTConstEntryC__get_somtConstStringVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstStringVal
+		#error somDS_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstStringVal */
+		#define somDS_SOMTConstEntryC__get_somtConstStringVal somDS_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somDS_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstStringVal="SOMTConstEntryC::_get_somtConstStringVal";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstStringVal */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstStringVal
+		#define static_somDI_SOMTConstEntryC__get_somtConstStringVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstStringVal
+		#error somDI_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstStringVal */
+		#define somDI_SOMTConstEntryC__get_somtConstStringVal somDI_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somDI_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstStringVal=&somDS_SOMTConstEntryC__get_somtConstStringVal;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstStringVal */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtConstStringVal(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstStringVal,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstStringVal   0
+	#define somAP_SOMTConstEntryC__get_somtConstStringVal   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstStringVal
+		#error somRD_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstStringVal */
+		#define somRD_SOMTConstEntryC__get_somtConstStringVal somRD_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somRD_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstStringVal(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstStringVal,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstStringVal(
+			SOMTConstEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstStringVal,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstStringVal
+		#error somAP_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstStringVal */
+		#define somAP_SOMTConstEntryC__get_somtConstStringVal somAP_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somAP_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstStringVal(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstStringVal,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstStringVal(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstStringVal)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstStringVal
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstStringVal */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstStringVal somMethodInfo_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstStringVal={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstStringVal
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstStringVal already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstStringVal */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstStringVal somApRdInfo_SOMTConstEntryC_somC_get_somtConstStringVal
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstStringVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstStringVal={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstStringVal,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstStringVal,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstStringVal};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstNumVal
+		#define static_somMN__get_somtConstNumVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstNumVal
+		#error somMN__get_somtConstNumVal already defined
+	#else /* somMN__get_somtConstNumVal */
+		#define somMN__get_somtConstNumVal somMN_somC_get_somtConstNumVal
+	#endif /* somMN__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstNumVal="_get_somtConstNumVal";
+	#endif /* static_somMN__get_somtConstNumVal */
+	#ifndef static_somId__get_somtConstNumVal
+		#define static_somId__get_somtConstNumVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstNumVal
+		#error somId__get_somtConstNumVal already defined
+	#else /* somId__get_somtConstNumVal */
+		#define somId__get_somtConstNumVal somId_somC_get_somtConstNumVal
+	#endif /* somId__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstNumVal=&somMN__get_somtConstNumVal;
+	#endif /* static_somId__get_somtConstNumVal */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstNumVal
+		#define static_somDS_SOMTConstEntryC__get_somtConstNumVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstNumVal
+		#error somDS_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstNumVal */
+		#define somDS_SOMTConstEntryC__get_somtConstNumVal somDS_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somDS_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstNumVal="SOMTConstEntryC::_get_somtConstNumVal";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstNumVal */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstNumVal
+		#define static_somDI_SOMTConstEntryC__get_somtConstNumVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstNumVal
+		#error somDI_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstNumVal */
+		#define somDI_SOMTConstEntryC__get_somtConstNumVal somDI_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somDI_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstNumVal=&somDS_SOMTConstEntryC__get_somtConstNumVal;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstNumVal */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope unsigned long SOMLINK _get_somtConstNumVal(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstNumVal,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstNumVal   0
+	#define somAP_SOMTConstEntryC__get_somtConstNumVal   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstNumVal
+		#error somRD_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstNumVal */
+		#define somRD_SOMTConstEntryC__get_somtConstNumVal somRD_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somRD_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static unsigned long SOMLINK somRD_SOMTConstEntryC__get_somtConstNumVal(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstNumVal,system)
+	#endif /* __IBMC__ */
+	static unsigned long SOMLINK somRD_SOMTConstEntryC__get_somtConstNumVal(
+			SOMTConstEntryC * somSelf)
+	{
+		unsigned long _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstNumVal,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstNumVal
+		#error somAP_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstNumVal */
+		#define somAP_SOMTConstEntryC__get_somtConstNumVal somAP_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somAP_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstNumVal(
+		SOMTConstEntryC * somSelf,
+		unsigned long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstNumVal,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstNumVal(
+		SOMTConstEntryC * somSelf,
+		unsigned long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstNumVal)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstNumVal
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstNumVal */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstNumVal somMethodInfo_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstNumVal={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstNumVal
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstNumVal already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstNumVal */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstNumVal somApRdInfo_SOMTConstEntryC_somC_get_somtConstNumVal
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstNumVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstNumVal={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstNumVal,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstNumVal,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstNumVal};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstNumNegVal
+		#define static_somMN__get_somtConstNumNegVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstNumNegVal
+		#error somMN__get_somtConstNumNegVal already defined
+	#else /* somMN__get_somtConstNumNegVal */
+		#define somMN__get_somtConstNumNegVal somMN_somC_get_somtConstNumNegVal
+	#endif /* somMN__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstNumNegVal="_get_somtConstNumNegVal";
+	#endif /* static_somMN__get_somtConstNumNegVal */
+	#ifndef static_somId__get_somtConstNumNegVal
+		#define static_somId__get_somtConstNumNegVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstNumNegVal
+		#error somId__get_somtConstNumNegVal already defined
+	#else /* somId__get_somtConstNumNegVal */
+		#define somId__get_somtConstNumNegVal somId_somC_get_somtConstNumNegVal
+	#endif /* somId__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstNumNegVal=&somMN__get_somtConstNumNegVal;
+	#endif /* static_somId__get_somtConstNumNegVal */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstNumNegVal
+		#define static_somDS_SOMTConstEntryC__get_somtConstNumNegVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somDS_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somDS_SOMTConstEntryC__get_somtConstNumNegVal somDS_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somDS_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstNumNegVal="SOMTConstEntryC::_get_somtConstNumNegVal";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstNumNegVal */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstNumNegVal
+		#define static_somDI_SOMTConstEntryC__get_somtConstNumNegVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somDI_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somDI_SOMTConstEntryC__get_somtConstNumNegVal somDI_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somDI_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstNumNegVal=&somDS_SOMTConstEntryC__get_somtConstNumNegVal;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstNumNegVal */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope long SOMLINK _get_somtConstNumNegVal(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstNumNegVal,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstNumNegVal   0
+	#define somAP_SOMTConstEntryC__get_somtConstNumNegVal   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somRD_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somRD_SOMTConstEntryC__get_somtConstNumNegVal somRD_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somRD_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static long SOMLINK somRD_SOMTConstEntryC__get_somtConstNumNegVal(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstNumNegVal,system)
+	#endif /* __IBMC__ */
+	static long SOMLINK somRD_SOMTConstEntryC__get_somtConstNumNegVal(
+			SOMTConstEntryC * somSelf)
+	{
+		long _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstNumNegVal,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somAP_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somAP_SOMTConstEntryC__get_somtConstNumNegVal somAP_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somAP_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstNumNegVal(
+		SOMTConstEntryC * somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstNumNegVal,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstNumNegVal(
+		SOMTConstEntryC * somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstNumNegVal)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal somMethodInfo_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal somApRdInfo_SOMTConstEntryC_somC_get_somtConstNumNegVal
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstNumNegVal,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstNumNegVal,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstNumNegVal};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstIsNegative
+		#define static_somMN__get_somtConstIsNegative
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstIsNegative
+		#error somMN__get_somtConstIsNegative already defined
+	#else /* somMN__get_somtConstIsNegative */
+		#define somMN__get_somtConstIsNegative somMN_somC_get_somtConstIsNegative
+	#endif /* somMN__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstIsNegative="_get_somtConstIsNegative";
+	#endif /* static_somMN__get_somtConstIsNegative */
+	#ifndef static_somId__get_somtConstIsNegative
+		#define static_somId__get_somtConstIsNegative
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstIsNegative
+		#error somId__get_somtConstIsNegative already defined
+	#else /* somId__get_somtConstIsNegative */
+		#define somId__get_somtConstIsNegative somId_somC_get_somtConstIsNegative
+	#endif /* somId__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstIsNegative=&somMN__get_somtConstIsNegative;
+	#endif /* static_somId__get_somtConstIsNegative */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstIsNegative
+		#define static_somDS_SOMTConstEntryC__get_somtConstIsNegative
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstIsNegative
+		#error somDS_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somDS_SOMTConstEntryC__get_somtConstIsNegative somDS_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somDS_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstIsNegative="SOMTConstEntryC::_get_somtConstIsNegative";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstIsNegative */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstIsNegative
+		#define static_somDI_SOMTConstEntryC__get_somtConstIsNegative
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstIsNegative
+		#error somDI_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somDI_SOMTConstEntryC__get_somtConstIsNegative somDI_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somDI_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstIsNegative=&somDS_SOMTConstEntryC__get_somtConstIsNegative;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstIsNegative */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope boolean SOMLINK _get_somtConstIsNegative(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstIsNegative,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstIsNegative   0
+	#define somAP_SOMTConstEntryC__get_somtConstIsNegative   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstIsNegative
+		#error somRD_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somRD_SOMTConstEntryC__get_somtConstIsNegative somRD_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somRD_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static boolean SOMLINK somRD_SOMTConstEntryC__get_somtConstIsNegative(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstIsNegative,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMTConstEntryC__get_somtConstIsNegative(
+			SOMTConstEntryC * somSelf)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstIsNegative,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstIsNegative
+		#error somAP_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somAP_SOMTConstEntryC__get_somtConstIsNegative somAP_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somAP_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstIsNegative(
+		SOMTConstEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstIsNegative,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstIsNegative(
+		SOMTConstEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstIsNegative)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative somMethodInfo_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative somApRdInfo_SOMTConstEntryC_somC_get_somtConstIsNegative
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstIsNegative,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstIsNegative,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstIsNegative};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtConstVal
+		#define static_somMN__get_somtConstVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtConstVal
+		#error somMN__get_somtConstVal already defined
+	#else /* somMN__get_somtConstVal */
+		#define somMN__get_somtConstVal somMN_somC_get_somtConstVal
+	#endif /* somMN__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtConstVal="_get_somtConstVal";
+	#endif /* static_somMN__get_somtConstVal */
+	#ifndef static_somId__get_somtConstVal
+		#define static_somId__get_somtConstVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtConstVal
+		#error somId__get_somtConstVal already defined
+	#else /* somId__get_somtConstVal */
+		#define somId__get_somtConstVal somId_somC_get_somtConstVal
+	#endif /* somId__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtConstVal=&somMN__get_somtConstVal;
+	#endif /* static_somId__get_somtConstVal */
+	#ifndef static_somDS_SOMTConstEntryC__get_somtConstVal
+		#define static_somDS_SOMTConstEntryC__get_somtConstVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTConstEntryC__get_somtConstVal
+		#error somDS_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somDS_SOMTConstEntryC__get_somtConstVal */
+		#define somDS_SOMTConstEntryC__get_somtConstVal somDS_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somDS_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTConstEntryC__get_somtConstVal="SOMTConstEntryC::_get_somtConstVal";
+	#endif /* static_somDS_SOMTConstEntryC__get_somtConstVal */
+	#ifndef static_somDI_SOMTConstEntryC__get_somtConstVal
+		#define static_somDI_SOMTConstEntryC__get_somtConstVal
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTConstEntryC__get_somtConstVal
+		#error somDI_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somDI_SOMTConstEntryC__get_somtConstVal */
+		#define somDI_SOMTConstEntryC__get_somtConstVal somDI_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somDI_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTConstEntryC__get_somtConstVal=&somDS_SOMTConstEntryC__get_somtConstVal;
+	#endif /* static_somDI_SOMTConstEntryC__get_somtConstVal */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtConstVal(
+	SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtConstVal,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTConstEntryC__get_somtConstVal   0
+	#define somAP_SOMTConstEntryC__get_somtConstVal   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTConstEntryC__get_somtConstVal
+		#error somRD_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somRD_SOMTConstEntryC__get_somtConstVal */
+		#define somRD_SOMTConstEntryC__get_somtConstVal somRD_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somRD_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstVal(
+			SOMTConstEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTConstEntryC__get_somtConstVal,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTConstEntryC__get_somtConstVal(
+			SOMTConstEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtConstVal,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTConstEntryC__get_somtConstVal
+		#error somAP_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somAP_SOMTConstEntryC__get_somtConstVal */
+		#define somAP_SOMTConstEntryC__get_somtConstVal somAP_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somAP_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstVal(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTConstEntryC__get_somtConstVal,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTConstEntryC__get_somtConstVal(
+		SOMTConstEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTConstEntryC * );
+
+		*_somC_retVal=((somTD_SOMTConstEntryC__get_somtConstVal)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTConstEntryC__get_somtConstVal
+		#error somMethodInfo_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somMethodInfo_SOMTConstEntryC__get_somtConstVal */
+		#define somMethodInfo_SOMTConstEntryC__get_somtConstVal somMethodInfo_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somMethodInfo_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTConstEntryC__get_somtConstVal={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTConstEntryC__get_somtConstVal
+		#error somApRdInfo_SOMTConstEntryC__get_somtConstVal already defined
+	#else /* somApRdInfo_SOMTConstEntryC__get_somtConstVal */
+		#define somApRdInfo_SOMTConstEntryC__get_somtConstVal somApRdInfo_SOMTConstEntryC_somC_get_somtConstVal
+	#endif /* somApRdInfo_SOMTConstEntryC__get_somtConstVal */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTConstEntryC__get_somtConstVal={
+		(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstVal,
+		(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstVal,
+		&somMethodInfo_SOMTConstEntryC__get_somtConstVal};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef SOMTConstEntryCMethodDebug
+		#define SOMTConstEntryCMethodDebug(x,y)
+	#endif /* SOMTConstEntryCMethodDebug */
+	#define SOMTConstEntryCGetData(somSelf)  ((SOMTConstEntryCData *)0)  /* class has no attributes */
+	#ifndef static_somDS_SOMTEntryC_somtSetSymbolsOnEntry
+		#define static_somDS_SOMTEntryC_somtSetSymbolsOnEntry
+		static const char * somDS_SOMTEntryC_somtSetSymbolsOnEntry="SOMTEntryC::somtSetSymbolsOnEntry";
+	#endif /* static_somDS_SOMTEntryC_somtSetSymbolsOnEntry */
+	#ifndef static_somDI_SOMTEntryC_somtSetSymbolsOnEntry
+		#define static_somDI_SOMTEntryC_somtSetSymbolsOnEntry
+		static const somConstId somDI_SOMTEntryC_somtSetSymbolsOnEntry=&somDS_SOMTEntryC_somtSetSymbolsOnEntry;
+	#endif /* static_somDI_SOMTEntryC_somtSetSymbolsOnEntry */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope long SOMLINK somtSetSymbolsOnEntry(
+	SOMTConstEntryC * somSelf,
+	/* in */ SOMTEmitC * emitter,
+	/* in */ string prefix);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetSymbolsOnEntry,system)
+	#endif /* __IBMC__ */
+	#ifndef static_somCN_SOMTConstEntryC
+		#define static_somCN_SOMTConstEntryC
+		static const char * somCN_SOMTConstEntryC="SOMTConstEntryC";
+	#endif /* static_somCN_SOMTConstEntryC */
+	#ifndef static_somPCN_SOMTConstEntryC_SOMTEntryC
+		#define static_somPCN_SOMTConstEntryC_SOMTEntryC
+		static const char * somPCN_SOMTConstEntryC_SOMTEntryC="SOMTEntryC";
+	#endif /* static_somPCN_SOMTConstEntryC_SOMTEntryC */
+static const somConstId somPCSOMTConstEntryC[1]={
+	&somPCN_SOMTConstEntryC_SOMTEntryC};
+
+/* class ::SOMTConstEntryC introduces 7 methods, 0 procedures and overrides 1 */
+/* should have ::SOMTConstEntryCClassData defined here */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstTypeObj */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstType */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstStringVal */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstNumVal */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstNumNegVal */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstIsNegative */
+/* developer must provide get for attribute ::SOMTConstEntryC::somtConstVal */
+static somStaticMethod_t SOMTConstEntryCSM[7]={
+		{
+			&SOMTConstEntryCClassData._get_somtConstTypeObj,
+			&somId__get_somtConstTypeObj,
+			&somDI_SOMTConstEntryC__get_somtConstTypeObj,
+			(somMethodPtr)_get_somtConstTypeObj,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstTypeObj
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstTypeObj,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstTypeObj
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstType,
+			&somId__get_somtConstType,
+			&somDI_SOMTConstEntryC__get_somtConstType,
+			(somMethodPtr)_get_somtConstType,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstType
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstType,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstType
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstStringVal,
+			&somId__get_somtConstStringVal,
+			&somDI_SOMTConstEntryC__get_somtConstStringVal,
+			(somMethodPtr)_get_somtConstStringVal,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstStringVal
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstStringVal,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstStringVal
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstNumVal,
+			&somId__get_somtConstNumVal,
+			&somDI_SOMTConstEntryC__get_somtConstNumVal,
+			(somMethodPtr)_get_somtConstNumVal,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstNumVal
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstNumVal,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstNumVal
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstNumNegVal,
+			&somId__get_somtConstNumNegVal,
+			&somDI_SOMTConstEntryC__get_somtConstNumNegVal,
+			(somMethodPtr)_get_somtConstNumNegVal,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstNumNegVal
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstNumNegVal,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstNumNegVal
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstIsNegative,
+			&somId__get_somtConstIsNegative,
+			&somDI_SOMTConstEntryC__get_somtConstIsNegative,
+			(somMethodPtr)_get_somtConstIsNegative,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstIsNegative
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstIsNegative,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstIsNegative
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTConstEntryCClassData._get_somtConstVal,
+			&somId__get_somtConstVal,
+			&somDI_SOMTConstEntryC__get_somtConstVal,
+			(somMethodPtr)_get_somtConstVal,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTConstEntryC__get_somtConstVal
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTConstEntryC__get_somtConstVal,
+			(somMethodPtr)somAP_SOMTConstEntryC__get_somtConstVal
+#endif /* SOM_METHOD_STUBS */
+		}
+	};
+	#ifndef static_somDS_SOMTEntryC_somtSetSymbolsOnEntry
+		#define static_somDS_SOMTEntryC_somtSetSymbolsOnEntry
+		static const char * somDS_SOMTEntryC_somtSetSymbolsOnEntry="SOMTEntryC::somtSetSymbolsOnEntry";
+	#endif /* static_somDS_SOMTEntryC_somtSetSymbolsOnEntry */
+	#ifndef static_somDI_SOMTEntryC_somtSetSymbolsOnEntry
+		#define static_somDI_SOMTEntryC_somtSetSymbolsOnEntry
+		static const somConstId somDI_SOMTEntryC_somtSetSymbolsOnEntry=&somDS_SOMTEntryC_somtSetSymbolsOnEntry;
+	#endif /* static_somDI_SOMTEntryC_somtSetSymbolsOnEntry */
+static somOverrideMethod_t SOMTConstEntryCOM[1]={
+		{
+			&somDI_SOMTEntryC_somtSetSymbolsOnEntry,
+			(somMethodPtr)somtSetSymbolsOnEntry
+		}
+	};
+static somMethodPtr _somC_SOMTConstEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry_resolved; /* 1 */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+static void SOMLINK _somC_SOMTConstEntryC_classInit(SOMClass *);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+static somStaticClassInfo SOMTConstEntryCSCI={
+#ifdef SOMSCIVERSION
+		3,  /* layoutVersion */
+#else /* SOMSCIVERSION */
+		2,  /* layoutVersion */
+#endif /* SOMSCIVERSION */
+		7, /* numStaticMethod */
+		1, /* numStaticOverrides */
+		0, /* numNonInternalData */
+		0, /* numProcMethods */
+		0, /* numVarargsFuncs */
+		SOMTConstEntryC_MajorVersion,
+		SOMTConstEntryC_MinorVersion,
+		0, /* no instanceDataSize */
+		7, /* maxMethods */
+		1, /* numParents */
+		&somCN_SOMTConstEntryC,
+		0,
+		0, /* implicitParentMeta */
+		somPCSOMTConstEntryC, /* parents */
+		(somClassDataStructure *)(void *)&SOMTConstEntryCClassData,
+		(somCClassDataStructure *)(void *)&SOMTConstEntryCCClassData,
+		SOMTConstEntryCSM,
+		SOMTConstEntryCOM,
+		0, /* nitReferenceBase */
+		0, /* nit */
+		0, /* pmt no procedures*/
+		0, /* vft */
+		_somC_SOMTConstEntryC_classInit,
+		0 /* no dataAlignment */
+#ifdef SOMSCIVERSION
+		,		-1L,(somId *)0, /* directInitClasses */
+		0,(somMethods_t *)0, /* numMethods */
+		0, /* protected data offset */
+		0, /* SOMSCIVERSION */
+		0,(somInheritedMethod_t *)0, /* inherited methods */
+		7,(somId *)0, /* class data entries */
+		0,(somMigratedMethod_t *)0, /* migrated methods */
+		0,(somId *)0, /* initializers */
+		0,(somDynamicSCI *)0, /* DTS */
+#endif /* SOMSCIVERSION */
+	};
+SOMClass * SOMLINK SOMTConstEntryCNewClass(
+	integer4 somtmajorVersion,integer4 somtminorVersion)
+{
+	if (!SOMTEntryCNewClass(
+		SOMTEntryC_MajorVersion,
+		SOMTEntryC_MinorVersion))
+	{
+		return NULL;
+	}
+	return somBuildClass(0x1,&SOMTConstEntryCSCI,
+		somtmajorVersion,
+		somtminorVersion);
+}
+static void SOMLINK _somC_SOMTConstEntryC_classInit(SOMClass *somSelf)
+{
+/* do parent resolves... */
+	_somC_SOMTConstEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry_resolved=somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,1,SOMTEntryCClassData.somtSetSymbolsOnEntry);
+/* call classinit if defined... */
+	SOM_IgnoreWarning(somSelf);
+}
+struct SOMTConstEntryCClassDataStructure SOMDLINK SOMTConstEntryCClassData={
+	/* classObject */ 0,
+	/* _get_somtConstStringVal */ 0,
+	/* _get_somtConstNumVal */ 0,
+	/* _get_somtConstType */ 0,
+	/* _get_somtConstTypeObj */ 0,
+	/* _get_somtConstVal */ 0,
+	/* _get_somtConstNumNegVal */ 0,
+	/* _get_somtConstIsNegative */ 0};
+struct SOMTConstEntryCCClassDataStructure SOMDLINK SOMTConstEntryCCClassData;
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTConstEntryCClassDataStructure * SOMLINK resolve_SOMTConstEntryCClassData(void)
+	{ return &_SOMTConstEntryCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTConstEntryCCClassDataStructure * SOMLINK resolve_SOMTConstEntryCCClassData(void)
+	{ return &_SOMTConstEntryCCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+	#ifndef SOMTConstEntryC_parent_SOMTEntryC_somInit
+		#define SOMTConstEntryC_parent_SOMTEntryC_somInit(somSelf)
+	#endif /* SOMTConstEntryC_parent_SOMTEntryC_somInit */
+	#ifndef SOMTConstEntryC_parent_SOMTEntryC_somUninit
+		#define SOMTConstEntryC_parent_SOMTEntryC_somUninit(somSelf)
+	#endif /* SOMTConstEntryC_parent_SOMTEntryC_somUninit */
+	#define SOMTConstEntryC_parent_SOMTEntryC_somFree(somSelf)   \
+		((somTD_SOMTConstEntryC_somFree)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somFree))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somGetClass(somSelf)   \
+		((somTD_SOMTConstEntryC_somGetClass)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClass))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somGetClassName(somSelf)   \
+		((somTD_SOMTConstEntryC_somGetClassName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClassName))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somGetSize(somSelf)   \
+		((somTD_SOMTConstEntryC_somGetSize)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetSize))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somIsA(somSelf,aClassObj)   \
+		((somTD_SOMTConstEntryC_somIsA)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsA))\
+					((SOMTConstEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somIsInstanceOf(somSelf,aClassObj)   \
+		((somTD_SOMTConstEntryC_somIsInstanceOf)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsInstanceOf))\
+					((SOMTConstEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somRespondsTo(somSelf,mId)   \
+		((somTD_SOMTConstEntryC_somRespondsTo)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somRespondsTo))\
+					((SOMTConstEntryC *)(void *)somSelf,mId)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDispatch(somSelf,retValue,methodId,ap)   \
+		((somTD_SOMTConstEntryC_somDispatch)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDispatch))\
+					((SOMTConstEntryC *)(void *)somSelf,retValue,methodId,ap)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somClassDispatch(somSelf,clsObj,retValue,methodId,ap)   \
+		((somTD_SOMTConstEntryC_somClassDispatch)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somClassDispatch))\
+					((SOMTConstEntryC *)(void *)somSelf,clsObj,retValue,methodId,ap)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somCastObj(somSelf,castedCls)   \
+		((somTD_SOMTConstEntryC_somCastObj)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somCastObj))\
+					((SOMTConstEntryC *)(void *)somSelf,castedCls)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somResetObj(somSelf)   \
+		((somTD_SOMTConstEntryC_somResetObj)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somResetObj))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somPrintSelf(somSelf)   \
+		((somTD_SOMTConstEntryC_somPrintSelf)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somPrintSelf))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDumpSelf(somSelf,level)   \
+		((somTD_SOMTConstEntryC_somDumpSelf)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelf))\
+					((SOMTConstEntryC *)(void *)somSelf,level)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDumpSelfInt(somSelf,level)   \
+		((somTD_SOMTConstEntryC_somDumpSelfInt)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelfInt))\
+					((SOMTConstEntryC *)(void *)somSelf,level)
+#define SOMTConstEntryC_Init_SOMTEntryC_somDefaultInit(somSelf,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultInit)ctrl->info->defaultInit) \
+(((SOMObject *)(void *)somSelf),ctrl); \
+}
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultCopyInit)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultCopyInit))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultConstCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultConstCopyInit)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstCopyInit))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultVCopyInit)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVCopyInit))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultConstVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultConstVCopyInit)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVCopyInit))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTConstEntryC_Assign_SOMTEntryC_somDefaultAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultAssign)ctrl->info->defaultNCArgAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+#define SOMTConstEntryC_Assign_SOMTEntryC_somDefaultConstAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultConstAssign)ctrl->info->defaultConstAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultVAssign)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVAssign))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somDefaultConstVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTConstEntryC_somDefaultConstVAssign)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVAssign))\
+					((SOMTConstEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTConstEntryC_DeInit_SOMTEntryC_somDestruct(somSelf,doFree,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDestruct)ctrl->info->defaultDestruct) \
+(((SOMObject *)(void *)somSelf),doFree,ctrl); \
+}
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtEntryStruct)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryStruct))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__set_somtEntryName(somSelf,somtEntryName)   \
+		((somTD_SOMTConstEntryC__set_somtEntryName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtEntryName))\
+					((SOMTConstEntryC *)(void *)somSelf,somtEntryName)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtEntryName(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtEntryName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryName))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__set_somtElementType(somSelf,somtElementType)   \
+		((somTD_SOMTConstEntryC__set_somtElementType)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtElementType))\
+					((SOMTConstEntryC *)(void *)somSelf,somtElementType)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtElementType(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtElementType)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementType))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtElementTypeName(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtElementTypeName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementTypeName))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtEntryComment(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtEntryComment)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryComment))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtSourceLineNumber(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtSourceLineNumber)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtSourceLineNumber))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtTypeCode(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtTypeCode)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtTypeCode))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtIsReference(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtIsReference)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIsReference))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtIDLScopedName(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtIDLScopedName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIDLScopedName))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC__get_somtCScopedName(somSelf)   \
+		((somTD_SOMTConstEntryC__get_somtCScopedName)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtCScopedName))\
+					((SOMTConstEntryC *)(void *)somSelf)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtGetModifierValue(somSelf,modifierName)   \
+		((somTD_SOMTConstEntryC_somtGetModifierValue)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierValue))\
+					((SOMTConstEntryC *)(void *)somSelf,modifierName)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtGetFirstModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTConstEntryC_somtGetFirstModifier)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetFirstModifier))\
+					((SOMTConstEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtGetNextModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTConstEntryC_somtGetNextModifier)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetNextModifier))\
+					((SOMTConstEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtFormatModifier(somSelf,buffer,name,value)   \
+		((somTD_SOMTConstEntryC_somtFormatModifier)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtFormatModifier))\
+					((SOMTConstEntryC *)(void *)somSelf,buffer,name,value)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtGetModifierList(somSelf,buffer)   \
+		((somTD_SOMTConstEntryC_somtGetModifierList)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierList))\
+					((SOMTConstEntryC *)(void *)somSelf,buffer)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry(somSelf,emitter,prefix)   \
+		((somTD_SOMTConstEntryC_somtSetSymbolsOnEntry)\
+			_somC_SOMTConstEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry_resolved)\
+					((SOMTConstEntryC *)(void *)somSelf,emitter,prefix)
+	#define SOMTConstEntryC_parent_SOMTEntryC_somtSetEntryStruct(somSelf,es)   \
+		((somTD_SOMTConstEntryC_somtSetEntryStruct)\
+			somParentNumResolve(SOMTConstEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtSetEntryStruct))\
+					((SOMTConstEntryC *)(void *)somSelf,es)
+	#endif /* SOMTConstEntryC_Class_Source */
+#endif /* SOM_Module_scconst_Header_xih */

@@ -1,0 +1,86 @@
+//
+//   COMPONENT_NAME: some
+//
+//   ORIGINS: 27
+//
+//
+//    25H7912  (C)  COPYRIGHT International Business Machines Corp. 1992,1994,1996 
+//   All Rights Reserved
+//   Licensed Materials - Property of IBM
+//   US Government Users Restricted Rights - Use, duplication or
+//   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+//
+//#  @(#) somc/scconst.idl 2.9 5/9/96 15:31:03 [12/22/96 21:12:05]
+
+
+#ifndef scconst_idl
+#define scconst_idl
+
+#include <scentry.idl>
+
+interface SOMTConstEntryC : SOMTEntryC
+{
+  readonly attribute SOMTEntryC somtConstTypeObj;
+  // A pointer to an object representing 
+  // the type of the const.
+
+  readonly attribute string somtConstType;
+  // The type of the constant's value.
+
+  readonly attribute string somtConstStringVal;
+  // The string value of the constant (unevaluated).
+
+  readonly attribute unsigned long somtConstNumVal;
+  // The number value of the constant.
+  // This attribute is not valid if the value cannot
+  // be stored in an unsigned long (string, float, double, negative).
+  // The somtConstIsNegative attribute can be used to determine
+  // if the value is negative.  The somtConstType attribute can
+  // be used to determine whether the value is a float or double.
+
+  readonly attribute long somtConstNumNegVal;
+  // The number value of the constant, if negative.
+
+  readonly attribute boolean somtConstIsNegative;
+  // Whether the constant's value is a negative integer and
+  // must be obtained using somtConstNumNegVal rather than somtConstNumVal.
+
+  readonly attribute string somtConstVal;
+  // The string value of the constant (evaluated).
+  // The "get" method for this attribute returns a string whose
+  // ownership is transferred to the caller.
+
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somtConstStringVal, _get_somtConstNumVal, 
+                  _get_somtConstType, _get_somtConstTypeObj, 
+                  _get_somtConstVal, _get_somtConstNumNegVal,
+  		  _get_somtConstIsNegative;
+
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scconst;
+#ifdef _WIN32
+    dllname = "some.dll";
+#endif
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    //somDumpSelfInt: override;
+    somtSetSymbolsOnEntry: override;
+  
+    //# Attribute Modifiers
+    somtConstStringVal: nodata;
+    somtConstNumVal: nodata;
+    somtConstVal: nodata;
+    somtConstNumNegVal: nodata;
+    somtConstType: nodata;
+    somtConstTypeObj: nodata;
+    somtConstIsNegative: nodata;
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scconst*/

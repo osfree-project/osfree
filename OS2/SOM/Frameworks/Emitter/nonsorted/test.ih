@@ -1,0 +1,2506 @@
+/* generated from test.idl */
+/* internal conditional is SOM_Module_test_Source */
+#ifndef SOM_Module_test_Header_ih
+	#define SOM_Module_test_Header_ih 1
+	#ifndef SOM_Module_test_Source
+		#define SOM_Module_test_Source
+	#endif /* SOM_Module_test_Source */
+	#include <test.h>
+	#ifndef SOM_Scope
+		#define SOM_Scope static
+	#endif /* SOM_Scope */
+	#ifdef SOMObject_Class_Source
+		typedef void SOMObjectData;
+	#endif /* SOMObject_Class_Source */
+	#ifdef SOMObject_Class_Source
+	#ifndef static_somMN_somInit
+		#define static_somMN_somInit
+		static const char * somMN_somInit="somInit";
+	#endif /* static_somMN_somInit */
+	#ifndef static_somId_somInit
+		#define static_somId_somInit
+		static const somConstId somId_somInit=&somMN_somInit;
+	#endif /* static_somId_somInit */
+	#ifndef static_somDS_SOMObject_somInit
+		#define static_somDS_SOMObject_somInit
+		static const char * somDS_SOMObject_somInit="SOMObject::somInit";
+	#endif /* static_somDS_SOMObject_somInit */
+	#ifndef static_somDI_SOMObject_somInit
+		#define static_somDI_SOMObject_somInit
+		static const somConstId somDI_SOMObject_somInit=&somDS_SOMObject_somInit;
+	#endif /* static_somDI_SOMObject_somInit */
+	SOM_Scope void SOMLINK somInit(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somInit   0
+	#define somAP_SOMObject_somInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somInit(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somInit(
+			SOMObject SOMSTAR somSelf)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somInit,somSelf);
+	}
+	static void SOMLINK somAP_SOMObject_somInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somInit)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somInit={
+		(somMethodPtr)somRD_SOMObject_somInit,
+		(somMethodPtr)somAP_SOMObject_somInit,
+		&somMethodInfo_SOMObject_somInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somUninit
+		#define static_somMN_somUninit
+		static const char * somMN_somUninit="somUninit";
+	#endif /* static_somMN_somUninit */
+	#ifndef static_somId_somUninit
+		#define static_somId_somUninit
+		static const somConstId somId_somUninit=&somMN_somUninit;
+	#endif /* static_somId_somUninit */
+	#ifndef static_somDS_SOMObject_somUninit
+		#define static_somDS_SOMObject_somUninit
+		static const char * somDS_SOMObject_somUninit="SOMObject::somUninit";
+	#endif /* static_somDS_SOMObject_somUninit */
+	#ifndef static_somDI_SOMObject_somUninit
+		#define static_somDI_SOMObject_somUninit
+		static const somConstId somDI_SOMObject_somUninit=&somDS_SOMObject_somUninit;
+	#endif /* static_somDI_SOMObject_somUninit */
+	SOM_Scope void SOMLINK somUninit(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somUninit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somUninit   0
+	#define somAP_SOMObject_somUninit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somUninit(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somUninit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somUninit(
+			SOMObject SOMSTAR somSelf)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somUninit,somSelf);
+	}
+	static void SOMLINK somAP_SOMObject_somUninit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somUninit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somUninit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somUninit)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somUninit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somUninit={
+		(somMethodPtr)somRD_SOMObject_somUninit,
+		(somMethodPtr)somAP_SOMObject_somUninit,
+		&somMethodInfo_SOMObject_somUninit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somFree
+		#define static_somMN_somFree
+		static const char * somMN_somFree="somFree";
+	#endif /* static_somMN_somFree */
+	#ifndef static_somId_somFree
+		#define static_somId_somFree
+		static const somConstId somId_somFree=&somMN_somFree;
+	#endif /* static_somId_somFree */
+	#ifndef static_somDS_SOMObject_somFree
+		#define static_somDS_SOMObject_somFree
+		static const char * somDS_SOMObject_somFree="SOMObject::somFree";
+	#endif /* static_somDS_SOMObject_somFree */
+	#ifndef static_somDI_SOMObject_somFree
+		#define static_somDI_SOMObject_somFree
+		static const somConstId somDI_SOMObject_somFree=&somDS_SOMObject_somFree;
+	#endif /* static_somDI_SOMObject_somFree */
+	SOM_Scope void SOMLINK somFree(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somFree,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somFree   0
+	#define somAP_SOMObject_somFree   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somFree(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somFree,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somFree(
+			SOMObject SOMSTAR somSelf)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somFree,somSelf);
+	}
+	static void SOMLINK somAP_SOMObject_somFree(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somFree,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somFree(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somFree)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somFree={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somFree={
+		(somMethodPtr)somRD_SOMObject_somFree,
+		(somMethodPtr)somAP_SOMObject_somFree,
+		&somMethodInfo_SOMObject_somFree};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somGetClass
+		#define static_somMN_somGetClass
+		static const char * somMN_somGetClass="somGetClass";
+	#endif /* static_somMN_somGetClass */
+	#ifndef static_somId_somGetClass
+		#define static_somId_somGetClass
+		static const somConstId somId_somGetClass=&somMN_somGetClass;
+	#endif /* static_somId_somGetClass */
+	#ifndef static_somDS_SOMObject_somGetClass
+		#define static_somDS_SOMObject_somGetClass
+		static const char * somDS_SOMObject_somGetClass="SOMObject::somGetClass";
+	#endif /* static_somDS_SOMObject_somGetClass */
+	#ifndef static_somDI_SOMObject_somGetClass
+		#define static_somDI_SOMObject_somGetClass
+		static const somConstId somDI_SOMObject_somGetClass=&somDS_SOMObject_somGetClass;
+	#endif /* static_somDI_SOMObject_somGetClass */
+	SOM_Scope SOMClass SOMSTAR SOMLINK somGetClass(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somGetClass,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somGetClass   0
+	#define somAP_SOMObject_somGetClass   0
+#else /* SOM_METHOD_STUBS */
+	static SOMClass SOMSTAR SOMLINK somRD_SOMObject_somGetClass(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somGetClass,system)
+	#endif /* __IBMC__ */
+	static SOMClass SOMSTAR SOMLINK somRD_SOMObject_somGetClass(
+			SOMObject SOMSTAR somSelf)
+	{
+		SOMClass SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somGetClass,somSelf);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somGetClass(
+		SOMObject SOMSTAR somSelf,
+		SOMClass SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somGetClass,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somGetClass(
+		SOMObject SOMSTAR somSelf,
+		SOMClass SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somGetClass)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somGetClass={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somGetClass={
+		(somMethodPtr)somRD_SOMObject_somGetClass,
+		(somMethodPtr)somAP_SOMObject_somGetClass,
+		&somMethodInfo_SOMObject_somGetClass};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somGetClassName
+		#define static_somMN_somGetClassName
+		static const char * somMN_somGetClassName="somGetClassName";
+	#endif /* static_somMN_somGetClassName */
+	#ifndef static_somId_somGetClassName
+		#define static_somId_somGetClassName
+		static const somConstId somId_somGetClassName=&somMN_somGetClassName;
+	#endif /* static_somId_somGetClassName */
+	#ifndef static_somDS_SOMObject_somGetClassName
+		#define static_somDS_SOMObject_somGetClassName
+		static const char * somDS_SOMObject_somGetClassName="SOMObject::somGetClassName";
+	#endif /* static_somDS_SOMObject_somGetClassName */
+	#ifndef static_somDI_SOMObject_somGetClassName
+		#define static_somDI_SOMObject_somGetClassName
+		static const somConstId somDI_SOMObject_somGetClassName=&somDS_SOMObject_somGetClassName;
+	#endif /* static_somDI_SOMObject_somGetClassName */
+	SOM_Scope string SOMLINK somGetClassName(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somGetClassName,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somGetClassName   0
+	#define somAP_SOMObject_somGetClassName   0
+#else /* SOM_METHOD_STUBS */
+	static string SOMLINK somRD_SOMObject_somGetClassName(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somGetClassName,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMObject_somGetClassName(
+			SOMObject SOMSTAR somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somGetClassName,somSelf);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somGetClassName(
+		SOMObject SOMSTAR somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somGetClassName,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somGetClassName(
+		SOMObject SOMSTAR somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somGetClassName)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somGetClassName={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somGetClassName={
+		(somMethodPtr)somRD_SOMObject_somGetClassName,
+		(somMethodPtr)somAP_SOMObject_somGetClassName,
+		&somMethodInfo_SOMObject_somGetClassName};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somGetSize
+		#define static_somMN_somGetSize
+		static const char * somMN_somGetSize="somGetSize";
+	#endif /* static_somMN_somGetSize */
+	#ifndef static_somId_somGetSize
+		#define static_somId_somGetSize
+		static const somConstId somId_somGetSize=&somMN_somGetSize;
+	#endif /* static_somId_somGetSize */
+	#ifndef static_somDS_SOMObject_somGetSize
+		#define static_somDS_SOMObject_somGetSize
+		static const char * somDS_SOMObject_somGetSize="SOMObject::somGetSize";
+	#endif /* static_somDS_SOMObject_somGetSize */
+	#ifndef static_somDI_SOMObject_somGetSize
+		#define static_somDI_SOMObject_somGetSize
+		static const somConstId somDI_SOMObject_somGetSize=&somDS_SOMObject_somGetSize;
+	#endif /* static_somDI_SOMObject_somGetSize */
+	SOM_Scope long SOMLINK somGetSize(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somGetSize,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somGetSize   0
+	#define somAP_SOMObject_somGetSize   0
+#else /* SOM_METHOD_STUBS */
+	static long SOMLINK somRD_SOMObject_somGetSize(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somGetSize,system)
+	#endif /* __IBMC__ */
+	static long SOMLINK somRD_SOMObject_somGetSize(
+			SOMObject SOMSTAR somSelf)
+	{
+		long _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somGetSize,somSelf);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somGetSize(
+		SOMObject SOMSTAR somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somGetSize,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somGetSize(
+		SOMObject SOMSTAR somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somGetSize)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somGetSize={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somGetSize={
+		(somMethodPtr)somRD_SOMObject_somGetSize,
+		(somMethodPtr)somAP_SOMObject_somGetSize,
+		&somMethodInfo_SOMObject_somGetSize};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somIsA
+		#define static_somMN_somIsA
+		static const char * somMN_somIsA="somIsA";
+	#endif /* static_somMN_somIsA */
+	#ifndef static_somId_somIsA
+		#define static_somId_somIsA
+		static const somConstId somId_somIsA=&somMN_somIsA;
+	#endif /* static_somId_somIsA */
+	#ifndef static_somDS_SOMObject_somIsA
+		#define static_somDS_SOMObject_somIsA
+		static const char * somDS_SOMObject_somIsA="SOMObject::somIsA";
+	#endif /* static_somDS_SOMObject_somIsA */
+	#ifndef static_somDI_SOMObject_somIsA
+		#define static_somDI_SOMObject_somIsA
+		static const somConstId somDI_SOMObject_somIsA=&somDS_SOMObject_somIsA;
+	#endif /* static_somDI_SOMObject_somIsA */
+	SOM_Scope boolean SOMLINK somIsA(
+	SOMObject SOMSTAR somSelf,
+	/* in */ SOMClass SOMSTAR aClassObj);
+	#ifdef __IBMC__
+		#pragma linkage(somIsA,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somIsA   0
+	#define somAP_SOMObject_somIsA   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somIsA(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR aClassObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somIsA,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somIsA(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR aClassObj)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somIsA,somSelf,
+				aClassObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somIsA(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somIsA,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somIsA(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		SOMClass SOMSTAR aClassObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		aClassObj=va_arg(_somC_ap,SOMClass SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somIsA)_somC_methodPtr)(somSelf,aClassObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somIsA={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somIsA={
+		(somMethodPtr)somRD_SOMObject_somIsA,
+		(somMethodPtr)somAP_SOMObject_somIsA,
+		&somMethodInfo_SOMObject_somIsA};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somIsInstanceOf
+		#define static_somMN_somIsInstanceOf
+		static const char * somMN_somIsInstanceOf="somIsInstanceOf";
+	#endif /* static_somMN_somIsInstanceOf */
+	#ifndef static_somId_somIsInstanceOf
+		#define static_somId_somIsInstanceOf
+		static const somConstId somId_somIsInstanceOf=&somMN_somIsInstanceOf;
+	#endif /* static_somId_somIsInstanceOf */
+	#ifndef static_somDS_SOMObject_somIsInstanceOf
+		#define static_somDS_SOMObject_somIsInstanceOf
+		static const char * somDS_SOMObject_somIsInstanceOf="SOMObject::somIsInstanceOf";
+	#endif /* static_somDS_SOMObject_somIsInstanceOf */
+	#ifndef static_somDI_SOMObject_somIsInstanceOf
+		#define static_somDI_SOMObject_somIsInstanceOf
+		static const somConstId somDI_SOMObject_somIsInstanceOf=&somDS_SOMObject_somIsInstanceOf;
+	#endif /* static_somDI_SOMObject_somIsInstanceOf */
+	SOM_Scope boolean SOMLINK somIsInstanceOf(
+	SOMObject SOMSTAR somSelf,
+	/* in */ SOMClass SOMSTAR aClassObj);
+	#ifdef __IBMC__
+		#pragma linkage(somIsInstanceOf,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somIsInstanceOf   0
+	#define somAP_SOMObject_somIsInstanceOf   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somIsInstanceOf(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR aClassObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somIsInstanceOf,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somIsInstanceOf(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR aClassObj)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somIsInstanceOf,somSelf,
+				aClassObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somIsInstanceOf(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somIsInstanceOf,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somIsInstanceOf(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		SOMClass SOMSTAR aClassObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		aClassObj=va_arg(_somC_ap,SOMClass SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somIsInstanceOf)_somC_methodPtr)(somSelf,aClassObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somIsInstanceOf={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somIsInstanceOf={
+		(somMethodPtr)somRD_SOMObject_somIsInstanceOf,
+		(somMethodPtr)somAP_SOMObject_somIsInstanceOf,
+		&somMethodInfo_SOMObject_somIsInstanceOf};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somRespondsTo
+		#define static_somMN_somRespondsTo
+		static const char * somMN_somRespondsTo="somRespondsTo";
+	#endif /* static_somMN_somRespondsTo */
+	#ifndef static_somId_somRespondsTo
+		#define static_somId_somRespondsTo
+		static const somConstId somId_somRespondsTo=&somMN_somRespondsTo;
+	#endif /* static_somId_somRespondsTo */
+	#ifndef static_somDS_SOMObject_somRespondsTo
+		#define static_somDS_SOMObject_somRespondsTo
+		static const char * somDS_SOMObject_somRespondsTo="SOMObject::somRespondsTo";
+	#endif /* static_somDS_SOMObject_somRespondsTo */
+	#ifndef static_somDI_SOMObject_somRespondsTo
+		#define static_somDI_SOMObject_somRespondsTo
+		static const somConstId somDI_SOMObject_somRespondsTo=&somDS_SOMObject_somRespondsTo;
+	#endif /* static_somDI_SOMObject_somRespondsTo */
+	SOM_Scope boolean SOMLINK somRespondsTo(
+	SOMObject SOMSTAR somSelf,
+	/* in */ somId mId);
+	#ifdef __IBMC__
+		#pragma linkage(somRespondsTo,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somRespondsTo   0
+	#define somAP_SOMObject_somRespondsTo   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somRespondsTo(
+			SOMObject SOMSTAR somSelf,
+			/* in */ somId mId);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somRespondsTo,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somRespondsTo(
+			SOMObject SOMSTAR somSelf,
+			/* in */ somId mId)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somRespondsTo,somSelf,
+				mId);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somRespondsTo(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somRespondsTo,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somRespondsTo(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somId mId;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		mId=va_arg(_somC_ap,somId );
+
+		*_somC_retVal=((somTD_SOMObject_somRespondsTo)_somC_methodPtr)(somSelf,mId);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somRespondsTo={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somRespondsTo={
+		(somMethodPtr)somRD_SOMObject_somRespondsTo,
+		(somMethodPtr)somAP_SOMObject_somRespondsTo,
+		&somMethodInfo_SOMObject_somRespondsTo};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDispatch
+		#define static_somMN_somDispatch
+		static const char * somMN_somDispatch="somDispatch";
+	#endif /* static_somMN_somDispatch */
+	#ifndef static_somId_somDispatch
+		#define static_somId_somDispatch
+		static const somConstId somId_somDispatch=&somMN_somDispatch;
+	#endif /* static_somId_somDispatch */
+	#ifndef static_somDS_SOMObject_somDispatch
+		#define static_somDS_SOMObject_somDispatch
+		static const char * somDS_SOMObject_somDispatch="SOMObject::somDispatch";
+	#endif /* static_somDS_SOMObject_somDispatch */
+	#ifndef static_somDI_SOMObject_somDispatch
+		#define static_somDI_SOMObject_somDispatch
+		static const somConstId somDI_SOMObject_somDispatch=&somDS_SOMObject_somDispatch;
+	#endif /* static_somDI_SOMObject_somDispatch */
+	SOM_Scope boolean SOMLINK somDispatch(
+	SOMObject SOMSTAR somSelf,
+	/* out */ somToken *retValue,
+	/* in */ somId methodId,
+	/* in */ va_list ap);
+	#ifdef __IBMC__
+		#pragma linkage(somDispatch,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDispatch   0
+	#define somAP_SOMObject_somDispatch   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somDispatch(
+			SOMObject SOMSTAR somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDispatch,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somDispatch(
+			SOMObject SOMSTAR somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somDispatch,somSelf,
+				retValue,
+				methodId,
+				ap);
+
+		return _somC_retVal;
+	}
+	/* somAP_SOMObject_somDispatch() has va_list, ignored */
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDispatch={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDispatch={
+		(somMethodPtr)somRD_SOMObject_somDispatch,
+		NULL /* has va_list */,
+		&somMethodInfo_SOMObject_somDispatch};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somClassDispatch
+		#define static_somMN_somClassDispatch
+		static const char * somMN_somClassDispatch="somClassDispatch";
+	#endif /* static_somMN_somClassDispatch */
+	#ifndef static_somId_somClassDispatch
+		#define static_somId_somClassDispatch
+		static const somConstId somId_somClassDispatch=&somMN_somClassDispatch;
+	#endif /* static_somId_somClassDispatch */
+	#ifndef static_somDS_SOMObject_somClassDispatch
+		#define static_somDS_SOMObject_somClassDispatch
+		static const char * somDS_SOMObject_somClassDispatch="SOMObject::somClassDispatch";
+	#endif /* static_somDS_SOMObject_somClassDispatch */
+	#ifndef static_somDI_SOMObject_somClassDispatch
+		#define static_somDI_SOMObject_somClassDispatch
+		static const somConstId somDI_SOMObject_somClassDispatch=&somDS_SOMObject_somClassDispatch;
+	#endif /* static_somDI_SOMObject_somClassDispatch */
+	SOM_Scope boolean SOMLINK somClassDispatch(
+	SOMObject SOMSTAR somSelf,
+	/* in */ SOMClass SOMSTAR clsObj,
+	/* out */ somToken *retValue,
+	/* in */ somId methodId,
+	/* in */ va_list ap);
+	#ifdef __IBMC__
+		#pragma linkage(somClassDispatch,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somClassDispatch   0
+	#define somAP_SOMObject_somClassDispatch   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somClassDispatch(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somClassDispatch,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somClassDispatch(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somClassDispatch,somSelf,
+				clsObj,
+				retValue,
+				methodId,
+				ap);
+
+		return _somC_retVal;
+	}
+	/* somAP_SOMObject_somClassDispatch() has va_list, ignored */
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somClassDispatch={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somClassDispatch={
+		(somMethodPtr)somRD_SOMObject_somClassDispatch,
+		NULL /* has va_list */,
+		&somMethodInfo_SOMObject_somClassDispatch};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somCastObj
+		#define static_somMN_somCastObj
+		static const char * somMN_somCastObj="somCastObj";
+	#endif /* static_somMN_somCastObj */
+	#ifndef static_somId_somCastObj
+		#define static_somId_somCastObj
+		static const somConstId somId_somCastObj=&somMN_somCastObj;
+	#endif /* static_somId_somCastObj */
+	#ifndef static_somDS_SOMObject_somCastObj
+		#define static_somDS_SOMObject_somCastObj
+		static const char * somDS_SOMObject_somCastObj="SOMObject::somCastObj";
+	#endif /* static_somDS_SOMObject_somCastObj */
+	#ifndef static_somDI_SOMObject_somCastObj
+		#define static_somDI_SOMObject_somCastObj
+		static const somConstId somDI_SOMObject_somCastObj=&somDS_SOMObject_somCastObj;
+	#endif /* static_somDI_SOMObject_somCastObj */
+	SOM_Scope boolean SOMLINK somCastObj(
+	SOMObject SOMSTAR somSelf,
+	/* in */ SOMClass SOMSTAR castedCls);
+	#ifdef __IBMC__
+		#pragma linkage(somCastObj,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somCastObj   0
+	#define somAP_SOMObject_somCastObj   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somCastObj(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR castedCls);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somCastObj,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somCastObj(
+			SOMObject SOMSTAR somSelf,
+			/* in */ SOMClass SOMSTAR castedCls)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somCastObj,somSelf,
+				castedCls);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somCastObj(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somCastObj,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somCastObj(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		SOMClass SOMSTAR castedCls;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		castedCls=va_arg(_somC_ap,SOMClass SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somCastObj)_somC_methodPtr)(somSelf,castedCls);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somCastObj={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somCastObj={
+		(somMethodPtr)somRD_SOMObject_somCastObj,
+		(somMethodPtr)somAP_SOMObject_somCastObj,
+		&somMethodInfo_SOMObject_somCastObj};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somResetObj
+		#define static_somMN_somResetObj
+		static const char * somMN_somResetObj="somResetObj";
+	#endif /* static_somMN_somResetObj */
+	#ifndef static_somId_somResetObj
+		#define static_somId_somResetObj
+		static const somConstId somId_somResetObj=&somMN_somResetObj;
+	#endif /* static_somId_somResetObj */
+	#ifndef static_somDS_SOMObject_somResetObj
+		#define static_somDS_SOMObject_somResetObj
+		static const char * somDS_SOMObject_somResetObj="SOMObject::somResetObj";
+	#endif /* static_somDS_SOMObject_somResetObj */
+	#ifndef static_somDI_SOMObject_somResetObj
+		#define static_somDI_SOMObject_somResetObj
+		static const somConstId somDI_SOMObject_somResetObj=&somDS_SOMObject_somResetObj;
+	#endif /* static_somDI_SOMObject_somResetObj */
+	SOM_Scope boolean SOMLINK somResetObj(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somResetObj,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somResetObj   0
+	#define somAP_SOMObject_somResetObj   0
+#else /* SOM_METHOD_STUBS */
+	static boolean SOMLINK somRD_SOMObject_somResetObj(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somResetObj,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMObject_somResetObj(
+			SOMObject SOMSTAR somSelf)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somResetObj,somSelf);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somResetObj(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somResetObj,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somResetObj(
+		SOMObject SOMSTAR somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somResetObj)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somResetObj={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somResetObj={
+		(somMethodPtr)somRD_SOMObject_somResetObj,
+		(somMethodPtr)somAP_SOMObject_somResetObj,
+		&somMethodInfo_SOMObject_somResetObj};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somPrintSelf
+		#define static_somMN_somPrintSelf
+		static const char * somMN_somPrintSelf="somPrintSelf";
+	#endif /* static_somMN_somPrintSelf */
+	#ifndef static_somId_somPrintSelf
+		#define static_somId_somPrintSelf
+		static const somConstId somId_somPrintSelf=&somMN_somPrintSelf;
+	#endif /* static_somId_somPrintSelf */
+	#ifndef static_somDS_SOMObject_somPrintSelf
+		#define static_somDS_SOMObject_somPrintSelf
+		static const char * somDS_SOMObject_somPrintSelf="SOMObject::somPrintSelf";
+	#endif /* static_somDS_SOMObject_somPrintSelf */
+	#ifndef static_somDI_SOMObject_somPrintSelf
+		#define static_somDI_SOMObject_somPrintSelf
+		static const somConstId somDI_SOMObject_somPrintSelf=&somDS_SOMObject_somPrintSelf;
+	#endif /* static_somDI_SOMObject_somPrintSelf */
+	SOM_Scope SOMObject SOMSTAR SOMLINK somPrintSelf(
+	SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somPrintSelf,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somPrintSelf   0
+	#define somAP_SOMObject_somPrintSelf   0
+#else /* SOM_METHOD_STUBS */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somPrintSelf(
+			SOMObject SOMSTAR somSelf);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somPrintSelf,system)
+	#endif /* __IBMC__ */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somPrintSelf(
+			SOMObject SOMSTAR somSelf)
+	{
+		SOMObject SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somPrintSelf,somSelf);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somPrintSelf(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somPrintSelf,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somPrintSelf(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somPrintSelf)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somPrintSelf={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somPrintSelf={
+		(somMethodPtr)somRD_SOMObject_somPrintSelf,
+		(somMethodPtr)somAP_SOMObject_somPrintSelf,
+		&somMethodInfo_SOMObject_somPrintSelf};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDumpSelf
+		#define static_somMN_somDumpSelf
+		static const char * somMN_somDumpSelf="somDumpSelf";
+	#endif /* static_somMN_somDumpSelf */
+	#ifndef static_somId_somDumpSelf
+		#define static_somId_somDumpSelf
+		static const somConstId somId_somDumpSelf=&somMN_somDumpSelf;
+	#endif /* static_somId_somDumpSelf */
+	#ifndef static_somDS_SOMObject_somDumpSelf
+		#define static_somDS_SOMObject_somDumpSelf
+		static const char * somDS_SOMObject_somDumpSelf="SOMObject::somDumpSelf";
+	#endif /* static_somDS_SOMObject_somDumpSelf */
+	#ifndef static_somDI_SOMObject_somDumpSelf
+		#define static_somDI_SOMObject_somDumpSelf
+		static const somConstId somDI_SOMObject_somDumpSelf=&somDS_SOMObject_somDumpSelf;
+	#endif /* static_somDI_SOMObject_somDumpSelf */
+	SOM_Scope void SOMLINK somDumpSelf(
+	SOMObject SOMSTAR somSelf,
+	/* in */ long level);
+	#ifdef __IBMC__
+		#pragma linkage(somDumpSelf,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDumpSelf   0
+	#define somAP_SOMObject_somDumpSelf   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDumpSelf(
+			SOMObject SOMSTAR somSelf,
+			/* in */ long level);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDumpSelf,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDumpSelf(
+			SOMObject SOMSTAR somSelf,
+			/* in */ long level)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDumpSelf,somSelf,
+				level);
+	}
+	static void SOMLINK somAP_SOMObject_somDumpSelf(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDumpSelf,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDumpSelf(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		long level;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		level=(long )va_arg(_somC_ap,long );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDumpSelf)_somC_methodPtr)(somSelf,level);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDumpSelf={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(long)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDumpSelf={
+		(somMethodPtr)somRD_SOMObject_somDumpSelf,
+		(somMethodPtr)somAP_SOMObject_somDumpSelf,
+		&somMethodInfo_SOMObject_somDumpSelf};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDumpSelfInt
+		#define static_somMN_somDumpSelfInt
+		static const char * somMN_somDumpSelfInt="somDumpSelfInt";
+	#endif /* static_somMN_somDumpSelfInt */
+	#ifndef static_somId_somDumpSelfInt
+		#define static_somId_somDumpSelfInt
+		static const somConstId somId_somDumpSelfInt=&somMN_somDumpSelfInt;
+	#endif /* static_somId_somDumpSelfInt */
+	#ifndef static_somDS_SOMObject_somDumpSelfInt
+		#define static_somDS_SOMObject_somDumpSelfInt
+		static const char * somDS_SOMObject_somDumpSelfInt="SOMObject::somDumpSelfInt";
+	#endif /* static_somDS_SOMObject_somDumpSelfInt */
+	#ifndef static_somDI_SOMObject_somDumpSelfInt
+		#define static_somDI_SOMObject_somDumpSelfInt
+		static const somConstId somDI_SOMObject_somDumpSelfInt=&somDS_SOMObject_somDumpSelfInt;
+	#endif /* static_somDI_SOMObject_somDumpSelfInt */
+	SOM_Scope void SOMLINK somDumpSelfInt(
+	SOMObject SOMSTAR somSelf,
+	/* in */ long level);
+	#ifdef __IBMC__
+		#pragma linkage(somDumpSelfInt,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDumpSelfInt   0
+	#define somAP_SOMObject_somDumpSelfInt   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDumpSelfInt(
+			SOMObject SOMSTAR somSelf,
+			/* in */ long level);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDumpSelfInt,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDumpSelfInt(
+			SOMObject SOMSTAR somSelf,
+			/* in */ long level)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDumpSelfInt,somSelf,
+				level);
+	}
+	static void SOMLINK somAP_SOMObject_somDumpSelfInt(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDumpSelfInt,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDumpSelfInt(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		long level;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		level=(long )va_arg(_somC_ap,long );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDumpSelfInt)_somC_methodPtr)(somSelf,level);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDumpSelfInt={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(long)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDumpSelfInt={
+		(somMethodPtr)somRD_SOMObject_somDumpSelfInt,
+		(somMethodPtr)somAP_SOMObject_somDumpSelfInt,
+		&somMethodInfo_SOMObject_somDumpSelfInt};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultInit
+		#define static_somMN_somDefaultInit
+		static const char * somMN_somDefaultInit="somDefaultInit";
+	#endif /* static_somMN_somDefaultInit */
+	#ifndef static_somId_somDefaultInit
+		#define static_somId_somDefaultInit
+		static const somConstId somId_somDefaultInit=&somMN_somDefaultInit;
+	#endif /* static_somId_somDefaultInit */
+	#ifndef static_somDS_SOMObject_somDefaultInit
+		#define static_somDS_SOMObject_somDefaultInit
+		static const char * somDS_SOMObject_somDefaultInit="SOMObject::somDefaultInit";
+	#endif /* static_somDS_SOMObject_somDefaultInit */
+	#ifndef static_somDI_SOMObject_somDefaultInit
+		#define static_somDI_SOMObject_somDefaultInit
+		static const somConstId somDI_SOMObject_somDefaultInit=&somDS_SOMObject_somDefaultInit;
+	#endif /* static_somDI_SOMObject_somDefaultInit */
+	SOM_Scope void SOMLINK somDefaultInit(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somInitCtrl *ctrl);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultInit   0
+	#define somAP_SOMObject_somDefaultInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDefaultInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDefaultInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDefaultInit,somSelf,
+				ctrl);
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somInitCtrl *ctrl;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somInitCtrl *);
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDefaultInit)_somC_methodPtr)(somSelf,ctrl);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultInit={
+		(somMethodPtr)somRD_SOMObject_somDefaultInit,
+		(somMethodPtr)somAP_SOMObject_somDefaultInit,
+		&somMethodInfo_SOMObject_somDefaultInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultCopyInit
+		#define static_somMN_somDefaultCopyInit
+		static const char * somMN_somDefaultCopyInit="somDefaultCopyInit";
+	#endif /* static_somMN_somDefaultCopyInit */
+	#ifndef static_somId_somDefaultCopyInit
+		#define static_somId_somDefaultCopyInit
+		static const somConstId somId_somDefaultCopyInit=&somMN_somDefaultCopyInit;
+	#endif /* static_somId_somDefaultCopyInit */
+	#ifndef static_somDS_SOMObject_somDefaultCopyInit
+		#define static_somDS_SOMObject_somDefaultCopyInit
+		static const char * somDS_SOMObject_somDefaultCopyInit="SOMObject::somDefaultCopyInit";
+	#endif /* static_somDS_SOMObject_somDefaultCopyInit */
+	#ifndef static_somDI_SOMObject_somDefaultCopyInit
+		#define static_somDI_SOMObject_somDefaultCopyInit
+		static const somConstId somDI_SOMObject_somDefaultCopyInit=&somDS_SOMObject_somDefaultCopyInit;
+	#endif /* static_somDI_SOMObject_somDefaultCopyInit */
+	SOM_Scope void SOMLINK somDefaultCopyInit(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somInitCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultCopyInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultCopyInit   0
+	#define somAP_SOMObject_somDefaultCopyInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDefaultCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDefaultCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDefaultCopyInit,somSelf,
+				ctrl,
+				fromObj);
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somInitCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somInitCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDefaultCopyInit)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultCopyInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultCopyInit={
+		(somMethodPtr)somRD_SOMObject_somDefaultCopyInit,
+		(somMethodPtr)somAP_SOMObject_somDefaultCopyInit,
+		&somMethodInfo_SOMObject_somDefaultCopyInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultConstCopyInit
+		#define static_somMN_somDefaultConstCopyInit
+		static const char * somMN_somDefaultConstCopyInit="somDefaultConstCopyInit";
+	#endif /* static_somMN_somDefaultConstCopyInit */
+	#ifndef static_somId_somDefaultConstCopyInit
+		#define static_somId_somDefaultConstCopyInit
+		static const somConstId somId_somDefaultConstCopyInit=&somMN_somDefaultConstCopyInit;
+	#endif /* static_somId_somDefaultConstCopyInit */
+	#ifndef static_somDS_SOMObject_somDefaultConstCopyInit
+		#define static_somDS_SOMObject_somDefaultConstCopyInit
+		static const char * somDS_SOMObject_somDefaultConstCopyInit="SOMObject::somDefaultConstCopyInit";
+	#endif /* static_somDS_SOMObject_somDefaultConstCopyInit */
+	#ifndef static_somDI_SOMObject_somDefaultConstCopyInit
+		#define static_somDI_SOMObject_somDefaultConstCopyInit
+		static const somConstId somDI_SOMObject_somDefaultConstCopyInit=&somDS_SOMObject_somDefaultConstCopyInit;
+	#endif /* static_somDI_SOMObject_somDefaultConstCopyInit */
+	SOM_Scope void SOMLINK somDefaultConstCopyInit(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somInitCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultConstCopyInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultConstCopyInit   0
+	#define somAP_SOMObject_somDefaultConstCopyInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDefaultConstCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultConstCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDefaultConstCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDefaultConstCopyInit,somSelf,
+				ctrl,
+				fromObj);
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultConstCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultConstCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultConstCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somInitCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somInitCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDefaultConstCopyInit)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultConstCopyInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultConstCopyInit={
+		(somMethodPtr)somRD_SOMObject_somDefaultConstCopyInit,
+		(somMethodPtr)somAP_SOMObject_somDefaultConstCopyInit,
+		&somMethodInfo_SOMObject_somDefaultConstCopyInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultVCopyInit
+		#define static_somMN_somDefaultVCopyInit
+		static const char * somMN_somDefaultVCopyInit="somDefaultVCopyInit";
+	#endif /* static_somMN_somDefaultVCopyInit */
+	#ifndef static_somId_somDefaultVCopyInit
+		#define static_somId_somDefaultVCopyInit
+		static const somConstId somId_somDefaultVCopyInit=&somMN_somDefaultVCopyInit;
+	#endif /* static_somId_somDefaultVCopyInit */
+	#ifndef static_somDS_SOMObject_somDefaultVCopyInit
+		#define static_somDS_SOMObject_somDefaultVCopyInit
+		static const char * somDS_SOMObject_somDefaultVCopyInit="SOMObject::somDefaultVCopyInit";
+	#endif /* static_somDS_SOMObject_somDefaultVCopyInit */
+	#ifndef static_somDI_SOMObject_somDefaultVCopyInit
+		#define static_somDI_SOMObject_somDefaultVCopyInit
+		static const somConstId somDI_SOMObject_somDefaultVCopyInit=&somDS_SOMObject_somDefaultVCopyInit;
+	#endif /* static_somDI_SOMObject_somDefaultVCopyInit */
+	SOM_Scope void SOMLINK somDefaultVCopyInit(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somInitCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultVCopyInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultVCopyInit   0
+	#define somAP_SOMObject_somDefaultVCopyInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDefaultVCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultVCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDefaultVCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDefaultVCopyInit,somSelf,
+				ctrl,
+				fromObj);
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultVCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultVCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultVCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somInitCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somInitCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDefaultVCopyInit)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultVCopyInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultVCopyInit={
+		(somMethodPtr)somRD_SOMObject_somDefaultVCopyInit,
+		(somMethodPtr)somAP_SOMObject_somDefaultVCopyInit,
+		&somMethodInfo_SOMObject_somDefaultVCopyInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultConstVCopyInit
+		#define static_somMN_somDefaultConstVCopyInit
+		static const char * somMN_somDefaultConstVCopyInit="somDefaultConstVCopyInit";
+	#endif /* static_somMN_somDefaultConstVCopyInit */
+	#ifndef static_somId_somDefaultConstVCopyInit
+		#define static_somId_somDefaultConstVCopyInit
+		static const somConstId somId_somDefaultConstVCopyInit=&somMN_somDefaultConstVCopyInit;
+	#endif /* static_somId_somDefaultConstVCopyInit */
+	#ifndef static_somDS_SOMObject_somDefaultConstVCopyInit
+		#define static_somDS_SOMObject_somDefaultConstVCopyInit
+		static const char * somDS_SOMObject_somDefaultConstVCopyInit="SOMObject::somDefaultConstVCopyInit";
+	#endif /* static_somDS_SOMObject_somDefaultConstVCopyInit */
+	#ifndef static_somDI_SOMObject_somDefaultConstVCopyInit
+		#define static_somDI_SOMObject_somDefaultConstVCopyInit
+		static const somConstId somDI_SOMObject_somDefaultConstVCopyInit=&somDS_SOMObject_somDefaultConstVCopyInit;
+	#endif /* static_somDI_SOMObject_somDefaultConstVCopyInit */
+	SOM_Scope void SOMLINK somDefaultConstVCopyInit(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somInitCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultConstVCopyInit,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultConstVCopyInit   0
+	#define somAP_SOMObject_somDefaultConstVCopyInit   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDefaultConstVCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultConstVCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDefaultConstVCopyInit(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDefaultConstVCopyInit,somSelf,
+				ctrl,
+				fromObj);
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultConstVCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultConstVCopyInit,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultConstVCopyInit(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somInitCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somInitCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDefaultConstVCopyInit)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultConstVCopyInit={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultConstVCopyInit={
+		(somMethodPtr)somRD_SOMObject_somDefaultConstVCopyInit,
+		(somMethodPtr)somAP_SOMObject_somDefaultConstVCopyInit,
+		&somMethodInfo_SOMObject_somDefaultConstVCopyInit};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultAssign
+		#define static_somMN_somDefaultAssign
+		static const char * somMN_somDefaultAssign="somDefaultAssign";
+	#endif /* static_somMN_somDefaultAssign */
+	#ifndef static_somId_somDefaultAssign
+		#define static_somId_somDefaultAssign
+		static const somConstId somId_somDefaultAssign=&somMN_somDefaultAssign;
+	#endif /* static_somId_somDefaultAssign */
+	#ifndef static_somDS_SOMObject_somDefaultAssign
+		#define static_somDS_SOMObject_somDefaultAssign
+		static const char * somDS_SOMObject_somDefaultAssign="SOMObject::somDefaultAssign";
+	#endif /* static_somDS_SOMObject_somDefaultAssign */
+	#ifndef static_somDI_SOMObject_somDefaultAssign
+		#define static_somDI_SOMObject_somDefaultAssign
+		static const somConstId somDI_SOMObject_somDefaultAssign=&somDS_SOMObject_somDefaultAssign;
+	#endif /* static_somDI_SOMObject_somDefaultAssign */
+	SOM_Scope SOMObject SOMSTAR SOMLINK somDefaultAssign(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somAssignCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultAssign,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultAssign   0
+	#define somAP_SOMObject_somDefaultAssign   0
+#else /* SOM_METHOD_STUBS */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultAssign,system)
+	#endif /* __IBMC__ */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		SOMObject SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somDefaultAssign,somSelf,
+				ctrl,
+				fromObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultAssign,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somAssignCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somAssignCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somDefaultAssign)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultAssign={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultAssign={
+		(somMethodPtr)somRD_SOMObject_somDefaultAssign,
+		(somMethodPtr)somAP_SOMObject_somDefaultAssign,
+		&somMethodInfo_SOMObject_somDefaultAssign};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultConstAssign
+		#define static_somMN_somDefaultConstAssign
+		static const char * somMN_somDefaultConstAssign="somDefaultConstAssign";
+	#endif /* static_somMN_somDefaultConstAssign */
+	#ifndef static_somId_somDefaultConstAssign
+		#define static_somId_somDefaultConstAssign
+		static const somConstId somId_somDefaultConstAssign=&somMN_somDefaultConstAssign;
+	#endif /* static_somId_somDefaultConstAssign */
+	#ifndef static_somDS_SOMObject_somDefaultConstAssign
+		#define static_somDS_SOMObject_somDefaultConstAssign
+		static const char * somDS_SOMObject_somDefaultConstAssign="SOMObject::somDefaultConstAssign";
+	#endif /* static_somDS_SOMObject_somDefaultConstAssign */
+	#ifndef static_somDI_SOMObject_somDefaultConstAssign
+		#define static_somDI_SOMObject_somDefaultConstAssign
+		static const somConstId somDI_SOMObject_somDefaultConstAssign=&somDS_SOMObject_somDefaultConstAssign;
+	#endif /* static_somDI_SOMObject_somDefaultConstAssign */
+	SOM_Scope SOMObject SOMSTAR SOMLINK somDefaultConstAssign(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somAssignCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultConstAssign,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultConstAssign   0
+	#define somAP_SOMObject_somDefaultConstAssign   0
+#else /* SOM_METHOD_STUBS */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultConstAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultConstAssign,system)
+	#endif /* __IBMC__ */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultConstAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		SOMObject SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somDefaultConstAssign,somSelf,
+				ctrl,
+				fromObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultConstAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultConstAssign,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultConstAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somAssignCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somAssignCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somDefaultConstAssign)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultConstAssign={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultConstAssign={
+		(somMethodPtr)somRD_SOMObject_somDefaultConstAssign,
+		(somMethodPtr)somAP_SOMObject_somDefaultConstAssign,
+		&somMethodInfo_SOMObject_somDefaultConstAssign};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultVAssign
+		#define static_somMN_somDefaultVAssign
+		static const char * somMN_somDefaultVAssign="somDefaultVAssign";
+	#endif /* static_somMN_somDefaultVAssign */
+	#ifndef static_somId_somDefaultVAssign
+		#define static_somId_somDefaultVAssign
+		static const somConstId somId_somDefaultVAssign=&somMN_somDefaultVAssign;
+	#endif /* static_somId_somDefaultVAssign */
+	#ifndef static_somDS_SOMObject_somDefaultVAssign
+		#define static_somDS_SOMObject_somDefaultVAssign
+		static const char * somDS_SOMObject_somDefaultVAssign="SOMObject::somDefaultVAssign";
+	#endif /* static_somDS_SOMObject_somDefaultVAssign */
+	#ifndef static_somDI_SOMObject_somDefaultVAssign
+		#define static_somDI_SOMObject_somDefaultVAssign
+		static const somConstId somDI_SOMObject_somDefaultVAssign=&somDS_SOMObject_somDefaultVAssign;
+	#endif /* static_somDI_SOMObject_somDefaultVAssign */
+	SOM_Scope SOMObject SOMSTAR SOMLINK somDefaultVAssign(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somAssignCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultVAssign,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultVAssign   0
+	#define somAP_SOMObject_somDefaultVAssign   0
+#else /* SOM_METHOD_STUBS */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultVAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultVAssign,system)
+	#endif /* __IBMC__ */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultVAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		SOMObject SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somDefaultVAssign,somSelf,
+				ctrl,
+				fromObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultVAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultVAssign,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultVAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somAssignCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somAssignCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somDefaultVAssign)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultVAssign={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultVAssign={
+		(somMethodPtr)somRD_SOMObject_somDefaultVAssign,
+		(somMethodPtr)somAP_SOMObject_somDefaultVAssign,
+		&somMethodInfo_SOMObject_somDefaultVAssign};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDefaultConstVAssign
+		#define static_somMN_somDefaultConstVAssign
+		static const char * somMN_somDefaultConstVAssign="somDefaultConstVAssign";
+	#endif /* static_somMN_somDefaultConstVAssign */
+	#ifndef static_somId_somDefaultConstVAssign
+		#define static_somId_somDefaultConstVAssign
+		static const somConstId somId_somDefaultConstVAssign=&somMN_somDefaultConstVAssign;
+	#endif /* static_somId_somDefaultConstVAssign */
+	#ifndef static_somDS_SOMObject_somDefaultConstVAssign
+		#define static_somDS_SOMObject_somDefaultConstVAssign
+		static const char * somDS_SOMObject_somDefaultConstVAssign="SOMObject::somDefaultConstVAssign";
+	#endif /* static_somDS_SOMObject_somDefaultConstVAssign */
+	#ifndef static_somDI_SOMObject_somDefaultConstVAssign
+		#define static_somDI_SOMObject_somDefaultConstVAssign
+		static const somConstId somDI_SOMObject_somDefaultConstVAssign=&somDS_SOMObject_somDefaultConstVAssign;
+	#endif /* static_somDI_SOMObject_somDefaultConstVAssign */
+	SOM_Scope SOMObject SOMSTAR SOMLINK somDefaultConstVAssign(
+	SOMObject SOMSTAR somSelf,
+	/* inout */ somAssignCtrl *ctrl,
+	/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultConstVAssign,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDefaultConstVAssign   0
+	#define somAP_SOMObject_somDefaultConstVAssign   0
+#else /* SOM_METHOD_STUBS */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultConstVAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDefaultConstVAssign,system)
+	#endif /* __IBMC__ */
+	static SOMObject SOMSTAR SOMLINK somRD_SOMObject_somDefaultConstVAssign(
+			SOMObject SOMSTAR somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject SOMSTAR fromObj)
+	{
+		SOMObject SOMSTAR _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somva_SOMObject_somDispatch(somSelf,(somToken *)(void *)&_somC_retVal,
+			(somId)somId_somDefaultConstVAssign,somSelf,
+				ctrl,
+				fromObj);
+
+		return _somC_retVal;
+	}
+	static void SOMLINK somAP_SOMObject_somDefaultConstVAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDefaultConstVAssign,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDefaultConstVAssign(
+		SOMObject SOMSTAR somSelf,
+		SOMObject SOMSTAR *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somAssignCtrl *ctrl;
+		SOMObject SOMSTAR fromObj;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		ctrl=va_arg(_somC_ap,somAssignCtrl *);
+		fromObj=va_arg(_somC_ap,SOMObject SOMSTAR );
+
+		*_somC_retVal=((somTD_SOMObject_somDefaultConstVAssign)_somC_methodPtr)(somSelf,ctrl,fromObj);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDefaultConstVAssign={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDefaultConstVAssign={
+		(somMethodPtr)somRD_SOMObject_somDefaultConstVAssign,
+		(somMethodPtr)somAP_SOMObject_somDefaultConstVAssign,
+		&somMethodInfo_SOMObject_somDefaultConstVAssign};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somDestruct
+		#define static_somMN_somDestruct
+		static const char * somMN_somDestruct="somDestruct";
+	#endif /* static_somMN_somDestruct */
+	#ifndef static_somId_somDestruct
+		#define static_somId_somDestruct
+		static const somConstId somId_somDestruct=&somMN_somDestruct;
+	#endif /* static_somId_somDestruct */
+	#ifndef static_somDS_SOMObject_somDestruct
+		#define static_somDS_SOMObject_somDestruct
+		static const char * somDS_SOMObject_somDestruct="SOMObject::somDestruct";
+	#endif /* static_somDS_SOMObject_somDestruct */
+	#ifndef static_somDI_SOMObject_somDestruct
+		#define static_somDI_SOMObject_somDestruct
+		static const somConstId somDI_SOMObject_somDestruct=&somDS_SOMObject_somDestruct;
+	#endif /* static_somDI_SOMObject_somDestruct */
+	SOM_Scope void SOMLINK somDestruct(
+	SOMObject SOMSTAR somSelf,
+	/* in */ octet doFree,
+	/* inout */ somDestructCtrl *ctrl);
+	#ifdef __IBMC__
+		#pragma linkage(somDestruct,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMObject_somDestruct   0
+	#define somAP_SOMObject_somDestruct   0
+#else /* SOM_METHOD_STUBS */
+	static void SOMLINK somRD_SOMObject_somDestruct(
+			SOMObject SOMSTAR somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMObject_somDestruct,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMObject_somDestruct(
+			SOMObject SOMSTAR somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somva_SOMObject_somDispatch(somSelf,&_somC_retVal,
+			(somId)somId_somDestruct,somSelf,
+				(int )doFree,
+				ctrl);
+	}
+	static void SOMLINK somAP_SOMObject_somDestruct(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMObject_somDestruct,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMObject_somDestruct(
+		SOMObject SOMSTAR somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		octet doFree;
+		somDestructCtrl *ctrl;
+
+		somSelf=va_arg(_somC_ap,SOMObject SOMSTAR );
+		doFree=(octet )va_arg(_somC_ap,int );
+		ctrl=va_arg(_somC_ap,somDestructCtrl *);
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMObject_somDestruct)_somC_methodPtr)(somSelf,doFree,ctrl);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMObject_somDestruct={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(int)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMObject_somDestruct={
+		(somMethodPtr)somRD_SOMObject_somDestruct,
+		(somMethodPtr)somAP_SOMObject_somDestruct,
+		&somMethodInfo_SOMObject_somDestruct};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef SOMObjectMethodDebug
+		#define SOMObjectMethodDebug(x,y)
+	#endif /* SOMObjectMethodDebug */
+	#define SOMObjectGetData(somSelf)  ((SOMObjectData *)0)  /* class has no attributes */
+	#ifndef static_somCN_SOMObject
+		#define static_somCN_SOMObject
+		static const char * somCN_SOMObject="SOMObject";
+	#endif /* static_somCN_SOMObject */
+/* class ::SOMObject introduces 26 methods, 0 procedures and overrides 0 */
+/* should have ::SOMObjectClassData defined here */
+static somStaticMethod_t SOMObjectSM[26]={
+		{
+			&SOMObjectClassData.somInit,
+			&somId_somInit,
+			&somDI_SOMObject_somInit,
+			(somMethodPtr)somInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somInit,
+			(somMethodPtr)somAP_SOMObject_somInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somUninit,
+			&somId_somUninit,
+			&somDI_SOMObject_somUninit,
+			(somMethodPtr)somUninit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somUninit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somUninit,
+			(somMethodPtr)somAP_SOMObject_somUninit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somFree,
+			&somId_somFree,
+			&somDI_SOMObject_somFree,
+			(somMethodPtr)somFree,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somFree
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somFree,
+			(somMethodPtr)somAP_SOMObject_somFree
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somGetClass,
+			&somId_somGetClass,
+			&somDI_SOMObject_somGetClass,
+			(somMethodPtr)somGetClass,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somGetClass
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somGetClass,
+			(somMethodPtr)somAP_SOMObject_somGetClass
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somGetClassName,
+			&somId_somGetClassName,
+			&somDI_SOMObject_somGetClassName,
+			(somMethodPtr)somGetClassName,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somGetClassName
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somGetClassName,
+			(somMethodPtr)somAP_SOMObject_somGetClassName
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somGetSize,
+			&somId_somGetSize,
+			&somDI_SOMObject_somGetSize,
+			(somMethodPtr)somGetSize,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somGetSize
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somGetSize,
+			(somMethodPtr)somAP_SOMObject_somGetSize
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somIsA,
+			&somId_somIsA,
+			&somDI_SOMObject_somIsA,
+			(somMethodPtr)somIsA,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somIsA
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somIsA,
+			(somMethodPtr)somAP_SOMObject_somIsA
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somIsInstanceOf,
+			&somId_somIsInstanceOf,
+			&somDI_SOMObject_somIsInstanceOf,
+			(somMethodPtr)somIsInstanceOf,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somIsInstanceOf
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somIsInstanceOf,
+			(somMethodPtr)somAP_SOMObject_somIsInstanceOf
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somRespondsTo,
+			&somId_somRespondsTo,
+			&somDI_SOMObject_somRespondsTo,
+			(somMethodPtr)somRespondsTo,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somRespondsTo
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somRespondsTo,
+			(somMethodPtr)somAP_SOMObject_somRespondsTo
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDispatch,
+			&somId_somDispatch,
+			&somDI_SOMObject_somDispatch,
+			(somMethodPtr)somDispatch,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDispatch
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDispatch,
+			(somMethodPtr)NULL
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somClassDispatch,
+			&somId_somClassDispatch,
+			&somDI_SOMObject_somClassDispatch,
+			(somMethodPtr)somClassDispatch,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somClassDispatch
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somClassDispatch,
+			(somMethodPtr)NULL
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somCastObj,
+			&somId_somCastObj,
+			&somDI_SOMObject_somCastObj,
+			(somMethodPtr)somCastObj,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somCastObj
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somCastObj,
+			(somMethodPtr)somAP_SOMObject_somCastObj
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somResetObj,
+			&somId_somResetObj,
+			&somDI_SOMObject_somResetObj,
+			(somMethodPtr)somResetObj,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somResetObj
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somResetObj,
+			(somMethodPtr)somAP_SOMObject_somResetObj
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somPrintSelf,
+			&somId_somPrintSelf,
+			&somDI_SOMObject_somPrintSelf,
+			(somMethodPtr)somPrintSelf,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somPrintSelf
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somPrintSelf,
+			(somMethodPtr)somAP_SOMObject_somPrintSelf
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDumpSelf,
+			&somId_somDumpSelf,
+			&somDI_SOMObject_somDumpSelf,
+			(somMethodPtr)somDumpSelf,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDumpSelf
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDumpSelf,
+			(somMethodPtr)somAP_SOMObject_somDumpSelf
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDumpSelfInt,
+			&somId_somDumpSelfInt,
+			&somDI_SOMObject_somDumpSelfInt,
+			(somMethodPtr)somDumpSelfInt,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDumpSelfInt
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDumpSelfInt,
+			(somMethodPtr)somAP_SOMObject_somDumpSelfInt
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultInit,
+			&somId_somDefaultInit,
+			&somDI_SOMObject_somDefaultInit,
+			(somMethodPtr)somDefaultInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultInit,
+			(somMethodPtr)somAP_SOMObject_somDefaultInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultCopyInit,
+			&somId_somDefaultCopyInit,
+			&somDI_SOMObject_somDefaultCopyInit,
+			(somMethodPtr)somDefaultCopyInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultCopyInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultCopyInit,
+			(somMethodPtr)somAP_SOMObject_somDefaultCopyInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultConstCopyInit,
+			&somId_somDefaultConstCopyInit,
+			&somDI_SOMObject_somDefaultConstCopyInit,
+			(somMethodPtr)somDefaultConstCopyInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultConstCopyInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultConstCopyInit,
+			(somMethodPtr)somAP_SOMObject_somDefaultConstCopyInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultVCopyInit,
+			&somId_somDefaultVCopyInit,
+			&somDI_SOMObject_somDefaultVCopyInit,
+			(somMethodPtr)somDefaultVCopyInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultVCopyInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultVCopyInit,
+			(somMethodPtr)somAP_SOMObject_somDefaultVCopyInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultConstVCopyInit,
+			&somId_somDefaultConstVCopyInit,
+			&somDI_SOMObject_somDefaultConstVCopyInit,
+			(somMethodPtr)somDefaultConstVCopyInit,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultConstVCopyInit
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultConstVCopyInit,
+			(somMethodPtr)somAP_SOMObject_somDefaultConstVCopyInit
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultAssign,
+			&somId_somDefaultAssign,
+			&somDI_SOMObject_somDefaultAssign,
+			(somMethodPtr)somDefaultAssign,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultAssign
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultAssign,
+			(somMethodPtr)somAP_SOMObject_somDefaultAssign
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultConstAssign,
+			&somId_somDefaultConstAssign,
+			&somDI_SOMObject_somDefaultConstAssign,
+			(somMethodPtr)somDefaultConstAssign,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultConstAssign
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultConstAssign,
+			(somMethodPtr)somAP_SOMObject_somDefaultConstAssign
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultVAssign,
+			&somId_somDefaultVAssign,
+			&somDI_SOMObject_somDefaultVAssign,
+			(somMethodPtr)somDefaultVAssign,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultVAssign
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultVAssign,
+			(somMethodPtr)somAP_SOMObject_somDefaultVAssign
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDefaultConstVAssign,
+			&somId_somDefaultConstVAssign,
+			&somDI_SOMObject_somDefaultConstVAssign,
+			(somMethodPtr)somDefaultConstVAssign,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDefaultConstVAssign
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDefaultConstVAssign,
+			(somMethodPtr)somAP_SOMObject_somDefaultConstVAssign
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMObjectClassData.somDestruct,
+			&somId_somDestruct,
+			&somDI_SOMObject_somDestruct,
+			(somMethodPtr)somDestruct,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMObject_somDestruct
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMObject_somDestruct,
+			(somMethodPtr)somAP_SOMObject_somDestruct
+#endif /* SOM_METHOD_STUBS */
+		}
+	};
+			static
+		boolean SOMLINK somVA_SOMObject_somDispatch(SOMObject SOMSTAR somSelf,
+				somToken *retValue,
+				somId methodId,
+				...)
+		{
+			boolean __result;
+			va_list ap;
+			va_start(ap,methodId);
+			__result=SOM_Resolve(somSelf,SOMObject,somDispatch)
+					(somSelf,retValue,methodId,ap);
+			va_end(ap);
+			return __result;
+		}
+			static
+		boolean SOMLINK somVA_SOMObject_somClassDispatch(SOMObject SOMSTAR somSelf,
+				SOMClass SOMSTAR clsObj,
+				somToken *retValue,
+				somId methodId,
+				...)
+		{
+			boolean __result;
+			va_list ap;
+			va_start(ap,methodId);
+			__result=SOM_Resolve(somSelf,SOMObject,somClassDispatch)
+					(somSelf,clsObj,retValue,methodId,ap);
+			va_end(ap);
+			return __result;
+		}
+static somVarargsFuncs_t SOMObjectVF[2]={
+{&SOMObjectCClassData.somDispatch,(somMethodPtr)somVA_SOMObject_somDispatch},
+{&SOMObjectCClassData.somClassDispatch,(somMethodPtr)somVA_SOMObject_somClassDispatch}};
+static void SOMLINK _somC_SOMObject_classInit(SOMClass SOMSTAR);
+static somId somINITSOMObject[5]={
+(somId)&somMN_somDefaultVCopyInit,
+(somId)&somMN_somDefaultConstVCopyInit,
+(somId)&somMN_somDefaultInit,
+(somId)&somMN_somDefaultCopyInit,
+(somId)&somMN_somDefaultConstCopyInit};
+static somStaticClassInfo SOMObjectSCI={
+#ifdef SOMSCIVERSION
+		3,  /* layoutVersion */
+#else /* SOMSCIVERSION */
+		2,  /* layoutVersion */
+#endif /* SOMSCIVERSION */
+		26, /* numStaticMethod */
+		0, /* numStaticOverrides */
+		0, /* numNonInternalData */
+		0, /* numProcMethods */
+		2, /* numVarargsFuncs */
+		SOMObject_MajorVersion,
+		SOMObject_MinorVersion,
+		0, /* no instanceDataSize */
+		26, /* maxMethods */
+		0, /* numParents */
+		&somCN_SOMObject,
+		0,
+		0, /* implicitParentMeta */
+		0, /* no parents */
+		(somClassDataStructure *)(void *)&SOMObjectClassData,
+		(somCClassDataStructure *)(void *)&SOMObjectCClassData,
+		SOMObjectSM,
+		0,
+		0, /* nitReferenceBase */
+		0, /* nit */
+		0, /* pmt no procedures*/
+		SOMObjectVF, /* vft */
+		_somC_SOMObject_classInit,
+		0 /* no dataAlignment */
+#ifdef SOMSCIVERSION
+		,		-1L,(somId *)0, /* directInitClasses */
+		0,(somMethods_t *)0, /* numMethods */
+		0, /* protected data offset */
+		0, /* SOMSCIVERSION */
+		0,(somInheritedMethod_t *)0, /* inherited methods */
+		40,(somId *)0, /* class data entries */
+		0,(somMigratedMethod_t *)0, /* migrated methods */
+		5,somINITSOMObject, /* initializers */
+		0,(somDynamicSCI *)0, /* DTS */
+#endif /* SOMSCIVERSION */
+	};
+SOMClass SOMSTAR SOMLINK SOMObjectNewClass(
+	integer4 somtmajorVersion,integer4 somtminorVersion)
+{
+	return somBuildClass(0x0,&SOMObjectSCI,
+		somtmajorVersion,
+		somtminorVersion);
+}
+static void SOMLINK _somC_SOMObject_classInit(SOMClass SOMSTAR somSelf)
+{
+/* do parent resolves... */
+/* call classinit if defined... */
+	SOM_IgnoreWarning(somSelf);
+}
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMObjectClassDataStructure * SOMLINK resolve_SOMObjectClassData(void)
+	{ return &_SOMObjectClassData; }
+#endif /* SOM_RESOLVE_DATA */
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMObjectCClassDataStructure * SOMLINK resolve_SOMObjectCClassData(void)
+	{ return &_SOMObjectCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+	#endif /* SOMObject_Class_Source */
+#endif /* SOM_Module_test_Header_ih */

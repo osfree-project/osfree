@@ -1,0 +1,927 @@
+/* generated from scpass.idl */
+/* internal conditional is SOM_Module_scpass_Source */
+#ifndef SOM_Module_scpass_Header_xih
+	#define SOM_Module_scpass_Header_xih 1
+	#ifndef SOM_Module_scpass_Source
+		#define SOM_Module_scpass_Source
+	#endif /* SOM_Module_scpass_Source */
+	#include <scpass.xh>
+	#ifndef SOM_Scope
+		#define SOM_Scope static
+	#endif /* SOM_Scope */
+	#ifdef SOMTPassthruEntryC_Class_Source
+		typedef void SOMTPassthruEntryCData;
+	#endif /* SOMTPassthruEntryC_Class_Source */
+	#ifdef SOMTPassthruEntryC_Class_Source
+	#ifndef static_somMN__get_somtPassthruBody
+		#define static_somMN__get_somtPassthruBody
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtPassthruBody
+		#error somMN__get_somtPassthruBody already defined
+	#else /* somMN__get_somtPassthruBody */
+		#define somMN__get_somtPassthruBody somMN_somC_get_somtPassthruBody
+	#endif /* somMN__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtPassthruBody="_get_somtPassthruBody";
+	#endif /* static_somMN__get_somtPassthruBody */
+	#ifndef static_somId__get_somtPassthruBody
+		#define static_somId__get_somtPassthruBody
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtPassthruBody
+		#error somId__get_somtPassthruBody already defined
+	#else /* somId__get_somtPassthruBody */
+		#define somId__get_somtPassthruBody somId_somC_get_somtPassthruBody
+	#endif /* somId__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtPassthruBody=&somMN__get_somtPassthruBody;
+	#endif /* static_somId__get_somtPassthruBody */
+	#ifndef static_somDS_SOMTPassthruEntryC__get_somtPassthruBody
+		#define static_somDS_SOMTPassthruEntryC__get_somtPassthruBody
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somDS_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somDS_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somDS_SOMTPassthruEntryC__get_somtPassthruBody somDS_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somDS_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTPassthruEntryC__get_somtPassthruBody="SOMTPassthruEntryC::_get_somtPassthruBody";
+	#endif /* static_somDS_SOMTPassthruEntryC__get_somtPassthruBody */
+	#ifndef static_somDI_SOMTPassthruEntryC__get_somtPassthruBody
+		#define static_somDI_SOMTPassthruEntryC__get_somtPassthruBody
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somDI_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somDI_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somDI_SOMTPassthruEntryC__get_somtPassthruBody somDI_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somDI_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTPassthruEntryC__get_somtPassthruBody=&somDS_SOMTPassthruEntryC__get_somtPassthruBody;
+	#endif /* static_somDI_SOMTPassthruEntryC__get_somtPassthruBody */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtPassthruBody(
+	SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtPassthruBody,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTPassthruEntryC__get_somtPassthruBody   0
+	#define somAP_SOMTPassthruEntryC__get_somtPassthruBody   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somRD_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somRD_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somRD_SOMTPassthruEntryC__get_somtPassthruBody somRD_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somRD_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruBody(
+			SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTPassthruEntryC__get_somtPassthruBody,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruBody(
+			SOMTPassthruEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtPassthruBody,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somAP_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somAP_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somAP_SOMTPassthruEntryC__get_somtPassthruBody somAP_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somAP_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruBody(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTPassthruEntryC__get_somtPassthruBody,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruBody(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTPassthruEntryC * );
+
+		*_somC_retVal=((somTD_SOMTPassthruEntryC__get_somtPassthruBody)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody somMethodInfo_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody
+		#error somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody already defined
+	#else /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody */
+		#define somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody somApRdInfo_SOMTPassthruEntryC_somC_get_somtPassthruBody
+	#endif /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody={
+		(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruBody,
+		(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruBody,
+		&somMethodInfo_SOMTPassthruEntryC__get_somtPassthruBody};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtPassthruLanguage
+		#define static_somMN__get_somtPassthruLanguage
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtPassthruLanguage
+		#error somMN__get_somtPassthruLanguage already defined
+	#else /* somMN__get_somtPassthruLanguage */
+		#define somMN__get_somtPassthruLanguage somMN_somC_get_somtPassthruLanguage
+	#endif /* somMN__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtPassthruLanguage="_get_somtPassthruLanguage";
+	#endif /* static_somMN__get_somtPassthruLanguage */
+	#ifndef static_somId__get_somtPassthruLanguage
+		#define static_somId__get_somtPassthruLanguage
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtPassthruLanguage
+		#error somId__get_somtPassthruLanguage already defined
+	#else /* somId__get_somtPassthruLanguage */
+		#define somId__get_somtPassthruLanguage somId_somC_get_somtPassthruLanguage
+	#endif /* somId__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtPassthruLanguage=&somMN__get_somtPassthruLanguage;
+	#endif /* static_somId__get_somtPassthruLanguage */
+	#ifndef static_somDS_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#define static_somDS_SOMTPassthruEntryC__get_somtPassthruLanguage
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somDS_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somDS_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somDS_SOMTPassthruEntryC__get_somtPassthruLanguage somDS_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somDS_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTPassthruEntryC__get_somtPassthruLanguage="SOMTPassthruEntryC::_get_somtPassthruLanguage";
+	#endif /* static_somDS_SOMTPassthruEntryC__get_somtPassthruLanguage */
+	#ifndef static_somDI_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#define static_somDI_SOMTPassthruEntryC__get_somtPassthruLanguage
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somDI_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somDI_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somDI_SOMTPassthruEntryC__get_somtPassthruLanguage somDI_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somDI_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTPassthruEntryC__get_somtPassthruLanguage=&somDS_SOMTPassthruEntryC__get_somtPassthruLanguage;
+	#endif /* static_somDI_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtPassthruLanguage(
+	SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtPassthruLanguage,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTPassthruEntryC__get_somtPassthruLanguage   0
+	#define somAP_SOMTPassthruEntryC__get_somtPassthruLanguage   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somRD_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somRD_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somRD_SOMTPassthruEntryC__get_somtPassthruLanguage somRD_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somRD_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruLanguage(
+			SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTPassthruEntryC__get_somtPassthruLanguage,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruLanguage(
+			SOMTPassthruEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtPassthruLanguage,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somAP_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somAP_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somAP_SOMTPassthruEntryC__get_somtPassthruLanguage somAP_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somAP_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruLanguage(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTPassthruEntryC__get_somtPassthruLanguage,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruLanguage(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTPassthruEntryC * );
+
+		*_somC_retVal=((somTD_SOMTPassthruEntryC__get_somtPassthruLanguage)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage somMethodInfo_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage
+		#error somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage already defined
+	#else /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage */
+		#define somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage somApRdInfo_SOMTPassthruEntryC_somC_get_somtPassthruLanguage
+	#endif /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage={
+		(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruLanguage,
+		(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruLanguage,
+		&somMethodInfo_SOMTPassthruEntryC__get_somtPassthruLanguage};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtPassthruTarget
+		#define static_somMN__get_somtPassthruTarget
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtPassthruTarget
+		#error somMN__get_somtPassthruTarget already defined
+	#else /* somMN__get_somtPassthruTarget */
+		#define somMN__get_somtPassthruTarget somMN_somC_get_somtPassthruTarget
+	#endif /* somMN__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtPassthruTarget="_get_somtPassthruTarget";
+	#endif /* static_somMN__get_somtPassthruTarget */
+	#ifndef static_somId__get_somtPassthruTarget
+		#define static_somId__get_somtPassthruTarget
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtPassthruTarget
+		#error somId__get_somtPassthruTarget already defined
+	#else /* somId__get_somtPassthruTarget */
+		#define somId__get_somtPassthruTarget somId_somC_get_somtPassthruTarget
+	#endif /* somId__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtPassthruTarget=&somMN__get_somtPassthruTarget;
+	#endif /* static_somId__get_somtPassthruTarget */
+	#ifndef static_somDS_SOMTPassthruEntryC__get_somtPassthruTarget
+		#define static_somDS_SOMTPassthruEntryC__get_somtPassthruTarget
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somDS_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somDS_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somDS_SOMTPassthruEntryC__get_somtPassthruTarget somDS_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somDS_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTPassthruEntryC__get_somtPassthruTarget="SOMTPassthruEntryC::_get_somtPassthruTarget";
+	#endif /* static_somDS_SOMTPassthruEntryC__get_somtPassthruTarget */
+	#ifndef static_somDI_SOMTPassthruEntryC__get_somtPassthruTarget
+		#define static_somDI_SOMTPassthruEntryC__get_somtPassthruTarget
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somDI_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somDI_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somDI_SOMTPassthruEntryC__get_somtPassthruTarget somDI_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somDI_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTPassthruEntryC__get_somtPassthruTarget=&somDS_SOMTPassthruEntryC__get_somtPassthruTarget;
+	#endif /* static_somDI_SOMTPassthruEntryC__get_somtPassthruTarget */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK _get_somtPassthruTarget(
+	SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtPassthruTarget,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTPassthruEntryC__get_somtPassthruTarget   0
+	#define somAP_SOMTPassthruEntryC__get_somtPassthruTarget   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somRD_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somRD_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somRD_SOMTPassthruEntryC__get_somtPassthruTarget somRD_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somRD_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruTarget(
+			SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTPassthruEntryC__get_somtPassthruTarget,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTPassthruEntryC__get_somtPassthruTarget(
+			SOMTPassthruEntryC * somSelf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtPassthruTarget,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somAP_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somAP_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somAP_SOMTPassthruEntryC__get_somtPassthruTarget somAP_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somAP_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruTarget(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTPassthruEntryC__get_somtPassthruTarget,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTPassthruEntryC__get_somtPassthruTarget(
+		SOMTPassthruEntryC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTPassthruEntryC * );
+
+		*_somC_retVal=((somTD_SOMTPassthruEntryC__get_somtPassthruTarget)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget somMethodInfo_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget
+		#error somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget already defined
+	#else /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget */
+		#define somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget somApRdInfo_SOMTPassthruEntryC_somC_get_somtPassthruTarget
+	#endif /* somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget={
+		(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruTarget,
+		(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruTarget,
+		&somMethodInfo_SOMTPassthruEntryC__get_somtPassthruTarget};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtIsBeforePassthru
+		#define static_somMN_somtIsBeforePassthru
+		static const char * somMN_somtIsBeforePassthru="somtIsBeforePassthru";
+	#endif /* static_somMN_somtIsBeforePassthru */
+	#ifndef static_somId_somtIsBeforePassthru
+		#define static_somId_somtIsBeforePassthru
+		static const somConstId somId_somtIsBeforePassthru=&somMN_somtIsBeforePassthru;
+	#endif /* static_somId_somtIsBeforePassthru */
+	#ifndef static_somDS_SOMTPassthruEntryC_somtIsBeforePassthru
+		#define static_somDS_SOMTPassthruEntryC_somtIsBeforePassthru
+		static const char * somDS_SOMTPassthruEntryC_somtIsBeforePassthru="SOMTPassthruEntryC::somtIsBeforePassthru";
+	#endif /* static_somDS_SOMTPassthruEntryC_somtIsBeforePassthru */
+	#ifndef static_somDI_SOMTPassthruEntryC_somtIsBeforePassthru
+		#define static_somDI_SOMTPassthruEntryC_somtIsBeforePassthru
+		static const somConstId somDI_SOMTPassthruEntryC_somtIsBeforePassthru=&somDS_SOMTPassthruEntryC_somtIsBeforePassthru;
+	#endif /* static_somDI_SOMTPassthruEntryC_somtIsBeforePassthru */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope boolean SOMLINK somtIsBeforePassthru(
+	SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtIsBeforePassthru,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTPassthruEntryC_somtIsBeforePassthru   0
+	#define somAP_SOMTPassthruEntryC_somtIsBeforePassthru   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static boolean SOMLINK somRD_SOMTPassthruEntryC_somtIsBeforePassthru(
+			SOMTPassthruEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTPassthruEntryC_somtIsBeforePassthru,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMTPassthruEntryC_somtIsBeforePassthru(
+			SOMTPassthruEntryC * somSelf)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtIsBeforePassthru,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTPassthruEntryC_somtIsBeforePassthru(
+		SOMTPassthruEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTPassthruEntryC_somtIsBeforePassthru,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTPassthruEntryC_somtIsBeforePassthru(
+		SOMTPassthruEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTPassthruEntryC * );
+
+		*_somC_retVal=((somTD_SOMTPassthruEntryC_somtIsBeforePassthru)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTPassthruEntryC_somtIsBeforePassthru={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTPassthruEntryC_somtIsBeforePassthru={
+		(somMethodPtr)somRD_SOMTPassthruEntryC_somtIsBeforePassthru,
+		(somMethodPtr)somAP_SOMTPassthruEntryC_somtIsBeforePassthru,
+		&somMethodInfo_SOMTPassthruEntryC_somtIsBeforePassthru};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef SOMTPassthruEntryCMethodDebug
+		#define SOMTPassthruEntryCMethodDebug(x,y)
+	#endif /* SOMTPassthruEntryCMethodDebug */
+	#define SOMTPassthruEntryCGetData(somSelf)  ((SOMTPassthruEntryCData *)0)  /* class has no attributes */
+	#ifndef static_somCN_SOMTPassthruEntryC
+		#define static_somCN_SOMTPassthruEntryC
+		static const char * somCN_SOMTPassthruEntryC="SOMTPassthruEntryC";
+	#endif /* static_somCN_SOMTPassthruEntryC */
+	#ifndef static_somPCN_SOMTPassthruEntryC_SOMTEntryC
+		#define static_somPCN_SOMTPassthruEntryC_SOMTEntryC
+		static const char * somPCN_SOMTPassthruEntryC_SOMTEntryC="SOMTEntryC";
+	#endif /* static_somPCN_SOMTPassthruEntryC_SOMTEntryC */
+static const somConstId somPCSOMTPassthruEntryC[1]={
+	&somPCN_SOMTPassthruEntryC_SOMTEntryC};
+
+/* class ::SOMTPassthruEntryC introduces 4 methods, 0 procedures and overrides 0 */
+/* should have ::SOMTPassthruEntryCClassData defined here */
+/* developer must provide get for attribute ::SOMTPassthruEntryC::somtPassthruBody */
+/* developer must provide get for attribute ::SOMTPassthruEntryC::somtPassthruLanguage */
+/* developer must provide get for attribute ::SOMTPassthruEntryC::somtPassthruTarget */
+static somStaticMethod_t SOMTPassthruEntryCSM[4]={
+		{
+			&SOMTPassthruEntryCClassData._get_somtPassthruBody,
+			&somId__get_somtPassthruBody,
+			&somDI_SOMTPassthruEntryC__get_somtPassthruBody,
+			(somMethodPtr)_get_somtPassthruBody,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTPassthruEntryC__get_somtPassthruBody
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruBody,
+			(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruBody
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTPassthruEntryCClassData._get_somtPassthruLanguage,
+			&somId__get_somtPassthruLanguage,
+			&somDI_SOMTPassthruEntryC__get_somtPassthruLanguage,
+			(somMethodPtr)_get_somtPassthruLanguage,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTPassthruEntryC__get_somtPassthruLanguage
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruLanguage,
+			(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruLanguage
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTPassthruEntryCClassData._get_somtPassthruTarget,
+			&somId__get_somtPassthruTarget,
+			&somDI_SOMTPassthruEntryC__get_somtPassthruTarget,
+			(somMethodPtr)_get_somtPassthruTarget,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTPassthruEntryC__get_somtPassthruTarget
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTPassthruEntryC__get_somtPassthruTarget,
+			(somMethodPtr)somAP_SOMTPassthruEntryC__get_somtPassthruTarget
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTPassthruEntryCClassData.somtIsBeforePassthru,
+			&somId_somtIsBeforePassthru,
+			&somDI_SOMTPassthruEntryC_somtIsBeforePassthru,
+			(somMethodPtr)somtIsBeforePassthru,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTPassthruEntryC_somtIsBeforePassthru
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTPassthruEntryC_somtIsBeforePassthru,
+			(somMethodPtr)somAP_SOMTPassthruEntryC_somtIsBeforePassthru
+#endif /* SOM_METHOD_STUBS */
+		}
+	};
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+static void SOMLINK _somC_SOMTPassthruEntryC_classInit(SOMClass *);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+static somStaticClassInfo SOMTPassthruEntryCSCI={
+#ifdef SOMSCIVERSION
+		3,  /* layoutVersion */
+#else /* SOMSCIVERSION */
+		2,  /* layoutVersion */
+#endif /* SOMSCIVERSION */
+		4, /* numStaticMethod */
+		0, /* numStaticOverrides */
+		0, /* numNonInternalData */
+		0, /* numProcMethods */
+		0, /* numVarargsFuncs */
+		SOMTPassthruEntryC_MajorVersion,
+		SOMTPassthruEntryC_MinorVersion,
+		0, /* no instanceDataSize */
+		4, /* maxMethods */
+		1, /* numParents */
+		&somCN_SOMTPassthruEntryC,
+		0,
+		0, /* implicitParentMeta */
+		somPCSOMTPassthruEntryC, /* parents */
+		(somClassDataStructure *)(void *)&SOMTPassthruEntryCClassData,
+		(somCClassDataStructure *)(void *)&SOMTPassthruEntryCCClassData,
+		SOMTPassthruEntryCSM,
+		0,
+		0, /* nitReferenceBase */
+		0, /* nit */
+		0, /* pmt no procedures*/
+		0, /* vft */
+		_somC_SOMTPassthruEntryC_classInit,
+		0 /* no dataAlignment */
+#ifdef SOMSCIVERSION
+		,		-1L,(somId *)0, /* directInitClasses */
+		0,(somMethods_t *)0, /* numMethods */
+		0, /* protected data offset */
+		0, /* SOMSCIVERSION */
+		0,(somInheritedMethod_t *)0, /* inherited methods */
+		4,(somId *)0, /* class data entries */
+		0,(somMigratedMethod_t *)0, /* migrated methods */
+		0,(somId *)0, /* initializers */
+		0,(somDynamicSCI *)0, /* DTS */
+#endif /* SOMSCIVERSION */
+	};
+SOMClass * SOMLINK SOMTPassthruEntryCNewClass(
+	integer4 somtmajorVersion,integer4 somtminorVersion)
+{
+	if (!SOMTEntryCNewClass(
+		SOMTEntryC_MajorVersion,
+		SOMTEntryC_MinorVersion))
+	{
+		return NULL;
+	}
+	return somBuildClass(0x1,&SOMTPassthruEntryCSCI,
+		somtmajorVersion,
+		somtminorVersion);
+}
+static void SOMLINK _somC_SOMTPassthruEntryC_classInit(SOMClass *somSelf)
+{
+/* do parent resolves... */
+/* call classinit if defined... */
+	SOM_IgnoreWarning(somSelf);
+}
+struct SOMTPassthruEntryCClassDataStructure SOMDLINK SOMTPassthruEntryCClassData={
+	/* classObject */ 0,
+	/* _get_somtPassthruBody */ 0,
+	/* _get_somtPassthruTarget */ 0,
+	/* _get_somtPassthruLanguage */ 0,
+	/* somtIsBeforePassthru */ 0};
+struct SOMTPassthruEntryCCClassDataStructure SOMDLINK SOMTPassthruEntryCCClassData;
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTPassthruEntryCClassDataStructure * SOMLINK resolve_SOMTPassthruEntryCClassData(void)
+	{ return &_SOMTPassthruEntryCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTPassthruEntryCCClassDataStructure * SOMLINK resolve_SOMTPassthruEntryCCClassData(void)
+	{ return &_SOMTPassthruEntryCCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+	#ifndef SOMTPassthruEntryC_parent_SOMTEntryC_somInit
+		#define SOMTPassthruEntryC_parent_SOMTEntryC_somInit(somSelf)
+	#endif /* SOMTPassthruEntryC_parent_SOMTEntryC_somInit */
+	#ifndef SOMTPassthruEntryC_parent_SOMTEntryC_somUninit
+		#define SOMTPassthruEntryC_parent_SOMTEntryC_somUninit(somSelf)
+	#endif /* SOMTPassthruEntryC_parent_SOMTEntryC_somUninit */
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somFree(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somFree)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somFree))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somGetClass(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somGetClass)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClass))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somGetClassName(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somGetClassName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClassName))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somGetSize(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somGetSize)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetSize))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somIsA(somSelf,aClassObj)   \
+		((somTD_SOMTPassthruEntryC_somIsA)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsA))\
+					((SOMTPassthruEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somIsInstanceOf(somSelf,aClassObj)   \
+		((somTD_SOMTPassthruEntryC_somIsInstanceOf)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsInstanceOf))\
+					((SOMTPassthruEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somRespondsTo(somSelf,mId)   \
+		((somTD_SOMTPassthruEntryC_somRespondsTo)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somRespondsTo))\
+					((SOMTPassthruEntryC *)(void *)somSelf,mId)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDispatch(somSelf,retValue,methodId,ap)   \
+		((somTD_SOMTPassthruEntryC_somDispatch)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDispatch))\
+					((SOMTPassthruEntryC *)(void *)somSelf,retValue,methodId,ap)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somClassDispatch(somSelf,clsObj,retValue,methodId,ap)   \
+		((somTD_SOMTPassthruEntryC_somClassDispatch)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somClassDispatch))\
+					((SOMTPassthruEntryC *)(void *)somSelf,clsObj,retValue,methodId,ap)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somCastObj(somSelf,castedCls)   \
+		((somTD_SOMTPassthruEntryC_somCastObj)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somCastObj))\
+					((SOMTPassthruEntryC *)(void *)somSelf,castedCls)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somResetObj(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somResetObj)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somResetObj))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somPrintSelf(somSelf)   \
+		((somTD_SOMTPassthruEntryC_somPrintSelf)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somPrintSelf))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDumpSelf(somSelf,level)   \
+		((somTD_SOMTPassthruEntryC_somDumpSelf)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelf))\
+					((SOMTPassthruEntryC *)(void *)somSelf,level)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDumpSelfInt(somSelf,level)   \
+		((somTD_SOMTPassthruEntryC_somDumpSelfInt)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelfInt))\
+					((SOMTPassthruEntryC *)(void *)somSelf,level)
+#define SOMTPassthruEntryC_Init_SOMTEntryC_somDefaultInit(somSelf,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultInit)ctrl->info->defaultInit) \
+(((SOMObject *)(void *)somSelf),ctrl); \
+}
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultCopyInit)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultCopyInit))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultConstCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultConstCopyInit)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstCopyInit))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultVCopyInit)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVCopyInit))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultConstVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultConstVCopyInit)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVCopyInit))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTPassthruEntryC_Assign_SOMTEntryC_somDefaultAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultAssign)ctrl->info->defaultNCArgAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+#define SOMTPassthruEntryC_Assign_SOMTEntryC_somDefaultConstAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultConstAssign)ctrl->info->defaultConstAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultVAssign)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVAssign))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somDefaultConstVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTPassthruEntryC_somDefaultConstVAssign)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVAssign))\
+					((SOMTPassthruEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTPassthruEntryC_DeInit_SOMTEntryC_somDestruct(somSelf,doFree,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDestruct)ctrl->info->defaultDestruct) \
+(((SOMObject *)(void *)somSelf),doFree,ctrl); \
+}
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtEntryStruct)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryStruct))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__set_somtEntryName(somSelf,somtEntryName)   \
+		((somTD_SOMTPassthruEntryC__set_somtEntryName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtEntryName))\
+					((SOMTPassthruEntryC *)(void *)somSelf,somtEntryName)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtEntryName(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtEntryName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryName))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__set_somtElementType(somSelf,somtElementType)   \
+		((somTD_SOMTPassthruEntryC__set_somtElementType)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtElementType))\
+					((SOMTPassthruEntryC *)(void *)somSelf,somtElementType)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtElementType(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtElementType)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementType))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtElementTypeName(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtElementTypeName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementTypeName))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtEntryComment(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtEntryComment)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryComment))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtSourceLineNumber(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtSourceLineNumber)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtSourceLineNumber))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtTypeCode(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtTypeCode)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtTypeCode))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtIsReference(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtIsReference)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIsReference))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtIDLScopedName(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtIDLScopedName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIDLScopedName))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC__get_somtCScopedName(somSelf)   \
+		((somTD_SOMTPassthruEntryC__get_somtCScopedName)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtCScopedName))\
+					((SOMTPassthruEntryC *)(void *)somSelf)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtGetModifierValue(somSelf,modifierName)   \
+		((somTD_SOMTPassthruEntryC_somtGetModifierValue)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierValue))\
+					((SOMTPassthruEntryC *)(void *)somSelf,modifierName)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtGetFirstModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTPassthruEntryC_somtGetFirstModifier)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetFirstModifier))\
+					((SOMTPassthruEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtGetNextModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTPassthruEntryC_somtGetNextModifier)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetNextModifier))\
+					((SOMTPassthruEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtFormatModifier(somSelf,buffer,name,value)   \
+		((somTD_SOMTPassthruEntryC_somtFormatModifier)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtFormatModifier))\
+					((SOMTPassthruEntryC *)(void *)somSelf,buffer,name,value)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtGetModifierList(somSelf,buffer)   \
+		((somTD_SOMTPassthruEntryC_somtGetModifierList)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierList))\
+					((SOMTPassthruEntryC *)(void *)somSelf,buffer)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry(somSelf,emitter,prefix)   \
+		((somTD_SOMTPassthruEntryC_somtSetSymbolsOnEntry)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtSetSymbolsOnEntry))\
+					((SOMTPassthruEntryC *)(void *)somSelf,emitter,prefix)
+	#define SOMTPassthruEntryC_parent_SOMTEntryC_somtSetEntryStruct(somSelf,es)   \
+		((somTD_SOMTPassthruEntryC_somtSetEntryStruct)\
+			somParentNumResolve(SOMTPassthruEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtSetEntryStruct))\
+					((SOMTPassthruEntryC *)(void *)somSelf,es)
+	#endif /* SOMTPassthruEntryC_Class_Source */
+#endif /* SOM_Module_scpass_Header_xih */

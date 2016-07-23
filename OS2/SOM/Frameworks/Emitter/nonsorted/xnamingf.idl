@@ -1,0 +1,103 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: xnamingf.idl 3926 2013-01-18 22:12:02Z rogerb $
+ */
+
+#ifndef xnamingf_idl
+#define xnamingf_idl
+#include <xnaming.idl>
+#include <somos.idl>
+
+module FileXNaming
+{
+	const unsigned long STARTINGLENGTH=16;
+	const long MAXSTACK=100;
+	interface FileENC :
+		ExtendedNaming::ExtendedNamingContext,
+		somOS::ServiceBase
+	{
+		typedef string Constraint;
+		typedef char * Strings;
+#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FileBindingIterator :
+		CosNaming::BindingIterator
+	{
+		typedef sequence<string> stringSeq;
+		void FileBindingIterator_Init1(
+			inout somToken ctrl,
+			in stringSeq key,
+			in string databaseFile);
+		void FileBindingIterator_Init2(
+			inout somToken ctrl,
+			in CosNaming::BindingList bl);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : FileBindingIterator_Init1,FileBindingIterator_Init2;
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FPropertyBindingIterator :
+		ExtendedNaming::PropertyBindingIterator
+	{
+#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FPropertyIterator :
+		ExtendedNaming::PropertyIterator
+	{
+#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FileIndexIterator :
+		ExtendedNaming::IndexIterator
+	{
+		void FileIndexIterator_Init(
+			inout somToken ctrl,
+			in sequence<octet> key,
+			in string databaseFile);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : FileIndexIterator_Init;
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+};
+#endif /* xnamingf_idl */

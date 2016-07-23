@@ -1,0 +1,326 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: xnaming.idl 3926 2013-01-18 22:12:02Z rogerb $
+ */
+
+#ifndef xnaming_idl
+#define xnaming_idl
+#include <naming.idl>
+module ExtendedNaming
+{
+	interface PropertyBindingIterator;
+	interface PropertyIterator;
+	interface IndexIterator;
+	interface ExtendedNamingContext;
+	typedef sequence<TypeCode> kludge;
+	typedef sequence<TypeCode> TypeCodeSeq;
+	typedef sequence<CosNaming::Istring> IList;
+	struct PropertyBinding_struct
+	{
+		CosNaming::Istring property_name;
+		boolean sharable;
+	};
+	typedef PropertyBinding_struct PropertyBinding;
+	typedef sequence<PropertyBinding> PropertyBindingList;
+	struct Property_struct
+	{
+		PropertyBinding binding;
+		any value;
+	};
+	typedef Property_struct Property;
+	typedef sequence<Property> PropertyList;
+	struct IndexDescriptor_struct
+	{
+		CosNaming::Istring property_name;
+		TypeCode property_type;
+		unsigned long distance;
+	};
+	typedef IndexDescriptor_struct IndexDescriptor;
+	typedef sequence<IndexDescriptor> IndexDescriptorList;
+	interface PropertyBindingIterator :
+		SOMObject
+	{
+		boolean next_one(
+			out PropertyBinding pb);
+		boolean next_n(
+			in unsigned long howMany,
+			out PropertyBindingList il);
+		void destroy();
+#ifdef __SOMIDL__
+		implementation
+		{
+			next_n : caller_owns_parameters="il";
+			releaseorder : 
+				next_one,
+				next_n,
+				destroy;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface PropertyIterator :
+		SOMObject
+	{
+		boolean next_one(
+			out Property p);
+		boolean next_n(
+			in unsigned long howMany,
+			out PropertyList pl);
+		void destroy();
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : 
+				next_one,
+				next_n,
+				destroy;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface IndexIterator :
+		SOMObject
+	{
+		boolean next_one(
+			out IndexDescriptor p);
+		boolean next_n(
+			in unsigned long howMany,
+			out IndexDescriptorList il);
+		void destroy();
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : 
+				next_one,
+				next_n,
+				destroy;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface ExtendedNamingContext :
+		CosNaming::NamingContext
+	{
+		typedef string Constraint;
+		typedef char * Strings;
+		exception InvalidPropertyName{};
+		exception NotSupported{};
+		exception ConflictingPropertyName{};
+		exception PropertyNotFound
+		{
+			sequence<CosNaming::Istring> property_name;
+		};
+		exception NonSharableProperties{};
+		exception PropertiesNotShared{};
+		exception IllegalConstraintExpression{};
+		exception BindingNotFound{};
+		readonly attribute TypeCodeSeq allowed_object_types;
+		readonly attribute TypeCodeSeq allowed_property_types;
+		typedef sequence<CosNaming::Istring> CosNaming_IstringSeq;
+		readonly attribute CosNaming_IstringSeq allowed_property_names;
+		readonly attribute TypeCodeSeq shared_property_types;
+		readonly attribute CosNaming_IstringSeq shared_property_names;
+		unsigned short get_features_supported();
+		void add_property(
+			in CosNaming::Name n,
+			in Property prop)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void add_properties(
+			in CosNaming::Name n,
+			in PropertyList props)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void bind_with_properties(
+			in CosNaming::Name n,
+			in SOMObject obj,
+			in PropertyList prop)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::AlreadyBound,CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void bind_context_with_properties(
+			in CosNaming::Name n,
+			in ExtendedNamingContext obj,
+			in PropertyList props)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::CannotProceed,CosNaming::NamingContext::AlreadyBound,CosNaming::NamingContext::NotFound,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void rebind_with_properties(
+			in CosNaming::Name n,
+			in SOMObject obj,
+			in PropertyList prop)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::NotFound,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void rebind_context_with_properties(
+			in CosNaming::Name n,
+			in ExtendedNamingContext obj,
+			in PropertyList props)
+				raises (CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::NotFound,InvalidPropertyName,NotSupported,ConflictingPropertyName);
+		void share_property(
+			in CosNaming::Name target_n,
+			in ExtendedNamingContext source_enc,
+			in CosNaming::Name source_n,
+			in CosNaming::Istring pname)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,CosNaming::NamingContext::InvalidName,InvalidPropertyName,PropertyNotFound,ConflictingPropertyName,NotSupported);
+		void share_properties(
+			in CosNaming::Name target_n,
+			in ExtendedNamingContext source_enc,
+			in CosNaming::Name source_n,
+			in IList pnames)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,ConflictingPropertyName,NotSupported);
+		void unshare_property(
+			in CosNaming::Name n,
+			in CosNaming::Istring property_name)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,PropertiesNotShared,NotSupported,ConflictingPropertyName);
+		void unshare_properties(
+			in CosNaming::Name n,
+			in IList pnames)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,PropertiesNotShared,NotSupported,ConflictingPropertyName);
+		void list_properties(
+			in CosNaming::Name n,
+			in unsigned long howMany,
+			out PropertyBindingList pbl,
+			out PropertyBindingIterator rest)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::CannotProceed);
+		void get_property(
+			in CosNaming::Name n,
+			in CosNaming::Istring pn,
+			out Property prop)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,CosNaming::NamingContext::CannotProceed);
+		void get_properties(
+			in CosNaming::Name n,
+			in unsigned long howMany,
+			in IList inames,
+			out PropertyList props,
+			out PropertyIterator rest)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,InvalidPropertyName,PropertyNotFound,CosNaming::NamingContext::CannotProceed);
+		void get_all_properties(
+			in CosNaming::Name n,
+			in unsigned long howMany,
+			out PropertyList props,
+			out PropertyIterator rest)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,PropertyNotFound,CosNaming::NamingContext::CannotProceed);
+		SOMObject resolve_with_property(
+			in CosNaming::Name n,
+			in CosNaming::Istring prop,
+			out any v)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,InvalidPropertyName,CosNaming::NamingContext::CannotProceed,PropertyNotFound);
+		SOMObject resolve_with_properties(
+			in CosNaming::Name n,
+			in unsigned long howMany,
+			in IList inames,
+			out PropertyList props,
+			out PropertyIterator rest)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,PropertyNotFound,CosNaming::NamingContext::CannotProceed,InvalidPropertyName);
+		SOMObject resolve_with_all_properties(
+			in CosNaming::Name n,
+			in unsigned long howMany,
+			out PropertyList props,
+			out PropertyIterator rest)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::CannotProceed);
+		void remove_property(
+			in CosNaming::Name n,
+			in CosNaming::Istring prop)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,CosNaming::NamingContext::CannotProceed,NotSupported);
+		void remove_properties(
+			in CosNaming::Name n,
+			in IList plist)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,PropertyNotFound,InvalidPropertyName,CosNaming::NamingContext::CannotProceed,NotSupported);
+		void remove_all_properties(
+			in CosNaming::Name n)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::InvalidName,CosNaming::NamingContext::CannotProceed,NotSupported);
+		SOMObject find_any(
+			in Constraint c,
+			in unsigned long distance)
+				raises (IllegalConstraintExpression,CosNaming::NamingContext::CannotProceed,BindingNotFound,NotSupported);
+		void find_all(
+			in Constraint c,
+			in unsigned long distance,
+			in unsigned long howMany,
+			out CosNaming::BindingList bl,
+			out CosNaming::BindingIterator bi)
+				raises (IllegalConstraintExpression,CosNaming::NamingContext::CannotProceed,BindingNotFound,NotSupported);
+		void find_any_name_binding(
+			in Constraint c,
+			in unsigned long distance,
+			out CosNaming::Binding bi)
+				raises (NotSupported,CosNaming::NamingContext::CannotProceed,BindingNotFound,IllegalConstraintExpression);
+		void add_index(
+			in IndexDescriptor i)
+				raises (NotSupported);
+		void list_indexes(
+			in unsigned long howMany,
+			out IndexDescriptorList il,
+			out IndexIterator rest)
+				raises (NotSupported);
+		void remove_index(
+			in IndexDescriptor i)
+				raises (CosNaming::NamingContext::NotFound,CosNaming::NamingContext::CannotProceed,InvalidPropertyName,ConflictingPropertyName);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : 
+				get_features_supported,
+				add_property,
+				add_properties,
+				bind_with_properties,
+				bind_context_with_properties,
+				rebind_with_properties,
+				rebind_context_with_properties,
+				share_property,
+				share_properties,
+				unshare_property,
+				unshare_properties,
+				list_properties,
+				get_property,
+				get_properties,
+				get_all_properties,
+				resolve_with_property,
+				resolve_with_properties,
+				resolve_with_all_properties,
+				remove_property,
+				remove_properties,
+				remove_all_properties,
+				find_any,
+				find_all,
+				add_index,
+				list_indexes,
+				remove_index,
+				_get_allowed_object_types,
+				find_any_name_binding,
+				private28,
+				_get_allowed_property_types,
+				private30,
+				_get_allowed_property_names,
+				private32,
+				_get_shared_property_names,
+				private34,
+				_get_shared_property_types,
+				private36;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+};
+#endif /* xnaming_idl */

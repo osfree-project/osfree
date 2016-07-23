@@ -5,7 +5,7 @@
 #
 
 PROJ = critstrs
-DESC = AWK language interpreter
+DESC = Critical Error Strings compiler
 srcfiles = $(p)critstrs$(e)
 ADD_COPT = -i=..$(SEP)include
 TARGETS = $(PATH)$(PROJ).exe

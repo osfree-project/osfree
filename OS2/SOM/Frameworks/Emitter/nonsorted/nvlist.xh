@@ -1,0 +1,795 @@
+/* generated from nvlist.idl */
+/* internal conditional is SOM_Module_nvlist_Source */
+#ifndef SOM_Module_nvlist_Header_xh
+	#define SOM_Module_nvlist_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	#include <somdtype.xh>
+	#include <containd.xh>
+	class NVList;
+	#ifndef _IDL_SEQUENCE_NVList_defined
+		#define _IDL_SEQUENCE_NVList_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(NVList * ,sequence(NVList));
+	#endif /* _IDL_SEQUENCE_NVList_defined */
+#ifndef NVList_API
+#define NVList_API
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_add_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags);
+		#pragma linkage(somTP_NVList_add_item,system)
+		typedef somTP_NVList_add_item *somTD_NVList_add_item;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_add_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_free)(
+			NVList * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_NVList_free,system)
+		typedef somTP_NVList_free *somTD_NVList_free;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_free)(
+			NVList * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_free_memory)(
+			NVList * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_NVList_free_memory,system)
+		typedef somTP_NVList_free_memory *somTD_NVList_free_memory;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_free_memory)(
+			NVList * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_get_count)(
+			NVList * somSelf,
+			Environment *ev,
+			/* out */ long *count);
+		#pragma linkage(somTP_NVList_get_count,system)
+		typedef somTP_NVList_get_count *somTD_NVList_get_count;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_get_count)(
+			NVList * somSelf,
+			Environment *ev,
+			/* out */ long *count);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_set_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ long item_number,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags);
+		#pragma linkage(somTP_NVList_set_item,system)
+		typedef somTP_NVList_set_item *somTD_NVList_set_item;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_set_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ long item_number,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_NVList_get_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ long item_number,
+			/* out */ Identifier *item_name,
+			/* out */ TypeCode *item_type,
+			/* out */ void **value,
+			/* out */ long *value_len,
+			/* out */ Flags *item_flags);
+		#pragma linkage(somTP_NVList_get_item,system)
+		typedef somTP_NVList_get_item *somTD_NVList_get_item;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_NVList_get_item)(
+			NVList * somSelf,
+			Environment *ev,
+			/* in */ long item_number,
+			/* out */ Identifier *item_name,
+			/* out */ TypeCode *item_type,
+			/* out */ void **value,
+			/* out */ long *value_len,
+			/* out */ Flags *item_flags);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somInit)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somInit,system)
+		typedef somTP_NVList_somInit *somTD_NVList_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somInit)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somUninit)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somUninit,system)
+		typedef somTP_NVList_somUninit *somTD_NVList_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somUninit)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somFree)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somFree,system)
+		typedef somTP_NVList_somFree *somTD_NVList_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somFree)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_NVList_somGetClass)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somGetClass,system)
+		typedef somTP_NVList_somGetClass *somTD_NVList_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_NVList_somGetClass)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_NVList_somGetClassName)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somGetClassName,system)
+		typedef somTP_NVList_somGetClassName *somTD_NVList_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_NVList_somGetClassName)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_NVList_somGetSize)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somGetSize,system)
+		typedef somTP_NVList_somGetSize *somTD_NVList_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_NVList_somGetSize)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somIsA)(
+			NVList * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_NVList_somIsA,system)
+		typedef somTP_NVList_somIsA *somTD_NVList_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somIsA)(
+			NVList * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somIsInstanceOf)(
+			NVList * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_NVList_somIsInstanceOf,system)
+		typedef somTP_NVList_somIsInstanceOf *somTD_NVList_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somIsInstanceOf)(
+			NVList * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somRespondsTo)(
+			NVList * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_NVList_somRespondsTo,system)
+		typedef somTP_NVList_somRespondsTo *somTD_NVList_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somRespondsTo)(
+			NVList * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somDispatch)(
+			NVList * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_NVList_somDispatch,system)
+		typedef somTP_NVList_somDispatch *somTD_NVList_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somDispatch)(
+			NVList * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somClassDispatch)(
+			NVList * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_NVList_somClassDispatch,system)
+		typedef somTP_NVList_somClassDispatch *somTD_NVList_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somClassDispatch)(
+			NVList * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somCastObj)(
+			NVList * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_NVList_somCastObj,system)
+		typedef somTP_NVList_somCastObj *somTD_NVList_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somCastObj)(
+			NVList * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_NVList_somResetObj)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somResetObj,system)
+		typedef somTP_NVList_somResetObj *somTD_NVList_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_NVList_somResetObj)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_NVList_somPrintSelf)(
+			NVList * somSelf);
+		#pragma linkage(somTP_NVList_somPrintSelf,system)
+		typedef somTP_NVList_somPrintSelf *somTD_NVList_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_NVList_somPrintSelf)(
+			NVList * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDumpSelf)(
+			NVList * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_NVList_somDumpSelf,system)
+		typedef somTP_NVList_somDumpSelf *somTD_NVList_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDumpSelf)(
+			NVList * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDumpSelfInt)(
+			NVList * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_NVList_somDumpSelfInt,system)
+		typedef somTP_NVList_somDumpSelfInt *somTD_NVList_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDumpSelfInt)(
+			NVList * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDefaultInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_NVList_somDefaultInit,system)
+		typedef somTP_NVList_somDefaultInit *somTD_NVList_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDefaultInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDefaultCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultCopyInit,system)
+		typedef somTP_NVList_somDefaultCopyInit *somTD_NVList_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDefaultCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDefaultConstCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultConstCopyInit,system)
+		typedef somTP_NVList_somDefaultConstCopyInit *somTD_NVList_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDefaultConstCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDefaultVCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultVCopyInit,system)
+		typedef somTP_NVList_somDefaultVCopyInit *somTD_NVList_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDefaultVCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDefaultConstVCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultConstVCopyInit,system)
+		typedef somTP_NVList_somDefaultConstVCopyInit *somTD_NVList_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDefaultConstVCopyInit)(
+			NVList * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_NVList_somDefaultAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultAssign,system)
+		typedef somTP_NVList_somDefaultAssign *somTD_NVList_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_NVList_somDefaultAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_NVList_somDefaultConstAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultConstAssign,system)
+		typedef somTP_NVList_somDefaultConstAssign *somTD_NVList_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_NVList_somDefaultConstAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_NVList_somDefaultVAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultVAssign,system)
+		typedef somTP_NVList_somDefaultVAssign *somTD_NVList_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_NVList_somDefaultVAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_NVList_somDefaultConstVAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_NVList_somDefaultConstVAssign,system)
+		typedef somTP_NVList_somDefaultConstVAssign *somTD_NVList_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_NVList_somDefaultConstVAssign)(
+			NVList * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_NVList_somDestruct)(
+			NVList * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_NVList_somDestruct,system)
+		typedef somTP_NVList_somDestruct *somTD_NVList_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_NVList_somDestruct)(
+			NVList * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef NVList_MajorVersion
+		#define NVList_MajorVersion   2
+	#endif /* NVList_MajorVersion */
+	#ifndef NVList_MinorVersion
+		#define NVList_MinorVersion   1
+	#endif /* NVList_MinorVersion */
+	typedef struct NVListClassDataStructure
+	{
+		SOMClass * classObject;
+		somMToken add_item;
+		somMToken remove_item;
+		somMToken free;
+		somMToken free_memory;
+		somMToken get_count;
+		somMToken set_item;
+		somMToken get_item;
+		somMToken get_item_by_name;
+	} NVListClassDataStructure;
+	typedef struct NVListCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} NVListCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_nvlist_Source) || defined(NVList_Class_Source)
+			SOMEXTERN struct NVListClassDataStructure _NVListClassData;
+			#ifndef NVListClassData
+				#define NVListClassData    _NVListClassData
+			#endif /* NVListClassData */
+		#else
+			SOMEXTERN struct NVListClassDataStructure * SOMLINK resolve_NVListClassData(void);
+			#ifndef NVListClassData
+				#define NVListClassData    (*(resolve_NVListClassData()))
+			#endif /* NVListClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_nvlist_Source) || defined(NVList_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_nvlist_Source || NVList_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_nvlist_Source || NVList_Class_Source */
+		struct NVListClassDataStructure SOMDLINK NVListClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_nvlist_Source) || defined(NVList_Class_Source)
+			SOMEXTERN struct NVListCClassDataStructure _NVListCClassData;
+			#ifndef NVListCClassData
+				#define NVListCClassData    _NVListCClassData
+			#endif /* NVListCClassData */
+		#else
+			SOMEXTERN struct NVListCClassDataStructure * SOMLINK resolve_NVListCClassData(void);
+			#ifndef NVListCClassData
+				#define NVListCClassData    (*(resolve_NVListCClassData()))
+			#endif /* NVListCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_nvlist_Source) || defined(NVList_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_nvlist_Source || NVList_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_nvlist_Source || NVList_Class_Source */
+		struct NVListCClassDataStructure SOMDLINK NVListCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_nvlist_Source) || defined(NVList_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_nvlist_Source || NVList_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_nvlist_Source || NVList_Class_Source */
+	SOMClass * SOMLINK NVListNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_NVList (NVListClassData.classObject)
+	#ifndef SOMGD_NVList
+		#if (defined(_NVList) || defined(__NVList))
+			#undef _NVList
+			#undef __NVList
+			#define SOMGD_NVList 1
+		#else
+			#define _NVList _SOMCLASS_NVList
+		#endif /* _NVList */
+	#endif /* SOMGD_NVList */
+	#define NVList_classObj _SOMCLASS_NVList
+	#define _SOMMTOKEN_NVList(method) ((somMToken)(NVListClassData.method))
+#endif /* NVList_API */
+
+	class NVList : public SOMObject
+	{
+	protected:
+		NVList(somMethodTab & mtab)
+			: SOMObject(mtab)
+		{}
+	public:
+
+		inline ORBStatus add_item(
+			Environment *ev,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags)
+		{
+			return SOM_Resolve((void *)this,NVList,add_item)
+					((NVList *)(void *)this,ev,item_name,item_type,value,value_len,item_flags);
+		};
+
+		inline ORBStatus free(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,NVList,free)
+					((NVList *)(void *)this,ev);
+		};
+
+		inline ORBStatus free_memory(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,NVList,free_memory)
+					((NVList *)(void *)this,ev);
+		};
+
+		inline ORBStatus get_count(
+			Environment *ev,
+			/* out */ long *count)
+		{
+			return SOM_Resolve((void *)this,NVList,get_count)
+					((NVList *)(void *)this,ev,count);
+		};
+
+		inline ORBStatus set_item(
+			Environment *ev,
+			/* in */ long item_number,
+			/* in */ Identifier item_name,
+			/* in */ TypeCode item_type,
+			/* in */ void *value,
+			/* in */ long value_len,
+			/* in */ Flags item_flags)
+		{
+			return SOM_Resolve((void *)this,NVList,set_item)
+					((NVList *)(void *)this,ev,item_number,item_name,item_type,value,value_len,item_flags);
+		};
+
+		inline ORBStatus get_item(
+			Environment *ev,
+			/* in */ long item_number,
+			/* out */ Identifier *item_name,
+			/* out */ TypeCode *item_type,
+			/* out */ void **value,
+			/* out */ long *value_len,
+			/* out */ Flags *item_flags)
+		{
+			return SOM_Resolve((void *)this,NVList,get_item)
+					((NVList *)(void *)this,ev,item_number,item_name,item_type,value,value_len,item_flags);
+		};
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!NVListClassData.classObject)
+			{ NVListNewClass(NVList_MajorVersion,NVList_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)NVListClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)NVListClassData.classObject);
+		};
+		NVList()
+			: SOMObject(*(NVListCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==NVListCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		NVList(NVList *fromObj)
+			: SOMObject(*(NVListCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==NVListCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+	};
+#endif /* SOM_Module_nvlist_Header_xh */

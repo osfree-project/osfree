@@ -1,0 +1,282 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: unotypes.idl 3914 2013-01-18 22:11:38Z rogerb $
+ */
+
+#ifndef unotypes_idl
+#define unotypes_idl
+#include <somobj.idl>
+#include <containd.idl>
+#include <somdtype.idl>
+interface Principal;
+module IOP
+{
+	typedef unsigned long ProfileId;
+	const ProfileId TAG_INTERNET_IOP=0;
+	const ProfileId TAG_MULTIPLE_COMPONENTS=1;
+	struct TaggedProfile
+	{
+		ProfileId tag;
+		sequence<octet> profile_data;
+	};
+	struct IOR
+	{
+		string type_id;
+		sequence<TaggedProfile> profiles;
+	};
+	typedef unsigned long ComponentId;
+	const ComponentId TAG_ORB_TYPE=0;
+	const ComponentId TAG_CODE_SETS=1;
+	const ComponentId TAG_SEC_NAME=14;
+	const ComponentId TAG_ASSOCIATION_OPTIONS=13;
+	const ComponentId TAG_GENERIC_SEC_MECH=12;
+	struct TaggedComponent
+	{
+		ComponentId tag;
+		sequence<octet> component_data;
+	};
+	typedef sequence<TaggedComponent> MultipleComponentProfile;
+	typedef unsigned long ServiceId;
+	struct ServiceContext
+	{
+		ServiceId context_id;
+		sequence<octet> context_data;
+	};
+	typedef sequence<ServiceContext> ServiceContextList;
+	const ServiceId TransactionService=0;
+	const ServiceId CodeSets=1;
+
+	typedef sequence<octet> OctetSeq;
+
+	typedef short EncodingFormat;
+	const EncodingFormat ENCODING_CDR_ENCAPS = 0;
+	struct Encoding 
+	{
+		EncodingFormat format;
+		octet major_version;
+		octet minor_version;
+	};
+
+	interface Codec: 
+		SOMObject
+	{
+		exception InvalidTypeForEncoding {};
+		exception FormatMismatch {};
+		exception TypeMismatch {};
+		OctetSeq encode (in any data) raises (InvalidTypeForEncoding);
+		any decode (in OctetSeq data) raises (FormatMismatch);
+		OctetSeq encode_value (in any data) raises (InvalidTypeForEncoding);
+		any decode_value (in OctetSeq data,in TypeCode tc) raises (FormatMismatch, TypeMismatch);
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			dllname="somd.dll";
+			releaseorder:
+				encode,decode,encode_value,decode_value,
+				_get_encoding,_set_encoding,
+				_get_c_orb,_set_c_orb;
+		};
+#endif
+	};
+
+	interface CodecFactory :
+		SOMObject
+	{
+		exception UnknownEncoding {};
+		Codec create_codec (in Encoding enc) raises (UnknownEncoding);
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			dllname="somd.dll";
+			releaseorder:
+				create_codec,
+				_get_c_orb,
+				_set_c_orb;
+		};
+#endif
+	};
+};
+
+
+
+module GIOP
+{
+	enum MsgType {Request,Reply,CancelRequest,LocateRequest,LocateReply,CloseConnection,MessageError};
+	struct Version
+	{
+		char major;
+		char minor;
+	};
+	struct MessageHeader
+	{
+		char magic[4];
+		Version protocol_version;
+		octet flags;
+		octet message_type;
+		unsigned long message_size;
+	};
+	struct RequestHeader_1_0
+	{
+		IOP::ServiceContextList service_context;
+		unsigned long request_id;
+		boolean response_expected;
+		sequence<octet> object_key;
+		string operation;
+		Principal requesting_principal;
+	};
+
+	typedef short AddressingDisposition;
+	const short KeyAddr=0;
+	const short ProfileAddr=1;
+	const short ReferenceAddr=2;
+
+	struct IORAddressingInfo
+	{
+		unsigned long selected_profile_index;
+		IOP::IOR ior;
+	};
+
+	union TargetAddress switch(AddressingDisposition)
+	{
+		case KeyAddr: sequence<octet> object_key;
+		case ProfileAddr: IOP::TaggedProfile profile;
+		case ReferenceAddr: IORAddressingInfo ior;
+	};
+
+	struct RequestHeader_1_2
+	{
+		unsigned long request_id;
+		octet response_flags;
+		octet reserved[3];
+		TargetAddress target;
+		string operation;
+		IOP::ServiceContextList service_context;
+	};
+
+	enum ReplyStatusType_1_0
+	{	
+		NO_EXCEPTION_1_0,
+		USER_EXCEPTION_1_0,
+		SYSTEM_EXCEPTION_1_0,
+		LOCATION_FORWARD_1_0
+	};
+
+	enum ReplyStatusType_1_2
+	{
+		NO_EXCEPTION,
+		USER_EXCEPTION,
+		SYSTEM_EXCEPTION,
+		LOCATION_FORWARD,
+		LOCATION_FORWARD_PERM,
+		NEEDS_ADDRESSING_MODE
+	};
+
+	struct ReplyHeader_1_0
+	{
+		IOP::ServiceContextList service_context;
+		unsigned long request_id;
+		ReplyStatusType_1_0 reply_status;
+	};
+
+	struct ReplyHeader_1_2
+	{
+		unsigned long request_id;
+		ReplyStatusType_1_2 reply_status;
+		IOP::ServiceContextList service_context;
+	};
+
+	struct CancelRequestHeader
+	{
+		unsigned long request_id;
+	};
+
+	struct LocateRequestHeader
+	{
+		unsigned long request_id;
+		sequence<octet> object_key;
+	};
+
+	enum LocateStatusType_1_0
+	{
+		UNKNOWN_OBJECT_1_0,
+		OBJECT_HERE_1_0,
+		OBJECT_FORWARD_1_0
+	};
+	enum LocateStatusType_1_2 
+	{
+		UNKNOWN_OBJECT,
+		OBJECT_HERE,
+		OBJECT_FORWARD,
+		OBJECT_FORWARD_PERM,
+		LOC_SYSTEM_EXCEPTION,
+		LOC_NEEDS_ADDRESSING_MODE	
+	};
+
+	struct LocateReplyHeader_1_0
+	{
+		unsigned long request_id;
+		LocateStatusType_1_0 locate_status;
+	};
+
+	struct LocateReplyHeader_1_2
+	{
+		unsigned long request_id;
+		LocateStatusType_1_2 locate_status;
+	};
+};
+module IIOP
+{
+	struct Version
+	{
+		char major;
+		char minor;
+	};
+	struct ProfileBody_1_0
+	{
+		Version iiop_version;
+		string host;
+		unsigned short port;
+		sequence<octet> object_key;
+	};
+	struct ProfileBody_1_1
+	{
+		Version iiop_version;
+		string host;
+		unsigned short port;
+		sequence<octet> object_key;
+		sequence<IOP::TaggedComponent> components;
+	};
+	struct SOMDServiceContext
+	{
+		IOP::ServiceId context_tag;
+		sequence<octet> context_data;
+		somToken context_body;
+	};
+	typedef SOMDServiceContext SOMDServiceContexts;
+	typedef sequence<SOMDServiceContexts> SOMDServiceContextList;
+};
+#endif /* unotypes_idl */

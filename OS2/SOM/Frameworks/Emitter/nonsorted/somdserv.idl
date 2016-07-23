@@ -1,0 +1,74 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: somdserv.idl 3914 2013-01-18 22:11:38Z rogerb $
+ */
+
+#ifndef somdserv_idl
+#define somdserv_idl
+#include <somobj.idl>
+#include <somdtype.idl>
+#include <snglicls.idl>
+#include <xnaming.idl>
+interface SOMDObject;
+interface SOMOA;
+interface ORB;
+interface ImplementationDef;
+interface SOMDServer :
+	SOMObject
+{
+	SOMDObject somdRefFromSOMObj(in SOMObject somobj);
+	SOMObject somdSOMObjFromRef(in SOMDObject objref);
+	void somdDispatchMethod(in SOMObject somobj,out somToken retValue,in somId methodId,in va_list ap);
+	SOMObject somdCreateObj(in string objclass,in string hints);
+	void somdDeleteObj(in SOMObject somobj);
+	SOMClass somdGetClassObj(in string objclass);
+	boolean somdObjReferencesCached();
+	SOMObject somdCreateFactory(in string className,in ExtendedNaming::PropertyList props);
+	readonly attribute ImplementationDef ImplDefObject;
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			somdSOMObjFromRef,
+			somdRefFromSOMObj,
+			somdCreateObj,
+			somdDeleteObj,
+			somdGetClassObj,
+			somdDispatchMethod,
+			somdObjReferencesCached,
+			private7,
+			private8,
+			somdCreateFactory,
+			_get_ImplDefObject,
+			_set_ImplDefObject,
+			somdDispatchArgs;
+		callstyle = idl;
+/*		metaclass = SOMMSingleInstance; */
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somdserv_idl */

@@ -1,0 +1,64 @@
+//
+//   COMPONENT_NAME: some
+//
+//   ORIGINS: 27
+//
+//
+//    25H7912  (C)  COPYRIGHT International Business Machines Corp. 1992,1994,1996 
+//   All Rights Reserved
+//   Licensed Materials - Property of IBM
+//   US Government Users Restricted Rights - Use, duplication or
+//   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+//
+//#  @(#) somc/scstruct.idl 2.9 5/9/96 15:31:28 [12/22/96 21:12:12]
+
+
+#ifndef scstruct_idl
+#define scstruct_idl
+
+#include <scentry.idl>
+
+interface SOMTTypedefEntryC;
+interface SOMTClassEntryC;
+
+interface SOMTStructEntryC : SOMTEntryC
+{
+  SOMTTypedefEntryC somtGetFirstMember();
+  // The first member of the struct.
+  SOMTTypedefEntryC somtGetNextMember();
+  // The next member of the struct, relative to the previous call
+  // to this method or somtGetFirstMember.
+
+  readonly attribute SOMTClassEntryC somtStructClass;
+  // The class in which the structure was defined.
+
+  readonly attribute boolean somtIsException;
+  // Whether the structure is really an exception.
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somtStructClass, _get_somtIsException,
+		somtGetFirstMember, somtGetNextMember;
+  
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scstruct;
+#ifdef _WIN32
+    dllname = "some.dll";
+#endif
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    //somDumpSelfInt: override;
+    //somtSetSymbolsOnEntry: override;
+  
+    //# Attribute Modifiers
+    somtIsException: nodata;
+    somtStructClass: nodata;
+
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scstruct_idl */

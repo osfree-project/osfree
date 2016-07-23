@@ -1,0 +1,51 @@
+//
+//   COMPONENT_NAME: some
+//
+//   ORIGINS: 27
+//
+//
+//    25H7912  (C)  COPYRIGHT International Business Machines Corp. 1992,1994,1996 
+//   All Rights Reserved
+//   Licensed Materials - Property of IBM
+//   US Government Users Restricted Rights - Use, duplication or
+//   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+//
+//#  @(#) somc/scdata.idl 2.8 5/9/96 15:31:05 [12/22/96 21:12:05]
+
+
+#ifndef scdata_idl
+#define scdata_idl
+
+#include <sccommon.idl>
+interface SOMTDataEntryC : SOMTCommonEntryC
+{
+  readonly attribute boolean somtIsSelfRef;
+  // Whether a declarator of a struct is self-referential.
+
+#ifdef __SOMIDL__
+
+  implementation {
+
+    releaseorder: _get_somtIsSelfRef;
+
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scdata;
+#ifdef _WIN32
+    dllname = "some.dll";
+#endif
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    //somtSetSymbolsOnEntry: override;
+    //somDumpSelfInt: override;
+  
+    //# attribute modifiers
+    somtIsSelfRef: nodata;
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scdata_idl */

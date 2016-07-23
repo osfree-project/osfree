@@ -1,0 +1,1034 @@
+/* generated from implrep.idl */
+/* internal conditional is SOM_Module_implrep_Source */
+#ifndef SOM_Module_implrep_Header_xh
+	#define SOM_Module_implrep_Header_xh 1
+	#include <som.xh>
+	#include <somdtype.xh>
+	#include <somobj.xh>
+	#include <containd.xh>
+	#include <impldef.xh>
+	#include <omgestio.xh>
+	#include <naming.xh>
+	#include <omgidobj.xh>
+	class ImplRepository;
+	#ifndef _IDL_SEQUENCE_ImplRepository_defined
+		#define _IDL_SEQUENCE_ImplRepository_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(ImplRepository * ,sequence(ImplRepository));
+	#endif /* _IDL_SEQUENCE_ImplRepository_defined */
+#ifndef ImplRepository_API
+#define ImplRepository_API
+	typedef struct ImplRepository_PV
+	{
+		string name;
+		string value;
+	} ImplRepository_PV;
+	#ifndef _IDL_SEQUENCE_ImplRepository_PV_defined
+		#define _IDL_SEQUENCE_ImplRepository_PV_defined
+		SOM_SEQUENCE_TYPEDEF(ImplRepository_PV);
+	#endif /* _IDL_SEQUENCE_ImplRepository_PV_defined */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_PV
+			#if defined(PV)
+				#undef PV
+				#define SOMGD_PV
+			#else
+				#define PV ImplRepository_PV
+			#endif
+		#endif /* SOMGD_PV */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef _IDL_SEQUENCE_PV_defined
+			#define _IDL_SEQUENCE_PV_defined
+			#define _IDL_SEQUENCE_PV _IDL_SEQUENCE_ImplRepository_PV
+		#endif /* _IDL_SEQUENCE_PV_defined */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	typedef ImplRepository_PV ImplRepository_PropertyValue;
+	typedef _IDL_SEQUENCE_ImplRepository_PV ImplRepository_PVList;
+	#ifndef _IDL_SEQUENCE_ImplRepository_PVList_defined
+		#define _IDL_SEQUENCE_ImplRepository_PVList_defined
+		SOM_SEQUENCE_TYPEDEF(ImplRepository_PVList);
+	#endif /* _IDL_SEQUENCE_ImplRepository_PVList_defined */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ImplementationDef * (somTP_ImplRepository_find_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+		#pragma linkage(somTP_ImplRepository_find_impldef,system)
+		typedef somTP_ImplRepository_find_impldef *somTD_ImplRepository_find_impldef;
+	#else /* __IBMC__ */
+		typedef ImplementationDef * (SOMLINK * somTD_ImplRepository_find_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ImplementationDef * (somTP_ImplRepository_find_impldef_by_alias)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string alias_name);
+		#pragma linkage(somTP_ImplRepository_find_impldef_by_alias,system)
+		typedef somTP_ImplRepository_find_impldef_by_alias *somTD_ImplRepository_find_impldef_by_alias;
+	#else /* __IBMC__ */
+		typedef ImplementationDef * (SOMLINK * somTD_ImplRepository_find_impldef_by_alias)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string alias_name);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_find_all_aliases)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_string *impl_aliases);
+		#pragma linkage(somTP_ImplRepository_find_all_aliases,system)
+		typedef somTP_ImplRepository_find_all_aliases *somTD_ImplRepository_find_all_aliases;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_find_all_aliases)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_string *impl_aliases);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_find_all_impldefs)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_ImplementationDef *outimpldefs);
+		#pragma linkage(somTP_ImplRepository_find_all_impldefs,system)
+		typedef somTP_ImplRepository_find_all_impldefs *somTD_ImplRepository_find_all_impldefs;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_find_all_impldefs)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_ImplementationDef *outimpldefs);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_add_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplementationDef * impldef);
+		#pragma linkage(somTP_ImplRepository_add_impldef,system)
+		typedef somTP_ImplRepository_add_impldef *somTD_ImplRepository_add_impldef;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_add_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplementationDef * impldef);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_update_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplementationDef * impldef);
+		#pragma linkage(somTP_ImplRepository_update_impldef,system)
+		typedef somTP_ImplRepository_update_impldef *somTD_ImplRepository_update_impldef;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_update_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplementationDef * impldef);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_delete_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+		#pragma linkage(somTP_ImplRepository_delete_impldef,system)
+		typedef somTP_ImplRepository_delete_impldef *somTD_ImplRepository_delete_impldef;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_delete_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef _IDL_SEQUENCE_ImplementationDef (somTP_ImplRepository_find_impldef_by_class)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+		#pragma linkage(somTP_ImplRepository_find_impldef_by_class,system)
+		typedef somTP_ImplRepository_find_impldef_by_class *somTD_ImplRepository_find_impldef_by_class;
+	#else /* __IBMC__ */
+		typedef _IDL_SEQUENCE_ImplementationDef (SOMLINK * somTD_ImplRepository_find_impldef_by_class)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_add_class_to_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname);
+		#pragma linkage(somTP_ImplRepository_add_class_to_impldef,system)
+		typedef somTP_ImplRepository_add_class_to_impldef *somTD_ImplRepository_add_class_to_impldef;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_add_class_to_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_remove_class_from_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname);
+		#pragma linkage(somTP_ImplRepository_remove_class_from_impldef,system)
+		typedef somTP_ImplRepository_remove_class_from_impldef *somTD_ImplRepository_remove_class_from_impldef;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_remove_class_from_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_remove_class_from_all)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+		#pragma linkage(somTP_ImplRepository_remove_class_from_all,system)
+		typedef somTP_ImplRepository_remove_class_from_all *somTD_ImplRepository_remove_class_from_all;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_remove_class_from_all)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef _IDL_SEQUENCE_string (somTP_ImplRepository_find_classes_by_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+		#pragma linkage(somTP_ImplRepository_find_classes_by_impldef,system)
+		typedef somTP_ImplRepository_find_classes_by_impldef *somTD_ImplRepository_find_classes_by_impldef;
+	#else /* __IBMC__ */
+		typedef _IDL_SEQUENCE_string (SOMLINK * somTD_ImplRepository_find_classes_by_impldef)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_add_class_to_all)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+		#pragma linkage(somTP_ImplRepository_add_class_to_all,system)
+		typedef somTP_ImplRepository_add_class_to_all *somTD_ImplRepository_add_class_to_all;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_add_class_to_all)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ string classname);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_ImplRepository_add_class_with_properties)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname,
+			/* in */ ImplRepository_PVList *pvl);
+		#pragma linkage(somTP_ImplRepository_add_class_with_properties,system)
+		typedef somTP_ImplRepository_add_class_with_properties *somTD_ImplRepository_add_class_with_properties;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_ImplRepository_add_class_with_properties)(
+			ImplRepository * somSelf,
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname,
+			/* in */ ImplRepository_PVList *pvl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somInit)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somInit,system)
+		typedef somTP_ImplRepository_somInit *somTD_ImplRepository_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somInit)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somUninit)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somUninit,system)
+		typedef somTP_ImplRepository_somUninit *somTD_ImplRepository_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somUninit)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somFree)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somFree,system)
+		typedef somTP_ImplRepository_somFree *somTD_ImplRepository_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somFree)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_ImplRepository_somGetClass)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somGetClass,system)
+		typedef somTP_ImplRepository_somGetClass *somTD_ImplRepository_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_ImplRepository_somGetClass)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_ImplRepository_somGetClassName)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somGetClassName,system)
+		typedef somTP_ImplRepository_somGetClassName *somTD_ImplRepository_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_ImplRepository_somGetClassName)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_ImplRepository_somGetSize)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somGetSize,system)
+		typedef somTP_ImplRepository_somGetSize *somTD_ImplRepository_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_ImplRepository_somGetSize)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somIsA)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_ImplRepository_somIsA,system)
+		typedef somTP_ImplRepository_somIsA *somTD_ImplRepository_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somIsA)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somIsInstanceOf)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_ImplRepository_somIsInstanceOf,system)
+		typedef somTP_ImplRepository_somIsInstanceOf *somTD_ImplRepository_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somIsInstanceOf)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somRespondsTo)(
+			ImplRepository * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_ImplRepository_somRespondsTo,system)
+		typedef somTP_ImplRepository_somRespondsTo *somTD_ImplRepository_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somRespondsTo)(
+			ImplRepository * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somDispatch)(
+			ImplRepository * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_ImplRepository_somDispatch,system)
+		typedef somTP_ImplRepository_somDispatch *somTD_ImplRepository_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somDispatch)(
+			ImplRepository * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somClassDispatch)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_ImplRepository_somClassDispatch,system)
+		typedef somTP_ImplRepository_somClassDispatch *somTD_ImplRepository_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somClassDispatch)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somCastObj)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_ImplRepository_somCastObj,system)
+		typedef somTP_ImplRepository_somCastObj *somTD_ImplRepository_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somCastObj)(
+			ImplRepository * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_ImplRepository_somResetObj)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somResetObj,system)
+		typedef somTP_ImplRepository_somResetObj *somTD_ImplRepository_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_ImplRepository_somResetObj)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_ImplRepository_somPrintSelf)(
+			ImplRepository * somSelf);
+		#pragma linkage(somTP_ImplRepository_somPrintSelf,system)
+		typedef somTP_ImplRepository_somPrintSelf *somTD_ImplRepository_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_ImplRepository_somPrintSelf)(
+			ImplRepository * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDumpSelf)(
+			ImplRepository * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_ImplRepository_somDumpSelf,system)
+		typedef somTP_ImplRepository_somDumpSelf *somTD_ImplRepository_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDumpSelf)(
+			ImplRepository * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDumpSelfInt)(
+			ImplRepository * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_ImplRepository_somDumpSelfInt,system)
+		typedef somTP_ImplRepository_somDumpSelfInt *somTD_ImplRepository_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDumpSelfInt)(
+			ImplRepository * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDefaultInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_ImplRepository_somDefaultInit,system)
+		typedef somTP_ImplRepository_somDefaultInit *somTD_ImplRepository_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDefaultInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDefaultCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultCopyInit,system)
+		typedef somTP_ImplRepository_somDefaultCopyInit *somTD_ImplRepository_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDefaultCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDefaultConstCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultConstCopyInit,system)
+		typedef somTP_ImplRepository_somDefaultConstCopyInit *somTD_ImplRepository_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDefaultConstCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDefaultVCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultVCopyInit,system)
+		typedef somTP_ImplRepository_somDefaultVCopyInit *somTD_ImplRepository_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDefaultVCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDefaultConstVCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultConstVCopyInit,system)
+		typedef somTP_ImplRepository_somDefaultConstVCopyInit *somTD_ImplRepository_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDefaultConstVCopyInit)(
+			ImplRepository * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_ImplRepository_somDefaultAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultAssign,system)
+		typedef somTP_ImplRepository_somDefaultAssign *somTD_ImplRepository_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_ImplRepository_somDefaultAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_ImplRepository_somDefaultConstAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultConstAssign,system)
+		typedef somTP_ImplRepository_somDefaultConstAssign *somTD_ImplRepository_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_ImplRepository_somDefaultConstAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_ImplRepository_somDefaultVAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultVAssign,system)
+		typedef somTP_ImplRepository_somDefaultVAssign *somTD_ImplRepository_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_ImplRepository_somDefaultVAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_ImplRepository_somDefaultConstVAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_ImplRepository_somDefaultConstVAssign,system)
+		typedef somTP_ImplRepository_somDefaultConstVAssign *somTD_ImplRepository_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_ImplRepository_somDefaultConstVAssign)(
+			ImplRepository * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_ImplRepository_somDestruct)(
+			ImplRepository * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_ImplRepository_somDestruct,system)
+		typedef somTP_ImplRepository_somDestruct *somTD_ImplRepository_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_ImplRepository_somDestruct)(
+			ImplRepository * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef ImplRepository_MajorVersion
+		#define ImplRepository_MajorVersion   2
+	#endif /* ImplRepository_MajorVersion */
+	#ifndef ImplRepository_MinorVersion
+		#define ImplRepository_MinorVersion   2
+	#endif /* ImplRepository_MinorVersion */
+	typedef struct ImplRepositoryClassDataStructure
+	{
+		SOMClass * classObject;
+		somMToken find_impldef;
+		somMToken find_impldef_by_alias;
+		somMToken private2;
+		somMToken private3;
+		somMToken find_impldef_by_class;
+		somMToken add_impldef;
+		somMToken update_impldef;
+		somMToken delete_impldef;
+		somMToken add_class_to_impldef;
+		somMToken remove_class_from_impldef;
+		somMToken remove_class_from_all;
+		somMToken find_classes_by_impldef;
+		somMToken private12;
+		somMToken private13;
+		somMToken private14;
+		somMToken private15;
+		somMToken find_all_impldefs;
+		somMToken find_all_aliases;
+		somMToken add_class_to_all;
+		somMToken add_class_with_properties;
+	} ImplRepositoryClassDataStructure;
+	typedef struct ImplRepositoryCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} ImplRepositoryCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_implrep_Source) || defined(ImplRepository_Class_Source)
+			SOMEXTERN struct ImplRepositoryClassDataStructure _ImplRepositoryClassData;
+			#ifndef ImplRepositoryClassData
+				#define ImplRepositoryClassData    _ImplRepositoryClassData
+			#endif /* ImplRepositoryClassData */
+		#else
+			SOMEXTERN struct ImplRepositoryClassDataStructure * SOMLINK resolve_ImplRepositoryClassData(void);
+			#ifndef ImplRepositoryClassData
+				#define ImplRepositoryClassData    (*(resolve_ImplRepositoryClassData()))
+			#endif /* ImplRepositoryClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_implrep_Source) || defined(ImplRepository_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+		struct ImplRepositoryClassDataStructure SOMDLINK ImplRepositoryClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_implrep_Source) || defined(ImplRepository_Class_Source)
+			SOMEXTERN struct ImplRepositoryCClassDataStructure _ImplRepositoryCClassData;
+			#ifndef ImplRepositoryCClassData
+				#define ImplRepositoryCClassData    _ImplRepositoryCClassData
+			#endif /* ImplRepositoryCClassData */
+		#else
+			SOMEXTERN struct ImplRepositoryCClassDataStructure * SOMLINK resolve_ImplRepositoryCClassData(void);
+			#ifndef ImplRepositoryCClassData
+				#define ImplRepositoryCClassData    (*(resolve_ImplRepositoryCClassData()))
+			#endif /* ImplRepositoryCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_implrep_Source) || defined(ImplRepository_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+		struct ImplRepositoryCClassDataStructure SOMDLINK ImplRepositoryCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_implrep_Source) || defined(ImplRepository_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_implrep_Source || ImplRepository_Class_Source */
+	SOMClass * SOMLINK ImplRepositoryNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_ImplRepository (ImplRepositoryClassData.classObject)
+	#ifndef SOMGD_ImplRepository
+		#if (defined(_ImplRepository) || defined(__ImplRepository))
+			#undef _ImplRepository
+			#undef __ImplRepository
+			#define SOMGD_ImplRepository 1
+		#else
+			#define _ImplRepository _SOMCLASS_ImplRepository
+		#endif /* _ImplRepository */
+	#endif /* SOMGD_ImplRepository */
+	#define ImplRepository_classObj _SOMCLASS_ImplRepository
+	#define _SOMMTOKEN_ImplRepository(method) ((somMToken)(ImplRepositoryClassData.method))
+#endif /* ImplRepository_API */
+
+	class ImplRepository : public SOMObject
+	{
+	protected:
+		ImplRepository(somMethodTab & mtab)
+			: SOMObject(mtab)
+		{}
+	public:
+
+		inline ImplementationDef * find_impldef(
+			Environment *ev,
+			/* in */ ImplId implid)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_impldef)
+					((ImplRepository *)(void *)this,ev,implid);
+		};
+
+		inline ImplementationDef * find_impldef_by_alias(
+			Environment *ev,
+			/* in */ string alias_name)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_impldef_by_alias)
+					((ImplRepository *)(void *)this,ev,alias_name);
+		};
+
+		inline ORBStatus find_all_aliases(
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_string *impl_aliases)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_all_aliases)
+					((ImplRepository *)(void *)this,ev,impl_aliases);
+		};
+
+		inline ORBStatus find_all_impldefs(
+			Environment *ev,
+			/* out */ _IDL_SEQUENCE_ImplementationDef *outimpldefs)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_all_impldefs)
+					((ImplRepository *)(void *)this,ev,outimpldefs);
+		};
+
+		inline ORBStatus add_impldef(
+			Environment *ev,
+			/* in */ ImplementationDef * impldef)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,add_impldef)
+					((ImplRepository *)(void *)this,ev,impldef);
+		};
+
+		inline ORBStatus update_impldef(
+			Environment *ev,
+			/* in */ ImplementationDef * impldef)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,update_impldef)
+					((ImplRepository *)(void *)this,ev,impldef);
+		};
+
+		inline ORBStatus delete_impldef(
+			Environment *ev,
+			/* in */ ImplId implid)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,delete_impldef)
+					((ImplRepository *)(void *)this,ev,implid);
+		};
+
+		inline _IDL_SEQUENCE_ImplementationDef find_impldef_by_class(
+			Environment *ev,
+			/* in */ string classname)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_impldef_by_class)
+					((ImplRepository *)(void *)this,ev,classname);
+		};
+
+		inline void add_class_to_impldef(
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname)
+		{
+			SOM_Resolve((void *)this,ImplRepository,add_class_to_impldef)
+					((ImplRepository *)(void *)this,ev,implid,classname);
+		};
+
+		inline void remove_class_from_impldef(
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname)
+		{
+			SOM_Resolve((void *)this,ImplRepository,remove_class_from_impldef)
+					((ImplRepository *)(void *)this,ev,implid,classname);
+		};
+
+		inline void remove_class_from_all(
+			Environment *ev,
+			/* in */ string classname)
+		{
+			SOM_Resolve((void *)this,ImplRepository,remove_class_from_all)
+					((ImplRepository *)(void *)this,ev,classname);
+		};
+
+		inline _IDL_SEQUENCE_string find_classes_by_impldef(
+			Environment *ev,
+			/* in */ ImplId implid)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,find_classes_by_impldef)
+					((ImplRepository *)(void *)this,ev,implid);
+		};
+
+		inline ORBStatus add_class_to_all(
+			Environment *ev,
+			/* in */ string classname)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,add_class_to_all)
+					((ImplRepository *)(void *)this,ev,classname);
+		};
+
+		inline ORBStatus add_class_with_properties(
+			Environment *ev,
+			/* in */ ImplId implid,
+			/* in */ string classname,
+			/* in */ ImplRepository_PVList *pvl)
+		{
+			return SOM_Resolve((void *)this,ImplRepository,add_class_with_properties)
+					((ImplRepository *)(void *)this,ev,implid,classname,pvl);
+		};
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!ImplRepositoryClassData.classObject)
+			{ ImplRepositoryNewClass(ImplRepository_MajorVersion,ImplRepository_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)ImplRepositoryClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)ImplRepositoryClassData.classObject);
+		};
+		ImplRepository()
+			: SOMObject(*(ImplRepositoryCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ImplRepositoryCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		ImplRepository(ImplRepository *fromObj)
+			: SOMObject(*(ImplRepositoryCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ImplRepositoryCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+	};
+#endif /* SOM_Module_implrep_Header_xh */

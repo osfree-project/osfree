@@ -1,0 +1,2295 @@
+/* generated from unotypes.idl */
+/* internal conditional is SOM_Module_unotypes_Source */
+#ifndef SOM_Module_unotypes_Header_xh
+	#define SOM_Module_unotypes_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	#include <containd.xh>
+	#include <somdtype.xh>
+	class Principal;
+	#ifndef _IDL_SEQUENCE_Principal_defined
+		#define _IDL_SEQUENCE_Principal_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(Principal * ,sequence(Principal));
+	#endif /* _IDL_SEQUENCE_Principal_defined */
+		class IOP_Codec;
+		#ifndef _IDL_SEQUENCE_IOP_Codec_defined
+			#define _IDL_SEQUENCE_IOP_Codec_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(IOP_Codec * ,sequence(IOP_Codec));
+		#endif /* _IDL_SEQUENCE_IOP_Codec_defined */
+		class IOP_CodecFactory;
+		#ifndef _IDL_SEQUENCE_IOP_CodecFactory_defined
+			#define _IDL_SEQUENCE_IOP_CodecFactory_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(IOP_CodecFactory * ,sequence(IOP_CodecFactory));
+		#endif /* _IDL_SEQUENCE_IOP_CodecFactory_defined */
+		typedef unsigned long IOP_ProfileId;
+		#ifndef _IDL_SEQUENCE_ulong_defined
+			#define _IDL_SEQUENCE_ulong_defined
+			SOM_SEQUENCE_TYPEDEF_NAME(unsigned long ,sequence(ulong));
+		#endif /* _IDL_SEQUENCE_ulong_defined */
+#ifndef IOP_TAG_INTERNET_IOP
+	#define IOP_TAG_INTERNET_IOP   0UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_INTERNET_IOP
+			#if defined(TAG_INTERNET_IOP)
+				#undef TAG_INTERNET_IOP
+				#define SOMGD_TAG_INTERNET_IOP
+			#else
+				#define TAG_INTERNET_IOP IOP_TAG_INTERNET_IOP
+			#endif
+		#endif /* SOMGD_TAG_INTERNET_IOP */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_INTERNET_IOP */
+#ifndef IOP_TAG_MULTIPLE_COMPONENTS
+	#define IOP_TAG_MULTIPLE_COMPONENTS   1UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_MULTIPLE_COMPONENTS
+			#if defined(TAG_MULTIPLE_COMPONENTS)
+				#undef TAG_MULTIPLE_COMPONENTS
+				#define SOMGD_TAG_MULTIPLE_COMPONENTS
+			#else
+				#define TAG_MULTIPLE_COMPONENTS IOP_TAG_MULTIPLE_COMPONENTS
+			#endif
+		#endif /* SOMGD_TAG_MULTIPLE_COMPONENTS */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_MULTIPLE_COMPONENTS */
+		typedef struct IOP_TaggedProfile
+		{
+			IOP_ProfileId tag;
+			_IDL_SEQUENCE_octet profile_data;
+		} IOP_TaggedProfile;
+		#ifndef _IDL_SEQUENCE_IOP_TaggedProfile_defined
+			#define _IDL_SEQUENCE_IOP_TaggedProfile_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_TaggedProfile);
+		#endif /* _IDL_SEQUENCE_IOP_TaggedProfile_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_TaggedProfile
+				#if defined(TaggedProfile)
+					#undef TaggedProfile
+					#define SOMGD_TaggedProfile
+				#else
+					#define TaggedProfile IOP_TaggedProfile
+				#endif
+			#endif /* SOMGD_TaggedProfile */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_TaggedProfile_defined
+				#define _IDL_SEQUENCE_TaggedProfile_defined
+				#define _IDL_SEQUENCE_TaggedProfile _IDL_SEQUENCE_IOP_TaggedProfile
+			#endif /* _IDL_SEQUENCE_TaggedProfile_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct IOP_IOR
+		{
+			string type_id;
+			_IDL_SEQUENCE_IOP_TaggedProfile profiles;
+		} IOP_IOR;
+		#ifndef _IDL_SEQUENCE_IOP_IOR_defined
+			#define _IDL_SEQUENCE_IOP_IOR_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_IOR);
+		#endif /* _IDL_SEQUENCE_IOP_IOR_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_IOR
+				#if defined(IOR)
+					#undef IOR
+					#define SOMGD_IOR
+				#else
+					#define IOR IOP_IOR
+				#endif
+			#endif /* SOMGD_IOR */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_IOR_defined
+				#define _IDL_SEQUENCE_IOR_defined
+				#define _IDL_SEQUENCE_IOR _IDL_SEQUENCE_IOP_IOR
+			#endif /* _IDL_SEQUENCE_IOR_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef unsigned long IOP_ComponentId;
+#ifndef IOP_TAG_ORB_TYPE
+	#define IOP_TAG_ORB_TYPE   0UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_ORB_TYPE
+			#if defined(TAG_ORB_TYPE)
+				#undef TAG_ORB_TYPE
+				#define SOMGD_TAG_ORB_TYPE
+			#else
+				#define TAG_ORB_TYPE IOP_TAG_ORB_TYPE
+			#endif
+		#endif /* SOMGD_TAG_ORB_TYPE */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_ORB_TYPE */
+#ifndef IOP_TAG_CODE_SETS
+	#define IOP_TAG_CODE_SETS   1UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_CODE_SETS
+			#if defined(TAG_CODE_SETS)
+				#undef TAG_CODE_SETS
+				#define SOMGD_TAG_CODE_SETS
+			#else
+				#define TAG_CODE_SETS IOP_TAG_CODE_SETS
+			#endif
+		#endif /* SOMGD_TAG_CODE_SETS */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_CODE_SETS */
+#ifndef IOP_TAG_SEC_NAME
+	#define IOP_TAG_SEC_NAME   14UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_SEC_NAME
+			#if defined(TAG_SEC_NAME)
+				#undef TAG_SEC_NAME
+				#define SOMGD_TAG_SEC_NAME
+			#else
+				#define TAG_SEC_NAME IOP_TAG_SEC_NAME
+			#endif
+		#endif /* SOMGD_TAG_SEC_NAME */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_SEC_NAME */
+#ifndef IOP_TAG_ASSOCIATION_OPTIONS
+	#define IOP_TAG_ASSOCIATION_OPTIONS   13UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_ASSOCIATION_OPTIONS
+			#if defined(TAG_ASSOCIATION_OPTIONS)
+				#undef TAG_ASSOCIATION_OPTIONS
+				#define SOMGD_TAG_ASSOCIATION_OPTIONS
+			#else
+				#define TAG_ASSOCIATION_OPTIONS IOP_TAG_ASSOCIATION_OPTIONS
+			#endif
+		#endif /* SOMGD_TAG_ASSOCIATION_OPTIONS */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_ASSOCIATION_OPTIONS */
+#ifndef IOP_TAG_GENERIC_SEC_MECH
+	#define IOP_TAG_GENERIC_SEC_MECH   12UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TAG_GENERIC_SEC_MECH
+			#if defined(TAG_GENERIC_SEC_MECH)
+				#undef TAG_GENERIC_SEC_MECH
+				#define SOMGD_TAG_GENERIC_SEC_MECH
+			#else
+				#define TAG_GENERIC_SEC_MECH IOP_TAG_GENERIC_SEC_MECH
+			#endif
+		#endif /* SOMGD_TAG_GENERIC_SEC_MECH */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TAG_GENERIC_SEC_MECH */
+		typedef struct IOP_TaggedComponent
+		{
+			IOP_ComponentId tag;
+			_IDL_SEQUENCE_octet component_data;
+		} IOP_TaggedComponent;
+		#ifndef _IDL_SEQUENCE_IOP_TaggedComponent_defined
+			#define _IDL_SEQUENCE_IOP_TaggedComponent_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_TaggedComponent);
+		#endif /* _IDL_SEQUENCE_IOP_TaggedComponent_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_TaggedComponent
+				#if defined(TaggedComponent)
+					#undef TaggedComponent
+					#define SOMGD_TaggedComponent
+				#else
+					#define TaggedComponent IOP_TaggedComponent
+				#endif
+			#endif /* SOMGD_TaggedComponent */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_TaggedComponent_defined
+				#define _IDL_SEQUENCE_TaggedComponent_defined
+				#define _IDL_SEQUENCE_TaggedComponent _IDL_SEQUENCE_IOP_TaggedComponent
+			#endif /* _IDL_SEQUENCE_TaggedComponent_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef _IDL_SEQUENCE_IOP_TaggedComponent IOP_MultipleComponentProfile;
+		#ifndef _IDL_SEQUENCE_IOP_MultipleComponentProfile_defined
+			#define _IDL_SEQUENCE_IOP_MultipleComponentProfile_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_MultipleComponentProfile);
+		#endif /* _IDL_SEQUENCE_IOP_MultipleComponentProfile_defined */
+		typedef unsigned long IOP_ServiceId;
+		typedef struct IOP_ServiceContext
+		{
+			IOP_ServiceId context_id;
+			_IDL_SEQUENCE_octet context_data;
+		} IOP_ServiceContext;
+		#ifndef _IDL_SEQUENCE_IOP_ServiceContext_defined
+			#define _IDL_SEQUENCE_IOP_ServiceContext_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_ServiceContext);
+		#endif /* _IDL_SEQUENCE_IOP_ServiceContext_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_ServiceContext
+				#if defined(ServiceContext)
+					#undef ServiceContext
+					#define SOMGD_ServiceContext
+				#else
+					#define ServiceContext IOP_ServiceContext
+				#endif
+			#endif /* SOMGD_ServiceContext */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_ServiceContext_defined
+				#define _IDL_SEQUENCE_ServiceContext_defined
+				#define _IDL_SEQUENCE_ServiceContext _IDL_SEQUENCE_IOP_ServiceContext
+			#endif /* _IDL_SEQUENCE_ServiceContext_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef _IDL_SEQUENCE_IOP_ServiceContext IOP_ServiceContextList;
+		#ifndef _IDL_SEQUENCE_IOP_ServiceContextList_defined
+			#define _IDL_SEQUENCE_IOP_ServiceContextList_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_ServiceContextList);
+		#endif /* _IDL_SEQUENCE_IOP_ServiceContextList_defined */
+#ifndef IOP_TransactionService
+	#define IOP_TransactionService   0UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_TransactionService
+			#if defined(TransactionService)
+				#undef TransactionService
+				#define SOMGD_TransactionService
+			#else
+				#define TransactionService IOP_TransactionService
+			#endif
+		#endif /* SOMGD_TransactionService */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_TransactionService */
+#ifndef IOP_CodeSets
+	#define IOP_CodeSets   1UL
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_CodeSets
+			#if defined(CodeSets)
+				#undef CodeSets
+				#define SOMGD_CodeSets
+			#else
+				#define CodeSets IOP_CodeSets
+			#endif
+		#endif /* SOMGD_CodeSets */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_CodeSets */
+		#ifndef _IDL_SEQUENCE_octet_defined
+			#define _IDL_SEQUENCE_octet_defined
+			SOM_SEQUENCE_TYPEDEF(octet);
+		#endif /* _IDL_SEQUENCE_octet_defined */
+		typedef _IDL_SEQUENCE_octet IOP_OctetSeq;
+		#ifndef _IDL_SEQUENCE_IOP_OctetSeq_defined
+			#define _IDL_SEQUENCE_IOP_OctetSeq_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_OctetSeq);
+		#endif /* _IDL_SEQUENCE_IOP_OctetSeq_defined */
+		typedef short IOP_EncodingFormat;
+		#ifndef _IDL_SEQUENCE_short_defined
+			#define _IDL_SEQUENCE_short_defined
+			SOM_SEQUENCE_TYPEDEF(short);
+		#endif /* _IDL_SEQUENCE_short_defined */
+#ifndef IOP_ENCODING_CDR_ENCAPS
+	#define IOP_ENCODING_CDR_ENCAPS   0
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_ENCODING_CDR_ENCAPS
+			#if defined(ENCODING_CDR_ENCAPS)
+				#undef ENCODING_CDR_ENCAPS
+				#define SOMGD_ENCODING_CDR_ENCAPS
+			#else
+				#define ENCODING_CDR_ENCAPS IOP_ENCODING_CDR_ENCAPS
+			#endif
+		#endif /* SOMGD_ENCODING_CDR_ENCAPS */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* IOP_ENCODING_CDR_ENCAPS */
+		typedef struct IOP_Encoding
+		{
+			IOP_EncodingFormat format;
+			octet major_version;
+			octet minor_version;
+		} IOP_Encoding;
+		#ifndef _IDL_SEQUENCE_IOP_Encoding_defined
+			#define _IDL_SEQUENCE_IOP_Encoding_defined
+			SOM_SEQUENCE_TYPEDEF(IOP_Encoding);
+		#endif /* _IDL_SEQUENCE_IOP_Encoding_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_Encoding
+				#if defined(Encoding)
+					#undef Encoding
+					#define SOMGD_Encoding
+				#else
+					#define Encoding IOP_Encoding
+				#endif
+			#endif /* SOMGD_Encoding */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_Encoding_defined
+				#define _IDL_SEQUENCE_Encoding_defined
+				#define _IDL_SEQUENCE_Encoding _IDL_SEQUENCE_IOP_Encoding
+			#endif /* _IDL_SEQUENCE_Encoding_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+#ifndef IOP_Codec_API
+#define IOP_Codec_API
+#define ex_IOP_Codec_InvalidTypeForEncoding   "::IOP::Codec::InvalidTypeForEncoding"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_InvalidTypeForEncoding
+#ifndef ex_InvalidTypeForEncoding
+#define ex_InvalidTypeForEncoding  ex_IOP_Codec_InvalidTypeForEncoding
+#else
+#define SOMTGD_ex_InvalidTypeForEncoding
+#undef ex_InvalidTypeForEncoding
+#endif /* ex_InvalidTypeForEncoding */
+#endif /* SOMTGD_ex_InvalidTypeForEncoding */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct IOP_Codec_InvalidTypeForEncoding IOP_Codec_InvalidTypeForEncoding;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_InvalidTypeForEncoding
+		#if defined(InvalidTypeForEncoding)
+			#undef InvalidTypeForEncoding
+			#define SOMGD_InvalidTypeForEncoding
+		#else
+			#define InvalidTypeForEncoding IOP_Codec_InvalidTypeForEncoding
+		#endif
+	#endif /* SOMGD_InvalidTypeForEncoding */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_IOP_Codec_FormatMismatch   "::IOP::Codec::FormatMismatch"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_FormatMismatch
+#ifndef ex_FormatMismatch
+#define ex_FormatMismatch  ex_IOP_Codec_FormatMismatch
+#else
+#define SOMTGD_ex_FormatMismatch
+#undef ex_FormatMismatch
+#endif /* ex_FormatMismatch */
+#endif /* SOMTGD_ex_FormatMismatch */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct IOP_Codec_FormatMismatch IOP_Codec_FormatMismatch;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_FormatMismatch
+		#if defined(FormatMismatch)
+			#undef FormatMismatch
+			#define SOMGD_FormatMismatch
+		#else
+			#define FormatMismatch IOP_Codec_FormatMismatch
+		#endif
+	#endif /* SOMGD_FormatMismatch */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#define ex_IOP_Codec_TypeMismatch   "::IOP::Codec::TypeMismatch"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_TypeMismatch
+#ifndef ex_TypeMismatch
+#define ex_TypeMismatch  ex_IOP_Codec_TypeMismatch
+#else
+#define SOMTGD_ex_TypeMismatch
+#undef ex_TypeMismatch
+#endif /* ex_TypeMismatch */
+#endif /* SOMTGD_ex_TypeMismatch */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct IOP_Codec_TypeMismatch IOP_Codec_TypeMismatch;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_TypeMismatch
+		#if defined(TypeMismatch)
+			#undef TypeMismatch
+			#define SOMGD_TypeMismatch
+		#else
+			#define TypeMismatch IOP_Codec_TypeMismatch
+		#endif
+	#endif /* SOMGD_TypeMismatch */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef IOP_OctetSeq (somTP_IOP_Codec_encode)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ any *data);
+			#pragma linkage(somTP_IOP_Codec_encode,system)
+			typedef somTP_IOP_Codec_encode *somTD_IOP_Codec_encode;
+		#else /* __IBMC__ */
+			typedef IOP_OctetSeq (SOMLINK * somTD_IOP_Codec_encode)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ any *data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef any (somTP_IOP_Codec_decode)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ IOP_OctetSeq *data);
+			#pragma linkage(somTP_IOP_Codec_decode,system)
+			typedef somTP_IOP_Codec_decode *somTD_IOP_Codec_decode;
+		#else /* __IBMC__ */
+			typedef any (SOMLINK * somTD_IOP_Codec_decode)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ IOP_OctetSeq *data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef IOP_OctetSeq (somTP_IOP_Codec_encode_value)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ any *data);
+			#pragma linkage(somTP_IOP_Codec_encode_value,system)
+			typedef somTP_IOP_Codec_encode_value *somTD_IOP_Codec_encode_value;
+		#else /* __IBMC__ */
+			typedef IOP_OctetSeq (SOMLINK * somTD_IOP_Codec_encode_value)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ any *data);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef any (somTP_IOP_Codec_decode_value)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ IOP_OctetSeq *data,
+				/* in */ TypeCode tc);
+			#pragma linkage(somTP_IOP_Codec_decode_value,system)
+			typedef somTP_IOP_Codec_decode_value *somTD_IOP_Codec_decode_value;
+		#else /* __IBMC__ */
+			typedef any (SOMLINK * somTD_IOP_Codec_decode_value)(
+				IOP_Codec * somSelf,
+				Environment *ev,
+				/* in */ IOP_OctetSeq *data,
+				/* in */ TypeCode tc);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somInit)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somInit,system)
+			typedef somTP_IOP_Codec_somInit *somTD_IOP_Codec_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somInit)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somUninit)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somUninit,system)
+			typedef somTP_IOP_Codec_somUninit *somTD_IOP_Codec_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somUninit)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somFree)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somFree,system)
+			typedef somTP_IOP_Codec_somFree *somTD_IOP_Codec_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somFree)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_IOP_Codec_somGetClass)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somGetClass,system)
+			typedef somTP_IOP_Codec_somGetClass *somTD_IOP_Codec_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_IOP_Codec_somGetClass)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_IOP_Codec_somGetClassName)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somGetClassName,system)
+			typedef somTP_IOP_Codec_somGetClassName *somTD_IOP_Codec_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_IOP_Codec_somGetClassName)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_IOP_Codec_somGetSize)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somGetSize,system)
+			typedef somTP_IOP_Codec_somGetSize *somTD_IOP_Codec_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_IOP_Codec_somGetSize)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somIsA)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_IOP_Codec_somIsA,system)
+			typedef somTP_IOP_Codec_somIsA *somTD_IOP_Codec_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somIsA)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somIsInstanceOf)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_IOP_Codec_somIsInstanceOf,system)
+			typedef somTP_IOP_Codec_somIsInstanceOf *somTD_IOP_Codec_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somIsInstanceOf)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somRespondsTo)(
+				IOP_Codec * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_IOP_Codec_somRespondsTo,system)
+			typedef somTP_IOP_Codec_somRespondsTo *somTD_IOP_Codec_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somRespondsTo)(
+				IOP_Codec * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somDispatch)(
+				IOP_Codec * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_IOP_Codec_somDispatch,system)
+			typedef somTP_IOP_Codec_somDispatch *somTD_IOP_Codec_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somDispatch)(
+				IOP_Codec * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somClassDispatch)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_IOP_Codec_somClassDispatch,system)
+			typedef somTP_IOP_Codec_somClassDispatch *somTD_IOP_Codec_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somClassDispatch)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somCastObj)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_IOP_Codec_somCastObj,system)
+			typedef somTP_IOP_Codec_somCastObj *somTD_IOP_Codec_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somCastObj)(
+				IOP_Codec * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_Codec_somResetObj)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somResetObj,system)
+			typedef somTP_IOP_Codec_somResetObj *somTD_IOP_Codec_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_Codec_somResetObj)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_Codec_somPrintSelf)(
+				IOP_Codec * somSelf);
+			#pragma linkage(somTP_IOP_Codec_somPrintSelf,system)
+			typedef somTP_IOP_Codec_somPrintSelf *somTD_IOP_Codec_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_Codec_somPrintSelf)(
+				IOP_Codec * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDumpSelf)(
+				IOP_Codec * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_IOP_Codec_somDumpSelf,system)
+			typedef somTP_IOP_Codec_somDumpSelf *somTD_IOP_Codec_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDumpSelf)(
+				IOP_Codec * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDumpSelfInt)(
+				IOP_Codec * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_IOP_Codec_somDumpSelfInt,system)
+			typedef somTP_IOP_Codec_somDumpSelfInt *somTD_IOP_Codec_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDumpSelfInt)(
+				IOP_Codec * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDefaultInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_IOP_Codec_somDefaultInit,system)
+			typedef somTP_IOP_Codec_somDefaultInit *somTD_IOP_Codec_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDefaultInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDefaultCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultCopyInit,system)
+			typedef somTP_IOP_Codec_somDefaultCopyInit *somTD_IOP_Codec_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDefaultCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDefaultConstCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultConstCopyInit,system)
+			typedef somTP_IOP_Codec_somDefaultConstCopyInit *somTD_IOP_Codec_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDefaultConstCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDefaultVCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultVCopyInit,system)
+			typedef somTP_IOP_Codec_somDefaultVCopyInit *somTD_IOP_Codec_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDefaultVCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDefaultConstVCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultConstVCopyInit,system)
+			typedef somTP_IOP_Codec_somDefaultConstVCopyInit *somTD_IOP_Codec_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDefaultConstVCopyInit)(
+				IOP_Codec * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_Codec_somDefaultAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultAssign,system)
+			typedef somTP_IOP_Codec_somDefaultAssign *somTD_IOP_Codec_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_Codec_somDefaultAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_Codec_somDefaultConstAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultConstAssign,system)
+			typedef somTP_IOP_Codec_somDefaultConstAssign *somTD_IOP_Codec_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_Codec_somDefaultConstAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_Codec_somDefaultVAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultVAssign,system)
+			typedef somTP_IOP_Codec_somDefaultVAssign *somTD_IOP_Codec_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_Codec_somDefaultVAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_Codec_somDefaultConstVAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_Codec_somDefaultConstVAssign,system)
+			typedef somTP_IOP_Codec_somDefaultConstVAssign *somTD_IOP_Codec_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_Codec_somDefaultConstVAssign)(
+				IOP_Codec * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_Codec_somDestruct)(
+				IOP_Codec * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_IOP_Codec_somDestruct,system)
+			typedef somTP_IOP_Codec_somDestruct *somTD_IOP_Codec_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_Codec_somDestruct)(
+				IOP_Codec * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef IOP_Codec_MajorVersion
+			#define IOP_Codec_MajorVersion   1
+		#endif /* IOP_Codec_MajorVersion */
+		#ifndef IOP_Codec_MinorVersion
+			#define IOP_Codec_MinorVersion   0
+		#endif /* IOP_Codec_MinorVersion */
+		typedef struct IOP_CodecClassDataStructure
+		{
+			SOMClass * classObject;
+			somMToken encode;
+			somMToken decode;
+			somMToken encode_value;
+			somMToken decode_value;
+			somMToken _get_encoding;
+			somMToken _set_encoding;
+			somMToken _get_c_orb;
+			somMToken _set_c_orb;
+		} IOP_CodecClassDataStructure;
+		typedef struct IOP_CodecCClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} IOP_CodecCClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_Codec_Class_Source)
+				SOMEXTERN struct IOP_CodecClassDataStructure _IOP_CodecClassData;
+				#ifndef IOP_CodecClassData
+					#define IOP_CodecClassData    _IOP_CodecClassData
+				#endif /* IOP_CodecClassData */
+			#else
+				SOMEXTERN struct IOP_CodecClassDataStructure * SOMLINK resolve_IOP_CodecClassData(void);
+				#ifndef IOP_CodecClassData
+					#define IOP_CodecClassData    (*(resolve_IOP_CodecClassData()))
+				#endif /* IOP_CodecClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_Codec_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+			struct IOP_CodecClassDataStructure SOMDLINK IOP_CodecClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_Codec_Class_Source)
+				SOMEXTERN struct IOP_CodecCClassDataStructure _IOP_CodecCClassData;
+				#ifndef IOP_CodecCClassData
+					#define IOP_CodecCClassData    _IOP_CodecCClassData
+				#endif /* IOP_CodecCClassData */
+			#else
+				SOMEXTERN struct IOP_CodecCClassDataStructure * SOMLINK resolve_IOP_CodecCClassData(void);
+				#ifndef IOP_CodecCClassData
+					#define IOP_CodecCClassData    (*(resolve_IOP_CodecCClassData()))
+				#endif /* IOP_CodecCClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_Codec_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+			struct IOP_CodecCClassDataStructure SOMDLINK IOP_CodecCClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_unotypes_Source) || defined(IOP_Codec_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_unotypes_Source || IOP_Codec_Class_Source */
+		SOMClass * SOMLINK IOP_CodecNewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_IOP_Codec (IOP_CodecClassData.classObject)
+		#ifndef SOMGD_IOP_Codec
+			#if (defined(_IOP_Codec) || defined(__IOP_Codec))
+				#undef _IOP_Codec
+				#undef __IOP_Codec
+				#define SOMGD_IOP_Codec 1
+			#else
+				#define _IOP_Codec _SOMCLASS_IOP_Codec
+			#endif /* _IOP_Codec */
+		#endif /* SOMGD_IOP_Codec */
+		#define IOP_Codec_classObj _SOMCLASS_IOP_Codec
+		#define _SOMMTOKEN_IOP_Codec(method) ((somMToken)(IOP_CodecClassData.method))
+#endif /* IOP_Codec_API */
+
+		class IOP_Codec : public SOMObject
+		{
+		protected:
+			IOP_Codec(somMethodTab & mtab)
+				: SOMObject(mtab)
+			{}
+		public:
+
+			inline IOP_OctetSeq encode(
+			Environment *ev,
+			/* in */ any *data)
+			{
+				return SOM_Resolve((void *)this,IOP_Codec,encode)
+						((IOP_Codec *)(void *)this,ev,data);
+			};
+
+			inline any decode(
+			Environment *ev,
+			/* in */ IOP_OctetSeq *data)
+			{
+				return SOM_Resolve((void *)this,IOP_Codec,decode)
+						((IOP_Codec *)(void *)this,ev,data);
+			};
+
+			inline IOP_OctetSeq encode_value(
+			Environment *ev,
+			/* in */ any *data)
+			{
+				return SOM_Resolve((void *)this,IOP_Codec,encode_value)
+						((IOP_Codec *)(void *)this,ev,data);
+			};
+
+			inline any decode_value(
+			Environment *ev,
+			/* in */ IOP_OctetSeq *data,
+			/* in */ TypeCode tc)
+			{
+				return SOM_Resolve((void *)this,IOP_Codec,decode_value)
+						((IOP_Codec *)(void *)this,ev,data,tc);
+			};
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!IOP_CodecClassData.classObject)
+				{ IOP_CodecNewClass(IOP_Codec_MajorVersion,IOP_Codec_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)IOP_CodecClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)IOP_CodecClassData.classObject);
+			};
+			IOP_Codec()
+				: SOMObject(*(IOP_CodecCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==IOP_CodecCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			IOP_Codec(IOP_Codec *fromObj)
+				: SOMObject(*(IOP_CodecCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==IOP_CodecCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+#ifndef IOP_CodecFactory_API
+#define IOP_CodecFactory_API
+#define ex_IOP_CodecFactory_UnknownEncoding   "::IOP::CodecFactory::UnknownEncoding"
+#ifndef SOM_DONT_USE_SHORT_NAMES
+#ifndef SOMTGD_ex_UnknownEncoding
+#ifndef ex_UnknownEncoding
+#define ex_UnknownEncoding  ex_IOP_CodecFactory_UnknownEncoding
+#else
+#define SOMTGD_ex_UnknownEncoding
+#undef ex_UnknownEncoding
+#endif /* ex_UnknownEncoding */
+#endif /* SOMTGD_ex_UnknownEncoding */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct IOP_CodecFactory_UnknownEncoding IOP_CodecFactory_UnknownEncoding;
+#ifndef SOM_DONT_USE_SHORT_NAMES
+	#ifndef SOMGD_UnknownEncoding
+		#if defined(UnknownEncoding)
+			#undef UnknownEncoding
+			#define SOMGD_UnknownEncoding
+		#else
+			#define UnknownEncoding IOP_CodecFactory_UnknownEncoding
+		#endif
+	#endif /* SOMGD_UnknownEncoding */
+#endif /* SOM_DONT_USE_SHORT_NAMES */
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef IOP_Codec * (somTP_IOP_CodecFactory_create_codec)(
+				IOP_CodecFactory * somSelf,
+				Environment *ev,
+				/* in */ IOP_Encoding *enc);
+			#pragma linkage(somTP_IOP_CodecFactory_create_codec,system)
+			typedef somTP_IOP_CodecFactory_create_codec *somTD_IOP_CodecFactory_create_codec;
+		#else /* __IBMC__ */
+			typedef IOP_Codec * (SOMLINK * somTD_IOP_CodecFactory_create_codec)(
+				IOP_CodecFactory * somSelf,
+				Environment *ev,
+				/* in */ IOP_Encoding *enc);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somInit)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somInit,system)
+			typedef somTP_IOP_CodecFactory_somInit *somTD_IOP_CodecFactory_somInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somInit)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somUninit)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somUninit,system)
+			typedef somTP_IOP_CodecFactory_somUninit *somTD_IOP_CodecFactory_somUninit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somUninit)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somFree)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somFree,system)
+			typedef somTP_IOP_CodecFactory_somFree *somTD_IOP_CodecFactory_somFree;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somFree)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMClass * (somTP_IOP_CodecFactory_somGetClass)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somGetClass,system)
+			typedef somTP_IOP_CodecFactory_somGetClass *somTD_IOP_CodecFactory_somGetClass;
+		#else /* __IBMC__ */
+			typedef SOMClass * (SOMLINK * somTD_IOP_CodecFactory_somGetClass)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef string (somTP_IOP_CodecFactory_somGetClassName)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somGetClassName,system)
+			typedef somTP_IOP_CodecFactory_somGetClassName *somTD_IOP_CodecFactory_somGetClassName;
+		#else /* __IBMC__ */
+			typedef string (SOMLINK * somTD_IOP_CodecFactory_somGetClassName)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef long (somTP_IOP_CodecFactory_somGetSize)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somGetSize,system)
+			typedef somTP_IOP_CodecFactory_somGetSize *somTD_IOP_CodecFactory_somGetSize;
+		#else /* __IBMC__ */
+			typedef long (SOMLINK * somTD_IOP_CodecFactory_somGetSize)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somIsA)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somIsA,system)
+			typedef somTP_IOP_CodecFactory_somIsA *somTD_IOP_CodecFactory_somIsA;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somIsA)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somIsInstanceOf)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * aClassObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somIsInstanceOf,system)
+			typedef somTP_IOP_CodecFactory_somIsInstanceOf *somTD_IOP_CodecFactory_somIsInstanceOf;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somIsInstanceOf)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * aClassObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somRespondsTo)(
+				IOP_CodecFactory * somSelf,
+				/* in */ somId mId);
+			#pragma linkage(somTP_IOP_CodecFactory_somRespondsTo,system)
+			typedef somTP_IOP_CodecFactory_somRespondsTo *somTD_IOP_CodecFactory_somRespondsTo;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somRespondsTo)(
+				IOP_CodecFactory * somSelf,
+				/* in */ somId mId);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somDispatch)(
+				IOP_CodecFactory * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_IOP_CodecFactory_somDispatch,system)
+			typedef somTP_IOP_CodecFactory_somDispatch *somTD_IOP_CodecFactory_somDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somDispatch)(
+				IOP_CodecFactory * somSelf,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somClassDispatch)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+			#pragma linkage(somTP_IOP_CodecFactory_somClassDispatch,system)
+			typedef somTP_IOP_CodecFactory_somClassDispatch *somTD_IOP_CodecFactory_somClassDispatch;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somClassDispatch)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * clsObj,
+				/* out */ somToken *retValue,
+				/* in */ somId methodId,
+				/* in */ va_list ap);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somCastObj)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * castedCls);
+			#pragma linkage(somTP_IOP_CodecFactory_somCastObj,system)
+			typedef somTP_IOP_CodecFactory_somCastObj *somTD_IOP_CodecFactory_somCastObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somCastObj)(
+				IOP_CodecFactory * somSelf,
+				/* in */ SOMClass * castedCls);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef boolean (somTP_IOP_CodecFactory_somResetObj)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somResetObj,system)
+			typedef somTP_IOP_CodecFactory_somResetObj *somTD_IOP_CodecFactory_somResetObj;
+		#else /* __IBMC__ */
+			typedef boolean (SOMLINK * somTD_IOP_CodecFactory_somResetObj)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_CodecFactory_somPrintSelf)(
+				IOP_CodecFactory * somSelf);
+			#pragma linkage(somTP_IOP_CodecFactory_somPrintSelf,system)
+			typedef somTP_IOP_CodecFactory_somPrintSelf *somTD_IOP_CodecFactory_somPrintSelf;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_CodecFactory_somPrintSelf)(
+				IOP_CodecFactory * somSelf);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDumpSelf)(
+				IOP_CodecFactory * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_IOP_CodecFactory_somDumpSelf,system)
+			typedef somTP_IOP_CodecFactory_somDumpSelf *somTD_IOP_CodecFactory_somDumpSelf;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDumpSelf)(
+				IOP_CodecFactory * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDumpSelfInt)(
+				IOP_CodecFactory * somSelf,
+				/* in */ long level);
+			#pragma linkage(somTP_IOP_CodecFactory_somDumpSelfInt,system)
+			typedef somTP_IOP_CodecFactory_somDumpSelfInt *somTD_IOP_CodecFactory_somDumpSelfInt;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDumpSelfInt)(
+				IOP_CodecFactory * somSelf,
+				/* in */ long level);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDefaultInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultInit,system)
+			typedef somTP_IOP_CodecFactory_somDefaultInit *somTD_IOP_CodecFactory_somDefaultInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDefaultInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDefaultCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultCopyInit,system)
+			typedef somTP_IOP_CodecFactory_somDefaultCopyInit *somTD_IOP_CodecFactory_somDefaultCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDefaultCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDefaultConstCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultConstCopyInit,system)
+			typedef somTP_IOP_CodecFactory_somDefaultConstCopyInit *somTD_IOP_CodecFactory_somDefaultConstCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDefaultConstCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDefaultVCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultVCopyInit,system)
+			typedef somTP_IOP_CodecFactory_somDefaultVCopyInit *somTD_IOP_CodecFactory_somDefaultVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDefaultVCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDefaultConstVCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultConstVCopyInit,system)
+			typedef somTP_IOP_CodecFactory_somDefaultConstVCopyInit *somTD_IOP_CodecFactory_somDefaultConstVCopyInit;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDefaultConstVCopyInit)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somInitCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_CodecFactory_somDefaultAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultAssign,system)
+			typedef somTP_IOP_CodecFactory_somDefaultAssign *somTD_IOP_CodecFactory_somDefaultAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_CodecFactory_somDefaultAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_CodecFactory_somDefaultConstAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultConstAssign,system)
+			typedef somTP_IOP_CodecFactory_somDefaultConstAssign *somTD_IOP_CodecFactory_somDefaultConstAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_CodecFactory_somDefaultConstAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_CodecFactory_somDefaultVAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultVAssign,system)
+			typedef somTP_IOP_CodecFactory_somDefaultVAssign *somTD_IOP_CodecFactory_somDefaultVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_CodecFactory_somDefaultVAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef SOMObject * (somTP_IOP_CodecFactory_somDefaultConstVAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+			#pragma linkage(somTP_IOP_CodecFactory_somDefaultConstVAssign,system)
+			typedef somTP_IOP_CodecFactory_somDefaultConstVAssign *somTD_IOP_CodecFactory_somDefaultConstVAssign;
+		#else /* __IBMC__ */
+			typedef SOMObject * (SOMLINK * somTD_IOP_CodecFactory_somDefaultConstVAssign)(
+				IOP_CodecFactory * somSelf,
+				/* inout */ somAssignCtrl *ctrl,
+				/* in */ SOMObject * fromObj);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+		extern "C" {
+#endif
+		#ifdef __IBMC__
+			typedef void (somTP_IOP_CodecFactory_somDestruct)(
+				IOP_CodecFactory * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+			#pragma linkage(somTP_IOP_CodecFactory_somDestruct,system)
+			typedef somTP_IOP_CodecFactory_somDestruct *somTD_IOP_CodecFactory_somDestruct;
+		#else /* __IBMC__ */
+			typedef void (SOMLINK * somTD_IOP_CodecFactory_somDestruct)(
+				IOP_CodecFactory * somSelf,
+				/* in */ octet doFree,
+				/* inout */ somDestructCtrl *ctrl);
+		#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+		}
+#endif
+		#ifndef IOP_CodecFactory_MajorVersion
+			#define IOP_CodecFactory_MajorVersion   1
+		#endif /* IOP_CodecFactory_MajorVersion */
+		#ifndef IOP_CodecFactory_MinorVersion
+			#define IOP_CodecFactory_MinorVersion   0
+		#endif /* IOP_CodecFactory_MinorVersion */
+		typedef struct IOP_CodecFactoryClassDataStructure
+		{
+			SOMClass * classObject;
+			somMToken create_codec;
+			somMToken _get_c_orb;
+			somMToken _set_c_orb;
+		} IOP_CodecFactoryClassDataStructure;
+		typedef struct IOP_CodecFactoryCClassDataStructure
+		{
+			somMethodTabs parentMtab;
+			somDToken instanceDataToken;
+		} IOP_CodecFactoryCClassDataStructure;
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_CodecFactory_Class_Source)
+				SOMEXTERN struct IOP_CodecFactoryClassDataStructure _IOP_CodecFactoryClassData;
+				#ifndef IOP_CodecFactoryClassData
+					#define IOP_CodecFactoryClassData    _IOP_CodecFactoryClassData
+				#endif /* IOP_CodecFactoryClassData */
+			#else
+				SOMEXTERN struct IOP_CodecFactoryClassDataStructure * SOMLINK resolve_IOP_CodecFactoryClassData(void);
+				#ifndef IOP_CodecFactoryClassData
+					#define IOP_CodecFactoryClassData    (*(resolve_IOP_CodecFactoryClassData()))
+				#endif /* IOP_CodecFactoryClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_CodecFactory_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+			struct IOP_CodecFactoryClassDataStructure SOMDLINK IOP_CodecFactoryClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		#ifdef SOM_RESOLVE_DATA
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_CodecFactory_Class_Source)
+				SOMEXTERN struct IOP_CodecFactoryCClassDataStructure _IOP_CodecFactoryCClassData;
+				#ifndef IOP_CodecFactoryCClassData
+					#define IOP_CodecFactoryCClassData    _IOP_CodecFactoryCClassData
+				#endif /* IOP_CodecFactoryCClassData */
+			#else
+				SOMEXTERN struct IOP_CodecFactoryCClassDataStructure * SOMLINK resolve_IOP_CodecFactoryCClassData(void);
+				#ifndef IOP_CodecFactoryCClassData
+					#define IOP_CodecFactoryCClassData    (*(resolve_IOP_CodecFactoryCClassData()))
+				#endif /* IOP_CodecFactoryCClassData */
+			#endif
+		#else /* SOM_RESOLVE_DATA */
+			SOMEXTERN 
+			#if defined(SOM_Module_unotypes_Source) || defined(IOP_CodecFactory_Class_Source)
+				#ifdef SOMDLLEXPORT
+					SOMDLLEXPORT
+				#endif /* SOMDLLEXPORT */
+			#else /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+				#ifdef SOMDLLIMPORT
+					SOMDLLIMPORT
+				#endif /* SOMDLLIMPORT */
+			#endif /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+			struct IOP_CodecFactoryCClassDataStructure SOMDLINK IOP_CodecFactoryCClassData;
+		#endif /* SOM_RESOLVE_DATA */
+		extern "C" {
+		extern 
+		#if defined(SOM_Module_unotypes_Source) || defined(IOP_CodecFactory_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_unotypes_Source || IOP_CodecFactory_Class_Source */
+		SOMClass * SOMLINK IOP_CodecFactoryNewClass
+				(integer4 somtmajorVersion,integer4 somtminorVersion);
+		}
+		#define _SOMCLASS_IOP_CodecFactory (IOP_CodecFactoryClassData.classObject)
+		#ifndef SOMGD_IOP_CodecFactory
+			#if (defined(_IOP_CodecFactory) || defined(__IOP_CodecFactory))
+				#undef _IOP_CodecFactory
+				#undef __IOP_CodecFactory
+				#define SOMGD_IOP_CodecFactory 1
+			#else
+				#define _IOP_CodecFactory _SOMCLASS_IOP_CodecFactory
+			#endif /* _IOP_CodecFactory */
+		#endif /* SOMGD_IOP_CodecFactory */
+		#define IOP_CodecFactory_classObj _SOMCLASS_IOP_CodecFactory
+		#define _SOMMTOKEN_IOP_CodecFactory(method) ((somMToken)(IOP_CodecFactoryClassData.method))
+#endif /* IOP_CodecFactory_API */
+
+		class IOP_CodecFactory : public SOMObject
+		{
+		protected:
+			IOP_CodecFactory(somMethodTab & mtab)
+				: SOMObject(mtab)
+			{}
+		public:
+
+			inline IOP_Codec * create_codec(
+			Environment *ev,
+			/* in */ IOP_Encoding *enc)
+			{
+				return SOM_Resolve((void *)this,IOP_CodecFactory,create_codec)
+						((IOP_CodecFactory *)(void *)this,ev,enc);
+			};
+
+			inline void operator delete(void *x)
+				{ ((SOMObject *)x)->somFree(); };
+
+			inline void * operator new(size_t /* len */)
+			{ if (!IOP_CodecFactoryClassData.classObject)
+				{ IOP_CodecFactoryNewClass(IOP_CodecFactory_MajorVersion,IOP_CodecFactory_MinorVersion); }
+				return (void *)SOM_Resolve((SOMObject *)(void *)IOP_CodecFactoryClassData.classObject,
+					SOMClass,somNewNoInit)((SOMClass *)(void *)IOP_CodecFactoryClassData.classObject);
+			};
+			IOP_CodecFactory()
+				: SOMObject(*(IOP_CodecFactoryCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==IOP_CodecFactoryCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultInit(0); }
+			IOP_CodecFactory(IOP_CodecFactory *fromObj)
+				: SOMObject(*(IOP_CodecFactoryCClassData.parentMtab->mtab))
+			{ if ((*(void **)(void *)this)==IOP_CodecFactoryCClassData.parentMtab->mtab)
+				((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		};
+		#ifndef GIOP_MsgType_defined
+			#define GIOP_MsgType_defined
+			typedef unsigned long GIOP_MsgType;
+			#ifndef GIOP_Request
+				#define GIOP_Request 1UL
+			#endif /* GIOP_Request */
+			#ifndef GIOP_Reply
+				#define GIOP_Reply 2UL
+			#endif /* GIOP_Reply */
+			#ifndef GIOP_CancelRequest
+				#define GIOP_CancelRequest 3UL
+			#endif /* GIOP_CancelRequest */
+			#ifndef GIOP_LocateRequest
+				#define GIOP_LocateRequest 4UL
+			#endif /* GIOP_LocateRequest */
+			#ifndef GIOP_LocateReply
+				#define GIOP_LocateReply 5UL
+			#endif /* GIOP_LocateReply */
+			#ifndef GIOP_CloseConnection
+				#define GIOP_CloseConnection 6UL
+			#endif /* GIOP_CloseConnection */
+			#ifndef GIOP_MessageError
+				#define GIOP_MessageError 7UL
+			#endif /* GIOP_MessageError */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_MsgType
+					#if defined(MsgType)
+						#undef MsgType
+						#define SOMGD_MsgType
+					#else
+						#define MsgType GIOP_MsgType
+					#endif
+				#endif /* SOMGD_MsgType */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* GIOP_MsgType_defined */
+		typedef struct GIOP_Version
+		{
+			char major;
+			char minor;
+		} GIOP_Version;
+		#ifndef _IDL_SEQUENCE_GIOP_Version_defined
+			#define _IDL_SEQUENCE_GIOP_Version_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_Version);
+		#endif /* _IDL_SEQUENCE_GIOP_Version_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_Version
+				#if defined(Version)
+					#undef Version
+					#define SOMGD_Version
+				#else
+					#define Version GIOP_Version
+				#endif
+			#endif /* SOMGD_Version */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_Version_defined
+				#define _IDL_SEQUENCE_Version_defined
+				#define _IDL_SEQUENCE_Version _IDL_SEQUENCE_GIOP_Version
+			#endif /* _IDL_SEQUENCE_Version_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_MessageHeader
+		{
+			char magic[4];
+			GIOP_Version protocol_version;
+			octet flags;
+			octet message_type;
+			unsigned long message_size;
+		} GIOP_MessageHeader;
+		#ifndef _IDL_SEQUENCE_GIOP_MessageHeader_defined
+			#define _IDL_SEQUENCE_GIOP_MessageHeader_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_MessageHeader);
+		#endif /* _IDL_SEQUENCE_GIOP_MessageHeader_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_MessageHeader
+				#if defined(MessageHeader)
+					#undef MessageHeader
+					#define SOMGD_MessageHeader
+				#else
+					#define MessageHeader GIOP_MessageHeader
+				#endif
+			#endif /* SOMGD_MessageHeader */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_MessageHeader_defined
+				#define _IDL_SEQUENCE_MessageHeader_defined
+				#define _IDL_SEQUENCE_MessageHeader _IDL_SEQUENCE_GIOP_MessageHeader
+			#endif /* _IDL_SEQUENCE_MessageHeader_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_RequestHeader_1_0
+		{
+			IOP_ServiceContextList service_context;
+			unsigned long request_id;
+			boolean response_expected;
+			_IDL_SEQUENCE_octet object_key;
+			string operation;
+			Principal * requesting_principal;
+		} GIOP_RequestHeader_1_0;
+		#ifndef _IDL_SEQUENCE_GIOP_RequestHeader_1_0_defined
+			#define _IDL_SEQUENCE_GIOP_RequestHeader_1_0_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_RequestHeader_1_0);
+		#endif /* _IDL_SEQUENCE_GIOP_RequestHeader_1_0_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_RequestHeader_1_0
+				#if defined(RequestHeader_1_0)
+					#undef RequestHeader_1_0
+					#define SOMGD_RequestHeader_1_0
+				#else
+					#define RequestHeader_1_0 GIOP_RequestHeader_1_0
+				#endif
+			#endif /* SOMGD_RequestHeader_1_0 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_RequestHeader_1_0_defined
+				#define _IDL_SEQUENCE_RequestHeader_1_0_defined
+				#define _IDL_SEQUENCE_RequestHeader_1_0 _IDL_SEQUENCE_GIOP_RequestHeader_1_0
+			#endif /* _IDL_SEQUENCE_RequestHeader_1_0_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef short GIOP_AddressingDisposition;
+#ifndef GIOP_KeyAddr
+	#define GIOP_KeyAddr   0
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_KeyAddr
+			#if defined(KeyAddr)
+				#undef KeyAddr
+				#define SOMGD_KeyAddr
+			#else
+				#define KeyAddr GIOP_KeyAddr
+			#endif
+		#endif /* SOMGD_KeyAddr */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* GIOP_KeyAddr */
+#ifndef GIOP_ProfileAddr
+	#define GIOP_ProfileAddr   1
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_ProfileAddr
+			#if defined(ProfileAddr)
+				#undef ProfileAddr
+				#define SOMGD_ProfileAddr
+			#else
+				#define ProfileAddr GIOP_ProfileAddr
+			#endif
+		#endif /* SOMGD_ProfileAddr */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* GIOP_ProfileAddr */
+#ifndef GIOP_ReferenceAddr
+	#define GIOP_ReferenceAddr   2
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_ReferenceAddr
+			#if defined(ReferenceAddr)
+				#undef ReferenceAddr
+				#define SOMGD_ReferenceAddr
+			#else
+				#define ReferenceAddr GIOP_ReferenceAddr
+			#endif
+		#endif /* SOMGD_ReferenceAddr */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#endif /* GIOP_ReferenceAddr */
+		typedef struct GIOP_IORAddressingInfo
+		{
+			unsigned long selected_profile_index;
+			IOP_IOR ior;
+		} GIOP_IORAddressingInfo;
+		#ifndef _IDL_SEQUENCE_GIOP_IORAddressingInfo_defined
+			#define _IDL_SEQUENCE_GIOP_IORAddressingInfo_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_IORAddressingInfo);
+		#endif /* _IDL_SEQUENCE_GIOP_IORAddressingInfo_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_IORAddressingInfo
+				#if defined(IORAddressingInfo)
+					#undef IORAddressingInfo
+					#define SOMGD_IORAddressingInfo
+				#else
+					#define IORAddressingInfo GIOP_IORAddressingInfo
+				#endif
+			#endif /* SOMGD_IORAddressingInfo */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_IORAddressingInfo_defined
+				#define _IDL_SEQUENCE_IORAddressingInfo_defined
+				#define _IDL_SEQUENCE_IORAddressingInfo _IDL_SEQUENCE_GIOP_IORAddressingInfo
+			#endif /* _IDL_SEQUENCE_IORAddressingInfo_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+typedef struct GIOP_TargetAddress 
+{
+	GIOP_AddressingDisposition _d;
+	union
+	{
+		_IDL_SEQUENCE_octet object_key;
+		IOP_TaggedProfile profile;
+		GIOP_IORAddressingInfo ior;
+	} _u;
+} GIOP_TargetAddress;
+		typedef struct GIOP_RequestHeader_1_2
+		{
+			unsigned long request_id;
+			octet response_flags;
+			octet reserved[3];
+			GIOP_TargetAddress target;
+			string operation;
+			IOP_ServiceContextList service_context;
+		} GIOP_RequestHeader_1_2;
+		#ifndef _IDL_SEQUENCE_GIOP_RequestHeader_1_2_defined
+			#define _IDL_SEQUENCE_GIOP_RequestHeader_1_2_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_RequestHeader_1_2);
+		#endif /* _IDL_SEQUENCE_GIOP_RequestHeader_1_2_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_RequestHeader_1_2
+				#if defined(RequestHeader_1_2)
+					#undef RequestHeader_1_2
+					#define SOMGD_RequestHeader_1_2
+				#else
+					#define RequestHeader_1_2 GIOP_RequestHeader_1_2
+				#endif
+			#endif /* SOMGD_RequestHeader_1_2 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_RequestHeader_1_2_defined
+				#define _IDL_SEQUENCE_RequestHeader_1_2_defined
+				#define _IDL_SEQUENCE_RequestHeader_1_2 _IDL_SEQUENCE_GIOP_RequestHeader_1_2
+			#endif /* _IDL_SEQUENCE_RequestHeader_1_2_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef GIOP_ReplyStatusType_1_0_defined
+			#define GIOP_ReplyStatusType_1_0_defined
+			typedef unsigned long GIOP_ReplyStatusType_1_0;
+			#ifndef GIOP_NO_EXCEPTION_1_0
+				#define GIOP_NO_EXCEPTION_1_0 1UL
+			#endif /* GIOP_NO_EXCEPTION_1_0 */
+			#ifndef GIOP_USER_EXCEPTION_1_0
+				#define GIOP_USER_EXCEPTION_1_0 2UL
+			#endif /* GIOP_USER_EXCEPTION_1_0 */
+			#ifndef GIOP_SYSTEM_EXCEPTION_1_0
+				#define GIOP_SYSTEM_EXCEPTION_1_0 3UL
+			#endif /* GIOP_SYSTEM_EXCEPTION_1_0 */
+			#ifndef GIOP_LOCATION_FORWARD_1_0
+				#define GIOP_LOCATION_FORWARD_1_0 4UL
+			#endif /* GIOP_LOCATION_FORWARD_1_0 */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_ReplyStatusType_1_0
+					#if defined(ReplyStatusType_1_0)
+						#undef ReplyStatusType_1_0
+						#define SOMGD_ReplyStatusType_1_0
+					#else
+						#define ReplyStatusType_1_0 GIOP_ReplyStatusType_1_0
+					#endif
+				#endif /* SOMGD_ReplyStatusType_1_0 */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* GIOP_ReplyStatusType_1_0_defined */
+		#ifndef GIOP_ReplyStatusType_1_2_defined
+			#define GIOP_ReplyStatusType_1_2_defined
+			typedef unsigned long GIOP_ReplyStatusType_1_2;
+			#ifndef GIOP_NO_EXCEPTION
+				#define GIOP_NO_EXCEPTION 1UL
+			#endif /* GIOP_NO_EXCEPTION */
+			#ifndef GIOP_USER_EXCEPTION
+				#define GIOP_USER_EXCEPTION 2UL
+			#endif /* GIOP_USER_EXCEPTION */
+			#ifndef GIOP_SYSTEM_EXCEPTION
+				#define GIOP_SYSTEM_EXCEPTION 3UL
+			#endif /* GIOP_SYSTEM_EXCEPTION */
+			#ifndef GIOP_LOCATION_FORWARD
+				#define GIOP_LOCATION_FORWARD 4UL
+			#endif /* GIOP_LOCATION_FORWARD */
+			#ifndef GIOP_LOCATION_FORWARD_PERM
+				#define GIOP_LOCATION_FORWARD_PERM 5UL
+			#endif /* GIOP_LOCATION_FORWARD_PERM */
+			#ifndef GIOP_NEEDS_ADDRESSING_MODE
+				#define GIOP_NEEDS_ADDRESSING_MODE 6UL
+			#endif /* GIOP_NEEDS_ADDRESSING_MODE */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_ReplyStatusType_1_2
+					#if defined(ReplyStatusType_1_2)
+						#undef ReplyStatusType_1_2
+						#define SOMGD_ReplyStatusType_1_2
+					#else
+						#define ReplyStatusType_1_2 GIOP_ReplyStatusType_1_2
+					#endif
+				#endif /* SOMGD_ReplyStatusType_1_2 */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* GIOP_ReplyStatusType_1_2_defined */
+		typedef struct GIOP_ReplyHeader_1_0
+		{
+			IOP_ServiceContextList service_context;
+			unsigned long request_id;
+			GIOP_ReplyStatusType_1_0 reply_status;
+		} GIOP_ReplyHeader_1_0;
+		#ifndef _IDL_SEQUENCE_GIOP_ReplyHeader_1_0_defined
+			#define _IDL_SEQUENCE_GIOP_ReplyHeader_1_0_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_ReplyHeader_1_0);
+		#endif /* _IDL_SEQUENCE_GIOP_ReplyHeader_1_0_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_ReplyHeader_1_0
+				#if defined(ReplyHeader_1_0)
+					#undef ReplyHeader_1_0
+					#define SOMGD_ReplyHeader_1_0
+				#else
+					#define ReplyHeader_1_0 GIOP_ReplyHeader_1_0
+				#endif
+			#endif /* SOMGD_ReplyHeader_1_0 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_ReplyHeader_1_0_defined
+				#define _IDL_SEQUENCE_ReplyHeader_1_0_defined
+				#define _IDL_SEQUENCE_ReplyHeader_1_0 _IDL_SEQUENCE_GIOP_ReplyHeader_1_0
+			#endif /* _IDL_SEQUENCE_ReplyHeader_1_0_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_ReplyHeader_1_2
+		{
+			unsigned long request_id;
+			GIOP_ReplyStatusType_1_2 reply_status;
+			IOP_ServiceContextList service_context;
+		} GIOP_ReplyHeader_1_2;
+		#ifndef _IDL_SEQUENCE_GIOP_ReplyHeader_1_2_defined
+			#define _IDL_SEQUENCE_GIOP_ReplyHeader_1_2_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_ReplyHeader_1_2);
+		#endif /* _IDL_SEQUENCE_GIOP_ReplyHeader_1_2_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_ReplyHeader_1_2
+				#if defined(ReplyHeader_1_2)
+					#undef ReplyHeader_1_2
+					#define SOMGD_ReplyHeader_1_2
+				#else
+					#define ReplyHeader_1_2 GIOP_ReplyHeader_1_2
+				#endif
+			#endif /* SOMGD_ReplyHeader_1_2 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_ReplyHeader_1_2_defined
+				#define _IDL_SEQUENCE_ReplyHeader_1_2_defined
+				#define _IDL_SEQUENCE_ReplyHeader_1_2 _IDL_SEQUENCE_GIOP_ReplyHeader_1_2
+			#endif /* _IDL_SEQUENCE_ReplyHeader_1_2_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_CancelRequestHeader
+		{
+			unsigned long request_id;
+		} GIOP_CancelRequestHeader;
+		#ifndef _IDL_SEQUENCE_GIOP_CancelRequestHeader_defined
+			#define _IDL_SEQUENCE_GIOP_CancelRequestHeader_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_CancelRequestHeader);
+		#endif /* _IDL_SEQUENCE_GIOP_CancelRequestHeader_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_CancelRequestHeader
+				#if defined(CancelRequestHeader)
+					#undef CancelRequestHeader
+					#define SOMGD_CancelRequestHeader
+				#else
+					#define CancelRequestHeader GIOP_CancelRequestHeader
+				#endif
+			#endif /* SOMGD_CancelRequestHeader */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_CancelRequestHeader_defined
+				#define _IDL_SEQUENCE_CancelRequestHeader_defined
+				#define _IDL_SEQUENCE_CancelRequestHeader _IDL_SEQUENCE_GIOP_CancelRequestHeader
+			#endif /* _IDL_SEQUENCE_CancelRequestHeader_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_LocateRequestHeader
+		{
+			unsigned long request_id;
+			_IDL_SEQUENCE_octet object_key;
+		} GIOP_LocateRequestHeader;
+		#ifndef _IDL_SEQUENCE_GIOP_LocateRequestHeader_defined
+			#define _IDL_SEQUENCE_GIOP_LocateRequestHeader_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_LocateRequestHeader);
+		#endif /* _IDL_SEQUENCE_GIOP_LocateRequestHeader_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_LocateRequestHeader
+				#if defined(LocateRequestHeader)
+					#undef LocateRequestHeader
+					#define SOMGD_LocateRequestHeader
+				#else
+					#define LocateRequestHeader GIOP_LocateRequestHeader
+				#endif
+			#endif /* SOMGD_LocateRequestHeader */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_LocateRequestHeader_defined
+				#define _IDL_SEQUENCE_LocateRequestHeader_defined
+				#define _IDL_SEQUENCE_LocateRequestHeader _IDL_SEQUENCE_GIOP_LocateRequestHeader
+			#endif /* _IDL_SEQUENCE_LocateRequestHeader_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef GIOP_LocateStatusType_1_0_defined
+			#define GIOP_LocateStatusType_1_0_defined
+			typedef unsigned long GIOP_LocateStatusType_1_0;
+			#ifndef GIOP_UNKNOWN_OBJECT_1_0
+				#define GIOP_UNKNOWN_OBJECT_1_0 1UL
+			#endif /* GIOP_UNKNOWN_OBJECT_1_0 */
+			#ifndef GIOP_OBJECT_HERE_1_0
+				#define GIOP_OBJECT_HERE_1_0 2UL
+			#endif /* GIOP_OBJECT_HERE_1_0 */
+			#ifndef GIOP_OBJECT_FORWARD_1_0
+				#define GIOP_OBJECT_FORWARD_1_0 3UL
+			#endif /* GIOP_OBJECT_FORWARD_1_0 */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_LocateStatusType_1_0
+					#if defined(LocateStatusType_1_0)
+						#undef LocateStatusType_1_0
+						#define SOMGD_LocateStatusType_1_0
+					#else
+						#define LocateStatusType_1_0 GIOP_LocateStatusType_1_0
+					#endif
+				#endif /* SOMGD_LocateStatusType_1_0 */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* GIOP_LocateStatusType_1_0_defined */
+		#ifndef GIOP_LocateStatusType_1_2_defined
+			#define GIOP_LocateStatusType_1_2_defined
+			typedef unsigned long GIOP_LocateStatusType_1_2;
+			#ifndef GIOP_UNKNOWN_OBJECT
+				#define GIOP_UNKNOWN_OBJECT 1UL
+			#endif /* GIOP_UNKNOWN_OBJECT */
+			#ifndef GIOP_OBJECT_HERE
+				#define GIOP_OBJECT_HERE 2UL
+			#endif /* GIOP_OBJECT_HERE */
+			#ifndef GIOP_OBJECT_FORWARD
+				#define GIOP_OBJECT_FORWARD 3UL
+			#endif /* GIOP_OBJECT_FORWARD */
+			#ifndef GIOP_OBJECT_FORWARD_PERM
+				#define GIOP_OBJECT_FORWARD_PERM 4UL
+			#endif /* GIOP_OBJECT_FORWARD_PERM */
+			#ifndef GIOP_LOC_SYSTEM_EXCEPTION
+				#define GIOP_LOC_SYSTEM_EXCEPTION 5UL
+			#endif /* GIOP_LOC_SYSTEM_EXCEPTION */
+			#ifndef GIOP_LOC_NEEDS_ADDRESSING_MODE
+				#define GIOP_LOC_NEEDS_ADDRESSING_MODE 6UL
+			#endif /* GIOP_LOC_NEEDS_ADDRESSING_MODE */
+			#ifndef SOM_DONT_USE_SHORT_NAMES
+				#ifndef SOMGD_LocateStatusType_1_2
+					#if defined(LocateStatusType_1_2)
+						#undef LocateStatusType_1_2
+						#define SOMGD_LocateStatusType_1_2
+					#else
+						#define LocateStatusType_1_2 GIOP_LocateStatusType_1_2
+					#endif
+				#endif /* SOMGD_LocateStatusType_1_2 */
+			#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#endif /* GIOP_LocateStatusType_1_2_defined */
+		typedef struct GIOP_LocateReplyHeader_1_0
+		{
+			unsigned long request_id;
+			GIOP_LocateStatusType_1_0 locate_status;
+		} GIOP_LocateReplyHeader_1_0;
+		#ifndef _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_0_defined
+			#define _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_0_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_LocateReplyHeader_1_0);
+		#endif /* _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_0_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_LocateReplyHeader_1_0
+				#if defined(LocateReplyHeader_1_0)
+					#undef LocateReplyHeader_1_0
+					#define SOMGD_LocateReplyHeader_1_0
+				#else
+					#define LocateReplyHeader_1_0 GIOP_LocateReplyHeader_1_0
+				#endif
+			#endif /* SOMGD_LocateReplyHeader_1_0 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_LocateReplyHeader_1_0_defined
+				#define _IDL_SEQUENCE_LocateReplyHeader_1_0_defined
+				#define _IDL_SEQUENCE_LocateReplyHeader_1_0 _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_0
+			#endif /* _IDL_SEQUENCE_LocateReplyHeader_1_0_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct GIOP_LocateReplyHeader_1_2
+		{
+			unsigned long request_id;
+			GIOP_LocateStatusType_1_2 locate_status;
+		} GIOP_LocateReplyHeader_1_2;
+		#ifndef _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_2_defined
+			#define _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_2_defined
+			SOM_SEQUENCE_TYPEDEF(GIOP_LocateReplyHeader_1_2);
+		#endif /* _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_2_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_LocateReplyHeader_1_2
+				#if defined(LocateReplyHeader_1_2)
+					#undef LocateReplyHeader_1_2
+					#define SOMGD_LocateReplyHeader_1_2
+				#else
+					#define LocateReplyHeader_1_2 GIOP_LocateReplyHeader_1_2
+				#endif
+			#endif /* SOMGD_LocateReplyHeader_1_2 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_LocateReplyHeader_1_2_defined
+				#define _IDL_SEQUENCE_LocateReplyHeader_1_2_defined
+				#define _IDL_SEQUENCE_LocateReplyHeader_1_2 _IDL_SEQUENCE_GIOP_LocateReplyHeader_1_2
+			#endif /* _IDL_SEQUENCE_LocateReplyHeader_1_2_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct IIOP_Version
+		{
+			char major;
+			char minor;
+		} IIOP_Version;
+		#ifndef _IDL_SEQUENCE_IIOP_Version_defined
+			#define _IDL_SEQUENCE_IIOP_Version_defined
+			SOM_SEQUENCE_TYPEDEF(IIOP_Version);
+		#endif /* _IDL_SEQUENCE_IIOP_Version_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_Version
+				#if defined(Version)
+					#undef Version
+					#define SOMGD_Version
+				#else
+					#define Version IIOP_Version
+				#endif
+			#endif /* SOMGD_Version */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_Version_defined
+				#define _IDL_SEQUENCE_Version_defined
+				#define _IDL_SEQUENCE_Version _IDL_SEQUENCE_IIOP_Version
+			#endif /* _IDL_SEQUENCE_Version_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct IIOP_ProfileBody_1_0
+		{
+			IIOP_Version iiop_version;
+			string host;
+			unsigned short port;
+			_IDL_SEQUENCE_octet object_key;
+		} IIOP_ProfileBody_1_0;
+		#ifndef _IDL_SEQUENCE_IIOP_ProfileBody_1_0_defined
+			#define _IDL_SEQUENCE_IIOP_ProfileBody_1_0_defined
+			SOM_SEQUENCE_TYPEDEF(IIOP_ProfileBody_1_0);
+		#endif /* _IDL_SEQUENCE_IIOP_ProfileBody_1_0_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_ProfileBody_1_0
+				#if defined(ProfileBody_1_0)
+					#undef ProfileBody_1_0
+					#define SOMGD_ProfileBody_1_0
+				#else
+					#define ProfileBody_1_0 IIOP_ProfileBody_1_0
+				#endif
+			#endif /* SOMGD_ProfileBody_1_0 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_ProfileBody_1_0_defined
+				#define _IDL_SEQUENCE_ProfileBody_1_0_defined
+				#define _IDL_SEQUENCE_ProfileBody_1_0 _IDL_SEQUENCE_IIOP_ProfileBody_1_0
+			#endif /* _IDL_SEQUENCE_ProfileBody_1_0_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct IIOP_ProfileBody_1_1
+		{
+			IIOP_Version iiop_version;
+			string host;
+			unsigned short port;
+			_IDL_SEQUENCE_octet object_key;
+			_IDL_SEQUENCE_IOP_TaggedComponent components;
+		} IIOP_ProfileBody_1_1;
+		#ifndef _IDL_SEQUENCE_IIOP_ProfileBody_1_1_defined
+			#define _IDL_SEQUENCE_IIOP_ProfileBody_1_1_defined
+			SOM_SEQUENCE_TYPEDEF(IIOP_ProfileBody_1_1);
+		#endif /* _IDL_SEQUENCE_IIOP_ProfileBody_1_1_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_ProfileBody_1_1
+				#if defined(ProfileBody_1_1)
+					#undef ProfileBody_1_1
+					#define SOMGD_ProfileBody_1_1
+				#else
+					#define ProfileBody_1_1 IIOP_ProfileBody_1_1
+				#endif
+			#endif /* SOMGD_ProfileBody_1_1 */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_ProfileBody_1_1_defined
+				#define _IDL_SEQUENCE_ProfileBody_1_1_defined
+				#define _IDL_SEQUENCE_ProfileBody_1_1 _IDL_SEQUENCE_IIOP_ProfileBody_1_1
+			#endif /* _IDL_SEQUENCE_ProfileBody_1_1_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef struct IIOP_SOMDServiceContext
+		{
+			IOP_ServiceId context_tag;
+			_IDL_SEQUENCE_octet context_data;
+			somToken context_body;
+		} IIOP_SOMDServiceContext;
+		#ifndef _IDL_SEQUENCE_IIOP_SOMDServiceContext_defined
+			#define _IDL_SEQUENCE_IIOP_SOMDServiceContext_defined
+			SOM_SEQUENCE_TYPEDEF(IIOP_SOMDServiceContext);
+		#endif /* _IDL_SEQUENCE_IIOP_SOMDServiceContext_defined */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef SOMGD_SOMDServiceContext
+				#if defined(SOMDServiceContext)
+					#undef SOMDServiceContext
+					#define SOMGD_SOMDServiceContext
+				#else
+					#define SOMDServiceContext IIOP_SOMDServiceContext
+				#endif
+			#endif /* SOMGD_SOMDServiceContext */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		#ifndef SOM_DONT_USE_SHORT_NAMES
+			#ifndef _IDL_SEQUENCE_SOMDServiceContext_defined
+				#define _IDL_SEQUENCE_SOMDServiceContext_defined
+				#define _IDL_SEQUENCE_SOMDServiceContext _IDL_SEQUENCE_IIOP_SOMDServiceContext
+			#endif /* _IDL_SEQUENCE_SOMDServiceContext_defined */
+		#endif /* SOM_DONT_USE_SHORT_NAMES */
+		typedef IIOP_SOMDServiceContext IIOP_SOMDServiceContexts;
+		typedef _IDL_SEQUENCE_IIOP_SOMDServiceContext IIOP_SOMDServiceContextList;
+		#ifndef _IDL_SEQUENCE_IIOP_SOMDServiceContextList_defined
+			#define _IDL_SEQUENCE_IIOP_SOMDServiceContextList_defined
+			SOM_SEQUENCE_TYPEDEF(IIOP_SOMDServiceContextList);
+		#endif /* _IDL_SEQUENCE_IIOP_SOMDServiceContextList_defined */
+#endif /* SOM_Module_unotypes_Header_xh */

@@ -1,0 +1,42 @@
+LIBRARY some.dll
+HEAPSIZE 10240000
+EXPORTS
+   SOMTEntryCNewClass
+   SOMTEntryCClassData
+   SOMTEntryCCClassData
+
+   SOMTClassEntryCNewClass
+   SOMTClassEntryCClassData
+   SOMTClassEntryCCClassData
+
+   SOMTMetaClassEntryCNewClass
+   SOMTMetaClassEntryCClassData
+   SOMTMetaClassEntryCCClassData
+
+   SOMTModuleEntryCNewClass
+   SOMTModuleEntryCClassData
+   SOMTModuleEntryCCClassData
+
+   SOMTEmitCNewClass
+   SOMTEmitCClassData
+   SOMTEmitCCClassData
+
+   SOMStringTableCNewClass
+   SOMStringTableCClassData
+   SOMStringTableCCClassData
+   
+   SOMTTemplateOutputCNewClass
+   SOMTTemplateOutputCClassData
+   SOMTTemplateOutputCCClassData
+
+   SOMTAttributeEntryCNewClass
+   SOMTAttributeEntryCClassData
+   SOMTAttributeEntryCCClassData
+   
+   somtGetObjectWrapper
+   somtopenEmitFile
+   somtfclose
+   
+   DEFEmitterNewClass
+   DEFEmitterClassData
+   DEFEmitterCClassData

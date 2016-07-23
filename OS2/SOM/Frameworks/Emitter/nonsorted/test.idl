@@ -1,0 +1,717 @@
+#line 1 "<stdin>"
+#line 1 ".\\scconst.idl"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 1 ".\\scentry.idl"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 1 ".\\somobj.idl"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+interface SOMClass;
+interface SOMObject;
+
+typedef long int;
+typedef octet uchar_t;
+typedef unsigned long size_t;
+typedef octet signed_char;
+typedef void * SOMFOREIGN;
+typedef SOMFOREIGN FILE;
+#pragma modifier FILE: impctx=C,length=0;
+typedef SOMFOREIGN va_list;
+#pragma modifier va_list: impctx=C;
+typedef SOMFOREIGN SOMHANDLE;
+#pragma modifier SOMHANDLE: impctx=SOM;
+typedef void * somToken;
+typedef SOMFOREIGN somId;
+#pragma modifier somId: impctx="SOM,static(somIdMarshal,0)";
+enum TCKind {tk_null,tk_void,tk_short,tk_long,tk_ushort,tk_ulong,tk_float,tk_double,tk_boolean,tk_char,tk_octet,tk_any,tk_TypeCode,tk_Principal,tk_objref,tk_struct,tk_union,tk_enum,tk_string,tk_sequence,tk_array,tk_pointer,tk_self,tk_foreign};
+typedef somToken somMethodProc;
+typedef somToken somMethodPtr;
+typedef somToken somInitCtrl;
+typedef somToken somInitInfo;
+typedef somToken somDestructCtrl;
+typedef somToken somDestructInfo;
+typedef somToken somAssignCtrl;
+typedef somToken somAssignInfo;
+
+struct somMethodTab
+{
+	SOMClass classObject;
+};
+struct SOMAny
+{
+	somMethodTab * mtab;
+};
+typedef somToken somMToken;
+typedef somToken somDToken;
+struct somMethodDataStruct
+{
+	somId id;
+	long type;
+	somId descriptor;
+	somMToken mToken;
+	somMethodPtr method;
+	somToken * shared;
+};
+typedef somMethodDataStruct somMethodData;
+struct somClassList
+{
+	SOMClass cls;
+	somClassList * next;
+};
+typedef somClassList * somClasses;
+typedef somToken somObjects;
+struct somMethodTabList
+{
+	somMethodTab * mtab;
+	somMethodTabList * next;
+};
+typedef somMethodTabList * somMethodTabs;
+typedef somMethodTabList * somParentMtabStructPtr;
+struct somClassDataStructure
+{
+	SOMClass classObject;
+	somToken tokens[1];
+};
+struct somCClassDataStructure
+{
+	somMethodTabs parentMtab;
+	somDToken instanceDataToken;
+	somMethodPtr ptrs[1];
+};
+typedef somCClassDataStructure *somCClassDataStructurePtr;
+typedef octet * somBooleanVector;
+enum exception_type {NO_EXCEPTION,USER_EXCEPTION,SYSTEM_EXCEPTION};
+struct Environment
+{
+	exception_type major;
+	octet opaque_data[12];
+};
+
+
+interface SOMObject
+{
+	typedef sequence<SOMObject> SOMObjectSequence;
+	typedef sequence<octet> BooleanSequence;
+	struct somObjectOffset { SOMObject obj;	long offset; };
+	typedef sequence<somObjectOffset> somObjectOffsets;
+	void somInit();
+	void somUninit();
+	void somFree();
+	SOMClass somGetClass();
+	string somGetClassName();
+	long somGetSize();
+	boolean somIsA(in SOMClass aClassObj);
+	boolean somIsInstanceOf(in SOMClass aClassObj);
+	boolean somRespondsTo(in somId mId);
+	boolean somDispatch(out somToken retValue,in somId methodId,in va_list ap);
+	boolean somClassDispatch(in SOMClass clsObj,out somToken retValue,in somId methodId,in va_list ap);
+	boolean somCastObj(in SOMClass castedCls);
+	boolean somResetObj();
+	SOMObject somPrintSelf();
+	void somDumpSelf(in long level);
+	void somDumpSelfInt(in long level);
+
+
+	
+
+	void somDefaultInit(inout somInitCtrl ctrl);
+	void somDefaultCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultConstCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultConstVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+
+	SOMObject somDefaultAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultConstAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultConstVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+
+	void somDestruct(in octet doFree,inout somDestructCtrl ctrl);
+
+
+	implementation
+	{
+		releaseorder : 
+			somInit,
+			somUninit,
+			somFree,
+			somDefaultVCopyInit,
+			somGetClassName,
+			somGetClass,
+			somIsA,
+			somRespondsTo,
+			somIsInstanceOf,
+			somGetSize,
+			somDumpSelf,
+			somDumpSelfInt,
+			somPrintSelf,
+			somDefaultConstVCopyInit,
+			somDispatchV,
+			somDispatchL,
+			somDispatchA,
+			somDispatchD,
+			somDispatch,
+			somClassDispatch,
+			somCastObj,
+			somResetObj,
+			somDefaultInit,
+			somDestruct,
+			somComputeForwardVisitMask,
+			somComputeReverseVisitMask,
+			somDefaultCopyInit,
+			somDefaultConstCopyInit,
+			somDefaultAssign,
+			somDefaultConstAssign,
+			somDefaultVAssign,
+			somDefaultConstVAssign,
+			release,
+			duplicate,
+			get_interface,
+			get_implementation,
+			is_proxy,
+			create_request,
+			create_request_args,
+			is_nil;
+		callstyle = oidl;
+		majorversion = 1;
+		minorversion = 7;
+		dllname = "som.dll";
+
+		somGetClass : dual_owned_result;
+		somGetClassName : dual_owned_result;
+
+		somDefaultInit: init;
+		somDefaultCopyInit: init;
+		somDefaultConstCopyInit: init;
+		somDefaultVCopyInit: init;
+		somDefaultConstVCopyInit: init;
+
+		somDefaultInit: caller_owns_parameters="ctrl";
+		somDestruct: caller_owns_parameters="ctrl";
+		somDefaultCopyInit: caller_owns_parameters="ctrl";
+		somDefaultConstCopyInit: caller_owns_parameters="ctrl";
+		somDefaultVCopyInit: caller_owns_parameters="ctrl";
+		somDefaultConstVCopyInit: caller_owns_parameters="ctrl";
+		somDefaultAssign: caller_owns_parameters="ctrl";
+		somDefaultConstAssign: caller_owns_parameters="ctrl";
+		somDefaultVAssign: caller_owns_parameters="ctrl";
+		somDefaultConstVAssign: caller_owns_parameters="ctrl";
+
+		somRespondsTo: caller_owns_parameters="mId";
+		somDispatch: caller_owns_parameters="methodId,ap";
+		somClassDispatch: caller_owns_parameters="methodId,ap";
+	};
+#line 237 ".\\somobj.idl"
+};
+#line 239 ".\\somobj.idl"
+#line 20 ".\\scentry.idl"
+#line 1 "c:\\lastsom\\somtk\\include\\sctypes.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 35 "c:\\lastsom\\somtk\\include\\sctypes.h"
+
+#line 1 ".\\sm.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef void *Entry;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 98 ".\\sm.h"
+#line 99 ".\\sm.h"
+#line 37 "c:\\lastsom\\somtk\\include\\sctypes.h"
+
+
+
+
+enum SOMTTargetTypeT {
+    somtPrivateE,
+    somtPublicE,
+    somtImplementationE,
+    somtAllE
+};
+
+
+typedef unsigned long SOMTTypes;
+
+
+#line 53 "c:\\lastsom\\somtk\\include\\sctypes.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 89 "c:\\lastsom\\somtk\\include\\sctypes.h"
+#line 21 ".\\scentry.idl"
+
+
+
+
+
+interface SOMTEmitC;
+
+interface SOMTEntryC : SOMObject
+
+
+
+
+
+
+
+
+{
+
+
+
+
+
+  attribute string somtEntryName;
+  
+  
+
+  attribute SOMTTypes somtElementType;
+  
+  
+  
+
+  readonly attribute string somtElementTypeName;
+  
+
+  readonly attribute string somtEntryComment;
+  
+  
+  
+  
+
+  readonly attribute unsigned long somtSourceLineNumber;
+  
+  
+
+  readonly attribute TypeCode somtTypeCode;
+  
+
+  readonly attribute boolean somtIsReference;
+  
+  
+
+  readonly attribute string somtIDLScopedName;
+  
+
+  readonly attribute string somtCScopedName;
+  
+
+  string somtGetModifierValue(in string modifierName);
+  
+  
+  
+  
+  
+
+  boolean somtGetFirstModifier(inout string modifierName, 
+                         inout string modifierValue);
+  
+  
+  
+  
+
+  boolean somtGetNextModifier(inout string modifierName, 
+                        inout string modifierValue);
+  
+  
+  
+  
+  
+
+  long somtFormatModifier(in string buffer, 
+                       in string name, 
+                       in string value);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  long somtGetModifierList(in string buffer);
+  
+  
+  
+  
+  
+
+  long somtSetSymbolsOnEntry(in SOMTEmitC emitter, 
+                          in string prefix);
+  
+  
+  
+
+  void somtSetEntryStruct(inout Entry es);
+  
+  
+  
+  
+
+
+
+  implementation {
+  
+    releaseorder: _get_somtEntryName, _set_somtEntryName, 
+                  _get_somtElementType, _set_somtElementType, 
+                  _get_somtEntryComment, _get_somtSourceLineNumber, 
+                  _get_somtTypeCode, _get_somtIsReference, 
+                  somtGetModifierValue, somtGetFirstModifier, 
+                  somtGetNextModifier, somtFormatModifier, 
+                  somtGetModifierList, somtSetSymbolsOnEntry, 
+                  somtSetEntryStruct, _get_somtEntryStruct, 
+                  somtShowAssocEntry, _get_somtCScopedName, 
+                  _get_somtIDLScopedName, _get_somtElementTypeName;
+
+
+    
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scentry;
+
+    dllname = "some.dll";
+#line 155 ".\\scentry.idl"
+    callstyle = oidl;
+  
+    passthru C_h_after =        "#include <sctypes.h>"
+  "#include <scemit.h>"
+  "#include <sctmplt.h>";
+    passthru C_xh_after =        "#include <sctypes.h>"
+  "#include <scemit.xh>"
+  "#include <sctmplt.xh>";
+  
+  
+    
+
+
+
+
+
+
+
+
+
+
+  
+    
+    somDefaultInit: override;
+    somDestruct: override;
+    
+    
+    
+  
+    
+    somtEntryComment: nodata;
+    somtCScopedName: nodata;
+    somtIDLScopedName: nodata;
+    somtSourceLineNumber: nodata;
+    somtTypeCode: nodata;
+    somtIsReference: nodata;
+    somtEntryStruct: nodata;
+    somtElementTypeName: nodata;
+    somtEntryName: noget;
+  
+  };
+#line 197 ".\\scentry.idl"
+};
+
+
+#line 201 ".\\scentry.idl"
+#line 20 ".\\scconst.idl"
+
+interface SOMTConstEntryC : SOMTEntryC
+{
+  readonly attribute SOMTEntryC somtConstTypeObj;
+  
+  
+
+  readonly attribute string somtConstType;
+  
+
+  readonly attribute string somtConstStringVal;
+  
+
+  readonly attribute unsigned long somtConstNumVal;
+  
+  
+  
+  
+  
+  
+
+  readonly attribute long somtConstNumNegVal;
+  
+
+  readonly attribute boolean somtConstIsNegative;
+  
+  
+
+  readonly attribute string somtConstVal;
+  
+  
+  
+
+
+  implementation {
+    releaseorder: _get_somtConstStringVal, _get_somtConstNumVal, 
+                  _get_somtConstType, _get_somtConstTypeObj, 
+                  _get_somtConstVal, _get_somtConstNumNegVal,
+  		  _get_somtConstIsNegative;
+
+    
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scconst;
+
+    dllname = "some.dll";
+#line 67 ".\\scconst.idl"
+    callstyle = oidl;
+  
+    
+    
+    somtSetSymbolsOnEntry: override;
+  
+    
+    somtConstStringVal: nodata;
+    somtConstNumVal: nodata;
+    somtConstVal: nodata;
+    somtConstNumNegVal: nodata;
+    somtConstType: nodata;
+    somtConstTypeObj: nodata;
+    somtConstIsNegative: nodata;
+  };
+#line 83 ".\\scconst.idl"
+};
+
+
+#line 87 ".\\scconst.idl"
+#line 2 "<stdin>"

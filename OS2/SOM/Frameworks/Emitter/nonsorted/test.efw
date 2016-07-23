@@ -1,0 +1,20 @@
+:prologS
+/* generated from <classSourceFile> */
+/* internal conditional is SOM_Module_<classSourceFileStem>_Source */
+#ifndef SOM_Module_<classSourceFileStem>_Header_h
+	#define SOM_Module_<classSourceFileStem>_Header_h 
+	#include \<som.h>
+:baseIncludesS
+#include \<<baseSourceFileStem>.h>
+:classS
+	#ifndef _IDL_<classCScopedName>_defined
+		#define _IDL_<classCScopedName>_defined
+		typedef <baseName> <classCScopedName>;
+	#endif /* _IDL_<classCScopedName>_defined */
+
+	#ifndef _IDL_SEQUENCE_<classCScopedName>_defined
+		#define _IDL_SEQUENCE_<classCScopedName>_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(<classCScopedName> SOMSTAR ,sequence(<classCScopedName>));
+	#endif /* _IDL_SEQUENCE_<classCScopedName>_defined */
+:epilogS
+#endif /* SOM_Module_<classSourceFileStem>_Header_h */

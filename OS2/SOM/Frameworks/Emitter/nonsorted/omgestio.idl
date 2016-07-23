@@ -1,0 +1,174 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: omgestio.idl 3922 2013-01-18 22:11:54Z rogerb $
+ */
+
+#ifndef omgestio_idl
+#define omgestio_idl
+#include <somobj.idl>
+#include <naming.idl>
+#include <omgidobj.idl>
+module CosLifeCycle
+{
+/*	typedef sequence<octet> Key; */ /* as defined by IBM */
+	typedef CosNaming::Name Key;	/* as defined by OMG */
+	interface FactoryFinder :
+		SOMObject
+	{
+	#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somestrm.dll";
+		};
+	#endif
+	};
+};
+module CosStream
+{
+	interface StreamIO;
+	interface Streamable;
+	interface StreamableFactory;
+	exception ObjectCreationError {};
+	exception StreamDataFormatError {};
+	interface StreamIO :
+		SOMObject
+	{
+		void write_string(
+			in string item);
+		void write_char(
+			in char item);
+		void write_octet(
+			in octet item);
+		void write_unsigned_long(
+			in unsigned long item);
+		void write_unsigned_short(
+			in unsigned short item);
+		void write_long(
+			in long item);
+		void write_short(
+			in short item);
+		void write_float(
+			in float item);
+		void write_double(
+			in double item);
+		void write_boolean(
+			in boolean item);
+		void write_object(
+			in Streamable item);
+		string read_string()
+				raises (StreamDataFormatError);
+		char read_char()
+				raises (StreamDataFormatError);
+		octet read_octet()
+				raises (StreamDataFormatError);
+		unsigned long read_unsigned_long()
+				raises (StreamDataFormatError);
+		unsigned short read_unsigned_short()
+				raises (StreamDataFormatError);
+		long read_long()
+				raises (StreamDataFormatError);
+		short read_short()
+				raises (StreamDataFormatError);
+		float read_float()
+				raises (StreamDataFormatError);
+		double read_double()
+				raises (StreamDataFormatError);
+		boolean read_boolean()
+				raises (StreamDataFormatError);
+		Streamable read_object(
+			in CosLifeCycle::FactoryFinder ff,
+			in Streamable obj)
+				raises (StreamDataFormatError);
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion = 3;
+			minorversion = 0;
+			memory_management = corba;
+			releaseorder : 
+				read_short,
+				write_short,
+				read_long,
+				write_long,
+				read_unsigned_short,
+				write_unsigned_short,
+				read_unsigned_long,
+				write_unsigned_long,
+				read_float,
+				write_float,
+				read_double,
+				write_double,
+				read_boolean,
+				write_boolean,
+				read_char,
+				write_char,
+				read_octet,
+				write_octet,
+				read_string,
+				write_string,
+				read_object,
+				write_object;
+			dllname = "somestrm.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface Streamable :
+		CosObjectIdentity::IdentifiableObject
+	{
+		void externalize_to_stream(
+			in StreamIO stream);
+		void internalize_from_stream(
+			in StreamIO stream,
+			in CosLifeCycle::FactoryFinder ff);
+		readonly attribute CosLifeCycle::Key external_form_id;
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion = 3;
+			minorversion = 0;
+			memory_management = corba;
+			releaseorder : 
+				externalize_to_stream,
+				internalize_from_stream,
+				_get_external_form_id;
+			dllname = "somestrm.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface StreamableFactory :
+		SOMObject
+	{
+		Streamable create_uninitialized();
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion = 3;
+			minorversion = 0;
+			memory_management = corba;
+			releaseorder : create_uninitialized;
+			dllname = "somestrm.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+};
+#endif /* omgestio_idl */

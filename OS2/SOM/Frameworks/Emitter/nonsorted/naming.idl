@@ -1,0 +1,175 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: naming.idl 3926 2013-01-18 22:12:02Z rogerb $
+ */
+
+#ifndef naming_idl
+#define naming_idl
+#include <somobj.idl>
+
+
+#pragma prefix "omg.org"
+
+module CosNaming
+{
+	interface BindingIterator;
+	interface NamingContext;
+	typedef string Istring;
+	struct NameComponent
+	{
+		Istring id;
+		Istring kind;
+	};
+	typedef sequence<NameComponent> Name;
+	enum BindingType {nobject,ncontext};
+	struct Binding
+	{
+		Name binding_name;
+		BindingType binding_type;
+	};
+	typedef sequence<Binding> BindingList;
+	interface BindingIterator :
+		SOMObject
+	{
+		boolean next_one(
+			out Binding b);
+		boolean next_n(
+			in unsigned long how_many,
+			out BindingList bl);
+		void destroy();
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : 
+				next_one,
+				next_n,
+				destroy;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface NamingContext :
+		SOMObject
+	{
+		enum NotFoundReason {missing_node,not_context,not_object};
+		exception NotFound
+		{
+			NotFoundReason why;
+			Name rest_of_name;
+		};
+		exception CannotProceed
+		{
+			NamingContext cxt;
+			Name rest_of_name;
+		};
+		exception InvalidName
+		{
+			Name name;
+		};
+		exception AlreadyBound {};
+		exception NotEmpty {};
+		void bind(
+			in Name n,
+			in SOMObject obj)
+				raises (NotFound,CannotProceed,InvalidName,AlreadyBound);
+		void rebind(
+			in Name n,
+			in SOMObject obj)
+				raises (NotFound,CannotProceed,InvalidName);
+		void bind_context(
+			in Name n,
+			in NamingContext nc)
+				raises (NotFound,CannotProceed,InvalidName,AlreadyBound);
+		void rebind_context(
+			in Name n,
+			in NamingContext nc)
+				raises (NotFound,CannotProceed,InvalidName);
+		SOMObject resolve(
+			in Name n)
+				raises (NotFound,CannotProceed,InvalidName);
+		void unbind(
+			in Name n)
+				raises (NotFound,CannotProceed,InvalidName);
+		NamingContext new_context();
+		NamingContext bind_new_context(
+			in Name n)
+				raises (NotFound,CannotProceed,InvalidName,AlreadyBound);
+		void destroy()
+				raises (NotEmpty);
+		void list(
+			in unsigned long how_many,
+			out BindingList bl,
+			out BindingIterator bi);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : 
+				bind,
+				rebind,
+				bind_context,
+				rebind_context,
+				resolve,
+				unbind,
+				new_context,
+				bind_new_context,
+				destroy,
+				list,
+				private10;
+			dllname = "somnmf.dll";
+			majorversion = 3;
+			minorversion = 0;
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface NamingContextExt: NamingContext
+	{
+		typedef string StringName;
+		typedef string Address;
+		typedef string URLString;
+		StringName to_string(in Name n) raises(NamingContext::InvalidName);
+		Name to_name(in StringName sn) raises(NamingContext::InvalidName);
+		exception InvalidAddress{};
+		URLString to_url(in Address addr,in StringName sn)
+				raises(InvalidAddress,NamingContext::InvalidName);
+		SOMObject resolve_str(in StringName n)
+					raises(
+						NamingContext::NotFound,
+						NamingContext::CannotProceed,
+						NamingContext::InvalidName,
+						NamingContext::AlreadyBound);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder :
+					to_string,to_name,to_url,resolve_str;
+			dllname="somnmf.dll";
+		};
+#endif
+	};
+};
+
+#pragma prefix ""
+
+#endif /* naming_idl */

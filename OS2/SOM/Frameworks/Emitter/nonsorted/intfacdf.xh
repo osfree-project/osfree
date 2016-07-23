@@ -1,0 +1,1569 @@
+/* generated from intfacdf.idl */
+/* internal conditional is SOM_Module_intfacdf_Source */
+#ifndef SOM_Module_intfacdf_Header_xh
+	#define SOM_Module_intfacdf_Header_xh 1
+	#include <som.xh>
+	#include <containd.xh>
+	#include <somobj.xh>
+	#include <containr.xh>
+	#include <attribdf.xh>
+	#include <operatdf.xh>
+	#include <paramdef.xh>
+	#include <excptdef.xh>
+	class InterfaceDef;
+	#ifndef _IDL_SEQUENCE_InterfaceDef_defined
+		#define _IDL_SEQUENCE_InterfaceDef_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(InterfaceDef * ,sequence(InterfaceDef));
+	#endif /* _IDL_SEQUENCE_InterfaceDef_defined */
+#ifndef InterfaceDef_API
+#define InterfaceDef_API
+	typedef struct InterfaceDef_FullInterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+		_IDL_SEQUENCE_OperationDef_OperationDescription operation;
+		_IDL_SEQUENCE_AttributeDef_AttributeDescription attributes;
+	} InterfaceDef_FullInterfaceDescription;
+	#ifndef _IDL_SEQUENCE_InterfaceDef_FullInterfaceDescription_defined
+		#define _IDL_SEQUENCE_InterfaceDef_FullInterfaceDescription_defined
+		SOM_SEQUENCE_TYPEDEF(InterfaceDef_FullInterfaceDescription);
+	#endif /* _IDL_SEQUENCE_InterfaceDef_FullInterfaceDescription_defined */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_FullInterfaceDescription
+			#if defined(FullInterfaceDescription)
+				#undef FullInterfaceDescription
+				#define SOMGD_FullInterfaceDescription
+			#else
+				#define FullInterfaceDescription InterfaceDef_FullInterfaceDescription
+			#endif
+		#endif /* SOMGD_FullInterfaceDescription */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef _IDL_SEQUENCE_FullInterfaceDescription_defined
+			#define _IDL_SEQUENCE_FullInterfaceDescription_defined
+			#define _IDL_SEQUENCE_FullInterfaceDescription _IDL_SEQUENCE_InterfaceDef_FullInterfaceDescription
+		#endif /* _IDL_SEQUENCE_FullInterfaceDescription_defined */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	typedef struct InterfaceDef_InterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+	} InterfaceDef_InterfaceDescription;
+	#ifndef _IDL_SEQUENCE_InterfaceDef_InterfaceDescription_defined
+		#define _IDL_SEQUENCE_InterfaceDef_InterfaceDescription_defined
+		SOM_SEQUENCE_TYPEDEF(InterfaceDef_InterfaceDescription);
+	#endif /* _IDL_SEQUENCE_InterfaceDef_InterfaceDescription_defined */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef SOMGD_InterfaceDescription
+			#if defined(InterfaceDescription)
+				#undef InterfaceDescription
+				#define SOMGD_InterfaceDescription
+			#else
+				#define InterfaceDescription InterfaceDef_InterfaceDescription
+			#endif
+		#endif /* SOMGD_InterfaceDescription */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+	#ifndef SOM_DONT_USE_SHORT_NAMES
+		#ifndef _IDL_SEQUENCE_InterfaceDescription_defined
+			#define _IDL_SEQUENCE_InterfaceDescription_defined
+			#define _IDL_SEQUENCE_InterfaceDescription _IDL_SEQUENCE_InterfaceDef_InterfaceDescription
+		#endif /* _IDL_SEQUENCE_InterfaceDescription_defined */
+	#endif /* SOM_DONT_USE_SHORT_NAMES */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_base_interfaces
+		#error somTD_InterfaceDef__set_base_interfaces already defined
+	#else /* somTD_InterfaceDef__set_base_interfaces */
+		#define somTD_InterfaceDef__set_base_interfaces somTD_InterfaceDef_somC_set_base_interfaces
+	#endif /* somTD_InterfaceDef__set_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_base_interfaces
+		#error somTP_InterfaceDef__set_base_interfaces already defined
+	#else /* somTP_InterfaceDef__set_base_interfaces */
+		#define somTP_InterfaceDef__set_base_interfaces somTP_InterfaceDef_somC_set_base_interfaces
+	#endif /* somTP_InterfaceDef__set_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_base_interfaces)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ _IDL_SEQUENCE_string *base_interfaces);
+		#pragma linkage(somTP_InterfaceDef__set_base_interfaces,system)
+		typedef somTP_InterfaceDef__set_base_interfaces *somTD_InterfaceDef__set_base_interfaces;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_base_interfaces
+		#error somTD_InterfaceDef__set_base_interfaces already defined
+	#else /* somTD_InterfaceDef__set_base_interfaces */
+		#define somTD_InterfaceDef__set_base_interfaces somTD_InterfaceDef_somC_set_base_interfaces
+	#endif /* somTD_InterfaceDef__set_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_base_interfaces)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ _IDL_SEQUENCE_string *base_interfaces);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_base_interfaces
+		#error somTD_InterfaceDef__get_base_interfaces already defined
+	#else /* somTD_InterfaceDef__get_base_interfaces */
+		#define somTD_InterfaceDef__get_base_interfaces somTD_InterfaceDef_somC_get_base_interfaces
+	#endif /* somTD_InterfaceDef__get_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_base_interfaces
+		#error somTP_InterfaceDef__get_base_interfaces already defined
+	#else /* somTP_InterfaceDef__get_base_interfaces */
+		#define somTP_InterfaceDef__get_base_interfaces somTP_InterfaceDef_somC_get_base_interfaces
+	#endif /* somTP_InterfaceDef__get_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef _IDL_SEQUENCE_string (somTP_InterfaceDef__get_base_interfaces)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_base_interfaces,system)
+		typedef somTP_InterfaceDef__get_base_interfaces *somTD_InterfaceDef__get_base_interfaces;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_base_interfaces
+		#error somTD_InterfaceDef__get_base_interfaces already defined
+	#else /* somTD_InterfaceDef__get_base_interfaces */
+		#define somTD_InterfaceDef__get_base_interfaces somTD_InterfaceDef_somC_get_base_interfaces
+	#endif /* somTD_InterfaceDef__get_base_interfaces */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef _IDL_SEQUENCE_string (SOMLINK * somTD_InterfaceDef__get_base_interfaces)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef InterfaceDef_FullInterfaceDescription (somTP_InterfaceDef_describe_interface)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef_describe_interface,system)
+		typedef somTP_InterfaceDef_describe_interface *somTD_InterfaceDef_describe_interface;
+	#else /* __IBMC__ */
+		typedef InterfaceDef_FullInterfaceDescription (SOMLINK * somTD_InterfaceDef_describe_interface)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_instanceData
+		#error somTD_InterfaceDef__set_instanceData already defined
+	#else /* somTD_InterfaceDef__set_instanceData */
+		#define somTD_InterfaceDef__set_instanceData somTD_InterfaceDef_somC_set_instanceData
+	#endif /* somTD_InterfaceDef__set_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_instanceData
+		#error somTP_InterfaceDef__set_instanceData already defined
+	#else /* somTP_InterfaceDef__set_instanceData */
+		#define somTP_InterfaceDef__set_instanceData somTP_InterfaceDef_somC_set_instanceData
+	#endif /* somTP_InterfaceDef__set_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_instanceData)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ TypeCode instanceData);
+		#pragma linkage(somTP_InterfaceDef__set_instanceData,system)
+		typedef somTP_InterfaceDef__set_instanceData *somTD_InterfaceDef__set_instanceData;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_instanceData
+		#error somTD_InterfaceDef__set_instanceData already defined
+	#else /* somTD_InterfaceDef__set_instanceData */
+		#define somTD_InterfaceDef__set_instanceData somTD_InterfaceDef_somC_set_instanceData
+	#endif /* somTD_InterfaceDef__set_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_instanceData)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ TypeCode instanceData);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_instanceData
+		#error somTD_InterfaceDef__get_instanceData already defined
+	#else /* somTD_InterfaceDef__get_instanceData */
+		#define somTD_InterfaceDef__get_instanceData somTD_InterfaceDef_somC_get_instanceData
+	#endif /* somTD_InterfaceDef__get_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_instanceData
+		#error somTP_InterfaceDef__get_instanceData already defined
+	#else /* somTP_InterfaceDef__get_instanceData */
+		#define somTP_InterfaceDef__get_instanceData somTP_InterfaceDef_somC_get_instanceData
+	#endif /* somTP_InterfaceDef__get_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef TypeCode (somTP_InterfaceDef__get_instanceData)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_instanceData,system)
+		typedef somTP_InterfaceDef__get_instanceData *somTD_InterfaceDef__get_instanceData;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_instanceData
+		#error somTD_InterfaceDef__get_instanceData already defined
+	#else /* somTD_InterfaceDef__get_instanceData */
+		#define somTD_InterfaceDef__get_instanceData somTD_InterfaceDef_somC_get_instanceData
+	#endif /* somTD_InterfaceDef__get_instanceData */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef TypeCode (SOMLINK * somTD_InterfaceDef__get_instanceData)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_defined_in
+		#error somTD_InterfaceDef__set_defined_in already defined
+	#else /* somTD_InterfaceDef__set_defined_in */
+		#define somTD_InterfaceDef__set_defined_in somTD_InterfaceDef_somC_set_defined_in
+	#endif /* somTD_InterfaceDef__set_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_defined_in
+		#error somTP_InterfaceDef__set_defined_in already defined
+	#else /* somTP_InterfaceDef__set_defined_in */
+		#define somTP_InterfaceDef__set_defined_in somTP_InterfaceDef_somC_set_defined_in
+	#endif /* somTP_InterfaceDef__set_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_defined_in)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ RepositoryId defined_in);
+		#pragma linkage(somTP_InterfaceDef__set_defined_in,system)
+		typedef somTP_InterfaceDef__set_defined_in *somTD_InterfaceDef__set_defined_in;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_defined_in
+		#error somTD_InterfaceDef__set_defined_in already defined
+	#else /* somTD_InterfaceDef__set_defined_in */
+		#define somTD_InterfaceDef__set_defined_in somTD_InterfaceDef_somC_set_defined_in
+	#endif /* somTD_InterfaceDef__set_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_defined_in)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ RepositoryId defined_in);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_defined_in
+		#error somTD_InterfaceDef__get_defined_in already defined
+	#else /* somTD_InterfaceDef__get_defined_in */
+		#define somTD_InterfaceDef__get_defined_in somTD_InterfaceDef_somC_get_defined_in
+	#endif /* somTD_InterfaceDef__get_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_defined_in
+		#error somTP_InterfaceDef__get_defined_in already defined
+	#else /* somTP_InterfaceDef__get_defined_in */
+		#define somTP_InterfaceDef__get_defined_in somTP_InterfaceDef_somC_get_defined_in
+	#endif /* somTP_InterfaceDef__get_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef RepositoryId (somTP_InterfaceDef__get_defined_in)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_defined_in,system)
+		typedef somTP_InterfaceDef__get_defined_in *somTD_InterfaceDef__get_defined_in;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_defined_in
+		#error somTD_InterfaceDef__get_defined_in already defined
+	#else /* somTD_InterfaceDef__get_defined_in */
+		#define somTD_InterfaceDef__get_defined_in somTD_InterfaceDef_somC_get_defined_in
+	#endif /* somTD_InterfaceDef__get_defined_in */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef RepositoryId (SOMLINK * somTD_InterfaceDef__get_defined_in)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_name
+		#error somTD_InterfaceDef__set_name already defined
+	#else /* somTD_InterfaceDef__set_name */
+		#define somTD_InterfaceDef__set_name somTD_InterfaceDef_somC_set_name
+	#endif /* somTD_InterfaceDef__set_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_name
+		#error somTP_InterfaceDef__set_name already defined
+	#else /* somTP_InterfaceDef__set_name */
+		#define somTP_InterfaceDef__set_name somTP_InterfaceDef_somC_set_name
+	#endif /* somTP_InterfaceDef__set_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_name)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Identifier name);
+		#pragma linkage(somTP_InterfaceDef__set_name,system)
+		typedef somTP_InterfaceDef__set_name *somTD_InterfaceDef__set_name;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_name
+		#error somTD_InterfaceDef__set_name already defined
+	#else /* somTD_InterfaceDef__set_name */
+		#define somTD_InterfaceDef__set_name somTD_InterfaceDef_somC_set_name
+	#endif /* somTD_InterfaceDef__set_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_name)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Identifier name);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_name
+		#error somTD_InterfaceDef__get_name already defined
+	#else /* somTD_InterfaceDef__get_name */
+		#define somTD_InterfaceDef__get_name somTD_InterfaceDef_somC_get_name
+	#endif /* somTD_InterfaceDef__get_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_name
+		#error somTP_InterfaceDef__get_name already defined
+	#else /* somTP_InterfaceDef__get_name */
+		#define somTP_InterfaceDef__get_name somTP_InterfaceDef_somC_get_name
+	#endif /* somTP_InterfaceDef__get_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Identifier (somTP_InterfaceDef__get_name)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_name,system)
+		typedef somTP_InterfaceDef__get_name *somTD_InterfaceDef__get_name;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_name
+		#error somTD_InterfaceDef__get_name already defined
+	#else /* somTD_InterfaceDef__get_name */
+		#define somTD_InterfaceDef__get_name somTD_InterfaceDef_somC_get_name
+	#endif /* somTD_InterfaceDef__get_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Identifier (SOMLINK * somTD_InterfaceDef__get_name)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_id
+		#error somTD_InterfaceDef__set_id already defined
+	#else /* somTD_InterfaceDef__set_id */
+		#define somTD_InterfaceDef__set_id somTD_InterfaceDef_somC_set_id
+	#endif /* somTD_InterfaceDef__set_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_id
+		#error somTP_InterfaceDef__set_id already defined
+	#else /* somTP_InterfaceDef__set_id */
+		#define somTP_InterfaceDef__set_id somTP_InterfaceDef_somC_set_id
+	#endif /* somTP_InterfaceDef__set_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_id)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ RepositoryId id);
+		#pragma linkage(somTP_InterfaceDef__set_id,system)
+		typedef somTP_InterfaceDef__set_id *somTD_InterfaceDef__set_id;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_id
+		#error somTD_InterfaceDef__set_id already defined
+	#else /* somTD_InterfaceDef__set_id */
+		#define somTD_InterfaceDef__set_id somTD_InterfaceDef_somC_set_id
+	#endif /* somTD_InterfaceDef__set_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_id)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ RepositoryId id);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_id
+		#error somTD_InterfaceDef__get_id already defined
+	#else /* somTD_InterfaceDef__get_id */
+		#define somTD_InterfaceDef__get_id somTD_InterfaceDef_somC_get_id
+	#endif /* somTD_InterfaceDef__get_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_id
+		#error somTP_InterfaceDef__get_id already defined
+	#else /* somTP_InterfaceDef__get_id */
+		#define somTP_InterfaceDef__get_id somTP_InterfaceDef_somC_get_id
+	#endif /* somTP_InterfaceDef__get_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef RepositoryId (somTP_InterfaceDef__get_id)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_id,system)
+		typedef somTP_InterfaceDef__get_id *somTD_InterfaceDef__get_id;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_id
+		#error somTD_InterfaceDef__get_id already defined
+	#else /* somTD_InterfaceDef__get_id */
+		#define somTD_InterfaceDef__get_id somTD_InterfaceDef_somC_get_id
+	#endif /* somTD_InterfaceDef__get_id */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef RepositoryId (SOMLINK * somTD_InterfaceDef__get_id)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_somModifiers
+		#error somTD_InterfaceDef__set_somModifiers already defined
+	#else /* somTD_InterfaceDef__set_somModifiers */
+		#define somTD_InterfaceDef__set_somModifiers somTD_InterfaceDef_somC_set_somModifiers
+	#endif /* somTD_InterfaceDef__set_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__set_somModifiers
+		#error somTP_InterfaceDef__set_somModifiers already defined
+	#else /* somTP_InterfaceDef__set_somModifiers */
+		#define somTP_InterfaceDef__set_somModifiers somTP_InterfaceDef_somC_set_somModifiers
+	#endif /* somTP_InterfaceDef__set_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_InterfaceDef__set_somModifiers)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Contained_somModifierSeq *somModifiers);
+		#pragma linkage(somTP_InterfaceDef__set_somModifiers,system)
+		typedef somTP_InterfaceDef__set_somModifiers *somTD_InterfaceDef__set_somModifiers;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__set_somModifiers
+		#error somTD_InterfaceDef__set_somModifiers already defined
+	#else /* somTD_InterfaceDef__set_somModifiers */
+		#define somTD_InterfaceDef__set_somModifiers somTD_InterfaceDef_somC_set_somModifiers
+	#endif /* somTD_InterfaceDef__set_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_InterfaceDef__set_somModifiers)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Contained_somModifierSeq *somModifiers);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_somModifiers
+		#error somTD_InterfaceDef__get_somModifiers already defined
+	#else /* somTD_InterfaceDef__get_somModifiers */
+		#define somTD_InterfaceDef__get_somModifiers somTD_InterfaceDef_somC_get_somModifiers
+	#endif /* somTD_InterfaceDef__get_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_InterfaceDef__get_somModifiers
+		#error somTP_InterfaceDef__get_somModifiers already defined
+	#else /* somTP_InterfaceDef__get_somModifiers */
+		#define somTP_InterfaceDef__get_somModifiers somTP_InterfaceDef_somC_get_somModifiers
+	#endif /* somTP_InterfaceDef__get_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Contained_somModifierSeq (somTP_InterfaceDef__get_somModifiers)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef__get_somModifiers,system)
+		typedef somTP_InterfaceDef__get_somModifiers *somTD_InterfaceDef__get_somModifiers;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_InterfaceDef__get_somModifiers
+		#error somTD_InterfaceDef__get_somModifiers already defined
+	#else /* somTD_InterfaceDef__get_somModifiers */
+		#define somTD_InterfaceDef__get_somModifiers somTD_InterfaceDef_somC_get_somModifiers
+	#endif /* somTD_InterfaceDef__get_somModifiers */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Contained_somModifierSeq (SOMLINK * somTD_InterfaceDef__get_somModifiers)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Contained_ContainerSeq (somTP_InterfaceDef_within)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef_within,system)
+		typedef somTP_InterfaceDef_within *somTD_InterfaceDef_within;
+	#else /* __IBMC__ */
+		typedef Contained_ContainerSeq (SOMLINK * somTD_InterfaceDef_within)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Contained_Description (somTP_InterfaceDef_describe)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_InterfaceDef_describe,system)
+		typedef somTP_InterfaceDef_describe *somTD_InterfaceDef_describe;
+	#else /* __IBMC__ */
+		typedef Contained_Description (SOMLINK * somTD_InterfaceDef_describe)(
+			InterfaceDef * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somInit)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somInit,system)
+		typedef somTP_InterfaceDef_somInit *somTD_InterfaceDef_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somInit)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somUninit)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somUninit,system)
+		typedef somTP_InterfaceDef_somUninit *somTD_InterfaceDef_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somUninit)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somFree)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somFree,system)
+		typedef somTP_InterfaceDef_somFree *somTD_InterfaceDef_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somFree)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_InterfaceDef_somGetClass)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somGetClass,system)
+		typedef somTP_InterfaceDef_somGetClass *somTD_InterfaceDef_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_InterfaceDef_somGetClass)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_InterfaceDef_somGetClassName)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somGetClassName,system)
+		typedef somTP_InterfaceDef_somGetClassName *somTD_InterfaceDef_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_InterfaceDef_somGetClassName)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_InterfaceDef_somGetSize)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somGetSize,system)
+		typedef somTP_InterfaceDef_somGetSize *somTD_InterfaceDef_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_InterfaceDef_somGetSize)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somIsA)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_InterfaceDef_somIsA,system)
+		typedef somTP_InterfaceDef_somIsA *somTD_InterfaceDef_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somIsA)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somIsInstanceOf)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_InterfaceDef_somIsInstanceOf,system)
+		typedef somTP_InterfaceDef_somIsInstanceOf *somTD_InterfaceDef_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somIsInstanceOf)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somRespondsTo)(
+			InterfaceDef * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_InterfaceDef_somRespondsTo,system)
+		typedef somTP_InterfaceDef_somRespondsTo *somTD_InterfaceDef_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somRespondsTo)(
+			InterfaceDef * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somDispatch)(
+			InterfaceDef * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_InterfaceDef_somDispatch,system)
+		typedef somTP_InterfaceDef_somDispatch *somTD_InterfaceDef_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somDispatch)(
+			InterfaceDef * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somClassDispatch)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_InterfaceDef_somClassDispatch,system)
+		typedef somTP_InterfaceDef_somClassDispatch *somTD_InterfaceDef_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somClassDispatch)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somCastObj)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_InterfaceDef_somCastObj,system)
+		typedef somTP_InterfaceDef_somCastObj *somTD_InterfaceDef_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somCastObj)(
+			InterfaceDef * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_InterfaceDef_somResetObj)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somResetObj,system)
+		typedef somTP_InterfaceDef_somResetObj *somTD_InterfaceDef_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_InterfaceDef_somResetObj)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_InterfaceDef_somPrintSelf)(
+			InterfaceDef * somSelf);
+		#pragma linkage(somTP_InterfaceDef_somPrintSelf,system)
+		typedef somTP_InterfaceDef_somPrintSelf *somTD_InterfaceDef_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_InterfaceDef_somPrintSelf)(
+			InterfaceDef * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDumpSelf)(
+			InterfaceDef * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_InterfaceDef_somDumpSelf,system)
+		typedef somTP_InterfaceDef_somDumpSelf *somTD_InterfaceDef_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDumpSelf)(
+			InterfaceDef * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDumpSelfInt)(
+			InterfaceDef * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_InterfaceDef_somDumpSelfInt,system)
+		typedef somTP_InterfaceDef_somDumpSelfInt *somTD_InterfaceDef_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDumpSelfInt)(
+			InterfaceDef * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDefaultInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_InterfaceDef_somDefaultInit,system)
+		typedef somTP_InterfaceDef_somDefaultInit *somTD_InterfaceDef_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDefaultInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDefaultCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultCopyInit,system)
+		typedef somTP_InterfaceDef_somDefaultCopyInit *somTD_InterfaceDef_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDefaultCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDefaultConstCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultConstCopyInit,system)
+		typedef somTP_InterfaceDef_somDefaultConstCopyInit *somTD_InterfaceDef_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDefaultConstCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDefaultVCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultVCopyInit,system)
+		typedef somTP_InterfaceDef_somDefaultVCopyInit *somTD_InterfaceDef_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDefaultVCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDefaultConstVCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultConstVCopyInit,system)
+		typedef somTP_InterfaceDef_somDefaultConstVCopyInit *somTD_InterfaceDef_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDefaultConstVCopyInit)(
+			InterfaceDef * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_InterfaceDef_somDefaultAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultAssign,system)
+		typedef somTP_InterfaceDef_somDefaultAssign *somTD_InterfaceDef_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_InterfaceDef_somDefaultAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_InterfaceDef_somDefaultConstAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultConstAssign,system)
+		typedef somTP_InterfaceDef_somDefaultConstAssign *somTD_InterfaceDef_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_InterfaceDef_somDefaultConstAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_InterfaceDef_somDefaultVAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultVAssign,system)
+		typedef somTP_InterfaceDef_somDefaultVAssign *somTD_InterfaceDef_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_InterfaceDef_somDefaultVAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_InterfaceDef_somDefaultConstVAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_InterfaceDef_somDefaultConstVAssign,system)
+		typedef somTP_InterfaceDef_somDefaultConstVAssign *somTD_InterfaceDef_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_InterfaceDef_somDefaultConstVAssign)(
+			InterfaceDef * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_InterfaceDef_somDestruct)(
+			InterfaceDef * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_InterfaceDef_somDestruct,system)
+		typedef somTP_InterfaceDef_somDestruct *somTD_InterfaceDef_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_InterfaceDef_somDestruct)(
+			InterfaceDef * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainedSeq (somTP_InterfaceDef_contents)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+		#pragma linkage(somTP_InterfaceDef_contents,system)
+		typedef somTP_InterfaceDef_contents *somTD_InterfaceDef_contents;
+	#else /* __IBMC__ */
+		typedef Container_ContainedSeq (SOMLINK * somTD_InterfaceDef_contents)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainedSeq (somTP_InterfaceDef_lookup_name)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+		#pragma linkage(somTP_InterfaceDef_lookup_name,system)
+		typedef somTP_InterfaceDef_lookup_name *somTD_InterfaceDef_lookup_name;
+	#else /* __IBMC__ */
+		typedef Container_ContainedSeq (SOMLINK * somTD_InterfaceDef_lookup_name)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef Container_ContainerDescriptionSeq (somTP_InterfaceDef_describe_contents)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs);
+		#pragma linkage(somTP_InterfaceDef_describe_contents,system)
+		typedef somTP_InterfaceDef_describe_contents *somTD_InterfaceDef_describe_contents;
+	#else /* __IBMC__ */
+		typedef Container_ContainerDescriptionSeq (SOMLINK * somTD_InterfaceDef_describe_contents)(
+			InterfaceDef * somSelf,
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef InterfaceDef_MajorVersion
+		#define InterfaceDef_MajorVersion   2
+	#endif /* InterfaceDef_MajorVersion */
+	#ifndef InterfaceDef_MinorVersion
+		#define InterfaceDef_MinorVersion   1
+	#endif /* InterfaceDef_MinorVersion */
+	typedef struct InterfaceDefClassDataStructure
+	{
+		SOMClass * classObject;
+		somMToken describe_interface;
+		somMToken _get_base_interfaces;
+		somMToken _set_base_interfaces;
+		somMToken _get_instanceData;
+		somMToken _set_instanceData;
+		somMToken subclasses;
+	} InterfaceDefClassDataStructure;
+	typedef struct InterfaceDefCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} InterfaceDefCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_intfacdf_Source) || defined(InterfaceDef_Class_Source)
+			SOMEXTERN struct InterfaceDefClassDataStructure _InterfaceDefClassData;
+			#ifndef InterfaceDefClassData
+				#define InterfaceDefClassData    _InterfaceDefClassData
+			#endif /* InterfaceDefClassData */
+		#else
+			SOMEXTERN struct InterfaceDefClassDataStructure * SOMLINK resolve_InterfaceDefClassData(void);
+			#ifndef InterfaceDefClassData
+				#define InterfaceDefClassData    (*(resolve_InterfaceDefClassData()))
+			#endif /* InterfaceDefClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_intfacdf_Source) || defined(InterfaceDef_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+		struct InterfaceDefClassDataStructure SOMDLINK InterfaceDefClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_intfacdf_Source) || defined(InterfaceDef_Class_Source)
+			SOMEXTERN struct InterfaceDefCClassDataStructure _InterfaceDefCClassData;
+			#ifndef InterfaceDefCClassData
+				#define InterfaceDefCClassData    _InterfaceDefCClassData
+			#endif /* InterfaceDefCClassData */
+		#else
+			SOMEXTERN struct InterfaceDefCClassDataStructure * SOMLINK resolve_InterfaceDefCClassData(void);
+			#ifndef InterfaceDefCClassData
+				#define InterfaceDefCClassData    (*(resolve_InterfaceDefCClassData()))
+			#endif /* InterfaceDefCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_intfacdf_Source) || defined(InterfaceDef_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+		struct InterfaceDefCClassDataStructure SOMDLINK InterfaceDefCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_intfacdf_Source) || defined(InterfaceDef_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_intfacdf_Source || InterfaceDef_Class_Source */
+	SOMClass * SOMLINK InterfaceDefNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_InterfaceDef (InterfaceDefClassData.classObject)
+	#ifndef SOMGD_InterfaceDef
+		#if (defined(_InterfaceDef) || defined(__InterfaceDef))
+			#undef _InterfaceDef
+			#undef __InterfaceDef
+			#define SOMGD_InterfaceDef 1
+		#else
+			#define _InterfaceDef _SOMCLASS_InterfaceDef
+		#endif /* _InterfaceDef */
+	#endif /* SOMGD_InterfaceDef */
+	#define InterfaceDef_classObj _SOMCLASS_InterfaceDef
+	#define _SOMMTOKEN_InterfaceDef(method) ((somMToken)(InterfaceDefClassData.method))
+#endif /* InterfaceDef_API */
+
+	class InterfaceDef : public Contained, public Container
+	{
+	protected:
+		InterfaceDef(somMethodTab & mtab)
+			: Contained(mtab)
+			, Container(mtab)
+		{}
+	public:
+
+		inline void _set_base_interfaces(
+			Environment *ev,
+			/* in */ _IDL_SEQUENCE_string *base_interfaces)
+		{
+			SOM_Resolve((void *)this,InterfaceDef,_set_base_interfaces)
+					((InterfaceDef *)(void *)this,ev,base_interfaces);
+		};
+
+		inline _IDL_SEQUENCE_string _get_base_interfaces(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,InterfaceDef,_get_base_interfaces)
+					((InterfaceDef *)(void *)this,ev);
+		};
+
+		inline InterfaceDef_FullInterfaceDescription describe_interface(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,InterfaceDef,describe_interface)
+					((InterfaceDef *)(void *)this,ev);
+		};
+
+		inline void _set_instanceData(
+			Environment *ev,
+			/* in */ TypeCode instanceData)
+		{
+			SOM_Resolve((void *)this,InterfaceDef,_set_instanceData)
+					((InterfaceDef *)(void *)this,ev,instanceData);
+		};
+
+		inline TypeCode _get_instanceData(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,InterfaceDef,_get_instanceData)
+					((InterfaceDef *)(void *)this,ev);
+		};
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!InterfaceDefClassData.classObject)
+			{ InterfaceDefNewClass(InterfaceDef_MajorVersion,InterfaceDef_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)InterfaceDefClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)InterfaceDefClassData.classObject);
+		};
+		InterfaceDef()
+			: Contained(*(InterfaceDefCClassData.parentMtab->mtab))
+			, Container(*(InterfaceDefCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==InterfaceDefCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		InterfaceDef(InterfaceDef *fromObj)
+			: Contained(*(InterfaceDefCClassData.parentMtab->mtab))
+			, Container(*(InterfaceDefCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==InterfaceDefCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+		inline void _set_defined_in(
+			Environment *ev,
+			/* in */ RepositoryId defined_in)
+		{
+			SOM_Resolve((void *)this,Contained,_set_defined_in)
+					((Contained *)(void *)this,ev,defined_in);
+		};
+		inline RepositoryId _get_defined_in(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,_get_defined_in)
+					((Contained *)(void *)this,ev);
+		};
+		inline void _set_name(
+			Environment *ev,
+			/* in */ Identifier name)
+		{
+			SOM_Resolve((void *)this,Contained,_set_name)
+					((Contained *)(void *)this,ev,name);
+		};
+		inline Identifier _get_name(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,_get_name)
+					((Contained *)(void *)this,ev);
+		};
+		inline void _set_id(
+			Environment *ev,
+			/* in */ RepositoryId id)
+		{
+			SOM_Resolve((void *)this,Contained,_set_id)
+					((Contained *)(void *)this,ev,id);
+		};
+		inline RepositoryId _get_id(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,_get_id)
+					((Contained *)(void *)this,ev);
+		};
+		inline void _set_somModifiers(
+			Environment *ev,
+			/* in */ Contained_somModifierSeq *somModifiers)
+		{
+			SOM_Resolve((void *)this,Contained,_set_somModifiers)
+					((Contained *)(void *)this,ev,somModifiers);
+		};
+		inline Contained_somModifierSeq _get_somModifiers(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,_get_somModifiers)
+					((Contained *)(void *)this,ev);
+		};
+		inline Contained_ContainerSeq within(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,within)
+					((Contained *)(void *)this,ev);
+		};
+		inline Contained_Description describe(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Contained,describe)
+					((Contained *)(void *)this,ev);
+		};
+		inline void somInit(
+			)
+		{
+			SOM_Resolve((void *)this,SOMObject,somInit)
+					((SOMObject *)(void *)this);
+		};
+		inline void somUninit(
+			)
+		{
+			SOM_Resolve((void *)this,SOMObject,somUninit)
+					((SOMObject *)(void *)this);
+		};
+		inline void somFree(
+			)
+		{
+			SOM_Resolve((void *)this,SOMObject,somFree)
+					((SOMObject *)(void *)this);
+		};
+		inline SOMClass * somGetClass(
+			)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somGetClass)
+					((SOMObject *)(void *)this);
+		};
+		inline string somGetClassName(
+			)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somGetClassName)
+					((SOMObject *)(void *)this);
+		};
+		inline long somGetSize(
+			)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somGetSize)
+					((SOMObject *)(void *)this);
+		};
+		inline boolean somIsA(
+			/* in */ SOMClass * aClassObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somIsA)
+					((SOMObject *)(void *)this,aClassObj);
+		};
+		inline boolean somIsInstanceOf(
+			/* in */ SOMClass * aClassObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somIsInstanceOf)
+					((SOMObject *)(void *)this,aClassObj);
+		};
+		inline boolean somRespondsTo(
+			/* in */ somId mId)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somRespondsTo)
+					((SOMObject *)(void *)this,mId);
+		};
+		inline boolean SOMObject_somDispatch(
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somDispatch)
+					((SOMObject *)(void *)this,retValue,methodId,ap);
+		};
+		inline boolean somDispatch(
+				somToken *retValue,
+				somId methodId,
+				...)
+		{
+			boolean _somC_result;
+			va_list ap;
+			va_start(ap,methodId);
+			_somC_result=SOM_Resolve(this,SOMObject,somDispatch)
+					((SOMObject *)(void *)this,retValue,methodId,ap);
+			va_end(ap);
+			return _somC_result;
+		};
+		inline boolean SOMObject_somClassDispatch(
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somClassDispatch)
+					((SOMObject *)(void *)this,clsObj,retValue,methodId,ap);
+		};
+		inline boolean somClassDispatch(
+				SOMClass * clsObj,
+				somToken *retValue,
+				somId methodId,
+				...)
+		{
+			boolean _somC_result;
+			va_list ap;
+			va_start(ap,methodId);
+			_somC_result=SOM_Resolve(this,SOMObject,somClassDispatch)
+					((SOMObject *)(void *)this,clsObj,retValue,methodId,ap);
+			va_end(ap);
+			return _somC_result;
+		};
+		inline boolean somCastObj(
+			/* in */ SOMClass * castedCls)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somCastObj)
+					((SOMObject *)(void *)this,castedCls);
+		};
+		inline boolean somResetObj(
+			)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somResetObj)
+					((SOMObject *)(void *)this);
+		};
+		inline SOMObject * somPrintSelf(
+			)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somPrintSelf)
+					((SOMObject *)(void *)this);
+		};
+		inline void somDumpSelf(
+			/* in */ long level)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDumpSelf)
+					((SOMObject *)(void *)this,level);
+		};
+		inline void somDumpSelfInt(
+			/* in */ long level)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDumpSelfInt)
+					((SOMObject *)(void *)this,level);
+		};
+		inline void somDefaultInit(
+			/* inout */ somInitCtrl *ctrl)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDefaultInit)
+					((SOMObject *)(void *)this,ctrl);
+		};
+		inline void somDefaultCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDefaultCopyInit)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline void somDefaultConstCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDefaultConstCopyInit)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline void somDefaultVCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDefaultVCopyInit)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline void somDefaultConstVCopyInit(
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDefaultConstVCopyInit)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline SOMObject * somDefaultAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somDefaultAssign)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline SOMObject * somDefaultConstAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somDefaultConstAssign)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline SOMObject * somDefaultVAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somDefaultVAssign)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline SOMObject * somDefaultConstVAssign(
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj)
+		{
+			return SOM_Resolve((void *)this,SOMObject,somDefaultConstVAssign)
+					((SOMObject *)(void *)this,ctrl,fromObj);
+		};
+		inline void somDestruct(
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl)
+		{
+			SOM_Resolve((void *)this,SOMObject,somDestruct)
+					((SOMObject *)(void *)this,doFree,ctrl);
+		};
+		inline Container_ContainedSeq contents(
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited)
+		{
+			return SOM_Resolve((void *)this,Container,contents)
+					((Container *)(void *)this,ev,limit_type,exclude_inherited);
+		};
+		inline Container_ContainedSeq lookup_name(
+			Environment *ev,
+			/* in */ Identifier search_name,
+			/* in */ long levels_to_search,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited)
+		{
+			return SOM_Resolve((void *)this,Container,lookup_name)
+					((Container *)(void *)this,ev,search_name,levels_to_search,limit_type,exclude_inherited);
+		};
+		inline Container_ContainerDescriptionSeq describe_contents(
+			Environment *ev,
+			/* in */ Container_InterfaceName limit_type,
+			/* in */ boolean exclude_inherited,
+			/* in */ long max_returned_objs)
+		{
+			return SOM_Resolve((void *)this,Container,describe_contents)
+					((Container *)(void *)this,ev,limit_type,exclude_inherited,max_returned_objs);
+		};
+	};
+#endif /* SOM_Module_intfacdf_Header_xh */

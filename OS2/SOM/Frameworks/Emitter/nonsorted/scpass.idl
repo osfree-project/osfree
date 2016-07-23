@@ -1,0 +1,66 @@
+//
+//   COMPONENT_NAME: some
+//
+//   ORIGINS: 27
+//
+//
+//    25H7912  (C)  COPYRIGHT International Business Machines Corp. 1992,1994,1996 
+//   All Rights Reserved
+//   Licensed Materials - Property of IBM
+//   US Government Users Restricted Rights - Use, duplication or
+//   disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+//
+//#  @(#) somc/scpass.idl 2.8 5/9/96 15:31:22 [12/22/96 21:12:11]
+
+
+#ifndef scpass_idl
+#define scpass_idl
+
+#include <scentry.idl>
+interface SOMTPassthruEntryC : SOMTEntryC
+{
+  readonly attribute string somtPassthruBody;
+  // The source content text of this passthru entry without
+  // any modification. Newlines that were present in the source will
+  // still be present.
+
+  readonly attribute string somtPassthruLanguage;
+  // Returns the name of the language for which this passthru entry
+  // is intended. Language names are always all upper case.
+
+  readonly attribute string somtPassthruTarget;
+  // Returns the target for this passthru entry.
+
+  boolean somtIsBeforePassthru();
+  // Returns 1 (true) if this passthru entry is to be put at the
+  // beginning of the file or 0 (false) if this passthru entry is to
+  // go later in the file.
+
+#ifdef __SOMIDL__
+  implementation {
+    releaseorder: _get_somtPassthruBody,_get_somtPassthruTarget,
+		_get_somtPassthruLanguage, somtIsBeforePassthru;
+  
+    //# Class Modifiers
+    majorversion = 2;
+    minorversion = 1;
+    filestem = scpass;
+#ifdef _WIN32
+    dllname = "some.dll";
+#endif
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    //somtSetSymbolsOnEntry: override;
+    //somDumpSelfInt: override;
+  
+    //# Attribute Modifiers
+    somtPassthruTarget: nodata;
+    somtPassthruLanguage: nodata;
+    somtPassthruBody: nodata;
+  };
+#endif /* __SOMIDL__ */
+};
+
+
+#endif  /* scpass_idl */

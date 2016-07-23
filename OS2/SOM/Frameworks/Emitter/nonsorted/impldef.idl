@@ -1,0 +1,130 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: impldef.idl 3914 2013-01-18 22:11:38Z rogerb $
+ */
+
+#ifndef impldef_idl
+#define impldef_idl
+#include <somdtype.idl>
+#include <omgestio.idl>
+interface SOMDServer;
+interface ImplementationDef;
+interface ImplementationDef :
+	CosStream::Streamable
+{
+	const long SOMD_MAXLEN_IMPL_ID=36;
+	const long SOMD_MAXLEN_IMPL_ALIAS=255;
+	const long SOMD_MAXLEN_IMPL_PROGRAM=255;
+	const long SOMD_MAXLEN_FILENAME=255;
+	const long SOMD_MAXLEN_HOSTNAME=32;
+	const long SOMD_MAXLEN_CLASSNAME=255;
+	typedef sequence<octet> * octet_seqP;
+	struct prot_response
+	{
+		string protocol;
+		sequence<string> * response;
+	};
+	typedef sequence<prot_response> seq_prot_responses;
+	attribute string<SOMD_MAXLEN_IMPL_ID> impl_id;
+	attribute string<SOMD_MAXLEN_IMPL_ALIAS> impl_alias;
+	attribute string<SOMD_MAXLEN_IMPL_PROGRAM> impl_program;
+	attribute Flags impl_flags;
+	attribute string<SOMD_MAXLEN_CLASSNAME> impl_server_class;
+	attribute string<SOMD_MAXLEN_FILENAME> impl_refdata_file;
+	attribute string<SOMD_MAXLEN_FILENAME> impl_refdata_bkup;
+	attribute string<SOMD_MAXLEN_HOSTNAME> impl_hostname;
+	attribute string<SOMD_MAXLEN_FILENAME> config_file;
+	attribute string<SOMD_MAXLEN_CLASSNAME> impldef_class;
+	attribute octet_seqP svr_objref;
+	attribute string protocols;
+	attribute seq_prot_responses * registrar_resp;
+	attribute unsigned short impl_version;
+#ifdef __SOMIDL__
+	implementation
+	{
+		_set_svr_objref : object_owns_parameters="svr_objref";
+		_get_svr_objref : object_owns_result;
+		_set_protocols : object_owns_parameters="protocols";
+		_get_protocols : object_owns_result;
+		_set_registrar_resp : object_owns_parameters="registrar_resp";
+		_get_registrar_resp : object_owns_result;
+		releaseorder : 
+			_set_impl_id,
+			_get_impl_id,
+			_set_impl_alias,
+			_get_impl_alias,
+			_set_impl_program,
+			_get_impl_program,
+			_set_impl_flags,
+			_get_impl_flags,
+			_set_impl_server_class,
+			_get_impl_server_class,
+			_set_impl_refdata_file,
+			_get_impl_refdata_file,
+			_set_impl_refdata_bkup,
+			_get_impl_refdata_bkup,
+			_set_impl_hostname,
+			_get_impl_hostname,
+			private16,
+			private17,
+			private18,
+			_set_config_file,
+			_get_config_file,
+			_set_impldef_class,
+			_get_impldef_class,
+			_set_svr_objref,
+			_get_svr_objref,
+			_set_protocols,
+			_get_protocols,
+			_set_registrar_resp,
+			_get_registrar_resp,
+			_set_impl_version,
+			_get_impl_version,
+			private31,
+			private32;
+		memory_management = corba;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+
+		#define IMPLDEF_IDL_COMMON_H_PASSTHRU \
+			"" \
+			"#define IMPLDEF_MULTI_THREAD  0x00000001" \
+			"#define IMPLDEF_DISABLE_SVR   0x00000004" \
+			"#define IMPLDEF_IMPLID_SET    0x00000008" \
+			"#define IMPLDEF_SECUREMODE    0x00000020" \
+			"#define IMPLDEF_NONSTOPPABLE  0x00000010" \
+			"#define IMPLDEF_MANAGED       0x00000040" \
+			""
+
+		passthru C_h_after=IMPLDEF_IDL_COMMON_H_PASSTHRU
+			"";
+
+		passthru C_xh_after=IMPLDEF_IDL_COMMON_H_PASSTHRU
+			"";
+
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* impldef_idl */

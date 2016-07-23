@@ -1,0 +1,870 @@
+/* generated from scstruct.idl */
+/* internal conditional is SOM_Module_scstruct_Source */
+#ifndef SOM_Module_scstruct_Header_xih
+	#define SOM_Module_scstruct_Header_xih 1
+	#ifndef SOM_Module_scstruct_Source
+		#define SOM_Module_scstruct_Source
+	#endif /* SOM_Module_scstruct_Source */
+	#include <scstruct.xh>
+	#ifndef SOM_Scope
+		#define SOM_Scope static
+	#endif /* SOM_Scope */
+	#ifdef SOMTStructEntryC_Class_Source
+		typedef void SOMTStructEntryCData;
+	#endif /* SOMTStructEntryC_Class_Source */
+	#ifdef SOMTStructEntryC_Class_Source
+	#ifndef static_somMN_somtGetFirstMember
+		#define static_somMN_somtGetFirstMember
+		static const char * somMN_somtGetFirstMember="somtGetFirstMember";
+	#endif /* static_somMN_somtGetFirstMember */
+	#ifndef static_somId_somtGetFirstMember
+		#define static_somId_somtGetFirstMember
+		static const somConstId somId_somtGetFirstMember=&somMN_somtGetFirstMember;
+	#endif /* static_somId_somtGetFirstMember */
+	#ifndef static_somDS_SOMTStructEntryC_somtGetFirstMember
+		#define static_somDS_SOMTStructEntryC_somtGetFirstMember
+		static const char * somDS_SOMTStructEntryC_somtGetFirstMember="SOMTStructEntryC::somtGetFirstMember";
+	#endif /* static_somDS_SOMTStructEntryC_somtGetFirstMember */
+	#ifndef static_somDI_SOMTStructEntryC_somtGetFirstMember
+		#define static_somDI_SOMTStructEntryC_somtGetFirstMember
+		static const somConstId somDI_SOMTStructEntryC_somtGetFirstMember=&somDS_SOMTStructEntryC_somtGetFirstMember;
+	#endif /* static_somDI_SOMTStructEntryC_somtGetFirstMember */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope SOMTTypedefEntryC * SOMLINK somtGetFirstMember(
+	SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtGetFirstMember,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTStructEntryC_somtGetFirstMember   0
+	#define somAP_SOMTStructEntryC_somtGetFirstMember   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static SOMTTypedefEntryC * SOMLINK somRD_SOMTStructEntryC_somtGetFirstMember(
+			SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTStructEntryC_somtGetFirstMember,system)
+	#endif /* __IBMC__ */
+	static SOMTTypedefEntryC * SOMLINK somRD_SOMTStructEntryC_somtGetFirstMember(
+			SOMTStructEntryC * somSelf)
+	{
+		SOMTTypedefEntryC * _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtGetFirstMember,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTStructEntryC_somtGetFirstMember(
+		SOMTStructEntryC * somSelf,
+		SOMTTypedefEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTStructEntryC_somtGetFirstMember,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTStructEntryC_somtGetFirstMember(
+		SOMTStructEntryC * somSelf,
+		SOMTTypedefEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTStructEntryC * );
+
+		*_somC_retVal=((somTD_SOMTStructEntryC_somtGetFirstMember)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTStructEntryC_somtGetFirstMember={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTStructEntryC_somtGetFirstMember={
+		(somMethodPtr)somRD_SOMTStructEntryC_somtGetFirstMember,
+		(somMethodPtr)somAP_SOMTStructEntryC_somtGetFirstMember,
+		&somMethodInfo_SOMTStructEntryC_somtGetFirstMember};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtGetNextMember
+		#define static_somMN_somtGetNextMember
+		static const char * somMN_somtGetNextMember="somtGetNextMember";
+	#endif /* static_somMN_somtGetNextMember */
+	#ifndef static_somId_somtGetNextMember
+		#define static_somId_somtGetNextMember
+		static const somConstId somId_somtGetNextMember=&somMN_somtGetNextMember;
+	#endif /* static_somId_somtGetNextMember */
+	#ifndef static_somDS_SOMTStructEntryC_somtGetNextMember
+		#define static_somDS_SOMTStructEntryC_somtGetNextMember
+		static const char * somDS_SOMTStructEntryC_somtGetNextMember="SOMTStructEntryC::somtGetNextMember";
+	#endif /* static_somDS_SOMTStructEntryC_somtGetNextMember */
+	#ifndef static_somDI_SOMTStructEntryC_somtGetNextMember
+		#define static_somDI_SOMTStructEntryC_somtGetNextMember
+		static const somConstId somDI_SOMTStructEntryC_somtGetNextMember=&somDS_SOMTStructEntryC_somtGetNextMember;
+	#endif /* static_somDI_SOMTStructEntryC_somtGetNextMember */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope SOMTTypedefEntryC * SOMLINK somtGetNextMember(
+	SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtGetNextMember,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTStructEntryC_somtGetNextMember   0
+	#define somAP_SOMTStructEntryC_somtGetNextMember   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static SOMTTypedefEntryC * SOMLINK somRD_SOMTStructEntryC_somtGetNextMember(
+			SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTStructEntryC_somtGetNextMember,system)
+	#endif /* __IBMC__ */
+	static SOMTTypedefEntryC * SOMLINK somRD_SOMTStructEntryC_somtGetNextMember(
+			SOMTStructEntryC * somSelf)
+	{
+		SOMTTypedefEntryC * _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtGetNextMember,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTStructEntryC_somtGetNextMember(
+		SOMTStructEntryC * somSelf,
+		SOMTTypedefEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTStructEntryC_somtGetNextMember,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTStructEntryC_somtGetNextMember(
+		SOMTStructEntryC * somSelf,
+		SOMTTypedefEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTStructEntryC * );
+
+		*_somC_retVal=((somTD_SOMTStructEntryC_somtGetNextMember)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTStructEntryC_somtGetNextMember={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTStructEntryC_somtGetNextMember={
+		(somMethodPtr)somRD_SOMTStructEntryC_somtGetNextMember,
+		(somMethodPtr)somAP_SOMTStructEntryC_somtGetNextMember,
+		&somMethodInfo_SOMTStructEntryC_somtGetNextMember};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtStructClass
+		#define static_somMN__get_somtStructClass
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtStructClass
+		#error somMN__get_somtStructClass already defined
+	#else /* somMN__get_somtStructClass */
+		#define somMN__get_somtStructClass somMN_somC_get_somtStructClass
+	#endif /* somMN__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtStructClass="_get_somtStructClass";
+	#endif /* static_somMN__get_somtStructClass */
+	#ifndef static_somId__get_somtStructClass
+		#define static_somId__get_somtStructClass
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtStructClass
+		#error somId__get_somtStructClass already defined
+	#else /* somId__get_somtStructClass */
+		#define somId__get_somtStructClass somId_somC_get_somtStructClass
+	#endif /* somId__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtStructClass=&somMN__get_somtStructClass;
+	#endif /* static_somId__get_somtStructClass */
+	#ifndef static_somDS_SOMTStructEntryC__get_somtStructClass
+		#define static_somDS_SOMTStructEntryC__get_somtStructClass
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTStructEntryC__get_somtStructClass
+		#error somDS_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somDS_SOMTStructEntryC__get_somtStructClass */
+		#define somDS_SOMTStructEntryC__get_somtStructClass somDS_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somDS_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTStructEntryC__get_somtStructClass="SOMTStructEntryC::_get_somtStructClass";
+	#endif /* static_somDS_SOMTStructEntryC__get_somtStructClass */
+	#ifndef static_somDI_SOMTStructEntryC__get_somtStructClass
+		#define static_somDI_SOMTStructEntryC__get_somtStructClass
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTStructEntryC__get_somtStructClass
+		#error somDI_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somDI_SOMTStructEntryC__get_somtStructClass */
+		#define somDI_SOMTStructEntryC__get_somtStructClass somDI_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somDI_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTStructEntryC__get_somtStructClass=&somDS_SOMTStructEntryC__get_somtStructClass;
+	#endif /* static_somDI_SOMTStructEntryC__get_somtStructClass */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope SOMTClassEntryC * SOMLINK _get_somtStructClass(
+	SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtStructClass,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTStructEntryC__get_somtStructClass   0
+	#define somAP_SOMTStructEntryC__get_somtStructClass   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTStructEntryC__get_somtStructClass
+		#error somRD_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somRD_SOMTStructEntryC__get_somtStructClass */
+		#define somRD_SOMTStructEntryC__get_somtStructClass somRD_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somRD_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static SOMTClassEntryC * SOMLINK somRD_SOMTStructEntryC__get_somtStructClass(
+			SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTStructEntryC__get_somtStructClass,system)
+	#endif /* __IBMC__ */
+	static SOMTClassEntryC * SOMLINK somRD_SOMTStructEntryC__get_somtStructClass(
+			SOMTStructEntryC * somSelf)
+	{
+		SOMTClassEntryC * _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtStructClass,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTStructEntryC__get_somtStructClass
+		#error somAP_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somAP_SOMTStructEntryC__get_somtStructClass */
+		#define somAP_SOMTStructEntryC__get_somtStructClass somAP_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somAP_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTStructEntryC__get_somtStructClass(
+		SOMTStructEntryC * somSelf,
+		SOMTClassEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTStructEntryC__get_somtStructClass,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTStructEntryC__get_somtStructClass(
+		SOMTStructEntryC * somSelf,
+		SOMTClassEntryC * *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTStructEntryC * );
+
+		*_somC_retVal=((somTD_SOMTStructEntryC__get_somtStructClass)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTStructEntryC__get_somtStructClass
+		#error somMethodInfo_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somMethodInfo_SOMTStructEntryC__get_somtStructClass */
+		#define somMethodInfo_SOMTStructEntryC__get_somtStructClass somMethodInfo_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somMethodInfo_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTStructEntryC__get_somtStructClass={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTStructEntryC__get_somtStructClass
+		#error somApRdInfo_SOMTStructEntryC__get_somtStructClass already defined
+	#else /* somApRdInfo_SOMTStructEntryC__get_somtStructClass */
+		#define somApRdInfo_SOMTStructEntryC__get_somtStructClass somApRdInfo_SOMTStructEntryC_somC_get_somtStructClass
+	#endif /* somApRdInfo_SOMTStructEntryC__get_somtStructClass */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTStructEntryC__get_somtStructClass={
+		(somMethodPtr)somRD_SOMTStructEntryC__get_somtStructClass,
+		(somMethodPtr)somAP_SOMTStructEntryC__get_somtStructClass,
+		&somMethodInfo_SOMTStructEntryC__get_somtStructClass};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtIsException
+		#define static_somMN__get_somtIsException
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtIsException
+		#error somMN__get_somtIsException already defined
+	#else /* somMN__get_somtIsException */
+		#define somMN__get_somtIsException somMN_somC_get_somtIsException
+	#endif /* somMN__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtIsException="_get_somtIsException";
+	#endif /* static_somMN__get_somtIsException */
+	#ifndef static_somId__get_somtIsException
+		#define static_somId__get_somtIsException
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtIsException
+		#error somId__get_somtIsException already defined
+	#else /* somId__get_somtIsException */
+		#define somId__get_somtIsException somId_somC_get_somtIsException
+	#endif /* somId__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtIsException=&somMN__get_somtIsException;
+	#endif /* static_somId__get_somtIsException */
+	#ifndef static_somDS_SOMTStructEntryC__get_somtIsException
+		#define static_somDS_SOMTStructEntryC__get_somtIsException
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTStructEntryC__get_somtIsException
+		#error somDS_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somDS_SOMTStructEntryC__get_somtIsException */
+		#define somDS_SOMTStructEntryC__get_somtIsException somDS_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somDS_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTStructEntryC__get_somtIsException="SOMTStructEntryC::_get_somtIsException";
+	#endif /* static_somDS_SOMTStructEntryC__get_somtIsException */
+	#ifndef static_somDI_SOMTStructEntryC__get_somtIsException
+		#define static_somDI_SOMTStructEntryC__get_somtIsException
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTStructEntryC__get_somtIsException
+		#error somDI_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somDI_SOMTStructEntryC__get_somtIsException */
+		#define somDI_SOMTStructEntryC__get_somtIsException somDI_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somDI_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTStructEntryC__get_somtIsException=&somDS_SOMTStructEntryC__get_somtIsException;
+	#endif /* static_somDI_SOMTStructEntryC__get_somtIsException */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope boolean SOMLINK _get_somtIsException(
+	SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtIsException,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTStructEntryC__get_somtIsException   0
+	#define somAP_SOMTStructEntryC__get_somtIsException   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTStructEntryC__get_somtIsException
+		#error somRD_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somRD_SOMTStructEntryC__get_somtIsException */
+		#define somRD_SOMTStructEntryC__get_somtIsException somRD_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somRD_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static boolean SOMLINK somRD_SOMTStructEntryC__get_somtIsException(
+			SOMTStructEntryC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTStructEntryC__get_somtIsException,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMTStructEntryC__get_somtIsException(
+			SOMTStructEntryC * somSelf)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtIsException,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTStructEntryC__get_somtIsException
+		#error somAP_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somAP_SOMTStructEntryC__get_somtIsException */
+		#define somAP_SOMTStructEntryC__get_somtIsException somAP_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somAP_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTStructEntryC__get_somtIsException(
+		SOMTStructEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTStructEntryC__get_somtIsException,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTStructEntryC__get_somtIsException(
+		SOMTStructEntryC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTStructEntryC * );
+
+		*_somC_retVal=((somTD_SOMTStructEntryC__get_somtIsException)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTStructEntryC__get_somtIsException
+		#error somMethodInfo_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somMethodInfo_SOMTStructEntryC__get_somtIsException */
+		#define somMethodInfo_SOMTStructEntryC__get_somtIsException somMethodInfo_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somMethodInfo_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTStructEntryC__get_somtIsException={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTStructEntryC__get_somtIsException
+		#error somApRdInfo_SOMTStructEntryC__get_somtIsException already defined
+	#else /* somApRdInfo_SOMTStructEntryC__get_somtIsException */
+		#define somApRdInfo_SOMTStructEntryC__get_somtIsException somApRdInfo_SOMTStructEntryC_somC_get_somtIsException
+	#endif /* somApRdInfo_SOMTStructEntryC__get_somtIsException */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTStructEntryC__get_somtIsException={
+		(somMethodPtr)somRD_SOMTStructEntryC__get_somtIsException,
+		(somMethodPtr)somAP_SOMTStructEntryC__get_somtIsException,
+		&somMethodInfo_SOMTStructEntryC__get_somtIsException};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef SOMTStructEntryCMethodDebug
+		#define SOMTStructEntryCMethodDebug(x,y)
+	#endif /* SOMTStructEntryCMethodDebug */
+	#define SOMTStructEntryCGetData(somSelf)  ((SOMTStructEntryCData *)0)  /* class has no attributes */
+	#ifndef static_somCN_SOMTStructEntryC
+		#define static_somCN_SOMTStructEntryC
+		static const char * somCN_SOMTStructEntryC="SOMTStructEntryC";
+	#endif /* static_somCN_SOMTStructEntryC */
+	#ifndef static_somPCN_SOMTStructEntryC_SOMTEntryC
+		#define static_somPCN_SOMTStructEntryC_SOMTEntryC
+		static const char * somPCN_SOMTStructEntryC_SOMTEntryC="SOMTEntryC";
+	#endif /* static_somPCN_SOMTStructEntryC_SOMTEntryC */
+static const somConstId somPCSOMTStructEntryC[1]={
+	&somPCN_SOMTStructEntryC_SOMTEntryC};
+
+/* class ::SOMTStructEntryC introduces 4 methods, 0 procedures and overrides 0 */
+/* should have ::SOMTStructEntryCClassData defined here */
+/* developer must provide get for attribute ::SOMTStructEntryC::somtStructClass */
+/* developer must provide get for attribute ::SOMTStructEntryC::somtIsException */
+static somStaticMethod_t SOMTStructEntryCSM[4]={
+		{
+			&SOMTStructEntryCClassData.somtGetFirstMember,
+			&somId_somtGetFirstMember,
+			&somDI_SOMTStructEntryC_somtGetFirstMember,
+			(somMethodPtr)somtGetFirstMember,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTStructEntryC_somtGetFirstMember
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTStructEntryC_somtGetFirstMember,
+			(somMethodPtr)somAP_SOMTStructEntryC_somtGetFirstMember
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTStructEntryCClassData.somtGetNextMember,
+			&somId_somtGetNextMember,
+			&somDI_SOMTStructEntryC_somtGetNextMember,
+			(somMethodPtr)somtGetNextMember,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTStructEntryC_somtGetNextMember
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTStructEntryC_somtGetNextMember,
+			(somMethodPtr)somAP_SOMTStructEntryC_somtGetNextMember
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTStructEntryCClassData._get_somtStructClass,
+			&somId__get_somtStructClass,
+			&somDI_SOMTStructEntryC__get_somtStructClass,
+			(somMethodPtr)_get_somtStructClass,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTStructEntryC__get_somtStructClass
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTStructEntryC__get_somtStructClass,
+			(somMethodPtr)somAP_SOMTStructEntryC__get_somtStructClass
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTStructEntryCClassData._get_somtIsException,
+			&somId__get_somtIsException,
+			&somDI_SOMTStructEntryC__get_somtIsException,
+			(somMethodPtr)_get_somtIsException,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTStructEntryC__get_somtIsException
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTStructEntryC__get_somtIsException,
+			(somMethodPtr)somAP_SOMTStructEntryC__get_somtIsException
+#endif /* SOM_METHOD_STUBS */
+		}
+	};
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+static void SOMLINK _somC_SOMTStructEntryC_classInit(SOMClass *);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+static somStaticClassInfo SOMTStructEntryCSCI={
+#ifdef SOMSCIVERSION
+		3,  /* layoutVersion */
+#else /* SOMSCIVERSION */
+		2,  /* layoutVersion */
+#endif /* SOMSCIVERSION */
+		4, /* numStaticMethod */
+		0, /* numStaticOverrides */
+		0, /* numNonInternalData */
+		0, /* numProcMethods */
+		0, /* numVarargsFuncs */
+		SOMTStructEntryC_MajorVersion,
+		SOMTStructEntryC_MinorVersion,
+		0, /* no instanceDataSize */
+		4, /* maxMethods */
+		1, /* numParents */
+		&somCN_SOMTStructEntryC,
+		0,
+		0, /* implicitParentMeta */
+		somPCSOMTStructEntryC, /* parents */
+		(somClassDataStructure *)(void *)&SOMTStructEntryCClassData,
+		(somCClassDataStructure *)(void *)&SOMTStructEntryCCClassData,
+		SOMTStructEntryCSM,
+		0,
+		0, /* nitReferenceBase */
+		0, /* nit */
+		0, /* pmt no procedures*/
+		0, /* vft */
+		_somC_SOMTStructEntryC_classInit,
+		0 /* no dataAlignment */
+#ifdef SOMSCIVERSION
+		,		-1L,(somId *)0, /* directInitClasses */
+		0,(somMethods_t *)0, /* numMethods */
+		0, /* protected data offset */
+		0, /* SOMSCIVERSION */
+		0,(somInheritedMethod_t *)0, /* inherited methods */
+		4,(somId *)0, /* class data entries */
+		0,(somMigratedMethod_t *)0, /* migrated methods */
+		0,(somId *)0, /* initializers */
+		0,(somDynamicSCI *)0, /* DTS */
+#endif /* SOMSCIVERSION */
+	};
+SOMClass * SOMLINK SOMTStructEntryCNewClass(
+	integer4 somtmajorVersion,integer4 somtminorVersion)
+{
+	if (!SOMTEntryCNewClass(
+		SOMTEntryC_MajorVersion,
+		SOMTEntryC_MinorVersion))
+	{
+		return NULL;
+	}
+	return somBuildClass(0x1,&SOMTStructEntryCSCI,
+		somtmajorVersion,
+		somtminorVersion);
+}
+static void SOMLINK _somC_SOMTStructEntryC_classInit(SOMClass *somSelf)
+{
+/* do parent resolves... */
+/* call classinit if defined... */
+	SOM_IgnoreWarning(somSelf);
+}
+struct SOMTStructEntryCClassDataStructure SOMDLINK SOMTStructEntryCClassData={
+	/* classObject */ 0,
+	/* _get_somtStructClass */ 0,
+	/* _get_somtIsException */ 0,
+	/* somtGetFirstMember */ 0,
+	/* somtGetNextMember */ 0};
+struct SOMTStructEntryCCClassDataStructure SOMDLINK SOMTStructEntryCCClassData;
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTStructEntryCClassDataStructure * SOMLINK resolve_SOMTStructEntryCClassData(void)
+	{ return &_SOMTStructEntryCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTStructEntryCCClassDataStructure * SOMLINK resolve_SOMTStructEntryCCClassData(void)
+	{ return &_SOMTStructEntryCCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+	#ifndef SOMTStructEntryC_parent_SOMTEntryC_somInit
+		#define SOMTStructEntryC_parent_SOMTEntryC_somInit(somSelf)
+	#endif /* SOMTStructEntryC_parent_SOMTEntryC_somInit */
+	#ifndef SOMTStructEntryC_parent_SOMTEntryC_somUninit
+		#define SOMTStructEntryC_parent_SOMTEntryC_somUninit(somSelf)
+	#endif /* SOMTStructEntryC_parent_SOMTEntryC_somUninit */
+	#define SOMTStructEntryC_parent_SOMTEntryC_somFree(somSelf)   \
+		((somTD_SOMTStructEntryC_somFree)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somFree))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somGetClass(somSelf)   \
+		((somTD_SOMTStructEntryC_somGetClass)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClass))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somGetClassName(somSelf)   \
+		((somTD_SOMTStructEntryC_somGetClassName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClassName))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somGetSize(somSelf)   \
+		((somTD_SOMTStructEntryC_somGetSize)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetSize))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somIsA(somSelf,aClassObj)   \
+		((somTD_SOMTStructEntryC_somIsA)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsA))\
+					((SOMTStructEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somIsInstanceOf(somSelf,aClassObj)   \
+		((somTD_SOMTStructEntryC_somIsInstanceOf)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsInstanceOf))\
+					((SOMTStructEntryC *)(void *)somSelf,aClassObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somRespondsTo(somSelf,mId)   \
+		((somTD_SOMTStructEntryC_somRespondsTo)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somRespondsTo))\
+					((SOMTStructEntryC *)(void *)somSelf,mId)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDispatch(somSelf,retValue,methodId,ap)   \
+		((somTD_SOMTStructEntryC_somDispatch)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDispatch))\
+					((SOMTStructEntryC *)(void *)somSelf,retValue,methodId,ap)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somClassDispatch(somSelf,clsObj,retValue,methodId,ap)   \
+		((somTD_SOMTStructEntryC_somClassDispatch)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somClassDispatch))\
+					((SOMTStructEntryC *)(void *)somSelf,clsObj,retValue,methodId,ap)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somCastObj(somSelf,castedCls)   \
+		((somTD_SOMTStructEntryC_somCastObj)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somCastObj))\
+					((SOMTStructEntryC *)(void *)somSelf,castedCls)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somResetObj(somSelf)   \
+		((somTD_SOMTStructEntryC_somResetObj)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somResetObj))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somPrintSelf(somSelf)   \
+		((somTD_SOMTStructEntryC_somPrintSelf)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somPrintSelf))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDumpSelf(somSelf,level)   \
+		((somTD_SOMTStructEntryC_somDumpSelf)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelf))\
+					((SOMTStructEntryC *)(void *)somSelf,level)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDumpSelfInt(somSelf,level)   \
+		((somTD_SOMTStructEntryC_somDumpSelfInt)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelfInt))\
+					((SOMTStructEntryC *)(void *)somSelf,level)
+#define SOMTStructEntryC_Init_SOMTEntryC_somDefaultInit(somSelf,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultInit)ctrl->info->defaultInit) \
+(((SOMObject *)(void *)somSelf),ctrl); \
+}
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultCopyInit)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultCopyInit))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultConstCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultConstCopyInit)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstCopyInit))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultVCopyInit)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVCopyInit))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultConstVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultConstVCopyInit)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVCopyInit))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTStructEntryC_Assign_SOMTEntryC_somDefaultAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultAssign)ctrl->info->defaultNCArgAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+#define SOMTStructEntryC_Assign_SOMTEntryC_somDefaultConstAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDefaultConstAssign)ctrl->info->defaultConstAssign) \
+(((SOMObject *)(void *)somSelf),ctrl,fromObj); \
+}
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultVAssign)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVAssign))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somDefaultConstVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTStructEntryC_somDefaultConstVAssign)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVAssign))\
+					((SOMTStructEntryC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTStructEntryC_DeInit_SOMTEntryC_somDestruct(somSelf,doFree,ctrl)\
+if (myMask[0]&1) {\
+((somTD_SOMObject_somDestruct)ctrl->info->defaultDestruct) \
+(((SOMObject *)(void *)somSelf),doFree,ctrl); \
+}
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtEntryStruct(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtEntryStruct)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryStruct))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__set_somtEntryName(somSelf,somtEntryName)   \
+		((somTD_SOMTStructEntryC__set_somtEntryName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtEntryName))\
+					((SOMTStructEntryC *)(void *)somSelf,somtEntryName)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtEntryName(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtEntryName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryName))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__set_somtElementType(somSelf,somtElementType)   \
+		((somTD_SOMTStructEntryC__set_somtElementType)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._set_somtElementType))\
+					((SOMTStructEntryC *)(void *)somSelf,somtElementType)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtElementType(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtElementType)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementType))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtElementTypeName(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtElementTypeName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtElementTypeName))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtEntryComment(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtEntryComment)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtEntryComment))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtSourceLineNumber(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtSourceLineNumber)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtSourceLineNumber))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtTypeCode(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtTypeCode)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtTypeCode))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtIsReference(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtIsReference)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIsReference))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtIDLScopedName(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtIDLScopedName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtIDLScopedName))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC__get_somtCScopedName(somSelf)   \
+		((somTD_SOMTStructEntryC__get_somtCScopedName)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData._get_somtCScopedName))\
+					((SOMTStructEntryC *)(void *)somSelf)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtGetModifierValue(somSelf,modifierName)   \
+		((somTD_SOMTStructEntryC_somtGetModifierValue)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierValue))\
+					((SOMTStructEntryC *)(void *)somSelf,modifierName)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtGetFirstModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTStructEntryC_somtGetFirstModifier)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetFirstModifier))\
+					((SOMTStructEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtGetNextModifier(somSelf,modifierName,modifierValue)   \
+		((somTD_SOMTStructEntryC_somtGetNextModifier)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetNextModifier))\
+					((SOMTStructEntryC *)(void *)somSelf,modifierName,modifierValue)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtFormatModifier(somSelf,buffer,name,value)   \
+		((somTD_SOMTStructEntryC_somtFormatModifier)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtFormatModifier))\
+					((SOMTStructEntryC *)(void *)somSelf,buffer,name,value)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtGetModifierList(somSelf,buffer)   \
+		((somTD_SOMTStructEntryC_somtGetModifierList)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtGetModifierList))\
+					((SOMTStructEntryC *)(void *)somSelf,buffer)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtSetSymbolsOnEntry(somSelf,emitter,prefix)   \
+		((somTD_SOMTStructEntryC_somtSetSymbolsOnEntry)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtSetSymbolsOnEntry))\
+					((SOMTStructEntryC *)(void *)somSelf,emitter,prefix)
+	#define SOMTStructEntryC_parent_SOMTEntryC_somtSetEntryStruct(somSelf,es)   \
+		((somTD_SOMTStructEntryC_somtSetEntryStruct)\
+			somParentNumResolve(SOMTStructEntryCCClassData.parentMtab,\
+				1,SOMTEntryCClassData.somtSetEntryStruct))\
+					((SOMTStructEntryC *)(void *)somSelf,es)
+	#endif /* SOMTStructEntryC_Class_Source */
+#endif /* SOM_Module_scstruct_Header_xih */

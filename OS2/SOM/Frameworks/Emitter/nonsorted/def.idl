@@ -1,0 +1,19 @@
+#ifndef DEFEmitter_idl
+#define DEFEmitter_idl
+
+#include <scemit.idl>
+
+interface DEFEmitter : SOMTEmitC
+{
+#ifdef __SOMIDL__
+  implementation {
+    //# Class Modifiers
+    callstyle = oidl;
+    functionprefix = "defemit_";
+
+    somtGenerateSections: override;
+  };
+#endif /* __SOMIDL__ */
+};
+
+#endif  /* DEFEmitter_idl */

@@ -1,0 +1,2849 @@
+/* generated from sctmplt.idl */
+/* internal conditional is SOM_Module_sctmplt_Source */
+#ifndef SOM_Module_sctmplt_Header_xih
+	#define SOM_Module_sctmplt_Header_xih 1
+	#ifndef SOM_Module_sctmplt_Source
+		#define SOM_Module_sctmplt_Source
+	#endif /* SOM_Module_sctmplt_Source */
+	#include <sctmplt.xh>
+	#ifndef SOM_Scope
+		#define SOM_Scope static
+	#endif /* SOM_Scope */
+	#ifdef SOMTTemplateOutputC_Class_Source
+		typedef struct SOMTTemplateOutputCData
+		{
+			SOMStringTableC * stab;
+			FILE *fp;
+			long currentColumn;
+			boolean conditionalLine;
+			boolean anyExpansions;
+			char oBuf[4096];
+			long oBufPos;
+			somtCommentStyleT somtCommentStyle;
+			long somtLineLength;
+			boolean somtCommentNewline;
+		} SOMTTemplateOutputCData;
+	#ifndef _stab
+		#define _stab  (somThis->stab)
+	#endif /* _stab */
+	#ifndef _fp
+		#define _fp  (somThis->fp)
+	#endif /* _fp */
+	#ifndef _currentColumn
+		#define _currentColumn  (somThis->currentColumn)
+	#endif /* _currentColumn */
+	#ifndef _conditionalLine
+		#define _conditionalLine  (somThis->conditionalLine)
+	#endif /* _conditionalLine */
+	#ifndef _anyExpansions
+		#define _anyExpansions  (somThis->anyExpansions)
+	#endif /* _anyExpansions */
+	#ifndef _oBuf
+		#define _oBuf  (somThis->oBuf)
+	#endif /* _oBuf */
+	#ifndef _oBufPos
+		#define _oBufPos  (somThis->oBufPos)
+	#endif /* _oBufPos */
+	#ifndef _somtCommentStyle
+		#define _somtCommentStyle  (somThis->somtCommentStyle)
+	#endif /* _somtCommentStyle */
+	#ifndef _somtLineLength
+		#define _somtLineLength  (somThis->somtLineLength)
+	#endif /* _somtLineLength */
+	#ifndef _somtCommentNewline
+		#define _somtCommentNewline  (somThis->somtCommentNewline)
+	#endif /* _somtCommentNewline */
+	#endif /* SOMTTemplateOutputC_Class_Source */
+	#ifdef SOMTTemplateOutputC_Class_Source
+	#ifndef static_somMN__set_somtCommentStyle
+		#define static_somMN__set_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__set_somtCommentStyle
+		#error somMN__set_somtCommentStyle already defined
+	#else /* somMN__set_somtCommentStyle */
+		#define somMN__set_somtCommentStyle somMN_somC_set_somtCommentStyle
+	#endif /* somMN__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__set_somtCommentStyle="_set_somtCommentStyle";
+	#endif /* static_somMN__set_somtCommentStyle */
+	#ifndef static_somId__set_somtCommentStyle
+		#define static_somId__set_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__set_somtCommentStyle
+		#error somId__set_somtCommentStyle already defined
+	#else /* somId__set_somtCommentStyle */
+		#define somId__set_somtCommentStyle somId_somC_set_somtCommentStyle
+	#endif /* somId__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__set_somtCommentStyle=&somMN__set_somtCommentStyle;
+	#endif /* static_somId__set_somtCommentStyle */
+	#ifndef static_somDS_SOMTTemplateOutputC__set_somtCommentStyle
+		#define static_somDS_SOMTTemplateOutputC__set_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somDS_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somDS_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somDS_SOMTTemplateOutputC__set_somtCommentStyle somDS_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somDS_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__set_somtCommentStyle="SOMTTemplateOutputC::_set_somtCommentStyle";
+	#endif /* static_somDS_SOMTTemplateOutputC__set_somtCommentStyle */
+	#ifndef static_somDI_SOMTTemplateOutputC__set_somtCommentStyle
+		#define static_somDI_SOMTTemplateOutputC__set_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somDI_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somDI_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somDI_SOMTTemplateOutputC__set_somtCommentStyle somDI_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somDI_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__set_somtCommentStyle=&somDS_SOMTTemplateOutputC__set_somtCommentStyle;
+	#endif /* static_somDI_SOMTTemplateOutputC__set_somtCommentStyle */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK _set_somtCommentStyle(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ somtCommentStyleT somtCommentStyle);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_set_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__set_somtCommentStyle   0
+	#define somAP_SOMTTemplateOutputC__set_somtCommentStyle   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somRD_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somRD_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somRD_SOMTTemplateOutputC__set_somtCommentStyle somRD_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somRD_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtCommentStyle(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ somtCommentStyleT somtCommentStyle);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__set_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtCommentStyle(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ somtCommentStyleT somtCommentStyle)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId__set_somtCommentStyle,somSelf,
+				somtCommentStyle);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somAP_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somAP_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somAP_SOMTTemplateOutputC__set_somtCommentStyle somAP_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somAP_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtCommentStyle(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__set_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtCommentStyle(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		somtCommentStyleT somtCommentStyle;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		somtCommentStyle=va_arg(_somC_ap,somtCommentStyleT );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC__set_somtCommentStyle)_somC_methodPtr)(somSelf,somtCommentStyle);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle somMethodInfo_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(somtCommentStyleT)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle
+		#error somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle */
+		#define somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle somApRdInfo_SOMTTemplateOutputC_somC_set_somtCommentStyle
+	#endif /* somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtCommentStyle,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtCommentStyle,
+		&somMethodInfo_SOMTTemplateOutputC__set_somtCommentStyle};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtCommentStyle
+		#define static_somMN__get_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtCommentStyle
+		#error somMN__get_somtCommentStyle already defined
+	#else /* somMN__get_somtCommentStyle */
+		#define somMN__get_somtCommentStyle somMN_somC_get_somtCommentStyle
+	#endif /* somMN__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtCommentStyle="_get_somtCommentStyle";
+	#endif /* static_somMN__get_somtCommentStyle */
+	#ifndef static_somId__get_somtCommentStyle
+		#define static_somId__get_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtCommentStyle
+		#error somId__get_somtCommentStyle already defined
+	#else /* somId__get_somtCommentStyle */
+		#define somId__get_somtCommentStyle somId_somC_get_somtCommentStyle
+	#endif /* somId__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtCommentStyle=&somMN__get_somtCommentStyle;
+	#endif /* static_somId__get_somtCommentStyle */
+	#ifndef static_somDS_SOMTTemplateOutputC__get_somtCommentStyle
+		#define static_somDS_SOMTTemplateOutputC__get_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somDS_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somDS_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somDS_SOMTTemplateOutputC__get_somtCommentStyle somDS_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somDS_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__get_somtCommentStyle="SOMTTemplateOutputC::_get_somtCommentStyle";
+	#endif /* static_somDS_SOMTTemplateOutputC__get_somtCommentStyle */
+	#ifndef static_somDI_SOMTTemplateOutputC__get_somtCommentStyle
+		#define static_somDI_SOMTTemplateOutputC__get_somtCommentStyle
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somDI_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somDI_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somDI_SOMTTemplateOutputC__get_somtCommentStyle somDI_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somDI_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__get_somtCommentStyle=&somDS_SOMTTemplateOutputC__get_somtCommentStyle;
+	#endif /* static_somDI_SOMTTemplateOutputC__get_somtCommentStyle */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope somtCommentStyleT SOMLINK _get_somtCommentStyle(
+	SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__get_somtCommentStyle   0
+	#define somAP_SOMTTemplateOutputC__get_somtCommentStyle   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somRD_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somRD_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somRD_SOMTTemplateOutputC__get_somtCommentStyle somRD_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somRD_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static somtCommentStyleT SOMLINK somRD_SOMTTemplateOutputC__get_somtCommentStyle(
+			SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__get_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+	static somtCommentStyleT SOMLINK somRD_SOMTTemplateOutputC__get_somtCommentStyle(
+			SOMTTemplateOutputC * somSelf)
+	{
+		somtCommentStyleT _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtCommentStyle,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somAP_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somAP_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somAP_SOMTTemplateOutputC__get_somtCommentStyle somAP_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somAP_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtCommentStyle(
+		SOMTTemplateOutputC * somSelf,
+		somtCommentStyleT *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__get_somtCommentStyle,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtCommentStyle(
+		SOMTTemplateOutputC * somSelf,
+		somtCommentStyleT *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC__get_somtCommentStyle)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle somMethodInfo_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle
+		#error somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle */
+		#define somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle somApRdInfo_SOMTTemplateOutputC_somC_get_somtCommentStyle
+	#endif /* somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtCommentStyle,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtCommentStyle,
+		&somMethodInfo_SOMTTemplateOutputC__get_somtCommentStyle};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__set_somtLineLength
+		#define static_somMN__set_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__set_somtLineLength
+		#error somMN__set_somtLineLength already defined
+	#else /* somMN__set_somtLineLength */
+		#define somMN__set_somtLineLength somMN_somC_set_somtLineLength
+	#endif /* somMN__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__set_somtLineLength="_set_somtLineLength";
+	#endif /* static_somMN__set_somtLineLength */
+	#ifndef static_somId__set_somtLineLength
+		#define static_somId__set_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__set_somtLineLength
+		#error somId__set_somtLineLength already defined
+	#else /* somId__set_somtLineLength */
+		#define somId__set_somtLineLength somId_somC_set_somtLineLength
+	#endif /* somId__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__set_somtLineLength=&somMN__set_somtLineLength;
+	#endif /* static_somId__set_somtLineLength */
+	#ifndef static_somDS_SOMTTemplateOutputC__set_somtLineLength
+		#define static_somDS_SOMTTemplateOutputC__set_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__set_somtLineLength
+		#error somDS_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somDS_SOMTTemplateOutputC__set_somtLineLength */
+		#define somDS_SOMTTemplateOutputC__set_somtLineLength somDS_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somDS_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__set_somtLineLength="SOMTTemplateOutputC::_set_somtLineLength";
+	#endif /* static_somDS_SOMTTemplateOutputC__set_somtLineLength */
+	#ifndef static_somDI_SOMTTemplateOutputC__set_somtLineLength
+		#define static_somDI_SOMTTemplateOutputC__set_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__set_somtLineLength
+		#error somDI_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somDI_SOMTTemplateOutputC__set_somtLineLength */
+		#define somDI_SOMTTemplateOutputC__set_somtLineLength somDI_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somDI_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__set_somtLineLength=&somDS_SOMTTemplateOutputC__set_somtLineLength;
+	#endif /* static_somDI_SOMTTemplateOutputC__set_somtLineLength */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK _set_somtLineLength(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ long somtLineLength);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_set_somtLineLength,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__set_somtLineLength   0
+	#define somAP_SOMTTemplateOutputC__set_somtLineLength   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__set_somtLineLength
+		#error somRD_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somRD_SOMTTemplateOutputC__set_somtLineLength */
+		#define somRD_SOMTTemplateOutputC__set_somtLineLength somRD_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somRD_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtLineLength(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ long somtLineLength);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__set_somtLineLength,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtLineLength(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ long somtLineLength)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId__set_somtLineLength,somSelf,
+				somtLineLength);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__set_somtLineLength
+		#error somAP_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somAP_SOMTTemplateOutputC__set_somtLineLength */
+		#define somAP_SOMTTemplateOutputC__set_somtLineLength somAP_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somAP_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtLineLength(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__set_somtLineLength,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtLineLength(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		long somtLineLength;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		somtLineLength=(long )va_arg(_somC_ap,long );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC__set_somtLineLength)_somC_methodPtr)(somSelf,somtLineLength);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__set_somtLineLength
+		#error somMethodInfo_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__set_somtLineLength */
+		#define somMethodInfo_SOMTTemplateOutputC__set_somtLineLength somMethodInfo_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somMethodInfo_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__set_somtLineLength={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(long)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__set_somtLineLength
+		#error somApRdInfo_SOMTTemplateOutputC__set_somtLineLength already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__set_somtLineLength */
+		#define somApRdInfo_SOMTTemplateOutputC__set_somtLineLength somApRdInfo_SOMTTemplateOutputC_somC_set_somtLineLength
+	#endif /* somApRdInfo_SOMTTemplateOutputC__set_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__set_somtLineLength={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtLineLength,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtLineLength,
+		&somMethodInfo_SOMTTemplateOutputC__set_somtLineLength};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtLineLength
+		#define static_somMN__get_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtLineLength
+		#error somMN__get_somtLineLength already defined
+	#else /* somMN__get_somtLineLength */
+		#define somMN__get_somtLineLength somMN_somC_get_somtLineLength
+	#endif /* somMN__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtLineLength="_get_somtLineLength";
+	#endif /* static_somMN__get_somtLineLength */
+	#ifndef static_somId__get_somtLineLength
+		#define static_somId__get_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtLineLength
+		#error somId__get_somtLineLength already defined
+	#else /* somId__get_somtLineLength */
+		#define somId__get_somtLineLength somId_somC_get_somtLineLength
+	#endif /* somId__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtLineLength=&somMN__get_somtLineLength;
+	#endif /* static_somId__get_somtLineLength */
+	#ifndef static_somDS_SOMTTemplateOutputC__get_somtLineLength
+		#define static_somDS_SOMTTemplateOutputC__get_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__get_somtLineLength
+		#error somDS_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somDS_SOMTTemplateOutputC__get_somtLineLength */
+		#define somDS_SOMTTemplateOutputC__get_somtLineLength somDS_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somDS_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__get_somtLineLength="SOMTTemplateOutputC::_get_somtLineLength";
+	#endif /* static_somDS_SOMTTemplateOutputC__get_somtLineLength */
+	#ifndef static_somDI_SOMTTemplateOutputC__get_somtLineLength
+		#define static_somDI_SOMTTemplateOutputC__get_somtLineLength
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__get_somtLineLength
+		#error somDI_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somDI_SOMTTemplateOutputC__get_somtLineLength */
+		#define somDI_SOMTTemplateOutputC__get_somtLineLength somDI_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somDI_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__get_somtLineLength=&somDS_SOMTTemplateOutputC__get_somtLineLength;
+	#endif /* static_somDI_SOMTTemplateOutputC__get_somtLineLength */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope long SOMLINK _get_somtLineLength(
+	SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtLineLength,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__get_somtLineLength   0
+	#define somAP_SOMTTemplateOutputC__get_somtLineLength   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__get_somtLineLength
+		#error somRD_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somRD_SOMTTemplateOutputC__get_somtLineLength */
+		#define somRD_SOMTTemplateOutputC__get_somtLineLength somRD_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somRD_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static long SOMLINK somRD_SOMTTemplateOutputC__get_somtLineLength(
+			SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__get_somtLineLength,system)
+	#endif /* __IBMC__ */
+	static long SOMLINK somRD_SOMTTemplateOutputC__get_somtLineLength(
+			SOMTTemplateOutputC * somSelf)
+	{
+		long _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtLineLength,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__get_somtLineLength
+		#error somAP_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somAP_SOMTTemplateOutputC__get_somtLineLength */
+		#define somAP_SOMTTemplateOutputC__get_somtLineLength somAP_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somAP_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtLineLength(
+		SOMTTemplateOutputC * somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__get_somtLineLength,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtLineLength(
+		SOMTTemplateOutputC * somSelf,
+		long *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC__get_somtLineLength)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__get_somtLineLength
+		#error somMethodInfo_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__get_somtLineLength */
+		#define somMethodInfo_SOMTTemplateOutputC__get_somtLineLength somMethodInfo_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somMethodInfo_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__get_somtLineLength={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__get_somtLineLength
+		#error somApRdInfo_SOMTTemplateOutputC__get_somtLineLength already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__get_somtLineLength */
+		#define somApRdInfo_SOMTTemplateOutputC__get_somtLineLength somApRdInfo_SOMTTemplateOutputC_somC_get_somtLineLength
+	#endif /* somApRdInfo_SOMTTemplateOutputC__get_somtLineLength */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__get_somtLineLength={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtLineLength,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtLineLength,
+		&somMethodInfo_SOMTTemplateOutputC__get_somtLineLength};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__set_somtCommentNewline
+		#define static_somMN__set_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__set_somtCommentNewline
+		#error somMN__set_somtCommentNewline already defined
+	#else /* somMN__set_somtCommentNewline */
+		#define somMN__set_somtCommentNewline somMN_somC_set_somtCommentNewline
+	#endif /* somMN__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__set_somtCommentNewline="_set_somtCommentNewline";
+	#endif /* static_somMN__set_somtCommentNewline */
+	#ifndef static_somId__set_somtCommentNewline
+		#define static_somId__set_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__set_somtCommentNewline
+		#error somId__set_somtCommentNewline already defined
+	#else /* somId__set_somtCommentNewline */
+		#define somId__set_somtCommentNewline somId_somC_set_somtCommentNewline
+	#endif /* somId__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__set_somtCommentNewline=&somMN__set_somtCommentNewline;
+	#endif /* static_somId__set_somtCommentNewline */
+	#ifndef static_somDS_SOMTTemplateOutputC__set_somtCommentNewline
+		#define static_somDS_SOMTTemplateOutputC__set_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somDS_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somDS_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somDS_SOMTTemplateOutputC__set_somtCommentNewline somDS_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somDS_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__set_somtCommentNewline="SOMTTemplateOutputC::_set_somtCommentNewline";
+	#endif /* static_somDS_SOMTTemplateOutputC__set_somtCommentNewline */
+	#ifndef static_somDI_SOMTTemplateOutputC__set_somtCommentNewline
+		#define static_somDI_SOMTTemplateOutputC__set_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somDI_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somDI_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somDI_SOMTTemplateOutputC__set_somtCommentNewline somDI_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somDI_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__set_somtCommentNewline=&somDS_SOMTTemplateOutputC__set_somtCommentNewline;
+	#endif /* static_somDI_SOMTTemplateOutputC__set_somtCommentNewline */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK _set_somtCommentNewline(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ boolean somtCommentNewline);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_set_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__set_somtCommentNewline   0
+	#define somAP_SOMTTemplateOutputC__set_somtCommentNewline   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somRD_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somRD_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somRD_SOMTTemplateOutputC__set_somtCommentNewline somRD_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somRD_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtCommentNewline(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ boolean somtCommentNewline);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__set_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC__set_somtCommentNewline(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ boolean somtCommentNewline)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId__set_somtCommentNewline,somSelf,
+				(int )somtCommentNewline);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somAP_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somAP_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somAP_SOMTTemplateOutputC__set_somtCommentNewline somAP_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somAP_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtCommentNewline(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__set_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__set_somtCommentNewline(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		boolean somtCommentNewline;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		somtCommentNewline=(boolean )va_arg(_somC_ap,int );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC__set_somtCommentNewline)_somC_methodPtr)(somSelf,somtCommentNewline);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline somMethodInfo_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(int)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline
+		#error somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline */
+		#define somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline somApRdInfo_SOMTTemplateOutputC_somC_set_somtCommentNewline
+	#endif /* somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtCommentNewline,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtCommentNewline,
+		&somMethodInfo_SOMTTemplateOutputC__set_somtCommentNewline};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN__get_somtCommentNewline
+		#define static_somMN__get_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMN__get_somtCommentNewline
+		#error somMN__get_somtCommentNewline already defined
+	#else /* somMN__get_somtCommentNewline */
+		#define somMN__get_somtCommentNewline somMN_somC_get_somtCommentNewline
+	#endif /* somMN__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somMN__get_somtCommentNewline="_get_somtCommentNewline";
+	#endif /* static_somMN__get_somtCommentNewline */
+	#ifndef static_somId__get_somtCommentNewline
+		#define static_somId__get_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somId__get_somtCommentNewline
+		#error somId__get_somtCommentNewline already defined
+	#else /* somId__get_somtCommentNewline */
+		#define somId__get_somtCommentNewline somId_somC_get_somtCommentNewline
+	#endif /* somId__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somId__get_somtCommentNewline=&somMN__get_somtCommentNewline;
+	#endif /* static_somId__get_somtCommentNewline */
+	#ifndef static_somDS_SOMTTemplateOutputC__get_somtCommentNewline
+		#define static_somDS_SOMTTemplateOutputC__get_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDS_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somDS_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somDS_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somDS_SOMTTemplateOutputC__get_somtCommentNewline somDS_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somDS_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const char * somDS_SOMTTemplateOutputC__get_somtCommentNewline="SOMTTemplateOutputC::_get_somtCommentNewline";
+	#endif /* static_somDS_SOMTTemplateOutputC__get_somtCommentNewline */
+	#ifndef static_somDI_SOMTTemplateOutputC__get_somtCommentNewline
+		#define static_somDI_SOMTTemplateOutputC__get_somtCommentNewline
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somDI_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somDI_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somDI_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somDI_SOMTTemplateOutputC__get_somtCommentNewline somDI_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somDI_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		static const somConstId somDI_SOMTTemplateOutputC__get_somtCommentNewline=&somDS_SOMTTemplateOutputC__get_somtCommentNewline;
+	#endif /* static_somDI_SOMTTemplateOutputC__get_somtCommentNewline */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope boolean SOMLINK _get_somtCommentNewline(
+	SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(_get_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC__get_somtCommentNewline   0
+	#define somAP_SOMTTemplateOutputC__get_somtCommentNewline   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somRD_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somRD_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somRD_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somRD_SOMTTemplateOutputC__get_somtCommentNewline somRD_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somRD_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static boolean SOMLINK somRD_SOMTTemplateOutputC__get_somtCommentNewline(
+			SOMTTemplateOutputC * somSelf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC__get_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMTTemplateOutputC__get_somtCommentNewline(
+			SOMTTemplateOutputC * somSelf)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId__get_somtCommentNewline,somSelf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somAP_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somAP_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somAP_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somAP_SOMTTemplateOutputC__get_somtCommentNewline somAP_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somAP_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtCommentNewline(
+		SOMTTemplateOutputC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC__get_somtCommentNewline,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC__get_somtCommentNewline(
+		SOMTTemplateOutputC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC__get_somtCommentNewline)_somC_methodPtr)(somSelf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline somMethodInfo_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		,NULL};
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline
+		#error somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline already defined
+	#else /* somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline */
+		#define somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline somApRdInfo_SOMTTemplateOutputC_somC_get_somtCommentNewline
+	#endif /* somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline={
+		(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtCommentNewline,
+		(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtCommentNewline,
+		&somMethodInfo_SOMTTemplateOutputC__get_somtCommentNewline};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtGetSymbol
+		#define static_somMN_somtGetSymbol
+		static const char * somMN_somtGetSymbol="somtGetSymbol";
+	#endif /* static_somMN_somtGetSymbol */
+	#ifndef static_somId_somtGetSymbol
+		#define static_somId_somtGetSymbol
+		static const somConstId somId_somtGetSymbol=&somMN_somtGetSymbol;
+	#endif /* static_somId_somtGetSymbol */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtGetSymbol
+		#define static_somDS_SOMTTemplateOutputC_somtGetSymbol
+		static const char * somDS_SOMTTemplateOutputC_somtGetSymbol="SOMTTemplateOutputC::somtGetSymbol";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtGetSymbol */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtGetSymbol
+		#define static_somDI_SOMTTemplateOutputC_somtGetSymbol
+		static const somConstId somDI_SOMTTemplateOutputC_somtGetSymbol=&somDS_SOMTTemplateOutputC_somtGetSymbol;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtGetSymbol */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK somtGetSymbol(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtGetSymbol,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtGetSymbol   0
+	#define somAP_SOMTTemplateOutputC_somtGetSymbol   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static string SOMLINK somRD_SOMTTemplateOutputC_somtGetSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtGetSymbol,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTTemplateOutputC_somtGetSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtGetSymbol,somSelf,
+				name);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtGetSymbol(
+		SOMTTemplateOutputC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtGetSymbol,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtGetSymbol(
+		SOMTTemplateOutputC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC_somtGetSymbol)_somC_methodPtr)(somSelf,name);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtGetSymbol={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtGetSymbol={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtGetSymbol,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtGetSymbol,
+		&somMethodInfo_SOMTTemplateOutputC_somtGetSymbol};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtSetSymbol
+		#define static_somMN_somtSetSymbol
+		static const char * somMN_somtSetSymbol="somtSetSymbol";
+	#endif /* static_somMN_somtSetSymbol */
+	#ifndef static_somId_somtSetSymbol
+		#define static_somId_somtSetSymbol
+		static const somConstId somId_somtSetSymbol=&somMN_somtSetSymbol;
+	#endif /* static_somId_somtSetSymbol */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtSetSymbol
+		#define static_somDS_SOMTTemplateOutputC_somtSetSymbol
+		static const char * somDS_SOMTTemplateOutputC_somtSetSymbol="SOMTTemplateOutputC::somtSetSymbol";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtSetSymbol */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtSetSymbol
+		#define static_somDI_SOMTTemplateOutputC_somtSetSymbol
+		static const somConstId somDI_SOMTTemplateOutputC_somtSetSymbol=&somDS_SOMTTemplateOutputC_somtSetSymbol;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtSetSymbol */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtSetSymbol(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name,
+	/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetSymbol,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtSetSymbol   0
+	#define somAP_SOMTTemplateOutputC_somtSetSymbol   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtSetSymbol,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtSetSymbol,somSelf,
+				name,
+				value);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbol(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtSetSymbol,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbol(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+		string value;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+		value=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtSetSymbol)_somC_methodPtr)(somSelf,name,value);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtSetSymbol={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtSetSymbol={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbol,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbol,
+		&somMethodInfo_SOMTTemplateOutputC_somtSetSymbol};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtSetSymbolCopyName
+		#define static_somMN_somtSetSymbolCopyName
+		static const char * somMN_somtSetSymbolCopyName="somtSetSymbolCopyName";
+	#endif /* static_somMN_somtSetSymbolCopyName */
+	#ifndef static_somId_somtSetSymbolCopyName
+		#define static_somId_somtSetSymbolCopyName
+		static const somConstId somId_somtSetSymbolCopyName=&somMN_somtSetSymbolCopyName;
+	#endif /* static_somId_somtSetSymbolCopyName */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyName
+		#define static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyName
+		static const char * somDS_SOMTTemplateOutputC_somtSetSymbolCopyName="SOMTTemplateOutputC::somtSetSymbolCopyName";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyName */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyName
+		#define static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyName
+		static const somConstId somDI_SOMTTemplateOutputC_somtSetSymbolCopyName=&somDS_SOMTTemplateOutputC_somtSetSymbolCopyName;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyName */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtSetSymbolCopyName(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name,
+	/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetSymbolCopyName,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtSetSymbolCopyName   0
+	#define somAP_SOMTTemplateOutputC_somtSetSymbolCopyName   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyName(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtSetSymbolCopyName,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyName(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtSetSymbolCopyName,somSelf,
+				name,
+				value);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyName(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtSetSymbolCopyName,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyName(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+		string value;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+		value=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtSetSymbolCopyName)_somC_methodPtr)(somSelf,name,value);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyName={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyName={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyName,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyName,
+		&somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyName};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtSetSymbolCopyValue
+		#define static_somMN_somtSetSymbolCopyValue
+		static const char * somMN_somtSetSymbolCopyValue="somtSetSymbolCopyValue";
+	#endif /* static_somMN_somtSetSymbolCopyValue */
+	#ifndef static_somId_somtSetSymbolCopyValue
+		#define static_somId_somtSetSymbolCopyValue
+		static const somConstId somId_somtSetSymbolCopyValue=&somMN_somtSetSymbolCopyValue;
+	#endif /* static_somId_somtSetSymbolCopyValue */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyValue
+		#define static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyValue
+		static const char * somDS_SOMTTemplateOutputC_somtSetSymbolCopyValue="SOMTTemplateOutputC::somtSetSymbolCopyValue";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyValue */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyValue
+		#define static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyValue
+		static const somConstId somDI_SOMTTemplateOutputC_somtSetSymbolCopyValue=&somDS_SOMTTemplateOutputC_somtSetSymbolCopyValue;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyValue */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtSetSymbolCopyValue(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name,
+	/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetSymbolCopyValue,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue   0
+	#define somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtSetSymbolCopyValue,somSelf,
+				name,
+				value);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+		string value;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+		value=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtSetSymbolCopyValue)_somC_methodPtr)(somSelf,name,value);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyValue={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyValue={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue,
+		&somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyValue};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtSetSymbolCopyBoth
+		#define static_somMN_somtSetSymbolCopyBoth
+		static const char * somMN_somtSetSymbolCopyBoth="somtSetSymbolCopyBoth";
+	#endif /* static_somMN_somtSetSymbolCopyBoth */
+	#ifndef static_somId_somtSetSymbolCopyBoth
+		#define static_somId_somtSetSymbolCopyBoth
+		static const somConstId somId_somtSetSymbolCopyBoth=&somMN_somtSetSymbolCopyBoth;
+	#endif /* static_somId_somtSetSymbolCopyBoth */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+		#define static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+		static const char * somDS_SOMTTemplateOutputC_somtSetSymbolCopyBoth="SOMTTemplateOutputC::somtSetSymbolCopyBoth";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtSetSymbolCopyBoth */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+		#define static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+		static const somConstId somDI_SOMTTemplateOutputC_somtSetSymbolCopyBoth=&somDS_SOMTTemplateOutputC_somtSetSymbolCopyBoth;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtSetSymbolCopyBoth */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtSetSymbolCopyBoth(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name,
+	/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetSymbolCopyBoth,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth   0
+	#define somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name,
+			/* in */ string value)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtSetSymbolCopyBoth,somSelf,
+				name,
+				value);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+		string value;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+		value=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtSetSymbolCopyBoth)_somC_methodPtr)(somSelf,name,value);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyBoth={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyBoth={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth,
+		&somMethodInfo_SOMTTemplateOutputC_somtSetSymbolCopyBoth};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtCheckSymbol
+		#define static_somMN_somtCheckSymbol
+		static const char * somMN_somtCheckSymbol="somtCheckSymbol";
+	#endif /* static_somMN_somtCheckSymbol */
+	#ifndef static_somId_somtCheckSymbol
+		#define static_somId_somtCheckSymbol
+		static const somConstId somId_somtCheckSymbol=&somMN_somtCheckSymbol;
+	#endif /* static_somId_somtCheckSymbol */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtCheckSymbol
+		#define static_somDS_SOMTTemplateOutputC_somtCheckSymbol
+		static const char * somDS_SOMTTemplateOutputC_somtCheckSymbol="SOMTTemplateOutputC::somtCheckSymbol";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtCheckSymbol */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtCheckSymbol
+		#define static_somDI_SOMTTemplateOutputC_somtCheckSymbol
+		static const somConstId somDI_SOMTTemplateOutputC_somtCheckSymbol=&somDS_SOMTTemplateOutputC_somtCheckSymbol;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtCheckSymbol */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope boolean SOMLINK somtCheckSymbol(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string name);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtCheckSymbol,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtCheckSymbol   0
+	#define somAP_SOMTTemplateOutputC_somtCheckSymbol   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static boolean SOMLINK somRD_SOMTTemplateOutputC_somtCheckSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtCheckSymbol,system)
+	#endif /* __IBMC__ */
+	static boolean SOMLINK somRD_SOMTTemplateOutputC_somtCheckSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string name)
+	{
+		boolean _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtCheckSymbol,somSelf,
+				name);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtCheckSymbol(
+		SOMTTemplateOutputC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtCheckSymbol,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtCheckSymbol(
+		SOMTTemplateOutputC * somSelf,
+		boolean *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string name;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		name=va_arg(_somC_ap,string );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC_somtCheckSymbol)_somC_methodPtr)(somSelf,name);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtCheckSymbol={
+		SOMRdRetbyte|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtCheckSymbol={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtCheckSymbol,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtCheckSymbol,
+		&somMethodInfo_SOMTTemplateOutputC_somtCheckSymbol};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtSetOutputFile
+		#define static_somMN_somtSetOutputFile
+		static const char * somMN_somtSetOutputFile="somtSetOutputFile";
+	#endif /* static_somMN_somtSetOutputFile */
+	#ifndef static_somId_somtSetOutputFile
+		#define static_somId_somtSetOutputFile
+		static const somConstId somId_somtSetOutputFile=&somMN_somtSetOutputFile;
+	#endif /* static_somId_somtSetOutputFile */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtSetOutputFile
+		#define static_somDS_SOMTTemplateOutputC_somtSetOutputFile
+		static const char * somDS_SOMTTemplateOutputC_somtSetOutputFile="SOMTTemplateOutputC::somtSetOutputFile";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtSetOutputFile */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtSetOutputFile
+		#define static_somDI_SOMTTemplateOutputC_somtSetOutputFile
+		static const somConstId somDI_SOMTTemplateOutputC_somtSetOutputFile=&somDS_SOMTTemplateOutputC_somtSetOutputFile;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtSetOutputFile */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtSetOutputFile(
+	SOMTTemplateOutputC * somSelf,
+	/* inout */ FILE *fp);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtSetOutputFile,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtSetOutputFile   0
+	#define somAP_SOMTTemplateOutputC_somtSetOutputFile   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetOutputFile(
+			SOMTTemplateOutputC * somSelf,
+			/* inout */ FILE *fp);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtSetOutputFile,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtSetOutputFile(
+			SOMTTemplateOutputC * somSelf,
+			/* inout */ FILE *fp)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtSetOutputFile,somSelf,
+				fp);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetOutputFile(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtSetOutputFile,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtSetOutputFile(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		FILE *fp;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		fp=va_arg(_somC_ap,FILE *);
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtSetOutputFile)_somC_methodPtr)(somSelf,fp);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtSetOutputFile={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtSetOutputFile={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetOutputFile,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetOutputFile,
+		&somMethodInfo_SOMTTemplateOutputC_somtSetOutputFile};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somto
+		#define static_somMN_somto
+		static const char * somMN_somto="somto";
+	#endif /* static_somMN_somto */
+	#ifndef static_somId_somto
+		#define static_somId_somto
+		static const somConstId somId_somto=&somMN_somto;
+	#endif /* static_somId_somto */
+	#ifndef static_somDS_SOMTTemplateOutputC_somto
+		#define static_somDS_SOMTTemplateOutputC_somto
+		static const char * somDS_SOMTTemplateOutputC_somto="SOMTTemplateOutputC::somto";
+	#endif /* static_somDS_SOMTTemplateOutputC_somto */
+	#ifndef static_somDI_SOMTTemplateOutputC_somto
+		#define static_somDI_SOMTTemplateOutputC_somto
+		static const somConstId somDI_SOMTTemplateOutputC_somto=&somDS_SOMTTemplateOutputC_somto;
+	#endif /* static_somDI_SOMTTemplateOutputC_somto */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somto(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string tmplt);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somto,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somto   0
+	#define somAP_SOMTTemplateOutputC_somto   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somto(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string tmplt);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somto,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somto(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string tmplt)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somto,somSelf,
+				tmplt);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somto(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somto,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somto(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string tmplt;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		tmplt=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somto)_somC_methodPtr)(somSelf,tmplt);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somto={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somto={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somto,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somto,
+		&somMethodInfo_SOMTTemplateOutputC_somto};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtOutputComment
+		#define static_somMN_somtOutputComment
+		static const char * somMN_somtOutputComment="somtOutputComment";
+	#endif /* static_somMN_somtOutputComment */
+	#ifndef static_somId_somtOutputComment
+		#define static_somId_somtOutputComment
+		static const somConstId somId_somtOutputComment=&somMN_somtOutputComment;
+	#endif /* static_somId_somtOutputComment */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtOutputComment
+		#define static_somDS_SOMTTemplateOutputC_somtOutputComment
+		static const char * somDS_SOMTTemplateOutputC_somtOutputComment="SOMTTemplateOutputC::somtOutputComment";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtOutputComment */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtOutputComment
+		#define static_somDI_SOMTTemplateOutputC_somtOutputComment
+		static const somConstId somDI_SOMTTemplateOutputC_somtOutputComment=&somDS_SOMTTemplateOutputC_somtOutputComment;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtOutputComment */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtOutputComment(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string comment);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtOutputComment,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtOutputComment   0
+	#define somAP_SOMTTemplateOutputC_somtOutputComment   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtOutputComment(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string comment);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtOutputComment,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtOutputComment(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string comment)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtOutputComment,somSelf,
+				comment);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtOutputComment(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtOutputComment,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtOutputComment(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string comment;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		comment=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtOutputComment)_somC_methodPtr)(somSelf,comment);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtOutputComment={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtOutputComment={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtOutputComment,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtOutputComment,
+		&somMethodInfo_SOMTTemplateOutputC_somtOutputComment};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtOutputSection
+		#define static_somMN_somtOutputSection
+		static const char * somMN_somtOutputSection="somtOutputSection";
+	#endif /* static_somMN_somtOutputSection */
+	#ifndef static_somId_somtOutputSection
+		#define static_somId_somtOutputSection
+		static const somConstId somId_somtOutputSection=&somMN_somtOutputSection;
+	#endif /* static_somId_somtOutputSection */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtOutputSection
+		#define static_somDS_SOMTTemplateOutputC_somtOutputSection
+		static const char * somDS_SOMTTemplateOutputC_somtOutputSection="SOMTTemplateOutputC::somtOutputSection";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtOutputSection */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtOutputSection
+		#define static_somDI_SOMTTemplateOutputC_somtOutputSection
+		static const somConstId somDI_SOMTTemplateOutputC_somtOutputSection=&somDS_SOMTTemplateOutputC_somtOutputSection;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtOutputSection */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtOutputSection(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string sectionName);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtOutputSection,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtOutputSection   0
+	#define somAP_SOMTTemplateOutputC_somtOutputSection   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtOutputSection(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string sectionName);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtOutputSection,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtOutputSection(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string sectionName)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtOutputSection,somSelf,
+				sectionName);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtOutputSection(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtOutputSection,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtOutputSection(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string sectionName;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		sectionName=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtOutputSection)_somC_methodPtr)(somSelf,sectionName);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtOutputSection={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtOutputSection={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtOutputSection,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtOutputSection,
+		&somMethodInfo_SOMTTemplateOutputC_somtOutputSection};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtAddSectionDefinitions
+		#define static_somMN_somtAddSectionDefinitions
+		static const char * somMN_somtAddSectionDefinitions="somtAddSectionDefinitions";
+	#endif /* static_somMN_somtAddSectionDefinitions */
+	#ifndef static_somId_somtAddSectionDefinitions
+		#define static_somId_somtAddSectionDefinitions
+		static const somConstId somId_somtAddSectionDefinitions=&somMN_somtAddSectionDefinitions;
+	#endif /* static_somId_somtAddSectionDefinitions */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtAddSectionDefinitions
+		#define static_somDS_SOMTTemplateOutputC_somtAddSectionDefinitions
+		static const char * somDS_SOMTTemplateOutputC_somtAddSectionDefinitions="SOMTTemplateOutputC::somtAddSectionDefinitions";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtAddSectionDefinitions */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtAddSectionDefinitions
+		#define static_somDI_SOMTTemplateOutputC_somtAddSectionDefinitions
+		static const somConstId somDI_SOMTTemplateOutputC_somtAddSectionDefinitions=&somDS_SOMTTemplateOutputC_somtAddSectionDefinitions;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtAddSectionDefinitions */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtAddSectionDefinitions(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string defString);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtAddSectionDefinitions,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtAddSectionDefinitions   0
+	#define somAP_SOMTTemplateOutputC_somtAddSectionDefinitions   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtAddSectionDefinitions(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string defString);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtAddSectionDefinitions,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtAddSectionDefinitions(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string defString)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtAddSectionDefinitions,somSelf,
+				defString);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtAddSectionDefinitions(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtAddSectionDefinitions,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtAddSectionDefinitions(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string defString;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		defString=va_arg(_somC_ap,string );
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtAddSectionDefinitions)_somC_methodPtr)(somSelf,defString);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtAddSectionDefinitions={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtAddSectionDefinitions={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtAddSectionDefinitions,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtAddSectionDefinitions,
+		&somMethodInfo_SOMTTemplateOutputC_somtAddSectionDefinitions};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtReadSectionDefinitions
+		#define static_somMN_somtReadSectionDefinitions
+		static const char * somMN_somtReadSectionDefinitions="somtReadSectionDefinitions";
+	#endif /* static_somMN_somtReadSectionDefinitions */
+	#ifndef static_somId_somtReadSectionDefinitions
+		#define static_somId_somtReadSectionDefinitions
+		static const somConstId somId_somtReadSectionDefinitions=&somMN_somtReadSectionDefinitions;
+	#endif /* static_somId_somtReadSectionDefinitions */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtReadSectionDefinitions
+		#define static_somDS_SOMTTemplateOutputC_somtReadSectionDefinitions
+		static const char * somDS_SOMTTemplateOutputC_somtReadSectionDefinitions="SOMTTemplateOutputC::somtReadSectionDefinitions";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtReadSectionDefinitions */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtReadSectionDefinitions
+		#define static_somDI_SOMTTemplateOutputC_somtReadSectionDefinitions
+		static const somConstId somDI_SOMTTemplateOutputC_somtReadSectionDefinitions=&somDS_SOMTTemplateOutputC_somtReadSectionDefinitions;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtReadSectionDefinitions */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somtReadSectionDefinitions(
+	SOMTTemplateOutputC * somSelf,
+	/* inout */ FILE *fp);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtReadSectionDefinitions,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtReadSectionDefinitions   0
+	#define somAP_SOMTTemplateOutputC_somtReadSectionDefinitions   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtReadSectionDefinitions(
+			SOMTTemplateOutputC * somSelf,
+			/* inout */ FILE *fp);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtReadSectionDefinitions,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somRD_SOMTTemplateOutputC_somtReadSectionDefinitions(
+			SOMTTemplateOutputC * somSelf,
+			/* inout */ FILE *fp)
+	{
+		somToken _somC_retVal=NULL; /* actually returns a void */
+		somSelf->somDispatch(&_somC_retVal,
+			(somId)somId_somtReadSectionDefinitions,somSelf,
+				fp);
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtReadSectionDefinitions(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtReadSectionDefinitions,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtReadSectionDefinitions(
+		SOMTTemplateOutputC * somSelf,
+		void *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		FILE *fp;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		fp=va_arg(_somC_ap,FILE *);
+
+		SOM_IgnoreWarning(_somC_retVal);
+
+		((somTD_SOMTTemplateOutputC_somtReadSectionDefinitions)_somC_methodPtr)(somSelf,fp);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtReadSectionDefinitions={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(void *)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtReadSectionDefinitions={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtReadSectionDefinitions,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtReadSectionDefinitions,
+		&somMethodInfo_SOMTTemplateOutputC_somtReadSectionDefinitions};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef static_somMN_somtExpandSymbol
+		#define static_somMN_somtExpandSymbol
+		static const char * somMN_somtExpandSymbol="somtExpandSymbol";
+	#endif /* static_somMN_somtExpandSymbol */
+	#ifndef static_somId_somtExpandSymbol
+		#define static_somId_somtExpandSymbol
+		static const somConstId somId_somtExpandSymbol=&somMN_somtExpandSymbol;
+	#endif /* static_somId_somtExpandSymbol */
+	#ifndef static_somDS_SOMTTemplateOutputC_somtExpandSymbol
+		#define static_somDS_SOMTTemplateOutputC_somtExpandSymbol
+		static const char * somDS_SOMTTemplateOutputC_somtExpandSymbol="SOMTTemplateOutputC::somtExpandSymbol";
+	#endif /* static_somDS_SOMTTemplateOutputC_somtExpandSymbol */
+	#ifndef static_somDI_SOMTTemplateOutputC_somtExpandSymbol
+		#define static_somDI_SOMTTemplateOutputC_somtExpandSymbol
+		static const somConstId somDI_SOMTTemplateOutputC_somtExpandSymbol=&somDS_SOMTTemplateOutputC_somtExpandSymbol;
+	#endif /* static_somDI_SOMTTemplateOutputC_somtExpandSymbol */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope string SOMLINK somtExpandSymbol(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ string s,
+	/* in */ string buf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somtExpandSymbol,system)
+	#endif /* __IBMC__ */
+#ifdef SOM_METHOD_STUBS
+	#define somRD_SOMTTemplateOutputC_somtExpandSymbol   0
+	#define somAP_SOMTTemplateOutputC_somtExpandSymbol   0
+#else /* SOM_METHOD_STUBS */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static string SOMLINK somRD_SOMTTemplateOutputC_somtExpandSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string s,
+			/* in */ string buf);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somRD_SOMTTemplateOutputC_somtExpandSymbol,system)
+	#endif /* __IBMC__ */
+	static string SOMLINK somRD_SOMTTemplateOutputC_somtExpandSymbol(
+			SOMTTemplateOutputC * somSelf,
+			/* in */ string s,
+			/* in */ string buf)
+	{
+		string _somC_retVal;
+#ifdef _DEBUG
+		memset(&_somC_retVal,0xCC,sizeof(_somC_retVal));
+#endif /* _DEBUG */
+		somSelf->somDispatch((somToken *)(void *)&_somC_retVal,
+			(somId)somId_somtExpandSymbol,somSelf,
+				s,
+				buf);
+
+		return _somC_retVal;
+	}
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtExpandSymbol(
+		SOMTTemplateOutputC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somAP_SOMTTemplateOutputC_somtExpandSymbol,system)
+	#endif /* __IBMC__ */
+	static void SOMLINK somAP_SOMTTemplateOutputC_somtExpandSymbol(
+		SOMTTemplateOutputC * somSelf,
+		string *_somC_retVal,
+		somMethodPtr _somC_methodPtr,
+		va_list _somC_ap)
+	{
+		string s;
+		string buf;
+
+		somSelf=va_arg(_somC_ap,SOMTTemplateOutputC * );
+		s=va_arg(_somC_ap,string );
+		buf=va_arg(_somC_ap,string );
+
+		*_somC_retVal=((somTD_SOMTTemplateOutputC_somtExpandSymbol)_somC_methodPtr)(somSelf,s,buf);
+	}
+
+#endif /* SOM_METHOD_STUBS */
+#ifdef SOM_METHOD_STUBS
+static somMethodInfo somMethodInfo_SOMTTemplateOutputC_somtExpandSymbol={
+		SOMRdRetsimple|SOMRdNoFloatArgs,
+		sizeof(SOMObject SOMSTAR)
+		+sizeof(string)
+		+sizeof(string)
+		,NULL};
+static somApRdInfo somApRdInfo_SOMTTemplateOutputC_somtExpandSymbol={
+		(somMethodPtr)somRD_SOMTTemplateOutputC_somtExpandSymbol,
+		(somMethodPtr)somAP_SOMTTemplateOutputC_somtExpandSymbol,
+		&somMethodInfo_SOMTTemplateOutputC_somtExpandSymbol};
+#endif /* SOM_METHOD_STUBS */
+	#ifndef SOMTTemplateOutputCMethodDebug
+		#define SOMTTemplateOutputCMethodDebug(x,y)
+	#endif /* SOMTTemplateOutputCMethodDebug */
+	#ifdef SOM_DATA_THUNKS
+		#define SOMTTemplateOutputCGetData(somSelf) \
+			(((SOMTTemplateOutputCData * (SOMLINK *)(SOMTTemplateOutputC *))(somMethodPtr)SOMTTemplateOutputCCClassData.instanceDataToken)(somSelf))
+	#else /* SOM_DATA_THUNKS */
+		#define SOMTTemplateOutputCGetData(somSelf) \
+			((SOMTTemplateOutputCData *) \
+				somDataResolve((SOMObject *)(void *)somSelf,SOMTTemplateOutputCCClassData.instanceDataToken))
+	#endif /* SOM_DATA_THUNKS */
+/* SOMTTemplateOutputC::somDefaultInit (..\src\rhbschdr.cpp:3254)*/
+	#ifndef static_somDS_SOMObject_somDefaultInit
+		#define static_somDS_SOMObject_somDefaultInit
+		static const char * somDS_SOMObject_somDefaultInit="SOMObject::somDefaultInit";
+	#endif /* static_somDS_SOMObject_somDefaultInit */
+	#ifndef static_somDI_SOMObject_somDefaultInit
+		#define static_somDI_SOMObject_somDefaultInit
+		static const somConstId somDI_SOMObject_somDefaultInit=&somDS_SOMObject_somDefaultInit;
+	#endif /* static_somDI_SOMObject_somDefaultInit */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somDefaultInit(
+	SOMTTemplateOutputC * somSelf,
+	/* inout */ somInitCtrl *ctrl);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somDefaultInit,system)
+	#endif /* __IBMC__ */
+/* SOMTTemplateOutputC::somDestruct (..\src\rhbschdr.cpp:3247)*/
+	#ifndef static_somDS_SOMObject_somDestruct
+		#define static_somDS_SOMObject_somDestruct
+		static const char * somDS_SOMObject_somDestruct="SOMObject::somDestruct";
+	#endif /* static_somDS_SOMObject_somDestruct */
+	#ifndef static_somDI_SOMObject_somDestruct
+		#define static_somDI_SOMObject_somDestruct
+		static const somConstId somDI_SOMObject_somDestruct=&somDS_SOMObject_somDestruct;
+	#endif /* static_somDI_SOMObject_somDestruct */
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	SOM_Scope void SOMLINK somDestruct(
+	SOMTTemplateOutputC * somSelf,
+	/* in */ octet doFree,
+	/* inout */ somDestructCtrl *ctrl);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifdef __IBMC__
+		#pragma linkage(somDestruct,system)
+	#endif /* __IBMC__ */
+	#ifndef static_somCN_SOMTTemplateOutputC
+		#define static_somCN_SOMTTemplateOutputC
+		static const char * somCN_SOMTTemplateOutputC="SOMTTemplateOutputC";
+	#endif /* static_somCN_SOMTTemplateOutputC */
+	#ifndef static_somPCN_SOMTTemplateOutputC_SOMObject
+		#define static_somPCN_SOMTTemplateOutputC_SOMObject
+		static const char * somPCN_SOMTTemplateOutputC_SOMObject="SOMObject";
+	#endif /* static_somPCN_SOMTTemplateOutputC_SOMObject */
+static const somConstId somPCSOMTTemplateOutputC[1]={
+	&somPCN_SOMTTemplateOutputC_SOMObject};
+
+/* class ::SOMTTemplateOutputC introduces 19 methods, 0 procedures and overrides 2 */
+/* should have ::SOMTTemplateOutputCClassData defined here */
+/* set for attribute SOMTTemplateOutputC_somtCommentStyle */
+SOM_Scope void SOMLINK _set_somtCommentStyle(SOMTTemplateOutputC * somSelf,somtCommentStyleT value)
+{
+	SOMTTemplateOutputCGetData(somSelf)->somtCommentStyle=value;
+}
+SOM_Scope somtCommentStyleT  SOMLINK _get_somtCommentStyle(SOMTTemplateOutputC * somSelf)
+{
+	return SOMTTemplateOutputCGetData(somSelf)->somtCommentStyle;
+}
+/* set for attribute SOMTTemplateOutputC_somtLineLength */
+SOM_Scope void SOMLINK _set_somtLineLength(SOMTTemplateOutputC * somSelf,long value)
+{
+	SOMTTemplateOutputCGetData(somSelf)->somtLineLength=value;
+}
+SOM_Scope long  SOMLINK _get_somtLineLength(SOMTTemplateOutputC * somSelf)
+{
+	return SOMTTemplateOutputCGetData(somSelf)->somtLineLength;
+}
+/* set for attribute SOMTTemplateOutputC_somtCommentNewline */
+SOM_Scope void SOMLINK _set_somtCommentNewline(SOMTTemplateOutputC * somSelf,boolean value)
+{
+	SOMTTemplateOutputCGetData(somSelf)->somtCommentNewline=value;
+}
+SOM_Scope boolean  SOMLINK _get_somtCommentNewline(SOMTTemplateOutputC * somSelf)
+{
+	return SOMTTemplateOutputCGetData(somSelf)->somtCommentNewline;
+}
+static somStaticMethod_t SOMTTemplateOutputCSM[19]={
+		{
+			&SOMTTemplateOutputCClassData._set_somtCommentStyle,
+			&somId__set_somtCommentStyle,
+			&somDI_SOMTTemplateOutputC__set_somtCommentStyle,
+			(somMethodPtr)_set_somtCommentStyle,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__set_somtCommentStyle
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtCommentStyle,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtCommentStyle
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData._get_somtCommentStyle,
+			&somId__get_somtCommentStyle,
+			&somDI_SOMTTemplateOutputC__get_somtCommentStyle,
+			(somMethodPtr)_get_somtCommentStyle,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__get_somtCommentStyle
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtCommentStyle,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtCommentStyle
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData._set_somtLineLength,
+			&somId__set_somtLineLength,
+			&somDI_SOMTTemplateOutputC__set_somtLineLength,
+			(somMethodPtr)_set_somtLineLength,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__set_somtLineLength
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtLineLength,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtLineLength
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData._get_somtLineLength,
+			&somId__get_somtLineLength,
+			&somDI_SOMTTemplateOutputC__get_somtLineLength,
+			(somMethodPtr)_get_somtLineLength,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__get_somtLineLength
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtLineLength,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtLineLength
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData._set_somtCommentNewline,
+			&somId__set_somtCommentNewline,
+			&somDI_SOMTTemplateOutputC__set_somtCommentNewline,
+			(somMethodPtr)_set_somtCommentNewline,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__set_somtCommentNewline
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__set_somtCommentNewline,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__set_somtCommentNewline
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData._get_somtCommentNewline,
+			&somId__get_somtCommentNewline,
+			&somDI_SOMTTemplateOutputC__get_somtCommentNewline,
+			(somMethodPtr)_get_somtCommentNewline,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC__get_somtCommentNewline
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC__get_somtCommentNewline,
+			(somMethodPtr)somAP_SOMTTemplateOutputC__get_somtCommentNewline
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtGetSymbol,
+			&somId_somtGetSymbol,
+			&somDI_SOMTTemplateOutputC_somtGetSymbol,
+			(somMethodPtr)somtGetSymbol,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtGetSymbol
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtGetSymbol,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtGetSymbol
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtSetSymbol,
+			&somId_somtSetSymbol,
+			&somDI_SOMTTemplateOutputC_somtSetSymbol,
+			(somMethodPtr)somtSetSymbol,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtSetSymbol
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbol,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbol
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtSetSymbolCopyName,
+			&somId_somtSetSymbolCopyName,
+			&somDI_SOMTTemplateOutputC_somtSetSymbolCopyName,
+			(somMethodPtr)somtSetSymbolCopyName,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyName
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyName,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyName
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtSetSymbolCopyValue,
+			&somId_somtSetSymbolCopyValue,
+			&somDI_SOMTTemplateOutputC_somtSetSymbolCopyValue,
+			(somMethodPtr)somtSetSymbolCopyValue,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyValue
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyValue,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyValue
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtSetSymbolCopyBoth,
+			&somId_somtSetSymbolCopyBoth,
+			&somDI_SOMTTemplateOutputC_somtSetSymbolCopyBoth,
+			(somMethodPtr)somtSetSymbolCopyBoth,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetSymbolCopyBoth,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetSymbolCopyBoth
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtCheckSymbol,
+			&somId_somtCheckSymbol,
+			&somDI_SOMTTemplateOutputC_somtCheckSymbol,
+			(somMethodPtr)somtCheckSymbol,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtCheckSymbol
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtCheckSymbol,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtCheckSymbol
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtSetOutputFile,
+			&somId_somtSetOutputFile,
+			&somDI_SOMTTemplateOutputC_somtSetOutputFile,
+			(somMethodPtr)somtSetOutputFile,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtSetOutputFile
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtSetOutputFile,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtSetOutputFile
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somto,
+			&somId_somto,
+			&somDI_SOMTTemplateOutputC_somto,
+			(somMethodPtr)somto,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somto
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somto,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somto
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtOutputComment,
+			&somId_somtOutputComment,
+			&somDI_SOMTTemplateOutputC_somtOutputComment,
+			(somMethodPtr)somtOutputComment,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtOutputComment
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtOutputComment,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtOutputComment
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtOutputSection,
+			&somId_somtOutputSection,
+			&somDI_SOMTTemplateOutputC_somtOutputSection,
+			(somMethodPtr)somtOutputSection,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtOutputSection
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtOutputSection,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtOutputSection
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtAddSectionDefinitions,
+			&somId_somtAddSectionDefinitions,
+			&somDI_SOMTTemplateOutputC_somtAddSectionDefinitions,
+			(somMethodPtr)somtAddSectionDefinitions,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtAddSectionDefinitions
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtAddSectionDefinitions,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtAddSectionDefinitions
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtReadSectionDefinitions,
+			&somId_somtReadSectionDefinitions,
+			&somDI_SOMTTemplateOutputC_somtReadSectionDefinitions,
+			(somMethodPtr)somtReadSectionDefinitions,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtReadSectionDefinitions
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtReadSectionDefinitions,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtReadSectionDefinitions
+#endif /* SOM_METHOD_STUBS */
+		},
+		{
+			&SOMTTemplateOutputCClassData.somtExpandSymbol,
+			&somId_somtExpandSymbol,
+			&somDI_SOMTTemplateOutputC_somtExpandSymbol,
+			(somMethodPtr)somtExpandSymbol,
+#ifdef SOM_METHOD_STUBS
+			(somMethodPtr)-1L,
+			(somMethodPtr)(size_t)&somApRdInfo_SOMTTemplateOutputC_somtExpandSymbol
+#else /* SOM_METHOD_STUBS */
+			(somMethodPtr)somRD_SOMTTemplateOutputC_somtExpandSymbol,
+			(somMethodPtr)somAP_SOMTTemplateOutputC_somtExpandSymbol
+#endif /* SOM_METHOD_STUBS */
+		}
+	};
+	#ifndef static_somDS_SOMObject_somDefaultInit
+		#define static_somDS_SOMObject_somDefaultInit
+		static const char * somDS_SOMObject_somDefaultInit="SOMObject::somDefaultInit";
+	#endif /* static_somDS_SOMObject_somDefaultInit */
+	#ifndef static_somDI_SOMObject_somDefaultInit
+		#define static_somDI_SOMObject_somDefaultInit
+		static const somConstId somDI_SOMObject_somDefaultInit=&somDS_SOMObject_somDefaultInit;
+	#endif /* static_somDI_SOMObject_somDefaultInit */
+	#ifndef static_somDS_SOMObject_somDestruct
+		#define static_somDS_SOMObject_somDestruct
+		static const char * somDS_SOMObject_somDestruct="SOMObject::somDestruct";
+	#endif /* static_somDS_SOMObject_somDestruct */
+	#ifndef static_somDI_SOMObject_somDestruct
+		#define static_somDI_SOMObject_somDestruct
+		static const somConstId somDI_SOMObject_somDestruct=&somDS_SOMObject_somDestruct;
+	#endif /* static_somDI_SOMObject_somDestruct */
+static somOverrideMethod_t SOMTTemplateOutputCOM[2]={
+		{
+			&somDI_SOMObject_somDefaultInit,
+			(somMethodPtr)somDefaultInit
+		},
+		{
+			&somDI_SOMObject_somDestruct,
+			(somMethodPtr)somDestruct
+		}
+	};
+struct _somC_SOMTTemplateOutputC_dataAlignment { octet _o; SOMTTemplateOutputCData _d; };
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+static void SOMLINK _somC_SOMTTemplateOutputC_classInit(SOMClass *);
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+static somStaticClassInfo SOMTTemplateOutputCSCI={
+#ifdef SOMSCIVERSION
+		3,  /* layoutVersion */
+#else /* SOMSCIVERSION */
+		2,  /* layoutVersion */
+#endif /* SOMSCIVERSION */
+		19, /* numStaticMethod */
+		2, /* numStaticOverrides */
+		0, /* numNonInternalData */
+		0, /* numProcMethods */
+		0, /* numVarargsFuncs */
+		SOMTTemplateOutputC_MajorVersion,
+		SOMTTemplateOutputC_MinorVersion,
+		sizeof(SOMTTemplateOutputCData), /* instanceDataSize */
+		19, /* maxMethods */
+		1, /* numParents */
+		&somCN_SOMTTemplateOutputC,
+		0,
+		0, /* implicitParentMeta */
+		somPCSOMTTemplateOutputC, /* parents */
+		(somClassDataStructure *)(void *)&SOMTTemplateOutputCClassData,
+		(somCClassDataStructure *)(void *)&SOMTTemplateOutputCCClassData,
+		SOMTTemplateOutputCSM,
+		SOMTTemplateOutputCOM,
+		0, /* nitReferenceBase */
+		0, /* nit */
+		0, /* pmt no procedures*/
+		0, /* vft */
+		_somC_SOMTTemplateOutputC_classInit,
+		(int)(size_t)&(((struct _somC_SOMTTemplateOutputC_dataAlignment *)0)->_d)
+#ifdef SOMSCIVERSION
+		,		-1L,(somId *)0, /* directInitClasses */
+		0,(somMethods_t *)0, /* numMethods */
+		0, /* protected data offset */
+		0, /* SOMSCIVERSION */
+		0,(somInheritedMethod_t *)0, /* inherited methods */
+		19,(somId *)0, /* class data entries */
+		0,(somMigratedMethod_t *)0, /* migrated methods */
+		0,(somId *)0, /* initializers */
+		0,(somDynamicSCI *)0, /* DTS */
+#endif /* SOMSCIVERSION */
+	};
+SOMClass * SOMLINK SOMTTemplateOutputCNewClass(
+	integer4 somtmajorVersion,integer4 somtminorVersion)
+{
+	if (!SOMObjectNewClass(
+		SOMObject_MajorVersion,
+		SOMObject_MinorVersion))
+	{
+		return NULL;
+	}
+	return somBuildClass(0x1,&SOMTTemplateOutputCSCI,
+		somtmajorVersion,
+		somtminorVersion);
+}
+static void SOMLINK _somC_SOMTTemplateOutputC_classInit(SOMClass *somSelf)
+{
+/* do parent resolves... */
+/* call classinit if defined... */
+	SOM_IgnoreWarning(somSelf);
+}
+struct SOMTTemplateOutputCClassDataStructure SOMDLINK SOMTTemplateOutputCClassData={
+	/* classObject */ 0,
+	/* _get_somtCommentStyle */ 0,
+	/* _set_somtCommentStyle */ 0,
+	/* _get_somtLineLength */ 0,
+	/* _set_somtLineLength */ 0,
+	/* _set_somtCommentNewline */ 0,
+	/* _get_somtCommentNewline */ 0,
+	/* somtGetSymbol */ 0,
+	/* somtSetSymbol */ 0,
+	/* somtSetSymbolCopyName */ 0,
+	/* somtSetSymbolCopyValue */ 0,
+	/* somtSetSymbolCopyBoth */ 0,
+	/* somtCheckSymbol */ 0,
+	/* somtSetOutputFile */ 0,
+	/* somto */ 0,
+	/* somtOutputComment */ 0,
+	/* somtOutputSection */ 0,
+	/* somtAddSectionDefinitions */ 0,
+	/* somtReadSectionDefinitions */ 0,
+	/* somtExpandSymbol */ 0};
+struct SOMTTemplateOutputCCClassDataStructure SOMDLINK SOMTTemplateOutputCCClassData;
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTTemplateOutputCClassDataStructure * SOMLINK resolve_SOMTTemplateOutputCClassData(void)
+	{ return &_SOMTTemplateOutputCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+#ifdef SOM_RESOLVE_DATA
+	SOMEXTERN struct SOMTTemplateOutputCCClassDataStructure * SOMLINK resolve_SOMTTemplateOutputCCClassData(void)
+	{ return &_SOMTTemplateOutputCCClassData; }
+#endif /* SOM_RESOLVE_DATA */
+	#ifndef SOMTTemplateOutputC_parent_SOMObject_somInit
+		#define SOMTTemplateOutputC_parent_SOMObject_somInit(somSelf)
+	#endif /* SOMTTemplateOutputC_parent_SOMObject_somInit */
+	#ifndef SOMTTemplateOutputC_parent_SOMObject_somUninit
+		#define SOMTTemplateOutputC_parent_SOMObject_somUninit(somSelf)
+	#endif /* SOMTTemplateOutputC_parent_SOMObject_somUninit */
+	#define SOMTTemplateOutputC_parent_SOMObject_somFree(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somFree)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somFree))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somGetClass(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somGetClass)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClass))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somGetClassName(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somGetClassName)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetClassName))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somGetSize(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somGetSize)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somGetSize))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somIsA(somSelf,aClassObj)   \
+		((somTD_SOMTTemplateOutputC_somIsA)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsA))\
+					((SOMTTemplateOutputC *)(void *)somSelf,aClassObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somIsInstanceOf(somSelf,aClassObj)   \
+		((somTD_SOMTTemplateOutputC_somIsInstanceOf)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somIsInstanceOf))\
+					((SOMTTemplateOutputC *)(void *)somSelf,aClassObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somRespondsTo(somSelf,mId)   \
+		((somTD_SOMTTemplateOutputC_somRespondsTo)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somRespondsTo))\
+					((SOMTTemplateOutputC *)(void *)somSelf,mId)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDispatch(somSelf,retValue,methodId,ap)   \
+		((somTD_SOMTTemplateOutputC_somDispatch)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDispatch))\
+					((SOMTTemplateOutputC *)(void *)somSelf,retValue,methodId,ap)
+	#define SOMTTemplateOutputC_parent_SOMObject_somClassDispatch(somSelf,clsObj,retValue,methodId,ap)   \
+		((somTD_SOMTTemplateOutputC_somClassDispatch)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somClassDispatch))\
+					((SOMTTemplateOutputC *)(void *)somSelf,clsObj,retValue,methodId,ap)
+	#define SOMTTemplateOutputC_parent_SOMObject_somCastObj(somSelf,castedCls)   \
+		((somTD_SOMTTemplateOutputC_somCastObj)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somCastObj))\
+					((SOMTTemplateOutputC *)(void *)somSelf,castedCls)
+	#define SOMTTemplateOutputC_parent_SOMObject_somResetObj(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somResetObj)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somResetObj))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somPrintSelf(somSelf)   \
+		((somTD_SOMTTemplateOutputC_somPrintSelf)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somPrintSelf))\
+					((SOMTTemplateOutputC *)(void *)somSelf)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDumpSelf(somSelf,level)   \
+		((somTD_SOMTTemplateOutputC_somDumpSelf)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelf))\
+					((SOMTTemplateOutputC *)(void *)somSelf,level)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDumpSelfInt(somSelf,level)   \
+		((somTD_SOMTTemplateOutputC_somDumpSelfInt)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDumpSelfInt))\
+					((SOMTTemplateOutputC *)(void *)somSelf,level)
+#define SOMTTemplateOutputC_Init_SOMObject_somDefaultInit(somSelf,ctrl)\
+if (myMask[0]&1) {\
+ctrl->info=(somInitInfo *)(ctrl->infoSize+(char *)ctrl->info); \
+}
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultCopyInit)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultCopyInit))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultConstCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultConstCopyInit)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstCopyInit))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultVCopyInit)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVCopyInit))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultConstVCopyInit(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultConstVCopyInit)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVCopyInit))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTTemplateOutputC_Assign_SOMObject_somDefaultAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+ctrl->info=(somAssignInfo *)(ctrl->infoSize+(char *)ctrl->info); \
+}
+#define SOMTTemplateOutputC_Assign_SOMObject_somDefaultConstAssign(somSelf,ctrl,fromObj)\
+if (myMask[0]&1) {\
+ctrl->info=(somAssignInfo *)(ctrl->infoSize+(char *)ctrl->info); \
+}
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultVAssign)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultVAssign))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+	#define SOMTTemplateOutputC_parent_SOMObject_somDefaultConstVAssign(somSelf,ctrl,fromObj)   \
+		((somTD_SOMTTemplateOutputC_somDefaultConstVAssign)\
+			somParentNumResolve(SOMTTemplateOutputCCClassData.parentMtab,\
+				1,SOMObjectClassData.somDefaultConstVAssign))\
+					((SOMTTemplateOutputC *)(void *)somSelf,ctrl,fromObj)
+#define SOMTTemplateOutputC_DeInit_SOMObject_somDestruct(somSelf,doFree,ctrl)\
+if (myMask[0]&1) {\
+ctrl->info=(somDestructInfo *)(ctrl->infoSize+(char *)ctrl->info); \
+}
+/* special macros for somDestruct */
+#ifndef SOMTTemplateOutputC_BeginDestructor
+#define SOMTTemplateOutputC_BeginDestructor \
+if (!ctrl) { \
+ctrl=&globalCtrl; \
+memcpy(ctrl,&(((somParentMtabStructPtr)(void *)SOMTTemplateOutputCCClassData.parentMtab)->destructCtrl),sizeof(somDestructCtrl)); \
+} \
+somThis=(SOMTTemplateOutputCData*)(((char *)somSelf)+ctrl->info->dataOffset); \
+myMask=ctrl->mask; 
+#define SOMTTemplateOutputC_EndDestructor \
+ctrl->info=(somDestructInfo *)(ctrl->infoSize+(char *)ctrl->info); \
+ctrl->mask+=1; \
+SOMTTemplateOutputC_DeInit_SOMObject_somDestruct(somSelf,0,ctrl); \
+if (doFree) (*((somMethodTabPtr *)(void *)somSelf))->classObject->somDeallocate((somToken)(void *)somSelf);
+#endif /* SOMTTemplateOutputC_BeginDestructor */
+/* special macros for somDefaultInit */
+#ifndef SOMTTemplateOutputC_BeginInitializer_somDefaultInit
+#define SOMTTemplateOutputC_BeginInitializer_somDefaultInit \
+if (!ctrl) { \
+ctrl=&globalCtrl; \
+memcpy(ctrl,&(((somParentMtabStructPtr)(void *)SOMTTemplateOutputCCClassData.parentMtab)->initCtrl),sizeof(somInitCtrl)); \
+} \
+somThis=(SOMTTemplateOutputCData*)(((char *)somSelf)+ctrl->info->dataOffset); \
+myMask=ctrl->mask; \
+ctrl->mask+=1; \
+ctrl->info=(somInitInfo *)(ctrl->infoSize+(char*)(ctrl->info));
+#endif /* SOMTTemplateOutputC_BeginInitializer_somDefaultInit */
+	#endif /* SOMTTemplateOutputC_Class_Source */
+#endif /* SOM_Module_sctmplt_Header_xih */

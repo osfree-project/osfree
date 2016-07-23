@@ -1,0 +1,975 @@
+/* generated from cntxt.idl */
+/* internal conditional is SOM_Module_cntxt_Source */
+#ifndef SOM_Module_cntxt_Header_xh
+	#define SOM_Module_cntxt_Header_xh 1
+	#include <som.xh>
+	#include <somobj.xh>
+	#include <somdtype.xh>
+	#include <containd.xh>
+	class NVList;
+	#ifndef _IDL_SEQUENCE_NVList_defined
+		#define _IDL_SEQUENCE_NVList_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(NVList * ,sequence(NVList));
+	#endif /* _IDL_SEQUENCE_NVList_defined */
+	class Context;
+	#ifndef _IDL_SEQUENCE_Context_defined
+		#define _IDL_SEQUENCE_Context_defined
+		SOM_SEQUENCE_TYPEDEF_NAME(Context * ,sequence(Context));
+	#endif /* _IDL_SEQUENCE_Context_defined */
+#ifndef Context_API
+#define Context_API
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_set_one_value)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier prop_name,
+			/* in */ string value);
+		#pragma linkage(somTP_Context_set_one_value,system)
+		typedef somTP_Context_set_one_value *somTD_Context_set_one_value;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_set_one_value)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier prop_name,
+			/* in */ string value);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_set_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ NVList * values);
+		#pragma linkage(somTP_Context_set_values,system)
+		typedef somTP_Context_set_values *somTD_Context_set_values;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_set_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ NVList * values);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_get_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier start_scope,
+			/* in */ Flags op_flags,
+			/* in */ Identifier prop_name,
+			/* out */ NVList * *values);
+		#pragma linkage(somTP_Context_get_values,system)
+		typedef somTP_Context_get_values *somTD_Context_get_values;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_get_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier start_scope,
+			/* in */ Flags op_flags,
+			/* in */ Identifier prop_name,
+			/* out */ NVList * *values);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_delete_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier prop_name);
+		#pragma linkage(somTP_Context_delete_values,system)
+		typedef somTP_Context_delete_values *somTD_Context_delete_values;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_delete_values)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier prop_name);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_create_child)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier ctx_name,
+			/* out */ Context * *child_ctx);
+		#pragma linkage(somTP_Context_create_child,system)
+		typedef somTP_Context_create_child *somTD_Context_create_child;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_create_child)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Identifier ctx_name,
+			/* out */ Context * *child_ctx);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef ORBStatus (somTP_Context_destroy)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Flags flags);
+		#pragma linkage(somTP_Context_destroy,system)
+		typedef somTP_Context_destroy *somTD_Context_destroy;
+	#else /* __IBMC__ */
+		typedef ORBStatus (SOMLINK * somTD_Context_destroy)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Flags flags);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__set_context_name
+		#error somTD_Context__set_context_name already defined
+	#else /* somTD_Context__set_context_name */
+		#define somTD_Context__set_context_name somTD_Context_somC_set_context_name
+	#endif /* somTD_Context__set_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_Context__set_context_name
+		#error somTP_Context__set_context_name already defined
+	#else /* somTP_Context__set_context_name */
+		#define somTP_Context__set_context_name somTP_Context_somC_set_context_name
+	#endif /* somTP_Context__set_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_Context__set_context_name)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ string context_name);
+		#pragma linkage(somTP_Context__set_context_name,system)
+		typedef somTP_Context__set_context_name *somTD_Context__set_context_name;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__set_context_name
+		#error somTD_Context__set_context_name already defined
+	#else /* somTD_Context__set_context_name */
+		#define somTD_Context__set_context_name somTD_Context_somC_set_context_name
+	#endif /* somTD_Context__set_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_Context__set_context_name)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ string context_name);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__get_context_name
+		#error somTD_Context__get_context_name already defined
+	#else /* somTD_Context__get_context_name */
+		#define somTD_Context__get_context_name somTD_Context_somC_get_context_name
+	#endif /* somTD_Context__get_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_Context__get_context_name
+		#error somTP_Context__get_context_name already defined
+	#else /* somTP_Context__get_context_name */
+		#define somTP_Context__get_context_name somTP_Context_somC_get_context_name
+	#endif /* somTP_Context__get_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef string (somTP_Context__get_context_name)(
+			Context * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_Context__get_context_name,system)
+		typedef somTP_Context__get_context_name *somTD_Context__get_context_name;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__get_context_name
+		#error somTD_Context__get_context_name already defined
+	#else /* somTD_Context__get_context_name */
+		#define somTD_Context__get_context_name somTD_Context_somC_get_context_name
+	#endif /* somTD_Context__get_context_name */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef string (SOMLINK * somTD_Context__get_context_name)(
+			Context * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__set_context_parent
+		#error somTD_Context__set_context_parent already defined
+	#else /* somTD_Context__set_context_parent */
+		#define somTD_Context__set_context_parent somTD_Context_somC_set_context_parent
+	#endif /* somTD_Context__set_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_Context__set_context_parent
+		#error somTP_Context__set_context_parent already defined
+	#else /* somTP_Context__set_context_parent */
+		#define somTP_Context__set_context_parent somTP_Context_somC_set_context_parent
+	#endif /* somTP_Context__set_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (somTP_Context__set_context_parent)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Context * context_parent);
+		#pragma linkage(somTP_Context__set_context_parent,system)
+		typedef somTP_Context__set_context_parent *somTD_Context__set_context_parent;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__set_context_parent
+		#error somTD_Context__set_context_parent already defined
+	#else /* somTD_Context__set_context_parent */
+		#define somTD_Context__set_context_parent somTD_Context_somC_set_context_parent
+	#endif /* somTD_Context__set_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef void (SOMLINK * somTD_Context__set_context_parent)(
+			Context * somSelf,
+			Environment *ev,
+			/* in */ Context * context_parent);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__get_context_parent
+		#error somTD_Context__get_context_parent already defined
+	#else /* somTD_Context__get_context_parent */
+		#define somTD_Context__get_context_parent somTD_Context_somC_get_context_parent
+	#endif /* somTD_Context__get_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTP_Context__get_context_parent
+		#error somTP_Context__get_context_parent already defined
+	#else /* somTP_Context__get_context_parent */
+		#define somTP_Context__get_context_parent somTP_Context_somC_get_context_parent
+	#endif /* somTP_Context__get_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Context * (somTP_Context__get_context_parent)(
+			Context * somSelf,
+			Environment *ev);
+		#pragma linkage(somTP_Context__get_context_parent,system)
+		typedef somTP_Context__get_context_parent *somTD_Context__get_context_parent;
+	#else /* __IBMC__ */
+#ifdef SOM_AVOID_DOUBLE_UNDERSCORES
+	#ifdef somTD_Context__get_context_parent
+		#error somTD_Context__get_context_parent already defined
+	#else /* somTD_Context__get_context_parent */
+		#define somTD_Context__get_context_parent somTD_Context_somC_get_context_parent
+	#endif /* somTD_Context__get_context_parent */
+#endif /* SOM_AVOID_DOUBLE_UNDERSCORES */
+		typedef Context * (SOMLINK * somTD_Context__get_context_parent)(
+			Context * somSelf,
+			Environment *ev);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somInit)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somInit,system)
+		typedef somTP_Context_somInit *somTD_Context_somInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somInit)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somUninit)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somUninit,system)
+		typedef somTP_Context_somUninit *somTD_Context_somUninit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somUninit)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somFree)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somFree,system)
+		typedef somTP_Context_somFree *somTD_Context_somFree;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somFree)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMClass * (somTP_Context_somGetClass)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somGetClass,system)
+		typedef somTP_Context_somGetClass *somTD_Context_somGetClass;
+	#else /* __IBMC__ */
+		typedef SOMClass * (SOMLINK * somTD_Context_somGetClass)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef string (somTP_Context_somGetClassName)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somGetClassName,system)
+		typedef somTP_Context_somGetClassName *somTD_Context_somGetClassName;
+	#else /* __IBMC__ */
+		typedef string (SOMLINK * somTD_Context_somGetClassName)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef long (somTP_Context_somGetSize)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somGetSize,system)
+		typedef somTP_Context_somGetSize *somTD_Context_somGetSize;
+	#else /* __IBMC__ */
+		typedef long (SOMLINK * somTD_Context_somGetSize)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somIsA)(
+			Context * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_Context_somIsA,system)
+		typedef somTP_Context_somIsA *somTD_Context_somIsA;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somIsA)(
+			Context * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somIsInstanceOf)(
+			Context * somSelf,
+			/* in */ SOMClass * aClassObj);
+		#pragma linkage(somTP_Context_somIsInstanceOf,system)
+		typedef somTP_Context_somIsInstanceOf *somTD_Context_somIsInstanceOf;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somIsInstanceOf)(
+			Context * somSelf,
+			/* in */ SOMClass * aClassObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somRespondsTo)(
+			Context * somSelf,
+			/* in */ somId mId);
+		#pragma linkage(somTP_Context_somRespondsTo,system)
+		typedef somTP_Context_somRespondsTo *somTD_Context_somRespondsTo;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somRespondsTo)(
+			Context * somSelf,
+			/* in */ somId mId);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somDispatch)(
+			Context * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_Context_somDispatch,system)
+		typedef somTP_Context_somDispatch *somTD_Context_somDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somDispatch)(
+			Context * somSelf,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somClassDispatch)(
+			Context * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+		#pragma linkage(somTP_Context_somClassDispatch,system)
+		typedef somTP_Context_somClassDispatch *somTD_Context_somClassDispatch;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somClassDispatch)(
+			Context * somSelf,
+			/* in */ SOMClass * clsObj,
+			/* out */ somToken *retValue,
+			/* in */ somId methodId,
+			/* in */ va_list ap);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somCastObj)(
+			Context * somSelf,
+			/* in */ SOMClass * castedCls);
+		#pragma linkage(somTP_Context_somCastObj,system)
+		typedef somTP_Context_somCastObj *somTD_Context_somCastObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somCastObj)(
+			Context * somSelf,
+			/* in */ SOMClass * castedCls);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef boolean (somTP_Context_somResetObj)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somResetObj,system)
+		typedef somTP_Context_somResetObj *somTD_Context_somResetObj;
+	#else /* __IBMC__ */
+		typedef boolean (SOMLINK * somTD_Context_somResetObj)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Context_somPrintSelf)(
+			Context * somSelf);
+		#pragma linkage(somTP_Context_somPrintSelf,system)
+		typedef somTP_Context_somPrintSelf *somTD_Context_somPrintSelf;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Context_somPrintSelf)(
+			Context * somSelf);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDumpSelf)(
+			Context * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_Context_somDumpSelf,system)
+		typedef somTP_Context_somDumpSelf *somTD_Context_somDumpSelf;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDumpSelf)(
+			Context * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDumpSelfInt)(
+			Context * somSelf,
+			/* in */ long level);
+		#pragma linkage(somTP_Context_somDumpSelfInt,system)
+		typedef somTP_Context_somDumpSelfInt *somTD_Context_somDumpSelfInt;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDumpSelfInt)(
+			Context * somSelf,
+			/* in */ long level);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDefaultInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+		#pragma linkage(somTP_Context_somDefaultInit,system)
+		typedef somTP_Context_somDefaultInit *somTD_Context_somDefaultInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDefaultInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDefaultCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultCopyInit,system)
+		typedef somTP_Context_somDefaultCopyInit *somTD_Context_somDefaultCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDefaultCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDefaultConstCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultConstCopyInit,system)
+		typedef somTP_Context_somDefaultConstCopyInit *somTD_Context_somDefaultConstCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDefaultConstCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDefaultVCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultVCopyInit,system)
+		typedef somTP_Context_somDefaultVCopyInit *somTD_Context_somDefaultVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDefaultVCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDefaultConstVCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultConstVCopyInit,system)
+		typedef somTP_Context_somDefaultConstVCopyInit *somTD_Context_somDefaultConstVCopyInit;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDefaultConstVCopyInit)(
+			Context * somSelf,
+			/* inout */ somInitCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Context_somDefaultAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultAssign,system)
+		typedef somTP_Context_somDefaultAssign *somTD_Context_somDefaultAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Context_somDefaultAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Context_somDefaultConstAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultConstAssign,system)
+		typedef somTP_Context_somDefaultConstAssign *somTD_Context_somDefaultConstAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Context_somDefaultConstAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Context_somDefaultVAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultVAssign,system)
+		typedef somTP_Context_somDefaultVAssign *somTD_Context_somDefaultVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Context_somDefaultVAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef SOMObject * (somTP_Context_somDefaultConstVAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+		#pragma linkage(somTP_Context_somDefaultConstVAssign,system)
+		typedef somTP_Context_somDefaultConstVAssign *somTD_Context_somDefaultConstVAssign;
+	#else /* __IBMC__ */
+		typedef SOMObject * (SOMLINK * somTD_Context_somDefaultConstVAssign)(
+			Context * somSelf,
+			/* inout */ somAssignCtrl *ctrl,
+			/* in */ SOMObject * fromObj);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+#ifdef SOM_EXTERN_C_STATIC
+	extern "C" {
+#endif
+	#ifdef __IBMC__
+		typedef void (somTP_Context_somDestruct)(
+			Context * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+		#pragma linkage(somTP_Context_somDestruct,system)
+		typedef somTP_Context_somDestruct *somTD_Context_somDestruct;
+	#else /* __IBMC__ */
+		typedef void (SOMLINK * somTD_Context_somDestruct)(
+			Context * somSelf,
+			/* in */ octet doFree,
+			/* inout */ somDestructCtrl *ctrl);
+	#endif /* __IBMC__ */
+#ifdef SOM_EXTERN_C_STATIC
+	}
+#endif
+	#ifndef Context_MajorVersion
+		#define Context_MajorVersion   2
+	#endif /* Context_MajorVersion */
+	#ifndef Context_MinorVersion
+		#define Context_MinorVersion   2
+	#endif /* Context_MinorVersion */
+	typedef struct ContextClassDataStructure
+	{
+		SOMClass * classObject;
+		somMToken set_one_value;
+		somMToken set_values;
+		somMToken get_values;
+		somMToken delete_values;
+		somMToken create_child;
+		somMToken destroy;
+		somMToken _get_context_name;
+		somMToken _set_context_name;
+		somMToken _get_context_parent;
+		somMToken _set_context_parent;
+		somMToken private10;
+		somMToken private11;
+	} ContextClassDataStructure;
+	typedef struct ContextCClassDataStructure
+	{
+		somMethodTabs parentMtab;
+		somDToken instanceDataToken;
+	} ContextCClassDataStructure;
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_cntxt_Source) || defined(Context_Class_Source)
+			SOMEXTERN struct ContextClassDataStructure _ContextClassData;
+			#ifndef ContextClassData
+				#define ContextClassData    _ContextClassData
+			#endif /* ContextClassData */
+		#else
+			SOMEXTERN struct ContextClassDataStructure * SOMLINK resolve_ContextClassData(void);
+			#ifndef ContextClassData
+				#define ContextClassData    (*(resolve_ContextClassData()))
+			#endif /* ContextClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_cntxt_Source) || defined(Context_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_cntxt_Source || Context_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_cntxt_Source || Context_Class_Source */
+		struct ContextClassDataStructure SOMDLINK ContextClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	#ifdef SOM_RESOLVE_DATA
+		#if defined(SOM_Module_cntxt_Source) || defined(Context_Class_Source)
+			SOMEXTERN struct ContextCClassDataStructure _ContextCClassData;
+			#ifndef ContextCClassData
+				#define ContextCClassData    _ContextCClassData
+			#endif /* ContextCClassData */
+		#else
+			SOMEXTERN struct ContextCClassDataStructure * SOMLINK resolve_ContextCClassData(void);
+			#ifndef ContextCClassData
+				#define ContextCClassData    (*(resolve_ContextCClassData()))
+			#endif /* ContextCClassData */
+		#endif
+	#else /* SOM_RESOLVE_DATA */
+		SOMEXTERN 
+		#if defined(SOM_Module_cntxt_Source) || defined(Context_Class_Source)
+			#ifdef SOMDLLEXPORT
+				SOMDLLEXPORT
+			#endif /* SOMDLLEXPORT */
+		#else /* SOM_Module_cntxt_Source || Context_Class_Source */
+			#ifdef SOMDLLIMPORT
+				SOMDLLIMPORT
+			#endif /* SOMDLLIMPORT */
+		#endif /* SOM_Module_cntxt_Source || Context_Class_Source */
+		struct ContextCClassDataStructure SOMDLINK ContextCClassData;
+	#endif /* SOM_RESOLVE_DATA */
+	extern "C" {
+	extern 
+	#if defined(SOM_Module_cntxt_Source) || defined(Context_Class_Source)
+		#ifdef SOMDLLEXPORT
+			SOMDLLEXPORT
+		#endif /* SOMDLLEXPORT */
+	#else /* SOM_Module_cntxt_Source || Context_Class_Source */
+		#ifdef SOMDLLIMPORT
+			SOMDLLIMPORT
+		#endif /* SOMDLLIMPORT */
+	#endif /* SOM_Module_cntxt_Source || Context_Class_Source */
+	SOMClass * SOMLINK ContextNewClass
+			(integer4 somtmajorVersion,integer4 somtminorVersion);
+	}
+	#define _SOMCLASS_Context (ContextClassData.classObject)
+	#ifndef SOMGD_Context
+		#if (defined(_Context) || defined(__Context))
+			#undef _Context
+			#undef __Context
+			#define SOMGD_Context 1
+		#else
+			#define _Context _SOMCLASS_Context
+		#endif /* _Context */
+	#endif /* SOMGD_Context */
+	#define Context_classObj _SOMCLASS_Context
+	#define _SOMMTOKEN_Context(method) ((somMToken)(ContextClassData.method))
+#endif /* Context_API */
+
+	class Context : public SOMObject
+	{
+	protected:
+		Context(somMethodTab & mtab)
+			: SOMObject(mtab)
+		{}
+	public:
+
+		inline ORBStatus set_one_value(
+			Environment *ev,
+			/* in */ Identifier prop_name,
+			/* in */ string value)
+		{
+			return SOM_Resolve((void *)this,Context,set_one_value)
+					((Context *)(void *)this,ev,prop_name,value);
+		};
+
+		inline ORBStatus set_values(
+			Environment *ev,
+			/* in */ NVList * values)
+		{
+			return SOM_Resolve((void *)this,Context,set_values)
+					((Context *)(void *)this,ev,values);
+		};
+
+		inline ORBStatus get_values(
+			Environment *ev,
+			/* in */ Identifier start_scope,
+			/* in */ Flags op_flags,
+			/* in */ Identifier prop_name,
+			/* out */ NVList * *values)
+		{
+			return SOM_Resolve((void *)this,Context,get_values)
+					((Context *)(void *)this,ev,start_scope,op_flags,prop_name,values);
+		};
+
+		inline ORBStatus delete_values(
+			Environment *ev,
+			/* in */ Identifier prop_name)
+		{
+			return SOM_Resolve((void *)this,Context,delete_values)
+					((Context *)(void *)this,ev,prop_name);
+		};
+
+		inline ORBStatus create_child(
+			Environment *ev,
+			/* in */ Identifier ctx_name,
+			/* out */ Context * *child_ctx)
+		{
+			return SOM_Resolve((void *)this,Context,create_child)
+					((Context *)(void *)this,ev,ctx_name,child_ctx);
+		};
+
+		inline ORBStatus destroy(
+			Environment *ev,
+			/* in */ Flags flags)
+		{
+			return SOM_Resolve((void *)this,Context,destroy)
+					((Context *)(void *)this,ev,flags);
+		};
+
+		inline void _set_context_name(
+			Environment *ev,
+			/* in */ string context_name)
+		{
+			SOM_Resolve((void *)this,Context,_set_context_name)
+					((Context *)(void *)this,ev,context_name);
+		};
+
+		inline string _get_context_name(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Context,_get_context_name)
+					((Context *)(void *)this,ev);
+		};
+
+		inline void _set_context_parent(
+			Environment *ev,
+			/* in */ Context * context_parent)
+		{
+			SOM_Resolve((void *)this,Context,_set_context_parent)
+					((Context *)(void *)this,ev,context_parent);
+		};
+
+		inline Context * _get_context_parent(
+			Environment *ev)
+		{
+			return SOM_Resolve((void *)this,Context,_get_context_parent)
+					((Context *)(void *)this,ev);
+		};
+
+		inline void operator delete(void *x)
+			{ ((SOMObject *)x)->somFree(); };
+
+		inline void * operator new(size_t /* len */)
+		{ if (!ContextClassData.classObject)
+			{ ContextNewClass(Context_MajorVersion,Context_MinorVersion); }
+			return (void *)SOM_Resolve((SOMObject *)(void *)ContextClassData.classObject,
+				SOMClass,somNewNoInit)((SOMClass *)(void *)ContextClassData.classObject);
+		};
+		Context()
+			: SOMObject(*(ContextCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ContextCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultInit(0); }
+		Context(Context *fromObj)
+			: SOMObject(*(ContextCClassData.parentMtab->mtab))
+		{ if ((*(void **)(void *)this)==ContextCClassData.parentMtab->mtab)
+			((SOMObject *)(void *)this)->somDefaultCopyInit(0,(SOMObject*)(void*)fromObj); }
+	};
+#define CTX_DELETE_DESCENDENTS      0x00000200
+#define CTX_RESTRICT_SCOPE          0x00000400
+#ifndef Context_delete
+#define Context_delete Context_destroy
+#endif
+
+#endif /* SOM_Module_cntxt_Header_xh */

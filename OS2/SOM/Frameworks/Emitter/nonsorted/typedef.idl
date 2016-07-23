@@ -1,0 +1,59 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: typedef.idl 3923 2013-01-18 22:11:57Z rogerb $
+ */
+
+#ifndef typedef_idl
+#define typedef_idl
+#include <containd.idl>
+
+/* CORBA actually calls this 'TypedefDef' 
+	and is derived from IDLType, no matter... */
+
+
+interface TypeDef :
+	Contained
+{
+	struct TypeDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+		TypeCode type;
+	};
+	attribute TypeCode type;
+#ifdef __SOMIDL__
+	implementation
+	{
+		_set_type: caller_owns_parameters="type";
+		_get_type: dual_owned_result;
+		releaseorder : _get_type,_set_type;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		dllname = "somir.dll";
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* typedef_idl */

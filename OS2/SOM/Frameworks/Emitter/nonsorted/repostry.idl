@@ -1,0 +1,84 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: repostry.idl 3923 2013-01-18 22:11:57Z rogerb $
+ */
+
+#ifndef repostry_idl
+#define repostry_idl
+#include <somcls.idl>
+#include <containr.idl>
+
+
+interface M_Repository :
+	SOMClass
+{
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		majorversion = 2;
+		minorversion = 1;
+		dllname = "somir.dll";
+	};
+#endif /* __SOMIDL__ */
+};
+interface Repository :
+	Container
+{
+	struct RepositoryDescription
+	{
+		Identifier name;
+		string id;
+		string defined_in;
+	};
+	enum irOpenErrorCodes {NOACCESS,BADMAGICNUMBER,MISSINGVERSIONINFO,IOERROR,VERSIONMISMATCH,NOWRITEACCESS,INDEXINCONSISTENT,INDEXNOTPRESENT};
+	exception irOpenError {	irOpenErrorCodes errorCode;	string fileName; };
+	Contained lookup_id(in string search_id);
+	string lookup_modifier(in string name,in string modifier);
+	void release_cache();
+	boolean queryException();
+
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			lookup_id,
+			lookup_modifier,
+			release_cache,
+			saveIR,
+			_get_subrepositorylist,
+			_set_subrepositorylist,
+			queryException
+			;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = repostry;
+		dllname = "somir.dll";
+		metaclass = M_Repository;
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* repostry_idl */

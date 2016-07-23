@@ -1,0 +1,78 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id: intfacdf.idl 3923 2013-01-18 22:11:57Z rogerb $
+ */
+
+#ifndef intfacdf_idl
+#define intfacdf_idl
+#include <containd.idl>
+#include <containr.idl>
+#include <attribdf.idl>
+#include <operatdf.idl>
+
+
+interface InterfaceDef : Contained,Container
+{
+	struct FullInterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+		sequence<OperationDef::OperationDescription> operation;
+		sequence<AttributeDef::AttributeDescription> attributes;
+	};
+	struct InterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+	};
+	attribute sequence<RepositoryId> base_interfaces;
+	FullInterfaceDescription describe_interface();
+	attribute TypeCode instanceData;
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		_set_base_interfaces : caller_owns_parameters="base_interfaces";
+		_set_instanceData : caller_owns_parameters="instanceData";
+		_get_instanceData: dual_owned_result;
+		_get_base_interfaces: dual_owned_result;
+		describe_interface: dual_owned_result;
+		releaseorder : 
+			describe_interface,
+			_get_base_interfaces,
+			_set_base_interfaces,
+			_get_instanceData,
+			_set_instanceData,
+			subclasses;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = intfacdf;
+		dllname = "somir.dll";
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* intfacdf_idl */
