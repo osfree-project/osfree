@@ -1032,14 +1032,65 @@ kalExecPgm(char *pObjname,
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
-  int i, j, l;
+  ULONG disk, map;
+  char buf[260];
+  char str[260];
+  char str2[260];
+  char *p;
+  char drv;
+  int i, j, l, len;
 
   kalEnter();
   io_log("started\n");
   io_log("cbObjname=%x\n", (unsigned)cbObjname);
   io_log("pName=%s\n", pName);
   io_log("execFlag=%x\n", (unsigned)execFlag);
-  
+
+  /* if no path specified, add the current dir */
+  if (pName[1] != ':')
+  {
+    /* query current disk */
+    rc = kalQueryCurrentDisk(&disk, &map);
+    drv = disk - 1 + 'A';
+
+    len = 0; buf[0] = '\0';
+    if (pName[0] != '\\')
+    {
+      /* query current dir  */
+      rc = kalQueryCurrentDir(0, buf, (PULONG)&len);
+      rc = kalQueryCurrentDir(0, buf, (PULONG)&len);
+    }
+
+    if (len + strlen(pName) + 3 > 256)
+      return ERROR_FILENAME_EXCED_RANGE;
+
+    i = 0;
+    str[i++] = drv;
+    str[i++] = ':';
+    str[i] = '\0';
+
+    if (pName[0] != '\\') 
+    {
+      str[i++] = '\\';
+      str[i] = '\0';
+      strcat(str, buf);
+
+      if (str[len + i - 2] != '\\') 
+      {
+        str[len + i - 1] = '\\';
+        len++;
+      }
+      str[len + i - 1] = '\0';
+    }
+
+    pName = strcat(str, pName);
+
+    if (!strstr(pName, ".exe"))
+      strcat(pName, ".exe");
+  }
+  else
+    pName = pName;
+
   if (pArg == NULL)
   {
     pArg = "\0\0";
@@ -1053,14 +1104,14 @@ kalExecPgm(char *pObjname,
 
   j = strlstlen(pEnv);
   l = strlstlen(pArg);
-  
+
   io_log("pArg len=%d\n", l);
   io_log("pEnv len=%d\n", strlstlen(pEnv));
   io_log("pArg=%x\n", (unsigned)pArg);
   io_log("len of pArg=%d\n", l);
   rc =  os2server_dos_ExecPgm_call (&os2srv, &pObjname,
                         &cbObjname, execFlag, pArg, i,
-			pEnv, j,
+                        pEnv, j,
                         pRes, pName, &env);
   io_log("pRes=%x\n", (unsigned)pRes);
   io_log("pObjname=%x\n",  (unsigned)pObjname);
@@ -1129,6 +1180,7 @@ kalAllocMem(PVOID *ppb,
   int rc;
 
   kalEnter();
+  io_log("kalAllocMem\n");
   io_log("cb=%d\n", cb);
   io_log("flags=%x\n", flags);
 
@@ -1159,6 +1211,7 @@ kalAllocMem(PVOID *ppb,
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
   //l4rm_set_userptr((void *)addr, ptr);
 
+  ptr->is_shared = 0;
   ptr->rights = (l4_uint32_t)flags;
   ptr->area   = area;
   ptr->name[0] = '\0';
@@ -1243,6 +1296,10 @@ kalFreeMem(PVOID pb)
       case L4RM_REGION_FREE:
         break;
       case L4RM_REGION_DATASPACE:
+        if (ptr->is_shared)
+          // unmap dataspace from os2exec address space
+          os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
+        // unmap from local address space
         l4rm_detach((void *)addr);
         break;
       default:
@@ -1276,7 +1333,7 @@ kalFreeMem(PVOID pb)
   }
 
   io_log("007\n");
-  if (ptr->area == shared_memory_area)
+  if (ptr->is_shared)
     // release area at os2exec
     os2exec_release_sharemem_call(&execsrv, ptr->addr, &env);
 
@@ -1293,6 +1350,7 @@ int commit_pages(PVOID pb,
                  ULONG cb,
                  l4_uint32_t rights)
 {
+  CORBA_Environment env = dice_default_environment;
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
@@ -1327,6 +1385,9 @@ int commit_pages(PVOID pb,
         if (rc < 0)
           return ERROR_NOT_ENOUGH_MEMORY;
 
+        if (ptr->is_shared)
+          os2exec_map_dataspace_call(&execsrv, pb, rights, &ds, &env);
+
         break;
 
       default:
@@ -1348,6 +1409,7 @@ int decommit_pages(PVOID pb,
                    ULONG cb,
                    l4_uint32_t rights)
 {
+  CORBA_Environment env = dice_default_environment;
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
@@ -1374,6 +1436,9 @@ int decommit_pages(PVOID pb,
       case L4RM_REGION_DATASPACE:
         // detach dataspace first
         l4rm_detach((void *)addr);
+        if (ptr->is_shared)
+          // unmap from os2exec address space
+          os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
 
         if ((l4_addr_t)pb > addr)
         {
@@ -1398,6 +1463,9 @@ int decommit_pages(PVOID pb,
             kalQuit();
             return 8; /* What to return? */
           }
+
+          if (ptr->is_shared)
+            os2exec_map_dataspace_call(&execsrv, addr, rights, &ds1, &env);
         }
 
         if ((l4_addr_t)pb + cb < addr + size)
@@ -1423,6 +1491,9 @@ int decommit_pages(PVOID pb,
             kalQuit();
             return 8; /* What to return? */
           }
+
+          if (ptr->is_shared)
+            os2exec_map_dataspace_call(&execsrv, addr, rights, &ds2, &env);
         }
 
         l4dm_close(&ds);
@@ -1528,18 +1599,14 @@ kalQueryMem(PVOID  pb,
 
   base = pb;
 
-  io_log("000\n");
-
   do
   {
-    io_log("001\n");
     ret = l4rm_lookup_region(base, &addr, &size, &ds,
                              &offset, &pager);
 
     switch (ret)
     {
       case L4RM_REGION_DATASPACE:
-        io_log("002 addr=%x, size=%x, ds=%x\n", addr, size, ds.id);
         rights  = ptr->rights;
         if (addr + size <= pb + *pcb)
           totsize += size;
@@ -1556,8 +1623,6 @@ kalQueryMem(PVOID  pb,
 
     base = (void *)addr + size;
   } while (base < pb + *pcb);
-
-  io_log("003\n");
 
   if ((l4_addr_t)pb - ptr->addr <= L4_PAGESIZE)
     rights |= PAG_BASE;
@@ -1582,9 +1647,14 @@ kalAllocSharedMem(PPVOID ppb,
   l4_addr_t addr;
   vmdata_t  *ptr;
   char *p;
-  int rc;
+  int rc = 0;
 
   kalEnter();
+  io_log("kalAllocSharedmem\n");
+  io_log("ppb=%x\n", ppb);
+  io_log("pszName=%s\n", pszName);
+  io_log("cb=%x\n", cb);
+  io_log("flags=%x\n", flags);
 
   if (! ppb)
     return ERROR_INVALID_PARAMETER;
@@ -1607,6 +1677,8 @@ kalAllocSharedMem(PPVOID ppb,
 
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
+
+  io_log("rights=%x\n", rights);
 
   // reserve area on os2exec and attach data to it (user pointer)
   rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &env);
@@ -1634,6 +1706,7 @@ kalAllocSharedMem(PPVOID ppb,
     return ERROR_NOT_ENOUGH_MEMORY;
   }
 
+  ptr->is_shared = 1;
   ptr->area = area;
   ptr->rights = flags;
   ptr->addr = addr;
@@ -1664,6 +1737,10 @@ kalAllocSharedMem(PPVOID ppb,
       kalQuit();
       return 8; /* What to return? */
     }
+
+    // map dataspace to os2exec address space
+    l4dm_share(&ds, execsrv, rights);
+    os2exec_map_dataspace_call(&execsrv, addr, rights, &ds, &env);
   }
 
   *ppb = (void *)addr;
@@ -1677,6 +1754,268 @@ APIRET CDECL
 kalGetSharedMem(PVOID pb,
                 ULONG flag)
 {
+  CORBA_Environment env = dice_default_environment;
+  l4dm_dataspace_t ds;
+  l4_addr_t addr, a;
+  l4_size_t size, sz;
+  l4_uint32_t area = shared_memory_area;
+  l4_uint32_t rights = 0;
+  vmdata_t *ptr;
+  int ret, rc = 0;
+  kalEnter();
+  io_log("kalGetSharedMem\n");
+  io_log("pb=%lx\n", pb);
+  io_log("flag=%lx\n", flag);
+
+  if (flag & PAG_READ)
+    rights |= L4DM_READ;
+
+  if (flag & PAG_WRITE)
+    rights |= L4DM_WRITE;
+
+  if (flag & PAG_EXECUTE)
+    rights |= L4DM_READ;
+
+  rc = os2exec_get_sharemem_call (&execsrv, pb, &addr, &size, &env);
+
+  if (rc)
+  {
+    kalQuit();
+    return ERROR_FILE_NOT_FOUND;
+  }
+
+  if ( (ptr = get_area(addr)) )
+    ptr->rights |= flag;
+  else
+  {
+    // reserve the same area in local region mapper
+    rc = l4rm_area_reserve_in_area(size, 0, &addr, &area);
+
+    if (rc)
+    {
+      kalQuit();
+      return ERROR_NOT_ENOUGH_MEMORY;
+    }
+
+    ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+
+    if (! ptr)
+    {
+      kalQuit();
+      return ERROR_NOT_ENOUGH_MEMORY;
+    }
+
+    ptr->area = area;
+    ptr->rights = flag;
+    ptr->addr = addr;
+    ptr->size = size;
+    ptr->name[0] = '\0';
+    if (areas_list) areas_list->prev = ptr;
+    ptr->next = areas_list;
+    ptr->prev = 0;
+    areas_list = ptr;
+  }
+
+  // get all dataspaces attached between addr and addr + size
+  // from os2exec and attech them to the same regions of local address space
+  a = addr;
+  while (addr <= a && a <= addr + size)
+  {
+    // get dataspace from os2exec
+    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, &ds, &env)) )
+      // attach it to our address space
+      ret = attach_ds_area(ds, area, rights, a);
+
+    a = a + sz;
+  }
+
+  kalQuit();
+  return rc;
+}
+
+APIRET CDECL
+kalGetNamedSharedMem(PPVOID ppb,
+                     PSZ pszName,
+                     ULONG flag)
+{
+  CORBA_Environment env = dice_default_environment;
+  l4dm_dataspace_t ds;
+  l4_addr_t addr, a;
+  l4_size_t size, sz;
+  l4_uint32_t area = shared_memory_area;
+  l4_uint32_t rights = 0;
+  vmdata_t *ptr;
+  char *p;
+  int ret, rc = 0;
+
+  kalEnter();
+  io_log("kalGetNamedSharedMem\n");
+  io_log("pszName=%s\n", pszName);
+  io_log("flag=%lx\n", flag);
+
+  if (! ppb || !pszName)
+    return ERROR_INVALID_PARAMETER;
+
+  // uppercase pszName
+  for (p = pszName; *p; p++)
+    *p = toupper(*p);
+
+  if (strstr(pszName, "\\SHAREMEM\\") != pszName)
+    return ERROR_INVALID_NAME;
+
+  if (flag & PAG_READ)
+    rights |= L4DM_READ;
+
+  if (flag & PAG_WRITE)
+    rights |= L4DM_WRITE;
+
+  if (flag & PAG_EXECUTE)
+    rights |= L4DM_READ;
+
+  io_log("000\n");
+
+  rc = os2exec_get_namedsharemem_call (&execsrv, pszName, &addr, &size, &env);
+
+  if (rc)
+  {
+    kalQuit();
+    return ERROR_FILE_NOT_FOUND;
+  }
+
+  io_log("001\n");
+
+  if ( (ptr = get_area(addr)) )
+    ptr->rights |= flag;
+  else
+  {
+    io_log("002\n");
+    // reserve the same area in local region mapper
+    rc = l4rm_area_reserve_in_area(size, 0, &addr, &area);
+
+    if (rc)
+    {
+      kalQuit();
+      return ERROR_NOT_ENOUGH_MEMORY;
+    }
+
+    io_log("003\n");
+
+    ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
+
+    if (! ptr)
+    {
+      kalQuit();
+      return ERROR_NOT_ENOUGH_MEMORY;
+    }
+
+    io_log("004\n");
+
+    ptr->area = area;
+    ptr->rights = flag;
+    ptr->addr = addr;
+    ptr->size = size;
+    if (pszName) strcpy(ptr->name, pszName);
+    if (areas_list) areas_list->prev = ptr;
+    ptr->next = areas_list;
+    ptr->prev = 0;
+    areas_list = ptr;
+  }
+
+  // get all dataspaces attached between addr and addr + size
+  // from os2exec and attech them to the same regions of local address space
+  io_log("005\n");
+  a = addr;
+  while (addr <= a && a <= addr + size)
+  {
+    io_log("006\n");
+    // get dataspace from os2exec
+    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, &ds, &env)) )
+      // attach it to our address space
+      ret = attach_ds_area(ds, area, rights, a);
+
+    a = a + sz;
+  }
+
+  io_log("007\n");
+
+  *ppb = (void *)addr;
+  kalQuit();
+  return rc;
+}
+
+APIRET CDECL
+kalGiveSharedMem(PVOID pb,
+                 PID pid,
+                 ULONG flag)
+{
+  CORBA_Environment env = dice_default_environment;
+  int rc;
+  l4thread_t id;
+  l4_threadid_t tid;
+  l4_uint32_t rights;
+  l4_addr_t addr;
+  l4_size_t size;
+  l4_offs_t offset;
+  l4dm_dataspace_t ds;
+  l4_threadid_t pager;
+  vmdata_t *ptr;
+
+  kalEnter();
+  io_log("pb=%x\n", pb);
+  io_log("pid=%x\n", pid);
+  io_log("flag=%x\n", flag);
+
+  if (! pb || ! pid)
+  {
+    kalQuit();
+    return ERROR_INVALID_PARAMETER;
+  }
+
+  kalGetL4ID(pid, 1, &id);
+  tid = l4thread_l4_id(id);
+
+  if (l4_thread_equal(tid, L4_INVALID_ID))
+  {
+    kalQuit();
+    return ERROR_INVALID_PROCID;
+  }
+
+  if (flag & PAG_READ)
+    rights |= L4DM_READ;
+
+  if (flag & PAG_WRITE)
+    rights |= L4DM_WRITE;
+
+  if (flag & PAG_EXECUTE)
+    rights |= L4DM_READ;
+
+  if ( !(ptr = get_area(addr)) )
+  {
+    kalQuit();
+    return ERROR_INVALID_ADDRESS;
+  }
+
+  ptr->rights |= flag;
+
+  addr = ptr->addr;
+  while (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
+  {
+    rc = l4rm_lookup_region(addr, &addr, &size, &ds,
+                            &offset, &pager);
+
+    if (rc == L4RM_REGION_DATASPACE)
+    {
+      // transfer dataspace to a given process
+      l4dm_share(&ds, tid, rights);
+      // say that process to map dataspace to a given address
+      rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
+    }
+
+    addr += size;
+  }
+
+  kalQuit();
+  return rc;
 }
 
 APIRET CDECL
@@ -1905,7 +2244,7 @@ kalFindFirst(char  *pszFileSpec,
     /* query current disk */
     rc = kalQueryCurrentDisk(&disk, &map);
     drv = disk - 1 + 'A';
-  
+
     len = 0; buf[0] = '\0';
     if (pszFileSpec[0] != '\\')
     {
@@ -1927,7 +2266,7 @@ kalFindFirst(char  *pszFileSpec,
       str[i++] = '\\';
       str[i] = '\0';
       strcat(str, buf);
-      
+
       if (str[len + i - 2] != '\\') 
       {
         str[len + i - 1] = '\\';
@@ -2592,7 +2931,7 @@ kalGetTIB(PTIB *ptib)
     kalQuit();
     return rc;
   }
- 
+
   /* attach it */ 
   rc = attach_ds(&ds, L4DM_RW, &addr);
   if (rc)
@@ -2629,7 +2968,7 @@ kalGetPIB(PPIB *ppib)
     kalQuit();
     return rc;
   }
- 
+
   /* attach it */ 
   rc = attach_ds(&ds, L4DM_RW, &addr);
   if (rc)

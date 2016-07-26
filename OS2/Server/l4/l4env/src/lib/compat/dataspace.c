@@ -119,7 +119,7 @@ attach_ds_area(l4dm_dataspace_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr
     }
 
   /* attach it to a given region */  
-  if ( (error = l4rm_area_attach_to_region(&ds, a,
+  if ( (error = l4rm_area_attach_to_region(&ds, area,
                        (void *)a, size, 0, flags)) )
     {
       io_log("Error %d (%s) attaching dataspace\n",

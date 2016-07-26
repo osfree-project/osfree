@@ -111,6 +111,15 @@ APIRET CDECL
 KalAllocSharedMem(va_list a);
 
 APIRET CDECL
+KalGetSharedMem(va_list a);
+
+APIRET CDECL
+KalGetNamedSharedMem(va_list a);
+
+APIRET CDECL
+KalGiveSharedMem(va_list a);
+
+APIRET CDECL
 KalCreateDir(va_list a);
 
 APIRET CDECL

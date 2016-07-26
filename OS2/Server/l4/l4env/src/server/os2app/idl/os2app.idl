@@ -1,6 +1,8 @@
 /* This file is part of osFree project */
 
 import <l4/os3/gcc_os2def.h>
+import <l4/dm_generic/dm_generic.h>
+import <l4/sys/types.h>
 
 interface os2app
 {
@@ -15,4 +17,9 @@ interface os2app
 
     /* Terminate itself */
     void app_Terminate(void);
+
+    /* get dataspace and region */
+    long app_AttachDataspace([in] l4_addr_t addr,
+                             [in] l4dm_dataspace_t *ds,
+                             [in] l4_uint32_t rights);
 };

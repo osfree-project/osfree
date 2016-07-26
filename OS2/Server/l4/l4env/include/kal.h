@@ -71,13 +71,14 @@ struct desc
 
 typedef struct vmdata
 {
-  char name[256];        // name for named shared mem
-  l4_uint32_t   rights;  // OS/2-style access flags
-  l4_uint32_t   area;    // area id
-  l4_addr_t     addr;    // area address
-  l4_size_t     size;    // area size
-  struct vmdata *next;   // link to the next record
-  struct vmdata *prev;   // link to the previous record
+  char name[256];          // name for named shared mem
+  char          is_shared; // is shared
+  l4_uint32_t   rights;    // OS/2-style access flags
+  l4_uint32_t   area;      // area id
+  l4_addr_t     addr;      // area address
+  l4_size_t     size;      // area size
+  struct vmdata *next;     // link to the next record
+  struct vmdata *prev;     // link to the previous record
 } vmdata_t;
 
 int
@@ -228,6 +229,20 @@ kalAllocSharedMem(PPVOID ppb,
                   PSZ    pszName,
 		  ULONG  cb,
 		  ULONG  flags);
+
+APIRET CDECL
+kalGetSharedMem(PVOID pb,
+                ULONG flag);
+
+APIRET CDECL
+kalGetNamedSharedMem(PPVOID ppb,
+                     PSZ pszName,
+                     ULONG flag);
+
+APIRET CDECL
+kalGiveSharedMem(PVOID pb,
+                 PID pid,
+                 ULONG flag);
 
 APIRET CDECL
 kalResetBuffer(HFILE handle);

@@ -475,13 +475,50 @@ KalAllocSharedMem(va_list a)
 }
 
 APIRET CDECL
+KalGetSharedMem(va_list a)
+{
+  PVOID pb;
+  ULONG flag;
+
+  pb     = va_arg(a, PVOID);
+  flag   = va_arg(a, ULONG);
+  return kalGetSharedMem(pb, flag);
+}
+
+APIRET CDECL
+KalGetNamedSharedMem(va_list a)
+{
+  PPVOID ppb;
+  PSZ pszName;
+  ULONG flag;
+
+  ppb     = va_arg(a, PPVOID);
+  pszName = va_arg(a, PSZ);
+  flag    = va_arg(a, ULONG);
+  return kalGetNamedSharedMem(ppb, pszName, flag);
+}
+
+APIRET CDECL
+KalGiveSharedMem(va_list a)
+{
+  PVOID pb;
+  PID   pid;
+  ULONG flag;
+
+  pb     = va_arg(a, PVOID);
+  pid    = va_arg(a, PID);
+  flag   = va_arg(a, ULONG);
+  return kalGiveSharedMem(pb, pid, flag);
+}
+
+APIRET CDECL
 KalCreateDir(va_list a)
 {
   PSZ pszDirName;
   PEAOP2 peaop2;
  
   pszDirName = va_arg(a, PSZ);
-  peaop2     = va_arg(a, PEAOP2); 
+  peaop2     = va_arg(a, PEAOP2);
   return kalCreateDir(pszDirName, peaop2);
 }
 
