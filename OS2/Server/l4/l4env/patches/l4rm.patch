@@ -43,7 +43,36 @@ Index: include/l4rm.h
   * \brief   Reserve specified area.
   * \ingroup api_vm
   *
-@@ -1068,6 +1102,16 @@
+@@ -655,6 +689,28 @@
+ 
+ /*****************************************************************************/
+ /**
++ * \brief   Reserve specified area.
++ * \ingroup api_vm
++ *
++ * \param   addr         Address
++ * \param   size         Area Size
++ * \param   flags        Flags:
++ * \retval  area         Area id
++ *
++ * \return  0 on success (reserved area at \a addr), error code otherwise:
++ *          - -#L4_EUSED   specified are aalready used
++ *          - -#L4_ENOMEM  out of memory allocating descriptors
++ *          - -#L4_EIPC    error calling region mapper
++ *
++ * Reserve area at \a addr.
++ */
++/*****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_region_in_area(l4_addr_t addr, l4_size_t size,
++                                 l4_uint32_t flags, l4_uint32_t * area);
++
++/*****************************************************************************/
++/**
+  * \brief   Release area.
+  * \ingroup api_vm
+  *
+@@ -1068,6 +1124,16 @@
  l4rm_do_reserve(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
                  l4_uint32_t * area);
  
@@ -60,7 +89,7 @@ Index: include/l4rm.h
  __END_DECLS;
  
  /*****************************************************************************
-@@ -1227,6 +1271,19 @@
+@@ -1227,6 +1293,19 @@
    return l4rm_do_reserve(addr, size, flags, area);
  }
  
@@ -80,6 +109,24 @@ Index: include/l4rm.h
  /*****************************************************************************
   *** l4rm_area_reserve_region
   *****************************************************************************/
+@@ -1239,6 +1318,17 @@
+ }
+ 
+ /*****************************************************************************
++ *** l4rm_area_reserve_region_in_area
++ *****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_region_in_area(l4_addr_t addr, l4_size_t size, l4_uint32_t flags,
++                         l4_uint32_t * area)
++{
++  /* reserve */
++  return l4rm_do_reserve_in_area(&addr, size, flags, area);
++}
++
++/*****************************************************************************
+  *** l4rm_direct_area_reserve
+  *****************************************************************************/
+ L4_CV L4_INLINE int
 Index: lib/src/Makefile
 ===================================================================
 --- lib/src/Makefile	(revision 473)

@@ -338,9 +338,11 @@ os2exec_query_modname_component (CORBA_Object _dice_corba_obj,
 vmdata_t *get_area(l4_addr_t addr)
 {
   vmdata_t *ptr;
+  io_log("addr=%x\n", addr);
 
   for (ptr = areas_list; ptr; ptr = ptr->next)
   {
+    io_log("%x\n", ptr->addr);
     if (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
       break;
   }
@@ -367,25 +369,28 @@ os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
                                     const char *name /* in */,
                                     unsigned long rights /* in */,
                                     l4_addr_t *addr /* out */,
+                                    l4_uint32_t *area2 /* out */,
                                     CORBA_Server_Environment *_dice_corba_env)
 {
   l4_uint32_t area = shared_memory_area;
   vmdata_t *ptr;
-  int rc = 0;
+  int rc = 0, ret;
 
   io_log("xxx0\n");
 
-  rc =  l4rm_area_reserve_in_area(size, 0, addr, &area);
+  ret =  l4rm_area_reserve_in_area(size, 0, addr, &area);
 
-  if (rc < 0)
+  if (ret < 0)
     return ERROR_NOT_ENOUGH_MEMORY;
+
+  *area2 = area;
 
   io_log("xxx1\n");
 
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
 
   if (!ptr) 
-    return ERROR_INVALID_ADDRESS;
+    return ERROR_NOT_ENOUGH_MEMORY;
 
   io_log("xxx2\n");
 
@@ -412,11 +417,16 @@ os2exec_map_dataspace_component (CORBA_Object _dice_corba_obj,
                                  CORBA_Server_Environment *_dice_corba_env)
 {
   vmdata_t *ptr;
+  int ret;
+
+  io_log("areas_list=%x\n", areas_list);
 
   if ( !(ptr = get_area(addr)) )
     return ERROR_INVALID_ADDRESS;
 
-  attach_ds_area(*ds, ptr->area, rights, addr);
+  if ( (ret = attach_ds_area(*ds, ptr->area, rights, addr)) < 0)
+    return ERROR_FILE_NOT_FOUND;
+
   return 0;
 }
 
@@ -444,8 +454,19 @@ os2exec_get_dataspace_component (CORBA_Object _dice_corba_obj,
   ret = l4rm_lookup_region((void *)*addr, addr, size, ds, &offset, &pager);
 
   if ( (ret == L4RM_REGION_DATASPACE) )
+  {
     // transfer dataspace to client
-    l4dm_share(ds, *_dice_corba_obj, L4DM_RW);
+    io_log("*** %x\n", (char *)*addr);
+    if ( (ret = l4dm_share(ds, *_dice_corba_obj, L4DM_RW)) < 0)
+    {
+      switch (-ret)
+      {
+        case L4_EINVAL: rc = ERROR_FILE_NOT_FOUND; break;
+        case L4_EPERM:  rc = ERROR_ACCESS_DENIED; break;
+        default:        rc = ERROR_INVALID_PARAMETER;
+      }
+    }
+  }
   else
     rc = ERROR_FILE_NOT_FOUND;
 

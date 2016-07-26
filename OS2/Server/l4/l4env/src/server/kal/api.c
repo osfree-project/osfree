@@ -1041,6 +1041,7 @@ kalExecPgm(char *pObjname,
   int i, j, l, len;
 
   kalEnter();
+  io_log("kalExecPgm\n");
   io_log("started\n");
   io_log("cbObjname=%x\n", (unsigned)cbObjname);
   io_log("pName=%s\n", pName);
@@ -1088,8 +1089,8 @@ kalExecPgm(char *pObjname,
     if (!strstr(pName, ".exe"))
       strcat(pName, ".exe");
   }
-  else
-    pName = pName;
+  //else
+    //pName = pName;
 
   if (pArg == NULL)
   {
@@ -1644,10 +1645,10 @@ kalAllocSharedMem(PPVOID ppb,
   l4_uint32_t rights = 0;
   l4_uint32_t area = shared_memory_area;
   l4dm_dataspace_t ds;
-  l4_addr_t addr;
+  l4_addr_t addr, addr2;
   vmdata_t  *ptr;
   char *p;
-  int rc = 0;
+  int rc = 0, ret;
 
   kalEnter();
   io_log("kalAllocSharedmem\n");
@@ -1659,12 +1660,16 @@ kalAllocSharedMem(PPVOID ppb,
   if (! ppb)
     return ERROR_INVALID_PARAMETER;
 
+  io_log("000\n");
+
   // uppercase pszName
   for (p = pszName; *p; p++)
     *p = toupper(*p);
 
   if (strstr(pszName, "\\SHAREMEM\\") != pszName)
     return ERROR_INVALID_NAME;
+
+  io_log("001\n");
 
   if (get_mem_by_name(pszName))
     return ERROR_ALREADY_EXISTS;
@@ -1681,22 +1686,27 @@ kalAllocSharedMem(PPVOID ppb,
   io_log("rights=%x\n", rights);
 
   // reserve area on os2exec and attach data to it (user pointer)
-  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &env);
+  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &area, &env);
 
   if (rc)
   {
     kalQuit();
     return ERROR_NOT_ENOUGH_MEMORY;
   }
+
+  io_log("002 addr=%x\n", addr);
 
   // reserve the same area in local region mapper
-  rc = l4rm_area_reserve_in_area(cb, 0, &addr, &area);
+  area = shared_memory_area;
+  rc = l4rm_area_reserve_region_in_area(addr, cb, 0, &area);
 
   if (rc)
   {
     kalQuit();
     return ERROR_NOT_ENOUGH_MEMORY;
   }
+
+  io_log("003 addr=%x\n", addr);
 
   ptr = (vmdata_t *)malloc(sizeof(vmdata_t));
 
@@ -1705,6 +1715,8 @@ kalAllocSharedMem(PPVOID ppb,
     kalQuit();
     return ERROR_NOT_ENOUGH_MEMORY;
   }
+
+  io_log("004\n");
 
   ptr->is_shared = 1;
   ptr->area = area;
@@ -1717,8 +1729,11 @@ kalAllocSharedMem(PPVOID ppb,
   ptr->prev = 0;
   areas_list = ptr;
 
+  io_log("005\n");
+
   if (flags & PAG_COMMIT)
   {
+    io_log("006\n");
     /* Create a dataspace of a given size */
     rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
                4096, rights, "DosAllocSharedMem dataspace", &ds);
@@ -1729,6 +1744,8 @@ kalAllocSharedMem(PPVOID ppb,
       return 8; /* ERROR_NOT_ENOUGH_MEMORY */
     }
 
+    io_log("007\n");
+
     /* attach the created dataspace to our address space */
     rc = attach_ds_area(ds, area, rights, addr);
 
@@ -1738,14 +1755,32 @@ kalAllocSharedMem(PPVOID ppb,
       return 8; /* What to return? */
     }
 
+    io_log("008\n");
+
     // map dataspace to os2exec address space
-    l4dm_share(&ds, execsrv, rights);
-    os2exec_map_dataspace_call(&execsrv, addr, rights, &ds, &env);
+    if ( (ret = l4dm_share(&ds, execsrv, rights)) < 0)
+    {
+      switch (-ret)
+      {
+        case L4_EINVAL: return ERROR_FILE_NOT_FOUND;
+        case L4_EPERM:  return ERROR_ACCESS_DENIED;
+        default:        return ERROR_INVALID_PARAMETER;
+      }
+    }
+
+    io_log("009\n");
+
+    rc = os2exec_map_dataspace_call(&execsrv, addr, rights, &ds, &env);
   }
 
-  *ppb = (void *)addr;
+  io_log("010\n");
 
-  io_log("*ppb=%x\n", addr);
+  if (! rc)
+  {
+    io_log("*ppb=%x\n", addr);
+    *ppb = (void *)addr;
+  }
+
   kalQuit();
   return rc;
 }
@@ -1847,6 +1882,7 @@ kalGetNamedSharedMem(PPVOID ppb,
   vmdata_t *ptr;
   char *p;
   int ret, rc = 0;
+  int ds_cnt  = 0;
 
   kalEnter();
   io_log("kalGetNamedSharedMem\n");
@@ -1890,7 +1926,7 @@ kalGetNamedSharedMem(PPVOID ppb,
   {
     io_log("002\n");
     // reserve the same area in local region mapper
-    rc = l4rm_area_reserve_in_area(size, 0, &addr, &area);
+    rc = l4rm_area_reserve_region_in_area(addr, size, 0, &area);
 
     if (rc)
     {
@@ -1930,15 +1966,31 @@ kalGetNamedSharedMem(PPVOID ppb,
     io_log("006\n");
     // get dataspace from os2exec
     if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, &ds, &env)) )
+    {
       // attach it to our address space
-      ret = attach_ds_area(ds, area, rights, a);
+      if ( !(ret = attach_ds_area(ds, area, rights, a)) )
+        ds_cnt++;
+    }
+    else
+      // no dataspace
+      break;
 
     a = a + sz;
   }
 
   io_log("007\n");
 
-  *ppb = (void *)addr;
+  if (ds_cnt)
+  {
+    io_log("008: %s\n", (void *)addr);
+    *ppb = (void *)addr;
+  }
+  else
+  {
+    io_log("009\n");
+    rc = ERROR_FILE_NOT_FOUND;
+  }
+
   kalQuit();
   return rc;
 }
