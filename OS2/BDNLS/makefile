@@ -1,10 +1,10 @@
 #
-# A main Makefile for OS/2 personality
+# A main Makefile for osFree OS/2 Personality BiDirectional National Language Support
 # (c) osFree project,
 # valerius, 2006/10/30
 #
 
-DIRS = Shared CPI CMD UtlAPI PM MM SOM REXX Server tests
+DIRS = bdcalls
 
 !include $(%ROOT)/mk/all.mk
 
