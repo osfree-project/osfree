@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = bdcalls
+DIRS = bdcalls pmbidi
 
 !include $(%ROOT)/mk/all.mk
 
