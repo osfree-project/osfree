@@ -394,6 +394,7 @@ os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
 
   io_log("xxx2\n");
 
+  ptr->refcnt = 1;
   ptr->area = area;
   ptr->addr = *addr;
   ptr->size = size;
@@ -478,6 +479,7 @@ os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
                                 l4_addr_t pb /* in */,
                                 l4_addr_t *addr /* out */,
                                 l4_uint32_t *size /* out */,
+                                l4_threadid_t *owner /* out */,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
   vmdata_t *ptr;
@@ -485,8 +487,11 @@ os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
   if ( !(ptr = get_area(pb)) )
     return ERROR_INVALID_ADDRESS;
 
-  *addr = ptr->addr;
-  *size = ptr->size;
+  ptr->refcnt ++;
+
+  *addr  = ptr->addr;
+  *size  = ptr->size;
+  *owner = ptr->owner;
 
   return NO_ERROR;
 }
@@ -497,6 +502,7 @@ os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
                                      const char* name /* in */,
                                      l4_addr_t *addr /* out */,
                                      l4_size_t *size /* out */,
+                                     l4_threadid_t *owner /* out */,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
   vmdata_t *ptr;
@@ -504,8 +510,28 @@ os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
   if ( !(ptr = get_mem_by_name(name)) )
     return ERROR_INVALID_NAME;
 
+  ptr->refcnt ++;
+
   *addr = ptr->addr;
   *size = ptr->size;
+  *owner = ptr->owner;
+
+  return NO_ERROR;
+}
+
+/*  increment the refcnt for a sharemem area
+ */
+long DICE_CV
+os2exec_increment_sharemem_refcnt_component (CORBA_Object _dice_corba_obj,
+                                    l4_addr_t addr /* in */,
+                                    CORBA_Server_Environment *_dice_corba_env)
+{
+  vmdata_t *ptr;
+
+  if ( !(ptr = get_area(addr)) )
+    return ERROR_INVALID_NAME;
+
+  ptr->refcnt ++;
 
   return NO_ERROR;
 }
@@ -523,7 +549,19 @@ os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
   if ( !(ptr = get_area((void *)addr)) )
     return ERROR_INVALID_ADDRESS;
 
+  ptr->refcnt --;
+
+  if (ptr->refcnt)
+    return NO_ERROR;
+
   area = ptr->area;
+
+  if (ptr->prev)
+    ptr->prev->next = ptr->next;
+
+  if (ptr->next)
+    ptr->next->prev = ptr->prev;
+
   free(ptr);
   return l4rm_area_release(area);
 }

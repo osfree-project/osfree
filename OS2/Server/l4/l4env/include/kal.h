@@ -73,6 +73,8 @@ typedef struct vmdata
 {
   char name[256];          // name for named shared mem
   char          is_shared; // is shared
+  l4_threadid_t owner;     // shared memory owner thread
+  l4_uint32_t   refcnt;    // reference count for shared mem
   l4_uint32_t   rights;    // OS/2-style access flags
   l4_uint32_t   area;      // area id
   l4_addr_t     addr;      // area address

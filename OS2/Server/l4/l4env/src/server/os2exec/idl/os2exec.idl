@@ -92,11 +92,15 @@ interface os2exec
 
   long get_sharemem([in]  l4_addr_t   pb,
                     [out] l4_addr_t   *addr,
-                    [out] l4_uint32_t *size);
+                    [out] l4_uint32_t *size,
+                    [out] l4_threadid_t *owner);
 
   long get_namedsharemem([in, string] char *name,
                          [out] l4_addr_t   *addr,
-                         [out] l4_uint32_t *size);
+                         [out] l4_uint32_t *size,
+                         [out] l4_threadid_t *owner);
+
+  long increment_sharemem_refcnt([in] l4_addr_t addr);
 
   long release_sharemem([in] l4_addr_t addr);
 };

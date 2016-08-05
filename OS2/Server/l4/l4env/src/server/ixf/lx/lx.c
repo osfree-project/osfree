@@ -21,7 +21,8 @@
 #include <l4/os3/cfgparser.h>
 
 #define ISDLL(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32MODMASK) == E32MODDLL
-#define ISPIC(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32NOINTFIX)
+//#define ISPIC(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32NOINTFIX)
+#define ISPIC(ixf) ISDLL(ixf)
 
 // Prototypes
 unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule);

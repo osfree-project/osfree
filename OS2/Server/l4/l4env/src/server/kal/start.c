@@ -40,6 +40,8 @@ extern unsigned short old_sel;
 /* new TIB FS selector     */
 extern unsigned short tib_sel;
 
+extern vmdata_t *areas_list;
+
 /* OS/2 app main thread */
 int
 trampoline(struct param *param)
@@ -59,6 +61,8 @@ trampoline(struct param *param)
 
   /* TIB base */
   base = (unsigned long)param->tib;
+  io_log("base=%x\n", base);
+  io_log("ptib[0]=%x\n", ptib[0]);
 
   /* Prepare TIB GDT descriptor */
   desc.limit_lo = 0x30; desc.limit_hi = 0;
@@ -72,6 +76,7 @@ trampoline(struct param *param)
 
   /* Get a selector */
   tib_sel = (sizeof(struct desc)) * __fiasco_gdt_get_entry_offset();
+  tib_sel |= 3; // ring3 GDT descriptor
   io_log("sel=%x\n", tib_sel);
 
   /* save the previous stack to __stack
@@ -113,6 +118,7 @@ trampoline(struct param *param)
 APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
   CORBA_Environment env = dice_default_environment;
+  vmdata_t *ptr;
   struct param param;
   APIRET rc;
   /* Error info from LoadModule */
@@ -195,5 +201,10 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 
   /* wait for our termination */
   kalExit(1, 0); // successful return
+
+  /* Free all the memory allocated by the process */
+  for (ptr = areas_list; ptr; ptr = ptr->next)
+    kalFreeMem(ptr->addr);
+
   return NO_ERROR;
 }

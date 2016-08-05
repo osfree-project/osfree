@@ -39,3 +39,11 @@ os2app_app_AttachDataspace_component(CORBA_Object _dice_corba_obj,
   l4_uint32_t area = shared_memory_area;
   return attach_ds_area(*ds, area, rights, addr);
 }
+
+long DICE_CV
+os2app_app_ReleaseDataspace_component(CORBA_Object _dice_corba_obj,
+                                      const l4dm_dataspace_t *ds /* in */,
+                                      CORBA_Server_Environment *_dice_corba_env)
+{
+  return l4dm_close(ds);
+}

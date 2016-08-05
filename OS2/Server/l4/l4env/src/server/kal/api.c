@@ -362,11 +362,9 @@ void kalEnter(void)
   /* Transition from OS/2 world to L4 world:
      save TIB selector to tib_sel and restore
      host kernel FS selector from old_sel */
-  asm ("movw %%fs, %%dx \n"
-       "movw %%dx, %[tib_sel] \n"
-       "movw %[old_sel], %%dx \n"
+  asm ("movw %[old_sel], %%dx \n"
        "movw %%dx, %%fs \n"
-       :[tib_sel]  "=r" (tib_sel)
+       :
        :[old_sel]  "m"  (old_sel));
 }
 
@@ -375,11 +373,9 @@ void kalQuit(void)
   /* Transition form L4 world to OS/2 world:
      save an old FS selector to old_sel and restore
      TIB selector in FS from tib_sel     */
-  asm ("movw %%fs, %%dx \n"
-       "movw %%dx, %[old_sel] \n"
-       "movw %[tib_sel], %%dx \n"
+  asm ("movw %[tib_sel], %%dx \n"
        "movw %%dx, %%fs \n"
-       :[old_sel]  "=r" (old_sel)
+       :
        :[tib_sel]  "m"  (tib_sel));
 
   STKOUT
@@ -559,9 +555,13 @@ kalWrite (HFILE hFile, PVOID pBuffer,
 {
   CORBA_Environment env = dice_default_environment;
   APIRET  rc;
+  char *p, *pb = pBuffer;
+  char *buf;
+  int i, j, cb = cbWrite;
 
   kalEnter();
 
+  io_log("kalWrite\n");
   //io_log("started\n");
   //io_log("hFile=%x\n", hFile);
   //io_log("pBuffer=%x\n", pBuffer);
@@ -573,8 +573,26 @@ kalWrite (HFILE hFile, PVOID pBuffer,
     return 0; /* NO_ERROR */
   }
 
-  rc = os2fs_dos_Write_call(&fs, hFile, pBuffer, &cbWrite, &env);
-  *pcbActual = cbWrite;
+  // skip CR symbols if output goes to stdout/stderr
+  /* if (hFile == 1 || hFile == 2)
+  {
+    for (i = 0; i < cb; i++)
+    {
+      if (pb[i] == '\r')
+      {
+        for (j = i + 1; j < cb; j++)
+          pb[j - 1] = pb[j];
+
+        cb--;
+
+        if (pb[i] == '\r')
+          i--;
+      }
+    }
+  } */
+
+  rc = os2fs_dos_Write_call(&fs, hFile, pb, &cb, &env);
+  *pcbActual = cb;
 
   //io_log("*pcbActual=%u\n", *pcbActual);
 
@@ -596,10 +614,12 @@ VOID CDECL
 kalExit(ULONG action, ULONG result)
 {
   CORBA_Environment env = dice_default_environment;
+  vmdata_t *ptr = areas_list;
   PID pid;
   TID tid;
   kalEnter();
 
+  io_log("kalExit\n");
   io_log("action=%u\n", action);
   io_log("result=%u\n", result);
 
@@ -614,6 +634,7 @@ kalExit(ULONG action, ULONG result)
       // send OS/2 server a message that we want to terminate
       os2server_dos_Exit_send(&os2srv, action, result, &env);
       io_log("task terminated\n");
+      io_log("memory freed\n");
       // tell L4 task server that we want to terminate
       l4ts_exit();
     default:
@@ -1213,6 +1234,7 @@ kalAllocMem(PVOID *ppb,
   //l4rm_set_userptr((void *)addr, ptr);
 
   ptr->is_shared = 0;
+  ptr->owner  = l4_myself();
   ptr->rights = (l4_uint32_t)flags;
   ptr->area   = area;
   ptr->name[0] = '\0';
@@ -1311,7 +1333,18 @@ kalFreeMem(PVOID pb)
     io_log("004\n");
     if (ret == L4RM_REGION_DATASPACE)
     {
-      rc = l4dm_close(&ds);
+      if (ptr->is_shared)
+      {
+        if (l4_thread_equal(ptr->owner, l4_myself()))
+          // delete myself
+          rc = l4dm_close(&ds);
+        else
+          // ask owner to delete dataspace
+          rc = os2app_app_ReleaseDataspace_call(&ptr->owner, &ds, &env);
+      }
+      else
+        // delete myself
+        rc = l4dm_close(&ds);
 
       if (rc)
       {
@@ -1337,6 +1370,12 @@ kalFreeMem(PVOID pb)
   if (ptr->is_shared)
     // release area at os2exec
     os2exec_release_sharemem_call(&execsrv, ptr->addr, &env);
+
+  if (ptr->prev)
+    ptr->prev->next = ptr->next;
+
+  if (ptr->next)
+    ptr->next->prev = ptr->prev;
 
   io_log("008\n");
   free(ptr);
@@ -1494,7 +1533,7 @@ int decommit_pages(PVOID pb,
           }
 
           if (ptr->is_shared)
-            os2exec_map_dataspace_call(&execsrv, addr, rights, &ds2, &env);
+            os2exec_map_dataspace_call(&execsrv, (l4_addr_t)pb + cb, rights, &ds2, &env);
         }
 
         l4dm_close(&ds);
@@ -1719,6 +1758,7 @@ kalAllocSharedMem(PPVOID ppb,
   io_log("004\n");
 
   ptr->is_shared = 1;
+  ptr->owner = l4_myself();
   ptr->area = area;
   ptr->rights = flags;
   ptr->addr = addr;
@@ -1795,6 +1835,7 @@ kalGetSharedMem(PVOID pb,
   l4_size_t size, sz;
   l4_uint32_t area = shared_memory_area;
   l4_uint32_t rights = 0;
+  l4_threadid_t owner;
   vmdata_t *ptr;
   int ret, rc = 0;
   kalEnter();
@@ -1811,7 +1852,7 @@ kalGetSharedMem(PVOID pb,
   if (flag & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = os2exec_get_sharemem_call (&execsrv, pb, &addr, &size, &env);
+  rc = os2exec_get_sharemem_call (&execsrv, pb, &addr, &size, &owner, &env);
 
   if (rc)
   {
@@ -1841,6 +1882,8 @@ kalGetSharedMem(PVOID pb,
     }
 
     ptr->area = area;
+    ptr->is_shared = 1;
+    ptr->owner = owner;
     ptr->rights = flag;
     ptr->addr = addr;
     ptr->size = size;
@@ -1879,6 +1922,7 @@ kalGetNamedSharedMem(PPVOID ppb,
   l4_size_t size, sz;
   l4_uint32_t area = shared_memory_area;
   l4_uint32_t rights = 0;
+  l4_threadid_t owner;
   vmdata_t *ptr;
   char *p;
   int ret, rc = 0;
@@ -1910,7 +1954,7 @@ kalGetNamedSharedMem(PPVOID ppb,
 
   io_log("000\n");
 
-  rc = os2exec_get_namedsharemem_call (&execsrv, pszName, &addr, &size, &env);
+  rc = os2exec_get_namedsharemem_call (&execsrv, pszName, &addr, &size, &owner, &env);
 
   if (rc)
   {
@@ -1947,6 +1991,8 @@ kalGetNamedSharedMem(PPVOID ppb,
     io_log("004\n");
 
     ptr->area = area;
+    ptr->is_shared = 1;
+    ptr->owner = owner;
     ptr->rights = flag;
     ptr->addr = addr;
     ptr->size = size;
@@ -2059,6 +2105,7 @@ kalGiveSharedMem(PVOID pb,
     {
       // transfer dataspace to a given process
       l4dm_share(&ds, tid, rights);
+      os2exec_increment_sharemem_refcnt_call(&execsrv, addr, &env);
       // say that process to map dataspace to a given address
       rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
     }
@@ -2076,6 +2123,7 @@ kalResetBuffer(HFILE handle)
   CORBA_Environment env = dice_default_environment;
   int rc;
   kalEnter();
+  io_log("kalResetBuffer\n");
   io_log("handle=%x\n", handle);
   rc = os2fs_dos_ResetBuffer_call (&fs, handle, &env);
   kalQuit();
@@ -2091,6 +2139,7 @@ kalSetFilePtrL(HFILE handle,
   CORBA_Environment env = dice_default_environment;
   int rc;
   kalEnter();
+  io_log("kalSetFilePtrL\n");
   io_log("handle=%x\n", handle);
   io_log("ib=%d\n", ib);
   io_log("method=%x\n", method);
@@ -2108,6 +2157,7 @@ kalClose(HFILE handle)
   CORBA_Environment env = dice_default_environment;
   int rc;
   kalEnter();
+  io_log("kalClose\n");
   io_log("handle=%x\n", handle);
   rc = os2fs_dos_Close_call (&fs, handle, &env);
   kalQuit();
@@ -2122,6 +2172,7 @@ kalQueryHType(HFILE handle,
   CORBA_Environment env = dice_default_environment;
   int rc;
   kalEnter();
+  io_log("kalQueryHType\n");
   io_log("handle=%x\n", handle);
   rc = os2fs_dos_QueryHType_call(&fs, handle, pType, pAttr, &env);
   io_log("Type=%x\n", *pType);
@@ -2138,6 +2189,7 @@ kalQueryDBCSEnv(ULONG cb,
   CORBA_Environment env = dice_default_environment;
   int rc;
   kalEnter();
+  io_log("kalQueryDBCSEnv\n");
   io_log("cb=%u\n", cb);
   io_log("pcc=%x\n", pcc);
   rc = os2server_dos_QueryDBCSEnv_call (&os2srv, &cb, pcc, &pBuf, &env);
@@ -2154,6 +2206,7 @@ kalQueryCp(ULONG cb,
   CORBA_Environment env = dice_default_environment;
   APIRET rc;
   kalEnter();
+  io_log("kalQueryCp\n");
   io_log("cb=%u\n", cb);
   rc = os2server_dos_QueryCp_call (&os2srv, &cb, (char **)&arCP, &env);
   *pcCP = cb;
@@ -2444,11 +2497,57 @@ kalQueryPathInfo(PSZ pszPathName,
                  ULONG cbInfoBuf)
 {
   CORBA_Environment env = dice_default_environment;
+  char   buf[CCHMAXPATH];
+  char   str[CCHMAXPATH];
+  ULONG  disk, map;
+  ULONG  len;
+  char   drv;
+  int    i;
   APIRET rc;
 
   kalEnter();
   io_log("pszPathName=%s\n", pszPathName);
   io_log("ulInfoLevel=%u\n", ulInfoLevel);
+
+  if (pszPathName[1] != ':')
+  {
+    /* query current disk */
+    rc = kalQueryCurrentDisk(&disk, &map);
+    drv = disk - 1 + 'A';
+
+    len = 0; buf[0] = '\0';
+    if (pszPathName[0] != '\\')
+    {
+      /* query current dir  */
+      rc = kalQueryCurrentDir(0, buf, (PULONG)&len);
+      rc = kalQueryCurrentDir(0, buf, (PULONG)&len);
+    }
+
+    if (len + strlen(pszPathName) + 3 > 256)
+      return ERROR_FILENAME_EXCED_RANGE;
+
+    i = 0;
+    str[i++] = drv;
+    str[i++] = ':';
+    str[i] = '\0';
+
+    if (pszPathName[0] != '\\')
+    {
+      str[i++] = '\\';
+      str[i] = '\0';
+      strcat(str, buf);
+
+      if (str[len + i - 2] != '\\') 
+      {
+        str[len + i - 1] = '\\';
+        len++;
+      }
+      str[len + i - 1] = '\0';
+    }
+
+    pszPathName = strcat(str, pszPathName);
+  }
+
   rc = os2fs_dos_QueryPathInfo_call(&fs, pszPathName, ulInfoLevel,
                                     (char **)&pInfo, &cbInfoBuf, &env);
   kalQuit();
