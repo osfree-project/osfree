@@ -541,6 +541,7 @@ os2exec_increment_sharemem_refcnt_component (CORBA_Object _dice_corba_obj,
 long DICE_CV
 os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
                                     l4_addr_t addr /* in */,
+                                    l4_uint32_t *count /* out */,
                                     CORBA_Server_Environment *_dice_corba_env)
 {
   l4_uint32_t area;
@@ -550,6 +551,7 @@ os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
     return ERROR_INVALID_ADDRESS;
 
   ptr->refcnt --;
+  *count = ptr->refcnt;
 
   if (ptr->refcnt)
     return NO_ERROR;

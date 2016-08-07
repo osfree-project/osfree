@@ -18,6 +18,11 @@ interface os2app
     /* Terminate itself */
     void app_Terminate(void);
 
+    /* Add memory area to the memory map */
+    long app_AddArea([in] l4_addr_t addr,
+                     [in] l4_size_t size,
+                     [in] l4_uint32_t flags);
+
     /* get dataspace and region */
     long app_AttachDataspace([in] l4_addr_t addr,
                              [in] l4dm_dataspace_t *ds,

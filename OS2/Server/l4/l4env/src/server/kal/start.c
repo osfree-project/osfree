@@ -148,6 +148,9 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
       kalExit(1, 1);
     }
 
+  /* notify OS/2 server about parameters got from execsrv */
+  os2server_app_notify1_call (&os2srv, &env);
+
   /* Load the LX executable */
   rc = kalPvtLoadModule(pszLoadError, cbLoadError,
                        name, &s, &hmod);
@@ -166,7 +169,7 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   strcpy(s.path, name);
 
   /* notify OS/2 server about parameters got from execsrv */
-  os2server_app_notify_call (&os2srv, &s, &env);
+  os2server_app_notify2_call (&os2srv, &s, &env);
 
   STKINIT(__stack - 0x800)
 
@@ -203,8 +206,8 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   kalExit(1, 0); // successful return
 
   /* Free all the memory allocated by the process */
-  for (ptr = areas_list; ptr; ptr = ptr->next)
-    kalFreeMem(ptr->addr);
+  //for (ptr = areas_list; ptr; ptr = ptr->next)
+    //kalFreeMem(ptr->addr);
 
   return NO_ERROR;
 }

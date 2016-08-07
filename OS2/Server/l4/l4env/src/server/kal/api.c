@@ -66,6 +66,9 @@ l4_addr_t     shared_memory_base;
 l4_size_t     shared_memory_size;
 l4_uint32_t   shared_memory_area;
 
+/* server loop thread of os2app   */
+l4_uint32_t   service_lthread;
+
 /* old FS selector value          */
 unsigned short old_sel;
 /* TIB new FS selector value      */
@@ -324,6 +327,7 @@ void kalInit(struct kal_init_struct *s)
   shared_memory_base = s->shared_memory_base;
   shared_memory_size = s->shared_memory_size;
   shared_memory_area = s->shared_memory_area;
+  service_lthread    = s->service_lthread;
   l4rm_do_attach_ptr = s->l4rm_do_attach;
   l4rm_detach_ptr    = s->l4rm_detach;
   l4rm_lookup_ptr    = s->l4rm_lookup;
@@ -614,7 +618,6 @@ VOID CDECL
 kalExit(ULONG action, ULONG result)
 {
   CORBA_Environment env = dice_default_environment;
-  vmdata_t *ptr = areas_list;
   PID pid;
   TID tid;
   kalEnter();
@@ -634,7 +637,6 @@ kalExit(ULONG action, ULONG result)
       // send OS/2 server a message that we want to terminate
       os2server_dos_Exit_send(&os2srv, action, result, &env);
       io_log("task terminated\n");
-      io_log("memory freed\n");
       // tell L4 task server that we want to terminate
       l4ts_exit();
     default:
@@ -1285,6 +1287,8 @@ kalFreeMem(PVOID pb)
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
+  l4_uint32_t refcnt = 0;
+  l4_threadid_t owner;
   l4os3_cap_idx_t pager;
   l4os3_ds_t ds;
   int rc, ret;
@@ -1301,6 +1305,14 @@ kalFreeMem(PVOID pb)
   io_log("000\n");
   addr = ptr->addr;
 
+  io_log("000a\n");
+  if (ptr->is_shared)
+  {
+    // release area at os2exec
+    os2exec_release_sharemem_call(&execsrv, ptr->addr, &refcnt, &env);
+  }
+
+  io_log("refcnt=%u\n", refcnt);
   io_log("001\n");
   // detach and release all dataspaces in ptr->area
   while (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
@@ -1335,51 +1347,48 @@ kalFreeMem(PVOID pb)
     {
       if (ptr->is_shared)
       {
-        if (l4_thread_equal(ptr->owner, l4_myself()))
-          // delete myself
-          rc = l4dm_close(&ds);
-        else
-          // ask owner to delete dataspace
-          rc = os2app_app_ReleaseDataspace_call(&ptr->owner, &ds, &env);
+        if (! refcnt)
+        {
+          owner = ptr->owner;
+          if (! l4_thread_equal(owner, l4_myself()))
+            // ask owner to delete dataspace
+            os2app_app_ReleaseDataspace_call(&owner, &ds, &env);
+          else
+            l4dm_close(&ds);
+        }
       }
       else
         // delete myself
-        rc = l4dm_close(&ds);
+        l4dm_close(&ds);
 
-      if (rc)
-      {
-        kalQuit();
-        return ERROR_ACCESS_DENIED;
-      }
+      rc = NO_ERROR;
     }
 
     io_log("005\n");
     addr += size;
   }
 
-  io_log("006\n");
-  rc = l4rm_area_release_addr((void *)ptr->addr);
-
-  if (rc < 0)
+  if (! refcnt)
   {
-    kalQuit();
-    return ERROR_ACCESS_DENIED;
+    io_log("006\n");
+    rc = l4rm_area_release_addr((void *)ptr->addr);
+
+    if (rc < 0)
+    {
+      kalQuit();
+      return ERROR_ACCESS_DENIED;
+    }
+
+    io_log("007\n");
+    if (ptr->prev)
+      ptr->prev->next = ptr->next;
+
+    if (ptr->next)
+      ptr->next->prev = ptr->prev;
+
+    io_log("008\n");
+    free(ptr);
   }
-
-  io_log("007\n");
-  if (ptr->is_shared)
-    // release area at os2exec
-    os2exec_release_sharemem_call(&execsrv, ptr->addr, &env);
-
-  if (ptr->prev)
-    ptr->prev->next = ptr->next;
-
-  if (ptr->next)
-    ptr->next->prev = ptr->prev;
-
-  io_log("008\n");
-  free(ptr);
-  //l4rm_set_userptr((void *)addr, NULL);
 
   kalQuit();
   return 0; /* NO_ERROR */
@@ -1687,6 +1696,7 @@ kalAllocSharedMem(PPVOID ppb,
   l4_addr_t addr, addr2;
   vmdata_t  *ptr;
   char *p;
+  char name[] = "";
   int rc = 0, ret;
 
   kalEnter();
@@ -1701,17 +1711,22 @@ kalAllocSharedMem(PPVOID ppb,
 
   io_log("000\n");
 
-  // uppercase pszName
-  for (p = pszName; *p; p++)
-    *p = toupper(*p);
+  if (pszName)
+  {
+    // uppercase pszName
+    for (p = pszName; *p; p++)
+      *p = toupper(*p);
 
-  if (strstr(pszName, "\\SHAREMEM\\") != pszName)
-    return ERROR_INVALID_NAME;
+    if (strstr(pszName, "\\SHAREMEM\\") != pszName)
+      return ERROR_INVALID_NAME;
 
-  io_log("001\n");
+    io_log("001\n");
 
-  if (get_mem_by_name(pszName))
-    return ERROR_ALREADY_EXISTS;
+    if (get_mem_by_name(pszName))
+      return ERROR_ALREADY_EXISTS;
+  }
+  else
+    pszName = name;
 
   if (flags & PAG_READ)
     rights |= L4DM_READ;
@@ -1838,6 +1853,7 @@ kalGetSharedMem(PVOID pb,
   l4_threadid_t owner;
   vmdata_t *ptr;
   int ret, rc = 0;
+
   kalEnter();
   io_log("kalGetSharedMem\n");
   io_log("pb=%lx\n", pb);
@@ -2047,7 +2063,7 @@ kalGiveSharedMem(PVOID pb,
                  ULONG flag)
 {
   CORBA_Environment env = dice_default_environment;
-  int rc;
+  int rc, ret;
   l4thread_t id;
   l4_threadid_t tid;
   l4_uint32_t rights;
@@ -2059,6 +2075,7 @@ kalGiveSharedMem(PVOID pb,
   vmdata_t *ptr;
 
   kalEnter();
+  io_log("kalGiveSharedMem\n");
   io_log("pb=%x\n", pb);
   io_log("pid=%x\n", pid);
   io_log("flag=%x\n", flag);
@@ -2069,14 +2086,19 @@ kalGiveSharedMem(PVOID pb,
     return ERROR_INVALID_PARAMETER;
   }
 
-  kalGetL4ID(pid, 1, &id);
-  tid = l4thread_l4_id(id);
+  io_log("000\n");
+
+  kalGetL4ID(pid, 1, &tid);
+  io_log("tid=%x.%x\n", tid.id.task, tid.id.lthread);
+  tid.id.lthread = service_lthread;
 
   if (l4_thread_equal(tid, L4_INVALID_ID))
   {
     kalQuit();
     return ERROR_INVALID_PROCID;
   }
+
+  io_log("001\n");
 
   if (flag & PAG_READ)
     rights |= L4DM_READ;
@@ -2087,32 +2109,47 @@ kalGiveSharedMem(PVOID pb,
   if (flag & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  if ( !(ptr = get_area(addr)) )
+  io_log("002\n");
+
+  if ( !(ptr = get_area(pb)) )
   {
     kalQuit();
     return ERROR_INVALID_ADDRESS;
   }
 
+  io_log("003\n");
+
   ptr->rights |= flag;
 
+  rc = os2app_app_AddArea_call(&tid, ptr->addr, ptr->size, flag, &env);
+
+  if (rc)
+    return rc;
+
   addr = ptr->addr;
+  io_log("004\n");
   while (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
   {
-    rc = l4rm_lookup_region(addr, &addr, &size, &ds,
+    io_log("005\n");
+    ret = l4rm_lookup_region(addr, &addr, &size, &ds,
                             &offset, &pager);
 
-    if (rc == L4RM_REGION_DATASPACE)
+    if (ret == L4RM_REGION_DATASPACE)
     {
+      io_log("006\n");
       // transfer dataspace to a given process
       l4dm_share(&ds, tid, rights);
+      io_log("007\n");
       os2exec_increment_sharemem_refcnt_call(&execsrv, addr, &env);
       // say that process to map dataspace to a given address
+      io_log("008\n");
       rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
     }
 
     addr += size;
   }
 
+  io_log("009\n");
   kalQuit();
   return rc;
 }
@@ -2674,9 +2711,7 @@ static void thread_func(void *data)
   // get current thread id
   kalGetTID(&tid);
   // get l4thread thread id
-  kalGetL4ID(pid, tid, &id);
-  // get L4 native thread id
-  thread = l4thread_l4_id(id);
+  kalGetL4ID(pid, tid, &thread);
 
   /* TIB base */
   base = (unsigned long)ptib[tid - 1];
@@ -2798,8 +2833,7 @@ kalSuspendThread(TID tid)
 {
   l4_threadid_t preempter = L4_INVALID_ID;
   l4_threadid_t pager     = L4_INVALID_ID;
-  l4thread_t id;
-  l4_threadid_t id1;
+  l4_threadid_t id;
   l4_umword_t eflags, eip, esp;
   PTIB tib;
   PID pid;
@@ -2812,16 +2846,15 @@ kalSuspendThread(TID tid)
   kalGetPID(&pid);
   // get L4 native thread id
   kalGetL4ID(pid, tid, &id);
-  id1 = l4thread_l4_id(id);
 
-  if (l4_thread_equal(id1, L4_INVALID_ID))
+  if (l4_thread_equal(id, L4_INVALID_ID))
   {
     kalQuit();
     return ERROR_INVALID_THREADID;
   }
 
   // suspend thread execution: set eip to -1
-  l4_thread_ex_regs(id1, (l4_umword_t)wait_func, ~0,
+  l4_thread_ex_regs(id, (l4_umword_t)wait_func, ~0,
                     &preempter, &pager,
                     &eflags, &eip, &esp);
 
@@ -2835,8 +2868,7 @@ kalSuspendThread(TID tid)
 APIRET CDECL
 kalResumeThread(TID tid)
 {
-  l4thread_t id;
-  l4_threadid_t id1;
+  l4_threadid_t id;
   l4_threadid_t preempter = L4_INVALID_ID;
   l4_threadid_t pager     = L4_INVALID_ID;
   l4_umword_t eflags, eip, esp, new_eip, new_esp;
@@ -2850,9 +2882,8 @@ kalResumeThread(TID tid)
   kalGetPID(&pid);
   // get L4 native thread id
   kalGetL4ID(pid, tid, &id);
-  id1 = l4thread_l4_id(id);
 
-  if (l4_thread_equal(id1, L4_INVALID_ID))
+  if (l4_thread_equal(id, L4_INVALID_ID))
   {
     kalQuit();
     return ERROR_INVALID_THREADID;
@@ -2869,7 +2900,7 @@ kalResumeThread(TID tid)
   new_esp = tib->tib_esp_saved;
 
   // resume thread
-  l4_thread_ex_regs(id1, new_eip, new_esp,
+  l4_thread_ex_regs(id, new_eip, new_esp,
                     &preempter, &pager,
                     &eflags, &eip, &esp);
 
@@ -2883,8 +2914,7 @@ APIRET CDECL
 kalWaitThread(PTID ptid, ULONG option)
 {
   l4_threadid_t me = l4_myself();
-  l4_threadid_t src, id1;
-  l4thread_t    id;
+  l4_threadid_t id, src;
   l4_umword_t   dw1, dw2;
   l4_msgdope_t  dope;
   APIRET        rc = NO_ERROR;
@@ -2905,7 +2935,6 @@ kalWaitThread(PTID ptid, ULONG option)
 
   // get native L4 id
   kalGetL4ID(pid, *ptid, &id);
-  id1 = l4thread_l4_id(id);
 
   // wait until needed thread terminates
   switch (option)
@@ -2920,13 +2949,13 @@ kalWaitThread(PTID ptid, ULONG option)
         {
           if (*ptid)
           {
-            if (l4_thread_equal(id1, L4_INVALID_ID))
+            if (l4_thread_equal(id, L4_INVALID_ID))
             {
               rc = ERROR_INVALID_THREADID;
               break;
             }
 
-            if (l4_thread_equal(src, id1))
+            if (l4_thread_equal(src, id))
               break;
           }
           else
@@ -2939,7 +2968,7 @@ kalWaitThread(PTID ptid, ULONG option)
       break;
 
     case DCWW_NOWAIT: // ???
-      if (l4_thread_equal(id1, L4_INVALID_ID))
+      if (l4_thread_equal(id, L4_INVALID_ID))
         rc = ERROR_INVALID_THREADID;
       else
         rc = ERROR_THREAD_NOT_TERMINATED;
@@ -2957,8 +2986,7 @@ kalWaitThread(PTID ptid, ULONG option)
 APIRET CDECL
 kalKillThread(TID tid)
 {
-  l4thread_t id;
-  l4_threadid_t id1;
+  l4_threadid_t id;
   PID pid;
   APIRET rc = NO_ERROR;
 
@@ -2970,15 +2998,14 @@ kalKillThread(TID tid)
   kalGetPID(&pid);
   // get L4 native thread ID
   kalGetL4ID(pid, tid, &id);
-  id1 = l4thread_l4_id(id);
 
-  if (l4_thread_equal(id1, L4_INVALID_ID))
+  if (l4_thread_equal(id, L4_INVALID_ID))
   {
     kalQuit();
     return ERROR_INVALID_THREADID;
   }
 
-  if (! (rc = l4thread_shutdown(id)) )
+  if (! (rc = l4thread_shutdown(l4thread_id(id))) )
     io_log("thread killed\n");
   else
     io_log("thread kill failed!\n");
@@ -3017,7 +3044,7 @@ kalGetPID(PID *ppid)
 }
 
 APIRET CDECL
-kalGetL4ID(PID pid, TID tid, l4thread_t *id)
+kalGetL4ID(PID pid, TID tid, l4_threadid_t *id)
 {
   CORBA_Environment env = dice_default_environment;
   APIRET rc;

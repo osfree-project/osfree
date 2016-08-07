@@ -161,22 +161,29 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
                          parm->pArg, parm->pEnv, parm->pRes, parm->pName, proc->pid);
   io_log("end exec\n");
 
+  if (! rc)
+    // wait for successful startup
+    l4semaphore_down(&proc->startup_sem);
+
   /* if child execution is synchronous
      and it is started successfully, 
      block until it terminates */
   io_log("term wait\n");
-  if (!rc && parm->execFlag == EXEC_SYNC)
+  if (parm->execFlag == EXEC_SYNC)
   {
     // do a sync wait
     proc->exec_sync = 1;
-    l4semaphore_down(&proc->term_sem);
+
+    if (! rc)
+      l4semaphore_down(&proc->term_sem);
   }
+
   // sync wait done
   proc->exec_sync = 0;
   io_log("done waiting\n");
   /* set termination code */
-  parm->pRes->codeTerminate = 0; /* TC_EXIT, @todo add real termination cause */
-  parm->pRes->codeResult    = proc->term_code;
+  parm->pRes->codeResult = proc->term_code;
+
   /* notify the server loop to return API result */
   io_log("pRes=%lx\n", (ULONG)parm->pRes);
   io_log("pObjname=%lx\n",  (ULONG)parm->pObjname);
@@ -733,7 +740,7 @@ os2server_dos_CloseEventSem_component (CORBA_Object obj,
 
 APIRET DICE_CV
 os2server_dos_GetTID_component (CORBA_Object obj,
-                                TID *ptid /* in */,
+                                TID *ptid /* out */,
                                 CORBA_srv_env *_srv_env)
 {
   *ptid = PrcGetTIDL4(*obj);
@@ -742,7 +749,7 @@ os2server_dos_GetTID_component (CORBA_Object obj,
 
 APIRET DICE_CV
 os2server_dos_GetPID_component (CORBA_Object obj,
-                                PID *ppid /* in */,
+                                PID *ppid /* out */,
                                 CORBA_srv_env *_srv_env)
 {
   struct t_os2process *proc = PrcGetProcL4(*obj);
@@ -754,7 +761,7 @@ APIRET DICE_CV
 os2server_dos_GetL4ID_component (CORBA_Object obj,
                                  PID pid /* in */,
                                  TID tid /* in */,
-                                 l4thread_t *id /* out */,
+                                 l4_threadid_t *id /* out */,
                                  CORBA_srv_env *_srv_env)
 {
   *id = PrcGetL4ID(pid, tid);

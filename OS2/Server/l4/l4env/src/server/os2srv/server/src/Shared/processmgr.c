@@ -201,7 +201,7 @@ PrcNewTIB(PID pid, TID tid, l4thread_t id)
 
   PrcCreateTIB(&ptib);
   //id = PrcGetL4ID(pid, tid);
-  proc->tid_array[tid - 1] = id;
+  proc->tid_array[tid - 1] = l4thread_l4_id(id);
   proc->tib_array[tid - 1] = ptib;
   ptib->tib_ptib2->tib2_ultid = tid;
   return 0;
@@ -213,7 +213,7 @@ PrcDestroyTIB(PID pid, TID tid)
   struct t_os2process *proc = PrcGetProc(pid);
   PTIB ptib = proc->tib_array[tid - 1];
   proc->tib_array[tid - 1] = 0;
-  proc->tid_array[tid - 1] = 0;
+  proc->tid_array[tid - 1] = L4_INVALID_ID;
   free_mem(ptib);
   return 0;
 }
@@ -377,14 +377,14 @@ TID PrcGetTIDL4(l4_threadid_t thread)
 
   for (i = 0; i < MAX_TID; i++)
   {
-    if (proc->tid_array[i] == l4thread_id(thread))
+    if (l4_thread_equal(proc->tid_array[i], thread))
       return i + 1;
   }
   return 0;
 }
 
 /* Get L4 native thread ID by OS/2 pid/tid */
-l4thread_t PrcGetL4ID(PID pid, TID tid)
+l4_threadid_t PrcGetL4ID(PID pid, TID tid)
 {
   struct t_os2process *proc = PrcGetProc(pid);
   return proc->tid_array[tid - 1];
@@ -535,10 +535,24 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 }
 #endif
 
+/* is called by os2app after its successful startup */
+void DICE_CV
+os2server_app_notify1_component(CORBA_Object _dice_corba_obj,
+                                CORBA_Server_Environment *_dice_corba_env)
+{
+  struct t_os2process *proc, *parentproc;
+  proc = PrcGetProcL4(*_dice_corba_obj);
+  ULONG ppid;
+  ppid = proc->lx_pib->pib_ulppid;
+  parentproc = PrcGetProc(ppid);
+  // async completion: signal successful startup
+  l4semaphore_up(&parentproc->startup_sem);
+}
+
 /* is called by os2app, and notifies os2srv
    about some module parameters got from execsrv */
 void DICE_CV
-os2server_app_notify_component (CORBA_Object _dice_corba_obj,
+os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
                                 const os2exec_module_t *s,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
@@ -563,9 +577,9 @@ os2server_app_notify_component (CORBA_Object _dice_corba_obj,
   proc->tib_array[0]->tib_pstack = (void *)s->sp;
   proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
   proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
-  proc->tid_array[0] = l4thread_id(*_dice_corba_obj);
+  proc->tid_array[0] = *_dice_corba_obj;
   io_log("*** tid=%d\n", l4thread_id(*_dice_corba_obj));
-  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = 0;
+  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = L4_INVALID_ID;
 }
 
 
@@ -934,6 +948,21 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
   l4os3_os2_exec(p_buf, proc);
+
+  /* set termination code */
+  switch (execFlag)
+  {
+    case EXEC_ASYNC:
+    case EXEC_ASYNCRESULT:
+    case EXEC_ASYNCRESULTDB:
+    case EXEC_TRACE:
+    case EXEC_BACKGROUND:
+      pRes->codeTerminate = proc->pid;
+      break;
+    default:
+      pRes->codeTerminate = 0; //TC_EXIT; // @todo real termination codes
+  }
+
   // get pObjname and cbObjname from os2app
   os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
 

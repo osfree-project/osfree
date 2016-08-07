@@ -10,9 +10,12 @@ interface os2server
 {
     /* misc RPC calls */
 
+    /* notify os2srv about startup of os2app executable */
+    void app_notify1(void);
+
     /* notify os2srv about module params after os2app
        loaded an OS/2 executable (needed to set data in PIB) */
-    void app_notify([in] os2exec_module_t *s);
+    void app_notify2([in] os2exec_module_t *s);
 
     /* get environment variable from config.sys */
     APIRET cfg_getenv([in, string]  char *name,
@@ -115,7 +118,7 @@ interface os2server
 
     APIRET dos_GetL4ID([in] PID pid,
                        [in] TID tid,
-                       [out] l4thread_t *id);
+                       [out] l4_threadid_t *id);
 
     APIRET dos_GetTIDL4([in] l4_threadid_t id,
                         [out] TID *ptid);

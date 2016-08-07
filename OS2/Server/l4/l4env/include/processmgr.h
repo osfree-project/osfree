@@ -143,7 +143,8 @@ struct t_os2process {
 
 #ifdef L4API_l4v2
         char exec_sync;  // synchronous execution flag (whether to use term_sem or not)
-        l4semaphore_t term_sem; // child program termination wait semaphore
+        l4semaphore_t startup_sem; // child program startup wait semaphore
+        l4semaphore_t term_sem;    // child program termination wait semaphore
         l4_taskid_t task;
 #endif
 	ULONG term_code; // termination code of last child program
@@ -152,7 +153,7 @@ struct t_os2process {
         PPIB lx_pib;
         //PTIB main_tib;
         PTIB tib_array[128]; // array of pointers to TIB with (TID-1) index
-        char tid_array[128]; // array of l4thread ID's   with (TID-1) index
+        l4_threadid_t tid_array[128]; // array of l4thread ID's   with (TID-1) index
 	char curdisk;
 	char curdir[256];
         struct t_mem_area root_mem_area;
@@ -172,7 +173,7 @@ struct t_os2process *PrcGetProc(ULONG pid);
 struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
 
 TID PrcGetTIDL4(l4_threadid_t thread);
-l4thread_t PrcGetL4ID(PID pid, TID tid);
+l4_threadid_t PrcGetL4ID(PID pid, TID tid);
 
 // APIRET APIENTRY PrcCreate(IXFModule ixfModule,
 //                           struct t_os2process * process);

@@ -45,6 +45,8 @@ l4_addr_t   shared_memory_base = 0x60000000;
 l4_size_t   shared_memory_size = 1024*1024*1024;
 l4_uint32_t shared_memory_area;
 
+vmdata_t **pareas_list = NULL;
+
 // use events server flag
 char use_events = 0;
 /* previous stack (when switching between 
@@ -53,6 +55,8 @@ unsigned long __stack;
 
 /* OS/2 server id        */
 l4os3_cap_idx_t os2srv;
+/* exec server id        */
+l4os3_cap_idx_t execsrv;
 /* dataspace manager id  */
 l4os3_cap_idx_t dsm;
 /* l4env infopage        */
@@ -62,6 +66,8 @@ extern l4env_infopage_t *l4env_infopage;
 char fprov[20] = "fprov_proxy_fs";
 /* file provider id      */
 l4os3_cap_idx_t fprov_id;
+
+l4_uint32_t service_lthread;
 
 char pszLoadError[260];
 ULONG rcCode;
@@ -153,9 +159,20 @@ unsigned __fiasco_gdt_get_entry_offset(void)
   return l4os3_gdt_get_entry_offset();
 }
 
+void server_loop(void)
+{
+  CORBA_srv_env env = default_srv_env;
+  // server loop
+  env.malloc = (dice_malloc_func)malloc;
+  env.free = (dice_free_func)free;
+  os2app_server_loop(&env);
+}
+
 int main (int argc, char *argv[])
 {
   CORBA_srv_env env = default_srv_env;
+  l4thread_t thread;
+  l4_threadid_t tid;
   l4_uint32_t area;
   //struct desc *dsc;
   //int i, stop, start;
@@ -174,6 +191,12 @@ int main (int argc, char *argv[])
   if (!names_waitfor_name("os2srv", &os2srv, 30000))
     {
       io_log("Can't find os2srv on names, exiting...\n");
+      __exit(1, 1);
+    }
+
+  if (!names_waitfor_name("os2exec", &execsrv, 30000))
+    {
+      io_log("Can't find os2exec on names, exiting...\n");
       __exit(1, 1);
     }
 
@@ -221,11 +244,17 @@ int main (int argc, char *argv[])
 
   io_log("kalHandle=%lu\n", kalHandle);
 
+  // start server loop
+  thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
+  tid = l4thread_l4_id(thread);
+  service_lthread = tid.id.lthread;
+
   //fill in the parameter structure for KalInit
   initstr.stack   = __stack;
   initstr.shared_memory_base = shared_memory_base;
   initstr.shared_memory_size = shared_memory_size;
   initstr.shared_memory_area = shared_memory_area;
+  initstr.service_lthread    = service_lthread;
   initstr.l4rm_do_attach = l4rm_do_attach;
   initstr.l4rm_detach = l4rm_detach;
   initstr.l4rm_lookup        = l4rm_lookup;
@@ -304,6 +333,8 @@ int main (int argc, char *argv[])
     io_log("event thread started\n");
   } */
 
+  DlSym(kalHandle, "areas_list", &pareas_list);
+
   // release the reserved area for application
   rc = l4rm_area_release(area);
 
@@ -311,8 +342,9 @@ int main (int argc, char *argv[])
   rcCode = DlRoute(0, "KalStartApp", argv[argc - 1], pszLoadError, sizeof(pszLoadError));
 
   // server loop
-  env.malloc = (dice_malloc_func)malloc;
-  env.free = (dice_free_func)free;
-  os2app_server_loop(&env);
+  //env.malloc = (dice_malloc_func)malloc;
+  //env.free = (dice_free_func)free;
+  //os2app_server_loop(&env);
+
   return 0;
 }

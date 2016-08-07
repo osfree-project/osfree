@@ -129,13 +129,14 @@ char *basename(char *cmdline)
 void exec_protshell(cfg_opts *options)
 {
   int  rc;
+  struct _RESULTCODES res;
 
   rc = PrcExecuteModule(NULL,
                         0,
                         EXEC_SYNC,
                         NULL,                 // pArgs
                         NULL,                 // pEnv
-                        NULL,
+                        &res,                 // pRes
                         options->protshell,
                         0);
 

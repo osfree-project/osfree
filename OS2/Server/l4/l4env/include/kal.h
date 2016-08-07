@@ -17,6 +17,7 @@ struct kal_init_struct
   l4_addr_t shared_memory_base;
   l4_size_t shared_memory_size;
   l4_uint32_t shared_memory_area;
+  l4_uint32_t service_lthread;
   void *l4rm_detach;
   void *l4rm_do_attach;
   void *l4rm_lookup;
@@ -386,7 +387,7 @@ APIRET CDECL
 kalGetPID(PID *ppid);
 
 APIRET CDECL
-kalGetL4ID(PID pid, TID tid, l4thread_t *id);
+kalGetL4ID(PID pid, TID tid, l4_threadid_t *id);
 
 APIRET CDECL
 kalGetTIDL4(l4_threadid_t id, TID *ptid);
