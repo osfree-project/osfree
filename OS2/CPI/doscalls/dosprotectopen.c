@@ -1,4 +1,4 @@
-#include <os2.h>
+#include "kal.h"
 
 APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
                                 PHFILE phf,
@@ -11,16 +11,28 @@ APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
                                 PFHLOCK pfhFileHandleLockID)
 {
   LONGLONG cbFileL;
+  APIRET rc;
+
+  log("%s\n", __FUNCTION__);
+  log("pszFileName=%s\n", *pszFileName);
+  log("cbFile=%lx\n", cbFile);
+  log("ulAttribute=%lx\n", ulAttribute);
+  log("fsOpenFlags=%lx\n", fsOpenFlags);
+  log("fsOpenMode=%lx\n", fsOpenMode);
 
   cbFileL.ulLo=cbFile;
   cbFileL.ulHi=0;
 
-  return DosProtectOpenL(pszFileName, phf,
-                                 pulAction,
-                                 cbFileL,
-                                 ulAttribute,
-                                 fsOpenFlags,
-                                 fsOpenMode,
-                                 peaop2,
-                                 pfhFileHandleLockID);
+  rc = DosProtectOpenL(pszFileName, phf,
+                       pulAction,
+                       cbFileL,
+                       ulAttribute,
+                       fsOpenFlags,
+                       fsOpenMode,
+                       peaop2,
+                       pfhFileHandleLockID);
+  log("hf=%lx\n", *phf);
+  log("ulAction=%lx\n", *pulAction);
+  log("fhLockID=%lx\n", *pfhFileHandleLockID);
+  return rc;
 }

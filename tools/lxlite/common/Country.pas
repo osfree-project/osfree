@@ -1,7 +1,8 @@
-{$AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
+{Frame-}
+{$ifndef FPC}{$Speed-,$G3+,AlignCode-,AlignData-,AlignRec-,Use32+}{$endif}
 unit Country;
 
-Interface uses os2def, os2base, miscUtil, strOp;
+Interface uses os2def, {$ifndef FPC}os2base{$else}doscalls{$endif}, miscUtil, strOp;
 
 const
     cyDefault    = 0; {Use default country}
@@ -45,7 +46,12 @@ begin
 end;
 
 function tCountry.DateStr;
-var dt : DateTime;
+var 
+{$ifndef fpc}
+    dt : DateTime;
+{$else}
+    dt : TDateTime;
+{$endif}
     S  : string[16];
     I  : Integer;
 
@@ -83,7 +89,12 @@ begin
 end;
 
 function tCountry.TimeStr;
-var dt    : DateTime;
+var
+{$ifndef fpc}
+    dt    : DateTime;
+{$else}
+    dt    : TDateTime;
+{$endif}
     I,V,W : Longint;
     S     : String[16];
     sep   : Char;

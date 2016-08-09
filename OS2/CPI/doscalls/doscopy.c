@@ -12,16 +12,11 @@
    @todo Add support of EAs
 
 */
-//#define INCL_OS2DEF
-#define INCL_DOSFILEMGR
-#define INCL_DOSMEMMGR
-#define INCL_DOSERRORS
-#include <os2.h>
 
 #include <string.h>
 #include <sys/stat.h>
 
-#include "dl.h"
+#include "kal.h"
 
 // Safe functions
 #include "strnlen.h"
@@ -437,6 +432,11 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
 
   #define DCPY_MASK ~(DCPY_EXISTING | DCPY_APPEND | DCPY_FAILEAS )
 
+  log("%s\n", __FUNCTION__);
+  log("pszOld=%s\n", pszOld);
+  log("pszNew=%s\n", pszNew);
+  log("ulOptions=%lx\n", ulOptions);
+
   //Check arguments
   if ((!pszOld) || (!pszNew)) return ERROR_INVALID_PARAMETER;
   // Also check for reserved options used
@@ -454,9 +454,9 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
   if (fileStatus.attrFile & FILE_DIRECTORY)
   {
     // DCPY_APPEND flag not valid in directory copy
-    return CopyTree(pszOld, pszNew, ulOptions & ~DCPY_APPEND, 0);
+    return CopyTree((PSZ)pszOld, (PSZ)pszNew, ulOptions & ~DCPY_APPEND, 0);
   } else {
-    return CopyFile(pszOld, pszNew, ulOptions); // @todo pass options
+    return CopyFile((PSZ)pszOld, (PSZ)pszNew, ulOptions); // @todo pass options
   };
 }
 
@@ -467,12 +467,16 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
   FILESTATUS3 fileStatus;
   APIRET rc;
 
+  log("%s\n", __FUNCTION__);
+  log("pszOld=%s\n", pszOld);
+  log("pszNew=%s\n", pszNew);
+
   //Check arguments
   if ((!pszOld) || (!pszNew)) return ERROR_INVALID_PARAMETER;
 
   // if move pszOld->pszNew crosses the volume
   // boundary, then copy files and delete the old ones
-  if (KalMove(pszOld, pszNew))
+  if (KalMove((PSZ)pszOld, (PSZ)pszNew))
   {
     //Detect is source dir or file (also check is it exists)
     rc = DosQueryPathInfo(pszOld,               // Path
@@ -485,10 +489,10 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
     // Perfom action based on source path type
     if (fileStatus.attrFile & FILE_DIRECTORY)
       // DCPY_APPEND flag not valid in directory copy
-      rc = CopyTree(pszOld, pszNew, 0, 1);
+      rc = CopyTree((PSZ)pszOld, (PSZ)pszNew, 0, 1);
     else
     {
-      if (rc = CopyFile(pszOld, pszNew, 0))
+      if (rc = CopyFile((PSZ)pszOld, (PSZ)pszNew, 0))
         return rc;
 
       rc = DosDelete(pszOld);

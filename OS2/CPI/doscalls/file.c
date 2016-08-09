@@ -1,68 +1,7 @@
-#include <os2.h>
-
-#include "dl.h"
-
-//APIRET __cdecl  KalClose(HFILE hFile);
-
-//APIRET __cdecl  KalQueryHType(HFILE hFile,
-//                              PULONG pType,
-//                              PULONG pAttr);
-
-//APIRET __cdecl  KalResetBuffer(HFILE);
-
-//APIRET __cdecl  KalDupHandle(HFILE hFile,
-//                             PHFILE pHfile);
-
-//APIRET __cdecl  KalDelete(PCSZ  pszFile);
-
-//APIRET __cdecl  KalForceDelete(PCSZ  pszFile);
-
-//APIRET __cdecl  KalDeleteDir(PCSZ  pszDir);
-
-//APIRET __cdecl  KalCreateDir(PCSZ  pszDirName,
-//                             PEAOP2 peaop2);
-
-//APIRET __cdecl  KalSetRelMaxFH(PLONG pcbReqCount,
-//                               PULONG pcbCurMaxFH);
-
-//APIRET __cdecl  KalSetMaxFH(ULONG cFH);
-
-//APIRET __cdecl  KalFindFirst(PCSZ   pszFileSpec,
-//                             PHDIR  phdir,
-//                             ULONG  flAttribute,
-//                             PVOID  pfindbuf,
-//                             ULONG  cbBuf,
-//                             PULONG pcFileNames,
-//                             ULONG  ulInfoLevel);
-
-//APIRET __cdecl  KalFindNext(HDIR   hDir,
-//                            PVOID  pfindbuf,
-//                            ULONG  cbfindbuf,
-//                            PULONG pcFilenames);
-
-//APIRET __cdecl  KalFindClose(HDIR hDir);
-
-//APIRET __cdecl  KalQueryFHState(HFILE hFile,
-//                                PULONG pMode);
-
-//APIRET __cdecl  KalSetFHState(HFILE hFile,
-//                              ULONG mode);
-
-//APIRET __cdecl  KalQueryFileInfo(HFILE hf,
-//                                 ULONG ulInfoLevel,
-//                                 PVOID pInfo,
-//                                 ULONG cbInfoBuf);
-
-//APIRET __cdecl  KalQueryPathInfo(PCSZ  pszPathName,
-//                                 ULONG ulInfoLevel,
-//                                 PVOID pInfoBuf,
-//                                 ULONG cbInfoBuf);
-
-//APIRET __cdecl  KalSetFileSizeL(HFILE hFile,
-//                                LONGLONG cbSize);
+#include "kal.h"
 
 #if 0
-// Implementation of kernel-independed functions via kernel-depended functions
+// Implementation of kernel-independent functions via kernel-dependent functions
 
 APIRET APIENTRY DosCancelLockRequest(HFILE,PFILELOCK);
 APIRET APIENTRY DosCreateDir(PCSZ,PEAOP2);
@@ -108,6 +47,8 @@ APIRET APIENTRY DosShutdown(ULONG);
 
 APIRET APIENTRY  DosClose(HFILE hFile)
 {
+  log("%s\n", __FUNCTION__);
+  log("hfile=%lx\n", hFile);
   return KalClose (hFile);
 }
 
@@ -115,49 +56,75 @@ APIRET APIENTRY  DosQueryHType(HFILE hFile,
                                PULONG pType,
                                PULONG pAttr)
 {
-  return KalQueryHType(hFile, pType, pAttr);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hfile=%lx\n", hFile);
+  rc = KalQueryHType(hFile, pType, pAttr);
+  log("type=%lx\n", *pType);
+  log("attr=%lx\n", *pAttr);
+  return rc;
 }
 
 APIRET APIENTRY DosResetBuffer(HFILE hFile)
 {
+  log("%s\n", __FUNCTION__);
+  log("hfile=%lx\n", hFile);
   return KalResetBuffer(hFile);
 }
 
 APIRET APIENTRY  DosDupHandle(HFILE hFile,
                               PHFILE pHfile)
 {
-  return KalDupHandle(hFile, pHfile);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hfile=%lx\n", hFile);
+  rc = KalDupHandle(hFile, pHfile);
+  log("hfile2=%lx\n", *pHfile);
+  return rc;
 }
 
 APIRET APIENTRY  DosDelete(PCSZ  pszFile)
 {
-  return KalDelete(pszFile);
+  log("%s\n", __FUNCTION__);
+  log("pszFile=%s\n", pszFile);
+  return KalDelete((PSZ)pszFile);
 }
 
 APIRET APIENTRY  DosForceDelete(PCSZ  pszFile)
 {
-  return KalForceDelete(pszFile);
+  log("%s\n", __FUNCTION__);
+  log("pszFile=%s\n", pszFile);
+  return KalForceDelete((PSZ)pszFile);
 }
 
 APIRET APIENTRY  DosDeleteDir(PCSZ  pszDir)
 {
-  return KalDeleteDir(pszDir);
+  log("%s\n", __FUNCTION__);
+  log("pszDir=%s\n", pszDir);
+  return KalDeleteDir((PSZ)pszDir);
 }
 
 APIRET APIENTRY  DosCreateDir(PCSZ  pszDirName,
                               PEAOP2 peaop2)
 {
-  return KalCreateDir(pszDirName, peaop2);
+  log("%s\n", __FUNCTION__);
+  log("pszDirName=%s\n", pszDirName);
+  return KalCreateDir((PSZ)pszDirName, peaop2);
 }
 
 APIRET APIENTRY  DosSetRelMaxFH(PLONG pcbReqCount,
                                 PULONG pcbCurMaxFH)
 {
+  log("%s\n", __FUNCTION__);
+  log("cbReqCount=%lx\n", *pcbReqCount);
+  log("cbCurMaxFH=%lx\n", *pcbCurMaxFH);
   return KalSetRelMaxFH(pcbReqCount, pcbCurMaxFH);
 }
 
 APIRET APIENTRY  DosSetMaxFH(ULONG cFH)
 {
+  log("%s\n", __FUNCTION__);
+  log("cFH=%lx\n", cFH);
   return KalSetMaxFH(cFH);
 }
 
@@ -170,8 +137,17 @@ APIRET APIENTRY  DosFindFirst(PCSZ   pszFileSpec,
                               PULONG pcFileNames,
                               ULONG  ulInfoLevel)
 {
-  return KalFindFirst(pszFileSpec, phdir, flAttribute,
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("pszFileSpec=%s\n", pszFileSpec);
+  log("flAttribute=%lx\n", flAttribute);
+  log("cbBuf=%lx\n", cbBuf);
+  log("ulInfoLevel=%lx\n", ulInfoLevel);
+  rc = KalFindFirst((PSZ)pszFileSpec, phdir, flAttribute,
                       pfindbuf, cbBuf, pcFileNames, ulInfoLevel);
+  log("hdir=%lx\n", *phdir);
+  log("cFileNames=%lx\n", *pcFileNames);
+  return rc;
 }
 
 APIRET APIENTRY  DosFindNext(HDIR   hDir,
@@ -179,23 +155,39 @@ APIRET APIENTRY  DosFindNext(HDIR   hDir,
                              ULONG  cbfindbuf,
                              PULONG pcFilenames)
 {
-  return KalFindNext(hDir, pfindbuf, cbfindbuf, pcFilenames);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hdir=%lx\n", hDir);
+  log("cbfindbuf=%lx\n", cbfindbuf);
+  rc = KalFindNext(hDir, pfindbuf, cbfindbuf, pcFilenames);
+  log("cFilenames=%lx\n", *pcFilenames);
+  return rc;
 }
 
 APIRET APIENTRY  DosFindClose(HDIR hDir)
 {
+  log("%s\n", __FUNCTION__);
+  log("hdir=%lx\n", hDir);
   return KalFindClose(hDir);
 }
 
 APIRET APIENTRY  DosQueryFHState(HFILE hFile,
                                  PULONG pMode)
 {
-  return KalQueryFHState(hFile, pMode);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  rc = KalQueryFHState(hFile, pMode);
+  log("mode=%lx\n", *pMode);
+  return rc;
 }
 
 APIRET APIENTRY  DosSetFHState(HFILE hFile,
                                ULONG mode)
 {
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("mode=%lx\n", mode);
   return KalSetFHState(hFile, mode);
 }
 
@@ -204,6 +196,10 @@ APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
                                   PVOID pInfo,
                                   ULONG cbInfoBuf)
 {
+  log("%s\n", __FUNCTION__);
+  log("hf=%lx\n", hf);
+  log("ulInfoLevel=%lu\n", ulInfoLevel);
+  log("cbInfoBuf=%lu\n", cbInfoBuf);
   return KalQueryFileInfo(hf, ulInfoLevel, pInfo, cbInfoBuf);
 }
 
@@ -212,11 +208,18 @@ APIRET APIENTRY  DosQueryPathInfo(PCSZ   pszPathName,
                                   PVOID pInfo,
                                   ULONG cbInfoBuf)
 {
-  return KalQueryPathInfo(pszPathName, ulInfoLevel, pInfo, cbInfoBuf);
+  log("%s\n", __FUNCTION__);
+  log("pszPathName=%lx\n", pszPathName);
+  log("ulInfoLevel=%lu\n", ulInfoLevel);
+  log("cbInfoBuf=%lu\n", cbInfoBuf);
+  return KalQueryPathInfo((PSZ)pszPathName, ulInfoLevel, pInfo, cbInfoBuf);
 }
 
 APIRET APIENTRY  DosSetFileSizeL(HFILE hFile,
                                  LONGLONG cbSize)
 {
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("cbSize=%lld\n", cbSize);
   return KalSetFileSizeL(hFile, cbSize);
 }

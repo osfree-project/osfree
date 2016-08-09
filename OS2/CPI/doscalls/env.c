@@ -2,20 +2,14 @@
  *  InfoBlocks etc.
  */
 
-#define  INCL_DOSERRORS
-#define  INCL_DOS
-#include <os2.h>
-
 #include <string.h>
 
-#include "dl.h"
-
-//APIRET __cdecl   KalGetInfoBlocks(PTIB *pptib,
-//                                  PPIB *pppib);
+#include "kal.h"
 
 APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
                                  PPIB *pppib)
 {
+  log("%s\n", __FUNCTION__);
   return KalGetInfoBlocks(pptib, pppib);
 }
 
@@ -42,6 +36,9 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
   int  i;
   char *p, *q, *env;
 
+  log("%s\n", __FUNCTION__);
+  log("pszName=%s\n", pszName);
+
   /* Get application info blocks */
   DosGetInfoBlocks(&tib, &pib);
 
@@ -64,9 +61,11 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
       /* variable found */
       *ppszValue = q + 1;
 
+      log("pszValue=%s\n", *ppszValue);
       return NO_ERROR;
     }
   }
 
+  log("not found\n");
   return ERROR_ENVVAR_NOT_FOUND;
 }

@@ -1,0 +1,23 @@
+/*
+KbdStringIn
+KbdPeek
+KbdCharIn
+
+VioGetMode
+VioGetAnsi
+VioGetConfig
+VioGetCurPos
+VioSetCurPos
+VioSetCurType
+VioSetAnsi
+VioSetCp
+VioSetState
+VioReadCellStr
+VioWrtCellStr
+VioWrtCharStrAtt
+VioWrtNCell
+VioWrtNAttr
+VioWrtTTY
+VioScrollDn
+VioScrollUp
+ */

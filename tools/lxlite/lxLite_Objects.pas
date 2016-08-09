@@ -1,5 +1,5 @@
 {&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
-{$P+}
+{$P+}{$ifdef fpc}{$mode objfpc}{$endif}
 Unit lxLite_Objects;
 
 Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
@@ -61,7 +61,7 @@ begin
        end;
 end;
 
-function FormatStr;
+function FormatStr(Template : Longint; Params : array of const) : string;
 var
  nP : array[0..31] of Longint;
  I  : Word;
@@ -121,7 +121,7 @@ begin
  textAttr := Attr;
 end;
 
-Procedure Stop;
+Procedure Stop(eCode : Word; const ParmStr : string);
 var
  I : Integer;
  S : string;
@@ -779,7 +779,7 @@ begin
   then Writeln(FormatStr(msgExcludedFiles, [S]));
 end;
 
-function tMyCmdLineParser.ParmHandler;
+function tMyCmdLineParser.ParmHandler(var ParmStr : string) : Word;
 const
  optSep : string[4] = #9' /-';
 var
@@ -1052,7 +1052,7 @@ begin
  end;
 end;
 
-function tMyCmdLineParser.NameHandler;
+function tMyCmdLineParser.NameHandler(var ParmStr : string) : Word;
 var
  S : string;
 begin
@@ -1060,7 +1060,7 @@ begin
  if S <> '' then fNames^.AtInsert(fNames^.Count, NewStr(S));
 end;
 
-procedure tMyCmdLineParser.PreProcess;
+procedure tMyCmdLineParser.PreProcess(var ParmStr : string);
 begin
  if CmdLineStack = nil then New(CmdLineStack, Create(8, 8));
  CmdLineStack^.AtInsert(CmdLineStack^.Count, NewStr(ParmStr));
@@ -1149,7 +1149,7 @@ newID:           Delete(S, 1, 1); Mode := 1;
   end;
 end;
 
-procedure setConfig;
+procedure setConfig(const ID : string);
 var
  S   : String;
  I   : Longint;

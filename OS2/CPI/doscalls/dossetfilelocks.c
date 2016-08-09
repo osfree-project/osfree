@@ -1,6 +1,4 @@
-#define INCL_BASE
-#define INCL_ERRORS
-#include <os2.h>
+#include "kal.h"
 
 APIRET APIENTRY DosSetFileLocks(HFILE hFile,
                                 PFILELOCK pflUnlock,
@@ -10,6 +8,11 @@ APIRET APIENTRY DosSetFileLocks(HFILE hFile,
 {
   FILELOCKL flUnlockL;
   FILELOCKL flLockL;
+
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("timeout=%lx\n", timeout);
+  log("flags=%lx\n", flags);
 
   if ((pflUnlock==NULL) | (pflLock==NULL))
   {

@@ -1,7 +1,4 @@
-#define  INCL_DOSFILEMGR
-#include <os2.h>
-
-#include <stdio.h>
+#include "kal.h"
 
 APIRET unimplemented(char *func);
 
@@ -9,6 +6,9 @@ APIRET APIENTRY  DosListIOL(LONG  ulCmdMode,
                             LONG  ulNumentries,
                             PVOID pListIOL)
 {
+  log("%s\n", __FUNCTION__);
+  log("ulCmdMode=%lx\n", ulCmdMode);
+  log("ulNumentries=%lx\n", ulNumentries);
   return unimplemented(__FUNCTION__);
 }
 
@@ -22,6 +22,7 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
   ULONG rc, rc2;
   int i;
 
+  log("%s\n", __FUNCTION__);
   rc2 = DosAllocMem((void **)&pListIOL, ulNumentries * sizeof(LISTIOL),
                    PAG_COMMIT | PAG_READ | PAG_WRITE);
 

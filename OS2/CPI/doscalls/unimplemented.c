@@ -1,18 +1,23 @@
 #include <strnlen.h>
 
+#define INCL_DOSNLS
+#define INCL_DOSMVDM
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSDATETIME
 #define INCL_DOSEXCEPTIONS
+#define INCL_DOSSPINLOCK
+#define INCL_DOSQUEUES
+#define INCL_DOSSESMGR
 #include <os2.h>
 
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "dl.h"
+//#include "kal.h"
 
-//APIRET __cdecl KalLogWrite(PSZ s);
+APIRET __cdecl KalLogWrite(PSZ s);
 
 void log(const char *fmt, ...)
 {
@@ -45,13 +50,14 @@ APIRET APIENTRY DosQueryRASInfo(ULONG Index, PPVOID Addr)
 }
 
 
-APIRET APIENTRY      DosDumpProcess(void)
+APIRET APIENTRY      DosDumpProcess(ULONG Flag, ULONG Drive, PID Pid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosSuppressPopUps(void)
+APIRET APIENTRY      DosSuppressPopUps(ULONG Flag,
+                                       ULONG Drive)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -81,19 +87,7 @@ APIRET APIENTRY      DosOpen2Compt(void)
 }
 
 
-APIRET APIENTRY      DosQProcStatus(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      DosICallBack(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosRetForward(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -219,11 +213,11 @@ APIRET APIENTRY      DosLogRead(void)
 }
 
 
-APIRET APIENTRY      DosFindFromName(void)
+APIRET APIENTRY      DosFindFromName(HDIR hDir, PVOID pfindbuf, ULONG cbBuf,
+                                     PULONG pcFileNames, ULONG ulPosition, PVOID pszFileSpec)
 {
   return unimplemented(__FUNCTION__);
 }
-
 
 APIRET APIENTRY      DosOPLockRelease(void)
 {
@@ -639,13 +633,13 @@ APIRET APIENTRY DosPhysicalDisk(ULONG xfunction, PVOID pBuf, ULONG cbBuf, PVOID 
 }
 
 
-APIRET APIENTRY      DosSetCp(void)
+APIRET APIENTRY      DosSetCp(ULONG cp, ULONG reserved) // ???
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosSetProcessCp(void)
+APIRET APIENTRY      DosSetProcessCp(ULONG cp)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -715,27 +709,16 @@ APIRET  APIENTRY DosAliasMem(PVOID pb,
 //                                   ULONG flag)
 
 
-APIRET APIENTRY  DosGetNamedSharedMem(PPVOID ppb,
-                                      PCSZ  pszName,
-                                      ULONG flag)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosGetNamedSharedMem(PPVOID ppb,
+//                                      PCSZ  pszName,
+//                                      ULONG flag)
 
+//APIRET APIENTRY  DosGetSharedMem(PVOID pb,
+//                                 ULONG flag)
 
-APIRET APIENTRY  DosGetSharedMem(PVOID pb,
-                                 ULONG flag)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY  DosGiveSharedMem(PVOID pb,
-                                  PID pid,
-                                  ULONG flag)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY  DosGiveSharedMem(PVOID pb,
+//                                  PID pid,
+//                                  ULONG flag)
 
 
 //APIRET APIENTRY  DosFreeMem(PVOID pb)
@@ -759,19 +742,24 @@ APIRET  APIENTRY DosQueryMemState(PVOID pb,
 }
 
 
-APIRET APIENTRY      DosOpenVDD(void)
+APIRET APIENTRY      DosOpenVDD(PCSZ pszVDD, PHVDD phvdd)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosRequestVDD(HVDD  hvdd,
+                                   SGID  sgid,
+                                   ULONG cmd,
+                                   ULONG cbInput,
+                                   PVOID pInput,
+                                   ULONG cbOutput,
+                                   PVOID pOutput)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosRequestVDD(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosCloseVDD(void)
+APIRET APIENTRY      DosCloseVDD(HVDD hvdd)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -786,30 +774,6 @@ APIRET APIENTRY      DosCloseVDD(void)
 
 //APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
 //                                 PPIB *pppib)
-
-
-APIRET APIENTRY      DosAllocProtSeg(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosAllocShrProtSeg(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosAllocProtHuge(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosDynamicTrace(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 APIRET APIENTRY DosDebug(PVOID pdbgbuf)
@@ -1011,37 +975,29 @@ APIRET APIENTRY      DosQueryPageUsage(void)
 }
 
 
-APIRET APIENTRY      DosQueryModFromCS(void)
+APIRET APIENTRY DosQueryModFromEIP(HMODULE const *phMod, ULONG const *pObjNum,
+                                   ULONG BuffLen, PCHAR pBuff,
+                                   ULONG const *pOffset, ULONG Address)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY DosQueryModFromEIP(HMODULE const *  phMod, ULONG const *  pObjNum, ULONG BuffLen, PCHAR pBuff, ULONG const *  pOffset, ULONG Address)
+ULONG DosFPDataArea;
+
+APIRET APIENTRY      DosTmrQueryFreq(PULONG pulTmrFreq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosFPDataArea(void)
+APIRET APIENTRY      DosTmrQueryTime(PQWORD pqwTmrTime)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosTmrQueryFreq(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosTmrQueryTime(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosAliasPerfCtrs(void)
+APIRET APIENTRY      DosAliasPerfCtrs(ULONG p1, ULONG p2, PBYTE* p3, PULONG p4)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1059,28 +1015,21 @@ APIRET APIENTRY      DosDeconPerf(void)
 }
 
 
-APIRET APIENTRY      DosRegisterPerfCtrs(void)
+APIRET APIENTRY      DosRegisterPerfCtrs(PBYTE pbTextBlk, ULONG flFlags)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosQuerySysState(void)
+APIRET APIENTRY      DosQuerySysState(ULONG EntityList, ULONG EntityLevel,
+                                      PID pid, TID tid, PVOID pDataBuf, ULONG cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosFlatCS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosFlatDS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+ULONG DosFlatCS;
+ULONG DosFlatDS;
 
 
 APIRET APIENTRY DosQueryABIOSSupport(ULONG reserved)
@@ -1101,13 +1050,13 @@ APIRET APIENTRY  DosEnumAttribute(ULONG  ulRefType,
 }
 
 
-APIRET APIENTRY      DosQueryDOSProperty(void)
+APIRET APIENTRY      DosQueryDOSProperty(SGID sgid, PCSZ pszName, ULONG cb, PCSZ pszBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosSetDOSProperty(void)
+APIRET APIENTRY      DosSetDOSProperty(SGID sgid, PCSZ pszName, ULONG cb, PCSZ pszBuf)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1134,127 +1083,23 @@ APIRET APIENTRY      DosExitMustComplete(PULONG pulNesting)
 //APIRET APIENTRY      DosIQueryMessageCP(void)
 
 
-APIRET APIENTRY      DosCaseMap(void)
+
+
+APIRET APIENTRY      DosQueryCtryInfo(ULONG cb, PCOUNTRYCODE pcc, PCOUNTRYINFO pci, PULONG pcbActual)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosGetCollate(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosQueryDBCSEnv(ULONG cb,
+//                                     COUNTRYCODE *pcc,
+//                                     PBYTE pBuf)
 
 
-APIRET APIENTRY      DosGetCtryInfo(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosMapCase(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch)
 
 
-APIRET APIENTRY      DosGetDBCSEv(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosQueryCtryInfo(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-//APIRET APIENTRY      DosQueryDBCSEnv(void)
-
-
-//APIRET APIENTRY      DosMapCase(void)
-
-
-//APIRET APIENTRY      DosQueryCollate(void)
-
-
-APIRET APIENTRY      DosMakeNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosQNmPipeInfo(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosConnectNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosDisconnectNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosQNmPHandState(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSetNmPHandState(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosPeekNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosWaitNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosTransactNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosCallNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosRawReadNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosRawWriteNmPipe(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosSetNmPipeSem(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosQNmPipeSemState(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY      DosQueryCollate(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch, PULONG pcch)
 
 
 APIRET APIENTRY      StartLazyWriter(void)
@@ -1263,10 +1108,7 @@ APIRET APIENTRY      StartLazyWriter(void)
 }
 
 
-APIRET APIENTRY      _QueInst_Data(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+ULONG QueInst_Data;
 
 
 APIRET APIENTRY  DosShutdown(ULONG ulReserved)
@@ -1293,17 +1135,9 @@ APIRET APIENTRY      DosAcknowledgeSignalException(ULONG ulSignalNum)
 }
 
 
-APIRET APIENTRY      DosTIB(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+ULONG DosTIB;
 
-
-APIRET APIENTRY      DosIODelayCnt(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
+ULONG DosIODelayCnt;
 
 APIRET APIENTRY      LogOpen(void)
 {
@@ -1346,26 +1180,34 @@ APIRET APIENTRY      LogQueryState(void)
   return unimplemented(__FUNCTION__);
 }
 
+typedef PBYTE PCNPATH;
 
-APIRET APIENTRY      DosOpenChangeNotify(void)
+APIRET APIENTRY      DosOpenChangeNotify(PCNPATH PathBuf,
+                                      ULONG LogSize,
+                                      PHDIR hdir,
+                                      ULONG ulReserved)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+typedef PBYTE PCNINFO;
+
+APIRET APIENTRY      DosResetChangeNotify(PCNINFO LogBuf,
+                                       ULONG BufferSize,
+                                       PULONG LogCount,
+                                       HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosResetChangeNotify(void)
+APIRET APIENTRY      DosCloseChangeNotify(HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosCloseChangeNotify(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosForceSystemDump(void)
+APIRET APIENTRY      DosForceSystemDump(ULONG Reserved)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1389,220 +1231,42 @@ APIRET APIENTRY DosVerifyPidTid(PID Pid, TID Tid)
 }
 
 
-APIRET APIENTRY      PTDA_LANMAN_SEC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_PID(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      SAS_SEL(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_OPCOOKIE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_OPFLAGS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_NEWFLAGS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_USER_ID(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_PROC_ID(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_FSHARING(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_SRVATTRIB(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_ALLOWED(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_PRTCB(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_NUMBER(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_THISSFT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TCB_THISCDS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      TKOPTDA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_CRITSEC(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_HOLDSIGCNT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_PPTDAPARENT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_PGDATA(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_HANDLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_MODULE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_LDTHANDLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_CODEPAGE_TAG(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_JFN_LENGTH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_JFN_PTABLE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_JFN_FLG_PTR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_EXTERR_LOCUS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_EXTERR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_EXTERR_ACTION(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_EXTERR_CLASS(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_PPID(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_PROCTYPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_CURRTCB(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_CURRTSD(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      PTDA_SIGNATURE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+ULONG PTDA_LANMAN_SEC;
+ULONG PTDA_PID;
+ULONG SAS_SEL;
+ULONG TCB_OPCOOKIE;
+ULONG TCB_OPFLAGS;
+ULONG TCB_NEWFLAGS;
+ULONG TCB_USER_ID;
+ULONG TCB_PROC_ID;
+ULONG TCB_FSHARING;
+ULONG TCB_SRVATTRIB;
+ULONG TCB_ALLOWED;
+ULONG TCB_PRTCB;
+ULONG TCB_NUMBER;
+ULONG TCB_THISSFT;
+ULONG TCB_THISCDS;
+ULONG TKOPTDA;
+ULONG PTDA_CRITSEC;
+ULONG PTDA_HOLDSIGCNT;
+ULONG PTDA_PPTDAPARENT;
+ULONG PTDA_PGDATA;
+ULONG PTDA_HANDLE;
+ULONG PTDA_MODULE;
+ULONG PTDA_LDTHANDLE;
+ULONG PTDA_CODEPAGE_TAG;
+ULONG PTDA_JFN_LENGTH;
+ULONG PTDA_JFN_PTABLE;
+ULONG PTDA_JFN_FLG_PTR;
+ULONG PTDA_EXTERR_LOCUS;
+ULONG PTDA_EXTERR;
+ULONG PTDA_EXTERR_ACTION;
+ULONG PTDA_EXTERR_CLASS;
+ULONG PTDA_PPID;
+ULONG PTDA_PROCTYPE;
+ULONG PTDA_CURRTCB;
+ULONG PTDA_CURRTSD;
+ULONG PTDA_SIGNATURE;
 
 
 APIRET APIENTRY      T32EXITLIST(void)
@@ -2073,7 +1737,8 @@ APIRET APIENTRY      T32QUERYHEADERINFO(void)
 }
 
 
-APIRET APIENTRY      DosQueryHeaderInfo(void)
+APIRET APIENTRY      DosQueryHeaderInfo(HMODULE hmod, ULONG ulIndex, PVOID pvBuffer,
+                                        ULONG cbBuffer, ULONG ulSubFunction)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2193,36 +1858,6 @@ APIRET APIENTRY      T32IMONWRITE(void)
 }
 
 
-APIRET APIENTRY      DosMonOpen(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosMonClose(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosMonRead(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosMonWrite(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      DosMonReg(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      T32KILLTHREAD(void)
 {
   return unimplemented(__FUNCTION__);
@@ -2329,7 +1964,7 @@ APIRET APIENTRY DosQueryExtLIBPATH(const PSZ pszExtLIBPATH, ULONG flags)
 }
 
 
-APIRET APIENTRY      DosSysCtl(void)
+APIRET APIENTRY      DosSysCtl(ULONG entry, PULONG data)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2349,7 +1984,7 @@ APIRET APIENTRY      DosSGQueryTopmost(void)
 }
 
 
-APIRET APIENTRY      DosPerfSysCall(void)
+APIRET APIENTRY      DosPerfSysCall(ULONG ulCommand, ULONG ulParm1, ULONG ulParm2, ULONG ulParm3)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2467,8 +2102,106 @@ APIRET APIENTRY         THK32FREESTACK(void)
   return unimplemented(__FUNCTION__);
 }
 
+typedef struct {
+   ULONG sl_vaddr; /* start of VA segment to profile */
+   ULONG sl_size;  /* length of VA segment */
+   ULONG sl_mode;  /* !=0 use PRF_VA* flags, */
+                   /* =0, simple count */
+} PRFSLOT;
 
-APIRET APIENTRY         Dos32Profile(void)
+      #define PRF_PROCESS_MT 0      /* profile proc+threads */
+      #define PRF_PROCESS_ST 1      /* profile proc only */
+      #define PRF_KERNEL     2      /* profile kernel */
+      #define PRF_VADETAIL   0      /* create detailed page counters */
+      #define PRF_VAHIT      4      /* create hit table */
+      #define PRF_VATOTAL    8      /* create total count for VA only */
+      #define PRF_FLGBITS    0x40   /*  has a flgbits structure (?) */
+      #define PRF_WRAP       0x80   /* don't use: if hit table full, wrap */
+                                    /* there is a bug in kernel, which */
+                                    /* prevents this from correct working! */
+      /* status bits, don't ever set these (won't work, not masked, bug!) */
+      #define PRFS_RUNNING   0x100  /* profiling is active */
+      #define PRFS_THRDS     0x200  /* also profiling threads */
+      #define PRFS_HITOVFL   0x800  /* overflow in hit buffer */
+      #define PRFS_HEADER    0x1000 /* internally used */
+
+
+typedef struct {
+   PRFSLOT *cm_slots;              /* Virtual address slots */
+   USHORT   cm_nslots;             /* # of VA slots < 256 (!) */
+   USHORT   cm_flags;              /* command */
+   ULONG    cm_bufsz;              /* reserve # of bytes for buffers */
+                                    /* e.g. for hit buffer or detailed */
+                                    /* counters */
+   USHORT   cm_timval;             /* timer resolution */
+                                    /* if 0, use default == 1000 */
+   /* valid if PRF_FLAGBITS set */
+   PUCHAR   cm_flgbits;            /* vector of flag bits (?) */
+   UCHAR    cm_nflgs;              /* # of flag bits >= 2 if present */
+} PRFCMD; /* 19 bytes */
+
+      #define PRF_RET_GLOBAL   0 /* return global data */
+                                 /* set us_thrdno for specific thread */
+                                 /* us_buf = struct PRFRET0 */
+      #define PRF_RET_VASLOTS  1 /* return VA slot data (PRFRET1) */
+      #define PRF_RET_VAHITS   2 /* return hit table (PRFRET2) */
+      #define PRF_RET_VADETAIL 3 /* return detailed counters (PRFRET3) */
+                                 /* specify us_vaddr */
+typedef struct {
+   UCHAR us_cmd;                /* command */
+   USHORT us_thrdno;            /* thread requested for cmd=0 */
+   ULONG us_vaddr;              /* VA for cmd=3*/
+   ULONG us_bufsz;              /* length of return buffer */
+   VOID *us_buf;                /* return buffer */
+} PRFRET; /* 15 bytes */
+
+typedef struct {
+   USHORT r0_flags;             /* profile flags */
+                                 /* see PRF_* defines */
+   USHORT r0_shift;             /* shift factor */
+                                 /* 2^N = length of a segment for */
+                                 /* detailed counters */
+   ULONG  r0_idle;              /* count if process is idle */
+   ULONG  r0_vm86;              /* count if process is in VM mode */
+   ULONG  r0_kernel;            /* count if process is in kernel */
+   ULONG  r0_shrmem;            /* count if process is in shr mem */
+   ULONG  r0_unknown;           /* count if process is elsewhere */
+   ULONG  r0_nhitbufs;          /* # of dwords in hitbufs */
+   ULONG  r0_hitbufcnt;         /* # of entries in hit table */
+   ULONG  r0_reserved1;         /* internally used */
+   ULONG  r0_reserved2;         /* internally used */
+   USHORT r0_timval;            /* timer resolution */
+   UCHAR  r0_errcnt;            /* error count */
+   USHORT r0_nstruc1;           /* # of add structures 1 (?) */
+   USHORT r0_nstruc2;           /* # of add structures 2 (?) */
+} PRFRET0;
+
+typedef struct {
+   ULONG va_vaddr;              /* virtual address of segment */
+   ULONG va_size;               /* length of segment */
+   ULONG va_flags;              /* == 8, va_cnt is valid */
+   ULONG va_reserved;           /* internally used */
+   ULONG va_cnt;                /* profile count */
+} PRFVA;
+
+typedef struct {
+   UCHAR r1_nslots;             /* # of slots (bug: prevents */
+                                 /* correct # if #slots >255) */
+   PRFVA r1_slots[1];           /* slots */
+} PRFRET1;
+
+typedef struct {
+   ULONG r2_nhits;              /* # of entries in table */
+   ULONG r2_hits[1];            /* hit table */
+} PRFRET2;
+
+typedef struct {
+   ULONG r3_size;               /* size of segment */
+   ULONG r3_ncnts;              /* # of entries in table */
+   ULONG r3_cnts[1];            /* counters */
+} PRFRET3;
+
+APIRET APIENTRY         DosProfile(ULONG func, PID pid, PRFCMD *profcmd, PRFRET *profret)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2477,25 +2210,22 @@ APIRET APIENTRY         Dos32Profile(void)
 //APIRET APIENTRY         Dos32TrueGetMessage(void)
 
 
-APIRET APIENTRY         Dos32IQueryMessageCP(void)
+//APIRET APIENTRY         Dos32IQueryMessageCP(void)
+
+
+APIRET APIENTRY         Dos32GetProcessorStatus(ULONG procid, PULONG status)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32GetProcessorStatus(void)
+APIRET APIENTRY         Dos32SetProcessorStatus(ULONG procid, ULONG status)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32SetProcessorStatus(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         Dos32TestPSD(void)
+APIRET APIENTRY         Dos32TestPSD(PCSZ arg)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2519,16 +2249,7 @@ APIRET APIENTRY         Dos32IWrite(void)
 }
 
 
-APIRET APIENTRY         Dos32QueryResourceSize(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         Dos32QueryProcType(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+//APIRET APIENTRY         DosQueryProcType(HMODULE hmod, ULONG ordinal, PSZ pszName, PULONG pulProcType)
 
 
 APIRET APIENTRY         Dos32IProtectWrite(void)
@@ -2609,97 +2330,100 @@ APIRET APIENTRY         T32SETTHREADAFFINITY(void)
 }
 
 
-APIRET APIENTRY         Dos32ReadQueue(void)
+APIRET APIENTRY         DosReadQueue(HQUEUE hq, PREQUESTDATA pRequest, PULONG pcbData,
+         PPVOID ppbuf, ULONG element, BOOL32 wait, PBYTE ppriority, HEV hsem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32PurgeQueue(void)
+APIRET APIENTRY         DosPurgeQueue(HQUEUE hq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32CloseQueue(void)
+APIRET APIENTRY         DosCloseQueue(HQUEUE hq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32QueryQueue(void)
+APIRET APIENTRY         DosQueryQueue(HQUEUE hq, PULONG pcbEntries)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32PeekQueue(void)
+APIRET APIENTRY         DosPeekQueue(HQUEUE hq, PREQUESTDATA pRequest, PULONG pcbData,
+         PPVOID ppbuf, PULONG element, BOOL32 nowait, PBYTE ppriority, HEV hse)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32WriteQueue(void)
+APIRET APIENTRY         DosWriteQueue(HQUEUE hq, ULONG request, ULONG cbData,
+         PVOID pbData, ULONG priority)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32OpenQueue(void)
+APIRET APIENTRY         DosOpenQueue(PPID ppid, PHQUEUE phq, PCSZ pszName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32CreateQueue(void)
+APIRET APIENTRY         DosCreateQueue(PHQUEUE phq, ULONG priority, PCSZ pszName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32StartSession(void)
+APIRET APIENTRY         DosStartSession(PSTARTDATA psd, PULONG pidSession, PPID ppid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32SelectSession(void)
+APIRET APIENTRY         DosSelectSession(ULONG idSession)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32SetSession(void)
+APIRET APIENTRY         DosSetSession(ULONG idSession, PSTATUSDATA psd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32StopSession(void)
+APIRET APIENTRY         DosStopSession(ULONG scope, ULONG idSession)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         DosRegisterNotification(void)
+APIRET APIENTRY         DosRegisterNotification(PVOID data)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         AnsiInject(void)
+APIRET APIENTRY         AnsiInject(void) // ???
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         AnsiKeydef(void)
+APIRET APIENTRY         AnsiKeydef(void) // ???
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         AnsiInterp(void)
+APIRET APIENTRY         AnsiInterp(void) // ???
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2742,24 +2466,6 @@ APIRET APIENTRY         THK32DEALLOC(void)
 
 
 APIRET APIENTRY         THK32XHNDLR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         Dos32SetExtLIBPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         Dos32QueryExtLIBPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY         Dos32QueryThreadContext(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -3141,25 +2847,25 @@ APIRET APIENTRY         THK32_UNITHUNK(void)
 }
 
 
-APIRET APIENTRY         Dos32CreateSpinLock(void)
+APIRET APIENTRY         DosCreateSpinLock(PHSPINLOCK pHandle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32AcquireSpinLock(void)
+VOID APIENTRY         DosAcquireSpinLock(HSPINLOCK Handle)
 {
-  return unimplemented(__FUNCTION__);
+  unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32ReleaseSpinLock(void)
+VOID APIENTRY         DosReleaseSpinLock(HSPINLOCK Handle)
 {
-  return unimplemented(__FUNCTION__);
+  unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32FreeSpinLock(void)
+APIRET APIENTRY         DosFreeSpinLock(HSPINLOCK Handle)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -3176,14 +2882,13 @@ APIRET APIENTRY         Dos32PMR3PostEventSem(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-APIRET APIENTRY         Dos32QueryThreadAffinity(void)
+APIRET APIENTRY         DosQueryThreadAffinity(ULONG scope, PMPAFFINITY pAffinityMask)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY         Dos32SetThreadAffinity(void)
+APIRET APIENTRY         DosSetThreadAffinity(PMPAFFINITY pAffinityMask)
 {
   return unimplemented(__FUNCTION__);
 }

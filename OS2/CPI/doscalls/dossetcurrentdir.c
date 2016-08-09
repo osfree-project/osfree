@@ -1,10 +1,9 @@
-#include <os2.h>
+#include "kal.h"
 
-#include "dl.h"
-
-//APIRET __cdecl KalSetCurrentDir(PCSZ  pszDir);
 
 APIRET APIENTRY  DosSetCurrentDir(PCSZ  pszDir)
 {
-  return KalSetCurrentDir(pszDir);
+  log("%s\n", __FUNCTION__);
+  log("pszDir=%s\n", pszDir);
+  return KalSetCurrentDir((PSZ)pszDir);
 }

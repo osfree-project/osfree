@@ -17,11 +17,9 @@
 
  */
 
-#define INCL_DOSERRORS
-#define INCL_DOSFILEMGR
-#include <os2.h>
-
 #include <string.h>
+
+#include "kal.h"
 
 #if 0
 
@@ -115,6 +113,12 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
 {
   char *s;
 
+  log("%s\n", __FUNCTION__);
+  log("metalevel=%lx\n", metalevel);
+  log("pszSource=%s\n", pszSource);
+  log("pszEdit=%s\n", pszEdit);
+  log("cbTarget=%lx\n", cbTarget);
+
   // only metalevel == 1 is supported
   if (metalevel != 1)
     return ERROR_INVALID_PARAMETER;
@@ -186,6 +190,7 @@ ende:
   if (!strchr(pszTarget, '*'))
     return ERROR_INVALID_NAME;
 
+  log("pszTarget=%s\n", pszTarget);
   return NO_ERROR;
 }
 

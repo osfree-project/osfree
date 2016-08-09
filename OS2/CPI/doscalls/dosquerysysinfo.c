@@ -1,7 +1,4 @@
-#define INCL_DOSERRORS
-#define INCL_DOSPROCESS
-#define INCL_DOSMISC
-#include <os2.h>
+#include "kal.h"
 
 APIRET APIENTRY
 DosQuerySysInfo(ULONG iStart, ULONG iLast,
@@ -9,6 +6,11 @@ DosQuerySysInfo(ULONG iStart, ULONG iLast,
 {
   ULONG *pul;
   ULONG i;
+
+  log("%s\n", __FUNCTION__);
+  log("iStart=%lu\n", iStart);
+  log("iLast=%lu\n", iLast);
+  log("cbBuf=%lu\n", cbBuf);
 
   return 0;
 

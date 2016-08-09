@@ -4,6 +4,7 @@
 #include <os2me.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include "mmioflac.h"
 

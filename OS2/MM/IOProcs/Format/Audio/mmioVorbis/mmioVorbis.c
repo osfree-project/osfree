@@ -604,7 +604,7 @@ fprintf(file,"encodeInit failed: %d\n",rc);
 				int j, k;
                 int num;
 				float denom = 1;
-                signed char *readbuffer = (char *)lParam1;
+                signed char *readbuffer = (signed char *)lParam1;
                 /* data to encode */
                 /* expose the buffer to submit data */
 				int sampleSize = encInfo->vi.channels*encInfo->bitsPerSample/8;
@@ -680,4 +680,3 @@ LONG APIENTRY IOProc_Entry(PVOID pmmioStr, USHORT usMsg, LONG lParam1,
 //    cw = _control87(cw,MCW_EM);
     return rc;
 }
-

@@ -110,7 +110,11 @@ var
 
 {Return a string containing Num characters Ch}
 {&SAVES eax,ebx,edx,esi}
+{$ifndef FPC}
  Function  Strg(Ch : Char; Num : Integer) : String;
+{$else}
+ Function  Strg(Ch : Char; Num : Longint) : String;
+{$endif}
 
 {Return position of first occurence of character Ch in string S}
 {&SAVES ebx,esi}
@@ -150,7 +154,11 @@ var
 
 {Return keyword number `No` from structure Keyword (same as above)}
 {&SAVES edx}
+{$ifndef FPC}
  Function  GetKeyword(var Keyword; No : Word) : String;
+{$else}
+ Function  GetKeyword(var Keyword; No : LongInt) : String;
+{$endif}
 
 {Return upper case of character C}
 {&SAVES eax,ecx,edx,esi,edi}
@@ -164,7 +172,11 @@ var
 {&SAVES all}
  Function  HexChar(A : Byte) : Char;
 
-Implementation uses miscUtil {$IfDef OS2}, os2base {$EndIf};
+Implementation
+uses miscUtil,
+{$IfDef OS2}
+{$IfnDef FPC} os2base {$Else} doscalls {$EndIf};
+{$EndIf}
 
 {&SAVES ebx,esi,edi}
 
@@ -313,7 +325,11 @@ begin
  right := Copy(S, succ(length(S) - N), N);
 end;
 
-Function Center(const S : string; N : Integer; Fill : Char) : string;
+{$ifndef FPC}
+Function Center(const S : string; N : integer; Fill : Char) : shortstring;
+{$else}
+Function Center(const S : shortstring; N : smallint; Fill : Char) : shortstring;
+{$endif}
 var
  tS    : string;
  l,f,c : Integer;
@@ -347,7 +363,7 @@ end;
 {   '#' sets the parameter index to nnn.                                }
 {$V+}
 procedure FormatStr(var Result: String; const Format: String; var Params);
-  assembler; {&USES ebx,esi,edi} {&FRAME+}
+  assembler; {$IFNDEF FPC}{&USES ebx,esi,edi}{&FRAME+}{$ENDIF}
 var ParOfs    : Longint;
     Buffer    : array [1..12] of Byte;
 const
@@ -358,7 +374,7 @@ const
 { RETURNS:      esi   = Pointer to string       }
 {               ecx   = String length           }
 
-procedure Convert; assembler; {$USES None} {$FRAME-}
+procedure Convert; assembler;{$IFNDEF FPC}{$USES None}{$FRAME-}{$ENDIF}
 asm
                 mov     edx,eax
                 mov     esi,Params
@@ -1298,7 +1314,11 @@ begin
  StrFloat := S;
 end;
 
+{$ifndef FPC}
 function RomanNumber(A : Word) : string; {0 < A < 2000}
+{$else}
+function RomanNumber(A : SmallWord) : shortstring; {0 < A < 2000}
+{$endif}
 var S : String[10];
 begin
  if A >= 1000 then S := 'M' else S := '';

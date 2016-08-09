@@ -9,9 +9,7 @@
 
 */
 
-#define INCL_DOSMISC
-#define INCL_DOSERRORS
-#include <os2.h>
+#include "kal.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,6 +42,7 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
 {
   ULONG ulActual;
 
+  log("%s\n", __FUNCTION__);
   log("hfile=0x%x\n", hfile);
   log("cbMsg=%lu\n", cbMsg);
   log("pBuf=%s\n", pBuf);
@@ -79,10 +78,12 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
 {
   int i;
 
+  log("%s\n", __FUNCTION__);
+
   // output args to log
   log("pszMsg=");
 
-  for (i = 0; i < cbMsg; i++)
+  //for (i = 0; i < cbMsg; i++)
     log("%c", pszMsg[i]);
 
   log("\n");
@@ -91,8 +92,10 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
   log("cTable=%u\n", cTable);
 
   if (pTable)
+  {
     for (i = 0; i < cTable; i++)
       log("pTable[%u]=%s\n", i, pTable[i]);
+  }
   else
     log("pTable=0\n");
 
@@ -125,7 +128,7 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
     maxlen = srclen;
     dstlen = 0;
 
-    printf("srclen=%u\n", srclen);
+    log("srclen=%u\n", srclen);
 
     // add params lenths (without zeroes)
     for (i = 0; i < cTable; i++)
@@ -209,7 +212,8 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
   HFILE    hf;
   ULONG    ulAction;
   LONGLONG ll;
-  char     fn[CCHMAXPATH];
+  char     fn[CCHMAXPATH] = "";
+  ULONG    len;
   ULONG    fisize;
   ULONG    ulActual;
   APIRET   rc;
@@ -242,10 +246,6 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
 
   if (rc) // file not found
   {
-    // if filename is fully qualified, return an error
-    if (pszFile[1] ==':' && pszFile[2] == '\\')
-      return rc;
-
     // otherwise, try searching in the currentdir and on path
     rc = DosSearchPath(SEARCH_IGNORENETERRS |
                        SEARCH_ENVIRONMENT   |
@@ -253,7 +253,7 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
                        "DPATH",
                        pszFile,
                        fn,
-                       CCHMAXPATH);
+                       CCHMAXPATH); // returns .\OSO001.MSG, which is incorrect
 
     if (rc)
       return rc;
@@ -274,6 +274,9 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
   if (rc)
     return rc;
 
+  if (! fn[0])
+    strcpy(fn, pszFile);
+
   // file is found, so get file size
   rc = DosQueryPathInfo(fn,
                         FIL_STANDARD,
@@ -288,6 +291,8 @@ APIRET APIENTRY      PvtLoadMsgFile(PSZ pszFile, PVOID *buf, PULONG pcbFile)
     log("DosQueryPathInfo returned zero .msg file size!\n");
     return ERROR_INVALID_PARAMETER;
   }
+  else
+    log("fileinfo.cbFile=%x\n", fileinfo.cbFile);
 
   // allocate a buffer for the file
   rc = DosAllocMem(buf, fileinfo.cbFile,
@@ -364,6 +369,8 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   char     *msg, *p = pb;
   msghdr_t *hdr;
   ctry_block_t *ctry;
+
+  log("%s\n", __FUNCTION__);
 
   log("pb=0x%lx\n", pb);
   log("cb=%lu\n", cb);
@@ -486,11 +493,13 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   void   *buf;
   char   *msg;
   char   id[4];
+  char   str[CCHMAXPATH];
   msghdr_t *hdr = (msghdr_t *)msgSeg;
   int    msgoff, msgend, msglen, i;
 
   ULONG  len;
 
+  log("%s\n", __FUNCTION__);
   log("msgSeg=0x%lx\n", msgSeg);
 
   // output args to log
@@ -536,6 +545,9 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   hdr = (msghdr_t *)msg; // message header
   msgnumber -= hdr->firstmsgno;
 
+  if (msgnumber > hdr->msgs_no)
+    return ERROR_MR_MID_NOT_FOUND; // ???
+
   // get message offset
   if (hdr->is_offs_16bits) // if offset is 16 bits
     msgoff = (int)(*(unsigned short *)(msg + hdr->idx_ofs + 2 * msgnumber));
@@ -543,7 +555,12 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     msgoff = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * msgnumber));
 
   if (msgnumber + 1 == hdr->msgs_no) // last message
-    msgend = hdr->next_ctry_info;
+  {
+    if (hdr->next_ctry_info)
+      msgend = hdr->next_ctry_info;
+    else
+      msgend = cbFile; // EOF
+  }
   else
   {
     // get next message offset
@@ -553,8 +570,8 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
       msgend = (int)(*(unsigned long *)(msg + hdr->idx_ofs + 4 * (msgnumber + 1)));
   }
 
-  printf("msgoff=0x%lx\n", msgoff);
-  printf("msgend=0x%lx\n", msgend);
+  log("msgoff=0x%lx\n", msgoff);
+  log("msgend=0x%lx\n", msgend);
 
   if (msgoff > cbFile || msgend > cbFile)
     return ERROR_MR_MSG_TOO_LONG;
@@ -573,13 +590,16 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   // message file ID
   strncpy(id, hdr->id, 3);
+  id[3] = '\0';
 
   switch (*msg)
   {
     case 'E': // Error
     case 'W': // Warning
+    case 'I': // Info
       // prepend the Warning/Error ID (like SYS3175: )
-      printf("%s%04u: ", id, msgnumber + 1);
+      sprintf(str, "%s%04u: ", id, msgnumber);
+      DosPutMessage(1, strlen(str), str);
       break;
     default:
       break;
@@ -594,12 +614,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                         pBuf, cbBuf,
                         pcbMsg);
 
-  // display the actual message
-  printf("%s\n", pBuf);
-  log("*pcbMsg=%lu\n", *pcbMsg);
-
   // finally, free file buffer
   DosFreeMem(buf);
-
   return rc;
 }

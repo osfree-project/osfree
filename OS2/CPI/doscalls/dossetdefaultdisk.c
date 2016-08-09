@@ -1,10 +1,9 @@
-#include <os2.h>
+#include "kal.h"
 
-#include "dl.h"
-
-//APIRET __cdecl KalSetDefaultDisk(ULONG disknum);
 
 APIRET APIENTRY DosSetDefaultDisk(ULONG disknum)
 {
+  log("%s\n", __FUNCTION__);
+  log("disknum=%lu\n", disknum);
   return KalSetDefaultDisk(disknum);
 }

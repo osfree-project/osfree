@@ -1,33 +1,37 @@
-#define INCL_BASE
-#define INCL_ERRORS
-#include <os2.h>
+#include "kal.h"
 
-#include "dl.h"
-
-//APIRET __cdecl   KalSetFilePtrL(HFILE hFile,
-//                                LONGLONG ib,
-//                                ULONG method,
-//                                PULONGLONG ibActual);
 
 APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 LONGLONG ib,
                                 ULONG method,
-                                PLONGLONG ibActual)
+                                PLONGLONG pibActual)
 {
-  return KalSetFilePtrL(hFile, ib, method, ibActual);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("ib=%lld\n", ib);
+  log("method=%lx\n", method);
+  rc = KalSetFilePtrL(hFile, ib, method, (ULONGLONG *)pibActual);
+  log("ibActual=%lld\n", *pibActual);
+  return rc;
 }
 
 
 APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
                                LONG ib,
                                ULONG method,
-                               PULONG ibActual)
+                               PULONG pibActual)
 {
   LONGLONG ibL;
   ULONGLONG ibActualL;
   APIRET rc;
 
-  if (ibActual==NULL)
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("ib=%ld\n", ib);
+  log("method=%lx\n", method);
+
+  if (pibActual==NULL)
   {
     return ERROR_INVALID_PARAMETER;
   }
@@ -40,10 +44,11 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
                     method,
                     (PLONGLONG)&ibActualL);
 
-  *ibActual=ibActualL.ulLo;
+  *pibActual=ibActualL.ulLo;
 
   //if (ibActualL.ulHi)
   //  rc = ERROR_SEEK_ON_DEVICE;
 
+  log("ibActual=%lld\n", *pibActual);
   return rc;
 }

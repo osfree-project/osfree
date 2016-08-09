@@ -1,18 +1,53 @@
-{$A-,B-,D+,E-,F-,G-,I-,L+,N-,O-,P+,Q-,R-,S-,T-,V-,X+,Y+}
+{$A-,B-,D+,I-,O-,P+,Q-,R-,S-,T-,V-,X+}
 {&AlignCode-,AlignData-,AlignRec-,Asm-,Cdecl-,Delphi+,W-,Frame-,G3+}
 {&LocInfo+,Optimise+,OrgName-,SmartLink+,Speed-,Z-,ZD-,Use32+}
+{$ifndef fpc}{$F-,G-,L+,N-,Y+,E-}{$endif}
+
 Unit SysLib;
 
 Interface uses Dos, miscUtil, Collect
-{$ifDef OS2}, os2def {$endIf};
+{$IfDef OS2}, os2def{$IfnDef FPC},os2base{$Else}, doscalls{$EndIf}{$EndIf};
 
 {$IfDef OS2}
+{$IfnDef FPC}
 function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; cdecl; orgname;
+{$EndIf}
 {$EndIf OS2}
 
 const
  fMaskDelim1 = ':'; {fileMask delimiter char}
  fMaskDelim2 = '/'; {fileMask delimiter char}
+
+{$IfDef FPC}
+const
+ ENUMEA_LEVEL_NO_VALUE  = 1;
+ ENUMEA_REFTYPE_PATH    = 1;
+
+ FILE_READONLY  = $0001;
+ FILE_HIDDEN    = $0002;
+ FILE_SYSTEM    = $0004;
+
+ DCPY_EXISTING  = 1;
+
+ NULLHANDLE     = 0;
+
+type
+ HFILE  = longint;
+
+type
+ TID    = longint;
+ APIRET = longint;
+
+  Fea2 = record
+    oNextEntryOffset : ULong;     // Offset to next entry
+    fEA              : Byte;      // Extended attributes flag
+    cbName           : Byte;      // Length of szName, not including NULL
+    cbValue          : SmallWord; // Value length
+    szName           : Char;      // Extended attribute name
+  end;
+
+  PFea2 = ^Fea2;
+{EndIf}
 
 type
 {$ifDef OS2}
@@ -100,9 +135,8 @@ type
 {$endIf}
 
 Implementation uses strOp, Streams, strings
-{$ifDef OS2}, os2base {$endIf};
+{$ifDef OS2}{$ifnDef FPC}, os2base{else}, doscalls{$endIf}{$endIf};
 
-{$ifDef OS2}
 function DosReplaceModule(OldModName,NewModName,BackModName: PChar): ApiRet; external 'DOSCALLS' index 417;
 
 constructor tFileMatch.Create;
@@ -176,13 +210,22 @@ var
  eaN        : pStringCollection;
  pS         : pString;
  pEA,nEA    : pFea2;
+{$ifndef FPC}
  eaBuf      : EAop2;
  fStat      : FileStatus4;
-
+{$else}
+ eaBuf      : PEAop2;
+ fStat      : PFileStatus4;
+{$endif}
 procedure resFree;
 begin
+{$ifndef FPC}
  if eaBuf.fpFEA2List <> nil
   then FreeMem(eaBuf.fpFEA2List, fStat.cbList);
+{$else}
+ if eaBuf^.fpFEA2List <> nil
+  then FreeMem(eaBuf^.fpFEA2List);
+{$endif}
  if eaN <> nil
   then Dispose(eaN, Destroy);
  if Buff <> nil then FreeMem(Buff, eaNameBfSz + secureSize);
@@ -214,8 +257,13 @@ begin
  if DosQueryPathInfo(@fN, Fil_QueryEAsize, fStat, sizeOf(fStat)) <> 0
   then begin resFree; Fail; end;
  I := 0;
- GetMem(eaBuf.fpFEA2List, fStat.cbList);
+{$ifndef FPC}
+ GetMem(eaBuf.fpFEA2List, fStat^.cbList);
  eaBuf.fpGEA2List := @Buff^;
+{$else}
+ GetMem(eaBuf^.fpFEA2List, PFileStatus4(fStat)^.cbList);
+ eaBuf^.fpGEA2List := @Buff^;
+{$endif}
  While I < eaN^.Count do
   begin
    sV := 4; oV := 4;
@@ -230,11 +278,20 @@ begin
     Inc(I);
    until I >= eaN^.Count;
    pLong(@Buff^[0])^ := sV;
+{$ifndef FPC}
    eaBuf.fpFEA2List^.cbList := fStat.cbList;
-   if DosQueryPathInfo(@fN, Fil_QueryEAsFromList, eaBuf, sizeOf(eaBuf)) = 0
+{$else}
+   eaBuf^.fpFEA2List^.ListLen := PFileStatus4(fStat)^.cbList;
+{$endif}
+   if DosQueryPathInfo(@fN, Fil_QueryEAsFromList, PFileStatus(eaBuf), sizeOf(eaBuf)) = 0
     then begin
+{$ifndef FPC}
           pEA := @eaBuf.fpFEA2List^.list;
           While longint(pEA) - longint(@eaBuf.fpFEA2List^.list) <= eaBuf.fpFEA2List^.cbList do
+{$else}
+          pEA := @eaBuf^.fpFEA2List^.list;
+          While cardinal(pEA) - cardinal(@eaBuf^.fpFEA2List^.list) <= eaBuf^.fpFEA2List^.ListLen do
+{$endif}
            begin
             GetMem(nEA, sizeOf(Fea2) + pEA^.cbName + pEA^.cbValue);
             Move(pEA^, nEA^, sizeOf(Fea2) + pEA^.cbName + pEA^.cbValue);
@@ -256,22 +313,31 @@ var
  fN         : array[0..255] of Char;
  oldAttr,
  I,fT,maxEA : Longint;
- eaBuf      : EAop2;
  Buff,OneEA : pByteArray;
+{$ifndef FPC}
+ eaBuf      : EAop2;
  fInfo      : FileStatus3;
+{$else}
+ eaBuf      : TEAop2;
+ fInfo      : TFileStatus3;
+{$endif}
 begin
  if (Count = 0) then begin Attach := TRUE; exit; end;
  Attach := FALSE;
  GetMem(Buff, eaNameBfSz);
  maxEA := 0;
  if (Buff = nil) then goto locEx;
+{$ifndef FPC}
  if DosQueryPathInfo(StrPCopy(@fN, fName), fil_Standard, fInfo, SizeOf(fInfo)) <> 0
+{$else}
+ if DosQueryPathInfo(StrPCopy(@fN, fName), fil_Standard, @fInfo, SizeOf(fInfo)) <> 0
+{$endif}
   then goto locEx;
 
 {temporary remove hidden/readonly attributes}
  oldAttr := fInfo.attrFile;
  fInfo.attrFile := fInfo.attrFile and not (file_ReadOnly + file_System + file_Hidden);
- DosSetPathInfo(@fN, fil_Standard, fInfo, SizeOf(fInfo), 0);
+ DosSetPathInfo(@fN, fil_Standard, @fInfo, SizeOf(fInfo), 0);
  fInfo.attrFile := oldAttr;
 
  For I := 0 to pred(Count) do
@@ -293,9 +359,9 @@ begin
     Move(szName, Buff^[9], cbName);
     Buff^[9 + cbName] := 0;
     Move(oNextEntryOffset, oneEA^[4], sizeOf(Fea2) + cbName + cbValue);
-    DosSetPathInfo(@fN, fil_QueryEAsize, eaBuf, sizeOf(eaBuf), 0);
+    DosSetPathInfo(@fN, fil_QueryEAsize, @eaBuf, sizeOf(eaBuf), 0);
    end;
- Attach := DosSetPathInfo(@fN, fil_Standard, fInfo, SizeOf(fInfo), 0) = 0;
+ Attach := DosSetPathInfo(@fN, fil_Standard, @fInfo, SizeOf(fInfo), 0) = 0;
 locEx:
  FreeMem(oneEA, maxEA);
  if Buff <> nil then FreeMem(Buff, eaNameBfSz);
@@ -683,7 +749,11 @@ var
  I  : Integer;
  S  : string;
 begin
+{$ifndef FPC}
  if DosGetResource(nullHandle, rt_String, ID div 16 + 1, Pointer(pS)) <> 0
+{$else}
+ if DosGetResource(nullHandle, rtString, ID div 16 + 1, Pointer(pS)) <> 0
+{$endif}
   then begin
         GetResourceString := '';
         exit;

@@ -1,6 +1,4 @@
-#define INCL_BASE
-#define INCL_ERRORS
-#include <os2.h>
+#include "kal.h"
 
 APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
                                       LONG ib,
@@ -11,6 +9,11 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
   LONGLONG ibL;
   LONGLONG ibActualL;
   APIRET rc;
+
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("method=%lx\n", method);
+  log("fhLockID=%lx\n", fhFileHandleLockID);
 
   if (ibActual==NULL)
   {
@@ -31,5 +34,6 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
 
   *ibActual=ibActualL.ulLo;
 
+  log("ibActual=%lx\n", *ibActual);
   return rc;
 }

@@ -401,11 +401,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
  @$(SAY)    PASC $[... $(LOG)
  $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG)
 
-.lnk.exe: .symbolic
+.lnk.exe: .autodepend
  @$(SAY)    LINK $[... $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
-.lnk.dll: .symbolic
+.lnk.dll: .autodepend
  @$(SAY)    LINK $[... $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 

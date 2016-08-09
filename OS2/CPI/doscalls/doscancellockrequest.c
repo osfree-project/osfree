@@ -1,11 +1,13 @@
-#define INCL_BASE
-#define INCL_ERRORS
-#include <os2.h>
+#include "kal.h"
 
 APIRET APIENTRY DosCancelLockRequest(HFILE hFile,
                                      PFILELOCK pflLock)
 {
   FILELOCKL flLockL;
+  APIRET rc;
+
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
 
   if (pflLock==NULL)
   {
@@ -17,6 +19,8 @@ APIRET APIENTRY DosCancelLockRequest(HFILE hFile,
   flLockL.lRange.ulLo=pflLock->lRange;
   flLockL.lRange.ulHi=0;
 
-  return DosCancelLockRequestL(hFile,
-                               &flLockL);
+  rc = DosCancelLockRequestL(hFile,
+                             &flLockL);
+  log("flLock=%lx\n", *pflLock);
+  return rc;
 };

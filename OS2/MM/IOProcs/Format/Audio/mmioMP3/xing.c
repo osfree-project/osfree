@@ -22,11 +22,9 @@
 # ifdef HAVE_CONFIG_H
 #  include "config.h"
 # endif
-
 # include "global.h"
-
 # include <mad.h>
-
+# include <string.h>
 # include "xing.h"
 
 # define XING_MAGIC	(('X' << 24) | ('i' << 16) | ('n' << 8) | 'g')

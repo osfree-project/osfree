@@ -1,8 +1,9 @@
-#include <os2.h>
-
-#include "dl.h"
+#include "kal.h"
 
 VOID APIENTRY DosExit(const ULONG action, const ULONG result)
 {
+  log("%s\n", __FUNCTION__);
+  log("action=%lx\n", action);
+  log("result=%lx\n", result);
   KalExit(action, result);
 }

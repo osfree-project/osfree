@@ -1,16 +1,17 @@
-#include <os2.h>
+#include "kal.h"
 
-#include "dl.h"
-
-//APIRET __cdecl KalQueryCurrentDir(ULONG disknum,
-//                                    PBYTE pBuf,
-//                                    PULONG pcbBuf);
 
 APIRET APIENTRY  DosQueryCurrentDir(ULONG disknum,
                                     PBYTE pBuf,
                                     PULONG pcbBuf)
 {
-  return KalQueryCurrentDir(disknum,
-                            pBuf,
-                            pcbBuf);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("disknum=%lu\n", disknum);
+  rc = KalQueryCurrentDir(disknum,
+                          pBuf,
+                          pcbBuf);
+  log("pBuf=%s\n", pBuf);
+  log("cbBuf=%s\n", *pcbBuf);
+  return rc;
 }

@@ -6,6 +6,7 @@
 (*        Copyright (c) FRIENDS software, 1996   No Rights Reserved         *)
 (****************************************************************************)
 {&AlignCode-,AlignData-,AlignRec-,G3+,R-,Speed-,Frame-,Use32+}
+{$ifndef fpc}{$Use32+}{$else}{$define use32}{$asmmode intel}{$endif}
 Unit os2exe;
 
 Interface uses exe286, exe386, miscUtil, SysLib, Collect, Streams;
@@ -107,7 +108,11 @@ type
   Stub        : pByteArray;
   StubSize    : Longint;
   TimeStamp   : Longint;
+{$ifndef FPC}
   FileAttr    : Longint;
+{$else}
+  FileAttr    : Smallword;
+{$endif}
   Header      : tLXheader;
   ObjTable    : pArrOfOT;
   ObjMap      : pArrOfOM;
@@ -154,9 +159,9 @@ type
   destructor  Destroy;virtual;
  end;
 
-Implementation uses Dos, os2base;
+Implementation uses Dos, {$ifndef FPC}os2base{$else}doscalls{$endif};
 
-procedure tFixupCollection.FreeItem;
+procedure tFixupCollection.FreeItem(Item: Pointer);
 begin
  with pLXreloc(Item)^ do
   if (sType and nrChain <> 0) and (targetCount > 0)
@@ -164,7 +169,7 @@ begin
  Dispose(pLXreloc(Item));
 end;
 
-function tFixupCollection.GetItem;
+function tFixupCollection.GetItem(var S : tStream) : Pointer;
 var
  Fx : pLXreloc;
 begin
@@ -179,7 +184,7 @@ begin
  GetItem := Fx;
 end;
 
-procedure tFixupCollection.PutItem;
+procedure tFixupCollection.PutItem(var S : tStream; Item : Pointer);
 begin
  with pLXreloc(Item)^ do
   begin
@@ -189,18 +194,18 @@ begin
   end;
 end;
 
-procedure tEntryCollection.FreeItem;
+procedure tEntryCollection.FreeItem(Item: Pointer);
 begin
  Dispose(pEntryPoint(Item));
 end;
 
-procedure tNamedEntryCollection.FreeItem;
+procedure tNamedEntryCollection.FreeItem(Item: Pointer);
 begin
  DisposeStr(pNameTblRec(Item)^.Name);
  Dispose(pNameTblRec(Item));
 end;
 
-function tNamedEntryCollection.Compare;
+function tNamedEntryCollection.Compare(Key1, Key2 : Pointer) : Integer;
 begin
  if pNameTblRec(Key1)^.Ord > pNameTblRec(Key2)^.Ord
   then Compare := +1
@@ -362,6 +367,7 @@ var
 { Trick: In FRAME- state BP register is not altered so we can }
 { address external data via [bp+XX]; however we must address }
 { it via var[bp][-4] because compiler thinks that BP is modified }
+{$ifndef FPC}
 function Search : boolean; assembler;
 asm             cld
                 mov     esi,srcData
@@ -422,6 +428,70 @@ asm             cld
                 mov     al,0
 @@locEx:
 end;
+
+{$else}
+
+function Search : boolean; assembler;
+asm             cld
+                mov     esi,[ebp+20]
+                mov     edi,esi
+                add     edi,ebp[-4-8] {!!! and so on !!!} {tOf}
+                add     esi,ebp[-4-0] {sOf}
+                xor     eax,eax
+                mov     ecx,[ebp]{packLevel}
+                cmp     cl,255
+                je      @@setStart
+                mov     ebx,edi
+                sub     ebx,esi
+                cmp     ebx,ecx
+                jbe     @@setStart
+                mov     eax,ebx
+                sub     eax,ecx
+@@setStart:     mov     ebp[-4-12],eax {MatchOff}
+                add     esi,eax
+@@nextPatt:     push    esi
+                push    edi
+                mov     eax,[ebp+12] {srcDataSize}
+                sub     eax,ebp[-4-8] {tOf}
+                mov     ebx,edi
+                sub     ebx,esi
+                cmp     ebx,eax
+                ja      @@noMatch
+                xor     edx,edx
+                div     ebx
+                mov     edx,eax                 {EDX = EAX = max matches}
+@@nextMatch:    mov     ecx,ebx                 {EBX = ECX = pattern length}
+                repe    cmpsb
+                jne     @@notEQ
+                dec     eax
+                jnz     @@nextMatch
+@@notEQ:        cmp     eax,edx
+                je      @@noMatch
+                sub     eax,edx
+                neg     eax
+                inc     eax                     {EAX = number of actual matches}
+                mov     edx,ebx
+                db      $0F,$AF,$D8             {imul    ebx,eax}
+                sub     ebx,2+2
+                jc      @@noMatch
+                cmp     ebx,edx
+                jbe     @@noMatch
+                mov     ebp[-4-16],eax {MatchCnt}
+                mov     ebp[-4-20],edx {MatchLen}
+                pop     esi
+                pop     edi
+                mov     al,1
+                jmp     @@locEx
+@@noMatch:      pop     edi
+                pop     esi
+                inc     esi
+                inc     ebp[-4-12] {MatchOff}
+                cmp     esi,edi
+                jb      @@nextPatt
+                mov     al,0
+@@locEx:
+end;
+{$endif}
 {&uses none}
 
 function dstAvail(N : Longint) : boolean;
@@ -486,6 +556,8 @@ var
  dst         : tByteArray absolute dstData;
 
 {&uses esi,edi,ebx}
+{$ifndef fpc}
+
 function Search : boolean; assembler;
 asm             cld
                 mov     edx,srcDataSize
@@ -544,6 +616,68 @@ asm             cld
 @@noMatch:      pop     esi
 @@locEx:
 end;
+
+{$else}
+
+function Search : boolean; assembler;
+asm             cld
+                mov     edx,[ebp+8] {srcDataSize}
+                sub     edx,ebp[-4-16] {tOf}
+                mov     al,0
+                cmp     edx,2
+                jbe     @@locEx
+                mov     esi,[ebp+16] {srcData}
+                mov     edi,esi
+                add     esi,ebp[-4-16] {tOf}
+                mov     ax,[esi]
+                and     eax,0FFFh
+                shl     eax,1
+                add     eax,ebp[-4-4] {ChainHead}
+                and     ebp[-4-28],0 {maxMatchLen}
+
+@@nextSearch:   push    esi
+                movsx   edi,word ptr [eax]
+                cmp     edi,-1
+                je      @@endOfChain
+                mov     eax,edi
+                shl     eax,1
+                add     eax,ebp[-4] {Chain}
+                add     edi,[ebp+16] {srcData}
+                mov     ecx,edx
+                repe    cmpsb
+                jz      @@maxLen
+                pop     esi
+                sub     ecx,edx
+                neg     ecx
+                sub     edi,ecx
+                dec     ecx
+                cmp     ecx,ebp[-4-28] {maxMatchLen}
+                jbe     @@nextSearch
+                sub     edi,[ebp+16] {srcData}
+                mov     ebp[-4-28],ecx {maxMatchLen}
+                mov     ebp[-4-32],edi {maxMatchPos}
+                mov     ebx,ebp[-4-16] {tOf}
+                dec     ebx
+                cmp     ebx,edi                 {Prefer RL encoding since it}
+                jne     @@nextSearch            {packs longer strings}
+                cmp     ecx,63                  {Strings up to 63 chars are always}
+                jbe     @@nextSearch            {packed effectively enough}
+                push    esi
+                jmp     @@endOfChain
+
+@@maxLen:       sub     edi,edx
+                sub     edi,[ebp+16] {srcData}
+                mov     ebp[-4-28],edx {maxMatchLen}
+                mov     ebp[-4-32],edi {maxMatchPos}
+
+@@endOfChain:   mov     al,0
+                cmp     ebp[-4-28],3 {maxMatchLen}
+                jb      @@noMatch
+                inc     al
+@@noMatch:      pop     esi
+@@locEx:
+end;
+{$endif}
 {&uses none}
 
 function dstAvail(N : Longint) : boolean;
@@ -734,7 +868,7 @@ begin
   XchgL(PageOrder^[N1], PageOrder^[N2]);
 end;
 
-function tLX.LoadLX;
+function tLX.LoadLX(const fName : string) : Byte;
 label locEx;
 var
  F       : File;
@@ -1102,7 +1236,7 @@ locEx:
 end;
 
 { Load file in `new` executable format and convert it on-the-fly into LX }
-function tLX.LoadNE;
+function tLX.LoadNE(const fName : string; loadFlags : byte) : Byte;
 label
  locEx;
 var
@@ -1717,7 +1851,7 @@ locEx:
  Close(F); inOutRes := 0;
 end;
 
-function tLX.Save;
+function tLX.Save(const fName : string; saveFlags : Longint) : Byte;
 label locEx;
 var
  F     : File;
@@ -2975,7 +3109,7 @@ begin
  Dispose(Fx, Destroy);
 end;
 
-function tLX.UnpackPage;
+function tLX.UnpackPage(PageNo : Integer) : boolean;
 var
  J       : Integer;
  uD,pD   : pByteArray;

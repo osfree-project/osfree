@@ -259,7 +259,7 @@ FLAC__StreamEncoderWriteStatus encodeWrite
     LONG rc;
     Mencode *mencode = client_data;
 	if (!buffer || !mencode) return FLAC__SEEKABLE_STREAM_DECODER_READ_STATUS_ERROR;
-	rc = mmioWrite(mencode->hmmio, buffer, bytes);
+	rc = mmioWrite(mencode->hmmio, (char *)buffer, bytes);
 #ifdef DEBUG
 			fprintf(file,"callback write bytes:%d rc:%ld\n",bytes,rc);
 #endif

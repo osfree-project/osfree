@@ -1,4 +1,5 @@
-{$A-,B-,D+,E-,F-,G+,I-,L+,N-,O-,P-,Q-,R-,S-,T-,V-,X+}
+{$ifndef fpc}{$A-,B-,F-,G+,N-,O-}{$endif}
+{D+,E-,I-,L+,P-,Q-,R-,S-,T-,V-,X+}
 {&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
 Unit miscUtil;
 
@@ -24,6 +25,9 @@ type
 const
   MaxInt     = MaxLongint;
 {$ENDIF}
+
+const
+  QSV_MS_COUNT = 14;
 
 type
  tByteArray      = array[0..65500] of Byte;
@@ -156,6 +160,7 @@ type
  Function wTicker : Word;
  Function lTicker : Longint;
 {$else use32}
+{$ifndef fpc}
  Function bTicker : Byte;
  InLine( $8E/$06/seg0040/   { mov   es,seg0040   }
          $26/$A0/$6C/$00);  { mov   ax,es:[6Ch] }
@@ -166,15 +171,34 @@ type
  InLine( $8E/$06/seg0040/   { mov   es,seg0040   }
          $26/$A1/$6C/$00/   { mov   ax,es:[6Ch] }
          $26/$8B/$16/$6E/$00);{mov  dx,es:[6Eh] }
+{$endif}
 {$endIf use32}
 
 { Trick: call a embedded (ONLY level 2!) procedure }
 {&saves ebx,esi,edi}
  Function level2call(Proc,Info : Pointer) : boolean;
 
-Implementation {$ifDef os2} uses os2base; {$endIf}
+Implementation {$ifDef os2} uses {$ifnDef FPC} os2base; {$else} doscalls, math; {$endif} {$endIf}
 
 {北北北北北北北北北北北北北北 High-level functions 北北北北北北北北北北北北北}
+
+ Function  minL(A,B : Longint) : Longint;
+{$ifnDef VirtualPascal}
+ begin if A <= B then minL := A else minL := B; end;
+{$endIf}
+ Function  maxL(A,B : Longint) : Longint;
+{$ifnDef VirtualPascal}
+ begin if A >= B then maxL := A else maxL := B; end;
+{$endIf}
+ Function  minI(A,B : Integer) : Integer;
+{$ifnDef VirtualPascal}
+ begin if A <= B then minI := A else minI := B; end;
+{$endIf}
+ Function  maxI(A,B : Integer) : Integer;
+{$ifnDef VirtualPascal}
+ begin if A >= B then maxI := A else maxI := B; end;
+{$endIf}
+
 constructor tObject.Create;
 begin
  Zero;
@@ -193,18 +217,22 @@ end;
 type
      pThreadParmBlock = ^tThreadParmBlock;
      tThreadParmBlock = record
-      Func,Self,Parm : Pointer;
+      Func,MySelf,Parm : Pointer;
      end;
 
 function stubThread(ParmBlock : Pointer) : Longint; assembler;
 {&FRAME-} {&USES none} {&SAVES ebx,esi,edi}
 asm             mov    eax,ParmBlock
                 push   [eax].tThreadParmBlock.Parm
-                push   [eax].tThreadParmBlock.Self
+                push   [eax].tThreadParmBlock.MySelf
                 push   [eax].tThreadParmBlock.Func
                 push   eax
                 push   type tThreadParmBlock
+{$ifndef FPC}
                 call   _MemFree
+{$else}
+                call   FreeMem
+{$endif}
                 pop    eax
                 call   eax
 end;
@@ -216,7 +244,7 @@ var
 begin
  New(tpb);
  tpb^.Func := ObjFunc;
- tpb^.Self := @Self;
+ tpb^.MySelf := @Self;
  tpb^.Parm := Parm;
  tid := 0;
  BeginThread(nil, StackSize, stubThread, tpb,

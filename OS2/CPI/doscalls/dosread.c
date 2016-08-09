@@ -2,22 +2,20 @@
  *   by valerius, 2010, Jun 18
  */
 
-#include <os2.h>
+#include "kal.h"
 
-#include "dl.h"
-
-/*
-  This is real implementation of DosWrite in Kernel Abstraction Layer
-*/
-//APIRET __cdecl KalRead(const HFILE hFile,
-//                       const PVOID pBuffer,
-//                       const ULONG cbRead,
-//                       PULONG pcbActual);
 
 APIRET APIENTRY  DosRead(HFILE hFile,
                          PVOID pBuffer,
                          ULONG cbRead,
                          PULONG pcbActual)
 {
-  return KalRead(hFile, pBuffer, cbRead, pcbActual);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("pBuffer=%x\n", pBuffer);
+  log("cbRead=%x\n", cbRead);
+  rc = KalRead(hFile, pBuffer, cbRead, pcbActual);
+  log("cbActual=%x\n", *pcbActual);
+  return rc;
 }

@@ -48,7 +48,7 @@
 /************************************************************************/
 
 #include <limits.h>
-#include <osfree.h>
+#include <os2.h>
 #include <string.h>
 #include <stdlib.h>
 #include <os2medef.h>

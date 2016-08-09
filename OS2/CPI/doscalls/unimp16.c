@@ -6,6 +6,7 @@
 #define INCL_PMAVIO
 #define INCL_DOSNMPIPES
 #define INCL_DOSPROCESS
+//#define INCL_DOSMONITORS
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSDATETIME
 #define INCL_DOSEXCEPTIONS
@@ -16,8 +17,193 @@ typedef USHORT HVPS;
 typedef HVPS *PHVPS;
 #endif
 
+typedef struct _COUNTRYCODE {
+    ULONG  country;
+    ULONG  codepage;
+} COUNTRYCODE, *PCOUNTRYCODE;
+
+typedef struct _COUNTRYINFO {
+    ULONG  country;
+    ULONG  codepage;
+    ULONG  fsDateFmt;
+    CHAR   szCurrency[5];
+    CHAR   szThousandsSeparator[2];
+    CHAR   szDecimal[2];
+    CHAR   szDateSeparator[2];
+    CHAR   szTimeSeparator[2];
+    UCHAR  fsCurrencyFmt;
+    UCHAR  cDecimalPlace;
+    UCHAR  fsTimeFmt;
+    USHORT abReserved1[2];
+    CHAR   szDataSeparator[2];
+    USHORT abReserved2[5];
+} COUNTRYINFO, *PCOUNTRYINFO;
+
+typedef struct _QMRESULT{
+    USHORT seg;
+    USHORT htme;
+    char name[256];
+} QMRESULT;
+
+typedef QMRESULT *PQMRESULT;
+
+typedef SHANDLE  HMONITOR;
+typedef HMONITOR *PHMONITOR;
+
 APIRET unimplemented(char *func);
 
+APIRET APIENTRY      DosAllocProtSeg(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosAllocShrProtSeg(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosAllocProtHuge(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosCaseMap(USHORT Length, PCOUNTRYCODE Country, PCHAR BinaryString)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosGetCollate(USHORT Length, PCOUNTRYCODE Country,
+                                   PCHAR MemoryBuffer, PUSHORT DataLength)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosGetCtryInfo(USHORT Length, PCOUNTRYCODE Country,
+                                    PCOUNTRYINFO MemoryBuffer, PUSHORT DataLength)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosGetDBCSEv(USHORT Length, PCOUNTRYCODE Country, PCHAR MemoryBuffer)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosDynamicTrace(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosQueryModFromCS(SEL sel, PQMRESULT qmresult)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosMakeNmPipe(PSZ PipeName, PHPIPE PipeHandle, USHORT OpenMode,
+                                   USHORT PipeMode, USHORT OutBufSize, USHORT InBufSize, ULONG TimeOut)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosQNmPipeInfo(HPIPE Handle, USHORT InfoLevel, PBYTE InfoBuf, USHORT InfoBufSize)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosConnectNmPipe(HPIPE handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosDisconnectNmPipe(HPIPE handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosQNmPHandState(HPIPE Handle, PUSHORT PipeHandleState)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosSetNmPHandState(HPIPE Handle, USHORT PipeHandleState)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosPeekNmPipe(HPIPE Handle, PBYTE Buffer, USHORT BufferLen,
+                                   PUSHORT BytesRead, PUSHORT BytesAvail, PUSHORT PipeState)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosWaitNmPipe(PSZ FileName, ULONG TimeOut)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosCallNmPipe(PSZ FileName, PBYTE InBuffer, USHORT InBufferLen,
+                                   PBYTE OutBuffer, USHORT OutBufferLen, 
+                                   PUSHORT BytesOut, ULONG TimeOut)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosRawReadNmPipe(HPIPE handle, USHORT cbBuf, PBYTE pBuf) // undoc (???)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosRawWriteNmPipe(HPIPE handle, USHORT cbBuf, PBYTE pBuf) // undoc (???)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DosSetNmPipeSem(HPIPE Handle, HSEM SemHandle, USHORT KeyHandle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      DosQNmPipeSemState(HSEM SemHandle, PBYTE InfoBuf, USHORT InfoBufLen)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      Dos16MonOpen(PSZ Devname, PHMONITOR Handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      Dos16MonClose(HMONITOR handle)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      Dos16MonRead(PBYTE BufferI, UCHAR WaitFlag, PBYTE DataBuffer, PUSHORT Bytecnt)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      Dos16MonWrite(PBYTE BufferO, PBYTE DataBuffer, USHORT Bytecnt)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+APIRET APIENTRY      Dos16MonReg(HMONITOR Handle, PBYTE BufferI, PBYTE BufferO,
+                               USHORT Posflag, USHORT Index)
+{
+  return unimplemented(__FUNCTION__);
+}
 
 APIRET APIENTRY      DosICreateThread(void)
 {
@@ -745,7 +931,7 @@ USHORT __pascal         DOS16GETCP(void)
 }
 
 
-APIRET APIENTRY      DosISetCP(void)
+APIRET APIENTRY      DosISetCP(USHORT codepage, USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -2730,6 +2916,16 @@ USHORT __pascal         DOSPM16SEMCHK(void)
   return unimplemented(__FUNCTION__);
 }
 
+
+APIRET APIENTRY      DOSQPROCSTATUS(PVOID pBuf, USHORT cbBuf)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+APIRET APIENTRY      DOSRETFORWARD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
 
 USHORT __pascal         THK16_UNITHUNK(void)
 {

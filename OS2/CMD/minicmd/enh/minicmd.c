@@ -91,6 +91,7 @@ BOOL parse_cmd(char *cmd)
   #define MAXARGS 32
   char *Argv[MAXARGS];      // argument pointers
   char *pszTemp;
+  char buf[256];
 
   if (strlen(cmd)==0)
   {

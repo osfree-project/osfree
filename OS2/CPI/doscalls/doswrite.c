@@ -12,9 +12,7 @@
 
 */
 
-#include <os2.h>
-
-#include "dl.h"
+#include "kal.h"
 
 /*
   This is real implementation of DosWrite in Kernel Abstraction Layer
@@ -41,5 +39,12 @@
 
 APIRET APIENTRY DosWrite(const HFILE hFile, const PVOID pBuffer, const ULONG cbWrite, ULONG * pcbActual)
 {
-  return KalWrite(hFile, pBuffer, cbWrite, pcbActual);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("hFile=%lx\n", hFile);
+  log("pBuffer=%x\n", pBuffer);
+  log("cbWrite=%x\n", cbWrite);
+  rc = KalWrite(hFile, pBuffer, cbWrite, pcbActual);
+  log("cbActual=%x\n", *pcbActual);
+  return rc;
 }

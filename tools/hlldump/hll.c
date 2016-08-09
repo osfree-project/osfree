@@ -45,7 +45,7 @@ void main(int argc, char *argv[])
 {
  if (argc==1)
  {
-   printf("Usuage: hlldump file");
+   printf("Usage: hlldump file");
    return;
  };
 

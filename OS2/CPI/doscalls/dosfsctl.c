@@ -11,10 +11,7 @@
 
 
 */
-#define INCL_DOSFILEMGR
-#include <os2.h>
-
-#include "dl.h"
+#include "kal.h"
 
 APIRET APIENTRY  DosFSCtl(PVOID pData,
                              ULONG cbData,
@@ -27,7 +24,20 @@ APIRET APIENTRY  DosFSCtl(PVOID pData,
                              HFILE hFile,
                              ULONG method)
 {
-  return KalFSCtl(pData, cbData, pcbData,
-                  pParms, cbParms, pcbParms,
-                  function, pszRoute, hFile, method);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("pData=%lx\n", pData);
+  log("cbData=%lx\n", cbData);
+  log("pParms=%lx\n", pParms);
+  log("cbParms=%lx\n", cbParms);
+  log("function=%lx\n", function);
+  log("pszRoute=%s\n", pszRoute);
+  log("hFile=%s\n", hFile);
+  log("method=%lx\n", method);
+  rc = KalFSCtl(pData, cbData, pcbData,
+                pParms, cbParms, pcbParms,
+                function, (PSZ)pszRoute, hFile, method);
+  log("*pcbData=%lx\n", *pcbData);
+  log("*pcbParms=%lx\n", *pcbParms);
+  return rc;
 }

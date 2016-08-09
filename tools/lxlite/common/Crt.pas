@@ -9,7 +9,9 @@
 {Û                                                       Û}
 {ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß}
 
-{$S-,R-,Q-,I-,Cdecl-,OrgName-,AlignRec-,Use32+}
+{$S-,R-,Q-,I-}
+
+{$ifndef fpc}{$Cdecl-,OrgName-,AlignRec-,Use32+}{$endif}
 
 unit Crt;
 
@@ -108,18 +110,57 @@ procedure PlaySound(Freq,Duration: Longint);
 
 implementation
 
-uses Dos, Os2Def, Os2Base;
+uses Dos, Os2Def, {$IFDEF FPC} DosCalls, KbdCalls, VioCalls; {$ELSE} Os2Base; {$ENDIF}
 
 { Private variables }
+
+{$IFDEF FPC}
+type SmallWord = Word;
+{$ENDIF}
 
 var
   VioMode: VioModeInfo;
   NormAttr: Byte;
   DelayCount: Longint;
+{$IFNDEF FPC}
   PrevXcptProc: Pointer;
+{$ENDIF}
 
 const
   ScanCode: Byte = 0;
+
+  QSV_MAX_PATH_LENGTH       =  1;
+  QSV_MAX_TEXT_SESSIONS     =  2;
+  QSV_MAX_PM_SESSIONS       =  3;
+  QSV_MAX_VDM_SESSIONS      =  4;
+  QSV_BOOT_DRIVE            =  5;
+  QSV_DYN_PRI_VARIATION     =  6;
+  QSV_MAX_WAIT              =  7;
+  QSV_MIN_SLICE             =  8;
+  QSV_MAX_SLICE             =  9;
+  QSV_PAGE_SIZE             = 10;
+  QSV_VERSION_MAJOR         = 11;
+  QSV_VERSION_MINOR         = 12;
+  QSV_VERSION_REVISION      = 13;
+  QSV_MS_COUNT              = 14;
+  QSV_TIME_LOW              = 15;
+  QSV_TIME_HIGH             = 16;
+  QSV_TOTPHYSMEM            = 17;
+  QSV_TOTRESMEM             = 18;
+  QSV_TOTAVAILMEM           = 19;
+  QSV_MAXPRMEM              = 20;
+  QSV_MAXSHMEM              = 21;
+  QSV_TIMER_INTERVAL        = 22;
+  QSV_MAX_COMP_LENGTH       = 23;
+  QSV_FOREGROUND_FS_SESSION = 24;
+  QSV_FOREGROUND_PROCESS    = 25;
+  QSV_NUMPROCESSORS         = 26;
+  QSV_MAXHPRMEM             = 27;
+  QSV_MAXHSHMEM             = 28;
+  QSV_MAXPROCESSES          = 29;
+  QSV_VIRTUALADDRESSLIMIT   = 30;
+  QSV_INT10ENABLED          = 31;
+  QSV_MAX                   = QSV_INT10ENABLED;
 
 { Determines if a key has been pressed on the keyboard and returns True }
 { if a key has been pressed                                             }
@@ -168,7 +209,7 @@ end;
 
 procedure ReadNormAttr;
 var
-  Cell,Size: SmallWord;
+  Cell,Size: Word; {SmallWord;}
 begin
   Size := 2;
   VioReadCellStr(Cell, Size, WhereY-1, WhereX-1, 0);
@@ -616,9 +657,11 @@ function CtrlBreakHandler(Report:       PExceptionReportRecord;
                           Context:      PContextRecord;
                           P:            Pointer): ULong; cdecl;
 begin
+{$IFNDEF FPC}
   if not CheckBreak and (Report^.ExceptionNum = xcpt_Signal)
     then CtrlBreakHandler := xcpt_Continue_Execution
     else CtrlBreakHandler := xcpt_Continue_Search;
+{$ENDIF}
 end;
 
 Procedure AssignConToCrt;
@@ -649,7 +692,9 @@ begin
  SetWindowPos;
  AssignConToCrt;
  CalcDelayCount;
+{$IFNDEF FPC}
  PrevXcptProc := XcptProc;
  XcptProc := @CtrlBreakHandler;
+{$ENDIF}
 end.
 

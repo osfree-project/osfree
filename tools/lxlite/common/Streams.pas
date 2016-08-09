@@ -1,4 +1,5 @@
-{$A-,B-,D+,E-,F-,G-,I-,L+,N-,O-,P-,Q-,R-,S-,T-,V-,X+,Y+,Use32+}
+{$A-,B-,D+,I-,O-,P-,Q-,R-,S-,T-,V-,X+}
+{$ifndef fpc}{$F-,G-,L+,N-,Y+,Y+,E-,Use32+}{$endif}
 {様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様様}
 { Streams                                                                    }
 { Portable source code (tested on DOS and OS/2)                              }
@@ -122,7 +123,8 @@ begin
         if Error <> steOK
          then begin
                Error := steOK;
-               bsz := minL(minL(maxAvail, $FFF0), bytes);
+               { bsz := minL(minL(maxAvail, $FFF0), bytes); }
+               bsz := minL($FFF0, bytes);
                GetMem(buff, bsz);
                if buff <> nil
                 then begin
@@ -212,7 +214,8 @@ var
  i,rc : longint;
 begin
  CopyFrom := 0;
- bSz := minL($FFF0, maxAvail);
+ { bSz := minL($FFF0, maxAvail); }
+ bSz := $FFF0;
  GetMem(Buff, bSz);
  if Buff = nil then begin Error := steNoMemory; exit; end;
  rc := 0;
@@ -320,7 +323,11 @@ end;
 
 function tFileStream.Name;
 begin
+{$ifndef FPC}
  Name := strPas(FileRec(F).Name);
+{$else}
+ Name := FileRec(F).Name;
+{$endif}
 end;
 
 function tFileStream.Put;
@@ -426,7 +433,7 @@ end;
 
 function tFileStream.GetAttr;
 var
- W : word;
+ W : {$ifndef FPC}word{$else}smallint{$endif};
 begin
  if Error = steOK
   then begin

@@ -19,6 +19,7 @@ defs = -dDPMI32
 !ifeq %OS LINUX
 defs = -dLINUX
 !endif
+defs = $(defs) -dUSE32
 DESC  = lxlite and utilities
 ADD_PCOPT = $(defs) -Fucommon -duse32 -Rintel -So
 !include $(%ROOT)/mk/toolspas.mk

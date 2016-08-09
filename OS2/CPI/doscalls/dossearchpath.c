@@ -17,9 +17,7 @@
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#define  INCL_DOSMISC
-#define  INCL_DOSERRORS
-#include <os2.h>
+#include "kal.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -29,8 +27,6 @@
 #include "token.h"
 #include "strnlen.h"
 #include "strlcpy.h"
-
-void log(const char *fmt, ...);
 
 /*!
   @brief     Searches for a file on a path. Path is explicitly specified,
@@ -47,7 +43,7 @@ void log(const char *fmt, ...);
 
   @return
     NO_ERROR                        if successful
-    ERROR_INVALID_PARAMETER         input parameters are incorrect
+    ERROR_INVALI         input parameters are incorrect
     ERROR_FILE_NOT_FOUND            file not found on the path
     ERROR_BUFFER_OVERFLOW           input buffer is too small
     ERROR_ENVVAR_NOT_FOUND          env. variable not found
@@ -77,8 +73,12 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   char   *path;
   char   *p;
   ULONG  ulAction;
+  ULONG  len;
+  char   curdir[260];
   HFILE  hf;
   APIRET rc;
+
+  log("%s\n", __FUNCTION__);
 
   log("flag=%08x\n", flag);
 
@@ -104,6 +104,8 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   if (flag & ~(SEARCH_ENVIRONMENT | SEARCH_CUR_DIRECTORY | SEARCH_IGNORENETERRS))
     return ERROR_INVALID_FUNCTION;
 
+  // @todo implement SEARCH_IGNORENETERRS
+
   // need to find 'path' value first
   // search for path on the environment
   if (flag & SEARCH_ENVIRONMENT)
@@ -116,6 +118,8 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
     pathtmp = (char *)pszPathOrName;
     pathlen = strlen(pszPathOrName) + 1;
   }
+
+  log("pathtmp=%s\n", pathtmp);
 
   if (flag & SEARCH_CUR_DIRECTORY)
     pathlen += 2;
@@ -137,12 +141,19 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   strcpy(p, pathtmp);
   StrTokSave(&st);
 
+  DosQueryCurrentDir(0, curdir, &len);
+  DosQueryCurrentDir(0, curdir, &len);
+
   if (p = StrTokenize(path, psep))
+  {
     do if (*p)
     {
       pBuf[0] = '\0';
 
-      strlcat(pBuf, p, cbBuf);
+      if (!strcmp(p, "."))
+        strlcat(pBuf, curdir, cbBuf);
+      else
+        strlcat(pBuf, p, cbBuf);
 
       if (p[strnlen(p, cbBuf) - 1] != *sep)
         strlcat(pBuf, sep, cbBuf);
@@ -177,6 +188,7 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
 
       return NO_ERROR;
     } while (p = StrTokenize(0, psep));
+  }
 
   StrTokRestore(&st);
   DosFreeMem(path);

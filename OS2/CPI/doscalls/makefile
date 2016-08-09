@@ -61,7 +61,67 @@ DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
 # UNI2H = 1
 
-IMPORTS = _DlRoute                DL.DlRoute
+IMPORTS = &
+        _KalAllocMem             KAL.KalAllocMem, &
+        _KalAllocSharedMem       KAL.KalAllocSharedMem, &
+        _KalClose                KAL.KalClose, &
+        _KalCloseEventSem        KAL.KalCloseEventSem, &
+        _KalCreateDir            KAL.KalCreateDir, &
+        _KalCreateEventSem       KAL.KalCreateEventSem, &
+        _KalCreateThread         KAL.KalCreateThread, &
+        _KalDelete               KAL.KalDelete, &
+        _KalDeleteDir            KAL.KalDeleteDir, &
+        _KalDupHandle            KAL.KalDupHandle, &
+        _KalEnter                KAL.KalEnter, &
+        _KalError                KAL.KalError, &
+        _KalExecPgm              KAL.KalExecPgm, &
+        _KalExit                 KAL.KalExit, &
+        _KalFSCtl                KAL.KalFSCtl, &
+        _KalFindClose            KAL.KalFindClose, &
+        _KalFindFirst            KAL.KalFindFirst, &
+        _KalFindNext             KAL.KalFindNext, &
+        _KalForceDelete          KAL.KalForceDelete, &
+        _KalFreeMem              KAL.KalFreeMem, &
+        _KalGetInfoBlocks        KAL.KalGetInfoBlocks, &
+        _KalGetNamedSharedMem    KAL.KalGetNamedSharedMem, &
+        _KalGetSharedMem         KAL.KalGetSharedMem, &
+        _KalGiveSharedMem        KAL.KalGiveSharedMem, &
+        _KalKillThread           KAL.KalKillThread, &
+        _KalLoadModule           KAL.KalLoadModule, &
+        _KalLogWrite             KAL.KalLogWrite, &
+        _KalMove                 KAL.KalMove, &
+        _KalOpenEventSem         KAL.KalOpenEventSem, &
+        _KalOpenL                KAL.KalOpenL, &
+        _KalQueryAppType         KAL.KalQueryAppType, &
+        _KalQueryCp              KAL.KalQueryCp, &
+        _KalQueryCurrentDir      KAL.KalQueryCurrentDir, &
+        _KalQueryCurrentDisk     KAL.KalQueryCurrentDisk, &
+        _KalQueryDBCSEnv         KAL.KalQueryDBCSEnv, &
+        _KalQueryFHState         KAL.KalQueryFHState, &
+        _KalQueryFileInfo        KAL.KalQueryFileInfo, &
+        _KalQueryHType           KAL.KalQueryHType, &
+        _KalQueryMem             KAL.KalQueryMem, &
+        _KalQueryModuleHandle    KAL.KalQueryModuleHandle, &
+        _KalQueryModuleName      KAL.KalQueryModuleName, &
+        _KalQueryPathInfo        KAL.KalQueryPathInfo, &
+        _KalQueryProcAddr        KAL.KalQueryProcAddr, &
+        _KalQueryProcType        KAL.KalQueryProcType, &
+        _KalQuit                 KAL.KalQuit, &
+        _KalRead                 KAL.KalRead, &
+        _KalResetBuffer          KAL.KalResetBuffer, &
+        _KalResumeThread         KAL.KalResumeThread, &
+        _KalSetCurrentDir        KAL.KalSetCurrentDir, &
+        _KalSetDefaultDisk       KAL.KalSetDefaultDisk, &
+        _KalSetFHState           KAL.KalSetFHState, &
+        _KalSetFilePtrL          KAL.KalSetFilePtrL, &
+        _KalSetFileSizeL         KAL.KalSetFileSizeL, &
+        _KalSetMaxFH             KAL.KalSetMaxFH, &
+        _KalSetMem               KAL.KalSetMem, &
+        _KalSetRelMaxFH          KAL.KalSetRelMaxFH, &
+        _KalSleep                KAL.KalSleep, &
+        _KalSuspendThread        KAL.KalSuspendThread, &
+        _KalWaitThread           KAL.KalWaitThread, &
+        _KalWrite                KAL.KalWrite
 
 EXPORTS = &
         DosICreateThread           .1, &
@@ -426,7 +486,7 @@ EXPORTS = &
         DosQueryPageUsage          .358, &
         DosQueryModFromCS          .359, &
         DosQueryModFromEIP         .360, &
-        DosFPDataArea              .361, &
+        _DosFPDataArea             .361, &
         DosTmrQueryFreq            .362, &
         DosTmrQueryTime            .363, &
         DosAliasPerfCtrs           .364, &
@@ -434,15 +494,15 @@ EXPORTS = &
         DosDeconPerf               .366, &
         DosRegisterPerfCtrs        .367, &
         DosQuerySysState           .368, &
-        DosFlatCS                  .369, &
-        DosFlatDS                  .370, &
+        _DosFlatCS                 .369, &
+        _DosFlatDS                 .370, &
         DosQueryABIOSSupport       .371, &
         DosEnumAttribute           .372, &
         DosQueryDOSProperty        .373, &
         DosSetDOSProperty          .374, &
         DOS16QUERYDOSPROPERTY      .375, &
         DOS16SETDOSPROPERTY        .376, &
-        Dos32Profile               .377, &
+        DosProfile                 .377, &
         DosSetSignalExceptionFocus .378, &
         DosSendSignalException     .379, &
         DosEnterMustComplete       .380, &
@@ -490,7 +550,7 @@ EXPORTS = &
         DosICacheModule            .416, &
         DosReplaceModule           .417, &
         DosAcknowledgeSignalException .418, &
-        DosTIB                     .419, &
+        _DosTIB                    .419, &
         DOS16TMRQUERYFREQ          .420, &
         DOS16TMRQUERYTIME          .421, &
         DOS16REGISTERPERFCTRS      .422, &
@@ -498,7 +558,7 @@ EXPORTS = &
         DOS16SELTOFLAT             .424, &
         DosFlatToSel               .425, &
         DosSelToFlat               .426, &
-        DosIODelayCnt              .427, &
+        _DosIODelayCnt             .427, &
         DosSetFileLocks            .428, &
         DosCancelLockRequest       .429, &
         LogOpen                    .430, &
@@ -530,42 +590,42 @@ EXPORTS = &
         DosVerifyPidTid            .460, &
                                          &
 # not valid after HPFS & LS init:
-        PTDA_LANMAN_SEC            .464, &
-        PTDA_PID                   .465, &
-        SAS_SEL                    .466, &
-        TCB_OPCOOKIE               .467, &
-        TCB_OPFLAGS                .468, &
-        TCB_NEWFLAGS               .469, &
-        TCB_USER_ID                .470, &
-        TCB_PROC_ID                .471, &
-        TCB_FSHARING               .472, &
-        TCB_SRVATTRIB              .473, &
-        TCB_ALLOWED                .474, &
-        TCB_PRTCB                  .475, &
-        TCB_NUMBER                 .476, &
-        TCB_THISSFT                .477, &
-        TCB_THISCDS                .478, &
-        TKOPTDA                    .479, &
-        PTDA_CRITSEC               .480, &
-        PTDA_HOLDSIGCNT            .481, &
-        PTDA_PPTDAPARENT           .482, &
-        PTDA_PGDATA                .483, &
-        PTDA_HANDLE                .484, &
-        PTDA_MODULE                .485, &
-        PTDA_LDTHANDLE             .486, &
-        PTDA_CODEPAGE_TAG          .487, &
-        PTDA_JFN_LENGTH            .488, &
-        PTDA_JFN_PTABLE            .489, &
-        PTDA_JFN_FLG_PTR           .490, &
-        PTDA_EXTERR_LOCUS          .491, &
-        PTDA_EXTERR                .492, &
-        PTDA_EXTERR_ACTION         .493, &
-        PTDA_EXTERR_CLASS          .494, &
-        PTDA_PPID                  .495, &
-        PTDA_PROCTYPE              .496, &
-        PTDA_CURRTCB               .497, &
-        PTDA_CURRTSD               .498, &
-        PTDA_SIGNATURE             .499, &
+        _PTDA_LANMAN_SEC           .464, &
+        _PTDA_PID                  .465, &
+        _SAS_SEL                   .466, &
+        _TCB_OPCOOKIE              .467, &
+        _TCB_OPFLAGS               .468, &
+        _TCB_NEWFLAGS              .469, &
+        _TCB_USER_ID               .470, &
+        _TCB_PROC_ID               .471, &
+        _TCB_FSHARING              .472, &
+        _TCB_SRVATTRIB             .473, &
+        _TCB_ALLOWED               .474, &
+        _TCB_PRTCB                 .475, &
+        _TCB_NUMBER                .476, &
+        _TCB_THISSFT               .477, &
+        _TCB_THISCDS               .478, &
+        _TKOPTDA                   .479, &
+        _PTDA_CRITSEC              .480, &
+        _PTDA_HOLDSIGCNT           .481, &
+        _PTDA_PPTDAPARENT          .482, &
+        _PTDA_PGDATA               .483, &
+        _PTDA_HANDLE               .484, &
+        _PTDA_MODULE               .485, &
+        _PTDA_LDTHANDLE            .486, &
+        _PTDA_CODEPAGE_TAG         .487, &
+        _PTDA_JFN_LENGTH           .488, &
+        _PTDA_JFN_PTABLE           .489, &
+        _PTDA_JFN_FLG_PTR          .490, &
+        _PTDA_EXTERR_LOCUS         .491, &
+        _PTDA_EXTERR               .492, &
+        _PTDA_EXTERR_ACTION        .493, &
+        _PTDA_EXTERR_CLASS         .494, &
+        _PTDA_PPID                 .495, &
+        _PTDA_PROCTYPE             .496, &
+        _PTDA_CURRTCB              .497, &
+        _PTDA_CURRTSD              .498, &
+        _PTDA_SIGNATURE            .499, &
                                          &
 # hole
                                          &
@@ -585,14 +645,14 @@ EXPORTS = &
         Dos32IRead                 .554, &
                                          &
         Dos32IWrite                .556, &
-        Dos32CreateSpinLock        .557, &
-        Dos32AcquireSpinLock       .558, &
-        Dos32ReleaseSpinLock       .559, &
-        Dos32FreeSpinLock          .560, &
+        DosCreateSpinLock          .557, &
+        DosAcquireSpinLock         .558, &
+        DosReleaseSpinLock         .559, &
+        DosFreeSpinLock            .560, &
         Dos32PMR3WaitEventSem      .561, &
         Dos32PMR3PostEventSem      .562, &
-        Dos32QueryThreadAffinity   .563, &
-        Dos32SetThreadAffinity     .564, &
+        DosQueryThreadAffinity     .563, &
+        DosSetThreadAffinity       .564, &
         DosISetFileInfo            .565, &
         DosISetPathInfo            .566, &
                                          &
@@ -600,7 +660,7 @@ EXPORTS = &
                                          &
 # ???        Dos16SetFileSizeL            .570
                                          &
-        Dos32QueryResourceSize     .572, &
+        DosQueryResourceSize       .572, &
         DOS16QUERYRESOURCESIZE     .573, &
         DosPMSemWait               .574, &
         DosPMMuxSemWait            .575, &
@@ -614,7 +674,7 @@ EXPORTS = &
         DOS16INITIALIZEPORTHOLE    .583, &
         DOS16QUERYHEADERINFO       .584, &
         Mon32MonRead               .585, &
-        Dos32QueryProcType         .586, &
+        DosQueryProcType           .586, &
         DOS16QUERYPROCTYPE         .587, &
         Mon32MonWrite              .588, &
         DosISigDispatch            .589, &
@@ -632,11 +692,11 @@ EXPORTS = &
         DosIFindFirst              .601, &
                                          &
 # moncalls
-        DosMonOpen                 .606, &
-        DosMonClose                .607, &
-        DosMonRead                 .608, &
-        DosMonWrite                .609, &
-        DosMonReg                  .610, &
+        Dos16MonOpen               .606, &
+        Dos16MonClose              .607, &
+        Dos16MonRead               .608, &
+        Dos16MonWrite              .609, &
+        Dos16MonReg                .610, &
                                          &
         Dos32IProtectWrite         .615, &
                                          &
@@ -686,19 +746,19 @@ EXPORTS = &
         T32QUERYTHREADAFFINITY     .659, &
         T32SETTHREADAFFINITY       .660, &
 # quecalls 32
-        Dos32ReadQueue             .661, &
-        Dos32PurgeQueue            .662, &
-        Dos32CloseQueue            .663, &
-        Dos32QueryQueue            .664, &
-        Dos32PeekQueue             .665, &
-        Dos32WriteQueue            .666, &
-        Dos32OpenQueue             .667, &
-        Dos32CreateQueue           .668, &
+        DosReadQueue               .661, &
+        DosPurgeQueue              .662, &
+        DosCloseQueue              .663, &
+        DosQueryQueue              .664, &
+        DosPeekQueue               .665, &
+        DosWriteQueue              .666, &
+        DosOpenQueue               .667, &
+        DosCreateQueue             .668, &
 # sesmgr 32
-        Dos32StartSession          .669, &
-        Dos32SelectSession         .670, &
-        Dos32SetSession            .671, &
-        Dos32StopSession           .672, &
+        DosStartSession            .669, &
+        DosSelectSession           .670, &
+        DosSetSession              .671, &
+        DosStopSession             .672, &
         DosRegisterNotification    .673, &
 # quecalls 16
         DOS16READQUEUE             .674, &
@@ -916,11 +976,11 @@ EXPORTS = &
         THK32DEALLOC               .871, &
         THK32XHNDLR                .872, &
 #
-        Dos32SetExtLIBPATH         .873, &
-        Dos32QueryExtLIBPATH       .874, &
+        DosSetExtLIBPATH           .873, &
+        DosQueryExtLIBPATH         .874, &
         DOSPM16SEMRST              .875, &
         DosSysCtl                  .876, &
-        Dos32QueryThreadContext    .877, &
+        DosQueryThreadContext      .877, &
         DosSGQueryTopmost          .878, &
 #
         DosPerfSysCall             .976, &

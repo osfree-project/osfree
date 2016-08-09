@@ -1,7 +1,7 @@
-#define  INCL_DOSPROCESS
-#include <os2.h>
+//#define  INCL_DOSPROCESS
+//#include <os2.h>
 
-#include "dl.h"
+#include "kal.h"
 
 APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                            LONG cbObjname,
@@ -11,11 +11,21 @@ APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                            PRESULTCODES pRes,
                            PCSZ  pName)
 {
-  return KalExecPgm(pObjname,
-                    cbObjname,
-                    execFlag,
-                    pArg,
-                    pEnv,
-                    pRes,
-                    pName);
+  APIRET rc;
+  log("%s\n", __FUNCTION__);
+  log("cbObjname=%lx\n", cbObjname);
+  log("execFlag=%lx\n", execFlag);
+  log("pArg=%lx\n", pArg);
+  log("pEnv=%lx\n", pEnv);
+  log("pRes=%lx\n", pRes);
+  log("pName=%s\n", pName);
+  rc = KalExecPgm(pObjname,
+                  cbObjname,
+                  execFlag,
+                  (PSZ)pArg,
+                  (PSZ)pEnv,
+                  pRes,
+                  (PSZ)pName);
+  log("pObjname=%s\n", pObjname);
+  return rc;
 }

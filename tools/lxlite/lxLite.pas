@@ -1,13 +1,19 @@
-{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Use32+}
+{&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-}
+{$ifndef fpc}{$Use32+}{$else}{$define use32}{$asmmode intel}{$mode objfpc}{$endif}
 {&M 262144}
 {&R lxlite.res}
 {&R os2api.res}
 uses
- Dos, Crt, os2def, os2base, exe386, os2exe, strOp, miscUtil,
- SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
+ Dos, Crt, os2def, {$ifndef fpc} os2base, {$else} doscalls, {$endif}
+ exe386, os2exe, strOp, miscUtil, SysLib, Collect, Country, Strings,
+ lxLite_Global, lxLite_Objects;
 
 label
  done;
+
+const
+ PRTYS_PROCESSTREE = 1;
+ PRTYC_IDLETIME    = 1;
 
 Procedure LoadStub;
 type
@@ -549,7 +555,11 @@ begin
  if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfFixups) <> 0)
   then begin
         prevProgressValue := -1;
+{$ifndef fpc}
         LX^.Pack(opt.PackMode, showProgress);
+{$else}
+        LX^.Pack(opt.PackMode, @showProgress);
+{$endif}
        end;
  Write(#13); ClearToEOL;
  if (opt.FinalWrite = 0) then Goto locEx;
@@ -817,7 +827,11 @@ var
 
 begin
  SetColor($0F);
+{$ifndef fpc}
  @OldExit := ExitProc; ExitProc := @MyExitProc;
+{$else}
+ AddExitProc(@MyExitProc);
+{$endif}
 // HeapBlock := 64 * 1024; {for VP 1.10}
 
  New(cfgIDs, Create(16, 16));
