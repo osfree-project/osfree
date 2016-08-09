@@ -2,14 +2,15 @@ PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../../../..
 
 TARGET		= os2app
-TRG             = dl.map
+TRG             = kal.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c dl.c api/api.c
+SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c api/api.c \
+                  kal/kal.c kal/start.c kal/util.c
 CFLAGS          = -I$(PKGDIR)/../../../include
 # NO_DEFAULT_RELOC= 1
-LIBS		= -los2exec -los2fs -los2server -los2compat -lloaderif -levents \
-                  -ldl -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
+LIBS		= -los2exec -los2fs -los2server -los2app -los2compat -lloaderif -levents \
+                  -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
 #                  -Bdynamic -lkal.s
 # LDFLAGS		= -shared
 DEFAULT_RELOC   = 0xbb000000
@@ -37,7 +38,7 @@ install:: $(BINTARGET)
 .PHONY: $(BINTARGET)
 
 $(OBJ_BASE)/bin/$(subst -,/,$(SYSTEM)/$(TRG)): $(filter os2app, $(TARGET))
-	nm $< | grep Dl | awk '{printf "0x%s %s\n", $$1, $$3}' >$<.1
+	nm $< | grep Kal | awk '{printf "0x%s %s\n", $$1, $$3}' >$<.1
 	wc -l $<.1 | awk '{print $$1}' >$@
 	cat $<.1   >>$@
 

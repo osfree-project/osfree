@@ -22,7 +22,7 @@
 #include <l4/os3/types.h>
 #include <l4/os3/ipc.h>
 #include <l4/os3/kal.h>
-#include <l4/os3/dl.h>
+//#include <l4/os3/dl.h>
 #include <l4/os3/io.h>
 /* local includes*/
 #include <stacksw.h>
@@ -40,6 +40,11 @@ const l4_addr_t l4thread_stack_area_addr = 0xbc000000;
 /* l4thread TCB table map address */
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 
+/* private memory arena settings */
+l4_addr_t   private_memory_base = 0x10000;
+l4_size_t   private_memory_size = 512*1024*1024;
+l4_uint32_t private_memory_area;
+
 /* shared memory arena settings */
 l4_addr_t   shared_memory_base = 0x60000000;
 l4_size_t   shared_memory_size = 1024*1024*1024;
@@ -55,6 +60,8 @@ unsigned long __stack;
 
 /* OS/2 server id        */
 l4os3_cap_idx_t os2srv;
+/* FS server id        */
+l4os3_cap_idx_t fs;
 /* exec server id        */
 l4os3_cap_idx_t execsrv;
 /* dataspace manager id  */
@@ -173,7 +180,7 @@ int main (int argc, char *argv[])
   CORBA_srv_env env = default_srv_env;
   l4thread_t thread;
   l4_threadid_t tid;
-  l4_uint32_t area;
+  //l4_uint32_t area;
   //struct desc *dsc;
   //int i, stop, start;
   //unsigned long base;
@@ -194,6 +201,12 @@ int main (int argc, char *argv[])
       __exit(1, 1);
     }
 
+  if (!names_waitfor_name("os2fs", &fs, 30000))
+    {
+      io_log("Can't find os2fs on names, exiting...\n");
+      __exit(1, 1);
+    }
+
   if (!names_waitfor_name("os2exec", &execsrv, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
@@ -207,10 +220,10 @@ int main (int argc, char *argv[])
     }
 
   // reserve the lower 64 Mb for OS/2 app
-  rc = l4rm_area_reserve_region(0x10000, 0x04000000 - 0x10000, 0, &area);
+  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, &private_memory_area);
   if (rc < 0)
   {
-    io_log("Panic: something is using memory within the 1st 64 Mb!\n");
+    io_log("Panic: cannot reserve memory for private arena!\n");
     __exit(1, 1);
   }
 
@@ -236,13 +249,13 @@ int main (int argc, char *argv[])
   l4env_infopage->fprov_id = fprov_id;
   l4env_infopage->memserv_id = dsm;
 
-  if ((rc = DlOpen("/file/system/libkal.s.so", &kalHandle)))
-  {
-    io_log("Can't load libkal.s.so!\n");
-    __exit(1, 1);
-  }
+  //if ((rc = DlOpen("/file/system/libkal.s.so", &kalHandle)))
+  //{
+    //io_log("Can't load libkal.s.so!\n");
+    //__exit(1, 1);
+  //}
 
-  io_log("kalHandle=%lu\n", kalHandle);
+  //io_log("kalHandle=%lu\n", kalHandle);
 
   // start server loop
   thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
@@ -250,7 +263,7 @@ int main (int argc, char *argv[])
   service_lthread = tid.id.lthread;
 
   //fill in the parameter structure for KalInit
-  initstr.stack   = __stack;
+  /* initstr.stack   = __stack;
   initstr.shared_memory_base = shared_memory_base;
   initstr.shared_memory_size = shared_memory_size;
   initstr.shared_memory_area = shared_memory_area;
@@ -279,7 +292,7 @@ int main (int argc, char *argv[])
   initstr.logtag = LOG_tag;
 
   // init kal.dll
-  DlRoute(0, "KalInit", &initstr);
+  DlRoute(0, "KalInit", &initstr); */
 
   // Parse command line arguments
   for (;;)
@@ -333,13 +346,14 @@ int main (int argc, char *argv[])
     io_log("event thread started\n");
   } */
 
-  DlSym(kalHandle, "areas_list", &pareas_list);
+  //DlSym(kalHandle, "areas_list", &pareas_list);
 
   // release the reserved area for application
-  rc = l4rm_area_release(area);
+  //rc = l4rm_area_release(holdarea);
 
   io_log("calling KalStartApp...\n");
-  rcCode = DlRoute(0, "KalStartApp", argv[argc - 1], pszLoadError, sizeof(pszLoadError));
+  //rcCode = DlRoute(0, "KalStartApp", argv[argc - 1], pszLoadError, sizeof(pszLoadError));
+  KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
 
   // server loop
   //env.malloc = (dice_malloc_func)malloc;

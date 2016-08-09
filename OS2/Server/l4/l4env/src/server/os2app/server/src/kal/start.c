@@ -1,5 +1,6 @@
 /* L4 includes */
 #include <l4/names/libnames.h>
+#include <l4/sys/segment.h>
 /* OS/2 server internal includes */
 #include <l4/os3/gcc_os2def.h>
 #include <l4/os3/ixfmgr.h>
@@ -10,7 +11,7 @@
 //#include <l4/os3/apistub.h>
 #include <l4/os3/types.h>
 #include <l4/os3/kal.h>
-#include <l4/os3/dl.h>
+//#include <l4/os3/dl.h>
 #include <l4/os3/io.h>
 /* OS/2 server RPC call includes */
 #include <l4/os2srv/os2server-client.h>
@@ -42,6 +43,8 @@ extern unsigned short tib_sel;
 
 extern vmdata_t *areas_list;
 
+extern l4_uint32_t holdarea;
+
 /* OS/2 app main thread */
 int
 trampoline(struct param *param)
@@ -72,10 +75,10 @@ trampoline(struct param *param)
   desc.base_hi  = base >> 24;
 
   /* Allocate a GDT descriptor */
-  __fiasco_gdt_set(&desc, sizeof(struct desc), 0, task);
+  fiasco_gdt_set(&desc, sizeof(struct desc), 0, task);
 
   /* Get a selector */
-  tib_sel = (sizeof(struct desc)) * __fiasco_gdt_get_entry_offset();
+  tib_sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();
   tib_sel |= 3; // ring3 GDT descriptor
   io_log("sel=%x\n", tib_sel);
 
@@ -115,7 +118,7 @@ trampoline(struct param *param)
   return 0;
 }
 
-APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
+APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
   CORBA_Environment env = dice_default_environment;
   vmdata_t *ptr;
@@ -130,7 +133,7 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   char *p = buf;
   int i;
 
-  if (!names_waitfor_name("os2exec", &execsrv, 30000))
+  /* if (!names_waitfor_name("os2exec", &execsrv, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
       kalExit(1, 1);
@@ -146,19 +149,22 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
     {
       io_log("Can't find os2srv on names, exiting...\n");
       kalExit(1, 1);
-    }
+    } */
 
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify1_call (&os2srv, &env);
 
+  // release the reserved area needed for OS/2 binary
+  //l4rm_area_release(holdarea);
+
   /* Load the LX executable */
-  rc = kalPvtLoadModule(pszLoadError, cbLoadError,
+  rc = KalPvtLoadModule(pszLoadError, cbLoadError,
                        name, &s, &hmod);
 
   if (rc)
   {
     io_log("LX load error!\n");
-    kalExit(1, 1);
+    KalExit(1, 1);
   }
 
   io_log("LX loaded successfully\n");
@@ -166,22 +172,36 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   param.eip = s.ip;
   param.esp = s.sp;
 
+  io_log("000\n");
+
   strcpy(s.path, name);
+
+  io_log("001\n");
 
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify2_call (&os2srv, &s, &env);
 
+  io_log("002\n");
+
   STKINIT(__stack - 0x800)
 
-  rc = kalQueryCurrentDisk(&curdisk, &map);
+  io_log("003\n");
+
+  rc = KalQueryCurrentDisk(&curdisk, &map);
 
   if (rc)
     io_log("Cannot get the current disk!\n");
 
+  io_log("004\n");
+
   param.curdisk = curdisk;
 
+  io_log("005\n");
+
   /* get the info blocks (needed by C startup code) */
-  rc = kalMapInfoBlocks(&ptib[0], &ppib);
+  rc = KalMapInfoBlocks(&ptib[0], &ppib);
+
+  io_log("006\n");
 
   // initialize TIB pointers array
   for (i = 1; i < 128; i++)
@@ -190,11 +210,16 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   param.pib = ppib;
   param.tib = ptib[0];
 
+  io_log("007\n");
+
   l4rm_show_region_list();
+
+  io_log("008\n");
 
   // write PID to the screen
   sprintf(p, "The process id is %lx\n", ppib->pib_ulpid);
-  kalWrite(1, p, strlen(p) + 1, &ulActual);
+  io_log("009\n");
+  KalWrite(1, p, strlen(p) + 1, &ulActual);
 
   io_log("Starting %s LX exe...\n", name);
   rc = trampoline (&param);
@@ -203,11 +228,11 @@ APIRET CDECL kalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   STKOUT
 
   /* wait for our termination */
-  kalExit(1, 0); // successful return
+  KalExit(1, 0); // successful return
 
   /* Free all the memory allocated by the process */
   //for (ptr = areas_list; ptr; ptr = ptr->next)
-    //kalFreeMem(ptr->addr);
+    //KalFreeMem(ptr->addr);
 
   return NO_ERROR;
 }

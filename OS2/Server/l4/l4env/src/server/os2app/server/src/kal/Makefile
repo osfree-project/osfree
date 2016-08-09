@@ -4,7 +4,7 @@ L4DIR		=  $(PKGDIR)/../..
 TARGET		= libkal.s.so
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= api.c start.c wrap.c util.c
+SRC_C		= api.c start.c util.c # wrap.c
 LIBS		= -los2exec -los2fs -los2server -los2app -los2compat -lloaderif.p -levents  -llist_alloc.p \
 		  -lgeneric_fprov.p -ldemangle.p -ldm_mem.p -ldm_generic.p    -lsemaphore.p \
 		  -lslab.p -llogserver_capsule.p     -ldm_generic.p -lnames.p \

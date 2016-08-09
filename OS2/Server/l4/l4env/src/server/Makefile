@@ -5,7 +5,7 @@ L4DIR	?= $(PKGDIR)/../../..
 # contain a Makefile. If you need to change this, uncomment the following
 # line and adapt it.
 SERVERS  = os2srv os2fs os2exec
-MISC     = os2app ixf kal
+MISC     = os2app ixf
 DIRS     = include idl lib server src
 TARGET   = os2fs os2srv os2exec os2app
 

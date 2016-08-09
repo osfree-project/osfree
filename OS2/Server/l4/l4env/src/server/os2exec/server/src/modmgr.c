@@ -675,7 +675,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
   int i, n, rc;
 
   memset(line, 0, 0x100);  
-  rc = io_load_file("c:\\dl.map", &addr, &size);
+  rc = io_load_file("c:\\kal.map", &addr, &size);
 
   if (rc)
     return rc;
@@ -738,13 +738,13 @@ unsigned long ModInitialize(void)
   module_root.module_struct = 0;
   module_root.next = 0;
 
-  // Register DL.DLL
+  // Register KAL.DLL
 
   ixf=malloc(sizeof(IXFModule));
 
   ixf->name  = (char *)malloc(4);
-  strcpy(ixf->name, "DL");
-  
+  strcpy(ixf->name, "KAL");
+
   ixf->Load  = NULL;
   ixf->Fixup = NULL;
   ixf->FormatStruct = NULL;
@@ -880,7 +880,7 @@ unsigned long ModInitialize(void)
   }
 #endif  
 
-  new_module_el = ModRegister("DL", ixf, 0);
+  new_module_el = ModRegister("KAL", ixf, 0);
   //new_module_el->load_status = DONE_LOADING;
 
   return NO_ERROR;
@@ -1354,6 +1354,8 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
   //char name[256];
   struct module_rec *prev;
 
+  //enter_kdebug(">");
+
   // Link module (import table resolving)
   for (imports_counter=0;
        imports_counter<ixfModule->cbFixups;
@@ -1395,10 +1397,10 @@ void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod)
     }
 
     /* Is the EXE module placed under the DLL module in memory? */
-    if((ixfModule->Fixups[imports_counter].SrcAddress) < (ixfModule->Fixups[imports_counter].ImportEntry.Address))
+    //if((ixfModule->Fixups[imports_counter].SrcAddress) < (ixfModule->Fixups[imports_counter].ImportEntry.Address))
       relative_jmp = (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address) - (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress)-4;
-    else
-      relative_jmp = 0xffffffff-((unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress) - (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address))-3;
+    //else
+    //  relative_jmp = 0xffffffff-((unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress) - (unsigned long)(ixfModule->Fixups[imports_counter].ImportEntry.Address))-3;
 
     io_log("jmp=%x=%x\n", (unsigned long)(ixfModule->Fixups[imports_counter].SrcAddress), relative_jmp);
     *((unsigned long *) ixfModule->Fixups[imports_counter].SrcVmAddress) = relative_jmp;

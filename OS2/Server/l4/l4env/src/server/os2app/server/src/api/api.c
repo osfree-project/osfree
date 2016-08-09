@@ -16,33 +16,7 @@ extern ULONG rcCode;
 
 extern l4os3_cap_idx_t execsrv;
 
-extern vmdata_t **pareas_list;
-
-vmdata_t *get_area(l4_addr_t addr)
-{
-  vmdata_t *ptr;
-
-  for (ptr = *pareas_list; ptr; ptr = ptr->next)
-  {
-    if (ptr->addr <= addr && addr <= ptr->addr + ptr->size)
-      break;
-  }
-
-  return ptr;
-}
-
-vmdata_t *get_mem_by_name(char *pszName)
-{
-  vmdata_t *ptr;
-
-  for (ptr = *pareas_list; ptr; ptr = ptr->next)
-  {
-    if (ptr->name[0] && ! strcmp(ptr->name, pszName))
-      break;
-  }
-
-  return ptr;
-}
+extern vmdata_t *areas_list;
 
 void DICE_CV
 os2app_app_GetLoadError_component(CORBA_Object _dice_corba_obj,
@@ -77,7 +51,7 @@ os2app_app_AddArea_component(CORBA_Object _dice_corba_obj,
   if (! ptr)
     return ERROR_INVALID_ADDRESS;
 
-  io_log("areas_list=%x\n", *pareas_list);
+  io_log("areas_list=%x\n", areas_list);
   io_log("addr=%x, size=%x\n", addr, size);
 
   ptr->is_shared = 1;
@@ -87,10 +61,10 @@ os2app_app_AddArea_component(CORBA_Object _dice_corba_obj,
   ptr->addr = addr;
   ptr->size = size;
   *(ptr->name) = '\0';
-  if (*pareas_list) (*pareas_list)->prev = ptr;
-  ptr->next = *pareas_list;
+  if (areas_list) (areas_list)->prev = ptr;
+  ptr->next = areas_list;
   ptr->prev = 0;
-  *pareas_list = ptr;
+  areas_list = ptr;
   return 0;
 }
 
