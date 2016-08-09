@@ -1,5 +1,7 @@
-PKGDIR		?= ..
+PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../../../..
+
+include $(PKGDIR)/../../../mk/settings.mk
 
 TARGET		= os2fs
 # the default relocation address. This may be superseded by a STATIC file.
@@ -29,8 +31,7 @@ LIBS  = -lgeneric_fprov-server -levents -los2server -los2compat # -Bdynamic -lka
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LDFLAGS		= -shared
-CFLAGS          = -I$(PKGDIR)/include -I$(PKGDIR)/server/api/glob
+CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob
 MODE            = l4env_base
 
 include $(L4DIR)/mk/prog.mk
-

@@ -1,12 +1,14 @@
 PKGDIR		?= ../../..
 L4DIR		?= $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= libmemmgr.s.so
 MODE		= l4env
 SYSTEMS		= x86-l4v2
 SRC_C		= memmgr.c
 LIBS		= -ll4sys -ll4sys.p
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 include $(L4DIR)/mk/lib.mk
 

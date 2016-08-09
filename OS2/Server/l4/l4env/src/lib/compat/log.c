@@ -11,7 +11,9 @@ void io_log(const char* chrFormat, ...)
     va_list arg_ptr;
 
     va_start (arg_ptr, chrFormat);
+#ifdef DEBUG
     LOG_vprintf(chrFormat, arg_ptr);
+#endif
     va_end (arg_ptr);
 }
 

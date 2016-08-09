@@ -1,12 +1,14 @@
 PKGDIR		?= ../../../..
 L4DIR		?= $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= liblx.s.so
 TRG             = lx.ixf
 MODE		= l4env
 SYSTEMS		= x86-l4v2
 SRC_C		= lx.c mod.c load.c loadobj.c fixup.c debug.c l4alloc_mem.c
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 NO_DEFAULT_RELOC= 1
 LDFLAGS		= --dynamic-linker libld-l4.s.so \

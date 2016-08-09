@@ -1,12 +1,14 @@
 PKGDIR		?= ../../..
 L4DIR		=  $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= libos2compat.a
 MODE		= l4env
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
 SRC_C		= log.c fileprov.c thread.c dataspace.c rm.c err.c segment.c
 LIBS		= 
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 include $(L4DIR)/mk/lib.mk
 

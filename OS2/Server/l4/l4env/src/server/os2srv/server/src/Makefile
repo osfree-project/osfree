@@ -1,6 +1,8 @@
 PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../../../..
 
+include $(PKGDIR)/../../../mk/settings.mk
+
 TARGET		= os2srv
 # the default relocation address. This may be superseded by a STATIC file.
 DEFAULT_RELOC	= 0x01800000
@@ -30,6 +32,6 @@ LIBS		= -los2common -los2app -los2compat -lgeneric_fprov -los2server -los2fs -lt
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 MODE=l4env_base
 include $(L4DIR)/mk/prog.mk

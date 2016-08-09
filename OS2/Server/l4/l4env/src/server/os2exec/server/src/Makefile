@@ -1,6 +1,8 @@
 PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../../../..
 
+include $(PKGDIR)/../../../mk/settings.mk
+
 TARGET		= execsrv
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2
@@ -18,7 +20,7 @@ LIBS		= -Bdynamic -lmemmgr.s -ldl.s -Bstatic \
                   -ldm_phys -ll4env_err -ll4rm -lloaderif -levents
 DEFAULT_RELOC   = 0xba000000
 SERVERIDL	= os2exec.idl
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 include $(L4DIR)/mk/prog.mk
 

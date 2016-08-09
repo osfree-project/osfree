@@ -237,7 +237,7 @@ int io_load_file33(const char * filename, void ** addr, unsigned long * size) {
       };
 
       dm_id = l4env_get_default_dsm();
-     if (l4_is_invalid_id(dm_id))
+      if (l4_is_invalid_id(dm_id))
       {
         io_printf("Bad dataspace!\n");
         return 1;

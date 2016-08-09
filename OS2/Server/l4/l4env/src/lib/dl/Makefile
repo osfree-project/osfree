@@ -1,6 +1,8 @@
 PKGDIR		?= ../../..
 L4DIR		?= $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= libdl.a
 MODE		= l4env
 SYSTEMS		 = x86-l4v2 arm-l4v2 amd64-l4v2

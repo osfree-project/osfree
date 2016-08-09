@@ -1,12 +1,14 @@
 PKGDIR		?= ../../../..
 L4DIR		?= $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= libne.s.so
 TRG             = ne.ixf
 MODE		= l4env
 SYSTEMS		= x86-l4v2
 SRC_C		= ne.c
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 NO_DEFAULT_RELOC= 1
 LDFLAGS		= --dynamic-linker libld-l4.s.so \

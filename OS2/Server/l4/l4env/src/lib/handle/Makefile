@@ -1,13 +1,15 @@
 PKGDIR		?= ../../..
 L4DIR		?= $(PKGDIR)/../..
 
+include $(PKGDIR)/mk/settings.mk
+
 TARGET		= libhandle.a
 MODE		= l4env
 SYSTEMS		 = x86-l4v2 arm-l4v2 amd64-l4v2
 SRC_C		= handlemgr.c
 LIBS		= 
 LDFLAGS		= 
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 
 # for debugging don't edit this file buf create ./Makeconf.local with DEBUG=1
 # be aware that enabling DEBUG here depends on DEBUG in ldso too because of
