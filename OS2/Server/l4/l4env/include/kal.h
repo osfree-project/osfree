@@ -110,6 +110,10 @@ void KalQuit(void);
 
 APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError);
 
+APIRET CDECL KalDlOpen(PSZ name, PULONG handle);
+APIRET CDECL KalDlSym(ULONG handle, PSZ sym, PPVOID addr);
+APIRET CDECL KalDlRoute(ULONG handle, PSZ name, ...);
+
 APIRET CDECL
 KalOpenL (PSZ pszFileName,
           HFILE *phFile,

@@ -21,7 +21,7 @@ strlstlen(char *p)
 
   if (!p || !*p)
     return 2;
-    
+
   while (*p) // skip all lines; break if NULL
   {
     /* skip one string */
@@ -33,7 +33,7 @@ strlstlen(char *p)
 
   if (!len)
     len++;
-    
+
   len++; // include NULL symbol
 
   return len;
@@ -66,13 +66,13 @@ unsigned char parse_drv(char *path) {
     if((i >= 2) && (path[1] == ':')) {
         return path[0];
     }
-    return '\0';   
+    return '\0';
 }
 
 /*  
   Only return path from presumed absolute path.*/
 char *parse_path(char *path, char *ret_buffer, int buf_len) {
-    
+
     unsigned char drive = parse_drv(path);
     if(drive)/*If there is a device letter. */
         /* Skip drive and copy path. */

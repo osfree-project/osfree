@@ -51,9 +51,6 @@ os2app_app_AddArea_component(CORBA_Object _dice_corba_obj,
   if (! ptr)
     return ERROR_INVALID_ADDRESS;
 
-  io_log("areas_list=%x\n", areas_list);
-  io_log("addr=%x, size=%x\n", addr, size);
-
   ptr->is_shared = 1;
   ptr->owner = L4_INVALID_ID;
   ptr->area = shared_memory_area;
@@ -76,7 +73,6 @@ os2app_app_AttachDataspace_component(CORBA_Object _dice_corba_obj,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
   l4_uint32_t area = shared_memory_area;
-  io_log("*** attach dataspace\n");
   return attach_ds_area(*ds, area, rights, addr);
 }
 
@@ -85,6 +81,5 @@ os2app_app_ReleaseDataspace_component(CORBA_Object _dice_corba_obj,
                                       const l4dm_dataspace_t *ds /* in */,
                                       CORBA_Server_Environment *_dice_corba_env)
 {
-  io_log("*** release dataspace\n");
   return l4dm_close(ds);
 }

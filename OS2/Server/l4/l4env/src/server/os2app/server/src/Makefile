@@ -7,12 +7,12 @@ TARGET		= os2app
 TRG             = kal.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c $(PKGDIR)/../shared/startup/startup.c api/api.c \
+SRC_C		= main.c dl.c $(PKGDIR)/../shared/startup/startup.c api/api.c \
                   kal/kal.c kal/start.c kal/util.c
 CFLAGS          += -I$(PKGDIR)/../../../include
 # NO_DEFAULT_RELOC= 1
 LIBS		= -los2exec -los2fs -los2server -los2app -los2compat -lloaderif -levents \
-                  -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
+                  -ldl -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
 #                  -Bdynamic -lkal.s
 # LDFLAGS		= -shared
 DEFAULT_RELOC   = 0xbb000000

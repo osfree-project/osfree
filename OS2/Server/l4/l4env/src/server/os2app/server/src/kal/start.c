@@ -64,7 +64,6 @@ trampoline(struct param *param)
 
   /* TIB base */
   base = (unsigned long)param->tib;
-  io_log("base=%x\n", base);
   io_log("ptib[0]=%x\n", ptib[0]);
 
   /* Prepare TIB GDT descriptor */
@@ -133,29 +132,8 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   char *p = buf;
   int i;
 
-  /* if (!names_waitfor_name("os2exec", &execsrv, 30000))
-    {
-      io_log("Can't find os2exec on names, exiting...\n");
-      kalExit(1, 1);
-    }
-
-  if (!names_waitfor_name("os2fs", &fs, 30000))
-    {
-      io_log("Can't find os2fs on names, exiting...\n");
-      kalExit(1, 1);
-    }
-
-  if (!names_waitfor_name("os2srv", &os2srv, 30000))
-    {
-      io_log("Can't find os2srv on names, exiting...\n");
-      kalExit(1, 1);
-    } */
-
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify1_call (&os2srv, &env);
-
-  // release the reserved area needed for OS/2 binary
-  //l4rm_area_release(holdarea);
 
   /* Load the LX executable */
   rc = KalPvtLoadModule(pszLoadError, cbLoadError,
@@ -172,36 +150,22 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   param.eip = s.ip;
   param.esp = s.sp;
 
-  io_log("000\n");
-
   strcpy(s.path, name);
-
-  io_log("001\n");
 
   /* notify OS/2 server about parameters got from execsrv */
   os2server_app_notify2_call (&os2srv, &s, &env);
 
-  io_log("002\n");
-
   STKINIT(__stack - 0x800)
-
-  io_log("003\n");
 
   rc = KalQueryCurrentDisk(&curdisk, &map);
 
   if (rc)
     io_log("Cannot get the current disk!\n");
 
-  io_log("004\n");
-
   param.curdisk = curdisk;
-
-  io_log("005\n");
 
   /* get the info blocks (needed by C startup code) */
   rc = KalMapInfoBlocks(&ptib[0], &ppib);
-
-  io_log("006\n");
 
   // initialize TIB pointers array
   for (i = 1; i < 128; i++)
@@ -210,15 +174,10 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   param.pib = ppib;
   param.tib = ptib[0];
 
-  io_log("007\n");
-
   l4rm_show_region_list();
-
-  io_log("008\n");
 
   // write PID to the screen
   sprintf(p, "The process id is %lx\n", ppib->pib_ulpid);
-  io_log("009\n");
   KalWrite(1, p, strlen(p) + 1, &ulActual);
 
   io_log("Starting %s LX exe...\n", name);

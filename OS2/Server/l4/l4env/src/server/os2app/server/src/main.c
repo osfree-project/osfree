@@ -50,8 +50,6 @@ l4_addr_t   shared_memory_base = 0x60000000;
 l4_size_t   shared_memory_size = 1024*1024*1024;
 l4_uint32_t shared_memory_area;
 
-vmdata_t **pareas_list = NULL;
-
 // use events server flag
 char use_events = 0;
 /* previous stack (when switching between 
@@ -84,20 +82,13 @@ VOID CDECL __exit(ULONG action, ULONG result);
 
 void event_thread(void);
 
-void __fiasco_gdt_set(void *desc, unsigned int size,
-                      unsigned int entry_number_start, l4os3_cap_idx_t tid);
-
-unsigned __fiasco_gdt_get_entry_offset(void);
-
-ULONG kalHandle;
-
-struct kal_init_struct initstr;
+void test(void);
 
 void usage(void)
 {
   io_log("os2app usage:\n");
   io_log("-e:  Use events server");
-} 
+}
 
 VOID CDECL
 __exit(ULONG action, ULONG result)
@@ -139,8 +130,8 @@ void event_thread(void)
   {
     /* wait for event */
     if ((rc = l4events_give_ack_and_receive(&event_ch, &event, &event_nr,
-					    L4_IPC_NEVER,
-					    L4EVENTS_RECV_ACK))<0)
+                                            L4_IPC_NEVER,
+                                            L4EVENTS_RECV_ACK)) < 0)
     {
       io_log("l4events_give_ack_and_receive()\n");
       continue;
@@ -180,11 +171,6 @@ int main (int argc, char *argv[])
   CORBA_srv_env env = default_srv_env;
   l4thread_t thread;
   l4_threadid_t tid;
-  //l4_uint32_t area;
-  //struct desc *dsc;
-  //int i, stop, start;
-  //unsigned long base;
-  //l4_threadid_t task;
   int rc = 0;
   int optionid;
   int opt = 0;
@@ -192,7 +178,7 @@ int main (int argc, char *argv[])
   const struct option long_options[] =
                 {
                 { "events",      no_argument, NULL, 'e'},
-		{ 0, 0, 0, 0}
+                { 0, 0, 0, 0}
                 };
 
   if (!names_waitfor_name("os2srv", &os2srv, 30000))
@@ -249,50 +235,10 @@ int main (int argc, char *argv[])
   l4env_infopage->fprov_id = fprov_id;
   l4env_infopage->memserv_id = dsm;
 
-  //if ((rc = DlOpen("/file/system/libkal.s.so", &kalHandle)))
-  //{
-    //io_log("Can't load libkal.s.so!\n");
-    //__exit(1, 1);
-  //}
-
-  //io_log("kalHandle=%lu\n", kalHandle);
-
   // start server loop
   thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
   tid = l4thread_l4_id(thread);
   service_lthread = tid.id.lthread;
-
-  //fill in the parameter structure for KalInit
-  /* initstr.stack   = __stack;
-  initstr.shared_memory_base = shared_memory_base;
-  initstr.shared_memory_size = shared_memory_size;
-  initstr.shared_memory_area = shared_memory_area;
-  initstr.service_lthread    = service_lthread;
-  initstr.l4rm_do_attach = l4rm_do_attach;
-  initstr.l4rm_detach = l4rm_detach;
-  initstr.l4rm_lookup        = l4rm_lookup;
-  initstr.l4rm_lookup_region = l4rm_lookup_region;
-  initstr.l4rm_do_reserve  = l4rm_do_reserve;
-  initstr.l4rm_do_reserve_in_area  = l4rm_do_reserve_in_area;
-  initstr.l4rm_set_userptr   = l4rm_set_userptr; 
-  initstr.l4rm_get_userptr   = l4rm_get_userptr;
-  initstr.l4rm_area_release  = l4rm_area_release;
-  initstr.l4rm_area_release_addr = l4rm_area_release_addr;
-  initstr.l4rm_show_region_list = l4rm_show_region_list;
-  initstr.l4dm_memphys_copy = l4dm_memphys_copy;
-  initstr.l4env_get_default_dsm  = l4env_get_default_dsm;
-  initstr.l4thread_exit = l4thread_exit;
-  initstr.l4thread_on_exit = l4thread_on_exit;
-  initstr.l4thread_create_long = l4thread_create_long;
-  initstr.l4thread_shutdown = l4thread_shutdown;
-  initstr.l4thread_l4_id = l4thread_l4_id;
-  initstr.l4thread_get_parent = l4thread_get_parent;
-  initstr.fiasco_gdt_set         = __fiasco_gdt_set;
-  initstr.fiasco_gdt_get_entry_offset = __fiasco_gdt_get_entry_offset;
-  initstr.logtag = LOG_tag;
-
-  // init kal.dll
-  DlRoute(0, "KalInit", &initstr); */
 
   // Parse command line arguments
   for (;;)
@@ -303,9 +249,9 @@ int main (int argc, char *argv[])
     {
       case 'e':
         io_log("using events server\n");
-	use_events = 1;
-	break;
-      
+        use_events = 1;
+        break;
+
       default:
         io_log("Error: Unknown option %c\n", opt);
         usage();
@@ -346,19 +292,10 @@ int main (int argc, char *argv[])
     io_log("event thread started\n");
   } */
 
-  //DlSym(kalHandle, "areas_list", &pareas_list);
-
-  // release the reserved area for application
-  //rc = l4rm_area_release(holdarea);
+  // dummy function needed for the linker to link dl.o with the program
+  test();
 
   io_log("calling KalStartApp...\n");
-  //rcCode = DlRoute(0, "KalStartApp", argv[argc - 1], pszLoadError, sizeof(pszLoadError));
   KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
-
-  // server loop
-  //env.malloc = (dice_malloc_func)malloc;
-  //env.free = (dice_free_func)free;
-  //os2app_server_loop(&env);
-
   return 0;
 }
