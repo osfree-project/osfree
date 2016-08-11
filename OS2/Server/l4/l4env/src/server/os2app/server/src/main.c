@@ -75,7 +75,7 @@ l4os3_cap_idx_t fprov_id;
 l4_uint32_t service_lthread;
 
 char pszLoadError[260];
-ULONG rcCode;
+ULONG rcCode = 0;
 
 void usage(void);
 VOID CDECL __exit(ULONG action, ULONG result);
@@ -145,17 +145,6 @@ void event_thread(void)
   }
 }
 #endif
-
-void __fiasco_gdt_set(void *desc, unsigned int size,
-                      unsigned int entry_number_start, l4_threadid_t tid)
-{
-  l4os3_gdt_set(desc, size, entry_number_start, tid);
-}
-
-unsigned __fiasco_gdt_get_entry_offset(void)
-{
-  return l4os3_gdt_get_entry_offset();
-}
 
 void server_loop(void)
 {

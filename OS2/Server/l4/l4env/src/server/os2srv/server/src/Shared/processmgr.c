@@ -54,7 +54,7 @@ static int pid = -1;
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
 
-void l4os3_os2_exec(char *pName, struct t_os2process *proc);
+int l4os3_os2_exec(char *pName, struct t_os2process *proc);
 
 extern struct module_rec module_root; /* Root for module list.*/
 
@@ -947,7 +947,10 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   /* assign args and env      */
   //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
-  l4os3_os2_exec(p_buf, proc);
+  rc = l4os3_os2_exec(p_buf, proc);
+
+  if (rc)
+    return rc;
 
   /* set termination code */
   switch (execFlag)

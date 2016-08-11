@@ -11,6 +11,7 @@
 #include <l4/dm_phys/dm_phys.h>
 #include <l4/lock/lock.h>
 #include <l4/sys/syscalls.h>
+#include <l4/sys/segment.h>
 #include <l4/sys/types.h>
 /* osFree includes */
 #include <l4/os3/gcc_os2def.h>
@@ -716,6 +717,9 @@ KalExecPgm(char *pObjname,
 
   KalEnter();
 
+  if (execFlag > 6)
+    return ERROR_INVALID_FUNCTION;
+
   /* if no path specified, add the current dir */
   if (pName[1] != ':')
   {
@@ -777,6 +781,7 @@ KalExecPgm(char *pObjname,
                         &cbObjname, execFlag, pArg, i,
                         pEnv, j,
                         pRes, pName, &env);
+  io_log("=== rc=%lu\n", rc);
   KalQuit();
   return rc;
 }
@@ -2169,10 +2174,10 @@ static void thread_func(void *data)
   desc.base_hi  = base >> 24;
 
   /* Allocate a GDT descriptor */
-  __fiasco_gdt_set(&desc, sizeof(struct desc), 0, thread);
+  fiasco_gdt_set(&desc, sizeof(struct desc), 0, thread);
 
   /* Get a selector */
-  sel = (sizeof(struct desc)) * __fiasco_gdt_get_entry_offset();
+  sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();
 
   // set fs register to TIB selector
   //enter_kdebug("debug");

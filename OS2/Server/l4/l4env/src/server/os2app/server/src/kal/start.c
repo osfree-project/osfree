@@ -43,7 +43,7 @@ extern unsigned short tib_sel;
 
 extern vmdata_t *areas_list;
 
-extern l4_uint32_t holdarea;
+extern ULONG rcCode;
 
 /* OS/2 app main thread */
 int
@@ -137,7 +137,9 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 
   /* Load the LX executable */
   rc = KalPvtLoadModule(pszLoadError, cbLoadError,
-                       name, &s, &hmod);
+                        name, &s, &hmod);
+
+  rcCode = rc;
 
   if (rc)
   {

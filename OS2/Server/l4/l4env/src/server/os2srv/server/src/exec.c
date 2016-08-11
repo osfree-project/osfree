@@ -44,13 +44,13 @@ extern l4os3_cap_idx_t loader_id;
 extern l4os3_cap_idx_t fprov_id;
 extern l4os3_cap_idx_t dsm_id;
 
-void l4os3_exec(char *cmd, char *params, l4_taskid_t *taskid);
-void l4os3_os2_exec(char *pName, struct t_os2process *proc);
+int l4os3_exec(char *cmd, char *params, l4_taskid_t *taskid);
+int l4os3_os2_exec(char *pName, struct t_os2process *proc);
 
 // use events server
 extern char use_events;
 
-void
+int
 l4os3_exec(char *cmd, char *params, l4_taskid_t *taskid)
 {
   #define MAX_TASK_ID 16
@@ -110,29 +110,37 @@ l4os3_exec(char *cmd, char *params, l4_taskid_t *taskid)
   /* RPC to L4 loader to start OS/2 app L4 startup */
   if ((error = l4loader_app_open_call(&loader_id, &ds, cmd_buf,
                                         &fprov_id, 0, task_ids,
-                                        &ptr, &env)))
+                                        &ptr, &env)) < 0)
     {
-      if (error == -L4_ENOTFOUND)
-        io_log("file %s not found!\n", cmd_buf);
-
-      io_log("  Error %d (%s) loading application\n",
-          error, l4os3_errtostr(error));
-
-      if (*error_msg)
-        io_log("  (Loader says:'%s')\n", error_msg);
- 
-      while (1) l4_sleep(0.1);
+      switch (-error)
+      {
+        case L4_ENOTFOUND:
+          io_log("file %s not found!\n", cmd_buf);
+          return ERROR_FILE_NOT_FOUND;
+        case L4_ENOMEM:
+          io_log("Not enough memory!\n");
+          return ERROR_NOT_ENOUGH_MEMORY;
+        case L4_EINVAL:
+          io_log("Invalid data!\n");
+          return ERROR_INVALID_DATA;
+        default:
+          io_log("General failure loading the ELF file!\n");
+          return ERROR_GEN_FAILURE;
+      }
     }
+
   *taskid = task_ids[0];
+  return NO_ERROR;
 }
 
 
-void l4os3_os2_exec(char *pName, struct t_os2process *proc)
+int l4os3_os2_exec(char *pName, struct t_os2process *proc)
 {
     l4os3_cap_idx_t    taskid;
+    int rc;
 
-    l4os3_exec("os2app", pName, &taskid);
+    rc = l4os3_exec("os2app", pName, &taskid);
     proc->task = taskid;
-    
+    return rc;
 }
 
