@@ -77,6 +77,20 @@ size_t strnlen(const char * s, size_t count)
         return sc - s;
 }
 
+char *
+strncpy (char *dest, const char *src, size_t n)
+{
+  int i;
+
+  for (i = 0; i < n; i++) {
+    dest[i] = src[i];
+    if (!src[i]) break;
+  }
+  dest[n] = '\0';
+
+  return dest;
+}
+
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
 {
         unsigned long result = 0,value;

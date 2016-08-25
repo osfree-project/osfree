@@ -8,6 +8,8 @@ rem ............................
 
 @echo Creating bootable iso image...
 
+set rexx=
+
 rem Current working directory
 set cwd=%ROOT%bootseq\loader
 

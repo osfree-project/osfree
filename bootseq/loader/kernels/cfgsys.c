@@ -41,6 +41,7 @@ char drv;
 #define EDT_FORCE_START 1
 #define EDT_QUIET       2
 
+char *strncpy (char *dest, const char *src, int n);
 int editor (char *cfg, int len, unsigned long force);
 int kprintf(const char *format, ...);
 int toupper (int c);
@@ -476,6 +477,22 @@ int load_modules (char *cfg, int len)
   return 0;
 }
 
+int starts_with(char *str, char *s)
+{
+  int len = strlen(s), i;
+  char *p = s;
+  char buf[20];
+  while (*p) *p++ = toupper(*p);
+  p = str;
+  while (*p != ' ' && *p != '\n') p--;
+  if (*p == '\n') return 0;
+  strncpy(buf, p - len, len);
+  buf[len] = '\0';
+  p = buf;
+  while (*p) *p++ = toupper(*p);
+  return (! strcmp(buf, s));
+}
+
 /* a callback function which is called by a microfsd
    for config.sys preprocessing/patching/editing    */
 struct multiboot_info *
@@ -485,7 +502,7 @@ callback(unsigned long addr,
          int drvletter2,
          struct term_entry *term)
 {
-  int i;
+  int i, j;
   char *cfg, *p;
   struct mod_list *mod;
   struct AddrRangeDesc *pp;
@@ -512,8 +529,29 @@ callback(unsigned long addr,
   {
     if (cfg[i + 1] == ':' && cfg[i] == '@') /* change '@' symbol to a boot drive letter */
       cfg[i] = drvletter;
-    if (cfg[i + 1] == ':' && cfg[i] == '!') /* change '!' symbol to a secondary boot drive letter (when booting from ramdisk) */
-      cfg[i] = drvletter2;
+    if (drvletter2 == '*')
+    {
+      if (cfg[i + 1] == ':' && cfg[i] == '!')
+      {
+        if ( starts_with(cfg + i, "set") )
+          // change !: to @: for locatecd.sys
+          cfg[i] = '@';
+        else
+        {
+          // delete driveletter for device/call/run/protshell
+          j = 0;
+          while (cfg[i + j] != '\n') j++;
+          memmove(cfg + i, cfg + i + 2, j - 2);
+          cfg[i + j - 2] = ' ';
+          cfg[i + j - 1] = ' ';
+        }
+      }
+    }
+    else
+    {
+      if (cfg[i + 1] == ':' && cfg[i] == '!') /* change '!' symbol to a secondary boot drive letter (when booting from ramdisk) */
+        cfg[i] = drvletter2;
+    }
   }
 
   /* Start config.sys editor */

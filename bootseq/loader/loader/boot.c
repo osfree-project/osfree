@@ -43,7 +43,7 @@ int exec_cmd(char *cmd);
 //static
 int cur_addr;
 entry_func entry_addr;
-static struct mod_list mll[99];
+static struct mod_list mll[256];
 static int linux_mem_size;
 bios_parameters_block *bpb;
 

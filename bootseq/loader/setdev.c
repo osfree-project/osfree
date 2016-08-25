@@ -55,7 +55,7 @@ char *
 set_device (char *device)
 {
 #ifdef STAGE1_5
-    /* In Stage 1.5, the first 4 bytes of FILENAME has a device number.  */
+  /* In Stage 1.5, the first 4 bytes of FILENAME has a device number.  */
   unsigned long dev = *((unsigned long *) device);
   int drive = (dev >> 24) & 0xFF;
   int partition = dev & 0xFFFFFF;

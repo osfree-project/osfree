@@ -477,6 +477,10 @@ set32:
         ; set bootflags
         mov  dx, [eax]
 endif
+        ; set bootdrive
+        mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
+        mov  dl, [eax]
+
         ; set BPB
         ;mov  eax, BOOTSEC_BASE
         ;shr  eax, 4
@@ -484,10 +488,6 @@ endif
         sub  ax,  20h
         mov  ds,  ax
         mov  si,  0bh           ; 3 + 8 = 11 -- BPB offset from the beginning of boot sector
-
-        ; set bootdrive
-        mov  eax, offset _TEXT:boot_drive - STAGE0_BASE
-        mov  dl, [eax]
 
 retctl:
 ifndef STAGE1_5

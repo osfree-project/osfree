@@ -1904,7 +1904,7 @@ void init(void)
   //  cli
   //  hlt
   //}
-
+  
 #ifndef STAGE1_5
   /* Set cdrom drive.   */
   /* Get the geometry.  */
