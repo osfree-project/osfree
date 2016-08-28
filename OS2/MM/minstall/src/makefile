@@ -30,7 +30,7 @@ IMPORTS = MINSTALL_Init MINSTALL, &
           MINSTALL_SetCARDINFOChoiceForGroup MINSTALL, &
           MINSTALL_CleanUp MINSTALL
 ADD_LINKOPT = lib mm_shared
-
-DEST = mmos2
+UNI2H = 1
+DEST  = mmos2
 
 !include $(%ROOT)/mk/appsos2_pm.mk

@@ -8,9 +8,10 @@ PROJ     = mmioGIF
 DESC     = GIF Format I/O Procedure
 srcfiles = $(p)gifproc$(e)
 ADD_COPT = -i=..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until mmos2 .uni modules will be ready
-ADD_LINKOPT  = lib os2386.lib, clib3r.lib, gbm.lib, libtiff.lib, &
+ADD_LINKOPT  = lib gbm.lib, libtiff.lib, &
                libjpeg.lib, libpng.lib, libz.lib, ojpeg.lib &
                segment type DATA shared
+UNI2H    = 1
 DLL      = 1
 DLLOPT   = initglobal
 OPTIONS  = manyautodata
