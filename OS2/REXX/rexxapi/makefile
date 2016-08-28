@@ -68,6 +68,7 @@ EXPORTS      = &
     RXFUNCTIONDEREGISTER.48 RESIDENT
 
 DEST         = os2$(SEP)dll
+#UNI2H        = 1
 
 # number of 16-bit subcommand wrappers (see rexxapi16.c)
 NUMWRAP = 1024

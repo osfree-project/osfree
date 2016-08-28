@@ -13,11 +13,11 @@ srcfiles = $(p)init$(e) $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e
            $(p)windowmgr$(SEP)WindowClass$(e) $(p)load$(SEP)load$(e) $(p)Fc_config$(e) $(p)util$(e) &
            $(p)F_debug$(e) $(p)unimpl$(e) # $(p)dialogs$(SEP)windlgbox$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include  -sg -of+
-ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
+# ADD_LINKOPT  = segment   type DATA nonshared lib os2386.lib lib clib3r.lib
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=dll_initterm
-# UNI2H = 1
+UNI2H = 1
 
 IMPORTS = &
 # utlapi

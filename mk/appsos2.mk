@@ -16,9 +16,12 @@ ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 !ifeq UNI2H 1
 # generated uni2h headers
 
-ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+#ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
+#                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
+#                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+
+ADD_COPT    +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)sub32 &
+                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifneq NOLIBS 1
 ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &

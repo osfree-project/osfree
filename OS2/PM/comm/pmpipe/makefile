@@ -19,6 +19,7 @@ DEST    = os2$(SEP)dll
 
 ADD_COPT = -bm -sg -s
 ADD_LINKOPT  = segment type DATA nonshared
+UNI2H   = 1
 DLL     = 1
 DLLOPT  = initinstance terminstance
 EXPORTS  = _InitServerConnection.1,      &

@@ -13,6 +13,7 @@ srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e
 ADD_COPT = -bm -od -mf -sg -s
 #ADD_LINKOPT  = lib gdlib.lib
 ADD_LINKOPT  = segment type DATA nonshared lib gdlib.lib
+UNI2H   = 1
 DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact, start=init

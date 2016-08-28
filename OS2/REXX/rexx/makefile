@@ -27,5 +27,6 @@ EXPORTS      = RexxStart.1, &
 # This function not found in any of OS/2 Toolkits
                RXBREAKCLEANUP.7 RESIDENT
 DEST         = os2$(SEP)dll
+UNI2H        = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

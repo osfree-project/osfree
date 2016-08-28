@@ -10,9 +10,8 @@ OPT         = -d0 -oteanx
 
 PROJ        = rexxutil
 DESC        = REXX Utilities API
-# UNI2H       = 1
-ADD_COPT    = -i=$(MYDIR) -bd -bm -wx -s -mf $(OPT) -6s -fp6 -bd
-ADD_LINKOPT =
+UNI2H       = 1
+ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 # -6s
 DLL         = 1
 DLLOPT      = initinstance terminstance
 OPTIONS     = manyautodata
@@ -90,7 +89,7 @@ EXPORTS = &
    SYSCLEARREXXMACROSPACE.65      = SysClearRexxMacroSpace, &
    SYSLOADREXXMACROSPACE.66       = SysLoadRexxMacroSpace, &
    SYSSAVEREXXMACROSPACE.67       = SysSaveRexxMacroSpace, &
-   SYSSHUTDOWNSYSTEM.68           = SysShutDownSystem, &
+   SYSSHUTDOWNSYSTEM.68           = SysShutDownSystem_, &
    SYSSWITCHSESION.69             = SysSwitchSession, &
 #  Undocumented returns INVALID_ROUTINE
    SYSLOADLIBRARY.70              = SysLoadLibrary, &
