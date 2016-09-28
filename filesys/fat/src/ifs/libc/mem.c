@@ -394,3 +394,10 @@ long int atol( const char _far *p )
     return( value );
 }
 
+int tolower (int c)
+{
+  if (c >= 'A' && c <= 'Z')
+    return (c + ('a' - 'A'));
+
+  return c;
+}

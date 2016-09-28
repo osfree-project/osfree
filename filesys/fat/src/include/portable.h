@@ -16,6 +16,8 @@
 #pragma pack(1)
 #define fastcall _fastcall
 #endif
+#define _loadds
+#define _inline
 #endif
 
 #ifdef __IBMC__ /* IBMC */

@@ -17,7 +17,7 @@ PRIVATE volatile PSHOPENINFO pGlobSH = NULL;
 
 PRIVATE VOID ResetAllCurrents(POPENINFO pOI);
 
-PRIVATE ULONG PositionToOffset(PVOLINFO pVolInfo, POPENINFO pOpenInfo, ULONG ulOffset);
+ULONG PositionToOffset(PVOLINFO pVolInfo, POPENINFO pOpenInfo, ULONG ulOffset);
 PRIVATE USHORT NewSize(PVOLINFO pVolInfo,
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
@@ -27,7 +27,7 @@ PRIVATE USHORT NewSize(PVOLINFO pVolInfo,
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_OPENCREATE(
+int far pascal _loadds FS_OPENCREATE(
     struct cdfsi far * pcdfsi,      /* pcdfsi       */
     void far * pcdfsd,     /* pcdfsd      */
     char far * pName,           /* pName        */
@@ -51,6 +51,7 @@ POPENINFO pOpenInfo = NULL;
 USHORT   usIOMode;
 USHORT rc;
 
+   _asm push es;
 
    usIOMode = 0;
    if (ulOpenMode & OPEN_FLAGS_NO_CACHE)
@@ -67,7 +68,10 @@ USHORT rc;
 
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_OPENCREATEEXIT;
+      }
 
    *pAction = 0;
 
@@ -428,6 +432,9 @@ FS_OPENCREATEEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_OPENCREATE returned %u (Action = %u, OI=%lX)", rc, *pAction, pOpenInfo);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -562,16 +569,21 @@ PSHOPENINFO pSH = pOI->pSHInfo;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_CLOSE(
+int far pascal _loadds FS_CLOSE(
     unsigned short usType,      /* close type   */
     unsigned short IOFlag,      /* IOflag   */
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd       /* psffsd   */
 )
 {
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
-PVOLINFO pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
+POPENINFO pOpenInfo;
+PVOLINFO pVolInfo;
 USHORT  rc = 0;
+
+   _asm push es;
+
+   pOpenInfo = GetOpenInfo(psffsd);
+   pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
 
    if (f32Parms.fMessageActive & LOG_FS)
       {
@@ -585,7 +597,10 @@ USHORT  rc = 0;
       }
 
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_CLOSEEXIT;
+      }
 
    if (usType == FS_CL_FORSYS)
       {
@@ -616,13 +631,16 @@ USHORT  rc = 0;
 FS_CLOSEEXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_CLOSE returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_READ(
+int far pascal _loadds FS_READ(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     char far * pData,           /* pData    */
@@ -632,7 +650,7 @@ int far pascal __loadds  FS_READ(
 {
 USHORT rc;
 PVOLINFO pVolInfo;
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
+POPENINFO pOpenInfo;
 USHORT usBytesRead;
 USHORT usBytesToRead;
 PBYTE  pbCluster;
@@ -640,6 +658,9 @@ ULONG  ulClusterSector;
 USHORT usClusterOffset;
 USHORT usBytesPerCluster;
 
+   _asm push es;
+
+   pOpenInfo = GetOpenInfo(psffsd);
 
    usBytesToRead = *pLen;
    usBytesRead = 0;
@@ -1000,13 +1021,16 @@ FS_READEXIT:
 
     if (f32Parms.fMessageActive & LOG_FS)
         Message("FS_READ returned %u (%u bytes read)", rc, *pLen);
+
+   _asm pop es;
+
     return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_WRITE(
+int far pascal _loadds FS_WRITE(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     char far * pData,           /* pData    */
@@ -1016,7 +1040,7 @@ int far pascal __loadds  FS_WRITE(
 {
 USHORT rc;
 PVOLINFO pVolInfo;
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
+POPENINFO pOpenInfo;
 USHORT usBytesWritten;
 USHORT usBytesToWrite;
 PBYTE  pbCluster;
@@ -1024,14 +1048,18 @@ ULONG  ulClusterSector;
 USHORT usClusterOffset;
 USHORT usBytesPerCluster;
 
+   _asm push es;
+
+   pOpenInfo = GetOpenInfo(psffsd);
+
    usBytesToWrite = *pLen;
    usBytesWritten = 0;
    *pLen = 0;
    pbCluster = NULL;
 
    if (f32Parms.fMessageActive & LOG_FS)
-      Message("FS_WRITE, %u bytes at offset %ld, ioflag %X, size = %lu",
-      usBytesToWrite, psffsi->sfi_position, usIOFlag, psffsi->sfi_size);
+      Message("FS_WRITE, %u bytes at offset %ld, pData=%lx, Len=%u, ioflag %X, size = %lu",
+      usBytesToWrite, psffsi->sfi_position, pData, *pLen, usIOFlag, psffsi->sfi_size);
 
    pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
    if (IsDriveLocked(pVolInfo))
@@ -1040,12 +1068,15 @@ USHORT usBytesPerCluster;
       goto FS_WRITEEXIT;
    }
 
+   //Message("000\n");
 
    if (pVolInfo->fWriteProtected)
    {
       rc = ERROR_WRITE_PROTECT;
       goto FS_WRITEEXIT;
    }
+
+   //Message("001\n");
 
    if (!((psffsi->sfi_mode & 0xFUL) == OPEN_ACCESS_WRITEONLY) &&
        !((psffsi->sfi_mode & 0xFUL) == OPEN_ACCESS_READWRITE))
@@ -1054,11 +1085,14 @@ USHORT usBytesPerCluster;
       goto FS_WRITEEXIT;
       }
 
+   //Message("002\n");
+
    if (!usBytesToWrite)
       {
       rc = NO_ERROR;
       goto FS_WRITEEXIT;
       }
+   //Message("003\n");
 
    pbCluster = malloc(pVolInfo->usClusterSize);
    if (!pbCluster)
@@ -1067,6 +1101,7 @@ USHORT usBytesPerCluster;
       goto FS_WRITEEXIT;
       }
 
+   //Message("004\n");
     if (psffsi->sfi_mode & OPEN_FLAGS_DASD)
     {
         ULONG   ulSector;
@@ -1080,6 +1115,7 @@ USHORT usBytesPerCluster;
         usBytesPerSector    = pVolInfo->BootSect.bpb.BytesPerSector;
         usBytesWritten      = 0;
 
+        //Message("005\n");
         if (pOpenInfo->fSectorMode)
         {
             USHORT usTotNumBytes;
@@ -1092,10 +1128,11 @@ USHORT usBytesPerCluster;
 
             usTotNumBytes = usBytesToWrite * usBytesPerSector;
 
+            //Message("006\n");
             rc = MY_PROBEBUF(PB_OPWRITE, pBufPosition, usTotNumBytes);
             if (rc)
             {
-                Message("Protection VIOLATION in FS_READ! (SYS%d)", rc);
+                Message("Protection VIOLATION in FS_WRITE! (SYS%d)", rc);
                 goto FS_WRITEEXIT;
             }
 
@@ -1108,6 +1145,7 @@ USHORT usBytesPerCluster;
             usSectorOffset  = 0;
             usRemaining     = 0;
             usNumSectors    = usBytesToWrite;
+            //Message("007\n");
             if (ulSector > (pVolInfo->BootSect.bpb.BigTotalSectors - (ULONG)usNumSectors))
             {
                 usNumSectors    = (USHORT)(pVolInfo->BootSect.bpb.BigTotalSectors - ulSector);
@@ -1116,10 +1154,11 @@ USHORT usBytesPerCluster;
         }
         else
         {
+            //Message("008\n");
             rc = MY_PROBEBUF(PB_OPWRITE, pData, usBytesToWrite);
             if (rc)
             {
-                Message("Protection VIOLATION in FS_READ! (SYS%d)", rc);
+                Message("Protection VIOLATION in FS_WRITE! (SYS%d)", rc);
                 goto FS_WRITEEXIT;
             }
 
@@ -1128,6 +1167,7 @@ USHORT usBytesPerCluster;
             usRemaining     = (usSectorOffset + usBytesToWrite) % usBytesPerSector;
             usNumSectors    = (usBytesToWrite - usRemaining)/usBytesPerSector;
 
+            //Message("009\n");
             if (ulSector > (pVolInfo->BootSect.bpb.BigTotalSectors - (ULONG)usNumSectors - (ULONG)(usRemaining ? 1 : 0)))
             {
                 usNumSectors    = (USHORT)(pVolInfo->BootSect.bpb.BigTotalSectors - ulSector);
@@ -1136,26 +1176,31 @@ USHORT usBytesPerCluster;
             usBytesToWrite   = usNumSectors*usBytesPerSector;
         }
 
+        //Message("010\n");
         if (ulSector >= pVolInfo->BootSect.bpb.BigTotalSectors)
         {
             rc = ERROR_SECTOR_NOT_FOUND;
             goto FS_WRITEEXIT;
         }
 
+        //Message("011\n");
         if (ulSector > (pVolInfo->BootSect.bpb.BigTotalSectors - (ULONG)usNumSectors - (ULONG)(usRemaining ? 1 : 0)))
         {
             rc = ERROR_SECTOR_NOT_FOUND;
             goto FS_WRITEEXIT;
         }
 
+        //Message("012\n");
         if (usSectorOffset)
         {
+            //Message("013\n");
             rc = ReadSector(pVolInfo, ulSector, 1, pbCluster, usIOFlag);
             if (rc)
             {
                 goto FS_WRITEEXIT;
             }
             memcpy(pbCluster + usSectorOffset, pBufPosition, usBytesPerSector-usSectorOffset);
+            //Message("014\n");
             rc = WriteSector(pVolInfo, ulSector, 1, pbCluster, usIOFlag);
             if (rc)
             {
@@ -1169,11 +1214,13 @@ USHORT usBytesPerCluster;
 
         if (usNumSectors)
         {
+            //Message("015\n");
             rc = WriteSector(pVolInfo, ulSector, usNumSectors, pBufPosition, usIOFlag);
             if (rc)
             {
                 goto FS_WRITEEXIT;
             }
+            //Message("016\n");
             pBufPosition            += (ULONG)((ULONG)usNumSectors*(ULONG)usBytesPerSector);
             psffsi->sfi_position    += usBytesToWrite;
             usBytesWritten          += usBytesToWrite;
@@ -1181,18 +1228,21 @@ USHORT usBytesPerCluster;
 
         if (usRemaining)
         {
+            //Message("017\n");
             rc = ReadSector(pVolInfo, ulSector, 1, pbCluster, usIOFlag);
             if (rc)
             {
                 goto FS_WRITEEXIT;
             }
             memcpy(pbCluster, pBufPosition, usRemaining);
+            //Message("018\n");
             rc = WriteSector(pVolInfo, ulSector, 1, pbCluster, usIOFlag);
             if (rc)
             {
                 goto FS_WRITEEXIT;
             }
 
+            //Message("019\n");
             pBufPosition            += usRemaining;
             psffsi->sfi_position    += usRemaining;
             usBytesWritten          += usRemaining;
@@ -1208,12 +1258,14 @@ USHORT usBytesPerCluster;
         /*
             No writes if file is larger than 7FFFFFFF (= 2Gb)
         */
+        //Message("020\n");
         if (psffsi->sfi_position >= LONG_MAX)
         {
             rc = NO_ERROR;
             goto FS_WRITEEXIT;
         }
 
+        //Message("021\n");
         rc = MY_PROBEBUF(PB_OPREAD, pData, usBytesToWrite);
         if (rc)
         {
@@ -1224,6 +1276,7 @@ USHORT usBytesPerCluster;
         pOpenInfo->pSHInfo->fMustCommit = TRUE;
 
 
+        //Message("022\n");
         if ((ULONG)LONG_MAX - psffsi->sfi_position < (ULONG)usBytesToWrite)
             usBytesToWrite = (USHORT)((ULONG)LONG_MAX - psffsi->sfi_position);
 
@@ -1231,6 +1284,7 @@ USHORT usBytesPerCluster;
         {
             ULONG ulLast = FAT_EOF;
 
+            //Message("023\n");
             if (
                     pOpenInfo->ulCurCluster == FAT_EOF &&
                     psffsi->sfi_position == psffsi->sfi_size &&
@@ -1238,11 +1292,13 @@ USHORT usBytesPerCluster;
                 )
                 ulLast = pOpenInfo->pSHInfo->ulLastCluster;
 
+            //Message("024\n");
             rc = NewSize(pVolInfo, psffsi, psffsd,
             psffsi->sfi_position + usBytesToWrite, usIOFlag);
             if (rc)
                 goto FS_WRITEEXIT;
 
+            //Message("025\n");
             if (ulLast != FAT_EOF)
             {
                 pOpenInfo->ulCurCluster = GetNextCluster(pVolInfo, ulLast);
@@ -1257,9 +1313,11 @@ USHORT usBytesPerCluster;
             }
         }
 
+        //Message("026\n");
         if (pOpenInfo->ulCurCluster == FAT_EOF)
             pOpenInfo->ulCurCluster = PositionToOffset(pVolInfo, pOpenInfo, psffsi->sfi_position);
 
+        //Message("027\n");
         if (pOpenInfo->ulCurCluster == FAT_EOF)
         {
             Message("FS_WRITE (INIT2) No next cluster available!");
@@ -1271,6 +1329,7 @@ USHORT usBytesPerCluster;
         /*
             First, handle the first part that does not align on a cluster border
         */
+        //Message("028\n");
         usBytesPerCluster = pVolInfo->usClusterSize;
         usClusterOffset     = (USHORT)(psffsi->sfi_position % usBytesPerCluster);
         if
@@ -1285,6 +1344,7 @@ USHORT usBytesPerCluster;
             USHORT  usSectorsToWrite;
             USHORT  usSectorsPerCluster;
 
+            //Message("029\n");
             usSectorsPerCluster = pVolInfo->BootSect.bpb.SectorsPerCluster;
             usSectorsToWrite    = usSectorsPerCluster;
 
@@ -1297,10 +1357,12 @@ USHORT usBytesPerCluster;
             usCurrBytesToWrite  = (usBytesPerCluster - usClusterOffset);
             usCurrBytesToWrite  = min(usCurrBytesToWrite,usBytesToWrite);
             usCurrBytesToWrite  = (USHORT)min((ULONG)usCurrBytesToWrite,psffsi->sfi_size-psffsi->sfi_position);
+            //Message("030\n");
             if (usCurrBytesToWrite)
             {
                 ulClusterSector = pVolInfo->ulStartOfData + (pOpenInfo->ulCurCluster-2)*usSectorsPerCluster;
 
+                //Message("031\n");
                 rc = ReadSector(pVolInfo, ulClusterSector,usSectorsToWrite,pbCluster, usIOFlag);
                 if (rc)
                 {
@@ -1308,12 +1370,14 @@ USHORT usBytesPerCluster;
                 }
                 memcpy(pbCluster + usClusterOffset, pBufPosition, usCurrBytesToWrite);
 
+                //Message("032\n");
                 rc = WriteSector(pVolInfo, ulClusterSector,usSectorsToWrite,pbCluster, usIOFlag);
                 if (rc)
                 {
                     goto FS_WRITEEXIT;
                 }
 
+                //Message("033\n");
                 pBufPosition            += usCurrBytesToWrite;
                 psffsi->sfi_position    += usCurrBytesToWrite;
                 usBytesWritten          += usCurrBytesToWrite;
@@ -1321,6 +1385,7 @@ USHORT usBytesPerCluster;
             }
 
 
+            //Message("034\n");
             if ((usClusterOffset + usCurrBytesToWrite) >= usBytesPerCluster)
             {
                 pOpenInfo->ulCurCluster     = GetNextCluster(pVolInfo, pOpenInfo->ulCurCluster);
@@ -1348,6 +1413,7 @@ USHORT usBytesPerCluster;
             USHORT  usClustersToProcess = 0;
             USHORT  usAdjacentClusters  = 1;
 
+            //Message("035\n");
             usCurrBytesToWrite          = (USHORT)min((ULONG)usBytesToWrite,psffsi->sfi_size - psffsi->sfi_position);
 
             usClustersToProcess         = usCurrBytesToWrite / usBytesPerCluster; /* get the number of full clusters */
@@ -1355,6 +1421,7 @@ USHORT usBytesPerCluster;
             while (usClustersToProcess && (ulCurrCluster != FAT_EOF))
             {
                 ulNextCluster       = GetNextCluster(pVolInfo, ulCurrCluster);
+                //Message("036\n");
                 if (!ulNextCluster)
                 {
                     ulNextCluster = FAT_EOF;
@@ -1362,6 +1429,7 @@ USHORT usBytesPerCluster;
 
                 usClustersToProcess -= 1;
 
+                //Message("037\n");
                 if  (
                         (ulNextCluster != FAT_EOF) &&
                         (ulNextCluster == (ulCurrCluster+1)) &&
@@ -1369,6 +1437,7 @@ USHORT usBytesPerCluster;
                         (usBytesToWrite >= (usAdjacentClusters+1) * usBytesPerCluster )
                     )
                 {
+                    //Message("038\n");
                     usAdjacentClusters  += 1;
                 }
                 else
@@ -1395,21 +1464,25 @@ USHORT usBytesPerCluster;
                     usAdjacentClusters              = 1;
                     pOpenInfo->ulCurCluster         = ulNextCluster;
 #else
+                    //Message("039\n");
                     while( usAdjacentClusters )
                     {
                         memcpy(pbCluster,pBufPosition,usBytesPerCluster);
 
+                        //Message("040\n");
                         rc = WriteSector(pVolInfo,ulClusterSector,usSectorsPerCluster,pbCluster,usIOFlag);
                         if (rc)
                         {
                             goto FS_WRITEEXIT;
                         }
 
+                        //Message("041\n");
                         pBufPosition                += usBytesPerCluster;
                         ulClusterSector             += usSectorsPerCluster;
                         usAdjacentClusters--;
                     }
 
+                    //Message("042\n");
                     psffsi->sfi_position            += usCurrBytesToWrite;
                     usBytesWritten                  += usCurrBytesToWrite;
                     usBytesToWrite                  -= usCurrBytesToWrite;
@@ -1425,6 +1498,7 @@ USHORT usBytesPerCluster;
         /*
             Third, handle the part that aligns on a cluster border but does not make up a complete cluster
         */
+        //Message("043\n");
         if
             (
                 (pOpenInfo->ulCurCluster != FAT_EOF) &&
@@ -1439,9 +1513,11 @@ USHORT usBytesPerCluster;
             usSectorsToWrite = pVolInfo->BootSect.bpb.SectorsPerCluster;
             usSectorsPerCluster = usSectorsToWrite;
 
+            //Message("044\n");
             usCurrBytesToWrite = (USHORT)min((ULONG)usBytesToWrite,psffsi->sfi_size - psffsi->sfi_position);
             if (usCurrBytesToWrite)
             {
+                //Message("045\n");
                 ulClusterSector = pVolInfo->ulStartOfData + (pOpenInfo->ulCurCluster-2)*usSectorsPerCluster;
                 rc = ReadSector(pVolInfo, ulClusterSector,usSectorsToWrite,pbCluster, usIOFlag);
                 if (rc)
@@ -1450,6 +1526,7 @@ USHORT usBytesPerCluster;
                 }
                 memcpy(pbCluster, pBufPosition, usCurrBytesToWrite);
 
+                //Message("046\n");
                 rc = WriteSector(pVolInfo, ulClusterSector,usSectorsToWrite,pbCluster, usIOFlag);
                 if (rc)
                 {
@@ -1462,6 +1539,7 @@ USHORT usBytesPerCluster;
             }
         }
 
+        //Message("047\n");
         *pLen = usBytesWritten;
         if (usBytesWritten)
         {
@@ -1472,6 +1550,7 @@ USHORT usBytesPerCluster;
         }
 
 
+        //Message("048\n");
         if (usIOFlag & DVIO_OPWRTHRU)
             rc = FS_COMMIT(FS_COMMIT_ONE, usIOFlag, psffsi, psffsd);
         else
@@ -1484,6 +1563,9 @@ FS_WRITEEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_WRITE returned %u (%u bytes written)", rc, *pLen);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -1508,7 +1590,7 @@ ULONG ulCurCluster;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_CANCELLOCKREQUEST(
+int far pascal _loadds FS_CANCELLOCKREQUEST(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     void far * pLockRang            /* pLockRang    */
@@ -1527,7 +1609,7 @@ int far pascal __loadds  FS_CANCELLOCKREQUEST(
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_CHGFILEPTR(
+int far pascal _loadds FS_CHGFILEPTR(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     long lOffset,           /* offset   */
@@ -1536,9 +1618,13 @@ int far pascal __loadds  FS_CHGFILEPTR(
 )
 {
 PVOLINFO pVolInfo;
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
+POPENINFO pOpenInfo;
 LONG  lNewOffset = 0;
 USHORT rc;
+
+   _asm push es;
+
+   pOpenInfo = GetOpenInfo(psffsd);
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_CHGFILEPTR, Mode %d - offset %ld, current offset=%lu",
@@ -1546,7 +1632,10 @@ USHORT rc;
 
    pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_CHGFILEPTREXIT;
+      }
 
    switch (usType)
       {
@@ -1581,6 +1670,9 @@ USHORT rc;
 FS_CHGFILEPTREXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_CHGFILEPTR returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 
    IOFlag = IOFlag;
@@ -1590,7 +1682,7 @@ FS_CHGFILEPTREXIT:
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_COMMIT(
+int far pascal _loadds FS_COMMIT(
     unsigned short usType,      /* commit type  */
     unsigned short usIOFlag,        /* IOflag   */
     struct sffsi far * psffsi,      /* psffsi   */
@@ -1598,6 +1690,8 @@ int far pascal __loadds  FS_COMMIT(
 )
 {
 USHORT rc;
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_COMMIT, type %d", usType);
@@ -1614,10 +1708,16 @@ USHORT rc;
          ULONG  ulCluster;
 
          if (IsDriveLocked(pVolInfo))
-            return ERROR_DRIVE_LOCKED;
+            {
+            rc = ERROR_DRIVE_LOCKED;
+            goto FS_COMMITEXIT;
+            }
 
          if (psffsi->sfi_mode & OPEN_FLAGS_DASD)
-            return ERROR_NOT_SUPPORTED;
+            {
+            rc = ERROR_NOT_SUPPORTED;
+            goto FS_COMMITEXIT;
+            }
 
          if (!pOpenInfo->pSHInfo->fMustCommit)
             {
@@ -1679,13 +1779,16 @@ FS_COMMITEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_COMMIT returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_FILELOCKS(
+int far pascal _loadds FS_FILELOCKS(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     void far * pUnlockRange,            /* pUnLockRange */
@@ -1709,7 +1812,7 @@ int far pascal __loadds  FS_FILELOCKS(
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_NEWSIZE(
+int far pascal _loadds FS_NEWSIZE(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     unsigned long ulLen,        /* len      */
@@ -1717,8 +1820,12 @@ int far pascal __loadds  FS_NEWSIZE(
 )
 {
 PVOLINFO pVolInfo;
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
+POPENINFO pOpenInfo;
 USHORT rc;
+
+   _asm push es;
+
+   pOpenInfo = GetOpenInfo(psffsd);
 
    pOpenInfo->pSHInfo->fMustCommit = TRUE;
 
@@ -1726,13 +1833,22 @@ USHORT rc;
       Message("FS_NEWSIZE newsize = %lu", ulLen);
 
    if (psffsi->sfi_mode & OPEN_FLAGS_DASD)
-      return ERROR_NOT_SUPPORTED;
+      {
+      rc = ERROR_NOT_SUPPORTED;
+      goto FS_NEWSIZEEXIT;
+      }
 
    pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_NEWSIZEEXIT;
+      }
    if (pVolInfo->fWriteProtected)
-      return ERROR_WRITE_PROTECT;
+      {
+      rc = ERROR_WRITE_PROTECT;
+      goto FS_NEWSIZEEXIT;
+      }
 
    rc = NewSize(pVolInfo, psffsi, psffsd, ulLen, usIOFlag);
    if (!rc)
@@ -1740,6 +1856,9 @@ USHORT rc;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_NEWSIZE returned %u", rc);
+
+FS_NEWSIZEEXIT:
+   _asm pop es;
 
    return rc;
 }
@@ -1859,7 +1978,7 @@ ULONG ulCluster, ulNextCluster;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_FILEINFO(unsigned short usFlag,       /* flag     */
+int far pascal _loadds FS_FILEINFO(unsigned short usFlag,       /* flag     */
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     unsigned short usLevel,     /* level    */
@@ -1869,12 +1988,14 @@ int far pascal __loadds  FS_FILEINFO(unsigned short usFlag,       /* flag     */
 )
 {
 PVOLINFO pVolInfo;
-POPENINFO pOpenInfo = GetOpenInfo(psffsd);
+POPENINFO pOpenInfo;
 USHORT usNeededSize;
 USHORT rc;
 PSZ  pszFile;
 
+   _asm push es;
 
+   pOpenInfo = GetOpenInfo(psffsd);
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FILEINFO for %s, usFlag = %X, level %d",
@@ -1883,9 +2004,15 @@ PSZ  pszFile;
 
    pVolInfo = GetVolInfo(psffsi->sfi_hVPB);
    if (psffsi->sfi_mode & OPEN_FLAGS_DASD)
-      return ERROR_NOT_SUPPORTED;
+      {
+      rc = ERROR_NOT_SUPPORTED;
+      goto FS_FILEINFOEXIT;
+      }
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_FILEINFOEXIT;
+      }
 
    pszFile = strrchr(pOpenInfo->pSHInfo->szFileName, '\\');
    if (!pszFile)
@@ -1928,7 +2055,7 @@ PSZ  pszFile;
       if (rc)
          {
          Message("Protection VIOLATION in FS_FILEINFO!\n");
-         return rc;
+         goto FS_FILEINFOEXIT;
          }
 
       if (usLevel == FIL_STANDARD || usLevel == FIL_QUERYEASIZE)
@@ -2007,14 +2134,14 @@ PSZ  pszFile;
             if (rc)
                {
                Message("FAT32: Protection VIOLATION in FS_FILEINFO!\n");
-               return rc;
+               goto FS_FILEINFOEXIT;
                }
 
             rc = MY_PROBEBUF(PB_OPWRITE, (PBYTE)pFEA, (USHORT)pFEA->cbList);
             if (rc)
                {
                Message("FAT32: Protection VIOLATION in FS_FILEINFO!\n");
-               return rc;
+               goto FS_FILEINFOEXIT;
                }
 
             if (!f32Parms.fEAS)
@@ -2034,14 +2161,14 @@ PSZ  pszFile;
             if (rc)
                {
                Message("FAT32: Protection VIOLATION in FS_FILEINFO!\n");
-               return rc;
+               goto FS_FILEINFOEXIT;
                }
 
             rc = MY_PROBEBUF(PB_OPWRITE, (PBYTE)pFEA, (USHORT)pFEA->cbList);
             if (rc)
                {
                Message("FAT32: Protection VIOLATION in FS_FILEINFO!\n");
-               return rc;
+               goto FS_FILEINFOEXIT;
                }
             if (!f32Parms.fEAS)
                {
@@ -2067,7 +2194,7 @@ PSZ  pszFile;
       if (rc)
          {
          Message("FAT32: Protection VIOLATION in FS_FILEINFO!\n");
-         return rc;
+         goto FS_FILEINFOEXIT;
          }
 
       if (!(psffsi->sfi_mode & OPEN_ACCESS_WRITEONLY) &&
@@ -2164,13 +2291,16 @@ PSZ  pszFile;
 FS_FILEINFOEXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FILEINFO returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_FILEIO(
+int far pascal _loadds FS_FILEIO(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     char far * cbCmdList,           /* cbCmdList    */
@@ -2195,7 +2325,7 @@ int far pascal __loadds  FS_FILEIO(
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_NMPIPE(
+int far pascal _loadds FS_NMPIPE(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     unsigned short usOpType,        /* OpType   */

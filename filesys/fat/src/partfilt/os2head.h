@@ -17,6 +17,13 @@
 #include <reqpkt.h>
 #include <iorb.h>
 
+#ifndef FAR
+#define FAR _far
+#endif
+
+#define _enable()	_asm { sti }
+#define _disable()	_asm { cli }
+
 #define ERROR_I24_QUIET_INIT_FAIL       21	/* from bseerr.h */
 
 #define IOERR_NO_SUCH_UNIT		IOERR_UNIT_NOT_ALLOCATED
@@ -54,8 +61,8 @@ typedef struct _MBR
  * sti and cli are a builtin function in MS Visual C++  (M.Willm, 1995-11-14)
  */
 #ifndef __MSC__
-#define ENABLE	asm { sti }
-#define DISABLE	asm { cli }
+#define ENABLE	_asm { sti }
+#define DISABLE	_asm { cli }
 #else
 #define ENABLE  _enable();
 #define DISABLE _disable();

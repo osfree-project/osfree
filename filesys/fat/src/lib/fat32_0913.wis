@@ -1,0 +1,392 @@
+<WARPIN CODEPAGE=850 VERSION="1.0.14">
+<HEAD>
+<TITLE>Netlabs FAT32 driver FAT32 (09.13)
+</TITLE>
+
+<REXX NAME="LanguagePage">
+  envlang = WirexxGetEnv('LANG')
+  parse var envlang lang '_' .
+  lang = translate(lang)
+  select
+    when lang = 'EN' then index = '10'
+    when lang = 'ES' then index = '20'
+    otherwise
+      index = '10'
+   end
+  return index
+</REXX>
+
+<REXX NAME="FindPath">
+  parse arg data
+  parse var data Package_ID 'CONFIG' config_var 'DEFAULT' def_value
+  Package_ID = translate(strip(Package_ID))
+  config_var = translate(strip(config_var))
+  def_value  = translate(strip(def_value))
+  result = ''
+
+  parse upper value VALUE( "PATH",, "OS2ENVIRONMENT" ) with "\OS2\SYSTEM" -2 boot_drive +2
+  CONFIG_SYS = boot_drive||'\CONFIG.SYS'
+
+  if RxFuncQuery('SysIni') then call RxFuncAdd 'SysIni','RexxUtil','SysIni'
+
+  WarpIN_Dir = Strip(SysINI(,'WarpIN','Path'),,'00'x)
+  WarpIN_INI = WarpIN_Dir||'\DATBAS_'||left(boot_drive,1)||'.ini'
+
+  rc = SysIni(WarpIN_INI,'ALL:','WpiApp')
+  if rc = '' then
+  do i=1 to WpiApp.0
+    if pos(Package_ID,translate(WpiApp.i)) = 1 then do
+      Package_ID = WpiApp.i
+      PackageDir = Strip(SysINI(WarpIN_INI,Package_ID,'TargetPath'),,'00'x)
+      if PackageDir <> 'ERROR: ' then
+       return PackageDir
+     end
+   end
+
+  if config_var <> '' then do
+    do while lines(CONFIG_SYS)>0
+      text = translate(linein(CONFIG_SYS))
+      if pos(config_var,text)=1 then result = text
+     end
+    rc=stream(CONFIG_SYS,'C','CLOSE')
+   end
+
+  rc=stream(CONFIG_SYS,'C','CLOSE')
+  if result <> '' then do
+    parse var result name '=' pathlist
+    ThisDir = directory()
+    ValidDir = 0
+    do while length(pathlist)>0 & ValidDir=0
+      parse var pathlist testdir ';' pathlist
+      result = directory(testdir)
+      if testdir<>'.' & result <>'' then
+        ValidDir = 1
+     end
+    rc=directory(ThisDir)
+   end
+  else result = def_value
+return result
+</REXX>
+
+<REXX NAME="FindObject">
+parse arg search
+ object=''
+ srch.0 = words(search)
+ do i=1 to srch.0
+   srch.i = word(search,i)
+   srchpos.i = 0
+  end
+ if RxFuncQuery('SysIni') then call RxFuncAdd 'SysIni','RexxUtil','SysIni'
+ call SysIni 'USER','PM_Workplace:Location','ALL:','ids'
+ do i=1 to ids.0
+   do j=1 to srch.0
+     if ids.i = srch.j then do
+       srchpos.j = i
+       leave
+      end
+    end
+  end
+ do i=1 to srch.0
+   if srchpos.i <> 0 then do
+     object = srch.i
+     leave
+    end
+  end
+return object
+</REXX>
+
+<REXX NAME="ObjTitle">
+  parse arg objnr
+  envlang = WirexxGetEnv('LANG')
+  parse var envlang lang '_' .
+  lang = translate(lang)
+  if pos(lang,'ES EN')=0 then lang = 'EN'
+  title = ''
+  select
+    when lang = 'ES' then
+      select
+        when objnr = 1 then title = 'FAT32.IFS - Manual del usuario'
+        when objnr = 2 then title = 'FAT32.TXT'
+        otherwise
+         nop
+       end
+    when lang = 'EN' then
+      select
+        when objnr = 1 then title = 'FAT32.IFS - User Guide'
+        when objnr = 2 then title = 'FAT32.TXT'
+        otherwise
+         nop
+       end
+    otherwise
+     nop
+   end
+  return title
+</REXX>
+
+<PCK INDEX=1
+  PACKAGEID="NetLabs\FAT32.IFS\MAIN_FS\0\9\13"
+  TITLE="FAT32.IFS Main driver"
+  TARGET="=("FindPath NetLabs\ESES\DrvPck CONFIG DEFAULT ?:\OS2\BOOT")"
+  SELECT
+  NODESELECT
+  CONFIGSYS="IFS=$(1)\FAT32.IFS /CACHE:2048 /H /Q | UNIQUE(FAT32.IFS) ADDAFTER(HPFS.IFS)"
+></PCK>
+
+<PCK INDEX=2
+  PACKAGEID="NetLabs\FAT32.IFS\DLL\0\9\13"
+  TITLE="Dynamic Link Library - CHKDSK support"
+  TARGET="=("FindPath NetLabs\ESES\LibPck CONFIG DEFAULT ?:\OS2\DLL")"
+  SELECT
+  NODESELECT
+  CONFIGSYS="LIBPATH=$(2);|ADDRIGHT"
+></PCK>
+
+<PCK INDEX=3
+  PACKAGEID="NetLabs\FAT32.IFS\BIN\0\9\13"
+  TITLE="Cache and other support programs"
+  TARGET="=("FindPath NetLabs\ESES\BinPck CONFIG DEFAULT ?:\OS2")"
+  SELECT
+  NODESELECT
+  CONFIGSYS="SET PATH=$(3);|ADDRIGHT"
+  CONFIGSYS="CALL=$(3)\CACHEF32.EXE /S /F | UNIQUE(CACHEF32.EXE) ADDAFTER(FAT32.IFS)"
+>
+</PCK>
+
+<PCK INDEX=4
+  PACKAGEID="NetLabs\FAT32.IFS\INF\0\9\13"
+  TITLE="FAT32.IFS Documentation"
+  TARGET="=("FindPath NetLabs\ESES\INFPck CONFIG DEFAULT ?:\OS2\BOOK")"
+  SELECT
+  NODESELECT
+  CREATEOBJECT="WPProgram|=("ObjTitle 1")|=("FindObject <ESE_BOOKS> <WP_INFO>")|EXENAME=VIEW.EXE;STARTUPDIR=$(4);PARAMETERS=$(4)\FAT32.INF;OBJECTID=<FAT32_INF>;"
+  CREATEOBJECT="WPProgram|=("ObjTitle 2")|=("FindObject <ESE_BOOKS> <WP_INFO>")|EXENAME=E.EXE;STARTUPDIR=$(4);PARAMETERS=$(4)\FAT32.TXT;OBJECTID=<FAT32_TXT>;"
+>
+</PCK>
+
+<PCK INDEX=5
+   PACKAGEID="NetLabs\FAT32.IFS\Korean support\0\9\13"
+   TITLE="Korean doc and corrected COUNTRY.SYS"
+   TARGET="?:\OS2\SYSTEM"
+   FIXED
+   CREATEOBJECT="WPShadow|FAT32.KOR|=("FindObject <ESE_BOOKS> <WP_REFCMDFOLDER>")|SHADOWID=$(5)\FAT32.KOR;OBJECTID=<FAT32_KOR_SHADOW>;"
+>Korean support for non-Korean systems.
+</PCK>
+
+</HEAD>
+
+<BODY>
+<!-- First page: language independent -->
+<PAGE INDEX=1 TYPE=README>
+ <TEXT>Installation Language / Idioma de la instalaci¢n
+ </TEXT>
+ <README FORMAT=HTML>
+ <UL>
+ <LI><B>English.</B><BR>
+ The installation process should detect your language and show the installation
+ messages accordingly if it is supported.
+ Otherwise, English messages will be shown.
+ <LI><B>Espa¤ol.</B><BR>
+ El proceso de instalaci¢n debe detectar su idioma y mostrar los mensajes
+ de instalaci¢n correspondientes si est  soportado.
+ En otro caso, se mostrar n mensajes en ingl‚s.
+ </UL>
+ </README>
+ <NEXTBUTTON TARGET="=("LanguagePage")">~Next</NEXTBUTTON>
+</PAGE>
+
+<!--- Next pages (2-9): empty pages
+  Until now, WarpIN v1.0.1 and earlier need pages with every number from 1
+  to the last present index, though you can skip them freely and they can be
+  empty (phew!)
+-->
+
+<PAGE INDEX=2 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=3 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=4 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=5 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=6 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=7 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=8 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=9 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+
+<!-- Next pages (10-19): English language -->
+
+<PAGE INDEX=10 TYPE=README>
+ <TEXT>What is this?</TEXT>
+ <README FORMAT=HTML>
+ <P><B>
+PLEASE READ
+<P>Use this driver at your own risk.  This is the 0.9.13 driver which
+attempts to improve lazy-write cache performance in 0.9.12 and previous versions.
+
+<P>WARNING: IF INSTALLED TO YOUR OS2 DIRECTORIES,THE OS2 AND OS2\DLL
+ENTRIES FOUND IN THE LIBPATH AND PATH STATEMENTS IN THE CONFIG.SYS FILE WILL
+BE REMOVED WHEN THIS DRIVER IS UNINSTALLED.  THE END RESULT WILL BE THAT YOU
+CANNOT BOOT TO YOUR eCS OR OS/2 DESKTOP. TO PREVENT THIS, IT IS BEST TO USE THE
+EXTERNAL SYSTEM EXTENSIONS SUPPORT BASE(ESEs) WHICH NEEDS TO BE INSTALLED FIRST
+BEFORE THE FAT32 DRIVER.  THE EXTERNAL SYSTEM EXTENSIONS SUPPORT BASE(ESEs)
+CAN BE DOWNLOADED FROM
+<P>
+
+ftp://ftp.netlabs.org/pub/wpidistro/download/ESE/00-Base-ESES.wpi
+
+
+<P>IF ONE DOES NOT WANT TO INSTALL (ESES), THEN YOU WILL NEED TO MANUALLY EDIT
+YOUR CONFIG.SYS AFTER REMOVING THE FAT32 DRIVER AND ADD THE "DRIVE:\OS2"
+DIRECTORY TO YOUR PATH STATEMENT AND YOUR "DRIVE:\OS2\DLL" DIRECTORY TO YOUR
+LIBPATH STATEMENT.</B>
+<P>
+
+This package contains a driver that allows eComStation or OS/2 Warp users access
+the data files on FAT32 partitions. It also automates the driver installation,
+and avoids further manual [de]installation of files and CONFIG.SYS manipulation.
+
+ <P>
+This project is based on the original FAT32 source code by Henk Kelder who was
+kind enough to release the source to Netlabs (netlabs.org) in January 2002
+because he no longer used OS/2.  As a result, it is now a Netlabs project with
+the full source code always available.
+
+ <P>
+The FAT32 homepage provides both a simple zip file and a WarpIN package which
+will install FAT32 without much effort on the users part.
+
+ <P>
+<UL>
+Authors:
+<LI>Henk Kelder: original author
+<LI>Brian Smith: contributor
+<LI>KO Myung-Hun: main developer for the FAT32 IFS driver
+<LI>Lars Edmann: developer
+<LI>Alfredo Fern ndez D¡az: creator of the WarpIN Script for FAT32 and contributor
+<LI>David Graser: creator of the FAT32.INF file Warpin script maintainer.
+</UL>
+
+<P>
+Remember that patches are always welcome. If anyone would like to contribute,
+feel free to contact Netlabs.
+ </README>
+ <NEXTBUTTON TARGET=11>~Next</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=11 TYPE=README>
+ <TEXT>Other WarpIN archives support</TEXT>
+ <README FORMAT=HTML>
+  <P>This package will try to take advantage of other NetLabs packages you may have
+  installed before.<BR>Currently this package supports the
+  External System Extensions Support Base package (ESEs):
+  <UL>
+  <LI><B>Without ESEs</B><BR>
+  Without this package, FAT32.IFS is integrated into the existing system paths to
+  avoid excesive CONFIG.SYS cluttering.
+
+  <P><B>WARNING: WHEN INSTALLED IN THIS MANNER, THE OS2 AND OS2/DLL ENTRIES FOUND IN THE
+  LIBPATH AND PATH STATEMENTS IN THE CONFIG.SYS FILE WILL BE REMOVED WHEN THIS DRIVER
+  IS UNINSTALLED UNLESS IMMEDIATELY INSTALLING AGAIN.</B>
+  <P>
+  <LI><B>With ESEs</B><BR>
+  If you have previously installed ESEs, the FAT32.IFS files will be installed to
+  its directories, so not only WarpIN but you can easily keep track of the files
+  installed on your system, may WarpIN ever fail.
+  </UL>
+  <P>A link to the ESEs package can be found on the same web page this very same
+  package is linked from.
+
+ </README>
+ <NEXTBUTTON TARGET=12>~Next</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=12 TYPE=CONTAINER>
+ <TEXT>Archive parts (packages)</TEXT>
+ <NEXTBUTTON TARGET=13>~Next</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=13 TYPE=CONFIGURE>
+ <TEXT>Now you can select the changes you wish to make.
+ </TEXT>
+ <NEXTBUTTON TARGET=0>~Install</NEXTBUTTON>
+</PAGE>
+
+<!-- Next pages ...-19 : Empty pages -->
+
+<PAGE INDEX=14 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=15 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=16 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=17 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=18 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+<PAGE INDEX=19 TYPE="TEXT"> <TEXT> </TEXT> </PAGE>
+
+<!-- Next pages 20-29 : Spanish Support -->
+
+<PAGE INDEX=20 TYPE=README>
+ <TEXT>¨Qu‚ es esto?</TEXT>
+ <README FORMAT=HTML>
+ <P>
+Este paquete contiene un controlador que permite a los usuarios de eComStation u
+OS/2 Warp acceder a los datos de particiones FA32. Tambi‚n automatiza la
+instalaci¢n del controlador, y le evita [des]instalar archivos y manipular su CONFIG.SYS a mano.
+
+ <P>
+Este proyecto se basa en el c¢digo fuente original de Henkl Kelder, quien
+fue tan amable de ponerlo a disposici¢n de Netlabs (netlabs.org) en Enero de 2002
+puesto que ya no utiliza OS/2. Como resultado, ahora es un proyecyo de Netlabs
+con el c¢digo fuente completo siempre disponible.
+
+ <P>
+La p gina principal del controlador provee un archivo .zip normal y
+un paquete WarpIN que lo instalar  sin mucho esfuerzo por parte del usuario.
+
+ <P>
+<UL>
+Autores:
+<LI>Henk Kelder: autor original
+<LI>Brian Smith: contribuidor
+<LI>KO Myung-Hun: principal desarrollador del controlador FAT32.IFS
+<LI>Lars Edmann: contribuidor
+<LI>Alfredo Fern ndez D¡az: creador del Script WarpIN y contribuidor
+<LI>David Graser: creador del archivo FAT32.INF
+</UL>
+
+<P>
+Recuerde que los parches son siempre bienvenidos. Si cualquiera  quiere contribuir,
+que contacte libremente con Netlabs.
+ </README>
+ <NEXTBUTTON TARGET=21>~Siguiente</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=21 TYPE=README>
+ <TEXT>Soporte de otros archivos WarpIN</TEXT>
+ <README FORMAT=HTML>
+  <P>Este paquete intenta aprovechar que haya instalado vd. otros paquetes de NetLabs
+  con anterioridad.<BR>
+  Actualmente este paquete soporta el paquete b sico de extensiones del sistema externas
+  (External System Extensions Support Base package, ESEs):
+  <UL>
+  <LI><B>Sin ESEs</B>:<BR>
+  Sin este paquete, el controlador de FAT32 se integra en las v¡as del sistema por
+  defecto para evitar un crecimiento excesivo del CONFIG.SYS.
+  <LI><B>Con ESEs</B>:<BR>
+  Si ha instalado previamente ESEs, los archivos del controlador
+  de FAT32 ser n instalados en los directorios establecidos para ESEs, de forma que
+  no s¢lo WarpIN, sino tambi‚n ud. pueda rastrear f cilmente los archivos que
+  hay instalados en su sistema, si WarpIN fallase.
+  </UL>
+  <P>Puede encontrar un enlace al paquete ESEs en la misma p gina desde la que se
+  enlaza este mismo archivo.
+ </README>
+ <NEXTBUTTON TARGET=22>~Siguiente</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=22 TYPE=CONTAINER>
+ <TEXT>Partes del archivo (paquetes)</TEXT>
+ <NEXTBUTTON TARGET=23>~Siguiente</NEXTBUTTON>
+</PAGE>
+
+<PAGE INDEX=23 TYPE=CONFIGURE>
+ <TEXT>Aqu¡ puede seleccionar los cambios que quiera realizar sobre el sistema.
+ </TEXT>
+ <NEXTBUTTON TARGET=0>~Instalar</NEXTBUTTON>
+</PAGE>
+
+</BODY>
+</WARPIN>

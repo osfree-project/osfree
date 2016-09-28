@@ -34,11 +34,11 @@
 /*
  * memset and memcpy are builtin functions in MS Visual C++ 1.5 (M.Willm 1995-11-14)
  */
-#ifndef __MSC__
+//#ifndef __MSC__
 /* In file e2wrap.asm */
 void memset (void FAR *Buffer, UCHAR Value, USHORT Count);
 void memcpy (void FAR *Dest, void FAR *Source, USHORT Size);
-#endif
+//#endif
 
 void VirtToPhys (void FAR *pDataSeg,ULONG FAR *ppDataSeg);
 void far * PhysToVirt(ULONG ppXferBuf, USHORT XferLength);

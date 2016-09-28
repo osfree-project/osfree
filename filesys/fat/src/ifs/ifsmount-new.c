@@ -60,7 +60,7 @@ IMPORT SEL cdecl SaSSel(void);
 
 #pragma optimize("eglt",off)
 
-int far pascal __loadds  FS_MOUNT(unsigned short usFlag,      /* flag     */
+int far pascal _loadds FS_MOUNT(unsigned short usFlag,      /* flag     */
                         struct vpfsi far * pvpfsi,      /* pvpfsi   */
                         struct vpfsd far * pvpfsd,      /* pvpfsd   */
                         unsigned short hVBP,        /* hVPB     */
@@ -86,6 +86,7 @@ P_VolChars   pVolChars;
    /*
     openjfs source does the same, just be on the safe side
    */
+   _asm push es;
    _asm sti;
 
    if (f32Parms.fMessageActive & LOG_FS)
@@ -492,6 +493,10 @@ P_VolChars   pVolChars;
 FS_MOUNT_EXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_MOUNT returned %u\n", rc);
+
+
+   _asm pop es;
+
    return rc;
 }
 

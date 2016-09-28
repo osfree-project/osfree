@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <math.h>
 
 #include "fat32c.h"
 
@@ -110,14 +111,18 @@ void zero_sectors ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSect, DWORD NumS
     ULONGLONG Start, End, Ticks, Frequency;
     double fTime;
     double fBytesTotal;
-    LONGLONG qBytesTotal, qBytesWritten;
-    float fPercentWritten;
-    char  Str[12];
+    ULONGLONG qBytesTotal, qBytesWritten;
+    float fPercentWritten, fPrevPercentWritten = 0;
+    //char  Str[12];
 
     //BurstSize = pdgDrive->SectorsPerTrack * pdgDrive->TracksPerCylinder;
-    BurstSize = 128; // 64K
+    BurstSize = 64; // 32K
+    //BurstSize = 128; // 64K
     //BurstSize = 8; // 4k
     //BurstSize = 1; // one sector
+
+    //printf("zero_sectors: \nhDevice=0x%lx, Sector=%lu, \nBytesPerSect=%lu, NumSects=%lu\n",
+    //        hDevice, Sector, BytesPerSect, NumSects);
 
     mem_alloc((void **)&pZeroSect, BytesPerSect * BurstSize);
 
@@ -146,10 +151,17 @@ void zero_sectors ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSect, DWORD NumS
             die ( "Failed to write", ret );  
 
         qBytesWritten += dwWritten;
-        fPercentWritten = ( qBytesWritten / qBytesTotal ) * 100;
 
-        // percent written indication
-        show_progress(fPercentWritten);
+        fPercentWritten = ( 100 * qBytesWritten ) / qBytesTotal;
+        //sprintf(Str, "%.2f%%...", fPercentWritten);
+
+        if ( fPercentWritten - fPrevPercentWritten >= 10 )
+        {
+          // update progress indicator if it has grown by >= 5%
+          fPrevPercentWritten = fPercentWritten;
+          // percent written indication
+          show_progress(fPercentWritten);
+        }
         
         NumSects -= WriteSize;
     }
@@ -179,10 +191,11 @@ int format_volume (char *path, format_params *params)
     int      cbRet;
     BOOL     bRet;
 
-    struct extbpb dp = {0, 0, 32, 2, 0, 0, 0xf8, 0, 0, 0, 0, 0 , 0};
+    // extended BPB
+    struct extbpb dp = {0, 0, 32, 2, 0, 0, 0xf8, 0, 0, 0, 0, 0, {0}};
 
     // Recommended values
-    //DWORD ReservedSectCount = 32;
+    //DWORD ReservedSectCount = 32; !!! create cmd line parameter !!!
     //DWORD NumFATs = 2;
     DWORD BackupBootSect = 6;
     DWORD VolumeId=0; // calculated before format
@@ -221,7 +234,8 @@ int format_volume (char *path, format_params *params)
     begin_format(hDevice);
 
     // Checks on Disk Size
-    qTotalSectors = dp.PartitionLength / dp.BytesPerSect;
+    // qTotalSectors = dp.PartitionLength / dp.BytesPerSect;
+    qTotalSectors = dp.TotalSectors;
     // low end limit - 65536 sectors
     if ( qTotalSectors < 65536 )
     {
@@ -257,7 +271,7 @@ int format_volume (char *path, format_params *params)
     if ( params->sectors_per_cluster )
         dp.SectorsPerCluster = params->sectors_per_cluster;
     else
-        dp.SectorsPerCluster = get_sectors_per_cluster( dp.PartitionLength, dp.BytesPerSect );
+        dp.SectorsPerCluster = get_sectors_per_cluster( ((LONGLONG)dp.TotalSectors) * dp.BytesPerSect, dp.BytesPerSect );
 
     pFAT32BootSect->bSecPerClus = (BYTE) dp.SectorsPerCluster ;
     pFAT32BootSect->wRsvdSecCnt = (WORD) dp.ReservedSectCount;
@@ -269,7 +283,7 @@ int format_volume (char *path, format_params *params)
     pFAT32BootSect->wSecPerTrk = (WORD) dp.SectorsPerTrack;
     pFAT32BootSect->wNumHeads = (WORD) dp.TracksPerCylinder;
     pFAT32BootSect->dHiddSec = (DWORD) dp.HiddenSectors;
-    dp.TotalSectors = (DWORD)  (dp.PartitionLength / dp.BytesPerSect);
+    //dp.TotalSectors = (DWORD)  (dp.PartitionLength / dp.BytesPerSect);
     pFAT32BootSect->dTotSec32 = dp.TotalSectors;
     
     dp.FatSize = get_fat_size_sectors ( pFAT32BootSect->dTotSec32, pFAT32BootSect->wRsvdSecCnt, pFAT32BootSect->bSecPerClus, pFAT32BootSect->bNumFATs, dp.BytesPerSect );
@@ -343,13 +357,17 @@ int format_volume (char *path, format_params *params)
     // the FAT are reserved.
     if (  ClusterCount > 0x0FFFFFFF )
         {
-        die ( "This drive has more than 2^28 clusters, try to specify a larger cluster size or use the default (i.e. don't use -cXX)\n", -3 );
+        die ( "This drive has more than 2^28 clusters, \n"
+              "try to specify a larger cluster size or use \n"
+              "the default (i.e. don't use -cXX)\n", -3 );
         }
 
 	// Sanity check - < 64K clusters means that the volume will be misdetected as FAT16
 	if ( ClusterCount < 65536 )
 		{
-		die ( "FAT32 must have at least 65536 clusters, try to specify a smaller cluster size or use the default (i.e. don't use -cXX)\n", -4  );
+		die ( "FAT32 must have at least 65536 clusters, \n"
+                      "try to specify a smaller cluster size or \n"
+                      "use the default (i.e. don't use -cXX)\n", -4  );
 		}
 
     // Sanity check, make sure the fat is big enough
@@ -358,17 +376,20 @@ int format_volume (char *path, format_params *params)
     FatNeeded = ClusterCount * 4;
     FatNeeded += (dp.BytesPerSect-1);
     FatNeeded /= dp.BytesPerSect;
+
+    //printf("dp.BytesPerSect=%lu\n", dp.BytesPerSect);
+    //printf("ClusterCount=%llu, FatNeeded=%llu, FatSize=%lu\n", ClusterCount, FatNeeded, dp.FatSize);
     if ( FatNeeded > dp.FatSize )
         {
-        die ( "This drive is too big for this version of fat32format, check for an upgrade\n", -5 );
+        die ( "This drive is too big for this version \n"
+              "of fat32format, check for an upgrade\n", -5 );
         }
 
-
     // Now we're commited - print some info first
-    printf ( "Size : %g MB %u sectors\n", (double) (dp.PartitionLength / (1000*1000)), dp.TotalSectors );
+    printf ( "Size: %g MB %u sectors\n", (double) ((dp.TotalSectors / (1024*1024)) * dp.BytesPerSect), dp.TotalSectors );
     printf ( "%d Bytes Per Sector, Cluster size %d bytes\n", dp.BytesPerSect, dp.SectorsPerCluster * dp.BytesPerSect );
-    printf ( "Volume Serial No. is %x:%x\n", VolumeId>>16, VolumeId&0xffff );
-    printf ( "Volume label is %s\n", vol );
+    printf ( "Volume Serial No. is %x:%x\n", VolumeId >> 16, VolumeId & 0xffff );
+    printf ( "Volume label is %s\n",  vol );
     printf ( "%d Reserved Sectors, %d Sectors per FAT, %d fats\n", dp.ReservedSectCount, dp.FatSize, dp.NumFATs );
 
     printf ( "%d Total clusters\n", ClusterCount );
@@ -388,7 +409,7 @@ int format_volume (char *path, format_params *params)
     SystemAreaSize = (dp.ReservedSectCount+(dp.NumFATs*dp.FatSize) + dp.SectorsPerCluster);
     zero_sectors( hDevice, 0, dp.BytesPerSect, SystemAreaSize); // &dgDrive);
 
-    printf ( "Clearing out %d sectors for Reserved sectors, fats and root cluster...\n", SystemAreaSize );
+    printf ( "Clearing out %d sectors for \nReserved sectors, fats and root cluster...\n", SystemAreaSize );
     printf ( "Initialising reserved sectors and FATs...\n" );
     // Now we should write the boot sector and fsinfo twice, once at 0 and once at the backup boot sect position
     for ( i=0; i<2; i++ )
@@ -406,10 +427,6 @@ int format_volume (char *path, format_params *params)
         }
 
     //printf("001\n");
-    // free memory
-    mem_free ( (void *)pFirstSectOfFat, dp.BytesPerSect );
-    mem_free ( (void *)pFAT32FsInfo, dp.BytesPerSect );
-    mem_free ( (void *)pFAT32BootSect, dp.BytesPerSect );
 
     // The filesystem recogniser in Windows XP doesn't use the partition type - in can be 
     // set to pretty much anything other Os's like Dos (still useful for Norton Ghost!) and Windows ME might, 
@@ -424,10 +441,12 @@ int format_volume (char *path, format_params *params)
     //    will let you use a 48bit LBA drive.
     //    see http://www.48bitlba.com/win98.htm for instructions
 
+    //set_part_type ((toupper(path[0]) - 'A' + 1), hDevice, &dp );
     //printf("002\n");
     //set_vol_label (path, vol); // traps when booted from FAT32
     //printf("003\n");
     //set_vol_label (path, vol);
+    //DosSleep(3000);
     //printf("004\n");
     remount_media ( hDevice );
     //printf("005\n");
@@ -437,31 +456,39 @@ int format_volume (char *path, format_params *params)
     //printf("007\n");
     unlock_drive ( hDevice );
     //printf("008\n");
+    set_part_type ((toupper(path[0]) - 'A' + 1), hDevice, &dp );
     close_drive ( hDevice );
     //printf("009\n");
-    //set_vol_label (path, vol); // traps when booted from FAT32
-    //set_part_type ((toupper(path[0]) - 'A' + 1), hDevice, &dp );
-    printf ( "Done.\n" );
+    set_vol_label (path, vol); // traps when booted from FAT32
     fflush(stdout);
     //printf("010\n");
+
+    // free memory
+    mem_free ( (void *)pFirstSectOfFat, dp.BytesPerSect );
+    mem_free ( (void *)pFAT32FsInfo, dp.BytesPerSect );
+    mem_free ( (void *)pFAT32BootSect, dp.BytesPerSect );
 
     return( TRUE );
 }
 
 void usage( char *s )
 {
-        printf ( "\nFat32format, ver. 1.05, see http://www.ridgecrop.demon.co.uk/fat32format.htm \n"
-                 "Use with care - Ridgecrop are not liable for data lost using this tool \n"
-                 "Modified by osFree project for ufat32.dll \n"
-                 "This software is covered by the GPL \n"
-                 "--------------------------------------------------\n"
-                 "Usage: c:\\> %s <d>: [options]\n\n"
+        printf ( "\nFat32format, ver. 1.07, \n"
+                 "see http://www.ridgecrop.demon.co.uk/fat32format.htm\n"
+                 "Modified and ported to OS/2 by osFree project \n"
+                 "(http://osfree.org) for ufat32.dll.\n"
+                 "This software is covered by the GPL.\n"
+                 "Use with care - Ridgecrop are not liable\n"
+		 "for data lost using this tool.\n\n"
+                 "Usage:[c:\\] %s <d>: [options]\n\n"
                  "/C:<N> with different cluster sizes:\n"
                  "    N: sectors per cluster:\n"
                  "    1 ( max size 137GB ) \n"
                  "    2 ( max size 274GB )\n"
                  "    4 ( max size 549GB )\n"
-                 "    8 ( max size 1TB ) ... until 128 sectors per cluster. \n"
+                 "    8 ( max size 1TB.  )\n"
+                 "    ... \n"
+                 "  128 - use 128 sectors per cluster (64K clusters)\n"
                  "/V:<volume label>\n"
                  "/? this help message\n\n", s );
 
@@ -507,10 +534,10 @@ int format(int argc, char *argv[], char *envp[])
 {
     format_params p;
     char cVolume;
-    int i=1;
+    int  i=1;
     char path[] = "Z:";
     char *s, *t;
-    char key[12], val[12]; 
+    char key[12], val[12];
 
     // set up signal handlers
     if (setup_signals())
@@ -596,13 +623,14 @@ int format(int argc, char *argv[], char *envp[])
 	        memcpy(p.volume_label, val, 12);
                 continue;
         default:
-                printf ( "Ignoring bad flag '-%c'\n", argv[i][1] ); 
+                // printf ( "Ignoring bad flag '-%c'\n", argv[i][1] ); 
 	        usage( argv[0] );
         }
         //i++;
     }
 
-    format_volume( path, &p );
+    if ( format_volume( path, &p ) )
+       show_message( "Done.", 1294, 0 );
 
     return 0;
 }
@@ -622,6 +650,7 @@ void cleanup ( void )
     remount_media ( hDev );
     unlock_drive ( hDev );
     close_drive ( hDev);
+    hDev = 0;
 }
 
 void quit (int rc)

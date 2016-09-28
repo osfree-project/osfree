@@ -77,7 +77,10 @@
 typedef USHORT NEAR *NPUSHORT;
 typedef VOID   NEAR *NPVOID;
 
-typedef _far * _far *PPVOID;
+// -- typedef _far * _far *PPVOID;
+
+typedef VOID    FAR *PVOID;
+typedef PVOID   FAR *PPVOID;
 
 /*
 ** ABIOS Related

@@ -45,4 +45,20 @@ void InitPrint (char FAR *Message);
 void ErrorPrint (char FAR *Message);
 void InitPrintVerbose (char FAR *Message);
 
+#ifdef __MSC__
+#pragma alloc_text(InitCode, E2Init)
+#pragma alloc_text(InitCode, InitScanDrivers)
+#pragma alloc_text(InitCode, InitScanAdapter)
+#pragma alloc_text(InitCode, InitScanUnits)
+#pragma alloc_text(InitCode, InitGetDriverEP)
+#pragma alloc_text(InitCode, InitScanPartitions)
+#pragma alloc_text(InitCode, InitIsVirtType)
+#pragma alloc_text(InitCode, ProcessCmdline)
+#pragma alloc_text(InitCode, InitGetUnitFS)
+#pragma alloc_text(InitCode, InitSortUnits)
+#pragma alloc_text(InitCode, InitPrint)
+#pragma alloc_text(InitCode, ErrorPrint)
+#pragma alloc_text(InitCode, InitPrintVerbose)
+#endif
+
 #endif

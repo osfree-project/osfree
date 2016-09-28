@@ -18,11 +18,13 @@ static BOOL GetCluster(PVOLINFO pVolInfo, PFINDINFO pFindInfo, USHORT usClusterI
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDCLOSE(struct fsfsi far * pfsfsi,
+int far pascal _loadds FS_FINDCLOSE(struct fsfsi far * pfsfsi,
                             struct fsfsd far * pfsfsd)
 {
 PVOLINFO pVolInfo;
 PFINDINFO pFindInfo = (PFINDINFO)pfsfsd;
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FINDCLOSE");
@@ -36,13 +38,15 @@ PFINDINFO pFindInfo = (PFINDINFO)pfsfsd;
       pFindInfo->pInfo = NULL;
       }
 
+   _asm pop es;
+
    return 0;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDFIRST(struct cdfsi far * pcdfsi,      /* pcdfsi   */
+int far pascal _loadds FS_FINDFIRST(struct cdfsi far * pcdfsi,      /* pcdfsi   */
                             struct cdfsd far * pcdfsd,      /* pcdfsd   */
                             char far * pName,           /* pName    */
                             unsigned short usCurDirEnd,     /* iCurDirEnd   */
@@ -69,6 +73,8 @@ ULONG ulNeededSpace;
 USHORT usEntriesWanted;
 EAOP   EAOP;
 PROCINFO ProcInfo;
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FINDFIRST for %s attr %X, Level %d, cbData %u, MaxEntries %u", pName, usAttr, usLevel, cbData, *pcMatch);
@@ -120,7 +126,7 @@ PROCINFO ProcInfo;
    if (rc)
       {
       Message("FAT32: Protection VIOLATION in FS_FINDFIRST! (SYS%d)", rc);
-      return rc;
+      goto FS_FINDFIRSTEXIT;
       }
 
    if (usLevel == FIL_QUERYEASFROMLIST)
@@ -280,6 +286,8 @@ FS_FINDFIRSTEXIT:
       FS_FINDCLOSE(pfsfsi, pfsfsd);
       }
 
+   _asm pop es;
+
    return rc;
 }
 
@@ -287,7 +295,7 @@ FS_FINDFIRSTEXIT:
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDFROMNAME(
+int far pascal _loadds FS_FINDFROMNAME(
     struct fsfsi far * pfsfsi,      /* pfsfsi   */
     struct fsfsd far * pfsfsd,      /* pfsfsd   */
     char far * pData,           /* pData    */
@@ -308,14 +316,13 @@ PFINDINFO pFindInfo = (PFINDINFO)pfsfsd;
          pFindInfo->ulCurEntry, ulPosition);
 
    pFindInfo->ulCurEntry = ulPosition + 1;
-
    return FS_FINDNEXT(pfsfsi, pfsfsd, pData, cbData, pcMatch, usLevel, usFlags);
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDNEXT(
+int far pascal _loadds FS_FINDNEXT(
     struct fsfsi far * pfsfsi,      /* pfsfsi   */
     struct fsfsd far * pfsfsd,      /* pfsfsd   */
     char far * pData,           /* pData    */
@@ -331,6 +338,8 @@ USHORT rc;
 USHORT usIndex;
 USHORT usNeededLen;
 USHORT usEntriesWanted;
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FINDNEXT, level %u, cbData %u, MaxEntries %u", usLevel, cbData, *pcMatch);
@@ -374,7 +383,7 @@ USHORT usEntriesWanted;
    if (rc)
       {
       Message("FAT32: Protection VIOLATION in FS_FINDNEXT!");
-      return rc;
+      goto FS_FINDNEXTEXIT;
       }
 
    if (usLevel == FIL_QUERYEASFROMLIST)
@@ -440,6 +449,9 @@ FS_FINDNEXTEXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FINDNEXT returned %d (%d entries)",
          rc, *pcMatch);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -770,7 +782,7 @@ PLNENTRY pLN = (PLNENTRY)pDir;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDNOTIFYCLOSE( unsigned short usHandle)
+int far pascal _loadds FS_FINDNOTIFYCLOSE( unsigned short usHandle)
 {
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FINDNOTIFYCLOSE - NOT SUPPORTED");
@@ -782,7 +794,7 @@ int far pascal __loadds FS_FINDNOTIFYCLOSE( unsigned short usHandle)
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDNOTIFYFIRST(
+int far pascal _loadds FS_FINDNOTIFYFIRST(
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
     char far * pName,           /* pName    */
@@ -817,7 +829,7 @@ int far pascal __loadds FS_FINDNOTIFYFIRST(
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FINDNOTIFYNEXT(
+int far pascal _loadds FS_FINDNOTIFYNEXT(
     unsigned short usHandle,        /* handle   */
     char far * pData,           /* pData    */
     unsigned short cbData,      /* cbData   */

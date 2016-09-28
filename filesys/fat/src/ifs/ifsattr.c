@@ -15,7 +15,7 @@
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_FILEATTRIBUTE(
+int far pascal _loadds FS_FILEATTRIBUTE(
     unsigned short usFlag,      /* flag     */
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
@@ -32,15 +32,23 @@ DIRENTRY DirEntry;
 DIRENTRY DirNew;
 USHORT rc;
 
+   _asm push es;
+
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FILEATTRIBUTE, Flag = %X for %s", usFlag, pName);
 
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_FILEATTRIBUTEEXIT;
+      }
 
    if (strlen(pName) > FAT32MAXPATH)
-      return ERROR_FILENAME_EXCED_RANGE;
+      {
+      rc = ERROR_FILENAME_EXCED_RANGE;
+      goto FS_FILEATTRIBUTEEXIT;
+      }
 
    ulDirCluster = FindDirCluster(pVolInfo,
       pcdfsi,
@@ -110,6 +118,9 @@ FS_FILEATTRIBUTEEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FILEATTRIBUTE returned %d", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -117,7 +128,7 @@ FS_FILEATTRIBUTEEXIT:
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_PATHINFO(
+int far pascal _loadds FS_PATHINFO(
     unsigned short usFlag,      /* flag     */
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
@@ -136,13 +147,18 @@ DIRENTRY DirEntry;
 USHORT usNeededSize;
 USHORT rc;
 
+   _asm push es;
+
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_PATHINFO Flag = %d, Level = %d called for %s, cbData = %u",
           usFlag, usLevel, pName, cbData);
 
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_PATHINFOEXIT;
+      }
 
    if (strlen(pName) > FAT32MAXPATH)
       {
@@ -216,7 +232,7 @@ USHORT rc;
       if (rc)
          {
          Message("Protection VIOLATION in FS_PATHINFO!\n");
-         return rc;
+         goto FS_PATHINFOEXIT;
          }
 
       switch (usLevel)
@@ -285,13 +301,13 @@ USHORT rc;
             if (rc)
                {
                Message("Protection VIOLATION in FS_PATHINFO!\n");
-               return rc;
+               goto FS_PATHINFOEXIT;
                }
             rc = MY_PROBEBUF(PB_OPWRITE, (PBYTE)pFEA, (USHORT)pFEA->cbList);
             if (rc)
                {
                Message("Protection VIOLATION in FS_PILEINFO!\n");
-               return rc;
+               goto FS_PATHINFOEXIT;
                }
             if (!f32Parms.fEAS)
                {
@@ -313,13 +329,13 @@ USHORT rc;
             if (rc)
                {
                Message("Protection VIOLATION in FS_PATHINFO!\n");
-               return rc;
+               goto FS_PATHINFOEXIT;
                }
             rc = MY_PROBEBUF(PB_OPWRITE, (PBYTE)pFEA, (USHORT)pFEA->cbList);
             if (rc)
                {
-               Message("Protection VIOLATION in FS_PILEINFO!\n");
-               return rc;
+               Message("Protection VIOLATION in FS_PATHINFO!\n");
+               goto FS_PATHINFOEXIT;
                }
             if (!f32Parms.fEAS)
                {
@@ -355,15 +371,21 @@ USHORT rc;
    if (usFlag & PI_SET)
       {
       if (!pVolInfo->fDiskCleanOnMount)
-         return ERROR_VOLUME_DIRTY;
+         {
+         rc = ERROR_VOLUME_DIRTY;
+         goto FS_PATHINFOEXIT;
+         }
       if (pVolInfo->fWriteProtected)
-         return ERROR_WRITE_PROTECT;
+         {
+         rc = ERROR_WRITE_PROTECT;
+         goto FS_PATHINFOEXIT;
+         }
 
       rc = MY_PROBEBUF(PB_OPREAD, pData, cbData);
       if (rc)
          {
          Message("Protection VIOLATION in FS_PATHINFO!\n");
-         return rc;
+         goto FS_PATHINFOEXIT;
          }
 
       if (usLevel == FIL_STANDARD || usLevel == FIL_QUERYEASIZE)
@@ -472,6 +494,8 @@ FS_PATHINFOEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_PATHINFO returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
-

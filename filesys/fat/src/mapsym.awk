@@ -12,7 +12,17 @@ BEGIN {
 }
 
 /^Executable Image:/ {
- sub("\\..*$", "", $3)
+ # delete the driveletter (if any)
+ sub("^[a-zA-Z]\:", "", $3)
+
+ # change slashes to backslashes
+ gsub("\/", "\\", $3)
+
+ # extract the basename
+ while ((p = index($3, "\\")) > 0) {
+   $3 = substr($3, ++p)
+ }
+
  printf "\n %s\n\n", $3
 }
 
@@ -45,6 +55,11 @@ BEGIN {
 # to an undefined segment (0000).
 
 /__DOSseg__/ {
+ next
+}
+
+# The same with WEAK$ZERO (weak prelinker hack in newer wlinks)
+/0000\:00000000/ {
  next
 }
 

@@ -12,7 +12,7 @@
 #include "portable.h"
 #include "fat32ifs.h"
 
-int far pascal __loadds  FS_CHDIR(
+int far pascal _loadds FS_CHDIR(
     unsigned short usFlag,      /* flag     */
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
@@ -26,6 +26,8 @@ ULONG ulCluster;
 PSZ   pszFile;
 USHORT rc;
 BYTE     szDirLongName[ FAT32MAXPATH ];
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_CHDIR, flag %u", usFlag);
@@ -134,10 +136,13 @@ FS_CHDIREXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_CHDIR returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
-int far pascal __loadds  FS_MKDIR(
+int far pascal _loadds FS_MKDIR(
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
     char far * pName,           /* pName    */
@@ -155,6 +160,8 @@ PDIRENTRY pDir;
 USHORT   rc;
 PBYTE    pbCluster;
 
+   _asm push es;
+
    usFlags = usFlags;
 
    if (f32Parms.fMessageActive & LOG_FS)
@@ -162,14 +169,26 @@ PBYTE    pbCluster;
 
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_MKDIREXIT;
+      }
    if (!pVolInfo->fDiskCleanOnMount)
-      return ERROR_VOLUME_DIRTY;
+      {
+      rc = ERROR_VOLUME_DIRTY;
+      goto FS_MKDIREXIT;
+      }
    if (pVolInfo->fWriteProtected)
-      return ERROR_WRITE_PROTECT;
+      {
+      rc = ERROR_WRITE_PROTECT;
+      goto FS_MKDIREXIT;
+      }
 
    if (strlen(pName) > FAT32MAXPATH)
-      return ERROR_FILENAME_EXCED_RANGE;
+      {
+      rc = ERROR_FILENAME_EXCED_RANGE;
+      goto FS_MKDIREXIT;
+      }
 
    ulDirCluster = FindDirCluster(pVolInfo,
       pcdfsi,
@@ -250,10 +269,13 @@ PBYTE    pbCluster;
 FS_MKDIREXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_MKDIR returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
-int far pascal __loadds FS_RMDIR(
+int far pascal _loadds FS_RMDIR(
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
     char far * pName,           /* pName    */
@@ -272,18 +294,32 @@ USHORT   rc;
 USHORT   usFileCount;
 BYTE     szLongName[ FAT32MAXPATH ];
 
+   _asm push es;
+
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_RMDIR %s", pName);
 
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_RMDIREXIT;
+      }
    if (!pVolInfo->fDiskCleanOnMount)
-      return ERROR_VOLUME_DIRTY;
+      {
+      rc = ERROR_VOLUME_DIRTY;
+      goto FS_RMDIREXIT;
+      }
    if (pVolInfo->fWriteProtected)
-      return ERROR_WRITE_PROTECT;
+      {
+      rc = ERROR_WRITE_PROTECT;
+      goto FS_RMDIREXIT;
+      }
    if (strlen(pName) > FAT32MAXPATH)
-      return ERROR_FILENAME_EXCED_RANGE;
+      {
+      rc = ERROR_FILENAME_EXCED_RANGE;
+      goto FS_RMDIREXIT;
+      }
 
 #if 1
    if( TranslateName(pVolInfo, 0L, pName, szLongName, TRANSLATE_SHORT_TO_LONG ))
@@ -395,6 +431,9 @@ BYTE     szLongName[ FAT32MAXPATH ];
 FS_RMDIREXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_RMDIR returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 

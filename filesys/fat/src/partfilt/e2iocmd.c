@@ -127,11 +127,11 @@ void PartGetGeometry (NPVirtUnitRec pUnitRec, PIORB pIORB)
 {
 #define pIOG		((PIORB_GEOMETRY) pIORB)
 
-USHORT	NumHeads=	pUnitRec->pSourceUnitRec->GeoNumHeads;
+USHORT	NumHeads =	pUnitRec->pSourceUnitRec->GeoNumHeads;
 					/* Num heads of base unit */
-USHORT	TrackSectors=	pUnitRec->pSourceUnitRec->GeoTrackSec;
+USHORT	TrackSectors =	pUnitRec->pSourceUnitRec->GeoTrackSec;
 					/* Num sectors/track of base */
-ULONG	SectorsPerCylinder= NumHeads*TrackSectors;
+ULONG	SectorsPerCylinder = NumHeads*TrackSectors;
 ULONG	DiskSize;
 
    if (pIOG->GeometryLen!=sizeof(GEOMETRY))	/* Check storage size */

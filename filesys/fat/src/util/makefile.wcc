@@ -2,17 +2,23 @@ CXX=wpp386
 CC=wcc386
 LNK=wlink
 MAPCNV=..\mapsym.awk
+_VENDOR=Netlabs
+_VERSION=0.10a6
+FILEVER=@$#$(_VENDOR):$(_VERSION)$#@
+DESC="Fat32 utilities, Henk Kelder & Netlabs"
+CLEANUP=*.obj *.obh *.lnk *.wmp *.map *.lib *.ols *.err
 
-COPT=-3s -s -hw -mf -od -zq -q -i=. -i=.. -i=..\include -i=$(%WATCOM)\h -i=$(%WATCOM)\h\os2
+COPT=-3s -s -hw -mf -od -zq -q -fp3 -fpi87 -i=. -i=.. -i=..\include -i=$(%WATCOM)\h -i=$(%WATCOM)\h\os2
 
 OBJS1=f32stat.obj
 OBJS2=cachef32.obj
 OBJS3=monitor.obj
 OBJS4=diskinf0.obj diskinf1.obj diskinf2.obj
+OBJS5=diskdump.obj
 
-TARGETS=f32stat.exe monitor.exe diskinfo.exe  &
+TARGETS=f32stat.exe f32mon.exe diskinfo.exe  &
         cachef32.exe diskdump.exe diskdump.sym cachef32.sym &
-        diskinfo.sym monitor.sym f32stat.sym
+        diskinfo.sym f32mon.sym f32stat.sym
 
 SYS=os2v2
 
@@ -36,7 +42,7 @@ cachef32.ols: $(OBJS2)
  @%create $^@
  @for %e in ($<) do @%append $^@ FILE %e
 
-monitor.ols: $(OBJS3)
+f32mon.ols: $(OBJS3)
  @%create $^@
  @for %e in ($<) do @%append $^@ FILE %e
 
@@ -44,7 +50,7 @@ diskinfo.ols: $(OBJS4)
  @%create $^@
  @for %e in ($<) do @%append $^@ FILE %e
 
-diskdump.ols: $(OBJS4)
+diskdump.ols: $(OBJS5)
  @%create $^@
  @for %e in ($<) do @%append $^@ FILE %e
 
@@ -52,7 +58,7 @@ diskdump.ols: $(OBJS4)
  @%create $^@
  @%append $^@ SYSTEM $(SYS)
  @%append $^@ NAME $^*.exe
- @%append $^@ OPTION DESCRIPTION 'UFAT32 Helper DLL, Henk Kelder'
+ @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  @%append $^@ OPTION ST=81920
  @%append $^@ OPTION QUIET
  @%append $^@ DEBUG ALL
@@ -75,3 +81,6 @@ diskdump.ols: $(OBJS4)
 
 .map.sym:
  @mapsym $[@ >nul 2>&1
+
+clean: .symbolic
+ -@del $(CLEANUP)  >nul 2>&1

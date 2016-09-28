@@ -1,3 +1,5 @@
+# $Id: makefile 2 2002-01-07 00:00:03Z ktk $ 
+
 #
 # $Header$
 #
@@ -31,12 +33,16 @@
 # Matthieu WILLM, 1995-12-1
 #
 
-!include ..\makefile.inc
+#!include ..\makefile.inc
+#
+# HK: Modified since my location is elsewhere
+#
+DDKPATH=$(DDK)
 
 # Define targets to build
-all:    ext2flt.flt
+all:    partfilt.flt partfilt.sym
 
-debug:  ext2flt.flt
+debug:  partfilt.flt
 
 # MS Visual C++ 1.51 compiler options
 #       -Answ : small memory model, DS != SS and other goodies !
@@ -46,63 +52,97 @@ debug:  ext2flt.flt
 #       -Gs : no stack probes
 #       -Lp : protected mode code
 #       -Zp : pack structures on one byte boundaries
-CC_OPT= -Answ -G3 -O2 -On -Gs -Lp -Zp -D__MSC__ -I. -I$(DDKPATH)\h -I$(DDKPATH)\src\dev\dasd\diskh
-AS_OPT= -ml -D__MASM__ -I$(DDKPATH)\inc -l
-LN_OPT= /map /noe
+# CC_OPT= -Answ -O2 -On -G2s -Lp -Zp -D__MSC__ -I. /Fc%|dpfF.lst
+CC_OPT= -Answ -On -Gs -Lp -Zp -D__MSC__ -I. /Fc%|dpfF.lst
+AS_OPT= -c -Cp -D__MASM__ 
+# -I$(DDKPATH)\base\inc /W3
+LN_OPT= /map /noe /nopackcode /nologo
+# LN_OPT= /code /line /map
+
+.SUFFIXES:
+.SUFFIXES: .flt .lnk .obj .c .asm .sym .map
+
+# CC_OPT= -Answ -G3 -O2 -On -Gs -Lp -Zp -D__MSC__ -I. -I$(DDKPATH)\h -I$(DDKPATH)\src\dev\dasd\diskh
+# AS_OPT= -ml -D__MASM__ -I$(DDKPATH)\base\inc -l
+# LN_OPT= /map /noe /nopackcode
 
 # Include path for files
+# INCLUDE=$(INCLUDE);(DDKPATH)\base\h;(DDKPATH)\base\src\dev\dasd\diskh
 INC= include
 
+
 # Names of complier, assembler and linker.
-CC = cl -c $(CC_OPT)
-AS = $(DDKPATH)\tools\masm $(AS_OPT)
+CC = cl -c $(CC_OPT) 
+AS = ml $(AS_OPT)
 LINK = link
 
 # Implicit rules
 .c.obj:
-        $(CC) -Fl$(@:.obj=.l) $<
+        $(CC) $< >$*.err
+        type $*.err
 
 .asm.obj:
-        $(AS) $<;
+        $(AS) $< >$*.err
+        type $*.err
+
+.map.sym:
+	@mapsym $< >nul 2>&1
+
+INCS=debug.h e2data.h e2filt.h e2init.h e2inutil.h e2iocmd.h e2part.h \
+     e2router.h e2virtio.h e2wrap.h os2head.h  
 
 # Define object files used to build executable from:
 OBJ_1= e2header.obj e2wrap.obj e2data.obj
 OBJ_2= e2router.obj e2filt.obj e2part.obj
-OBJ_3= e2iocmd.obj e2virtio.obj e2init.obj
-OBJ_4= e2inutil.obj
+OBJ_3= e2iocmd.obj e2virtio.obj
+OBJ_4= e2init.obj e2inutil.obj
+# OBJ_3= e2iocmd.obj e2virtio.obj e2init.obj
+# OBJ_4= e2inutil.obj
 
 OBJS= $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_4)
 
 # Make sure that the new debug flag is active...
-debug.h: MAKEFILE
+debug.h: makefile.msc
 
 # List macros
 EXE_depend = $(OBJS)
 
 # Explicit rules
-ext2flt.flt: $(EXE_depend) ext2flt.def MAKEFILE
+partfilt.flt: $(EXE_depend) partfilt.def makefile.msc
         $(LINK) $(LN_OPT) @<<
-$(OBJ_1) +
-$(OBJ_2) +
-$(OBJ_3) +
-$(OBJ_4)
-ext2flt.flt
-ext2flt.map
-
-ext2flt2.def
+$(OBJS: =+^
+)
+$*.flt
+$*.map
+/nod:slibce slibcep os2
+$*.def
 <<
-        mapsym ext2flt.map
+
+# /nod:slibce slibcep os2
 
 install:
-        mapsym ext2flt.map
-        copy ext2flt.flt e:\mwfs
-        copy ext2flt.sym e:\mwfs
+        mapsym partfilt.map
+        copy partfilt.flt e:\mwfs
+        copy partfilt.sym e:\mwfs
 
 clean:
         -del $(OBJS)
-        -del ext2flt.flt
-        -del ext2flt.sym
-        -del ext2flt.map
+        -del partfilt.flt
+        -del partfilt.sym
+        -del partfilt.map
         -del *.l
         -del *.lst
+
+e2header.obj : e2header.asm
+e2wrap.obj   : e2wrap.asm
+
+
+e2data.obj   : e2data.c   $(INCS)
+e2filt.obj   : e2filt.c   $(INCS)   
+e2init.obj   : e2init.c   $(INCS)   
+e2inutil.obj : e2inutil.c $(INCS)  
+e2iocmd.obj  : e2iocmd.c  $(INCS)   
+e2part.obj   : e2part.c   $(INCS)   
+e2router.obj : e2router.c $(INCS)  
+e2virtio.obj : e2virtio.c $(INCS)  
 

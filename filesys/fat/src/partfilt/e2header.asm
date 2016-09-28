@@ -37,13 +37,16 @@ include reqpkt.inc
 include devcmd.inc
 DRIVER_INIT= 1
 
-IFDEF __MASM__
-DGROUP	group _DATA,_BSS,CONST
-ELSE
-DGROUP	group _DATA,_BSS
-ENDIF
+ifdef __MASM__
+DGROUP	group DDHeader, _DATA, _BSS, CONST
+else
+DGROUP	group DDHeader, _DATA, _BSS
+endif
 
-_DATA	segment word public use16 'DATA'
+CodeGroup  group StratCode, _TEXT, InitCode
+
+
+DDHeader	segment word public use16 'DATA'
 	public DevHeader
 DevHeader	dd -1			; Pointer to next driver
 		dw 8180h		; Device attributes
@@ -56,20 +59,28 @@ DevHeader	dd -1			; Pointer to next driver
 	public InitFlags
 InitFlags	db 0
 
-_DATA	ends
+DDHeader	ends
 
-IFDEF __MASM__
+_DATA           segment word public use16 'DATA'
+_DATA           ends
+
+ifdef __MASM__
 CONST	segment word public use16 'CONST'
 CONST	ends
-ENDIF
+endif
 
 _BSS	segment word public use16 'BSS'
 _BSS	ends
 
-_TEXT	segment byte public use16 'CODE'
+StratCode	segment byte public use16 'CODE'
 
-	assume cs:_TEXT, ds:DGROUP
+	assume cs:CodeGroup, ds:DGROUP
+;	assume cs:_TEXT, ds:DGROUP
+ifdef __LARGE__
+	extrn _E2Init: far
+else
 	extrn _E2Init: near
+endif
 
 	public E2Strategy
 E2Strategy	proc far
@@ -89,6 +100,12 @@ E2Strategy	proc far
 	retf
 E2Strategy	endp
 
-_TEXT	ends
+StratCode	ends
+
+_TEXT	segment byte public use16 'CODE'
+_TEXT   ends
+
+InitCode  segment byte public use16 'CODE'
+InitCode  ends
 
 	end

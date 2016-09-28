@@ -33,6 +33,10 @@
 
 UCHAR		InitIORB[MAX_IORB_SIZE]= {0};	/* IORB to use */
 
+#ifdef __WATCOMC__
+#pragma code_seg ( "InitCode", "CODE" ) ;
+#endif
+
 /* Add a unit that we might want to use to the base unit list after */
 /* allocating the unit. */
 
@@ -271,7 +275,7 @@ USHORT InitReadSector (PADDEntryPoint pAddEP, USHORT UnitHandle,
 /* Function to submit an IORB. Waits for request to finish before returning */
 USHORT InitSendIORB(PIORB pIORB, PADDEntryPoint pADDEntry)
 {
- pIORB->NotifyAddress  = (void far *) ProcRun;
+ pIORB->NotifyAddress  = (void far *)ProcRun;
  pIORB->RequestControl = IORB_ASYNC_POST;
  pIORB->ErrorCode      = 0;
  pIORB->Status         = 0;
@@ -287,3 +291,7 @@ USHORT InitSendIORB(PIORB pIORB, PADDEntryPoint pADDEntry)
  ENABLE
  return pIORB->ErrorCode;
 }
+
+#ifdef __WATCOMC__
+#pragma code_seg ( ) ;
+#endif

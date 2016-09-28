@@ -28,6 +28,10 @@
 
 #include "e2data.h"
 
+#ifdef __WATCOMC__
+#pragma data_seg ( "_DATA", "DATA" ) ;
+#endif
+
 PFN		DevHelp= NULL;		/* Ptr to DevHelp service routine */
 USHORT   ADDHandle= 0;		/* Our adapter device driver handle */
 void far *	pDataSeg= NULL;		/* Virtual address of data segment */
@@ -41,3 +45,7 @@ int		NumVirtUnits= 0;
 USHORT	MountTable[MAX_LINUX_PARTITIONS]= {0};
 int		MountCount= 0;
 BYTE     rgfFakePart[256] = {0};
+
+#ifdef __WATCOMC__
+#pragma data_seg ( ) ;
+#endif

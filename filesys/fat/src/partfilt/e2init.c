@@ -37,6 +37,10 @@ static PSZ pszSkipSpace(PSZ p);
 
 USHORT	StartInitData= 0;	/* Use addr as pointer to start of init data */
 
+#ifdef __WATCOMC__
+#pragma code_seg ( "InitCode", "CODE" ) ;
+#endif
+
 /***********************************************************
 * Initialization function for the driver. Only called once.
 ***********************************************************/
@@ -47,7 +51,6 @@ char FAR	*pCmdLine;
 
 
    /* Initialize some of the important global variables. */
-
    DevHelp   = ((PRPINITIN) Req)->DevHlpEP;	/* Get pointer to DevHelp */
    pDataSeg  = (PVOID) &pDataSeg;			   /* Get pointer to data seg */
    OFFSETOF(pDataSeg)= 0;
@@ -531,3 +534,7 @@ void ErrorPrint(char FAR *Message)
 {
    E2Print (Message);
 }
+
+#ifdef __WATCOMC__
+#pragma code_seg ( ) ;
+#endif

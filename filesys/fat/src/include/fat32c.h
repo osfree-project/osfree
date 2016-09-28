@@ -32,9 +32,62 @@ typedef unsigned int DWORD;
 #include <windows.h>
 #include <winioctl.h>  // From the Win32 SDK \Mstools\Include, or Visual Studio.Net
 
+// This is just so it will build with old versions of Visual Studio. Yeah, I know...
+#ifndef IOCTL_DISK_GET_PARTITION_INFO_EX
+	#define IOCTL_DISK_GET_PARTITION_INFO_EX    CTL_CODE(IOCTL_DISK_BASE, 0x0012, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+	typedef struct _PARTITION_INFORMATION_MBR {
+		BYTE  PartitionType;
+		BOOLEAN BootIndicator;
+		BOOLEAN RecognizedPartition;
+		DWORD HiddenSectors;
+	} PARTITION_INFORMATION_MBR, *PPARTITION_INFORMATION_MBR;
+
+	typedef struct _PARTITION_INFORMATION_GPT {
+		GUID PartitionType;                 // Partition type. See table 16-3.
+		GUID PartitionId;                   // Unique GUID for this partition.
+		DWORD64 Attributes;                 // See table 16-4.
+		WCHAR Name [36];                    // Partition Name in Unicode.
+	} PARTITION_INFORMATION_GPT, *PPARTITION_INFORMATION_GPT;
+
+
+	typedef enum _PARTITION_STYLE {
+		PARTITION_STYLE_MBR,
+		PARTITION_STYLE_GPT,
+		PARTITION_STYLE_RAW
+	} PARTITION_STYLE;
+
+	typedef struct _PARTITION_INFORMATION_EX {
+		PARTITION_STYLE PartitionStyle;
+		LARGE_INTEGER StartingOffset;
+		LARGE_INTEGER PartitionLength;
+		DWORD PartitionNumber;
+		BOOLEAN RewritePartition;
+		union {
+			PARTITION_INFORMATION_MBR Mbr;
+			PARTITION_INFORMATION_GPT Gpt;
+		} DUMMYUNIONNAME;
+	} PARTITION_INFORMATION_EX, *PPARTITION_INFORMATION_EX;
 #endif
 
-#pragma pack(1)
+#ifndef FSCTL_ALLOW_EXTENDED_DASD_IO
+ #define FSCTL_ALLOW_EXTENDED_DASD_IO 0x00090083
+#endif
+
+#endif
+
+#define MAX_MESSAGE 2048
+
+#define BLOCK_SIZE  0x4000
+#define MAX_MESSAGE 2048
+#define TYPE_LONG    0
+#define TYPE_STRING  1
+#define TYPE_PERC    2
+#define TYPE_LONG2   3
+#define TYPE_DOUBLE  4
+#define TYPE_DOUBLE2 5
+
+#pragma pack(push, 1)
 typedef struct tagFAT_BOOTSECTOR32
 {
     // Common fields.
@@ -78,9 +131,6 @@ typedef struct {
     DWORD dTrailSig;     // 0xAA550000
 } FAT_FSINFO;
 
-
-#pragma pack()
-
 typedef struct 
     {
     int sectors_per_cluster;        // can be zero for default or 1,2,4,8,16,32 or 64
@@ -96,15 +146,16 @@ struct extbpb
   BYTE NumFATs;
   WORD RootDirEnt;
   WORD TotalSectors16;
-  BYTE MedisDesc;
+  BYTE MediaDesc;
   WORD FatSize;
   WORD SectorsPerTrack;
   WORD TracksPerCylinder;
   DWORD HiddenSectors;
   DWORD TotalSectors;
-  BYTE Reserved[6];
-  ULONGLONG PartitionLength;
+  BYTE Reserved3[6];
 };
+
+#pragma pack(pop)
 
 //
 // API
@@ -134,3 +185,4 @@ void set_vol_label (char *path, char *vol);
 void cleanup ( void );
 void quit (int rc);
 void show_progress (float fPercentWritten);
+void show_message (char *pszMsg, unsigned short usMsg, unsigned short usNumFields, ...);

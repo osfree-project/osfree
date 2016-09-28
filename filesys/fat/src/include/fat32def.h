@@ -68,7 +68,7 @@ typedef unsigned short APIRET;
 #define FP_OFF(fp) (*((unsigned _far *)&(fp)))
 #endif
 
-#define FAT32_VERSION "0.9.13"
+#define FAT32_VERSION "0.10a6"
 
 #ifndef __MSC__
 #define _enable()	_asm { sti }
@@ -356,6 +356,7 @@ BYTE        pbFATSector[512];
 BOOL        fDetailed;
 BOOL        fPM;
 BOOL        fFix;
+BOOL        fAutoCheck;
 BOOL        fAutoRecover;
 BOOL        fFatOk;
 BOOL        fCleanOnBoot;

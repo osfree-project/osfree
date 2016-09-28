@@ -56,10 +56,15 @@ static USHORT MakeChain(PVOLINFO pVolInfo, ULONG ulFirstCluster, ULONG ulSize);
 static USHORT GetSetFileEAS(PVOLINFO pVolInfo, USHORT usFunc, PMARKFILEEASBUF pMark);
 static USHORT DBCSStrlen( const PSZ pszStr );
 
+extern ULONG autocheck_mask;
+extern ULONG force_mask;
+
+void _cdecl autocheck(char *args);
+
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_ATTACH(unsigned short usFlag,     /* flag     */
+int far pascal _loadds FS_ATTACH(unsigned short usFlag,     /* flag     */
                          char far * pDev,           /* pDev     */
                          void far * pvpfsd,         /* if remote drive
                                                  struct vpfsd far *
@@ -86,7 +91,7 @@ int far pascal __loadds FS_ATTACH(unsigned short usFlag,     /* flag     */
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_COPY(
+int far pascal _loadds FS_COPY(
     unsigned short usMode,      /* copy mode    */
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
@@ -110,6 +115,8 @@ USHORT   rc, rc2;
 POPENINFO pOpenInfo = NULL;
 BYTE     szSrcLongName[ FAT32MAXPATH ];
 BYTE     szDstLongName[ FAT32MAXPATH ];
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_COPY %s to %s, mode %d", pSrc, pDst, usMode);
@@ -343,13 +350,16 @@ FS_COPYEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_COPY returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_DELETE(
+int far pascal _loadds FS_DELETE(
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
     char far * pFile,           /* pFile    */
@@ -362,8 +372,10 @@ ULONG    ulDirCluster;
 PSZ      pszFile;
 USHORT   rc;
 DIRENTRY DirEntry;
-POPENINFO pOpenInfo;
+POPENINFO pOpenInfo = NULL;
 BYTE     szLongName[ FAT32MAXPATH ];
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
     Message("FS_DELETE for %s", pFile);
@@ -371,11 +383,20 @@ BYTE     szLongName[ FAT32MAXPATH ];
    pVolInfo = GetVolInfo(pcdfsi->cdi_hVPB);
 
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_DELETEEXIT;
+      }
    if (!pVolInfo->fDiskCleanOnMount)
-      return ERROR_VOLUME_DIRTY;
+      {
+      rc = ERROR_VOLUME_DIRTY;
+      goto FS_DELETEEXIT;
+      }
    if (pVolInfo->fWriteProtected)
-      return ERROR_WRITE_PROTECT;
+      {
+      rc = ERROR_WRITE_PROTECT;
+      goto FS_DELETEEXIT;
+      }
 
    pOpenInfo = malloc(sizeof (OPENINFO));
    if (!pOpenInfo)
@@ -473,13 +494,15 @@ FS_DELETEEXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_DELETE returned %u", rc);
 
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-void far pascal  __loadds FS_EXIT(
+void far pascal _loadds FS_EXIT(
     unsigned short usUid,       /* uid      */
     unsigned short usPid,       /* pid      */
     unsigned short usPdb        /* pdb      */
@@ -488,6 +511,8 @@ void far pascal  __loadds FS_EXIT(
 PVOLINFO pVolInfo = pGlobVolInfo;
 PFINFO pFindInfo;
 USHORT rc;
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_EXIT for PID: %X, PDB %X",
@@ -499,7 +524,7 @@ USHORT rc;
       if (rc)
          {
          FatalMessage("FAT32: Protection VIOLATION (Volinfo) in FS_EXIT! (SYS%d)", rc);
-         return;
+         goto FS_EXITEXIT;
          }
 
       if (pVolInfo->fLocked &&
@@ -518,7 +543,7 @@ USHORT rc;
             {
             FatalMessage("FAT32: Protection VIOLATION (FindInfo) in FS_EXIT! (SYS%d)", rc);
             Message("FAT32: Protection VIOLATION (FindInfo) in FS_EXIT! (SYS%d)", rc);
-            return;
+            goto FS_EXITEXIT;
             }
 
          if (pFindInfo->ProcInfo.usPid == usPid &&
@@ -537,6 +562,9 @@ USHORT rc;
       pVolInfo = (PVOLINFO)pVolInfo->pNextVolInfo;
       }
 
+FS_EXITEXIT:
+   _asm pop es;
+
    return ;
 }
 
@@ -545,24 +573,31 @@ USHORT rc;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_FLUSHBUF(
+int far pascal _loadds FS_FLUSHBUF(
     unsigned short hVPB,        /* hVPB     */
     unsigned short usFlag       /* flag     */
 )
 {
-PVOLINFO pVolInfo = GetVolInfo(hVPB);
+PVOLINFO pVolInfo;
 USHORT rc;
+
+   _asm push es;
+
+   pVolInfo = GetVolInfo(hVPB);
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FLUSHBUF, flag = %d", usFlag);
 
    if (pVolInfo->fWriteProtected)
-      return 0;
+      {
+      rc = 0;
+      goto FS_FLUSHEXIT;
+      }
 
    rc = usFlushVolume(pVolInfo, usFlag, TRUE, PRIO_URGENT);
 
    if (rc)
-      return rc;
+      goto FS_FLUSHEXIT;
 
    if (!f32Parms.usDirtySectors) // vs
       goto FS_FLUSHEXIT;         //
@@ -582,6 +617,9 @@ FS_FLUSHEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FLUSHBUF returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -589,7 +627,7 @@ FS_FLUSHEXIT:
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_FSCTL(
+int far pascal _loadds FS_FSCTL(
     union argdat far * pArgDat,     /* pArgdat  */
     unsigned short usArgType,       /* iArgType */
     unsigned short usFunc,      /* func     */
@@ -604,6 +642,7 @@ int far pascal  __loadds FS_FSCTL(
 USHORT rc;
 POPENINFO pOpenInfo;
 
+   _asm push es;
 
    if (usFunc != FAT32_GETLOGDATA && f32Parms.fMessageActive & LOG_FS)
       Message("FS_FSCTL, Func = %Xh", usFunc);
@@ -617,7 +656,7 @@ POPENINFO pOpenInfo;
          if (rc)
             {
             Message("Protection VIOLATION in Data of FS_FSCTL!");
-            return rc;
+            goto FS_FSCTLEXIT;
             }
          }
       if (pcbData)
@@ -643,7 +682,7 @@ POPENINFO pOpenInfo;
          if (rc)
             {
             Message("Protection VIOLATION in Parm of FS_FSCTL!");
-            return rc;
+            goto FS_FSCTLEXIT;
             }
          }
       if (pcbParm)
@@ -841,7 +880,10 @@ POPENINFO pOpenInfo;
          if (pcbData)
             *pcbData = sizeof f32Parms;
          if (cbData < sizeof (F32PARMS))
-            return ERROR_BUFFER_OVERFLOW;
+            {
+            rc = ERROR_BUFFER_OVERFLOW;
+            goto FS_FSCTLEXIT;
+            }
          memcpy(pData, &f32Parms, sizeof (F32PARMS));
          rc = 0;
          break;
@@ -936,13 +978,16 @@ FS_FSCTLEXIT:
 
    if (usFunc != FAT32_GETLOGDATA && f32Parms.fMessageActive & LOG_FS)
       Message("FS_FSCTL returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_FSINFO(
+int far pascal _loadds FS_FSINFO(
     unsigned short usFlag,      /* flag     */
     unsigned short hVBP,        /* hVPB     */
     char far * pData,           /* pData    */
@@ -953,22 +998,30 @@ int far pascal __loadds FS_FSINFO(
 PVOLINFO pVolInfo;
 USHORT rc;
 
+   _asm push es;
+
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FSINFO, Flag = %d, Level = %d", usFlag, usLevel);
 
    pVolInfo = GetVolInfo(hVBP);
 
    if (IsDriveLocked(pVolInfo))
-      return ERROR_DRIVE_LOCKED;
+      {
+      rc = ERROR_DRIVE_LOCKED;
+      goto FS_FSINFOEXIT;
+      }
 
    if (pVolInfo->fFormatInProgress)
-      return ERROR_BUSY_DRIVE;
+      {
+      rc = ERROR_BUSY_DRIVE;
+      goto FS_FSINFOEXIT;
+      }
 
    rc = MY_PROBEBUF(PB_OPWRITE, pData, cbData);
    if (rc)
       {
       Message("Protection VIOLATION in FS_FSINFO!");
-      return rc;
+      goto FS_FSINFOEXIT;
       }
 
    if (usFlag == INFO_RETRIEVE)
@@ -979,7 +1032,6 @@ USHORT rc;
             {
             PFSALLOCATE pAlloc = (PFSALLOCATE)pData;
 
-            Message("FSIL_ALLOC");
             if (cbData < sizeof (FSALLOCATE))
                {
                rc = ERROR_BUFFER_OVERFLOW;
@@ -1027,7 +1079,6 @@ USHORT rc;
             {
             PFSINFO pInfo = (PFSINFO)pData;
             USHORT usSize;
-            Message("FSIL_VOLSER");
             if (cbData < sizeof (FSINFO))
                {
                rc = ERROR_BUFFER_OVERFLOW;
@@ -1072,17 +1123,13 @@ USHORT rc;
 
             if (pVol->cch < (BYTE)12)
                {
-               Message("FSIL_VOLSER < 12 , fGetSetVolLabel in");
                usSize = (USHORT) pVol->cch;
-               Message("fGetSetVolLabel out, rc=%u", rc);
                rc = fGetSetVolLabel(pVolInfo, usFlag, pVol->szVolLabel, &usSize);
                }
             else
                {
                usSize = 11;
-               Message("FSIL_VOLSER, too long, fGetSetVolLabel in");
                rc = fGetSetVolLabel(pVolInfo, usFlag, pVol->szVolLabel, &usSize);
-               Message("fGetSetVolLabel out, rc=%lu", rc);
                if (!rc)
                   rc = ERROR_LABEL_TOO_LONG;
                }
@@ -1101,6 +1148,9 @@ FS_FSINFOEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_FSINFO returned %u", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
@@ -1223,7 +1273,7 @@ PBOOTSECT pBootSect;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_INIT(
+int far pascal _loadds FS_INIT(
     char far * pszParm,         /* szParm   */
     unsigned long pDevHlp,      /* pDevHlp  */
     unsigned long far * pMiniFSD    /* pMiniFSD */
@@ -1231,6 +1281,9 @@ int far pascal __loadds FS_INIT(
 {
 BOOL fSilent = FALSE;
 PSZ  p;
+PSZ  cmd = NULL;
+
+   _asm push es;
 
    pMiniFSD = pMiniFSD;
 
@@ -1311,6 +1364,54 @@ PSZ  p;
       if( p )
          f32Parms.fCalcFree = TRUE;
 
+      p = strstr( szArguments, "/cacheopt");
+      if( !p )
+         p = strstr( szArguments, "-cacheopt");
+      if( p )
+         {
+         p += 9;
+         cmd = p;
+         }
+
+      p = strstr(szArguments, "/autocheck:");
+      if (!p)
+         p = strstr(szArguments, "-autocheck:");
+      if (p)
+         {
+         p += 11;
+         }
+      else
+         {
+         p = strstr(szArguments, "/ac:");
+         if (!p)
+            p = strstr(szArguments, "-ac:");
+         if (p)
+            {
+            p += 4;
+
+            while (*p != '\0' && *p != ' ')
+               {
+               char ch = tolower(*p);
+               int num;
+               if ('a' <= ch && ch <= 'z')
+                  {
+                  num = ch - 'a';
+                  autocheck_mask |= (1UL << num);
+                  }
+               else if (*p == '+')
+                  {
+                  force_mask |= (1UL << num);
+                  }
+               else if (*p == '*')
+                  {
+                  autocheck_mask = 0xffffffff;
+                  break;
+                  }
+               p++;
+               }
+            }
+         }
+
 #if 1
    if (!DosGetInfoSeg(&sGlob, &sLoc))
 #else
@@ -1320,6 +1421,7 @@ PSZ  p;
    else
       {
       InitMessage("FAT32: Unable to acquire Global Infoseg!\r\n");
+      _asm pop es;
       return 1;
       }
    pGITicks = &pGI->msecs;
@@ -1328,6 +1430,14 @@ PSZ  p;
 
    if (!ulCacheSectors)
       InitMessage("FAT32: Warning CACHE size is zero!\r\n");
+
+   // add bootdrive to autocheck mask
+   autocheck_mask |= (1UL << pGI->bootdrive);
+
+   /* disk autocheck */
+   autocheck(cmd);
+
+   _asm pop es;
 
    return 0;
 }
@@ -1343,7 +1453,7 @@ USHORT usWritten;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds FS_IOCTL(
+int far pascal _loadds FS_IOCTL(
     struct sffsi far * psffsi,      /* psffsi   */
     struct sffsd far * psffsd,      /* psffsd   */
     unsigned short usCat,       /* cat      */
@@ -1360,6 +1470,8 @@ USHORT rc;
 PVOLINFO pVolInfo;
 ULONG hDEV;
 PBIOSPARAMETERBLOCK pBPB;
+
+   _asm push es;
 
    psffsd = psffsd;
 
@@ -1379,7 +1491,7 @@ PBIOSPARAMETERBLOCK pBPB;
          if (rc)
             {
             Message("Protection VIOLATION in data of FS_IOCTL!");
-            return rc;
+            goto FS_IOCTLEXIT;
             }
          }
 
@@ -1408,7 +1520,7 @@ PBIOSPARAMETERBLOCK pBPB;
             {
             Message("Protection VIOLATION in parm of FS_IOCTL, address %lX, len %u!",
                pParm, cbParm);
-            return rc;
+            goto FS_IOCTLEXIT;
             }
          }
       if (pcbParm)
@@ -1550,7 +1662,6 @@ PBIOSPARAMETERBLOCK pBPB;
                else
                   *(PWORD)pData = 0x0006;
 
-               Message("DSK_GETLOCKSTATUS, rc=%u", rc);
                rc = 0;
                break;
 
@@ -1854,8 +1965,10 @@ PBIOSPARAMETERBLOCK pBPB;
 FS_IOCTLEXIT:
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_IOCTL returned %u", rc);
-   return rc;
 
+   _asm pop es;
+
+   return rc;
 }
 
 
@@ -2015,7 +2128,7 @@ USHORT rc;
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_MOVE(
+int far pascal _loadds FS_MOVE(
     struct cdfsi far * pcdfsi,      /* pcdfsi   */
     struct cdfsd far * pcdfsd,      /* pcdfsd   */
     char far * pSrc,            /* pSrc     */
@@ -2038,6 +2151,8 @@ POPENINFO pOISrc = NULL;
 POPENINFO pOIDst = NULL;
 BYTE     szSrcLongName[ FAT32MAXPATH ];
 BYTE     szDstLongName[ FAT32MAXPATH ];
+
+   _asm push es;
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_MOVE %s to %s", pSrc, pDst);
@@ -2208,7 +2323,7 @@ BYTE     szDstLongName[ FAT32MAXPATH ];
       pOISrc->pSHInfo->sOpenCount++;
       if (pOISrc->pSHInfo->sOpenCount > 1)
       {
-          rc = ERROR_ACCESS_DENIED;
+        rc = ERROR_ACCESS_DENIED;
         goto FS_MOVEEXIT;
       }
 
@@ -2318,13 +2433,15 @@ FS_MOVEEXIT:
 
    return rc;
 
+   _asm pop es;
+
    usFlags = usFlags;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_PROCESSNAME(
+int far pascal _loadds FS_PROCESSNAME(
     char far *  pNameBuf        /* pNameBuf */
 )
 {
@@ -2332,6 +2449,8 @@ int far pascal  __loadds FS_PROCESSNAME(
      USHORT usUniCh;
      USHORT usLen;
      char   far *p;
+
+     _asm push es;
 
      if (f32Parms.fMessageActive & LOG_FS)
         Message("FS_PROCESSNAME for %s", pNameBuf);
@@ -2349,6 +2468,8 @@ int far pascal  __loadds FS_PROCESSNAME(
 
      if (f32Parms.fMessageActive & LOG_FS)
         Message(" FS_PROCESSNAME returned filename: %s", pNameBuf);
+
+     _asm pop es;
 #endif
    return 0;
 }
@@ -2357,13 +2478,15 @@ int far pascal  __loadds FS_PROCESSNAME(
 /******************************************************************
 *
 ******************************************************************/
-int far pascal  __loadds FS_SHUTDOWN(
+int far pascal _loadds FS_SHUTDOWN(
     unsigned short usType,      /* usType   */
     unsigned long    ulReserved /* ulReserved   */
 )
 {
 PVOLINFO pVolInfo;
 USHORT rc = 0;
+
+   _asm push es;
 
    ulReserved = ulReserved;
 
@@ -2408,21 +2531,29 @@ FS_SHUTDOWNEXIT:
 
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_SHUTDOWN returned %d", rc);
+
+   _asm pop es;
+
    return rc;
 }
 
 /******************************************************************
 *
 ******************************************************************/
-int far pascal __loadds  FS_VERIFYUNCNAME(
+int far pascal _loadds FS_VERIFYUNCNAME(
     unsigned short usFlag,      /* flag     */
     char far *  pName       /* pName    */
 )
 {
+   _asm push es;
+
    if (f32Parms.fMessageActive & LOG_FS)
       Message("FS_VERIFYUNCNAME - NOT SUPPORTED");
    usFlag = usFlag;
    pName = pName;
+
+   _asm pop es;
+
    return ERROR_NOT_SUPPORTED;
 }
 
@@ -5166,5 +5297,3 @@ USHORT DBCSStrlen( const PSZ pszStr )
 
    return usRet;
 }
-
-

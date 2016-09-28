@@ -16,23 +16,40 @@
 #include "fat32def.h"
 #include "portable.h"
 
-#define MAX_MESSAGE 2048
-
-#define BLOCK_SIZE  0x4000
-#define MAX_MESSAGE 2048
-#define TYPE_LONG    0
-#define TYPE_STRING  1
-#define TYPE_PERC    2
-#define TYPE_LONG2   3
-#define TYPE_DOUBLE  4
-#define TYPE_DOUBLE2 5
-
 typedef HFILE HANDLE;
 
 extern HANDLE hDev;
 
 INT cdecl iShowMessage(PCDINFO pCD, USHORT usNr, USHORT usNumFields, ...);
 PSZ       GetOS2Error(USHORT rc);
+
+ULONG ReadSect(HFILE hFile, LONG ulSector, USHORT nSectors, PBYTE pbSector);
+ULONG WriteSect(HFILE hf, LONG ulSector, USHORT nSectors, PBYTE pbSector);
+
+#pragma pack(1)
+
+typedef struct _PTE
+{
+    char boot_ind;
+    char starting_head;
+    unsigned short starting_sector:6;
+    unsigned short starting_cyl:10;
+    char system_id;
+    char ending_head;
+    unsigned short ending_sector:6;
+    unsigned short ending_cyl:10;
+    unsigned long relative_sector;
+    unsigned long total_sectors;
+} PTE;
+
+struct _mbr
+{
+    char pad[0x1be];
+    PTE  pte[4];
+    unsigned short boot_ind; /* 0x55aa */
+} mbr;
+
+#pragma pack()
 
 DWORD get_vol_id (void)
 {
@@ -59,7 +76,7 @@ void die ( char * error, DWORD rc )
     APIRET ret;
    
     // Format failed
-    printf("%s\n", error);
+    printf("ERROR: %s\n", error);
     iShowMessage(NULL, 528, 0);
     printf("%s\n", GetOS2Error(rc));
 
@@ -76,15 +93,203 @@ void seek_to_sect( HANDLE hDevice, DWORD Sector, DWORD BytesPerSect )
     
     llOffset = Sector * BytesPerSect;
     rc = DosSetFilePtrL( hDevice, (LONGLONG)llOffset, FILE_BEGIN, &llActual );
+    //printf("seek_to_sect: hDevice=%lx, Sector=%lu, BytesPerSect=%lu\n", hDevice, Sector, BytesPerSect);
+    //printf("rc=%lu\n", rc);
+}
+
+ULONG ReadSect(HFILE hFile, LONG ulSector, USHORT nSectors, PBYTE pbSector)
+{
+   ULONG ulDataSize;
+   BIOSPARAMETERBLOCK bpb;
+
+   #pragma pack(1)
+
+   /* parameter packet */
+   struct {
+       unsigned char command;
+       unsigned char drive;
+   } parm2;
+
+   #pragma pack()
+
+   #define BUFSIZE 0x4000
+
+   char buf[BUFSIZE];
+
+   ULONG parmlen2 = sizeof(parm2);
+   ULONG datalen2 = sizeof(bpb);
+   ULONG cbRead32;
+   ULONG rc;
+   ULONG parmlen4;
+   char trkbuf[sizeof(TRACKLAYOUT) + sizeof(USHORT) * 2 * 255];
+   PTRACKLAYOUT ptrk = (PTRACKLAYOUT)trkbuf;
+   ULONG datalen4 = BUFSIZE;
+   USHORT cyl, head, sec, n;
+   ULONGLONG off;
+   int i;
+
+   ulDataSize = nSectors * SECTOR_SIZE;
+
+   if ( (rc = DosDevIOCtl(hFile, IOCTL_DISK, DSK_GETDEVICEPARAMS,
+                          &parm2, parmlen2, &parmlen2, &bpb, datalen2, &datalen2)) )
+       return rc;
+
+   memset((char *)trkbuf, 0, sizeof(trkbuf));
+   off =  ulSector + bpb.cHiddenSectors;
+   off *= SECTOR_SIZE;
+
+   for (i = 0; i < bpb.usSectorsPerTrack; i++)
+   {
+       ptrk->TrackTable[i].usSectorNumber = i + 1;
+       ptrk->TrackTable[i].usSectorSize = SECTOR_SIZE;
+   }
+
+   do
+   {
+       cbRead32 = (ulDataSize > BUFSIZE) ? BUFSIZE : (ULONG)ulDataSize;
+       parmlen4 = sizeof(TRACKLAYOUT) + sizeof(USHORT) * 2 * (bpb.usSectorsPerTrack - 1);
+       datalen4 = BUFSIZE;
+
+       cyl = off / (SECTOR_SIZE * bpb.cHeads * bpb.usSectorsPerTrack);
+       head = (off / SECTOR_SIZE - bpb.cHeads * bpb.usSectorsPerTrack * cyl) / bpb.usSectorsPerTrack;
+       sec = off / SECTOR_SIZE - bpb.cHeads * bpb.usSectorsPerTrack * cyl - head * bpb.usSectorsPerTrack;
+
+       if (sec + cbRead32 / SECTOR_SIZE > bpb.usSectorsPerTrack)
+           cbRead32 = (bpb.usSectorsPerTrack - sec) * SECTOR_SIZE;
+
+       n = cbRead32 / SECTOR_SIZE;
+
+       //printf("cyl=%u, head=%u, sec=%u, n=%u, ", cyl, head, sec, n);
+
+       ptrk->bCommand = 1;
+       ptrk->usHead = head;
+       ptrk->usCylinder = cyl;
+       ptrk->usFirstSector = sec;
+       ptrk->cSectors = n;
+
+       rc = DosDevIOCtl(hFile, IOCTL_DISK, DSK_READTRACK,
+                        trkbuf, parmlen4, &parmlen4, buf, datalen4, &datalen4);
+
+       //printf("rc=%lu\n", rc);
+
+       if (rc)
+           break;
+
+       memcpy(pbSector, buf, min(datalen4, ulDataSize));
+
+       off           += cbRead32;
+       ulDataSize    -= cbRead32;
+       pbSector      = (char *)pbSector + cbRead32;
+
+    } while ((ulDataSize > 0) && ! rc);
+
+    return rc;
+}
+
+ULONG WriteSect(HFILE hf, LONG ulSector, USHORT nSectors, PBYTE pbSector)
+{
+   ULONG ulDataSize;
+   BIOSPARAMETERBLOCK bpb;
+
+   #pragma pack(1)
+
+   /* parameter packet */
+   struct {
+       unsigned char command;
+       unsigned char drive;
+   } parm2;
+
+   #pragma pack()
+
+   #define BUFSIZE 0x4000
+
+   char buf[BUFSIZE];
+
+   ULONG parmlen2 = sizeof(parm2);
+   ULONG datalen2 = sizeof(bpb);
+   ULONG cbWrite32;
+   ULONG rc;
+   ULONG parmlen4;
+   char trkbuf[sizeof(TRACKLAYOUT) + sizeof(USHORT) * 2 * 255];
+   PTRACKLAYOUT ptrk = (PTRACKLAYOUT)trkbuf;
+   ULONG datalen4 = BUFSIZE;
+   USHORT cyl, head, sec, n;
+   ULONGLONG off;
+   int i;
+
+   ulDataSize = nSectors * SECTOR_SIZE;
+
+   //if (pVolInfo->fWriteProtected)
+   //   return ERROR_WRITE_PROTECT;
+
+   //if (pVolInfo->fDiskClean)
+   //   MarkDiskStatus(pVolInfo, FALSE);
+
+   if ( (rc = DosDevIOCtl(hf, IOCTL_DISK, DSK_GETDEVICEPARAMS,
+                          &parm2, parmlen2, &parmlen2, &bpb, datalen2, &datalen2)) )
+       return rc;
+
+   memset((char *)trkbuf, 0, sizeof(trkbuf));
+   off =  ulSector + bpb.cHiddenSectors;
+   off *= SECTOR_SIZE;
+
+   for (i = 0; i < bpb.usSectorsPerTrack; i++)
+   {
+       ptrk->TrackTable[i].usSectorNumber = i + 1;
+       ptrk->TrackTable[i].usSectorSize = SECTOR_SIZE;
+   }
+
+   do
+   {
+       cbWrite32 = (ulDataSize > BUFSIZE) ? BUFSIZE : (ULONG)ulDataSize;
+       parmlen4 = sizeof(TRACKLAYOUT) + sizeof(USHORT) * 2 * (bpb.usSectorsPerTrack - 1);
+       datalen4 = BUFSIZE;
+
+       cyl = off / (SECTOR_SIZE * bpb.cHeads * bpb.usSectorsPerTrack);
+       head = (off / SECTOR_SIZE - bpb.cHeads * bpb.usSectorsPerTrack * cyl) / bpb.usSectorsPerTrack;
+       sec = off / SECTOR_SIZE - bpb.cHeads * bpb.usSectorsPerTrack * cyl - head * bpb.usSectorsPerTrack;
+
+       if (sec + cbWrite32 / SECTOR_SIZE > bpb.usSectorsPerTrack)
+           cbWrite32 = (bpb.usSectorsPerTrack - sec) * SECTOR_SIZE;
+
+       n = cbWrite32 / SECTOR_SIZE;
+
+       //printf("cyl=%u, head=%u, sec=%u, n=%u, ", cyl, head, sec, n);
+
+       ptrk->bCommand = 1;
+       ptrk->usHead = head;
+       ptrk->usCylinder = cyl;
+       ptrk->usFirstSector = sec;
+       ptrk->cSectors = n;
+
+       memcpy(buf, pbSector, min(datalen4, ulDataSize));
+
+       rc = DosDevIOCtl(hf, IOCTL_DISK, DSK_WRITETRACK,
+                        trkbuf, parmlen4, &parmlen4, buf, datalen4, &datalen4);
+
+       //printf("rc=%lu\n", rc);
+
+       if (rc)
+           break;
+
+       off           += cbWrite32;
+       ulDataSize    -= cbWrite32;
+       pbSector      = (char *)pbSector + cbWrite32;
+
+    } while ((ulDataSize > 0) && ! rc);
+
+    return rc;
 }
 
 void write_sect ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSector, void *Data, DWORD NumSects )
 {
     DWORD dwWritten;
-    BOOL ret;
+    ULONG ret;
 
     seek_to_sect ( hDevice, Sector, BytesPerSector );
     ret = DosWrite ( hDevice, Data, NumSects * BytesPerSector, (PULONG)&dwWritten );
+
+    //printf("write_sect: ret = %lu\n", ret);
 
     if ( ret )
         die ( "Failed to write", ret );
@@ -92,10 +297,15 @@ void write_sect ( HANDLE hDevice, DWORD Sector, DWORD BytesPerSector, void *Data
 
 BOOL write_file ( HANDLE hDevice, BYTE *pData, DWORD ulNumBytes, DWORD *dwWritten )
 {
-    BOOL ret = TRUE;
+    BOOL  ret = TRUE;
+    ULONG rc = 0;
 
-    if (DosWrite ( hDevice, pData, (ULONG)ulNumBytes, (PULONG)dwWritten ))
+    if ( rc = DosWrite ( hDevice, pData, (ULONG)ulNumBytes, (PULONG)dwWritten ) )
         ret = FALSE;
+
+    //printf("write_file: hDevice=%lu, pData=0x%lx, ulNumBytes=%lu, dwWritten=0x%lx\n", 
+    //        hDevice, pData, ulNumBytes, dwWritten);
+    //printf("write_file: rc = %lu, *dwWritten=%lu\n", rc, *dwWritten); // 87 == ERROR_INVALID_PARAMETER
 
     return ret;
 }
@@ -119,11 +329,17 @@ void open_drive (char *path, HANDLE *hDevice)
               &ulAction,         // action taken by DosOpenL
               0,                 // cbFile
               0,                 // ulAttribute
-              OPEN_ACTION_OPEN_IF_EXISTS,
-              OPEN_FLAGS_FAIL_ON_ERROR | OPEN_FLAGS_WRITE_THROUGH | 
-              OPEN_FLAGS_NO_CACHE | OPEN_SHARE_DENYREADWRITE |
+              OPEN_ACTION_OPEN_IF_EXISTS, // | OPEN_ACTION_REPLACE_IF_EXISTS,
+              OPEN_FLAGS_FAIL_ON_ERROR |  // OPEN_FLAGS_WRITE_THROUGH | 
+              OPEN_SHARE_DENYREADWRITE |  // OPEN_FLAGS_NO_CACHE  |
               OPEN_ACCESS_READWRITE, // | OPEN_FLAGS_DASD,
-              NULL);             // peaop2
+              NULL);                 // peaop2
+
+     //      OPEN_ACTION_OPEN_IF_EXISTS, OPEN_FLAGS_DASD |
+     //      OPEN_FLAGS_FAIL_ON_ERROR | OPEN_SHARE_DENYREADWRITE |
+
+     //!     OPEN_ACTION_FAIL_IF_NEW | OPEN_ACTION_OPEN_IF_EXISTS,
+     //!     OPEN_FLAGS_DASD | OPEN_FLAGS_NO_CACHE | OPEN_ACCESS_READONLY | OPEN_SHARE_DENYREADWRITE,
 
      //      OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE |
      //      OPEN_FLAGS_NO_CACHE  | OPEN_FLAGS_WRITE_THROUGH, // | OPEN_FLAGS_DASD,
@@ -131,6 +347,9 @@ void open_drive (char *path, HANDLE *hDevice)
      // OPEN_ACTION_OPEN_IF_EXISTS,         /* open flags   */
      // OPEN_ACCESS_READONLY | OPEN_SHARE_DENYNONE | OPEN_FLAGS_DASD |
      // OPEN_FLAGS_WRITE_THROUGH, // | OPEN_FLAGS_NO_CACHE,
+
+  //printf("open_drive: DosOpenL(%s, ...) returned %lu, hDevice=%lu\n", path, rc, *hDevice);
+  //printf("ulAction=%lx\n", ulAction);
 
   if ( rc != 0 || hDevice == 0 )
       die( "Failed to open device - close any files before formatting,"
@@ -142,14 +361,17 @@ void open_drive (char *path, HANDLE *hDevice)
 
 void lock_drive(HANDLE hDevice)
 {
-  unsigned char  cmdinfo = '\0';
-  unsigned long  parmlen = sizeof(cmdinfo);
-  unsigned long  datalen = sizeof(cmdinfo);
+  unsigned char  parminfo  = 0;
+  unsigned char  datainfo  = 0;
+  unsigned long  parmlen   = 1;
+  unsigned long  datalen   = 1;
   APIRET rc;
 
-  rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_LOCKDRIVE, &cmdinfo,
-                    sizeof(cmdinfo), &parmlen, &cmdinfo, // Param packet
-                    sizeof(cmdinfo), &datalen);
+  rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_LOCKDRIVE, &parminfo,
+                    parmlen, &parmlen, &datainfo, // Param packet
+                    datalen, &datalen);
+
+  //printf("lock_drive: func=DSK_LOCKDRIVE returned rc=%lu\n", rc);
 
   if ( rc )
       die( "Failed to lock device" , rc);
@@ -158,116 +380,122 @@ void lock_drive(HANDLE hDevice)
 
 void unlock_drive(HANDLE hDevice)
 {
-  unsigned char  cmdinfo = '\0';
-  unsigned long  parmlen = sizeof(cmdinfo);
-  unsigned long  datalen = sizeof(cmdinfo);
+  unsigned char  parminfo = 0;
+  unsigned char  datainfo = 0;
+  unsigned long  parmlen  = 1;
+  unsigned long  datalen  = 1;
   APIRET rc;
 
-  rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_UNLOCKDRIVE, &cmdinfo,
-                    sizeof(cmdinfo), &parmlen, &cmdinfo, // Param packet
-                    sizeof(cmdinfo), &datalen);
+  rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_UNLOCKDRIVE, &parminfo,
+                    parmlen, &parmlen, &datainfo, // Param packet
+                    datalen, &datalen);
 
-  if ( rc )
-      die( "Failed to unlock device" , rc );
+  //printf("unlock_drive: func=DSK_UNLOCKDRIVE returned rc=%lu\n", rc);
 
+  if ( rc ) 
+  {
+      printf( "WARNING: Failed to unlock device, rc = %lu!\n" , rc );
+      printf( "WARNING: probably, you need to reboot for changes to take in effect.\n" );
+  }
 }
 
+/* parameter packet */
 #pragma pack(1)
-struct parm {
+struct PARM {
     unsigned char command;
     unsigned char drive;
-};
-
-struct data {
-    BIOSPARAMETERBLOCK bpb;
 };
 #pragma pack()
 
 void get_drive_params(HANDLE hDevice, struct extbpb *dp)
 {
   APIRET rc;
-  struct parm p;
-  struct data d;
-  ULONG  parmio;
-  ULONG  dataio;
+  struct PARM        p;
+  BIOSPARAMETERBLOCK d; /* DDK/Watcom OS/2 headers */
+  ULONG  parmlen;
+  ULONG  datalen;
 
   memset(&d, 0, sizeof(d));
-  parmio = sizeof(p);
-  dataio = sizeof(d);
+  parmlen = sizeof(p);
+  datalen = sizeof(d);
   p.command = 1;
   p.drive   = 0;
 
   rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_GETDEVICEPARAMS,
-                      &p, parmio, &parmio,
-                      &d, dataio, &dataio);
+                      &p, parmlen, &parmlen,
+                      &d, datalen, &datalen);
+
+  //printf("get_drive_params: func=DSK_GETDEVICEPARAMS returned rc=%lu\n", rc);
 
   if ( rc )
       die( "Failed to get device geometry", rc );
 
-  dp->BytesPerSect = d.bpb.usBytesPerSector;
-  dp->SectorsPerTrack = d.bpb.usSectorsPerTrack;
-  dp->HiddenSectors = d.bpb.cHiddenSectors;
-  dp->TracksPerCylinder = d.bpb.cHeads;
+  dp->BytesPerSect = d.usBytesPerSector;
+  dp->SectorsPerTrack = d.usSectorsPerTrack;
+  dp->HiddenSectors = d.cHiddenSectors;
+  dp->TracksPerCylinder = d.cHeads;
 
-  //printf("cylinders=%u\n",   d.bpb.cCylinders);
-  //printf("device type=%u\n", d.bpb.bDeviceType);
-  //printf("device attr=%u\n", d.bpb.fsDeviceAttr);
+  //
+  //printf("cylinders=%u\n",   d.cCylinders);
+  //printf("device type=%u\n", d.bDeviceType);
+  //printf("device attr=%u\n", d.fsDeviceAttr);
 
-  //if ((d.bpb.cSectors == 0) && (d.bpb.cLargeSectors))
-      dp->TotalSectors = d.bpb.cLargeSectors;
-  //else if ((d.bpb.cSectors) && (d.bpb.cLargeSectors == 0))
-  //    dp->TotalSectors = d.bpb.cSectors;
-
-  dp->PartitionLength = (ULONGLONG)dp->TotalSectors;
-  dp->PartitionLength *= dp->BytesPerSect;
-
+  if ((d.cSectors == 0) && (d.cLargeSectors))
+      dp->TotalSectors = d.cLargeSectors;
+  else if ((d.cSectors) && (d.cLargeSectors == 0))
+      dp->TotalSectors = d.cSectors;
+  //
   //printf("TotalSectors=%lu, BytesPerSect=%u\n", 
   //       dp->TotalSectors, dp->BytesPerSect);
-
-  //printf("BytesPerSect=%u\n", d.bpb.usBytesPerSector);
-  //printf("SectorsPerTrack=%u\n", d.bpb.usSectorsPerTrack);
-  //printf("HiddenSectors=%lu\n", d.bpb.cHiddenSectors);
-  //printf("TracksPerCylinder=%u\n", d.bpb.cHeads);
+  //
+  //printf("SectorsPerTrack=%u\n", d.usSectorsPerTrack);
+  //printf("HiddenSectors=%lu\n", d.cHiddenSectors);
+  //printf("TracksPerCylinder=%u\n", d.cHeads);
   //printf("TotalSectors=%lu\n", dp->TotalSectors);
-  //printf("PartitionLength=%llu\n", dp->PartitionLength);
+  //
 }
 
 void set_part_type(UCHAR Dev, HANDLE hDevice, struct extbpb *dp)
 {
-  //if ( rc && dp->HiddenSectors )
-  //    die( "Failed to set parition info", rc );
+  APIRET rc;
+  int i;
 
-  //rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_SETDEVICEPARAMS, 
-  //                  &p, parmio, &parmio,
-  //                 &d, dataio, &dataio);
-  //if ( rc )
-  //      {
-        // This happens because the drive is a Super Floppy
-        // i.e. with no partition table. Disk.sys creates a PARTITION_INFORMATION
-        // record spanning the whole disk and then fails requests to set the 
-        // partition info since it's not actually stored on disk. 
-	// So only complain if there really is a partition table to set      
+  rc = ReadSect(hDevice, -dp->HiddenSectors, 1, (char *)&mbr);
 
+  if (rc)
+      die("Error reading MBR\n", rc);
 
-        //if ( d.bpb.cHiddenSectors  )
-	//		die( "Failed to set parition info", -6 );
-        //}    
+  for (i = 0; i < 4; i++)
+  {
+    if (mbr.pte[i].relative_sector == dp->HiddenSectors)
+    {
+      // set type to FAT32
+      mbr.pte[i].system_id = 0x0C;
+      WriteSect(hDevice, -dp->HiddenSectors, 1, (char *)&mbr);
+
+      if (rc)
+          die("Error writing MBR\n", rc);
+
+      break;
+    }
+  }
 }
-
 
 void begin_format (HANDLE hDevice)
 {
   // Detach the volume from the old FSD 
   // and attach to the new one
-  unsigned char  cmdinfo   = 0;
-  unsigned long  parmlen   = sizeof(cmdinfo);
-  unsigned char  fsdname[] = "FAT32"; 
-  unsigned long  datalen   = sizeof(fsdname);
+  unsigned char  cmdinfo     = 0;
+  unsigned long  parmlen     = sizeof(cmdinfo);
+  unsigned char  datainfo[]  = "FAT32"; // FSD name
+  unsigned long  datalen     = sizeof(datainfo); 
   APIRET rc;
 
   rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_BEGINFORMAT, &cmdinfo, 
-                    sizeof(cmdinfo), &parmlen, fsdname,
-                    sizeof(fsdname), &datalen);
+                    parmlen, &parmlen, &datainfo,
+                    datalen, &datalen);
+
+  //printf("begin_format: func=DSK_BEGINFORMAT returned rc=%lu\n", rc);
 
   if ( rc )
       die( "Failed to begin format device", rc );
@@ -276,18 +504,40 @@ void begin_format (HANDLE hDevice)
 void remount_media (HANDLE hDevice)
 {
   // Redetermine media
-  unsigned char cmdinfo  = 0;
-  unsigned long parmlen  = sizeof(cmdinfo);
-  unsigned char reserved = 0;
-  unsigned long datalen  = sizeof(reserved);
+  unsigned char parminfo  = 0;
+  unsigned char datainfo  = 0;
+  unsigned long parmlen   = 1;
+  unsigned long datalen   = 1;
   APIRET rc;
 
   rc = DosDevIOCtl( hDevice, IOCTL_DISK, DSK_REDETERMINEMEDIA,
-                    &cmdinfo, sizeof(cmdinfo), &parmlen, // Param packet
-                    &reserved, sizeof(reserved), &datalen);
+                    &parminfo, parmlen, &parmlen, // Param packet
+                    &datainfo, datalen, &datalen);
 
-  if ( rc )
-      die( "Failed to do final remount!", rc );
+  //printf("remount_media: func=DSK_REDETERMINEMEDIA returned rc=%lu\n", rc);
+
+  if ( rc ) 
+  {
+      printf( "WARNING: Failed to do final remount, rc = %lu!\n" , rc );
+      printf( "WARNING: probably, you need to reboot for changes to take in effect.\n" );
+  }
+
+  //if ( rc )
+  //    die( "Failed to do final remount!", rc );
+}
+
+APIRET read_drive(HANDLE hDevice, char *pBuf, ULONG *cbSize)
+{
+    // Read Device
+    return DosRead ( hDevice, pBuf, *cbSize, cbSize );
+}
+
+APIRET write_drive(HANDLE hDevice, LONGLONG off, char *pBuf, ULONG *cbSize)
+{
+    // Seek
+    APIRET rc = DosSetFilePtrL(hDevice, off, FILE_BEGIN, &off);
+    // Write Device
+    return DosWrite ( hDevice, pBuf, *cbSize, cbSize );
 }
 
 void close_drive(HANDLE hDevice)
@@ -298,8 +548,15 @@ void close_drive(HANDLE hDevice)
 
 void mem_alloc(void **p, ULONG cb)
 {
-    if (!(DosAllocMem ( (void **)p, cb, PAG_COMMIT | PAG_READ | PAG_WRITE )))
+    APIRET rc;
+
+    if (!(rc = DosAllocMem ( (void **)p, cb, PAG_COMMIT | PAG_READ | PAG_WRITE )))
+    //{
             memset(*p, 0, cb);
+            //printf("mem_alloc: rc=%lu\n", rc);
+    //}
+    //else
+    //        printf("mem_alloc failed, rc=%lu\n", rc);
 }
 
 void mem_free(void *p, ULONG cb)
@@ -329,6 +586,7 @@ void check_vol_label(char *path, char **vol_label)
     ULONG  rc;
 
     memset(cur_vol, 0, sizeof(cur_vol));
+    memset(testvol, 0, sizeof(testvol));
 
     // Query the filesystem info, 
     // including the current volume label
@@ -354,15 +612,15 @@ void check_vol_label(char *path, char **vol_label)
 
             // Read the volume label
             gets(testvol);
-
-            if (stricmp(testvol, cur_vol))
-            {
-                // Incorrect volume  label for
-                // disk %c is entered!
-                iShowMessage(NULL, 636, 0);
-                quit (1);
-            }
         }
+    }
+
+    if (*testvol && *cur_vol && stricmp(testvol, cur_vol))
+    {
+        // Incorrect volume  label for
+        // disk %c is entered!
+        iShowMessage(NULL, 636, 0);
+        quit (1);
     }
 
     // Warning! All data on the specified hard disk
@@ -389,14 +647,14 @@ char *get_vol_label(char *path, char *vol)
         // Enter up to 11 characters for the volume label
         iShowMessage(NULL, 1288, 0);
 
-        label = &v;
+        label = v;
     }
 
     memset(label, 0, 12);
     gets(label);
 
     if (!*label)
-        label = &default_vol;
+        label = default_vol;
 
     if (strlen(label) > 11)
     {
@@ -416,45 +674,27 @@ void set_vol_label (char *path, char *vol)
   int diskno;
   int l;
 
-  //printf("0000\n");
-
   if (!vol || !*vol)
     return;
 
-  //printf("0001\n");
-
   l = strlen(vol);
-
-  //printf("0002\n");
 
   if (!path || !*path)
     return;
 
-  //printf("0003\n");
-
-  //printf("path=%s, vol=%s\n", path, vol);
-
   diskno = toupper(*path) - 'A' + 1;
 
   memset(&vl, 0, sizeof(VOLUMELABEL));
-  //printf("0004\n");
   strcpy(vl.szVolLabel, vol);
-  //strcpy(fsi.vol.szVolLabel, vol);
-  //printf("0005\n");
-  //vl.szVolLabel[l] = '\0';
-  //printf("0006\n");
   vl.cch = strlen(vl.szVolLabel);
 
-  //printf("0007\n");
-  //DosSleep(4);
-  
   rc = DosSetFSInfo(diskno, FSIL_VOLSER,
                     (PVOID)&vl, sizeof(VOLUMELABEL));
 
-  //printf("0008\n");
   if ( rc )
-    printf ("Warning: failed to set the volume label, rc=%lu\n", rc);
+    printf ("WARNING: failed to set the volume label, rc=%lu\n", rc);
 }
+
 
 void show_progress (float fPercentWritten)
 {
@@ -475,11 +715,24 @@ void show_progress (float fPercentWritten)
   //VioWrtCharStr(str, strlen(str), row, col, 0);
 
   // construct message
-  sprintf(str, "%.2f%%", fPercentWritten);
+  sprintf(str, "%3.f%%", fPercentWritten);
   iShowMessage(NULL, 1312, 2, TYPE_STRING, str, 
                               TYPE_STRING, "...");
-  DosSleep(100);
+  //DosSleep(5);
   // restore cursor position
   printf("[u");
   fflush(stdout); 
+}
+
+void show_message (char *pszMsg, unsigned short usMsg, unsigned short usNumFields, ...)
+{
+    va_list va;
+    UCHAR szBuf[1024];
+
+    va_start(va, usNumFields);
+    vsprintf ( szBuf, pszMsg, va );
+    va_end( va );
+
+    //iShowMessage(NULL, usMsg, usNumFields, va);
+    puts (szBuf);
 }

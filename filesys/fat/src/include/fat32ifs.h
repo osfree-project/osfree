@@ -4,8 +4,13 @@
 #include "fsd.h"
 #include "fsh.h"
 #include "fat32def.h"
+
+#ifdef __WATCOMC__
 #include "devhelp.h"
-//#include "dhcalls.h"
+#else
+#include "dhcalls.h"
+#endif
+
 #include "strat2.h"
 
 #define CALL_YIELD
@@ -291,7 +296,7 @@ IMPORT ULONG FindDirCluster(PVOLINFO pVolInfo,
 IMPORT ULONG FindPathCluster(PVOLINFO pVolInfo, ULONG ulCluster, PSZ pszPath, PDIRENTRY pDirEntry, PSZ pszFullName);
 IMPORT BOOL RemoveFindEntry(PVOLINFO pVolInfo, PFINFO pFindInfo);
 IMPORT USHORT GetProcInfo(PPROCINFO pProcInfo, USHORT usSize);
-IMPORT VOID cdecl Message(PSZ pszMessage, ...);
+IMPORT VOID cdecl _loadds Message(PSZ pszMessage, ...);
 IMPORT USHORT cdecl CritMessage(PSZ pszMessage, ...);
 IMPORT VOID cdecl FatalMessage(PSZ pszMessage, ...);
 IMPORT VOID InternalError(PSZ pszMessage);

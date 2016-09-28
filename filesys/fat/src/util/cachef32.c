@@ -91,7 +91,7 @@ ULONG ulParmSize;
 ULONG ulDataSize;
 BYTE  bPrevPrio;
 
-   DoCheckDisk(FALSE);
+   //DoCheckDisk(FALSE);
 
    InitProg(iArgc, rgArgv);
    if (fActive)
@@ -99,7 +99,7 @@ BYTE  bPrevPrio;
 
    if (fForeGround)
       {
-      DoCheckDisk(TRUE);
+      //DoCheckDisk(TRUE);
       if (!f32Parms.usCacheSize && !f32Parms.fForceLoad )
          printf("FAT32: Cache size has been set to zero, lazy writer will not be started!\n");
       else if (fLoadDeamon)

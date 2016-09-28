@@ -2,6 +2,11 @@ CC=wcc
 AS=wasm
 LNK=wlink
 MAPCNV=..\mapsym.awk
+_VENDOR=Netlabs
+_VERSION=0.10a6
+FILEVER=@$#$(_VENDOR):$(_VERSION)$#@
+DESC="Fat32 Installable filesystem, Henk Kelder & Netlabs"
+CLEANUP=*.obj *.obh *.lnk *.wmp *.map *.lib *.ols *.err
 
 # COPT=-2 -ml -ecw -r -s -zdp -zff -zgf -zls -zp=1 -zt=16384 -zu -zl -ze -zq -od -of+ -q -d__16BITS__ -d__WATCOM -i=$(%WATCOM)\h -i=$(%WATCOM)\h\os21x -i=. -i=.. -i=..\include
 COPT=-2 -ml -ecw -s -zdp -zgf -zls -zp=1 -zu -ze -zq -od -of+ -q -d__16BITS__ -d__WATCOM -i=$(%WATCOM)\h -i=$(%WATCOM)\h\os21x -i=. -i=.. -i=..\include
@@ -17,6 +22,12 @@ SYS=os2 dll initglobal
 
 all: $(TARGETS)
 
+clean: .symbolic
+ -@del $(CLEANUP)  >nul 2>&1
+ @cd libc
+ wmake -f makefile.wcc clean
+ @cd ..
+
 libc: .symbolic
  @cd libc
  wmake -f makefile.wcc
@@ -24,7 +35,7 @@ libc: .symbolic
 
 OBJS=fat32.obj ifsmount.obj ifsfind.obj ifsdir.obj ifsattr.obj &
      ifsfile.obj ifslog.obj ifscache.obj ifsswap.obj ifsmem.obj &
-     ifsea.obj ifslang.obj 
+     ifsea.obj ifslang.obj ifsachk.obj
 
 # helpers.obj
 
@@ -36,7 +47,7 @@ fat32.ols: $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM $(SYS)
  @%append $^@ NAME $^*.ifs
- @%append $^@ OPTION DESCRIPTION 'Fat32 Installable filesystem, Henk Kelder & Netlabs'
+ @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
  #@%append $^@ DEBUG ALL
  @%append $^@ option protmode
  @%append $^@ option quiet

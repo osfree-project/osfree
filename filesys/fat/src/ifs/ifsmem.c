@@ -28,6 +28,7 @@ static VOID GetMemAccess(VOID);
 static VOID ReleaseMemAccess(VOID);
 
 static void * rgpSegment[MAX_SELECTORS] = {0};
+static ULONG ulSemRWMem = 0;
 
 static BOOL fLocked = FALSE;
 
@@ -74,6 +75,7 @@ void * pRet;
 
 /*   CheckHeap();*/
 
+   //Message("ma000\n");
    GetMemAccess();
 
    if (tSize % 2)
@@ -81,20 +83,24 @@ void * pRet;
 
 if( tSize > 0 )
    {
+   //Message("ma001\n");
    for (usSel = 0; usSel < MAX_SELECTORS; usSel++)
       {
       if (rgpSegment[usSel] && rgpSegment[usSel] != RESERVED_SEGMENT)
          {
+         //Message("ma002\n");
          pRet = FindFreeSpace(rgpSegment[usSel], tSize);
          if (pRet)
             goto malloc_exit;
          }
       }
 
+   //Message("ma003\n");
    for (usSel = 0; usSel < MAX_SELECTORS; usSel++)
       {
       if (!rgpSegment[usSel])
          {
+         //Message("ma004\n");
          rgpSegment[usSel] = RESERVED_SEGMENT;
          rgpSegment[usSel] = gdtAlloc(HEAP_SIZE, TRUE);
          if (!rgpSegment[usSel])
@@ -103,9 +109,12 @@ if( tSize > 0 )
             pRet = NULL;
             goto malloc_exit;
             }
-         SetBlockSize(rgpSegment[usSel], HEAP_SIZE - sizeof (ULONG));
+         //Message("ma005\n");
+         SetBlockSize(rgpSegment[usSel], HEAP_SIZE - sizeof (ULONG)); ////
+         //Message("ma006\n");
          SetFree(rgpSegment[usSel]);
 
+         //Message("ma007\n");
          pRet = FindFreeSpace(rgpSegment[usSel], tSize);
          if (pRet)
             goto malloc_exit;
@@ -115,6 +124,7 @@ if( tSize > 0 )
 
    if (f32Parms.fMessageActive & LOG_MEM)
       Message("Malloc failed, calling gdtAlloc");
+   //Message("ma008\n");
    pRet = gdtAlloc(tSize ? ( ULONG )tSize : 65536L, TRUE);
 
 malloc_exit:
@@ -122,6 +132,7 @@ malloc_exit:
    if (f32Parms.fMessageActive & LOG_MEM)
       Message("malloc %lu bytes at %lX", tSize ? ( ULONG )tSize : 65536L, pRet);
 
+   //Message("ma009\n");
    ReleaseMemAccess();
    return pRet;
 }
@@ -190,6 +201,7 @@ USHORT rc;
 
 /*   CheckHeap();*/
 
+   //Message("fr000\n");
    if (OFFSETOF(pntr) == 0)
       {
       freeseg(pntr);
@@ -197,13 +209,16 @@ USHORT rc;
       }
 
 
+   //Message("fr001\n");
    GetMemAccess();
 
+   //Message("fr002\n");
    for (usSel = 0; usSel < MAX_SELECTORS; usSel++)
       {
       if (SELECTOROF(pntr) == SELECTOROF(rgpSegment[usSel]))
          break;
       }
+   //Message("fr003\n");
    if (usSel == MAX_SELECTORS)
       {
       CritMessage("FAT32: %lX not found in free!", pntr);
@@ -212,9 +227,11 @@ USHORT rc;
       return;
       }
 
+   //Message("fr004\n");
    pHeapStart = rgpSegment[usSel];
    pHeapEnd = pHeapStart + HEAP_SIZE;
 
+   //Message("fr005\n");
    rc = MY_PROBEBUF(PB_OPREAD, (PBYTE)pHeapStart, HEAP_SIZE);
    if (rc)
       {
@@ -226,27 +243,32 @@ USHORT rc;
 
    pWork = pHeapStart;
    pPrev = NULL;
+   //Message("fr006\n");
    while (pWork < pHeapEnd)
       {
       if (pWork + sizeof (ULONG) == pToFree)
          {
          if (pPrev && IsBlockFree(pPrev))
             {
+            //Message("fr007\n");
             SetBlockSize(pPrev,
                BlockSize(pPrev) + BlockSize(pWork) + sizeof (ULONG));
             pWork = pPrev;
             }
 
+         //Message("fr008\n");
          pNext = pWork + BlockSize(pWork) + sizeof (ULONG);
          if (pNext < pHeapEnd && IsBlockFree(pNext))
             SetBlockSize(pWork, BlockSize(pWork) + BlockSize(pNext) + sizeof (ULONG));
 
+         //Message("fr009\n");
          SetFree(pWork);
          break;
          }
       else
          pPrev = pWork;
 
+      //Message("fr010\n");
       pWork += BlockSize(pWork) + sizeof (ULONG);
       }
    if (pWork >= pHeapEnd)
@@ -260,14 +282,18 @@ USHORT rc;
    /*
       free selector if no longer needed
    */
+   //Message("fr011\n");
    if (usSel > 0 &&
       BlockSize(rgpSegment[usSel]) == (HEAP_SIZE - sizeof (ULONG)) &&
       IsBlockFree(rgpSegment[usSel]))
       {
       PBYTE p = rgpSegment[usSel];
+      //Message("fr012\n");
       rgpSegment[usSel] = NULL;
+      //Message("fr013\n");
       freeseg(p);
       }
+   //Message("fr014\n");
    ReleaseMemAccess();
 }
 
@@ -306,14 +332,15 @@ BOOL fFree = IsBlockFree(pMCB);
 
 VOID GetMemAccess(VOID)
 {
-   _disable();
+   //_disable();
    while (fLocked)
       {
       if (f32Parms.fMessageActive & LOG_WAIT)
          Message("Waiting for a heap access");
 
-      DevHelp_ProcBlock((ULONG)GetMemAccess, 1000, 1);
-      _disable();
+      FSH_SEMREQUEST(&ulSemRWMem, TO_INFINITE);
+      //DevHelp_ProcBlock((ULONG)GetMemAccess, 1000, 1);
+      //_disable();
       }
    fLocked = TRUE;
 }
@@ -323,5 +350,6 @@ VOID ReleaseMemAccess(VOID)
 USHORT usCount;
 
    fLocked = FALSE;
-   DevHelp_ProcRun((ULONG)GetMemAccess, &usCount);
+   FSH_SEMCLEAR(&ulSemRWMem);
+   //DevHelp_ProcRun((ULONG)GetMemAccess, &usCount);
 }

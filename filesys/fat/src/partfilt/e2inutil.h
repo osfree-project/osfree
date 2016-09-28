@@ -48,4 +48,18 @@ USHORT InitReadSector (PADDEntryPoint pAddEP, USHORT UnitHandle,
                        ULONG SectorRBA, ULONG ppSectorBuf);
 USHORT InitSendIORB(PIORB pIORB, PADDEntryPoint pADDEntry);
 
+#ifdef __MSC__
+#pragma alloc_text(InitCode, InitAddBaseUnit)
+#pragma alloc_text(InitCode, InitRemoveBaseUnit)
+#pragma alloc_text(InitCode, InitFilterBaseUnit)
+#pragma alloc_text(InitCode, InitAddVirtualUnit)
+#pragma alloc_text(InitCode, InitReadDevTable)
+#pragma alloc_text(InitCode, InitAllocateUnit)
+#pragma alloc_text(InitCode, InitFreeUnit)
+#pragma alloc_text(InitCode, InitChangeUnitInfo)
+#pragma alloc_text(InitCode, InitGetGeometry)
+#pragma alloc_text(InitCode, InitReadSector)
+#pragma alloc_text(InitCode, InitSendIORB)
+#endif
+
 #endif

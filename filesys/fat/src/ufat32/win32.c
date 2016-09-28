@@ -91,8 +91,10 @@ BOOL write_file ( HANDLE hDevice, BYTE *pData, DWORD ulNumBytes, DWORD *dwWritte
 
 void open_drive (char *path , HANDLE *hDevice)
 {
-  char DriveDevicePath[]="\\\\.\\Z:"; // for CreateFile
-  char *p = path;
+  char  DriveDevicePath[]="\\\\.\\Z:"; // for CreateFile
+  char  *p = path;
+  ULONG cbRet;
+  BOOL  bRet;
 
   if (strlen(path) == 2 && path[1] == ':')
   {
@@ -111,11 +113,27 @@ void open_drive (char *path , HANDLE *hDevice)
       FILE_FLAG_NO_BUFFERING,
       NULL);
   if ( *hDevice ==  INVALID_HANDLE_VALUE )
-      die( "Failed to open device - close any files before formatting,"
-           "and make sure you have Admin rights when using fat32format"
-            "Are you SURE you're formatting the RIGHT DRIVE!!!", -1 );
+      die( "Failed to open device - close any files before formatting,\n"
+           "and make sure you have Admin rights when using fat32format\n"
+            "Are you SURE you're formatting the RIGHT DRIVE!!!\n", -1 );
 
   hDev = *hDevice;
+
+  bRet = DeviceIoControl(
+	  (HANDLE) hDevice,              // handle to device
+	  FSCTL_ALLOW_EXTENDED_DASD_IO,  // dwIoControlCode
+	  NULL,                          // lpInBuffer
+	  0,                             // nInBufferSize
+	  NULL,                          // lpOutBuffer
+	  0,                             // nOutBufferSize
+	  &cbRet,        	         // number of bytes returned
+	  NULL                           // OVERLAPPED structure
+	);
+
+  if ( !bRet )
+      printf ( "Failed to allow extended DASD on device...\n" );
+  else
+      printf ( "FSCTL_ALLOW_EXTENDED_DASD_IO OK\n" ); 
 }
 
 void lock_drive(HANDLE hDevice)
@@ -148,6 +166,10 @@ void get_drive_params(HANDLE hDevice, struct extbpb *dp)
   DISK_GEOMETRY          dgDrive;
   PARTITION_INFORMATION  piDrive;
 
+  PARTITION_INFORMATION_EX xpiDrive;
+  BOOL bGPTMode = FALSE;
+  SET_PARTITION_INFORMATION spiDrive;
+
   // work out drive params
   bRet = DeviceIoControl ( hDevice, IOCTL_DISK_GET_DRIVE_GEOMETRY,
                            NULL, 0, &dgDrive, sizeof(dgDrive),
@@ -162,7 +184,28 @@ void get_drive_params(HANDLE hDevice, struct extbpb *dp)
         &cbRet, NULL);
 
   if ( !bRet )
-      die( "Failed to get parition info", -10 );
+  {
+      //die( "Failed to get parition info", -10 );
+
+      printf ( "IOCTL_DISK_GET_PARTITION_INFO failed, \n"
+               "trying IOCTL_DISK_GET_PARTITION_INFO_EX\n" );
+
+      bRet = DeviceIoControl ( hDevice, 
+			IOCTL_DISK_GET_PARTITION_INFO_EX,
+			NULL, 0, &xpiDrive, sizeof(xpiDrive),
+			&cbRet, NULL);
+			
+      if (!bRet)
+          die( "Failed to get partition info (both regular and _ex)", -11 );
+
+      memset ( &piDrive, 0, sizeof(piDrive) );
+      piDrive.StartingOffset.QuadPart = xpiDrive.StartingOffset.QuadPart;
+      piDrive.PartitionLength.QuadPart = xpiDrive.PartitionLength.QuadPart;
+      piDrive.HiddenSectors = (DWORD) (xpiDrive.StartingOffset.QuadPart / dgDrive.BytesPerSector);
+		
+      bGPTMode = ( xpiDrive.PartitionStyle == PARTITION_STYLE_MBR ) ? 0 : 1;
+      printf ( "IOCTL_DISK_GET_PARTITION_INFO_EX ok, GPTMode=%d\n", bGPTMode );
+  }
 
   // Only support hard disks at the moment 
   //if ( dgDrive.BytesPerSector != 512 )
@@ -170,7 +213,8 @@ void get_drive_params(HANDLE hDevice, struct extbpb *dp)
   //    die ( "This version of fat32format only supports hard disks with 512 bytes per sector.\n" );
   //}
   dp->BytesPerSect = dgDrive.BytesPerSector;
-  dp->PartitionLength = piDrive.PartitionLength.QuadPart;
+  //dp->PartitionLength = piDrive.PartitionLength.QuadPart;
+  dp->TotalSectors = piDrive.PartitionLength.QuadPart / dp->BytesPerSect;
   dp->SectorsPerTrack = dgDrive.SectorsPerTrack;
   dp->HiddenSectors =  piDrive.HiddenSectors;
   dp->TracksPerCylinder = dgDrive.TracksPerCylinder;
@@ -216,7 +260,7 @@ void remount_media (HANDLE hDevice)
   if ( !bRet )
       die( "Failed to dismount device", -7 );
 
-  unlock_drive( hDevice );
+  //unlock_drive( hDevice );
 }
 
 void close_drive(HANDLE hDevice)
@@ -251,14 +295,69 @@ void query_time(ULONGLONG *time)
 
 void check_vol_label(char *path, char **vol_label)
 {
-    char c;
+    /* Current volume label  */
+    char  cur_vol[12];
+    char  testvol[12];
+    ULONG volSerNum;
+    ULONG maxFileNameLen;
+    ULONG fsFlags;
+    char  fsName[8];
+    char  c;
 
-    printf ( "Warning ALL data on drive '%s' will be lost irretrievably, are you sure\n(y/n) ", path );
-    
+    memset(cur_vol, 0, sizeof(cur_vol));
+    memset(testvol, 0, sizeof(testvol));
+    memset(fsName,  0, sizeof(fsName));
+
+    // Query the filesystem info, 
+    // including the current volume label
+    GetVolumeInformation(path, cur_vol, sizeof(cur_vol),
+           &volSerNum, &maxFileNameLen, 
+           &fsFlags, fsName, sizeof(fsName));
+
+    // The current file system type is FAT32
+    printf("The current file system type is %s.\n", fsName);
+
+    //iShowMessage(NULL, 1293, 1, TYPE_STRING, "FAT32");
+    printf("The new file system type is: FAT32\n");
+
+    if (!cur_vol || !*cur_vol)
+        // The disk has no volume label
+        // iShowMessage(NULL, 125, 0);
+        printf("The disk has no volume label.\n");
+    else
+    {
+        if (!vol_label || !*vol_label || !**vol_label)
+        {
+            // Enter the current volume label
+            // ShowMessage(NULL, 1318, 1, TYPE_STRING, path);
+            printf("Enter no more than 11 characters of the current volume label: ");
+
+            // Read the volume label
+            gets(testvol);
+        }
+    }
+
+    if (*testvol && *cur_vol && stricmp(testvol, cur_vol))
+    {
+        // Incorrect volume  label for
+        // disk %c is entered!
+        // iShowMessage(NULL, 636, 0);
+        printf("Incorrect volume label for disk %c: is entered!\n", *path);
+        quit (1);
+    }
+
+    // Warning! All data on the specified hard disk
+    // will be destroyed! Proceed with format (Yes(1)/No(0))?
+    // iShowMessage(NULL, 1271, 1, TYPE_STRING, path);
+    printf("Warning! All data on the specified hard disk\n"
+           "will be destroyed! Proceed with format (Yes(1)/Mo(0))? ");
+
     c = getchar();
 
-    if ( toupper(c) != 'Y' )
+    if ( c != '1' && toupper(c) != 'Y' )
         quit (1);
+ 
+    fflush(stdout);
 }
 
 char *get_vol_label(char *path, char *vol)
@@ -271,7 +370,25 @@ void set_vol_label (char *path, char *vol)
 
 }
 
-void show_progress (char *str)
+void show_progress (float fPercentWritten)
 {
+    static char f = 0;
+    
+    if (! f)
+    {
+        printf("Percent written: ");
+        f = 1;
+    }
+}
 
+void show_message (char *pszMsg, unsigned short usMsg, unsigned short usNumFields, ...)
+{
+    va_list va;
+    UCHAR szBuf[1024];
+
+    va_start(va, usNumFields);
+    vsprintf ( szBuf, pszMsg, va );
+    va_end( va );
+
+    puts(szBuf);
 }

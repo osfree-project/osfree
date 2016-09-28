@@ -1,315 +1,780 @@
+=============
+INTRODUCTION
+=============
 
-       => For the latest changes in FAT32.IFS please look <=
-       => at the bottom of this file.                     <=
+FAT32 IFS DRIVER FOR ECOMSTATION AND OS/2:
+-------------------------------------------
 
+This project is based on the original FAT32 source code by Henk Kelder who was
+kind enough to release the source to Netlabs (netlabs.org) in January 2002
+because he no longer used OS/2.  As a result, it is now a Netlabs project with
+the full source code always available.
 
+The FAT32 homepage provides both a simple zip file and a WarpIN package which
+will install FAT32 without much effort on the users part.
 
-                        === DISCLAIMER ===
+Authors:
+Henk Kelder: original author
+Brian Smith: contributor
+KO Myung-Hun: main developer for the FAT32 IFS driver
+Alfredo Fern ndez D¡az: creator of the WarpIN Script for FAT32 and contributor
+David Graser: creator of the FAT32.INF file
 
-
-I allow you to use all software in this package freely under the condition
-that I am in no way responsible for any damage or loss you may suffer.
-
-        >> You should be aware of the fact that FAT32.IFS might <<
-        >> damage the data stored on your hard disks.           <<
-
-If you cannot agree to these conditions, you should NOT use FAT32.IFS !
-
-
-
-I CANNOT guarantee that FAT32.IFS will work for you. However I've done
-my best to test the program and I can only say that It works for me.
-
-
-Henk Kelder
-hkelder@capgemini.nl 
-Certified daddy (by my kids)
-
-My homepage for the latest version: 
-
-  http://www.os2ss.com/information/kelder/index.html
+Remember that patches are always welcome. If anyone would like to contribute,
+feel free to contact Netlabs.
 
 
-FILES IN THIS VERSION
-=====================
-
-FAT32.TXT               This file.
-PARTFILT.TXT            A textfile about PARTFILT.FLT and DISKINFO.EXE
-
-FAT32.IFS               The actual IFS.
-CACHEF32.EXE            The cache helper program.
-UFAT32.DLL              The module needed to run CHKDSK on FAT32 partition.
-F32STAT.EXE             A program to change the DIRTY flag of FAT32 
-partitions.
-MONITOR.EXE             A program to monitor what FAT32.IFS is doing.
-
-PARTFILT.FLT            A general partition filter device that allows FAT32
-                        partitions to be recognized by OS/2. 
-
-OS2DASD.F32             A modified version of OS2DASD.DMD that is an
-                        alternative for using PARTFILT.FLT. This modified
-                        driver also allows FAT32 partitions to be recognized 
-                        by OS/2. If you want to try this please rename it to
-                        OS2DASD.DMD and place it in your OS2\BOOT directory.
-                        Remember to make a backup copy of the orginal!
-
-                        PLEASE NOTE: that this driver is NOT at the latest 
-                        level and will probably NOT support the latest 
-                        features like removable disks etc.
-
-DISKINFO.EXE            A diagnose program that will scan for and show
-                        all partitions. 
-
-LIMITATIONS
+===========
+DISCLAIMER
 ===========
 
-This version of FAT32.IFS has the following limitations:
-- It only supports non-removable harddisks.
-- It only supports disks with a sector size of 512 bytes. (Are there others?)
-- You cannot BOOT from a FAT32 partition.
-- You cannot place the SWAPPER.DAT on a FAT32 partition.
-- CHKDSK can diagnose a disk, but will only FIX lost clusters and an 
-  incorrect free space count. For all other errors, you'll need to run 
-  Windows95 and start scandisk to fix the problem.
-  Note: CHKDSK will always convert lost clusters to files and NEVER to
-  directories. if you want that, use SCANDISK.
-- The FORMAT, RECOVER and SYS commands are not supported.
-- Only last access date (and not last access time) is maintained by 
-  FAT32.IFS. This is similiar to Win95 (OSR2).
+I allow you to use all software in this package freely under the condition that
+the author, contributors, and myself are in no way responsible for any damage or
+loss you may suffer.
 
-- Long filenames are not by default supported in DOS and Win-OS/2 sessions, 
-  they use only the shortnames. 
-  Please see 'LONG FILENAMES IN OS/2 AND DOS SESSIONS' later is this file.
+You should be aware of the fact that FAT32.IFS might damage the data stored on
+your hard disks.
 
-- You'd better NOT change codepages on the fly IF you have open files with
-  filenames that contain extended ASCII characters.
+If you cannot agree to these conditions, you should NOT use FAT32.IFS!
 
-- If you are using PARTFILT.FLT then FDISK, Partition Magic or any partition
-  maintenance tools will show non-existing drives and other nonsense.
+Adrian Gschwend @ netlabs.org
 
-- This version needs the native NLS support from OS/2. 
-  This means Warp 3 fixpack 26 or higher or Warp 4.
-  (You must have the LANGUAGE directory)
 
-- This version can read up to 4GB of file and write up to 2GB of file.
+==============================================
+MAKING ECS AND OS/2 RECOGNIZE FAT32 PARTITIONS:
+==============================================
 
-QUICK INSTALL:
-==============
-(x: should be replaced by your boot drive.)
+EComStation and OS/2 by themselves do not recognize FAT32 partitions.  This means
+that installing the FAT32 IFS (installable file system) is useless if we cannot
+make eCS and OS/2 recognize them. There are several ways this is done.
 
-Copy the following files to your \OS2 directory:
+Logical Volume Manager (LVM)
+Partition Support Packages for non-LVM Systems
+
+Note:  Once recognized, FAT32 partitions already formatted by Windows systems
+should be readily accessible after this FAT32 driver is installed and loaded.
+accessible after this FAT32 driver is installed and loaded.
+
+While format support as in the command line "format F: /FS:FAT32" is planned,
+it is not implemented in FAT32.IFS yet. Until then, to format FAT32 partitions,
+an advanced disk tool like DFSee and the F32Blank utility available at Hobbes
+are needed.
+
+FAT32 support is somewhat limited in OS/2 world: we have an IFS that allows us
+to read/write data from and to FAT32 partitions, but we cannot format them.
+FAT32 Blanker somewhat fills this gap, with the help of advanced disk utilities
+such as DFSee.
+
+As usage of this is somewhat complicated, perhaps you would prefer to format them
+under FreeDOS or one of the Windows operating systems.  Another alternative is to
+use a program like Partition Commander 8 or 9 to format volumes FAT32.
+
+
+LOGICAL VOLUME MANAGER (LVM):
+-----------------------------
+
+EComstation, Warp Server for e-business, and the convenience packages come with
+a Logical Volume Manager (LVM) to recognize the FAT32.IFS.
+
+The Logical Volume Manager (LVM), a disk management tool, replaces the Fixed
+Disk utility (FDISK). It is used to create volumes and partitions, assign drive
+letters, span a disk across physical hard drives, and define volumes that
+include multiple hard drives
+
+LVM must be used to create either a 'bootable volume" or a "compatibility
+volume" for your FAT32 partitions.  If the FAT32 partition contains a version of
+the Windows operating system, and you want to boot to it, then you must use LVM
+to create a "bootable volume". In addition, the IBM Boot Manager is also
+required to boot to your Win9x partition. If the FAT32 partition contains data
+that you wish to manage, then use LVM to create a "compatibility volume". It is
+also possible to run Windows programs from a bootable or compatibility volume
+using ODIN.  After the creation of the volumes, assign them drive letters.
+
+Warning: Do not use DANIDASD.DMD, PARTFILT.FLT, or the modified OS2DASD.DMD with
+these systems!
+
+
+PARTITION SUPPORT PACKAGES FOR NON-LVM SYSTEMS:
+------------------------------------------------
+
+For this installable file system to access FAT32 media, first eCS/OS2 has to be
+able to assign them a drive letter. You already can do this in LVM systems. For
+non-LVM systems you need a "partition support" package.  Presently, there are
+three such packages available.
+
+Daniela Engert's enhanced DANIDASD.DMD, a replacement for the OS2DASD.DMD found
+in OS/ 2 3 and 4. This is the preferred choice for non-LVM systems.
+
+Deon van der Westhuysen's PARTFILT.FLT, a BASEDEV FILTER to "fake" partitions
+that are not normally unsupported by OS/2. It is obsolete with DANIDASD.DMD
+being a much better choice.
+
+Henk Kelder's modified version of OS2DASD.DMD., another replacement for the
+OS2DASD.DMD found in OS/2 3 and 4. It too is obsolete with DANIDASD.DMD being a
+much better choice.
+
+==================================
+Daniela Engert's Enhanced DASD Manager
+=================================
+
+SYNOPSIS:
+---------
+
+Slightly enhanced version of the OS/2 DASD manager OS2DASD.DMD to ease
+coexistence with WinXY systems. Supports some limited form of logical volume
+management.
+
+DESCRIPTION:
+------------
+
+This release of Daniela's DASD Manager driver is based on the OS2DASD.DMD
+sources provided by IBM on their DDK site. It has the latest feature set as
+found in the current fixpacks.
+
+
+AVAILABILITY:
+------------
+
+Daniela's driver can be found on Hobbes at:
+
+http://hobbes.nmsu.edu/pub/os2/system/drivers/storage/danidasd144.zip
+
+There may eventually be a WarpIN (wpi) version available at Hobbes in the same
+location as the zip file.
+
+
+=============
+PARTFILT.FLT:
+=============
+
+PARTFILT is based on the excellent work of Deon van der Westhuysen. Henk Kelder
+made only minor modifications to it. The source code is available under GPL
+conditions and can now be download from the Netlabs.
+
+Also, once PARTFILT is installed FDISK, Partition Magic and other Partition
+tools can no longer be trusted. Do not use these tools once PARTFILT is
+installed.
+
+PARTFILT.FLT is a BASEDEV FILTER device that is able to present (fake) partition
+types that are normally unsupported by OS/2 in such a way to OS/2 that IFS's can
+be loaded on these partitions. Such virtualized partition will always be mounted
+after the non-virtualized partitions.
+
+The best location in the config.sys seems to differ depending on your
+configuration. Some state FAT32.IFS will only work is PARTFILT is the first
+basedev, others claim it only works if PARTFILT is the last one.
+
+A specific problem was reported when using a SCSI power save basedev that only
+seemed to work if PARTFILT was the last basedev.
+
+
+AVAILABILITY:
+-------------
+
+The partfilt.flt driver will NO longer be distributed with the FAT32 IFS driver.
+ If needed, it can be extracted from Henk's latest binary release and manually
+installed entirely at the user's own risk. Henk Kelder's last release can be
+found on Hobbes at:
+
+http://hobbes.nmsu.edu/pub/os2/system/drivers/filesys/os2fat32.zip
+
+
+INSTALLATION:
+-------------
+
+Note:  This driver is obsolete with Daniela's DaniDASD.DMD being the better
+choice.  However, if one prefers this driver, it can be installed doing the
+following.
+
+Copy the partfilt.flt driver to your \OS2\Boot directory.
+
+Add the following line to the config.sys file:
+
+BASEDEV=PARTFILT.FLT /P 0B [/W]
+
+(The /W should not be specified if you do not want write access) (The best
+location seems to differ depending on your configuration. Some state FAT32.IFS
+will only work is PARTFILT is the first basedev, other claim it only works if
+PARTFILT is the last one.) PARTFILT.FLT might need other options IF you have
+converted an existing FAT16 partition to FAT32 or if you want to influence the
+drive order! This manual install will add FAT32 partition after all existing
+drives.
+
+Reboot.
+
+
+============
+OS2DASD.F32:
+============
+
+This is a modified version of OS2DASD.DMD found in OS/2 and is an alternative
+for using PARTFILT.FLT. This modified driver also allows FAT32 partitions to be
+recognized by OS/2.
+
+Note:  This driver is NOT at the latest level and will probably NOT support the
+latest features like removable disks, etc...
+
+
+AVAILABILITY:
+-------------
+
+The OS2DAD.F32 driver will NO longer be distributed with the FAT32 IFS driver.
+ If needed, it can be extracted from Henk's latest binary release and manually
+installed entirely at the user's own risk. Henk Kelder's last release can be
+found on Hobbes at:
+
+http://hobbes.nmsu.edu/pub/os2/system/drivers/filesys/os2fat32.zip
+
+
+========================
+Formatting FAT32 Volumes
+========================
+
+Formatting FAT32 can be done numerous ways.  Presently, the only way to format a
+volume FAT32 under either eComStation or OS/2 is to use DFSee and F32blank together.
+The procedure is as follows:
+
+ 1.Find out the volume relevant data: Heads, Sectors, Starting point and Size using DFSee
+ 2.Feed F32Blank with that data to generate a file with blank FATs suitable for the volume
+ 3.Detach the volume (with LVM it's called 'hide' or similar)
+ 4.Use DFSee to overwrite the volume with the file contents, using "wrim".
+ 5.Attach again the volume.
+ 6.If after this you can't read/write properly the volume or it appears as not empty,
+ then you MUST reboot and check it again.
+ 7.If you don't like DFSee go and find something else capable of doing the job.
+
+If this is too complicated for some people, the USB media can be formatted using one
+of the Window's versions. Each Windows version has it own built in limitations.
+
+Win95R2 <= 16 GB
+Windows 98 second addition - Volumes < 128 GB and > 512 MB
+Windows ME - 512 MB to 2 TB.
+Windows XP <= 32 GB.
+
+Other formatting alternatives
+
+FreeDOS <= 16 GB
+Partition Commander versions 8 and 9 (Limitations unknown)
+
+
+INSTALLATION:
+-------------
+
+Note:  This driver is obsolete with Daniela's DaniDASD.DMD being the better
+choice.  However, if one prefers this driver, it can be installed doing the
+following.
+
+To install, rename you OS2DASD.DMD to something else, such as Old_os2dasd.dmd.
+
+Copy the OS2DASD.F32 to the \OS2\Boot directory.
+
+Rename it OS2DASD.DMD.
+
+Reboot.
+
+========================
+INSTALL/DEINSTALL:
+WARPIN INSTALL\DEINSTALL
+========================
+
+WARPIN INSTALLATION OF FAT32 DRIVER:
+------------------------------------
+
+The latest version of WarpIN is required and can be downloaded from:
+
+http://www.xworkplace.org
+
+Install WarpIN if not already installed.
+If using a LVM system, create a compatibility volume and assign it a drive
+letter.
+Go to the location where you downloaded the *.wpi file.
+Double click to start the installation.
+When installation is completed, the installation will have copied the following
+files to your eCS\OS2 partition:
+
+Note: The placement of files is not relevant to install/deinstall. WarpIN will
+take care of that.
+The default directories will be BIN, BOOK, DLL, and BOOT under <ESES_dir> if the
+base ESE is installed, otherwise the defaults will be ?:\OS2, ?:\OS2\BOOK,
+?:\OS2\DLL, and ?:\OS2\BOOT. If you choose other paths, WarpIN will add them to
+your PATH/LIBPATH, etc..
+
+Possible directories of file placement:
+
+Files                    Destination
+
+CACHEF32.EXE            \TOOLS\SYSTEM\BIN
+
+F32STAT.EXE             \TOOLS\SYSTEM\BIN
+
+F32MON.EXE              \TOOLS\SYSTEM\BIN
+
+F32PARTS.EXE            \TOOLS\SYSTEM\BIN
+
+FAT32.IFS               \TOOLS\SYSTEM\BOOT
+
+UFAT32.DLL              \TOOLS\SYSTEM\DLL
+
+FAT32.INF               \TOOLS\SYSTEM\BOOK
+
+FAT32.TXT               \TOOLS\SYSTEM\BOOK
+
+FAT32.KOR               \TOOLS\SYSTEM\BOOK (Only if you chose to install Korean support)
+
+COUNTRY.KOR             \OS2\SYSTEM  (Only if you chose to install Korean support)
+
+CACHEF32.CMD            \TOOLS\SYSTEM\BIN (Only if you chose to install Korean support)
+
+WarpIN also adds the following lines to the config.sys file:
+
+IFS=X:\TOOLS\SYSTEM\BIN\FAT32.IFS /CACHE:2048 /Q
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE
+
+Where X: is the partition that the IFS will be installed to.
+
+Note:  WarpIN makes a backup of your config.sys file to your root directory. If
+the system has problems booting up after installation, you can always boot to a
+command prompt using the boot recovery menu. Replace the modified config.sys
+file with the backup that was made during the fat32 install to get you back up
+and running again.
+Reboot
+
+
+KOREAN SUPPORT for NON-KOREAN SYSTEMS:
+--------------------------------------
+
+The Korean installation does several additional things:
+
+-Besides copying the standard FAT32 files to the selected location(s) and making
+the default config.sys entries (See WARPIN INSTALLATION OF FAT32 DRIVER), it
+will install COUNTRY.KOR but NOT point the config.sys to use it. You have to do
+so manually, and in case of problems, the fallback Alt+F1,F2 solution will still
+point to the original COUNTRY.SYS and thus will be safe. See "Files in this version".
+-adds a Korean text dealing with FAT32 information.
+-copies a CACHEF32.CMD file to the hard drive which contains the following
+script:
+
+chcp 949
+CACHEF32.EXE /y
+
+It adds the following entry to the startup.cmd file found in the root directory
+cmd /C CACHEF32.CMD
+
+Note:  The reason cmd /c is used is because 4os2 does not support CHCP
+correctly.
+
+IMPORTANT!  If you install Korean support for non-Korean systems, you'll have to
+manually edit your CONFIG.SYS and change the COUNTRY settings from
+
+COUNTRY=xyz,?:\OS2\SYSTEM\COUNTRY.SYS
+
+to
+
+COUNTRY=xyz,<Install Path>\COUNTRY.KOR
+
+where you have to substitute xyz and <Install Path> with appropriate values. In
+case of problems, the fallback Alt+F1,F2 solution will still point to the original
+COUNTRY.SYS and thus will be safe. See "Files in this version".
+
+Note: Korean filenames are displayed correctly only in CP949, but filenames are
+manipulated correctly regardless of current codepage.
+
+
+DEINSTALLATION USING WARPIN:
+----------------------------
+
+If the Fat32 IFS was installed using WarpIN, use WarpIN to uninstall it and its
+associated files.
+
+To Uninstall:
+
+1. Start WarpIN
+
+2. Under the Application column, find the IFS. Check the Vendor column and make
+sure it states "Netlabs".
+
+3. Select.  The WarpIN data base should show the following information:
+
+Note:  The number of files to uninstall will vary depending on the FAT32 version
+installed and if Korean support was installed.
+
+List                     Information
+
+Author.                   Netlabs.
+
+Version number:           0.9.9.2
+
+Installation date:        The date you installed it Target directory: <drive>:\OS2
+
+Files:                    8
+
+4. Right click on "IFS".
+
+5. Select "Deinstall package...".  A message box should come up listing what will
+be deleted and undone.
+
+6. Select "OK"
+
+Note:  WarpIN sometimes has problems deleting the added config.sys entries.
+
+This usually happens after you install over a previous version. If this
+happens, you will have to manually edit your config.sys file and remove the
+following entries.
+
+IFS=X:\TOOLS\SYSTEM\BOOT\FAT32.IFS [...]
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE
+
+
+MANUAL MANGLING:
+------------------
+
+If archived in zip form, unzip the files to a temporary directory. If in WarpIN
+format, do the following:
+
+Copy the *.wpi file to a temporary directory.  Copy the files "wic.exe" and
+"wpirtl.dll" from your WarpIN directory to the temporary directory where you
+copied the *.wpi file. To extract the fat32 files, open a command prompt, change
+to the temporary directory, and type the following command:
+
+wic.exe *.wpi -x (x is lowercase).
+
+Replace the *.wpi with the name of the fat32 wpi file.
+
+After the files have been extracted, do the following:
+
+Note:  If you installed the FAT32 driver version 0.96 or higher using WarpIN and
+now wish to install the update manually, check your WarpIN database to see where
+each file is located. Copy the files to the locations (directories) indicated in
+the WarpIN database.
+
+If you installed the FAT32 driver versions 0.95 or earlier either manually or
+using WarpIN, copy the following files to your \OS2 directory:
+
 FAT32.IFS
+FAT32.TXT
 CACHEF32.EXE
-F32STAT.EXE 
-MONITOR.EXE
+F32STAT.EXE
+F32MON.EXE
 
 Copy the following file to your \OS2\DLL directory:
 UFAT32.DLL
 
-(Skip the next lines if you are using Warp Server for eBusiness)
-Copy the following file to your \OS2\BOOT directory:
-PARTFILT.FLT 
+There is a document for Korean based on version 0.94 document.  This is not
+needed unless you are Korean.
+FAT32.KOR
 
-=>Do NOT REPLACE your current OS2DASD.DMD with the version in the archive,<=
-=>before you have read the remarks below about OS/2 and FAT32 and know you<= 
-=>MUST use this DMD. You probably do NOT NEED IT!                         <=
+The following file is a patched version of the "country.sys" from WSEB fixpack
+2.  Strangely, "country.sys" of WSeB contains the wrong information for Korean,
+especially DBCS lead byte infos.  Without this, Korean cannot use filenames
+consisting of Korean characters.  Replacement the country.sys file found on
+Korean systems is a must for the FAT32.IFS to work correctly.  On non-Korean
+systems, replacement of the country.sys is not necessary, but can be done if the
+installer wants without any harm to their systems.  To use, rename the
+"country.sys" found in OS2\SYSTEM directory and replace it with the
+"country.kor", renaming it "country.sys".
+COUNTRY.KOR
+
+This script adds Korean CODEPAGE support for non-Korean systems. Copy it to a
+location listed in the PATH statement of your config.sys.  Add its location to
+the STARTUP.CMD found in your root directory.  If you have no STARTUP.CMD, make
+one.
+CACHEF32.CMD
 
 Make the following changes to the CONFIG.SYS:
 
-IFS=x:\OS2\FAT32.IFS [options, see below]  
-(Install this one AFTER IFS=HPFS.IFS)
+IFS=x:\OS2\FAT32.IFS [options]
+(Install this one anywhere AFTER IFS=HPFS.IFS)
 
-CALL=x:\OS2\CACHEF32.EXE [options, see below]
-^^^^-> Make sure this is a CALL and NOT a RUN.
+CALL=x:\OS2\CACHEF32.EXE [options]
 
-(Skip the next lines if you are using Warp Server for eBusiness)
-BASEDEV=PARTFILT.FLT /P 0B [/W] 
-(The /W should not be specified if you do not want write access)
-(The best location seems to differ depening on your configuration. Some
-state FAT32.IFS will only work is PARTFILT is the first basedev, other 
-claim it only works if PARTFILT is the last one.)
-
-=>This Quick Install will add FAT32 partition after all existing drives!  <=
-
-=>PARTFILT.FLT might need other options IF you have converted an existing <=
-=>FAT16 partition to FAT32 or if you want to influence the drive order!   <=
+Note:  Make sure this is a CALL and NOT a RUN.
 
 
-FAT32.IFS
-=========
+===================================
+FAT32 IFS COMPONENTS AND SWITCHES:
+===================================
 
-FAT32.IFS is the actual Installable File Systems driver.
-The following options are supported:
+FILES IN THIS VERSION:
+--------------------
 
-/Q           Quiet, not messages.
+FAT32.INF             This file.
 
-/CACHE:nnnn  specifies the cache size in kilobytes. If omitted the default
-             cache size is 1024KB. Maximum cache size is 2048KB.
-                                     *NOTE*
-             Cache memory is allocated as FIXED memory, so if you have less
-             than 16MB I suggest you set this option to 512KB or less.
+FAT32.TXT             Fat32 information in plain ASCII txt format (may be outdated).
 
-/MONITOR     Set monitor ON by default. If omitted monitor is OFF. See 
-             MONITOR.EXE for more information.
+FAT32.IFS             The actual IFS.
 
-/RASECTORS:n Read Ahead Sectors.
-             Specifies the minimum number of sectors to be read per read
-             action and placed in the cache.
-             If omitted the default differs per volume and equals the 
-             number of sectors per cluster times 2. 
-             The maximum treshold value used is 128.
+CACHEF32.EXE          The cache helper program.
 
-             You should note that the actual sector IO per read action is
-             NOT determined by an application, but by the IFS. For FAT access
-             single sector reads are done. For Directory and Files IO reads
-             are done on a cluster base. By setting the RASECTORS you can 
-             define the minimum number of sectors the IFS will read from disk
-             and place in the cache.
+UFAT32.DLL            The module needed to run CHKDSK on FAT32 partition.
 
-/EAS         Make FAT32.IFS support EXTENDED ATTRIBUTES.
+F32STAT.EXE           A program to change the DIRTY flag of FAT32 partitions.
 
-/H           Use high-memory( > 16MB ) to allocate cache buffer.
+F32MON.EXE            (Formerly MONITOR.EXE) A program to monitor what FAT32.IFS is doing.
+doing.
 
-CACHEF32.EXE
-============
+F32PARTS.EXE          (Formerly DISKINFO.EXE) A diagnostic program that will scan for and show all
+                      and show all partitions.
+
+* FAT32.KOR           Is a document for Korean based on version 0.94 document and updated.
+                      updated.
+
+* COUNTRY.KOR         A patched version of the "country.sys" from WSEB fixpack 2. Strangely,
+                     "country.sys" of WSeB contains the wrong information for Korean, especially DBCS
+                      lead byte infos. Without this, Korean cannot use filenames consisting of Korean
+                      chars. To use, rename the "country.sys" found in OS2\SYSTEM directory and
+                      replace it with the "country.kor", renaming it "country.sys".
+
+* CACHEF32.CMD        Script for loading Korean Codepage and CACHEF32.EXE
+
+
+FAT32.IFS:
+----------
+
+FAT32.IFS is the actual Installable File Systems (IFS) driver. It is installed
+by specifying the path and complete file name of the file system driver in your
+CONFIG.SYS file like this :
+
+
+
+IFS =  ÄÄÂÄÄÄÄÄÄÄÄÄÂÄÂÄÄÄÄÄÄÄÄÂÄ filename ÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂ´
+         ÀÄ drive ÄÙ ÀÄ path ÄÙ             ÀÄ arguments ÄÙ
+
+
+Examples
+
+The defaults (i.e.e no parameters specified ) are a cache of 1024KB and no
+messages.
+
+IFS=X:\TOOLS\SYSTEM\BIN\FAT32.IFS /Q
+
+To set a cache of to 2048KB with Extended Attributes support, type the following
+in your CONFIG.SYS and restart your system.
+
+IFS=X:\TOOLS\SYSTEM\BIN\FAT32.IFS /cache:2048 /EAS
+
+Note:  If no FAT32 partition is found on system startup, the driver will not
+load.
+
+
+FAT32 IFS OPTIONS:
+-----------------
+
+Options Description
+
+/Q                       Quiet, no messages.
+
+/H                       Allocates cache memory into high memory (>16MB). Option added
+                         starting with version 0.99.
+
+/CACHE:nnnn              Specifies the cache size in kilobytes. If omitted the default
+                         cache size is 1024KB. Maximum cache size is 2048KB. *
+
+/CALCFREE                Because FAT32 always calculates free space on mount of USB removable
+                         media, recognition of the media was taking a long time. The default now
+                         for the FAT32 driver is not to calculate free space unless this option is
+                         enabled or if free space info was.
+
+                         Note:  Cache memory is allocated as FIXED memory, so if you have
+                         less than 16MB a setting of 512KB or less for this option is suggested.
+
+/MONITOR                 Set F32MON ON by default. If omitted F32MON is OFF. See F32MON.EXE
+                         for more information.
+
+/RASECTORS:n             Read Ahead Sectors. Specifies the minimum number of sectors to be
+                         read per read action and placed in the cache. If omitted the default
+                         differs per volume and equals 2 times the number of sectors per cluster.
+                         The maximum threshold value used is 4 times the number of sectors per
+                         cluster. The maximum value of RASECTORS has been changed from 4 times
+                         the number of sectors per cluster to 128 starting with version 0.96.
+
+                         Note:  The actual sector IO per read action is NOT determined by an
+                         application, but by the IFS. For FAT access, single sector reads are
+                         done. For Directory and Files IO reads are done on a cluster base.
+                         By setting the RASECTORS, you can define the minimum number of sectors
+                         the IFS will read from disk and place in the cache.
+
+/EAS                     Make FAT32.IFS support EXTENDED ATTRIBUTES
+
+                         IMPORTANT:  Starting with version 0.97, CHKDSK /F must first be run on
+                         each FAT32 partition before adding EA support to the FAT32 IFS driver.
+                         This step is required starting with this version due to the EA mark byte
+                         being changed for compatibility with WinNT family.
+
+                         Starting with version 0.98, EA support is turned OFF by default in WarpIN
+                         installations.
+
+                         You can use F32STAT.EXE to run CHKDSK automatically on next boot by doing
+                         the following.
+
+                         F32STAT.EXE x: /DIRTY
+
+                         Where, x: is your FAT32 drive which has files with EA.
+
+                         F32STAT.EXE supports only one drive at one time. So if you want to change
+                         the state of one more drive, you should run F32STAT.EXE, respectively.
+                         i.e., FAT32 drive is C: D:. You should run F32STAT.EXE two times for C and
+                         D as the following.
+
+                         F32STAT.EXE C: /DIRTY
+                         F32STAT.EXE D: /DIRTY
+
+FREE SPACE:
+------------
+
+On most FAT32 drives the amount of free space is stored. FAT32.IFS will only
+redetermine the amount of free space if:
+The disk was marked dirty on boot.
+The free space is set to -1 on the disk.
+The free space is not available on the disk.
+
+FAT32.IFS will internally keep track of the free space and update it on disk on
+shutdown.
+
+
+THE PURPOSE OF CACHEF32.EXE
+----------------------------
 
 CACHEF32.EXE is a helper program with the following functions:
-- Check DISK state on boot, run CHKDSK if needed.
-- Start the LAZY WRITE daemon.
-- Set CACHE and READ-AHEAD parameters.
-- Set Longname behaviour.
-- Load a CP to UNICODE translate table for longnames and the default 
-  codepage.
+Check DISK state on boot, run CHKDSK if needed.
+Start the LAZY WRITE daemon.
+Set CACHE and READ-AHEAD parameters.
+Set Longname behavior.
+Load a CP to UNICODE translate table for longnames and the default codepage.
 
-When run in the foreground and CACHF32 is already running, it displays
-the CACHE parameters and allows you to modify the values. If no other
-copy of CACHEF32 is running, it detaches a background copy.
+When run in the foreground and CACHEF32 is already running, it displays the
+CACHE parameters and allows you to modify the values. If no other copy of
+CACHEF32 is running, it detaches a background copy.
 
 When run in the background (detached), CACHEF32 will act as lazywrite daemon.
 
-CACHEF32.EXE supports the following options:
 
-/?    Shows help.
+CACHEF32 OPTIONS:
+-----------------
 
-/Q    Terminates CACHEF32. CacheF32 will be unloaded from memory, lazy
-      writing will stop. (Performance will degrade).
+/?             Shows help.
 
-/N    Runs CACHEF32 without starting the deamon in the background, ans also
-      clear fForceLoad flag.
+/Q             Terminates CACHEF32. CACHEF32 will be unloaded from memory,
+               lazy writing will stop. (Performance will degrade).
 
-/D:nn Sets the DISKIDLE value. See OS/2 online help on CACHE.
+/N             Runs CACHEF32 without starting the deamon in the background.
 
-/B:nn Sets the BUFFERIDLE value. See OS/2 online help on CACHE.
+/D:nn          Sets the DISKIDLE value. See OS/2 online help on CACHE.
 
-/M:nn Sets the MAXAGE value. See OS/2 online help on CACHE.
+/B:nn          Sets the BUFFERIDLE value. See OS/2 online help on CACHE.
 
-/R:d:,n Set RASECTORS for drive d: to n.
+/M:nn          Sets the MAXAGE value. See OS/2 online help on CACHE.
 
-/L:ON|OFF Set lazy writing ON or OFF, default is ON
+/R:d:,n        Set RASECTORS for drive d: to n.
 
-/P:1|2|3|4 Set priority for lazy writer. 1 is lowest, 4 is highest. 
-      Default 1 (= idle-time). This might be handy if the lazy-writter 
-      doesn't seem to get any CPU due to heavy system load.
+/L:ON|OFF      Set lazy writing ON or OFF, default is ON
 
-/Y    Assume yes
+/P:1|2|3|4     Set priority for lazy writer. 1 is lowest, 4 is highest.
+               Default 1(=idle-time). This might be handy if the lazy-writer
+               doesn't seem to get any CPU due to heavy system load.
 
-/S    Do NOT display normal messages
+/Y             Assume Yes
 
-/F    Force lazy write deamon to be loaded.
+/S             Do NOT display normal messages
 
-Note 1: the /T option has been removed in version 0.83.
+/CP            Specify codepage in paramter
 
-Note 2: if you notice that the /P options has any effect on your 
-        situation please let me know.
+/F             Forces CACHEF32.EXE to be loaded even if no FAT32 partition is
+               found on startup. Added starting with version 0.99.
 
-Note 3: Both /FS and /FL option has been removed in version 0.98.
 
-CHKDSK & UFAT32.DLL
-===================
+Note: The /T option was removed in version 0.83.
+      The /FS option was removed in version 0.98.
+      The /FL option was removed in version 0.98.
 
-The UFAT32.DLL is called by CHKDSK whenever the CHKDSK command is issued
-for a FAT32 drive. UFAT32.DLL currently only supports CHKDSK.
+
+--------------------
+CHKDSK / UFAT32.DLL
+--------------------
+
+The UFAT32.DLL is called by CHKDSK whenever the CHKDSK command is issued for a
+FAT32 drive. UFAT32.DLL currently only supports CHKDSK.
 
 For CHKDSK the following options are implemented:
-/F   Fixes problems (Currently UFAT32.DLL only fixes lost clusters,
-     and an incorrect free space count.)
-/C   Causes lost clusters to be automatically converted to files if the
-     drive was in an inconsistent state at boot (No questions asked).
-/V:1 Causes CHKDSK to show fragmented files.
-/V[:2] Causes CHKDSK to show details on all files checked.(default)
+
+Options         Description
+
+/F             Fixes problems (Currently UFAT32.DLL only fixes lost clusters,
+               and an incorrect free space count.)
+
+
+/C             Causes lost clusters to be automatically converted to files if
+               the drive was in an inconsistent state at boot (No questions asked).
+
+/V:1           Causes CHKDSK to show fragmented files.
+
+/V[:2]         Causes CHKDSK to show details on all files checked.(default)
+
 
 The CHKDSK process does the following checks:
-- Compares all copies of the FATs;
-- Checks for each file the file allocation;
-- Checks per file or directory the VFAT long filename;
-- Checks for, and if /F is specified, repairs lost clusters.
-- Checks for, and if /F is specified, repairs cross-linked files.
-- Checks free space, and if /F is specified, corrects an incorrect setting.
-- Checks for lost extended attributes.
+
+Compares all copies of the FATs;
+Checks for each file the file allocation;
+Checks per file or directory the VFAT long filename;
+Checks for, and if /F is specified, repairs lost clusters.
+Checks for, and if /F is specified, repairs cross-linked files.
+Checks free space, and if /F is specified, corrects an incorrect setting.
+Checks for lost extended attributes.
 
 
-F32STAT.EXE
-===========
+CLEAN SHUTDOWN CHKDSK:
+-----------------------
 
-F32STAT can be used to query the clean shutdown state of a FAT32 drive. 
-It also allows you to alter the clean shutdown state. You could use this
-feature if FAT32.IFS blocks access to the disk because it is dirty on boot,
-and CHKDSK could not solve the problem.
+If Windows 95 (OSR2) or later shuts down properly, the clean shutdown status of
+the disk is physically written on the disk. On next boot this state is checked,
+and if the disk is not shutdown properly, SCANDISK is run.
 
-The syntax is:
+FAT32.IFS also supports this feature. When CACHEF32 is called from the
+config.sys, it checks, via a call to the IFS the state of each FAT32 drive. For
+each drive that is not shutdown properly, CHKDSK is fired. If no errors are
+found, or if only lost clusters where found and repaired, the drive is marked
+ok.
 
-   F32STAT drive: [options]
+If CHKDSK cannot solve the problem, the drive state is left dirty, and NO FILES
+CAN BE OPENED AND NO DIRECTORIES CAN BE ADDED OR REMOVED. Shutting down the
+disk, leaves the disk marked as not properly shutdown. You should boot to
+Windows and run SCANDISK on the drive to fix the remaining problems.
 
-The following options exist:
-
-/CLEAN  - Inform FAT32.IFS that the disk was clean on boot and may be used. 
-          The disk itself will be marked as clean on a succesfull shutdown. 
-          (The internal dirty flag FAT32.IFS uses will be cleared.)
-
-/FCLEAN - Inform FAT32.IFS that the disk was clean on boot and may be used.
-          The disk itself will also be marked as clean at that moment. 
-          (The internal dirty flag FAT32.IFS uses will be cleared, but the
-          marking on disk will also be set ok.)
-          
-/DIRTY  - Inform FAT32.IFS to set its internal dirty flag, and mark the drive
-          dirty on disk. On shutdown the drive will be left dirty, so when
-          booting Windows 95 (OSR2) SCANDISK will be fired.
+F32STAT however, allows you for set the drive status, bypassing the normal
+handling of FAT32.IFS. See the description of F32STAT for more information.
 
 
-F32MON.EXE
-===========
+F32MON.EXE (formerly MONITOR.EXE):
+--------------------------------
 
-Monitor will show (most) FAT32 actions on screen. This program is intended
-for troubleshooting. Using F32MON will degrade performance since FAT32 must
-send monitoring information to an internal buffer. This internal buffer is 
-only 4096 bytes large, so if monitoring is on, but F32MON does not run,
-logging information is lost. This will however only occur if /MONITOR is
-specified after the IFS= line for FAT32.IFS.
+F32MON will show (most) FAT32 actions on screen. This program is intended for
+troubleshooting. Using F32MON will degrade performance since FAT32 must send
+monitoring information to an internal buffer. This internal buffer is only 4096
+bytes large, so if monitoring is on, but F32MON does not run, logging
+information is lost. However, this will only occur if /MONITOR is specified
+after the IFS= line for FAT32.IFS.
 
 If the /MONITOR command is not specified in the config.sys after the IFS=
-statement monitoring is OFF by default, but starting MONITOR once will 
-activate monitoring.
+statement, monitoring is OFF by default, but starting F32MON once will activate
+monitoring.
 
-When F32MON runs, information is shown on the screen, but also written to
+When F32MON runs, information is shown on the screen, and also written to
 FAT32.LOG in the current directory.
 
-When F32MON terminates the internal montoring is switched off.
-
-the syntax for monitor is:
+When F32MON terminates, the internal monitoring is switched off. The syntax for
+F32MON is:
 
 F32MON [tracemask] [/S]
 
-If tracemask is omitted it is set to 1. 
+If tracemask is omitted it is set to 1.
 
 The tracemask exists of a specific bit to show certain types of information.
-This way, you can MONITOR selectively.
+This way, you can monitor selectively.
 
 The following values for tracemask exist:
-
- 1 - Shows all calls to FS_xxxxx entry points and the returnvalues
- 2 - Shows additional (internal) function calls
- 4 - Shows cache related (lazy writing) function calls
- 8 - Shows internal memory handling (malloc & free) memory calls
+1 - Shows all calls to FS_xxxxx entry points and the return values
+2 - Shows additional (internal) function calls
+4 - Shows cache related (lazy writing) function calls
+8 - Shows internal memory handling (malloc & free) memory calls
 16 - Shows FS_FINDFIRST/FS_FINDNEXT calls
 32 - Shows some other calls
 64 - Shows extended attribute handling
@@ -317,397 +782,1426 @@ The following values for tracemask exist:
 You should add values to see multiple groups:
 
 e.g.
-You want to see both FS_xxxx calls and cache related information. As 
-tracemask you should use 1 + 4 = 5.
+You want to see both FS_xxxx calls and cache related information. As tracemask
+you should use 1 + 4 = 5.
+
+Options     Description
+
+/S   -     Runs without output to the screen, but only to FAT32.LOG. This is useful if
+        F32MON sends so much messages to the screen that the program can't keep up with
+        the IFS. Using /S only sends the output to FAT32.LOG so no time is lost in
+        screen handling.
 
 
-/S   - Runs without output to the screen, but only to FAT32.LOG. This is
-       usefull if F32MON sends so much messages to the screen that the
-       program can't keep up with the IFS. Using /S only sends the output
-       to FAT32.LOG so no time is lost in screen handling.
+THE PURPOSE OF F32STAT.EXE:
+----------------------------
+
+F32STAT can be used to query the clean shutdown state of a FAT32 drive. It also
+allows you to alter the clean shutdown state. You could use this feature if
+FAT32.IFS blocks access to the disk because it is dirty on boot, and CHKDSK
+could not solve the problem.
+
+The syntax is:
+
+   F32STAT drive: [options]
+
+
+F32STAT.EXE OPTIONS:
+--------------------
+
+/CLEAN  -         Inform FAT32.IFS that the disk was clean on boot and may be
+                  used. The disk itself will be marked as clean on a succesfull
+                  shutdown. (The internal dirty flag FAT32.IFS uses will be cleared.)
+
+/FCLEAN   -       Inform FAT32.IFS that the disk was clean on boot and may be used.
+                  The disk itself will also be marked as clean at that moment. The
+                  internal dirty flag FAT32.IFS uses will be cleared, but the marking
+                  on disk will also be set ok.)
+
+/DIRTY    -       Inform FAT32.IFS to set its internal dirty flag, and mark the drive
+                  dirty on disk. On shutdown the drive will be left dirty, so when
+                  booting Windows 95(OSR2) and later Windows versions, SCANDISK will
+                  be started.
+
+IMPORTANT:  Starting with version 0.97, CHKDSK /F must first be run on each FAT32
+partition before adding EA support to the FAT32 IFS driver. This step is required
+starting with this version
+
+You can use F32STAT.EXE to run CHKDSK automatically on next boot by doing the following.
+
+F32STAT.EXE x: /DIRTY
+
+Where, x: is your FAT32 drive which has files with EA.
+
+F32STAT.EXE supports only one drive at one time. So if you want to change the state
+of one more drive, you should run F32STAT.EXE, respectively. i.e., FAT32 drive is C: D:.
+You should run F32STAT.EXE two times for C and D as the following.
+
+F32STAT.EXE C: /DIRTY
+F32STAT.EXE D: /DIRTY
 
 
 
+==============================
+CURRENT STATUS AND FEATURES:
+==============================
 
-GENERAL NOTES
-=============
+LIMITATIONS:
+------------
 
-MAKING OS/2 RECOGNIZE FAT32 PARTITIONS.
----------------------------------------
-OS/2 by itself does not recognize FAT32 partitions. This means that 
-installing the IFS is useless if we can't make OS/2 recognize them.
+Logically, FAT32 should now support up to 2 terabytes partitions in size.
+However, we cannot be sure that MS does not use another combination of sectors
+per cluster and bytes per sector. If this is the case, the supported size could
+be smaller. A FAT32 partition can contain files up to 4GB in size. The 4GB is
+the limit of FAT32 file system itself. Files less than 2GB can be copied or
+moved to a FAT32 partition. Files larger than 2GB cannot be read by some
+programs such as xcopy. It appears that xcopy itself does not support files
+greater than 2GB.
 
-Currently, if you are using WARP 3 or 4 there are two ways to achieve that.
-- Use PARTFILT.FLT to fake FAT32 partition; (this is advised)
-- Use the modified version of OS2DASD.DMD. (Rename OS2DASD.F32 to OS2DASD.DMD)
+It only supports disks with a sector size of 512 bytes. (Are there others?)
 
-If you are using Warp Server for e-Business (AURORA) you must use the LVM to
-create a Compatible volume. Do not try to use PARTFILT or the modified 
-OS2DASD.DMD with this version of OS/2.
+You cannot BOOT from a FAT32 partition.
+
+You cannot place the SWAPPER.DAT on a FAT32 partition.
+
+CHKDSK can diagnose a disk, but will only FIX lost clusters and an incorrect
+free space count. For all other errors, you'll need to run Windows and start
+SCANDISK to fix the problem.
+
+CHKDSK will always convert lost clusters to files and NEVER to directories. if
+you want that, use SCANDISK.
+
+The FORMAT, RECOVER and SYSINSTX commands are not supported.
+Only last access date (and not last access time) is maintained by FAT32.IFS.
+This is similar to Win95 (OSR2).
+
+Long filenames are not by default supported in DOS and Win-OS/2 sessions, they
+use only the shortnames. Please see 'LONG FILENAMES IN OS/2 AND DOS SESSIONS'.
+
+You'd better NOT change codepages on the fly IF you have open files with
+filenames that contain extended ASCII characters.
+
+If you are using PARTFILT.FLT then FDISK, Partition Magic or any partition
+maintenance tools will show non-existing drives and other nonsense.
+
+This version needs the native NLS support from OS/2. This means Warp 3 fixpack
+26 or higher or Warp 4. (You must have the LANGUAGE directory)
 
 
-OS2DASD.DMD
------------
 
-The version of OS2DASD.DMD (called OS2DASD.F32) supplied in this package is 
-a modified version of this driver and is NOT at the latest level. 
-This means that it is possible that some of the latest features in the 
-IBM supplied driver may not be supported. Also, when installing new 
-fixpacks, you should make sure that this version of OS2DASD.DMD is 
-not replaced.
+REMOVABLE MEDIA:
+-----------------
 
-Also, when using this driver, FAT32 partitions COULD end up having a drive
-letter assign before the OS/2 partition, shifting the assigned drive letters
-for all next partitions up and thus making OS/2 unbootable.
+Presently, the FAT32 driver should have no problems recognizing USB
+harddisks or disks encapsulated in an USB enclosure, as long as it is
+supported by the USB driver.
 
-This version of OS2DASD.DMD has extra support for partition type 11 (hex B).
-Partition type 12 (hex C), FAT32 through INT13 is NOT supported by this 
+According to Microsoft's FAT32 specs, FAT32 volumes can be legally generated
+only for media over 512 MB, which is beyond the size of most (if not all) of
+the current Flash media, such as those found in digital cameras. These volumes
+are usually formatted as FAT and thus are NOT accesed throughthe FAT32 driver.
+
+Windows XP does, however, allow one to format removable media less than 512 MB FAT32.
+
+In either case, for LVM systems one would also need to assign a volume letter
+to the drive before accesing the files on it.
+
+Note:  If the FAT32 driver is installed, the file system will load whether one has a FAT32
+partition or not. Thus, if a removable FAT32 drive is plugged in or inserted, the FAT32
+media should be found, provided the removabe drive(s) are supported by the USB drivers or
+whatever other drivers are necessary for the drive(s) to be found and recognized.
+
+Some formatted FAT32 USB flash media work with the driver while others don't.
+
+
+TYPES OF USB MASS STORAGE DEVICES
+---------------------------------
+
+There are two kinds of USB removable media: partitionable media and large Floppy media.
+Many modern USB devices work as both and can be switched from one mode to another.
+This can be done either in some device-specific way (such as a hardware switch, software
+utilities or a combination of both) or in most compatible devices by erasing or creating
+partition tables on the device with an advanced disk tool (such as DFSee) which bypasses
+system detection of the device as a fixed type, and then detaching and re-attaching the
+device so changes are recognized.
+
+Partitionable USB drives are seen by the system as if they were "normal" hard disks, so
+to get them to work with eCS or OS/2, you have the usual limitations: -OS2DASD.DMD must
+be at a certain level for large drives to be fully recognized. -Also, volumes must be
+created (and have sticky drive letters assigned if they are to be accessed) either from
+existing partitions, or from unassigned space areas within the "disk". Partitions on
+these devices should also have their proper types set (i.e. 0B/0C for FAT32, 07 for
+HPFS/NTFS, 06 for FAT16, etc.) in order to avoid problems.
+
+
+
+GETTING THE FAT32 DRIVER TO WORK WITH REMOVABE MEDIA
+------------------------------------------------------
+
+ 1.Your motherboard bios must support USB devices.  Make sure USB support is enabled in
+the motherboard bios.
+
+ 2.The USB drivers by IBM work best with the most recent os2krnl, os2ldr, and ibmdasd
+drivers. Install them next if you have not already done so.
+
+ 3.Always update to IBM's latest USB drivers. Reboot and test USB devices. If they work,
+you need go no further. If not, proceed to to next step.
+
+ 4.Check to make sure that you have lines similar to those listed below in your config.sys.
+I like using the /V option because it tells one whether the necessary drivers are loaded
+or not at bootup.  The /V option can always be removed later when your USB device are
+working properly.
+
+REM BASEDEV=USEUHCD.SYS /V
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBEHCD.SYS /V
+BASEDEV=USBD.SYS
+BASEDEV=USBHID.SYS
+BASEDEV=USBMSD.ADD /FLOPPIES:0 /REMOVABLES:2 /V
+rem BASEDEV=USBCDROM.ADD
+
+Keep a copy of the file "hcimonit.exe" in a directory found in your config.sys Path statement.
+This file normally comes with the IBM's USB drivers. This program will list the type of host
+controllers found on your system.  At a command prompt, type "hcimonit.exe".
+
+In the example below, this computer has 2 USB OHCI host controllers and 1 USB EHCI host
+controller.  Thus, the following three lines would need to be found and if, not added
+to the config.sys file.
+
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBEHCD.SYS /V
+
+ 5.Create a compatibility volume using LVM if you have not already done so. Check to see if
+your drive is recognized by LVM. Removable drives usually have an * instead of a drive letter.
+I suggest that you assign a permanent drive letter. I have found that some USB media won't be
+recognized unless they are assigned a drive letter. If your media still is not recognized, go
+to next step.
+
+ 6.If the drive worked in the past, try running "chkdsk <drive>: /F".  Continue on if your
+drive still doesn't work.
+
+ 7.Check to see if you have the following statement in your config.sys file.
+
+BASEDEV=OS2PCARD.DMD
+
+If it does exist, try remming it out and rebooting. Try your USB devices again. If your USB
+devices are found and functioning properly, you need go no further.
+
+Note:  It has been reported that the Card bus 8 driver does not conflict with the USB drivers.
+However, other problems are introduced. eCS 1.2 comes with the Card bus 5 driver. Thus, if you
+are using eCS 1.2, you will either need to rem out the driver or install the Card bus 8 driver.
+If you still don't have your device(s) working, read further.
+
+ 8.Some USB flash media comes with security software. With this software on the media, the drive(s)
+cannot be read by the IBM drivers {LVM included). To overcome this, try the following:
+
+ a.Get to a Windows machine and reformat the drive.
+
+ b.Then boot to DFSee (in my opinion, this is a must utility for every eCS and OS/2 user).
+If you don't have it, download the latest version. It can be used in demo mode.
+
+ c.Using DFSee, create a new Master Boot Record with the tables erased.
+
+DFSOS2.EXE > Mode=fdisk > New MBR code, ERASE tables > Select the correct drive > OK
+
+Note:   You possibly could skip step A and start with B. I have not tried it.
+
+ 9.Use LVM to create a new partition. LVM (Logical Volume Manager) in this instance refers to
+either the command line LVM or the WPS LVMGUI.  Using the command line LVM, the partition must
+be created while in "Physical View".  Using the LVMGUI, the partition can be created from either
+"Logical or Physical views".
+
+10.Make the drive Primary.
+
+11.Using LVM, make the media a compatibility volume. Using the command line LVM, the capibility
+volume must be created in "Logical View". LVMGUI can create the volume from either "Physical or
+Logical" views.
+
+LVMGUI > Volume > Create Volume > Create non-bootable volume > Create Compatibility Volume
+
+12.Format the drive.
+
+The media can be formatted FAT, HPFS, FAT32, or JFS. Formatting FAT32 can be done numerous ways.
+Presently, the only way to format a volume FAT32 under either eComStation or OS/2 is to use DFSee
+and F32blank together. The procedure is as follows:
+
+ a.Find out the volume relevant data: Heads, Sectors, Starting point and Size using DFSee
+ b.Feed F32Blank with that data to generate a file with blank FATs suitable for the volume
+ c.Detach the volume (with LVM it's called 'hide' or similar)
+ d.Use DFSee to overwrite the volume with the file contents, using "wrim".
+ e.Attach again the volume.
+ f.If after this you can't read/write properly the volume or it appears as not empty, then
+   you MUST reboot and check it again.
+ g.If you don't like DFSee go and find something else capable of doing the job.
+
+If this is too complicated for some people, the USB media can be formatted using one of the
+Window's versions. Each Windows version has it own built in limitations.
+
+Win95R2 <= 16 GB
+Windows 98 second addition - Volumes < 128 GB and > 512 MB
+Windows ME - 512 GB to 2 TB.
+Windows XP <= 32 GB.
+
+Other formatting alternatives
+
+FreeDOS <= 16 GB
+Partition Commander versions 8 and 9 (Limitations unknown)
+
+Note:  After formatting, always run chkdsk under eCS if using the OS/2 FAT32 driver. This
+is probably true for any filesystem used.
+
+If you still cannot get your drive to work, you can try the next steps.
+
+13.Download Chris Wohlgemuth's USB driver package (cw-usbmsd-v1_2b.zip) and install his
+USB mass storage driver (CWUSBMSD.ADD), replacing the IBM driver. Copy his CWUSBMSD.ADD
+driver to the OS2\BOOT directory. Rem out IBM's USBMSD.ADD driver. Add a line similar to
+the following to your config.sys file. Be sure and read his documentation.
+
+Example:
+
+REM BASEDEV=USBUHCD.SYS
+BASEDEV=USBEHCD.SYS /V
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBOHCD.SYS /V
+BASEDEV=USBD.SYS
+BASEDEV=USBHID.SYS
+REM BASEDEV=USBMSD.ADD /REMOVABLES:3
+BASEDEV=CWUSBMSD.ADD /FLOPPIES:0 /REMOVABLES:4 /FIXED_DISKS:2 /FORCE_TO_REMOVABLE
+
+Adjust the REMOVABLES options to the max number of removables you my have plugged in
+at one time. Be aware that LVM will still list drives whether you have them plugged
+in or not. These drives will show up as 96 MB volumes.
+
+14.Reboot and see if your device(s) are now recognized. If not try the next step.
+
+15.Download M. Kiewitz's driver package, MMPORTv1.zip, from Hobbes. You will need
+to replace IBM's USBD.SYS driver with Martin's USBD.SYS driver. Attempting to use
+this driver has risks. To be safe, rename the IBM driver to something like
+USBD_BCKUP.SYS. That way if something goes wrong, you can either boot to a
+command prompt or a maintenance partition to copy the IBM driver back over
+Martin's driver. Martin's driver can trap on boot up. What Martin's driver
+does different is that it attempts to find USB media the Microsoft way instead
+of the USB Standards way. When it works, it can be a life saver. If it doesn't
+work with the latest IBM drivers, you might try downloading some of the earlier
+versions of the USB drivers from the eComStation ftp site. The closer the IBM
+drivers are to the date of his released driver, the greater the chance of his
+driver working. Since he does not have access to the latest code, he had to use
+the the last available code from the DDK site. If you have a usbcalls.dll on
+your eComStation system, replace it with Martin's fixed usbcalls.dll. The driver
+has been patched to fix a nasty bug.
+
+Hopefully one of the above techniques will solve your problem.
+
+IMPORTANT:  If plugging the drive into different computers, make sure ALL the USB
+drivers are the same on these systems. File corruption can result when using
+different drivers and versions.
+
+Always "EJECT" media before removing (unplugging).  To do otherwise can cause
+file corruption requiring "chkdsk" to be run. If the corruption is too bad,
+Window's "scandisk" will have to be run on the drive.  Be aware that Windows XP
+FAT32 scandisk is broken.  It fails to fix problems that earlier versions of
+Windows 98 and ME were able to fix.  It will no longer fix mismatched FAT chains.
+
+
+See also TROUBLE SHOOTING
+
+
+COMPATIBILITY WITH WINDOWS:
+----------------------------
+
+As far as the original author, Henk Kelder, could tell, FAT32.IFS is fully
+compatible with the FAT32 support in Windows. VFAT longnames could be used on
+his PC. Windows did not complain (anymore!) about long filenames created with
+FAT32.IFS. The numeric tailed short names also seemed to work ok. (The numeric
+tail option cannot be switched off!)
+
+File names are, as in Windows, case preserving (in OS/2 sessions). Creating a
+name in lower case will result in the file having a VFAT longname, even if the
+name conforms to 8.3. The case will be preserved.
+
+Last access dates are maintained by FAT32.IFS. (but not the last access time
+since Win95 doesn't support it) You can see these when using the detailed view
+of the drive object.
+
+The possibility exists that files created by any system of the WinNT family such
+as Win2X and WinX can be recognized as having Extended Attributes by the FAT32
 driver.
 
-Generally, it is not advised to use this version of OS2DASD.DMD, but to 
-use the PARTFILT.FLT.
+Although this should be fixed in the latest Netlabs version, the possibility
+still remains that the FAT32 driver recognizes a file having a non-zero in its
+EA field as an EA file, even though such a file is not an EA file. Why? Only a
+file having 0x40 or 0x80 in its EA field should be recognized as an EA file. One
+cannot be sure that files created by any of the WinNT family do not have 0x40 or
+0x80 in their EA fields. Fortunately, this is a remote possible.  If such a file
+is found, CHKDSK will complain about this.
+
+See "The Mark Byte"
 
 
-LONG FILENAMES IN OS/2 AND DOS SESSIONS
----------------------------------------
-Long file names where only shown in OS/2 sessions, but in DOS sessions, the
-short filename equivalent is shown. But, when deleting files in form of mixed
-path of short and long name in OS/2 session, or deleting long files with its
-equivalent short filename in DOS sessions, the WPS doesn't pickup the deletions.
+WINDOWS OS/2 CHARACTER SET:
+----------------------------
 
-
-WINDOWS & OS/2 CHARACTER SETS
------------------------------
 OS/2 uses standard character sets. Such a character set is called a CODEPAGE.
 
 By default Windows long file names (VFAT) are stored in UNICODE.
 
-Since Warp 3 (fixpack 26?) OS/2 contains NLS support. 
-CACHEF32.EXE now calls this NLS support to create a CP to UNICODE translate 
-table during startup of your system.
+Since Warp 3 (fixpack 26?) OS/2 contains NLS support. CACHEF32..EXE
 
 Keep in mind that a table for only ONE codepage is loaded. Should you change
-codepages (using CHCP) you must rerun CACHEF32 to load a new table, but keep
-in mind OS/2 keeps different codepages per session so if you use CHCP to 
-change the CP that CP is only only valid for that session.
+codepages (using CHCP) you must rerun CACHEF32 to load a new table, but keep in
+mind OS/2 keeps different codepages per session so if you use CHCP to change the
+CP that CP is only only valid for that session.
 
 
-CLEAN SHUTDOWN & CHKDSK
------------------------
-If Windows 95 (OSR2) shuts down properly, the clean shutdown status of the
-disk is physically written on the disk. On next boot this state is checked,
-and if the disk is not shutdown properly, SCANDISK is run.
+OS/2 AND DOS SESSIONS:
+----------------------
 
-FAT32.IFS also supports this feature. When CACHEF32 is called from the 
-config.sys, it checks, via a call to the IFS the state of each FAT32 drive.
-For each drive that is not shutdown properly, CHKDSK is fired. If no errors 
-are found, or if only lost clusters where found and repaired, the drive is 
-marked ok. 
+In the initial release, long file names were only shown in OS/2 sessions, but in
+DOS sessions, the short filename equivalent was shown.
 
-If CHKDSK cannot solve the problem, the drive state is left dirty, and
-NO FILES CAN BE OPENED AND NO DIRECTORIES CAN BE ADDED OR REMOVED. 
-Shutting down the disk, leaves the disk marked as not properly shutdown.
-You should boot Windows 95 and run SCANDISK on the drive to fix the 
-remaining problems.
+However, this could lead to big problems.
 
-F32STAT however, allows you for set the drive status, bypassing the normal
-handling of FAT32.IFS. See the description of F32STAT for more information.
+Example:
+In an OS/2 session, directory \DevStudio was current, from a DOS session the
+directory \DEVSTU~1 could be removed since OS/2 did not know that DevStudio and
+DEVSTU~1 were in fact the same directories.
 
+The same problem could occur when opening files in both OS/2 and DOS. No proper
+multiuser handle would take place since OS/2 doesn't know that files with
+different names are the same.
 
-FREE SPACE
-----------
-On most FAT32 drives the amount of free space is stored. FAT32.IFS will only
-redetermine the amount of free space if:
-- The disk was marked dirty on boot;
-- The free space is set to -1 on the disk;
-- The free space is not available on the disk.
+To solve this problem I've done the following:
 
-FAT32.IFS will internally keep track of the free space and update it on disk 
-on shutdown.
+Via a setting, FAT32.IFS can be told to:
+Translate all long filenames internally to their short equivalences OR
+Use the long names internally, but hide all files or directories with long names
+from DOS sessions. This setting can be changed (on the fly) with CACHEF32.EXE.
 
+When using short names internally the following drawbacks occur:
+Current directory is shown as a short name (command line only)
+When deleting (long) files from the command line, the WPS doesn't pickup the
+deletions.
 
-PERFORMANCE
------------
-
-All of the code is in plain 16 bits C (All of OS/2's IFS's are 16 bits!). 
-No assembly language code is used.
-
-The MONITOR function takes a lot of time. Be sure to switch if off if you 
-don't need it.
-
-You should probably experiment with the CACHEF32 options to get the best 
-performance for your situation. 
-
-The default for the LAZY WRITER is idle-time priority (/P:1). 
-You'd might like to experiment with the /P option as well, especially if you
-have performance problems with FAT32.IFS.
-
-For best performance it is advised to keep the disk as defragmented as 
-possible. Use Windows 95 defrag to defrag the disk.
+When using long names internally the following drawbacks occur:
+Files and directories with long names are not visible in DOS sessions. However,
+this is the same as with HPFS.
 
 
-COMPATIBILITY WITH WINDOWS95
------------------------------
+LFN TRANSFERS ACROSS A LAN:
+---------------------------
 
-As far as I can tell, FAT32.IFS is fully compatible with the FAT32 support
-in Windows 95. VFAT longnames can be used and on my PC, Windows95 doesn't
-compain (anymore!) about long filenames I have created with FAT32.IFS.
-The numeric tailed short names also seem to work ok. (The numeric tail option
-cannot be switch off!)
+The FAT32 driver has nothing, at all, to do with the Windows machine serving up
+short file names to an OS/2 machine, across a LAN. That problem is still there,
+and it is caused by the Windows LAN support.
 
-File names are, as in Windows95, case preserving (in OS/2 sessions).
-Creating a name in lower case will result in the file having a VFAT longname,
-even if the name conforms to 8.3. The case will be preserved.
+In short: if the file operations are performed by a Windows machine on an OS/2
+machine, everything will go fine. Operations made by an OS/2 PC against Windows
+remote machines are likely to suffer problems with long file names. To be more
+precise:
 
-Last access dates are maintained by FAT32.IFS. 
-(but not the last access time since Win95 doesn't support it)
-You can see these when using the detailed view of the drive object.
+If you have Windows NT, Windows 2000, Windows XP or newer, your long file names
+(LFNs) are fully interoperable between eCS/OS2 and a Windows system over a
+network.
+
+If your Windows system is older than that (Windows 95, 98, and ME), you can work
+flawlessly with LFNs on a remote eCS/OS2 machine from the Windows PC; however,
+it doesn't work the other way round. I.e. the Windows remote machine will show
+LFNs to its other Windows pals in the network, but your eCS/OS2 machine will be
+served just short filenames instead.
+
+Why?
+
+This is because of how each PC on the LAN identifies itself and its capabilities
+to the other PCs in the network. eCS/OS2 says to the other machines it uses LM10
+for compatibility's sake, which makes win9x machines treat this one like it were
+DOS+W3.11 (i.e. no LFNs). According to IBM, it can do LM30 perfectly - but do
+NOT try to patch the binaries or you'll get a trap.  Oh well, this is just plain
+IBM's fault.
+
+OK, eCS/OS2 says it's LM10 and we can't blame Microsoft for that. However, other
+LAN eCS/OS2 pals have no difficulties whatsoever identifying the OS/2 behind
+this 'LM10' label and allowing LFN operation without trouble.
+
+As of 2003 Q2 there hasn't been a release of this patch for win9x networking (as
+a patch for the main OS network subsystem, perhaps it is in the form of some BM
+windows client for OS/2 peer or something, i.e. not from M$ themselves).
 
 
-EXTENDED ATTRIBUTES
--------------------
+EXTENDED ATTRIBUTES:
+--------------------
 
-General
--------
+Since version 0.70, FAT32.IFS supports EXTENDED ATTRIBUTES.
 
-Since version 0.70 FAT32.IFS supports EXTENDED ATTRIBUTES.
-
-For FAT32.IFS to support Extended Attributes /EAS MUST be specified after
-the IFS=....\FAT32.IFS line in the config.sys.
+For FAT32.IFS to support Extended Attributes /EAS MUST be specified after the
+IFS=....\FAT32.IFS line in the config.sys.
 
 Extended Attributes are implemented in the following manner:
 
-For each file or directory that has extended attributes a file is created 
-with a name that consists of the file or directory name the EAs belongs to 
-followed by ' EA. SF'. So if a file called 'FILE' has extended attributes 
-these attributes are stored in a file called 'FILE EA. SF'. 
+For each file or directory that has extended attributes, a file is created with
+a name that consists of the file or directory name the EAs belongs to followed
+by ' EA. SF'.  So if a file called 'FILE' has extended attributes, these
+attributes are stored in a file called 'FILE EA. SF'.
+
 These EA files are given the hidden, read-only and system attributes.
 
-FAT32.IFS will not show these files in a directory listing, but Windows 95 
+FAT32.IFS will not show these files in a directory listing, but Win9x and later
 can show them.
 
-The mark byte
--------------
+IMPORTANT:  Starting with version 0.97, CHKDSK /F must first be run on each FAT32
+partition before adding EA support to the FAT32 IFS driver. This step is required
+starting with this version due to the EA mark byte being changed for compatibility
+with WinNT family.
 
-Also, to speed things up a bit, each file having extended attributes is 
-marked by FAT32.IFS. For this mark an appearant unused byte in the directory 
-entry is used. The value for this byte is set to 0x40 for files having
-normal EAs, to 0x80 for files having critical EAs, and to 0x00 for files
-not having EAs at all.
+You can use F32STAT.EXE to run CHKDSK automatically on next boot by doing the following.
 
-(Please note that files with critical EAs can not be opened by programs
-no able to handle EAs, like DOS programs.)
+F32STAT.EXE x: /DIRTY
 
-This byte (directly following the files attribute) is not modified while
-running Windows 95 and neighter by SCANDISK or DEFRAG, but theoretically, 
-other programs running under Windows 95 could modify it.
+Where, x: is your FAT32 drive which has files with EA.
 
-If another program sets the value to 0x00 for a file that has EAs these EAs
-will no longer be found using DosFindFirst/Next calls only. The other OS2 
-calls for retrieving EAs (DosQueryPathInfo, DosQueryFileInfo and 
-DosEnumAttribute) do not rely on this byte.
+F32STAT.EXE supports only one drive at one time. So if you want to change the state
+of one more drive, you should run F32STAT.EXE, respectively. i.e., FAT32 drive is C: D:.
+You should run F32STAT.EXE two times for C and D as the following.
 
-Also the opposite could, again theoretically, occur. Files not having EAs 
-could be marked as having EAS. In this situation only the performance of
-directory scans will be decreased.
-
-Both situations however are checked and if necessary corrected by CHKDSK.
+F32STAT.EXE C: /DIRTY
+F32STAT.EXE D: /DIRTY
 
 
-The drawbacks 
--------------
+THE MARK BYTE:
+---------------
 
-Currently, the drawback of using Extended Attributes is that directory 
-scan performance has slightly decreased. 
+To speed things up a bit, each file having extended attributes is marked by
+FAT32.IFS. For this mark, an apparent unused byte in the directory entry is
+used. The value for this byte is set to 0x40 for files having normal EAs, to
+0x80 for files having critical EAs, and to 0x00 for files not having EAs at all.
 
-The overhead on opening or accessing individual files is hardly noticable.
+(Please note that files with critical EAs can not be opened by programs not able
+to handle EAs, like DOS programs.)
 
-If you do not really need extended attribute support then simply do not
-specify /EAS after the IFS line in the config.sys.
+This byte (directly following the files attribute) is not modified while running
+Windows and by neither SCANDISK or DEFRAG, but theoretically, other programs
+running under Windows could modify it.
 
-The advantages
---------------
+If another program sets the value to 0x00 for a file that has EAs these EAs will
+no longer be found using DosFindFirst/Next calls only. The other OS2 calls for
+retrieving EAs (DosQueryPathInfo, DosQueryFileInfo and DosEnumAttribute) do not
+rely on this byte.
+
+Also, the opposite could, again, theoretically occur. Files not having EAs could
+be marked as having EAS. In this situation only the performance of directory
+scans will be decreased.
+
+However, both situations are checked and if necessary corrected by CHKDSK.
+
+
+THE DRAWBACKS:
+---------------
+
+Currently, the drawback of using Extended Attributes is that directory scan
+performance has slightly decreased.
+
+The overhead on opening or accessing individual files is hardly noticeable.
+
+If you do not really need extended attribute support then simply do not specify
+/EAS after the IFS line in the config.sys.
+
+
+THE ADVANTAGES:
+----------------
 
 The advantages of FAT32.IFS supporting extended attributes are:
-- The WPS heavily uses EAS to store folder and file settings. Without EAS
-  the WPS will not remember settings across boots.
-- REXX .CMD files must be tokenized on each run, thereby reducing performance.
-  With EAS the tokenized version of the .CMD will be stored in EAs.
+The WPS heavily uses EAS to store folder and file settings. Without EAS, the WPS
+will not remember settings across boots.
+REXX .CMD files must be tokenized on each run, thereby reducing performance.
+With EAS the tokenized version of the .CMD will be stored in EAs.
+
+If you can live with the small loss in performance while doing directory scans,
+it is advised you specify /EAS after the IFS line in the CONFIG.SYS.
+
+If you do not really need extended attribute support, and you cannot accept the
+decrease in directory scan performance, then simply do not specify /EAS after
+the IFS line in the config.sys.
 
 
-If you can live with the small loss in performance while doing directory 
-scans it is advised you specify /EAS after the IFS line in the CONFIG.SYS.
+=================
+DRIVER INTERFACE:
+=================
 
-If you do not really need extended attribute support and you cannot accept
-the decrease in directory scan performance then simply do not specify /EAS 
-after the IFS line in the config.sys.
+IOCTL SUPPORT:
+--------------
+
+IOCTL calls (category 8) are now passed through to OS2DASD.  All calls supported
+by OS2DASD.DMD are now also supported by the IFS.
 
 
-IOCTL SUPPORT
+SUPPORTED FUNCTIONS:
+--------------------
+
+FS_ALLOCATEPAGESPACE:             No
+
+FS_ATTACH:                        No
+
+FS_CANCELLOCKREQUEST:             No, function is implemented in the KERNEL
+
+FS_CHDIR:                         Yes
+
+FS_CHGFILEPTR:                    Yes
+
+FS_CLOSE:                         Yes
+
+FS_COMMIT:                        Yes
+
+FS_COPY:                          Partly, unsupported actions are simulated by command
+                                  shell
+
+FS_DELETE:                        Yes
+
+FS_DOPAGEIO:                      No
+
+FS_EXIT:                          Yes
+
+FS_FILEATTRIBUTE:                 Yes
+
+FS_FILEINFO:                      Yes
+
+FS_FILEIO:                        No
+
+FS_FILELOCKS:                     No, function is implemented in the KERNEL
+
+FS_FINDCLOSE:                     Yes
+
+FS_FINDFIRST:                     Yes
+
+FS_FINDFROMNAME:                  Yes
+
+FS_FINDNEXT:                      Yes
+
+FS_FINDNOTIFYCLOSE:               Obsolete in OS/2 WARP
+
+FS_FINDNOTIFYFIRST:               Obsolete in OS/2 WARP
+
+FS_FINDNOTIFYNEXT:                Obsolete in OS/2 WARP
+
+FS_FLUSHBUF:                      Yes
+
+FS_FSCTL:                         Yes
+
+FS_FSINFO:                        Yes
+
+FS_INIT:                          Yes
+
+FS_IOCTL:                         Yes - LOCK ^ UNLOCK, others are passed to OS2DASD.
+
+FS_MKDIR :                        Yes
+
+FS_MOUNT:                         Yes
+
+FS_MOVE:                          Yes
+
+FS_NEWSIZE:                       Yes
+
+FS_NMPIPE:                        No
+
+FS_OPENCREATE:                    Yes
+
+FS_OPENPAGEFILE:                  No
+
+FS_PATHINFO:                      Yes
+
+FS_PROCESSNAME:                   Yes
+
+FS_READ:                          Yes
+
+FS_RMDIR:                         Yes
+
+FS_SETSWAP:                       No
+
+FS_SHUTDOWN:                      Yes
+
+FS_VERIFYUNCNAME:                 No
+
+FS_WRITE:                         Yes
+
+
+PERFORMANCE:
 -------------
-IOCTL calls (category 8) are now passed through to OS2DASD. All calls
-supported by OS2DASD.DMD are now also supported by the IFS.
+
+All of the code is in plain 16 bits C (All of OS/2's IFS's are 16 bits!). No
+assembly language code is used.
+
+The F32MON function takes a lot of time. Be sure to switch if off if you don't
+need it.
+
+You should probably experiment with the CACHEF32 options to get the best
+performance for your situation.
+
+The default for the LAZY WRITER is idle-time priority (/P:1). You might like to
+experiment with the /P option as well, especially if you have performance
+problems with FAT32.IFS.
+
+For best performance it is advised to keep the disk as defragmented as possible.
+Use Windows 9x or later versions defrag to defrag the disk.
 
 
-TROUBLESHOOTING
-===============
+==================
+TROUBLE SHOOTING:
+==================
 
-Should FAT32.IFS fail to work, please check the following:
+It seems like it is taking forever for the system to write to the removable drive
 
-- Is a new drive letter assigned ? (If not OS2DASD.DMD failed)
-  If not, tell me.
-- If you are not sure, try the /MONITOR parameter after FAT32.IFS,
-  and after reboot look with monitor for FS_MOUNT calls. Send me 
-  the results.
-- If a new drive letter is assigned, but FAT32.IFS fails,
-  please run DISKINFO and send me the output.
-- If you have a TRAP, please send me the CS:IP value of the trap.
+Disable the CACHEF32 by either remming out the CACHEF32.EXE statement in the config.sys
+file or by adding the following option /L:OFF to the CACHEF32 statement. One can
+temporarily disable lazywrite by going to a command prompt and typing CACHEF32.EXE /L:OFF
 
-If you have a program that doesn't work or returns errors, please run 
-monitor.exe while you execute the program. After the error has occured, 
-terminate monitor and send me a message describing what the problem is, as 
-detailed as possible and include the FAT32.LOG that was created by monitor.
+During installation, one or more of the packaged driver files fails to install
+
+If installing over an earlier version, check the attribute of the file(s) in
+question to make sure the files(s) attributes are not marked read only.  If this
+is the case, remove the read only attribute from the files and install again.
+If no FAT32 drive or partition is found, check the following:
+
+Did you reboot after applying the driver?  Since entries were made to the
+config.sys file, a reboot is necessary for the driver to be loaded.
+On LVM (Logical Volume Manager) systems, did you use LVM to create a compatibility
+volume and assign it a drive letter?  FDisk is no longer used on these systems.
+
+On a non-LVM system, did you use one of the Partition Support Packages for non-LVM
+systems? One of these packages is necessary in order for drive letters to be
+assigned to the FAT32 partition. If a new drive letter is not assigned,
+OS2DASD.DMD failed).
+
+If you are not sure, try the /MONITOR parameter after FAT32.IFS, and after reboot
+look with F32MON for FS_MOUNT  calls. Send the results to Netlabs.
+If a new drive letter is assigned, but FAT32.IFS fails, please run F32PARTS.
+If you have a TRAP, please send it with the CS:IP value of the trap.
+
+The FAT32 drive is found, but the operating system is unable to read or write
+to the drive
+
+Try runnng chkdsk <drive>: /F on the drive in question.  It could be that the
+drive still contains a dirty flag.
+
+In addition to being unable to read/write to the drive, OS/2 or eCS tells you
+the unit is 32Mb large or some other incorrect size
+
+Try creating a new Master Boot Record (MBR) with the partition tables erased.
+DFSee is a good program to do this.  If you have LVM, then create a new partition
+using it.  If you do not have LVM, then use OS/2s FDISK. to create the new partition.
+Remember, for non-removable hard drives using LVM, a compatibility volume must be
+created.  Unfortunately, this means that all data on the drive will be lost. Backup
+or copy your data and files to another drive.
+
+When you double click on the drive formatted FAT32, you get a pop-up that says
+"No objects were found that matched the specified find criteria" or "The drive
+or diskette is not formatted correctly."
+
+Try the two previous answers to see if this corrects your problem.
+
+Also, check out the sections dealing with REMOVABLE MEDIA for more possible
+solutions to the above problems.
+
+You do not use or own a version of Windows, so how can you format the partition
+FAT32
+
+ See FORMATTING FAT32 VOLUMES
+
+ You have EA support enabled, but EA support does not work properly
+
+If you are having trouble with using EA,s and you are running version 0.97 or later,
+run chkdsk <drive>: / F. Starting with version 0.97 and later, chkdsk must be run
+prior adding EA support.
+
+At bootup, you receive errors about file versions being different
+
+Check to make sure you don't have more than one copy of FAT32.IFS or CACHEF32.EXE
+on your system. Also, check to make sure you do not have files from different
+versions installed.
+
+During bootup, you receive a system trap
+
+The system detected an internal processing error at location ##1200:04ba
+- 0002:04ba.
+65535,9051
+FAT32:FSH_FORCENOSWAP on DATA Segment failed, rc=8
+
+068606a0
+Internal Revision 14.100c_W4
+
+If you receive an error message similar to this, try adding the /H option to the
+
+IFS=D:/OS2/BOOT/FAT32.IFS
+
+statement in the config.sys file and rebooting.
 
 
-SUPPORTED IFS FUNCTIONS
-=======================
-FS_ALLOCATEPAGESPACE    : No
-FS_ATTACH               : No
-FS_CANCELLOCKREQUEST    : No, function is implemented in the KERNEL
-FS_CHDIR                : Yes
-FS_CHGFILEPTR           : Yes
-FS_CLOSE                : Yes
-FS_COMMIT               : Yes
-FS_COPY                 : Partly, unsupported actions are simulated by 
-command shell
-FS_DELETE               : Yes
-FS_DOPAGEIO             : No
-FS_EXIT                 : Yes
-FS_FILEATTRIBUTE        : Yes
-FS_FILEINFO             : Yes
-FS_FILEIO               : No
-FS_FILELOCKS            : No, function is implemented in the KERNEL
-FS_FINDCLOSE            : Yes
-FS_FINDFIRST            : Yes
-FS_FINDFROMNAME         : Yes
-FS_FINDNEXT             : Yes
-FS_FINDNOTIFYCLOSE      : Obsolete in OS/2 WARP
-FS_FINDNOTIFYFIRST      : Obsolete in OS/2 WARP
-FS_FINDNOTIFYNEXT       : Obsolete in OS/2 WARP
-FS_FLUSHBUF             : Yes
-FS_FSCTL                : Yes
-FS_FSINFO               : Yes
-FS_INIT                 : Yes
-FS_IOCTL                : Yes - LOCK & UNLOCK, others are passed to OS2DASD.
-FS_MKDIR                : Yes
-FS_MOUNT                : Yes
-FS_MOVE                 : Yes
-FS_NEWSIZE              : Yes
-FS_NMPIPE               : No
-FS_OPENCREATE           : Yes
-FS_OPENPAGEFILE         : No
-FS_PATHINFO             : Yes
-FS_PROCESSNAME          : Yes
-FS_READ                 : Yes
-FS_RMDIR                : Yes
-FS_SETSWAP              : No
-FS_SHUTDOWN             : Yes
-FS_VERIFYUNCNAME        : No
-FS_WRITE                : Yes
+Your formatted FAT32 USB drive shows a drive no greater than 32GB although the drive is
+physically much larger.
+
+USBMSD.ADD only reads drive geometry from a device and reports to os2dasd. Unfortunately many
+new usb msd devices report CHS incorrectly or don't return it at all. CHS is the base of
+OS/2 geometry detection and if it is returned incorrectly then OS2DASD recalculates it
+to something strange. OS2DASD contains default CHS values and if you multiple them you
+receive 32GB. You need to replace your old OS2DASD with the latest one.  If this doesn't
+work, you can try Chris Wohlgemuth's USB driver (CWUSMSD.ADD).  CW recalculates geometry
+and reports the recalculated one and not really received from a device.
+
+During bootup, you receive a LINALLOC FAILED RC=32776 or other linalloc error message
+
+Starting with version 0.99, a /H option can be added to the FAT32.IFS statement
+in the CONFIG.SYS file to load cache memory into high memory.  This should eliminate
+any LINALLOC FAILED error that has previously been occurring.
+
+You prefer using one of the earlier versions of the FAT32 driver. What else can you
+do to get rid of the LINALLOC FAILED message?
+
+There are 5 things you can do:
+
+Just ignore the error message
+Don't use VFdisk
+Add the the statement EARLYMEMINIT=TRUE to the config.sys file.
+
+This setting allows device drivers, etc., access to the memory above 16mb early in
+boot. Previously, this was only available after Device Driver and IFS initialization
+was completed. This setting requires an OS2KRNL dated 2002 or later.
+
+Warning: This setting has various implications when enabled.
+
+ 1.Don't use with ISA cards with (busmaster-) DMA features.
+ 2.The Universal audio driver does not work with this setting (Trap 0008).
+ 3.AHA154X.ADD may do bad things to your system.
+ 4.There may be some settings of HPFS386 cache that are incompatible.
+
+Try lowering the cache setting to 1034 MB or 512MB in the IFS=FAT32.IFS statement
+found in the config.sys
+
+Add the following VDisk setting to the config.sys file.
+
+DEVICE=<PATH>\VFDISK.SYS 0
+
+where "0" loads VFDisk as an "Ejected drive".
+
+With this setting, vfdisk loads the driver into memory, but doesn't reserve memory
+for a virtual floppy.  When one needs a virtual floppy, then use the control object
+"vfctrlpm.exe" to make one.
+
+To start your virtual disk automatically on startup, you can make a program object
+of the "VFCTRL.EXE" program object and move the program object to the Startup folder.
+Right click the "VFCTRL" program object and in its parameters field put the
+drive: <media type>.
+
+Example:  S: 4
+
+A second way to do this would be to add VFCTRL.EXE drive: <media type> to the
+STARTUP.CMD found in the systems root directory.
+
+Example:  VFCTRL.EXE S: 4
+
+A third way would be to add
+
+CALL=<path>\VFCTRL.EXE drive: <media type>
+
+to your CONFIG.SYS.
 
 
-HISTORY
-=======
+Example:  CALL=C:\OS2\VFCTRL.EXE S: 4
 
-Version 0.10  - Initial Version
-
-Version 0.20 
-- Cache routines have been improved for performance. Removing 'old' sectors
-  from the cache is no longer needed. /T option for CACHEF32 has been 
-  removed.
-
-- CHKDSK: Is now able to fix incorrect free space count.
-- CHKDSK: Lost cluster fix algoritm has been improved for performance.
-- CHKDSK: Didn't recognize bad-sectors, has been fixed.
-- CHKDSK: Had problems with recognition of some type of free clusters,
-          has been fixed.
-- OS2DASD.DMD: Is now based on the latest version. (December '97)
-
-Version 0.30
-
-- Added PARTFILT.FLT to the archive.
-- Added support for ReadOnly partitions. This is needed for PARTFILT.
-- IOCTL Calls (category 8) are now passed throught to OS2DASD.
+Note:  VFDISK.SYS assigns the drive letter without input from you.  As a result,
+you will need to determine what drive letter VFDISK.SYS assigns before doing the
+above three examples.
 
 
-Version 0.40
-- The volume label was retrieved from the boot sector. However Win95
-  actually stores the Volume label in the root directory. The Volume label
-  now is taken from the root directory.
-  Also, the label can be set now. (The boot sector is however still updated)
+VFDISK Media Type
 
-- /Q switch of PARTFILT didn't work. Now it does.
+0 Ejected Drive
 
-- A problem was in CHGFILEPOINTER that could (theoretically) lead to an
-  trap (FAT32: FS_WRITE: No next cluster available").
+1 1.44 Mb 3.5" Floppy
 
-- Corrected a logical error where renaming a file or directory to an existing
-  directory caused the file or directory to be moved into the target 
-  directory. Now FAT32.IFS returns an error.
+2 1.20 Mb 5.25" Floppy
 
-- Changed CHKDSK so that if an error is found in on of the FATs CHKDSK 
-  continues, but ignores the /F switch. Previously, CHKDSK would not do any
-  additional checks.
+3 720 Kb 3.5" Floppy
 
-- Renaming a file or directory from the workplace shell didn't work because 
-  of two problems: 
-    - the WPS uses a strange algoritm to determine if the IFS supported
-      long file names which appearantly failed with FAT32. 
-      This has been corrected.
-    - FAT32.IFS does not support EA's (yet), the WPS renames a file, tries
-      to write EAs and since that fails renames the file back again.
-      Now FAT32 returns NO_ERROR on the call used to write EAs.
+4 2.88 Mb 3.5" Floppy
 
-- CHKDSK now is able to fix cross-linked clusters on the disk.
-      
-Version 0.41
+5 360 Kb 5.25" Floppy
 
-- Fixed a problem with numeric tails shortnames. Files alway got ~1 instead
-  if an incrementing number. Has been fixed.
+6 1.84 Mb 3.5" Floppy
 
-Version 0.50
 
-- Fixed a problem where files with longnames could sometimes not be found
-  which lead to duplicate filenames.
-- Fixed a problem where scandisk would claim that a directory created by
-  FAT32.IFS contained invalid blocks.
-- Fixed a (BIG) problem with files or directories with long names where
-  if such a file was opened in a DOS session and in an OS/2 session 
-  simultaniously OS/2 was unable to see that the same file was opened.
-- Fixed a problem where read-only executables could not be run.  
-- Fixed a problem where the algoritm used to determine the highest available
-  cluster number was incorrect.
-- Fixed a problem were CHKDSK was unable to fix cross-linked files.
-- Since some people complained that FAT32 would sometimes hang, 
-  I have modified the internal semaphore mechanism so an error message will
-  appear if a semaphore remains blocked for more than a minute.
+Note:  If you have a program that doesn't work or returns errors, please run
+F32MON.EXE while you execute the program. After the error has occurred, terminate
+F32MON and send a message describing what the problem is, as detailed as possible,
+and include the FAT32.LOG that was created by F32MON to Netlabs or the Yahoo
+FAT32USER group.
 
-Version 0.51
-- Did a lot of work on Lazy write performance. Cache access is no longer
-  protected with a semaphore but with a per sector inuse flag.
-- Fixed a problem that caused INSTALL and MINSTALL to abort when FAT32.IFS
-  was loaded. The problem had to do with argument checking with FS_IOCTL 
-  calls.
-- Fixed a problem that BRIEF, a populair editor under OS/2, trapped or hung
-  itself. The problem had to do with returning improperly formatted 
-  information when querying EAs (FAT32.IFS does not support EAs!)
-- Corrected a serious problem when a single file was opened more than once 
-  and the file was modified using one of the instances. The other instance(s)
-  didn't pick up the changes and FAT32.IFS might trap. 
+
+========
+HISTORY:
+========
+
+-----
+Version 0.9.13
+
+Fixed the problem that a program trying to READ/WRITE from/to memory object
+ with OBJ_ANY attribute is crashed. With fix, READ/WRITE performance is decreased.
+Fixed the problem that CACHEF32.EXE prints 'Unicode translate table for xxx
+ loaded' even though '/S' is specified.
+Clarified that messages of CACHEF32.EXE are related to FAT32.
+Improved lazy-write performance.
+
+-----
+Version 0.9.12:
+
+Fixed the problem that CACHEF32 is crashed after calling CHKDSK for dirty
+ volume.
+Fixed the problem the regonition of USB removable media takes very long time
+ when inserting it since 0.9.11.
+ This is because FAT32 always calculates free space on mount. Now, FAT32
+ calculates free space only if /CALCFREE specified or free space info was not
+ stored on disk.
+Fixed the trap when removing USB removable media without eject.
+Improved Read/Write performance. By Lars.
+
+*** Known Problems ***
+
+When using USB removable media with other OS such as Windows, free space can
+ be incorrect. At this time, you should use 'chkdsk' to correct it or
+ '/CALCFREE' to avoid it.
+
+VERSION 0.9.11
+
+Fixed non-recognition problem of USB removable drive change.
+Fixed "free space" problem.
+Fixed some minor warnings such as "non used variable" on compilation.
+
+Known Problem: Somtimes the pending flush state of a few sectors is not cleared.
+You can see this by report of CACHEF32.  Even though any dirty sector is not there, pending sector
+exist. However, this has no effect on the functionality of IFS.
+
+Version 0.9.10:
+
+Ejection of removable media caused a dirty flag on removable drive. Fixed.
+Problem of driver trying to read from marked bad sectors on drives. Fixed
+Trap with RM. Fixed
+Changed version numbering style to major.minor.patch level style.
+Removed beta symbol.
+Filename including NLS characters not converted to unicode by OS/2,
+Caused 'lost cluster' problem. fixed.
+Added IOCTL function to write in sector mode.
+
+Version 0.99:
+
+CACHEF32.EXE caused a continuously beep if a copy of CACHEF32.EXE was already
+loaded and the current CP was different from a copy of FAT32 IFS. Fixed.
+Case conversion of national characters worked only for ASCII below 128.
+Introduced in version 0.98b. Fixed.
+Sometimes copies of the FATs did not match each other or 'lost cluster'
+occurred after copy operation with cache enabled. Fixed (maybe workaround ?).
+Unfortunately, cache performance is decreased as a result.
+Replaced legacy DBCS APIs with ULS APIs.
+Added /H option to FAT32.IFS to allocate cache memory in high memory (>16MB).
+This should take care of the 'linalloc' problem.
+Added /F option to CACHEF32.EXE to force CACHEF32.EXE to be loaded without
+any FAT32 partition. Hopefully, this option can help people who use removable
+media formatted FAT32.
+Added a feature to clear fForceLoad flag to '/N' option of CACHEF32.EXE.
+FAT32.IFS process parameters are no longer case sensitive.
+
+Version 0.98:
+
+Fixed TranslateName() to support FAT32 variation of WinNT family.
+Fixed FS_PATHINFO to support level 7 correctly.
+Both /FS and /FL option are not supported any more.
+Added 'Directory Circularity Check' for FS_COPY and FS_MOVE in case of mixed
+path of short and long name.
+Added /CP option to CACHEF32.EXE to specify codepage in paramter.
+
+Version 0.97:
+
+The partition support packages, PARTFILT.FLT and OS2DASD.F32, for non-LVM
+systems have been removed from the FAT32.IFS driver package.
+Renamed the following files to:
+-F32MON.EXE   (formerly MONITOR.EXE)
+-F32PARTS.EXE (formerly DISKINFO.EXE)
+Why? By renaming these files, you will know they are all part of the FAT32
+distribution, AND you see them all grouped no matter what you use to browse your system.
+The FAT32.INF file has been revised with a different format and more information.
+There was error in the shutdown routine of FAT32 main source which was unintentionally
+added when DBCS support was added. Fixed.
+The possibility existed that files created by any system of the WinNT family such as
+Win2X and WinX could be recognized as having Extended Attributes by the FAT32 driver. Fixed.
+Changed EA mark byte for compatibility with WinNT family.
+Driver now supports 8.3 names whose name and ext part are all lower case and created
+by WinNT family.
+
+IMPORTANT:  Starting with version 0.97, CHKDSK /F must first be run on each FAT32
+partition before adding EA support to the FAT32 IFS driver. This step is required
+starting with this version due to the EA mark byte being changed for compatibility
+with the WinNT family.
+
+Version 0.96:
+
+Changed the maximum value of RASECTORS from sectors per cluster times 4 to 128.
+Fixed TRAP on accessing FAT32 partition having 32k cluster.
+Now FAT32.IFS does not mount FAT32 partition having >32k cluster.
+The DBCS [0xHH5C] code and [1 byte-katakana] was not changed correctly. The 1st
+byte code of DBCS contained in SBCS caused the conversion which is not
+right. Fixed. (Previously undocumented).
+
+Version 0.95:
+
+FAT32.IFS now supports DBCS, especially Korean, correctly.
+Fixed 'unsigned' overflow problems.
+When both /FS and /EAS are enabled, MOVE and REN command don't process EA files
+correctly. Fixed.
+When /FL(default) is enabled, FillDirEntry doesn't recognize 8.3 name pointing
+to the same file as long name.
+When /EAS is disabled, FAT32.IFS now pass empty EA.
+Changed UFAT32 to find volume labelFAT32 in ROOT directory not in bootsector.
+Changed UFAT32 to report 'file allocation error' as long name.
+Added FSCTL function to get short name from long name.
+When /FS is enabled and a target file already exists, COPY and MOVE command names
+a target file to the short name of the existing file. Fixed.
+Fixed bug of 'Dest check routine' in FS_COPY.
+Fixed a potential problem in FS_MOVE.
+Fixed a problem of CACHEF32.EXE with restarting lazy write deamon after quiting
+it on CMD.EXE.
+Added /Y to assume 'Yes' for CACHEF32.EXE
+Added /S to prevent CACHEF32.EXE from displaying normal messages.
+
+Version 0.94:
+
+Fixed a problem CHKDSK had when finding bad sectors.
+Fixed a problem when running in 'Internal Shortname mode' that long files were
+not found.
+
+Version 0.93:
+
+Modified the way CHKDSK detected a bad cluster.
+When the disk was dirty, CHKDSK was unable to rename a lost EA file to a proper
+file. This has been fixed.
+FAT32.IFS now sets the archive attribute. It didn't before.
+Messed about a bit with the cache and lazy write handling.
+Rewrote UFAT32.DLL to utilize a IOCtl call to read sectors
+
+Version 0.92:
+
+When a FAT32 volume was not shut down properly the IFS did not allow files to be opened.
+This caused device drivers etc during shutdown not being loaded from a FAT32 volume. Now
+FAT32.IFS allows files to be read from a dirty volume.
+When a directory was moved the .. entry in that directory was not updated to point to
+the proper parent directory. This has been corrected.
+CHKDSK checked for extended attributes even when /EAS was not specified after the IFS
+line in the config.sys.
+CHKDSK contained an error that when checking subdirectories sometimes (rare) the incorrect
+name (the longname of the previous directory entry) was used. This lead to claimed missing
+extended attributes for non-existing files.
+(the longname of the previous directory entry) was used. This lead to claimed missing
+extended attributes for non-existing files.
+Modified the output of CHKDSK somewhat. Also, when the output is redirected to a
+file, the progress percentages are suppressed.
+
+Version 0.91:
+
+Got a report that FAT32.IFS ignored the fourth character of the extention. Looking for
+the cause I found that FAT32.IFS created incorrect short name equivalents for files with
+a four character long extention. In that specific case the fourth character was ignored
+when creating the shortname. The effect was that e.g. a file called file.1234 and file.1235
+ended up having the same shortname. FAT32.IFS now no longer exhibits this behaviour, but
+you still might have double shortnames in the same directory on your disk. I don't think
+SCANDISK detects this problem. Please note this could only have happened with files having
+an extention of four chars for which all chars except the fourth extention char were equal.
+To check this, set FAT32.IFS to use short names internally (CACHEF32 /FS), and in a DOS
+session do a DIR command. If you detect any duplicate names, switch back to an OS/2 session
+and rename one of these files to another name and then rename it back to the original name.
+do a DIR command. If you detect any duplicate names, switch back to an OS/2 session and
+rename one of these files to another name and then rename it back to the original name.
+Modified the calling of the strategy2 calls. Now FAT32.IFS no longer request confirmation
+per individual sector. This fixes the problems with AURORA. The problem with AURORA (Warp
+Server for eBusiness) FAT32.IFS was experiencing was caused by a bug in the Logical Volume
+Manager that did not properly confirm individual requests. Since FAT32.IFS now no longer
+depends on this individual confirmation the bug is no longer relevant. BM did confirm this
+bug to me (October 1999) and promissed it would be solved in the next fixpack.
+Introduced a separate thread (from CACHEF32.EXE) that runs at time critical priority.
+The thread is awakened whenever the cache runs full with dirty sectors and takes care of
+flushing these dirty sectors.
+Corrected a problem with Extended Attributes when a file had very large extended attributes
+(almost 65536 bytes) the system would trap.
+Corrected a problem when a sector towards the end of the disk was read. Due to the
+read-ahead function 1 sector too far was read and the read failed.
+Noticed that the diskspace under DOS was not correctly returned. The fake clustersize was
+too small to actually report the correct disksize for disks smaller then 2.1 Gb.
+Until this version, the strategy2 routines did not set the flag to request the disk
+controller to cache the request on the outboard controller. I did not set this flag
+since it didn't seem to matter on my own machine. However, this version has the flag
+set since some of you might profit from this setting and experience better performance.
+Enlarged maximum amount of data that is flushed (when lazy writing is used) to 64 Kb.
+Hopefully, this will increase performance for those disk controllers that do not have
+the on-board cache enabled.
+Did an effort to solve the problem when a cluster chain becomes improperly terminated.
+FAT32.IFS simply ignores the problem now and assumes end of file. CHKDSK (UFAT32.DLL)
+detects and corrects this problem.
+
+Version 0.90:
+
+Found some problems with FS_COPY. If FS_COPY was copying a file the target file was
+not protected from being deleted or renamed in another session.
+Noticed that I had the default cache size incorrectly set to 128 Kb.
+Modified it to 1024 kb and added a warning message if no /CACHE argument is present.
+FS_COPY didn't check if source and target where on the same partition. (I incorrectly
+assumed OS/2 did this check.). Now FS_COPY doesn't try to handle the copy when source
+and target are on different drives. This way the copy is done by OS/2 itself.
+Modified the way data is written from the cache to disk. Instead of instructing the
+Device Driver to write data directly from cache to disk, the data is now first copied
+to another memory area thereby releasing the data in the cache a lot sooner. This way
+the IFS does not have to wait for the device driver to finish before a specific sector
+in cache is  available again. The drawback is that this makes FAT32.IFS to use more
+(physical) memory. With a cache size of 2048 Kb, an additional 480 Kb is allocated.
+With smaller cache sizes the additional data reduces relatively. (a cache size of
+1024 Kb leads to an additional memory allocation of 240 Kb)
+Never had any error handling (message) in the routine that is called by the device
+driver to notify completion of the strategy2 request list. This version has it. This
+is mainly to get more light on FAT32.IFS and aurora.
+
+Version 0.89:
+
+FS_SHUTDOWN is called twice by the kernel. The first one is to signal begin of
+shutdown and the second to signal the end. FAT32.IFS flushed its internal buffers
+on the 2nd call. This has been modified so FAT32.IFS now flushes on the first call.
+second to signal the end. FAT32.IFS flushed its internal buffers on the 2nd call.
+This has been modified so FAT32.IFS now flushes on the first call.
+I've had a report from someone with a problem where the drives where mounted after
+CACHEF32 had queried CACHE settings. Since the cache is allocated on first mount
+this didn't work. I have added a call to force the drives to be mounted before
+CACHEF32 queries the cache settings.
+Fixed a small division by zero in CACHEF32 when the cache was zero sectors large.
+Fixed the 'cannot find message file' problem in CACHEF32.EXE.
+Some users keep having troubles with 'error cannot find SH". Just for myself added
+the filename there.
+Replaced an internal call (FSH_PROBEBUF) by a DevHelp call.
+Fixed a trap I got due to a reentrancy problem in my memory allocation routines.
+Changed the way data is kept per open file instance because I have received some
+reports from users that they got a 'ERROR: Cannot find the IO!" message.
+FAT32.IFS had its code segments marked as EXECUTEONLY. Now AURORA doesn't seem to
+like that and traps. The code segments are no longer marked this way but as
+EXECUTEREAD.
+
+Version 0.88:
+
+DISKINFO still didn't show partitions inside an extended partition type F.
+Fixed a potential problem in the lazy write routines. This could lead to sectors
+not being written when they should have. (have never seen it though)
+Made it work with Fixpack 10. (FP10 made FAT32.IFS trap)
+
+Version 0.87:
+
+Modified the internal memory usage somewhat. Some allocated segments are marked
+unswappable now.
+Modified FS_DELETE to return ERROR_ACCESS_DENIED whenever this call was used
+for a directory. Previously, FAT32.IFS return ERROR_FILE_NOT_FOUND.
+Modified CACHEF32.EXE so it will also run if UCONV.DLL cannot be loaded. If that
+is the case, no UNICODE translate table will be loaded.
+Solved a problem when a file was rename when on the case mapping was changed.
+If the file had extended attributes the rename failed and the EA was lost.
+
+Version 0.86:
+
+Always thought that it was not allowed to the directory bit set in DosSetPathInfo
+and therefor I rejected calls with this bit set. I was wrong. Now DosSetPathInfo
+accepts the directory bit set (for directories only).
+AModified partfilt so it will also scan partitions inside a extended type F
+partition (partfilt is now on version 1.08). Modified DISKINFO.EXE to do the same.
+A Noticed some problems when a file was opened multiple times. The directory
+information was not always updated properly. Also, the attribute of a open file
+was kept per instance instead of only one time for all open instances of a file.
+So using DosSetFileInfo on one instance was not noticed by other instances of a
+file.
+
+Version 0.85:
+
+A user pointed me at the problem that ReadOnly files cannot be renamed.
+This problem has been corrected.
+Corrected a problem whenever a non-existing file was opened. If later the file
+was created this could lead to a trap (at least in theory: I haven't seen it nor
+heard it actually occured)..
+Changed PARTFILT again. Whenever a hidden partition type was specified partfilt
+also virtualized the unhidden type. So if /P 16 was specified, both types 16 and
+6 were virtualized. This could lead to unwanted results.
+
+So I modified the mechanism again. Now - if /A is not used - only the types
+specified after /P are virtualized. (The /A switch controls whether or not to
+virtualize all partitions.)
+
+PARTFILT always unhides the partitions it virtualizes.
+
+For the partition types PARTFILT virtualizes the following rules apply:
+
+Normal partition types (types 1, 4, 6, 7, but also 11, 14, 16 and 17) are
+reported to OS/2 with their actual -unhidden- partition type.
+
+Any other partition types specified after /P are reported as un-hidden IFS
+partitions. Any other partition types NOT specified after /P are reported
+as their actual -unhidden- type.
+
+Keep in mind that if you specify /A you must also use the /M argument to tell
+PARTFILT which partitions you want to mount.
+Also, whenever /A is specified with PARTFILT /W is automatically set. Otherwise,
+OS/2 will not boot at all.
+CACHEF32.EXE did not properly handle the /P:x argument when specified in
+CONFIG.SYS. The argument was lost. This has been fixed.
+
+Version 0.84:
+
+Got a message from someone complaining that the change in PARTFILT made
+him loose the ability to mount hidden 'normal' partitions since PARTFILT
+presented all partition types as IFS. Now PARTFILT show normal partitions
+by their actual types and only not-by-OS/2 supported types as IFS partitions.
+to mount hidden 'normal' partitions since PARTFILT presented all partition
+types as IFS. Now PARTFILT show normal partitions by their actual types and
+only not-by-OS/2 supported types as IFS partitions.
+Increased performance for accessing large files by keeping track of first
+and last cluster for each open file, and even the current cluster for each
+open instance.
+Removed the limit for the maximum number of open files.
+Fixed a problem in my internal memory (sub)allocation routines that lead
+to various problems. This became more clear since FS_OPEN now also uses
+malloc to allocated memory per open file. Problems I encountered were
+trap D's and internal fatal messages.
+Changed the way MONITOR works. Introduced a 'trace mask'. See MONITOR above.
+
+Version 0:83:
+
+Replaced the translate mechanisme that was introduced in version 0.75
+by a mechanisme where CACHEF32.EXE on first load calls the native OS/2
+NLS support to create a default translate table between the current
+codepage brand unicode. This should work better for some NLS versions
+of OS/2.
+Added a switch to CACHEF32 to dynamically change the priority of the
+lazy write thread. The default priority is still idle-time, but this
+can be changed to a higher priority.
+Did experiment a bit with lazy writing in general. In my own system
+it improved performance somewhat.
+Corrected a problem in PARTFILT where whenever a HIDDEN partition type
+was specified after /P this didn't always work properly. Now when a
+hidden partition type is specified, the unhidden type is also handled
+by PARTFILT.
+
+Version 0.82:
+
+Changed a bit in the algoritm for making a short name for a file with
+a longname (again). Now filenames starting with a dot are handled better.
+Changed the (internal) memory handling routines to use more then one
+selector so I could use this for FindFirst/Next handling instead of
+allocation one selector per FindFirst/Next call. This was neccessary
+because a DOS session can fire a lot of FindFirst calls only for
+checking existence of files. Before the modification FAT32.IFS could
+run out of memory after say a couple of hundred FindFirst calls.
+(I found that OS/2 itself doesn't allow a DOS session to fire more
+than around 500 FindFirsts. After that OS/2 starts reusing find handles.)
+I encountered this problem when trying to unarj the Novell Netware client
+2.12 on my FAT32 disk.
+
+Version 0.81:
+
+Noticed that when FS_FILEINFO was used to set the date/time on a file
+as only action the date/time was not updated. Corrected.
+In version 0.66 I removed the setting of the attribute using DosSetFileInfo.
+As I found out, I was wrong. Now DosSetFileInfo from 32 bits programs sets
+the attribute. From 16 bits programs however, this doesn't seem to work on
+FAT, HPFS and FAT32. Don't know why.
+
+Version 0.80:
+
+Rewrote the strategy2 routines so more than one request list can be fired
+per volume. Hope this improves performance.
+Corrected a problem with FS_COPY that failed if the target file was zero
+bytes large.
+Corrected a problem with DosOpen with the Truncate flag set and when the
+target file already existed and had EAs. The open failed, but the file was
+truncated and a lost cluster was created.
+Created PARTFILT.TXT file about PARTFILT and DISKINFO.
+Implemented an version check between the IFS and UFAT32.DLL (for CHKDSK)
+and CACHEF32.EXE.
+
+Version 0.79:
+
+Rewrote the emergency flush routine so it will handle multiple FAT32
+partitions better.
+Made some minor modifications in UFAT32.DLL (For CHKDSK).
+A trap was solved when an EA file could not be repaired
+An error in the longname retrieval routine was fixed
+Output is matched more closely to HPFS and plain FAT.
+
+Version 0.78:
+
+Corrected a TRAP that could occur when the cache is full with dirty sectors
+and the oldest dirty single sector was flushed using a single flush routine.
+The trap message was 'WriteCacheSector: VOLINFO not found!'. This problem
+only occured when more than 1 FAT32 partition is present.
+Corrected a problem with UFAT32.DLL when checking directories containing
+more than 2048 files. (CHKDSK reported lost clusters, but was wrong)
+Corrected another problem with UFAT32.DLL that occured when there is not
+enough memory available to check large directories. UFAT32 would abend
+with an access violation.
+Corrected a problem with DosOpen when on Opening an existing file with only
+the FILE_CREATE (OPEN_ACTION_CREATE_IF_NEW) bit set (and not the FILE_OPEN flag)
+the file was created while the open should fail.
+Corrected a problem that the characterset translate tables would be
+overwritten internally leading to all kinds of funny results.
+(Duplicate directories etc)
+Modified the default behaviour of FAT32.IFS and for the /T option for
+CACHEF32: No character translation takes place. This works for situations
+where Windows and OS/2 use the same codepage.
+
+Version 0.77:
+
+Corrected a problem when more than 512 lost chains were found.
+(CHKDSK can only recover 512 lost chains at one run)
+Corrected a problem in OS/2 sessions (introduced in version 0.75)
+where valid 8.3 filenames in lowercase where always stored in uppercase.
+
+Version 0.76:
+
+Corrected a NASTY BUG that lead to loss of data when multiple files were opened.
+
+Version 0.75:
+
+Added a check for valid EA names.
+Added a translation mechanism for long filenames between the Windows Character
+set and OS/2 character set. See: WINDOWS ^ OS/2 CHARACTER SETS for more
+information.
+
+Version 0.74:
+
+Corrected a problem with DosFindFirst/next when the buffer wasn't large
+enough for the extended attributes and FAT32.IFS returned ERROR_EAS_DIDNT_FIT
+when more than one entry was placed in the resultbuffer. Now FAT32.IFS returns
+this error only if the EA's of the first matching entry don't fit in the buffer.
+(This error lead to the WPS giving an error that no matching entries were found
+on opening of a directory)
+
+Version 0.73:
+
+Using DosSetPathInfo, it was possible to create an EA file for a non
+existing file. This lead f.i. to a ' EA. SF' file in the root directory.
+This problem has been corrected.
+Changed a bit in the algoritm for making a short name for a file with
+a longname.
+
+Version 0.72:
+
+Forgot build in the EA logic for creating and removing directories. Has
+been added.
+
+Version 0.71:
+
+EA's were not found from DOS sessions. Now this is hardly a problem since
+DOS programs never access EA's, but EAUTIL can be used in DOS sessions,
+and didn't work. Now it does.
+There was another problems with finding EAs when FAT32.IFS was set to
+the mode in which internally short names were used (CACHEF32 /FS). Now
+this seems to work properly.
+
+Version 0.70:
+
+Most significant change is the implementation of EXTENDED ATTRIBUTES.
+Currently they will only be supported if /EAS is specified after FAT32.IFS
+in the config.sys. Please read the chapter about extended attributes.
+be supported if /EAS is specified after FAT32.IFS in the config.sys. Please
+read the chapter about extended attributes.
+Corrected a small problem where a whenever a short name had to be created
+for a longer name containing any embedded blanks in the name FAT32.IFS left
+the blanks in, while Win95 skips them while creating the shortname. This lead
+to SCANDISK reporting incorrect long file names. (When correcting this problem
+the short name was modified by SCANDISK.) Now FAT32.IFS does the same as
+Windows 95.
+Received a report that FAT32.IFS failed allocating the cache space. Modified
+FAT32.IFS so it will no longer trap on such a situation, but will continue to
+run (without a cache - slow!)
+Received a report about a possible memory leakage problem in FAT32.IFS.
+Changed CACHEF32.EXE so when run, it will show the number of GDT selectors
+currently allocated for FAT32.IFS.
+
+Version 0.66:
+
+DosSetFileInfo returned an error (ERROR_INVALID_LEVEL) when trying to write
+Extended attributes. Now FAT32.IFS reports NO_ERROR (But still doesn't write
+the EA!). This makes f.i. that the installation of the OS/2 Netscape
+pluginpack now works properly.
+Corrected a problem with FindFirst/Next where the check on required buffer
+space was incorrect. Some programs (Slick Edit) failed doing a directory scan.
+This has been fixed.
+ Modified the behaviour of DosSetFileInfo so that it will only set date/time
+values in the directory. Before DosSetFileInfo also set the attribute, but I
+found that this also doesn't work on HPFS, so I modified the behaviour.
+Modified the default MONITOR logging so that (almost) all FS_XXXX calls are
+shown with the return values given.
+
+Version 0.65:
+
+Files with valid 8.3 lowercase filenames where returned by findfirst/next
+in DOS sessions in lowercase as well. Some programs don't like that. Now
+findfirst/next in DOS sessions always returns an uppercase name. (This
+problem only occured when LFN's were hidden to DOS.)
+Corrected a problem where while filling the buffer for FindFirst/Next too much
+data was initialized (due to using strncpy) and data was overwritten. This was
+most appearant with OS/2 Commander that trapped on a FAT32 directory with
+many files.
+
+Version 0.64:
+
+Again a problem with CHKDSK, this time the file allocation check failed if
+there were more than 65535 clusters assigned to a file.
+FAT32.IFS now reports fake cluster sizes and total and free cluster counts
+whenever a DOS session queries free space. The maximum cluster size returned
+has been set to 32 Kb and the maximum for total and free clusters is 65526
+clusters so the maximum disk size in dos is reported as almost 2Gb.
+Encountered (and fixed) a trap that occured whenever a volume was flushed
+via a explicit call and there were still dirty sectors in call. It occured
+in code I changed in version 0.60 and this was the first time I trapped on
+it, so the combination of factors appears unlikely.
+Modified FS_CHGFILEPTR so negative seeks will be handled properly and
+build in logic to not allow files to grow bigger then 2Gb.
+Uptil now I ignored the MUST_HAVE_XXX settings for directory scans since
+I assumed they were not used. Some users reported files beeing show twice
+in some application so: I stand corrected and so is FAT32.IFS.
+Corrected a potential problem where (theoretically) files could be given
+a directory attribute.
+Changed the algorythm used when no large enough contiguous FAT chain is
+available and the FAT chain has to be constructed from various chains. Before
+the change an algoritme searching for individual free clusters was used. Now
+FAT32.IFS searches the largest free chain assigns it and then searches for
+the next largest free chain until a chain long enough is created. This is
+still not very fast, but will only really occur if the disk is rather
+full and very fragmented.
+
+Version 0.63:
+
+Finally understood why CHKDSK failed on very large disks. UFAT32.DLL accesses
+the disk using DosOpen with OPEN_FLAGS_DASD. In that mode default behaviour is
+that the disk is accessed using physical byte offsets from the beginning of the
+(logical) disk. Now since the maximum value in a 32 bit integer is 2^32 this
+value divided by 512 was the maximum sector that could be read (= sector
+8388608 = 4Gb disk size maximum). Now UFAT32 uses the same trick as HPFS uses,
+via a call to DosFSCtl disk access is switched to sector mode so 2^32 sectors can
+be accessed. This means CHKDSK can (theoretically) check disks upto 2048 gigabytes.
+
+Version 0.62:
+
+Corrected a bug that lead to a disk full message when a file was rewritten
+(for instance with E.EXE) and the new size was just a couple of bytes more
+then to old size. Problem was result of the logic change in FS_NEWSIZE.
+Oops: Forgot to update the version number in version 0.61.
+
+Version 0.61:
+
+Changed some logic in the dirty buffer flush mechanism.
+Changed some logic in the FS_WRITE and FS_NEWSIZE functions.
 
 Version 0.52
-- Didn't handle closes from child processes that inherited open files 
-  properly so the final close would fail.
+
+Didn't handle closes from child processes that inherited open files
+properly so the final close would fail.
 
 Version 0.60:
 - Changed the algoritm to detect EOF in the FATs since MS appearantly uses
@@ -716,591 +2210,282 @@ Version 0.60:
   This has resulted in an increase of performance during write to disk.
 - Changed CHKDSK to accept an /V:1 argument to only show fragmented files,
   while /V[:2] also lists all files.
-- Made it possible that renaming a file to a new name where only the 
+- Made it possible that renaming a file to a new name where only the
   case was changed worked.
 
-Version 0.61:
-- Changed some logic in the dirty buffer flush mechanism.
-- Changed some logic in the FS_WRITE and FS_NEWSIZE functions.
-
-Version 0.62:
-- Corrected a bug that lead to a disk full message when a file was rewritten
-  (for instance with E.EXE) and the new size was just a couple of bytes more
-  then to old size. Problem was result of the logic change in FS_NEWSIZE.
-- Oops: Forgot to update the version number in version 0.61.
-
-Version 0.63:
-- Finally understood why CHKDSK failed on very large disks. UFAT32.DLL 
-  accesses the disk using DosOpen with OPEN_FLAGS_DASD. In that mode default
-  behaviour is that the disk is accessed using physical byte offsets from the
-  beginning of the (logical) disk. Now since the maximum value in a 32 bit 
-  integer is 2^32 this value divided by 512 was the maximum sector that could
-  be read (= sector 8388608 = 4Gb disk size maximum).
-  Now UFAT32 uses the same trick as HPFS uses, via a call to DosFSCtl disk 
-  access is switched to sector mode so 2^32 sectors can be accessed. 
-  This means CHKDSK can (theoretically) check disks upto 2048 gigabytes.
-
-Version 0.64:
-- Again a problem with CHKDSK, this time the file allocation check failed if
-  there were more than 65535 clusters assigned to a file. 
-- FAT32.IFS now reports fake cluster sizes and total and free cluster counts
-  whenever a DOS session queries free space. The maximum cluster size 
-  returned has been set to 32 Kb and the maximum for total and free clusters 
-  is 65526 clusters so the maximum disk size in dos is reported as almost 2Gb.
-- Encountered (and fixed) a trap that occured whenever a volume was flushed 
-  via a explicit call and there were still dirty sectors in call. 
-  It occured in code I changed in version 0.60 and this was the first time I 
-  trapped on it, so the combination of factors appears unlikely.
-- Modified FS_CHGFILEPTR so negative seeks will be handled properly and
-  build in logic to not allow files to grow bigger then 2Gb.
-- Uptil now I ignored the MUST_HAVE_XXX settings for directory scans since I
-  assumed they were not used. Some users reported files beeing show twice in
-  some application so: I stand corrected and so is FAT32.IFS.
-- Corrected a potential problem where (theoretically) files could be given 
-  a directory attribute.
-- Changed the algoritme used when no large enough contiguous fat chain is 
-  available and the fat chain has to be constructed from various chains.
-  Before the change an algoritme searching for individual free clusters was
-  used. Now FAT32.IFS searches the largest free chain assigns it and then 
-  searches for the next largest free chain until a chain long enough is 
-  created. This is still not very fast, but will only really occur of the 
-  disk is rather full and very fragmented.
-
-Version 0.65:
-- Files with valid 8.3 lowercase filenames where returned by findfirst/next
-  in DOS sessions in lowercase as well. Some programs don't like that. 
-  Now findfirst/next in DOS sessions always returns an uppercase name.
-  (This problem only occured when LFN's were hidden to DOS.)
-- Corrected a problem where while filling the buffer for FindFirst/Next too
-  much data was initialized (due to using strncpy) and data was overwritten.
-  This was most appearant with OS/2 Commander that trapped on a FAT32 
-  directory with many files.
-
-Version 0.66:
-- DosSetFileInfo returned an error (ERROR_INVALID_LEVEL) when trying to write
-  Extended attributes. Now FAT32.IFS reports NO_ERROR (But still doesn't 
-  write the EA!). This makes f.i. that the installation of the OS/2
-  Netscape pluginpack now works properly.
-- Corrected a problem with FindFirst/Next where the check on required buffer
-  space was incorrect. Some programs (Slick Edit) failed doing a directory
-  scan. This has been fixed.
-- Modified the behaviour of DosSetFileInfo so that it will only set date/time
-  values in the directory. Before DosSetFileInfo also set the attribute, but 
-  I found that this also doesn't work on HPFS, so I modified the behaviour.
-- Modified the default MONITOR logging so that (almost) all FS_XXXX calls are
-  shown with the return values given. 
-
-Version 0.70:
-- Most significant change is the implementation of EXTENDED ATTRIBUTES.
-  Currently they will only be supported if /EAS is specified after FAT32.IFS 
-  in the config.sys. Please read the chapter about extended attributes.
-
-- Corrected a small problem where a whenever a short name had to be created
-  for a longer name containing any embedded blanks in the name FAT32.IFS left
-  the blanks in, while Win95 skips them while creating the shortname.
-  This lead to SCANDISK reporting incorrect long file names. (When correcting
-  this problem the short name was modified by SCANDISK.)
-  Now FAT32.IFS does the same as Windows 95.
-
-- Received a report that FAT32.IFS failed allocating the cache space. Modified
-  FAT32.IFS so it will no longer trap on such a situation, but will continue
-  to run (without a cache - slow!)
-
-- Received a report about a possible memory leakage problem in FAT32.IFS. 
-  Changed CACHEF32.EXE so when run, it will show the number of GDT selectors
-  currently allocated for FAT32.IFS.
-
-Version 0.71:
-- EA's were not found from DOS sessions. Now this is hardly a problem since
-  DOS programs never access EA's, but EAUTIL can be used in DOS sessions, and
-  didn't work. Now it does.
-- There was another problems with finding EAs when FAT32.IFS was set to the 
-  mode in which internally short names were used (CACHEF32 /FS). Now this
-  seems to work properly.
-
-Version 0.72:
-- Forgot build in the EA logic for creating and removing directories. Has 
-  been added.
-
-Version 0.73:
-- Using DosSetPathInfo, it was possible to create an EA file for a non 
-  existing file. This lead f.i. to a ' EA. SF' file in the root directory.
-  This problem has been corrected.
-- Changed a bit in the algoritm for making a short name for a file with a 
-  longname.
-
-Version 0.74:
-- Corrected a problem with DosFindFirst/next when the buffer wasn't large 
-  enough for the extended attributes and FAT32.IFS returned 
-  ERROR_EAS_DIDNT_FIT when more than one entry was placed in the resultbuffer.
-  Now FAT32.IFS returns this error only if the EA's of the first 
-  matching entry don't fit in the buffer.
-  (This error lead to the WPS giving an error that no matching entries were 
-  found on opening of a directory)
-
-Version 0.75:
-- Added a check for valid EA names.
-- Added a translation mechanism for long filenames between the Windows 
-  Character set and OS/2 character set.
-  See: WINDOWS & OS/2 CHARACTER SETS for more information.
-
-Version 0.76:
-- Corrected a NASTY BUG that lead to loss of data when multiple files were
-  opened.
-
-Version 0.77:
-- Corrected a problem when more then 512 lost chains were found. (CHKDSK can
-  only recover 512 lost chains at one run)
-- Corrected a problem in OS/2 sessions (introduced in version 0.75) where 
-  valid 8.3 filenames in lowercase where always stored in uppercase.
-
-Version 0.78:
-- Corrected a TRAP that could occur when the cache is full with dirty 
-  sectors and the oldest dirty single sector was flushed using a single flush
-  routine. The trap message was 'WriteCacheSector: VOLINFO not found!'.
-  This problem only occured when more than 1 FAT32 partition is present.
-- Corrected a problem with UFAT32.DLL when checking directories containing
-  more than 2048 files. (CHKDSK reported lost clusters, but was wrong)
-- Corrected another problem with UFAT32.DLL that occured when there is not
-  enough memory available to check large directories. UFAT32 would abend with
-  an access violation.
-- Corrected a problem with DosOpen when on Opening an existing file with only
-  the FILE_CREATE (OPEN_ACTION_CREATE_IF_NEW) bit set (and not the FILE_OPEN 
-  flag) the file was created while the open should fail. 
-- Corrected a problem that the characterset translate tables would be 
-  overwritten internally leading to all kinds of funny results. (Duplicate
-  directories etc)
-- Modified the default behaviour of FAT32.IFS and for the /T option for
-  cachef32: No character translation takes place. This works for situations
-  where Windows and OS/2 use the same codepage.
-
-Version 0.79:
-- Rewrote the emergency flush routine so it will handle multiple FAT32 
-  partitions better. 
-- Made some minor modifications in UFAT32.DLL (For CHKDSK).
-  - A trap was solved when an EA file could not be repaired
-  - An error in the longname retrieval routine was fixed
-  - Output is matched more closely to HPFS and plain FAT.
-
-Version 0.80:
-- Rewrote the strategy2 routines so more than one request list can be fired
-  per volume. Hopes this improves performance.
-- Corrected a problem with FS_COPY that failed if the target file was zero
-  bytes large.
-- Corrected a problem with DosOpen with the Truncate flag set and when the
-  target file already existed and had EAs. The open failed, but the file was 
-  truncated and a lost cluster was created.
-- Created PARTFILT.TXT file about PARTFILT and DISKINFO.
-- Implemented an version check between the IFS and UFAT32.DLL (for CHKDSK) 
-  and CACHEF32.EXE.
-
-Version 0.81:
-- Noticed that when FS_FILEINFO was used to set the date/time on a file as
-  only action the date/time was not updated. Corrected.
-- In version 0.66 I removed the setting of the attribute using DosSetFileInfo.
-  As I found out, I was wrong. Now DosSetFileInfo from 32 bits programs sets
-  the attribute. From 16 bits programs however, this doesn't seem to work on
-  FAT, HPFS and FAT32. Don't know why.
-  
-Version 0.82:
-- Changed a bit in the algoritm for making a short name for a file with a 
-  longname (again). Now filenames starting with a dot are handled better.
-- Changed the (internal) memory handling routines to use more then one 
-  selector so I could use this for FindFirst/Next handling instead of 
-  allocation one selector per FindFirst/Next call.
-  This was neccessary because a DOS session can fire a lot of FindFirst calls
-  only for checking existence of files. Before the modification FAT32.IFS
-  could run out of memory after say a couple of hundred FindFirst calls.
-  (I found that OS/2 itself doesn't allow a DOS session to fire more then 
-   round 500 FindFirsts. After that OS/2 starts reusing find handles.)
-  I encountered this problem when trying to unarj the Novell Netware client
-  2.12 on my FAT32 disk.
-
-Version 0:83:
-- Replaced the translate mechanisme that was introduced in version 0.75 by
-  a mechanisme where CACHEF32.EXE on first load calls the native OS/2 NLS
-  support to create a default translate table between the current codepage
-  and unicode. This should work better for some NLS versions of OS/2.
-- Added a switch to CACHEF32 to dynamically change the priority of the lazy
-  write thread. The default priority is still idle-time, but this can be 
-  changed to a higher priority.
-- Did experiment a bit with lazy writing in general. In my own system it
-  improved performance somewhat.  
-- Corrected a problem in PARTFILT where whenever a HIDDEN partition type 
-  was specified after /P this didn't always work properly. Now when a hidden
-  partition type is specified, the unhidden type is also handled by PARTFILT.
-
-Version 0.84:
-- Got a message from someone complaining that the change in PARTFILT made him
-  loose the ability to mount hidden 'normal' partitions since PARTFILT 
-  presented all partition types as IFS. Now PARTFILT show normal partitions
-  by their actual types and only not-by-OS/2 supported types as IFS 
-partitions.
-- Increased performance for accessing large files by keeping track of first 
-  and last cluster for each open file, and even the current cluster for each 
-  open instance.
-- Removed the limit for the maximum number of open files.
-- Fixed a problem in my internal memory (sub)allocation routines that lead to
-  various problems. This became more clear since FS_OPEN now also uses malloc
-  to allocated memory per open file.
-  Problems I encountered were trap D's and internal fatal messages.
-- Changed the way monitor works. Introduced a 'trace mask'. See MONITOR 
-  above.
-
-Version 0.85:
-- A user pointed me at the problem that ReadOnly files cannot be renamed.
-  This problem has been corrected.
-- Corrected a problem whenever a non-existing file was openen. If later the 
-  file was created this could lead to a trap (at least in theory: I haven't 
-  seen it nor heard it actually occured).
-- Changed PARTFILT again. Whenever a hidden partition type was specified
-  partfilt also virtualized the unhidden type. So if /P 16 was specified, 
-  both types 16 and 6 were virtualized. This could lead to unwanted results.  
-
-  So I modified the mechanism again.
-  Now - if /A is not used - only the types specified after /P are virtualized.
-  (The /A switch controls whether or not to virtualize all partitions.)
-
-  PARTFILT always unhides the partitions it virtualizes.
-
-  For the partition types PARTFILT virtualizes the following rules apply:
-
-  Normal partition types (types 1, 4, 6, 7, but also 11, 14, 16 and 17) 
-  are reported to OS/2 with their actual -unhidden- partition type. 
-
-  Any other partition types specified after /P are reported as un-hidden IFS
-  partitions. 
-  Any other partition types NOT specified after /P are reported as their 
-  actual -unhidden- type.
-
-  Keep in mind that if you specify /A you must also use the /M argument to
-  tell PARTFILT which partitions you want to mount.
-
-- Also, whenever /A is specified with PARTFILT /W is automatically set.
-  Otherwise, OS/2 will not boot at all.
-
-- CACHEF32.EXE did not properly handle the /P:x argument when specified in 
-  CONFIG.SYS. The argument was lost. This has been fixed.
-
-Version 0.86:
-- Always thought that it was not allowed to the directory bit set in 
-  DosSetPathInfo and therefor I rejected calls with this bit set. I was wrong.
-  Now DosSetPathInfo accepts the directory bit set (for directories only).
-
-- Modified partfilt so it will also scan partitions inside a extended type F 
-  partition (partfilt is now on version 1.08). Modified DISKINFO.EXE to do 
-the 
-  same.
-
-- Noticed some problems when a file was opened multiple times. The directory
-  information was not always updated properly. Also, the attribute of a open
-  file was kept per instance instead of only one time for all open instances
-  of a file. So using DosSetFileInfo on one instance was not noticed by other
-  instances of a file.
-
-Version 0.87:
-- Modified the internal memory usage somewhat. Some allocated segments are
-  marked unswappable now.
-- Modified FS_DELETE to return ERROR_ACCESS_DENIED whenever this call was
-  used for a directory. Previously, FAT32.IFS return ERROR_FILE_NOT_FOUND.
-- Modified CACHEF32.EXE so it will also run if UCONV.DLL cannot be loaded.
-  If that is the case, no UNICODE translate table will be loaded.
-- Solved a problem when a file was rename when on the case mapping was 
-  changed. If the file had extended attributes the rename failed and the EA
-  was lost.
-
-Version 0.88:
-- DISKINFO still didn't show partitions inside an extended partition type F.
-- Fixed a potential problem in the lazy write routines. This could lead to 
-  sectors not being written when they should have. (have never seen it though)
-- Made it work with Fixpack 10. (FP10 made FAT32.IFS trap)
-
-Version 0.89:
-- FS_SHUTDOWN is called twice by the kernel. The first one is to signal begin
-  of shutdown and the second to signal the end. FAT32.IFS flushed its internal
-  buffers on the 2nd call. This has been modified so FAT32.IFS now flushes
-  on the first call.
-- I've had a report from someone with a problem where the drives where mounted
-  after CACHEF32 had queried CACHE settings. Since the cache is allocated on
-  first mount this didn't work. I have added a call to force the drives 
-  to be mounted before CACHEF32 queries the cache settings.
-- Fixed a small division by zero in CACHEF32 when the cache was zero sectors
-  large.
-- Fixed the 'cannot find message file' problem in CACHEF32.EXE.
-- Some users keep having troubles with 'error cannot find SH". Just for 
-myself 
-  I added the filename there.
-- Replaced an internal call (FSH_PROBEBUF) by a DevHelp call.
-- Fixed a trap I got due to a reentrancy problem in my memory allocation 
-  routines.
-- Changed the way data is kept per open file instance because I have received
-  some reports from users that they got a 'ERROR: Cannot find the IO!" 
-  message.
-- FAT32.IFS had its code segments marked as EXECUTEONLY. Now AURORA doesn't
-  seem to like that and traps. The code segments are no longer marked this 
-  way but as EXECUTEREAD.
-
-Version 0.90:
-- Found some problems with FS_COPY. If FS_COPY was copying a file the target
-  file was not protected from being deleted or renamed in another session.
-- Noticed that I had the default cache size incorrectly set to 128 Kb. 
-  Modified it to 1024 kb and added a warning message if no /CACHE argument
-  is present.
-- FS_COPY didn't check if source and target where on the same partition. (I 
-  incorrectly assumed OS/2 did this check.). Now FS_COPY doesn't try to handle
-  the copy when source and target are on different drives. This way the copy 
-  is done by OS/2 itself.
-- Modified the way data is written from the cache to disk. Instead of 
-  instructing the Device Driver to write data directly from cache to disk,
-  the data is now first copied to another memory area thereby releasing the
-  data in the cache a lot sooner. This way the IFS does not have to wait 
-  for the device driver to finish before a specific sector in cache is 
-  available again.
-  The drawback is that this makes FAT32.IFS to use more (physical) memory.
-  With a cache size of 2048 Kb, an additional 480 Kb is allocated. 
-  With smaller cache sizes the additional data reduces relatively. (a cache 
-  size of 1024 Kb leads to an additional memory allocation of 240 Kb)
-- Never had any error handling (message) in the routine that is called by the
-  device driver to notify completion of the strategy2 request list. This 
-  version has it. This is mainly to get more light on FAT32.IFS and aurora.
-
-Notes on version 0.91:
-- Got a report that FAT32.IFS ignored the fourth character of the extention.
-  Looking for the cause I found that FAT32.IFS created incorrect short name
-  equivalents for files with a four character long extention. 
-  In that specific case the fourth character was ignored when creating
-  the shortname. The effect was that e.g. a file called file.1234 and 
-  file.1235 ended up having the same shortname. FAT32.IFS now
-  no longer exhibits this behaviour, but you still might have double 
-  shortnames in the same directory on your disk. I don't think SCANDISK 
-  detects this problem. Please note this could only have happened with
-  files having an extention of four chars for which all chars except the 
-  fourth extention char were equal.
-  
-  To check this, set FAT32.IFS to use short names internally (CACHEF32 /FS), 
-  and in a DOS session do a DIR command. If you detect any duplicate names,
-  switch back to an OS/2 session and rename one of these files to another
-  name and then rename it back to the original name. 
-
-- Modified the calling of the strategy2 calls. Now FAT32.IFS no longer 
-  request confirmation per individual sector. This fixes the problems
-  with AURORA. 
-
-  The problem with AURORA (Warp Server for eBusiness) FAT32.IFS was 
-  experiencing was caused by a bug in the Logical Volume Manager that did
-  not properly confirm individual requests. Since FAT32.IFS now no longer 
-  depends on this individual confirmation the bug is no longer relevant.
-  IBM did confirm this bug to me (October 1999) and promissed it would be
-  solved in the next fixpack.
-
-- Introduced a separate thread (from CACHEF32.EXE) that runs at time critical
-  priority. The thread is awakened whenever the cache runs full with dirty 
-  sectors and takes care of flushing these dirty sectors.
-
-- Corrected a problem with Extended Attributes when a file had very large 
-  extended attributes (almost 65536 bytes) the system would trap.
-
-- Corrected a problem when a sector towards the end of the disk was read.
-  Due to the read-ahead function 1 sector too far was read and the read 
-  failed. 
-
-- Noticed that the diskspace under DOS was not correctly returned. The faked
-  clustersize was too small to actually report the correct disksize for disks
-  smaller then 2.1 Gb.
-
-- Until this version, the strategy2 routines did not set the flag to request
-  the disk controller to cache the request on the outboard controller. I 
-  did not set this flag since it didn't seem to matter on my own machine.
-  However, this version has the flag set since some of you might profit from
-  this setting and experience better performance.
-
-- Enlarged maximum amount of data that is flushed (when lazy writing is used)
-  to 64 Kb. Hopefully, this will increase performance for those 
-  disk controllers that do not have the on-board cache enabled.
-
-- Did an effort to solve the problem when a cluster chain becomes improperly
-  terminated. FAT32.IFS simply ignores the problem now and assumes end of 
-file.
-  CHKDSK (UFAT32.DLL) detects and corrects this problem.
-
-Version 0.92:
-
-- When a FAT32 volume was not shut down properly the IFS did not allow files
-  to be opened. This caused device drivers etc during shutdown not being 
-  loaded from a FAT32 volume. Now FAT32.IFS allows files to be read from a 
-  dirty volume.
-
-- When a directory was moved the .. entry in that directory was not updated 
-  to point to the proper parent directory. This has been corrected.
-
-- CHKDSK checked for extended attributes even when /EAS was not specified
-  after the IFS line in the config.sys.
-
-- CHKDSK contained an error that when checking subdirectories sometimes (rare)
-  the incorrect name (the longname of the previous directory entry) was used.
-  This lead to claimed missing extended attributes for non-existing files.
-
-- Modified the output of CHKDSK somewhat. Also, when the output is redirected
-  to a file, the progress percentages are suppressed.
-
-Version 0.93:
-
-- Modified the way CHKDSK detect a bad cluster. 
-
-- When the disk was dirty, CHKDSK was unable to rename a lost EA file to a 
-  proper file. This has been fixed.
-
-- FAT32.IFS now sets the archive attribute. It didn't before.
-
-- Messed about a bit with the cache and lazy write handling.
-
-- Rewrote UFAT32.DLL to utilize a IOCtl call to read sectors
-
-Version 0.94:
-
-- Fixed a problem CHKDSK had when finding bad sectors.
-
-- Fixed a problem when running in 'Internal Shortname mode' that long files
-  were not found. 
-
-Version 0.95:
-
-- FAT32.IFS now supports DBCS, especially Korean, correctly.
-
-- Fixed 'unsigned' overflow problems.
-
-- When both /FS and /EAS are enabled, MOVE and REN command don't process EA
-  files correctly. Fixed.
-
-- When /FL(default) is enabled, FillDirEntry doesn't recognize 8.3 name
-  pointing to the same file as long name.
-
-- When /EAS is disabled, FAT32.IFS now pass empty EA.
-
-- Changed UFAT32 to find volume label in ROOT directory not in bootsector.
-
-- Changed UFAT32 to report 'file allocation error' as long name.
-
-- Added FSCTL function to get short name from long name.
-
-- When /FS is enalbed and a target file already exists, COPY and MOVE command
-  names a target file to the short name of the exisintg file. Fixed.
-
-- Fixed bug of 'Dest check routine' in FS_COPY.
-
-- Fixed a potential problem in FS_MOVE.
-
-- Fixed a problem of CACHEF32.EXE with restarting lazy write deamon
-  after quiting it on CMD.EXE.
-
-- Added /Y to assume 'Yes' for CACHEF32.EXE.
-
-- Added /S to prevent CACHEF32.EXE from displaying normal messages.
-
-Version 0.96:
-
-- The DBCS [0xHH5C] code and [1 byte-katakana] are not changed correctly. The
-  1st byte code of DBCS contained in SBCS caused the conversion which is not
-  right. Fixed.
-
-- Changed the maximum value of RASECTORS from sectors per cluster times 4 to
-  128.
-
-- Fixed TRAP on accesing FAT32 partition having 32k cluster.
-
-- Now FAT32.IFS do not mount FAT32 partItion having >32k cluster.
-
-Version 0.97:
-
-- The files created on Win2k( possibly all WinNT ) are recognized as having EA
-  attribute. Especially, UFAT32.DLL( CHKDSK ) complain about this. Fixed.
-
-- 0.95 later, OS/2 don't progress shutdown completely. Fixed.
-
-- EA mark byte changed from 0xEA and 0xEC to 0x40 and 0x80, respectively
-  for compatibility with FAT32 of WinNT family.
-
-- Now, supports 8.3 name, whose name and ext part are all lower case,
-  created by WinNT family.
-
-- rename DISKINFO.EXE to F32PARTS.EXE
-
-- rename MONITOR.EXE to F32MON.EXE
-
-Version 0.98:
-
-- Fixed TranslateName() to support FAT32 variation of WinNT family.
-
-- Fixed FS_PATHINFO to support level 7 correctly.
-
-- Both /FS and /FL option is not supported any more.
-
-- Added 'Directory Circularity Check' for FS_COPY and FS_MOVE
-  in case of mixed path of short and long name.
-
-- Added /CP option to CACHEF32.EXE to specify codepage in paramter.
-
-Version 0.99:
-
-- CACHEF32.EXE cause a beep continuously if a copy of CACHEF32.EXE already
-  was loaded and current CP is different from a copy of FAT32 IFS. Fixed.
-
-- /CP option of CACHEF32.EXE does not work. Fixed.
-
-- Case conversion of national characters work only for ASCII below 128,
-  introduced in 0.98b. Fixed.
-
-- Sometimes copies of the FATs do not match each other or 'lost cluster' occur
-  after copy operation when lazy write enabled. Fixed.
-  Unfortunately, write cache performance is decreased as a result.
-
-- Replaced legacy DBCS APIs with ULS APIs.
-
-- Added a feature to clear fForceLoad flag to '/N' option of CACHEF32.EXE.
-
-- Added /H option to FAT32.IFS to allocate cache memory in high memory(>16MB).
-  Probably, 'linalloc' problem may be blown away.
-
-- Added /F option to CACHEF32.EXE to force CACHEF32.EXE to be loaded without
-  any FAT32 partition.
-  I think this option can help people use a removable media.
-
-- Now, FAT32.IFS process parameters case-insensitively.
-
-- Added bad cluster check.
-
-- Dirty flag not cleared when ejecting removable medias. fixed.
-
-- Trapped when ejecting removable medias. fixed.
-
-- minor performance improvement.
-
-Version 0.9.10:
-
-- Changed version numbering style to major.minor.patch level style.
-
-- Removed beta symbol.
-
-- Filename including NLS characters not converted to unicode by OS/2, cause
-  'lost cluster' problem. fixed.
-
-- Added IOCTL function to write in sector mode.
-
-Version 0.9.11(aka 2005 X-mas version):
-
-- Fixed 'Free Space' problem.
-
-- Fixed non-recognization problem of USB Removable Drive change.
-
-- Fixed the problem that CACHEF32 cannot call 'CHKDSK.COM' if a current drive
-  is not a boot drive.
-
-- Fixed some minor warnings such as 'non-used variable' on compilation time.
-
-*** Known problems ***
-
-- Sometimes the pending flush state of a few sectors is not cleared.
-  You can see this by report of 'CACHEF32'. Even though any dirty sector is not
-  there, pending sector exists. Why ? ^^ However, this has no effect on
-  functionality of IFS.
+Version 0.51
+
+Did a lot of work on Lazy write performance. Cache access is no longer
+protected with a semaphore but with a per sector inuse flag.
+Fixed a problem that caused INSTALL and MINSTALL to abort when FAT32.IFS
+was loaded. The problem had to do with argument checking with FS_IOCTL calls.
+Fixed a problem that BRIEF, a populair editor under OS/2, trapped or hung
+itself. The problem had to do with returning improperly formatted nformation
+when querying EAs (FAT32.IFS does not support EAs!)
+Corrected a serious problem when a single file was opened more than once
+and the file was modified using one of the instances. The other instance(s)
+didn't pick up the changes and FAT32.IFS might trap.
+
+Version 0.50
+
+Fixed a problem where files with longnames could sometimes not be found
+which lead to duplicate filenames.
+Fixed a problem where SCANDISK would claim that a directory created by
+FAT32.IFS contained invalid blocks..
+Fixed a (BIG) problem with files or directories with long names where
+if such a file was opened in a DOS session and in an OS/2 session
+simultaniously OS/2 was unable to see that the same file was opened.
+Fixed a problem where read-only executables could not be run.
+ Fixed a problem where the algoritm used to determine the highest
+available cluster number was incorrect.
+Fixed a problem were CHKDSK was unable to fix cross-linked files.
+Since some people complained that FAT32 would sometimes hang, I have
+modified the internal semaphore mechanism so an error message will
+appear if a semaphore remains blocked for more than a minute.
 
+Version 0.41
+
+Fixed a problem with numeric tails shortnames. Files always got ~1 instead
+if an incrementing number. Has been fixed.
+
+Version 0.40
+
+The volume label was retrieved from the boot sector. However Win95 actually
+stores the Volume label in the root directory. The Volume label now is taken
+from the root directory. Also, the label can be set now. (The boot sector is
+however still updated)
+/Q switch of PARTFILT didn't work. Now it does.
+A problem was in CHGFILEPOINTER that could (theoretically) lead to an trap
+(FAT32: FS_WRITE: No next cluster available").
+Corrected a logical error where renaming a file or directory to an existing
+directory caused the file or directory to be moved into the target directory.
+Now FAT32.IFS returns an error.
+Changed CHKDSK so that if an error is found in one of the FATs CHKDSK continues,
+but ignores the /F switch. Previously, CHKDSK would not do any additional checks.
+Renaming a file or directory from the workplace shell didn't work because of
+two problems:
+ The WPS uses a strange algoritm to determine if the IFS supported long file
+names which appearantly failed with FAT32. This has been corrected.
+FAT32.IFS does not support EA's (yet), the WPS renames a file, tries to write
+EAs and since that fails renames the file back again. Now FAT32 returns NO_ERROR
+on the call used to write EAs..
+CHKDSK now is able to fix cross-linked clusters on the disk.
+
+Version 0.30
+
+Added PARTFILT.FLT to the archive.
+Added support for ReadOnly partitions. This is needed for PARTFILT.
+IOCTL Calls (category 8) are now passed throught to OS2DASD.
+
+Version 0.20
+
+Cache routines have been improved for performance. Removing 'old' sectors
+from the cache is no longer needed. /T option for CACHEF32 has been removed.
+CHKDSK: Is now able to fix incorrect free space count.
+CHKDSK: Lost cluster fix algoritm has been improved for performance.
+CHKDSK: Didn't recoqnize bad-sectors, has been fixed.
+CHKDSK: Had problems with recoqnition of some type of free clusters,
+has been fixed.
+OS2DASD.DMD: Is now based on the latest version. (December '97)
+
+Version 0.10  - Initial Version
+
+
+=============
+LATEST FILES:
+=============
+
+Latest Compiled Version:
+--------------------
+
+FAT32 IFS: ftp://ftp.netlabs.org/pub/FAT32
+
+
+Contact:
+-------
+
+Adrian Gschwend at ktk@netlabs.org if you have some FAT32 patches, or you can
+join the #netlabs channel atirc.anduin.net (IRC). My nick is ktk, Brian Smith is
+nuke.
+
+KO Myung-Hun at komh@chollian.net concerning issues dealing the FAT32 code
+
+Alfredo Fern ndez D¡az at alfredo@netropolis-si.com concerning issues dealing
+with the WarpIN script and FAT32 code
+
+David Graser at dwgras@swbell.net concerning issues with the FAT32.INF file
+
+
+==============================================
+BUILDING FAT32 FROM SOURCES (DEVELOPERS ONLY):
+==============================================
+
+REQUIREMENTS:
+--------------
+
+the IFS DDK Build Environment
+IBM VAC 3
+OS/2 Toolkit 4.5 (included with OS/2 ACP/MCPs and eCS)
+IBM DDK sources and tools (freely available at IBM's DDK site)
+IBM C
+the System utilities (including link.exe)
+
+Note:  Although IBM DDK souces and tools are free, you will have to register at
+the IBM DDK site if you have not already done so.
+
+
+SOURCE CODE:
+------------
+
+http://svn.netlabs.org/fat32
+
+The sourcecode is released under the GNU LGPL.
+
+
+COMPILING:
+----------
+
+To get a build going, you'll need several things;
+
+You should have VisualAge installed and it's environment variables set.  Then
+set these 3 variables:
+SET DDK=d:\ddk
+SET DDKTOOLS=d:\ddktools
+SET IBMC=d:\ibmc
+
+Correct the paths as neccessary.
+
+Then run the make.cmd script, and if all goes well you should have a fresh build
+of FAT32.IFS.
+
+Note:  There are many warning when compiling FAT32. Most of them are
+'optimizing' warnings or 'unreference variable' warnings. These warnings can be
+ignored.
+
+===========
+FOOTNOTES:
+===========
+
+Footnote
+-------
+
+CACHEF32.EXE Command:  /D: Parameter
+
+Sets the amount of time (in milliseconds) that a disk must be idle before it can
+accept data from cache memory. The minimum amount of disk idle time must be
+greater than the value specified in the BUFFERIDLE parameter.
+
+To set the amount of disk idle time to 2000 milliseconds, type the following in
+the CONFIG.SYS file:
+
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE /D:2000
+
+
+Footnote
+-------
+
+CACHEF32.EXE Command:  /B: Parameter
+
+Sets the amount of time (in milliseconds) that the cache buffer can be idle
+before the data it contains must be written to a disk.
+
+To set the amount of cache buffer idle time to 1000 milliseconds, type the
+following in the CONFIG.SYS file:
+
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE /B:1000
+
+
+Footnote
+-------
+
+CACHEF32.EXE Command:   /M: Parameter
+
+Specifies the maximum amount of time (in milliseconds) before frequently written
+data is transferred to the disk.
+
+To have frequently written data that has been in cache memory longer than 4000
+milliseconds written to disk, type the following in the CONFIG.SYS file:
+
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE /M:4000
+
+
+Footnote
+-------
+
+CACHEF32.EXE Command:  /L: Parameter
+
+Specifies whether the contents of cache memory are written immediately to disk
+or only during disk idle time. This command pertains only to disks formatted for
+the FAT32 File System. ON enables writing of cache memory during disk idle time.
+OFF specifies immediate writing to disk. The default state is for lazy-writing
+to be ON.  If you want lazy-writing to be OFF as the default, you must add the
+following statement to your CONFIG.SYS file:
+
+CALL=X:\TOOLS\SYSTEM\BIN\CACHEF32.EXE /L:OFF
+
+
+Footnote
+-------
+
+Example:  Setup using jCVS (Java CVS Client)
+
+http://www.jcvs.org/download/jcvs/jcvsii-5.3.2.zip
+
+Under "Checkout" Tab:
+
+Selections
+User Added Info
+
+Server
+PServer
+
+User Name
+guest
+
+Password
+readonly
+
+CVS Module:         .
+
+Note:  That is a dot.
+
+CVS Server:         www.netlabs.org
+
+CVS Repository:         /netlabs.cvs/fat32
+
+Checkout Directory:     X:\temp
+
+Note:  X is the drive where you temporary directory is located
+
+Arguments:
+
+Note:  Arguments can be left blank.
+
+
+Footnote
+-------
+
+License.txt
+
+This sourcecode was/is originaly written by Henk Kelder <henk.kelder@cgey.nl>
+
+Henk Kelder gave the copyright of the sourcecode to netlabs.org in
+
+January 2002. Because of the amount of work he spent on this sourcecode,
+
+he preferred to have a license that makes sure that no company or individual
+
+can make profit from it. Because of this, we release the sourcecode under the
+
+GNU LESSER GENERAL PUBLIC LICENSE (LGPL).
+
+
+The original license is online at http://www.gnu.org/copyleft/lesser.txt
+
+More information about GNU Software can be found at http://www.gnu.org
+
+6. January 2002
+
+Adrian Gschwend <ktk@netlabs.org>
+
+http://www.netlabs.org

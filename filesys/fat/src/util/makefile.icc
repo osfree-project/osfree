@@ -2,66 +2,84 @@
 !ERROR ,SPECIFY EITHER DEBUG=0 or DEBUG=1 ON THE NMAKE COMMANDLINE !
 !ENDIF
 
-!IF $(DEBUG)
-COPTS=/Ti
-LOPTS=/DE /DBGPACK
+!IFNDEF $(DEBUG)
+OPTS=/O+ /Ti /Gs+ /Tm+
+CV=/MAP
+# /CO
 !ELSE
-COPTS=/O
-LOPTS=
+OPTS=/O- /Gs-
 !ENDIF
 
 MSGBIND=msgbind.exe
 CC = icc.exe
 LINK = ilink.exe
 
-CFLAGS = /Q+ /DOS2 /W3 /Tl1 /Sm /Ss /Gm /Gd- /Gf /G5 /Gt /C $(COPTS)
-LINKOPT = /NOI $(LOPTS) /PM:VIO /STACK:10000 /ALIGN:4 /MAP /BASE:0x10000
+CFLAGS = /DOS2 /W3 /Tl1 /Sm /Ss /Gm /Gd- /Gf /G5 /Gt /C $(OPTS)
+MFLAGS = /DOS2 /W3 /Tl1 /Sm /Ss /Gm /Gd- /Gf /G5 /Gt $(OPTS)
+LINKOPT = /IG $(CV) /PM:VIO /STACK:10000 /ALIGN:4 /MAP /BASE:0x10000
 WOPTS=/W3 /Wdcl /Weff /Wpar /Wpro /Wrea /Wret /Wuse
 
+#CFLAGS =  /I..\include /Q+ /DOS2 /W3 /Tl1 /Sm /Ss /Gm /Gd- /Gf /G5 /Gt /C $(COPTS)
+#MFLAGS = /DOS2 /W3 /Tl1 /Sm /Ss /Gm /Gd- /Gf /G5 /Gt $(OPTS)
+#LINKOPT = /NOI $(LOPTS) /PM:VIO /STACK:10000 /ALIGN:4 /MAP /BASE:0x10000
+#WOPTS=/W3 /Wdcl /Weff /Wpar /Wpro /Wrea /Wret /Wuse
+
+.SUFFIXES:
+.SUFFIXES: .sym .map .exe .dll .obj .cpp .c .h .asm .inc
+
+ALL: f32parts.exe f32mon.exe diskdump.exe f32stat.exe cachef32.exe \
+     f32parts.sym f32mon.sym diskdump.sym f32stat.sym cachef32.sym
 
 .c.obj:
-   $(CC) $(CFLAGS) $(WOPTS) .\$*.c
+   $(CC) $(CFLAGS) $(WOPTS) .\$*.c 2>$*.err
+   type $*.err      
+
+.cpp.obj:
+   $(CC) $(CFLAGS) $(WOPTS) .\$*.cpp 2>$*.err
+   type $*.err      
+
+.map.sym:
+   @mapsym $*.map >nul 2>&1
 
 .obj.exe:
-    -7 $(LINK) /NOFREE /NOL $(LINKOPT) @<<
-$<
-$@
-$*.MAP
-LIBCONV.LIB+
-LIBULS.LIB;
-<<NOKEEP
-    $(MSGBIND) <<
-> $@
-< $(IBMC)\HELP\DDE4.MSG
-*
-<<NOKEEP
-
-
-ALL: F32MON.EXE F32PARTS.EXE CACHEF32.EXE F32STAT.EXE
-
-diskinf0.obj : diskinf0.c fat32.h fat32def.h
-diskinf1.obj : diskinf1.c fat32.h fat32def.h
-diskinf2.obj : diskinf2.c fat32.h fat32def.h
-monitor.obj  : monitor.c fat32def.h
-cachef32.obj : cachef32.c fat32def.h
-f32stat.obj  : f32stat.c fat32def.h
-
-OBJS=diskinf0.OBJ diskinf1.OBJ diskinf2.OBJ
-F32PARTS.EXE : $(OBJS)
         -7 $(LINK) /NOFREE /NOL $(LINKOPT) @<<
+$*
+$@
+$*.map;
+<<NOKEEP
+
+#$<
+#$@
+#$*.MAP
+#LIBCONV.LIB+
+#LIBULS.LIB;
+#<<NOKEEP
+#    $(MSGBIND) <<
+#> $@
+#< $(IBMC)\HELP\DDE4.MSG
+#*
+#<<NOKEEP
+
+f32mon.exe : monitor.obj
+    -7 ilink /NOFREE /NOL $(LINKOPT) @<<
+monitor.obj
+$@
+$*.map;
+<<NOKEEP
+
+OBJS = diskinf0.obj diskinf1.obj diskinf2.obj 
+f32parts.exe : $(OBJS)
+    -7 ilink /NOFREE /NOL $(LINKOPT) @<<
 $(OBJS: = +^
 )
 $@
-$*.MAP;
+$*.map;
 <<NOKEEP
 
-F32MON.EXE : MONITOR.OBJ
-        -7 $(LINK) /NOFREE /NOL $(LINKOPT) @<<
-$?
-$@
-$*.MAP;
-<<NOKEEP
-
-CACHEF32.EXE : CACHEF32.OBJ
-F32STAT.EXE  : F32STAT.OBJ
-
+diskdump.obj : diskdump.cpp
+diskinf0.obj : diskinf0.c ..\include\fat32.h ..\include\fat32def.h
+diskinf1.obj : diskinf1.c ..\include\fat32.h ..\include\fat32def.h
+diskinf2.obj : diskinf2.c ..\include\fat32.h ..\include\fat32def.h
+monitor.obj : monitor.c ..\include\fat32def.h
+cachef32.obj : cachef32.c ..\include\fat32def.h
+f32stat.obj : f32stat.c ..\include\fat32def.h

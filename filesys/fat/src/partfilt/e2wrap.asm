@@ -40,10 +40,15 @@ STRING_MESSAGE=        1178                ; Message ID for Save_Message
 ADD_CLASS= 1                        ; Device class for adapter device drivers
 
 ifdef __MASM__
-DGROUP        group _DATA,_BSS
+DGROUP	group DDHeader,_DATA,_BSS,CONST        ; MS Visual C++ defines a CONST segment (M.Willm 1995-11-14)
 else
-DGROUP        group _DATA,CONST,_BSS        ; MS Visual C++ defines a CONST segment (M.Willm 1995-11-14)
+DGROUP	group DDHeader,_DATA,_BSS
 endif
+
+CodeGroup  group StratCode, _TEXT, InitCode
+
+DDHeader segment word public use16 'DATA'
+DDHeader ends
 
 _DATA        segment word public use16 'DATA'
 
@@ -63,18 +68,28 @@ endif
 _BSS        segment word public use16 'BSS' 
 _BSS        ends
 
-_TEXT        segment byte public use16 'CODE'
-        assume cs:_TEXT, ds:DGROUP
+StratCode   segment byte public use16 'CODE'
+StratCode   ends
 
+_TEXT        segment byte public use16 'CODE'
+;        assume cs:_TEXT, ds:DGROUP
+        assume cs:CodeGroup, ds:DGROUP
+
+ifdef __LARGE__
+        extrn _E2FilterIORB:far
+        extrn _FilterNotify:far
+        extrn _PartNotify:far
+else
         extrn _E2FilterIORB:near
         extrn _FilterNotify:near
         extrn _PartNotify:near
-
+endif
 ;
 ; memset and memcpy are builtin functions in MS Visual C++ 1.5 if -O2 and -G3
 ; compiler options are set. (M.Willm 1995-11-14)
 ;
-ifndef __MASM__
+
+;ifndef __MASM__
         public _memset
 _memset        proc        near
 ; void memset (void far* Buffer, UCHAR Value, USHORT Count);
@@ -110,7 +125,7 @@ _memcpy        proc near
         pop bp
         ret
 _memcpy        endp
-endif
+;endif
 
         public _VirtToPhys
 _VirtToPhys        proc
@@ -125,17 +140,17 @@ _VirtToPhys        proc
 ;
 ; Changed @@NoError into NoError_VirtToPhys for MASM (M.Willm 1995-11-14)
 ;
-IFNDEF __MASM__
+ifndef __MASM__
         jnc short @@NoError
         mov ax,0FFFFh
         mov bx,ax
 @@NoError:
-ELSE
+else
         jnc short NoError_VirtToPhys
         mov ax,0FFFFh
         mov bx,ax
 NoError_VirtToPhys:
-ENDIF
+endif
         lds si,[bp+8]
         mov ds:[si],bx
         mov ds:[si+2],ax
@@ -163,17 +178,17 @@ _PhysToVirt        proc near
 ;
 ; Changed @@NoError into NoError_PhysToVirt for MASM (M.Willm 1995-11-14)
 ;
-IFNDEF __MASM
-        jnc short @@NoError
+ifndef __MASM
+        jnc short @@NoError0
         xor ax,ax
         mov dx,ax
-@@NoError:
-ELSE
+@@NoError0:
+else
         jnc short NoError_PhysToVirt
         xor ax,ax
         mov dx,ax
 NoError_PhysToVirt:
-ENDIF
+endif
         pop di
         pop es
         pop bp
@@ -323,15 +338,15 @@ _RegisterADD        proc
 ;
 ; Changed @@NoError into NoError_RegisterADD for MASM (M.Willm 1995-11-14)
 ;
-IFNDEF __MASM__
-        jnc short @@NoError
+ifndef __MASM__
+        jnc short @@NoError1
         xor ax,ax
-@@NoError:
-ELSE
-        jnc short NoError_RegisterADD
+@@NoError1:
+else
+        jnc short NoError1_RegisterADD
         xor ax,ax
-NoError_RegisterADD:
-ENDIF
+NoError1_RegisterADD:
+endif
         pop di
         pop si
         pop ds
@@ -356,5 +371,8 @@ _E2Print        proc near
 _E2Print        endp
 
 _TEXT        ends
+
+InitCode  segment byte public use16 'CODE'
+InitCode  ends
 
         end
