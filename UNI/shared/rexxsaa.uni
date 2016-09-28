@@ -292,8 +292,8 @@ function RexxRegisterSubcomDll(in Name : PCSZ ;                          (* Name
 (***   as a Subcommand handler *)
 
 function RexxRegisterSubcomExe(in Name: PCSZ;                          (* Name of subcom handler     *)
-                               in Addr: PFN;                          (* address of handler in EXE  *)
-                               in UserArea: PUCHAR): APIRET;                      (* User area                  *)
+                               in Addr: PFN;             (* address of handler in EXE  *)
+                               in UserArea: PUCHAR): APIRET;           (* User area                  *)
 
 
 

@@ -22,5 +22,6 @@ APIRET APIENTRY DosCancelLockRequest(HFILE hFile,
   rc = DosCancelLockRequestL(hFile,
                              &flLockL);
   log("flLock=%lx\n", *pflLock);
+  log("%s rc=%lu\n", __FUNCTION__, rc);
   return rc;
 };

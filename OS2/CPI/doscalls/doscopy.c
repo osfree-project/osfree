@@ -448,15 +448,23 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
                         &fileStatus,          // Address of return buffer
                         sizeof(FILESTATUS3)); // Size of buffer
 
-  if (rc) return rc;
+  if (rc)
+  {
+    log("%s rc=%lu\n", __FUNCTION__, rc);
+    return rc;
+  }
 
   // Perfom action based on source path type
   if (fileStatus.attrFile & FILE_DIRECTORY)
   {
     // DCPY_APPEND flag not valid in directory copy
-    return CopyTree((PSZ)pszOld, (PSZ)pszNew, ulOptions & ~DCPY_APPEND, 0);
+    rc = CopyTree((PSZ)pszOld, (PSZ)pszNew, ulOptions & ~DCPY_APPEND, 0);
+    log("%s rc=%lu\n", __FUNCTION__, rc);
+    return rc;
   } else {
-    return CopyFile((PSZ)pszOld, (PSZ)pszNew, ulOptions); // @todo pass options
+    rc = CopyFile((PSZ)pszOld, (PSZ)pszNew, ulOptions); // @todo pass options
+    log("%s rc=%lu\n", __FUNCTION__, rc);
+    return rc;
   };
 }
 
@@ -484,7 +492,11 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
                           &fileStatus,          // Address of return buffer
                           sizeof(FILESTATUS3)); // Size of buffer
 
-    if (rc) return rc;
+    if (rc)
+    {
+      log("%s rc=%lu\n", __FUNCTION__, rc);
+      return rc;
+    }
 
     // Perfom action based on source path type
     if (fileStatus.attrFile & FILE_DIRECTORY)
@@ -493,11 +505,15 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
     else
     {
       if (rc = CopyFile((PSZ)pszOld, (PSZ)pszNew, 0))
+      {
+        log("%s rc=%lu\n", __FUNCTION__, rc);
         return rc;
+      }
 
       rc = DosDelete(pszOld);
     }
   }
 
+  log("%s rc=%lu\n", __FUNCTION__, rc);
   return rc;
 }
