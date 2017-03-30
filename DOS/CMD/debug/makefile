@@ -5,11 +5,13 @@
 #
 
 PROJ      = debug
-DESC      = Control file attributes
+DESC      = DOS debugger
 #defines object file names in format objname.$(O)
 srcfiles  = $(p)DEBUG$(e)
 # defines additional options for C compiler
-ADD_ASMOPT = -dPM=0 -dNASM=1
+ADD_ASMOPT  = -dPM=0 -dNASM=0
+ADD_LINKOPT = lib $(%WATCOM)$(SEP)lib286$(SEP)noemu87.lib
+COM = 1
 
 !include $(%ROOT)/mk/appsdos.mk
 

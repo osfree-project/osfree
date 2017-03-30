@@ -30,10 +30,28 @@
 ;				128 bytes of program.
 ;
 
+.model small
+.8086
+.code
+
+public p_flags
+public cmdline
+public parse_cmds
+
+extern append_state  :word
+extern copy_environ  :near
+extern setenv_append :near
+extern append_path   :byte
+extern append_prefix :byte
+extern NoAppend      :byte
+extern TooMany       :byte
+extern Help          :byte
+extern Invalid       :byte
+
 MAXARGS		equ	20
 setenv		db	0		; Set Environment indicator
 currpar		dw	0		; Pointer to current argument
-cmdline		dw	0x80, 0		; Copy of command line
+cmdline		dw	80h, 0		; Copy of command line
 
 p_xon		db	"X:ON", 0
 p_xoff		db	"X:OFF", 0
@@ -49,13 +67,10 @@ p_flags		db	00000000b
 ;			|  +------ append found
 ;			|
 ;			+--------- "we are resident" flag
-S_FOUND		equ	00000001b
-E_FOUND		equ	00000010b
-X_FOUND		equ	00000100b
-P_FOUND		equ	00001000b
-A_FOUND		equ	00010000b
-RESIDENT	equ	10000000b
 
+include useful.inc
+include cmdline.inc
+include append.inc
 
 
 ; ---------------------------------------------------------------------------
@@ -73,11 +88,11 @@ copy_cmdline:	push	di
 		push	es
 		pop	ds
 
-		les	di, [cs:cmdline]
+		les	di, cs:[cmdline]
 
 ce_copyloop:	lodsb
 		stosb
-		cmp	al, 0xD
+		cmp	al, 0Dh
 		je	ce_endcopy
 		jmp	ce_copyloop
 ce_endcopy:	pop	es
@@ -98,23 +113,23 @@ ce_endcopy:	pop	es
 print_append:	push	ax
 		push	dx
 		push	ds
-		test	word [cs:append_state], APPEND_ENVIRON	; /E?
+		test	word ptr cs:[append_state], APPEND_ENVIRON	; /E?
 		jz	print_own		; No, read our own append
 
 		call	copy_environ		; Read environ
 
-print_own:	cmp	byte [cs:append_path], 0	; Empty?
+print_own:	cmp	byte ptr cs:[append_path], 0	; Empty?
 		jnz	prt_append
 
-noappend:	push	cs
+noappend2:	push	cs
 		pop	ds
-		mov	dx, NoAppend
-		mov	ah, 0x09
-		int	0x21
+		mov	dx, offset NoAppend
+		mov	ah, 9h
+		int	21h
 		jmp	pra_done
 
 prt_append:	push	si
-		mov	si, append_prefix
+		mov	si, offset append_prefix
 		push	cs
 		pop	ds
 		call	print
@@ -137,7 +152,7 @@ pra_done:	pop	ds
 ;
 skipblanks:	cld
 sb_loop:	lodsb
-		cmp	al, 0xD		; End of string
+		cmp	al, Dh		; End of string
 		je	sb_return
 		cmp	al, 9		; TAB
 		je	sb_next
@@ -174,26 +189,26 @@ parse_cmds:
 
 		push	cs
 		pop	ds
-		les	si, [cs:cmdline]
+		les	si, cs:[cmdline]
 
 
-		mov	byte [cs:setenv], 0
+		mov	byte ptr cs:[setenv], 0
 		clc
 		call	skipblanks
-		cmp	al, 0xD			; End of string?
+		cmp	al, 0Dh			; End of string?
 		jne	pa_nextarg
 
-		test	byte [cs:p_flags], RESIDENT
+		test	byte ptr cs:[p_flags], RESIDENT
 		jz	pa_done			; Not resident, just install
 		call	print_append		; Resident, print append
 		clc
 		jmp	pa_done
 
 pa_nextarg:	call	skipblanks
-		cmp	al, 0xD			; End of string?
+		cmp	al, 0Dh			; End of string?
 		je	pa_done
 
-		mov	[cs:currpar], si	; Points to next parameter
+		mov	cs:[currpar], si	; Points to next parameter
 
 		lodsb
 
@@ -209,7 +224,7 @@ do_switch:	call	process_switch
 		jc	pa_return
 		jmp	pa_nextarg
 
-pa_done:	test	byte [cs:setenv], 0xFF	; Do we have to setenv?
+pa_done:	test	byte ptr cs:[setenv], 0FFh	; Do we have to setenv?
 		jz	pa_return
 		call	setenv_append		; Yep, set environment
 
@@ -238,14 +253,14 @@ prt_loop:	lodsb
 		jz	prt_end
 		mov	dl, al
 		mov	ah, 02
-		int	0x21
+		int	21h
 		jmp	prt_loop
-prt_end		mov	dl, 13
+prt_end:	mov	dl, 13
 		mov	ah, 02
-		int	0x21
+		int	21h
 		mov	dl, 10
 		mov	ah, 02
-		int	0x21
+		int	21h
 		pop	dx
 		pop	ax
 		pop	si
@@ -262,7 +277,7 @@ is_separator:	cmp	al, ' '
 		je	iss_done
 		cmp	al, '/'
 		je	iss_done
-		cmp	al, 0xD		; CR (End of string)
+		cmp	al, 0Dh		; CR (End of string)
 		je	iss_done
 		cmp	al, 9		; TAB
 		je	iss_done
@@ -297,8 +312,8 @@ fs_done:	dec	si
 ; Returns:  Nothing, modifies SI, CX and the contents of command line
 ;
 print_arg:	call	find_separator
-		mov	byte [ds:si], 0
-		mov	si, [cs:currpar]
+		mov	byte ptr ds:[si], 0
+		mov	si, cs:[currpar]
 		call	print
 		ret
 
@@ -314,7 +329,7 @@ print_arg:	call	find_separator
 ;	    Updates CX
 ;	    Modifies AX, DX
 ;
-get_path:	mov	ah, [cs:p_flags]
+get_path:	mov	ah, cs:[p_flags]
 		test	ah, A_FOUND		; Did any append appeared?
 		jnz	gp_toomany		; That's too many
 		test	ah, E_FOUND		; Using /E?
@@ -327,9 +342,9 @@ gp_setapp:	call	set_append
 gp_toomany:	push	ds
 		push	cs
 		pop	ds
-		mov	dx, TooMany
-		mov	ah, 0x09
-		int	0x21
+		mov	dx, offset TooMany
+		mov	ah, 9h
+		int	21h
 		pop	ds
 		call	print_arg
 		stc
@@ -348,34 +363,34 @@ gp_done:	ret
 ;	    Updates CX
 ;	    Modifies AX
 ;
-set_append:	or	byte [cs:p_flags], A_FOUND
-		cmp	byte [ds:si], ';'	; Special: Clear path
+set_append:	or	byte ptr cs:[p_flags], A_FOUND
+		cmp	byte ptr ds:[si], ';'	; Special: Clear path
 		jne	sa_copypath
 		call	find_separator
-		mov	byte [cs:append_path], 0
+		mov	byte ptr cs:[append_path], 0
 		jmp	sa_done
 
 sa_copypath:	push	di
-		mov	di, append_path
+		mov	di, offset append_path
 
 sa_copyloop:	lodsb
-		toupper al
+		toupper al,1
 		stosb
 		call	is_separator
 		je	sa_endcopy
 		jmp	sa_copyloop
 
-sa_endcopy:	mov	byte [es:di-1], 0
+sa_endcopy:	mov	byte ptr es:[di-1], 0
 		dec	si
 		pop	di
 
-sa_done:	test	word [cs:append_state], APPEND_ENVIRON	; /E?
+sa_done:	test	word ptr cs:[append_state], APPEND_ENVIRON	; /E?
 		jz	sa_return		; No, done, next parameter
 
-		test	byte [cs:p_flags], RESIDENT
+		test	byte ptr cs:[p_flags], RESIDENT
 		jz	sa_return		; We're not resident, no setenv
 
-		mov	byte [cs:setenv], 0xFF	; Mark for setting environment
+		mov	byte ptr cs:[setenv], 0FFh	; Mark for setting environment
 
 sa_return:	ret
 
@@ -386,10 +401,10 @@ sa_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies AL
 ;
-%macro		is_help 0
+is_help macro
 		mov	al, '?'
 		call	is_al
-%endmacro
+endm
 
 ; ---------------------------------------------------------------------------
 ; Macro: is_x	- Checks if switch is "/X"
@@ -397,10 +412,10 @@ sa_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies AL
 ;
-%macro		is_x	0
+is_x macro
 		mov	al, 'X'
 		call	is_al
-%endmacro
+endm
 
 ; ---------------------------------------------------------------------------
 ; Macro: is_e	- Checks if switch is "/E"
@@ -408,10 +423,10 @@ sa_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies AL
 ;
-%macro		is_e	0
+is_e macro
 		mov	al, 'E'
 		call	is_al
-%endmacro
+endm
 
 ; ---------------------------------------------------------------------------
 ; Function: is_al - Checks if switch is a single char
@@ -422,15 +437,15 @@ sa_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies AL
 ;
-is_al:		mov	bl, byte [ds:si]
-		toupper bl
+is_al:		mov	bl, byte ptr ds:[si]
+		toupper bl,2
 		cmp	al, bl
 		jne	ia_return
 		inc	si
-		mov	al, [ds:si]
+		mov	al, ds:[si]
 		call	is_separator
 		je	ia_return
-		mov	si, [cs:currpar]
+		mov	si, cs:[currpar]
 		inc	si			; Skip '/'
 ia_return:	ret
 
@@ -441,11 +456,11 @@ ia_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies CX, DI
 ;
-%macro		is_pathon	0
+is_pathon macro
 		mov	cx, 7
-		mov	di, p_pon
+		mov	di, offset p_pon
 		call	strncasecmp
-%endmacro
+endm
 
 
 ; ---------------------------------------------------------------------------
@@ -454,11 +469,11 @@ ia_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies CX, DI
 ;
-%macro		is_pathoff	0
+is_pathoff macro
 		mov	cx, 8
-		mov	di, p_poff
+		mov	di, offset p_poff
 		call	strncasecmp
-%endmacro
+endm
 
 
 ; ---------------------------------------------------------------------------
@@ -467,11 +482,11 @@ ia_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies CX, DI
 ;
-%macro		is_xon	0
+is_xon macro
 		mov	cx, 4
-		mov	di, p_xon
+		mov	di, offset p_xon
 		call	strncasecmp
-%endmacro
+endm
 
 
 ; ---------------------------------------------------------------------------
@@ -480,11 +495,11 @@ ia_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies CX, DI
 ;
-%macro		is_xoff 0
+is_xoff macro
 		mov	cx, 5
-		mov	di, p_xoff
+		mov	di, offset p_xoff
 		call	strncasecmp
-%endmacro
+endm
 
 
 ; ---------------------------------------------------------------------------
@@ -498,9 +513,9 @@ ia_return:	ret
 ; Returns: Zero if matches
 ;	   Modifies AL, BL, CX, DI, SI
 ;
-strncasecmp:	mov	al, [ds:si]
-		toupper al
-		mov	bl, [es:di]
+strncasecmp:	mov	al, ds:[si]
+		toupper al,3
+		mov	bl, es:[di]
 		cmp	al, bl
 		jne	snc_nomatch
 		inc	si
@@ -508,11 +523,11 @@ strncasecmp:	mov	al, [ds:si]
 		loop	strncasecmp
 		or	cx, cx
 		jnz	snc_nomatch
-		mov	al, [ds:si]
+		mov	al, ds:[si]
 		call	is_separator
 		je	snc_return
 snc_nomatch:	pushf
-		mov	si, [cs:currpar]
+		mov	si, cs:[currpar]
 		inc	si			; Skip '/'
 		popf
 snc_return:	ret
@@ -566,7 +581,7 @@ ps_done:	ret
 ; Returns: Carry if error
 ;	   Modifies AH, [p_flags], [append_state]
 ;
-set_e_flag:	mov	ah, [cs:p_flags]
+set_e_flag:	mov	ah, cs:[p_flags]
 		test	ah, RESIDENT
 		jz	se_teste
 		call	invalid_switch
@@ -579,8 +594,9 @@ se_testp:	test	ah, A_FOUND		; Did any append appeared?
 		jz	se_set
 		call	invalid_switch		; /E not allowed with any path
 		ret
-se_set:		or	byte [cs:p_flags], E_FOUND|S_FOUND
-		or	word [cs:append_state], APPEND_ENVIRON
+;se_set:		or	byte ptr [cs:p_flags], E_FOUND|S_FOUND
+se_set:		or	byte ptr cs:[p_flags], E_FOUND or S_FOUND
+		or	word ptr cs:[append_state], APPEND_ENVIRON
 		clc
 		ret
 
@@ -594,12 +610,12 @@ se_set:		or	byte [cs:p_flags], E_FOUND|S_FOUND
 ; Returns: Carry if error
 ;	   Modifies [p_flags], [append_state]
 ;
-set_x_flag:	test	byte [cs:p_flags], X_FOUND
+set_x_flag:	test	byte ptr cs:[p_flags], X_FOUND
 		jz	sx_set
 		call	invalid_switch
 		ret
-sx_set:		or	byte [cs:p_flags], S_FOUND
-		or	word [cs:append_state], APPEND_EXTENDD
+sx_set:		or	byte ptr cs:[p_flags], S_FOUND
+		or	word ptr cs:[append_state], APPEND_EXTENDD
 		clc
 		ret
 
@@ -615,7 +631,7 @@ sx_set:		or	byte [cs:p_flags], S_FOUND
 ;
 set_xon_flag:	call set_x_flag
 		pushf
-		or	byte [cs:p_flags], X_FOUND
+		or	byte ptr cs:[p_flags], X_FOUND
 		popf
 		ret
 
@@ -628,12 +644,14 @@ set_xon_flag:	call set_x_flag
 ; Returns: Carry if error
 ;	   Modifies [p_flags], [append_state]
 ;
-set_xoff_flag:	test	byte [cs:p_flags], X_FOUND
+set_xoff_flag:	test	byte ptr cs:[p_flags], X_FOUND
 		jz	sxoff_set
 		call	invalid_switch
 		ret
-sxoff_set:	or	byte [cs:p_flags], X_FOUND|S_FOUND
-		and	word [cs:append_state], APPEND_EXTENDD^0xFFFF
+;sxoff_set:	or	byte ptr [cs:p_flags], X_FOUND|S_FOUND
+sxoff_set:	or	byte ptr cs:[p_flags], X_FOUND or S_FOUND
+;		and	word ptr [cs:append_state], APPEND_EXTENDD^0xFFFF
+		and	word ptr cs:[append_state], APPEND_EXTENDD xor 0FFFFh
 		clc
 		ret
 
@@ -646,12 +664,14 @@ sxoff_set:	or	byte [cs:p_flags], X_FOUND|S_FOUND
 ; Returns: Carry if error
 ;	   Modifies [p_flags], [append_state]
 ;
-set_pon_flag:	test	byte [cs:p_flags], P_FOUND
+set_pon_flag:	test	byte ptr cs:[p_flags], P_FOUND
 		jz	spon_set
 		call	invalid_switch
 		ret
-spon_set:	or	byte [cs:p_flags], P_FOUND|S_FOUND
-		or	word [cs:append_state], APPEND_SRCHPTH|APPEND_SRCHDRV
+;spon_set:	or	byte ptr [cs:p_flags], P_FOUND|S_FOUND
+spon_set:	or	byte ptr cs:[p_flags], P_FOUND or S_FOUND
+;		or	word ptr [cs:append_state], APPEND_SRCHPTH|APPEND_SRCHDRV
+		or	word ptr cs:[append_state], APPEND_SRCHPTH or APPEND_SRCHDRV
 		clc
 		ret
 
@@ -663,12 +683,14 @@ spon_set:	or	byte [cs:p_flags], P_FOUND|S_FOUND
 ; Returns: Carry if error
 ;	   Modifies [p_flags], [append_state]
 ;
-set_poff_flag:	test	byte [cs:p_flags], P_FOUND
+set_poff_flag:	test	byte ptr cs:[p_flags], P_FOUND
 		jz	spoff_flag
 		call	invalid_switch
 		ret
-spoff_flag:	or	byte [cs:p_flags], P_FOUND|S_FOUND
-		and	word [cs:append_state], (APPEND_SRCHPTH|APPEND_SRCHDRV)^0xFFFF
+;spoff_flag:	or	byte ptr [cs:p_flags], P_FOUND|S_FOUND
+spoff_flag:	or	byte ptr cs:[p_flags], P_FOUND or S_FOUND
+;		and	word ptr [cs:append_state], (APPEND_SRCHPTH|APPEND_SRCHDRV)^0xFFFF
+		and	word ptr cs:[append_state], (APPEND_SRCHPTH or APPEND_SRCHDRV) xor 0FFFFh
 		clc
 		ret
 
@@ -684,9 +706,9 @@ spoff_flag:	or	byte [cs:p_flags], P_FOUND|S_FOUND
 prt_help:	push	ds
 		push	cs
 		pop	ds
-		mov	dx, Help
-		mov	ah, 0x09
-		int	0x21
+		mov	dx, offset Help
+		mov	ah, 9h
+		int	21h
 		pop	ds
 		stc
 		ret
@@ -706,13 +728,15 @@ invalid_switch:
 		push	ds
 		push	cs
 		pop	ds
-		mov	dx, Invalid
-		mov	ah, 0x09
-		int	0x21
+		mov	dx, offset Invalid
+		mov	ah, 9h
+		int	21h
 		pop	ds
 		call	find_separator
-		mov	byte [ds:si], 0
-		mov	si, [cs:currpar]
+		mov	byte ptr ds:[si], 0
+		mov	si, cs:[currpar]
 		call	print
 		stc
 		ret
+
+       end

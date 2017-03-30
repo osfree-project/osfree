@@ -23,6 +23,29 @@
 ;                            	MS compatibility
 ;
 
+
+.model small
+.8086
+.code
+
+public cmdnambuf
+public cmdlinbuf
+public old_int2f
+public int2f
+
+extern p_flags :byte
+extern handler :byte
+extern parse_cmds :near
+extern int21usr   :near
+extern append_state  :word
+extern usr_int21     :dword
+extern append_path   :byte
+extern cmd_id        :byte
+
+include useful.inc
+include append.inc
+include cmdline.inc
+
 old_int2f	dd	0	; Original INT 2F handler
 
 cmdnambuf	dd	0	; Pointer to command name buffer
@@ -33,17 +56,18 @@ cmdlen		dw	0	; Real command length
 ;  INT 2F HOOK
 ; ===========================================================================
 ;
-int2f:		cmp	ah, 0xAE		; Installable command?
+int2f:		cmp	ah, 0AEh		; Installable command?
 		je	i2fae
-		cmp	ah, 0xB7		; APPEND ?
+		cmp	ah, 0B7h		; APPEND ?
 		je	i2fb700
-chain:		jmp	far [cs:old_int2f]	; Nope, chain to old handler
+;chain:		jmp	far [cs:old_int2f]	; Nope, chain to old handler
+chain:		jmp	dword ptr cs:[old_int2f]	; Nope, chain to old handler
 
 ; ---------------------------------------------------------------------------
 ;  2FAE : INSTALLABLE COMMAND
 ; ---------------------------------------------------------------------------
 ;
-i2fae:		cmp	dx, 0xFFFF		; Check magic number
+i2fae:		cmp	dx, 0FFFFh		; Check magic number
 		jne	chain
 
 ; ----- 2FAE00 : INSTALLABLE COMMAND - INSTALLATION CHECK -------------------
@@ -54,7 +78,7 @@ i2fae:		cmp	dx, 0xFFFF		; Check magic number
 		call	check_name		; APPEND ?
 		jne	chain			; Nope, chain to orig. handler
 
-		mov	al, 0xFF		; Say YES and return
+		mov	al, 0FFh		; Say YES and return
 		iret
 
 ; ----- 2FAE01 : INSTALLABLE COMMAND - EXECUTE ------------------------------
@@ -65,14 +89,14 @@ i2fae01:	cmp	al, 1
 		call	check_name		; APPEND ?
 		jne	chain
 
-		mov	byte [si], 0		; Do not execute on return
+		mov	byte ptr [si], 0		; Do not execute on return
 
-		mov	[cs:cmdnambuf], si	; Save command name and line
-		mov	[cs:cmdnambuf+2], ds	; buffers
-		mov	[cs:cmdlinbuf], bx	;
-		mov	[cs:cmdlinbuf+2], ds	;
+		mov	word ptr cs:[cmdnambuf], si	; Save command name and line
+		mov	word ptr cs:[cmdnambuf+2], ds	; buffers
+		mov	word ptr cs:[cmdlinbuf], bx	;
+		mov	word ptr cs:[cmdlinbuf+2], ds	;
 
-		mov	byte [cs:p_flags], RESIDENT	; Set resident flag
+		mov	byte ptr cs:[p_flags], RESIDENT	; Set resident flag
 							; and clean the rest
 
 		push	bx
@@ -83,8 +107,8 @@ i2fae01:	cmp	al, 1
 		xor	cx, cx
 		inc	bx			;
 		mov	cl, [bx]		; Get cmdline length
-		sub	cx, [cs:cmdlen]		; Skip command
-		add	bx, [cs:cmdlen]		;
+		sub	cx, cs:[cmdlen]		; Skip command
+		add	bx, cs:[cmdlen]		;
 		inc	bx
 
 		push	ds
@@ -108,10 +132,10 @@ i2fae01:	cmp	al, 1
 
 ; ----- 2FB700 : APPEND - INSTALLATION CHECK --------------------------------
 ;
-i2fb700:	cmp	al, 0x00		; MS-DOS APPEND seems to use
+i2fb700:	cmp	al, 00h		; MS-DOS APPEND seems to use
 		jne	i2fb701			; 0x10 instead.
 						;
-		mov	al, 0xFF
+		mov	al, 0FFh
 		iret
 
 ; ----- 2FB701 : APPEND - GET APPEND PATH (Microtek) ------------------------
@@ -123,51 +147,51 @@ i2fb701:					; Not documented, unimplemented
 
 ; ----- 2FB702 : APPEND - GET VERSION ---------------------------------------
 ;
-i2fb702:	cmp	al, 0x02		; In MS-DOS 5.0+ APPEND this
+i2fb702:	cmp	al, 02h		; In MS-DOS 5.0+ APPEND this
 		jne	i2fb703			; is a stub that returns
-		mov	ax, 0xFDFD		; 0xFFFF
+		mov	ax, 0FDFDh		; 0xFFFF
 		iret
 
 ; ----- 2FB703 : APPEND - HOOK INT 21 ---------------------------------------
 ;
-i2fb703:	cmp	al, 0x03
+i2fb703:	cmp	al, 03h
 		jne	i2fb704
-		xor	byte [cs:handler], USERHNDL	; Toggle flag
-		mov	[cs:usr_int21], di		; Set user handler
-		mov	[cs:usr_int21+2], es
+		xor	byte ptr cs:[handler], USERHNDL	; Toggle flag
+		mov	word ptr cs:[usr_int21], di		; Set user handler
+		mov	word ptr cs:[usr_int21+2], es
 		push	cs				; Returns append int21
 		pop	es				; handler
-		mov	di, int21usr
+		mov	di, offset int21usr
 		iret
 
 ; ----- 2FB704 : APPEND - GET APPEND PATH -----------------------------------
 ;
-i2fb704:	cmp	al, 0x04
+i2fb704:	cmp	al, 04h
 		jne	i2fb706
 		push	cs
 		pop	es
-		mov	di, append_path
+		mov	di, offset append_path
 		iret
 
 ; ----- 2FB706 : APPEND - GET APPEND FUNCTION STATE -------------------------
 ;
-i2fb706:	cmp	al, 0x06
+i2fb706:	cmp	al, 06h
 		jne	i2fb707
-		mov	bx, [cs:append_state]
+		mov	bx, cs:[append_state]
 		iret
 
 ; ----- 2FB707 : APPEND - SET APPEND FUNCTION STATE -------------------------
 ;
-i2fb707:	cmp	al, 0x07
+i2fb707:	cmp	al, 07h
 		jne	i2fb710
-		mov	[cs:append_state], bx
+		mov	cs:[append_state], bx
 		iret
 
 ; ----- 2FB710 : APPEND - GET VERSION INFO ----------------------------------
 ;
-i2fb710:	cmp	al, 0x10
+i2fb710:	cmp	al, 10h
 		jne	i2fb711
-		mov	ax, [cs:append_state]
+		mov	ax, cs:[append_state]
 		xor	bx, bx		; Emulate MS-DOS 5.0 APPEND
 		xor	cx, cx		;
 		mov	dl, 5		;
@@ -176,22 +200,23 @@ i2fb710:	cmp	al, 0x10
 
 ; ----- 2FB711 : APPEND - SET RETURN FOUND NAME STATE -----------------------
 ;
-i2fb711:	cmp	al, 0x11
+i2fb711:	cmp	al, 11h
 		jne	end_i2fb7
 
 		push	ax
 		push	bx
 		push	es
-		mov	ah, 0x51		; Get caller's PSP pointer
-		int	0x21
+		mov	ah, 51h		; Get caller's PSP pointer
+		int	21h
 		mov	es, bx
-		mov	byte [es:0x3D], 0x01	; Set state in caller's PSP
+		mov	byte ptr es:[03Dh], 01h	; Set state in caller's PSP
 		pop	es
 		pop	bx
 		pop	ax
 		iret
 
-end_i2fb7:	jmp	far [cs:old_int2f]
+;end_i2fb7:	jmp	far [cs:old_int2f]
+end_i2fb7:	jmp	dword ptr cs:[old_int2f]
 
 
 ; ---------------------------------------------------------------------------
@@ -211,43 +236,43 @@ check_name:
 		push	es
 		mov	cl, [bx+1]	; command line length
 		cmp	cl, 6
-		jc	.ret		; Less that 6 chars, it's not 'APPEND'
+		jc	ret1		; Less that 6 chars, it's not 'APPEND'
 		xor	ch, ch		; Expand to cx
 		add	bx, 2		; Points to first char
 		push	bx
-		cmp	byte [bx+1], ':'	; Drive unit?
-		jne	.savini
+		cmp	byte ptr [bx+1], ':'	; Drive unit?
+		jne	savini
 		add	bx, 2		; Skip it
 		sub	cx, 2
-.savini		mov	dx, bx		; Save it
-.chkc		mov	ah, [bx]
+savini:		mov	dx, bx		; Save it
+chkc:		mov	ah, [bx]
 		call	isfnc		; Valid filename char?
-		jc	.chkback	; No, check for backslash
-.next		toupper	ah
+		jc	chkback	; No, check for backslash
+next:		toupper	ah,5
 		mov	[bx], ah
 		inc	bx
 		dec	cx
-		jcxz	.completed
-		jmp	.chkc
-.chkback	cmp	ah, '\'
-		jne	.completed
+		jcxz	completed
+		jmp	chkc
+chkback:	cmp	ah, '\'
+		jne	completed
 		mov	dx, bx		; Save position
 		inc	dx		; skip backslash
-		jmp	.next
-.completed	mov	si, dx
-		mov	[cs:cmdlen], bx	; Calculate total command length
+		jmp	next
+completed:	mov	si, dx
+		mov	cs:[cmdlen], bx	; Calculate total command length
 		sub	bx, dx		; Calculate length
 		pop	dx		; Recover original pointer
-		sub	[cs:cmdlen], dx	;
+		sub	cs:[cmdlen], dx	;
 		mov	cx, bx
 		cmp	cx, 6		; If its not 6 bytes long, it is not
-		jne	.ret		; APPEND
+		jne	ret1		; APPEND
 		mov	ax, cs
 		mov	es, ax
-		mov	di, cmd_id	; "APPEND"
+		mov	di, offset cmd_id	; "APPEND"
 		cld
 		repe	cmpsb
-.ret:		pop	es
+ret1:		pop	es
 		pop	si
 		pop	di
 		pop	dx
@@ -262,18 +287,19 @@ isfnc:				; Check if char is valid for filename
 		push	cs
 		pop	ds
 		mov	cx, nfnccount
-		mov	si, nfnc
-.loop		lodsb
+		mov	si, offset nfnc
+loop1:		lodsb
 		cmp	ah, al
 		stc
-		je	.ret
-		loop	.loop
+		;je	.ret
+		je	ret2
+		loop	loop1
 		clc
-.ret		pop	ds
+ret2:		pop	ds
 		pop	si
 		pop	cx
 		ret
-nfnc		db	0x7f, 0x3b,' "/\[]:|<>+=,'
+nfnc		db	07fh, 03bh,' "/\[]:|<>+=,'
 nfnccount	equ	($-nfnc)
 
-		
+       end

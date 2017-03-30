@@ -28,12 +28,46 @@
 ;				Bug: Now it _really_ frees the environment
 ; 06-01-23  casino_e@terra.es   Add version string
 ;
-%define	VERSION	"5.0.0.6"
+VERSION equ "5.0.0.6"
 
-%ifdef NEW_NASM
-	cpu	8086
-%endif
-%include "exebin.mac"
+.model small
+.8086
+
+;include "exebin.mac"
+; -*- nasm -*-
+; NASM macro file to allow the `bin' output format to generate
+; simple .EXE files by constructing the EXE header by hand.
+; Adapted from a contribution by Yann Guidon <whygee_corp@hol.fr>
+; Modified by Eduardo Casino <casino_e@terra.es> with info by
+;   Arkady V. Belousov
+
+;EXE_headersize equ offset header_end  - offset header_start
+;EXE_acodesize  equ offset EXE_endcode - offset EXE_startcode
+;EXE_datasize   equ offset EXE_enddata - offset EXE_startdata
+;EXE_absssize   equ offset EXE_endbss  - offset EXE_startbss
+;EXE_allocsize  equ EXE_acodesize + EXE_datasize + EXE_headersize
+; 
+;EXE_stacksize equ 800h	; default if nothing else was used
+
+public start
+public append_state
+public append_path
+public append_prefix
+public cmd_id
+public NoAppend
+public TooMany
+public Help
+public Invalid
+
+extern p_flags :byte
+extern cmdline :word
+extern tempDTA :dword
+extern old_int2f :dword
+extern old_int21 :dword
+extern get_environ :near
+extern parse_cmds  :near
+extern int2f       :near
+extern int21       :near
 
 ; ===========================================================================
 ; RESIDENT PART
@@ -44,20 +78,62 @@
 ; tempDTA	times 0x80 db 0
 ; cmdline	times 0x100 db 0	; First 128 bytes of cmdline in PSP
 ;
-EXE_begin
-EXE_stack 512
-SECTION .text
-		times 0x80 db 0		; Last 128 bytes of cmdline
+;EXE_begin
+          ;.code
+	  ;section .text
+          ;.code
 
-%include	"useful.mac"
-%include	"environ.asm"
-%include	"cmdline.asm"
-%include	"int2f.asm"
-%include	"int21.asm"
+if 0
+_TEXT segment word public 'CODE' use16
 
-cmd_id
+	  org 0E0h
+header_start:
+	  db 4Dh,5Ah		; EXE file signature
+	  dw EXE_allocsize mod 512
+	  dw (EXE_allocsize + 511) / 512
+	  dw 0			; relocation information: none
+	  dw 2			; header size in paragraphs
+	  ;dw (EXE_absssize + EXE_realstacksize) / 16 ; min extra mem
+	  dw (EXE_absssize + EXE_stacksize) / 16 ; min extra mem
+	  ;dw (EXE_absssize + EXE_realstacksize) / 16 ; max extra mem
+	  dw (EXE_absssize + EXE_stacksize) / 16 ; max extra mem
+	  dw -10h		; Initial SS (before fixup)
+	  ;dw offset EXE_endbss + EXE_realstacksize ; Initial SP (1K DPMI+1K STACK)
+	  dw (EXE_allocsize + EXE_stacksize) ; Initial SP (1K DPMI+1K STACK)
+	  dw 0			; (no) Checksum
+	  dw start		; Initial IP
+	  dw -10h		; Initial CS (before fixup)
+	  dw 0	 		; file offset to relocation table
+	  dw 0			; (no overlay)
+	  ;align 16
+          dw 0
+          dw 0
+header_end:
+
+_TEXT ends
+endif
+
+_TEXT segment
+
+;SECTION .text
+                ;.code
+		;times 0x80 db 0		; Last 128 bytes of cmdline
+                ;;;;db 80h dup(0)		; Last 128 bytes of cmdline
+                ;org 0E0h
+
+include useful.inc
+include cmdline.inc
+include append.inc
+
+;include	environ.asm
+;include	cmdline.asm
+;include	int2f.asm
+;include	int21.asm
+
+cmd_id:
 append_prefix	db	"APPEND="
-append_path	times 0x100 db 0
+;append_path	times 0x100 db 0
+append_path	db 100h dup(0)
 
 append_state	dw	0011000000000001b
 ;			||||\_________/|
@@ -73,11 +149,11 @@ append_state	dw	0011000000000001b
 ;			|			    exists)
 ;			+---------------- 15	set if /X flag active
 ;
-APPEND_ENABLED	equ	0000000000000001b
-APPEND_SRCHDRV	equ	0001000000000000b
-APPEND_SRCHPTH	equ	0010000000000000b
-APPEND_ENVIRON	equ	0100000000000000b
-APPEND_EXTENDD	equ	1000000000000000b
+;APPEND_ENABLED	equ	0000000000000001b
+;APPEND_SRCHDRV	equ	0001000000000000b
+;APPEND_SRCHPTH	equ	0010000000000000b
+;APPEND_ENVIRON	equ	0100000000000000b
+;APPEND_EXTENDD	equ	1000000000000000b
 
 NoAppend	db	13, "No Append", 13, 10, '$'
 Invalid		db	13, "Invalid switch  - ", '$'
@@ -123,11 +199,11 @@ end_resident:
 WrnInstalled	db	13, "APPEND already installed", 13, 10, '$'
 WrongAppend	db	13, "Incorrect APPEND version", 13, 10, '$'
 
-start:		mov	ax, 0xB710	; Check if we're already installed
-		mov	dx, 0x0000
-		int	0x2F
+start:		mov	ax, 0B710h	; Check if we're already installed
+		mov	dx, 00000h
+		int	2Fh
 
-		cmp	dx, 0x0000	; Not installed
+		cmp	dx, 0000h	; Not installed
 		je	install
 
 		cmp	dl, 5		; Check installed version
@@ -135,17 +211,17 @@ start:		mov	ax, 0xB710	; Check if we're already installed
 		cmp	dh, 0
 		je	installed
 
-wrong:		mov	dx, WrongAppend
-		mov	ah, 0x09
-		int	0x21
+wrong:		mov	dx, offset WrongAppend
+		mov	ah, 09h
+		int	21h
 		jmp	quit
 
-installed:	mov	dx, WrnInstalled
-		mov	ah, 0x09
-		int	0x21
+installed:	mov	dx, offset WrnInstalled
+		mov	ah, 09h
+		int	21h
 
-quit:		mov	ax, 0x4C01	; Exit, errorlevel 1
-		int	0x21
+quit:		mov	ax, 4C01h	; Exit, errorlevel 1
+		int	21h
 
 install:	mov	bx, cs
 
@@ -153,66 +229,98 @@ install:	mov	bx, cs
 		; 128 bytes of PSP plus first 128 bytes of program. cmdline
 		; already contains 0x80
 		;
-		mov	[cs:tempDTA+2], bx
-		mov	[cs:cmdline+2], bx
+		mov	word ptr cs:[tempDTA+2], bx
+		mov	cs:[cmdline+2], bx
 
 		call	get_environ	; Get PARENT environment
 
 		; Parse command line parameters.
 		;
 		mov	es, bx		; ES:SI to command line
-		mov	si, 0x80
+		mov	si, 80h
 		xor	cx, cx
-		mov	cl, [es:si]	; Length of command line
+		mov	cl, es:[si]	; Length of command line
 		inc	si
 		call	parse_cmds
 		jc	quit
 
 		; Free some bytes, release environment
 		;
-		mov	bx, [es:0x2C]	 ; Segment of environment
+		mov	bx, es:[2Ch]	 ; Segment of environment
 		mov	es, bx
-		mov	ah, 0x49	 ; Free memory
-		int	0x21
+		mov	ah, 49h		 ; Free memory
+		int	21h
 
 		; Get vect to original int2f handler
 		;
-		mov	ax, 0x352F
-		int	0x21		; get vector to ES:BX
+		mov	ax, 352Fh
+		int	21h		; get vector to ES:BX
 		mov	ax, es
-		mov	[old_int2f], bx
-		mov	[old_int2f+2], ax
+		mov	word ptr [old_int2f], bx
+		mov	word ptr [old_int2f+2], ax
 
 		; Now, install new int2f handler
 		;
-		mov	ax, 0x252F
-		mov	dx, int2f
-		int	0x21		; DS:DX -> new interrupt handler
+		mov	ax, 252Fh
+		mov	dx, offset int2f
+		int	21h		; DS:DX -> new interrupt handler
 
 		; Get vect to original int21 handler
 		;
-		mov	ax, 0x3521
-		int	0x21		; get vector to ES:BX
+		mov	ax, 3521h
+		int	21h		; get vector to ES:BX
 		mov	ax, es
-		mov	[old_int21], bx
-		mov	[old_int21+2], ax
+		mov	word ptr [old_int21], bx
+		mov	word ptr [old_int21+2], ax
 
 		; Now, install new int21 handler
 		;
-		mov	ax, 0x2521
-		mov	dx, int21
-		int	0x21		; DS:DX -> new interrupt handler
+		mov	ax, 2521h
+		mov	dx, offset int21
+		int	21h		; DS:DX -> new interrupt handler
 
-		mov	byte [p_flags], RESIDENT     ; Set resident flag
+		mov	byte ptr [p_flags], RESIDENT     ; Set resident flag
 						     ; and clean the rest
 
 		; Terminate and stay resident
 		;
-		mov	dx, end_resident+15
+		mov	dx, offset end_resident+15
 		mov	cl, 4
 		shr	dx, cl		; Convert to paragraphs
 
-		mov	ax, 0x3100	; Errorlevel 0
-		int	0x21
+		mov	ax, 3100h	; Errorlevel 0
+		int	21h
 
-EXE_end
+;EXE_end
+	  ;section .text
+          ;.code
+;EXE_endcode:
+
+_TEXT ends
+
+;_DATA segment
+
+	  ;section .data
+          ;.data
+;EXE_enddata:
+
+;_DATA ends
+
+;_BSS  segment
+
+	  ;section .bss
+	  ;alignb 2
+;EXE_endbss:
+
+;_BSS  ends
+
+;STACK segment
+
+          ;.stack
+;EXE_endstack:
+
+;STACK ends
+
+DGROUP group _TEXT ;, _DATA, _BSS, STACK
+
+       end

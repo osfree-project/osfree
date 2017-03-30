@@ -84,8 +84,10 @@ pot1:
     and bl, 0fh		;bits 0-3
     je pot2
 	lea ebx, [ebx+ebx*4]
-	fld tword [ebx*2-10+ten_1]
-	fmulp st1, st0
+	;fld tword [ebx*2-10+ten_1]
+	fld [ebx*2-10+ten_1]
+	;fmulp st1, st0
+	fmulp st(1), st(0)
 pot2:    
 
     mov bl, al
@@ -93,23 +95,29 @@ pot2:
     and bl, 0fh		;bits 4-7
 	je pot3
 	lea ebx, [ebx+ebx*4]
-	fld tword [ebx*2-10+ten_16]
-	fmulp st1, st0
+	;fld tword [ebx*2-10+ten_16]
+	fld [ebx*2-10+ten_16]
+	;fmulp st1, st0
+	fmulp st(1), st(0)
 pot3:    
 
     mov bl, ah
     and bl, 1fh		;bits 8-12
 	je pot4
 	lea ebx, [ebx+ebx*4]
-	fld tword [ebx*2-10+ten_256]
-	fmulp st1, st0
+	;fld tword [ebx*2-10+ten_256]
+	fld [ebx*2-10+ten_256]
+	;fmulp st1, st0
+	fmulp st(1), st(0)
 pot4:    
 	cmp ecx, 0		;.IF (SDWORD PTR ecx < 0)
 	jge pot5
-	fdivp st1, st0
+	;fdivp st1, st0
+	fdivp st(1), st(0)
     ret
 pot5:    
-	fmulp st1, st0
+	;fmulp st1, st0
+	fmulp st(1), st(0)
     ret
 
 ;PowerOf10 ENDP
@@ -133,7 +141,8 @@ FloatToBCD:
 	; packed BCD form in ten bytes, with two digits per byte.  The top 
 	; byte has the sign, which we ignore.
 
-    fbstp [bp-12]
+    ;fbstp [bp-12]
+    fbstp tbyte ptr [bp-12]
 
 	; Now we need to unpack the BCD to ASCII.
 
@@ -177,13 +186,13 @@ FloatToStr:
     push si
     push di
     
-%define pfpin	bp+4
-%define szDbl	bp+6
-%define iExp 	bp-4
-%define mystat  bp-6
-%define fpin	bp-16
-%define stat	bp-18
-%define szTemp	bp-40
+pfpin	equ [bp+4]
+szDbl	equ [bp+6]
+iExp 	equ [bp-4]
+mystat  equ [bp-6]
+fpin	equ [bp-16]
+stat	equ [bp-18]
+szTemp	equ [bp-40]
 
 ;    LOCAL iExp: DWORD
 ;    LOCAL mystat: WORD
@@ -194,10 +203,10 @@ FloatToStr:
 
 ; Special case zero.  fxtract fails for zero.
 	
-
-    mov si, [pfpin]
+    ;mov si, [pfpin]
+    mov si, pfpin
     
-    lea di, [fpin]
+    lea di, fpin
     xor dx, dx
     mov cx, 5
 ftsn1:    
@@ -206,7 +215,7 @@ ftsn1:
     stosw
     loop ftsn1
     
-    mov di, [szDbl]
+    mov di, szDbl
 	and dx,dx
     jnz notnull
     mov al,'0'
@@ -216,9 +225,11 @@ notnull:
 
 ; Check for a negative number.
 
-	test byte [fpin+9],80h
+	;test byte [fpin+9],80h
+	test byte ptr fpin+9,80h
     jz ispositive
-    and byte [fpin+9], 07fh		; change to positive
+    ;and byte [fpin+9], 07fh		; change to positive
+    and byte ptr fpin+9, 07fh		; change to positive
     mov al,'-'        			; store a minus sign
     stosb
 ispositive:
@@ -226,12 +237,16 @@ ispositive:
 ; Initialize the floating point unit and load our value onto the stack.
 
     fclex
-    fstcw [stat]
-    mov word [mystat], 027fh
-    fldcw word [mystat]
+    fstcw stat
+    ;mov word [mystat], 027fh
+    mov word ptr mystat, 027fh
+    ;fldcw word [mystat]
+    fldcw word ptr mystat
 
-    fld tword [fpin]
-    fld st0
+    ;fld tword [fpin]
+    fld tbyte ptr fpin
+    ;fld st0
+    fld st(0)
 
 ; Compute the closest power of 10 below the number.  We can't get an
 ; exact value because of rounding.  We could get close by adding in
@@ -244,10 +259,12 @@ ispositive:
 ; what we want.
 
     fxtract				; ST=> mantissa, exponent, fpin
-    fstp st0			; drop the mantissa
+    ;fstp st0			; drop the mantissa
+    fstp st(0)			; drop the mantissa
     fldlg2				; push log10(2)
-    fmulp st1, st0		; ST = log10(fpin), fpin
-    fistp dword [iExp]	; ST = fpin
+    ;fmulp st1, st0		; ST = log10(fpin), fpin
+    fmulp st(1), st(0)		; ST = log10(fpin), fpin
+    fistp dword ptr iExp	; ST = fpin
 
 ; An 8-byte double can carry almost 16 digits of precision.  Actually, it's
 ; 15.9 digits, so some numbers close to 1E17 will be wrong in the bottom
@@ -256,11 +273,13 @@ ispositive:
 ; A 10-byte double can carry almost 19 digits, but fbstp only stores the
 ; guaranteed 18.  If you're doing 10-byte doubles, change the '16' to '18'.
 
-	cmp dword [iExp],18
+	cmp dword ptr iExp,18
     jnc notbelow18
-    fld st0			; ST = fpin, fpin
+    ;fld st0			; ST = fpin, fpin
+    fld st(0)			; ST = fpin, fpin
     frndint			; ST = int(fpin), fpin
-    fcomp st1		; ST = fpin, status set
+    ;fcomp st1		; ST = fpin, status set
+    fcomp st(1)		; ST = fpin, status set
     fstsw ax
     test ah, FP_EQUALTO
     jz notequal
@@ -268,21 +287,22 @@ ispositive:
 ; We have an integer!  Lucky day.  Go convert it into a temp buffer.
 
 	push di
-	lea di, [szTemp]
+	lea di, szTemp
 	call FloatToBCD
     pop di
 
 	mov eax, 17
-	mov ecx, [iExp]
+	mov ecx, iExp
 	sub eax, ecx
 	inc cx
-	lea si, [szTemp]
+	lea si, szTemp
     add si, ax
 
 ; The off-by-one order of magnitude problem below can hit us here.  
 ; We just trim off the possible leading zero.
 
-	cmp byte [si],'0'
+	;cmp byte [si],'0'
+	cmp byte ptr [si],'0'
     jnz not0digit
     inc si
 	dec cx
@@ -299,36 +319,39 @@ notbelow18:
 ; Have fbstp round to 17 places.
 
     mov eax, 16			; experiment
-    sub eax, [iExp]		; adjust exponent to 17
+    sub eax, iExp		; adjust exponent to 17
     call PowerOf10
 
 ; Either we have exactly 17 digits, or we have exactly 16 digits.  We can
 ; detect that condition and adjust now.
 
-    fcom qword [ten16]
+    ;fcom qword [ten16]
+    fcom qword ptr [ten16]
     ; x0xxxx00 means top of stack > ten16
     ; x0xxxx01 means top of stack < ten16
     ; x1xxxx00 means top of stack = ten16
     fstsw ax
     test ah,1
     jz notset1
-    fmul qword [ten]
-    dec dword [iExp]
+    ;fmul qword [ten]
+    fmul qword ptr [ten]
+    ;dec dword [iExp]
+    dec dword ptr iExp
 notset1:      
 
 ; Go convert to BCD.
 
 	push di
-	lea  di, [szTemp]
+	lea  di, szTemp
     call FloatToBCD
     pop di
 
-    lea si, [szTemp+1]		; point to converted buffer
+    lea si, szTemp+1		; point to converted buffer
 
 ; If the exponent is between -15 and 16, we should express this as a number
 ; without scientific notation.
 
-    mov ecx, [iExp]
+    mov ecx, iExp
     push ecx
     add ecx,15
     cmp ecx,15+16
@@ -355,14 +378,15 @@ ispos1:
     mov al,'.'
     stosb
     mov ecx, 16
-    sub ecx, [iExp]
+    sub ecx, iExp
 fts3:      
     rep movsb
 
 ; Trim off trailing zeros.
 
 nextitem2:
-	cmp byte [di-1],'0'
+	;cmp byte [di-1],'0'
+	cmp byte ptr [di-1],'0'
     jnz fts1
     dec di
     jmp nextitem2
@@ -370,7 +394,8 @@ fts1:
 
 ; If we cleared out all the decimal digits, kill the decimal point, too.
 
-	cmp byte [di-1], '.'
+	;cmp byte [di-1], '.'
+	cmp byte ptr [di-1], '.'
     jnz fts2
 	dec di
 fts2:    
@@ -386,37 +411,38 @@ fts6:
 ; past it.
 
     movsb				; copy the first digit
-    mov byte [di], '.'		; plop in a decimal point
+    ;mov byte [di], '.'		; plop in a decimal point
+    mov byte ptr [di], '.'		; plop in a decimal point
     inc di
     movsd				; copy four more digits
     movsw				; copy two more digits
 
-%if 0
+if 0
 
 ; The printf %g specified trims off trailing zeros here.  I dislike
 ; this, so I've disabled it.  Comment out the if 0 and endif if you
 ; want this.
 
 fts61:
-	cmp byte [di-1],'0'
+	cmp byte ptr [di-1],'0'
     jz fts62
     dec di
     jmp fts61
 fts62:    
-%endif
+endif
 
 ; Shove in the exponent.  If you support 10-byte reals, remember to
 ; allow 4 digits for the exponent.
 
-    mov byte [di], 'e'	; start the exponent
-    mov ax, [iExp]
+    mov byte ptr [di], 'e'	; start the exponent
+    mov ax, iExp
     and ax, ax
     jns fts7
-    mov byte [di+1], '-'
+    mov byte ptr [di+1], '-'
     neg ax
     jmp fts8
 fts7:    
-    mov byte [edi+1], '+'
+    mov byte ptr [edi+1], '+'
 fts8:      
 
     mov cx, 10
@@ -441,11 +467,11 @@ fts8:
 ; Clean up and go home.
 
 ftsExit:
-    fldcw [stat]		; restore control word
+    fldcw stat		; restore control word
     fwait
 ftsExit2:
 	mov ax,di
-    sub ax,[szDbl]
+    sub ax,szDbl
     mov cx,21
     sub cx,ax
     mov al,' '
@@ -458,12 +484,13 @@ ftsExit2:
 
 ;FloatToStr ENDP
 
-%define pfpin
-%define szDbl
-%define iExp
-%define mystat
-%define fpin
-%define stat
-%define szTemp
+pfpin equ
+szDbl equ
+iExp  equ
+mystat equ
+fpin equ
+stat equ
+szTemp equ
 
-	cpufpu 8086
+;	cpufpu 8086
+.8086

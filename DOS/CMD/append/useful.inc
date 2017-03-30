@@ -23,44 +23,41 @@
 ; TOUPPER - Uppercase the contents of the specified register or address
 ; ARGS	  - 1 - Register or address
 ;
-%macro	toupper 1
-		cmp	%1, 'a'
-		jb	%%end
-		cmp	%1, 'z'
-		jnbe	%%end
-		sub	%1, 'a' - 'A'
-%%end:
-%endmacro
+toupper macro x,y
+    cmp  x, 'a'
+    jb	 a&y
+    cmp	 x, 'z'
+    jnbe a&y
+    sub	 x, 'a' - 'A'
+a&y:
+endm
 
 
 ; UPDATEF - Update caller's flags
 ;	    Replaces the caller's flags with the ones stored in the 1st argument
 ; ARGS	  - 1 : Register or address
 ;
-%macro	updatef 1
+updatef macro x
+    push ax
+    push bx
 
-		push	ax
-		push	bx
+    mov	 bx, sp
+    mov	 ax, x			; Update caller's flags
+    mov	 ss:[bx+8], ax		; in sp+2(bx)+2(ax)+4(cs:ip)
 
-		mov	bx, sp
-		mov	ax, %1			; Update caller's flags
-		mov	[ss:bx+8], ax		; in sp+2(bx)+2(ax)+4(cs:ip)
-
-		pop bx
-		pop ax
-%endmacro
+    pop  bx
+    pop  ax
+endm
 
 
 ; SAVEF - Save flags into the 1st argument
 ;
 ; ARGS	- 1 : Register or address
 ;
-%macro	savef	1
-		push	ax
-		pushf
-		pop	ax
-		mov	%1, ax			; save result
-		pop	ax
-%endmacro
-
-
+savef macro x
+    push  ax
+    pushf
+    pop	  ax
+    mov	  x, ax			; save result
+    pop	  ax
+endm

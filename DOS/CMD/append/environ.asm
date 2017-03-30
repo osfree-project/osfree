@@ -22,6 +22,19 @@
 ;
 
 
+.model small
+.8086
+.code
+
+public get_environ
+public copy_environ
+public setenv_append
+
+extern append_path   :byte
+extern append_prefix :byte
+extern cmdnambuf     :dword
+extern cmdlinbuf     :dword
+
 environ		dw	0	; Segment of parent environment
 envsize		dw	0
 
@@ -48,16 +61,16 @@ get_environ:	push	bx
 		push	es
 
 		mov	es, bx
-		mov	bx, [es:22]	; get the segment for our parent's PSP
+		mov	bx, es:[22]	; get the segment for our parent's PSP
 		mov	es, bx
-		mov	bx, [es:44]	; get the segment for its environment
-		mov	[cs:environ], bx
+		mov	bx, es:[44]	; get the segment for its environment
+		mov	cs:[environ], bx
 		dec	bx		; Point to MCB
 		mov	es, bx
-		mov	bx, [es:0x0003] ; get size of environment
+		mov	bx, es:[0003h] ; get size of environment
 		mov	cl, 4
 		shl	bx, cl		; paragraphs -> bytes
-		mov	[cs:envsize], bx
+		mov	cs:[envsize], bx
 
 		pop	es
 		pop	cx
@@ -73,7 +86,7 @@ get_environ:	push	bx
 ;
 ; Returns:  Modifies [append_path]
 ;
-copy_environ:	mov	byte [cs:append_path], 0	; Empty
+copy_environ:	mov	byte ptr cs:[append_path], 0	; Empty
 		push	ds
 		push	es
 		push	si
@@ -83,15 +96,15 @@ copy_environ:	mov	byte [cs:append_path], 0	; Empty
 
 		mov	cx, cs			; Searches the environment for
 		mov	es, cx			; the APPEND= string
-		mov	cx, [cs:envsize]
-		mov	ds, [cs:environ]
+		mov	cx, cs:[envsize]
+		mov	ds, cs:[environ]
 		xor	si, si
 
-srchloop:	cmp	byte [ds:si], 0		; End of environment?
+srchloop:	cmp	byte ptr ds:[si], 0		; End of environment?
 		jz	ce_done
 
 		push	cx
-		mov	di, append_prefix	; "APPEND="
+		mov	di, offset append_prefix	; "APPEND="
 		mov	cx, 7
 		cld
 		repe	cmpsb			; Found?
@@ -99,14 +112,14 @@ srchloop:	cmp	byte [ds:si], 0		; End of environment?
 		jne	notappend
 
 		sub	cx, 7			; It is APPEND. Update length
-		mov	di, append_path		; and move the rest of the
+		mov	di, offset append_path		; and move the rest of the
 moveappend:	lodsb				; string to append_path
 		stosb
 		or	al, al
 		jz	ce_done
 		loop	moveappend
 
-notappend:	mov	al, [ds:si]		; Not APPEND.
+notappend:	mov	al, ds:[si]		; Not APPEND.
 		inc	si			; Search end of string
 		or	al, al
 		jz	srchloop
@@ -145,24 +158,24 @@ setenv_append:	pushf
 		; Command name is padded with chars. Required by erlier
 		; versions of FreeCOM
 		;
-		mov	si, set_nam		; Update Command Name with
-		mov	di, [cs:cmdnambuf]	; "SET"
-		mov	es, [cs:cmdnambuf+2]
+		mov	si, offset set_nam		; Update Command Name with
+		mov	di, word ptr cs:[cmdnambuf]	; "SET"
+		mov	es, word ptr cs:[cmdnambuf+2]
 		mov	cx, SET_NAM_LEN
 		cld
 		rep	movsb
 
-		mov	si, set_lin		; Update Command Line with
-		mov	di, [cs:cmdlinbuf]	; "SET	  APPEND="
-		mov	es, [cs:cmdlinbuf+2]
+		mov	si, offset set_lin		; Update Command Line with
+		mov	di, word ptr cs:[cmdlinbuf]	; "SET	  APPEND="
+		mov	es, word ptr cs:[cmdlinbuf+2]
 		inc	di
 		mov	bx, di			; Pointer to length
 		mov	cx, SET_LIN_LEN
 		cld
 		rep	movsb
 
-		mov	si, append_path		; Adds path, if any, to
-		cmp	byte [cs:si], 0		; Command Line
+		mov	si, offset append_path		; Adds path, if any, to
+		cmp	byte ptr cs:[si], 0		; Command Line
 		jz	endset
 		dec	di			; overwrites final 0x0D
 		xor	cl, cl
@@ -175,9 +188,9 @@ setappendloop:	lodsb
 		jmp	setappendloop
 
 endappend:	dec	di
-		mov	byte [es:di], 0x0D	; Adds final 0X0D
+		mov	byte ptr es:[di], 0Dh	; Adds final 0X0D
 		mov	di, bx
-		add	byte [es:di], cl	; Updates length
+		add	byte ptr es:[di], cl	; Updates length
 
 endset:		pop	ds
 		pop	es
@@ -187,3 +200,5 @@ endset:		pop	ds
 		pop	cx
 		popf
 		ret
+
+       end
