@@ -26,7 +26,7 @@ TARGETS = $(PATH)$(PROJ).exe $(PATH)..$(SEP)context.def subdirs
 .x: $(MYDIR)
 
 $(PATH)..$(SEP)context.def: $(MYDIR)context.x
- mkctxt $<
- $(CP) $(MYDIR)context.h_c $(PATH)..
- $(CP) $(MYDIR)context.inc $(PATH)..
- 
+ @mkctxt $<
+ @$(CP) $(MYDIR)context.h_c $(PATH).. $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)
+

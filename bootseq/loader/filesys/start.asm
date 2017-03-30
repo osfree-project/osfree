@@ -55,6 +55,8 @@ public   _pprint_possibilities
 public   _pprint_a_completion
 public   _pprintf
 
+public start
+
 include fsd.inc
 ;include fsname.inc
 
@@ -104,6 +106,7 @@ _TEXT    segment dword public 'CODE'  use32
 ;base       dd    0
 ;
 ;           org EXT_BUF_BASE + 40h
+start:
 fsd_init:
          jmp  real_start
 _bss_start     dd (exe_end - EXT_BUF_BASE)

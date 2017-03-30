@@ -11,7 +11,8 @@ srcfiles     = $(p)strcmp$(e) $(p)putchar$(e) $(p)memmove$(e) $(p)aton$(e) $(p)m
 
 !include $(%ROOT)/mk/libs.mk
 
-library      = $(PATH)ldr_shared.lib
+PROJ         = ldr_shared
+library      = $(PATH)$(PROJ).lib
 TARGETS      = library $(library)
 ADD_COPT     = -s $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..
 ADD_ASMOPT   = -3 -s -mf $(DEFINES) -i=$(ROOT)$(SEP)include -i=$(ROOT)$(SEP)include$(SEP)uFSD -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)include -i=. -i=..

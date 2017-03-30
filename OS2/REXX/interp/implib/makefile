@@ -4,7 +4,7 @@
 #
 
 
-PROJ        = REGINA
+PROJ        = regina
 DESC        = Regina REXX import library
 DEST        = ..$(SEP)build$(SEP)lib
 OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll
@@ -20,7 +20,5 @@ $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll: $(PATH)..$(SEP)dll$(SEP)$(PROJ).lnk
 .lnk: $(PATH)..$(SEP)dll
 
 $(PATH)$(PROJ).lib: $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll # $(OBJS)
- $(LIB) $(LIBOPT) $^@ +$[@
-
-qwe: .symbolic
- @echo $(OBJS)
+ @$(SAY) LIB      $^.
+ @$(LIB) $(LIBOPT) $^@ +$[@

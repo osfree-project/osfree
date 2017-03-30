@@ -11,7 +11,7 @@ STACKSIZE    = 16384
 WINDOWCOMPAT = 1
 IMPORTS      = RexxCreateIOWindow_    PMREXXIO.RexxCreateIOWindow, &
 	       RexxDestroyIOWindow_   PMREXXIO.RexxDestroyIOWindow
-UNI2H        = 1
+# UNI2H        = 1
 
 !include $(%ROOT)/mk/appsos2.mk
 
@@ -19,5 +19,5 @@ TARGETS = $(PATH)$(PROJ1).exe subdirs
 TARGET = all
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)$(PROJ1).rc
- $(SAY) Compiling resource file $[.... $(LOG)
+ @$(SAY) RESCMP   $^. $(LOG)
  $(RC) -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(inc) $]@ $[@ -fe=$@ -fo=$(PATH)$(PROJ1).res

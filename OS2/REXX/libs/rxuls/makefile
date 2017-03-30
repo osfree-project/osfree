@@ -10,7 +10,7 @@ PROJ        = rxuls
 DESC        = REXX Universal Language Support functions
 ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 # -6s
 ADD_LINKOPT = lib libuls.lib, libconv.lib
-UNI2H       = 1
+# UNI2H       = 1
 DLL         = 1
 DLLOPT      = initinstance terminstance
 OPTIONS     = manyautodata

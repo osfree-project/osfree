@@ -13,20 +13,19 @@ ADD_COPT =            $(ADD_COPT) &
 #                      -i=$(ROOT)$(SEP)build$(SEP)include &
 #                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
 
-
 !ifndef DEST
 DEST     = os2$(SEP)mdos
 !endif
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
-
 !ifeq COM 1
 com = com
 !else
 com = 
 !endif
+
+TARGETS  = $(PATH)$(PROJ).com $(PATH)$(PROJ).exe
 
 $(PATH)$(PROJ).lnk: .SYMBOLIC
  @%create $^@
@@ -42,7 +41,7 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
  $(ADDFILES_CMD)
 
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
- @$(SAY)    LINK $[... $(LOG)
+ @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

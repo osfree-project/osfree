@@ -17,6 +17,8 @@ public  force_lba
 public  relshift16
 public  rs
 
+public  start
+
 public  install_partition
 
 public  _text16_begin
@@ -81,6 +83,7 @@ _text16_begin:
 ;
 ; stage0 startup
 ;
+start:
 stage0_init:
         jmp  short real_start
 ;

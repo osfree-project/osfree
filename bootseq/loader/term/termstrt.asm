@@ -8,6 +8,7 @@ name termstart
 
 public  relshift
 public  set_gdt
+public  start
 public  base
 
 ;extrn   relshift      :dword
@@ -29,6 +30,7 @@ BASE2      equ BASE1 + 3e0h
 _TEXT16  segment dword public 'CODE'  use16
            org 0h
 HEADER_SIZE     equ     20h
+start:
 header_begin:
            ; here we simulate 32-bit call instruction.
            ; WASM can't generate 32-bit instruction

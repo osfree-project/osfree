@@ -12,7 +12,7 @@ srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e
               $(p)strnlen$(e) $(p)unimplemented$(e)
 ADD_COPT    = -s
 # Can't find  ,cmd_shared.lib
-ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib all_shared.lib,clib3r
+ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib clib3r
 NOLIBS  = 1
 DLL     = 1
 DLLOPT  = initglobal

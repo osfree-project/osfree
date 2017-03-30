@@ -3,7 +3,6 @@
 
 !ifeq UNI2H 1
 
-
 #ADD_RCOPT     =       -i=$(%ROOT)$(SEP)build$(SEP)include 
 #                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 
 #                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared 

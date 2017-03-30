@@ -29,7 +29,7 @@ ADD_LINKOPT    += system linux  debug dwarf all
 # because add_copt is overwritten in this file.
 CLEAN_ADD = *.c *.h
 
-TARGETS  = $(PATH)$(PROJ)$.exe $(PATH)$(PROJ)$(EXE_SUF) # $(PATH)$(PROJ).sym
+TARGETS  = $(PATH)$(PROJ)$(EXE_SUF) # $(PATH)$(PROJ).sym
 
 ADD_COPT += -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
 

@@ -42,9 +42,9 @@ INSTALL_ADD = 1
 !include $(%ROOT)/mk/appsdos.mk
 
 install_add: .SYMBOLIC
- $(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ).com
- $(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ)a.com
- $(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)gw$(PROJ).exe
- $(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ).sym
- $(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ)a.sym
- $(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)gw$(PROJ).sym
+ @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ).com $(BLACKHOLE)
+ @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ)a.com $(BLACKHOLE)
+ @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)gw$(PROJ).exe $(BLACKHOLE)
+ #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ).sym $(BLACKHOLE)
+ #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ)a.sym $(BLACKHOLE)
+ #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)gw$(PROJ).sym $(BLACKHOLE)

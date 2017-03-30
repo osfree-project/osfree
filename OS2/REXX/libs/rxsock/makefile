@@ -11,7 +11,7 @@ DESC        = REXX Socket interface
 ADD_COPT    = -dDYNAMIC -dHAVE_CONFIG_H -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 # -6s
 ADD_LINKOPT = lib tcpip32.lib #lib libuls.lib, libconv.lib
 DLL         = 1
-UNI2H       = 1
+# UNI2H       = 1
 DLLOPT      = initinstance terminstance
 OPTIONS     = manyautodata
 STACKSIZE   = 0x20000

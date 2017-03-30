@@ -6,10 +6,10 @@
 
 LANG = russian
 LNG = $(MYDIR)..$(SEP)$(LANG).err
-DEST = none
 
 !include $(%ROOT)/mk/tools.mk
 
+DEST = none
 TARGETS = $(PATH)strings.err
 
 .SUFFIXES: .err
@@ -17,5 +17,5 @@ TARGETS = $(PATH)strings.err
 .err: $(PATH)
 
 $(PATH)strings.err: $(MYDIR)..$(SEP)default.err
- $(CP) $[@ $(PATH)
- critstrs.exe /dir $(PATH) $(LNG)
+ @$(CP) $[@ $(PATH) $(BLACKHOLE)
+ @critstrs.exe /dir $(PATH) $(LNG) $(BLACKHOLE)

@@ -59,10 +59,10 @@ F =
 .c:   $(MYDIR)..
 
 $(PATH)..$(SEP)cfgparse-l.$(O): $(MYDIR)..$(SEP)cfgparse.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dLOADER $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)..$(SEP)cfgparse-l.$(SO): $(MYDIR)..$(SEP)cfgparse.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dLOADER $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 

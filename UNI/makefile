@@ -17,7 +17,7 @@ h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
 
 pre: .SYMBOLIC
  @$(SAY) Creating directories...
- @for %i in ($(subdirs)) do $(MDHIER) %i
+ @for %i in ($(subdirs)) do @$(MDHIER) %i $(BLACKHOLE)
 
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file
@@ -178,10 +178,10 @@ os2libs: $(LIBOUT)sub32.lib &
          .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
- @$(SAY)    CREAT $[...
+ @$(SAY) CREAT     $^.
  @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
  @$(LIB) $(LIBOPT) $^@ @$^*.def
- @$(DC) $^*.def
+ @$(DC) $^*.def $(BLACKHOLE)
 
 $(OUT)$(SEP)os2$(SEP)os2.h: os2$(SEP)os2.uni
 
@@ -492,10 +492,10 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .lib: $(PATH)
 
 .uni.h: .AUTODEPEND
- @$(SAY)    UNI2H $[...
+ @$(SAY) UNI2H    $^.
  $(verbose)uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
 
 .uni.lib: .AUTODEPEND
- @$(SAY)    LIB $[...
+ @$(SAY) LIB      $^.
  $(verbose)uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
  $(verbose)$(LIB) $(LIBOPT) $^@ @$^*.def

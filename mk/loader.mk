@@ -57,51 +57,52 @@ LOUT         = lbi
 .$(SOUT): $(PATH)
 
 .mdl.rel
- @$(SAY)    GENREL $[... $(LOG)
+ @$(SAY) GENREL   $^. $(LOG)
  $(verbose)$(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@ $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $[*.mds
 !else
- @if exist $[*.mds $(DC) $[*.mds $(BLACKHOLE)
+ @if exist $[*.mds @$(DC) $[*.mds $(BLACKHOLE)
 !endif
 
 .$(OUT).mdl:
- @$(SAY)    RIPZEROES $[... $(LOG)
+ @$(SAY) RIPZ     $^. $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $^@
 !else
- @if exist $^@ $(DC) $^@ $(BLACKHOLE)
+ @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
 !endif
  $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@ $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $[@
 !else
- @if exist $[@ $(DC) $[@ $(BLACKHOLE)
+ @if exist $[@ @$(DC) $[@ $(BLACKHOLE)
 !endif
 
 .$(SOUT).mds:
- @$(SAY)    RIPZEROES $[... $(LOG)
+ @$(SAY) RIPZ     $^. $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $^@
 !else
- @if exist $^@ $(DC) $^@ $(BLACKHOLE)
+ @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
 !endif
  $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@ $(LOG)
 !ifeq UNIX TRUE
  @$(DC) $[@
 !else
- @if exist $[@ $(DC) $[@ $(BLACKHOLE)
+ @if exist $[@ @$(DC) $[@ $(BLACKHOLE)
 !endif
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
- @$(SAY)    LINK $[... $(LOG)
+ @$(SAY) LINK     $(T)$(S).$(E) $(LOG)
  $(verbose)$(LINKER) @$< $(LOG)
 
 $(PATH)$(T)$(S).lnk: .SYMBOLIC
  @%create $^@
- @%append $^@ system os2v2
+ @%append $^@ system os2v2 dll
  @%append $^@ output raw offset=0x10000
  @%append $^@ OPTION QUIET
+ @%append $^@ OPTION START=start
  @%append $^@ OPTION MAP=$^*.wmp
  @%append $^@ OPTION NODEFAULTLIBS
  @%append $^@ NAME $(PATH)$(T).$(E)
@@ -140,31 +141,31 @@ $(PATH)$(T)$(S).lnk: .SYMBOLIC
 .asm: $(MYDIR)
 
 .c.$(O):
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.$(SO):
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .c.$(LO):
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.$(O):
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.$(LO):
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .asm.$(SO):
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .inc.h:
- @$(SAY)   INC2H $[... $(LOG)
+ @$(SAY) INC2H    $^. $(LOG)
  $(verbose)$(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@ $(LOG)
 
 #
@@ -174,52 +175,39 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !ifeq sh
  # compile rules for ordinary files
 !ifdef __UNIX__
- $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(O)'  sh=$(sh) basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(O)'  sh=$(sh) basename=$[& gen_compile_rules
 !else
- $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  sh=$(sh) basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(O)  sh=$(sh) basename=$[& gen_compile_rules
 !endif
 !else
  # compile rules for shifted files
 !ifdef __UNIX__
- $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(SO)' sh=$(sh) basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e='.$$$$$$$$(SO)' sh=$(sh) basename=$[& gen_compile_rules
 !else
- $(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) sh=$(sh) basename=$[& gen_compile_rules
+ @$(MAKE) $(MAKEOPT) file=$[. ext=$(file:$[&=) e=.$$$$$$$$(SO) sh=$(sh) basename=$[& gen_compile_rules
 !endif
 !endif
 
 gen_deps_wrapper:
  # file.rel: file.mdl file.mds
 !ifdef __UNIX__
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).rel' &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).rel' &
    deps='$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-' gen_deps
  # file.fsd: file.$(OUT)
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mdl' &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mdl' &
    deps='$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$-' gen_deps
  # file.fss: file.$(SOUT)
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mds' &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).mds' &
    deps='$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$-' gen_deps
 !else
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).rel &
    deps="$+$$$$$$$$(PATH)$$$$(file).mdl $$$$$$$$(PATH)$$$$(file).mds$-" gen_deps
  # file.fsd: file.$(OUT)
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mdl &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mdl &
    deps=$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(OUT)$- gen_deps
  # file.fss: file.$(SOUT)
- @for %i in ($(bbx)) do $(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mds &
+ @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt=$$$$(PATH)$$(file).mds &
    deps=$+$$$$$$$$(PATH)$$$$(file).$$$$$$$$(SOUT)$- gen_deps
 !endif
-print_deps_info:
- @$(SAY) OBJS:$(OBJS)
- @$(SAY) src:$(src)
- @$(SAY) PATH: $(PATH)
- @$(SAY) MYDIR: $(MYDIR)
- @$(SAY) srcfiles: $(srcfiles)
- @$(SAY) defs: $(defs)
-# @$(SAY) TARGETS: $(TARGETS)
- @$(SAY) TARGET: $(TARGET)
- @$(SAY) bbx: $(bbx)
- @$(SAY) kernels: $(kernels)
- @$(SAY) spec_SRCS: $(spec_SRCS)
- @$(SAY) files: $(files)
-!endif
 
+!endif

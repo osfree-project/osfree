@@ -37,12 +37,12 @@ ADD_COPT     =  -dNDEBUG -oneatx $(ADD_COPT)
 ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
 !endif
 
-ADD_COPT       =  -4r -wx -zq -mf $(THREADING) &
+ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
                   -dREGINA_VERSION_DATE=$(VER_DATE) -dREGINA_VERSION_MAJOR="$(VER_MAJOR)" &
                   -dREGINA_VERSION_MINOR="$(VER_MINOR)" -dREGINA_VERSION_SUPP="$(VER_SUPP)" &
                   -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
-UNI2H = 1
+# UNI2H = 1
 # NOLIBS = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
@@ -68,17 +68,17 @@ $(PATH)client.$(O): $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 $(PATH)rexxsaa.$(O): $(SRC)rexxsaa.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 
 $(PATH)yaccsrc.$(O): $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
- @$(SAY)      CC $[... $(LOG)
- @$(CC)  $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY) CC       $^. $(LOG)
+ @$(CC) $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)drexx.obj: $(MYDIR)..$(SEP)rexx.c $(HFILES)
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)eextstack.obj:  $(SRC)extstack.c $(HFILES)
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
 
 $(PATH)erexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@

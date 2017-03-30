@@ -16,9 +16,10 @@ public multi_boot_
 public return_to_preldr_
 public oldstack
 public loader_stack_top
+public start
 
-public   exe_end
-public   bss_end
+public exe_end
+public bss_end
 
 .386p
 

@@ -14,15 +14,15 @@ ADD_COPT = -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
 ADD_LINKOPT = debug all 
 LANG = russian
 LNG = $(MYDIR)$(LANG).lng
-DEST = none
 
 !include $(%ROOT)/mk/tools.mk
 
+DEST = none
 TARGETS = $(PATH)$(PROJ).exe $(PATH)strings.h subdirs lib
 TARGET = all
 
 $(PATH)strings.h : $(MYDIR)default.lng $(PATH)$(PROJ).exe
- $(PATH)fixstrs.exe /lib /dir $(PATH) $(LNG)
+ @$(PATH)fixstrs.exe /lib /dir $(PATH) $(LNG)
 
 lib: $(PATH)makefile.mk
- $(MAKE) $(MAKEOPT) -f $< lib
+ @$(MAKE) $(MAKEOPT) -f $< lib

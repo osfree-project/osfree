@@ -174,12 +174,12 @@ unsigned long LXFixup(void * lx_exe_mod)
   Get's the function number in entry_ord_to_search from the module lx_mod.
   Returns data in the pointers beginning with "ret_*"
    */
-        const int UNUSED_ENTRY_SIZE = 2;
-        const int ENTRY_HEADER_SIZE = 4; /* For all entries except UNUSED ENTRY.*/
-        const int _16BIT_ENTRY_SIZE = 3;
-        const int _286_CALL_GATE_ENTRY_SIZE = 5;
-        const int _32BIT_ENTRY_SIZE         = 5;
-        const int FORWARD_ENTRY_SIZE        = 7;
+        extern const int UNUSED_ENTRY_SIZE; // = 2;
+        extern const int ENTRY_HEADER_SIZE; // = 4; /* For all entries except UNUSED ENTRY.*/
+        extern const int _16BIT_ENTRY_SIZE; // = 3;
+        extern const int _286_CALL_GATE_ENTRY_SIZE; // = 5;
+        extern const int _32BIT_ENTRY_SIZE; //         = 5;
+        extern const int FORWARD_ENTRY_SIZE; //        = 7;
 
 
 unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)

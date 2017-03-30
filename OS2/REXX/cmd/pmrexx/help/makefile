@@ -5,4 +5,6 @@ DEST = os2$(SEP)help
 
 !include $(%ROOT)/mk/appsos2.mk
 
+$(PATH)$(PROJ).hlp:
+
 TARGETS = $(PATH)$(PROJ).hlp

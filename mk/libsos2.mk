@@ -13,6 +13,7 @@ CLEAN_ADD = *.c *.h
 ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
 !ifeq UNI2H 1
+
 # generated uni2h headers
 
 ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
@@ -20,6 +21,7 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !else
+
 # use Watcom headers
 
 ADD_COPT   +=         -d__OS2__ -i=$(%WATCOM)$(SEP)h$(SEP)os2

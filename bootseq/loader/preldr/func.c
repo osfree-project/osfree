@@ -9,7 +9,7 @@
 #include "fsys.h"
 #include "fsd.h"
 
-int __cdecl (*fsd_init)(lip1_t *l1);
+extern int __cdecl (*fsd_init)(lip1_t *l1);
 
 /* filesystem common variables */
 int filepos;

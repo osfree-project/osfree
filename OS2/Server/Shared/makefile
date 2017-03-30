@@ -37,6 +37,3 @@ TARGET   = all
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
-
-qwe: .symbolic
- @echo $(COPT)

@@ -65,39 +65,39 @@ $(p)gci_tree$(e)
 !endif
 
 EXPORTS = &
- RexxAllocateMemory_, &
- RexxDeregisterExit_, &
- RexxDeregisterFunction_, &
- RexxDeregisterSubcom_,&
- RexxFreeMemory_,&
- RexxQueryExit_, &
- RexxQueryFunction_, &
- RexxQuerySubcom_, &
- RexxRegisterExitDll_, &
- RexxRegisterExitExe_, &
- RexxRegisterFunctionDll_, &
- RexxRegisterFunctionExe_, &
- RexxRegisterSubcomDll_, &
- RexxRegisterSubcomExe_, &
- RexxSetHalt_, &
- RexxStart_, &
- RexxVariablePool_, &
- ReginaVersion_, &
- __regina_faked_main_ = __regina_faked_main, &
- RexxAddMacro_, &
- RexxAddQueue_, &
- RexxClearMacroSpace_, &
- RexxCreateQueue_, &
- RexxDeleteQueue_, &
- RexxDropMacro_, &
- RexxLoadMacroSpace_, &
- RexxPullQueue_, &
- RexxQueryMacro_, &
- RexxQueryQueue_, &
- RexxReorderMacro_, &
- RexxSaveMacroSpace_, &
- RexxCallBack_, &
- ReginaCleanup_
+ RexxAllocateMemory, &
+ RexxDeregisterExit, &
+ RexxDeregisterFunction, &
+ RexxDeregisterSubcom,&
+ RexxFreeMemory,&
+ RexxQueryExit, &
+ RexxQueryFunction, &
+ RexxQuerySubcom, &
+ RexxRegisterExitDll, &
+ RexxRegisterExitExe, &
+ RexxRegisterFunctionDll, &
+ RexxRegisterFunctionExe, &
+ RexxRegisterSubcomDll, &
+ RexxRegisterSubcomExe, &
+ RexxSetHalt, &
+ RexxStart, &
+ RexxVariablePool, &
+ ReginaVersion, &
+ __regina_faked_main, &
+ RexxAddMacro, &
+ RexxAddQueue, &
+ RexxClearMacroSpace, &
+ RexxCreateQueue, &
+ RexxDeleteQueue, &
+ RexxDropMacro, &
+ RexxLoadMacroSpace, &
+ RexxPullQueue, &
+ RexxQueryMacro, &
+ RexxQueryQueue, &
+ RexxReorderMacro, &
+ RexxSaveMacroSpace, &
+ RexxCallBack, &
+ ReginaCleanup
 
 !include $(%ROOT)mk/dirs.mk
 !include $(MYDIR)..$(SEP)regina.mk

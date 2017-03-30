@@ -11,14 +11,14 @@ DEST    = os2
 TARGETS = copy
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)os2
-filelist = *.cmd
-srcdir - $(MYDIR)
+filelist = rexxtry.cmd
+srcdir = $(MYDIR)
 dstdir = $(FILESDIR)$(SEP)os2
 
 copy: .SYMBOLIC
- @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
- #@for %i in ($(filelist)) do $(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
- @cd $(srcdir)
- @for %i in ($(filelist)) do $(CP) %i $(DEST)
- $(CD) $(MYDIR)
+ @for %i in ($(list)) do @if not exist %i @$(MKDIR) %i $(BLACKHOLE)
+ #@for %i in ($(filelist)) do @$(MAKE) $(MAKEOPT) s=$(srcdir)%i d=$(dstdir)%i $(d)
+ #@cd $(srcdir)
+ @for %i in ($(filelist)) do @$(CP) %i $(DEST) $(BLACKHOLE)
+ @$(CD) $(MYDIR) $(BLACKHOLE)
 

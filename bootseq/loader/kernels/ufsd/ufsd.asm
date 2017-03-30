@@ -26,6 +26,7 @@ public get_disk_type_
 public com_outchar
 public port
 public _debug
+public start
 
 public _small_code_
 

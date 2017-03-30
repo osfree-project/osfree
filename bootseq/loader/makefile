@@ -16,5 +16,9 @@ DEST         = boot$(SEP)loader
 #e            = .$$(O)
 #OBJS         = $+$(srcs)$-
 
+$(MYDIR)boot.cfg:
+
+$(MYDIR)preldr.ini:
+
 TARGETS      = $(MYDIR)boot.cfg $(MYDIR)preldr.ini subdirs
 TARGET       = all

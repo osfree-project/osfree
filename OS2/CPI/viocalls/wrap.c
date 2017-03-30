@@ -1,6 +1,7 @@
 /* VioCalls */
 
 #define  INCL_VIO
+//#define  INCL_AVIO
 #define  INCL_PMAVIO
 #include <os2.h>
 
@@ -131,7 +132,7 @@ USHORT __pascal VIOWRTCHARSTR(const PCHAR Str, const USHORT Count, const USHORT 
 }
 
 
-USHORT __pascal VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+USHORT __pascal VIOWRTCHARSTRATT(const PCHAR pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
 {
   return VioWrtCharStrAtt(pch, cb, usRow, usColumn, pAttr, hvio);
 }

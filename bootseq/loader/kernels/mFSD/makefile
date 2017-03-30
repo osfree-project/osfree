@@ -129,9 +129,9 @@ EXPORTS     = &
     MFS_READ, &
     MFS_TERM
 
-DEST        = none
-
 !include $(%ROOT)/mk/appsos2v1.mk
+
+DEST        = none
 
 .c: $(MYDIR)..
 .c: $(MYDIR)..$(SEP)..

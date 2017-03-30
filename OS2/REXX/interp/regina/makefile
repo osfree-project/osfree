@@ -16,6 +16,3 @@ ADD_LINKOPT = libpath $(PATH)..$(SEP)implib lib $(PROJ).lib
 !include $(MYDIR)..$(SEP)regina.mk
 
 $(PATH)regina.obj: $(SRC)regina.c $(HFILES)
-
-qwe: .symbolic
- @echo $(COPT)

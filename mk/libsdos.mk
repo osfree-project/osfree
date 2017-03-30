@@ -14,7 +14,4 @@ ADD_COPT =            $(ADD_COPT) &
 
 !include $(%ROOT)/mk/libs.mk
 
-q: .SYMBOLIC
- @$(SAY) $(CC)
-
 !endif

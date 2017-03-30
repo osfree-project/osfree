@@ -82,4 +82,4 @@ all: $(PATH)wrappers.h
 $(PATH)rexxapi16.obj: $(PATH)wrappers.h
 
 $(PATH)wrappers.h:
- $(REXX) genwrap.cmd $(NUMWRAP) >$^@
+ @$(REXX) genwrap.cmd $(NUMWRAP) >$^@

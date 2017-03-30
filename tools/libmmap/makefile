@@ -7,3 +7,5 @@
 TARGETS   = $(MYDIR)libmmap.lib
 
 !include $(%ROOT)/mk/libs.mk
+
+$(MYDIR)libmmap.lib:

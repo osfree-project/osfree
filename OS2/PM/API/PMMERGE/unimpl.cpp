@@ -4218,13 +4218,13 @@ APIRET APIENTRY WinQueryDesktopWorkArea(void)
 }
 
 
-APIRET APIENTRY WinQueryControlColors(void)
+LONG APIENTRY WinQueryControlColors(const HWND hwnd, const LONG clrType, const ULONG flCtlColor, const ULONG cCtlColor, CTLCOLOR * pCtlColor)
 {
     return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY WinSetControlColors(void)
+LONG APIENTRY WinSetControlColors(const HWND hwnd, const LONG clrType, const ULONG flCtlColor, const ULONG cCtlColor, const PCTLCOLOR pCtlColor)
 {
     return unimplemented(__FUNCTION__);
 }

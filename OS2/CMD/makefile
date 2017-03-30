@@ -13,7 +13,6 @@ DIRS =        shared &
               cls &
               cmd &
               comp &
-              diskcomp &
               diskcopy &
               dskxtrct &
               eject &
@@ -26,7 +25,7 @@ DIRS =        shared &
               helpmsg &
               keyb &
               label &
-              LVM &
+#              LVM
               LVMGUI &
               makeini &
               minicmd &
@@ -34,7 +33,6 @@ DIRS =        shared &
               mode &
               more &
               newmbr &
-#              print
               recover &
               screenrs &
               sort &
@@ -47,8 +45,11 @@ DIRS =        shared &
               ver &
               vol &
               xcopy &
-              zip # network &
-							e
+              zip
+
+#              diskcomp
+#              print
+#              network
 
 !include $(%ROOT)/mk/all.mk
 

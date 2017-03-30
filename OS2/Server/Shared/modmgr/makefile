@@ -5,8 +5,10 @@
 #
 
 PROJ     = ow_dlfcn
-DEST     = none
 
 !include $(%ROOT)/mk/appsos2.mk
 
+$(PATH)$(PROJ).obj:
+
+DEST     = none
 TARGETS  = $(PATH)$(PROJ).obj # subdirs

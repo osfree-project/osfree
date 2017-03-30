@@ -14,14 +14,15 @@ CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
 !ifeq UNI2H 1
+
 # generated uni2h headers
 
-#ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
-#                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
-#                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
+ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
-ADD_COPT    +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)sub32 &
-                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
+#ADD_COPT    +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)sub32 &
+#                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifneq NOLIBS 1
 ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &
@@ -37,9 +38,11 @@ ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &
 !endif
 
 !else
+
 # use Watcom headers
 
 ADD_COPT    +=         -i=$(%WATCOM)$(SEP)h$(SEP)os2
+
 !endif
 
 ADD_RCOPT    =         -bt=os2 $(ADD_COPT)
@@ -78,7 +81,7 @@ ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared.lib, &
 ###
 
 .rc.res: .AUTODEPEND
- @$(SAY)    RESCMP $[...
+ @$(SAY) RESCMP   $^.
  $(verbose)$(RC) $(RCOPT) $[@ -fo=$^@ -r
 
 cplist = en pl ru
@@ -86,8 +89,8 @@ cplist = en pl ru
 .rsf: $(PATH)
 
 .rsf.msg:
- @$(SAY)     MKMSGF $[... $(LOG)
- $(verbose)$(MC) @$<  $(LOG)
+ @$(SAY) MKMSGF   $^. $(LOG)
+ $(verbose)$(MC) @$< $(BLACKHOLE)
 
 rsf: .SYMBOLIC .PROCEDURE
  @%create $(PATH)$(T)
@@ -162,7 +165,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
- @$(SAY)    LINK $[... $(LOG)
+ @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

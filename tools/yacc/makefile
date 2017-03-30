@@ -13,9 +13,9 @@ srcfiles = $(p)LR0$(e) $(p)allocate$(e) $(p)closure$(e) $(p)conflicts$(e) &
 TARGETS = inst
 
 inst: $(MYDIR)bison.simple $(MYDIR)bison.hairy $(PATH)yacc.exe
- $(CP) $(MYDIR)bison.simple $(DEST)
- $(CP) $(MYDIR)bison.hairy $(DEST)
- $(CP) $(PATH)yacc.exe $(DEST)
+ @$(CP) $(MYDIR)bison.simple $(DEST) $(BLACKHOLE)
+ @$(CP) $(MYDIR)bison.hairy $(DEST) $(BLACKHOLE)
+ @$(CP) $(PATH)yacc.exe $(DEST) $(BLACKHOLE)
 
 ADD_COPT = -i=..$(SEP)include -dHAVE_CONFIG_H
 STACKSIZE = 65536

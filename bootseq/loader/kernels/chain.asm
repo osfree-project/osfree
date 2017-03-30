@@ -39,6 +39,7 @@ public force_lba
 public stop
 public start_kernel
 public start1
+public start
 ;public printk
 
 ;

@@ -24,6 +24,7 @@ extrn mfsd_size       :dword
 extrn gdtsrc          :byte
 extrn gdtdesc         :fword
 
+public start
 public stop
 public base
 

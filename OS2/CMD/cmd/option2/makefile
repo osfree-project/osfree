@@ -19,6 +19,6 @@ TARGETS = $(PATH)$(PROJ1).exe
 TARGET = all
 
 $(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ1).rc $(PATH)$(PROJ).exe
- $(SAY) Compiling resource file $[.... $(LOG)
- $(RC) -bt=os2 $(inc) $[@ $]@ -fo=$(PATH)$(PROJ1).res -fe=$@
- $(DC) $]@
+ @$(SAY) RESCMP   $^. $(LOG)
+ @$(RC) -bt=os2 $(inc) $[@ $]@ -fo=$(PATH)$(PROJ1).res -fe=$@
+ @$(DC) $]@ $(BLACKHOLE)

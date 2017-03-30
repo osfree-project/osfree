@@ -16,9 +16,11 @@ DEST     = ..$(SEP)build$(SEP)lib
 
 !include $(%ROOT)/mk/all.mk
 
+$(PATH)$(PROJ).lib:
+
 # makes library $(library) from object files $(OBJS)
 library: $(OBJS) $(LIBS)
- @$(SAY)    LIB $(library)...
+ @$(SAY) LIB      $(PROJ).lib
 !ifndef NODELETE
 !ifeq UNIX TRUE
  -$(DC) $(library)
@@ -26,7 +28,6 @@ library: $(OBJS) $(LIBS)
  -@if exist $(library) $(DC) $(library) $(BLACKHOLE)
 !endif
 !endif
-
 !ifdef OBJS
  @$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
 !endif
@@ -44,7 +45,6 @@ library: $(OBJS) $(LIBS)
  @if exist $(library).tmp2 @$(DC) $(library).tmp2 $(BLACKHOLE)
 !endif
 !else
- @$(SAY)    LIB $(library)...
  $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
 !ifeq UNIX TRUE
  @$(DC) $(library).tmp1

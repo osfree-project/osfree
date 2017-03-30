@@ -64,19 +64,19 @@ F =
 
 
 $(PATH)func.$(O): $(MYDIR)..$(SEP)func.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSTAGE0 -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)func.$(SO): $(MYDIR)..$(SEP)func.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSTAGE0 -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)segord.$(O): $(MYDIR)..$(SEP)segord.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)segord.$(SO): $(MYDIR)..$(SEP)segord.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)cfgparse.$(O): $(MYDIR)..$(SEP)..$(SEP)cfgparse.c

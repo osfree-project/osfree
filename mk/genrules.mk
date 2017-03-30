@@ -69,13 +69,12 @@ gen_link_rules: .SYMBOLIC
 
 gen_compile_rules: .SYMBOLIC
  @%append $(mf) $$(PATH)$(file:$(ext)=$(e)): $$(MYDIR)$(file)
- @%append $(mf)  @$$(SAY)      CC $$(MYDIR)$(file)...
 !ifeq ext .c     # if file extension is .c
+ @%append $(mf)  @$$(SAY) CC       $(file:$(ext)=$(e))
  @%append $(mf)  @$$(CC)  $(defs) $$(COPT) -fr=$$^*.err -fo=$$^@ $$<
-!else
-!ifeq ext .asm   # if file extension is .asm
+!else ifeq ext .asm   # if file extension is .asm
+ @%append $(mf)  @$$(SAY) ASM      $(file:$(ext)=$(e))
  @%append $(mf)  @$$(ASM) $(defs) $$(ASMOPT) -fr=$$^*.err -fo=$$^@ $$<
-!endif
 !endif
  @%append $(mf)
 

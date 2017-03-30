@@ -15,7 +15,7 @@ DIRS = ufsd mFSD
 # filesystems list with path (p) and extension (e) placeholder
 #
 header           = $(p)ufsd.inc
-kernels          = $(p)linux$(e) $(p)chain$(e) $(p)ufsd$(e) $(p)bootos2$(e)
+kernels          = $(p)linux$(e) $(p)chain$(e) $(p)bootos2$(e) # $(p)ufsd$(e)
 
 msw              = $(p)modesw-npc$(e) $(p)modesw-npl$(e)
 
@@ -27,8 +27,7 @@ e                =
 bbx              = $+$(kernels)$-
 
 linux_OBJS       = $(p)linux$(e) $(p)linuxc$(e) $(p)modesw-npl$(e) $(p)vsprintf$(e) &
-                   $(p)cmdline$(e) $(p)istable$(e) $(p)serial$(e) $(p)vsprintf$(e) &
-                   $(p)wrap$(e)
+                   $(p)cmdline$(e) $(p)istable$(e) $(p)serial$(e) $(p)wrap$(e)
 
 chain_OBJS       = $(p)chain$(e) $(p)modesw-npc$(e) $(p)biosdisk-c$(e) &
                    $(p)chainc$(e) $(p)cmdline$(e) $(p)..$(SEP)wrap$(e) $(p)setdev$(e) &
@@ -56,8 +55,6 @@ OBJS                    = $(chain_OBJS) $(common_OBJS)
 !else ifeq basename bootos2
 #t = -o
 OBJS                    = $(bootos2_OBJS) $(common_OBJS)
-!else ifeq basename ufsd
-OBJS                    = $(ufsd_OBJS)
 !endif
 
 MOD_BASE         = KERN_BASE
@@ -115,31 +112,31 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .inc: $(PATH)
 
 $(PATH)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npc.$(O): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npl.$(O): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npc.$(SO): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)modesw-npl.$(SO): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x8000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)biosdisk-c.$(O): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 .rel: $(PATH)ufsd
@@ -147,13 +144,13 @@ $(PATH)biosdisk-c.$(SO): $(MYDIR)..$(SEP)preldr$(SEP)biosdisk.asm
 $(PATH)bootos2.mdl: $(PATH)ufsd.inc $(PATH)mfsd.inc $(PATH)urel.inc
 
 $(PATH)ufsd.inc: $(PATH)ufsd$(SEP)mbi.mdl
- @$(SAY)   INC2H $[... $(LOG)
+ @$(SAY) INC2H    $^. $(LOG)
  $(verbose)$(REXX) mkheader.cmd $< $^@ $(LOG)
 
 $(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mbi.dll
- @$(SAY)   INC2H $[... $(LOG)
+ @$(SAY) INC2H    $^. $(LOG)
  $(verbose)$(REXX) mkheader.cmd $< $^@ $(LOG)
 
 $(PATH)urel.inc: $(PATH)ufsd$(SEP)mbi.rel
- @$(SAY)   INC2H $[... $(LOG)
+ @$(SAY) INC2H    $^. $(LOG)
  $(verbose)$(REXX) mkheader.cmd $< $^@  $(LOG)

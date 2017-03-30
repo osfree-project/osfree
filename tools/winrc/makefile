@@ -32,10 +32,10 @@ $(PATH)ifyacc.obj: $(PATH)ifyacc.c post
 #.h: $(PATH)
 
 post: .symbolic
-  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c
-  sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
-  $(DC) $(PATH)ifyacc.c
-  $(DC) $(PATH)ifyacc.h
-  $(RN) $(PATH)rc.z.tab.c $(PATH)ifyacc.c
-  $(RN) $(PATH)rc.z.tab.h $(PATH)ifyacc.h
+  @sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c
+  @sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
+  @$(DC) $(PATH)ifyacc.c $(BLACKHOLE)
+  @$(DC) $(PATH)ifyacc.h $(BLACKHOLE)
+  @$(RN) $(PATH)rc.z.tab.c $(PATH)ifyacc.c $(BLACKHOLE)
+  @$(RN) $(PATH)rc.z.tab.h $(PATH)ifyacc.h $(BLACKHOLE)
 

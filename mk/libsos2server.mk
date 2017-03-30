@@ -28,6 +28,7 @@ ADD_COPT = $(ADD_COPT) -d2 -db &
 ADD_LINKOPT = debug all lib os2server_shared_$(ARCH).lib, os2server_$(ARCH).lib
 
 !ifeq ARCH os2
+
 PLATFORM = os2
 ADD_COPT =            -u__WINNT__ -u__WIN32__ -u__LINUX__ -d__OS2__ &
                       $(ADD_COPT) -i=$(SrvDir)os2 &
@@ -50,8 +51,9 @@ ADD_COPT =            -u__WINNT__ -u__WIN32__ -u__LINUX__ -d__OS2__ &
                       -bt=os2
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)os2 &
               $(ADD_LINKOPT) lib libmmap.lib
-!else
-!ifeq ARCH linux
+
+!else ifeq ARCH linux
+
 PLATFORM = linux
 EXE_SUFFIX=l
 ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
@@ -72,8 +74,9 @@ ADD_COPT =            -u__OS2__ -u__WIN32__ -u__WINNT__ -d__LINUX__ &
                       -bt=linux
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)linux &
               $(ADD_LINKOPT)
-!else
-!ifeq ARCH win32
+
+!else ifeq ARCH win32
+
 PLATFORM = nt
 ADD_COPT =  -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
                       $(ADD_COPT) -i=$(SrvDir)win32 &
@@ -95,8 +98,7 @@ ADD_COPT =  -u__OS2__ -u__LINUX__ -d__WIN32__ -d__WINNT__ &
 
 ADD_LINKOPT = libpath $(%WATCOM)$(SEP)lib386$(SEP)nt &
               $(ADD_LINKOPT)
-!endif
-!endif
+
 !endif
 
 !include $(%ROOT)/mk/libs.mk

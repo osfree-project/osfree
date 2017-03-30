@@ -61,51 +61,51 @@ e =
 spec_SRCS = # modesw.asm,-npt terminit.c,-c terminit.c,-h terminit.c,-s  console.asm,-c
 
 $(PATH)modesw-npt.$(O): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)modesw-npt.$(SO): $(MYDIR)..$(SEP)modesw.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dBLACKBOX -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-c.$(O): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 -dTERM_CONSOLE $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-c.$(SO): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-h.$(O): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 -dTERM_HERCULES $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-h.$(SO): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=$(SHIFT) -dTERM_HERCULES $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-s.$(O): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 -dTERM_SERIAL $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-s.$(SO): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=$(SHIFT) -dTERM_SERIAL $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-g.$(O): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=0 -dTERM_GRAPHICS $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)terminit-g.$(SO): $(MYDIR)terminit.c
- @$(SAY)      CC $[... $(LOG)
+ @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dSHIFT=$(SHIFT) -dTERM_GRAPHICS $(COPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)console-c.$(O): $(MYDIR)console.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=0 -dTERM_CONSOLE $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 $(PATH)console-c.$(SO): $(MYDIR)console.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSHIFT=$(SHIFT) -dTERM_CONSOLE $(ASMOPT) -fr=$^*.err -fo=$^@ $< $(LOG)
 
 F =

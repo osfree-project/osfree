@@ -19,8 +19,7 @@ EXPORTS = DosFSCtl.1,        &
           DosExit.3,         &
           DosQuerySysInfo.4
 
-DEST    = os2$(SEP)dll
-
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
+DEST     = os2$(SEP)dll
 TARGETS  = subdirs # $(PATH)$(PROJ).exe

@@ -16,6 +16,6 @@ TARGETS  = $(PATH)$(PROJ).lib
 !include $(%ROOT)/mk/libsos2server.mk
 
 $(TARGETS): $(OBJS)
- echo $(%INCLUDE)
+ #echo $(%INCLUDE)
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
 

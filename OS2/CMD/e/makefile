@@ -7,7 +7,7 @@
 PROJ1        = e
 PROJ         = e0
 DESC         = osFree System Editor
-DIRS         = help
+DIRS         = # help
 #defines object file names in format objname.$(O)
 srcfiles     = $(p)sty_main$(e) $(p)sty_user$(e) $(p)sty_init$(e) &
                $(p)sty_pnt$(e)  $(p)sty_dlg$(e)  $(p)sty_file$(e) &

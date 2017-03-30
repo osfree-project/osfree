@@ -8,11 +8,18 @@ parse source os .
 /* a number of bytes in single 'db' string */
 chunksize = 20
 
-if os = 'OS/2'       then del = 'del '
-else if os = 'WIN32' then del = 'del '
-else del = 'rm -f '
+if os = 'OS/2' then do
+  del = '@del '
+  nul = 'nul'
+end; else if os = 'WIN32' then do
+  del = '@del '
+  nul = 'nul'
+end; else do
+  del = '@rm -f '
+  nul = '/dev/null'
+end
 
-if stream(header, 'c', 'query exists') \= '' then del || header
+if stream(header, 'c', 'query exists') \= '' then del || header || ' 2>&1 >' || nul
 
 if binary = '' then do
   say 'You must supply a valid binary file and output file!'

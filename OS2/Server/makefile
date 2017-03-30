@@ -12,21 +12,17 @@ ARCH  = $(%SERVERENV)
 PROJ0 = main
 
 !ifeq ARCH linux
-EXE_SUF = l
-!else
-!ifeq ARCH win32
-EXE_SUF = w
-!else
-!ifeq ARCH os2
-EXE_SUF = p
-!endif
-!endif
+EXESUF = l
+!else ifeq ARCH win32
+EXESUF = w
+!else ifeq ARCH os2
+EXESUF = p
 !endif
 
-PROJ = $(PROJ0)$(EXE_SUF)
+PROJ = $(PROJ0)$(EXESUF)
 
 DESC = OS/2 Personality Server
-DEST = .
+# DEST = .
 DIRS = kal Shared $(ARCH)
 srcfiles = $(p)main$(e)
 # defines additional options for C compiler
@@ -39,5 +35,5 @@ ADD_LINKOPT = debug all lib os2server_shared.lib, os2server_$(ARCH).lib, apistub
 TARGETS  = subdirs $(PATH)$(PROJ).exe
 
 install_add: $(MYDIR)CONFIG.SYS
- $(CP) $< $(DEST)
+ @$(CP) $< $(DEST) $(BLACKHOLE)
 

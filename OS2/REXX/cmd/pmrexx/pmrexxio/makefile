@@ -20,5 +20,5 @@ TARGETS =  $(PATH)$(PROJ1).dll
 TARGET = all
 
 $(PATH)$(PROJ1).dll: $(PATH)$(PROJ).dll $(MYDIR)$(PROJ1).rc
- $(SAY) Compiling resource file $[.... $(LOG)
+ @$(SAY) RESCMP   $^. $(LOG)
  $(RC) -bt=os2 -i=$(%WATCOM)$(SEP)h$(SEP)os2 -i=$(inc) $]@ $[@ -fe=$@ -fo=$(PATH)$(PROJ1).res

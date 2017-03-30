@@ -54,4 +54,5 @@ $(p)rexxbif$(e)
 TARGETS = $(PATH)$(PROJ).lib
 
 $(PATH)$(PROJ).lib: $(OBJS)
- $(LIB) $(LIBOPT) $^@ +$(OBJS)
+ @$(SAY) LIB      $^.
+ @$(LIB) $(LIBOPT) $^@ +$(OBJS)

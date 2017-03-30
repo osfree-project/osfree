@@ -31,15 +31,12 @@ dllopt =
 RC       = winrc
 RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(MYDIR)..$(SEP)include
 
-.SUFFIXES:
-.SUFFIXES: .dll .exe .ico .obj .lnk .res .rc .h .c .cpp
+#.res: $(PATH)
 
-.res: $(PATH)
-
-.rc:  $(MYDIR)
+#.rc:  $(MYDIR)
 
 .rc.res: .AUTODEPEND
- @$(SAY)    WINRES $[... $(LOG)
+ @$(SAY) WINRES   $^. $(LOG)
  @$(RC) $(RCOPT) -o $^@ $[@  $(LOG)
 
 !ifdef RESOURCE
@@ -83,7 +80,7 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk $(OBJS)
 !else
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
 !endif
- @$(SAY)    LINK $[... $(LOG)
+ @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 !endif

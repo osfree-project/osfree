@@ -5,7 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = Lnk Def
+DIRS = # Lnk Def
 
 !include $(%ROOT)/mk/all.mk
 

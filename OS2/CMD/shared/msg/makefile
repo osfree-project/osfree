@@ -9,5 +9,11 @@ DEST    = os2$(SEP)system
 
 TARGETS =  $(PATH)lvm.msg $(PATH)lvm.pl $(PATH)lvm.ru
 
+$(PATH)lvm.msg:
+
+$(PATH)lvm.pl:
+
+$(PATH)lvm.ru:
+
 $(PATH)lvm.rsf: .SYMBOLIC
  @$(MAKE) $(MAKEOPT) T=$^. rsf

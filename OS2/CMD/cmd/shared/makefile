@@ -2,9 +2,11 @@
 #
 
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include
-DEST     = none
 UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2.mk
 
+$(PATH)istring.$(O):
+
+DEST    = none
 TARGETS = $(PATH)istring.$(O)

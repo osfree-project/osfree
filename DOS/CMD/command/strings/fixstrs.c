@@ -876,12 +876,12 @@ srcfiles = ", fdmake);
 # defines additional options for C compiler\n\
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl\n\
 \n\
-!include $(%ROOT)/mk/libsdos.mk\n\
-\n\
 TARGETS  = $(PATH)$(PROJ).lib\n\
 \n\
 $(TARGETS): $(OBJS)\n\
  @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(TARGETS) library install\n\
+\n\
+!include $(%ROOT)/mk/libsdos.mk\n\
 \n\
 lib: $(TARGETS)\n\
 \n", fdmake);

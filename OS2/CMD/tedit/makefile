@@ -40,5 +40,5 @@ UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-install_add: .SYMBOLIC
- $(CP) tedit.hlp $(DEST)
+install_add: .SYMBOLIC $(DEST)tedit.hlp
+ @$(CP) tedit.hlp $(DEST) $(BLACKHOLE)

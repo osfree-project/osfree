@@ -10,9 +10,9 @@ srcfiles = $(p)ccl$(e) $(p)dfa$(e) $(p)ecs$(e) $(p)gen$(e) $(p)main$(e) $(p)misc
 ADD_COPT = -i=$(PATH) -i=$(MYDIR) -pil
 STACKSIZE = 65536
 
-$(PATH)scan.obj:  $(PATH)scan.c
+#$(PATH)scan.obj:  $(PATH)scan.c
 
 $(PATH)parse.obj: $(PATH)parse.c
 
-$(PATH)scan.c:  $(MYDIR)scan.c
- $(CP) $^@ $[@
+#$(PATH)scan.c:  $(MYDIR)scan.c
+# @$(CP) $^@ $[@

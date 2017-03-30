@@ -30,6 +30,7 @@ public linux_data_tmp_addr
 public linux_data_real_addr
 public big_linux_boot
 public linux_boot
+public start
 public stop
 
 public outstr_

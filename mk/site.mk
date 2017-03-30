@@ -26,44 +26,29 @@ FILEVER=@$#$(_VENDOR):$(_VERSION)$#@
 # Shell
 !ifeq OS_SHELL 4OS/2
 SHELL   = 4os2
-!else 
-!ifeq OS_SHELL CMD
+!else ifeq OS_SHELL CMD
 SHELL   = cmd
-!else 
-!ifeq OS_SHELL Bourne
+!else ifeq OS_SHELL Bourne
 SHELL   = /bin/sh
-!else 
-!ifeq OS_SHELL Cshell
+!else ifeq OS_SHELL Cshell
 SHELL   = /bin/csh
 !else
 SHELL   = OS_SHELL
 !endif
-!endif
-!endif
-!endif
-
 
 # Determine a type of OS:
 !ifeq ENV OS2
 UNIX = FALSE
-!else 
-!ifeq ENV Windows
+!else ifeq ENV Windows
 UNIX = FALSE
-!else 
-!ifeq ENV WIN32
+!else ifeq ENV WIN32
 UNIX = FALSE
-!else 
-!ifeq ENV LINUX
+!else ifeq ENV LINUX
 UNIX = TRUE
-!else 
-!ifeq ENV FreeBSD
+!else ifeq ENV FreeBSD
 UNIX = TRUE
 !else
 ! error Unsupported OS!
-!endif
-!endif
-!endif
-!endif
 !endif
 
 # Path separator
@@ -78,16 +63,12 @@ SEP        = /
 # as it is a library, not executable file)
 !ifeq OS_REXX Classic
 REXX    =
-!else 
-!ifeq OS_REXX Object
+!else ifeq OS_REXX Object
 REXX    =
-!else 
-!ifeq OS_REXX Regina
+!else ifeq OS_REXX Regina
 REXX    = rexx
 !else
 REXX    = $OS_REXX
-!endif
-!endif
 !endif
 
 # Files from which HDD image is built

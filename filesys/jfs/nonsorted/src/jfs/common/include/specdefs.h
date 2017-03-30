@@ -6,6 +6,8 @@
 /* Category 8, function 69H, OS2LVM IOCtl                   */
 /*----------------------------------------------------------*/
 
+#if 0
+
 typedef struct _DDI_OS2LVM_param
 {
   UCHAR       Command;
@@ -24,6 +26,8 @@ typedef struct _DDI_OS2LVM_data
   UCHAR        ReturnData;
   void*        UserBuffer;
 } DDI_OS2LVM_data, FAR *PDDI_OS2LVM_data;
+
+#endif
 
 // Parameter Packet Flags field bit definitions
 #define First_Visit_To_Feature          0x00000001
@@ -55,6 +59,7 @@ typedef struct _DDI_OS2LVM_data
 #define  BBR_VERIFY_OFF  0x00     // Write Verify Inactive
 #define  BBR_VERIFY_ON   0x01     // Write Verify Active
 
+#if 0
 
 // Returned data for OS2LVM IOCtl Cat 8 Func 69
 // Command 3 = Get Bad Block Information
@@ -71,6 +76,8 @@ typedef struct _BadBlockTableInfo
    USHORT         ActiveRelocations;      // Total relocations active for this partition.
    USHORT         MaxRelocationsAllowed;  // Max relocations allowed for this partition.
 } BadBlockTableInfo, FAR *PBadBlockTableInfo;
+
+#endif
 
 #define IODC_LV  0x69             /* Logical Volume Management */
 #define IODC_DD  0x6A             /* Dynamic Drive Delete      */

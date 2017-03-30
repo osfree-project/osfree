@@ -6,4 +6,8 @@ DEST    = os2$(SEP)book
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
+$(PATH)$(PROJ).inf:
+
+$(PATH)$(PROJ2).inf:
+
 TARGETS = $(PATH)$(PROJ).inf $(PATH)$(PROJ2).inf

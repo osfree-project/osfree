@@ -38,9 +38,9 @@ OBJS                    = $(zip_OBJS) $(common_OBJS)
 
 MOD_BASE         = REL1_BASE
 
-DEST             = none
-
 !include $(%ROOT)/mk/loader.mk
+
+DEST             = none
 
 # note that PATH is changed in loader.mk,
 # so it must be included before this place:
@@ -75,9 +75,9 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 .asm:   $(MYDIR)netboot
 
 $(PATH)asmcode.$(O): $(MYDIR)..$(SEP)..$(SEP)preldr$(SEP)asmcode.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSTAGE1_5 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)asmcode.$(SO): $(MYDIR)..$(SEP)..$(SEP)preldr$(SEP)asmcode.asm
- @$(SAY)     ASM $[... $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dSTAGE1_5 -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
