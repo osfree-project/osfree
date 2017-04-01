@@ -4,6 +4,7 @@
 #
 
 PROJ     = audioif
+TRGT     = $(PROJ).dll
 DESC     = AudioIf
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

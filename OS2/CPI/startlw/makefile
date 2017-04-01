@@ -5,6 +5,7 @@
 #
 
 PROJ        = startlw
+TRGT        = $(PROJ).dll
 DESC        = Lazy write API
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include

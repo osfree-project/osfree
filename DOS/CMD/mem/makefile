@@ -5,6 +5,7 @@
 #
 
 PROJ = mem
+TRGT = $(PROJ).exe
 DESC = Control file attributes
 #defines object file names in format objname.$(O)
 srcfiles = $(p)kitten$(e) $(p)mem$(e) $(p)prf$(e)

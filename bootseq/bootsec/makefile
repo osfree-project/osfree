@@ -6,8 +6,8 @@
 
 DIRS = bootsect mbr fatboot eltorito
 
-!include $(%ROOT)/mk/loader.mk
+!include $(%ROOT)/mk/all.mk
 
 # this implies do $(MAKE) $(MAKEOPT) TARGET=all subdirs
-TARGETS      = subdirs
-TARGET       = all
+#TARGETS      = subdirs
+#TARGET       = all

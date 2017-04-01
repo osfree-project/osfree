@@ -5,6 +5,7 @@
 #
 
 PROJ = winver
+TRGT = $(PROJ).exe
 DESC = Windows Version
 #defines object file names in format objname.$(O)
 srcfiles = $(p)winver$(e)

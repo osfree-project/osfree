@@ -5,6 +5,7 @@
 #
 
 PROJ     = moucalls
+TRGT     = $(PROJ).dll
 DESC     = Mouse API
 OBJS     = $(PATH)..$(SEP)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include

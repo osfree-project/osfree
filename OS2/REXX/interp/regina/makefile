@@ -5,6 +5,7 @@
 
 
 PROJ        = regina
+TRGT        = $(PROJ).exe
 DESC        = Regina REXX interpreter
 DEST        = os2
 OPTIONS     = caseexact

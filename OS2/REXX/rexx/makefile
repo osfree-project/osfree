@@ -7,6 +7,7 @@
 #    Error! E2064: cannot combine 32-bit segments (_DATA) with 16-bit segments (_BSS)
 # The link works with 32 bit.
 PROJ = rexx
+TRGT = $(PROJ).dll
 DESC = Classic REXX
 srcfiles     = $(p)rexx$(e) $(p)rexx16$(e) $(p)stk$(e)
 ADD_COPT     = -i=. -sg -of+

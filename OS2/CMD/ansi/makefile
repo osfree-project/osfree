@@ -5,6 +5,7 @@
 #
 
 PROJ = ansi
+TRGT = $(PROJ).exe
 DESC = Control utility for ANSI
 #defines object file names in format objname.$(O)
 srcfiles = $(p)ansi$(e)
@@ -20,6 +21,3 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 #      VioSetAnsi_                  EMXWRAP.105
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
-
-qwe: .symbolic
- $(SAY) $(COPT)

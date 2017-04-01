@@ -25,9 +25,9 @@ com = com
 com = 
 !endif
 
-TARGETS  = $(PATH)$(PROJ).com $(PATH)$(PROJ).exe
+TARGETS  = $(PATH)$(TRGT)
 
-$(PATH)$(PROJ).lnk: .SYMBOLIC
+$(PATH)$(PROJ).lnk: $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM dos $(com)
  @%append $^@ NAME $^*
@@ -40,7 +40,7 @@ $(PATH)$(PROJ).lnk: .SYMBOLIC
  @%append $^@ OPTION MAP=$^*.wmp
  $(ADDFILES_CMD)
 
-$(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk $(OBJS)
+$(PATH)$(TRGT): $(PATH)$(PROJ).lnk $(OBJS)
  @$(SAY) LINK     $^. $(LOG)
  $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 

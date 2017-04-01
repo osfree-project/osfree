@@ -2,11 +2,13 @@
 #
 # Makefile for Watcom/LIBC interface layer
 
+PROJ      = dos_shared
+TRGT      = $(PROJ).lib
 #32_BITS = 0
 ADD_COPT  = -i=$(MYDIR)..$(SEP)include
 srcfiles  = $(p)os2vdm$(e)
 
-TARGETS  = $(PATH)dos_shared.lib
+TARGETS  = $(PATH)$(TRGT)
 
 !include $(%ROOT)/mk/libsdos.mk
 

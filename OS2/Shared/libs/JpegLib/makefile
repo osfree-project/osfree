@@ -4,6 +4,7 @@
 
 
 PROJ = libjpeg
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include -dHAVE_LIBJPEG -dHAVE_LIBPNG
 TARGETS  = $(PATH)$(PROJ).lib
 

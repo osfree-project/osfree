@@ -5,6 +5,7 @@
 #
 
 PROJ = xcopy
+TRGT = $(PROJ).exe
 DESC = eXtended copy tool
 #defines object file names in format objname.$(O)
 srcfiles = $(p)rcopy$(e) $(p)verbose$(e)

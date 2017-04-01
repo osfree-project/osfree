@@ -5,6 +5,7 @@
 #
 
 PROJ     = quecalls
+TRGT     = $(PROJ).dll
 DESC     = Queues API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

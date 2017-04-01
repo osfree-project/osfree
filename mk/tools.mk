@@ -33,9 +33,9 @@ TARGETS  = $(PATH)$(PROJ)$(EXE_SUF) # $(PATH)$(PROJ).sym
 
 ADD_COPT += -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
 
-$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
+#$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 
-$(PATH)$(PROJ).lnk: $(OBJS) $(INCLUDES) .SYMBOLIC
+$(PATH)$(PROJ).lnk: $(OBJS)
  @%create $^@
  @%append $^@ NAME $^*$(EXE_SUF)
 !ifdef STACKSIZE

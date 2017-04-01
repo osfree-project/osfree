@@ -4,6 +4,7 @@
 #
 
 PROJ = uni2h
+TRGT = $(PROJ).exe
 DESC = Unified Interfaces to C/C++ header files converter
 INSTALL_ADD = 1
 
@@ -11,5 +12,5 @@ INSTALL_ADD = 1
 
 install_add: .SYMBOLIC
  @cd $(ROOT)$(SEP)UNI
- @$(MAKE) $(MAKEOPT) all
+ @$(MAKE) $(MAKEOPT) h
  @cd $(ROOT)$(SEP)tools$(SEP)UNIAPI

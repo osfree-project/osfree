@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = vorbis
+TRGT = $(PROJ).dll
 ADD_COPT = -sg -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)..$(SEP)libogg$(SEP)include
 ADD_LINKOPT = lib clib3r.lib, os2386.lib, math3r.lib
 

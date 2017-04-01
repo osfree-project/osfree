@@ -5,6 +5,7 @@
 #
 
 PROJ     = nls
+TRGT     = $(PROJ).dll
 DESC     = National Language Support API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include

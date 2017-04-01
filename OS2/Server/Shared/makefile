@@ -6,6 +6,7 @@
 ARCH = $(%SERVERENV)
 
 PROJ = os2server_shared
+TRGT = $(PROJ).lib
 DIRS = modmgr api
 srcfiles = $(p)modmgr$(e) &
 $(p)modmgr$(SEP)ow_dlfcn$(e) &
@@ -25,6 +26,7 @@ $(p)ixfmgr_lx_load$(e) &
 $(p)ixfmgr_lx_debuglx$(e) &
 $(p)ixfmgr_lx_modlx$(e) &
 $(p)ixfmgr_ne$(e)
+UNI2H   = 1
 
 ADD_COPT= -d2 -db
 ADD_LINKOPT = debug all
@@ -32,8 +34,8 @@ DEBUG=all
 
 !include $(%ROOT)/mk/libsos2server.mk
 
-TARGETS  = subdirs $(PATH)$(PROJ).lib
-TARGET   = all
+#TARGETS  = subdirs $(PATH)$(PROJ).lib
+#TARGET   = all
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

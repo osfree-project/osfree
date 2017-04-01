@@ -6,6 +6,7 @@
 
 32_BITS = 1
 PROJ = diskcopy
+TRGT = $(PROJ).exe
 DESC = Copy diskette
 #defines object file names in format objname.$(O)
 srcfiles = $(p)diskcopy$(e)

@@ -5,6 +5,7 @@
 #
 
 PROJ = tree
+TRGT = $(PROJ).exe
 DESC = Graphical tree display
 #defines object file names in format objname.$(O)
 srcfiles = $(p)tree$(e)

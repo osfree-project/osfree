@@ -5,6 +5,7 @@
 
 PROJ       = mbr
 PROJ0      = mbr
+TRGT       = $(PROJ).bin
 DEFINES    =
 ADD_ASMOPT = $(DEFINES) -i=$(%ROOT)include
 

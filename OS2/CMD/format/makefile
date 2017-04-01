@@ -5,6 +5,7 @@
 #
 
 PROJ = format
+TRGT = $(PROJ).exe
 DESC = FORMAT front-end
 #defines object file names in format objname.$(O)
 srcfiles = $(p)format$(e)

@@ -6,6 +6,7 @@
 ARCH        =  $(%SERVERENV)
 
 PROJ        =  lx
+TRGT        =  $(PROJ)
 DESC        =  LX executable format support
 srcfiles    =  $(p)lx$(e) $(p)debuglx$(e) $(p)fixuplx$(e) &
                $(p)modlx$(e) $(p)loadobjlx$(e)
@@ -24,7 +25,7 @@ EXPORTS     =  LXIdentify=ixfIdentify.1, &
 
 ALIASES     =  ixfIdentify=LXIdentify_, ixfLoad=LXLoad_, ixfFixup=LXFixup_
 
-TARGETS     =  $(PATH)$(PROJ).dll
-DEST        =  .
+#TARGETS     =  $(PATH)$(PROJ).dll
+DEST        =  none
 
 !include $(%ROOT)/mk/os2server.mk

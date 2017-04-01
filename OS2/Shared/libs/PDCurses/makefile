@@ -1,6 +1,7 @@
 # Makefile for common shared libs
 
 PROJ = pdcurses
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include
 srcfiles = $(p)addch$(e) $(p)addchstr$(e) $(p)addstr$(e) $(p)attr$(e) $(p)beep$(e) $(p)bkgd$(e) &
            $(p)border$(e) $(p)clear$(e) $(p)color$(e) $(p)delch$(e) $(p)deleteln$(e) $(p)deprec$(e) &

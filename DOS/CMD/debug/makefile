@@ -5,6 +5,7 @@
 #
 
 PROJ      = debug
+TRGT      = $(PROJ).com
 DESC      = DOS debugger
 #defines object file names in format objname.$(O)
 srcfiles  = $(p)DEBUG$(e)

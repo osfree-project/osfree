@@ -7,6 +7,7 @@
 #TARGETS   = $(MYDIR)sub32.lib
 
 PROJ        = sub32
+TRGT        = $(PROJ).dll
 DESC        = Base Subsystems API
 srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e) &
               $(p)strnlen$(e) $(p)unimplemented$(e)

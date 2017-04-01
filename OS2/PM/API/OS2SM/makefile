@@ -5,6 +5,7 @@
 #
 
 PROJ     = os2sm
+TRGT     = $(PROJ).dll
 DESC     = Session manager API forwarder
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..$(SEP)include

@@ -5,6 +5,7 @@
 
 
 PROJ     = apistub
+TRGT     = $(PROJ).lib
 DESC     = Kernel Abstraction Layer API
 srcfiles = $(p)apistub$(e)
 ADD_COPT =  -d2 -db -i=$(MYDIR).. -i=$(MYDIR)

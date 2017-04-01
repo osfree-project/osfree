@@ -4,6 +4,7 @@
 #
 
 PROJ     = rexxmath
+TRGT     = $(PROJ).dll
 srcfiles = $(p)rexxmath$(e)
 
 DEST         = os2$(SEP)dll

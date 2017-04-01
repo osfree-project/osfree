@@ -5,6 +5,7 @@
 #
 
 PROJ = windemo
+TRGT = $(PROJ).exe
 DESC = Simple Windows Application
 #defines object file names in format objname.$(O)
 srcfiles = $(p)MsgCode$(e) $(p)windemo$(e)

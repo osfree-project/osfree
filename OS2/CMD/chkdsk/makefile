@@ -6,6 +6,7 @@
 
 PROJ = chkdsk
 DESC = CHKDSK front-end
+TRGT = $(PROJ).exe
 #defines object file names in format objname.$(O)
 srcfiles = $(p)chkdsk$(e)
 # defines additional options for C compiler

@@ -5,6 +5,7 @@
 #
 
 PROJ     = viocalls
+TRGT     = $(PROJ).dll
 DESC     = Video API
 OBJS     = $(PATH)..$(SEP)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

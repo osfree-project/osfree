@@ -5,6 +5,7 @@
 #
 
 PROJ = cls
+TRGT = $(PROJ).exe
 DESC = Clears Screen
 #defines object file names in format objname.$(O)
 srcfiles = $(p)cls$(e)

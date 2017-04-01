@@ -60,9 +60,9 @@ LOUT         = lbi
  @$(SAY) GENREL   $^. $(LOG)
  $(verbose)$(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@ $(LOG)
 !ifeq UNIX TRUE
- @$(DC) $[*.mds
+ #@$(DC) $[*.mds
 !else
- @if exist $[*.mds @$(DC) $[*.mds $(BLACKHOLE)
+ #@if exist $[*.mds @$(DC) $[*.mds $(BLACKHOLE)
 !endif
 
 .$(OUT).mdl:
@@ -74,9 +74,9 @@ LOUT         = lbi
 !endif
  $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@ $(LOG)
 !ifeq UNIX TRUE
- @$(DC) $[@
+ #@$(DC) $[@
 !else
- @if exist $[@ @$(DC) $[@ $(BLACKHOLE)
+ #@if exist $[@ @$(DC) $[@ $(BLACKHOLE)
 !endif
 
 .$(SOUT).mds:
@@ -88,16 +88,16 @@ LOUT         = lbi
 !endif
  $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@ $(LOG)
 !ifeq UNIX TRUE
- @$(DC) $[@
+ #@$(DC) $[@
 !else
- @if exist $[@ @$(DC) $[@ $(BLACKHOLE)
+ #@if exist $[@ @$(DC) $[@ $(BLACKHOLE)
 !endif
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  @$(SAY) LINK     $(T)$(S).$(E) $(LOG)
  $(verbose)$(LINKER) @$< $(LOG)
 
-$(PATH)$(T)$(S).lnk: .SYMBOLIC
+$(PATH)$(T)$(S).lnk: $(OBJS)
  @%create $^@
  @%append $^@ system os2v2 dll
  @%append $^@ output raw offset=0x10000

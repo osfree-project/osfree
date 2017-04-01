@@ -43,7 +43,7 @@ RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(M
 deps = $(RESOURCE)
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) .SYMBOLIC
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
  @%create $^@
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*

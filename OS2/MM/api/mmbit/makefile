@@ -4,6 +4,7 @@
 #
 
 PROJ     = mmbit
+TRGT     = $(PROJ).dll
 DESC     = Bitmap MM Class
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

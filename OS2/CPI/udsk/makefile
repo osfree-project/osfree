@@ -4,6 +4,7 @@
 #
 
 PROJ     = udsk
+TRGT     = $(PROJ).dll
 DESC     = Low-level Disk Access API
 srcfiles = $(p)secread$(e)
 

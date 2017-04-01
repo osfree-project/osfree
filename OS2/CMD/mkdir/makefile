@@ -5,6 +5,7 @@
 #
 
 PROJ = mkdir
+TRGT = $(PROJ).exe
 DESC = Makes a directory
 #defines object file names in format objname.$(O)
 srcfiles = $(p)mkdir$(e)

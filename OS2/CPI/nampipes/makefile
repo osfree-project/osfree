@@ -4,6 +4,7 @@
 #
 
 PROJ     = nampipes
+TRGT     = $(PROJ).dll
 DESC     = Named Pipes API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

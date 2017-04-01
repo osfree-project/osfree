@@ -5,6 +5,7 @@
 #
 
 PROJ     = moncalls
+TRGT     = $(PROJ).dll
 DESC     = Monitor API
 srcfiles = $(p)dllstart$(e) # $(p)wrap$(e)
 ADD_COPT    = -i=..\include -s

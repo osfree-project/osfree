@@ -5,6 +5,7 @@
 #
 
 PROJ = minicmd
+TRGT = $(PROJ).exe
 DESC = Minimalistic Command line processor
 ADD_COPT = -s -od -d3 -db
 DEBUG = watcom all

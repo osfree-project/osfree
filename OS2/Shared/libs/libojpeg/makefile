@@ -1,6 +1,7 @@
 # Makefile for common shared libs
 
 PROJ = ojpeg
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include
 
 #CFLAGS         = $(CWARNS) -i.. -bd -bt=os2 -ze -zq -zp4 -onatxh -oe=120 -sg -ei -6r -fp6 -fpi87 -bm -mf /DNDEBUG /DOPJ_STATIC /DGBMMEM

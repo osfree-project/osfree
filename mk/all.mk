@@ -8,10 +8,11 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: install .symbolic
+all: targets .symbolic # precopy prereq
+ @%null
 
 # a double (see the end of file )
-install: build
+#install: build
 
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
@@ -384,11 +385,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 
 .pas.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(BLACKHOLE)
 
 .pp.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(BLACKHOLE)
 
 .lnk.exe: .autodepend
  @$(SAY) LINK     $^. $(LOG)
@@ -402,13 +403,19 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
 
+targets: prereq subdirs install .symbolic
+ @%null
+ #@for %t in ($(TARGETS) install) do @$(MAKE) $(MAKEOPT) %t
+
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
- @for %%i in ($(DIRS)) do  @cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..
+# @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
+# @for %i in ($(DIRS)) do  @if exist $(MYDIR)%i @cd $(MYDIR)%i && @$(MAKE) $(MAKEOPT) $(TARGET)
+ @for %d in ($(DIRS)) do @if exist $(MYDIR)%d @cd $(MYDIR)%d && @$(MAKE) $(MAKEOPT) targets
 
 dirhier: precopy .symbolic
  # @$(SAY) MKDIR    $(PATH) $(LOG)
@@ -421,31 +428,61 @@ clean: .SYMBOLIC
  $(verbose)$(CLEAN_CMD)
  # @$(SAY)   "$(TARGETS) -> $(DEST)"
 
-$(PATH)$(PROJ)$(EXE_SUF):
+#$(PATH)$(PROJ)$(EXE_SUF):
 
-$(PATH)$(PROJ).com:
+#$(PATH)$(PROJ).com:
 
-$(PATH)$(PROJ):
+#$(PATH)$(PROJ):
 
 $(PATH)$(PROJ).lnk: $(MYDIR)makefile
 
-install: build
-!ifeq PROJ
- %null
+!ifndef TRGT
+!ifdef INSTALL
+FLG  = install2
 !else
- @$(SAY) INST     $(PROJ) $(LOG)
-!ifeq INSTALL_PRE 1
- @$(MAKE) $(MAKEOPT) install_pre
+FLG  = 
 !endif
-!ifneq DEST
- #-$(MDHIER) $(DEST)
- @if not $(DEST) == none $(verbose)$(MDHIER) $(DEST)
- @for %i in ($(TARGETS)) do @if exist %i @if not $(DEST) == none @$(CP) %i $(DEST) $(BLACKHOLE)
+!else ifneq DEST none
+FLG  = $(DEST)$(SEP)$(TRGT)
+!else
+FLG  = $(PATH)$(TRGT)
 !endif
+
+install: build $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif
-!endif
+
+install2: .symbolic
+ @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3
+
+$(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
+ @$(MAKE) $(MAKEOPT) file=$(TRGT) install3
+
+install3: .symbolic
+ @if exist $(DEST)$(SEP)$(file) @%quit
+ @$(SAY) INST     $(file) $(LOG)
+ @$(MDHIER) $(DEST)
+ @$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+
+#install: build .symbolic
+#!ifeq PROJ
+# %null
+#!else
+# @$(SAY) INST     $(PROJ) $(LOG)
+#!ifeq INSTALL_PRE 1
+# @$(MAKE) $(MAKEOPT) install_pre
+#!endif
+#!ifneq DEST
+# #-$(MDHIER) $(DEST)
+# @if not $(DEST) == none $(verbose)$(MDHIER) $(DEST)
+# @for %i in ($(TARGETS)) do @if exist %i @if not $(DEST) == none @$(CP) %i $(DEST) $(BLACKHOLE)
+#!endif
+#!ifeq INSTALL_ADD 1
+# @$(MAKE) $(MAKEOPT) install_add
+#!endif
+# @wtouch $(PATH)$(PROJ).flg
+#!endif
 
 precopy: .SYMBOLIC
  # @$(SAY) PRECOPY  scrpits $(LOG)
@@ -475,6 +512,9 @@ prelibs: .symbolic
 
 .error:
   %abort
+
+test:
+ @echo $(TRGT)
 
 !ifndef WRAPPERS
 

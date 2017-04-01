@@ -4,6 +4,7 @@
 #
 
 PROJ      = regina
+TRGT     = $(PROJ).dll
 DESC      = Regina interpreter DLL
 DEST      = os2$(SEP)dll
 STACKSIZE = 0x20000

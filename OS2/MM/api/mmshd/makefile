@@ -4,6 +4,7 @@
 #
 
 PROJ     = mmshd
+TRGT     = $(PROJ).dll
 DESC     = MM Shadow
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

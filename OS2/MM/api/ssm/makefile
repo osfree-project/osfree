@@ -4,6 +4,7 @@
 #
 
 PROJ     = ssm
+TRGT     = $(PROJ).dll
 DESC     = SSM
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

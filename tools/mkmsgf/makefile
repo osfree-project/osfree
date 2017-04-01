@@ -7,6 +7,7 @@
 #
 
 PROJ = mkmsgf
+TRGT = $(PROJ).exe
 DESC = Make message file tool
 
 !include $(%ROOT)/mk/toolspas.mk

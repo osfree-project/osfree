@@ -8,7 +8,7 @@ DEST    = tools
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = tools
+#TARGETS = tools
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg
@@ -16,14 +16,14 @@ srcdir = $(%ROOT)$(SEP)tools$(SEP)scripts
 
 tools: copy  .symbolic
  @cd .. 
- @$(MAKE) $(MAKEOPTS) subdirs
- $(CD) $(MYDIR)
+ @$(MAKE) $(MAKEOPT) subdirs
+ @$(CD) $(MYDIR)
 
 copy: .symbolic
- @if exist $(FILESDIR)$(SEP)base-copied-flag @%quit
- @for %i in ($(list)) do @if not exist %i $(MKDIR) %i
+ @if exist $(FILESDIR)$(SEP)base-copied-flag.flg @%quit
+ @for %i in ($(list)) do @if not exist %i @$(MKDIR) %i
  @cd $(srcdir)
- @for %i in ($(filelist)) do $(CP) %i $(DEST)
- @touch $(FILESDIR)$(SEP)base-copied-flag
+ @for %i in ($(filelist)) do @$(CP) %i $(DEST) $(BLACKHOLE)
+ @wtouch $(FILESDIR)$(SEP)base-copied-flag.flg
 
  

@@ -5,6 +5,7 @@
 #
 
 PROJ = somipc
+TRGT = $(PROJ).exe
 DESC = SOM Compiler IPC
 #defines object file names in format objname.$(O)
 srcfiles = $(p)somipc$(e)

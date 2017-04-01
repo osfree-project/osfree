@@ -5,6 +5,7 @@
 
 
 PROJ     = kal
+TRGT     = $(PROJ).dll
 DESC     = Kernel Abstraction Layer API
 srcfiles = $(p)stub$(e)
 ADD_COPT = -i=$(MYDIR)..
@@ -17,6 +18,7 @@ EXPORTS = KalInit.1, &
           DosFSCtl.3, &
           DosExit.4, &
           DosQuerySysInfo.5
+UNI2H   = 1
 
 DEST    = os2$(SEP)dll
 

@@ -34,6 +34,10 @@ bbx              = $+$(ldrfiles)$-
 
 OBJS             = $(STAGE0_OBJS)
 
+p            = 
+e            = .mdl
+INSTALL      = $+$(ldrfiles)$-
+
 !include $(%ROOT)/mk/loader.mk
 
 # note that PATH is changed in loader.mk,
@@ -83,3 +87,4 @@ $(PATH)cfgparse.$(O): $(MYDIR)..$(SEP)..$(SEP)cfgparse.c
 
 $(PATH)cfgparse.$(SO): $(MYDIR)..$(SEP)..$(SEP)cfgparse.c
 
+$(TARGETS):

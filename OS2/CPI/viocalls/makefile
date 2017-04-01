@@ -5,6 +5,7 @@
 #
 
 PROJ     = viocalls
+TRGT     = $(PROJ).dll
 DESC     = Video API
 srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
 ADD_COPT    = -i=..\include -s

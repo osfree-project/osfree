@@ -4,6 +4,7 @@
 #
 
 PROJ = rexxinit
+TRGT = $(PROJ).dll
 DESC = REXX initializer DLL
 DIRS = exe
 srcfiles     = $(p)rexxinit$(e)
@@ -21,5 +22,5 @@ UNI2H        = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-TARGETS = $(PATH)$(PROJ).exe subdirs
-TARGET = all
+#TARGETS = $(PATH)$(PROJ).exe # subdirs
+#TARGET = all

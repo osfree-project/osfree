@@ -1,6 +1,7 @@
 # Makefile for common shared libs
 
 PROJ = libtiff
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include
 
 srcfiles = $(p)tif_aux$(e) $(p)tif_close$(e) $(p)tif_codec$(e) $(p)tif_color$(e) $(p)tif_compress$(e) &

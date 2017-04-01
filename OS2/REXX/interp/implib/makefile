@@ -5,6 +5,7 @@
 
 
 PROJ        = regina
+TRGT        = $(PROJ).lib
 DESC        = Regina REXX import library
 DEST        = ..$(SEP)build$(SEP)lib
 OBJS        = $(PATH)..$(SEP)dll$(SEP)$(PROJ).dll

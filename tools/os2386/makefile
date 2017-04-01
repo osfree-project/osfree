@@ -3,6 +3,7 @@
 #
 
 PROJ = os2386
+TRGT = $(PROJ).lib
 DIRS = libc
 lbcs =  bdcalls.lbc doscalls.lbc helpmgr.lbc sub32.lbc  &
 #       kbdcalls.lbc moncalls.lbc moucalls.lbc viocalls.lbc &
@@ -10,7 +11,7 @@ lbcs =  bdcalls.lbc doscalls.lbc helpmgr.lbc sub32.lbc  &
         pmspl.lbc pmshapi.lbc pmviop.lbc pmwin.lbc pmwp.lbc quecalls.lbc sesmgr.lbc
 UNI2H = 1
 
-TARGETS  = $(PATH)$(PROJ).lib subdirs
+#TARGETS  = $(PATH)$(PROJ).lib subdirs
 
 !include $(%ROOT)/mk/libsos2.mk
 
@@ -31,15 +32,15 @@ LOPT = -q -n
 .asm: $(MYDIR)
 
 .asm.obj: .AUTODEPEND
- $(SAY) Assembling $[. $(LOG)
- $(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(SAY) ASM      $^. $(LOG)
+ @$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
 $(PATH)os2386.lbc: $(lbcs)
-        %create $@
-        @for %f in ($<) do cat %f >>$@
+        @%create $@
+        @for %f in ($<) do @cat %f >>$@
 
 .def.lbc:
-        sed -f $(MYDIR)def2lbc.sed $(MYDIR)$[@ >$(PATH)$^@
+        @sed -f $(MYDIR)def2lbc.sed $(MYDIR)$[@ >$(PATH)$^@
 
 $(PATH)$(PROJ).lib: $(PATH)os2386.lbc $(PATH)msgseg32.obj
-        $(LIB) $(LOPT) $@ @$[@ +$]@
+        @$(LIB) $(LOPT) $@ @$[@ +$]@

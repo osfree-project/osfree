@@ -4,6 +4,7 @@
 #
 
 PROJ     = msg
+TRGT     = $(PROJ).dll
 DESC     = Message files API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include -s

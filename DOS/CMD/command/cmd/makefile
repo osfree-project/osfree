@@ -5,7 +5,8 @@
 #
 
 32_BITS = 0
-PROJ      = command
+PROJ      = cmd
+TRGT      = $(PROJ).lib
 DESC      = DOS command interpreter
 #defines object file names in format objname.$(O)
 srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e) $(p)cdd$(e) $(p)chcp$(e) $(p)chdir$(e) &

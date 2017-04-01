@@ -36,6 +36,14 @@ OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 MOD_BASE             = EXT_BUF_BASE
 DEST                 = boot$(SEP)loader$(SEP)fsd
 
+p            = 
+e            = .rel
+rels1        = $+$(blackboxes)$- 
+
+p            = 
+e            = .mdl
+INSTALL      = $+$(blackboxes)$- $(rels1)
+
 !include $(%ROOT)/mk/loader.mk
 
 # note that PATH is changed in loader.mk,
@@ -85,3 +93,5 @@ $(PATH)fsys_ntfs_nocomp.$(O): $(MYDIR)fsys_ntfs1.c
 $(PATH)fsys_ntfs_nocomp.$(SO): $(MYDIR)fsys_ntfs1.c
  @$(SAY) CC       $^. $(LOG)
  $(verbose)$(CC) -dfsys_ntfs -dSHIFT=$(SHIFT) -dSTAGE1_5 -dNO_NON_RESIDENT_ATTRIBUTE_LIST -dNO_ALTERNATE_DATASTREAM -dNO_ATTRIBUTE_LIST $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+
+$(TARGETS):

@@ -5,6 +5,7 @@
 #
 
 PROJ1        = e
+TRGT         = $(PROJ1).exe
 PROJ         = e0
 DESC         = osFree System Editor
 DIRS         = # help
@@ -47,5 +48,5 @@ $(PATH)sty_dlg.obj:  $(MYDIR)sty_dlg.c  #$(HEADERS)
 $(PATH)sty_help.obj: $(MYDIR)sty_help.c $(HEADERS)
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)$(RES).rc
- $(SAY) Compiling resource file $[.... $(LOG)
- $(RC) -bt=os2 -i=$(MYDIR) -i=$(%WATCOM)$(SEP)h$(SEP)os2 $]@ $[@ -fe=$^@ -fo=$(PATH)$(PROJ1).res
+ @$(SAY) RESCMP   $^.
+ @$(RC) -bt=os2 -i=$(MYDIR) -i=$(%WATCOM)$(SEP)h$(SEP)os2 $]@ $[@ -fe=$^@ -fo=$(PATH)$(PROJ1).res

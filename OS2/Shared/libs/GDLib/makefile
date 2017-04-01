@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = gdlib
+TRGT = $(PROJ).lib
 ADD_COPT = -dHAVE_LIBJPEG -dHAVE_LIBPNG #-ecc
 srcfiles = $(p)gd_jpeg$(e) $(p)gd_io_file$(e) $(p)gd_png$(e) $(p)gd$(e) $(p)gdfontg$(e) $(p)gdfontl$(e) &
            $(p)gdfontmb$(e) $(p)gdfonts$(e) $(p)gdfontt$(e) $(p)gdhelpers$(e) $(p)gdtables$(e) &

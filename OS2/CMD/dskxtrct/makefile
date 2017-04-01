@@ -5,6 +5,7 @@
 #
 
 PROJ = dskxtrct
+TRGT = $(PROJ).exe
 DESC = Extract diskette images
 #defines object file names in format objname.$(O)
 srcfiles = $(p)stringe$(e) $(p)dskxtrct$(e)

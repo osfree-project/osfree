@@ -5,6 +5,7 @@
 #
 
 PROJ = comp
+TRGT = $(PROJ).exe
 DESC = Compare tool
 #defines object file names in format objname.$(O)
 srcfiles = $(p)cmp$(e)

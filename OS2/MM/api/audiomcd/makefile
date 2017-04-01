@@ -4,6 +4,7 @@
 #
 
 PROJ     = audiomcd
+TRGT     = $(PROJ).dll
 DESC     = MCI DLL
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

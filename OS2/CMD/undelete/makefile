@@ -5,6 +5,7 @@
 #
 
 PROJ = undelete
+TRGT = $(PROJ).exe
 DESC = Restore deleted file
 #defines object file names in format objname.$(O)
 srcfiles = $(p)undelete$(e)

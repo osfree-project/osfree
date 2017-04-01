@@ -3,10 +3,11 @@
 # Makefile for common shared libs
 
 PROJ = ogg
+TRGT = $(PROJ).dll
 ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT = lib clib3r.lib, os2386.lib
+ADD_LINKOPT = lib clib3r.lib, os2386.lib # $(PATH)..$(SEP)libogg.lib
 
-srcfiles = $(p)..$(SEP)framing$(e) $(p)..$(SEP)bitwise$(e)
+OBJS = $(PATH)..$(SEP)framing.$(O) $(PATH)..$(SEP)bitwise.$(O)
 DLL = 1
 DLLOPT = initinstance
 EXPORTS = &

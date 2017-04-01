@@ -5,6 +5,7 @@
 #
 
 PROJ = recover
+TRGT = $(PROJ).exe
 DESC = RECOVER front-end
 #defines object file names in format objname.$(O)
 srcfiles = $(p)recover$(e)

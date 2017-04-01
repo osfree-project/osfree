@@ -5,6 +5,7 @@
 #
 
 PROJ     = mmioJPEG
+TRGT     = $(PROJ).dll
 DESC     = JPEG Format I/O Procedure
 srcfiles = $(p)jpgfunc$(e) $(p)jpgproc$(e) $(p)debug$(e)
 ADD_COPT = -i=..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until mmos2 .uni modules will be ready

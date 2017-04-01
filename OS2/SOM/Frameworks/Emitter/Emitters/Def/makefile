@@ -5,6 +5,7 @@
 #
 
 PROJ     = emitdef
+TRGT     = $(PROJ).dll
 DESC     = Definition File Emittter for SOM Compiler
 srcfiles = $(p)emitpas$(e) $(p)pas$(e)
 ADD_COPT = -i=$(%ROOT)$(SEP)include$(SEP)os3

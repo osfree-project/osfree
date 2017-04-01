@@ -5,6 +5,7 @@
 #
 
 PROJ = eject
+TRGT = $(PROJ).exe
 DESC = Removable media eject utility
 #defines object file names in format objname.$(O)
 srcfiles = $(p)eject$(e)

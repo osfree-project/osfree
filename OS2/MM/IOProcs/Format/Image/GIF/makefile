@@ -5,6 +5,7 @@
 #
 
 PROJ     = mmioGIF
+TRGT     = $(PROJ).dll
 DESC     = GIF Format I/O Procedure
 srcfiles = $(p)gifproc$(e)
 ADD_COPT = -i=..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until mmos2 .uni modules will be ready

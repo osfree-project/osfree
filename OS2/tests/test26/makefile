@@ -4,6 +4,7 @@
 #
 
 PROJ = nullmini
+TRGT = $(PROJ).exe
 DESC = Protshell stub
 srcfiles  = $(p)nullmini$(e)
 # defines additional options for C compiler

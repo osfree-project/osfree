@@ -5,6 +5,7 @@
 #
 
 PROJ     = pmmerge
+TRGT     = $(PROJ).dll
 DESC     = OS/2 PM Merged Library
 DIRS     = rectangles habmgr messagemgr framemgr windowmgr input load dialogs errors
 srcfiles = $(p)init$(e) $(p)framemgr$(SEP)framemgr$(e) $(p)habmgr$(SEP)habmgr$(e) $(p)rectangles$(SEP)rectangles$(e) &
@@ -1248,6 +1249,49 @@ EXPORTS = &
 DEST     = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
+
+$(PATH)rectangles$(SEP)rectangles.obj: $(MYDIR)rectangles$(SEP)rectangles.c
+$(PATH)habmgr$(SEP)habmgr.obj: $(MYDIR)habmgr$(SEP)habmgr.cpp
+$(PATH)messagemgr$(SEP)messages.obj: $(MYDIR)messagemgr$(SEP)messages.cpp
+$(PATH)messagemgr$(SEP)queue.obj: $(MYDIR)messagemgr$(SEP)queue.cpp
+$(PATH)framemgr$(SEP)framemgr.obj: $(MYDIR)framemgr$(SEP)framemgr.cpp
+$(PATH)windowmgr$(SEP)WindowClass.obj: $(MYDIR)windowmgr$(SEP)WindowClass.cpp
+$(PATH)windowmgr$(SEP)windowmgr.obj: $(MYDIR)windowmgr$(SEP)windowmgr.cpp
+$(PATH)input$(SEP)input.obj: $(MYDIR)input$(SEP)input.cpp
+$(PATH)load$(SEP)load.obj: $(MYDIR)load$(SEP)load.c
+$(PATH)dialogs$(SEP)windlgbox.obj: $(MYDIR)dialogs$(SEP)windlgbox.c
+$(PATH)errors$(SEP)errors.obj: $(MYDIR)errors$(SEP)errors.cpp
+$(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
+
+.$(O): $(PATH)rectangles
+.$(O): $(PATH)habmgr
+.$(O): $(PATH)messagemgr
+.$(O): $(PATH)framemgr
+.$(O): $(PATH)windowmgr
+.$(O): $(PATH)input
+.$(O): $(PATH)load
+.$(O): $(PATH)dialogs
+.$(O): $(PATH)errors
+
+.c: $(MYDIR)rectangles
+.c: $(MYDIR)habmgr
+.c: $(MYDIR)messagemgr
+.c: $(MYDIR)framemgr
+.c: $(MYDIR)windowmgr
+.c: $(MYDIR)input
+.c: $(MYDIR)load
+.c: $(MYDIR)dialogs
+.c: $(MYDIR)errors
+
+.cpp: $(MYDIR)rectangles
+.cpp: $(MYDIR)habmgr
+.cpp: $(MYDIR)messagemgr
+.cpp: $(MYDIR)framemgr
+.cpp: $(MYDIR)windowmgr
+.cpp: $(MYDIR)input
+.cpp: $(MYDIR)load
+.cpp: $(MYDIR)dialogs
+.cpp: $(MYDIR)errors
 
 TARGETS = subdirs $(PATH)$(PROJ).dll
 TARGET = all

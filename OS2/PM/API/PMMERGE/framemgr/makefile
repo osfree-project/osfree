@@ -4,10 +4,11 @@
 # author, date
 #
 
-srcfiles = $(p)framemgr$(e)
+#srcfiles = $(p)framemgr$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-DEST = none
+#DEST = none
 TARGETS = $(OBJS)
+TARGET = all

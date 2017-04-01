@@ -5,6 +5,7 @@
 #
 
 PROJ = genin
+TRGT = $(PROJ).dll
 DESC = Multimedia Installer GENIN/Stub-DLL
 #defines object file names in format $(p)objname$(e)
 srcfiles = $(p)genin$(e)

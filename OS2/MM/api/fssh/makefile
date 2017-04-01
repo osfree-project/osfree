@@ -4,6 +4,7 @@
 #
 
 PROJ     = fssh
+TRGT     = $(PROJ).dll
 DESC     = AudioSh
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

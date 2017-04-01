@@ -5,6 +5,7 @@
 #
 
 PROJ     = pmshapi
+TRGT     = $(PROJ).dll
 DESC     = PMShell API
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..\include

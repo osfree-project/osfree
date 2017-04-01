@@ -5,6 +5,7 @@
 #
 
 PROJ = diskcomp
+TRGT = $(PROJ).exe
 DESC = Compare disks
 #defines object file names in format objname.$(O)
 srcfiles = $(p)diskcomp$(e) $(p)drive$(e) $(p)md5$(e) $(p)misc$(e) $(p)tcc2wat$(e)

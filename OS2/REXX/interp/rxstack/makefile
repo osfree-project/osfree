@@ -5,6 +5,7 @@
 
 
 PROJ        = rxstack
+TRGT        = $(PROJ).exe
 DESC        = Regina REXX interpreter
 DEST        = os2
 OPTIONS     = quiet, stack=0x10000000, heapsize=40960

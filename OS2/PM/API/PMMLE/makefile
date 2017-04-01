@@ -5,6 +5,7 @@
 #
 
 PROJ     = pmmle
+TRGT     = $(PROJ).dll
 DESC     = Multi-Line Editor Control
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..\include

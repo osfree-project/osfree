@@ -858,6 +858,7 @@ puts("FIXSTRS: building STRINGS library source files");
 #\n\
 \n\
 PROJ  = strings\n\
+TRGT  = $(PROJ).lib\n\
 DESC  = Control file attributes\n\
 #defines object file names in format objname.$(O)\n\
 srcfiles = ", fdmake);
@@ -876,14 +877,15 @@ srcfiles = ", fdmake);
 # defines additional options for C compiler\n\
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl\n\
 \n\
-TARGETS  = $(PATH)$(PROJ).lib\n\
+TARGETS  = $(PATH)$(TRGT)\n\
 \n\
-$(TARGETS): $(OBJS)\n\
- @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(TARGETS) library install\n\
+lib: $(PATH)$(TRGT)\n\
+\n\
+$(PATH)$(TRGT): # $(OBJS)\n\
+ @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(PATH)$(TRGT) library # install\n\
 \n\
 !include $(%ROOT)/mk/libsdos.mk\n\
 \n\
-lib: $(TARGETS)\n\
 \n", fdmake);
 
                 fflush(ftc101);

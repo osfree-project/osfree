@@ -1,5 +1,6 @@
 PROJ  = option1
 PROJ1 = option2
+TRGT = $(PROJ1).exe
 DESC =  Settings notebook for 4os2
 srcfiles    = $(p)option2$(e) $(p)os2cfg$(e) $(p)os2nb$(e) $(p)..$(SEP)shared$(SEP)istring$(e)
 #inc         =  -i=. -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include &
@@ -15,10 +16,9 @@ DEST = os2
 
 !include $(%ROOT)/mk/appsos2_pm.mk
 
-TARGETS = $(PATH)$(PROJ1).exe
-TARGET = all
+#TARGETS = $(PATH)$(PROJ1).exe
+#TARGET = all
 
 $(PATH)$(PROJ1).exe: $(MYDIR)$(PROJ1).rc $(PATH)$(PROJ).exe
  @$(SAY) RESCMP   $^. $(LOG)
  @$(RC) -bt=os2 $(inc) $[@ $]@ -fo=$(PATH)$(PROJ1).res -fe=$@
- @$(DC) $]@ $(BLACKHOLE)

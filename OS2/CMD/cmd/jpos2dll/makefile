@@ -6,6 +6,7 @@
 #    Error! E2064: cannot combine 32-bit segments (_DATA) with 16-bit segments (_BSS)
 # The link works with 32 bit.
 PROJ = jpos2dll
+TRGT = $(PROJ).dll
 DESC = CMD.EXE helper
 srcfiles = $(p)jpos2dll$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -bd

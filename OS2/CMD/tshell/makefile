@@ -5,6 +5,7 @@
 #
 
 PROJ = tshell
+TRGT = $(PROJ).exe
 DESC = Text Shell
 #defines object file names in format objname.$(O)
 srcfiles = $(p)tshell$(e)

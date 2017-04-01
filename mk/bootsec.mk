@@ -26,7 +26,7 @@ PROJ0 = PROJ
 
 $(PATH)$(PROJ).bin: $(PATH)$(PROJ).lnk
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ @$(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
 
 $(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O)
  @%create $^@
@@ -35,6 +35,6 @@ $(PATH)$(PROJ).lnk: $(PATH)$(PROJ0).$(O)
  @%append $^@ OPTION NODEFAULTLIBS
  @%append $^@ NAME $^*.bin
  @%append $^@ PATH $(PATH)
- @%append $^@ FILE $[@
+ @%append $^@ FILE $(PATH)$(PROJ0).$(O)
 
 !endif

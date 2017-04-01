@@ -8,5 +8,5 @@ DIRS = GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff libvorbis lpng P
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

@@ -4,6 +4,7 @@
 #
 
 PROJ     = mish
+TRGT     = $(PROJ).dll
 DESC     = MiSh
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

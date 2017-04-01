@@ -5,6 +5,7 @@
 #
 
 PROJ = makeini
+TRGT = $(PROJ).exe
 DESC = INI file compiler
 #defines object file names in format objname.$(O)
 srcfiles = $(p)xmakeini$(e) $(p)linklist$(e) $(p)stringh$(e) $(p)xprf$(e) $(p)xstring$(e) &

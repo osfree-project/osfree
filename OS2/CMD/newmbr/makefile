@@ -7,6 +7,7 @@
 !include $(%ROOT)/mk/dirs.mk
 
 PROJ     = newmbr
+TRGT     = $(PROJ).exe
 DESC     = Writes new MBR to the first hard disk
 srcfiles = $(p)read$(e)
 # defines additional options for C compiler

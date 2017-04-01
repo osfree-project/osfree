@@ -5,6 +5,7 @@
 #
 
 PROJ        = mbi
+TRGT        = $(PROJ).dll
 DESC        = A multiboot info mini-FSD
 srcfiles    = $(p)mfs$(e) $(p)fs_stubs$(e) $(p)fs_all$(e) $(p)serial$(e) $(p)vsprintf$(e) &
               $(p)istable$(e) $(p)div$(e) $(p)libc$(e) $(p)cmdline$(e) $(p)os2bird$(e) $(p)end$(e)
@@ -129,9 +130,9 @@ EXPORTS     = &
     MFS_READ, &
     MFS_TERM
 
-!include $(%ROOT)/mk/appsos2v1.mk
-
 DEST        = none
+
+!include $(%ROOT)/mk/appsos2v1.mk
 
 .c: $(MYDIR)..
 .c: $(MYDIR)..$(SEP)..

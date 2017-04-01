@@ -5,6 +5,7 @@
 #
 
 PROJ = minstall
+TRGT = $(PROJ).exe
 DESC = Control utility for MINSTALL
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
 #defines object file names in format $(p)objname$(e)

@@ -4,6 +4,7 @@
 #
 
 PROJ  = rxregexp
+TRGT  = $(PROJ).dll
 DESC  = Regular expression support for REXX
 
 DBG   = 1

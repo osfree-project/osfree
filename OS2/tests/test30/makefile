@@ -3,6 +3,7 @@
 #  Viking
 
 PROJ = win1
+TRGT = $(PROJ).exe
 
 srcfiles = $(p)win1$(e)
 

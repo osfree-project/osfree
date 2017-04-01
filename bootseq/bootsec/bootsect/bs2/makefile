@@ -19,6 +19,7 @@
 
 PROJ       = bootsect_2
 PROJ0      = bootsect
+TRGT       = $(PROJ).bin
 DEFINES    = -dCODE_2
 ADD_ASMOPT = $(DEFINES)
 

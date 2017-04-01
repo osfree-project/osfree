@@ -3,11 +3,12 @@
 32_BITS  = 1
 
 PROJ = tools_shared
+TRGT = $(PROJ).lib
 DIRS = z idl
 LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib #$(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
-TARGETS  = subdirs $(PATH)$(PROJ).lib
-TARGET   = all
+#TARGETS  = subdirs $(PATH)$(PROJ).lib
+#TARGET   = all
 
 !include $(%ROOT)/mk/libs.mk
 

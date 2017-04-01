@@ -5,6 +5,7 @@
 #
 
 PROJ = screenrs
+TRGT = $(PROJ).exe
 DESC = Utility to set screen resolution in INI file
 #defines object file names in format objname.$(O)
 srcfiles = $(p)screenrs$(e)

@@ -5,6 +5,7 @@
 
 PROJ       = eltorito
 PROJ0      = eltorito
+TRGT       = $(PROJ).bin
 DEFINES    =
 ADD_ASMOPT = $(DEFINES)
 

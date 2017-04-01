@@ -5,6 +5,7 @@
 #
 
 PROJ  = fixstrs
+TRGT  = $(PROJ).exe
 DESC  = Control file attributes
 DIRS  = critstrs
 #defines object file names in format objname.$(O)

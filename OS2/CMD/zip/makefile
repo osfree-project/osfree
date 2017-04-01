@@ -5,6 +5,7 @@
 #
 
 PROJ = zip
+TRGT = $(PROJ).exe
 DESC = ZIP file archiver
 # defines additional options for C compiler
 # ADD_LINKOPT = lib cmd_shared.lib,all_shared.lib

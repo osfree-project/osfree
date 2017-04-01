@@ -19,6 +19,7 @@
 
 PROJ       = bootsect_1
 PROJ0      = bootsect
+TRGT       = $(PROJ).bin
 DEFINES    = -dCODE_1 # -dIBM_FAT_COMPAT
 ADD_ASMOPT = $(DEFINES)
 

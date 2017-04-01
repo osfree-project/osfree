@@ -5,11 +5,14 @@
 #
 
 PROJ = help
+TRGT = $(PROJ).bat
 DESC = Show help info
+CLEAN_ADD = *.bat
 
-!include $(%ROOT)/mk/appsdos.mk
+TARGETS  = $(PATH)$(PROJ).bat
+DEST     = os2$(SEP)mdos
 
-TARGETS  = $(PROJ).bat
+!include $(%ROOT)/mk/all.mk
 
-$(PROJ).bat: .SYMBOLIC
- @%null
+$(PATH)$(PROJ).bat: $(MYDIR)$(PROJ).bat
+ @$(CP) $< $^@ $(BLACKHOLE)

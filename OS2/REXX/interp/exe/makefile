@@ -4,6 +4,7 @@
 #
 
 PROJ     = rexx
+TRGT     = $(PROJ).exe
 DESC     = Regina REXX interpreter
 DEST     = os2
 STUB     = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe

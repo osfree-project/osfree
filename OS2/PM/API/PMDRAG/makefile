@@ -5,6 +5,7 @@
 #
 
 PROJ     = pmdrag
+TRGT     = $(PROJ).dll
 DESC     = Drag and Drop API
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..$(SEP)include

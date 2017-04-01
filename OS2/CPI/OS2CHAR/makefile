@@ -5,6 +5,7 @@
 #
 
 PROJ        = os2char
+TRGT        = $(PROJ).dll
 DESC        = os2char API
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include

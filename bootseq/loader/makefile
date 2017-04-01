@@ -4,21 +4,18 @@
 # valerius, 2006/10/30
 #
 
-#srcfiles     = $(p)drivemap$(e) $(p)end$(e) $(p)modesw$(e) $(p)cfgparse$(e) $(p)cmdline$(e) &
-#               $(p)setdev$(e) $(p)wrap$(e)
-
 DIRS         = shared filesys term preldr loader kernels
 DEST         = boot$(SEP)loader
+INSTALL_ADD  = 1
 
-!include $(%ROOT)/mk/loader.mk
+!include $(%ROOT)/mk/all.mk
 
-#p            = $(PATH)
-#e            = .$$(O)
-#OBJS         = $+$(srcs)$-
+install_add: $(DEST)$(SEP)boot.cfg $(DEST)$(SEP)preldr.ini .symbolic
 
-$(MYDIR)boot.cfg:
+$(DEST)$(SEP)boot.cfg: $(MYDIR)boot.cfg
+ @$(SAY) INST     $^. $(LOG)
+ @$(CP) $< $^@ $(BLACKHOLE)
 
-$(MYDIR)preldr.ini:
-
-TARGETS      = $(MYDIR)boot.cfg $(MYDIR)preldr.ini subdirs
-TARGET       = all
+$(DEST)$(SEP)preldr.ini: $(MYDIR)preldr.ini
+ @$(SAY) INST     $^. $(LOG)
+ @$(CP) $< $^@ $(BLACKHOLE)

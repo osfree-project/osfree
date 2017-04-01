@@ -582,7 +582,7 @@ debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 //warp style: frame border = 1+1+2, titlebar = 2+20 (1border)  + 22 menu if present
 //frame window
         CreateFPM_Window(hwndParent,  /*  Parent-window handle. */
-                        WC_FRAME, /*  Registered-class name. */
+                        (PSZ)WC_FRAME, /*  Registered-class name. */
                         NULL,     /*  Window text. */
                         flStyle, /*  Window style. */
                         x,        /*  x-coordinate of window position relative to the origin of the parent window */
@@ -614,7 +614,7 @@ debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 //   FPM_Window SysMenu;
     pSysMenu = new(FPM_Window);
     pSysMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-                        WC_MENU,    /*  Registered-class name. */
+                        (PSZ)WC_MENU,    /*  Registered-class name. */
                         NULL,     /*  Window text. */
                         WS_VISIBLE,     /*  Window style. */
                         4,       /*  x-coordinate of window position. */
@@ -631,7 +631,7 @@ debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 //   FPM_Window MinMax Menu;
     pMinMaxMenu = new(FPM_Window);
     pMinMaxMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-                        WC_MENU,   /*  Registered-class name. */
+                        (PSZ)WC_MENU,   /*  Registered-class name. */
                         NULL,      /*  Window text. */
                         WS_VISIBLE,/*  Window style. */
                         nx-4-22*3, /*  x-coordinate of window position. */
@@ -647,7 +647,7 @@ debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 //   FPM_Window Menu;
     pMenu = new(FPM_Window);
     pMenu->CreateFPM_Window(handle,  /*  Parent-window handle. */
-                        WC_MENU ,   /*  Registered-class name. */
+                        (PSZ)WC_MENU ,   /*  Registered-class name. */
                         pszTitle,      /*  Window text. */
                         WS_VISIBLE,/*  Window style. */
                         22+1, /*  x-coordinate of window position. */
@@ -663,7 +663,7 @@ debug(3, 0)(__FUNCTION__": %s\n", pszTitle);
 //   FPM_Window TitleBar;
     pTitleBar = new(FPM_Window);
     pTitleBar->CreateFPM_Window(handle,  /*  Parent-window handle. */
-                        WC_TITLEBAR ,   /*  Registered-class name. */
+                        (PSZ)WC_TITLEBAR ,   /*  Registered-class name. */
                         pszTitle,      /*  Window text. */
                         WS_VISIBLE,/*  Window style. */
                         22+1, /*  x-coordinate of window position. */

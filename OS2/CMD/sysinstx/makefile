@@ -5,6 +5,7 @@
 #
 
 PROJ = sysinstx
+TRGT = $(PROJ).exe
 DESC = System Installation Program 0
 #defines object file names in format objname.$(O)
 srcfiles = $(p)sysinstx$(e)

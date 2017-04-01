@@ -3,6 +3,7 @@
 #  Viking
 
 PROJ = pmsrv
+TRGT = $(PROJ).dll
 DESC = FreePM Server
 DIRS = drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
@@ -30,5 +31,5 @@ DEST = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-TARGETS = subdirs $(PATH)$(PROJ).dll
-TARGET  = all
+#TARGETS = subdirs $(PATH)$(PROJ).dll
+#TARGET  = all

@@ -5,7 +5,8 @@
 #
 
 32_BITS = 0
-PROJ      = command
+PROJ      = suppl
+TRGT      = $(PROJ).lib
 DESC      = DOS command interpreter
 #defines object file names in format objname.$(O)
 srcfiles =$(p)addu$(e) &

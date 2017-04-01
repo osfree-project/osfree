@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = libmad
+TRGT = $(PROJ).lib
 #DIRS = dll
 ADD_COPT = -dHAVE_CONFIG_H -dOPT_OCCURACY -dFPM_INTEL -d_MSC_VER -i=$(MYDIR)
 

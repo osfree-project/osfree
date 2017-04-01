@@ -5,6 +5,7 @@
 #
 
 PROJ = keyb
+TRGT = $(PROJ).exe
 DESC = Change keyboard layout
 #defines object file names in format objname.$(O)
 srcfiles = $(p)keyb$(e)

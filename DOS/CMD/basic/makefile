@@ -5,6 +5,7 @@
 #
 
 PROJ = basic
+TRGT = $(PROJ).exe
 DESC = BASIC and BASICA programming language
 #defines object file names in format objname.$(O)
 srcfiles = $(p)bwbasic$(e) &
@@ -41,10 +42,20 @@ INSTALL_ADD = 1
 
 !include $(%ROOT)/mk/appsdos.mk
 
-install_add: .SYMBOLIC
- @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ).com $(BLACKHOLE)
- @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)$(PROJ)a.com $(BLACKHOLE)
- @$(CP) $(PATH)$(PROJ).exe $(DEST)$(SEP)gw$(PROJ).exe $(BLACKHOLE)
- #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ).sym $(BLACKHOLE)
- #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)$(PROJ)a.sym $(BLACKHOLE)
- #@$(CP) $(PATH)$(PROJ).sym $(DEST)$(SEP)gw$(PROJ).sym $(BLACKHOLE)
+install_add: $(DEST)$(SEP)$(PROJ).com &
+             $(DEST)$(SEP)$(PROJ)a.com &
+             $(DEST)$(SEP)gw$(PROJ).exe .SYMBOLIC
+
+$(PATH)$(PROJ1).com:
+
+$(DEST)$(SEP)$(PROJ).com: $(PATH)$(PROJ).exe
+ @$(SAY) INST     $^. $(LOG)
+ @$(CP) $< $^@ $(BLACKHOLE)
+
+$(DEST)$(SEP)$(PROJ)a.com: $(PATH)$(PROJ).exe
+ @$(SAY) INST     $^. $(LOG)
+ @$(CP) $< $^@ $(BLACKHOLE)
+
+$(DEST)$(SEP)gw$(PROJ).exe: $(PATH)$(PROJ).exe
+ @$(SAY) INST     $^. $(LOG)
+ @$(CP) $< $^@ $(BLACKHOLE)

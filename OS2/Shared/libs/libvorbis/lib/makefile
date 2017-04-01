@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = libvorbis
+TRGT = $(PROJ).lib
 DIRS = dll
 ADD_COPT = -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)libogg$(SEP)include
 

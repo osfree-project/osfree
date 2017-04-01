@@ -5,10 +5,11 @@
 #
 
 PROJ = minicmd33
+TRGT = $(PROJ).exe
 DESC = Minimalistic Command line processor
 ADD_COPT  = -db -d2 -s -g=DGROUP -i=$(MYDIR)..$(SEP)..$(SEP)include
 OPTIONS   = start=startup,internalrelocs,nod
-DEBUG = watcom all
+#DEBUG = watcom all
 STACKSIZE = 32k
 #defines object file names in format objname.$(O)
 srcfiles = $(p)minicmd$(e) $(p)commands$(e) $(p)strnlen$(e) $(p)strncmp$(e)

@@ -5,6 +5,7 @@
 #
 
 PROJ        = bvscalls
+TRGT        = $(PROJ).dll
 DESC        = Base Video API
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include

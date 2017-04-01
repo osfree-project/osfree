@@ -5,6 +5,7 @@
 #
 
 PROJ     = moucalls
+TRGT     = $(PROJ).dll
 DESC     = Mouse API
 srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
 ADD_COPT    = -i=..\include -s

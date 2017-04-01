@@ -5,6 +5,7 @@
 #
 
 PROJ = ver
+TRGT = $(PROJ).exe
 DESC = Displays System Version Number
 #defines object file names in format objname.$(O)
 srcfiles = $(p)ver$(e)

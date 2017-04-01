@@ -20,6 +20,7 @@ EXESUF = p
 !endif
 
 PROJ = $(PROJ0)$(EXESUF)
+TRGT = $(PROJ).exe
 
 DESC = OS/2 Personality Server
 # DEST = .
@@ -29,10 +30,11 @@ srcfiles = $(p)main$(e)
 INSTALL_ADD = 1
 ADD_COPT    = -d2 -db
 ADD_LINKOPT = debug all lib os2server_shared.lib, os2server_$(ARCH).lib, apistub.lib
+UNI2H   = 1
 
 !include $(%ROOT)/mk/os2server.mk
 
-TARGETS  = subdirs $(PATH)$(PROJ).exe
+#TARGETS  = subdirs $(PATH)$(PROJ).exe
 
 install_add: $(MYDIR)CONFIG.SYS
  @$(CP) $< $(DEST) $(BLACKHOLE)

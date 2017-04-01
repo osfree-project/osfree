@@ -5,6 +5,7 @@
 #
 
 PROJ     = pmgre
+TRGT     = $(PROJ).dll
 DESC     = gre
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..\include

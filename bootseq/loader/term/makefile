@@ -40,6 +40,14 @@ OBJS                    = $(common_OBJS) $(p)graphics$(e) $(p)vmode$(e) $(p)cons
 MOD_BASE             = EXT_BUF_BASE
 DEST         = boot$(SEP)loader$(SEP)term
 
+p            = 
+e            = .rel
+rels1        = $+$(blackboxes)$- 
+
+p            = 
+e            = .mdl
+INSTALL      = $+$(blackboxes)$- $(rels1)
+
 !include $(%ROOT)/mk/loader.mk
 
 # note that PATH is changed in loader.mk,
@@ -48,9 +56,13 @@ p            = $(PATH)
 e            = .rel
 rels         = $+$(blackboxes)$-
 
+#p            = $(PATH)
+#e            = .mds
+#mds          = $+$(blackboxes)$-
+
 p            = $(PATH)
 e            = .mdl
-TARGETS      = $+$(blackboxes)$- $(rels)
+TARGETS      = $(rels) # $+$(blackboxes)$- $(mds) 
 
 files     = $(bbx)
 
@@ -115,3 +127,5 @@ defs="-dterm_$(basename) -dNO_PROT -dBLACKBOX -dSHIFT=0"
 !else
 defs="-dterm_$(basename) -dNO_PROT -dBLACKBOX -dSHIFT=$$$$(SHIFT)"
 !endif
+
+$(TARGETS):

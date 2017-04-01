@@ -5,6 +5,7 @@
 #
 
 PROJ = subst
+TRGT = $(PROJ).exe
 DESC = Substitute path to drive letter
 #defines object file names in format objname.$(O)
 srcfiles = $(p)subst$(e)

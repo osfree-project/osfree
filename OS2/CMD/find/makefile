@@ -5,6 +5,7 @@
 #
 
 PROJ = find
+TRGT = $(PROJ).exe
 DESC = Find string in file
 #defines object file names in format objname.$(O)
 srcfiles = $(p)find$(e) $(p)find_str$(e) $(p)kitten$(e)

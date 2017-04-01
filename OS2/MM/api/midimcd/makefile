@@ -4,6 +4,7 @@
 #
 
 PROJ     = midimcd
+TRGT     = $(PROJ).dll
 DESC     = MIDI MCI DLL
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

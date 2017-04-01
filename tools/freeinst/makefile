@@ -7,6 +7,7 @@
 #
 
 PROJ  = freeinst
+TRGT  = $(PROJ).exe
 !ifeq ENV OS/2
 defs = -dOS2
 !endif

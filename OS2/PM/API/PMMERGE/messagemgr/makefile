@@ -4,10 +4,11 @@
 # author, date
 #
 
-srcfiles = $(p)messages$(e) $(p)queue$(e)
+#srcfiles = $(p)messages$(e) $(p)queue$(e)
 ADD_COPT = -i=$(MYDIR).. -bd
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-DEST = none
+#DEST = none
 TARGETS = $(OBJS)
+TARGET = all

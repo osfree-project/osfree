@@ -4,6 +4,7 @@
 #
 
 PROJ = mini33
+TRGT = $(PROJ).exe
 DESC = Protshell stub
 srcfiles  = $(p)mini33$(e)
 # defines additional options for C compiler

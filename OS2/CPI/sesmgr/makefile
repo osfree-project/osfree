@@ -5,6 +5,7 @@
 #
 
 PROJ        = sesmgr
+TRGT        = $(PROJ).dll
 DESC        = Session Manager API
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include

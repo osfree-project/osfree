@@ -6,6 +6,7 @@
 
 32_BITS  = 1
 PROJ = genext2fs
+TRGT = $(PROJ).exe
 DESC = Generate ext2fs filesystem image
 !ifeq ENV OS/2
 defs = -d__OS2__

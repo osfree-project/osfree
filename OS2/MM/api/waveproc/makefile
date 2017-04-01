@@ -4,6 +4,7 @@
 #
 
 PROJ     = waveproc
+TRGT     = $(PROJ).dll
 DESC     = Wave IOProc
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

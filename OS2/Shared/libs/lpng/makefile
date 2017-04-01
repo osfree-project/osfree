@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = libpng
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include
 TARGETS  = $(PATH)$(PROJ).lib
 

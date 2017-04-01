@@ -61,6 +61,10 @@ MOD_BASE         = KERN_BASE
 
 DEST             = boot$(SEP)loader
 
+p            = 
+e            = .mdl
+INSTALL      = $+$(kernels)$-
+
 !include $(%ROOT)/mk/loader.mk
 
 # note that PATH is changed in loader.mk,
@@ -154,3 +158,5 @@ $(PATH)mfsd.inc: $(PATH)mFSD$(SEP)mbi.dll
 $(PATH)urel.inc: $(PATH)ufsd$(SEP)mbi.rel
  @$(SAY) INC2H    $^. $(LOG)
  $(verbose)$(REXX) mkheader.cmd $< $^@  $(LOG)
+
+$(TARGETS):

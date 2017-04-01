@@ -3,6 +3,7 @@
 #  valerius Mar 24 '2012
 
 PROJ = pmshell
+TRGT = $(PROJ).exe
 DESC = PM/WPS starter program
 srcfiles = $(p)pmshell$(e)
 
@@ -12,5 +13,5 @@ UNI2H        = 1
 
 !include $(%ROOT)/mk/appsos2_pm.mk
 
-TARGETS = subdirs $(PATH)$(PROJ).exe
-TARGET  = all
+#TARGETS = subdirs $(PATH)$(PROJ).exe
+#TARGET  = all

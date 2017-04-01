@@ -5,6 +5,7 @@
 #
 
 PROJ = sort
+TRGT = $(PROJ).exe
 DESC = Sort strings in file
 #defines object file names in format objname.$(O)
 srcfiles = $(p)sort$(e) $(p)kitten$(e)

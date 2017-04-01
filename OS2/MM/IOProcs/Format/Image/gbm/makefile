@@ -5,6 +5,7 @@
 #
 
 PROJ  = makeproc
+TRGT  = $(PROJ).exe
 PROJ0 = mmioGBM
 DIRS  = # mmioGBM
 DESC  = GBM IOProc generator
@@ -19,11 +20,9 @@ UNI2H    = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-DEST     = none
-
 .c:   $(PATH)
 
 $(PATH)$(PROJ0).c: $(PATH)$(PROJ).exe 
  @$< >$@
 
-TARGETS = $(PATH)$(PROJ).exe $(PATH)$(PROJ0).c subdirs
+#TARGETS = $(PATH)$(PROJ).exe $(PATH)$(PROJ0).c subdirs

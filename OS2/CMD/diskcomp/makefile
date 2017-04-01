@@ -1,6 +1,7 @@
 #
 
 PROJ = diskcomp
+TRGT = $(PROJ).exe
 DESC = Disk compare tool
 #defines object file names in format objname.$(O)
 srcfiles = $(p)diskcomp$(e) $(p)misc$(e) $(p)md5$(e) $(p)drive$(e)

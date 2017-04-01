@@ -6,7 +6,8 @@
 # $Id: makefile,v 1.1 2004/08/16 06:27:30 prokushev Exp $
 #
 
-PROJ  = lxlite
+PROJ = lxlite
+TRGT = $(PROJ).exe
 !ifeq %OS OS2
 defs = -dOS2
 !endif

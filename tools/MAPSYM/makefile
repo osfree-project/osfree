@@ -7,6 +7,7 @@
 #
 
 PROJ = mapsym
+TRGT = $(PROJ).exe
 DESC = .SYM file generator from Watcom MAP files
 
 !include $(%ROOT)/mk/toolspas.mk

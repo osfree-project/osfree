@@ -5,6 +5,7 @@
 #
 
 PROJ = renmodul
+TRGT = $(PROJ).exe
 DESC = Rename module
 
 # For Watcom C/C++ 10.6 and higher
@@ -42,5 +43,5 @@ srcfiles = $(p)renmodul$(e) $(p)main$(e)
 
 !include $(%ROOT)/mk/tools.mk
 
-TARGETS = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).dll
+#TARGETS = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).dll
 ADD_COPT = -bt=os2 -s -wx -zq $(MODE_COPT)

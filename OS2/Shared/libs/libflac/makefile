@@ -3,6 +3,7 @@
 # Makefile for common shared libs
 
 PROJ = libflac
+TRGT = $(PROJ).lib
 !define DEB
 
 !include $(%ROOT)/mk/site.mk

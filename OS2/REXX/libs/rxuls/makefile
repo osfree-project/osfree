@@ -7,6 +7,7 @@ OPT         = -d0 -oteanx
 !endif
 
 PROJ        = rxuls
+TRGT        = $(PROJ).dll
 DESC        = REXX Universal Language Support functions
 ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 # -6s
 ADD_LINKOPT = lib libuls.lib, libconv.lib

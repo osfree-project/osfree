@@ -5,6 +5,7 @@
 #
 
 PROJ = vol
+TRGT = $(PROJ).exe
 DESC = Volume label utility
 #defines object file names in format objname.$(O)
 srcfiles = $(p)vol$(e)

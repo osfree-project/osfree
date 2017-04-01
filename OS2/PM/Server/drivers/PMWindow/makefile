@@ -5,6 +5,7 @@
 #
 
 PROJ = pmwindow
+TRGT = $(PROJ).dll
 DESC = PM Window user interface backend
 #defines object file names in format objname.$(O)
 srcfiles = $(p)Fs_PMdev$(e)

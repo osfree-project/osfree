@@ -5,6 +5,7 @@
 #
 
 PROJ = mode
+TRGT = $(PROJ).exe
 #defines object file names in format objname.$(O)
 srcfiles = $(p)mode$(e)
 # defines additional options for C compiler

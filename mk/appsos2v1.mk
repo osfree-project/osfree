@@ -33,7 +33,7 @@ RCOPT    = -bt=os2 -i=$(MYDIR) -i=$(PATH)
 deps = $(RESOURCE)
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) .SYMBOLIC
+$(PATH)$(PROJ).lnk: $(deps)
  @%create $^@
  @%append $^@ SYSTEM os2 $(dllopts)
  @%append $^@ NAME $^*

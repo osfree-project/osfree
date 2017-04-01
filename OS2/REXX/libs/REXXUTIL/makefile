@@ -9,6 +9,7 @@ OPT         = -d0 -oteanx
 !endif
 
 PROJ        = rexxutil
+TRGT        = $(PROJ).dll
 DESC        = REXX Utilities API
 # UNI2H       = 1
 ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 -6s

@@ -5,6 +5,7 @@
 #
 
 PROJ     = kbdcalls
+TRGT     = $(PROJ).dll
 DESC     = Keyboard API
 OBJS     = $(PATH)..$(SEP)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..$(SEP)include

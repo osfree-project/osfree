@@ -5,6 +5,7 @@
 #
 
 PROJ = libz
+TRGT = $(PROJ).lib
 ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
 TARGETS  = $(PATH)$(PROJ).lib
 

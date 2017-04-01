@@ -6,6 +6,7 @@
 
 
 PROJ = command
+TRGT = $(PROJ).exe
 DESC = Command processor
 #defines object file names in format objname.$(O)
 srcfiles = $(p)cb_catch$(e) &

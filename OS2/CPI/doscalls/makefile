@@ -7,6 +7,7 @@
 #
 
 PROJ     = doscalls
+TRGT     = $(PROJ).dll
 DESC     = Control Program API
 srcfiles = $(p)msg$(e) &
            $(p)nls$(e) &

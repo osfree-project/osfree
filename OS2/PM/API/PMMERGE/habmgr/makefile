@@ -4,10 +4,11 @@
 # author, date
 #
 
-srcfiles = $(p)habmgr$(e)
+#srcfiles = $(p)habmgr$(e)
 ADD_COPT = -i=$(MYDIR).. -bd
 
 !include $(%ROOT)/mk/appsos2_fpm.mk
 
-DEST = none
+#DEST = none
 TARGETS = $(OBJS)
+TARGET = all

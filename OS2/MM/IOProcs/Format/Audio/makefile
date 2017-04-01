@@ -4,9 +4,9 @@
 # valerius, 2006/10/30
 #
 
-DIRS = mmioMP3 mmioFlac # mmioVorbis
+DIRS = mmioMP3 mmioFlac mmioVorbis
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

@@ -4,8 +4,13 @@
 # valerius, 2006/10/30
 #
 
-TARGETS   = $(MYDIR)libmmap.lib
+PROJ      = libmmap
+TRGT      = $(PROJ).lib
 
 !include $(%ROOT)/mk/libs.mk
 
-$(MYDIR)libmmap.lib:
+TARGETS   = $(PATH)$(TRGT)
+#DEST = none
+
+$(PATH)$(TRGT): $(MYDIR)$(TRGT)
+ @$(CP) $< $^@ $(BLACKHOLE)

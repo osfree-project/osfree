@@ -5,6 +5,7 @@
 #
 
 PROJ      = attrib
+TRGT      = $(PROJ).exe
 DESC      = Control file attributes
 #defines object file names in format objname.$(O)
 srcfiles  = $(p)attrib$(e) $(p)tcc2wat$(e)

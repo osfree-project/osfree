@@ -5,6 +5,7 @@
 #
 
 PROJ     = lzexpand
+TRGT     = $(PROJ).dll
 DESC     = Windows file expansion library
 srcfiles = $(p)LZExpand$(e)
 # linking dll file

@@ -3,6 +3,7 @@
 #  Viking
 
 PROJ = pm1
+TRGT = $(PROJ).exe
 
 srcfiles = $(p)pm1$(e)
 

@@ -1,6 +1,7 @@
 # $Id: makefile,v 1.3 2004/08/16 04:51:08 prokushev Exp $
 
 PROJ = rexxapi
+TRGT = $(PROJ).dll
 DESC = REXX API forwarder for Regina
 srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e)
 ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -i=$(PATH) -sg -of+

@@ -5,6 +5,7 @@
 #
 
 PROJ        = bmscalls
+TRGT        = $(PROJ).dll
 DESC        = Base Mouse API
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include

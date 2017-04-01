@@ -1,5 +1,6 @@
 
 PROJ = cmd
+TRGT = $(PROJ).exe
 DESC = Command processor
 srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(e) $(p)eval$(e) &
            $(p)ea$(e) $(p)dircmds$(e) $(p)filecmds$(e) $(p)syscmds$(e) $(p)os2cmds$(e)   &
@@ -17,6 +18,6 @@ NODEFAULTLIBS = 1
 RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
 UNI2H = 1
-DEST = os2
+#DEST = os2
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

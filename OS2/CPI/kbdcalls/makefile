@@ -5,6 +5,7 @@
 #
 
 PROJ     = kbdcalls
+TRGT     = $(PROJ).dll
 DESC     = Keyboard API
 srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
 ADD_COPT    = -i=..\include -s

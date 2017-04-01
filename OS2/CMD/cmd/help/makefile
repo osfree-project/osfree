@@ -1,13 +1,8 @@
 # $Id: makefile,v 1.2 2004/08/16 04:51:11 prokushev Exp $
 
-PROJ = cmdref
-PROJ2 = external
-DEST    = os2$(SEP)book
+DIRS = cmdref external
 
-!include $(%ROOT)/mk/appsos2_cmd.mk
+!include $(%ROOT)/mk/all.mk
 
-$(PATH)$(PROJ).inf:
-
-$(PATH)$(PROJ2).inf:
-
-TARGETS = $(PATH)$(PROJ).inf $(PATH)$(PROJ2).inf
+TARGETS = subdirs
+TARGET = all

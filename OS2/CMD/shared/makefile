@@ -4,6 +4,7 @@
 
 DIRS = msg
 PROJ = cmd_shared
+TRGT = $(PROJ).lib
 ADD_COPT = -d2 -db -i=$(MYDIR)..$(SEP)include
 # NOLIBS      = 1
 # ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
@@ -15,9 +16,10 @@ UNI2H = 1
 srcfiles   =  $(p)cmd_ExecFSEntry$(e) $(p)cmd_Messages$(e) $(p)cmd_setcurrentdisk$(e) &
              $(p)cmd_QueryCurrentDisk$(e) $(p)cmd_QueryFSName$(e) $(p)cmd_ShowVolumeInfo$(e)
 
-TARGETS  = $(PATH)$(PROJ).lib subdirs
-
 !include $(%ROOT)/mk/libsos2.mk
+
+TARGETS = $(PATH)$(PROJ).lib subdirs
+#TARGET = all
 
 $(PATH)$(PROJ).lib: $(OBJS) $(OBJS16)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

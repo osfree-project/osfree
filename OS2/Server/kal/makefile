@@ -4,7 +4,8 @@
 # author, date
 #
 
-PROJ     = kal
+PROJ     = file
+TRGT     = $(PROJ).$(O)
 DESC     = Kernel Abstracion Layer API
 DIRS     = os2 # linux win32 l4
 srcfiles = $(p)file$(e)
@@ -18,8 +19,9 @@ EXPORTS = DosFSCtl.1,        &
           DosWrite.2,        &
           DosExit.3,         &
           DosQuerySysInfo.4
+UNI2H   = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-DEST     = os2$(SEP)dll
-TARGETS  = subdirs # $(PATH)$(PROJ).exe
+#DEST     = os2$(SEP)dll
+#TARGETS  = subdirs # $(PATH)$(PROJ).exe

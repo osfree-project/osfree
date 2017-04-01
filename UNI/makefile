@@ -16,7 +16,7 @@ h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
   @%null
 
 pre: .SYMBOLIC
- @$(SAY) Creating directories...
+ # @$(SAY) Creating directories...
  @for %i in ($(subdirs)) do @$(MDHIER) %i $(BLACKHOLE)
 
 $(OUT)$(SEP)osfree.h: osfree.uni
@@ -178,7 +178,7 @@ os2libs: $(LIBOUT)sub32.lib &
          .symbolic
 
 $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
- @$(SAY) CREAT     $^.
+ @$(SAY) LIB      $^.
  @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
  @$(LIB) $(LIBOPT) $^@ @$^*.def
  @$(DC) $^*.def $(BLACKHOLE)

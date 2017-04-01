@@ -1,5 +1,6 @@
 PROJ = pmrexxio1
 PROJ1 = pmrexxio
+TRGT = $(PROJ1).dll
 DESC = PM REXX I/O dll
 srcfiles     = $(p)pmrexxio$(e) $(p)pmrxsubs$(e)
 inc          = $(MYDIR)..$(SEP)include
@@ -17,7 +18,7 @@ UNI2H        = 1
 !include $(%ROOT)/mk/appsos2.mk
 
 TARGETS =  $(PATH)$(PROJ1).dll
-TARGET = all
+#TARGET = all
 
 $(PATH)$(PROJ1).dll: $(PATH)$(PROJ).dll $(MYDIR)$(PROJ1).rc
  @$(SAY) RESCMP   $^. $(LOG)

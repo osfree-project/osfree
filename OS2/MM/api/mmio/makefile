@@ -4,6 +4,7 @@
 #
 
 PROJ     = mmio
+TRGT     = $(PROJ).dll
 DESC     = MMIO
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

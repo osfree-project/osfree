@@ -1,6 +1,7 @@
 # Makefile for common shared libs
 
 PROJ = gbm
+TRGT = $(PROJ).lib
 ADD_COPT = -i=..$(SEP)include -dENABLE_IJG -dENABLE_PNG -dENABLE_TIF -dENABLE_J2K
 srcfiles = $(p)gbm$(e)    $(p)gbmpbm$(e)  $(p)gbmpgm$(e) $(p)gbmppm$(e) $(p)gbmpnm$(e)  &
            $(p)gbmbmp$(e) $(p)gbmtga$(e)  $(p)gbmkps$(e) $(p)gbmiax$(e) $(p)gbmpcx$(e)  &

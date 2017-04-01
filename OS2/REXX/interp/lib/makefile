@@ -4,6 +4,7 @@
 #
 
 PROJ = rexx
+TRGT = $(PROJ).lib
 DEST = ..$(SEP)build$(SEP)lib
 srcfiles = &
 $(p)client$(e)   &

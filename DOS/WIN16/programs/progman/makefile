@@ -4,6 +4,7 @@
 #
 
 PROJ = progman
+TRGT = $(PROJ).exe
 DESC = Windows Program Manager
 srcfiles = $(p)dialog$(e) $(p)group$(e) $(p)grpfile$(e) $(p)main$(e) $(p)program$(e) $(p)string$(e)
 

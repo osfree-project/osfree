@@ -5,6 +5,7 @@
 #
 
 PROJ     = utlapi
+TRGT     = $(PROJ).dll
 DESC     = osFree Utilities API
 srcfiles = $(p)librectangles$(e)
 ADD_COPT = -i=..$(SEP)..$(SEP)include$(SEP)os3

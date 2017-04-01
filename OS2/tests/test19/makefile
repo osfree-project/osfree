@@ -3,6 +3,7 @@
 #
 
 PROJ = test19
+TRGT = $(PROJ).exe
 DESC = test application
 #defines object file names in format objname.$(O)
 srcfiles = $(p)test19$(e)

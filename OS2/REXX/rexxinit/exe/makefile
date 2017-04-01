@@ -4,6 +4,7 @@
 #
 
 PROJ = rexxinit
+TRGT = $(PROJ).exe
 DESC = REXX DLL loader
 srcfiles     = $(p)rexxinit$(e)
 ADD_COPT     = -i=. -sg -3r # -d3

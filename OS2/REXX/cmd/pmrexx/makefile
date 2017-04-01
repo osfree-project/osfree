@@ -1,5 +1,6 @@
 PROJ = pmrexx1
 PROJ1 = pmrexx
+TRGT = $(PROJ1).exe
 DESC = PM REXX console 
 DIRS = pmrexxio help
 srcfiles     = $(p)pmrexx$(e) $(p)rxhafile$(e)
@@ -15,8 +16,8 @@ IMPORTS      = RexxCreateIOWindow_    PMREXXIO.RexxCreateIOWindow, &
 
 !include $(%ROOT)/mk/appsos2.mk
 
-TARGETS = $(PATH)$(PROJ1).exe subdirs
-TARGET = all
+TARGETS = $(PATH)$(PROJ1).exe # subdirs
+#TARGET = all
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)$(PROJ1).rc
  @$(SAY) RESCMP   $^. $(LOG)

@@ -5,6 +5,7 @@
 #
 
 PROJ = more
+TRGT = $(PROJ).exe
 DESC = Show stdin to stdout. One screen at one time.
 #defines object file names in format objname.$(O)
 srcfiles = $(p)more$(e)

@@ -5,6 +5,7 @@
 
 PROJ       = fatboot
 PROJ0      = fatboot
+TRGT       = $(PROJ).bin
 #DEFINES    = -dOS2LDR
 DEFINES    =
 ADD_ASMOPT = $(DEFINES)

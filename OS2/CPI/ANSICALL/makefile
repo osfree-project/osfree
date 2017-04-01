@@ -4,6 +4,7 @@
 #
 
 PROJ     = ansicall
+TRGT     = $(PROJ).dll
 DESC     = ANSI escape sequence API
 OBJS     = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT = -i=..\include

@@ -4,6 +4,7 @@
 
 PROJ = test05
 DESC = test application
+TRGT = $(PROJ).exe
 #defines object file names in format objname.$(O)
 srcfiles = $(p)test05$(e)
 # defines additional options for C compiler
