@@ -1,0 +1,104 @@
+<HTML>
+<HEAD>
+<TITLE>Error messages</TITLE>
+</HEAD>
+<BODY TEXT="#FFFFFF" LINK="#00D0D0" VLINK="#00FFFF" BACKGROUND="img/texture6.gif">
+<H1>Error messages</H1>
+<P>
+Like most normal programs :-) lxLite can eventually generate error
+messages. Some of them can appear in similar conditions, but caused by
+different causes. Here is a short list of the most frequent errors:</P>
+<DL>
+<DT><I>Invalid configuration file format</I>
+<DD>Self-explaining, I think :-)
+<DT><I>Error reading configuration file</I>
+<DD>Self explaining.
+<DT><I>error reading executable</I>
+<DD>This is generated if executable is physically unreadable.
+<DT><I>error writing executable</I>
+<DD>This is generated if executable cannot be written onto disk. The cause can
+be the insufficience of disk space - lxLite does not check for this
+particular error.
+<DT><I>invalid executable file format</I>
+<DD>The file is not in [L]inear [E]xecutable. Note that you can get this
+message for files with .EXE extension in the cause they are in old, 'New
+Exe' (bwhahaha) format or DOS executable or winDOS executable.
+<DT><I>unsupported executable format revision</I>
+<DD>This error can happen (may be :-) if you try to process an executable with
+other revision number than 0. OS/2 Warp works only with revision 0, so you
+will not normally encounter this problem.
+<DT><I>invalid word/dword ordering in executable</I>
+<DD>The executable uses little-endian byte order. Seems that it is not for
+Intel platform machines.
+<DT><I>executable target is an unsupported CPU type</I>
+<DD>This happen if the target CPU is other than 286, 386, 486 or P5.
+<DT><I>executable target is an unsupported OS</I>
+<DD>This mean that the executable is not for OS/2. Windos and windos 95 uses
+similar format, but its magic number is not `LX` but `LE`, so usualy
+program will abort with an `invalid format` error.
+<DT><I>unknown entry bundle type in executable</I>
+<DT><I>unknown page flags in executable</I>
+<DT><I>invalid object page detected in executable</I>
+<DD>It`s something about internal structure that lxLite doesnt know about.
+Please mail me if you encounter such files.
+<DT><I>not enough memory to load executable</I>
+<DD>I doubt this error can happen in OS/2 :-) Rather a swap-file full fault
+will occur. BTW, it`s a bad idea of IBM programmers to trap instead of
+returning NIL pointer on a memory request :-(
+<DT><I>invalid stub</I>
+<DD>Stub size must be greater or equal to 64 bytes. This requirement is due to
+limitation that offset to LX header must reside on the offset 60 in the
+stub; however it is unlikely that you`ll got this message since lxLite will
+add trailing zeros to such stubs.
+<DT><I>error reading EAs</I>
+<DD>Cannot explain :-)
+<DT><I>error writing EAs</I>
+<DD>this one too :-)
+<DT><I>invalid fixup record</I>
+<DD>lxLite above 1.1.8 will depack and try to re-pack fixup records. Previous
+versions just read/write fixup table as a bunch of bytes; new versions will
+try to see what they contain. This error can happen when converting NE
+files since some of them (TFTP.EXE for example) contains so-called OSFIXUP
+records that is outdated and don`t have analogue in LX executable format.
+However, these executables are seldom encountered (I`ve seen only mentioned
+TFTP). I don`t know an workaround for this: you cannot convert such NE
+files.
+<DT><I>bound application</I>
+<DD>Executable is an bound application. Bound application is an NE executable
+which runs both in DOS and OS/2 mode. These are NOT two different
+executables bundled together (as most dual-mode programs are done: you can
+do this with lxLite inserting an different DOS stub into LX executable) but
+rather an tiny 'OS/2 emulator for DOS mode' binded together with NE file.
+These are usually programs with the simplest possible user interface - such
+as most executables from MASM 6.0 package. These executables can still be
+converted by overriding this with the /NB+ option, but they won`t run in
+DOS mode anymore.
+<DT><I>doesn`t support long filenames</I>
+<DD>Executable is not long file name - aware. NE files uses a bit in NE header
+which shows whenever executables handle long file names. If it isn`t, OS/2
+doesn`t show him LFN (just as for DOS programs). In some (most that I
+seen) cases this is of no importance since such executables doesn`t work
+with files (for example ARP.EXE or INETD.EXE from TCP/IP). You can
+override this error message by using the /NL+ option.
+<DT><I>incompatible segment definition</I>
+<DD>NE executable contains an segment which don`t have direct analogue in LX
+executable format. This is done mostly since I haven`t seen executables
+with such segments (namely GDT and HUGE). If you encounter any, let me
+know, please.
+<DT><I>bad executable segment</I>
+<DD>Executables contain an bad segment definition (either it is bigger than its
+declared size, or it is partially (or fully) out of executable file). If
+it works, I will be surprised :-)
+</DL>
+<HR>
+<A HREF="lxlite.html">Title page</A> |
+<A HREF="lxLite_intro.html">Introduction</A> |
+<A HREF="lxLite_features.html">Features</A> |
+<A HREF="lxLite_switches.html">Command-line switches</A> |
+<A HREF="lxLite_config.html">Configuration file</A> |
+<A HREF="lxLite_bugs.html">Bugs and limitations</A> |
+<A HREF="lxLite_thanks.html">Thanks...</A> |
+<A HREF="lxUtil.html">Utility Pack</A> |
+<A HREF="apz.html">Author info</A>
+</BODY>
+</HTML>

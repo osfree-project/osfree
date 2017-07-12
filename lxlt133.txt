@@ -1,0 +1,21 @@
+        Archive Filename: lxlt133.zip
+       Short Description: lxLite 1.3.3 is freeware OS/2 LX executables packer
+        Long Description: 
+
+      Proposed directory
+           for placement: /pub/os2/util/archiver
+
+               Your name: Max Alekseyev
+           Email address: relf@os2.ru
+    Program contact name: (same)
+   Program contact email: (same)
+             Program URL: 
+
+      Would you like the
+   contact email address
+    included in listings? no
+
+Operating System/Version: OS/2 Warp 3.0 or higher is recommended
+ Additional requirements: 
+
+                Replaces: lxlt132.zip

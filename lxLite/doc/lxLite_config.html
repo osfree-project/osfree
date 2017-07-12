@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<TITLE>Configuration file</TITLE>
+</HEAD>
+<BODY TEXT="#FFFFFF" LINK="#00D0D0" VLINK="#00FFFF" BACKGROUND="img/texture6.gif">
+<H1>Configuration file</H1>
+<P>
+The .CFG file format is as simple as possible: it is a plain ASCII text
+file which you can edit using any editor which supports them (almost any).
+Any characters after a semicolumn ';' are ignored, i.e. you can put comments
+in configuration file like this:
+<PRE>
+; This is an comment
+</PRE>
+<P>
+You can define sections using widely used unix-configuration-file style, i.e.
+<PRE>
+[section 1]
+section 1 content
+
+[section 2]
+section 2 content
+
+...
+</PRE>
+The word in square brackets is used to identify the configuration.
+This is an example of a configuration entry:
+<PRE>
+[newStub]
+ /ANP:0 /F+ /YDL /YXL /MRN /MLN /U-
+</PRE>
+<P>
+As you can see, inside the section you should put any switches just like you do
+on the command line. Recursive /C options are NOT ignored, so you can link
+one configuration to another. Note, however, that lxLite will refuse to load
+same configuration twice to avoid infinite-loop recursion, i.e.
+"lxLite /c:One /c:Two /c:One" will load `One` configuration only ONCE.</P>
+<P>
+Every section can have multiple names, for example:</P>
+<PRE>
+[newStub ReplaceStub SetNewStub]
+ /ANP:0 /F+ /YDL /YXL /MRN /MLN /U-
+</PRE>
+<P>
+This section is identified by three identifiers, i.e. /c:newstub, /c:replacestub and
+/c:setnewstub switches will have same effect. If section identifier begins with a /
+(slash) character, it is treated as a special case: the text following the slash
+is treated as a list of file masks on which this section will be applied automatically.
+For example, if we want to remove stubs automatically on all .DLL files, we have to
+write a configuration section like:</P>
+<PRE>
+[/*.dll]
+ /t /zs
+</PRE>
+<HR>
+<A HREF="lxlite.html">Title page</A> |
+<A HREF="lxLite_intro.html">Introduction</A> |
+<A HREF="lxLite_features.html">Features</A> |
+<A HREF="lxLite_switches.html">Command-line switches</A> |
+<A HREF="lxLite_errors.html">Error messages</A> |
+<A HREF="lxLite_bugs.html">Bugs and limitations</A> |
+<A HREF="lxLite_thanks.html">Thanks...</A> |
+<A HREF="lxUtil.html">Utility Pack</A> |
+<A HREF="apz.html">Author info</A>
+</BODY>
+</HTML>

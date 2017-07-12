@@ -1,0 +1,4 @@
+NAME lxLite WINDOWCOMPAT
+EXETYPE OS2
+DESCRIPTION "OS/2 executables compressor"
+STUB "..\lxLite\stub_min.bin"

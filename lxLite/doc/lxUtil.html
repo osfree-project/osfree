@@ -1,0 +1,290 @@
+<HTML>
+<HEAD>
+<TITLE>lxLite utility pack</TITLE>
+</HEAD>
+<BODY TEXT="#FFFFFF" LINK="#00D0D0" VLINK="#00FFFF" BACKGROUND="img/texture6.gif">
+<H1>Abstract</H1>
+<P>
+Some time after releasing version 1.01 of lxLite (i.e. 1.0.1) (and some
+time before :-) I wrote some simple command-line utilites which greatly
+simplified my life. Because apart from lxLite they don`t present nothing
+interesting, I included them here for you to get them along with lxlite :-)</P>
+<H2>unLock</H2>
+<P>
+unLock is a simple utility which allows to `unlock` application executables
+which is currently in use. Normally when an executable is loaded by OS/2 its
+file is open with a deny-write sharing mode. This is done because LX format
+structure is designed not to swap out unused pages in executables each time
+when they aren`t needed anymore, but rather to discard them. When discarded
+page is needed OS/2 simply reads it again from executable.</P>
+<P>
+However, there is still a way to replace executables `on-the-fly` even if
+they are currently running. There is an so-called `well-known undocumented`
+function (which in fact means that it won`t be neccesarily supported in
+future versions of OS/2) which allow to disable sharing protection on such
+files. Before doing that OS/2 reads entire executable in swap file, then
+page swapping is done as with usual memory. If you`ll `unlock` many running
+executables at the same time you can notice an increase in swap file size.
+So, this is just an temporary work-around, you have better to reboot after
+doing all neccesary things on former locked files.</P>
+<P>
+The command-line format of unLock is much like lxLite`s, except that it
+have much less options :-)</P>
+
+<DL>
+<DT><B>/R{+|-}</B>
+<DD>[R]ecursive (+) file search through subdirectories. unLock will
+recursively search any directories which is located below the directory
+of given filemask. If multiple masks are given multiple recursive
+searchs will be performed.
+
+<DT><B>/P{+|-}</B>
+<DD>Enable (+) or disable (-) pause before each file. Before each file
+unLock will ask you whenever you really want to unlock the file.
+
+<DT><B>/V{+|-}</B>
+<DD>Verbose (show additional information). If verbose option is disabled
+(/V-) only those messages are left on screen which displays critical
+messages (i.e. errors), otherwise after each filename unLock shows the
+result of unlock operation - 'unlocked' or 'sharing violation'. Note
+that unLock CANNOT unlock files which are locked in some other way than
+executbles.
+
+<DT><B>/?,/H</B>
+<DD>Show a short help screen
+</DL>
+
+<H2>noEA</H2>
+<P>
+As you probably know :-) many (in fact a lot) of files have EAs (extended
+attributes), but does not need them. In fact the only thing which REALLY
+needs extended attributes is your Desktop\ directory. All other files can or
+can not have extended attributes - the only thing that you can lose by
+removing those attributes is how that file will appear in WPS folder (size
+and icon). Other type of extended attributes is those used by REXX - any
+REXX program that you run at least once and which does not have ReadOnly
+attribute set have some K of extended attributes attached to it. This is the
+'pre-compiled' text of the REXX program, so it will run faster with that
+attributes. However, if you don`t use the REXX script too often, you can
+remove extended attributes from file then to set the Read-Only attribute.</P>
+<P>
+Note that if you have not too many EAs (say the .TYPE and the .APPTYPE EAs)
+they will NOT occupy any disk space because of the wise HPFS structure. So
+to use noEA you MUST know what you`re doing and whenever you needs it
+(anyway, this is true for any other program :-).</P>
+<P>
+noEA can show a list of extended attribute names for the processed files or
+remove all of them. The command-line switches are much like in all other
+utilites:</P>
+
+<DL>
+<DT><B>/R{+|-}</B>
+<DD>[R]ecursive (+) file search through subdirectories. noEA will recursively
+search any directories which is located below the directory of given
+filemask. If multiple masks are given multiple recursive searchs will be
+performed.
+
+<DT><B>/P{+|-}</B>
+<DD>Enable (+) or disable (-) pause before each file. noEA will ask for
+confirmation before each processed file.
+
+<DT><B>/V{+|-}</B>
+<DD>Verbose (show EAs instead of removing them).
+When this switch is used noEA will display the EAs attached to processed
+file and will NOT remove them.
+
+<DT><B>/Y{+|-}</B>
+<DD>Assume (+) on all queries affirmative responce.
+When noEA encounters an write-locked file it warns you about this. However,
+this can be annoying when doing automatical processing (i.e. calling noEA
+from batch files). You can force noEA to process any files it can by
+specifying this switch.
+
+<DT><B>/?,/H</B>
+<DD>Show a short help screen
+</DL>
+
+<H2>chCase</H2>
+<P>
+Some time ago I was finally bored of the annoying habbit of some programs
+to write their files in upper case. And not only contents (almost any
+program which changes config.sys tends to convert it all to upper case when I
+like it to be in lower case) but filenames also. So i started this little
+project as a problem-dedicated-and-easy-to-use replacement for REN command.</P>
+<P>
+The main ideology of chCase is to divide filename in some `parts` then to
+perform some case-conversions on each part apart :-) You can define `part
+separator` characters using /S"" option. By default chCase uses "." as `part
+separator`. I.e. filename chcase.is.a.great.prog will be divided into parts
+'chcase', 'is', 'a', 'great' and 'prog'. Further you can tell chCase to
+convert first part to upper-case, second - to lower-case, third - to mixed
+format (i.e. first letter in uppercase and rest in lowercase) and so on.</P>
+<P>
+The available options are:</P>
+
+<DL>
+<DT><B>/C{F|D}(L|U|M|A)</B>
+<DD>Convert to [L]ower/[U]pper/[M]ixed/[A]s-is case. You can define multiple
+`case conversion actions` - first one will be applied on the first
+`part`; second - on the second `part` and so on. Last `action` will be
+used for any extra encountered `parts`, so if you`ll define only one
+option it will be applyed on all filename parts. Some examples:
+<TABLE BORDER=2>
+<TR>
+<TH>filename</TH>
+<TH>command line</TH>
+<TH>resulting filename</TH>
+</TR>
+<TR>
+<TD>mY.Very.lOnG.fIlE.NamE</TD>
+<TD>/culam my*</TD>
+<TD>MY.very.lOnG.File.Name</TD>
+</TR>
+<TR>
+<TD>just.an.example</TD>
+<TD>/cml jus*</TD>
+<TD>Just.an.example</TD>
+</TR>
+<TR>
+<TD>leT.iT.bE</TD>
+<TD>/cmla let*</TD>
+<TD>Let.it.bE</TD>
+</TR>
+</TABLE>
+
+<DT><B>/R{+|-}</B>
+<DD>[R]ecursive (+) file search through subdirectories. chCase will
+recursively search any directories which are located below the directory
+of given filemask. If multiple masks are given multiple recursive
+searchs will be performed.
+
+<DT><B>/P{+|-}</B>
+<DD>Enable (+) or disable (-) pause before each file. Before each file
+chCase will ask you whenever you really want to rename this file. The
+initial and final filenames are displayed.
+
+<DT><B>/S{%}</B>
+<DD>Define separator character(s). You can use this switch in the case when
+you have some files which uses some other separators, for example space
+or underscore. Note that the /S switch is NOT additive i.e. any /S
+switch disables the action of precedent. Even "." is cleared by /S
+switch, so if you for example want to use as separators both "." and
+space " " you have to define them both in a single /S switch as follows:
+/S" ."
+<P>
+Just some examples:</P>
+<TABLE BORDER=2>
+<TR>
+<TH>filename</TH>
+<TH>command line</TH>
+<TH>resulting filename</TH>
+</TR>
+<TR>
+<TD>Mary has a Little.Lamb</TD>
+<TD>/cm /s" ." mar*</TD>
+<TD>Mary Has A Little.Lamb</TD>
+</TR>
+<TR>
+<TD>john_wAs_a_lItTle_lame</TD>
+<TD>/cuml /s"_"</TD>
+<TD>JOHN_Was_a_little_lame</TD>
+</TR>
+</TABLE>
+
+<DT><B>/V{+|-}</B>
+<DD>Verbose (show additional information). If you will specify /V- chcase
+will leave on screen only critical messages such as errors - all others
+will be cleared immediately after they succeeded.
+
+<DT><B>/?,/H</B>
+<DD>Show a short help screen
+</DL>
+
+<H2>SysIcons</H2>
+<P>
+This program can change system pointers. It is mainly an GUI interface to
+WinSetSystemPointer() function, so don`t expect too much :-) Anyway, it has
+some advanced features such as editing pointers (using OS/2 Icon Editor) and
+also allows you to choose the method for storing pointers - you can either
+store into INI file an reference to an external file (so you must not move or
+delete them) or to store the pointer image directly (so it will occupy space
+in INI file, but original files on disk can be deleted after this).</P>
+<P>
+The interface is quite simple; I`ll describe here only some features that
+you may not understand.</P>
+<P>
+The Icon Filename field displays the full name of pointer file which OS/2
+uses at start-up to load currently selected system pointer. If pointer is
+stored directly into OS2.INI file it will say so.</P>
+<P>
+The "Store icon directly/Use file reference" field lets you choose the
+method which SysIcons will use to store icon reference into INI file. This
+will work only for those icons which you have changed AFTER setting this
+button. If "Store icon directly" button is active, you can load icons and
+then remove them - they will not be used by OS/2 at start-up.</P>
+<P>
+The "Change" button displays the standard file dialog and lets you choose
+another icon instead of highlighted.</P>
+<P>
+The "Load Set" button lets you load an entire pointer set instead of
+loading each file separately. Note that sysIcons use an different from
+"System Setup->Mouse->Pointers->Load set" method: it uses an plain text file
+with extension .SET which defines one or more pointer replacements; OS/2`s
+setup uses hard-coded filenames (i.e. ARROW.PTR will always be the default
+mouse pointer). The format of .SET file is as follows:</P>
+<HR>
+<PRE>
+; Everything after an semicolon is ignored
+; Use semicolons to include comments into .SET file
+ARROW           arrow.ptr       ; This statement defines the file
+                                ; containing the default mouse pointer
+TEXT            text.ptr        ; -//- the text-editing pointer
+WAIT            wait.ptr        ; -//- the WAIT mouse pointer
+SIZE                            ; Empty lines resets pointer to default value
+                                ; The SIZE pointer is valid only in OS/2 v2.x
+MOVE            move.ptr        ; This is mouse pointer when moving a window
+SIZENESW        sizenesw.ptr    ; arrow from North-East to South-West
+SIZENWSE        sizenwse.ptr    ; North-West to South-East
+SIZEWE          sizewe.ptr      ; West to East
+SIZENS          sizens.ptr      ; North to South
+APPLICATION     applicat.ptr    ; Default icon representing an application
+INFORMATION     info.ptr        ; The icon displayed in Information messages
+QUESTION        question.ptr    ; The icon displayed in Question messages
+ERROR           error.ptr       ; The icon displayed in Error messages
+WARNING         warning.ptr     ; The icon displayed in Warning messages
+ILLEGAL         illegal.ptr     ; The Illegal Action mouse pointer
+DEFFILE         file.ptr        ; The default icon representing a file (?)
+DEFFOLDER       folder.ptr      ; The default icon representing a folder (?)
+MULTFILE        multfile.ptr    ; Multiple-file selection icon (?)
+DEFPROGRAM      program.ptr     ; The default icon representing a program
+</PRE>
+<HR>
+<P>
+Along with SysIcons I supplied three sets of system pointers: two of my
+own design (although some of them I collected from miscelaneous sources) and
+one of an unknown author (sorry) but that I like most. Hope you like them :-)</P>
+<P>
+The "Edit" button stores pointer into a temporary file (if it is not a file
+reference) and launches Icon Editor. After Icon Editor ends the file is
+loaded back into INI file.</P>
+<P>
+The "Undo" button does what you expect :-) But if you moved the highlight
+bar after change, you cannot undo the change anymore.</P>
+<P>
+The "Default" button does what you expect: it changes pointer to its
+default shape.</P>
+<P>
+The "Quit" button is the coolest feature of my program: hope you like it
+:-)</P>
+<HR>
+<A HREF="lxlite.html">Title page</A> |
+<A HREF="lxLite_intro.html">Introduction</A> |
+<A HREF="lxLite_features.html">Features</A> |
+<A HREF="lxLite_switches.html">Command-line switches</A> |
+<A HREF="lxLite_config.html">Configuration file</A> |
+<A HREF="lxLite_errors.html">Error messages</A> |
+<A HREF="lxLite_bugs.html">Bugs and limitations</A> |
+<A HREF="lxLite_thanks.html">Thanks...</A> |
+<A HREF="apz.html">Author info</A>
+</BODY>
+</HTML>

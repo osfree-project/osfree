@@ -1,0 +1,562 @@
+                          -------------------------
+                           lxLite revision history
+                          -------------------------
+
+ [;] Comment
+ [*] Modified
+ [+] Added feature
+ [-] Removed feature
+ [!] Bug fix
+
+ 1.3.3
+ ----- 05-Dec-2003
+  [*]  Page alignment code cleanup 
+  [!]  Some "already processed" binaries were rejected to unpack
+  [!]  Name tables handling, no junk entries anymore
+  [!]  Compression was slightly degraded in 1.3.2
+  [*]  Getting rid of assembler routines: this time it's QuickSort
+  [;]  Improvements by Veit Kannegieser incorporated (more to come):
+  [!]  Exported entries are shown correctly when ordinals have gaps
+  [*]  DosReplaceModule is now defined in SysLib; os2lib/ is removed
+  [-]  Use32.pas removed, some stuff moved to miscUtil, &Use32+ is in use
+
+ 1.3.2
+ ----- 01-Apr-2002 still being bugfixed
+  [!]  Fixed conversion of NE-modules with IOPL segments (thanks to Veit Kannegieser)
+  [!]  lxLite used wrong Page Offset Shift in verbose mode
+  [*]  Some changes in the documentation
+
+ 1.3.1
+ ----- 22-May-2001 yet another bugfix
+  [!]  Fixed some bugs caused by change of VP version.
+  [!]  Switch /V{...} broke processing of NE-modules
+  [+]  New switches /VX and /VD (turned on by default)
+  [*]  Cosmetic changes in noEA
+  [-]  Obsolete German documentation
+
+ 1.3.0
+ ----- 1-Jan-2001 lxLite is still alive!
+  [;]  Andrew blessed me (Max Alekseyev) to continue support of lxLite.
+  [*]  Now lxLite is compiled with Virtual Pascal 2.1
+       Rewritten VP 1.x dependent code to be compatible with VP 2.x
+  [!]  Serious bug in an auxiliary unit Collect has been found and fixed.
+       It causes failure when processing some modules.
+  [!]  Now lxLite can process LX-modules with fake offset to an absent
+       FixUp Record Table.
+  [!]  Now lxLite can process LX-modules with zero Object Iterated Pages 
+       Offset (in this case it's considered equal to Object Page Table Offset).
+  [!]  Bug in error reporting has been fixed.
+
+ 1.2.1
+ ----- 17-Aug-97 small bugfix
+  [!]  Improved handling of filenames with forward slashes instead of
+       backslashes
+  [!]  (yet again :-() changed the 'already packed' detection algorithm.
+       The problem with it is that lxLite does not put any kind of
+       'fingerprint' into processed files so I have to decide whenever
+       it has been processed or not only by side effects.
+  [*]  Made noEA's output a bit quieter. Now without /V option noEA
+       shows all file names in one line and with /V option noEA advances
+       to next line only for those files that has EAs.
+  [!]  chCase is back now! I understood why chCase messed up filenames
+       when codepage was 437 :-( Sorry to those who had to reformat
+       their HD to get rid of messy filenames ;-( it is mostly IBM`s
+       fault, not mine. This sometimes breaks HPFS's filename BSP tree
+       and makes files totally unreachable, undeletable etc.
+
+ 1.2.0
+ ----- 10-Jul-97
+ [!!!] Mega-bug fix :-) I caught a very serious error in lxLite. However,
+       I`ve encountered it only on GNU C++ compiler executable when I
+       tried to pack it using RLE (/c:ver2x) method, so it is not too
+       probable that you seen it before :-) The problem was following:
+       for some unknown reason the guys at IBM decided that whenever a
+       packed page is bigger than 0xFFC bytes, it is an error. To understand
+       this, I had to dig through the OS/2 kernel (whew!). So if the
+       compression ratio for some page was really worse (this happens much
+       seldom on EXEPACK2 (LZ) method since it packs better, and often on
+       RLE method since it sucks), the page was simply missing at its
+       memory location (!). In such cases a record is added to POPUPLOG.OS2,
+       looking very unusual (no registers, no location etc).
+  [!]  noEA will not bomb out anymore when it tries to process a completely
+       locked file (i.e. ea data. sf).
+  [*]  In some situations (very high ordinals in entry table) lxLite began
+       to eat lots of memory, and this usually terminated with an
+       out-of-swap-space trap :-( Fixed.
+
+ 1.1.9
+ ----- 10-May-97 Upgrade for version 1.1.8
+  [*]  lxLite is distributed now under GNU General Public License (GPL).
+  [*]  lxLite`s documentation is now in both .HTML and .INF format
+       (the .INF book is converted for your convenience with HTML2IPF).
+  [!]  Oooooops! I`ve left a debug sequence in fixup packing section,
+       so really fixups were packed ONLY at page N20! :-)
+  [*]  Added a little tolerance to minor (and even severe) bugs in fixip
+       table which could lead lxLite to display an 'invalid fixup record'
+       message.
+  [*]  More tolerance to incorrect debug information (exceeds executable,
+       encountered on FASTECHO/2 1.46).
+  [!]  Yet again improved 'already-packed' modules detection :-)
+  [+]  Added the /C{+|-} option for those with a B/W monitors
+  [+]  Added the /CS{+|-} option for those who prefer writing to stdout.
+       Actually lxLite isn`t entirely an stdOut program, it still uses VioXXX
+       to do some things, notably get console width and height. You can put
+       this option in the [default] section of config file to force lxLite
+       always write to stdout.
+  [+]  Disabled the progress bar indicator when StdOut is redirected. Now
+       you can use lxLite >alternateLogFile without getting much garbage.
+       Try lxLite * | more :-)
+  [!]  Captain Nemo`s INI file (NEMO-OS2.INI) has a perfect NE executable
+       structure :-))) so I added NEMO-OS2.INI to the list of excluded files.
+  [+]  Added ability to apply (/MFA{+|-}) fixups since some executables
+       (observed on FASTECHO2.EXE - written using Borland C++ for OS/2)
+       were linked without /BASE: linker flag which leads to slower loading
+       times and bigger executables without need since executables are
+       always loaded at 0x10000. This option work only for .EXEs.
+  [*]  Now the /V flag works *after* lxLite processes module, so you will see
+       the *final* result of conversion, not the *original* module information.
+       Of course, you can still see the original if you`ll disable all lxLite
+       processing (the /C:info switch will do it for you).
+
+ 1.1.8
+ ----- 01-Mar-97; well, its THE time for a new release :-)
+  [!]  Fixed a serious bug in run-length packing method: the kernel
+       decompressor expects two zeros at the end of packed data and lxLite
+       didn`t put them there. The bug is since first lxlite release, so if
+       you previously encountered problems (especially using /C:Ver2x switch)
+       you should try to re-pack damaged modules (lxLite will correctly
+       unpack even "incorrect" modules, then will correctly pack them).
+       Big thanks to Vallat Christophe for pointing out this bug.
+  [+]  Now to reply to any question you can instead of pressing simply
+       [L]etter press <Alt>+[L]etter which will set the default reply for
+       all following similar questions.
+  [+]  Added the /MF3 fixup packing method which will find the best
+       alternative for each page between /MF1 and /MF2. However this is
+       a bit slow and does not give too much gain, so default is still /MF1.
+  [!]  Fixed a serious bug in /MF2 packing method. Lucky for you, previous
+       version was not public.
+  [*]  Now you cannot proceed module along with displaying module structure
+       (i.e. /V option has priority over any other).
+
+ 1.1.8g
+ ----- 15-Feb-97, a year from first public release :-)
+  [+]  Added some extra gain since now all fixed-up locations are filled
+       with zeros before packing. For modules with pre-applied fixups this
+       operation is not performed.
+  [+]  Added fixup packing method for Warp 4.0 (3.0 with fixpack #17) and
+       above (/MF2). This option is still at beta-test stage, so use with
+       care (by default it is disabled now). Anyway, this method has proven
+       to be less effective sometimes than /MF1 with above correction.
+       And note that on most executables this method will have absolutely
+       no effect: it is primarily intended for DLLs. Also note that when
+       fixup packing is enabled, the /U{+|-} option is ignored - module is
+       always unpacked first. The /MF2 option is ignored for modules with
+       pre-applied fixups (for example DOSCALL1.DLL).
+
+ 1.1.8b
+ ----- 25-Jan-97, my birthday :-)
+  [;]  WARNING: This is a PUBLIC BETA version; it still contains bugs,
+       especially in NE->LX conversion routines. USE WITH CARE.
+       I tested it for about a month, and found THREE executables on which
+       lxLite fails to convert (i.e. didn`t convert right from NE format
+       into LX): please avoid them:
+
+     - OS2DASD.DMD with beta support for HPFS on removable drives
+       (other versions converts OK): halt on reboot with a "Unable to
+       operate your hard drive" message.
+     - RESOURCE.SYS from Warp 4.0 GA: Trap 0D on first keypress after
+       it is loaded.
+     - ES1688.SYS driver for ESS-1688 soundcard; trap when loading.
+
+       I do not understand why this is happening; everything seems ok,
+       but something is wrong :-( That`s why I`m releasing this public
+       beta version: PLEASE REPORT ME ANY CASES WHEN LXLITE FAILS.
+       Contact information is available at the end of LXLITE.ENG file.
+
+  [*]  Changed configuration file format: now it is Unix-alike, i.e.
+       configuration option is defined using square brakets, for
+       example [default]; next lines are interpreted as command-line
+       options that are loaded when loading specific section.
+
+  [!]  Fixed two bugs in NE fixups conversion routine: this possibly
+       caused most of failures when converting NE modules before.
+
+  [+]  Added exclusions and additional-options-based-on-filemasks needed
+       to entirely compress Watcom C subdirectory without losing
+       functionality of any executable.
+
+  [*]  Added the /NR switch; now lxLite will fail to convert NE files that
+       contains resources; use the /NR option with care, especially on DLLs
+       since you must know what executables uses that DLL and which
+       function (Dos16GetResource or Dos16GetResource2) they`re using
+       to load resources.
+
+ 1.1.7b
+ ----- internal release
+  [;]  Now lxLite converts NE executables into LX. Uhhh! Lots`o`work done.
+       Lots'o'things changed. Lots'o'options added. Some options has been
+       renamed, some merged into one, so read at least following info before
+       trying new version.
+
+  [*]  IMPORTANT: Now all options that can be followed by a string
+       (i.e. file name, configuration ID) must have a semicolon before
+       string, i.e. /C:default, /L:mylog etc.
+
+  [*]  IMPORTANT: I changed a lot of options to make them more mnemonic:
+       The /D option now is called /E ([E]xclude); /E option has been
+       renamed into /R ([R]ecursive); /R option has been added to /A
+       option (which still works in old way (say /APS); you also can
+       directly specify new page shift count i.e. /A:4; you can use
+       them both ways i.e. /APS:4);
+
+  [*]  Changed a lot of internals so it it possible for some bugs to appear.
+
+  [*]  If you choose to load a specific configuration, and configuration
+       file contains more than one line that matches that config ID,
+       lxLite will load all such lines, not only the first as before, so
+       you can split very long configurations into some number of lines.
+
+  [*]  Removed from configuration file options /C:failSafe, /C:fast,
+       /C:fast2 because they`re useless: experience shows that executables
+       packed with /C:default loads and works faster.
+
+  [!]  Increased stack space: small stack space is very like to cause all
+       those strange crashes of lxLite on deep directory trees.
+
+  [!]  Some minor memory leaks has been fixed
+
+  [+]  Added functionality to VERBOSE mode: now you can specify what kind
+       of information you want to see. lxLite can serve as an replacement
+       for EXEMAP and EXEHDR programs :-) More detailed descrition you can
+       find in documentaion (English only, the German docs refers to version
+       1.1.5). For displaying exported entry points, fixups and forwarders,
+       lxLite now knows a lot of API functions by name. Today lxLite knows
+       by name all documented API functions in all base OS/2 dynamic-link
+       libraries. You can add your own - see the resources in API\
+       subdirectory.
+
+  [+]  When displaying long texts (i.e. /V{...} option, help text) lxLite
+       will use a kind of 'MORE' prompt.
+
+  [+]  Bundles of entry points now are re-packed although seems that in
+       most cases they are packed well.
+
+  [+]  Fixup records now are also re-packed, although in most cases they
+       are already compressed. If you run lxLite on a previously packed
+       file (with earlier versions) and you get some gain, it means that
+       fixup records (or entry points bundles) has not been packed at
+       the maximum possible level. If you got BIGGER files, please
+       let me know :-)
+
+  [!]  Corrected a bug which leaded to loss of non-resident name table
+       (usually it contains executable description) with a message
+       'LX file contains extra bytes' when it isn`t.
+
+  [+]  Improved a bit 'already-compressed' executables detection.
+
+  [+]  Added the /J option to change executable type: use it for
+       converted NE drivers since NE drivers are marked as DLLs; LX
+       drivers always must be marked as Device Drivers, otherwise they
+       will not load successfully.
+
+  [+]  Added the ability to use some specific configuration options
+       for filenames that matches specific filemask. For example,
+       if in configuration file you`ll specify the entry:
+       @a*z.c?$: /B
+       this will enable backups for files that matches the "a*z.c?$"
+       filemask, i.e. aaaz.cc$, abcdefgz.ca$ but not for the bcde.cc$.
+       A side effect of this is that you can encounter a option syntax
+       error in the middle of the process, not only at the start.
+
+  [+]  Improved a bit the /L option: now you can choose which types
+       of events you want to log; be careful: now the log filename
+       MUST BE SEPARATED BY A COLON from /L{...}, i.e. /L:"log file"
+
+  [+]  Improved the /B option: now you can choose to backup only in
+       the cases when module contains e[X]tra or [D]ebug data. Also you
+       can choose to place backups in a certain directory; for example
+       with the /B:bak option lxLite will place all backed up files
+       into the \BAK\ directory on the current drive, recreating
+       the same directory structure as the original file was placed in.
+
+  [*]  The /G option has been merged with the /O option; the /G option
+       now is gone.
+
+  [+]  Modified the /W option: in the /WS+ state lxLite will perform
+       just like always, except that it won`t write output file (and
+       will display compression rate too unlike in the /W- state).
+
+  [*]  lxLite utlity pack: version of utilites now will be the same as
+       for lxLite. So all enclosed utilites (chCase, noEA etc) now have
+       version 1.1.7
+
+  [*]  Options in utilites changed according to changes in lxLite:
+       recursive search changed from /E to /R etc.
+
+  [+]  ChCase: The option /C{...} has been extended: now you can define
+       separate rules for [F]iles and for [D]irectories: The /CF{...}
+       switch will define case conversion rules for [F]iles and /CD{...}
+       switch will define them for [D]irectories. If used in old fashion
+       (i.e. /C{...}) it will work both for files and directories.
+
+  [!]  Both chCase and lxLite when processing a file with no attributes
+       (i.e. attrib -a-h-s-r) will set the Archive flag.
+
+  [-]  Removed ColMng from lxLite utility pack because of its usefulness
+       and excessive complexity for most users :-)
+
+  [+]  Added/changed a whole lot of other things I don`t remember now.
+
+ 1.1.6
+ ----- internal release
+  [-]  Removed sources from base distribution. The sources are still
+       available on request (see docs for "how to contact" information).
+       This was done since they grow in size very fast (they use some of
+       my external libraries - a function-two from each) and not too much
+       people really needs them.
+  [!]  Fixed a bug - the /GX{#} option worked only in /OX+ state
+  [*]  Improved a bit help on /O{G|D|X} option
+  [!]  Fixed a number of minor bugs in error-correction logic
+  [*]  Changed default option in unLock from /V+ to /V-
+  [*]  Changed default option in chCase from /V+ to /V-
+  [*]  Before unlocking file all utilites saves now file date/time;
+       after unlocking they`re restoring date & time, although this
+       is an overkill (?).
+
+ 1.1.5
+ ----- 19-Jun-96 another bug fix :-)
+  [!]  AT LAST! The famous `cannot open configuration file` bug fixed :-)
+       The problem was that CMD.EXE puts in environment the command line
+       that you used to start lxLite AS-IS while 4OS2 replaced it by
+       fully-qualified lxLite filename followed by its command-line
+       parameters. I used it to compute lxLite`s source path; however
+       program`s environment contains ANOTHER fully-qualified filename
+       path which I use now :-) and which is ALWAYS fully-qualified.
+  [+]  Because nobody understands how the /G switch works (I got a lot of
+       e-mail regarding this) I added a new switch: /O{X|D|S}{+|-}. If it
+       is disabled (/O-, default state) the /G switch works as before, i.e.
+       the data is written only if discarded from source file. If the /O+
+       option is used, the data is written always (if filemask is specified
+       by /G option).
+  [!]  Fixed an non-serious bug in CRT.PAS - now lxLite works as expected
+       even if it is redirected into a device other than CON (i.e. /dev/nul),
+       not only into files or pipes.
+  [+]  After a lot of thougts I added into lxLite utility pack my first PM
+       program for OS/2 - SysIcons. It is an simple program which allow you
+       to change system pointers (including but not limiting to mouse pointers,
+       as System Setup->Mouse->Pointer does). Also I included three of my best
+       sets of pointers - one which I partially designed myself, partialy
+       aquired from different sources, second is the B&W version of first
+       and third (white gloves) which I got from somewhere and converted to
+       B&W (because on my Cirrus Logic B&W pointers are supported by hardware
+       and does not flicker). Sorry to the author of White Gloves set, but I
+       lost original archive and copyright notice; I hope you`ll excuse me.
+   [!] Improved a bit error checking; previous versions sometimes (seldom)
+       failed on almost-good-exe-files (specifically GVPM.EXE which had one
+       of non-mandatory internal table beyond the limits of EXE files which
+       caused lxLite to fail with an runtime error).
+
+ 1.1.4
+ ----- 14-Jun-96 minor fixes & additions
+  [!]  Fixed displaying the question about extra LX data - I forgot to add
+       an carriage return after it. Also I removed the warning about the
+       possibility that resulting file will become non-functional.
+  [!]  Fixed a stupid bug (sizeOf(F) instead of fileSize(F)) which sometimes
+       forced lxLite to discard debug info even if you specify to leave
+       it in resulting file. In such cases lxLite displayed that file
+       has X bytes of extra data and the same amount of debug info.
+  [+]  Added an sub-option for /G[X|D|S]{#} - the /GX option now specifies
+       the filemask for files where to store stubs (even if lxlite won`t
+       remove them).
+  [!]  Fixed a minor bug in lxLite - when file was already processed but
+       stored with debug info and you process it again and choose to discard
+       debug info it refused to do it because `file was already processed`.
+  [!]  Fixed a serious bug - the /G option in version 1.1.3 DOES NOT DO WHAT
+       YOU PRESUME :-) It stored garbage instead of debug/extra data.
+  [*]  The option /GX*.$x$ is used by default. This was done for those
+       executables which failed to run after packing because the extra data
+       has been stripped. Use COPY /B {file}.exe+{file}.x {newfile}.exe
+       command to append extra LX data back - in most cases this will
+       restore the functionality of LX files. Note that now lxLite leaves
+       those *.$x$ files as garbage, so don`t forget to test the executable
+       functionality and to delete them if executable still works.
+  [*]  Improved performance of ChCase - now when computed filename will
+       be the same as initial file will be simply skipped.
+
+ 1.1.3
+ ----- 28-May-96 fixes & changes
+  [*]  Modified lxLite to redraw its progress bar only when it really changes.
+       This may improve its execution speed when running it in windowed
+       sessions (however I don`t use them :-)
+  [+]  Added option /G[X|D] which specifies an file mask for files where to
+       store the e[X]tra LX data and [D]ebug info when encountered and if
+       user chooses to discard it.
+  [+]  The /S switch now displays the status of the /I switch also.
+       This is done for those who don`t believe that it always works
+       (you know who you are :-)
+  [-]  Removed the /O{#} option which has proven to be useless.
+  [-]  Removed the old /D{+|-} switch (debug info remove on/off). Now lxLite
+       prompts the user if the debug info is encountered; however the default
+       behavior is to discard debug info (/YDD) as before. Now /D switch have
+       other meaning (see below).
+  [+]  Added (other) /D switch to set exclusion filemasks. Filemasks uses the
+       same rule as OS/2 does (in fact, lxLite uses OS/2 API to do that).
+       For example, /Dex*re.??e:*.zip:*.pas:*.obj will exclude these files
+       from lxLite`s field of view. The default configuration now includes
+       the [exclude] configuration which excludes all known executables
+       on which packing cannot be performed (such as PMJPEG, Watcom C etc).
+       Masks should be separated by ':'; the ',' and ';' symbols can be
+       present in HPFS long filenames, so they aren`t taken into account.
+  [+]  The /Y switch is modified (expanded). Now you can specify answers
+       for each type of possible questions separately. The /Y switch must
+       be followed by a letter - ID of answered question, then a letter -
+       what do you want answer to be to that question. The possible IDs
+       for now are:
+       -----------------------------------------------------------------------
+       Module is in [U]se (answers: [R]eplace, [S]kip or [A]bort);
+       File contains [D]ebug info ([D]iscard, [L]eave, [S]kip or [A]bort);
+       File contains e[X]tra data ([D]iscard, [L]eave, [S]kip or [A]bort);
+       .[B]AK file already exists ([O]verwrite, [N]o backup, [S]kip or [A]bort);
+       Confirmation (/P+) ([P]rocess, [S]kip or [A]bort);
+       -----------------------------------------------------------------------
+       For example, the /YUR switch will instruct lxLite always to replace
+       modules which are in use. The defaults are: /YBN /YDD and /YXD.
+  [+]  Added /L{#} switch to specify an [L]og file name. If no filename is
+       specified, the log file will be created as lxLite.log in the same
+       directory as lxLite.exe. The log file contains a list of processed
+       files, their initial and final sizes, and also all problems (if any)
+       which have been encountered when processing the file.
+
+ 1.1.2
+ ----- 22-May-96 minor additions and changes
+  [;]  The BOXER for OS/2 APAR is closed now :-) At last I downloaded it
+       from hobbes and it works packed absolutely without any problems.
+       This is due to the effect of `overlayed data` for which support
+       has been added in version 1.1.1.
+  [+]  Added an alternative [D]iscard choice when prompting for an action
+       when data out of LX structure is detected. Some DLL`s (even from
+       \OS2\DLL) seems to contain some garbage after end of LX file.
+  [*]  Changed memory allocation strategy - now memory manager allocate
+       memory in 64K chunks which can fix the problem of slow performance
+       on low-memory machines (8mb and less) when processing large files
+       (i.e. TUTORMRI.DLL). I can`t check this - please mail me if it works.
+  [*]  Changed backup strategy - now lxLite always make .BAK file even if
+       backups are disabled (/B-). If operation succeeds and backups are
+       disabled it is then removed. No more `$lxlite$.tmp` file.
+  [*]  Now lxLite says '(very!)' in phrase
+       'It is (very!) possible that resulting file will be non-functional'
+       only if the size of data out of LX structure is bigger than 256 bytes
+       (this can be changed by /O{#} option /see below/). If overlay size is
+       bigger and /Y+ switch is specified file is skipped otherwise overlayed
+       data is [D]iscarded.
+  [+]  Added /O{#} option which allows to specify threshold size for overlay
+       data. All overlays less than this value are discarded with /Y+ switch.
+       For more information please refer to english documentation.
+  [*]  Modified defaults - now lxLite by default doesn`t pack using
+       run-length method AT ALL (i.e. as if you specified /MRN switch).
+       That is because I hadn`t found even a case when using this method
+       lxLite produced packed files by at least A BYTE less in size.
+       Instead it compresses now A LOT faster.
+
+ 1.1.1
+ ----- 07-May-96 bugfix
+  [!]  noEA and chCase v1.0.0 does not work on directories - they says that
+       the module is in use. Version 1.0.1 is fixed.
+  [!]  lxLite, noEA, unLock and chCase leaves sometimes garbage on screen
+       especially when processing long subdirectories. Fixed.
+
+ 1.1.0
+ ----- 06-May-96 some additions + minor bugfix
+  [*]  Change in version numeration: Now version numbers conforms to GNU
+       standards. The first is major release number; second is minor release
+       ordinal and third is incremented only on bug-fixes.
+  [!]  Now lxLite checks for a valid MZ header in DOS executable stub.
+  [!]  Fixed: lxLite stops sometimes after trying to `pack` locked files
+       (i.e. swapper.dat) with a runtime error. The cause was a bug (sic!)
+       in DosEnumAttribute - when you issue it on a locked file it trashes
+       memory AFTER buffer passed to it (in my cause this trashed the stack).
+  [+]  Now lxLite understands quoted long complex filenames on the command
+       line like most OS/2 commands do. I.e. you can write
+        lxLite "my own subdirectory\my executable file.exe" /cmax
+  [+]  Added option /Q - query list of configurations.
+  [+]  Added option /I{+|-} - Run/don`t run at idle priority
+  [+]  Added detection of `overlayed` executables (usually from Watcom) -
+       for more information see English documentation.
+  [+]  Added `lxLite utility pack` which now consists of:
+        - unLock which allow to unlock `locked` executables
+        - chCase which allow to automatically change case of individual
+          filenames as well as of groups of filenames
+        - colMng is a simple utility to manage your WPS color palettes
+        - noEA which allow to remove extended attributes from files
+          and directories
+
+ 1.01
+ ---- 23-Feb-96 minor bugfix
+  [!] Bugfix :-) in v1.00 docs I erroneously stated that Alice was born
+      at 13-Feb-96; however the real date is 12-Feb-1996 :-)
+  [!] Now lxLite preserves not only timestamp but also file attributes.
+      The version 1.00 erroneously stated that file is used by another
+      process in the case lxLite failed to access it because of read-only
+      or system attribute.
+  [!] Fixed: lxLite preserves now extended attributes of the file. Sometimes
+      EAs are useful, although mostly occupies disk space :-)
+  [!] Fixed: lxLite now COPIES file into/from backup copies instead of
+      renaming them: this caused the WorkPlace Shell to track such operations
+      and to change the `program filename` field in program object.
+  [*] Now /R{#} option can be used to re-align pages even on 1 (byte)
+      boundary. This will get some extra bytes, however LINK386 does not
+      allow this value to be less than 4 (but OS/2 eats it) - use at your
+      own risk.
+  [-] Removed `Switch-to-foreground-when-asking` feature. This was
+      implemented rather as a lab work than a useful feature :-)
+      On the other hand, the version with this feature must use
+      PMSHAPI.DLL which is not always available (in particular when
+      booting from OS/2 repair/installation diskettes).
+
+ 1.00
+ ---- 15-Feb-96 first release version
+  [!] When an invalid page is encountered don`t exit with an error but
+      check first if this page is used. (Encountered on npswpsri.dll 1.81).
+      This is an invalid executable; however error is not fatal because
+      page isn`t used and OS/2 loads that DLL without problems.
+  [!] Now lxLite keeps and restores original executable timestamp.
+  [!] Fixed an error when OS/2 locks up on some DOS executables because
+      it contained a 0 at offset 3Ch in DOS EXE header.
+  [*] Changed format of .CFG file. Now it is a plain ASCII text file. For
+      details refer to documentation, section about options.
+  [-] Removed /D# option - use a text editor to add new cfgs.
+  [+] Added /D{+|-} option allowing to remove debug information.
+  [+] Added ability to recognize files packed with ABSOLUTELY THE SAME
+      options, so lxLite will not proceed the same file twice. "The same"
+      means that files will be recognized as packed ONLY if it has been
+      processed with the same switch(-es) which influence resulting file
+      size. Use /F+ (see below) switch to bypass this detection if you
+      want to process file anyway - for example if it has been already
+      packed, but not so good as it can be, i.e. by LINK386 or REPACK.
+  [+] Added /F{+|-} option allowing to force repacking even if lxLite
+      thinks that it is not needed. Use to bypass autodetection (`already
+      processed' message).
+  [+] Added /T{#} option allowing to replace DOS stubs. Use /T alone to
+      completely remove DOS stubs - useful for DLLs `cause they cannot
+      be run from DOS session at all.
+  [+] Added ability to replace even USED! i.e. `active` .DLL`s and
+      executables. Now you can repack entire \os2\*\*.* subdirectory
+      without having to do a clean boot. Note that you better reboot after
+      such operations because OS/2 will throw away all its internal cache
+      buffers for this module and it (i.e. its old copy) will be kept
+      entirely in memory/swapfile.
+  [+] Now lxLite runs at the idle:16 priority so it won`t overload your CPU.
+  [+] Now when lxLite encounters a problem to which he needs your answer he
+      brings itself to the foreground. The only thing to say about it is:
+      because of that lxLite uses now PMSHAPI & PMWIN.DLL, so it most likely
+      will not run under T-Shell. Because of that there are TWO supplied
+      versions of lxLite: lxLite-T.exe and lxLite.exe. Delete first if you
+      will not need lxLite with a clean boot.
+  [+] Added /Z{#} option which defines the threshold for lxLite to separate
+      programs with `functional` stubs such as dual-mode executables from
+      'dummy' stubs. Default size is 1024 bytes, i.e. on all executables with
+      stub size bigger than 1024 bytes the /T{#} option will have no effect.
+
+ 0.99b
+ ----- 07-Feb-96 beta-test version
+  [;] What`s new? Nice question :-)
