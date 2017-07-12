@@ -407,7 +407,7 @@ begin
        end;
 
  exT := ntfLXmodule;
- rc := LX^.LoadLX(fName);
+ rc := LX^.LoadLX(fName, opt.pageToEnlarge); { 2011-11-16 SHL  }
  if (rc = lxeIsNEformat) and (opt.NEloadMode and lneAlways <> 0)
   then begin
         rc := LX^.LoadNE(fName, opt.NEloadMode);

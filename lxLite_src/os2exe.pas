@@ -130,9 +130,10 @@ type
 {$IFDEF OS2}
   EA          : pEAcollection;
 {$ENDIF}
+  pageToEnlarge: LongInt ; { 2011-11-16 SHL added }
   constructor Create;
   procedure   Initialize; virtual;
-  function    LoadLX(const fName : string) : Byte;
+  function    LoadLX(const fName : string; pageToEnlarge_ : LongInt) : Byte;    { 2011-11-16 SHL  }
   function    LoadNE(const fName : string; loadFlags : byte) : Byte;
   function    Save(const fName : string; saveFlags : Longint) : Byte;
   procedure   FreeModule;
@@ -790,6 +791,7 @@ end;
 begin
  freeModule;
  Res := lxeReadError;
+ pageToEnlarge := pageToEnlarge_; { 2011-11-16 SHL }
  Assign(F, fName);
 {$IFDEF OS2}
  New(EA, Fetch(fName));
@@ -850,10 +852,15 @@ begin
         For I := 1 to Header.lxObjCnt do
          with ObjTable^[I] do
           begin
+           { 2011-11-16 SHL expand object containing /X:pagenum page to max size
+             fixme to complain if not last page in object?
+           }
+           if (pageToEnlarge > 0) and (pageToEnlarge >= oPageMap) and (pageToEnlarge < oPageMap + oMapSize) then
+             oSize := (oSize + (Header.lxPageSize - 1)) and not (Header.lxPageSize - 1);
            L := pred(oPageMap + oMapSize);
            if L > J then J := L;
           end;
-        if Header.lxMPages > J  { Fix for some poor-constructed executables }
+        if Header.lxMPages > J  { Fix for some poorly-constructed executables }
          then Header.lxMPages := J;
        end
   else begin
@@ -1106,8 +1113,16 @@ begin
  if (Header.lxDebugInfoOfs <> 0) and (Header.lxDebugInfoOfs < fSz)
   then begin
         Seek(F, Header.lxDebugInfoOfs);
-        GetMem(DebugInfo, Header.lxDebugLen);
-        BlockRead(F, DebugInfo^, Header.lxDebugLen);
+        { 2012-12-01 SHL Avoid out of memory 203 }
+        if (Header.lxDebugLen <= MemAvail - $10000) then begin
+            GetMem(DebugInfo, Header.lxDebugLen);
+            BlockRead(F, DebugInfo^, Header.lxDebugLen)
+        end
+        else begin
+            Seek(F, Header.lxDebugInfoOfs + Header.lxDebugLen);
+            Header.lxDebugInfoOfs := 0;
+            Header.lxDebugLen := 0
+        end;
         updateLast;
        end
   else begin
@@ -3052,6 +3067,17 @@ begin
    begin
     J := PageSize;
     While (J > 0) and (pD^[pred(J)] = 0) do Dec(J);
+    { 2011-11-16 SHL expand /X:pagenum page to max size }
+    if (PageNo = pageToEnlarge) and (J < Header.lxPageSize) then begin
+     GetMem(uD, Header.lxPageSize);
+     Move(pD^, uD^, PageSize);
+     FreeMem(pD, PageSize);
+     pD := uD;
+     Pages^[pred(PageNo)] := pD;
+     PageSize := Header.lxPageSize;
+     FillChar(pD^[pred(J)], Header.lxPageSize - J + 1, 0);
+     J := Header.lxPageSize
+    end;
     if J <> PageSize
      then begin
            GetMem(uD, J);

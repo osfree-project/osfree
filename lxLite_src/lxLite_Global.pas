@@ -4,19 +4,21 @@ Unit lxLite_Global;
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
 
 const
- Version          : string[6] = '1.3.8';
+ Version          : string[6] = '1.3.9';
 
 { Message Identifiers }
  msgProgHeader1   = 100;
  msgProgHeader2   = 101;
  msgProgHeader3   = 102;
  msgProgHeader4   = 103;
- msgDone          = 104;
- msgMore          = 105;
- msgInvalidSwitch = 106;
- msgAborted       = 107;
- msgRuntime1      = 108;
- msgRuntime2      = 109;
+ msgProgHeader5   = 104;
+ msgProgHeader6   = 105;
+ msgDone          = 106;
+ msgMore          = 107;
+ msgInvalidSwitch = 108;
+ msgAborted       = 109;
+ msgRuntime1      = 110;
+ msgRuntime2      = 111;
 
  msgCantLoadStub  = 151;
  msgFatalIOerror  = 152;
@@ -275,9 +277,10 @@ const
  Opt              : record
   Verbose      : Longint;
   NewType      : Longint;
-  NewTypeCond  : Longint;                               {ntfXXXX flags}
-  doUnpack     : boolean;             {Unpack LX and save unpacked}
-  Unpack       : boolean;                 {Unpack LX before packing}
+  NewTypeCond  : Longint;               {ntfXXXX flags}
+  doUnpack     : boolean;               {Unpack LX and save unpacked}
+  pageToEnlarge: LongInt;               {page to enlarge to maximum size when unpacking 2011-11-16 SHL}
+  Unpack       : boolean;               {Unpack LX before packing}
   Backup       : longint;
   Pause        : boolean;
   ApplyFixups  : boolean;
@@ -320,9 +323,10 @@ const
  end =
  (Verbose      : 0;
   NewType      : 0;
-  NewTypeCond  : 0;                               {ntfXXXX flags}
-  doUnpack     : FALSE;             {Unpack LX and save unpacked}
-  Unpack       : TRUE;                 {Unpack LX before packing}
+  NewTypeCond  : 0;                     {ntfXXXX flags}
+  doUnpack     : FALSE;                 {Unpack LX and save unpacked}
+  pageToEnlarge: 0;                     {page to enlarge to maximum size when unpacking}
+  Unpack       : TRUE;                  {Unpack LX before packing}
   Backup       : 0;
   Pause        : FALSE;
   ApplyFixups  : TRUE;

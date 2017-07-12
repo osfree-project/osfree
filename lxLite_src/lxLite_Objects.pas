@@ -8,8 +8,8 @@ Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
 type
  pMyCmdLineParser = ^tMyCmdLineParser;
  tMyCmdLineParser = object(tCommandLineParser)
-  function    ParmHandler(var ParmStr : string) : Word; virtual;
-  function    NameHandler(var ParmStr : string) : Word; virtual;
+  function    ParmHandler(var ParmStr : string) : Word; virtual; {returns numbers of characters parsed}
+  function    NameHandler(var ParmStr : string) : Word; virtual; {returns numbers of characters parsed}
   procedure   PreProcess(var ParmStr : string); virtual;
   procedure   PostProcess; virtual;
   destructor  Destroy; virtual;
@@ -83,6 +83,8 @@ begin
  Write(GetResourceString(msgProgHeader2)); NL;
  Write(GetResourceString(msgProgHeader3)); NL;
  Write(GetResourceString(msgProgHeader4)); NL;
+ Write(GetResourceString(msgProgHeader5)); NL;
+ Write(GetResourceString(msgProgHeader6)); NL;
 end;
 
 procedure NL;
@@ -956,7 +958,7 @@ begin
  ColonGetWord := GetWord(ParmStr, Start, S);
  if (S <> '') and (S[1] <> ':')
   then Stop(2, parmStr);
- Delete(S, 1, 1);
+ Delete(S, 1, 1); { drop : }
 end;
 
 function ColonGetRange(Start : Word; var StartVal,EndVal:longint) : Word;
@@ -995,6 +997,19 @@ begin
    if opt.Realign > 12 then Stop(2, parmStr);
   end
   else opt.Realign := NoRealign;
+ parmHandler := pred(StartChar + J - length(S));
+end;
+
+{ 2011-11-16 SHL add }
+procedure SetPageToEnlarge(StartChar : Word);
+begin
+ S := Copy(ParmStr, StartChar, 255);
+ J := length(S);
+ I := DecVal(S);
+ if I > 0 then
+   opt.pageToEnlarge := I
+ else
+   Stop(2, parmStr);
  parmHandler := pred(StartChar + J - length(S));
 end;
 
@@ -1265,8 +1280,15 @@ begin
           then opt.FinalWrite := fwfWrite;
         end;
   'X' : begin
-         opt.doUnpack := isEnabled;
-         if opt.doUnpack then setConfig('unpack');
+         {2011-11-16 SHL support /X:pagenum}
+         if (length(ParmStr) > 1) and (ParmStr[2] = ':') then begin
+           SetPageToEnlarge(3);
+           exit
+         end
+         else begin
+           opt.doUnpack := isEnabled;
+           if opt.doUnpack then setConfig('unpack')
+         end
         end;
   'Y' : if (length(ParmStr) > 1) and (ParmStr[2] > ' ')
          then begin

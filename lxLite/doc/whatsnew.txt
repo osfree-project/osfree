@@ -8,6 +8,12 @@
  [-] Removed feature
  [!] Bug fix
 
+ 1.3.9
+ ----- 12-Jul-2017
+  [+]  merged in older changes from Steven H. Levine
+  [+]  Avoid runtime error 2003 for very large debug data
+  [+]  Support /X:page
+
  1.3.8
  ----- 06-Mar-2015
   [+]  Selecton of offset types added for /MFA & /MFB, now 8, 16 and 32-bit
