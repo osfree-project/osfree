@@ -32,6 +32,6 @@ del /n lxLite_src\out\*
 rmdir lxLite_src\out
 
 rem *** Archiving ***
-zip -z -9 -r lxlt%version% lxLite/* <lxlite.header
+zip -z -9 -r lxlt%version% lxLite/*
 del lxLite\*.exe
-zip -z -9 -r lxlt%version%s * -x *.zip <lxlite.header
+zip -z -9 -r lxlt%version%s * -x *.zip
