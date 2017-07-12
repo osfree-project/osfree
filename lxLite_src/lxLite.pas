@@ -3,8 +3,12 @@
 {&R lxlite.res}
 {&R os2api.res}
 uses
- Dos, Crt, os2def, os2base, exe386, os2exe, strOp, miscUtil,
- SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects;
+ Dos, Crt, 
+{$IFDEF OS2}
+ os2def, os2base, 
+{$ENDIF}
+ exe386, os2exe, strOp, miscUtil,
+ SysLib, Collect, Country, Strings, lxLite_Global, lxLite_Objects, vpsyslow;
 
 label
  done;
@@ -229,12 +233,14 @@ begin
   2 : exit;
   3 : begin allDone := TRUE; exit; end;
  end;
+{$IFDEF OS2}
  if not unlockModule(fName)
   then begin
         SetColor($0C);
         Writeln(FormatStr(msgModInUseCant, [fName]));
         exit;
        end;
+{$ENDIF}
  CheckUseCount := FALSE;
 end;
 
@@ -397,7 +403,7 @@ begin
  if opt.doUnpack
   then begin
         opt.Unpack := TRUE;
-        opt.PackMode := opt.PackMode and not (pkfRunLength or pkfLempelZiv);
+        opt.PackMode := opt.PackMode and not (pkfRunLength or pkfLempelZiv or pkfSixPack);
        end;
 
  exT := ntfLXmodule;
@@ -466,6 +472,12 @@ begin
    end;
  end;
 
+ if (opt.PageWriteOpt and 1)<>0 then
+   LX^.WritePagesToFile(opt.PageRWStart,opt.PageRWEnd,opt.pageFileName,opt.PageWriteOpt)
+ else
+ if opt.PageRWStart>0 then
+   LX^.ReadPagesFromFile(opt.PageRWStart,opt.PageRWEnd,opt.pageFileName,opt.PageReadPack);
+
  if opt.tresholdStub > 0 then I := newStubSz else I := -1;
  if (not opt.ForceRepack) and (askD <> 1) and (askX <> 1) and (not opt.doUnpack) and
     (LX^.isPacked(opt.Realign, I, opt.PackMode, opt.SaveMode, oldDbgInfoOfs, fs))
@@ -531,8 +543,8 @@ begin
           then lxMFlags := (lxMFlags and (not lxModType)) or opt.NewType;
         end;
 
- if opt.Unpack then LX^.Unpack;
- if opt.ApplyFixups then LX^.ApplyFixups;
+ if opt.Unpack then LX^.Unpack(opt.AllowZTrunc);
+ if opt.ApplyFixups then LX^.ApplyFixups(opt.ForceApply, opt.ApplyMask);
 
  if opt.Verbose <> 0
   then begin
@@ -542,14 +554,14 @@ begin
         LX^.DisplayExeInfo;
        end;
 
-{ Realignment must follow LX^.DisplayExeInfo 
+{ Realignment must follow LX^.DisplayExeInfo
   but precede LX^.Pack for better compression }
  if opt.Realign <> NoRealign then LX^.Header.lxPageShift := opt.Realign;
 
- if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfFixups) <> 0)
+ if (not opt.doUnpack) and (opt.PackMode and (pkfRunLength or pkfLempelZiv or pkfSixPack or pkfFixups) <> 0)
   then begin
         prevProgressValue := -1;
-        LX^.Pack(opt.PackMode, showProgress);
+        LX^.Pack(opt.PackMode, showProgress, opt.AllowZTrunc);
        end;
  Write(#13); ClearToEOL;
  if (opt.FinalWrite = 0) then Goto locEx;
@@ -838,8 +850,9 @@ begin
  setConfig('default');
  Parser^.ParseCommandLine;
  PrintHeader;
-
+{$IFDEF OS2}
  if opt.ForceIdle then DosSetPriority(Prtys_ProcessTree, Prtyc_IdleTime, 16, 0);
+{$ENDIF}
  if opt.QueryCfgList then begin ShowConfigList; Goto Done; end;
  if (fNames^.Count = 0) and (not opt.ShowConfig) then Stop(1, '');
  LoadModuleDefs;

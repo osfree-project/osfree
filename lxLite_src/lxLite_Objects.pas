@@ -3,7 +3,7 @@
 Unit lxLite_Objects;
 
 Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
-               strOp, Country, Collect, lxlite_Global;
+               strOp, Country, Collect, lxlite_Global, vpsyslow;
 
 type
  pMyCmdLineParser = ^tMyCmdLineParser;
@@ -18,6 +18,8 @@ type
  pMyLX = ^tMyLX;
  tMyLX = object(tLX)
   procedure   DisplayExeInfo;
+  procedure   ReadPagesFromFile(StartP,EndP:Longint;var FileName:string;ReadPack:LongInt);
+  procedure   WritePagesToFile(StartP,EndP:Longint;var FileName:string;PageUnpFlags:LongInt);
  end;
 
 var
@@ -80,6 +82,7 @@ begin
  Write(FormatStr(msgProgHeader1, [Version])); NL;
  Write(GetResourceString(msgProgHeader2)); NL;
  Write(GetResourceString(msgProgHeader3)); NL;
+ Write(GetResourceString(msgProgHeader4)); NL;
 end;
 
 procedure NL;
@@ -476,7 +479,8 @@ begin
                            ' ', txtGfx[J = oMapSize][2], ' ');
                      case PageFlags of
                       pgIterData,
-                      pgIterData2:
+                      pgIterData2,
+                      pgIterData3:
                        Write(Hex8(Header.lxIterMapOfs + PageDataOffset shl Header.lxPageShift));
                       pgValid:
                        Write(Hex8(Header.lxDataPageOfs + PageDataOffset shl Header.lxPageShift));
@@ -485,7 +489,9 @@ begin
                      Write(' ', txtGfx[J = oMapSize][2], ' ', Hex4(PageSize),
                            ' ', txtGfx[J = oMapSize][2], ' ');
                      if PageFlags <= pgIterData2
-                      then Write(GetResourceString(msgPageFlags+PageFlags))
+                      then Write(GetResourceString(msgPageFlags+PageFlags)) else
+                     if PageFlags = pgIterData3
+                      then Write(GetResourceString(msgPageM3))
                       else Write(GetResourceString(msgPageFlags+succ(pgIterData2)));
                      Write(' ', txtGfx[J = oMapSize][3]);
                      NL;
@@ -576,7 +582,8 @@ begin
            begin
             Write('Ã ');
             SetColor(atHLinfo);
-            Write(FormatStr(msgRelocTblHdr, [I, J, pred(oPageMap + J)])); NL;
+            Write(FormatStr(msgRelocTblHdr, [I, J, pred(oPageMap + J), 
+              oBase + lx386PageSize * (J - 1)])); NL;
             SetColor(atInfo);
 
             oldPageMap := ObjMap^[pred(oPageMap + J)];
@@ -647,6 +654,151 @@ begin
         Dispose(Fixups, Destroy);
        end;
  SetColor(atDefault);
+end;
+
+{$I-}
+procedure tMyLX.WritePagesToFile(StartP,EndP:Longint;var FileName:string;PageUnpFlags:LongInt);
+var FF   :File;
+    ii,jj:Longint;
+    st   :string;
+    rs   :string;
+    Fst  :boolean;
+    pdata:pointer;
+    psize:Longint;
+    zbuf :array [0..255] of char;
+begin
+  assign(FF,FileName);
+  rewrite(FF,1);
+  if ioresult<>0 then Stop(msgCantWriteBin, FileName);
+  fillchar(zbuf,sizeof(zbuf),#0);
+  Fst:=true;
+
+  For ii := 1 to Header.lxObjCnt do
+    with ObjTable^[ii] do
+    begin
+      For jj := 0 to oMapSize - 1 do
+      if oPageMap + jj = StartP then
+      begin
+        if Fst then NL; Fst:=false;
+
+        with ObjMap^[StartP] do
+        begin
+          if (PageUnpFlags and 2<>0) and (PageFlags in [pgIterData, pgIterData2, pgIterData3]) then
+          begin
+            pdata:=UnpackPageNoTouch(StartP,psize); Fst:=true;
+            rs:=GetResourceString(msgPageFlags+pgValid)
+          end else
+          begin
+            pdata:=Pages^[StartP-1]; Fst:=false;
+            psize:=PageSize;
+            if PageFlags <= pgIterData2 then rs:=GetResourceString(msgPageFlags+PageFlags) else
+            if PageFlags = pgIterData3 then rs:=GetResourceString(msgPageM3) else
+               rs:=GetResourceString(msgPageFlags+succ(pgIterData2));
+          end;
+        end;
+        SetColor($0A);
+        st:=FormatStr(msgWritingPage, [Sstr(StartP, 5, '0'), rs, Sstr(psize, 4, '0'),Hex8(filepos(FF))]);
+        Write(st); NL;
+
+        with ObjMap^[StartP] do
+        begin
+           case PageFlags of
+             pgIterData,
+             pgIterData2,
+             pgIterData3,
+             pgValid:begin
+               if psize<>0 then blockwrite(FF,pdata^,psize);
+               if PageUnpFlags and 4<>0 then
+               begin
+                 if psize=0 then psize:=Header.lxPageSize else
+                 begin
+                   psize:=filepos(FF);
+                   psize:=(psize+Header.lxPageSize-1) div Header.lxPageSize * Header.lxPageSize - psize;
+                 end;
+                 while psize>=256 do
+                 begin
+                   blockwrite(FF,zbuf,256);
+                   dec(psize,256);
+                 end;
+                 if psize>0 then blockwrite(FF,zbuf,psize);
+               end;
+             end;
+           end;
+        end;
+        if Fst then FreeMem(pdata, Header.lxPageSize);
+        inc(StartP);
+        Fst:=false;
+        if StartP>EndP then break;
+      end;
+      if StartP>EndP then break;
+    end;
+  close(FF);
+end;
+
+procedure tMyLX.ReadPagesFromFile(StartP,EndP:Longint;var FileName:string;ReadPack:LongInt);
+var FF   :File;
+    ii,jj:Longint;
+    st   :string;
+    rs   :string;
+    Fst  :boolean;
+    pdata:pchar;
+    psize:Longint;
+    pl   :Longint;
+    pd   :pchar;
+    svmode:Longint;
+begin
+  svmode  :=FileMode;
+  FileMode:=open_access_ReadOnly;
+  assign(FF,FileName);
+  reset(FF,1);
+  if ioresult<>0 then Stop(msgCantReadBin, FileName);
+  FileMode:=svmode;
+
+  psize:=FileSize(FF);
+  if psize<>0 then
+  begin
+    GetMem(pdata,psize);
+    blockread(FF,pdata^,psize);
+  end;
+  pl:=psize;
+  pd:=pdata;
+  close(FF);
+
+  Fst:=true;
+
+  For ii := 1 to Header.lxObjCnt do
+    with ObjTable^[ii] do
+    begin
+      For jj := 0 to oMapSize - 1 do
+      if oPageMap + jj = StartP then
+      begin
+        if Fst then NL; Fst:=false;
+
+        with ObjMap^[StartP] do
+        begin
+          if Pages^[StartP-1]<>nil then FreeMem(Pages^[StartP-1],PageSize);
+          if ReadPack<>0 then PageFlags:=ReadPack else PageFlags:=pgValid;
+          if pl>=Header.lxPageSize then PageSize:=Header.lxPageSize else
+            PageSize:=pl;
+          dec(pl,PageSize);
+          GetMem(Pages^[StartP-1],PageSize);
+          Move(pd^,Pages^[StartP-1]^,PageSize);
+          inc(pd,PageSize);
+
+          if PageFlags <= pgIterData2 then rs:=GetResourceString(msgPageFlags+PageFlags) else
+          if PageFlags = pgIterData3 then rs:=GetResourceString(msgPageM3) else
+             rs:=GetResourceString(msgPageFlags+succ(pgIterData2));
+          st:=FormatStr(msgReadingPage, [Sstr(StartP, 5, '0'), rs, Sstr(PageSize, 4, '0')]);
+        end;
+        SetColor($0A);
+        Write(st); NL;
+
+        inc(StartP);
+        if StartP>EndP then break;
+      end;
+      if StartP>EndP then break;
+    end;
+  FreeMem(pdata,psize);
 end;
 
 Procedure ShowConfig;
@@ -767,6 +919,7 @@ begin
               end;
         Write(FormatStr(msgRunLength, [GetResourceString(I)])); NL;
         Write(FormatStr(msgLempelZiv, [ONOFF[opt.PackMode and pkfLempelZiv <> 0]])); NL;
+        Write(FormatStr(msgSixPack, [ONOFF[opt.PackMode and pkfSixPack <> 0]])); NL;
         Write(FormatStr(msgFixupsPack, [GetResourceString(J)])); NL;
        end;
  S := '';
@@ -804,6 +957,32 @@ begin
  if (S <> '') and (S[1] <> ':')
   then Stop(2, parmStr);
  Delete(S, 1, 1);
+end;
+
+function ColonGetRange(Start : Word; var StartVal,EndVal:longint) : Word;
+var ii,jj:longint;
+    st:string;
+begin
+ ColonGetRange:=length(ParmStr)-Start;
+ st:=copy(ParmStr,Start+1,length(ParmStr)-Start-1);
+ if st[1] <> ':' then Stop(2, ParmStr);
+ delete(st,1,1);
+ val(st,StartVal,ii);
+ if ii<>0 then
+ begin
+   val(copy(st,1,ii-1),StartVal,jj);
+   if st[ii]='-' then
+   begin
+     jj:=ii;
+     delete(st,1,ii);
+     val(st,EndVal,ii);
+     if ii<>0 then
+     begin
+       ColonGetRange:=jj+ii;
+       val(copy(st,1,ii-1),EndVal,jj);
+     end;
+   end else ColonGetRange:=ii;
+ end;
 end;
 
 procedure SetNewPageShift(StartChar : Word);
@@ -968,12 +1147,13 @@ begin
                        then case upCase(ParmStr[3]) of
                              '1' : opt.PackMode := opt.PackMode or pkfLempelZiv;
                              'N' : opt.PackMode := opt.PackMode and not pkfLempelZiv;
+                             '3' : opt.PackMode := opt.PackMode and not pkfLempelZiv or pkfSixPack;
                              else Stop(2, parmStr);
                             end
                        else Stop(2, parmStr);
                      end;
                'F' : begin
-                      parmHandler := 3;
+                      ParmHandler := 3;
                       opt.PackMode := opt.PackMode ;
                       if length(ParmStr) > 2
                        then case upCase(ParmStr[3]) of
@@ -983,7 +1163,28 @@ begin
                              'N' : opt.PackMode := (opt.PackMode and (not (pkfFixups or pkfFixupsLvl)));
                              'A' : begin
                                     Delete(ParmStr, 1, 2);
-                                    opt.ApplyFixups := isEnabled;
+                                    if ParmStr[2]=':' then
+                                    begin
+                                       opt.ApplyFixups := TRUE;
+                                       ParmHandler := 1 + ColonGetWord(2, S);
+                                       if S <> '' then val(S,I,J);
+                                       if (S = '') or (I<=0) or (I>7) then Stop(2, parmStr)
+                                          else opt.ApplyMask := I;
+                                    end else
+                                       opt.ApplyFixups := isEnabled;
+                                   end;
+                             'B' : begin
+                                    Delete(ParmStr, 1, 2);
+                                    if ParmStr[2]=':' then
+                                    begin
+                                       opt.ForceApply := TRUE;
+                                       ParmHandler := 1 + ColonGetWord(2, S);
+                                       if S <> '' then val(S,I,J);
+                                       if (S = '') or (I<=0) or (I>7) then Stop(2, parmStr)
+                                          else opt.ApplyMask := I;
+                                    end else
+                                       opt.ForceApply  := isEnabled;
+                                    if opt.ForceApply then opt.ApplyFixups:=TRUE;
                                    end;
                              else Stop(2, parmStr);
                             end
@@ -1003,7 +1204,52 @@ begin
          SetForceOut($40, fofStub,  opt.sdFileMask);
          if S <> '' then Stop(2, parmStr);
         end;
-  'P' : opt.Pause := isEnabled;
+  'P' : if length(ParmStr) > 1 then
+        begin
+          case upCase(ParmStr[2]) of
+            'R':if length(ParmStr) > 2 then
+               begin
+                 if opt.PageRWStart<>-1 then Stop(2, parmStr);
+                 J:=3;
+                 case upCase(ParmStr[3]) of
+                   '1' : opt.PageReadPack := pgIterData;
+                   '2' : opt.PageReadPack := pgIterData2;
+                   '3' : opt.PageReadPack := pgIterData3;
+                   else J:=2;
+                 end;
+                 J:= J + ColonGetRange(J, opt.PageRWStart, opt.PageRWEnd);
+                 J:= J + ColonGetWord(J + 1, opt.pageFileName);
+                 if opt.PageRWEnd=-1 then opt.PageRWEnd:=opt.PageRWStart;
+                 if (opt.PageReadPack<>0) and (opt.PageRWEnd<>opt.PageRWStart) then Stop(2, parmStr);
+                 if (opt.PageRWEnd<opt.PageRWStart) or (opt.PageRWStart<=0) then Stop(2, parmStr);
+                 if length(opt.pageFileName)=0 then Stop(2, parmStr);
+                 parmHandler := J;
+               end  else Stop(2, parmStr);
+            'W':if length(ParmStr) > 2 then
+               begin
+                 if opt.PageRWStart<>-1 then Stop(2, parmStr);
+                 J:=3;
+                 opt.PageWriteOpt:= 1;
+                 case upCase(ParmStr[3]) of
+                   'U' : opt.PageWriteOpt := opt.PageWriteOpt or 2;
+                   'A' : opt.PageWriteOpt := opt.PageWriteOpt or 6;
+                   else J:=2;
+                 end;
+                 J:= J + ColonGetRange(J, opt.PageRWStart, opt.PageRWEnd);
+                 J:= J + ColonGetWord(J + 1, opt.pageFileName);
+                 if opt.PageRWEnd=-1 then opt.PageRWEnd:=opt.PageRWStart;
+                 if (opt.PageRWEnd<opt.PageRWStart) or (opt.PageRWStart<=0) then Stop(2, parmStr);
+                 if length(opt.pageFileName)=0 then Stop(2, parmStr);
+                 parmHandler := J;
+               end else Stop(2, parmStr);
+            'Z':begin
+                Delete(parmStr, 1, 1);
+                opt.AllowZTrunc := isEnabled;
+               end;
+            else opt.Pause := isEnabled;
+          end;
+        end else
+          opt.Pause := isEnabled;
   'Q' : opt.QueryCfgList := isEnabled;
   'R' : opt.RecurSearch := isEnabled;
   'S' : opt.ShowConfig := isEnabled;

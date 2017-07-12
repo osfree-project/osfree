@@ -1,5 +1,7 @@
 {&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-,Delphi+,Use32+}
+{$IFDEF OS2}
 {&define OS_MAP_CASE}
+{$ENDIF}
 {$P+}
 Unit strOp;
 

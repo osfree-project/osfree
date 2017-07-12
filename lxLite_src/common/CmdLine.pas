@@ -23,7 +23,7 @@ Procedure ParseCommandLine;
 var S : String;
 begin
  if ParmStr = #0
-  then {$ifDef OS2}
+  then {$ifDef VIRTUALPASCAL}
        S := StrPas(GetASCIIZptr(System.CmdLine^, 2))
        {$else}
        Move(mem[PrefixSeg:$80], S, succ(mem[PrefixSeg:$80]))

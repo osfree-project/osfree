@@ -4,18 +4,19 @@ Unit lxLite_Global;
 Interface uses exe286, exe386, os2exe, Collect, SysLib, Country;
 
 const
- Version          : string[6] = '1.3.3';
+ Version          : string[6] = '1.3.8';
 
 { Message Identifiers }
  msgProgHeader1   = 100;
  msgProgHeader2   = 101;
  msgProgHeader3   = 102;
- msgDone          = 103;
- msgMore          = 104;
- msgInvalidSwitch = 105;
- msgAborted       = 106;
- msgRuntime1      = 107;
- msgRuntime2      = 108;
+ msgProgHeader4   = 103;
+ msgDone          = 104;
+ msgMore          = 105;
+ msgInvalidSwitch = 106;
+ msgAborted       = 107;
+ msgRuntime1      = 108;
+ msgRuntime2      = 109;
 
  msgCantLoadStub  = 151;
  msgFatalIOerror  = 152;
@@ -30,6 +31,8 @@ const
  msgCantCreateDir = 161;
  msgCantCopyBackup= 162;
  msgCfgLoadFailed = 163;
+ msgCantWriteBin  = 164;
+ msgCantReadBin   = 165;
 
  msgEmpty         = 192;
 
@@ -133,6 +136,10 @@ const
  msgFXv2          = 326;
  msgFXv4          = 327;
  msgFXmax         = 328;
+ msgSixPack       = 329;
+ msgPageM3        = 330;
+ msgWritingPage   = 331;
+ msgReadingPage   = 332;
 
  msgLXerror       = 350;
 
@@ -197,7 +204,7 @@ const
  msgListSel       = 481;
 
  msgHelpFirst     = 500;
- msgHelpLast      = 601;
+ msgHelpLast      = 616;
 
 {-Backup flags-}
  bkfIfDebug       = $0001;
@@ -274,6 +281,8 @@ const
   Backup       : longint;
   Pause        : boolean;
   ApplyFixups  : boolean;
+  ForceApply   : boolean;
+  ApplyMask    : byte;
   SaveMode     : longint;
   PackMode     : longint;
   NEloadMode   : longint;
@@ -281,6 +290,10 @@ const
   ForceOut     : longint;
   Log          : longint;
   FinalWrite   : longint;
+  PageReadPack : longint;
+  PageWriteOpt : longint;
+  PageRWStart  : longint;
+  PageRWEnd    : longint;
   ForceRepack  : boolean;
   ForceIdle    : boolean;
   ShowConfig   : boolean;
@@ -289,11 +302,13 @@ const
   DiscardXOpts : boolean;
   ColoredOutput: boolean;
   UseStdOut    : boolean;
+  AllowZTrunc  : boolean;
   tresholdStub : Longint;
   tresholdXtra : Longint;
   tresholdDbug : Longint;
   stubName     : string;
   logFileName  : string;
+  pageFileName : string;
   backupDir    : string;
   xdFileMask   : string;
   ddFileMask   : string;
@@ -311,6 +326,8 @@ const
   Backup       : 0;
   Pause        : FALSE;
   ApplyFixups  : TRUE;
+  ForceApply   : FALSE;
+  ApplyMask    : 7;
   SaveMode     : svfFOalnNone + svfEOalnShift;
   PackMode     : pkfLempelZiv + pkfFixups + pkfFixupsVer2;
   NEloadMode   : 0;
@@ -318,6 +335,10 @@ const
   ForceOut     : 0;
   Log          : lcfSucc;
   FinalWrite   : fwfWrite;
+  PageReadPack : 0;
+  PageWriteOpt : 0;
+  PageRWStart  : -1;
+  PageRWEnd    : -1;
   ForceRepack  : FALSE;
   ForceIdle    : TRUE;
   ShowConfig   : FALSE;
@@ -326,11 +347,13 @@ const
   DiscardXOpts : FALSE;
   ColoredOutput: TRUE;
   UseStdOut    : FALSE;
+  AllowZTrunc  : TRUE;
   tresholdStub : 0;
   tresholdXtra : 1024;
   tresholdDbug : $7FFFFFFF;
   stubName     : '';
   logFileName  : '';
+  pageFileName : '';
   backupDir    : '';
   xdFileMask   : '';
   ddFileMask   : '';
