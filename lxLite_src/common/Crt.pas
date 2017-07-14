@@ -7,7 +7,7 @@
 //Û                                                       Û
 //ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 
-{$S-,R-,Q-,I-,X+,T-,Cdecl-,OrgName-,AlignRec-,Use32+}
+{$B+,H-,S-,R-,Q-,I-,X+,T-,Cdecl-,OrgName-,AlignRec-,Use32+,Delphi+}
 
 unit Crt;
 
@@ -165,7 +165,7 @@ end;
 
 procedure GetLastMode;
 begin
-  LastMode := SysTvGetScrMode( @ScreenSize );
+  LastMode := SysTvGetScrMode( @ScreenSize, False );
 end;
 
 { Selects a specific text mode. The valid text modes are:               }
@@ -406,14 +406,14 @@ begin
           if Y >= Hi(WindMax) then LineFeed else Inc(Y);
           y1 := y;
         end;
-      {$IFNDEF LINUX}
+      //--{$IFNDEF LINUX}
       ^M:               { Carriage return }
         begin
           FlushBuffered;
           X := Lo(WindMin);
           x1 := x;
         end;
-      {$ENDIF}
+      //--{$ENDIF}
       ^H:               { Backspace }
         begin
           FlushBuffered;
@@ -510,13 +510,27 @@ begin
   CrtReturn := 0;               { I/O result = 0: success }
 end;
 
+function CrtClose(var F: Text): Longint;
+begin
+  {$IfDef Linux}
+  if TextRec(F).Mode = fmInput then
+    SysTVDoneCursor  // There is no SysTvDoneKbd
+  else
+    SysTVDoneCursor;
+  {$EndIf Linux}
+  CrtClose := 0;                { I/O result = 0: success }  
+end;
+
 function CrtOpen(var F: Text): Longint;
 begin
   with TextRec(F) do
   begin
-    CloseFunc := @CrtReturn;
+    CloseFunc := @CrtClose;
     if Mode = fmInput then
     begin
+      {$IFDEF LINUX}
+      SysTvKbdInit;
+      {$ENDIF}
       InOutFunc := @CrtRead;
       FlushFunc := @CrtReturn;
     end
@@ -547,9 +561,18 @@ end;
 
 { Signal Handler }
 
+var
+  PrevCtrlBreakHandler : TCtrlBreakHandler = nil;
+
 function CrtCtrlBreakHandler: Boolean;
 begin
-  CrtCtrlBreakHandler := not CheckBreak;
+  Result:=false;
+  // let other CtrlBreakHandler process it (TVision)
+  if Assigned(PrevCtrlBreakHandler) then
+    Result:=PrevCtrlBreakHandler;
+  // if not handled  we look at CheckBreak flag  if me may terminate
+  if not Result then
+    Result := not CheckBreak;
 end;
 
 Procedure AssignConToCrt;
@@ -581,13 +604,11 @@ end;
 begin
   SysTvInitCursor;
   GetLastMode;
-  ReadNormAttr;
   SetWindowPos;
+  ReadNormAttr;
   AssignConToCrt;
+  PrevCtrlBreakHandler := CtrlBreakHandler;
   CtrlBreakHandler := CrtCtrlBreakHandler;
   SysCtrlSetCBreakHandler;
-  {$IFDEF LINUX}
-  SysTvKbdInit;
-  {$ENDIF}
 end.
 
