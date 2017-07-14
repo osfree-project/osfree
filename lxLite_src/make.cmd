@@ -1,9 +1,17 @@
 @echo off
 
-set vpbase=G:\vp20
+if NOT .%VPDIR%. == .. goto vpdirok
+echo Please set the VPDIR environement to your VirtualPascal installation
+goto End
+
+:vpdirok
+if NOT .%VPBASEDONE%. == .. goto vpbasedone
+set vpbase=%VPDIR%
 set PATH=%vpbase%\bin.os2;%PATH%
 set BEGINLIBPATH=%vpbase%\bin.os2;
+set vpbasedone=1
 
+:vpbasedone
 set vpcopt=/$P+ /CO /$S- /$Speed- /$I- /$AlignCode- /$AlignData- /ucommon;%vpbase%\units.os2;%vpbase%\source\rtl;%vpbase%\source\os2 /i%vpbase%\source\rtl /l%vpbase%\lib.os2 /oout /m
 set rcopt=-r -n -i %vpbase%\source\rtl
 
@@ -14,9 +22,8 @@ echo vpcopt=%VPCOPT%
 :nodebug
 
 if .%_4ver%. == .. goto okay
-echo This batch file is best viewed with CMD.EXE :-)
-cmd /c %0
-exit
+echo This batch file is designed for CMD.EXE
+goto End
 
 :okay
 mkdir out 1>nul 2>nul
@@ -70,8 +77,9 @@ copy out\sysIcons.exe	..\lxLite\	1>nul
 copy out\unLock.exe	..\lxLite\	1>nul
 
 echo Well done. Now change to ..\ directory and run m_lxLite.cmd
-
-exit
+goto End
 
 :Error
 echo Project not completed
+
+:End
