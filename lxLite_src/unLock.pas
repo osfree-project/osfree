@@ -76,7 +76,7 @@ end;
 Procedure MyExitProc;
 begin
  Write(#13);
- TextAttr := $07; ClrEOL;
+ TextAttr := $07; ClearToEOL;
  OldExit;
 end;
 
@@ -106,14 +106,14 @@ Procedure NotLocked;
 begin
  if Verbose
   then begin Write(' not locked'); textAttr := $0B; Writeln(#13'Ã'); end
-  else begin Write(#13); ClrEOL; end;
+  else begin Write(#13); ClearToEOL; end;
 end;
 
 begin
  if length(fName) >= 255 then exit;
  _n := extractName(fName);
  textAttr := $0B;
- Write(#13); ClrEOL;
+ Write(#13); ClearToEOL;
  Write('À Processing file ', Copy(_n, 1, 28));
  FileMode := open_share_DenyReadWrite or open_access_ReadOnly;
  Assign(F, fName); Reset(F, 1);
@@ -171,7 +171,7 @@ begin
  if nf = 0
   then begin
         textAttr := $0B; Write('À ', Short(_d, 77));
-        ClrEOL; Write(#13);
+        ClearToEOL; Write(#13);
        end;
  FindFirst(_d + '*', Archive or Hidden or SysFile or Directory, sr);
  While (dosError = 0) and (not allDone) do
@@ -203,6 +203,6 @@ begin
    if allDone then break;
   end;
 
- TextAttr := $01; ClrEOL;
+ TextAttr := $01; ClearToEOL;
  Writeln('À´Done');
 end.
