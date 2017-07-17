@@ -1,7 +1,7 @@
 {&AlignCode-,AlignData-,AlignRec-,G3+,Speed-,Frame-}
 {$M 262144}
 uses os2base, os2def, miscUtil, SysLib, CmdLine, Collect,
-     strOp, Strings, Crt, Dos, lxlite_Global
+     strOp, Strings, Crt, Dos, lxlite_Global,
      VpUtils;
 const
  Recurse : boolean = FALSE;
