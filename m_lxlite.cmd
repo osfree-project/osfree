@@ -10,12 +10,12 @@ rem ***************************************************************************
 copy lxLite_src\lxLite.rc lxLite\API >nul
 copy lxLite_src\os2API.rc lxLite\API >nul
 cd lxLite
-noEA /y lxLite.exe chCase.exe noEA.exe unLock.exe install.cmd
-eaUtil lxLite.exe	..\lxLite.EA	/j /o /p
-eaUtil chCase.exe	..\chCase.EA	/j /o /p
-eaUtil noEA.exe		..\noEA.EA	/j /o /p
-eaUtil unLock.exe	..\unLock.EA	/j /o /p
-eautil install.cmd	..\install.EA	/j /o /p
+rem noEA /y lxLite.exe chCase.exe noEA.exe unLock.exe install.cmd
+rem eaUtil lxLite.exe	..\lxLite.EA	/j /o /p
+rem eaUtil chCase.exe	..\chCase.EA	/j /o /p
+rem eaUtil noEA.exe		..\noEA.EA	/j /o /p
+rem eaUtil unLock.exe	..\unLock.EA	/j /o /p
+rem eautil install.cmd	..\install.EA	/j /o /p
 chcase * /cfal /y
 ren lxlite.* lxLite.* >nul
 ren chcase.* chCase.* >nul
@@ -26,12 +26,8 @@ lxLite /f chCase.exe unLock.exe noEA.exe sysIcons.exe
 lxLite /f /x /yur lxlite.exe
 cd ..
 
-rem *** Prepare sources ***
-del lxLite_src\*.res
-del /n lxLite_src\out\*
-rmdir lxLite_src\out
-
 rem *** Archiving ***
-zip -z -9 -r lxlt%version% lxLite/*
-del lxLite\*.exe
-zip -z -9 -r lxlt%version%s * -x *.zip
+del lxlt%version%.zip
+zip -9 -r lxlt%version% lxLite/*
+del lxlt%version%s.zip
+zip -9 -r lxlt%version%s * -x lxLite_src/*.res -x lxLite_src/out/ -x lxLite_src/out/* -x .gitignore -x *.exe -x *.zip
