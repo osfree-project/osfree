@@ -36,7 +36,7 @@ begin
          Writeln('Ã /?,/H   Show this help screen');
          Writeln('Ã´Default: /P- /R- /V-');
          TextAttr := $08;
-         Writeln('Ã Example: unLock d:\*.exe d:\*.dll /r');
+         Writeln('Ã´Example: unLock d:\*.exe d:\*.dll /r');
          TextAttr := $07;
          Writeln('|');
          Writeln('Ã Usage for IBM UDF unlock: unLock drive:');
