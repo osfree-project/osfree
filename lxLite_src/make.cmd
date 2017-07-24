@@ -8,7 +8,7 @@ goto End
 if NOT .%VPBASEDONE%. == .. goto vpbasedone
 set vpbase=%VPDIR%
 set PATH=%vpbase%\bin.os2;%PATH%
-set BEGINLIBPATH=%vpbase%\bin.os2;
+set BEGINLIBPATH=%vpbase%\bin.os2;%BEGINLIBPATH%;
 set vpbasedone=1
 
 :vpbasedone
