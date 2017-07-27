@@ -3,4 +3,5 @@
 *.res
 *.exe
 /lxLite_src/out/
+/lxLite/API/*.rc
 *.zip
