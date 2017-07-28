@@ -582,7 +582,7 @@ begin
                 4 : begin allDone := TRUE; Goto locEx; end;
                end;
               end;
-        SetColor($0B); Write(FormatStr(msgBackingUp, [Short]));
+        SetColor($0B); Write(FormatStr(msgBackingUp, [Short, bk]));
         if not FileCopy(fName, bk)
          then begin
                SetColor($0C); Write(GetResourceString(msgBackupError));
@@ -604,7 +604,11 @@ SaveLX:
                Goto locEx;
               end;
         if opt.Backup and bkf = 0
-         then FileErase(bk)
+         then begin
+               FileErase(bk);
+               Write(#13); ClearToEOL;
+               SetColor($0B); Write(FormatStr(msgDelBackup, [bk]));
+              end
          else if opt.backupDir <> ''
                then begin
                      newbk := opt.backupDir;

@@ -198,7 +198,7 @@ begin
  418 "Ã The file %s already exists"
  419 "[O]verwrite .BAK/[N]o backup/[S]kip file or [A]bort?"
  420 "ONSA"
- 421 "À Backing up  %s ... "
+ 421 "À Backing up  %s to %s ... "
  422 "cannot backup module"
  423 "À Saving file %s ... "
  424 "Ã%28s initial:%8d final:%8d gain: %s%%"
@@ -225,6 +225,7 @@ begin
  444 "-------- Total gain: %d bytes"
  445 "         Non-resident table has been removed"
  446 "         Non-resident table has been kept"
+ 447 "À Save succeded, deleting Backup %s ... "
 
  450 "Ã Cannot find such files: %s"
  451 "File %s: [P]rocess, [S]kip or [A]bort?"

@@ -187,6 +187,7 @@ const
  msgLogOverall    = 444;
  msgLogNResRmv    = 445;
  msgLogNResKept   = 446;
+ msgDelBackup     = 447;
 
  msgCantFindFile  = 450;
  msgConfirmAsk    = 451;
