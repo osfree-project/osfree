@@ -583,7 +583,7 @@ begin
                end;
               end;
         SetColor($0B); Write(FormatStr(msgBackingUp, [Short, bk]));
-        if not FileCopy(fName, bk)
+        if not FileRename(fName, bk)
          then begin
                SetColor($0C); Write(GetResourceString(msgBackupError));
                SetColor($0B); Writeln(#13'Ã');
