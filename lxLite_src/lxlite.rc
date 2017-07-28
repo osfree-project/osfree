@@ -225,7 +225,7 @@ begin
  444 "-------- Total gain: %d bytes"
  445 "         Non-resident table has been removed"
  446 "         Non-resident table has been kept"
- 447 "À Save succeeded, deleting Backup %s ... "
+ 447 "À Save succeeded, deleting backup %s ... "
 
  450 "Ã Cannot find such files: %s"
  451 "File %s: [P]rocess, [S]kip or [A]bort?"
