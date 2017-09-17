@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = bootsect mbr fatboot eltorito
+DIRS = bootsect mbr fatboot eltorito exfat
 
 !include $(%ROOT)/mk/all.mk
 
