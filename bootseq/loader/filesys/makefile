@@ -29,7 +29,7 @@ ALIASES              = ntfs_nocomp_mount_=ntfs_mount_, &
                        ntfs_nocomp_read_=ntfs_read_
 !endif
 
-common_SRCS          = start.asm fsys.c dummy.asm
+common_SRCS          = start.asm fsys.c dummy.asm i8d086.asm
 common_OBJS          = $(p)start$(e) $(p)fsys$(e) $(p)dummy$(e)
 OBJS                 = $(common_OBJS) $(p)fsys_$(basename)$(e)
 
