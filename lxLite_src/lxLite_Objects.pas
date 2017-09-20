@@ -940,6 +940,7 @@ const
 var
  I,J,K : Longint;
  S     : string;
+ logPath : string;
 
 Function isEnabled : boolean;
 begin
@@ -1139,7 +1140,12 @@ begin
                 else SetRC(I)
           else parmHandler := I;
          if (opt.Log <> 0) and (opt.logFileName = '')
-          then opt.logFileName := sourcePath + logFname;
+          then begin
+            logPath := GetEnv('LOGFILES');
+            if logPath = '' then logPath := sourcePath;
+            if not (logPath[length(logPath)] in ['/', '\']) then logPath := logPath + '\';
+            opt.logFileName := logPath + logFname;
+          end;
         end;
   'M' : if length(ParmStr) > 1
          then case upCase(ParmStr[2]) of
@@ -1356,8 +1362,20 @@ var
  iPos : pCollection;
  pSC  : pStringCollection;
  S    : string;
+ cfgPath : string;
+ unixroot: string;
+ 
 begin
- S := sourcePath + cfgFname;
+{$ifdef OS2}
+ unixroot := GetEnv('UNIXROOT');
+{$else}
+ unixroot := '';
+{$endif}
+ if unixroot <> '' then begin
+  cfgPath := unixroot + '\etc\lxLite\'; 
+  if not FileExist(cfgPath + cfgFname) then cfgPath := sourcePath;
+ end else cfgPath := sourcePath;
+ S := cfgPath + cfgFname;
  Assign(T, S); Reset(T);
  if ioResult <> 0 then Stop(msgCannotLoadCFG, S);
  New(iPos, Create(4, 4));
