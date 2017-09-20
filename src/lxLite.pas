@@ -39,10 +39,29 @@ var
  EH   : pDosEXEheader;
  P    : pByteArray;
  S,hS : Longint;
+ stubPath: string;
+ unixroot: string;
 begin
  if (opt.tresholdStub <= 0) or (opt.stubName = '')
   then begin NewStubSz := 0; exit; end;
+ //
+ // 1.) we search the stub with the full name
+ // 2.) we search the stub in the unixroot/usr/share/lxLite dir
+ // 3.) we search the stub in the exe dir
+ // 
  Assign(F, opt.stubName); Reset(F, 1);
+ if ioResult <> 0
+  then begin 
+{$ifdef OS2}
+   unixroot := GetEnv('UNIXROOT');
+{$else}
+   unixroot := '';
+{$endif}
+   if unixroot <> '' then begin
+    stubPath := unixroot + '\usr\share\lxLite\'; 
+    Assign(F, stubPath + opt.stubName); Reset(F, 1);
+   end;
+  end;
  if ioResult <> 0
   then begin Assign(F, SourcePath + opt.stubName); Reset(F, 1); end;
  if ioResult <> 0 then Stop(msgCantLoadStub, opt.stubName);
