@@ -3,8 +3,8 @@
 Unit lxLite_Objects;
 
 Interface uses exe286, exe386, os2exe, miscUtil, sysLib,
-               strOp, Country, Collect, lxlite_Global, vpsyslow;
-
+               strOp, Country, Collect, lxlite_Global, vpsyslow,
+               os2base;
 type
  pMyCmdLineParser = ^tMyCmdLineParser;
  tMyCmdLineParser = object(tCommandLineParser)
@@ -38,6 +38,7 @@ var
  ModDef    : pModuleCollection;
 
  procedure PrintHeader;
+ procedure WriteError(const msg: string);
  procedure Stop(eCode : Word; const ParmStr : string);
  function  FormatStr(Template : Longint; Params : array of const) : string;
  procedure NL;
@@ -61,6 +62,16 @@ begin
         AssignCrt(Output);
         Rewrite(Output);
        end;
+end;
+
+procedure WriteError(const msg: string);
+const
+ NewLineStr: array[0..1] of Char = #$0D + #$0A;
+var
+ msgNL : string;
+begin
+ msgNL := msg + NewLineStr;
+ DosPutMessage(SysFileStdErr, Length(msgNL), @msgNL[1]);
 end;
 
 function FormatStr;
@@ -147,10 +158,14 @@ begin
                   S := Copy(S, 1, length(S) - length(ParmStr));
                   DelStartSpaces(S);
                   Write(FormatStr(msgInvalidSwitch, [S]));
+                  // we also write all errors to stderr
+                  WriteError(FormatStr(msgInvalidSwitch, [S]));
                   SetColor($04);
                   S := parmStr;
                   DelTrailingSpaces(S);
                   Write(S); NL;
+                  // we also write all errors to stderr
+                  WriteError(S);
                  end;
            B := TRUE;
            For I := msgHelpFirst to msgHelpLast do
@@ -165,9 +180,15 @@ begin
               'À' : SetColor($08);
              end;
              Write(S); NL;
+             // we also write all errors to stderr
+             WriteError(S);
             end;
           end;
-  else Writeln(FormatStr(eCode, [parmStr]));
+  else begin 
+   Writeln(FormatStr(eCode, [parmStr]));
+   // we also write all errors to stderr
+   WriteError(FormatStr(eCode, [parmStr]));
+  end;
  end;
  Halt(eCode mod 100);
 end;

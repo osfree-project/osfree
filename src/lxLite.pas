@@ -315,6 +315,8 @@ begin
         _d := GetResourceString(rc);
         Writeln(logFile, FormatStr(msgLogError, [bk, Short, _d]));
        end;
+ // we also write all errors to stderr
+ WriteError(GetResourceString(rc));
 end;
 
 const
