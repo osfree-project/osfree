@@ -1,6 +1,6 @@
 Build instructions
 
-1. change to lxLight_src directory
+1. change to src directory
 
 2. The common subdirectory contains a number of my commonly-used libraries.
 Between them is a improved version of CRT.PAS which:
@@ -8,11 +8,9 @@ a) features a speedy screen output (VP`s CRT is pretty slow...)
 b) Handles properly input and output redirection. Two additional
 boolean variables: RedirInput and RedirOutput are available.
 
-3. Edit MAKE.CMD and set base VP directory as appropiate.
+3. set VPDIR env to your base VP directory (set VPDIR=x:\your\path\to\vp\base).
 
-4. Run MAKE.CMD. This should create the directory OUT into which
-all output will go. After compilation executables are copied into ..\lxLite\ 
-directory.
+4. Run MAKE.CMD. This should create the directory OUT into which all output will go.
 
 5. Follow instructions on screen.
 

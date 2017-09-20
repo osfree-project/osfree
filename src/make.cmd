@@ -70,13 +70,9 @@ vpc %vpcopt% unLock.pas
 if errorlevel == 1 goto Error
 :skip8
 
-copy out\lxLite.exe	..\lxLite\	1>nul
-copy out\chCase.exe	..\lxLite\	1>nul
-copy out\noEA.exe	..\lxLite\	1>nul
-copy out\sysIcons.exe	..\lxLite\	1>nul
-copy out\unLock.exe	..\lxLite\	1>nul
-
-echo Well done. Now change to ..\ directory and run m_lxLite.cmd
+echo Well done.
+echo Now test it all and create the rpm afterwards.
+echo If you dislike rpm you could create a distribution via notUsed\m_lxLite.cmd
 goto End
 
 :Error
