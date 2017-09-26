@@ -1,5 +1,4 @@
 
-
 lxLite utility pack
 
 
@@ -9,6 +8,8 @@ Some time after releasing version 1.01 of lxLite (i.e. 1.0.1) (and some
 time before :-) I wrote some simple command-line utilities which greatly
 simplified my life. Because apart from lxLite they don't present nothing
 interesting, I included them here for you to get them along with lxLite :-)
+
+
 unLock
 
 unLock is a simple utility which allows to 'unlock' application executables
@@ -31,6 +32,7 @@ doing all necessary things on former locked files.
 The command-line format of unLock is much like lxLite's, except that it
 have much less options :-)
 
+The available options are:
 
 /R{+|-}
 [R]ecursive (+) file search through subdirectories. unLock will
@@ -75,8 +77,9 @@ to use noEA you MUST know what you're doing and whenever you needs it
 
 noEA can show a list of extended attribute names for the processed files or
 remove all of them. The command-line switches are much like in all other
-utilities:
+utilities.
 
+The available options are:
 
 /R{+|-}
 [R]ecursive (+) file search through subdirectories. noEA will recursively
@@ -122,7 +125,6 @@ format (i.e. first letter in uppercase and rest in lowercase) and so on.
 
 The available options are:
 
-
 /C{F|D}(L|U|M|A)
 Convert to [L]ower/[U]pper/[M]ixed/[A]s-is case. You can define multiple
 'case conversion actions' - first one will be applied on the first
@@ -130,27 +132,15 @@ Convert to [L]ower/[U]pper/[M]ixed/[A]s-is case. You can define multiple
 used for any extra encountered 'parts', so if you'll define only one
 option it will be applied on all filename parts. Some examples:
 
-
-filename
-command line
-resulting filename
-
-
-mY.Very.lOnG.fIlE.NamE
-/culam my*
-MY.very.lOnG.File.Name
-
-
-just.an.example
-/cml jus*
-Just.an.example
-
-
-leT.iT.bE
-/cmla let*
-Let.it.bE
-
-
++------------------------+-----------------+------------------------+
+| filename               | command line    | resulting filename     |
++------------------------+-----------------+------------------------+
+| mY.Very.lOnG.fIlE.NamE | /culam my*      | MY.very.lOnG.File.Name |
++------------------------+-----------------+------------------------+
+| just.an.example        | /cml jus*       | Just.an.example        |
++------------------------+-----------------+------------------------+
+| leT.iT.bE              | /cmla let*      | Let.it.bE              |
++------------------------+-----------------+------------------------+
 
 /R{+|-}
 [R]ecursive (+) file search through subdirectories. chCase will
@@ -173,22 +163,13 @@ space " " you have to define them both in a single /S switch as follows:
 /S" ."
 
 Just some examples:
-
-
-filename
-command line
-resulting filename
-
-
-Mary has a Little.Lamb
-/cm /s" ." mar*
-Mary Has A Little.Lamb
-
-
-john_wAs_a_lItTle_lame
-/cuml /s"_"
-JOHN_Was_a_little_lame
-
++------------------------+-----------------+------------------------+
+| filename               | command line    | resulting filename     |
++------------------------+-----------------+------------------------+
+| Mary has a Little.Lamb | /cm /s" ." mar* | Mary Has A Little.Lamb |
++------------------------+-----------------+------------------------+
+| john_wAs_a_lItTle_lame | /cuml /s"_"     | JOHN_Was_a_little_lame |
++------------------------+-----------------+------------------------+
 
 
 /V{+|-}
@@ -257,7 +238,6 @@ DEFFILE         file.ptr        ; The default icon representing a file (?)
 DEFFOLDER       folder.ptr      ; The default icon representing a folder (?)
 MULTFILE        multfile.ptr    ; Multiple-file selection icon (?)
 DEFPROGRAM      program.ptr     ; The default icon representing a program
-
 
 
 Along with SysIcons I supplied three sets of system pointers: two of my
