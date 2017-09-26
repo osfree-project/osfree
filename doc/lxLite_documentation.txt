@@ -1,4 +1,4 @@
-lxLite _VERSION_ _BUILD_ User's Guide
+lxLite User's Guide
 
 Contents
 
