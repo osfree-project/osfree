@@ -57,7 +57,7 @@ that everyone understands that there is no warranty for this free
 software. If the software is modified by someone else and passed on, we
 want its recipients to know that what they have is not the original, so 
 that any problems introduced by others will not reflect on the original 
-authors' reputations.
+author's reputations.
 
 
 Finally, any free program is threatened constantly by software
@@ -219,7 +219,7 @@ the Program or works based on it.
 Program), the recipient automatically receives a license from the 
 original licensor to copy, distribute or modify the Program subject to 
 these terms and conditions.  You may not impose any further 
-restrictions on the recipients' exercise of the rights granted herein. 
+restrictions on the recipient's exercise of the rights granted herein.
 You are not responsible for enforcing compliance by third parties to 
 this License. 
 
@@ -330,7 +330,7 @@ the "copyright" line and a pointer to where the full notice is found.
 
 
      
-    Copyright (C) 19yy   
+    Copyright (C) 19yy  <name of author> 
  
     This program is free software; you can redistribute it and/or modify 
     it under the terms of the GNU General Public License as published by 
