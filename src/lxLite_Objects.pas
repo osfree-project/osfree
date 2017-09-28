@@ -180,8 +180,6 @@ begin
               'À' : SetColor($08);
              end;
              Write(S); NL;
-             // we also write all errors to stderr
-             WriteError(S);
             end;
           end;
   else begin 
