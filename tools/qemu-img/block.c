@@ -83,7 +83,7 @@ int bdrv_create(BlockDriver *drv,
     return drv->bdrv_create(filename, size_in_sectors, backing_file, flags);
 }
 
-#ifdef _WIN32
+#ifndef _WIN32
 static void get_tmp_filename(char *filename, int size)
 {
     /* XXX: find a better function */
@@ -240,7 +240,7 @@ void bdrv_close(BlockDriverState *bs)
             bdrv_delete(bs->backing_hd);
         bs->drv->bdrv_close(bs);
         qemu_free(bs->opaque);
-#ifdef _WIN32
+#ifndef _WIN32
         if (bs->is_temporary) {
             unlink(bs->filename);
         }
@@ -651,7 +651,7 @@ BlockDriver bdrv_raw = {
 void bdrv_init(void)
 {
     bdrv_register(&bdrv_raw);
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
     bdrv_register(&bdrv_cow);
 #endif
     bdrv_register(&bdrv_qcow);

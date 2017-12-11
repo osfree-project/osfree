@@ -1,9 +1,0 @@
-#!/bin/sh
-#Usage mkdep <compile-line> <source-file-list>
-srcdir=$1 
-CC=$2 
-
-find ${srcdir} -name \*.cc | { while read f; do
-  dir=`dirname "$f"`
-  ${CC} -MM $f 2>/dev/null | sed -e 's;^\([^	 ]\);'$dir'\/\1;' -e "s;^${srcdir}/\(.*.o\);\1;";
-done; }
