@@ -1,0 +1,12 @@
+diff -urN -x .svn pkg/uclibc/lib/contrib/uclibc/libc/misc/dirent/opendir.c pkg/uclibc-new/lib/contrib/uclibc/libc/misc/dirent/opendir.c
+--- pkg/uclibc/lib/contrib/uclibc/libc/misc/dirent/opendir.c	2012-05-07 11:20:19.081399474 +1200
++++ pkg/uclibc-new/lib/contrib/uclibc/libc/misc/dirent/opendir.c	2011-06-10 16:22:06.000000000 +1200
+@@ -61,7 +61,7 @@
+ 		__set_errno(saved_errno);
+ 		return NULL;
+ 	}
+-	if (!(ptr = malloc(sizeof(*ptr))))
++        if (!(ptr = malloc(sizeof(*ptr))))
+ 		goto nomem_close_and_ret;
+ 
+ 	memset(ptr, '\0', sizeof(DIR));

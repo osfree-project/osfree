@@ -1,0 +1,250 @@
+Index: include/l4rm.h
+===================================================================
+--- include/l4rm.h	(revision 473)
++++ include/l4rm.h	(working copy)
+@@ -633,6 +633,40 @@
+ 
+ /*****************************************************************************/
+ /**
++ * \brief   Reserve area inside another area.
++ * \ingroup api_vm
++ *
++ * \param   size         Area size
++ * \param   flags        Flags:
++ *                       - #L4RM_LOG2_ALIGNED find a
++ *                                            \f$2^{(log_2(size) + 1)}\f$
++ *                                            aligned region
++ *                       - #L4RM_SUPERPAGE_ALIGNED find a
++ *                                            superpage aligned region
++ *                       - #L4RM_LOG2_ALLOC   allocate the whole
++ *                                            \f$2^{(log_2(size) + 1)}\f$
++ *                                            sized region
++ * \param   area         Area id
++ * \retval  addr         Start address
++ * \retval  area         Area id
++ *
++ * \return  0 on success (reserved area at \a addr), error code otherwise:
++ *          - -#L4_ENOTFOUND  no free area of size \a size found
++ *          - -#L4_ENOMEM     out of memory allocating descriptors
++ *          - -#L4_EIPC       error calling region mapper
++ *
++ * Reserve area of size \a size. The reserved area will not be used
++ * in l4rm_attach or l4rm_attach_to_region, dataspace can only be attached
++ * to this area calling l4rm_area_attach or l4rm_area_attach_to region with
++ * the appropriate area id.
++ */
++/*****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_in_area(l4_size_t size, l4_uint32_t flags,
++                  l4_addr_t * addr, l4_uint32_t * area);
++
++/*****************************************************************************/
++/**
+  * \brief   Reserve specified area.
+  * \ingroup api_vm
+  *
+@@ -655,6 +689,28 @@
+ 
+ /*****************************************************************************/
+ /**
++ * \brief   Reserve specified area.
++ * \ingroup api_vm
++ *
++ * \param   addr         Address
++ * \param   size         Area Size
++ * \param   flags        Flags:
++ * \retval  area         Area id
++ *
++ * \return  0 on success (reserved area at \a addr), error code otherwise:
++ *          - -#L4_EUSED   specified are aalready used
++ *          - -#L4_ENOMEM  out of memory allocating descriptors
++ *          - -#L4_EIPC    error calling region mapper
++ *
++ * Reserve area at \a addr.
++ */
++/*****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_region_in_area(l4_addr_t addr, l4_size_t size,
++                                 l4_uint32_t flags, l4_uint32_t * area);
++
++/*****************************************************************************/
++/**
+  * \brief   Release area.
+  * \ingroup api_vm
+  *
+@@ -1068,6 +1124,16 @@
+ l4rm_do_reserve(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
+                 l4_uint32_t * area);
+ 
++/*****************************************************************************/
++/**
++ * \internal
++ * \brief Really mark address area reserved.
++ */
++/*****************************************************************************/
++L4_CV int
++l4rm_do_reserve_in_area(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags,
++                l4_uint32_t * area);
++
+ __END_DECLS;
+ 
+ /*****************************************************************************
+@@ -1227,6 +1293,19 @@
+   return l4rm_do_reserve(addr, size, flags, area);
+ }
+ 
++
++/***************************************************************************** 
++ *** l4rm_area_reserve_in_area
++ *****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_in_area(l4_size_t size, l4_uint32_t flags, l4_addr_t * addr,
++                  l4_uint32_t * area)
++{
++  /* reserve */
++  *addr = L4RM_ADDR_FIND;
++  return l4rm_do_reserve_in_area(addr, size, flags, area);
++}
++
+ /*****************************************************************************
+  *** l4rm_area_reserve_region
+  *****************************************************************************/
+@@ -1239,6 +1318,17 @@
+ }
+ 
+ /*****************************************************************************
++ *** l4rm_area_reserve_region_in_area
++ *****************************************************************************/
++L4_CV L4_INLINE int
++l4rm_area_reserve_region_in_area(l4_addr_t addr, l4_size_t size, l4_uint32_t flags,
++                         l4_uint32_t * area)
++{
++  /* reserve */
++  return l4rm_do_reserve_in_area(&addr, size, flags, area);
++}
++
++/*****************************************************************************
+  *** l4rm_direct_area_reserve
+  *****************************************************************************/
+ L4_CV L4_INLINE int
+Index: lib/src/Makefile
+===================================================================
+--- lib/src/Makefile	(revision 473)
++++ lib/src/Makefile	(working copy)
+@@ -8,7 +8,7 @@
+ SERVERIDL	= l4rm.idl
+ SRC_C		= libl4rm.c config.c alloc.c avl_tree.c avl_tree_alloc.c \
+ 		  region.c region_tree.c region_alloc.c pagefault.c \
+-		  attach.c detach.c reserve.c release.c setup.c \
++		  attach.c detach.c reserve.c reservea.c release.c setup.c \
+ 		  lookup.c userptr.c
+ PRIVATE_INCDIR	= $(SRC_DIR)/../include 
+ #DEBUG		= 1
+Index: lib/src/reservea.c
+===================================================================
+--- lib/src/reservea.c	(revision 0)
++++ lib/src/reservea.c	(working copy)
+@@ -0,0 +1,103 @@
++/* $Id: reserve.c 11 2007-02-26 19:08:41Z l4check $ */
++/*****************************************************************************/
++/**
++ * \file   l4rm/lib/src/reserve.c
++ * \brief  VM area reservation.
++ *
++ * \date   08/22/2000
++ * \author Lars Reuther <reuther@os.inf.tu-dresden.de>
++ */
++/*****************************************************************************/
++
++/* (c) 2003 Technische Universitaet Dresden
++ * This file is part of DROPS, which is distributed under the terms of the
++ * GNU General Public License 2. Please see the COPYING file for details.
++ */
++
++/* L4 includes */
++#include <l4/sys/types.h>
++#include <l4/env/errno.h>
++#include <l4/log/l4log.h>
++#include <l4/util/l4_macros.h>
++
++/* private includes */
++#include <l4/l4rm/l4rm.h>
++#include "__region.h"
++#include "__region_alloc.h"
++#include "__config.h"
++#include "__debug.h"
++
++/*****************************************************************************
++ *** L4RM client API functions
++ *****************************************************************************/
++
++/*****************************************************************************/
++/**
++ * \brief Mark address area reserved.
++ * 
++ * \param  addr          region start address, must be page aligned
++ *                       (L4RM_ADDR_FIND .. find suitable area)
++ * \param  size          region size
++ * \param  flags         flags:
++ *                       - #L4RM_LOG2_ALIGNED
++ *                         reserve a 2^(log2(size) + 1) aligned region
++ *                       - #L4RM_SUPERPAGE_ALIGNED
++ *                         reserve a superpage aligned region
++ *                       - #L4RM_LOG2_ALLOC
++ *                         reserve the whole 2^(log2(size) + 1) sized region
++ * \retval addr          start address used
++ * \retval area          area id 
++ *	
++ * \return 0 on success (reserved area), error code otherwise:
++ *         - -#L4_ENOTFOUND  no suitable address area found
++ *         - -#L4_ENOMEM     out of memory allocation region descriptor
++ *         - -#L4_EUSED      address region already used 
++ *         - -#L4_EINVAL     invalid area
++ *
++ * Mark address area reserved. If addr == L4RM_ADDR_FIND, find a suitable area.
++ */
++/*****************************************************************************/ 
++int
++l4rm_do_reserve_in_area(l4_addr_t * addr, l4_size_t size, l4_uint32_t flags, 
++                l4_uint32_t * area)
++{
++  int ret;
++  l4rm_region_desc_t * r;
++
++  LOGdL(DEBUG_REGION_RESERVE, "addr 0x"l4_addr_fmt", size 0x%lx",
++        *addr, (l4_addr_t)size);
++
++  /* allocate and setup new region descriptor */
++  r = l4rm_region_desc_alloc();
++  if (r == NULL)
++    return -L4_ENOMEM;
++  
++  SET_REGION_FREE(r);
++  
++  /* lock region list */
++  l4rm_lock_region_list_direct(flags);
++
++  /* create new region */
++  ret = l4rm_new_region(r, *addr, size, *area,
++                        flags | L4RM_SET_AREA);
++
++  /* unlock region list */
++  l4rm_unlock_region_list_direct(flags);
++
++  if (ret < 0)
++    {
++      /* insert failed, region probably already used  */
++      l4rm_region_desc_free(r);
++      return ret;
++    }
++
++  *addr = r->start;
++  *area = REGION_AREA(r);
++  
++  LOGdL(DEBUG_REGION_RESERVE, "got area 0x"l4_addr_fmt"-0x"l4_addr_fmt
++        ", area id 0x%05x", r->start, r->end, *area);
++
++  /* done */
++  return 0;
++}
++

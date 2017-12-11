@@ -1,0 +1,122 @@
+/*  IDL interface for the
+ *  filesystem server
+ */
+
+import <os2def.h>
+import <l4/generic_fprov/generic_fprov.idl>
+ 
+interface os2fs : l4fprov::file // inherits file provider interface
+{
+    /* misc functions */
+    int  get_drivemap([out] ULONG *map);    
+
+    /* file CPAPI */
+    [allow_reply_only]
+    APIRET dos_Read([in] HFILE hFile,
+                    [out, size_is(count), ref, prealloc_client,
+                    prealloc_server] char **buf,
+                    [in, out] ULONG *count);
+
+    [allow_reply_only]
+    APIRET dos_Write([in] HFILE handle,
+                     [in, prealloc_server, 
+                     ref, size_is(count)] char *buf,
+                     [in, out] ULONG *count);
+
+    APIRET dos_ResetBuffer([in] HFILE handle);
+
+    APIRET dos_SetFilePtrL([in]  HFILE handle,
+                           [in]  long long ib,
+                           [in]  ULONG method,
+                           [out] unsigned long long *ibActual);
+
+    APIRET dos_Close([in] HFILE handle);
+
+    APIRET dos_QueryHType([in] HFILE handle,
+                          [out] ULONG *pType,
+                          [out] ULONG *pAttr);
+
+    APIRET dos_OpenL([in, string] char *pszFileName,
+                     [out] HFILE *phFile,
+                     [out] ULONG *pulAction,
+                     [in] long long cbFile,
+                     [in] ULONG ulAttribute,
+                     [in] ULONG fsOpenFlags,
+                     [in] ULONG fsOpenMode,
+                     [in, out] EAOP2 *peaop2);
+
+    APIRET dos_DupHandle([in] HFILE hFile,
+                         [in, out] HFILE *phFile2);
+
+    APIRET dos_Delete([in, string] char *pszFileName);
+
+    APIRET dos_ForceDelete([in, string] char *pszFileName);
+
+    APIRET dos_DeleteDir([in, string] char *pszDirName);
+
+    APIRET dos_CreateDir([in, string] char *pszDirName,
+                         [in] EAOP2 *peaop2);
+
+    APIRET dos_FindFirst([in] char *pszFileSpec,
+                         [in, out] HDIR *phDir,
+                         [in] ULONG flAttribute,
+                         [in, out, ref,
+                         prealloc_client,
+                         prealloc_server,
+                         size_is(cbBuf)] char **pFindBuf,
+                         [in, out] ULONG *cbBuf,
+                         [in, out] ULONG *pcFileNames,
+                         [in] ULONG ulInfolevel);
+
+    APIRET dos_FindNext([in] HDIR hDir,
+                        [in, out, ref,
+                        prealloc_client,
+                        prealloc_server,
+                        size_is(cbBuf)] char **pFindBuf,
+                        [in, out] ULONG *cbBuf,
+                        [in, out] ULONG *pcFileNames);
+
+    APIRET dos_FindClose([in] HDIR hDir);
+
+    APIRET dos_QueryFHState([in] HFILE hFile, 
+                            [out] ULONG *pMode);
+
+    APIRET dos_SetFHState([in] HFILE hFile,
+                          [in] ULONG pMode);
+
+    APIRET dos_QueryFileInfo([in] HFILE hFile,
+                             [in] ULONG ulInfoLevel,
+                             [in, out, ref,
+                             prealloc_client,
+                             prealloc_server,
+                             size_is(cbBuf)] char **pBuf,
+                             [in, out] ULONG *cbBuf);
+
+    APIRET dos_QueryPathInfo([in] char *pszPathName,
+                             [in] ULONG ulInfoLevel,
+                             [in, out, ref,
+                             prealloc_client,
+                             prealloc_server,
+                             size_is(cbBuf)] char **pBuf,
+                             [in, out] ULONG *cbBuf);
+
+   APIRET dos_SetFileSizeL([in] HFILE hFile, 
+                           [in] long long cbSize);
+
+   APIRET dos_SetFileInfo([in] HFILE hf,
+                          [in] ULONG ulInfoLevel,
+                          [in, out, ref,
+                          prealloc_client,
+                          prealloc_server,
+                          size_is(cbInfoBuf)] char **pInfoBuf,
+                          [in, out] ULONG *cbInfoBuf);
+
+   APIRET dos_SetPathInfo([in] char *pszPathName,
+                          [in] ULONG ulInfoLevel,
+                          [in, out, ref,
+                          prealloc_client,
+                          prealloc_server,
+                          size_is(cbInfoBuf)] char **pInfoBuf,
+                          [in, out] ULONG *cbInfoBuf,
+                          [in] ULONG flOptions);
+};
