@@ -1,0 +1,67 @@
+#
+# Build
+#
+
+build {
+  core
+  init
+  lib/ixf/ne
+  lib/ixf/lx
+  app/os2app
+  server/os2exec
+}
+
+create_boot_directory
+
+#
+# Generate config
+#
+
+install_config {
+<config>
+	<parent-provides>
+		<service name="LOG"/>
+		<service name="PD"/>
+		<service name="CPU"/>
+		<service name="ROM"/>
+	</parent-provides>
+	<default-route>
+		<any-service> <parent/> <any-child/> </any-service>
+	</default-route>
+	<default caps="100"/>
+	<start name="os2exec">
+		<resource name="RAM" quantum="2M"/>
+		<provides> <service name="os2exec"/> </provides>
+		<config verbose="yes">
+			<config-file value="config.sys"/>
+		</config>
+	</start>
+	<start name="os2app">
+		<resource name="RAM" quantum="1M"/>
+	</start>
+</config>}
+
+#
+# Boot image
+#
+
+exec sh -c "cd bin; cp ../../../../l4env/os3/filesys/os2/config.sys ."
+
+build_boot_image {
+  core
+  ld.lib.so
+  libc.lib.so
+  libm.lib.so
+  stdcxx.lib.so
+  init
+  lx.lib.so
+  ne.lib.so
+  os2exec
+  os2app
+  config.sys
+}
+
+append qemu_args " -nographic "
+
+run_genode_until forever
+# run_genode_until "cpi test completed.*\n" 10
