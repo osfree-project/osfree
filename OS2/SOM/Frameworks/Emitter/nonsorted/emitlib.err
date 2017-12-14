@@ -1,8 +1,0 @@
-emitlib.cpp(2): Error! E059: col(15) unable to open 'sm.h'
-emitlib.cpp(4): Error! E059: col(21) unable to open 'scentry.xh'
-emitlib.cpp(5): Error! E059: col(21) unable to open 'scclass.xh'
-emitlib.cpp(6): Error! E059: col(20) unable to open 'emitlib.h'
-emitlib.cpp(8): Error! E121: col(12) syntax error
-emitlib.cpp(24): Error! E029: col(25) symbol 'FILE' has not been declared
-emitlib.cpp(24): Error! E029: col(31) symbol 'fp' has not been declared
-emitlib.cpp(25): Error! E006: col(1) syntax error; probable cause: missing ';'

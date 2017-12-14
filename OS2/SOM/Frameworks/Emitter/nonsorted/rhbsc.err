@@ -1,7 +1,0 @@
-C:\WATCOM\H\stdio.h(94): Error! E868: col(21) conflict with current using-decl '_vsnprintf'
-C:\WATCOM\H\stdio.h(94): Note! N393: col(21) included from rhbsc.cpp(27)
-C:\WATCOM\H\cstdio(342): Note! N392: col(32) definition: 'int watcall (__declspec(dllimport) _vsnprintf)( char *, unsigned, char const *, char * * )'
-.\rhbsc.h(95): Error! E867: col(52) conflict with a previous using-decl 'snprintf'
-C:\WATCOM\H\stdio.h(91): Note! N392: col(10) definition: 'int watcall (__declspec(dllimport) snprintf)( char *, unsigned, char const *, ... )'
-rhbsc.cpp(328): Error! E867: col(1) conflict with a previous using-decl 'snprintf'
-C:\WATCOM\H\stdio.h(91): Note! N392: col(10) definition: 'int watcall (__declspec(dllimport) snprintf)( char *, unsigned, char const *, ... )'
