@@ -31,6 +31,9 @@
 #include <os3/ixfmgr.h>
 #include <os3/cfgparser.h>
 
+//#include <l4/env/env.h>
+//#include <l4/dm_generic/consts.h>
+
 /* libc includes */
 #include <stdio.h>
 #include <sys/types.h>
@@ -74,7 +77,7 @@ void getline (char **from, char *to);
 int dl_get_funcs (int *numentries, IXFMODULEENTRY **entries);
 int lcase(char* dest, const char* src);
 
-int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc);
+//int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc);
 
 int strnicmp(const char *s, const char *t, int n)
 {
@@ -366,7 +369,7 @@ unsigned long OpenModule(char *          pszName,
   char *p_buf = (char *) &buf;
   struct module_rec *prev;
   IXFModule *ixfModule, *ixfPrev;
-  IXFSYSDEP *ixfSysDep;
+  //IXFSYSDEP *ixfSysDep;
   void *addr;
   size_t size;
   int  rc, t;
@@ -427,13 +430,15 @@ unsigned long OpenModule(char *          pszName,
     // Searches for module name and returns the full path in the buffer p_buf.
     io_log("io_load_file1: rc=%u\n", rc);
 
-    if (!exeflag)
+    if (! exeflag)
       rc = find_module_path(pszModname, p_buf);
     else
       rc = find_path(pszModname, p_buf);
 
     io_log("find_module_path: rc=%u, p_buf=%s\n", rc, p_buf);
-    if (!rc) rc=io_load_file(p_buf, &addr, &size);
+
+    if (! rc)
+      rc = io_load_file(p_buf, &addr, &size);
   }
   else
     io_log("successful\n");
@@ -446,41 +451,39 @@ unsigned long OpenModule(char *          pszName,
     return rc;
   }
 
-  ixfModule = (IXFModule *)malloc(sizeof(IXFModule));
+  rc = IXFAllocModule(&ixfModule);
 
-  if (! ixfModule)
-    return ERROR_NOT_ENOUGH_MEMORY;
+  if (rc)
+    return rc;
 
-  ixfSysDep = (IXFSYSDEP *)malloc(sizeof(IXFSYSDEP));
-
-  if (! ixfSysDep)
-    return ERROR_NOT_ENOUGH_MEMORY;
-
-  ixfModule->hdlSysDep = (unsigned long long)ixfSysDep;
+  //ixfSysDep = (IXFSYSDEP *)ixfModule->hdlSysDep;
 
   if (exeflag)
-    ixfModule->area = 0; //L4RM_DEFAULT_REGION_AREA;
+    ixfModule->area = 0; // L4RM_DEFAULT_REGION_AREA; // 0
   else
-    ixfModule->area = 1; //shared_memory_area;
+    ixfModule->area = shared_memory_area; // 1
 
-  if (!t && exeflag)
+  if (! t && exeflag)
   {
     // 1st instance IXFModule structure
     ixfPrev = (IXFModule *)(prev->module_struct);
-    ixfCopyModule(ixfModule, ixfPrev);
+    rc = IXFCopyModule(ixfModule, ixfPrev);
+
+    if (rc)
+      return rc;
 
     // @todo use handles here
     *phmod=(unsigned long)ixfModule;
     ModRegister(mname, ixfModule, exeflag);
     io_log("copy created\n");
-    return 0/*NO_ERROR*/;
+    return NO_ERROR;
   }
-  else
-  {
+  //else
+  //{
     // initialize section number to zero
-    ixfSysDep->secnum = 0;
-    ixfSysDep->seclist = 0;
-  }
+    //ixfSysDep->secnum = 0;
+    //ixfSysDep->seclist = NULL;
+  //}
 
   rc = IXFIdentifyModule((void *)addr, size, ixfModule);
 
@@ -489,8 +492,7 @@ unsigned long OpenModule(char *          pszName,
     io_log("IXFIdentifyModule: rc=%u\n", rc);
     strcpy(pszName, pszModname);
     *phmod=0;
-    free((void *)ixfModule->hdlSysDep);
-    free(ixfModule);
+    rc = IXFFreeModule(ixfModule);
     return rc;
   }
 
@@ -538,12 +540,12 @@ unsigned long LoadModule(char *          pszName,
 
   io_log("%s\n", mname);
 
-  if (!t)
+  if (! t)
   {
-    if (!*phmod)
+    if (! *phmod)
       return 6; /* ERROR_INVALID_HANDLE */
-  
-    if (!exeflag)
+
+    if (! exeflag)
     {
       io_log("already loaded, dll\n");
       *phmod = (unsigned long)prev->module_struct;
@@ -772,7 +774,7 @@ unsigned long ModQueryModuleName(unsigned long hmod, unsigned long cbName, char 
 
 /* @brief Initializes the root node in the linked list, which itself
    is not used. Only to make sure the list at least always has one
-   element allocated. Registers fake DL.DLL which contains host
+   element allocated. Registers fake KAL.DLL which contains host
    specific functions. */
 unsigned long ModInitialize(void)
 {
@@ -821,7 +823,7 @@ unsigned long ModInitialize(void)
   ixf->PIC=0;
 
   /* add execsrv sections from l4env infopage
-     as DL.DLL sections list */
+     as KAL.DLL sections list */
   sysdep = (IXFSYSDEP *)malloc(sizeof(IXFSYSDEP));
   memset(sysdep, 0, sizeof(IXFSYSDEP));
   ixf->hdlSysDep  = (unsigned long long)sysdep;
@@ -947,7 +949,7 @@ unsigned long ModInitialize(void)
   return NO_ERROR;
 }
 
-/* Register a module with the name. 
+/* Register a module with the name.
  * If module with a given name doesn't exist,
  * add it to the end of list (through ->next field)
  * otherwise, if it exists and is an EXE module,

@@ -34,6 +34,7 @@ int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
        s0; i++, r = s, s0 = s0->next)
   {
     s = (slist_t *)malloc(sizeof(slist_t));
+
     if (i == 0) // 1st loop iteration
       sysdepDst->seclist = s;
     else

@@ -17,10 +17,10 @@
 struct kal_init_struct
 {
   unsigned long stack;
-  l4_addr_t shared_memory_base;
-  l4_size_t shared_memory_size;
-  l4_uint32_t shared_memory_area;
-  l4_uint32_t service_lthread;
+  void *shared_memory_base;
+  unsigned long shared_memory_size;
+  unsigned long shared_memory_area;
+  unsigned long service_lthread;
   void *l4rm_detach;
   void *l4rm_do_attach;
   void *l4rm_lookup;
@@ -75,23 +75,23 @@ struct desc
 
 typedef struct vmdata
 {
-  char name[256];          // name for named shared mem
-  char          is_shared; // is shared
-  l4_threadid_t owner;     // shared memory owner thread
-  l4_uint32_t   refcnt;    // reference count for shared mem
-  l4_uint32_t   rights;    // OS/2-style access flags
-  l4_uint32_t   area;      // area id
-  l4_addr_t     addr;      // area address
-  l4_size_t     size;      // area size
-  struct vmdata *next;     // link to the next record
-  struct vmdata *prev;     // link to the previous record
+  char             name[256]; // name for named shared mem
+  char             is_shared; // is shared
+  l4_os3_cap_idx_t owner;     // shared memory owner thread
+  unsigned long    refcnt;    // reference count for shared mem
+  unsigned long    rights;    // OS/2-style access flags
+  unsigned long    area;      // area id
+  void             *addr;     // area address
+  unsigned long    size;      // area size
+  struct vmdata    *next;     // link to the next record
+  struct vmdata    *prev;     // link to the previous record
 } vmdata_t;
 
 int
 trampoline(struct param *param);
 
 void __fiasco_gdt_set(void *desc, unsigned int size,
-                      unsigned int entry_number_start, l4os3_cap_idx_t tid);
+                      unsigned int entry_number_start, l4_os3_cap_idx_t tid);
 unsigned __fiasco_gdt_get_entry_offset(void);
 
 int strlstlen(char *p);
@@ -100,8 +100,8 @@ unsigned char disknum_to_char(int i_dsk);
 int isRelativePath(char *path);
 unsigned char parse_drv(char *path);
 char *parse_path(char *path, char *ret_buffer, int buf_len);
-int attach_module (ULONG hmod, l4_uint32_t area);
-int attach_all (ULONG hmod, l4_uint32_t area);
+long attach_module (ULONG hmod, unsigned long area);
+long attach_all (ULONG hmod, unsigned long area);
 APIRET CDECL KalMapInfoBlocks(PTIB *pptib, PPIB *pppib);
 
 
@@ -393,6 +393,8 @@ KalGetTID(TID *ptid);
 APIRET CDECL
 KalGetPID(PID *ppid);
 
+#ifdef L4API_l4v2
+
 APIRET CDECL
 KalGetL4ID(PID pid, TID tid, l4_threadid_t *id);
 
@@ -401,6 +403,8 @@ KalGetTIDL4(l4_threadid_t id, TID *ptid);
 
 APIRET CDECL
 KalNewTIB(PID pid, TID tid, l4thread_t id);
+
+#endif
 
 APIRET CDECL
 KalDestroyTIB(PID pid, TID tid);

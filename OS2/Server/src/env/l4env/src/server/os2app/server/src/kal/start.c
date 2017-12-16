@@ -31,11 +31,11 @@
 #include <stdio.h> // sprintf
 
 /* fs server thread id   */
-extern l4os3_cap_idx_t fs;
+extern l4_os3_cap_idx_t fs;
 /* OS/2 server thread id */
-extern l4os3_cap_idx_t os2srv;
+extern l4_os3_cap_idx_t os2srv;
 /* exec server thread id */
-extern l4os3_cap_idx_t execsrv;
+extern l4_os3_cap_idx_t execsrv;
 
 extern unsigned long __stack;
 /* application info blocks */
@@ -66,7 +66,7 @@ trampoline(struct param *param)
   unsigned long     base;
   struct desc       desc;
 
-  l4os3_cap_idx_t task;
+  l4_os3_cap_idx_t task;
 
   task = l4_myself();
 
@@ -170,7 +170,10 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   rc = KalQueryCurrentDisk(&curdisk, &map);
 
   if (rc)
+  {
     io_log("Cannot get the current disk!\n");
+    return rc;
+  }
 
   param.curdisk = curdisk;
 

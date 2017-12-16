@@ -40,13 +40,13 @@ void setdrivemap(ULONG *map)
     drive = fsrv->drive;
     drv = tolower(*(drive));
     diskno = drv - 'a';
-    *map |= (1 << diskno);    
+    *map |= (1 << diskno);
   }
 
   io_log("map=%lu", *map);
 }
  
-int DICE_CV
+long DICE_CV
 os2fs_get_drivemap_component (CORBA_Object _dice_corba_obj,
                               ULONG *map /* out */,
                               CORBA_Server_Environment *_dice_corba_env)

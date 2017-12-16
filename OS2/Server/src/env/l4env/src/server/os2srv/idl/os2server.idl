@@ -91,7 +91,7 @@ interface os2server
 
     APIRET dos_QueryCurrentDir ([in] ULONG disknum,
                                 [in] ULONG logical,
-                                [out, ref,
+                                [in, out, ref,
 				prealloc_client,
                                 prealloc_server,
 				size_is(pcbBuf)] char **pBuf,

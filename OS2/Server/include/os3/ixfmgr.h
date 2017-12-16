@@ -128,6 +128,9 @@ typedef
 unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixfModule);
 unsigned long IXFLoadModule(void * addr, unsigned long size, IXFModule * ixfModule);
 unsigned long IXFFixupModule(IXFModule * ixfModule);
+unsigned long IXFAllocModule(IXFModule **ixf);
+unsigned long IXFFreeModule(IXFModule *ixf);
+unsigned long IXFCopyModule(IXFModule *dst, IXFModule *src);
 
 #ifdef __cplusplus
   }

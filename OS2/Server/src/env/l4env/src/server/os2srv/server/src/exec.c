@@ -39,10 +39,10 @@
 #include <stdlib.h>
 
 // servers thread ids
-extern l4os3_cap_idx_t os2srv;
-extern l4os3_cap_idx_t loader_id;
-extern l4os3_cap_idx_t fprov_id;
-extern l4os3_cap_idx_t dsm_id;
+extern l4_os3_cap_idx_t os2srv;
+extern l4_os3_cap_idx_t loader_id;
+extern l4_os3_cap_idx_t fprov_id;
+extern l4_os3_cap_idx_t dsm_id;
 
 int l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid);
 int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc);
@@ -61,7 +61,7 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   l4_taskid_t task_ids[MAX_TASK_ID];
   char error_msg[1024];
   char *ptr = error_msg;
-  l4os3_ds_t ds = L4DM_INVALID_DATASPACE;
+  l4_os3_dataspace_t ds = NULL; L4DM_INVALID_DATASPACE;
   char str[64] = "";
   l4_addr_t addr;
   int error;
@@ -82,7 +82,8 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   /* RPC call to DM_PHYS (create a dataspace) */
   //if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
   //                            name, &ds, &env))
-  if (l4os3_ds_allocate(&ds, 0, 1024))
+  //if (l4os3_ds_allocate(&ds, 0, 1024))
+  if (DataspaceAlloc(&ds, 0, 1024))
     {
       io_log("Can't allocate a dataspace!\n");
       while (1) { l4_sleep(0.1); }
@@ -90,7 +91,7 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   io_log("dataspace created\n");
 
   /* attach the dataspace to our own address space */
-  attach_ds(&ds, L4DM_RW, &addr);
+  attach_ds((l4_os3_dataspace_t)ds, L4DM_RW, &addr);
   io_log("dataspace attached\n");
 
   if (vc)
@@ -110,11 +111,11 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   l4rm_detach((void *)addr);
 
   /* share dataspace to loader */
-  l4dm_transfer(&ds,              // dataspace
+  l4dm_transfer(ds,              // dataspace
                 loader_id);       // taskid
 
   /* RPC to L4 loader to start OS/2 app L4 startup */
-  if ((error = l4loader_app_open_call(&loader_id, &ds, cmd_buf,
+  if ((error = l4loader_app_open_call(&loader_id, ds, cmd_buf,
                                       &fprov_id, 0, task_ids,
                                       &ptr, &env)) < 0)
   {
@@ -142,7 +143,7 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
 
 int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc)
 {
-    l4os3_cap_idx_t    taskid;
+    l4_os3_cap_idx_t    taskid;
     char str[16];
     int rc;
 

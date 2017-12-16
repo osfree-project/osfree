@@ -1,6 +1,6 @@
 /*  OS personality app l4env wrapper
  *  (c) osFree project, 2011
- *  
+ *
  *  This file is distributed under GNU general 
  *  public license, version 2, see http://www.gnu.org
  *  for details.
@@ -63,20 +63,20 @@ char use_events = 0;
 unsigned long __stack;
 
 /* OS/2 server id        */
-l4os3_cap_idx_t os2srv;
+l4_os3_cap_idx_t os2srv;
 /* FS server id        */
-l4os3_cap_idx_t fs;
+l4_os3_cap_idx_t fs;
 /* exec server id        */
-l4os3_cap_idx_t execsrv;
+l4_os3_cap_idx_t execsrv;
 /* dataspace manager id  */
-l4os3_cap_idx_t dsm;
+l4_os3_cap_idx_t dsm;
 /* l4env infopage        */
 l4env_infopage_t infopg;
 extern l4env_infopage_t *l4env_infopage;
 /* file provider name    */
 char fprov[20] = "fprov_proxy_fs";
 /* file provider id      */
-l4os3_cap_idx_t fprov_id;
+l4_os3_cap_idx_t fprov_id;
 
 l4_uint32_t service_lthread;
 

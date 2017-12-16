@@ -29,7 +29,9 @@
 #include <l4/sys/types.h>
 
 /* libc includes*/
+#include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
 
 /* servers RPC includes */
 #include <l4/os2srv/os2server-client.h>
@@ -64,13 +66,13 @@ typedef struct _SEM
 } SEM, *PSEM;
 
 /* FS server cap        */
-extern l4os3_cap_idx_t fs;
+extern l4_os3_cap_idx_t fs;
 /* OS/2 server cap      */
-extern l4os3_cap_idx_t os2srv;
+extern l4_os3_cap_idx_t os2srv;
 /* Exec server cap      */
-extern l4os3_cap_idx_t execsrv;
+extern l4_os3_cap_idx_t execsrv;
 
-/* shared memory arena settings */
+/* private memory arena settings */
 extern l4_addr_t     private_memory_base;
 extern l4_size_t     private_memory_size;
 extern l4_uint32_t   private_memory_area;
@@ -99,6 +101,9 @@ extern PPIB ppib;
 vmdata_t *areas_list = NULL;
 
 struct start_data;
+
+vmdata_t *get_area(void *addr);
+vmdata_t *get_mem_by_name(char *pszName);
 
 void exit_func(l4thread_t tid, void *data);
 static void thread_func(void *data);
@@ -163,17 +168,28 @@ KalOpenL (PSZ pszFileName,
   char *path = "";
 
   int BUFLEN = 99;
-  char *filbuf = calloc(1,BUFLEN + 1);
+  char *filbuf = (char *)calloc(1, BUFLEN + 1);
 
   ULONG dsknum=0, plog=0, dirbuf_len=100, dirbuf_len2=100, dirbuf_len_out=100;
   PBYTE dir_buf=calloc(1,dirbuf_len), 
          dir_buf2=calloc(1,dirbuf_len2), dir_buf_out=calloc(1,dirbuf_len_out);
   BYTE /*drive=0,*/ drive2=0;
 
-  KalQueryCurrentDisk(&dsknum, &plog); /*For c:\os2 it becomes 3 (drive letter)*/
+  rc = KalQueryCurrentDisk(&dsknum, &plog); /*For c:\os2 it becomes 3 (drive letter)*/
                      /*  3     "os2" */
-  KalQueryCurrentDir(dsknum, (PBYTE)dir_buf, &dirbuf_len);
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
 
+  rc = KalQueryCurrentDir(dsknum, (PBYTE)dir_buf, &dirbuf_len);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
 
   /*char *pszFileName = fil12; */
 
@@ -189,7 +205,14 @@ KalOpenL (PSZ pszFileName,
   }
 
   /* Working directory is put into dir_buf2. */
-  KalQueryCurrentDir(drv, (PBYTE)dir_buf2, &dirbuf_len2);
+  rc = KalQueryCurrentDir(drv, (PBYTE)dir_buf2, &dirbuf_len2);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
+
   char s[10] = "";  /*Create device letter with colon. */
   s[0] = disknum_to_char(drv);
   s[1] = 0;
@@ -336,7 +359,9 @@ APIRET CDECL
 KalLogWrite (PSZ s)
 {
   KalEnter();
+  io_log("qqq\n");
   io_log("%s\n", s);
+  io_log("rrr\n");
   KalQuit();
   return 0; /* NO_ERROR */
 }
@@ -389,6 +414,14 @@ KalQueryCurrentDisk(PULONG pdisknum,
   int rc;
   KalEnter();
   rc = os2fs_get_drivemap_call(&fs, plogical, &env);
+  io_log("KalQueryCurrentDisk: get_drivemap rc=%lu\n", rc);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
+
   rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, &env);
   KalQuit();
   return rc;
@@ -413,6 +446,14 @@ KalSetDefaultDisk(ULONG disknum)
   ULONG map;
   KalEnter();
   rc = os2fs_get_drivemap_call(&fs, &map, &env);
+  io_log("KalSetDefaultDisk: get_drivemap rc=%lu\n", rc);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
+
   rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, map, &env);
   KalQuit();
   return rc;
@@ -424,16 +465,43 @@ KalQueryCurrentDir(ULONG disknum,
                        PULONG pcbBuf)
 {
   CORBA_Environment env = dice_default_environment;
-  int rc;
+  long rc = 0;
   ULONG map;
-  char buf[0x100];
   KalEnter();
+
+  if (! pcbBuf || ! pBuf)
+  {
+    io_log("***bad***\n");
+    KalQuit();
+    return ERROR_INVALID_PARAMETER;
+  }
+
   rc = os2fs_get_drivemap_call(&fs, &map, &env);
+  io_log("KalQueryCurrentDir: get_drivemap rc=%lu\n", rc);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
+
   rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, map, &pBuf, pcbBuf, &env);
-  strncpy(buf, pBuf, *pcbBuf);
-  buf[*pcbBuf] = '\0';
+  io_log("dos_QueryCurrentDir rc=%lu\n", rc);
+
+  if (rc)
+  {
+    KalQuit();
+    return rc;
+  }
+
+  io_log("KalQUeryCurrentDir: pcbBuf=%p\n", pcbBuf);
+
+  if (pcbBuf)
+    io_log("KalQueryCurrentDir: *pcbBuf=%p\n", *pcbBuf);
+
+  pBuf[*pcbBuf - 1] = '\0';
   KalQuit();
-  return rc;
+  return NO_ERROR;
 }
 
 
@@ -477,13 +545,14 @@ KalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf)
   return rc;
 }
 
+#if 0
+
 /** attach dataspace to our address space. (any free address) */
-int
-attach_ds(l4os3_ds_t *ds, l4_uint32_t flags, l4_addr_t *addr)
+long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
 {
   int error;
   l4_size_t size;
- 
+
   if ((error = l4dm_mem_size(ds, &size)))
     {
       io_log("Error %d (%s) getting size of dataspace\n",
@@ -501,8 +570,7 @@ attach_ds(l4os3_ds_t *ds, l4_uint32_t flags, l4_addr_t *addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-int
-attach_ds_reg(l4os3_ds_t ds, l4_uint32_t flags, l4_addr_t addr)
+long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
@@ -528,8 +596,7 @@ attach_ds_reg(l4os3_ds_t ds, l4_uint32_t flags, l4_addr_t addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-int
-attach_ds_area(l4os3_ds_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t addr)
+long attach_ds_area(l4dm_dataspace_t ds, unsigned long area, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
@@ -555,26 +622,27 @@ attach_ds_area(l4os3_ds_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t add
   return 0;
 }
 
+#endif
+
 /*  Attaches all sections
  *  for a given module
  */
-int
-attach_module (ULONG hmod, l4_uint32_t area)
+long attach_module (ULONG hmod, unsigned long area)
 {
   CORBA_Environment env = dice_default_environment;
   l4exec_section_t sect;
-  l4os3_ds_t ds, area_ds;
+  l4dm_dataspace_t ds, area_ds;
   l4_uint32_t flags;
   l4_addr_t   addr, map_addr;
   l4_size_t   map_size;
   l4_offs_t   offset;
-  l4os3_cap_idx_t pager;
+  l4_os3_cap_idx_t pager;
   unsigned type;
-  int index;
+  unsigned long index;
   ULONG rc;
 
   index = 0; rc = 0;
-  while (!os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
+  while (! os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
   {
     ds    = sect.ds; 
     addr  = sect.addr;
@@ -614,19 +682,18 @@ attach_module (ULONG hmod, l4_uint32_t area)
 /*  Attaches recursively a module and
  *  all its dependencies
  */
-int
-attach_all (ULONG hmod, l4_uint32_t area)
+long attach_all (ULONG hmod, unsigned long area)
 {
   CORBA_Environment env = dice_default_environment;
   ULONG imp_hmod, rc = 0;
-  int index = 0;
+  unsigned long index = 0;
 
   rc = attach_module(hmod, area);
 
   if (rc)
     return rc;
 
-  while (!os2exec_getimp_call (&execsrv, hmod, &index, &imp_hmod, &env) && !rc)
+  while (! os2exec_getimp_call (&execsrv, hmod, &index, &imp_hmod, &env) && !rc)
   {
     if (!imp_hmod) // KAL fake module: no need to attach sections
       continue;
@@ -744,8 +811,8 @@ KalExecPgm(char *pObjname,
   ULONG disk, map;
   char buf[260];
   char str[260];
-  char str2[260];
-  char *p;
+  //char str2[260];
+  //char *p;
   char drv;
   int i, j, l, len;
 
@@ -759,6 +826,13 @@ KalExecPgm(char *pObjname,
   {
     /* query current disk */
     rc = KalQueryCurrentDisk(&disk, &map);
+
+    if (rc)
+    {
+      KalQuit();
+      return rc;
+    }
+
     drv = disk - 1 + 'A';
 
     len = 0; buf[0] = '\0';
@@ -766,7 +840,20 @@ KalExecPgm(char *pObjname,
     {
       /* query current dir  */
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
+
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
     }
 
     if (len + strlen(pName) + 3 > 256)
@@ -831,7 +918,7 @@ KalError(ULONG error)
   return rc;
 }
 
-vmdata_t *get_area(l4_addr_t addr)
+vmdata_t *get_area(void *addr)
 {
   vmdata_t *ptr;
 
@@ -865,7 +952,7 @@ KalAllocMem(PVOID *ppb,
   l4_uint32_t rights = 0;
   l4_uint32_t area;
   l4dm_dataspace_t ds;
-  l4_addr_t addr;
+  void *addr;
   vmdata_t  *ptr;
   int rc;
 
@@ -880,7 +967,7 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = l4rm_area_reserve(cb, 0, &addr, &area);
+  rc = l4rm_area_reserve(cb, 0, (l4_addr_t *)&addr, &area);
 
   if (rc < 0)
   {
@@ -947,8 +1034,8 @@ KalFreeMem(PVOID pb)
   l4_offs_t offset;
   l4_uint32_t refcnt = 0;
   l4_threadid_t owner;
-  l4os3_cap_idx_t pager;
-  l4os3_ds_t ds;
+  l4_os3_cap_idx_t pager;
+  l4dm_dataspace_t ds;
   int rc, ret;
 
   KalEnter();
@@ -1048,7 +1135,7 @@ int commit_pages(PVOID pb,
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
-  l4os3_cap_idx_t pager;
+  l4_os3_cap_idx_t pager;
   l4dm_dataspace_t ds;
   vmdata_t *ptr;
   int rc;
@@ -1107,7 +1194,7 @@ int decommit_pages(PVOID pb,
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
-  l4os3_cap_idx_t pager;
+  l4_os3_cap_idx_t pager;
   l4dm_dataspace_t ds, ds1, ds2;
   vmdata_t *ptr;
   int rc;
@@ -1269,8 +1356,8 @@ KalQueryMem(PVOID  pb,
   l4_addr_t addr;
   l4_size_t size = 0;
   l4_offs_t offset;
-  l4os3_cap_idx_t pager;
-  l4os3_ds_t ds;
+  l4_os3_cap_idx_t pager;
+  l4dm_dataspace_t ds;
   int rc = 0, ret;
   void *base;
   ULONG totsize = 0;
@@ -1312,7 +1399,7 @@ KalQueryMem(PVOID  pb,
     base = (void *)addr + size;
   } while (base < pb + *pcb);
 
-  if ((l4_addr_t)pb - ptr->addr <= L4_PAGESIZE)
+  if (pb - ptr->addr <= L4_PAGESIZE)
     rights |= PAG_BASE;
 
   *pcb = totsize;
@@ -1914,7 +2001,20 @@ KalFindFirst(char  *pszFileSpec,
     {
       /* query current dir  */
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
+
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
     }
 
     if (len + strlen(pszFileSpec) + 3 > 256)
@@ -2054,7 +2154,20 @@ KalQueryPathInfo(PSZ pszPathName,
     {
       /* query current dir  */
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
+
       rc = KalQueryCurrentDir(0, buf, (PULONG)&len);
+
+      if (rc)
+      {
+        KalQuit();
+        return rc;
+      }
     }
 
     if (len + strlen(pszPathName) + 3 > 256)
@@ -2666,6 +2779,9 @@ KalGetInfoBlocks(PTIB *pptib, PPIB *pppib)
   KalQuit();
   return NO_ERROR;
 }
+
+#if 0
+
 APIRET DICE_CV
 os2fs_dos_Read_component(CORBA_Object _dice_corba_obj,
                              HFILE hFile, char **pBuffer,
@@ -2724,3 +2840,5 @@ os2fs_dos_Write_component(CORBA_Object _dice_corba_obj,
   //io_log("exited\n");
   return 0/*NO_ERROR*/;
 }
+
+#endif

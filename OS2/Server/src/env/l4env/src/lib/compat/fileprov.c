@@ -1,3 +1,6 @@
+/* file provider interface */
+
+/* osFree internal */
 #include <os3/io.h>
 #include <dirent.h>
 #include <os3/MountReg.h>
@@ -38,7 +41,7 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
     return 2;
   }
 
-  if (!filename || !*filename)
+  if (! filename || ! *filename)
     return 2;
 
   /* get a file from a file provider */

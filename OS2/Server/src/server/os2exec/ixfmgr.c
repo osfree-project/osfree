@@ -14,6 +14,11 @@
 #include <os3/cfgparser.h>
 #include <os3/ixfmgr.h>
 
+/* libc includes */
+#include <stdlib.h>
+
+unsigned long ixfCopyModule(IXFModule *dst, IXFModule *src);
+
 extern cfg_opts options;
 
 IXFHandler *IXFHandlers;
@@ -68,6 +73,47 @@ unsigned long IXFFixupModule(IXFModule *ixfModule)
   rc = ixfModule->Fixup(ixfModule->FormatStruct);
 
   return rc;
+}
+
+unsigned long IXFAllocModule(IXFModule **ixf)
+{
+    IXFSYSDEP *sysdep;
+
+    if (! ixf)
+        return ERROR_INVALID_PARAMETER;
+
+    *ixf = (IXFModule *)malloc(sizeof(IXFModule));
+
+    if (! *ixf)
+        return ERROR_NOT_ENOUGH_MEMORY;
+
+    sysdep = (IXFSYSDEP *)malloc(sizeof(IXFSYSDEP));
+
+    if (! sysdep)
+        return ERROR_NOT_ENOUGH_MEMORY;
+
+    sysdep->secnum  = 0;
+    sysdep->seclist = NULL;
+
+    (*ixf)->hdlSysDep = (unsigned long long)sysdep;
+
+    return NO_ERROR;
+}
+
+unsigned long IXFFreeModule(IXFModule *ixf)
+{
+    if (! ixf || ! ixf->hdlSysDep)
+        return ERROR_INVALID_PARAMETER;
+
+    free((void *)ixf->hdlSysDep);
+    free(ixf);
+
+    return NO_ERROR;
+}
+
+unsigned long IXFCopyModule(IXFModule *dst, IXFModule *src)
+{
+    return ixfCopyModule(dst, src);
 }
 
 slist_t *

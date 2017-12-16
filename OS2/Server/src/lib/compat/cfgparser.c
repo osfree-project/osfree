@@ -34,7 +34,7 @@ char *strupr(char *s);
 // Maximal line length
 #define MAXLENGTH 1512
 
-// This statament ignored in comparation with original config.sys
+// This statement is ignored in comparison with original config.sys
 //char *skiplist[] = { "DEVICE", "BASEDEV", "IFS", "REM " };
 const char *skiplist[] = { "REM " };
 
@@ -885,8 +885,10 @@ unsigned long CfgGetenv(char *name, char **value)
     /* find '=' in string */
 
     for(j = 0, p = type[3].sp[i].string; *p && *p != '='; j++, p++)
+    {
       if (*p != toupper(name[j]))
         break;
+    }
 
     /* if we met '=' sign, i.e. name found */
 

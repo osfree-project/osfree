@@ -1,10 +1,15 @@
+/* logging interface */
+
+/* osFree internal */
 #include <os3/io.h>
 
+/* libc includes */
 #include <stdarg.h>
 #include <stdio.h>
 
 #if defined(L4API_l4v2)
 
+/* l4env includes */
 #include <l4/log/l4log.h>
 
 void io_log(const char* chrFormat, ...)
@@ -20,6 +25,7 @@ void io_log(const char* chrFormat, ...)
 
 #elif defined(L4API_l4f)
 
+/* l4re includes */
 #include <l4/log/log.h>
 
 void io_log(const char* chrFormat, ...)

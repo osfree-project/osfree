@@ -1,8 +1,10 @@
-/* Genode includes */
-#include <base/printf.h>
+/* logging interface */
 
 /* osFree internal */
 #include <os3/io.h>
+
+/* Genode includes */
+#include <base/printf.h>
 
 /* libc includes */
 #include <stdarg.h>

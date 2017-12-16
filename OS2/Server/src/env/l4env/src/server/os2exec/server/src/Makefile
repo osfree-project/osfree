@@ -7,7 +7,8 @@ TARGET		= execsrv
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2
 SRC_C		= main.c startup.c \
-		  modmgr.c ixfmgr.c ixfutil.c
+		  modmgr.c ixfmgr.c ixfutil.c api-local.c \
+		  api/api.c
 CFLAGS          = -I$(PKGDIR)/include
 NO_DEFAULT_RELOC= 1
 LDFLAGS		= --no-undefined \
@@ -20,7 +21,8 @@ LIBS		= -Bdynamic -lmemmgr.s -ldl.s -Bstatic \
                   -ldm_phys -ll4env_err -ll4rm -lloaderif -levents
 DEFAULT_RELOC   = 0xba000000
 SERVERIDL	= os2exec.idl
-CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include
+CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include \
+		   -I$(OS3_DIR)/src/server/os2exec/api
 
 vpath %.c $(OS3_DIR)/src/server/os2exec
 vpath %.c $(REP_DIR)/src/server/shared/startup

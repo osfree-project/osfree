@@ -35,9 +35,9 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 		return call<Rpc_load>(hmod, szLoadError, cbLoadError, s);
 	}
 
-	long share(unsigned long hmod)
+	long share(unsigned long hmod, Genode::Capability<void> *client_id)
 	{
-		return call<Rpc_share>(hmod);
+		return call<Rpc_share>(hmod, client_id);
 	}
 
 	long getimp(unsigned long hmod,

@@ -7,6 +7,7 @@
 
 /* osFree internal */
 #include <os3/loader.h>
+#include <os3/dataspace.h>
 
 #define OPENFLAG_EXEC 1
 
@@ -21,7 +22,8 @@ long ExcLoad(unsigned long *hmod,
              unsigned long cbLoadError,
              os2exec_module_t *s);
 
-long ExcShare(unsigned long hmod);
+long ExcShare(unsigned long hmod,
+              void *client_id);
 
 long ExcGetImp(unsigned long hmod,
                unsigned long *index,
@@ -36,12 +38,45 @@ long ExcQueryProcAddr(unsigned long hmod,
                       const char *pszName,
                       void **addr);
 
-long ExcQueryModHandle(const char *pszModname,
-                       unsigned long *hmod);
+long ExcQueryModuleHandle(const char *pszModname,
+                          unsigned long *hmod);
 
-long ExcQueryModName(unsigned long hmod,
-                     unsigned long cbBuf,
-                     char *pszBuf);
+long ExcQueryModuleName(unsigned long hmod,
+                        unsigned long cbBuf,
+                        char *pszBuf);
+
+long ExcAllocSharedMem(unsigned long size,
+                       const char    *name,
+                       unsigned long rights,
+                       void          **addr,
+                       unsigned long *area);
+
+long ExcMapDataspace(void               *addr,
+                     unsigned long      rights,
+                     l4_os3_dataspace_t ds);
+
+long ExcUnmapDataspace(void               *addr,
+                       l4_os3_dataspace_t ds);
+
+long ExcGetDataspace(void               **addr,
+                     unsigned long      *size,
+                     l4_os3_dataspace_t *ds,
+                     void               *client_id);
+
+long ExcGetSharedMem(void *pb,
+                     void **addr,
+                     unsigned long *size,
+                     l4_os3_cap_idx_t *owner);
+
+long ExcGetNamedSharedMem(const char       *name,
+                          void             **addr,
+                          unsigned long    *size,
+                          l4_os3_cap_idx_t *owner);
+
+long ExcIncrementSharedMemRefcnt(void *addr);
+
+long ExcReleaseSharedMem(void          *addr,
+                         unsigned long *count);
 
 #ifdef __cplusplus
   }

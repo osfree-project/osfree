@@ -63,12 +63,12 @@ char fprov[20] = "BMODFS";
 // use events server
 char use_events = 0;
 
-l4os3_cap_idx_t fs;
-l4os3_cap_idx_t os2srv;
-l4os3_cap_idx_t fprov_id;
-l4os3_cap_idx_t sysinit_id;
-l4os3_cap_idx_t dsm_id;
-l4os3_cap_idx_t loader_id;
+l4_os3_cap_idx_t fs;
+l4_os3_cap_idx_t os2srv;
+l4_os3_cap_idx_t fprov_id;
+l4_os3_cap_idx_t sysinit_id;
+l4_os3_cap_idx_t dsm_id;
+l4_os3_cap_idx_t loader_id;
 
 extern cfg_opts options;
 

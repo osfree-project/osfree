@@ -15,34 +15,34 @@
 #include <l4/dm_generic/types.h>
 #include <l4/dm_mem/dm_mem.h>
 
-typedef l4dm_dataspace_t l4os3_ds_t;
-
-long
-l4os3_ds_allocate(l4os3_ds_t *ds, l4_addr_t offset, l4_size_t size);
-
-long
-l4os3_ds_size(l4os3_ds_t ds);
+typedef l4dm_dataspace_t *l4_os3_dataspace_t;
 
 #elif defined(L4API_l4f)
 
 /* l4re includes */
 #include <l4/re/c/dataspace.h>
 
-typedef l4re_ds_t l4os3_ds_t;
+typedef l4re_ds_t *l4_os3_dataspace_t;
 
-long
-l4os3_ds_allocate(l4os3_ds_t ds, l4_addr_t offset, l4_size_t size);
+#elif 1 // Genode
 
-long
-l4os3_ds_size(l4os3_ds_t ds);
+typedef void *l4_os3_dataspace_t;
 
 #else
 #error "Not implemented!"
 #endif
 
-int attach_ds(l4os3_ds_t *ds, l4_uint32_t flags, l4_addr_t *addr);
-int attach_ds_reg(l4dm_dataspace_t ds, l4_uint32_t flags, l4_addr_t addr);
-int attach_ds_area(l4dm_dataspace_t ds, l4_uint32_t area, l4_uint32_t flags, l4_addr_t addr);
+long DataspaceAlloc(l4_os3_dataspace_t *ds, void *offset, unsigned long size);
+long DataspaceFree(l4_os3_dataspace_t ds);
+long DataspaceGetSize(l4_os3_dataspace_t ds);
+long DataspaceShare(l4_os3_dataspace_t ds, void *client_id, unsigned long rights);
+
+long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr);
+
+#ifdef L4API_l4v2
+long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr);
+long attach_ds_area(l4dm_dataspace_t ds, unsigned long area, unsigned long flags, void *addr);
+#endif
 
 #ifdef __cplusplus
   }

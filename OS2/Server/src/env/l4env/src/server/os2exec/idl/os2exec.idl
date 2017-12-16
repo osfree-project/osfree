@@ -42,14 +42,14 @@ interface os2exec
    *  for a given module
    */
   long getimp ([in]  unsigned long hmod,
-               [in,  out] int *index,
+               [in,  out] unsigned long *index,
                [out] unsigned long *imp_hmod);
 
   /*  get next section for a given
    *  module
    */
   long getsect ([in]  unsigned long hmod,
-                [in,  out] int *index,
+                [in,  out] unsigned long *index,
                 [out] l4exec_section_t *sect);
 
   /*  query module entry point address

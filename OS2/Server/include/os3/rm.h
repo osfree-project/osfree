@@ -22,25 +22,50 @@ enum l4re_rm_flags_t {
   L4RE_RM_ATTACH_FLAGS = 0xf0, /**< \brief Mask of all attach flags */
 };
 
-inline int
-l4os3_rm_attach(void **start, unsigned long size, unsigned long flags,
-                l4os3_ds_t mem, l4_addr_t offs,
-                unsigned char align);
+//inline int
+//l4os3_rm_attach(void **start, unsigned long size, unsigned long flags,
+//                l4os3_ds_t mem, l4_addr_t offs,
+//                unsigned char align);
 
+long RegAreaReserveInArea(unsigned long size,
+                         unsigned long flags,
+                         void          **addr,
+                         unsigned long *area);
 
-#if defined(L4API_l4v2)
+long RegAreaRelease(unsigned long area);
+
+long RegAttach(void               **start,
+               unsigned long      size,
+               unsigned long      flags,
+               l4_os3_dataspace_t ds,
+               void               *offset,
+               unsigned char      align);
+
+long RegAttachDataspaceToArea(l4_os3_dataspace_t ds,
+                              unsigned long      area,
+                              unsigned long      rights,
+                              void               *addr);
+
+long RegDetach(void *addr);
+
+long RegLookupRegion(void               *addr,
+                     void               **addr_new,
+                     unsigned long      *size,
+                     l4_os3_dataspace_t *ds);
+
+//#if defined(L4API_l4v2)
 
 /* l4env includes */
-#include <l4/l4rm/l4rm.h>
+//#include <l4/l4rm/l4rm.h>
 
-#elif defined(L4API_l4f)
+//#elif defined(L4API_l4f)
 
 /* l4re includes */
-#include <l4/re/c/rm.h>
+//#include <l4/re/c/rm.h>
 
-#else
-#error "Not implemented!"
-#endif
+//#else
+//#error "Not implemented!"
+//#endif
 
 #ifdef __cplusplus
   }

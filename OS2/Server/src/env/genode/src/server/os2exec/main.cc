@@ -2,6 +2,11 @@
 #define  INCL_BASE
 #include <os2.h>
 
+/* osFree OS/2 personality internal */
+#include <os3/io.h>
+#include <os3/modmgr.h>
+#include <os3/cfgparser.h>
+
 /* Genode includes */
 #include <base/log.h>
 #include <base/heap.h>
@@ -12,18 +17,12 @@
 #include <base/rpc_server.h>
 #include <util/string.h>
 
-/* osFree OS/2 personality internal */
-#include <os3/io.h>
-#include <os3/modmgr.h>
-#include <os3/cfgparser.h>
-
 /* libc includes */
 #include <string.h>
 #include <stdlib.h>
 
 /* local includes */
 #include <genode_env.h>
-
 #include "api.h"
 
 #define OPENFLAG_EXEC 1
@@ -32,6 +31,11 @@ Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
 
 extern cfg_opts options;
+
+/* shared memory arena settings */
+extern void         *shared_memory_base;
+extern unsigned long shared_memory_size;
+extern unsigned long shared_memory_area;
 
 namespace OS2::Exec {
 	struct Session_component;
@@ -68,9 +72,9 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 		               cbLoadError, &s);
 	}
 
-	long share(unsigned long hmod)
+	long share(unsigned long hmod, Genode::Capability<void> *client_id)
 	{
-		return ExcShare(hmod);
+		return ExcShare(hmod, client_id);
 	}
 
 	long getimp(unsigned long hmod,
@@ -98,14 +102,14 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &pszModname,
 	                     unsigned long &hmod)
 	{
-		return ExcQueryModHandle(pszModname.string(), &hmod);
+		return ExcQueryModuleHandle(pszModname.string(), &hmod);
 	}
 
 	long query_modname(unsigned long hmod,
 	                   unsigned long cbBuf,
 	                   Buf &pszBuf)
 	{
-		return ExcQueryModName(hmod, cbBuf, pszBuf.str);
+		return ExcQueryModuleName(hmod, cbBuf, pszBuf.str);
 	}
 };
 

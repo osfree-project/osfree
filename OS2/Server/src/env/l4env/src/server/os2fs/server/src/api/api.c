@@ -1327,6 +1327,10 @@ os2fs_dos_QueryPathInfo_component (CORBA_Object _dice_corba_obj,
           setdrivemap(&map);
           len = sizeof(fname);
           rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, map, (char **)&fname, &len, &env);
+
+          if (rc)
+            return rc;
+
           //rc = kalQueryCurrentDir(0, (char **)&fname, &len);
           fname[len] = '\0';
           strcat(fname, fn); // @todo implement global chars processing

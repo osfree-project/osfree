@@ -110,17 +110,17 @@ unsigned long cfg_Getopt(const char *name, int *is_int, int *value_int, char **v
   for (f = 0, i = 0; !f && i < sizeof(intlist) / sizeof(struct tab); 
        f = f || !strcmp(name, intlist[i].name), i++) ;
   /* if it is integer field */
-  
+
   if (f)
   {
     *is_int = 1;
     *value_int = *(short int *)(intlist[i - 1].addr);
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(chrlist) / sizeof(struct tab); 
        f = f || !strcmp(name, chrlist[i].name), i++) ;
-  
+
   if (f)
   {
     *is_int = 0;
@@ -129,7 +129,7 @@ unsigned long cfg_Getopt(const char *name, int *is_int, int *value_int, char **v
     *(*value_str + 1) = '\0';
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(arrlist) / sizeof(struct tab);
        f = f || !strcmp(name, arrlist[i].name), i++) ;
 
@@ -139,7 +139,7 @@ unsigned long cfg_Getopt(const char *name, int *is_int, int *value_int, char **v
     strcpy(*value_str, (char *)&(arrlist[i - 1].addr));
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(strlist) / sizeof(struct tab);
        f = f || !strcmp(name, strlist[i].name), i++) ;
 

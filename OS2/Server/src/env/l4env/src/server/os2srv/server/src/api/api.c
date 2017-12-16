@@ -37,9 +37,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
-extern l4os3_cap_idx_t fs;
-extern l4os3_cap_idx_t os2srv;
-extern l4os3_cap_idx_t sysinit_id;
+extern l4_os3_cap_idx_t fs;
+extern l4_os3_cap_idx_t os2srv;
+extern l4_os3_cap_idx_t sysinit_id;
 extern struct t_os2process *proc_root;
 
 #define SEMTYPE_EVENT    0
@@ -70,7 +70,7 @@ int strlstlen(char *p);
 
 struct DosExecPgm_params {
   struct t_os2process *proc;
-  l4os3_cap_idx_t thread;
+  l4_os3_cap_idx_t thread;
   char *pObjname;
   long cbObjname;
   unsigned long execFlag;
@@ -205,7 +205,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
 /* notifier for main DosExecPgm component */
 void CV
 os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
-                            const l4os3_cap_idx_t *job /* in */,
+                            const l4_os3_cap_idx_t *job /* in */,
                             const char* pObjname /* in */,
                             int cbObjname /* in */,
                             const struct _RESULTCODES *pRes /* in */,
@@ -217,7 +217,7 @@ os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
   io_log("cbObjname=%lx\n", (ULONG)cbObjname);
   io_log("pRes->codeTerminate=%lx\n", (ULONG)pRes->codeTerminate);
   io_log("pRes->codeResult=%lx\n", (ULONG)pRes->codeResult);
-  os2server_dos_ExecPgm_reply ((l4os3_cap_idx_t *)job, result, (char **)&pObjname, 
+  os2server_dos_ExecPgm_reply ((l4_os3_cap_idx_t *)job, result, (char **)&pObjname, 
 			       (long *)&cbObjname, (struct _RESULTCODES *)pRes, _srv_env);
 }
 
@@ -237,7 +237,7 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
 {
   struct t_os2process *proc;
   struct DosExecPgm_params *parm;
-  l4os3_cap_idx_t thread;
+  l4_os3_cap_idx_t thread;
   //APIRET rc;
   //int    ret;
   char *arg, *env;
@@ -316,8 +316,8 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
-  l4os3_cap_idx_t pager;
-  
+  l4_os3_cap_idx_t pager;
+
   unsigned base;
   struct t_os2process *proc;
   PPIB ppib;
@@ -360,7 +360,7 @@ os2server_dos_GetTIB_component (CORBA_Object obj,
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
-  l4os3_cap_idx_t pager;
+  l4_os3_cap_idx_t pager;
 
   // process PTDA
   proc = PrcGetProcL4(*obj);
@@ -472,6 +472,15 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
   //char drv;
   //int i;
 
+  io_log("pcbBuf=%p\n", pcbBuf);
+  io_log("pBuf=%p\n", pBuf);
+
+  if (pBuf)
+    io_log("*pBuf=%p\n", *pBuf);
+
+  if (! pcbBuf || ! pBuf || ! *pBuf)
+    return ERROR_INVALID_PARAMETER;
+
   proc = PrcGetProcL4(*obj);
   curdir = proc->curdir;
 
@@ -486,18 +495,19 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
   io_log("disk=%lx\n", disk);
 
   if (!((1 << (disk - 1)) & logical))
-    return 15; /* ERROR_INVALID_DRIVE */
+    return ERROR_INVALID_DRIVE;
 
-  if (*pcbBuf < strlen(curdir) + 1)
+  if (*pcbBuf && *pcbBuf < strlen(curdir) + 1)
     return ERROR_BUFFER_OVERFLOW;
   else
   {
     *pcbBuf = strlen(curdir) + 1;
+    io_log("curdir=%s\n", curdir);
     strcpy(*pBuf, curdir);
     return NO_ERROR;
   }
 
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
 /* changes the current directory in '*dir'

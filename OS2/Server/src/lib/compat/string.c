@@ -11,9 +11,9 @@ char *
 strupr (char *str)
 {
   char *s = str;
-  
+
   for (;*s ; s++)
     *s = toupper (*s);
-  
+
   return str;
 }

@@ -45,7 +45,7 @@ struct OS2::Exec::Session : Genode::Session
 
 	/* Share all section dataspaces for loaded binary
 	   with calling process   */
-	virtual long share(unsigned long hmod) = 0;
+	virtual long share(unsigned long hmod, Genode::Capability<void> *client_id) = 0;
 
 	/* get hmods of loaded module import with specified
 	   hmod and index in the import table  */
@@ -87,7 +87,7 @@ struct OS2::Exec::Session : Genode::Session
 	           unsigned long &,
 	           os2exec_module_t &);
 	GENODE_RPC(Rpc_share, long, share,
-	           unsigned long);
+	           unsigned long, Genode::Capability<void> *);
 	GENODE_RPC(Rpc_getimp, long, getimp,
 	           unsigned long, unsigned long &, unsigned long &);
 	GENODE_RPC(Rpc_getsect, long, getsect,

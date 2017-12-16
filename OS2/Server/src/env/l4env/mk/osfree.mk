@@ -17,9 +17,10 @@ CFLAGS += -I$(OS3_DIR)/include
 
 # newer qemu
 #run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/src/env/l4env/os2 \
-#	$(BLD_DIR)/bin/$(ARCH)/$(L4API)/os2 \
+#	$(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
 #	$(REP_DIR)/tftpboot
 #	qemu-system-i386 \
+#		-no-kvm \
 #		-m $(MEM) \
 #		-boot n \
 #		-netdev user,bootfile=$(GRUB),tftp=$(REP_DIR),id=net0 \
@@ -30,10 +31,9 @@ CFLAGS += -I$(OS3_DIR)/include
 #	| tee $(REP_DIR)/qemu.log
 
 # old qemu from Debian 5 Lenny
-run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/src/env/l4env/os2 \
-	$(BLD_DIR)/bin/x86_586/l4v2/os2 \
-	$(REP_DIR)/tftpboot
+run: symlinks
 	qemu-system-i386 \
+		-no-kqemu \
 		-m $(MEM) \
 		-boot n \
 		-tftp $(REP_DIR) \
@@ -45,17 +45,38 @@ run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/src/env/l4env/os2 \
 		-serial stdio \
 	| tee $(REP_DIR)/qemu.log
 
+symlinks: $(ROOT)/cd/boot/grub/menu.lst \
+	  $(OS3_DIR)/src/env/l4env/os2 \
+	  $(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
+	  $(REP_DIR)/tftpboot \
+	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco \
+	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_symbols \
+	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines \
+	  $(BLD_DIR)/bin/$(arch)/$(l4api)/l4con
+
 $(ROOT)/cd/boot/grub/menu.lst: $(OS3_DIR)/src/env/l4env/tools/menu.lst
 	@if [ ! -d $(dir $@) ]; then \
 	    @mkdir -p $(dir $@) \
 	fi
 	@ln -s $< $@
 
-$(BLD_DIR)/bin/x86_586/l4v2/os2: $(OS3_DIR)/src/env/l4env/os2
+$(BLD_DIR)/bin/$(arch)/$(l4api)/os2: $(OS3_DIR)/src/env/l4env/os2
 	@ln -s $< $@
 
 $(OS3_DIR)/src/env/l4env/os2: $(OS3_DIR)/filesys/os2
 	@ln -s $< $@
 
 $(REP_DIR)/tftpboot: $(ROOT)
+	@ln -s $< $@
+
+$(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco: $(FIASCO_BLD_DIR)/main
+	@ln -s $< $@
+
+$(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_symbols: $(FIASCO_BLD_DIR)/Symbols
+	@ln -s $< $@
+
+$(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines: $(FIASCO_BLD_DIR)/Lines
+	@ln -s $< $@
+
+$(BLD_DIR)/bin/$(arch)/$(l4api)/l4con: $(BLD_DIR)/bin/$(arch)/$(l4api)/con
 	@ln -s $< $@

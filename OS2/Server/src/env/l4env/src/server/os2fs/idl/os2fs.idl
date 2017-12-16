@@ -8,7 +8,7 @@ import <l4/generic_fprov/generic_fprov.idl>
 interface os2fs : l4fprov::file // inherits file provider interface
 {
     /* misc functions */
-    int  get_drivemap([out] ULONG *map);    
+    long get_drivemap([in, out] ULONG *map);
 
     /* file CPAPI */
     [allow_reply_only]

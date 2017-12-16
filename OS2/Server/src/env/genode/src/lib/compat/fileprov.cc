@@ -1,3 +1,5 @@
+/* file provider interface */
+
 /* OS/2 API includes */
 #define  INCL_BASE
 #include <os2.h>
@@ -30,7 +32,7 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
 {
   struct vmdata *node, *next, *last = NULL;
 
-  if (!filename || !*filename)
+  if (! filename || ! *filename)
     return ERROR_INVALID_PARAMETER;
 
   if (! addr || ! size)

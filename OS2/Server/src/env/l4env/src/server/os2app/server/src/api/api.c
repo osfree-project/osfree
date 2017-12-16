@@ -20,7 +20,7 @@ extern l4_uint32_t shared_memory_area;
 extern char pszLoadError[260];
 extern ULONG rcCode;
 
-extern l4os3_cap_idx_t execsrv;
+extern l4_os3_cap_idx_t execsrv;
 
 extern vmdata_t *areas_list;
 

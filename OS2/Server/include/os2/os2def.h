@@ -109,7 +109,11 @@ typedef ULONG  DWORD;
 #define APIENTRY16 _Far16 _Pascal
 #define PASCAL16   _Far16 _Pascal
 
-#define CDECL //__attribute__((__cdecl__))
+#if !defined(__cplusplus) && defined(L4API_l4v2)
+#define CDECL __attribute__((__cdecl__))
+#else
+#define CDECL
+#endif
 
 #ifdef __OS2__
 #define EXPENTRY  _System

@@ -12,7 +12,7 @@ struct OS2::Exec::Connection : Genode::Connection<Session>, Session_client
 	:
 		/* create session */
 		Genode::Connection<OS2::Exec::Session>(env, session(env.parent(),
-		                                                "ram_quota=6K, cap_quota=4")),
+		                                       "ram_quota=6K, cap_quota=4")),
 		/* initialize RPC interface */
 		Session_client(cap()) { }
 };
