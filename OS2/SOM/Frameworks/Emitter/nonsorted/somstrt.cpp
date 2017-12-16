@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -43,6 +43,10 @@ SOM_Scope short SOMLINK somstAssociate(SOMStringTableC SOMSTAR somSelf,
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstAssociate");
 
+  if (!key) return 0;
+  if (!strnlen(key, SIZE_MAX)) return 0;
+  if (_numberOfEntries==ULONG_MAX) return 0;
+  
   if(_table->key==NULL) 
   {
     _table->key=key;
@@ -54,14 +58,11 @@ SOM_Scope short SOMLINK somstAssociate(SOMStringTableC SOMSTAR somSelf,
 
   for(map=_table;;map=map->next) 
   {
-    if(!_stricmp(key,map->key)) 
+    if(!strnicmp(key,map->key, SIZE_MAX)) 
     {
-      if(map->value!=NULL) 
-      {
-        map->value=value;
-        _numberOfEntries++;
-        return -1;
-      }
+      map->value=value;
+      _numberOfEntries++;
+      return -1;
     }
 
     if(map->next==NULL) 
@@ -84,6 +85,9 @@ SOM_Scope boolean SOMLINK somstClearAssociation(SOMStringTableC SOMSTAR somSelf,
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstClearAssociation");
 
+  if (!key) return 0;
+  if (!strnlen(key, SIZE_MAX)) return 0;
+  
   return TRUE;  
 }                                                
 
@@ -96,20 +100,24 @@ SOM_Scope short SOMLINK somstAssociateCopyBoth(SOMStringTableC SOMSTAR somSelf,
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstAssociateCopyBoth");
   
-  if (value) value_len=strlen(value);
+  if (!key) return 0;
+  if (!strnlen(key, SIZE_MAX)) return 0;
+  if (_numberOfEntries==ULONG_MAX) return 0;
+  
+  if (value) value_len=strnlen(value, SIZE_MAX);
   
   if(_table->key==NULL) 
   {
-    _table->key=(string)SOMMalloc(strlen(key)+1);
+    _table->key=(string)SOMMalloc(strnlen(key, SIZE_MAX)+1);
     if(!_table->key) return 0;
-    strcpy(_table->key,key);
+    strncpy(_table->key,key, SIZE_MAX);
     _table->value=(string)SOMMalloc(value_len+1);
     if(!_table->value) return 0;
     if (value)
     {
-      strcpy(_table->value,value);
+      strncpy(_table->value,value, SIZE_MAX);
     } else {
-      _table->value[0]=0;
+      SOMFree(_table->value);
     }
     _numberOfEntries++;
     _table->next=NULL;
@@ -118,7 +126,7 @@ SOM_Scope short SOMLINK somstAssociateCopyBoth(SOMStringTableC SOMSTAR somSelf,
 
   for(map=_table;;map=map->next) 
   {
-    if(!_stricmp(key,map->key)) 
+    if(!strnicmp(key,map->key, SIZE_MAX)) 
     {
       if(map->value!=NULL) 
       {
@@ -127,9 +135,9 @@ SOM_Scope short SOMLINK somstAssociateCopyBoth(SOMStringTableC SOMSTAR somSelf,
         if(!map->value) return 0;
         if (value)
         {
-          strcpy(map->value,value);
+          strncpy(map->value,value, SIZE_MAX);
         } else {
-          map->value[0]=0;
+          SOMFree(_table->value);
         }
         _numberOfEntries++;
         return -1;
@@ -141,16 +149,16 @@ SOM_Scope short SOMLINK somstAssociateCopyBoth(SOMStringTableC SOMSTAR somSelf,
       map->next=(struct entryT*)SOMMalloc(sizeof(struct entryT));
       if(!map->next) return 0;
       map=map->next;
-      map->key=(string)SOMMalloc(strlen(key)+1);
+      map->key=(string)SOMMalloc(strnlen(key, SIZE_MAX)+1);
       if(!map->key) return 0;
-      strcpy(map->key,key);
+      strncpy(map->key,key, SIZE_MAX);
       map->value=(string)SOMMalloc(value_len+1);
       if(!map->value) return 0;
       if (value)
       {
-        strcpy(map->value,value);
+        strncpy(map->value,value, SIZE_MAX);
       } else {
-        map->value[0]=0;
+        SOMFree(_table->value);
       }
       _numberOfEntries++;
       map->next=NULL;
@@ -185,9 +193,12 @@ SOM_Scope string SOMLINK somstGetAssociation(SOMStringTableC SOMSTAR somSelf,
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstGetAssociation");
 
+  if (!key) return NULL;
+  if (!strnlen(key, SIZE_MAX)) return NULL;
+  
   for(map=_table;map!=NULL;map=map->next) 
   {
-    if(map->key && !_stricmp(key,map->key)) 
+    if(map->key && !strnicmp(key,map->key, SIZE_MAX)) 
     {
       return map->value;
     }
@@ -241,11 +252,15 @@ SOM_Scope short SOMLINK somstAssociateCopyKey(SOMStringTableC SOMSTAR somSelf,
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstAssociateCopyKey");
 
+  if (!key) return 0;
+  if (!strnlen(key, SIZE_MAX)) return 0;
+  if (_numberOfEntries==ULONG_MAX) return 0;
+
   if(_table->key==NULL) 
   {
-    _table->key=(string)SOMMalloc(strlen(key)+1);
+    _table->key=(string)SOMMalloc(strnlen(key, SIZE_MAX)+1);
     if(!_table->key) return 0;
-    strcpy(_table->key,key);
+    strncpy(_table->key,key, SIZE_MAX);
     _table->value=value;
     _numberOfEntries++;
     _table->next=NULL;
@@ -254,7 +269,7 @@ SOM_Scope short SOMLINK somstAssociateCopyKey(SOMStringTableC SOMSTAR somSelf,
 
   for(map=_table;;map=map->next) 
   {
-    if(!_stricmp(key,map->key)) 
+    if(!strnicmp(key,map->key, SIZE_MAX)) 
     {
       if(map->value!=NULL) 
       {
@@ -269,9 +284,9 @@ SOM_Scope short SOMLINK somstAssociateCopyKey(SOMStringTableC SOMSTAR somSelf,
       map->next=(struct entryT*)SOMMalloc(sizeof(struct entryT));
       if(!map->next) return 0;
       map=map->next;
-      map->key=(string)SOMMalloc(strlen(key)+1);
+      map->key=(string)SOMMalloc(strnlen(key, SIZE_MAX)+1);
       if(!map->key) return 0;
-      strcpy(map->key,key);
+      strncpy(map->key,key, SIZE_MAX);
       map->value=value;
       _numberOfEntries++;
       map->next=NULL;
@@ -305,13 +320,17 @@ SOM_Scope short SOMLINK somstAssociateCopyValue(SOMStringTableC SOMSTAR somSelf,
   entryT *map;
   SOMStringTableCData *somThis = SOMStringTableCGetData(somSelf);
   SOMStringTableCMethodDebug("SOMStringTableC","somstAssociateCopyValue");
+  
+  if (!key) return 0;
+  if (!strnlen(key, SIZE_MAX)) return 0;
+  if (_numberOfEntries==ULONG_MAX) return 0;
 
   if(_table->key==NULL) 
   {
     _table->key=key;
-    _table->value=(string)SOMMalloc(strlen(value)+1);
+    _table->value=(string)SOMMalloc(strnlen(value, SIZE_MAX)+1);
     if(!_table->value) return 0;
-    strcpy(_table->value,value);
+    strncpy(_table->value,value, SIZE_MAX);
     _numberOfEntries++;
     _table->next=NULL;
     return 1;
@@ -319,14 +338,14 @@ SOM_Scope short SOMLINK somstAssociateCopyValue(SOMStringTableC SOMSTAR somSelf,
 
   for(map=_table;;map=map->next) 
   {
-    if(!_stricmp(key,map->key)) 
+    if(!strnicmp(key,map->key, SIZE_MAX)) 
     {
       if(map->value!=NULL) 
       {
         SOMFree(map->value);
-        map->value=(string)SOMMalloc(strlen(value)+1);
+        map->value=(string)SOMMalloc(strnlen(value, SIZE_MAX)+1);
         if(!map->value) return 0;
-        strcpy(map->value,value);
+        strncpy(map->value,value, SIZE_MAX);
         _numberOfEntries++;
         return -1;
       }
@@ -338,9 +357,9 @@ SOM_Scope short SOMLINK somstAssociateCopyValue(SOMStringTableC SOMSTAR somSelf,
       if(!map->next) return 0;
       map=map->next;
       map->key=key;
-      map->value=(string)SOMMalloc(strlen(value)+1);
+      map->value=(string)SOMMalloc(strnlen(value, SIZE_MAX)+1);
       if(!map->value) return 0;
-      strcpy(map->value,value);
+      strncpy(map->value,value, SIZE_MAX);
       _numberOfEntries++;
       map->next=NULL;
       return 1;
