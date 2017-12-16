@@ -26,7 +26,7 @@
 #include <somobj.idl>
 interface SOMStringTableC;
 
-enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE };
+enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE, somtPSimpleE, somtPBlockE };
 
 interface SOMTTemplateOutputC : SOMObject
 {
@@ -40,6 +40,9 @@ interface SOMTTemplateOutputC : SOMObject
   //   somtCSimpleE: simple C style, each line wrapped in / * and * /
   //   somtCBlockE: block C style, block style, ie leading / * then a * on each
   //              line and then a final * /
+  //   somtPSimpleE: simple Pascal style, each line wrapped in (* and *)
+  //   somtPBlockE: block Pascal style, block style, ie leading (* then a * on each
+  //              line and then a final *)
 
   attribute long somtLineLength;
   
@@ -194,9 +197,9 @@ interface SOMTTemplateOutputC : SOMObject
     callstyle = oidl;
   
     passthru C_h =        "#include <stdio.h>"
-"typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE } somtCommentStyleT;";
+"typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE, somtPSimpleE, somtPBlockE } somtCommentStyleT;";
     passthru C_xh =        "#include <stdio.h>"
-"typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE } somtCommentStyleT;";
+"typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE, somtPSimpleE, somtPBlockE } somtCommentStyleT;";
   
     //# Internal Instance Variables
     SOMStringTableC stab;           

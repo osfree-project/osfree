@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017, Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -283,6 +283,7 @@ SOM_Scope void SOMLINK somtOutputComment(SOMTTemplateOutputC SOMSTAR somSelf,
   
   if (_somtCommentNewline) fprintf(_fp, "\n");
   if (_somtCommentStyle==somtCBlockE) fprintf(_fp, "/*\n");
+  if (_somtCommentStyle==somtPBlockE) fprintf(_fp, "(*\n");
   buf = strdup(comment);
   line = strtok(buf, "\n");
   while(line) 
@@ -297,11 +298,16 @@ SOM_Scope void SOMLINK somtOutputComment(SOMTTemplateOutputC SOMSTAR somSelf,
         break;
       case somtCBlockE: fprintf(_fp, " *  %s\n", line);
         break;
+      case somtPSimpleE: fprintf(_fp, "(* %s *)\n", line);
+        break;
+      case somtPBlockE: fprintf(_fp, " *  %s\n", line);
+        break;
     }
     
     line  = strtok(NULL, "\n");
   }
   if (_somtCommentStyle==somtCBlockE) fprintf(_fp, " */\n");
+  if (_somtCommentStyle==somtPBlockE) fprintf(_fp, " *)\n");
   free(buf);
 }
 

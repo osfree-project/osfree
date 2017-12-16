@@ -3,7 +3,7 @@
 #ifndef SOM_Module_sctmplt_Header_h
 	#define SOM_Module_sctmplt_Header_h 1
 #include <stdio.h>
-typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE } somtCommentStyleT;
+typedef enum somtCommentStyleT { somtDashesE, somtCPPE, somtCSimpleE, somtCBlockE, somtPSimpleE, somtPBlockE } somtCommentStyleT;
 	#include <som.h>
 	#include <somobj.h>
 	#ifndef _IDL_SOMStringTableC_defined
