@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -34,25 +34,40 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTStructEntryC SOMSTAR somSelf,
 	                                           /* in */ SOMTEmitC SOMSTAR emitter,
 	                                           /* in */ string prefix)
 {
+  SOMTStructEntryCData *somThis = SOMTStructEntryCGetData(somSelf);
+  SOMTStructEntryCMethodDebug("SOMTStructEntryC","somtSetSymbolsOnEntry");
+
   return 0;
 }
 
 SOM_Scope SOMTTypedefEntryC SOMSTAR SOMLINK somtGetNextMember(SOMTStructEntryC SOMSTAR somSelf)
 {
+  SOMTStructEntryCData *somThis = SOMTStructEntryCGetData(somSelf);
+  SOMTStructEntryCMethodDebug("SOMTStructEntryC","somtGetNextMember");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK _get_somtIsException(SOMTStructEntryC SOMSTAR somSelf)
 {
+  SOMTStructEntryCData *somThis = SOMTStructEntryCGetData(somSelf);
+  SOMTStructEntryCMethodDebug("SOMTStructEntryC","_get_somtIsException");
+
   return FALSE;
 }
 
 SOM_Scope SOMTTypedefEntryC SOMSTAR SOMLINK somtGetFirstMember(SOMTStructEntryC SOMSTAR somSelf)
 {
+  SOMTStructEntryCData *somThis = SOMTStructEntryCGetData(somSelf);
+  SOMTStructEntryCMethodDebug("SOMTStructEntryC","somtGetFirstMember");
+
   return NULL;
 }
 
 SOM_Scope SOMTClassEntryC SOMSTAR SOMLINK _get_somtStructClass(SOMTStructEntryC SOMSTAR somSelf)
 {
+  SOMTStructEntryCData *somThis = SOMTStructEntryCGetData(somSelf);
+  SOMTStructEntryCMethodDebug("SOMTStructEntryC","_get_somtStructClass");
+
   return NULL;
 }

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -31,15 +31,24 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTEnumEntryC SOMSTAR somSelf,
 	                                           /* in */ SOMTEmitC SOMSTAR emitter,
 	                                           /* in */ string prefix)
 {
+  SOMTEnumEntryCData *somThis = SOMTEnumEntryCGetData(somSelf);
+  SOMTEnumEntryCMethodDebug("SOMTEnumEntryC","somtSetSymbolsOnEntry");
+  
   return 0;
 }
 
 SOM_Scope SOMTEnumNameEntryC SOMSTAR SOMLINK somtGetNextEnumName(SOMTEnumEntryC SOMSTAR somSelf)
 {
+  SOMTEnumEntryCData *somThis = SOMTEnumEntryCGetData(somSelf);
+  SOMTEnumEntryCMethodDebug("SOMTEnumEntryC","somtGetNextEnumName");
+  
   return NULL;
 }
 
 SOM_Scope SOMTEnumNameEntryC SOMSTAR SOMLINK somtGetFirstEnumName(SOMTEnumEntryC SOMSTAR somSelf)
 {
+  SOMTEnumEntryCData *somThis = SOMTEnumEntryCGetData(somSelf);
+  SOMTEnumEntryCMethodDebug("SOMTEnumEntryC","somtGetFirstEnumName");
+  
   return NULL;
 }

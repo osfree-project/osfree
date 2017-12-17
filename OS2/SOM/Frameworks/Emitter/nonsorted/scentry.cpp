@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "rhbsc.h"
+
 
 #include "scentry.xih"
 
@@ -79,16 +80,25 @@ SOM_Scope TypeCode SOMLINK _get_somtTypeCode(SOMTEntryC SOMSTAR somSelf)
 
 SOM_Scope string SOMLINK _get_somtEntryComment(SOMTEntryC SOMSTAR somSelf)
 {
+  SOMTEntryCData *somThis = SOMTEntryCGetData(somSelf);
+  SOMTEntryCMethodDebug("SOMTEntryC","_get_somtEntryComment");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtElementTypeName(SOMTEntryC SOMSTAR somSelf)
 {
+  SOMTEntryCData *somThis = SOMTEntryCGetData(somSelf);
+  SOMTEntryCMethodDebug("SOMTEntryC","_get_somtElementTypeName");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK _get_somtIsReference(SOMTEntryC SOMSTAR somSelf)
 {
+  SOMTEntryCData *somThis = SOMTEntryCGetData(somSelf);
+  SOMTEntryCMethodDebug("SOMTEntryC","_get_somtIsReference");
+
   return FALSE;
 }
 
@@ -238,6 +248,9 @@ SOM_Scope long SOMLINK somtFormatModifier(SOMTEntryC SOMSTAR somSelf,
 	                                                /* in */ string name,
 	                                                /* in */ string value)
 {
+  SOMTEntryCData *somThis = SOMTEntryCGetData(somSelf);
+  SOMTEntryCMethodDebug("SOMTEntryC","somtFormatModifier");
+
   strcat(buffer, name);
   strcat(buffer, ": ");
   strcat(buffer, value);

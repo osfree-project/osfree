@@ -1,7 +1,9 @@
 /**************************************************************************
  *
  *  Copyright 1998-2010, Roger Brown
+ *  Copyright 2017, Yuri Prokushev
  *
+ *  This file is part of osFree project.
  *  This file is part of Roger Brown's Toolkit.
  *
  *  This program is free software: you can redistribute it and/or modify it
@@ -164,6 +166,7 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f)
 	return 0;
 }
 
+
 FILE *emit(char *file, Entry * cls, Stab * stab)
 {
 
@@ -173,11 +176,16 @@ FILE *emit(char *file, Entry * cls, Stab * stab)
     SOMTModuleEntryC * mod;
     SOMTEmitC *emitter;
     SOMTTemplateOutputC *t;
-    
+
+    int SOM_TraceLevel = 0 ; /* Request maximum debugging information */
+    int SOM_WarnLevel = 0 ;
+    int SOM_AssertLevel = 0 ;
+
+ 
     if (cls->type == SOMTClassE) {
         fp = stdout;//somtopenEmitFile(file, "out");
         oCls = (SOMTClassEntryC *) somtGetObjectWrapper(cls);
-        //_somDumpSelf(oCls, 0);
+        //oCls->somDumpSelf(0);
         emitter = new SOMTEmitC();
           
         emitter->_set_somtTargetFile(fp);

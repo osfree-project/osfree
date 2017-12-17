@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -29,32 +29,50 @@
 
 SOM_Scope SOMTMethodEntryC * SOMLINK _get_somtOriginalMethod(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtOriginalMethod");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK _get_somtIsVarargs(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtIsVarargs");
+
   return NULL;
 }
 
 SOM_Scope SOMTParameterEntryC * SOMLINK somtGetNextParameter(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetNextParameter");
+
   return NULL;
 }
 
 SOM_Scope SOMTEntryC * SOMLINK _get_somtMethodGroup(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtMethodGroup");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK _get_somtIsOneway(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtIsOneway");
+
   return FALSE;
 }
 
 SOM_Scope SOMTParameterEntryC * SOMLINK somtGetNthParameter(SOMTMethodEntryC * somSelf,
                                                             /* in */ short n)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetNthParameter");
+
   return NULL;
 }
 
@@ -63,22 +81,34 @@ SOM_Scope string SOMLINK somtGetShortParamNameList(SOMTMethodEntryC * somSelf,
                                                    /* in */ string selfParm,
                                                    /* in */ string varargsParm)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetShortParamNameList");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK somtGetIDLParamList(SOMTMethodEntryC * somSelf,
                                              /* in */ string buffer)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetIDLParamList");
+
   return NULL;
 }
 
 SOM_Scope string *SOMLINK _get_somtContextArray(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtContextArray");
+
   return NULL;
 }
 
 SOM_Scope SOMTParameterEntryC * SOMLINK somtGetFirstParameter(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetFirstParameter");
+
   return NULL;
 }
 
@@ -86,6 +116,9 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTMethodEntryC * somSelf,
                                              /* in */ SOMTEmitC * emitter,
                                              /* in */ string prefix)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtSetSymbolsOnEntry");
+
   return 0;
 }
 
@@ -93,12 +126,18 @@ SOM_Scope string SOMLINK somtGetFullCParamList(SOMTMethodEntryC * somSelf,
                                                /* in */ string buffer,
                                                /* in */ string varargsParm)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetFullCParamList");
+
   return NULL;
 }
 
 SOM_Scope void SOMLINK somDumpSelfInt(SOMTMethodEntryC * somSelf,
                                       /* in */ long level)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somDumpSelfInt");
+
 
 }
 
@@ -107,36 +146,57 @@ SOM_Scope string SOMLINK somtGetShortCParamList(SOMTMethodEntryC * somSelf,
                                                 /* in */ string selfParm,
                                                 /* in */ string varargsParm)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetShortCParamList");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK _get_somtIsPrivateMethod(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtIsPrivateMethod");
+
   return FALSE;
 }
 
 SOM_Scope SOMTStructEntryC * SOMLINK somtGetNextException(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetNextException");
+
   return NULL;
 }
 
 SOM_Scope short SOMLINK _get_somtArgCount(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtArgCount");
+
   return 0;
 }
 
 SOM_Scope string SOMLINK _get_somtCReturnType(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtCReturnType");
+
   return NULL;
 }
 
 SOM_Scope SOMTStructEntryC * SOMLINK somtGetFirstException(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetFirstException");
+
   return NULL;
 }
 
 SOM_Scope SOMTClassEntryC * SOMLINK _get_somtOriginalClass(SOMTMethodEntryC * somSelf)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","_get_somtOriginalClass");
+
   return NULL;
 }
 
@@ -144,6 +204,9 @@ SOM_Scope string SOMLINK somtGetFullParamNameList(SOMTMethodEntryC * somSelf,
                                                   /* in */ string buffer,
                                                   /* in */ string varargsParm)
 {
+  SOMTMethodEntryCData *somThis = SOMTMethodEntryCGetData(somSelf);
+  SOMTMethodEntryCMethodDebug("SOMTMethodEntryC","somtGetFullParamNameList");
+
   return NULL;
 }
 

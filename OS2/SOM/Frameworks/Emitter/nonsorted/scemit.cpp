@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -161,12 +161,18 @@ SOM_Scope FILE *SOMLINK somtOpenSymbolsFile(SOMTEmitC SOMSTAR somSelf,
 	                                                 /* in */ string fileName,
 	                                                 /* in */ string mode)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtOpenSymbolsFile");
+  
   return fopen(fileName, mode);
 }
 
 SOM_Scope string SOMLINK somtGetGlobalModifierValue(SOMTEmitC SOMSTAR somSelf,
 	                                                         /* in */ string modifierName)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtGetGlobalModifierValue");
+  
   return NULL;
 }
 
@@ -195,7 +201,7 @@ SOM_Scope void SOMLINK somtEmitProlog(SOMTEmitC SOMSTAR somSelf)
 {
   SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf);
   SOMTEmitCMethodDebug("SOMTEmitC","somtEmitProlog");
-
+  //somPrintf(_somtTemplate->somtGetSymbol("prologSN"));
   _somtTemplate->somtOutputSection(_somtTemplate->somtGetSymbol("prologSN"));
 }
 
@@ -210,6 +216,9 @@ SOM_Scope void SOMLINK somtEmitClass(SOMTEmitC SOMSTAR somSelf)
 SOM_Scope void SOMLINK somtEmitModule(SOMTEmitC SOMSTAR somSelf,
 	                                           /* in */ SOMTModuleEntryC SOMSTAR mod)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitModule");
+  
   return;
 }
 
@@ -231,6 +240,9 @@ SOM_Scope void SOMLINK somtEmitConstantEpilog(SOMTEmitC SOMSTAR somSelf)
 
 SOM_Scope void SOMLINK somtEmitModuleEpilog(SOMTEmitC SOMSTAR somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitModuleEpilog");
+  
   return;
 }
 
@@ -246,6 +258,9 @@ SOM_Scope void SOMLINK somtEmitData(SOMTEmitC SOMSTAR somSelf,
 SOM_Scope void SOMLINK somtEmitInterface(SOMTEmitC SOMSTAR somSelf,
 	                                              /* in */ SOMTClassEntryC SOMSTAR intfc)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitInterface");
+  
   return;
 }
 
@@ -380,6 +395,9 @@ SOM_Scope void SOMLINK somtEmitBaseEpilog(SOMTEmitC SOMSTAR somSelf)
 
 SOM_Scope void SOMLINK somtEmitModuleProlog(SOMTEmitC SOMSTAR somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitModuleProlog");
+  
   return;
 }
 
@@ -412,6 +430,9 @@ SOM_Scope void SOMLINK somtEmitConstantProlog(SOMTEmitC SOMSTAR somSelf)
 
 SOM_Scope void SOMLINK somtEmitInterfaceProlog(SOMTEmitC SOMSTAR somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitInterfaceProlog");
+  
   return;
 }
 
@@ -541,6 +562,9 @@ SOM_Scope void SOMLINK somtEmitUnionEpilog(SOMTEmitC SOMSTAR somSelf)
 
 SOM_Scope void SOMLINK somtEmitInterfaceEpilog(SOMTEmitC SOMSTAR somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitInterfaceEpilog");
+  
   return;
 }
 
@@ -704,6 +728,9 @@ SOM_Scope boolean SOMLINK somtScanModules(SOMTEmitC SOMSTAR somSelf,
                                                  /* in */ string each,
                                                  /* in */ string epilog)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanModules");
+  
   return FALSE;
 }
 
@@ -737,6 +764,9 @@ SOM_Scope boolean SOMLINK somtScanBasesF(SOMTEmitC SOMSTAR somSelf,
                                                 /* in */ string epilog,
                                                 /* in */ boolean forceProlog)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanBasesF");
+  
   return FALSE;
 }
 
@@ -745,6 +775,9 @@ SOM_Scope boolean SOMLINK somtScanTypedefs(SOMTEmitC SOMSTAR somSelf,
                                                   /* in */ string each,
                                                   /* in */ string epilog)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanTypedefs");
+  
   return FALSE;
 }
 
@@ -784,7 +817,10 @@ SOM_Scope boolean SOMLINK somtScanBaseIncludes(SOMTEmitC SOMSTAR somSelf,
                                                /* in */ string each,
                                                /* in */ string epilog)
 {
-  return somSelf->scanBases(prolog, each, epilog);
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanBaseIncludes");
+  
+  return somSelf->somtScanBases(prolog, each, epilog);
 }
 
 SOM_Scope boolean SOMLINK somtScanInterfaces(SOMTEmitC SOMSTAR somSelf,
@@ -792,6 +828,9 @@ SOM_Scope boolean SOMLINK somtScanInterfaces(SOMTEmitC SOMSTAR somSelf,
                                                     /* in */ string each,
                                                     /* in */ string epilog)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanInterfaces");
+  
   return FALSE;
 }
 
@@ -910,18 +949,27 @@ SOM_Scope boolean SOMLINK somtScanDataF(SOMTEmitC SOMSTAR somSelf,
                                                /* in */ string epilog,
                                                /* in */ boolean forceProlog)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtScanDataF");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtInherited(SOMTEmitC * somSelf,
                                         /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtInherited");
+  
   return FALSE;
 }
                                                
 SOM_Scope boolean SOMLINK somtOverridden(SOMTEmitC * somSelf,
                                          /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtOverridden");
+  
   return FALSE;                                         
 }
 
@@ -929,82 +977,124 @@ SOM_Scope void SOMLINK somtEmitFullPassthru(SOMTEmitC * somSelf,
                                             /* in */ boolean before,
                                             /* in */ string language)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtEmitFullPassthru");
+  
   
 }
 
 SOM_Scope SOMTEntryC * SOMLINK somtGetNextGlobalDefinition(SOMTEmitC * somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtGetNextGlobalDefinition");
+  
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK somtNewNoProc(SOMTEmitC * somSelf,
                                         /* in */ SOMTEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtNewNoProc");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtPrivOrPub(SOMTEmitC * somSelf,
                                         /* in */ SOMTEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtPrivOrPub");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtCheckVisibility(SOMTEmitC * somSelf,
                                               /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtCheckVisibility");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtImplemented(SOMTEmitC * somSelf,
                                           /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtImplemented");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtVA(SOMTEmitC * somSelf,
                                  /* in */ SOMTEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtVA");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtAll(SOMTEmitC * somSelf,
                                   /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtAll");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtLink(SOMTEmitC * somSelf,
                                    /* in */ SOMTEntryC * entry)
 {
+
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtLink");
+  
   return FALSE;
 }
 
 SOM_Scope void SOMLINK somDumpSelfInt(SOMTEmitC * somSelf,
                                       /* in */ long level)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somDumpSelfInt");
   
 }
 
 SOM_Scope boolean SOMLINK somtAllVisible(SOMTEmitC * somSelf,
                                          /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtAllVisible");
+  
   return FALSE;
 }
 
 SOM_Scope boolean SOMLINK somtNew(SOMTEmitC * somSelf,
                                   /* in */ SOMTMethodEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtNew");
+  
   return FALSE;
 }
 
 SOM_Scope SOMTEntryC * SOMLINK somtGetFirstGlobalDefinition(SOMTEmitC * somSelf)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtGetFirstGlobalDefinition");
+  
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK somtNewProc(SOMTEmitC * somSelf,
                                       /* in */ SOMTEntryC * entry)
 {
+  SOMTEmitCData *somThis = SOMTEmitCGetData(somSelf); 
+  SOMTEmitCMethodDebug("SOMTEmitC","somtNewProc");
+  
   return FALSE;
 }
 

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2014, Yuri Prokushev
+ *  Copyright 2014, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -29,10 +29,16 @@
 
 SOM_Scope SOMTClassEntryC * SOMLINK _get_somtMetaClassDef(SOMTMetaClassEntryC * somSelf)
 {
+  SOMTMetaClassEntryCData *somThis = SOMTMetaClassEntryCGetData(somSelf);
+  SOMTMetaClassEntryCMethodDebug("SOMTMetaClassEntryC","_get_somtMetaClassDef");
+  
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtMetaFile(SOMTMetaClassEntryC * somSelf)
 {
+  SOMTMetaClassEntryCData *somThis = SOMTMetaClassEntryCGetData(somSelf);
+  SOMTMetaClassEntryCMethodDebug("SOMTMetaClassEntryC","_get_somtMetaFile");
+  
   return NULL;
 }

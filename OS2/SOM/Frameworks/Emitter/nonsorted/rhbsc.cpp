@@ -23,6 +23,7 @@
  * $Id: rhbsc.cpp 2 2013-01-10 05:54:51Z somtoolkit $
  */
 
+
 #include <rhbopt.h>
 #include <stdio.h>
 #include <string.h>

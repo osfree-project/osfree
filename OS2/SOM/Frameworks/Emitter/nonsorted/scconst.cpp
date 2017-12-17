@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -65,35 +65,56 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTConstEntryC SOMSTAR somSelf,
 
 SOM_Scope boolean SOMLINK _get_somtConstIsNegative(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstIsNegative");
+
   return FALSE;
 }
 
 SOM_Scope unsigned long SOMLINK _get_somtConstNumVal(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstNumVal");
+
   return 0;
 }
 
 SOM_Scope SOMTEntryC SOMSTAR SOMLINK _get_somtConstTypeObj(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstTypeObj");
+
   return FALSE;
 }
 
 SOM_Scope string SOMLINK _get_somtConstStringVal(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstStringVal");
+
   return NULL;
 }
 
 SOM_Scope long SOMLINK _get_somtConstNumNegVal(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstNumNegVal");
+
   return 0;
 }
 
 SOM_Scope string SOMLINK _get_somtConstVal(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstVal");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtConstType(SOMTConstEntryC SOMSTAR somSelf)
 {
+  SOMTConstEntryCData *somThis = SOMTConstEntryCGetData(somSelf);
+  SOMTConstEntryCMethodDebug("SOMTConstEntryC","_get_somtConstType");
+
   return NULL;
 }

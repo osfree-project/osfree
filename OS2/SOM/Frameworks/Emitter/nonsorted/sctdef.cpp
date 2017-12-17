@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -38,25 +38,40 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTTypedefEntryC SOMSTAR somSelf,
 	                                           /* in */ SOMTEmitC SOMSTAR emitter,
 	                                           /* in */ string prefix)
 {
+  SOMTTypedefEntryCData *somThis = SOMTTypedefEntryCGetData(somSelf);
+  SOMTTypedefEntryCMethodDebug("SOMTTypedefEntryC","somtSetSymbolsOnEntry");
+  
   return 0;
 }
 
 SOM_Scope SOMTEntryC SOMSTAR SOMLINK _get_somtTypedefType(SOMTTypedefEntryC SOMSTAR somSelf)
 {
+  SOMTTypedefEntryCData *somThis = SOMTTypedefEntryCGetData(somSelf);
+  SOMTTypedefEntryCMethodDebug("SOMTTypedefEntryC","_get_somtTypedefType");
+  
   return NULL;
 }
 
 SOM_Scope SOMTCommonEntryC SOMSTAR SOMLINK somtGetNextDeclarator(SOMTTypedefEntryC SOMSTAR somSelf)
 {
+  SOMTTypedefEntryCData *somThis = SOMTTypedefEntryCGetData(somSelf);
+  SOMTTypedefEntryCMethodDebug("SOMTTypedefEntryC","somtGetNextDeclarator");
+  
   return NULL;
 }
 
 SOM_Scope TypeCode SOMLINK _get_somtTypeCode(SOMTTypedefEntryC SOMSTAR somSelf)
 {
+  SOMTTypedefEntryCData *somThis = SOMTTypedefEntryCGetData(somSelf);
+  SOMTTypedefEntryCMethodDebug("SOMTTypedefEntryC","_get_somtTypeCode");
+  
   return 0;
 }
 
 SOM_Scope SOMTCommonEntryC SOMSTAR SOMLINK somtGetFirstDeclarator(SOMTTypedefEntryC SOMSTAR somSelf)
 {
+  SOMTTypedefEntryCData *somThis = SOMTTypedefEntryCGetData(somSelf);
+  SOMTTypedefEntryCMethodDebug("SOMTTypedefEntryC","somtGetFirstDeclarator");
+  
   return NULL;
 }

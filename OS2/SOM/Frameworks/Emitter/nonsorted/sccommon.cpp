@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -38,52 +38,82 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTCommonEntryC SOMSTAR somSelf,
 	                                           /* in */ SOMTEmitC SOMSTAR emitter,
 	                                           /* in */ string prefix)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","somtSetSymbolsOnEntry");
+
   return 0;
 }
 
 SOM_Scope string SOMLINK _get_somtArrayDimsString(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","_get_somtArrayDimsString");
+
   return NULL;
 }
 
 SOM_Scope SOMTEntryC SOMSTAR SOMLINK _get_somtTypeObj(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","_get_somtTypeObj");
+
   return NULL;
 }
 
 SOM_Scope somtVisibilityT SOMLINK _get_somtVisibility(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","_get_somtVisibility");
+
   return (somtVisibilityT)NULL;
 }
 
 SOM_Scope unsigned long SOMLINK somtGetFirstArrayDimension(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","somtGetFirstArrayDimension");
+
   return 0;
 }
 
 SOM_Scope string SOMLINK _get_somtType(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","_get_somtType");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtPtrs(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","_get_somtPtrs");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK somtIsPointer(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","somtIsPointer");
+
   return FALSE;
 }
 
 SOM_Scope unsigned long SOMLINK somtGetNextArrayDimension(SOMTCommonEntryC SOMSTAR somSelf)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","somtGetNextArrayDimension");
+
   return 0;
 }
 
 SOM_Scope boolean SOMLINK somtIsArray(SOMTCommonEntryC SOMSTAR somSelf,
 	                                    /* out */ long *size)
 {
+  SOMTCommonEntryCData *somThis = SOMTCommonEntryCGetData(somSelf);
+  SOMTCommonEntryCMethodDebug("SOMTCommonEntryC","somtIsArray");
+
   return FALSE;
 }
 

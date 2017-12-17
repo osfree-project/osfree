@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- *  Copyright 2015, Yuri Prokushev
+ *  Copyright 2015, 2017 Yuri Prokushev
  *
  *  This file is part of osFree project
  *
@@ -31,25 +31,40 @@ SOM_Scope long SOMLINK somtSetSymbolsOnEntry(SOMTPassthruEntryC SOMSTAR somSelf,
 	                                           /* in */ SOMTEmitC SOMSTAR emitter,
 	                                           /* in */ string prefix)
 {
+  SOMTPassthruEntryCData *somThis = SOMTPassthruEntryCGetData(somSelf);
+  SOMTPassthruEntryCMethodDebug("SOMTPassthruEntryC","somtSetSymbolsOnEntry");
+
   return 0;
 }
 
 SOM_Scope string SOMLINK _get_somtPassthruTarget(SOMTPassthruEntryC SOMSTAR somSelf)
 {
+  SOMTPassthruEntryCData *somThis = SOMTPassthruEntryCGetData(somSelf);
+  SOMTPassthruEntryCMethodDebug("SOMTPassthruEntryC","_get_somtPassthruTarget");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtPassthruBody(SOMTPassthruEntryC SOMSTAR somSelf)
 {
+  SOMTPassthruEntryCData *somThis = SOMTPassthruEntryCGetData(somSelf);
+  SOMTPassthruEntryCMethodDebug("SOMTPassthruEntryC","_get_somtPassthruBody");
+
   return NULL;
 }
 
 SOM_Scope string SOMLINK _get_somtPassthruLanguage(SOMTPassthruEntryC SOMSTAR somSelf)
 {
+  SOMTPassthruEntryCData *somThis = SOMTPassthruEntryCGetData(somSelf);
+  SOMTPassthruEntryCMethodDebug("SOMTPassthruEntryC","_get_somtPassthruLanguage");
+
   return NULL;
 }
 
 SOM_Scope boolean SOMLINK somtIsBeforePassthru(SOMTPassthruEntryC SOMSTAR somSelf)
 {
+  SOMTPassthruEntryCData *somThis = SOMTPassthruEntryCGetData(somSelf);
+  SOMTPassthruEntryCMethodDebug("SOMTPassthruEntryC","somtIsBeforePassthru");
+
   return FALSE;
 }

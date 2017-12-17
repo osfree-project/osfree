@@ -125,7 +125,6 @@ SOM_Scope void SOMLINK somtOutputSection(SOMTTemplateOutputC SOMSTAR somSelf,
 {
   SOMTTemplateOutputCData *somThis = SOMTTemplateOutputCGetData(somSelf);
   SOMTTemplateOutputCMethodDebug("SOMTTemplateOutputC","somtOutputSection");
-  printf("<%s>\n", sectionName);
   if (sectionName)
   {
     somSelf->somto(somSelf->somtGetSymbol(sectionName));
@@ -234,6 +233,9 @@ SOM_Scope void SOMLINK somto(SOMTTemplateOutputC SOMSTAR somSelf,
                 break;
               case '<':
                 fputc('<', _fp);
+                break;
+              case '\\':
+                fputc('\\', _fp);
                 break;
               default:
                 fputc(ch, _fp);

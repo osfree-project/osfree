@@ -1,7 +1,9 @@
 /**************************************************************************
  *
  *  Copyright 2008, Roger Brown
+ *  Copyright 2017, Yuri Prokushev
  *
+ *  This file is part of osFree project.
  *  This file is part of Roger Brown's Toolkit.
  *
  *  This program is free software: you can redistribute it and/or modify it
@@ -35,7 +37,10 @@
 #define SOM_Assert(condition,ecode)    (somAssert((condition) ? 1 : 0, ecode, __FILE__, __LINE__, # condition))
 
 #ifndef SOM_Trace
-#	define SOM_Trace(c,m)
+#	define SOM_Trace(c,m) if (SOM_TraceLevel > 0) \
+      somPrintf("\"%s\": %d:\tIn %s:%s \n", \
+	  __FILE__, __LINE__, c, m)
+
 #endif
 
 #ifndef SOM_IgnoreWarning
@@ -43,7 +48,7 @@
 #endif
 
 #ifndef SOMMethodDebug
-#	define SOMMethodDebug(c,m) 
+#	define SOMMethodDebug(c,m)  SOM_Trace(c,m)
 #endif
 
 #define SOM_ResolveD(o,oc,cc,m)    \

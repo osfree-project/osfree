@@ -3164,7 +3164,7 @@ void RHBheader_emitter::generate_interface(RHBoutput *out,RHBinterface *iface,in
 		get_c_name(iface,n,sizeof(n));
 		out_printf(out,"#ifndef %sMethodDebug\n",n);
 		dump_nest(out,nest+1);
-		out_printf(out,"#define %sMethodDebug(x,y)\n",n);
+		out_printf(out,"#define %sMethodDebug(x,y) SOMMethodDebug(x,y)\n",n);
 		dump_nest(out,nest);
 		out_printf(out,"#endif /* %sMethodDebug */\n",n);
 
