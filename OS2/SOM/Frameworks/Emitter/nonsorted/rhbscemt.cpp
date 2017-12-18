@@ -42,6 +42,14 @@ RHBemitter::RHBemitter(RHBrepository *rr)
 	idl_name=0;
 }
 
+void RHBemitter::dump_nest(RHBoutput *out,int nest)
+{
+	while (nest--)
+	{
+		out->write("\t",1);
+	}
+}
+
 boolean RHBemitter::must_generate(RHBtype *)
 {
 	return 1;

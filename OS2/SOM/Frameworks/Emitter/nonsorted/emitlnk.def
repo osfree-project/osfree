@@ -1,0 +1,8 @@
+LIBRARY emitlnk.dll
+HEAPSIZE 10240000
+EXPORTS
+   LnkEmitterNewClass
+   LnkEmitterClassData
+   LnkEmitterCClassData
+   
+   emit

@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+//#include <dlfcn.h> 
+#	include <windows.h>
 
 #ifdef HAVE_SIGNAL_H
 #	include <signal.h>
@@ -82,23 +84,30 @@ static int do_emit(
 	char **argv)
 {
 	int rc=1;
-	static const char *valid_emitter[]={
-		"xh","xih","h","ih","api","kih","ir","tc"
-    #ifdef _USE_SOME_
-    , "some"
-    #endif
-	};
-	int i=sizeof(valid_emitter)/sizeof(valid_emitter[0]);
+  void *handle;
 
-	while (i--)
-	{
-		if (!strcmp(emitter_name,valid_emitter[i]))
-		{
-			break;
-		}
-	}
+//  handle=dlopen(/*"emit"+*/emitter_name, RTLD_LAZY);
+  handle=(void*)LoadLibrary(emitter_name);
+  if (!handle) {
+    //fprintf(stderr, "%s\n", dlerror());
+    //exit(EXIT_FAILURE);
+  }
 
-	if (i < 0)
+  //dlerror();    /* Clear any existing error */
+
+  /*cosine = */(double (*)(double)) (void*)GetProcAddress((HINSTANCE)handle,"emit");
+  //dlsym(handle, "emit");
+  //error = dlerror();
+  //if (error != NULL) {
+//    fprintf(stderr, "%s\n", error);
+  //  exit(EXIT_FAILURE);
+  //}
+
+  //printf("%f\n", (*cosine)(2.0));
+  //dlclose(handle);
+  FreeLibrary((HINSTANCE)handle);
+           
+  if (!handle) 
 	{
 		fprintf(stderr,"Unknown emitter %s\n",emitter_name);
 		return 1;
@@ -176,48 +185,12 @@ static int do_emit(
 		{
 			rc=0;
 
-			if (!strcmp(emitter_name,"ir"))
-			{
-				boolean old_emit=default_emitflag;
-				default_emitflag=1;
-				RHBir_file out(output_filename);
-		/*		printf("This should be the IR generator\n",buf);*/
-				RHBir_emitter emitter(&r,&out);
-				emitter.generate(&out,root_idl);
-#ifdef _PLATFORM_MACINTOSH_
-				fsetfileinfo(buf,SOMIR_CREATOR,SOMIR_TYPE);
-#endif
-				default_emitflag=old_emit;
-			}
-			else
 			{
 				RHBtextfile out(output_filename);
 
-				if (!strcmp(emitter_name,"tc"))
 				{
-					RHBtc_emitter emitter(&r);
-
-					emitter.generate(&out,root_idl);
-				}
-				else
-				{
-					if (!strcmp(emitter_name,"kih"))
 					{
-						RHBkernel_emitter emitter(&r);
-
-						emitter.generate(&out,root_idl);
-					}
-					else
-					{
-						if (!strcmp(emitter_name,"api"))
 						{
-							RHBapi_emitter emitter(&r);
-
-							emitter.generate(&out,root_idl);
-						}
-						else
-						{
-              #ifdef _USE_SOME_
    						if (!strcmp(emitter_name,"some"))
   						{
 
@@ -225,33 +198,6 @@ static int do_emit(
 
 		  					emitter.generate(&out,root_idl);
 						  }
-						  else
-						  {
-              #endif // _USE_SOME_
-                RHBheader_emitter emitter(&r);
-
-                emitter.cplusplus=0;
-                emitter.internal=0;
-                emitter.testonly=0;
-
-                if (0==strcmp(emitter_name,"ih"))
-                {
-                  emitter.internal=1;
-                }
-				
-                if (0==strcmp(emitter_name,"xih"))
-                {
-                  emitter.internal=1;
-                  emitter.cplusplus=1;
-                }
-
-                if (0==strcmp(emitter_name,"xh"))
-                {
-                  emitter.cplusplus=1;
-                }
-
-                emitter.generate(&out,root_idl);
-              }
             }
 					}
 				}

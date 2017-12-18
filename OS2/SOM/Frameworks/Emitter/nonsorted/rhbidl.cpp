@@ -4095,6 +4095,30 @@ RHBoperation *RHBoperation::is_operation()
 	return this;
 }
 
+#if 0
+boolean is_in_floating(RHBparameter *param)
+{
+	if (!strcmp(param->mode,"in"))
+	{
+		RHBtype *t=unwind_typedef(param->parameter_type);
+		if (t)
+		{
+			RHBbase_type *bt=t->is_base_type();
+
+			if (bt)
+			{
+				if (bt->_floating)
+				{
+					return 1;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+#endif
+
 boolean RHBoperation::can_auto_stub()
 {
 	int has_floats=0;
@@ -4106,10 +4130,10 @@ boolean RHBoperation::can_auto_stub()
 
 		if (param)
 		{
-			if (RHBheader_emitter::is_in_floating(param))
-			{
-				has_floats++;
-			}
+//			if (is_in_floating(param))
+//			{
+//				has_floats++;
+//			}
 		}
 		el=el->next();
 	}

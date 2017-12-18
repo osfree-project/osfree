@@ -789,6 +789,7 @@ public:
 /* this is the base class for header file generators,
 	first C then C++ derived from those */
 
+#if 0  
 class RHBheader_emitter : public RHBemitter
 {
 static const char *szSOM_RESOLVE_DATA;
@@ -967,6 +968,7 @@ public:
 	void public_class_data(RHBoutput *out,int nest,RHBinterface *iface,const char *n);
 	void public_class_data_resolve(RHBoutput *out,int nest,RHBinterface *iface,const char *n);
 };
+#endif
 
 #ifdef _USE_SOME_
 class RHBsome_emitter : public RHBemitter
@@ -1173,6 +1175,7 @@ public:
 	long alloc(long,const char *,int);
 };
 
+#if 0
 class RHBir_emitter : public RHBemitter
 {
 public:
@@ -1181,6 +1184,7 @@ public:
 	~RHBir_emitter();
 	 boolean generate(RHBoutput *out,const char *f);
 };
+#endif
 
 #ifdef USE_SOURCE_EMITTER
 class RHBsource_emitter: public RHBheader_emitter
@@ -1198,6 +1202,7 @@ public:
 };
 #endif
 
+#if 0
 class RHBkernel_emitter: public RHBheader_emitter
 {
 public:
@@ -1215,6 +1220,7 @@ public:
 	RHBapi_emitter(RHBrepository *rr);
 	boolean generate(RHBoutput *out,const char *f);
 };
+#endif
 
 #ifndef _USE_SOME_
 #define tk_null      1
@@ -1262,6 +1268,7 @@ struct RHBself_tracker
 	RHBself_tracker *previous;
 };
 
+#if 0
 class RHBtc_emitter: public RHBemitter
 {
 	boolean useAlignmentHelper(void) { return 1 /*0 */; };
@@ -1302,6 +1309,7 @@ public:
 	void generate_idl_name(RHBoutput *out,RHBtype *type);
 	void generate_name(RHBoutput *out,RHBtype *type);
 };
+#endif
 
 void generate_TypeCode(RHBemitter *em,RHBoutput *out,RHBtype *type,const char *name);
 

@@ -32,6 +32,7 @@
 
 #define SYMBOLS_FILE   "test.efw"
 
+//FILE *emit(char *file, Entry * cls, Stab * stab);
 FILE *emit(char *file, Entry * cls, Stab * stab);
 
 static const char retVal_name[]="_somC_retVal";

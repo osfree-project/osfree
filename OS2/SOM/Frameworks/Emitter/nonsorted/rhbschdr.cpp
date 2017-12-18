@@ -72,30 +72,6 @@ RHBheader_emitter::RHBheader_emitter(RHBrepository *rr)
 {
 }
 
-RHBtextfile::RHBtextfile(const char *n)
-{
-	fp=0;
-	filename=0;
-
-	if (n)
-	{
-		size_t x=strlen(n)+1;
-		filename=new char[x];
-		strncpy(filename,n,x);
-	}
-	else
-	{
-		fp=stdout;
-	}
-
-/*	fp=fopen(n,"w");
-
-	if (!fp) 
-	{
-		fprintf(stderr,"failed to open %s for writing\n",n);
-		exit(1);
-	}*/
-}
 
 void RHBheader_emitter::preflight_macros_from_idl_filename(const char *f)
 {
@@ -245,70 +221,6 @@ void RHBheader_emitter::generate_module(RHBoutput *out,RHBmodule *mod,int nest)
 	generate_modules(out,mod,nest+1);
 }
 
-RHBtextfile::~RHBtextfile()
-{
-	if (fp)
-	{
-		fflush(fp);
-
-		if (fp!=stdout)
-		{
-			fclose(fp);
-		}
-		fp=0;
-	}
-	if (filename)
-	{
-		delete []filename;
-		filename=0;
-	}
-}
-
-static long cr_count;
-
-void RHBtextfile::write(const void *pn,size_t len)
-{
-	const char *n=(const char *)pn;
-
-	if (!fp)
-	{
-		fp=fopen(filename,"w");
-
-		if (!fp)
-		{
-			fprintf(stderr,"Failed to open '%s' for writing\n",filename);
-			exit(1);
-		}
-	}
-
-	if (len > 0)
-	{
-		if (fp)
-		{
-			fwrite(n,len,1,fp);
-
-			if (len--)
-			{
-				if (*n=='\n')
-				{
-					cr_count++;
-
-					if (cr_count > 4)
-					{
-						cr_count=0;
-						printf("Bad formatting\n");
-					}
-				}
-				else
-				{
-					cr_count=0;
-				}
-
-				n++;
-			}
-		}
-	}
-}
 
 void RHBheader_emitter::generate_headers(RHBoutput *out,int nest)
 {
@@ -1320,13 +1232,6 @@ void RHBheader_emitter::generate_class(RHBoutput *out,RHBinterface *iface,int ne
 	}
 }
 
-void RHBemitter::dump_nest(RHBoutput *out,int nest)
-{
-	while (nest--)
-	{
-		out->write("\t",1);
-	}
-}
 
 void RHBheader_emitter::generate_struct_element(RHBstruct_element *el,RHBoutput *out,int nest)
 {
