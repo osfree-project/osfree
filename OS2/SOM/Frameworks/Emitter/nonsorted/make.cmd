@@ -11,7 +11,7 @@ cl /D_USE_SOME_ /DWIN32_LEAN_AND_MEAN /D_WIN32 /DHAVE_CONFIG_HPP /MD /I. hemit.c
 
 : emitdef.dll
 for %%a in (defemit) do sc -p -s"h;ih;xh;xih" %%a.idl
-cl /D_USE_SOME_ /DWIN32_LEAN_AND_MEAN /D_WIN32 /DHAVE_CONFIG_HPP /MD /I. defemit.cpp /LD /Feemitdef.dll emitdef.def some.lib somtk.lib
+cl /D_USE_SOME_ /DWIN32_LEAN_AND_MEAN /D_WIN32 /DHAVE_CONFIG_HPP /MD /I. defemit.cpp emitdef.cpp /LD /Feemitdef.dll emitdef.def some.lib somtk.lib
 
 : emitlnk.dll
 for %%a in (lnkemit) do sc -p -s"h;ih;xh;xih" %%a.idl
