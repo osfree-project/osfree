@@ -24,7 +24,8 @@ api/glob/glob.c
 SERVERIDL	= os2fs.idl
 
 # list additional library paths and libraries here
-LIBS  = -lgeneric_fprov-server -levents -los2server -los2compat # -Bdynamic -lkal.s -luc_c
+LIBS  = -lgeneric_fprov-server -levents -los2server \
+        -los2compat # -ll4util_root -lrtc # -Bdynamic -lkal.s -luc_c
 
 #LDFLAGS		= --dynamic-linker libld-l4.s.so \
 #		  --export-dynamic \

@@ -12,7 +12,7 @@ void init_globals(void) {
     struct I_Fs_srv  *fs_srv;
 
     FSRouter_init(&fsrouter);
-    
+
     /* Assign file provider server to device letter. */
     fs_srv = malloc(sizeof(struct I_Fs_srv));
     I_Fs_srv_init2(fs_srv, "/file/system", "c:");

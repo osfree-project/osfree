@@ -31,9 +31,6 @@
 #include <os3/ixfmgr.h>
 #include <os3/cfgparser.h>
 
-//#include <l4/env/env.h>
-//#include <l4/dm_generic/consts.h>
-
 /* libc includes */
 #include <stdio.h>
 #include <sys/types.h>
@@ -66,18 +63,10 @@ extern void *_prog_img_start;
 
 struct module_rec modulehandles[1024];
 
-//void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
-//unsigned long ModLoadExeModule(char *          pszName,
-//                               unsigned long   cbName,
-//                               char const *    pszModname,
-//                               unsigned long * phmod);
-
 slist_t *next_slist (slist_t *s);
 void getline (char **from, char *to);
 int dl_get_funcs (int *numentries, IXFMODULEENTRY **entries);
 int lcase(char* dest, const char* src);
-
-//int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc);
 
 int strnicmp(const char *s, const char *t, int n)
 {
@@ -358,11 +347,11 @@ void print_module_table()
       ERROR_INIT_ROUTINE_FAILED
 */
 
-unsigned long OpenModule(char *          pszName,
-                         unsigned long   cbName,
-                         char const *    pszModname,
+unsigned long OpenModule(char            *pszName,
+                         unsigned long   *pcbName,
+                         char const      *pszModname,
 			 char            exeflag,
-                         unsigned long * phmod)
+                         unsigned long   *phmod)
 {
   #define buf_size 4096
   char buf[buf_size+1];
@@ -389,7 +378,7 @@ unsigned long OpenModule(char *          pszName,
 
   
   // Specail case - EMXWRAP.DLL. Read more in docs\os2\sub32.txt
-  if (!exeflag && !stricmp(mname, "EMXWRAP"))
+  if (! exeflag && ! stricmp(mname, "EMXWRAP"))
   {
     if (options.debugmodmgr) 
         io_log("ModLoadModule: EXMWRAP module replaced by SUB32 module.\n");
@@ -402,23 +391,29 @@ unsigned long OpenModule(char *          pszName,
 
   ////
   //if (!exeflag)
-    if (!(t = getrec(mname, &prev)))
+    if (! (t = getrec(mname, &prev)) )
     {
-      if (!exeflag)
+      if (! exeflag)
       {
         // @todo use handles here
         *phmod=(unsigned long)prev->module_struct;
         io_log("already loaded\n");
-        return 0/*NO_ERROR*/;
+        *pcbName = 0;
+        return NO_ERROR;
       }
     }
     else if (t == -1)
     {
       io_log("mod not loaded!\n");
-      *phmod=0;
-      if (cbName<=strlen(mname)) return 8 /*ERROR_NOT_ENOUGH_MEMORY*/;
+      *phmod = 0;
+      if (*pcbName <= strlen(mname))
+      {
+        *pcbName = 0;
+        return ERROR_BUFFER_OVERFLOW;
+      }
       strcpy(pszName, mname);
-      return 5 /*ERROR_ACCESS_DENIED*/; // @todo Need more accurate code
+      *pcbName = strlen(mname);
+      return ERROR_MOD_NOT_FOUND;
     }
 
   // Ok. No module found. Try to load file
@@ -442,21 +437,28 @@ unsigned long OpenModule(char *          pszName,
   }
   else
     io_log("successful\n");
-  
+
   if (rc)
   {
     io_log("io_load_file2: rc=%u\n", rc);
+    if (*pcbName <= strlen(pszModname))
+    {
+      *pcbName = 0;
+      return ERROR_BUFFER_OVERFLOW;
+    }
     strcpy(pszName, pszModname);
-    *phmod=0;
+    *phmod = 0;
+    *pcbName = strlen(mname);
     return rc;
   }
 
   rc = IXFAllocModule(&ixfModule);
 
   if (rc)
+  {
+    *pcbName = strlen(mname);
     return rc;
-
-  //ixfSysDep = (IXFSYSDEP *)ixfModule->hdlSysDep;
+  }
 
   if (exeflag)
     ixfModule->area = 0; // L4RM_DEFAULT_REGION_AREA; // 0
@@ -470,11 +472,15 @@ unsigned long OpenModule(char *          pszName,
     rc = IXFCopyModule(ixfModule, ixfPrev);
 
     if (rc)
+    {
+      *pcbName = strlen(mname);
       return rc;
+    }
 
     // @todo use handles here
     *phmod=(unsigned long)ixfModule;
     ModRegister(mname, ixfModule, exeflag);
+    *pcbName = strlen(mname);
     io_log("copy created\n");
     return NO_ERROR;
   }
@@ -490,8 +496,15 @@ unsigned long OpenModule(char *          pszName,
   if (rc)
   {
     io_log("IXFIdentifyModule: rc=%u\n", rc);
+    if (*pcbName <= strlen(pszModname))
+    {
+      IXFFreeModule(ixfModule);
+      *pcbName = 0;
+      return ERROR_BUFFER_OVERFLOW;
+    }
     strcpy(pszName, pszModname);
-    *phmod=0;
+    *phmod = 0;
+    *pcbName = strlen(mname);
     rc = IXFFreeModule(ixfModule);
     return rc;
   }
@@ -505,13 +518,14 @@ unsigned long OpenModule(char *          pszName,
 
   //@todo use handle table
   *phmod=(unsigned long)ixfModule;
+  *pcbName = 0;
 
   return rc;
 }
 
-unsigned long LoadModule(char *          pszName,
-                         unsigned long   cbName,
-                         unsigned long * phmod)
+unsigned long LoadModule(char            *pszName,
+                         unsigned long   *pcbName,
+                         unsigned long   *phmod)
 {
   struct module_rec * new_module_el;
   char chLoadError[CCHMAXPATH]; /* Error info from ModLoadModule */
@@ -543,12 +557,16 @@ unsigned long LoadModule(char *          pszName,
   if (! t)
   {
     if (! *phmod)
-      return 6; /* ERROR_INVALID_HANDLE */
+    {
+      *pcbName = strlen(mname);
+      return ERROR_INVALID_HANDLE;
+    }
 
     if (! exeflag)
     {
       io_log("already loaded, dll\n");
       *phmod = (unsigned long)prev->module_struct;
+      *pcbName = 0;
       return 0;
     }
     else
@@ -560,6 +578,7 @@ unsigned long LoadModule(char *          pszName,
       io_log("already loaded, exe\n");
       *phmod = (unsigned long)prev->module_struct;
       prev->load_status = DONE_LOADING;
+      *pcbName = 0;
       return 0;
     }
   }
@@ -568,12 +587,19 @@ unsigned long LoadModule(char *          pszName,
   {
     // not loaded
     // Load module
-    rc=IXFLoadModule(addr, size, ixfModule);
+    rc = IXFLoadModule(addr, size, ixfModule);
     if (rc)
     {
+      if (*pcbName <= strlen(pszModname))
+      {
+        IXFFreeModule(ixfModule);
+        *pcbName = 0;
+        return ERROR_BUFFER_OVERFLOW;
+      }
       strcpy(pszName, pszModname);
-      *phmod=0;
-      free(ixfModule);
+      *phmod = 0;
+      *pcbName = strlen(mname);
+      IXFFreeModule(ixfModule);
       return rc;
     }
   }
@@ -626,6 +652,7 @@ unsigned long LoadModule(char *          pszName,
       if (rc)
       {
         io_log("Error opening module: %s\n", name);
+        *pcbName = strlen(mname);
         return rc;
       }
 
@@ -637,6 +664,7 @@ unsigned long LoadModule(char *          pszName,
       if (rc)
       {
         io_log("Error loading module: %s\n", name);
+        *pcbName = strlen(mname);
         return rc;
       }
     }
@@ -644,13 +672,20 @@ unsigned long LoadModule(char *          pszName,
     if (!exeflag)
     {
 #if 1
-      rc=IXFFixupModule(ixfModule);
+      rc = IXFFixupModule(ixfModule);
       if (rc)
       {
         io_log("IXFFixupModule: rc=%u\n", rc);
+        if (*pcbName <= strlen(pszModname))
+        {
+          IXFFreeModule(ixfModule);
+          *pcbName = 0;
+          return ERROR_BUFFER_OVERFLOW;
+        }
         strcpy(pszName, pszModname);
-        *phmod=0;
-        free(ixfModule);
+        *phmod = 0;
+        *pcbName = strlen(mname);
+        IXFFreeModule(ixfModule);
         return rc;
       }
       else
@@ -690,9 +725,10 @@ unsigned long LoadModule(char *          pszName,
   if (exeflag)
   {
     rc = IXFFixupModule(ixfModule);
-    if (rc!=0/*NO_ERROR*/)
+    if (rc != NO_ERROR)
     {
       io_log("LoadModule: Error %s module fixup\n", pszModname);
+      *pcbName = strlen(mname);
       return rc;
     }
   }
@@ -701,40 +737,41 @@ unsigned long LoadModule(char *          pszName,
   //@todo use handle table
   *phmod=(unsigned long)ixfModule;
   new_module_el->load_status = DONE_LOADING;
+  *pcbName = 0;
 
   return rc; /*NO_ERROR;*/
 }
 
 
-unsigned long ModLoadModule(char *          pszName,
-                            unsigned long   cbName,
-                            char const *    pszModname,
-                            unsigned long * phmod)
+unsigned long ModLoadModule(char            *pszName,
+                            unsigned long   *pcbName,
+                            char const      *pszModname,
+                            unsigned long   *phmod)
 {
   int rc = 0;
 
-  rc = OpenModule(pszName, cbName, pszModname, 0, phmod);
+  rc = OpenModule(pszName, pcbName, pszModname, 0, phmod);
 
   if (rc) 
     return rc;
 
-  rc = LoadModule(pszName, cbName, phmod);
+  rc = LoadModule(pszName, pcbName, phmod);
   return rc;
 }
 
-unsigned long ModLoadExeModule(char *          pszName,
-                               unsigned long   cbName,
-                               char const *    pszModname,
-                               unsigned long * phmod)
+unsigned long ModLoadExeModule(char            *pszName,
+                               unsigned long   *pcbName,
+                               char const      *pszModname,
+                               unsigned long   *phmod)
 {
   int rc = 0;
 
-  rc = OpenModule(pszName, cbName, pszModname, 1, phmod);
+  rc = OpenModule(pszName, pcbName, pszModname, 1, phmod);
 
   if (rc) 
     return rc;
 
-  rc = LoadModule(pszName, cbName, phmod);
+  rc = LoadModule(pszName, pcbName, phmod);
   return rc;
 }
 
@@ -754,7 +791,7 @@ unsigned long ModQueryModuleHandle(const char *pszModname, unsigned long *phmod)
   return 0; /* NO_ERROR */
 }
 
-unsigned long ModQueryModuleName(unsigned long hmod, unsigned long cbName, char *pchName)
+unsigned long ModQueryModuleName(unsigned long hmod, unsigned long *pcbName, char *pchName)
 {
   struct module_rec *prev;
 
@@ -762,13 +799,15 @@ unsigned long ModQueryModuleName(unsigned long hmod, unsigned long cbName, char 
   {
     io_log("module not found\n");
     *pchName = '\0';
+    *pcbName = 0;
     return 6; /* ERROR_INVALID_HANDLE */
   }
 
-  if (strlen(prev->mod_name) + 1 > cbName)
+  if (strlen(prev->mod_name) + 1 > *pcbName)
     return 24; /* ERROR_BAD_LENGTH */
 
   strcpy(pchName, prev->mod_name);
+  *pcbName = strlen(pchName);
   return 0; /* NO_ERROR */
 }
 

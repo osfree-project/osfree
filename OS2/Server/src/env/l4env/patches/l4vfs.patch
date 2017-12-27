@@ -1,7 +1,7 @@
-Index: name_server/server/Makefile
+Index: l4/pkg/l4vfs/name_server/server/Makefile
 ===================================================================
---- name_server/server/Makefile	(revision 473)
-+++ name_server/server/Makefile	(working copy)
+--- l4/pkg/l4vfs/name_server/server/Makefile	(revision 473)
++++ l4/pkg/l4vfs/name_server/server/Makefile	(working copy)
 @@ -12,6 +12,7 @@
  MODE          = l4env_minimal
  LIBS         += -ll4vfs_basic_name_server -ll4vfs_name_server-server
@@ -11,10 +11,10 @@ Index: name_server/server/Makefile
 +#DEFAULT_RELOC = 0x0151e000
  
  include $(L4DIR)/mk/prog.mk
-Index: simple_file_server/server/basic_io.c
+Index: l4/pkg/l4vfs/simple_file_server/server/basic_io.c
 ===================================================================
---- simple_file_server/server/basic_io.c	(revision 473)
-+++ simple_file_server/server/basic_io.c	(working copy)
+--- l4/pkg/l4vfs/simple_file_server/server/basic_io.c	(revision 473)
++++ l4/pkg/l4vfs/simple_file_server/server/basic_io.c	(working copy)
 @@ -192,6 +192,8 @@
          buf->st_mode  = S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO;
          buf->st_nlink = 1;
@@ -33,10 +33,10 @@ Index: simple_file_server/server/basic_io.c
          ret = 0;
      }
  
-Index: simple_file_server/server/dirs.c
+Index: l4/pkg/l4vfs/simple_file_server/server/dirs.c
 ===================================================================
---- simple_file_server/server/dirs.c	(revision 473)
-+++ simple_file_server/server/dirs.c	(working copy)
+--- l4/pkg/l4vfs/simple_file_server/server/dirs.c	(revision 473)
++++ l4/pkg/l4vfs/simple_file_server/server/dirs.c	(working copy)
 @@ -30,6 +30,9 @@
      // + 1 for the '\0'
      len = sizeof(temp->d_ino) + sizeof(temp->d_off) +
@@ -57,10 +57,10 @@ Index: simple_file_server/server/dirs.c
  
      entry->d_reclen = dirent_size(fname);
  }
-Index: static_file_server/server/state.h
+Index: l4/pkg/l4vfs/static_file_server/server/state.h
 ===================================================================
---- static_file_server/server/state.h	(revision 473)
-+++ static_file_server/server/state.h	(working copy)
+--- l4/pkg/l4vfs/static_file_server/server/state.h	(revision 473)
++++ l4/pkg/l4vfs/static_file_server/server/state.h	(working copy)
 @@ -14,7 +14,8 @@
  
  #include <l4/sys/types.h>
@@ -71,10 +71,10 @@ Index: static_file_server/server/state.h
  #define STATIC_FILE_SERVER_VOLUME_ID 56
  /* Object-id 0 is reserved for the root dir
   * 1 .. MAX_STATIC_FILES + 1 for the files
-Index: term_server/server/term_con/Makefile
+Index: l4/pkg/l4vfs/term_server/server/term_con/Makefile
 ===================================================================
---- term_server/server/term_con/Makefile	(revision 473)
-+++ term_server/server/term_con/Makefile	(working copy)
+--- l4/pkg/l4vfs/term_server/server/term_con/Makefile	(revision 473)
++++ l4/pkg/l4vfs/term_server/server/term_con/Makefile	(working copy)
 @@ -12,7 +12,8 @@
  
  TARGET         = term_con

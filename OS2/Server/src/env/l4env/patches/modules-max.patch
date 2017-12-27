@@ -1,5 +1,5 @@
---- pkg/l4env/lib/src/startup.c	2012-05-07 14:08:46.433398779 +1200
-+++ pkg/l4env/lib/src/startup-new.c	2012-05-07 14:06:34.861399385 +1200
+--- l4/pkg/l4env/lib/src/startup.c	2012-05-07 14:08:46.433398779 +1200
++++ l4/pkg/l4env/lib/src/startup-new.c	2012-05-07 14:06:34.861399385 +1200
 @@ -42,7 +42,8 @@
  l4env_infopage_t *l4env_infopage;
  

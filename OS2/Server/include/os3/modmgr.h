@@ -46,55 +46,55 @@ void print_module_table(void);
 
 struct module_rec * ModRegister(const char * name, void * mod_struct, unsigned long exeflag);
 
-unsigned long OpenModule(char *          pszName,
-                         unsigned long   cbName,
-                         char const *    pszModname,
+unsigned long OpenModule(char            *pszName,
+                         unsigned long   *pcbName,
+                         char const      *pszModname,
 			 char            exeflag,
-                         unsigned long * phmod);
+                         unsigned long   *phmod);
 			 
-unsigned long LoadModule(char *          pszName,
-                         unsigned long   cbName,
-                         unsigned long * phmod);
+unsigned long LoadModule(char            *pszName,
+                         unsigned long   *pcbName,
+                         unsigned long   *phmod);
 
 unsigned long ModInitialize(void);
 
-unsigned long ModLoadModule(char *    pszName,
-                            unsigned long   cbName,
-                            const char *    pszModname,
-                            unsigned long * phmod);
+unsigned long ModLoadModule(char            *pszName,
+                            unsigned long   *pcbName,
+                            const char      *pszModname,
+                            unsigned long   *phmod);
 
-unsigned long ModLoadExeModule(char *pszName,
-                               unsigned long cbName,
-                               char const *pszModname,
+unsigned long ModLoadExeModule(char          *pszName,
+                               unsigned long *pcbName,
+                               char const    *pszModname,
                                unsigned long *phmod);
 
 unsigned long ModFreeModule(unsigned long hmod);
 
 unsigned long ModQueryProcAddr(unsigned long hmod,
                                unsigned long ordinal,
-                               const char *  pszName,
-                               void **       ppfn);
+                               const char    *pszName,
+                               void          **ppfn);
 
-unsigned long ModQueryModuleHandle(const char *    pszModname,
-                                   unsigned long * phmod);
+unsigned long ModQueryModuleHandle(const char    *pszModname,
+                                   unsigned long *phmod);
 
 unsigned long ModQueryModuleName(unsigned long hmod,
-                                 unsigned long cbName,
-                                 char * pch);
+                                 unsigned long *pcbName,
+                                 char          *pch);
 
 #define PT_16BIT        0
 #define PT_32BIT        1
 
 unsigned long ModQueryProcType(unsigned long   hmod,
                                unsigned long   ordinal,
-                               const char *    pszName,
-                               unsigned long * pulproctype);
+                               const char      *pszName,
+                               unsigned long   *pulproctype);
 
-unsigned long ModReplaceModule(const char * pszOldModule,
-                               const char * pszNewModule,
-                               const char * pszBackupModule);
+unsigned long ModReplaceModule(const char *pszOldModule,
+                               const char *pszNewModule,
+                               const char *pszBackupModule);
 
-void ModLinkModule(IXFModule *ixfModule,
+void ModLinkModule(IXFModule     *ixfModule,
                    unsigned long *phmod);
 
 

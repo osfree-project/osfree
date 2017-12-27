@@ -50,12 +50,12 @@ getcmd (char *s)
   char *p;
   int  i;
   char *str = (char *)cmdbuf;
-  
+
   for (p = s, i = 0; *p && !isspace(*p); p++, i++)
     str[i] = *p;
-    
+
   str[i++] = '\0';
-  
+
   return str;
 }
 
@@ -161,7 +161,7 @@ exec_runserver(int ppid)
   int  timeout = 30000;
   l4_threadid_t tid;
   struct t_os2process *proc; // server PTDA/proc
-  
+
   for (i = 0; i < 5; i++)
   {
     name = (char *)type[i].name;
@@ -171,8 +171,8 @@ exec_runserver(int ppid)
       for (j = 0; j < type[i].ip; j++)
       {
         s = type[i].sp[j].string;
-	p = getcmd (s);
-	s = skipto(0, s);
+        p = getcmd (s);
+        s = skipto(0, s);
 
         q = strdup(p);
 
@@ -193,7 +193,7 @@ exec_runserver(int ppid)
         if (strstr(p, "os2fs"))
 	{
 	  io_log("os2fs started\n");
-	  if (!names_waitfor_name("os2fs", &fs, 30000))
+	  if (! names_waitfor_name("os2fs", &fs, 30000))
 	  {
 	    io_log("Can't find os2fs on name server!\n");
 	    return;
@@ -212,16 +212,16 @@ exec_runserver(int ppid)
 	timeout = atoi (to);
 
         io_log("LOOKFOR:%s, TIMEOUT:%d\n", server, timeout);
-	if (*server && !names_waitfor_name(server, &tid, timeout))
+	if (*server && ! names_waitfor_name(server, &tid, timeout))
 	{
 	  io_log("Timeout waiting for %s\n", server);
 	  return;
 	}
       }
       io_log("Server %s started\n", server);
-    }  
+    }
   }
-    
+
   return;
 }
 
@@ -252,7 +252,7 @@ int sysinit (cfg_opts *options)
   sysinit_id = l4_myself();
   proc->task = sysinit_id;
 
-  if (!names_register("os2srv.sysinit"))
+  if (! names_register("os2srv.sysinit"))
     io_log("error registering on the name server\n");
 
   /* Start servers */
@@ -260,7 +260,7 @@ int sysinit (cfg_opts *options)
 
   /* Start run=/call= */
   exec_run_call(proc->pid);
- 
+
   // Check PROTSHELL statement value
   if (!options->protshell || !*(options->protshell))
   {
@@ -292,7 +292,7 @@ int sysinit (cfg_opts *options)
   io_log("event notification sent\n");
 
   // unregister at names
-  if (!names_unregister_task(sysinit_id))
+  if (! names_unregister_task(sysinit_id))
       io_log("Cannot unregister at name server!\n");
 
   // destroy proc/PTDA

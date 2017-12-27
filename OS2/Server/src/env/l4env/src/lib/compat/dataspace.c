@@ -31,7 +31,9 @@ DataspaceAlloc(l4_os3_dataspace_t *ds, void *offset, unsigned long size)
 
 long DataspaceFree(l4_os3_dataspace_t ds)
 {
-  return 0; // not implemented!
+  long ret = l4dm_close((l4dm_dataspace_t *)ds);
+  free(ds);
+  return ret;
 }
 
 long DataspaceGetSize(l4_os3_dataspace_t ds)
@@ -125,22 +127,24 @@ long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr)
+long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
-  l4_addr_t a = addr;
+  l4_addr_t a = (l4_addr_t)addr;
 
   /* get dataspace size */
-  if ((error = l4dm_mem_size(&ds, &size)))
+  //if ((error = l4dm_mem_size(&ds, &size)))
+  if ((size = DataspaceGetSize(ds)) < 0)
     {
       io_log("Error %d (%s) getting size of dataspace\n",
 	  error, l4os3_errtostr(error));
       return error;
     }
 
-  /* attach it to a given region */  
-  if ((error = l4rm_attach_to_region(&ds, (void *)a, size, 0, flags)))
+  /* attach it to a given region */
+  //if ((error = l4rm_attach_to_region(&ds, (void *)a, size, 0, flags)))
+  if ( (error = RegAttachToRegion((void **)&a, size, flags, ds, 0, 0)) < 0 )
     {
       io_log("Error %d (%s) attaching dataspace\n",
 	  error, l4os3_errtostr(error));
@@ -151,23 +155,26 @@ long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-long attach_ds_area(l4dm_dataspace_t ds, unsigned long area, unsigned long flags, void *addr)
+long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
-  l4_addr_t a = addr;
+  l4_addr_t a = (l4_addr_t)addr;
 
   /* get dataspace size */
-  if ((error = l4dm_mem_size(&ds, &size)))
+  //if ((error = l4dm_mem_size(&ds, &size)))
+  if ((size = DataspaceGetSize(ds)) < 0)
     {
       io_log("Error %d (%s) getting size of dataspace\n",
 	  error, l4os3_errtostr(error));
       return error;
     }
 
-  /* attach it to a given region */  
-  if ( (error = l4rm_area_attach_to_region(&ds, area,
-                       (void *)a, size, 0, flags)) )
+  /* attach it to a given region */
+  //if ( (error = l4rm_area_attach_to_region(&ds, area,
+    //                   (void *)a, size, 0, flags)) )
+  if ( (error = RegAreaAttachToRegion((void **)&a, size, area,
+                                      flags, ds, 0, 0)) < 0 )
     {
       io_log("Error %d (%s) attaching dataspace\n",
 	  error, l4os3_errtostr(error));

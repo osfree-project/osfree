@@ -18,6 +18,7 @@ Shared/processmgr.c \
 api/api.c \
 api/cfg.c
 
+# Shared/cfgparser.c
 
 # if your server implements the server side of an idl defined in an idl-file
 # of your package, list the idl file name(s) here (no path needed)

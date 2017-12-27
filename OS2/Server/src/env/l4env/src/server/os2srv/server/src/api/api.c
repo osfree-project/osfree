@@ -137,13 +137,13 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   io_log("worker start\n");
   /* get caller t_os2process structure */
   proc = parm->proc;
- 
+
   l = strlstlen(parm->pArg);
   io_log("pArg len=%ld\n", (ULONG)l);
   io_log("pEnv len=%ld\n", (ULONG)strlstlen(parm->pEnv));
 
   io_log("pArg=%lx\n", (ULONG)parm->pArg);
-  
+
   for (i = 0, p = parm->pArg; i < l; i++)
     if (p[i])
       io_log("%c\n", p[i]);
@@ -151,7 +151,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
       io_log("\\0\n");
 
   io_log("pEnv=%lx\n", (ULONG)parm->pEnv);
-  
+
   for (i = 0, p = parm->pEnv; i < l; i++)
     if (p[i])
       io_log("%c\n", p[i]);
@@ -260,7 +260,7 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
 
   arg = malloc(arglen);
   env = malloc(envlen);
-  
+
   strlstcpy(arg, (char *)pArg);
   strlstcpy(env, (char *)pEnv);
 
@@ -274,7 +274,7 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
   parm->pEnv = env;
   parm->pRes = pRes;
   parm->pName = (char *)pName;
-  
+
   /* start DosExecPgm worker thread */
   l4thread_create((void *)os2server_dos_ExecPgm_worker, (void *)parm, L4THREAD_CREATE_ASYNC);
   *dice_reply = DICE_NO_REPLY; // do not reply to the client until notification
@@ -291,7 +291,7 @@ strlstcpy(char *s1, char *s2)
 {
   char *p, *q;
   int  l, len = 0;
-  
+
   p = s1; q = s2;
   while (*q)
   {
@@ -331,16 +331,16 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   base = (unsigned)ppib;
   ppib->pib_pchcmd -= base;
   ppib->pib_pchenv -= base;
-  
+
   rc = l4rm_lookup_region(ppib, &addr, &size, ds,
                           &offset, &pager);
 
   if (rc < 0)
     return ERROR_INVALID_ADDRESS;
 
-  // share the dataspace with an application    
+  // share the dataspace with an application
   rc = l4dm_share(ds, *obj, L4DM_RW);
-  
+
   if (rc < 0)
     return ERROR_INVALID_ACCESS;
 
@@ -404,7 +404,7 @@ os2server_dos_QueryDBCSEnv_component (CORBA_Object obj,
 {
   if (cb && *cb)
     memset(*pBuf, 0, *cb); // empty
-    
+
   return 0; /* NO_ERROR */
 }
 
@@ -425,7 +425,7 @@ os2server_dos_QueryCp_component (CORBA_Object obj,
   (*(ULONG **)arCP)[1] = 437; /* primary codepage   */
   (*(ULONG **)arCP)[2] = 850; /* secondary codepage */
   *cb = 3 * sizeof(ULONG);
-  
+
   return 0; /* NO_ERROR */
 }
 
@@ -527,7 +527,7 @@ int cdir(char **dir, char *component)
       if (p < *dir) p++;
       *p = '\0';
     }
-    return 0; /* NO_ERROR */  
+    return 0; /* NO_ERROR */
   }
 
   if (!strcmp(component, "."))
@@ -665,7 +665,7 @@ os2server_dos_CreateEventSem_component (CORBA_Object obj,
   }
   else
   {
-    // set name  
+    // set name
     strncpy(sem->szName, pszName, CCHMAXPATH);
     sem->szName[CCHMAXPATH - 1] = '\0';
     sem->cShared = TRUE;

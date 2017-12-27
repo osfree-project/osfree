@@ -18,11 +18,6 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
-/* l4env includes */
-#include <l4/sys/types.h>
-#include <l4/dm_mem/dm_mem.h>
-#include <l4/l4rm/l4rm.h>
-
 /* osFree internal includes */
 #include <os3/token.h>
 #include <os3/cfgparser.h>
@@ -31,11 +26,17 @@
 #include <os3/io.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/app.h>
+
+/* l4env includes */
+#include <l4/sys/types.h>
+#include <l4/dm_mem/dm_mem.h>
+#include <l4/l4rm/l4rm.h>
 
 /* OS/2 server RPC */
 #include "os2server-client.h"
 #include "os2server-server.h"
-#include <l4/os2app/os2app-client.h>
+//#include <l4/os2app/os2app-client.h>
 
 /* libc includes */
 #include <string.h>
@@ -66,7 +67,7 @@ void *alloc_mem(int size, char *comment)
   l4dm_dataspace_t ds;
   int              rc;
 
-  /* allocate a dataspace of a given size */	 
+  /* allocate a dataspace of a given size */
   rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds);
 
   if (rc < 0)
@@ -238,7 +239,7 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
     c->next = NULL;
     c->prev = NULL;
 
-    if (proc_root == NULL) 
+    if (proc_root == NULL)
       proc_root = c;
 
     p = proc_root;
@@ -264,7 +265,7 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
     {
       c->curdisk = 'c' - 'a' + 1;
       *(c->curdir) = '\0';
-      //c->session = 
+      //c->session =
     }
 
     // if pEnv is NULL, then use parent pEnv
@@ -313,7 +314,7 @@ void PrcDestroy(struct t_os2process *proc) {
     prev = proc->prev;
     next = proc->next;
 
-    if (prev) 
+    if (prev)
       prev->next = next;
 
     if (next)
@@ -334,10 +335,10 @@ struct t_os2process *PrcGetProc(ULONG pid)
 {
   struct t_os2process *proc;
   proc = proc_root;
-  
+
   if (proc == NULL)
     return NULL;
-  
+
   do
   {
     if (proc->pid == pid)
@@ -346,7 +347,7 @@ struct t_os2process *PrcGetProc(ULONG pid)
       proc = proc->next;
   }
   while (proc);
-  
+
   return NULL;
 }
 
@@ -354,10 +355,10 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
 {
   struct t_os2process *proc;
   proc = proc_root;
-  
+
   if (proc == NULL)
     return NULL;
-  
+
   do
   {
     if (proc->task.id.task == thread.id.task)
@@ -366,7 +367,7 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
       proc = proc->next;
   }
   while (proc);
-  
+
   return NULL;
 }
 
@@ -416,7 +417,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 
     if (!pEnv || !*pEnv)
       pEnv = "\0\0";
-    
+
     k = strlen(pPrg) + 1;
 
     io_log("k=%d\n", k);
@@ -430,7 +431,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
     envlen = strlstlen(pEnv);
 
     io_log("envlen=%d\n", envlen);
-    
+
     if (proc->lx_pib->pib_ulppid) // ordinary process, inherits parent env
     {
       /* parent proc */
@@ -439,7 +440,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
       l = strlstlen(parentproc->lx_pib->pib_pchenv);
 
       env = (char *)malloc(envlen + l + arglen + k);
-      
+
       if (!env)
       {
         io_log("malloc: not enough memory!\n");
@@ -560,7 +561,7 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
   proc = PrcGetProcL4(*_dice_corba_obj);
   int i;
 
-  if (!proc) // it indicates that os2app is started from other 
+  if (! proc) // it indicates that os2app is started from other
   {          // means, than using PrcExecuteModule, so proc is not created
     /* create process structure and assign args and env */
     proc = PrcCreate(0, (PSZ)s->path, "", "");
@@ -593,7 +594,7 @@ strlstlen(char *p)
 
   if (!p || !*p)
     return 2;
-    
+
   while (*p) // skip all lines; break if NULL
   {
     /* skip one string */
@@ -602,7 +603,7 @@ strlstlen(char *p)
     p   += l;
     len += l;
   }
-    
+
   len++; // include NULL symbol
 
   return len;
@@ -914,7 +915,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  char * pName,
 				 unsigned long ppid)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc=NO_ERROR;
   struct t_os2process *proc;
   #define buf_size 4096
@@ -940,7 +941,9 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   // convert to upper case
   for (s = p_buf; *s; s++)
-      *s = toupper(*s);
+  {
+    *s = toupper(*s);
+  }
 
   /* create process structure */
   proc = PrcCreate(ppid, p_buf, pArg, pEnv);
@@ -967,11 +970,13 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
 
   // get pObjname and cbObjname from os2app
-  os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
+  //os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
+  rc = AppClientGetLoadError((ULONG)&proc->task, pObjname, (PULONG)&cbObjname);
 
   // Terminate os2app on LX load error
   if (rc)
-    os2app_app_Terminate_call(&proc->task, &env);
+    AppClientTerminate((ULONG)&proc->task);
+    //os2app_app_Terminate_call(&proc->task, &env);
 
   return rc; /*NO_ERROR;*/
 }

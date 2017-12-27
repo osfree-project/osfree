@@ -56,7 +56,7 @@ symlinks: $(ROOT)/cd/boot/grub/menu.lst \
 
 $(ROOT)/cd/boot/grub/menu.lst: $(OS3_DIR)/src/env/l4env/tools/menu.lst
 	@if [ ! -d $(dir $@) ]; then \
-	    @mkdir -p $(dir $@) \
+	    @mkdir -p $(dir $@); \
 	fi
 	@ln -s $< $@
 

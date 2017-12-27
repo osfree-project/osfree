@@ -17,8 +17,8 @@ LDFLAGS		= --no-undefined \
 		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 LDSCRIPT	= $(call findfile,main_dyn.ld,$(L4LIBDIR))
 LIBS		= -Bdynamic -lmemmgr.s -ldl.s -Bstatic \
-		 -los2common  -los2compat -los2fs -los2server -ll4sys -ll4sys.p \
-                  -ldm_phys -ll4env_err -ll4rm -lloaderif -levents
+		 -los2compat -los2fs -los2server -ll4sys -ll4sys.p \
+                  -ldm_phys -ll4env_err -ll4rm -lloaderif -levents # -los2common
 DEFAULT_RELOC   = 0xba000000
 SERVERIDL	= os2exec.idl
 CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include \
@@ -40,10 +40,10 @@ INSTALLFILE_BIN_LOCAL ?= cp $(1) $(2) && chmod 644 $(2)
 all:: $(BINTARGET_LOCAL)
 install:: $(BINTARGET)
 
-$(BINTARGET) $(BINTARGET_LOCAL): $(TARGET)
-	@$(INSTALL_LOCAL_MESSAGE)
-	$(if $(INSTALLFILE_BIN_LOCAL),$(VERBOSE)$(INSTALL) -d $(dir $@))
-	$(VERBOSE)$(call INSTALLFILE_BIN_LOCAL,$<,$@)
+#$(BINTARGET) $(BINTARGET_LOCAL): $(TARGET)
+#	@$(INSTALL_LOCAL_MESSAGE)
+#	$(if $(INSTALLFILE_BIN_LOCAL),$(VERBOSE)$(INSTALL) -d $(dir $@))
+#	$(VERBOSE)$(call INSTALLFILE_BIN_LOCAL,$<,$@)
 
 .PHONY: $(BINTARGET)
 endif

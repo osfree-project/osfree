@@ -54,6 +54,7 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
   io_log("size=%lu\n", *size);
 
   /* attach the created dataspace to our address space */
+  // rc = l4rm_attach(&ds, *size, 0, L4DM_RW | L4RM_MAP, addr);
   rc = l4rm_attach(&ds, *size, 0, L4DM_RW | L4RM_MAP, addr);
 
   io_log("addr=%lu\n", *addr);

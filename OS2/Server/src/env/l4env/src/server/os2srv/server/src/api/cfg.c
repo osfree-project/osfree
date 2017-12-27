@@ -58,7 +58,7 @@ os2server_cfg_getopt_component (CORBA_Object _obj,
     char *name;
     void *addr;
   };
-  
+
   struct tab intlist[] = 
   {{"autofail",      &(o->autofail)}, 
    {"buffers",       &(o->buffers)},
@@ -125,17 +125,17 @@ os2server_cfg_getopt_component (CORBA_Object _obj,
   for (f = 0, i = 0; !f && i < sizeof(intlist) / sizeof(struct tab); 
        f = f || !strcmp(name, intlist[i].name), i++) ;
   /* if it is integer field */
-  
+
   if (f)
   {
     *is_int = 1;
     *value_int = *(short int *)(intlist[i - 1].addr);
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(chrlist) / sizeof(struct tab); 
        f = f || !strcmp(name, chrlist[i].name), i++) ;
-  
+
   if (f)
   {
     *is_int = 0;
@@ -144,7 +144,7 @@ os2server_cfg_getopt_component (CORBA_Object _obj,
     *(*value_str + 1) = '\0';
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(arrlist) / sizeof(struct tab);
        f = f || !strcmp(name, arrlist[i].name), i++) ;
 
@@ -154,7 +154,7 @@ os2server_cfg_getopt_component (CORBA_Object _obj,
     strcpy(*value_str, (char *)&(arrlist[i - 1].addr));
     return 0;
   }
-  
+
   for (f = 0, i = 0; !f && i < sizeof(strlist) / sizeof(struct tab);
        f = f || !strcmp(name, strlist[i].name), i++) ;
 

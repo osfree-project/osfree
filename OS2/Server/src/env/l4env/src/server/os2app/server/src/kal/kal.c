@@ -18,6 +18,8 @@
 #include <os3/handlemgr.h>
 #include <os3/stacksw.h>
 #include <os3/kal.h>
+#include <os3/exec.h>
+#include <os3/app.h>
 
 /* L4 includes */
 #include <l4/generic_ts/generic_ts.h> // l4ts_exit
@@ -570,7 +572,7 @@ long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr)
+long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
@@ -596,7 +598,7 @@ long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr)
 }
 
 /** attach dataspace to our address space. (concrete address) */
-long attach_ds_area(l4dm_dataspace_t ds, unsigned long area, unsigned long flags, void *addr)
+long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long flags, void *addr)
 {
   int error;
   l4_size_t size;
@@ -631,7 +633,8 @@ long attach_module (ULONG hmod, unsigned long area)
 {
   CORBA_Environment env = dice_default_environment;
   l4exec_section_t sect;
-  l4dm_dataspace_t ds, area_ds;
+  l4_os3_dataspace_t ds;
+  l4dm_dataspace_t area_ds;
   l4_uint32_t flags;
   l4_addr_t   addr, map_addr;
   l4_size_t   map_size;
@@ -644,10 +647,10 @@ long attach_module (ULONG hmod, unsigned long area)
   index = 0; rc = 0;
   while (! os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
   {
-    ds    = sect.ds; 
+    ds    = (l4_os3_dataspace_t)&sect.ds;
     addr  = sect.addr;
     type  = sect.info.type;
-    flags = 0;  
+    flags = 0;
 
     if (type & L4_DSTYPE_READ)
       flags |= L4DM_READ;
@@ -706,43 +709,53 @@ long attach_all (ULONG hmod, unsigned long area)
 
 unsigned long
 KalPvtLoadModule(char *pszName,
-              unsigned long cbName,
+              unsigned long *pcbName,
               char const *pszModname,
               os2exec_module_t *s,
-              unsigned long *phmod)
+              PHMODULE phmod)
 {
-  CORBA_Environment env = dice_default_environment;
-  l4dm_dataspace_t ds = L4DM_INVALID_DATASPACE;
-  l4_uint32_t area;
-  ULONG hmod, rc;
+  HMODULE hmod;
+  ULONG area;
+  APIRET rc;
 
-  rc = os2exec_open_call (&execsrv, pszModname, &ds,
-                          1, &pszName, &cbName, &hmod, &env);
+  //io_log("*** 000\n");
+  rc = ExcClientOpen(pszModname, 1, pszName, pcbName, &hmod);
+
+  //io_log("*** 001\n");
   if (rc)
     return rc;
 
   *phmod = hmod;
 
-  rc = os2exec_load_call (&execsrv, hmod, &pszName, &cbName, s, &env);
+  //io_log("*** 002\n");
+  //enter_kdebug("debug");
+  rc = ExcClientLoad(hmod, pszName, pcbName, s);
 
+  //io_log("*** 003\n");
   if (rc)
     return rc;
 
+  //io_log("*** 004\n");
   if (s->exeflag) // store .exe sections in default (private) area
     area = private_memory_area;
   else // and .dll sections in shared area
     area = shared_memory_area;
 
-  rc = os2exec_share_call (&execsrv, hmod, &env);
+  //io_log("*** 005\n");
+  rc = ExcClientShare(hmod);
 
+  //io_log("*** 006\n");
   if (rc)
     return rc;
 
+  //io_log("*** 007\n");
   rc = attach_all(hmod, area);
 
+  //io_log("*** 008\n");
   if (rc)
     return rc;
 
+  //io_log("*** 009\n");
   return 0;
 }
 
@@ -756,7 +769,7 @@ KalLoadModule(PSZ pszName,
   os2exec_module_t s;
   int rc;
   KalEnter();
-  rc = KalPvtLoadModule(pszName, cbName, pszModname,
+  rc = KalPvtLoadModule(pszName, &cbName, pszModname,
                        &s, phmod);
   KalQuit();
   return rc;
@@ -951,7 +964,7 @@ KalAllocMem(PVOID *ppb,
 {
   l4_uint32_t rights = 0;
   l4_uint32_t area;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
   void *addr;
   vmdata_t  *ptr;
   int rc;
@@ -999,8 +1012,9 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_COMMIT)
   {
     /* Create a dataspace of a given size */
-    rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
-               4096, rights, "DosAllocMem dataspace", &ds);
+    //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
+    //           4096, rights, "DosAllocMem dataspace", &ds);
+    rc = DataspaceAlloc(&ds, 0, cb);
 
     if (rc < 0)
     {
@@ -1088,7 +1102,8 @@ KalFreeMem(PVOID pb)
           owner = ptr->owner;
           if (! l4_thread_equal(owner, l4_myself()))
             // ask owner to delete dataspace
-            os2app_app_ReleaseDataspace_call(&owner, &ds, &env);
+            //os2app_app_ReleaseDataspace_call(&owner, &ds, &env);
+            AppClientDataspaceRelease((ULONG)&owner, (l4_os3_dataspace_t)&ds);
           else
             l4dm_close(&ds);
         }
@@ -1136,7 +1151,8 @@ int commit_pages(PVOID pb,
   l4_size_t size;
   l4_offs_t offset;
   l4_os3_cap_idx_t pager;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
+  l4dm_dataspace_t temp_ds;
   vmdata_t *ptr;
   int rc;
 
@@ -1147,7 +1163,7 @@ int commit_pages(PVOID pb,
 
   for (;;)
   {
-    rc = l4rm_lookup_region(pb, &addr, &size, &ds,
+    rc = l4rm_lookup_region(pb, &addr, &size, &temp_ds,
                             &offset, &pager);
 
     if (rc < 0)
@@ -1156,8 +1172,10 @@ int commit_pages(PVOID pb,
     switch (rc)
     {
       case L4RM_REGION_RESERVED:
-        rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb, 4096,
-                           rights, "DosAllocMem dataspace", &ds);
+        //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb, 4096,
+        //                   rights, "DosAllocMem dataspace", &ds);
+        rc = DataspaceAlloc(&ds, 0, cb);
+
         if (rc < 0)
           return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -1418,7 +1436,7 @@ KalAllocSharedMem(PPVOID ppb,
   CORBA_Environment env = dice_default_environment;
   l4_uint32_t rights = 0;
   l4_uint32_t area = shared_memory_area;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
   l4_addr_t addr, addr2;
   vmdata_t  *ptr;
   char *p;
@@ -1496,8 +1514,9 @@ KalAllocSharedMem(PPVOID ppb,
   if (flags & PAG_COMMIT)
   {
     /* Create a dataspace of a given size */
-    rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
-               4096, rights, "DosAllocSharedMem dataspace", &ds);
+    //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
+    //           4096, rights, "DosAllocSharedMem dataspace", &ds);
+    rc = DataspaceAlloc(&ds, 0, cb);
 
     if (rc < 0)
     {
@@ -1542,7 +1561,7 @@ KalGetSharedMem(PVOID pb,
                 ULONG flag)
 {
   CORBA_Environment env = dice_default_environment;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
   l4_uint32_t area = shared_memory_area;
@@ -1610,7 +1629,7 @@ KalGetSharedMem(PVOID pb,
   while (addr <= a && a <= addr + size)
   {
     // get dataspace from os2exec
-    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, &ds, &env)) )
+    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
       // attach it to our address space
       ret = attach_ds_area(ds, area, rights, a);
 
@@ -1627,7 +1646,7 @@ KalGetNamedSharedMem(PPVOID ppb,
                      ULONG flag)
 {
   CORBA_Environment env = dice_default_environment;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
   l4_uint32_t area = shared_memory_area;
@@ -1707,7 +1726,7 @@ KalGetNamedSharedMem(PPVOID ppb,
   while (addr <= a && a <= addr + size)
   {
     // get dataspace from os2exec
-    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, &ds, &env)) )
+    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
     {
       // attach it to our address space
       if ( !(ret = attach_ds_area(ds, area, rights, a)) )
@@ -1779,7 +1798,8 @@ KalGiveSharedMem(PVOID pb,
 
   ptr->rights |= flag;
 
-  rc = os2app_app_AddArea_call(&tid, ptr->addr, ptr->size, flag, &env);
+  //rc = os2app_app_AddArea_call(&tid, ptr->addr, ptr->size, flag, &env);
+  rc = AppClientAreaAdd((ULONG)&tid, (PVOID)ptr->addr, (ULONG)ptr->size, (ULONG)flag);
 
   if (rc)
     return rc;
@@ -1796,7 +1816,8 @@ KalGiveSharedMem(PVOID pb,
       l4dm_share(&ds, tid, rights);
       os2exec_increment_sharemem_refcnt_call(&execsrv, addr, &env);
       // say that process to map dataspace to a given address
-      rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
+      //rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
+      rc = AppClientDataspaceAttach((ULONG)&tid, (PVOID)addr, (l4_os3_dataspace_t)&ds, (ULONG)rights);
     }
 
     addr += size;

@@ -12,14 +12,14 @@
 #define OPENFLAG_EXEC 1
 
 long ExcOpen(char *szLoadError,
-             unsigned long cbLoadError,
+             unsigned long *pcbLoadError,
              const char *pszModname,
              unsigned long flags,
              unsigned long *hmod);
 
 long ExcLoad(unsigned long *hmod,
              char *szLoadError,
-             unsigned long cbLoadError,
+             unsigned long *pcbLoadError,
              os2exec_module_t *s);
 
 long ExcShare(unsigned long hmod,

@@ -1,7 +1,7 @@
-Index: include/l4rm.h
+Index: l4/pkg/l4rm/include/l4rm.h
 ===================================================================
---- include/l4rm.h	(revision 473)
-+++ include/l4rm.h	(working copy)
+--- l4/pkg/l4rm/include/l4rm.h	(revision 473)
++++ l4/pkg/l4rm/include/l4rm.h	(working copy)
 @@ -633,6 +633,40 @@
  
  /*****************************************************************************/
@@ -127,10 +127,10 @@ Index: include/l4rm.h
   *** l4rm_direct_area_reserve
   *****************************************************************************/
  L4_CV L4_INLINE int
-Index: lib/src/Makefile
+Index: l4/pkg/l4rm/lib/src/Makefile
 ===================================================================
---- lib/src/Makefile	(revision 473)
-+++ lib/src/Makefile	(working copy)
+--- l4/pkg/l4rm/lib/src/Makefile	(revision 473)
++++ l4/pkg/l4rm/lib/src/Makefile	(working copy)
 @@ -8,7 +8,7 @@
  SERVERIDL	= l4rm.idl
  SRC_C		= libl4rm.c config.c alloc.c avl_tree.c avl_tree_alloc.c \
@@ -140,10 +140,10 @@ Index: lib/src/Makefile
  		  lookup.c userptr.c
  PRIVATE_INCDIR	= $(SRC_DIR)/../include 
  #DEBUG		= 1
-Index: lib/src/reservea.c
+Index: l4/pkg/l4rm/lib/src/reservea.c
 ===================================================================
---- lib/src/reservea.c	(revision 0)
-+++ lib/src/reservea.c	(working copy)
+--- l4/pkg/l4rm/lib/src/reservea.c	(revision 0)
++++ l4/pkg/l4rm/lib/src/reservea.c	(working copy)
 @@ -0,0 +1,103 @@
 +/* $Id: reserve.c 11 2007-02-26 19:08:41Z l4check $ */
 +/*****************************************************************************/

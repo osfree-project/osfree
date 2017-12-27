@@ -97,14 +97,14 @@ int main(int argc, char **argv)
   init_globals();
   //FSR_INIT();
 
-  if (!names_register("os2fs"))
+  if (! names_register("os2fs"))
   {
     io_log("Can't register on the name server!\n");
     return 1;
   }
   io_log("registered at the name server\n");
 
-  if (!names_waitfor_name("os2srv", &os2srv, 30000))
+  if (! names_waitfor_name("os2srv", &os2srv, 30000))
   {
     io_log("Can't find os2srv on names, exiting...\n");
     return 1;
@@ -112,6 +112,7 @@ int main(int argc, char **argv)
   io_log("got os2srv tid from the name server\n");
 
   io_log("argc=%d\n", argc);
+
   // Parse command line arguments
   for (;;)
   {
@@ -148,6 +149,5 @@ int main(int argc, char **argv)
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2fs_server_loop(&env);
-
   return 0;
 }

@@ -31,27 +31,27 @@ unsigned long  shared_memory_area;
 vmdata_t *areas_list = NULL;
 
 long ExcOpen(char *szLoadError,
-             unsigned long cbLoadError,
+             unsigned long *pcbLoadError,
              const char *pszModname,
              unsigned long flags,
-             unsigned long *hmod)
+             unsigned long *phmod)
 {
     char exeflag = flags & OPENFLAG_EXEC;
-    return OpenModule(szLoadError, cbLoadError, pszModname, exeflag, hmod);
+    return OpenModule(szLoadError, pcbLoadError, pszModname, exeflag, phmod);
 }
 
-long ExcLoad(unsigned long *hmod,
+long ExcLoad(unsigned long *phmod,
              char *szLoadError,
-             unsigned long cbLoadError,
+             unsigned long *pcbLoadError,
              os2exec_module_t *s)
 {
     unsigned long rc;
     IXFModule *ixf;
     IXFSYSDEP *sysdep;
 
-    rc = LoadModule(szLoadError, cbLoadError, hmod);
+    rc = LoadModule(szLoadError, pcbLoadError, phmod);
 
-    ixf = (IXFModule *)*hmod;
+    ixf = (IXFModule *)*phmod;
     s->ip = ixf->EntryPoint;
 
     if (ixf->area == 0)
@@ -62,7 +62,7 @@ long ExcLoad(unsigned long *hmod,
     sysdep = (IXFSYSDEP *)(unsigned long)(ixf->hdlSysDep);
     s->sp = sysdep->stack_high;
     s->sp_limit = sysdep->stack_low;
-    s->hmod = *hmod;
+    s->hmod = *phmod;
 
     io_log("load_component exited\n");
 

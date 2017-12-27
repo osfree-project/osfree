@@ -159,7 +159,7 @@ int main(int argc, const char **argv)
         case -1:
             // prevents showing fstab_info if no more option exists
             break;
-	    
+
         default:
             io_log("Error: Unknown option \"%c\"\n", opt);
             usage();
@@ -197,15 +197,18 @@ int main(int argc, const char **argv)
 
   // Initialize initial values from CONFIG.SYS
   rc = CfgInitOptions();
+
   if (rc != NO_ERROR)
   {
     io_log("Can't initialize CONFIG.SYS parser\n");
     return rc;
   }
+
   io_log("options.configfile=%s\n", options.configfile);
 
   // Load CONFIG.SYS into memory
   rc = io_load_file(options.configfile, &addr, &size);
+
   if (rc != NO_ERROR)
   {
     io_log("Can't load CONFIG.SYS\n");
@@ -213,8 +216,10 @@ int main(int argc, const char **argv)
   }
 
   io_log("%s\n", (char *)addr);
+
   // Parse CONFIG.SYS in memory
   rc = CfgParseConfig((char *)addr, size);
+
   if (rc != NO_ERROR)
   {
     io_log("Error parse CONFIG.SYS\n");

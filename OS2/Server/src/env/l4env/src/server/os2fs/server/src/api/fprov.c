@@ -61,7 +61,7 @@ char * get_directory(const char *s_path)
       e=i;
     }
   }
-  
+
   if (e==0) return '\0';
   char *dir=malloc(e-s+2);
   strncpy(dir, &s_path[s], e-s+1);
@@ -110,12 +110,12 @@ pathconv(char **converted, char *fname)
 
   directory = get_directory(fname);
   io_log("directory=%s\n", directory);
-  
+
   if (directory==NULL)
   {
     return 1;
   }
-  
+
   name = get_name(fname);
   io_log("name=%s\n", name);
 
@@ -124,9 +124,9 @@ pathconv(char **converted, char *fname)
 
   io_log("directory=%s\n", directory);
   io_log("name=%s\n", name);
-  
+
   if (drv >= 'c' && drv <= 'z')
-  { 
+  {
     fsrv = FSRouter_route(&fsrouter, drv);
 
     newdirectory=malloc(strlen(fsrv->mountpoint)+
@@ -178,7 +178,7 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
       return 2; /* ERROR_FILE_NOT_FOUND */
 
   io_log("file opened\n");
-  
+
   rc = fstat(handle, &stat);
 
   /* get length */

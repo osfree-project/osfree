@@ -7,19 +7,28 @@ TARGET		= os2app
 TRG             = kal.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c dl.c startup.c api/api.c \
+SRC_C		= main.c dl.c startup.c rpc.c \
+                  api.c \
                   kal/kal.c kal/start.c kal/util.c
-CFLAGS          += -I$(PKGDIR)/../../../include
 # NO_DEFAULT_RELOC= 1
+# LDFLAGS		= -shared
+#NO_DEFAULT_RELOC= 1
+#LDFLAGS		= --no-undefined \
+#		  --dynamic-linker libld-l4.s.so \
+#		  --export-dynamic \
+#		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
+#LDSCRIPT	= $(call findfile,main_dyn.ld,$(L4LIBDIR))
 LIBS		= -los2exec -los2fs -los2server -los2app -los2compat -lloaderif -levents \
                   -ldl -llist_alloc -lgeneric_fprov -ldemangle -ldm_phys
 #                  -Bdynamic -lkal.s
-# LDFLAGS		= -shared
 DEFAULT_RELOC   = 0xbb000000
-
 SERVERIDL       = os2app.idl
+CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include \
+                   -I$(OS3_DIR)/src/app/os2app/api
 
-vpath %.c $(PKGDIR)/../shared/startup
+vpath %.c $(OS3_DIR)/src/app/os2app
+vpath %.c $(OS3_DIR)/src/app/os2app/api
+vpath %.c $(REP_DIR)/src/server/shared/startup
 
 include $(L4DIR)/mk/prog.mk
 
@@ -34,10 +43,10 @@ INSTALLFILE_BIN_LOCAL ?= cp $(1) $(2) && chmod 644 $(2)
 all:: $(BINTARGET_LOCAL) $(OBJ_BASE)/bin/$(subst -,/,$(SYSTEM)/$(TRG))
 install:: $(BINTARGET)
 
-#$(BINTARGET) $(BINTARGET_LOCAL): $(TARGET)
-#	@$(INSTALL_LOCAL_MESSAGE)
-#	$(if $(INSTALLFILE_BIN_LOCAL),$(VERBOSE)$(INSTALL) -d $(dir $@))
-#	$(VERBOSE)$(call INSTALLFILE_BIN_LOCAL,$<,$@)
+$(BINTARGET) $(BINTARGET_LOCAL): $(TARGET)
+	@$(INSTALL_LOCAL_MESSAGE)
+	$(if $(INSTALLFILE_BIN_LOCAL),$(VERBOSE)$(INSTALL) -d $(dir $@))
+	$(VERBOSE)$(call INSTALLFILE_BIN_LOCAL,$<,$@)
 
 .PHONY: $(BINTARGET)
 

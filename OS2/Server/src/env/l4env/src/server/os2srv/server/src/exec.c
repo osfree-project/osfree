@@ -152,4 +152,3 @@ int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc)
     proc->task = taskid;
     return rc;
 }
-

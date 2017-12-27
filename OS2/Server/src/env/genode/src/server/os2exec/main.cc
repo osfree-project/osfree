@@ -4,7 +4,6 @@
 
 /* osFree OS/2 personality internal */
 #include <os3/io.h>
-#include <os3/modmgr.h>
 #include <os3/cfgparser.h>
 
 /* Genode includes */
@@ -59,7 +58,7 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 	          unsigned long &cbLoadError,
 	          unsigned long &hmod)
 	{
-		return ExcOpen(szLoadError.buf, cbLoadError,
+		return ExcOpen(szLoadError.buf, &cbLoadError,
 		               fname.string(), flags, &hmod);
 	}
 
@@ -69,7 +68,7 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 	          os2exec_module_t &s)
 	{
 		return ExcLoad(&hmod, szLoadError.buf,
-		               cbLoadError, &s);
+		               &cbLoadError, &s);
 	}
 
 	long share(unsigned long hmod, Genode::Capability<void> *client_id)
@@ -183,7 +182,7 @@ struct OS2::Exec::Main
 
 		if (rc != NO_ERROR)
 		{
-		    io_log("Error parse CONFIG.SYS\n");
+		    io_log("Error parsing CONFIG.SYS!\n");
 		    return;
 		}
 

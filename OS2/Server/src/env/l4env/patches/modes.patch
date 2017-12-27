@@ -1,38 +1,58 @@
---- mk/modes.inc	2011-12-31 22:10:06.000000000 +1100
-+++ mk/modes.inc~	2012-05-07 09:52:36.429399107 +1200
-@@ -237,7 +237,7 @@
+Index: l4/mk/modes.inc
+===================================================================
+--- l4/mk/modes.inc	(revision 473)
++++ l4/mk/modes.inc	(working copy)
+@@ -231,7 +231,7 @@
+                                   -ldm_generic -lthread -lsemaphore -ll4env \
+                                   -ll4env_err -lslab -llogserver_capsule    \
+                                   -ll4rm -lthread -ldm_generic -lnames      \
+-                                  -ll4util_root -ll4util -lsigma0           \
++                                  -lsigma0                                  \
+                                   $(UCLIBC_IMPLEMENTATION)                  \
+                                   $(GCCLIB)                                 \
                                    $(MALLOC_BACKEND) -ll4rm -ldm_mem         \
-                                   -ldm_generic -lc_be_time -lc_be_mmap      \
-                                   -lc_be_mmap_util -lc_be_l4env_start_stop  \
--                                  -lgeneric_ts -lrtc -ll4util_root          \
-+                                  -lgeneric_ts                              \
-                                   -lc_be_syslog -lc_be_file-table           \
-                                   -luc_be_simple_sleep -ll4vfs_common_io    \
-                                   -ll4vfs_basic_io -ll4vfs_connection       \
 @@ -245,7 +245,7 @@
                                    -ll4vfs_name_server                       \
                                    -ll4vfs_name_space_provider               \
                                    -ll4vfs_extendable -ll4sys                \
 -                                  $(UCLIBC_IMPLEMENTATION)
-+                                  $(UCLIBC_IMPLEMENTATION) -ll4util_root -lrtc # valerius
++                                  $(UCLIBC_IMPLEMENTATION) -ll4util_root -ll4util -lrtc # valerius
  L4LIBS_x86_l4env_base           = -static -ll4rm -ldm_mem -ldm_generic      \
                                    -lthread -lsemaphore -ll4env -ll4env_err  \
                                    -lslab -llogserver_capsule -ll4rm         \
+@@ -380,7 +380,7 @@
+                                   -ldm_generic -lthread -lsemaphore -ll4env \
+                                   -ll4env_err -lslab -llogserver_capsule    \
+                                   -ll4rm -lthread -ldm_generic -lnames      \
+-                                  -ll4util_root -ll4util -lsigma0           \
++                                  -lsigma0                                  \
+                                   $(UCLIBC_IMPLEMENTATION)                  \
+                                   $(GCCLIB)                                 \
+                                   $(MALLOC_BACKEND) -ll4rm -ldm_mem         \
 @@ -394,7 +394,7 @@
                                    -ll4vfs_name_server                       \
                                    -ll4vfs_name_space_provider               \
                                    -ll4vfs_extendable -ll4sys                \
 -                                  $(UCLIBC_IMPLEMENTATION)
-+                                  $(UCLIBC_IMPLEMENTATION) -ll4util_root -lrtc # valerius
++                                  $(UCLIBC_IMPLEMENTATION) -ll4util_root -ll4util -lrtc # valerius
  L4LIBS_arm_l4env_base           = -static -ll4rm -ldm_mem -ldm_generic      \
                                    -lthread -lsemaphore -ll4env -ll4env_err  \
                                    -lslab -llogserver_capsule -ll4rm         \
+@@ -517,7 +517,7 @@
+                                -ldm_generic -lthread -lsemaphore -ll4env \
+                                -ll4env_err -lslab -llogserver_capsule    \
+                                -ll4rm -lthread -ldm_generic -lnames      \
+-                               -ll4util_root -ll4util -lsigma0           \
++                               -lsigma0                                  \
+                                $(UCLIBC_IMPLEMENTATION)                  \
+                                $(GCCLIB)                                 \
+                                $(MALLOC_BACKEND) -ll4rm -ldm_mem         \
 @@ -531,7 +531,7 @@
                                 -ll4vfs_name_server                       \
                                 -ll4vfs_name_space_provider               \
                                 -ll4vfs_extendable -ll4sys                \
 -                               $(UCLIBC_IMPLEMENTATION)
-+                               $(UCLIBC_IMPLEMENTATION) -ll4util_root -lrtc # valerius
++                               $(UCLIBC_IMPLEMENTATION) -ll4util_root -ll4util -lrtc # valerius
  L4LIBS_amd64_l4env_base        = -static -ll4rm -ldm_mem -ldm_generic    \
                                 -lthread -lsemaphore -ll4env -ll4env_err  \
                                 -lslab -llogserver_capsule -ll4rm         \

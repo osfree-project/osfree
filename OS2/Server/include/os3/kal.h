@@ -183,7 +183,7 @@ KalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf);
 
 unsigned long
 KalPvtLoadModule(char *pszName,
-              unsigned long cbName,
+              unsigned long *pcbName,
               char const *pszModname,
               os2exec_module_t *s,
               unsigned long *phmod);

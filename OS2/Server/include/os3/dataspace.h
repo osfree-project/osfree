@@ -40,8 +40,8 @@ long DataspaceShare(l4_os3_dataspace_t ds, void *client_id, unsigned long rights
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr);
 
 #ifdef L4API_l4v2
-long attach_ds_reg(l4dm_dataspace_t ds, unsigned long flags, void *addr);
-long attach_ds_area(l4dm_dataspace_t ds, unsigned long area, unsigned long flags, void *addr);
+long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr);
+long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long flags, void *addr);
 #endif
 
 #ifdef __cplusplus

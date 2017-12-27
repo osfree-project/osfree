@@ -144,7 +144,7 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   os2server_app_notify1_call (&os2srv, &env);
 
   /* Load the LX executable */
-  rc = KalPvtLoadModule(pszLoadError, cbLoadError,
+  rc = KalPvtLoadModule(pszLoadError, &cbLoadError,
                         name, &s, &hmod);
 
   rcCode = rc;

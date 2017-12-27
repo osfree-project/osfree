@@ -47,7 +47,7 @@ extern void           *shared_memory_base;
 extern unsigned long  shared_memory_size;
 extern unsigned long  shared_memory_area;
 
-cfg_opts options;
+extern cfg_opts options;
 
 l4_os3_cap_idx_t os2srv;
 l4_os3_cap_idx_t fs;
@@ -71,11 +71,11 @@ os2exec_open_component (CORBA_Object _dice_corba_obj,
                         const l4dm_dataspace_t *img_ds /* in */,
                         unsigned long flags /* in */,
                         char **chLoadError /* in, out */,
-                        unsigned long *cbLoadError /* out */,
-                        unsigned long *hmod /* out */,
+                        unsigned long *pcbLoadError /* out */,
+                        unsigned long *phmod /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcOpen(*chLoadError, *cbLoadError, fname, flags, hmod);
+  return ExcOpen(*chLoadError, pcbLoadError, fname, flags, phmod);
 }
 
 
@@ -83,11 +83,15 @@ long DICE_CV
 os2exec_load_component (CORBA_Object _dice_corba_obj,
                         unsigned long hmod /* in */,
                         char **chLoadError /* in, out */,
-                        unsigned long *cbLoadError /* out */,
+                        unsigned long *pcbLoadError /* out */,
                         os2exec_module_t *s /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcLoad(&hmod, *chLoadError, *cbLoadError, s);
+  long ret;
+  io_log("uuu\n");
+  ret = ExcLoad(&hmod, *chLoadError, pcbLoadError, s);
+  io_log("www\n");
+  return ret;
 }
 
 long DICE_CV
@@ -408,8 +412,45 @@ int main (int argc, char *argv[])
   io_log("debugixfmgr=%d\n", options.debugixfmgr);
   io_log("libpath=%s\n", options.libpath);
 #endif
-  options.libpath = (char *)malloc(4);
-  strcpy(options.libpath, "c:\\");
+  //options.libpath = (char *)malloc(4);
+  //strcpy(options.libpath, "c:\\");
+
+  // Initialize initial values from config.sys
+  CfgInitOptions();
+
+  if (rc)
+  {
+    io_log("Cannot initialize CONFIG.SYS parser!\n");
+    return -1;
+  }
+
+  options.configfile = (char *)"C:\\config.sys";
+
+  io_log("option.configfile=%s\n", options.configfile);
+
+  // Load CONFIG.SYS into memory
+  rc = io_load_file(options.configfile, &addr, &size);
+
+  if (rc)
+  {
+    io_log("Can't load CONFIG.SYS!\n");
+    return -1;
+  }
+
+  // Parse CONFIG.SYS in memory
+  rc = CfgParseConfig((char *)addr, size);
+
+  if (rc)
+  {
+    io_log("Error parsing CONFIG.SYS!\n");
+    return -1;
+  }
+
+  // Release all memory allocated by parser
+  CfgCleanup();
+
+  // Remove CONFIG.SYS from memory
+  io_close_file(addr);
 
   /* get our l4env infopage as a dataspace */
   rc = l4loader_app_info_call(&loader, l4_myself().id.task,

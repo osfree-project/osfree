@@ -176,25 +176,25 @@ int main (int argc, char *argv[])
                 { 0, 0, 0, 0}
                 };
 
-  if (!names_waitfor_name("os2srv", &os2srv, 30000))
+  if (! names_waitfor_name("os2srv", &os2srv, 30000))
     {
       io_log("Can't find os2srv on names, exiting...\n");
       __exit(1, 1);
     }
 
-  if (!names_waitfor_name("os2fs", &fs, 30000))
+  if (! names_waitfor_name("os2fs", &fs, 30000))
     {
       io_log("Can't find os2fs on names, exiting...\n");
       __exit(1, 1);
     }
 
-  if (!names_waitfor_name("os2exec", &execsrv, 30000))
+  if (! names_waitfor_name("os2exec", &execsrv, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
       __exit(1, 1);
     }
 
-  if (!names_waitfor_name(fprov, &fprov_id, 30000))
+  if (! names_waitfor_name(fprov, &fprov_id, 30000))
     {
       io_log("Can't find %s on names, exiting...\n", fprov);
       __exit(1, 1);
@@ -218,11 +218,13 @@ int main (int argc, char *argv[])
 
   /* query default dataspace manager id */
   dsm = l4env_get_default_dsm();
+
   if (l4_is_invalid_id(dsm))
   {
     io_log("No dataspace manager found\n");
     __exit(1, 1);
   }
+
   io_log("dsm=%u.%u\n", dsm.id.task, dsm.id.lthread);
   io_log("frov_id=%u.%u\n", fprov_id.id.task, fprov_id.id.lthread);
 

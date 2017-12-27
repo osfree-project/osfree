@@ -1,4 +1,4 @@
-default 1
+default 4
 
 set ROOT   = (nd)
 set T      = $(ROOT)/tftpboot
@@ -10,17 +10,28 @@ set SERPORT    = 1
 set VBE_MODE   = 0x114
 set WAIT       = "-nowait"
 set SERIAL     = "-serial_esc -comspeed 115200 -comport $(SERPORT) -jdb_cmd=Jh50 bi405535 br1af"
-#set FIASCOARGS = "$(WAIT) $(SERIAL)"
+set FIASCOARGS = "$(WAIT) $(SERIAL)"
 #set FIASCOARGS = "-serial -tbuf_entries=32768 -jdb_cmd=JH"
 # -jdb_never_stop 
-set FIASCOARGS = "-serial -serial_esc"
+#set FIASCOARGS = "-serial -serial_esc"
+
+title Extra options 0
+configfile $(T)/cd/boot/grub/menu0.lst
+
+title Extra options 1
+configfile $(T)/cd/boot/grub/menu1.lst
+
+title Extra options 2
+configfile $(T)/cd/boot/grub/menu2.lst
 
 title Hello world server
 kernel $(A)/bootstrap -serial
 modaddr 0x02000000
 module $(B)/fiasco $(FIASCOARGS)
 module $(B)/sigma0
-module $(B)/roottask
+module $(B)/roottask -symbols -lines
+module $(B)/fiasco_symbols
+module $(B)/fiasco_lines
 module $(B)/hello
 
 title OS/2 server test
@@ -28,9 +39,11 @@ kernel $(A)/bootstrap -serial
 modaddr 0x02000000
 module $(B)/fiasco $(FIASCOARGS)
 module $(B)/sigma0
-module $(B)/roottask \
+module $(B)/roottask -symbols -lines \
   task modname 'simple_file_server' attached 44 modules \
   task modname 'loader' allow_cli
+module $(B)/fiasco_symbols
+module $(B)/fiasco_lines
 module $(B)/log
 module $(B)/events
 module $(B)/names --events

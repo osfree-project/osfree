@@ -1,3 +1,4 @@
+//
 // Memmory allocation work in following logic:
 //   1. Get region of memory using l4dm_mem_open
 //   2. After memory opened we need to map pages
@@ -14,17 +15,11 @@
 #include <os3/io.h>
 
 /* l4env includes */
-#include <l4/sys/types.h>
-#include <l4/env/errno.h>
-#include <l4/sys/syscalls.h>
-#include <l4/l4rm/l4rm.h>
 #include <l4/dm_mem/dm_mem.h>
-#include <l4/util/util.h>
+#include <l4/l4rm/l4rm.h>
+#include <l4/env/errno.h>
 #include <l4/env/env.h>
-#include <l4/names/libnames.h>
-#include <l4/generic_fprov/generic_fprov-client.h>
 #include <l4/util/l4_macros.h>
-#include <l4/generic_ts/generic_ts.h>
 
 /* libc includes */
 #include <stdio.h>
@@ -110,10 +105,10 @@ void l4_test_mem_alloc(void) {
 }
 
 /* Partial working memory allocation for L4. Non working because it allocates
-   virtual memory from dm_phys (physical mem) and sometimes fail. 
-   To fix this, use the function l4dm_map_pages, as in the test function 
+   virtual memory from dm_phys (physical mem) and sometimes fail.
+      To fix this, use the function l4dm_map_pages, as in the test function
    above this comment.
-     l4dm_map_pages has some difficulities, it needs to be run (I guess) 
+     l4dm_map_pages has some difficulities, it needs to be run (I guess)
    from the thread it allocates mem to. */
 void * l4_alloc_mem(unsigned long area, int base, int size, int flags, unsigned long PIC, void *ds)
 {
@@ -170,7 +165,7 @@ void * l4_alloc_mem(unsigned long area, int base, int size, int flags, unsigned 
  *          - -#L4_ENOMEM  out of memory allocating descriptors
  *          - -#L4_ENOMAP  no region found
  *          - -#L4_EIPC    error calling region mapper */
-    
+
     /* Dealloc mem */
     /*/l4rm_detach(addr);
     l4dm_close(&ds); */
@@ -189,17 +184,17 @@ int l4_translate_os2_flags(int flags) { /* PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_W
    if((flags & PAG_EXECUTE)==PAG_EXECUTE) {
      l4flags = l4flags | L4DM_READ;
     }
-     
+
    if( ((flags & PAG_READ)==PAG_READ) && 
        (!((flags & PAG_WRITE)==PAG_WRITE)) ) {
      l4flags = l4flags | L4DM_WRITE;
     }
-     
+
    if((flags & PAG_WRITE)==PAG_WRITE) {
      l4flags = l4flags | L4DM_WRITE;
     }
-    
-     
+
+
    return l4flags;
 }
 

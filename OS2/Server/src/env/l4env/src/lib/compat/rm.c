@@ -30,12 +30,35 @@ long RegAttach(void               **start,
                        (l4_addr_t)offset, flags, start);
 }
 
+long RegAttachToRegion(void               **start,
+                       unsigned long      size,
+                       unsigned long      flags,
+                       l4_os3_dataspace_t ds,
+                       void               *offset,
+                       unsigned char      align)
+{
+    return l4rm_attach_to_region((l4dm_dataspace_t *)ds, *start, size,
+                                 (l4_addr_t)offset, flags);
+}
+
+long RegAreaAttachToRegion(void               **start,
+                           unsigned long      size,
+                           unsigned long      area,
+                           unsigned long      flags,
+                           l4_os3_dataspace_t ds,
+                           void               *offset,
+                           unsigned char      align)
+{
+    return l4rm_area_attach_to_region((l4dm_dataspace_t *)ds, area, *start, size,
+                                      (l4_addr_t)offset, flags);
+}
+
 long RegAttachDataspaceToArea(l4_os3_dataspace_t ds,
                               unsigned long      area,
                               unsigned long      rights,
                               void               *addr)
 {
-    return attach_ds_area(*(l4dm_dataspace_t *)ds, area, rights, (l4_addr_t)addr);
+    return attach_ds_area(ds, area, rights, (l4_addr_t)addr);
 }
 
 long RegDetach(void *addr)
