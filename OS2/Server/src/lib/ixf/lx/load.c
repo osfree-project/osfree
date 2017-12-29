@@ -18,12 +18,16 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
+/* general includes */
+#include <exe.h>
+
 /* osFree OS/2 personality internal */
 #include <os3/modmgr.h>
 #include <os3/memmgr.h>
 #include <os3/io.h>
 #include <os3/cfgparser.h>
 #include <os3/modlx.h>
+#include <os3/lx.h>
 #include <os3/ixfmgr.h>
 #include <os3/loadobjlx.h>
 

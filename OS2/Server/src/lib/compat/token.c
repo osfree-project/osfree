@@ -4,15 +4,15 @@
 /* libc includes */
 #include <string.h>
 
-static char *nxtToken = 0;              /* pointer to previous scanned string */
-static char ch;                                         /* previous token delimiter */
+static char *nxtToken = 0;     /* pointer to previous scanned string */
+static char ch;                /* previous token delimiter */
 
 char *StrTokenize(char *str, const char * const token)
 {
 
         if(!str) {
-                if((str = nxtToken) == 0                /* nothing to do */
-                 || (*str++ = ch) == 0)               /* end of string reached */
+                if((str = nxtToken) == 0        /* nothing to do */
+                 || (*str++ = ch) == 0)         /* end of string reached */
                         return( nxtToken = 0);
         }
 

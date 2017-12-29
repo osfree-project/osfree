@@ -11,8 +11,8 @@
 #include <os3/io.h>
 
 /* l4env includes */
-#include <l4/dm_mem/dm_mem.h>
-#include <l4/dm_generic/consts.h>
+//#include <l4/dm_mem/dm_mem.h>
+//#include <l4/dm_generic/consts.h>
 
 /* dice */
 #include <dice/dice.h>
@@ -24,16 +24,19 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+/* local includes */
+#include "api.h"
+
 void DosNameConversion(char * pszName);
 
-long DICE_CV
-l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
-                      const char* fname /* in */,
-                      const l4_threadid_t *dm /* in */,
-                      unsigned long flags /* in */,
-                      l4dm_dataspace_t *ds /* out */,
-                      l4_size_t *size /* out */,
-                      CORBA_Server_Environment *_dice_corba_env);
+//long DICE_CV
+//l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
+//                      const char* fname /* in */,
+//                      const l4_threadid_t *dm /* in */,
+//                      unsigned long flags /* in */,
+//                      l4dm_dataspace_t *ds /* out */,
+//                      l4_size_t *size /* out */,
+//                      CORBA_Server_Environment *_dice_corba_env);
 
 /* extract drive letter from path */
 char get_drv(const char *s_path) {
@@ -153,66 +156,81 @@ pathconv(char **converted, char *fname)
   return 0;
 }
 
-long DICE_CV
-l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
-                      const char* fname /* in */,
-                      const l4_threadid_t *dm /* in */,
-                      unsigned long flags /* in */,
-                      l4dm_dataspace_t *ds /* out */,
-                      l4_size_t *size /* out */,
-                      CORBA_Server_Environment *_dice_corba_env)
+APIRET FSFileProv(PSZ fname,
+                  l4_os3_cap_idx_t *dm,
+                  ULONG flags,
+                  l4_os3_dataspace_t *ds,
+                  ULONG *size)
 {
   struct stat stat;
-  l4_addr_t addr;
+  void *addr;
   char *newfilename;
   int  handle;
   int  rc;
 
   /* convert OS/2 path to PN path */
+  io_log("fname=%s\n", fname);
   if (pathconv(&newfilename, (char *)fname))
-   return 2; /* ERROR_FILE_NOT_FOUND */
+   return ERROR_FILE_NOT_FOUND;
 
+  io_log("newfilename=%s\n", newfilename);
   handle = open(newfilename, O_RDONLY);
 
+  io_log("000\n");
   if(handle == -1)
-      return 2; /* ERROR_FILE_NOT_FOUND */
+      return ERROR_FILE_NOT_FOUND;
 
   io_log("file opened\n");
 
+  io_log("001\n");
   rc = fstat(handle, &stat);
 
   /* get length */
+  io_log("002\n");
   *size = stat.st_size;
 
   /* Create a dataspace of a given size */
-  rc = l4dm_mem_open(*dm, *size, 0, L4DM_RW, "fprov dataspace", ds);
+  //rc = l4dm_mem_open((l4_threadid_t)*dm, *size, 0, L4DM_RW, "fprov dataspace", ds);
+  io_log("002\n");
+  rc = DataspaceAlloc(ds, L4DM_RW, (l4_os3_cap_idx_t)*dm, *size);
 
+  io_log("003\n");
   if (rc < 0)
-    return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+    return ERROR_NOT_ENOUGH_MEMORY;
 
   /* attach the created dataspace to our address space */
+  io_log("004\n");
   rc = l4rm_attach(ds, *size, 0, L4DM_RW, (void **)&addr);
+  //rc = RegAttach(&addr, *size, L4DM_RW, *ds, 0, 0);
 
+  io_log("005\n");
   if (rc < 0)
     return 8; /* What to return? */
 
+  io_log("006\n");
   read(handle, (void *)addr, *size);
 
+  io_log("007\n");
   close(handle);
 
   l4rm_detach((void *)addr);
+  io_log("008\n");
+  //RegDetach(addr);
 
-  io_log("caller=%x.%x\n", _dice_corba_obj->id.task, _dice_corba_obj->id.lthread);  
-  rc = l4dm_transfer(ds, *_dice_corba_obj);
+  //io_log("caller=%x.%x\n", _dice_corba_obj->id.task, _dice_corba_obj->id.lthread);
+  //rc = l4dm_transfer(ds, *_dice_corba_obj);
+  rc = NO_ERROR;
 
+  io_log("009\n");
   if (rc < 0)
   {
     io_log("error transferring ds\n");
     l4dm_close(ds);
-    return 5; /* ERROR_ACCESS_DENIED */
+    //DataspaceFree(*ds);
+    return ERROR_ACCESS_DENIED;
   }
 
   io_log("successful return\n");
 
-  return 0; /*NO_ERROR;*/
+  return NO_ERROR;
 }

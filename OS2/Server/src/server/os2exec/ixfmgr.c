@@ -116,10 +116,10 @@ unsigned long IXFCopyModule(IXFModule *dst, IXFModule *src)
     return ixfCopyModule(dst, src);
 }
 
-slist_t *
+/* slist_t *
 lastelem (slist_t *e)
 {
   slist_t *p, *q = 0;
   for (p = e; p; p = p->next) q = p;
   return q;
-}
+} */

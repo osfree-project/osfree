@@ -78,6 +78,8 @@ long ExcIncrementSharedMemRefcnt(void *addr);
 long ExcReleaseSharedMem(void          *addr,
                          unsigned long *count);
 
+int load_ixfs(void);
+
 #ifdef __cplusplus
   }
 #endif

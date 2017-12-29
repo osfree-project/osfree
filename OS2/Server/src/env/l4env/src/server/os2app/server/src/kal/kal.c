@@ -513,11 +513,13 @@ KalQueryProcAddr(ULONG hmod,
                      const PSZ  pszName,
                      void  **ppfn)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
-                                   pszName, (l4_addr_t *)ppfn, &env);
+  //rc = os2exec_query_procaddr_call(&execsrv, hmod, ordinal,
+    //                               pszName, (l4_addr_t *)ppfn, &env);
+  rc = ExcClientQueryProcAddr(hmod, ordinal,
+                              pszName, (l4_addr_t *)ppfn);
   KalQuit();
   return rc;
 }
@@ -526,11 +528,12 @@ APIRET CDECL
 KalQueryModuleHandle(const char *pszModname,
                      unsigned long *phmod)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2exec_query_modhandle_call(&execsrv, pszModname,
-                                    phmod, &env);
+  //rc = os2exec_query_modhandle_call(&execsrv, pszModname,
+    //                                phmod, &env);
+  rc = ExcClientQueryModuleHandle(pszModname, phmod);
   KalQuit();
   return rc;
 }
@@ -538,11 +541,12 @@ KalQueryModuleHandle(const char *pszModname,
 APIRET CDECL
 KalQueryModuleName(unsigned long hmod, unsigned long cbBuf, char *pBuf)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2exec_query_modname_call(&execsrv, hmod,
-                                  cbBuf, &pBuf, &env);
+  //rc = os2exec_query_modname_call(&execsrv, hmod,
+    //                              cbBuf, &pBuf, &env);
+  rc = ExcClientQueryModuleName(hmod, cbBuf, &pBuf);
   KalQuit();
   return rc;
 }
@@ -631,7 +635,7 @@ long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long fla
  */
 long attach_module (ULONG hmod, unsigned long area)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4exec_section_t sect;
   l4_os3_dataspace_t ds;
   l4dm_dataspace_t area_ds;
@@ -645,7 +649,8 @@ long attach_module (ULONG hmod, unsigned long area)
   ULONG rc;
 
   index = 0; rc = 0;
-  while (! os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
+  //while (! os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
+  while (! ExcClientGetSect (hmod, &index, &sect) && ! rc)
   {
     ds    = (l4_os3_dataspace_t)&sect.ds;
     addr  = sect.addr;
@@ -687,7 +692,7 @@ long attach_module (ULONG hmod, unsigned long area)
  */
 long attach_all (ULONG hmod, unsigned long area)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   ULONG imp_hmod, rc = 0;
   unsigned long index = 0;
 
@@ -696,9 +701,10 @@ long attach_all (ULONG hmod, unsigned long area)
   if (rc)
     return rc;
 
-  while (! os2exec_getimp_call (&execsrv, hmod, &index, &imp_hmod, &env) && !rc)
+  //while (! os2exec_getimp_call (&execsrv, hmod, &index, &imp_hmod, &env) && !rc)
+  while (! ExcClientGetImp(hmod, &index, &imp_hmod) && ! rc)
   {
-    if (!imp_hmod) // KAL fake module: no need to attach sections
+    if (! imp_hmod) // KAL fake module: no need to attach sections
       continue;
 
     rc = attach_all(imp_hmod, shared_memory_area);
@@ -1014,7 +1020,7 @@ KalAllocMem(PVOID *ppb,
     /* Create a dataspace of a given size */
     //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
     //           4096, rights, "DosAllocMem dataspace", &ds);
-    rc = DataspaceAlloc(&ds, 0, cb);
+    rc = DataspaceAlloc(&ds, rights, L4DM_DEFAULT_DSM, cb);
 
     if (rc < 0)
     {
@@ -1041,7 +1047,7 @@ KalAllocMem(PVOID *ppb,
 APIRET CDECL
 KalFreeMem(PVOID pb)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   vmdata_t *ptr;
   l4_addr_t addr;
   l4_size_t size;
@@ -1064,7 +1070,8 @@ KalFreeMem(PVOID pb)
   if (ptr->is_shared)
   {
     // release area at os2exec
-    os2exec_release_sharemem_call(&execsrv, ptr->addr, &refcnt, &env);
+    //os2exec_release_sharemem_call(&execsrv, ptr->addr, &refcnt, &env);
+    ExcClientReleaseSharedMem(ptr->addr, &refcnt);
   }
 
   // detach and release all dataspaces in ptr->area
@@ -1084,7 +1091,8 @@ KalFreeMem(PVOID pb)
       case L4RM_REGION_DATASPACE:
         if (ptr->is_shared)
           // unmap dataspace from os2exec address space
-          os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
+          //os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
+          ExcClientUnmapDataspace(addr, &ds);
         // unmap from local address space
         l4rm_detach((void *)addr);
         break;
@@ -1146,7 +1154,7 @@ int commit_pages(PVOID pb,
                  ULONG cb,
                  l4_uint32_t rights)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_addr_t addr;
   l4_size_t size;
   l4_offs_t offset;
@@ -1174,7 +1182,7 @@ int commit_pages(PVOID pb,
       case L4RM_REGION_RESERVED:
         //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb, 4096,
         //                   rights, "DosAllocMem dataspace", &ds);
-        rc = DataspaceAlloc(&ds, 0, cb);
+        rc = DataspaceAlloc(&ds, rights, L4DM_DEFAULT_DSM, cb);
 
         if (rc < 0)
           return ERROR_NOT_ENOUGH_MEMORY;
@@ -1185,7 +1193,8 @@ int commit_pages(PVOID pb,
           return ERROR_NOT_ENOUGH_MEMORY;
 
         if (ptr->is_shared)
-          os2exec_map_dataspace_call(&execsrv, pb, rights, &ds, &env);
+          //os2exec_map_dataspace_call(&execsrv, pb, rights, &ds, &env);
+          ExcClientMapDataspace(pb, rights, &ds);
 
         break;
 
@@ -1237,7 +1246,8 @@ int decommit_pages(PVOID pb,
         l4rm_detach((void *)addr);
         if (ptr->is_shared)
           // unmap from os2exec address space
-          os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
+          //os2exec_unmap_dataspace_call(&execsrv, addr, &ds, &env);
+          ExcClientUnmapDataspace(addr, &ds);
 
         if ((l4_addr_t)pb > addr)
         {
@@ -1264,7 +1274,8 @@ int decommit_pages(PVOID pb,
           }
 
           if (ptr->is_shared)
-            os2exec_map_dataspace_call(&execsrv, addr, rights, &ds1, &env);
+            //os2exec_map_dataspace_call(&execsrv, addr, rights, &ds1, &env);
+            ExcClientMapDataspace(addr, rights, &ds1);
         }
 
         if ((l4_addr_t)pb + cb < addr + size)
@@ -1292,7 +1303,8 @@ int decommit_pages(PVOID pb,
           }
 
           if (ptr->is_shared)
-            os2exec_map_dataspace_call(&execsrv, (l4_addr_t)pb + cb, rights, &ds2, &env);
+            //os2exec_map_dataspace_call(&execsrv, (l4_addr_t)pb + cb, rights, &ds2, &env);
+            ExcClientMapDataspace((l4_addr_t)pb + cb, rights, &ds2);
         }
 
         l4dm_close(&ds);
@@ -1433,7 +1445,7 @@ KalAllocSharedMem(PPVOID ppb,
                   ULONG  cb,
                   ULONG  flags)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_uint32_t rights = 0;
   l4_uint32_t area = shared_memory_area;
   l4_os3_dataspace_t ds;
@@ -1473,7 +1485,8 @@ KalAllocSharedMem(PPVOID ppb,
     rights |= L4DM_READ;
 
   // reserve area on os2exec and attach data to it (user pointer)
-  rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &area, &env);
+  //rc = os2exec_alloc_sharemem_call (&execsrv, cb, pszName, flags, &addr, &area, &env);
+  rc = ExcClientAllocSharedMem (cb, pszName, flags, &addr, &area);
 
   if (rc)
   {
@@ -1516,7 +1529,7 @@ KalAllocSharedMem(PPVOID ppb,
     /* Create a dataspace of a given size */
     //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, cb,
     //           4096, rights, "DosAllocSharedMem dataspace", &ds);
-    rc = DataspaceAlloc(&ds, 0, cb);
+    rc = DataspaceAlloc(&ds, rights, L4DM_DEFAULT_DSM, cb);
 
     if (rc < 0)
     {
@@ -1544,7 +1557,8 @@ KalAllocSharedMem(PPVOID ppb,
       }
     }
 
-    rc = os2exec_map_dataspace_call(&execsrv, addr, rights, &ds, &env);
+    //rc = os2exec_map_dataspace_call(&execsrv, addr, rights, &ds, &env);
+    rc = ExcClientMapDataspace(addr, rights, &ds);
   }
 
   if (! rc)
@@ -1560,7 +1574,7 @@ APIRET CDECL
 KalGetSharedMem(PVOID pb,
                 ULONG flag)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
@@ -1581,7 +1595,8 @@ KalGetSharedMem(PVOID pb,
   if (flag & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = os2exec_get_sharemem_call (&execsrv, pb, &addr, &size, &owner, &env);
+  //rc = os2exec_get_sharemem_call (&execsrv, pb, &addr, &size, &owner, &env);
+  rc = ExcClientGetSharedMem (pb, &addr, &size, &owner);
 
   if (rc)
   {
@@ -1629,7 +1644,8 @@ KalGetSharedMem(PVOID pb,
   while (addr <= a && a <= addr + size)
   {
     // get dataspace from os2exec
-    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
+    //if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
+    if (! (ret = ExcClientGetDataspace(&a, &sz, ds)) )
       // attach it to our address space
       ret = attach_ds_area(ds, area, rights, a);
 
@@ -1645,7 +1661,7 @@ KalGetNamedSharedMem(PPVOID ppb,
                      PSZ pszName,
                      ULONG flag)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
@@ -1678,7 +1694,8 @@ KalGetNamedSharedMem(PPVOID ppb,
   if (flag & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = os2exec_get_namedsharemem_call (&execsrv, pszName, &addr, &size, &owner, &env);
+  //rc = os2exec_get_namedsharemem_call (&execsrv, pszName, &addr, &size, &owner, &env);
+  rc = ExcClientGetNamedSharedMem (pszName, &addr, &size, &owner);
 
   if (rc)
   {
@@ -1726,7 +1743,8 @@ KalGetNamedSharedMem(PPVOID ppb,
   while (addr <= a && a <= addr + size)
   {
     // get dataspace from os2exec
-    if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
+    //if ( !(ret = os2exec_get_dataspace_call(&execsrv, &a, &sz, ds, &env)) )
+    if (! (ret = ExcClientGetDataspace(&a, &sz, ds)) )
     {
       // attach it to our address space
       if ( !(ret = attach_ds_area(ds, area, rights, a)) )
@@ -1753,7 +1771,7 @@ KalGiveSharedMem(PVOID pb,
                  PID pid,
                  ULONG flag)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc, ret;
   l4thread_t id;
   l4_threadid_t tid;
@@ -1814,7 +1832,8 @@ KalGiveSharedMem(PVOID pb,
     {
       // transfer dataspace to a given process
       l4dm_share(&ds, tid, rights);
-      os2exec_increment_sharemem_refcnt_call(&execsrv, addr, &env);
+      //os2exec_increment_sharemem_refcnt_call(&execsrv, addr, &env);
+      ExcClientIncrementSharedMemRefcnt(addr);
       // say that process to map dataspace to a given address
       //rc = os2app_app_AttachDataspace_call(&tid, addr, &ds, rights, &env);
       rc = AppClientDataspaceAttach((ULONG)&tid, (PVOID)addr, (l4_os3_dataspace_t)&ds, (ULONG)rights);

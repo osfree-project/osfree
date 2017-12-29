@@ -7,6 +7,7 @@ build {
   init
   lib/ixf/ne
   lib/ixf/lx
+  lib/memmgr
   app/os2app
   server/os2exec
 }
@@ -54,8 +55,10 @@ build_boot_image {
   libm.lib.so
   stdcxx.lib.so
   init
-  lx.lib.so
-  ne.lib.so
+  lx.ixf
+  ne.ixf
+  memmgr.lib.so
+  kal.map
   os2exec
   os2app
   config.sys

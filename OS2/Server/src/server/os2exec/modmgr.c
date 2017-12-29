@@ -222,6 +222,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 
   memset(line, 0, 0x100);  
   rc = io_load_file("c:\\kal.map", &addr, &size);
+  //rc = io_load_file("kal.map", &addr, &size);
 
   if (rc)
     return rc;
@@ -234,7 +235,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 
   *numentries = n;
   *entries = (IXFMODULEENTRY *)malloc(n * sizeof(IXFMODULEENTRY));
-  if (!*entries) return 1;
+  if (! *entries) return 1;
 
   for (i = 0; i < n; i++)
   {
@@ -250,6 +251,8 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
     (*entries)[i].Ordinal  = i + 1;
     (*entries)[i].ModuleName = NULL;
   }
+
+  io_close_file(addr);
 
   return 0;
 }

@@ -11,47 +11,24 @@ typedef unsigned long fnIdentify(void * addr, unsigned long size);
 typedef unsigned long fnLoad(void * addr, unsigned long size, void * ixfModule);
 typedef unsigned long fnFixup(void * FormatStruct);
 
-#ifdef L4API_l4v2
-
-/* l4env includes */
-#include <l4/env/env.h>
-
 typedef struct slist slist_t;
 
-struct slist
-{
-  struct slist     *next;
-  l4exec_section_t *section;
-};
+#ifdef L4API_l4v2
 
-slist_t *
-lastelem (slist_t *e);
-
-typedef
-  struct
-  {
-    int                 secnum;
-    slist_t             *seclist;
-    void                *stack_low;
-    void                *stack_high;
-    //l4_addr_t           pageaddr;
-  } IXFSYSDEP;
+#include <l4/env/env.h>
 
 #else
 
-//#include <dataspace/capability.h>
-//#include <base/stdint.h>
+#include <os3/dataspace.h>
 
 typedef struct
 {
   void *addr;
   unsigned long size;
-  void *ds;
-  //unsigned short id;
-  //unsigned short type;
+  l4_os3_dataspace_t ds;
 } l4exec_section_t;
 
-typedef struct slist slist_t;
+#endif
 
 struct slist
 {
@@ -59,8 +36,8 @@ struct slist
   l4exec_section_t *section;
 };
 
-slist_t *
-lastelem (slist_t *e);
+//slist_t *
+//lastelem (slist_t *e);
 
 typedef
   struct
@@ -71,9 +48,6 @@ typedef
     void                *stack_high;
     //l4_addr_t           pageaddr;
   } IXFSYSDEP;
-
-
-#endif
 
 typedef
   struct _IXFHandler

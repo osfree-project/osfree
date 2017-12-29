@@ -1,5 +1,5 @@
-#ifndef __INCLUDE__EXEC_SESSION_CONNECTION_H__
-#define __INCLUDE__EXEC_SESSION_CONNECTION_H__
+#ifndef __EXEC_SESSION_CONNECTION_H__
+#define __EXEC_SESSION_CONNECTION_H__
 
 #include <exec_session/client.h>
 #include <base/connection.h>

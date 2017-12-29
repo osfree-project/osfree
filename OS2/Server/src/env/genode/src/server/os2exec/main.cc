@@ -4,6 +4,8 @@
 
 /* osFree OS/2 personality internal */
 #include <os3/io.h>
+#include <os3/memmgr.h>
+#include <os3/modmgr.h>
 #include <os3/cfgparser.h>
 
 /* Genode includes */
@@ -35,6 +37,9 @@ extern cfg_opts options;
 extern void         *shared_memory_base;
 extern unsigned long shared_memory_size;
 extern unsigned long shared_memory_area;
+
+/* Root mem area for memmgr */
+struct t_mem_area root_area;
 
 namespace OS2::Exec {
 	struct Session_component;
@@ -191,6 +196,28 @@ struct OS2::Exec::Main
 
 		// Remove CONFIG.SYS from memory
 		io_close_file(addr);
+
+		init_memmgr(&root_area);
+
+		/* Load IXF's */
+		rc = load_ixfs();
+
+		if (rc)
+		{
+		    io_log("Error loading IXF drivers!\n");
+		    return;
+		}
+
+		/* Initializes the module list. Keeps info about which dlls an process have loaded and
+		   has linked to it (Only support for LX dlls so far). The head of the linked list is
+		   declared as a global inside dynlink.c */
+		rc = ModInitialize();
+
+		if (rc)
+		{
+		    io_log("Can't initialize module manager\n");
+		    return;
+		}
 
 		// announce 'os2exec' service
 		env.parent().announce(env.ep().manage(root));

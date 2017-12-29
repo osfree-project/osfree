@@ -1,5 +1,5 @@
-#ifndef __INCLUDE__EXEC_SESSION_CLIENT_H__
-#define __INCLUDE__EXEC_SESSION_CLIENT_H__
+#ifndef __EXEC_SESSION_CLIENT_H__
+#define __EXEC_SESSION_CLIENT_H__
 
 #include <exec_session/exec_session.h>
 #include <base/rpc_client.h>

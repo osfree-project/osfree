@@ -39,6 +39,14 @@
 
 //extern struct t_mem_area os2server_root_mem_area;
 
+slist_t *
+lastelem (slist_t *e)
+{
+  slist_t *p, *q = 0;
+  for (p = e; p; p = p->next) q = p;
+  return q;
+}
+
 #if 0
   /* Loads the objects for code and data, for programs. NOT used. */
 int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_os2process * proc) {

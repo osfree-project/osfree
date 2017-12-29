@@ -14,9 +14,10 @@ main.c      \
 utility.c   \
 globals.c   \
 mountreg.c  \
-api/fprov.c \
-api/misc.c  \
-api/api.c   \
+api.c       \
+misc.c      \
+fprov.c     \
+api/rpc.c   \
 api/glob/glob.c
 
 # if your server implements the server side of an idl defined in an idl-file
@@ -32,7 +33,11 @@ LIBS  = -lgeneric_fprov-server -levents -los2server \
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LDFLAGS		= -shared
-CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob
+CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob \
+                   -I$(OS3_DIR)/src/server/os2fs/api
 MODE            = l4env_base
+
+vpath %.c $(OS3_DIR)/src/server/os2fs
+vpath %.c $(OS3_DIR)/src/server/os2fs/api
 
 include $(L4DIR)/mk/prog.mk

@@ -20,8 +20,8 @@
 #define  INCL_BASE
 #include <os2.h>
 
-#include <exe.h>
-#include <exe386.h>
+//#include <exe.h>
+//#include <exe386.h>
 
 /* osFree internal */
 #include <os3/ixfmgr.h>
@@ -39,10 +39,10 @@ struct module_rec {
                                  A one means it is being loaded and zero it is done. */
 };
 
-void dump_header_mz(struct exe hdr);
-void dump_header_lx(struct e32_exe hdr);
-void print_detailed_module_table(void);
-void print_module_table(void);
+//void dump_header_mz(struct exe hdr);
+//void dump_header_lx(struct e32_exe hdr);
+//void print_detailed_module_table(void);
+//void print_module_table(void);
 
 struct module_rec * ModRegister(const char * name, void * mod_struct, unsigned long exeflag);
 

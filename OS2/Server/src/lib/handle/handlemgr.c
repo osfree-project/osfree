@@ -19,12 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-//#if defined(OS2) || defined(__OS2__)
 #define INCL_ERRORS
 #include <os2.h>
-//#else
-//#include <gcc_os2def.h>
-//#endif
 
 #include <string.h>
 #include <stdlib.h>

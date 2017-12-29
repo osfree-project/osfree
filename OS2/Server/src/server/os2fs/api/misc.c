@@ -16,10 +16,13 @@
 #include <ctype.h>
 
 /* dice */
-#include <dice/dice.h>
+//#include <dice/dice.h>
 
 /* servers RPC includes */
-#include <os2fs-server.h>
+//#include <os2fs-server.h>
+
+/* local includes */
+#include "api.h"
 
 static ULONG drivemap = -1;
 
@@ -46,10 +49,7 @@ void setdrivemap(ULONG *map)
   io_log("map=%lu", *map);
 }
  
-long DICE_CV
-os2fs_get_drivemap_component (CORBA_Object _dice_corba_obj,
-                              ULONG *map /* out */,
-                              CORBA_Server_Environment *_dice_corba_env)
+APIRET FSGetDriveMap(ULONG *map)
 {
   if (drivemap == -1)
     setdrivemap(&drivemap);

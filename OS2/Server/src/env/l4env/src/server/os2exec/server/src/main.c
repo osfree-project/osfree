@@ -10,6 +10,7 @@
 /* osFree internal */
 #include <os3/cfgparser.h>
 #include <os3/memmgr.h>
+#include <os3/modmgr.h>
 #include <os3/globals.h>
 #include <os3/dataspace.h>
 #include <os3/thread.h>
@@ -21,7 +22,7 @@
 #include <l4/names/libnames.h>
 
 /* dice includes   */
-#include <dice/dice.h>
+//#include <dice/dice.h>
 
 /* servers RPC includes */
 #include "os2exec-server.h"
@@ -51,7 +52,7 @@ extern cfg_opts options;
 
 l4_os3_cap_idx_t os2srv;
 l4_os3_cap_idx_t fs;
-l4_os3_cap_idx_t execsrv;
+//l4_os3_cap_idx_t execsrv;
 l4_os3_cap_idx_t loader;
 l4_os3_cap_idx_t fprov_id;
 
@@ -64,6 +65,13 @@ char use_events = 0;
 struct t_mem_area root_area;
 
 void usage(void);
+
+long l4loader_app_info_call(CORBA_Object obj,
+                            unsigned long task,
+                            unsigned long flags,
+                            char **fname,
+                            l4dm_dataspace_t *ds,
+                            CORBA_Environment *env);
 
 long DICE_CV
 os2exec_open_component (CORBA_Object _dice_corba_obj,
@@ -297,8 +305,8 @@ int main (int argc, char *argv[])
   CORBA_Server_Environment env = dice_default_server_environment;
   CORBA_Environment e = dice_default_environment;
   l4dm_dataspace_t ds;
-  l4_addr_t addr;
-  l4_size_t size;
+  void *addr;
+  unsigned long size;
   int  rc;
   char buf[0x1000];
   char *p = buf;
@@ -312,19 +320,19 @@ int main (int argc, char *argv[])
 
   //init_globals();
 
-  if (!names_register("os2exec"))
+  if (! names_register("os2exec"))
     {
       io_log("Error registering on the name server!\n");
       return -1;
     }
 
-  if (!names_waitfor_name("os2srv", &os2srv, 30000))
+  if (! names_waitfor_name("os2srv", &os2srv, 30000))
     {
       io_log("os2srv not found on name server!\n");
       return -1;
     }
 
-  if (!names_waitfor_name("os2fs", &fs, 30000))
+  if (! names_waitfor_name("os2fs", &fs, 30000))
     {
       io_log("os2fs not found on name server!\n");
       return -1;
@@ -332,13 +340,13 @@ int main (int argc, char *argv[])
   fprov_id = fs;
   io_log("os2fs tid:%x.%x\n", fs.id.task, fs.id.lthread);
 
-  if (!names_waitfor_name("LOADER", &loader, 30000))
+  if (! names_waitfor_name("LOADER", &loader, 30000))
     {
       io_log("LOADER not found on name server!\n");
       return -1;
     }
 
-  execsrv = l4_myself();
+  //execsrv = l4_myself();
 
   // Parse command line arguments
   for (;;)
@@ -369,8 +377,8 @@ int main (int argc, char *argv[])
 
   /* reserve the area below 64 Mb for application private code
      (not for use by libraries, loaded by execsrv) */
-  addr = 0x2f000; size = 0x04000000 - addr;
-  if ((rc  = l4rm_direct_area_setup_region(addr,
+  addr = (void *)0x2f000; size = 0x04000000 - (unsigned long)addr;
+  if ((rc  = l4rm_direct_area_setup_region((l4_addr_t)addr,
                                            size,
                                            L4RM_DEFAULT_REGION_AREA,
                                            L4RM_REGION_BLOCKED, 0,
@@ -383,7 +391,9 @@ int main (int argc, char *argv[])
     }
 
   // reserve the upper 1 Gb for shared memory arena
-  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, &shared_memory_area);
+  rc = l4rm_area_reserve_region((l4_addr_t)shared_memory_base,
+                                shared_memory_size, 0,
+                                (l4_uint32_t *)&shared_memory_area);
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for shared arena!\n");
@@ -456,7 +466,7 @@ int main (int argc, char *argv[])
   rc = l4loader_app_info_call(&loader, l4_myself().id.task,
                               0, &p, &ds, &e);
   /* attach it */
-  attach_ds(&ds, L4DM_RO, (l4_addr_t *)&infopage);
+  attach_ds(&ds, L4DM_RO, (void **)&infopage);
 
 #if 0
   /* load shared libs */
@@ -472,6 +482,7 @@ int main (int argc, char *argv[])
 
   /* load IXF's */
   rc = load_ixfs();
+
   if (rc)
   {
     io_log("Error loading IXF driver\n");
@@ -482,6 +493,7 @@ int main (int argc, char *argv[])
      has linked to it (Only support for LX dlls so far). The head of the linked list is
      declared as a global inside dynlink.c */
   rc = ModInitialize();
+
   if (rc)
   {
     io_log("Can't initialize module manager\n");

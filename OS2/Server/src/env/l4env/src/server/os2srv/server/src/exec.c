@@ -61,7 +61,7 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   l4_taskid_t task_ids[MAX_TASK_ID];
   char error_msg[1024];
   char *ptr = error_msg;
-  l4_os3_dataspace_t ds = NULL; L4DM_INVALID_DATASPACE;
+  l4_os3_dataspace_t ds = NULL; // L4DM_INVALID_DATASPACE;
   char str[64] = "";
   l4_addr_t addr;
   int error;
@@ -81,9 +81,9 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
 
   /* RPC call to DM_PHYS (create a dataspace) */
   //if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
-  //                            name, &ds, &env))
-  //if (l4os3_ds_allocate(&ds, 0, 1024))
-  if (DataspaceAlloc(&ds, 0, 1024))
+    //                        name, &ds, &env))
+  //if (l4os3_ds_allocate(ds, 0, 1024))
+  if (DataspaceAlloc(&ds, 0, dsm_id, 1024))
     {
       io_log("Can't allocate a dataspace!\n");
       while (1) { l4_sleep(0.1); }

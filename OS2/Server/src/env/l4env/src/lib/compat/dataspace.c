@@ -21,11 +21,27 @@
 #include <l4/dm_mem/dm_mem.h>
 
 long
-DataspaceAlloc(l4_os3_dataspace_t *ds, void *offset, unsigned long size)
+l4os3_ds_allocate(l4os3_ds_t *ds, l4_addr_t offset, l4_size_t size)
 {
+  return l4dm_mem_open(l4env_get_default_dsm(), size, 0, 0, "", ds);
+}
+
+long DataspaceAlloc(l4_os3_dataspace_t *ds, ULONG flags,
+                    l4_os3_cap_idx_t dm, ULONG size)
+{
+  io_log("* 000\n");
   l4dm_dataspace_t *temp_ds = (l4dm_dataspace_t *)malloc(sizeof(l4dm_dataspace_t));
-  long ret = l4dm_mem_open(l4env_get_default_dsm(), size, 0, 0, "", temp_ds);
+
+  io_log("* 001\n");
+  if (l4_is_invalid_id(dm))
+    dm = l4env_get_default_dsm();
+
+  io_log("* 002\n");
+  long ret = l4dm_mem_open(dm, size, 4096, flags, "", temp_ds);
+  io_log("* 003\n");
   *ds = temp_ds;
+
+  io_log("* 004\n");
   return ret;
 }
 
@@ -79,7 +95,8 @@ long DataspaceShare(l4_os3_dataspace_t ds,
 // implementation
 
 long
-DataspaceAlloc(l4_os3_dataspace_t *ds, void *offset, unsigned long size)
+DataspaceAlloc(l4_os3_dataspace_t *ds, void *offset,
+               l4_os3_cap_idx_t dm, unsigned long size)
 {
   l4re_ds_t *temp_ds = (l4re_ds_t *)malloc(sizeof(l4re_ds_t));
   long ret = l4re_ds_allocate(temp_ds, offset, size);
@@ -102,6 +119,7 @@ long DataspaceGetSize(l4_os3_dataspace_t ds)
 #endif
 
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
+//long attach_ds(l4os3_ds_t *ds, unsigned long flags, void **addr)
 {
   int error;
   l4_size_t size;

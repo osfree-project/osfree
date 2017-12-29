@@ -24,8 +24,7 @@
 /* os2fs server includes */
 #include <os2fs-server.h>
 
-l4_threadid_t fs;
-l4_threadid_t os2srv;
+//l4_threadid_t os2srv;
 
 // use events server flag
 char use_events = 0;
@@ -102,15 +101,16 @@ int main(int argc, char **argv)
     io_log("Can't register on the name server!\n");
     return 1;
   }
+
   io_log("registered at the name server\n");
 
-  if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  /* if (! names_waitfor_name("os2srv", &os2srv, 30000))
   {
     io_log("Can't find os2srv on names, exiting...\n");
     return 1;
-  }
-  io_log("got os2srv tid from the name server\n");
+  } */
 
+  //io_log("got os2srv tid from the name server\n");
   io_log("argc=%d\n", argc);
 
   // Parse command line arguments
@@ -140,9 +140,6 @@ int main(int argc, char **argv)
     l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
     io_log("event thread started\n");
   } */
-
-  // my id
-  fs = l4_myself();
 
   // server loop
   io_log("going to the server loop\n");

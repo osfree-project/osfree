@@ -1,5 +1,5 @@
-#ifndef __INCLUDE__EXEC_SESSION__CPI_SESSION_H__
-#define __INCLUDE__EXEC_SESSION__CPI_SESSION_H__
+#ifndef __EXEC_SESSION_EXEC_SESSION_H__
+#define __EXEC_SESSION_EXEC_SESSION_H__
 
 /* OS/2 API includes */
 #define  INCL_BASE

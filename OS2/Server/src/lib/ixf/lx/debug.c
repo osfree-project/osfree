@@ -1,3 +1,7 @@
+/* general includes */
+#include <exe.h>
+#include <exe386.h>
+
 /* osFree OS/2 personality internal */
 #include <os3/io.h>
 #include <os3/modmgr.h>
