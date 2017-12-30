@@ -15,7 +15,7 @@ map: app/os2app bin app app/os2app
 	wc -l os2app.1 | awk '{print $$1}' >kal.map && \
 	cat os2app.1 >>kal.map)
 	@cd ../..
-	@cd bin && ln -sf ../app/os2app/kal.map kal.map
+	@cd bin && ln -sf $(CURDIR)/app/os2app/kal.map kal.map
 
 bin:
 	@if [ ! -d $@ ]; then \

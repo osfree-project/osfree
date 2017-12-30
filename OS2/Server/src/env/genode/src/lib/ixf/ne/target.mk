@@ -3,5 +3,10 @@ LIBS = ne
 
 all: ne.ixf
 
-ne.ixf:
-	@cd bin && ln -sf ne.lib.so ne.ixf
+ne.ixf: bin
+	cd bin && ln -sf $(CURDIR)/bin/ne.lib.so ne.ixf
+
+bin:
+	@if [ ! -d $@ ]; then \
+	    mkdir -p $@; \
+	fi

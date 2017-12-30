@@ -3,5 +3,10 @@ LIBS = lx
 
 all: lx.ixf
 
-lx.ixf:
-	@cd bin && ln -sf lx.lib.so lx.ixf
+lx.ixf: bin
+	@cd bin && ln -sf $(CURDIR)/bin/lx.lib.so lx.ixf
+
+bin:
+	@if [ ! -d $@ ]; then \
+	    mkdir -p $@; \
+	fi

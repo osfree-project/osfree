@@ -2,6 +2,17 @@
 # Build
 #
 
+# path to osFree directory (please edit here!)
+set OS3_DIR "/mnt/os2l/src/l4/l4env/os3"
+###
+
+set files   "${OS3_DIR}/filesys/os2"
+
+set filelist {
+  config.sys
+  mini33.exe
+}
+
 build {
   core
   init
@@ -43,10 +54,16 @@ install_config {
 </config>}
 
 #
-# Boot image
+# create symlinks in 'bin' directory
 #
 
-exec sh -c "cd bin; cp ../../../../l4env/os3/filesys/os2/config.sys ."
+foreach file ${filelist} {
+  exec sh -c "cd bin; ln -sf ${files}/${file}"
+}
+
+#
+# Boot image
+#
 
 build_boot_image {
   core

@@ -4,7 +4,7 @@
 
 import <os2def.h>
 import <l4/generic_fprov/generic_fprov.idl>
- 
+
 interface os2fs : l4fprov::file // inherits file provider interface
 {
     /* misc functions */
@@ -19,7 +19,7 @@ interface os2fs : l4fprov::file // inherits file provider interface
 
     [allow_reply_only]
     APIRET dos_Write([in] HFILE handle,
-                     [in, prealloc_server, 
+                     [in, prealloc_server,
                      ref, size_is(count)] char *buf,
                      [in, out] ULONG *count);
 
