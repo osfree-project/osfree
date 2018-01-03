@@ -11,6 +11,7 @@
 
 /* osFree OS/2 personality internal */
 #include <os3/l4_alloc_mem.h>
+#include <os3/dataspace.h>
 #include <os3/cfgparser.h>
 #include <os3/io.h>
 
@@ -24,9 +25,10 @@ void *l4_alloc_mem(unsigned long long area, int base,
 {
     int l4_flags = l4_translate_os2_flags(flags);
     l4_os3_dataspace_t temp_ds;
-    void *start = NULL;
+    //void *start = NULL;
+    APIRET rc;
 
-    rc = DataspaceAlloc(&temp_ds, flags, 0, size);
+    rc = DataspaceAlloc(&temp_ds, l4_flags, 0, size);
 
     if (rc)
         return NULL;

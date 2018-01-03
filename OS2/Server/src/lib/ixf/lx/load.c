@@ -47,6 +47,9 @@ int LXLoadLoaderSection(struct LX_module * lx_mod);
 int LXLoadFixupSection(struct LX_module * lx_mod);
 int LXLoadObjects(IXFModule * ixfModule);
 
+void dump_header_mz(struct exe hdr);
+void dump_header_lx(struct e32_exe hdr);
+
 /* @brief Reads in the lx header from the buffer pointed at stram_fh
    with the size of str_size.
    Constructor for buffer based file.

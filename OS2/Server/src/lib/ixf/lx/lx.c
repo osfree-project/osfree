@@ -21,6 +21,8 @@
 /* libc defs */
 #include <string.h>
 
+#include <exe.h>
+
 #define ISDLL(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32MODMASK) == E32MODDLL
 //#define ISPIC(ixf) (E32_MFLAGS(*((struct LX_module *)(ixf->FormatStruct))->lx_head_e32_exe) & E32NOINTFIX)
 #define ISPIC(ixf) ISDLL(ixf)
