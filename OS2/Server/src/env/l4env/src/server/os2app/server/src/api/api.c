@@ -16,7 +16,7 @@
 #include "os2app-server.h"
 
 
-extern l4_uint32_t shared_memory_area;
+extern unsigned long long shared_memory_area;
 extern char pszLoadError[260];
 extern ULONG rcCode;
 
@@ -78,7 +78,7 @@ os2app_app_AttachDataspace_component(CORBA_Object _dice_corba_obj,
                                      l4_uint32_t rights /* in */,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
-  l4_uint32_t area = shared_memory_area;
+  l4_uint32_t area = (l4_uint32_t)shared_memory_area;
   return attach_ds_area(*ds, area, rights, addr);
 }
 

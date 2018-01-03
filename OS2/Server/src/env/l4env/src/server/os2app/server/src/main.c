@@ -49,12 +49,12 @@ const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 /* private memory arena settings */
 l4_addr_t   private_memory_base = 0x10000;
 l4_size_t   private_memory_size = 512*1024*1024;
-l4_uint32_t private_memory_area;
+unsigned long long private_memory_area;
 
 /* shared memory arena settings */
 l4_addr_t   shared_memory_base = 0x60000000;
 l4_size_t   shared_memory_size = 1024*1024*1024;
-l4_uint32_t shared_memory_area;
+unsigned long long shared_memory_area;
 
 // use events server flag
 char use_events = 0;
@@ -201,7 +201,7 @@ int main (int argc, char *argv[])
     }
 
   // reserve the lower 64 Mb for OS/2 app
-  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, &private_memory_area);
+  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, (l4_addr_t *)&private_memory_area);
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for private arena!\n");
@@ -209,7 +209,7 @@ int main (int argc, char *argv[])
   }
 
   // reserve the upper 1 Gb for shared memory arena
-  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, &shared_memory_area);
+  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, (l4_addr_t *)&shared_memory_area);
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for shared arena!\n");

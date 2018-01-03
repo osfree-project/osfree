@@ -25,6 +25,7 @@
 #include <os2fs-server.h>
 
 //l4_threadid_t os2srv;
+l4_threadid_t fprov_id;
 
 // use events server flag
 char use_events = 0;
@@ -49,7 +50,7 @@ void event_thread(void)
   l4_threadid_t tid;
   int rc;
 
-  if (!l4events_init())
+  if (! l4events_init())
   {
     io_log("l4events_init() failed\n");
     return;
@@ -140,6 +141,9 @@ int main(int argc, char **argv)
     l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
     io_log("event thread started\n");
   } */
+
+  // get our thread ID
+  fprov_id = l4_myself();
 
   // server loop
   io_log("going to the server loop\n");

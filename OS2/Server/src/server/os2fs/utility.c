@@ -1,7 +1,7 @@
 /* libc includes */
 #include <ctype.h>
 
-#define NULL '\0'
+#define NULL 0
 
 void DosNameConversion(char * pszName);
 

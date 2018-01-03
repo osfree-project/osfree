@@ -166,7 +166,7 @@ exec_runserver(int ppid)
   {
     name = (char *)type[i].name;
     io_log("name=%s\n", name);
-    if (!strcmp(name, "RUNSERVER"))
+    if (! strcmp(name, "RUNSERVER"))
     {
       for (j = 0; j < type[i].ip; j++)
       {
@@ -262,7 +262,7 @@ int sysinit (cfg_opts *options)
   exec_run_call(proc->pid);
 
   // Check PROTSHELL statement value
-  if (!options->protshell || !*(options->protshell))
+  if (! options->protshell || ! *(options->protshell))
   {
     io_log("No PROTSHELL statement in CONFIG.SYS\n");
     rc = ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/

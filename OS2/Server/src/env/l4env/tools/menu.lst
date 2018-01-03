@@ -10,9 +10,8 @@ set SERPORT    = 1
 set VBE_MODE   = 0x114
 set WAIT       = "-nowait"
 set SERIAL     = "-serial_esc -comspeed 115200 -comport $(SERPORT) -jdb_cmd=Jh50 bi405535 br1af"
-set FIASCOARGS = "$(WAIT) $(SERIAL)"
-#set FIASCOARGS = "-serial -tbuf_entries=32768 -jdb_cmd=JH"
-# -jdb_never_stop 
+# set FIASCOARGS = "$(WAIT) $(SERIAL)"
+set FIASCOARGS =  "-serial -tbuf_entries=32768 -jdb_cmd=JH -jdb_never_stop"
 #set FIASCOARGS = "-serial -serial_esc"
 
 title Extra options 0

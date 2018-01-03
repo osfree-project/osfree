@@ -47,24 +47,24 @@ struct module_rec {
 struct module_rec * ModRegister(const char * name, void * mod_struct, unsigned long exeflag);
 
 unsigned long OpenModule(char            *pszName,
-                         unsigned long   *pcbName,
+                         unsigned long   cbName,
                          char const      *pszModname,
 			 char            exeflag,
                          unsigned long   *phmod);
 			 
 unsigned long LoadModule(char            *pszName,
-                         unsigned long   *pcbName,
+                         unsigned long   cbName,
                          unsigned long   *phmod);
 
 unsigned long ModInitialize(void);
 
 unsigned long ModLoadModule(char            *pszName,
-                            unsigned long   *pcbName,
+                            unsigned long   cbName,
                             const char      *pszModname,
                             unsigned long   *phmod);
 
 unsigned long ModLoadExeModule(char          *pszName,
-                               unsigned long *pcbName,
+                               unsigned long cbName,
                                char const    *pszModname,
                                unsigned long *phmod);
 
@@ -79,7 +79,7 @@ unsigned long ModQueryModuleHandle(const char    *pszModname,
                                    unsigned long *phmod);
 
 unsigned long ModQueryModuleName(unsigned long hmod,
-                                 unsigned long *pcbName,
+                                 unsigned long cbName,
                                  char          *pch);
 
 #define PT_16BIT        0

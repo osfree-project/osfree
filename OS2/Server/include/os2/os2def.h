@@ -969,6 +969,56 @@ typedef struct _FDATE {
 
 typedef FDATE * PFDATE;
 
+#define FILE_BEGIN   0
+#define FILE_CURRENT 1
+#define FILE_END     2
+
+/* pulAction */
+#define FILE_EXISTED   1
+#define FILE_CREATED   2
+#define FILE_TRUNCATED 3
+
+/* ulAttribute */
+//#define FILE_ARCHIVED  0x00000020
+//#define FILE_DIRECTORY 0x00000010
+//#define FILE_SYSTEM    0x00000004
+//#define FILE_HIDDEN    0x00000002
+//#define FILE_READONLY  0x00000001
+//#define FILE_NORMAL    0x00000000
+
+/* fsOpenFlags */
+#define OPEN_ACTION_FAIL_IF_EXISTS     0x00000000
+#define OPEN_ACTION_OPEN_IF_EXISTS     0x00000001
+#define OPEN_ACTION_REPLACE_IF_EXISTS  0x00000010
+
+#define OPEN_ACTION_FAIL_IF_NEW        0x00000000
+#define OPEN_ACTION_CREATE_IF_NEW      0x00010000
+
+/* fsOpenMode */
+#define OPEN_ACCESS_READONLY           0x00000000
+#define OPEN_ACCESS_WRITEONLY          0x00000001
+#define OPEN_ACCESS_READWRITE          0x00000002
+
+#define OPEN_SHARE_DENYREADWRITE       0x00000010
+#define OPEN_SHARE_DENYWRITE           0x00000020
+#define OPEN_SHARE_DENYREAD            0x00000030
+#define OPEN_SHARE_DENYNONE            0x00000040
+
+#define OPEN_FLAGS_NOINHERIT           0x00000080
+
+#define OPEN_FLAGS_NO_LOCALITY         0x00000000
+#define OPEN_FLAGS_SEQUENTIAL          0x00000100
+#define OPEN_FLAGS_RANDOM              0x00000200
+#define OPEN_FLAGS_RANDOMSEQUENTIAL    0x00000300
+
+#define OPEN_FLAGS_NO_CACHE            0x00001000
+
+#define OPEN_FLAGS_FAIL_ON_ERROR       0x00002000
+
+#define OPEN_FLAGS_WRITE_THROUGH       0x00004000
+
+#define OPEN_FLAGS_DASD                0x00008000
+
 typedef struct _FILEFINDBUF {
   FDATE fdateCreation;
   FTIME ftimeCreation;
@@ -1120,6 +1170,20 @@ typedef struct _FILESTATUS3
   ULONG attrFile;
 } FILESTATUS3;
 typedef FILESTATUS3 *PFILESTATUS3;
+
+typedef struct _FILESTATUS3L
+{
+  FDATE fdateCreation;
+  FTIME ftimeCreation;
+  FDATE fdateLastAccess;
+  FTIME ftimeLastAccess;
+  FDATE fdateLastWrite;
+  FTIME ftimeLastWrite;
+  LONGLONG cbFile;
+  LONGLONG cbFileAlloc;
+  ULONG attrFile;
+} FILESTATUS3L;
+typedef FILESTATUS3L *PFILESTATUS3L;
 
 typedef struct _FILESTATUS4
 {

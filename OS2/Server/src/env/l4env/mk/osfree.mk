@@ -34,6 +34,7 @@ CFLAGS += -I$(OS3_DIR)/include
 run: symlinks
 	qemu-system-i386 \
 		-no-kqemu \
+		-s \
 		-m $(MEM) \
 		-boot n \
 		-tftp $(REP_DIR) \

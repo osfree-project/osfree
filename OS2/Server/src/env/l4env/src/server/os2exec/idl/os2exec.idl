@@ -77,7 +77,7 @@ interface os2exec
                       [in, string] char *name,
                       [in] unsigned long rights,
                       [out] l4_addr_t *addr,
-                      [out] l4_uint32_t *area);
+                      [out] unsigned long long *area);
 
   long map_dataspace([in]  l4_addr_t addr,
                      [in]  l4_uint32_t rights,

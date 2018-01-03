@@ -12,6 +12,7 @@
 #define L4DM_WRITE   0x00000002
 #define L4DM_RO      (L4DM_READ)
 #define L4DM_RW      (L4DM_READ | L4DM_WRITE)
+#define L4RM_MAP     0x01000000
 
 #if defined(L4API_l4v2)
 
@@ -34,6 +35,8 @@ typedef l4re_ds_t *l4_os3_dataspace_t;
 
 #elif 1 // Genode
 
+//#include <dataspace/capability.h>
+
 typedef void *l4_os3_dataspace_t;
 
 #else
@@ -43,14 +46,14 @@ typedef void *l4_os3_dataspace_t;
 long DataspaceAlloc(l4_os3_dataspace_t *ds, unsigned long flags,
                     l4_os3_cap_idx_t dm, unsigned long size);
 long DataspaceFree(l4_os3_dataspace_t ds);
-long DataspaceGetSize(l4_os3_dataspace_t ds);
+long DataspaceGetSize(l4_os3_dataspace_t ds, unsigned long *size);
 long DataspaceShare(l4_os3_dataspace_t ds, void *client_id, unsigned long rights);
 
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr);
 
 //#ifdef L4API_l4v2
 long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr);
-long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long flags, void *addr);
+long attach_ds_area(l4_os3_dataspace_t ds, unsigned long long area, unsigned long flags, void *addr);
 //#endif
 
 #ifdef __cplusplus

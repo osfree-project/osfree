@@ -110,7 +110,7 @@ void l4_test_mem_alloc(void) {
    above this comment.
      l4dm_map_pages has some difficulities, it needs to be run (I guess)
    from the thread it allocates mem to. */
-void * l4_alloc_mem(unsigned long area, int base, int size, int flags, unsigned long PIC, void *ds)
+void * l4_alloc_mem(unsigned long long area, int base, int size, int flags, unsigned long PIC, void *ds)
 {
     /* L4/Fiasco example*/
     int st;
@@ -136,7 +136,7 @@ void * l4_alloc_mem(unsigned long area, int base, int size, int flags, unsigned 
     //if (PIC)
     //{
       //st =  l4rm_attach(ds,             size,      0,      l4_flags,    &addr);
-      st = l4rm_area_attach((l4dm_dataspace_t *)ds,   area,   size,      0,      l4_flags,    &addr);
+      st = l4rm_area_attach((l4dm_dataspace_t *)ds,   (unsigned long)area,   size,      0,      l4_flags,    &addr);
     //} else {
     //  st = l4rm_attach_to_region(ds,    base,      size,   0,         l4_flags);
     //  addr = base;

@@ -88,7 +88,7 @@ os2server_dos_Exit_component(CORBA_Object obj,
                              CORBA_srv_env *_srv_env)
 {
   unsigned long ppid;
-  struct t_os2process *proc, *parentproc;  
+  struct t_os2process *proc, *parentproc;
   //int t;
 
   // get caller t_os2process structure
@@ -104,7 +104,7 @@ os2server_dos_Exit_component(CORBA_Object obj,
   ppid = proc->lx_pib->pib_ulppid;
   // get parent proc
   parentproc = PrcGetProc(ppid);
-  if (!parentproc)
+  if (! parentproc)
   {
     io_log("parent proc is 0\n");
     return;
@@ -145,18 +145,22 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   io_log("pArg=%lx\n", (ULONG)parm->pArg);
 
   for (i = 0, p = parm->pArg; i < l; i++)
+  {
     if (p[i])
       io_log("%c\n", p[i]);
     else
       io_log("\\0\n");
+  }
 
   io_log("pEnv=%lx\n", (ULONG)parm->pEnv);
 
   for (i = 0, p = parm->pEnv; i < l; i++)
+  {
     if (p[i])
       io_log("%c\n", p[i]);
     else
       io_log("\\0\n");
+  }
 
   io_log("begin exec\n");
   /* try executing the new task */
@@ -169,7 +173,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
     l4semaphore_down(&proc->startup_sem);
 
   /* if child execution is synchronous
-     and it is started successfully, 
+     and it is started successfully,
      block until it terminates */
   io_log("term wait\n");
   if (parm->execFlag == EXEC_SYNC)
@@ -191,7 +195,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   io_log("pRes=%lx\n", (ULONG)parm->pRes);
   io_log("pObjname=%lx\n",  (ULONG)parm->pObjname);
   io_log("cbObjname=%lx\n", (ULONG)parm->cbObjname);
-  os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, parm->pObjname, 
+  os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, parm->pObjname,
                                     parm->cbObjname, parm->pRes, rc, &env);
   /* free our parameters structure */
   free(parm->pArg);
@@ -217,7 +221,7 @@ os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
   io_log("cbObjname=%lx\n", (ULONG)cbObjname);
   io_log("pRes->codeTerminate=%lx\n", (ULONG)pRes->codeTerminate);
   io_log("pRes->codeResult=%lx\n", (ULONG)pRes->codeResult);
-  os2server_dos_ExecPgm_reply ((l4_os3_cap_idx_t *)job, result, (char **)&pObjname, 
+  os2server_dos_ExecPgm_reply ((l4_os3_cap_idx_t *)job, result, (char **)&pObjname,
 			       (long *)&cbObjname, (struct _RESULTCODES *)pRes, _srv_env);
 }
 
@@ -322,7 +326,7 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   struct t_os2process *proc;
   PPIB ppib;
 
-  // process PTDA  
+  // process PTDA
   proc = PrcGetProcL4(*obj);
   ppib = proc->lx_pib;
 
@@ -440,13 +444,13 @@ os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
   struct t_os2process *proc;
 
   proc = PrcGetProcL4(*obj);
-  
+
   io_log("proc=%lx\n", (ULONG)proc);
   n = proc->curdisk;
   io_log("n=%lx\n", n);
   *pdisknum = n;
 
-  // get drive map from fs server  
+  // get drive map from fs server
   io_log("os2fs tid: %x.%x\n", fs.id.task, fs.id.lthread);
   //os2fs_get_drivemap_call(&fs, &logical, &env);
   //*plogical = 1 << (n - 1);

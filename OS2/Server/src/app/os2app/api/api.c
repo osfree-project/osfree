@@ -16,7 +16,7 @@
 /* local includes */
 #include "api.h"
 
-extern l4_uint32_t shared_memory_area;
+extern unsigned long long shared_memory_area;
 extern char pszLoadError[260];
 extern ULONG rcCode;
 
@@ -67,7 +67,7 @@ long AppAttachDataspace(void *addr,
                         const l4_os3_dataspace_t ds,
                         unsigned long rights)
 {
-  unsigned long area = shared_memory_area;
+  unsigned long long area = shared_memory_area;
   return attach_ds_area(ds, area, rights, addr);
 }
 

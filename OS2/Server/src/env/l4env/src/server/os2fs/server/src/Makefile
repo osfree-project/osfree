@@ -11,14 +11,13 @@ DEFAULT_RELOC	= 0x01880000
 #  os2server.c
 SRC_C		= \
 main.c      \
+api/rpc.c   \
+api/glob/glob.c \
 utility.c   \
 globals.c   \
 mountreg.c  \
-api.c       \
-misc.c      \
-fprov.c     \
-api/rpc.c   \
-api/glob/glob.c
+api/api.c   \
+api/misc.c
 
 # if your server implements the server side of an idl defined in an idl-file
 # of your package, list the idl file name(s) here (no path needed)
@@ -26,7 +25,7 @@ SERVERIDL	= os2fs.idl
 
 # list additional library paths and libraries here
 LIBS  = -lgeneric_fprov-server -levents -los2server \
-        -los2compat # -ll4util_root -lrtc # -Bdynamic -lkal.s -luc_c
+        -los2compat -lgeneric_fprov # -ll4util_root -lrtc # -Bdynamic -lkal.s -luc_c
 
 #LDFLAGS		= --dynamic-linker libld-l4.s.so \
 #		  --export-dynamic \
@@ -38,6 +37,5 @@ CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob \
 MODE            = l4env_base
 
 vpath %.c $(OS3_DIR)/src/server/os2fs
-vpath %.c $(OS3_DIR)/src/server/os2fs/api
 
 include $(L4DIR)/mk/prog.mk

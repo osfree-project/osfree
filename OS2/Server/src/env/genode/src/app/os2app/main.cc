@@ -9,6 +9,6 @@ void Component::construct(Genode::Env &env)
 	OS2::Exec::Connection exec(env);
 	OS2::Exec::Session::Buf buf;
 
-	exec.test(buf);
+	exec.test(&buf);
 	Genode::log("Return from RPC: ", Genode::Cstring(buf.str));
 }

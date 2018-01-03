@@ -30,9 +30,9 @@ enum l4re_rm_flags_t {
 long RegAreaReserveInArea(unsigned long size,
                          unsigned long flags,
                          void          **addr,
-                         unsigned long *area);
+                         unsigned long long *area);
 
-long RegAreaRelease(unsigned long area);
+long RegAreaRelease(unsigned long long area);
 
 long RegAttach(void               **start,
                unsigned long      size,
@@ -50,14 +50,14 @@ long RegAttachToRegion(void               **start,
 
 long RegAreaAttachToRegion(void               **start,
                            unsigned long      size,
-                           unsigned long      area,
+                           unsigned long long area,
                            unsigned long      flags,
                            l4_os3_dataspace_t ds,
                            void               *offset,
                            unsigned char      align);
 
 long RegAttachDataspaceToArea(l4_os3_dataspace_t ds,
-                              unsigned long      area,
+                              unsigned long long area,
                               unsigned long      rights,
                               void               *addr);
 
@@ -67,20 +67,6 @@ long RegLookupRegion(void               *addr,
                      void               **addr_new,
                      unsigned long      *size,
                      l4_os3_dataspace_t *ds);
-
-//#if defined(L4API_l4v2)
-
-/* l4env includes */
-//#include <l4/l4rm/l4rm.h>
-
-//#elif defined(L4API_l4f)
-
-/* l4re includes */
-//#include <l4/re/c/rm.h>
-
-//#else
-//#error "Not implemented!"
-//#endif
 
 #ifdef __cplusplus
   }

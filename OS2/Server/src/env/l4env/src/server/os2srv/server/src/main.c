@@ -117,13 +117,13 @@ int main(int argc, const char **argv)
                 { "bootdrive",   1, NULL, 'b'},
                 { "fprov",       1, NULL, 'f'},
                 { "events",      no_argument, NULL, 'e'},
-		{ 0, 0, 0, 0}
+                { 0, 0, 0, 0}
                 };
 
   io_log("osFree OS/2 Personality Server\n");
   io_log("argc=%d\n", argc);
 
-  if (!names_register("os2srv"))
+  if (! names_register("os2srv"))
   {
     io_log("Error registering on the name server\n");
     return 1;
@@ -148,13 +148,13 @@ int main(int argc, const char **argv)
 
         case 'f':
             io_log("fprov is %s\n", optarg);
-	    strcpy(fprov, optarg);
-	    break;
+            strcpy(fprov, optarg);
+            break;
 
         case 'e':
             io_log("using events server\n");
-	    use_events = 1;
-	    break;
+            use_events = 1;
+            break;
 
         case -1:
             // prevents showing fstab_info if no more option exists
@@ -169,26 +169,27 @@ int main(int argc, const char **argv)
     }
 
   /* Wait for servers to be started */
-  if (!names_waitfor_name(fprov, &fprov_id, 10000))
+  if (! names_waitfor_name(fprov, &fprov_id, 10000))
   {
     io_log("Server \"%s\" not found\n", fprov);
     return 1;
   }
 
   io_log("waiting for LOADER server to be started...\n");
-  if (!names_waitfor_name("LOADER", &loader_id, 30000))
+  if (! names_waitfor_name("LOADER", &loader_id, 30000))
     {
       io_log("Dynamic loader LOADER not found -- terminating\n");
       while (1) l4_sleep(0.1);
     }
   io_log("loader id: %x.%x", loader_id.id.task, loader_id.id.lthread);
-  
+
   // query OS/2 server task id
   os2srv = l4_myself();
   io_log("OS/2 server uid=%x.%x\n", os2srv.id.task, os2srv.id.lthread);
 
   /* query default dataspace manager id */
   dsm_id = l4env_get_default_dsm();
+
   if (l4_is_invalid_id(dsm_id))
   {
     printf("No dataspace manager found\n");

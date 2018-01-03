@@ -12,14 +12,14 @@
 #define OPENFLAG_EXEC 1
 
 long ExcOpen(char *szLoadError,
-             unsigned long *pcbLoadError,
+             unsigned long cbLoadError,
              const char *pszModname,
              unsigned long flags,
              unsigned long *hmod);
 
 long ExcLoad(unsigned long *hmod,
              char *szLoadError,
-             unsigned long *pcbLoadError,
+             unsigned long cbLoadError,
              os2exec_module_t *s);
 
 long ExcShare(unsigned long hmod,
@@ -49,7 +49,7 @@ long ExcAllocSharedMem(unsigned long size,
                        const char    *name,
                        unsigned long rights,
                        void          **addr,
-                       unsigned long *area);
+                       unsigned long long *area);
 
 long ExcMapDataspace(void               *addr,
                      unsigned long      rights,

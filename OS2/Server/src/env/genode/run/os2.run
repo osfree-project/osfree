@@ -2,25 +2,28 @@
 # Build
 #
 
-# path to osFree directory (please edit here!)
+### path to osFree directory (please edit here!)
 set OS3_DIR "/mnt/os2l/src/l4/l4env/os3"
 ###
 
 set files   "${OS3_DIR}/filesys/os2"
 
 set filelist {
-  config.sys
-  mini33.exe
+  doscalls.dll sub32.dll kbdcalls.dll viocalls.dll moucalls.dll moncalls.dll
+  msg.dll nls.dll quecalls.dll sesmgr.dll utlapi.dll pmmerge.dll pmwin.dll oso001.msg
+  mini33.exe minicmd.exe makeini.exe argenv.exe scanenv.exe sed.exe awk.exe zip.exe
+  sort.exe ver.exe wasm.exe wmake.exe mem.exe
 }
 
 build {
   core
   init
+  lib/memmgr
   lib/ixf/ne
   lib/ixf/lx
-  lib/memmgr
-  app/os2app
   server/os2exec
+  server/os2fs
+  app/os2app
 }
 
 create_boot_directory
@@ -32,18 +35,38 @@ create_boot_directory
 install_config {
 <config>
 	<parent-provides>
-		<service name="LOG"/>
-		<service name="PD"/>
 		<service name="CPU"/>
 		<service name="ROM"/>
+		<service name="PD"/>
+		<service name="LOG"/>
 	</parent-provides>
 	<default-route>
+		<service name="ROM"> <child name="os2fs"/> <parent/> </service>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
 	<default caps="100"/>
+	<start name="os2fs">
+		<resource name="RAM" quantum="8M"/>
+		<provides>
+			<service name="ROM"/>
+			<service name="os2fs"/>
+		</provides>
+		<config verbose="yes">
+			<vfs stdout="/dev/log" stderr="/dev/log">
+				<tar name="os2.tar"/>
+				<dir name="/dev"> <log/> </dir>
+			</vfs>
+		</config>
+		<route>
+			<service name="ROM"> <parent/> </service>
+			<any-service> <parent/> <any-child/> </any-service>
+		</route>
+	</start>
 	<start name="os2exec">
 		<resource name="RAM" quantum="2M"/>
-		<provides> <service name="os2exec"/> </provides>
+		<provides>
+			<service name="os2exec"/>
+		</provides>
 		<config verbose="yes">
 			<config-file value="config.sys"/>
 		</config>
@@ -51,35 +74,41 @@ install_config {
 	<start name="os2app">
 		<resource name="RAM" quantum="1M"/>
 	</start>
-</config>}
+</config>
+}
 
-#
-# create symlinks in 'bin' directory
-#
+exec sh -c "cd bin; mkdir -p file/system; ln -sf ${files}/config.sys"
 
 foreach file ${filelist} {
-  exec sh -c "cd bin; ln -sf ${files}/${file}"
+  exec sh -c "cd bin/file/system; ln -sf ${files}/${file}"
 }
+
+exec sh -c "cd bin/file/system; ln -sf ../../kal.map"
+exec sh -c "cd bin; tar cfh os2.tar file"
 
 #
 # Boot image
 #
 
-build_boot_image {
+set bootimage {
   core
+  init
   ld.lib.so
   libc.lib.so
   libm.lib.so
   stdcxx.lib.so
-  init
+  memmgr.lib.so
+  os2.tar
+  config.sys
   lx.ixf
   ne.ixf
-  memmgr.lib.so
-  kal.map
   os2exec
+  os2fs
   os2app
-  config.sys
 }
+
+# append bootimage ${filelist}
+build_boot_image ${bootimage}
 
 append qemu_args " -nographic "
 

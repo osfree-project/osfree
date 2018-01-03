@@ -1,6 +1,6 @@
 include $(REP_DIR)/mk/osfree.mk
 
-SRC_CC = log.cc fileprov.cc
+SRC_CC = log.cc fileprov.cc err.cc dataspace.cc rm.cc
 SRC_C  = cfgparser.c env.c path.c token.c string.c
 LIBS = libc stdcxx
 

@@ -36,7 +36,7 @@ extern cfg_opts options;
 /* shared memory arena settings */
 extern void         *shared_memory_base;
 extern unsigned long shared_memory_size;
-extern unsigned long shared_memory_area;
+extern unsigned long long shared_memory_area;
 
 /* Root mem area for memmgr */
 struct t_mem_area root_area;
@@ -50,30 +50,29 @@ namespace OS2::Exec {
 
 struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 {
-	void test(OS2::Exec::Session::Buf &buf)
+	void test(OS2::Exec::Session::Buf *buf)
 	{
 		const char *s = "qwerty";
-		Genode::memcpy((char *)buf.str, s, Genode::strlen(s));
+		Genode::memcpy((char *)buf->str, s, Genode::strlen(s));
 	}
 
-	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &fname,
-	          Genode::Dataspace_capability img_ds,
+	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *fname,
 	          unsigned long flags,
-	          LoadError &szLoadError,
-	          unsigned long &cbLoadError,
-	          unsigned long &hmod)
+	          LoadError *szLoadError,
+	          unsigned long *cbLoadError,
+	          unsigned long *hmod)
 	{
-		return ExcOpen(szLoadError.buf, &cbLoadError,
-		               fname.string(), flags, &hmod);
+		return ExcOpen(szLoadError->buf, *cbLoadError,
+		               fname->string(), flags, hmod);
 	}
 
 	long load(unsigned long hmod,
-	          LoadError &szLoadError,
-	          unsigned long &cbLoadError,
-	          os2exec_module_t &s)
+	          LoadError *szLoadError,
+	          unsigned long *cbLoadError,
+	          os2exec_module_t *s)
 	{
-		return ExcLoad(&hmod, szLoadError.buf,
-		               &cbLoadError, &s);
+		return ExcLoad(&hmod, szLoadError->buf,
+		               *cbLoadError, s);
 	}
 
 	long share(unsigned long hmod, Genode::Capability<void> *client_id)
@@ -82,38 +81,48 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 	}
 
 	long getimp(unsigned long hmod,
-	            unsigned long &index,
-	            unsigned long &imp_hmod)
+	            unsigned long *index,
+	            unsigned long *imp_hmod)
 	{
-		return ExcGetImp(hmod, &index, &imp_hmod);
+		return ExcGetImp(hmod, index, imp_hmod);
 	}
 
 	long getsect(unsigned long hmod,
-	             unsigned long &index,
+	             unsigned long *index,
 	             l4exec_section_t *sect)
 	{
-		return ExcGetSect(hmod, &index, sect);
+		return ExcGetSect(hmod, index, sect);
 	}
 
 	long query_procaddr(unsigned long hmod,
 	                    unsigned long ordinal,
-	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &modname,
-	                    void *&addr)
+	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *modname,
+	                    ULONGLONG *addr)
 	{
-		return ExcQueryProcAddr(hmod, ordinal, modname.string(), &addr);
+		return ExcQueryProcAddr(hmod, ordinal, modname->string(), (void **)addr);
 	}
 
-	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &pszModname,
-	                     unsigned long &hmod)
+	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *pszModname,
+	                     unsigned long *hmod)
 	{
-		return ExcQueryModuleHandle(pszModname.string(), &hmod);
+		return ExcQueryModuleHandle(pszModname->string(), hmod);
 	}
 
 	long query_modname(unsigned long hmod,
 	                   unsigned long cbBuf,
-	                   Buf &pszBuf)
+	                   Buf *pszBuf)
 	{
-		return ExcQueryModuleName(hmod, cbBuf, pszBuf.str);
+		return ExcQueryModuleName(hmod, cbBuf, pszBuf->str);
+	}
+
+	long alloc_sharemem(ULONG size,
+	                    char *name,
+	                    ULONG rights,
+	                    ULONGLONG *addr,
+	                    ULONGLONG *area)
+	{
+		return ExcAllocSharedMem(size, name, rights,
+		                         (void **)addr, area);
 	}
 };
 

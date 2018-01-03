@@ -12,10 +12,10 @@
 #include <os3/io.h>
 
 /* dice */
-#include <dice/dice.h>
+//#include <dice/dice.h>
 
 /* servers RPC includes */
-#include "os2fs-server.h"
+//#include "os2fs-server.h"
 
 /* libc includes */
 #include <sys/types.h>
@@ -31,11 +31,14 @@
 #include <glob.h>
 #include <time.h>
 #include <utime.h>
+#include <ctype.h>
 
 /* local includes */
 #include "api.h"
 
 //extern l4_threadid_t os2srv;
+
+extern struct FSRouter fsrouter;
 
 typedef struct filehandle filehandle_t;
 
@@ -59,10 +62,67 @@ typedef struct
 
 static filefindstruc_t thehdir;
 
+void DosNameConversion(char *pszName);
+
 void setdrivemap(ULONG *map);
 
 int pathconv(char **converted, char *fname);
 int cdir(char **dir, char *component);
+
+int
+pathconv(char **converted, char *fname)
+{
+  struct I_Fs_srv *fsrv;
+  char drv;
+  char *directory;
+  char *name;
+  char *newfilename;
+  char *newdirectory;
+
+  drv = tolower(get_drv(fname));
+
+  if(drv == '\0')
+  {
+    return 1;
+  }
+
+  directory = get_directory(fname);
+
+  if (! directory)
+  {
+    return 1;
+  }
+
+  name = get_name(fname);
+
+  DosNameConversion(directory);
+  DosNameConversion(name);
+
+  if (drv >= 'c' && drv <= 'z')
+  {
+    fsrv = FSRouter_route(&fsrouter, drv);
+
+    newdirectory=malloc(strlen(fsrv->mountpoint)+
+                          strlen(directory)+1);
+
+    strcpy(newdirectory, fsrv->mountpoint);
+    newdirectory=strcat(newdirectory, directory);
+  }
+  else
+  {
+    newdirectory = malloc(strlen(directory) + 1);
+    strcpy(newdirectory, directory);
+  }
+
+  newfilename=malloc(strlen(newdirectory)+
+                     strlen(name)+1);
+
+  strcpy(newfilename, newdirectory);
+  newfilename=strcat(newfilename, name);
+  *converted = newfilename;
+
+  return 0;
+}
 
 APIRET FSRead(HFILE hFile,
               char *pBuffer,
@@ -112,11 +172,6 @@ APIRET FSWrite(HFILE handle,
   return NO_ERROR;
 }
 
-
-#define FILE_BEGIN   0
-#define FILE_CURRENT 1
-#define FILE_END     2
-
 APIRET FSSetFilePtrL(HFILE handle,
                      long long ib,
                      ULONG method,
@@ -134,6 +189,7 @@ APIRET FSSetFilePtrL(HFILE handle,
 
   /* get length */
   len = stat.st_size;
+
   /* get current position */
   pos = lseek(handle, 0L, SEEK_CUR);
 
@@ -231,52 +287,6 @@ APIRET FSQueryHType(HFILE handle,
   return NO_ERROR;
 }
 
-/* pulAction */
-#define FILE_EXISTED   1
-#define FILE_CREATED   2
-#define FILE_TRUNCATED 3
-
-/* ulAttribute */
-//#define FILE_ARCHIVED  0x00000020
-//#define FILE_DIRECTORY 0x00000010
-//#define FILE_SYSTEM    0x00000004
-//#define FILE_HIDDEN    0x00000002
-//#define FILE_READONLY  0x00000001
-//#define FILE_NORMAL    0x00000000
-
-/* fsOpenFlags */
-#define OPEN_ACTION_FAIL_IF_EXISTS     0x00000000
-#define OPEN_ACTION_OPEN_IF_EXISTS     0x00000001
-#define OPEN_ACTION_REPLACE_IF_EXISTS  0x00000010
-
-#define OPEN_ACTION_FAIL_IF_NEW        0x00000000
-#define OPEN_ACTION_CREATE_IF_NEW      0x00010000
-
-/* fsOpenMode */
-#define OPEN_ACCESS_READONLY           0x00000000
-#define OPEN_ACCESS_WRITEONLY          0x00000001
-#define OPEN_ACCESS_READWRITE          0x00000002
-
-#define OPEN_SHARE_DENYREADWRITE       0x00000010
-#define OPEN_SHARE_DENYWRITE           0x00000020
-#define OPEN_SHARE_DENYREAD            0x00000030
-#define OPEN_SHARE_DENYNONE            0x00000040
-
-#define OPEN_FLAGS_NOINHERIT           0x00000080
-
-#define OPEN_FLAGS_NO_LOCALITY         0x00000000
-#define OPEN_FLAGS_SEQUENTIAL          0x00000100
-#define OPEN_FLAGS_RANDOM              0x00000200
-#define OPEN_FLAGS_RANDOMSEQUENTIAL    0x00000300
-
-#define OPEN_FLAGS_NO_CACHE            0x00001000
-
-#define OPEN_FLAGS_FAIL_ON_ERROR       0x00002000
-
-#define OPEN_FLAGS_WRITE_THROUGH       0x00004000
-
-#define OPEN_FLAGS_DASD                0x00008000
-
 APIRET FSOpenL(PSZ pszFileName,
                HFILE *phFile,
                ULONG *pulAction,
@@ -353,25 +363,17 @@ APIRET FSOpenL(PSZ pszFileName,
   if (handle == -1)
   {
     if (errno == EMFILE)
-    {
-      io_log("ERROR_TOO_MANY_OPEN_FILES\n");
       return ERROR_TOO_MANY_OPEN_FILES;
-    }
 
     if (errno == ENOENT)
-    {
-      io_log("ERROR_FILE_NOT_FOUND\n");
       return ERROR_FILE_NOT_FOUND;
-    }
 
-    io_log("ERROR_ACCESS_DENIED\n");
     return ERROR_ACCESS_DENIED;
   }
 
   if (fsOpenFlags & OPEN_ACTION_FAIL_IF_EXISTS)
   {
     close(handle);
-    io_log("ERROR_OPEN_FAILED\n");
     return ERROR_OPEN_FAILED;
   }
 
@@ -405,7 +407,6 @@ APIRET FSOpenL(PSZ pszFileName,
 
   *phFile = (HFILE)handle;
 
-  io_log("NO_ERROR\n");
   return NO_ERROR;
 }
 

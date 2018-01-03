@@ -122,13 +122,13 @@ APIRET ExcClientAllocSharedMem(ULONG size,
                                PSZ pszName,
                                ULONG rights,
                                void **addr,
-                               ULONG *area)
+                               ULONGLONG *area)
 {
     CORBA_Environment env = dice_default_environment;
     long ret;
 
     ret = os2exec_alloc_sharemem_call(&execsrv, size, pszName,
-                                      rights, (l4_addr_t *)addr, (l4_uint32_t *)area, &env);
+                                      rights, (l4_addr_t *)addr, area, &env);
     return (APIRET)ret;
 }
 

@@ -77,12 +77,12 @@ extern l4_os3_cap_idx_t execsrv;
 /* private memory arena settings */
 extern l4_addr_t     private_memory_base;
 extern l4_size_t     private_memory_size;
-extern l4_uint32_t   private_memory_area;
+extern unsigned long long private_memory_area;
 
 /* shared memory arena settings */
 extern l4_addr_t     shared_memory_base;
 extern l4_size_t     shared_memory_size;
-extern l4_uint32_t   shared_memory_area;
+extern unsigned long long shared_memory_area;
 
 /* server loop thread of os2app   */
 extern l4_uint32_t   service_lthread;
@@ -633,7 +633,7 @@ long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long fla
 /*  Attaches all sections
  *  for a given module
  */
-long attach_module (ULONG hmod, unsigned long area)
+long attach_module (ULONG hmod, unsigned long long area)
 {
   //CORBA_Environment env = dice_default_environment;
   l4exec_section_t sect;
@@ -690,7 +690,7 @@ long attach_module (ULONG hmod, unsigned long area)
 /*  Attaches recursively a module and
  *  all its dependencies
  */
-long attach_all (ULONG hmod, unsigned long area)
+long attach_all (ULONG hmod, unsigned long long area)
 {
   //CORBA_Environment env = dice_default_environment;
   ULONG imp_hmod, rc = 0;
@@ -721,7 +721,7 @@ KalPvtLoadModule(char *pszName,
               PHMODULE phmod)
 {
   HMODULE hmod;
-  ULONG area;
+  ULONGLONG area;
   APIRET rc;
 
   //io_log("*** 000\n");
@@ -969,7 +969,7 @@ KalAllocMem(PVOID *ppb,
 	    ULONG flags)
 {
   l4_uint32_t rights = 0;
-  l4_uint32_t area;
+  ULONGLONG area;
   l4_os3_dataspace_t ds;
   void *addr;
   vmdata_t  *ptr;
@@ -986,7 +986,7 @@ KalAllocMem(PVOID *ppb,
   if (flags & PAG_EXECUTE)
     rights |= L4DM_READ;
 
-  rc = l4rm_area_reserve(cb, 0, (l4_addr_t *)&addr, &area);
+  rc = l4rm_area_reserve(cb, 0, (l4_addr_t *)&addr, (l4_uint32_t *)&area);
 
   if (rc < 0)
   {
@@ -1447,7 +1447,7 @@ KalAllocSharedMem(PPVOID ppb,
 {
   //CORBA_Environment env = dice_default_environment;
   l4_uint32_t rights = 0;
-  l4_uint32_t area = shared_memory_area;
+  ULONGLONG area = shared_memory_area;
   l4_os3_dataspace_t ds;
   l4_addr_t addr, addr2;
   vmdata_t  *ptr;
@@ -1578,7 +1578,7 @@ KalGetSharedMem(PVOID pb,
   l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
-  l4_uint32_t area = shared_memory_area;
+  ULONGLONG area = shared_memory_area;
   l4_uint32_t rights = 0;
   l4_threadid_t owner;
   vmdata_t *ptr;
@@ -1665,7 +1665,7 @@ KalGetNamedSharedMem(PPVOID ppb,
   l4_os3_dataspace_t ds;
   l4_addr_t addr, a;
   l4_size_t size, sz;
-  l4_uint32_t area = shared_memory_area;
+  ULONGLONG area = shared_memory_area;
   l4_uint32_t rights = 0;
   l4_threadid_t owner;
   vmdata_t *ptr;

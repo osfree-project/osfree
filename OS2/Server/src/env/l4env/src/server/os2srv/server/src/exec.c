@@ -18,9 +18,6 @@
     Or see <http://www.gnu.org/licenses/>
 */
 
-/* L4 includes */
-#include <l4/loader/loader-client.h>
-
 /* osFree internal */
 #include <os3/err.h>
 #include <os3/types.h>
@@ -37,6 +34,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+/* L4 includes */
+#include <l4/loader/loader-client.h>
 
 // servers thread ids
 extern l4_os3_cap_idx_t os2srv;

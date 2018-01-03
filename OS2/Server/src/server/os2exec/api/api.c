@@ -26,30 +26,30 @@ extern IXFHandler *IXFHandlers;
 /* shared memory arena settings */
 void          *shared_memory_base = (void *)0x60000000;
 unsigned long  shared_memory_size = 1024 * 1024 * 1024;
-unsigned long  shared_memory_area;
+unsigned long long shared_memory_area;
 
 vmdata_t *areas_list = NULL;
 
 long ExcOpen(char *szLoadError,
-             unsigned long *pcbLoadError,
+             unsigned long cbLoadError,
              const char *pszModname,
              unsigned long flags,
              unsigned long *phmod)
 {
     char exeflag = flags & OPENFLAG_EXEC;
-    return OpenModule(szLoadError, pcbLoadError, pszModname, exeflag, phmod);
+    return OpenModule(szLoadError, cbLoadError, pszModname, exeflag, phmod);
 }
 
 long ExcLoad(unsigned long *phmod,
              char *szLoadError,
-             unsigned long *pcbLoadError,
+             unsigned long cbLoadError,
              os2exec_module_t *s)
 {
     unsigned long rc;
     IXFModule *ixf;
     IXFSYSDEP *sysdep;
 
-    rc = LoadModule(szLoadError, pcbLoadError, phmod);
+    rc = LoadModule(szLoadError, cbLoadError, phmod);
 
     ixf = (IXFModule *)*phmod;
     s->ip = ixf->EntryPoint;
@@ -182,9 +182,9 @@ long ExcAllocSharedMem(unsigned long size,
                        const char *name,
                        unsigned long rights,
                        void **addr,
-                       unsigned long *area)
+                       unsigned long long *area)
 {
-  unsigned long area2 = shared_memory_area;
+  unsigned long long area2 = shared_memory_area;
   vmdata_t *ptr;
   int rc = 0, ret;
 
@@ -342,7 +342,7 @@ long ExcIncrementSharedMemRefcnt(void *addr)
 long ExcReleaseSharedMem(void          *addr,
                          unsigned long *count)
 {
-  unsigned long area;
+  unsigned long long area;
   vmdata_t *ptr;
 
   if (! (ptr = get_area(addr)) )

@@ -19,7 +19,7 @@ struct kal_init_struct
   unsigned long stack;
   void *shared_memory_base;
   unsigned long shared_memory_size;
-  unsigned long shared_memory_area;
+  unsigned long long shared_memory_area;
   unsigned long service_lthread;
   void *l4rm_detach;
   void *l4rm_do_attach;
@@ -80,7 +80,7 @@ typedef struct vmdata
   l4_os3_cap_idx_t owner;     // shared memory owner thread
   unsigned long    refcnt;    // reference count for shared mem
   unsigned long    rights;    // OS/2-style access flags
-  unsigned long    area;      // area id
+  unsigned long long area;    // area id
   void             *addr;     // area address
   unsigned long    size;      // area size
   struct vmdata    *next;     // link to the next record
@@ -100,8 +100,8 @@ unsigned char disknum_to_char(int i_dsk);
 int isRelativePath(char *path);
 unsigned char parse_drv(char *path);
 char *parse_path(char *path, char *ret_buffer, int buf_len);
-long attach_module (ULONG hmod, unsigned long area);
-long attach_all (ULONG hmod, unsigned long area);
+long attach_module (ULONG hmod, unsigned long long area);
+long attach_all (ULONG hmod, unsigned long long area);
 APIRET CDECL KalMapInfoBlocks(PTIB *pptib, PPIB *pppib);
 
 

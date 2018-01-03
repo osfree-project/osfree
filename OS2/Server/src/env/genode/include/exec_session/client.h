@@ -11,26 +11,26 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	Session_client(Genode::Capability<Session> cap)
 	: Genode::Rpc_client<Session>(cap) { }
 
-	void test(Buf &str)
+	void test(Buf *str)
 	{
 		call<Rpc_test>(str);
 	}
 
-	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &fname,
-	          Genode::Dataspace_capability img_ds,
+	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *fname,
 	          unsigned long flags,
-	          LoadError &szLoadError,
-	          unsigned long &cbLoadError,
-	          unsigned long &hmod)
+	          LoadError *szLoadError,
+	          unsigned long *cbLoadError,
+	          unsigned long *hmod)
 	{
-		return call<Rpc_open>(fname, img_ds, flags,
-		                      szLoadError, cbLoadError, hmod);
+		return call<Rpc_open>(fname, flags,
+		                      szLoadError,
+		                      cbLoadError, hmod);
 	}
 
 	long load(unsigned long hmod,
-	          LoadError &szLoadError,
-	          unsigned long &cbLoadError,
-	          os2exec_module_t &s)
+	          LoadError *szLoadError,
+	          unsigned long *cbLoadError,
+	          os2exec_module_t *s)
 	{
 		return call<Rpc_load>(hmod, szLoadError, cbLoadError, s);
 	}
@@ -41,14 +41,14 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	}
 
 	long getimp(unsigned long hmod,
-	            unsigned long &index,
-	            unsigned long &imp_hmod)
+	            unsigned long *index,
+	            unsigned long *imp_hmod)
 	{
 		return call<Rpc_getimp>(hmod, index, imp_hmod);
 	}
 
 	long getsect(unsigned long hmod,
-	             unsigned long &index,
+	             unsigned long *index,
 	             l4exec_section_t *s)
 	{
 		return call<Rpc_getsect>(hmod, index, s);
@@ -56,22 +56,32 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 
 	long query_procaddr(unsigned long hmod,
 	                    unsigned long ordinal,
-	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &modname,
-	                    void *&addr)
+	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *modname,
+	                    ULONGLONG *addr)
 	{
 		return call<Rpc_query_procaddr>(hmod, ordinal, modname, addr);
 	}
 
-	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> &pszModname,
-	                     unsigned long &hmod)
+	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *pszModname,
+	                     unsigned long *hmod)
 	{
 		return call<Rpc_query_modhandle>(pszModname, hmod);
 	}
 
 	long query_modname(unsigned long hmod,
-	                   unsigned long cbBuf, Buf &pszBuf)
+	                   unsigned long cbBuf, Buf *pszBuf)
 	{
 		return call<Rpc_query_modname>(hmod, cbBuf, pszBuf);
+	}
+
+	long alloc_sharemem(ULONG size,
+	                    char *name,
+	                    ULONG rights,
+	                    ULONGLONG *addr,
+	                    ULONGLONG *area)
+	{
+		return call<Rpc_alloc_sharemem>(size, name, rights,
+		                                addr, area);
 	}
 };
 

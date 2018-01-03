@@ -46,7 +46,7 @@ const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 /* shared memory arena settings */
 extern void           *shared_memory_base;
 extern unsigned long  shared_memory_size;
-extern unsigned long  shared_memory_area;
+extern unsigned long long shared_memory_area;
 
 extern cfg_opts options;
 
@@ -83,7 +83,7 @@ os2exec_open_component (CORBA_Object _dice_corba_obj,
                         unsigned long *phmod /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcOpen(*chLoadError, pcbLoadError, fname, flags, phmod);
+  return ExcOpen(*chLoadError, *pcbLoadError, fname, flags, phmod);
 }
 
 
@@ -95,11 +95,7 @@ os2exec_load_component (CORBA_Object _dice_corba_obj,
                         os2exec_module_t *s /* out */,
                         CORBA_Server_Environment *_dice_corba_env)
 {
-  long ret;
-  io_log("uuu\n");
-  ret = ExcLoad(&hmod, *chLoadError, pcbLoadError, s);
-  io_log("www\n");
-  return ret;
+  return ExcLoad(&hmod, *chLoadError, *pcbLoadError, s);
 }
 
 long DICE_CV
@@ -170,10 +166,10 @@ os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
                                   const char *name /* in */,
                                   unsigned long rights /* in */,
                                   l4_addr_t *addr /* out */,
-                                  l4_uint32_t *area /* out */,
+                                  unsigned long long *area /* out */,
                                   CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcAllocSharedMem(size, name, rights, (void **)addr, (unsigned long *)area);
+  return ExcAllocSharedMem(size, name, rights, (void **)addr, area);
 }
 
 long DICE_CV

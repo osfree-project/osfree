@@ -54,7 +54,7 @@ APIRET ExcClientAllocSharedMem(ULONG size,
                                PSZ pszName,
                                ULONG rights,
                                void **addr,
-                               ULONG *area);
+                               ULONGLONG *area);
 
 APIRET ExcClientMapDataspace(void *addr,
                              ULONG rights,
