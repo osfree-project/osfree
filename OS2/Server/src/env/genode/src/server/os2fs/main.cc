@@ -72,6 +72,7 @@ private:
 		    fSize = src.size();
 
 		    page_aligned_size = Genode::align_addr(fSize, 12);
+		    page_aligned_size = page_aligned_size ? page_aligned_size : 4096;
 		    file_ds = ram.alloc(page_aligned_size);
 		    Genode::Attached_dataspace dst(rm, file_ds);
 
@@ -123,11 +124,17 @@ private:
 		try
 		{
 		    page_aligned_size = Genode::align_addr(fSize, 12);
+		    page_aligned_size = page_aligned_size ? page_aligned_size : 4096;
 		    file_ds = ram.alloc(page_aligned_size);
 		}
 		catch (...)
 		{
 		    io_log("Could not allocate memory for a dataspace!\n");
+		    return file_ds;
+		}
+
+		if (! file_ds.valid())
+		{
 		    return file_ds;
 		}
 
