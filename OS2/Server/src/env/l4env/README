@@ -1,15 +1,159 @@
-osFree OS/2 Server for L4/Fiasco microkernel using L4Env
+This is an L4Env-specific sources and build system for osFree OS/2
+personality. To build it under L4Env, you should checkout L4Env sources
+first:
 
-This directory contains OS/2 Server prototype by osFree project.
-Logic of os2server is folowing:
-1. It loads config.sys file using file provider
-2. Parses config.sys
-3. Executes task with LOADER server using PROTSHELL variabla
+# svn co http://svn.tudos.org/repos/tudos/trunk .
 
-After this server goes to server loop. Only one library in OS/2
-personality allowed to access OS2Server. It is libkal.so.
-libkal.so is only one ELF format binary in OS/2 Personality.
-Next upper level library (low level for any OS/2 application)
-is DOSCALLS.DLL which in LX format already. May be in future
-we will support ELF format executables in OS/2 Personality but
-this is not main task for now.
+To compile the L4Env sources under newer Linuxes, you'll need to run toolchain
+from Debian 5 "Lenny". So, you'll need to install Debian 5 "Lenny" in chroot.
+For that, use the addendum at the end of this README.
+
+Then create the L4Env build dir:
+
+# mkdir bld
+# cd l4
+# make O=../bld config
+
+Customize your options in the started ncurses-based TUI. You may need to disable
+building the documentation, for example. Documentation requires texlive to build
+the PDF files from .tex source.
+
+Then change to the build directory and run make:
+
+# cd bld
+# make
+
+This will build everything, including L4Env and L4/Fiasco microkernel.
+
+Then create a symlink to "os3/src/env/l4env" directory in l4/pkg directory:
+
+# cd ..
+# cd l4/pkg
+# ln -s ../../../os3/src/env/l4env os3
+
+Change to os3/src/env/l4env:
+
+# cd ../../..
+# cd os3/src/env/l4env
+
+Edit the build.cfg file. Change the top level dir, where "osfree", "os3", "l4",
+"kernel" and "bld" dirs are.
+
+ROOT=/mnt
+
+Then you need to adjust the paths to "os3", "l4", "bld" and "kernel/fiasco/build",
+if required. Also, you can adjust the
+
+DISPLAY = -vnc 172.30.0.107:2
+
+setting to point to your QEMU VNC display (if appropriate). I am working on my OS/2 machine,
+and I am logging into my Linux machine via SSH, and run make via SSH. I connect to QEMU VNC
+display via a VNC viewer. If you run QEMU without VNC, just uncomment the following line
+
+DISPLAY = 
+
+and comment the
+
+DISPLAY = -vnc 172.30.0.107:2
+
+line.
+
+Go to the build dir and run make again:
+
+# cd bld
+# make
+
+This should build everything, including the osFree OS/2 personality. Also, you can
+change to the required directory and run make with path to the build directory, specified
+as a parameter:
+
+# cd ..
+# cd os3
+# cd src/env/l4env
+# cd src/server/os2srv
+# make O=/mnt/bld
+
+This will build os2srv only.
+
+Then you can test the built binaries in QEMU with the following command:
+
+# make O=/mnt/bld run
+
+Connect to 172.30.0.107:2 VNC server with your VNC viewer, to see your QEMU screen (if you
+enabled VNC).
+
+Setting up the Debian 5 "Lenny" chroot.
+--------------------------------------
+
+The Debian "Lenny" is available as a ready to use archive:
+
+# cd /mnt/os2l/src/l4/l4env
+
+Here is the directory where all "osfree", "os3", "l4", "kernel", "bld" subdirectories
+are located.
+
+# wget ftp://osfree.org/upload/debian5-i386-chrooted-bldenv.tgz
+# tar xvzf debian5-i386-chrooted-bldenv.tgz
+# cd debian-lenny-32
+
+Then create bindings for dirs in a chrooted filesystem to corresponding dirs in a root
+filesystem:
+
+# mount -o bind /dev/ ./dev/
+# mount -o bind /dev/shm/ ./dev/shm/
+# mount -o bind /dev/pts/ ./dev/pts/
+# mount -o bind /proc/ ./proc/
+# mount -o bind /sys/ ./sys/
+# mount -o bind /tmp/ ./tmp/
+# mount -o bind /mnt/os2l/src/l4/l4env/ ./mnt/
+
+Where /mnt/os2l/src/l4/l4env is the path to your top-level sources directory (containing
+the "bld", "l4", "kernel", "osfree" and "os3" subdirs).
+
+Then change into chroot via a command:
+
+# chroot .
+
+You can optionally start "mc" for your convenience:
+
+# mc
+
+You will see the chrooted environment as your root directory. Then you can change to your sources
+directory:
+
+# cd /mnt
+
+You will see contents of your /mnt/os2l/src/l4/l4env source directory in /mnt. Here. you can run
+your L4Env build system.
+
+# cd bld
+# make
+
+-- to build everything. Or
+
+# cd os3
+# cd src/env/l4env
+# cd src/server/os2srv
+# make O=/mnt/bld
+
+then os2srv sources will be built. Or
+
+# make O=/mnt/bld run
+
+will run your OS/2 personality binaries in QEMU.
+
+Note that you could make a chrooted Debian "Lenny" environment yourself from scratch, via
+the "debootstrap" script, like this:
+
+# apt-get install debootstrap
+# mkdir debian-lenny-32
+# cd debian-lenny-32
+# debootstrap --arch=i386 --no-check-gpg lenny . http://archive.debian.org/debian
+
+This will download and install the minimal system into the debian-lenny-32 subdirectory. Then
+you can chroot into it and install all required additional packages with APT. (add a line
+like this:
+
+deb http://archive.debian.org/debian lenny main
+
+to your debian-lenny-32/etc/apt/sources.list file) to have your Debian Lenny repository configured.

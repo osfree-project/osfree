@@ -1,1 +1,80 @@
-This is a Genode source repository.
+This is the Genode source repository for osFree OS/2 personality.
+To build the osFree OS/2 personality under Genode, you should
+checkout Genode sources first (we assume you are in "osfree" directory now):
+
+Go to the parent directory:
+
+# cd ..
+
+Main Genode source repo:
+
+# mkdir genode
+# cd genode
+# git clone https://github.com/genodelabs/genode.git .
+
+Genode World repo (optional community-contributed components of Genode):
+
+# cd repos
+# mkdir world
+# cd world
+# git clone https://github.com/genodelabs/genode-world.git .
+
+Go to the "genode" dir
+
+# cd ../..
+
+Create a Genode build directory:
+
+# ./tool/create_builddir linux BUILD_DIR=./build/linux
+# cd build/linux
+
+Here we are creating the build directory for Linux Genode platform. There are also
+different other platforms, like Fiasco, Fiasco.OC, Nova, seL4, OKL4, HW etc.
+
+Now edit etc/specs.conf: change
+
+SPECS += x86_64
+
+to
+
+SPECS += x86_32
+
+if your Linux distribution is 32-bit. If it is 64-bit, then leave it as is.
+
+Then edit etc/build.conf:
+
+uncomment the
+
+#MAKE += -j4
+
+line and change -j4 to -j2 if you have a two-core machine (for a parallel build). If you
+don't want parallel building, leave this line commented out.
+
+Start the build process:
+
+# make
+
+When everything is built, you can test the "Demo" scenario:
+
+# make run/demo
+
+The SDL window should appear which shows the Scout documentation browser. You can follow
+the directions in the Scout window.
+
+When the demo scenarion works, you could build osFree then. For that, you will need to go to
+build/linux/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
+then add the "os3" repository:
+
+REPOSITORIES += $(GENODE_DIR)/../os3/src/env/genode
+
+where GENODE_DIR is the path to "genode" directory.
+
+Then go to the genode/build/linux directory:
+
+# cd genode/build/linux
+
+Start osFree scenario build by:
+
+# make run/os2
+
+This should build all osFree OS/2 personality components and run it under Linux.

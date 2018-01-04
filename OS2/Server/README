@@ -1,0 +1,23 @@
+This is the osFree OS/2 personality, the set of services implementing
+the OS/2 API. It currently has implementations for L4Env and Genode.
+
+You should checkout osFree sources first:
+
+# mkdir osfree
+# cd osfree
+# svn co https://svn.code.sf.net/p/osfree/code/trunk .
+
+create a symlink for osfree/OS2/Server (under the "os3" name):
+
+# cd ..
+# ln -s osfree/OS2/Server os3
+
+Then build the corresponding environment and osFree personality
+sources, based on it:
+
+For L4Env build, look into ./src/env/l4env.
+For L4Re build, look into ./src/env/l4re (incomplete so far).
+For Genode build, look into ./src/env/genode.
+
+Look into README file in the corresponding environment specific
+directory for further instructions.

@@ -26,7 +26,7 @@ CFLAGS += -I$(OS3_DIR)/include
 #		-netdev user,bootfile=$(GRUB),tftp=$(REP_DIR),id=net0 \
 #		-device ne2k_pci,netdev=net0 \
 #		-L $(REP_DIR)/tools/bootrom \
-#		-display vnc=$(DISPLAY) \
+#		$(DISPLAY) \
 #		-serial stdio \
 #	| tee $(REP_DIR)/qemu.log
 
@@ -34,7 +34,7 @@ CFLAGS += -I$(OS3_DIR)/include
 run: symlinks
 	qemu-system-i386 \
 		-no-kqemu \
-		-s \
+		$(GDB) \
 		-m $(MEM) \
 		-boot n \
 		-tftp $(REP_DIR) \
@@ -42,7 +42,7 @@ run: symlinks
 		-net nic,model=ne2k_pci,vlan=0 \
 		-net user,vlan=0 \
 		-L $(REP_DIR)/tools/bootrom \
-		-vnc $(DISPLAY) \
+		$(DISPLAY) \
 		-serial stdio \
 	| tee $(REP_DIR)/qemu.log
 
