@@ -5,11 +5,7 @@
   extern "C" {
 #endif
 
-//#include <dataspace/capability.h>
-//#include <l4/dm_generic/types.h>
-
 void l4_test_mem_alloc(void);
-//void * l4_alloc_mem(unsigned long area, int base, int size, int flags, unsigned long PIC, l4dm_dataspace_t *ds);
 void * l4_alloc_mem(unsigned long long area, int base, int size, int flags, unsigned long PIC, void *ds);
 int l4_translate_os2_flags(int flags);
 

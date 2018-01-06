@@ -132,7 +132,7 @@ void KalEnter(void)
 
 void KalQuit(void)
 {
-  /* Transition form L4 world to OS/2 world:
+  /* Transition from L4 world to OS/2 world:
      save an old FS selector to old_sel and restore
      TIB selector in FS from tib_sel     */
   asm ("movw %[tib_sel], %%dx \n"
@@ -361,11 +361,9 @@ APIRET CDECL
 KalLogWrite (PSZ s)
 {
   KalEnter();
-  io_log("qqq\n");
   io_log("%s\n", s);
-  io_log("rrr\n");
   KalQuit();
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
 VOID CDECL
@@ -378,6 +376,7 @@ KalExit(ULONG action, ULONG result)
 
   // get thread pid
   KalGetPID(&pid);
+
   // get current thread id
   KalGetTID(&tid);
 

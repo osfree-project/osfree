@@ -9,7 +9,7 @@ SYSTEMS		= x86-l4v2
 SRC_C		= main.c startup.c \
 		  modmgr.c ixfmgr.c ixfutil.c api-local.c \
 		  api/api.c
-CFLAGS          = -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include
 NO_DEFAULT_RELOC= 1
 LDFLAGS		= --no-undefined \
 		  --dynamic-linker libld-l4.s.so \

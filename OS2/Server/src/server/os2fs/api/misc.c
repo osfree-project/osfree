@@ -15,12 +15,6 @@
 /* libc includes */
 #include <ctype.h>
 
-/* dice */
-//#include <dice/dice.h>
-
-/* servers RPC includes */
-//#include <os2fs-server.h>
-
 /* local includes */
 #include "api.h"
 
@@ -30,30 +24,30 @@ void setdrivemap(ULONG *map);
 
 void setdrivemap(ULONG *map)
 {
-  struct I_Fs_srv *fsrv;
-  int  i, diskno;
-  char *drive;
-  char drv;
+    struct I_Fs_srv *fsrv;
+    int  i, diskno;
+    char *drive;
+    char drv;
 
-  *map = 0;
+    *map = 0;
 
-  for (i = 0; i < fsrouter.srv_num_; i++)
-  {
-    fsrv = fsrouter.fs_srv_arr_[i];
-    drive = fsrv->drive;
-    drv = tolower(*(drive));
-    diskno = drv - 'a';
-    *map |= (1 << diskno);
-  }
+    for (i = 0; i < fsrouter.srv_num_; i++)
+    {
+        fsrv = fsrouter.fs_srv_arr_[i];
+        drive = fsrv->drive;
+        drv = tolower(*(drive));
+        diskno = drv - 'a';
+        *map |= (1 << diskno);
+    }
 
-  io_log("map=%lu", *map);
+    io_log("map=%lu", *map);
 }
  
 APIRET FSGetDriveMap(ULONG *map)
 {
-  if (drivemap == -1)
-    setdrivemap(&drivemap);
+    if (drivemap == -1)
+        setdrivemap(&drivemap);
 
-  *map = drivemap;
-  return 0;
+    *map = drivemap;
+    return 0;
 }

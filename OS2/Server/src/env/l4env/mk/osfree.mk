@@ -1,7 +1,11 @@
 include $(REP_DIR)/build.cfg
 
-CFLAGS += -I$(OS3_DIR)/include/os2
-CFLAGS += -I$(OS3_DIR)/include
+cdefs = -D__l4env__
+
+cdefs += -I$(OS3_DIR)/include/os2
+cdefs += -I$(OS3_DIR)/include
+
+CFLAGS += $(cdefs)
 
 .DEFAULT_GOAL := all
 

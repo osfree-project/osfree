@@ -14,7 +14,7 @@
 #define L4DM_RW      (L4DM_READ | L4DM_WRITE)
 #define L4RM_MAP     0x01000000
 
-#if defined(L4API_l4v2)
+#if defined(__l4env__)
 
 /* l4env includes */
 #include <l4/env/env.h>
@@ -26,16 +26,14 @@ typedef l4dm_dataspace_t l4os3_ds_t;
 
 long l4os3_ds_allocate(l4os3_ds_t *ds, l4_addr_t offset, l4_size_t size);
 
-#elif defined(L4API_l4f)
+#elif defined(__l4re__)
 
 /* l4re includes */
 #include <l4/re/c/dataspace.h>
 
 typedef l4re_ds_t *l4_os3_dataspace_t;
 
-#elif 1 // Genode
-
-//#include <dataspace/capability.h>
+#elif defined (__genode__)
 
 typedef void *l4_os3_dataspace_t;
 
@@ -51,10 +49,8 @@ long DataspaceShare(l4_os3_dataspace_t ds, void *client_id, unsigned long rights
 
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr);
 
-//#ifdef L4API_l4v2
 long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr);
 long attach_ds_area(l4_os3_dataspace_t ds, unsigned long long area, unsigned long flags, void *addr);
-//#endif
 
 #ifdef __cplusplus
   }

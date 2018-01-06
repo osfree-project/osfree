@@ -5,20 +5,20 @@
   extern "C" {
 #endif
 
-#ifdef L4API_l4v2
+#if defined(__l4env__)
 
 /* l4env includes */
 #include <l4/sys/types.h>
 
 typedef l4_threadid_t l4_os3_cap_idx_t;
 
-#elif defined(L4API_l4f)
+#elif defined(__l4re__)
 
 #include <l4/sys/types.h>
 
 typedef l4_cap_idx_t l4_os3_cap_idx_t;
 
-#elif 1 // Genode @todo use more correct define
+#elif defined(__genode__)
 
 typedef void *l4_os3_cap_idx_t;
 

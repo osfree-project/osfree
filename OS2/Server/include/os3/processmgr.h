@@ -39,7 +39,7 @@
 #include <os3/modmgr.h>
 #include <os3/ixfmgr.h>
 
-#ifdef L4API_l4v2
+#ifdef __l4env__
 #include <l4/semaphore/semaphore.h>
 #endif
 
@@ -142,7 +142,7 @@ struct t_os2process {
         ULONG hmte;
 	int pid;
 
-#ifdef L4API_l4v2
+#ifdef __l4env__
         char exec_sync;  // synchronous execution flag (whether to use term_sem or not)
         l4semaphore_t startup_sem; // child program startup wait semaphore
         l4semaphore_t term_sem;    // child program termination wait semaphore
@@ -154,7 +154,7 @@ struct t_os2process {
         PPIB lx_pib;
         //PTIB main_tib;
         PTIB tib_array[128]; // array of pointers to TIB with (TID-1) index
-#ifdef L4API_l4v2
+#ifdef __l4env__
         l4_threadid_t tid_array[128]; // array of l4thread ID's   with (TID-1) index
 #endif
 	char curdisk;
@@ -172,7 +172,7 @@ APIRET CDECL PrcDestroyTIB(PID pid, TID tid);
 
 struct t_os2process *PrcGetProc(ULONG pid);
 
-#ifdef L4API_l4v2
+#ifdef __l4env__
 APIRET CDECL PrcNewTIB(PID pid, TID tid, l4thread_t id);
 struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
 TID PrcGetTIDL4(l4_threadid_t thread);
@@ -206,7 +206,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 				 unsigned long ppid);
 
 #ifdef __cplusplus
-  };
+  }
 #endif
 
 #endif

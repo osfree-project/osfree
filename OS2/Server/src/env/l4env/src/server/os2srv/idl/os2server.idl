@@ -21,7 +21,7 @@ interface os2server
     APIRET cfg_getenv([in, string]  char *name,
                       [out, string, 
 		      prealloc_client,
-		      prealloc_server] char **value);    
+		      prealloc_server] char **value);
 		      
     /* get configuration value from config.sys  */
     APIRET cfg_getopt([in, string] char *name, /* parameter name */

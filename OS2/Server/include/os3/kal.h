@@ -393,7 +393,7 @@ KalGetTID(TID *ptid);
 APIRET CDECL
 KalGetPID(PID *ppid);
 
-#ifdef L4API_l4v2
+#ifdef __l4env__
 
 APIRET CDECL
 KalGetL4ID(PID pid, TID tid, l4_threadid_t *id);

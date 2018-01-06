@@ -85,5 +85,4 @@ int get_reloc_size_rlc(struct r32_rlc * rlc);
   };
 #endif
 
-
 #endif /* _FIXUPLX_H */

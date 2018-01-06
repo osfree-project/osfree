@@ -13,7 +13,7 @@ typedef unsigned long fnFixup(void * FormatStruct);
 
 typedef struct slist slist_t;
 
-#ifdef L4API_l4v2
+#ifdef __l4env__
 
 #include <l4/env/env.h>
 
@@ -35,9 +35,6 @@ struct slist
   struct slist     *next;
   l4exec_section_t *section;
 };
-
-//slist_t *
-//lastelem (slist_t *e);
 
 typedef
   struct

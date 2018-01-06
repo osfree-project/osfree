@@ -5,6 +5,8 @@
   extern "C" {
 #endif
 
+#ifdef __l4env__
+
 /* dice */
 #include <dice/dice.h>
 
@@ -15,6 +17,10 @@
 #define default_srv_env dice_default_server_environment
 
 #define CV              DICE_CV
+
+#else
+#error "port me!"
+#endif
 
 #ifdef __cplusplus
   }

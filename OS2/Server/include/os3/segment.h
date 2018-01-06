@@ -14,18 +14,10 @@ void l4os3_gdt_set(void *desc, unsigned int size,
 
 unsigned l4os3_gdt_get_entry_offset(void);
 
-#if defined(L4API_l4v2)
+#if defined(__l4env__) || defined(__l4re__)
 
-/* l4env includes */
 #include <l4/sys/segment.h>
 
-#elif defined(L4API_l4f)
-
-/* l4re includes */
-#include <l4/sys/segment.h>
-
-#else
-#error "Not implemented!"
 #endif
 
 #ifdef __cplusplus

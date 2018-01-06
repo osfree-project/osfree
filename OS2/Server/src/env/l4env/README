@@ -56,7 +56,7 @@ and comment the
 
 DISPLAY = -vnc 172.30.0.107:2
 
-line.
+line out.
 
 Go to the build dir and run make again:
 

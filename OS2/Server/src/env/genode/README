@@ -61,7 +61,7 @@ When everything is built, you can test the "Demo" scenario:
 The SDL window should appear which shows the Scout documentation browser. You can follow
 the directions in the Scout window.
 
-When the demo scenarion works, you could build osFree then. For that, you will need to go to
+When the demo scenario works, you could build osFree then. For that, you will need to go to
 build/linux/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
 then add the "os3" repository:
 

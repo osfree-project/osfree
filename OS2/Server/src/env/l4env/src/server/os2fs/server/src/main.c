@@ -124,8 +124,8 @@ int main(int argc, char **argv)
     {
       case 'e':
         io_log("using events server\n");
-	use_events = 1;
-	break;
+        use_events = 1;
+        break;
 
       default:
         io_log("Error: Unknown option %c\n", opt);

@@ -2,11 +2,7 @@
 # Build
 #
 
-### path to osFree directory (please edit here!)
-set OS3_DIR "/mnt/os2l/src/l4/l4env/os3"
-###
-
-set files   "${OS3_DIR}/filesys/os2"
+set files   "$::env(OS3_DIR)/filesys/os2"
 
 set filelist {
   doscalls.dll sub32.dll kbdcalls.dll viocalls.dll moucalls.dll moncalls.dll
