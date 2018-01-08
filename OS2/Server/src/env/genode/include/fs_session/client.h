@@ -8,8 +8,14 @@ namespace OS2::Fs { struct Session_client; }
 
 struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 {
-	Session_client(Genode::Capability<Session> cap)
-	: Genode::Rpc_client<Session>(cap) {  }
+private:
+	Genode::Env &env;
+
+public:
+	// constructor
+	Session_client(Genode::Env &env,
+                       Genode::Capability<Session> cap)
+	: Genode::Rpc_client<Session>(cap), env(env) {  }
 
 	long get_drivemap(ULONG *map)
 	{
@@ -17,17 +23,17 @@ struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 	}
 
 	APIRET dos_Read(HFILE hFile,
-                        char *pBuf,
+                        Genode::Ram_dataspace_capability &ds,
                         ULONG *count)
 	{
-		return call<Rpc_dos_Read>(hFile, pBuf, count);
+		return call<Rpc_dos_Read>(hFile, ds, count);
 	}
 
 	APIRET dos_Write(HFILE hFile,
-                         char *pBuf,
+                         Genode::Ram_dataspace_capability &ds,
                          ULONG *count)
 	{
-		return call<Rpc_dos_Write>(hFile, pBuf, count);
+		return call<Rpc_dos_Write>(hFile, ds, count);
 	}
 
 	APIRET dos_ResetBuffer(HFILE hFile)
@@ -55,19 +61,19 @@ struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 		return call<Rpc_dos_QueryHType>(hFile, pType, pAttr);
 	}
 
-	APIRET dos_OpenL(PSZ pszFileName,
+	APIRET dos_OpenL(Pathname &fName,
                          HFILE *phFile,
                          ULONG *pulAction,
                          LONGLONG cbFile,
                          ULONG ulAttribute,
                          ULONG fsOpenFlags,
                          ULONG fsOpenMode) //,
-                         //ULONG dummy) //char *peaop2) // EAOP2 *peaop2
+                         //EAOP2 *peaop2)
 	{
-		return call<Rpc_dos_OpenL>(pszFileName,
+		return call<Rpc_dos_OpenL>(fName,
 		                           phFile, pulAction, cbFile,
 		                           ulAttribute, fsOpenFlags,
-		                           fsOpenMode); //, dummy); //peaop2);
+		                           fsOpenMode); //peaop2);
 	}
 
 	APIRET dos_DupHandle(HFILE hFile,
@@ -76,47 +82,44 @@ struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 		return call<Rpc_dos_DupHandle>(hFile, phFile2);
 	}
 
-	APIRET dos_Delete(PSZ pszFileName)
+	APIRET dos_Delete(Pathname &fName)
 	{
-		return call<Rpc_dos_Delete>(pszFileName);
+		return call<Rpc_dos_Delete>(fName);
 	}
 
-	APIRET dos_ForceDelete(PSZ pszFileName)
+	APIRET dos_ForceDelete(Pathname &fName)
 	{
-		return call<Rpc_dos_ForceDelete>(pszFileName);
+		return call<Rpc_dos_ForceDelete>(fName);
 	}
 
-	APIRET dos_DeleteDir(PSZ pszDirName)
+	APIRET dos_DeleteDir(Pathname &fName)
 	{
-		return call<Rpc_dos_DeleteDir>(pszDirName);
+		return call<Rpc_dos_DeleteDir>(fName);
 	}
 
-	APIRET dos_CreateDir(PSZ pszDirName,
-	                     EAOP2 *peaop2)
+	APIRET dos_CreateDir(Pathname &fName,
+	                     Genode::Ram_dataspace_capability &ds)
 	{
-		return call<Rpc_dos_CreateDir>(pszDirName, peaop2);
+		return call<Rpc_dos_CreateDir>(fName, ds);
 	}
 
-	APIRET dos_FindFirst(PSZ pszFileSpec,
+	APIRET dos_FindFirst(Pathname &pName,
                              HDIR *phDir,
                              ULONG flAttribute,
-                             char *pFindBuf,
-                             ULONG *cbBuf,
+                             Genode::Ram_dataspace_capability &ds,
                              ULONG *pcFileNames,
                              ULONG ulInfoLevel)
 	{
-		return call<Rpc_dos_FindFirst>(pszFileSpec, phDir,
-		                               flAttribute, pFindBuf, cbBuf,
+		return call<Rpc_dos_FindFirst>(pName, phDir,
+		                               flAttribute, ds,
 		                               pcFileNames, ulInfoLevel);
 	}
 
 	APIRET dos_FindNext(HDIR hDir,
-                            char *pFindBuf,
-                            ULONG *cbBuf,
+                            Genode::Ram_dataspace_capability &ds,
                             ULONG *pcFileNames)
 	{
-		return call<Rpc_dos_FindNext>(hDir, pFindBuf,
-		                              cbBuf, pcFileNames);
+		return call<Rpc_dos_FindNext>(hDir, ds, pcFileNames);
 	}
 
 	APIRET dos_FindClose(HDIR hDir)
@@ -132,20 +135,16 @@ struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 
 	APIRET dos_QueryFileInfo(HFILE hFile,
                                  ULONG ulInfoLevel,
-                                 char *pInfoBuf,
-                                 ULONG *cbBuf)
+                                 Genode::Ram_dataspace_capability &ds)
 	{
-		return call<Rpc_dos_QueryFileInfo>(hFile, ulInfoLevel,
-		                                   pInfoBuf, cbBuf);
+		return call<Rpc_dos_QueryFileInfo>(hFile, ulInfoLevel, ds);
 	}
 
-	APIRET dos_QueryPathInfo(PSZ pszPathName,
+	APIRET dos_QueryPathInfo(Pathname &pName,
                                  ULONG ulInfoLevel,
-                                 char *pInfoBuf,
-                                 ULONG *cbBuf)
+                                 Genode::Ram_dataspace_capability &ds)
 	{
-		return call<Rpc_dos_QueryPathInfo>(pszPathName, ulInfoLevel,
-		                                   pInfoBuf, cbBuf);
+		return call<Rpc_dos_QueryPathInfo>(pName, ulInfoLevel, ds);
 	}
 
 	APIRET dos_SetFileSizeL(HFILE hFile,
@@ -156,21 +155,19 @@ struct OS2::Fs::Session_client : Genode::Rpc_client<Session>
 
 	APIRET dos_SetFileInfo(HFILE hFile,
                                ULONG ulInfoLevel,
-                               char *pInfoBuf,
-                               ULONG *cbBuf)
+                               Genode::Ram_dataspace_capability &ds)
 	{
 		return call<Rpc_dos_SetFileInfo>(hFile, ulInfoLevel,
-		                                 pInfoBuf, cbBuf);
+		                                 ds);
 	}
 
-	APIRET dos_SetPathInfo(PSZ pszPathName,
+	APIRET dos_SetPathInfo(Pathname &pName,
                                ULONG ulInfoLevel,
-                               char *pInfoBuf,
-                               ULONG *cbBuf,
+                               Genode::Ram_dataspace_capability &ds,
                                ULONG flOptions)
 	{
-		return call<Rpc_dos_SetPathInfo>(pszPathName, ulInfoLevel,
-		                                 pInfoBuf, cbBuf, flOptions);
+		return call<Rpc_dos_SetPathInfo>(pName, ulInfoLevel,
+		                                 ds, flOptions);
 	}
 };
 

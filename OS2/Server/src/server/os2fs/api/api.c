@@ -304,6 +304,8 @@ APIRET FSOpenL(PSZ pszFileName,
     char fn[CCHMAXPATH];
     int i;
 
+    io_log("pszFileName=%s\n", pszFileName);
+
     /* ignore DASD opens for now; also, OPEN_FLAGS_FAIL_ON_ERROR
        always for now (before Hard error handling not implemented) */
     if (fsOpenMode & OPEN_FLAGS_DASD)
@@ -346,6 +348,8 @@ APIRET FSOpenL(PSZ pszFileName,
         if (fn[i] == '/')
             fn[i] = '\\';
     }
+
+     io_log("fn=%s\n", fn);
 
     /* convert OS/2-style pathname to PN-style pathname */
     if (pathconv(&newfilename, fn))
@@ -1414,10 +1418,12 @@ APIRET FSQueryFileInfo(HFILE hf,
         {
             PFILESTATUS3 info = (PFILESTATUS3)*pInfo;
 
+            io_log("000\n");
             if (*cbInfoBuf < sizeof(FILESTATUS3))
                 return ERROR_BUFFER_OVERFLOW;
 
             /* get the file status */
+            io_log("001\n");
             rc = fstat(hf, &buf);
 
             if (rc == -1)
@@ -1431,6 +1437,7 @@ APIRET FSQueryFileInfo(HFILE hf,
                 }
             }
 
+            io_log("002\n");
             localtime_r(&buf.st_ctime, &brokentime);
 
             info->fdateCreation.day = (UINT)brokentime.tm_mday;
@@ -1458,7 +1465,9 @@ APIRET FSQueryFileInfo(HFILE hf,
             info->ftimeLastWrite.minutes = (USHORT)brokentime.tm_min;
             info->ftimeLastWrite.hours = (USHORT)brokentime.tm_hour;
             info->cbFile = (ULONG)buf.st_size;
+            io_log("003: info.cbFile=%u\n", info->cbFile);
             info->cbFileAlloc = (ULONG)(buf.st_blksize * buf.st_blocks);
+            io_log("004: info.cbFileAlloc=%u\n", info->cbFileAlloc);
 
             if (S_ISDIR(buf.st_mode))
                 info->attrFile = FILE_DIRECTORY;

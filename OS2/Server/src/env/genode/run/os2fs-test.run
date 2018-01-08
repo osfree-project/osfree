@@ -1,0 +1,88 @@
+#
+# Build
+#
+
+set files   "$::env(OS3_DIR)/filesys/os2"
+
+set filelist { config.sys }
+
+build {
+  core
+  init
+  server/os2fs
+  test/os2fs
+}
+
+create_boot_directory
+
+#
+# Generate config
+#
+
+install_config {
+<config>
+	<parent-provides>
+		<service name="CPU"/>
+		<service name="ROM"/>
+		<service name="PD"/>
+		<service name="LOG"/>
+	</parent-provides>
+	<default-route>
+		<service name="ROM"> <child name="os2fs"/> <parent/> </service>
+		<any-service> <parent/> <any-child/> </any-service>
+	</default-route>
+	<default caps="100"/>
+	<start name="os2fs">
+		<resource name="RAM" quantum="8M"/>
+		<provides>
+			<service name="ROM"/>
+			<service name="os2fs"/>
+		</provides>
+		<config verbose="yes">
+			<vfs>
+				<tar name="os2.tar"/>
+			</vfs>
+		</config>
+		<route>
+			<service name="ROM"> <parent/> </service>
+			<any-service> <parent/> <any-child/> </any-service>
+		</route>
+	</start>
+	<start name="test-os2fs">
+		<resource name="RAM" quantum="2M"/>
+	</start>
+</config>
+}
+
+exec sh -c "cd bin; mkdir -p file/system; ln -sf ${files}/config.sys"
+
+foreach file ${filelist} {
+  exec sh -c "cd bin/file/system; ln -sf ${files}/${file}"
+}
+
+exec sh -c "cd bin/file/system; ln -sf ../../kal.map"
+exec sh -c "cd bin; tar cfh os2.tar file"
+
+#
+# Boot image
+#
+
+set bootimage {
+  core
+  init
+  ld.lib.so
+  libc.lib.so
+  libm.lib.so
+  stdcxx.lib.so
+  os2.tar
+  os2fs
+  test-os2fs
+}
+
+# append bootimage ${filelist}
+build_boot_image ${bootimage}
+
+append qemu_args " -nographic "
+
+run_genode_until forever
+# run_genode_until "cpi test completed.*\n" 10

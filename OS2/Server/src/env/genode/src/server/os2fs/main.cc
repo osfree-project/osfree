@@ -17,6 +17,7 @@
 #include <root/component.h>
 #include <fs_session/fs_session.h>
 #include <base/rpc_server.h>
+#include <dataspace/client.h>
 #include <base/signal.h>
 #include <rom_session/rom_session.h>
 
@@ -49,8 +50,9 @@ private:
     Genode::Session_label const &_label;
     Genode::Ram_dataspace_capability _file_ds;
 
-    Genode::Ram_dataspace_capability _init_file_ds(Genode::Ram_session &ram, Genode::Region_map &rm,
-                                                       Genode::Session_label const &label)
+    Genode::Ram_dataspace_capability _init_file_ds(Genode::Ram_session &ram,
+                                                   Genode::Region_map &rm,
+                                                   Genode::Session_label const &label)
     {
         Genode::Ram_dataspace_capability file_ds;
         Genode::Env &env = genode_env();
@@ -72,7 +74,9 @@ private:
             file_ds = ram.alloc(fSize);
             Genode::Attached_dataspace dst(rm, file_ds);
 
-            Genode::memcpy(dst.local_addr<char>(), src.local_addr<char>(), src.size());
+            Genode::memcpy(dst.local_addr<char>(),
+                           src.local_addr<char>(),
+                           src.size());
             return file_ds;
         }
         catch (...)
@@ -174,32 +178,42 @@ public:
 
 struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
 {
+private:
+    Libc::Env &env;
+
+public:
+    Fs_session_component(Libc::Env &env)
+    :
+    env(env) {  }
+
     long get_drivemap(ULONG *map)
     {
         return FSGetDriveMap(map);
     }
 
     APIRET dos_Read(HFILE hFile,
-                    char *pBuf,
+                    Genode::Ram_dataspace_capability &ds,
                     ULONG *count)
     {
         APIRET rc;
+        char *addr = env.rm().attach(ds);
 
         Libc::with_libc([&] () {
-            rc = FSRead(hFile, pBuf, count);
+            rc = FSRead(hFile, addr, count);
         });
 
         return rc;
     }
 
     APIRET dos_Write(HFILE hFile,
-                     char *pBuf,
+                     Genode::Ram_dataspace_capability &ds,
                      ULONG *count)
     {
         APIRET rc;
+        char *addr = env.rm().attach(ds);
 
         Libc::with_libc([&] () {
-            rc =  FSWrite(hFile, pBuf, count);
+            rc =  FSWrite(hFile, addr, count);
         });
 
         return rc;
@@ -230,19 +244,19 @@ struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
         return FSQueryHType(hFile, pType, pAttr);
     }
 
-    APIRET dos_OpenL(PSZ pszFileName,
+    APIRET dos_OpenL(Pathname &fName,
                      HFILE *phFile,
                      ULONG *pulAction,
                      LONGLONG cbSize,
                      ULONG ulAttribute,
                      ULONG fsOpenFlags,
-                     ULONG fsOpenMode) //,
-                     //ULONG dummy) // EAOP2 *peaop2
+                     ULONG fsOpenMode)
+                     // EAOP2 *peaop2
     {
         APIRET rc;
 
         Libc::with_libc([&] () {
-            rc = FSOpenL(pszFileName, phFile, pulAction,
+            rc = FSOpenL((PSZ)fName.string(), phFile, pulAction,
                          cbSize, ulAttribute, fsOpenFlags,
                          fsOpenMode, NULL); //, (EAOP2 *)peaop2);
         });
@@ -256,47 +270,50 @@ struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
         return FSDupHandle(hFile, phFile2);
     }
 
-    APIRET dos_Delete(PSZ pszFileName)
+    APIRET dos_Delete(Pathname &fName)
     {
-        return FSDelete(pszFileName);
+        return FSDelete((PSZ)fName.string());
     }
 
-    APIRET dos_ForceDelete(PSZ pszFileName)
+    APIRET dos_ForceDelete(Pathname &fName)
     {
-        return FSForceDelete(pszFileName);
+        return FSForceDelete((PSZ)fName.string());
     }
 
-    APIRET dos_DeleteDir(PSZ pszDirName)
+    APIRET dos_DeleteDir(Pathname &dName)
     {
-        return FSDeleteDir(pszDirName);
+        return FSDeleteDir((PSZ)dName.string());
     }
 
-    APIRET dos_CreateDir(PSZ pszDirName,
-                         EAOP2 *peaop2)
+    APIRET dos_CreateDir(Pathname &dName,
+                         Genode::Ram_dataspace_capability &ds)
     {
-        return FSCreateDir(pszDirName, peaop2);
+        EAOP2 *peaop2 = (EAOP2 *)env.rm().attach(ds);
+        return FSCreateDir((PSZ)dName.string(), peaop2);
     }
 
-    APIRET dos_FindFirst(PSZ pszFileSpec,
+    APIRET dos_FindFirst(Pathname &pName,
                          HDIR *phDir,
                          ULONG flAttribute,
-                         char *pFindBuf,
-                         ULONG *cbBuf,
+                         Genode::Ram_dataspace_capability &ds,
                          ULONG *pcFileNames,
                          ULONG ulInfoLevel)
     {
-        return FSFindFirst(pszFileSpec, phDir, flAttribute,
-                           &pFindBuf, cbBuf, pcFileNames,
-                           ulInfoLevel);
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
+        return FSFindFirst((PSZ)pName.string(), phDir, flAttribute,
+                           &addr, &cbSize, pcFileNames, ulInfoLevel);
     }
 
     APIRET dos_FindNext(HDIR hDir,
-                        char *pFindBuf,
-                        ULONG *cbBuf,
+                        Genode::Ram_dataspace_capability &ds,
                         ULONG *pcFileNames)
     {
-        return FSFindNext(hDir, &pFindBuf,
-                          cbBuf, pcFileNames);
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
+        return FSFindNext(hDir, &addr, &cbSize, pcFileNames);
     }
 
     APIRET dos_FindClose(HDIR hDir)
@@ -312,20 +329,24 @@ struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
 
     APIRET dos_QueryFileInfo(HFILE hFile,
                              ULONG ulInfoLevel,
-                             char *pInfoBuf,
-                             ULONG *cbInfoBuf)
+                             Genode::Ram_dataspace_capability &ds)
     {
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
         return FSQueryFileInfo(hFile, ulInfoLevel,
-                               &pInfoBuf, cbInfoBuf);
+                               &addr, &cbSize);
     }
 
-    APIRET dos_QueryPathInfo(PSZ pszPathName,
+    APIRET dos_QueryPathInfo(Pathname &pName,
                              ULONG ulInfoLevel,
-                             char *pInfoBuf,
-                             ULONG *cbInfoBuf)
+                             Genode::Ram_dataspace_capability &ds)
     {
-        return FSQueryPathInfo(pszPathName, ulInfoLevel,
-                               &pInfoBuf, cbInfoBuf);
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
+        return FSQueryPathInfo((PSZ)pName.string(), ulInfoLevel,
+                               &addr, &cbSize);
     }
 
     APIRET dos_SetFileSizeL(HFILE hFile,
@@ -336,21 +357,25 @@ struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
 
     APIRET dos_SetFileInfo(HFILE hFile,
                            ULONG ulInfoLevel,
-                           char *pInfoBuf,
-                           ULONG *cbInfoBuf)
+                           Genode::Ram_dataspace_capability &ds)
     {
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
         return FSSetFileInfo(hFile, ulInfoLevel,
-                             &pInfoBuf, cbInfoBuf);
+                             &addr, &cbSize);
     }
 
-    APIRET dos_SetPathInfo(PSZ pszPathName,
+    APIRET dos_SetPathInfo(Pathname &pName,
                            ULONG ulInfoLevel,
-                           char *pInfoBuf,
-                           ULONG *cbInfoBuf,
+                           Genode::Ram_dataspace_capability &ds,
                            ULONG flOptions)
     {
-        return FSSetPathInfo(pszPathName, ulInfoLevel,
-                             &pInfoBuf, cbInfoBuf, flOptions);
+        char *addr = env.rm().attach(ds);
+        ULONG cbSize = Genode::Dataspace_client(ds).size();
+
+        return FSSetPathInfo((PSZ)pName.string(), ulInfoLevel,
+                             &addr, &cbSize, flOptions);
     }
 };
 
@@ -362,7 +387,7 @@ private:
 protected:
     Fs_session_component *_create_session(const char *args)
     {
-        return new (md_alloc()) Fs_session_component();
+        return new (md_alloc()) Fs_session_component(_env);
     }
 
 public:

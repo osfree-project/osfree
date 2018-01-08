@@ -14,7 +14,7 @@ struct OS2::Fs::Connection : Genode::Connection<Session>, Session_client
 	Genode::Connection<OS2::Fs::Session>(env, session(env.parent(),
                                              "ram_quota=6K, cap_quota=4")),
 	/* Initialize RPC interface */
-	Session_client(cap()) {  }
+	Session_client(env, cap()) {  }
 };
 
 #endif /* __FS_SESSION_CONNECTION_H__ */
