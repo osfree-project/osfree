@@ -50,34 +50,47 @@ namespace OS2::Exec {
 
 struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 {
+private:
+	Genode::Env &env;
+
+public:
+	Session_component(Genode::Env &env)
+	:
+	env(env) {  }
+
 	void test(OS2::Exec::Session::Buf *buf)
 	{
 		const char *s = "qwerty";
 		Genode::memcpy((char *)buf->str, s, Genode::strlen(s));
 	}
 
-	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *fname,
+	long open(Pathname &fName,
 	          unsigned long flags,
-	          LoadError *szLoadError,
+	          Genode::Ram_dataspace_capability ds,
 	          unsigned long *cbLoadError,
 	          unsigned long *hmod)
 	{
-		return ExcOpen(szLoadError->buf, *cbLoadError,
-		               fname->string(), flags, hmod);
+		char *addr = env.rm().attach(ds);
+
+		return ExcOpen(addr, *cbLoadError,
+		               fName.string(), flags, hmod);
 	}
 
 	long load(unsigned long hmod,
-	          LoadError *szLoadError,
+	          Genode::Ram_dataspace_capability err_ds,
 	          unsigned long *cbLoadError,
-	          os2exec_module_t *s)
+	          Genode::Ram_dataspace_capability mod_ds)
 	{
-		return ExcLoad(&hmod, szLoadError->buf,
-		               *cbLoadError, s);
+		char *addr = env.rm().attach(err_ds);
+		char *addr2 = env.rm().attach(mod_ds);
+
+		return ExcLoad(&hmod, addr,
+		               *cbLoadError, (os2exec_module_t *)addr2);
 	}
 
-	long share(unsigned long hmod, Genode::Capability<void> *client_id)
+	long share(unsigned long hmod)
 	{
-		return ExcShare(hmod, client_id);
+		return ExcShare(hmod, (void *)this);
 	}
 
 	long getimp(unsigned long hmod,
@@ -89,40 +102,96 @@ struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
 
 	long getsect(unsigned long hmod,
 	             unsigned long *index,
-	             l4exec_section_t *sect)
+	             Genode::Ram_dataspace_capability sect_ds)
 	{
+		l4exec_section_t *sect = env.rm().attach(sect_ds);
+
 		return ExcGetSect(hmod, index, sect);
 	}
 
 	long query_procaddr(unsigned long hmod,
 	                    unsigned long ordinal,
-	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *modname,
+	                    Pathname &mName,
 	                    ULONGLONG *addr)
 	{
-		return ExcQueryProcAddr(hmod, ordinal, modname->string(), (void **)addr);
+		return ExcQueryProcAddr(hmod, ordinal, (PSZ)mName.string(), (void **)addr);
 	}
 
-	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *pszModname,
+	long query_modhandle(Pathname &mName,
 	                     unsigned long *hmod)
 	{
-		return ExcQueryModuleHandle(pszModname->string(), hmod);
+		return ExcQueryModuleHandle(mName.string(), hmod);
 	}
 
 	long query_modname(unsigned long hmod,
-	                   unsigned long cbBuf,
-	                   Buf *pszBuf)
+	                   Genode::Ram_dataspace_capability ds)
 	{
-		return ExcQueryModuleName(hmod, cbBuf, pszBuf->str);
+		char *addr = env.rm().attach(ds);
+		ULONG cbSize = Genode::Dataspace_client(ds).size();
+
+		return ExcQueryModuleName(hmod, cbSize, addr);
 	}
 
 	long alloc_sharemem(ULONG size,
-	                    char *name,
+	                    Pathname &mName,
 	                    ULONG rights,
 	                    ULONGLONG *addr,
 	                    ULONGLONG *area)
 	{
-		return ExcAllocSharedMem(size, name, rights,
+		return ExcAllocSharedMem(size, (PSZ)mName.string(), rights,
 		                         (void **)addr, area);
+	}
+
+	long map_dataspace(ULONGLONG addr,
+                           ULONG rights,
+                           Genode::Ram_dataspace_capability ds)
+	{
+		return ExcMapDataspace((void *)addr, rights,
+		                       (l4_os3_dataspace_t)&ds);
+	}
+
+	long unmap_dataspace(ULONGLONG addr,
+	                     Genode::Ram_dataspace_capability ds)
+	{
+		return ExcUnmapDataspace((void *)addr,
+		                         (l4_os3_dataspace_t)&ds);
+	}
+
+	long get_dataspace(ULONGLONG *addr,
+	                   ULONG *size,
+	                   Genode::Ram_dataspace_capability *ds)
+	{
+		return ExcGetDataspace((void **)addr, size,
+		                       (l4_os3_dataspace_t *)&ds, (void *)this);
+	}
+
+	long get_sharemem(ULONGLONG pb,
+	                  ULONGLONG *addr,
+	                  ULONG *size,
+	                  ULONGLONG *owner)
+	{
+		return ExcGetSharedMem((void *)pb, (void **)addr,
+		                       size, (l4_os3_cap_idx_t *)owner);
+	}
+
+	long get_named_sharemem(Pathname &mName,
+	                        ULONGLONG *addr,
+	                        ULONG *size,
+	                        ULONGLONG *owner)
+	{
+		return ExcGetNamedSharedMem(mName.string(), (void **)addr,
+		                            size, (l4_os3_cap_idx_t *)owner);
+	}
+
+	long increment_sharemem_refcnt(ULONGLONG addr)
+	{
+		return ExcIncrementSharedMemRefcnt((void *)addr);
+	}
+
+	long release_sharemem(ULONGLONG addr,
+	                      ULONG *count)
+	{
+		return ExcReleaseSharedMem((void *)addr, count);
 	}
 };
 
@@ -134,7 +203,7 @@ private:
 protected:
 	Session_component *_create_session(const char *args)
 	{
-		return new (md_alloc()) Session_component();
+		return new (md_alloc()) Session_component(_env);
 	}
 
 public:

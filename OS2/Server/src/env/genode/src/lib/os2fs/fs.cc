@@ -1,3 +1,5 @@
+/* os2fs client-side RPC API (Genode platform) */
+
 /* OS/2 API includes */
 #define  INCL_BASE
 #include <os2.h>
@@ -15,20 +17,30 @@ Genode::Allocator *_alloc = NULL;
 Genode::Env *_env_ptr = NULL;
 
 extern "C"
-void FSClientInit(void)
+APIRET FSClientInit(void)
 {
     Genode::Allocator &alloc = genode_alloc();
     Genode::Env &env = genode_env();
 
-    fs = new (alloc) OS2::Fs::Connection(env);
+    try
+    {
+        fs = new (alloc) OS2::Fs::Connection(env);
+    }
+    catch (...)
+    {
+        return ERROR_FILE_NOT_FOUND;
+    }
+
+    return NO_ERROR;
 }
 
 extern "C"
-void FSClientDone(void)
+APIRET FSClientDone(void)
 {
     Genode::Allocator &alloc = genode_alloc();
 
     destroy(alloc, fs);
+    return NO_ERROR;
 }
 
 extern "C"
@@ -235,6 +247,13 @@ extern "C"
 APIRET FSClientFindClose(HDIR hDir)
 {
     return fs->dos_FindClose(hDir);
+}
+
+extern "C"
+APIRET FSClientQueryFHState(HFILE hFile,
+                            ULONG *pulMode)
+{
+    return fs->dos_QueryFHState(hFile, pulMode);
 }
 
 extern "C"

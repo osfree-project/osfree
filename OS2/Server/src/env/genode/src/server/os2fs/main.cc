@@ -318,7 +318,13 @@ public:
 
     APIRET dos_FindClose(HDIR hDir)
     {
-        return FSClose(hDir);
+        return FSFindClose(hDir);
+    }
+
+    APIRET dos_QueryFHState(HFILE hFile,
+                            ULONG *pulMode)
+    {
+        return FSQueryFHState(hFile, pulMode);
     }
 
     APIRET dos_SetFHState(HFILE hFile,

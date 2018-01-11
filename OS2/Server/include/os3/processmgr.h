@@ -35,6 +35,7 @@
 //#endif
 
 /* osFree OS/2 personality internal */
+#include <os3/thread.h>
 #include <os3/memmgr.h>
 #include <os3/modmgr.h>
 #include <os3/ixfmgr.h>
@@ -140,25 +141,23 @@ Note:  The fields of this data structure should not be modified unless you are s
 struct t_os2process {
         //struct LX_module * lx_mod;
         ULONG hmte;
-	int pid;
+        int pid;
 
-#ifdef __l4env__
         char exec_sync;  // synchronous execution flag (whether to use term_sem or not)
+#ifdef __l4env__
         l4semaphore_t startup_sem; // child program startup wait semaphore
         l4semaphore_t term_sem;    // child program termination wait semaphore
-        l4_taskid_t task;
 #endif
-	ULONG term_code; // termination code of last child program
+        l4_os3_task_t task;
+        ULONG term_code; // termination code of last child program
         void *ip;
         void *sp;
         PPIB lx_pib;
         //PTIB main_tib;
         PTIB tib_array[128]; // array of pointers to TIB with (TID-1) index
-#ifdef __l4env__
-        l4_threadid_t tid_array[128]; // array of l4thread ID's   with (TID-1) index
-#endif
-	char curdisk;
-	char curdir[256];
+        l4_os3_thread_t tid_array[128]; // array of l4thread ID's   with (TID-1) index
+        char curdisk;
+        char curdir[256];
         struct t_mem_area root_mem_area;
         struct t_os2process *next;
         struct t_os2process *prev;
@@ -172,12 +171,10 @@ APIRET CDECL PrcDestroyTIB(PID pid, TID tid);
 
 struct t_os2process *PrcGetProc(ULONG pid);
 
-#ifdef __l4env__
-APIRET CDECL PrcNewTIB(PID pid, TID tid, l4thread_t id);
-struct t_os2process *PrcGetProcL4(l4_threadid_t thread);
-TID PrcGetTIDL4(l4_threadid_t thread);
-l4_threadid_t PrcGetL4ID(PID pid, TID tid);
-#endif
+struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread);
+TID PrcGetTIDNative(l4_os3_thread_t thread);
+APIRET CDECL PrcNewTIB(PID pid, TID tid, l4_os3_thread_t id);
+l4_os3_thread_t PrcGetNativeID(PID pid, TID tid);
 
 // APIRET APIENTRY PrcCreate(IXFModule ixfModule,
 //                           struct t_os2process * process);
@@ -203,7 +200,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  char * pEnv,
                                  struct _RESULTCODES *pRes, /*PRESULTCODES */
                                  char * pName,
-				 unsigned long ppid);
+                                 unsigned long ppid);
 
 #ifdef __cplusplus
   }

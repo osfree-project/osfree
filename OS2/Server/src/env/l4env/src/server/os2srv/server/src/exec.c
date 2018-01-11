@@ -37,21 +37,22 @@
 
 /* L4 includes */
 #include <l4/loader/loader-client.h>
+#include <l4/sys/types.h>
 
 // servers thread ids
-extern l4_os3_cap_idx_t os2srv;
-extern l4_os3_cap_idx_t loader_id;
-extern l4_os3_cap_idx_t fprov_id;
-extern l4_os3_cap_idx_t dsm_id;
+extern l4_threadid_t os2srv;
+extern l4_threadid_t loader_id;
+extern l4_threadid_t fprov_id;
+extern l4_threadid_t dsm_id;
 
-int l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid);
+int l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid);
 int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc);
 
 // use events server
 extern char use_events;
 
 int
-l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
+l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
 {
   #define MAX_TASK_ID 16
   CORBA_Environment env = dice_default_environment;
@@ -61,9 +62,10 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   l4_taskid_t task_ids[MAX_TASK_ID];
   char error_msg[1024];
   char *ptr = error_msg;
-  l4_os3_dataspace_t ds = NULL; // L4DM_INVALID_DATASPACE;
+  l4_os3_dataspace_t ds = INVALID_DATASPACE;
+  l4_os3_thread_t dsm_thread;
   char str[64] = "";
-  l4_addr_t addr;
+  void *addr;
   int error;
 
   // If we use events server, pass this option
@@ -80,10 +82,11 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   io_log("parm=\"%s\"\n", parm);
 
   /* RPC call to DM_PHYS (create a dataspace) */
+  dsm_thread.thread = dsm_id;
   //if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
     //                        name, &ds, &env))
   //if (l4os3_ds_allocate(ds, 0, 1024))
-  if (DataspaceAlloc(&ds, 0, dsm_id, 1024))
+  if (DataspaceAlloc(&ds, 0, dsm_thread, 1024))
     {
       io_log("Can't allocate a dataspace!\n");
       while (1) { l4_sleep(0.1); }
@@ -91,7 +94,7 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   io_log("dataspace created\n");
 
   /* attach the dataspace to our own address space */
-  attach_ds((l4_os3_dataspace_t)ds, L4DM_RW, &addr);
+  attach_ds(ds, L4DM_RW, &addr);
   io_log("dataspace attached\n");
 
   if (vc)
@@ -111,11 +114,11 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
   l4rm_detach((void *)addr);
 
   /* share dataspace to loader */
-  l4dm_transfer(ds,              // dataspace
-                loader_id);       // taskid
+  l4dm_transfer(&ds.ds,              // dataspace
+                loader_id);          // taskid
 
   /* RPC to L4 loader to start OS/2 app L4 startup */
-  if ((error = l4loader_app_open_call(&loader_id, ds, cmd_buf,
+  if ((error = l4loader_app_open_call(&loader_id, &ds.ds, cmd_buf,
                                       &fprov_id, 0, task_ids,
                                       &ptr, &env)) < 0)
   {
@@ -136,14 +139,14 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid)
     }
   }
 
-  *taskid = task_ids[0];
+  taskid->thread = task_ids[0];
   return NO_ERROR;
 }
 
 
 int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc)
 {
-    l4_os3_cap_idx_t    taskid;
+    l4_os3_task_t taskid;
     char str[16];
     int rc;
 

@@ -298,55 +298,40 @@ l4fprov_file_open_component (CORBA_Object _dice_corba_obj,
   int  rc;
 
   /* convert OS/2 path to PN path */
-  io_log("fname=%s\n", fname);
   if (pathconv(&newfilename, (char *)fname))
    return ERROR_FILE_NOT_FOUND;
 
-  io_log("newfilename=%s\n", newfilename);
   handle = open(newfilename, O_RDONLY);
 
-  io_log("000\n");
   if(handle == -1)
       return ERROR_FILE_NOT_FOUND;
 
-  io_log("file opened\n");
-
-  io_log("001\n");
   rc = fstat(handle, &stat);
 
   /* get length */
-  io_log("002\n");
   *size = stat.st_size;
 
   /* Create a dataspace of a given size */
-  io_log("002\n");
   rc = l4dm_mem_open((l4_threadid_t)*dm, *size, 0, L4DM_RW, "fprov dataspace", ds);
 
-  io_log("003\n");
   if (rc < 0)
     return ERROR_NOT_ENOUGH_MEMORY;
 
   /* attach the created dataspace to our address space */
-  io_log("004\n");
   rc = l4rm_attach(ds, *size, 0, L4DM_RW, (void **)&addr);
 
-  io_log("005\n");
   if (rc < 0)
     return 8; /* What to return? */
 
-  io_log("006\n");
   read(handle, (void *)addr, *size);
 
-  io_log("007\n");
   close(handle);
 
-  io_log("008\n");
   l4rm_detach((void *)addr);
 
   io_log("caller=%x.%x\n", _dice_corba_obj->id.task, _dice_corba_obj->id.lthread);
   rc = l4dm_transfer(ds, *_dice_corba_obj);
 
-  io_log("009\n");
   if (rc < 0)
   {
     io_log("error transferring ds\n");

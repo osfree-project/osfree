@@ -144,11 +144,13 @@ int main(int argc, char **argv)
 
   // get our thread ID
   fprov_id = l4_myself();
+  //fileprov_init();
 
   // server loop
   io_log("going to the server loop\n");
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2fs_server_loop(&env);
+  fileprov_done();
   return 0;
 }

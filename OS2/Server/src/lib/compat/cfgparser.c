@@ -123,6 +123,7 @@ unsigned long CfgInitOptions()
   options.debugmemmgr = 0;
 
   str = "config.sys";
+  //str = "/file/system/config.sys";
   if( !(p = (char *)malloc(strlen(str) + 1)) )
   {
     error("init_options: memory could not be allocated!");

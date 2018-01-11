@@ -12,7 +12,7 @@
 #include <l4/os2exec/os2exec-client.h>
 
 /* os2exec client interface cap */
-extern l4_os3_cap_idx_t execsrv;
+extern l4_threadid_t execsrv;
 
 APIRET ExcClientInit(void)
 {
@@ -22,6 +22,11 @@ APIRET ExcClientInit(void)
         return ERROR_FILE_NOT_FOUND; // @todo more appropriate error code
     }
 
+    return NO_ERROR;
+}
+
+APIRET ExcClientDone(void)
+{
     return NO_ERROR;
 }
 
@@ -140,7 +145,7 @@ APIRET ExcClientMapDataspace(void *addr,
     long ret;
 
     ret = os2exec_map_dataspace_call(&execsrv, (l4_addr_t)addr, (l4_uint32_t)rights,
-                                     (l4dm_dataspace_t *)ds, &env);
+                                     &ds.ds, &env);
     return (APIRET)ret;
 }
 
@@ -150,7 +155,7 @@ APIRET ExcClientUnmapDataspace(void *addr,
     CORBA_Environment env = dice_default_environment;
     long ret;
 
-    ret = os2exec_unmap_dataspace_call(&execsrv, (l4_addr_t)addr, (l4dm_dataspace_t *)ds, &env);
+    ret = os2exec_unmap_dataspace_call(&execsrv, (l4_addr_t)addr, &ds.ds, &env);
     return (APIRET)ret;
 }
 
@@ -162,7 +167,7 @@ APIRET ExcClientGetDataspace(void **addr,
     long ret;
 
     ret = os2exec_get_dataspace_call(&execsrv, (l4_addr_t *)addr,
-                                     (l4_size_t *)size, (l4dm_dataspace_t *)*ds, &env);
+                                     (l4_size_t *)size, &ds->ds, &env);
     return (APIRET)ret;
 }
 
@@ -176,7 +181,7 @@ APIRET ExcClientGetSharedMem(void *pb,
 
     ret = os2exec_get_sharemem_call(&execsrv, (l4_addr_t)pb,
                                     (l4_addr_t *)addr, (l4_size_t *)size,
-                                    (l4_threadid_t *)owner, &env);
+                                    &owner->thread, &env);
     return (APIRET)ret;
 }
 
@@ -189,7 +194,7 @@ APIRET ExcClientGetNamedSharedMem(PSZ pszName,
     long ret;
 
     ret = os2exec_get_namedsharemem_call(&execsrv, pszName, (l4_addr_t *)addr,
-                                         (l4_size_t *)size, (l4_threadid_t *)owner, &env);
+                                         (l4_size_t *)size, &owner->thread, &env);
     return (APIRET)ret;
 }
 

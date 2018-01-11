@@ -127,6 +127,12 @@ public:
 		return call<Rpc_dos_FindClose>(hDir);
 	}
 
+	APIRET dos_QueryFHState(HFILE hFile,
+                                ULONG *pulMode)
+	{
+		return call<Rpc_dos_QueryFHState>(hFile, pulMode);
+	}
+
 	APIRET dos_SetFHState(HFILE hFile,
                               ULONG ulMode)
 	{

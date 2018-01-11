@@ -61,7 +61,7 @@ long ExcUnmapDataspace(void               *addr,
 long ExcGetDataspace(void               **addr,
                      unsigned long      *size,
                      l4_os3_dataspace_t *ds,
-                     void               *client_id);
+                     l4_os3_cap_idx_t   client_id);
 
 long ExcGetSharedMem(void *pb,
                      void **addr,

@@ -9,9 +9,9 @@
 #define  INCL_BASE
 #include <os2.h>
 
-void FSClientInit(void);
+APIRET FSClientInit(void);
 
-void FSClientDone(void);
+APIRET FSClientDone(void);
 
 long FSClientGetDriveMap(ULONG *map);
 
@@ -72,7 +72,10 @@ APIRET FSClientFindNext(HDIR hDir,
                         ULONG *cbBuf,
                         ULONG *pcFileNames);
 
-APIRET FSCliendFindClose(HDIR hDir);
+APIRET FSClientFindClose(HDIR hDir);
+
+APIRET FSClientQueryFHState(HFILE hFile,
+                            ULONG *pulMode);
 
 APIRET FSClientSetFHState(HFILE hFile,
                           ULONG ulMode);

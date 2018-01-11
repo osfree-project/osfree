@@ -13,22 +13,8 @@ typedef unsigned long fnFixup(void * FormatStruct);
 
 typedef struct slist slist_t;
 
-#ifdef __l4env__
-
-#include <l4/env/env.h>
-
-#else
-
-#include <os3/dataspace.h>
-
-typedef struct
-{
-  void *addr;
-  unsigned long size;
-  l4_os3_dataspace_t ds;
-} l4exec_section_t;
-
-#endif
+// for l4exec_section_t
+#include <env/ixfmgr.h>
 
 struct slist
 {

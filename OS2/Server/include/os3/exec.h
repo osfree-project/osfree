@@ -17,6 +17,8 @@
 
 APIRET ExcClientInit(void);
 
+APIRET ExcClientDone(void);
+
 APIRET ExcClientOpen(PSZ              pszFileName,
                      ULONG            ulFlags,
                      PBYTE            pbLoadError,

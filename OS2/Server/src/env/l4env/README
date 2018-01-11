@@ -29,7 +29,7 @@ Then create a symlink to "os3/src/env/l4env" directory in l4/pkg directory:
 
 # cd ..
 # cd l4/pkg
-# ln -s ../../../os3/src/env/l4env os3
+# ln -s /mnt/os3/src/env/l4env os3
 
 Change to os3/src/env/l4env:
 

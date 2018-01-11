@@ -2,6 +2,7 @@ include $(REP_DIR)/build.cfg
 
 cdefs = -D__l4env__
 
+cdefs += -I$(REP_DIR)/include
 cdefs += -I$(OS3_DIR)/include/os2
 cdefs += -I$(OS3_DIR)/include
 
@@ -29,7 +30,7 @@ CFLAGS += $(cdefs)
 #		-boot n \
 #		-netdev user,bootfile=$(GRUB),tftp=$(REP_DIR),id=net0 \
 #		-device ne2k_pci,netdev=net0 \
-#		-L $(REP_DIR)/tools/bootrom \
+#		-L $(OS3_DIR)/tools/bootrom \
 #		$(DISPLAY) \
 #		-serial stdio \
 #	| tee $(REP_DIR)/qemu.log
@@ -45,7 +46,7 @@ run: symlinks
 		-bootp $(GRUB) \
 		-net nic,model=ne2k_pci,vlan=0 \
 		-net user,vlan=0 \
-		-L $(REP_DIR)/tools/bootrom \
+		-L $(OS3_DIR)/tools/bootrom \
 		$(DISPLAY) \
 		-serial stdio \
 	| tee $(REP_DIR)/qemu.log
@@ -59,7 +60,7 @@ symlinks: $(ROOT)/cd/boot/grub/menu.lst \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/l4con
 
-$(ROOT)/cd/boot/grub/menu.lst: $(OS3_DIR)/src/env/l4env/tools/menu.lst
+$(ROOT)/cd/boot/grub/menu.lst: $(REP_DIR)/tools/menu.lst
 	@if [ ! -d $(dir $@) ]; then \
 	    @mkdir -p $(dir $@); \
 	fi

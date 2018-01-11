@@ -26,6 +26,7 @@
 #include <os3/io.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/thread.h>
 #include <os3/app.h>
 
 /* l4env includes */
@@ -63,18 +64,18 @@ extern struct module_rec module_root; /* Root for module list.*/
 // region mapper and dataspace manager
 void *alloc_mem(int size, char *comment)
 {
-  l4_addr_t        addr = 0;
-  l4dm_dataspace_t ds;
+  void             *addr = 0;
+  l4_os3_dataspace_t ds;
   int              rc;
 
   /* allocate a dataspace of a given size */
-  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds);
+  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds.ds);
 
   if (rc < 0)
     return 0;
 
   /* attach it to our address space */
-  rc = attach_ds(&ds, L4DM_RW, (l4_addr_t *)&addr);
+  rc = attach_ds(ds, L4DM_RW, &addr);
 
   if (rc < 0)
   {
@@ -82,7 +83,7 @@ void *alloc_mem(int size, char *comment)
     return 0;
   }
 
-  return (void *)addr;
+  return addr;
 }
 
 // free memory allocated via 
@@ -194,15 +195,13 @@ PrcCreateTIB(PTIB *addr)
 }
 
 APIRET CDECL
-PrcNewTIB(PID pid, TID tid, l4thread_t id)
+PrcNewTIB(PID pid, TID tid, l4_os3_thread_t id)
 {
   struct t_os2process *proc = PrcGetProc(pid);
-  //l4thread_t id;
   PTIB ptib;
 
   PrcCreateTIB(&ptib);
-  //id = PrcGetL4ID(pid, tid);
-  proc->tid_array[tid - 1] = l4thread_l4_id(id);
+  proc->tid_array[tid - 1] = id;
   proc->tib_array[tid - 1] = ptib;
   ptib->tib_ptib2->tib2_ultid = tid;
   return 0;
@@ -214,13 +213,13 @@ PrcDestroyTIB(PID pid, TID tid)
   struct t_os2process *proc = PrcGetProc(pid);
   PTIB ptib = proc->tib_array[tid - 1];
   proc->tib_array[tid - 1] = 0;
-  proc->tid_array[tid - 1] = L4_INVALID_ID;
+  proc->tid_array[tid - 1] = NIL_THREAD;
   free_mem(ptib);
   return 0;
 }
 
 /* Creates a process for an LX-module. */
-struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFModule *ixfModule)
+struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFModule *ixfModule)
 {
 
     struct t_os2process *parentproc;
@@ -255,6 +254,7 @@ struct t_os2process * PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFM
 
     /* support for setting current disk and directory */
     parentproc = PrcGetProc(ppid);
+
     if (parentproc && ppid && pid)
     {
       c->curdisk = parentproc->curdisk;
@@ -351,7 +351,7 @@ struct t_os2process *PrcGetProc(ULONG pid)
   return NULL;
 }
 
-struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
+struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread)
 {
   struct t_os2process *proc;
   proc = proc_root;
@@ -361,7 +361,7 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
 
   do
   {
-    if (proc->task.id.task == thread.id.task)
+    if (proc->task.thread.id.task == thread.thread.id.task)
       return proc;
     else
       proc = proc->next;
@@ -371,21 +371,24 @@ struct t_os2process *PrcGetProcL4(l4_threadid_t thread)
   return NULL;
 }
 
-TID PrcGetTIDL4(l4_threadid_t thread)
+//TID PrcGetTIDL4(l4_threadid_t thread)
+TID PrcGetTIDNative(l4_os3_thread_t thread)
 {
-  struct t_os2process *proc = PrcGetProcL4(thread);
+  struct t_os2process *proc = PrcGetProcNative(thread);
   int i;
 
   for (i = 0; i < MAX_TID; i++)
   {
-    if (l4_thread_equal(proc->tid_array[i], thread))
+    if (l4_thread_equal(proc->tid_array[i].thread,
+        thread.thread))
       return i + 1;
   }
   return 0;
 }
 
 /* Get L4 native thread ID by OS/2 pid/tid */
-l4_threadid_t PrcGetL4ID(PID pid, TID tid)
+//l4_threadid_t PrcGetL4ID(PID pid, TID tid)
+l4_os3_thread_t PrcGetNativeID(PID pid, TID tid)
 {
   struct t_os2process *proc = PrcGetProc(pid);
   return proc->tid_array[tid - 1];
@@ -484,7 +487,7 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
       for (i = 0, l = 0; i < n; i++, l += strlen(s) + 1)
       {
         s = type[3].sp[i].string;
-	if (s) memmove(env + l, s, strlen(s) + 1);
+        if (s) memmove(env + l, s, strlen(s) + 1);
       }
       env[l++] = '\0';
     }
@@ -542,7 +545,8 @@ os2server_app_notify1_component(CORBA_Object _dice_corba_obj,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
   struct t_os2process *proc, *parentproc;
-  proc = PrcGetProcL4(*_dice_corba_obj);
+  l4_os3_thread_t thread = {*_dice_corba_obj};
+  proc = PrcGetProcNative(thread);
   ULONG ppid;
   ppid = proc->lx_pib->pib_ulppid;
   parentproc = PrcGetProc(ppid);
@@ -558,7 +562,9 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
   struct t_os2process *proc;
-  proc = PrcGetProcL4(*_dice_corba_obj);
+  l4_os3_thread_t task;
+  task.thread = *_dice_corba_obj;
+  proc = PrcGetProcNative(task);
   int i;
 
   if (! proc) // it indicates that os2app is started from other
@@ -566,7 +572,7 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
     /* create process structure and assign args and env */
     proc = PrcCreate(0, (PSZ)s->path, "", "");
     /* set task number */
-    proc->task = *_dice_corba_obj;
+    proc->task = task;
     /* assign params and environment */
     //PrcSetArgsEnv(s->path, "", "", proc);
   }
@@ -578,9 +584,9 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
   proc->tib_array[0]->tib_pstack = (void *)s->sp;
   proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
   proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
-  proc->tid_array[0] = *_dice_corba_obj;
+  proc->tid_array[0] = task;
   io_log("*** tid=%d\n", l4thread_id(*_dice_corba_obj));
-  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = L4_INVALID_ID;
+  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = NIL_THREAD; //L4_INVALID_ID;
 }
 
 
@@ -913,7 +919,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  char * pEnv,
                                  struct _RESULTCODES *pRes, /*PRESULTCODES */
                                  char * pName,
-				 unsigned long ppid)
+                                 unsigned long ppid)
 {
   //CORBA_Environment env = dice_default_environment;
   int rc=NO_ERROR;
@@ -971,11 +977,11 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   // get pObjname and cbObjname from os2app
   //os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
-  rc = AppClientGetLoadError((ULONG)&proc->task, pObjname, (PULONG)&cbObjname);
+  rc = AppClientGetLoadError(proc->task, pObjname, (PULONG)&cbObjname);
 
   // Terminate os2app on LX load error
   if (rc)
-    AppClientTerminate((ULONG)&proc->task);
+    AppClientTerminate(proc->task);
     //os2app_app_Terminate_call(&proc->task, &env);
 
   return rc; /*NO_ERROR;*/

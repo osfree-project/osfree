@@ -393,18 +393,14 @@ KalGetTID(TID *ptid);
 APIRET CDECL
 KalGetPID(PID *ppid);
 
-#ifdef __l4env__
+APIRET CDECL
+KalGetNativeID(PID pid, TID tid, l4_os3_thread_t *id);
 
 APIRET CDECL
-KalGetL4ID(PID pid, TID tid, l4_threadid_t *id);
+KalGetTIDNative(l4_os3_thread_t id, TID *ptid);
 
 APIRET CDECL
-KalGetTIDL4(l4_threadid_t id, TID *ptid);
-
-APIRET CDECL
-KalNewTIB(PID pid, TID tid, l4thread_t id);
-
-#endif
+KalNewTIB(PID pid, TID tid, l4_os3_thread_t id);
 
 APIRET CDECL
 KalDestroyTIB(PID pid, TID tid);

@@ -11,33 +11,32 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	Session_client(Genode::Capability<Session> cap)
 	: Genode::Rpc_client<Session>(cap) { }
 
-	void test(Buf *str)
+	void test(OS2::Exec::Session::Buf *str)
 	{
 		call<Rpc_test>(str);
 	}
 
-	long open(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *fname,
+	long open(Pathname &fName,
 	          unsigned long flags,
-	          LoadError *szLoadError,
-	          unsigned long *cbLoadError,
+	          Genode::Ram_dataspace_capability err_ds,
+	          unsigned long *pcbError,
 	          unsigned long *hmod)
 	{
-		return call<Rpc_open>(fname, flags,
-		                      szLoadError,
-		                      cbLoadError, hmod);
+		return call<Rpc_open>(fName, flags,
+		                      err_ds, pcbError, hmod);
 	}
 
 	long load(unsigned long hmod,
-	          LoadError *szLoadError,
-	          unsigned long *cbLoadError,
-	          os2exec_module_t *s)
+	          Genode::Ram_dataspace_capability err_ds,
+	          unsigned long *pcbLoadError,
+	          Genode::Ram_dataspace_capability mod_ds)
 	{
-		return call<Rpc_load>(hmod, szLoadError, cbLoadError, s);
+		return call<Rpc_load>(hmod, err_ds, pcbLoadError, mod_ds);
 	}
 
-	long share(unsigned long hmod, Genode::Capability<void> *client_id)
+	long share(unsigned long hmod)
 	{
-		return call<Rpc_share>(hmod, client_id);
+		return call<Rpc_share>(hmod);
 	}
 
 	long getimp(unsigned long hmod,
@@ -49,39 +48,86 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 
 	long getsect(unsigned long hmod,
 	             unsigned long *index,
-	             l4exec_section_t *s)
+	             Genode::Ram_dataspace_capability sect_ds)
 	{
-		return call<Rpc_getsect>(hmod, index, s);
+		return call<Rpc_getsect>(hmod, index, sect_ds);
 	}
 
 	long query_procaddr(unsigned long hmod,
 	                    unsigned long ordinal,
-	                    Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *modname,
+	                    Pathname &mName,
 	                    ULONGLONG *addr)
 	{
-		return call<Rpc_query_procaddr>(hmod, ordinal, modname, addr);
+		return call<Rpc_query_procaddr>(hmod, ordinal, mName, addr);
 	}
 
-	long query_modhandle(Genode::Rpc_in_buffer<CCHMAXPATHCOMP> *pszModname,
+	long query_modhandle(Pathname &mName,
 	                     unsigned long *hmod)
 	{
-		return call<Rpc_query_modhandle>(pszModname, hmod);
+		return call<Rpc_query_modhandle>(mName, hmod);
 	}
 
 	long query_modname(unsigned long hmod,
-	                   unsigned long cbBuf, Buf *pszBuf)
+	                   Genode::Ram_dataspace_capability ds)
 	{
-		return call<Rpc_query_modname>(hmod, cbBuf, pszBuf);
+		return call<Rpc_query_modname>(hmod, ds);
 	}
 
 	long alloc_sharemem(ULONG size,
-	                    char *name,
+	                    Pathname &mName,
 	                    ULONG rights,
 	                    ULONGLONG *addr,
 	                    ULONGLONG *area)
 	{
-		return call<Rpc_alloc_sharemem>(size, name, rights,
+		return call<Rpc_alloc_sharemem>(size, mName, rights,
 		                                addr, area);
+	}
+
+	long map_dataspace(ULONGLONG addr,
+	                   ULONG rights,
+	                   Genode::Ram_dataspace_capability ds)
+	{
+		return call<Rpc_map_dataspace>(addr, rights, ds);
+	}
+
+	long unmap_dataspace(ULONGLONG addr,
+	                     Genode::Ram_dataspace_capability ds)
+	{
+		return call<Rpc_unmap_dataspace>(addr, ds);
+	}
+
+	long get_dataspace(ULONGLONG *addr,
+	                   ULONG *size,
+	                   Genode::Ram_dataspace_capability *ds)
+	{
+		return call<Rpc_get_dataspace>(addr, size, ds);
+	}
+
+	long get_sharemem(ULONGLONG pb,
+	                  ULONGLONG *addr,
+	                  ULONG *size,
+	                  ULONGLONG *owner)
+	{
+		return call<Rpc_get_sharemem>(pb, addr, size, owner);
+	}
+
+	long get_named_sharemem(Pathname &mName,
+	                        ULONGLONG *addr,
+	                        ULONG *size,
+	                        ULONGLONG *owner)
+	{
+		return call<Rpc_get_named_sharemem>(mName, addr, size, owner);
+	}
+
+	long increment_sharemem_refcnt(ULONGLONG addr)
+	{
+		return call<Rpc_increment_sharemem_refcnt>(addr);
+	}
+
+	long release_sharemem(ULONGLONG addr,
+	                      ULONG *count)
+	{
+		return call<Rpc_release_sharemem>(addr, count);
 	}
 };
 

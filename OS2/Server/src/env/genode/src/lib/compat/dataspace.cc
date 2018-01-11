@@ -85,7 +85,7 @@ long DataspaceGetSize(l4_os3_dataspace_t ds, ULONG *size)
 
 extern "C"
 long DataspaceShare(l4_os3_dataspace_t ds,
-                    void               *client_id,
+                    l4_os3_cap_idx_t   client_id,
                     unsigned long      rights)
 {
     return 0;

@@ -13,7 +13,6 @@ SRC_C		= \
 main.c  \
 sysinit.c \
 exec.c \
-Shared/cfgparser.c \
 Shared/processmgr.c \
 api/api.c \
 api/cfg.c
@@ -26,7 +25,7 @@ SERVERIDL	= os2server.idl
 
 # list additional library paths and libraries here
 LIBS		= -los2app -los2compat -lgeneric_fprov -los2server -los2fs -lthread -lloaderif -ldm_phys \
-		  -lparsecmdline -ll4env_err -levents -lhandle # -los2common 
+		  -lparsecmdline -ll4env_err -levents -lhandle
 
 #LDFLAGS		= --dynamic-linker libkal.s.so \
 #		  --export-dynamic \

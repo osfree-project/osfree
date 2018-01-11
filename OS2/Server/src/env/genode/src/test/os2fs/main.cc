@@ -71,6 +71,24 @@ void Libc::Component::construct(Libc::Env &env)
 
     FSClientClose(hf);
 
+    fSize = sizeof(Info);
+
+    rc = FSClientQueryPathInfo((PSZ)fn,
+                               FIL_STANDARDL,
+                               (char *)&Info,
+                               (PULONG)&fSize);
+
+    io_log("DosQueryPathInfo rc=%u\n", rc);
+
+    if (rc)
+    {
+        return;
+    }
+
+    fSize = Info.cbFile;
+
+    io_log("fSize=%u\n", fSize);
+
     FSClientDone();
 
     io_log("success\n");

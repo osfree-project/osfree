@@ -9,7 +9,7 @@ void l4os3_gdt_set(void *desc, unsigned int size,
                    unsigned int entry_number_start,
                    l4_os3_cap_idx_t tid)
 {
-  fiasco_gdt_set(desc, size, entry_number_start, tid);
+  fiasco_gdt_set(desc, size, entry_number_start, tid.thread);
 }
 
 unsigned l4os3_gdt_get_entry_offset(void)

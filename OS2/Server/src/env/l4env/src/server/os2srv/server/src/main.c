@@ -49,6 +49,9 @@
 /* dice includes */
 #include <os3/ipc.h>
 
+/* l4env includes */
+#include <l4/sys/types.h>
+
 /* Servers RPC includes */
 #include "os2server-server.h"
 
@@ -63,12 +66,12 @@ char fprov[20] = "BMODFS";
 // use events server
 char use_events = 0;
 
-l4_os3_cap_idx_t fs;
-l4_os3_cap_idx_t os2srv;
-l4_os3_cap_idx_t fprov_id;
-l4_os3_cap_idx_t sysinit_id;
-l4_os3_cap_idx_t dsm_id;
-l4_os3_cap_idx_t loader_id;
+l4_threadid_t fs;
+l4_threadid_t os2srv;
+l4_threadid_t fprov_id;
+l4_threadid_t sysinit_id;
+l4_threadid_t dsm_id;
+l4_threadid_t loader_id;
 
 extern cfg_opts options;
 
@@ -100,8 +103,8 @@ int main(int argc, const char **argv)
 {
   CORBA_srv_env env = default_srv_env;
   //l4dm_dataspace_t ds;
-  l4_addr_t addr;           // Pointer to CONFIG.SYS in memory
-  l4_size_t size;           // Size of CONFIG.SYS in memory
+  void     *addr;           // Pointer to CONFIG.SYS in memory
+  unsigned long size;       // Size of CONFIG.SYS in memory
   //l4_cap_idx_t tid;
   int rc;                   // Return code
   //int step = 0;
@@ -128,6 +131,18 @@ int main(int argc, const char **argv)
     io_log("Error registering on the name server\n");
     return 1;
   }
+
+  // Initialize initial values from CONFIG.SYS
+  rc = CfgInitOptions();
+
+  if (rc != NO_ERROR)
+  {
+    io_log("Can't initialize CONFIG.SYS parser\n");
+    return rc;
+  }
+
+  // default config.sys path
+  options.configfile = "/file/system/config.sys";
 
   // Parse command line arguments
   for (;;)
@@ -168,6 +183,8 @@ int main(int argc, const char **argv)
         }
     }
 
+  io_log("options.configfile=%s\n", options.configfile);
+
   /* Wait for servers to be started */
   if (! names_waitfor_name(fprov, &fprov_id, 10000))
   {
@@ -197,15 +214,15 @@ int main(int argc, const char **argv)
   }
 
   // Initialize initial values from CONFIG.SYS
-  rc = CfgInitOptions();
+  //rc = CfgInitOptions();
 
-  if (rc != NO_ERROR)
-  {
-    io_log("Can't initialize CONFIG.SYS parser\n");
-    return rc;
-  }
+  //if (rc != NO_ERROR)
+  //{
+    //io_log("Can't initialize CONFIG.SYS parser\n");
+    //return rc;
+  //}
 
-  io_log("options.configfile=%s\n", options.configfile);
+  //io_log("options.configfile=%s\n", options.configfile);
 
   // Load CONFIG.SYS into memory
   rc = io_load_file(options.configfile, &addr, &size);

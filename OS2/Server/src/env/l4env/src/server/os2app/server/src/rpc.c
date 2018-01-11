@@ -44,7 +44,7 @@ os2app_app_AddArea_component(CORBA_Object _dice_corba_obj,
                              l4_uint32_t flags /* in */,
                              CORBA_Server_Environment *_dice_corba_env)
 {
-  return AppAddArea(addr, size, flags);
+  return AppAddArea((void *)addr, size, flags);
 }
 
 long DICE_CV
@@ -54,7 +54,9 @@ os2app_app_AttachDataspace_component(CORBA_Object _dice_corba_obj,
                                      l4_uint32_t rights /* in */,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
-  return AppAttachDataspace(addr, (l4_os3_dataspace_t)ds, rights);
+  l4_os3_dataspace_t temp_ds;
+  temp_ds.ds = *ds;
+  return AppAttachDataspace(addr, temp_ds, rights);
 }
 
 long DICE_CV
@@ -62,5 +64,7 @@ os2app_app_ReleaseDataspace_component(CORBA_Object _dice_corba_obj,
                                       const l4dm_dataspace_t *ds /* in */,
                                       CORBA_Server_Environment *_dice_corba_env)
 {
-  return AppReleaseDataspace((l4_os3_dataspace_t)ds);
+  l4_os3_dataspace_t temp_ds;
+  temp_ds.ds = *ds;
+  return AppReleaseDataspace(temp_ds);
 }

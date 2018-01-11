@@ -1,5 +1,5 @@
-#ifndef _L4_ALLOM_MEM_H_
-#define _L4_ALLOM_MEM_H_
+#ifndef __L4_ALLOC_MEM_H__
+#define __L4_ALLOC_MEM_H__
 
 #ifdef __cplusplus
   extern "C" {
@@ -13,4 +13,4 @@ int l4_translate_os2_flags(int flags);
   }
 #endif
 
-#endif
+#endif /* __L4_ALLOC_MEM_H__ */

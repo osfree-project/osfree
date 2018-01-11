@@ -17,6 +17,8 @@
 #include <os3/types.h>
 #include <os3/ipc.h>
 #include <os3/kal.h>
+#include <os3/exec.h>
+#include <os3/fs.h>
 //#include <os3/dl.h>
 #include <os3/io.h>
 #include <os3/stacksw.h>
@@ -63,20 +65,20 @@ char use_events = 0;
 unsigned long __stack;
 
 /* OS/2 server id        */
-l4_os3_cap_idx_t os2srv;
+l4_threadid_t os2srv;
 /* FS server id        */
-l4_os3_cap_idx_t fs;
+l4_threadid_t fs;
 /* exec server id        */
-l4_os3_cap_idx_t execsrv;
+l4_threadid_t execsrv;
 /* dataspace manager id  */
-l4_os3_cap_idx_t dsm;
+l4_threadid_t dsm;
 /* l4env infopage        */
 l4env_infopage_t infopg;
 extern l4env_infopage_t *l4env_infopage;
 /* file provider name    */
 char fprov[20] = "fprov_proxy_fs";
 /* file provider id      */
-l4_os3_cap_idx_t fprov_id;
+l4_threadid_t fprov_id;
 
 l4_uint32_t service_lthread;
 
@@ -84,6 +86,7 @@ char pszLoadError[260];
 ULONG rcCode = 0;
 
 void usage(void);
+void server_loop(void);
 VOID CDECL __exit(ULONG action, ULONG result);
 
 void event_thread(void);
@@ -163,7 +166,7 @@ void server_loop(void)
 
 int main (int argc, char *argv[])
 {
-  CORBA_srv_env env = default_srv_env;
+  //CORBA_srv_env env = default_srv_env;
   l4thread_t thread;
   l4_threadid_t tid;
   int rc = 0;
@@ -182,17 +185,29 @@ int main (int argc, char *argv[])
       __exit(1, 1);
     }
 
-  if (! names_waitfor_name("os2fs", &fs, 30000))
+  /* if (! names_waitfor_name("os2fs", &fs, 30000))
     {
       io_log("Can't find os2fs on names, exiting...\n");
       __exit(1, 1);
-    }
+    } */
 
-  if (! names_waitfor_name("os2exec", &execsrv, 30000))
+  if ( (rc = FSClientInit()) )
+  {
+    io_log("Can't find os2fs on names, exiting...\n");
+    __exit(1, 1);
+  }
+
+  /* if (! names_waitfor_name("os2exec", &execsrv, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
       __exit(1, 1);
-    }
+    } */
+
+  if ( (rc = ExcClientInit()) )
+  {
+    io_log("Can't find os2exec on names, exiting...\n");
+    __exit(1, 1);
+  }
 
   if (! names_waitfor_name(fprov, &fprov_id, 30000))
     {
@@ -201,7 +216,7 @@ int main (int argc, char *argv[])
     }
 
   // reserve the lower 64 Mb for OS/2 app
-  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, (l4_addr_t *)&private_memory_area);
+  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, (l4_uint32_t *)&private_memory_area);
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for private arena!\n");
@@ -209,7 +224,7 @@ int main (int argc, char *argv[])
   }
 
   // reserve the upper 1 Gb for shared memory arena
-  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, (l4_addr_t *)&shared_memory_area);
+  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, (l4_uint32_t *)&shared_memory_area);
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for shared arena!\n");
@@ -294,5 +309,8 @@ int main (int argc, char *argv[])
 
   io_log("calling KalStartApp...\n");
   KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
+
+  FSClientDone();
+  ExcClientDone();
   return 0;
 }

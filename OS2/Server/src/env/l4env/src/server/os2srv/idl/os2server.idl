@@ -116,16 +116,16 @@ interface os2server
 
     APIRET dos_GetPID([out] PID *ppid);
 
-    APIRET dos_GetL4ID([in] PID pid,
-                       [in] TID tid,
-                       [out] l4_threadid_t *id);
+    APIRET dos_GetNativeID([in] PID pid,
+                           [in] TID tid,
+                           [out] l4_os3_thread_t *id);
 
-    APIRET dos_GetTIDL4([in] l4_threadid_t id,
-                        [out] TID *ptid);
+    APIRET dos_GetTIDNative([in] l4_os3_thread_t id,
+                            [out] TID *ptid);
 
     APIRET dos_NewTIB([in] PID pid,
                       [in] TID tid,
-                      [in] l4thread_t id);
+                      [in] l4_os3_thread_t id);
 
     APIRET dos_DestroyTIB([in] PID pid,
                           [in] TID tid);

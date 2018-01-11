@@ -1,5 +1,9 @@
 /* file provider interface */
 
+/* OS/2 API includes */
+#define  INCL_BASE
+#include <os2.h>
+
 /* osFree internal */
 #include <os3/io.h>
 #include <dirent.h>
@@ -17,10 +21,25 @@
 
 #include <l4/generic_fprov/generic_fprov-client.h>
 
-//extern l4_threadid_t fs;
 extern l4_threadid_t fprov_id;
 
 l4_threadid_t dsm = L4_INVALID_ID;
+
+int fileprov_init(void)
+{
+  if (! names_waitfor_name("os2fs", &fprov_id, 30000))
+  {
+    io_log("Cannot find os2fs on names!\n");
+    return ERROR_FILE_NOT_FOUND;
+  }
+
+  return NO_ERROR;
+}
+
+int fileprov_done(void)
+{
+  return NO_ERROR;
+}
 
 int io_load_file(const char *filename, void **addr, unsigned long *size)
 {
@@ -48,6 +67,9 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
   rc = l4fprov_file_open_call(&fprov_id, filename, &dsm, 0,
                        &ds, (l4_size_t *)size, &env);
 
+  io_log("rc=%d\n", rc);
+
+  //if (rc == -L4_ENOTFOUND)
   if (rc == 2)
     return rc; /* ERROR_FILE_NOT_FOUND */
 
@@ -81,8 +103,8 @@ int io_close_file(void *address)
     return -rc;
 
   if (rc == L4RM_REGION_DATASPACE)
-  {  
-    l4rm_detach(addr);
+  {
+    l4rm_detach((void *)addr);
     l4dm_close(&ds);
   }
 

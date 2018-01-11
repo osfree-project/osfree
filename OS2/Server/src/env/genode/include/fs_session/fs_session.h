@@ -79,6 +79,9 @@ struct OS2::Fs::Session : Genode::Session
 
    virtual APIRET dos_FindClose(HDIR hDir) = 0;
 
+   virtual APIRET dos_QueryFHState(HFILE hFile,
+                                   ULONG *pulMode) = 0;
+
    virtual APIRET dos_SetFHState(HFILE hFile,
                                  ULONG ulMode) = 0;
 
@@ -120,6 +123,7 @@ struct OS2::Fs::Session : Genode::Session
     Genode::Ram_dataspace_capability &, ULONG *, ULONG);
   GENODE_RPC(Rpc_dos_FindNext, APIRET, dos_FindNext, HDIR, Genode::Ram_dataspace_capability &, ULONG *);
   GENODE_RPC(Rpc_dos_FindClose, APIRET, dos_FindClose, HDIR);
+  GENODE_RPC(Rpc_dos_QueryFHState, APIRET, dos_QueryFHState, HFILE, ULONG *);
   GENODE_RPC(Rpc_dos_SetFHState, APIRET, dos_SetFHState, HFILE, ULONG);
   GENODE_RPC(Rpc_dos_QueryFileInfo, APIRET, dos_QueryFileInfo, HFILE, ULONG, Genode::Ram_dataspace_capability &);
   GENODE_RPC(Rpc_dos_QueryPathInfo, APIRET, dos_QueryPathInfo, Pathname &, ULONG, Genode::Ram_dataspace_capability &);
@@ -130,8 +134,9 @@ struct OS2::Fs::Session : Genode::Session
   GENODE_RPC_INTERFACE(Rpc_get_drivemap, Rpc_dos_Read, Rpc_dos_Write, Rpc_dos_ResetBuffer,
     Rpc_dos_SetFilePtrL, Rpc_dos_Close, Rpc_dos_QueryHType, Rpc_dos_OpenL, Rpc_dos_DupHandle,
     Rpc_dos_Delete, Rpc_dos_ForceDelete, Rpc_dos_DeleteDir, Rpc_dos_CreateDir, Rpc_dos_FindFirst,
-    Rpc_dos_FindNext, Rpc_dos_FindClose, Rpc_dos_SetFHState, Rpc_dos_QueryFileInfo, Rpc_dos_QueryPathInfo,
-    Rpc_dos_SetFileSizeL, Rpc_dos_SetFileInfo, Rpc_dos_SetPathInfo);
+    Rpc_dos_FindNext, Rpc_dos_FindClose, Rpc_dos_QueryFHState, Rpc_dos_SetFHState,
+    Rpc_dos_QueryFileInfo, Rpc_dos_QueryPathInfo, Rpc_dos_SetFileSizeL, Rpc_dos_SetFileInfo,
+    Rpc_dos_SetPathInfo);
 };
 
 #endif /* __FS_SESSION_FS_SESSION_H__ */

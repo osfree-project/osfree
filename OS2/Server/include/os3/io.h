@@ -7,6 +7,9 @@
 
 void io_log(const char* format, ...);
 
+int  fileprov_init(void);
+int  fileprov_done(void);
+
 int  io_load_file(const char *filename, void **addr, unsigned long *size);
 int  io_close_file(void *address);
 

@@ -198,10 +198,10 @@ APIRET CDECL
 KalGetPID(va_list a);
 
 APIRET CDECL
-KalGetL4ID(va_list a);
+KalGetNativeID(va_list a);
 
 APIRET CDECL
-KalGetTIDL4(va_list a);
+KalGetTIDNative(va_list a);
 
 APIRET CDECL
 KalNewTIB(va_list a);

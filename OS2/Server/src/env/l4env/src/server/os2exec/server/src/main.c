@@ -50,11 +50,11 @@ extern unsigned long long shared_memory_area;
 
 extern cfg_opts options;
 
-l4_os3_cap_idx_t os2srv;
-l4_os3_cap_idx_t fs;
-//l4_os3_cap_idx_t execsrv;
-l4_os3_cap_idx_t loader;
-l4_os3_cap_idx_t fprov_id;
+l4_threadid_t os2srv;
+l4_threadid_t fs;
+//l4_threadid_t execsrv;
+l4_threadid_t loader;
+l4_threadid_t fprov_id;
 
 l4env_infopage_t *infopage;
 
@@ -179,7 +179,9 @@ os2exec_map_dataspace_component (CORBA_Object _dice_corba_obj,
                                  const l4dm_dataspace_t *ds /* in */,
                                  CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcMapDataspace((void *)addr, rights, (l4_os3_dataspace_t)ds);
+  l4_os3_cap_idx_t temp_ds;
+  temp_ds.ds = *ds;
+  return ExcMapDataspace((void *)addr, rights, temp_ds);
 }
 
 long DICE_CV
@@ -188,7 +190,9 @@ os2exec_unmap_dataspace_component (CORBA_Object _dice_corba_obj,
                                    const l4dm_dataspace_t *ds /* in */,
                                    CORBA_Server_Environment *_dice_corba_env)
 {
-  return ExcUnmapDataspace((void *)addr, (l4_os3_dataspace_t)ds);
+  l4_os3_cap_idx_t temp_ds;
+  temp_ds.ds = *ds;
+  return ExcUnmapDataspace((void *)addr, temp_ds);
 }
 
 long DICE_CV
@@ -198,8 +202,12 @@ os2exec_get_dataspace_component (CORBA_Object _dice_corba_obj,
                                  l4dm_dataspace_t *ds /* out */,
                                  CORBA_Server_Environment *_dice_corba_env)
 {
+  l4_os3_cap_idx_t temp_ds;
+  l4_os3_cap_idx_t client_id;
+  temp_ds.ds = *ds;
+  client_id.thread = *_dice_corba_obj;
   return ExcGetDataspace((void **)addr, (unsigned long *)size,
-                         (l4_os3_dataspace_t *)&ds, (void *)_dice_corba_obj);
+                         &temp_ds, client_id);
 }
 
 long DICE_CV
@@ -210,8 +218,10 @@ os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
                                 l4_threadid_t *owner /* out */,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
+  l4_os3_cap_idx_t temp_owner;
+  temp_owner.thread = *owner;
   return ExcGetSharedMem((void *)pb, (void **)addr,
-                         (unsigned long *)size, (l4_os3_cap_idx_t *)owner);
+                         (unsigned long *)size, &temp_owner);
 }
 
 
@@ -223,8 +233,10 @@ os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
                                      l4_threadid_t *owner /* out */,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
+  l4_os3_cap_idx_t temp_owner;
+  temp_owner.thread = *owner;
   return ExcGetNamedSharedMem(name, (void **)addr,
-                              (unsigned long *)size, owner);
+                              (unsigned long *)size, &temp_owner);
 }
 
 /*  increment the refcnt for a sharemem area
@@ -260,7 +272,7 @@ void event_thread(void)
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
   l4events_nr_t event_nr = L4EVENTS_NO_NR;
   l4events_event_t event;
-  l4_os3_cap_idx_t tid;
+  l4_threadid_t tid;
   int rc;
 
   if (!l4events_init())
@@ -285,7 +297,7 @@ void event_thread(void)
       io_log("l4events_give_ack_and_receive()\n");
       continue;
     }
-    tid = *(l4_os3_cap_idx_t *)event.str;
+    tid = *(l4_threadid_t *)event.str;
     io_log("Got exit event for %x.%x\n", tid.id.task, tid.id.lthread);
 
     /* exit myself */
@@ -300,7 +312,7 @@ int main (int argc, char *argv[])
 {
   CORBA_Server_Environment env = dice_default_server_environment;
   CORBA_Environment e = dice_default_environment;
-  l4dm_dataspace_t ds;
+  l4_os3_dataspace_t ds;
   void *addr;
   unsigned long size;
   int  rc;
@@ -460,9 +472,9 @@ int main (int argc, char *argv[])
 
   /* get our l4env infopage as a dataspace */
   rc = l4loader_app_info_call(&loader, l4_myself().id.task,
-                              0, &p, &ds, &e);
+                              0, &p, &ds.ds, &e);
   /* attach it */
-  attach_ds(&ds, L4DM_RO, (void **)&infopage);
+  attach_ds(ds, L4DM_RO, (void **)&infopage);
 
 #if 0
   /* load shared libs */

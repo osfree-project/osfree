@@ -22,7 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 
-extern l4_threadid_t fs;
+//extern l4_threadid_t fs;
 extern l4_threadid_t sysinit_id;
 
 /* use events server */
@@ -159,7 +159,7 @@ exec_runserver(int ppid)
   char server[0x20];
   char *srv, *to;
   int  timeout = 30000;
-  l4_threadid_t tid;
+  l4_os3_task_t tid;
   struct t_os2process *proc; // server PTDA/proc
 
   for (i = 0; i < 5; i++)
@@ -185,20 +185,22 @@ exec_runserver(int ppid)
         free(q);
 
         l4os3_exec (p, params, NULL, &tid);
-        io_log("started task: %x.%x\n", tid.id.task, tid.id.lthread);
+        io_log("started task: %x.%x\n", tid.thread.id.task, tid.thread.id.lthread);
 
         /* set task number */
         proc->task = tid;
 
-        if (strstr(p, "os2fs"))
-	{
-	  io_log("os2fs started\n");
-	  if (! names_waitfor_name("os2fs", &fs, 30000))
-	  {
-	    io_log("Can't find os2fs on name server!\n");
-	    return;
-	  }
-	}
+        //if (strstr(p, "os2fs"))
+	//{
+	//  // switch to os2fs built-in file provider
+	//  io_log("os2fs started\n");
+	//  if (! names_waitfor_name("os2fs", &fs, 30000))
+	//  //if ( fileprov_init() )
+	//  {
+	//    io_log("Can't find os2fs on name server!\n");
+	//    return;
+	//  }
+	//}
 
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
 
@@ -212,7 +214,7 @@ exec_runserver(int ppid)
 	timeout = atoi (to);
 
         io_log("LOOKFOR:%s, TIMEOUT:%d\n", server, timeout);
-	if (*server && ! names_waitfor_name(server, &tid, timeout))
+	if (*server && ! names_waitfor_name(server, &tid.thread, timeout))
 	{
 	  io_log("Timeout waiting for %s\n", server);
 	  return;
@@ -250,7 +252,7 @@ int sysinit (cfg_opts *options)
 
   /* set task number */
   sysinit_id = l4_myself();
-  proc->task = sysinit_id;
+  proc->task.thread = sysinit_id;
 
   if (! names_register("os2srv.sysinit"))
     io_log("error registering on the name server\n");
@@ -273,7 +275,7 @@ int sysinit (cfg_opts *options)
 
   io_log("sem wait\n");
 
-  if (!rc) // wait until child process (protshell) terminates (this will unblock us)
+  if (! rc) // wait until child process (protshell) terminates (this will unblock us)
     l4semaphore_down(&proc->term_sem);
 
   io_log("done waiting\n");

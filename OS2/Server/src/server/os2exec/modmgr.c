@@ -220,7 +220,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
   unsigned long long funcaddr;
   int i, n, rc;
 
-  memset(line, 0, 0x100);  
+  memset(line, 0, 0x100);
   rc = io_load_file("c:\\kal.map", &addr, &size);
   //rc = io_load_file("kal.map", &addr, &size);
 
@@ -562,7 +562,7 @@ unsigned long LoadModule(char            *pszName,
       /* get the last instance */
       while (prev->up)
         prev = (struct module_rec *)prev->up;
-	
+
       io_log("already loaded, exe\n");
       *phmod = (unsigned long)prev->module_struct;
       prev->load_status = DONE_LOADING;

@@ -50,7 +50,7 @@ long AppAddArea(void *addr,
     return ERROR_INVALID_ADDRESS;
 
   ptr->is_shared = 1;
-  ptr->owner = L4_INVALID_ID;
+  ptr->owner.thread = L4_INVALID_ID;
   ptr->area = shared_memory_area;
   ptr->rights = flags;
   ptr->addr = addr;
