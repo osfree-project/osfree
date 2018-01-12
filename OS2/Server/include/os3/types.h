@@ -5,7 +5,7 @@
   extern "C" {
 #endif
 
-#include <env/types.h>
+#include <platform/types.h>
 
 #ifdef __cplusplus
   }

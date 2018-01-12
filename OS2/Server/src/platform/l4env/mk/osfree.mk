@@ -21,7 +21,7 @@ CFLAGS += $(cdefs)
 #	fi
 
 # newer qemu
-#run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/src/env/l4env/os2 \
+#run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/src/platform/l4env/os2 \
 #	$(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
 #	$(REP_DIR)/tftpboot
 #	qemu-system-i386 \
@@ -52,37 +52,45 @@ run: symlinks
 	| tee $(REP_DIR)/qemu.log
 
 symlinks: $(ROOT)/cd/boot/grub/menu.lst \
-	  $(OS3_DIR)/src/env/l4env/os2 \
+	  $(OS3_DIR)/src/platform/l4env/os2 \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
 	  $(REP_DIR)/tftpboot \
+	  $(REP_DIR)$(GRUB) \
+	  $(REP_DIR)/tools/bootrom \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_symbols \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/l4con
 
-$(ROOT)/cd/boot/grub/menu.lst: $(REP_DIR)/tools/menu.lst
+$(ROOT)/cd/boot/grub/menu.lst: $(OS3_DIR)/src/platform/l4env/tools/menu.lst
 	@if [ ! -d $(dir $@) ]; then \
 	    @mkdir -p $(dir $@); \
 	fi
-	@ln -s $< $@
+	@ln -sf $< $@
 
-$(BLD_DIR)/bin/$(arch)/$(l4api)/os2: $(OS3_DIR)/src/env/l4env/os2
-	@ln -s $< $@
+$(BLD_DIR)/bin/$(arch)/$(l4api)/os2: $(OS3_DIR)/src/platform/l4env/os2
+	@ln -sf $< $@
 
-$(OS3_DIR)/src/env/l4env/os2: $(OS3_DIR)/filesys/os2
-	@ln -s $< $@
+$(OS3_DIR)/src/platform/l4env/os2: $(OS3_DIR)/filesys/os2
+	@ln -sf $< $@
 
 $(REP_DIR)/tftpboot: $(ROOT)
-	@ln -s $< $@
+	@ln -sf $< $@
+
+$(REP_DIR)$(GRUB): $(OS3_DIR)$(GRUB)
+	@ln -sf $< $@
+
+$(REP_DIR)/tools/bootrom: $(OS3_DIR)/tools/bootrom
+	@ln -sf $< $@
 
 $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco: $(FIASCO_BLD_DIR)/main
-	@ln -s $< $@
+	@ln -sf $< $@
 
 $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_symbols: $(FIASCO_BLD_DIR)/Symbols
-	@ln -s $< $@
+	@ln -sf $< $@
 
 $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines: $(FIASCO_BLD_DIR)/Lines
-	@ln -s $< $@
+	@ln -sf $< $@
 
 $(BLD_DIR)/bin/$(arch)/$(l4api)/l4con: $(BLD_DIR)/bin/$(arch)/$(l4api)/con
-	@ln -s $< $@
+	@ln -sf $< $@

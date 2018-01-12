@@ -14,7 +14,7 @@ typedef unsigned long fnFixup(void * FormatStruct);
 typedef struct slist slist_t;
 
 // for l4exec_section_t
-#include <env/ixfmgr.h>
+#include <platform/ixfmgr.h>
 
 struct slist
 {

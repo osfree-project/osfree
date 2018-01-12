@@ -16,7 +16,7 @@
 
 typedef l4_os3_cap_idx_t l4_os3_dataspace_t;
 
-#include <env/dataspace.h>
+#include <platform/dataspace.h>
 
 long DataspaceAlloc(l4_os3_dataspace_t *ds, unsigned long flags,
                     l4_os3_cap_idx_t dm, unsigned long size);

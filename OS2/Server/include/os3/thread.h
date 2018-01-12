@@ -11,7 +11,7 @@
 typedef l4_os3_cap_idx_t l4_os3_thread_t;
 typedef l4_os3_thread_t  l4_os3_task_t;
 
-#include <env/thread.h>
+#include <platform/thread.h>
 
 #ifdef __cplusplus
   }
