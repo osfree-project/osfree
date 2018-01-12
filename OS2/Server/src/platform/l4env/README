@@ -25,16 +25,16 @@ Then change to the build directory and run make:
 
 This will build everything, including L4Env and L4/Fiasco microkernel.
 
-Then create a symlink to "os3/src/env/l4env" directory in l4/pkg directory:
+Then create a symlink to "os3/src/platform/l4env" directory in l4/pkg directory:
 
 # cd ..
 # cd l4/pkg
-# ln -s /mnt/os3/src/env/l4env os3
+# ln -s /mnt/os3/src/platform/l4env os3
 
-Change to os3/src/env/l4env:
+Change to os3/src/platform/l4env:
 
 # cd ../../..
-# cd os3/src/env/l4env
+# cd os3/src/platform/l4env
 
 Edit the build.cfg file. Change the top level dir, where "osfree", "os3", "l4",
 "kernel" and "bld" dirs are.
@@ -69,7 +69,7 @@ as a parameter:
 
 # cd ..
 # cd os3
-# cd src/env/l4env
+# cd src/platform/l4env
 # cd src/server/os2srv
 # make O=/mnt/bld
 
@@ -132,7 +132,7 @@ your L4Env build system.
 -- to build everything. Or
 
 # cd os3
-# cd src/env/l4env
+# cd src/platform/l4env
 # cd src/server/os2srv
 # make O=/mnt/bld
 

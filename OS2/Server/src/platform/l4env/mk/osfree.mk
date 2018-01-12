@@ -56,7 +56,6 @@ symlinks: $(ROOT)/cd/boot/grub/menu.lst \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
 	  $(REP_DIR)/tftpboot \
 	  $(REP_DIR)$(GRUB) \
-	  $(REP_DIR)/tools/bootrom \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_symbols \
 	  $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco_lines \
@@ -78,9 +77,6 @@ $(REP_DIR)/tftpboot: $(ROOT)
 	@ln -sf $< $@
 
 $(REP_DIR)$(GRUB): $(OS3_DIR)$(GRUB)
-	@ln -sf $< $@
-
-$(REP_DIR)/tools/bootrom: $(OS3_DIR)/tools/bootrom
 	@ln -sf $< $@
 
 $(BLD_DIR)/bin/$(arch)/$(l4api)/fiasco: $(FIASCO_BLD_DIR)/main
