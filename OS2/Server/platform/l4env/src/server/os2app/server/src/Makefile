@@ -24,10 +24,10 @@ LIBS		= -los2exec -los2fs -los2server -los2app -los2compat -lloaderif -levents \
 DEFAULT_RELOC   = 0xbb000000
 SERVERIDL       = os2app.idl
 CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include \
-                   -I$(OS3_DIR)/src/app/os2app/api
+                   -I$(OS3_DIR)/shared/app/os2app/api
 
-vpath %.c $(OS3_DIR)/src/app/os2app
-vpath %.c $(OS3_DIR)/src/app/os2app/api
+vpath %.c $(OS3_DIR)/shared/app/os2app
+vpath %.c $(OS3_DIR)/shared/app/os2app/api
 vpath %.c $(REP_DIR)/src/server/shared/startup
 
 include $(L4DIR)/mk/prog.mk

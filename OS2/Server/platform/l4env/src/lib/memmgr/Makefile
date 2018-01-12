@@ -10,7 +10,7 @@ SRC_C		= memmgr.c
 LIBS		= -ll4sys -ll4sys.p
 CFLAGS          += -I$(PKGDIR)/include
 
-vpath %.c $(OS3_DIR)/src/lib/memmgr
+vpath %.c $(OS3_DIR)/shared/lib/memmgr
 
 include $(L4DIR)/mk/lib.mk
 

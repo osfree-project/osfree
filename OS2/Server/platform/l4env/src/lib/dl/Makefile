@@ -33,7 +33,7 @@ CRT0		 =
 # mmap_list_regions()
 DEBUG		 ?= 0
 
-vpath %.c $(REP_DIR)/src/lib/dl
+vpath %.c $(REP_DIR)/shared/lib/dl
 
 include $(L4DIR)/mk/lib.mk
 

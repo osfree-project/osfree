@@ -15,9 +15,9 @@ create a symlink for osfree/OS2/Server (under the "os3" name):
 Then build the corresponding environment and osFree personality
 sources, based on it:
 
-For L4Env build, look into ./src/platform/l4env.
-For L4Re build, look into ./src/platform/l4re (incomplete so far).
-For Genode build, look into ./src/platform/genode.
+For L4Env build, look into ./platform/l4env.
+For L4Re build, look into ./platform/l4re (incomplete so far).
+For Genode build, look into ./platform/genode.
 
 Look into README file in the corresponding environment specific
 directory for further instructions.

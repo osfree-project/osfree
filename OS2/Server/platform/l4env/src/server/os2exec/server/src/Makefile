@@ -22,9 +22,9 @@ LIBS		= -Bdynamic -lmemmgr.s -ldl.s -Bstatic \
 DEFAULT_RELOC   = 0xba000000
 SERVERIDL	= os2exec.idl
 CFLAGS          += -I$(OS3_DIR)/include/os2 -I$(OS3_DIR)/include \
-		   -I$(OS3_DIR)/src/server/os2exec/api
+		   -I$(OS3_DIR)/shared/server/os2exec/api
 
-vpath %.c $(OS3_DIR)/src/server/os2exec
+vpath %.c $(OS3_DIR)/shared/server/os2exec
 vpath %.c $(REP_DIR)/src/server/shared/startup
 
 include $(L4DIR)/mk/prog.mk

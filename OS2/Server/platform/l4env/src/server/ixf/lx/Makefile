@@ -18,7 +18,7 @@ LDSCRIPT	= $(call findfile,main_dyn.ld,$(L4LIBDIR))
 LIBS		= -Bdynamic -lmemmgr.s -ldl.s \
 		  -Bstatic -ll4sys -ll4sys.p -luc_c
 
-vpath %.c $(OS3_DIR)/src/lib/ixf/lx
+vpath %.c $(OS3_DIR)/shared/lib/ixf/lx
 
 include $(L4DIR)/mk/lib.mk
 

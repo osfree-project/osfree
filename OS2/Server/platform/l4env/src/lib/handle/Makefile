@@ -16,7 +16,7 @@ CFLAGS          += -I$(PKGDIR)/include
 # mmap_list_regions()
 DEBUG		 ?= 0
 
-vpath %.c $(OS3_DIR)/src/lib/handle
+vpath %.c $(OS3_DIR)/shared/lib/handle
 
 include $(L4DIR)/mk/lib.mk
 

@@ -11,7 +11,7 @@ SRC_C		= log.c fileprov.c thread.c dataspace.c rm.c err.c segment.c \
 LIBS		=
 CFLAGS          += -I$(PKGDIR)/include
 
-vpath %.c = $(OS3_DIR)/src/lib/compat
+vpath %.c = $(OS3_DIR)/shared/lib/compat
 
 include $(L4DIR)/mk/lib.mk
 

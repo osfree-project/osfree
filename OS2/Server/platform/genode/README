@@ -65,7 +65,7 @@ When the demo scenario works, you could build osFree then. For that, you will ne
 build/linux/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
 then add the "os3" repository:
 
-REPOSITORIES += $(GENODE_DIR)/../os3/src/platform/genode
+REPOSITORIES += $(GENODE_DIR)/../os3/platform/genode
 
 where GENODE_DIR is the path to "genode" directory.
 

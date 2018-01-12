@@ -33,9 +33,9 @@ LIBS  = -lgeneric_fprov-server -levents -los2server \
 
 #LDFLAGS		= -shared
 CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob \
-                   -I$(OS3_DIR)/src/server/os2fs/api
+                   -I$(OS3_DIR)/shared/server/os2fs/api
 MODE            = l4env_base
 
-vpath %.c $(OS3_DIR)/src/server/os2fs
+vpath %.c $(OS3_DIR)/shared/server/os2fs
 
 include $(L4DIR)/mk/prog.mk

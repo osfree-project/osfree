@@ -6,4 +6,4 @@ SRC_CC = l4alloc_mem.cc
 LIBS = libc compat
 
 vpath %.cc $(REP_DIR)/src/lib/ixf/lx
-vpath %.c  $(OS3_DIR)/src/lib/ixf/lx
+vpath %.c  $(OS3_DIR)/shared/lib/ixf/lx
