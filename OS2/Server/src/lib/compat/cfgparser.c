@@ -853,7 +853,7 @@ unsigned long CfgParseConfig(char *addr, int size)
     {
       line[len] = '\0';
 
-      if ( !CfgParseLine(line, len, lineno) )
+      if ( ! CfgParseLine(line, len, lineno) )
         error("parse: an error occured\n");
 
       len = 0;

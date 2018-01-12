@@ -6,14 +6,7 @@
 #include <os3/io.h>
 #include <os3/fs.h>
 
-/* Genode includes */
-#include <libc/component.h>
-#include <base/heap.h>
-
-/* local includes */
-#include "genode_env.h"
-
-void Libc::Component::construct(Libc::Env &env)
+int main(void)
 {
     const char *fn = "c:\\config.sys";
     char Buf[1024];
@@ -22,10 +15,6 @@ void Libc::Component::construct(Libc::Env &env)
     ULONG ulAction;
     ULONGLONG fSize = 0;
     FILESTATUS3L Info;
-
-    Genode::Heap heap(env.ram(), env.rm());
-
-    init_genode_env(env, heap);
 
     FSClientInit();
 
@@ -43,7 +32,7 @@ void Libc::Component::construct(Libc::Env &env)
 
     if (rc)
     {
-        return;
+        return 1;
     }
 
     fSize = sizeof(Info);
@@ -57,7 +46,7 @@ void Libc::Component::construct(Libc::Env &env)
 
     if (rc)
     {
-        return;
+        return 1;
     }
 
     fSize = Info.cbFile;
@@ -82,7 +71,7 @@ void Libc::Component::construct(Libc::Env &env)
 
     if (rc)
     {
-        return;
+        return 1;
     }
 
     fSize = Info.cbFile;
@@ -92,4 +81,5 @@ void Libc::Component::construct(Libc::Env &env)
     FSClientDone();
 
     io_log("success\n");
+    return 0;
 }

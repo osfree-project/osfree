@@ -1,19 +1,21 @@
 /* libc-based Genode application skeleton */
 
 /* Genode includes */
+#include <base/heap.h>
 #include <libc/component.h>
 
 /* local includes */
 #include "genode_env.h"
 
-extern "C" void main(void);
+extern Genode::Allocator *_alloc;
+extern Genode::Env *_env_ptr;
 
-Genode::Allocator *_alloc = NULL;
-Genode::Env *_env_ptr = NULL;
+extern "C" int main(void);
 
 void Libc::Component::construct(Libc::Env &env)
 {
-    _env_ptr = &env;
+    Genode::Heap heap(env.ram(), env.rm());
+    init_genode_env(env, heap);
 
     main();
 }
