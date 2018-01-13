@@ -20,6 +20,7 @@
  */
 
 #include <sm.h>
+#include <sctypes.h>
 
 #include <scentry.xh>
 #include <scclass.xh>
@@ -46,3 +47,37 @@ int SOMLINK somtfclose (FILE *fp)
   return fclose(fp);
 }
 
+char * SOMLINK somtStrCat(int count,...)
+{
+  return NULL;
+}
+
+void SOMLINK somtShowEntry(Entry * ep)
+{
+  
+}
+
+char * SOMLINK somtStrDup(char *str)
+{
+  return NULL;
+}
+
+char * SOMLINK somtMakeIncludeStr(boolean local, char *stem, char *suffix)
+{
+  return NULL;
+}
+
+char * SOMLINK somtNewSymbol(char *prefix, char *stem)
+{
+  return NULL;
+}
+
+char * SOMLINK somtGetFileStem(char *fullName)
+{
+  return NULL;
+}
+
+char * SOMLINK somtEntryTypeName(SOMTTypes type)
+{
+  return NULL;
+}

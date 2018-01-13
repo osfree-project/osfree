@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <dlfcn.h> 
-#	include <windows.h>
 
 #ifdef HAVE_SIGNAL_H
 #	include <signal.h>
@@ -84,34 +82,6 @@ static int do_emit(
 	char **argv)
 {
 	int rc=1;
-  void *handle;
-
-//  handle=dlopen(/*"emit"+*/emitter_name, RTLD_LAZY);
-  handle=(void*)LoadLibrary(emitter_name);
-  if (!handle) {
-    //fprintf(stderr, "%s\n", dlerror());
-    //exit(EXIT_FAILURE);
-  }
-
-  //dlerror();    /* Clear any existing error */
-
-  /*cosine = */(double (*)(double)) (void*)GetProcAddress((HINSTANCE)handle,"emit");
-  //dlsym(handle, "emit");
-  //error = dlerror();
-  //if (error != NULL) {
-//    fprintf(stderr, "%s\n", error);
-  //  exit(EXIT_FAILURE);
-  //}
-
-  //printf("%f\n", (*cosine)(2.0));
-  //dlclose(handle);
-  FreeLibrary((HINSTANCE)handle);
-           
-  if (!handle) 
-	{
-		fprintf(stderr,"Unknown emitter %s\n",emitter_name);
-		return 1;
-	}
 
 	RHBPreprocessor preprocessor;
 	const char *root_idl=NULL;
@@ -191,13 +161,9 @@ static int do_emit(
 				{
 					{
 						{
-   						if (!strcmp(emitter_name,"some"))
-  						{
-
-	  						RHBsome_emitter emitter(&r);
-
-		  					emitter.generate(&out,root_idl);
-						  }
+	    				RHBsome_emitter emitter(&r);
+              emitter.preflight_macros_from_idl_filename(root_idl);
+      				emitter.generate(&out,root_idl,emitter_name);
             }
 					}
 				}

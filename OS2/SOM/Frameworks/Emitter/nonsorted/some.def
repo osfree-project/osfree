@@ -1,39 +1,113 @@
 LIBRARY some.dll
-HEAPSIZE 10240000
+;HEAPSIZE 10240000
 EXPORTS
-   SOMTEntryCNewClass
-   SOMTEntryCClassData
-   SOMTEntryCCClassData
-
-   SOMTClassEntryCNewClass
-   SOMTClassEntryCClassData
-   SOMTClassEntryCCClassData
-
-   SOMTMetaClassEntryCNewClass
-   SOMTMetaClassEntryCClassData
-   SOMTMetaClassEntryCCClassData
-
-   SOMTModuleEntryCNewClass
-   SOMTModuleEntryCClassData
-   SOMTModuleEntryCCClassData
-
-   SOMTEmitCNewClass
-   SOMTEmitCClassData
-   SOMTEmitCCClassData
-
-   SOMStringTableCNewClass
-   SOMStringTableCClassData
-   SOMStringTableCCClassData
+  SOMStringTableCCClassData       @1 DATA
+  SOMStringTableCClassData        @2 DATA
+  SOMStringTableCNewClass         @3
    
-   SOMTTemplateOutputCNewClass
-   SOMTTemplateOutputCClassData
-   SOMTTemplateOutputCCClassData
+  SOMTAttributeEntryCCClassData   @4 DATA
+  SOMTAttributeEntryCClassData    @5 DATA
+  SOMTAttributeEntryCNewClass     @6
 
-   SOMTAttributeEntryCNewClass
-   SOMTAttributeEntryCClassData
-   SOMTAttributeEntryCCClassData
+  SOMTBaseClassEntryCCClassData   @7 DATA
+  SOMTBaseClassEntryCClassData    @8 DATA
+  SOMTBaseClassEntryCNewClass     @9
+  
+  SOMTClassEntryCCClassData       @10 DATA
+  SOMTClassEntryCClassData        @11 DATA
+  SOMTClassEntryCNewClass         @12
+  
+  SOMTCommonEntryCCClassData      @13 DATA
+  SOMTCommonEntryCClassData       @14 DATA
+  SOMTCommonEntryCNewClass        @15
+  
+  SOMTConstEntryCCClassData       @16 DATA
+  SOMTConstEntryCClassData        @17 DATA
+  SOMTConstEntryCNewClass         @18
+  
+  SOMTDataEntryCCClassData        @19 DATA
+  SOMTDataEntryCClassData         @20 DATA
+  SOMTDataEntryCNewClass          @21
+  
+  SOMTEmitCCClassData             @22 DATA
+  SOMTEmitCClassData              @23 DATA
+  SOMTEmitCNewClass               @24
+
+  SOMTEntryCCClassData            @25 DATA
+  SOMTEntryCClassData             @26 DATA
+  SOMTEntryCNewClass              @27
+
+  SOMTEnumEntryCCClassData        @28 DATA
+  SOMTEnumEntryCClassData         @29 DATA
+  SOMTEnumEntryCNewClass          @30
+
+  SOMTEnumNameEntryCCClassData    @31 DATA
+  SOMTEnumNameEntryCClassData     @32 DATA
+  SOMTEnumNameEntryCNewClass      @33
+  
+  SOMTMetaClassEntryCCClassData   @34 DATA
+  SOMTMetaClassEntryCClassData    @35 DATA
+  SOMTMetaClassEntryCNewClass     @36
+
+  SOMTMethodEntryCCClassData      @37 DATA
+  SOMTMethodEntryCClassData       @38 DATA
+  SOMTMethodEntryCNewClass        @39
+  
+  SOMTModuleEntryCCClassData      @40 DATA
+  SOMTModuleEntryCClassData       @41 DATA
+  SOMTModuleEntryCNewClass        @42
+
+  SOMTParameterEntryCCClassData   @43 DATA
+  SOMTParameterEntryCClassData    @44 DATA
+  SOMTParameterEntryCNewClass     @45
+
+  SOMTPassthruEntryCCClassData    @46 DATA
+  SOMTPassthruEntryCClassData     @47 DATA
+  SOMTPassthruEntryCNewClass      @48
    
-   somtGetObjectWrapper
-   somtopenEmitFile
-   somtfclose
+  SOMTSequenceEntryCCClassData    @49 DATA
+  SOMTSequenceEntryCClassData     @50 DATA
+  SOMTSequenceEntryCNewClass      @51
+  
+  SOMTStringEntryCCClassData      @52 DATA
+  SOMTStringEntryCClassData       @53 DATA
+  SOMTStringEntryCNewClass        @54
+  
+  SOMTStructEntryCCClassData      @55 DATA
+  SOMTStructEntryCClassData       @56 DATA
+  SOMTStructEntryCNewClass        @57
+  
+  SOMTTemplateOutputCCClassData   @58 DATA
+  SOMTTemplateOutputCClassData    @59 DATA
+  SOMTTemplateOutputCNewClass     @60
+  
+  SOMTTypedefEntryCCClassData     @61 DATA
+  SOMTTypedefEntryCClassData      @62 DATA
+  SOMTTypedefEntryCNewClass       @63
+  
+  SOMTUnionEntryCCClassData       @64 DATA
+  SOMTUnionEntryCClassData        @65 DATA
+  SOMTUnionEntryCNewClass         @66
+
+  SOMTUserDefinedTypeEntryCCClassData     @67 DATA
+  SOMTUserDefinedTypeEntryCClassData      @68 DATA
+  SOMTUserDefinedTypeEntryCNewClass       @69
+
+  somtEntryTypeName               @70
+  somtGetFileStem                 @71
+  somtGetObjectWrapper            @72
+  somtMakeIncludeStr              @73
+  somtNewSymbol                   @74
+  somtShowEntry                   @75
+  somtStrCat                      @76
+  somtStrDup                      @77   
+
+; В версии some.dll SOM 3 для NT не найдены...  но найдены в somc.dll
+  somtopenEmitFile
+  somtfclose
+   
+
+
+   
+   
    

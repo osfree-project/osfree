@@ -774,7 +774,7 @@ public:
 	boolean has_generated_definition(RHBtype *type);
 
 	virtual boolean must_generate(RHBtype *type);
-	virtual boolean generate(RHBoutput *out,const char *f)=0;
+	virtual boolean generate(RHBoutput *out,const char *f, const char *emitter_name)=0;
 	void get_ir_name(RHBelement *element,char *buf,size_t buflen);
 	void get_c_name(RHBelement *element,char *buf,size_t buflen);
 	void get_global_id(RHBelement *element,char *buf,size_t buflen);
@@ -827,7 +827,7 @@ public:
 	void generate_prototype(RHBtype *type,RHBoutput *out);
 	void generate_passthrus(RHBoutput *out,RHBelement *root,int nest);
 	void generate_usage(RHBtype *type,RHBoutput *out);
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 
 	void generate_exception(RHBexception *s,RHBoutput *out,int nesting,const char *alias_name);
 	void generate_struct(RHBstruct *s,RHBoutput *out,int nesting,const char *alias_name,boolean user_data,boolean instanceData);
@@ -1008,7 +1008,7 @@ public:
 	void generate_prototype(RHBtype *type,RHBoutput *out);
 	void generate_passthrus(RHBoutput *out,RHBelement *root,int nest);
 	void generate_usage(RHBtype *type,RHBoutput *out);
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 
 	void generate_exception(RHBexception *s,RHBoutput *out,int nesting,const char *alias_name);
 	void generate_struct(RHBstruct *s,RHBoutput *out,int nesting,const char *alias_name,boolean user_data,boolean instanceData);
@@ -1182,7 +1182,7 @@ public:
 	RHBir_file *irFile;
 	RHBir_emitter(RHBrepository *rr,RHBir_file *);
 	~RHBir_emitter();
-	 boolean generate(RHBoutput *out,const char *f);
+	 boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 };
 #endif
 
@@ -1191,7 +1191,7 @@ class RHBsource_emitter: public RHBheader_emitter
 {
 public:
 	RHBsource_emitter(RHBrepository *rr,RHBinclude_list *incls);
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 	void gen_def_for_each_class(RHBoutput *out,RHBelement *el);
 
 	void gen_enum_classes(RHBoutput *out,RHBelement *el);
@@ -1207,7 +1207,7 @@ class RHBkernel_emitter: public RHBheader_emitter
 {
 public:
 	RHBkernel_emitter(RHBrepository *rr);
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 	RHBinterface *get_interface(const char *);
 	boolean can_override_op(RHBoperation *);
 	boolean is_overridden(RHBoperation *);
@@ -1218,7 +1218,7 @@ class RHBapi_emitter: public RHBheader_emitter
 {
 public:
 	RHBapi_emitter(RHBrepository *rr);
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 };
 #endif
 
@@ -1275,7 +1275,7 @@ class RHBtc_emitter: public RHBemitter
 public:
 	RHBtc_emitter(RHBrepository *rr);
 	~RHBtc_emitter();
-	boolean generate(RHBoutput *out,const char *f);
+	boolean generate(RHBoutput *out,const char *f, const char *emitter_name);
 	RHBelement_sequence extern_data;
 	RHBelement_sequence static_data;
 	RHBelement_sequence string_data;

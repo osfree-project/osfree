@@ -1,10 +1,9 @@
 /**************************************************************************
  *
  *  Copyright 1998-2010, Roger Brown
- *  Copyright 2017, Yuri Prokushev
+ *  Copyright 2017-2018 Yuri Prokushev
  *
  *  This file is part of osFree project.
- *  This file is part of Roger Brown's Toolkit.
  *
  *  This program is free software: you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the
@@ -30,10 +29,12 @@
 
 #include <rhbsc.h>
 
+#include <windows.h>
+
 #define SYMBOLS_FILE   "test.efw"
 
 //FILE *emit(char *file, Entry * cls, Stab * stab);
-FILE *emit(char *file, Entry * cls, Stab * stab);
+typedef FILE * (CALLBACK * EMITFUNC)(char *file, Entry * cls, Stab * stab);
 
 static const char retVal_name[]="_somC_retVal";
 static const char extern_C_static[]="SOM_EXTERN_C_STATIC";
@@ -117,35 +118,35 @@ void RHBsome_emitter::preflight_macros_from_idl_filename(const char *f)
 }
 
 // 
-boolean RHBsome_emitter::generate(RHBoutput *out,const char *f)
+boolean RHBsome_emitter::generate(RHBoutput *out,const char *f, const char *emitter_name)
 {
-  // Данным методом определяются имена файлов и кое-какие предустановки
-	preflight_macros_from_idl_filename(f);
-#if 0
-	
+  HINSTANCE handle;
+  EMITFUNC emit;
+  char buf[1024] = "";
 
-	//out_printf(out,"/* internal conditional is %s */\n",idl_conditional);
-	//out_printf(out,"#ifndef %s\n",file_guard);
-	//out_printf(out,"\t#define %s 1\n",file_guard);
+  strcat(buf, "emit");
+  strncat(buf, emitter_name, sizeof(buf));
 
-	//if (internal)
-	//{
-		//out_printf(out,"\t#ifndef %s\n",idl_conditional);
-		//out_printf(out,"\t\t#define %s\n",idl_conditional);
-		//out_printf(out,"\t#endif /* %s */\n",idl_conditional);
-	//}
-
-	generate_passthrus(out,GetRepository(),1);
-
-	generate_headers(out,1);
-
-	generate_module(out,GetRepository(),1); 
-  #endif
+  handle=LoadLibrary((LPCSTR)&buf);
+  if (!handle) {
+    fprintf(stderr, "Unknown emitter %s\n", buf/*emitter_name*/);
+    exit(EXIT_FAILURE);
+  } else {
+    emit = (EMITFUNC)GetProcAddress(handle, "emit");  
+    if (!emit)  
+    {  
+      printf("No emit function");
+    }      
+  }
+  
+  
+  // TODO Добавить поддуржку модулей
+  
   RHBmodule *mod=GetRepository();
- 	RHBelement *e=mod->children();
+  RHBelement *e=mod->children();
 
-	while (e)
-	{
+  while (e)
+  {
     RHBinterface *iface=e->is_interface();
     if (iface) 
     {
@@ -156,15 +157,16 @@ boolean RHBsome_emitter::generate(RHBoutput *out,const char *f)
         es.type=SOMTClassE;
         es.data=iface;
         es.filestem=idl_filestem;
-        
+
         FILE *f=emit("test.out", &es, NULL);
       }
     }
 		e=e->next();
-	}
+  }
 
+  FreeLibrary(handle);
 
-	return 0;
+  return 0;
 }
 
 

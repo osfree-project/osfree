@@ -38,10 +38,16 @@ interface SOMTParameterEntryC : SOMTCommonEntryC
   // This may differ from the parameter's IDL declaration.
   // In particular, pointer stars may be added.
 
+  readonly attribute string somtPascalParameterDeclaration;
+  // The declaration for the parameter within a Pascal method procedure prototype.
+  // It includes the parameter's type and name.
+  // This may differ from the parameter's IDL declaration.
+  // In particular, pointer stars may be added.
+
 #ifdef __SOMIDL__
   implementation {
     releaseorder: _get_somtParameterDirection, _get_somtCParameterDeclaration,
-		_get_somtIDLParameterDeclaration;
+		_get_somtIDLParameterDeclaration, _get_somtPascalParameterDeclaration;
   
     passthru C_h = "typedef enum somtParameterDirectionT {somtInE,somtOutE,somtInOutE} somtParameterDirectionT;";
     passthru C_xh = "typedef enum somtParameterDirectionT {somtInE,somtOutE,somtInOutE} somtParameterDirectionT;";
@@ -63,6 +69,7 @@ interface SOMTParameterEntryC : SOMTCommonEntryC
     somtParameterDirection: nodata;
     somtCParameterDeclaration: nodata;
     somtIDLParameterDeclaration: nodata;
+    somtPascalParameterDeclaration: nodata;
   };
 #endif /* __SOMIDL__ */
 };
