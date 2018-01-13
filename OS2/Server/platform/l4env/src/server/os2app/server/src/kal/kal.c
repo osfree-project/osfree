@@ -168,6 +168,9 @@ KalOpenL (PSZ pszFileName,
   APIRET  rc;
 
   KalEnter();
+
+  memset(&eaop2, 0, sizeof(EAOP2));
+
   if (peaop2 == NULL)
     peaop2 = &eaop2;
 

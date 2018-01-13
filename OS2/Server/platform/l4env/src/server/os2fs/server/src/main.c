@@ -151,6 +151,6 @@ int main(int argc, char **argv)
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2fs_server_loop(&env);
-  fileprov_done();
+  //fileprov_done();
   return 0;
 }

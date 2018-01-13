@@ -15,7 +15,7 @@
 /* os2fs RPC includes */
 #include <os2fs-client.h>
 
-extern l4_os3_cap_idx_t fs;
+extern l4_threadid_t fs;
 
 APIRET FSClientInit(void)
 {
@@ -121,7 +121,15 @@ APIRET FSClientOpenL(PSZ pszFileName,
                      EAOP2 *peaop2)
 {
     CORBA_Environment env = dice_default_environment;
+    EAOP2 eaop2;
     APIRET rc;
+
+    memset(&eaop2, 0, sizeof(EAOP2));
+
+    if (! peaop2)
+    {
+        peaop2 = &eaop2;
+    }
 
     rc = os2fs_dos_OpenL_call(&fs, pszFileName, phFile, pcbAction,
                               cbSize, ulAttribute, fsOpenFlags,

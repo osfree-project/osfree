@@ -39,10 +39,7 @@
 #include <os3/memmgr.h>
 #include <os3/modmgr.h>
 #include <os3/ixfmgr.h>
-
-#ifdef __l4env__
-#include <l4/semaphore/semaphore.h>
-#endif
+#include <os3/semaphore.h>
 
 #ifndef __OS2__
 /* Process Information Block structure. */
@@ -144,10 +141,8 @@ struct t_os2process {
         int pid;
 
         char exec_sync;  // synchronous execution flag (whether to use term_sem or not)
-#ifdef __l4env__
-        l4semaphore_t startup_sem; // child program startup wait semaphore
-        l4semaphore_t term_sem;    // child program termination wait semaphore
-#endif
+        l4_os3_semaphore_t startup_sem; // child program startup wait semaphore
+        l4_os3_semaphore_t term_sem;    // child program termination wait semaphore
         l4_os3_task_t task;
         ULONG term_code; // termination code of last child program
         void *ip;

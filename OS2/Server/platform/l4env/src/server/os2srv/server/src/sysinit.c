@@ -23,7 +23,7 @@
 #include <ctype.h>
 
 //extern l4_threadid_t fs;
-extern l4_threadid_t sysinit_id;
+extern l4_os3_thread_t sysinit_id;
 
 /* use events server */
 extern char use_events;
@@ -251,8 +251,8 @@ int sysinit (cfg_opts *options)
                    env);      // pEnv
 
   /* set task number */
-  sysinit_id = l4_myself();
-  proc->task.thread = sysinit_id;
+  sysinit_id.thread = l4_myself();
+  proc->task = sysinit_id;
 
   if (! names_register("os2srv.sysinit"))
     io_log("error registering on the name server\n");
@@ -294,7 +294,7 @@ int sysinit (cfg_opts *options)
   io_log("event notification sent\n");
 
   // unregister at names
-  if (! names_unregister_task(sysinit_id))
+  if (! names_unregister_task(sysinit_id.thread))
       io_log("Cannot unregister at name server!\n");
 
   // destroy proc/PTDA

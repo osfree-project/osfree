@@ -33,7 +33,31 @@ module $(B)/fiasco_symbols
 module $(B)/fiasco_lines
 module $(B)/hello
 
-title OS/2 server test
+title os2fs test
+kernel $(A)/bootstrap -serial
+modaddr 0x02000000
+module $(B)/fiasco $(FIASCOARGS)
+module $(B)/sigma0
+module $(B)/roottask -symbols -lines \
+  task modname 'simple_file_server' attached 1 modules
+module $(B)/fiasco_symbols
+module $(B)/fiasco_lines
+module $(B)/log
+module $(B)/names
+module $(B)/dm_phys
+module $(B)/rtc
+module $(B)/simple_ts -t 300
+module $(B)/name_server
+module $(B)/simple_file_server -v 14
+  module $(B)/os2/config.sys
+module $(B)/fstab \
+  -c /file \
+  -c /file/system -v 14 -b / -m /file/system
+module $(B)/fprov_proxy
+module $(B)/os2fs
+module $(B)/os2fs-test
+
+title OS/2 personality interactive setup
 kernel $(A)/bootstrap -serial
 modaddr 0x02000000
 module $(B)/fiasco $(FIASCOARGS)

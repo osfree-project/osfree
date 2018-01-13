@@ -69,9 +69,9 @@ char use_events = 0;
 l4_threadid_t fs;
 l4_threadid_t os2srv;
 l4_threadid_t fprov_id;
-l4_threadid_t sysinit_id;
 l4_threadid_t dsm_id;
 l4_threadid_t loader_id;
+l4_os3_thread_t sysinit_id;
 
 extern cfg_opts options;
 

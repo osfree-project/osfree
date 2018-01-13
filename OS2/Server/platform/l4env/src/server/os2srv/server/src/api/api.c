@@ -11,24 +11,26 @@
 #include <os3/dataspace.h>
 #include <os3/rm.h>
 #include <os3/processmgr.h>
+#include <os3/thread.h>
+#include <os3/semaphore.h>
 #include <os3/handlemgr.h>
 #include <os3/globals.h>
 #include <os3/io.h>
 
 /* IPC includes (dice) */
-#include <os3/ipc.h>
+//#include <os3/ipc.h>
 
 /* l4env includes */
-#include <l4/semaphore/semaphore.h>
-#include <l4/lock/lock.h>
-#include <l4/thread/thread.h>
+//#include <l4/semaphore/semaphore.h>
+//#include <l4/lock/lock.h>
+//#include <l4/thread/thread.h>
 
 ///* os2fs RPC includes */
 //#include <l4/os2fs/os2fs-client.h>
 
 /* os2srv RPC includes */
-#include <os2server-client.h>
-#include <os2server-server.h>
+//#include <os2server-client.h>
+//#include <os2server-server.h>
 
 /* libc includes */
 #include <stdio.h>
@@ -38,9 +40,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
+/* local includes */
+#include "api.h"
+
 //extern l4_threadid_t fs;
-extern l4_threadid_t os2srv;
-extern l4_threadid_t sysinit_id;
+//extern l4_os3_threadid_t os2srv;
+extern l4_os3_thread_t sysinit_id;
 extern struct t_os2process *proc_root;
 
 #define SEMTYPE_EVENT    0
@@ -59,8 +64,8 @@ typedef struct _SEM
   ULONG       ulRefCnt; 
   union
   {
-    l4semaphore_t evt;
-    l4lock_t mtx;
+    l4_os3_semaphore_t evt;
+    l4_os3_lock_t mtx;
     struct _SEM *mux;
   }           uSem;
 } SEM, *PSEM;
@@ -69,9 +74,10 @@ int cdir(char **dir, char *component);
 int strlstcpy(char *s1, char *s2);
 int strlstlen(char *p);
 
-struct DosExecPgm_params {
+struct DosExecPgm_params
+{
   struct t_os2process *proc;
-  l4_threadid_t thread;
+  l4_os3_thread_t thread;
   char *pObjname;
   long cbObjname;
   unsigned long execFlag;
@@ -83,49 +89,47 @@ struct DosExecPgm_params {
 
 void os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm);
 
-void CV
-os2server_dos_Exit_component(CORBA_Object obj,
-                             ULONG action, ULONG result,
-                             CORBA_srv_env *_srv_env)
+APIRET CPExit(l4_os3_thread_t thread,
+              ULONG action,
+              ULONG result)
 {
   unsigned long ppid;
   struct t_os2process *proc, *parentproc;
-  l4_os3_thread_t thread;
-  thread.thread = *obj;
-  //int t;
 
   // get caller t_os2process structure
   proc = PrcGetProcNative(thread);
 
-  // kill calling thread; @todo: implement real thread termination!
-  //if ((t = l4ts_kill_task(*obj, L4TS_KILL_SYNC)))
-  //    io_log("Error %d killing task\n", t);
-  //else
-  //    io_log("task killed\n");
-
   // get parent pid
   ppid = proc->lx_pib->pib_ulppid;
+
   // get parent proc
   parentproc = PrcGetProc(ppid);
+
   if (! parentproc)
   {
     io_log("parent proc is 0\n");
-    return;
+    return ERROR_FILE_NOT_FOUND;
   }
+
   // set termination code
   parentproc->term_code = result;
+
   // unblock parent thread
   if ( parentproc->exec_sync &&
-       (ppid || l4_thread_equal(parentproc->task.thread, sysinit_id)) )
-    l4semaphore_up(&parentproc->term_sem);
-  io_log("semaphore unblock\n");
-  // destroy calling thread's proc
-  PrcDestroy(proc);
-  io_log("proc destroy\n");
+       (ppid || ThreadEqual(parentproc->task, sysinit_id)) )
+  {
+    SemaphoreUp(&parentproc->term_sem);
+    io_log("semaphore unblock\n");
+  }
 
-  return;
+  // destroy calling thread's proc
+  io_log("proc destroy\n");
+  PrcDestroy(proc);
+
+  return NO_ERROR;
 }
 
+#if 0
 
 /* DosExecPgm worker thread */
 void
@@ -172,8 +176,10 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   io_log("end exec\n");
 
   if (! rc)
+  {
     // wait for successful startup
     l4semaphore_down(&proc->startup_sem);
+  }
 
   /* if child execution is synchronous
      and it is started successfully,
@@ -832,3 +838,5 @@ os2server_dos_DestroyTIB_component (CORBA_Object obj,
 {
   return PrcDestroyTIB(pid, tid);
 }
+
+#endif

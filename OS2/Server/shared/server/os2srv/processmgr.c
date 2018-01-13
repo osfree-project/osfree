@@ -26,17 +26,18 @@
 #include <os3/io.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/rm.h>
 #include <os3/thread.h>
 #include <os3/app.h>
 
 /* l4env includes */
-#include <l4/sys/types.h>
-#include <l4/dm_mem/dm_mem.h>
-#include <l4/l4rm/l4rm.h>
+//#include <l4/sys/types.h>
+//#include <l4/dm_mem/dm_mem.h>
+//#include <l4/l4rm/l4rm.h>
 
 /* OS/2 server RPC */
-#include "os2server-client.h"
-#include "os2server-server.h"
+//#include "os2server-client.h"
+//#include "os2server-server.h"
 //#include <l4/os2app/os2app-client.h>
 
 /* libc includes */
@@ -69,7 +70,8 @@ void *alloc_mem(int size, char *comment)
   int              rc;
 
   /* allocate a dataspace of a given size */
-  rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds.ds);
+  //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds.ds);
+  rc = DataspaceAlloc(&ds, 0, DEFAULT_DSM, size);
 
   if (rc < 0)
     return 0;
@@ -90,20 +92,24 @@ void *alloc_mem(int size, char *comment)
 // region mapper and dataspace manager
 void free_mem(void *addr)
 {
-  l4dm_dataspace_t ds;
-  l4_addr_t     offset;
-  l4_size_t     size;
-  l4_threadid_t pager;
+  l4_os3_dataspace_t ds;
+  //l4_addr_t     offset;
+  //l4_size_t     size;
+  unsigned long size;
+  //l4_threadid_t pager;
   int           ret;
 
-  ret = l4rm_lookup_region(addr, (l4_addr_t *)&addr, &size, &ds,
-                     &offset, &pager);
+  //ret = l4rm_lookup_region(addr, (l4_addr_t *)&addr, &size, &ds,
+    //                 &offset, &pager);
+  ret = RegLookupRegion(addr, &addr, &size, &ds);
 
-  if (ret != L4RM_REGION_DATASPACE)
+  if (ret < 0)
     return;
 
-  l4rm_detach(addr);
-  l4rm_area_release((l4_addr_t)addr);
+  //l4rm_detach(addr);
+  RegDetach(addr);
+  //l4rm_area_release((l4_addr_t)addr);
+  DataspaceFree(ds);
 }
 
 /*ULONG     pib_ulpid;      Process identifier.
@@ -175,7 +181,8 @@ PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
 APIRET CDECL
 PrcCreateTIB(PTIB *addr)
 {
-  l4_size_t size;
+  //l4_size_t size;
+  ULONG size;
 
   PTIB   pt;
   PTIB2  pt2;
@@ -269,7 +276,7 @@ struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFMo
     }
 
     // if pEnv is NULL, then use parent pEnv
-    if (!pEnv || !*pEnv)
+    if (! pEnv || ! *pEnv)
       pEnv = parentproc->lx_pib->pib_pchenv;
 
     if (!pArg)
@@ -361,7 +368,8 @@ struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread)
 
   do
   {
-    if (proc->task.thread.id.task == thread.thread.id.task)
+    //if (proc->task.thread.id.task == thread.thread.id.task)
+    if (TaskEqual(proc->task, thread))
       return proc;
     else
       proc = proc->next;
@@ -379,8 +387,8 @@ TID PrcGetTIDNative(l4_os3_thread_t thread)
 
   for (i = 0; i < MAX_TID; i++)
   {
-    if (l4_thread_equal(proc->tid_array[i].thread,
-        thread.thread))
+    //if (l4_thread_equal(proc->tid_array[i].thread,
+    if (ThreadEqual(proc->tid_array[i], thread))
       return i + 1;
   }
   return 0;
@@ -540,32 +548,27 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 #endif
 
 /* is called by os2app after its successful startup */
-void DICE_CV
-os2server_app_notify1_component(CORBA_Object _dice_corba_obj,
-                                CORBA_Server_Environment *_dice_corba_env)
+void CPAppNotify1(l4_os3_thread_t thread)
 {
   struct t_os2process *proc, *parentproc;
-  l4_os3_thread_t thread = {*_dice_corba_obj};
-  proc = PrcGetProcNative(thread);
   ULONG ppid;
+
+  proc = PrcGetProcNative(thread);
   ppid = proc->lx_pib->pib_ulppid;
   parentproc = PrcGetProc(ppid);
   // async completion: signal successful startup
-  l4semaphore_up(&parentproc->startup_sem);
+  SemaphoreUp(&parentproc->startup_sem);
 }
 
 /* is called by os2app, and notifies os2srv
    about some module parameters got from execsrv */
-void DICE_CV
-os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
-                                const os2exec_module_t *s,
-                                CORBA_Server_Environment *_dice_corba_env)
+void CPAppNotify2(l4_os3_thread_t task,
+                  const os2exec_module_t *s)
 {
   struct t_os2process *proc;
-  l4_os3_thread_t task;
-  task.thread = *_dice_corba_obj;
-  proc = PrcGetProcNative(task);
   int i;
+
+  proc = PrcGetProcNative(task);
 
   if (! proc) // it indicates that os2app is started from other
   {          // means, than using PrcExecuteModule, so proc is not created
@@ -585,7 +588,6 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
   proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
   proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
   proc->tid_array[0] = task;
-  io_log("*** tid=%d\n", l4thread_id(*_dice_corba_obj));
   for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = NIL_THREAD; //L4_INVALID_ID;
 }
 

@@ -92,6 +92,7 @@ long RegLookupRegion(void               *addr,
 {
     l4_offs_t     offset;
     l4_threadid_t pager;
-    return l4rm_lookup_region(addr, (l4_addr_t *)addr_new, (l4_size_t *)size,
-                              &ds->ds, &offset, &pager);
+    long ret = l4rm_lookup_region(addr, (l4_addr_t *)addr_new, (l4_size_t *)size,
+                                  &ds->ds, &offset, &pager);
+    return ret;
 }

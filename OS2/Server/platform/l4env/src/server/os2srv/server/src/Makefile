@@ -15,6 +15,7 @@ sysinit.c \
 exec.c \
 Shared/processmgr.c \
 api/api.c \
+api/rpc.c \
 api/cfg.c
 
 # Shared/cfgparser.c
@@ -32,6 +33,9 @@ LIBS		= -los2app -los2compat -lgeneric_fprov -los2server -los2fs -lthread -lload
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
-CFLAGS          += -I$(PKGDIR)/include
+CFLAGS          += -I$(PKGDIR)/include -Iapi
 MODE=l4env_base
+
+vpath %.c $(OS3_DIR)/shared/server/os2srv
+
 include $(L4DIR)/mk/prog.mk
