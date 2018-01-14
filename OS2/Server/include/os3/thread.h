@@ -15,11 +15,17 @@
 typedef l4_os3_cap_idx_t l4_os3_thread_t;
 typedef l4_os3_thread_t  l4_os3_task_t;
 
+typedef void (*ThreadFunc) (void *data);
+
 #include <platform/thread.h>
 
 BOOL ThreadEqual(l4_os3_thread_t one, l4_os3_thread_t two);
 
 BOOL TaskEqual(l4_os3_thread_t one, l4_os3_thread_t two);
+
+void ThreadExit(void);
+
+l4_os3_thread_t ThreadCreate(ThreadFunc fn, void *data, ULONG flags);
 
 #ifdef __cplusplus
   }

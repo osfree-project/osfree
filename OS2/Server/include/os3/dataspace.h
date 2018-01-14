@@ -7,6 +7,7 @@
 
 /* osFree internal */
 #include <os3/types.h>
+#include <os3/thread.h>
 
 #define L4DM_READ    0x00000001
 #define L4DM_WRITE   0x00000002
@@ -22,7 +23,7 @@ long DataspaceAlloc(l4_os3_dataspace_t *ds, unsigned long flags,
                     l4_os3_cap_idx_t dm, unsigned long size);
 long DataspaceFree(l4_os3_dataspace_t ds);
 long DataspaceGetSize(l4_os3_dataspace_t ds, unsigned long *size);
-long DataspaceShare(l4_os3_dataspace_t ds, l4_os3_cap_idx_t client_id, unsigned long rights);
+long DataspaceShare(l4_os3_dataspace_t ds, l4_os3_thread_t client_id, unsigned long rights);
 
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr);
 

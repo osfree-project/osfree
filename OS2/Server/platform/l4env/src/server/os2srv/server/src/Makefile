@@ -14,9 +14,9 @@ main.c  \
 sysinit.c \
 exec.c \
 processmgr.c \
-api/api.c \
-api/rpc.c \
-api/cfg.c
+rpc.c \
+api.c \
+cfg.c
 
 # if your server implements the server side of an idl defined in an idl-file
 # of your package, list the idl file name(s) here (no path needed)
@@ -31,9 +31,11 @@ LIBS		= -los2app -los2compat -lgeneric_fprov -los2server -los2fs -lthread -lload
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LIBS		= -lgeneric_fprov -lparsecmdline -lloaderif -lthread -lcon -lcontxt -lconstream-server
-CFLAGS          += -I$(PKGDIR)/include -Iapi
+CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api \
+                   -I$(OS3_DIR)/shared/server/os2srv/api
 MODE=l4env_base
 
 vpath %.c $(OS3_DIR)/shared/server/os2srv
+vpath %.c $(OS3_DIR)/shared/server/os2srv/api
 
 include $(L4DIR)/mk/prog.mk

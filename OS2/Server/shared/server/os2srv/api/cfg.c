@@ -10,13 +10,13 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/cfgparser.h>
-#include <os3/ipc.h>
-
-/* servers RPC includes */
-#include <os2server-server.h>
+//#include <os3/ipc.h>
 
 /* libc includes */
 #include <string.h>
+
+/* local includes */
+#include "api.h"
 
 #define NO_ERROR 0
 
@@ -24,30 +24,26 @@ extern cfg_opts options;
 
 /* offset of structure field */
 #define off(p, f) (&(((p)(0))->f)) - &((p)(0)))
+
 /* 'name' structure member offset */
 #define O(name) ((int)(&options) + off(cfg_opts *, name))
 
-APIRET CV
-os2server_cfg_getenv_component (CORBA_Object _obj,
-                                const char* name /* in */,
-                                char* *value /* out */,
-                                CORBA_srv_env *_env)
+APIRET CPCfgGetenv(PCSZ name,
+                   char **value)
 {
   APIRET rc;
+
   io_log("name=%s\n", name);
   rc = CfgGetenv((char *)name, value);
   io_log("path=%s\n", *value);
+
   return rc;
 }
 
-
-APIRET CV
-os2server_cfg_getopt_component (CORBA_Object _obj,
-                                const char* name,
-                                int *is_int,
-                                int *value_int,
-                                char* *value_str,
-                                CORBA_srv_env *_env)
+APIRET CPCfgGetopt(PCSZ name,
+                   int *is_int,
+                   int *value_int,
+                   char **value_str)
 {
   int  i, rc = 1;
   char f;

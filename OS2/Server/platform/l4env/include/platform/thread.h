@@ -12,6 +12,9 @@
 
 #define NIL_THREAD ((l4_os3_thread_t){(l4_threadid_t)L4_INVALID_ID})
 
+#define THREAD_SYNC  L4THREAD_CREATE_SYNC
+#define THREAD_ASYNC L4THREAD_CREATE_ASYNC
+
 #ifdef __cplusplus
   }
 #endif

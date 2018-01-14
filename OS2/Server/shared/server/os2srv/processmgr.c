@@ -30,19 +30,12 @@
 #include <os3/thread.h>
 #include <os3/app.h>
 
-/* l4env includes */
-//#include <l4/sys/types.h>
-//#include <l4/dm_mem/dm_mem.h>
-//#include <l4/l4rm/l4rm.h>
-
-/* OS/2 server RPC */
-//#include "os2server-client.h"
-//#include "os2server-server.h"
-//#include <l4/os2app/os2app-client.h>
-
 /* libc includes */
 #include <string.h>
 #include <ctype.h>
+
+/* local includes */
+#include "api.h"
 
 void *alloc_mem(int size, char *comment);
 void free_mem(void *addr);
@@ -423,10 +416,10 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
      else
        io_log("\\0");
 
-    if (!pArg || !*pArg)
+    if (! pArg || ! *pArg)
       pArg = "\0\0";
 
-    if (!pEnv || !*pEnv)
+    if (! pEnv || ! *pEnv)
       pEnv = "\0\0";
 
     k = strlen(pPrg) + 1;
@@ -479,8 +472,11 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
 
       /* get a sum of all strings lengths */
       for (i = 0; i < n; i++)
+      {
         if (type[3].sp[i].string)
           envlen += strlen(type[3].sp[i].string) + 1;
+      }
+
       /* count the ending NULL */
       envlen++;
 
@@ -556,6 +552,7 @@ void CPAppNotify1(l4_os3_thread_t thread)
   proc = PrcGetProcNative(thread);
   ppid = proc->lx_pib->pib_ulppid;
   parentproc = PrcGetProc(ppid);
+
   // async completion: signal successful startup
   SemaphoreUp(&parentproc->startup_sem);
 }
@@ -588,6 +585,7 @@ void CPAppNotify2(l4_os3_thread_t task,
   proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
   proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
   proc->tid_array[0] = task;
+
   for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = NIL_THREAD; //L4_INVALID_ID;
 }
 
@@ -938,6 +936,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   {
     // Searches for module name and returns the full path in the buffer p_buf.
     rc = find_path(pName, (char **)p_buf);
+
     if (rc!=0/*NO_ERROR*/)
     {
       io_log("PrcExecuteModule: Can't find %s module\n", pName);

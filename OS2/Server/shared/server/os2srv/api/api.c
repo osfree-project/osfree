@@ -15,22 +15,8 @@
 #include <os3/semaphore.h>
 #include <os3/handlemgr.h>
 #include <os3/globals.h>
+#include <os3/cpi.h>
 #include <os3/io.h>
-
-/* IPC includes (dice) */
-//#include <os3/ipc.h>
-
-/* l4env includes */
-//#include <l4/semaphore/semaphore.h>
-//#include <l4/lock/lock.h>
-//#include <l4/thread/thread.h>
-
-///* os2fs RPC includes */
-//#include <l4/os2fs/os2fs-client.h>
-
-/* os2srv RPC includes */
-//#include <os2server-client.h>
-//#include <os2server-server.h>
 
 /* libc includes */
 #include <stdio.h>
@@ -43,51 +29,12 @@
 /* local includes */
 #include "api.h"
 
-//extern l4_threadid_t fs;
-//extern l4_os3_threadid_t os2srv;
 extern l4_os3_thread_t sysinit_id;
-extern struct t_os2process *proc_root;
 
-#define SEMTYPE_EVENT    0
-#define SEMTYPE_MUTEX    1
-#define SEMTYPR_MUXWAIT  2
+extern struct t_os2process *proc_root;
 
 /* Semaphore handle table pointer */
 HANDLE_TABLE *htSem;
-/* Handle table element           */
-typedef struct _SEM
-{
-  struct _SEM *pNext;
-  char        szName[CCHMAXPATH];
-  char        cShared;
-  char        cType;
-  ULONG       ulRefCnt; 
-  union
-  {
-    l4_os3_semaphore_t evt;
-    l4_os3_lock_t mtx;
-    struct _SEM *mux;
-  }           uSem;
-} SEM, *PSEM;
-
-int cdir(char **dir, char *component);
-int strlstcpy(char *s1, char *s2);
-int strlstlen(char *p);
-
-struct DosExecPgm_params
-{
-  struct t_os2process *proc;
-  l4_os3_thread_t thread;
-  char *pObjname;
-  long cbObjname;
-  unsigned long execFlag;
-  char *pArg;
-  char *pEnv;
-  struct _RESULTCODES *pRes;
-  char *pName;
-};
-
-void os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm);
 
 APIRET CPExit(l4_os3_thread_t thread,
               ULONG action,
@@ -107,7 +54,7 @@ APIRET CPExit(l4_os3_thread_t thread,
 
   if (! parentproc)
   {
-    io_log("parent proc is 0\n");
+    io_log("parent proc is NULL!\n");
     return ERROR_FILE_NOT_FOUND;
   }
 
@@ -129,23 +76,21 @@ APIRET CPExit(l4_os3_thread_t thread,
   return NO_ERROR;
 }
 
-#if 0
-
 /* DosExecPgm worker thread */
-void
-os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
+void CPExecPgmWorker(struct DosExecPgm_params *parm)
 {
-  CORBA_Environment env = default_env;
+  //CORBA_Environment env = dice_default_environment;
   struct t_os2process *proc;
   APIRET rc;
   char *p;
   int  i, l;
 
-  io_log("worker start\n");
   /* get caller t_os2process structure */
+  io_log("worker start\n");
   proc = parm->proc;
 
   l = strlstlen(parm->pArg);
+
   io_log("pArg len=%ld\n", (ULONG)l);
   io_log("pEnv len=%ld\n", (ULONG)strlstlen(parm->pEnv));
 
@@ -178,7 +123,7 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   if (! rc)
   {
     // wait for successful startup
-    l4semaphore_down(&proc->startup_sem);
+    SemaphoreDown(&proc->startup_sem);
   }
 
   /* if child execution is synchronous
@@ -191,12 +136,14 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
     proc->exec_sync = 1;
 
     if (! rc)
-      l4semaphore_down(&proc->term_sem);
+      SemaphoreDown(&proc->term_sem);
   }
 
   // sync wait done
   proc->exec_sync = 0;
+
   io_log("done waiting\n");
+
   /* set termination code */
   parm->pRes->codeResult = proc->term_code;
 
@@ -204,66 +151,44 @@ os2server_dos_ExecPgm_worker(struct DosExecPgm_params *parm)
   io_log("pRes=%lx\n", (ULONG)parm->pRes);
   io_log("pObjname=%lx\n",  (ULONG)parm->pObjname);
   io_log("cbObjname=%lx\n", (ULONG)parm->cbObjname);
-  os2server_dos_ExecPgm_notify_call(&os2srv, &parm->thread, parm->pObjname,
-                                    parm->cbObjname, parm->pRes, rc, &env);
+
+  CPClientExecPgmNotify(parm->thread, parm->pObjname,
+                        parm->cbObjname,
+                        parm->pRes, rc);
+
   /* free our parameters structure */
   free(parm->pArg);
   free(parm->pEnv);
   free(parm);
   io_log("worker terminate\n");
+
   /* terminate the worker thread */
-  l4thread_exit();
+  ThreadExit();
 }
 
-/* notifier for main DosExecPgm component */
-void CV
-os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
-                            const l4_threadid_t *job /* in */,
-                            const char* pObjname /* in */,
-                            int cbObjname /* in */,
-                            const struct _RESULTCODES *pRes /* in */,
-                            int result /* in */,
-                            CORBA_srv_env *_srv_env)
-{
-  io_log("pRes=%lx\n", (ULONG)pRes);
-  io_log("pObjname=%lx\n", (ULONG)pObjname);
-  io_log("cbObjname=%lx\n", (ULONG)cbObjname);
-  io_log("pRes->codeTerminate=%lx\n", (ULONG)pRes->codeTerminate);
-  io_log("pRes->codeResult=%lx\n", (ULONG)pRes->codeResult);
-  os2server_dos_ExecPgm_reply ((l4_threadid_t *)job, result, (char **)&pObjname,
-			       (long *)&cbObjname, (struct _RESULTCODES *)pRes, _srv_env);
-}
-
-APIRET CV
-os2server_dos_ExecPgm_component (CORBA_Object obj,
-                                 char **pObjname /* in, out */,
-                                 long *cbObjname /* in, out */,
-                                 unsigned long execFlag /* in */,
-                                 const char* pArg /* in */,
-                                 l4_uint32_t arglen,
-                                 const char* pEnv /* in */,
-                                 l4_uint32_t envlen,
-                                 struct _RESULTCODES *pRes /* in, out */,
-                                 const char* pName /* in */,
-                                 short *dice_reply,
-                                 CORBA_srv_env *_srv_env)
+APIRET CPExecPgm(l4_os3_thread_t thread,
+                 char **pObjname,
+                 long *cbObjname,
+                 unsigned long execFlag,
+                 const char* pArg,
+                 unsigned long arglen,
+                 const char* pEnv,
+                 unsigned long envlen,
+                 struct _RESULTCODES *pRes,
+                 const char* pName)
 {
   struct t_os2process *proc;
   struct DosExecPgm_params *parm;
-  l4_os3_thread_t thread;
-  //APIRET rc;
-  //int    ret;
   char *arg, *env;
 
-  /* caller thread id */
-  thread.thread = *obj;
   /* caller t_os2process structure */
   proc = PrcGetProcNative(thread);
+
   /* allocate parameters structure for worker thread */
   parm = (struct DosExecPgm_params *)malloc(sizeof(struct DosExecPgm_params));
 
-  if (!parm)
-    return 8; /* ERROR_NOT_ENOUGH_MEMORY */
+  if (! parm)
+    return ERROR_NOT_ENOUGH_MEMORY;
 
   io_log("pRes=%lx\n", (ULONG)pRes);
   io_log("pObjname=%lx\n",  (ULONG)*pObjname);
@@ -279,7 +204,7 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
 
   /* fill in the params structure */
   parm->proc = proc;
-  parm->thread = thread.thread;
+  parm->thread = thread;
   parm->pObjname = *pObjname;
   parm->cbObjname = *cbObjname;
   parm->execFlag = execFlag;
@@ -289,8 +214,8 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
   parm->pName = (char *)pName;
 
   /* start DosExecPgm worker thread */
-  l4thread_create((void *)os2server_dos_ExecPgm_worker, (void *)parm, L4THREAD_CREATE_ASYNC);
-  *dice_reply = DICE_NO_REPLY; // do not reply to the client until notification
+  //l4thread_create((void *)CPExecPgmWorker, (void *)parm, L4THREAD_CREATE_ASYNC);
+  ThreadCreate((void *)CPExecPgmWorker, (void *)parm, THREAD_ASYNC);
 
   return 0;
 }
@@ -320,24 +245,17 @@ strlstcpy(char *s1, char *s2)
   return len;
 }
 
-APIRET CV
-os2server_dos_GetPIB_component (CORBA_Object obj,
-                                l4dm_dataspace_t *ds /* out */,
-                                CORBA_srv_env *_srv_env)
+APIRET CPGetPIB(l4_os3_thread_t thread,
+                l4_os3_dataspace_t *ds)
 {
-  APIRET rc;
-  l4_addr_t addr;
-  l4_size_t size;
-  l4_offs_t offset;
-  l4_os3_thread_t thread;
-  l4_threadid_t pager;
-
-  unsigned base;
   struct t_os2process *proc;
+  unsigned base;
   PPIB ppib;
+  APIRET rc;
+  void *addr;
+  ULONG size;
 
   // process PTDA
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
   ppib = proc->lx_pib;
 
@@ -347,14 +265,16 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   ppib->pib_pchcmd -= base;
   ppib->pib_pchenv -= base;
 
-  rc = l4rm_lookup_region(ppib, &addr, &size, ds,
-                          &offset, &pager);
+  //rc = l4rm_lookup_region(ppib, &addr, &size, ds,
+    //                      &offset, &pager);
+  rc = RegLookupRegion(ppib, &addr, &size, ds);
 
   if (rc < 0)
     return ERROR_INVALID_ADDRESS;
 
   // share the dataspace with an application
-  rc = l4dm_share(ds, *obj, L4DM_RW);
+  //rc = l4dm_share(ds, *obj, L4DM_RW);
+  rc = DataspaceShare(*ds, thread, L4DM_RW);
 
   if (rc < 0)
     return ERROR_INVALID_ACCESS;
@@ -362,24 +282,18 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET CV
-os2server_dos_GetTIB_component (CORBA_Object obj,
-                                l4dm_dataspace_t *ds /* out */,
-                                CORBA_srv_env *_srv_env)
+APIRET CPGetTIB(l4_os3_thread_t thread,
+                l4_os3_dataspace_t *ds)
 {
-  APIRET rc;
-  unsigned base;
   struct t_os2process *proc;
+  unsigned base;
   PTIB ptib;
   TID  tid;
-  l4_addr_t addr;
-  l4_size_t size;
-  l4_offs_t offset;
-  l4_os3_thread_t thread;
-  l4_threadid_t pager;
+  void *addr;
+  ULONG size;
+  APIRET rc;
 
   // process PTDA
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
   tid  = PrcGetTIDNative(thread);
   ptib = proc->tib_array[tid - 1];
@@ -389,14 +303,16 @@ os2server_dos_GetTIB_component (CORBA_Object obj,
   base = (unsigned)ptib;
   ptib->tib_ptib2 = (PTIB2)((char*)ptib->tib_ptib2 - base);
 
-  rc = l4rm_lookup_region(ptib, &addr, &size, ds,
-                          &offset, &pager);
+  //rc = l4rm_lookup_region(ptib, &addr, &size, ds,
+    //                      &offset, &pager);
+  rc = RegLookupRegion(ptib, &addr, &size, ds);
 
   if (rc < 0)
     return ERROR_INVALID_ADDRESS;
 
   // share the dataspace with an application
-  rc = l4dm_share(ds, *obj, L4DM_RW);
+  //rc = l4dm_share(ds, *obj, L4DM_RW);
+  rc = DataspaceShare(*ds, thread, L4DM_RW);
 
   if (rc < 0)
     return ERROR_INVALID_ACCESS;
@@ -404,36 +320,26 @@ os2server_dos_GetTIB_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET CV
-os2server_dos_Error_component (CORBA_Object obj,
-                               ULONG error /* in */,
-                               CORBA_srv_env *_srv_env)
+APIRET CPError(ULONG error)
 {
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
-APIRET CV
-os2server_dos_QueryDBCSEnv_component (CORBA_Object obj,
-                                      ULONG *cb /* in, out */,
-                                      const COUNTRYCODE *pcc /* out */,
-                                      char **pBuf /* in */,
-                                      CORBA_srv_env *_srv_env)
+APIRET CPQueryDBCSEnv(ULONG *cb,
+                      const COUNTRYCODE *pcc,
+                      char **pBuf)
 {
   if (cb && *cb)
     memset(*pBuf, 0, *cb); // empty
 
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
-
-APIRET CV
-os2server_dos_QueryCp_component (CORBA_Object obj,
-                                 ULONG *cb /* in, out */,
-                                 char  **arCP /* out */,
-                                 CORBA_srv_env *_srv_env)
+APIRET CPQueryCp(ULONG *cb,
+                 char  **arCP)
 {
   if (*cb < 3 * sizeof(ULONG))
-    return 473; /* ERROR_CPLIST_TOO_SMALL */
+    return ERROR_CPLIST_TOO_SMALL;
 
   io_log("cb=%ld\n", (ULONG)*cb);
   io_log("arCP=%lx\n", (ULONG)*arCP);
@@ -443,25 +349,20 @@ os2server_dos_QueryCp_component (CORBA_Object obj,
   (*(ULONG **)arCP)[2] = 850; /* secondary codepage */
   *cb = 3 * sizeof(ULONG);
 
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
-APIRET CV
-os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
-                                          ULONG *pdisknum /* out */,
-                                          //ULONG logical /* in */,
-                                          CORBA_srv_env *_srv_env)
+APIRET CPQueryCurrentDisk(l4_os3_thread_t thread,
+                          ULONG *pdisknum)
 {
-  //CORBA_Environment env = dice_default_environment;
-  ULONG n;
-  l4_os3_thread_t thread;
   struct t_os2process *proc;
+  ULONG n;
 
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
 
   io_log("proc=%lx\n", (ULONG)proc);
   n = proc->curdisk;
+
   io_log("n=%lx\n", n);
   *pdisknum = n;
 
@@ -470,27 +371,19 @@ os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
   //os2fs_get_drivemap_call(&fs, &logical, &env);
   //*plogical = 1 << (n - 1);
 
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
-
-APIRET CV
-os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
-                                         ULONG disknum /* in */,
-                                         ULONG logical /* in */,
-                                         char **pBuf /* out */,
-                                         ULONG *pcbBuf /* out */,
-                                         CORBA_srv_env *_srv_env)
+APIRET CPQueryCurrentDir(l4_os3_thread_t thread,
+                         ULONG disknum,
+                         ULONG logical,
+                         char **pBuf,
+                         ULONG *pcbBuf)
 {
-  //CORBA_Environment env = dice_default_environment;
   ULONG disk;
   struct t_os2process *proc;
-  l4_os3_thread_t thread;
-  //struct I_Fs_srv *fs_srv;
   char buf[0x100];
   char *curdir = buf;
-  //char drv;
-  //int i;
 
   io_log("pcbBuf=%p\n", pcbBuf);
   io_log("pBuf=%p\n", pBuf);
@@ -501,11 +394,10 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
   if (! pcbBuf || ! pBuf || ! *pBuf)
     return ERROR_INVALID_PARAMETER;
 
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
   curdir = proc->curdir;
 
-  if (!disknum)
+  if (! disknum)
   {
     disk = proc->curdisk;
     //os2fs_get_drivemap_call(&fs, &map, &env);
@@ -567,21 +459,15 @@ int cdir(char **dir, char *component)
   return 0;
 }
 
-APIRET CV
-os2server_dos_SetCurrentDir_component (CORBA_Object obj,
-                                       PCSZ pszDir /* in */,
-                                       CORBA_srv_env *_srv_env)
+APIRET CPSetCurrentDir(l4_os3_thread_t thread,
+                       PCSZ pszDir)
 {
-  //CORBA_Environment env = dice_default_environment;
   struct t_os2process *proc;
-  l4_os3_thread_t thread;
-  //ULONG disknum;
   char str[0x100];
   char buf[0x100];
   char *s = buf;
   char *p, *q, *r;
 
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
 
   if (proc == NULL)
@@ -601,7 +487,7 @@ os2server_dos_SetCurrentDir_component (CORBA_Object obj,
     if (*r == '/')
       *r = '\\';
 
-  if (!strcmp(pszDir, "\\"))
+  if (! strcmp(pszDir, "\\"))
   {
     *s = '\0';
     return NO_ERROR;
@@ -628,24 +514,18 @@ os2server_dos_SetCurrentDir_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET CV
-os2server_dos_SetDefaultDisk_component (CORBA_Object obj,
-                                        ULONG disknum /* in */,
-                                        ULONG logical /* in */,
-                                        CORBA_srv_env *_srv_env)
+APIRET CPSetDefaultDisk(l4_os3_thread_t thread,
+                        ULONG disknum,
+                        ULONG logical)
 {
-  //CORBA_Environment env = dice_default_environment;
   struct t_os2process *proc;
-  l4_os3_thread_t thread;
-  //ULONG  map;
 
-  thread.thread = *obj;
   proc = PrcGetProcNative(thread);
 
   // get drive map from fs server
   //os2fs_get_drivemap_call(&fs, &map, &env);
 
-  if (!((1 << (disknum - 1)) & logical))
+  if (! ((1 << (disknum - 1)) & logical) )
     return ERROR_INVALID_DRIVE;
 
   io_log("map=%lx", logical);
@@ -654,15 +534,12 @@ os2server_dos_SetDefaultDisk_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_CreateEventSem_component (CORBA_Object obj,
-                                        const char* pszName /* in */,
-                                        HEV *phev /* out */,
-                                        ULONG flAttr /* in */,
-                                        BOOL32 fState /* in */,
-                                        CORBA_srv_env *_srv_env)
+APIRET CPCreateEventSem(l4_os3_thread_t thread,
+                        PCSZ pszName,
+                        HEV *phev,
+                        ULONG flAttr,
+                        BOOL32 fState)
 {
-  CORBA_Environment env = default_env;
   APIRET rc;
   HEV    hev;
   SEM    *sem;
@@ -673,9 +550,9 @@ os2server_dos_CreateEventSem_component (CORBA_Object obj,
   if (pszName && *pszName && strstr(pszName, "\\SEM32\\") != pszName)
     return ERROR_INVALID_NAME;
 
-  if (! os2server_dos_OpenEventSem_call(&os2srv, pszName, &hev, &env) )
+  if (! CPClientOpenEventSem(pszName, &hev) )
   {
-    os2server_dos_CloseEventSem_call(&os2srv, hev, &env);
+    CPClientCloseEventSem(hev);
     return ERROR_DUPLICATE_NAME;
   }
 
@@ -707,11 +584,9 @@ os2server_dos_CreateEventSem_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_OpenEventSem_component (CORBA_Object obj,
-                                      const char* pszName /* in */,
-                                      HEV *phev /* in, out */,
-                                      CORBA_srv_env *_srv_env)
+APIRET CPOpenEventSem(l4_os3_thread_t thread,
+                      PCSZ pszName,
+                      HEV *phev)
 {
   //APIRET rc;
   SEM    *sem;
@@ -722,11 +597,11 @@ os2server_dos_OpenEventSem_component (CORBA_Object obj,
   if (*phev)
   {
     // open by handle
-    if (!HndIsValidIndexHandle(htSem, *phev, (HANDLE **)&sem))
+    if (! HndIsValidIndexHandle(htSem, *phev, (HANDLE **)&sem))
     {
       if (sem->cType == SEMTYPE_EVENT && sem->cShared)
       {
-        if (!sem->ulRefCnt)
+        if (! sem->ulRefCnt)
         return ERROR_TOO_MANY_OPENS;
 
         // increment refcount
@@ -768,75 +643,51 @@ os2server_dos_OpenEventSem_component (CORBA_Object obj,
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_CloseEventSem_component (CORBA_Object obj,
-                                       HEV hev /* in */,
-                                       CORBA_srv_env *_srv_env)
+APIRET CPCloseEventSem(l4_os3_thread_t thread,
+                       HEV hev)
 {
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_GetTID_component (CORBA_Object obj,
-                                TID *ptid /* out */,
-                                CORBA_srv_env *_srv_env)
+APIRET CPGetTID(l4_os3_thread_t thread,
+                TID *ptid)
 {
-  l4_os3_thread_t thread;
-  thread.thread = *obj;
   *ptid = PrcGetTIDNative(thread);
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_GetPID_component (CORBA_Object obj,
-                                PID *ppid /* out */,
-                                CORBA_srv_env *_srv_env)
+APIRET CPGetPID(l4_os3_thread_t thread,
+                PID *ppid)
 {
-  l4_os3_thread_t thread;
-  thread.thread = *obj;
   struct t_os2process *proc = PrcGetProcNative(thread);
   *ppid = proc->pid;
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_GetNativeID_component (CORBA_Object obj,
-                                     PID pid /* in */,
-                                     TID tid /* in */,
-                                     l4_os3_thread_t *id /* out */,
-                                     CORBA_srv_env *_srv_env)
+APIRET CPGetNativeID(PID pid,
+                     TID tid,
+                     l4_os3_thread_t *id)
 {
   *id = PrcGetNativeID(pid, tid);
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_GetTIDNative_component (CORBA_Object obj,
-                                      const l4_os3_thread_t *id /* in */,
-                                      TID *ptid /* out */,
-                                      CORBA_srv_env *_srv_env)
+APIRET CPGetTIDNative(const l4_os3_thread_t *id,
+                      TID *ptid)
 {
   *ptid = PrcGetTIDNative(*id);
   return NO_ERROR;
 }
 
-APIRET DICE_CV
-os2server_dos_NewTIB_component (CORBA_Object obj,
-                                PID pid /* in */,
-                                TID tid /* in */,
-                                const l4_os3_thread_t *id /* in */,
-                                CORBA_srv_env *_srv_env)
+APIRET CPNewTIB(PID pid,
+                TID tid,
+                const l4_os3_thread_t *id)
 {
   return PrcNewTIB(pid, tid, *id);
 }
 
-APIRET DICE_CV
-os2server_dos_DestroyTIB_component (CORBA_Object obj,
-                                    PID pid /* in */,
-                                    TID tid /* in */,
-                                    CORBA_srv_env *_srv_env)
+APIRET CPDestroyTIB(PID pid,
+                    TID tid)
 {
   return PrcDestroyTIB(pid, tid);
 }
-
-#endif
