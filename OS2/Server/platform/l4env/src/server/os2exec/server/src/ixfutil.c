@@ -17,7 +17,7 @@ int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
   l4dm_dataspace_t *_ds;
   l4_size_t _size;
   IXFSYSDEP *sysdepSrc, *sysdepDst;
-  l4exec_section_t *section;
+  l4_os3_section_t *section;
   slist_t *s, *s0, *r;
   void *_addr;
   int  rc, i;
@@ -43,13 +43,13 @@ int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
       s->next = 0;
     }
 
-    section = (l4exec_section_t *)malloc(sizeof(l4exec_section_t));
+    section = (l4_os3_section_t *)malloc(sizeof(l4_os3_section_t));
     s->section = section;
 
-    memmove(section, s0->section, sizeof(l4exec_section_t));
+    memmove(section, s0->section, sizeof(l4_os3_section_t));
 
     // create Copy-On-Write copy of original dataspace
-    rc = l4dm_copy(&s0->section->ds, L4DM_COW, 
+    rc = l4dm_copy(&s0->section->ds.ds, L4DM_COW, 
                    "os2exec section", &section->ds);
 
     if (rc)

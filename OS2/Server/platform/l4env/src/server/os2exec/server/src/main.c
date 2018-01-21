@@ -10,22 +10,19 @@
 /* osFree internal */
 #include <os3/cfgparser.h>
 #include <os3/memmgr.h>
-#include <os3/modmgr.h>
-#include <os3/globals.h>
 #include <os3/dataspace.h>
 #include <os3/thread.h>
 #include <os3/types.h>
+#include <os3/cpi.h>
+#include <os3/fs.h>
 #include <os3/io.h>
 
 /* l4env includes */
 #include <l4/env/env.h>
 #include <l4/names/libnames.h>
 
-/* dice includes   */
-//#include <dice/dice.h>
-
-/* servers RPC includes */
-#include "os2exec-server.h"
+/* os2exec RPC includes */
+#include <os2exec-server.h>
 
 /* libc includes */
 #include <stdlib.h>
@@ -52,7 +49,6 @@ extern cfg_opts options;
 
 l4_threadid_t os2srv;
 l4_threadid_t fs;
-//l4_threadid_t execsrv;
 l4_threadid_t loader;
 l4_threadid_t fprov_id;
 
@@ -73,193 +69,6 @@ long l4loader_app_info_call(CORBA_Object obj,
                             l4dm_dataspace_t *ds,
                             CORBA_Environment *env);
 
-long DICE_CV
-os2exec_open_component (CORBA_Object _dice_corba_obj,
-                        const char* fname /* in */,
-                        const l4dm_dataspace_t *img_ds /* in */,
-                        unsigned long flags /* in */,
-                        char **chLoadError /* in, out */,
-                        unsigned long *pcbLoadError /* out */,
-                        unsigned long *phmod /* out */,
-                        CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcOpen(*chLoadError, *pcbLoadError, fname, flags, phmod);
-}
-
-
-long DICE_CV
-os2exec_load_component (CORBA_Object _dice_corba_obj,
-                        unsigned long hmod /* in */,
-                        char **chLoadError /* in, out */,
-                        unsigned long *pcbLoadError /* out */,
-                        os2exec_module_t *s /* out */,
-                        CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcLoad(&hmod, *chLoadError, *pcbLoadError, s);
-}
-
-long DICE_CV
-os2exec_share_component (CORBA_Object _dice_corba_obj,
-                         unsigned long hmod /* in */,
-                         CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcShare(hmod, _dice_corba_obj);
-}
-
-long DICE_CV
-os2exec_getimp_component (CORBA_Object _dice_corba_obj,
-                          unsigned long hmod /* in */,
-                          unsigned long *index /* in, out */,
-                          unsigned long *imp_hmod /* out */,
-                          CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcGetImp(hmod, index, imp_hmod);
-}
-
-
-long DICE_CV
-os2exec_getsect_component (CORBA_Object _dice_corba_obj,
-                           unsigned long hmod /* in */,
-                           unsigned long *index /* in, out */,
-                           l4exec_section_t *sect /* out */,
-                           CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcGetSect(hmod, index, sect);
-}
-
-
-long DICE_CV
-os2exec_query_procaddr_component (CORBA_Object _dice_corba_obj,
-                                  unsigned long hmod /* in */,
-                                  unsigned long ordinal /* in */,
-                                  const char* modname /* in */,
-                                  l4_addr_t *addr /* out */,
-                                  CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcQueryProcAddr(hmod, ordinal, modname, (void **)addr);
-}
-
-
-long DICE_CV
-os2exec_query_modhandle_component (CORBA_Object _dice_corba_obj,
-                                   const char* pszModname /* in */,
-                                   unsigned long *phmod /* out */,
-                                   CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcQueryModuleHandle(pszModname, phmod);
-}
-
-
-long DICE_CV
-os2exec_query_modname_component (CORBA_Object _dice_corba_obj,
-                                 unsigned long hmod /* in */,
-                                 unsigned long cbBuf /* in */,
-                                 char* *pBuf /* out */,
-                                 CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcQueryModuleName(hmod, cbBuf, *pBuf);
-}
-
-long DICE_CV
-os2exec_alloc_sharemem_component (CORBA_Object _dice_corba_obj,
-                                  l4_uint32_t size /* in */,
-                                  const char *name /* in */,
-                                  unsigned long rights /* in */,
-                                  l4_addr_t *addr /* out */,
-                                  unsigned long long *area /* out */,
-                                  CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcAllocSharedMem(size, name, rights, (void **)addr, area);
-}
-
-long DICE_CV
-os2exec_map_dataspace_component (CORBA_Object _dice_corba_obj,
-                                 l4_addr_t   addr /* in */,
-                                 l4_uint32_t rights /* in */,
-                                 const l4dm_dataspace_t *ds /* in */,
-                                 CORBA_Server_Environment *_dice_corba_env)
-{
-  l4_os3_cap_idx_t temp_ds;
-  temp_ds.ds = *ds;
-  return ExcMapDataspace((void *)addr, rights, temp_ds);
-}
-
-long DICE_CV
-os2exec_unmap_dataspace_component (CORBA_Object _dice_corba_obj,
-                                   l4_addr_t addr /* in */,
-                                   const l4dm_dataspace_t *ds /* in */,
-                                   CORBA_Server_Environment *_dice_corba_env)
-{
-  l4_os3_cap_idx_t temp_ds;
-  temp_ds.ds = *ds;
-  return ExcUnmapDataspace((void *)addr, temp_ds);
-}
-
-long DICE_CV
-os2exec_get_dataspace_component (CORBA_Object _dice_corba_obj,
-                                 l4_addr_t *addr /* in */,
-                                 l4_size_t *size /* in */,
-                                 l4dm_dataspace_t *ds /* out */,
-                                 CORBA_Server_Environment *_dice_corba_env)
-{
-  l4_os3_cap_idx_t temp_ds;
-  l4_os3_cap_idx_t client_id;
-  temp_ds.ds = *ds;
-  client_id.thread = *_dice_corba_obj;
-  return ExcGetDataspace((void **)addr, (unsigned long *)size,
-                         &temp_ds, client_id);
-}
-
-long DICE_CV
-os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
-                                l4_addr_t pb /* in */,
-                                l4_addr_t *addr /* out */,
-                                l4_uint32_t *size /* out */,
-                                l4_threadid_t *owner /* out */,
-                                CORBA_Server_Environment *_dice_corba_env)
-{
-  l4_os3_cap_idx_t temp_owner;
-  temp_owner.thread = *owner;
-  return ExcGetSharedMem((void *)pb, (void **)addr,
-                         (unsigned long *)size, &temp_owner);
-}
-
-
-long DICE_CV
-os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
-                                     const char* name /* in */,
-                                     l4_addr_t *addr /* out */,
-                                     l4_size_t *size /* out */,
-                                     l4_threadid_t *owner /* out */,
-                                     CORBA_Server_Environment *_dice_corba_env)
-{
-  l4_os3_cap_idx_t temp_owner;
-  temp_owner.thread = *owner;
-  return ExcGetNamedSharedMem(name, (void **)addr,
-                              (unsigned long *)size, &temp_owner);
-}
-
-/*  increment the refcnt for a sharemem area
- */
-long DICE_CV
-os2exec_increment_sharemem_refcnt_component (CORBA_Object _dice_corba_obj,
-                                    l4_addr_t addr /* in */,
-                                    CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcIncrementSharedMemRefcnt((void *)addr);
-}
-
-/*  release the reserved sharemem area
- */
-long DICE_CV
-os2exec_release_sharemem_component (CORBA_Object _dice_corba_obj,
-                                    l4_addr_t addr /* in */,
-                                    l4_uint32_t *count /* out */,
-                                    CORBA_Server_Environment *_dice_corba_env)
-{
-  return ExcReleaseSharedMem((void *)addr, (unsigned long *)count);
-}
-
 void usage(void)
 {
   io_log("execsrv usage:\n");
@@ -275,13 +84,13 @@ void event_thread(void)
   l4_threadid_t tid;
   int rc;
 
-  if (!l4events_init())
+  if (! l4events_init() )
   {
     io_log("l4events_init() failed\n");
     return;
   }
 
-  if ((rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
+  if ( (rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
   {
     io_log("l4events_register failed\n");
     return;
@@ -290,9 +99,9 @@ void event_thread(void)
   while(1)
   {
     /* wait for event */
-    if ((rc = l4events_give_ack_and_receive(&event_ch, &event, &event_nr,
+    if ( (rc = l4events_give_ack_and_receive(&event_ch, &event, &event_nr,
                                             L4_IPC_NEVER,
-                                            L4EVENTS_RECV_ACK))<0)
+                                            L4EVENTS_RECV_ACK)) < 0)
     {
       io_log("l4events_give_ack_and_receive()\n");
       continue;
@@ -306,7 +115,6 @@ void event_thread(void)
   }
 }
 #endif
-
 
 int main (int argc, char *argv[])
 {
@@ -325,7 +133,6 @@ int main (int argc, char *argv[])
                 { "events",      no_argument, NULL, 'e'},
                 { 0, 0, 0, 0}
                 };
-
   //init_globals();
 
   if (! names_register("os2exec"))
@@ -334,17 +141,20 @@ int main (int argc, char *argv[])
       return -1;
     }
 
-  if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  //if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  if ( CPClientInit() )
     {
       io_log("os2srv not found on name server!\n");
       return -1;
     }
 
-  if (! names_waitfor_name("os2fs", &fs, 30000))
+  //if (! names_waitfor_name("os2fs", &fs, 30000))
+  if ( FSClientInit() )
     {
       io_log("os2fs not found on name server!\n");
       return -1;
     }
+
   fprov_id = fs;
   io_log("os2fs tid:%x.%x\n", fs.id.task, fs.id.lthread);
 
@@ -386,17 +196,17 @@ int main (int argc, char *argv[])
   /* reserve the area below 64 Mb for application private code
      (not for use by libraries, loaded by execsrv) */
   addr = (void *)0x2f000; size = 0x04000000 - (unsigned long)addr;
-  if ((rc  = l4rm_direct_area_setup_region((l4_addr_t)addr,
+  if ( (rc  = l4rm_direct_area_setup_region((l4_addr_t)addr,
                                            size,
                                            L4RM_DEFAULT_REGION_AREA,
                                            L4RM_REGION_BLOCKED, 0,
-                                           L4_INVALID_ID)) < 0)
-    {
-      io_log("main(): setup region %x-%x failed (%d)!\n",
-        addr, addr + size, rc);
-      l4rm_show_region_list();
-      enter_kdebug("PANIC");
-    }
+                                           L4_INVALID_ID)) < 0 )
+  {
+    io_log("main(): setup region %x-%x failed (%d)!\n",
+           addr, addr + size, rc);
+    l4rm_show_region_list();
+    enter_kdebug("PANIC");
+  }
 
   // reserve the upper 1 Gb for shared memory arena
   rc = l4rm_area_reserve_region((l4_addr_t)shared_memory_base,
@@ -411,16 +221,20 @@ int main (int argc, char *argv[])
   memset (&options, 0, sizeof(options));
 
 #if 0
-  if (!CfgGetopt("debugmodmgr", &is_int, &value_int, (char **)&p))
+  if (! CfgGetopt("debugmodmgr", &is_int, &value_int, (char **)&p) )
+  {
     if (is_int)
       options.debugmodmgr = value_int;
+  }
 
-  if (!CfgGetopt("debugixfmgr", &is_int, &value_int, (char **)&p))
+  if (! CfgGetopt("debugixfmgr", &is_int, &value_int, (char **)&p) )
+  {
     if (is_int)
       options.debugixfmgr = value_int;
+  }
 
-  if (!CfgGetopt("libpath", &is_int, &value_int, (char **)&p))
-    if (!is_int)
+  if (! CfgGetopt("libpath", &is_int, &value_int, (char **)&p) )
+    if (! is_int)
     {
       options.libpath = (char *)malloc(strlen(p) + 1);
       strcpy(options.libpath, p);
@@ -513,5 +327,8 @@ int main (int argc, char *argv[])
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2exec_server_loop(&env);
+
+  FSClientDone();
+  CPClientDone();
   return 0;
 }

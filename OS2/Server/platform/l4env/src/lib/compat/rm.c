@@ -88,11 +88,11 @@ long RegAttachDataspaceToArea(l4_os3_dataspace_t ds,
 long RegLookupRegion(void               *addr,
                      void               **addr_new,
                      unsigned long      *size,
+                     unsigned long      *offset,
                      l4_os3_dataspace_t *ds)
 {
-    l4_offs_t     offset;
     l4_threadid_t pager;
     long ret = l4rm_lookup_region(addr, (l4_addr_t *)addr_new, (l4_size_t *)size,
-                                  &ds->ds, &offset, &pager);
+                                  &ds->ds, (l4_offs_t *)&offset, &pager);
     return ret;
 }

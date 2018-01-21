@@ -23,7 +23,7 @@ long ExcLoad(unsigned long *hmod,
              os2exec_module_t *s);
 
 long ExcShare(unsigned long hmod,
-              void *client_id);
+              l4_os3_thread_t client_id);
 
 long ExcGetImp(unsigned long hmod,
                unsigned long *index,
@@ -31,7 +31,7 @@ long ExcGetImp(unsigned long hmod,
 
 long ExcGetSect(unsigned long hmod,
                 unsigned long *index,
-                l4exec_section_t *sect);
+                l4_os3_section_t *sect);
 
 long ExcQueryProcAddr(unsigned long hmod,
                       unsigned long ordinal,
@@ -61,17 +61,17 @@ long ExcUnmapDataspace(void               *addr,
 long ExcGetDataspace(void               **addr,
                      unsigned long      *size,
                      l4_os3_dataspace_t *ds,
-                     l4_os3_cap_idx_t   client_id);
+                     l4_os3_thread_t    client_id);
 
 long ExcGetSharedMem(void *pb,
                      void **addr,
                      unsigned long *size,
-                     l4_os3_cap_idx_t *owner);
+                     l4_os3_thread_t *owner);
 
 long ExcGetNamedSharedMem(const char       *name,
                           void             **addr,
                           unsigned long    *size,
-                          l4_os3_cap_idx_t *owner);
+                          l4_os3_thread_t *owner);
 
 long ExcIncrementSharedMemRefcnt(void *addr);
 

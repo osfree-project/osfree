@@ -13,17 +13,19 @@
 #include <os3/dataspace.h>
 #include <os3/thread.h>
 #include <os3/err.h>
+#include <os3/rm.h>
 #include <os3/ipc.h>
 #include <os3/io.h>
 #include <os3/handlemgr.h>
 #include <os3/stacksw.h>
 #include <os3/kal.h>
 #include <os3/exec.h>
+#include <os3/cpi.h>
 #include <os3/fs.h>
 #include <os3/app.h>
 
 /* L4 includes */
-#include <l4/generic_ts/generic_ts.h> // l4ts_exit
+//#include <l4/generic_ts/generic_ts.h> // l4ts_exit
 #include <l4/semaphore/semaphore.h>
 #include <l4/dm_phys/dm_phys.h>
 #include <l4/lock/lock.h>
@@ -53,6 +55,7 @@ static ULONG ulThread = 1;
 
 /* Semaphore handle table pointer */
 HANDLE_TABLE *htSem;
+
 /* Handle table element           */
 typedef struct _SEM
 {
@@ -186,7 +189,7 @@ KalOpenL (PSZ pszFileName,
   char *filbuf = (char *)calloc(1, BUFLEN + 1);
 
   ULONG dsknum=0, plog=0, dirbuf_len=100, dirbuf_len2=100, dirbuf_len_out=100;
-  PBYTE dir_buf=calloc(1,dirbuf_len), 
+  PBYTE dir_buf=calloc(1,dirbuf_len),
          dir_buf2=calloc(1,dirbuf_len2), dir_buf_out=calloc(1,dirbuf_len_out);
   BYTE /*drive=0,*/ drive2=0;
 
@@ -245,7 +248,7 @@ KalOpenL (PSZ pszFileName,
   }
 
   /*  \config.sys               'c:' */
-  if((!isRelativePath(path)) ) {/* Add working directory from specified disk*/
+  if((! isRelativePath(path)) ) {/* Add working directory from specified disk*/
 
       strncat((char*)dir_buf_out, ":", 2);
       /* Is string in working directory? dir_buf2*/
@@ -385,7 +388,7 @@ KalLogWrite (PSZ s)
 VOID CDECL
 KalExit(ULONG action, ULONG result)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   PID pid;
   TID tid;
   KalEnter();
@@ -400,23 +403,25 @@ KalExit(ULONG action, ULONG result)
   {
     case EXIT_PROCESS:
       // send OS/2 server a message that we want to terminate
-      os2server_dos_Exit_send(&os2srv, action, result, &env);
+      //os2server_dos_Exit_send(&os2srv, action, result, &env);
+      CPClientExit(action, result);
       // tell L4 task server that we want to terminate
-      l4ts_exit();
+      TaskExit();
     default:
       if (tid == 1)
       {
         // last thread of this task: terminate task
-        os2server_dos_Exit_send(&os2srv, action, result, &env);
+        //os2server_dos_Exit_send(&os2srv, action, result, &env);
+        CPClientExit(action, result);
         // tell L4 task server that we want to terminate
-        l4ts_exit();
+        TaskExit();
       }
       else
       {
         // free thread TIB
         KalDestroyTIB(pid, tid);
         // terminate thread
-        l4thread_exit();
+        ThreadExit();
       }
   }
   KalQuit();
@@ -427,7 +432,7 @@ APIRET CDECL
 KalQueryCurrentDisk(PULONG pdisknum,
                         PULONG plogical)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
   //rc = os2fs_get_drivemap_call(&fs, plogical, &env);
@@ -440,7 +445,8 @@ KalQueryCurrentDisk(PULONG pdisknum,
     return rc;
   }
 
-  rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, &env);
+  //rc = os2server_dos_QueryCurrentDisk_call(&os2srv, pdisknum, &env);
+  rc = CPClientQueryCurrentDisk(pdisknum);
   KalQuit();
   return rc;
 }
@@ -448,10 +454,11 @@ KalQueryCurrentDisk(PULONG pdisknum,
 APIRET CDECL
 KalSetCurrentDir(PSZ pszDir)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2server_dos_SetCurrentDir_call(&os2srv, pszDir, &env);
+  //rc = os2server_dos_SetCurrentDir_call(&os2srv, pszDir, &env);
+  rc = CPClientSetCurrentDir(pszDir);
   KalQuit();
   return rc;
 }
@@ -459,7 +466,7 @@ KalSetCurrentDir(PSZ pszDir)
 APIRET CDECL
 KalSetDefaultDisk(ULONG disknum)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   ULONG map;
   KalEnter();
@@ -473,7 +480,8 @@ KalSetDefaultDisk(ULONG disknum)
     return rc;
   }
 
-  rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, map, &env);
+  //rc = os2server_dos_SetDefaultDisk_call(&os2srv, disknum, map, &env);
+  rc = CPClientSetDefaultDisk(disknum, map);
   KalQuit();
   return rc;
 }
@@ -483,7 +491,7 @@ KalQueryCurrentDir(ULONG disknum,
                        PBYTE pBuf,
                        PULONG pcbBuf)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   long rc = 0;
   ULONG map;
   KalEnter();
@@ -505,7 +513,8 @@ KalQueryCurrentDir(ULONG disknum,
     return rc;
   }
 
-  rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, map, &pBuf, pcbBuf, &env);
+  //rc = os2server_dos_QueryCurrentDir_call(&os2srv, disknum, map, &pBuf, pcbBuf, &env);
+  rc = CPClientQueryCurrentDir(disknum, map, &pBuf, pcbBuf);
   io_log("dos_QueryCurrentDir rc=%lu\n", rc);
 
   if (rc)
@@ -654,15 +663,15 @@ long attach_ds_area(l4_os3_dataspace_t ds, unsigned long area, unsigned long fla
 long attach_module (ULONG hmod, unsigned long long area)
 {
   //CORBA_Environment env = dice_default_environment;
-  l4exec_section_t sect;
+  l4_os3_section_t sect;
   l4_os3_dataspace_t ds;
-  l4dm_dataspace_t area_ds;
-  l4_uint32_t flags;
+  l4_os3_dataspace_t area_ds;
+  ULONG flags;
   void        *addr;
-  l4_addr_t   map_addr;
-  l4_size_t   map_size;
-  l4_offs_t   offset;
-  l4_threadid_t pager;
+  void        *map_addr;
+  ULONG       map_size;
+  ULONG       offset;
+  //l4_threadid_t pager;
   unsigned type;
   unsigned long index;
   ULONG rc;
@@ -671,22 +680,24 @@ long attach_module (ULONG hmod, unsigned long long area)
   //while (! os2exec_getsect_call (&execsrv, hmod, &index, &sect, &env) && !rc)
   while (! ExcClientGetSect (hmod, &index, &sect) && ! rc)
   {
-    ds.ds = sect.ds;
-    addr  = (void *)sect.addr;
-    type  = sect.info.type;
+    ds    = sect.ds;
+    addr  = sect.addr;
+    type  = sect.type;
     flags = 0;
 
-    if (type & L4_DSTYPE_READ)
+    if (type & SECTYPE_READ)
       flags |= L4DM_READ;
 
-    if (type & L4_DSTYPE_WRITE)
+    if (type & SECTYPE_WRITE)
       flags |= L4DM_WRITE;
 
-    if ((rc = l4rm_lookup(addr, &map_addr, &map_size,
-                    &area_ds, &offset, &pager)) != L4RM_REGION_DATASPACE)
+    //if ( (rc = l4rm_lookup(addr, &map_addr, &map_size,
+    //                &area_ds, &offset, &pager)) != L4RM_REGION_DATASPACE)
+    if (! (rc = RegLookupRegion(addr, &map_addr, &map_size, &offset,
+                    &area_ds)) )
     {
       rc = attach_ds_area (ds, area, flags, addr);
-      if (!rc) 
+      if (! rc)
         io_log("attached\n");
       else if (rc != -L4_EUSED)
       {
@@ -696,8 +707,8 @@ long attach_module (ULONG hmod, unsigned long long area)
     }
     else
     {
-      io_log("map_addr=%x, map_size=%u, area_ds=%x\n",
-          map_addr, map_size, area_ds);
+      //io_log("map_addr=%x, map_size=%u, area_ds=%x\n",
+        //  map_addr, map_size, area_ds);
       break;
     }
   }
@@ -734,10 +745,10 @@ long attach_all (ULONG hmod, unsigned long long area)
 
 unsigned long
 KalPvtLoadModule(char *pszName,
-              unsigned long *pcbName,
-              char const *pszModname,
-              os2exec_module_t *s,
-              PHMODULE phmod)
+                 unsigned long *pcbName,
+                 char const *pszModname,
+                 os2exec_module_t *s,
+                 PHMODULE phmod)
 {
   HMODULE hmod;
   ULONGLONG area;
@@ -833,7 +844,7 @@ KalExecPgm(char *pObjname,
            struct _RESULTCODES *pRes,
            char *pName)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
   ULONG disk, map;
   char buf[260];
@@ -907,7 +918,7 @@ KalExecPgm(char *pObjname,
 
     pName = strcat(str, pName);
 
-    if (!strstr(pName, ".exe"))
+    if (! strstr(pName, ".exe"))
       strcat(pName, ".exe");
   }
 
@@ -925,10 +936,15 @@ KalExecPgm(char *pObjname,
   j = strlstlen(pEnv);
   l = strlstlen(pArg);
 
-  rc =  os2server_dos_ExecPgm_call (&os2srv, &pObjname,
+  //rc =  os2server_dos_ExecPgm_call (&os2srv, &pObjname,
+    //                    &cbObjname, execFlag, pArg, i,
+    //                    pEnv, j,
+    //                    pRes, pName, &env);
+  rc =  CPClientExecPgm(&pObjname,
                         &cbObjname, execFlag, pArg, i,
                         pEnv, j,
-                        pRes, pName, &env);
+                        pRes, pName);
+
   io_log("=== rc=%lu\n", rc);
   KalQuit();
   return rc;
@@ -937,10 +953,11 @@ KalExecPgm(char *pObjname,
 APIRET CDECL
 KalError(ULONG error)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2server_dos_Error_call (&os2srv, error, &env);
+  //rc = os2server_dos_Error_call (&os2srv, error, &env);
+  rc = CPClientError(error);
   KalQuit();
   return rc;
 }
@@ -976,7 +993,7 @@ KalAllocMem(PVOID *ppb,
             ULONG cb,
             ULONG flags)
 {
-  l4_uint32_t rights = 0;
+  ULONG rights = 0;
   ULONGLONG area;
   l4_os3_dataspace_t ds;
   void *addr;
@@ -999,6 +1016,7 @@ KalAllocMem(PVOID *ppb,
   if (rc < 0)
   {
     KalQuit();
+
     switch (-rc)
     {
       case L4_ENOMEM:
@@ -1912,12 +1930,13 @@ KalQueryHType(HFILE handle,
 APIRET CDECL
 KalQueryDBCSEnv(ULONG cb,
                 COUNTRYCODE *pcc,
-		PBYTE pBuf)
+                PBYTE pBuf)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   int rc;
   KalEnter();
-  rc = os2server_dos_QueryDBCSEnv_call (&os2srv, &cb, pcc, &pBuf, &env);
+  //rc = os2server_dos_QueryDBCSEnv_call (&os2srv, &cb, pcc, &pBuf, &env);
+  rc = CPClientQueryDBCSEnv(&cb, pcc, &pBuf);
   KalQuit();
   return rc;
 }
@@ -1925,12 +1944,13 @@ KalQueryDBCSEnv(ULONG cb,
 APIRET CDECL
 KalQueryCp(ULONG cb,
            PULONG arCP,
-	   PULONG pcCP)
+           PULONG pcCP)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
   KalEnter();
-  rc = os2server_dos_QueryCp_call (&os2srv, &cb, (char **)&arCP, &env);
+  //rc = os2server_dos_QueryCp_call (&os2srv, &cb, (char **)&arCP, &env);
+  rc = CPClientQueryCp(&cb, (char **)&arCP);
   *pcCP = cb;
   KalQuit();
   return rc;
@@ -1940,7 +1960,7 @@ APIRET CDECL
 KalSetMaxFH(ULONG cFH)
 {
   CurMaxFH = cFH;
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
 APIRET CDECL
@@ -1948,7 +1968,7 @@ KalSetRelMaxFH(PLONG pcbReqCount, PULONG pcbCurMaxFH)
 {
   CurMaxFH += *pcbReqCount;
   *pcbCurMaxFH = CurMaxFH;
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
 APIRET CDECL
@@ -1958,7 +1978,7 @@ KalSleep(ULONG ms)
   l4_sleep(ms);
   KalQuit();
 
-  return 0; /* NO_ERROR */
+  return NO_ERROR;
 }
 
 APIRET CDECL
@@ -2303,11 +2323,12 @@ APIRET CDECL
 KalOpenEventSem(PSZ pszName,
                 PHEV phev)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_OpenEventSem_call(&os2srv, pszName, phev, &env);
+  //rc = os2server_dos_OpenEventSem_call(&os2srv, pszName, phev, &env);
+  rc = CPClientOpenEventSem(pszName, phev);
   KalQuit();
   return rc;
 }
@@ -2315,11 +2336,12 @@ KalOpenEventSem(PSZ pszName,
 APIRET CDECL
 KalCloseEventSem(HEV hev)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_CloseEventSem_call(&os2srv, hev, &env);
+  //rc = os2server_dos_CloseEventSem_call(&os2srv, hev, &env);
+  rc = CPClientCloseEventSem(hev);
   KalQuit();
   return rc;
 }
@@ -2330,11 +2352,12 @@ KalCreateEventSem(PSZ pszName,
                   ULONG flags,
                   BOOL32 fState)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_CreateEventSem_call(&os2srv, pszName, phev, flags, fState, &env);
+  //rc = os2server_dos_CreateEventSem_call(&os2srv, pszName, phev, flags, fState, &env);
+  rc = CPClientCreateEventSem(pszName, phev, flags, fState);
   KalQuit();
   return rc;
 }
@@ -2343,6 +2366,7 @@ void exit_func(l4thread_t tid, void *data)
 {
   l4_threadid_t t = l4thread_l4_id(l4thread_get_parent());
   l4_msgdope_t dope;
+
   // notify parent about our termination
   l4_ipc_send(t, (void *)(L4_IPC_SHORT_MSG | L4_IPC_DECEIT_MASK),
               tid, 0, L4_IPC_SEND_TIMEOUT_0, &dope);
@@ -2673,11 +2697,12 @@ KalKillThread(TID tid)
 APIRET CDECL
 KalGetTID(TID *ptid)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetTID_call(&os2srv, ptid, &env);
+  //rc = os2server_dos_GetTID_call(&os2srv, ptid, &env);
+  rc = CPClientGetTID(ptid);
   KalQuit();
   return rc;
 }
@@ -2686,11 +2711,12 @@ KalGetTID(TID *ptid)
 APIRET CDECL
 KalGetPID(PID *ppid)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetPID_call(&os2srv, ppid, &env);
+  //rc = os2server_dos_GetPID_call(&os2srv, ppid, &env);
+  rc = CPClientGetPID(ppid);
   KalQuit();
   return rc;
 }
@@ -2698,11 +2724,12 @@ KalGetPID(PID *ppid)
 APIRET CDECL
 KalGetNativeID(PID pid, TID tid, l4_os3_thread_t *id)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetNativeID_call(&os2srv, pid, tid, id, &env);
+  //rc = os2server_dos_GetNativeID_call(&os2srv, pid, tid, id, &env);
+  rc = CPClientGetNativeID(pid, tid, id);
   KalQuit();
   return rc;
 }
@@ -2710,11 +2737,12 @@ KalGetNativeID(PID pid, TID tid, l4_os3_thread_t *id)
 APIRET CDECL
 KalGetTIDNative(l4_os3_thread_t id, TID *ptid)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetTIDNative_call(&os2srv, &id, ptid,  &env);
+  //rc = os2server_dos_GetTIDNative_call(&os2srv, &id, ptid,  &env);
+  rc = CPClientGetTIDNative(&id, ptid);
   KalQuit();
   return rc;
 }
@@ -2722,11 +2750,12 @@ KalGetTIDNative(l4_os3_thread_t id, TID *ptid)
 APIRET CDECL
 KalNewTIB(PID pid, TID tid, l4_os3_thread_t id)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_NewTIB_call(&os2srv, pid, tid, &id, &env);
+  //rc = os2server_dos_NewTIB_call(&os2srv, pid, tid, &id, &env);
+  rc = CPClientNewTIB(pid, tid, &id);
   KalQuit();
   return rc;
 }
@@ -2735,11 +2764,12 @@ KalNewTIB(PID pid, TID tid, l4_os3_thread_t id)
 APIRET CDECL
 KalDestroyTIB(PID pid, TID tid)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_DestroyTIB_call(&os2srv, pid, tid, &env);
+  //rc = os2server_dos_DestroyTIB_call(&os2srv, pid, tid, &env);
+  rc = CPClientDestroyTIB(pid, tid);
   KalQuit();
   return rc;
 }
@@ -2748,13 +2778,14 @@ KalDestroyTIB(PID pid, TID tid)
 APIRET CDECL
 KalGetTIB(PTIB *ptib)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_os3_dataspace_t ds;
   void *addr;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetTIB_call(&os2srv, &ds.ds, &env);
+  //rc = os2server_dos_GetTIB_call(&os2srv, &ds.ds, &env);
+  rc = CPClientGetTIB(&ds);
 
   if (rc)
   {
@@ -2785,13 +2816,14 @@ KalGetTIB(PTIB *ptib)
 APIRET CDECL
 KalGetPIB(PPIB *ppib)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   l4_os3_dataspace_t ds;
   void *addr;
   APIRET rc;
 
   KalEnter();
-  rc = os2server_dos_GetPIB_call (&os2srv, &ds.ds, &env);
+  //rc = os2server_dos_GetPIB_call (&os2srv, &ds.ds, &env);
+  rc = CPClientGetPIB(&ds);
 
   if (rc)
   {

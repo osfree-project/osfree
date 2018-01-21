@@ -183,10 +183,10 @@ slist_t *
 next_slist (slist_t *s)
 {
   slist_t *p;
-  l4exec_section_t *section;
+  l4_os3_section_t *section;
 
   p = (slist_t *)malloc(sizeof(slist_t));
-  section = (l4exec_section_t *)malloc(sizeof(l4exec_section_t));
+  section = (l4_os3_section_t *)malloc(sizeof(l4_os3_section_t));
 
   if (s)  s->next = p;
 

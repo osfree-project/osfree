@@ -25,6 +25,7 @@
 
 /* osFree OS/2 personality internal */
 #include <os3/io.h>
+#include <os3/dataspace.h>
 #include <os3/cfgparser.h>
 #include <os3/loadobjlx.h>
 #include <os3/fixuplx.h>
@@ -118,19 +119,15 @@ int load_code_data_obj_lx(struct LX_module * lx_exe_mod, struct t_os2process * p
 
   /*   Allocates virtual memory for an object at an absolute virtual address.
        Some GNU/Linux specific flags to mmap(MAP_GROWSDOWN). */
-void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj) 
+void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 {
   struct LX_module *lx_exe_mod=(struct LX_module *)(ixfModule->FormatStruct);
   struct o32_obj *code_obj  = (struct o32_obj *) get_code(lx_exe_mod);
   struct o32_obj *stack_obj = (struct o32_obj *) get_data_stack(lx_exe_mod);
   //l4dm_dataspace_t ds;
-#ifdef L4API_l4v2
-  l4dm_dataspace_t ds;
-#else
-  unsigned long ds;
-#endif
+  l4_os3_dataspace_t ds;
   IXFSYSDEP        *ixfSysDep;
-  l4exec_section_t *section;
+  l4_os3_section_t *section;
   slist_t          *s;
   void             *mmap_obj = 0;
 #if 0 /*!defined(__OS2__) && !defined(__LINUX__) */
@@ -144,7 +141,7 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
         mmap_obj = malloc(lx_obj->o32_size);
   /* void * l4_alloc_mem(unsigned long area, int base, int size, int flags) */
   #else
-    #if 1 //def L4API_l4v2
+    #ifndef __OS2__
         #include <os3/l4_alloc_mem.h>
         // object map address in execsrv address space
         mmap_obj = l4_alloc_mem(ixfModule->area, lx_obj->o32_base, lx_obj->o32_size,
@@ -161,30 +158,26 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
         if (lx_obj == code_obj)
 	  ixfModule->EntryPoint = (void *)(lx_obj->o32_base + get_eip(lx_exe_mod));
 	  
-	section = (l4exec_section_t *)malloc(sizeof(l4exec_section_t));
+	section = (l4_os3_section_t *)malloc(sizeof(l4_os3_section_t));
         io_log("section=%x\n", section);
 	s = (slist_t *)malloc(sizeof(slist_t));
 	s->next = 0;
 	s->section = section;
-        if (!ixfSysDep->seclist) 
+        if (! ixfSysDep->seclist)
 	  ixfSysDep->seclist = s;
 	else
           lastelem(ixfSysDep->seclist)->next = s;
 	// fill in the section info
         // object map address in client task address space (not execsrv's)
-        if (!ixfModule->PIC) // for EXE files
+        if (! ixfModule->PIC) // for EXE files
 	  section->addr = (void *)lx_obj->o32_base;
 	else                 // for DLL files
 	  section->addr = (void *)mmap_obj;
 	section->size = lx_obj->o32_size;
 	io_log("ds=%x @ %x, size %u\n", ds, section->addr, section->size);
-#ifdef L4API_l4v2
-	section->info.type = L4_DSTYPE_READ | L4_DSTYPE_WRITE | L4_DSTYPE_EXECUTE;
-	section->info.id   = (unsigned short)ixfSysDep->secnum;
+	section->type = SECTYPE_READ | SECTYPE_WRITE | SECTYPE_EXECUTE;
+	section->id   = (unsigned short)ixfSysDep->secnum;
         section->ds = ds;
-#else
-        section->ds = (void *)ds;
-#endif
 	ixfSysDep->secnum++;
 	io_log("secnum=%u\n", ixfSysDep->secnum);
     #else

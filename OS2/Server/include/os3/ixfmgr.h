@@ -13,13 +13,26 @@ typedef unsigned long fnFixup(void * FormatStruct);
 
 typedef struct slist slist_t;
 
-// for l4exec_section_t
-#include <platform/ixfmgr.h>
+/* osFree internal */
+#include <os3/dataspace.h>
+
+#define SECTYPE_READ    0x0001
+#define SECTYPE_WRITE   0x0002
+#define SECTYPE_EXECUTE 0x0004
+
+typedef struct
+{
+  void               *addr;
+  unsigned long      size;
+  l4_os3_dataspace_t ds;
+  unsigned short     type;
+  unsigned short     id;
+} l4_os3_section_t;
 
 struct slist
 {
   struct slist     *next;
-  l4exec_section_t *section;
+  l4_os3_section_t *section;
 };
 
 typedef

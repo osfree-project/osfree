@@ -25,6 +25,8 @@ BOOL TaskEqual(l4_os3_thread_t one, l4_os3_thread_t two);
 
 void ThreadExit(void);
 
+void TaskExit(void);
+
 l4_os3_thread_t ThreadCreate(ThreadFunc fn, void *data, ULONG flags);
 
 #ifdef __cplusplus

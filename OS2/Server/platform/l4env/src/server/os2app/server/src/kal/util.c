@@ -71,7 +71,7 @@ unsigned char parse_drv(char *path) {
     return '\0';
 }
 
-/*  
+/*
   Only return path from presumed absolute path.*/
 char *parse_path(char *path, char *ret_buffer, int buf_len) {
 

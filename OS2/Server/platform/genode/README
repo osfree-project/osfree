@@ -50,7 +50,7 @@ uncomment the
 line and change -j4 to -j2 if you have a two-core machine (for a parallel build). If you
 don't want parallel building, leave this line commented out.
 
-Start the build process:
+Now you have a minimal set of code repos enabled. Start the build process:
 
 # make
 
@@ -63,11 +63,24 @@ the directions in the Scout window.
 
 When the demo scenario works, you could build osFree then. For that, you will need to go to
 build/linux/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
-then add the "os3" repository:
+then add the "os3" repository (add two lines like this at some place in etc/build.conf):
 
-REPOSITORIES += $(GENODE_DIR)/../os3/platform/genode
+export OS3_DIR=/mnt/os2l/src/l4/l4env/os3
+REPOSITORIES += $(OS3_DIR)/platform/genode
 
-where GENODE_DIR is the path to "genode" directory.
+Note that repos order does matter. Repos are searched in the order they are specified in
+etc/build.conf. Usually, I add the OS3 repo after "Optional repositories" line.
+
+The "libports" (and, probably, "ports" too) are needed because osFree needs libc. Genode
+uses libc ported from FreeBSD. So, you'll need to prepare the "libc" port first:
+
+# cd ../..
+
+You're now in the "genode" directory. Now run the following command:
+
+# ./tool/ports/prepare_port libc
+
+This will download the FreeBSD libc, and apply Genode-specific patches.
 
 Then go to the genode/build/linux directory:
 
@@ -77,4 +90,6 @@ Start osFree scenario build by:
 
 # make run/os2
 
-This should build all osFree OS/2 personality components and run it under Linux.
+This should build all osFree OS/2 personality components and run it under Genode/Linux.
+
+<add a note about how to run Genode via VNC or X11 remote connection>

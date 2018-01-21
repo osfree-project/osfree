@@ -13,7 +13,7 @@
 /* local includes */
 #include "api.h"
 
-long excShare(unsigned long hmod, void *client_id);
+long excShare(unsigned long hmod, l4_os3_thread_t client_id);
 
 int load_ixfs (void);
 void *get_ixf_handler(char *fmtname, IXFHandler **handler);
@@ -69,7 +69,7 @@ long ExcLoad(unsigned long *phmod,
     return rc;
 }
 
-long ExcShare(unsigned long hmod, void *client_id)
+long ExcShare(unsigned long hmod, l4_os3_thread_t client_id)
 {
     return excShare(hmod, client_id);
 }
@@ -122,7 +122,7 @@ long ExcGetImp(unsigned long hmod,
 
 long ExcGetSect(unsigned long hmod,
                 unsigned long *index,
-                l4exec_section_t *sect)
+                l4_os3_section_t *sect)
 {
     IXFModule *ixf;
     IXFSYSDEP *sysdep;
@@ -151,7 +151,7 @@ long ExcGetSect(unsigned long hmod,
       return 1; // set more real error
     }
 
-    memcpy((char *)sect, (char *)r->section, sizeof(l4exec_section_t));
+    memcpy((char *)sect, (char *)r->section, sizeof(l4_os3_section_t));
     ++ *index;
 
     return 0;
@@ -249,10 +249,10 @@ long ExcUnmapDataspace(void               *addr,
 long ExcGetDataspace(void               **addr,
                      unsigned long      *size,
                      l4_os3_dataspace_t *ds,
-                     l4_os3_cap_idx_t   client_id)
+                     l4_os3_thread_t    client_id)
 {
   //l4_threadid_t pager;
-  //l4_offs_t offset;
+  ULONG offset;
   //l4dm_dataspace_t temp_ds;
   int ret, rc = NO_ERROR;
 
@@ -260,7 +260,7 @@ long ExcGetDataspace(void               **addr,
     return ERROR_INVALID_PARAMETER;
 
   //ret = l4rm_lookup_region((void *)*addr, addr, size, &temp_ds, &offset, &pager);
-  ret = RegLookupRegion(*addr, addr, size, ds);
+  ret = RegLookupRegion(*addr, addr, size, &offset, ds);
 
   //if ( (ret == L4RM_REGION_DATASPACE) )
   if (! ret)
@@ -288,7 +288,7 @@ long ExcGetDataspace(void               **addr,
 long ExcGetSharedMem(void             *pb,
                      void             **addr,
                      unsigned long    *size,
-                     l4_os3_cap_idx_t *owner)
+                     l4_os3_thread_t  *owner)
 {
   vmdata_t *ptr;
 
@@ -307,7 +307,7 @@ long ExcGetSharedMem(void             *pb,
 long ExcGetNamedSharedMem(const char        *name,
                           void              **addr,
                           unsigned long     *size,
-                          l4_os3_cap_idx_t  *owner)
+                          l4_os3_thread_t   *owner)
 {
   vmdata_t *ptr;
 

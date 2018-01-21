@@ -3,18 +3,14 @@
  *
  */
 
-#ifndef __STACK_SW__
-#define __STACK_SW__
+#ifndef __OS3_STACKSW__
+#define __OS3_STACKSW__
 
 #ifdef __cplusplus
   extern "C" {
 #endif
 
-L4_INLINE unsigned long getstack(void);
-L4_INLINE void stackin(unsigned long new_stack);
-L4_INLINE void stackout(void);
-
-L4_INLINE unsigned long
+static inline unsigned long
 getstack(void)
 {
   unsigned long cur_stack;
@@ -22,12 +18,12 @@ getstack(void)
   asm volatile("movl  %%esp, %%eax \n\t"
                "movl  %%eax, %0 \n\t" 
                :"=m"  (cur_stack)
-	       :);
-	       
+               :);
+
   return cur_stack;
 }
 
-L4_INLINE void
+static inline void
 stackin(unsigned long new_stack)
 {
   asm volatile("movl   %0, %%edx \n\t"
@@ -36,21 +32,19 @@ stackin(unsigned long new_stack)
                "movl   %%edx,  %%esp \n\t"
                "pushl  %%eax \n\t" 
                "pushl  %%eax \n\t" 
-	       :
-	       :   "m"  (new_stack));
+               :
+               :   "m"  (new_stack));
 }
 
-L4_INLINE void
+static inline void
 stackout(void)
 {
   asm volatile("popl  %%eax \n\t"
                "popl  %%edx \n\t"
-	       "movl  %%eax, %%esp \n\t"
-	       :
-	       :);
+               "movl  %%eax, %%esp \n\t"
+               :
+               :);
 }
-
-//#define __SWITCH_STK__
 
 #ifdef __SWITCH_STK__
 #define STKINIT(a) __stack = getstack(); stackin(a);

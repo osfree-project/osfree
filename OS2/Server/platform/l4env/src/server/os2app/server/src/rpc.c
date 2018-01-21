@@ -56,7 +56,7 @@ os2app_app_AttachDataspace_component(CORBA_Object _dice_corba_obj,
 {
   l4_os3_dataspace_t temp_ds;
   temp_ds.ds = *ds;
-  return AppAttachDataspace(addr, temp_ds, rights);
+  return AppAttachDataspace((void *)addr, temp_ds, rights);
 }
 
 long DICE_CV

@@ -21,7 +21,7 @@
 extern "C"
 void *l4_alloc_mem(unsigned long long area, int base,
                    int size, int flags,
-                   unsigned long PIC, void *ds)
+                   unsigned long PIC, l4_os3_dataspace_t *ds)
 {
     int l4_flags = l4_translate_os2_flags(flags);
     l4_os3_dataspace_t temp_ds;

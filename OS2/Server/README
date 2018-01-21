@@ -12,12 +12,12 @@ create a symlink for osfree/OS2/Server (under the "os3" name):
 # cd ..
 # ln -s osfree/OS2/Server os3
 
-Then build the corresponding environment and osFree personality
+Then build the corresponding environment and OS/2 personality
 sources, based on it:
 
-For L4Env build, look into ./platform/l4env.
-For L4Re build, look into ./platform/l4re (incomplete so far).
-For Genode build, look into ./platform/genode.
+For L4Env build, look into ./platform/l4env (some functionality is working).
+For L4Re build, look into ./platform/l4re (only a stub for now).
+For Genode build, look into ./platform/genode (incomplete, yet).
 
 Look into README file in the corresponding environment specific
 directory for further instructions.

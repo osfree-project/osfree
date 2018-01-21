@@ -253,6 +253,7 @@ APIRET CPGetPIB(l4_os3_thread_t thread,
   PPIB ppib;
   APIRET rc;
   void *addr;
+  ULONG offset;
   ULONG size;
 
   // process PTDA
@@ -267,7 +268,7 @@ APIRET CPGetPIB(l4_os3_thread_t thread,
 
   //rc = l4rm_lookup_region(ppib, &addr, &size, ds,
     //                      &offset, &pager);
-  rc = RegLookupRegion(ppib, &addr, &size, ds);
+  rc = RegLookupRegion(ppib, &addr, &size, &offset, ds);
 
   if (rc < 0)
     return ERROR_INVALID_ADDRESS;
@@ -290,6 +291,7 @@ APIRET CPGetTIB(l4_os3_thread_t thread,
   PTIB ptib;
   TID  tid;
   void *addr;
+  ULONG offset;
   ULONG size;
   APIRET rc;
 
@@ -305,7 +307,7 @@ APIRET CPGetTIB(l4_os3_thread_t thread,
 
   //rc = l4rm_lookup_region(ptib, &addr, &size, ds,
     //                      &offset, &pager);
-  rc = RegLookupRegion(ptib, &addr, &size, ds);
+  rc = RegLookupRegion(ptib, &addr, &size, &offset, ds);
 
   if (rc < 0)
     return ERROR_INVALID_ADDRESS;
@@ -429,7 +431,7 @@ int cdir(char **dir, char *component)
 {
   char *p;
 
-  if (!strcmp(component, ".."))
+  if (! strcmp(component, "..") )
   {
     if (**dir)
     {
@@ -443,7 +445,7 @@ int cdir(char **dir, char *component)
     return 0; /* NO_ERROR */
   }
 
-  if (!strcmp(component, "."))
+  if (! strcmp(component, ".") )
     return 0;
 
   if (*component != '\\')
@@ -484,8 +486,10 @@ APIRET CPSetCurrentDir(l4_os3_thread_t thread,
   p = q = (char *)pszDir;
 
   for (r = p; *r; r++)
+  {
     if (*r == '/')
       *r = '\\';
+  }
 
   if (! strcmp(pszDir, "\\"))
   {
@@ -627,7 +631,7 @@ APIRET CPOpenEventSem(l4_os3_thread_t thread,
 
     if (sem)
     {
-      if (!sem->ulRefCnt)
+      if (! sem->ulRefCnt)
         return ERROR_TOO_MANY_OPENS;
 
       // increment refcount

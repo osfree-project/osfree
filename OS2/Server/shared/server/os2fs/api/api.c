@@ -8,6 +8,7 @@
 
 /* osFree internal */
 #include <os3/MountReg.h>
+#include <os3/cpi.h>
 #include <os3/kal.h>
 #include <os3/io.h>
 
@@ -29,8 +30,6 @@
 
 /* local includes */
 #include "api.h"
-
-//extern l4_threadid_t os2srv;
 
 extern struct FSRouter fsrouter;
 
@@ -1710,12 +1709,11 @@ APIRET FSQueryPathInfo(PSZ pszPathName,
             {
                 setdrivemap(&map);
                 len = sizeof(fname);
-                ////rc = os2server_dos_QueryCurrentDir_call(&os2srv, 0, map, (char **)&fname, &len, &env); // !!!!!
+                ////rc = CPClientQueryCurrentDir(0, map, (char **)&fname, &len);
 
                 ////if (rc)
                     ////return rc;
 
-                //rc = kalQueryCurrentDir(0, (char **)&fname, &len);
                 fname[len] = '\0';
                 strcat(fname, fn); // @todo implement global chars processing
                 len += strlen(fn);

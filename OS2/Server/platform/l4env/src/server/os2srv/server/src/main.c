@@ -34,23 +34,14 @@
 #include <os2.h>
 
 /* osFree internal */
-#include <os3/types.h>
 #include <os3/cfgparser.h>
 #include <os3/io.h>
-#include <os3/native_dynlink.h>
-#include <os3/modmgr.h>
-#include <os3/memmgr.h>
-#include <os3/processmgr.h>
-#include <os3/modlx.h>
-#include <os3/globals.h>
 #include <os3/thread.h>
-#include <os3/namespace.h>
-
-/* dice includes */
-#include <os3/ipc.h>
+#include <os3/cpi.h>
 
 /* l4env includes */
 #include <l4/sys/types.h>
+#include <l4/names/libnames.h>
 
 /* Servers RPC includes */
 #include "os2server-server.h"
@@ -69,8 +60,8 @@ char use_events = 0;
 l4_threadid_t fs;
 l4_threadid_t os2srv;
 l4_threadid_t fprov_id;
-l4_threadid_t dsm_id;
-l4_threadid_t loader_id;
+l4_os3_thread_t dsm_id;
+l4_os3_thread_t loader_id;
 l4_os3_thread_t sysinit_id;
 
 extern cfg_opts options;
@@ -101,15 +92,11 @@ void usage(void)
 
 int main(int argc, const char **argv)
 {
-  CORBA_srv_env env = default_srv_env;
-  //l4dm_dataspace_t ds;
+  CORBA_Server_Environment env = dice_default_server_environment;
   void     *addr;           // Pointer to CONFIG.SYS in memory
   unsigned long size;       // Size of CONFIG.SYS in memory
-  //l4_cap_idx_t tid;
   int rc;                   // Return code
-  //int step = 0;
   int opt = 0;
-  //char *drive=0;
   int optionid;
   const struct option long_options[] =
                 {
@@ -126,7 +113,7 @@ int main(int argc, const char **argv)
   io_log("osFree OS/2 Personality Server\n");
   io_log("argc=%d\n", argc);
 
-  if (! names_register("os2srv"))
+  if (! names_register("os2srv") )
   {
     io_log("Error registering on the name server\n");
     return 1;
@@ -193,36 +180,28 @@ int main(int argc, const char **argv)
   }
 
   io_log("waiting for LOADER server to be started...\n");
-  if (! names_waitfor_name("LOADER", &loader_id, 30000))
+
+  if (! names_waitfor_name("LOADER", &loader_id.thread, 30000))
     {
       io_log("Dynamic loader LOADER not found -- terminating\n");
       while (1) l4_sleep(0.1);
     }
-  io_log("loader id: %x.%x", loader_id.id.task, loader_id.id.lthread);
+
+  io_log("loader id: %x.%x", loader_id.thread.id.task, loader_id.thread.id.lthread);
 
   // query OS/2 server task id
-  os2srv = l4_myself();
+  //os2srv = l4_myself();
+  CPClientInit();
   io_log("OS/2 server uid=%x.%x\n", os2srv.id.task, os2srv.id.lthread);
 
   /* query default dataspace manager id */
-  dsm_id = l4env_get_default_dsm();
+  dsm_id.thread = l4env_get_default_dsm();
 
-  if (l4_is_invalid_id(dsm_id))
+  if (l4_is_invalid_id(dsm_id.thread))
   {
     printf("No dataspace manager found\n");
     return 2;
   }
-
-  // Initialize initial values from CONFIG.SYS
-  //rc = CfgInitOptions();
-
-  //if (rc != NO_ERROR)
-  //{
-    //io_log("Can't initialize CONFIG.SYS parser\n");
-    //return rc;
-  //}
-
-  //io_log("options.configfile=%s\n", options.configfile);
 
   // Load CONFIG.SYS into memory
   rc = io_load_file(options.configfile, &addr, &size);
@@ -248,12 +227,13 @@ int main(int argc, const char **argv)
   io_close_file(addr);
 
   // Perform the System initialization
-  os3_thread_create((void *)sysinit, (void *)&options, L4THREAD_CREATE_ASYNC);
+  ThreadCreate((void *)sysinit, (void *)&options, THREAD_ASYNC);
 
   // server loop
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2server_server_loop(&env);
 
+  CPClientDone();
   return rc;
 }

@@ -12,6 +12,7 @@
 /* osFree internal */
 #include <os3/l4_alloc_mem.h>
 #include <os3/cfgparser.h>
+#include <os3/dataspace.h>
 #include <os3/io.h>
 
 /* l4env includes */
@@ -110,7 +111,8 @@ void l4_test_mem_alloc(void) {
    above this comment.
      l4dm_map_pages has some difficulities, it needs to be run (I guess)
    from the thread it allocates mem to. */
-void * l4_alloc_mem(unsigned long long area, int base, int size, int flags, unsigned long PIC, void *ds)
+void *l4_alloc_mem(unsigned long long area, int base, int size, int flags,
+                   unsigned long PIC, l4_os3_dataspace_t *ds)
 {
     /* L4/Fiasco example*/
     int st;
@@ -125,7 +127,7 @@ void * l4_alloc_mem(unsigned long long area, int base, int size, int flags, unsi
                 l4_threadid_t,    l4_size_t, l4_addr_t, l4_uint32_t, const char *,  l4dm_dataspace_t
     */
  /* l4dm_mem_open(L4DM_DEFAULT_DSM, 8192,    0,         0,           "L4 RM Example", &ds); */
-    l4dm_mem_open(L4DM_DEFAULT_DSM, size,    4096,      l4_flags,    "L4 RM Example", (l4dm_dataspace_t *)ds);
+    l4dm_mem_open(L4DM_DEFAULT_DSM, size,    4096,      l4_flags,    "L4 RM Example", &ds->ds);
 
     /*          ds,               size,      ds_offs,   flags,       addr
                 l4dm_dataspace_t, l4_size_t, l4_offs_t, l4_uint32_t, void **
@@ -136,7 +138,7 @@ void * l4_alloc_mem(unsigned long long area, int base, int size, int flags, unsi
     //if (PIC)
     //{
       //st =  l4rm_attach(ds,             size,      0,      l4_flags,    &addr);
-      st = l4rm_area_attach((l4dm_dataspace_t *)ds,   (unsigned long)area,   size,      0,      l4_flags,    &addr);
+      st = l4rm_area_attach(&ds->ds,   (unsigned long)area,   size,      0,      l4_flags,    &addr);
     //} else {
     //  st = l4rm_attach_to_region(ds,    base,      size,   0,         l4_flags);
     //  addr = base;

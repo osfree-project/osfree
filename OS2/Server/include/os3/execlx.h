@@ -31,8 +31,6 @@
 
 void exec_lx(IXFModule *ixfModule, struct t_os2process * proc);
 //void l4_exec_lx(IXFModule *ixfModule, struct t_os2process * proc);
-void l4_exec(char *pName, char *params, l4_taskid_t *taskid);
-void l4_os2_exec(char *pName, struct t_os2process *proc);
 
 int test_elfexecf(const char* path);
 

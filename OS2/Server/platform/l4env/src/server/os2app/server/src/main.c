@@ -20,6 +20,7 @@
 #include <os3/exec.h>
 #include <os3/fs.h>
 //#include <os3/dl.h>
+#include <os3/cpi.h>
 #include <os3/io.h>
 #include <os3/stacksw.h>
 
@@ -102,12 +103,12 @@ void usage(void)
 VOID CDECL
 __exit(ULONG action, ULONG result)
 {
-  CORBA_Environment env = dice_default_environment;
+  //CORBA_Environment env = dice_default_environment;
   STKIN
   // send OS/2 server a message that we want to terminate
   io_log("action=%lu\n", action);
   io_log("result=%lu\n", result);
-  os2server_dos_Exit_send(&os2srv, action, result, &env);
+  CPClientExit(action, result);
   // tell L4 task server that we want to terminate
   //l4_ipc_sleep(L4_IPC_NEVER);
   l4ts_exit();
@@ -157,7 +158,7 @@ void event_thread(void)
 
 void server_loop(void)
 {
-  CORBA_srv_env env = default_srv_env;
+  CORBA_Server_Environment env = dice_default_server_environment;
   // server loop
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
@@ -167,8 +168,8 @@ void server_loop(void)
 int main (int argc, char *argv[])
 {
   //CORBA_srv_env env = default_srv_env;
-  l4thread_t thread;
-  l4_threadid_t tid;
+  l4_os3_thread_t thread;
+  //l4_threadid_t tid;
   int rc = 0;
   int optionid;
   int opt = 0;
@@ -179,7 +180,9 @@ int main (int argc, char *argv[])
                 { 0, 0, 0, 0}
                 };
 
-  if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  enter_kdebug("dbg");
+  //if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  if ( (rc = CPClientInit()) )
     {
       io_log("Can't find os2srv on names, exiting...\n");
       __exit(1, 1);
@@ -248,9 +251,12 @@ int main (int argc, char *argv[])
   l4env_infopage->memserv_id = dsm;
 
   // start server loop
-  thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
-  tid = l4thread_l4_id(thread);
-  service_lthread = tid.id.lthread;
+  //thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
+  thread = ThreadCreate((void *)server_loop, 0, THREAD_ASYNC);
+  //tid = l4thread_l4_id(thread);
+  //tid = thread.thread;
+  //service_lthread = thread.id.lthread;
+  service_lthread = thread.thread.id.lthread;
 
   // Parse command line arguments
   for (;;)
@@ -312,5 +318,6 @@ int main (int argc, char *argv[])
 
   FSClientDone();
   ExcClientDone();
+  CPClientDone();
   return 0;
 }

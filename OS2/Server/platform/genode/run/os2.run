@@ -17,6 +17,7 @@ build {
   lib/memmgr
   lib/ixf/ne
   lib/ixf/lx
+  server/os2srv
   server/os2exec
   server/os2fs
   app/os2app
@@ -41,8 +42,17 @@ install_config {
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
 	<default caps="100"/>
+	<start name="os2srv">
+		<resource name="RAM" quantum="2M"/>
+		<provides>
+			<service name="cpi"/>
+		</provides>
+		<config verbose="yes">
+			<config-file value="config.sys"/>
+		</config>
+	</start>
 	<start name="os2fs">
-		<resource name="RAM" quantum="8M"/>
+		<resource name="RAM" quantum="12M"/>
 		<provides>
 			<service name="ROM"/>
 			<service name="os2fs"/>
@@ -98,6 +108,7 @@ set bootimage {
   config.sys
   lx.ixf
   ne.ixf
+  os2srv
   os2exec
   os2fs
   os2app

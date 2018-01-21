@@ -1,4 +1,4 @@
-/* os2exec client RPC API (Genode platform) */
+/* os2exec client-side RPC API (Genode platform) */
 
 /* OS/2 API includes */
 #define  INCL_BASE
@@ -111,19 +111,19 @@ APIRET ExcClientGetImp(HMODULE hmod,
 extern "C"
 APIRET ExcClientGetSect(HMODULE hmod,
                         ULONG *index,
-                        l4exec_section_t *sect)
+                        l4_os3_section_t *sect)
 {
     Genode::Ram_dataspace_capability sect_ds;
     Genode::Env &env = genode_env();
     char *addr;
     APIRET rc;
 
-    sect_ds = env.ram().alloc(sizeof(l4exec_section_t));
+    sect_ds = env.ram().alloc(sizeof(l4_os3_section_t));
     addr = env.rm().attach(sect_ds);
 
     rc = exec->getsect(hmod, index, sect_ds);
 
-    Genode::memcpy(sect, addr, sizeof(l4exec_section_t));
+    Genode::memcpy(sect, addr, sizeof(l4_os3_section_t));
     env.rm().detach(addr);
     env.ram().free(sect_ds);
     return rc;

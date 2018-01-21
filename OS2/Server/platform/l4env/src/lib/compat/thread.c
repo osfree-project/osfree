@@ -10,6 +10,7 @@
 /* l4env includes */
 #include <l4/sys/types.h>
 #include <l4/thread/thread.h>
+#include <l4/generic_ts/generic_ts.h>
 
 BOOL ThreadEqual(l4_os3_thread_t one, l4_os3_thread_t two)
 {
@@ -24,6 +25,11 @@ BOOL TaskEqual(l4_os3_thread_t one, l4_os3_thread_t two)
 void ThreadExit(void)
 {
     l4thread_exit();
+}
+
+void TaskExit(void)
+{
+    l4ts_exit();
 }
 
 l4_os3_thread_t ThreadCreate(ThreadFunc fn, void *data, ULONG flags)

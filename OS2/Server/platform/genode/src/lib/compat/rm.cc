@@ -73,6 +73,7 @@ extern "C"
 long RegLookupRegion(void               *addr,
                      void               **addr_new,
                      unsigned long      *size,
+                     unsigned long      *offset,
                      l4_os3_dataspace_t *ds)
 {
     return 0;

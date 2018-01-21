@@ -88,6 +88,8 @@ long DataspaceShare(l4_os3_dataspace_t ds,
                     l4_os3_cap_idx_t   client_id,
                     unsigned long      rights)
 {
+    /* nothing to do on Genode, because dataspace is shared
+       automagically, when delegating the capability */
     return 0;
 }
 

@@ -14,6 +14,7 @@
 /* osFree internal */
 #include <os3/thread.h>
 #include <os3/loader.h>
+#include <os3/dataspace.h>
 #include <os3/processmgr.h>
 
 APIRET CPClientInit(void);

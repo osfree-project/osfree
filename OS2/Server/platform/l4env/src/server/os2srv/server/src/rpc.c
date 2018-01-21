@@ -13,7 +13,7 @@
 #include <os3/cpi.h>
 
 /* IPC includes (dice) */
-#include <os3/ipc.h>
+#include <dice/dice.h>
 
 /* os2srv RPC includes */
 #include <os2server-client.h>
@@ -32,23 +32,23 @@
 
 extern struct t_os2process *proc_root;
 
-APIRET CV
+APIRET DICE_CV
 os2server_cfg_getenv_component (CORBA_Object _obj,
                                 const char* name /* in */,
                                 char* *value /* out */,
-                                CORBA_srv_env *_env)
+                                CORBA_Server_Environment *_env)
 {
   return CPCfgGetenv(name, value);
 }
 
 
-APIRET CV
+APIRET DICE_CV
 os2server_cfg_getopt_component (CORBA_Object _obj,
                                 const char* name,
                                 int *is_int,
                                 int *value_int,
                                 char* *value_str,
-                                CORBA_srv_env *_env)
+                                CORBA_Server_Environment *_env)
 {
   return CPCfgGetopt(name, is_int, value_int, value_str);
 }
@@ -78,10 +78,10 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
   io_log("*** tid=%d\n", l4thread_id(*_dice_corba_obj));
 }
 
-void CV
+void DICE_CV
 os2server_dos_Exit_component(CORBA_Object obj,
                              ULONG action, ULONG result,
-                             CORBA_srv_env *_srv_env)
+                             CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -90,14 +90,14 @@ os2server_dos_Exit_component(CORBA_Object obj,
 }
 
 /* notifier for main DosExecPgm component */
-void CV
+void DICE_CV
 os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
                             const l4_threadid_t *job /* in */,
                             const char* pObjname /* in */,
                             int cbObjname /* in */,
                             const struct _RESULTCODES *pRes /* in */,
                             int result /* in */,
-                            CORBA_srv_env *_srv_env)
+                            CORBA_Server_Environment *_srv_env)
 {
   io_log("pRes=%lx\n", (ULONG)pRes);
   io_log("pObjname=%lx\n", (ULONG)pObjname);
@@ -109,7 +109,7 @@ os2server_dos_ExecPgm_notify_component (CORBA_Object obj,
                                (long *)&cbObjname, (struct _RESULTCODES *)pRes, _srv_env);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_ExecPgm_component (CORBA_Object obj,
                                  char **pObjname /* in, out */,
                                  long *cbObjname /* in, out */,
@@ -121,7 +121,7 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
                                  struct _RESULTCODES *pRes /* in, out */,
                                  const char* pName /* in */,
                                  short *dice_reply,
-                                 CORBA_srv_env *_srv_env)
+                                 CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
   APIRET rc;
@@ -135,10 +135,10 @@ os2server_dos_ExecPgm_component (CORBA_Object obj,
   return rc;
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_GetPIB_component (CORBA_Object obj,
                                 l4dm_dataspace_t *ds /* out */,
-                                CORBA_srv_env *_srv_env)
+                                CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
   l4_os3_dataspace_t tmp_ds;
@@ -152,10 +152,10 @@ os2server_dos_GetPIB_component (CORBA_Object obj,
   return rc;
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_GetTIB_component (CORBA_Object obj,
                                 l4dm_dataspace_t *ds /* out */,
-                                CORBA_srv_env *_srv_env)
+                                CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
   l4_os3_dataspace_t tmp_ds;
@@ -169,38 +169,38 @@ os2server_dos_GetTIB_component (CORBA_Object obj,
   return rc;
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_Error_component (CORBA_Object obj,
                                ULONG error /* in */,
-                               CORBA_srv_env *_srv_env)
+                               CORBA_Server_Environment *_srv_env)
 {
   return CPError(error);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_QueryDBCSEnv_component (CORBA_Object obj,
                                       ULONG *cb /* in, out */,
                                       const COUNTRYCODE *pcc /* out */,
                                       char **pBuf /* in */,
-                                      CORBA_srv_env *_srv_env)
+                                      CORBA_Server_Environment *_srv_env)
 {
   return CPQueryDBCSEnv(cb, pcc, pBuf);
 }
 
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_QueryCp_component (CORBA_Object obj,
                                  ULONG *cb /* in, out */,
                                  char  **arCP /* out */,
-                                 CORBA_srv_env *_srv_env)
+                                 CORBA_Server_Environment *_srv_env)
 {
   return CPQueryCp(cb, arCP);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
                                           ULONG *pdisknum /* out */,
-                                          CORBA_srv_env *_srv_env)
+                                          CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -208,13 +208,13 @@ os2server_dos_QueryCurrentDisk_component (CORBA_Object obj,
   return CPQueryCurrentDisk(thread, pdisknum);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
                                          ULONG disknum /* in */,
                                          ULONG logical /* in */,
                                          char **pBuf /* out */,
                                          ULONG *pcbBuf /* out */,
-                                         CORBA_srv_env *_srv_env)
+                                         CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -223,10 +223,10 @@ os2server_dos_QueryCurrentDir_component (CORBA_Object obj,
                            pBuf, pcbBuf);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_SetCurrentDir_component (CORBA_Object obj,
                                        PCSZ pszDir /* in */,
-                                       CORBA_srv_env *_srv_env)
+                                       CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -234,11 +234,11 @@ os2server_dos_SetCurrentDir_component (CORBA_Object obj,
   return CPSetCurrentDir(thread, pszDir);
 }
 
-APIRET CV
+APIRET DICE_CV
 os2server_dos_SetDefaultDisk_component (CORBA_Object obj,
                                         ULONG disknum /* in */,
                                         ULONG logical /* in */,
-                                        CORBA_srv_env *_srv_env)
+                                        CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -252,7 +252,7 @@ os2server_dos_CreateEventSem_component (CORBA_Object obj,
                                         HEV *phev /* out */,
                                         ULONG flAttr /* in */,
                                         BOOL32 fState /* in */,
-                                        CORBA_srv_env *_srv_env)
+                                        CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -265,7 +265,7 @@ APIRET DICE_CV
 os2server_dos_OpenEventSem_component (CORBA_Object obj,
                                       const char* pszName /* in */,
                                       HEV *phev /* in, out */,
-                                      CORBA_srv_env *_srv_env)
+                                      CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -276,7 +276,7 @@ os2server_dos_OpenEventSem_component (CORBA_Object obj,
 APIRET DICE_CV
 os2server_dos_CloseEventSem_component (CORBA_Object obj,
                                        HEV hev /* in */,
-                                       CORBA_srv_env *_srv_env)
+                                       CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
 
@@ -287,7 +287,7 @@ os2server_dos_CloseEventSem_component (CORBA_Object obj,
 APIRET DICE_CV
 os2server_dos_GetTID_component (CORBA_Object obj,
                                 TID *ptid /* out */,
-                                CORBA_srv_env *_srv_env)
+                                CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
   thread.thread = *obj;
@@ -298,7 +298,7 @@ os2server_dos_GetTID_component (CORBA_Object obj,
 APIRET DICE_CV
 os2server_dos_GetPID_component (CORBA_Object obj,
                                 PID *ppid /* out */,
-                                CORBA_srv_env *_srv_env)
+                                CORBA_Server_Environment *_srv_env)
 {
   l4_os3_thread_t thread;
   thread.thread = *obj;
@@ -311,7 +311,7 @@ os2server_dos_GetNativeID_component (CORBA_Object obj,
                                      PID pid /* in */,
                                      TID tid /* in */,
                                      l4_os3_thread_t *id /* out */,
-                                     CORBA_srv_env *_srv_env)
+                                     CORBA_Server_Environment *_srv_env)
 {
   return CPGetNativeID(pid, tid, id);
 }
@@ -320,7 +320,7 @@ APIRET DICE_CV
 os2server_dos_GetTIDNative_component (CORBA_Object obj,
                                       const l4_os3_thread_t *id /* in */,
                                       TID *ptid /* out */,
-                                      CORBA_srv_env *_srv_env)
+                                      CORBA_Server_Environment *_srv_env)
 {
   return CPGetTIDNative(id, ptid);
 }
@@ -330,7 +330,7 @@ os2server_dos_NewTIB_component (CORBA_Object obj,
                                 PID pid /* in */,
                                 TID tid /* in */,
                                 const l4_os3_thread_t *id /* in */,
-                                CORBA_srv_env *_srv_env)
+                                CORBA_Server_Environment *_srv_env)
 {
   return CPNewTIB(pid, tid, id);
 }
@@ -339,7 +339,7 @@ APIRET DICE_CV
 os2server_dos_DestroyTIB_component (CORBA_Object obj,
                                     PID pid /* in */,
                                     TID tid /* in */,
-                                    CORBA_srv_env *_srv_env)
+                                    CORBA_Server_Environment *_srv_env)
 {
   return CPDestroyTIB(pid, tid);
 }

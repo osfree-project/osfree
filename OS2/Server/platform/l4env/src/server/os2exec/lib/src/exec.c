@@ -80,7 +80,7 @@ APIRET ExcClientGetImp(HMODULE hmod,
 
 APIRET ExcClientGetSect(HMODULE hmod,
                         ULONG *index,
-                        l4exec_section_t *sect)
+                        l4_os3_section_t *sect)
 {
     CORBA_Environment env = dice_default_environment;
     long ret;

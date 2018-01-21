@@ -19,15 +19,17 @@
 */
 
 /* osFree internal */
-#include <os3/err.h>
 #include <os3/types.h>
 #include <os3/dataspace.h>
 #include <os3/rm.h>
-#include <os3/modmgr.h>
-#include <os3/ixfmgr.h>
-#include <os3/execlx.h>
-#include <os3/fixuplx.h>
+#include <os3/processmgr.h>
+#include <os3/loader.h>
 #include <os3/io.h>
+
+/* L4 includes */
+#include <l4/loader/loader-client.h>
+#include <l4/sys/types.h>
+#include <l4/env/errno.h>
 
 /* libc includes */
 #include <stdio.h>
@@ -35,24 +37,16 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-/* L4 includes */
-#include <l4/loader/loader-client.h>
-#include <l4/sys/types.h>
-
 // servers thread ids
-extern l4_threadid_t os2srv;
-extern l4_threadid_t loader_id;
 extern l4_threadid_t fprov_id;
-extern l4_threadid_t dsm_id;
 
-int l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid);
-int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc);
+extern l4_os3_thread_t dsm_id;
+extern l4_os3_thread_t loader_id;
 
 // use events server
 extern char use_events;
 
-int
-l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
+int LoaderExec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
 {
   #define MAX_TASK_ID 16
   CORBA_Environment env = dice_default_environment;
@@ -63,7 +57,6 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
   char error_msg[1024];
   char *ptr = error_msg;
   l4_os3_dataspace_t ds = INVALID_DATASPACE;
-  l4_os3_thread_t dsm_thread;
   char str[64] = "";
   void *addr;
   int error;
@@ -82,11 +75,11 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
   io_log("parm=\"%s\"\n", parm);
 
   /* RPC call to DM_PHYS (create a dataspace) */
-  dsm_thread.thread = dsm_id;
+  //dsm_thread.thread = dsm_id;
   //if (if_l4dm_mem_open_call(&dsm_id, 1024, 0, 0,
     //                        name, &ds, &env))
   //if (l4os3_ds_allocate(ds, 0, 1024))
-  if (DataspaceAlloc(&ds, 0, dsm_thread, 1024))
+  if (DataspaceAlloc(&ds, 0, dsm_id, 1024))
     {
       io_log("Can't allocate a dataspace!\n");
       while (1) { l4_sleep(0.1); }
@@ -111,14 +104,18 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
           cmd, str, parm);
 
   /* detach dataspace */
-  l4rm_detach((void *)addr);
+  //l4rm_detach((void *)addr);
+  RegDetach(addr);
 
   /* share dataspace to loader */
   l4dm_transfer(&ds.ds,              // dataspace
-                loader_id);          // taskid
+                loader_id.thread);          // taskid
+  //DataspaceShare(ds,                  // dataspace
+    //             loader_id,
+    //             L4DM_RW);            // taskid
 
   /* RPC to L4 loader to start OS/2 app L4 startup */
-  if ((error = l4loader_app_open_call(&loader_id, &ds.ds, cmd_buf,
+  if ((error = l4loader_app_open_call(&loader_id.thread, &ds.ds, cmd_buf,
                                       &fprov_id, 0, task_ids,
                                       &ptr, &env)) < 0)
   {
@@ -144,14 +141,14 @@ l4os3_exec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
 }
 
 
-int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc)
+int LoaderExecOS2(char *pName, int consoleno, struct t_os2process *proc)
 {
     l4_os3_task_t taskid;
     char str[16];
     int rc;
 
     sprintf(str, "/dev/vc%d", consoleno);
-    rc = l4os3_exec("os2app", pName, str, &taskid);
+    rc = LoaderExec("os2app", pName, str, &taskid);
     proc->task = taskid;
     return rc;
 }

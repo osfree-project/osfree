@@ -3,39 +3,20 @@
 #include <os2.h>
 
 /* osFree internal includes */
-#include <os3/ixfmgr.h>
-#include <os3/processmgr.h>
 #include <os3/stacksw.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
-//#include <os3/apistub.h>
 #include <os3/types.h>
+#include <os3/cpi.h>
 #include <os3/kal.h>
-//#include <os3/dl.h>
 #include <os3/io.h>
 
 /* l4env includes */
 #include <l4/names/libnames.h>
 #include <l4/sys/segment.h>
 
-/* OS/2 server RPC call includes */
-#include <l4/os2srv/os2server-client.h>
-
-/* exec server RPC call includes */
-#include <l4/os2exec/os2exec-client.h>
-
-/* DICE includes                 */
-#include <dice/dice.h>
-
 /* libc includes */
 #include <stdio.h> // sprintf
-
-/* fs server thread id   */
-extern l4_threadid_t fs;
-/* OS/2 server thread id */
-extern l4_threadid_t os2srv;
-/* exec server thread id */
-extern l4_threadid_t execsrv;
 
 extern unsigned long __stack;
 /* application info blocks */
@@ -127,8 +108,8 @@ trampoline(struct param *param)
 
 APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
-  CORBA_Environment env = dice_default_environment;
-  vmdata_t *ptr;
+  //CORBA_Environment env = dice_default_environment;
+  //vmdata_t *ptr;
   struct param param;
   APIRET rc;
   /* Error info from LoadModule */
@@ -141,7 +122,8 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   int i;
 
   /* notify OS/2 server about parameters got from execsrv */
-  os2server_app_notify1_call (&os2srv, &env);
+  //os2server_app_notify1_call (&os2srv, &env);
+  CPClientAppNotify1();
 
   /* Load the LX executable */
   rc = KalPvtLoadModule(pszLoadError, &cbLoadError,
@@ -163,7 +145,8 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   strcpy(s.path, name);
 
   /* notify OS/2 server about parameters got from execsrv */
-  os2server_app_notify2_call (&os2srv, &s, &env);
+  //os2server_app_notify2_call (&os2srv, &s, &env);
+  CPClientAppNotify2(&s);
 
   STKINIT(__stack - 0x800)
 

@@ -11,7 +11,7 @@
 /* osFree internal */
 #include <os3/cfgparser.h>
 #include <os3/processmgr.h>
-#include <os3/execlx.h>
+#include <os3/loader.h>
 #include <os3/io.h>
 
 /* l4env includes */
@@ -20,9 +20,9 @@
 
 /* libc includes */
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
-//extern l4_threadid_t fs;
 extern l4_os3_thread_t sysinit_id;
 
 /* use events server */
@@ -39,8 +39,6 @@ void destroy_env(char *pEnv);
 char *basename(char *cmdline);
 char *skipto (int flag, char *s);
 char *getcmd (char *s);
-
-void l4os3_exec(char *cmd, char *params, char *vc, l4_taskid_t *taskid);
 
 char cmdbuf[1024];
 
@@ -82,7 +80,7 @@ void create_env(char **pEnv)
   // create global environment array
   for (i = 0; i < 5; i++)
   {
-    if (!strcmp(type[i].name, "SET"))
+    if (! strcmp(type[i].name, "SET"))
     {
       cntVars = type[i].ip;
       envp = (char **)malloc((cntVars + 1) * sizeof(char *));
@@ -146,6 +144,7 @@ void exec_protshell(cfg_opts *options)
 
   // Clean up config data
   rc = CfgCleanup();
+
   if (rc != NO_ERROR)
     io_log("CONFIG.SYS parser cleanup error.\n");
 }
@@ -165,6 +164,7 @@ exec_runserver(int ppid)
   for (i = 0; i < 5; i++)
   {
     name = (char *)type[i].name;
+
     io_log("name=%s\n", name);
     if (! strcmp(name, "RUNSERVER"))
     {
@@ -184,8 +184,8 @@ exec_runserver(int ppid)
 
         free(q);
 
-        l4os3_exec (p, params, NULL, &tid);
-        io_log("started task: %x.%x\n", tid.thread.id.task, tid.thread.id.lthread);
+        LoaderExec (p, params, NULL, &tid);
+        //io_log("started task: %x.%x\n", tid.thread.id.task, tid.thread.id.lthread);
 
         /* set task number */
         proc->task = tid;
@@ -207,6 +207,7 @@ exec_runserver(int ppid)
         /* skip spaces and quotes */
         for (p = srv; *p == '"' || *p == ' '; p++) ;
 	srv = p;
+
 	for (p = srv + strlen(srv) - 1; *p == '"' || *p == ' '; p--) *p = '\0';
 	strcpy (server, srv);
 
@@ -276,7 +277,7 @@ int sysinit (cfg_opts *options)
   io_log("sem wait\n");
 
   if (! rc) // wait until child process (protshell) terminates (this will unblock us)
-    l4semaphore_down(&proc->term_sem);
+    SemaphoreDown(&proc->term_sem);
 
   io_log("done waiting\n");
 

@@ -29,7 +29,7 @@ ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
   Env &env = genode_env();
   size_t _size;
   IXFSYSDEP *sysdepSrc, *sysdepDst;
-  l4exec_section_t *section;
+  l4_os3_section_t *section;
   slist_t *s, *s0, *r;
   void *_addr;
   int  i, rc = NO_ERROR;
@@ -55,10 +55,10 @@ ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
       s->next = 0;
     }
 
-    section = new (alloc) l4exec_section_t;
+    section = new (alloc) l4_os3_section_t;
     s->section = section;
 
-    memcpy(section, s0->section, sizeof(l4exec_section_t));
+    memcpy(section, s0->section, sizeof(l4_os3_section_t));
 
     _size = Dataspace_client(*((Dataspace_capability *)s0->section->ds)).size();
 

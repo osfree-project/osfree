@@ -53,12 +53,12 @@ struct param
   //IXFSYSDEP *sysdep;
 
   /* OS/2-specific params */
-  unsigned long  eip;
-  unsigned long  esp;
+  void           *eip;
+  void           *esp;
   //unsigned short sel;
   PTIB           tib;
   PPIB           pib;
-  BYTE		 curdisk;
+  BYTE           curdisk;
 };
 
 /* GDT/LDT descriptor structure */

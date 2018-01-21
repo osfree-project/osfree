@@ -24,7 +24,7 @@
 /* os2fs server includes */
 #include <os2fs-server.h>
 
-//l4_threadid_t os2srv;
+l4_threadid_t os2srv;
 l4_threadid_t fprov_id;
 
 // use events server flag

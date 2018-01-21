@@ -104,7 +104,7 @@ public:
 	             unsigned long *index,
 	             Genode::Ram_dataspace_capability sect_ds)
 	{
-		l4exec_section_t *sect = env.rm().attach(sect_ds);
+		l4_os3_section_t *sect = env.rm().attach(sect_ds);
 
 		return ExcGetSect(hmod, index, sect);
 	}

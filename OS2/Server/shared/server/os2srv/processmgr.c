@@ -50,7 +50,7 @@ static int pid = -1;
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
 
-int l4os3_os2_exec(char *pName, int consoleno, struct t_os2process *proc);
+int LoaderExecOS2(char *pName, int consoleno, struct t_os2process *proc);
 
 extern struct module_rec module_root; /* Root for module list.*/
 
@@ -86,7 +86,7 @@ void *alloc_mem(int size, char *comment)
 void free_mem(void *addr)
 {
   l4_os3_dataspace_t ds;
-  //l4_addr_t     offset;
+  ULONG         offset;
   //l4_size_t     size;
   unsigned long size;
   //l4_threadid_t pager;
@@ -94,7 +94,7 @@ void free_mem(void *addr)
 
   //ret = l4rm_lookup_region(addr, (l4_addr_t *)&addr, &size, &ds,
     //                 &offset, &pager);
-  ret = RegLookupRegion(addr, &addr, &size, &ds);
+  ret = RegLookupRegion(addr, &addr, &size, &offset, &ds);
 
   if (ret < 0)
     return;
@@ -921,8 +921,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
                                  char * pName,
                                  unsigned long ppid)
 {
-  //CORBA_Environment env = dice_default_environment;
-  int rc=NO_ERROR;
+  int rc = NO_ERROR;
   struct t_os2process *proc;
   #define buf_size 4096
   char buf[buf_size+1];
@@ -957,7 +956,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   /* assign args and env      */
   //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
-  rc = l4os3_os2_exec(p_buf, 0, proc);
+  rc = LoaderExecOS2(p_buf, 0, proc);
 
   if (rc)
     return rc;
@@ -972,6 +971,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     case EXEC_BACKGROUND:
       pRes->codeTerminate = proc->pid;
       break;
+
     default:
       pRes->codeTerminate = 0; //TC_EXIT; // @todo real termination codes
   }
