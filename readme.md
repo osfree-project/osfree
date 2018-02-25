@@ -14,7 +14,7 @@ Windows.  Для  работы  скрипта tools\mkbin.cmd нужен инт
 интерпретатор.  И  самое главное,  нужен компилятор OpenWatcom! ;) Автор пробовал 
 как версию 1.3, так и более  новую  версию 1.5. Для установки переменных окружения 
 перед компиляцией используйте скрипт setvars.cmd -- для OS/2, .bat -- для Windows, 
-и .sh -- для Linux}.
+и .sh -- для Linux.
 
 ## English/Английский: osFree build system
 
@@ -26,7 +26,7 @@ OpenWatcom  compiler  is used for development. I tried OpenWatcom versions 1.3
 as  well  as  1.5.  Also,  for *.cmd scripts a REXX language interpreter is
 needed. For Linux and Windows users [Regina  REXX](http://regina-rexx.sourceforge.net/)
 may  be  used.  Before compilation, for setting  environment  variables,  use  
-setvars{.cmd  --  for OS/2, .bat -- for Windows, and .sh -- for Linux}.
+setvars.cmd  --  for OS/2, .bat -- for Windows, and .sh -- for Linux.
 
 Валерий В. Седлецкий / Valery V. Sedletski, aka [valerius](https://github.com/valerius2k)
 © [osFree project](http://osfree.org)
