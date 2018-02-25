@@ -1,6 +1,6 @@
 ![osFree Logo © Alex Kramer](http://osfree.org/doku/lib/tpl/adoradark-osf/images/osfree.png)
 
-#osFree, Open Source OS/2 Clone
+# osFree, Open Source OS/2 Clone
 
 osFree(OS/3): The reincarnation of OS/2.
 
