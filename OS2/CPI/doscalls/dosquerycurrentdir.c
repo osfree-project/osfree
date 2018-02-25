@@ -12,6 +12,7 @@ APIRET APIENTRY  DosQueryCurrentDir(ULONG disknum,
                           pBuf,
                           pcbBuf);
   log("pBuf=%s\n", pBuf);
-  log("cbBuf=%lx\n", *pcbBuf);
+  log("pcbBuf=%lx\n", pcbBuf);
+  log("*pcbBuf=%lu\n", *pcbBuf);
   return rc;
 }
