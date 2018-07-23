@@ -55,6 +55,7 @@ protected:
     Session_component *_create_session(const char *args)
     {
         return new (md_alloc()) Session_component(_env);
+        args = args;
     }
 
 public:

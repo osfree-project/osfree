@@ -4,6 +4,23 @@
 #include <os3/rm.h>
 
 /* Genode includes */
+//#include <dataspace/client.h>
+#include <dataspace/capability.h>
+#include <rom_session/connection.h>
+
+using namespace Genode;
+
+struct vmdata *root = NULL;
+
+struct vmdata
+{
+  void *addr;
+  unsigned long size;
+  unsigned long offset;
+  Dataspace_capability ds;
+  Rom_connection *rom;
+  struct vmdata *next, *prev;
+};
 
 extern "C"
 long RegAreaReserveInArea(unsigned long size,

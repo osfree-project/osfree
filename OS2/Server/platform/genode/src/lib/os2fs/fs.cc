@@ -143,6 +143,7 @@ APIRET FSClientOpenL(PSZ pszFileName,
                          ulAttribute,
                          fsOpenFlags,
                          fsOpenMode);
+    peaop2 = peaop2;
 }
 
 extern "C"

@@ -181,6 +181,11 @@ int main (int argc, char *argv[])
                 };
 
   enter_kdebug("dbg");
+  //asm("movb $0x30, %al \n\t"
+    //  "outb %al, $0x43 \n\t");
+  //asm("inb $0x21, %al \n\t"
+    //  "or  $1, %al \n\t"
+    //  "out %al, $0x21");
   //if (! names_waitfor_name("os2srv", &os2srv, 30000))
   if ( (rc = CPClientInit()) )
     {

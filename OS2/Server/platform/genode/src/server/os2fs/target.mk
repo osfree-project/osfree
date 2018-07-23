@@ -5,6 +5,6 @@ SRC_CC = main.cc
 SRC_C  = utility.c globals.c mountreg.c \
          api/api.c api/misc.c
 INC_DIR += $(OS3_DIR)/shared/server/os2fs/api
-LIBS   = libc compat
+LIBS   = base libc compat
 
 vpath %.c $(OS3_DIR)/shared/server/os2fs

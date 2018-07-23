@@ -18,11 +18,14 @@
 
 using namespace Genode;
 
-static struct vmdata *root = NULL;
+extern struct vmdata *root;
 
 struct vmdata
 {
   void *addr;
+  unsigned long size;
+  unsigned long offset;
+  Dataspace_capability ds;
   Rom_connection *rom;
   struct vmdata *next, *prev;
 };
@@ -78,6 +81,9 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
 
   /* fill in the new node */
   node->addr = *addr;
+  node->size = *size;
+  node->offset = 0;
+  node->ds = ds;
   node->rom = rom;
   node->next = NULL;
 

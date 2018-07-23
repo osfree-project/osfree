@@ -2,13 +2,15 @@
 # Build
 #
 
-set files   "$::env(OS3_DIR)/filesys/os2"
+set files   "${genode_dir}/repos/os3/shared/filesys/os2"
 
 set filelist { config.sys }
 
 build {
   core
   init
+  lib/vfs
+  lib/compat
   server/os2fs
   test/os2fs
 }
@@ -31,9 +33,9 @@ install_config {
 		<service name="ROM"> <child name="os2fs"/> <parent/> </service>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
-	<default caps="100"/>
+	<default caps="120"/>
 	<start name="os2fs">
-		<resource name="RAM" quantum="8M"/>
+		<resource name="RAM" quantum="10M"/>
 		<provides>
 			<service name="ROM"/>
 			<service name="os2fs"/>
@@ -49,7 +51,7 @@ install_config {
 		</route>
 	</start>
 	<start name="test-os2fs">
-		<resource name="RAM" quantum="2M"/>
+		<resource name="RAM" quantum="3M"/>
 	</start>
 </config>
 }
@@ -73,7 +75,9 @@ set bootimage {
   ld.lib.so
   libc.lib.so
   libm.lib.so
+  vfs.lib.so
   stdcxx.lib.so
+  compat.lib.so
   os2.tar
   os2fs
   test-os2fs

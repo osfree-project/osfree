@@ -120,7 +120,7 @@ struct OS2::Exec::Session : Genode::Session
 	           unsigned long *,
 	           Genode::Ram_dataspace_capability);
 	GENODE_RPC(Rpc_share, long, share,
-	           unsigned long)
+	           unsigned long);
 	GENODE_RPC(Rpc_getimp, long, getimp,
 	           unsigned long, unsigned long *, unsigned long *);
 	GENODE_RPC(Rpc_getsect, long, getsect,

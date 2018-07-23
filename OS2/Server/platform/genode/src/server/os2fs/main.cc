@@ -156,7 +156,7 @@ public:
         return Genode::static_cap_cast<Genode::Rom_dataspace>(ds);
     }
 
-    void sigh(Genode::Signal_context_capability sigh) { }
+    void sigh(Genode::Signal_context_capability sigh) { sigh = sigh; }
 
     // constructor
     Rom_session_component(Genode::Ram_session &ram, Genode::Region_map &rm,
@@ -394,6 +394,7 @@ protected:
     Fs_session_component *_create_session(const char *args)
     {
         return new (md_alloc()) Fs_session_component(_env);
+        args = args;
     }
 
 public:

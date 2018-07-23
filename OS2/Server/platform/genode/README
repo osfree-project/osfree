@@ -4,42 +4,33 @@ checkout Genode sources first (we assume you are in "osfree" directory now):
 
 Go to the parent directory:
 
-# cd ..
+! cd ..
 
 Main Genode source repo:
 
-# mkdir genode
-# cd genode
-# git clone https://github.com/genodelabs/genode.git .
+! mkdir genode
+! cd genode
+! git clone https://github.com/genodelabs/genode.git .
 
 Genode World repo (optional community-contributed components of Genode):
 
-# cd repos
-# mkdir world
-# cd world
-# git clone https://github.com/genodelabs/genode-world.git .
+! cd repos
+! mkdir world
+! cd world
+! git clone https://github.com/genodelabs/genode-world.git .
 
 Go to the "genode" dir
 
-# cd ../..
+! cd ../..
 
 Create a Genode build directory:
 
-# ./tool/create_builddir linux BUILD_DIR=./build/linux
-# cd build/linux
+! ./tool/create_builddir x86_32
+! cd build/x86_32
 
-Here we are creating the build directory for Linux Genode platform. There are also
-different other platforms, like Fiasco, Fiasco.OC, Nova, seL4, OKL4, HW etc.
-
-Now edit etc/specs.conf: change
-
-SPECS += x86_64
-
-to
-
-SPECS += x86_32
-
-if your Linux distribution is 32-bit. If it is 64-bit, then leave it as is.
+Here we are creating the build directory for x86_32 arch. There is a number
+of different platforms supported, like Linux kernel, Fiasco, Fiasco.OC, Nova,
+seL4, OKL4, HW etc. Most of them support both x86_32 and x86_64.
 
 Then edit etc/build.conf:
 
@@ -50,23 +41,41 @@ uncomment the
 line and change -j4 to -j2 if you have a two-core machine (for a parallel build). If you
 don't want parallel building, leave this line commented out.
 
+Set default kernel to "linux" (uncomment the following line)
+
+# KERNEL=linux
+
 Now you have a minimal set of code repos enabled. Start the build process:
 
-# make
+! make
 
 When everything is built, you can test the "Demo" scenario:
 
-# make run/demo
+! make run/demo
 
 The SDL window should appear which shows the Scout documentation browser. You can follow
 the directions in the Scout window.
 
+You can change the kernel by specifying e.g., KERNEL=nova on the command line:
+
+! make KERNEL=nova run/demo
+
 When the demo scenario works, you could build osFree then. For that, you will need to go to
-build/linux/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
+build/x86_32/etc/build.conf file and uncomment the "libports", "ports" source repositories, and
 then add the "os3" repository (add two lines like this at some place in etc/build.conf):
 
-export OS3_DIR=/mnt/os2l/src/l4/l4env/os3
-REPOSITORIES += $(OS3_DIR)/platform/genode
+REPOSITORIES += $(GENODE_DIR)/repos/os3
+
+You'll also need to create an "os3" symlink in "genode/repos" subdirectory to Genode-
+specific subdirectory of OS/2 personality sources:
+
+! cd genode/repos
+! ln -s <path_to_osfree_sources>/OS2/Server/platform/genode os3
+! cd os3
+! ln -s <path_to_osfree_sources>/OS2/Server shared
+
+Here we created the "os3" symlink to Genode-specific source tree of OS/2 personality, and
+then created the "shared" symlink to shared (platform-independent) sources.
 
 Note that repos order does matter. Repos are searched in the order they are specified in
 etc/build.conf. Usually, I add the OS3 repo after "Optional repositories" line.
@@ -82,9 +91,9 @@ You're now in the "genode" directory. Now run the following command:
 
 This will download the FreeBSD libc, and apply Genode-specific patches.
 
-Then go to the genode/build/linux directory:
+Then go to the genode/build/x86_32 directory:
 
-# cd genode/build/linux
+# cd genode/build/x86_32
 
 Start osFree scenario build by:
 
