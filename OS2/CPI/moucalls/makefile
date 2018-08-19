@@ -7,50 +7,53 @@
 PROJ     = moucalls
 TRGT     = $(PROJ).dll
 DESC     = Mouse API
-srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
+srcfiles = $(p)dllstart$(e)
 ADD_COPT    = -i=..\include -s
 ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-IMPORTS =  MouGetPtrShape              EMXWRAP.301, &
-           MouSetPtrShape              EMXWRAP.302, &
-           MouGetNumMickeys            EMXWRAP.303, &
-           MouGetScaleFact             EMXWRAP.306, &
-           MouFlushQue                 EMXWRAP.307, &
-           MouGetNumButtons            EMXWRAP.308, &
-           MouClose                    EMXWRAP.309, &
-           MouSetScaleFact             EMXWRAP.311, &
-           MouGetNumQueEl              EMXWRAP.313, &
-           MouDeRegister               EMXWRAP.314, &
-           MouGetEventMask             EMXWRAP.315, &
-           MouSetEventMask             EMXWRAP.316, &
-           MouOpen                     EMXWRAP.317, &
-           MouRemovePtr                EMXWRAP.318, &
-           MouGetPtrPos                EMXWRAP.319, &
-           MouReadEventQue             EMXWRAP.320, &
-           MouSetPtrPos                EMXWRAP.321, &
-           MouGetDevStatus             EMXWRAP.322, &
-           MouSynch                    EMXWRAP.323, &
-           MouRegister                 EMXWRAP.324, &
-           MouSetDevStatus             EMXWRAP.325, &
-           MouDrawPtr                  EMXWRAP.326, &
-           MouInitReal                 EMXWRAP.327, &
-           MouSetThreshold             EMXWRAP.329, &
-           MouGetThreshold             EMXWRAP.330
+IMPORTS =  MOUGETPTRSHAPE       DOSCALLS.719, &
+          MOUSETPTRSHAPE       DOSCALLS.720, &
+          MOUGETNUMMICKEYS     DOSCALLS.721, &
+          MOUGETHOTKEY         DOSCALLS.853, &
+          MOUSHELLINIT         DOSCALLS.723, &
+          MOUGETSCALEFACT      DOSCALLS.724, &
+          MOUFLUSHQUE          DOSCALLS.725, &
+          MOUGETNUMBUTTONS     DOSCALLS.726, &
+          MOUCLOSE             DOSCALLS.727, &
+          MOUSETHOTKEY         DOSCALLS.854, &
+          MOUSETSCALEFACT      DOSCALLS.729, &
+          MOUGETNUMQUEEL       DOSCALLS.730, &
+          MOUDEREGISTER        DOSCALLS.731, &
+          MOUGETEVENTMASK      DOSCALLS.732, &
+          MOUSETEVENTMASK      DOSCALLS.733, &
+          MOUOPEN              DOSCALLS.734, &
+          MOUREMOVEPTR         DOSCALLS.735, &
+          MOUGETPTRPOS         DOSCALLS.736, &
+          MOUREADEVENTQUE      DOSCALLS.737, &
+          MOUSETPTRPOS         DOSCALLS.738, &
+          MOUGETDEVSTATUS      DOSCALLS.739, &
+          MOUSYNCH             DOSCALLS.740, &
+          MOUREGISTER          DOSCALLS.741, &
+          MOUSETDEVSTATUS      DOSCALLS.742, &
+          MOUDRAWPTR           DOSCALLS.743, &
+          MOUINITREAL          DOSCALLS.744, &
+          MOUGETTHRESHOLD      DOSCALLS.722, &
+          MOUSETTHRESHOLD      DOSCALLS.728
 
 UNI2H = 1
 
 EXPORTS = MOUGETPTRSHAPE.1,    &
           MOUSETPTRSHAPE.2,    &
           MOUGETNUMMICKEYS.3,  &
-#          MOUGETHOTKEY.4,      &
-#          MOUSHELLINIT.5,      &
+          MOUGETHOTKEY.4,      &
+          MOUSHELLINIT.5,      &
           MOUGETSCALEFACT.6,   &
           MOUFLUSHQUE.7,       &
           MOUGETNUMBUTTONS.8,  &
           MOUCLOSE.9,          &
-#          MOUSETHOTKEY.10,     &
+          MOUSETHOTKEY.10,     &
           MOUSETSCALEFACT.11,  &
           MOUGETNUMQUEEL.13,   &
           MOUDEREGISTER.14,    &
