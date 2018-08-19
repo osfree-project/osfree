@@ -503,12 +503,6 @@ USHORT APIENTRY VioPopUp (PUSHORT pfWait,
 }
 
 
-USHORT APIENTRY VioEndPopUp (HVIO hvio)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY VioGetPhysBuf (PVIOPHYSBUF pvioPhysBuf,
                               USHORT usReserved)
 {

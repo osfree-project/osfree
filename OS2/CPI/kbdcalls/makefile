@@ -7,7 +7,7 @@
 PROJ     = kbdcalls
 TRGT     = $(PROJ).dll
 DESC     = Keyboard API
-srcfiles = $(p)wrap$(e) $(p)dllstart$(e)
+srcfiles = $(p)dllstart$(e)
 ADD_COPT    = -i=..\include -s
 ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1

@@ -35,6 +35,7 @@ srcfiles = $(p)msg$(e) &
            $(p)dosread$(e)  &
            $(p)doswrite$(e) &
            $(p)dosexit$(e) &
+           $(p)dos16exit$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
@@ -53,7 +54,8 @@ srcfiles = $(p)msg$(e) &
            $(p)doseditname$(e) &
            $(p)dossearchpath$(e) &
            $(p)token$(e) &
-           $(p)monitors$(e)
+           $(p)monitors$(e) &
+           $(p)vars$(e)
 
 ADD_COPT = -s -od
 ADD_LINKOPT  = lib clib3r op nod segment   type DATA shared
@@ -122,7 +124,120 @@ IMPORTS = &
         _KalSleep                KAL.KalSleep, &
         _KalSuspendThread        KAL.KalSuspendThread, &
         _KalWaitThread           KAL.KalWaitThread, &
-        _KalWrite                KAL.KalWrite
+        _KalWrite                KAL.KalWrite, & 
+                                            &
+        WinDefAVioWindowProc     SUB32.30,  &
+                                            &
+        VioEndPopUp              SUB32.101, &
+        VioGetPhysBuf            SUB32.102, &
+        VioGetAnsi               SUB32.103, &
+        VioSetAnsi               SUB32.105, &
+        VioWrtTTY                SUB32.119, &
+        VioDeRegister            SUB32.106, &
+        VioScrollUp              SUB32.107, &
+        VioPrtSc                 SUB32.108, &
+        VioGetCurPos             SUB32.109, &
+        VioWrtCellStr            SUB32.110, &
+        VioPopUp                 SUB32.111, &
+        VioScrollRt              SUB32.112, &
+        VioWrtCharStr            SUB32.113, &
+        VioSetCurPos             SUB32.115, &
+        VioScrUnLock             SUB32.118, &
+        VioGetMode               SUB32.121, &
+        VioSetMode               SUB32.122, &
+        VioScrLock               SUB32.123, &
+        VioReadCellStr           SUB32.124, &
+        VioSavRedrawWait         SUB32.125, &
+        VioWrtNAttr              SUB32.126, &
+        VioGetCurType            SUB32.127, &
+        VioSavRedrawUndo         SUB32.128, &
+        VioGetFont               SUB32.129, &
+        VioReadCharStr           SUB32.130, &
+        VioGetBuf                SUB32.131, &
+        VioSetCurType            SUB32.132, &
+        VioSetFont               SUB32.133, &
+        VioModeUndo              SUB32.135, &
+        VioModeWait              SUB32.137, &
+        VioGetCp                 SUB32.140, &
+        VioSetCp                 SUB32.142, &
+        VioShowBuf               SUB32.143, &
+        VioScrollLf              SUB32.144, &
+        VioRegister              SUB32.145, &
+        VioGetConfig             SUB32.146, &
+        VioScrollDn              SUB32.147, &
+        VioWrtCharStrAtt         SUB32.148, &
+        VioGetState              SUB32.149, &
+        VioPrtScToggle           SUB32.150, &
+        VioSetState              SUB32.151, &
+        VioWrtNCell              SUB32.152, &
+        VioWrtNChar              SUB32.153, &
+        VioAssociate             SUB32.155, &
+        VioCreatePS              SUB32.156, &
+        VioDeleteSetId           SUB32.157, &
+        VioGetDeviceCellSize     SUB32.158, &
+        VioGetOrg                SUB32.159, &
+        VioCreateLogFont         SUB32.160, &
+        VioDestroyPS             SUB32.161, &
+        VioQuerySetIds           SUB32.162, &
+        VioSetOrg                SUB32.163, &
+        VioQueryFonts            SUB32.164, &
+        VioSetDeviceCellSize     SUB32.165, &
+        VioShowPS                SUB32.166, &
+        VioGlobalReg             SUB32.170, &
+        VioCheckCharType         SUB32.175, &
+                                            &
+        KbdSetCustXt             SUB32.201, &
+        KbdGetCp                 SUB32.203, &
+        KbdCharIn                SUB32.204, &
+        KbdSetCp                 SUB32.205, &
+        KbdSynch                 SUB32.207, &
+        KbdRegister              SUB32.208, &
+        KbdStringIn              SUB32.209, &
+        KbdGetStatus             SUB32.210, &
+        KbdSetStatus             SUB32.211, &
+        KbdGetFocus              SUB32.212, &
+        KbdFlushBuffer           SUB32.213, &
+        KbdXlate                 SUB32.214, &
+        KbdClose                 SUB32.217, &
+        KbdFreeFocus             SUB32.218, &
+        KbdDeRegister            SUB32.220, &
+        KbdSetFgnd               SUB32.221, &
+        KbdPeek                  SUB32.222, &
+        KbdOpen                  SUB32.223, &
+        KbdGetHWID               SUB32.224, &
+        KbdSetHWID               SUB32.225, &
+                                            &
+        MouGetPtrShape           SUB32.301, &
+        MouSetPtrShape           SUB32.302, &
+        MouGetNumMickeys         SUB32.303, &
+        MouGetScaleFact          SUB32.306, &
+        MouFlushQue              SUB32.307, &
+        MouGetNumButtons         SUB32.308, &
+        MouClose                 SUB32.309, &
+        MouSetScaleFact          SUB32.311, &
+        MouGetNumQueEl           SUB32.313, &
+        MouDeRegister            SUB32.314, &
+        MouGetEventMask          SUB32.315, &
+        MouSetEventMask          SUB32.316, &
+        MouOpen                  SUB32.317, &
+        MouRemovePtr             SUB32.318, &
+        MouGetPtrPos             SUB32.319, &
+        MouReadEventQue          SUB32.320, &
+        MouSetPtrPos             SUB32.321, &
+        MouGetDevStatus          SUB32.322, &
+        MouSynch                 SUB32.323, &
+        MouRegister              SUB32.324, &
+        MouSetDevStatus          SUB32.325, &
+        MouDrawPtr               SUB32.326, &
+        MouInitReal              SUB32.327, &
+        MouSetThreshold          SUB32.329, &
+        MouGetThreshold          SUB32.330, &
+                                            &
+        DosMonWrite              SUB32.401, &
+        DosMonRead               SUB32.402, &
+        DosMonClose              SUB32.403, &
+        DosMonOpen               SUB32.404, &
+        DosMonReg                SUB32.405
 
 EXPORTS = &
         DosICreateThread           .1, &
@@ -967,7 +1082,7 @@ EXPORTS = &
         SMArraySize                .862, &
         BVSGLOBAL                  .863, &
         SMGINSTANCE                .864, &
-        BVHINSTANCE                .865, &
+        _BVHINSTANCE                .865, &
 #
         THK32ALIASMEM              .866, &
         THK32FREEALIAS             .867, &
