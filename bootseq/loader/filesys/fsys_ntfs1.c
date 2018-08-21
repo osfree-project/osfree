@@ -231,6 +231,7 @@ static void rewind_run_list( RUNL *runl) {
 
 static int get_next_run(RUNL *runl){
     int t, n, v;
+    int tmp;
 
 #ifdef DEBUG_NTFS
     printf("get_next_run: s=%d e=%d c=%d start=%x ptr=%x\n",
@@ -246,7 +247,11 @@ static int get_next_run(RUNL *runl){
     n = t&0xf;
     runl->clen = 0; v = 1;
     while(n--) {
-        runl->clen += v * *((__u8 *)runl->ptr)++;
+        //runl->clen += v * *((__u8 *)runl->ptr)++;
+        tmp = *((__u8 *)runl->ptr);
+        runl->clen += v * tmp;
+        tmp++;
+        *((__u8 *)runl->ptr) = tmp;
         v <<= 8;
     }
     n = (t>>4)&0xf;
@@ -256,7 +261,11 @@ static int get_next_run(RUNL *runl){
         int c = 0;
         v = 1;
         while(n--) {
-            c += v * *((__u8 *)runl->ptr)++;
+            //c += v * *((__u8 *)runl->ptr)++;
+            tmp = *((__u8 *)runl->ptr);
+            c += v * tmp;
+            tmp++;
+            *((__u8 *)runl->ptr) = tmp;
             v <<= 8;
         }
         if(c & (v>>1)) c -= v;
