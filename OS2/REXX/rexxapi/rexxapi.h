@@ -14,7 +14,7 @@ void TraceString( char *fmt, ... );
 void null(char *fmt, ...);
 
 //#define debug null
-#define debug printf
+#define debug if (Trace) TraceString
 
 APIRET APIENTRY DosSelToFlat(ULONG addr);
 APIRET APIENTRY DosFlatToSel(ULONG addr);
@@ -204,52 +204,59 @@ USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 PSCB);
 
 USHORT _Far16 _Pascal RXMACROLOAD (
          USHORT argc,                      /* Argument count (0==save all)*/
-         PSZ16 _Far16 *argv,                   /* List of funct names to save */
+         PSZ16  * _Seg16 argv,             /* List of funct names to save */
+         //PSZ16 _Far16 *argv,             /* List of funct names to save */
          PSZ16 file );
 
 USHORT _Far16 _Pascal RXMACROSAVE (
          USHORT argc,                      /* Argument count (0==save all)*/
-         PSZ16 _Far16 *argv,                   /* List of funct names to save */
-         PSZ16 file );                       /* File to save functions in   */
+         PSZ16  * _Seg16 argv,             /* List of funct names to save */
+         //PSZ16 _Far16 *argv,             /* List of funct names to save */
+         PSZ16 file );                     /* File to save functions in   */
 
 USHORT _Far16 _Pascal RXSUBCOMLOAD(
-         PSZ16 env,                          /* Name of the Environment    */
-         PSZ16 dll);                         /* DLL Module Name            */
+         PSZ16 env,                        /* Name of the Environment    */
+         PSZ16 dll);                       /* DLL Module Name            */
 
 USHORT _Far16 _Pascal RXMACRODROP (
-         PSZ16 fn );                        /* Name of function to remove */
+         PSZ16 fn );                       /* Name of function to remove */
 
 USHORT _Far16 _Pascal RXEXITQUERY (
          PSZ16 fn,                          /* Exit name                  */
-         PSZ16 dll,                          /* DLL Module name.           */
-         PUSHORT _Far16 flag,                      /* Existance flag.            */
-         double _Far16 *data ) ;              /* User data.                 */
+         PSZ16 dll,                         /* DLL Module name.           */
+         USHORT _Far16 *flag,               /* Existance flag.            */
+         //PUSHORT _Far16 flag,             /* Existance flag.            */
+         UCHAR _Far16 *data );              /* User data.                 */
+         //double _Far16 *data );           /* User data.                 */
 
 USHORT _Far16 _Pascal RXMACROERASE(
-         VOID );                      /* No Arguments.               */
+         VOID );                            /* No Arguments.               */
 
 USHORT _Far16 _Pascal RXSUBCOMDROP(
-         PSZ16 env,                          /* Name of the Environment    */
-         PSZ16 dll);                         /* DLL Module Name            */
+         PSZ16 env,                         /* Name of the Environment    */
+         PSZ16 dll);                        /* DLL Module Name            */
 
 USHORT _Far16 _Pascal RXMACROQUERY (
-         PSZ16 fn,                         /* Function to search for      */
-         PUSHORT _Far16 flag);             /* Ptr for position flag return*/
+         PSZ16 fn,                          /* Function to search for      */
+         USHORT _Far16 *flag);              /* Ptr for position flag return*/
+         //PUSHORT _Far16 flag);            /* Ptr for position flag return*/
 
 USHORT _Far16 _Pascal RXSUBCOMDROP(
-         PSZ16 env,                          /* Name of the Environment    */
-         PSZ16 dll);                         /* DLL Module Name            */
+         PSZ16 env,                         /* Name of the Environment    */
+         PSZ16 dll);                        /* DLL Module Name            */
 
 USHORT _Far16 _Pascal RXMACROCHANGE (
-         PSZ16 fn,                         /* Function to add/change      */
-         PSZ16 file,                         /* Name of file to get function*/
-         USHORT flag);                    /* Flag indicating search pos  */
+         PSZ16 fn,                          /* Function to add/change      */
+         PSZ16 file,                        /* Name of file to get function*/
+         USHORT flag);                      /* Flag indicating search pos  */
 
 USHORT _Far16 _Pascal RXSUBCOMQUERY(
-         PSZ16 env,                          /* Name of the Environment    */
-         PSZ16 dll,                          /* DLL Module Name            */
-         PUSHORT _Far16 codestor,                      /* Stor for existance code    */
-         double _Far16 *userstor);                /* Stor for user word         */
+         PSZ16 env,                         /* Name of the Environment    */
+         PSZ16 dll,                         /* DLL Module Name            */
+         //PUSHORT _Far16 codestor,                      /* Stor for existance code    */
+         USHORT _Far16 *codestor,           /* Stor for existance code    */
+         //double _Far16 *userstor);        /* Stor for user word         */
+         UCHAR _Far16 *userstor);           /* Stor for user word         */
 
 USHORT _Far16 _Pascal RXFUNCTIONCALL (
         PSZ16 fn,                           /* Name of function to call   */
