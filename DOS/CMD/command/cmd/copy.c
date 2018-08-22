@@ -448,7 +448,7 @@ static int copy(char *dst, char *pattern, struct CopySource *src
       unlink(rDest);            /* if device -> no removal, ignore error */
       return 0;
     }
-  } while(wildcarded && FINDNEXT(&ff) == 0 && !(isfirst = 0));
+  } while(wildcarded && FINDNEXT(&ff) == 0 && !(isfirst == 0));
 
   FINDSTOP(&ff);
 

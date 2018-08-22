@@ -18,3 +18,17 @@ ADD_LINKOPT = lib suppl.lib
 #TARGETS = $(PATH)$(PROJ).exe
 
 !include $(%ROOT)/mk/appsdos.mk
+
+.SUFFIXES: .def .x
+
+.def: $(PATH)..
+
+.x: $(MYDIR)
+
+$(PATH)criter.obj: $(PATH)..$(SEP)context.def criter.asm dmy_cbrk.asm ..$(SEP)include$(SEP)stuff.inc
+
+$(PATH)..$(SEP)context.def: $(MYDIR)context.x
+ @mkctxt $<
+ @$(CP) $(MYDIR)context.h_c $(PATH).. $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)
+

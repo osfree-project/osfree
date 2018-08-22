@@ -9,13 +9,13 @@ PROJ      = cmd
 TRGT      = $(PROJ).com
 DESC      = DOS command interpreter
 
-DIRS = strings cmd suppl lib criter shell utils
+DIRS = strings criter cmd suppl lib shell utils
 
 !include $(%ROOT)/mk/all.mk
 TARGETS=$(PROJ).com
 
 $(PROJ).com: infores
-  copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1 + $(PATH)criter$(SEP)criter + $(PATH)strings$(SEP)strings.dat command.com
+  copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1 + $(PATH)criter$(SEP)criter + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
 
 infores:
  $(PATH)utils$(SEP)mkinfres.exe $(PATH)infores $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe
