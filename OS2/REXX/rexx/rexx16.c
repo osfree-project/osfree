@@ -41,8 +41,10 @@
 #include "rexx.h"
 #include "stk.h"
 
-APIRET APIENTRY DosSelToFlat(ULONG addr);
-APIRET APIENTRY DosFlatToSel(ULONG addr);
+void LoadInterpreter( void );
+
+extern int Trace;
+extern int InterpreterIdx;
 
 void null(char *fmt, ...) {};
 
@@ -53,28 +55,43 @@ USHORT _Far16 _Pascal RXTRACERESET(
   APIRET rc;
 
   stkon();
-  debug("RXTRACESET\n");
+
+  debug("%s\n", __FUNCTION__);
   rc = RexxResetTrace(pid, tid);
   debug("rc=%lx\n", rc);
+
   stkoff();
 
   return rc;
 }
 
 USHORT _Far16 _Pascal RXVAR(
-         PSHVBLOCK16 _Far16 PSHV16)              /* Pointer to list of SHVBLOCKs*/
+         SHVBLOCK16  * _Seg16 pshv16)              /* Pointer to list of SHVBLOCKs*/
 {
-  PSHVBLOCK PSHV;
+  PSHVBLOCK pshv;
   APIRET rc;
 
   stkon();
-  debug("RXVAR\n");
-  PSHV = (PSHVBLOCK)PSHV16;
-  // ...
 
-  rc = RexxVariablePool(PSHV);
+  debug("%s\n", __FUNCTION__);
+  pshv = (PSHVBLOCK)malloc(sizeof(SHVBLOCK));
+  
+  pshv->shvname.strlength = pshv16->shvname.strlength;
+  pshv->shvname.strptr = (PSZ)pshv16->shvname.strptr;
 
+  pshv->shvvalue.strlength = pshv16->shvvalue.strlength;
+  pshv->shvvalue.strptr = (PSZ)pshv16->shvvalue.strptr;
+
+  pshv->shvnamelen = pshv16->shvnamelen;
+  pshv->shvvaluelen = pshv16->shvvaluelen;
+  pshv->shvcode = pshv16->shvcode;
+  pshv->shvret = pshv16->shvret;
+
+  rc = RexxVariablePool(pshv);
+
+  free(pshv);
   debug("rc=%lx\n", rc);
+
   stkoff();
 
   return rc;
@@ -92,11 +109,8 @@ SHORT _Far16 _Pascal REXXSAA(
          PSHORT16     retc,                 /* Ret code from if numeric   */
          PRXSTRING16  retv )                /* Retvalue from the rexx proc*/
 {
-  //LONG         argcnt     = argc;
   PRXSTRING    a          = NULL;
   PRXSTRING    r;
-  //RXSTRING     args[1];
-  //PSZ          macroarg = "w=2+3";
   RXSTRING     bf[2];
   PRXSTRING    b          = NULL;
   PRXSYSEXIT   p          = NULL;
@@ -114,7 +128,8 @@ SHORT _Far16 _Pascal REXXSAA(
   int          i;
 
   stkon();
-  debug("REXXSAA\n");
+
+  debug("%s\n", __FUNCTION__);
   debug("argc=%u\n", argc);
 
   if (arg)
@@ -193,18 +208,7 @@ SHORT _Far16 _Pascal REXXSAA(
 
   debug("calling RexxStart\n");
 
-  //if (argcnt == 0)
-  //  argcnt = 1;
-
-  //if ((type == RXCOMMAND) && (argcnt > 1))
-  //  argcnt = 1;
-
   MAKERXSTRING(retvar, retbuf, sizeof(retbuf));
-  //MAKERXSTRING(args[0], macroarg, strlen(macroarg));
-
-  //__asm {
-  //  int 3
-  //}
 
   rc = RexxStart(argc,
                  a,
@@ -215,10 +219,6 @@ SHORT _Far16 _Pascal REXXSAA(
                  p,
                  &ret,
                  &retvar);
-
-  //__asm {
-  //  int 3
-  //}
 
   debug("RexxStart returned\n");
 
@@ -231,7 +231,6 @@ SHORT _Far16 _Pascal REXXSAA(
   if (a) free(a);
   if (p) free(p);
 
-  debug("memory released\n");
   stkoff();
 
   return rc;
@@ -239,15 +238,17 @@ SHORT _Far16 _Pascal REXXSAA(
 
 
 USHORT _Far16 _Pascal RXHALTSET(
-         LONG PID,                         /* Process Id                  */
-         LONG TID)                        /* Thread Id                   */
+         LONG pid,                        /* Process Id                  */
+         LONG tid)                        /* Thread Id                   */
 {
   APIRET rc;
 
   stkon();
-  debug("REXXSETHALT\n");
-  rc = RexxSetHalt(PID, TID);
+
+  debug("%s\n", __FUNCTION__);
+  rc = RexxSetHalt(pid, tid);
   debug("rc=%lx\n", rc);
+
   stkoff();
 
   return rc;
@@ -255,29 +256,33 @@ USHORT _Far16 _Pascal RXHALTSET(
 
 
 USHORT _Far16 _Pascal RXTRACESET(
-         LONG PID,                         /* Process Id                  */
-         LONG TID)                        /* Thread Id                   */
+         LONG pid,                        /* Process Id                  */
+         LONG tid)                        /* Thread Id                   */
 {
   APIRET rc;
 
   stkon();
-  debug("REXXSETTRACE\n");
-  rc = RexxSetTrace(PID, TID);
+
+  debug("%s\n", __FUNCTION__);
+  rc = RexxSetTrace(pid, tid);
   debug("rc=%lx\n", rc);
+
   stkoff();
 
   return rc;
 }
 
 
-USHORT _Far16 _Pascal RXBREAKCLEANUP(VOID)
+USHORT _Far16 _Pascal RXBREAKCLEANUP(void)
 {
   APIRET rc;
 
   stkon();
-  debug("RXBREAKCLEANUP\n");
+
+  debug("%s\n", __FUNCTION__);
   rc = RexxBreakCleanup();
   debug("rc=%lx\n", rc);
+
   stkoff();
 
   return rc;
