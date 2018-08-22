@@ -8,9 +8,11 @@ TRGT     = $(PROJ).dll
 DESC      = Regina interpreter DLL
 DEST      = os2$(SEP)dll
 STACKSIZE = 0x20000
-OPTIONS   = heapsize=40960,quiet,caseexact
+OPTIONS   = heapsize=40960,quiet,caseexact,manyautodata
+DLLOPT    = initinstance terminstance
 DLL       = 1
 ADD_COPT  = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) -bd
+ADD_LINKOPT  = segment   type DATA nonshared
 
 srcfiles  = &
 $(p)client$(e) &

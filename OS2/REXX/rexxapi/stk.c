@@ -62,8 +62,8 @@ APIRET APIENTRY init (void)
 
   rc = DosAllocMem((void **)&extra_stack, 
                    EXTRA_STACK_SIZE, 
-                   PAG_READ | PAG_WRITE | 
-                   PAG_GUARD | OBJ_TILE);
+                   PAG_READ | PAG_WRITE | PAG_COMMIT);
+
   if (rc)
     return rc;
 

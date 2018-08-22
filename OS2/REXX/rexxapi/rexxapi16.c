@@ -63,7 +63,7 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
 #define RXFUNC_DYNALINK       1        /* Function Available in DLL  */
 #define RXFUNC_CALLENTRY      2        /* Registered as mem entry pt.*/
 
-#define SUBCOM_COUNT 16
+//#define SUBCOM_COUNT 16
 
 void LoadInterpreter( void );
 
