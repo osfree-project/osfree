@@ -31,6 +31,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <stdlib.h>
 #include "rc.h"
 #include "buffer.h"
+#include "string.h"
 
 /* NOTE: NULL happens to be a resource id */
 #define IS_RESID(x) (((unsigned long)(x) & 0xFFFF0000L) == 0)

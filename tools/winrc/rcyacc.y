@@ -36,6 +36,9 @@ at the address twin@willows.com
 #include "buffer.h"
 #include "resfunc.h"
 
+int yyerror(char *str);
+int yylex(void);
+
 void ignore_until_semicolon();
 void ignore_until_brace();
 void typedef_mode();

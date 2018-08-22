@@ -10,8 +10,8 @@
 
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
 DIRS = yacc LEX SED  UNIAPI awk &
-       mkmsgf sc somcpp mkctxt critstrs freeinst libmmap os2386 genext2fs winrc
-       # shared somipc qemu-img hlldump # rexxwrap mapsym ipfc ltools renmodul
+       mkmsgf mkctxt critstrs freeinst libmmap os2386 genext2fs winrc
+       # shared somipc sc somcpp qemu-img hlldump # rexxwrap mapsym ipfc ltools renmodul
 
 !include $(%ROOT)/mk/all.mk
 

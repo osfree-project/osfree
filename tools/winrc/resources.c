@@ -1095,7 +1095,7 @@ struct userresbuffer *urb_cat(struct userresbuffer *urb1, struct userresbuffer *
   return urb1;
 }
 
-const char *makeintresource(int id)
+char *makeintresource(int id)
 {
   return MAKEINTRESOURCE(id);
 }
