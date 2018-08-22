@@ -1,3 +1,1 @@
-#if DEBUG
-int fddebug;
-#endif
+#include "include/debug.h"
