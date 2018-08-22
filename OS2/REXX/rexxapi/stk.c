@@ -23,6 +23,10 @@ char *extra_stack = NULL;
 // stack save variable
 char *old_stack   = NULL;
 
+extern int InterpreterIdx;
+
+void LoadInterpreter( void );
+
 APIRET APIENTRY __DLLstart_ (HMODULE hmod, ULONG flag);
 
 APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
@@ -50,13 +54,16 @@ APIRET APIENTRY init (void)
 {
   APIRET rc = NO_ERROR;
 
+  if ( InterpreterIdx == -1 )
+    LoadInterpreter();
+
   if (extra_stack)
     return rc;
 
   rc = DosAllocMem((void **)&extra_stack, 
                    EXTRA_STACK_SIZE, 
                    PAG_READ | PAG_WRITE | 
-                   PAG_COMMIT | OBJ_TILE);
+                   PAG_GUARD | OBJ_TILE);
   if (rc)
     return rc;
 
@@ -71,5 +78,5 @@ APIRET APIENTRY term (void)
   if (!extra_stack)
     return 0;
 
-  return DosFreeMem(extra_stack);
+  return DosFreeMem(extra_stack - EXTRA_STACK_SIZE + 4);
 }

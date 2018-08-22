@@ -1,4 +1,4 @@
-#define EXTRA_STACK_SIZE 0x12000
+#define EXTRA_STACK_SIZE 0x4000000
 
 extern char *extra_stack;
 extern char *old_stack;

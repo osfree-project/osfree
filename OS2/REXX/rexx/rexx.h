@@ -8,7 +8,7 @@ void TraceString( char *fmt, ... );
 void null(char *fmt, ...);
 
 //#define debug null
-#define debug printf
+#define debug if (Trace) TraceString
 
 // To extract offset or selector from any FAR (16:16) pointer
 #define OFFSETOF16(p)   (((PWORD)&(p))[0])

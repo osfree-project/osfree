@@ -2,6 +2,8 @@
 
 parse arg cfg
 
+cfg = strip(cfg, 'B')
+
 parse source os addr src
 
 if cfg = '' then signal usage
@@ -108,9 +110,17 @@ if verbose = 'yes' then
 do i = 1 to words(vars)
   var = word(vars, i)
   val = value(var)
-  if os == 'UNIX' | os == 'LINUX'
-     then val = translate(val, '/:', '\;')
-  call value var, val, env
+  if os == 'UNIX' | os == 'LINUX' then do
+      val = translate(val, '/:', '\;')
+      'export '||var||'='||val
+  end; else do
+      'set '||var||'='||val
+  end
+  
+  /* a bug with Regina REXX: it does not export */
+  /* variables to a parent shell!!!             */
+  /* call value var, val, env */
+  
   say var || '=' || val
 end
 
