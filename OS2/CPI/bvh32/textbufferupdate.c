@@ -1,29 +1,9 @@
-typedef struct
-          {
-          WORD     Parmlength;
-          WORD     Flags;
-          DWORD    ApplicationDataArea;
-          DWORD    SecondaryDataArea;
-          WORD     Index;
-          WORD     StartingRow;
-          WORD     StartingColumn;
-          WORD     SecondaryRow;
-          WORD     SecondaryColumn;
-          WORD     RepeatFactor;
-          WORD     LogicalBufferSelector;
- 	        WORD     TouchXLeft
-          WORD     TouchYTop
-          WORD     TouchXRight
-          WORD     TouchYBottom
-          WORD     LVBRowOff
-          WORD     LVBColOff
-          WORD     LVBWidth
-          WORD     LVBHeight
-          BYTE     LVBFormatID
-          BYTE     LVBAttrCount
-          } VDH_BUFUP;
+#include <os2.h>
 
-USHORT EXPENTRY TextBufferUpdate(ENVIRONMENT FAR *Environment, VDH_BUFUP FAR *ParmBlock, ULONG Function)
+#include "bvh.h"
+
+APIRET APIENTRY TextBufferUpdate(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
-
+//  VDH_BUFUP
+  return NO_ERROR;
 }

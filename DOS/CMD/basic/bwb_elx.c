@@ -753,7 +753,7 @@ exp_function( expression )
       sizeof( struct bwb_variable ), "exp_function" )) == NULL )
       {
       bwb_error( err_getmem );
-      return NULL;
+      return 0;
       }
 
    /* assign pointers to argument stack */

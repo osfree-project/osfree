@@ -22,7 +22,7 @@
 #include "../include/command.h"
 #include "../include/context.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 	/* If set --> toupper(varE[-1]) */
 #define FLAG_HACKERY_FOR 1

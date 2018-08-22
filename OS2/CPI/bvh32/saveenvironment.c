@@ -1,10 +1,7 @@
-typedef struct
-          {
-          WORD Parmlength;
-          WORD Flags;
-          WORD LogicalBufferSelector;
-          } VDH_SAVE;
+#include "bvh.h"
 
-USHORT EXPENTRY SaveEnvironment(ENVIRONMENT FAR *Environment, VDH_SAVE FAR *ParmBlock, ULONG Function)
+APIRET APIENTRY SaveEnvironment(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+//VDH_SAVE
+  return NO_ERROR;
 }

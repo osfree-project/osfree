@@ -123,6 +123,9 @@ struct ftime /* As defined by Borland C */
   #define X_OK 1  /* executable */
 #endif
 
+int getftime (int handle, struct ftime *ftimep); /* Get a file's time */
+int setftime (int handle, struct ftime *ftimep); /* Set a file's time */
+
 
 /*-------------------------------------------------------------------------*/
 /* Works like function strcpy() but stops copying characters into          */
@@ -483,8 +486,8 @@ int getftime (int handle, struct ftime *ftimep) /* Get a file's time */
             struct ftime bc_time;
       } FTIME;
 
-      if (0 == (retval = DOS_GETFTIME(handle, (unsigned short *)&FTIME.msc_time.date,
-            (unsigned short *)&FTIME.msc_time.time)))
+      if (0 == (retval = DOS_GETFTIME(handle, (unsigned int *)&FTIME.msc_time.date,
+            (unsigned int *)&FTIME.msc_time.time)))
       {
             *ftimep = FTIME.bc_time;
       }

@@ -8,9 +8,14 @@
 
 PROJ        = sub32
 TRGT        = $(PROJ).dll
-DESC        = Base Subsystems 32-bit API
-srcfiles    = $(p)emx_revision$(e) $(p)viowrttty$(e) $(p)dllstart$(e) $(p)kbd$(e) &
-              $(p)strnlen$(e) $(p)unimplemented$(e)
+DESC        = Base Subsystems 32-bit API (EMX compatible)
+srcfiles    = $(p)emx_revision$(e) &
+              $(p)viowrttty$(e) &
+              $(p)vio$(e) &
+              $(p)dllstart$(e) &
+              $(p)kbd$(e) &
+              $(p)strnlen$(e) &
+              $(p)unimplemented$(e)
 ADD_COPT    = -s
 # Can't find  ,cmd_shared.lib
 ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK lib clib3r
@@ -27,7 +32,10 @@ IMPORTS = DosRead               DOSCALLS.281, &
           DosQueryDBCSEnv       DOSCALLS.396, &
           DosQueryCp            DOSCALLS.291, &
           DosQuerySysInfo       DOSCALLS.348, &
-          DosExit               DOSCALLS.234
+          DosExit               DOSCALLS.234, &
+          DosLoadModule         DOSCALLS.318, &
+          DosFreeModule         DOSCALLS.322, &
+          DosQueryProcAddr      DOSCALLS.321
 
 EXPORTS = &
             EMX_REVISION.1          RESIDENT, &

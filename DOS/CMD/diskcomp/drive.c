@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <dos.h>
 #include "md5.h"
 #include "global.h"

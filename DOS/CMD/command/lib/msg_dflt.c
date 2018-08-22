@@ -45,7 +45,7 @@
 #include <string.h>
 
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 static struct {
         unsigned id;

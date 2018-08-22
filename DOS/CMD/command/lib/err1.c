@@ -9,7 +9,7 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_invalid_switch
 void error_invalid_switch(char c)

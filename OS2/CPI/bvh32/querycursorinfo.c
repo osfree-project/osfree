@@ -1,15 +1,7 @@
-typedef struct
-          {
-          WORD Parmlength;
-          WORD Flags;
-          WORD Row;
-          WORD Column;
-          WORD TopCursorScanLine;
-          WORD BottomCursorScanLine;
-          WORD CursorWidth;
-          WORD CursorAttribute;
-          } VDH_CURSOR;
-          
-USHORT EXPENTRY QueryCursorInfo(ENVIRONMENT FAR *Environment, VDH_CURSOR FAR *ParmBlock, ULONG Function)
+#include "bvh.h"
+
+APIRET APIENTRY QueryCursorInfo(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+//VDH_CURSOR
+  return NO_ERROR;
 }

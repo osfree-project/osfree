@@ -52,7 +52,7 @@
 #include "../include/cmdline.h"
 #include "../include/command.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #include "tcc2wat.h"
 

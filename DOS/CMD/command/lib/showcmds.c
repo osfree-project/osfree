@@ -59,7 +59,7 @@
 #include "../include/command.h"
 #include "../include/kswap.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int showcmds (char * rest) {
   struct CMD *cmdptr;

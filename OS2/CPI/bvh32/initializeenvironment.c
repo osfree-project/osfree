@@ -1,11 +1,7 @@
-typedef struct
-          {
-          WORD Parmlength;
-          WORD Flags;
-          WORD LogicalBufferSelector;
-          } VDH_INITENV;
+#include "bvh.h"
 
-
-USHORT EXPENTRY InitializeEnvironment(ENVIRONMENT FAR *Environment, VDH_INITENV FAR *ParmBlock, ULONG Function)
+APIRET APIENTRY InitializeEnvironment(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+// VDH_INITENV
+  return NO_ERROR;
 }

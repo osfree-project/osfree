@@ -8,7 +8,7 @@
 PROJ     = bvh32
 TRGT     = $(PROJ).dll
 DESC     = Base Video Handler 32-bit wrapper around 16-bit BVHSVGA
-srcfiles = $(p)msg$(e) &
+srcfiles = $(p)dllstart$(e) &
            $(p)dbcsdisplayinfo$(e) &
            $(p)querymode$(e) &
            $(p)setmode$(e) &
@@ -36,3 +36,7 @@ UNI2H = 1
 #IMPORTS = 
 
 EXPORTS = Dev32Enable           .1
+
+DEST    = os2$(SEP)dll
+
+!include $(%ROOT)/mk/appsos2_cmd.mk

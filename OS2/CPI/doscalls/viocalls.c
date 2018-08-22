@@ -1,302 +1,372 @@
+// 16-bit api
 #include <kal.h>
 
 // 16-bit to 32-bit wrappers. 32-bit VIO subsystem lives in SUB32.DLL
 
-USHORT __pascal VIOENDPOPUP(HVIO hvio)
+APIRET unimplemented(char *func);
+
+// 32-bit api
+typedef USHORT HVPS;
+typedef HVPS * PHVPS;
+
+USHORT APIENTRY Vio32DeRegister(VOID);
+USHORT APIENTRY Vio32Register(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2);
+USHORT APIENTRY Vio32GlobalReg(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2, const USHORT usReturn);
+USHORT APIENTRY Vio32GetAnsi(USHORT * Ansi, const HVIO Handle);
+USHORT APIENTRY Vio32GetCp(const USHORT Reserved, USHORT * IdCodePage, const HVIO Handle);
+USHORT APIENTRY Vio32GetCurPos(USHORT * Row, USHORT * Column, const HVIO Handle);
+USHORT APIENTRY Vio32GetCurType(VIOCURSORINFO * CursorInfo, const HVIO Handle);
+USHORT APIENTRY Vio32GetMode(VIOMODEINFO * ModeInfo, const HVIO Handle);
+USHORT APIENTRY Vio32ReadCellStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32ReadCharStr(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollDown(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollDn(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollLeft(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollLf(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollRight(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollRt(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32ScrollUp(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle);
+USHORT APIENTRY Vio32SetAnsi(const USHORT Ansi, const HVIO Handle);
+USHORT APIENTRY Vio32SetCp(const USHORT Reserved, const USHORT IdCodePage, const HVIO Handle);
+USHORT APIENTRY Vio32SetCurPos(const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32SetCurType(const PVIOCURSORINFO CursorInfo, const HVIO Handle);
+USHORT APIENTRY Vio32SetMode(const PVIOMODEINFO ModeInfo, const HVIO hvio);
+USHORT APIENTRY Vio32WrtCellStr(const PCHAR CellStr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32WrtCharStr(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32WrtCharStrAttr(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const PBYTE pAttr, const HVIO Handle);
+USHORT APIENTRY Vio32WrtCharStrAtt(const PCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio);
+USHORT APIENTRY Vio32WrtNAttr(const PBYTE Attr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32WrtNCell(const PBYTE Cell, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32WrtNChar(const PCHAR Char, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle);
+USHORT APIENTRY Vio32WrtTTY(const PCHAR Str, const USHORT Count, const HVIO Handle);
+USHORT APIENTRY Vio32GetState(const PVOID pState, const HVIO Handle);
+USHORT APIENTRY Vio32SetState(const PVOID pState, const HVIO Handle);
+USHORT APIENTRY Vio32GetConfig(const USHORT ConfigId, VIOCONFIGINFO * vioin, const HVIO hvio);
+USHORT APIENTRY Vio32PopUp(USHORT * Options, const HVIO VioHandle);
+USHORT APIENTRY Vio32EndPopUp(const HVIO VioHandle);
+USHORT APIENTRY Vio32GetPhysBuf(VIOPHYSBUF * pvioPhysBuf, const USHORT usReserved);
+USHORT APIENTRY Vio32PrtSc(const HVIO hvio);
+USHORT APIENTRY Vio32PrtScToggle(const HVIO hvio);
+USHORT APIENTRY Vio32ShowBuf(const USHORT offLVB, const USHORT cb, const HVIO hvio);
+USHORT APIENTRY Vio32ScrLock(const USHORT fWait, UCHAR * pfNotLocked, const HVIO hvio);
+USHORT APIENTRY Vio32ScrUnLock(const HVIO hvio);
+USHORT APIENTRY Vio32SavRedrawWait(const USHORT usRedrawInd, USHORT * pNotifyType, const USHORT usReserved);
+USHORT APIENTRY Vio32SavRedrawUndo(const USHORT usOwnerInd, const USHORT usKillInd, const USHORT usReserved);
+USHORT APIENTRY Vio32ModeWait(const USHORT usReqType, USHORT * pNotifyType, const USHORT usReserved);
+USHORT APIENTRY Vio32ModeUndo(const USHORT usOwnerInd, const USHORT usKillInd, const USHORT usReserved);
+USHORT APIENTRY Vio32GetFont(VIOFONTINFO * pviofi, const HVIO hvio);
+USHORT APIENTRY Vio32SetFont(VIOFONTINFO * pviofi, const HVIO hvio);
+USHORT APIENTRY Vio32GetBuf(ULONG * pLVB, USHORT * pcbLVB, const HVIO hvio);
+USHORT APIENTRY Vio32CheckCharType(USHORT * pType, const USHORT usRow, const USHORT usColumn, const HVIO hvio);
+USHORT APIENTRY Vio32Associate(const HDC hdc, const HVPS hvps);
+USHORT APIENTRY Vio32CreateLogFont(const PFATTRS pfatattrs, const LONG llcid, const PSTR8 pName, const HVPS hvps);
+USHORT APIENTRY Vio32CreatePS(HVPS * phvps, const SHORT sdepth, const SHORT swidth, const SHORT sFormat, const SHORT sAttrs, const HVPS hvpsReserved);
+USHORT APIENTRY Vio32DeleteSetId(const LONG llcid, const HVPS hvps);
+USHORT APIENTRY Vio32DestroyPS(const HVPS hvps);
+USHORT APIENTRY Vio32GetDeviceCellSize(SHORT * psHeight, SHORT * psWidth, const HVPS hvps);
+USHORT APIENTRY Vio32GetOrg(SHORT * psRow, SHORT * psColumn, const HVPS hvps);
+USHORT APIENTRY Vio32QueryFonts(LONG * plRemfonts, FONTMETRICS * afmMetrics, const LONG lMetricsLength, LONG * plFonts, const PSZ pszFacename, const ULONG flOptions, const HVPS hvps);
+USHORT APIENTRY Vio32QuerySetIds(LONG * allcids, STR8 * pNames, LONG * alTypes, const LONG lcount, const HVPS hvps);
+USHORT APIENTRY Vio32SetDeviceCellSize(const SHORT sHeight, const SHORT sWidth, const HVPS hvps);
+USHORT APIENTRY Vio32SetOrg(const SHORT sRow, const SHORT sColumn, const HVPS hvps);
+USHORT APIENTRY Vio32ShowPS(const SHORT sDepth, const SHORT sWidth, const SHORT soffCell, const HVPS hvps);
+//MRESULT APIENTRY WinDefAVioWindowProc(const HWND hwnd, const USHORT msg, const ULONG mp1, const ULONG mp2);
+
+USHORT APIENTRY16 VIOENDPOPUP(HVIO hvio)
 {
-  return VioEndPopUp(hvio);
+  return Vio32EndPopUp(hvio);
 }
 
-USHORT __pascal VIOGETPHYSBUF(PVIOPHYSBUF pvioPhysBuf,
+USHORT APIENTRY16 VIOGETPHYSBUF(PVIOPHYSBUF pvioPhysBuf,
                               USHORT usReserved)
 {
-  return VioGetPhysBuf(pvioPhysBuf, usReserved);
+  return Vio32GetPhysBuf(pvioPhysBuf, usReserved);
 }
 
-USHORT __pascal VIOGETANSI(USHORT * Ansi, const HVIO Handle)
+USHORT APIENTRY16 VIOGETANSI(USHORT * Ansi, const HVIO Handle)
 {
-  return VioGetAnsi(Ansi, Handle);
+  return Vio32GetAnsi(Ansi, Handle);
 }
 
-USHORT __pascal VIOSETANSI(const USHORT Ansi, const HVIO Handle)
+USHORT APIENTRY16 VIOSETANSI(const USHORT Ansi, const HVIO Handle)
 {
-  return VioSetAnsi(Ansi, Handle);
+  return Vio32SetAnsi(Ansi, Handle);
 }
 
-USHORT __pascal VIODEREGISTER(VOID)
+USHORT APIENTRY16 VIODEREGISTER(VOID)
 {
-  return VioDeRegister();
+  return Vio32DeRegister();
 }
 
-USHORT __pascal VIOSCROLLUP(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+USHORT APIENTRY16 VIOSCROLLUP(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
 {
-  return VioScrollUp(TopRow, LeftCol, BotRow, RightCol, Lines, Cell, Handle);
+  return Vio32ScrollUp(TopRow, LeftCol, BotRow, RightCol, Lines, Cell, Handle);
 }
 
-USHORT __pascal VIOPRTSC(HVIO hvio)
+USHORT APIENTRY16 VIOPRTSC(HVIO hvio)
 {
-  return VioPrtSc(hvio);
+  return Vio32PrtSc(hvio);
 }
 
-USHORT __pascal VIOGETCURPOS(USHORT * Row, USHORT * Column, const HVIO Handle)
+USHORT APIENTRY16 VIOGETCURPOS(USHORT * Row, USHORT * Column, const HVIO Handle)
 {
-  return VioGetCurPos(Row, Column, Handle);
+  return Vio32GetCurPos(Row, Column, Handle);
 }
 
-USHORT __pascal VIOWRTCELLSTR(const PCHAR CellStr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTCELLSTR(const PCHAR CellStr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioWrtCellStr(CellStr, Count, Row, Column, Handle);
+  return Vio32WrtCellStr(CellStr, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOPOPUP (PUSHORT pfWait,
+USHORT APIENTRY16 VIOPOPUP (PUSHORT pfWait,
                          HVIO hvio)
 {
-  return VioPopUp(pfWait, hvio);
+  return Vio32PopUp(pfWait, hvio);
 }
 
-USHORT __pascal VIOSCROLLRT(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
+USHORT APIENTRY16 VIOSCROLLRT(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
 {
-  return VioScrollRt(TopRow, LeftCol, BotRow, RightCol, Columns, Cell, Handle);
+  return Vio32ScrollRt(TopRow, LeftCol, BotRow, RightCol, Columns, Cell, Handle);
 }
 
-USHORT __pascal VIOWRTCHARSTR(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTCHARSTR(const PCHAR Str, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioWrtCharStr(Str, Count, Row, Column, Handle);
+  return Vio32WrtCharStr(Str, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOSETCURPOS(const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOSETCURPOS(const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioSetCurPos(Row, Column, Handle);
+  return Vio32SetCurPos(Row, Column, Handle);
 }
 
-USHORT __pascal VIOSCRUNLOCK(HVIO hvio)
+USHORT APIENTRY16 VIOSCRUNLOCK(HVIO hvio)
 {
-  return VioScrUnLock(hvio);
+  return Vio32ScrUnLock(hvio);
 }
 
-USHORT __pascal VIOGETMODE(VIOMODEINFO * ModeInfo, const HVIO Handle)
+USHORT APIENTRY16 VIOGETMODE(VIOMODEINFO * ModeInfo, const HVIO Handle)
 {
-  return VioGetMode(ModeInfo, Handle);
+  return Vio32GetMode(ModeInfo, Handle);
 }
 
-USHORT __pascal VIOSETMODE(const PVIOMODEINFO ModeInfo, const HVIO hvio)
+USHORT APIENTRY16 VIOSETMODE(const PVIOMODEINFO ModeInfo, const HVIO hvio)
 {
-  return VioSetMode(ModeInfo, hvio);
+  return Vio32SetMode(ModeInfo, hvio);
 }
 
-USHORT __pascal VIOSCRLOCK(USHORT fWait,
+USHORT APIENTRY16 VIOSCRLOCK(USHORT fWait,
                            PUCHAR pfNotLocked,
                            HVIO hvio)
 {
-  return VioScrLock(fWait, pfNotLocked, hvio);
+  return Vio32ScrLock(fWait, pfNotLocked, hvio);
 }
 
-USHORT __pascal VIOREADCELLSTR(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOREADCELLSTR(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioReadCellStr(CellStr, Count, Row, Column, Handle);
+  return Vio32ReadCellStr(CellStr, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOSAVREDRAWWAIT(USHORT usRedrawInd,
+USHORT APIENTRY16 VIOSAVREDRAWWAIT(USHORT usRedrawInd,
                                  PUSHORT pNotifyType,
                                  USHORT usReserved)
 {
-  return VioSavRedrawWait(usRedrawInd, pNotifyType, usReserved);
+  return Vio32SavRedrawWait(usRedrawInd, pNotifyType, usReserved);
 }
 
-USHORT __pascal VIOWRTNATTR(const PBYTE Attr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTNATTR(const PBYTE Attr, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioWrtNAttr(Attr, Count, Row, Column, Handle);
+  return Vio32WrtNAttr(Attr, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOGETCURTYPE(VIOCURSORINFO * CursorInfo, const HVIO Handle)
+USHORT APIENTRY16 VIOGETCURTYPE(VIOCURSORINFO * CursorInfo, const HVIO Handle)
 {
-  return VioGetCurType(CursorInfo, Handle);
+  return Vio32GetCurType(CursorInfo, Handle);
 }
 
-USHORT __pascal VIOSAVREDRAWUNDO(USHORT usOwnerInd,
+USHORT APIENTRY16 VIOSAVREDRAWUNDO(USHORT usOwnerInd,
                                  USHORT usKillInd,
                                  USHORT usReserved)
 {
-  return VioSavRedrawUndo(usOwnerInd, usKillInd, usReserved);
+  return Vio32SavRedrawUndo(usOwnerInd, usKillInd, usReserved);
 }
 
-USHORT __pascal VIOGETFONT(PVIOFONTINFO pviofi,
+USHORT APIENTRY16 VIOGETFONT(PVIOFONTINFO pviofi,
                            HVIO hvio)
 {
-  return VioGetFont(pviofi, hvio);
+  return Vio32GetFont(pviofi, hvio);
 }
 
-USHORT __pascal VIOREADCHARSTR(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOREADCHARSTR(CHAR * CellStr, USHORT * Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioReadCharStr(CellStr, Count, Row, Column, Handle);
+  return Vio32ReadCharStr(CellStr, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOGETBUF(PULONG pLVB,
+USHORT APIENTRY16 VIOGETBUF(PULONG pLVB,
                           PUSHORT pcbLVB,
                           HVIO hvio)
 {
-  return VioGetBuf(pLVB, pcbLVB, hvio);
+  return Vio32GetBuf(pLVB, pcbLVB, hvio);
 }
 
-USHORT __pascal VIOSETCURTYPE(const PVIOCURSORINFO CursorInfo, const HVIO Handle)
+USHORT APIENTRY16 VIOSETCURTYPE(const PVIOCURSORINFO CursorInfo, const HVIO Handle)
 {
-  return VioSetCurType(CursorInfo, Handle);
+  return Vio32SetCurType(CursorInfo, Handle);
 }
 
-USHORT __pascal VIOSETFONT(PVIOFONTINFO pviofi,
+USHORT APIENTRY16 VIOSETFONT(PVIOFONTINFO pviofi,
                            HVIO hvio)
 {
-  return VioSetFont(pviofi, hvio);
+  return Vio32SetFont(pviofi, hvio);
 }
 
-USHORT __pascal VIOMODEUNDO (USHORT usOwnerInd,
+USHORT APIENTRY16 VIOMODEUNDO (USHORT usOwnerInd,
                               USHORT usKillInd,
                               USHORT usReserved)
 {
-  return VioModeUndo(usOwnerInd, usKillInd, usReserved);
+  return Vio32ModeUndo(usOwnerInd, usKillInd, usReserved);
 }
 
-USHORT __pascal VIOMODEWAIT (USHORT usReqType,
+USHORT APIENTRY16 VIOMODEWAIT (USHORT usReqType,
                             PUSHORT pNotifyType,
                             USHORT usReserved)
 {
-  return VioModeWait(usReqType, pNotifyType, usReserved);
+  return Vio32ModeWait(usReqType, pNotifyType, usReserved);
 }
 
-USHORT __pascal VIOGETCP(const USHORT Reserved, USHORT * IdCodePage, const HVIO Handle)
+USHORT APIENTRY16 VIOGETCP(const USHORT Reserved, USHORT * IdCodePage, const HVIO Handle)
 {
-  return VioGetCp(Reserved, IdCodePage, Handle);
+  return Vio32GetCp(Reserved, IdCodePage, Handle);
 }
 
-USHORT __pascal VIOSETCP(const USHORT Reserved, const USHORT IdCodePage, const HVIO Handle)
+USHORT APIENTRY16 VIOSETCP(const USHORT Reserved, const USHORT IdCodePage, const HVIO Handle)
 {
-  return VioSetCp(__FUNCTION__);
+  return Vio32SetCp(Reserved, IdCodePage, Handle);
 }
 
-USHORT __pascal VIOSHOWBUF (USHORT offLVB,
+USHORT APIENTRY16 VIOSHOWBUF (USHORT offLVB,
                              USHORT cb,
                              HVIO hvio)
 {
-  return VioShowBuf(offLVB, cb, hvio);
+  return Vio32ShowBuf(offLVB, cb, hvio);
 }
 
-USHORT __pascal VIOSCROLLLF(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
+USHORT APIENTRY16 VIOSCROLLLF(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Columns, const PBYTE Cell, const HVIO Handle)
 {
-  return VioScrollLf(TopRow, LeftCol, BotRow, RightCol, Columns, Cell, Handle);
+  return Vio32ScrollLf(TopRow, LeftCol, BotRow, RightCol, Columns, Cell, Handle);
 }
 
-USHORT __pascal VIOREGISTER(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2)
+USHORT APIENTRY16 VIOREGISTER(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2)
 {
-  return VioRegister(pszModName, pszEntryName, flFun1, flFun2);
+  return Vio32Register(pszModName, pszEntryName, flFun1, flFun2);
 }
 
-USHORT __pascal VIOGETCONFIG(const USHORT ConfigId, VIOCONFIGINFO * vioin, const HVIO hvio)
+USHORT APIENTRY16 VIOGETCONFIG(const USHORT ConfigId, VIOCONFIGINFO * vioin, const HVIO hvio)
 {
-  return VioGetConfig(ConfigId, vioin, hvio);
+  return Vio32GetConfig(ConfigId, vioin, hvio);
 }
 
-USHORT __pascal VIOSCROLLDN(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
+USHORT APIENTRY16 VIOSCROLLDN(const USHORT TopRow, const USHORT LeftCol, const USHORT BotRow, const USHORT RightCol, const USHORT Lines, const PBYTE Cell, const HVIO Handle)
 {
-  return VioScrollDn(TopRow, LeftCol, BotRow, RightCol, Lines, Cell, Handle);
+  return Vio32ScrollDn(TopRow, LeftCol, BotRow, RightCol, Lines, Cell, Handle);
 }
 
-//USHORT __pascal VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
-USHORT __pascal VIOWRTCHARSTRATT(void *pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+//USHORT APIENTRY16 VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
+USHORT APIENTRY16 VIOWRTCHARSTRATT(void *pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
 {
-  return VioWrtCharStrAtt(pch, cb, usRow, usColumn, pAttr, hvio);
+  return Vio32WrtCharStrAtt(pch, cb, usRow, usColumn, pAttr, hvio);
 }
 
-USHORT __pascal VIOGETSTATE(const PVOID pState, const HVIO Handle)
+USHORT APIENTRY16 VIOGETSTATE(const PVOID pState, const HVIO Handle)
 {
-  return VioGetState(pState, Handle);
+  return Vio32GetState(pState, Handle);
 }
 
-USHORT __pascal VIOPRTSCTOGGLE (HVIO hvio)
+USHORT APIENTRY16 VIOPRTSCTOGGLE (HVIO hvio)
 {
-  return VioPrtScToggle(hvio);
+  return Vio32PrtScToggle(hvio);
 }
 
-USHORT __pascal VIOSETSTATE(const PVOID pState, const HVIO Handle)
+USHORT APIENTRY16 VIOSETSTATE(const PVOID pState, const HVIO Handle)
 {
-  return VioSetState(pState, Handle);
+  return Vio32SetState(pState, Handle);
 }
 
-USHORT __pascal VIOWRTNCELL(const PBYTE Cell, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTNCELL(const PBYTE Cell, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioWrtNCell(Cell, Count, Row, Column, Handle);
+  return Vio32WrtNCell(Cell, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOWRTNCHAR(const PCHAR Char, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTNCHAR(const PCHAR Char, const USHORT Count, const USHORT Row, const USHORT Column, const HVIO Handle)
 {
-  return VioWrtNChar(Char, Count, Row, Column, Handle);
+  return Vio32WrtNChar(Char, Count, Row, Column, Handle);
 }
 
-USHORT __pascal VIOASSOCIATE(HDC hdc,
+USHORT APIENTRY16 VIOASSOCIATE(HDC hdc,
                              HVPS hvps)
 {
-  return VioAssociate(hdc, hvps);
+  return Vio32Associate(hdc, hvps);
 }
 
-USHORT __pascal VIOCREATEPS(PHVPS phvps,
+USHORT APIENTRY16 VIOCREATEPS(PHVPS phvps,
                             SHORT sdepth,
                             SHORT swidth,
                             SHORT sFormat,
                             SHORT sAttrs,
                             HVPS hvpsReserved)
 {
-  return VioCreatePS(phvps, sdepth, swidth, sFormat, sAttrs, hvpsReserved);
+  return Vio32CreatePS(phvps, sdepth, swidth, sFormat, sAttrs, hvpsReserved);
 }
 
-USHORT __pascal VIODELETESETID(LONG llcid,
+USHORT APIENTRY16 VIODELETESETID(LONG llcid,
                                HVPS hvps)
 {
-  return VioDeleteSetId(llcid, hvps);
+  return Vio32DeleteSetId(llcid, hvps);
 }
 
-USHORT __pascal VIOGETDEVICECELLSIZE(PSHORT psHeight,
+USHORT APIENTRY16 VIOGETDEVICECELLSIZE(PSHORT psHeight,
                                      PSHORT psWidth,
                                      HVPS hvps)
 {
-  return VioGetDeviceCellSize(psHeight, psWidth, hvps);
+  return Vio32GetDeviceCellSize(psHeight, psWidth, hvps);
 }
 
-USHORT __pascal VIOGETORG(PSHORT psRow,
+USHORT APIENTRY16 VIOGETORG(PSHORT psRow,
                           PSHORT psColumn,
                           HVPS hvps)
 {
-  return VioGetOrg(psRow, psColumn, hvps);
+  return Vio32GetOrg(psRow, psColumn, hvps);
 }
 
-USHORT __pascal VIOCREATELOGFONT(PFATTRS pfatattrs,
+USHORT APIENTRY16 VIOCREATELOGFONT(PFATTRS pfatattrs,
                                  LONG llcid,
                                  PSTR8 pName,
                                  HVPS hvps)
 {
-  return VioCreateLogFont(pfatattrs, llcid, pName, hvps);
+  return Vio32CreateLogFont(pfatattrs, llcid, pName, hvps);
 }
 
-USHORT __pascal VIODESTROYPS(HVPS hvps)
+USHORT APIENTRY16 VIODESTROYPS(HVPS hvps)
 {
-  return VioDestroyPS(hvps);
+  return Vio32DestroyPS(hvps);
 }
 
-USHORT __pascal VIOQUERYSETIDS(PLONG allcids,
+USHORT APIENTRY16 VIOQUERYSETIDS(PLONG allcids,
                                PSTR8 pNames,
                                PLONG alTypes,
                                LONG lcount,
                                HVPS hvps)
 {
-  return VioQuerySetIds(allcids, pNames, alTypes, lcount, hvps);
+  return Vio32QuerySetIds(allcids, pNames, alTypes, lcount, hvps);
 }
 
-USHORT __pascal VIOSETORG(SHORT sRow,
+USHORT APIENTRY16 VIOSETORG(SHORT sRow,
                           SHORT sColumn,
                           HVPS hvps)
 {
-  return VioSetOrg(sRow, sColumn, hvps);
+  return Vio32SetOrg(sRow, sColumn, hvps);
 }
 
-USHORT __pascal VIOQUERYFONTS(PLONG plRemfonts,
+USHORT APIENTRY16 VIOQUERYFONTS(PLONG plRemfonts,
                               PFONTMETRICS afmMetrics,
                               LONG lMetricsLength,
                               PLONG plFonts,
@@ -304,145 +374,145 @@ USHORT __pascal VIOQUERYFONTS(PLONG plRemfonts,
                               ULONG flOptions,
                               HVPS hvps)
 {
-  return VioQueryFonts(plRemfonts, afmMetrics, lMetricsLength, plFonts, pszFacename, flOptions, hvps);
+  return Vio32QueryFonts(plRemfonts, afmMetrics, lMetricsLength, plFonts, pszFacename, flOptions, hvps);
 }
 
-USHORT __pascal VIOSETDEVICECELLSIZE(SHORT sHeight,
+USHORT APIENTRY16 VIOSETDEVICECELLSIZE(SHORT sHeight,
                                      SHORT sWidth,
                                      HVPS hvps)
 {
-  return VioSetDeviceCellSize(sHeight, sWidth, hvps);
+  return Vio32SetDeviceCellSize(sHeight, sWidth, hvps);
 }
 
-USHORT __pascal VIOSHOWPS(SHORT sDepth,
+USHORT APIENTRY16 VIOSHOWPS(SHORT sDepth,
                           SHORT sWidth,
                           SHORT soffCell,
                           HVPS hvps)
 {
-  return VioShowPS(sDepth, sWidth, soffCell, hvps);
+  return Vio32ShowPS(sDepth, sWidth, soffCell, hvps);
 }
 
-USHORT __pascal VIOGLOBALREG(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2, const USHORT usReturn)
+USHORT APIENTRY16 VIOGLOBALREG(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFun1, const ULONG flFun2, const USHORT usReturn)
 {
-  return VioGlobalReg(pszModName, pszEntryName, flFun1, flFun2, usReturn);
+  return Vio32GlobalReg(pszModName, pszEntryName, flFun1, flFun2, usReturn);
 }
 
-USHORT __pascal VIOCHECKCHARTYPE (PUSHORT pType,
+USHORT APIENTRY16 VIOCHECKCHARTYPE (PUSHORT pType,
                                  USHORT usRow,
                                  USHORT usColumn,
                                  HVIO hvio)
 {
-  return VioCheckCharType(pType, usRow, usColumn, hvio);
+  return Vio32CheckCharType(pType, usRow, usColumn, hvio);
 }
 
-USHORT __pascal VIOWRTTTY(const PCHAR Str, const USHORT Count, const HVIO Handle)
+USHORT APIENTRY16 VIOWRTTTY(const PCHAR Str, const USHORT Count, const HVIO Handle)
 {
-  return VioWrtTTY(Str, Count, Handle);
+  return Vio32WrtTTY(Str, Count, Handle);
 }
 
-USHORT __pascal         VIOFREE(void)
-{
-  return VioFree(__FUNCTION__);
-}
-
-
-USHORT __pascal         AVS_PRTSC(void)
+USHORT APIENTRY16 VIOFREE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         AVS_PRTSCTOGGLE(void)
+USHORT APIENTRY16 AVS_PRTSC(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOSRFBLOCK(void)
+USHORT APIENTRY16 AVS_PRTSCTOGGLE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOSRFUNBLOCK(void)
+USHORT APIENTRY16         VIOSRFBLOCK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOSAVE(void)
+USHORT APIENTRY16         VIOSRFUNBLOCK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIORESTORE(void)
+USHORT APIENTRY16         VIOSAVE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOHETINIT(void)
+USHORT APIENTRY16         VIORESTORE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOSSWSWITCH(void)
+USHORT APIENTRY16         VIOHETINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOSHELLINIT(void)
+USHORT APIENTRY16         VIOSSWSWITCH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOGETPSADDRESS(void)
+USHORT APIENTRY16         VIOSHELLINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOQUERYCONSOLE(void)
+USHORT APIENTRY16         VIOGETPSADDRESS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         VIOREDRAWSIZE(void)
+USHORT APIENTRY16         VIOQUERYCONSOLE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         XVIOSETCASTATE(void)
+USHORT APIENTRY16         VIOREDRAWSIZE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         XVIOCHECKCHARTYPE(void)
+USHORT APIENTRY16         XVIOSETCASTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         XVIODESTROYCA(void)
+USHORT APIENTRY16         XVIOCHECKCHARTYPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         XVIOCREATECA(void)
+USHORT APIENTRY16         XVIODESTROYCA(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         XVIOGETCASTATE(void)
+USHORT APIENTRY16         XVIOCREATECA(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16         XVIOGETCASTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }

@@ -178,7 +178,7 @@
 #include "../include/command.h"
 #include "../err_fcts.h"
 #include "../include/nls.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #include "tcc2wat.h"
 

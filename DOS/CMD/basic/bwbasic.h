@@ -119,7 +119,7 @@
 
 /* configure sets this (section added by JBV) */
 #ifndef HAVE_UNISTD
-#define HAVE_UNISTD     FALSE   /* Compiler has <unistd.h> header */
+#define HAVE_UNISTD     TRUE   /* Compiler has <unistd.h> header */
 #endif
 
 #ifdef __STDC__

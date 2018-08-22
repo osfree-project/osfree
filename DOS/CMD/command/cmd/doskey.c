@@ -6,7 +6,7 @@
 #include "../config.h"
 
 #include "../include/command.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_doskey (char * param) {
     (void)param;

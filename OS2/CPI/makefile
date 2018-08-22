@@ -5,7 +5,7 @@
 #
 
 DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls moncalls quecalls viocalls &
-       doscalls nampipes startlw bkscalls bmscalls bvscalls os2char sub32 &
+       doscalls nampipes startlw bkscalls bmscalls bvscalls bvh32 os2char sub32 &
        udsk
 
 !include $(%ROOT)/mk/all.mk

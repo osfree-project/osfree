@@ -13,7 +13,7 @@
 #include "../include/command.h"
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 void critEndRepCheck(void)
 {	unsigned critCount;

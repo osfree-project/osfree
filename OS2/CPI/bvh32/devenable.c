@@ -1,70 +1,54 @@
-typedef USHORT (APIENTRY FAR ENTRYPOINT)(VOID FAR *, VOID FAR *, ULONG);
-typedef USHORT (APIENTRY FAR * FAR * ENTRYPOINTTABLE)(VOID FAR *, VOID FAR *, ULONG);
-
-typedef struct _PARM1
-        {
-            ULONG       EngineVersion;
-            ULONG       TableSize;
-        } PARM1, FAR * PPARM1;
-
-typedef struct _PARM2
-        {
-            ULONG               FAR * Flags;
-            ENTRYPOINTTABLE     CallVectorTable;
-        } PARM2, FAR * PPARM2;
+#include "bvh.h"
 
 /*
 **
-** Table of BVH entry points supported
+** Table of supported BVH entry points
 **
 */
 
+#define MaxFn 26
 
-ENTRYPOINT FAR *BVHEntryPoint[MaxFn] =
+ENTRYPOINT *BVHEntryPoint[MaxFn] =
 {
-  &TextBufferUpdate,
-  &InitializeEnvironment,
-  &SaveEnvironment,
-  &RestoreEnvironment,
-  &QueryConfigInfo,
-  &DBCSDisplayInfo,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  &QueryCursorInfo,
-  &SetCursorInfo,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  &QueryMode,
-  &SetMode,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  &QueryVariableInfo,
-  &SetVariableInfo,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  UNSUPPORTED_FUNCTION,
-  &QueryLVBInfo,
-  &QueryVideoState,
-  &SetVideoState
+  &TextBufferUpdate,       //1
+  &InitializeEnvironment,  //2
+  &SaveEnvironment,        //3
+  &RestoreEnvironment,     //4
+  &QueryConfigInfo,        //5
+  &DBCSDisplayInfo,        //6
+  UNSUPPORTED_FUNCTION,    //7
+  UNSUPPORTED_FUNCTION,    //8
+  &QueryCursorInfo,        //9
+  &SetCursorInfo,          //10
+  UNSUPPORTED_FUNCTION,    //11
+  UNSUPPORTED_FUNCTION,    //12
+  &QueryMode,              //13
+  &SetMode,                //14
+  UNSUPPORTED_FUNCTION,    //15
+  UNSUPPORTED_FUNCTION,    //16
+  UNSUPPORTED_FUNCTION,    //17
+  UNSUPPORTED_FUNCTION,    //18
+  &QueryVariableInfo,      //19
+  &SetVariableInfo,        //20
+  UNSUPPORTED_FUNCTION,    //21
+  UNSUPPORTED_FUNCTION,    //22
+  UNSUPPORTED_FUNCTION,    //23
+  &QueryLVBInfo,           //24
+  &QueryVideoState,        //25
+  &SetVideoState           //26
 };
 
-USHORT APIENTRY DevEnable(PPARM2 Parameter2,
-                          PPARM1 Parameter1,
-                          ULONG Subfunction)
+APIRET APIENTRY Dev32Enable(PPARM2 Parameter2,
+                            PPARM1 Parameter1,
+                            ULONG Subfunction)
 {
   ULONG i;
-  USHORT rc = 0;
+  APIRET rc = 0;
 
-
-        for (i=0; (i<=MaxFn) && (i<((PPARM1)Parameter1)->TableSize); i++)
-        {
-          if (BVHEntryPoint[i] != UNSUPPORTED_FUNCTION)
-            ((PPARM2)Parameter2)->CallVectorTable[i+0x100] = BVHEntryPoint[i];
-        }
+  for (i=0; (i<=MaxFn) && (i<((PPARM1)Parameter1)->TableSize); i++)
+  {
+    if (BVHEntryPoint[i] != UNSUPPORTED_FUNCTION)
+      ((PPARM2)Parameter2)->CallVectorTable[i+0x100] = BVHEntryPoint[i];
+  }
   return rc;
 }
-
-
-

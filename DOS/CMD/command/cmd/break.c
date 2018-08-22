@@ -13,7 +13,7 @@
 #include "../err_fcts.h"
 #include "../include/command.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_break(char *param)
 {

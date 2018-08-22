@@ -151,8 +151,8 @@ int getftime (int handle, struct ftime *ftimep) /* Get a file's time */
             struct ftime bc_time;
       } FTIME;
 
-      if (0 == (retval = DOS_GETFTIME(handle, (unsigned short *)&FTIME.msc_time.date,
-            (unsigned short *)&FTIME.msc_time.time)))
+      if (0 == (retval = DOS_GETFTIME(handle, (unsigned int *)&FTIME.msc_time.date,
+            (unsigned int *)&FTIME.msc_time.time)))
       {
             *ftimep = FTIME.bc_time;
       }

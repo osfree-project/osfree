@@ -40,7 +40,7 @@
 
 #include "../include/command.h"
 #include "../include/context.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #include "../err_fcts.h"
 
 int cmd_history(char *param)

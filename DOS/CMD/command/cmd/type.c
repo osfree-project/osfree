@@ -29,7 +29,7 @@
 #include "../include/command.h"
 #include "../err_fcts.h"
 #include "../include/openf.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_type(char *param)
 {

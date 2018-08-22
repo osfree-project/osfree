@@ -47,7 +47,7 @@
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #include "../include/openf.h"
 
 #define ASCII 1

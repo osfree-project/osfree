@@ -51,7 +51,7 @@
 #include <fmemory.h>
 
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #include "../include/strings.typ"
 
 char *getString(unsigned id)

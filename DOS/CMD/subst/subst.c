@@ -11,7 +11,7 @@
 APIRET syntax(void)
 {
 //   cmd_ShowSystemMessage(cmd_MSG_DISKCOPY_HELP,0L);
-//   return NO_ERROR;
+   return 0;
 }
 
 //**************************************************************************
@@ -45,5 +45,5 @@ int main (int argc, char* argv[], char* envp[])
             }
         }
     }
-
+  return 0;
 }

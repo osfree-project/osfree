@@ -1,3 +1,7 @@
-USHORT EXPENTRY SetCursorInfo(ENVIRONMENT FAR *Environment, VDH_CURSOR FAR *ParmBlock, ULONG Function)
+#include "bvh.h"
+
+APIRET APIENTRY SetCursorInfo(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+//VDH_CURSOR
+  return NO_ERROR;
 }

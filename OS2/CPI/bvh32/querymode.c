@@ -1,10 +1,7 @@
-typedef struct
-          {
-          WORD       Parmlength;
-          WORD       Flags;
-          DWORD      ModeDataStructureFarAddress;
-          } VDH_MODE;
-          
-USHORT EXPENTRY QueryMode(ENVIRONMENT FAR *Environment, ??? FAR *ParmBlock, ULONG Function)
+#include "bvh.h"
+
+APIRET APIENTRY QueryMode(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+// VDH_MODE
+  return NO_ERROR;
 }

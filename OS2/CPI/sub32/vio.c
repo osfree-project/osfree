@@ -2,17 +2,20 @@
 #define INCL_DOSERRORS        /* Error values */
 #include <os2.h>
 
+APIRET unimplemented(char *func);
+APIRET APIENTRY BVSMain(ULONG fn);
+
 // Function numbers for Base Video System main call
-#define FN_GETPHYSBUF      00
-#define FN_GETBUF          01
-#define FN_SHOWBUF         02
-#define FN_GETCURPOS       03
-#define FN_GETCURTYPE      04
-#define FN_GETMODE         05
-#define FN_SETCURPOS       06
-#define FN_SETCURTYPE      07
-#define FN_SETMODE         08
-#define FN_READCHARSTR     09
+#define FN_GETPHYSBUF      0
+#define FN_GETBUF          1
+#define FN_SHOWBUF         2
+#define FN_GETCURPOS       3
+#define FN_GETCURTYPE      4
+#define FN_GETMODE         5
+#define FN_SETCURPOS       6
+#define FN_SETCURTYPE      7
+#define FN_SETMODE         8
+#define FN_READCHARSTR     9
 #define FN_READCELLSTR     10
 #define FN_WRTNCHAR        11
 #define FN_WRTNATTR        12
@@ -63,7 +66,7 @@ APIRET APIENTRY VioCall(ULONG fn)
   return BVSMain(fn);
 }
 
-USHORT VioEndPopUp (HVIO hvio)
+USHORT APIENTRY VioEndPopUp (HVIO hvio)
 {
   return unimplemented(__FUNCTION__);
 }

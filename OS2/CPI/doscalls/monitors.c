@@ -1,63 +1,71 @@
 /* MonCalls */
 
+// 16-bit prototypes
 #define  INCL_DOSMONITORS
 #include <os2.h>
 
+// 32-bit prototypes (EMXWRAP/SUB32 style)
+USHORT APIENTRY Dos32MonClose(const HMONITOR hmon);
+USHORT APIENTRY Dos32MonOpen(const PSZ a, HMONITOR * hmon);
+USHORT APIENTRY Dos32MonRead(const PBYTE a, const USHORT b, const PBYTE c, const PUSHORT d);
+USHORT APIENTRY Dos32MonReg(const HMONITOR hmon, const PBYTE b, const PBYTE c, const USHORT d, const USHORT e);
+USHORT APIENTRY Dos32MonWrite(const PBYTE a, const PBYTE b, const USHORT c);
 
-USHORT __pascal Dos16MonClose(const HMONITOR hmon)
+
+USHORT APIENTRY16 Dos16MonClose(const HMONITOR hmon)
 {
-  return DosMonClose(hmon);
+  return Dos32MonClose(hmon);
 }
 
 
-USHORT __pascal Dos16MonOpen(const PSZ a, HMONITOR * hmon)
+USHORT APIENTRY16 Dos16MonOpen(const PSZ a, HMONITOR * hmon)
 {
-  return DosMonOpen(a, hmon);
+  return Dos32MonOpen(a, hmon);
 }
 
 
-USHORT __pascal Dos16MonRead(const PBYTE a, const USHORT b, const PBYTE c, const PUSHORT d)
+USHORT APIENTRY16 Dos16MonRead(const PBYTE a, const USHORT b, const PBYTE c, const PUSHORT d)
 {
-  return DosMonRead(a, b, c, d);
+  return Dos32MonRead(a, b, c, d);
 }
 
 
-USHORT __pascal Dos16MonReg(const HMONITOR hmon, const PBYTE b, const PBYTE c, const USHORT d, const USHORT e)
+USHORT APIENTRY16 Dos16MonReg(const HMONITOR hmon, const PBYTE b, const PBYTE c, const USHORT d, const USHORT e)
 {
-  return DosMonReg(hmon, b, c, d, e);
+  return Dos32MonReg(hmon, b, c, d, e);
 }
 
 
-USHORT __pascal Dos16MonWrite(const PBYTE a, const PBYTE b, const USHORT c)
+USHORT APIENTRY16 Dos16MonWrite(const PBYTE a, const PBYTE b, const USHORT c)
 {
-  return 0(a, b, c);
+  return Dos32MonWrite(a, b, c);
 }
 
-USHORT DosMonClose(const HMONITOR hmon)
-{
-  return 0;
-}
-
-
-USHORT DosMonOpen(const PSZ a, HMONITOR * hmon)
-{
-  return 0;
-}
-
-
-USHORT DosMonRead(const PBYTE a, const USHORT b, const PBYTE c, const PUSHORT d)
+USHORT Dos32MonClose(const HMONITOR hmon)
 {
   return 0;
 }
 
 
-USHORT DosMonReg(const HMONITOR hmon, const PBYTE b, const PBYTE c, const USHORT d, const USHORT e)
+USHORT Dos32MonOpen(const PSZ a, HMONITOR * hmon)
 {
   return 0;
 }
 
 
-USHORT DosMonWrite(const PBYTE a, const PBYTE b, const USHORT c)
+USHORT Dos32MonRead(const PBYTE a, const USHORT b, const PBYTE c, const PUSHORT d)
+{
+  return 0;
+}
+
+
+USHORT Dos32MonReg(const HMONITOR hmon, const PBYTE b, const PBYTE c, const USHORT d, const USHORT e)
+{
+  return 0;
+}
+
+
+USHORT Dos32MonWrite(const PBYTE a, const PBYTE b, const USHORT c)
 {
   return 0;
 }

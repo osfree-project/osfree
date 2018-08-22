@@ -1,3 +1,5 @@
+#include <os2.h>
+
 ULONG PTDA_LANMAN_SEC;
 ULONG PTDA_PID;
 ULONG SAS_SEL;

@@ -7,7 +7,7 @@
 #ifdef DISP_EXITCODE
 
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 
 int exitReason;	        /* defined in dispexit.c, set in exec1.c, reason program terminated */

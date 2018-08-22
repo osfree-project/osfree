@@ -1,12 +1,7 @@
-typedef struct
-          {
-          WORD Parmlength;
-          WORD Flags;
-          WORD DBCSTableLength;
-          WORD DBCS Table Offset;
-          } VDH_DBCS;
+#include "bvh.h"
 
-      
-USHORT EXPENTRY DBCSDisplayInfo(ENVIRONMENT FAR *Environment, VDH_DBCS FAR *ParmBlock, ULONG Function)
+APIRET APIENTRY DBCSDisplayInfo(ENVIRONMENT *Environment, VOID *ParmBlock, ULONG Function)
 {
+// VDH_DBCS
+  return NO_ERROR;
 }

@@ -17,7 +17,7 @@
 #include "../include/context.h"
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #define promptBuffer 256
 

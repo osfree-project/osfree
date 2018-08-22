@@ -55,6 +55,8 @@ srcfiles = $(p)msg$(e) &
            $(p)dossearchpath$(e) &
            $(p)token$(e) &
            $(p)monitors$(e) &
+           $(p)dos16cwait$(e) &
+           $(p)viocalls$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
@@ -124,67 +126,66 @@ IMPORTS = &
         _KalSleep                KAL.KalSleep, &
         _KalSuspendThread        KAL.KalSuspendThread, &
         _KalWaitThread           KAL.KalWaitThread, &
-        _KalWrite                KAL.KalWrite, & 
-                                            &
+        _KalWrite                KAL.KalWrite, &
         WinDefAVioWindowProc     SUB32.30,  &
                                             &
-        VioEndPopUp              SUB32.101, &
-        VioGetPhysBuf            SUB32.102, &
-        VioGetAnsi               SUB32.103, &
-        VioSetAnsi               SUB32.105, &
-        VioWrtTTY                SUB32.119, &
-        VioDeRegister            SUB32.106, &
-        VioScrollUp              SUB32.107, &
-        VioPrtSc                 SUB32.108, &
-        VioGetCurPos             SUB32.109, &
-        VioWrtCellStr            SUB32.110, &
-        VioPopUp                 SUB32.111, &
-        VioScrollRt              SUB32.112, &
-        VioWrtCharStr            SUB32.113, &
-        VioSetCurPos             SUB32.115, &
-        VioScrUnLock             SUB32.118, &
-        VioGetMode               SUB32.121, &
-        VioSetMode               SUB32.122, &
-        VioScrLock               SUB32.123, &
-        VioReadCellStr           SUB32.124, &
-        VioSavRedrawWait         SUB32.125, &
-        VioWrtNAttr              SUB32.126, &
-        VioGetCurType            SUB32.127, &
-        VioSavRedrawUndo         SUB32.128, &
-        VioGetFont               SUB32.129, &
-        VioReadCharStr           SUB32.130, &
-        VioGetBuf                SUB32.131, &
-        VioSetCurType            SUB32.132, &
-        VioSetFont               SUB32.133, &
-        VioModeUndo              SUB32.135, &
-        VioModeWait              SUB32.137, &
-        VioGetCp                 SUB32.140, &
-        VioSetCp                 SUB32.142, &
-        VioShowBuf               SUB32.143, &
-        VioScrollLf              SUB32.144, &
-        VioRegister              SUB32.145, &
-        VioGetConfig             SUB32.146, &
-        VioScrollDn              SUB32.147, &
-        VioWrtCharStrAtt         SUB32.148, &
-        VioGetState              SUB32.149, &
-        VioPrtScToggle           SUB32.150, &
-        VioSetState              SUB32.151, &
-        VioWrtNCell              SUB32.152, &
-        VioWrtNChar              SUB32.153, &
-        VioAssociate             SUB32.155, &
-        VioCreatePS              SUB32.156, &
-        VioDeleteSetId           SUB32.157, &
-        VioGetDeviceCellSize     SUB32.158, &
-        VioGetOrg                SUB32.159, &
-        VioCreateLogFont         SUB32.160, &
-        VioDestroyPS             SUB32.161, &
-        VioQuerySetIds           SUB32.162, &
-        VioSetOrg                SUB32.163, &
-        VioQueryFonts            SUB32.164, &
-        VioSetDeviceCellSize     SUB32.165, &
-        VioShowPS                SUB32.166, &
-        VioGlobalReg             SUB32.170, &
-        VioCheckCharType         SUB32.175, &
+        Vio32EndPopUp              SUB32.101, &
+        Vio32GetPhysBuf            SUB32.102, &
+        Vio32GetAnsi               SUB32.103, &
+        Vio32SetAnsi               SUB32.105, &
+        Vio32WrtTTY                SUB32.119, &
+        Vio32DeRegister            SUB32.106, &
+        Vio32ScrollUp              SUB32.107, &
+        Vio32PrtSc                 SUB32.108, &
+        Vio32GetCurPos             SUB32.109, &
+        Vio32WrtCellStr            SUB32.110, &
+        Vio32PopUp                 SUB32.111, &
+        Vio32ScrollRt              SUB32.112, &
+        Vio32WrtCharStr            SUB32.113, &
+        Vio32SetCurPos             SUB32.115, &
+        Vio32ScrUnLock             SUB32.118, &
+        Vio32GetMode               SUB32.121, &
+        Vio32SetMode               SUB32.122, &
+        Vio32ScrLock               SUB32.123, &
+        Vio32ReadCellStr           SUB32.124, &
+        Vio32SavRedrawWait         SUB32.125, &
+        Vio32WrtNAttr              SUB32.126, &
+        Vio32GetCurType            SUB32.127, &
+        Vio32SavRedrawUndo         SUB32.128, &
+        Vio32GetFont               SUB32.129, &
+        Vio32ReadCharStr           SUB32.130, &
+        Vio32GetBuf                SUB32.131, &
+        Vio32SetCurType            SUB32.132, &
+        Vio32SetFont               SUB32.133, &
+        Vio32ModeUndo              SUB32.135, &
+        Vio32ModeWait              SUB32.137, &
+        Vio32GetCp                 SUB32.140, &
+        Vio32SetCp                 SUB32.142, &
+        Vio32ShowBuf               SUB32.143, &
+        Vio32ScrollLf              SUB32.144, &
+        Vio32Register              SUB32.145, &
+        Vio32GetConfig             SUB32.146, &
+        Vio32ScrollDn              SUB32.147, &
+        Vio32WrtCharStrAtt         SUB32.148, &
+        Vio32GetState              SUB32.149, &
+        Vio32PrtScToggle           SUB32.150, &
+        Vio32SetState              SUB32.151, &
+        Vio32WrtNCell              SUB32.152, &
+        Vio32WrtNChar              SUB32.153, &
+        Vio32Associate             SUB32.155, &
+        Vio32CreatePS              SUB32.156, &
+        Vio32DeleteSetId           SUB32.157, &
+        Vio32GetDeviceCellSize     SUB32.158, &
+        Vio32GetOrg                SUB32.159, &
+        Vio32CreateLogFont         SUB32.160, &
+        Vio32DestroyPS             SUB32.161, &
+        Vio32QuerySetIds           SUB32.162, &
+        Vio32SetOrg                SUB32.163, &
+        Vio32QueryFonts            SUB32.164, &
+        Vio32SetDeviceCellSize     SUB32.165, &
+        Vio32ShowPS                SUB32.166, &
+        Vio32GlobalReg             SUB32.170, &
+        Vio32CheckCharType         SUB32.175, &
                                             &
         KbdSetCustXt             SUB32.201, &
         KbdGetCp                 SUB32.203, &
@@ -239,8 +240,7 @@ IMPORTS = &
         DosMonOpen               SUB32.404, &
         DosMonReg                SUB32.405
 
-EXPORTS = &
-        DosICreateThread           .1, &
+EXPORTS = DosICreateThread           .1, &
         DOS16CWAIT                 .2, &
         DOS16ENTERCRITSEC          .3, &
         DosIExecPgm                .4, &

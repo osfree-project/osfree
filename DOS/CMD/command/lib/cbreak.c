@@ -58,7 +58,7 @@
 #include "../include/batch.h"
 #include "../include/misc.h"
 #include "../include/command.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 /* This is to prevent all that Turbo C CONIO stuff from being linked in */
 static void mycprintf( char *fmt, ... )

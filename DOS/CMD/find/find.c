@@ -32,6 +32,7 @@
 
 //#include <dir.h>        /* for findfirst, findnext */
 #include <dos.h>        /* for findfirst, findnext */
+#include <direct.h>
 
 #include "find_str.h"         /* find_str() back-end */
 #include "io95.h"

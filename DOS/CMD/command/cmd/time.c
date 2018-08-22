@@ -36,7 +36,7 @@
 #include "../err_fcts.h"
 #include "../include/misc.h"
 #include "../include/nls.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 static int noPrompt = 0;
 
