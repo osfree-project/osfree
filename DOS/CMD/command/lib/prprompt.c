@@ -74,6 +74,7 @@
 #include "../include/misc.h"
 #include "../err_fcts.h"
 
+int getdisk(void);
 
 #define PROMPTVAR "PROMPT"
 

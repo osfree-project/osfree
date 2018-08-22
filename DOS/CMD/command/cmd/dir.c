@@ -225,7 +225,7 @@ static int dispLFN;
 #ifdef FEATURE_DESCRIPT_ION
 static int descriptionExists;
 static FILE *fDescription;
-void showDescription(const char *shortName, char *ext);
+static void showDescription(const char *shortName, char *ext);
 #endif
 
 static struct ffblk _seg *orderArray;

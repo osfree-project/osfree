@@ -125,7 +125,7 @@ varfound:
 static int doFOR (char * varname, char * varE, char * param, char * paramE,
                   char *cmd, int flags) {
         /* char *oldContents;
-	char **argv;			/* pattern list * /
+	char **argv;			// pattern list 
 	int argc;
 	int rv;	*/
 
@@ -271,8 +271,10 @@ int cmd_for_hackery(char *Xparam)
 	char *varname, *varE, *cmd, *paramE;
 	int flags;
 
-	if(!matchtok((char*)Xparam, "for")
-	 || checkFOR((char*)Xparam, &varname, &varE, &param, &paramE, &cmd, &flags)
+        char *tmp = (char *)Xparam; 
+
+	if(!matchtok(tmp, "for")
+	 || checkFOR(tmp, &varname, &varE, &param, &paramE, &cmd, &flags)
 	 != OK)
 		return 0;
 

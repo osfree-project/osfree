@@ -84,8 +84,8 @@ co(mpilers):
 #include <stdlib.h>
 #include <dos.h>
 #endif
-#ifndef __WATCOMC__
-#include <tcc2wat.h>
+#ifdef __WATCOMC__
+int getdisk(void);
 #endif
 #include "dfn.loc"
 #include "dynstr.h"
