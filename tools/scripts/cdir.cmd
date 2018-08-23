@@ -8,6 +8,8 @@
 parse arg dir
 parse source os .
 
+dir = strip(dir, 'B')
+
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
    os = 'WINNT' | os = 'WIN32'
 then
