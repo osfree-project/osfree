@@ -4,7 +4,9 @@ PROJ = rexxapi
 TRGT = $(PROJ).dll
 DESC = REXX API forwarder for Regina
 srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e)
-ADD_COPT     = -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -i=$(PATH) -sg -st -of+ -bd -3s
+# number of 16-bit subcommand wrappers (see rexxapi16.c)
+NUMWRAP = 1024
+ADD_COPT     = -dSUBCOM_COUNT=$(NUMWRAP) -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -i=$(PATH) -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 DLL          = 1
 NOLIBS       = 1
@@ -71,9 +73,6 @@ EXPORTS      = &
 
 DEST         = os2$(SEP)dll
 #UNI2H        = 1
-
-# number of 16-bit subcommand wrappers (see rexxapi16.c)
-NUMWRAP = 1024
 
 .h: $(PATH)
 
