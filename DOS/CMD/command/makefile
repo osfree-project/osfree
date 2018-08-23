@@ -15,7 +15,7 @@ DIRS = strings criter cmd suppl lib shell utils
 TARGETS=$(PROJ).com
 
 $(PROJ).com: infores
-  copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1 + $(PATH)criter$(SEP)criter + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
+  copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1$(SEP)criter1.exe + $(PATH)criter$(SEP)criter.exe + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
 
 infores:
  $(PATH)utils$(SEP)mkinfres.exe $(PATH)infores $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe

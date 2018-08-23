@@ -9,7 +9,7 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_invalid_parameter
 void error_invalid_parameter(const char * const str)

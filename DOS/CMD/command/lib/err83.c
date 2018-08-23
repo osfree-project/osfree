@@ -9,7 +9,7 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_copy_plus_destination
 void error_copy_plus_destination(void)

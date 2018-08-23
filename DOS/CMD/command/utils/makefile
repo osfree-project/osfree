@@ -10,5 +10,5 @@ DESC      = DOS command interpreter
 srcfiles = $(p)mkinfres$(e)
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
 
-!include $(%ROOT)/mk/appsos2.mk
+!include $(%ROOT)/mk/tools.mk
 
