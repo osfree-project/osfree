@@ -45,7 +45,8 @@ DIRS =        shared &
               ver &
               vol &
               xcopy &
-              zip
+              zip &
+              shutdown
 
 #              diskcomp
 #              print
