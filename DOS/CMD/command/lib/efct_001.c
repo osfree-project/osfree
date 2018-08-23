@@ -50,7 +50,7 @@
 
 #include "../include/command.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 void error_env(int base, int err_no, const char * const var)
 {

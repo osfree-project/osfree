@@ -9,7 +9,7 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_open_file
 void error_open_file(const char * const fnam)

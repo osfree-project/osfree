@@ -29,7 +29,7 @@
 #include "../include/command.h"
 #include "../include/cmdline.h"
 #include "../include/nls.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_chcp(char *param)
 {       unsigned curCP, sysCP;

@@ -41,7 +41,9 @@
 
 #include <assert.h>
 #include <ctype.h>
-//#include <dir.h>
+
+int getdisk(void);
+int setdisk(int drive);
 
 #include "../include/misc.h"
 

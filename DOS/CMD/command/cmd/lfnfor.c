@@ -15,7 +15,7 @@
 #include "../err_fcts.h"
 #include "../include/command.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 unsigned char lfnfor = 0;
 unsigned char lfncomplete = 0;

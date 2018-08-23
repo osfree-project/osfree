@@ -29,6 +29,7 @@
 /*---------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <direct.h>
 
 #include "bwbasic.h"
 #include "bwb_mes.h"

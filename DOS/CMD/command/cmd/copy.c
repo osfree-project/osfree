@@ -47,7 +47,7 @@
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #include "../include/openf.h"
 
 #define ASCII 1
@@ -448,7 +448,7 @@ static int copy(char *dst, char *pattern, struct CopySource *src
       unlink(rDest);            /* if device -> no removal, ignore error */
       return 0;
     }
-  } while(wildcarded && FINDNEXT(&ff) == 0 && !(isfirst = 0));
+  } while(wildcarded && FINDNEXT(&ff) == 0 && !(isfirst == 0));
 
   FINDSTOP(&ff);
 

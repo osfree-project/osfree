@@ -14,7 +14,7 @@
 
 #include "../include/context.h"
 #include "../include/command.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #ifdef __WATCOMC__
 #include "tcc2wat.h"
 #endif

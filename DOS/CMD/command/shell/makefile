@@ -15,9 +15,6 @@ srcfiles = $(p)cb_catch$(e) &
            $(p)tcc2wat$(e) # $(p)xms_crit$(e) $(p)xms_brk$(e) $(p)xms_2e$(e) $(p)cswap$(e) 
 # defines additional options for C compiler
 
-# utils\mkinfres.exe infores shell\command.map shell\command.exe
-# copy /b shell\command.exe + infores + criter\criter1 + criter\criter + strings\strings.dat command.com
-
 ADD_COPT    = -ml -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
 ADD_ASMOPT  = -ml -dMODEL=l -d2 -db  -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. &
               -i=$(MYDIR)..$(SEP)criter -i=$(PATH)..$(SEP)strings$(SEP)critstrs

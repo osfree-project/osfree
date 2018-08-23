@@ -4,9 +4,18 @@
 # valerius, 2006/10/30
 #
 
-DIRS = strings cmd suppl lib criter shell # utils
+32_BITS = 0
+PROJ      = cmd
+TRGT      = $(PROJ).com
+DESC      = DOS command interpreter
+
+DIRS = strings criter cmd suppl lib shell utils
 
 !include $(%ROOT)/mk/all.mk
+TARGETS=$(PROJ).com
 
-#TARGETS=subdirs
-#TARGET=all
+$(PROJ).com: infores
+  copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1$(SEP)criter1.exe + $(PATH)criter$(SEP)criter.exe + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
+
+infores:
+ $(PATH)utils$(SEP)mkinfres.exe $(PATH)infores $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe

@@ -62,7 +62,7 @@
 
 #include "../include/misc.h"
 #include "../include/nls.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 char *nls_maketime(int mode, int hour, int minute, int second, int fraction)
 {	char buf[4 + 4 + sizeof(int) * 8 * 4 + 6];

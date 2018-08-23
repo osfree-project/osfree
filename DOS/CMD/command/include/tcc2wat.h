@@ -19,6 +19,7 @@
 #ifdef __WATCOMC__
 #include <graph.h>
 #include <time.h>
+#include <direct.h>
 
 #define coreleft()    0L
 #define farcoreleft() 0L

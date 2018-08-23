@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
 
 #include "environ.h"
 #include "nls_c.h"
@@ -17,7 +18,7 @@
 #include "../include/context.h"
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #define promptBuffer 256
 

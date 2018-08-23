@@ -75,7 +75,7 @@ if($src) {
 
 #include \"../include/misc.h\"
 #include \"../err_fcts.h\"
-#include \"../strings.h\"
+#include \"../strings/strings.h\"
 
 #undef $fctname
 void $header

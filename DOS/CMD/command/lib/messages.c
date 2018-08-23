@@ -69,7 +69,7 @@
 #include "../include/misc.h"
 #include "../include/resource.h"
 #include "../include/res.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 #include "../include/strings.typ"
 #include "../include/cswap.h"
 

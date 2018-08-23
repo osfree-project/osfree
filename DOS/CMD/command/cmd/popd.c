@@ -14,7 +14,7 @@
 #include "../include/context.h"
 #include "../include/command.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_popd(char *param)
 {

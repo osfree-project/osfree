@@ -52,7 +52,10 @@
 #include "../config.h"
 
 #include <assert.h>
-//#include <dir.h>
+
+//#include "tcc2wat.h"
+int getdisk(void);
+int setdisk(int drive);
 
 #include "../err_fcts.h"
 #include "../include/misc.h"

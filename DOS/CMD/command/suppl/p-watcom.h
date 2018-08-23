@@ -91,6 +91,6 @@ extern short setdisk(int newdrive);
         parm [dx]       \
         modify [dx]     \
         value [ax]
-*/
 
+*/
 #endif

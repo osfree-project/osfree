@@ -34,7 +34,7 @@
 
 #include <config.h>
 #include <command.h>
-#include <strings.h>
+#include <strings/strings.h>
 
 
 /* a list of all the internal commands, associating their command names */

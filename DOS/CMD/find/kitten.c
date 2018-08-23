@@ -74,7 +74,7 @@ int dos_open(char *filename, int mode)
 {
 	union REGS r;
         struct SREGS s;
-	if (mode);		/* mode ignored - readonly supported */
+//	if (mode);		/* mode ignored - readonly supported */
 	r.h.ah = 0x3d;
 	r.h.al = 0;		/* read mode only supoported now !! */
 	r.x.dx = FP_OFF(filename);

@@ -100,7 +100,7 @@ extern int oldinfd, oldoutfd;
 
 void fatal_error(char *);
 int is_delim(int);
-void execute(char *, char *);
+static void execute(char *, char *);
 void command(char *);
 void parsecommandline(char *, int);
 int initialize(void);

@@ -178,7 +178,7 @@
 #include "../include/command.h"
 #include "../err_fcts.h"
 #include "../include/nls.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #include "tcc2wat.h"
 
@@ -225,7 +225,7 @@ static int dispLFN;
 #ifdef FEATURE_DESCRIPT_ION
 static int descriptionExists;
 static FILE *fDescription;
-void showDescription(const char *shortName, char *ext);
+static void showDescription(const char *shortName, char *ext);
 #endif
 
 static struct ffblk _seg *orderArray;

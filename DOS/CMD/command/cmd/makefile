@@ -1,5 +1,5 @@
 #
-# A Makefile for ATTRIB
+# A Makefile for COMMAND.COM
 # (c) osFree project,
 # author, date
 #
@@ -19,8 +19,13 @@ srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
+ADD_COPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH) -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
 TARGETS = $(PATH)cmd.lib
 
-$(TARGETS): $(OBJS)
+$(TARGETS): $(OBJS) $(PATH)..$(SEP)context.def
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
+
+$(PATH)..$(SEP)context.def: $(MYDIR)context.x
+ @mkctxt $<
+ @$(CP) $(MYDIR)context.h_c $(PATH).. $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)

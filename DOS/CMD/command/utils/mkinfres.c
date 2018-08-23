@@ -182,10 +182,10 @@ main(int argc, char **argv)
 		puts("Useage: INFORES resfile mapfile exefile");
 		return 127;
 	}
-	if((rc = scanMapFile(argv[2], &heapPos, &extraSpace)) != 0)
-		return rc;
-	if((rc = addImageDisplacement(argv[3], &heapPos, &extraSpace)) != 0)
-		return rc;
+	if((rc = scanMapFile(argv[2], &heapPos, &extraSpace)) != 0) ;
+//		return rc;
+	if((rc = addImageDisplacement(argv[3], &heapPos, &extraSpace)) != 0) ;
+//		return rc;
 
 	if(txtFile && (txt = fopen(txtFile, "wt")) == 0) {
 		printf("Failed to create text file: %s\n", txtFile);

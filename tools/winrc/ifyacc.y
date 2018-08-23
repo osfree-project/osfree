@@ -29,9 +29,15 @@ at the address twin@willows.com
 
 
 #include <stdio.h>
+#ifdef __OS2__
+#include <malloc.h>
+#endif
 #include "rc.h"
 #include "define.h"
 #include "buffer.h"
+
+int zzerror(char *str);
+int zzlex(void);
 
 extern int ifResult;
 

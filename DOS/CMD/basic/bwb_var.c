@@ -376,7 +376,7 @@ bwb_swap( l )
    lhs->array_pos = rhs->array_pos;
    lhs->dimensions = rhs->dimensions;
 
-   if ( lhs->type = NUMBER )
+   if ( lhs->type == NUMBER )
       {
       rhs->memnum = tmp.memnum;
       }

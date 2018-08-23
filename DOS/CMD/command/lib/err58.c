@@ -9,7 +9,7 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_dirfct_failed
 void error_dirfct_failed(const char * const fctname, const char * const dirname)

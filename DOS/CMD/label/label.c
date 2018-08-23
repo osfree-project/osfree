@@ -26,11 +26,7 @@
 
 #include <io.h>
 #include <dos.h>
-#ifdef __TURBOC__
-#include <dir.h>   /* findfirst, getdisk, setdisk, some constants */
-                   /* (others are in dos.h */
 #include <ctype.h> /* toupper */
-#endif
 #include <stdlib.h>
 #include <string.h>
 

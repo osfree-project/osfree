@@ -13,7 +13,7 @@
 
 #include "../include/context.h"
 #include "../include/misc.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 typedef struct {
 	unsigned char tag;

@@ -48,6 +48,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <dos.h>
 #include "md5.h"
 #include "global.h"

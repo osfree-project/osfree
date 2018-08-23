@@ -129,7 +129,7 @@ void xcopy_file(const char *src_filename,
 /*-------------------------------------------------------------------------*/
 /* MAIN-PROGRAM                                                            */
 /*-------------------------------------------------------------------------*/
-int main(int argc, char **argv) {
+int main(int argc, char const **argv) {
   char fileargc,
        *fileargv[255],
        switchargc,

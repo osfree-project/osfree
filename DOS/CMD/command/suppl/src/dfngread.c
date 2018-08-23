@@ -102,7 +102,8 @@ int dfnglobread(DFN_GLOB * const g)
 	assert(g->dfn_basedir);
 	if(g->dfn_flags.dfn_rewind || !g->dfn_data) {
 		/* restart file search */
-		if(0 == StrChg((char*)g->dfn_data, sizeof(struct ffblk)))
+		char *tmp=(char*)g->dfn_data;
+		if(0 == StrChg(tmp, sizeof(struct ffblk)))
 			DBG_RETURN_I(0)
 
 		strcpy(g->dfn_basedir + g->dfn_basediroffset, g->dfn_pattern);

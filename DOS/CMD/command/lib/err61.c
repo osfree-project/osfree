@@ -9,12 +9,9 @@
 
 #include "../include/misc.h"
 #include "../err_fcts.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 #undef error_context_out_of_memory
 void error_context_out_of_memory(void)
-{
-#ifndef NO_CONTEXT_ERROR
-	displayError(TEXT_ERROR_CONTEXT_OUT_OF_MEMORY);
-#endif
+{	displayError(TEXT_ERROR_CONTEXT_OUT_OF_MEMORY);
 }

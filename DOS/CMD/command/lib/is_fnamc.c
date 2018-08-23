@@ -42,6 +42,8 @@
 
 #include <assert.h>
 
+#include <string.h>
+
 #include <fmemory.h>
 
 #include "../include/nls.h"

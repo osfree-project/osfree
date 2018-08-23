@@ -8,7 +8,7 @@
 
 #include "../include/context.h"
 #include "../include/command.h"
-#include "../strings.h"
+#include "../strings/strings.h"
 
 int cmd_dirs (char * param) {
     (void)param;

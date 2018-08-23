@@ -27,7 +27,7 @@
 #include "../include/batch.h"
 #include "../include/cmdline.h"
 #include "../err_fcts.h"
-#include <strings.h>
+#include <strings/strings.h>
 #ifdef FEATURE_NLS
 #include "../include/nls.h"
 #endif
@@ -869,7 +869,7 @@ int main(int argc, char **argv, char **envp)
   for (i = 0; i < 5; i++)
     printf("envp[%u] = %s\n", i, envp[i]);
 
-  return 0;
+//  return 0;
 
   if(setjmp(jmp_beginning) == 0 && initialize() == E_None)
     process_input(0, 0);

@@ -65,7 +65,6 @@ add: version number of strings and logfile entries
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #undef DEBUG
 #include "../config.h"
 #include "../include/strings.typ"
@@ -73,7 +72,7 @@ add: version number of strings and logfile entries
 #include "../include/keys.h"
 
 char *logfile = "strings.log";
-char *fDAT    = "strings.dar";
+char *fDAT    = "strings.dat";
 char *fTXT    = "default.lng";
 char *fH      = "strings.h";
 char *fEXT    = ".lng";

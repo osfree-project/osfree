@@ -84,6 +84,9 @@ co(mpilers):
 #include <stdlib.h>
 #include <dos.h>
 #endif
+#ifdef __WATCOMC__
+int getdisk(void);
+#endif
 #include "dfn.loc"
 #include "dynstr.h"
 #include "suppl.h"

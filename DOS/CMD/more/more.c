@@ -555,7 +555,7 @@ usage (nl_catd cat)
 {
   char *s;
 
-  if (cat) ;
+//  if (cat) ;
 
   /* Show version, copyright, and GNU GPL */
 
