@@ -278,6 +278,8 @@ function VioGlobalReg        (in pszModName: PSZ; in pszEntryName: PSZ; in flFun
 
 function VioGetAnsi          (out Ansi:   USHORT;
                               in  Handle: HVIO): USHORT;
+function VioSetAnsi          (in Ansi:   USHORT;
+                              in Handle: HVIO): USHORT;
 
 function VioGetCp            (in  Reserved:   USHORT;
                               out IdCodePage: USHORT;
@@ -362,9 +364,6 @@ function VioScrollUp         (in TopRow:   USHORT;
                               in Lines:    USHORT;
                               in Cell:     PBYTE;
                               in Handle:   HVIO): USHORT;
-
-function VioSetAnsi          (in Ansi:   USHORT;
-                              in Handle: HVIO): USHORT;
 
 function VioSetCp            (in Reserved:   USHORT;
                               in IdCodePage: USHORT;
