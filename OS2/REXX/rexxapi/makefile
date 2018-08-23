@@ -72,7 +72,7 @@ EXPORTS      = &
     RXFUNCTIONDEREGISTER.48 RESIDENT
 
 DEST         = os2$(SEP)dll
-#UNI2H        = 1
+# UNI2H        = 1
 
 .h: $(PATH)
 

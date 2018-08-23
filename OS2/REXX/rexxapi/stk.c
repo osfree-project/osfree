@@ -11,7 +11,7 @@
 
 #include <rexxsaa.h>
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "rexxapi.h"
 #include "stk.h"
