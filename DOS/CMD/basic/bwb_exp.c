@@ -1,1490 +1,3519 @@
 /****************************************************************
-
+  
         bwb_exp.c       Expression Parser
                         for Bywater BASIC Interpreter
-
+  
                         Copyright (c) 1993, Ted A. Campbell
                         Bywater Software
-
+  
                         email: tcamp@delphi.com
-
+  
         Copyright and Permissions Information:
-
+  
         All U.S. and international rights are claimed by the author,
         Ted A. Campbell.
-
-	This software is released under the terms of the GNU General
-	Public License (GPL), which is distributed with this software
-	in the file "COPYING".  The GPL specifies the terms under
-	which users may copy and use the software in this distribution.
-
-	A separate license is available for commercial distribution,
-	for information on which you should contact the author.
-
-****************************************************************/
+  
+   This software is released under the terms of the GNU General
+   Public License (GPL), which is distributed with this software
+   in the file "COPYING".  The GPL specifies the terms under
+   which users may copy and use the software in this distribution.
+  
+   A separate license is available for commercial distribution,
+   for information on which you should contact the author.
+  
+***************************************************************/
 
 /*---------------------------------------------------------------*/
 /* NOTE: Modifications marked "JBV" were made by Jon B. Volkoff, */
 /* 11/1995 (eidetics@cerf.net).                                  */
+/*                                                               */
+/* Those additionally marked with "DD" were at the suggestion of */
+/* Dale DePriest (daled@cadence.com).                            */
+/*                                                               */
+/* Version 3.00 by Howard Wulf, AF5NE                            */
+/*                                                               */
+/* Version 3.10 by Howard Wulf, AF5NE                            */
+/*                                                               */
+/* Version 3.20 by Howard Wulf, AF5NE                            */
+/*                                                               */
 /*---------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <ctype.h>
-#include <math.h>
+
 
 #include "bwbasic.h"
-#include "bwb_mes.h"
 
-/***************************************************************
 
-        FUNCTION:	bwb_exp()
+/* 
+--------------------------------------------------------------------------------------------
+                               EXPRESSION PARSER
 
-        DESCRIPTION:	This is the function by which the expression
-			parser is called.
+Inspired by https://groups.google.com/forum/m/#!topic/comp.compilers/RCyhEbLfs40
+...
+// Permission is given to use this source provided an acknowledgement is given.
+// I'd also like to know if you've found it useful.
+//
+// The following Research Report describes the idea, and shows how the
+// parsing method may be understood as an encoding of the usual family-of-
+// parsing-procedures technique as used e.g. in Pascal compilers.
+//     @techreport{QMW-DCS-383-1986a,
+//       author       ="Clarke, Keith",
+//       title        ="The Top-Down Parsing of Expressions",
+//       institution  ="Department of Computer Science, Queen Mary College, University of London, England",
+//       year         ="1986",
+//       month        ="June",
+//       number       ="QMW-DCS-1986-383",
+//       scope        ="theory",
+//       abstractURL  ="http://www.dcs.qmw.ac.uk/publications/report_abstracts/1986/383",
+//       keywords     ="Recursive-descent parsing, expression parsing, operator precedence parsing."
+//     }
+// A formal proof of the algorithm was made, as part of his PhD thesis work,
+// by A.M. Abbas of QMC, London, in the framework of Constructive Set Theory.
+// copyright Keith Clarke, Dept of Computer Science, QMW, University of London,
+// England.    email kei...@dcs.qmw.ac.uk
+...
+--------------------------------------------------------------------------------------------
+*/
 
-***************************************************************/
+/* 
+For all functions named "line_*",  "LineType * line" is the first parameter.
+For all functions named "buff_*",  "char * buffer, int * position" are the first two parameters.
+FALSE must be zero.
+TRUE  must be non-zero.
+*/
 
-#if ANSI_C
-struct exp_ese *
-bwb_exp( char *expression, int assignment, int *position )
-#else
-struct exp_ese *
-bwb_exp( expression, assignment, position )
-   char *expression;
-   int assignment;
-   int *position;
-#endif
-   {
-   struct exp_ese *rval;			/* return value */
-   int entry_level, main_loop, err_condition;
-   char *e;                                     /* pointer to current string */
-   int r;                                       /* return value from functions */
-   register int c;                              /* quick counter */
-#if OLD_WAY
-   int adv_loop;
-#endif
 
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "entered bwb_exp(): expression <%s> assignment <%d> level <%d>",
-      & ( expression[ *position ] ), assignment, CURTASK expsc );
-   bwb_debug( bwb_ebuf );
-#endif
 
-   /* save the entry level of the expression stack in order to
-      check it at the end of this function */
+/* OperatorType.Arity */
+#define UNARY  1
+#define BINARY 2
 
-   entry_level = CURTASK expsc;
-   err_condition = FALSE;
+/* OperatorType.IsAlpha */
+#define IS_ALPHA  'T'
+#define NO_ALPHA  'F'
 
-   /* advance past whitespace or beginning of line segment */
 
-#if MULTISEG_LINES
-   if ( expression[ *position ] == ':' )
+#define COPY_VARIANT( X, Y ) if( X != NULL ) { bwb_memcpy( X, Y, sizeof( VariantType ) ); bwb_memset( Y, 0, sizeof( VariantType ) ); }
+
+typedef ResultType (OperatorFunctionType) (VariantType * X, VariantType * Y);
+
+struct OperatorStruct
+{
+  const unsigned char ThisPrec;
+  const unsigned char NextPrec;        /* if BINARY and LEFT assoc, then ThisPrec+1, else ThisPrec */
+  const unsigned char Arity;        /* UNARY or BINARY */
+  const char IsAlpha;                /* IS_ALPHA or NO_ALPHA, determines how operator is matched */
+  const char *Name;
+  OperatorFunctionType *Eval;
+  const char *Syntax;
+  const char *Description;
+  OptionVersionType OptionVersionBitmask;        /* OPTION VERSION bitmask */
+};
+typedef struct OperatorStruct OperatorType;
+
+static int both_are_long (VariantType * X, VariantType * Y);
+static int both_integer_type (VariantType * X, VariantType * Y);
+static int both_number_type (VariantType * X, VariantType * Y);
+static int both_string_type (VariantType * X, VariantType * Y);
+static ResultType buff_read_expr (char *buffer, int *position,
+                                  VariantType * X, unsigned char LastPrec);
+static ResultType buff_read_function (char *buffer, int *position,
+                                      VariantType * X);
+static ResultType buff_read_internal_constant (char *buffer, int *position,
+                                               VariantType * X);
+static OperatorType *buff_read_operator (char *buffer, int *position,
+                                         unsigned char LastPrec,
+                                         unsigned char Arity);
+static ResultType buff_read_primary (char *buffer, int *position,
+                                     VariantType * X);
+static ResultType buff_read_string_constant (char *buffer, int *position,
+                                             VariantType * X);
+static ResultType buff_read_variable (char *buffer, int *position,
+                                      VariantType * X);
+static int bwb_isodigit (int C);
+static int is_integer_type (VariantType * X);
+static int is_long_value (VariantType * X);
+static int is_number_type (VariantType * X);
+static int is_string_type (VariantType * X);
+static char Largest_TypeCode (char TypeCode, VariantType * X);
+static char math_type (VariantType * X, VariantType * Y);
+static char max_number_type (char X, char Y);
+static char min_value_type (VariantType * X);
+static ResultType OP_ADD (VariantType * X, VariantType * Y);
+static ResultType OP_AMP (VariantType * X, VariantType * Y);
+static ResultType OP_AND (VariantType * X, VariantType * Y);
+static ResultType OP_DIV (VariantType * X, VariantType * Y);
+static ResultType OP_EQ (VariantType * X, VariantType * Y);
+static ResultType OP_EQV (VariantType * X, VariantType * Y);
+static ResultType OP_EXP (VariantType * X, VariantType * Y);
+static ResultType OP_GE (VariantType * X, VariantType * Y);
+static ResultType OP_GT (VariantType * X, VariantType * Y);
+static ResultType OP_IDIV (VariantType * X, VariantType * Y);
+static ResultType OP_IMP (VariantType * X, VariantType * Y);
+static ResultType OP_LE (VariantType * X, VariantType * Y);
+static ResultType OP_LIKE (VariantType * X, VariantType * Y);
+static ResultType OP_LT (VariantType * X, VariantType * Y);
+static ResultType OP_MAX (VariantType * X, VariantType * Y);
+static ResultType OP_MIN (VariantType * X, VariantType * Y);
+static ResultType OP_MOD (VariantType * X, VariantType * Y);
+static ResultType OP_MUL (VariantType * X, VariantType * Y);
+static ResultType OP_NE (VariantType * X, VariantType * Y);
+static ResultType OP_NEG (VariantType * X, VariantType * Y);
+static ResultType OP_NOT (VariantType * X, VariantType * Y);
+static ResultType OP_OR (VariantType * X, VariantType * Y);
+static ResultType OP_POS (VariantType * X, VariantType * Y);
+static ResultType OP_SUB (VariantType * X, VariantType * Y);
+static ResultType OP_XOR (VariantType * X, VariantType * Y);
+static void SortAllOperatorsForManual (void);
+static ResultType test_eq (VariantType * X, VariantType * Y, int TrueValue,
+                           int FalseValue);
+static ResultType test_gt (VariantType * X, VariantType * Y, int TrueValue,
+                           int FalseValue);
+static ResultType test_lt (VariantType * X, VariantType * Y, int TrueValue,
+                           int FalseValue);
+
+
+/* table of operators */
+
+/* 
+In BASIC, 2 ^ 3 ^ 2 = ( 2 ^ 3 ) ^ 2 = 64, and -2 ^ 2 = - (2 ^ 2) = -4.
+*/
+
+
+static OperatorType OperatorTable[ /* NUM_OPERATORS */ ] =
+{
+  /* LOGICAL */
+  {0x01, 0x02, BINARY, IS_ALPHA, "IMP", OP_IMP, "X IMP Y", "Bitwise IMP",
+   B15 | B93 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71 | M80 | T80
+   | H14},
+  {0x02, 0x03, BINARY, IS_ALPHA, "EQV", OP_EQV, "X EQV Y", "Bitwise EQV",
+   B15 | B93 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71 | M80 | T80
+   | H14},
+  {0x03, 0x04, BINARY, IS_ALPHA, "XOR", OP_XOR, "X XOR Y",
+   "Bitwise Exclusive OR",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | M80 | T79 | R86 | T80 | H14},
+  {0x03, 0x04, BINARY, IS_ALPHA, "XRA", OP_XOR, "X XRA Y",
+   "Bitwise Exclusive OR",
+   HB2},
+  {0x04, 0x05, BINARY, IS_ALPHA, "OR", OP_OR, "X OR Y", "Bitwise OR",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x05, 0x06, BINARY, IS_ALPHA, "AND", OP_AND, "X AND Y", "Bitwise AND",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x06, 0x06, UNARY, IS_ALPHA, "NOT", OP_NOT, "NOT X", "Bitwise NOT",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+/* RELATIONAL */
+  {0x07, 0x08, BINARY, IS_ALPHA, "NE", OP_NE, "X NE Y", "Not Equal",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, "#", OP_NE, "X # Y", "Not Equal",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, "<>", OP_NE, "X <> Y", "Not Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, NO_ALPHA, "><", OP_NE, "X >< Y", "Not Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "GE", OP_GE, "X GE Y",
+   "Greater than or Equal",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, ">=", OP_GE, "X >= Y",
+   "Greater than or Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, NO_ALPHA, "=>", OP_GE, "X => Y",
+   "Greater than or Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "LE", OP_LE, "X LE Y", "Less than or Equal",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, "<=", OP_LE, "X <= Y", "Less than or Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, NO_ALPHA, "=<", OP_LE, "X =< Y", "Less than or Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "EQ", OP_EQ, "X EQ Y", "Equal",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, "=", OP_EQ, "X = Y", "Equal",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "LT", OP_LT, "X LT Y", "Less than",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, "<", OP_LT, "X < Y", "Less than",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "GT", OP_GT, "X GT Y", "Greater than",
+   0},
+  {0x07, 0x08, BINARY, NO_ALPHA, ">", OP_GT, "X > Y", "Greater than",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x07, 0x08, BINARY, IS_ALPHA, "LIKE", OP_LIKE, "A$ LIKE B$",
+   "Compare A$ to the pattern in B$",
+   B15},
+  {0x07, 0x08, BINARY, IS_ALPHA, "MAX", OP_MAX, "X MAX Y", "Maximum",
+   0},
+  {0x07, 0x08, BINARY, IS_ALPHA, "MIN", OP_MIN, "X MIN Y", "Minimum",
+   0},
+/* CONCATENATION */
+  {0x08, 0x09, BINARY, NO_ALPHA, "&", OP_AMP, "X & Y", "Concatenation",
+   B15 | B93 | HB2},
+/* ARITHMETIC */
+  {0x09, 0x0A, BINARY, NO_ALPHA, "+", OP_ADD, "X + Y", "Addition",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x09, 0x0A, BINARY, NO_ALPHA, "-", OP_SUB, "X - Y", "Subtraction",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x0A, 0x0B, BINARY, IS_ALPHA, "MOD", OP_MOD, "X MOD Y", "Integer Modulus",
+   B15 | B93 | HB1 | HB2 | D71 | M80 | R86 | T80 | H14},
+  {0x0B, 0x0C, BINARY, NO_ALPHA, "\\", OP_IDIV, "X \\ Y", "Integer Division",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | E78 | E86 | M80 | T80 | H14},
+  {0x0C, 0x0D, BINARY, NO_ALPHA, "*", OP_MUL, "X * Y", "Multiplication",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x0C, 0x0D, BINARY, NO_ALPHA, "/", OP_DIV, "X / Y", "Division",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x0D, 0x0D, UNARY, NO_ALPHA, "#", OP_POS, "# X", "Posation",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | C77 | D71 | E86 | M80 | T79
+   | R86 | T80 | H80 | H14},
+  {0x0D, 0x0D, UNARY, NO_ALPHA, "+", OP_POS, "+ X", "Posation",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x0D, 0x0D, UNARY, NO_ALPHA, "-", OP_NEG, "- X", "Negation",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | T80 | H80 | V09 | H14},
+  {0x0E, 0x0F, BINARY, NO_ALPHA, "^", OP_EXP, "X ^ Y", "Exponential",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78 | E86 | M80 | T79 | R86 | H80 | V09 | H14},
+  {0x0E, 0x0F, BINARY, NO_ALPHA, "[", OP_EXP, "X [ Y", "Exponential",
+   B15 | HB1 | HB2 | T80},
+  {0x0E, 0x0F, BINARY, NO_ALPHA, "**", OP_EXP, "X ** Y", "Exponential",
+   B15 | B93 | HB1 | HB2 | D64 | G65 | G67 | G74 | S70 | I70 | I73 | C77 | D71
+   | D70 | D73 | E78},
+};
+
+static const size_t NUM_OPERATORS =
+  sizeof (OperatorTable) / sizeof (OperatorType);
+
+/*
+--------------------------------------------------------------------------------------------
+                               Helpers
+--------------------------------------------------------------------------------------------
+*/
+
+extern void
+SortAllOperators (void)                /* SortAllOperators() should be called by bwb_init() */
+{
+  /* sort the operators by decreasing length, so "**" matches before "*" and so on. */
+  int i;
+   
+
+  for (i = 0; i < NUM_OPERATORS - 1; i++)
+  {
+    int j;
+    int k;
+    int m;
+
+    k = i;
+    m = bwb_strlen (OperatorTable[i].Name);
+
+    for (j = i + 1; j < NUM_OPERATORS; j++)
+    {
+      int n;
+      n = bwb_strlen (OperatorTable[j].Name);
+      if (n > m)
       {
-      ++( *position );
+        m = n;
+        k = j;
       }
-#endif
-   adv_ws( expression, position );
-#if MULTISEG_LINES
-   if ( expression[ *position ] == ':' )
+    }
+    if (k > i)
+    {
+      /* swap */
+      OperatorType t;
+      OperatorType *T;
+      OperatorType *I;
+      OperatorType *K;
+
+      T = &t;
+      I = &OperatorTable[i];
+      K = &OperatorTable[k];
+
+      bwb_memcpy (T, I, sizeof (t));
+      bwb_memcpy (I, K, sizeof (t));
+      bwb_memcpy (K, T, sizeof (t));
+    }
+  }
+}
+
+static void
+SortAllOperatorsForManual (void)        /* SortAllOperators() should be called aftwards */
+{
+  /* sort the operators by by precedence (high-to-low) then name (alphabetically). */
+  int i;
+   
+
+  for (i = 0; i < NUM_OPERATORS - 1; i++)
+  {
+    int j;
+    int k;
+    int m;
+
+    k = i;
+    m = OperatorTable[i].ThisPrec;
+
+    for (j = i + 1; j < NUM_OPERATORS; j++)
+    {
+      int n;
+      n = OperatorTable[j].ThisPrec;
+      if (n > m)
       {
-      ++( *position );
-      adv_ws( expression, position );
+        m = n;
+        k = j;
       }
-#endif
-
-   /* increment the expression stack counter to get a new level */
-
-   inc_esc();
-
-   /* check to be sure there is a legitimate expression
-      and set initial parameters for the main loop */
-
-   if ( is_eol( expression, position ) == TRUE )
+      else
+        if (n == m
+            && bwb_stricmp (OperatorTable[j].Name, OperatorTable[k].Name) < 0)
       {
-      main_loop = FALSE;    /* break out of loop */
+        m = n;
+        k = j;
       }
-   else
+    }
+    if (k > i)
+    {
+      /* swap */
+      OperatorType t;
+      OperatorType *T;
+      OperatorType *I;
+      OperatorType *K;
+
+      T = &t;
+      I = &OperatorTable[i];
+      K = &OperatorTable[k];
+
+      bwb_memcpy (T, I, sizeof (t));
+      bwb_memcpy (I, K, sizeof (t));
+      bwb_memcpy (K, T, sizeof (t));
+    }
+  }
+}
+static char
+min_value_type (VariantType * X)
+{
+  /* returns the minimal TypeCode, based upon a NUMBER's value */
+   
+  assert (X != NULL);
+
+
+  if (isnan (X->Number))
+  {
+      /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+    WARN_INTERNAL_ERROR;
+    return NulChar;
+  }
+  if (X->Number == bwb_rint (X->Number))
+  {
+    /* INTEGER */
+    if (MINBYT <= X->Number && X->Number <= MAXBYT)
+    {
+      return ByteTypeCode;
+    }
+    if (MININT <= X->Number && X->Number <= MAXINT)
+    {
+      return IntegerTypeCode;
+    }
+    if (MINLNG <= X->Number && X->Number <= MAXLNG)
+    {
+      return LongTypeCode;
+    }
+    if (MINCUR <= X->Number && X->Number <= MAXCUR)
+    {
+      return CurrencyTypeCode;
+    }
+  }
+  /* FLOAT */
+  if (MINSNG <= X->Number && X->Number <= MAXSNG)
+  {
+    return SingleTypeCode;
+  }
+  if (MINDBL <= X->Number && X->Number <= MAXDBL)
+  {
+    return DoubleTypeCode;
+  }
+  /* OVERFLOW */
+  if (X->Number < 0)
+  {
+    X->Number = MINDBL;
+  }
+  else
+  {
+    X->Number = MAXDBL;
+  }
+  if (WARN_OVERFLOW)
+  {
+    /* ERROR */
+  }
+  /* CONTINUE */
+  return DoubleTypeCode;
+}
+
+
+
+static char
+max_number_type (char X, char Y)
+{
+  /* returns the maximal TypeCode, given two NUMBER TypeCode's */
+   
+
+
+  if (X == DoubleTypeCode || Y == DoubleTypeCode)
+  {
+    return DoubleTypeCode;
+  }
+  if (X == SingleTypeCode || Y == SingleTypeCode)
+  {
+    return SingleTypeCode;
+  }
+  if (X == CurrencyTypeCode || Y == CurrencyTypeCode)
+  {
+    return CurrencyTypeCode;
+  }
+  if (X == LongTypeCode || Y == LongTypeCode)
+  {
+    return LongTypeCode;
+  }
+  if (X == IntegerTypeCode || Y == IntegerTypeCode)
+  {
+    return IntegerTypeCode;
+  }
+  if (X == ByteTypeCode || Y == ByteTypeCode)
+  {
+    return ByteTypeCode;
+  }
+   /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+  WARN_INTERNAL_ERROR;
+  return NulChar;
+}
+static char
+math_type (VariantType * X, VariantType * Y)
+{
+  /*
+   **
+   ** Returns the TypeCode resulting from a math operation, such as addition.
+   ** The return TypeCode should be the maximal of:
+   ** a.  The original X's TypeCode.
+   ** b.  The original Y's TypeCode.
+   ** c.  The result's minimal TypeCode.
+   **
+   */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return
+    max_number_type (max_number_type (X->VariantTypeCode, Y->VariantTypeCode),
+                     min_value_type (X));
+}
+
+static char
+Largest_TypeCode (char TypeCode, VariantType * X)
+{
+  assert (X != NULL);
+  if (is_integer_type (X))
+  {
+    X->Number = bwb_rint (X->Number);
+  }
+  return max_number_type (TypeCode, min_value_type (X));
+}
+static int
+is_string_type (VariantType * X)
+{
+  /* if value is a STRING, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  switch (X->VariantTypeCode)
+  {
+  case ByteTypeCode:
+  case IntegerTypeCode:
+  case LongTypeCode:
+  case CurrencyTypeCode:
+  case SingleTypeCode:
+  case DoubleTypeCode:
+    if (X->Buffer != NULL)
+    {
+         /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+      WARN_INTERNAL_ERROR;
+      return FALSE;
+    }
+    return FALSE;
+  case StringTypeCode:
+    if (X->Buffer == NULL)
+    {
+         /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+      WARN_INTERNAL_ERROR;
+      return FALSE;
+    }
+    return TRUE;
+  }
+   /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+  WARN_INTERNAL_ERROR;
+  return FALSE;
+}
+static int
+is_number_type (VariantType * X)
+{
+  /* if value is a NUMBER, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  switch (X->VariantTypeCode)
+  {
+  case ByteTypeCode:
+  case IntegerTypeCode:
+  case LongTypeCode:
+  case CurrencyTypeCode:
+  case SingleTypeCode:
+  case DoubleTypeCode:
+    if (X->Buffer != NULL)
+    {
+         /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+      WARN_INTERNAL_ERROR;
+      return FALSE;
+    }
+    return TRUE;
+  case StringTypeCode:
+    if (X->Buffer == NULL)
+    {
+         /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+      WARN_INTERNAL_ERROR;
+      return FALSE;
+    }
+    return FALSE;
+  }
+   /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+  WARN_INTERNAL_ERROR;
+  return FALSE;                        /* never reached */
+}
+static int
+is_integer_type (VariantType * X)
+{
+  /* if value is an INTEGER, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  switch (X->VariantTypeCode)
+  {
+  case ByteTypeCode:
+    return TRUE;
+  case IntegerTypeCode:
+    return TRUE;
+  case LongTypeCode:
+    return TRUE;
+  case CurrencyTypeCode:
+    return TRUE;
+  case SingleTypeCode:
+    return FALSE;
+  case DoubleTypeCode:
+    return FALSE;
+  case StringTypeCode:
+    return FALSE;
+  }
+   /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+  WARN_INTERNAL_ERROR;
+  return FALSE;
+}
+static int
+both_string_type (VariantType * X, VariantType * Y)
+{
+  /* if both values are a STRING, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (is_string_type (X) && is_string_type (Y))
+  {
+    return TRUE;
+  }
+  return FALSE;
+}
+static int
+both_number_type (VariantType * X, VariantType * Y)
+{
+  /* if both values are a NUMBER, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (is_number_type (X) && is_number_type (Y))
+  {
+    return TRUE;
+  }
+  return FALSE;
+}
+static int
+both_integer_type (VariantType * X, VariantType * Y)
+{
+  /* if both values are an INTEGER, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (is_integer_type (X) && is_integer_type (Y))
+  {
+    return TRUE;
+  }
+  return FALSE;
+}
+static int
+is_long_value (VariantType * X)
+{
+  /* if the NUMBER's value can be a LONG, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  if (isnan (X->Number))
+  {
+      /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+    WARN_INTERNAL_ERROR;
+    return FALSE;
+  }
+  if (X->Number == bwb_rint (X->Number))
+  {
+    if (MINCUR <= X->Number && X->Number <= MAXCUR)
+    {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+static int
+both_are_long (VariantType * X, VariantType * Y)
+{
+  /* if both values can be a LONG, then TRUE, else FALSE */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (is_long_value (X) && is_long_value (Y))
+  {
+    return TRUE;
+  }
+  return FALSE;
+}
+static int
+bwb_isodigit (int C)
+{
+   
+  switch (C)
+  {
+  case '0':
+  case '1':
+  case '2':
+  case '3':
+  case '4':
+  case '5':
+  case '6':
+  case '7':
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+
+/*
+--------------------------------------------------------------------------------------------
+                               Operators
+--------------------------------------------------------------------------------------------
+*/
+
+static ResultType
+OP_ADD (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X + Y) */
+    X->Number += Y->Number;
+    if (both_integer_type (X, Y))
+    {
+      X->Number = bwb_rint (X->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X$ = (X$ + Y$) */
+    return OP_AMP (X, Y);
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_AMP (VariantType * X, VariantType * Y)
+{
+  /* X$ = (X  & Y ) */
+  /* X$ = (X  & Y$) */
+  /* X$ = (X$ & Y ) */
+  /* X$ = (X$ & Y$) */
+  size_t CharsRemaining;
+  VariantType t;
+  VariantType *T;
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+
+  T = &t;
+  if (X->VariantTypeCode != StringTypeCode)
+  {
+    /* coerce X to X$ */
+    if ((X->Buffer = (char *) calloc (NUMLEN, sizeof (char))) == NULL)        /* free() called by OP_ADD() */
+    {
+      WARN_OUT_OF_MEMORY;
+      return RESULT_ERROR;
+    }
+    FormatBasicNumber (X->Number, X->Buffer);
+    X->Length = bwb_strlen (X->Buffer);
+    X->VariantTypeCode = StringTypeCode;
+  }
+  if (Y->VariantTypeCode != StringTypeCode)
+  {
+    /* coerce Y to Y$ */
+    if ((Y->Buffer = (char *) calloc (NUMLEN, sizeof (char))) == NULL)        /* free() called by OP_ADD() */
+    {
+      WARN_OUT_OF_MEMORY;
+      return RESULT_ERROR;
+    }
+    FormatBasicNumber (Y->Number, Y->Buffer);
+    Y->Length = bwb_strlen (Y->Buffer);
+    Y->VariantTypeCode = StringTypeCode;
+  }
+  if (X->Length > MAXLEN)
+  {
+    WARN_STRING_TOO_LONG;
+    X->Length = MAXLEN;
+  }
+  if (Y->Length > MAXLEN)
+  {
+    WARN_STRING_TOO_LONG;
+    Y->Length = MAXLEN;
+  }
+  T->VariantTypeCode = StringTypeCode;
+  T->Length = X->Length + Y->Length;
+  if (T->Length > MAXLEN)
+  {
+    WARN_STRING_TOO_LONG;
+    T->Length = MAXLEN;
+  }
+  /* we always allocate a buffer, even for non-empty strings */
+  if ((T->Buffer =
+       (char *) calloc (T->Length + 1 /* NulChar */ , sizeof (char))) == NULL)
+  {
+    WARN_OUT_OF_MEMORY;
+    return RESULT_ERROR;
+  }
+  CharsRemaining = T->Length;
+  if (X->Length > CharsRemaining)
+  {
+    X->Length = CharsRemaining;
+  }
+  if (X->Length > 0)
+  {
+    bwb_memcpy (T->Buffer, X->Buffer, X->Length);
+    CharsRemaining -= X->Length;
+  }
+  if (Y->Length > CharsRemaining)
+  {
+    Y->Length = CharsRemaining;
+  }
+  if (Y->Length > 0)
+  {
+    bwb_memcpy (&T->Buffer[X->Length], Y->Buffer, Y->Length);
+    CharsRemaining -= Y->Length;
+  }
+  if (CharsRemaining != 0)
+  {
+    WARN_INTERNAL_ERROR;
+    return RESULT_ERROR;
+  }
+  T->Buffer[T->Length] = NulChar;
+  RELEASE_VARIANT (X);
+  RELEASE_VARIANT (Y);
+  COPY_VARIANT (X, T);
+  return RESULT_SUCCESS;
+}
+static ResultType
+OP_SUB (VariantType * X, VariantType * Y)
+{
+  /* X = (X - Y) */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    X->Number -= Y->Number;
+    if (both_integer_type (X, Y))
+    {
+      X->Number = bwb_rint (X->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_MUL (VariantType * X, VariantType * Y)
+{
+  /* X = (X * Y) */
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    X->Number *= Y->Number;
+    if (both_integer_type (X, Y))
+    {
+      X->Number = bwb_rint (X->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_IDIV (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = (X \ Y) */
+    X->Number = bwb_rint (X->Number);
+    Y->Number = bwb_rint (Y->Number);
+    if (Y->Number == 0)
+    {
+      /* - Evaluation of an expression results in division
+       * by zero (nonfatal, the recommended recovery
+       * procedure is to supply machine infinity with the
+       * sign of the numerator and continue) 
+       */
+      if (X->Number < 0)
       {
-      main_loop = TRUE;
-      CURTASK exps[ CURTASK expsc ].pos_adv = 0;
+        /* NEGATIVE */
+        X->Number = MINDBL;        /* NEGATIVE INFINITY */
+      }
+      else
+      {
+        /* POSITIVE  */
+        X->Number = MAXDBL;        /* POSITIVE INFINITY */
+      }
+      if (WARN_DIVISION_BY_ZERO)
+      {
+        return RESULT_ERROR;
+      }
+      /* CONTINUE */
+    }
+    else
+    {
+      DoubleType N;
+
+      N = bwb_rint (X->Number / Y->Number);
+      if (My->CurrentVersion->OptionVersionValue & (R86))
+      {
+        /* for RBASIC's RESIDUE function */
+        My->RESIDUE = bwb_rint (X->Number - N * Y->Number);
+      }
+      X->Number = N;
+
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_DIV (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X / Y) */
+    if (both_integer_type (X, Y))
+    {
+      return OP_IDIV (X, Y);
+    }
+    if (Y->Number == 0)
+    {
+      /* - Evaluation of an expression results in division
+       * by zero (nonfatal, the recommended recovery
+       * procedure is to supply machine infinity with the
+       * sign of the numerator and continue) 
+       */
+      if (X->Number < 0)
+      {
+        /* NEGATIVE */
+        X->Number = MINDBL;        /* NEGATIVE INFINITY */
+      }
+      else
+      {
+        /* POSITIVE  */
+        X->Number = MAXDBL;        /* POSITIVE INFINITY */
+      }
+      if (WARN_DIVISION_BY_ZERO)
+      {
+        return RESULT_ERROR;
+      }
+      /* CONTINUE */
+    }
+    else
+    {
+      X->Number /= Y->Number;
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_MOD (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X MOD Y) */
+    X->Number = bwb_rint (X->Number);
+    Y->Number = bwb_rint (Y->Number);
+    if (Y->Number == 0)
+    {
+      /* - Evaluation of an expression results in division
+       * by zero (nonfatal, the recommended recovery
+       * procedure is to supply machine infinity with the
+       * sign of the numerator and continue) 
+       */
+      if (X->Number < 0)
+      {
+        /* NEGATIVE */
+        X->Number = MINDBL;        /* NEGATIVE INFINITY */
+      }
+      else
+      {
+        /* POSITIVE  */
+        X->Number = MAXDBL;        /* POSITIVE INFINITY */
+      }
+      if (WARN_DIVISION_BY_ZERO)
+      {
+        return RESULT_ERROR;
+      }
+      /* CONTINUE */
+    }
+    else
+    {
+      DoubleType N;
+      DoubleType I;
+      N = X->Number / Y->Number;
+      modf (N, &I);
+      N = X->Number - Y->Number * I;
+      X->Number = bwb_rint (N);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_EXP (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X ^ Y) */
+    if (X->Number < 0 && Y->Number != bwb_rint (Y->Number))
+    {
+         /*** FATAL ***/
+      /* - Evaluation of the operation of
+       * involution results in a negative number
+       * being raised to a non-integral power
+       * (fatal). */
+      X->Number = 0;
+      WARN_ILLEGAL_FUNCTION_CALL;
+      return RESULT_ERROR;
+    }
+    if (X->Number == 0 && Y->Number < 0)
+    {
+      /* - Evaluation of the operation of
+       * involution results in a zero being
+       * raised to a negative value (nonfatal, the
+       * recommended recovery procedure is to
+       * supply positive machine infinity and
+       * continue). */
+
+      X->Number = MAXDBL;
+      if (WARN_OVERFLOW)
+      {
+        /* ERROR */
+      }
+      /* CONTINUE */
+    }
+    else
+    {
+      X->Number = pow (X->Number, Y->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_NEG (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y == NULL);
+  if (Y != NULL)
+  {
+    WARN_INTERNAL_ERROR;
+    return RESULT_ERROR;
+  }
+  if (is_number_type (X))
+  {
+    /* X = (- X) */
+    X->Number = -X->Number;
+    X->VariantTypeCode = min_value_type (X);
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_POS (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y == NULL);
+  if (Y != NULL)
+  {
+    WARN_INTERNAL_ERROR;
+    return RESULT_ERROR;
+  }
+  if (is_number_type (X))
+  {
+    /* X = (+ X) */
+    /*
+       X->Number = X->Number;
+       X->VariantTypeCode = min_value_type( X );
+     */
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_OR (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+  
+  if (both_number_type (X, Y))
+  {
+    /* X = (X OR Y) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* OR */ )
+      {
+        if (x)
+        {
+          x = -1;
+        }
+        if (y)
+        {
+          y = -1;
+        }
       }
 
-#if OLDWAY
-   adv_loop = TRUE;
-   while( adv_loop == TRUE )
+      x = x | y;
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* OR */ )
       {
-      switch( expression[ *position ] )
-         {
-         case ' ':                           /* whitespace */
-         case '\t':
-            ++(*position);
-            break;
-         case '\0':                          /* end of string */
-         case '\r':
-         case '\n':
-            main_loop = adv_loop = FALSE;    /* break out of loop */
-            break;
-         default:
-            adv_loop = FALSE;
-            main_loop = TRUE;
-            CURTASK exps[ CURTASK expsc ].pos_adv = 0;
-            break;
-         }
+        if (x)
+        {
+          x = 1;
+        }
       }
-#endif
 
-   /* main parsing loop */
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_AND (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-   while ( main_loop == TRUE )
+  if (both_number_type (X, Y))
+  {
+    /* X = (X AND Y) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* AND */ )
       {
+        if (x)
+        {
+          x = -1;
+        }
+        if (y)
+        {
+          y = -1;
+        }
+      }
 
-      /* set variable <e> to the start of the expression */
+      x = x & y;
 
-      e = &( expression[ *position ] );
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* AND */ )
+      {
+        if (x)
+        {
+          x = 1;
+        }
+      }
 
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in bwb_exp(): main loop, level <%d> element <%s> ",
-         CURTASK expsc, e );
-      bwb_debug( bwb_ebuf );
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_XOR (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = (X XOR Y) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* XOR */ )
+      {
+        if (x)
+        {
+          x = -1;
+        }
+        if (y)
+        {
+          y = -1;
+        }
+      }
+
+      x = x ^ y;
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* XOR */ )
+      {
+        if (x)
+        {
+          x = 1;
+        }
+      }
+
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_EQV (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = (X EQV Y)  = NOT ( X XOR Y ) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* EQV */ )
+      {
+        if (x)
+        {
+          x = -1;
+        }
+        if (y)
+        {
+          y = -1;
+        }
+      }
+
+      x = ~(x ^ y);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* EQV */ )
+      {
+        if (x)
+        {
+          x = 1;
+        }
+      }
+
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_IMP (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = (X IMP Y)  = (X AND Y) OR (NOT X) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* IMP */ )
+      {
+        if (x)
+        {
+          x = -1;
+        }
+        if (y)
+        {
+          y = -1;
+        }
+      }
+
+      x = (x & y) | (~x);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* IMP */ )
+      {
+        if (x)
+        {
+          x = 1;
+        }
+      }
+
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_NOT (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y == NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (Y != NULL)
+  {
+    WARN_INTERNAL_ERROR;
+    return RESULT_ERROR;
+  }
+  if (is_number_type (X))
+  {
+    /* X = (NOT X) */
+    if (is_long_value (X))
+    {
+      long x;
+
+      x = (long) bwb_rint (X->Number);
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* NOT */ )
+      {
+        if (x)
+        {
+          x = -1;
+        }
+      }
+
+      x = ~x;
+
+      if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_BOOLEAN) /* NOT */ )
+      {
+        if (x)
+        {
+          x = 1;
+        }
+      }
+
+      X->Number = x;
+      X->VariantTypeCode = min_value_type (X);
+      return RESULT_SUCCESS;
+    }
+    WARN_OVERFLOW;
+    return RESULT_ERROR;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_MAX (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X MAX Y) = IIF( X < Y, Y, X ) */
+    if (X->Number < Y->Number)
+    {
+      X->Number = Y->Number;
+    }
+    if (both_integer_type (X, Y))
+    {
+      X->Number = bwb_rint (X->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X$ = ( X$ MAX Y$ ) == IIF( X$ < Y$,  Y$, X$ ) */
+    if (bwb_stricmp (X->Buffer, Y->Buffer) < 0)
+    {
+      RELEASE_VARIANT (X);
+      COPY_VARIANT (X, Y);
+    }
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_MIN (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_number_type (X, Y))
+  {
+    /* X = (X MIN Y) = IIF( X > Y, Y, X ) */
+    if (X->Number > Y->Number)
+    {
+      X->Number = Y->Number;
+    }
+    if (both_integer_type (X, Y))
+    {
+      X->Number = bwb_rint (X->Number);
+    }
+    X->VariantTypeCode = math_type (X, Y);
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X$ = ( X$ MIN Y$ ) == IIF( X$ > Y$, Y$, X$ ) */
+    if (bwb_stricmp (X->Buffer, Y->Buffer) > 0)
+    {
+      RELEASE_VARIANT (X);
+      COPY_VARIANT (X, Y);
+    }
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+
+/*
+COMPARISON OPERATORS - these all return a TRUE/FALSE result in X
+*/
+
+
+/* ------------------- equality */
+
+static ResultType
+test_eq (VariantType * X, VariantType * Y, int TrueValue, int FalseValue)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = IIF( X = Y, TrueValue, FalseValue ) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (x == y)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      if (X->Number == Y->Number)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+
+    }
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X = IIF( X$ = Y$, TrueValue, FalseValue ) */
+    /* NOTE: embedded NulChar terminate comparison */
+    if (My->CurrentVersion->OptionFlags & OPTION_COMPARE_TEXT)
+    {
+      /* case insensitive */
+      if (bwb_stricmp (X->Buffer, Y->Buffer) == 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      /* case sensitive */
+      if (bwb_strcmp (X->Buffer, Y->Buffer) == 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    RELEASE_VARIANT (X);
+    RELEASE_VARIANT (Y);
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_EQ (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_eq (X, Y, TRUE, FALSE);
+}
+static ResultType
+OP_NE (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_eq (X, Y, FALSE, TRUE);
+}
+
+/* ------------------- greater */
+
+static ResultType
+test_gt (VariantType * X, VariantType * Y, int TrueValue, int FalseValue)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = IIF( X > Y, TrueValue, FalseValue ) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (x > y)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      if (X->Number > Y->Number)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+
+    }
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X = IIF( X$ > Y$, TrueValue, FalseValue ) */
+    /* NOTE: embedded NUL characters terminate comparison */
+    if (My->CurrentVersion->OptionFlags & OPTION_COMPARE_TEXT)
+    {
+      /* case insensitive */
+      if (bwb_stricmp (X->Buffer, Y->Buffer) > 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      /* case sensitive */
+      if (bwb_strcmp (X->Buffer, Y->Buffer) > 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    RELEASE_VARIANT (X);
+    RELEASE_VARIANT (Y);
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_GT (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_gt (X, Y, TRUE, FALSE);
+}
+static ResultType
+OP_LE (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_gt (X, Y, FALSE, TRUE);
+}
+
+/* ------------------- lesser */
+
+static ResultType
+test_lt (VariantType * X, VariantType * Y, int TrueValue, int FalseValue)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  if (both_number_type (X, Y))
+  {
+    /* X = IIF( X < Y, TrueValue, FalseValue ) */
+    if (both_are_long (X, Y))
+    {
+      long x;
+      long y;
+
+      x = (long) bwb_rint (X->Number);
+      y = (long) bwb_rint (Y->Number);
+
+      if (x < y)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      if (X->Number < Y->Number)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+
+    }
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  if (both_string_type (X, Y))
+  {
+    /* X = IIF( X$ < Y$, TrueValue, FalseValue ) */
+    /* NOTE: embedded NUL characters terminate comparison */
+    if (My->CurrentVersion->OptionFlags & OPTION_COMPARE_TEXT)
+    {
+      /* case insensitive */
+      if (bwb_stricmp (X->Buffer, Y->Buffer) < 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    else
+    {
+      /* case sensitive */
+      if (bwb_strcmp (X->Buffer, Y->Buffer) < 0)
+      {
+        X->Number = TrueValue;
+      }
+      else
+      {
+        X->Number = FalseValue;
+      }
+    }
+    RELEASE_VARIANT (X);
+    RELEASE_VARIANT (Y);
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+static ResultType
+OP_LT (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_lt (X, Y, TRUE, FALSE);
+}
+static ResultType
+OP_GE (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  return test_lt (X, Y, FALSE, TRUE);
+}
+
+/* ------------------- like */
+
+static ResultType
+OP_LIKE (VariantType * X, VariantType * Y)
+{
+   
+  assert (X != NULL);
+  assert (Y != NULL);
+  if (both_string_type (X, Y))
+  {
+    /* X = (X$ LIKE Y$) */
+    int X_count;
+    int Y_count;
+
+    X_count = 0;
+    Y_count = 0;
+
+    if (IsLike (X->Buffer, &X_count, X->Length,
+                Y->Buffer, &Y_count, Y->Length))
+    {
+      X->Number = TRUE;
+    }
+    else
+    {
+      X->Number = FALSE;
+    }
+    RELEASE_VARIANT (X);
+    RELEASE_VARIANT (Y);
+    X->VariantTypeCode = IntegerTypeCode;
+    return RESULT_SUCCESS;
+  }
+  WARN_TYPE_MISMATCH;
+  return RESULT_ERROR;
+}
+
+
+/*
+--------------------------------------------------------------------------------------------
+                               Line Parsing Utilities
+--------------------------------------------------------------------------------------------
+*/
+
+static OperatorType *
+buff_read_operator (char *buffer, int *position, unsigned char LastPrec,
+                    unsigned char Arity)
+{
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+  p = *position;
+  if (bwb_isalpha (buffer[p]))
+  {
+    /* only consider alphabetic operators */
+    /* spaces between any character of the operator is not allowed */
+    char name[NameLengthMax + 1];
+
+    if (buff_read_varname (buffer, &p, name))
+    {
+      int i;
+      for (i = 0; i < NUM_OPERATORS; i++)
+      {
+        OperatorType *T;
+
+        T = &OperatorTable[i];
+        if (T->OptionVersionBitmask & My->CurrentVersion->OptionVersionValue)
+        {
+          if (T->ThisPrec >= LastPrec && T->Arity == Arity
+              && T->IsAlpha == IS_ALPHA)
+          {
+            /* possible */
+            if (bwb_stricmp (T->Name, name) == 0)
+            {
+              /* FOUND */
+              *position = p;
+              return T;
+            }
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    /* only consider non-alphabetic operators */
+    /* spaces between any character of the operator is allowed */
+    int i;
+    for (i = 0; i < NUM_OPERATORS; i++)
+    {
+      OperatorType *T;
+
+      T = &OperatorTable[i];
+      if (T->OptionVersionBitmask & My->CurrentVersion->OptionVersionValue)
+      {
+        if (T->ThisPrec >= LastPrec && T->Arity == Arity
+            && T->IsAlpha == NO_ALPHA)
+        {
+          /* possible */
+          int m;                /* number of characters actually matched */
+          int n;                /* number of characters to match */
+          int q;                /* position after skipping the characters */
+
+          n = bwb_strlen (T->Name);        /* number of characters to match */
+          q = p;
+
+          for (m = 0; m < n && buff_skip_char (buffer, &q, T->Name[m]); m++);
+          if (m == n)
+          {
+            /* FOUND */
+            *position = q;
+            return T;
+          }
+        }
+      }
+    }
+  }
+  /* NOT FOUND */
+  return NULL;
+}
+
+#if FALSE                        /* keep line_... */
+static OperatorType *
+line_read_operator (LineType * line, unsigned char LastPrec,
+                    unsigned char Arity)
+{
+   
+  assert (line != NULL);
+  return buff_read_operator (line->buffer, &(line->position), LastPrec,
+                             Arity);
+}
 #endif
+static ResultType
+buff_read_string_constant (char *buffer, int *position, VariantType * X)
+{
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-      /* detect the operation required at this level */
+  p = *position;
+  if (buffer[p] == My->CurrentVersion->OptionQuoteChar)
+  {
+    int q;                        /* start of constant */
+    X->VariantTypeCode = StringTypeCode;
+    p++;                        /* skip leading quote */
+    /* determine the length of the quoted string */
+    X->Length = 0;
+    q = p;
+    while (buffer[p])
+    {
+      if (buffer[p] == My->CurrentVersion->OptionQuoteChar)
+      {
+        p++;                        /* quote */
+        if (buffer[p] == My->CurrentVersion->OptionQuoteChar)
+        {
+          /* embedded string "...""..." */
+        }
+        else
+        {
+          /* properly terminated string "...xx..." */
+          break;
+        }
+      }
+      X->Length++;
+      p++;
+    }
+    if ((X->Buffer =
+         (char *) calloc (X->Length + 1 /* NulChar */ ,
+                          sizeof (char))) == NULL)
+    {
+      WARN_OUT_OF_MEMORY;
+      return RESULT_ERROR;
+    }
+    /* copy the quoted string */
+    X->Length = 0;
+    p = q;
+    while (buffer[p])
+    {
+      if (buffer[p] == My->CurrentVersion->OptionQuoteChar)
+      {
+        p++;                        /* skip quote */
+        if (buffer[p] == My->CurrentVersion->OptionQuoteChar)
+        {
+          /* embedded string "...""..." */
+        }
+        else
+        {
+          /* properly terminated string "...xx..." */
+          break;
+        }
+      }
+      X->Buffer[X->Length] = buffer[p];
+      X->Length++;
+      p++;
+    }
+    X->Buffer[X->Length] = NulChar;
+    *position = p;
+    return RESULT_SUCCESS;
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
-      CURTASK exps[ CURTASK expsc ].operation = exp_findop( e );
-
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in bwb_exp(): exp_findop() returned <%d>",
-         CURTASK exps[ CURTASK expsc ].operation );
-      bwb_debug( bwb_ebuf );
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_string_constant (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_string_constant (line->buffer, &(line->position), X);
+}
 #endif
+extern ResultType
+buff_read_hexadecimal_constant (char *buffer, int *position, VariantType * X,
+                                int IsConsoleInput)
+{
+  /* &h... */
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-      /* perform actions specific to the operation */
 
-      switch( CURTASK exps[ CURTASK expsc ].operation )
-         {
-         case OP_ERROR:
-            main_loop = FALSE;
-            err_condition = TRUE;
-            break;
+  p = *position;
+  if (My->CurrentVersion->OptionFlags & OPTION_BUGS_ON ) /* allows hexadecimal constants */
+  {
+    if (buffer[p] == '&')
+    {
+      p++;                        /* skip '&' */
+      if (bwb_tolower (buffer[p]) == 'h')
+      {
+        /* &h... */
+        p++;                        /* skip 'h' */
+        if (bwb_isxdigit (buffer[p]))
+        {
+          /* &hABCD */
+          int n;                /* number of characters read */
+          unsigned long x;        /* value read */
 
-	 case OP_TERMINATE:                /* terminate at THEN, ELSE, TO */
-#if INTENSIVE_DEBUG
-	    bwb_debug( "in bwb_exp(): Found OP_TERMINATE" );
-#endif
-         case OP_STRJOIN:                  /* string join or tab */
-         case OP_STRTAB:
-	    main_loop = FALSE;
-	    err_condition = FALSE;
-	    dec_esc();
-	    break;
+          n = 0;
+          x = 0;
 
-	 case OP_ADD:                      /* in the case of any numerical operation, */
-         case OP_SUBTRACT:
-         case OP_MULTIPLY:
-         case OP_DIVIDE:
-         case OP_MODULUS:
-         case OP_EXPONENT:
-         case OP_INTDIVISION:
-         case OP_GREATERTHAN:
-         case OP_LESSTHAN:
-         case OP_GTEQ:
-         case OP_LTEQ:
-         case OP_NOTEQUAL:
-         case OP_NOT:
-         case OP_AND:
-         case OP_OR:
-         case OP_XOR:
-         case OP_IMPLIES:
-         case OP_EQUIV:
-         case OP_NEGATION: /* JBV */
+          /* if( sscanf( &buffer[ p ], "%lx%n", &x, &n ) == 1 ) */
+          if (sscanf (&buffer[p], HexScanFormat, &x, &n) == 1)
+          {
+            /* FOUND */
+            p += n;
 
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in bwb_exp(): operator detected." );
-            bwb_debug( bwb_ebuf );
-#endif
-
-            CURTASK exps[ CURTASK expsc ].pos_adv = -1;             /* set to strange number */
-
-            /* cycle through operator table to find match */
-
-            for ( c = 0; c < N_OPERATORS; ++c )
-               {
-               if ( exp_ops[ c ].operation == CURTASK exps[ CURTASK expsc ].operation )
+            X->Number = x;
+            X->VariantTypeCode = min_value_type (X);
+            if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_ON)) /* TypeSuffix allowed on constants */
+            {
+              char TypeCode;
+              TypeCode = Char_to_TypeCode (buffer[p]);
+              switch (TypeCode)
+              {
+              case ByteTypeCode:
+              case IntegerTypeCode:
+              case LongTypeCode:
+              case CurrencyTypeCode:
+              case SingleTypeCode:
+              case DoubleTypeCode:
+                p++;                /* skip TypeCode */
+                /* verify the value actually fits in the declared type */
+                X->VariantTypeCode = TypeCode;
+                TypeCode = Largest_TypeCode (TypeCode, X);
+                if (X->VariantTypeCode != TypeCode)
+                {
+                  /* declared type is too small */
+                  if (IsConsoleInput)
                   {
-                  CURTASK exps[ CURTASK expsc ].pos_adv = strlen( exp_ops[ c ].symbol );
+                    /*
+                     **
+                     ** The user will re-enter the data
+                     **
+                     */
+                    return RESULT_UNPARSED;
                   }
-               }
-
-            if ( CURTASK exps[ CURTASK expsc ].pos_adv == -1 )      /* was a match found? */
-               {
-               CURTASK exps[ CURTASK expsc ].pos_adv = 0;           /* no -- set to 0 */
-               }
-            break;                         /* and move on */
-
-         case OP_EQUALS:
-
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in bwb_exp(): equal sign detected." );
-            bwb_debug( bwb_ebuf );
-#endif
-
-            if ( assignment == TRUE )
-               {
-               CURTASK exps[ CURTASK expsc ].operation = OP_ASSIGN;
-               }
-            CURTASK exps[ CURTASK expsc ].pos_adv = 1;
-            break;
-
-         case PARENTHESIS:
-            r = exp_paren( e );
-            break;
-
-	 case CONST_STRING:
-            r = exp_strconst( e );
-            break;
-
-	 case CONST_NUMERICAL:
-            r = exp_numconst( e );
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in bwb_exp(): return from exp_numconst(), r = <%d>",
-               r );
-            bwb_debug( bwb_ebuf );
-#endif
-            break;
-
-         case FUNCTION:
-
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in bwb_exp(): calling exp_function(), expression <%s>",
-               e );
-            bwb_debug( bwb_ebuf );
-#endif
-
-            r = exp_function( e );
-            break;
-
-         case OP_USERFNC:
-
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in bwb_exp(): calling exp_ufnc(), expression <%s>",
-               e );
-            bwb_debug( bwb_ebuf );
-#endif
-
-	    r = exp_ufnc( e );
-
-#if INTENSIVE_DEBUG
-	    sprintf( bwb_ebuf, "in bwb_exp(): return from exp_ufnc(), buffer <%s>",
-	       &( expression[ *position ] ) );
-	    bwb_debug( bwb_ebuf );
-#endif
-
-            break;
-
-         case VARIABLE:
-            r = exp_variable( e );
-            break;
-
-	 default:
-            err_condition = TRUE;
-            main_loop = FALSE;
-#if PROG_ERRORS
-            sprintf( bwb_ebuf, "in bwb_exp.c:bwb_exp(): unidentified operation (%d).",
-               CURTASK exps[ CURTASK expsc ].operation );
-            bwb_error( bwb_ebuf );
-#else
-            bwb_error( err_syntax );
-#endif
-            break;
-         }
-
-      /* increment *position counter based on previous actions */
-
-      *position += CURTASK exps[ CURTASK expsc ].pos_adv;
-      CURTASK exps[ CURTASK expsc ].pos_adv = 0;            /* reset advance counter */
-
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in bwb_exp(): advanced position; r <%d> err_c <%d>",
-         r, err_condition );
-      bwb_debug( bwb_ebuf );
-#endif
-
-#if INTENSIVE_DEBUG
-      if ( CURTASK exps[ CURTASK expsc ].operation == OP_EQUALS )
-         {
-         sprintf( bwb_ebuf, "in bwb_exp(): with OP_EQUALS: finished case" );
-         bwb_debug( bwb_ebuf );
-         }
-#endif
-
-      /* check for end of string */
-
-      if ( is_eol( expression, position ) == TRUE )
-         {
-         main_loop = FALSE;    /* break out of loop */         
-         }
-
-#if OLDWAY
-      adv_loop = TRUE;
-      while( adv_loop == TRUE )
-         {
-         switch( expression[ *position ] )
-            {
-            case ' ':                           /* whitespace */
-            case '\t':
-               ++(*position);
-               break;
-            case '\0':                          /* end of string */
-            case '\r':
-            case '\n':
-            case ':':
-               main_loop = adv_loop = FALSE;    /* break out of loop */
-               break;
-            default:
-               adv_loop = FALSE;
-               break;
-            }
-         }
-#endif
-
-      /* get a new stack level before looping */
-
-      if ( main_loop == TRUE )
-         {
-         r = inc_esc();
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in bwb_exp(): increment esc, r <%d>, err_c <%d>",
-            r, err_condition );
-         bwb_debug( bwb_ebuf );
-#endif
-         }
-
-      /* check for error return */
-
-      if ( r == OP_ERROR )
-         {
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in bwb_exp(): found r == OP_ERROR." );
-         bwb_debug( bwb_ebuf );
-#endif
-         main_loop = FALSE;
-         err_condition = TRUE;
-         }
-      else
-         {
-         r = TRUE;
-         }
-
-      }                                 /* end of main parsing loop */
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in bwb_exp(): breakout from main parsing loop, r <%d> err_c <%d>",
-      r, err_condition );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* check error condition */
-
-   if ( err_condition == TRUE )
-      {
-
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "error detected in expression parser" );
-      bwb_debug( bwb_ebuf );
-#endif
-
-      /* decrement the expression stack counter until it matches entry_level */
-
-      while( CURTASK expsc > entry_level )
-         {
-         dec_esc();
-         }
-
-#if PROG_ERRORS
-      bwb_error( "in bwb_exp():  Error detected in parsing expression" );
-#else
-      bwb_error( err_syntax );
-#endif
-      }
-
-   /* no error; normal exit from function */
-
-   else
-      {
-
-      /* are any more operations needed? if we are still at entry level,
-         then they are not */
-
-      /* try operations */
-
-      exp_operation( entry_level );
-
-      /* see what is on top of the stack */
-
-      if ( CURTASK expsc > ( entry_level + 1 ))
-         {
-         switch( CURTASK exps[ CURTASK expsc ].operation )
-            {
-            case OP_STRJOIN:
-               if ( CURTASK expsc != ( entry_level + 2 ))
+                  if (WARN_OVERFLOW)
                   {
-#if PROG_ERRORS
-                  sprintf( bwb_ebuf, "in bwb_exp(): OP_STRJOIN in wrong position." );
-                  bwb_error( bwb_ebuf );
-#else
-                  bwb_error( err_syntax );
-#endif
+                    /* ERROR */
+                    return RESULT_ERROR;
                   }
-               break;
+                  /* CONTINUE */
+                  X->VariantTypeCode = TypeCode;
+                }
+                break;
+              case StringTypeCode:
+                /* oops */
+                if (IsConsoleInput)
+                {
+                  /*
+                   **
+                   ** The user will re-enter the data
+                   **
+                   */
+                  return RESULT_UNPARSED;
+                }
+                WARN_SYNTAX_ERROR;
+                return RESULT_ERROR;
+                /* break; */
+              default:
+                X->VariantTypeCode = min_value_type (X);
+              }
+            }
+            *position = p;
+            return RESULT_SUCCESS;
+          }
+        }
+        /* not HEXADECIMAL */
+      }
+    }
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
+
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_hexadecimal_constant (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_hexadecimal_constant (line->buffer, &(line->position), X,
+                                         FALSE);
+}
+#endif
+extern ResultType
+buff_read_octal_constant (char *buffer, int *position, VariantType * X,
+                          int IsConsoleInput)
+{
+  /* &o... */
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+
+
+  p = *position;
+
+  if (My->CurrentVersion->OptionFlags & OPTION_BUGS_ON ) /* allows octal constants */
+  {
+    if (buffer[p] == '&')
+    {
+      p++;                        /* skip '&' */
+      if (bwb_tolower (buffer[p]) == 'o')
+      {
+        /* &o777 */
+        p++;                        /* skip 'o' */
+        /* fall-thru */
+      }
+      if (bwb_isodigit (buffer[p]))
+      {
+        /* &o777 */
+        /* &777 */
+        int n;                        /* number of characters read */
+        unsigned long x;        /* value read */
+
+        n = 0;
+        x = 0;
+
+        /* if( sscanf( &buffer[ p ], "%64lo%n", &x, &n ) == 1 ) */
+        if (sscanf (&buffer[p], OctScanFormat, &x, &n) == 1)
+        {
+          /* FOUND */
+          p += n;
+
+          X->Number = x;
+          X->VariantTypeCode = min_value_type (X);
+          if (My->CurrentVersion->OptionFlags & (OPTION_BUGS_ON)) /* TypeSuffix allowed on constants */
+          {
+            char TypeCode;
+
+            TypeCode = Char_to_TypeCode (buffer[p]);
+            switch (TypeCode)
+            {
+            case ByteTypeCode:
+            case IntegerTypeCode:
+            case LongTypeCode:
+            case CurrencyTypeCode:
+            case SingleTypeCode:
+            case DoubleTypeCode:
+              p++;                /* skip TypeCode */
+              /* verify the value actually fits in the declared type */
+              X->VariantTypeCode = TypeCode;
+              TypeCode = Largest_TypeCode (TypeCode, X);
+              if (X->VariantTypeCode != TypeCode)
+              {
+                /* declared type is too small */
+                if (IsConsoleInput)
+                {
+                  /*
+                   **
+                   ** The user will re-enter the data
+                   **
+                   */
+                  return RESULT_UNPARSED;
+                }
+                if (WARN_OVERFLOW)
+                {
+                  /* ERROR */
+                  return RESULT_ERROR;
+                }
+                /* CONTINUE */
+                X->VariantTypeCode = TypeCode;
+              }
+              break;
+            case StringTypeCode:
+              /* oops */
+              if (IsConsoleInput)
+              {
+                /*
+                 **
+                 ** The user will re-enter the data
+                 **
+                 */
+                return RESULT_UNPARSED;
+              }
+              WARN_SYNTAX_ERROR;
+              return RESULT_ERROR;
+              /* break; */
             default:
-#if PROG_ERRORS
-               sprintf( bwb_ebuf, "in bwb_exp(): incomplete expression." );
-               bwb_error( bwb_ebuf );
-#else
-               bwb_error( err_syntax );
-#endif
-               break;
+              X->VariantTypeCode = min_value_type (X);
             }
+          }
+          *position = p;
+          return RESULT_SUCCESS;
+        }
+      }
+    }
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
-         /* decrement the expression stack counter */
-
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in bwb_exp(): before dec_esc type is <%c>",
-            CURTASK exps[ CURTASK expsc ].type );
-         bwb_debug( bwb_ebuf );
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_octal_constant (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_octal_constant (line->buffer, &(line->position), X, FALSE);
+}
 #endif
+static ResultType
+buff_read_internal_constant (char *buffer, int *position, VariantType * X)
+{
+  /* &... */
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-         dec_esc();
 
-         }
+  p = *position;
 
-      /* assign rvar to the variable for the current level */
+  if (My->CurrentVersion->OptionVersionValue & (S70 | I70 | I73))
+  {
+    /* IBM System/360 and System/370 BASIC dialects */
+    if (buffer[p] == '&')
+    {
+      p++;                        /* skip '&' */
+      if (bwb_isalpha (buffer[p]))
+      {
+        char *S;
+        S = &(buffer[p]);
+        if (bwb_strnicmp (S, "PI", 2) == 0)
+        {
+          /* &PI */
+          p += 2;
+          X->Number = 3.14159265358979;
+          X->VariantTypeCode = DoubleTypeCode;
+          *position = p;
+          return RESULT_SUCCESS;
+        }
+        if (bwb_strnicmp (S, "E", 1) == 0)
+        {
+          /* &E */
+          p += 1;
+          X->Number = 2.71828182845905;
+          X->VariantTypeCode = DoubleTypeCode;
+          *position = p;
+          return RESULT_SUCCESS;
+        }
+        if (bwb_strnicmp (S, "SQR2", 4) == 0)
+        {
+          /* &SQR2 */
+          p += 4;
+          X->Number = 1.41421356237309;
+          X->VariantTypeCode = DoubleTypeCode;
+          *position = p;
+          return RESULT_SUCCESS;
+        }
+        /* NOT a magic word */
+      }
+    }
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
-      rval = &( CURTASK exps[ CURTASK expsc ] );
-
-      /* decrement the expression stack counter */
-
-      dec_esc();
-
-      /* check the current level before exit */
-
-      if ( entry_level != CURTASK expsc )
-         {
-#if PROG_ERRORS
-         sprintf( bwb_ebuf, "in bwb_exp(): exit stack level (%d) does not match entry stack level (%d)",
-            CURTASK expsc, entry_level );
-         bwb_error( bwb_ebuf );
-#else
-         bwb_error( err_overflow );
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_internal_constant (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_internal_constant (line->buffer, &(line->position), X);
+}
 #endif
-         }
+extern ResultType
+buff_read_decimal_constant (char *buffer, int *position, VariantType * X,
+                            int IsConsoleInput)
+{
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-      }
 
-   /* return a pointer to the last stack level */
+  p = *position;
+  if (bwb_isdigit (buffer[p]) || buffer[p] == '.')
+  {
+    /* .12345 */
+    /* 123.45 */
+    /* 123456 */
+    /* 123E45 */
+    /* TODO:  'D' instead of 'E' */
+    int n;                        /* number of characters read */
+    DoubleType x;                /* value read */
 
-   return rval;
 
-   }
+    n = 0;
+    x = 0;
 
-/***************************************************************
+    /* if( sscanf( &buffer[ p ], "%lg%n", &X->Number, &n ) == 1 ) */
+    if (sscanf (&buffer[p], DecScanFormat, &x, &n) == 1)
+    {
+      /* FOUND */
+      p += n;
 
-	FUNCTION:       exp_findop()
-
-	DESCRIPTION:    This function reads the expression to find
-			what operation is required at its stack level.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_findop( char *expression )
-#else
-int
-exp_findop( expression )
-   char *expression;
-#endif
-   {
-   register int c;                              /* character counter */
-   int carry_on;                                /* boolean: control while loop */
-   int rval;                                    /* return value */
-   char cbuf[ MAXSTRINGSIZE + 1 ];              /* capitalized expression */
-   char nbuf[ MAXSTRINGSIZE + 1 ];              /* non-capitalized expression */
-   int position;                                /* position in the expression */
-   int adv_loop;                                /* control loop to build expression */
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_findop(): received <%s>", expression );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* set return value to OP_NULL initially */
-
-   rval = OP_NULL;
-
-   /* assign local pointer to expression to begin reading */
-
-   position = 0;
-
-   /* advance to the first significant character */
-
-   adv_ws( expression, &position );
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_findop(): expression after advance <%s>",
-      &( expression[ position ] ) );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* we now have the first significant character and can begin parsing */
-
-   /* check the first character for an indication of a parenthetical
-      expression, a string constant, or a numerical constant that begins
-      with a digit (numerical constants beginning with a plus or minus
-      sign or hex/octal/binary constants will have to be detected by
-      exp_isnc() */
-
-   carry_on = TRUE;
-   switch ( expression[ position ] )
+      /* VerifyNumeric */
+      if (isnan (x))
       {
-      case '\"':                /* this should indicate a string constant */
-         rval = CONST_STRING;
-         break;
-      case '(':                 /* this will indicate a simple parenthetical expression */
-         rval = PARENTHESIS;
-         break;
-
-#if MULTISEG_LINES
-      case ':':                 /* terminate processing */
-#endif
-      case ')':			/* end of argument list? */
-         rval = OP_TERMINATE;
-         break;
-
-      case '0':                 /* these will indicate a numerical constant */
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-      case '.':
-      case '&':                 /* designator for hex or octal constant */
-         rval = CONST_NUMERICAL;
-         break;
+            /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+        WARN_INTERNAL_ERROR;
+        return RESULT_ERROR;
       }
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_findop(): rval pos 1 is <%d>", rval );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* String constants, numerical constants, open parentheses, and
-      the plus and minus operators have been checked at this point;
-      but if the return value is still OP_NULL, other possibilities
-      must be checked, namely, other operators, function names, and
-      variable names.  The function adv_element cannot be used here
-      because it will stop, e.g., with certain operators and not
-      include them in the returned element. */
-
-   /* get a character string to be interpreted */
-
-   adv_loop = TRUE;
-   cbuf[ 0 ] = '\0';
-   nbuf[ 0 ] = '\0';
-   c = 0;
-   while ( adv_loop == TRUE )
+      if (isinf (x))
       {
-
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_findop() loop position <%d> char 0x%x",
-	 c, expression[ position ] );
-      bwb_debug( bwb_ebuf );
-#endif
-
-      switch( expression[ position ] )
-	 {
-	 case ' ':              /* whitespace */
-	 case '\t':
-	 case '\r':             /* end of line */
-	 case '\n':
-	 case '\0':             /* end of string */
-	 case '(':              /* parenthesis terminating function name */
-	    adv_loop = FALSE;
-	    break;
-	 default:
-	    nbuf[ c ] = cbuf[ c ] = expression[ position ];
-	    ++c;
-	    nbuf[ c ] = cbuf[ c ] = '\0';
-	    ++position;
-	    break;
-	 }
-
-      if ( c >= MAXSTRINGSIZE )
-	 {
-	 adv_loop = FALSE;
-	 }
-
+        /* - Evaluation of an expression results in an overflow
+         * (nonfatal, the recommended recovery procedure is to supply
+         * machine in- finity with the algebraically correct sign and
+         * continue). */
+        if (x < 0)
+        {
+          x = MINDBL;
+        }
+        else
+        {
+          x = MAXDBL;
+        }
+        if (IsConsoleInput)
+        {
+          /*
+           **
+           ** The user will re-enter the data
+           **
+           */
+          return RESULT_UNPARSED;
+        }
+        if (WARN_OVERFLOW)
+        {
+          /* ERROR */
+          return RESULT_ERROR;
+        }
+        /* CONTINUE */
       }
-   bwb_strtoupper( cbuf );
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_findop(): cbuf element is <%s>", cbuf );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* check for numerical constant */
-
-   if ( rval == OP_NULL )
+      /* OK */
+      X->Number = x;
+      X->VariantTypeCode = DoubleTypeCode;        /* min_value_type( X ); */
+      if (My->CurrentVersion->OptionFlags & OPTION_BUGS_ON ) /* TypeSuffix allowed on constants */
       {
-      rval = exp_isnc( cbuf );
-      }
-
-   /* check for other operators */
-
-   if ( rval == OP_NULL )
-      {
-      rval = exp_isop( cbuf );
-      }
-
-   /* check for user-defined function */
-
-   if ( rval == OP_NULL )
-      {
-      rval = exp_isufn( nbuf );
-      }
-
-   /* check for function name */
-
-   if ( rval == OP_NULL )
-      {
-      rval = exp_isfn( nbuf );
-      }
-
-   /* check for a BASIC command, esp. to catch THEN or ELSE */
-
-   if ( rval == OP_NULL )
-      {
-      rval = exp_iscmd( cbuf );
-      }
-
-   /* last: check for variable name, and assign it if there
-      is not already one */
-
-   if ( rval == OP_NULL )
-      {
-      rval = exp_isvn( nbuf );
-      }
-
-   /* return the value assigned (or OP_ERROR if none assigned) */
-
-   if ( rval == OP_NULL )
-      {
-      return OP_ERROR;
-      }
-   else
-      {
-      return rval;
-      }
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_isnc()
-
-	DESCRIPTION:    This function reads the expression to find
-			if a numerical constant is present at this
-			point.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_isnc( char *expression )
-#else
-int
-exp_isnc( expression )
-   char *expression;
-#endif
-   {
-   char tbuf[ MAXVARNAMESIZE + 1 ]; /* JBV */
-
-   switch( expression[ 0 ] )
-      {
-      case '0':                 /* these will indicate a numerical constant */
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-      case '&':                 /* indicator for hex or octal constant */
-         return CONST_NUMERICAL;
-      case '+':
-      case '-':
-
-         /* if the previous stack level was a numerical value or a string,
-            then this is certainly not one; return OP_NULL here
-            and let the next function call to exp_isop() determine
-            the (plus or minus) operator */
-
-         if (  ( CURTASK exps[ CURTASK expsc - 1 ].operation == NUMBER )
-            || ( CURTASK exps[ CURTASK expsc - 1 ].operation == VARIABLE )
-            || ( CURTASK exps[ CURTASK expsc - 1 ].operation == CONST_STRING ) )
+        char TypeCode;
+        TypeCode = Char_to_TypeCode (buffer[p]);
+        switch (TypeCode)
+        {
+        case ByteTypeCode:
+        case IntegerTypeCode:
+        case LongTypeCode:
+        case CurrencyTypeCode:
+        case SingleTypeCode:
+        case DoubleTypeCode:
+          p++;                        /* skip TypeCode */
+          /* verify the value actually fits in the declared type */
+          X->VariantTypeCode = TypeCode;
+          TypeCode = Largest_TypeCode (TypeCode, X);
+          if (X->VariantTypeCode != TypeCode)
+          {
+            /* declared type is too small */
+            if (IsConsoleInput)
             {
-
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in exp_isnc(): previous function is a number or string" );
-            bwb_debug( bwb_ebuf );
-#endif
-
-            return OP_NULL;
+              /*
+               **
+               ** The user will re-enter the data
+               **
+               */
+              return RESULT_UNPARSED;
             }
-
-         /* similarly, if the previous stack level was a variable
-            with a numerical value (not a string), then this level
-            must be an operator, not a numerical constant */
-
-         if ( ( CURTASK exps[ CURTASK expsc - 1 ].operation == VARIABLE )
-            && ( CURTASK exps[ CURTASK expsc - 1 ].type != STRING ))
+            if (WARN_OVERFLOW)
             {
-            return OP_NULL;
+              /* ERROR */
+              return RESULT_ERROR;
             }
-
-         /*--------------------------------------------------------*/
-         /* Check for unary minus sign added by JBV.               */
-         /* Could be prefixing a parenthetical expression or a     */
-         /* variable name.                                         */
-         /* But parentheses won't show up in expression (cbuf), so */
-         /* just check for expression and variable name lengths.   */
-         /*--------------------------------------------------------*/
-         if (expression[0] == '-')
-         {
-             if (strlen(expression) == 1) return OP_NEGATION;
-             exp_getvfname(&expression[1], tbuf);
-             if (strlen(tbuf) != 0) return OP_NEGATION;
-         }
-
-         /* failing these tests, the argument must be a numerical
-            constant preceded by a plus or minus sign */
-
-         return CONST_NUMERICAL;
-
-      default:
-         return OP_NULL;
+            /* CONTINUE */
+            X->VariantTypeCode = TypeCode;
+          }
+          break;
+        case StringTypeCode:
+          /* oops */
+          if (IsConsoleInput)
+          {
+            /*
+             **
+             ** The user will re-enter the data
+             **
+             */
+            return RESULT_UNPARSED;
+          }
+          WARN_SYNTAX_ERROR;
+          return RESULT_ERROR;
+          /* break; */
+        default:
+          X->VariantTypeCode = DoubleTypeCode;        /* min_value_type( X ); */
+        }
       }
+      *position = p;
+      return RESULT_SUCCESS;
+    }
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_isop()
-
-	DESCRIPTION:    This function reads the expression to find
-			if a logical or mathematical operation is
-			required at this point.
-
-        This function presupposes that a numerical constant with
-        affixed plus or minus sign has been ruled out.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_isop( char *expression )
-#else
-int
-exp_isop( expression )
-   char *expression;
-#endif
-   {
-   register int c;                              /* counter */
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_isop(): expression is <%s>", expression );
-   bwb_debug( bwb_ebuf );
+#if FALSE                        /* keep line_... */
+static int
+line_read_decimal_constant (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_decimal_constant (line->buffer, &(line->position), X,
+                                     FALSE);
+}
 #endif
 
-   /* compare the initial characters of the string with the table
-      of operators */
+static ResultType
+buff_read_function (char *buffer, int *position, VariantType * X)
+{
+  int p;
+  char name[NameLengthMax + 1];
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
 
-   for ( c = 0; c < N_OPERATORS; ++c )
+
+  p = *position;
+  if (buff_read_varname (buffer, &p, name))
+  {
+    if (UserFunction_name (name) || IntrinsicFunction_name (name))
+    {
+      /* ---------------------------------------------------------------------------- */
+      /* if( TRUE ) */
       {
-      if ( strncmp( expression, exp_ops[ c ].symbol,
-         (size_t) strlen( exp_ops[ c ].symbol ) ) == 0 )
-         {
+        /* here we handle some pseudo-functions that return information about arrays */
+        char Xbound;
 
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in exp_isop(): match <%s>, number <%d>.",
-            exp_ops[ c ].symbol, c );
-         bwb_debug( bwb_ebuf );
-#endif
-
-         return exp_ops[ c ].operation;
-         }
-      }
-
-   /* search failed; return OP_NULL */
-
-   return OP_NULL;
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_iscmd()
-
-	DESCRIPTION:    This function reads the expression to find
-			if a BASIC command name is present; if so,
-			it returns OP_TERMINATE to terminate expression
-			parsing.  This is critical, for example, in
-			parsing a conditional following IF where THEN,
-			ELSE, and other BASIC commands may follow.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_iscmd( char *expression )
-#else
-int
-exp_iscmd( expression )
-   char *expression;
-#endif
-   {
-   register int n;
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_iscmd(): expression received <%s>",
-      expression );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   /* first check for THEN or ELSE statements */
-
-   if ( strcmp( expression, CMD_THEN ) == 0 )
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_iscmd(): match found, <%s>",
-	 expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return OP_TERMINATE;
-      }
-
-#if STRUCT_CMDS
-   if ( strcmp( expression, CMD_TO ) == 0 )
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_iscmd(): match found, <%s>",
-	 expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return OP_TERMINATE;
-      }
-#endif
-
-   if ( strcmp( expression, CMD_ELSE ) == 0 )
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_iscmd(): match found, <%s>",
-	 expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return OP_TERMINATE;
-      }
-
-   /* run through the command table and search for a match */
-
-   for ( n = 0; n < COMMANDS; ++n )
-      {
-      if ( strcmp( expression, bwb_cmdtable[ n ].name ) == 0 )
-         {
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in exp_iscmd(): match found, <%s>",
-            expression );
-         bwb_debug( bwb_ebuf );
-#endif
-         return OP_TERMINATE;
-         }
-#if INTENSIVE_DEBUG
-      else
-         {
-         sprintf( bwb_ebuf, "in exp_iscmd(): No match, <%s> and <%s>; returns %d",
-            expression, bwb_cmdtable[ n ].name,
-            strcmp( expression, bwb_cmdtable[ n ].name ) );
-         bwb_debug( bwb_ebuf );
-         }
-#endif
-      }
-
-   /* search failed, return NULL */
-
-   return OP_NULL;
-
-   }
-
-/***************************************************************
-
-        FUNCTION:   	exp_isufn()
-
-        DESCRIPTION:  	This function reads the expression to find
-        		if a user-defined function name is present
-			at this point.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_isufn( char *expression )
-#else
-int
-exp_isufn( expression )
-   char *expression;
-#endif
-   {
-   struct fslte *f;
-   char tbuf[ MAXVARNAMESIZE + 1 ];
-
-   exp_getvfname( expression, tbuf );
-
-   for ( f = CURTASK fslt_start.next; f != &CURTASK fslt_end; f = f->next )
-      {
-      if ( strcmp( f->name, tbuf ) == 0 )
-         {
-#if INTENSIVE_DEBUG
-         sprintf( bwb_ebuf, "in exp_isufn(): found user function <%s>",
-            tbuf );
-         bwb_debug( bwb_ebuf );
-#endif
-
-         /* a user function name was found: but is it the local variable
-            name for the user function? If so, return OP_NULL and the
-            name will be read as a variable */
-
-         if ( var_islocal( tbuf ) != NULL )
+        Xbound = NulChar;
+        if (buff_peek_LparenChar (buffer, &p))
+        {
+          if (bwb_stricmp (name, "DET") == 0)
+          {
+            /* N = DET( varname ) */
+            /* N = DET is handled by F_DET_N */
+            Xbound = 'd';
+          }
+          else if (bwb_stricmp (name, "DIM") == 0)
+          {
+            /* N = DIM( varname ) */
+            /* return total number of dimensions */
+            Xbound = 'D';
+          }
+          else if (bwb_stricmp (name, "SIZE") == 0)
+          {
+            if (My->CurrentVersion->OptionVersionValue & (C77))
             {
-            return OP_NULL;
+              /* N = SIZE( filename ) is handled by F_SIZE_A_N */
             }
-         else
+            else
             {
-
-#if INTENSIVE_DEBUG
-            sprintf( bwb_ebuf, "in exp_isufn(): found function <%s> not a local variable, EXEC level <%d>",
-               tbuf, CURTASK exsc );
-            bwb_debug( bwb_ebuf );
-            getchar();
-#endif
-
-            return OP_USERFNC;
+              /* N = SIZE( varname ) */
+              /* return total number of elements */
+              Xbound = 'S';
             }
-         }
-      }
+          }
+          else if (bwb_stricmp (name, "LBOUND") == 0)
+          {
+            /* N = LBOUND( varname [ , dimension ] ) */
+            /* return LOWER bound */
+            Xbound = 'L';
+          }
+          else if (bwb_stricmp (name, "UBOUND") == 0)
+          {
+            /* N = UBOUND( varname [ , dimension ] ) */
+            /* return UPPER bound */
+            Xbound = 'U';
+          }
+        }
+        if (Xbound)
+        {
+          VariableType *v;
+          int dimension;
+          char varname[NameLengthMax + 1];
 
-   return OP_NULL;
+          v = NULL;
+          dimension = 0;        /* default */
 
-   }
 
-/***************************************************************
-
-	FUNCTION:       exp_isfn()
-
-	DESCRIPTION:    This function reads the expression to find
-			if a function name is present at this point.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_isfn( char *expression )
-#else
-int
-exp_isfn( expression )
-   char *expression;
-#endif
-   {
-
-   /* Block out the call to exp_getvfname() if exp_isvn() is called
-      after exp_isfn() */
-
-   exp_getvfname( expression, CURTASK exps[ CURTASK expsc ].string );
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_isfn(): search for function <%s>",
-      expression );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   if ( fnc_find( CURTASK exps[ CURTASK expsc ].string ) == NULL )
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_isfn(): failed to find function <%s>",
-         expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return OP_NULL;
-      }
-   else
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_isfn(): found function <%s>",
-         expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return FUNCTION;
-      }
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_isvn()
-
-	DESCRIPTION:    This function reads the expression to find
-			if a variable name at this point.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_isvn( char *expression )
-#else
-int
-exp_isvn( expression )
-   char *expression;
-#endif
-   {
-
-   /* Block out the call to exp_getvfname() if exp_isfn() is called
-      after exp_isvn() */
-
-   /* exp_getvfname( expression, CURTASK exps[ CURTASK expsc ].string ); */
-
-   /* rule out null name */
-
-   if ( strlen( CURTASK exps[ CURTASK expsc ].string ) == 0 )
-      {
-      return OP_NULL;
-      }
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_isvn(): search for variable <%s>",
-      CURTASK exps[ CURTASK expsc ].string );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   if ( var_find( CURTASK exps[ CURTASK expsc ].string ) == NULL )
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_isvn(): failed to find variable <%s>",
-         expression );
-      bwb_debug( bwb_ebuf );
-#endif
-      return OP_NULL;
-      }
-   else
-      {
-#if INTENSIVE_DEBUG
-      sprintf( bwb_ebuf, "in exp_isvn(): found variable <%s>",
-         CURTASK exps[ CURTASK expsc ].string );
-      bwb_debug( bwb_ebuf );
-#endif
-      return VARIABLE;
-      }
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_getvfname()
-
-	DESCRIPTION:    This function reads the expression to find
-			a variable or function name at this point.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_getvfname( char *source, char *destination )
-#else
-int
-exp_getvfname( source, destination )
-   char *source;
-   char *destination;
-#endif
-   {
-   int s_pos, d_pos;                    /* source, destination positions */
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_getvfname(): source buffer <%s>", source );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   s_pos = d_pos = 0;
-   destination[ 0 ] = '\0';
-   while( source[ s_pos ] != '\0' )
-      {
-
-      /* all alphabetical characters are acceptable */
-
-      if ( isalpha( source[ s_pos ] ) != 0 )
-
-         {
-         destination[ d_pos ] = source[ s_pos ];
-
-         ++d_pos;
-         ++s_pos;
-         destination[ d_pos ] = '\0';
-         }
-
-      /* numerical characters are acceptable but not in the first position */
-
-      else if (( isdigit( source[ s_pos ] ) != 0 ) && ( d_pos != 0 ))
-         {
-         destination[ d_pos ] = source[ s_pos ];
-         ++d_pos;
-         ++s_pos;
-         destination[ d_pos ] = '\0';
-         }
-
-      /* other characters will have to be tried on their own merits */
-
-      else
-         {
-         switch( source[ s_pos ] )
-            {
-
-            case '.':                           /* tolerated non-alphabetical characters */
-            case '_':
-               destination[ d_pos ] = source[ s_pos ];
-               ++d_pos;
-               ++s_pos;
-               destination[ d_pos ] = '\0';
-               break;
-
-	    case STRING:                        /* terminating characters */
-	    case '#':                           /* Microsoft-type double precision */
-	    case '!':                           /* Microsoft-type single precision */
-
-	       destination[ d_pos ] = source[ s_pos ];
-               ++d_pos;
-               ++s_pos;
-               destination[ d_pos ] = '\0';
-
-               return TRUE;
-
-            case '(':				/* begin function/sub name */
-               return TRUE;
-
-            default:                            /* anything else is non-tolerated */
-               return FALSE;
-            }
-         }
-      }
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_getvfname(): found name <%s>", destination );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   return TRUE;                         /* exit after coming to the end */
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_validarg()
-
-	DESCRIPTION:    This function reads the expression to
-			determine whether it is a valid argument (to be
-			read recursively by bwb_exp() and passed to a
-			function.
-
-***************************************************************/
-
-#if ANSI_C
-int
-exp_validarg( char *expression )
-#else
-int
-exp_validarg( expression )
-   char *expression;
-#endif
-   {
-   register int c;
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in exp_validarg(): expression <%s>.",
-      expression );
-   bwb_debug( bwb_ebuf );
-#endif
-
-   c = 0;
-   while ( TRUE )
-      {
-      switch( expression[ c ] )
-         {
-         case ' ':
-         case '\t':
-            ++c;
+          if (buff_skip_LparenChar (buffer, &p) == FALSE)
+          {
+            WARN_SYNTAX_ERROR;
+            return RESULT_ERROR;
+          }
+          if (buff_read_varname (buffer, &p, varname) == FALSE)
+          {
+            WARN_SYNTAX_ERROR;
+            return RESULT_ERROR;
+          }
+          /* search for array */
+          v = mat_find (varname);
+          if (v == NULL)
+          {
+            WARN_TYPE_MISMATCH;
+            return RESULT_ERROR;
+          }
+          if (v->dimensions == 0)
+          {
+            /* calling DET(), DIM(), SIZE(), LBOUND() or UBOUND() on a scalar is an ERROR */
+            WARN_TYPE_MISMATCH;
+            return RESULT_ERROR;
+          }
+          switch (Xbound)
+          {
+          case 'd':                /* DET() */
+          case 'D':                /* DIM() */
+          case 'S':                /* SIZE() */
             break;
-         case '\0':
-            return FALSE;
-         default:
-            return TRUE;
-         }
-      }
-
-   }
-
-/***************************************************************
-
-        FUNCTION:   	exp_getnval()
-
-	DESCRIPTION:    This function returns the numerical value
-			contain in the expression-stack element
-			pointed to by 'e'.
-
-***************************************************************/
-
-#if ANSI_C
-bnumber
-exp_getnval( struct exp_ese *e )
-#else
-bnumber
-exp_getnval( e )
-   struct exp_ese *e;
-#endif
-   {
-
-   /* check for variable */
-
-   if ( e->operation == VARIABLE )
-      {
-      switch( e->type )
-         {
-         case NUMBER:
-            return (* var_findnval( e->xvar, e->array_pos ));
-         default:
-            bwb_error( err_mismatch );
-            return (bnumber) 0.0;
-         }
-      }
-
-   /* must be a numerical value */
-
-   if ( e->operation != NUMBER )
-      {
-#if PROG_ERRORS
-      sprintf( bwb_ebuf, "in exp_getnval(): operation <%d> is not a number",
-         e->operation );
-      bwb_error( bwb_ebuf );
-#else
-      bwb_error( err_syntax );
-#endif
-      return (bnumber) 0.0;
-      }
-
-   /* return specific values */
-
-   switch( e->type )
-      {
-      case NUMBER:
-         return e->nval;
-      default:
-#if PROG_ERRORS
-         sprintf( bwb_ebuf, "in exp_getnval(): type is <%c>",
-            e->type );
-         bwb_error( bwb_ebuf );
-#else
-         bwb_error( err_syntax );
-#endif
-         return (bnumber) 0.0;
-      }
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       exp_getsval()
-
-	DESCRIPTION:    This function returns a pointer to the
-			BASIC string structure pointed to by
-			expression-stack element 'e'.
-
-***************************************************************/
-
-#if ANSI_C
-bstring *
-exp_getsval( struct exp_ese *e )
-#else
-bstring *
-exp_getsval( e )
-   struct exp_ese *e;
-#endif
-   {
-   static bstring b;
-#if TEST_BSTRING
-   static int init = FALSE;
-
-   if ( init == FALSE )
-      {
-      sprintf( b.name, "<exp_getsval() bstring>" );
-      }
-#endif
-
-   b.rab = FALSE;
-
-   /* return based on operation type */
-
-   switch( e->operation )
-      {
-      case CONST_STRING:
-      case OP_STRJOIN:
-         return &( e->sval );
-      case VARIABLE:
-        switch( e->type )
+          case 'L':                /* LBOUND() */
+          case 'U':                /* UBOUND() */
+            if (buff_skip_seperator (buffer, &p))
             {
-	    case STRING:
-               return var_findsval( e->xvar, e->array_pos );
-            case NUMBER:
-               sprintf( bwb_ebuf, "%lf ", (double) exp_getnval( e ) );
-               str_ctob( &b, bwb_ebuf );
-               return &b;
-            default:
-#if PROG_ERRORS
-               sprintf( bwb_ebuf, "in exp_getsval(): type <%c> inappropriate for NUMBER",
-                  e->type );
-               bwb_error( bwb_ebuf );
-#else
-               bwb_error( err_syntax );
-#endif
-               return NULL;
-            }
-	 break;
+              ResultType ResultCode;
+              VariantType t;
+              VariantType *T;
 
-      case NUMBER:
-        switch( e->type )
+              T = &t;
+              ResultCode = buff_read_expr (buffer, &p, T, 1);
+              if (ResultCode != RESULT_SUCCESS)
+              {
+                /* ERROR */
+                RELEASE_VARIANT (T);
+                return ResultCode;
+              }
+              if (is_string_type (T))
+              {
+                RELEASE_VARIANT (T);
+                WARN_TYPE_MISMATCH;
+                return RESULT_ERROR;
+              }
+              T->Number = bwb_rint (T->Number);
+              if (T->Number < 1 || T->Number > v->dimensions)
+              {
+                WARN_TYPE_MISMATCH;
+                return RESULT_ERROR;
+              }
+              dimension = (int) bwb_rint (T->Number);
+              dimension--;        /* BASIC to C */
+            }
+            else
             {
-	    case NUMBER:
-               sprintf( bwb_ebuf, "%lf ", (double) exp_getnval( e ) );
-               str_ctob( &b, bwb_ebuf );
-               return &b;
-            default:
-#if PROG_ERRORS
-               sprintf( bwb_ebuf, "in exp_getsval(): type <%c> inappropriate for NUMBER",
-                  e->type );
-               bwb_error( bwb_ebuf );
-#else
-               bwb_error( err_syntax );
-#endif
-               return NULL;
+              dimension = 0;        /* default */
             }
-	 break;
-      default:
-#if PROG_ERRORS
-         sprintf( bwb_ebuf, "in exp_getsval(): operation <%d> inappropriate",
-            e->operation );
-         bwb_error( bwb_ebuf );
-#else
-         bwb_error( err_syntax );
-#endif
-         return NULL;
+            break;
+          default:
+            WARN_INTERNAL_ERROR;
+            return RESULT_ERROR;
+            /* break; */
+          }
+          if (buff_skip_RparenChar (buffer, &p) == FALSE)
+          {
+            WARN_SYNTAX_ERROR;
+            return RESULT_ERROR;
+          }
+          /* OK */
+          switch (Xbound)
+          {
+          case 'd':                /* DET() */
+            Determinant (v);
+            X->Number = My->LastDeterminant;
+            break;
+          case 'D':                /* DIM() */
+            X->Number = v->dimensions;
+            break;
+          case 'S':                /* SIZE() */
+            X->Number = v->array_units;
+            break;
+          case 'L':                /* LBOUND() */
+            X->Number = v->LBOUND[dimension];
+            break;
+          case 'U':                /* UBOUND() */
+            X->Number = v->UBOUND[dimension];
+            break;
+          default:
+            WARN_INTERNAL_ERROR;
+            return RESULT_ERROR;
+            /* break; */
+          }
+          X->VariantTypeCode = LongTypeCode;
+          *position = p;
+          return RESULT_SUCCESS;
+        }
       }
-
-   /* this point may not be reached */
-
-   return NULL;
-
-   }
-
-/***************************************************************
-
-	FUNCTION:       inc_esc()
-
-	DESCRIPTION:    This function increments the expression
-			stack counter.
-
-***************************************************************/
-
-#if ANSI_C
-int
-inc_esc( void )
-#else
-int
-inc_esc()
-#endif
-   {
-
-#if INTENSIVE_DEBUG
-   sprintf( bwb_ebuf, "in inc_esc(): prev level <%d>",
-      CURTASK expsc );
-   bwb_debug ( bwb_ebuf );
-#endif
-
-   ++CURTASK expsc;
-   if ( CURTASK expsc >= ESTACKSIZE )
+      /* ---------------------------------------------------------------------------- */
+      /* if( TRUE ) */
       {
-      --CURTASK expsc;
-#if PROG_ERRORS
-      sprintf( bwb_ebuf, "in inc_esc(): Maximum expression stack exceeded <%d>",
-         CURTASK expsc );
-      bwb_error( bwb_ebuf );
-#else
-      bwb_error( err_overflow );
-#endif
-      return OP_NULL;
+        /* it is a function */
+        UserFunctionType *L;
+        unsigned char ParameterCount;
+        ParamBitsType ParameterTypes;
+        VariableType *argv;
+        VariableType *argn;
+
+        ParameterCount = 0;
+        ParameterTypes = 0;
+        argv = var_chain (NULL);        /* RETURN variable */
+        argn = NULL;
+
+        if (buff_skip_LparenChar (buffer, &p))
+        {
+          if (buff_skip_RparenChar (buffer, &p))
+          {
+            /*  RND() */
+          }
+          else
+          {
+            /*  RND( 1, 2, 3 ) */
+            do
+            {
+              ResultType ResultCode;
+              VariantType T;
+
+              ResultCode = buff_read_expr (buffer, &p, &T, 1);
+              if (ResultCode != RESULT_SUCCESS)
+              {
+                /* ERROR */
+                var_free (argv);        /* free ARGV chain */
+                return ResultCode;
+              }
+              /* add value to ARGV chain      */
+              argn = var_chain (argv);
+              /* 'argn' is the variable to use */
+              if (is_string_type (&T))
+              {
+                /* STRING */
+                var_make (argn, StringTypeCode);
+                if ((argn->Value.String =
+                     (StringType *) calloc (1, sizeof (StringType))) == NULL)
+                {
+                  WARN_OUT_OF_MEMORY;
+                  return RESULT_ERROR;
+                }
+                PARAM_LENGTH = T.Length;
+                /* PARAM_BUFFER = T.Buffer; */
+                if ((PARAM_BUFFER =
+                     (char *) calloc (T.Length + 1 /* NulChar */ ,
+                                      sizeof (char))) == NULL)
+                {
+                  WARN_OUT_OF_MEMORY;
+                  return RESULT_ERROR;
+                }
+                bwb_memcpy (PARAM_BUFFER, T.Buffer, T.Length);
+                PARAM_BUFFER[PARAM_LENGTH] = NulChar;
+                /* add type  to ParameterTypes */
+                if (ParameterCount < MAX_FARGS)
+                {
+                  ParameterTypes |= (1 << ParameterCount);
+                }
+              }
+              else
+              {
+                /* NUMBER */
+                var_make (argn, DoubleTypeCode);
+                PARAM_NUMBER = T.Number;
+              }
+              /* increment ParameterCount */
+              if (ParameterCount < 255 /* (...) */ )
+              {
+                ParameterCount++;
+              }
+              /* RELEASE_VARIANT( &T ); */
+            }
+            while (buff_skip_seperator (buffer, &p));
+
+
+            if (buff_skip_RparenChar (buffer, &p) == FALSE)
+            {
+              /* ERROR */
+              var_free (argv);        /* free ARGV chain */
+              WARN_SYNTAX_ERROR;
+              return RESULT_ERROR;
+            }
+          }
+        }
+        else
+        {
+          /* RND */
+        }
+
+        /* search for exact match to the function parameter signature */
+        if (ParameterCount > MAX_FARGS)
+        {
+          /* FORCE (...) */
+          ParameterCount = 255;        /* (...) */
+          ParameterTypes = 0;
+        }
+        /* did we find the correct function above? */
+        L = UserFunction_find_exact (name, ParameterCount, ParameterTypes);
+        if (L == NULL)
+        {
+          L = UserFunction_find_exact (name, 255 /* (...) */ , 0);
+        }
+        if (L != NULL)
+        {
+          /* USER function */
+          if (L->line == NULL)
+          {
+            var_free (argv);        /* free ARGV chain */
+            WARN_INTERNAL_ERROR;
+            return RESULT_ERROR;
+          }
+          /* defaullt the return value */
+          var_make (argv, L->ReturnTypeCode);
+          bwb_strcpy (argv->name, name);
+          if (VAR_IS_STRING (argv))
+          {
+            RESULT_BUFFER = My->MaxLenBuffer;
+            RESULT_LENGTH = 0;
+            RESULT_BUFFER[RESULT_LENGTH] = NulChar;
+          }
+          else
+          {
+            RESULT_NUMBER = 0;
+          }
+          /* execute function */
+          /* for all USER DEFINED FUNCTIONS: f->UniqueID == line number of DEF FN... */
+          switch (L->line->cmdnum)
+          {
+          case C_DEF:                /* execute a user function   declared using DEF FN   ...(...) = ... */
+          case C_FUNCTION:        /* execute a user function   declared using FUNCTION ...(...) */
+          case C_SUB:                /* execute a user subroutine declared using SUB      ...(...) */
+            IntrinsicFunction_deffn (ParameterCount, argv, L);
+            break;
+          case C_DEF8LBL:        /* IF ERL > label1 AND ERL < label2 THEN ... */
+            if (ParameterCount > 0)
+            {
+              var_free (argv);        /* free ARGV chain */
+              WARN_ILLEGAL_FUNCTION_CALL;
+              return RESULT_ERROR;
+            }
+            /* return the line number associated with the label */
+            RESULT_NUMBER = L->line->number;
+            break;
+          default:
+                  /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+            var_free (argv);        /* free ARGV chain */
+            WARN_INTERNAL_ERROR;
+            return RESULT_ERROR;
+            /* break; */
+          }
+        }
+        else
+        {
+          /* INTRINSIC */
+          IntrinsicFunctionType *f;
+
+          f =
+            IntrinsicFunction_find_exact (name, ParameterCount,
+                                          ParameterTypes);
+          if (f == NULL)
+          {
+            /* NOT FOUND */
+            f = IntrinsicFunction_find_exact (name, 255 /* (...) */ , 0);
+          }
+          if (f == NULL)
+          {
+            /* NOT FOUND */
+            var_free (argv);        /* free ARGV chain */
+            WARN_ILLEGAL_FUNCTION_CALL;
+            return RESULT_ERROR;
+          }
+          /* FOUND */
+          /* defaullt the return value */
+          var_make (argv, f->ReturnTypeCode);
+          bwb_strcpy (argv->name, name);
+          if (VAR_IS_STRING (argv))
+          {
+            RESULT_BUFFER = My->MaxLenBuffer;
+            RESULT_LENGTH = 0;
+            RESULT_BUFFER[RESULT_LENGTH] = NulChar;
+          }
+          else
+          {
+            RESULT_NUMBER = 0;
+          }
+          /* execute function */
+          /* for all INTRINSIC FUNCTIONS: f->UniqueID == #define F_... */
+          IntrinsicFunction_execute (ParameterCount, argv, f);
+        }
+        /* return results */
+        X->VariantTypeCode = argv->VariableTypeCode;
+        if (VAR_IS_STRING (argv))
+        {
+          if (RESULT_LENGTH > MAXLEN)
+          {
+            WARN_STRING_TOO_LONG;        /* buff_read_function */
+            RESULT_LENGTH = MAXLEN;
+          }
+          X->Length = RESULT_LENGTH;
+          if ((X->Buffer =
+               (char *) calloc (X->Length + 1 /* NulChar */ ,
+                                sizeof (char))) == NULL)
+          {
+            WARN_OUT_OF_MEMORY;
+            return RESULT_ERROR;
+          }
+          bwb_memcpy (X->Buffer, RESULT_BUFFER, X->Length);
+          X->Buffer[X->Length] = NulChar;
+          RESULT_BUFFER = NULL;
+        }
+        else
+        {
+          X->Number = RESULT_NUMBER;
+        }
+        /* free ARGV chain */
+        var_free (argv);
+        /* OK */
+        *position = p;
+        return RESULT_SUCCESS;
       }
+      /* ---------------------------------------------------------------------------- */
+    }
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
-#if INTENSIVE_DEBUG
-   sprintf( CURTASK exps[ CURTASK expsc ].string, "New Expression Stack Level %d", CURTASK expsc );
+#if FALSE                        /* keep line_... */
+static int
+line_read_function (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_function (line->buffer, &(line->position), X);
+}
 #endif
 
-   CURTASK exps[ CURTASK expsc ].type = NUMBER;
-   CURTASK exps[ CURTASK expsc ].operation = OP_NULL;
-   CURTASK exps[ CURTASK expsc ].pos_adv = 0;
 
-   return TRUE;
-   }
+static ResultType
+buff_read_variable (char *buffer, int *position, VariantType * X)
+{
+  int p;
+  char name[NameLengthMax + 1];
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
 
-/***************************************************************
 
-	FUNCTION:       dec_esc()
+  p = *position;
+  if (buff_read_varname (buffer, &p, name))
+  {
+    VariableType *v;
+    int n_params;
+    int pp[MAX_DIMS];
 
-	DESCRIPTION:    This function decrements the expression
-			stack counter.
-
-***************************************************************/
-
-#if ANSI_C
-int
-dec_esc( void )
-#else
-int
-dec_esc()
-#endif
-   {
-   --CURTASK expsc;
-   if ( CURTASK expsc < 0 )
+    if (buff_peek_LparenChar (buffer, &p))
+    {
+      /* array */
+      if (buff_peek_array_dimensions (buffer, &p, &n_params) == FALSE)
       {
-      CURTASK expsc = 0;
-#if PROG_ERRORS
-      sprintf( bwb_ebuf, "in dec_esc(): Expression stack counter < 0." );
-      bwb_error( bwb_ebuf );
-#else
-      bwb_error( err_overflow );
-#endif
-      return OP_NULL;
+        WARN_SYNTAX_ERROR;
+        return RESULT_ERROR;
       }
+      v = var_find (name, n_params, TRUE);
+    }
+    else
+    {
+      /* scalar */
+      v = var_find (name, 0, TRUE);
+    }
+    if (v == NULL)
+    {
+      WARN_VARIABLE_NOT_DECLARED;
+      return RESULT_ERROR;
+    }
+    if (v->dimensions > 0)
+    {
+      /* array */
+      int n;
 
-   return TRUE;
-   }
+      if (buff_read_array_dimensions (buffer, &p, &n_params, pp) == FALSE)
+      {
+        WARN_SUBSCRIPT_OUT_OF_RANGE;
+        return RESULT_ERROR;
+      }
+      for (n = 0; n < v->dimensions; n++)
+      {
+        if (pp[n] < v->LBOUND[n] || pp[n] > v->UBOUND[n])
+        {
+          WARN_SUBSCRIPT_OUT_OF_RANGE;
+          return RESULT_ERROR;
+        }
+        v->VINDEX[n] = pp[n];
+      }
+    }
+    if (var_get (v, X) == FALSE)
+    {
+      WARN_TYPE_MISMATCH;
+      return RESULT_ERROR;
+    }
+    *position = p;
+    return RESULT_SUCCESS;
+  }
+  /* NOT FOUND */
+  return RESULT_UNPARSED;
+}
 
+#if FALSE                        /* keep line_... */
+static int
+line_read_variable (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_variable (line->buffer, &(line->position), X);
+}
+#endif
+/*
+--------------------------------------------------------------------------------------------
+                               Precedence Climbing Expression Parser
+--------------------------------------------------------------------------------------------
+*/
+
+/*
+// Read an infix expression containing top-level operators that bind at least
+// as tightly as the given precedence.
+// Don't consume the first non-digit character after the last number.
+// Complain if you can't even find the first number,
+// or if there is an operator with no following number.
+*/
+static ResultType
+buff_read_expr (char *buffer, int *position, VariantType * X,
+                unsigned char LastPrec)
+{
+  ResultType ResultCode;
+  OperatorType *C;
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+
+
+  p = *position;
+  bwb_memset (X, 0, sizeof (VariantType));        /* NOTE */
+
+  ResultCode = buff_read_primary (buffer, &p, X);
+  if (ResultCode != RESULT_SUCCESS)
+  {
+    return ResultCode;
+  }
+  if (X->VariantTypeCode == NulChar)
+  {
+    /* we do not know the primary's type */
+    WARN_INTERNAL_ERROR;
+    return RESULT_ERROR;
+  }
+  buff_skip_spaces (buffer, &p);        /* keep this */
+  while ((C = buff_read_operator (buffer, &p, LastPrec, BINARY)) != NULL)
+  {
+    VariantType Y;
+
+    ResultCode = buff_read_expr (buffer, &p, &Y, C->NextPrec);
+    if (ResultCode != RESULT_SUCCESS)
+    {
+      /* ERROR */
+      if (Y.Buffer != NULL)
+      {
+        free (Y.Buffer);
+        Y.Buffer = NULL;
+      }
+      return ResultCode;
+    }
+    ResultCode = C->Eval (X, &Y);
+    if (Y.Buffer != NULL)
+    {
+      free (Y.Buffer);
+      Y.Buffer = NULL;
+    }
+    if (ResultCode != RESULT_SUCCESS)
+    {
+      /* ERROR */
+      return ResultCode;
+    }
+    /* OK */
+  }
+  /*
+     Normal termination, such as end-of-line, ',', or "THEN".
+   */
+  *position = p;
+  return RESULT_SUCCESS;
+}
+
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_expr (LineType * line, VariantType * X, unsigned char LastPrec)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_expr (line->buffer, &(line->position), X, LastPrec);
+}
+#endif
+static ResultType
+buff_read_primary (char *buffer, int *position, VariantType * X)
+{
+  ResultType ResultCode;
+  OperatorType *C;
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+
+
+  p = *position;
+  buff_skip_spaces (buffer, &p);        /* keep this */
+  if (buff_is_eol (buffer, &p))
+  {
+    /* we expected to find something, but there is nothing here */
+    WARN_SYNTAX_ERROR;
+    return RESULT_ERROR;
+  }
+  /* there is something to parse */
+  if (buff_skip_LparenChar (buffer, &p))
+  {
+    /* nested expression */
+    ResultCode = buff_read_expr (buffer, &p, X, 1);
+    if (ResultCode != RESULT_SUCCESS)
+    {
+      return ResultCode;
+    }
+    if (buff_skip_RparenChar (buffer, &p) == FALSE)
+    {
+      WARN_SYNTAX_ERROR;
+      return RESULT_ERROR;
+    }
+    *position = p;
+    return RESULT_SUCCESS;
+  }
+  /* not a nested expression */
+  C = buff_read_operator (buffer, &p, 1, UNARY);
+  if (C != NULL)
+  {
+    ResultCode = buff_read_expr (buffer, &p, X, C->NextPrec);
+    if (ResultCode != RESULT_SUCCESS)
+    {
+      return ResultCode;
+    }
+    ResultCode = C->Eval (X, NULL);
+    if (ResultCode != RESULT_SUCCESS)
+    {
+      return ResultCode;
+    }
+    *position = p;
+    return RESULT_SUCCESS;
+  }
+  /* not an operator */
+  ResultCode = buff_read_string_constant (buffer, &p, X);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  ResultCode = buff_read_hexadecimal_constant (buffer, &p, X, FALSE);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  ResultCode = buff_read_octal_constant (buffer, &p, X, FALSE);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  ResultCode = buff_read_internal_constant (buffer, &p, X);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  ResultCode = buff_read_decimal_constant (buffer, &p, X, FALSE);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  /* not a constant */
+  ResultCode = buff_read_function (buffer, &p, X);
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  /* not a function */
+  ResultCode = buff_read_variable (buffer, &p, X);
+  /* 
+     the variable will be implicitly created unless:
+     OPTION EXPLICIT ON, or
+     the varname matches an existing command/function/operator.
+   */
+  if (ResultCode != RESULT_UNPARSED)
+  {
+    /* either OK or ERROR */
+    if (ResultCode == RESULT_SUCCESS)
+    {
+      *position = p;
+    }
+    return ResultCode;
+  }
+  /* not a variable */
+  WARN_SYNTAX_ERROR;
+  return RESULT_ERROR;
+}
+
+#if FALSE                        /* keep line_... */
+static ResultType
+line_read_primary (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_primary (line->buffer, &(line->position), X);
+}
+#endif
+
+
+int
+buff_read_expression (char *buffer, int *position, VariantType * X)
+{
+  int p;
+   
+  assert (buffer != NULL);
+  assert (position != NULL);
+  assert (X != NULL);
+
+  p = *position;
+  if (buff_read_expr (buffer, &p, X, 1) == RESULT_SUCCESS)
+  {
+    switch (X->VariantTypeCode)
+    {
+    case ByteTypeCode:
+    case IntegerTypeCode:
+    case LongTypeCode:
+    case CurrencyTypeCode:
+    case SingleTypeCode:
+    case DoubleTypeCode:
+    case StringTypeCode:
+      /* OK */
+      break;
+    default:
+         /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+      RELEASE_VARIANT (X);
+      WARN_INTERNAL_ERROR;
+      return FALSE;
+      /* break; */
+    }
+    *position = p;
+    return TRUE;
+  }
+  RELEASE_VARIANT (X);                /* NEW */
+  return FALSE;
+}
+
+
+int
+line_read_expression (LineType * line, VariantType * X)
+{
+   
+  assert (line != NULL);
+  assert (X != NULL);
+  return buff_read_expression (line->buffer, &(line->position), X);
+}
+
+/*
+--------------------------------------------------------------------------------------------
+                               BASIC commands
+--------------------------------------------------------------------------------------------
+*/
+
+#if FALSE                        /* keep line_... */
+LineType *
+bwb_EVAL (LineType * line)
+{
+  /*
+     EVAL 1 + 2 + 3
+     EVAL "ABC" & "DEF"
+   */
+  ResultType ResultCode;
+  VariantType x;
+  VariantType *X;
+   
+  assert (line != NULL);
+
+
+  VX = &x;
+  ResultCode = line_read_expression (line, X);
+  if (ResultCode != RESULT_SUCCESS)
+  {
+    return (line);
+  }
+
+  switch (X->VariantTypeCode)
+  {
+  case ByteTypeCode:
+  case IntegerTypeCode:
+  case LongTypeCode:
+  case CurrencyTypeCode:
+  case SingleTypeCode:
+  case DoubleTypeCode:
+    printf (" NUMBER: %g, %c\n", X->Number, X->VariantTypeCode);
+    ResetConsoleColumn ();
+    break;
+  case StringTypeCode:
+    printf (" STRING: %s, %c\n", X->Buffer, X->VariantTypeCode);
+    ResetConsoleColumn ();
+    break;
+  default:
+      /*** FATAL - INTERNAL ERROR - SHOULD NEVER HAPPEN ***/
+    WARN_INTERNAL_ERROR;
+    break;
+  }
+  RELEASE_VARIANT (X);
+  return (line);
+}
+#endif
+
+LineType *
+bwb_OPTION_DISABLE_OPERATOR (LineType * l)
+{
+  /* OPTION DISABLE OPERATOR name$ */
+  int IsFound;
+   
+  assert (l != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+  assert(My->SYSOUT != NULL);
+  assert(My->SYSOUT->cfp != NULL);
+
+  IsFound = FALSE;
+  /* Get OPERATOR */
+  {
+    char *Value;
+
+    Value = NULL;
+    if (line_read_string_expression (l, &Value) == FALSE)
+    {
+      WARN_SYNTAX_ERROR;
+      return (l);
+    }
+    if (Value == NULL)
+    {
+      WARN_SYNTAX_ERROR;
+      return (l);
+    }
+    {
+      /* Name */
+      int i;
+      for (i = 0; i < NUM_OPERATORS; i++)
+      {
+        if (bwb_stricmp (Value, OperatorTable[i].Name) == 0)
+        {
+          /* FOUND */
+          /* DISABLE OPERATOR */
+          OperatorTable[i].OptionVersionBitmask &=
+            ~My->CurrentVersion->OptionVersionValue;
+          IsFound = TRUE;
+        }
+      }
+    }
+    free (Value);
+    Value = NULL;
+  }
+  if (IsFound == FALSE)
+  {
+    /* display warning message */
+    fprintf (My->SYSOUT->cfp, "IGNORED: %s\n", l->buffer);
+    ResetConsoleColumn ();
+  }
+  return (l);
+}
+
+LineType *
+bwb_OPTION_ENABLE_OPERATOR (LineType * l)
+{
+  /* OPTION ENABLE OPERATOR name$ */
+  int IsFound;
+   
+  assert (l != NULL);
+  assert(My != NULL);
+  assert(My->CurrentVersion != NULL);
+  assert(My->SYSOUT != NULL);
+  assert(My->SYSOUT->cfp != NULL);
+
+
+  IsFound = FALSE;
+  /* Get OPERATOR */
+  {
+    char *Value;
+
+    Value = NULL;
+    if (line_read_string_expression (l, &Value) == FALSE)
+    {
+      WARN_SYNTAX_ERROR;
+      return (l);
+    }
+    if (Value == NULL)
+    {
+      WARN_SYNTAX_ERROR;
+      return (l);
+    }
+    {
+      /* Name */
+      int i;
+      for (i = 0; i < NUM_OPERATORS; i++)
+      {
+        if (bwb_stricmp (Value, OperatorTable[i].Name) == 0)
+        {
+          /* FOUND */
+          /* ENABLE OPERATOR */
+          OperatorTable[i].OptionVersionBitmask |=
+            My->CurrentVersion->OptionVersionValue;
+          IsFound = TRUE;
+        }
+      }
+    }
+    free (Value);
+    Value = NULL;
+  }
+  if (IsFound == FALSE)
+  {
+    /* display warning message */
+    fprintf (My->SYSOUT->cfp, "IGNORED: %s\n", l->buffer);
+    ResetConsoleColumn ();
+  }
+  return (l);
+}
+
+void
+DumpOneOperatorSyntax (FILE * file, int IsXref, int n)
+{
+   
+  assert (file != NULL);
+
+  if (n < 0 || n >= NUM_OPERATORS)
+  {
+    return;
+  }
+  /* NAME */
+  {
+    FixDescription (file, "     SYNTAX: ", OperatorTable[n].Syntax);
+  }
+  /* DESCRIPTION */
+  {
+
+    FixDescription (file, "DESCRIPTION: ", OperatorTable[n].Description);
+  }
+  /* PRECEDENCE */
+  {
+    fprintf (file, " PRECEDENCE: %d\n", OperatorTable[n].ThisPrec);
+  }
+  /* COMPATIBILITY */
+  if (IsXref)
+  {
+    int i;
+    fprintf (file, "   VERSIONS:\n");
+    for (i = 0; i < NUM_VERSIONS; i++)
+    {
+      char X;
+      if (OperatorTable[n].OptionVersionBitmask & bwb_vertable[i].
+          OptionVersionValue)
+      {
+        /* SUPPORTED */
+        X = 'X';
+      }
+      else
+      {
+        /* NOT SUPPORTED */
+        X = '_';
+      }
+      fprintf (file, "             [%c] %s\n", X, bwb_vertable[i].Name);
+    }
+  }
+
+  fflush (file);
+}
+
+void
+DumpAllOperatorSyntax (FILE * file, int IsXref,
+                       OptionVersionType OptionVersionValue)
+{
+  /* for the C maintainer */
+  int n;
+   
+  assert (file != NULL);
+
+  fprintf (file,
+           "============================================================\n");
+  fprintf (file,
+           "                    OPERATORS                               \n");
+  fprintf (file,
+           "============================================================\n");
+  fprintf (file, "\n");
+  fprintf (file, "\n");
+  SortAllOperatorsForManual ();
+  for (n = 0; n < NUM_OPERATORS; n++)
+  {
+    if (OperatorTable[n].OptionVersionBitmask & OptionVersionValue)
+    {
+      fprintf (file,
+               "------------------------------------------------------------\n");
+      DumpOneOperatorSyntax (file, IsXref, n);
+    }
+  }
+  SortAllOperators ();
+  fprintf (file,
+           "------------------------------------------------------------\n");
+
+  fprintf (file, "\n");
+  fprintf (file, "\n");
+  fflush (file);
+}
+
+/* EOF */

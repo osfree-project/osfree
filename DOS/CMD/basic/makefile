@@ -8,34 +8,26 @@ PROJ = basic
 TRGT = $(PROJ).exe
 DESC = BASIC and BASICA programming language
 #defines object file names in format objname.$(O)
-srcfiles = $(p)bwbasic$(e) &
+srcfiles = &
            $(p)bwb_cmd$(e) &
-           $(p)bwb_cnd$(e) &
-           $(p)bwb_dio$(e) &
-           $(p)bwb_elx$(e) &
            $(p)bwb_exp$(e) &
-           $(p)bwb_fnc$(e) &
-           $(p)bwb_inp$(e) &
            $(p)bwb_int$(e) &
-           $(p)bwb_mth$(e) &
-           $(p)bwb_ops$(e) &
-           $(p)bwb_par$(e) &
-           $(p)bwb_prn$(e) &
-           $(p)bwb_stc$(e) &
            $(p)bwb_str$(e) &
+           $(p)bwbasic$(e) &
+           $(p)bwx_tty$(e) &
+           $(p)bwb_cnd$(e) &
+           $(p)bwb_fnc$(e) &
+           $(p)bwb_prn$(e) &
            $(p)bwb_tbl$(e) &
-           $(p)bwb_tcc$(e) &
+           $(p)bwd_cmd$(e) &
+           $(p)bwb_dio$(e) &
+           $(p)bwb_inp$(e) &
+           $(p)bwb_stc$(e) &
            $(p)bwb_var$(e) &
-           $(p)bwx_tty$(e)
-
-           #$(p)bwx_ncu$(e) # link this for ncurses use
-
-           #$(p)renum$(e)
-           #$(p)bwx_iqc$(e) &
+           $(p)bwd_fun$(e)
 
 # defines additional options for C compiler
-ADD_COPT = -ml
-#STACKSIZE = 65535000
+ADD_COPT = -ml -zc -ox -DHAVE_MSDOS=1 -D__WATCOM__ #-bc -ox -q -wx -za 
 
 # additions to install target
 INSTALL_ADD = 1
