@@ -19,18 +19,24 @@
 /*
  * $Id: rexx.c,v 1.2 2004/06/06 11:14:01 mark Exp $
  */
-#if defined(HAVE_CONFIG_H)
-//# include "config.h"
+#if defined(__OSFREE__)
+#define OS2
+#undef  HAVE_CONFIG_H
 #endif
-//#include "configur.h"
+ 
+#if defined(HAVE_CONFIG_H)
+# include "config.h"
+#endif
+
+#ifndef __OSFREE__
+#include "configur.h"
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-#define INCL_REXXSAA
 
 #if defined(__OS2__)
 # define INCL_DOSMODULEMGR
@@ -150,7 +156,7 @@ static handle_type FindInterpreter( char *library )
    PFN addr;
    register int j=0;
 
-   debug( "%s: Attempting to load \"%s\" using DosLoadModule()...",
+   log( "%s: Attempting to load \"%s\" using DosLoadModule()...",
           __FUNCTION__,
           library);
 
@@ -161,7 +167,7 @@ static handle_type FindInterpreter( char *library )
 
    if ( handle != (handle_type)NULL )
    {
-      debug( "found %s\n", library );
+      log( "found %s\n", library );
 
       for ( j = 0; j < NUM_REXX_FUNCTIONS; j++ )
       {
@@ -174,7 +180,7 @@ static handle_type FindInterpreter( char *library )
           * Log the function and address. This is useful if the module
           * doesn't have an address for this procedure.
           */
-         debug( "%s: Address %x\n",
+         log( "%s: Address %x\n",
                 MyFunctionName[j],
                 (addr == NULL) ? 0 : addr );
 
@@ -195,7 +201,7 @@ static handle_type FindInterpreter( char *library )
    }
    else
    {
-      debug( "not found: %s\n", LoadError );
+      log( "not found: %s\n", LoadError );
    }
    return handle;
 }
@@ -237,7 +243,7 @@ void LoadInterpreter( void )
       exit( 11 );
    }
 
-   debug( "----------- Initialisation Complete - Program Execution Begins -----------\n" );
+   log( "----------- Initialisation Complete - Program Execution Begins -----------\n" );
 
    InterpreterIdx = 0;
 
@@ -260,7 +266,7 @@ LONG APIENTRY RexxStart(
 {
    LONG rc = (LONG)RXFUNC_NOTREG;
 
-   debug( "%s: ArgCount: %d ArgList: %x ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x ReturnCode: %x Result: %x",
+   log( "%s: ArgCount: %d ArgList: %x ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x ReturnCode: %x Result: %x",
           __FUNCTION__,
           ArgCount,
           ArgList,
@@ -286,7 +292,7 @@ LONG APIENTRY RexxStart(
          (PRXSTRING) Result ) ;
    }
 
-   debug( "<=> ReturnCode %d ResultString \"%s\" Result: %d\n",
+   log( "<=> ReturnCode %d ResultString \"%s\" Result: %d\n",
           (Result && Result->strptr) ? Result->strptr : "",
           ReturnCode,
           rc );
@@ -306,7 +312,7 @@ APIRET APIENTRY RexxVariablePool(
    {
       PSHVBLOCK tmp=RequestBlockList;
 
-      debug( "%s: RequestBlockList %x\n",
+      log( "%s: RequestBlockList %x\n",
              __FUNCTION__,
              RequestBlockList );
 
@@ -315,41 +321,41 @@ APIRET APIENTRY RexxVariablePool(
          switch( tmp->shvcode )
          {
             case RXSHV_SET:
-               debug( "in    RXSHV_SET: shvname: \"%s\" shvnamelen: %d shvvalue: \"%s\" shvvaluelen: %d\n",
+               log( "in    RXSHV_SET: shvname: \"%s\" shvnamelen: %d shvvalue: \"%s\" shvvaluelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen, tmp->shvvalue.strptr, tmp->shvvaluelen );
                break;
 
             case RXSHV_SYSET:
-               debug( "in  RXSHV_SYSET: shvname: \"%s\" shvnamelen: %d shvvalue: \"%s\" shvvaluelen: %d\n",
+               log( "in  RXSHV_SYSET: shvname: \"%s\" shvnamelen: %d shvvalue: \"%s\" shvvaluelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen, tmp->shvvalue.strptr, tmp->shvvaluelen );
                break;
 
             case RXSHV_FETCH:
-               debug( "in  RXSHV_FETCH: shvname: \"%s\" shvnamelen: %d\n",
+               log( "in  RXSHV_FETCH: shvname: \"%s\" shvnamelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen );
                break;
 
             case RXSHV_DROPV:
-               debug( "in  RXSHV_DROPV: shvname: \"%s\" shvnamelen: %d\n",
+               log( "in  RXSHV_DROPV: shvname: \"%s\" shvnamelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen );
                break;
 
             case RXSHV_SYDRO:
-               debug( "in  RXSHV_SYDRO: shvname: \"%s\" shvnamelen: %d\n",
+               log( "in  RXSHV_SYDRO: shvname: \"%s\" shvnamelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen );
                break;
 
             case RXSHV_NEXTV:
-               debug( "in  RXSHV_NEXTV: shvname: \"%s\" shvnamelen: %d\n",
+               log( "in  RXSHV_NEXTV: shvname: \"%s\" shvnamelen: %d\n",
                       tmp->shvname.strptr, tmp->shvnamelen );
                break;
 
             case RXSHV_PRIV:
-               debug( "in   RXSHV_PRIV\n" );
+               log( "in   RXSHV_PRIV\n" );
                break;
 
             case RXSHV_EXIT:
-               debug( "in   RXSHV_EXIT\n" );
+               log( "in   RXSHV_EXIT\n" );
                break;
 
             default:
@@ -374,42 +380,42 @@ APIRET APIENTRY RexxVariablePool(
          switch( tmp->shvcode )
          {
             case RXSHV_SET:
-               debug( "out   RXSHV_SET: shvret: %x\n",
+               log( "out   RXSHV_SET: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_SYSET:
-               debug( "out RXSHV_SYSET: shvret: %x\n",
+               log( "out RXSHV_SYSET: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_FETCH:
-               debug( "out RXSHV_FETCH: shvret: %x shvvalue: \"%s\" shvvaluelen: %d\n",
+               log( "out RXSHV_FETCH: shvret: %x shvvalue: \"%s\" shvvaluelen: %d\n",
                       tmp->shvret, tmp->shvvalue.strptr, tmp->shvvaluelen );
                break;
 
             case RXSHV_DROPV:
-               debug( "out RXSHV_DROPV: shvret: %x\n",
+               log( "out RXSHV_DROPV: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_SYDRO:
-               debug( "out RXSHV_SYDRO: shvret: %x\n",
+               log( "out RXSHV_SYDRO: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_NEXTV:
-               debug( "out RXSHV_NEXTV: shvret: %x\n",
+               log( "out RXSHV_NEXTV: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_PRIV:
-               debug( "out  RXSHV_PRIV: shvret: %x\n",
+               log( "out  RXSHV_PRIV: shvret: %x\n",
                       tmp->shvret );
                break;
 
             case RXSHV_EXIT:
-               debug( "out  RXSHV_EXIT: shvret: %x\n",
+               log( "out  RXSHV_EXIT: shvret: %x\n",
                       tmp->shvret );
                break;
 
@@ -419,7 +425,7 @@ APIRET APIENTRY RexxVariablePool(
          tmp = tmp->shvnext;
       }
 
-      debug( "<=> Result: %d\n", rc );
+      log( "<=> Result: %d\n", rc );
    }
 
    return rc;
@@ -433,7 +439,7 @@ APIRET APIENTRY RexxSetHalt( PID pid,
 {
    APIRET rc = RXARI_NOT_FOUND;
 
-   debug( "%s: pid: %ld tid: %ld ",
+   log( "%s: pid: %ld tid: %ld ",
           "RexxSetHalt()",
           pid,
           tid );
@@ -445,7 +451,7 @@ APIRET APIENTRY RexxSetHalt( PID pid,
          (LONG)      tid);
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -455,7 +461,7 @@ APIRET APIENTRY RexxSetTrace( PID pid,
 {
    APIRET rc = RXARI_NOT_FOUND;
 
-   debug( "%s: pid: %ld tid: %ld ",
+   log( "%s: pid: %ld tid: %ld ",
           "RexxSetTrace()",
           pid,
           tid );
@@ -467,7 +473,7 @@ APIRET APIENTRY RexxSetTrace( PID pid,
          (LONG)      tid);
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -477,7 +483,7 @@ APIRET APIENTRY RexxResetTrace( PID pid,
 {
    APIRET rc = RXARI_NOT_FOUND;
 
-   debug( "%s: pid: %ld tid: %ld ",
+   log( "%s: pid: %ld tid: %ld ",
           "RexxResetTrace()",
           pid,
           tid );
@@ -489,7 +495,7 @@ APIRET APIENTRY RexxResetTrace( PID pid,
          (LONG)      tid);
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -502,9 +508,9 @@ APIRET APIENTRY RexxBreakCleanup(
 {
    APIRET rc = 0;
 
-   debug( "%s: ", "RxBreakCleanup()" );
+   log( "%s: ", "RxBreakCleanup()" );
    // ...
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }

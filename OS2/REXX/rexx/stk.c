@@ -14,8 +14,6 @@
 #include "rexx.h"
 #include "stk.h"
 
-//char me[] = "REXX.DLL";
-
 // REXX.DLL own stack
 char *extra_stack = NULL;
 // stack save variable

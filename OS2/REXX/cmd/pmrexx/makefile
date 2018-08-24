@@ -11,8 +11,8 @@ OPTIONS      = heapsize=8192
 STACKSIZE    = 16384
 WINDOWCOMPAT = 1
 IMPORTS      = RexxCreateIOWindow_    PMREXXIO.RexxCreateIOWindow, &
-	       RexxDestroyIOWindow_   PMREXXIO.RexxDestroyIOWindow
-# UNI2H        = 1
+    	       RexxDestroyIOWindow_   PMREXXIO.RexxDestroyIOWindow
+UNI2H        = 1
 
 !include $(%ROOT)/mk/appsos2.mk
 

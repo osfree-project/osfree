@@ -28,12 +28,19 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(__OSFREE__)
+#undef   HAVE_CONFIG_H
 #define  INCL_OS2DEF
+#define  OS2
+#endif
 
 #if defined(HAVE_CONFIG_H)
 # include "config.h"
 #endif
+
+#ifndef __OSFREE__
 #include "configur.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -88,7 +95,7 @@ USHORT _Far16 _Pascal RXMACROLOAD (
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   args = (PSZ *)malloc((argc + 1) * sizeof(char * _Seg16));
 
   for (i = 0, p = argv; i < argc; i++, p++)
@@ -98,7 +105,7 @@ USHORT _Far16 _Pascal RXMACROLOAD (
 
   macrofile = (PSZ)file;
   rc = RexxLoadMacroSpace(argc, args, macrofile);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   free(args);
 
@@ -120,7 +127,7 @@ USHORT _Far16 _Pascal RXMACROSAVE (
   
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   args = (PSZ *)malloc((argc + 1) * sizeof(char * _Seg16));
 
   for (i = 0, p = argv; i < argc; i++, p++)
@@ -130,15 +137,13 @@ USHORT _Far16 _Pascal RXMACROSAVE (
 
   macrofile = (PSZ)file;
   rc = RexxSaveMacroSpace(argc, args, macrofile);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
   free(args);
 
   stkoff();
   
   return rc;
 }
-
-#if 0
 
 USHORT _Far16 _Pascal RXSUBCOMLOAD(
          PSZ16 env,                         /* Name of the Environment    */
@@ -150,18 +155,16 @@ USHORT _Far16 _Pascal RXSUBCOMLOAD(
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   envp = (PSZ)env;
   dllp = (PSZ)dll;
   rc = RexxLoadSubcom(envp, dllp);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
   
   return rc;
 }
-
-#endif
 
 USHORT _Far16 _Pascal RXMACRODROP (
          PSZ16 fn )                        /* Name of function to remove */
@@ -171,10 +174,10 @@ USHORT _Far16 _Pascal RXMACRODROP (
   
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   rc = RexxDropMacro(func);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -197,13 +200,13 @@ USHORT _Far16 _Pascal RXEXITQUERY (
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   module = (PSZ)dll;
   Flag = (PUSHORT)flag;
   Data = (PUCHAR)data;
   rc = RexxQueryExit(func, module, Flag, Data);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -217,9 +220,9 @@ USHORT _Far16 _Pascal RXMACROERASE( VOID )   /* No Arguments.               */
   
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   rc = RexxClearMacroSpace();
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
   
@@ -237,11 +240,11 @@ USHORT _Far16 _Pascal RXSUBCOMDROP(
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   Env = (PSZ)env;
   Dll = (PSZ)dll;
   rc = RexxDeregisterSubcom(Env, Dll);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -259,11 +262,11 @@ USHORT _Far16 _Pascal RXMACROQUERY (
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   pos = (PUSHORT)flag;
   rc = RexxQueryMacro(func, pos);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -281,11 +284,11 @@ USHORT _Far16 _Pascal RXMACROCHANGE (
   
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   source = (PSZ)file;
   rc = RexxAddMacro(func, source, pos);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -307,43 +310,75 @@ USHORT _Far16 _Pascal RXSUBCOMQUERY(
   
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   Env = (PSZ)env;
   Module = (PSZ)dll;
   Flag = (PUSHORT)codestor;
   UserArea = (PUCHAR)userstor;
   rc = RexxQuerySubcom(Env, Module, Flag, UserArea);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
   return rc;
 }
-
-#if 0
 
 USHORT _Far16 _Pascal RXFUNCTIONCALL (
         PSZ16 fn,                           /* Name of function to call   */
         USHORT argc,                        /* Number of arguments        */
         PRXSTRING16 argv,                   /* Array of argument strings  */
-        PUSHORT _Far16 ret,                 /* RC from function called    */
+        USHORT * _Seg16 ret,                /* RC from function called    */
         PRXSTRING16 stor,                   /* Storage for returned data  */
         PSZ16 data)                         /* Name of active data queue  */
 {
+  PSZ func;
+  PRXSTRING argv2;
+  PRXSTRING stor2;
+  PUSHORT ret2;
+  PSZ data2;
+  PRXSTRING p;
+  int i;
   APIRET rc;
-  
+
   stkon();
 
-  debug("%s\n", __FUNCTION__);
-  rc = RexxCallFunction(...);
-  debug("rc=%lx\n", rc);
+  log("%s\n", __FUNCTION__);
+  func = (PSZ)fn;
+
+  argv2 = (PRXSTRING)malloc(argc * sizeof(RXSTRING));
+
+  for (i = 0, p = (PRXSTRING)argv; i < argc; i++, p++)
+  {
+      argv2[i].strlength = p->strlength;
+      argv2[i].strptr = (PSZ)p->strptr;
+  }
+
+  ret2 = (PUSHORT)ret;
+
+  stor2 = (PRXSTRING)malloc(sizeof(RXSTRING));
+  p = (PRXSTRING)stor;
+  
+  stor2->strlength = p->strlength;
+  stor2->strptr = (PSZ)p->strptr;
+
+  data2 = (PSZ)data;
+
+  rc = RexxCallFunction (
+        func,
+        argc,
+        argv2,
+        ret2,
+        stor2,
+        data2);
+
+  free(argv2);
+  free(stor2);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
   return rc;
 }
-
-#endif
 
 USHORT _Far16 _Pascal RXMACROREORDER(
          PSZ16 fn,                         /* Name of funct change order  */
@@ -354,40 +389,70 @@ USHORT _Far16 _Pascal RXMACROREORDER(
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   rc = RexxReorderMacro(func, pos);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
   
   return rc;
 }
-
-#if 0
 
 USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
          PSZ16 env,                          /* Name of Subcommand Environ */
          PSZ16 dll,                          /* Module name of its' DLL    */
          PRXSTRING16 cmd,                    /* Command string to be passed*/
-         PUSHORT _Far16 flag,                /* Stor for error flag notice */
-         PUSHORT _Far16 ret,                 /* Stor for rc from handler   */
+         USHORT * _Seg16 flag,               /* Stor for error flag notice */
+         USHORT * _Seg16 ret,                /* Stor for rc from handler   */
          PRXSTRING16 stor )                  /* Stor for returned string   */
 {
+  PSZ env2;
+  PSZ dll2;
+  PRXSTRING cmd2;
+  PRXSTRING p;
+  PUSHORT flag2;
+  PUSHORT ret2;
+  PRXSTRING stor2;
   APIRET rc;
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
-  rc = RexxCallSubcom(...);
-  debug("rc=%lx\n", rc);
+  log("%s\n", __FUNCTION__);
+  env2 = (PSZ)env;
+  dll2 = (PSZ)dll;
+
+  cmd2 = (PRXSTRING)malloc(sizeof(RXSTRING));
+  p = (PRXSTRING)cmd;
+
+  cmd2->strlength = p->strlength;
+  cmd2->strptr = (PSZ)p->strptr;
+
+  flag2 = (PUSHORT)flag;
+  ret2 = (PUSHORT)ret2;
+
+  stor2 = (PRXSTRING)malloc(sizeof(RXSTRING));
+  p = (PRXSTRING)stor;
+
+  stor2->strlength = p->strlength;
+  stor2->strptr = (PSZ)p->strptr;
+
+  rc = RexxCallSubcom(
+         env2,
+         dll2,
+         cmd2,
+         flag2,
+         ret2,
+         stor2 );
+
+  free(stor2);
+  free(cmd2);
+  log("rc=%lx\n", rc);
 
   stkoff();
   
   return rc;
 }
-
-#endif
 
 APIRET APIENTRY Subcom_wrapper32(
   PRXSTRING cmd,
@@ -464,26 +529,26 @@ USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 scb)
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   subcom_name = (PSZ)scb->scbname;
   subcom_addr = (PVOID)scb->scbaddr;
   subcom_user = (PVOID)scb->scbuser;
   dll = (PSZ)scb->scbdll_name;
   proc = (PSZ)scb->scbdll_proc;
 
-  debug("name=%s\n", subcom_name);
-  debug("addr=%lx\n", subcom_addr);
-  debug("user=%lx\n", subcom_user);
-  debug("dll=%s\n", dll);
-  debug("proc=%s\n", proc);
+  log("name=%s\n", subcom_name);
+  log("addr=%lx\n", subcom_addr);
+  log("user=%lx\n", subcom_user);
+  log("dll=%s\n", dll);
+  log("proc=%s\n", proc);
 
   if (*dll)
   {
       // dll
-      debug("dll0\n");
+      log("dll0\n");
       rc = RexxRegisterSubcomDll(subcom_name, dll, proc,
                                  subcom_user, scb->scbdrop_auth);
-      debug("dll1\n");
+      log("dll1\n");
   }
   else
   {
@@ -491,30 +556,30 @@ USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 scb)
       PVOID  p;
 
       // get a 32-bit wrapper instead of 16-bit handler itself
-      debug("exe0\n");
+      log("exe0\n");
       p = sethand(subcom_addr);
-      debug("exe1\n");
+      log("exe1\n");
 
       if (p == NULL)
       {
-          debug("exe2\n");
-          debug("RXSUBCOM_NOTREG\n");  
+          log("exe2\n");
+          log("RXSUBCOM_NOTREG\n");  
           stkoff();
           return RXSUBCOM_NOTREG;
       }
       
-      debug("exe3\n");
+      log("exe3\n");
       rc = RexxRegisterSubcomExe(subcom_name,    // environment name
                                  p,              // subcommand handler proc
                                  subcom_user);   // user area
-      debug("exe4\n");
+      log("exe4\n");
   }
     
-  debug("rc=%lu\n", rc);  
+  log("rc=%lu\n", rc);  
 
   stkoff();
 
-  debug("exit\n");
+  log("exit\n");
   return rc;
 }
 
@@ -530,7 +595,7 @@ USHORT _Far16 _Pascal RXEXITREGISTER (
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
 
   subcom_name = (PSZ)scb->scbname;
   subcom_addr = (PVOID)scb->scbaddr;
@@ -538,11 +603,11 @@ USHORT _Far16 _Pascal RXEXITREGISTER (
   dll = (PSZ)scb->scbdll_name;
   proc = (PSZ)scb->scbdll_proc;
 
-  debug("name=%s\n", subcom_name);
-  debug("addr=%lx\n", subcom_addr);
-  debug("user=%lx\n", subcom_user);
-  debug("dll=%s\n", dll);
-  debug("proc=%s\n", proc);
+  log("name=%s\n", subcom_name);
+  log("addr=%lx\n", subcom_addr);
+  log("user=%lx\n", subcom_user);
+  log("dll=%s\n", dll);
+  log("proc=%s\n", proc);
   
   if (*dll)
   {
@@ -568,7 +633,7 @@ USHORT _Far16 _Pascal RXEXITREGISTER (
                                p,              // subcommand handler proc
                                subcom_user);   // user area
   }
-  debug("rc=%lu\n", rc);  
+  log("rc=%lu\n", rc);  
 
   stkoff();
 
@@ -582,10 +647,10 @@ USHORT _Far16 _Pascal RXFUNCTIONQUERY( PSZ16 fn)
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   rc = RexxQueryFunction(func);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
   
@@ -606,7 +671,7 @@ USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   module = (PSZ)dll;
   ent = (PSZ)entry;
@@ -614,7 +679,7 @@ USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
   switch (flag)
   {
   case RXFUNC_CALLENTRY:
-      rc = RexxRegisterFunctionExe(module, (RexxFunctionHandler *)ent);
+      rc = RexxRegisterFunctionExe(module, (PFN)ent);
       break;
 
   case RXFUNC_DYNALINK:
@@ -625,7 +690,7 @@ USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
       rc = ERROR_INVALID_FUNCTION;
   }
 
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -643,11 +708,11 @@ USHORT _Far16 _Pascal RXEXITDROP (
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   module = (PSZ)dll;
   rc = RexxDeregisterExit(func, module);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 
@@ -662,10 +727,10 @@ USHORT _Far16 _Pascal RXFUNCTIONDEREGISTER (PSZ16 fn)
 
   stkon();
 
-  debug("%s\n", __FUNCTION__);
+  log("%s\n", __FUNCTION__);
   func = (PSZ)fn;
   rc = RexxDeregisterFunction(func);
-  debug("rc=%lx\n", rc);
+  log("rc=%lx\n", rc);
 
   stkoff();
 

@@ -7,16 +7,10 @@
 #define  INCL_DOSPROCESS
 #include <os2.h>
 
-#include "config.h"
-
 #include <rexxsaa.h>
-
-//#include <stdio.h>
 
 #include "rexxapi.h"
 #include "stk.h"
-
-//char me[] = "REXX.DLL";
 
 // REXX.DLL own stack
 char *extra_stack = NULL;
