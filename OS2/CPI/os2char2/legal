@@ -1,6 +1,5 @@
-     Copyright (C) 2002-2008 osFree
-
-     All rights reserved.
+Copyright (c) 2008, osFree Team
+All rights reserved.
 
      Redistribution  and  use  in  source  and  binary  forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -10,8 +9,8 @@ this list of conditions and the following disclaimer.
      *  Redistributions  in  binary  form  must  reproduce the above copyright
 notice,   this  list  of  conditions  and  the  following  disclaimer  in  the
 documentation and/or other materials provided with the distribution.
-     * Neither the name of the osFree nor the names of its contributors may be
-used  to  endorse  or  promote  products  derived  from  this software without
+     *  Neither  the name of the osFree Team nor the names of its contributors
+may  be used to endorse or promote products derived from this software without
 specific prior written permission.
 
      THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
@@ -24,21 +23,3 @@ SERVICES;  LOSS  OF  USE,  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-     OS/2 is a registered trademark of International Business Machines Corp.
-
-     In  our documentation unless otherwise stated its only used to describe a
-system built to have similar functionality with IBM OS/2.
-
--------------------------------
-
-*  Copyright (C) 1992 IBM Corporation
-*
-*      DISCLAIMER OF WARRANTIES.  The following [enclosed] code is
-*      sample code created by IBM Corporation. This sample code is not
-*      part of any standard or IBM product and is provided to you solely
-*      for  the purpose of assisting you in the development of your
-*      applications.  The code is provided "AS IS", without
-*      warranty of any kind.  IBM shall not be liable for any damages
-*      arising out of your use of the sample code, even if they have been
-*      advised of the possibility of such damages.                                                    *

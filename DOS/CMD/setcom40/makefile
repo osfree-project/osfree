@@ -8,7 +8,7 @@ PROJ      = setcom40
 TRGT      = $(PROJ).com
 DESC      = Setup communication ports
 srcfiles  = $(p)setcom40$(e)
-COM       = 1
+#COM       = 1
 
 !include $(%ROOT)/mk/appsdos.mk
 

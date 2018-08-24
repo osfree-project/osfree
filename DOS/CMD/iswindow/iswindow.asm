@@ -20,9 +20,9 @@ start:
 	in	al, dx
 	cmp     al, 0
 	mov     ax, 4C01h
-	jz      fs
+	jz      exit
 	mov	al, 0
-fs:	int     21h  ; exit with errorlevel
+exit:	int     21h  ; exit with errorlevel
 
 _TEXT   ends
 
