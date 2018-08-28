@@ -38,6 +38,7 @@
 #include <stdio.h>
 
 #if defined(OS2)
+# define INCL_DOSSEMAPHORES
 # define INCL_DOSMODULEMGR
 # define INCL_DOSMISC
 # undef INCL_REXXSAA
@@ -130,9 +131,9 @@ static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
    /* 11 */  "RexxQueryFunction",
    /* 12 */  "RexxCreateQueue",
    /* 13 */  "RexxDeleteQueue",
-   /* 14 */  "RexxQueryQueue",
-   /* 15 */  "RexxAddQueue",
-   /* 16 */  "RexxPullQueue",
+   /* 14 */  "RexxAddQueue",
+   /* 15 */  "RexxPullQueue",
+   /* 16 */  "RexxQueryQueue",
    /* 17 */  "RexxAddMacro",
    /* 18 */  "RexxDropMacro",
    /* 19 */  "RexxSaveMacroSpace",
@@ -199,12 +200,21 @@ static char TraceFileName[256];
 int Trace = 0;
 int InterpreterIdx = -1;
 
+extern HMTX hmtx;
+
 //static 
 void TraceString( char *fmt, ... )
 {
    FILE *fp=NULL;
    int using_stderr = 0;
    va_list argptr;
+
+   if (! hmtx)
+   {
+      return;
+   }
+   
+   DosRequestMutexSem(hmtx, SEM_INDEFINITE_WAIT);
 
    if ( strcmp( TraceFileName, "stderr" ) == 0 )
       using_stderr = 1;
@@ -223,6 +233,8 @@ void TraceString( char *fmt, ... )
       if ( !using_stderr )
          fclose( fp );
    }
+
+   DosReleaseMutexSem(hmtx);
 }
 
 static handle_type FindInterpreter( char *library )
@@ -856,6 +868,7 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName)
 }
 
 APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
+                                    //PSZ * FuncNames,
                                     PSZ const * FuncNames,
                                     PSZ MacroLibFile)
 {
@@ -895,6 +908,7 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
 }
 
 APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
+                                    //PSZ * FuncNames,
                                     PSZ const * FuncNames,
                                     PSZ MacroLibFile)
 {
@@ -998,6 +1012,8 @@ APIRET APIENTRY RexxClearMacroSpace( VOID )
    return rc;
 }
 
+#if 1
+
 APIRET unimplemented(char *func)
 {
   log("%s is not yet implemented!\n", func);
@@ -1092,3 +1108,5 @@ APIRET APIENTRY RexxExecuteMacroFunction(
 
    return rc;
 }
+
+#endif

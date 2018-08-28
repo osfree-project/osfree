@@ -21,7 +21,11 @@
  */
 #if defined(__OSFREE__)
 #define OS2
+#define HAVE_STDARG_H
+#define HAVE_STDLIB_H
+#define HAVE_STRING_H
 #undef  HAVE_CONFIG_H
+#include <ctype.h>
 #endif
  
 #if defined(HAVE_CONFIG_H)
@@ -33,12 +37,12 @@
 #endif
 
 #include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+//#include <stdarg.h>
+//#include <stdlib.h>
+//#include <string.h>
 
 #if defined(__OS2__)
+# define INCL_DOSSEMAPHORES
 # define INCL_DOSMODULEMGR
 # define INCL_DOSMISC
 # undef INCL_REXXSAA
@@ -123,12 +127,21 @@ static char TraceFileName[256];
 int Trace = 0;
 int InterpreterIdx = -1;
 
+extern HMTX hmtx;
+
 //static
 void TraceString( char *fmt, ... )
 {
    FILE *fp=NULL;
    int using_stderr = 0;
    va_list argptr;
+
+   if (! hmtx)
+   {
+      return;
+   }
+
+   DosRequestMutexSem(hmtx, SEM_INDEFINITE_WAIT);
 
    if ( strcmp( TraceFileName, "stderr" ) == 0 )
       using_stderr = 1;
@@ -147,6 +160,8 @@ void TraceString( char *fmt, ... )
       if ( !using_stderr )
          fclose( fp );
    }
+
+   DosReleaseMutexSem(hmtx);
 }
 
 static handle_type FindInterpreter( char *library )
@@ -500,17 +515,29 @@ APIRET APIENTRY RexxResetTrace( PID pid,
    return rc;
 }
 
+#if 1
+
+APIRET unimplemented(char *func)
+{
+  log("%s is not yet implemented!\n", func);
+  return 0;
+}
+
 /*
  * The following functions do nothing; they are here because they are exported in the DLL
  */
 APIRET APIENTRY RexxBreakCleanup(
-                VOID             )
+                VOID )
 {
    APIRET rc = 0;
 
    log( "%s: ", "RxBreakCleanup()" );
-   // ...
+
+   unimplemented(__FUNCTION__);
+
    log( "<=> Result: %d\n", rc );
 
    return rc;
 }
+
+#endif

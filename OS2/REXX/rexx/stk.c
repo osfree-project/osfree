@@ -5,7 +5,12 @@
 #define  INCL_DOSERRORS
 #define  INCL_DOSMEMMGR
 #define  INCL_DOSPROCESS
+#define  INCL_DOSSEMAPHORES
 #include <os2.h>
+
+#if defined(HAVE_CONFIG_H)
+# include "config.h"
+#endif
 
 #include <rexxsaa.h>
 
@@ -13,6 +18,10 @@
 
 #include "rexx.h"
 #include "stk.h"
+
+char *logmtx = "\\SEM32\\REXX\LOGMTX";
+
+HMTX hmtx = NULLHANDLE;
 
 // REXX.DLL own stack
 char *extra_stack = NULL;
@@ -50,6 +59,15 @@ APIRET APIENTRY init (void)
 {
   APIRET rc = NO_ERROR;
 
+  // open/create log mutex and get its handle
+  if ( ( rc = DosOpenMutexSem( logmtx, &hmtx ) ) )
+  {
+    rc = DosCreateMutexSem( logmtx, &hmtx, DC_SEM_SHARED, FALSE );
+  }
+
+  if (rc)
+    return rc;
+
   if ( InterpreterIdx == -1 )
     LoadInterpreter();
 
@@ -71,6 +89,8 @@ APIRET APIENTRY init (void)
 
 APIRET APIENTRY term (void)
 {
+  DosCloseMutexSem(hmtx);
+
   if (!extra_stack)
     return 0;
 

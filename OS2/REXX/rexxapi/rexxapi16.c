@@ -5,7 +5,7 @@
 
    @brief REXX 16-bit function - 16->32 wrappers for old REXX functions
 
-   (c) osFree Project 2004, <http://www.osFree.org>
+   (c) osFree Project 2004-2018, <http://www.osFree.org>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
@@ -22,6 +22,7 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    @author Yuri Prokushev (prokushev@freemail.ru)
+   @author Valery Sedletski (_valerius@mail.ru)
 
 */
 
@@ -66,11 +67,6 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
                                     PSZ * FuncNames,
                                     PSZ MacroLibFile);
  */
-
-#define RXFUNC_DYNALINK       1        /* Function Available in DLL  */
-#define RXFUNC_CALLENTRY      2        /* Registered as mem entry pt.*/
-
-//#define SUBCOM_COUNT 16
 
 void LoadInterpreter( void );
 
@@ -145,6 +141,8 @@ USHORT _Far16 _Pascal RXMACROSAVE (
   return rc;
 }
 
+#if 0
+
 USHORT _Far16 _Pascal RXSUBCOMLOAD(
          PSZ16 env,                         /* Name of the Environment    */
          PSZ16 dll)                         /* DLL Module Name            */
@@ -165,6 +163,8 @@ USHORT _Far16 _Pascal RXSUBCOMLOAD(
   
   return rc;
 }
+
+#endif
 
 USHORT _Far16 _Pascal RXMACRODROP (
          PSZ16 fn )                        /* Name of function to remove */
@@ -323,6 +323,8 @@ USHORT _Far16 _Pascal RXSUBCOMQUERY(
   return rc;
 }
 
+#if 0
+
 USHORT _Far16 _Pascal RXFUNCTIONCALL (
         PSZ16 fn,                           /* Name of function to call   */
         USHORT argc,                        /* Number of arguments        */
@@ -380,6 +382,8 @@ USHORT _Far16 _Pascal RXFUNCTIONCALL (
   return rc;
 }
 
+#endif
+
 USHORT _Far16 _Pascal RXMACROREORDER(
          PSZ16 fn,                         /* Name of funct change order  */
          USHORT pos)                       /* New position for function   */
@@ -398,6 +402,8 @@ USHORT _Far16 _Pascal RXMACROREORDER(
   
   return rc;
 }
+
+#if 0
 
 USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
          PSZ16 env,                          /* Name of Subcommand Environ */
@@ -453,6 +459,8 @@ USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
   
   return rc;
 }
+
+#endif
 
 APIRET APIENTRY Subcom_wrapper32(
   PRXSTRING cmd,
@@ -679,6 +687,7 @@ USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
   switch (flag)
   {
   case RXFUNC_CALLENTRY:
+      //rc = RexxRegisterFunctionExe(module, (RexxFunctionHandler *)ent);
       rc = RexxRegisterFunctionExe(module, (PFN)ent);
       break;
 

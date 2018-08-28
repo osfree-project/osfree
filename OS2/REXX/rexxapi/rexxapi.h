@@ -16,9 +16,6 @@ void null(char *fmt, ...);
 //#define debug null
 #define log if (Trace) TraceString
 
-APIRET APIENTRY DosSelToFlat(ULONG addr);
-APIRET APIENTRY DosFlatToSel(ULONG addr);
-
 typedef unsigned short WORD;            // w
 
 typedef WORD FAR *PWORD;                // pw
@@ -50,6 +47,9 @@ typedef WORD FAR *PWORD;                // pw
 typedef USHORT _Far16 *PUSHORT16;
 
 typedef SHORT _Far16 *PSHORT16;
+
+#define RXFUNC_DYNALINK       1        /* Function Available in DLL  */
+#define RXFUNC_CALLENTRY      2        /* Registered as mem entry pt.*/
 
 typedef struct {
    ULONG           strlength;          /*   length of string         */
@@ -190,6 +190,7 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName);
 APIRET APIENTRY RexxClearMacroSpace( VOID );
 
 APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
+                                    //PSZ * FuncNames,
                                     PSZ const * FuncNames,
                                     PSZ MacroLibFile);
 
@@ -200,6 +201,7 @@ APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
                                   ULONG Position );
 
 APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
+                                    //PSZ * FuncNames,
                                     PSZ const * FuncNames,
                                     PSZ MacroLibFile );
 

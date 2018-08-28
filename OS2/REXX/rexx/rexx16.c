@@ -30,13 +30,31 @@
 // traps in most cases (Regina REXX requires bigger stack). So we execute
 // another process (rexx16.exe) and communicate with it via pipes.
 
+#if defined(__OSFREE__)
+#define OS2
+#define HAVE_STDLIB_H
+#undef  HAVE_CONFIG_H
+#include <ctype.h>
+#endif
+
+#if defined(HAVE_CONFIG_H)
+# include "config.h"
+#endif
+
 #define INCL_DOSPROCESS
 #define INCL_DOSERRORS
 #include <os2.h>
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
+#if defined(HAVE_STDLIB_H)
+# include <stdlib.h>
+#endif
+
+#undef __USE_BSD
+#if defined(HAVE_STRING_H)
+# include <string.h>
+#endif
 
 #include "rexx.h"
 #include "stk.h"
@@ -69,23 +87,25 @@ USHORT _Far16 _Pascal RXVAR(
          SHVBLOCK16  * _Seg16 pshv16)              /* Pointer to list of SHVBLOCKs*/
 {
   PSHVBLOCK pshv;
+  PSHVBLOCK p;
   APIRET rc;
 
   stkon();
 
   log("%s\n", __FUNCTION__);
+  p = (PSHVBLOCK)pshv16;
   pshv = (PSHVBLOCK)malloc(sizeof(SHVBLOCK));
   
-  pshv->shvname.strlength = pshv16->shvname.strlength;
-  pshv->shvname.strptr = (PSZ)pshv16->shvname.strptr;
+  pshv->shvname.strlength = p->shvname.strlength;
+  pshv->shvname.strptr = (PSZ)p->shvname.strptr;
 
-  pshv->shvvalue.strlength = pshv16->shvvalue.strlength;
-  pshv->shvvalue.strptr = (PSZ)pshv16->shvvalue.strptr;
+  pshv->shvvalue.strlength = p->shvvalue.strlength;
+  pshv->shvvalue.strptr = (PSZ)p->shvvalue.strptr;
 
-  pshv->shvnamelen = pshv16->shvnamelen;
-  pshv->shvvaluelen = pshv16->shvvaluelen;
-  pshv->shvcode = pshv16->shvcode;
-  pshv->shvret = pshv16->shvret;
+  pshv->shvnamelen = p->shvnamelen;
+  pshv->shvvaluelen = p->shvvaluelen;
+  pshv->shvcode = p->shvcode;
+  pshv->shvret = p->shvret;
 
   rc = RexxVariablePool(pshv);
 
@@ -272,6 +292,7 @@ USHORT _Far16 _Pascal RXTRACESET(
   return rc;
 }
 
+#if 1
 
 USHORT _Far16 _Pascal RXBREAKCLEANUP(void)
 {
@@ -287,3 +308,5 @@ USHORT _Far16 _Pascal RXBREAKCLEANUP(void)
 
   return rc;
 }
+
+#endif

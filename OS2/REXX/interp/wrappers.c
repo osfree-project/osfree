@@ -515,12 +515,15 @@ PFN wrapper_get_addr( const tsd_t *TSD, const struct library *lptr, const streng
    else
    {
       ordinal = 0L;
+      mem_upper( funcname, strlen( funcname ) );
       entryname = funcname;
    }
    rc = DosQueryProcAddr(handle,ordinal,entryname,&addr);
    if (rc)
    {
       char buf[150];
+      /* in case of an error, DosQueryProcAddr returns addr == -1, so set it to 0 to be safe */
+      addr = NULL;
       sprintf(buf,"DosQueryProcAddr() failed with %lu looking for %.90s", (long) rc, funcname );
       set_err_message(TSD, buf, "" ) ;
    }

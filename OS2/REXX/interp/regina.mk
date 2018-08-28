@@ -14,6 +14,8 @@ VERDATE = $(VER_DATE)
 deb      = Y
 MULTI    = Y
 
+DYN_CFLAGS = -dDYNAMIC
+
 !ifeq MULTI N
 THREADING =
 THREADING_LINK =
