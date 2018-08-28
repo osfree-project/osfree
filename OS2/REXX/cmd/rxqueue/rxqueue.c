@@ -138,64 +138,61 @@ int readData(PSZ pBuf, ULONG cbBuf, ULONG *cbRead)
         chRead = 0;
     }
 
-    if (! DosRead(0, &c, 1, &cbActual) )
+    while (! DosRead(0, &c, 1, &cbActual) )
     {
-        do
+        if (! cbActual)
         {
-            if (! cbActual)
+            *cbRead = len;
+
+            if (! len)
             {
-                *cbRead = len;
-
-                if (! len)
-                {
-                    return 1;
-                }
-
-                fFinished = 1;
-                return 0;
+                return 1;
             }
 
-            if (c == '\r')
-            {
-                *cbRead = len;
+            fFinished = 1;
+            return 0;
+        }
 
-                if (! DosRead(0, &c, 1, &cbActual) )
+        if (c == '\r')
+        {
+            *cbRead = len;
+
+            if (! DosRead(0, &c, 1, &cbActual) )
+            {
+                if (cbActual)
                 {
-                    if (cbActual)
+                    if (c != '\n')
                     {
-                        if (c != '\n')
-                        {
-                            chRead = c;
-                        }
+                        chRead = c;
                     }
                 }
-
-                return 0;
             }
 
-            if (c == '\n')
+            return 0;
+        }
+
+        if (c == '\n')
+        {
+           *cbRead = len; 
+           return 0;
+        }
+
+        if (c == '')
+        {
+            *cbRead = len;
+            fFinished = 1;
+
+            if (len)
             {
-               *cbRead = len; 
-               return 0;
+                return 1;
             }
+        }
 
-            if (c == '')
-            {
-                *cbRead = len;
-                fFinished = 1;
-
-                if (len)
-                {
-                    return 1;
-                }
-            }
-
-            if (cbBuf > len)
-            {
-                *pBuf++ = c;
-                len++;
-            }
-        } while (! DosRead(0, &c, 1, &cbActual) );
+        if (cbBuf > len)
+        {
+            *pBuf++ = c;
+            len++;
+        }
     }
 
     if (len)
