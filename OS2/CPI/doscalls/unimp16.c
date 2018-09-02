@@ -486,13 +486,6 @@ USHORT __pascal         DOS16GETMODNAME(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT __pascal         DOS16GETMACHINEMODE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT __pascal         DOS16BEEP(void)
 {
   return unimplemented(__FUNCTION__);
@@ -529,37 +522,7 @@ USHORT __pascal         DOS16SGSWITCHME(void)
 }
 
 
-USHORT __pascal         DOS16BUFRESET(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         DOS16CHDIR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT __pascal         DOS16CHGFILEPTR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         DOS16CLOSE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         DOS16DELETE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         DOS16DUPHANDLE(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -588,11 +551,6 @@ USHORT __pascal         DOS16FINDNEXT(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT __pascal         DOS16MKDIR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT __pascal         DOS16MOVE(void)
@@ -660,30 +618,10 @@ USHORT __pascal         DOS16QHANDTYPE(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT __pascal         DOS16QVERIFY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 APIRET APIENTRY      DosIRead(void)
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-USHORT __pascal         DOS16RMDIR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         DOS16SELECTDISK(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT __pascal         DOS16SETFHANDSTATE(void)
 {
@@ -708,11 +646,6 @@ USHORT __pascal         DOS16SETMAXFH(void)
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT __pascal         DOS16SETVERIFY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 APIRET APIENTRY      DosIWrite(void)
@@ -743,13 +676,6 @@ USHORT __pascal         DOS16GETENV(void)
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-USHORT __pascal         DOS16GETVERSION(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT __pascal         DOS16QTRACEINFO(void)
 {
