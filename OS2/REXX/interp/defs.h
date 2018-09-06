@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: defs.h,v 1.35 2006/09/15 04:06:07 mark Exp $
- */
-
 #define X_NULL            1
 #define X_PROGRAM         2
 #define X_STATS           3
@@ -157,6 +152,16 @@
 #define X_ADDR_WITH     134
 #define X_S_LOSTDIGITS  135
 #define X_DO_EXPR       136
+#define X_PLUSASSIGN    137
+#define X_MINUSASSIGN   138
+#define X_MULTASSIGN    139
+#define X_DIVASSIGN     140
+#define X_INTDIVASSIGN  141
+#define X_MODULUSASSIGN 142
+#define X_ORASSIGN      143
+#define X_XORASSIGN     144
+#define X_ANDASSIGN     145
+#define X_CONCATASSIGN  146
 
 
 /* The three first two numbers have not errortext attched to them */
@@ -382,6 +387,8 @@
 #define EXT_CALLS_AS_FUNCS                  19
 #define EXT_QUEUES_301                      20
 #define EXT_HALT_ON_EXT_CALL_FAIL           21
+#define EXT_SINGLE_INTERPRETER              22
+#define EXT_SINGLE_LINE_COMMENTS            23
 
 /*
  * Regina 3.1 introduced "pool 0" variables. There exist only some and they
@@ -395,7 +402,9 @@
 #define POOL0_RS              4
 #define POOL0_MN              5
 #define POOL0_LINE            6
-#define POOL0_CNT             ( POOL0_LINE + 1 )
+#define POOL0_FILE            7
+#define POOL0_ENDOFLINE       8
+#define POOL0_CNT             ( POOL0_ENDOFLINE + 1 )
 
 /*
  * treenode.u.parseflags values which may be or'ed.
@@ -404,3 +413,6 @@
 #define PARSE_UPPER     1
 #define PARSE_LOWER     2
 #define PARSE_CASELESS  4
+
+#define SIDE_LEFT  1
+#define SIDE_RIGHT 2

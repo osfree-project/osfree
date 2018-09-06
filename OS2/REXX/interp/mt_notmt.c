@@ -162,7 +162,7 @@ tsd_t *ReginaInitializeProcess(void)
       extern OS_Dep_funcs __regina_OS_Other;
       __regina_tsd.OS = &__regina_OS_Other;
    }
-#elif defined(unix) || defined(__unix__) || defined(__unix) || defined(__QNX__) || defined(__BEOS__) || defined(SKYOS) || ( defined( __APPLE_CC__ ) && defined( __MACH__ ) )
+#elif defined(unix) || defined(__unix__) || defined(__unix) || defined(__QNX__) || defined(__BEOS__) || defined(__HAIKU__) || defined(SKYOS) || ( defined( __APPLE_CC__ ) && defined( __MACH__ ) ) || defined(AIX) || defined(__MINIX__)
    {
       extern OS_Dep_funcs __regina_OS_Unx;
       __regina_tsd.OS = &__regina_OS_Unx;
@@ -201,6 +201,21 @@ tsd_t *ReginaInitializeProcess(void)
       exiterror( ERR_STORAGE_EXHAUSTED, 0 ) ;
 
    return(&__regina_tsd);
+}
+
+int __regina_get_number_concurrent_regina_threads(void)
+{
+   return 1;
+}
+
+tsd_t *__regina_get_tsd_for_threadid( unsigned long threadid )
+{
+   return &__regina_tsd;
+}
+
+tsd_t *__regina_get_next_tsd( int idx )
+{
+   return &__regina_tsd;
 }
 
 

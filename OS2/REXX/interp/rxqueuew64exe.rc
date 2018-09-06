@@ -14,7 +14,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Author", "Mark Hessling\0"
-            VALUE "FileDescription", "Regina Queue Client\0"
+            VALUE "FileDescription", "Regina Queue Client (x64)\0"
             VALUE "FileVersion", "?.?.0\0"
             VALUE "InternalName", "rxqueue\0"
             VALUE "LegalCopyright", "Copyright © 2000-????\0"

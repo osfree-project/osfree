@@ -17,9 +17,6 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*
- * $Id: extern.h,v 1.86 2006/09/03 09:51:18 mark Exp $
- */
 /* JH 20-10-99 */  /* To make Direct setting of stems Direct and not Symbolic. */
 
 
@@ -89,7 +86,7 @@
 #if !defined(HAVE__SPLITPATH2) && !defined(HAVE__SPLITPATH) && !defined(__EMX__) && !defined(DJGPP)
    int my_splitpath2( const char *in, char *out, char **drive, char **dir, char **name, char **ext ) ;
 #endif
-   int my_fullpath( char *dst, const char *src );
+   int my_fullpath( tsd_t *TSD, char *dst, const char *src );
    int my_fullpathstreng( const tsd_t *TSD, char *dst, const streng *src );
    streng *arexx_exists( tsd_t *TSD, cparamboxptr parms ) ;
 
@@ -97,7 +94,7 @@
  * Routines in expr.c
  */
    int isboolean( tsd_t *TSD, nodeptr, int suberror, const char *op ) ;
-   num_descr *calcul( tsd_t *TSD, nodeptr, num_descr** ) ;
+   num_descr *calcul( tsd_t *TSD, nodeptr, num_descr**, int leftorright, int oper ) ;
    int init_expr( tsd_t *TSD ) ;
    streng *evaluate( tsd_t *TSD, nodeptr thisptr, streng **kill ) ;
 
@@ -251,6 +248,7 @@
    void __reginaerror( char *errtext ) ;
    const char *getsym( int numb ) ;
    int lineno_of( cnodeptr ) ;
+   void clear_errortext_buffers( const tsd_t *TSD );
 
 
 /*
@@ -378,11 +376,16 @@
    void checkparam( cparamboxptr params, int min, int max, const char *name ) ;
    char getoptionchar( tsd_t *TSD, const streng *param, const char *bif, int argnum, const char *ansi_options, const char *regina_options ) ;
    int atozpos( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
+   rx_64 atozposrx64( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
    int atopos( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
+   rx_64 atoposrx64( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
    int atoposorzero( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
    char getonechar( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
+   char getonespecialchar( tsd_t *TSD, const streng *text, const char *bif, int argnum ) ;
    streng *int_to_streng( const tsd_t *TSD, int input ) ;
-   int convert_date(tsd_t *TSD, const streng *, char, struct tm *);
+   streng *rx64_to_streng( const tsd_t *TSD, rx_64 input ) ;
+   streng *rx64u_to_streng( const tsd_t *TSD, rx_64u input ) ;
+   int convert_date(tsd_t *TSD, const streng *, char, struct tm *, char);
    int convert_time(const tsd_t *TSD,const streng *, char, struct tm *, time_t *);
    int basedays(int);
 #ifdef TRACEMEM
@@ -434,6 +437,8 @@ extern "C" {
    nodeptr treadit( cnodeptr ) ;
    void setup_system( tsd_t *TSD, int isclient );
    sysinfobox *creat_sysinfo( const tsd_t *TSD, streng *envir );
+   void setGlobalTSD( tsd_t *TSD);
+   tsd_t *getGlobalTSD( void );
 
 
 /*
@@ -555,6 +560,8 @@ extern "C" {
    char *mygetenv( const tsd_t *TSD, const char *name, char *buf, int bufsize ) ;
    void set_pause_at_exit( );
    streng *rex_userid( tsd_t *TSD, cparamboxptr parms ) ;
+   streng *rex_getcaller( tsd_t *TSD, cparamboxptr parms ) ;
+   streng *rex_getcallstack( tsd_t *TSD, cparamboxptr parms ) ;
    streng *rex_rxqueue( tsd_t *TSD, cparamboxptr parms ) ;
 #if defined(WIN32) && !defined(__WINS__) && !defined(__EPOC32__)
    void set_pause_at_exit( void );
@@ -745,6 +752,7 @@ extern "C" {
 #ifdef DYNAMIC_STATIC
    void *static_dlopen( char *name );
    int static_dlsym( void *addr, char *name, void **faddr );
+   void static_list_packages();
 #endif
 
 /*
@@ -833,7 +841,7 @@ extern "C" {
    streng *str_normalize( const tsd_t *TSD, const streng* ) ;
    streng *str_digitize( tsd_t *TSD, streng*, int, int, const char *, int ) ;
    streng *str_format( tsd_t *TSD, const streng*, int, int, int, int ) ;
-   streng *str_binerize( tsd_t *TSD, num_descr *, int ) ;
+   streng *str_binerize( tsd_t *TSD, num_descr *, int, int, int, const char *, int ) ;
    int str_true( const tsd_t *TSD, const streng* ) ;
    streng *str_abs( tsd_t *TSD, const streng* ) ;
    num_descr *get_a_descr( tsd_t *TSD, const char *big, int argno, const streng* ) ;
@@ -855,7 +863,7 @@ extern "C" {
    void str_round_lostdigits( tsd_t *TSD, num_descr *descr, int size );
    void string_pow( tsd_t *TSD, const num_descr *num, num_descr *acc,
                     num_descr *res, cnodeptr lname, cnodeptr rname);
-   int descr_to_int( const num_descr *input ) ;
+   int descr_to_int( const tsd_t *TSD, const num_descr *input, int, int, const char *, int ) ;
    num_descr *is_a_descr( const tsd_t *TSD, const streng *input ) ;
    int getdescr( const tsd_t *TSD, const streng *num, num_descr *descr ) ;
    int string_test( const tsd_t *TSD, const num_descr *fdescr,

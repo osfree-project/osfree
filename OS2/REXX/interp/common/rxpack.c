@@ -15,9 +15,6 @@
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-static char RCSid[] = "$Id: rxpack.c,v 1.55 2006/07/10 07:13:17 mark Exp $";
-
 #if defined(OS2) || defined(__OS2__)
 # define INCL_DOSMISC
 #endif
@@ -813,6 +810,10 @@ int RxStemToCharArray
       }
       *retval = ret;
    }
+   else
+   {
+      *retval = NULL;
+   }
    return num_items;
 }
 
@@ -1219,14 +1220,14 @@ int RxNumberToVariable
 RxPackageGlobalDataDef *FunctionPrologue
 
 #ifdef HAVE_PROTO
-   ( RxPackageGlobalDataDef *RxPackageGlobalData, PackageInitialiser *RxPackageInitialiser, char *name, ULONG argc, RXSTRING *argv )
+   ( RxPackageGlobalDataDef *RxPackageGlobalData, PackageInitialiser *RxPackageInitialiser, char *name, ULONG argc, RFH_ARG2_TYPE argv )
 #else
    ( RxPackageGlobalData, RxPackageInitialiser, name, argc, argv )
    RxPackageGlobalDataDef *RxPackageGlobalData;
    PackageInitialiser *RxPackageInitialiser;
    char *name;
    ULONG argc;
-   RXSTRING *argv;
+   RFH_ARG2_TYPE argv;
 #endif
 
 {
@@ -2146,12 +2147,22 @@ int RxReturnStringAndFree
    char *str;
 #endif
 {
-   int len = 0;
-   char *ret = NULL;
+   long len = 0;
 
    if ( str )
-      len = strlen( str );
+      len = (long)strlen( str );
    InternalTrace( RxPackageGlobalData, "RxReturnStringAndFree", "%x,\"%s\" Length: %d Free: %d", retstr, str, len, freeit );
+   return( RxReturnDataAndFree( RxPackageGlobalData, retstr, (void *)str, len, freeit ) );
+}
+
+/*-----------------------------------------------------------------------------
+ * This function takes a copy of a string, frees it, and returns the copy to the Rexx interpreter
+ *----------------------------------------------------------------------------*/
+int RxReturnDataAndFree( RxPackageGlobalDataDef *RxPackageGlobalData, RXSTRING *retstr, void *str, long len, int freeit )
+{
+   char *ret = NULL;
+
+   InternalTrace( RxPackageGlobalData, "RxReturnDataAndFree", "%x,\"%s\" Length: %ld Free: %d", retstr, str, len, freeit );
 
    if ( len > RXAUTOBUFLEN )
    {

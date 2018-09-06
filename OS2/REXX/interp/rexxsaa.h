@@ -16,10 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-/*
- * $Id: rexxsaa.h,v 1.36 2005/08/05 10:17:29 mark Exp $
- */
-
 #ifndef __REXXSAA_H_INCLUDED
 #define __REXXSAA_H_INCLUDED
 /* Remember to add prototypes for Rexx*() functions */
@@ -335,8 +331,8 @@ typedef struct {
 
 typedef struct {
    struct {
-               unsigned rcfmlifo:1 ;
-   }                    rcmsq_flags ;
+               unsigned rxfmlifo:1 ;
+   }                    rxmsq_flags ;
    /* CONST */ RXSTRING rxmsq_value ;
 } RXMSQPSH_PARM ;
 
@@ -540,7 +536,7 @@ EXTNAME("RexxStart");
 #define RX_START_OK         0
 #define RX_START_BADP       1  /* Bad parameters */
 #define RX_START_UNIMPL     2  /* Not yet implemented :-) */
-#define RX_START_TOOMANYP   3  /* To many parameters */
+#define RX_START_TOOMANYP   3  /* Too many parameters */
 #define RX_DIDNT_START      4  /* Unable to start interpreter */
 
 APIRET APIENTRY RexxCallBack(
@@ -689,6 +685,18 @@ APIRET APIENTRY RexxSetHalt(
                 LONG tid)
 EXTNAME("RexxSetHalt");
 #define REXXSETHALT RexxSetHalt
+
+APIRET APIENTRY RexxSetTrace(
+                LONG pid,
+                LONG tid)
+EXTNAME("RexxSetTrace");
+#define REXXSETTRACE RexxSetTrace
+
+APIRET APIENTRY RexxResetTrace(
+                LONG pid,
+                LONG tid)
+EXTNAME("RexxResetTrace");
+#define REXXRESETTRACE RexxResetTrace
 
 #endif /* INCL_RXARI */
 

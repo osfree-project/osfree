@@ -79,11 +79,22 @@ streng *Rexx_right( const tsd_t *TSD, streng *str, int length, char padch )
 streng *Rexx_d2x( const tsd_t *TSD, int num )
 {
    streng *out;
-   out = MAKESTRENG( 1 + sizeof( int ) / 4 );
+   out = MAKESTRENG( 100 ); /* use 100 as the largest length of a hex value we will ever get */
    if ( out )
    {
-      sprintf( PSTRENGVAL(out), "%X", num );
-      out->len = strlen( PSTRENGVAL(out) );
+      out->len = sprintf( PSTRENGVAL(out), "%X", num );
    }
    return out;
+}
+
+streng *Rexx_upper( const tsd_t *TSD, streng *str )
+{
+   int i;
+
+   for ( i = 0; i < PSTRENGLEN( str ); i++ )
+   {
+      if ( islower( str->value[i] ) )
+         str->value[i] = (char)toupper( str->value[i] );
+   }
+   return str;
 }

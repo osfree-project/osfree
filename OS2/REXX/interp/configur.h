@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: configur.h,v 1.57 2006/02/20 07:58:10 mark Exp $
- */
-
 /*
  * For platforms that don't use autoconf, put these here...
  */
@@ -151,6 +146,7 @@
 # define HAVE_PUTENV
 # define HAVE_RAISE
 # define HAVE_SETENV
+# define HAVE_LIMITS_H
 # define HAVE_SETJMP_H
 # define HAVE_PROCESS_H
 # define HAVE_SIGNAL_H
@@ -198,6 +194,9 @@
 # if defined(DYNAMIC)
 #  define DYNAMIC_WIN32
 # endif
+# define HAVE_I64U
+# define HAVE__STATI64
+# define HAVE__ATOI64
 #endif
 
 #if defined(DOS) && defined(__WATCOMC__)
@@ -220,6 +219,8 @@
 # define HAVE_GETPID
 # define HAVE_DIV
 # define HAVE_RAISE
+/* statically link Regutil */
+# define HAVE_REXXUTIL_PACKAGE
 #endif
 
 #if defined(WIN32) && defined(_MSC_VER)
@@ -246,6 +247,12 @@
 # if defined(DYNAMIC)
 #  define DYNAMIC_WIN32
 # endif
+/*
+ * Following for large file support
+ */
+# define HAVE_I64U
+# define HAVE__STATI64
+# define HAVE__ATOI64
 #endif
 
 #if defined(WIN32) && defined(__BORLANDC__)
@@ -325,6 +332,11 @@
 # if defined(DYNAMIC)
 #  define DYNAMIC_WIN32
 # endif
+/*
+ * Following for large file support
+ */
+# define HAVE_I64U
+# define HAVE__STATI64
 #endif
 
 #if defined(WIN32) && defined(__LCC__)
@@ -689,6 +701,14 @@
  * Indicates if a failure in a call to an external routine halts the caller with error 40.1
  */
 #define DEFAULT_HALT_ON_EXT_CALL_FAIL   0
+/*
+ * Indicates if a new thread calls an API function the call occurs in the current (and only one) instance of an interpreter
+ */
+#define DEFAULT_SINGLE_INTERPRETER      0
+/*
+ * Indicates that Regina allows single line comments by default
+ */
+#define DEFAULT_SINGLE_LINE_COMMENTS    1
 
 /*
  * The FILE_SEPARATOR is one character, and defines the char that separates

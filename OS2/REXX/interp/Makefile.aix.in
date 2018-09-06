@@ -437,7 +437,6 @@ install: all
 	$(INSTALL) -m 755 -c ./rxstack $(bindir)/rxstack
 	$(INSTALL) -m 755 -c ./regina $(bindir)/regina
 	$(INSTALL) -m 755 -c ./trexx $(bindir)/trexx
-	$(INSTALL) -m 755 -c ./tregina $(bindir)/tregina
 	$(INSTALL) -m 755 -c ./regina-config $(bindir)/$(SHLFILE)-config
 	$(INSTALL) -m 755 -c ./$(SHLPRE)$(SHLFILE).a $(libdir)/$(SHLPRE)$(SHLFILE).a
 	$(INSTALL) -m 744 -c $(srcdir)/regina.1 $(mandir)/man1/regina.1

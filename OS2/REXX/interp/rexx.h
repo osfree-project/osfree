@@ -16,14 +16,19 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: rexx.h,v 1.95 2005/02/09 07:43:13 mark Exp $
- */
 #ifndef __REXX_H_INCLUDED
 #define __REXX_H_INCLUDED
 
 #include "wrappers.h"
+
+#if defined(__APPLE__) && defined(__MACH__)
+# undef REGINA_BITS
+# if defined(__x86_64__) || defined(__ppc64__)
+#  define REGINA_BITS 64
+# else
+#  define REGINA_BITS 32
+# endif
+#endif
 
 /* Things you might want to change .... (at your own risk!!!) */
 
@@ -98,6 +103,11 @@
  */
 #define MAX_ARGS_TO_REXXSTART  32
 
+/*
+ * define MAX_CONCURRENT_REGINA_THREADS to change how many concurrent Regina
+ * instances (threads) can be running.
+ */
+#define MAX_CONCURRENT_REGINA_THREADS 1000
 
 #include "defs.h"
 #if defined(HAVE_CONFIG_H)
@@ -107,6 +117,10 @@
 
 #ifdef HAVE_LIMITS_H
 # include <limits.h>
+#endif
+
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
 #endif
 
 #ifdef HAVE_STDINT_H
@@ -121,10 +135,27 @@
 #define HAVE_CMATH              /* Do we have std. C math calls ?       */
 #define MATH_TYPES 1            /* How many different types available   */
 
-#define LINELENGTH 1024         /* max linelength of source code        */
+/*#define LINELENGTH 1024 not used */         /* max linelength of source code        */
 /* #define STACKSIZE 400 not used ? */           /* Was 256, then 512 (too much)         */
-#define BUFFERSIZE 1024 /* Was 512 */ /* Size of input buffer, longest line   */
+/*
+ * If you increase BUFFERSIZE you MUST ensure that YY_BUF_SIZE in lexsrc.c
+ * is made larger than BUFFERSIZE.
+ * Increasing this value will slow down parsing a bit.
+ */
+#define BUFFERSIZE 100000 /* Was 512 */ /* Size of input buffer, longest line   */
 #define LOOKAHEAD 256           /* Size of input lookahead              */
+
+/*
+ * Buffer size for reading/writing with ADDRESS SYSTEM ... WITH
+ * REGINA_MAX_BUFFER_SIZE must be larger than REGINA_BUFFER_SIZE.
+ * Keep it on a page size for best performance in unix systems.
+ */
+#if defined(__WINS__) || defined(__EPOC32__)
+# define REGINA_BUFFER_SIZE     128
+#else
+# define REGINA_BUFFER_SIZE  0x1000
+#endif
+#define REGINA_MAX_BUFFER_SIZE REGINA_BUFFER_SIZE * 2
 
 #define SMALLSTR 5              /* For holding small integers           */
 #define NULL_STR_LENGTH 1
@@ -233,7 +264,7 @@
 #include <mt.h>                 /* multi-threading support */
 #include "extern.h"             /* function prototypes */
 
-#define FREE_IF_DEFINED(a) { if (a) Free(a); a=NULL ; }
+#define FREE_IF_DEFINED(a,b) { if (b) Free_TSD(a,b); b=NULL ; }
 
 #ifdef VMS  /* F*ck DEC */
 # ifdef EXIT_SUCCESS
@@ -271,7 +302,7 @@
 */
 
 #define PARSE_VERSION_STRING    "REXX-Regina_" REGINA_VERSION_MAJOR "." \
-                                REGINA_VERSION_MINOR REGINA_VERSION_SUPP \
+                                REGINA_VERSION_MINOR "." REGINA_VERSION_RELEASE REGINA_VERSION_SUPP \
                                 REGINA_VERSION_THREAD \
                                 " 5.00 " REGINA_VERSION_DATE
 

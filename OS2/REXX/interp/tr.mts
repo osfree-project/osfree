@@ -10,6 +10,7 @@
 # Portuguese - Brian Carpenter <bcarpent@nucleus.com>
 # Russian - Oleg Kulikov <kulikov@xanadu.ru>
 # Spanish - Pablo Garcia-Abia <Pablo.Garcia@cern.ch>
+# Swedish - Jan-Erik L„rka <jan-erik@os2ug.se>
 # Turkish - Haluk POLAT <bilgi@halukpolat.com>
 #
 # Guidelines for Translators
@@ -33,6 +34,9 @@
 #   please indicate this. I will retain your address as a contact for future
 #   individual message translations, but will only publish your name.
 # - And last but by no means least; thanks!
+#
+# TODO
+# 40.44
 #
   0,  1,%s kaynaginda %s hatasi, satir no %d:|<value>,<source>,<linenumber>
   0,  2,Etkilesimli izlemede %s hatasi:|<value>
@@ -153,8 +157,8 @@
  31,  3,Degisken sembolu bir nokta (".") ile baslamamalidir; bulunan "%s"|<token>
  32,  0,[Gecersiz dizinli degisken kullanimi]
  33,  0,Gecersiz ifade sonucu
- 33,  1,"%d" seklindeki NUMERIC DIGITS degeri en fazla "(%d)" seklindeki NUMERIC FUZZ degerine sahip olmalidir|<value>,<value>
- 33,  2,"%d" sekindeki NUMERIC DIGITS degeri %d degerine ulasmamalidir|<value>,#Limit_Digits
+ 33,  1,("%d") seklindeki NUMERIC DIGITS degeri en fazla ("%d") seklindeki NUMERIC FUZZ degerine sahip olmalidir|<value>,<value>
+ 33,  2,("%d") sekindeki NUMERIC DIGITS degeri %d degerine ulasmamalidir|<value>,#Limit_Digits
  33,  3,Izleyen NUMERIC FORM ifadesinin sonucu "E" veya "S" ile baslamalidir; bulunan "%s"|<value>
  34,  0,Mantiksal deger "0" veya "1" degildir
  34,  1,Izleyen IF anahtar kelimesi ifadesinin degeri kesinlikle "0" veya "1" olmalidir; bulunan "%s"|<value>
@@ -206,13 +210,15 @@
  40, 39,3. siradaki %s degistirgesi sifir (0) ya da bir (1) degildir; bulunan "%s"|<bif>,<value>
  40, 41,%s degistirgesini iceren %d. siradaki oge, akim (dosya) sinirsal degerleri icerisinde yer almalidir; bulunan "%s"|<bif>,<argnumber>,<value>
  40, 42,1. siradaki %s degistirgesi bu akim (dosya) uzerinde konumlandirilamaz; bulunan "%s"|<bif>,<value>
+ 40, 43,%s siradaki %d olmayan tek bir alfanümerik karakter veya bos dize olmalidir; bulunan "%s"|<bif>,<argnumber>,<value>
+ 40, 44,%s argument %d, "%s", is a format incompatible with the separator specified in argument %d|<bif>,<argnumber>,<value>,<argnumber>
  40,914,[%s degistirgesini iceren %d. siradaki oge, "%s" ogelerinden birisi olmalidir; bulunan "%s"]|<bif>,<argnumber>,<optionslist>,<value>
  40,920,[%s: dusuk-seviye akim (dosya) G/C hatasi; %s]|<bif>,<description>
  40,921,[%s degistirgesini iceren %d. siradaki oge, "%s" akimina (dosyasina) ait konumlandirma kipi; akim (dosya) acma kipi ile uyumsuzdur]|<bif>,<argnumber>,<value>
  40,922,[%s degistirgesini iceren %d. siradaki oge birkac taneden fazla alt-buyruk isaret etmektedir; en az %d tane beklenir; bulunan %d]|<bif>,<argnumber>,<value>,<value>
  40,923,[%s degistirgesini iceren %d. siradaki oge bir hayli fazla alt-buyruk isaret etmektedir; en fazla %d tane beklenir; bulunan %d]|<bif>,<argnumber>,<value>,<value>
  40,924,[%s degistirgesini iceren %d ogesi gecersiz konumsal belirtimini isaret etmektedir; "%s" ogelerinden bir tanesinin belirtilmesi beklenir; bulunan "%s"]|<bif>,<argnumber>,<value>,<value>
- 40,930,[RXQUEUE uzerinden kullanilan TIMEOUT islevinin -1 ile %d arasindaki bir tumsel sayiyi isaret etmesi beklenir; bulunan \"%s\"]|<value>,<value>
+ 40,930,[RXQUEUE uzerinden kullanilan TIMEOUT islevinin 0 ile %d arasindaki bir tumsel sayiyi isaret etmesi beklenir; bulunan \"%s\"]|<value>,<value>
  40,980,Beklenilmeyen giris, ya bilinmeyen tipten ya da kural disi %s%s verisinden kaynaklanmaktadir|: ,<location>
  40,981,Izin verilen %s%s araligin disindaki kadar sayi vardir|: ,<location>
  40,982,%s%s seklinde tanimli ara bolge icin cok buyuk dizgi soz konusu|: ,<location>
@@ -279,10 +285,12 @@
  90,  1,[%s ogesi bir Regina uzanti BIF elemanidir]|<bif>
  90,  2,[%s ogesi bir Regina uzanti buyrugudur]|<token>
  90,  3,[%s degistirgesini iceren %d. siradaki ogenin isaret ettigi senecek "OPTIONS_STRICT_ANSI" ile belirtilmis "%s" ogelerinden birisi ile baslamalidir; bulunan "%s"; bir Regina uzantisidir]|<bif>,<argnumber>,<optionslist>,<value>
+ 90,  4,[%s ogesi bir Regina uzanti islecinin]|<token>
  93,  0,[Dogru olmayan yordam cagrimi]
  93,  1,[%s seklindeki STREAM buyrugu "%s" ogelerinin bir tanesi tarafindan takip edilmelidir; bulunan "%s"]|<token>,<value>,<value>
  93,  3,[STREAM buyrugu "%s" ogelerinden bir tanesi olmalidir; bulunan "%s"]|<value>,<value>
  94,  0,[Dissal kuyruk arayuzu hatasi soz konusu]
+ 94,  1,[External queue timed out]
  94, 99,[Dissal kuyruk arayuzu ile icsel hata soz konusu: %d "%s"]|<description>,<systemerror>
  94,100,[Dissal kuyruk arayuzu ile genel dizge hatasi soz konusu. %s. %s]|<description>,<systemerror>
  94,101,[%s ogesini iceren %d kapiya yapilan baglantida hata ile karsilasildi: "%s"]|<machine>,<portnumber>,<systemerror>
@@ -306,6 +314,9 @@
 #
 # Extra general phrases requiring translation:
 # The text in () is the corresponding array name in error.c
+P,  0,%d hatasi "%.*s" calisiyorken %d numarali satirda olustu: %.*s
+P,  1,Hata %d.%d: %.*s
+P,  2,%d hatasi "%.*s" calisiyorken olustu: %.*s
 #
 # (err1prefix)   "%d hatasi \"%.*s\" calisiyorken %d numarali satirda olustu: %.*s",
 # (suberrprefix) "Hata %d.%d: %.*s",

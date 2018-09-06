@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: wrappers.c,v 1.38 2005/08/04 09:03:51 mark Exp $
- */
-
 /*
  * This file is 'a hell of a file'. It contain _anything_ that is neither
  * POSIX nor ANSI. The meaning is that when these things are needed in
@@ -65,7 +60,7 @@
  * Most Unix systems have dlopen(), so set this as the default and
  * unset it for platforms that don't have it - except for HPUX
  */
-# if defined(__hpux)
+# if defined(__hpux) && !defined(HAVE_DLFCN_H)
 #  define DYNAMIC_HPSHLOAD
 # endif
 
@@ -115,12 +110,12 @@
 #  define DYNLIBPST ".sl"
 #  define DYNLIBLEN 6
 
-# elif defined(__BEOS__)
+# elif defined(__BEOS__) || defined(__HAIKU__)
 #  include <be/kernel/image.h>
 #  define DYNAMIC_BEOS  1
    typedef image_id handle_type ;
 /*
- * BeOS add-ons are all in a directory specified in $ADDON_PATH
+ * BeOS/HAIKU add-ons are all in a directory specified in $ADDON_PATH
  */
 #  define DYNLIBPRE "lib"
 #  define DYNLIBPST ".so"
@@ -191,7 +186,12 @@ void *wrapper_load( const tsd_t *TSD, const streng *module )
 #ifdef DYNAMIC_SKYOS
    sDllHandle tmp_handle;
 #endif
-   char *file_name, *module_name, *udpart, *postfix, *orig_module;
+#ifdef DYNAMIC_DLOPEN
+   char *addon_dir;
+#endif
+   char *file_name, *module_name, *udpart, *orig_module;
+   char *addon_name, *ptmp;
+   int addon_len=0;
 
    orig_module = str_ofTSD( module );
 #ifdef DYNLIBLEN
@@ -202,7 +202,6 @@ void *wrapper_load( const tsd_t *TSD, const streng *module )
    memcpy(udpart, module->value, Str_len(module) );
    strcpy(udpart + Str_len(module), DYNLIBPST );
    file_name = module_name;
-   postfix = udpart + Str_len(module);
 # if defined(DYNAMIC_HPSHLOAD)
    file_name = buf;
 # endif
@@ -219,32 +218,79 @@ void *wrapper_load( const tsd_t *TSD, const streng *module )
    }
 #elif defined(DYNAMIC_DLOPEN)
    /*
-    * Try and load the module name exactly as specified (before wrapping it
-    * in lib*.so)
+    * If the REGINA_ADDON_DIR environment variable is set, use it to explicitly specify
+    * the location of Regina external function packages
     */
-   handle = dlopen( orig_module, RTLD_LAZY ) ;
-   if (handle == NULL)
+   addon_dir = getenv( "REGINA_ADDON_DIR" );
+   if ( addon_dir )
    {
-      handle = dlopen( file_name, RTLD_LAZY ) ;
-      /* deal with incorrect case in call */
+      addon_len = strlen(addon_dir);
+      addon_name = (char *)MallocTSD( Str_len( module ) + strlen(DYNLIBPRE) + strlen(DYNLIBPST) + addon_len + 2 ) ;
+      strcpy(addon_name, addon_dir );
+      if ( addon_name[addon_len-1] != '/' )
+      {
+         strcat( addon_name, "/" );
+         addon_len++;
+      }
+      strcat(addon_name, DYNLIBPRE );
+      ptmp = addon_name + strlen(DYNLIBPRE) + addon_len;
+      memcpy(ptmp, module->value, Str_len(module) );
+      strcpy(ptmp + Str_len(module), DYNLIBPST );
+      handle = dlopen(addon_name, RTLD_LAZY );
+      FreeTSD( addon_name );
+   }
+# if defined(HAVE_REGINA_ADDON_DIR)
+   /*
+    * Use the compiled in location of Regina addons to locate the external function package
+    */
+   if ( handle == NULL )
+   {
+      addon_len = strlen(HAVE_REGINA_ADDON_DIR);
+      addon_name = (char *)MallocTSD( Str_len( module ) + strlen(DYNLIBPRE) + strlen(DYNLIBPST) + addon_len + 2 ) ;
+      strcpy(addon_name, HAVE_REGINA_ADDON_DIR );
+      if ( addon_name[addon_len-1] != '/' )
+      {
+         strcat( addon_name, "/" );
+         addon_len++;
+      }
+      strcat(addon_name, DYNLIBPRE );
+      ptmp = addon_name + strlen(DYNLIBPRE) + addon_len;
+      memcpy(ptmp, module->value, Str_len(module) );
+      strcpy(ptmp + Str_len(module), DYNLIBPST );
+      handle = dlopen(addon_name, RTLD_LAZY );
+      FreeTSD( addon_name );
+   }
+# endif
+   if ( handle == NULL )
+   {
+      /*
+       * Try and load the module name exactly as specified (before wrapping it
+       * in lib*.so)
+       */
+      handle = dlopen( orig_module, RTLD_LAZY ) ;
       if (handle == NULL)
       {
-         mem_lower( udpart, Str_len( module ) );
-         handle = dlopen(module_name, RTLD_LAZY);
-
+         handle = dlopen( file_name, RTLD_LAZY ) ;
+         /* deal with incorrect case in call */
          if (handle == NULL)
          {
-            mem_upper( udpart, Str_len( module ) );
+            mem_lower( udpart, Str_len( module ) );
             handle = dlopen(module_name, RTLD_LAZY);
-            /*
-             * Reset the original module portion of the filename to be
-             * searched again so that any error message returned uses the
-             * original module name
-             */
-            if ( handle == NULL )
+
+            if (handle == NULL)
             {
-               memcpy(udpart, module->value, Str_len(module) );
+               mem_upper( udpart, Str_len( module ) );
                handle = dlopen(module_name, RTLD_LAZY);
+               if ( handle == NULL )
+               {
+                  /*
+                   * Reset the original module portion of the filename to be
+                   * searched again so that any error message returned uses the
+                   * original module name
+                   */
+                  memcpy(udpart, module->value, Str_len(module) );
+                  handle = dlopen(module_name, RTLD_LAZY);
+               }
             }
          }
       }
@@ -521,11 +567,21 @@ PFN wrapper_get_addr( const tsd_t *TSD, const struct library *lptr, const streng
    rc = DosQueryProcAddr(handle,ordinal,entryname,&addr);
    if (rc)
    {
-      char buf[150];
-      /* in case of an error, DosQueryProcAddr returns addr == -1, so set it to 0 to be safe */
-      addr = NULL;
-      sprintf(buf,"DosQueryProcAddr() failed with %lu looking for %.90s", (long) rc, funcname );
-      set_err_message(TSD, buf, "" ) ;
+      mem_upper( entryname, strlen( entryname ) );
+      rc = DosQueryProcAddr(handle,ordinal,entryname,&addr);
+      if (rc)
+      {
+         mem_lower( entryname, strlen( entryname ) );
+         rc = DosQueryProcAddr(handle,ordinal,entryname,&addr);
+         if (rc)
+         {
+            char buf[150];
+            /* in case of an error, DosQueryProcAddr returns addr == -1, so set it to 0 to be safe */
+            addr = NULL;
+            sprintf(buf,"DosQueryProcAddr() failed with %lu looking for %.90s", (long) rc, funcname );
+            set_err_message(TSD, buf, "" ) ;
+         }
+      }
    }
 
 #elif defined(DYNAMIC_WIN32)

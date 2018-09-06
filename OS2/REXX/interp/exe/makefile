@@ -10,6 +10,7 @@ DEST     = os2
 STUB     = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 OPTIONS  = caseexact
 srcfiles = &
+ $(p)mygetopt$(e) &
  $(p)rexx$(e)  &
  $(p)funcs$(e) &
  $(p)builtin$(e) &
@@ -28,7 +29,9 @@ srcfiles = &
  $(p)cmsfuncs$(e) &
  $(p)shell$(e) &
  $(p)rexxext$(e) &
- $(p)stack$(e) &
+# $(p)stack$(e) &
+ $(p)os2que$(e) &
+ $(p)mktime$(e) &
  $(p)tracing$(e) &
  $(p)interp$(e) &
  $(p)cmath$(e) &
@@ -47,7 +50,7 @@ srcfiles = &
  $(p)wrappers$(e) &
  $(p)options$(e) &
  $(p)os_os2$(e) &
- $(p)extstack$(e) &
+# $(p)extstack$(e) &
  $(p)rexxbif$(e) &
  $(p)nosaa$(e)
 

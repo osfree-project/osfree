@@ -145,8 +145,10 @@
 #define arexx_writeln                __regina_arexx_writeln
 #define argv0                        __regina_argv0
 #define atopos                       __regina_atopos
+#define atoposrx64                   __regina_atoposrx64
 #define atoposorzero                 __regina_atoposorzero
 #define atozpos                      __regina_atozpos
+#define atozposrx64                  __regina_atozposrx64
 #define basedays                     __regina_basedays
 #define bmstrstr                     __regina_bmstrstr
 #define buildtinfunc                 __regina_buildtinfunc
@@ -217,6 +219,7 @@
 #define enter_macro                  __regina_enter_macro
 #define envir_exists                 __regina_envir_exists
 #define errortext                    __regina_errortext
+#define clear_errortext_buffers      __regina_clear_errortext_buffers
 #define external_queues_used         __regina_external_queues_used
 #define ext_pool_value               __regina_ext_pool_value
 #define evaluate                     __regina_evaluate
@@ -243,6 +246,7 @@
 #define flush_trace_chars            __regina_flush_trace_chars
 #define free_a_descr                 __regina_free_a_descr
 #define free_orphaned_libs           __regina_free_orphaned_libs
+#define getGlobalTSD                 __regina_getGlobalTSD
 #define get_a_chunk                  __regina_get_a_chunk
 #define get_a_chunkTSD               __regina_get_a_chunkTSD
 #define get_a_descr                  __regina_get_a_descr
@@ -394,6 +398,8 @@
 #define restore_variable_state       __regina_restore_variable_state
 #define retlength                    __regina_retlength
 #define retvalue                     __regina_retvalue
+#define rex_getcaller                __regina_rex_getcaller
+#define rex_getcallstack             __regina_rex_getcallstack
 #define rex_gciprefixchar            __regina_rex_gciprefixchar
 #define rex_lower                    __regina_rex_lower
 #define rex_poolid                   __regina_rex_poolid
@@ -405,8 +411,10 @@
 #define rex_rxqueue                  __regina_rex_rxqueue
 #define rex_userid                   __regina_rex_userid
 #define run_popen                    __regina_run_popen
+#define rx64_to_streng               __regina_rx64_to_streng
 #define set_err_message              __regina_set_err_message
 #define send_command_to_rxstack      __regina_send_command_to_rxstack
+#define setGlobalTSD                 __regina_setGlobalTSD
 #define set_envir                    __regina_set_envir
 #define set_ignore_novalue           __regina_set_ignore_novalue
 #define set_locale_info              __regina_set_locale_info

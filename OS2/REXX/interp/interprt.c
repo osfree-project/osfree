@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: interprt.c,v 1.67 2006/09/08 06:58:56 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -53,10 +49,21 @@ typedef struct _nstackbox {
 } nstackbox;
 
 typedef struct _stackelem {
-   int                number ;
+#ifdef OPT_DO
+   int                strmath; /* 0 if we can do binary arithmetic for this DO loop */
+   /* DO ... FOR x: value of x */
+   num_descr *        do_for_val;
+   rx_64              do_for_val_num ;
+#else
+   int                number;
+#endif
    int                incrdir ;
    num_descr *        increment ;
+   /* DO ... TO x: value of x */
    num_descr *        stopval ;
+#ifdef OPT_DO
+   rx_64              stopval_num;
+#endif
    nodeptr            thisptr ;
    cnodeptr           incr_node;
    struct _stackelem *prev ; /* needed for a look back */
@@ -407,6 +414,13 @@ static void stack_destroyelement(const tsd_t *TSD,stackelem *se)
       free_a_descr(TSD,se->stopval);
       se->stopval = NULL;
    }
+#ifdef OPT_DO
+   if (se->do_for_val)
+   {
+      free_a_descr(TSD,se->do_for_val);
+      se->do_for_val = NULL;
+   }
+#endif
    if (se->increment)
    {
       free_a_descr(TSD,se->increment);
@@ -505,7 +519,7 @@ streng *interpret(tsd_t * volatile TSD, treenode * volatile thisptr)
    volatile unsigned stktrigger ;
    volatile unsigned nstktrigger ;
    nodeptr innerloop=NULL ;
-   num_descr *tdescr=NULL ;
+   num_descr *doiterdescr=NULL ;
    volatile nodeptr secure_this ;
    tsd_t * volatile secure_TSD ;
    itp_tsd_t * volatile it;
@@ -536,7 +550,7 @@ streng *interpret(tsd_t * volatile TSD, treenode * volatile thisptr)
          TSD = secure_TSD ;
          it = (itp_tsd_t *)TSD->itp_tsd ;
 
-         tdescr = NULL ;
+         doiterdescr = NULL ;
          innerloop = NULL ;
          memset(&s,0,sizeof(s));
 
@@ -549,7 +563,7 @@ streng *interpret(tsd_t * volatile TSD, treenode * volatile thisptr)
    }
    memset(&s,0,sizeof(s));
    no_next_interactive = 0 ;
-   tdescr = NULL ;
+   doiterdescr = NULL ;
    innerloop = NULL ;
 
 reinterpret:
@@ -636,14 +650,25 @@ reinterpret:
          }
 
          s.incr_node = NULL;
-         s.increment = s.stopval = tdescr = NULL ;
+#ifdef OPT_DO
+         s.increment = s.do_for_val = s.stopval = doiterdescr = NULL ;
+         s.do_for_val_num = -1 ;
+         s.strmath = 0; /* do numeric calculations by default */
+#else
+         s.increment = s.stopval = doiterdescr = NULL ;
+         s.number = -1;
+#endif
          s.incrdir = 1 ;
-         s.number = -1 ;
          tmpstr = NULL ;
-         tdescr = NULL ;
+         /*
+          * If we have a named variable as the iterator, get itl its in tmpstr
+          */
          if ((thisptr->p[0])&&(thisptr->p[0]->name))
             tmpstr = evaluate( TSD, thisptr->p[0]->p[0], &tmpkill );
-
+         /*
+          * For each of the 4 types of options for the DO command that involve evaluation of a number
+          * at the start of the loop, evaluate the starting value of that expression
+          */
          for (i=1;i<4;i++)
          {
             if ((thisptr->p[0])&&(thisptr->p[0]->p[i]))
@@ -652,33 +677,83 @@ reinterpret:
                switch( thisptr->p[0]->p[i]->type )
                {
                   case X_DO_TO:
+                  {
+#ifdef OPT_DO
+                     int error ;
+                     rx_64 iptr;
+                     streng *chptr,*chkill;
+                     num_descr *tmpnum;
+#endif
+                     /* DO ... TO x: s.stopval is the value of x; x evaluates to any decimal number */
                      tmpptr = thisptr->p[0]->p[i]->p[0] ;
-                     s.stopval = calcul(TSD,tmpptr,NULL) ;
+#ifdef OPT_DO
+                     chptr = evaluate(TSD, tmpptr, &chkill );
+                     if ( !myiswnumber( TSD, chptr, &s.stopval, 1 ) )
+                        exiterror( ERR_INVALID_INTEGER, (thisptr->p[0]->p[i]->type==X_DO_EXPR) ? 2 : 3, chptr->value );
+                     s.stopval_num = streng_to_rx64(TSD, chptr, &error);
+                     if ( error )
+                        s.strmath = 1; /* have to use string math for this loop */
+                     if ( chkill )
+                        Free_stringTSD( chkill );
+#else
+                     s.stopval = calcul( TSD, tmpptr, NULL, SIDE_LEFT, X_DO_TO ) ;
+#endif
                      break ;
-
+                  }
                   case X_DO_BY:
+                     /* DO ... BY x: s.increment is the value of x; x evaluates to any decimal number, s.incrdir is the "direction", +ve or -ve */
                      s.incr_node = thisptr->p[0]->p[i]->p[0] ;
                      tmpptr = thisptr->p[0]->p[i]->p[0] ;
-                     s.increment = calcul(TSD,tmpptr,NULL) ;
+                     s.increment = calcul( TSD, tmpptr, NULL, SIDE_LEFT, X_DO_BY ) ;
                      s.incrdir = descr_sign( s.increment ) ;
+/*
+fprintf(stderr,"%s %d: direction: %d increment %s neg %d exp %d\n",__FILE__,__LINE__, s.incrdir,
+s.increment->num,
+s.increment->negative ,
+s.increment->exp
+);
+*/
                      break ;
 
                   case X_DO_FOR:
                   case X_DO_EXPR:
                   {
+                     /* DO x or DO .. FOR x: s.do_for_val_num is the value of x; x evaluates to any WHOLE number */
+#ifdef OPT_DO
+                     int error ;
+                     rx_64 iptr;
+#else
                      int iptr, error ;
+#endif
                      streng *chptr,*chkill;
+#ifdef OPT_DO
+                     num_descr *tmpnum;
+#endif
 
                      tmpptr = thisptr->p[0]->p[i]->p[0] ;
                      chptr = evaluate(TSD, tmpptr, &chkill );
+#ifdef OPT_DO
+                     if ( !myiswnumber( TSD, chptr, &tmpnum, 1 )
+                     ||  tmpnum->negative )
+                        exiterror( ERR_INVALID_INTEGER, (thisptr->p[0]->p[i]->type==X_DO_EXPR) ? 2 : 3, chptr->value );
+
+                     s.do_for_val = calcul(TSD,tmpptr,NULL) ;
+                     iptr = streng_to_rx64(TSD, chptr, &error);
+#else
                      iptr = streng_to_int(TSD, chptr, &error);
+#endif
                      if ( error )
+#ifdef OPT_DO
+                        s.strmath = 1; /* have to use string math for this loop */
+                     s.do_for_val_num = iptr ;
+#else
                         exiterror( ERR_INVALID_INTEGER, (thisptr->p[0]->p[i]->type==X_DO_EXPR) ? 2 : 3, chptr->value );
                      if ( iptr < 0 )
                         exiterror( ERR_INVALID_RESULT, 0 );
-                     s.number = iptr ;
+                     s.number = iptr;
+#endif
                      if ( chkill )
-                     Free_stringTSD( chkill );
+                        Free_stringTSD( chkill );
                      break ;
                   }
                }
@@ -690,11 +765,20 @@ reinterpret:
              * Normalise the iterator for the DO loop; must be a number.
              */
             setshortcut( TSD, thisptr->p[0], str_normalize( TSD, tmpstr ) );
-            tdescr = shortcutnum( TSD, thisptr->p[0] );
+            doiterdescr = shortcutnum( TSD, thisptr->p[0] );
             if ( tmpkill )
                Free_stringTSD( tmpkill );
+/*
+fprintf(stderr,"%s %d: After normalise: iter %s neg %d exp %d\n",__FILE__,__LINE__,
+doiterdescr->num,
+doiterdescr->negative ,
+doiterdescr->exp
+);
+*/
          }
-
+#ifdef OPT_DO
+fprintf(stderr,"%s %d: Using %s arithmetic for DO\n",__FILE__,__LINE__,(s.strmath) ? "string" : "numeric" );
+#endif
          if (TSD->systeminfo->interactive)
          {
             if (intertrace(TSD))
@@ -710,29 +794,61 @@ reinterpret:
                   free_a_descr( TSD, s.stopval ) ;
                   s.stopval = NULL ;
                }
+#ifdef OPT_DO
+               if (s.do_for_val)
+               {
+                  free_a_descr( TSD, s.do_for_val ) ;
+                  s.do_for_val = NULL ;
+               }
+#endif
                goto fakerecurse ;
             }
          }
 startloop:
          if (thisptr->p[0])
          {
+            /*
+             * If we have a TO value to terminate the loop, check if the value of the iterator (doiterdescr)
+             * ???
+             */
             if (s.stopval)
             {
                int tsign ;
 
-               tsign = string_test( TSD, tdescr, s.stopval ) ;
+               tsign = string_test( TSD, doiterdescr, s.stopval ) ;
+/*
+fprintf(stderr,"%s %d: tsign %d\n",__FILE__,__LINE__,tsign);
+*/
                if (!(tsign ^ s.incrdir))
                   goto endloop ;
+/*
+fprintf(stderr,"%s %d\n",__FILE__,__LINE__);
+*/
             }
 
+            /*
+             * If we have a FOR value to terminate the loop, check if it has decremented to less than
+             * or equal to zero
+             */
+#ifdef OPT_DO
+            if ((s.do_for_val_num>=0) && (s.do_for_val_num--<=0))
+#else
             if ((s.number>=0) && (s.number--<=0))
+#endif
                goto endloop ;
-         }
 
+         }
+         /*
+          * If there is WHILE clause, check if the expression is false before execution of the DO block
+          */
          if ((thisptr->p[1])&&((thisptr->p[1]->type)==X_WHILE))
+         {
             if (!isboolean(TSD,thisptr->p[1]->p[0],3, NULL))
                goto endloop ;
-
+         }
+         /*
+          * Execute the code in the DO block
+          */
          if (thisptr->p[2])
          {
             nstackpush(TSD,thisptr);
@@ -745,6 +861,9 @@ startloop:
 one:
             popcallstack(TSD,-1) ;
          }
+         /*
+          * If there is an UNTIL clause, check if the expression is false after execution of the DO block
+          */
          if ((thisptr->p[1])&&((thisptr->p[1]->type)==X_UNTIL))
          {
             if (isboolean(TSD,thisptr->p[1]->p[0],4, NULL))
@@ -753,33 +872,49 @@ one:
 
          if ((thisptr->p[0])&&(thisptr->p[0]->name))
          {
-            tdescr = shortcutnum( TSD, thisptr->p[0] ) ;
+            doiterdescr = shortcutnum( TSD, thisptr->p[0] ) ;
             /*
              * Check if we still have a valid number. If not
              * exit with arithmetic error.
              */
-            if (!tdescr)
+            if (!doiterdescr)
                exiterror( ERR_BAD_ARITHMETIC, 0 )  ;
 
+            /*
+             * Increment our loop iterator
+             */
             if (s.increment)
             {
-               string_add( TSD, tdescr, s.increment, tdescr, thisptr->p[0],
-                           s.incr_node ) ;
+               string_add( TSD, doiterdescr, s.increment, doiterdescr, thisptr->p[0], s.incr_node ) ;
+/*
+fprintf(stderr,"%s %d: After add: iter %s neg %d exp %d\n",__FILE__,__LINE__,
+doiterdescr->num,
+doiterdescr->negative ,
+doiterdescr->exp
+);
+*/
                /* fixes bug 1109729: */
-               str_round( tdescr, TSD->currlevel->currnumsize ) ;
+               str_round( doiterdescr, TSD->currlevel->currnumsize ) ;
+/*
+fprintf(stderr,"%s %d: After round: iter %s neg %d exp %d\n",__FILE__,__LINE__,
+doiterdescr->num,
+doiterdescr->negative ,
+doiterdescr->exp
+);
+*/
             }
             else
-               string_incr( TSD, tdescr, thisptr->p[0] ) ;
+               string_incr( TSD, doiterdescr, thisptr->p[0] ) ;
 
             if (thisptr->p[0]->u.varbx)
             {
-               thisptr->p[0]->u.varbx->num = tdescr ;
+               thisptr->p[0]->u.varbx->num = doiterdescr ;
                thisptr->p[0]->u.varbx->flag = VFLAG_NUM ;
                if ( TSD->trace_stat == 'I' )
-                  tracenumber( TSD, tdescr, 'V');
+                  tracenumber( TSD, doiterdescr, 'V');
             }
             else
-               setshortcut( TSD, thisptr->p[0], str_norm( TSD, tdescr, NULL )) ;
+               setshortcut( TSD, thisptr->p[0], str_norm( TSD, doiterdescr, NULL )) ;
          }
 
          if (TSD->nextsig)
@@ -810,6 +945,13 @@ endloop: if (s.increment)
             free_a_descr( TSD, s.stopval ) ;
             s.stopval = NULL ;
          }
+#ifdef OPT_DO
+         if (s.do_for_val)
+         {
+            free_a_descr( TSD, s.do_for_val ) ;
+            s.do_for_val = NULL ;
+         }
+#endif
          no_next_interactive = 1 ;
          nstackpop(TSD);
 
@@ -855,7 +997,7 @@ endloop: if (s.increment)
          streng *preferred_str;
          int type;
 
-         ntmp = calcul(TSD,thisptr->p[1],NULL);
+         ntmp = calcul( TSD, thisptr->p[1], NULL, SIDE_LEFT, X_NASSIGN );
          assert( ntmp->size );
 
          type = thisptr->p[1]->type;
@@ -872,25 +1014,306 @@ endloop: if (s.increment)
          {
             setshortcutnum( TSD, thisptr->p[0], ntmp, preferred_str );
          }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
       }
-      break ;
 
       case X_ASSIGN:
-         {
+      {
 /* This is a CMS-ism; CMS allows the expression in an assignment to
  * be omitted, while TRL does _not_. If a CMS mode is implemented, the
  * code below should be changed to allow p[0] to be null only iff
  * CMS mode is active.
  */
-            streng *value ;
+         streng *value ;
 
-            value = thisptr->p[1] ? evaluate(TSD,thisptr->p[1],NULL) : nullstringptr() ;
-            if (thisptr->p[0]->type==X_HEAD_SYMBOL)
-               fix_compound( TSD, thisptr->p[0], value ) ;
-            else
-               setshortcut( TSD, thisptr->p[0], value ) ;
+         value = thisptr->p[1] ? evaluate(TSD,thisptr->p[1],NULL) : nullstringptr() ;
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+            fix_compound( TSD, thisptr->p[0], value ) ;
+         else
+            setshortcut( TSD, thisptr->p[0], value ) ;
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            tracevalue( TSD, value, '=' );
          }
          break ;
+      }
+
+      case X_PLUSASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "+=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_PLUSASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_MINUSASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "-=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_MINUSASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_MULTASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "*=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_MULTASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_DIVASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "/=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_DIVASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_INTDIVASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "%=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_INTDIVASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_MODULUSASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "//=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_MODULUSASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_ORASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "|=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_ORASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_XORASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "&&=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_XORASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_ANDASSIGN:
+      {
+         num_descr *ntmp;
+
+         if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+            exiterror( ERR_NON_ANSI_FEATURE, 4, "&=" )  ;
+
+         ntmp = calcul( TSD, thisptr, NULL, SIDE_LEFT, X_ANDASSIGN );
+         assert( ntmp->size );
+
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+         {
+            fix_compoundnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         else
+         {
+            setshortcutnum( TSD, thisptr->p[0], ntmp, NULL );
+         }
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            streng *ptr = str_norm( TSD, ntmp, NULL );
+            tracevalue( TSD, ptr, '=' );
+            FreeTSD( ptr );
+         }
+         break ;
+      }
+
+      case X_CONCATASSIGN:
+      {
+         streng *value ;
+
+         value = evaluate( TSD, thisptr, NULL ) ;
+         if (thisptr->p[0]->type==X_HEAD_SYMBOL)
+            fix_compound( TSD, thisptr->p[0], value ) ;
+         else
+            setshortcut( TSD, thisptr->p[0], value ) ;
+         /* trace the result of assignment */
+         if ( TSD->trace_stat == 'R' )
+         {
+            tracevalue( TSD, value, '=' );
+         }
+         break ;
+      }
 
       case X_IPRET:
       {
@@ -906,6 +1329,10 @@ endloop: if (s.increment)
                   s.increment = NULL;
                if (top->stopval == s.stopval)
                   s.stopval = NULL;
+#ifdef OPT_DO
+               if (top->do_for_val == s.do_for_val)
+                  s.do_for_val = NULL;
+#endif
             }
 
             stackcleanup(TSD,stktrigger);
@@ -1009,7 +1436,9 @@ endloop: if (s.increment)
          if (!TSD->systeminfo->trace_override)
          {
             if (thisptr->name)
+            {
                set_trace( TSD, thisptr->name ) ;
+            }
             else if (thisptr->p[0])
             {
                set_trace( TSD, evaluate(TSD,thisptr->p[0], &tptr ) );
@@ -1017,7 +1446,12 @@ endloop: if (s.increment)
                   Free_stringTSD( tptr ) ;
             }
             else
-               exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" )  ;
+            {
+               /* default setting for TRACE with no arguments is "N" */
+               streng *tmp = Str_ncre_TSD( TSD, "N", 1 );
+               set_trace( TSD, tmp );
+               Free_stringTSD( tmp );
+            }
          }
 
          break ;
@@ -1238,7 +1672,7 @@ endloop: if (s.increment)
          traps[type].on_off = (thisptr->p[0]->type == X_ON ) ;
 
          /* set the name of the variable to work on */
-         FREE_IF_DEFINED( traps[type].name ) ;
+         FREE_IF_DEFINED( TSD, traps[type].name ) ;
          if (thisptr->name)
             traps[type].name = Str_dupTSD( thisptr->name ) ;
          else if (thisptr->p[0]->type == X_ON)
@@ -1264,6 +1698,10 @@ endloop: if (s.increment)
                s.increment = NULL;
             if ( top->stopval == s.stopval )
                s.stopval = NULL;
+#ifdef OPT_DO
+            if ( top->do_for_val == s.do_for_val )
+               s.do_for_val = NULL;
+#endif
          }
 
          stackcleanup( TSD, stktrigger );
@@ -1351,8 +1789,7 @@ endloop: if (s.increment)
 
             TSD->systeminfo->interactive = TSD->currlevel->traceint;
 
-            set_reserved_value( TSD, POOL0_RESULT, result, 0,
-                                ( result ) ? VFLAG_STR : VFLAG_NONE );
+            set_reserved_value( TSD, POOL0_RESULT, result, 0, ( result ) ? VFLAG_STR : VFLAG_NONE );
             break;
          }
       }
@@ -1362,12 +1799,21 @@ endloop: if (s.increment)
       {
          streng *result ;
 
+         /*
+          * Call a builtin procedure...
+          */
          if ((result = buildtinfunc( TSD, thisptr )) == NOFUNC)
          {
+            /*
+             * ... and it wasn't a builtin procedure so assume its an external function
+             */
             thisptr->type = X_IS_EXTERNAL ;
          }
          else
          {
+            /*
+             * ... and if it was a builtin procedure set RESULT and break
+             */
             set_reserved_value( TSD, POOL0_RESULT, result, 0,
                                 ( result ) ? VFLAG_STR : VFLAG_NONE );
 
@@ -1621,6 +2067,10 @@ endloop: if (s.increment)
                s.increment = NULL;
             if (top->stopval == s.stopval)
                s.stopval = NULL;
+#ifdef OPT_DO
+            if (top->do_for_val == s.do_for_val)
+               s.do_for_val = NULL;
+#endif
          }
 
          stackcleanup(TSD,stktrigger);
@@ -1689,6 +2139,10 @@ endloop: if (s.increment)
             popcallstack( TSD, -1 );
             if ( top->stopval == s.stopval )
                s.stopval = NULL;
+#ifdef OPT_DO
+            if ( top->do_for_val == s.do_for_val )
+               s.do_for_val = NULL;
+#endif
             if ( top->increment == s.increment )
                s.increment = NULL;
             stack_destroyelement( TSD, top );
@@ -1706,6 +2160,10 @@ endloop: if (s.increment)
             popcallstack(TSD,-1) ;
             if (top->stopval == s.stopval )
                s.stopval = NULL ;
+#ifdef OPT_DO
+            if (top->do_for_val == s.do_for_val )
+               s.do_for_val = NULL ;
+#endif
             if ( top->increment == s.increment )
                s.increment = NULL ;
             stack_destroyelement(TSD,top);
@@ -1744,7 +2202,7 @@ endloop: if (s.increment)
 
          cptr = evaluate( TSD, thisptr->p[0], &kill );
          tmp = streng_to_int( TSD, cptr, &error );
-         if ( error || tmp < 0 )
+         if ( error || tmp <= 0 )
          {
              err = tmpstr_of( TSD, cptr );
              if ( kill )
@@ -1755,14 +2213,8 @@ endloop: if (s.increment)
             Free_stringTSD( kill );
          if (TSD->currlevel->numfuzz >= tmp)
              exiterror( ERR_INVALID_RESULT, 1, tmp, TSD->currlevel->numfuzz );
-#if 0
-/*
- * Remove unneccessary limitaion on numeric digits as suggested by
- * Patrick McPhee
- */
-         if (tmp > MAXNUMERIC)
-             exiterror( ERR_INVALID_RESULT, 2, tmp, MAXNUMERIC )  ;
-#endif
+         if (tmp > INT_MAX)
+             exiterror( ERR_INVALID_RESULT, 2, tmp, INT_MAX )  ;
          TSD->currlevel->currnumsize = tmp ;
          break ;
       }
@@ -1906,8 +2358,8 @@ fakerecurse:
 /*       if (stkidx)
  *          for (stkidx--;stkidx;stkidx--)
  *          {
- *             FREE_IF_DEFINED(stack[stkidx].increment) ;
- *             FREE_IF_DEFINED(stack[stkidx].stopval) ;
+ *             FREE_IF_DEFINED(TSD,stack[stkidx].increment) ;
+ *             FREE_IF_DEFINED(TSD,stack[stkidx].stopval) ;
  *          }
  */  /* hey, this should really be ok, .... must be a BUG */
          stackcleanup(TSD,stktrigger); /* think it, too. stackcleanup
@@ -1921,8 +2373,8 @@ fakerecurse:
          /* set the current condition information */
          if (TSD->currlevel->sig)
          {
-            FREE_IF_DEFINED( TSD->currlevel->sig->info ) ;
-            FREE_IF_DEFINED( TSD->currlevel->sig->descr ) ;
+            FREE_IF_DEFINED( TSD, TSD->currlevel->sig->info ) ;
+            FREE_IF_DEFINED( TSD, TSD->currlevel->sig->descr ) ;
             FreeTSD( TSD->currlevel->sig ) ;
          }
          TSD->currlevel->sig = TSD->nextsig ;
@@ -2061,19 +2513,19 @@ void removelevel( tsd_t *TSD, proclevel level )
    if (level->prev)
       level->prev->next = NULL ;
 
-   FREE_IF_DEFINED( level->signal_continue );
+   FREE_IF_DEFINED( TSD, level->signal_continue );
 
    if (level->sig)
    {
-      FREE_IF_DEFINED( level->sig->info ) ;
-      FREE_IF_DEFINED( level->sig->descr ) ;
+      FREE_IF_DEFINED( TSD, level->sig->info ) ;
+      FREE_IF_DEFINED( TSD, level->sig->descr ) ;
       FreeTSD( level->sig ) ;
    }
 
    if (level->traps)
    {
       for (i=0; i<SIGNALS; i++)
-         FREE_IF_DEFINED( level->traps[i].name ) ;
+         FREE_IF_DEFINED( TSD, level->traps[i].name ) ;
 
       FreeTSD( level->traps ) ;
    }
@@ -2100,6 +2552,9 @@ proclevel newlevel( tsd_t *TSD, proclevel oldlevel )
 
    if ( oldlevel == NULL )
    {
+      /*
+       * This is executed only once on startup of the interpreter.
+       */
 #ifdef __CHECKER__
       /* There is a memcpy below which Checker don't like. The reason
        * may be the aligned "char"s which will use one machine word
@@ -2127,6 +2582,7 @@ proclevel newlevel( tsd_t *TSD, proclevel oldlevel )
          level->options = it->options;
       else
       {
+         /* never call set_options_flag() on MATAOP options */
          set_options_flag( level, EXT_LINEOUTTRUNC, DEFAULT_LINEOUTTRUNC );
          set_options_flag( level, EXT_FLUSHSTACK, DEFAULT_FLUSHSTACK );
          set_options_flag( level, EXT_MAKEBUF_BIF, DEFAULT_MAKEBUF_BIF );
@@ -2149,6 +2605,8 @@ proclevel newlevel( tsd_t *TSD, proclevel oldlevel )
          set_options_flag( level, EXT_CALLS_AS_FUNCS, DEFAULT_CALLS_AS_FUNCS );
          set_options_flag( level, EXT_QUEUES_301, DEFAULT_QUEUES_301 );
          set_options_flag( level, EXT_HALT_ON_EXT_CALL_FAIL, DEFAULT_HALT_ON_EXT_CALL_FAIL );
+         set_options_flag( level, EXT_SINGLE_INTERPRETER, DEFAULT_SINGLE_INTERPRETER );
+         set_options_flag( level, EXT_SINGLE_LINE_COMMENTS, DEFAULT_SINGLE_LINE_COMMENTS );
 
          if ( ( str = mygetenv( TSD, "REGINA_OPTIONS", NULL, 0 ) ) != NULL )
          {

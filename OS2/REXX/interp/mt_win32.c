@@ -31,6 +31,12 @@ typedef struct { /* mt_tsd: static variables of this module (thread-safe) */
              * ReginaInitializeThread
              */
 
+/* every time a Regina thread is initialised by ReginaInitializeThread, the TSD
+ * for that thread is added to an empty slot in this array. When a thread
+ * terminates and calls Deinitialize, the used slot is freed up
+ */
+tsd_t *tsds[MAX_CONCURRENT_REGINA_THREADS] = {0,};
+
 static DWORD ThreadIndex = 0xFFFFFFFF; /* index of the TSD, not yet got */
 
 /* We use only one critical section for all purposes. That's enough since
@@ -39,15 +45,31 @@ static DWORD ThreadIndex = 0xFFFFFFFF; /* index of the TSD, not yet got */
 static CRITICAL_SECTION cs = {0,};
 
 #if defined(DYNAMIC) || (defined(__MINGW32__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)))
-static void DestroyHeap(tsd_t *TSD)
+/* Deinitialize is called when the thread terminates.
+ * This is a wonderful position to place code which frees all allocated stuff!
+ */
+static void Deinitialize (tsd_t *TSD)
 {
    mt_tsd_t *mt = TSD->mt_tsd;
+   int i;
 
    if (mt == NULL)
       return;
    if (mt->Heap != (HANDLE) 0)
       HeapDestroy(mt->Heap);
    free(mt);
+   /*
+    * Free up our slot in the list of process TSDs.
+    * Probably does not need to be protected (only allow one thread at a time)
+    */
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i] == TSD )
+      {
+         tsds[i] = NULL;
+         break;
+      }
+   }
    free(TSD);
 }
 
@@ -59,7 +81,7 @@ int IfcReginaCleanup( VOID )
       return 0;
 
    deinit_rexxsaa(TSD);
-   DestroyHeap(TSD);
+   Deinitialize (TSD);
    TlsSetValue(ThreadIndex,NULL);
 
    return 1;
@@ -92,7 +114,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD Reason, LPVOID reserved)
          if (TSD != NULL)
          {
             deinit_rexxsaa(TSD);
-            DestroyHeap(TSD);
+            Deinitialize (TSD);
          }
          break;
    }
@@ -177,6 +199,7 @@ static void MTExit(int code)
 tsd_t *ReginaInitializeThread(void)
 {
    int OK;
+   int i, found = 0;
    DWORD idx;
    tsd_t *retval;
    mt_tsd_t *mt;
@@ -256,8 +279,44 @@ tsd_t *ReginaInitializeThread(void)
 
    if (!OK)
       exiterror( ERR_STORAGE_EXHAUSTED, 0 ) ;
+   /*
+    * Update the global list of threadid/TSD.
+    * Should this be protected (only allow one thread at a time)???
+    */
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i] == 0 )
+      {
+         tsds[i] = retval;
+         found = 1;
+         break;
+      }
+   }
+   if ( found == 0 )
+      exiterror( ERR_STORAGE_EXHAUSTED, 1, "MAX_CONCURRENT_REGINA_THREADS exceeded." ) ;
 
    return(retval);
+}
+
+int __regina_get_number_concurrent_regina_threads(void)
+{
+   return MAX_CONCURRENT_REGINA_THREADS;
+}
+
+tsd_t *__regina_get_tsd_for_threadid( unsigned long threadid )
+{
+   int i;
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i]->thread_id == threadid )
+         return tsds[i];
+   }
+   return NULL;
+}
+
+tsd_t *__regina_get_next_tsd( int idx )
+{
+   return tsds[idx];
 }
 
 /* __regina_get_tsd returns a pointer to the thread specific data. Be sure to

@@ -21,6 +21,20 @@
  * This file configures the number converting system. Have a look at
  * gci_convert.c for the requirements. This file must include gci.h.
  */
+/*
+ * Because OSX can build Universal binary we need to support all platforms in the one file
+ * so determine the platform by compiler macros
+ */
+#if defined(__i386)
+# define GCI_INTEL
+# define GCI_32BIT
+#elif defined(__x86_64)
+# define GCI_INTEL
+# define GCI_64BIT
+#else
+# define GCI_PPC
+# define GCI_64BIT
+#endif
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
@@ -79,14 +93,22 @@
  * GCI_STACK_ELEMENT sets integral type of a stack element. This is typically
  * an unsigned or int.
  */
-#define GCI_STACK_ELEMENT unsigned
+#if defined(GCI_32BIT)
+# define GCI_STACK_ELEMENT unsigned
+#else
+# define GCI_STACK_ELEMENT unsigned long
+#endif
 
 /*
  * GCI_LITTLE_ENDIAN must be set to 1 or 0 depending on whether little endian
  * or big endian is the machine's representation.
  * In doubt, select 1 for Intel compatibles and 0 for others.
  */
-#define GCI_LITTLE_ENDIAN 0
+#if defined(GCI_INTEL)
+# define GCI_LITTLE_ENDIAN 1
+#else
+# define GCI_LITTLE_ENDIAN 0
+#endif
 
 /*
  * GCI_ARGS shall be the maximum number of GCI_STACK_ELEMENTs which shall

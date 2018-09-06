@@ -14,7 +14,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Author", "Anders Christensen\0"
-            VALUE "FileDescription", "Regina Rexx Launcher\0"
+            VALUE "FileDescription", "Regina Rexx Launcher (x64)\0"
             VALUE "FileVersion", "?.?.0\0"
             VALUE "InternalName", "Regina\0"
             VALUE "LegalCopyright", "Copyright © 1990 - ????\0"

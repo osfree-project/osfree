@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: staticld.c,v 1.7 2004/05/26 03:50:43 mark Exp $
- */
-
 #include "rexx.h"
 
 #if defined( DYNAMIC_STATIC )
@@ -59,8 +54,24 @@ extern void *getRexxCURLFunctionAddress( char *name );
 extern void *getRexxSQLFunctionAddress( char *name );
 #endif
 
+#ifdef HAVE_REXXEEC_PACKAGE
+extern void *getRexxEECFunctionAddress( char *name );
+#endif
+
 #ifdef HAVE_REXXDW_PACKAGE
 extern void *getRexxDWFunctionAddress( char *name );
+#endif
+
+#ifdef HAVE_REXXCSV_PACKAGE
+extern void *getRexxCSVFunctionAddress( char *name );
+#endif
+
+#ifdef HAVE_REXXPDF_PACKAGE
+extern void *getRexxPDFFunctionAddress( char *name );
+#endif
+
+#ifdef HAVE_RXSOCK_PACKAGE
+extern void *getRxSockFunctionAddress( char *name );
 #endif
 
 #ifndef max
@@ -82,6 +93,7 @@ static struct
    { "test2", getTest2FunctionAddress} ,
 #endif
 #ifdef HAVE_REXXUTIL_PACKAGE
+   { "regutil", getRexxUtilFunctionAddress} ,
    { "rexxutil", getRexxUtilFunctionAddress} ,
 #endif
 #ifdef HAVE_REXXTK_PACKAGE
@@ -102,11 +114,20 @@ static struct
 #ifdef HAVE_REXXSQL_PACKAGE
    { "rexxsql", getRexxSQLFunctionAddress },
 #endif
+#ifdef HAVE_REXXEEC_PACKAGE
+   { "rexxeec", getRexxEECFunctionAddress },
+#endif
 #ifdef HAVE_RXSOCK_PACKAGE
    { "rxsock", getRxSockFunctionAddress },
 #endif
 #ifdef HAVE_REXXDW_PACKAGE
    { "rexxdw", getRexxDWFunctionAddress },
+#endif
+#ifdef HAVE_REXXCSV_PACKAGE
+   { "rexxcsv", getRexxCSVFunctionAddress },
+#endif
+#ifdef HAVE_REXXPDF_PACKAGE
+   { "rexxpdf", getRexxPDFFunctionAddress },
 #endif
    { "", NULL },
 };

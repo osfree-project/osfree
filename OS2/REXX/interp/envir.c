@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: envir.c,v 1.33 2005/09/05 10:52:02 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -445,7 +441,6 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
          {
             if ( length >= 8 )
             {
-               int j = 0;
 
                for ( i = 0, pos = -1; i < length; i++ )
                {
@@ -459,7 +454,7 @@ static int get_io_flag( tsd_t *TSD, streng *command, streng **rxqueue )
                {
                   /* allow "|" [whitespace] "rxqueue" [whitespace[args]] */
                   /* "|" already checked */
-                  for ( i = pos + 1, j = 0; i < length; i++ )
+                  for ( i = pos + 1; i < length; i++ )
                   {
                      if ( !rx_isspace(command->value[i] ) )
                         break;

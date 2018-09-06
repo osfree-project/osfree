@@ -9,6 +9,24 @@
  */
 Trace o
 parse source sys env prog
+Select
+   When sys = 'WIN32' | sys = 'WIN64' Then
+      Do
+         prefix = 'start /b'
+         suffix = ''
+      End
+   When sys = 'UNIX' Then
+      Do
+         prefix = ''
+         suffix = '&'
+      End
+   Otherwise
+      Do
+         Say 'This demo will not run on this machine.'
+         Exit 1
+      End
+End
+
 num_clients = 50 /* 50 */
 num_lines = 10   /* 100 */
 If Arg() = 0 Then
@@ -19,7 +37,7 @@ If Arg() = 0 Then
       if stream( "../rexx", "C", "FSTAT" ) \= "" then
          cmd = "../rexx"
       Do i = 1 To num_clients
-         Address System cmd prog i '&'
+         Address System cmd prefix prog i suffix
       End
    End
 Else

@@ -42,22 +42,22 @@ If Substr(intr,1,8) = 'REXX/imc' Then intr = 'rexximc'
 
 /* ======================= ABBREV ============================== */
 call notify 'abbrev'
-   call ch abbrev('information','info',4) 		,1
-   call ch abbrev('information','',0)			,1
-   call ch abbrev('information','Info',4)		,0
-   call ch abbrev('information','info',5)		,0
-   call ch abbrev('information','info ')		,0
-   call ch abbrev('information','info',3)		,1
-   call ch abbrev('info','information',3)		,0
-   call ch abbrev('info','info',5)			,0
+   call ch abbrev('information','info',4)       ,1
+   call ch abbrev('information','',0)        ,1
+   call ch abbrev('information','Info',4)    ,0
+   call ch abbrev('information','info',5)    ,0
+   call ch abbrev('information','info ')     ,0
+   call ch abbrev('information','info',3)    ,1
+   call ch abbrev('info','information',3)    ,0
+   call ch abbrev('info','info',5)        ,0
 
 
 /* ========================== ABS ============================== */
 call notify 'abs'
-   call ch abs(-12.345)	,12.345
-   call ch abs(12.345) 	,12.345
-   call ch abs(-0.0) 	,0
-   call ch abs(0.0) 	,0
+   call ch abs(-12.345) ,12.345
+   call ch abs(12.345)  ,12.345
+   call ch abs(-0.0)    ,0
+   call ch abs(0.0)  ,0
 
 /* ======================== ADDRESS ============================== */
 call notify 'address'
@@ -1051,7 +1051,7 @@ call notify 'words'
    call ch words('This    is certainly a test'), 5
    call ch words('This is certainly a test   '), 5
    call ch words('  hepp '), 1
-   call ch words('  hepp	hepp   '), 2
+   call ch words('  hepp   hepp   '), 2
    call ch words(''), 0
    call ch words('   '), 0
 

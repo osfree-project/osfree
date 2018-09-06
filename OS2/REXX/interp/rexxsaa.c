@@ -1,6 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: rexxsaa.c,v 1.54 2005/08/22 08:14:26 mark Exp $";
-#endif
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -45,7 +42,9 @@ static char *RCSid = "$Id: rexxsaa.c,v 1.54 2005/08/22 08:14:26 mark Exp $";
  *    RexxRegisterFunctionDll() --- ditto (from dynamic library)
  *    RexxQueryFunction()       --- query external function
  *    RexxDeregisterFunction()  --- deregister external function
- *    RexxSetHalt()             --- set Halt and Trace
+ *    RexxSetHalt()             --- set Halt
+ *    RexxSetTrace()            --- set Trace
+ *    RexxResetTrace()          --- reset Trace
  *    RexxCreateQueue()         --- create named queued
  *    RexxDeleteQueue()         --- delete named queued
  *    RexxQueryQueue()          --- query named queued
@@ -212,6 +211,27 @@ struct ExitHandlers
               (a)==RXFUNCTION ? RX_TYPE_FUNCTION : RX_TYPE_SUBROUTINE)
 
 
+#ifdef __OS2__
+APIRET APIENTRY rexxCreateQueue( PSZ Buffer,
+                                 ULONG BuffLen,
+                                 PSZ RequestedName,
+                                 ULONG* DupFlag );
+
+APIRET APIENTRY rexxDeleteQueue( PSZ QueueName );
+
+APIRET APIENTRY rexxQueryQueue( PSZ QueueName,
+                                ULONG* Count );
+
+APIRET APIENTRY rexxAddQueue( PSZ QueueName,
+                              PRXSTRING EntryData,
+                              ULONG AddFlag );
+
+APIRET APIENTRY rexxPullQueue( PSZ QueueName,
+                               PRXSTRING DataBuf,
+                               PDATETIME TimeStamp,
+                               ULONG WaitFlag );
+#endif
+
 /* init_rexxsaa initializes the module.
  * Currently, we set up the thread specific data.
  * The function returns 1 on success, 0 if memory is short.
@@ -273,6 +293,7 @@ static void StartupInterface( tsd_t *TSD )
       return;
 
    setup_system( TSD, 1 );
+   signal_setup( TSD );
 }
 
 
@@ -764,7 +785,7 @@ int IfcDoExit( tsd_t *TSD, int Code,
 EXPORT_C APIRET APIENTRY RexxFreeMemory(PVOID MemoryBlock )
 {
    if (!MemoryBlock)
-      return(RXFUNC_BADTYPE);
+      return RXFUNC_BADTYPE;
 
    return IfcFreeMemory( MemoryBlock );
 }
@@ -1019,10 +1040,14 @@ EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
 
    /*
     * This can only be called with an active Rexx session running
+    * and from the same thread as the interpreter is running in
+    * The above is true UNLESS you have userd OPTIONS SINGLE_INTERPRETER
     */
-   TSD = __regina_get_tsd();
+   TSD = getGlobalTSD();
+   if ( TSD == NULL )
+      TSD = __regina_get_tsd();
 
-   if ( TSD->systeminfo == NULL )
+   if ( TSD == NULL || TSD->systeminfo == NULL )
       return RX_CB_NOTSTARTED;
 
    if ( ( ArgCount < 0 ) || ( ( ArgCount > 0 ) && ( ArgList == NULL ) ) )
@@ -1086,7 +1111,6 @@ EXPORT_C APIRET APIENTRY RexxCallBack( PCSZ       ProcedureName,
 }
 
 
-
 /* ============================================================= */
 /* subcom handler subsystem */
 
@@ -1098,9 +1122,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterSubcomExe(PCSZ EnvName,
 #endif
                                       PUCHAR UserArea )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    /*
@@ -1119,9 +1144,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterSubcomDll(PCSZ EnvName,
                                       PUCHAR UserArea,
                                       ULONG DropAuth )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName || !ModuleName || !ProcedureName )
@@ -1140,9 +1166,10 @@ EXPORT_C APIRET APIENTRY RexxQuerySubcom(PCSZ EnvName,
                                 PUCHAR UserWord )
 {
    int ret;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName || !Flag || !Flag )
@@ -1160,9 +1187,10 @@ EXPORT_C APIRET APIENTRY RexxQuerySubcom(PCSZ EnvName,
 EXPORT_C APIRET APIENTRY RexxDeregisterSubcom(PCSZ EnvName,
                                      PCSZ ModuleName )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName )
@@ -1203,15 +1231,16 @@ EXPORT_C APIRET APIENTRY RexxVariablePool(PSHVBLOCK RequestBlockList )
    int rc=0, allocated ;
    char *Strings[2] ;
    PSHVBLOCK Req=RequestBlockList ;
-   tsd_t *TSD;
    rex_tsd_t *rt;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    rt = (rex_tsd_t *)TSD->rex_tsd;
    StartupInterface(TSD);
 
    if (!RequestBlockList) /* FGC: I assume we must have at least one param */
-      return(RXFUNC_BADTYPE);
+      return RXFUNC_BADTYPE;
 
    if (TSD->systeminfo->tree.root==NULL) /* Doesn't the interpreter run? */
       return RXSHV_NOAVL ;
@@ -1321,7 +1350,7 @@ EXPORT_C APIRET APIENTRY RexxVariablePool(PSHVBLOCK RequestBlockList )
                   else
                      Req->shvret |= RXSHV_BADN ;
 
-                  if (!Req->shvret | RXSHV_BADN)
+                  if ((!Req->shvret) | RXSHV_BADN)
                   {
                      rc=IfcVarPool( TSD, Code, Lengths, Strings, &allocated );
                      FillReqValue( Req, Lengths[0], Strings[0] ) ;
@@ -1378,9 +1407,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterExitExe(PCSZ EnvName,
 #endif
                                              PUCHAR UserArea )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    /*
@@ -1398,9 +1428,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterExitDll(PCSZ EnvName,
                                     PUCHAR UserArea,
                                     ULONG DropAuth )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName || !ModuleName || !ProcedureName )
@@ -1415,9 +1446,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterExitDll(PCSZ EnvName,
 EXPORT_C APIRET APIENTRY RexxDeregisterExit(PCSZ EnvName,
                                    PCSZ ModuleName )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName )
@@ -1432,9 +1464,10 @@ EXPORT_C APIRET APIENTRY RexxQueryExit(PCSZ EnvName,
                               PUCHAR UserArea)
 {
    int ret;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !EnvName || !Flag || !Flag )
@@ -1462,9 +1495,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterFunctionExe( PCSZ Name,
                                                   RexxFunctionHandler *EntryPoint )
 #endif
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !Name || !EntryPoint )
@@ -1477,9 +1511,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterFunctionDll( PCSZ ExternalName,
                                                   PCSZ LibraryName,
                                                   PCSZ InternalName )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !ExternalName || !LibraryName || !InternalName )
@@ -1490,9 +1525,10 @@ EXPORT_C APIRET APIENTRY RexxRegisterFunctionDll( PCSZ ExternalName,
 
 EXPORT_C APIRET APIENTRY RexxQueryFunction( PCSZ Name )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !Name )
@@ -1503,9 +1539,10 @@ EXPORT_C APIRET APIENTRY RexxQueryFunction( PCSZ Name )
 
 EXPORT_C APIRET APIENTRY RexxDeregisterFunction( PCSZ Name )
 {
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( !Name )
@@ -1688,17 +1725,152 @@ int IfcHaveFunctionExit(const tsd_t *TSD)
 /* ============================================================= */
 /* Asynchronous Rexx API interface */
 
+extern tsd_t *__regina_get_tsd_for_threadid( unsigned long threadid );
+extern tsd_t *__regina_get_next_tsd( int idx );
+extern int __regina_get_number_concurrent_regina_threads(void);
+
 EXPORT_C APIRET APIENTRY RexxSetHalt(LONG dummyProcess,
-                            LONG dummyThread )
+                                     LONG threadid )
 {
    tsd_t *TSD;
-
-   TSD = GLOBAL_ENTRY_POINT();
-   StartupInterface(TSD);
+   int mcrt,i;
    /*
-    * Perform sanity check on the parameters; is process id me ?
+    * Only the current process can halt a running thread.
     */
-   set_rexx_halt( TSD );
+   if ( threadid == 0 )
+   {
+      /*
+       * Halt every thread
+       */
+      mcrt = __regina_get_number_concurrent_regina_threads();
+      for ( i = 0; i < mcrt ; i++ )
+      {
+         TSD = __regina_get_next_tsd( i );
+         if ( TSD != NULL )
+            set_rexx_halt( TSD );
+      }
+   }
+   else
+   {
+      /*
+       * Only halt the specified thread
+       */
+      TSD = __regina_get_tsd_for_threadid( threadid );
+      if ( TSD == NULL )
+         return RXARI_NOT_FOUND;
+      set_rexx_halt( TSD );
+   }
+   return RXARI_OK ;
+                                        }
+
+EXPORT_C APIRET APIENTRY RexxSetTrace(LONG dummyProcess,
+                                      LONG threadid )
+{
+   tsd_t *TSD;
+   int mcrt,i;
+   streng trace;
+
+   /*
+    * Create our parameter to set_trace() manually. We have problems with memory allocation if
+    * we use any of the Str*() functions
+    */
+#ifdef CHECK_MEMORY                     /* FGC: Test                         */
+   trace.value = "?i";
+#else
+   trace.value[0] = '?';
+   trace.value[1] = 'i';
+#endif
+   trace.len = 2;
+   trace.max = 2;
+   /*
+    * Only the current process can trace a running thread.
+    */
+   if ( threadid == 0 )
+   {
+      /*
+       * Trace every thread
+       */
+      mcrt = __regina_get_number_concurrent_regina_threads();
+      for ( i = 0; i < mcrt ; i++ )
+      {
+         TSD = __regina_get_next_tsd( i );
+         if ( TSD != NULL )
+         {
+            if ( !TSD->systeminfo->interactive )
+            {
+               set_trace( TSD, &trace );
+            }
+         }
+      }
+   }
+   else
+   {
+      /*
+       * Only trace the specified thread
+       */
+      TSD = __regina_get_tsd_for_threadid( threadid );
+      if ( TSD == NULL )
+         return RXARI_NOT_FOUND;
+      if ( !TSD->systeminfo->interactive )
+      {
+         set_trace( TSD, &trace );
+      }
+   }
+   return RXARI_OK ;
+}
+
+EXPORT_C APIRET APIENTRY RexxResetTrace(LONG dummyProcess,
+                                        LONG threadid )
+{
+   tsd_t *TSD;
+   int mcrt,i;
+   streng trace;
+
+   /*
+    * Create our parameter to set_trace() manually. We have problems with memory allocation if
+    * we use any of the Str*() functions
+    */
+#ifdef CHECK_MEMORY                     /* FGC: Test                         */
+   trace.value = "O";
+#else
+   trace.value[0] = 'O';
+#endif
+   trace.len = 1;
+   trace.max = 1;
+   /*
+    * Only the current process can trace a running thread.
+    */
+   if ( threadid == 0 )
+   {
+      /*
+       * Trace every thread
+       */
+      mcrt = __regina_get_number_concurrent_regina_threads();
+      for ( i = 0; i < mcrt ; i++ )
+      {
+         TSD = __regina_get_next_tsd( i );
+         if ( TSD != NULL )
+         {
+            if ( TSD->systeminfo->interactive )
+            {
+               set_trace( TSD, &trace );
+            }
+         }
+      }
+   }
+   else
+   {
+      /*
+       * Only trace the specified thread
+       */
+      TSD = __regina_get_tsd_for_threadid( threadid );
+      if ( TSD == NULL )
+         return RXARI_NOT_FOUND;
+      if ( TSD->systeminfo->interactive )
+      {
+         set_trace( TSD, &trace );
+      }
+   }
    return RXARI_OK ;
 }
 
@@ -1711,13 +1883,18 @@ EXPORT_C APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
                                  ULONG* DupFlag)
 {
    int code;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface(TSD);
 
    TSD->called_from_saa = 1;
+#ifdef __OS2__
+   code = rexxCreateQueue( Buffer, BuffLen, RequestedName, DupFlag );
+#else
    code = IfcCreateQueue( TSD, RequestedName, (RequestedName) ? strlen( RequestedName): 0, Buffer, DupFlag, BuffLen );
+#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1725,16 +1902,21 @@ EXPORT_C APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
 EXPORT_C APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
 {
    int code;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface(TSD);
 
    TSD->called_from_saa = 1;
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
+#ifdef __OS2__
+      code = rexxDeleteQueue( QueueName );
+#else
       code = IfcDeleteQueue( TSD, QueueName, strlen( QueueName ) );
+#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1743,16 +1925,21 @@ EXPORT_C APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
                                 ULONG* Count)
 {
    int code;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface(TSD);
 
    TSD->called_from_saa = 1;
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
+#ifdef __OS2__
+      code = rexxQueryQueue( QueueName, Count );
+#else
       code = IfcQueryQueue( TSD, QueueName, strlen( QueueName ), Count );
+#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1762,16 +1949,21 @@ EXPORT_C APIRET APIENTRY RexxAddQueue( PSZ QueueName,
                               ULONG AddFlag)
 {
    int code;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface(TSD);
 
    TSD->called_from_saa = 1;
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
+#ifdef __OS2__
+      code = rexxAddQueue( QueueName, EntryData, AddFlag );
+#else
       code = IfcAddQueue( TSD, QueueName, strlen( QueueName), EntryData->strptr, EntryData->strlength, AddFlag==RXQUEUE_LIFO );
+#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1782,9 +1974,10 @@ EXPORT_C APIRET APIENTRY RexxPullQueue( PSZ QueueName,
                                ULONG WaitFlag)
 {
    int code;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface( TSD );
 
    if ( WaitFlag != RXQUEUE_WAIT && WaitFlag != RXQUEUE_NOWAIT )
@@ -1798,10 +1991,14 @@ EXPORT_C APIRET APIENTRY RexxPullQueue( PSZ QueueName,
       code = RXQUEUE_BADQNAME;
    else
    {
+#ifdef __OS2__
+      code = rexxPullQueue( QueueName, DataBuf, TimeStamp, WaitFlag );
+#else
       code = IfcPullQueue( TSD,
                            QueueName, strlen( QueueName ),
                            &DataBuf->strptr, &DataBuf->strlength,
                            WaitFlag==RXQUEUE_WAIT );
+#endif
       if ( code == 0 )
       {
          if ( TimeStamp )
@@ -1865,9 +2062,10 @@ EXPORT_C APIRET APIENTRY ReginaVersion( PRXSTRING VersionString )
 {
    char low[3];
    unsigned len;
-   tsd_t *TSD;
+   tsd_t *TSD = getGlobalTSD();
 
-   TSD = GLOBAL_ENTRY_POINT();
+   if ( TSD == NULL )
+      TSD = GLOBAL_ENTRY_POINT();
    StartupInterface(TSD);
 
    if (!VersionString)

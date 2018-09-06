@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: client.c,v 1.54 2005/08/04 09:03:34 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -443,6 +439,10 @@ int IfcExecScript( tsd_t * volatile TSD, int NameLen, const char *Name,
       {
          streng *SrcStr = wrapstring( TSD, SourceString, SourceStringLen );
          internal_parser_type ipt;
+         /*
+          * Fix for Bug #436. Enable system exit to trap parsing errors
+          */
+         TSD->systeminfo->hooks = hooks;
 
          ipt = enter_macro( TSD, SrcStr, instore_buf, instore_length ) ;
          if ( ( CallType == RX_TYPE_COMMAND )
@@ -1050,10 +1050,19 @@ static int SetVariable( tsd_t *TSD, int Code, int *Lengths, char *Strings[] )
       varname = Str_upper( Str_dupTSD( varbl ) );
    else
    {
+      /*
+       * Setting reserved variables is not allowed :-(
+       */
+      if ( varbl->len && varbl->value[0] == '.' )
+      {
+         Free_stringTSD( varbl ) ;
+         return RX_CODE_INVNAME;
+      }
       varname = Str_dupTSD( varbl );
       /*
        * Bypass the dot test for the first character to allow reserved
        * variables.
+       * This bypass is not relevant anymore. See comment above.
        */
       if ( varname->len )
          varname->value[0] = (unsigned char) rx_toupper( varname->value[0] );

@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: os_unx.c,v 1.3 2006/02/21 11:22:23 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 2005 Florian Grosse-Coosmann

@@ -1,0 +1,44 @@
+                              Regina 3.5 for QNX4
+
+This archive contains binaries for the Regina Rexx Interpreter 3.4 for QNX4.
+Regina is one of the fastest Rexx interpreters available, and the most
+portable. Regina is available on most Unix platforms, including Linux and
+FreeBSD, Windows 9x/NT/2k/XP, OS/2, DOS, Amiga, OpenVMS, OpenEdition and Linux/390.
+
+Regina is distributed under the GNU LIBRARY GENERAL PUBLIC LICENSE. See
+COPYING-LIB for details.
+
+This port was built on QNX 4.25 with the Watcom 10.6 compiler.
+
+Included in the port are:
+bin/regina                 - Regina Rexx Interpreter
+bin/rexx                   - Regina Rexx Interpreter - no add-ons
+bin/rxstack                - Regina Stack Daemon
+                             controls all named external queues
+bin/rxqueue                - Regina Stack Client
+                             interface to rxstack for non-Regina apps
+lib/rexx.lib               - Regina Rexx static library
+lib/regina.lib             - Regina Rexx dyanmic library (allowing static dynamic loading)
+include/rexxsaa.h          - Rexx SAA API header file
+man/man1/regina.1          - Regina man page
+share/regina/*.mtb         - Regina language files
+share/regina/*.rexx        - sample Rexx programs
+doc/*                      - READMEs and license
+
+To build Regina with the standard autoconf tools (using configure) you will
+need to install the GNU port of bash. You can download this from:
+ftp://ftp.usenet-fr.net/pub/Qnx4/gnu/bash-bin.tar.bz2
+Once you have extracted the bash binaries from the above package, change the
+first line of the configure script to point to the bash2.02 binary, then run
+configure.
+
+For more information on Regina, visit the Regina Home page at
+http://regina-rexx.sf.net
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  mark@rexx.org  http://www.rexx.org/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL, Rexx/CURL, etc.
+* Maintainer of Regina Rexx interpreter and Rexx/Tk
+* Use Rexx? join the Rexx Language Association: http://www.rexxla.org/
+------------------------------------------------------------------------

@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: rexxext.c,v 1.30 2005/08/03 09:18:00 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -59,6 +55,8 @@ static char *RCSid = "$Id: rexxext.c,v 1.30 2005/08/03 09:18:00 mark Exp $";
 # endif
 #endif
 
+extern void getcallstack( tsd_t *TSD, streng *stem );
+
 streng *rex_userid( tsd_t *TSD, cparamboxptr parms )
 {
 #if defined(WIN32)
@@ -78,8 +76,63 @@ streng *rex_userid( tsd_t *TSD, cparamboxptr parms )
    return nullstringptr( ) ;
 # endif
 #else
-   return( Str_creTSD( getpwuid( getuid( ) )->pw_name ) ) ;
+   {
+   struct passwd *pwuid;
+   pwuid = getpwuid( getuid( ) );
+   if ( pwuid )
+      return( Str_creTSD( pwuid->pw_name ) ) ;
+   else
+      return nullstringptr( ) ;
+   }
 #endif
+}
+
+/*
+ * Returns the file name of the specified caller level
+ * - default is immediate parent
+ * RFE #35
+ */
+streng *rex_getcaller( tsd_t *TSD, cparamboxptr parms )
+{
+   long i,level=1;
+   struct systeminfobox *curr;
+
+   checkparam(  parms,  0,  1 , "GETCALLER" ) ;
+
+   if (parms->value)
+   {
+      level = atopos( TSD, parms->value, "GETCALLER", 1 ) ;
+   }
+   for ( curr = TSD->systeminfo, i = 0; i < level; i++, curr = curr->previous)
+   {
+      if ( !curr->previous )
+         return nullstringptr( ) ;
+   }
+   return Str_dupTSD( curr->input_file );
+#if 0
+   }
+   else
+   {
+      if ( TSD->systeminfo->previous )
+         return Str_dupTSD( TSD->systeminfo->previous->input_file );
+      else
+         return nullstringptr( ) ;
+   }
+#endif
+}
+
+streng *rex_getcallstack( tsd_t *TSD, cparamboxptr parms )
+{
+   char ch=0 ;
+   int i=0 ;
+
+   checkparam(  parms,  1,  1 , "GETCALLSTACK" ) ;
+   if (parms->value)
+      getcallstack( TSD, parms->value );
+   else
+      exiterror( ERR_INCORRECT_CALL, 28, "GETCALLSTACK", "ALN", tmpstr_of( TSD, parms->value ) )  ;
+
+   return nullstringptr( ) ;
 }
 
 streng *rex_rxqueue( tsd_t *TSD, cparamboxptr parms )
@@ -88,7 +141,7 @@ streng *rex_rxqueue( tsd_t *TSD, cparamboxptr parms )
    streng *result=NULL;
    int rc;
 
-   checkparam(  parms,  1,  2 , "RXQUEUE" ) ;
+   checkparam(  parms,  1,  3 , "RXQUEUE" ) ;
 
    opt = getoptionchar( TSD, parms->value, "RXQUEUE", 1, "CDGS", "T" ) ;
    switch ( opt )
@@ -140,7 +193,7 @@ streng *rex_rxqueue( tsd_t *TSD, cparamboxptr parms )
             result = int_to_streng( TSD, timeout_queue(TSD, parms->next->value, NULL ) );
             /* result created here */
          else
-            exiterror( ERR_INCORRECT_CALL, 5, "RXQUEUE", 2 );
+            exiterror( ERR_INCORRECT_CALL, 5, "RXQUEUE", 3 );
          break;
    }
    return result ;

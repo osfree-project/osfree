@@ -55,6 +55,12 @@ typedef struct { /* mt_tsd: static variables of this module (thread-safe) */
              * ReginaInitializeThread
              */
 
+/* every time a Regina thread is initialised by ReginaInitializeThread, the TSD
+ * for that thread is added to an empty slot in this array. When a thread
+ * terminates and calls Deinitialize, the used slot is freed up
+ */
+tsd_t *tsds[MAX_CONCURRENT_REGINA_THREADS] = {0,};
+
 static pthread_key_t ThreadIndex; /* index of the TSD, no initial value */
 static pthread_once_t ThreadOnce = PTHREAD_ONCE_INIT; /* for pthread_once */
 
@@ -66,6 +72,7 @@ static void Deinitialize(void *buf)
    tsd_t *TSD = (tsd_t *)buf;
    mt_tsd_t *mt;
    MT_mem *chunk;
+   int i;
 
    if (TSD == NULL) /* Should never happen but be sure */
       return;
@@ -81,9 +88,20 @@ static void Deinitialize(void *buf)
          if (mt->mem_base == chunk)
             break; /* something goes wrong. Don't run into an endless loop */
       }
-   }
-   if (mt)
       free(mt);
+   }
+   /*
+    * Free up our slot in the list of process TSDs.
+    * Probably does not need to be protected (only allow one thread at a time)
+    */
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i] == TSD )
+      {
+         tsds[i] = NULL;
+         break;
+      }
+   }
    free(TSD);
 }
 
@@ -179,6 +197,7 @@ static void MTExit(int code)
 tsd_t *ReginaInitializeThread(void)
 {
    int OK;
+   int i, found = 0;
    tsd_t *retval;
 
    /* get a unique access variable for the whole process */
@@ -246,12 +265,48 @@ tsd_t *ReginaInitializeThread(void)
 
    if (!OK)
       exiterror( ERR_STORAGE_EXHAUSTED, 0 ) ;
+   /*
+    * Update the global list of threadid/TSD.
+    * Should this be protected (only allow one thread at a time)???
+    */
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i] == 0 )
+      {
+         tsds[i] = retval;
+         found = 1;
+         break;
+      }
+   }
+   if ( found == 0 )
+      exiterror( ERR_STORAGE_EXHAUSTED, 1, "MAX_CONCURRENT_REGINA_THREADS exceeded." ) ;
 
    return(retval);
 }
 
+int __regina_get_number_concurrent_regina_threads(void)
+{
+   return MAX_CONCURRENT_REGINA_THREADS;
+}
+
+tsd_t *__regina_get_tsd_for_threadid( unsigned long threadid )
+{
+   int i;
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i]->thread_id == threadid )
+         return tsds[i];
+   }
+   return NULL;
+}
+
+tsd_t *__regina_get_next_tsd( int idx )
+{
+   return tsds[idx];
+}
+
 /* __regina_get_tsd returns a pointer to the thread specific data. Be sure to
- * calls this after a ReginaInitializeThread only.
+ * call this only after a call to ReginaInitializeThread().
  */
 tsd_t *__regina_get_tsd(void)
 {

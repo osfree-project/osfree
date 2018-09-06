@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: memory.c,v 1.14 2005/08/16 07:40:59 mark Exp $";
-#endif
-
 #if 0
 #define REGINA_DEBUG_MEMORY
 #define REGINA_DEBUG_MEMORY1

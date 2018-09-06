@@ -27,8 +27,17 @@
 /* Define if you have the crypt function.  */
 #undef HAVE_CRYPT
 
+/* Define if you have the atoll function.  */
+#undef HAVE_ATOLL
+
 /* Define if you have the div function.  */
 #undef HAVE_DIV
+
+/* Define if you have the fseeko function.  */
+#undef HAVE_FSEEKO
+
+/* Define if you have the ftello function.  */
+#undef HAVE_FTELLO
 
 /* Define if you have the ftime function.  */
 #undef HAVE_FTIME
@@ -39,11 +48,17 @@
 /* Define if you have the _fullpath function.  */
 #undef HAVE__FULLPATH
 
+/* Define if you have the getbootfile function.  */
+#undef HAVE_GETBOOTFILE
+
 /* Define if you have the gettimeofday function.  */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define if you have the inet_ntop function.  */
 #undef HAVE_INET_NTOP
+
+/* Define if you have the iconv function.  */
+#undef HAVE_ICONV
 
 /* Define if you have the gmtime_r function.  */
 #undef HAVE_GMTIME_R
@@ -57,6 +72,9 @@
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
 
+/* Define if you have the mmap function.  */
+#undef HAVE_MMAP
+
 /* Define if you have the memmove function.  */
 #undef HAVE_MEMMOVE
 
@@ -68,6 +86,9 @@
 
 /* Define if you have the mkstemp function.  */
 #undef HAVE_MKSTEMP
+
+/* Define if you have the mbstowcs function.  */
+#undef HAVE_MBSTOWCS
 
 /* Define if you have the random function.  */
 #undef HAVE_RANDOM
@@ -92,6 +113,12 @@
 
 /* Define if you have the sysconf function.  */
 #undef HAVE_SYSCONF
+
+/* Define if you have the statfs function.  */
+#undef HAVE_STATFS
+
+/* Define if you have the tgetent function.  */
+#undef HAVE_TGETENT
 
 /* Define if you have the usleep function.  */
 #undef HAVE_USLEEP
@@ -135,20 +162,53 @@
 /* Define if you have the <grp.h> header file.  */
 #undef HAVE_GRP_H
 
+/* Define if you have the <iconv.h> header file.  */
+#undef HAVE_ICONV_H
+
+/* Define if you have the <inttypes.h> header file.  */
+#undef HAVE_INTTYPES_H
+
 /* Define if you have the <limits.h> header file.  */
 #undef HAVE_LIMITS_H
+
+/* Define if you have the <sys/mman.h> header file.  */
+#undef HAVE_SYS_MMAN_H
+
+/* Define if you have the <statvfs.h> header.  */
+#undef HAVE_STATVFS_H
+
+/* Define if you have the <sys/statfs.h> header.  */
+#undef HAVE_SYS_STATFS_H
+
+/* Define if you have the <sys/statvfs.h> header.  */
+#undef HAVE_SYS_STATVFS_H
+
+/* Define if you have the <vfs.h> header.  */
+#undef HAVE_VFS_H
 
 /* Define if you have the <sys/resource.h> header file.  */
 #undef HAVE_SYS_RESOURCE_H
 
+/* Define if you have the <sys/mount.h> header file.  */
+#undef HAVE_SYS_MOUNT_H
+
 /* Define if you have the <sys/stat.h> header file.  */
 #undef HAVE_SYS_STAT_H
+
+/* Define if you have the <sys/ioctl.h> header file.  */
+#undef HAVE_SYS_IOCTL_H
 
 /* Define if you have the <malloc.h> header file.  */
 #undef HAVE_MALLOC_H
 
 /* Define if you have the <math.h> header file.  */
 #undef HAVE_MATH_H
+
+/* Define if you have the <ncurses.h> header file.  */
+#undef HAVE_NCURSES_H
+
+/* Define if you have the <paths.h> header file.  */
+#undef HAVE_PATHS_H
 
 /* Define if you have the <poll.h> header file.  */
 #undef HAVE_POLL_H
@@ -189,8 +249,11 @@
 /* Define if you have the <sys/time.h> header file.  */
 #undef HAVE_SYS_TIME_H
 
-/* Define if you have the <termios.h> header file.  */
-#undef HAVE_TERMIOS_H
+/* Define if you have the <term.h> header file.  */
+#undef HAVE_TERM_H
+
+/* Define if you have the <termcap.h> header file.  */
+#undef HAVE_TERMCAP_H
 
 /* Define if you have the <time.h> header file.  */
 #undef HAVE_TIME_H
@@ -203,6 +266,9 @@
 
 /* Define if you have the <sys/socket.h> header file.  */
 #undef HAVE_SYS_SOCKET_H
+
+/* Define if you have the <socket.h> header file.  */
+#undef HAVE_SOCKET_H
 
 /* Define if you have the <netinet/in.h> header file.  */
 #undef HAVE_NETINET_IN_H
@@ -218,6 +284,9 @@
 
 /* Define if you have the <arpa/inet.h> header file.  */
 #undef HAVE_ARPA_INET_H
+
+/* Define if union semun is defined */
+#undef HAVE_UNION_SEMUN
 
 /* Define if getgrgid_r returns an int and has 5 args */
 #undef HAVE_GETGRGID_R_RETURNS_INT_5_PARAMS
@@ -264,8 +333,14 @@
 /* Define if statically loading Rexx/SQL external function package */
 #undef HAVE_REXXSQL_PACKAGE
 
+/* Define if statically loading Rexx/EEC external function package */
+#undef HAVE_REXXEEC_PACKAGE
+
 /* Define if statically loading Rexx/CURL external function package */
 #undef HAVE_REXXCURL_PACKAGE
+
+/* Define if statically loading Rexx/ISAM external function package */
+#undef HAVE_REXXISAM_PACKAGE
 
 /* Define if statically loading Rexx/DW external function package */
 #undef HAVE_REXXDW_PACKAGE
@@ -273,8 +348,21 @@
 /* Define if statically loading RxSock external function package */
 #undef HAVE_RXSOCK_PACKAGE
 
+/* Define if statically loading Rexx/CSV external function package */
+#undef HAVE_REXXCSV_PACKAGE
+
+/* Define if statically loading Rexx/PDF external function package */
+#undef HAVE_REXXPDF_PACKAGE
+
 /* Define if Object Rexx binary compatibility is required */
 #undef OREXX_BINARY_COMPATIBLE
 
 /* Define if compiler support inline __builtin_return_address() function */
 #undef HAVE_BUILTIN_RETURN_ADDRESS
+
+/* Define if statvfs contains f_mntfromname member */
+#undef HAVE_STATVFS_F_MNTFROMNAME
+
+/* Define if --with-addon-dir is specified on configure */
+#undef HAVE_REGINA_ADDON_DIR
+

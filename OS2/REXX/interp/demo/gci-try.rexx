@@ -100,7 +100,7 @@ say ""
  * After the prelimnaries try to use the GCI.
  */
 if system = "OS/2" then signal useOS2
-
+trace i
 say "Trying to copy string 'hello' to a string 'world' using the C library"
 stem.calltype = cdecl
 stem.0 = 2
@@ -209,6 +209,11 @@ if RESULT \= 0 then do
    call RxFuncDefine logl, MathLib, "log", stem
    end
 if RESULT \= 0 then do
+   stem.1.type = float32
+   stem.return.type = float32
+   call RxFuncDefine logl, MathLib, "log", stem
+   end
+if RESULT \= 0 then do
    if IsRegina & InternalGCI then
       say "Error, code" RESULT || ":" RxFuncErrMsg()
    else
@@ -266,6 +271,7 @@ else
 call funcDrop statvfs
 say ""
 /*******************************/
+
 say "We use qsort of the C library for sorting some strings using arrays."
 /*
  * This examples has removed all unnecessary stuff.

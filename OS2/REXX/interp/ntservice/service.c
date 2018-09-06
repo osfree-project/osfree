@@ -43,6 +43,7 @@
 #endif
 
 extern int suicide( void );
+extern int usage( const char *argv0 );
 
 // internal variables
 SERVICE_STATUS          ssStatus;       // current status of the service
@@ -55,6 +56,7 @@ TCHAR                   szErr[256];
 VOID WINAPI service_ctrl(DWORD dwCtrlCode);
 VOID WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv);
 VOID CmdInstallService();
+VOID CmdStartService();
 VOID CmdRemoveService();
 VOID CmdDebugService(int argc, char **argv);
 BOOL WINAPI ControlHandler ( DWORD dwCtrlType );
@@ -101,6 +103,10 @@ void _CRTAPI1 main(int argc, char **argv)
        {
            CmdInstallService();
        }
+       else if ( strlen( argv[1]+1 ) == 5 && _stricmp( "start", argv[1]+1 ) == 0 && IsItNT() )
+       {
+           CmdStartService();
+       }
        else if ( strlen( argv[1]+1 ) == 6 && _stricmp( "remove", argv[1]+1 ) == 0 && IsItNT() )
        {
            CmdRemoveService();
@@ -116,10 +122,13 @@ void _CRTAPI1 main(int argc, char **argv)
        }
        else if ( ( strlen( argv[1]+1 ) == 1 && _stricmp( "?", argv[1]+1 ) == 0 ) || ( strlen( argv[1]+1 ) == 4 && _stricmp( "help", argv[1]+1 ) == 0 ) )
        {
-           printf( "%s -install          to install the service\n", SZAPPNAME );
-           printf( "%s -remove           to remove the service\n", SZAPPNAME );
-           printf( "%s -run|-d           to run as a console app\n", SZAPPNAME );
-           printf( "%s -stop|-k          to stop the service\n", SZAPPNAME );
+           usage(argv[0]);
+           printf( "Too provide above switches on Windows, specify \"-d\" as first switch followed by above switch(es)\n\n" );
+           printf( "Switches to interface with rxstack running as a Windows service:\n" );
+           printf( "  -install          to install the service\n" );
+           printf( "  -start            to start the service\n" );
+           printf( "  -stop|-k          to stop the service\n" );
+           printf( "  -remove           to remove the service\n" );
        }
        else
        {
@@ -238,6 +247,7 @@ VOID WINAPI service_ctrl(DWORD dwCtrlCode)
         case SERVICE_CONTROL_STOP:
             ReportStatusToSCMgr(SERVICE_STOP_PENDING, NO_ERROR, 0);
             ServiceStop();
+            _tprintf(TEXT("%s stopped.\n"), TEXT(SZSERVICEDISPLAYNAME) );
             return;
 
         // Update the service status.
@@ -432,6 +442,72 @@ void CmdInstallService()
         _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
 }
 
+//
+//  FUNCTION: CmdStartService()
+//
+//  PURPOSE: Starts the service
+//
+//  PARAMETERS:
+//    none
+//
+//  RETURN VALUE:
+//    none
+//
+//  COMMENTS:
+//
+void CmdStartService()
+{
+    SC_HANDLE   schService;
+    SC_HANDLE   schSCManager;
+
+    schSCManager = OpenSCManager(
+                        NULL,                   // machine (NULL == local)
+                        NULL,                   // database (NULL == default)
+                        SC_MANAGER_ALL_ACCESS   // access required
+                        );
+    if ( schSCManager )
+    {
+        schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
+
+        if (schService)
+        {
+           // try to start the service
+           _tprintf(TEXT("Starting %s..."), TEXT(SZSERVICEDISPLAYNAME));
+           Sleep( 1000 );
+           if ( StartService( schService, 0, NULL ) )
+           {
+              // check that it is indeed running
+              while( QueryServiceStatus( schService, &ssStatus ) )
+              {
+                 if ( ssStatus.dwCurrentState == SERVICE_START_PENDING )
+                 {
+                    _tprintf(TEXT("."));
+                    Sleep( 1000 );
+                 }
+                 else
+                    break;
+              }
+                 if ( ssStatus.dwCurrentState == SERVICE_RUNNING )
+                    _tprintf(TEXT("started.\n") );
+                 else
+                    _tprintf(TEXT("failed to start.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+           }
+           else
+           {
+              _tprintf(TEXT("StartService failed - %s\n"), GetLastErrorText(szErr,256));
+           }
+           CloseServiceHandle(schService);
+        }
+        else
+            _tprintf(TEXT("OpenService failed - %s\n"), GetLastErrorText(szErr,256));
+
+        CloseServiceHandle(schSCManager);
+    }
+    else
+        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
+}
+
+
 
 
 //
@@ -459,52 +535,50 @@ void CmdRemoveService()
                         );
     if ( schSCManager )
     {
-        schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
+       schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
 
-        if (schService)
-        {
-            // try to stop the service
-            if ( ControlService( schService, SERVICE_CONTROL_STOP, &ssStatus ) )
-            {
-                _tprintf(TEXT("Stopping %s."), TEXT(SZSERVICEDISPLAYNAME));
-                Sleep( 1000 );
+       if (schService)
+       {
+          // try to stop the service
+          if ( ControlService( schService, SERVICE_CONTROL_STOP, &ssStatus ) )
+          {
+             _tprintf(TEXT("Stopping %s..."), TEXT(SZSERVICEDISPLAYNAME));
+             Sleep( 1000 );
 
-                while( QueryServiceStatus( schService, &ssStatus ) )
+             while( QueryServiceStatus( schService, &ssStatus ) )
+             {
+                if ( ssStatus.dwCurrentState == SERVICE_STOP_PENDING )
                 {
-                    if ( ssStatus.dwCurrentState == SERVICE_STOP_PENDING )
-                    {
-                        _tprintf(TEXT("."));
-                        Sleep( 1000 );
-                    }
-                    else
-                        break;
+                   _tprintf(TEXT("."));
+                   Sleep( 1000 );
                 }
-
-                if ( ssStatus.dwCurrentState == SERVICE_STOPPED )
-                    _tprintf(TEXT("\n%s stopped.\n"), TEXT(SZSERVICEDISPLAYNAME) );
                 else
-                    _tprintf(TEXT("\n%s failed to stop.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+                   break;
+             }
 
-            }
+             if ( ssStatus.dwCurrentState == SERVICE_STOPPED )
+                _tprintf(TEXT("stopped.\n"));
+             else
+                _tprintf(TEXT("failed to stop.\n") );
 
-            // now remove the service
-            if( DeleteService(schService) )
-                _tprintf(TEXT("%s removed.\n"), TEXT(SZSERVICEDISPLAYNAME) );
-            else
-                _tprintf(TEXT("DeleteService failed - %s\n"), GetLastErrorText(szErr,256));
+          }
 
+          // now remove the service
+          if( DeleteService(schService) )
+              _tprintf(TEXT("%s removed.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+          else
+              _tprintf(TEXT("DeleteService failed - %s\n"), GetLastErrorText(szErr,256));
 
-            CloseServiceHandle(schService);
-        }
-        else
-            _tprintf(TEXT("OpenService failed - %s\n"), GetLastErrorText(szErr,256));
+          CloseServiceHandle(schService);
+       }
+       else
+          _tprintf(TEXT("OpenService failed - %s\n"), GetLastErrorText(szErr,256));
 
-        CloseServiceHandle(schSCManager);
+       CloseServiceHandle(schSCManager);
     }
     else
-        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
+       _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
 }
-
 
 
 

@@ -7,10 +7,13 @@
  *
  * Format of input files:
  * xxx,yyy,ttttttttttttttttttttttttt
+ * (type),pppppppppppppppppp
  *
  * where xxx is errno
  *       yyy is suberrno
- *       ttttt is message text
+ *       ttttt is error message text
+ * and   (type) is error prefix type
+ *       ppppp is error prefix string
  *
  * For each file:
  *  get file size
@@ -23,7 +26,7 @@
  *  iterate through struct arrays, adding file offset of start of
  *   text messages based on n number of structs
  *  write out array of structs
- *  write out memory chuck
+ *  write out memory chunck of error texts
  */
 
 /*
@@ -58,6 +61,7 @@ static const char *errlang[] =
    "no", /* norwegian */
    "pt", /* portuguese */
    "pl", /* polish */
+   "sv", /* swedish */
    "tr", /* turkish */
 #if 0
    "en","ca","cs","da","de","el","es","fi","fr","he","hu","is","it","ja","ko",
@@ -87,8 +91,8 @@ int main( int argc, char *argv[] )
    char *fn;
    char *text;
    struct textindex *pti,*ti;
-   unsigned int count,offset,lang;
-   int last_count=0;
+   unsigned int count,prefix_count,total_count,offset,lang;
+   int last_count=0,last_prefix_count=0;
 
    ti = (struct textindex *)malloc( 500*sizeof(struct textindex) );
    if ( ti == NULL )
@@ -119,11 +123,25 @@ int main( int argc, char *argv[] )
        */
       text_size = 0;
       pti = ti;
-      for ( count = 0; ; )
+      for ( count = 0, prefix_count = 0; ; )
       {
          if ( fgets( line, 511, infp ) == NULL )
             break;
-         if ( line[0] != '#' )
+         if ( line[0] == '#' )
+         ;
+         else if ( line[0] == 'P' )
+         {
+            line[5] = '\0';
+            pti->errorno = 999;
+            pti->suberrorno = atol( line+2 );
+            pti->fileoffset = text_size;
+            pti->textlength = strlen( line+6)-1;
+            memcpy( text+text_size, line+6, pti->textlength);
+            text_size += pti->textlength;
+            prefix_count++;
+            pti++;
+         }
+         else
          {
             line[3] = '\0';
             line[7] = '\0';
@@ -144,7 +162,15 @@ int main( int argc, char *argv[] )
          free(ti);
          exit(1);
       }
+      if ( last_prefix_count != 0 && prefix_count != (unsigned) last_prefix_count )
+      {
+         fprintf( stderr, "Inconsistent numbers of prefix messages (%d) between this file %s and the previous one (%d).\n", prefix_count, fn, last_prefix_count );
+         free(ti);
+         exit(1);
+      }
       last_count = count;
+      last_prefix_count = prefix_count;
+      total_count = count + prefix_count;
       /* generate output file name */
       len = strlen( argv[i] );
       for ( j = len-1; j >= 0; j-- )
@@ -185,17 +211,23 @@ int main( int argc, char *argv[] )
          free(ti);
          exit(1);
       }
+      if ( fwrite( (void *)&prefix_count, sizeof(unsigned int), 1, outfp ) != 1 )
+      {
+         fprintf( stderr, "Unable to prefix message count to %s.\n", line );
+         free(ti);
+         exit(1);
+      }
       /* update the file offsets */
-      offset = count * sizeof( struct textindex ) + ( 2 * sizeof( unsigned int ) );
+      offset = total_count * sizeof( struct textindex ) + ( 3 * sizeof( unsigned int ) );
       pti = ti;
-      for ( j = 0; (unsigned) j < count; j++ )
+      for ( j = 0; (unsigned) j < total_count; j++ )
       {
          pti->fileoffset += offset;
          pti++;
       }
       /* write the index structs */
       pti = ti;
-      for ( j = 0; (unsigned) j < count; j++ )
+      for ( j = 0; (unsigned) j < total_count; j++ )
       {
          if ( fwrite( (void *)pti, sizeof(struct textindex), 1, outfp ) != 1 )
          {
@@ -216,6 +248,6 @@ int main( int argc, char *argv[] )
       free( text );
    }
    free(ti);
-   printf( "%d error messages compiled\n", last_count );
+   printf( "%d error messages and %d prefixes compiled\n", last_count, prefix_count );
    return 0;
 }

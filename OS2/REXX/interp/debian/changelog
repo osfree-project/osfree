@@ -1,0 +1,241 @@
+regina (3.9.1-1) unstable; urgency=low
+
+  * Fix for Bug #396, #418, #429, #432, #434, #437, #441, #443, #449, #451
+  * Feature request #37
+
+ -- Mark Hessling <mark@rexx.org>  Sun,  5 Apr 2015 01:50:00 +1000
+
+regina (3.9.0-1) unstable; urgency=low
+
+  * Fix for Bug #436
+
+ -- Mark Hessling <mark@rexx.org>  Thu, 16 Oct 2014 01:50:00 +1000
+
+regina (3.8.3-1) unstable; urgency=low
+
+  * Finally a fix for Bug #429
+  * Fix for Bug #433
+  * Added extra QUERY options; CREATETIME, MODIFYTIME and ACCESSTIME to STREAM BIF
+    Returns a time_t value for create, modify and access time of the persistent stream
+    Feature Request #34
+  * Feature Request #35 - GETCALLER BIF to determine who called the program
+  * Feature Request #36 - .FILE reserved variable
+
+ -- Mark Hessling <mark@rexx.org>  Thu, 28 Jul 2014 01:50:00 +1000
+
+regina (3.8.2-1) unstable; urgency=low
+
+  * Fix for Bugs #429, #430, #387
+  * Add extra level of versioning to enable quicker releases when minor fixes corrected.
+
+ -- Mark Hessling <mark@rexx.org>  Thu, 22 Jun 2014 01:50:00 +1000
+
+regina (3.8-1) unstable; urgency=low
+
+  * Fix for Bugs #390, #412, #403, #397, #417, #415, #421, #420, #427, #407, #420, #389, #426
+  * Fix for bug #419 - conversion from TIME('T') and DATE('T') now returns local time as
+    per documentation. Previous versions returned UTC time, so this change may cause breakage!!
+  * Moved all native language error messages into *.mts files. *.mts files now stored as UTF-8
+  * Error messages returned as a result of processing a native language file will be in English
+    as it is not possible to store UTF-8 strings in source code in a portable manner.
+  * Added new logical not operator; ¬ (hex value 'AC'x)
+  * Windows installer now allows 32bit and 64bit versions of Regina to be installed on the one machine.
+  * Consistency with common switches for all executables. Long options also supported.
+
+ -- Mark Hessling <mark@rexx.org>  Thu,  4 Jun 2014 01:50:00 +1000
+
+regina (3.7-1) unstable; urgency=low
+
+  * Significant performance improvement with LINES BIF on large files; fixes bug 2663478.
+  * Significant performance improvement with compound variables with large numbers of tails; bug 2496099.
+  * TRACE L now traces internal subroutines called as functions. Regina used to
+    only trace internal subroutines if they were called by CALL. Still some
+    indenting issues. Bug 3564529.
+  * Added -o command-line switch to specify OPTIONS
+  * Update usage from 'rexx -h' and man page
+  * Fix bugs: 3089351, 3143101, 3175984, 3265645, 3376604, 3386045, 3511119, 3520068, 3524887, 3522738,
+    3531785, 3531812, 3539337, 3564585, 3560639, 3564570, 3564507, 3565673, 35655582, 2941670, 3489133,
+    1887965, 3037156, 3170743, 3400513
+  * Closed/Rejected bugs: 2873709, 2902600
+  * Implement date separator conversions in DATE BIF as per Object Rexx. Feature request #463689
+  * Added support for trigonometric functions in Regutil package
+  * Windows installers now defaults to install into %programfiles%\rexx.org\Regina
+  * Windows installers now uninstall only the files that are installed.
+  * This version of Regina now runs under Windows 2000; v3.6 did not.
+  * Added stubs for API functions; RexxSetTrace and RexxResetTrace.
+  * Added code to support RexxSetHalt API function
+
+ -- Mark Hessling <mark@rexx.org>  Sun, 14 Oct 2012 01:50:00 +1000
+
+regina (3.7RC2-1) unstable; urgency=low
+
+  * Updated to Regina 3.7RC2
+
+ -- Mark Hessling <mark@rexx.org>  Wed, 14 Sep 2012 08:35:38 +1000
+
+regina (3.7RC1-1) unstable; urgency=low
+
+  * Updated to Regina 3.7RC1
+
+ -- Mark Hessling <mark@rexx.org>  Wed,  5 Sep 2012 08:35:38 +1000
+
+regina (3.6-1) unstable; urgency=low
+
+  * Updated to Regina 3.6
+
+ -- Mark Hessling <mark@rexx.org>  Sat, 31 Dec 2011 08:35:38 +1000
+
+regina (3.5-1) unstable; urgency=low
+
+  * Fixed lintian errors.
+  * Changed library package name to match soname.
+  * New upstream version (closes: #499553, #533682, #549486).
+  * Applied patch from Barry deFreese (closes: #534128).
+  * Upgraded to Standards-Version: 3.8.3.
+  * Changed email address in control file to <alen@nms.hr>.
+
+ -- Alen Zekulic <alen@nms.hr>  Sun, 17 Jan 2010 18:35:38 +0100
+
+regina (3.3-5) unstable; urgency=low
+
+  * Added handling of the nostrip DEB_BUILD_OPTIONS (closes: #437900).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Mon, 10 Sep 2007 09:21:59 +0200
+
+regina (3.3-4) unstable; urgency=low
+
+  * Excluded powerpc from GCI supported architectures (closes: #399841).
+  * Fixed package description (closes: #399137).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Sat, 25 Nov 2006 10:44:15 +0100
+
+regina (3.3-3) unstable; urgency=low
+
+  * Applied patch from Matej Vela <vela@debian.org> against debian/rules
+    to add support for Regina GCI by arch (closes: #358960).
+  * Applied patch from Andreas Jochens <aj@andaco.de> to enable Regina
+    General Call Interface on powerpc (closes: #361079).
+  * Changed section of regina3-dev from devel to libdevel to match override.
+  * Upgraded to Standards-Version: 3.7.2.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Sun, 16 Apr 2006 11:13:36 +0200
+
+regina (3.3-2) unstable; urgency=low
+
+  * Fixed lintian errors.
+  * Enabled Regina General Call Interface.
+  * Upgraded to Standards-Version: 3.6.2.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Mon,  6 Mar 2006 01:00:46 +0100
+
+regina (3.3-1) unstable; urgency=low
+
+  * New upstream version.
+  * No longer provide /usr/doc link.
+  * Upgraded to Standards-Version: 3.6.1.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Wed, 28 Apr 2004 06:16:21 +0200
+
+regina (2.2-1) unstable; urgency=low
+
+  * Fixed lintian errors.
+  * Fixed debian/rules script (closes: #113716, #104707).
+  * New upstream version, final 2001-07-17 (closes: #101397, #112798, #113725).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Wed, 30 Jul 2001 16:04:47 +0200
+
+regina (2.2-0) unstable; urgency=low
+
+  * Fixed prerm scripts.
+  * Added Build-Depends.
+  * Upgraded to Standards-Version: 3.5.2.0
+  * New upstream version, beta 2000-11-18 (closes: #88752).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Thu, 22 Mar 2001 00:44:57 +0100
+
+regina (0.08h-1.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * config addition to allow it to build on arm
+
+ -- Rick Younie <younie@debian.org>  Thu, 15 Feb 2001 20:30:59 -0800
+
+regina (0.08h-1) frozen unstable; urgency=low
+
+  * Replaces pre-released with released 0.08h version.
+  * New upstream version (fixes several bugs).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Mon, 13 Mar 2000 13:17:20 +0100
+
+regina (0.08h-0) unstable; urgency=low
+
+  * Upgraded to Standards-Version: 3.0.1.1.
+  * FHS transition.
+  * New upstream version. (0.08h beta 1999-10-09).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Tue, 26 Oct 1999 20:35:24 +0200
+
+regina (0.08g-0) unstable; urgency=low
+
+  * Fixed lintian errors.
+  * New upstream version. (0.08g beta 1998-12-23).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Sun, 20 Jun 1999 19:33:38 +0200
+
+regina (0.08e-2) frozen unstable; urgency=low
+
+  * Applied Christian Meder's patch for glibc2.1 (fixes bug #30033).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Wed,  9 Dec 1998 22:22:52 +0100
+
+regina (0.08e-1) unstable; urgency=low
+
+  * Applied James Troup's m68k patch (fixes bug #24183).
+  * New upstream version.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Sun,  4 Oct 1998 18:06:10 +0200
+
+regina (0.08d-2) frozen unstable; urgency=low
+
+  * regina0-dev: added Replaces/Conflicts to regina-dev (fixes bug #22403).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Mon, 18 May 1998 13:55:19 +0200
+
+regina (0.08d-1) frozen unstable; urgency=low
+
+  * Several upstream bug fixes (fully Y2K compliant).
+  * New upstream version (0.08d 1998-03-26).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Sun, 29 Mar 1998 01:01:59 +0100
+
+regina (0.08d-0) frozen unstable; urgency=low
+
+  * Improved hanoi.rexx error message (fixes bug #20050).
+  * New upstream version (0.08d beta 1998-03-11).
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Thu, 19 Mar 1998 19:17:40 +0100
+
+regina (0.08b-2) unstable; urgency=low
+
+  * Upgraded to Standards-Version: 2.4.0.0.
+  * Fixed lintian errors.
+  * Fixed `configure' script. (fixes: bug#17132)
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Thu, 12 Mar 1998 19:46:05 +0100
+
+regina (0.08b-1) unstable; urgency=low
+
+  * Added -D_REENTRANT compilation flag.
+  * copyright no longer compressed. (fixes bugs #14486, #14509)
+  * Architecture no longer hardcoded. (fixes bug #13620)
+  * Now using pristine source.
+  * Libc6 release.
+  * New upstream version.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Thu,  6 Nov 1997 23:55:33 +0100
+
+regina (0.08a-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Alen Zekulic <azekulic@fesb.hr>  Thu, 10 Apr 1997 17:27:12 +0200

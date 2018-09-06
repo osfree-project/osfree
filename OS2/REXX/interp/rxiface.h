@@ -17,10 +17,6 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*
- * $Id: rxiface.h,v 1.16 2003/12/19 07:26:13 florian Exp $
- */
-
 #include "wrappers.h"
 
 /* <<<<<<<<<<< Things you might want to configure >>>>>>>>>>>>>> */

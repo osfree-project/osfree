@@ -34,7 +34,11 @@
 # include <unistd.h>
 # include <pthread.h>
 # define USE_SEMAPHORES 0
-# ifdef _POSIX_SEMAPHORES
+# if defined(_POSIX_SEMAPHORES) && !(defined(__APPLE__) && defined(__MACH__))
+/*
+ * threader uses unnamed posix semaphores. OSX does not support unnamed
+ * semaphores; use mutexes for OSX
+ */
 #  include <semaphore.h>
 #  include <signal.h>
 #  undef USE_SEMAPHORES
@@ -242,7 +246,8 @@ LONG APIENTRY instore_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
    RXSIOSAY_PARM *psiosay;
    char buf[256];           /* enough to hold the data */
    RXSTRING rx;
-   unsigned len,tid,loop;
+   unsigned len,loop;
+   unsigned long tid;
    int rc,idx;
 
    if ( ( ExNum != RXSIO ) || ( Subfun != RXSIOSAY ) ) /* unexpected? */
@@ -270,7 +275,7 @@ LONG APIENTRY instore_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
       len = sizeof(buf) - 1;  /* This shall NOT happen, but it's irrelevant */
    memcpy( buf, RXSTRPTR( rx ), len );
    buf[len] = '\0'; /* We have a sscanf-able string */
-   rc = sscanf( buf, "Loop %u in thread %u", &loop, &tid );
+   rc = sscanf( buf, "Loop %u in thread %lu", &loop, &tid );
    if ( rc != 2 )
    {
       fprintf( stderr, "\n"
@@ -372,7 +377,8 @@ THREAD_RETURN THREAD_CONVENTION instore( void *data )
    Exits[0].sysexit_code = RXSIO;
    Exits[1].sysexit_code = RXENDLST;
 
-   sprintf( instore_buf, "Do i = 1 To %u;"
+   sprintf( instore_buf, "Numeric Digits 30;"
+                         "Do i = 1 To %u;"
                          "say 'Loop' i 'in thread' gettid();"
                          "End;"
                          "Return 0",
