@@ -270,7 +270,6 @@ USHORT APIENTRY16 VIOSCROLLDN(const USHORT TopRow, const USHORT LeftCol, const U
   return Vio32ScrollDn(TopRow, LeftCol, BotRow, RightCol, Lines, Cell, Handle);
 }
 
-//USHORT APIENTRY16 VIOWRTCHARSTRATT(const PCCH pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
 USHORT APIENTRY16 VIOWRTCHARSTRATT(void *pch, const USHORT cb, const USHORT usRow, const USHORT usColumn, const PBYTE pAttr, const HVIO hvio)
 {
   return Vio32WrtCharStrAtt(pch, cb, usRow, usColumn, pAttr, hvio);

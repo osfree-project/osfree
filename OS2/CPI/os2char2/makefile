@@ -6,7 +6,7 @@
 
 PROJ        = os2char2
 TRGT        = $(PROJ).dll
-DESC        = os2char2 (IBM 32-bit vio/kbd/mou) API
+DESC        = Base Subsystems 32-bit API (IBM OS2CHAR2 compatable)
 OBJS        = $(PATH)..$(SEP)shared$(SEP)stub.$(O)
 ADD_COPT    = -i=..\include
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared

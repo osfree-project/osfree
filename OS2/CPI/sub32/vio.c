@@ -110,62 +110,223 @@ APIRET APIENTRY VioInit(VOID)
 USHORT VioCheckCharType (PUSHORT pType, USHORT usRow, USHORT usColumn,
     HVIO hvio);
 USHORT VioDeRegister (VOID);
-USHORT VioGetAnsi (PUSHORT pfAnsi, HVIO hvio);
-USHORT VioGetBuf (PULONG pLVB, PUSHORT pcbLVB, HVIO hvio);
-USHORT VioGetConfig (USHORT usConfigId, PVIOCONFIGINFO pvioin, HVIO hvio);
-USHORT VioGetCp (USHORT usReserved, PUSHORT pusCodePage, HVIO hvio);
-USHORT VioGetCurPos (PUSHORT pusRow, PUSHORT pusColumn, HVIO hvio);
-USHORT VioGetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
-USHORT VioGetFont (PVIOFONTINFO pviofi, HVIO hvio);
-USHORT VioGetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
-USHORT VioGetPhysBuf (PVIOPHYSBUF pvioPhysBuf, USHORT usReserved);
-USHORT VioGetState (PVOID pState, HVIO hvio);
 USHORT VioGlobalReg (PCSZ pszModName, PCSZ pszEntryName, ULONG ulFunMask1,
     ULONG ulFunMask2, USHORT usReturn);
-USHORT VioModeUndo (USHORT usOwnerInd, USHORT usKillInd, USHORT usReserved);
-USHORT VioModeWait (USHORT usReqType, PUSHORT pNotifyType, USHORT usReserved);
 USHORT VioPopUp (PUSHORT pfWait, HVIO hvio);
-USHORT VioPrtSc (HVIO hvio);
-USHORT VioPrtScToggle (HVIO hvio);
-USHORT VioReadCellStr (PCH pchCellStr, PUSHORT pcb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
-USHORT VioReadCharStr (PCH pch, PUSHORT pcb, USHORT usRow, USHORT usColumn,
-    HVIO hvio);
 USHORT VioRegister (PCSZ pszModName, PCSZ pszEntryName, ULONG ulFunMask1,
     ULONG ulFunMask2);
-USHORT VioSavRedrawUndo (USHORT usOwnerInd, USHORT usKillInd,
-    USHORT usReserved);
-USHORT VioSavRedrawWait (USHORT usRedrawInd, PUSHORT pusNotifyType,
-    USHORT usReserved);
-USHORT VioScrLock (USHORT fWait, PUCHAR pfNotLocked, HVIO hvio);
-USHORT VioScrollDn (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
-USHORT VioScrollLf (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
-USHORT VioScrollRt (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio);
-USHORT VioScrollUp (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
-    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio);
-USHORT VioScrUnLock (HVIO hvio);
-USHORT VioSetAnsi (USHORT fAnsi, HVIO hvio);
-USHORT VioSetCp (USHORT usReserved, USHORT usCodePage, HVIO hvio);
-USHORT VioSetCurPos (USHORT usRow, USHORT usColumn, HVIO hvio);
-USHORT VioSetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio);
-USHORT VioSetFont (PVIOFONTINFO pviofi, HVIO hvio);
-USHORT VioSetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio);
-USHORT VioSetState (CPVOID pState, HVIO hvio);
-USHORT VioShowBuf (USHORT offLVB, USHORT cb, HVIO hvio);
-USHORT VioWrtCellStr (PCCH pchCellStr, USHORT cb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
-USHORT VioWrtCharStr (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
-    HVIO hvio);
-USHORT VioWrtCharStrAtt (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
-    PBYTE pAttr, HVIO hvio);
-USHORT VioWrtNAttr (__const__ BYTE *pAttr, USHORT cb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
-USHORT VioWrtNCell (__const__ BYTE *pCell, USHORT cb, USHORT usRow,
-    USHORT usColumn, HVIO hvio);
-USHORT VioWrtNChar (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
-    HVIO hvio);
-USHORT VioWrtTTY (PCCH pch, USHORT cb, HVIO hvio);
  */
+
+USHORT Vio32Route(USHORT func_no, USHORT, USHORT, USHORT, USHORT, USHORT, USHORT, USHORT, USHORT)
+{
+  return 0;
+}
+ 
+USHORT Vio32GetPhysBuf(PVIOPHYSBUF pvioPhysBuf, USHORT usReserved)
+{
+  return Vio32Route(FN_GETPHYSBUF, (HVIO) NULL, NULL);
+}
+
+USHORT Vio32GetBuf(PULONG pLVB, PUSHORT pcbLVB, HVIO hvio)
+{
+  return Vio32Route(FN_GETBUF, hvio, NULL);
+}
+
+USHORT Vio32ShowBuf(USHORT offLVB, USHORT cb, HVIO hvio)
+{
+  return Vio32Route(FN_SHOWBUF, hvio, NULL);
+}
+
+USHORT Vio32GetCurPos(PUSHORT pusRow, PUSHORT pusColumn, HVIO hvio)
+{
+  return Vio32Route(FN_GETCURPOS, hvio, NULL);
+}
+
+USHORT Vio32GetCurType(PVIOCURSORINFO pvioCursorInfo, HVIO hvio)
+{
+  return Vio32Route(FN_GETCURTYPE, hvio, NULL);
+}
+
+USHORT Vio32GetMode(PVIOMODEINFO pvioModeInfo, HVIO hvio)
+{
+  return Vio32Route(FN_GETMODE, hvio, NULL);
+}
+
+USHORT Vio32SetCurType (PVIOCURSORINFO pvioCursorInfo, HVIO hvio)
+{
+  return Vio32Route(FN_SETCURTYPE, hvio, NULL);
+}
+
+USHORT Vio32SetCurPos (USHORT usRow, USHORT usColumn, HVIO hvio)
+{
+  return Vio32Route(FN_SETCURPOS, hvio, NULL);
+}
+
+USHORT Vio32SetMode (PVIOMODEINFO pvioModeInfo, HVIO hvio)
+{
+  return Vio32Route(FN_SETMODE, hvio, NULL);
+}
+
+USHORT Vio32SetCp (USHORT usReserved, USHORT usCodePage, HVIO hvio)
+{
+  return Vio32Route(FN_SETCP, hvio, NULL);
+}
+
+USHORT Vio32ReadCharStr (PCH pch, PUSHORT pcb, USHORT usRow, USHORT usColumn,
+    HVIO hvio)
+{
+  return Vio32Route(FN_READCHARSTR, hvio, NULL);
+}
+
+USHORT Vio32ReadCellStr (PCH pchCellStr, PUSHORT pcb, USHORT usRow,
+    USHORT usColumn, HVIO hvio)
+{
+  return Vio32Route(FN_READCELLSTR, NULL);
+}
+
+USHORT Vio32WrtNChar (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    HVIO hvio)
+{
+  return Vio32Route(FN_WRTNCHAR, NULL);
+}
+
+USHORT Vio32WrtNAttr (__const__ BYTE *pAttr, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio)
+{
+  return Vio32Route(FN_WRTNATTR, NULL);
+}
+
+USHORT Vio32WrtNCell (__const__ BYTE *pCell, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio)
+{
+  return Vio32Route(FN_WRTNCELL, NULL);
+}
+
+USHORT Vio32WrtCharStr (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    HVIO hvio)
+{
+  return Vio32Route(FN_WRTCHARSTR, NULL);
+}
+
+USHORT Vio32WrtCharStrAtt (PCCH pch, USHORT cb, USHORT usRow, USHORT usColumn,
+    PBYTE pAttr, HVIO hvio)
+{
+  return Vio32Route(FN_WRTCHARSTRATT, NULL);
+}
+
+USHORT Vio32WrtCellStr (PCCH pchCellStr, USHORT cb, USHORT usRow,
+    USHORT usColumn, HVIO hvio)
+{
+  return Vio32Route(FN_WRTCELLSTR, NULL);
+}
+
+USHORT Vio32WrtTTY (PCCH pch, USHORT cb, HVIO hvio)
+{
+  return Vio32Route(FN_WRTTTY, NULL);
+}
+
+USHORT Vio32ScrollUp (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio)
+{
+  return Vio32Route(FN_SCROLLUP, NULL);
+}
+
+USHORT Vio32ScrollDn (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbLines, PBYTE pCell, HVIO hvio)
+{
+  return Vio32Route(FN_SCROLLDN, NULL);
+}
+
+USHORT Vio32ScrollLf (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio)
+{
+  return Vio32Route(FN_SCROLLLF, NULL);
+}
+
+USHORT Vio32ScrollRt (USHORT usTopRow, USHORT usLeftCol, USHORT usBotRow,
+    USHORT usRightCol, USHORT cbCol, PBYTE pCell, HVIO hvio)
+{
+  return Vio32Route(FN_SCROLLRT, NULL);
+}
+
+USHORT Vio32SetAnsi (USHORT fAnsi, HVIO hvio)
+{
+  return Vio32Route(FN_SETANSI, NULL);
+}
+
+USHORT Vio32GetAnsi (PUSHORT pfAnsi, HVIO hvio)
+{
+  return Vio32Route(FN_GETANSI, NULL);
+}
+
+USHORT Vio32PrtSc (HVIO hvio)
+{
+  return Vio32Route(FN_PRTSC, NULL);
+}
+
+USHORT Vio32ScrLock (USHORT fWait, PUCHAR pfNotLocked, HVIO hvio)
+{
+  return Vio32Route(FN_SCRLOCK, NULL);
+}
+
+USHORT Vio32ScrUnLock (HVIO hvio)
+{
+  return Vio32Route(FN_SCRUNLOCK, NULL);
+}
+
+USHORT Vio32SavRedrawWait (USHORT usRedrawInd, PUSHORT pusNotifyType,
+    USHORT usReserved)
+{
+  return Vio32Route(FN_SAVREDRAWWAIT, NULL);
+}
+
+USHORT Vio32SavRedrawUndo (USHORT usOwnerInd, USHORT usKillInd,
+    USHORT usReserved)
+{
+  return Vio32Route(FN_SAVREDRAWUNDO, NULL);
+}
+
+USHORT Vio32PrtScToggle (HVIO hvio)
+{
+  return Vio32Route(FN_PRTSCTOGGLE, NULL);
+}
+
+USHORT Vio32ModeWait (USHORT usReqType, PUSHORT pNotifyType, USHORT usReserved)
+{
+  return Vio32Route(FN_MODEWAIT, NULL);
+}
+
+USHORT Vio32ModeUndo (USHORT usOwnerInd, USHORT usKillInd, USHORT usReserved)
+{
+  return Vio32Route(FN_MODEUNDO, NULL);
+}
+
+USHORT Vio32GetFont (PVIOFONTINFO pviofi, HVIO hvio)
+{
+  return Vio32Route(FN_GETFONT, NULL);
+}
+
+USHORT Vio32GetConfig (USHORT usConfigId, PVIOCONFIGINFO pvioin, HVIO hvio)
+{
+  return Vio32Route(FN_GETCONFIG, NULL);
+}
+
+USHORT Vio32GetCp (USHORT usReserved, PUSHORT pusCodePage, HVIO hvio)
+{
+  return Vio32Route(FN_GETCP, NULL);
+}
+
+USHORT Vio32SetFont (PVIOFONTINFO pviofi, HVIO hvio)
+{
+  return Vio32Route(FN_SETFONT, NULL);
+}
+
+USHORT Vio32GetState (PVOID pState, HVIO hvio)
+{
+  return Vio32Route(FN_GETSTATE, NULL);
+}
+
+USHORT Vio32SetState (CPVOID pState, HVIO hvio)
+{
+  return Vio32Route(FN_SETSTATE, NULL);
+}
