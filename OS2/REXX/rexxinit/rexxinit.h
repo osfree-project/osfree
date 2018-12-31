@@ -29,10 +29,20 @@ APIRET APIENTRY dllinit (ULONG param);
 APIRET APIENTRY RxApiInit (ULONG param);
 void   APIENTRY RxInitThread (void *param);
 
-/* structure passed through the queue */
-typedef struct
+/* forward declaration */
+typedef struct quebuf quebuf_t;
+
+/* structure for the REXX queue implementation data */
+typedef struct quebuf
 {
-  ULONG         something[4];
-  HEV           hev;
-  HMTX          hmtx;
-} buf_t;
+  quebuf_t      *next;         /* next queue pointer              */
+  char          *heapptr;      /* pointer to the heap containing the queue elements */
+  ULONG         count;         /* count of elements in the queue  */
+  ULONG         timestp;       /* timestamp of last queue access  */
+  HEV           hev;           /* event semaphore for some events */
+  HMTX          hmtx;          /* mutex protecting the queue      */
+  quebuf_t      *first;        /* first queue in the list         */
+  quebuf_t      *last;         /* last queue in the list          */
+  char          *quename;      /* this queue name                 */
+  int           session;       /* "SESSION" queue number          */
+} quebuf_t;

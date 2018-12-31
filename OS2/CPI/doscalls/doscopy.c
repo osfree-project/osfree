@@ -432,7 +432,7 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
 
   #define DCPY_MASK ~(DCPY_EXISTING | DCPY_APPEND | DCPY_FAILEAS )
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("pszOld=%s\n", pszOld);
   log("pszNew=%s\n", pszNew);
   log("ulOptions=%lx\n", ulOptions);
@@ -450,8 +450,7 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
 
   if (rc)
   {
-    log("%s rc=%lu\n", __FUNCTION__, rc);
-    return rc;
+    goto DOSCOPY_EXIT;
   }
 
   // Perfom action based on source path type
@@ -459,13 +458,13 @@ APIRET APIENTRY DosCopy(PCSZ pszOld, PCSZ pszNew, ULONG ulOptions)
   {
     // DCPY_APPEND flag not valid in directory copy
     rc = CopyTree((PSZ)pszOld, (PSZ)pszNew, ulOptions & ~DCPY_APPEND, 0);
-    log("%s rc=%lu\n", __FUNCTION__, rc);
-    return rc;
   } else {
     rc = CopyFile((PSZ)pszOld, (PSZ)pszNew, ulOptions); // @todo pass options
-    log("%s rc=%lu\n", __FUNCTION__, rc);
-    return rc;
   };
+
+DOSCOPY_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 
@@ -475,7 +474,7 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
   FILESTATUS3 fileStatus;
   APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("pszOld=%s\n", pszOld);
   log("pszNew=%s\n", pszNew);
 
@@ -494,8 +493,7 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
 
     if (rc)
     {
-      log("%s rc=%lu\n", __FUNCTION__, rc);
-      return rc;
+      goto DOSMOVE_EXIT;
     }
 
     // Perfom action based on source path type
@@ -506,14 +504,14 @@ APIRET APIENTRY  DosMove(PCSZ  pszOld,
     {
       if (rc = CopyFile((PSZ)pszOld, (PSZ)pszNew, 0))
       {
-        log("%s rc=%lu\n", __FUNCTION__, rc);
-        return rc;
+        goto DOSMOVE_EXIT;
       }
 
       rc = DosDelete(pszOld);
     }
   }
 
-  log("%s rc=%lu\n", __FUNCTION__, rc);
+DOSMOVE_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

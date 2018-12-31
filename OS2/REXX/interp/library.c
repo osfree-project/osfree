@@ -777,22 +777,42 @@ static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
 #ifdef DYNAMIC
       if ( Str_ccmp( module, rexxutil ) == 0 )
       {
-         if ( ( lptr = find_library( TSD, regutil ) ) == NULL )
+         if ( ( lptr = find_library( TSD, rexxutil ) ) == NULL )
          {
             newhandle = 1;
-            handle = wrapper_load( TSD, regutil ) ;
+            handle = wrapper_load( TSD, rexxutil ) ;
             if ( handle )
             {
                lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
-               lptr->name = Str_dupstrTSD( regutil ) ;
+               lptr->name = Str_dupstrTSD( rexxutil ) ;
                lptr->handle = handle ;
                lptr->used = 0l;
             }
             else
             {
-               Free_stringTSD( regutil );
                Free_stringTSD( rexxutil );
-               return 40; /* RXFUNC_MODNOTFND */
+
+               if ( Str_ccmp( module, regutil ) == 0 )
+               {
+                  if ( ( lptr = find_library( TSD, regutil ) ) == NULL )
+                  {
+                  newhandle = 1;
+                  handle = wrapper_load( TSD, regutil ) ;
+                  if ( handle )
+                  {
+                     lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
+                     lptr->name = Str_dupstrTSD( regutil ) ;
+                     lptr->handle = handle ;
+                     lptr->used = 0l;
+                  }
+                  else
+                  {
+                     Free_stringTSD( regutil );
+                     return 40; /* RXFUNC_MODNOTFND */
+                  }
+                  insert_library( TSD, lptr ) ;
+                  }
+               }
             }
             insert_library( TSD, lptr ) ;
          }

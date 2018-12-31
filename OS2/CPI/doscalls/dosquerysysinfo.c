@@ -4,22 +4,36 @@ APIRET APIENTRY
 DosQuerySysInfo(ULONG iStart, ULONG iLast,
                 PVOID pBuf, ULONG cbBuf)
 {
+  APIRET rc = NO_ERROR;
   ULONG *pul;
   ULONG i;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("iStart=%lu\n", iStart);
   log("iLast=%lu\n", iLast);
   log("cbBuf=%lu\n", cbBuf);
 
-  return 0;
+  // for now
+  goto DOSQUERYSYSINFO_EXIT;
+  //
 
   if(iStart>iLast || pBuf==0)
-          return 87; //invalid parameter
+  {
+    rc = 87; //invalid parameter
+    goto DOSQUERYSYSINFO_EXIT;
+  }
+
   if(iLast>26)
-          return 87; //invalid parameter
+  {
+    rc = 87; //invalid parameter
+    goto DOSQUERYSYSINFO_EXIT;
+  }
+
   if((iLast-iStart+1)*sizeof(ULONG) < cbBuf)
-          return 111; //buffer overflow
+  {
+    rc = 111; //buffer overflow
+    goto DOSQUERYSYSINFO_EXIT;
+  }
 
   pul = (ULONG*)pBuf;
   for(i=iStart; i<=iLast; i++,pul++) {
@@ -130,8 +144,9 @@ DosQuerySysInfo(ULONG iStart, ULONG iLast,
     }
   }
 
-
-  return NO_ERROR;
+DOSQUERYSYSINFO_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 #if 0

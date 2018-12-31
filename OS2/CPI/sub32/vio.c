@@ -3,7 +3,7 @@
 #include <os2.h>
 
 APIRET unimplemented(char *func);
-APIRET APIENTRY BVSMain(ULONG fn);
+//APIRET APIENTRY BVSMain(ULONG fn);
 
 // Function numbers for Base Video System main call
 #define FN_GETPHYSBUF      0
@@ -63,7 +63,7 @@ APIRET APIENTRY BVSMain(ULONG fn);
 // Call VIO function
 APIRET APIENTRY VioCall(ULONG fn)
 {
-  return BVSMain(fn);
+  return 0; //BVSMain(fn);
 }
 
 USHORT APIENTRY VioEndPopUp (HVIO hvio)

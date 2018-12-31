@@ -25,7 +25,7 @@ APIRET APIENTRY  DosFSCtl(PVOID pData,
                              ULONG method)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("pData=%lx\n", pData);
   log("cbData=%lx\n", cbData);
   log("pParms=%lx\n", pParms);
@@ -39,5 +39,6 @@ APIRET APIENTRY  DosFSCtl(PVOID pData,
                 function, (PSZ)pszRoute, hFile, method);
   log("*pcbData=%lx\n", *pcbData);
   log("*pcbParms=%lx\n", *pcbParms);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

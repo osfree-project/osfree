@@ -43,9 +43,9 @@ APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
     return 0;
 
   if (flag)
-    rc = term();
+    rc = term2();
   else
-    rc = init();
+    rc = init2();
 
   if (rc)
     return 0;
@@ -53,7 +53,7 @@ APIRET APIENTRY dll_initterm (HMODULE hmod, ULONG flag)
   return 1;
 }
 
-APIRET APIENTRY init (void)
+APIRET APIENTRY init2 (void)
 {
   APIRET rc = NO_ERROR;
 
@@ -85,7 +85,7 @@ APIRET APIENTRY init (void)
   return rc;
 }
 
-APIRET APIENTRY term (void)
+APIRET APIENTRY term2 (void)
 {
   DosCloseMutexSem(hmtx);
 

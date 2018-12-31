@@ -10,7 +10,7 @@ APIRET APIENTRY DosProtectSetFileLocks(HFILE hFile,
   FILELOCKL flLockL;
   APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("timeout=%lx\n", timeout);
   log("flags=%lx\n", flags);
@@ -33,5 +33,6 @@ APIRET APIENTRY DosProtectSetFileLocks(HFILE hFile,
   rc = DosProtectSetFileLocksL(hFile, &flUnlockL, &flLockL, timeout, flags, fhFileHandleLockID);
   log("flUnlock=%lx\n", *pflUnlock);
   log("flLock=%lx\n", *pflLock);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

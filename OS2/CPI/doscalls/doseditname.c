@@ -111,9 +111,10 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
                             PSZ pszTarget,
                             ULONG cbTarget)
 {
+  APIRET rc = NO_ERROR;
   char *s;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("metalevel=%lx\n", metalevel);
   log("pszSource=%s\n", pszSource);
   log("pszEdit=%s\n", pszEdit);
@@ -121,18 +122,27 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
 
   // only metalevel == 1 is supported
   if (metalevel != 1)
-    return ERROR_INVALID_PARAMETER;
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSEDITNAME_EXIT;
+  }
 
-  if (!cbTarget)
-    return ERROR_INVALID_PARAMETER;
+  if (! cbTarget)
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSEDITNAME_EXIT;
+  }
 
-  if (!pszTarget)
-    return ERROR_INVALID_PARAMETER;
+  if (! pszTarget)
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSEDITNAME_EXIT;
+  }
 
-  if (!pszEdit)
+  if (! pszEdit)
     pszEdit = "";
 
-  if (!pszSource)
+  if (! pszSource)
     pszSource = "";
 
   s = pszTarget;
@@ -184,14 +194,21 @@ APIRET APIENTRY DosEditName(ULONG metalevel,
 ende:
   *s = '\0';
 
-  if (!strchr(pszTarget, '?'))
-    return ERROR_INVALID_NAME;
+  if (! strchr(pszTarget, '?'))
+  {
+    rc = ERROR_INVALID_NAME;
+  }
 
-  if (!strchr(pszTarget, '*'))
-    return ERROR_INVALID_NAME;
+  if (! strchr(pszTarget, '*'))
+  {
+    rc = ERROR_INVALID_NAME;
+  }
 
   log("pszTarget=%s\n", pszTarget);
-  return NO_ERROR;
+
+DOSEDITNAME_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 /*

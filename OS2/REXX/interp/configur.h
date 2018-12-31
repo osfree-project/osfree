@@ -753,15 +753,18 @@
 #endif
 
 #if !defined(HAVE_MEMCPY)
-# define memcpy(a,b,c)  bcopy((b),(a),(c))
+# define memcpy(a,b,c)  bcopy(b,a,c)
+//# define memcpy(a,b,c)  bcopy((b),(a),(c))
 #endif
 
 #if !defined(HAVE_MEMMOVE)
-# define memmove(a,b,c) bcopy((b),(a),(c))
+# define memmove(a,b,c) bcopy(b,a,c)
+//# define memmove(a,b,c) bcopy((b),(a),(c))
 #endif
 
 #if !defined(HAVE_STRERROR)
-  const char *get_sys_errlist( int num );
+  char *get_sys_errlist( int num );
+  //const char *get_sys_errlist( int num );
 # define strerror(a)    get_sys_errlist(a)
 #endif
 

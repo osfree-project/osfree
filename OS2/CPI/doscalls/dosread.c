@@ -11,11 +11,12 @@ APIRET APIENTRY  DosRead(HFILE hFile,
                          PULONG pcbActual)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("pBuffer=%x\n", pBuffer);
   log("cbRead=%x\n", cbRead);
   rc = KalRead(hFile, pBuffer, cbRead, pcbActual);
   log("cbActual=%x\n", *pcbActual);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

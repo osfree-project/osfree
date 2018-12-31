@@ -2,7 +2,10 @@
 
 APIRET APIENTRY DosSleep(ULONG msec)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("msec=%lu\n", msec);
-  return KalSleep(msec);
+  rc = KalSleep(msec);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

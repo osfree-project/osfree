@@ -3,7 +3,10 @@
 
 APIRET APIENTRY  DosSetCurrentDir(PCSZ  pszDir)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("pszDir=%s\n", pszDir);
-  return KalSetCurrentDir((PSZ)pszDir);
+  rc = KalSetCurrentDir((PSZ)pszDir);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

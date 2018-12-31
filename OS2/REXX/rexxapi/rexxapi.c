@@ -115,6 +115,25 @@ typedef HMODULE handle_type ;
 
 #define NUM_REXX_FUNCTIONS                    24
 
+APIRET APIENTRY os2CreateQueue( PSZ Buffer,
+                                ULONG BuffLen,
+                                PSZ RequestedName,
+                                ULONG* DupFlag );
+
+APIRET APIENTRY os2DeleteQueue( PSZ QueueName );
+
+APIRET APIENTRY os2QueryQueue( PSZ QueueName,
+                               ULONG* Count );
+
+APIRET APIENTRY os2AddQueue( PSZ QueueName,
+                             PRXSTRING EntryData,
+                             ULONG AddFlag );
+
+APIRET APIENTRY os2PullQueue( PSZ QueueName,
+                              PRXSTRING DataBuf,
+                              PDATETIME TimeStamp,
+                              ULONG WaitFlag );
+
 static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
 {
    /*  0 */  "RexxRegisterExitExe",
@@ -696,6 +715,7 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
           RequestedName,
           DupFlag );
 
+#if 1
    if (ORexxCreateQueue)
    {
       rc = (*ORexxCreateQueue)(
@@ -704,6 +724,13 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
          (PSZ)       RequestedName,
          (ULONG*)    DupFlag );
    }
+#else
+      rc = os2CreateQueue(
+         (PSZ)       Buffer,
+         (ULONG)     BuffLen,
+         (PSZ)       RequestedName,
+         (ULONG*)    DupFlag );
+#endif
 
    log( "<=> Result: %d ", rc );
 
@@ -723,11 +750,16 @@ APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
           __FUNCTION__,
           QueueName );
 
+#if 1
    if (ORexxDeleteQueue)
    {
       rc = (*ORexxDeleteQueue)(
          (PSZ)       QueueName );
    }
+#else
+      rc = os2DeleteQueue(
+         (PSZ)       QueueName );
+#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -744,12 +776,18 @@ APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
           QueueName,
           Count );
 
+#if 1
    if (ORexxQueryQueue)
    {
       rc = (*ORexxQueryQueue)(
          (PSZ)       QueueName,
          (ULONG*)    Count );
    }
+#else
+      rc = os2QueryQueue(
+         (PSZ)       QueueName,
+         (ULONG*)    Count );
+#endif
 
    log( "<=> Result: %d ", rc );
 
@@ -772,6 +810,7 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
           QueueName,
           AddFlag );
 
+#if 1
    if (ORexxAddQueue)
    {
       rc = (*ORexxAddQueue)(
@@ -779,6 +818,12 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
          (PRXSTRING) EntryData,
          (ULONG)     AddFlag );
    }
+#else
+      rc = os2AddQueue(
+         (PSZ)       QueueName,
+         (PRXSTRING) EntryData,
+         (ULONG)     AddFlag );
+#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -799,6 +844,7 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
           TimeStamp,
           WaitFlag );
 
+#if 1
    if (ORexxPullQueue)
    {
       rc = (*ORexxPullQueue)(
@@ -807,6 +853,13 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
          (PDATETIME) TimeStamp,
          (ULONG)     WaitFlag );
    }
+#else
+      rc = os2PullQueue(
+         (PSZ)       QueueName,
+         (PRXSTRING) DataBuf,
+         (PDATETIME) TimeStamp,
+         (ULONG)     WaitFlag );
+#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -829,11 +882,14 @@ APIRET APIENTRY RexxAddMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   log( "%s: FuncName: \"%s\" SourceFile: \"%s\" Position: %ld ",
-          __FUNCTION__,
-          FuncName,
-          SourceFile,
-          Position );
+   if (FuncName && SourceFile)
+   {
+      log( "%s: FuncName: \"%s\" SourceFile: \"%s\" Position: %ld ",
+           __FUNCTION__,
+           FuncName,
+           SourceFile,
+           Position );
+   }
 
    if (ORexxAddMacro)
    {
@@ -852,9 +908,17 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName)
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   log( "%s: FuncName: \"%s\" ",
-          __FUNCTION__,
-          FuncName );
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" ",
+           __FUNCTION__,
+           FuncName );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> ",
+           __FUNCTION__);
+   }
 
    if (ORexxDropMacro)
    {
@@ -886,9 +950,17 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
       {
          for ( i = 0; i < FuncCount; i++ )
          {
-            log( "%s: FuncName \"%s\" ",
-                   __FUNCTION__,
-                   FuncNames[i] );
+            if (FuncNames[i])
+            {
+               log( "%s: FuncName \"%s\" ",
+                    __FUNCTION__,
+                    FuncNames[i] );
+            }
+            else
+            {
+               log( "%s: FuncName <NULL> ",
+                    __FUNCTION__);
+            }
          }
       }
    }
@@ -926,9 +998,17 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
       {
          for ( i = 0; i < FuncCount; i++ )
          {
-            log( "%s: FuncName \"%s\" ",
-                   __FUNCTION__,
-                   FuncNames[i] );
+            if (FuncNames[i])
+            {
+               log( "%s: FuncName \"%s\" ",
+                    __FUNCTION__,
+                    FuncNames[i] );
+            }
+            else
+            {
+               log( "%s: FuncName <NULL> ",
+                    __FUNCTION__);
+            }
          }
       }
    }
@@ -952,11 +1032,20 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   log( "%s: FuncName: \"%s\" Position: %x ",
-          __FUNCTION__,
-          FuncName,
-          Position );
-
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" Position: %x ",
+           __FUNCTION__,
+           FuncName,
+           Position );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> Position: %x ",
+           __FUNCTION__,
+           Position );
+   }
+   
    if (ORexxQueryMacro)
    {
       rc = (*ORexxQueryMacro)(
@@ -979,10 +1068,19 @@ APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   log( "%s: FuncName: \"%s\" Position: %ld",
-          __FUNCTION__,
-          FuncName,
-          Position );
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" Position: %ld",
+           __FUNCTION__,
+           FuncName,
+           Position );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> Position: %ld",
+           __FUNCTION__,
+           Position );
+   }
 
    if (ORexxReorderMacro)
    {

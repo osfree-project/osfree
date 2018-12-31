@@ -12,7 +12,7 @@ APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                            PCSZ  pName)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("cbObjname=%lx\n", cbObjname);
   log("execFlag=%lx\n", execFlag);
   log("pArg=%lx\n", pArg);
@@ -27,5 +27,6 @@ APIRET APIENTRY DosExecPgm(PCHAR pObjname,
                   pRes,
                   (PSZ)pName);
   log("pObjname=%s\n", pObjname);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

@@ -7,12 +7,13 @@ APIRET APIENTRY  DosSetFilePtrL(HFILE hFile,
                                 PLONGLONG pibActual)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("ib=%lld\n", ib);
   log("method=%lx\n", method);
   rc = KalSetFilePtrL(hFile, ib, method, (ULONGLONG *)pibActual);
   log("ibActual=%lld\n", *pibActual);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
 
@@ -26,14 +27,15 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
   ULONGLONG ibActualL;
   APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("ib=%ld\n", ib);
   log("method=%lx\n", method);
 
   if (pibActual==NULL)
   {
-    return ERROR_INVALID_PARAMETER;
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSSETFILEPTR_EXIT;
   }
 
   ibL.ulLo=ib;
@@ -47,8 +49,14 @@ APIRET APIENTRY  DosSetFilePtr(HFILE hFile,
   *pibActual=ibActualL.ulLo;
 
   //if (ibActualL.ulHi)
+  //{
   //  rc = ERROR_SEEK_ON_DEVICE;
+  //  goto DOSSETFILEPTR_EXIT;
+  //}
 
   log("ibActual=%lld\n", *pibActual);
+
+DOSSETFILEPTR_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

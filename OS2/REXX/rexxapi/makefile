@@ -4,10 +4,10 @@ PROJ = rexxapi
 TRGT = $(PROJ).dll
 TARGETS = $(PATH)wrappers.h $(PATH)$(TRGT)
 DESC = REXX API forwarder for Regina
-srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e)
+srcfiles     = $(p)rexxapi$(e) $(p)rexxque$(e) $(p)rexxapi16$(e) $(p)stk$(e)
 # number of 16-bit subcommand wrappers (see rexxapi16.c)
 NUMWRAP = 1024
-ADD_COPT     = -dSUBCOM_COUNT=$(NUMWRAP) -i=. -i=$(PATH) -sg -of+ -bd -3s
+ADD_COPT     = -dSUBCOM_COUNT=$(NUMWRAP) -i=. -i=$(PATH) -i=$(MYDIR)..$(SEP)rexxinit -sg -of+ -bd -3s
 # ADD_COPT     = -dSUBCOM_COUNT=$(NUMWRAP) -dHAVE_CONFIG_H -i=. -i=$(MYDIR)..$(SEP)interp -i=$(PATH) -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 DLL          = 1
@@ -15,6 +15,8 @@ NOLIBS       = 1
 DLLOPT       = initinstance terminstance
 OPTIONS      = manyautodata, caseexact, heapsize=40960, start=dll_initterm
 STACKSIZE    = 81920
+IMPORTS      = &
+    DOSGETINFOSEG  DOSCALLS.8
 EXPORTS      = &
     RexxCreateQueue.1, &
     RexxDeleteQueue.2, &

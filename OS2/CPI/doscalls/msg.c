@@ -41,12 +41,15 @@ APIRET APIENTRY  DosPutMessage(HFILE hfile,
                                PCHAR pBuf)
 {
   ULONG ulActual;
+  APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hfile=0x%x\n", hfile);
   log("cbMsg=%lu\n", cbMsg);
   log("pBuf=%s\n", pBuf);
-  return DosWrite(hfile, pBuf, cbMsg, &ulActual);
+  rc = DosWrite(hfile, pBuf, cbMsg, &ulActual);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 
@@ -76,9 +79,10 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
                                  PCSZ pszMsg, ULONG cbMsg, PCHAR pBuf,
                                  ULONG cbBuf, PULONG pcbMsg)
 {
+  APIRET rc;
   int i;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
 
   // output args to log
   log("pszMsg=");
@@ -103,17 +107,40 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
   log("cbBuf=%lu\n", cbBuf);
 
   // Check arguments
-  if (!pszMsg) return ERROR_INVALID_PARAMETER;                 // Nothing to proceed
-  if (!pBuf) return ERROR_INVALID_PARAMETER;                   // No target buffer
-  if ((cTable) && (!pTable)) return ERROR_INVALID_PARAMETER;   // No inserting strings array
-  if (cbMsg > cbBuf) return ERROR_MR_MSG_TOO_LONG;             // Target buffer too small
+  if (! pszMsg)
+  {
+    rc = ERROR_INVALID_PARAMETER;                   // Nothing to proceed
+    goto DOSINSERTMESSAGE_EXIT;
+  }
+
+  if (! pBuf)
+  {
+    rc = ERROR_INVALID_PARAMETER;                   // No target buffer
+    goto DOSINSERTMESSAGE_EXIT;
+  }
+
+  if ((cTable) && (!pTable))
+  {
+    rc = ERROR_INVALID_PARAMETER;                   // No inserting strings array
+    goto DOSINSERTMESSAGE_EXIT;
+  }
+
+  if (cbMsg > cbBuf)
+  {
+    rc = ERROR_MR_MSG_TOO_LONG;                     // Target buffer too small
+    goto DOSINSERTMESSAGE_EXIT;
+  }
 
   // If nothing to insert then just copy message to buffer
   if (!cTable)
   {
+
     strlcpy(pBuf, pszMsg, cbMsg);
-    return NO_ERROR;
+    rc = NO_ERROR;
+    goto DOSINSERTMESSAGE_EXIT;
+
   } else { // Produce output string
+
     PCHAR src;
     PCHAR dst;
     int   srclen;
@@ -143,7 +170,10 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
         ivcount++;
 
         if (ivcount > 9)
-          return ERROR_MR_INV_IVCOUNT;
+        {
+          rc = ERROR_MR_INV_IVCOUNT;
+          goto DOSINSERTMESSAGE_EXIT;
+        }
 
         switch (*src)
         {
@@ -174,7 +204,8 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
             if (srclen <= 0)
               break;
 
-            return ERROR_MR_UN_PERFORM;
+            rc = ERROR_MR_UN_PERFORM;
+            goto DOSINSERTMESSAGE_EXIT;
         }
         src++;
       }
@@ -193,7 +224,8 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
       {
         *pcbMsg = cbBuf;
         pBuf[cbBuf - 1] = '\0';
-        return ERROR_MR_MSG_TOO_LONG;
+        rc = ERROR_MR_MSG_TOO_LONG;
+        goto DOSINSERTMESSAGE_EXIT;
       }
     }
 
@@ -201,8 +233,12 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
     *pcbMsg = dstlen;
     log("*pcbMsg=%lu\n", *pcbMsg);
 
-    return NO_ERROR;
+    rc = NO_ERROR;
   }
+
+DOSINSERTMESSAGE_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 
@@ -362,7 +398,7 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
                                         PSZ pszFile,
                                         PULONG cbBuf, void *msgSeg)
 {
-  APIRET   rc;
+  APIRET   rc = NO_ERROR;
   ULONG    cbFile;
   int      cp_cnt, i;
   void     *buf;
@@ -370,7 +406,7 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   msghdr_t *hdr;
   ctry_block_t *ctry;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
 
   log("pb=0x%lx\n", pb);
   log("cb=%lu\n", cb);
@@ -380,8 +416,11 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
 
   log("msgSeg=0x%lx\n", msgSeg);
 
-  if (!pb || !cb || !pszFile || !*pszFile)
-    return ERROR_INVALID_PARAMETER;
+  if (! pb || ! cb || ! pszFile || ! *pszFile)
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSIQUERYMESSAGECP;
+  }
 
   if (msgSeg)
   {
@@ -390,18 +429,24 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
       msgSeg = 0;
   }
 
-  if (!msgSeg)
+  if (! msgSeg)
   {
     // try opening file from DASD
     rc = PvtLoadMsgFile(pszFile, &buf, &cbFile);
     msgSeg = buf;
   }
 
-  if (!msgSeg || rc)
-    return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+  if (! msgSeg || rc)
+  {
+    rc = ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+    goto DOSIQUERYMESSAGECP;
+  }
 
   if (PvtChkMsgFileFmt(msgSeg))
-    return ERROR_MR_INV_MSGF_FORMAT; // invalid message format
+  {
+    rc = ERROR_MR_INV_MSGF_FORMAT; // invalid message format
+    goto DOSIQUERYMESSAGECP;
+  }
 
   // from this point, the file/msg seg is loaded at msgSeg address
   msg = (char *)msgSeg;  // message pointer
@@ -412,14 +457,23 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   // codepages count
   cp_cnt = ctry->codepages_no;
 
-  if (!cp_cnt)
-    return ERROR_MR_UN_PERFORM;
+  if (! cp_cnt)
+  {
+    rc = ERROR_MR_UN_PERFORM;
+    goto DOSIQUERYMESSAGECP;
+  }
 
   if (cp_cnt > 16)
-    return ERROR_INVALID_PARAMETER;
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSIQUERYMESSAGECP;
+  }
 
   if (6 + 2 * cp_cnt > cb)
-    return ERROR_BUFFER_OVERFLOW;
+  {
+    rc = ERROR_BUFFER_OVERFLOW;
+    goto DOSIQUERYMESSAGECP;
+  }
 
   *((USHORT *)p) = cp_cnt;
   log("codepage cnt=%u\n", cp_cnt);
@@ -445,8 +499,9 @@ APIRET APIENTRY      DosIQueryMessageCP(PCHAR pb, ULONG cb,
   // finally, free file buffer
   DosFreeMem(buf);
 
-
-  return NO_ERROR;
+DOSIQUERYMESSAGECP:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 /*!  @brief Searches for a message in a message file, with a given message number and
@@ -488,7 +543,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
                                   ULONG cbBuf, ULONG msgnumber,
                                   PSZ pszFile, PULONG pcbMsg)
 {
-  APIRET rc;
+  APIRET rc = NO_ERROR;
   ULONG  cbFile;
   void   *buf;
   char   *msg;
@@ -499,14 +554,16 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   ULONG  len;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("msgSeg=0x%lx\n", msgSeg);
 
   // output args to log
   log("cTable=%u\n", cTable);
 
   for (i = 0; i < cTable; i++)
+  {
     log("pTable[%u]=%s\n", i, pTable[i]);
+  }
 
   log("pBuf=0x%x\n", pBuf);
   log("cbBuf=%lu\n", cbBuf);
@@ -515,10 +572,16 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   /* Check arguments */
   if (cTable > 9)
-    return ERROR_MR_INV_IVCOUNT;
+  {
+    rc = ERROR_MR_INV_IVCOUNT;
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
-  if (!pBuf || !cbBuf)
-    return ERROR_INVALID_PARAMETER;
+  if (! pBuf || ! cbBuf)
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
   if (msgSeg)
   {
@@ -534,11 +597,17 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
     msgSeg = buf;
   }
 
-  if (!msgSeg || rc)
-    return ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+  if (! msgSeg || rc)
+  {
+    rc = ERROR_MR_UN_ACC_MSGF; // Unable to access message file
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
   if (PvtChkMsgFileFmt(msgSeg))
-    return ERROR_MR_INV_MSGF_FORMAT; // invalid message format
+  {
+    rc = ERROR_MR_INV_MSGF_FORMAT; // invalid message format
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
   // from this point, the file/msg seg is loaded at msgSeg address
   msg = (char *)msgSeg;  // message pointer
@@ -546,7 +615,10 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   msgnumber -= hdr->firstmsgno;
 
   if (msgnumber > hdr->msgs_no)
-    return ERROR_MR_MID_NOT_FOUND; // ???
+  {
+    rc = ERROR_MR_MID_NOT_FOUND; // ???
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
   // get message offset
   if (hdr->is_offs_16bits) // if offset is 16 bits
@@ -574,7 +646,10 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   log("msgend=0x%lx\n", msgend);
 
   if (msgoff > cbFile || msgend > cbFile)
-    return ERROR_MR_MSG_TOO_LONG;
+  {
+    rc = ERROR_MR_MSG_TOO_LONG;
+    goto DOSTRUEGETMESSAGE_EXIT;
+  }
 
   // message length
   msglen = msgend - msgoff - 1;
@@ -586,7 +661,10 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   //if (*msg != 'E' && *msg != 'W' &&
   //    *msg != 'P' && *msg != 'I' &&
   //    *msg != 'H' && *msg != '?')
-  //  rc = ERROR_MR_INV_MSGF_FORMAT;
+  //  {
+  //    rc = ERROR_MR_INV_MSGF_FORMAT;
+  //    goto DOSTRUEGETMESSAGE_EXIT;
+  //  }
 
   // message file ID
   strncpy(id, hdr->id, 3);
@@ -616,5 +694,8 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
 
   // finally, free file buffer
   DosFreeMem(buf);
+
+DOSTRUEGETMESSAGE_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

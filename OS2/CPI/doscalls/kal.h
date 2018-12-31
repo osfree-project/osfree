@@ -12,6 +12,8 @@
 
 void log(const char *fmt, ...);
 
+APIRET unimplemented(char *func);
+
 APIRET __cdecl
 KalOpenL (PSZ pszFileName,
           HFILE *phFile,

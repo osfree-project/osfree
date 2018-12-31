@@ -6,13 +6,14 @@ APIRET APIENTRY      DosQueryCp(ULONG   cb,
                                 PULONG  pcCP)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
   rc = KalQueryCp(cb, arCP, pcCP);
   log("arCP=%lu\n", arCP);
   log("pcCP=%lu\n", pcCP);
   log("*arCP=%lu\n", *arCP);
   log("*pcCP=%lu\n", *pcCP);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
 
@@ -21,12 +22,13 @@ APIRET APIENTRY      DosQueryDBCSEnv(ULONG cb,
                                      PBYTE pBuf)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
   log("pcc=%lu\n", pcc);
   rc = KalQueryDBCSEnv(cb, pcc, pBuf);
   log("*pcc=%lu\n", *pcc);
   log("pBuf=%lu\n", pBuf);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
 
@@ -37,11 +39,13 @@ PCHAR           pch;   //  The string of binary characters to be case-mapped.
 */
 APIRET DosMapCase(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc = NO_ERROR;
+  log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
   log("pcc=%lu\n", pcc);
   log("pch=%lu\n", pch);
-  return NO_ERROR;
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 /*
@@ -52,10 +56,12 @@ PULONG          pcch;  //  The length, in bytes, of the collating sequence table
 */
 APIRET DosQueryCollate(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch, PULONG pcch)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc = NO_ERROR;
+  log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
   log("pcc=%lu\n", pcc);
   log("pch=%lu\n", pch);
   log("pcch=%lu\n", pcch);
-  return NO_ERROR;  
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;  
 }

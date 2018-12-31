@@ -561,7 +561,6 @@ PFN wrapper_get_addr( const tsd_t *TSD, const struct library *lptr, const streng
    else
    {
       ordinal = 0L;
-      mem_upper( funcname, strlen( funcname ) );
       entryname = funcname;
    }
    rc = DosQueryProcAddr(handle,ordinal,entryname,&addr);
