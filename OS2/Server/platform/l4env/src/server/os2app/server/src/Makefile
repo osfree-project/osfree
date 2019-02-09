@@ -9,7 +9,23 @@ MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
 SRC_C		= main.c dl.c startup.c rpc.c \
                   api.c \
-                  kal/kal.c kal/start.c kal/util.c
+                  kal/kal.c kal/start.c kal/util.c \
+                  kal/thread.c
+
+ifeq ($(ARCH),x86)
+
+SRC_C		+= kal/arch/x86_32/tramp.c
+
+else
+
+ifeq ($(ARCH),amd64)
+
+SRC_C		+= kal/arch/x86_64/tramp.c
+
+endif
+
+endif
+
 # NO_DEFAULT_RELOC= 1
 # LDFLAGS		= -shared
 #NO_DEFAULT_RELOC= 1

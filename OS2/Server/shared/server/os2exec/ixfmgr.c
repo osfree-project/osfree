@@ -57,10 +57,19 @@ IXFIdentifyModule(void *addr, unsigned long size, IXFModule *ixfModule)
 unsigned long
 IXFLoadModule(void *addr, unsigned long size, IXFModule *ixfModule)
 {
+  unsigned long ret;
+
   if (options.debugixfmgr) 
      io_log("IXFLoadModule: Loading module.\n");
 
-  return ixfModule->Load(addr, size, ixfModule);
+  if (ixfModule->refcnt++)
+  {
+      return 0;
+  }
+
+  ret = ixfModule->Load(addr, size, ixfModule);
+
+  return ret;
 }
 
 unsigned long IXFFixupModule(IXFModule *ixfModule)
@@ -105,7 +114,41 @@ unsigned long IXFFreeModule(IXFModule *ixf)
     if (! ixf || ! ixf->hdlSysDep)
         return ERROR_INVALID_PARAMETER;
 
-    free((void *)ixf->hdlSysDep);
+    if (--ixf->refcnt)
+    {
+        return NO_ERROR;
+    }
+
+    if (ixf->name)
+    {
+        free(ixf->name);
+    }
+
+    if (ixf->FormatStruct)
+    {
+        free(ixf->FormatStruct);
+    }
+
+    if (ixf->Entries)
+    {
+        free(ixf->Entries);
+    }
+
+    if (ixf->Modules)
+    {
+        free(ixf->Modules);
+    }
+
+    if (ixf->Fixups)
+    {
+        free(ixf->Fixups);
+    }
+
+    if (ixf->hdlSysDep)
+    {
+        free((void *)ixf->hdlSysDep);
+    }
+
     free(ixf);
 
     return NO_ERROR;

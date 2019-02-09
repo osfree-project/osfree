@@ -1,4 +1,4 @@
 base
-stdcxx
 libc
+so
 os3

@@ -1,6 +1,6 @@
 base
-os2exec
 libc
+os2exec
 compat
 memmgr
 os3

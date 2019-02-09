@@ -4,6 +4,9 @@
 #define  INCL_BASE
 #include <os2.h>
 
+/* libc includes */
+#include <stdlib.h>
+
 /* osFree internal */
 #include <os3/ixfmgr.h>
 #include <os3/dataspace.h>
@@ -13,15 +16,109 @@
 /* l4env includes */
 //#include <l4/env/env.h>
 //#include <l4/dm_generic/consts.h>
-
 /* local includes */
 #include "api.h"
 
-long excShare(unsigned long hmod, l4_os3_thread_t client_id);
+struct mod_list;
+
+struct mod_list
+{
+  struct mod_list *next, *prev;
+  unsigned long hmod;
+};
+
+typedef struct mod_list mod_list_t;
+
+mod_list_t *module_add(mod_list_t *list, unsigned long hmod);
+void module_del(mod_list_t *list, unsigned long hmod);
+void module_list_free(mod_list_t *list);
+BOOL module_present(mod_list_t *list, unsigned long hmod);
+
+mod_list_t *module_add(mod_list_t *list, unsigned long hmod)
+{
+  mod_list_t *item = (mod_list_t *)malloc(sizeof(mod_list_t));
+
+  if (! item)
+  {
+    return NULL;
+  }
+
+  item->next = list;
+  item->prev = NULL;
+  item->hmod = hmod;
+
+  if (list)
+  {
+    list->prev = item;
+  }
+
+  return item;
+}
+
+void module_del(mod_list_t *list, unsigned long hmod)
+{
+  mod_list_t *item;
+
+  for (item = list; item; item = item->next)
+  {
+    if (item->hmod == hmod)
+    {
+      break;
+    }
+  }
+
+  if (item)
+  {
+    if (item->prev)
+    {
+      item->prev->next = item->next;
+    }
+
+    if (item->next)
+    {
+      item->next->prev = item->prev;
+    }
+  }
+  
+  free(item);
+}
+
+void module_list_free(mod_list_t *list)
+{
+  mod_list_t *item, *next;
+
+  for (item = list; item; )
+  {
+    next = item->next;
+    free(item);
+    item = next;
+  }
+}
+
+BOOL module_present(mod_list_t *list, unsigned long hmod)
+{
+  mod_list_t *item;
+
+  for (item = list; item; item = item->next)
+  {
+    if (item->hmod == hmod)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+long excShare(mod_list_t **traversed_modules,
+              unsigned long hmod,
+              l4_os3_thread_t client_id);
 
 /* share all section dataspaces of a module with a
    given hmod to a given client */
-long excShare(unsigned long hmod, l4_os3_thread_t client_id)
+long excShare(mod_list_t **traversed_modules,
+              unsigned long hmod,
+              l4_os3_thread_t client_id)
 {
   IXFModule *ixf;
   IXFSYSDEP *sysdep;
@@ -37,16 +134,35 @@ long excShare(unsigned long hmod, l4_os3_thread_t client_id)
   sysdep = (IXFSYSDEP *)(ULONG)(ixf->hdlSysDep);
   s = sysdep->seclist;
 
+  // check if this module already traversed, 
+  // so no need to share it again, thus avoiding the dead loop
+  if (! module_present(*traversed_modules, hmod))
+  {
+    *traversed_modules = module_add(*traversed_modules, hmod);
+  }
+  else
+  {
+    return 0;
+  }
+
   while (s)
   {
     section = s->section;
     rights = 0;
 
+    io_log("excShare: hmod=%lx\n", hmod);
+
     if (section->type & SECTYPE_READ)
-      rights |= L4DM_READ;
+    {
+      io_log("read\n");
+      rights |= DATASPACE_READ;
+    }
 
     if (section->type & SECTYPE_WRITE)
-      rights |= L4DM_WRITE;
+    {
+      io_log("write\n");
+      rights |= DATASPACE_WRITE;
+    }
 
     tmp_ds = section->ds;
 
@@ -71,7 +187,7 @@ long excShare(unsigned long hmod, l4_os3_thread_t client_id)
     if (! imp_hmod)
       continue; // KAL, no sections to share
 
-    rc = excShare(imp_hmod, client_id);
+    rc = excShare(traversed_modules, imp_hmod, client_id);
     io_log("module %x sections shared\n", imp_hmod);
 
     if (rc)

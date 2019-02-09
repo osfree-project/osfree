@@ -12,14 +12,7 @@
 /* osFree internal */
 #include <os3/dataspace.h>
 
-/* os2app RPC includes */
-#include "os2app-server.h"
-
-long AppGetLoadError(char *uchLoadError,
-                     ULONG *cbLoadError,
-                     ULONG *retCode);
-
-long AppTerminate(void);
+void AppNotify(void);
 
 long AppAddArea(void *addr,
                 unsigned long size,

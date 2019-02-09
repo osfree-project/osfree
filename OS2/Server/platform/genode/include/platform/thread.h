@@ -5,7 +5,12 @@
   extern "C" {
 #endif
 
-#define NIL_THREAD {0, 0, 0, 0}
+typedef void * l4_os3_thread_t;
+
+#define INVALID_THREAD NULL
+
+#define THREAD_SYNC  0
+#define THREAD_ASYNC 1
 
 #ifdef __cplusplus
   }

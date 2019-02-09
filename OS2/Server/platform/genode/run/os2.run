@@ -1,15 +1,33 @@
 #
+#
+#
+
+set files   "${genode_dir}/repos/os3/shared/filesys/os2"
+
+set filelist { doscalls.dll sub32.dll kbdcalls.dll viocalls.dll moucalls.dll moncalls.dll
+ msg.dll nls.dll quecalls.dll sesmgr.dll utlapi.dll pmmerge.dll pmwin.dll oso001.msg
+ mini33.exe minicmd.exe makeini.exe argenv.exe scanenv.exe sed.exe awk.exe zip.exe
+ sort.exe ver.exe wasm.exe wmake.exe mem.exe }
+
+#
 # Build
 #
 
-create_boot_directory
+build {
+  core
+  init
+  lib/compat
+  lib/memmgr
+  lib/ixf/lx
+  lib/ixf/ne
+  lib/vfs
+  server/os2fs
+  server/os2exec
+  server/os2srv
+  app/os2app
+}
 
-import_from_depot genodelabs/src/[base_src] \
-                  genodelabs/src/init \
-                  genodelabs/src/libc \
-                  genodelabs/src/stdcxx \
-                  genodelabs/src/vfs \
-                  valerius/pkg/os2
+create_boot_directory
 
 #
 # Generate config
@@ -24,7 +42,9 @@ install_config {
 		<service name="LOG"/>
 	</parent-provides>
 	<default-route>
-		<service name="ROM"> <child name="os2fs"/> <parent/> </service>
+		<!-- <service name="ROM"> <child name="os2fs"/> <parent/> </service> -->
+		<service name="ROM" label="kal.map"> <parent/> </service>
+		<service name="ROM" label="config.sys"> <parent/> </service>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
 	<default caps="120"/>
@@ -44,18 +64,17 @@ install_config {
 			<service name="os2fs"/>
 		</provides>
 		<config verbose="yes">
-			<vfs stdout="/dev/log" stderr="/dev/log">
+			<vfs>
 				<tar name="os2.tar"/>
-				<dir name="/dev"> <log/> </dir>
 			</vfs>
 		</config>
-		<route>
+		<!-- <route>
 			<service name="ROM"> <parent/> </service>
 			<any-service> <parent/> <any-child/> </any-service>
-		</route>
+		</route> -->
 	</start>
 	<start name="os2exec">
-		<resource name="RAM" quantum="4M"/>
+		<resource name="RAM" quantum="100M"/>
 		<provides>
 			<service name="os2exec"/>
 		</provides>
@@ -64,14 +83,44 @@ install_config {
 		</config>
 	</start>
 	<start name="os2app">
-		<resource name="RAM" quantum="1M"/>
+		<config verbose="yes"/>
+		<resource name="RAM" quantum="2M"/>
 	</start>
 </config>
 }
 
+exec sh -c "cd bin; mkdir -p file/system; ln -sf ${files}/config.sys"
+
+foreach file ${filelist} {
+  exec sh -c "cd bin/file/system; ln -sf ${files}/${file}"
+}
+
+exec sh -c "cd bin/file/system; ln -sf ../../kal.map"
+exec sh -c "cd bin; tar cfh os2.tar file"
+
 #
 # Boot image
 #
+
+set boot_modules {
+  config.sys
+  kal.map
+  core
+  init
+  ld.lib.so
+  libc.lib.so
+  libm.lib.so
+  vfs.lib.so
+  compat.lib.so
+  memmgr.lib.so
+  lx.ixf
+  ne.ixf
+  os2.tar
+  os2fs
+  os2exec
+  os2srv
+  os2app
+}
 
 append boot_modules { }
 

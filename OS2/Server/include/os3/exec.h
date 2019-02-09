@@ -31,6 +31,8 @@ APIRET ExcClientLoad(HMODULE          hmod,
                      PULONG           pcbLoadError,
                      os2exec_module_t *s);
 
+APIRET ExcClientFree(HMODULE hmod);
+
 APIRET ExcClientShare(HMODULE hmod);
 
 APIRET ExcClientGetImp(HMODULE hmod,
@@ -73,12 +75,14 @@ APIRET ExcClientGetDataspace(void **addr,
 APIRET ExcClientGetSharedMem(void *pb,
                              void **addr,
                              ULONG *size,
-                             l4_os3_cap_idx_t *owner);
+                             PID   *owner);
+                             //l4_os3_cap_idx_t *owner);
 
 APIRET ExcClientGetNamedSharedMem(PSZ pszName,
                                   void **addr,
                                   ULONG *size,
-                                  l4_os3_cap_idx_t *owner);
+                                  PID   *owner);
+                                  //l4_os3_cap_idx_t *owner);
 
 APIRET ExcClientIncrementSharedMemRefcnt(void *addr);
 

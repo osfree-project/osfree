@@ -42,10 +42,13 @@ void free_mem(void *addr);
 int strlstcpy(char *s1, char *s2);
 int strlstlen(char *p);
 
-extern struct types type[];
+//extern struct types type[];
 
 struct t_os2process *proc_root = NULL;
 static int pid = -1;
+
+/* List of servers started by os2srv */
+server_t *servers = NULL;
 
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
@@ -66,13 +69,13 @@ void *alloc_mem(int size, char *comment)
   //rc = l4dm_mem_open(L4DM_DEFAULT_DSM, size, L4_PAGESIZE, 0, comment, &ds.ds);
   rc = DataspaceAlloc(&ds, 0, DEFAULT_DSM, size);
 
-  if (rc < 0)
+  if (rc)
     return 0;
 
   /* attach it to our address space */
-  rc = attach_ds(ds, L4DM_RW, &addr);
+  rc = attach_ds(ds, DATASPACE_RW, &addr);
 
-  if (rc < 0)
+  if (rc)
   {
     io_log("cannot attach ds\n");
     return 0;
@@ -96,7 +99,8 @@ void free_mem(void *addr)
     //                 &offset, &pager);
   ret = RegLookupRegion(addr, &addr, &size, &offset, &ds);
 
-  if (ret < 0)
+  //if (ret < 0)
+  if (ret != REG_DATASPACE)
     return;
 
   //l4rm_detach(addr);
@@ -126,6 +130,8 @@ PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
   char *s1, *s2, *s3;
 
   int  len1, len2, len3, len4;
+
+  io_log("PrcCreatePIB\n");
 
   /* total size of all info */
   size = sizeof(PIB);
@@ -164,6 +170,10 @@ PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env)
 
   pp->pib_pchenv = s1;
   pp->pib_pchcmd = s3;
+
+  io_log("ppib=%lx\n", pp);
+  io_log("pib_pchenv=%lx\n", s1);
+  io_log("pib_pchcmd=%lx\n", s3);
 
   return NO_ERROR;
 }
@@ -213,7 +223,7 @@ PrcDestroyTIB(PID pid, TID tid)
   struct t_os2process *proc = PrcGetProc(pid);
   PTIB ptib = proc->tib_array[tid - 1];
   proc->tib_array[tid - 1] = 0;
-  proc->tid_array[tid - 1] = NIL_THREAD;
+  proc->tid_array[tid - 1] = INVALID_THREAD;
   free_mem(ptib);
   return 0;
 }
@@ -233,7 +243,7 @@ struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFMo
     if (c == NULL)
       return c;
 
-    c->term_sem = L4SEMAPHORE_INIT(0);
+    c->term_sem = SEMAPHORE_INIT(0);
 
     c->next = NULL;
     c->prev = NULL;
@@ -373,7 +383,7 @@ struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread)
 }
 
 //TID PrcGetTIDL4(l4_threadid_t thread)
-TID PrcGetTIDNative(l4_os3_thread_t thread)
+/* TID PrcGetTIDNative(l4_os3_thread_t thread)
 {
   struct t_os2process *proc = PrcGetProcNative(thread);
   int i;
@@ -385,7 +395,7 @@ TID PrcGetTIDNative(l4_os3_thread_t thread)
       return i + 1;
   }
   return 0;
-}
+} */
 
 /* Get L4 native thread ID by OS/2 pid/tid */
 //l4_threadid_t PrcGetL4ID(PID pid, TID tid)
@@ -560,35 +570,124 @@ void CPAppNotify1(l4_os3_thread_t thread)
 /* is called by os2app, and notifies os2srv
    about some module parameters got from execsrv */
 void CPAppNotify2(l4_os3_thread_t task,
-                  const os2exec_module_t *s)
+                  const os2exec_module_t *s,
+                  const char *pszName,
+                  PID pid,
+                  const char *szLoadError,
+                  ULONG cbLoadError,
+                  ULONG ret)
 {
   struct t_os2process *proc;
   int i;
 
-  proc = PrcGetProcNative(task);
+  if (pid)
+  {
+    proc = PrcGetProcNative(task);
 
-  if (! proc) // it indicates that os2app is started from other
-  {          // means, than using PrcExecuteModule, so proc is not created
-    /* create process structure and assign args and env */
-    proc = PrcCreate(0, (PSZ)s->path, "", "");
-    /* set task number */
-    proc->task = task;
-    /* assign params and environment */
-    //PrcSetArgsEnv(s->path, "", "", proc);
+    if (! proc) // it indicates that os2app is started from other
+    {          // means, than using PrcExecuteModule, so proc is not created
+      /* create process structure and assign args and env */
+      proc = PrcCreate(0, (PSZ)s->path, "", "");
+      /* set task number */
+      proc->task = task;
+      /* assign params and environment */
+      //PrcSetArgsEnv(s->path, "", "", proc);
+    }
+
+    proc->ip = (void *)s->ip;
+    proc->sp = (void *)s->sp;
+    proc->hmte = s->hmod;
+    proc->lx_pib->pib_hmte = s->hmod;
+    proc->tib_array[0]->tib_pstack = (void *)s->sp;
+    proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
+    proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
+    proc->tid_array[0] = task;
+
+    for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = INVALID_THREAD; //L4_INVALID_ID;
   }
 
-  proc->ip = (void *)s->ip;
-  proc->sp = (void *)s->sp;
-  proc->hmte = s->hmod;
-  proc->lx_pib->pib_hmte = s->hmod;
-  proc->tib_array[0]->tib_pstack = (void *)s->sp;
-  proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
-  proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
-  proc->tid_array[0] = task;
-
-  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = NIL_THREAD; //L4_INVALID_ID;
+  io_log("cpappnotify: pszName=%s, pid=%u\n", pszName, pid);
+  server_add(pszName, pid, szLoadError, cbLoadError, ret);
 }
 
+server_t *server_query(const char *pszName, PID pid)
+{
+    server_t *srv;
+
+    for (srv = servers; srv; srv = srv->next)
+    {
+        if (! strcmp(srv->name, pszName) && srv->pid == pid)
+        {
+            return srv;
+        }
+    }
+
+    return NULL;
+}
+
+void server_add(const char *pszName, PID pid, const char *szLoadError,
+                ULONG cbLoadError, ULONG ret)
+{
+    server_t *srv;
+
+    if (server_query(pszName, pid))
+    {
+        return;
+    }
+
+    srv = (server_t *)malloc(sizeof(server_t));
+
+    if (! srv)
+    {
+        return;
+    }
+
+    memset(srv, 0, sizeof(server_t));
+    srv->next = srv->prev = NULL;
+    strcpy(srv->name, pszName);
+    srv->pid = pid;
+    memcpy(srv->szLoadError, szLoadError, cbLoadError);
+    srv->cbLoadError = cbLoadError;
+    srv->ret = ret;
+
+    if (servers)
+    {
+        srv->next = servers;
+        servers->prev = srv;
+    }
+
+    servers = srv;
+}
+
+void server_del(const char *pszName, PID pid)
+{
+    server_t *srv;
+
+    io_log("deleting name: %s, pid: %u\n", pszName, pid);
+    for (srv = servers; srv; srv = srv->next)
+    {
+        if (! strcmp(srv->name, pszName) && srv->pid == pid )
+        {
+            if (srv->prev)
+            {
+                srv->prev->next = srv->next;
+            }
+
+            if (srv->next)
+            {
+                srv->next->prev = srv->prev;
+            }
+
+            if (servers == srv)
+            {
+                servers = srv->next;
+            }
+
+            free(srv);
+            break;
+        }
+    }
+}
 
 unsigned int find_path(const char *name, char **full_path_name);
 
@@ -923,6 +1022,9 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 {
   int rc = NO_ERROR;
   struct t_os2process *proc;
+  int delta = 10;
+  //int time, timeout = 30000;
+  server_t *serv;
   #define buf_size 4096
   char buf[buf_size+1];
   char *p_buf = (char *)buf;
@@ -936,7 +1038,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     // Searches for module name and returns the full path in the buffer p_buf.
     rc = find_path(pName, (char **)p_buf);
 
-    if (rc!=0/*NO_ERROR*/)
+    if (rc)
     {
       io_log("PrcExecuteModule: Can't find %s module\n", pName);
       return rc;
@@ -953,13 +1055,20 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   /* create process structure */
   proc = PrcCreate(ppid, p_buf, pArg, pEnv);
+  io_log("PrcExecuteModule\n");
+  io_log("ppib=%lx\n", proc->lx_pib);
+  io_log("pchcmd=%lx\n", proc->lx_pib->pib_pchcmd);
+  io_log("pchenv=%lx\n", proc->lx_pib->pib_pchenv);
   /* assign args and env      */
   //PrcSetArgsEnv(p_buf, pArg, pEnv, proc);
   /* execute it */
   rc = LoaderExecOS2(p_buf, 0, proc);
 
   if (rc)
+  {
+    io_log("PrcExecuteModule: rc=%lx\n", rc);
     return rc;
+  }
 
   /* set termination code */
   switch (execFlag)
@@ -978,14 +1087,42 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   // get pObjname and cbObjname from os2app
   //os2app_app_GetLoadError_call(&proc->task, &pObjname, &cbObjname, &rc, &env);
-  rc = AppClientGetLoadError(proc->task, pObjname, (PULONG)&cbObjname);
+  //rc = AppClientGetLoadError(proc->task, pObjname, (PULONG)&cbObjname);
 
   // Terminate os2app on LX load error
-  if (rc)
-    AppClientTerminate(proc->task);
+  //if (rc)
+    //AppClientTerminate(proc->task);
     //os2app_app_Terminate_call(&proc->task, &env);
 
-  return rc; /*NO_ERROR;*/
+  //time = 0;
+  for (;;)
+  {
+    ThreadSleep(delta);
+
+    //time += delta;
+
+    //if (time > timeout)
+    //{
+    //  return ERROR_TIMEOUT;
+    //}
+
+    serv = server_query("os2app", proc->pid);
+
+    if (serv)
+    {
+      if (serv->ret)
+      {
+        memcpy(pObjname, serv->szLoadError, serv->cbLoadError);
+        server_del("os2app", proc->pid);
+        return serv->ret;
+      }
+
+      break;
+    }
+  }
+
+  server_del("os2app", proc->pid);
+  return NO_ERROR;
 }
 
 /*! @brief This is function searches files in PATH environment variables which

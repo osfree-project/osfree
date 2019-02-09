@@ -119,6 +119,7 @@ void *l4_alloc_mem(unsigned long long area, int base, int size, int flags,
     //printf("l4_alloc_mem( %d, %d, 0x%x\n", base, size, flags);
     //l4dm_dataspace_t ds;
     void *addr;
+    io_log("l4_alloc_mem: flags=%d, ds=%lu\n", flags, ds->ds.id);
     int l4_flags = l4_translate_os2_flags(flags); /* PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE */
                                                   /* L4RM_MAP   L4DM_RW     L4DM_RO or L4DM_RW */
     //printf("l4_translate_os2_flags( 0x%x ) = 0x%x\n", flags, l4_flags);

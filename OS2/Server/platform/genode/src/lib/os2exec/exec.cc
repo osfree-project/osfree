@@ -4,17 +4,19 @@
 #define  INCL_BASE
 #include <os2.h>
 
+#include <os3/io.h>
+
 /* Genode includes */
 #include <base/allocator.h>
 #include <exec_session/connection.h>
 
 /* local includes */
-#include "genode_env.h"
+#include <genode_env.h>
 
 OS2::Exec::Connection *exec;
 
-Genode::Allocator *_alloc = NULL;
-Genode::Env *_env_ptr = NULL;
+//Genode::Allocator *_alloc = NULL;
+//Genode::Env *_env_ptr = NULL;
 
 extern "C"
 APIRET ExcClientInit(void)
@@ -218,22 +220,22 @@ extern "C"
 APIRET ExcClientGetSharedMem(void *pb,
                              void **addr,
                              ULONG *size,
-                             l4_os3_cap_idx_t *owner)
+                             PID *owner)
 {
     return exec->get_sharemem((ULONGLONG)pb, (ULONGLONG *)addr,
-                              size, (ULONGLONG *)owner);
+                              size, owner);
 }
 
 extern "C"
 APIRET ExcClientGetNamedSharedMem(PSZ pszName,
                                   void **addr,
                                   ULONG *size,
-                                  l4_os3_cap_idx_t *owner)
+                                  PID *owner)
 {
     OS2::Exec::Session::Pathname mName(pszName);
 
     return exec->get_named_sharemem(mName, (ULONGLONG *)addr,
-                                    size, (ULONGLONG *)owner);
+                                    size, owner);
 }
 
 extern "C"

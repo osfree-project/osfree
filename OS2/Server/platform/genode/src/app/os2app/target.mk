@@ -1,8 +1,22 @@
 include $(REP_DIR)/mk/osfree.mk
 
 TARGET = os2app
+CC_CXX_WARN_STRICT =
 SRC_CC = main.cc
-LIBS = base
+SRC_C  = dl.c api/api.c kal/util.c kal/start.c kal/kal.c
+LIBS = base libc compat os2srv os2fs os2exec
+
+ifeq ($(filter-out $(SPECS),x86_32),)
+	SRC_C += kal/arch/x86_32/tramp.c
+endif
+ifeq ($(filter-out $(SPECS),x86_64),)
+	SRC_C += kal/arch/x86_64/tramp.c
+endif
+ifeq ($(filter-out $(SPECS),arm),)
+	SRC_C += kal/arch/arm/tramp.c
+endif
+
+vpath %.c $(OS3_DIR)/shared/app/os2app
 
 all: map
 

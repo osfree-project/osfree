@@ -9,7 +9,6 @@ set filelist { config.sys }
 build {
   core
   init
-  lib/vfs
   lib/compat
   server/os2fs
   test/os2fs
@@ -75,8 +74,6 @@ set bootimage {
   ld.lib.so
   libc.lib.so
   libm.lib.so
-  vfs.lib.so
-  stdcxx.lib.so
   compat.lib.so
   os2.tar
   os2fs

@@ -1,5 +1,5 @@
 base
-os2fs
 libc
+os2fs
 compat
 os3

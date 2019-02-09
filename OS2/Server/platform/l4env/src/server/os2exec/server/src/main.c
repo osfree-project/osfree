@@ -19,6 +19,7 @@
 
 /* l4env includes */
 #include <l4/env/env.h>
+#include <l4/events/events.h>
 #include <l4/names/libnames.h>
 
 /* os2exec RPC includes */
@@ -75,7 +76,6 @@ void usage(void)
   io_log("-e:  Use events server");
 }
 
-#if 0
 void event_thread(void)
 {
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
@@ -111,16 +111,20 @@ void event_thread(void)
 
     /* exit myself */
     if (l4_task_equal(tid, os2srv))
+    {
       exit(rc);
+    }
   }
 }
-#endif
 
 int main (int argc, char *argv[])
 {
   CORBA_Server_Environment env = dice_default_server_environment;
   CORBA_Environment e = dice_default_environment;
+  l4_os3_thread_t thread;
   l4_os3_dataspace_t ds;
+  os2exec_module_t s = {0};
+  char szLoadError[260];
   void *addr;
   unsigned long size;
   int  rc;
@@ -186,12 +190,12 @@ int main (int argc, char *argv[])
   }
 
   // start events thread
-  /* if (use_events)
+  if (use_events)
   {
     // start events thread
     l4thread_create(event_thread, 0, L4THREAD_CREATE_ASYNC);
     io_log("event thread started");
-  } */
+  }
 
   /* reserve the area below 64 Mb for application private code
      (not for use by libraries, loaded by execsrv) */
@@ -284,11 +288,13 @@ int main (int argc, char *argv[])
   // Remove CONFIG.SYS from memory
   io_close_file(addr);
 
+  options.kal_map = (char *)"C:\\kal.map";
+
   /* get our l4env infopage as a dataspace */
   rc = l4loader_app_info_call(&loader, l4_myself().id.task,
                               0, &p, &ds.ds, &e);
   /* attach it */
-  attach_ds(ds, L4DM_RO, (void **)&infopage);
+  attach_ds(ds, DATASPACE_RO, (void **)&infopage);
 
 #if 0
   /* load shared libs */
@@ -321,6 +327,12 @@ int main (int argc, char *argv[])
     io_log("Can't initialize module manager\n");
     return -1;
   }
+
+  thread.thread = l4_myself();
+
+  // notify os2srv about successful startup
+  CPClientAppNotify2(&s, "os2exec", 0, &thread,
+                     szLoadError, sizeof(szLoadError), rc);
 
   // server loop
   io_log("execsrv started.\n");

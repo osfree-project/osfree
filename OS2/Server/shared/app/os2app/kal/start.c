@@ -6,21 +6,31 @@
 #include <os3/stacksw.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/segment.h>
+#include <os3/thread.h>
 #include <os3/types.h>
 #include <os3/cpi.h>
 #include <os3/kal.h>
 #include <os3/io.h>
 
 /* l4env includes */
-#include <l4/names/libnames.h>
-#include <l4/sys/segment.h>
+//#include <l4/names/libnames.h>
+//#include <l4/sys/segment.h>
 
 /* libc includes */
 #include <stdio.h> // sprintf
+#include <string.h>
+
+extern l4_os3_thread_t me;
+
+/* server loop thread of os2app   */
+//extern l4_uint32_t   service_lthread;
 
 extern unsigned long __stack;
+/* Thread IDs array        */
+l4_os3_thread_t ptid[MAX_TID];
 /* application info blocks */
-PTIB ptib[128];
+PTIB ptib[MAX_TID];
 PPIB ppib;
 /* entry point, stack and 
    other module parameters */
@@ -34,6 +44,8 @@ extern vmdata_t *areas_list;
 
 extern ULONG rcCode;
 
+USHORT tramp(PCHAR argv, PCHAR envp, ULONG hmod, USHORT tib_sel, void *eip);
+
 /* OS/2 app main thread */
 int
 trampoline(struct param *param)
@@ -42,14 +54,8 @@ trampoline(struct param *param)
   PCHAR envp = param->pib->pib_pchenv;
   ULONG hmod = param->pib->pib_hmte;
 
-  //unsigned long     stacksize;
-  //unsigned short    sel;
   unsigned long     base;
   struct desc       desc;
-
-  l4_threadid_t task;
-
-  task = l4_myself();
 
   /* TIB base */
   base = (unsigned long)param->tib;
@@ -63,10 +69,12 @@ trampoline(struct param *param)
   desc.base_hi  = base >> 24;
 
   /* Allocate a GDT descriptor */
-  fiasco_gdt_set(&desc, sizeof(struct desc), 0, task);
+  //fiasco_gdt_set(&desc, sizeof(struct desc), 0, l4_myself());
+  segment_gdt_set(&desc, sizeof(struct desc), 0, me);
 
   /* Get a selector */
-  tib_sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();
+  //tib_sel = (sizeof(struct desc)) * fiasco_gdt_get_entry_offset();
+  tib_sel = (sizeof(struct desc)) * segment_gdt_get_entry_offset();
   tib_sel |= 3; // ring3 GDT descriptor
   io_log("sel=%x\n", tib_sel);
 
@@ -76,50 +84,34 @@ trampoline(struct param *param)
 
   /* We have changed the stack so it now points to our LX image. */
   //enter_kdebug("debug");
-  asm(
-      "movw  %%fs, %%dx \n"
-      "movw  %%dx, %[old_sel] \n"
-      "movw  %[tib_sel], %%dx \n"
-      "movw  %%dx, %%fs \n"              /* TIB selector */
-      "pushl %%ebp \n"                   /* save ebp on the old stack      */
-      "movl  %[argv], %%edx \n"
-      "pushl %%edx \n"                   /* argv  */
-      "movl  %[envp], %%edx \n"
-      "pushl %%edx \n"                   /* envp  */
-      "movl  $0, %%edx \n"
-      "pushl %%edx \n"                   /* sizec */
-      "movl  %[hmod], %%edx \n"
-      "pushl %%edx \n"                   /* hmod  */
-      "movl  %[eip_data], %%ecx \n"
-      "call  *%%ecx \n"                  /* Call the startup code of an OS/2 executable */
-      "addl  $0x10, %%esp \n"            /* clear stack            */
-      "popl  %%ebp \n"                   /* restored the old ebp   */
-      :[old_sel]  "=r" (old_sel)
-      :[argv]     "m"  (argv),
-       [envp]     "m"  (envp),
-       [hmod]     "m"  (hmod),
-       [tib_sel]  "m"  (tib_sel),
-       [eip_data] "m"  (param->eip));
+  old_sel = tramp(argv, envp, hmod, tib_sel, param->eip);
 
   STKOUT
 
   return 0;
 }
 
+char buf[1024];
+l4_os3_thread_t thread;
+struct param param;
+APIRET rc;
+PID pid;
+
 APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
   //CORBA_Environment env = dice_default_environment;
   //vmdata_t *ptr;
-  struct param param;
-  APIRET rc;
   /* Error info from LoadModule */
   //char uchLoadError[260];
   unsigned long hmod;
   ULONG curdisk, map;
   unsigned long ulActual;
-  char buf[1024];
   char *p = buf;
   int i;
+
+  //thread = me;
+  ////thread.thread = l4_myself();
+  //thread.thread.id.lthread = service_lthread;
 
   /* notify OS/2 server about parameters got from execsrv */
   //os2server_app_notify1_call (&os2srv, &env);
@@ -129,11 +121,15 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   rc = KalPvtLoadModule(pszLoadError, &cbLoadError,
                         name, &s, &hmod);
 
+  KalGetPID(&pid);
+
   rcCode = rc;
 
   if (rc)
   {
     io_log("LX load error!\n");
+    CPClientAppNotify2(&s, "os2app", pid, &thread,
+                       pszLoadError, cbLoadError, rcCode);
     KalExit(1, 1);
   }
 
@@ -144,9 +140,12 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 
   strcpy(s.path, name);
 
+  io_log("pid=%u\n", pid);
+
   /* notify OS/2 server about parameters got from execsrv */
   //os2server_app_notify2_call (&os2srv, &s, &env);
-  CPClientAppNotify2(&s);
+  CPClientAppNotify2(&s, "os2app", pid, &thread,
+                     pszLoadError, cbLoadError, rcCode);
 
   STKINIT(__stack - 0x800)
 
@@ -164,13 +163,25 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   rc = KalMapInfoBlocks(&ptib[0], &ppib);
 
   // initialize TIB pointers array
-  for (i = 1; i < 128; i++)
+  for (i = 1; i < MAX_TID; i++)
     ptib[i] = NULL;
+
+  ptid[0] = KalNativeID();
+
+  // initialize TIDs array
+  for (i = 1; i < MAX_TID; i++)
+    ptid[i] = INVALID_THREAD;
 
   param.pib = ppib;
   param.tib = ptib[0];
 
+  io_log("ppib=%lx, ptib=%lx\n", ppib, ptib[0]);
+  io_log("ppib->pib_pchcmd=%lx\n", ppib->pib_pchcmd);
+  io_log("ppib->pib_pchenv=%lx\n", ppib->pib_pchenv);
+
+#ifdef L4API_l4v2
   l4rm_show_region_list();
+#endif
 
   // write PID to the screen
   sprintf(p, "The process id is %lx\n", ppib->pib_ulpid);
@@ -179,6 +190,9 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   io_log("Starting %s LX exe...\n", name);
   rc = trampoline (&param);
   io_log("... %s finished.\n", name);
+
+  // unload exe module
+  KalFreeModule(hmod);
 
   STKOUT
 

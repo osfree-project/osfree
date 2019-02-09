@@ -10,7 +10,7 @@
 
 #define INVALID_DATASPACE {0, 0, 0, 0}
 
-#define DEFAULT_DSM NIL_THREAD
+#define DEFAULT_DSM INVALID_THREAD
 
 #ifdef __cplusplus
   }

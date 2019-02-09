@@ -7,23 +7,25 @@
   extern "C" {
 #endif
 
-APIRET AppClientGetLoadError(l4_os3_cap_idx_t client_id,
-                             PBYTE  szLoadError,
-                             PULONG pcbLoadError);
+#include <os3/thread.h>
+#include <os3/dataspace.h>
 
-APIRET AppClientTerminate(l4_os3_cap_idx_t client_id);
+void AppClientNotify(l4_os3_thread_t client_id);
 
-APIRET AppClientAreaAdd(l4_os3_cap_idx_t client_id,
+APIRET AppClientAreaAdd(PID pid,
+                        //l4_os3_cap_idx_t client_id,
                         PVOID pAddr,
                         ULONG ulSize,
                         ULONG ulFlags);
 
-APIRET AppClientDataspaceAttach(l4_os3_cap_idx_t   client_id,
+APIRET AppClientDataspaceAttach(PID pid,
+                                //l4_os3_cap_idx_t   client_id,
                                 PVOID              pAddr,
                                 l4_os3_dataspace_t ds,
                                 ULONG              ulRights);
 
-APIRET AppClientDataspaceRelease(l4_os3_cap_idx_t   client_id,
+APIRET AppClientDataspaceRelease(PID pid,
+                                 //l4_os3_cap_idx_t   client_id,
                                  l4_os3_dataspace_t ds);
 
 #ifdef __cplusplus

@@ -3,6 +3,7 @@
 import <os2def.h>
 import <os3/processmgr.h>
 import <os3/loader.h>
+import <os3/cpi.h>
 
 import <l4/semaphore/semaphore.h>
 
@@ -15,14 +16,29 @@ interface os2server
 
     /* notify os2srv about module params after os2app
        loaded an OS/2 executable (needed to set data in PIB) */
-    void app_notify2([in] os2exec_module_t *s);
+    void app_notify2([in] l4_uint32_t lthread,
+                     [in] os2exec_module_t *s,
+                     [in, string, max_is(260)] char *pszName,
+                     [in] PID pid,
+                     [in, max_is(260),
+                     prealloc_server,
+                     prealloc_client,
+                     size_is(cbLoadError)] void *szLoadError,
+                     [in] ULONG cbLoadError,
+                     [in] ULONG ret);
+
+    /* Send data to another os2app instance */
+    APIRET app_send([in] app_data_t *data);
+
+    /* Get data passed by another os2app instance */
+    APIRET app_get([out] app_data_t *data);
 
     /* get environment variable from config.sys */
     APIRET cfg_getenv([in, string]  char *name,
-                      [out, string, 
+                      [out, string,
 		      prealloc_client,
 		      prealloc_server] char **value);
-		      
+
     /* get configuration value from config.sys  */
     APIRET cfg_getopt([in, string] char *name, /* parameter name */
                       [out] int *is_int,         /* which [out] param contains value, value_int/value_str */ 
@@ -79,13 +95,13 @@ interface os2server
      * for the current process. The data structure is returned as a single dataspace,
      * the adresses are based from the start of the dataspace.
      */
-    APIRET dos_GetPIB([out] l4dm_dataspace_t *ds);
+    APIRET dos_GetPIB([in] PID pid, [out] l4dm_dataspace_t *ds);
 
     /* gets a thread info block (TIB)
      * for the current thread. The data structure is returned as a single dataspace,
      * the adresses are based from the start of the dataspace.
      */
-    APIRET dos_GetTIB([out] l4dm_dataspace_t *ds);
+    APIRET dos_GetTIB([in] PID pid, [in] TID tid, [out] l4dm_dataspace_t *ds);
 
     APIRET dos_QueryCurrentDisk([out] ULONG *pdisknum);
 
@@ -112,7 +128,7 @@ interface os2server
 
     APIRET dos_CloseEventSem ([in] HEV hev);
 
-    APIRET dos_GetTID([out] TID *ptid);
+    /* APIRET dos_GetTID([out] TID *ptid); */
 
     APIRET dos_GetPID([out] PID *ppid);
 
@@ -120,8 +136,8 @@ interface os2server
                            [in] TID tid,
                            [out] l4_os3_thread_t *id);
 
-    APIRET dos_GetTIDNative([in] l4_os3_thread_t id,
-                            [out] TID *ptid);
+    /* APIRET dos_GetTIDNative([in] l4_os3_thread_t id,
+                            [out] TID *ptid); */
 
     APIRET dos_NewTIB([in] PID pid,
                       [in] TID tid,

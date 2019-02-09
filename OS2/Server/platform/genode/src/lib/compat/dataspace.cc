@@ -25,7 +25,7 @@ long DataspaceAlloc(l4_os3_dataspace_t *ds, ULONG flags,
                     l4_os3_cap_idx_t dm, ULONG size)
 {
     Genode::Env &_env = genode_env();
-    Genode::Dataspace_capability _ds;
+    static Genode::Ram_dataspace_capability _ds;
 
     try
     {
@@ -65,14 +65,14 @@ long DataspaceFree(l4_os3_dataspace_t ds)
 extern "C"
 long DataspaceGetSize(l4_os3_dataspace_t ds, ULONG *size)
 {
-    Genode::Dataspace_capability _ds;
+    Genode::Ram_dataspace_capability _ds;
 
     if (! ds || ! size)
     {
         return ERROR_INVALID_PARAMETER;
     }
 
-    _ds = *(Genode::Dataspace_capability *)ds;
+    _ds = *(Genode::Ram_dataspace_capability *)ds;
 
     if (! _ds.valid())
     {
@@ -94,93 +94,39 @@ long DataspaceShare(l4_os3_dataspace_t ds,
 }
 
 extern "C"
-long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
-//long attach_ds(l4os3_ds_t *ds, unsigned long flags, void **addr)
+long DataspaceCopy(l4_os3_dataspace_t ds, ULONG src_offs, ULONG dst_offs,
+                   ULONG size, ULONG dst_addr, ULONG dst_size,
+                   ULONG flags, l4_os3_dataspace_t *copy)
 {
-    //int error;
-    ULONG size;
-    APIRET rc;
+    l4_os3_dataspace_t temp_ds;
+    void *addr1, *addr2;
+    int rc;
 
-    rc = DataspaceGetSize(ds, &size);
+    // Allocate new dataspace of the same size
+    rc = DataspaceAlloc(&temp_ds, flags, NULL, size);
 
-    //if ((size = l4os3_ds_size(ds)) < 0)
     if (rc)
     {
-      io_log("Error %u getting size of dataspace\n", rc);
-      return rc;
+        return rc;
     }
 
-    //if ((error = l4rm_attach(ds, size, 0, flags, (void **)addr)))
-    //if ((error = l4os3_rm_attach((void **)addr, size, flags, *ds, 0, 0)))
-    if ((rc = RegAttach((void **)addr, size, flags, ds, 0, 0)))
-    {
-      io_log("Error %u attaching dataspace\n", rc);
-      return rc;
-    }
+    rc = RegAttach(&addr1, size, flags, ds, NULL, 0);
 
-  return 0;
-}
-
-
-/** attach dataspace to our address space. (concrete address) */
-extern "C"
-long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr)
-{
-    //int error;
-    ULONG size;
-    void *a = addr;
-    APIRET rc;
-
-    rc = DataspaceGetSize(ds, &size);
-
-    /* get dataspace size */
-    //if ((error = l4dm_mem_size(&ds, &size)))
     if (rc)
     {
-      io_log("Error %u getting size of dataspace\n", rc);
-      return rc;
+        return rc;
     }
 
-    /* attach it to a given region */
-    //if ((error = l4rm_attach_to_region(&ds, (void *)a, size, 0, flags)))
-    if ( (rc = RegAttachToRegion((void **)&a, size, flags, ds, 0, 0)) )
-    {
-      io_log("Error %u attaching dataspace\n", rc);
-      return rc;
-    }
+    rc = RegAttach(&addr2, size, flags, temp_ds, NULL, 0);
 
-  return 0;
-}
-
-/** attach dataspace to our address space. (concrete address) */
-extern "C"
-long attach_ds_area(l4_os3_dataspace_t ds, unsigned long long area,
-                    unsigned long flags, void *addr)
-{
-    //int error;
-    ULONG size;
-    void *a = addr;
-    APIRET rc;
-
-    rc = DataspaceGetSize(ds, &size);
-
-    /* get dataspace size */
-    //if ((error = l4dm_mem_size(&ds, &size)))
     if (rc)
     {
-      io_log("Error %u getting size of dataspace\n", rc);
-      return rc;
+        return rc;
     }
 
-    /* attach it to a given region */
-    //if ( (error = l4rm_area_attach_to_region(&ds, area,
-    //                   (void *)a, size, 0, flags)) )
-    if ( (rc = RegAreaAttachToRegion((void **)&a, size, area,
-                                      flags, ds, 0, 0)) )
-    {
-      io_log("Error %u attaching dataspace\n", rc);
-      return rc;
-    }
+    Genode::memcpy(addr2, addr1, size);
 
-  return 0;
+    RegDetach(addr2);
+    RegDetach(addr1);
+    return 0;
 }

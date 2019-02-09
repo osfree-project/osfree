@@ -17,18 +17,70 @@
 #include <os3/dataspace.h>
 #include <os3/processmgr.h>
 
+#define OPCODE_ADD_AREA          0
+#define OPCODE_ATTACH_DATASPACE  1
+#define OPCODE_RELEASE_DATASPACE 2
+
+typedef struct
+{
+  PID pid;
+  int opcode;
+
+  union
+  {
+    struct
+    {
+      PVOID addr;
+      ULONG size;
+      ULONG flags;
+    } aa;
+    struct
+    {
+      PVOID addr;
+      l4_os3_dataspace_t ds;
+      ULONG rights;
+    } ad;
+    struct
+    {
+      l4_os3_dataspace_t ds;
+    } rd;
+  } u;
+} app_data_t;
+
+typedef struct list
+{
+  struct list *prev, *next;
+  int  key;
+  void *data;
+} list_t;
+
+list_t *list_query(int key);
+int list_add(int key, void *data);
+void list_del(int key);
+
 APIRET CPClientInit(void);
 
 APIRET CPClientDone(void);
 
 APIRET CPClientAppNotify1(void);
 
-APIRET CPClientAppNotify2(os2exec_module_t *s);
+APIRET CPClientAppNotify2(os2exec_module_t *s,
+                          const char *pszName,
+                          PID pid,
+                          l4_os3_thread_t *thread,
+                          const char *szLoadError,
+                          ULONG cbLoadError, ULONG ret);
+
+APIRET CPClientAppAddData(const app_data_t *data);
+
+APIRET CPClientAppGetData(app_data_t *data);
 
 APIRET CPClientCfgGetenv(PCSZ name, char **value);
 
 APIRET CPClientCfgGetopt(PCSZ name, int *is_int,
                          int *value_int, char **value_str);
+
+void CPClientTest(void);
 
 APIRET CPClientExit(ULONG action, ULONG result);
 
@@ -48,9 +100,9 @@ APIRET CPClientExecPgm(char **pObjname,
                        struct _RESULTCODES *pRes,
                        const char* pName);
 
-APIRET CPClientGetPIB(l4_os3_dataspace_t *ds);
+APIRET CPClientGetPIB(PID pid, l4_os3_dataspace_t *ds);
 
-APIRET CPClientGetTIB(l4_os3_dataspace_t *ds);
+APIRET CPClientGetTIB(PID pid, TID tid, l4_os3_dataspace_t *ds);
 
 APIRET CPClientError(ULONG error);
 

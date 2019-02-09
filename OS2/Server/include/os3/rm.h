@@ -22,6 +22,10 @@ enum l4re_rm_flags_t {
   L4RE_RM_ATTACH_FLAGS = 0xf0, /**< \brief Mask of all attach flags */
 };
 
+#define REG_FREE            0xe0000000
+#define REG_RESERVED        0xe0000001
+#define REG_DATASPACE       0xe0000002
+
 //inline int
 //l4os3_rm_attach(void **start, unsigned long size, unsigned long flags,
 //                l4os3_ds_t mem, l4_addr_t offs,
@@ -32,28 +36,40 @@ long RegAreaReserveInArea(unsigned long size,
                          void          **addr,
                          unsigned long long *area);
 
+long RegAreaReserveRegionInArea(unsigned long size,
+                                unsigned long flags,
+                                void          *addr,
+                                unsigned long long *area);
+
+long RegAreaReserve(unsigned long size,
+                    unsigned long flags,
+                    void          **addr,
+                    unsigned long long *area);
+
 long RegAreaRelease(unsigned long long area);
+
+long RegAreaReleaseAddr(void *addr);
 
 long RegAttach(void               **start,
                unsigned long      size,
                unsigned long      flags,
                l4_os3_dataspace_t ds,
-               void               *offset,
+               unsigned long      offset,
                unsigned char      align);
 
 long RegAttachToRegion(void               **start,
                        unsigned long      size,
                        unsigned long      flags,
                        l4_os3_dataspace_t ds,
-                       void               *offset,
+                       unsigned long      offset,
                        unsigned char      align);
 
-long RegAreaAttachToRegion(void               **start,
+long RegAreaAttachToRegion(void               *start,
                            unsigned long      size,
                            unsigned long long area,
                            unsigned long      flags,
                            l4_os3_dataspace_t ds,
-                           void               *offset,
+                           unsigned long      offset,
                            unsigned char      align);
 
 long RegAttachDataspaceToArea(l4_os3_dataspace_t ds,

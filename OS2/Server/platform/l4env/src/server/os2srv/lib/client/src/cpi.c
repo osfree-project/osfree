@@ -5,6 +5,7 @@
 #include <os3/types.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/kal.h>
 #include <os3/cpi.h>
 
 /* l4env includes */
@@ -39,12 +40,35 @@ APIRET CPClientAppNotify1(void)
     return NO_ERROR;
 }
 
-APIRET CPClientAppNotify2(os2exec_module_t *s)
+APIRET CPClientAppNotify2(os2exec_module_t *s,
+                          const char *pszName,
+                          PID pid,
+                          l4_os3_thread_t *thread,
+                          const char *szLoadError,
+                          ULONG cbLoadError,
+                          ULONG ret)
 {
     CORBA_Environment env = dice_default_environment;
 
-    os2server_app_notify2_call(&os2srv, s, &env);
+    os2server_app_notify2_call(&os2srv, thread->thread.id.lthread,
+                               s, pszName, pid,
+                               szLoadError, cbLoadError,
+                               ret, &env);
     return NO_ERROR;
+}
+
+APIRET CPClientAppAddData(const app_data_t *data)
+{
+    CORBA_Environment env = dice_default_environment;
+
+    return os2server_app_send_call(&os2srv, data, &env);
+}
+
+APIRET CPClientAppGetData(app_data_t *data)
+{
+    CORBA_Environment env = dice_default_environment;
+
+    return os2server_app_get_call(&os2srv, data, &env);
 }
 
 APIRET CPClientCfgGetenv(PCSZ name, char **value)
@@ -60,7 +84,7 @@ APIRET CPClientCfgGetopt(PCSZ name, int *is_int,
     CORBA_Environment env = dice_default_environment;
 
     return os2server_cfg_getopt_call(&os2srv, name, is_int,
-                                         value_int, value_str, &env);
+                                     value_int, value_str, &env);
 }
 
 APIRET CPClientExit(ULONG action, ULONG result)
@@ -102,18 +126,18 @@ APIRET CPClientExecPgm(char **pObjname,
         pRes, pName, &env);
 }
 
-APIRET CPClientGetPIB(l4_os3_dataspace_t *ds)
+APIRET CPClientGetPIB(PID pid, l4_os3_dataspace_t *ds)
 {
     CORBA_Environment env = dice_default_environment;
 
-    return os2server_dos_GetPIB_call(&os2srv, &ds->ds, &env);
+    return os2server_dos_GetPIB_call(&os2srv, pid, &ds->ds, &env);
 }
 
-APIRET CPClientGetTIB(l4_os3_dataspace_t *ds)
+APIRET CPClientGetTIB(PID pid, TID tid, l4_os3_dataspace_t *ds)
 {
     CORBA_Environment env = dice_default_environment;
 
-    return os2server_dos_GetTIB_call(&os2srv, &ds->ds, &env);
+    return os2server_dos_GetTIB_call(&os2srv, pid, tid, &ds->ds, &env);
 }
 
 APIRET CPClientError(ULONG error)
@@ -195,12 +219,12 @@ APIRET CPClientCloseEventSem(HEV hev)
     return os2server_dos_CloseEventSem_call(&os2srv, hev, &env);
 }
 
-APIRET CPClientGetTID(TID *ptid)
+/* APIRET CPClientGetTID(TID *ptid)
 {
     CORBA_Environment env = dice_default_environment;
 
     return os2server_dos_GetTID_call(&os2srv, ptid, &env);
-}
+} */
 
 APIRET CPClientGetPID(PID *ppid)
 {
@@ -217,13 +241,13 @@ APIRET CPClientGetNativeID(PID pid, TID tid,
     return os2server_dos_GetNativeID_call(&os2srv, pid, tid, thread, &env);
 }
 
-APIRET CPClientGetTIDNative(const l4_os3_thread_t *thread,
+/* APIRET CPClientGetTIDNative(const l4_os3_thread_t *thread,
                             TID *ptid)
 {
     CORBA_Environment env = dice_default_environment;
 
     return os2server_dos_GetTIDNative_call(&os2srv, thread, ptid, &env);
-}
+} */
 
 APIRET CPClientNewTIB(PID pid, TID tid,
                       const l4_os3_thread_t *thread)

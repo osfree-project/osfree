@@ -52,7 +52,7 @@ struct OS2::Fs::Session : Genode::Session
                              ULONG ulAttribute,
                              ULONG fsOpenFlags,
                              ULONG fsOpenMode) = 0; //,
-                             // EAOP2 *peaop2) = 0;
+                             //EAOP2 *peaop2) = 0;
 
    virtual APIRET dos_DupHandle(HFILE hFile,
                                 HFILE *phFile2) = 0;

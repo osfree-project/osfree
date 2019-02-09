@@ -198,6 +198,7 @@ APIRET FSClientFindFirst(PSZ pszFileSpec,
     rc = os2fs_dos_FindFirst_call(&fs, pszFileSpec, phDir,
                                   ulAttribute, &pFindBuf, cbBuf,
                                   pcFileNames, ulInfoLevel, &env);
+    io_log("FSClientFindFirst: rc=%lx\n", rc);
     return rc;
 }
 

@@ -16,25 +16,15 @@ extern unsigned long long shared_memory_area;
 extern char pszLoadError[260];
 extern ULONG rcCode;
 
-extern l4_os3_cap_idx_t execsrv;
+//extern l4_os3_thread_t execsrv;
 
 extern vmdata_t *areas_list;
 
 void DICE_CV
-os2app_app_GetLoadError_component(CORBA_Object _dice_corba_obj,
-                                  char **uchLoadError /* out */,
-                                  ULONG *cbLoadError  /* out */,
-                                  ULONG *retCode /* out */,
-                                  CORBA_Server_Environment *_dice_corba_env)
+os2app_app_notify_component(CORBA_Object _dice_corba_obj,
+                            CORBA_Server_Environment *_dice_corba_env)
 {
-  AppGetLoadError(*uchLoadError, cbLoadError, retCode);
-}
-
-void DICE_CV
-os2app_app_Terminate_component(CORBA_Object _dice_corba_obj,
-                               CORBA_Server_Environment *_dice_corba_env)
-{
-  AppTerminate();
+  AppNotify();
 }
 
 long DICE_CV

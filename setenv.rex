@@ -1,7 +1,11 @@
-#!/usr/local/bin/rexx
+#! /usr/bin/rexx
+#
+
 /*  Set environment variables */
 
 parse arg cfg
+
+cfg = strip(cfg, 'B')
 
 parse source os addr src
 
@@ -65,18 +69,14 @@ if pos(':', root) = 2 then root = substr(root, 3)
 if os == 'UNIX' | os == 'LINUX' then do
   root = translate(root, '/', '\')
 end
+
 /* append '\' */
 if lastpos('\', root) \= length(root) then root = root || '\'
 
-tools = root || '\bin\tools'
+tools = root || 'bin\tools'
 path  = value('PATH',, env)
 path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
-if os == 'UNIX' | os == 'LINUX' then do
-  include = watcom || '\lh;'
-end; else do
-  include = watcom || '\h;'
-end
-include = include  || watcom || '\h\dos;' || watcom || '\h\win'
+include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
 wipfc = watcom || '\wipfc'
@@ -93,22 +93,38 @@ end; else do
   beginlibpath = ''; libos2 = '';
 end
 
-lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || root || '\lib'
+/* whether to use osFree or Watcom headers */
+/* if headers == 'watcom' then
+  add_inc = watcom || '\h\os2'
+else
+  add_inc = root || '\build\include\os2' */
+
+
+lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
 vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 
+if verbose = 'yes' then
+  vars = vars || ' VERBOSE'
+
 /* Set vars */
 do i = 1 to words(vars)
   var = word(vars, i)
   val = value(var)
-  if os == 'UNIX' | os == 'LINUX'
-     then val = translate(val, '/:', '\;')
-  call value var, val, env
+  if os == 'UNIX' | os == 'LINUX' then do
+      val = translate(val, '/:', '\;')
+      'export '||var||'='||val
+  end; else do
+      'set '||var||'='||val
+  end
+  
+  /* a bug with Regina REXX: it does not export */
+  /* variables to a parent shell!!!             */
+  /* call value var, val, env */
+  
   say var || '=' || val
-  if os == 'UNIX' | os == 'LINUX'
-     then 'export ' || var
 end
 
 if os == 'OS2' then 'set beginlibpath=' || beginlibpath

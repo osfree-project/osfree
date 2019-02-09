@@ -1,2 +1,2 @@
-TARGET = dummy-os2fs
-LIBS = os2fs
+TARGET = dummy-os2srv
+LIBS = os2srv

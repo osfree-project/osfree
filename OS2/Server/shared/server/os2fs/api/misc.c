@@ -46,7 +46,9 @@ void setdrivemap(ULONG *map)
 APIRET FSGetDriveMap(ULONG *map)
 {
     if (drivemap == -1)
+    {
         setdrivemap(&drivemap);
+    }
 
     *map = drivemap;
     return 0;

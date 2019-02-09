@@ -144,8 +144,10 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
     #ifndef __OS2__
         #include <os3/l4_alloc_mem.h>
         // object map address in execsrv address space
+        io_log("ixfModule->area=%llx, base=%lx, size=%lx\n", ixfModule->area, lx_obj->o32_base, lx_obj->o32_size);
         mmap_obj = l4_alloc_mem(ixfModule->area, lx_obj->o32_base, lx_obj->o32_size,
                                  PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC, &ds);
+        io_log("mmap_obj=%lx\n", mmap_obj);
 	// Host-dependent part of IXFMODULE structure (data for L4 host)
 	ixfSysDep = (IXFSYSDEP *)(ixfModule->hdlSysDep);
 
@@ -174,12 +176,15 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 	else                 // for DLL files
 	  section->addr = (void *)mmap_obj;
 	section->size = lx_obj->o32_size;
-	io_log("ds=%x @ %x, size %u\n", ds, section->addr, section->size);
-	section->type = SECTYPE_READ | SECTYPE_WRITE | SECTYPE_EXECUTE;
+	//io_log("ds=%lx @ %lx, size %lx\n", ds.ds.id, section->addr, section->size);
+	if (lx_obj == code_obj)
+	    section->type = SECTYPE_READ | SECTYPE_EXECUTE;
+	else
+	    section->type = SECTYPE_READ | SECTYPE_WRITE;
 	section->id   = (unsigned short)ixfSysDep->secnum;
         section->ds = ds;
 	ixfSysDep->secnum++;
-	io_log("secnum=%u\n", ixfSysDep->secnum);
+	io_log("secnum=%lu\n", ixfSysDep->secnum);
     #else
         DosAllocMem(&mmap_obj, lx_obj->o32_size, PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE);
     #endif

@@ -61,8 +61,10 @@ void DosNameConversion(char *pszName);
 void setdrivemap(ULONG *map);
 
 int pathconv(char **converted, char *fname);
+int pathconv_pn(char **converted, char *path);
 int cdir(char **dir, char *component);
 
+/* convert OS/2-style pathname to PN-style pathname */
 int pathconv(char **converted, char *fname)
 {
     struct I_Fs_srv *fsrv;
@@ -114,6 +116,43 @@ int pathconv(char **converted, char *fname)
     strcpy(newfilename, newdirectory);
     newfilename=strcat(newfilename, name);
     *converted = newfilename;
+
+    return 0;
+}
+
+/* Convert PN-style pathname to OS/2 style one */
+int pathconv_pn(char **converted, char *path)
+{
+    char *s;
+    char prefix[CCHMAXPATHCOMP];
+    char path2[CCHMAXPATHCOMP];
+    struct I_Fs_srv *fsrv;
+    int len;
+
+    strcpy(path2, path);
+
+    while ( (s = strrchr(path2, '/') ) )
+    {
+        strncpy(prefix, path2, s - path2);
+        prefix[s - path2] = '\0';
+
+        fsrv = FSRouter_route_back(&fsrouter, prefix);
+
+        if (fsrv)
+        {
+	    len = strlen(path) - strlen(prefix) - 1;
+	    *converted = malloc(len + 4);
+	    *converted[0] = *(fsrv->drive);
+	    *converted[1] = ':';
+	    *converted[2] = '\\';
+	    strncpy(*converted + 3, path + strlen(prefix) + 1, len);
+	    *converted[len + 4] = '\0';
+
+	    return 1;
+        }
+
+        path2[s - path2] = '\0';
+    }
 
     return 0;
 }
@@ -652,6 +691,7 @@ APIRET FSFindFirst(PSZ pszFileSpec,
     struct stat statbuf;
     struct tm tt;
     char *t, *p;
+    int len;
     char *fname;
     int  rc, i, j;
     char fn[CCHMAXPATH];
@@ -663,8 +703,6 @@ APIRET FSFindFirst(PSZ pszFileSpec,
       if (fn[i] == '/')
           fn[i] = '\\';
     }
-
-    io_log("fn=%s\n", fn);
 
     if (*phDir == HDIR_SYSTEM)
         hdir = &thehdir;
@@ -684,12 +722,21 @@ APIRET FSFindFirst(PSZ pszFileSpec,
     if (pathconv(&t, fn))
         return ERROR_PATH_NOT_FOUND;
 
+    len = strlen(t);
+
     // check for filename length overflow
-    if (strlen(t) > 255)
+    if (len > 255)
         return ERROR_FILENAME_EXCED_RANGE;
         //return ERROR_META_EXPANSION_TOO_LONG;
 
+    // change wildcard to "*" if it is a directory
+    //if (t[len - 1] == '.' && t[len - 2] == '/')
+    //{
+    //    t[len - 1] = '*';
+    //}
+
     // perform the search
+    //glob(t, GLOB_MARK, NULL, &hdir->g);
     glob(t, 0, NULL, &hdir->g);
 
     switch (ulInfoLevel)
@@ -713,6 +760,7 @@ APIRET FSFindFirst(PSZ pszFileSpec,
                     info->oNextEntryOffset = sizeof(FILEFINDBUF3);
 
                 fname = hdir->g.gl_pathv[i];
+                io_log("fname=%s\n", fname);
 
                 if (strlen(fname) > 255)
                     return ERROR_META_EXPANSION_TOO_LONG;
@@ -817,11 +865,27 @@ APIRET FSFindFirst(PSZ pszFileSpec,
                     info->attrFile |= FILE_ARCHIVED;
 
                 // search for the last slash
-                for (p = fname + strlen(fname); p > fname && *p != '/'; p--) ;
-                if (*p == '/') p++;
+                /* for (p = fname + strlen(fname); p > fname && *p != '/'; p--)
+
+                if (p[1] == '\0')
+                {
+                    // trailing slash: directory
+                    p--;
+                    for ( ; p > fname && *p != '/'; p--) ;
+                    p++;
+                }
+                else if (*p == '/')
+                {
+                    // no trailing slash: file
+                    p++;
+                } */
+
+                p = strrchr(fname, '/');
+                if (p) p++;
 
                 info->cchName = strlen(p) + 1;
                 strcpy(info->achName, p);
+                io_log("info->achName=%s\n", info->achName);
 
                 info->cbFile = statbuf.st_size;
                 info->cbFileAlloc = statbuf.st_blksize * statbuf.st_blocks;
@@ -1709,6 +1773,7 @@ APIRET FSQueryPathInfo(PSZ pszPathName,
             {
                 setdrivemap(&map);
                 len = sizeof(fname);
+
                 ////rc = CPClientQueryCurrentDir(0, map, (char **)&fname, &len);
 
                 ////if (rc)

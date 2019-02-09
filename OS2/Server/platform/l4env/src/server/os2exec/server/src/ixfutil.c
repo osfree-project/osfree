@@ -48,9 +48,17 @@ int ixfCopyModule(IXFModule *ixfDst, IXFModule *ixfSrc)
 
     memmove(section, s0->section, sizeof(l4_os3_section_t));
 
-    // create Copy-On-Write copy of original dataspace
-    rc = l4dm_copy(&s0->section->ds.ds, L4DM_COW, 
-                   "os2exec section", &section->ds);
+    if (s0->section->type & SECTYPE_EXECUTE)
+    {
+        // leave as is
+        s0->section->ds.ds = section->ds.ds;
+    }
+    else
+    {
+        // create Copy-On-Write copy of original dataspace
+        rc = l4dm_copy(&s0->section->ds.ds, L4DM_COW,
+                       "os2exec section", &section->ds.ds);
+    }
 
     if (rc)
       io_log("dataspace copy rc=%d\n", rc);

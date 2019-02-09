@@ -5,10 +5,8 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/types.h>
+#include <os3/cpi.h>
 #include <os3/kal.h>
-
-/* l4env includes */
-#include <l4/generic_ts/generic_ts.h>
 
 /* libc includes */
 #include <stdlib.h>
@@ -24,18 +22,34 @@ extern l4_os3_cap_idx_t execsrv;
 
 extern vmdata_t *areas_list;
 
-long AppGetLoadError(char *uchLoadError,
-                     ULONG *cbLoadError,
-                     ULONG *retCode)
+void AppNotify(void)
 {
-  strcpy(uchLoadError, pszLoadError);
-  *cbLoadError = strlen(uchLoadError) + 1;
-  *retCode = rcCode;
-}
+  l4_os3_dataspace_t ds;
+  app_data_t data;
+  APIRET rc;
 
-long AppTerminate(void)
-{
-  l4ts_exit();
+  while (! (rc = CPClientAppGetData(&data)) )
+  {
+    switch (data.opcode)
+    {
+      case OPCODE_ADD_AREA:
+        AppAddArea(data.u.aa.addr,
+                   data.u.aa.size,
+                   data.u.aa.flags);
+        break;
+
+      case OPCODE_ATTACH_DATASPACE:
+        ds = data.u.ad.ds;
+        AppAttachDataspace(data.u.ad.addr,
+                           ds,
+                           data.u.ad.rights);
+        break;
+
+      case OPCODE_RELEASE_DATASPACE:
+        ds = data.u.rd.ds;
+        AppReleaseDataspace(ds);
+    }
+  }
 }
 
 long AppAddArea(void *addr,
@@ -50,7 +64,8 @@ long AppAddArea(void *addr,
     return ERROR_INVALID_ADDRESS;
 
   ptr->is_shared = 1;
-  ptr->owner.thread = L4_INVALID_ID;
+  ptr->owner = 0;
+  //ptr->owner.thread = L4_INVALID_ID;
   ptr->area = shared_memory_area;
   ptr->rights = flags;
   ptr->addr = addr;

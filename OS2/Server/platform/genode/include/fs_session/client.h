@@ -67,13 +67,13 @@ public:
                          LONGLONG cbFile,
                          ULONG ulAttribute,
                          ULONG fsOpenFlags,
-                         ULONG fsOpenMode) //,
+                         ULONG fsOpenMode)
                          //EAOP2 *peaop2)
 	{
 		return call<Rpc_dos_OpenL>(fName,
 		                           phFile, pulAction, cbFile,
 		                           ulAttribute, fsOpenFlags,
-		                           fsOpenMode); //peaop2);
+		                           fsOpenMode); //, peaop2);
 	}
 
 	APIRET dos_DupHandle(HFILE hFile,

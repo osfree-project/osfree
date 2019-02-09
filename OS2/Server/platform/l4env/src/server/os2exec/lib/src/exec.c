@@ -16,11 +16,13 @@ extern l4_threadid_t execsrv;
 
 APIRET ExcClientInit(void)
 {
+    io_log("init---\n");
     if (! names_waitfor_name("os2exec", &execsrv, 30000) )
     {
         io_log("os2exec not found on the name server!\n");
         return ERROR_FILE_NOT_FOUND; // @todo more appropriate error code
     }
+    io_log("init+++\n");
 
     return NO_ERROR;
 }
@@ -40,8 +42,10 @@ APIRET ExcClientOpen(PSZ                pszFileName,
     l4dm_dataspace_t ds;
     long ret;
 
+    io_log("open---\n");
     ret = os2exec_open_call(&execsrv, (char *)pszFileName, &ds,
                             ulFlags, (char **)&pbLoadError, pcbLoadError, phmod, &env);
+    io_log("open+++\n");
     return (APIRET)ret;
 }
 
@@ -55,6 +59,15 @@ APIRET ExcClientLoad(HMODULE          hmod,
 
     ret = os2exec_load_call(&execsrv, hmod, (char **)&pbLoadError,
                             pcbLoadError, s, &env);
+    return (APIRET)ret;
+}
+
+APIRET ExcClientFree(HMODULE hmod)
+{
+    CORBA_Environment env = dice_default_environment;
+    long ret;
+
+    ret = os2exec_free_call(&execsrv, hmod, &env);
     return (APIRET)ret;
 }
 
@@ -174,27 +187,31 @@ APIRET ExcClientGetDataspace(void **addr,
 APIRET ExcClientGetSharedMem(void *pb,
                              void **addr,
                              ULONG *size,
-                             l4_os3_cap_idx_t *owner)
+                             PID *owner)
+                             //l4_os3_cap_idx_t *owner)
 {
     CORBA_Environment env = dice_default_environment;
     long ret;
 
     ret = os2exec_get_sharemem_call(&execsrv, (l4_addr_t)pb,
                                     (l4_addr_t *)addr, (l4_size_t *)size,
-                                    &owner->thread, &env);
+                                    &owner, &env);
+                                    //&owner->thread, &env);
     return (APIRET)ret;
 }
 
 APIRET ExcClientGetNamedSharedMem(PSZ pszName,
                                   void **addr,
                                   ULONG *size,
-                                  l4_os3_cap_idx_t *owner)
+                                  PID   *owner)
+                                  //l4_os3_cap_idx_t *owner)
 {
     CORBA_Environment env = dice_default_environment;
     long ret;
 
     ret = os2exec_get_namedsharemem_call(&execsrv, pszName, (l4_addr_t *)addr,
-                                         (l4_size_t *)size, &owner->thread, &env);
+                                         (l4_size_t *)size, &owner, &env);
+                                         //(l4_size_t *)size, &owner->thread, &env);
     return (APIRET)ret;
 }
 

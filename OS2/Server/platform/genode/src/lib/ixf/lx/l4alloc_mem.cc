@@ -44,19 +44,19 @@ int l4_translate_os2_flags(int flags) { /* PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_W
                                         /* L4RM_MAP   L4DM_READ   L4DM_READ or L4DM_WRITE */
    int l4flags = 0;
    if((flags & PAG_COMMIT)==PAG_COMMIT) {
-     l4flags = l4flags | L4RM_MAP;
+     l4flags = l4flags | DATASPACE_MAP;
     }
    if((flags & PAG_EXECUTE)==PAG_EXECUTE) {
-     l4flags = l4flags | L4DM_READ;
+     l4flags = l4flags | DATASPACE_READ;
     }
 
    if( ((flags & PAG_READ)==PAG_READ) && 
        (!((flags & PAG_WRITE)==PAG_WRITE)) ) {
-     l4flags = l4flags | L4DM_WRITE;
+     l4flags = l4flags | DATASPACE_WRITE;
     }
 
    if((flags & PAG_WRITE)==PAG_WRITE) {
-     l4flags = l4flags | L4DM_WRITE;
+     l4flags = l4flags | DATASPACE_WRITE;
     }
 
 

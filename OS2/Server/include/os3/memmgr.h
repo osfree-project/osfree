@@ -27,7 +27,7 @@
 
 struct t_mem_area {
 	void * start;
-	unsigned int size;
+	unsigned long size;
 	void * next;
 };
 
@@ -35,9 +35,9 @@ struct t_mem_area {
 
 void init_memmgr(struct t_mem_area *root_area);
 
-void * seek_free_mem(struct t_mem_area *root_area, unsigned int i_size);
-int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_size);
-int   alloc_mem_area(struct t_mem_area *root_area, void * p_start, unsigned int i_size);
+void * seek_free_mem(struct t_mem_area *root_area, unsigned long i_size);
+int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned long i_size);
+int   alloc_mem_area(struct t_mem_area *root_area, void * p_start, unsigned long i_size);
 int   dealloc_mem_area(struct t_mem_area *root_area, void * p_start);
 void  print_used_mem(struct t_mem_area *root_area);
 	

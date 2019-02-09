@@ -8,6 +8,8 @@
 #include <l4/semaphore/semaphore.h>
 #include <l4/lock/lock.h>
 
+#define SEMAPHORE_INIT(a) L4SEMAPHORE_INIT(a)
+
 typedef l4semaphore_t l4_os3_semaphore_t;
 typedef l4lock_t l4_os3_lock_t;
 

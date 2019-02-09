@@ -167,7 +167,7 @@ APIRET CDECL PrcDestroyTIB(PID pid, TID tid);
 struct t_os2process *PrcGetProc(ULONG pid);
 
 struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread);
-TID PrcGetTIDNative(l4_os3_thread_t thread);
+/* TID PrcGetTIDNative(l4_os3_thread_t thread); */
 APIRET CDECL PrcNewTIB(PID pid, TID tid, l4_os3_thread_t id);
 l4_os3_thread_t PrcGetNativeID(PID pid, TID tid);
 

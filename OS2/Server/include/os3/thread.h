@@ -23,6 +23,8 @@ BOOL ThreadEqual(l4_os3_thread_t one, l4_os3_thread_t two);
 
 BOOL TaskEqual(l4_os3_thread_t one, l4_os3_thread_t two);
 
+void ThreadSleep(unsigned long ms);
+
 void ThreadExit(void);
 
 void TaskExit(void);

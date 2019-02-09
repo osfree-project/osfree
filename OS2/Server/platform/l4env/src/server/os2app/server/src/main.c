@@ -29,6 +29,7 @@
 #include <l4/dm_phys/dm_phys.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/names/libnames.h>
+#include <l4/events/events.h>
 #include <l4/generic_ts/generic_ts.h>
 
 /* servers RPC call includes */
@@ -46,12 +47,16 @@ extern char LOG_tag[9];
 const l4_addr_t l4rm_heap_start_addr = 0xb9000000;
 /* l4thread stack map start address */
 const l4_addr_t l4thread_stack_area_addr = 0xbc000000;
+/* l4thread default stack size */
+const l4_size_t l4thread_stack_size = 0x20000;
+/* l4thread max stack size */
+const l4_size_t l4thread_max_stack = 0x200000;
 /* l4thread TCB table map address */
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 
 /* private memory arena settings */
 l4_addr_t   private_memory_base = 0x10000;
-l4_size_t   private_memory_size = 512*1024*1024;
+l4_size_t   private_memory_size = 64*1024*1024;
 unsigned long long private_memory_area;
 
 /* shared memory arena settings */
@@ -65,12 +70,14 @@ char use_events = 0;
    task and os2app stacks)        */
 unsigned long __stack;
 
+/* our thread id */
+l4_os3_thread_t me;
 /* OS/2 server id        */
 l4_threadid_t os2srv;
 /* FS server id        */
 l4_threadid_t fs;
 /* exec server id        */
-l4_threadid_t execsrv;
+l4_os3_thread_t execsrv;
 /* dataspace manager id  */
 l4_threadid_t dsm;
 /* l4env infopage        */
@@ -82,6 +89,8 @@ char fprov[20] = "fprov_proxy_fs";
 l4_threadid_t fprov_id;
 
 l4_uint32_t service_lthread;
+
+extern l4_os3_thread_t thread;
 
 char pszLoadError[260];
 ULONG rcCode = 0;
@@ -115,7 +124,6 @@ __exit(ULONG action, ULONG result)
   STKOUT
 }
 
-#if 0
 void event_thread(void)
 {
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
@@ -124,7 +132,7 @@ void event_thread(void)
   l4_threadid_t tid;
   int rc;
 
-  if (!l4events_init())
+  if (! l4events_init())
   {
     io_log("l4events_init() failed\n");
     __exit(1, 1);
@@ -154,7 +162,6 @@ void event_thread(void)
       __exit(1, rc);
   }
 }
-#endif
 
 void server_loop(void)
 {
@@ -168,7 +175,7 @@ void server_loop(void)
 int main (int argc, char *argv[])
 {
   //CORBA_srv_env env = default_srv_env;
-  l4_os3_thread_t thread;
+  l4_os3_thread_t thr;
   //l4_threadid_t tid;
   int rc = 0;
   int optionid;
@@ -180,7 +187,7 @@ int main (int argc, char *argv[])
                 { 0, 0, 0, 0}
                 };
 
-  enter_kdebug("dbg");
+  //enter_kdebug("dbg");
   //asm("movb $0x30, %al \n\t"
     //  "outb %al, $0x43 \n\t");
   //asm("inb $0x21, %al \n\t"
@@ -189,7 +196,7 @@ int main (int argc, char *argv[])
   //if (! names_waitfor_name("os2srv", &os2srv, 30000))
   if ( (rc = CPClientInit()) )
     {
-      io_log("Can't find os2srv on names, exiting...\n");
+      io_log("Can't find os2srv, exiting...\n");
       __exit(1, 1);
     }
 
@@ -205,11 +212,11 @@ int main (int argc, char *argv[])
     __exit(1, 1);
   }
 
-  /* if (! names_waitfor_name("os2exec", &execsrv, 30000))
+  if (! names_waitfor_name("os2exec", &execsrv.thread, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
       __exit(1, 1);
-    } */
+    }
 
   if ( (rc = ExcClientInit()) )
   {
@@ -254,14 +261,15 @@ int main (int argc, char *argv[])
   l4env_infopage = &infopg;
   l4env_infopage->fprov_id = fprov_id;
   l4env_infopage->memserv_id = dsm;
+  //l4env_infopage->stack_size
 
   // start server loop
   //thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
-  thread = ThreadCreate((void *)server_loop, 0, THREAD_ASYNC);
+  thr = ThreadCreate((void *)server_loop, 0, THREAD_ASYNC);
   //tid = l4thread_l4_id(thread);
   //tid = thread.thread;
   //service_lthread = thread.id.lthread;
-  service_lthread = thread.thread.id.lthread;
+  service_lthread = thr.thread.id.lthread;
 
   // Parse command line arguments
   for (;;)
@@ -281,6 +289,12 @@ int main (int argc, char *argv[])
         __exit(1, 2);
     }
   }
+
+  me.thread = l4_myself();
+
+  thread = me;
+  //thread.thread = l4_myself();
+  thread.thread.id.lthread = service_lthread;
 
   /* task = l4_myself();
 
@@ -308,16 +322,18 @@ int main (int argc, char *argv[])
   io_log("LDT switch time=%u ns\n", l4_tsc_to_ns(stop - start)); */
 
   // start events thread
-  /* if (use_events)
+  if (use_events)
   {
     // start events thread
-    l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
+    //l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
+    ThreadCreate((void *)event_thread, 0, THREAD_ASYNC);
     io_log("event thread started\n");
-  } */
+  }
 
   // dummy function needed for the linker to link dl.o with the program
   test();
 
+  io_log("sizeof(l4_os3_section_t)=%ld\n", sizeof(l4_os3_section_t));
   io_log("calling KalStartApp...\n");
   KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
 

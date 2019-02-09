@@ -18,6 +18,8 @@
 
 #define CV              DICE_CV
 
+#elif __genode__
+
 #else
 #error "port me!"
 #endif

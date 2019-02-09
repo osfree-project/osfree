@@ -22,6 +22,11 @@ BOOL TaskEqual(l4_os3_thread_t one, l4_os3_thread_t two)
     return (one.thread.id.task == two.thread.id.task);
 }
 
+void ThreadSleep(unsigned long ms)
+{
+    l4_sleep(ms);
+}
+
 void ThreadExit(void)
 {
     l4thread_exit();

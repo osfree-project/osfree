@@ -13,13 +13,13 @@
 /* local includes */
 #include "api.h"
 
-long excShare(unsigned long hmod, l4_os3_thread_t client_id);
-
 int load_ixfs (void);
 void *get_ixf_handler(char *fmtname, IXFHandler **handler);
 void *getsym (void *hdl, char *fmtname, char *fn);
 vmdata_t *get_mem_by_name(const char *pszName);
 vmdata_t *get_area(void *addr);
+
+long excShare(mod_list_t **list, unsigned long hmod, l4_os3_thread_t client_id);
 
 extern IXFHandler *IXFHandlers;
 
@@ -69,9 +69,15 @@ long ExcLoad(unsigned long *phmod,
     return rc;
 }
 
+long ExcFree(unsigned long hmod)
+{
+    return ModFreeModule(hmod);
+}
+
 long ExcShare(unsigned long hmod, l4_os3_thread_t client_id)
 {
-    return excShare(hmod, client_id);
+    mod_list_t *list = NULL;
+    return excShare(&list, hmod, client_id);
 }
 
 long ExcGetImp(unsigned long hmod,
@@ -151,7 +157,9 @@ long ExcGetSect(unsigned long hmod,
       return 1; // set more real error
     }
 
+    io_log("r->section->type=%x\n", r->section->type);
     memcpy((char *)sect, (char *)r->section, sizeof(l4_os3_section_t));
+    io_log("sect->type=%x\n", sect->type);
     ++ *index;
 
     return 0;
@@ -263,7 +271,7 @@ long ExcGetDataspace(void               **addr,
   ret = RegLookupRegion(*addr, addr, size, &offset, ds);
 
   //if ( (ret == L4RM_REGION_DATASPACE) )
-  if (! ret)
+  if ( (ret == REG_DATASPACE) )
   {
     // transfer dataspace to client
     io_log("*** %x\n", (char *)*addr);
@@ -288,7 +296,8 @@ long ExcGetDataspace(void               **addr,
 long ExcGetSharedMem(void             *pb,
                      void             **addr,
                      unsigned long    *size,
-                     l4_os3_thread_t  *owner)
+                     PID              *owner)
+                     //l4_os3_thread_t  *owner)
 {
   vmdata_t *ptr;
 
@@ -307,7 +316,8 @@ long ExcGetSharedMem(void             *pb,
 long ExcGetNamedSharedMem(const char        *name,
                           void              **addr,
                           unsigned long     *size,
-                          l4_os3_thread_t   *owner)
+                          PID               *owner)
+                          //l4_os3_thread_t   *owner)
 {
   vmdata_t *ptr;
 

@@ -87,7 +87,7 @@ int LoaderExec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
   io_log("dataspace created\n");
 
   /* attach the dataspace to our own address space */
-  attach_ds(ds, L4DM_RW, &addr);
+  attach_ds(ds, DATASPACE_RW, &addr);
   io_log("dataspace attached\n");
 
   if (vc)

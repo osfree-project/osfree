@@ -22,6 +22,8 @@ long ExcLoad(unsigned long *hmod,
              unsigned long cbLoadError,
              os2exec_module_t *s);
 
+long ExcFree(unsigned long hmod);
+
 long ExcShare(unsigned long hmod,
               l4_os3_thread_t client_id);
 
@@ -66,12 +68,14 @@ long ExcGetDataspace(void               **addr,
 long ExcGetSharedMem(void *pb,
                      void **addr,
                      unsigned long *size,
-                     l4_os3_thread_t *owner);
+                     PID  *owner);
+                     //l4_os3_thread_t *owner);
 
 long ExcGetNamedSharedMem(const char       *name,
                           void             **addr,
                           unsigned long    *size,
-                          l4_os3_thread_t *owner);
+                          PID              *owner);
+                          //l4_os3_thread_t *owner);
 
 long ExcIncrementSharedMemRefcnt(void *addr);
 

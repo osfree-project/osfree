@@ -14,6 +14,7 @@ main.c  \
 sysinit.c \
 exec.c \
 processmgr.c \
+os2app.c \
 rpc.c \
 api.c \
 cfg.c

@@ -11,8 +11,8 @@ DEFAULT_RELOC	= 0x01880000
 #  os2server.c
 SRC_C		= \
 main.c      \
-api/rpc.c   \
-api/glob/glob.c \
+rpc.c   \
+glob.c \
 utility.c   \
 globals.c   \
 mountreg.c  \
@@ -32,7 +32,7 @@ LIBS  = -lgeneric_fprov-server -levents -los2server \
 #		  --rpath-link $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/$(L4API)
 
 #LDFLAGS		= -shared
-CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src/api/glob \
+CFLAGS          += -I$(PKGDIR)/include -I$(PKGDIR)/server/src \
                    -I$(OS3_DIR)/shared/server/os2fs/api
 MODE            = l4env_base
 

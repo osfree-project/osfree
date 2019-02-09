@@ -22,6 +22,7 @@
 #include <os3/io.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /* struct t_mem_area root_area; */
 
@@ -48,19 +49,19 @@ unsigned long int round_up_to_4KiB(unsigned long int i) {
      Startar sökningen efter ett fritt utrymme vid start_pos och letar vid varje sida om den är fri
          eller inte. Om den stöter på ett allokerar utrymme, öka på start_pos det utrymmets storlek
          till start_pos. */
-void * seek_free_mem(struct t_mem_area *root_area, unsigned int i_size) {
+void * seek_free_mem(struct t_mem_area *root_area, unsigned long i_size) {
 
-        unsigned long int start_pos = 0;
+        unsigned long start_pos = 0;
         struct t_mem_area *el = root_area;
-        unsigned int i_start = (unsigned int) start_pos;
-        unsigned int el_start = (unsigned int) el->start;
+        unsigned long i_start = (unsigned long) start_pos;
+        unsigned long el_start = (unsigned long) el->start;
 
         i_size = round_up_to_4KiB(i_size);
 
         while(el->next) {
                 el = (struct t_mem_area*)el->next;
                 i_start = start_pos;
-                el_start = (unsigned int) el->start;
+                el_start = (unsigned long) el->start;
 
                 if(((i_start >= el_start) && (i_start <= (el->size+el_start)))
                         || (((i_size+i_start) >= el_start) && ((i_size+i_start) <= (el->size+el_start))) ) {
@@ -74,7 +75,7 @@ void * seek_free_mem(struct t_mem_area *root_area, unsigned int i_size) {
         /*el = (struct t_mem_area*)el->next;*/
 
         i_start = start_pos;
-        el_start = (unsigned int) el->start;
+        el_start = (unsigned long) el->start;
 
         if(((i_start >= el_start) && (i_start <= (el->size+el_start)))
                 || (((i_size+i_start) >= el_start) && ((i_size+i_start) <= (el->size+el_start))) ) {
@@ -92,17 +93,17 @@ void * seek_free_mem(struct t_mem_area *root_area, unsigned int i_size) {
 
 /* is_mem_used   - Tar reda på om ett minnesområde redan är upptaget, returnerar i
                  så fall SANT annars FALSKT. */
-int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_size) {
+int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned long i_size) {
 
         struct t_mem_area *el = root_area;
-        unsigned int i_start = (unsigned int) p_start;
-        unsigned int el_start = (unsigned int) el->start;
+        unsigned long i_start = (unsigned long) p_start;
+        unsigned long el_start = (unsigned long) el->start;
         /* io_log("Is allocated?: %p - 0x%lx \n", p_start, (unsigned long int)i_start+i_size); */
         /* print_used_mem(root_area); */
         while(el->next) {
                 el = (struct t_mem_area*)el->next;
-                i_start = (unsigned int) p_start;
-                el_start = (unsigned int) el->start;
+                i_start = (unsigned long) p_start;
+                el_start = (unsigned long) el->start;
 
                 /*io_log("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
                 io_log("        && (%d >= %d) && (%d <= %d) )\n",
@@ -123,8 +124,8 @@ int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_s
                 /* io_log("No, continue.\n"); */
 
         }
-        i_start = (unsigned int) p_start;
-        el_start = (unsigned int) el->start;
+        i_start = (unsigned long) p_start;
+        el_start = (unsigned long) el->start;
 
         /*io_log("if((%d >= %d) && (%d <= %d)\n", i_start, el_start, i_start, el->size+el_start);
         io_log("        && (%d >= %d) && (%d <= %d) )\n",
@@ -146,18 +147,18 @@ int   is_mem_used(struct t_mem_area *root_area, void * p_start, unsigned int i_s
 
 /* alloc_mem_area- Allokerar ett område, returnerar sant om det gick annars
                  falskt. */
-int   alloc_mem_area(struct t_mem_area *root_area, void * p_start, unsigned int i_size)
+int   alloc_mem_area(struct t_mem_area *root_area, void * p_start, unsigned long i_size)
 {
   struct t_mem_area *rot;
-  struct t_mem_area * prev;
+  //struct t_mem_area * prev;
   struct t_mem_area* p_tmp;
 
         if(is_mem_used(root_area, p_start, i_size))
                 return 0;
         rot = root_area;
-        prev = rot;
+        //prev = rot;
         while(rot->next) {
-                prev = rot;
+                //prev = rot;
                 rot = (struct t_mem_area*)rot->next;
         }
 
@@ -180,17 +181,17 @@ int   dealloc_mem_area(struct t_mem_area *root_area, void * p_start) {
 void  print_used_mem(struct t_mem_area *root_area) {
 
 
-        unsigned long int start_pos = 0;
+        //unsigned long start_pos = 0;
         struct t_mem_area *el = root_area;
-        unsigned int i_start = (unsigned int) start_pos;
-        unsigned int el_start = (unsigned int) el->start;
+        //unsigned long i_start = (unsigned long) start_pos;
+        unsigned long el_start = (unsigned long) el->start;
         io_log("--- Used Mem in Memmgr ---\n");
         while(el || el->next) {
 
-                i_start = start_pos;
-                el_start = (unsigned int) el->start;
+                //i_start = start_pos;
+                el_start = (unsigned long) el->start;
 
-                io_log("Allocated: %p - 0x%lx \n", el->start, (unsigned long int)el->size+el_start);
+                io_log("Allocated: %p - 0x%lx \n", el->start, (unsigned long)el->size+el_start);
                 if(!el->next)
                         break;
                 if(el->next)

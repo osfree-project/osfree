@@ -11,9 +11,14 @@ struct OS2::Cpi::Session_client : Genode::Rpc_client<Session>
 	Session_client(Genode::Capability<Session> cap)
 	: Genode::Rpc_client<Session>(cap) { }
 
-        void test(void)
+        Genode::Dataspace_capability sysio_dataspace()
         {
-            call<Rpc_test>();
+            return call<Rpc_sysio_dataspace>();
+        }
+
+        bool syscall(Syscall syscall)
+        {
+            return call<Rpc_syscall>(syscall);
         }
 };
 

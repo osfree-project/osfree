@@ -852,6 +852,12 @@ typedef ULONG   ERRORID, *PERRORID;
 #define ERROR_CPSIO_NO_FONT_SWIT	    65078
 #define ERROR_ENTRY_IS_CALLGATE		    65079
 
+// osFree additions:
+#define ERROR_INVALID_DATASPACE             65200
+#define ERROR_NO_MAPPING                    65201
+#define ERROR_ALREADY_USED                  65202
+#define ERROR_IPC                           65203
+
 #ifndef CCHMAXPATH
 #define CCHMAXPATH          260
 #define CCHMAXPATHCOMP      256

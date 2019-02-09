@@ -42,6 +42,7 @@
 /* l4env includes */
 #include <l4/sys/types.h>
 #include <l4/names/libnames.h>
+#include <l4/events/events.h>
 
 /* Servers RPC includes */
 #include "os2server-server.h"
@@ -68,6 +69,33 @@ extern cfg_opts options;
 
 int sysinit (cfg_opts *options);
 void usage(void);
+
+l4_os3_thread_t CPNativeID(void)
+{
+  l4_os3_thread_t thread;
+
+  thread.thread = l4_myself();
+
+  return thread;
+}
+
+void exit_notify(void)
+{
+  l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
+  l4events_nr_t event_nr = L4EVENTS_NO_NR;
+  l4events_event_t event;
+
+  if (use_events) // use events server
+  {
+    // terminate by sending an exit event
+    event.len = sizeof(l4_threadid_t);
+    *(l4_threadid_t*)event.str = l4_myself();
+    // send exit event
+    l4events_send(event_ch, &event, &event_nr, L4EVENTS_SEND_ACK);
+    // get acknowledge
+    l4events_get_ack(&event_nr, L4_IPC_NEVER);
+  }
+}
 
 void usage(void)
 {

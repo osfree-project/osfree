@@ -68,7 +68,8 @@ typedef struct {
         short int debugixfmgr;     // =NO
         short int debugprcmgr;     // =NO
         short int debugmemmgr;     // =NO
-        char * configfile;     // =C:\CONFIG.SYS
+        char * kal_map;            // C:\KAL.MAP
+        char * configfile;    // =C:\CONFIG.SYS
         char * bootdrive;     // =C:
 } cfg_opts;
 

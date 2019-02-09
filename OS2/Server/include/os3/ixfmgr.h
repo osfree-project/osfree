@@ -25,8 +25,9 @@ typedef struct
   void               *addr;
   unsigned long      size;
   l4_os3_dataspace_t ds;
-  unsigned short     type;
-  unsigned short     id;
+  unsigned long     type;
+  unsigned long     id;
+  unsigned long     pad;
 } l4_os3_section_t;
 
 struct slist
@@ -61,6 +62,7 @@ typedef
     void * Address;        // Address of function
     char * ModuleName;     // Name of module
     int    Ordinal;        // Ordinal of function
+    unsigned long flags;   // Module flags (e.g., type: 16/32/64-bit)
   } IXFMODULEENTRY;
 
 
@@ -70,6 +72,7 @@ typedef
     void           * SrcAddress;      // Address to fix (in client task address space)
     void           * SrcVmAddress;    // Address to fix (in execsrv address space)
     IXFMODULEENTRY   ImportEntry;     // Imported function
+    unsigned long    flags;           // Fixup type flags
   } IXFFIXUPENTRY;
 
 typedef
@@ -93,6 +96,7 @@ typedef
     void * Stack;             // Stack
     unsigned long PIC;        // Module contains internal fixup table (PIC)
     unsigned long long hdlSysDep;  // Host dependent structure (handle or pointer)
+    unsigned long refcnt;
   } IXFModule;
 
 unsigned long IXFIdentifyModule(void * addr, unsigned long size, IXFModule * ixfModule);

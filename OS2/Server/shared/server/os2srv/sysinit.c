@@ -12,21 +12,17 @@
 #include <os3/cfgparser.h>
 #include <os3/processmgr.h>
 #include <os3/loader.h>
+#include <os3/thread.h>
 #include <os3/io.h>
-
-/* l4env includes */
-//#include <l4/events/events.h>
-#include <l4/names/libnames.h>
 
 /* libc includes */
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
-extern l4_os3_thread_t sysinit_id;
+#include "api.h"
 
-/* use events server */
-extern char use_events;
+extern l4_os3_thread_t sysinit_id;
 
 void exec_runserver(int ppid);
 void exec_protshell(cfg_opts *options);
@@ -35,6 +31,7 @@ int sysinit (cfg_opts *options);
 
 void create_env(char **pEnv);
 void destroy_env(char *pEnv);
+void exit_notify(void);
 
 char *basename(char *cmdline);
 char *skipto (int flag, char *s);
@@ -158,6 +155,8 @@ exec_runserver(int ppid)
   char server[0x20];
   char *srv, *to;
   int  timeout = 30000;
+  int time, delta = 10;
+  server_t *serv;
   l4_os3_task_t tid;
   struct t_os2process *proc; // server PTDA/proc
 
@@ -184,23 +183,10 @@ exec_runserver(int ppid)
 
         free(q);
 
-        LoaderExec (p, params, NULL, &tid);
-        //io_log("started task: %x.%x\n", tid.thread.id.task, tid.thread.id.lthread);
+        LoaderExec (p, params, "/dev/vc0", &tid);
 
         /* set task number */
         proc->task = tid;
-
-        //if (strstr(p, "os2fs"))
-	//{
-	//  // switch to os2fs built-in file provider
-	//  io_log("os2fs started\n");
-	//  if (! names_waitfor_name("os2fs", &fs, 30000))
-	//  //if ( fileprov_init() )
-	//  {
-	//    io_log("Can't find os2fs on name server!\n");
-	//    return;
-	//  }
-	//}
 
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
 
@@ -214,14 +200,36 @@ exec_runserver(int ppid)
 	to      = getcmd (skipto(0, strstr(s, "-TIMEOUT")));
 	timeout = atoi (to);
 
-        io_log("LOOKFOR:%s, TIMEOUT:%d\n", server, timeout);
-	if (*server && ! names_waitfor_name(server, &tid.thread, timeout))
+	time = 0;
+	for (;;)
 	{
-	  io_log("Timeout waiting for %s\n", server);
-	  return;
+	    // wait until timeout expires, or a server starts
+	    ThreadSleep(delta);
+
+	    time += delta;
+
+	    if (time > timeout)
+	    {
+		io_log("Timeout waiting for %s\n", server);
+		return;
+	    }
+
+	    serv = server_query(server, 0);
+
+	    if (serv)
+	    {
+		if (serv->ret)
+		{
+		    io_log("Error %u starting %s!", serv->ret, server);
+		    io_log("Error message: %.*s", serv->cbLoadError, serv->szLoadError);
+		    return;
+		}
+
+		io_log("Server %s started successfully.\n", server);
+		break;
+	    }
 	}
       }
-      io_log("Server %s started\n", server);
     }
   }
 
@@ -236,9 +244,6 @@ int exec_run_call(int ppid)
 int sysinit (cfg_opts *options)
 {
   struct t_os2process *proc; // sysinit's PTDA/proc
-  //l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
-  //l4events_nr_t event_nr = L4EVENTS_NO_NR;
-  //l4events_event_t event;
   char   *env;
   APIRET rc;
 
@@ -252,11 +257,8 @@ int sysinit (cfg_opts *options)
                    env);      // pEnv
 
   /* set task number */
-  sysinit_id.thread = l4_myself();
+  sysinit_id = CPNativeID();
   proc->task = sysinit_id;
-
-  if (! names_register("os2srv.sysinit"))
-    io_log("error registering on the name server\n");
 
   /* Start servers */
   exec_runserver(proc->pid);
@@ -269,9 +271,12 @@ int sysinit (cfg_opts *options)
   {
     io_log("No PROTSHELL statement in CONFIG.SYS\n");
     rc = ERROR_INVALID_PARAMETER; /*ERROR_INVALID_PARAMETER 87; Not defined for Windows*/
-  } else {
+  }
+  else
+  {
+    proc->exec_sync = 1;
     exec_protshell(options);
-    rc = 0; /* NO_ERROR */
+    rc = NO_ERROR;
   }
 
   io_log("sem wait\n");
@@ -281,25 +286,12 @@ int sysinit (cfg_opts *options)
 
   io_log("done waiting\n");
 
-  /* if (use_events) // use events server
-  {
-    // terminate by sending an exit event
-    event.len = sizeof(l4_threadid_t);
-    *(l4_threadid_t*)event.str = l4_myself();
-    // send exit event
-    l4events_send(event_ch, &event, &event_nr, L4EVENTS_SEND_ACK);
-    // get acknowledge
-    l4events_get_ack(&event_nr, L4_IPC_NEVER);
-  } */
+  exit_notify();
 
   io_log("event notification sent\n");
 
-  // unregister at names
-  if (! names_unregister_task(sysinit_id.thread))
-      io_log("Cannot unregister at name server!\n");
-
   // destroy proc/PTDA
-  PrcDestroy(proc);
+  //PrcDestroy(proc); // it is destroyed in CPExit()
 
   // destroy global environment
   destroy_env(env);

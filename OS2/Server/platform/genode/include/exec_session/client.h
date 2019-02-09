@@ -11,11 +11,6 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	Session_client(Genode::Capability<Session> cap)
 	: Genode::Rpc_client<Session>(cap) { }
 
-	void test(OS2::Exec::Session::Buf *str)
-	{
-		call<Rpc_test>(str);
-	}
-
 	long open(Pathname &fName,
 	          unsigned long flags,
 	          Genode::Ram_dataspace_capability err_ds,
@@ -106,7 +101,7 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	long get_sharemem(ULONGLONG pb,
 	                  ULONGLONG *addr,
 	                  ULONG *size,
-	                  ULONGLONG *owner)
+	                  PID *owner)
 	{
 		return call<Rpc_get_sharemem>(pb, addr, size, owner);
 	}
@@ -114,7 +109,7 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 	long get_named_sharemem(Pathname &mName,
 	                        ULONGLONG *addr,
 	                        ULONG *size,
-	                        ULONGLONG *owner)
+	                        PID *owner)
 	{
 		return call<Rpc_get_named_sharemem>(mName, addr, size, owner);
 	}

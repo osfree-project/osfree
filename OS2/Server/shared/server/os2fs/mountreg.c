@@ -35,6 +35,22 @@ struct I_Fs_srv* FSRouter_route(struct FSRouter *s, char drv) {
     return 0;
 }
 
+/* Get a drive letter by path prefix (if any) */
+struct I_Fs_srv* FSRouter_route_back(struct FSRouter *s, char *prefix) {
+    int i;
+    for (i = 0; i < s->srv_num_; i++) {
+        I_Fs_srv_t *server_drv = s->fs_srv_arr_[i];
+        if (server_drv) {
+            if (prefix && ! strcasecmp(server_drv->mountpoint, prefix))
+            {
+                return server_drv;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 /* Lägger till en serverkoppling, I_Fs_srv, till listan fs_srv_arr_. */
 void FSRouter_add(struct FSRouter *s, struct I_Fs_srv *fs_srv_) {
    s->fs_srv_arr_[s->srv_num_] = fs_srv_;

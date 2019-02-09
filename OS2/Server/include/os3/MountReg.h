@@ -42,6 +42,8 @@ void FSRouter_add(struct FSRouter *s, struct I_Fs_srv *fs_srv_);
 
 I_Fs_srv_t* FSRouter_route(struct FSRouter *s, char);
 
+struct I_Fs_srv* FSRouter_route_back(struct FSRouter *s, char *prefix);
+
 void FSRouter_test(struct FSRouter *s);
 
 void FSRouter_init(struct FSRouter *s);

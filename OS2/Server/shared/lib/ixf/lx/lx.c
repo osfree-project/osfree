@@ -90,6 +90,7 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
     ixf->cbModules=((struct LX_module*)(ixf->FormatStruct))->lx_head_e32_exe->e32_impmodcnt;
     ixf->Modules=(char **)malloc(sizeof(char *)*ixf->cbModules);
 
+    io_log("111\n");
     for (module_counter=1;
          module_counter<ixf->cbModules+1;
          module_counter++)
@@ -99,7 +100,7 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
       strcpy(ixf->Modules[module_counter-1],buf);
     }
 
-    if(ISPIC(ixf)) 
+    if(ISPIC(ixf))
     {
       ixf->PIC=1;
     } else {
@@ -120,7 +121,7 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
     }
 
     /* Convert fixup table to BFF format */
-    convert_fixup_table_to_BFF(ixf);
+    convert_fixup_table_to_BFF(ixf); ////
 
     /* Set entry point */
     code=((struct o32_obj *) get_code((struct LX_module *)(ixf->FormatStruct)));
@@ -351,6 +352,7 @@ unsigned long convert_entry_table_to_BFF(IXFModule * ixfModule)
       cptr_ent_tbl = &cptr_ent_tbl[ENTRY_HEADER_SIZE];
       i_cptr_ent_tbl = (unsigned long)cptr_ent_tbl;
 
+      io_log("222\n");
       for (i=ixfModule->cbEntries;i<ixfModule->cbEntries+entry_table->b32_cnt;i++)
       {
         ixfModule->Entries[i-1].FunctionName=NULL;
@@ -486,6 +488,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
   unsigned long ret_rc, fixup_counter;
 
   ixfModule->cbFixups=0;
+  io_log("ixfModule->name=%s\n", ixfModule->name);
 
   /* If there is a code object (with a main function) then do a fixup on it and
      it's data/stack object if it exists.*/
@@ -496,6 +499,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
       ixfModule->cbFixups += calc_imp_fixup_obj_lx((struct LX_module *)(ixfModule->FormatStruct), obj, (int *)&ret_rc);
   }
 
+  io_log("aaa\n");
   if (ixfModule->cbFixups==0)
   {
     ixfModule->Fixups=NULL;
@@ -505,6 +509,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
 
   /* Fill table... */
   fixup_counter = 0;
+  io_log("bbb\n");
   for(i=1; i<=get_obj_num((struct LX_module *)(ixfModule->FormatStruct)); i++)
   {
     struct o32_obj * obj = get_obj((struct LX_module *)(ixfModule->FormatStruct), i);
@@ -513,6 +518,7 @@ unsigned long convert_fixup_table_to_BFF(IXFModule * ixfModule)
   }
 
 
+  io_log("ccc\n");
   return 0; /* NO_ERROR */
 }
 
@@ -599,7 +605,9 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
     */
     while(fixup_offset < pg_end_offs_fix)
     {
+      io_log("fixup_offset=%lx\n", fixup_offset);
       min_rlc = get_fixup_rec_tbl_obj(lx_exe_mod, fixup_offset);
+      io_log("min_rlc=%lx\n", min_rlc);
       print_struct_r32_rlc_info(min_rlc);
 
       fixup_source = min_rlc->nr_stype & 0xf;
@@ -653,6 +661,7 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
         case NRRORD:
           {/* Import by ordinal */
             /* Indata: lx_exe_mod, min_rlc */
+            io_log("333\n");
             mod_nr = get_mod_ord1_rlc(min_rlc); // Request module number
             import_ord = get_imp_ord1_rlc(min_rlc); // Request ordinal number
             srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
@@ -682,6 +691,7 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
         case NRRNAM:
           {/* Import by name */
             //io_log("Import by name \n");
+            io_log("444\n");
             mod_nr = get_mod_ord1_rlc(min_rlc);
             import_name_offs = get_imp_ord1_rlc(min_rlc);
             srcoff_cnt1 = get_srcoff_cnt1_rlc(min_rlc);
@@ -691,7 +701,7 @@ int convert_imp_fixup_obj_lx(IXFModule * ixfModule,
             copy_pas_str(buf_import_name, pas_imp_proc_name);
             import_name = (char*)&buf_import_name;
             mod_name = (char*)&buf_mod_name;
-                                            /* Get name of imported module. */
+            /* Get name of imported module. */
             org_mod_name = get_imp_mod_name(lx_exe_mod,mod_nr);
             copy_pas_str(mod_name, org_mod_name);
 

@@ -332,7 +332,7 @@ struct r32_rlc * get_fixup_rec_tbl_obj(struct LX_module * lx_mod, int offs){
         /*lx_mod->lx_head_e32_exe->e32_fpagetab 234 "Fixup Page Table Off"
         //lx_mod->lx_head_e32_exe->e32_frectab  242 "Fixup Record Table Off" */
         int offs_to_reloc_struct = lx_mod->lx_head_e32_exe->e32_frectab -
-                                                                        lx_mod->lx_head_e32_exe->e32_fpagetab;
+          lx_mod->lx_head_e32_exe->e32_fpagetab;
         return (struct r32_rlc *) &lx_mod->fixup_section[offs + offs_to_reloc_struct];
 }
 
@@ -359,8 +359,8 @@ char * get_imp_mod_name(struct LX_module * lx_mod, int mod_idx)
 
   io_log("\n");
 
-  for (i=0;
-       i!=(mod_idx-1);
+  for (i = 0;
+       i != (mod_idx-1);
        i++)
   {
     mod_name=mod_name+(char)*mod_name+1;

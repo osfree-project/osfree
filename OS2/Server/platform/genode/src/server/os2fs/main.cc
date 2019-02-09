@@ -7,6 +7,7 @@
 #include <os3/MountReg.h>
 #include <os3/globals.h>
 #include <os3/cfgparser.h>
+#include <os3/cpi.h>
 
 /* Genode includes */
 #include <base/log.h>
@@ -31,6 +32,8 @@ Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
 
 extern cfg_opts options;
+
+int FSR_INIT(void);
 
 namespace OS2::Fs
 {
@@ -251,7 +254,7 @@ public:
                      ULONG ulAttribute,
                      ULONG fsOpenFlags,
                      ULONG fsOpenMode)
-                     // EAOP2 *peaop2
+                     //EAOP2 *peaop2)
     {
         APIRET rc;
 
@@ -445,14 +448,32 @@ struct OS2::Fs::Main
 
     Main(Libc::Env &env) : env(env)
     {
+        os2exec_module_t s = {0, 0, 0, 0, 0, 0};
+        char szLoadError[260];
+        l4_os3_thread_t thread;
+        //int rc;
+
+        io_log("---os2fs started---\n");
+
         init_globals();
         //FSR_INIT();
+
+        CPClientInit();
+
+        // notify os2srv about successful startup
+        CPClientAppNotify2(&s, "os2fs", 0, &thread,
+                           szLoadError, sizeof(szLoadError), 0);
 
         // announce "ROM" service
         env.parent().announce(env.ep().manage(rom_root));
 
         // announce "os2fs" service
         env.parent().announce(env.ep().manage(fs_root));
+    }
+
+    ~Main()
+    {
+        CPClientDone();
     }
 };
 

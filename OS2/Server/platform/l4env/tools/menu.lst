@@ -13,6 +13,7 @@ set SERIAL     = "-serial_esc -comspeed 115200 -comport $(SERPORT) -jdb_cmd=Jh50
 # set FIASCOARGS = "$(WAIT) $(SERIAL)"
 # set FIASCOARGS =  "-serial -tbuf_entries=32768 -jdb_cmd=JH -jdb_never_stop"
 set FIASCOARGS = "-serial -serial_esc -jdb_cmd=JH"
+# set FIASCOARGS = "-nojdb -serial_esc"
 
 title Extra options 0
 configfile $(T)/cd/boot/grub/menu0.lst
@@ -98,10 +99,10 @@ module $(B)/simple_file_server -v 14
   module $(B)/os2/awk.exe
   module $(B)/os2/makeini.exe
   module $(B)/os2/vp.exe
-  module $(B)/os2/fp.exe
+#  module $(B)/os2/fp.exe
 #  module $(B)/os2/fc.exe
   module $(B)/os2/more.exe
-#  module $(B)/os2/ver.exe
+  module $(B)/os2/ver.exe
 #  module $(B)/os2/comp.exe
 #  module $(B)/os2/wasm.exe
 #  module $(B)/os2/wmake.exe

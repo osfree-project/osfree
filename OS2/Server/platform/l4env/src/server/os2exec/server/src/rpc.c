@@ -44,6 +44,14 @@ os2exec_load_component (CORBA_Object _dice_corba_obj,
 }
 
 long DICE_CV
+os2exec_free_component (CORBA_Object _dice_corba_obj,
+                        unsigned long hmod,
+                        CORBA_Server_Environment *_dice_corba_env)
+{
+  return ExcFree(hmod);
+}
+
+long DICE_CV
 os2exec_share_component (CORBA_Object _dice_corba_obj,
                          unsigned long hmod /* in */,
                          CORBA_Server_Environment *_dice_corba_env)
@@ -163,17 +171,18 @@ os2exec_get_dataspace_component (CORBA_Object _dice_corba_obj,
 
 long DICE_CV
 os2exec_get_sharemem_component (CORBA_Object _dice_corba_obj,
-                                l4_addr_t pb /* in */,
-                                l4_addr_t *addr /* out */,
+                                l4_addr_t   pb /* in */,
+                                l4_addr_t   *addr /* out */,
                                 l4_uint32_t *size /* out */,
-                                l4_threadid_t *owner /* out */,
+                                PID         *owner /* out */,
+                                //l4_threadid_t *owner /* out */,
                                 CORBA_Server_Environment *_dice_corba_env)
 {
-  l4_os3_thread_t thread;
-  thread.thread = *owner;
+  //l4_os3_thread_t thread;
+  //thread.thread = *owner;
 
   return ExcGetSharedMem((void *)pb, (void **)addr,
-                         (unsigned long *)size, &thread);
+                         (unsigned long *)size, owner);
 }
 
 
@@ -182,14 +191,16 @@ os2exec_get_namedsharemem_component (CORBA_Object _dice_corba_obj,
                                      const char* name /* in */,
                                      l4_addr_t *addr /* out */,
                                      l4_size_t *size /* out */,
-                                     l4_threadid_t *owner /* out */,
+                                     PID       *owner /* out */,
+                                     //l4_threadid_t *owner /* out */,
                                      CORBA_Server_Environment *_dice_corba_env)
 {
-  l4_os3_cap_idx_t thread;
-  thread.thread = *owner;
+  //l4_os3_cap_idx_t thread;
+  //thread.thread = *owner;
 
   return ExcGetNamedSharedMem(name, (void **)addr,
-                              (unsigned long *)size, &thread);
+                              (unsigned long *)size, owner);
+                              //(unsigned long *)size, &thread);
 }
 
 /*  increment the refcnt for a sharemem area

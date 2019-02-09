@@ -19,6 +19,7 @@
 #include <l4/sys/types.h>
 #include <l4/env/env.h>
 #include <l4/dm_mem/dm_mem.h>
+#include <l4/dm_phys/dm_phys.h>
 
 long
 l4os3_ds_allocate(l4os3_ds_t *ds, l4_addr_t offset, l4_size_t size)
@@ -30,21 +31,32 @@ long DataspaceAlloc(l4_os3_dataspace_t *ds, ULONG flags,
                     l4_os3_cap_idx_t dm, ULONG size)
 {
   //l4dm_dataspace_t *temp_ds = (l4dm_dataspace_t *)malloc(sizeof(l4dm_dataspace_t));
+  ULONG rights = 0;
+
+  if (flags & DATASPACE_READ)
+    rights |= L4DM_READ;
+  if (flags & DATASPACE_WRITE)
+    rights |= L4DM_WRITE;
 
   if (l4_is_invalid_id(dm.thread))
     dm.thread = l4env_get_default_dsm();
 
-  long ret = l4dm_mem_open(dm.thread, size, 4096, flags, "", &ds->ds);
+  long ret = l4dm_mem_open(dm.thread, size, 4096, rights, "", &ds->ds);
   //*ds = temp_ds;
 
-  return ret;
+  if (ret < 0)
+  {
+    return ERROR_NOT_ENOUGH_MEMORY;
+  }
+
+  return NO_ERROR;
 }
 
 long DataspaceFree(l4_os3_dataspace_t ds)
 {
-  long ret = l4dm_close(&ds.ds);
+  l4dm_close(&ds.ds);
   //free(ds);
-  return ret;
+  return NO_ERROR;
 }
 
 long DataspaceGetSize(l4_os3_dataspace_t ds, unsigned long *size)
@@ -60,10 +72,16 @@ long DataspaceGetSize(l4_os3_dataspace_t ds, unsigned long *size)
 
 long DataspaceShare(l4_os3_dataspace_t ds,
                     l4_os3_cap_idx_t   client_id,
-                    unsigned long      rights)
+                    unsigned long      flags)
 {
   APIRET rc = NO_ERROR;
+  ULONG rights = 0;
   long   ret;
+
+  if (flags & DATASPACE_READ)
+    rights |= L4DM_READ;
+  if (flags & DATASPACE_WRITE)
+    rights |= L4DM_WRITE;
 
   if ( (ret = l4dm_share(&ds.ds, client_id.thread, rights)) < 0 )
   {
@@ -83,6 +101,46 @@ long DataspaceShare(l4_os3_dataspace_t ds,
   }
 
   return rc;
+}
+
+long DataspaceCopy(l4_os3_dataspace_t ds, ULONG src_offs, ULONG dst_offs,
+                   ULONG size, ULONG dst_addr, ULONG dst_size, 
+                   ULONG flags, l4_os3_dataspace_t *copy)
+{
+    int rc = l4dm_memphys_copy(&ds.ds, src_offs, dst_offs, size, L4DM_MEMPHYS_DEFAULT,
+                               dst_addr ? dst_addr : L4DM_MEMPHYS_ANY_ADDR, dst_size,
+                               4096, flags, "OS/2 personality dataspace", &copy->ds);
+
+    if (rc < 0)
+    {
+        switch (rc)
+        {
+            case L4_EIPC:
+                rc = ERROR_IPC;
+                break;
+
+            case L4_EINVAL:
+                rc = ERROR_INVALID_DATASPACE;
+                break;
+
+            case L4_EPERM:
+                rc = ERROR_ACCESS_DENIED;
+                break;
+
+            case L4_ENOHANDLE:
+                rc = ERROR_INVALID_HANDLE;
+                break;
+
+            case L4_ENOMEM:
+                rc = ERROR_NOT_ENOUGH_MEMORY;
+                break;
+
+            default:
+                rc = ERROR_GEN_FAILURE;
+        }
+    }
+
+    return rc;
 }
 
 #elif defined(__l4re__)
@@ -116,96 +174,3 @@ long DataspaceGetSize(l4_os3_dataspace_t ds, unsigned long *size)
 #else
 #error "Not implemented!"
 #endif
-
-long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
-//long attach_ds(l4os3_ds_t *ds, unsigned long flags, void **addr)
-{
-  int error;
-  l4_size_t size;
-  APIRET rc;
-
-  rc = DataspaceGetSize(ds, (unsigned long *)&size);
-
-  //if ((size = l4os3_ds_size(ds)) < 0)
-  if (rc)
-    {
-      //io_log("Error %d (%s) getting size of dataspace\n",
-	  //error, l4os3_errtostr(error));
-      return rc;
-    }
-
-    //if ((error = l4rm_attach(ds, size, 0, flags, (void **)addr)))
-    //if ((error = l4os3_rm_attach((void **)addr, size, flags, *ds, 0, 0)))
-    if ((error = RegAttach((void **)addr, size, flags, ds, 0, 0)))
-    {
-      io_log("Error %d (%s) attaching dataspace\n",
-	  error, l4os3_errtostr(error));
-      return error;
-    }
-
-  return 0;
-}
-
-/** attach dataspace to our address space. (concrete address) */
-long attach_ds_reg(l4_os3_dataspace_t ds, unsigned long flags, void *addr)
-{
-  //int error;
-  l4_size_t size;
-  l4_addr_t a = (l4_addr_t)addr;
-  APIRET rc;
-
-  rc = DataspaceGetSize(ds, (unsigned long *)&size);
-
-  /* get dataspace size */
-  //if ((error = l4dm_mem_size(&ds, &size)))
-  if (rc)
-    {
-      //io_log("Error %d (%s) getting size of dataspace\n",
-	//  error, l4os3_errtostr(error));
-      io_log("Error %u getting size of dataspace\n", rc);
-      return rc;
-    }
-
-  /* attach it to a given region */
-  //if ((error = l4rm_attach_to_region(&ds, (void *)a, size, 0, flags)))
-  if ( (rc = RegAttachToRegion((void **)&a, size, flags, ds, 0, 0)) < 0 )
-    {
-      io_log("Error %d (%s) attaching dataspace\n", rc);
-      return rc;
-    }
-
-  return 0;
-}
-
-/** attach dataspace to our address space. (concrete address) */
-long attach_ds_area(l4_os3_dataspace_t ds, unsigned long long area, unsigned long flags, void *addr)
-{
-  //int error;
-  l4_size_t size;
-  l4_addr_t a = (l4_addr_t)addr;
-  APIRET rc;
-
-  rc = DataspaceGetSize(ds, (unsigned long *)&size);
-
-  /* get dataspace size */
-  //if ((error = l4dm_mem_size(&ds, &size)))
-  if (rc)
-    {
-      //io_log("Error %d (%s) getting size of dataspace\n",
-	//  error, l4os3_errtostr(error));
-      io_log("Error %u getting size of dataspace\n", rc);
-      return rc;
-    }
-
-  /* attach it to a given region */
-  //if ( (error = l4rm_area_attach_to_region(&ds, area,
-    //                   (void *)a, size, 0, flags)) )
-  if ( (rc = RegAreaAttachToRegion((void **)&a, size, area,
-                                      flags, ds, 0, 0)) < 0 )
-    {
-      io_log("Error %d (%s) attaching dataspace\n", rc);
-      return rc;
-    }
-
-  return 0;
-}

@@ -333,6 +333,7 @@ int get_mod_ord1_rlc(struct r32_rlc * rlc) {
         int mod_ord1_size = get_mod_ord1_size(rlc);
         unsigned long int uint_rlc = (unsigned long int)rlc;
         void *void_mod_ord1 = (void*)(uint_rlc + mod_ord1_offs);
+        io_log("mod_ord1_size=%d\n", mod_ord1_size);
 
         switch(mod_ord1_size) {
                 case 1: mod_ord1_val = (int)*((unsigned char*)void_mod_ord1);break;

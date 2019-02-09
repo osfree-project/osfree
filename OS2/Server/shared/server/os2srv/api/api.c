@@ -46,6 +46,11 @@ APIRET CPExit(l4_os3_thread_t thread,
   // get caller t_os2process structure
   proc = PrcGetProcNative(thread);
 
+  if (! proc)
+  {
+    return NO_ERROR;
+  }
+
   // get parent pid
   ppid = proc->lx_pib->pib_ulppid;
 
@@ -61,9 +66,15 @@ APIRET CPExit(l4_os3_thread_t thread,
   // set termination code
   parentproc->term_code = result;
 
+  io_log("parentproc->exec_sync=%x\n", parentproc->exec_sync);
+  io_log("ppid=%x\n", ppid);
+  //io_log("parentproc->task=%lx:%lx, sysinit_id=%lx:%lx\n", 
+    //parentproc->task.thread.id.task, parentproc->task.thread.id.lthread, 
+    //sysinit_id.thread.id.task, sysinit_id.thread.id.lthread);
+
   // unblock parent thread
   if ( parentproc->exec_sync &&
-       (ppid || ThreadEqual(parentproc->task, sysinit_id)) )
+       (ppid || TaskEqual(parentproc->task, sysinit_id)) )
   {
     SemaphoreUp(&parentproc->term_sem);
     io_log("semaphore unblock\n");
@@ -152,9 +163,11 @@ void CPExecPgmWorker(struct DosExecPgm_params *parm)
   io_log("pObjname=%lx\n",  (ULONG)parm->pObjname);
   io_log("cbObjname=%lx\n", (ULONG)parm->cbObjname);
 
+#ifdef L4API_l4v2
   CPClientExecPgmNotify(parm->thread, parm->pObjname,
                         parm->cbObjname,
                         parm->pRes, rc);
+#endif
 
   /* free our parameters structure */
   free(parm->pArg);
@@ -245,79 +258,129 @@ strlstcpy(char *s1, char *s2)
   return len;
 }
 
-APIRET CPGetPIB(l4_os3_thread_t thread,
+APIRET CPGetPIB(PID pid, l4_os3_thread_t thread,
                 l4_os3_dataspace_t *ds)
 {
   struct t_os2process *proc;
-  unsigned base;
+  l4_os3_dataspace_t orig_ds;
+  char *base;
   PPIB ppib;
   APIRET rc;
+  void *addr_orig;
   void *addr;
   ULONG offset;
   ULONG size;
 
   // process PTDA
-  proc = PrcGetProcNative(thread);
+  proc = PrcGetProc(pid);
   ppib = proc->lx_pib;
-
-  // fixup the PIB fields, so all
-  // addresses are based from the dataspace start
-  base = (unsigned)ppib;
-  ppib->pib_pchcmd -= base;
-  ppib->pib_pchenv -= base;
+  io_log("ppib_orig=%lx\n", ppib);
 
   //rc = l4rm_lookup_region(ppib, &addr, &size, ds,
     //                      &offset, &pager);
-  rc = RegLookupRegion(ppib, &addr, &size, &offset, ds);
+  rc = RegLookupRegion(ppib, &addr_orig, &size, &offset, &orig_ds);
+  io_log("addr_orig=%lx\n", addr_orig);
 
-  if (rc < 0)
+  //if (rc < 0)
+  if (rc != REG_DATASPACE)
     return ERROR_INVALID_ADDRESS;
+
+  rc = DataspaceAlloc(ds, DATASPACE_RW, DEFAULT_DSM, size);
+
+  if (rc)
+    return ERROR_NOT_ENOUGH_MEMORY;
+
+  addr = addr_orig;
+
+  rc = RegAttach(&addr, size, DATASPACE_RW, *ds, 0, 0);
+
+  if (rc)
+    return rc;
+
+  memcpy(addr, addr_orig, size);
 
   // share the dataspace with an application
   //rc = l4dm_share(ds, *obj, L4DM_RW);
-  rc = DataspaceShare(*ds, thread, L4DM_RW);
+  rc = DataspaceShare(*ds, thread, DATASPACE_RW);
 
-  if (rc < 0)
+  //if (rc < 0)
+  if (rc)
     return ERROR_INVALID_ACCESS;
+
+  // fixup the PIB fields, so all
+  // addresses are based from the dataspace start
+  ppib = (PPIB)addr;
+  base = (char *)addr;
+  io_log("ppib=%lx\n", ppib);
+  //ppib->pib_pchcmd -= base;
+  //ppib->pib_pchenv -= base;
+  io_log("base=%lx\n", base);
+  io_log("0: pchcmd=%lx, pchenv=%lx\n", ppib->pib_pchcmd, ppib->pib_pchenv);
+  ppib->pib_pchcmd = (char *)((char *)ppib->pib_pchcmd - (char *)addr_orig);
+  ppib->pib_pchenv = (char *)((char *)ppib->pib_pchenv - (char *)addr_orig);
+  io_log("1: pchcmd=%lx, pchenv=%lx\n", ppib->pib_pchcmd, ppib->pib_pchenv);
 
   return NO_ERROR;
 }
 
-APIRET CPGetTIB(l4_os3_thread_t thread,
+APIRET CPGetTIB(PID pid, TID tid, l4_os3_thread_t thread,
                 l4_os3_dataspace_t *ds)
 {
   struct t_os2process *proc;
-  unsigned base;
+  l4_os3_dataspace_t orig_ds;
+  //char *base;
   PTIB ptib;
-  TID  tid;
+  void *addr_orig;
   void *addr;
   ULONG offset;
   ULONG size;
   APIRET rc;
 
   // process PTDA
-  proc = PrcGetProcNative(thread);
-  tid  = PrcGetTIDNative(thread);
+  proc = PrcGetProc(pid);
+  //tid  = PrcGetTIDNative(thread);
   ptib = proc->tib_array[tid - 1];
-
-  // fixup the PIB fields, so all
-  // addresses are based from the dataspace start
-  base = (unsigned)ptib;
-  ptib->tib_ptib2 = (PTIB2)((char*)ptib->tib_ptib2 - base);
 
   //rc = l4rm_lookup_region(ptib, &addr, &size, ds,
     //                      &offset, &pager);
-  rc = RegLookupRegion(ptib, &addr, &size, &offset, ds);
+  rc = RegLookupRegion((void *)ptib, &addr_orig, &size, &offset, &orig_ds);
 
-  if (rc < 0)
+  //if (rc < 0)
+  if (rc != REG_DATASPACE)
     return ERROR_INVALID_ADDRESS;
+
+  rc = DataspaceAlloc(ds, DATASPACE_RW, DEFAULT_DSM, size);
+
+  if (rc)
+    return ERROR_NOT_ENOUGH_MEMORY;
+
+  addr = addr_orig;
+
+  rc = RegAttach(&addr, size, DATASPACE_RW, *ds, 0, 0);
+
+  if (rc)
+    return rc;
+
+  memcpy(addr, addr_orig, size);
 
   // share the dataspace with an application
   //rc = l4dm_share(ds, *obj, L4DM_RW);
-  rc = DataspaceShare(*ds, thread, L4DM_RW);
+  rc = DataspaceShare(*ds, thread, DATASPACE_RW);
+  io_log("rc=%lx\n", rc);
 
-  if (rc < 0)
+  //if (rc < 0)
+  if (rc)
     return ERROR_INVALID_ACCESS;
+
+  // fixup the PIB fields, so all
+  // addresses are based from the dataspace start
+  ptib = (PTIB)addr;
+  //base = (char *)addr;
+  io_log("tid=%lx\n", tid);
+  io_log("ptib=%lx\n", ptib);
+  io_log("ptib2=%lx\n", ptib->tib_ptib2);
+  ptib->tib_ptib2 = (PTIB2)((char *)ptib->tib_ptib2 - (char *)addr_orig);
+  io_log("ptib2=%lx\n", ptib->tib_ptib2);
 
   return NO_ERROR;
 }
@@ -580,7 +643,7 @@ APIRET CPCreateEventSem(l4_os3_thread_t thread,
   sem->cType = SEMTYPE_EVENT;
 
   // set initial state
-  sem->uSem.evt  = L4SEMAPHORE_INIT(fState);
+  sem->uSem.evt  = SEMAPHORE_INIT(fState);
   sem->ulRefCnt = 1;
 
   // return handle
@@ -653,12 +716,12 @@ APIRET CPCloseEventSem(l4_os3_thread_t thread,
   return NO_ERROR;
 }
 
-APIRET CPGetTID(l4_os3_thread_t thread,
+/* APIRET CPGetTID(l4_os3_thread_t thread,
                 TID *ptid)
 {
   *ptid = PrcGetTIDNative(thread);
   return NO_ERROR;
-}
+} */
 
 APIRET CPGetPID(l4_os3_thread_t thread,
                 PID *ppid)
@@ -676,12 +739,12 @@ APIRET CPGetNativeID(PID pid,
   return NO_ERROR;
 }
 
-APIRET CPGetTIDNative(const l4_os3_thread_t *id,
+/* APIRET CPGetTIDNative(const l4_os3_thread_t *id,
                       TID *ptid)
 {
   *ptid = PrcGetTIDNative(*id);
   return NO_ERROR;
-}
+} */
 
 APIRET CPNewTIB(PID pid,
                 TID tid,

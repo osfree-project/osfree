@@ -30,8 +30,6 @@ struct OS2::Exec::Session : Genode::Session
 
 	//typedef struct { char buf[260]; } LoadError;
 
-	virtual void test(Buf *str) = 0;
-
 	/* Open a binary */
 	virtual long open(Pathname &fName,
 	                  unsigned long flags,
@@ -91,12 +89,12 @@ struct OS2::Exec::Session : Genode::Session
 	virtual long get_sharemem(ULONGLONG pb,
 	                          ULONGLONG *addr,
 	                          ULONG *size,
-	                          ULONGLONG *owner) = 0;
+	                          PID *owner) = 0;
 
 	virtual long get_named_sharemem(Pathname &mName,
 	                                ULONGLONG *addr,
 	                                ULONG *size,
-	                                ULONGLONG *owner) = 0;
+	                                PID *owner) = 0;
 
 	virtual long increment_sharemem_refcnt(ULONGLONG addr) = 0;
 
@@ -107,7 +105,6 @@ struct OS2::Exec::Session : Genode::Session
 	 *  RPC interface
 	 */
 
-	GENODE_RPC(Rpc_test, void, test, Buf *);
 	GENODE_RPC(Rpc_open, long, open,
 	           Pathname &,
 	           unsigned long,
@@ -142,15 +139,15 @@ struct OS2::Exec::Session : Genode::Session
 	GENODE_RPC(Rpc_get_dataspace, long, get_dataspace,
 	           ULONGLONG *, ULONG *, Genode::Ram_dataspace_capability *);
 	GENODE_RPC(Rpc_get_sharemem, long, get_sharemem,
-	           ULONGLONG, ULONGLONG *, ULONG *, ULONGLONG *);
+	           ULONGLONG, ULONGLONG *, ULONG *, PID *);
 	GENODE_RPC(Rpc_get_named_sharemem, long, get_named_sharemem,
-	           Pathname &, ULONGLONG *, ULONG *, ULONGLONG *);
+	           Pathname &, ULONGLONG *, ULONG *, PID *);
 	GENODE_RPC(Rpc_increment_sharemem_refcnt, long, increment_sharemem_refcnt,
 	           ULONGLONG);
 	GENODE_RPC(Rpc_release_sharemem, long, release_sharemem,
 	           ULONGLONG, ULONG *);
 
-	GENODE_RPC_INTERFACE(Rpc_test, Rpc_open, Rpc_load,
+	GENODE_RPC_INTERFACE(Rpc_open, Rpc_load,
 	   Rpc_share, Rpc_getimp, Rpc_getsect, Rpc_query_procaddr,
 	   Rpc_query_modhandle, Rpc_query_modname, Rpc_alloc_sharemem,
 	   Rpc_map_dataspace, Rpc_unmap_dataspace, Rpc_get_dataspace,

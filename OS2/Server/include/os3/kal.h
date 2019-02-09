@@ -77,7 +77,8 @@ typedef struct vmdata
 {
   char             name[256]; // name for named shared mem
   char             is_shared; // is shared
-  l4_os3_cap_idx_t owner;     // shared memory owner thread
+  //l4_os3_cap_idx_t owner;     // shared memory owner thread
+  PID              owner;     // shared memory owner thread
   unsigned long    refcnt;    // reference count for shared mem
   unsigned long    rights;    // OS/2-style access flags
   unsigned long long area;    // area id
@@ -86,6 +87,21 @@ typedef struct vmdata
   struct vmdata    *next;     // link to the next record
   struct vmdata    *prev;     // link to the previous record
 } vmdata_t;
+
+struct mod_list;
+
+struct mod_list
+{
+  struct mod_list *next, *prev;
+  unsigned long hmod;
+};
+
+typedef struct mod_list mod_list_t;
+
+mod_list_t *module_add(mod_list_t *list, unsigned long hmod);
+void module_del(mod_list_t *list, unsigned long hmod);
+void module_list_free(mod_list_t *list);
+BOOL module_present(mod_list_t *list, unsigned long hmod);
 
 int
 trampoline(struct param *param);
@@ -101,7 +117,7 @@ int isRelativePath(char *path);
 unsigned char parse_drv(char *path);
 char *parse_path(char *path, char *ret_buffer, int buf_len);
 long attach_module (ULONG hmod, unsigned long long area);
-long attach_all (ULONG hmod, unsigned long long area);
+long attach_all (mod_list_t **list, ULONG hmod, unsigned long long area);
 APIRET CDECL KalMapInfoBlocks(PTIB *pptib, PPIB *pppib);
 
 
@@ -193,6 +209,9 @@ KalLoadModule(PSZ pszName,
                   ULONG cbName,
                   char const *pszModname,
                   PULONG phmod);
+
+APIRET CDECL
+KalFreeModule(ULONG hmod);
 
 APIRET CDECL
 KalQueryProcType(HMODULE hmod,
@@ -386,6 +405,9 @@ KalWaitThread(PTID ptid, ULONG option);
 
 APIRET CDECL
 KalKillThread(TID tid);
+
+l4_os3_thread_t CDECL
+KalNativeID(void);
 
 APIRET CDECL
 KalGetTID(TID *ptid);

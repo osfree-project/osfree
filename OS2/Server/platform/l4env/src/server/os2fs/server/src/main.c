@@ -6,11 +6,13 @@
 /* osFree internal */
 #include <os3/MountReg.h>
 #include <os3/globals.h>
+#include <os3/cpi.h>
 #include <os3/io.h>
 
 /* l4env includes */
 #include <l4/names/libnames.h>
 #include <l4/sys/types.h>
+#include <l4/events/events.h>
 #include <l4/thread/thread.h>
 //#include <l4/events/events.h>
 
@@ -39,9 +41,8 @@ void usage(void)
 {
   io_log("os2fs usage:\n");
   io_log("-e:  Use events server");
-} 
+}
 
-#if 0
 void event_thread(void)
 {
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
@@ -75,13 +76,22 @@ void event_thread(void)
     tid = *(l4_threadid_t *)event.str;
     io_log("Got exit event for %x.%x\n", tid.id.task, tid.id.lthread);
 
+    io_log("os2fs event thread: tid=%lx:%lx, os2srv=%lx:%lx\n",
+           tid.id.task, tid.id.lthread,
+           os2srv.id.task, os2srv.id.lthread);
+
     /* exit myself */
     if (l4_task_equal(tid, os2srv))
+    {
       exit(rc);
+    }
   }
 }
-#endif
- 
+
+l4_os3_thread_t thread;
+os2exec_module_t s = {0};
+char szLoadError[260];
+
 int main(int argc, char **argv)
 {
   CORBA_Environment env = dice_default_environment;
@@ -105,13 +115,13 @@ int main(int argc, char **argv)
 
   io_log("registered at the name server\n");
 
-  /* if (! names_waitfor_name("os2srv", &os2srv, 30000))
+  if (! names_waitfor_name("os2srv", &os2srv, 30000))
   {
     io_log("Can't find os2srv on names, exiting...\n");
     return 1;
-  } */
+  }
 
-  //io_log("got os2srv tid from the name server\n");
+  io_log("got os2srv tid from the name server\n");
   io_log("argc=%d\n", argc);
 
   // Parse command line arguments
@@ -135,16 +145,22 @@ int main(int argc, char **argv)
   }
 
   // start events thread
-  /* if (use_events)
+  if (use_events)
   {
     // start events thread
     l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
     io_log("event thread started\n");
-  } */
+  }
 
   // get our thread ID
   fprov_id = l4_myself();
   //fileprov_init();
+
+  thread.thread = fprov_id;
+
+  // notify os2srv about successful startup
+  CPClientAppNotify2(&s, "os2fs", 0, &thread,
+                     szLoadError, sizeof(szLoadError), 0);
 
   // server loop
   io_log("going to the server loop\n");

@@ -13,8 +13,8 @@
 
 OS2::Fs::Connection *fs;
 
-Genode::Allocator *_alloc = NULL;
-Genode::Env *_env_ptr = NULL;
+//Genode::Allocator *_alloc = NULL;
+//Genode::Env *_env_ptr = NULL;
 
 extern "C"
 APIRET FSClientInit(void)

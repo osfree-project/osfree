@@ -8,7 +8,7 @@
 // for L4_INVALID_CAP
 #include <l4/sys/types.h>
 
-#define NIL_THREAD L4_INVALID_CAP
+#define INVALID_THREAD L4_INVALID_CAP
 
 #ifdef __cplusplus
   }
