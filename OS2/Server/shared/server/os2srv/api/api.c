@@ -716,13 +716,6 @@ APIRET CPCloseEventSem(l4_os3_thread_t thread,
   return NO_ERROR;
 }
 
-/* APIRET CPGetTID(l4_os3_thread_t thread,
-                TID *ptid)
-{
-  *ptid = PrcGetTIDNative(thread);
-  return NO_ERROR;
-} */
-
 APIRET CPGetPID(l4_os3_thread_t thread,
                 PID *ppid)
 {
@@ -738,13 +731,6 @@ APIRET CPGetNativeID(PID pid,
   *id = PrcGetNativeID(pid, tid);
   return NO_ERROR;
 }
-
-/* APIRET CPGetTIDNative(const l4_os3_thread_t *id,
-                      TID *ptid)
-{
-  *ptid = PrcGetTIDNative(*id);
-  return NO_ERROR;
-} */
 
 APIRET CPNewTIB(PID pid,
                 TID tid,

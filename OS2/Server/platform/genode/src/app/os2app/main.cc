@@ -4,12 +4,14 @@
 #include <cpi_session/connection.h>
 #include <base/attached_rom_dataspace.h>
 
+/* osFree internal */
 #include <os3/io.h>
 #include <os3/cpi.h>
 #include <os3/exec.h>
 #include <os3/fs.h>
 #include <os3/stacksw.h>
 
+/* libc includes */
 #include <stdlib.h>
 
 #include <genode_env.h>
@@ -29,7 +31,7 @@ struct OS2::App::Main
 
     Genode::Heap heap { env.ram(), env.rm() };
 
-    void __exit(ULONG action, ULONG result)
+    void _exit(ULONG action, ULONG result)
     {
         STKIN
         // send OS/2 server a message that we want to terminate
@@ -48,24 +50,24 @@ struct OS2::App::Main
 
         init_genode_env(env, heap);
 
-        io_log("---os2app started---\n");
+        io_log("OS/2 application started\n");
 
         if ( (rc = CPClientInit()) )
         {
             io_log("Can't find os2srv exiting...\n");
-            __exit(1, 1);
+            _exit(1, 1);
         }
 
         if ( (rc = FSClientInit()) )
         {
             io_log("Can't find os2fs, exiting...\n");
-            __exit(1, 1);
+            _exit(1, 1);
         }
 
         if ( (rc = ExcClientInit()) )
         {
             io_log("Can't find os2exec, exiting...\n");
-            __exit(1, 1);
+            _exit(1, 1);
         }
 
         // reserve the lower 64 Mb for OS/2 app

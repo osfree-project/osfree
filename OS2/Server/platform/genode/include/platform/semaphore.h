@@ -7,8 +7,7 @@
 
 #define SEMAPHORE_INIT(a) NULL
 
-typedef void *l4_os3_semaphore_t;
-typedef void *l4_os3_lock_t;
+typedef void * l4_os3_semaphore_t;
 
 #ifdef __cplusplus
   }

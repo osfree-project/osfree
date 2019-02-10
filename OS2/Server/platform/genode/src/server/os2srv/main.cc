@@ -5,6 +5,7 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/thread.h>
+#include <os3/processmgr.h>
 #include <os3/cfgparser.h>
 
 /* Genode includes */
@@ -107,7 +108,6 @@ public:
                 CPAppNotify2(this,
                              &_sysio.appnotify2_in.s,
                              (char *)_sysio.appnotify2_in.pszName,
-                             _sysio.appnotify2_in.pid,
                              (char *)_sysio.appnotify2_in.szLoadError,
                              _sysio.appnotify2_in.cbLoadError,
                              _sysio.appnotify2_in.ret);
@@ -137,6 +137,14 @@ public:
                 {
                     result = true;
                 }
+                break;
+
+            case SYSCALL_GETPID:
+                io_log("aaa\n");
+                CPGetPID(this,
+                         &_sysio.getpid_out.pid);
+                io_log("bbb\n");
+                result = true;
                 break;
 
             case SYSCALL_INVALID:
@@ -185,7 +193,7 @@ struct OS2::Cpi::Main
         void *addr;
         APIRET rc;
 
-        io_log("---os2srv started---\n");
+        io_log("osFree OS/2 personality server started\n");
 
         // Initialize initial values from CONFIG.SYS
         rc = CfgInitOptions();
@@ -209,8 +217,6 @@ struct OS2::Cpi::Main
 
         io_log("options.configfile=%s\n", options.configfile);
 
-        //CPClientInit();
-
         // Load CONFIG.SYS into memory
         rc = io_load_file(options.configfile, &addr, &size);
 
@@ -219,8 +225,6 @@ struct OS2::Cpi::Main
             io_log("Can't load CONFIG.SYS\n");
             return;
         }
-
-        //io_log("%s\n", (char *)addr);
 
         // Parse CONFIG.SYS in memory
         rc = CfgParseConfig((char *)addr, size);
@@ -234,6 +238,8 @@ struct OS2::Cpi::Main
         // Remove CONFIG.SYS from memory
         io_close_file(addr);
 
+        PrcInit();
+
         // Perform the System initialization
         ThreadCreate((ThreadFunc)sysinit, (void *)&options, THREAD_ASYNC);
 
@@ -243,7 +249,7 @@ struct OS2::Cpi::Main
 
     ~Main()
     {
-        CPClientDone();
+        PrcDone();
     }
 };
 

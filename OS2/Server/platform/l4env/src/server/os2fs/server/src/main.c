@@ -159,7 +159,7 @@ int main(int argc, char **argv)
   thread.thread = fprov_id;
 
   // notify os2srv about successful startup
-  CPClientAppNotify2(&s, "os2fs", 0, &thread,
+  CPClientAppNotify2(&s, "os2fs", &thread,
                      szLoadError, sizeof(szLoadError), 0);
 
   // server loop

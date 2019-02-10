@@ -453,7 +453,7 @@ struct OS2::Fs::Main
         l4_os3_thread_t thread;
         //int rc;
 
-        io_log("---os2fs started---\n");
+        io_log("osFree FS server started\n");
 
         init_globals();
         //FSR_INIT();
@@ -461,7 +461,7 @@ struct OS2::Fs::Main
         CPClientInit();
 
         // notify os2srv about successful startup
-        CPClientAppNotify2(&s, "os2fs", 0, &thread,
+        CPClientAppNotify2(&s, "os2fs", &thread,
                            szLoadError, sizeof(szLoadError), 0);
 
         // announce "ROM" service

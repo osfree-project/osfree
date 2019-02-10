@@ -71,7 +71,6 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
                                 l4_uint32_t lthread,
                                 const os2exec_module_t *s,
                                 const char *pszName,
-                                PID pid,
                                 const void *szLoadError,
                                 ULONG cbLoadError,
                                 ULONG ret,
@@ -81,7 +80,8 @@ os2server_app_notify2_component(CORBA_Object _dice_corba_obj,
 
   task.thread = *_dice_corba_obj;
   task.thread.id.lthread = lthread;
-  CPAppNotify2(task, s, pszName, pid,
+
+  CPAppNotify2(task, s, pszName,
                szLoadError, cbLoadError, ret);
 }
 
@@ -317,17 +317,6 @@ os2server_dos_CloseEventSem_component (CORBA_Object obj,
   return CPCloseEventSem(thread, hev);
 }
 
-/* APIRET DICE_CV
-os2server_dos_GetTID_component (CORBA_Object obj,
-                                TID *ptid,
-                                CORBA_Server_Environment *_srv_env)
-{
-  l4_os3_thread_t thread;
-  thread.thread = *obj;
-
-  return CPGetTID(thread, ptid);
-} */
-
 APIRET DICE_CV
 os2server_dos_GetPID_component (CORBA_Object obj,
                                 PID *ppid /* out */,
@@ -348,15 +337,6 @@ os2server_dos_GetNativeID_component (CORBA_Object obj,
 {
   return CPGetNativeID(pid, tid, id);
 }
-
-/* APIRET DICE_CV
-os2server_dos_GetTIDNative_component (CORBA_Object obj,
-                                      const l4_os3_thread_t *id,
-                                      TID *ptid,
-                                      CORBA_Server_Environment *_srv_env)
-{
-  return CPGetTIDNative(id, ptid);
-} */
 
 APIRET DICE_CV
 os2server_dos_NewTIB_component (CORBA_Object obj,

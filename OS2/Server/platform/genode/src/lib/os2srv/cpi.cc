@@ -117,7 +117,6 @@ void CPClientAppNotify1(void)
 extern "C"
 void CPClientAppNotify2(const os2exec_module_t *s,
                         const char *pszName,
-                        PID pid,
                         l4_os3_thread_t *thread,
                         const void *szLoadError,
                         ULONG cbLoadError,
@@ -134,7 +133,6 @@ void CPClientAppNotify2(const os2exec_module_t *s,
         *_sysio->appnotify2_in.pszName = '\0';
     }
 
-    _sysio->appnotify2_in.pid = pid;
     _sysio->appnotify2_in.thread = *thread;
     strcpy((char *)_sysio->appnotify2_in.szLoadError, (char *)szLoadError);
     _sysio->appnotify2_in.cbLoadError = cbLoadError;
@@ -195,4 +193,11 @@ APIRET CPClientExecPgmNotify(l4_os3_thread_t job,
     pRes = pRes;
     result = result;
     return NO_ERROR;
+}
+
+extern "C"
+void CPClientGetPID(PID *pid)
+{
+    cpi->syscall(Session::SYSCALL_GETPID);
+    *pid = _sysio->getpid_out.pid;
 }

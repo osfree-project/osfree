@@ -97,7 +97,7 @@ ULONG rcCode = 0;
 
 void usage(void);
 void server_loop(void);
-VOID CDECL __exit(ULONG action, ULONG result);
+VOID CDECL _exit(ULONG action, ULONG result);
 
 void event_thread(void);
 
@@ -110,7 +110,7 @@ void usage(void)
 }
 
 VOID CDECL
-__exit(ULONG action, ULONG result)
+_exit(ULONG action, ULONG result)
 {
   //CORBA_Environment env = dice_default_environment;
   STKIN
@@ -135,13 +135,13 @@ void event_thread(void)
   if (! l4events_init())
   {
     io_log("l4events_init() failed\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   if ((rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
   {
     io_log("l4events_register failed\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   while(1)
@@ -159,7 +159,7 @@ void event_thread(void)
 
     /* exit myself */
     if (l4_task_equal(tid, os2srv))
-      __exit(1, rc);
+      _exit(1, rc);
   }
 }
 
@@ -197,37 +197,37 @@ int main (int argc, char *argv[])
   if ( (rc = CPClientInit()) )
     {
       io_log("Can't find os2srv, exiting...\n");
-      __exit(1, 1);
+      _exit(1, 1);
     }
 
   /* if (! names_waitfor_name("os2fs", &fs, 30000))
     {
       io_log("Can't find os2fs on names, exiting...\n");
-      __exit(1, 1);
+      _exit(1, 1);
     } */
 
   if ( (rc = FSClientInit()) )
   {
     io_log("Can't find os2fs on names, exiting...\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   if (! names_waitfor_name("os2exec", &execsrv.thread, 30000))
     {
       io_log("Can't find os2exec on names, exiting...\n");
-      __exit(1, 1);
+      _exit(1, 1);
     }
 
   if ( (rc = ExcClientInit()) )
   {
     io_log("Can't find os2exec on names, exiting...\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   if (! names_waitfor_name(fprov, &fprov_id, 30000))
     {
       io_log("Can't find %s on names, exiting...\n", fprov);
-      __exit(1, 1);
+      _exit(1, 1);
     }
 
   // reserve the lower 64 Mb for OS/2 app
@@ -235,7 +235,7 @@ int main (int argc, char *argv[])
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for private arena!\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   // reserve the upper 1 Gb for shared memory arena
@@ -243,7 +243,7 @@ int main (int argc, char *argv[])
   if (rc < 0)
   {
     io_log("Panic: cannot reserve memory for shared arena!\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   /* query default dataspace manager id */
@@ -252,7 +252,7 @@ int main (int argc, char *argv[])
   if (l4_is_invalid_id(dsm))
   {
     io_log("No dataspace manager found\n");
-    __exit(1, 1);
+    _exit(1, 1);
   }
 
   io_log("dsm=%u.%u\n", dsm.id.task, dsm.id.lthread);
@@ -286,7 +286,7 @@ int main (int argc, char *argv[])
       default:
         io_log("Error: Unknown option %c\n", opt);
         usage();
-        __exit(1, 2);
+        _exit(1, 2);
     }
   }
 

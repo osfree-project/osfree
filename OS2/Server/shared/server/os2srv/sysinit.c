@@ -13,6 +13,8 @@
 #include <os3/processmgr.h>
 #include <os3/loader.h>
 #include <os3/thread.h>
+#include <os3/semaphore.h>
+#include <os3/lock.h>
 #include <os3/io.h>
 
 /* libc includes */
@@ -23,6 +25,10 @@
 #include "api.h"
 
 extern l4_os3_thread_t sysinit_id;
+
+l4_os3_semaphore_t *startup_sem;
+l4_os3_lock_t *startup_lock;
+struct t_os2process *startup_proc = NULL;
 
 void exec_runserver(int ppid);
 void exec_protshell(cfg_opts *options);
@@ -181,12 +187,12 @@ exec_runserver(int ppid)
                          NULL,      // pArg
                          NULL);     // pEnv
 
+	LockLock(startup_lock);
+	startup_proc = proc;
+
         free(q);
 
         LoaderExec (p, params, "/dev/vc0", &tid);
-
-        /* set task number */
-        proc->task = tid;
 
 	srv     = getcmd (skipto(0, strstr(s, "-LOOKFOR")));
 
@@ -211,21 +217,27 @@ exec_runserver(int ppid)
 	    if (time > timeout)
 	    {
 		io_log("Timeout waiting for %s\n", server);
+		LockUnlock(startup_lock);
 		return;
 	    }
 
-	    serv = server_query(server, 0);
+	    serv = server_query(server, proc->pid);
 
 	    if (serv)
 	    {
+		SemaphoreDown(startup_sem);
+
 		if (serv->ret)
 		{
 		    io_log("Error %u starting %s!", serv->ret, server);
 		    io_log("Error message: %.*s", serv->cbLoadError, serv->szLoadError);
+		    LockUnlock(startup_lock);
 		    return;
 		}
 
 		io_log("Server %s started successfully.\n", server);
+		server_del(server, proc->pid);
+		LockUnlock(startup_lock);
 		break;
 	    }
 	}

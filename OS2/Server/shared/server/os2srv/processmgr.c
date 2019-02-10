@@ -26,6 +26,8 @@
 #include <os3/io.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
+#include <os3/semaphore.h>
+#include <os3/lock.h>
 #include <os3/rm.h>
 #include <os3/thread.h>
 #include <os3/app.h>
@@ -49,6 +51,10 @@ static int pid = -1;
 
 /* List of servers started by os2srv */
 server_t *servers = NULL;
+
+extern l4_os3_semaphore_t *startup_sem;
+extern l4_os3_lock_t *startup_lock;
+extern struct t_os2process *startup_proc;
 
 void PrcInitializeModule(PSZ pszModule, unsigned long esp);
 void ModLinkModule (IXFModule *ixfModule, unsigned long *phmod);
@@ -117,6 +123,39 @@ void free_mem(void *addr)
   ULONG     pib_flstatus;   Process' status bits.
   ULONG     pib_ultype;     Process' type code. */
 
+/* Init Process manager */
+APIRET PrcInit(void)
+{
+  static l4_os3_semaphore_t sem;
+  static l4_os3_lock_t lock;
+  APIRET rc;
+
+  startup_sem = &sem;
+
+  rc = SemaphoreInit(&startup_sem, 0);
+
+  if (rc)
+  {
+    return rc;
+  }
+
+  startup_lock = &lock;
+
+  rc = LockInit(&startup_lock, 0);
+
+  if (rc)
+  {
+    return rc;
+  }
+
+  return NO_ERROR;
+}
+
+void PrcDone(void)
+{
+  LockDone(startup_lock);
+  SemaphoreDone(startup_sem);
+}
 
 /* creates the process info block (PIB) in OS/2 server address space
  * and returns its address.
@@ -233,6 +272,8 @@ struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFMo
 {
 
     struct t_os2process *parentproc;
+    PPIB ppib;
+    PTIB ptib;
     int i;
 
     io_log("proc_root=%lx\n", (ULONG)proc_root);
@@ -288,8 +329,12 @@ struct t_os2process *PrcCreate(ULONG ppid, PSZ pPrg, PSZ pArg, PSZ pEnv) //IXFMo
     //c->lx_pib   = (PPIB) malloc(sizeof(PIB));
     //c->main_tib = (PTIB) malloc(sizeof(TIB));
     //c->main_tib->tib_ptib2 = (PTIB2) malloc(sizeof(TIB2));
-    PrcCreatePIB(&(c->lx_pib), pPrg, pArg, pEnv);
-    PrcCreateTIB(&(c->tib_array[0]));
+
+    PrcCreatePIB(&ppib, pPrg, pArg, pEnv);
+    PrcCreateTIB(&ptib);
+
+    c->lx_pib = ppib;
+    c->tib_array[0] = ptib;
 
     // initialize the rest of TIB array
     for (i = 1; i < MAX_TID; i++)
@@ -572,7 +617,6 @@ void CPAppNotify1(l4_os3_thread_t thread)
 void CPAppNotify2(l4_os3_thread_t task,
                   const os2exec_module_t *s,
                   const char *pszName,
-                  PID pid,
                   const char *szLoadError,
                   ULONG cbLoadError,
                   ULONG ret)
@@ -580,34 +624,31 @@ void CPAppNotify2(l4_os3_thread_t task,
   struct t_os2process *proc;
   int i;
 
-  if (pid)
+  proc = startup_proc;
+
+  if (! proc)
   {
-    proc = PrcGetProcNative(task);
-
-    if (! proc) // it indicates that os2app is started from other
-    {          // means, than using PrcExecuteModule, so proc is not created
-      /* create process structure and assign args and env */
-      proc = PrcCreate(0, (PSZ)s->path, "", "");
-      /* set task number */
-      proc->task = task;
-      /* assign params and environment */
-      //PrcSetArgsEnv(s->path, "", "", proc);
-    }
-
-    proc->ip = (void *)s->ip;
-    proc->sp = (void *)s->sp;
-    proc->hmte = s->hmod;
-    proc->lx_pib->pib_hmte = s->hmod;
-    proc->tib_array[0]->tib_pstack = (void *)s->sp;
-    proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
-    proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
-    proc->tid_array[0] = task;
-
-    for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = INVALID_THREAD; //L4_INVALID_ID;
+    return;
   }
 
+  proc->task = task;
+
+  proc->ip = (void *)s->ip;
+  proc->sp = (void *)s->sp;
+  proc->hmte = s->hmod;
+  proc->lx_pib->pib_hmte = s->hmod;
+  proc->tib_array[0]->tib_pstack = (void *)s->sp;
+  proc->tib_array[0]->tib_pstacklimit = (void *)s->sp_limit;
+  proc->tib_array[0]->tib_ptib2->tib2_ultid = 1;
+  proc->tid_array[0] = task;
+
+  for (i = 1; i < MAX_TID; i++) proc->tid_array[i] = INVALID_THREAD; //L4_INVALID_ID;
+
+  server_add(pszName, proc->pid, szLoadError, cbLoadError, ret);
+
+  SemaphoreUp(startup_sem);
+
   io_log("cpappnotify: pszName=%s, pid=%u\n", pszName, pid);
-  server_add(pszName, pid, szLoadError, cbLoadError, ret);
 }
 
 server_t *server_query(const char *pszName, PID pid)
@@ -616,7 +657,7 @@ server_t *server_query(const char *pszName, PID pid)
 
     for (srv = servers; srv; srv = srv->next)
     {
-        if (! strcmp(srv->name, pszName) && srv->pid == pid)
+        if (! strcmp(srv->name, pszName))
         {
             return srv;
         }
@@ -1055,6 +1096,11 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
 
   /* create process structure */
   proc = PrcCreate(ppid, p_buf, pArg, pEnv);
+
+  LockLock(startup_lock);
+
+  startup_proc = proc;
+
   io_log("PrcExecuteModule\n");
   io_log("ppib=%lx\n", proc->lx_pib);
   io_log("pchcmd=%lx\n", proc->lx_pib->pib_pchcmd);
@@ -1067,6 +1113,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   if (rc)
   {
     io_log("PrcExecuteModule: rc=%lx\n", rc);
+    LockUnlock(startup_lock);
     return rc;
   }
 
@@ -1114,9 +1161,12 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
       {
         memcpy(pObjname, serv->szLoadError, serv->cbLoadError);
         server_del("os2app", proc->pid);
+        LockUnlock(startup_lock);
         return serv->ret;
       }
 
+      SemaphoreDown(startup_sem);
+      LockUnlock(startup_lock);
       break;
     }
   }

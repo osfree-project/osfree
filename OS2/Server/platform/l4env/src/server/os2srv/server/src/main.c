@@ -254,6 +254,8 @@ int main(int argc, const char **argv)
   // Remove CONFIG.SYS from memory
   io_close_file(addr);
 
+  PrcInit();
+
   // Perform the System initialization
   ThreadCreate((void *)sysinit, (void *)&options, THREAD_ASYNC);
 
@@ -263,5 +265,7 @@ int main(int argc, const char **argv)
   os2server_server_loop(&env);
 
   CPClientDone();
+  PrcDone();
+
   return rc;
 }

@@ -42,7 +42,6 @@ APIRET CPClientAppNotify1(void)
 
 APIRET CPClientAppNotify2(os2exec_module_t *s,
                           const char *pszName,
-                          PID pid,
                           l4_os3_thread_t *thread,
                           const char *szLoadError,
                           ULONG cbLoadError,
@@ -51,7 +50,7 @@ APIRET CPClientAppNotify2(os2exec_module_t *s,
     CORBA_Environment env = dice_default_environment;
 
     os2server_app_notify2_call(&os2srv, thread->thread.id.lthread,
-                               s, pszName, pid,
+                               s, pszName,
                                szLoadError, cbLoadError,
                                ret, &env);
     return NO_ERROR;
@@ -219,13 +218,6 @@ APIRET CPClientCloseEventSem(HEV hev)
     return os2server_dos_CloseEventSem_call(&os2srv, hev, &env);
 }
 
-/* APIRET CPClientGetTID(TID *ptid)
-{
-    CORBA_Environment env = dice_default_environment;
-
-    return os2server_dos_GetTID_call(&os2srv, ptid, &env);
-} */
-
 APIRET CPClientGetPID(PID *ppid)
 {
     CORBA_Environment env = dice_default_environment;
@@ -240,14 +232,6 @@ APIRET CPClientGetNativeID(PID pid, TID tid,
 
     return os2server_dos_GetNativeID_call(&os2srv, pid, tid, thread, &env);
 }
-
-/* APIRET CPClientGetTIDNative(const l4_os3_thread_t *thread,
-                            TID *ptid)
-{
-    CORBA_Environment env = dice_default_environment;
-
-    return os2server_dos_GetTIDNative_call(&os2srv, thread, ptid, &env);
-} */
 
 APIRET CPClientNewTIB(PID pid, TID tid,
                       const l4_os3_thread_t *thread)

@@ -39,6 +39,7 @@ struct OS2::Cpi::Session : Genode::Session
             SYSCALL_APPNOTIFY2,
             SYSCALL_EXIT,
             SYSCALL_EXECPGM,
+            SYSCALL_GETPID,
             SYSCALL_INVALID = -1
         };
 

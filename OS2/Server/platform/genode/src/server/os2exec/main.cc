@@ -235,7 +235,7 @@ struct OS2::Exec::Main
 		void *addr;
 		APIRET rc;
 
-		io_log("---os2exec started---\n");
+		io_log("osFree Exec server started\n");
 
 		memset (&options, 0, sizeof(options));
 
@@ -359,7 +359,7 @@ struct OS2::Exec::Main
 		}
 
 		// notify os2srv about successful startup
-		CPClientAppNotify2(&s, "os2exec", 0, &thread,
+		CPClientAppNotify2(&s, "os2exec", &thread,
 		                   szLoadError, sizeof(szLoadError), rc);
 
 		// announce 'os2exec' service

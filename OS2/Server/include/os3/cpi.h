@@ -66,7 +66,6 @@ APIRET CPClientAppNotify1(void);
 
 APIRET CPClientAppNotify2(os2exec_module_t *s,
                           const char *pszName,
-                          PID pid,
                           l4_os3_thread_t *thread,
                           const char *szLoadError,
                           ULONG cbLoadError, ULONG ret);

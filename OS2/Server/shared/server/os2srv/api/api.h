@@ -15,6 +15,7 @@
 #include <os3/thread.h>
 #include <os3/dataspace.h>
 #include <os3/semaphore.h>
+#include <os3/lock.h>
 #include <os3/loader.h>
 #include <os3/cpi.h>
 
@@ -79,7 +80,6 @@ void CPAppNotify1(l4_os3_thread_t thread);
 void CPAppNotify2(l4_os3_thread_t thread,
                   const os2exec_module_t *s,
                   const char *pszName,
-                  PID pid,
                   const char *szLoadError,
                   ULONG cbLoadError, ULONG ret);
 

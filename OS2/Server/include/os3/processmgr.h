@@ -160,6 +160,9 @@ struct t_os2process {
 
 #define MAX_TID 128
 
+APIRET PrcInit(void);
+void PrcDone(void);
+
 APIRET CDECL PrcCreatePIB(PPIB *addr, PSZ prg, PSZ arg, PSZ env);
 APIRET CDECL PrcCreateTIB(PTIB *addr);
 APIRET CDECL PrcDestroyTIB(PID pid, TID tid);

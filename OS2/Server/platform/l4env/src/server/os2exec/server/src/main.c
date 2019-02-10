@@ -331,7 +331,7 @@ int main (int argc, char *argv[])
   thread.thread = l4_myself();
 
   // notify os2srv about successful startup
-  CPClientAppNotify2(&s, "os2exec", 0, &thread,
+  CPClientAppNotify2(&s, "os2exec", &thread,
                      szLoadError, sizeof(szLoadError), rc);
 
   // server loop

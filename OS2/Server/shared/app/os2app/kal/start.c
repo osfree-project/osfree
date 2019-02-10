@@ -95,7 +95,6 @@ char buf[1024];
 l4_os3_thread_t thread;
 struct param param;
 APIRET rc;
-PID pid;
 
 APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 {
@@ -121,14 +120,12 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   rc = KalPvtLoadModule(pszLoadError, &cbLoadError,
                         name, &s, &hmod);
 
-  KalGetPID(&pid);
-
   rcCode = rc;
 
   if (rc)
   {
     io_log("LX load error!\n");
-    CPClientAppNotify2(&s, "os2app", pid, &thread,
+    CPClientAppNotify2(&s, "os2app", &thread,
                        pszLoadError, cbLoadError, rcCode);
     KalExit(1, 1);
   }
@@ -140,11 +137,9 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
 
   strcpy(s.path, name);
 
-  io_log("pid=%u\n", pid);
-
   /* notify OS/2 server about parameters got from execsrv */
   //os2server_app_notify2_call (&os2srv, &s, &env);
-  CPClientAppNotify2(&s, "os2app", pid, &thread,
+  CPClientAppNotify2(&s, "os2app", &thread,
                      pszLoadError, cbLoadError, rcCode);
 
   STKINIT(__stack - 0x800)

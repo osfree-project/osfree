@@ -19,7 +19,6 @@ interface os2server
     void app_notify2([in] l4_uint32_t lthread,
                      [in] os2exec_module_t *s,
                      [in, string, max_is(260)] char *pszName,
-                     [in] PID pid,
                      [in, max_is(260),
                      prealloc_server,
                      prealloc_client,
@@ -128,16 +127,11 @@ interface os2server
 
     APIRET dos_CloseEventSem ([in] HEV hev);
 
-    /* APIRET dos_GetTID([out] TID *ptid); */
-
     APIRET dos_GetPID([out] PID *ppid);
 
     APIRET dos_GetNativeID([in] PID pid,
                            [in] TID tid,
                            [out] l4_os3_thread_t *id);
-
-    /* APIRET dos_GetTIDNative([in] l4_os3_thread_t id,
-                            [out] TID *ptid); */
 
     APIRET dos_NewTIB([in] PID pid,
                       [in] TID tid,

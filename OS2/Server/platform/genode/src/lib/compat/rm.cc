@@ -140,6 +140,8 @@ int del_node(void *addr)
 extern "C"
 long RegDetach(void *addr)
 {
+    Genode::Env &env = genode_env();
+    env.rm().detach(addr);
     return 0;
 }
 

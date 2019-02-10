@@ -16,6 +16,7 @@ set filelist { doscalls.dll sub32.dll kbdcalls.dll viocalls.dll moucalls.dll mon
 build {
   core
   init
+  timer
   lib/compat
   lib/memmgr
   lib/ixf/lx
@@ -36,9 +37,13 @@ create_boot_directory
 install_config {
 <config>
 	<parent-provides>
-		<service name="CPU"/>
 		<service name="ROM"/>
+		<service name="IRQ"/>
+		<service name="IO_MEM"/>
+		<service name="IO_PORT"/>
 		<service name="PD"/>
+		<service name="RM"/>
+		<service name="CPU"/>
 		<service name="LOG"/>
 	</parent-provides>
 	<default-route>
@@ -48,6 +53,10 @@ install_config {
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
 	<default caps="120"/>
+	<start name="timer">
+		<resource name="RAM" quantum="10M"/>
+		<provides><service name="Timer"/></provides>
+	</start>
 	<start name="os2srv">
 		<resource name="RAM" quantum="3M"/>
 		<provides>
@@ -83,6 +92,7 @@ install_config {
 		</config>
 	</start>
 	<start name="os2app">
+		<arg value="c:\minicmd.exe"/>
 		<config verbose="yes"/>
 		<resource name="RAM" quantum="2M"/>
 	</start>
@@ -107,6 +117,7 @@ set boot_modules {
   kal.map
   core
   init
+  timer
   ld.lib.so
   libc.lib.so
   libm.lib.so
