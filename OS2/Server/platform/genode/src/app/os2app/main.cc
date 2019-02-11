@@ -6,6 +6,7 @@
 
 /* osFree internal */
 #include <os3/io.h>
+#include <os3/kal.h>
 #include <os3/cpi.h>
 #include <os3/exec.h>
 #include <os3/fs.h>
@@ -18,6 +19,24 @@
 
 Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
+
+extern "C" {
+
+/* private memory arena settings */
+ULONG   private_memory_base = 0x10000;
+ULONG   private_memory_size = 64*1024*1024;
+ULONGLONG private_memory_area;
+
+/* shared memory arena settings */
+ULONG   shared_memory_base = 0x60000000;
+ULONG   shared_memory_size = 1024*1024*1024;
+ULONGLONG shared_memory_area;
+
+l4_os3_thread_t me;
+
+ULONG rcCode = 0;
+
+}
 
 namespace OS2::App {
     struct Main;
@@ -45,7 +64,7 @@ struct OS2::App::Main
 
     Main(Libc::Env &env) : env(env)
     {
-        //char szLoadError[260];
+        char pszLoadError[260];
         APIRET rc;
 
         init_genode_env(env, heap);
@@ -82,7 +101,7 @@ struct OS2::App::Main
         CPClientTest();
 
         io_log("calling KalStartApp...\n");
-        //KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
+        KalStartApp((char *)"c:\\mini33.exe", pszLoadError, sizeof(pszLoadError));
     }
 
     ~Main()

@@ -377,7 +377,9 @@ KalExit(ULONG action, ULONG result)
       //os2server_dos_Exit_send(&os2srv, action, result, &env);
       CPClientExit(action, result);
       // tell L4 task server that we want to terminate
-      TaskExit();
+      TaskExit(result);
+      break;
+
     default:
       if (tid == 1)
       {
@@ -385,7 +387,7 @@ KalExit(ULONG action, ULONG result)
         //os2server_dos_Exit_send(&os2srv, action, result, &env);
         CPClientExit(action, result);
         // tell L4 task server that we want to terminate
-        TaskExit();
+        TaskExit(result);
       }
       else
       {
@@ -2509,7 +2511,7 @@ KalGetTIDNative(l4_os3_thread_t id, TID *pthid)
       break;
   }
 
-  *pthid = (i == MAX_TID) ? 0 : i;
+  *pthid = (i == MAX_TID) ? 0 : (i + 1);
 
   KalQuit();
   return rc;

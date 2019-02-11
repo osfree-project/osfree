@@ -249,6 +249,11 @@ PrcNewTIB(PID pid, TID tid, l4_os3_thread_t id)
   struct t_os2process *proc = PrcGetProc(pid);
   PTIB ptib;
 
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   PrcCreateTIB(&ptib);
   proc->tid_array[tid - 1] = id;
   proc->tib_array[tid - 1] = ptib;
@@ -260,7 +265,14 @@ APIRET CDECL
 PrcDestroyTIB(PID pid, TID tid)
 {
   struct t_os2process *proc = PrcGetProc(pid);
-  PTIB ptib = proc->tib_array[tid - 1];
+  PTIB ptib;
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
+  ptib = proc->tib_array[tid - 1];
   proc->tib_array[tid - 1] = 0;
   proc->tid_array[tid - 1] = INVALID_THREAD;
   free_mem(ptib);
@@ -447,6 +459,12 @@ struct t_os2process *PrcGetProcNative(l4_os3_thread_t thread)
 l4_os3_thread_t PrcGetNativeID(PID pid, TID tid)
 {
   struct t_os2process *proc = PrcGetProc(pid);
+
+  if (! proc)
+  {
+    return INVALID_THREAD;
+  }
+
   return proc->tid_array[tid - 1];
 }
 
@@ -495,6 +513,11 @@ APIRET PrcSetArgsEnv(PSZ pPrg, PSZ pArg, PSZ pEnv, struct t_os2process *proc)
     {
       /* parent proc */
       parentproc = PrcGetProc(proc->lx_pib->pib_ulppid);
+
+      if (! proc)
+      {
+          return ERROR_PROC_NOT_FOUND;
+      }
 
       l = strlstlen(parentproc->lx_pib->pib_pchenv);
 
@@ -605,6 +628,12 @@ void CPAppNotify1(l4_os3_thread_t thread)
   ULONG ppid;
 
   proc = PrcGetProcNative(thread);
+
+  if (! proc)
+  {
+    return;
+  }
+
   ppid = proc->lx_pib->pib_ulppid;
   parentproc = PrcGetProc(ppid);
 
@@ -1110,6 +1139,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   /* execute it */
   rc = LoaderExecOS2(p_buf, 0, proc);
 
+  io_log("x000\n");
   if (rc)
   {
     io_log("PrcExecuteModule: rc=%lx\n", rc);
@@ -1118,6 +1148,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
 
   /* set termination code */
+  io_log("x001\n");
   switch (execFlag)
   {
     case EXEC_ASYNC:
@@ -1142,6 +1173,7 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     //os2app_app_Terminate_call(&proc->task, &env);
 
   //time = 0;
+  io_log("x002\n");
   for (;;)
   {
     ThreadSleep(delta);
@@ -1153,25 +1185,33 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     //  return ERROR_TIMEOUT;
     //}
 
+    io_log("x003\n");
     serv = server_query("os2app", proc->pid);
 
     if (serv)
     {
       if (serv->ret)
       {
-        memcpy(pObjname, serv->szLoadError, serv->cbLoadError);
+        io_log("x004\n");
+        memcpy(pObjname, serv->szLoadError, serv->cbLoadError); ////
+        io_log("x004a\n");
         server_del("os2app", proc->pid);
+        io_log("x004b\n");
         LockUnlock(startup_lock);
+        io_log("x004c\n");
         return serv->ret;
       }
 
+      io_log("x005\n");
       SemaphoreDown(startup_sem);
       LockUnlock(startup_lock);
       break;
     }
   }
 
+  io_log("x006\n");
   server_del("os2app", proc->pid);
+  io_log("x007\n");
   return NO_ERROR;
 }
 

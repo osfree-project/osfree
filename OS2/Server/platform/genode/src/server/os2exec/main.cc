@@ -90,6 +90,11 @@ public:
 		               *cbLoadError, (os2exec_module_t *)addr2);
 	}
 
+	long free(unsigned long hmod)
+	{
+		return ExcFree(hmod);
+	}
+
 	long share(unsigned long hmod)
 	{
 		return ExcShare(hmod, (void *)this);
@@ -277,6 +282,8 @@ struct OS2::Exec::Main
 		    io_log("Error parsing CONFIG.SYS!\n");
 		    return;
 		}
+
+		io_log("%s\n", addr);
 
 		// Release all memory allocated by parser
 		CfgCleanup();

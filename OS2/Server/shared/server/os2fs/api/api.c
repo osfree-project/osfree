@@ -1774,10 +1774,10 @@ APIRET FSQueryPathInfo(PSZ pszPathName,
                 setdrivemap(&map);
                 len = sizeof(fname);
 
-                ////rc = CPClientQueryCurrentDir(0, map, (char **)&fname, &len);
+                rc = CPClientQueryCurrentDir(0, map, (char **)&fname, &len);
 
-                ////if (rc)
-                    ////return rc;
+                if (rc)
+                    return rc;
 
                 fname[len] = '\0';
                 strcat(fname, fn); // @todo implement global chars processing

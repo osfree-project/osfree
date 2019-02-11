@@ -19,6 +19,7 @@ build {
   timer
   lib/compat
   lib/memmgr
+  lib/handle
   lib/ixf/lx
   lib/ixf/ne
   lib/vfs
@@ -92,7 +93,6 @@ install_config {
 		</config>
 	</start>
 	<start name="os2app">
-		<arg value="c:\minicmd.exe"/>
 		<config verbose="yes"/>
 		<resource name="RAM" quantum="2M"/>
 	</start>
@@ -124,6 +124,7 @@ set boot_modules {
   vfs.lib.so
   compat.lib.so
   memmgr.lib.so
+  handle.lib.so
   lx.ixf
   ne.ixf
   os2.tar

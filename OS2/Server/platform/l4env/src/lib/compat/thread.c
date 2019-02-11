@@ -9,6 +9,7 @@
 
 /* l4env includes */
 #include <l4/sys/types.h>
+#include <l4/util/util.h>
 #include <l4/thread/thread.h>
 #include <l4/generic_ts/generic_ts.h>
 
@@ -32,7 +33,7 @@ void ThreadExit(void)
     l4thread_exit();
 }
 
-void TaskExit(void)
+void TaskExit(int result)
 {
     l4ts_exit();
 }
@@ -46,4 +47,38 @@ l4_os3_thread_t ThreadCreate(ThreadFunc fn, void *data, ULONG flags)
 
     thread.thread = l4thread_l4_id(t);
     return thread;
+}
+
+l4_os3_thread_t ThreadCreateLong(ThreadFunc fn, void *data, ULONG flags,
+                                 const char *name, ULONG stacksize)
+{
+    l4_os3_thread_t thread;
+    l4thread_t rc;
+
+    if ( (rc = l4thread_create_long(L4THREAD_INVALID_ID, fn, name,
+                       L4THREAD_INVALID_SP, stacksize, L4THREAD_DEFAULT_PRIO,
+                       &data, flags)) < 0)
+    {
+        return INVALID_THREAD;
+    }
+
+    thread.thread = l4thread_l4_id(rc);
+    return thread;
+}
+
+void ThreadKill(l4_os3_thread_t native)
+{
+    l4thread_shutdown(l4thread_id(native.thread));
+}
+
+void ThreadSuspend(l4_os3_thread_t native)
+{
+}
+
+void ThreadResume(l4_os3_thread_t native)
+{
+}
+
+void ThreadWait(l4_os3_thread_t native)
+{
 }

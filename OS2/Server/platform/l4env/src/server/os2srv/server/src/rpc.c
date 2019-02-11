@@ -104,6 +104,12 @@ os2server_app_get_component(CORBA_Object obj,
 
   thread.thread = *obj;
   proc = PrcGetProcNative(thread);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   pid = proc->pid;
   return CPAppGetData(pid, data);
 }

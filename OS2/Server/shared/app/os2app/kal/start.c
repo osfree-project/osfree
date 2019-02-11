@@ -108,14 +108,6 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
   char *p = buf;
   int i;
 
-  //thread = me;
-  ////thread.thread = l4_myself();
-  //thread.thread.id.lthread = service_lthread;
-
-  /* notify OS/2 server about parameters got from execsrv */
-  //os2server_app_notify1_call (&os2srv, &env);
-  CPClientAppNotify1();
-
   /* Load the LX executable */
   rc = KalPvtLoadModule(pszLoadError, &cbLoadError,
                         name, &s, &hmod);
@@ -143,6 +135,10 @@ APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError)
                      pszLoadError, cbLoadError, rcCode);
 
   STKINIT(__stack - 0x800)
+
+  /* notify OS/2 server about parameters got from execsrv */
+  //os2server_app_notify1_call (&os2srv, &env);
+  CPClientAppNotify1();
 
   rc = KalQueryCurrentDisk(&curdisk, &map);
 

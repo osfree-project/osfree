@@ -2,7 +2,7 @@ include $(REP_DIR)/mk/osfree.mk
 
 TARGET = os2app
 CC_CXX_WARN_STRICT =
-SRC_CC = main.cc
+SRC_CC = main.cc kal/thread.cc
 SRC_C  = dl.c api/api.c kal/util.c kal/start.c kal/kal.c
 LIBS = base libc compat os2srv os2fs os2exec
 

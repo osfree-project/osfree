@@ -29,6 +29,11 @@ struct OS2::Exec::Session_client : Genode::Rpc_client<Session>
 		return call<Rpc_load>(hmod, err_ds, pcbLoadError, mod_ds);
 	}
 
+	long free(unsigned long hmod)
+	{
+		return call<Rpc_free>(hmod);
+	}
+
 	long share(unsigned long hmod)
 	{
 		return call<Rpc_share>(hmod);

@@ -48,7 +48,7 @@ APIRET CPExit(l4_os3_thread_t thread,
 
   if (! proc)
   {
-    return NO_ERROR;
+    return ERROR_PROC_NOT_FOUND;
   }
 
   // get parent pid
@@ -60,7 +60,7 @@ APIRET CPExit(l4_os3_thread_t thread,
   if (! parentproc)
   {
     io_log("parent proc is NULL!\n");
-    return ERROR_FILE_NOT_FOUND;
+    return ERROR_PROC_NOT_FOUND;
   }
 
   // set termination code
@@ -197,6 +197,11 @@ APIRET CPExecPgm(l4_os3_thread_t thread,
   /* caller t_os2process structure */
   proc = PrcGetProcNative(thread);
 
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   /* allocate parameters structure for worker thread */
   parm = (struct DosExecPgm_params *)malloc(sizeof(struct DosExecPgm_params));
 
@@ -273,6 +278,12 @@ APIRET CPGetPIB(PID pid, l4_os3_thread_t thread,
 
   // process PTDA
   proc = PrcGetProc(pid);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   ppib = proc->lx_pib;
   io_log("ppib_orig=%lx\n", ppib);
 
@@ -338,6 +349,12 @@ APIRET CPGetTIB(PID pid, TID tid, l4_os3_thread_t thread,
 
   // process PTDA
   proc = PrcGetProc(pid);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   //tid  = PrcGetTIDNative(thread);
   ptib = proc->tib_array[tid - 1];
 
@@ -425,6 +442,11 @@ APIRET CPQueryCurrentDisk(l4_os3_thread_t thread,
 
   proc = PrcGetProcNative(thread);
 
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   io_log("proc=%lx\n", (ULONG)proc);
   n = proc->curdisk;
 
@@ -460,6 +482,12 @@ APIRET CPQueryCurrentDir(l4_os3_thread_t thread,
     return ERROR_INVALID_PARAMETER;
 
   proc = PrcGetProcNative(thread);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   curdir = proc->curdir;
 
   if (! disknum)
@@ -535,8 +563,10 @@ APIRET CPSetCurrentDir(l4_os3_thread_t thread,
 
   proc = PrcGetProcNative(thread);
 
-  if (proc == NULL)
-      return ERROR_INVALID_PROCID;
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
 
   s = proc->curdir;
 
@@ -588,6 +618,11 @@ APIRET CPSetDefaultDisk(l4_os3_thread_t thread,
   struct t_os2process *proc;
 
   proc = PrcGetProcNative(thread);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
 
   // get drive map from fs server
   //os2fs_get_drivemap_call(&fs, &map, &env);
@@ -720,6 +755,12 @@ APIRET CPGetPID(l4_os3_thread_t thread,
                 PID *ppid)
 {
   struct t_os2process *proc = PrcGetProcNative(thread);
+
+  if (! proc)
+  {
+    return ERROR_PROC_NOT_FOUND;
+  }
+
   *ppid = proc->pid;
   return NO_ERROR;
 }

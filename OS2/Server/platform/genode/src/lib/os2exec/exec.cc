@@ -97,6 +97,13 @@ APIRET ExcClientLoad(ULONG hmod,
 }
 
 extern "C"
+APIRET ExcClientFree(HMODULE hmod)
+{
+    return exec->free(hmod);
+}
+
+
+extern "C"
 APIRET ExcClientShare(HMODULE hmod)
 {
     return exec->share(hmod);

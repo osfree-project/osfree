@@ -9,8 +9,8 @@ typedef void * l4_os3_thread_t;
 
 #define INVALID_THREAD NULL
 
-#define THREAD_SYNC  0
-#define THREAD_ASYNC 1
+#define THREAD_SYNC  1
+#define THREAD_ASYNC 2
 
 #ifdef __cplusplus
   }

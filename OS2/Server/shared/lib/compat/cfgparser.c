@@ -881,6 +881,7 @@ unsigned long CfgGetenv(char *name, char **value)
   unsigned long j;
   char *p;
 
+  io_log("name=%s\n", name);
   for(i = 0; i < type[3].ip; i++)
   {
     /* find '=' in string */
@@ -899,9 +900,11 @@ unsigned long CfgGetenv(char *name, char **value)
 
       p++;
       strcpy(*value, p);
+      io_log("value=%s\n", p);
       return NO_ERROR;
     }
   }
 
+  io_log("not found\n");
   return ERROR_ENVVAR_NOT_FOUND ;
 }

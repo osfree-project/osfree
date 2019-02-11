@@ -43,6 +43,9 @@ struct OS2::Exec::Session : Genode::Session
 	                  unsigned long *cbLoadError,
 	                  Genode::Ram_dataspace_capability mod_ds) = 0;
 
+	/* Free a loaded module */
+	virtual long free(unsigned long hmod) = 0;
+
 	/* Share all section dataspaces for loaded binary
 	   with calling process   */
 	virtual long share(unsigned long hmod) = 0;
@@ -116,6 +119,7 @@ struct OS2::Exec::Session : Genode::Session
 	           Genode::Ram_dataspace_capability,
 	           unsigned long *,
 	           Genode::Ram_dataspace_capability);
+	GENODE_RPC(Rpc_free, long, free, unsigned long);
 	GENODE_RPC(Rpc_share, long, share,
 	           unsigned long);
 	GENODE_RPC(Rpc_getimp, long, getimp,
@@ -147,7 +151,7 @@ struct OS2::Exec::Session : Genode::Session
 	GENODE_RPC(Rpc_release_sharemem, long, release_sharemem,
 	           ULONGLONG, ULONG *);
 
-	GENODE_RPC_INTERFACE(Rpc_open, Rpc_load,
+	GENODE_RPC_INTERFACE(Rpc_open, Rpc_load, Rpc_free,
 	   Rpc_share, Rpc_getimp, Rpc_getsect, Rpc_query_procaddr,
 	   Rpc_query_modhandle, Rpc_query_modname, Rpc_alloc_sharemem,
 	   Rpc_map_dataspace, Rpc_unmap_dataspace, Rpc_get_dataspace,

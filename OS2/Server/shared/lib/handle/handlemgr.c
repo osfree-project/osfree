@@ -116,7 +116,7 @@ APIRET APIENTRY HndpAllocateSomeHandles(HANDLE_TABLE * pHandleTable)
     {
         SIZE_T Offset, CommitSize = 4096; /* one page */
         HANDLE * FreeHandle = NULL;
-        PVOID NextAvailAddr = pHandleTable->pReservedMemory;
+        //PVOID NextAvailAddr = pHandleTable->pReservedMemory;
 
         if (pHandleTable->pReservedMemory >= pHandleTable->pMaxHandle)
             return ERROR_NOT_ENOUGH_MEMORY; /* the handle table is completely full */

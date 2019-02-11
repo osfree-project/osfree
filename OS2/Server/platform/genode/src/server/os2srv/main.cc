@@ -11,6 +11,7 @@
 /* Genode includes */
 #include <base/heap.h>
 #include <base/log.h>
+#include <base/thread.h>
 #include <base/attached_ram_dataspace.h>
 #include <base/attached_rom_dataspace.h>
 #include <libc/component.h>
@@ -46,13 +47,16 @@ void exit_notify(void)
 extern "C" l4_os3_thread_t
 CPNativeID(void)
 {
-    return INVALID_THREAD;
+    Genode::Thread *thread = Genode::Thread::myself();
+    return thread;
 }
 
 struct OS2::Cpi::Session_component : Genode::Rpc_object<Session>
 {
 private:
     Libc::Env &_env;
+
+    Genode::Untyped_capability _cap[4];
 
 public:
     Session_component(Libc::Env &env)
@@ -70,6 +74,16 @@ public:
         return _sysio_ds.cap();
     }
 
+    Genode::Untyped_capability get_cap(int index)
+    {
+        return _cap[index];
+    }
+
+    void send_cap(Genode::Untyped_capability cap, int index)
+    {
+        _cap[index] = cap;
+    }
+
     bool syscall(Syscall sc)
     {
         bool result = false;
@@ -83,8 +97,9 @@ public:
                 break;
 
             case SYSCALL_CFGGETENV:
-                CPCfgGetenv(_sysio.cfggetenv_in.name,
-                            (char **)&_sysio.cfggetenv_out.value);
+                rc = CPCfgGetenv(_sysio.cfggetenv_in.name,
+                                 (char **)&_sysio.cfggetenv_out.value);
+                _sysio.cfggetenv_out.rc = rc;
                 result = true;
                 break;
 
@@ -93,7 +108,7 @@ public:
                                  &_sysio.cfggetopt_out.is_int,
                                  &_sysio.cfggetopt_out.value_int,
                                  (char **)&_sysio.cfggetopt_out.value_str);
-                 _sysio.cfggetopt_out.rc = rc;
+                _sysio.cfggetopt_out.rc = rc;
                 result = true;
                 break;
 
@@ -114,10 +129,34 @@ public:
                 result = true;
                 break;
 
+            case SYSCALL_APPSEND:
+                rc = CPAppAddData(&_sysio.appsend_in.data);
+                _sysio.appsend_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_APPGET:
+                {
+                    struct t_os2process *proc = PrcGetProcNative(this);
+                    PID pid;
+
+                    if (! proc)
+                    {
+                        return ERROR_PROC_NOT_FOUND;
+                    }
+
+                    pid = proc->pid;
+                    rc = CPAppGetData(pid, &_sysio.appget_out.data);
+                    _sysio.appsend_out.rc = rc;
+                    result = true;
+                    break;
+                }
+
             case SYSCALL_EXIT:
-                CPExit(this,
-                       _sysio.exit_in.action,
-                       _sysio.exit_in.result);
+                rc = CPExit(this,
+                            _sysio.exit_in.action,
+                            _sysio.exit_in.result);
+                _sysio.exit_out.rc = rc;
                 result = true;
                 break;
 
@@ -139,15 +178,141 @@ public:
                 }
                 break;
 
-            case SYSCALL_GETPID:
-                io_log("aaa\n");
-                CPGetPID(this,
-                         &_sysio.getpid_out.pid);
-                io_log("bbb\n");
+            case SYSCALL_GETPIB:
+                {
+                    l4_os3_dataspace_t _ds;
+                    Genode::Dataspace_capability *ds;
+                    rc = CPGetPIB(_sysio.getpib_in.pid, this, &_ds);
+                    _sysio.getpib_out.rc = rc;
+                    ds = (Genode::Dataspace_capability *)_ds;
+                    _cap[0] = (Genode::Untyped_capability)*ds;
+                    result = true;
+                    break;
+                }
+
+            case SYSCALL_GETTIB:
+                {
+                    l4_os3_dataspace_t _ds;
+                    Genode::Dataspace_capability *ds;
+                    rc = CPGetTIB(_sysio.gettib_in.pid,
+                                  _sysio.gettib_in.tid,
+                                  this, &_ds);
+                    _sysio.gettib_out.rc = rc;
+                    ds = (Genode::Dataspace_capability *)_ds;
+                    _cap[0] = (Genode::Untyped_capability)*ds;
+                    result = true;
+                    break;
+                }
+
+            case SYSCALL_ERROR:
+                rc = CPError(_sysio.error_in.error);
+                _sysio.error_out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_INVALID:
+            case SYSCALL_QUERYDBCSENV:
+                rc = CPQueryDBCSEnv(&_sysio.querydbcsenv_in.cb,
+                                    &_sysio.querydbcsenv_in.cc,
+                                    (char **)&_sysio.querydbcsenv_out.pBuf);
+                _sysio.querydbcsenv_out.cb = _sysio.querydbcsenv_in.cb;
+                _sysio.querydbcsenv_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_QUERYCP:
+                rc = CPQueryCp(&_sysio.querycp_in.cb,
+                              (char **)&_sysio.querycp_out.arCP);
+                _sysio.querycp_out.cb = _sysio.querycp_in.cb;
+                _sysio.querycp_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_QUERYCURRENTDISK:
+                rc = CPQueryCurrentDisk(this, &_sysio.querycurrentdisk_out.disknum);
+                _sysio.querycurrentdisk_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_QUERYCURRENTDIR:
+                rc = CPQueryCurrentDir(this,
+                                       _sysio.querycurrentdir_in.disknum,
+                                       _sysio.querycurrentdir_in.logical,
+                                       (char **)&_sysio.querycurrentdir_out.pBuf,
+                                       &_sysio.querycurrentdir_out.cbBuf);
+                _sysio.querycurrentdir_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_SETCURRENTDIR:
+                rc = CPSetCurrentDir(this,
+                                     (char *)_sysio.setcurrentdir_in.pszDir);
+                _sysio.setcurrentdir_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_SETDEFAULTDISK:
+                rc = CPSetDefaultDisk(this,
+                                      _sysio.setdefaultdisk_in.disknum,
+                                      _sysio.setdefaultdisk_in.logical);
+                _sysio.setdefaultdisk_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_CREATEEVENTSEM:
+                rc = CPCreateEventSem(this,
+                                      _sysio.createeventsem_in.pszName,
+                                      &_sysio.createeventsem_out.hev,
+                                      _sysio.createeventsem_in.flAttr,
+                                      _sysio.createeventsem_in.fState);
+                _sysio.createeventsem_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_OPENEVENTSEM:
+                rc = CPOpenEventSem(this,
+                                    _sysio.openeventsem_in.pszName,
+                                    &_sysio.openeventsem_out.hev);
+                _sysio.openeventsem_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_CLOSEEVENTSEM:
+                rc = CPCloseEventSem(this,
+                                     _sysio.closeeventsem_in.hev);
+                _sysio.closeeventsem_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_GETPID:
+                rc = CPGetPID(this,
+                              &_sysio.getpid_out.pid);
+                _sysio.getpid_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_GETNATIVEID:
+                rc = CPGetNativeID(_sysio.getnativeid_in.pid,
+                                   _sysio.getnativeid_in.tid,
+                                   &_sysio.getnativeid_out.id);
+                _sysio.getnativeid_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_NEWTIB:
+                rc = CPNewTIB(_sysio.newtib_in.pid,
+                              _sysio.newtib_in.tid,
+                              &_sysio.newtib_in.id);
+                _sysio.newtib_out.rc = rc;
+                result = true;
+                break;
+
+            case SYSCALL_DESTROYTIB:
+                rc = CPDestroyTIB(_sysio.destroytib_in.pid,
+                                  _sysio.destroytib_in.tid);
+                _sysio.destroytib_out.rc = rc;
+                result = true;
+                break;
+
             default:
                 io_log("invalid syscall!\n");
         }

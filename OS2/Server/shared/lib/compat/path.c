@@ -190,6 +190,7 @@ unsigned int find_module_path(const char * name, char * full_path_name)
 #endif
   const char *psep=";";
 
+  io_log("options.libpath=%s\n", options.libpath);
   StrTokSave(&st);
   if((p = StrTokenize((char*)options.libpath, psep)) != 0)
   do if(*p)
@@ -245,7 +246,7 @@ unsigned int find_path(const char *name, char *full_path_name)
 
   char *p;
   #define buf_size 4096
-  char buf[buf_size+1];
+  char buf[buf_size+1] = {0};
   char *path = (char *) &buf;
   STR_SAVED_TOKENS st;
   char * p_buf = full_path_name;
@@ -256,6 +257,7 @@ unsigned int find_path(const char *name, char *full_path_name)
 
   p = path - 1;
 
+  io_log("path=%s\n", path);
   StrTokSave(&st);
 
   if((p = StrTokenize((char*)path, psep)) != 0) do if(*p)
