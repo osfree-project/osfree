@@ -2,11 +2,16 @@ include $(REP_DIR)/build.cfg
 
 cdefs = -D__l4env__
 
+ifeq ($(filter-out $(ARCH),amd64),)
+	cdefs += -D__64bit__
+endif
+
 cdefs += -I$(REP_DIR)/include
 cdefs += -I$(OS3_DIR)/include/os2
 cdefs += -I$(OS3_DIR)/include
 
 CFLAGS += $(cdefs)
+O=$(BLD_DIR)
 
 .DEFAULT_GOAL := all
 

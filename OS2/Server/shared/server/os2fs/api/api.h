@@ -9,7 +9,7 @@
 #define  INCL_BASE
 #include <os2.h>
 
-/* osFree internal; */
+/* osFree internal */
 #include <os3/rm.h>
 
 APIRET FSRead(HFILE hFile,

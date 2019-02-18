@@ -16,35 +16,46 @@
 #include <base/attached_ram_dataspace.h>
 #include <libc/component.h>
 #include <root/component.h>
-#include <fs_session/fs_session.h>
 #include <base/rpc_server.h>
 #include <dataspace/client.h>
 #include <base/signal.h>
+
+#include <cpi_session/cpi_session.h>
 #include <rom_session/rom_session.h>
 
 /* local includes */
 #include "genode_env.h"
 #include "api.h"
 
-extern "C" int FSR_INIT(void);
-
 Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
 
-extern cfg_opts options;
+extern "C" {
+
+int init(struct options *opts);
+void done(void);
 
 int FSR_INIT(void);
 
-namespace OS2::Fs
+extern cfg_opts options;
+
+struct options
 {
-    struct Fs_session_component;
-    struct Fs_root;
+  char use_events;
+};
+
+}
+
+namespace OS2::Cpi
+{
+    struct Cpi_session_component;
+    struct Cpi_root;
     struct Rom_session_component;
     struct Rom_root;
     struct Main;
 }
 
-struct OS2::Fs::Rom_session_component : Genode::Rpc_object<Genode::Rom_session>
+struct OS2::Cpi::Rom_session_component : Genode::Rpc_object<Genode::Rom_session>
 {
 private:
     Genode::Ram_session &_ram;
@@ -179,237 +190,334 @@ public:
     }
 };
 
-struct OS2::Fs::Fs_session_component : Genode::Rpc_object<Session>
+struct OS2::Cpi::Cpi_session_component : Genode::Rpc_object<Session>
 {
 private:
-    Libc::Env &env;
+    Genode::Env &_env;
+
+    Genode::Untyped_capability _cap[4];
 
 public:
-    Fs_session_component(Libc::Env &env)
+    Cpi_session_component(Libc::Env &env)
     :
-    env(env) {  }
+    _env(env) {  }
 
-    long get_drivemap(ULONG *map)
+    enum { PAGE_SIZE = 4096, PAGE_MASK = ~(PAGE_SIZE - 1) };
+    enum { SYSIO_DS_SIZE = PAGE_MASK & (sizeof(Sysio) + PAGE_SIZE - 1) };
+
+    Genode::Attached_ram_dataspace _sysio_ds { _env.ram(), _env.rm(), SYSIO_DS_SIZE };
+    Sysio &_sysio = *_sysio_ds.local_addr<Sysio>();
+
+    Genode::Dataspace_capability sysio_dataspace()
     {
-        return FSGetDriveMap(map);
+        return _sysio_ds.cap();
     }
 
-    APIRET dos_Read(HFILE hFile,
-                    Genode::Ram_dataspace_capability &ds,
-                    ULONG *count)
+    Genode::Untyped_capability get_cap(int index)
     {
-        APIRET rc;
-        char *addr = env.rm().attach(ds);
-
-        Libc::with_libc([&] () {
-            rc = FSRead(hFile, addr, count);
-        });
-
-        return rc;
+        return _cap[index];
     }
 
-    APIRET dos_Write(HFILE hFile,
-                     Genode::Ram_dataspace_capability &ds,
-                     ULONG *count)
+    void send_cap(Genode::Untyped_capability cap, int index)
     {
-        APIRET rc;
-        char *addr = env.rm().attach(ds);
-
-        Libc::with_libc([&] () {
-            rc =  FSWrite(hFile, addr, count);
-        });
-
-        return rc;
+        _cap[index] = cap;
     }
 
-    APIRET dos_ResetBuffer(HFILE hFile)
+    bool syscall(Syscall sc)
     {
-        return FSResetBuffer(hFile);
-    }
-
-    APIRET dos_SetFilePtrL(HFILE hFile,
-                           LONGLONG ib,
-                           ULONG method,
-                           ULONGLONG *ibActual)
-    {
-        return FSSetFilePtrL(hFile, ib, method, ibActual);
-    }
-
-    APIRET dos_Close(HFILE hFile)
-    {
-        return FSClose(hFile);
-    }
-
-    APIRET dos_QueryHType(HFILE hFile,
-                          ULONG *pType,
-                          ULONG *pAttr)
-    {
-        return FSQueryHType(hFile, pType, pAttr);
-    }
-
-    APIRET dos_OpenL(Pathname &fName,
-                     HFILE *phFile,
-                     ULONG *pulAction,
-                     LONGLONG cbSize,
-                     ULONG ulAttribute,
-                     ULONG fsOpenFlags,
-                     ULONG fsOpenMode)
-                     //EAOP2 *peaop2)
-    {
+        bool result = false;
         APIRET rc;
 
-        Libc::with_libc([&] () {
-            rc = FSOpenL((PSZ)fName.string(), phFile, pulAction,
-                         cbSize, ulAttribute, fsOpenFlags,
-                         fsOpenMode, NULL); //, (EAOP2 *)peaop2);
-        });
+        switch (sc)
+        {
+            case SYSCALL_FS_GETDRIVEMAP:
+                rc = FSGetDriveMap(&_sysio.fsgetdrivemap.out.map);
+                _sysio.fsgetdrivemap.out.rc = rc;
+                result = true;
+                break;
 
-        return rc;
-    }
+            case SYSCALL_FS_READ:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                _sysio.fsread.out.cbActual = _sysio.fsread.in.cbRead;
 
-    APIRET dos_DupHandle(HFILE hFile,
-                         HFILE *phFile2)
-    {
-        return FSDupHandle(hFile, phFile2);
-    }
+                Libc::with_libc([&] () {
+                    rc = FSRead(_sysio.fsread.in.hFile,
+                                addr,
+                                &_sysio.fsread.out.cbActual);
+                });
 
-    APIRET dos_Delete(Pathname &fName)
-    {
-        return FSDelete((PSZ)fName.string());
-    }
+                _sysio.fsread.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
 
-    APIRET dos_ForceDelete(Pathname &fName)
-    {
-        return FSForceDelete((PSZ)fName.string());
-    }
+            case SYSCALL_FS_WRITE:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                _sysio.fswrite.out.cbActual = _sysio.fswrite.in.cbWrite;
 
-    APIRET dos_DeleteDir(Pathname &dName)
-    {
-        return FSDeleteDir((PSZ)dName.string());
-    }
+                Libc::with_libc([&] () {
+                    rc = FSWrite(_sysio.fswrite.in.hFile,
+                                 addr,
+                                 &_sysio.fswrite.out.cbActual);
+                });
 
-    APIRET dos_CreateDir(Pathname &dName,
-                         Genode::Ram_dataspace_capability &ds)
-    {
-        EAOP2 *peaop2 = (EAOP2 *)env.rm().attach(ds);
-        return FSCreateDir((PSZ)dName.string(), peaop2);
-    }
+                _sysio.fswrite.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
 
-    APIRET dos_FindFirst(Pathname &pName,
-                         HDIR *phDir,
-                         ULONG flAttribute,
-                         Genode::Ram_dataspace_capability &ds,
-                         ULONG *pcFileNames,
-                         ULONG ulInfoLevel)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+            case SYSCALL_FS_RESETBUFFER:
+                rc = FSResetBuffer(_sysio.fsresetbuffer.in.hFile);
+                _sysio.fsresetbuffer.out.rc = rc;
+                result = true;
+                break;
 
-        return FSFindFirst((PSZ)pName.string(), phDir, flAttribute,
-                           &addr, &cbSize, pcFileNames, ulInfoLevel);
-    }
+            case SYSCALL_FS_SETFILEPTRL:
+                rc = FSSetFilePtrL(_sysio.fssetfileptrl.in.hFile,
+                                   _sysio.fssetfileptrl.in.ib,
+                                   _sysio.fssetfileptrl.in.method,
+                                   &_sysio.fssetfileptrl.out.ibActual);
+                _sysio.fssetfileptrl.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_FindNext(HDIR hDir,
-                        Genode::Ram_dataspace_capability &ds,
-                        ULONG *pcFileNames)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+            case SYSCALL_FS_CLOSE:
+                rc = FSClose(_sysio.fsclose.in.hFile);
+                _sysio.fsclose.out.rc = rc;
+                result = true;
+                break;
 
-        return FSFindNext(hDir, &addr, &cbSize, pcFileNames);
-    }
+            case SYSCALL_FS_QUERYHTYPE:
+                rc = FSQueryHType(_sysio.fsqueryhtype.in.hFile,
+                                  &_sysio.fsqueryhtype.out.type,
+                                  &_sysio.fsqueryhtype.out.attr);
+                _sysio.fsqueryhtype.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_FindClose(HDIR hDir)
-    {
-        return FSFindClose(hDir);
-    }
+            case SYSCALL_FS_OPENL:
+                rc = FSOpenL(_sysio.fsopenl.in.pszFilename,
+                             &_sysio.fsopenl.out.hFile,
+                             &_sysio.fsopenl.out.ulAction,
+                             _sysio.fsopenl.in.cbFile,
+                             _sysio.fsopenl.in.ulAttribute,
+                             _sysio.fsopenl.in.fsOpenFlags,
+                             _sysio.fsopenl.in.fsOpenMode,
+                             &_sysio.fsopenl.out.eaop2);
+                _sysio.fsopenl.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_QueryFHState(HFILE hFile,
-                            ULONG *pulMode)
-    {
-        return FSQueryFHState(hFile, pulMode);
-    }
+            case SYSCALL_FS_DUPHANDLE:
+                rc = FSDupHandle(_sysio.fsduphandle.in.hFile,
+                                 &_sysio.fsduphandle.out.hFile2);
+                _sysio.fsduphandle.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_SetFHState(HFILE hFile,
-                          ULONG ulMode)
-    {
-        return FSSetFHState(hFile, ulMode);
-    }
+            case SYSCALL_FS_DELETE:
+                rc = FSDelete(_sysio.fsdelete.in.pszFilename);
+                _sysio.fsdelete.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_QueryFileInfo(HFILE hFile,
-                             ULONG ulInfoLevel,
-                             Genode::Ram_dataspace_capability &ds)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+            case SYSCALL_FS_FORCEDELETE:
+                rc = FSForceDelete(_sysio.fsforcedelete.in.pszFilename);
+                _sysio.fsforcedelete.out.rc = rc;
+                result = true;
+                break;
 
-        return FSQueryFileInfo(hFile, ulInfoLevel,
-                               &addr, &cbSize);
-    }
+            case SYSCALL_FS_DELETEDIR:
+                rc = FSDeleteDir(_sysio.fsdeletedir.in.pszDirname);
+                _sysio.fsdeletedir.out.rc = rc;
+                result = true;
+                break;
 
-    APIRET dos_QueryPathInfo(Pathname &pName,
-                             ULONG ulInfoLevel,
-                             Genode::Ram_dataspace_capability &ds)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+            case SYSCALL_FS_CREATEDIR:
+                rc = FSCreateDir(_sysio.fscreatedir.in.pszDirname,
+                                 &_sysio.fscreatedir.in.eaop2);
+                _sysio.fscreatedir.out.rc = rc;
+                result = true;
+                break;
 
-        return FSQueryPathInfo((PSZ)pName.string(), ulInfoLevel,
-                               &addr, &cbSize);
-    }
+            case SYSCALL_FS_FINDFIRST:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
 
-    APIRET dos_SetFileSizeL(HFILE hFile,
-                            LONGLONG cbSize)
-    {
-        return FSSetFileSizeL(hFile, cbSize);
-    }
+                Libc::with_libc([&] () {
+                    rc = FSFindFirst(_sysio.fsfindfirst.in.pszFilespec,
+                                     &_sysio.fsfindfirst.out.hDir,
+                                     _sysio.fsfindfirst.in.ulAttribute,
+                                     &addr,
+                                     &_sysio.fsfindfirst.out.cbBuf,
+                                     &_sysio.fsfindfirst.out.cFileNames,
+                                     _sysio.fsfindfirst.in.ulInfoLevel);
+                });
 
-    APIRET dos_SetFileInfo(HFILE hFile,
-                           ULONG ulInfoLevel,
-                           Genode::Ram_dataspace_capability &ds)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+                _sysio.fsfindfirst.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
 
-        return FSSetFileInfo(hFile, ulInfoLevel,
-                             &addr, &cbSize);
-    }
+            case SYSCALL_FS_FINDNEXT:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
 
-    APIRET dos_SetPathInfo(Pathname &pName,
-                           ULONG ulInfoLevel,
-                           Genode::Ram_dataspace_capability &ds,
-                           ULONG flOptions)
-    {
-        char *addr = env.rm().attach(ds);
-        ULONG cbSize = Genode::Dataspace_client(ds).size();
+                Libc::with_libc([&] () {
+                    rc = FSFindNext(_sysio.fsfindnext.in.hDir,
+                                    &addr,
+                                    &_sysio.fsfindnext.out.cbBuf,
+                                    &_sysio.fsfindnext.out.cFileNames);
+                });
 
-        return FSSetPathInfo((PSZ)pName.string(), ulInfoLevel,
-                             &addr, &cbSize, flOptions);
+                _sysio.fsfindnext.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_FINDCLOSE:
+            {
+                rc = FSFindClose(_sysio.fsfindclose.in.hDir);
+                _sysio.fsfindclose.out.rc = rc;
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_QUERYFHSTATE:
+            {
+                rc = FSQueryFHState(_sysio.fsqueryfhstate.in.hFile,
+                                    &_sysio.fsqueryfhstate.out.ulMode);
+                _sysio.fsqueryfhstate.out.rc = rc;
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_SETFHSTATE:
+            {
+                rc = FSSetFHState(_sysio.fssetfhstate.in.hFile,
+                                  _sysio.fssetfhstate.in.ulMode);
+                _sysio.fssetfhstate.out.rc = rc;
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_QUERYFILEINFO:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                rc = FSQueryFileInfo(_sysio.fsqueryfileinfo.in.hFile,
+                                     _sysio.fsqueryfileinfo.in.ulInfoLevel,
+                                     &addr,
+                                     &_sysio.fsqueryfileinfo.out.cbInfoBuf);
+                _sysio.fsqueryfileinfo.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_QUERYPATHINFO:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                rc = FSQueryPathInfo(_sysio.fsquerypathinfo.in.pszPathName,
+                                     _sysio.fsquerypathinfo.in.ulInfoLevel,
+                                     &addr,
+                                     &_sysio.fsquerypathinfo.out.cbInfoBuf);
+                _sysio.fsquerypathinfo.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_SETFILESIZEL:
+            {
+                rc = FSSetFileSizeL(_sysio.fssetfilesizel.in.hFile,
+                                    _sysio.fssetfilesizel.in.cbSize);
+                _sysio.fssetfilesizel.out.rc = rc;
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_SETFILEINFO:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                rc = FSSetFileInfo(_sysio.fssetfileinfo.in.hFile,
+                                   _sysio.fssetfileinfo.in.ulInfoLevel,
+                                   &addr,
+                                   &_sysio.fssetfileinfo.out.cbInfoBuf);
+                _sysio.fssetfileinfo.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
+
+            case SYSCALL_FS_SETPATHINFO:
+            {
+                Genode::Ram_dataspace_capability ds;
+                ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(_cap[0]);
+                char *addr = _env.rm().attach(ds);
+                rc = FSSetPathInfo(_sysio.fssetpathinfo.in.pszPathName,
+                                   _sysio.fssetpathinfo.in.ulInfoLevel,
+                                   &addr,
+                                   &_sysio.fssetpathinfo.out.cbInfoBuf,
+                                   _sysio.fssetpathinfo.in.flOptions);
+                _sysio.fssetpathinfo.out.rc = rc;
+                _env.rm().detach(addr);
+                result = true;
+                break;
+            }
+
+            default:
+                io_log("invalid syscall!\n");
+        }
+
+        return result;
     }
 };
 
-struct OS2::Fs::Fs_root : public Genode::Root_component<Fs_session_component>
+struct OS2::Cpi::Cpi_root : public Genode::Root_component<Cpi_session_component>
 {
 private:
     Libc::Env &_env;
 
 protected:
-    Fs_session_component *_create_session(const char *args)
+    Cpi_session_component *_create_session(const char *args)
     {
-        return new (md_alloc()) Fs_session_component(_env);
-        args = args;
+        Genode::Session_label const &label = Genode::label_from_args(args);
+        Genode::Session_label const &module = label.last_element();
+        io_log("CPI connection for %s requested\n", module.string());
+
+        return new (md_alloc()) Cpi_session_component(_env);
     }
 
 public:
-    Fs_root(Libc::Env &env,
-            Genode::Allocator &alloc)
+    Cpi_root(Libc::Env &env,
+             Genode::Allocator &alloc)
     :
-    Genode::Root_component<Fs_session_component>(env.ep(),
-                                                 alloc),
+    Genode::Root_component<Cpi_session_component>(env.ep(),
+                                                  alloc),
     _env(env) { init_genode_env(env, alloc); }
 };
 
-struct OS2::Fs::Rom_root : public Genode::Root_component<Rom_session_component>
+struct OS2::Cpi::Rom_root : public Genode::Root_component<Rom_session_component>
 {
 private:
     Libc::Env &_env;
@@ -419,7 +527,7 @@ protected:
     {
         Genode::Session_label const &label = Genode::label_from_args(args);
         Genode::Session_label const &module = label.last_element();
-        io_log("rom connection for %s requested\n", module.string());
+        io_log("ROM connection for %s requested\n", module.string());
 
         return new (md_alloc()) Rom_session_component(_env.ram(),
             _env.rm(), module);
@@ -434,7 +542,7 @@ public:
     _env(env) {  }
 };
 
-struct OS2::Fs::Main
+struct OS2::Cpi::Main
 {
     Libc::Env &env;
 
@@ -442,42 +550,32 @@ struct OS2::Fs::Main
 
     Genode::Sliced_heap sliced_heap { env.ram(), env.rm() };
 
-    OS2::Fs::Rom_root rom_root { env, sliced_heap };
+    OS2::Cpi::Rom_root rom_root { env, sliced_heap };
 
-    OS2::Fs::Fs_root fs_root { env, sliced_heap };
+    OS2::Cpi::Cpi_root cpi_root { env, sliced_heap };
 
     Main(Libc::Env &env) : env(env)
     {
-        os2exec_module_t s = {0, 0, 0, 0, 0, 0};
-        char szLoadError[260];
-        l4_os3_thread_t thread;
-        //int rc;
+        struct options opts = {0};
 
-        io_log("osFree FS server started\n");
-
-        init_globals();
-        //FSR_INIT();
-
-        CPClientInit();
-
-        // notify os2srv about successful startup
-        CPClientAppNotify2(&s, "os2fs", &thread,
-                           szLoadError, sizeof(szLoadError), 0);
+        /* call platform independent init */
+        init(&opts);
 
         // announce "ROM" service
         env.parent().announce(env.ep().manage(rom_root));
 
-        // announce "os2fs" service
-        env.parent().announce(env.ep().manage(fs_root));
+        // announce "CPI" service
+        env.parent().announce(env.ep().manage(cpi_root));
     }
 
     ~Main()
     {
-        CPClientDone();
+        /* destruct */
+        done();
     }
 };
 
 void Libc::Component::construct(Libc::Env &env)
 {
-    static OS2::Fs::Main main(env);
+    static OS2::Cpi::Main main(env);
 }

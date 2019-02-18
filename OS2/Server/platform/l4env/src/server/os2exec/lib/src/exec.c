@@ -3,6 +3,7 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/types.h>
+#include <os3/thread.h>
 #include <os3/exec.h>
 
 /* l4env includes */
@@ -12,17 +13,17 @@
 #include <l4/os2exec/os2exec-client.h>
 
 /* os2exec client interface cap */
-extern l4_threadid_t execsrv;
+static l4_threadid_t execsrv;
 
-APIRET ExcClientInit(void)
+APIRET ExcClientInit(l4_os3_thread_t *thread)
 {
-    io_log("init---\n");
     if (! names_waitfor_name("os2exec", &execsrv, 30000) )
     {
         io_log("os2exec not found on the name server!\n");
         return ERROR_FILE_NOT_FOUND; // @todo more appropriate error code
     }
-    io_log("init+++\n");
+
+    thread->thread = execsrv;
 
     return NO_ERROR;
 }

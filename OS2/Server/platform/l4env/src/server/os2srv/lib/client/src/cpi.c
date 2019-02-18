@@ -3,6 +3,7 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/types.h>
+#include <os3/thread.h>
 #include <os3/loader.h>
 #include <os3/dataspace.h>
 #include <os3/kal.h>
@@ -14,9 +15,9 @@
 /* os2srv RPC includes */
 #include <os2server-client.h>
 
-extern l4_threadid_t os2srv;
+static l4_threadid_t os2srv;
 
-APIRET CPClientInit(void)
+APIRET CPClientInit(l4_os3_thread_t *thread)
 {
     if (! names_waitfor_name("os2srv", &os2srv, 30000))
     {
@@ -24,12 +25,21 @@ APIRET CPClientInit(void)
         return ERROR_FILE_NOT_FOUND;
     }
 
+    thread->thread = os2srv;
+
     return NO_ERROR;
 }
 
 APIRET CPClientDone(void)
 {
     return NO_ERROR;
+}
+
+void CPClientTest(void)
+{
+    CORBA_Environment env = dice_default_environment;
+
+    os2server_test_call(&os2srv, &env);
 }
 
 APIRET CPClientAppNotify1(void)

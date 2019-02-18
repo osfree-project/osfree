@@ -1,20 +1,11 @@
-/*  Filesystem/IFS server
- *  for osFree OS/2 personality
- *
- */
-
 /* osFree internal */
-#include <os3/MountReg.h>
-#include <os3/globals.h>
-#include <os3/cpi.h>
 #include <os3/io.h>
+#include <os3/thread.h>
 
 /* l4env includes */
 #include <l4/names/libnames.h>
 #include <l4/sys/types.h>
 #include <l4/events/events.h>
-#include <l4/thread/thread.h>
-//#include <l4/events/events.h>
 
 /* libc includes */
 #include <stdlib.h>
@@ -26,16 +17,21 @@
 /* os2fs server includes */
 #include <os2fs-server.h>
 
-l4_threadid_t os2srv;
-l4_threadid_t fprov_id;
+extern l4_threadid_t os2srv;
+extern l4_os3_thread_t mythread;
 
-// use events server flag
-char use_events = 0;
+l4_os3_thread_t fprov_id;
+
+struct options
+{
+  char use_events;
+};
 
 void usage(void);
 void event_thread(void);
-
-int FSR_INIT(void);
+void parse_options(int argc, char **argv, struct options *opts);
+int init(struct options *opts);
+void done(void);
 
 void usage(void)
 {
@@ -88,24 +84,48 @@ void event_thread(void)
   }
 }
 
-l4_os3_thread_t thread;
-os2exec_module_t s = {0};
-char szLoadError[260];
-
-int main(int argc, char **argv)
+void parse_options(int argc, char **argv, struct options *opts)
 {
-  CORBA_Environment env = dice_default_environment;
   int optionid;
   int opt = 0;
   const struct option long_options[] =
                 {
                 { "events",      no_argument, NULL, 'e'},
-		{ 0, 0, 0, 0}
+                { 0, 0, 0, 0}
                 };
-  //int  rc;
 
-  init_globals();
-  //FSR_INIT();
+  // Parse command line arguments
+  for (;;)
+  {
+    opt = getopt_long(argc, argv, "e", long_options, &optionid);
+
+    if (opt == -1)
+      break;
+
+    switch (opt)
+    {
+      case 'e':
+        io_log("using events server\n");
+        opts->use_events = 1;
+        break;
+
+      default:
+        io_log("Error: Unknown option %c\n", opt);
+        usage();
+        break;
+    }
+  }
+}
+
+l4_os3_thread_t thread;
+
+int main(int argc, char **argv)
+{
+  CORBA_Environment env = dice_default_environment;
+  struct options opts = {0};
+  int rc;
+
+  parse_options(argc, argv, &opts);
 
   if (! names_register("os2fs"))
   {
@@ -115,58 +135,30 @@ int main(int argc, char **argv)
 
   io_log("registered at the name server\n");
 
-  if (! names_waitfor_name("os2srv", &os2srv, 30000))
-  {
-    io_log("Can't find os2srv on names, exiting...\n");
-    return 1;
-  }
-
-  io_log("got os2srv tid from the name server\n");
-  io_log("argc=%d\n", argc);
-
-  // Parse command line arguments
-  for (;;)
-  {
-    opt = getopt_long(argc, argv, "e", long_options, &optionid);
-    io_log("opt=%d\n", opt);
-    if (opt == -1) break;
-    switch (opt)
-    {
-      case 'e':
-        io_log("using events server\n");
-        use_events = 1;
-        break;
-
-      default:
-        io_log("Error: Unknown option %c\n", opt);
-        usage();
-        break;
-    }
-  }
-
   // start events thread
-  if (use_events)
+  if (opts.use_events)
   {
-    // start events thread
-    l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
+    ThreadCreate((void *)event_thread, 0, THREAD_ASYNC);
     io_log("event thread started\n");
   }
 
   // get our thread ID
-  fprov_id = l4_myself();
-  //fileprov_init();
+  fprov_id.thread = l4_myself();
 
-  thread.thread = fprov_id;
+  mythread = fprov_id;
 
-  // notify os2srv about successful startup
-  CPClientAppNotify2(&s, "os2fs", &thread,
-                     szLoadError, sizeof(szLoadError), 0);
+  if ( (rc = init(&opts)) )
+  {
+    return rc;
+  }
 
   // server loop
-  io_log("going to the server loop\n");
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2fs_server_loop(&env);
-  //fileprov_done();
+
+  /* destruct */
+  done();
+
   return 0;
 }

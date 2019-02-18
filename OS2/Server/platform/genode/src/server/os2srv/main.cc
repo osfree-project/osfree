@@ -16,8 +16,9 @@
 #include <base/attached_rom_dataspace.h>
 #include <libc/component.h>
 #include <root/component.h>
-#include <cpi_session/cpi_session.h>
 #include <base/rpc_server.h>
+
+#include <cpi_session/cpi_session.h>
 
 /* local includes */
 #include "genode_env.h"
@@ -26,29 +27,37 @@
 Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
 
-l4_os3_thread_t sysinit_id;
+extern "C" {
 
-cfg_opts options;
+struct options
+{
+  char use_events;
+  char *configfile;
+  char *bootdrive;
+  char fprov[20];
+};
 
-extern "C" int sysinit (cfg_opts *options);
+//int sysinit (cfg_opts *options);
+int init(struct options *opts);
+void done(void);
+
+void exit_notify(void)
+{
+}
+
+l4_os3_thread_t CPNativeID(void)
+{
+    Genode::Thread *thread = Genode::Thread::myself();
+    return thread;
+}
+
+}
 
 namespace OS2::Cpi
 {
     struct Session_component;
     struct Root;
     struct Main;
-}
-
-extern "C"
-void exit_notify(void)
-{
-}
-
-extern "C" l4_os3_thread_t
-CPNativeID(void)
-{
-    Genode::Thread *thread = Genode::Thread::myself();
-    return thread;
 }
 
 struct OS2::Cpi::Session_component : Genode::Rpc_object<Session>
@@ -91,51 +100,51 @@ public:
 
         switch (sc)
         {
-            case SYSCALL_TEST:
-                Genode::log("Hello OS/2!");
+            case SYSCALL_MAIN_TEST:
+                CPTest();
                 result = true;
                 break;
 
-            case SYSCALL_CFGGETENV:
-                rc = CPCfgGetenv(_sysio.cfggetenv_in.name,
-                                 (char **)&_sysio.cfggetenv_out.value);
-                _sysio.cfggetenv_out.rc = rc;
+            case SYSCALL_MAIN_CFGGETENV:
+                rc = CPCfgGetenv(_sysio.cfggetenv.in.name,
+                                 (char **)&_sysio.cfggetenv.out.value);
+                _sysio.cfggetenv.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_CFGGETOPT:
-                rc = CPCfgGetopt(_sysio.cfggetopt_in.name,
-                                 &_sysio.cfggetopt_out.is_int,
-                                 &_sysio.cfggetopt_out.value_int,
-                                 (char **)&_sysio.cfggetopt_out.value_str);
-                _sysio.cfggetopt_out.rc = rc;
+            case SYSCALL_MAIN_CFGGETOPT:
+                rc = CPCfgGetopt(_sysio.cfggetopt.in.name,
+                                 &_sysio.cfggetopt.out.is_int,
+                                 &_sysio.cfggetopt.out.value_int,
+                                 (char **)&_sysio.cfggetopt.out.value_str);
+                _sysio.cfggetopt.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_APPNOTIFY1:
+            case SYSCALL_MAIN_APPNOTIFY1:
                 CPAppNotify1(this);
                 result = true;
                 break;
 
-            case SYSCALL_APPNOTIFY2:
+            case SYSCALL_MAIN_APPNOTIFY2:
                 // note: in l4env we change lthread here
                 // (to lthread of os2app service thread)
                 CPAppNotify2(this,
-                             &_sysio.appnotify2_in.s,
-                             (char *)_sysio.appnotify2_in.pszName,
-                             (char *)_sysio.appnotify2_in.szLoadError,
-                             _sysio.appnotify2_in.cbLoadError,
-                             _sysio.appnotify2_in.ret);
+                             &_sysio.appnotify2.in.s,
+                             (char *)_sysio.appnotify2.in.pszName,
+                             (char *)_sysio.appnotify2.in.szLoadError,
+                             _sysio.appnotify2.in.cbLoadError,
+                             _sysio.appnotify2.in.ret);
                 result = true;
                 break;
 
-            case SYSCALL_APPSEND:
-                rc = CPAppAddData(&_sysio.appsend_in.data);
-                _sysio.appsend_out.rc = rc;
+            case SYSCALL_MAIN_APPSEND:
+                rc = CPAppAddData(&_sysio.appsend.in.data);
+                _sysio.appsend.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_APPGET:
+            case SYSCALL_MAIN_APPGET:
                 {
                     struct t_os2process *proc = PrcGetProcNative(this);
                     PID pid;
@@ -146,170 +155,170 @@ public:
                     }
 
                     pid = proc->pid;
-                    rc = CPAppGetData(pid, &_sysio.appget_out.data);
-                    _sysio.appsend_out.rc = rc;
+                    rc = CPAppGetData(pid, &_sysio.appget.out.data);
+                    _sysio.appsend.out.rc = rc;
                     result = true;
                     break;
                 }
 
-            case SYSCALL_EXIT:
+            case SYSCALL_MAIN_EXIT:
                 rc = CPExit(this,
-                            _sysio.exit_in.action,
-                            _sysio.exit_in.result);
-                _sysio.exit_out.rc = rc;
+                            _sysio.exit.in.action,
+                            _sysio.exit.in.result);
+                _sysio.exit.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_EXECPGM:
+            case SYSCALL_MAIN_EXECPGM:
                 rc = CPExecPgm(this,
-                               (char **)&_sysio.execpgm_out.pObjname,
-                               &_sysio.execpgm_in.cbObjname,
-                               _sysio.execpgm_in.execFlag,
-                               _sysio.execpgm_in.pArgs,
-                               _sysio.execpgm_in.arglen,
-                               _sysio.execpgm_in.pEnv,
-                               _sysio.execpgm_in.envlen,
-                               &_sysio.execpgm_out.pRes,
-                               _sysio.execpgm_in.pName);
-                _sysio.execpgm_out.rc = rc;
+                               (char **)&_sysio.execpgm.out.pObjname,
+                               &_sysio.execpgm.in.cbObjname,
+                               _sysio.execpgm.in.execFlag,
+                               _sysio.execpgm.in.pArgs,
+                               _sysio.execpgm.in.arglen,
+                               _sysio.execpgm.in.pEnv,
+                               _sysio.execpgm.in.envlen,
+                               &_sysio.execpgm.out.pRes,
+                               _sysio.execpgm.in.pName);
+                _sysio.execpgm.out.rc = rc;
                 if (! rc)
                 {
                     result = true;
                 }
                 break;
 
-            case SYSCALL_GETPIB:
+            case SYSCALL_MAIN_GETPIB:
                 {
                     l4_os3_dataspace_t _ds;
                     Genode::Dataspace_capability *ds;
-                    rc = CPGetPIB(_sysio.getpib_in.pid, this, &_ds);
-                    _sysio.getpib_out.rc = rc;
+                    rc = CPGetPIB(_sysio.getpib.in.pid, this, &_ds);
+                    _sysio.getpib.out.rc = rc;
                     ds = (Genode::Dataspace_capability *)_ds;
                     _cap[0] = (Genode::Untyped_capability)*ds;
                     result = true;
                     break;
                 }
 
-            case SYSCALL_GETTIB:
+            case SYSCALL_MAIN_GETTIB:
                 {
                     l4_os3_dataspace_t _ds;
                     Genode::Dataspace_capability *ds;
-                    rc = CPGetTIB(_sysio.gettib_in.pid,
-                                  _sysio.gettib_in.tid,
+                    rc = CPGetTIB(_sysio.gettib.in.pid,
+                                  _sysio.gettib.in.tid,
                                   this, &_ds);
-                    _sysio.gettib_out.rc = rc;
+                    _sysio.gettib.out.rc = rc;
                     ds = (Genode::Dataspace_capability *)_ds;
                     _cap[0] = (Genode::Untyped_capability)*ds;
                     result = true;
                     break;
                 }
 
-            case SYSCALL_ERROR:
-                rc = CPError(_sysio.error_in.error);
-                _sysio.error_out.rc = rc;
+            case SYSCALL_MAIN_ERROR:
+                rc = CPError(_sysio.error.in.error);
+                _sysio.error.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_QUERYDBCSENV:
-                rc = CPQueryDBCSEnv(&_sysio.querydbcsenv_in.cb,
-                                    &_sysio.querydbcsenv_in.cc,
-                                    (char **)&_sysio.querydbcsenv_out.pBuf);
-                _sysio.querydbcsenv_out.cb = _sysio.querydbcsenv_in.cb;
-                _sysio.querydbcsenv_out.rc = rc;
+            case SYSCALL_MAIN_QUERYDBCSENV:
+                rc = CPQueryDBCSEnv(&_sysio.querydbcsenv.in.cb,
+                                    &_sysio.querydbcsenv.in.cc,
+                                    (char **)&_sysio.querydbcsenv.out.pBuf);
+                _sysio.querydbcsenv.out.cb = _sysio.querydbcsenv.in.cb;
+                _sysio.querydbcsenv.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_QUERYCP:
-                rc = CPQueryCp(&_sysio.querycp_in.cb,
-                              (char **)&_sysio.querycp_out.arCP);
-                _sysio.querycp_out.cb = _sysio.querycp_in.cb;
-                _sysio.querycp_out.rc = rc;
+            case SYSCALL_MAIN_QUERYCP:
+                rc = CPQueryCp(&_sysio.querycp.in.cb,
+                              (char **)&_sysio.querycp.out.arCP);
+                _sysio.querycp.out.cb = _sysio.querycp.in.cb;
+                _sysio.querycp.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_QUERYCURRENTDISK:
-                rc = CPQueryCurrentDisk(this, &_sysio.querycurrentdisk_out.disknum);
-                _sysio.querycurrentdisk_out.rc = rc;
+            case SYSCALL_MAIN_QUERYCURRENTDISK:
+                rc = CPQueryCurrentDisk(this, &_sysio.querycurrentdisk.out.disknum);
+                _sysio.querycurrentdisk.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_QUERYCURRENTDIR:
+            case SYSCALL_MAIN_QUERYCURRENTDIR:
                 rc = CPQueryCurrentDir(this,
-                                       _sysio.querycurrentdir_in.disknum,
-                                       _sysio.querycurrentdir_in.logical,
-                                       (char **)&_sysio.querycurrentdir_out.pBuf,
-                                       &_sysio.querycurrentdir_out.cbBuf);
-                _sysio.querycurrentdir_out.rc = rc;
+                                       _sysio.querycurrentdir.in.disknum,
+                                       _sysio.querycurrentdir.in.logical,
+                                       (char **)&_sysio.querycurrentdir.out.pBuf,
+                                       &_sysio.querycurrentdir.out.cbBuf);
+                _sysio.querycurrentdir.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_SETCURRENTDIR:
+            case SYSCALL_MAIN_SETCURRENTDIR:
                 rc = CPSetCurrentDir(this,
-                                     (char *)_sysio.setcurrentdir_in.pszDir);
-                _sysio.setcurrentdir_out.rc = rc;
+                                     (char *)_sysio.setcurrentdir.in.pszDir);
+                _sysio.setcurrentdir.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_SETDEFAULTDISK:
+            case SYSCALL_MAIN_SETDEFAULTDISK:
                 rc = CPSetDefaultDisk(this,
-                                      _sysio.setdefaultdisk_in.disknum,
-                                      _sysio.setdefaultdisk_in.logical);
-                _sysio.setdefaultdisk_out.rc = rc;
+                                      _sysio.setdefaultdisk.in.disknum,
+                                      _sysio.setdefaultdisk.in.logical);
+                _sysio.setdefaultdisk.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_CREATEEVENTSEM:
+            case SYSCALL_MAIN_CREATEEVENTSEM:
                 rc = CPCreateEventSem(this,
-                                      _sysio.createeventsem_in.pszName,
-                                      &_sysio.createeventsem_out.hev,
-                                      _sysio.createeventsem_in.flAttr,
-                                      _sysio.createeventsem_in.fState);
-                _sysio.createeventsem_out.rc = rc;
+                                      _sysio.createeventsem.in.pszName,
+                                      &_sysio.createeventsem.out.hev,
+                                      _sysio.createeventsem.in.flAttr,
+                                      _sysio.createeventsem.in.fState);
+                _sysio.createeventsem.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_OPENEVENTSEM:
+            case SYSCALL_MAIN_OPENEVENTSEM:
                 rc = CPOpenEventSem(this,
-                                    _sysio.openeventsem_in.pszName,
-                                    &_sysio.openeventsem_out.hev);
-                _sysio.openeventsem_out.rc = rc;
+                                    _sysio.openeventsem.in.pszName,
+                                    &_sysio.openeventsem.out.hev);
+                _sysio.openeventsem.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_CLOSEEVENTSEM:
+            case SYSCALL_MAIN_CLOSEEVENTSEM:
                 rc = CPCloseEventSem(this,
-                                     _sysio.closeeventsem_in.hev);
-                _sysio.closeeventsem_out.rc = rc;
+                                     _sysio.closeeventsem.in.hev);
+                _sysio.closeeventsem.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_GETPID:
+            case SYSCALL_MAIN_GETPID:
                 rc = CPGetPID(this,
-                              &_sysio.getpid_out.pid);
-                _sysio.getpid_out.rc = rc;
+                              &_sysio.getpid.out.pid);
+                _sysio.getpid.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_GETNATIVEID:
-                rc = CPGetNativeID(_sysio.getnativeid_in.pid,
-                                   _sysio.getnativeid_in.tid,
-                                   &_sysio.getnativeid_out.id);
-                _sysio.getnativeid_out.rc = rc;
+            case SYSCALL_MAIN_GETNATIVEID:
+                rc = CPGetNativeID(_sysio.getnativeid.in.pid,
+                                   _sysio.getnativeid.in.tid,
+                                   &_sysio.getnativeid.out.id);
+                _sysio.getnativeid.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_NEWTIB:
-                rc = CPNewTIB(_sysio.newtib_in.pid,
-                              _sysio.newtib_in.tid,
-                              &_sysio.newtib_in.id);
-                _sysio.newtib_out.rc = rc;
+            case SYSCALL_MAIN_NEWTIB:
+                rc = CPNewTIB(_sysio.newtib.in.pid,
+                              _sysio.newtib.in.tid,
+                              &_sysio.newtib.in.id);
+                _sysio.newtib.out.rc = rc;
                 result = true;
                 break;
 
-            case SYSCALL_DESTROYTIB:
-                rc = CPDestroyTIB(_sysio.destroytib_in.pid,
-                                  _sysio.destroytib_in.tid);
-                _sysio.destroytib_out.rc = rc;
+            case SYSCALL_MAIN_DESTROYTIB:
+                rc = CPDestroyTIB(_sysio.destroytib.in.pid,
+                                  _sysio.destroytib.in.tid);
+                _sysio.destroytib.out.rc = rc;
                 result = true;
                 break;
 
@@ -329,8 +338,11 @@ private:
 protected:
     Session_component *_create_session(const char *args)
     {
+        Genode::Session_label const &label = Genode::label_from_args(args);
+        Genode::Session_label const &module = label.last_element();
+        io_log("CPI connection for %s requested\n", module.string());
+
         return new (md_alloc()) Session_component(_env);
-        args = args;
     }
 
 public:
@@ -352,69 +364,36 @@ struct OS2::Cpi::Main
 
     OS2::Cpi::Root root { env, sliced_heap };
 
-    Main(Libc::Env &env) : env(env)
+    void parse_options(Genode::Xml_node node, struct options *opts)
     {
-        unsigned long size;
-        void *addr;
-        APIRET rc;
-
-        io_log("osFree OS/2 personality server started\n");
-
-        // Initialize initial values from CONFIG.SYS
-        rc = CfgInitOptions();
-
-        if (rc != NO_ERROR)
-        {
-            io_log("Can't initialize CONFIG.SYS parser\n");
-            return;
-        }
-
-        // default config.sys path
-        options.configfile = (char *)"config.sys";
-
         try
         {
-            Genode::String<64> cfg = config.xml().sub_node("config-file")
+            Genode::String<64> cfg = node.sub_node("config-file")
                 .attribute_value("value", Genode::String<64>("config.sys"));
-                options.configfile = (char *)cfg.string();
+
+            opts->configfile = (char *)cfg.string();
         }
         catch (Genode::Xml_node::Nonexistent_sub_node) { };
+    }
 
-        io_log("options.configfile=%s\n", options.configfile);
+    Main(Libc::Env &env) : env(env)
+    {
+        struct options opts = {0};
 
-        // Load CONFIG.SYS into memory
-        rc = io_load_file(options.configfile, &addr, &size);
+        /* parse options */
+        parse_options(config.xml(), &opts);
 
-        if (rc != NO_ERROR)
-        {
-            io_log("Can't load CONFIG.SYS\n");
-            return;
-        }
+        /* call platform-independent init */
+        init(&opts);
 
-        // Parse CONFIG.SYS in memory
-        rc = CfgParseConfig((char *)addr, size);
-
-        if (rc != NO_ERROR)
-        {
-            io_log("Error parse CONFIG.SYS\n");
-            return;
-        }
-
-        // Remove CONFIG.SYS from memory
-        io_close_file(addr);
-
-        PrcInit();
-
-        // Perform the System initialization
-        ThreadCreate((ThreadFunc)sysinit, (void *)&options, THREAD_ASYNC);
-
-        // announce "cpi" service
+        // announce "CPI" service
         env.parent().announce(env.ep().manage(root));
     }
 
     ~Main()
     {
-        PrcDone();
+        /* destruct */
+        done();
     }
 };
 

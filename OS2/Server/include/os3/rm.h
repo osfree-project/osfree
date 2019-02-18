@@ -85,6 +85,8 @@ long RegLookupRegion(void               *addr,
                      unsigned long      *offset,
                      l4_os3_dataspace_t *ds);
 
+void RegDumpRegions(void);
+
 #ifdef __cplusplus
   }
 #endif

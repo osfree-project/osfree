@@ -60,7 +60,8 @@ typedef unsigned long   ULONG, *PULONG;
 typedef USHORT WORD;
 # endif
 # ifndef DWORD
-typedef ULONG  DWORD;
+//typedef ULONG  DWORD;
+typedef UINT  DWORD;
 # endif
 #endif
 

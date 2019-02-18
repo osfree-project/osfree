@@ -7,6 +7,7 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/types.h>
+#include <os3/thread.h>
 #include <os3/fs.h>
 
 /* l4env includes */
@@ -15,15 +16,17 @@
 /* os2fs RPC includes */
 #include <os2fs-client.h>
 
-extern l4_threadid_t fs;
+static l4_threadid_t fs;
 
-APIRET FSClientInit(void)
+APIRET FSClientInit(l4_os3_thread_t *thread)
 {
     if (! names_waitfor_name("os2fs", &fs, 30000))
     {
         io_log("os2fs not found at the name server!\n");
         return ERROR_FILE_NOT_FOUND;
     }
+
+    thread->thread = fs;
 
     return NO_ERROR;
 }

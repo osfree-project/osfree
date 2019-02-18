@@ -7,10 +7,10 @@ TARGET		= os2app
 TRG             = kal.map
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2 # arm-l4v2 amd64-l4v2
-SRC_C		= main.c dl.c startup.c rpc.c \
-                  api.c \
+SRC_C		= main.c rpc.c startup.c \
+                  api.c initdone.c \
                   kal/kal.c kal/start.c kal/util.c \
-                  kal/thread.c
+                  kal/thread.c kal/dl.c
 
 ifeq ($(ARCH),x86)
 

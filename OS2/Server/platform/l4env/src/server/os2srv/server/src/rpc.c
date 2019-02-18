@@ -53,6 +53,13 @@ os2server_cfg_getopt_component (CORBA_Object _obj,
   return CPCfgGetopt(name, is_int, value_int, value_str);
 }
 
+void DICE_CV
+os2server_test_component(CORBA_Object _dice_corba_obj,
+                         CORBA_Server_Environment *_dice_corba_env)
+{
+  CPTest();
+}
+
 /* is called by os2app after its successful startup */
 void DICE_CV
 os2server_app_notify1_component(CORBA_Object _dice_corba_obj,

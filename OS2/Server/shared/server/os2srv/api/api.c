@@ -36,6 +36,11 @@ extern struct t_os2process *proc_root;
 /* Semaphore handle table pointer */
 HANDLE_TABLE *htSem;
 
+void CPTest(void)
+{
+  io_log("Hello OS/2!\n");
+}
+
 APIRET CPExit(l4_os3_thread_t thread,
               ULONG action,
               ULONG result)
@@ -652,9 +657,11 @@ APIRET CPCreateEventSem(l4_os3_thread_t thread,
   if (pszName && *pszName && strstr(pszName, "\\SEM32\\") != pszName)
     return ERROR_INVALID_NAME;
 
-  if (! CPClientOpenEventSem(pszName, &hev) )
+  //if (! CPClientOpenEventSem(pszName, &hev) )
+  if (! CPOpenEventSem(thread, pszName, &hev) )
   {
-    CPClientCloseEventSem(hev);
+    //CPClientCloseEventSem(hev);
+    CPCloseEventSem(thread, hev);
     return ERROR_DUPLICATE_NAME;
   }
 

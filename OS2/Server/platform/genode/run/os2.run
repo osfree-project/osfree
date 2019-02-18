@@ -23,6 +23,7 @@ build {
   lib/ixf/lx
   lib/ixf/ne
   lib/vfs
+  server/tar_rom
   server/os2fs
   server/os2exec
   server/os2srv
@@ -38,19 +39,23 @@ create_boot_directory
 install_config {
 <config>
 	<parent-provides>
-		<service name="ROM"/>
 		<service name="IRQ"/>
 		<service name="IO_MEM"/>
 		<service name="IO_PORT"/>
+		<service name="ROM"/>
 		<service name="PD"/>
 		<service name="RM"/>
 		<service name="CPU"/>
 		<service name="LOG"/>
 	</parent-provides>
 	<default-route>
-		<!-- <service name="ROM"> <child name="os2fs"/> <parent/> </service> -->
-		<service name="ROM" label="kal.map"> <parent/> </service>
-		<service name="ROM" label="config.sys"> <parent/> </service>
+		<service name="CPI" label="exec"> <child name="os2exec"/> </service>
+		<service name="CPI" label="fs"> <child name="os2fs"/> </service>
+		<service name="CPI"> <child name="os2srv"/> </service>
+		<service name="ROM" label_prefix="file/system">
+			<child name="tar_rom"/>
+		</service>
+		<service name="ROM"> <parent/> </service>
 		<any-service> <parent/> <any-child/> </any-service>
 	</default-route>
 	<default caps="120"/>
@@ -58,43 +63,53 @@ install_config {
 		<resource name="RAM" quantum="10M"/>
 		<provides><service name="Timer"/></provides>
 	</start>
+	<start name="tar_rom">
+		<resource name="RAM" quantum="6M"/>
+		<provides><service name="ROM"/></provides>
+		<config>
+			<archive name="os2.tar"/>
+		</config>
+	</start>
 	<start name="os2srv">
-		<resource name="RAM" quantum="3M"/>
 		<provides>
-			<service name="cpi"/>
+			<service name="CPI"/>
 		</provides>
+		<resource name="RAM" quantum="3M"/>
+		<config verbose="yes">
+			<config-file value="config.sys"/>
+		</config>
+	</start>
+	<start name="os2exec">
+		<provides>
+			<service name="CPI"/>
+		</provides>
+		<resource name="RAM" quantum="100M"/>
 		<config verbose="yes">
 			<config-file value="config.sys"/>
 		</config>
 	</start>
 	<start name="os2fs">
-		<resource name="RAM" quantum="14M"/>
 		<provides>
+			<service name="CPI"/>
 			<service name="ROM"/>
-			<service name="os2fs"/>
 		</provides>
+		<resource name="RAM" quantum="14M"/>
 		<config verbose="yes">
 			<vfs>
 				<tar name="os2.tar"/>
 			</vfs>
 		</config>
-		<!-- <route>
-			<service name="ROM"> <parent/> </service>
-			<any-service> <parent/> <any-child/> </any-service>
-		</route> -->
-	</start>
-	<start name="os2exec">
-		<resource name="RAM" quantum="100M"/>
-		<provides>
-			<service name="os2exec"/>
-		</provides>
-		<config verbose="yes">
-			<config-file value="config.sys"/>
-		</config>
+		<route>
+			<service name="File_system"> <child name="ram_fs"/> </service>
+			<service name="CPI"> <child name="os2srv"/> </service>
+			<any-service> <parent/> </any-service>
+		</route>
 	</start>
 	<start name="os2app">
-		<config verbose="yes"/>
 		<resource name="RAM" quantum="2M"/>
+		<config verbose="yes">
+			<arg value="file/system/mini33.exe"/>
+		</config>
 	</start>
 </config>
 }
@@ -113,11 +128,13 @@ exec sh -c "cd bin; tar cfh os2.tar file"
 #
 
 set boot_modules {
+  os2.tar
   config.sys
   kal.map
   core
   init
   timer
+  tar_rom
   ld.lib.so
   libc.lib.so
   libm.lib.so
@@ -127,7 +144,6 @@ set boot_modules {
   handle.lib.so
   lx.ixf
   ne.ixf
-  os2.tar
   os2fs
   os2exec
   os2srv

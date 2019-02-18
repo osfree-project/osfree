@@ -11,30 +11,18 @@
 #include <os2.h>
 
 /* osFree internal includes */
-#include <os3/ixfmgr.h>
-#include <os3/processmgr.h>
-#include <os3/segment.h>
-#include <os3/types.h>
-#include <os3/ipc.h>
-#include <os3/kal.h>
-#include <os3/exec.h>
-#include <os3/fs.h>
-//#include <os3/dl.h>
-#include <os3/cpi.h>
 #include <os3/io.h>
-#include <os3/stacksw.h>
+#include <os3/kal.h>
 
 /* l4env includes */
-#include <l4/util/rdtsc.h>
+//#include <l4/util/rdtsc.h>
 #include <l4/dm_phys/dm_phys.h>
 #include <l4/l4rm/l4rm.h>
 #include <l4/names/libnames.h>
 #include <l4/events/events.h>
-#include <l4/generic_ts/generic_ts.h>
 
 /* servers RPC call includes */
 #include <l4/os2srv/os2server-client.h>
-//#include <l4/os2srv/os2server-server.h>
 #include "os2app-server.h"
 
 /* libc includes */
@@ -55,29 +43,19 @@ const l4_size_t l4thread_max_stack = 0x200000;
 const l4_addr_t l4thread_tcb_table_addr = 0xbe000000;
 
 /* private memory arena settings */
-l4_addr_t   private_memory_base = 0x10000;
-l4_size_t   private_memory_size = 64*1024*1024;
-unsigned long long private_memory_area;
+extern ULONG   private_memory_base;
+extern ULONG   private_memory_size;
+extern ULONGLONG private_memory_area;
 
 /* shared memory arena settings */
-l4_addr_t   shared_memory_base = 0x60000000;
-l4_size_t   shared_memory_size = 1024*1024*1024;
-unsigned long long shared_memory_area;
+extern ULONG   shared_memory_base;
+extern ULONG   shared_memory_size;
+extern ULONGLONG shared_memory_area;
 
-// use events server flag
-char use_events = 0;
-/* previous stack (when switching between 
-   task and os2app stacks)        */
-unsigned long __stack;
-
-/* our thread id */
-l4_os3_thread_t me;
 /* OS/2 server id        */
-l4_threadid_t os2srv;
+l4_os3_thread_t os2srv;
 /* FS server id        */
 l4_threadid_t fs;
-/* exec server id        */
-l4_os3_thread_t execsrv;
 /* dataspace manager id  */
 l4_threadid_t dsm;
 /* l4env infopage        */
@@ -86,42 +64,32 @@ extern l4env_infopage_t *l4env_infopage;
 /* file provider name    */
 char fprov[20] = "fprov_proxy_fs";
 /* file provider id      */
-l4_threadid_t fprov_id;
-
-l4_uint32_t service_lthread;
+l4_os3_thread_t fprov_id;
 
 extern l4_os3_thread_t thread;
 
-char pszLoadError[260];
-ULONG rcCode = 0;
-
 void usage(void);
 void server_loop(void);
-VOID CDECL _exit(ULONG action, ULONG result);
+
+VOID CDECL Exit(ULONG action, ULONG result);
 
 void event_thread(void);
 
-void test(void);
+struct options
+{
+  char  use_events;
+  char  *progname;
+};
+
+int init(struct options *opts);
+void done(void);
+void reserve_regions(void);
+void parse_options(int argc, char *argv[], struct options *opts);
 
 void usage(void)
 {
   io_log("os2app usage:\n");
   io_log("-e:  Use events server");
-}
-
-VOID CDECL
-_exit(ULONG action, ULONG result)
-{
-  //CORBA_Environment env = dice_default_environment;
-  STKIN
-  // send OS/2 server a message that we want to terminate
-  io_log("action=%lu\n", action);
-  io_log("result=%lu\n", result);
-  CPClientExit(action, result);
-  // tell L4 task server that we want to terminate
-  //l4_ipc_sleep(L4_IPC_NEVER);
-  l4ts_exit();
-  STKOUT
 }
 
 void event_thread(void)
@@ -135,13 +103,13 @@ void event_thread(void)
   if (! l4events_init())
   {
     io_log("l4events_init() failed\n");
-    _exit(1, 1);
+    Exit(1, 1);
   }
 
   if ((rc = l4events_register(L4EVENTS_EXIT_CHANNEL, 15)) != 0)
   {
     io_log("l4events_register failed\n");
-    _exit(1, 1);
+    Exit(1, 1);
   }
 
   while(1)
@@ -158,8 +126,8 @@ void event_thread(void)
     io_log("Got exit event for %x.%x\n", tid.id.task, tid.id.lthread);
 
     /* exit myself */
-    if (l4_task_equal(tid, os2srv))
-      _exit(1, rc);
+    if (l4_task_equal(tid, os2srv.thread))
+      Exit(1, rc);
   }
 }
 
@@ -172,12 +140,29 @@ void server_loop(void)
   os2app_server_loop(&env);
 }
 
-int main (int argc, char *argv[])
+void reserve_regions(void)
 {
-  //CORBA_srv_env env = default_srv_env;
-  l4_os3_thread_t thr;
-  //l4_threadid_t tid;
-  int rc = 0;
+  int rc;
+
+  // reserve the lower 64 Mb for OS/2 app
+  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, (l4_uint32_t *)&private_memory_area);
+  if (rc < 0)
+  {
+    io_log("Panic: cannot reserve memory for private arena!\n");
+    Exit(1, 1);
+  }
+
+  // reserve the upper 1 Gb for shared memory arena
+  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, (l4_uint32_t *)&shared_memory_area);
+  if (rc < 0)
+  {
+    io_log("Panic: cannot reserve memory for shared arena!\n");
+    Exit(1, 1);
+  }
+}
+
+void parse_options(int argc, char *argv[], struct options *opts)
+{
   int optionid;
   int opt = 0;
 
@@ -186,90 +171,6 @@ int main (int argc, char *argv[])
                 { "events",      no_argument, NULL, 'e'},
                 { 0, 0, 0, 0}
                 };
-
-  //enter_kdebug("dbg");
-  //asm("movb $0x30, %al \n\t"
-    //  "outb %al, $0x43 \n\t");
-  //asm("inb $0x21, %al \n\t"
-    //  "or  $1, %al \n\t"
-    //  "out %al, $0x21");
-  //if (! names_waitfor_name("os2srv", &os2srv, 30000))
-  if ( (rc = CPClientInit()) )
-    {
-      io_log("Can't find os2srv, exiting...\n");
-      _exit(1, 1);
-    }
-
-  /* if (! names_waitfor_name("os2fs", &fs, 30000))
-    {
-      io_log("Can't find os2fs on names, exiting...\n");
-      _exit(1, 1);
-    } */
-
-  if ( (rc = FSClientInit()) )
-  {
-    io_log("Can't find os2fs on names, exiting...\n");
-    _exit(1, 1);
-  }
-
-  if (! names_waitfor_name("os2exec", &execsrv.thread, 30000))
-    {
-      io_log("Can't find os2exec on names, exiting...\n");
-      _exit(1, 1);
-    }
-
-  if ( (rc = ExcClientInit()) )
-  {
-    io_log("Can't find os2exec on names, exiting...\n");
-    _exit(1, 1);
-  }
-
-  if (! names_waitfor_name(fprov, &fprov_id, 30000))
-    {
-      io_log("Can't find %s on names, exiting...\n", fprov);
-      _exit(1, 1);
-    }
-
-  // reserve the lower 64 Mb for OS/2 app
-  rc = l4rm_area_reserve_region(private_memory_base, private_memory_size, 0, (l4_uint32_t *)&private_memory_area);
-  if (rc < 0)
-  {
-    io_log("Panic: cannot reserve memory for private arena!\n");
-    _exit(1, 1);
-  }
-
-  // reserve the upper 1 Gb for shared memory arena
-  rc = l4rm_area_reserve_region(shared_memory_base, shared_memory_size, 0, (l4_uint32_t *)&shared_memory_area);
-  if (rc < 0)
-  {
-    io_log("Panic: cannot reserve memory for shared arena!\n");
-    _exit(1, 1);
-  }
-
-  /* query default dataspace manager id */
-  dsm = l4env_get_default_dsm();
-
-  if (l4_is_invalid_id(dsm))
-  {
-    io_log("No dataspace manager found\n");
-    _exit(1, 1);
-  }
-
-  io_log("dsm=%u.%u\n", dsm.id.task, dsm.id.lthread);
-  io_log("frov_id=%u.%u\n", fprov_id.id.task, fprov_id.id.lthread);
-
-  l4env_infopage = &infopg;
-  l4env_infopage->fprov_id = fprov_id;
-  l4env_infopage->memserv_id = dsm;
-  //l4env_infopage->stack_size
-
-  // start server loop
-  //thread = l4thread_create((void *)server_loop, 0, L4THREAD_CREATE_ASYNC);
-  thr = ThreadCreate((void *)server_loop, 0, THREAD_ASYNC);
-  //tid = l4thread_l4_id(thread);
-  //tid = thread.thread;
-  //service_lthread = thread.id.lthread;
-  service_lthread = thr.thread.id.lthread;
 
   // Parse command line arguments
   for (;;)
@@ -280,65 +181,63 @@ int main (int argc, char *argv[])
     {
       case 'e':
         io_log("using events server\n");
-        use_events = 1;
+        opts->use_events = 1;
         break;
 
       default:
         io_log("Error: Unknown option %c\n", opt);
         usage();
-        _exit(1, 2);
+        Exit(1, 2);
     }
   }
 
-  me.thread = l4_myself();
+  opts->progname = argv[argc - 1];
+}
 
-  thread = me;
-  //thread.thread = l4_myself();
-  thread.thread.id.lthread = service_lthread;
+int main (int argc, char *argv[])
+{
+  struct options opts = {0};
+  int rc;
 
-  /* task = l4_myself();
+  parse_options(argc, argv, &opts);
 
-  dsc = malloc(0x8);
-
-  for (i = 0; i < 512; i++)
+  if (! names_waitfor_name(fprov, &fprov_id.thread, 30000))
   {
-    base = i * 0x10000;
-
-    dsc[0].limit_lo = 0xffff; dsc[0].limit_hi = 0;
-    dsc[0].acc_lo   = 0xFE;   dsc[0].acc_hi = 0;
-    dsc[0].base_lo1 = base & 0xffff;
-    dsc[0].base_lo2 = (base >> 16) & 0xff;
-    dsc[0].base_hi  = base >> 24;
-    io_log("--- %d\n", i);
-    fiasco_ldt_set(dsc, 0x8, i, task.id.task);
+    io_log("Can't find %s on names, exiting...\n", fprov);
+    Exit(1, 1);
   }
-  io_log("---\n");
-  start = l4_rdtsc();
-  //fiasco_ldt_set(dsc, 0x10000, 0, task.id.task);
-  stop  = l4_rdtsc();
-  io_log("+++\n");
-  free(dsc);
-  io_log("===\n");
-  io_log("LDT switch time=%u ns\n", l4_tsc_to_ns(stop - start)); */
 
-  // start events thread
-  if (use_events)
+  /* query default dataspace manager id */
+  dsm = l4env_get_default_dsm();
+
+  if (l4_is_invalid_id(dsm))
+  {
+    io_log("No dataspace manager found\n");
+    Exit(1, 1);
+  }
+
+  io_log("dsm=%u.%u\n", dsm.id.task, dsm.id.lthread);
+  io_log("frov_id=%u.%u\n", fprov_id.thread.id.task, fprov_id.thread.id.lthread);
+
+  l4env_infopage = &infopg;
+  l4env_infopage->fprov_id = fprov_id.thread;
+  l4env_infopage->memserv_id = dsm;
+
+  // start server loop
+  thread = ThreadCreate((void *)server_loop, 0, THREAD_ASYNC);
+
+  if (opts.use_events)
   {
     // start events thread
-    //l4thread_create((void *)event_thread, 0, L4THREAD_CREATE_ASYNC);
     ThreadCreate((void *)event_thread, 0, THREAD_ASYNC);
     io_log("event thread started\n");
   }
 
-  // dummy function needed for the linker to link dl.o with the program
-  test();
+  /* start platform-independent init */
+  rc = init(&opts);
 
-  io_log("sizeof(l4_os3_section_t)=%ld\n", sizeof(l4_os3_section_t));
-  io_log("calling KalStartApp...\n");
-  KalStartApp(argv[argc - 1], pszLoadError, sizeof(pszLoadError));
+  /* destruct */
+  done();
 
-  FSClientDone();
-  ExcClientDone();
-  CPClientDone();
-  return 0;
+  return rc;
 }

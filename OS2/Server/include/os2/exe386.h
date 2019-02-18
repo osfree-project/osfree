@@ -226,62 +226,68 @@
 
 #define FWD_ORDINAL     0x01
 
+#ifdef __64bit__
+typedef unsigned int  u32_t;
+#else
+typedef unsigned long u32_t;
+#endif
+
 #pragma pack(push,1)
 
 struct e32_exe {
     unsigned char   e32_magic[2];
     unsigned char   e32_border;
     unsigned char   e32_worder;
-    unsigned long   e32_level;
+    u32_t           e32_level;
     unsigned short  e32_cpu;
     unsigned short  e32_os;
-    unsigned long   e32_ver;
-    unsigned long   e32_mflags;
-    unsigned long   e32_mpages;
-    unsigned long   e32_startobj;
-    unsigned long   e32_eip;
-    unsigned long   e32_stackobj;
-    unsigned long   e32_esp;
-    unsigned long   e32_pagesize;
-    unsigned long   e32_pageshift;
-    unsigned long   e32_fixupsize;
-    unsigned long   e32_fixupsum;
-    unsigned long   e32_ldrsize;
-    unsigned long   e32_ldrsum;
-    unsigned long   e32_objtab;
-    unsigned long   e32_objcnt;
-    unsigned long   e32_objmap;
-    unsigned long   e32_itermap;
-    unsigned long   e32_rsrctab;
-    unsigned long   e32_rsrccnt;
-    unsigned long   e32_restab;
-    unsigned long   e32_enttab;
-    unsigned long   e32_dirtab;
-    unsigned long   e32_dircnt;
-    unsigned long   e32_fpagetab;
-    unsigned long   e32_frectab;
-    unsigned long   e32_impmod;
-    unsigned long   e32_impmodcnt;
-    unsigned long   e32_impproc;
-    unsigned long   e32_pagesum;
-    unsigned long   e32_datapage;
-    unsigned long   e32_preload;
-    unsigned long   e32_nrestab;
-    unsigned long   e32_cbnrestab;
-    unsigned long   e32_nressum;
-    unsigned long   e32_autodata;
-    unsigned long   e32_debuginfo;
-    unsigned long   e32_debuglen;
-    unsigned long   e32_instpreload;
-    unsigned long   e32_instdemand;
-    unsigned long   e32_heapsize;
-    unsigned long   e32_stacksize;
+    u32_t           e32_ver;
+    u32_t           e32_mflags;
+    u32_t           e32_mpages;
+    u32_t           e32_startobj;
+    u32_t           e32_eip;
+    u32_t           e32_stackobj;
+    u32_t           e32_esp;
+    u32_t           e32_pagesize;
+    u32_t           e32_pageshift;
+    u32_t           e32_fixupsize;
+    u32_t           e32_fixupsum;
+    u32_t           e32_ldrsize;
+    u32_t           e32_ldrsum;
+    u32_t           e32_objtab;
+    u32_t           e32_objcnt;
+    u32_t           e32_objmap;
+    u32_t           e32_itermap;
+    u32_t           e32_rsrctab;
+    u32_t           e32_rsrccnt;
+    u32_t           e32_restab;
+    u32_t           e32_enttab;
+    u32_t           e32_dirtab;
+    u32_t           e32_dircnt;
+    u32_t           e32_fpagetab;
+    u32_t           e32_frectab;
+    u32_t           e32_impmod;
+    u32_t           e32_impmodcnt;
+    u32_t           e32_impproc;
+    u32_t           e32_pagesum;
+    u32_t           e32_datapage;
+    u32_t           e32_preload;
+    u32_t           e32_nrestab;
+    u32_t           e32_cbnrestab;
+    u32_t           e32_nressum;
+    u32_t           e32_autodata;
+    u32_t           e32_debuginfo;
+    u32_t           e32_debuglen;
+    u32_t           e32_instpreload;
+    u32_t           e32_instdemand;
+    u32_t           e32_heapsize;
+    u32_t           e32_stacksize;
     unsigned char   e32_res3[E32RESBYTES3];
 };
 
 typedef union _offset {
     unsigned short  offset16;
-    unsigned long   offset32;
+    u32_t           offset32;
 } offset;
 
 
@@ -294,7 +300,7 @@ struct r32_rlc {
         offset          intref;
         union extfixup {
             offset         proc;
-            unsigned long  ord;
+            u32_t          ord;
         } extref;
         struct addfixup {
             unsigned short entry;
@@ -311,17 +317,17 @@ typedef struct _OBJPAGEDIR {
 } OBJPAGEDIR;
 
 struct o32_obj {
-    unsigned long   o32_size;
-    unsigned long   o32_base;
-    unsigned long   o32_flags;
-    unsigned long   o32_pagemap;
-    unsigned long   o32_mapsize;
-    unsigned long   o32_reserved;
+    u32_t           o32_size;
+    u32_t           o32_base;
+    u32_t           o32_flags;
+    u32_t           o32_pagemap;
+    u32_t           o32_mapsize;
+    u32_t           o32_reserved;
 };
 
 
 struct o32_map {
-    unsigned long   o32_pagedataoffset;
+    u32_t           o32_pagedataoffset;
     unsigned short  o32_pagesize;
     unsigned short  o32_pageflags;
 };
@@ -329,9 +335,9 @@ struct o32_map {
 struct rsrc32 {
     unsigned short  type;
     unsigned short  name;
-    unsigned long   cb;
+    u32_t           cb;
     unsigned short  obj;
-    unsigned long   offset;
+    u32_t           offset;
 };
 
 struct LX_Iter {
@@ -357,7 +363,7 @@ struct e32_entry {
                         e32_callgate;
         struct fwd {
             unsigned short  modord;
-            unsigned long   value;
+            u32_t           value;
         } e32_fwd;
     } e32_variant;
 };

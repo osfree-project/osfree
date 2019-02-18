@@ -54,7 +54,3 @@ APIRET CDECL KalDlRoute(ULONG handle, PSZ name, ...)
   va_end(args);
   return rc;
 }
-
-void test(void)
-{
-}

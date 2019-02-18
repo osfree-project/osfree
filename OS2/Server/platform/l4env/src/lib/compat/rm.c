@@ -292,6 +292,10 @@ long RegLookupRegion(void               *addr,
     return rc;
 }
 
+void RegDumpRegions(void)
+{
+  l4rm_show_region_list();
+}
 
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)
 //long attach_ds(l4os3_ds_t *ds, unsigned long flags, void **addr)

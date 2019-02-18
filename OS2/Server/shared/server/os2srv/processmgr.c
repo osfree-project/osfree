@@ -1139,7 +1139,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   /* execute it */
   rc = LoaderExecOS2(p_buf, 0, proc);
 
-  io_log("x000\n");
   if (rc)
   {
     io_log("PrcExecuteModule: rc=%lx\n", rc);
@@ -1148,7 +1147,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
   }
 
   /* set termination code */
-  io_log("x001\n");
   switch (execFlag)
   {
     case EXEC_ASYNC:
@@ -1173,7 +1171,6 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     //os2app_app_Terminate_call(&proc->task, &env);
 
   //time = 0;
-  io_log("x002\n");
   for (;;)
   {
     ThreadSleep(delta);
@@ -1185,33 +1182,25 @@ APIRET APIENTRY PrcExecuteModule(char * pObjname,
     //  return ERROR_TIMEOUT;
     //}
 
-    io_log("x003\n");
     serv = server_query("os2app", proc->pid);
 
     if (serv)
     {
       if (serv->ret)
       {
-        io_log("x004\n");
         memcpy(pObjname, serv->szLoadError, serv->cbLoadError); ////
-        io_log("x004a\n");
         server_del("os2app", proc->pid);
-        io_log("x004b\n");
         LockUnlock(startup_lock);
-        io_log("x004c\n");
         return serv->ret;
       }
 
-      io_log("x005\n");
       SemaphoreDown(startup_sem);
       LockUnlock(startup_lock);
       break;
     }
   }
 
-  io_log("x006\n");
   server_del("os2app", proc->pid);
-  io_log("x007\n");
   return NO_ERROR;
 }
 

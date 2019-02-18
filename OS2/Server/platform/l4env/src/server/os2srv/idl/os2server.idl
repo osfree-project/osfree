@@ -11,6 +11,8 @@ interface os2server
 {
     /* misc RPC calls */
 
+    void test(void);
+
     /* notify os2srv about startup of os2app executable */
     void app_notify1(void);
 

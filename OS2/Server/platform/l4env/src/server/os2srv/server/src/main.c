@@ -1,43 +1,10 @@
-/*!
-  @file main.c
-
-  @brief OS/2 Server
-
-    OS/2 Server - Starts osFree OS/2 personality
-    Copyright (C) 2007  Sven Rosén (aka Viking)
-    Copyright 2007 by Sascha Schmidt and the osFree Project
-    Copyright 2008 Yuri Prokushev
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-    Or see <http://www.gnu.org/licenses/>
-
-  @author Sascha Schmidt <sascha.schmidt@asamnet.de>
-  @author Sven Rosén (aka Viking)
-  @author Yuri Prokushev
-
-*/
-
 /* OS/2 API includes */
 #define  INCL_BASE
 #include <os2.h>
 
 /* osFree internal */
-#include <os3/cfgparser.h>
 #include <os3/io.h>
 #include <os3/thread.h>
-#include <os3/cpi.h>
 
 /* l4env includes */
 #include <l4/sys/types.h>
@@ -53,21 +20,29 @@
 #include <string.h>
 #include <getopt.h>
 
-//struct t_mem_area os2server_root_mem_area;
-char fprov[20] = "BMODFS";
-// use events server
-char use_events = 0;
-
 l4_threadid_t fs;
 l4_threadid_t os2srv;
-l4_threadid_t fprov_id;
+l4_os3_thread_t fprov_id;
 l4_os3_thread_t dsm_id;
 l4_os3_thread_t loader_id;
-l4_os3_thread_t sysinit_id;
 
-extern cfg_opts options;
+struct options
+{
+  char use_events;
+  char *configfile;
+  char *bootdrive;
+  char fprov[20];
+};
 
-int sysinit (cfg_opts *options);
+/* whether to use event server */
+char use_events = 0;
+
+l4_os3_thread_t CPNativeID(void);
+
+void parse_options(int argc, char **argv, struct options *opts);
+void exit_notify(void);
+int init(struct options *opts);
+void done(void);
 void usage(void);
 
 l4_os3_thread_t CPNativeID(void)
@@ -79,7 +54,7 @@ l4_os3_thread_t CPNativeID(void)
   return thread;
 }
 
-void exit_notify(void)
+void exit_notify()
 {
   l4events_ch_t event_ch = L4EVENTS_EXIT_CHANNEL;
   l4events_nr_t event_nr = L4EVENTS_NO_NR;
@@ -101,29 +76,8 @@ void usage(void)
 {
 };
 
-/*! @brief This is the main function of the osFree OS/2 Personality Server.
-           Loads config.sys, executes all CALL and RUN stataments, creates
-           initial environment using SET stataments, starts main shell
-           pointed by PROTSHELL statament.
-
-    @param argc   Number of arguments
-    @param argv   Array of arguments
-
-    @return
-      NO_ERROR                  Server finished successfully
-      ERROR_INVALID_PARAMETER   Invalid argument or CONFIG.SYS settings
-
-      See also other error codes
-
-*/
-
-
-int main(int argc, const char **argv)
+void parse_options(int argc, char **argv, struct options *opts)
 {
-  CORBA_Server_Environment env = dice_default_server_environment;
-  void     *addr;           // Pointer to CONFIG.SYS in memory
-  unsigned long size;       // Size of CONFIG.SYS in memory
-  int rc;                   // Return code
   int opt = 0;
   int optionid;
   const struct option long_options[] =
@@ -138,51 +92,36 @@ int main(int argc, const char **argv)
                 { 0, 0, 0, 0}
                 };
 
-  io_log("osFree OS/2 Personality Server\n");
-  io_log("argc=%d\n", argc);
-
-  if (! names_register("os2srv") )
-  {
-    io_log("Error registering on the name server\n");
-    return 1;
-  }
-
-  // Initialize initial values from CONFIG.SYS
-  rc = CfgInitOptions();
-
-  if (rc != NO_ERROR)
-  {
-    io_log("Can't initialize CONFIG.SYS parser\n");
-    return rc;
-  }
-
-  // default config.sys path
-  options.configfile = "/file/system/config.sys";
+  strcpy(opts->fprov, "BMODFS");
 
   // Parse command line arguments
   for (;;)
     {
       opt = getopt_long(argc, (char **)argv, "s:c:b:f:e", long_options, &optionid);
-      if (opt == -1) break;
+
+      if (opt == -1)
+        break;
+
       switch (opt)
         {
         case 'c':
-            options.configfile=malloc(strlen(optarg)+1);
-            strcpy(options.configfile,optarg);
+            opts->configfile = malloc(strlen(optarg)+1);
+            strcpy(opts->configfile, optarg);
             break;
 
         case 'b':
-            options.bootdrive=malloc(strlen(optarg)+1);
-            strcpy(options.bootdrive,optarg);
+            opts->bootdrive = malloc(strlen(optarg)+1);
+            strcpy(opts->bootdrive, optarg);
             break;
 
         case 'f':
             io_log("fprov is %s\n", optarg);
-            strcpy(fprov, optarg);
+            strcpy(opts->fprov, optarg);
             break;
 
         case 'e':
             io_log("using events server\n");
+            opts->use_events = 1;
             use_events = 1;
             break;
 
@@ -193,17 +132,31 @@ int main(int argc, const char **argv)
         default:
             io_log("Error: Unknown option \"%c\"\n", opt);
             usage();
-            return 1;
+            return;
 
         }
     }
+}
 
-  io_log("options.configfile=%s\n", options.configfile);
+int main(int argc, char **argv)
+{
+  CORBA_Server_Environment env = dice_default_server_environment;
+  struct options opts = {0};
+  int rc; // Return code
+
+  /* parse options */
+  parse_options(argc, argv, &opts);
+
+  if (! names_register("os2srv") )
+  {
+    io_log("Error registering on the name server\n");
+    return 1;
+  }
 
   /* Wait for servers to be started */
-  if (! names_waitfor_name(fprov, &fprov_id, 10000))
+  if (! names_waitfor_name(opts.fprov, &fprov_id.thread, 10000))
   {
-    io_log("Server \"%s\" not found\n", fprov);
+    io_log("Server \"%s\" not found\n", opts.fprov);
     return 1;
   }
 
@@ -217,11 +170,6 @@ int main(int argc, const char **argv)
 
   io_log("loader id: %x.%x", loader_id.thread.id.task, loader_id.thread.id.lthread);
 
-  // query OS/2 server task id
-  //os2srv = l4_myself();
-  CPClientInit();
-  io_log("OS/2 server uid=%x.%x\n", os2srv.id.task, os2srv.id.lthread);
-
   /* query default dataspace manager id */
   dsm_id.thread = l4env_get_default_dsm();
 
@@ -231,41 +179,24 @@ int main(int argc, const char **argv)
     return 2;
   }
 
-  // Load CONFIG.SYS into memory
-  rc = io_load_file(options.configfile, &addr, &size);
+  CPClientInit(&os2srv);
 
-  if (rc != NO_ERROR)
+  /* call platform-independent init */
+  if ( (rc = init(&opts)) )
   {
-    io_log("Can't load CONFIG.SYS\n");
+    CPClientDone();
     return rc;
   }
 
-  io_log("%s\n", (char *)addr);
-
-  // Parse CONFIG.SYS in memory
-  rc = CfgParseConfig((char *)addr, size);
-
-  if (rc != NO_ERROR)
-  {
-    io_log("Error parse CONFIG.SYS\n");
-    return rc;
-  }
-
-  // Remove CONFIG.SYS from memory
-  io_close_file(addr);
-
-  PrcInit();
-
-  // Perform the System initialization
-  ThreadCreate((void *)sysinit, (void *)&options, THREAD_ASYNC);
-
-  // server loop
+  /* server loop */
   env.malloc = (dice_malloc_func)malloc;
   env.free = (dice_free_func)free;
   os2server_server_loop(&env);
 
   CPClientDone();
-  PrcDone();
 
-  return rc;
+  /* destruct */
+  done();
+
+  return NO_ERROR;
 }

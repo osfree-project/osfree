@@ -8,6 +8,7 @@
 #include <string.h>
 
 /* osFree internal */
+#include <os3/thread.h>
 #include <os3/io.h>
 
 /* Genode includes */
@@ -22,12 +23,12 @@
 
 using namespace OS2::Cpi;
 
-Connection *cpi;
+static Connection *cpi;
 
-Sysio *_sysio = NULL;
+static Sysio *_sysio = NULL;
 
 extern "C"
-APIRET CPClientInit(void)
+APIRET CPClientInit(l4_os3_thread_t *thread)
 {
     Genode::Allocator &alloc = genode_alloc();
     Genode::Env &env = genode_env();
@@ -35,7 +36,7 @@ APIRET CPClientInit(void)
 
     try
     {
-        cpi = new (alloc) OS2::Cpi::Connection(env);
+        cpi = new (alloc) OS2::Cpi::Connection(env, "main");
     }
     catch (...)
     {
@@ -63,6 +64,8 @@ APIRET CPClientInit(void)
         return ERROR_NO_MAPPING;
     }
 
+    *thread = cpi;
+
     return NO_ERROR;
 }
 
@@ -78,7 +81,7 @@ APIRET CPClientDone(void)
 extern "C"
 void CPClientTest(void)
 {
-    cpi->syscall(Session::SYSCALL_TEST);
+    cpi->syscall(Session::SYSCALL_MAIN_TEST);
 }
 
 extern "C"
@@ -86,10 +89,10 @@ APIRET CPClientCfgGetenv(const char *name,
                        char **value)
 {
     APIRET rc;
-    strcpy((char *)_sysio->cfggetenv_in.name, name);
-    cpi->syscall(Session::SYSCALL_CFGGETENV);
-    strcpy(*value, (char *)_sysio->cfggetenv_out.value);
-    rc = _sysio->cfggetenv_out.rc;
+    strcpy((char *)_sysio->cfggetenv.in.name, name);
+    cpi->syscall(Session::SYSCALL_MAIN_CFGGETENV);
+    strcpy(*value, (char *)_sysio->cfggetenv.out.value);
+    rc = _sysio->cfggetenv.out.rc;
     return rc;
 }
 
@@ -101,21 +104,21 @@ APIRET CPClientCfgGetopt(const char *name,
 {
     APIRET rc;
 
-    strcpy((char *)_sysio->cfggetopt_in.name, name);
+    strcpy((char *)_sysio->cfggetopt.in.name, name);
 
-    cpi->syscall(Session::SYSCALL_CFGGETOPT);
+    cpi->syscall(Session::SYSCALL_MAIN_CFGGETOPT);
 
-    rc = _sysio->cfggetopt_out.rc;
-    *is_int = _sysio->cfggetopt_out.is_int;
-    *value_int = _sysio->cfggetopt_out.value_int;
-    strcpy(*value_str, (char *)_sysio->cfggetopt_out.value_str);
+    rc = _sysio->cfggetopt.out.rc;
+    *is_int = _sysio->cfggetopt.out.is_int;
+    *value_int = _sysio->cfggetopt.out.value_int;
+    strcpy(*value_str, (char *)_sysio->cfggetopt.out.value_str);
     return rc;
 }
 
 extern "C"
 APIRET CPClientAppNotify1(void)
 {
-    cpi->syscall(Session::SYSCALL_APPNOTIFY1);
+    cpi->syscall(Session::SYSCALL_MAIN_APPNOTIFY1);
     return NO_ERROR;
 }
 
@@ -127,22 +130,22 @@ APIRET CPClientAppNotify2(os2exec_module_t *s,
                           ULONG cbLoadError,
                           ULONG ret)
 {
-    memcpy(&_sysio->appnotify2_in.s, s, sizeof(os2exec_module_t));
+    memcpy(&_sysio->appnotify2.in.s, s, sizeof(os2exec_module_t));
 
     if (pszName)
     {
-        strcpy((char *)_sysio->appnotify2_in.pszName, pszName);
+        strcpy((char *)_sysio->appnotify2.in.pszName, pszName);
     }
     else
     {
-        *_sysio->appnotify2_in.pszName = '\0';
+        *_sysio->appnotify2.in.pszName = '\0';
     }
 
-    _sysio->appnotify2_in.thread = *thread;
-    strcpy((char *)_sysio->appnotify2_in.szLoadError, (char *)szLoadError);
-    _sysio->appnotify2_in.cbLoadError = cbLoadError;
-    _sysio->appnotify2_in.ret = ret;
-    cpi->syscall(Session::SYSCALL_APPNOTIFY2);
+    _sysio->appnotify2.in.thread = *thread;
+    strcpy((char *)_sysio->appnotify2.in.szLoadError, (char *)szLoadError);
+    _sysio->appnotify2.in.cbLoadError = cbLoadError;
+    _sysio->appnotify2.in.ret = ret;
+    cpi->syscall(Session::SYSCALL_MAIN_APPNOTIFY2);
     return NO_ERROR;
 }
 
@@ -150,9 +153,9 @@ extern "C"
 APIRET CPClientAppAddData(const app_data_t *data)
 {
     APIRET rc;
-    memcpy(&_sysio->appsend_in.data, data, sizeof(app_data_t));
-    cpi->syscall(Session::SYSCALL_APPSEND);
-    rc = _sysio->appsend_out.rc;
+    memcpy(&_sysio->appsend.in.data, data, sizeof(app_data_t));
+    cpi->syscall(Session::SYSCALL_MAIN_APPSEND);
+    rc = _sysio->appsend.out.rc;
     return rc;
 }
 
@@ -160,9 +163,9 @@ extern "C"
 APIRET CPClientAppGetData(app_data_t *data)
 {
     APIRET rc;
-    cpi->syscall(Session::SYSCALL_APPGET);
-    memcpy(data, &_sysio->appget_out.data, sizeof(app_data_t));
-    rc = _sysio->appget_out.rc;
+    cpi->syscall(Session::SYSCALL_MAIN_APPGET);
+    memcpy(data, &_sysio->appget.out.data, sizeof(app_data_t));
+    rc = _sysio->appget.out.rc;
     return rc;
 }
 
@@ -170,11 +173,11 @@ extern "C"
 APIRET CPClientExit(ULONG action, ULONG result)
 {
     APIRET rc;
-    action = _sysio->exit_in.action;
-    _sysio->exit_in.action = action;
-    _sysio->exit_in.result = result;
-    cpi->syscall(Session::SYSCALL_EXIT);
-    rc = _sysio->exit_out.rc;
+    action = _sysio->exit.in.action;
+    _sysio->exit.in.action = action;
+    _sysio->exit.in.result = result;
+    cpi->syscall(Session::SYSCALL_MAIN_EXIT);
+    rc = _sysio->exit.out.rc;
     return rc;
 }
 
@@ -191,19 +194,19 @@ APIRET CPClientExecPgm(char **pObjname,
 {
     APIRET rc;
 
-    _sysio->execpgm_in.cbObjname = *cbObjname;
-    _sysio->execpgm_in.execFlag = execFlag;
-    memcpy(_sysio->execpgm_in.pArgs, pArg, arglen);
-    _sysio->execpgm_in.arglen = arglen;
-    memcpy(_sysio->execpgm_in.pEnv, pEnv, envlen);
-    _sysio->execpgm_in.envlen = envlen;
-    strcpy(_sysio->execpgm_in.pName, pName);
+    _sysio->execpgm.in.cbObjname = *cbObjname;
+    _sysio->execpgm.in.execFlag = execFlag;
+    memcpy(_sysio->execpgm.in.pArgs, pArg, arglen);
+    _sysio->execpgm.in.arglen = arglen;
+    memcpy(_sysio->execpgm.in.pEnv, pEnv, envlen);
+    _sysio->execpgm.in.envlen = envlen;
+    strcpy(_sysio->execpgm.in.pName, pName);
 
-    cpi->syscall(Session::SYSCALL_EXECPGM);
+    cpi->syscall(Session::SYSCALL_MAIN_EXECPGM);
 
-    rc = _sysio->execpgm_out.rc;
-    strcpy(*pObjname, _sysio->execpgm_out.pObjname);
-    memcpy(pRes, &_sysio->execpgm_out.pRes, sizeof(RESULTCODES));
+    rc = _sysio->execpgm.out.rc;
+    strcpy(*pObjname, _sysio->execpgm.out.pObjname);
+    memcpy(pRes, &_sysio->execpgm.out.pRes, sizeof(RESULTCODES));
 
     return rc;
 }
@@ -229,9 +232,9 @@ APIRET CPClientGetPIB(PID pid, l4_os3_dataspace_t *ds)
     APIRET rc;
     Genode::Untyped_capability cap;
     Genode::Dataspace_capability _ds;
-    _sysio->getpib_in.pid = pid;
-    cpi->syscall(Session::SYSCALL_GETPIB);
-    rc = _sysio->getpib_out.rc;
+    _sysio->getpib.in.pid = pid;
+    cpi->syscall(Session::SYSCALL_MAIN_GETPIB);
+    rc = _sysio->getpib.out.rc;
     cap = cpi->get_cap(0);
     _ds = Genode::reinterpret_cap_cast<Genode::Dataspace>(cap);
     *ds = (l4_os3_dataspace_t)&_ds;
@@ -244,10 +247,10 @@ APIRET CPClientGetTIB(PID pid, TID tid, l4_os3_dataspace_t *ds)
     APIRET rc;
     Genode::Untyped_capability cap;
     Genode::Dataspace_capability _ds;
-    _sysio->gettib_in.pid = pid;
-    _sysio->gettib_in.tid = tid;
-    cpi->syscall(Session::SYSCALL_GETTIB);
-    rc = _sysio->gettib_out.rc;
+    _sysio->gettib.in.pid = pid;
+    _sysio->gettib.in.tid = tid;
+    cpi->syscall(Session::SYSCALL_MAIN_GETTIB);
+    rc = _sysio->gettib.out.rc;
     cap = cpi->get_cap(0);
     _ds = Genode::reinterpret_cap_cast<Genode::Dataspace>(cap);
     *ds = (l4_os3_dataspace_t)&_ds;
@@ -258,9 +261,9 @@ extern "C"
 APIRET CPClientError(ULONG error)
 {
     APIRET rc;
-    _sysio->error_in.error = error;
-    cpi->syscall(Session::SYSCALL_ERROR);
-    rc = _sysio->error_out.rc;
+    _sysio->error.in.error = error;
+    cpi->syscall(Session::SYSCALL_MAIN_ERROR);
+    rc = _sysio->error.out.rc;
     return rc;
 }
 
@@ -270,12 +273,12 @@ APIRET CPClientQueryDBCSEnv(ULONG *cb,
                             char **pBuf)
 {
     APIRET rc;
-    _sysio->querydbcsenv_in.cb = *cb;
-    memcpy(&_sysio->querydbcsenv_in.cc, pcc, sizeof(COUNTRYCODE));
-    cpi->syscall(Session::SYSCALL_QUERYDBCSENV);
-    *cb = _sysio->querydbcsenv_out.cb;
-    memcpy(*pBuf, &_sysio->querydbcsenv_out.pBuf, *cb);
-    rc = _sysio->querydbcsenv_out.rc;
+    _sysio->querydbcsenv.in.cb = *cb;
+    memcpy(&_sysio->querydbcsenv.in.cc, pcc, sizeof(COUNTRYCODE));
+    cpi->syscall(Session::SYSCALL_MAIN_QUERYDBCSENV);
+    *cb = _sysio->querydbcsenv.out.cb;
+    memcpy(*pBuf, &_sysio->querydbcsenv.out.pBuf, *cb);
+    rc = _sysio->querydbcsenv.out.rc;
     return rc;
 }
 
@@ -284,11 +287,11 @@ APIRET CPClientQueryCp(ULONG *cb,
                        char **arCP)
 {
     APIRET rc;
-    _sysio->querycp_in.cb = *cb;
-    cpi->syscall(Session::SYSCALL_QUERYCP);
-    *cb = _sysio->querycp_out.cb;
-    memcpy(*arCP, &_sysio->querycp_out.arCP, *cb);
-    rc = _sysio->querycp_out.rc;
+    _sysio->querycp.in.cb = *cb;
+    cpi->syscall(Session::SYSCALL_MAIN_QUERYCP);
+    *cb = _sysio->querycp.out.cb;
+    memcpy(*arCP, &_sysio->querycp.out.arCP, *cb);
+    rc = _sysio->querycp.out.rc;
     return rc;
 }
 
@@ -296,9 +299,9 @@ extern "C"
 APIRET CPClientQueryCurrentDisk(ULONG *pdisknum)
 {
     APIRET rc;
-    cpi->syscall(Session::SYSCALL_QUERYCURRENTDISK);
-    *pdisknum = _sysio->querycurrentdisk_out.disknum;
-    rc = _sysio->querycurrentdisk_out.rc;
+    cpi->syscall(Session::SYSCALL_MAIN_QUERYCURRENTDISK);
+    *pdisknum = _sysio->querycurrentdisk.out.disknum;
+    rc = _sysio->querycurrentdisk.out.rc;
     return rc;
 }
 
@@ -307,12 +310,12 @@ APIRET CPClientQueryCurrentDir(ULONG disknum, ULONG logical,
                                char **pBuf, ULONG *pcbBuf)
 {
     APIRET rc;
-    _sysio->querycurrentdir_in.disknum = disknum;
-    _sysio->querycurrentdir_in.logical = logical;
-    cpi->syscall(Session::SYSCALL_QUERYCURRENTDIR);
-    *pcbBuf = _sysio->querycurrentdir_out.cbBuf;
-    memcpy(*pBuf, _sysio->querycurrentdir_out.pBuf, *pcbBuf);
-    rc = _sysio->querycurrentdir_out.rc;
+    _sysio->querycurrentdir.in.disknum = disknum;
+    _sysio->querycurrentdir.in.logical = logical;
+    cpi->syscall(Session::SYSCALL_MAIN_QUERYCURRENTDIR);
+    *pcbBuf = _sysio->querycurrentdir.out.cbBuf;
+    memcpy(*pBuf, _sysio->querycurrentdir.out.pBuf, *pcbBuf);
+    rc = _sysio->querycurrentdir.out.rc;
     return rc;
 }
 
@@ -320,9 +323,9 @@ extern "C"
 APIRET CPClientSetCurrentDir(const char *pszDir)
 {
     APIRET rc;
-    strcpy((char *)_sysio->setcurrentdir_in.pszDir, pszDir);
-    cpi->syscall(Session::SYSCALL_SETCURRENTDIR);
-    rc = _sysio->setcurrentdir_out.rc;
+    strcpy((char *)_sysio->setcurrentdir.in.pszDir, pszDir);
+    cpi->syscall(Session::SYSCALL_MAIN_SETCURRENTDIR);
+    rc = _sysio->setcurrentdir.out.rc;
     return rc;
 }
 
@@ -330,10 +333,10 @@ extern "C"
 APIRET CPClientSetDefaultDisk(ULONG disknum, ULONG logical)
 {
     APIRET rc;
-    _sysio->setdefaultdisk_in.disknum = disknum;
-    _sysio->setdefaultdisk_in.logical = logical;
-    cpi->syscall(Session::SYSCALL_SETDEFAULTDISK);
-    rc = _sysio->setdefaultdisk_out.rc;
+    _sysio->setdefaultdisk.in.disknum = disknum;
+    _sysio->setdefaultdisk.in.logical = logical;
+    cpi->syscall(Session::SYSCALL_MAIN_SETDEFAULTDISK);
+    rc = _sysio->setdefaultdisk.out.rc;
     return rc;
 }
 
@@ -342,12 +345,12 @@ APIRET CPClientCreateEventSem(PCSZ pszName, HEV *phev,
                               ULONG flAttr, BOOL32 fState)
 {
     APIRET rc;
-    strcpy(_sysio->createeventsem_in.pszName, pszName);
-    _sysio->createeventsem_in.flAttr = flAttr;
-    _sysio->createeventsem_in.fState = fState;
-    cpi->syscall(Session::SYSCALL_CREATEEVENTSEM);
-    *phev = _sysio->createeventsem_out.hev;
-    rc = _sysio->createeventsem_out.rc;
+    strcpy(_sysio->createeventsem.in.pszName, pszName);
+    _sysio->createeventsem.in.flAttr = flAttr;
+    _sysio->createeventsem.in.fState = fState;
+    cpi->syscall(Session::SYSCALL_MAIN_CREATEEVENTSEM);
+    *phev = _sysio->createeventsem.out.hev;
+    rc = _sysio->createeventsem.out.rc;
     return rc;
 }
 
@@ -355,10 +358,10 @@ extern "C"
 APIRET CPClientOpenEventSem(PCSZ pszName, HEV *phev)
 {
     APIRET rc;
-    strcpy(_sysio->openeventsem_in.pszName, pszName);
-    cpi->syscall(Session::SYSCALL_OPENEVENTSEM);
-    *phev = _sysio->openeventsem_out.hev;
-    rc = _sysio->openeventsem_out.rc;
+    strcpy(_sysio->openeventsem.in.pszName, pszName);
+    cpi->syscall(Session::SYSCALL_MAIN_OPENEVENTSEM);
+    *phev = _sysio->openeventsem.out.hev;
+    rc = _sysio->openeventsem.out.rc;
     return rc;
 }
 
@@ -366,9 +369,9 @@ extern "C"
 APIRET CPClientCloseEventSem(HEV hev)
 {
     APIRET rc;
-    _sysio->closeeventsem_in.hev = hev;
-    cpi->syscall(Session::SYSCALL_CLOSEEVENTSEM);
-    rc = _sysio->closeeventsem_out.rc;
+    _sysio->closeeventsem.in.hev = hev;
+    cpi->syscall(Session::SYSCALL_MAIN_CLOSEEVENTSEM);
+    rc = _sysio->closeeventsem.out.rc;
     return rc;
 }
 
@@ -376,9 +379,9 @@ extern "C"
 APIRET CPClientGetPID(PID *pid)
 {
     APIRET rc;
-    cpi->syscall(Session::SYSCALL_GETPID);
-    *pid = _sysio->getpid_out.pid;
-    rc = _sysio->getpid_out.rc;
+    cpi->syscall(Session::SYSCALL_MAIN_GETPID);
+    *pid = _sysio->getpid.out.pid;
+    rc = _sysio->getpid.out.rc;
     return rc;
 }
 
@@ -387,11 +390,11 @@ APIRET CPClientGetNativeID(PID pid, TID tid,
                            l4_os3_thread_t *id)
 {
     APIRET rc;
-    _sysio->getnativeid_in.pid = pid;
-    _sysio->getnativeid_in.tid = tid;
-    cpi->syscall(Session::SYSCALL_GETNATIVEID);
-    *id = _sysio->getnativeid_out.id;
-    rc = _sysio->getnativeid_out.rc;
+    _sysio->getnativeid.in.pid = pid;
+    _sysio->getnativeid.in.tid = tid;
+    cpi->syscall(Session::SYSCALL_MAIN_GETNATIVEID);
+    *id = _sysio->getnativeid.out.id;
+    rc = _sysio->getnativeid.out.rc;
     return rc;
 }
 
@@ -400,11 +403,11 @@ APIRET CPClientNewTIB(PID pid, TID tid,
                       const l4_os3_thread_t *id)
 {
     APIRET rc;
-    _sysio->newtib_in.pid = pid;
-    _sysio->newtib_in.tid = tid;
-    _sysio->newtib_in.id = *id;
-    cpi->syscall(Session::SYSCALL_NEWTIB);
-    rc = _sysio->newtib_out.rc;
+    _sysio->newtib.in.pid = pid;
+    _sysio->newtib.in.tid = tid;
+    _sysio->newtib.in.id = *id;
+    cpi->syscall(Session::SYSCALL_MAIN_NEWTIB);
+    rc = _sysio->newtib.out.rc;
     return rc;
 }
 
@@ -412,10 +415,9 @@ extern "C"
 APIRET CPClientDestroyTIB(PID pid, TID tid)
 {
     APIRET rc;
-    _sysio->destroytib_in.pid = pid;
-    _sysio->destroytib_in.tid = tid;
-    cpi->syscall(Session::SYSCALL_DESTROYTIB);
-    rc = _sysio->destroytib_out.rc;
+    _sysio->destroytib.in.pid = pid;
+    _sysio->destroytib.in.tid = tid;
+    cpi->syscall(Session::SYSCALL_MAIN_DESTROYTIB);
+    rc = _sysio->destroytib.out.rc;
     return rc;
 }
-

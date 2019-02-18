@@ -16,8 +16,6 @@ extern unsigned long long shared_memory_area;
 extern char pszLoadError[260];
 extern ULONG rcCode;
 
-//extern l4_os3_thread_t execsrv;
-
 extern vmdata_t *areas_list;
 
 void DICE_CV

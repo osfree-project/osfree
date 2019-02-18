@@ -222,6 +222,7 @@ dl_get_funcs (int *numentries, IXFMODULEENTRY **entries)
 
   memset(line, 0, 0x100);
 
+  io_log("options.kal_map=%s\n", options.kal_map);
   rc = io_load_file(options.kal_map, &addr, &size);
 
   if (rc)
@@ -353,7 +354,7 @@ int lcase(char* dest, const char* src)
 unsigned long OpenModule(char            *pszName,
                          unsigned long   cbName,
                          char const      *pszModname,
-			 char            exeflag,
+			 unsigned long   exeflag,
                          unsigned long   *phmod)
 {
   #define buf_size 4096
@@ -378,8 +379,9 @@ unsigned long OpenModule(char            *pszName,
   // @todo extract filename only because can be fullname with path
 
   char *mname = get_fname(pszModname);
+  io_log("pszModname=%s\n", pszModname);
+  io_log("mname=%s\n", mname);
 
-  
   // Specail case - EMXWRAP.DLL. Read more in docs\os2\sub32.txt
   //if (! exeflag && (! stricmp(mname, "EMXWRAP") || ! stricmp(mname, "SUB32")))
   if (! exeflag && ! stricmp(mname, "EMXWRAP"))
@@ -390,8 +392,10 @@ unsigned long OpenModule(char            *pszName,
     pszModname="SUB32.DLL";
   }
 
-  if (options.debugmodmgr) 
+  if (options.debugmodmgr)
+  {
       io_log("ModLoadModule: Loading module %s...\n", mname);
+  }
 
   ////
   //if (!exeflag)
@@ -420,7 +424,7 @@ unsigned long OpenModule(char            *pszName,
   // Ok. No module found. Try to load file
   io_log("open: %s\n", pszModname);
   // Consider fully-qualified name specified.
-  rc=io_load_file(pszModname, &addr, &size);
+  rc = io_load_file(pszModname, &addr, &size);
   if (rc)
   {
     // Searches for module name and returns the full path in the buffer p_buf.
@@ -550,19 +554,15 @@ unsigned long LoadModule(char            *pszName,
 
   io_log("mname=%s\n", mname);
 
-  io_log("fgh1\n");
   if (! t)
   {
-    io_log("fgh2\n");
     if (! *phmod)
       return ERROR_INVALID_HANDLE;
 
-    io_log("fgh3\n");
     if (! exeflag)
     {
       io_log("already loaded, dll\n");
       *phmod = (unsigned long)prev->module_struct;
-      io_log("fgh3a\n");
       return 0;
     }
     else
@@ -574,17 +574,14 @@ unsigned long LoadModule(char            *pszName,
       io_log("already loaded, exe\n");
       *phmod = (unsigned long)prev->module_struct;
       prev->load_status = DONE_LOADING;
-      io_log("fgh3b\n");
       return 0;
     }
   }
  
-  io_log("fgh3c\n");
   if ((t == 1) || (! t && prev->load_status != DONE_LOADING))
   {
     // not loaded
     // Load module
-    io_log("fgh3d: t=%d\n", t);
     rc = IXFLoadModule(addr, size, ixfModule);
     if (rc)
     {
@@ -596,13 +593,11 @@ unsigned long LoadModule(char            *pszName,
       strcpy(pszName, pszModname);
       *phmod = 0;
       IXFFreeModule(ixfModule);
-      io_log("fgh3e\n");
       return rc;
     }
   }
 
   // Display module entry table
-  io_log("fgh3f\n");
   if (options.debugixfmgr)
   {
     unsigned long entries_counter;
@@ -632,7 +627,6 @@ unsigned long LoadModule(char            *pszName,
   new_module_el->load_status = LOADING;
 
   // Load modules which not loaded yet
-  io_log("fgh3g\n");
   for (module_counter=1;
        module_counter<ixfModule->cbModules+1;
        module_counter++)
@@ -654,14 +648,11 @@ unsigned long LoadModule(char            *pszName,
     }
 
     /* if module is not loaded, then load it */
-    io_log("fgh3h\n");
     if ( (t = getrec(ixfModule->Modules[module_counter-1], &prev)) )
     {
       io_log("opening %s\n", name);
-      io_log("fgh3i\n");
       rc = OpenModule(chLoadError, sizeof(chLoadError), name,
                       0, (unsigned long *)&hmod);
-      io_log("fgh3j\n");
       if (!rc) io_log("open successful\n");
       if (rc)
       {
@@ -670,9 +661,7 @@ unsigned long LoadModule(char            *pszName,
       }
 
       io_log("loading %s\n", name);
-      io_log("fgh3k\n");
       rc = LoadModule(chLoadError, sizeof(chLoadError), (unsigned long *)&hmod);
-      io_log("fgh3l\n");
       if (!rc) io_log("load successful\n");
 
 
@@ -684,13 +673,10 @@ unsigned long LoadModule(char            *pszName,
     }
 
     // Fixup module
-    io_log("fgh3m\n");
     if (! exeflag)
     {
 #if 1
-      io_log("fgh4\n");
       rc = IXFFixupModule(ixfModule);
-      io_log("fgh5\n");
       if (rc)
       {
         io_log("IXFFixupModule: rc=%u\n", rc);
@@ -702,7 +688,6 @@ unsigned long LoadModule(char            *pszName,
         strcpy(pszName, pszModname);
         *phmod = 0;
         IXFFreeModule(ixfModule);
-        io_log("fgh6\n");
         return rc;
       }
       else
@@ -739,7 +724,6 @@ unsigned long LoadModule(char            *pszName,
 
   // Fixup module
 
-  io_log("fgh7\n");
   if (exeflag)
   {
     rc = IXFFixupModule(ixfModule);
@@ -750,13 +734,11 @@ unsigned long LoadModule(char            *pszName,
     }
   }
 
-  io_log("fgh8\n");
   ModLinkModule(ixfModule, phmod);
   //@todo use handle table
   *phmod=(unsigned long)ixfModule;
   new_module_el->load_status = DONE_LOADING;
 
-  io_log("fgh9\n");
   return rc; /*NO_ERROR;*/
 }
 

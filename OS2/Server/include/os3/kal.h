@@ -127,7 +127,7 @@ void KalEnter(void);
 
 void KalQuit(void);
 
-APIRET CDECL KalStartApp(char *name, char *pszLoadError, ULONG cbLoadError);
+APIRET CDECL KalStartApp(const char *name, char *pszLoadError, ULONG cbLoadError);
 
 APIRET CDECL KalDlOpen(PSZ name, PULONG handle);
 APIRET CDECL KalDlSym(ULONG handle, PSZ sym, PPVOID addr);

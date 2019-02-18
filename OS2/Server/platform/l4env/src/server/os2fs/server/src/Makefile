@@ -15,6 +15,7 @@ rpc.c   \
 glob.c \
 utility.c   \
 globals.c   \
+initdone.c  \
 mountreg.c  \
 api/api.c   \
 api/misc.c

@@ -6,6 +6,7 @@
 #include <os3/io.h>
 #include <os3/memmgr.h>
 #include <os3/modmgr.h>
+#include <os3/thread.h>
 #include <os3/cfgparser.h>
 #include <os3/cpi.h>
 #include <os3/fs.h>
@@ -13,12 +14,15 @@
 /* Genode includes */
 #include <base/log.h>
 #include <base/heap.h>
+#include <base/capability.h>
+#include <base/attached_ram_dataspace.h>
 #include <base/attached_rom_dataspace.h>
 #include <libc/component.h>
 #include <root/component.h>
-#include <exec_session/exec_session.h>
 #include <base/rpc_server.h>
 #include <util/string.h>
+
+#include <cpi_session/cpi_session.h>
 
 /* libc includes */
 #include <string.h>
@@ -33,6 +37,19 @@
 Genode::Env *_env_ptr = NULL;
 Genode::Allocator *_alloc = NULL;
 
+extern "C" {
+
+struct options
+{
+    char use_events;
+    char *configfile;
+    char *kal_map;
+};
+
+l4_os3_thread_t os2srv;
+
+extern l4_os3_thread_t fs;
+
 cfg_opts options;
 
 /* shared memory arena settings */
@@ -40,169 +57,254 @@ extern void         *shared_memory_base;
 extern unsigned long shared_memory_size;
 extern unsigned long long shared_memory_area;
 
+int init(struct options *opts);
+void done(void);
+
 /* Root mem area for memmgr */
 struct t_mem_area root_area;
 
-namespace OS2::Exec {
+void reserve_regions(void)
+{
+    /* Add a real implementation! */
+}
+
+}
+
+namespace OS2::Cpi {
 	struct Session_component;
 	struct Root;
 	struct Main;
 }
 
-
-struct OS2::Exec::Session_component : Genode::Rpc_object<Session>
+struct OS2::Cpi::Session_component : Genode::Rpc_object<Session>
 {
 private:
-	Genode::Env &env;
+	Genode::Env &_env;
+
+	Genode::Untyped_capability _cap[4];
 
 public:
 	Session_component(Genode::Env &env)
 	:
-	env(env) {  }
+	_env(env) {  }
 
-	void test(OS2::Exec::Session::Buf *buf)
+	enum { PAGE_SIZE = 4096, PAGE_MASK = ~(PAGE_SIZE - 1) };
+	enum { SYSIO_DS_SIZE = PAGE_MASK & (sizeof(Sysio) + PAGE_SIZE - 1) };
+
+	Genode::Attached_ram_dataspace _sysio_ds { _env.ram(), _env.rm(), SYSIO_DS_SIZE };
+	Sysio &_sysio = *_sysio_ds.local_addr<Sysio>();
+
+	Genode::Dataspace_capability sysio_dataspace()
 	{
-		const char *s = "qwerty";
-		Genode::memcpy((char *)buf->str, s, Genode::strlen(s));
+		return _sysio_ds.cap();
 	}
 
-	long open(Pathname &fName,
-	          unsigned long flags,
-	          Genode::Ram_dataspace_capability ds,
-	          unsigned long *cbLoadError,
-	          unsigned long *hmod)
+	Genode::Untyped_capability get_cap(int index)
 	{
-		char *addr = env.rm().attach(ds);
-
-		return ExcOpen(addr, *cbLoadError,
-		               fName.string(), flags, hmod);
+		return _cap[index];
 	}
 
-	long load(unsigned long hmod,
-	          Genode::Ram_dataspace_capability err_ds,
-	          unsigned long *cbLoadError,
-	          Genode::Ram_dataspace_capability mod_ds)
+	void send_cap(Genode::Untyped_capability cap, int index)
 	{
-		char *addr = env.rm().attach(err_ds);
-		char *addr2 = env.rm().attach(mod_ds);
-
-		return ExcLoad(&hmod, addr,
-		               *cbLoadError, (os2exec_module_t *)addr2);
+		_cap[index] = cap;
 	}
 
-	long free(unsigned long hmod)
+	bool syscall(Syscall sc)
 	{
-		return ExcFree(hmod);
-	}
+		bool result = false;
+		APIRET rc;
 
-	long share(unsigned long hmod)
-	{
-		return ExcShare(hmod, (void *)this);
-	}
+		switch (sc)
+		{
+		    case SYSCALL_EXEC_OPEN:
+		    {
+		            Genode::Ram_dataspace_capability ds;
+		            Genode::Untyped_capability cap = _cap[0];
+		            ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            char *addr = _env.rm().attach(ds);
+		            rc = ExcOpen(addr,
+		                         _sysio.execopen.in.cbLoadError,
+                                         _sysio.execopen.in.pszName,
+                                         _sysio.execopen.in.flags,
+                                         &_sysio.execopen.out.hmod);
+		            _sysio.execopen.out.rc = rc;
+		            _env.rm().detach(addr);
+		            result = true;
+		            break;
+		    }
 
-	long getimp(unsigned long hmod,
-	            unsigned long *index,
-	            unsigned long *imp_hmod)
-	{
-		return ExcGetImp(hmod, index, imp_hmod);
-	}
+		    case SYSCALL_EXEC_LOAD:
+		    {
+		            Genode::Ram_dataspace_capability err_ds, mod_ds;
+		            Genode::Untyped_capability cap = _cap[0];
+		            err_ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            cap = _cap[1];
+		            mod_ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            char *addr  = _env.rm().attach(err_ds);
+		            os2exec_module_t *addr2 = _env.rm().attach(mod_ds);
+		            rc = ExcLoad(&_sysio.execload.in.hmod,
+		                         addr,
+		                         _sysio.execload.in.cbLoadError,
+                                         addr2);
+		            _sysio.execload.out.rc = rc;
+		            _env.rm().detach(addr);
+		            _env.rm().detach(addr2);
+		            result = true;
+		            break;
+		    }
 
-	long getsect(unsigned long hmod,
-	             unsigned long *index,
-	             Genode::Ram_dataspace_capability sect_ds)
-	{
-		l4_os3_section_t *sect = env.rm().attach(sect_ds);
+		    case SYSCALL_EXEC_FREE:
+		            rc = ExcFree(_sysio.execfree.in.hmod);
+		            _sysio.execfree.out.rc = rc;
+		            result = true;
+		            break;
 
-		return ExcGetSect(hmod, index, sect);
-	}
+		    case SYSCALL_EXEC_SHARE:
+		            rc = ExcShare(_sysio.execshare.in.hmod, this);
+		            _sysio.execshare.out.rc = rc;
+		            result = true;
+		            break;
 
-	long query_procaddr(unsigned long hmod,
-	                    unsigned long ordinal,
-	                    Pathname &mName,
-	                    ULONGLONG *addr)
-	{
-		return ExcQueryProcAddr(hmod, ordinal, (PSZ)mName.string(), (void **)addr);
-	}
+		    case SYSCALL_EXEC_GETIMP:
+		            rc = ExcGetImp(_sysio.execgetimp.in.hmod,
+                                           &_sysio.execgetimp.out.index,
+                                           &_sysio.execgetimp.out.imp_hmod);
+		            _sysio.execgetimp.out.rc = rc;
+		            result = true;
+		            break;
 
-	long query_modhandle(Pathname &mName,
-	                     unsigned long *hmod)
-	{
-		return ExcQueryModuleHandle(mName.string(), hmod);
-	}
+		    case SYSCALL_EXEC_GETSECT:
+		    {
+		            Genode::Ram_dataspace_capability ds;
+		            Genode::Untyped_capability cap = _cap[0];
+		            ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            l4_os3_section_t *sect = _env.rm().attach(ds);
+		            rc = ExcGetSect(_sysio.execgetsect.in.hmod,
+                                           &_sysio.execgetsect.out.index,
+                                           sect);
+		            _sysio.execgetsect.out.rc = rc;
+		            _env.rm().detach(sect);
+		            result = true;
+		            break;
+		    }
 
-	long query_modname(unsigned long hmod,
-	                   Genode::Ram_dataspace_capability ds)
-	{
-		char *addr = env.rm().attach(ds);
-		ULONG cbSize = Genode::Dataspace_client(ds).size();
+		    case SYSCALL_EXEC_QUERYPROCADDR:
+		            rc = ExcQueryProcAddr(_sysio.execqueryprocaddr.in.hmod,
+                                                  _sysio.execqueryprocaddr.in.ordinal,
+                                                  (char *)_sysio.execqueryprocaddr.in.mName,
+                                                  (void **)&_sysio.execqueryprocaddr.out.addr);
+		            _sysio.execqueryprocaddr.out.rc = rc;
+		            result = true;
+		            break;
 
-		return ExcQueryModuleName(hmod, cbSize, addr);
-	}
+		    case SYSCALL_EXEC_QUERYMODULEHANDLE:
+		            rc = ExcQueryModuleHandle((char *)_sysio.execquerymodulehandle.in.mName,
+                                                      &_sysio.execquerymodulehandle.out.hmod);
+		            _sysio.execquerymodulehandle.out.rc = rc;
+		            result = true;
+		            break;
 
-	long alloc_sharemem(ULONG size,
-	                    Pathname &mName,
-	                    ULONG rights,
-	                    ULONGLONG *addr,
-	                    ULONGLONG *area)
-	{
-		return ExcAllocSharedMem(size, (PSZ)mName.string(), rights,
-		                         (void **)addr, area);
-	}
+		    case SYSCALL_EXEC_QUERYMODULENAME:
+		            rc = ExcQueryModuleName(_sysio.execquerymodulename.in.hmod,
+                                                    _sysio.execquerymodulename.in.cbName,
+                                                    (char *)_sysio.execquerymodulename.out.pbName);
+		            _sysio.execquerymodulename.out.rc = rc;
+		            result = true;
+		            break;
 
-	long map_dataspace(ULONGLONG addr,
-                           ULONG rights,
-                           Genode::Ram_dataspace_capability ds)
-	{
-		return ExcMapDataspace((void *)addr, rights,
-		                       (l4_os3_dataspace_t)&ds);
-	}
+		    case SYSCALL_EXEC_ALLOCSHAREDMEM:
+		            rc = ExcAllocSharedMem(_sysio.execallocsharedmem.in.cbSize,
+                                                   _sysio.execallocsharedmem.in.pszName,
+                                                   _sysio.execallocsharedmem.in.rights,
+                                                   &_sysio.execallocsharedmem.out.addr,
+                                                   (ULONGLONG *)&_sysio.execallocsharedmem.out.area);
+		            _sysio.execallocsharedmem.out.rc = rc;
+		            result = true;
+		            break;
 
-	long unmap_dataspace(ULONGLONG addr,
-	                     Genode::Ram_dataspace_capability ds)
-	{
-		return ExcUnmapDataspace((void *)addr,
-		                         (l4_os3_dataspace_t)&ds);
-	}
+		    case SYSCALL_EXEC_MAPDATASPACE:
+		    {
+		            l4_os3_dataspace_t ds;
+		            Genode::Ram_dataspace_capability _ds;
+		            Genode::Untyped_capability cap = _cap[0];
+		            _ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            ds = (l4_os3_dataspace_t)&_ds;
+		            rc = ExcMapDataspace(_sysio.execmapdataspace.in.addr,
+                                                 _sysio.execmapdataspace.in.rights,
+                                                 ds);
+		            _sysio.execmapdataspace.out.rc = rc;
+		            result = true;
+		            break;
+		    }
 
-	long get_dataspace(ULONGLONG *addr,
-	                   ULONG *size,
-	                   Genode::Ram_dataspace_capability *ds)
-	{
-		return ExcGetDataspace((void **)addr, size,
-		                       (l4_os3_dataspace_t *)&ds, (void *)this);
-	}
+		    case SYSCALL_EXEC_UNMAPDATASPACE:
+		    {
+		            l4_os3_dataspace_t ds;
+		            Genode::Ram_dataspace_capability _ds;
+		            Genode::Untyped_capability cap = _cap[0];
+		            _ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+		            ds = (l4_os3_dataspace_t)&_ds;
+		            rc = ExcUnmapDataspace(_sysio.execunmapdataspace.in.addr,
+                                                   ds);
+		            _sysio.execunmapdataspace.out.rc = rc;
+		            result = true;
+		            break;
+		    }
 
-	long get_sharemem(ULONGLONG pb,
-	                  ULONGLONG *addr,
-	                  ULONG *size,
-	                  PID *owner)
-	{
-		return ExcGetSharedMem((void *)pb, (void **)addr,
-		                       size, (PID *)owner);
-	}
+		    case SYSCALL_EXEC_GETDATASPACE:
+		    {
+		            l4_os3_dataspace_t ds;
+		            Genode::Ram_dataspace_capability _ds;
+		            rc = ExcGetDataspace(&_sysio.execgetdataspace.out.addr,
+                                                 &_sysio.execgetdataspace.out.size,
+                                                 &ds, this);
+                            _ds = *(Genode::Ram_dataspace_capability *)ds;
+                            _cap[0] = (Genode::Untyped_capability)_ds;
+		            _sysio.execgetdataspace.out.rc = rc;
+		            result = true;
+		            break;
+		    }
 
-	long get_named_sharemem(Pathname &mName,
-	                        ULONGLONG *addr,
-	                        ULONG *size,
-	                        PID *owner)
-	{
-		return ExcGetNamedSharedMem(mName.string(), (void **)addr,
-		                            size, (PID *)owner);
-	}
+		    case SYSCALL_EXEC_GETSHAREDMEM:
+		            rc = ExcGetSharedMem(_sysio.execgetsharedmem.in.pb,
+                                                 &_sysio.execgetsharedmem.out.addr,
+                                                 &_sysio.execgetsharedmem.out.size,
+                                                 &_sysio.execgetsharedmem.out.owner);
+		            _sysio.execgetsharedmem.out.rc = rc;
+		            result = true;
+		            break;
 
-	long increment_sharemem_refcnt(ULONGLONG addr)
-	{
-		return ExcIncrementSharedMemRefcnt((void *)addr);
-	}
+		    case SYSCALL_EXEC_GETNAMEDSHAREDMEM:
+		            rc = ExcGetNamedSharedMem(_sysio.execgetnamedsharedmem.in.pszName,
+                                                      &_sysio.execgetnamedsharedmem.out.addr,
+                                                      &_sysio.execgetnamedsharedmem.out.size,
+                                                      &_sysio.execgetnamedsharedmem.out.owner);
+		            _sysio.execgetnamedsharedmem.out.rc = rc;
+		            result = true;
+		            break;
 
-	long release_sharemem(ULONGLONG addr,
-	                      ULONG *count)
-	{
-		return ExcReleaseSharedMem((void *)addr, count);
+		    case SYSCALL_EXEC_INCREMENTSHAREDMEMREFCNT:
+		            rc = ExcIncrementSharedMemRefcnt(_sysio.execincrementsharedmemrefcnt.in.addr);
+		            _sysio.execincrementsharedmemrefcnt.out.rc = rc;
+		            result = true;
+		            break;
+
+		    case SYSCALL_EXEC_RELEASESHAREDMEM:
+		            rc = ExcReleaseSharedMem(_sysio.execreleasesharedmem.in.addr,
+                                                     &_sysio.execreleasesharedmem.out.count);
+		            _sysio.execreleasesharedmem.out.rc = rc;
+		            result = true;
+		            break;
+
+		    default:
+		        io_log("invalid syscall!\n");
+		}
+
+		return result;
 	}
 };
 
-class OS2::Exec::Root : public Genode::Root_component<Session_component>
+class OS2::Cpi::Root : public Genode::Root_component<Session_component>
 {
 private:
 	Genode::Env &_env;
@@ -210,6 +312,10 @@ private:
 protected:
 	Session_component *_create_session(const char *args)
 	{
+		Genode::Session_label const &label = Genode::label_from_args(args);
+		Genode::Session_label const &module = label.last_element();
+		io_log("CPI connection for %s requested\n", module.string());
+
 		return new (md_alloc()) Session_component(_env);
 	}
 
@@ -221,166 +327,51 @@ public:
 	 _env(env) { init_genode_env(env, alloc); }
 };
 
-struct OS2::Exec::Main
+struct OS2::Cpi::Main
 {
-	Genode::Env &env;
+	Genode::Env &_env;
 
-	Genode::Attached_rom_dataspace config { env, "config" };
+	Genode::Attached_rom_dataspace config { _env, "config" };
 
-	Genode::Sliced_heap sliced_heap { env.ram(), env.rm() };
+	Genode::Sliced_heap sliced_heap { _env.ram(), _env.rm() };
 
-	OS2::Exec::Root root { env, sliced_heap };
+	OS2::Cpi::Root root { _env, sliced_heap };
 
-	Main(Genode::Env &env) : env(env)
+	void parse_options(Genode::Xml_node node, struct options *opts)
 	{
-		os2exec_module_t s = {0, 0, 0, 0, 0, 0};
-		char szLoadError[260];
-		l4_os3_thread_t thread;
-		unsigned long size;
-		void *addr;
-		APIRET rc;
-
-		io_log("osFree Exec server started\n");
-
-		memset (&options, 0, sizeof(options));
-
-		// Initialize initial values from CONFIG.SYS
-		rc = CfgInitOptions();
-
-		if (rc != NO_ERROR)
-		{
-		    io_log("Can't initialize CONFIG.SYS parser\n");
-		    return;
-		}
-
-		options.configfile = (char *)"config.sys";
+		opts->configfile = (char *)"config.sys";
+		opts->kal_map = (char *)"kal.map";
 
 		try
 		{
-		    Genode::String<64> cfg = config.xml().sub_node("config-file")
+		    Genode::String<64> cfg = node.sub_node("config-file")
 			    .attribute_value("value", Genode::String<64>("config.sys"));
-		    options.configfile = (char *)cfg.string();
+		    opts->configfile = (char *)cfg.string();
 		}
 		catch (Genode::Xml_node::Nonexistent_sub_node) { };
+	}
 
-		io_log("options.configfile=%s\n", options.configfile);
+	Main(Genode::Env &env) : _env(env)
+	{
+		struct options opts = {0};
 
-		// Load CONFIG.SYS into memory
-		rc = io_load_file(options.configfile, &addr, &size);
+		parse_options(config.xml(), &opts);
 
-		if (rc != NO_ERROR)
-		{
-		    io_log("Can't load CONFIG.SYS\n");
-		    return;
-		}
+		/* call platform-independent init */
+		init(&opts);
 
-		// Parse CONFIG.SYS in memory
-		rc = CfgParseConfig((char *)addr, size);
-
-		if (rc != NO_ERROR)
-		{
-		    io_log("Error parsing CONFIG.SYS!\n");
-		    return;
-		}
-
-		io_log("%s\n", addr);
-
-		// Release all memory allocated by parser
-		CfgCleanup();
-
-		// Remove CONFIG.SYS from memory
-		io_close_file(addr);
-
-		if ( CPClientInit() )
-		{
-		    io_log("os2srv not found on name server!\n");
-		    return;
-		}
-
-		if ( FSClientInit() )
-		{
-		    io_log("os2fs not found on name server!\n");
-		    return;
-		}
-
-		// KAL virtual library map file
-		options.kal_map = (char *)"kal.map";
-
-		init_memmgr(&root_area);
-
-		/* Load IXF's */
-		rc = load_ixfs();
-
-		if (rc)
-		{
-		    io_log("Error loading IXF drivers!\n");
-		    return;
-		}
-
-		/* reserve the area below 64 Mb for application private code
-		   (not for use by libraries, loaded by execsrv) */
-		// addr = (void *)0x2f000; size = 0x04000000 - (unsigned long)addr;
-		// ...
-
-		// reserve the upper 1 Gb for shared memory arena
-		// ...
-
-#if 0
-		if (! CfgGetopt("debugmodmgr", &is_int, &value_int, (char **)&p) )
-		{
-		    if (is_int)
-		        options.debugmodmgr = value_int;
-		}
-
-		if (! CfgGetopt("debugixfmgr", &is_int, &value_int, (char **)&p) )
-		{
-		    if (is_int)
-		      options.debugixfmgr = value_int;
-		}
-
-		if (! CfgGetopt("libpath", &is_int, &value_int, (char **)&p) )
-		{
-		    if (! is_int)
-		    {
-		      options.libpath = (char *)malloc(strlen(p) + 1);
-		      strcpy(options.libpath, p);
-		    }
-		}
-
-		io_log("debugmodmgr=%d\n", options.debugmodmgr);
-		io_log("debugixfmgr=%d\n", options.debugixfmgr);
-		io_log("libpath=%s\n", options.libpath);
-#endif
-		//options.libpath = (char *)malloc(4);
-		//strcpy(options.libpath, "c:\\");
-
-		/* Initializes the module list. Keeps info about which dlls an process have loaded and
-		   has linked to it (Only support for LX dlls so far). The head of the linked list is
-		   declared as a global inside dynlink.c */
-		rc = ModInitialize();
-
-		if (rc)
-		{
-		    io_log("Can't initialize module manager\n");
-		    return;
-		}
-
-		// notify os2srv about successful startup
-		CPClientAppNotify2(&s, "os2exec", &thread,
-		                   szLoadError, sizeof(szLoadError), rc);
-
-		// announce 'os2exec' service
-		env.parent().announce(env.ep().manage(root));
+		/* announce 'CPI' service */
+		_env.parent().announce(_env.ep().manage(root));
 	}
 
 	~Main()
 	{
-		FSClientDone();
-		CPClientDone();
+		/* destruct */
+		done();
 	}
 };
 
 void Libc::Component::construct(Libc::Env &env)
 {
-	static OS2::Exec::Main main(env);
+	static OS2::Cpi::Main main(env);
 }

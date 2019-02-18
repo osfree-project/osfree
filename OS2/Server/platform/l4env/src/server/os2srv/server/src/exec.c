@@ -38,7 +38,7 @@
 #include <stdlib.h>
 
 // servers thread ids
-extern l4_threadid_t fprov_id;
+extern l4_os3_thread_t fprov_id;
 
 extern l4_os3_thread_t dsm_id;
 extern l4_os3_thread_t loader_id;
@@ -116,7 +116,7 @@ int LoaderExec(char *cmd, char *params, char *vc, l4_os3_task_t *taskid)
 
   /* RPC to L4 loader to start OS/2 app L4 startup */
   if ((error = l4loader_app_open_call(&loader_id.thread, &ds.ds, cmd_buf,
-                                      &fprov_id, 0, task_ids,
+                                      &fprov_id.thread, 0, task_ids,
                                       &ptr, &env)) < 0)
   {
     switch (-error)

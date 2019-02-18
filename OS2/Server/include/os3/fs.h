@@ -5,11 +5,14 @@
   extern "C" {
 #endif
 
+/* osFree internal */
+#include <os3/thread.h>
+
 /* OS/2 API includes */
 #define  INCL_BASE
 #include <os2.h>
 
-APIRET FSClientInit(void);
+APIRET FSClientInit(l4_os3_thread_t *thread);
 
 APIRET FSClientDone(void);
 

@@ -11,20 +11,20 @@
 
 unsigned long NEIdentify(void * addr, unsigned long size)
 {
-  unsigned long ne_module_header_offset=0;
+  unsigned long ne_module_header_offset = 0;
 
-  if (((*(char *)addr == 'M') && (*(char *)((unsigned long)addr+1) == 'Z')) ||
-      ((*(char *)addr == 'Z') && (*(char *)((unsigned long)addr+1) == 'M')))
+  if (((*(char *)addr == 'M') && (*((char *)addr+1) == 'Z')) ||
+      ((*(char *)addr == 'Z') && (*((char *)addr+1) == 'M')))
   {
     /* Found DOS stub. Get offset of NE module. */
-    ne_module_header_offset=*(unsigned long *)((unsigned long)addr+ENEWHDR);
+    ne_module_header_offset = *(unsigned int *)((char *)addr+ENEWHDR);
   }
 
-  if ((*(char *)((unsigned long)addr+ne_module_header_offset) == 'N') &&
-      (*(char *)((unsigned long)addr+ne_module_header_offset+1) == 'E'))
+  if ((*((char *)addr + ne_module_header_offset) == 'N') &&
+      (*((char *)addr + ne_module_header_offset+1) == 'E'))
   {
     return NO_ERROR;
-  };
+  }
 
   return ERROR_BAD_FORMAT;
 }

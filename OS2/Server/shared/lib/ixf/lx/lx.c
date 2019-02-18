@@ -48,15 +48,15 @@ unsigned long LXIdentify(void * addr, unsigned long size)
 {
   unsigned long lx_module_header_offset=0;
 
-  if (((*(char *)addr == 'M') && (*(char *)((unsigned long)addr+1) == 'Z')) ||
-      ((*(char *)addr == 'Z') && (*(char *)((unsigned long)addr+1) == 'M')))
+  if (((*(char *)addr == 'M') && (*((char *)addr+1) == 'Z')) ||
+      ((*(char *)addr == 'Z') && (*((char *)addr+1) == 'M')))
   {
     /* Found DOS stub. Get offset of LX module. */
-    lx_module_header_offset=*(unsigned long *)((unsigned long)addr+ENEWHDR);
+    lx_module_header_offset=*(unsigned int *)((unsigned long)addr+ENEWHDR);
   }
 
-  if ((*(char *)((unsigned long)addr+lx_module_header_offset) == 'L') &&
-      (*(char *)((unsigned long)addr+lx_module_header_offset+1) == 'X'))
+  if ((*((char *)addr+lx_module_header_offset) == 'L') &&
+      (*((char *)addr+lx_module_header_offset+1) == 'X'))
   {
     #ifdef __OS2__
     // This is check for internal relocations support. Specific for OS/2 host because
@@ -81,16 +81,15 @@ unsigned long LXLoad(void * addr, unsigned long size, void * ixfModule)
 
   ixf=(IXFModule*)ixfModule;
 
-  ixf->FormatStruct=malloc(sizeof(struct LX_module));
+  ixf->FormatStruct = malloc(sizeof(struct LX_module));
 
   /* A file from a buffer.*/
-  if(LXLoadStream((char*)addr, size, (struct LX_module *)(ixf->FormatStruct)))
+  if(LXLoadStream((char *)addr, size, (struct LX_module *)(ixf->FormatStruct)))
   {
     /* Convert imported module table to BFF format */
-    ixf->cbModules=((struct LX_module*)(ixf->FormatStruct))->lx_head_e32_exe->e32_impmodcnt;
-    ixf->Modules=(char **)malloc(sizeof(char *)*ixf->cbModules);
+    ixf->cbModules = ((struct LX_module*)(ixf->FormatStruct))->lx_head_e32_exe->e32_impmodcnt;
+    ixf->Modules = (char **)malloc(sizeof(char *) * ixf->cbModules);
 
-    io_log("111\n");
     for (module_counter=1;
          module_counter<ixf->cbModules+1;
          module_counter++)

@@ -11,6 +11,7 @@ DEFAULT_RELOC	= 0x01800000
 #  os2server.c
 SRC_C		= \
 main.c  \
+initdone.c \
 sysinit.c \
 exec.c \
 processmgr.c \

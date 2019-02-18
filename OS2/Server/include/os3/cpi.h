@@ -58,7 +58,7 @@ list_t *list_query(int key);
 int list_add(int key, void *data);
 void list_del(int key);
 
-APIRET CPClientInit(void);
+APIRET CPClientInit(l4_os3_thread_t *thread);
 
 APIRET CPClientDone(void);
 

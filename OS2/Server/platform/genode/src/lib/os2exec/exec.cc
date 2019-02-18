@@ -4,34 +4,66 @@
 #define  INCL_BASE
 #include <os2.h>
 
+/* osFree internal */
+#include <os3/thread.h>
 #include <os3/io.h>
+
+/* libc includes */
+#include <string.h>
 
 /* Genode includes */
 #include <base/allocator.h>
-#include <exec_session/connection.h>
+#include <base/attached_dataspace.h>
+
+#include <cpi_session/connection.h>
 
 /* local includes */
 #include <genode_env.h>
 
-OS2::Exec::Connection *exec;
+using namespace OS2::Cpi;
 
-//Genode::Allocator *_alloc = NULL;
-//Genode::Env *_env_ptr = NULL;
+static Connection *exec;
+
+static Sysio *_sysio = NULL;
 
 extern "C"
-APIRET ExcClientInit(void)
+APIRET ExcClientInit(l4_os3_thread_t *thread)
 {
     Genode::Allocator &alloc = genode_alloc();
     Genode::Env &env = genode_env();
+    Genode::Dataspace_capability _ds;
 
     try
     {
-        exec = new (alloc) OS2::Exec::Connection(env);
+        exec = new (alloc) OS2::Cpi::Connection(env, "exec");
     }
     catch (...)
     {
         return ERROR_FILE_NOT_FOUND;
     }
+
+    _ds = exec->sysio_dataspace();
+
+    if (!_ds.valid())
+    {
+        return ERROR_INVALID_DATASPACE;
+    }
+
+    try
+    {
+        static Genode::Attached_dataspace _sysio_ds(env.rm(), _ds);
+        _sysio = _sysio_ds.local_addr<Sysio>();
+    }
+    catch (Genode::Region_map::Invalid_dataspace)
+    {
+        return ERROR_INVALID_DATASPACE;
+    }
+    catch (Genode::Region_map::Region_conflict)
+    {
+        return ERROR_NO_MAPPING;
+    }
+
+    *thread = exec;
 
     return NO_ERROR;
 }
@@ -52,18 +84,23 @@ APIRET ExcClientOpen(PSZ pszFileName,
                      ULONG *pcbLoadError,
                      HMODULE *phmod)
 {
-    OS2::Exec::Session::Pathname fName(pszFileName);
     Genode::Ram_dataspace_capability err_ds;
+    Genode::Untyped_capability cap;
     Genode::Env &env = genode_env();
     char *addr;
     APIRET rc;
 
     err_ds = env.ram().alloc(*pcbLoadError);
     addr = env.rm().attach(err_ds);
-
-    rc = exec->open(fName, ulFlags, err_ds, pcbLoadError, phmod);
-
-    Genode::memcpy(pLoadError, addr, *pcbLoadError);
+    cap = (Genode::Untyped_capability)err_ds;
+    exec->send_cap(cap, 0);
+    strcpy((char *)_sysio->execopen.in.pszName, pszFileName);
+    _sysio->execopen.in.cbLoadError = *pcbLoadError;
+    _sysio->execopen.in.flags = ulFlags;
+    exec->syscall(Session::SYSCALL_EXEC_OPEN);
+    memcpy(pLoadError, addr, *pcbLoadError);
+    *phmod = _sysio->execopen.out.hmod;
+    rc = _sysio->execopen.out.rc;
     env.rm().detach(addr);
     env.ram().free(err_ds);
     return rc;
@@ -75,6 +112,7 @@ APIRET ExcClientLoad(ULONG hmod,
                      ULONG *pcbLoadError,
                      os2exec_module_t *s)
 {
+    Genode::Untyped_capability cap;
     Genode::Ram_dataspace_capability err_ds, mod_ds;
     Genode::Env &env = genode_env();
     char *addr, *addr2;
@@ -82,13 +120,18 @@ APIRET ExcClientLoad(ULONG hmod,
 
     err_ds = env.ram().alloc(*pcbLoadError);
     addr = env.rm().attach(err_ds);
+    cap = (Genode::Untyped_capability)err_ds;
+    exec->send_cap(cap, 0);
     mod_ds = env.ram().alloc(sizeof(os2exec_module_t));
     addr2 = env.rm().attach(mod_ds);
-
-    rc = exec->load(hmod, err_ds, pcbLoadError, mod_ds);
-
-    Genode::memcpy(pLoadError, addr, *pcbLoadError);
-    Genode::memcpy(s, addr2, sizeof(os2exec_module_t));
+    cap = (Genode::Untyped_capability)mod_ds;
+    exec->send_cap(cap, 1);
+    _sysio->execload.in.hmod = hmod;
+    _sysio->execload.in.cbLoadError = *pcbLoadError;
+    exec->syscall(Session::SYSCALL_EXEC_LOAD);
+    rc = _sysio->execload.out.rc;
+    memcpy(pLoadError, addr, *pcbLoadError);
+    memcpy(s, addr2, sizeof(os2exec_module_t));
     env.rm().detach(addr);
     env.ram().free(err_ds);
     env.rm().detach(addr2);
@@ -99,22 +142,35 @@ APIRET ExcClientLoad(ULONG hmod,
 extern "C"
 APIRET ExcClientFree(HMODULE hmod)
 {
-    return exec->free(hmod);
+    APIRET rc;
+    _sysio->execfree.in.hmod = hmod;
+    exec->syscall(Session::SYSCALL_EXEC_FREE);
+    rc = _sysio->execfree.out.rc;
+    return rc;
 }
-
 
 extern "C"
 APIRET ExcClientShare(HMODULE hmod)
 {
-    return exec->share(hmod);
+    APIRET rc;
+    _sysio->execshare.in.hmod = hmod;
+    exec->syscall(Session::SYSCALL_EXEC_SHARE);
+    rc = _sysio->execshare.out.rc;
+    return rc;
 }
 
 extern "C"
 APIRET ExcClientGetImp(HMODULE hmod,
                        ULONG *index,
-                       HMODULE *imp_hmod)
+                       ULONG *imp_hmod)
 {
-    return exec->getimp(hmod, index, imp_hmod);
+    APIRET rc;
+    _sysio->execgetimp.in.hmod = hmod;
+    exec->syscall(Session::SYSCALL_EXEC_GETIMP);
+    *index = _sysio->execgetimp.out.index;
+    *imp_hmod = _sysio->execgetimp.out.imp_hmod;
+    rc = _sysio->execgetimp.out.rc;
+    return rc;
 }
 
 extern "C"
@@ -122,6 +178,7 @@ APIRET ExcClientGetSect(HMODULE hmod,
                         ULONG *index,
                         l4_os3_section_t *sect)
 {
+    Genode::Untyped_capability cap;
     Genode::Ram_dataspace_capability sect_ds;
     Genode::Env &env = genode_env();
     char *addr;
@@ -129,10 +186,13 @@ APIRET ExcClientGetSect(HMODULE hmod,
 
     sect_ds = env.ram().alloc(sizeof(l4_os3_section_t));
     addr = env.rm().attach(sect_ds);
-
-    rc = exec->getsect(hmod, index, sect_ds);
-
-    Genode::memcpy(sect, addr, sizeof(l4_os3_section_t));
+    cap = (Genode::Untyped_capability)sect_ds;
+    exec->send_cap(cap, 0);
+    _sysio->execgetsect.in.hmod = hmod;
+    exec->syscall(Session::SYSCALL_EXEC_GETSECT);
+    *index = _sysio->execgetsect.out.index;
+    rc = _sysio->execgetsect.out.rc;
+    memcpy(sect, addr, sizeof(l4_os3_section_t));
     env.rm().detach(addr);
     env.ram().free(sect_ds);
     return rc;
@@ -144,19 +204,26 @@ APIRET ExcClientQueryProcAddr(HMODULE hmod,
                               PSZ pszModname,
                               void **ppfn)
 {
-    OS2::Exec::Session::Pathname mName(pszModname);
-
-    return exec->query_procaddr(hmod, ordinal,
-                                mName, (ULONGLONG *)ppfn);
+    APIRET rc;
+    _sysio->execqueryprocaddr.in.hmod = hmod;
+    _sysio->execqueryprocaddr.in.ordinal = ordinal;
+    strcpy((char *)_sysio->execqueryprocaddr.in.mName, pszModname);
+    exec->syscall(Session::SYSCALL_EXEC_QUERYPROCADDR);
+    *ppfn = (void *)_sysio->execqueryprocaddr.out.addr;
+    rc = _sysio->execqueryprocaddr.out.rc;
+    return rc;
 }
 
 extern "C"
 APIRET ExcClientQueryModuleHandle(PSZ pszModname,
                                   HMODULE *hmod)
 {
-    OS2::Exec::Session::Pathname mName(pszModname);
-
-    return exec->query_modhandle(mName, hmod);
+    APIRET rc;
+    strcpy((char *)_sysio->execquerymodulehandle.in.mName, pszModname);
+    exec->syscall(Session::SYSCALL_EXEC_QUERYMODULEHANDLE);
+    *hmod = _sysio->execquerymodulehandle.out.hmod;
+    rc = _sysio->execquerymodulehandle.out.rc;
+    return rc;
 }
 
 extern "C"
@@ -164,19 +231,12 @@ APIRET ExcClientQueryModuleName(HMODULE hmod,
                                 ULONG cbName,
                                 PBYTE pbName)
 {
-    Genode::Ram_dataspace_capability ds;
-    Genode::Env &env = genode_env();
-    char *addr;
     APIRET rc;
-
-    ds = env.ram().alloc(cbName);
-    addr = env.rm().attach(ds);
-
-    rc = exec->query_modname(hmod, ds);
-
-    Genode::memcpy(pbName, addr, cbName);
-    env.rm().detach(addr);
-    env.ram().free(ds);
+    _sysio->execquerymodulename.in.hmod = hmod;
+    _sysio->execquerymodulename.in.cbName = cbName;
+    exec->syscall(Session::SYSCALL_EXEC_QUERYMODULENAME);
+    memcpy(pbName, (char *)_sysio->execquerymodulename.out.pbName, cbName);
+    rc = _sysio->execquerymodulename.out.rc;
     return rc;
 }
 
@@ -187,10 +247,15 @@ APIRET ExcClientAllocSharedMem(ULONG cbSize,
                                void **addr,
                                ULONGLONG *area)
 {
-    OS2::Exec::Session::Pathname mName(pszName);
-
-    return exec->alloc_sharemem(cbSize, mName, rights,
-                                (ULONGLONG *)addr, area);
+    APIRET rc;
+    _sysio->execallocsharedmem.in.cbSize = cbSize;
+    strcpy(_sysio->execallocsharedmem.in.pszName, pszName);
+    _sysio->execallocsharedmem.in.rights = rights;
+    exec->syscall(Session::SYSCALL_EXEC_ALLOCSHAREDMEM);
+    *addr = _sysio->execallocsharedmem.out.addr;
+    *area = _sysio->execallocsharedmem.out.area;
+    rc = _sysio->execallocsharedmem.out.rc;
+    return rc;
 }
 
 extern "C"
@@ -198,20 +263,35 @@ APIRET ExcClientMapDataspace(void *addr,
                              ULONG rights,
                              l4_os3_dataspace_t ds)
 {
-    Genode::Ram_dataspace_capability native_ds;
-    native_ds = *(Genode::Ram_dataspace_capability *)ds;
+    Genode::Ram_dataspace_capability _ds;
+    Genode::Untyped_capability cap;
+    APIRET rc;
 
-    return exec->map_dataspace((ULONGLONG)addr, rights, native_ds);
+    _ds = *(Genode::Ram_dataspace_capability *)ds;
+    cap = (Genode::Untyped_capability)_ds;
+    exec->send_cap(cap, 0);
+    _sysio->execmapdataspace.in.addr = addr;
+    _sysio->execmapdataspace.in.rights = rights;
+    exec->syscall(Session::SYSCALL_EXEC_MAPDATASPACE);
+    rc = _sysio->execmapdataspace.out.rc;
+    return rc;
 }
 
 extern "C"
 APIRET ExcClientUnmapDataspace(void *addr,
                                l4_os3_dataspace_t ds)
 {
-    Genode::Ram_dataspace_capability native_ds;
-    native_ds = *(Genode::Ram_dataspace_capability *)ds;
+    Genode::Ram_dataspace_capability _ds;
+    Genode::Untyped_capability cap;
+    APIRET rc;
 
-    return exec->unmap_dataspace((ULONGLONG)addr, native_ds);
+    _ds = *(Genode::Ram_dataspace_capability *)ds;
+    cap = (Genode::Untyped_capability)_ds;
+    exec->send_cap(cap, 0);
+    _sysio->execunmapdataspace.in.addr = addr;
+    exec->syscall(Session::SYSCALL_EXEC_UNMAPDATASPACE);
+    rc = _sysio->execunmapdataspace.out.rc;
+    return rc;
 }
 
 extern "C"
@@ -219,8 +299,18 @@ APIRET ExcClientGetDataspace(void **addr,
                              ULONG *size,
                              l4_os3_dataspace_t *ds)
 {
-    return exec->get_dataspace((ULONGLONG *)addr, size,
-                               (Genode::Ram_dataspace_capability *)*ds);
+    Genode::Ram_dataspace_capability _ds;
+    Genode::Untyped_capability cap;
+    APIRET rc;
+
+    exec->syscall(Session::SYSCALL_EXEC_GETDATASPACE);
+    *addr = _sysio->execgetdataspace.out.addr;
+    *size = _sysio->execgetdataspace.out.size;
+    rc = _sysio->execgetdataspace.out.rc;
+    cap = exec->get_cap(0);
+    _ds = Genode::reinterpret_cap_cast<Genode::Ram_dataspace>(cap);
+    *ds = (l4_os3_dataspace_t)&_ds;
+    return rc;
 }
 
 extern "C"
@@ -229,8 +319,14 @@ APIRET ExcClientGetSharedMem(void *pb,
                              ULONG *size,
                              PID *owner)
 {
-    return exec->get_sharemem((ULONGLONG)pb, (ULONGLONG *)addr,
-                              size, owner);
+    APIRET rc;
+    _sysio->execgetsharedmem.in.pb = pb;
+    exec->syscall(Session::SYSCALL_EXEC_GETSHAREDMEM);
+    *addr = _sysio->execgetsharedmem.out.addr;
+    *size = _sysio->execgetsharedmem.out.size;
+    *owner = _sysio->execgetsharedmem.out.owner;
+    rc = _sysio->execgetsharedmem.out.rc;
+    return rc;
 }
 
 extern "C"
@@ -239,21 +335,34 @@ APIRET ExcClientGetNamedSharedMem(PSZ pszName,
                                   ULONG *size,
                                   PID *owner)
 {
-    OS2::Exec::Session::Pathname mName(pszName);
-
-    return exec->get_named_sharemem(mName, (ULONGLONG *)addr,
-                                    size, owner);
+    APIRET rc;
+    strcpy((char *)_sysio->execgetnamedsharedmem.in.pszName, pszName);
+    exec->syscall(Session::SYSCALL_EXEC_GETNAMEDSHAREDMEM);
+    *addr = _sysio->execgetnamedsharedmem.out.addr;
+    *size = _sysio->execgetnamedsharedmem.out.size;
+    *owner = _sysio->execgetnamedsharedmem.out.owner;
+    rc = _sysio->execgetnamedsharedmem.out.rc;
+    return rc;
 }
 
 extern "C"
 APIRET ExcClientIncrementSharedMemRefcnt(void *addr)
 {
-    return exec->increment_sharemem_refcnt((ULONGLONG)addr);
+    APIRET rc;
+    _sysio->execincrementsharedmemrefcnt.in.addr = addr;
+    exec->syscall(Session::SYSCALL_EXEC_INCREMENTSHAREDMEMREFCNT);
+    rc = _sysio->execincrementsharedmemrefcnt.out.rc;
+    return rc;
 }
 
 extern "C"
 APIRET ExcClientReleaseSharedMem(void *addr,
                                  ULONG *count)
 {
-    return exec->release_sharemem((ULONGLONG)addr, count);
+    APIRET rc;
+    _sysio->execreleasesharedmem.in.addr = addr;
+    exec->syscall(Session::SYSCALL_EXEC_RELEASESHAREDMEM);
+    *count = _sysio->execreleasesharedmem.out.count;
+    rc = _sysio->execreleasesharedmem.out.rc;
+    return rc;
 }

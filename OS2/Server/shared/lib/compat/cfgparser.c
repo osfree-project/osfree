@@ -58,7 +58,7 @@ struct types type[] =
 
 cfg_opts options;
 
-const char *options_list[] =
+static const char *options_list[] =
 {
   "AUTOFAIL", "BUFFERS", "CLOCKSCALE", "CLOSEFILES",
   "CODEPAGE", "COUNTRY", "DEVINFO", "DISKCACHE", "DLLBASING",
@@ -881,11 +881,9 @@ unsigned long CfgGetenv(char *name, char **value)
   unsigned long j;
   char *p;
 
-  io_log("name=%s\n", name);
   for(i = 0; i < type[3].ip; i++)
   {
     /* find '=' in string */
-
     for(j = 0, p = type[3].sp[i].string; *p && *p != '='; j++, p++)
     {
       if (*p != toupper(name[j]))
@@ -893,18 +891,14 @@ unsigned long CfgGetenv(char *name, char **value)
     }
 
     /* if we met '=' sign, i.e. name found */
-
     if (*p == '=')
     {
       /* skip '=' sign */
-
       p++;
       strcpy(*value, p);
-      io_log("value=%s\n", p);
       return NO_ERROR;
     }
   }
 
-  io_log("not found\n");
   return ERROR_ENVVAR_NOT_FOUND ;
 }

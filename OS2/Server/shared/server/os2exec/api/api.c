@@ -36,7 +36,7 @@ long ExcOpen(char *szLoadError,
              unsigned long flags,
              unsigned long *phmod)
 {
-    char exeflag = flags & OPENFLAG_EXEC;
+    unsigned long exeflag = flags & OPENFLAG_EXEC;
     return OpenModule(szLoadError, cbLoadError, pszModname, exeflag, phmod);
 }
 

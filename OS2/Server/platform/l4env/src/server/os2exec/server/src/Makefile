@@ -6,7 +6,7 @@ include $(REP_DIR)/mk/osfree.mk
 TARGET		= execsrv
 MODE		= l4env_base
 SYSTEMS		= x86-l4v2
-SRC_C		= main.c startup.c rpc.c \
+SRC_C		= main.c rpc.c initdone.c \
 		  modmgr.c ixfmgr.c ixfutil.c api-local.c \
 		  api/api.c
 CFLAGS          += -I$(PKGDIR)/include

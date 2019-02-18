@@ -75,6 +75,8 @@ int strlstlen(char *p);
 
 l4_os3_thread_t CPNativeID(void);
 
+void CPTest(void);
+
 void CPAppNotify1(l4_os3_thread_t thread);
 
 void CPAppNotify2(l4_os3_thread_t thread,

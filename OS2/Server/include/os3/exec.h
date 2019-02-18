@@ -16,7 +16,7 @@
 #include <os3/loader.h>
 #include <os3/dataspace.h>
 
-APIRET ExcClientInit(void);
+APIRET ExcClientInit(l4_os3_thread_t *execsrv);
 
 APIRET ExcClientDone(void);
 

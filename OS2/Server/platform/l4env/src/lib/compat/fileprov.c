@@ -6,7 +6,7 @@
 
 /* osFree internal */
 #include <os3/io.h>
-#include <dirent.h>
+#include <os3/thread.h>
 #include <os3/MountReg.h>
 #include <os3/globals.h>
 
@@ -19,15 +19,18 @@
 #include <l4/env/env.h>
 #include <l4/names/libnames.h>
 
+/* libc includes */
+#include <dirent.h>
+
 #include <l4/generic_fprov/generic_fprov-client.h>
 
-extern l4_threadid_t fprov_id;
+extern l4_os3_thread_t fprov_id;
 
 l4_threadid_t dsm = L4_INVALID_ID;
 
 int fileprov_init(void)
 {
-  if (! names_waitfor_name("os2fs", &fprov_id, 30000))
+  if (! names_waitfor_name("os2fs", &fprov_id.thread, 30000))
   {
     io_log("Cannot find os2fs on names!\n");
     return ERROR_FILE_NOT_FOUND;
@@ -48,7 +51,7 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
   int  rc;
 
   io_log("filename=%s\n", filename);
-  io_log("fileprov=%lu.%lu\n", fprov_id.id.task, fprov_id.id.lthread);
+  io_log("fileprov=%lu.%lu\n", fprov_id.thread.id.task, fprov_id.thread.id.lthread);
 
   /* query default dataspace manager id */
   if (l4_is_invalid_id(dsm))
@@ -64,7 +67,7 @@ int io_load_file(const char *filename, void **addr, unsigned long *size)
     return 2;
 
   /* get a file from a file provider */
-  rc = l4fprov_file_open_call(&fprov_id, filename, &dsm, 0,
+  rc = l4fprov_file_open_call(&fprov_id.thread, filename, &dsm, 0,
                        &ds, (l4_size_t *)size, &env);
 
   io_log("rc=%d\n", rc);

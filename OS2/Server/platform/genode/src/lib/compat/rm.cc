@@ -301,6 +301,10 @@ long RegLookupRegion(void               *addr,
     return 0;
 }
 
+extern "C"
+void RegDumpRegions(void)
+{
+}
 
 extern "C"
 long attach_ds(l4_os3_dataspace_t ds, unsigned long flags, void **addr)

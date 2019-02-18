@@ -25,31 +25,12 @@
 #include <os3/fs.h>
 #include <os3/app.h>
 
-/* L4 includes */
-//#include <l4/generic_ts/generic_ts.h> // l4ts_exit
-//#include <l4/semaphore/semaphore.h>
-//#include <l4/dm_phys/dm_phys.h>
-//#include <l4/lock/lock.h>
-//#include <l4/sys/syscalls.h>
-//#include <l4/sys/segment.h>
-//#include <l4/sys/types.h>
-
 /* libc includes*/
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-/* servers RPC includes */
-//#include <l4/os2srv/os2server-client.h>
-//#include <l4/os2fs/os2fs-client.h>
-//#include <l4/os2exec/os2exec-client.h>
-
-//char LOG_tag[9];
-
-/* Last used thread id */
-//static ULONG ulThread = 1;
 
 #define PAGESIZE 4096
 
@@ -92,9 +73,6 @@ extern unsigned long long private_memory_area;
 //extern l4_addr_t     shared_memory_base;
 //extern l4_size_t     shared_memory_size;
 extern unsigned long long shared_memory_area;
-
-/* server loop thread of os2app   */
-//extern l4_uint32_t   service_lthread;
 
 /* old FS selector value          */
 unsigned short old_sel;
@@ -1896,7 +1874,6 @@ KalGiveSharedMem(PVOID pb,
 
   KalGetPID(&mypid);
   KalGetNativeID(pid, 1, &tid);
-  //tid.thread.id.lthread = service_lthread;
 
   //if (l4_thread_equal(tid.thread, L4_INVALID_ID))
   if (ThreadEqual(tid, INVALID_THREAD))

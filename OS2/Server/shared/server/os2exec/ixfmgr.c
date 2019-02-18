@@ -37,6 +37,7 @@ IXFIdentifyModule(void *addr, unsigned long size, IXFModule *ixfModule)
 
   for (p = IXFHandlers; p; p = p->next)
   {
+    rc = *(ULONG *)p;
     rc = p->Identify(addr, size);
 
     if (rc == NO_ERROR)
@@ -44,8 +45,10 @@ IXFIdentifyModule(void *addr, unsigned long size, IXFModule *ixfModule)
       ixfModule->Load = p->Load;
       ixfModule->Fixup = p->Fixup;
 
-      if (options.debugixfmgr) 
+      if (options.debugixfmgr)
+      {
          io_log("IXFIdentifyModule: Format of module identified\n");
+      }
 
       break;
     }
@@ -59,8 +62,10 @@ IXFLoadModule(void *addr, unsigned long size, IXFModule *ixfModule)
 {
   unsigned long ret;
 
-  if (options.debugixfmgr) 
+  if (options.debugixfmgr)
+  {
      io_log("IXFLoadModule: Loading module.\n");
+  }
 
   if (ixfModule->refcnt++)
   {

@@ -1,5 +1,6 @@
 /* Genode includes */
 #include <base/heap.h>
+#include <util/xml_node.h>
 #include <libc/component.h>
 #include <cpi_session/connection.h>
 #include <base/attached_rom_dataspace.h>
@@ -22,19 +23,23 @@ Genode::Allocator *_alloc = NULL;
 
 extern "C" {
 
-/* private memory arena settings */
-ULONG   private_memory_base = 0x10000;
-ULONG   private_memory_size = 64*1024*1024;
-ULONGLONG private_memory_area;
+/* OS/2 server id        */
+l4_os3_thread_t os2srv;
+l4_os3_thread_t fs;
 
-/* shared memory arena settings */
-ULONG   shared_memory_base = 0x60000000;
-ULONG   shared_memory_size = 1024*1024*1024;
-ULONGLONG shared_memory_area;
+int init(struct options *opts);
+void done(void);
 
-l4_os3_thread_t me;
+struct options
+{
+  char  use_events;
+  const char  *progname;
+};
 
-ULONG rcCode = 0;
+void reserve_regions(void)
+{
+    /* Need a real implementation! */
+}
 
 }
 
@@ -50,65 +55,38 @@ struct OS2::App::Main
 
     Genode::Heap heap { env.ram(), env.rm() };
 
-    void _exit(ULONG action, ULONG result)
+    void parse_options (Genode::Xml_node node, struct options *opts)
     {
-        STKIN
-        // send OS/2 server a message that we want to terminate
-        io_log("action=%lu\n", action);
-        io_log("result=%lu\n", result);
-        CPClientExit(action, result);
-        // tell L4 task server that we want to terminate
-        exit(result);
-        STKOUT
+        try
+        {
+            Genode::String<64> cfg = node.sub_node("arg")
+                .attribute_value("value", Genode::String<64>("c:\\mini33.exe"));
+
+            opts->use_events = 0;
+            opts->progname = cfg.string();
+            io_log("progname=%s\n", opts->progname);
+        }
+        catch (Genode::Xml_node::Nonexistent_sub_node) { };
     }
 
     Main(Libc::Env &env) : env(env)
     {
-        char pszLoadError[260];
-        APIRET rc;
+        struct options opts = {0};
 
+        /* init environment and allocator variables */
         init_genode_env(env, heap);
 
-        io_log("OS/2 application started\n");
+        /* parse options */
+        parse_options(config.xml(), &opts);
 
-        if ( (rc = CPClientInit()) )
-        {
-            io_log("Can't find os2srv exiting...\n");
-            _exit(1, 1);
-        }
-
-        if ( (rc = FSClientInit()) )
-        {
-            io_log("Can't find os2fs, exiting...\n");
-            _exit(1, 1);
-        }
-
-        if ( (rc = ExcClientInit()) )
-        {
-            io_log("Can't find os2exec, exiting...\n");
-            _exit(1, 1);
-        }
-
-        // reserve the lower 64 Mb for OS/2 app
-        // ...
-
-        // reserve the upper 1 Gb for shared memory arena
-        // ...
-
-        // Parse config
-        // ...
-
-        CPClientTest();
-
-        io_log("calling KalStartApp...\n");
-        KalStartApp((char *)"c:\\mini33.exe", pszLoadError, sizeof(pszLoadError));
+        /* call platform-independent init */
+        init(&opts);
     }
 
     ~Main()
     {
-        FSClientDone();
-        ExcClientDone();
-        CPClientDone();
+        /* destruct */
+        done();
     }
 };
 

@@ -5,6 +5,9 @@
 /* osFree internal */
 #include <os3/io.h>
 #include <os3/fs.h>
+#include <os3/thread.h>
+
+extern l4_os3_thread_t fs;
 
 int main(void)
 {
@@ -16,7 +19,7 @@ int main(void)
     ULONGLONG fSize = 0;
     FILESTATUS3L Info;
 
-    FSClientInit();
+    FSClientInit(&fs);
 
     rc = FSClientOpenL((PSZ)fn,
                        &hf,

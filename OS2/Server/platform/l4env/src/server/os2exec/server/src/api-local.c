@@ -13,9 +13,6 @@
 #include <os3/thread.h>
 #include <os3/io.h>
 
-/* l4env includes */
-//#include <l4/env/env.h>
-//#include <l4/dm_generic/consts.h>
 /* local includes */
 #include "api.h"
 

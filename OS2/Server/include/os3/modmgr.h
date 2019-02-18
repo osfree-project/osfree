@@ -49,7 +49,7 @@ struct module_rec * ModRegister(const char * name, void * mod_struct, unsigned l
 unsigned long OpenModule(char            *pszName,
                          unsigned long   cbName,
                          char const      *pszModname,
-			 char            exeflag,
+			 unsigned long   exeflag,
                          unsigned long   *phmod);
 			 
 unsigned long LoadModule(char            *pszName,
