@@ -64,6 +64,14 @@ long RegAttachToRegion(void               **start,
                        unsigned long      offset,
                        unsigned char      align);
 
+long RegAreaAttach(void               **addr,
+                   unsigned long      size,
+                   unsigned long long area,
+                   unsigned long      flags,
+                   l4_os3_dataspace_t ds,
+                   unsigned long      offset,
+                   unsigned char      align);
+
 long RegAreaAttachToRegion(void               *start,
                            unsigned long      size,
                            unsigned long long area,

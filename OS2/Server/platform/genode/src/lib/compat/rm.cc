@@ -264,6 +264,18 @@ long RegAreaReserve(unsigned long size,
 }
 
 extern "C"
+long RegAreaAttach(void               **addr,
+                   unsigned long      size,
+                   unsigned long long area,
+                   unsigned long      flags,
+                   l4_os3_dataspace_t ds,
+                   unsigned long      offset,
+                   unsigned char      align)
+{
+    return 0;
+}
+
+extern "C"
 long RegAreaAttachToRegion(void               *start,
                            unsigned long      size,
                            unsigned long long area,

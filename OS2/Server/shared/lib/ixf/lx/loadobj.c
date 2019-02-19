@@ -131,7 +131,7 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
   slist_t          *s;
   void             *mmap_obj = 0;
 #if 0 /*!defined(__OS2__) && !defined(__LINUX__) */
-        mmap_obj = mmap((void *)lx_obj->o32_base, lx_obj->o32_size,
+        mmap_obj = mmap((void *)(unsigned long)lx_obj->o32_base, lx_obj->o32_size,
                                  PROT_WRITE | PROT_READ | PROT_EXEC  ,       /* | PROT_EXEC */
                                   MAP_GROWSDOWN | MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, 0/*lx_exe_mod->fh*/,
                                  0 /*lx_exe_mod->lx_head_e32_exe->e32_datapage*/);
@@ -139,14 +139,14 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 // Under OS/2 return always unique address
   #if defined(__LINUX__) || defined(__WIN32__)
         mmap_obj = malloc(lx_obj->o32_size);
-  /* void * l4_alloc_mem(unsigned long area, int base, int size, int flags) */
+  /* void * allocmem(unsigned long area, int base, int size, int flags) */
   #else
     #ifndef __OS2__
-        #include <os3/l4_alloc_mem.h>
+        #include <os3/allocmem.h>
         // object map address in execsrv address space
         io_log("ixfModule->area=%llx, base=%lx, size=%lx\n", ixfModule->area, lx_obj->o32_base, lx_obj->o32_size);
-        mmap_obj = l4_alloc_mem(ixfModule->area, lx_obj->o32_base, lx_obj->o32_size,
-                                 PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC, &ds);
+        mmap_obj = allocmem(ixfModule->area, lx_obj->o32_base, lx_obj->o32_size,
+                            PAG_COMMIT|PAG_EXECUTE|PAG_READ|PAG_WRITE, ixfModule->PIC, &ds);
         io_log("mmap_obj=%lx\n", mmap_obj);
 	// Host-dependent part of IXFMODULE structure (data for L4 host)
 	ixfSysDep = (IXFSYSDEP *)(ixfModule->hdlSysDep);
@@ -172,7 +172,7 @@ void *vm_alloc_obj_lx(IXFModule *ixfModule, struct o32_obj * lx_obj)
 	// fill in the section info
         // object map address in client task address space (not execsrv's)
         if (! ixfModule->PIC) // for EXE files
-	  section->addr = (void *)lx_obj->o32_base;
+	  section->addr = (void *)(unsigned long)lx_obj->o32_base;
 	else                 // for DLL files
 	  section->addr = (void *)mmap_obj;
 	section->size = lx_obj->o32_size;

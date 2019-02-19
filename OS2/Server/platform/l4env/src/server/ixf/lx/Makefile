@@ -7,7 +7,8 @@ TARGET		= liblx.s.so
 TRG             = lx.ixf
 MODE		= l4env
 SYSTEMS		= x86-l4v2
-SRC_C		= lx.c mod.c load.c loadobj.c fixup.c debug.c l4alloc_mem.c
+SRC_C		= lx.c mod.c load.c loadobj.c \
+                  fixup.c debug.c allocmem.c
 CFLAGS          += -I$(PKGDIR)/include
 
 NO_DEFAULT_RELOC= 1

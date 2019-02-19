@@ -190,6 +190,52 @@ long RegAreaReserve(unsigned long size,
     return RegAreaReserveInArea(size, flags, addr, area);
 }
 
+long RegAreaAttach(void               **addr,
+                   unsigned long      size,
+                   unsigned long long area,
+                   unsigned long      flags,
+                   l4_os3_dataspace_t ds,
+                   unsigned long      offset,
+                   unsigned char      align)
+{
+    ULONG rights = 0;
+    int rc = NO_ERROR;
+
+    if (flags & DATASPACE_READ)
+        rights |= L4DM_READ;
+    if (flags & DATASPACE_WRITE)
+        rights |= L4DM_WRITE;
+
+    rc = l4rm_area_attach(&ds.ds, (unsigned long)area, size, offset, rights, addr);
+
+    if (rc < 0)
+    {
+        switch (-rc)
+        {
+            case L4_EINVAL:
+                rc = ERROR_INVALID_DATASPACE;
+                break;
+
+            case L4_EUSED:
+                rc = ERROR_ALREADY_USED;
+                break;
+
+            case L4_ENOMEM:
+                rc = ERROR_NOT_ENOUGH_MEMORY;
+                break;
+
+            case L4_ENOMAP:
+                rc = ERROR_NO_MAPPING;
+                break;
+
+            case L4_EIPC:
+                rc = ERROR_IPC;
+        }
+    }
+
+    return rc;
+}
+
 long RegAreaAttachToRegion(void               *start,
                            unsigned long      size,
                            unsigned long long area,
