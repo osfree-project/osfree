@@ -1,5 +1,15 @@
-content: include/fs_session
+content: shared/include/os3/fs.h \
+         lib/mk/os2fs.mk \
+         mk/osfree.mk
 
-include/fs_session:
-	mkdir -p $@
-	cp -r $(REP_DIR)/$@/* $@/
+shared/include/os3/fs.h:
+	mkdir -p $(dir $@)
+	cp $(REP_DIR)/$@ $@
+
+lib/mk/os2fs.mk:
+	mkdir -p $(dir $@)
+	cp $(REP_DIR)/$@ $@
+
+mk/osfree.mk:
+	mkdir mk
+	cp $(REP_DIR)/$@ mk

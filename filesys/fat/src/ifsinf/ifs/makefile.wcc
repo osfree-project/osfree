@@ -1,4 +1,0 @@
-TARGETS = ifs.inf
-
-all: .SYMBOLIC
-!include ..\makefile.mk

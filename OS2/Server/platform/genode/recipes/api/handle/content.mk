@@ -1,12 +1,12 @@
-content: shared/include/os3/exec.h \
-         lib/mk/os2exec.mk \
+content: shared/include/os3/handlemgr.h \
+         lib/mk/handle.mk \
          mk/osfree.mk
 
-shared/include/os3/exec.h:
+shared/include/os3/handlemgr.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 
-lib/mk/os2exec.mk:
+lib/mk/handle.mk:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 
