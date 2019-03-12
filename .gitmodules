@@ -1,0 +1,6 @@
+[submodule "fat"]
+	path = filesys/fat
+	url = https://github.com/osfree-project/fat32.git
+[submodule "jfs"]
+	path = filesys/jfs
+	url = https://github.com/osfree-project/openjfs.git
