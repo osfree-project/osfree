@@ -1,0 +1,5 @@
+<index>
+  <index name="osFree">
+    <pkg path="valerius/pkg/os2" info="OS/2 personality prototype">
+  </index>
+</index>
