@@ -58,13 +58,13 @@ namespace OS2::Cpi
 struct OS2::Cpi::Rom_session_component : Genode::Rpc_object<Genode::Rom_session>
 {
 private:
-    Genode::Ram_session &_ram;
+    Genode::Ram_allocator &_ram;
     Genode::Region_map &_rm;
 
     Genode::Session_label const &_label;
     Genode::Ram_dataspace_capability _file_ds;
 
-    Genode::Ram_dataspace_capability _init_file_ds(Genode::Ram_session &ram,
+    Genode::Ram_dataspace_capability _init_file_ds(Genode::Ram_allocator &ram,
                                                    Genode::Region_map &rm,
                                                    Genode::Session_label const &label)
     {
@@ -173,7 +173,7 @@ public:
     void sigh(Genode::Signal_context_capability sigh) { sigh = sigh; }
 
     // constructor
-    Rom_session_component(Genode::Ram_session &ram, Genode::Region_map &rm,
+    Rom_session_component(Genode::Ram_allocator &ram, Genode::Region_map &rm,
                               Genode::Session_label const &label)
     :
     _ram(ram), _rm(rm),

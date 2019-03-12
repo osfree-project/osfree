@@ -7,7 +7,7 @@
 !include $(%ROOT)/build.conf
 !include $(%ROOT)/mk/site.mk
 
-DIRS = fat ext2fs hpfs jfs util
+DIRS = fat ext2fs hpfs jfs
 
 !include $(%ROOT)/mk/bootseq.mk
 

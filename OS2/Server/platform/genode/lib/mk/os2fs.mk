@@ -1,5 +1,7 @@
 include $(REP_DIR)/mk/osfree.mk
 
+CC_CXX_WARN_STRICT = 
+SHARED_LIB = yes
 SRC_CC = fs.cc
 LIBS = base libc compat
 

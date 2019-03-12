@@ -4,7 +4,7 @@ LIBS = ne
 all: ne.ixf
 
 ne.ixf: bin
-	cd bin && ln -sf $(CURDIR)/bin/ne.lib.so ne.ixf
+	cd bin && ln -s $(CURDIR)/bin/ne.lib.so ne.ixf
 
 bin:
 	@if [ ! -d $@ ]; then \

@@ -1,12 +1,12 @@
 content: shared/include/os3/fs.h \
-         lib/mk/os2fs.mk \
+         lib/symbols/os2fs \
          mk/osfree.mk
 
-shared/include/os3/fs.h:
+lib/symbols/os2fs:
 	mkdir -p $(dir $@)
-	cp $(REP_DIR)/$@ $@
+	cp $(REP_DIR)/$@ $(dir $@)/
 
-lib/mk/os2fs.mk:
+shared/include/os3/fs.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 

@@ -1,6 +1,8 @@
 base
 libc
-os2exec
+cpi
+os3
+os2srv
+os2fs
 compat
 memmgr
-os3

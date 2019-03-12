@@ -386,7 +386,7 @@ struct OS2::Cpi::Main
         /* call platform-independent init */
         init(&opts);
 
-        // announce "CPI" service
+        /* announce "CPI" service */
         env.parent().announce(env.ep().manage(root));
     }
 

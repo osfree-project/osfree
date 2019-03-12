@@ -1,12 +1,12 @@
 content: shared/include/os3/app.h \
-         lib/mk/os2app.mk \
+         lib/symbols/os2app \
          mk/osfree.mk
 
-shared/include/os3/app.h:
+lib/symbols/os2app:
 	mkdir -p $(dir $@)
-	cp $(REP_DIR)/$@ $@
+	cp $(REP_DIR)/$@ $(dir $@)/
 
-lib/mk/os2app.mk:
+shared/include/os3/app.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 

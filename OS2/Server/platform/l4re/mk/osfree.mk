@@ -12,7 +12,7 @@ O=$(BLD_DIR)
 .DEFAULT_GOAL := all
 
 run: symlinks
-	$(MAKE) -C $(L4DIR) \
+	$(MAKE) -C $(L4DIR) O=$(BLD_DIR) \
 		MODULES_LIST=$(BLD_DIR)/conf/modules.list \
 		QEMU_OPTIONS="-m $(MEM) -display vnc=$(DISPLAY) \
 		$(GDB) $(ACCEL) -serial stdio" qemu

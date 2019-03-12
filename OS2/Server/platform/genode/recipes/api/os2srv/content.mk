@@ -1,12 +1,12 @@
 content: shared/include/os3/cpi.h \
-         lib/mk/os2srv.mk \
+         lib/symbols/os2srv \
          mk/osfree.mk
 
-shared/include/os3/cpi.h:
+lib/symbols/os2srv:
 	mkdir -p $(dir $@)
-	cp $(REP_DIR)/$@ $@
+	cp $(REP_DIR)/$@ $(dir $@)/
 
-lib/mk/os2srv.mk:
+shared/include/os3/cpi.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 

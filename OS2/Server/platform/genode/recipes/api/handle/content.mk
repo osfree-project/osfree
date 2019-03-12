@@ -1,12 +1,12 @@
-content: shared/include/os3/handlemgr.h \
-         lib/mk/handle.mk \
+content: lib/symbols/handle \
+         shared/include/os3/handlemgr.h \
          mk/osfree.mk
 
-shared/include/os3/handlemgr.h:
+lib/symbols/handle:
 	mkdir -p $(dir $@)
-	cp $(REP_DIR)/$@ $@
+	cp $(REP_DIR)/$@ $(dir $@)/
 
-lib/mk/handle.mk:
+shared/include/os3/handlemgr.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 

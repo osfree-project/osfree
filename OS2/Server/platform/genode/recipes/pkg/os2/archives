@@ -1,5 +1,6 @@
 _/src/memmgr
 _/src/compat
+_/src/handle
 _/src/lx
 _/src/ne
 _/src/os2exec

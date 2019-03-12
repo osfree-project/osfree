@@ -1,36 +1,17 @@
 #
-#
-#
-
-set files   "${genode_dir}/repos/os3/shared/filesys/os2"
-
-set filelist { doscalls.dll sub32.dll kbdcalls.dll viocalls.dll moucalls.dll moncalls.dll
- msg.dll nls.dll quecalls.dll sesmgr.dll utlapi.dll pmmerge.dll pmwin.dll oso001.msg
- mini33.exe minicmd.exe makeini.exe argenv.exe scanenv.exe sed.exe awk.exe zip.exe
- sort.exe ver.exe wasm.exe wmake.exe mem.exe }
-
-#
 # Build
 #
 
-build {
-  core
-  init
-  timer
-  lib/compat
-  lib/memmgr
-  lib/handle
-  lib/ixf/lx
-  lib/ixf/ne
-  lib/vfs
-  server/tar_rom
-  server/os2fs
-  server/os2exec
-  server/os2srv
-  app/os2app
-}
-
 create_boot_directory
+
+import_from_depot [depot_user]/src/[base_src] \
+                  [depot_user]/src/vfs \
+                  [depot_user]/pkg/os2
+
+append build_components {
+  timer
+  tar_rom
+}
 
 #
 # Generate config
@@ -113,15 +94,6 @@ install_config {
 	</start>
 </config>
 }
-
-exec sh -c "cd bin; mkdir -p file/system; ln -sf ${files}/config.sys"
-
-foreach file ${filelist} {
-  exec sh -c "cd bin/file/system; ln -sf ${files}/${file}"
-}
-
-exec sh -c "cd bin/file/system; ln -sf ../../kal.map"
-exec sh -c "cd bin; tar cfh os2.tar file"
 
 #
 # Boot image

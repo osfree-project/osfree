@@ -1,5 +1,6 @@
 base
 libc
-os2fs
-compat
+cpi
 os3
+os2srv
+compat

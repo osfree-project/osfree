@@ -1,12 +1,12 @@
 content: shared/include/os3/exec.h \
-         lib/mk/os2exec.mk \
+         lib/symbols/os2exec \
          mk/osfree.mk
 
-shared/include/os3/exec.h:
+lib/symbols/os2exec:
 	mkdir -p $(dir $@)
-	cp $(REP_DIR)/$@ $@
+	cp $(REP_DIR)/$@ $(dir $@)/
 
-lib/mk/os2exec.mk:
+shared/include/os3/exec.h:
 	mkdir -p $(dir $@)
 	cp $(REP_DIR)/$@ $@
 

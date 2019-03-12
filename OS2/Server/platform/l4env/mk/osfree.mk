@@ -15,39 +15,51 @@ O=$(BLD_DIR)
 
 .DEFAULT_GOAL := all
 
-#default:
-#	chroot $(LENNY) @$(MAKE) $(MAKEFLAGS) all
+l4: mount
+	chroot $(LENNY) $(MAKE) -C $(BLD_DIR) O=$(BLD_DIR) $(MAKEFLAGS) all
 
-#subdirs = $(filter-out ., `cd $(REP_DIR)/src; find . -type d | tr '\n' ' '`)
+config-l4: mount
+	chroot $(LENNY) $(MAKE) -C $(L4DIR) O=$(BLD_DIR) $(MAKEFLAGS) config
 
-#$(subdirs):
-#	if [ -d $@ ]; then \
-#	    $(MAKE) -C $@ O=$(BLD_DIR) all; \
-#	fi
+fiasco: mount
+	chroot $(LENNY) $(MAKE) -C $(FIASCO_BLD_DIR) $(MAKEFLAGS) all
 
+config-fiasco: mount
+	chroot $(LENNY) $(MAKE) -C $(FIASCO_BLD_DIR) $(MAKEFLAGS) config
+
+os3: mount
+	chroot $(LENNY) $(MAKE) -C `pwd` $(MAKEFLAGS) all
+
+mount: $(OS3_DIR)/platform/l4env/mounted.flg
+
+$(OS3_DIR)/platform/l4env/mounted.flg:
+	cd $(LENNY) && $(OS3_DIR)/platform/l4env/tools/mountall.sh mount
+	touch $@
+
+ifeq ($(USE_OLD_QEMU),)
 # newer qemu
-#run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/platform/l4env/os2 \
-#	$(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
-#	$(REP_DIR)/tftpboot
-#	qemu-system-i386 \
-#		-no-kvm \
-#		-m $(MEM) \
-#		-boot n \
-#		-netdev user,bootfile=$(GRUB),tftp=$(REP_DIR),id=net0 \
-#		-device ne2k_pci,netdev=net0 \
-#		-L $(OS3_DIR)/tools/bootrom \
-#		$(DISPLAY) \
-#		-serial stdio \
-#	| tee $(REP_DIR)/qemu.log
-
-# old qemu from Debian 5 Lenny
-run: symlinks
+run: $(ROOT)/cd/boot/grub/menu.lst $(OS3_DIR)/platform/l4env/os2 \
+	$(BLD_DIR)/bin/$(arch)/$(l4api)/os2 \
+	$(REP_DIR)/tftpboot
 	qemu-system-i386 \
+		-no-kvm \
+		-m $(MEM) \
+		-boot n \
+		-netdev user,bootfile=$(GRUB),tftp=$(REP_DIR),id=net0 \
+		-device ne2k_pci,netdev=net0 \
+		-L $(OS3_DIR)/tools/bootrom \
+		$(DISPLAY) \
+		-serial stdio \
+	| tee $(REP_DIR)/qemu.log
+else
+# old qemu from Debian 5 Lenny
+run: symlinks mount
+	chroot $(LENNY) qemu-system-i386 \
 		-no-kqemu \
 		$(GDB) \
 		-m $(MEM) \
 		-boot n \
-		-tftp $(REP_DIR) \
+		-tftp $(OS3_DIR)/platform/l4env \
 		-bootp $(GRUB) \
 		-net nic,model=ne2k_pci,vlan=0 \
 		-net user,vlan=0 \
@@ -55,6 +67,7 @@ run: symlinks
 		$(DISPLAY) \
 		-serial stdio \
 	| tee $(REP_DIR)/qemu.log
+endif
 
 symlinks: $(ROOT)/cd/boot/grub/menu.lst \
 	  $(OS3_DIR)/platform/l4env/os2 \

@@ -2,6 +2,7 @@
 #define __GENODE_ENV_H__
 
 /* Genode includes */
+#include <base/allocator.h>
 #include <base/component.h>
 
 extern Genode::Env *_env_ptr;
