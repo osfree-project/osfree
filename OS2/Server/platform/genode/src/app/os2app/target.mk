@@ -22,15 +22,16 @@ vpath %.c $(OS3_DIR)/shared/app/os2app
 all: map
 
 .PHONY: map
-map: app/os2app bin app app/os2app
-	@(cd app/os2app && \
-	if [ -f os2app ]; then \
-	nm os2app | grep 'Kal' | awk '{printf "0x%s %s\n", $$1, $$3}' >os2app.1; \
-	else touch os2app; touch os2app.1; fi && \
-	wc -l os2app.1 | awk '{print $$1}' >kal.map && \
-	cat os2app.1 >>kal.map)
-	@cd ../..
-	@cd bin && ln -sf $(CURDIR)/app/os2app/kal.map kal.map
+map: $(CURDIR)/app/os2app/os2app bin app
+	echo $(CURDIR)
+	@(if [ -f $(CURDIR)/os2app ]; then \
+	nm $(CURDIR)/os2app | grep 'Kal' | awk '{printf "0x%s %s\n", $$1, $$3}' >$(CURDIR)/os2app.1; \
+	else \
+	touch $(CURDIR)/os2app; touch $(CURDIR)/os2app.1; \
+	fi && wc -l $(CURDIR)/os2app.1 | awk '{print $$1}' >$(CURDIR)/kal.map && \
+	cat $(CURDIR)/os2app.1 >>$(CURDIR)/kal.map)
+	# @cd ../..
+	@cd bin && ln -sf $(CURDIR)/kal.map kal.map
 
 bin:
 	@if [ ! -d $@ ]; then \
@@ -42,7 +43,7 @@ app:
 	    mkdir -p $@; \
 	fi
 
-app/os2app:
-	@if [ ! -d $@ ]; then \
-	    mkdir -p $@; \
+$(CURDIR)/app/os2app/os2app:
+	@if [ ! -d $(dir $@) ]; then \
+	    mkdir -p $(dir $@); \
 	fi

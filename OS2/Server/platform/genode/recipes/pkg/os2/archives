@@ -1,6 +1,10 @@
 _/src/memmgr
 _/src/compat
 _/src/handle
+_/src/libos2srv
+_/src/libos2fs
+_/src/libos2exec
+_/src/libos2app
 _/src/lx
 _/src/ne
 _/src/os2exec
@@ -8,3 +12,7 @@ _/src/os2fs
 _/src/os2srv
 _/src/os2app
 _/raw/os2_fs
+_/src/libc
+_/src/vfs
+_/src/stdcxx
+_/src/tar_rom
