@@ -4,3 +4,6 @@
 [submodule "jfs"]
 	path = filesys/jfs
 	url = https://github.com/osfree-project/openjfs.git
+[submodule "OS2/Server"]
+	path = OS2/Server
+	url = https://github.com/osfree-project/os3.git
