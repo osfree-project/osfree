@@ -1,7 +1,0 @@
-HndAllocateHandle T
-HndDestroyHandleTable T
-HndFreeHandle T
-HndInitializeHandleTable T
-HndIsValidHandle T
-HndIsValidIndexHandle T
-HndpAllocateSomeHandles T

@@ -1,6 +1,0 @@
-init_memmgr T
-seek_free_mem T
-is_mem_used T
-alloc_mem_area T
-dealloc_mem_area T
-print_used_mem T
