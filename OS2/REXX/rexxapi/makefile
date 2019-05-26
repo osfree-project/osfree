@@ -85,4 +85,4 @@ UNI2H        = 1
 $(PATH)rexxapi16.obj: $(PATH)wrappers.h
 
 $(PATH)wrappers.h:
- @$(REXX) genwrap.cmd $(NUMWRAP) >$^@
+ @$(REXX) $(MYDIR)genwrap.cmd $(NUMWRAP) >$^@

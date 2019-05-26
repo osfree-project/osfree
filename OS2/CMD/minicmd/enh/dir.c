@@ -42,7 +42,7 @@ int dir_cmd (int argc, char **argv)
     }
 
     printf ("%s  ", FindBuffer.achName);   /* Print file name             */
-    log ("%s  ", FindBuffer.achName);
+    log ("dir: %s  ", FindBuffer.achName);
 
     /* Keep finding the next file until there are no more files */
     for (;;)
@@ -58,7 +58,7 @@ int dir_cmd (int argc, char **argv)
           break;
 
        printf ("%s  ", FindBuffer.achName);    /* Print file name */
-       log ("%s  ", FindBuffer.achName);
+       log ("dir: %s  ", FindBuffer.achName);
     }
 
     rc = DosFindClose(hdirFindHandle);    /* Close our directory handle */

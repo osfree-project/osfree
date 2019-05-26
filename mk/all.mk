@@ -83,7 +83,7 @@ C16OPT    = -nt=_TEXT16 -nd=D $(ADD_COPT)
 # Watcom 1.7 RC has bug with resource storing. Resources not just added
 # but replaced. So, we still use OS/2 TK RC.EXE
 RC        = @wrc -q
-#RCOPT     = -bt=OS2
+#RCOPT     = -bt=os2
 
 RCOPT =  $(ADD_RCOPT)
 

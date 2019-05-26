@@ -14,7 +14,7 @@ DosQuerySysInfo(ULONG iStart, ULONG iLast,
   log("cbBuf=%lu\n", cbBuf);
 
   // for now
-  goto DOSQUERYSYSINFO_EXIT;
+  //goto DOSQUERYSYSINFO_EXIT;
   //
 
   if(iStart>iLast || pBuf==0)

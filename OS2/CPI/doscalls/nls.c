@@ -9,10 +9,10 @@ APIRET APIENTRY      DosQueryCp(ULONG   cb,
   log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
   rc = KalQueryCp(cb, arCP, pcCP);
-  log("arCP=%lu\n", arCP);
-  log("pcCP=%lu\n", pcCP);
-  log("*arCP=%lu\n", *arCP);
-  log("*pcCP=%lu\n", *pcCP);
+  log("arCP=%lx\n", arCP);
+  log("pcCP=%lx\n", pcCP);
+  log("*arCP=%lx\n", *arCP);
+  log("*pcCP=%lx\n", *pcCP);
   log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
@@ -24,10 +24,10 @@ APIRET APIENTRY      DosQueryDBCSEnv(ULONG cb,
   APIRET rc;
   log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
-  log("pcc=%lu\n", pcc);
+  log("pcc=%lx\n", pcc);
   rc = KalQueryDBCSEnv(cb, pcc, pBuf);
-  log("*pcc=%lu\n", *pcc);
-  log("pBuf=%lu\n", pBuf);
+  log("*pcc=%lx\n", *pcc);
+  log("pBuf=%lx\n", pBuf);
   log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
@@ -42,8 +42,8 @@ APIRET DosMapCase(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch)
   APIRET rc = NO_ERROR;
   log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
-  log("pcc=%lu\n", pcc);
-  log("pch=%lu\n", pch);
+  log("pcc=%lx\n", pcc);
+  log("pch=%lx\n", pch);
   log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
@@ -59,9 +59,9 @@ APIRET DosQueryCollate(ULONG cb, PCOUNTRYCODE pcc, PCHAR pch, PULONG pcch)
   APIRET rc = NO_ERROR;
   log("%s enter\n", __FUNCTION__);
   log("cb=%lu\n", cb);
-  log("pcc=%lu\n", pcc);
-  log("pch=%lu\n", pch);
-  log("pcch=%lu\n", pcch);
+  log("pcc=%lx\n", pcc);
+  log("pch=%lx\n", pch);
+  log("pcch=%lx\n", pcch);
   log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;  
 }

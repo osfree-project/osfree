@@ -85,13 +85,13 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
   log("%s enter\n", __FUNCTION__);
 
   // output args to log
+  log("cbMsg=%u", cbMsg);
   log("pszMsg=");
 
-  //for (i = 0; i < cbMsg; i++)
+  for (i = 0; i < cbMsg; i++)
     log("%c", pszMsg[i]);
 
   log("\n");
-  log("cbMsg=%u", cbMsg);
 
   log("cTable=%u\n", cTable);
 

@@ -12,7 +12,7 @@ APIRET APIENTRY  DosOpenL(PCSZ     pszFileName,
 {
   APIRET rc;
   log("%s enter\n", __FUNCTION__);
-  log("pszFileName=%s\n", *pszFileName);
+  log("pszFileName=%s\n", pszFileName);
   log("cbFile=%lld\n", cbFile);
   log("ulAttribute=%lx\n", ulAttribute);
   log("fsOpenFlags=%lx\n", fsOpenFlags);

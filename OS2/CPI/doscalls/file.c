@@ -241,14 +241,14 @@ APIRET APIENTRY  DosQueryFileInfo(HFILE hf,
   return rc;
 }
 
-APIRET APIENTRY  DosQueryPathInfo(PCSZ   pszPathName,
+APIRET APIENTRY  DosQueryPathInfo(PCSZ  pszPathName,
                                   ULONG ulInfoLevel,
                                   PVOID pInfo,
                                   ULONG cbInfoBuf)
 {
   APIRET rc;
   log("%s enter\n", __FUNCTION__);
-  log("pszPathName=%lx\n", pszPathName);
+  log("pszPathName=%s\n", pszPathName);
   log("ulInfoLevel=%lu\n", ulInfoLevel);
   log("cbInfoBuf=%lu\n", cbInfoBuf);
   rc = KalQueryPathInfo((PSZ)pszPathName, ulInfoLevel, pInfo, cbInfoBuf);

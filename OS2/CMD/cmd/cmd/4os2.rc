@@ -1,7 +1,3 @@
 #define ID_APPNAME 1
 
-#ifdef __LINUX__
 POINTER ID_APPNAME "../shared/4os2.ico"
-#else
-POINTER ID_APPNAME "..\\shared\\4os2.ico"
-#endif

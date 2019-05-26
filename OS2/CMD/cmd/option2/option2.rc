@@ -3,10 +3,6 @@
 
 #define ID_RESOURCE 1
 
-#ifdef __LINUX__
 POINTER ID_RESOURCE "../shared/4os2.ico"
-#else
-POINTER ID_RESOURCE "..\\shared\\4os2.ico"
-#endif
 
 rcinclude "option2.dlg"

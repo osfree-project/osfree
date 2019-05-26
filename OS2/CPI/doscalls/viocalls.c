@@ -72,6 +72,8 @@ USHORT APIENTRY Vio32SetOrg(const SHORT sRow, const SHORT sColumn, const HVPS hv
 USHORT APIENTRY Vio32ShowPS(const SHORT sDepth, const SHORT sWidth, const SHORT soffCell, const HVPS hvps);
 //MRESULT APIENTRY WinDefAVioWindowProc(const HWND hwnd, const USHORT msg, const ULONG mp1, const ULONG mp2);
 
+/*
+
 USHORT APIENTRY16 VIOENDPOPUP(HVIO hvio)
 {
   return Vio32EndPopUp(hvio);
@@ -517,6 +519,7 @@ USHORT APIENTRY16         XVIOGETCASTATE(void)
   return unimplemented(__FUNCTION__);
 }
 
+*/
 
 /*
   WinDefAVioWindowProc        .30, &
