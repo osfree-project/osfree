@@ -20,7 +20,11 @@
 
 #ifdef __WATCOMC__
 
+#ifndef LINUX
 #include <direct.h>
+#else
+#include <dirent.h>
+#endif
 #include <stdlib.h>
 #include <stddef.h>
 

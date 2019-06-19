@@ -6,9 +6,9 @@
 
 DEST    = tools
 
-!include $(%ROOT)/mk/all.mk
-
 #TARGETS = tools
+
+!include $(%ROOT)/mk/all.mk
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg

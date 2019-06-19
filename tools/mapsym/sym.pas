@@ -41,6 +41,7 @@ Type
     cbMaxSym:      Byte;                { maximum symbol-name length            }
   public
     constructor Create(FileName: String);
+  public
     ModuleName:    String;              { module name }
     ConstantsCount:Word;                { count of constants in map             }
     SegmentsCount: Word;                { count of segments in map              }

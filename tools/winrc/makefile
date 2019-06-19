@@ -16,7 +16,7 @@ $(p)cleanup$(e) &
 # $(p)mac$(e)
 $(p)mdc$(e)
 
-ADD_COPT = -i=..$(SEP)include -i=.
+ADD_COPT = -dNOAPIPROTO -u_MAX_DRIVE -i=..$(SEP)include -i=. -i=$(%ROOT)DOS$(SEP)WIN16$(SEP)include
 
 !include $(%ROOT)/mk/tools.mk
 
@@ -33,8 +33,8 @@ $(PATH)ifyacc.obj: $(PATH)ifyacc.flg
 .h: $(PATH)
 
 $(PATH)ifyacc.flg: $(PATH)ifyacc.h $(PATH)ifyacc.c
-  @sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c
-  @sed -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
+  @sed.exe -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.c >$(PATH)rc.z.tab.c
+  @sed.exe -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
   @$(DC) $(PATH)ifyacc.c $(BLACKHOLE)
   @$(DC) $(PATH)ifyacc.h $(BLACKHOLE)
   @$(RN) $(PATH)rc.z.tab.c $(PATH)ifyacc.c $(BLACKHOLE)

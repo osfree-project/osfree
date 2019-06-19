@@ -190,7 +190,7 @@ NULL      = nul
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 
-CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do @if exist $(PATH)%i @$(DC) $(PATH)%i $(BLACKHOLE)
+CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do @$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
 EXE_SUFFIX = .exe
@@ -318,7 +318,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 !else
  @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)lex -t $[@ >$^@ $(LOG)
+ $(verbose)lex.exe -t $[@ >$^@ $(LOG)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
@@ -330,7 +330,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
  @if exist $^*.h @$(DC) $^*.h $(BLACKHOLE)
  @if exist $^*.c @$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc -y -d -o $^@ $[@ $(LOG)
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
 
 .c:   $(MYDIR)
 
@@ -385,11 +385,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 
 .pas.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(BLACKHOLE)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ # $(BLACKHOLE)
 
 .pp.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(BLACKHOLE)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ # $(BLACKHOLE)
 
 .lnk.exe: .autodepend
  @$(SAY) LINK     $^. $(LOG)
@@ -415,7 +415,7 @@ subdirs: .symbolic
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 # @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
 # @for %i in ($(DIRS)) do  @if exist $(MYDIR)%i @cd $(MYDIR)%i && @$(MAKE) $(MAKEOPT) $(TARGET)
- @for %d in ($(DIRS)) do @if exist $(MYDIR)%d @cd $(MYDIR)%d && @$(MAKE) $(MAKEOPT) targets
+ @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) targets
 
 dirhier: precopy .symbolic
  # @$(SAY) MKDIR    $(PATH) $(LOG)

@@ -58,7 +58,7 @@
 #define getdisk get_drive
 #define assert(a)
 #else
-#include <DOS.h>
+#include <dos.h>
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>

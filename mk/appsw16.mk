@@ -28,7 +28,7 @@ TARGETS  = $(PATH)$(PROJ).exe
 dllopt =
 !endif
 
-RC       = winrc
+RC       = winrc.exe
 RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(MYDIR)..$(SEP)include
 
 #.res: $(PATH)
@@ -37,7 +37,7 @@ RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(M
 
 .rc.res: .AUTODEPEND
  @$(SAY) WINRES   $^. $(LOG)
- @$(RC) $(RCOPT) -o $^@ $[@  $(LOG)
+ @$(RC) $(RCOPT) -o $^@ $[@ # $(LOG)
 
 !ifdef RESOURCE
 deps = $(RESOURCE)

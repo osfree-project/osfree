@@ -25,7 +25,11 @@
 #ifndef __WATCOMC__
 #include <dirent.h>
 #else
+#ifndef LINUX
 #include <direct.h>
+#else
+#include <dirent.h>
+#endif
 #include "porting.h"
 #endif
 #include <assert.h>

@@ -27,6 +27,11 @@ at the address twin@willows.com
 **************************************************************************/
 
 #include "windows.h"
+
+#ifdef _MAX_DRIVE
+#undef _MAX_DRIVE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

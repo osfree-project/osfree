@@ -1,5 +1,9 @@
 #include <stdlib.h>
+#ifndef LINUX
 #include <io.h> 
+#else
+#include <unistd.h>
+#endif
 
 
 int ftruncate( int handle, long size )

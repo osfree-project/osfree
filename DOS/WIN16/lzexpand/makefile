@@ -20,7 +20,7 @@ EXPORTS = LZCOPY          .1, &
           COPYLZFILE      .8, &
           LZDONE          .9, &
           GETEXPANDEDNAME .10
-OPTIONS = heapsize=32K libfile libentry
+OPTIONS = heapsize=32K libfile libentry.obj
 DEST = os2$(SEP)mdos$(SEP)winos2$(SEP)system
 
 !include $(%ROOT)/mk/appsw16.mk

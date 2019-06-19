@@ -18,7 +18,7 @@
 //#include <dir.h>
 #include <fcntl.h>
 #include <io.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 
 #include <dfn.h>
 #include "../include/lfnfuncs.h"

@@ -9,8 +9,13 @@ DESC = rexx to executable wrapper
 #TARGETS = $(PATH)$(PROJ).exe
 
 $(PATH)$(PROJ).exe: $(MYDIR)rexxwrap.cmd
+!ifeq %OS OS/2
   $(REXX) rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
-!ifeq ENV Windows
-  $(REXX) rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=regina  -intlib=$(REXX_PATH)$(SEP)lib$(SEP)regina.lib -intincdir=$(REXX_PATH)$(SEP)include -compress
+!endif
+!ifeq %OS Windows
+  $(REXX) rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=regina  -intlib=$(BLD)lib$(SEP)regina.lib -intincdir=$(BLD)include -compress
+!endif
+!ifeq %OS LINUX
+  $(REXX) ./rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=regina  -intlib=$(SEP)usr$(SEP)lib$(SEP)regina.lib -intincdir=$(SEP)usr$(SEP)include -compress
 !endif
   $(CP) $(PATH)$(PROJ).exe $(DEST)

@@ -651,9 +651,9 @@ BlockDriver bdrv_raw = {
 void bdrv_init(void)
 {
     bdrv_register(&bdrv_raw);
-#if !defined(_WIN32) && !defined(__OS2__)
-    bdrv_register(&bdrv_cow);
-#endif
+//#if !defined(_WIN32) && !defined(__OS2__)
+//    bdrv_register(&bdrv_cow);
+//#endif
     bdrv_register(&bdrv_qcow);
     bdrv_register(&bdrv_vmdk);
     bdrv_register(&bdrv_cloop);

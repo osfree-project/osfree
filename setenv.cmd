@@ -83,7 +83,12 @@ if os == 'OS2' then do
   help = watcom || wosdir || '\help;' || help
   bookshelf = value('BOOKSHELF',, env)
   bookshelf = watcom || wosdir || '\help;' || bookshelf
-  beginlibpath = watcom || wosdir || '\dll'
+  fp = ''
+  parse value fppath with fp '\bin\os2' .
+  if fp \= '' then
+    beginlibpath = watcom || wosdir || '\dll' || ';' || fp || '\dll'
+  else
+    beginlibpath = watcom || wosdir || '\dll'
   libos2 = watcom || '\lib386\os2'
 end; else do
   help = ''; bookshelf = '';
