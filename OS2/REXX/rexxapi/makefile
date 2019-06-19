@@ -4,7 +4,7 @@ PROJ = rexxapi
 TRGT = $(PROJ).dll
 TARGETS = $(PATH)wrappers.h $(PATH)$(TRGT)
 DESC = REXX API forwarder for Regina
-srcfiles     = $(p)rexxapi$(e) $(p)rexxque$(e) $(p)rexxapi16$(e) $(p)stk$(e)
+srcfiles     = $(p)rexxapi$(e) $(p)rexxapi16$(e) $(p)stk$(e) # $(p)rexxque$(e)
 # number of 16-bit subcommand wrappers (see rexxapi16.c)
 NUMWRAP = 1024
 ADD_COPT     = -dSUBCOM_COUNT=$(NUMWRAP) -i=. -i=$(PATH) -i=$(MYDIR)..$(SEP)rexxinit -sg -of+ -bd -3s

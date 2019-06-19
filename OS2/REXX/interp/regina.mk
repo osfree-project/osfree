@@ -5,8 +5,6 @@
 
 SRC = $(%ROOT)os2$(SEP)REXX$(SEP)interp$(SEP)
 
-!include $(SRC)regina.ver
-
 VERDOT = $(VER_DOT)
 VERDATE = $(VER_DATE)
 
@@ -42,10 +40,7 @@ ADD_LINKOPT  =  $(ADD_LINKOPT)
 !endif
 
 ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
-                  -dREGINA_VERSION_DATE=$(VER_DATE) -dREGINA_VERSION_MAJOR="$(VER_MAJOR)" &
-                  -dREGINA_VERSION_MINOR="$(VER_MINOR)" -dREGINA_VERSION_SUPP="$(VER_SUPP)" &
-                  -dREGINA_VERSION_RELEASE="$(VER_RELEASE)" -dREGINA_BITS=32 &
-                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 &
+                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)regina-ver.h &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
 # UNI2H = 1
 # NOLIBS = 1
