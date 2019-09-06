@@ -1,7 +1,7 @@
 ;
 ; regina.def
 ;
-LIBRARY regina INITINSTANCE
+LIBRARY regina
 HEAPSIZE 40960
 STACKSIZE 40960
 EXPORTS RexxDeregisterExit
@@ -37,3 +37,5 @@ EXPORTS RexxReorderMacro
 EXPORTS RexxSaveMacroSpace
 EXPORTS RexxCallBack
 EXPORTS ReginaCleanup
+EXPORTS RexxSetTrace
+EXPORTS RexxResetTrace

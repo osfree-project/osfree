@@ -1,7 +1,7 @@
 %{
 
 #ifndef lint
-static char *RCSid = "$Id: yaccsrc.y,v 1.39 2006/09/15 05:41:01 mark Exp $";
+static char *RCSid = "$Id: yaccsrc.y,v 1.43 2015/04/02 06:18:55 mark Exp $";
 #endif
 
 /*
@@ -119,7 +119,7 @@ static void move_labels( nodeptr front, nodeptr end, int level );
 %token ADDRESS ARG CALL DO TO BY FOR WHILE UNTIL EXIT IF THEN ELSE
 %token ITERATE INTERPRET LEAVE NOP NUMERIC PARSE EXTERNAL SOURCE VAR
 %token VALUE WITH PROCEDURE EXPOSE PULL PUSH QUEUE SAY RETURN SELECT
-%token WHEN DROP OTHERWISE SIGNAL ON OFF ERROR SYNTAX HALT NOVALUE
+%token WHEN DROP OTHERWISE SIGNAL ON OFF SYNTAX HALT NOVALUE
 %token TRACE END UPPER ASSIGNMENTVARIABLE STATSEP FOREVER DIGITS FORM
 %token FUZZ SCIENTIFIC ENGINEERING NOT CONCATENATE MODULUS GTE GT LTE
 %token LT DIFFERENT EQUALEQUAL NOTEQUALEQUAL OFFSET SPACE EXP XOR
@@ -129,6 +129,7 @@ static void move_labels( nodeptr front, nodeptr end, int level );
 %token GTGT LTLT NOTGTGT NOTLTLT GTGTE LTLTE
 %token INPUT OUTPUT ERROR NORMAL APPEND REPLACE STREAM STEM LIFO FIFO
 %token LOWER CASELESS
+%token PLUSASSIGNMENTVARIABLE MINUSASSIGNMENTVARIABLE MULTASSIGNMENTVARIABLE DIVASSIGNMENTVARIABLE MODULUSASSIGNMENTVARIABLE INTDIVASSIGNMENTVARIABLE ORASSIGNMENTVARIABLE XORASSIGNMENTVARIABLE ANDASSIGNMENTVARIABLE CONCATASSIGNMENTVARIABLE
 
 %start start
 
@@ -251,6 +252,16 @@ nclstatement : address_stat
              | signal_stat
              | trace_stat
              | upper_stat
+             | plusassignment
+             | minusassignment
+             | multassignment
+             | divassignment
+             | intdivassignment
+             | modulusassignment
+             | xorassignment
+             | orassignment
+             | andassignment
+             | concatassignment
              | assignment
              ;
 
@@ -861,9 +872,9 @@ select_stat  : select ncl when_stats otherwise_stat sel_end
                                          $$->p[0] = optgluelast( $2, $3 );
                                          $$->p[0]->o.last = NULL;
                                          $$->p[1] = $4; }
-             | select ncl END error    {  exiterror( ERR_WHEN_EXPECTED, 0 ) ;}
+             | select ncl END error    {  exiterror( ERR_WHEN_EXPECTED, 1, parser_data.select_linenr, __reginatext ) ;}
              | select ncl otherwise error
-                                       {  exiterror( ERR_WHEN_EXPECTED, 0 ) ;}
+                                       {  exiterror( ERR_WHEN_EXPECTED, 2, parser_data.select_linenr, __reginatext ) ;}
              | select error            {  exiterror( ERR_EXTRA_DATA, 1, __reginatext )  ;}
              | select ncl THEN         {  exiterror( ERR_THEN_UNEXPECTED, 0 ) ;}
              | select ncl when_stats otherwise error
@@ -872,7 +883,7 @@ select_stat  : select ncl when_stats otherwise_stat sel_end
 
 when_stats   : when_stats when_stat    { $$ = optgluelast( $1, $2 ); }
              | when_stat               { $$ = $1 ; }
-             | error                   {  exiterror( ERR_WHEN_EXPECTED, 0 )  ;}
+             | error                   {  exiterror( ERR_WHEN_EXPECTED, 2, parser_data.select_linenr, __reginatext )  ;}
              ;
 
 when_stat    : when expr nlncl THEN nlncl statement
@@ -883,15 +894,19 @@ when_stat    : when expr nlncl THEN nlncl statement
                                          $$->p[1]->o.last = NULL; }
              | when expr nlncl THEN nlncl statement THEN
                                        {  exiterror( ERR_THEN_UNEXPECTED, 0 ) ;}
-             | when expr               {  exiterror( ERR_THEN_EXPECTED, 2, parser_data.when_linenr, __reginatext )  ; }
+             | when expr               {  exiterror( ERR_THEN_EXPECTED, 2, parser_data.select_linenr, __reginatext )  ; }
              | when error              {  exiterror( ERR_INVALID_EXPRESSION, 0 ) ;}
              ;
 
+/*
 when_or_other: when
              | otherwise
              ;
-
-ex_when_stat : gruff when_or_other     { exiterror( ERR_WHEN_UNEXPECTED, 0 ); }
+ex_when_stat : gruff when_or_other     { exiterror( ERR_WHEN_UNEXPECTED, 1 ); }
+             ;
+*/
+ex_when_stat : gruff when              { exiterror( ERR_WHEN_UNEXPECTED, 1 ); }
+             | gruff otherwise         { exiterror( ERR_WHEN_UNEXPECTED, 2 ); }
              ;
 
 otherwise_stat : otherwise nlncl nxstats { $$ = $1;
@@ -937,6 +952,7 @@ signal_name  : asymbol                 { $$ = $1; }
              ;
 
 namespec    : NAME SIMSYMBOL           { $$ = (nodeptr)Str_cre_TSD(parser_data.TSD,retvalue);}
+            | NAME STRING              { $$ = (nodeptr)Str_cre_TSD(parser_data.TSD,retvalue) ; }
             | NAME error               { exiterror( ERR_STRING_EXPECTED, 3, __reginatext ) ;}
             ;
 
@@ -964,7 +980,7 @@ s_action    : c_action                 { $$ = $1 ; }
 
 trace_stat  : trace VALUE expr         { $$ = $1 ;
                                          $$->p[0] = $3 ; }
-            | trace expr               { $$ = $1 ;
+            | trace nexpr              { $$ = $1 ;
                                          $$->p[0] = $2 ; }
             | trace whatever error { exiterror( ERR_EXTRA_DATA, 1, __reginatext ) ;}
             | trace whatever           { $$ = $1 ;
@@ -992,6 +1008,116 @@ assignment  : ass_part nexpr           { $$ = $1 ;
             ;
 
 ass_part    : ASSIGNMENTVARIABLE       { $$ = makenode(X_ASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+plusassignment  : plus_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+plus_ass_part : PLUSASSIGNMENTVARIABLE { $$ = makenode(X_PLUSASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+minusassignment  : minus_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+minus_ass_part : MINUSASSIGNMENTVARIABLE { $$ = makenode(X_MINUSASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+multassignment  : mult_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+mult_ass_part : MULTASSIGNMENTVARIABLE { $$ = makenode(X_MULTASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+divassignment  : div_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+div_ass_part : DIVASSIGNMENTVARIABLE { $$ = makenode(X_DIVASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+intdivassignment  : intdiv_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+intdiv_ass_part : INTDIVASSIGNMENTVARIABLE { $$ = makenode(X_INTDIVASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+modulusassignment  : modulus_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+modulus_ass_part : MODULUSASSIGNMENTVARIABLE { $$ = makenode(X_MODULUSASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+andassignment  : and_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+and_ass_part : ANDASSIGNMENTVARIABLE { $$ = makenode(X_ANDASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+xorassignment  : xor_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+xor_ass_part : XORASSIGNMENTVARIABLE { $$ = makenode(X_XORASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+orassignment  : or_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+or_ass_part : ORASSIGNMENTVARIABLE { $$ = makenode(X_ORASSIGN,0) ;
+                                         $$->charnr = parser_data.tstart ;
+                                         $$->lineno = parser_data.tline ;
+                                         $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
+            ;
+
+concatassignment  : concat_ass_part nexpr  { $$ = $1 ;
+                                         $$->p[1] = $2 ;
+                                       }
+            ;
+
+concat_ass_part : CONCATASSIGNMENTVARIABLE { $$ = makenode(X_CONCATASSIGN,0) ;
                                          $$->charnr = parser_data.tstart ;
                                          $$->lineno = parser_data.tline ;
                                          $$->p[0] = (nodeptr)create_head( (const char *)retvalue ); }
@@ -1609,12 +1735,12 @@ static node_type gettypeof( nodeptr thisptr )
          if (thisptr->u.number)
          {
             fprintf( stderr, "Found an internal spot of investigation of the Regina interpreter.\n"
-                             "Please inform Mark Hessling or Florian Coosmann about the\n"
+                             "Please inform Mark Hessling or Florian Grosse-Coosmann about the\n"
                              "circumstances and this script.\n"
                              "\n"
                              "Many thanks!\n"
                              "email addresses:\n"
-                             "m.hessling@qut.edu.au\n"
+                             "mark@rexx.org\n"
                              "florian@grosse-coosmann.de\n");
             /* FIXME: When does this happen?
              * It doesn't happen if no feedback is send until end of 2005.

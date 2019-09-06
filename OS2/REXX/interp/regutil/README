@@ -1,0 +1,52 @@
+RexxUtil for Regina (Regutil), version 1.3.0
+
+RegUtil is now distributed as part of the Regina Rexx interpreter. However
+this does not preclude RegUtil being able to be built for other interpreters
+independently from Regina.  Simply follow the notes described in the 1.2.5
+section below.
+
+RexxUtil for Regina (RegUtil), version 1.2.5
+(original notes from last stand-alone version of Regutil)
+
+RegUtil is an implementation of IBM's RexxUtil for Regina. RexxUtil is a
+collection of functions which perform certain useful services, such as
+searching directories and files, performing contention management, and so on.
+The documentation is in regutil.pdf, which is part of the distribution.
+
+RegUtil is not finished, but it's getting closer. If there is a function which
+you need, but which returns 'not implemented', do let me know. If you feel
+like implementing some of the unimplemented functions, please let me know. If
+you find a bug, please let me know about that, too. As of version 1.1.0, you
+can test the version number of the library by calling the sysutilversion()
+function. Note that IBM's implementation returns 2 for the current release,
+but regutil returns 1.25 (you can tell them apart this way -- there's no
+version of IBM's library which returns anything less than 2).
+
+This is version 1.2.5. I will increment the third digit each time I do a
+bug-fix release. I will increment the second digit if I ever add a large
+number of new functions, however the goal is to provide compatibility with
+IBM's libraries, so this is unlikely to happen (except when IBM adds a large
+number of new functions ...).
+
+To compile the library using Microsoft C, type nmake -f Makefile.nt. To
+compile the library under FreeBSD systems, type make -f Makefile.bsd. To
+compile the library under another Unix system, you might try using the
+provided make files. Good luck, and let me know how it goes. The make files
+assume the stock vendor compiler -- to use another compiler such as gcc,
+you'll generally need to remove the flags that don't start with -D from the
+PCFLAGS definition and add -fPIC or the position-independent-code flag for
+your compiler.
+
+This code has been built on FreeBSD, NT, Solaris, HP, TRU64 Unix, Linux,
+Dynix, and AIX.
+
+To install on NT, copy rexxutil.dll to a directory in your path (e.g., the
+directory with regina.exe). To install on Unix systems, copy librexxutil.so
+(or whatever it's called on your system :( to some central location and put
+that central location in your LD_LIBRARY_PATH, LIBPATH, SHLIB_PATH, or
+whatever it's called on your system. FreeBSD has a nice utility to set
+standard library searches, which you might want to investigate.
+
+
+-- Patrick TJ McPhee
+   ptjm@interlog.com

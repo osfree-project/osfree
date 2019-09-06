@@ -45,7 +45,7 @@ ADD_COPT    +=         -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !endif
 
-ADD_RCOPT    =         -bt=os2 $(ADD_COPT)
+ADD_RCOPT    =         -bt=os2 $(ADD_RCOPT)
 
 !ifndef DEST
 DEST    = os2
@@ -82,7 +82,7 @@ ADD_LINKOPT +=        lib $(BLD)lib$(SEP)cmd_shared.lib, &
 
 .rc.res: .AUTODEPEND
  @$(SAY) RESCMP   $^.
- $(verbose)$(RC) $(RCOPT) $[@ -fo=$^@ -r
+ $(verbose)$(RC) -r $(RCOPT) $[@ -fo=$^@
 
 cplist = en pl ru
 

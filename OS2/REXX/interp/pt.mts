@@ -7,7 +7,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #
-# Regina erro messages - English
+# Regina error messages - English
 # Written by Mark Hessling <M.Hessling@qut.edu.au>
 #
 # portuguese - translation by Susana Carpenter,
@@ -56,10 +56,10 @@
  14,  3,THEN requer uma instrucao subsquente
  14,  4,ELSE requer uma instrucao subsequente
  15,  0,Linha hexadecimal ou binaria invalida
- 15,  1,Localizacao invalida do espa‡o na posicao %d na linha hexadecimal|<position>
- 15,  2,Localizacao invalida do espa‡o na posicao %d na linha binaria|<position>
- 15,  3,Apenas 0-9, a-f, A-F, e espa‡o sao validos numa linha hexadecimal; encontrado "%c"|<char>
- 15,  4,Apenas 0, 1, e espa‡o sao validos numa linha binaria; encontrado "%c"|<char>
+ 15,  1,Localizacao invalida do espaço na posicao %d na linha hexadecimal|<position>
+ 15,  2,Localizacao invalida do espaço na posicao %d na linha binaria|<position>
+ 15,  3,Apenas 0-9, a-f, A-F, e espaço sao validos numa linha hexadecimal; encontrado "%c"|<char>
+ 15,  4,Apenas 0, 1, e espaço sao validos numa linha binaria; encontrado "%c"|<char>
  16,  0,Rotulo nao encontrado
  16,  1,Rotulo "%s" nao encontrado|<name>
  16,  2,Impossivel aplicar SIGNAL ao rotulo "%s" porque estah dentro de um grupo IF, SELECT ou DO|<name>
@@ -109,7 +109,7 @@
  26,  2,O valor da expressao de contagem de repeticoes na instrucao DO deve ser zero ou um numero inteiro positivo; encontrado "%s"|<value>
  26,  3,O valor da expressao FOR na instrucao DO deve ser zero ou um numero inteiro positivo; encontrado "%s"|<value>
  26,  4,O parametro posicional do modelo de analise deve ser um numero inteiro; encontrado "%s"|<value>
- 26,  5,O valor dos NUMERIC DIGITS deve ser zero ou um numero inteiro positivo; encontrado "%s"|<value>
+ 26,  5,O valor dos NUMERIC DIGITS deve ser um numero inteiro positivo; encontrado "%s"|<value>
  26,  6,O valor NUMERIC FUZZ deve ser zero ou um numero inteiro positivo; encontrado "%s"|<value>
  26,  7,O numero usado na configuracao TRACE deve ser um numero inteiro; encontrado "%s"|<value>
  26,  8,Operand a direita do operador da potencia ("**") deve ser um numero inteiro; encontrado "%s"|<value>
@@ -133,8 +133,8 @@
  31,  3,Simbolo de variavel nao deve iniciar com "."; encontrado "%s"|<token>
  32,  0,[Uso invalido de stem]
  33,  0,Resultado de expressao invalido
- 33,  1,O valor de NUMERIC DIGITS "%d" deve ultrapassar o valor de NUMERIC FUZZ "(%d)"|<value>,<value>
- 33,  2,O valor de NUMERIC DIGITS "%d" nao deve ultrapassar %d|<value>,#Limit_Digits
+ 33,  1,O valor de NUMERIC DIGITS ("%d") deve ultrapassar o valor de NUMERIC FUZZ ("%d")|<value>,<value>
+ 33,  2,O valor de NUMERIC DIGITS ("%d") nao deve ultrapassar %d|<value>,#Limit_Digits
  33,  3,O resultado da expressao subsequente a NUMERIC FORM deve iniciar com "E" ou "S"; encontrado "%s"|<value>
  34,  0,Valor logico nao eh "0" ou "1"
  34,  1,Valor da expressao subsequente a palavra-chave IF deve ser exatamente "0" ou "1"; encontrado "%s"|<value>
@@ -186,27 +186,29 @@
  40, 39,%s argumento 3 nao eh zero ou um; encontrado "%s"|<bif>,<value>
  40, 41,%s argumento %d deve estar dentro dos limites do stream; encontrado "%s"|<bif>,<argnumber>,<value>
  40, 42,%s argumento 1; nao eh possivel posicionar neste stream; encontrado "%s"|<bif>,<value>
+ 40, 43,%s argumento %d deve ser um caractere nao-alfanumerico ou a linha nula;  encontrado "%s"|<bif>,<argnumber>,<value>
+ 40, 44,%s argumento %d, "%s", eh um formato incompativel com o separador especificado no argumento %d|<bif>,<argnumber>,<value>,<argnumber>
  40,914,[%s argumento  %d, deve ser um dos "%s"; encontrado "%s"]|<bif>,<argnumber>,<optionslist>,<value>
  40,920,[%s: erro I/O de stream de nivel baixo; %s]|<bif>,<description>
  40,921,[%s argumento %d, modo de posicionamento do stream "%s"; incompativel com o modo stream aberto]|<bif>,<argnumber>,<value>
  40,922,[%s argumento %d, sub-comando insuficientes; minimo necessario eh %d; encontrado %d]|<bif>,<argnumber>,<value>,<value>
  40,923,[%s argumento %d, sub-comandos demais; maximo necessario eh %d; encontrado %d]|<bif>,<argnumber>,<value>,<value>
  40,924,[%s argumento %d, especificacao posicional invalida; eh necessario um dos "%s"; encontrado "%s"]|<bif>,<argnumber>,<value>,<value>
- 40,930,[RXQUEUE, funcao TIMEOUT, espera-se um numero total entre -1 e %d; encontrado \"%s\"]|<value>,<value>
- 40,980,Unexpected input, either unknown type or illegal data%s%s|: ,<location>
- 40,981,Number out of the allowed range%s%s|: ,<location>
- 40,982,String too big for the defined buffer%s%s|: ,<location>
- 40,983,Illegal combination of type/size%s%s|: ,<location>
- 40,984,Unsupported number like NAN, +INF, -INF%s%s|: ,<location>
- 40,985,Structure too complex for static internal buffer%s%s|: ,<location>
- 40,986,An element of the structure is missing%s%s|: ,<location>
- 40,987,A value of the structure is missing%s%s|: ,<location>
- 40,988,The name or part of the name is illegal for the interpreter%s%s|: ,<location>
- 40,989,A problem occured at the interface between Regina and GCI%s%s|: ,<location>
- 40,990,The type won't fit the requirements for basic types (arguments/return value)%s%s|: ,<location>
- 40,991,The number of arguments is wrong or an argument is missing%s%s|: ,<location>
- 40,992,GCI's internal stack for arguments got an overflow%s%s|: ,<location>
- 40,993,GCI counted too many nested LIKE containers%s%s|: ,<location>
+ 40,930,[RXQUEUE, funcao TIMEOUT, espera-se um numero total entre 0 e %d; encontrado \"%s\"]|<value>,<value>
+ 40,980,Input inesperado, de tipo desconhecido ou dados ilegais%s%s|: ,<location>
+ 40,981,Numero fora do intervalo permitido%s%s|: ,<location>
+ 40,982,Linha muito grande para o buffer definido%s%s|: ,<location>
+ 40,983,Cominacao ilegal de tipo/tamanho%s%s|: ,<location>
+ 40,984,Numero nao suportado como NAN, +INF, -INF%s%s|: ,<location>
+ 40,985,Estrutura complexa demais para o buffer estatico interno buffer%s%s|: ,<location>
+ 40,986,Falta um elemento da estrutura%s%s|: ,<location>
+ 40,987,Falta um valor da estrutura%s%s|: ,<location>
+ 40,988,O nome ou parte do nome eh ilegal para o interprete%s%s|: ,<location>
+ 40,989,Houve um problema na interface entre Regina e GCI%s%s|: ,<location>
+ 40,990,Tipo nao se ajusta aos requisitos para tipos basicos (argumentos/valor de retorno)%s%s|: ,<location>
+ 40,991,O numero de argumentos estah errado ou falta um argumento%s%s|: ,<location>
+ 40,992,A pilha interna do GCI para argumentos recebeu sobrecarga%s%s|: ,<location>
+ 40,993,GCI contou um excesso de recipientes LIKE%s%s|: ,<location>
  41,  0,mah conversao aritmetica
  41,  1,valor nao-numerico ("%s") a esquerda da operacao aritmetica "%s"|<value>,<operator>
  41,  2,valor nao-numerico ("%s") a direita da operacao aritmetica "%s"|<value>,<operator>
@@ -259,10 +261,12 @@
  90,  1,[%s eh uma extensao Regina BIF]|<bif>
  90,  2,[%s eh uma instrucao de extensao Regina]|<token>
  90,  3,[%s argumento %d, a opcao deve iniciar com um dos "%s" com "OPTIONS STRICT_ANSI"; encontrado "%s"; uma extensao Regina]|<bif>,<argnumber>,<optionslist>,<value>
+ 90,  4,[%s eh uma operador de extensao Regina]|<token>
  93,  0,[chamada incorreta para rotina]
  93,  1,[o comando STREAM %s deve ser seguido por um dos "%s"; encontrado "%s"]|<token>,<value>,<value>
  93,  3,[o comando STREAM deve ser um dos "%s"; encontrado "%s"]|<value>,<value>
  94,  0,[erro de interface de fila externa]
+ 94,  1,[a fila externa cronometrou para fora]
  94, 99,[erro interno com interface de fila externa: %d "%s"]|<description>,<systemerror>
  94,100,[erro geral do sistema com interface de fila externa. %s. %s]|<description>,<systemerror>
  94,101,[Erro ao conectar a %s na porta %d: "%s"]|<machine>,<portnumber>,<systemerror>
@@ -283,3 +287,18 @@
  95,  4,[argumento STREAM 3: abrir arquivos para acesso WRITE invalido no modo "seguro"]
  95,  5,[executar comandos externos eh invalido no modo "seguro"]
 100,  0,[erro desconhecido de sistema de arquivos]
+#
+# frases que precisam ser traduzidas  - Extra geral:
+# O texto entre () eh o nome correspondente da matriz em error.c
+P,  0,Erro %d ao executar "%.*s", linha %d: %.*s
+P,  1,Erro %d.%d: %.*s
+P,  2,Erro %d ao executar "%.*s": %.*s
+#
+# (err1prefix)   "Erro %d em execucao\"%.*s\", linha %d: %.*s",
+# (suberrprefix) "erro %d.%d: %.*s",
+# (err2prefix)   "erro %d em execucao\"%.*s\": %.*s",
+# (erropen)      "Nao eh possivel abrir arquivo de idiomas%s",
+# (errcount)     "numero incorreto de mensagens no arquivo de idioma: %s",
+# (errread)      "Nao eh possivel ler o arquivo de idioma: %s",
+# (errmissing)   "Falta texto no arquivo de idioma: %s.mtb",
+# (errcorrupt)   "Arquivo de idioma: %s.mtb  estah corrompido",

@@ -76,9 +76,9 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   ULONG  len;
   char   curdir[260];
   HFILE  hf;
-  APIRET rc;
+  APIRET rc = NO_ERROR;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
 
   log("flag=%08x\n", flag);
 
@@ -98,11 +98,17 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   if (!pszPathOrName || !*pszPathOrName ||
       !pszFilename   || !*pszFilename   ||
       !pBuf || !cbBuf)
-    return ERROR_INVALID_PARAMETER;
+  {
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSSEARCHPATH_EXIT;
+  }
 
   // if incorrect flag is specified
   if (flag & ~(SEARCH_ENVIRONMENT | SEARCH_CUR_DIRECTORY | SEARCH_IGNORENETERRS))
-    return ERROR_INVALID_FUNCTION;
+  {
+    rc = ERROR_INVALID_FUNCTION;
+    goto DOSSEARCHPATH_EXIT;
+  }
 
   // @todo implement SEARCH_IGNORENETERRS
 
@@ -164,7 +170,8 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
       {
         StrTokStop();
         DosFreeMem(path);
-        return ERROR_BUFFER_OVERFLOW;
+        rc = ERROR_BUFFER_OVERFLOW;
+        goto DOSSEARCHPATH_EXIT;
       }
 
       // try to DosOpen it
@@ -186,7 +193,8 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
       DosFreeMem(path);
       log("pBuf=%s\n", pBuf);
 
-      return NO_ERROR;
+      rc = NO_ERROR;
+      goto DOSSEARCHPATH_EXIT;
     } while (p = StrTokenize(0, psep));
   }
 
@@ -195,5 +203,9 @@ APIRET APIENTRY  DosSearchPath(ULONG flag,
   *pBuf = '\0';
 
 
-  return ERROR_FILE_NOT_FOUND;
+  rc = ERROR_FILE_NOT_FOUND;
+
+DOSSEARCHPATH_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: debug.c,v 1.14 2005/08/16 07:21:48 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -96,7 +92,7 @@ static cvariableptr get_realbox( cvariableptr p, int *exposed )
 
 /*
  * dumpvars dumps the set of valid variables of the current PROCEDURE frame.
- * The destination is stderr of stdout in case of STDOUT_FOR_STDERR.
+ * The destination is stderr or stdout in case of STDOUT_FOR_STDERR.
  */
 void dumpvars( const tsd_t *TSD )
 {
@@ -115,11 +111,11 @@ void dumpvars( const tsd_t *TSD )
 
    fprintf( fp, "\nDumping variables, 1. no after \">>>\" is the bin number\n" );
    fprintf( fp, "[ %u elements in %u buckets, %u reads, %u writes, %u collisions ]\n",
-                TSD->currlevel->vars->e,
+                TSD->currlevel->vars->elements,
                 TSD->currlevel->vars->size,
-                TSD->currlevel->vars->r,
-                TSD->currlevel->vars->w,
-                TSD->currlevel->vars->c);
+                TSD->currlevel->vars->reads,
+                TSD->currlevel->vars->writes,
+                TSD->currlevel->vars->collisions);
    for ( i = 0; i < TSD->currlevel->vars->size; i++ )
    {
       if ( hashptr[i] == NULL )
@@ -145,11 +141,11 @@ void dumpvars( const tsd_t *TSD )
             continue;
 
          fprintf( fp, "   [ %u elements in %u buckets, %u reads, %u writes, %u collisions ]\n",
-                      rb->index->e,
+                      rb->index->elements,
                       rb->index->size,
-                      rb->index->r,
-                      rb->index->w,
-                      rb->index->c);
+                      rb->index->reads,
+                      rb->index->writes,
+                      rb->index->collisions);
          for ( j = 0; j < rb->index->size; j++ )
          {
             /*

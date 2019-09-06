@@ -50,6 +50,25 @@
 #    This has been found to be the only possible solution. I guess it will
 #    also be the case for French, Portuguese and other Latin languages.
 #
+#
+# TODO
+# 40.44
+# 40,930
+# 40,980
+# 40,981
+# 40,982
+# 40,983
+# 40,984
+# 40,985
+# 40,986
+# 40,987
+# 40,988
+# 40,989
+# 40,990
+# 40,991
+# 40,992
+# 40,993
+#
   0,  1,Error %s ejecutando %s, línea %d:|<value>,<source>,<linenumber>
   0,  2,Error %s en el trazado interactivo:|<value>
   0,  3,Trazado interactivo.  "Trace Off" para finalizar el "debug". ENTER para continuar.
@@ -145,7 +164,7 @@
  26,  2,El valor de contaje de repetición en la instrucción DO debe ser cero o un número entero positivo; encontrado "%s"|<value>
  26,  3,El valor de la expresión FOR en la instrucción DO debe ser cero o un número entero positivo; encontrado "%s"|<value>
  26,  4,El parámetro posicional de una regla de "parsing" debe ser un número entero; encontrado "%s"|<value>
- 26,  5,El valor de NUMERIC DIGITS debe ser cero o un número entero positivo; encontrado "%s"|<value>
+ 26,  5,El valor de NUMERIC DIGITS debe ser un número entero positivo; encontrado "%s"|<value>
  26,  6,El valor de NUMERIC FUZZ debe ser cero o un número entero positivo; encontrado "%s"|<value>
  26,  7,El número usado en el "TRACE setting" debe ser un número entero; encontrado "%s"|<value>
  26,  8,El operando a la derecha del operador de exponenciación ("**") debe ser un número entero; encontrado "%s"|<value>
@@ -169,8 +188,8 @@
  31,  3,Un símbolo de variable no puede empezar por "."; encontrado "%s"|<token>
  32,  0,[Uso inválido de "stem"]
  33,  0,Resultado de expresión inválido
- 33,  1,El valor de NUMERIC DIGITS "%d" debe exceder el valor de NUMERIC FUZZ "(%d)"|<value>,<value>
- 33,  2,El valor de NUMERIC DIGITS "%d" no debe exceder %d|<value>,#Limit_Digits
+ 33,  1,El valor de NUMERIC DIGITS ("%d") debe exceder el valor de NUMERIC FUZZ ("%d")|<value>,<value>
+ 33,  2,El valor de NUMERIC DIGITS ("%d") no debe exceder %d|<value>,#Limit_Digits
  33,  3,El resultado de la expresión a continuación de NUMERIC FORM debe empezar por "E" o "S"; encontrado "%s"|<value>
  34,  0,El valor lógico no es "0" o "1"
  34,  1,El valor de la expresión que sigue a la palabra clave IF debe ser exactamente "0" o "1"; encontrado "%s"|<value>
@@ -222,13 +241,15 @@
  40, 39,El argumento 3 de %s no es cero ni uno; encontrado "%s"|<bif>,<value>
  40, 41,El argumento de %s número %d debe estar dentro de los límites del fichero; encontrado "%s"|<bif>,<argnumber>,<value>
  40, 42,El argumento 1 de %s; no se puede posicionar en este fichero; encontrado "%s"|<bif>,<value>
+ 40, 43,%s argumento %d debe ser un solo carácter no alfanumérico o la cadena nula; encontrado "%s"|<bif>,<argnumber>,<value>
+ 40, 44,%s argument %d, "%s", is a format incompatible with the separator specified in argument %d|<bif>,<argnumber>,<value>,<argnumber>
  40,914,[El argumento de %s número %d, debe ser uno de "%s"; encontrado "%s"]|<bif>,<argnumber>,<optionslist>,<value>
  40,920,[%s: error de bajo nivel de E/S del fichero; %s]|<bif>,<description>
  40,921,[Argumento de %s número %d, modo "%s" de posicionado en fichero; incompatible con el modo de fichero abierto]|<bif>,<argnumber>,<value>
  40,922,[Argumento de %s número %d, muy pocos sub-comandos; el mínimo esperado es %d; encontrado %d]|<bif>,<argnumber>,<value>,<value>
  40,923,[Argumento de %s número %d, demasiados sub-comandos; el máximo esperado es %d; encontrado %d]|<bif>,<argnumber>,<value>,<value>
  40,924,[Argumento de %s número %d, especificación posicional inválida; esperando uno de "%s"; encontrado "%s"]|<bif>,<argnumber>,<value>,<value>
- 40,930,[RXQUEUE, function TIMEOUT, expecting a whole number between -1 and %d; found \"%s\"]|<value>,<value>
+ 40,930,[RXQUEUE, function TIMEOUT, expecting a whole number between 0 and %d; found \"%s\"]|<value>,<value>
  40,980,Unexpected input, either unknown type or illegal data%s%s|: ,<location>
  40,981,Number out of the allowed range%s%s|: ,<location>
  40,982,String too big for the defined buffer%s%s|: ,<location>
@@ -295,10 +316,12 @@
  90,  1,[%s es un BIF de la extensión de Regina]|<bif>
  90,  2,[%s es una instrucción de la extensión de Regina]|<token>
  90,  3,[Argumento de %s número %d, opción debe empezar por uno de "%s" con "OPTIONS STRICT_ANSI"; encontrado "%s"; una extension de Regina]|<bif>,<argnumber>,<optionslist>,<value>
+ 90,  4,[%s es una operador de la extensión de Regina]|<token>
  93,  0,[Llamada incorrecta a rutina]
  93,  1,[El comando %s de STREAM debe estar seguido por uno de "%s"; encontrado "%s"]|<token>,<value>,<value>
  93,  3,[El comando de STREAM debe ser uno de "%s"; encontrado "%s"]|<value>,<value>
  94,  0,[Error de la interfaz de la cola externa]
+ 94,  1,[La coleta externa midió el tiempo hacia fuera]
  94, 99,[Error interno con la interfaz de la cola externa: %d "%s"]|<description>,<systemerror>
  94,100,[Error general del sistema con la interfaz de la cola externa. %s. %s]|<description>,<systemerror>
  94,101,[Error conectando con %s en la puerta %d: "%s"]|<machine>,<portnumber>,<systemerror>
@@ -322,10 +345,6 @@
 #
 # Extra general phrases requiring translation:
 #
-# Error 3 ejecutando "<file>" línea 1:
-# Incapaz de abrir el fichero de lenguaje: %s
-# Número incorrecto de mensajes en el fichero de lenguaje: %s
-# Incapaz de leer el fichero de lenguaje: %s
-# Incapaz de mostrar el texto del error %d.%d; fichero de lenguaje: %s no disponible
-# Incapaz de mostrar el texto del error %d.%d; falta el texto del fichero de lenguaje: %s
-# Incapaz de mostrar el texto del error %d.%d; fichero de lenguaje: %s está corrupto
+P,  0,Error %d ejecutando "%.*s" línea %d: %.*s
+P,  1,Error %d.%d: %.*s
+P,  2,Error %d ejecutando "%.*s": %.*s

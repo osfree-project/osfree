@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: signals.c,v 1.19 2005/08/03 09:18:05 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -35,6 +31,13 @@ static char *RCSid = "$Id: signals.c,v 1.19 2005/08/03 09:18:05 mark Exp $";
 /* at least dolphin does not have a properly ANSI C set of include files */
 #ifndef SIG_ERR
 # define SIG_ERR ((void(*)())(-1))
+#endif
+
+#if defined(__WATCOMC__)
+// no SIGHUP on OW
+#undef SIGHUP
+#undef SIGUSR1
+#undef SIGUSR2
 #endif
 
 const char *signalnames[] = {
@@ -201,7 +204,7 @@ int identify_trap( int type )
 /* the rest should probably also be defined */
 static const char *signals_names[] = {
      "", "SIGHUP", "SIGINT", "", "", "", "", "", "", "",
-     "", "", "", "", "", "SIGTERM", "", "", "", "", "",
+     "SIGUSR1", "SIGUSR2", "", "", "", "SIGTERM", "", "", "", "", "",
      "SIGBREAK", "", "", "", "", "", "", "", "", "",
      "", ""
 } ;
@@ -324,6 +327,14 @@ void signal_setup( const tsd_t *TSD )
 # endif
 # if defined(SIGHUP)
    if (regina_signal( SIGHUP, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
+      exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
+# endif
+# if defined(SIGUSR1)
+   if (regina_signal( SIGUSR1, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
+      exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
+# endif
+# if defined(SIGUSR2)
+   if (regina_signal( SIGUSR2, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
       exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
 # endif
 #endif

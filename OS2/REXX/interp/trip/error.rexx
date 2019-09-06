@@ -18,8 +18,8 @@ If arg_errors = '' Then errors = '3.1 4.0 5.0 6.0 6.1 6.2 6.3 7.0 8.1 8.2 9.0 10
          '28.1 28.2 28.3 28.4 30.0 31.2 31.3 32.0 33.1 34.0 35.1 38.1 38.3',
          '40.3 40.4 40.5 40.11 40.13 40.14 40.17 40.18 40.19 40.21',
          '40.23 40.27 40.28 40.31 40.32 40.33 40.34 40.37 40.38 40.39 40.42 40.914',
-         '40.921 40.922 40.923 40.924 41.0 42.0 43.1 44.1 48.1 49.1 51.1',
-         '53.1 53.2 53.3 64.1 90.1 90.3 93.1 93.3'
+         '40.921 40.922 40.923 40.924 41.0 41.1 41.2 42.0 43.1 44.1 48.1 49.1 51.1',
+         '53.1 53.2 53.3 64.1 90.1 90.3 90.4 93.1 93.3'
 Else errors = arg_errors
 Do i = 1 To Words( errors )
    head = 'Testing for error:' Word( errors, i )
@@ -602,6 +602,18 @@ src.3 = 'end'
 Call runner
 Return
 
+41_1: Procedure Expose langs
+src.0 = 1
+src.1 = 'x = a + 2'
+Call runner
+Return
+
+41_2: Procedure Expose langs
+src.0 = 1
+src.1 = 'x = 2 + a'
+Call runner
+Return
+
 42_0: Procedure Expose langs
 src.0 = 1
 src.1 = 'say "cant work out a test for this error"'
@@ -685,6 +697,14 @@ Return
 src.0 = 2
 src.1 = 'options STRICT_ANSI'
 src.2 = 'say time("T")'
+Call runner
+Return
+
+90_4: Procedure Expose langs
+src.0 = 3
+src.1 = 'options STRICT_ANSI'
+src.2 = 'x = 1'
+src.3 = 'x += 1'
 Call runner
 Return
 

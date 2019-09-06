@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: strings.c,v 1.13 2005/08/16 07:43:14 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>

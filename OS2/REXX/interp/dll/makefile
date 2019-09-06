@@ -15,6 +15,7 @@ ADD_COPT  = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) -bd
 ADD_LINKOPT  = segment   type DATA nonshared
 
 srcfiles  = &
+$(p)mygetopt$(e) &
 $(p)client$(e) &
 $(p)drexx$(e) &
 $(p)rexxsaa$(e) &
@@ -36,6 +37,8 @@ $(p)cmsfuncs$(e) &
 $(p)shell$(e) &
 $(p)rexxext$(e) &
 $(p)stack$(e) &
+# $(p)os2que$(e) &
+$(p)mktime$(e) &
 $(p)tracing$(e) &
 $(p)interp$(e) &
 $(p)cmath$(e) &
@@ -66,6 +69,13 @@ $(p)gci_reginabridge$(e) &
 $(p)gci_rxfuncdefine$(e) &
 $(p)gci_tree$(e)
 !endif
+
+IMPORTS = &
+ rexxCreateQueue REXXAPI.1, &
+ rexxDeleteQueue REXXAPI.2, &
+ rexxAddQueue    REXXAPI.3, &
+ rexxPullQueue   REXXAPI.4, &
+ rexxQueryQueue  REXXAPI.5
 
 EXPORTS = &
  RexxAllocateMemory, &

@@ -28,6 +28,11 @@
  * Most graphics functions are missing; right now I'm focusing on text and regular functions
  */
 #include <dos.h>
+
+#ifdef NAME_MAX
+#undef NAME_MAX
+#endif
+
 #include <conio.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -40,7 +45,11 @@
 #include <io.h>
 #include <graph.h>
 #include <errno.h>
+#ifndef LINUX
 #include <direct.h>
+#else
+#include <dirent.h>
+#endif
 #include "tcc2wat.h"
 #undef _matherr
 

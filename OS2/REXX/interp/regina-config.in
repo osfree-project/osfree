@@ -3,9 +3,8 @@
 # The idea to this kind of setup info script was stolen from numerous
 # other packages, such as neon, libxml and gnome.
 #
-# $Id: $
-#
 prefix=@prefix@
+datarootdir=@datarootdir@
 exec_prefix=@exec_prefix@
 includedir=@includedir@
 libdir=@libdir@
@@ -24,15 +23,17 @@ usage()
     echo "  --multithread  yes; if thread-safe library is available; no otherwise"
     echo "                 [@REGINAMULTITHREAD@]"
     echo "  --libs         library linking information"
-    echo "                 [-L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@]"
+    echo "                 [-L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@]"
     echo "  --libs_ts      library linking information for thread-safe library"
     echo "                 [-L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@]"
     echo "  --libs32       library linking information for specific 32bit build"
-    echo "                 [-L$libdir32 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@]"
+    echo "                 [-L$libdir32 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@  @REGINA_CONFIG_LIBS@]"
     echo "  --libs64       library linking information for specific 64bit build"
-    echo "                 [-L$libdir64 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@]"
+    echo "                 [-L$libdir64 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@  @REGINA_CONFIG_LIBS@]"
     echo "  --prefix       Regina install prefix"
     echo "                 [$prefix]"
+    echo "  --addons       Directory where Regina will look for external function packages"
+    echo "                 [@addonsdir@]"
     echo "  --version      output version information"
     echo "                 [@VERSION@]"
     exit $1
@@ -74,7 +75,7 @@ while test $# -gt 0; do
           ;;
 
        --libs)
-          echo -L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@
+          echo -L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
           ;;
 
        --libs_ts)
@@ -82,11 +83,15 @@ while test $# -gt 0; do
           ;;
 
        --libs32)
-          echo -L$libdir32 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@
+          echo -L$libdir32 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
           ;;
 
        --libs64)
-          echo -L$libdir64 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@
+          echo -L$libdir64 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
+          ;;
+
+       --addons)
+          echo @addonsdir@
           ;;
 
        *)

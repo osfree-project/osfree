@@ -1,27 +1,33 @@
 ;===============================================
 ; Requires following !defines in the calling *.nsi file
 ; Examples:
-; SFGROUP     "30846"
-;             Group Id on SourceForge
-; SFHOME      "http://rexxwrapper.sourceforge.net"
-;             SF Home URL
-; DISPLAYICON "$INSTDIR\${SHORTNAME}.exe,0"
-;             Installed file Icon
-; UNINSTALLER "${SHORTNAME}un.exe"
-;             Name of uninstaller executable
-; KEYFILE     "${SHORTNAME}.exe"
+; REGISTRYNAME   "TheHesslingEditor"
+; LONGNAME       "The Hessling Editor"
+; SHORTNAME      "THE"
+; KEYFILE     "the.exe"
 ;             Name of key installed file in $INSTALLDIR
+; ARCH        "w64"
+;             32bit (w32) or 64bit (w64) package architecture
 ;===============================================
 ;
 ;
+; set Registry view
+!if ${ARCH} == "w64"
+SetRegView 64
+!else
+SetRegView 32
+!endif
+
+UninstallDefault:
+;
 ; Uninstall previous version if present
 ;
-ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
+ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${REGISTRYNAME}" "UninstallString"
 StrCmp $R1 "" NoUninstall
   ;
   ; ask the user to run the uninstaller
   ;
-  ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UnInstallLocation"
+  ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${REGISTRYNAME}" "UnInstallLocation"
   StrCmp $R2 "" NoUninstallLocation
   Goto StartUninstall
   NoUninstallLocation:

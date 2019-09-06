@@ -8,26 +8,35 @@ APIRET APIENTRY DosCreateThread(PTID ptid,
                                 ULONG flag,
                                 ULONG cbStack)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("ptid=%lx\n", ptid);
   log("param=%lx\n", param);
   log("flag=%lx\n", flag);
   log("cbStack=%lx\n", cbStack);
-  return KalCreateThread(ptid, pfn, param, flag, cbStack);
+  rc = KalCreateThread(ptid, pfn, param, flag, cbStack);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 APIRET APIENTRY DosSuspendThread(TID tid)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("tid=%lu\n", tid);
-  return KalSuspendThread(tid);
+  rc = KalSuspendThread(tid);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 APIRET APIENTRY DosResumeThread(TID tid)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("tid=%lu\n", tid);
-  return KalResumeThread(tid);
+  rc = KalResumeThread(tid);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 
@@ -35,17 +44,21 @@ APIRET APIENTRY DosWaitThread(PTID ptid,
                               ULONG option)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("option=%lu\n", option);
   rc = KalWaitThread(ptid, option);
   log("tid=%lu\n", *ptid);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
 
 
 APIRET APIENTRY DosKillThread(TID tid)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("tid=%lu\n", tid);
-  return KalKillThread(tid);
+  rc = KalKillThread(tid);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

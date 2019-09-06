@@ -1,23 +1,27 @@
-                        Regina 3.4
-                    for Win9x/NT/2k/XP
+                        Regina for Windows 2000/XP/Vista/7
 
 This distribution contains 32 bit executables of the Regina Rexx interpreter
-for Win9x/NT/2k/XP, and some sample programs, most of which are designed to test
+for Windows 2000/XP/Vista/7, and some sample programs, most of which are designed to test
 new features of this interpreter.
+
+Note that this version does not work on older versions of Windows such as Win9x/NT/Me.
+This limitation is based on wanting to include support for handling files larger than 2gb
+in size.  To support this a recent version of the MS compiler was required and binaries
+produced by that compiler do not support older versions of Windows.
 
 Regina is distributed under the GNU Library General Public Licence.
 See COPYING-LIB for details.
 
-This port of Regina to Win9x/NT/2k/XP differs from the port of Regina on the
+This port of Regina to Windows 2000/XP/Vista/7 differs from the port of Regina on the
 Windows NT Resource Kit in two ways:
 
 1)  This port is sanctioned by the author of Regina, Anders Christensen.
 2)  This port does not provide any OLE or Win32 support nor does it
     provide builtin access to the Registry.  It does however, provide the
     standard Rexx API.  This enables C programs written under OS/2 and
-    Unix that use the standard API, to be easily ported to Win9x/NT/2k/XP.
+    Unix that use the standard API, to be easily ported to Windows 2000/XP/Vista/7.
     It also means that C programs written using Quercus Rexx and Object
-    Rexx under Win9x/NT/2k to be recompiled using Regina, and C programs
+    Rexx under Windows 2000/XP/Vista/7 to be recompiled using Regina, and C programs
     written for Regina to be recompiled using Quercus Rexx or Object
     Rexx.
     The Win32 functions that were built into Regina on the Resource Kit are
@@ -32,14 +36,24 @@ COPYING-LIB        - GNU Library General Public Licence
 file_id.diz        - Description file for BBS use
 regina.exe         - 32bit Regina Rexx interpreter executable
 regina.dll         - 32bit Regina Rexx interpreter dynamic library
-regina.lib         - Import library for Visual C++
-rexx.lib           - Static library for Visual C++
 rexx.exe           - Regina executable - does not require regina.dll
-rexxsaa.h          - Header file for access to regina.dll
-test1.dll          - Sample external function packages; used by dynfunc.rexx
-test2.dll            demo Rexx program
+regutil.dll        - 32bit Regutil dynamic library
+*.mtb              - Native Language message files
+msvcr100.dll       - MS Visual C++ Runtime v10
+
+** The following are included if you requested demo programs option on install **
+demo\rxtest1.dll   - Sample external function packages; used by dynfunc.rexx
+demo\rxtest2.dll     demo Rexx program
 demo\*.rexx        - Sample Rexx programs
-nls\*.mtb          - Native Language message files
+
+** The following are included if you requested documentation option on install **
+doc\regina.pdf     - Regina documentation
+doc\regutil.pdf    - Regutil documentation
+
+** The following are included if you requested development option on install **
+include\rexxsaa.h  - Header file for access to regina.dll
+lib\regina.lib     - Import library for Visual C++
+lib\rexx.lib       - Static library for Visual C++
 
 The remainder of this section is relevant only if you are not installing
 Regina via the self-extracing installation.
@@ -56,8 +70,6 @@ directory), and set REGINA_LANG_DIR to the directory containing the
 If you wish to be able to run Rexx programs automatically, ie without
 specifying the regina.exe or the file extension, then run the following
 Windows commands from a command prompt: (you only need to do this once)
-Note: The following commands will only work under NT/2k/XP; they are not
-supported under Windows 95/98.
 
 C:\> ftype Regina=c:\regina\regina.exe "%1" %*
 C:\> assoc .rexx=Regina
@@ -115,7 +127,7 @@ We have the options to:
 3) choose the interpreter (CMD.EXE or COMMAND.COM)
 
 The main goal was to start GUIs separately and text mode programs under the
-control of the caller (GUI or text). Regina can be part of a GUI progress
+control of the caller (GUI or text). Regina can be part of a GUI process
 and must be treated as GUI in this case. Most people get upset with console
 windows popping up showing nothing.
 
@@ -123,17 +135,6 @@ Some combinations of the interpreter, the target programs, and the options
 we can pass along to the system lead to nonstarting, nonstopping, crashing
 programs. Or we may loose control by means of broken communications to the
 subprocess (ADDRESS WITH...).
-
-So we had to choose either to let program run safely OR to let program run
-pretty. Blame the guys who designed Windows, not the Regina crew!
-
-So, if you have a DOS graphical extension known as Windows 95, Windows 98 or
-Windows Millenium you will get console windows popping up if run from a GUI
-program. We are sorry for this, we can't change it.
-
-Those Systems with a 32 bit startup kernel known as Windows NT, Windows 2000,
-Windows XP will hide the console windows when starting a text mode program
-from a GUI program.
 
 ATTENTION: Your programs might crash or you may loose control either of the
 called program or of Regina if you change the interpreter inside your Rexx

@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: tracing.c,v 1.26 2006/09/03 09:51:18 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -38,14 +34,16 @@ typedef struct { /* tra_tsd: static variables of this module (thread-safe) */
    int  intercount;  /* number of times to execute trace without interaction */
    int  quiet;       /* boolean: run quietly in interaction trace */
    int  notnow;
-   char tracestr[LINELENGTH+1];
+   char tracestr[BUFFERSIZE+100];
    char buf0[32];
    int  bufptr0;
    char tracefmt[20];
+   int  initialhtmltracing; /* set to 1 after first line of HTML tracing set */
 } tra_tsd_t; /* thread-specific but only needed by this module. see
               * init_tracing
               */
 
+PROTECTION_VAR( trace_setting )
 
 /* init_tracing initializes the module.
  * Currently, we set up the thread specific data.
@@ -112,6 +110,11 @@ static void printout( tsd_t *TSD, const streng *message )
 {
    int rc;
    FILE *fp=stderr;
+   FILE *myfp=NULL;
+   char *rxtrace=NULL;
+   tra_tsd_t *tt;
+
+   tt = (tra_tsd_t *)TSD->tra_tsd;
 
    rc = HOOK_GO_ON;
    if ( TSD->systeminfo->hooks & HOOK_MASK( HOOK_STDERR ) )
@@ -121,8 +124,22 @@ static void printout( tsd_t *TSD, const streng *message )
    {
       if ( get_options_flag( TSD->currlevel, EXT_STDOUT_FOR_STDERR ) )
          fp = stdout;
+      rxtrace = getenv( "RXTRACE" );
+      if ( rxtrace != NULL )
+      {
+         myfp = fopen( rxtrace, "a" );
+         if ( myfp != NULL )
+            fp = myfp;
+      }
       if ( get_options_flag( TSD->currlevel, EXT_TRACE_HTML ) )
+      {
+         if ( tt->initialhtmltracing == 0 )
+         {
+            tt->initialhtmltracing = 1;
+            fwrite( "Content-Type: text/html\n\n", 25, 1, fp );
+         }
          fwrite( "<FONT COLOR=#669933><PRE>", 25, 1, fp );
+      }
       fwrite( message->value, message->len, 1, fp ) ;
       if ( get_options_flag( TSD->currlevel, EXT_TRACE_HTML ) )
          fwrite( "</PRE></FONT>", 13, 1, fp );
@@ -135,18 +152,21 @@ static void printout( tsd_t *TSD, const streng *message )
 #endif
       fputc( REGINA_EOL, fp );
       fflush( fp );
+      if ( myfp )
+         fclose( fp );
    }
 }
 
+/*
+ * Only called if return code from command to environment is NOT zero
+ */
 void traceerror( tsd_t *TSD, const treenode *thisptr, int RC )
 {
    streng *message;
-
-   if ( ( TSD->trace_stat == 'N' ) || ( TSD->trace_stat == 'F' ) )
-      traceline( TSD, thisptr, 'C', 0 );
-
-   if ( TSD->trace_stat != 'O' )
+   /* Fix for Bug #434; ANSI 8.3.5 */
+   if ( ( TSD->trace_stat == 'E' ) || ( RC < 0 && ( TSD->trace_stat == 'F' || TSD->trace_stat == 'N' ) ) )
    {
+      traceline( TSD, thisptr, 'C', 0 );
       message = Str_makeTSD( 20 + sizeof( int ) * 3 ) ;
       message->len = sprintf( message->value, "       +++ RC=%d +++", RC );
 
@@ -175,7 +195,6 @@ void tracecompound( tsd_t *TSD, const streng *stem, int length,
                                            "", stem->value, index->value );
 
    printout( TSD, message );
-
    Free_stringTSD( message );
 }
 
@@ -341,7 +360,7 @@ void tracevalue( tsd_t *TSD, const streng *str, char type )
    char tmpch;
    streng *message;
    tra_tsd_t *tt;
-   int indent;
+   int indent,i;
 
    /*
     * ANSI 8.3.17 requires placeholders in PARSE to be traced with TRACE R
@@ -356,10 +375,18 @@ void tracevalue( tsd_t *TSD, const streng *str, char type )
 
    indent = TSD->systeminfo->cstackcnt + TSD->systeminfo->ctrlcounter;
    message = Str_makeTSD( str->len + 30 + indent );
-   sprintf( tt->tracestr, "       >%%c> %%%ds  \"%%.%ds\"",
-                          indent, str->len );
-   message->len = sprintf( message->value, tt->tracestr,
-                                           type, "", str->value );
+   sprintf( tt->tracestr, "       >%c> %%%ds  \"", type, indent );
+   message->len = sprintf( message->value, tt->tracestr, "" );
+   /* bug #279 if we encounter a nul value in the value to be displayed, show a space instead */
+   for (i=0;i<str->len;i++)
+   {
+      if ( str->value[i] == '\0' )
+         message->value[message->len++] = ' ';
+      else
+         message->value[message->len++] = str->value[i];
+   }
+   message->value[message->len++] = '"';
+
    printout( TSD, message );
    Free_stringTSD( message );
 }
@@ -501,6 +528,57 @@ void traceback( tsd_t *TSD )
    Free_stringTSD( message );
 }
 
+void getcallstack( tsd_t *TSD, streng *stem )
+{
+   sysinfo ss;
+   nodeptr ptr;
+   int i,j=0;
+   streng *varname=NULL, *value=NULL, *lineno=NULL;
+   int stemlen=0 ;
+   char *eptr=NULL ;
+   streng *tmpptr=NULL ;
+
+   varname = Str_makeTSD( (stemlen=stem->len) + 8 ) ;
+   memcpy( varname->value, stem->value, stemlen ) ;
+   mem_upper( varname->value, stemlen );
+   eptr = varname->value + stemlen ;
+
+   if (*(eptr-1)!='.')
+   {
+      *((eptr++)-1) = '.' ;
+      stemlen++ ;
+   }
+   for ( ss = TSD->systeminfo; ss; ss = ss->previous )
+   {
+      for ( i = ss->cstackcnt - 1; i >= 0; i-- )
+      {
+         ptr = ss->callstack[i];
+         if ( !ptr )
+            continue;
+         if ( !ptr->name )
+            continue;
+         tmpptr = ptr->name;
+         /* get the value; lineno name */
+         value = Str_makeTSD( (tmpptr->len) + 10 ) ; /* should not be more than 999999999 levels in the call stack */
+         lineno = int_to_streng( TSD, ptr->lineno );
+         memcpy( value->value, lineno->value, lineno->len ) ;
+         value->len = lineno->len;
+         Str_catstr_TSD( TSD, value, " " );
+         Str_cat_TSD( TSD, value, tmpptr );
+         Free_stringTSD( lineno );
+         /* set the tail value */
+         sprintf(eptr, "%d", ++j ) ;
+         varname->len = strlen( varname->value ) ;
+         setvalue( TSD, varname, value, -1 ) ;
+      }
+   }
+   *eptr = '0' ;
+   varname->len = stemlen+1 ;
+   tmpptr = int_to_streng( TSD, j ) ;
+   setvalue( TSD, varname, tmpptr, -1 ) ;
+   Free_stringTSD( varname );
+}
+
 void queue_trace_char( const tsd_t *TSD, char ch2 )
 {
    tra_tsd_t *tt;
@@ -537,10 +615,10 @@ void set_trace_char( tsd_t *TSD, char ch2 )
             starttrace( TSD );
          break ;
 
-      case 'F':
       case 'A':
       case 'C':
       case 'E':
+      case 'F':
       case 'I':
       case 'L':
       case 'N':
@@ -562,6 +640,8 @@ void set_trace( tsd_t *TSD, const streng *setting )
 {
    int cptr,error;
    tra_tsd_t *tt;
+
+   THREAD_PROTECT( trace_setting )
 
    if ( myisnumber( TSD, setting ) )
    {
@@ -599,9 +679,20 @@ void set_trace( tsd_t *TSD, const streng *setting )
    {
       for ( cptr = 0; cptr < Str_len( setting ); cptr++ )
       {
+         /*
+          * Check each character in the string. Toggle interactive trace for
+          * each ? until there is an alpha character in the string when we
+          * stop processing the string.  So if you TRACE '???IGNORE'
+          * and interactive tracing is currently off, this will turn interactive
+          * tracing on (intermediates) and ignore the remaining string 'GNORE'
+          */
          set_trace_char( TSD, setting->value[cptr] );
          if ( rx_isalpha( setting->value[cptr] ) )
-            return;
+            break;
       }
    }
+
+   THREAD_UNPROTECT( trace_setting )
+
+   return;
 }

@@ -12,6 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef NAME_MAX
+#undef NAME_MAX
+#endif
+
 #include "../config.h"
 #include "../include/command.h"
 #include "../include/res.h"

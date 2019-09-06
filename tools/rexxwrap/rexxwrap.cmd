@@ -84,7 +84,7 @@ implib.quercus = 'wrexx'
 implib.unirexx = 'rxx'
 
 compiler.win32 = 'cygwin ming vc wcc borland lcc'
-compiler.unix = 'gcc cc c89 egcs xlc'
+compiler.unix = 'gcc cc c89 egcs xlc wcc'
 compiler.qnx = 'cc'
 compiler.os2 = 'gcc emxos2 emxdos wcc'
 compiler.dos = 'djgpp'
@@ -717,6 +717,30 @@ Select
          file_delete = 'rm -f'
          file_copy = 'cp'
       End
+   When os = 'UNIX' Then
+      Do
+         If _debug > 0 Then opt = '-g -DREXXWRAPPER_DEBUG='_debug
+         Else opt = '-Otax'
+         If _debug > 0 Then wccopt = '-g -DREXXWRAPPER_DEBUG='_debug Else wccopt = '-oneatx'
+         /* wcc */
+         cc.wcc = 'wcc386'
+         obj.wcc = '.o'
+         exe_ext = '.exe'
+         dirsep.wcc = '/'
+         watcom = value('WATCOM',, 'ENVIRONMENT')
+         cflags.wcc = '-dUNIX -dLINUX -D__LINUX__ -4s -wx -zq -mf -i='watcom'/lh' opt
+         link.wcc = 'wlink'
+         subsys = 'linux'
+         ldflags_intbuild.wcc = 'option quiet option stack=64k system linux name intbuild'exe_ext 'file'
+         ldflags_rexxtok.wcc = 'option quiet option stack=64k system' subsys 'name rexxtok' exe_ext 'file'
+         ldflags_program.wcc = 'option quiet option stack=64k system' subsys 'name' !program || exe_ext
+         run_configure = 0
+         need_getopt. = 1
+         link.wcc = 'wlink'
+         directory_delete = 'rm -f'
+         file_delete = 'rm -f'
+         file_copy = 'cp'
+      End
    Otherwise
       Do
          If _debug > 0 Then opt = '-g -DREXXWRAPPER_DEBUG='_debug
@@ -1012,14 +1036,17 @@ If Abbrev("yes",_token,1) Then
 Call BuildIntBuild
 Say 'Running intbuild to produce' !program || '.c...'
 If Abbrev("yes",_token,1) Then
-   cmd = '.'ossep'intbuild' quote( !template ) !program !program'.tok'
+   cmd = '.'ossep'intbuild'exe_ext quote( !template ) !program !program'.tok'
 Else
-   cmd = '.'ossep'intbuild' quote( !template ) !program !rexxfiles
+   cmd = '.'ossep'intbuild'exe_ext quote( !template ) !program !rexxfiles
 If _debug > 0 Then Say '   <<debug>>' cmd
 cmd
 If rc \= 0 Then Call Abort 'error running intbuild'
 Say 'Compiling' !program || '.c...'
-cmd = !cc !cflags !defines !includes '.' || !dirsep || !program || '.c'
+if os \= 'UNIX' then
+   cmd = !cc !cflags !defines !includes '.' || !dirsep || !program || '.c'
+else
+   cmd = !cc !cflags !defines !includes !program || '.c'
 If _debug > 0 Then Say '   <<debug>>' cmd
 cmd
 If rc \= 0 Then Call Abort 'error compiling' !program || '.c'
@@ -1072,7 +1099,10 @@ Select
       End
    When !compiler = 'WCC' Then
       Do
-         cmd = !link !ldflags_program 'file' !program || !obj !des_objs !zlib_objs 'file getargv0' || !obj !intlib !mh_extra_libs
+         if os \= 'UNIX' then
+            cmd = !link !ldflags_program 'file' !program || !obj !des_objs !zlib_objs 'file getargv0' || !obj !intlib !mh_extra_libs
+         else
+            cmd = !link !ldflags_program 'file' _dir || '/rexxwrapper' || !obj !des_objs !zlib_objs 'file getargv0' || !obj !intlib !mh_extra_libs
          if os='WIN32' then cmd=cmd||"alias _RexxStart='_RexxStart@36' alias _GetModuleFileNameA='_GetModuleFileNameA@12' lib kernel32.lib"
          If _debug > 0 Then Say '   <<debug>>' cmd
       say cmd

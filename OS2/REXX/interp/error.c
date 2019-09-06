@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: error.c,v 1.53 2005/08/03 09:17:28 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -33,13 +29,17 @@ static char *RCSid = "$Id: error.c,v 1.53 2005/08/03 09:17:28 mark Exp $";
 #include <sys/stat.h>
 #include "rexxmsg.h"
 
+/* MAX_ET_BUFFERS is the maximum number of strings required to be allocated when an error occurs */
+#define MAX_ET_BUFFERS 10
 typedef struct /* err_tsd: static variables of this module (thread-safe) */
 {
    int number_messages;
    int native_language;
    FILE *nls_fp;
-   streng *buffer[2];
+   streng *buffer[MAX_ET_BUFFERS];
    struct textindex nls_tmi[NUMBER_ERROR_MESSAGES]; /* indexes for native language messages */
+   int number_prefix_messages; /* new */
+   struct textindex nls_tpi[NUMBER_PREFIX_MESSAGES]; /* indexes for prefix messages */
    int conditions;
    streng *errornum;
 } err_tsd_t;   /* thread-specific but only needed by this module. see init_error */
@@ -58,7 +58,7 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
 {
    {   0,  1,"Error %s running %s, line %d:|<value>,<source>,<linenumber>" },
    {   0,  2,"Error %s in interactive trace:|<value>" },
-   {   0,  3,"Interactive trace.  \"Trace Off\" to end debug. ENTER to continue." },
+   {   0,  3,"Interactive trace. \"Trace Off\" to end debug. ENTER to continue." },
    {   2,  0,"Failure during finalization" },
    {   2,  1,"Failure during finalization: %s|<description>" },
    {   3,  0,"Failure during initialization" },
@@ -151,7 +151,7 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  26,  2,"Value of repetition count expression in DO instruction must be zero or a positive whole number; found \"%s\"|<value>" },
    {  26,  3,"Value of FOR expression in DO instruction must be zero or a positive whole number; found \"%s\"|<value>" },
    {  26,  4,"Positional parameter of parsing template must be a whole number; found \"%s\"|<value>" },
-   {  26,  5,"NUMERIC DIGITS value must be zero or a positive whole number; found \"%s\"|<value>" },
+   {  26,  5,"NUMERIC DIGITS value must be a positive whole number; found \"%s\"|<value>" },
    {  26,  6,"NUMERIC FUZZ value must be zero or a positive whole number; found \"%s\"|<value>" },
    {  26,  7,"Number used in TRACE setting must be a whole number; found \"%s\"|<value>" },
    {  26,  8,"Operand to right of power operator (\"**\") must be a whole number; found \"%s\"|<value>" },
@@ -175,8 +175,8 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  31,  3,"Variable symbol must not start with a \".\"; found \"%s\"|<token>" },
    {  32,  0,"[Invalid use of stem]" },
    {  33,  0,"Invalid expression result" },
-   {  33,  1,"Value of NUMERIC DIGITS \"%d\" must exceed value of NUMERIC FUZZ \"(%d)\"|<value>,<value>" },
-   {  33,  2,"Value of NUMERIC DIGITS \"%d\" must not exceed %d|<value>,#Limit_Digits" },
+   {  33,  1,"Value of NUMERIC DIGITS (\"%d\") must exceed value of NUMERIC FUZZ (\"%d\")|<value>,<value>" },
+   {  33,  2,"Value of NUMERIC DIGITS (\"%d\") must not exceed %d|<value>,#Limit_Digits" },
    {  33,  3,"Result of expression following NUMERIC FORM must start with \"E\" or \"S\"; found \"%s\"|<value>" },
    {  34,  0,"Logical value not \"0\" or \"1\"" },
    {  34,  1,"Value of expression following IF keyword must be exactly \"0\" or \"1\"; found \"%s\"|<value>" },
@@ -228,13 +228,15 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  40, 39,"%s argument 3 is not zero or one; found \"%s\"|<bif>,<value>" },
    {  40, 41,"%s argument %d must be within the bounds of the stream; found \"%s\"|<bif>,<argnumber>,<value>" },
    {  40, 42,"%s argument 1; cannot position on this stream; found \"%s\"|<bif>,<value>" },
+   {  40, 43,"%s argument %d must be a single non-alphanumeric character or the null string; found \"%s\"|<bif>,<argnumber>,<value>" },
+   {  40, 44,"%s argument %d, \"%s\", is a format incompatible with the separator specified in argument %d|<bif>,<argnumber>,<value>,<argnumber>" },
    {  40,914,"[%s argument %d, must be one of \"%s\"; found \"%s\"]|<bif>,<argnumber>,<optionslist>,<value>" },
    {  40,920,"[%s: low-level stream I/O error; %s]|<bif>,<description>" },
    {  40,921,"[%s argument %d, stream positioning mode \"%s\"; incompatible with stream open mode]|<bif>,<argnumber>,<value>" },
    {  40,922,"[%s argument %d, too few sub-commands; minimum expected is %d; found %d]|<bif>,<argnumber>,<value>,<value>" },
    {  40,923,"[%s argument %d, too many sub-commands; maximum expected is %d; found %d]|<bif>,<argnumber>,<value>,<value>" },
    {  40,924,"[%s argument %d, invalid positional specification; expecting one of \"%s\"; found \"%s\"]|<bif>,<argnumber>,<value>,<value>" },
-   {  40,930,"[RXQUEUE, function TIMEOUT, expecting a whole number between -1 and %d; found \"%s\"]|<value>,<value>" },
+   {  40,930,"[RXQUEUE, function TIMEOUT, expecting a whole number between 0 and %d; found \"%s\"]|<value>,<value>" },
    {  40,980,"Unexpected input, either unknown type or illegal data%s%s|: ,<location>" },
    {  40,981,"Number out of the allowed range%s%s|: ,<location>" },
    {  40,982,"String too big for the defined buffer%s%s|: ,<location>" },
@@ -298,11 +300,13 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  90,  1,"[%s is a Regina extension BIF]|<bif>" },
    {  90,  2,"[%s is a Regina extension instruction]|<token>" },
    {  90,  3,"[%s argument %d, option must start with one of \"%s\" with \"OPTIONS STRICT_ANSI\"; found \"%s\"; a Regina extension]|<bif>,<argnumber>,<optionslist>,<value>" },
+   {  90,  4,"[%s is a Regina extension operator]|<token>" },
    {  93,  0,"[Incorrect call to routine]" },
    {  93,  1,"[STREAM command %s must be followed by one of \"%s\"; found \"%s\"]|<token>,<value>,<value>" },
    {  93,  3,"[STREAM command must be one of \"%s\"; found \"%s\"]|<value>,<value>" },
    {  94,  0,"[External queue interface error]" },
-   {  94, 99,"[Internal error with external queue interface: %d \"%s\"]|<description>,<systemerror>" },
+   {  94,  1,"[External queue timed out]" },
+   {  94, 99,"[Internal error with external queue interface: %d \"%s\"]|<errcode>,<systemerror>" },
    {  94,100,"[General system error with external queue interface. %s. %s]|<description>,<systemerror>" },
    {  94,101,"[Error connecting to %s on port %d: \"%s\"]|<machine>,<portnumber>,<systemerror>" },
    {  94,102,"[Unable to obtain IP address for %s]|<machine>" },
@@ -322,6 +326,10 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  95,  4,"[STREAM argument 3: Opening files for WRITE access invalid in \"safe\" mode]" },
    {  95,  5,"[Running external commands invalid in \"safe\" mode]" },
    { 100,  0,"[Unknown filesystem error]" },
+   /*
+    * Do not use an error number > 100, these are treated as system errors (errno-100) and the
+    * error string is obtained from strerror().
+    */
 } ;
 
 /*
@@ -336,97 +344,23 @@ static const char *errlang[] =
    "no", /* norwegian */
    "pt", /* portuguese */
    "pl", /* polish */
+   "sv", /* swedish */
    "tr", /* turkish */
    NULL
 } ;
 
-static const char *err1prefix[] =
-{
-/*en*/   "Error %d running \"%.*s\", line %d: %.*s",
-/*de*/   "Fehler %d während des Ausführens von \"%.*s\", Zeile %d: %.*s",
-/*es*/   "Error %d ejecutando \"%.*s\" línea %d: %.*s",
-/*no*/   "Feil %d under kjøring av \"%.*s\" linje %d: %.*s",
-/*pt*/   "Erro %d ao executar \"%.*s\", linha %d: %.*s",
-/*pl*/   "Bˆ¥d %d podczas dziaˆania \"%.*s\", linia %d: %.*s",
-/*tr*/   "%d hatasi \"%.*s\" calisiyorken %d numarali satirda olustu: %.*s",
-} ;
+#define ERR1PREFIX_IDX   0
+#define SUBERRPREFIX_IDX 1
+#define ERR2PREFIX_IDX   2
+static const char *err1prefix = "Error %d running \"%.*s\", line %d: %.*s";
+static const char *suberrprefix = "Error %d.%d: %.*s";
+static const char *err2prefix = "Error %d running \"%.*s\": %.*s";
 
-static const char *suberrprefix[] =
-{
-/*en*/   "Error %d.%d: %.*s",
-/*de*/   "Fehler %d.%d: %.*s",
-/*es*/   "Error %d.%d: %.*s",
-/*no*/   "Feil %d.%d: %.*s",
-/*pt*/   "Erro %d.%d: %.*s",
-/*pl*/   "Bˆ¥d %d.%d: %.*s",
-/*tr*/   "Hata %d.%d: %.*s",
-} ;
-
-static const char *err2prefix[] =
-{
-/*en*/   "Error %d running \"%.*s\": %.*s",
-/*de*/   "Fehler %d während des Ausführens von \"%.*s\": %.*s",
-/*es*/   "Error %d ejecutando \"%.*s\": %.*s",
-/*no*/   "Feil %d under kjøring av \"%.*s\": %.*s",
-/*pt*/   "Erro %d ao executar \"%.*s\": %.*s",
-/*pl*/   "Bˆ¥d %d podczas dziaˆania \"%.*s\": %.*s",
-/*tr*/   "%d hatasi \"%.*s\" calisiyorken olustu: %.*s",
-} ;
-
-static const char *erropen[] =
-{
-/*en*/   "Unable to open language file: %s",
-/*de*/   "Kann die sprachspezifische Datei nicht öffnen: %s",
-/*es*/   "Incapaz de abrir el fichero de lenguaje: %s",
-/*no*/   "Ikke i stand til å åpne språkfil: %s",
-/*pt*/   "nao eh possivel abrir arquivo de linguagem: %s",
-/*pl*/   "Nie mo¾na otworzy† pliku j©zyka: %s",
-/*tr*/   "Dil dosyasinin acilmasinda hata ile karsilasildi: %s",
-} ;
-
-static const char *errcount[] =
-{
-/*en*/   "Incorrect number of messages in language file: %s",
-/*de*/   "Ungültige Anzahl von Meldungen in der sprachspezifischen Datei: %s",
-/*es*/   "Número incorrecto de mensajes en el fichero de lenguaje: %s",
-/*no*/   "Uriktig antall meldinger i språkfil: %s",
-/*pt*/   "numero incorreto de mensagens no arquivo de linguagem: %s",
-/*pl*/   "Niepoprawna liczba komunikat¢w w pliku j©zyka: %s",
-/*tr*/   "Dil dosyasindaki iletilerin sayisinda yanlislik var: %s",
-} ;
-
-static const char *errread[] =
-{
-/*en*/   "Unable to read from language file: %s",
-/*de*/   "Kann von der sprachspezifischen Datei nicht lesen: %s",
-/*es*/   "Incapaz de leer el fichero de lenguaje: %s",
-/*no*/   "Ikke i stand til å lese fra språkfil: %s",
-/*pt*/   "nao eh possivel ler o arquivo de linguagem: %s",
-/*pl*/   "Nie mo¾na czyta† z pliku j©zyka: %s",
-/*tr*/   "Dil dosyasinin okunmasinda hata ile karsilasildi: %s",
-} ;
-
-static const char *errmissing[] =
-{
-/*en*/   "Text missing from language file: %s.mtb",
-/*de*/   "Text fehlt in der sprachspezifischen Datei: %s.mtb",
-/*es*/   "Falta el texto del fichero de lenguaje: %s.mtb",
-/*no*/   "tekst mangler i språkfil: %s.mtb",
-/*pt*/   "falta texto no arquivo de linguagem: %s.mtb",
-/*pl*/   "Brakuje tekstu w pliku j©zyka: %s.mtb",
-/*tr*/   "Dil dosyasinda eksik metin var: %s.mtb",
-} ;
-
-static const char *errcorrupt[] =
-{
-/*en*/   "Language file: %s.mtb is corrupt",
-/*de*/   "Sprachspezifische Datei %s.mtb ist beschädigt",
-/*es*/   "Fichero de lenguaje: %s.mtb está corrupto",
-/*no*/   "språkfil: %s.mtb er ødelagt",
-/*pt*/   "arquivo de linguagem: %s.mtb estah corrompido",
-/*pl*/   "Plik j©zyka: %s.mtb jest znieksztaˆcony",
-/*tr*/   "%s.mtb ismindeki dil dosyasinda kirilma hatasi var",
-} ;
+static const char *erropen = "Unable to open language file: %s";
+static const char *errcount = "Incorrect number of messages in language file: %s";
+static const char *errread = "Unable to read from language file: %s";
+static const char *errmissing = "Text missing from language file: %s.mtb";
+static const char *errcorrupt = "Language file: %s.mtb is corrupt";
 
 static const char *get_embedded_text_message( int errorno, int suberrorno );
 
@@ -450,57 +384,49 @@ int init_error( tsd_t *TSD )
 }
 
 /*
- * get_buffer returns one buffer of those from the err_tsd_t. If not_this
- * is set, that buffer will never be used. The buffer will have a size of
- * at least minsize byte.
- * A buffer is reallocated if there is no sufficient space in the best
- * fitting buffer.
+ * get_buffer allocates a buffer from one of the internal buffers.
+ * No optimusation is done. Memory is cleard by clear-buffers()
  * A returned buffer will always have a size of 0.
+ * This should never exhaust all memory!
  */
-static streng *get_buffer( const tsd_t *TSD, const streng *not_this,
-                           unsigned minsize )
+static streng *get_buffer( const tsd_t *TSD, unsigned minsize )
 {
    err_tsd_t *et = (err_tsd_t *)TSD->err_tsd;
-   int l[2];
-   streng *p;
    int idx=-1;
 
    minsize++;
-
-   if ( et->buffer[0] != NULL )
-      l[0] = Str_max( et->buffer[0] );
-   else
-      l[0] = 0;
-   if ( et->buffer[1] != NULL )
-      l[1] = Str_max( et->buffer[1] );
-   else
-      l[1] = 0;
-
-   if ( ( unsigned ) l[1] >= minsize )
+   for ( idx = 0; idx < MAX_ET_BUFFERS; idx++ )
    {
-      idx = 1;
-      if ( ( ( unsigned ) l[0] >= minsize ) && ( l[0] < l[1] ) )
-         idx = 0;
-   }
-   else
-      idx = 0;
-
-   if ( ( not_this != NULL ) && ( et->buffer[idx] == not_this ) )
-      idx = ( idx == 0 ) ? 1 : 0;
-
-   if ( ( unsigned ) l[idx] < minsize )
-   {
-      /*
-       * assigning very late prevents race conditions in case of errors.
-       */
-      p = Str_makeTSD( minsize );
-      if ( et->buffer[idx] != NULL )
-         Free_stringTSD( et->buffer[idx] );
-      et->buffer[idx] = p;
+      if ( et->buffer[idx] == NULL )
+      {
+         et->buffer[idx] = Str_makeTSD( minsize );
+         break;
+      }
    }
    Str_len(et->buffer[idx]) = 0;
 
    return et->buffer[idx];
+}
+
+/*
+ * clear_errortext_buffers frees up memory used for internal buffers
+ */
+void clear_errortext_buffers( const tsd_t *TSD )
+{
+   err_tsd_t *et = (err_tsd_t *)TSD->err_tsd;
+   int idx=-1;
+
+   for ( idx = 0; idx < MAX_ET_BUFFERS; idx++ )
+   {
+      if ( et->buffer[idx] != NULL )
+      {
+         Free_stringTSD( et->buffer[idx] );
+         /*
+          * Fix for Bug #436. Enable system exit to trap parsing errors
+          */
+         et->buffer[idx] = NULL;
+      }
+   }
 }
 
 int lineno_of( cnodeptr node )
@@ -519,6 +445,71 @@ static int charno_of( cnodeptr node )
       return 0 ;
 }
 
+/*
+ * Returns a 0-terminated string in a streng which will be formatted by a
+ * "string formatter" which argument is arg.
+ */
+static streng *simple_msg( const tsd_t *TSD, const char *fmt,
+                           const char *arg )
+{
+   int lf = strlen( fmt );
+   int la = strlen( arg );
+   streng *retval;
+
+   retval = get_buffer( TSD, lf + la );
+   Str_len( retval ) = sprintf( retval->value, fmt, arg );
+
+   return retval;
+}
+
+static streng *get_text_message( const tsd_t *TSD, FILE *fp,
+                                 unsigned fileoffset, unsigned textlength,
+                                 int errorno, int suberrorno, int *is_fmt )
+{
+   err_tsd_t *et;
+   streng *retval;
+   const char *errfn;
+
+   et = (err_tsd_t *)TSD->err_tsd;
+
+#if defined(__EPOC32__) || defined(__WINS__)
+   errfn="default";
+#else
+   errfn=errlang[et->native_language];
+#endif
+   if ( fseek( fp, fileoffset, SEEK_SET ) == -1 )
+   {
+      *is_fmt = 0;
+      return simple_msg( TSD, errcorrupt, errfn );
+   }
+
+   retval = get_buffer( TSD, textlength + 1 );
+   if ( fread( retval->value, 1, textlength, fp ) != textlength )
+   {
+      *is_fmt = 0;
+      return simple_msg( TSD, errcorrupt, errfn );
+   }
+   retval->value[textlength] = '\0';
+   Str_len(retval) = textlength;
+
+   return retval;
+}
+
+static const char *get_embedded_text_message( int errorno, int suberrorno )
+{
+   int i;
+
+   for ( i = 0; i < NUMBER_ERROR_MESSAGES; i++ )
+   {
+      if ( errtext[i].errnum == errorno
+      &&   errtext[i].suberrnum == suberrorno )
+      {
+         return errtext[i].text;
+      }
+   }
+   return "";
+}
+
 
 /* only to be used by syntax and runtime errors, and the halt condition
  * FIXME: FGC: This function is used while initializing the runtime system.
@@ -532,11 +523,13 @@ void exiterror( int errorno, int suberrorno, ... )
    int lineno,charno,signtype;
    streng *inputfile;
    streng *suberror_streng=NULL;
-   streng *errmsg;
+   streng *errmsg, *ptr;
    int i,ok,len;
    const streng *fmt, *etext ;
    FILE *fp = stderr ;
    err_tsd_t *et;
+   const char *errfn;
+   int is_fmt=1;
    tsd_t *TSD = __regina_get_tsd(); /* The TSD should be fetched directly. This
                                      * will help if someone corrupted a TSD as
                                      * an argument.
@@ -559,7 +552,7 @@ void exiterror( int errorno, int suberrorno, ... )
        * MEMORY ALLOCATION ROUTINE!
        */
       if ( ( TSD->currlevel != NULL )
-        && get_options_flag( TSD->currlevel, EXT_STDOUT_FOR_STDERR ) )
+      && get_options_flag( TSD->currlevel, EXT_STDOUT_FOR_STDERR ) )
          fp = stdout;
 
       fwrite( out, len, 1, fp );
@@ -573,6 +566,11 @@ void exiterror( int errorno, int suberrorno, ... )
       fputc( REGINA_EOL, fp );
       goto not_hookable;
    }
+#if defined(__EPOC32__) || defined(__WINS__)
+   errfn="default";
+#else
+   errfn=errlang[et->native_language];
+#endif
    et->conditions++;
 
    if ( TSD->currentnode )
@@ -598,10 +596,24 @@ void exiterror( int errorno, int suberrorno, ... )
    {
       fmt = errortext( TSD, errorno, suberrorno, 0, 0 );
       len = Str_len( fmt );
-      len += strlen( suberrprefix[et->native_language] );
+      is_fmt = 1;
+      if ( et->native_language == LANGUAGE_ENGLISH
+      ||   et->nls_fp == NULL )
+      {
+         ptr = simple_msg( TSD, "%s", suberrprefix );
+      }
+      else
+      {
+         ptr = get_text_message( TSD, et->nls_fp, et->nls_tpi[SUBERRPREFIX_IDX].fileoffset, et->nls_tpi[SUBERRPREFIX_IDX].textlength, errorno, suberrorno, &is_fmt );
+         if ( !is_fmt )
+         {
+            ptr = simple_msg( TSD, "%s", suberrprefix );
+         }
+      }
+      len += Str_len( ptr );
       len += 2 * ( ( sizeof(unsigned) * 8 ) / 3 + 2 );
-      errmsg = get_buffer( TSD, fmt, len + 3 );
-      len = sprintf( errmsg->value, suberrprefix[et->native_language],
+      errmsg = get_buffer( TSD, len + 3 );
+      len = sprintf( errmsg->value, ptr->value,
                      errorno, suberrorno, Str_len( fmt ), fmt->value );
 
       va_start( argptr, suberrorno );
@@ -686,17 +698,45 @@ void exiterror( int errorno, int suberrorno, ... )
    if ( lineno > 0 )
    {
       traceback( TSD );
+      if ( et->native_language == LANGUAGE_ENGLISH
+      ||   et->nls_fp == NULL )
+      {
+         ptr = simple_msg( TSD, "%s", err1prefix );
+      }
+      else
+      {
+         is_fmt = 1;
+         ptr = get_text_message( TSD, et->nls_fp, et->nls_tpi[ERR1PREFIX_IDX].fileoffset, et->nls_tpi[ERR1PREFIX_IDX].textlength, errorno, suberrorno, &is_fmt );
+         if ( !is_fmt )
+         {
+            ptr = simple_msg( TSD, "%s", err1prefix );
+         }
+      }
       errmsg = Str_makeTSD( 80 + Str_len( etext ) + Str_len( inputfile ) +
-                            strlen( err1prefix[et->native_language] ) );
-      sprintf( errmsg->value, err1prefix[et->native_language],
+                            Str_len( ptr ) );
+      sprintf( errmsg->value, ptr->value,
                errorno, Str_len( inputfile ), inputfile->value, lineno,
                Str_len( etext ), etext->value );
    }
    else
    {
+      if ( et->native_language == LANGUAGE_ENGLISH
+      ||   et->nls_fp == NULL )
+      {
+         ptr = simple_msg( TSD, "%s", err2prefix );
+      }
+      else
+      {
+         is_fmt = 1;
+         ptr = get_text_message( TSD, et->nls_fp, et->nls_tpi[ERR2PREFIX_IDX].fileoffset, et->nls_tpi[ERR2PREFIX_IDX].textlength, errorno, suberrorno, &is_fmt );
+         if ( !is_fmt )
+         {
+            ptr = simple_msg( TSD, "%s", err2prefix );
+         }
+      }
       errmsg = Str_makeTSD( 80 + Str_len( etext ) + Str_len( inputfile ) +
-                            strlen( err2prefix[et->native_language] ) );
-      sprintf( errmsg->value, err2prefix[et->native_language],
+                            Str_len( ptr ) );
+      sprintf( errmsg->value, ptr->value,
                errorno, Str_len( inputfile ), inputfile->value,
                Str_len( etext ), etext->value );
    }
@@ -755,6 +795,8 @@ void exiterror( int errorno, int suberrorno, ... )
       Free_stringTSD( suberror_streng );
 
    Free_stringTSD( errmsg );
+   /* clean up internal buffers */
+   clear_errortext_buffers( TSD );
 
 not_hookable:
 
@@ -786,31 +828,13 @@ not_hookable:
 void __reginaerror(char *dummy)
 {
    /* We ignore the message although it may contain useful informations. */
-   dummy = dummy; /* keep compiler happy */
    return ;
-}
-
-/*
- * Returns a 0-terminated string in a streng which will be formatted by a
- * "string formatter" which argument is arg. not_this will not be returned.
- */
-static streng *simple_msg( const tsd_t *TSD, const char *fmt,
-                           const char *arg, const streng *not_this )
-{
-   int lf = strlen( fmt );
-   int la = strlen( arg );
-   streng *retval;
-
-   retval = get_buffer( TSD, not_this, lf + la );
-   Str_len( retval ) = sprintf( retval->value, fmt, arg );
-
-   return retval;
 }
 
 static streng *read_index_header( const tsd_t *TSD, char *errfn,
                                   int native_language, FILE **fp,
                                   int *number_messages, int *file_lang,
-                                  const streng *not_this )
+                                  int *number_prefix_messages )
 {
    err_tsd_t *et;
 
@@ -821,25 +845,31 @@ static streng *read_index_header( const tsd_t *TSD, char *errfn,
    *fp = fopen( errfn, "rb" );
    if ( *fp == NULL )
    {
-      return simple_msg( TSD, erropen[native_language], errfn, not_this );
+      return simple_msg( TSD, erropen, errfn );
    }
    if ( fread( &et->number_messages, sizeof(unsigned int), 1, *fp ) != 1 )
    {
       fclose( *fp );
-      return simple_msg( TSD, errread[native_language], errfn, not_this );
+      return simple_msg( TSD, errread, errfn );
    }
    if ( fread( file_lang, sizeof(unsigned int), 1, *fp ) != 1 )
    {
       fclose( *fp );
-      return simple_msg( TSD, errread[native_language], errfn, not_this );
+      return simple_msg( TSD, errread, errfn );
+   }
+   if ( fread( &et->number_prefix_messages, sizeof(unsigned int), 1, *fp ) != 1 )
+   {
+      fclose( *fp );
+      return simple_msg( TSD, errread, errfn );
    }
    return NULL;
 }
 
 static streng *read_index_file( const tsd_t *TSD, char *errfn,
                                 int native_language, int language_file,
-                                FILE **fp, struct textindex *tmi,
-                                const streng *not_this )
+                                FILE **fp,
+                                struct textindex *tmi,
+                                struct textindex *tpi )
 {
    err_tsd_t *et;
    streng *ptr;
@@ -849,26 +879,42 @@ static streng *read_index_file( const tsd_t *TSD, char *errfn,
    /*
     * Read the language file header...
     */
-   if ( ( ptr = read_index_header( TSD, errfn, native_language, fp, &et->number_messages, &file_lang, not_this ) ) != NULL )
+   if ( ( ptr = read_index_header( TSD, errfn, native_language, fp, &et->number_messages, &file_lang, &et->number_prefix_messages ) ) != NULL )
    {
       et->number_messages = 0;
       return ptr;
    }
    /*
     * Eunsure that the number of messages in the file matches the number defined as
-    * NUMBER_ERROR_MESSAGE in rexxmsg.h
+    * NUMBER_ERROR_MESSAGES in rexxmsg.h
     */
    if ( et->number_messages != NUMBER_ERROR_MESSAGES )
    {
       fclose( *fp );
       et->number_messages = 0;
-      return simple_msg( TSD, errcount[native_language], errfn, not_this );
+      return simple_msg( TSD, errcount, errfn );
    }
    if ( fread( tmi, sizeof(struct textindex), NUMBER_ERROR_MESSAGES, *fp ) != NUMBER_ERROR_MESSAGES )
    {
       fclose( *fp );
       et->number_messages = 0;
-      return simple_msg( TSD, errread[native_language], errfn, not_this );
+      return simple_msg( TSD, errread, errfn );
+   }
+   /*
+    * Eunsure that the number of prefix messages in the file matches the number defined as
+    * NUMBER_PREFIX_MESSAGES in rexxmsg.h
+    */
+   if ( et->number_prefix_messages != NUMBER_PREFIX_MESSAGES )
+   {
+      fclose( *fp );
+      et->number_prefix_messages = 0;
+      return simple_msg( TSD, errcount, errfn );
+   }
+   if ( fread( tpi, sizeof(struct textindex), NUMBER_PREFIX_MESSAGES, *fp ) != NUMBER_PREFIX_MESSAGES )
+   {
+      fclose( *fp );
+      et->number_prefix_messages = 0;
+      return simple_msg( TSD, errread, errfn );
    }
    return NULL;
 }
@@ -878,7 +924,7 @@ static streng *read_index_file( const tsd_t *TSD, char *errfn,
  * Determines which language file to open and read (always does English as well)
  * Returns NULL on success, otherwise a pointer to an error message
  */
-static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
+static streng *get_message_indexes( const tsd_t *TSD )
 {
    streng *err;
    char *ptr;
@@ -887,7 +933,7 @@ static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
    char *errpath=NULL;
 #if defined(__EPOC32__) || defined(__WINS__)
    FILE *fp;
-   int number_messages, file_lang;
+   int number_messages, file_lang. number_prefix_messages;
    struct stat buffer ;
 #else
    int i, found=0;
@@ -912,9 +958,9 @@ static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
    /*
     * We do have a default.mtb file, so read it to determine the language
     */
-   if ( ( err = read_index_header( TSD, fn, LANGUAGE_ENGLISH, &fp, &number_messages, &file_lang, not_this ) ) != NULL )
+   if ( ( err = read_index_header( TSD, fn, LANGUAGE_ENGLISH, &fp, &number_messages, &file_lang, &number_prefix_messgaes ) ) != NULL )
    {
-      et->number_messages = 0;
+      et->number_messages = et->number_prefix_messages = 0;
       return err;
    }
    if ( fp )
@@ -944,7 +990,7 @@ static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
       }
       if ( !found )
       {
-         err = get_buffer( TSD, not_this, 40 + len );
+         err = get_buffer( TSD, 40 + len );
          Str_len( err ) = sprintf( err->value, "Unsupported native language \"%.*s\"",
                                                len, ptr );
          return err;
@@ -958,11 +1004,11 @@ static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
 # if defined(REGINA_SHARE_DIRECTORY)
          errpath = REGINA_SHARE_DIRECTORY;
 # else
-         return simple_msg( TSD, "%s", "Unable to determine where Regina language files (*.mtb) are located. Set REGINA_LANG_DIR.", not_this );
+         return simple_msg( TSD, "%s", "Unable to determine where Regina language files (*.mtb) are located. Set REGINA_LANG_DIR." );
 # endif
       }
       else if ( strlen( errpath ) > REXX_PATH_MAX )
-         return simple_msg( TSD, "Length of \"%s\" exceeds the path's maximum", errpath, not_this );
+         return simple_msg( TSD, "Length of \"%s\" exceeds the path's maximum", errpath );
    }
 #endif
    /*
@@ -976,59 +1022,10 @@ static streng *get_message_indexes( const tsd_t *TSD, const streng *not_this )
 #else
       sprintf( fn, "%s%c%s.mtb", errpath, FILE_SEPARATOR, errlang[et->native_language] );
 #endif
-      if ( ( err = read_index_file( TSD, fn, et->native_language, et->native_language, &et->nls_fp, (struct textindex *)&et->nls_tmi, not_this ) ) != NULL )
+      if ( ( err = read_index_file( TSD, fn, et->native_language, et->native_language, &et->nls_fp, (struct textindex *)&et->nls_tmi,(struct textindex *)&et->nls_tpi ) ) != NULL )
          return err;
    }
    return NULL;
-}
-
-static streng *get_text_message( const tsd_t *TSD, FILE *fp,
-                                 unsigned fileoffset, unsigned textlength,
-                                 int errorno, int suberrorno, int *is_fmt,
-                                 const streng *not_this )
-{
-   err_tsd_t *et;
-   streng *retval;
-   const char *errfn;
-
-   et = (err_tsd_t *)TSD->err_tsd;
-
-#if defined(__EPOC32__) || defined(__WINS__)
-   errfn="default";
-#else
-   errfn=errlang[et->native_language];
-#endif
-   if ( fseek( fp, fileoffset, SEEK_SET ) == -1 )
-   {
-      *is_fmt = 0;
-      return simple_msg( TSD, errcorrupt[et->native_language], errfn, not_this );
-   }
-
-   retval = get_buffer( TSD, not_this, textlength + 1 );
-   if ( fread( retval->value, 1, textlength, fp ) != textlength )
-   {
-      *is_fmt = 0;
-      return simple_msg( TSD, errcorrupt[et->native_language], errfn, not_this );
-   }
-   retval->value[textlength] = '\0';
-   Str_len(retval) = textlength;
-
-   return retval;
-}
-
-static const char *get_embedded_text_message( int errorno, int suberrorno )
-{
-   int i;
-
-   for ( i = 0; i < NUMBER_ERROR_MESSAGES; i++ )
-   {
-      if ( errtext[i].errnum == errorno
-      &&   errtext[i].suberrnum == suberrorno )
-      {
-         return errtext[i].text;
-      }
-   }
-   return "";
 }
 
 
@@ -1049,7 +1046,7 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
     */
    if (errorno>100)
    {
-      return simple_msg( TSD, "%s", strerror(errorno-100), NULL );
+      return simple_msg( TSD, "%s", strerror(errorno-100) );
    }
 
    et = (err_tsd_t *)TSD->err_tsd;
@@ -1065,7 +1062,7 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
     */
    if ( et->number_messages == 0 )
    {
-      if ( ( ptr = get_message_indexes( TSD, NULL ) ) != NULL )
+      if ( ( ptr = get_message_indexes( TSD ) ) != NULL )
       {
          /*
           * Corrupt or missing language file. Prepend the returned message to the
@@ -1073,7 +1070,7 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
           */
 
          embedded = get_embedded_text_message( errorno, suberrorno );
-         h = get_buffer( TSD, ptr, Str_len( ptr ) + strlen( embedded ) + 6 );
+         h = get_buffer( TSD, Str_len( ptr ) + strlen( embedded ) + 6 );
          Str_catstrTSD( h, "(" );
          Str_catTSD( h, ptr );
          Str_catstrTSD( h, ") " );
@@ -1093,7 +1090,7 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
       if ( request_english
       ||   et->native_language == LANGUAGE_ENGLISH )
       {
-         ptr = simple_msg( TSD, "%s", get_embedded_text_message( errorno, suberrorno ), NULL );
+         ptr = simple_msg( TSD, "%s", get_embedded_text_message( errorno, suberrorno ) );
       }
       else
       {
@@ -1123,8 +1120,8 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
              * We couldn't find our message...
              */
             embedded = get_embedded_text_message( errorno, suberrorno );
-            ptr = simple_msg( TSD, errmissing[et->native_language], errfn, NULL );
-            h = get_buffer( TSD, ptr, Str_len( ptr ) + strlen( embedded ) + 6 );
+            ptr = simple_msg( TSD, errmissing, errfn );
+            h = get_buffer( TSD, Str_len( ptr ) + strlen( embedded ) + 6 );
             Str_catstrTSD( h, "(" );
             Str_catTSD( h, ptr );
             Str_catstrTSD( h, ") " );
@@ -1134,11 +1131,11 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
          }
          else
          {
-            ptr = get_text_message( TSD, et->nls_fp, et->nls_tmi[mid].fileoffset, et->nls_tmi[mid].textlength, errorno, suberrorno, &is_fmt, NULL );
+            ptr = get_text_message( TSD, et->nls_fp, et->nls_tmi[mid].fileoffset, et->nls_tmi[mid].textlength, errorno, suberrorno, &is_fmt );
             if ( !is_fmt )
             {
                embedded = get_embedded_text_message( errorno, suberrorno );
-               h = get_buffer( TSD, ptr, Str_len( ptr ) + strlen( embedded ) + 6 );
+               h = get_buffer( TSD, Str_len( ptr ) + strlen( embedded ) + 6 );
                Str_catstrTSD( h, "(" );
                Str_catTSD( h, ptr );
                Str_catstrTSD( h, ") " );
@@ -1203,7 +1200,7 @@ const streng *errortext( const tsd_t *TSD, int errorno, int suberrorno, int requ
             insert[++mid] = ins+end+1;
          }
       }
-      h = get_buffer( TSD, ptr, Str_len( ptr ) + low + 1 );
+      h = get_buffer( TSD, Str_len( ptr ) + low + 1 );
       switch( num_inserts )
       {
          case 1:
@@ -1372,6 +1369,16 @@ const char *getsym( int numb )
       case X_ADDR_WITH: symb="ADDRESS WITH option list" ; break ;
       case X_S_LOSTDIGITS: symb="LOSTDIGITS option" ; break ;
       case X_DO_EXPR: symb="Upper limit in DO" ; break ;
+      case X_PLUSASSIGN: symb="Plus assignemnt operator" ; break ;
+      case X_MINUSASSIGN: symb="Minus assignemnt operator" ; break ;
+      case X_MULTASSIGN: symb="Multiplication assignemnt operator" ; break ;
+      case X_DIVASSIGN: symb="Division assignemnt operator" ; break ;
+      case X_INTDIVASSIGN: symb="Integer division assignemnt operator" ; break ;
+      case X_MODULUSASSIGN: symb="Modulus assignemnt operator" ; break ;
+      case X_ORASSIGN: symb="Logical OR assignemnt operator" ; break ;
+      case X_XORASSIGN: symb="Logical XOR assignemnt operator" ; break ;
+      case X_ANDASSIGN: symb="Logical AND assignemnt operator" ; break ;
+      case X_CONCATASSIGN: symb="Concatenation assignemnt operator" ; break ;
       default: symb="Unrecognized value" ;
    }
 

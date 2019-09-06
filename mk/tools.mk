@@ -17,27 +17,28 @@ DEST    = tools
 # system os2v2   
 # -bt=os2v2 -d__OS2__
 
+ADD_COPT = -i=. -i=..$(SEP)..$(SEP)include $(DEFINES) $(ADD_COPT)
+
 # Building tools for Linux
 # -dUNIX
 !ifeq UNIX TRUE
 OS       = UNIX
 NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
 ADD_LINKOPT    += system linux  debug dwarf all
+ADD_COPT       += -i=$(%WATCOM)$(SEP)lh # -x
 !endif
 
 # The variable DEFINES is to append more compiler defines and switches from a singular makefile
 # because add_copt is overwritten in this file.
 CLEAN_ADD = *.c *.h
 
-TARGETS  = $(PATH)$(PROJ)$(EXE_SUF) # $(PATH)$(PROJ).sym
-
-ADD_COPT += -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
+TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 
 $(PATH)$(PROJ).lnk: $(OBJS)
  @%create $^@
- @%append $^@ NAME $^*$(EXE_SUF)
+ @%append $^@ NAME $^*.exe
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif

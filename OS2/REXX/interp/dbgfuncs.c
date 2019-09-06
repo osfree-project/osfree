@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: dbgfuncs.c,v 1.9 2004/05/24 09:04:35 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>

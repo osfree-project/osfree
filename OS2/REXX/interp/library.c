@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: library.c,v 1.25 2005/08/04 11:28:40 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -46,7 +42,7 @@ static char *RCSid = "$Id: library.c,v 1.25 2005/08/04 11:28:40 mark Exp $";
  * NULL.
  */
 
-#define EP_COUNT 133    /* should be a prime for distribution */
+#define EP_COUNT 1361   /* should be a prime for distribution */
 
 #define FUNCS   0
 #define EXITS   1
@@ -60,7 +56,15 @@ typedef struct { /* lib_tsd: static variables of this module (thread-safe) */
 } lib_tsd_t; /* thread-specific but only needed by this module. see
               * init_library
               */
-
+/*
+ * External functions, exits etc should be global; fixes bug 3489415
+ * This is not implemented yet as doing this would require all access
+ * to ltGlobal to be protected so multiple threads can't be adding/deleting
+ * items fro the list of external functions/exits - TODO
+ */
+#ifdef TODO_WHEN_TS
+static lib_tsd_t *ltGlobal=NULL;
+#endif
 /*
  * init_library initializes the module.
  * Currently, we set up the thread specific data.
@@ -68,6 +72,18 @@ typedef struct { /* lib_tsd: static variables of this module (thread-safe) */
  */
 int init_library( tsd_t *TSD )
 {
+#ifdef TODO_WHEN_TS
+   if ( TSD->lib_tsd != NULL )
+      return 1;
+
+   if ( ltGlobal == NULL )
+   {
+      if ( ( ltGlobal = MallocTSD( sizeof( lib_tsd_t ) ) ) == NULL )
+         return 0;
+      memset( ltGlobal, 0, sizeof( lib_tsd_t ) );  /* correct for all values */
+   }
+   TSD->lib_tsd = ltGlobal;
+#else
    lib_tsd_t *lt;
 
    if ( TSD->lib_tsd != NULL )
@@ -77,6 +93,7 @@ int init_library( tsd_t *TSD )
       return 0;
    lt = (lib_tsd_t *)TSD->lib_tsd;
    memset( lt, 0, sizeof( lib_tsd_t ) );  /* correct for all values */
+#endif
    return 1;
 }
 
@@ -521,7 +538,6 @@ static int load_entry( const tsd_t *TSD, struct library *lptr,
    assert( ( lptr != NULL ) ^ ( entry != NULL ) );
    assert( rxname != NULL );
    assert( slot >= FUNCS && slot <= SUBCOMS );
-
    /*
     * Check the exceptions first.
     */
@@ -750,6 +766,8 @@ static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
    void *handle;
    int newhandle = 0;
 #endif
+   streng *regutil=Str_crestr( "regutil" );
+   streng *rexxutil=Str_crestr( "rexxutil" );
 
    assert( rxname != NULL );
 
@@ -757,24 +775,73 @@ static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
    {
       assert( entry == NULL );
 #ifdef DYNAMIC
-      if ( ( lptr = find_library( TSD, module ) ) == NULL )
+      if ( Str_ccmp( module, rexxutil ) == 0 )
       {
-         newhandle = 1;
-         handle = wrapper_load( TSD, module ) ;
-         if ( handle )
+         if ( ( lptr = find_library( TSD, rexxutil ) ) == NULL )
          {
-            lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
-            lptr->name = Str_dupstrTSD( module ) ;
-            lptr->handle = handle ;
-            lptr->used = 0l;
+            newhandle = 1;
+            handle = wrapper_load( TSD, rexxutil ) ;
+            if ( handle )
+            {
+               lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
+               lptr->name = Str_dupstrTSD( rexxutil ) ;
+               lptr->handle = handle ;
+               lptr->used = 0l;
+            }
+            else
+            {
+               Free_stringTSD( rexxutil );
+
+               if ( Str_ccmp( module, regutil ) == 0 )
+               {
+                  if ( ( lptr = find_library( TSD, regutil ) ) == NULL )
+                  {
+                  newhandle = 1;
+                  handle = wrapper_load( TSD, regutil ) ;
+                  if ( handle )
+                  {
+                     lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
+                     lptr->name = Str_dupstrTSD( regutil ) ;
+                     lptr->handle = handle ;
+                     lptr->used = 0l;
+                  }
+                  else
+                  {
+                     Free_stringTSD( regutil );
+                     return 40; /* RXFUNC_MODNOTFND */
+                  }
+                  insert_library( TSD, lptr ) ;
+                  }
+               }
+            }
+            insert_library( TSD, lptr ) ;
          }
-         else
+      }
+      if ( lptr == NULL )
+      {
+         if ( ( lptr = find_library( TSD, module ) ) == NULL )
          {
-            return 40; /* RXFUNC_MODNOTFND */
+            newhandle = 1;
+            handle = wrapper_load( TSD, module ) ;
+            if ( handle )
+            {
+               lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
+               lptr->name = Str_dupstrTSD( module ) ;
+               lptr->handle = handle ;
+               lptr->used = 0l;
+            }
+            else
+            {
+               Free_stringTSD( regutil );
+               Free_stringTSD( rexxutil );
+               return 40; /* RXFUNC_MODNOTFND */
+            }
+            insert_library( TSD, lptr ) ;
          }
-         insert_library( TSD, lptr ) ;
       }
 #else
+      Free_stringTSD( regutil );
+      Free_stringTSD( rexxutil );
       return 60; /* RXFUNC_NOTINIT */
 #endif
    }
@@ -789,6 +856,8 @@ static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
          remove_library( TSD, lptr );
 #endif
    }
+   Free_stringTSD( regutil );
+   Free_stringTSD( rexxutil );
    return rc;
 }
 
@@ -880,7 +949,7 @@ streng *rex_rxfuncerrmsg( tsd_t *TSD, cparamboxptr parms )
    else
       return nullstringptr();
 #else
-   return Str_creTSD( "Platform doesn't support dynamic linking" );
+   return Str_creTSD( "Module doesn't support dynamic linking; are you running the \"regina\" executable?" );
 #endif
 }
 

@@ -41,3 +41,5 @@ EXPORTS
        RexxCallBack
        ReginaCleanup
        __regina_faked_main
+       RexxSetTrace
+       RexxResetTrace

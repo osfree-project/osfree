@@ -9,10 +9,12 @@ type
   LHandle = Longint;
   HPointer = LHandle;
   FHLock  = Longint;
-  ULong   = Longint;
   Long    = Longint;
   Bool    = LongBool;
+{$ifndef LINUX}
+  ULong   = Longint;
   UShort  = Word;
+{$endif}
   PULong  = ^ULong;
   PLong   = ^Long;
   PFn     = Pointer;
@@ -38,7 +40,9 @@ type
   PHmodule = ^HModule;
   PPid     = ^Pid;
   PTid     = ^Tid;
+{$ifndef LINUX}
   HFile    = LHandle; //SHandle;
+{$endif}
   pHFile   = ^HFile;
 
 { Common SUP types }

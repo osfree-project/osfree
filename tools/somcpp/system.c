@@ -47,7 +47,7 @@
 #include    "unistd.h"              /* For getcwd(), readlink() */
 #elif   HOST_COMPILER == MSC || HOST_COMPILER == LCC || HOST_COMPILER == __WATCOMC__
 #ifdef __LINUX__
-#include    "direct.h"
+#include    "dirent.h"
 #include    "unistd.h"              /* For getcwd(), readlink() */
 #else
 #include    "direct.h"

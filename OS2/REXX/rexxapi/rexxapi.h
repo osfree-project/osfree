@@ -14,10 +14,7 @@ void TraceString( char *fmt, ... );
 void null(char *fmt, ...);
 
 //#define debug null
-#define debug if (Trace) TraceString
-
-APIRET APIENTRY DosSelToFlat(ULONG addr);
-APIRET APIENTRY DosFlatToSel(ULONG addr);
+#define log if (Trace) TraceString
 
 typedef unsigned short WORD;            // w
 
@@ -50,6 +47,9 @@ typedef WORD FAR *PWORD;                // pw
 typedef USHORT _Far16 *PUSHORT16;
 
 typedef SHORT _Far16 *PSHORT16;
+
+#define RXFUNC_DYNALINK       1        /* Function Available in DLL  */
+#define RXFUNC_CALLENTRY      2        /* Registered as mem entry pt.*/
 
 typedef struct {
    ULONG           strlength;          /*   length of string         */
@@ -128,7 +128,8 @@ APIRET APIENTRY RexxRegisterSubcomDll(
 
 APIRET APIENTRY RexxRegisterSubcomExe(
    PCSZ EnvName,
-   RexxSubcomHandler *EntryPoint,
+   PFN EntryPoint,
+   //RexxSubcomHandler *EntryPoint,
    PUCHAR UserArea );
 
 APIRET APIENTRY RexxQuerySubcom(
@@ -150,7 +151,8 @@ APIRET APIENTRY RexxRegisterExitDll(
 
 APIRET APIENTRY RexxRegisterExitExe(
    PCSZ EnvName,
-   RexxExitHandler *EntryPoint,
+   PFN EntryPoint,
+   //RexxExitHandler *EntryPoint,
    PUCHAR UserArea );
 
 APIRET APIENTRY RexxDeregisterExit(
@@ -170,7 +172,8 @@ APIRET APIENTRY RexxRegisterFunctionDll(
 
 APIRET APIENTRY RexxRegisterFunctionExe(
    PCSZ name,
-   RexxFunctionHandler *EntryPoint );
+   PFN EntryPoint );
+   //RexxFunctionHandler *EntryPoint );
 
 APIRET APIENTRY RexxDeregisterFunction(
    PCSZ name );
@@ -187,7 +190,8 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName);
 APIRET APIENTRY RexxClearMacroSpace( VOID );
 
 APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
-                                    PSZ * FuncNames,
+                                    //PSZ * FuncNames,
+                                    PSZ const * FuncNames,
                                     PSZ MacroLibFile);
 
 APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
@@ -197,8 +201,30 @@ APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
                                   ULONG Position );
 
 APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
-                                    PSZ * FuncNames,
-                                    PSZ MacroLibFile);
+                                    //PSZ * FuncNames,
+                                    PSZ const * FuncNames,
+                                    PSZ MacroLibFile );
+
+APIRET APIENTRY RexxLoadSubcom( PSZ envp,
+                                PSZ dllp );
+
+// ???
+APIRET APIENTRY RexxCallFunction (
+        PSZ fn,                            /* Name of function to call   */
+        ULONG argc,                        /* Number of arguments        */
+        PRXSTRING argv,                    /* Array of argument strings  */
+        PUSHORT ret,                       /* RC from function called    */
+        PRXSTRING stor,                    /* Storage for returned data  */
+        PSZ data);                         /* Name of active data queue  */
+
+// ???
+APIRET APIENTRY RexxCallSubcom(
+         PSZ env,                          /* Name of Subcommand Environ */
+         PSZ dll,                          /* Module name of its' DLL    */
+         PRXSTRING cmd,                    /* Command string to be passed*/
+         PUSHORT flag,                     /* Stor for error flag notice */
+         PUSHORT ret,                      /* Stor for rc from handler   */
+         PRXSTRING stor );                 /* Stor for returned string   */
 
 USHORT _Far16 _Pascal RXSUBCOMREGISTER(PSCBLOCK16 PSCB);
 
@@ -261,40 +287,40 @@ USHORT _Far16 _Pascal RXSUBCOMQUERY(
 USHORT _Far16 _Pascal RXFUNCTIONCALL (
         PSZ16 fn,                           /* Name of function to call   */
         USHORT argc,                        /* Number of arguments        */
-        PRXSTRING16 argv,                     /* Array of argument strings  */
-        PUSHORT _Far16 rc,                       /* RC from function called    */
-        PRXSTRING16 stor,                     /* Storage for returned data  */
-        PSZ16 data);                         /* Name of active data queue  */
+        PRXSTRING16 argv,                   /* Array of argument strings  */
+        USHORT * _Seg16 rc,                 /* RC from function called    */
+        PRXSTRING16 stor,                   /* Storage for returned data  */
+        PSZ16 data);                        /* Name of active data queue  */
 
 USHORT _Far16 _Pascal RXEXITREGISTER (
-         PSCBLOCK16 scb ) ;                  /* Ptr to SCBLOCK to register */
+         PSCBLOCK16 scb ) ;                 /* Ptr to SCBLOCK to register */
 
 USHORT _Far16 _Pascal RXMACROREORDER(
-         PSZ16 fn,                         /* Name of funct change order  */
-         USHORT pos);                    /* New position for function   */
+         PSZ16 fn,                          /* Name of funct change order  */
+         USHORT pos);                       /* New position for function   */
 
 USHORT _Far16 _Pascal RXSUBCOMEXECUTE(
-         PSZ16 env,                          /* Name of Subcommand Environ */
-         PSZ16 dll,                          /* Module name of its' DLL    */
-         PRXSTRING16 cmd,                    /* Command string to be passed*/
-         PUSHORT _Far16 flag,                      /* Stor for error flag notice */
-         PUSHORT _Far16 rc,                      /* Stor for rc from handler   */
-         PRXSTRING16 stor );                  /* Stor for returned string   */
+         PSZ16 env,                         /* Name of Subcommand Environ */
+         PSZ16 dll,                         /* Module name of its' DLL    */
+         PRXSTRING16 cmd,                   /* Command string to be passed*/
+         USHORT * _Seg16 flag,              /* Stor for error flag notice */
+         USHORT * _Seg16 rc,                /* Stor for rc from handler   */
+         PRXSTRING16 stor );                /* Stor for returned string   */
 
 USHORT _Far16 _Pascal RXFUNCTIONQUERY( PSZ16 fn);
 
 USHORT _Far16 _Pascal RXFUNCTIONQUERY(
-        PSZ16 fn);                         /* Name of function to find   */
+        PSZ16 fn);                          /* Name of function to find   */
 
 USHORT _Far16 _Pascal RXFUNCTIONDEREGISTER (
         PSZ16 fn );                         /* Name of function to remove */
 
 USHORT _Far16 _Pascal RXEXITDROP (
          PSZ16 fn,                          /* Exit name                  */
-         PSZ16 dll ) ;                       /* DLL module name            */
+         PSZ16 dll ) ;                      /* DLL module name            */
 
 USHORT _Far16 _Pascal RXFUNCTIONREGISTER(
         PSZ16 fn,                           /* Name of function to add    */
-        PSZ16 dll,                           /* Dll file name (if in dll)  */
-        PSZ16 entry,                           /* Entry in dll OR mem address*/
+        PSZ16 dll,                          /* Dll file name (if in dll)  */
+        PSZ16 entry,                        /* Entry in dll OR mem address*/
         USHORT flag);                       /* RX_DYNALINK || RX_CALLENTRY*/

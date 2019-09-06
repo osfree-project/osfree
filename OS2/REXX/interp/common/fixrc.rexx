@@ -31,6 +31,8 @@ Call Stream input, 'C', 'OPEN READ'
 Call Stream output, 'C', 'OPEN WRITE REPLACE'
 Do While Lines( input) > 0
    line = Linein( input )
+   If num_dots = 2 & Countstr( '?.?.0', line ) = 1 Then line = Changestr( '?.?.0', line, verdot )
+   If num_dots = 2 & Countstr( '?,?,0', line ) = 1 Then line = Changestr( '?,?,0', line, vercomma )
    line = Changestr( qm_ver, line, verdot )
    line = Changestr( qm_vercomma, line, vercomma )
    line = Changestr( '????????', line, verdate )

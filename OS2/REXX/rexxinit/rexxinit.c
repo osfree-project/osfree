@@ -51,7 +51,7 @@ void APIENTRY RxInitThread (void *param)
   HQUEUE        hq;
   HMTX          hmtx;
   HMODULE       hmod;
-  buf_t         *pbuf;
+  quebuf_t      *pbuf;
   APIRET        rc;
   USHORT        cmd;
 

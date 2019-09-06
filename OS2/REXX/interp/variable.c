@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: variable.c,v 1.42 2006/09/15 04:06:09 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992  Anders Christensen <anders@pvv.unit.no>
@@ -396,7 +392,7 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
  * NEVER EVER USE LESS THAN 40% CAPACITY! THIS MAY BE THE LOW WATER MARK!
  */
 #define NEW_HASHTABLE_CHECK(tbl,flag) /* */          \
-   (flag |= (((tbl)->e * 1 > (tbl)->size * 1) ? 1 : 0)) /* set to 5/4 for 80%*/
+   (flag |= (((tbl)->elements * 3 > (tbl)->size * 2) ? 1 : 0)) /* set to 5/4 for 80%*/
 
 /*
  * COLLISION_CHECK is invoked after a collision has been detected.
@@ -404,10 +400,12 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
  * A hashtable reorganisation should/may happen in this case; this must be
  * indicated by setting flag to 1.
  * One (maybe wrong) idea is to increase the table if the number of collisions
- * is bigger than two time of the number of read/write accesses.
+ * is bigger than ten time of the number of read/write accesses.
+ * An additional test verifies the collisions were not caused by a bad
+ * hash function or badly chosen variable names.
  */
 #define COLLISION_CHECK(tbl,flag) /* */                  \
-   (flag |= (((tbl)->w + (tbl)->r < (tbl)->c / 2) ? 1 : 0))
+   (flag |= ((((tbl)->elements * 10 > (tbl)->size) && ((tbl)->writes + (tbl)->reads < (tbl)->collisions / 10)) ? 1 : 0))
 
 
 /*
@@ -423,7 +421,7 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
            ( Str_cmp( run->name, var ) == 0 ) )                               \
          break;                                                               \
                                                                               \
-      (tbl)->c++;                                                             \
+      (tbl)->collisions++;                                                             \
       COLLISION_CHECK(tbl, flag);                                             \
    }
 
@@ -435,7 +433,7 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
            ( Str_ccmp( run->name, var ) == 0 ) )                              \
          break;                                                               \
                                                                               \
-      (tbl)->c++;                                                             \
+      (tbl)->collisions++;                                                             \
       COLLISION_CHECK(tbl, flag);                                             \
    }
 
@@ -447,7 +445,7 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
            ( Str_cncmp( run->name, var, l ) == 0 ) )                          \
          break;                                                               \
                                                                               \
-      (tbl)->c++;                                                             \
+      (tbl)->collisions++;                                                             \
       COLLISION_CHECK(tbl, flag);                                             \
    }
 
@@ -459,7 +457,7 @@ static void DVAR2( const tsd_t *TSD, const char *name, cvariableptr v )
            ( Str_cnocmp( run->name, var, l, off ) == 0 ) )                    \
          break;                                                               \
                                                                               \
-      (tbl)->c++;                                                             \
+      (tbl)->collisions++;                                                             \
       COLLISION_CHECK(tbl, flag);                                             \
    }
 
@@ -475,10 +473,10 @@ static var_hashtable *make_hash_table( const tsd_t *TSD, int size )
    var_hashtable *tab = (var_hashtable *)MallocTSD( sizeof( var_hashtable ) );
 
    tab->size = size;
-   tab->r = 0;
-   tab->w = 0;
-   tab->c = 0;
-   tab->e = 0;
+   tab->reads = 0;
+   tab->writes = 0;
+   tab->collisions = 0;
+   tab->elements = 0;
    size = ( size + 1 ) * sizeof( variableptr );
    /* Last element needed to save current_valid */
 
@@ -504,7 +502,7 @@ int known_reserved_variable( const char *name, unsigned length )
     * a fast breakout switch
     */
    if ( ( length < 3 /* ".RC" */)
-     || ( length > 7 /* ".RESULT" */)
+     || ( length > 10 /* ".ENDOFLINE" */)
      || ( *name != '.' ) )
       return POOL0_NOT_RESERVED;
    name++;
@@ -525,6 +523,8 @@ int known_reserved_variable( const char *name, unsigned length )
    RET_IF( RS );
    RET_IF( MN );
    RET_IF( LINE );
+   RET_IF( FILE );
+   RET_IF( ENDOFLINE );
 #undef REF_IF
 
    return POOL0_NOT_RESERVED;
@@ -1136,6 +1136,8 @@ int init_vars( tsd_t *TSD )
 {
    var_tsd_t *vt;
    int i, j;
+   char buf[3];
+   streng *ptr;
 
    if ( TSD->var_tsd != NULL )
       return 1;
@@ -1144,7 +1146,7 @@ int init_vars( tsd_t *TSD )
       return 0;
    vt = (var_tsd_t *)TSD->var_tsd;
    memset( vt, 0, sizeof( var_tsd_t ) );
-   vt->initialHashTableLength = 71;
+   vt->initialHashTableLength = 2003;
 
 #ifdef DEBUG
    {
@@ -1202,6 +1204,8 @@ int init_vars( tsd_t *TSD )
    vt->pool0nodes[POOL0_RS][0].name     = Str_creTSD( ".RS" );
    vt->pool0nodes[POOL0_MN][0].name     = Str_creTSD( ".MN" );
    vt->pool0nodes[POOL0_LINE][0].name   = Str_creTSD( ".LINE" );
+   vt->pool0nodes[POOL0_FILE][0].name   = Str_creTSD( ".FILE" );
+   vt->pool0nodes[POOL0_ENDOFLINE][0].name   = Str_creTSD( ".ENDOFLINE" );
    for ( i = 0; i < POOL0_CNT; i++ )
    {
       for ( j = 0; j < 2; j++ )
@@ -1210,6 +1214,19 @@ int init_vars( tsd_t *TSD )
             vt->pool0nodes[i][j].type = X_SIM_SYMBOL;
       }
    }
+   /*
+    * We can set .ENDOFLINE here
+    * Yes its crude!
+    */
+#if defined(UNIX)
+   buf[0] = 0x0a; buf[1] = 0x00;
+#elif defined(MAC)
+   buf[0] = 0x0d; buf[1] = 0x00;
+#else
+   buf[0] = 0x0d; buf[1] = 0x0a; buf[2] = 0x00;
+#endif
+   ptr = Str_creTSD( buf );
+   set_reserved_value( TSD, POOL0_ENDOFLINE, ptr, 0, VFLAG_STR );
 
    DPRINTF((TSD,"init_vars"));
    return(1);
@@ -1317,7 +1334,7 @@ static streng *subst_index( const tsd_t *TSD, const streng *name, int start,
    for ( ; ; )
    {
       nptr = vars->tbl[hashfunc( vt, name, start, &stop, vars->size )];
-      vars->r++;
+      vars->reads++;
 
       length = stop - start;
       SEEK_VAR_CNOCMP( nptr, name, vt->fullhash, vars, length, start, *expand );
@@ -1390,7 +1407,7 @@ static streng *subst_index( const tsd_t *TSD, const streng *name, int start,
     else                                                                      \
     {                                                                         \
        FreeTSD( ptr );                                                        \
-       (hashtbl)->e--;                                                        \
+       (hashtbl)->elements--;                                                        \
     }                                                                         \
  }
 
@@ -1404,7 +1421,7 @@ static void remove_foliage( const tsd_t *TSD, var_hashtable *index )
 {
 #if defined(DEBUG) || defined(TRACEMEM)
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
-   unsigned start = index->e;
+   unsigned start = index->elements;
 #endif
    unsigned i;
    variableptr ptr, tptr;
@@ -1444,8 +1461,8 @@ static void remove_foliage( const tsd_t *TSD, var_hashtable *index )
    FreeTSD( index->tbl );
    DPRINTF((TSD,"                   kill=%p",index));
    DPRINTF_2((TSD,"STATISTICS:        %u(%u) in %u buckets, %u r, %u w, %u colls",
-                          index->e, start, index->size, index->r,
-                          index->w, index->c));
+                          index->elements, start, index->size, index->reads,
+                          index->writes, index->collisions));
    FreeTSD( index );
 }
 
@@ -1565,7 +1582,7 @@ static int reorgHashtable( const tsd_t *TSD, var_hashtable *vars )
    if ( !(f1 | f2 ) )
    {
       /*
-       * May happen in case of f2 where a ->r or ->w is set after the
+       * May happen in case of f2 where a ->reads or ->writes is set after the
        * collision detection. Ignore it. That is no bug.
        */
       DPRINTF_2((TSD,"reorgHashtable:    %p/%p: BLIND ALERT", vars, vars->tbl));
@@ -1573,29 +1590,32 @@ static int reorgHashtable( const tsd_t *TSD, var_hashtable *vars )
    }
 
    /*
-    * Try to use a low water mark of 33% capacity. If the collisions are
-    * the reason, go below 25% capacity.
+    * Increase the current size by factor 2 and add 1. Don't keep this at
+    * a specific factor, the hash function may map to same values and we
+    * are lost.
     */
-   newSize = vars->e * ( ( f2 ) ? 4 : 3 );
+   newSize = vars->size * 2;
+   newSize++;
+
    if ( vars->size >= newSize )
    {
       /*
        * We can't help. Check the stupid hashfunc() in this case.
        */
       DPRINTF_2((TSD,"reorgHashtable:    %p/%p: heavy collisions %u",
-                     vars, vars->tbl, vars->c));
-      vars->r = 0;
-      vars->w = 0;
-      vars->c = 0;
+                     vars, vars->tbl, vars->collisions));
+      vars->reads = 0;
+      vars->writes = 0;
+      vars->collisions = 0;
       return 0;
    }
 
    newTbl = (variableptr *)MallocTSD( sizeof(variableptr) * newSize );
    memset( newTbl, 0, sizeof(variableptr) * newSize );
-   DPRINTF((TSD,"reorgHashtable:    %p -> %p (%u)",
-                vars->tbl,newTbl,newSize));
+   DPRINTF((TSD,"reorgHashtable:    %p -> %p Old(%u) New(%u) %u %u",
+                vars->tbl,newTbl,vars->size, newSize, f1, f2));
    DPRINTF_2((TSD,"reorgHashtable:    changing size of %p/%p (%u) to %p/%p (%u), c=%u(%d)",
-                  vars,vars->tbl,vars->size,vars,newTbl,newSize, vars->c,f2));
+                  vars,vars->tbl,vars->size,vars,newTbl,newSize, vars->collisions,f2));
 
    for ( i = 0; i < vars->size; i++ )
    {
@@ -1620,9 +1640,9 @@ static int reorgHashtable( const tsd_t *TSD, var_hashtable *vars )
    FreeTSD( vars->tbl );
    vars->tbl = newTbl;
    vars->size = newSize;
-   vars->r = 0;
-   vars->w = 0;
-   vars->c = 0;
+   vars->reads = 0;
+   vars->writes = 0;
+   vars->collisions = 0;
    return 1;
 }
 
@@ -1650,7 +1670,7 @@ static int setvalue_simple( const tsd_t *TSD, var_hashtable *vars,
    int rehash = 0;
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
 
-   vars->w++;
+   vars->writes++;
    ptr = findsimple( TSD, vars, name, &rehash );
    if ( ptr )
    {
@@ -1663,7 +1683,7 @@ static int setvalue_simple( const tsd_t *TSD, var_hashtable *vars,
       vt->foundflag = 0;
       vt->thespot = newbox( TSD, name, value, &vars->tbl[vt->hashval],
                             vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
       DSTART;DPRINT((TSD,"setvalue_simple:   "));DVAR(TSD,"new, vt->thespot",ptr);DEND;
    }
@@ -1682,7 +1702,7 @@ static const streng *getvalue_simple( tsd_t *TSD, var_hashtable *vars,
    int rehash = 0;
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
 
-   vars->r++;
+   vars->reads++;
    ptr = findsimple( TSD, vars, name, &rehash );
    if ( rehash )
    {
@@ -1721,7 +1741,7 @@ static int setvalue_stem( const tsd_t *TSD, var_hashtable *vars,
 
    DPRINTF((TSD,"setvalue_stem:     ?"));
 
-   vars->w++;
+   vars->writes++;
    ptr = findsimple( TSD, vars, name, &rehash );
 
    if ( ptr )
@@ -1736,7 +1756,7 @@ static int setvalue_stem( const tsd_t *TSD, var_hashtable *vars,
       vt->foundflag = 0;
       make_stem( TSD, name, value, &vars->tbl[vt->hashval], name->len,
                  vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
    }
    vt->thespot = NULL;
@@ -1766,13 +1786,13 @@ static int setvalue_compound( tsd_t *TSD, var_hashtable *vars,
    if ( !ptr )
    {
       ptr = make_stem( TSD, name, NULL, pptr, stop, vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
-      vars->w++;
+      vars->writes++;
    }
    else
    {
-      vars->r++;
+      vars->reads++;
    }
 
    indexstr = subst_index( TSD, name, stop, vars, &rehash );
@@ -1785,7 +1805,7 @@ static int setvalue_compound( tsd_t *TSD, var_hashtable *vars,
    if ( vt->subst )   /* trace it */
       tracecompound( TSD, name, stop - 1, indexstr, 'C' );
 
-   vars->w++;
+   vars->writes++;
    nnptr = &(ptr->index->tbl[hashfunc( vt, indexstr, 0, NULL, ptr->index->size )]);
    nptr = *nnptr;
    SEEK_VAR_CMP( nptr, indexstr, vt->fullhash, ptr->index, rehashIdx );
@@ -1799,7 +1819,7 @@ static int setvalue_compound( tsd_t *TSD, var_hashtable *vars,
    else
    {
       newbox( TSD, indexstr, value, nnptr, vt->fullhash );
-      ptr->index->e++;
+      ptr->index->elements++;
       NEW_HASHTABLE_CHECK( ptr->index, rehashIdx );
       (*nnptr)->stem = ptr;
    }
@@ -1857,13 +1877,13 @@ static int setdirvalue_compound( tsd_t *TSD, var_hashtable *vars,
    if ( !ptr )
    {
       ptr = make_stem( TSD, name, NULL, pptr, stop, vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
-      vars->w++;
+      vars->writes++;
    }
    else
    {
-      vars->r++;
+      vars->reads++;
    }
 
    if ( rehash )
@@ -1882,7 +1902,7 @@ static int setdirvalue_compound( tsd_t *TSD, var_hashtable *vars,
 
    nnptr = &((ptr->index->tbl)[hashfunc( vt, vt->tmpindex, 0, NULL,
                                          ptr->index->size)]);
-   vars->r++;
+   vars->reads++;
    nptr = *nnptr;
    SEEK_VAR_CMP( nptr, vt->tmpindex, vt->fullhash, ptr->index, rehashIdx );
    SEEK_EXPOSED( nptr );
@@ -1895,7 +1915,7 @@ static int setdirvalue_compound( tsd_t *TSD, var_hashtable *vars,
    else
    {
       newbox( TSD, vt->tmpindex, value, nnptr, vt->fullhash );
-      ptr->index->e++;
+      ptr->index->elements++;
       NEW_HASHTABLE_CHECK( ptr->index, rehashIdx );
       (*nnptr)->stem = ptr;
    }
@@ -1918,7 +1938,7 @@ static void expose_simple( const tsd_t *TSD, var_hashtable *vars,
 
    hashv = hashfunc( vt, name, 0, NULL, vt->var_table->size );
    ptr = vt->var_table->tbl[hashv];
-   vt->var_table->r++;
+   vt->var_table->reads++;
    SEEK_VAR_CCMP( ptr, name, vt->fullhash, vt->var_table, rehash );
 
    if ( ptr )  /* hey, you just exposed that one! */
@@ -1927,14 +1947,14 @@ static void expose_simple( const tsd_t *TSD, var_hashtable *vars,
    rehash = 0; /* ignore here */
    hashn = vt->fullhash % vars->size;
    ptr = vars->tbl[hashn];
-   vars->w++;
+   vars->writes++;
    SEEK_VAR_CCMP( ptr, name, vt->fullhash, vars, rehash );
    SEEK_EXPOSED( ptr );
 
    if ( !ptr )
    {
       newbox( TSD, name, NULL, &vars->tbl[hashn], vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
       ptr = vars->tbl[hashn];
    }
@@ -1946,7 +1966,7 @@ static void expose_simple( const tsd_t *TSD, var_hashtable *vars,
    }
 
    newbox( TSD, name, NULL, &vt->var_table->tbl[hashv], vt->fullhash );
-   vt->var_table->e++;
+   vt->var_table->elements++;
    NEW_HASHTABLE_CHECK( vt->var_table, rehash );
    vt->var_table->tbl[hashv]->realbox = ptr;
    /*
@@ -1972,7 +1992,7 @@ static void expose_stem( const tsd_t *TSD, var_hashtable *vars,
    DPRINTF((TSD,"expose_stem:       ?"));
    hashv = hashfunc(vt, name, 0, &junk, vt->var_table->size );
    ptr = vt->var_table->tbl[hashv];
-   vt->var_table->r++;
+   vt->var_table->reads++;
    SEEK_VAR_CCMP( ptr, name, vt->fullhash, vt->var_table, rehash );
 
    if ( ptr && ptr->realbox )
@@ -1981,14 +2001,14 @@ static void expose_stem( const tsd_t *TSD, var_hashtable *vars,
    rehash = 0;
    hashn = vt->fullhash % vars->size;
    tptr = vars->tbl[hashn];
-   vars->w++;
+   vars->writes++;
    SEEK_VAR_CCMP( tptr, name, vt->fullhash, vars, rehash );
    SEEK_EXPOSED( tptr );
 
    if ( !tptr )
    {
       newbox( TSD, name, NULL, &vars->tbl[hashn], vt->fullhash );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
       tptr = vars->tbl[hashn];
       tptr->index = make_hash_table( TSD, vt->initialHashTableLength );
@@ -2017,7 +2037,7 @@ static void expose_stem( const tsd_t *TSD, var_hashtable *vars,
    else
    {
       newbox( TSD, name, NULL, &vt->var_table->tbl[hashv], vt->fullhash );
-      vt->var_table->e++;
+      vt->var_table->elements++;
       NEW_HASHTABLE_CHECK( vt->var_table, rehash );
       vt->var_table->tbl[hashv]->realbox = tptr; /* dont need ->index */
    }
@@ -2042,7 +2062,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &cptr, vt->var_table->size );
    ptr = vt->var_table->tbl[hashv];
    length = ++cptr;
-   vt->var_table->r++;
+   vt->var_table->reads++;
    fh = vt->fullhash;
    SEEK_VAR_CNCMP( ptr, name, fh, vt->var_table, length, rehash );
    if ( ptr && ptr->realbox )
@@ -2052,7 +2072,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
    if ( !ptr ) /* array does not exist */
    {
       make_stem( TSD, name, NULL, &vt->var_table->tbl[hashv], length, fh );
-      vt->var_table->e++;
+      vt->var_table->elements++;
       NEW_HASHTABLE_CHECK( vt->var_table, rehash );
       ptr = vt->var_table->tbl[hashv];
    }
@@ -2070,7 +2090,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
 
    hashv2 = hashfunc( vt, indexstr, 0, NULL, ptr->index->size );
    nptr = ptr->index->tbl[hashv2];
-   ptr->index->r++;
+   ptr->index->reads++;
    SEEK_VAR_CMP( nptr, indexstr, vt->fullhash, ptr->index, rehash );
 
    if ( nptr && nptr->realbox )
@@ -2078,7 +2098,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
    else
    {
       newbox( TSD, indexstr, NULL, &ptr->index->tbl[hashv2], vt->fullhash );
-      ptr->index->e++;
+      ptr->index->elements++;
       NEW_HASHTABLE_CHECK( ptr->index, rehash );
       nptr = ptr->index->tbl[hashv2];
       nptr->stem = ptr;
@@ -2090,14 +2110,14 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
    }
 
    tptr = vars->tbl[hashn];
-   vars->w++;
+   vars->writes++;
    SEEK_VAR_CNCMP( tptr, name, fh, vars, length, rehash );
    SEEK_EXPOSED( tptr );
 
    if ( !tptr )
    {
       make_stem( TSD, name, NULL, &vars->tbl[hashn], length, fh );
-      vars->e++;
+      vars->elements++;
       NEW_HASHTABLE_CHECK( vars, rehash );
       tptr = vars->tbl[hashn];
    }
@@ -2109,7 +2129,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
 
    hashn2 = vt->fullhash % tptr->index->size;
    tiptr = tptr->index->tbl[hashn2];
-   tptr->index->w++;
+   tptr->index->writes++;
    SEEK_VAR_CMP( tiptr, indexstr, vt->fullhash, tptr->index, rehash );
    SEEK_EXPOSED( tiptr );
 
@@ -2120,7 +2140,7 @@ static void expose_compound( tsd_t *TSD, var_hashtable *vars,
        * lines.
        */
       newbox( TSD, indexstr, NULL, &tptr->index->tbl[hashn2], vt->fullhash );
-      tptr->index->e++;
+      tptr->index->elements++;
       NEW_HASHTABLE_CHECK( tptr->index, rehash );
       tiptr = tptr->index->tbl[hashn2];
       tiptr->stem = tptr;
@@ -2149,7 +2169,7 @@ static const streng *getvalue_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &stop, vars->size );
    ptr = vars->tbl[hashv];
    baselength = ++stop;
-   vars->r++;
+   vars->reads++;
    SEEK_VAR_CNCMP( ptr, name, vt->fullhash, vars, baselength, rehash );
    SEEK_EXPOSED( ptr );
 
@@ -2168,7 +2188,7 @@ static const streng *getvalue_compound( tsd_t *TSD, var_hashtable *vars,
    {
       hashv = hashfunc( vt, indexstr, 0, NULL, ptr->index->size );
       nptr = ptr->index->tbl[hashv];
-      ptr->index->r++;
+      ptr->index->reads++;
       SEEK_VAR_CMP( nptr, indexstr, vt->fullhash, ptr->index, rehash );
       SEEK_EXPOSED( nptr );
 
@@ -2239,7 +2259,7 @@ static const streng *getdirvalue_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &stop, vars->size );
    ptr = vars->tbl[hashv];
    baselength = ++stop;
-   vars->r++;
+   vars->reads++;
    /*
     * Find the stem in the variable pool.
     */
@@ -2265,7 +2285,7 @@ static const streng *getdirvalue_compound( tsd_t *TSD, var_hashtable *vars,
    {
       hashv = hashfunc( vt, vt->tmpindex, 0, NULL, ptr->index->size );
       nptr = ptr->index->tbl[hashv];
-      ptr->index->r++;
+      ptr->index->reads++;
       /*
        * Find the index in the variable pool.
        */
@@ -2563,7 +2583,7 @@ static void drop_var_simple( const tsd_t *TSD, var_hashtable *vars,
    int rehash = 0;
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
 
-   vars->w++;
+   vars->writes++;
    ptr = findsimple( TSD, vars, name, &rehash );
    DSTART;DPRINT((TSD,"drop_var_simple:   "));DNAME(TSD,"name",name);DVAR(TSD,", var",ptr);
           DEND;
@@ -2599,7 +2619,7 @@ static void drop_var_stem( const tsd_t *TSD, var_hashtable *vars,
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
 
    DPRINTF((TSD,"drop_var_stem:     ?"));
-   vars->w++;
+   vars->writes++;
    ptr = findsimple( TSD, vars, name, &rehash );
 
    vt->foundflag = 0;
@@ -2643,7 +2663,7 @@ static void drop_var_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &stop, vars->size );
    ptr = vars->tbl[hashv];
    baselength = ++stop;
-   vars->r++;
+   vars->reads++;
 
    SEEK_VAR_CNCMP( ptr, name, vt->fullhash, vars, baselength, rehash );
    SEEK_EXPOSED( ptr );
@@ -2663,7 +2683,7 @@ static void drop_var_compound( tsd_t *TSD, var_hashtable *vars,
    {
       hashv = hashfunc( vt, indexstr, 0, NULL, ptr->index->size );
       nptr = ptr->index->tbl[hashv];
-      ptr->index->w++;
+      ptr->index->writes++;
       SEEK_VAR_CMP( nptr, indexstr, vt->fullhash, ptr->index, rehash );
       SEEK_EXPOSED( nptr );
 
@@ -2729,7 +2749,7 @@ static void drop_dirvar_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &stop, vars->size );
    ptr = vars->tbl[hashv];
    baselength = ++stop;
-   vars->r++;
+   vars->reads++;
 
    SEEK_VAR_CNCMP( ptr, name, vt->fullhash, vars, baselength, rehash );
    SEEK_EXPOSED( ptr );
@@ -2753,7 +2773,7 @@ static void drop_dirvar_compound( tsd_t *TSD, var_hashtable *vars,
    {
       hashv = hashfunc( vt, vt->tmpindex, 0, NULL, ptr->index->size );
       nptr = ptr->index->tbl[hashv];
-      ptr->index->w++;
+      ptr->index->writes++;
       SEEK_VAR_CMP( nptr, vt->tmpindex, vt->fullhash, ptr->index, rehash );
       SEEK_EXPOSED( nptr );
 
@@ -2862,7 +2882,7 @@ static void upper_var_simple( tsd_t *TSD, var_hashtable *vars,
    int rehash = 0;
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
 
-   vars->w++;
+   vars->writes++;
    ptr = findsimple( TSD, vars, name, &rehash );
    if ( rehash )
    {
@@ -2912,7 +2932,7 @@ static void upper_var_compound( tsd_t *TSD, var_hashtable *vars,
    hashv = hashfunc( vt, name, 0, &stop, vars->size );
    ptr = vars->tbl[hashv];
    baselength = ++stop;
-   vars->r++;
+   vars->reads++;
    SEEK_VAR_CNCMP( ptr, name, vt->fullhash, vars, baselength, rehash );
    SEEK_EXPOSED( ptr);
 
@@ -2931,7 +2951,7 @@ static void upper_var_compound( tsd_t *TSD, var_hashtable *vars,
    {
       hashv = hashfunc( vt, indexstr, 0, NULL, ptr->index->size );
       nptr = ptr->index->tbl[hashv];
-      ptr->index->w++;
+      ptr->index->writes++;
       SEEK_VAR_CMP( nptr, indexstr, vt->fullhash, ptr->index, rehash );
       SEEK_EXPOSED( nptr );
 
@@ -3417,7 +3437,7 @@ streng *fix_compound( tsd_t *TSD, nodeptr thisptr, streng *newstr )
       hhash = hashfunc( vt, thisptr->name, 0, NULL, TSD->currlevel->vars->size );
       iptr = TSD->currlevel->vars->tbl[hhash];
       hfh = vt->fullhash;
-      TSD->currlevel->vars->r++;
+      TSD->currlevel->vars->reads++;
       /*
        * The stem's name is uppercased both in the parsing tree as in our
        * variable pool --> no need to Str_ccmp the elements.
@@ -3454,7 +3474,7 @@ streng *fix_compound( tsd_t *TSD, nodeptr thisptr, streng *newstr )
    {
       thash = hashfunc( vt, indeks, 0, NULL, iptr->index->size );
       ptr = iptr->index->tbl[thash];
-      iptr->index->w++;
+      iptr->index->writes++;
       SEEK_VAR_CMP( ptr, indeks, vt->fullhash, iptr->index, rehashIdx );
       SEEK_EXPOSED( ptr );
 
@@ -3468,7 +3488,7 @@ streng *fix_compound( tsd_t *TSD, nodeptr thisptr, streng *newstr )
          else
          {
             newbox( TSD, indeks, newstr, &iptr->index->tbl[thash], vt->fullhash );
-            iptr->index->e++;
+            iptr->index->elements++;
             NEW_HASHTABLE_CHECK( iptr->index, rehashIdx );
             iptr->index->tbl[thash]->stem = iptr;
          }
@@ -3507,14 +3527,14 @@ streng *fix_compound( tsd_t *TSD, nodeptr thisptr, streng *newstr )
       {
          iptr = newbox( TSD, thisptr->name, NULL,
                         &TSD->currlevel->vars->tbl[hhash], hfh );
-         TSD->currlevel->vars->e++;
+         TSD->currlevel->vars->elements++;
          NEW_HASHTABLE_CHECK( TSD->currlevel->vars, rehash );
          iptr->index = make_hash_table( TSD, vt->initialHashTableLength );
          DPRINTF((TSD,"make_hash_table:   rc=%p",iptr->index));
          thash = hashfunc( vt, indeks, 0, NULL, iptr->index->size );
-         iptr->index->w++;
+         iptr->index->writes++;
          newbox( TSD, indeks, newstr, &iptr->index->tbl[thash], vt->fullhash );
-         iptr->index->e++;
+         iptr->index->elements++;
          NEW_HASHTABLE_CHECK( iptr->index, rehashIdx );
          iptr->index->tbl[thash]->stem = iptr;
       }
@@ -3599,7 +3619,7 @@ num_descr *fix_compoundnum( tsd_t *TSD, nodeptr thisptr, num_descr *newdescr,
       hhash = hashfunc( vt, thisptr->name, 0, NULL, TSD->currlevel->vars->size );
       iptr = TSD->currlevel->vars->tbl[hhash];
       hfh = vt->fullhash;
-      TSD->currlevel->vars->r++;
+      TSD->currlevel->vars->reads++;
       /*
        * The stem's name is uppercased both in the parsing tree as in our
        * variable pool --> no need to Str_ccmp the elements.
@@ -3635,7 +3655,7 @@ num_descr *fix_compoundnum( tsd_t *TSD, nodeptr thisptr, num_descr *newdescr,
    {
       thash = hashfunc( vt, indeks, 0, NULL, iptr->index->size );
       ptr = iptr->index->tbl[thash];
-      iptr->index->w++;
+      iptr->index->writes++;
       SEEK_VAR_CMP( ptr, indeks, vt->fullhash, iptr->index, rehashIdx );
       SEEK_EXPOSED( ptr );
 
@@ -3649,7 +3669,7 @@ num_descr *fix_compoundnum( tsd_t *TSD, nodeptr thisptr, num_descr *newdescr,
          else
          {
             newbox( TSD, indeks, NULL, &iptr->index->tbl[thash], vt->fullhash );
-            iptr->index->e++;
+            iptr->index->elements++;
             NEW_HASHTABLE_CHECK( iptr->index, rehashIdx );
             ptr = iptr->index->tbl[thash];
             ptr->stem = iptr;
@@ -3745,14 +3765,14 @@ num_descr *fix_compoundnum( tsd_t *TSD, nodeptr thisptr, num_descr *newdescr,
 #else
          iptr = newbox( TSD, thisptr->name, NULL, &TSD->currlevel->vars[hhash],
                         hfh );
-         TSD->currlevel->vars->e++;
+         TSD->currlevel->vars->elements++;
          NEW_HASHTABLE_CHECK( TSD->currlevel->vars, rehash );
          iptr->index = make_hash_table( TSD, vt->initialHashTableLength );
          DPRINTF((TSD,"make_hash_table:   rc=%p",iptr->index));
          thash = hashfunc( vt, indeks, 0, NULL );
-         iptr->index->r++;
+         iptr->index->reads++;
          newbox( TSD, indeks, NULL, &iptr->index->tbl[thash], vt->fullhash );
-         iptr->index->e++;
+         iptr->index->elements++;
          NEW_HASHTABLE_CHECK( iptr->index, rehashIdx );
          ptr = iptr->index[thash];
          ptr->stem = iptr;

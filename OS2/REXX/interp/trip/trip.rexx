@@ -301,7 +301,7 @@ if,
 /*--------------------------------------------------------------------*/
 call notify 'expr'
 
-/*----- First, test all compariastion operators ----------------------*/
+/*-------- First, test all comparison operators ----------------------*/
 str = \('abc'='abc')    \('abc'=='abc')    ('abc'\='abc')    ('abc'\=='abc'),
        ('abc'='xyz')     ('abc'=='xyz')   \('abc'\='xyz')   \('abc'\=='xyz'),
       \('abc'=' abc ')   ('abc'==' abc ')  ('abc'\=' abc ') \('abc'\==' abc '),
@@ -418,7 +418,7 @@ if (7-7%2) \== 4 then
 
 
 
-/*----- Is expressions evalueated completely -------------------------*/
+/*----- Are expressions evaluated completely -------------------------*/
 count = 1
 junk = ( 1 | subproc() )
 if count \== 2 then
@@ -522,7 +522,7 @@ if \(temp1==temp2) then
    call complain 'Can not set seed in random generator'
 
 /*--------------------------------------------------------------------*/
-/* Test asossiative arrays                                            */
+/* Test associative arrays                                            */
 /*--------------------------------------------------------------------*/
 call notify 'arrays'
 

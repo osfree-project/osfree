@@ -1,0 +1,12 @@
+                         Regina 3.8.3
+                       22 September 2014
+
+Changes in this release (from 3.8.2)
+----------------------------------
+  * Finally a fix for Bug #429
+  * Fix for Bug #433
+  * Added extra QUERY options; CREATETIME, MODIFYTIME and ACCESSTIME to STREAM BIF
+    Returns a time_t value for create, modify and access time of the persistent stream
+    Feature Request #34
+  * Feature Request #35 - GETCALLER BIF to determine who called the program
+  * Feature Request #36 - .FILE reserved variable

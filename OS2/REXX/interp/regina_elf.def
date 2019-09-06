@@ -45,3 +45,7 @@ regina_3.1 {
 regina_3.3 {
         ReginaCleanup;
 } REXXSAA_API;
+regina_3.7 {
+        RexxSetTrace;
+        RexxResetTrace;
+} REXXSAA_API;

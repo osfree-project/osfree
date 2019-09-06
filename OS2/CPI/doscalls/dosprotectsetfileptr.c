@@ -10,7 +10,7 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
   LONGLONG ibActualL;
   APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("method=%lx\n", method);
   log("fhLockID=%lx\n", fhFileHandleLockID);
@@ -21,11 +21,12 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
   };
   ibL.ulLo=ib;
   ibL.ulHi=0;
-  rc=DosProtectSetFilePtrL(hFile,
-                           ibL,
-                           method,
-                           &ibActualL,
-                           fhFileHandleLockID);
+
+  rc = DosProtectSetFilePtrL(hFile,
+                             ibL,
+                             method,
+                             &ibActualL,
+                             fhFileHandleLockID);
 
   if (ibActualL.ulHi!=0)
   {
@@ -35,5 +36,6 @@ APIRET APIENTRY  DosProtectSetFilePtr(HFILE hFile,
   *ibActual=ibActualL.ulLo;
 
   log("ibActual=%lx\n", *ibActual);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

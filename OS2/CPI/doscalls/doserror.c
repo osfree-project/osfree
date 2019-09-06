@@ -2,7 +2,10 @@
 
 APIRET APIENTRY DosError(ULONG errorno)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("errorno=%lx\n", errorno);
-  return KalError(errorno);
+  rc = KalError(errorno);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

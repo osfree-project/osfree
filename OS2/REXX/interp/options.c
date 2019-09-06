@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: options.c,v 1.17 2006/02/20 07:54:17 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -32,7 +28,7 @@ static char *RCSid = "$Id: options.c,v 1.17 2006/02/20 07:54:17 mark Exp $";
 
 
 static const struct __regina_option all_options[] = {  /* Must be alphabetically sorted! */
-   METAOP( ANSI, "NOCALLS_AS_FUNCS NOEXT_COMMANDS_AS_FUNCS FAST_LINES_BIF_DEFAULT STRICT_ANSI STRICT_WHITE_SPACE_COMPARISONS" ),
+   METAOP( ANSI, "NOCALLS_AS_FUNCS NOEXT_COMMANDS_AS_FUNCS FAST_LINES_BIF_DEFAULT STRICT_ANSI STRICT_WHITE_SPACE_COMPARISONS NOSINGLE_LINE_COMMENTS" ),
    OPTION( AREXX_BIFS ),
    OPTION( AREXX_SEMANTICS ),
    OPTION( BROKEN_ADDRESS_COMMAND ),
@@ -54,6 +50,8 @@ static const struct __regina_option all_options[] = {  /* Must be alphabetically
    METAOP( REGINA, "NOCALLS_AS_FUNCS EXT_COMMANDS_AS_FUNCS FAST_LINES_BIF_DEFAULT, NOHALT_ON_EXT_CALL_FAIL " ),
    OPTION( REGINA_BIFS ),
    METAOP( SAA, "NOCALLS_AS_FUNCS NOEXT_COMMANDS_AS_FUNCS" ),
+   OPTION( SINGLE_INTERPRETER ),
+   OPTION( SINGLE_LINE_COMMENTS ),
    OPTION( STDOUT_FOR_STDERR ),
    OPTION( STRICT_ANSI ),
    OPTION( STRICT_WHITE_SPACE_COMPARISONS ),
@@ -122,6 +120,13 @@ void do_options( const tsd_t *TSD, proclevel pl, streng *options, int toggle )
       }
    }
    Free_stringTSD( options );
+   /*
+    * Check if SINGLE_INTERPRTER option is set; save the current TSD globally
+    */
+   if ( get_options_flag( pl, EXT_SINGLE_INTERPRETER ) )
+   {
+      setGlobalTSD( TSD );
+   }
 }
 
 int get_options_flag( cproclevel pl, int offset )

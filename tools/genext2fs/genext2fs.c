@@ -68,10 +68,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef __WATCOM__
+#ifndef __WATCOMC__
 #include <dirent.h>
 #else
+#ifndef LINUX
 #include <direct.h>
+#else
+#include <dirent.h>
+#endif
 #endif
 #include <libgen.h>
 #include <stdarg.h>

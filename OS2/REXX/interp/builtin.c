@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: builtin.c,v 1.54 2006/09/15 05:40:35 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -44,6 +40,10 @@ double pow( double, double ) ;
 
 #if defined(HAVE_PUTENV) && defined(FIX_PROTOS) && defined(ultrix)
 void putenv( char* );
+#endif
+
+#if defined(__OS2__) && defined(__WATCOMC__)
+time_t mktime2(struct tm * tmp);
 #endif
 
 #define UPPERLETTER(a) ((((a)&0xdf)>='A')&&(((a)&0xdf)<='Z'))
@@ -1001,8 +1001,7 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
          ampm = (char *)( ( hour > 11 ) ? "pm" : "am" ) ;
          if ((hour=hour%12)==0)
             hour = 12 ;
-         sprintf(answer->value, "%d:%02d%s", hour, tmdata.tm_min, ampm) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf( answer->value, "%d:%02d%s", hour, tmdata.tm_min, ampm );
          break ;
 
       case 'E':
@@ -1030,60 +1029,58 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
           * in order not to generate any illegal numbers
           */
          if (sec)
-            sprintf(answer->value,"%ld.%06lu", (long)sec, (unsigned long)usec ) ;
+            answer->len = sprintf( answer->value,"%ld.%06lu", (long)sec, (unsigned long)usec );
          else
-            sprintf(answer->value,".%06lu", (unsigned long)usec ) ;
-         answer->len = strlen(answer->value);
+            answer->len = sprintf( answer->value,".%06lu", (unsigned long)usec );
          break ;
 
       case 'H':
-         sprintf(answer->value, "%d", tmdata.tm_hour) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf( answer->value, "%d", tmdata.tm_hour );
          break ;
 
       case 'J':
-         sprintf(answer->value, "%.06f", cpu_time()) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf( answer->value, "%.06f", cpu_time() );
          break ;
 
       case 'L':
-         sprintf(answer->value, "%02d:%02d:%02d.%06ld", tmdata.tm_hour,
-                  tmdata.tm_min, tmdata.tm_sec, unow ) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf(answer->value, "%02d:%02d:%02d.%06ld", tmdata.tm_hour, tmdata.tm_min, tmdata.tm_sec, unow );
          break ;
 
       case 'M':
-         sprintf(answer->value, "%d", tmdata.tm_hour*60 + tmdata.tm_min) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf(answer->value, "%d", tmdata.tm_hour*60 + tmdata.tm_min);
          break ;
 
       case 'N':
-         sprintf(answer->value, "%02d:%02d:%02d", tmdata.tm_hour,
-                      tmdata.tm_min, tmdata.tm_sec ) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf(answer->value, "%02d:%02d:%02d", tmdata.tm_hour, tmdata.tm_min, tmdata.tm_sec );
          break ;
 
       case 'O':
 #ifdef VMS
          timediff = mktime(localtime(&now));
 #else
+#if defined(__OS2__) && defined(__WATCOMC__)
+         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
+#else
          timediff = (long)(mktime(localtime(&now))-mktime(gmtime(&now)));
 #endif
-         sprintf(answer->value, "%ld%s",
-                 timediff,(timediff)?"000000":"");
-         answer->len = strlen(answer->value);
+         tmptr = localtime(&now);
+         if ( tmptr->tm_isdst )
+            timediff += 3600;
+#endif
+         answer->len = sprintf( answer->value, "%ld%s", timediff,(timediff)?"000000":"" );
          break ;
 
       case 'S':
-         sprintf(answer->value, "%d", ((tmdata.tm_hour*60)+tmdata.tm_min)
-                    *60 + tmdata.tm_sec) ;
-         answer->len = strlen(answer->value);
+         answer->len = sprintf(answer->value, "%d", (((tmdata.tm_hour*60)+tmdata.tm_min) * 60) + tmdata.tm_sec);
          break ;
 
       case 'T':
+#if defined(__OS2__) && defined(__WATCOMC__)
+         rnow = mktime2( &tmdata );
+#else
          rnow = mktime( &tmdata );
-         sprintf(answer->value, "%ld", rnow );
-         answer->len = strlen(answer->value);
+#endif
+         answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 
       default:
@@ -1095,12 +1092,17 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
 
 streng *std_date( tsd_t *TSD, cparamboxptr parms )
 {
-   static const char *fmt = "%02d/%02d/%02d" ;
-   static const char *sdate = "%04d%02d%02d" ;
-   static const char *iso = "%04d-%02d-%02d" ;
+   static const char *fmt = "%02d%c%02d%c%02d" ;
+   static const char *fmt1 = "%02d%02d%02d" ;
+   static const char *sdate = "%04d%c%02d%c%02d" ;
+   static const char *sdate1 = "%04d%02d%02d" ;
+   static const char *iso = "%04d%c%02d%c%02d" ;
+   static const char *iso1 = "%04d%02d%02d" ;
+   static const char *ndate = "%d%c%c%c%c%c%4d" ;
+   static const char *ndate1 = "%d%c%c%c%4d" ;
    char format = 'N' ;
    char suppformat = 'N' ;
-   int length=0 ;
+   int length=0,rcode=0 ;
    const char *chptr=NULL ;
    streng *answer=Str_makeTSD( 50 ) ;
    paramboxptr tmpptr=NULL;
@@ -1108,30 +1110,101 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
    streng *str_suppformat=NULL;
    struct tm tmdata, *tmptr ;
    time_t now=0, unow=0, rnow=0 ;
+   char osep = '?', isep = '?';
+   streng *str_isep=NULL;
+   streng *str_osep=NULL;
 
-   checkparam(  parms,  0,  3 , "DATE" ) ;
+   if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
+      checkparam(  parms,  0,  3 , "DATE" ) ;
+   else
+      checkparam(  parms,  0,  5 , "DATE" ) ;
    if ((parms)&&(parms->value))
       format = getoptionchar( TSD, parms->value, "DATE", 1, "BDEMNOSUW", "CIT" ) ;
 
-   if (parms->next)
+   tmpptr = parms->next ;
+   if (tmpptr)
    {
-      tmpptr = parms->next ;
-      if (parms->next->value)
+      if (tmpptr->value)
          suppdate = tmpptr->value ;
-
-      if (tmpptr->next)
+      tmpptr = tmpptr->next ;
+      if (tmpptr)
       {
-         tmpptr = tmpptr->next ;
          if (tmpptr->value)
          {
             str_suppformat = tmpptr->value;
             suppformat = getoptionchar( TSD, tmpptr->value, "DATE", 3, "BDENOSU", "IT" ) ;
          }
+         tmpptr = tmpptr->next ;
+         if (tmpptr)
+         {
+            if (tmpptr->value)
+            {
+               str_osep = tmpptr->value;
+               if ( Str_len( tmpptr->value ) == 0 )
+                  osep = '\0';
+               else
+                  osep = getonespecialchar( TSD, tmpptr->value, "DATE", 4 ) ;
+               if ( !(format == 'E' || format == 'N' || format == 'O' || format == 'S' || format == 'U' || format == 'I') )
+                  exiterror( ERR_INCORRECT_CALL, 44, "DATE", 2, tmpstr_of( TSD, suppdate ), 4 ) ;
+            }
+            tmpptr = tmpptr->next ;
+            if (tmpptr)
+            {
+               if (tmpptr->value)
+               {
+                  str_isep = tmpptr->value;
+                  if ( Str_len( tmpptr->value ) == 0 )
+                     isep = '\0';
+                  else
+                     isep = getonespecialchar( TSD, tmpptr->value, "DATE", 5 ) ;
+                  if ( !(suppformat == 'E' || suppformat == 'N' || suppformat == 'O' || suppformat == 'S' || suppformat == 'U' || suppformat == 'I') )
+                     exiterror( ERR_INCORRECT_CALL, 44, "DATE", 2, tmpstr_of( TSD, suppdate ), 5 ) ;
+               }
+            }
+         }
       }
-      else
+   }
+   if ( isep == '?' )
+   {
+      /* set default input separator */
+      switch( suppformat )
       {
-         suppformat = 'N';
+         case 'E':
+         case 'O':
+         case 'U':
+            isep = '/';
+            break;
+         case 'S':
+            isep = '\0';
+            break;
+         case 'I':
+            isep = '-';
+            break;
+         case 'N':
+            isep = ' ';
+            break;
       }
+   }
+   if ( osep == '?' )
+   {
+       /* set default output separator */
+       switch( format )
+       {
+          case 'E':
+          case 'O':
+          case 'U':
+             osep = '/';
+             break;
+          case 'S':
+             osep = '\0';
+             break;
+         case 'I':
+            osep = '-';
+            break;
+          case 'N':
+             osep = ' ';
+             break;
+       }
    }
 
    if (TSD->currentnode->now)
@@ -1162,9 +1235,10 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
       memset( &tmdata, 0, sizeof( tmdata ) ); /* what shall we do in this case? */
    tmdata.tm_year += 1900;
 
-   if ( suppdate ) /* date conversion required */
+   if ( suppdate )
    {
-      if ( convert_date( TSD, suppdate, suppformat, &tmdata ) )
+      /* date conversion required */
+      if ( ( rcode = convert_date( TSD, suppdate, suppformat, &tmdata, isep ) ) )
       {
          char *p1, *p2;
          if (suppdate && suppdate->value)
@@ -1175,7 +1249,10 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
             p2 = (char *) tmpstr_of( TSD, str_suppformat ) ;
          else
             p2 = "N";
-         exiterror( ERR_INCORRECT_CALL, 19, "DATE", p1, p2 )  ;
+         if ( rcode == 1 )
+            exiterror( ERR_INCORRECT_CALL, 19, "DATE", p1, p2 )  ;
+         else
+            exiterror( ERR_INCORRECT_CALL, 44, "DATE", 2, p1, 5 )  ;
       }
       /*
        * Check for crazy years...
@@ -1199,11 +1276,17 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
          break ;
 
       case 'E':
-         answer->len = sprintf( answer->value, fmt, tmdata.tm_mday, tmdata.tm_mon+1, tmdata.tm_year%100 );
+         if ( osep == '\0' )
+            answer->len = sprintf( answer->value, fmt1, tmdata.tm_mday, tmdata.tm_mon+1, tmdata.tm_year%100 );
+         else
+            answer->len = sprintf( answer->value, fmt, tmdata.tm_mday, osep, tmdata.tm_mon+1, osep, tmdata.tm_year%100 );
          break ;
 
       case 'I':
-         answer->len = sprintf( answer->value, iso, tmdata.tm_year, tmdata.tm_mon+1, tmdata.tm_mday );
+         if ( osep == '\0' )
+            answer->len = sprintf( answer->value, iso1, tmdata.tm_year, tmdata.tm_mon+1, tmdata.tm_mday );
+         else
+            answer->len = sprintf( answer->value, iso, tmdata.tm_year, osep, tmdata.tm_mon+1, osep, tmdata.tm_mday );
          break ;
 
       case 'M':
@@ -1214,25 +1297,41 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
 
       case 'N':
          chptr = months[tmdata.tm_mon] ;
-         answer->len = sprintf( answer->value, "%d %c%c%c %4d", tmdata.tm_mday, chptr[0], chptr[1], chptr[2], tmdata.tm_year );
+         if ( osep == '\0' )
+            answer->len = sprintf( answer->value, ndate1, tmdata.tm_mday, chptr[0], chptr[1], chptr[2], tmdata.tm_year );
+         else
+            answer->len = sprintf( answer->value, ndate, tmdata.tm_mday, osep, chptr[0], chptr[1], chptr[2], osep, tmdata.tm_year );
          break ;
 
       case 'O':
-         answer->len = sprintf( answer->value, fmt, tmdata.tm_year%100, tmdata.tm_mon+1, tmdata.tm_mday );
+         if ( osep == '\0' )
+            answer->len = sprintf( answer->value, fmt1, tmdata.tm_year%100, tmdata.tm_mon+1, tmdata.tm_mday );
+         else
+            answer->len = sprintf( answer->value, fmt, tmdata.tm_year%100, osep, tmdata.tm_mon+1, osep, tmdata.tm_mday );
          break ;
 
       case 'S':
-         answer->len = sprintf(answer->value, sdate, tmdata.tm_year, tmdata.tm_mon+1, tmdata.tm_mday );
+         if ( osep == '\0' )
+            answer->len = sprintf(answer->value, sdate1, tmdata.tm_year, tmdata.tm_mon+1, tmdata.tm_mday );
+         else
+            answer->len = sprintf(answer->value, sdate, tmdata.tm_year, osep, tmdata.tm_mon+1, osep, tmdata.tm_mday );
          break ;
 
       case 'T':
          tmdata.tm_year -= 1900;
+#if defined(__OS2__) && defined(__WATCOMC__)
+         rnow = mktime2( &tmdata );
+#else
          rnow = mktime( &tmdata );
+#endif
          answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 
       case 'U':
-         answer->len = sprintf( answer->value, fmt, tmdata.tm_mon+1, tmdata.tm_mday, tmdata.tm_year%100 );
+         if ( osep == '\0' )
+            answer->len = sprintf( answer->value, fmt1, tmdata.tm_mon+1, tmdata.tm_mday, tmdata.tm_year%100 );
+         else
+            answer->len = sprintf( answer->value, fmt, tmdata.tm_mon+1, osep, tmdata.tm_mday, osep, tmdata.tm_year%100 );
          break ;
 
       case 'W':
@@ -1489,7 +1588,7 @@ streng *std_space( tsd_t *TSD, cparamboxptr parms )
 
 streng *std_arg( tsd_t *TSD, cparamboxptr parms )
 {
-   int number=0, retval=0, tmpval=0 ;
+   rx_64 number=0, retval=0, tmpval=0 ;
    char flag='N' ;
    streng *value=NULL ;
    paramboxptr ptr=NULL ;
@@ -1498,7 +1597,7 @@ streng *std_arg( tsd_t *TSD, cparamboxptr parms )
    if ( ( parms )
    && ( parms->value ) )
    {
-      number = atopos( TSD, parms->value, "ARG", 1 ) ;
+      number = atoposrx64( TSD, parms->value, "ARG", 1 ) ;
       if ( parms->next )
          flag = getoptionchar( TSD, parms->next->value, "ARG", 2, "ENO", "" ) ;
    }
@@ -1510,7 +1609,7 @@ streng *std_arg( tsd_t *TSD, cparamboxptr parms )
          if (ptr->value)
             retval = tmpval ;
 
-      value = int_to_streng( TSD, retval ) ;
+      value = rx64_to_streng( TSD, retval ) ;
    }
 
    else
@@ -1520,11 +1619,11 @@ streng *std_arg( tsd_t *TSD, cparamboxptr parms )
       {
          case 'E':
             retval = ((ptr)&&(ptr->value)) ;
-            value = int_to_streng( TSD, retval ? 1 : 0 ) ;
+            value = rx64_to_streng( TSD, retval ? 1 : 0 ) ;
             break;
          case 'O':
             retval = ((ptr)&&(ptr->value)) ;
-            value = int_to_streng( TSD, retval ? 0 : 1 ) ;
+            value = rx64_to_streng( TSD, retval ? 0 : 1 ) ;
             break;
          case 'N':
             if ((ptr)&&(ptr->value))
@@ -1793,7 +1892,7 @@ streng *std_compare( tsd_t *TSD, cparamboxptr parms )
 streng *std_errortext( tsd_t *TSD, cparamboxptr parms )
 {
    char opt = 'N';
-   streng *tmp,*tmp1,*tmp2;
+   streng *tmp,*tmp1,*tmp2,*retstr;
    int numdec=0, errnum, suberrnum, pos=0, i;
 #if 0
    const char *err=NULL;
@@ -1839,7 +1938,9 @@ streng *std_errortext( tsd_t *TSD, cparamboxptr parms )
 
    Free_stringTSD( tmp ) ;
 
-   return Str_dupTSD( errortext( TSD, errnum, suberrnum, (opt=='S')?1:0, 1 ) ) ;
+   retstr = Str_dupTSD( errortext( TSD, errnum, suberrnum, (opt=='S')?1:0, 1 ) ) ;
+   clear_errortext_buffers( TSD ); /* fix bug 449 */
+   return retstr;
 }
 
 

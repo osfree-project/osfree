@@ -29,22 +29,23 @@ else
    if test "$cflags_O" = "0"; then
       CFLAGS="${CFLAGS} -O"
    fi
-   if test "$cflags_g" != "0"; then
-      CFLAGS="`echo ${CFLAGS} | sed -e s/-g//`"
+   if test "$cflags_g" = "0"; then
+      CFLAGS="${CFLAGS} -g"
    fi
 fi
-if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++"; then
+if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
    if test "$with_debug" = yes; then
       CFLAGS="${CFLAGS} -Wall"
    else
-      CFLAGS="${CFLAGS} -O3 -Wall -fomit-frame-pointer -fno-strict-aliasing -Wno-char-subscripts"
+#      CFLAGS="${CFLAGS} -O3 -Wall -fomit-frame-pointer -fno-strict-aliasing -Wno-char-subscripts"
+      CFLAGS="${CFLAGS} -O3 -Wall"
    fi
 fi
 if test "$on_qnx4" = yes; then
    if test "$ac_cv_prog_CC" = "gcc"; then
       QNX4_CFLAGS=""
    else
-      QNX4_CFLAGS="-Wc,-r -b -j -Wc,-ei -N4096000 -zp4 -mf -DNO_REGEX -DQNX -DQNX4 -D__QNX__ -DSTRINGS_ALIGNED -Q"
+      QNX4_CFLAGS="-Wc,-r -b -j -Wc,-ei -N4096000 -mf -DNO_REGEX -DQNX -DQNX4 -D__QNX__ -DSTRINGS_ALIGNED -Q"
    fi
    if test "$with_debug" = yes; then
       CFLAGS="-g $QNX4_CFLAGS"

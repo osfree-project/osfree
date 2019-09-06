@@ -9,10 +9,12 @@
 # portuguese - brian <bcarpent@nucleus.com>
 # russian - Oleg Kulikov <kulikov@xanadu.ru>
 # spanish - Pablo Garcia-Abia <Pablo.Garcia@cern.ch>
+# svenska - Jan-Erik L„rka <jan-erik@os2ug.se>
 #
 # Guidelines for Translators
 # --------------------------
 # - Lines beginning with # are comments
+# - No blank lines
 # - Any word in UPPER CASE should not be translated
 # - On some error message lines, there are tokens following the
 #   | character. Again these should not be translated.
@@ -22,6 +24,7 @@
 # - There are some comments at the end of this file under the heading:
 #   "Extra general phrases requiring translation:"
 #   Please translate these phrases also.
+# - File to be saved as UTF-8
 # - Return the translated error messages in a complete file, the same as this
 #   file, with the name XX.mts where XX is the ISO language abbreviation.
 #   Important: Please zip the file up to ensure that the file arrives in
@@ -151,8 +154,8 @@
  31,  3,Variable symbol must not start with a "."; found "%s"|<token>
  32,  0,[Invalid use of stem]
  33,  0,Invalid expression result
- 33,  1,Value of NUMERIC DIGITS "%d" must exceed value of NUMERIC FUZZ "(%d)"|<value>,<value>
- 33,  2,Value of NUMERIC DIGITS "%d" must not exceed %d|<value>,#Limit_Digits
+ 33,  1,Value of NUMERIC DIGITS ("%d") must exceed value of NUMERIC FUZZ ("%d")|<value>,<value>
+ 33,  2,Value of NUMERIC DIGITS ("%d") must not exceed %d|<value>,#Limit_Digits
  33,  3,Result of expression following NUMERIC FORM must start with "E" or "S"; found "%s"|<value>
  34,  0,Logical value not "0" or "1"
  34,  1,Value of expression following IF keyword must be exactly "0" or "1"; found "%s"|<value>
@@ -204,13 +207,15 @@
  40, 39,%s argument 3 is not zero or one; found "%s"|<bif>,<value>
  40, 41,%s argument %d must be within the bounds of the stream; found "%s"|<bif>,<argnumber>,<value>
  40, 42,%s argument 1; cannot position on this stream; found "%s"|<bif>,<value>
+ 40, 43,%s argument %d must be a single non-alphanumeric character or the null string; found "%s"|<bif>,<argnumber>,<value>
+ 40, 44,%s argument %d, "%s", is a format incompatible with the separator specified in argument %d|<bif>,<argnumber>,<value>,<argnumber>
  40,914,[%s argument %d, must be one of "%s"; found "%s"]|<bif>,<argnumber>,<optionslist>,<value>
  40,920,[%s: low-level stream I/O error; %s]|<bif>,<description>
  40,921,[%s argument %d, stream positioning mode "%s"; incompatible with stream open mode]|<bif>,<argnumber>,<value>
  40,922,[%s argument %d, too few sub-commands; minimum expected is %d; found %d]|<bif>,<argnumber>,<value>,<value>
  40,923,[%s argument %d, too many sub-commands; maximum expected is %d; found %d]|<bif>,<argnumber>,<value>,<value>
  40,924,[%s argument %d, invalid positional specification; expecting one of "%s"; found "%s"]|<bif>,<argnumber>,<value>,<value>
- 40,930,[RXQUEUE, function TIMEOUT, expecting a whole number between -1 and %d; found \"%s\"]|<value>,<value>
+ 40,930,[RXQUEUE, function TIMEOUT, expecting a whole number between 0 and %d; found \"%s\"]|<value>,<value>
  40,980,Unexpected input, either unknown type or illegal data%s%s|: ,<location>
  40,981,Number out of the allowed range%s%s|: ,<location>
  40,982,String too big for the defined buffer%s%s|: ,<location>
@@ -277,10 +282,12 @@
  90,  1,[%s is a Regina extension BIF]|<bif>
  90,  2,[%s is a Regina extension instruction]|<token>
  90,  3,[%s argument %d, option must start with one of "%s" with "OPTIONS STRICT_ANSI"; found "%s"; a Regina extension]|<bif>,<argnumber>,<optionslist>,<value>
+ 90,  4,[%s is a Regina extension operator]|<token>
  93,  0,[Incorrect call to routine]
  93,  1,[STREAM command %s must be followed by one of "%s"; found "%s"]|<token>,<value>,<value>
  93,  3,[STREAM command must be one of "%s"; found "%s"]|<value>,<value>
  94,  0,[External queue interface error]
+ 94,  1,[External queue timed out]
  94, 99,[Internal error with external queue interface: %d "%s"]|<description>,<systemerror>
  94,100,[General system error with external queue interface. %s. %s]|<description>,<systemerror>
  94,101,[Error connecting to %s on port %d: "%s"]|<machine>,<portnumber>,<systemerror>
@@ -303,8 +310,15 @@
 100,  0,[Unknown filesystem error]
 #
 # Extra general phrases requiring translation:
-# The text in () is the corresponding array name in error.c
 #
+P,  0,Error %d running "%.*s", line %d: %.*s
+P,  1,Error %d.%d: %.*s
+P,  2,Error %d running "%.*s": %.*s
+#P,  3,Unable to open language file: %s
+#P,  4,Incorrect number of messages in language file: %s
+#P,  5,Unable to read from language file: %s
+#P,  6,Text missing from language file: %s.mtb
+#P,  7,Language file: %s.mtb is corrupt
 # (err1prefix)   "Error %d running \"%.*s\", line %d: %.*s",
 # (suberrprefix) "Error %d.%d: %.*s",
 # (err2prefix)   "Error %d running \"%.*s\": %.*s",

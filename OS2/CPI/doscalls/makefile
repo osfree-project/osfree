@@ -67,8 +67,8 @@ srcfiles = $(p)msg$(e) &
            $(p)dossearchpath$(e) &
            $(p)token$(e) &
            $(p)monitors$(e) &
-           $(p)dos16cwait$(e) &
            $(p)viocalls$(e) &
+           $(p)dos16cwait$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od
@@ -139,7 +139,7 @@ IMPORTS = &
         _KalSuspendThread        KAL.KalSuspendThread, &
         _KalWaitThread           KAL.KalWaitThread, &
         _KalWrite                KAL.KalWrite, &
-        WinDefAVioWindowProc     SUB32.30,  &
+        WinDefAVioWindowProc     SUB32.30, &
                                             &
         Vio32EndPopUp              SUB32.101, &
         Vio32GetPhysBuf            SUB32.102, &
@@ -467,7 +467,9 @@ EXPORTS = DosICreateThread           .1, &
         DosCreateVDM               .213, &
         DOS16MAXPATHLEN            .214, &
         DOS16PAGESIZE              .215, &
+# Local Infoseg selector
         DOS16LOCALINFO             .216, &
+# Global Infoseg selector
         DOS16GLOBALINFO            .217, &
         DosSetFileInfo             .218, &
         DosSetPathInfo             .219, &
@@ -991,81 +993,81 @@ EXPORTS = DosICreateThread           .1, &
         KBDGETHWID                 .768, &
         KBDSETHWID                 .769, &
 # viocalls
-        VIOENDPOPUP                .770, &
-        VIOGETPHYSBUF              .771, &
-        VIOGETANSI                 .772, &
-        VIOFREE                    .773, &
-        VIOSETANSI                 .774, &
-        VIODEREGISTER              .775, &
-        VIOSCROLLUP                .776, &
-        VIOPRTSC                   .777, &
-        VIOGETCURPOS               .778, &
-        VIOWRTCELLSTR              .779, &
-        VIOPOPUP                   .780, &
-        VIOSCROLLRT                .781, &
-        VIOWRTCHARSTR              .782, &
-        AVS_PRTSC                  .783, &
-        VIOSETCURPOS               .784, &
-        VIOSRFUNBLOCK              .785, &
-        VIOSRFBLOCK                .786, &
-        VIOSCRUNLOCK               .787, &
-        VIOWRTTTY                  .788, &
-        VIOSAVE                    .789, &
-        VIOGETMODE                 .790, &
-        VIOSETMODE                 .791, &
-        VIOSCRLOCK                 .792, &
-        VIOREADCELLSTR             .793, &
-        VIOSAVREDRAWWAIT           .794, &
-        VIOWRTNATTR                .795, &
-        VIOGETCURTYPE              .796, &
-        VIOSAVREDRAWUNDO           .797, &
-        VIOGETFONT                 .798, &
-        VIOREADCHARSTR             .799, &
-        VIOGETBUF                  .800, &
-        VIOSETCURTYPE              .801, &
-        VIOSETFONT                 .802, &
-        VIOHETINIT                 .803, &
-        VIOMODEUNDO                .804, &
-        VIOSSWSWITCH               .805, &
-        VIOMODEWAIT                .806, &
-        AVS_PRTSCTOGGLE            .807, &
-        VIOGETCP                   .808, &
-        VIORESTORE                 .809, &
-        VIOSETCP                   .810, &
-        VIOSHOWBUF                 .811, &
-        VIOSCROLLLF                .812, &
-        VIOREGISTER                .813, &
-        VIOGETCONFIG               .814, &
-        VIOSCROLLDN                .815, &
-        VIOWRTCHARSTRATT           .816, &
-        VIOGETSTATE                .817, &
-        VIOPRTSCTOGGLE             .818, &
-        VIOSETSTATE                .819, &
-        VIOWRTNCELL                .820, &
-        VIOWRTNCHAR                .821, &
-        VIOSHELLINIT               .822, &
-        VIOASSOCIATE               .823, &
-        VIOCREATEPS                .824, &
-        VIODELETESETID             .825, &
-        VIOGETDEVICECELLSIZE       .826, &
-        VIOGETORG                  .827, &
-        VIOCREATELOGFONT           .828, &
-        VIODESTROYPS               .829, &
-        VIOQUERYSETIDS             .830, &
-        VIOSETORG                  .831, &
-        VIOQUERYFONTS              .832, &
-        VIOSETDEVICECELLSIZE       .833, &
-        VIOSHOWPS                  .834, &
-        VIOGETPSADDRESS            .835, &
-        VIOQUERYCONSOLE            .836, &
-        VIOREDRAWSIZE              .837, &
-        VIOGLOBALREG               .838, &
-        XVIOSETCASTATE             .839, &
-        XVIOCHECKCHARTYPE          .840, &
-        XVIODESTROYCA              .841, &
-        XVIOCREATECA               .842, &
-        VIOCHECKCHARTYPE           .843, &
-        XVIOGETCASTATE             .844, &
+#        VIOENDPOPUP                .770, &
+#        VIOGETPHYSBUF              .771, &
+#        VIOGETANSI                 .772, &
+#        VIOFREE                    .773, &
+#        VIOSETANSI                 .774, &
+#        VIODEREGISTER              .775, &
+#        VIOSCROLLUP                .776, &
+#        VIOPRTSC                   .777, &
+#        VIOGETCURPOS               .778, &
+#        VIOWRTCELLSTR              .779, &
+#        VIOPOPUP                   .780, &
+#        VIOSCROLLRT                .781, &
+#        VIOWRTCHARSTR              .782, &
+#        AVS_PRTSC                  .783, &
+#        VIOSETCURPOS               .784, &
+#        VIOSRFUNBLOCK              .785, &
+#        VIOSRFBLOCK                .786, &
+#        VIOSCRUNLOCK               .787, &
+#        VIOWRTTTY                  .788, &
+#        VIOSAVE                    .789, &
+#        VIOGETMODE                 .790, &
+#        VIOSETMODE                 .791, &
+#        VIOSCRLOCK                 .792, &
+#        VIOREADCELLSTR             .793, &
+#        VIOSAVREDRAWWAIT           .794, &
+#        VIOWRTNATTR                .795, &
+#        VIOGETCURTYPE              .796, &
+#        VIOSAVREDRAWUNDO           .797, &
+#        VIOGETFONT                 .798, &
+#        VIOREADCHARSTR             .799, &
+#        VIOGETBUF                  .800, &
+#        VIOSETCURTYPE              .801, &
+#        VIOSETFONT                 .802, &
+#        VIOHETINIT                 .803, &
+#        VIOMODEUNDO                .804, &
+#        VIOSSWSWITCH               .805, &
+#        VIOMODEWAIT                .806, &
+#        AVS_PRTSCTOGGLE            .807, &
+#        VIOGETCP                   .808, &
+#        VIORESTORE                 .809, &
+#        VIOSETCP                   .810, &
+#        VIOSHOWBUF                 .811, &
+#        VIOSCROLLLF                .812, &
+#        VIOREGISTER                .813, &
+#        VIOGETCONFIG               .814, &
+#        VIOSCROLLDN                .815, &
+#        VIOWRTCHARSTRATT           .816, &
+#        VIOGETSTATE                .817, &
+#        VIOPRTSCTOGGLE             .818, &
+#        VIOSETSTATE                .819, &
+#        VIOWRTNCELL                .820, &
+#        VIOWRTNCHAR                .821, &
+#        VIOSHELLINIT               .822, &
+#        VIOASSOCIATE               .823, &
+#        VIOCREATEPS                .824, &
+#        VIODELETESETID             .825, &
+#        VIOGETDEVICECELLSIZE       .826, &
+#        VIOGETORG                  .827, &
+#        VIOCREATELOGFONT           .828, &
+#        VIODESTROYPS               .829, &
+#        VIOQUERYSETIDS             .830, &
+#        VIOSETORG                  .831, &
+#        VIOQUERYFONTS              .832, &
+#        VIOSETDEVICECELLSIZE       .833, &
+#        VIOSHOWPS                  .834, &
+#        VIOGETPSADDRESS            .835, &
+#        VIOQUERYCONSOLE            .836, &
+#        VIOREDRAWSIZE              .837, &
+#        VIOGLOBALREG               .838, &
+#        XVIOSETCASTATE             .839, &
+#        XVIOCHECKCHARTYPE          .840, &
+#        XVIODESTROYCA              .841, &
+#        XVIOCREATECA               .842, &
+#        VIOCHECKCHARTYPE           .843, &
+#        XVIOGETCASTATE             .844, &
 # bvscalls
         BVSMAIN                    .845, &
         BVSREDRAWSIZE              .846, &

@@ -1,0 +1,67 @@
+#
+# The order of the sections in this file is important.
+# The order should be specified based on the order you want files uninstalled
+#
+[Doc]
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR\doc
+  File ${DOCDIR}\regina.pdf
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME} Interpreter PDF Documentation.lnk" "$INSTDIR\doc\regina.pdf" "" "$INSTDIR\doc\regina.pdf" 0
+  File ${DOCDIR}\regutil.pdf
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME} RegUtil PDF Documentation.lnk" "$INSTDIR\doc\regutil.pdf" "" "$INSTDIR\doc\regutil.pdf" 0
+
+[Development]
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR\lib
+  ; Distribution files...
+  File regina.lib
+  File rexx.lib
+  SetOutPath $INSTDIR\include
+  File /oname=rexxsaa.h ${SRCDIR}\rexxsaa.h
+
+[Demo]
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR\demo
+  File rxtest1.dll
+  File rxtest2.dll
+  ; Distribution files...
+  File /oname=rexxcps.rexx ${SRCDIR}\demo\rexxcps.rexx
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME} Demos\Rexxcps.lnk" "$INSTDIR\regina.exe" '-p "$INSTDIR\demo\rexxcps.rexx"' "$INSTDIR\regina.exe"
+  File /oname=dynfunc.rexx ${SRCDIR}\demo\dynfunc.rexx
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME} Demos\Dynfunc.lnk" "$INSTDIR\regina.exe" '-p "$INSTDIR\demo\dynfunc.rexx"' "$INSTDIR\regina.exe"
+  File ${SRCDIR}\demo\animal.rexx
+  File ${SRCDIR}\demo\block.rexx
+  File ${SRCDIR}\demo\dateconv.rexx
+  File ${SRCDIR}\demo\dynfunc.rexx
+  File ${SRCDIR}\demo\extqueue.rexx
+  File ${SRCDIR}\demo\gci-try.rexx
+  File ${SRCDIR}\demo\newstr.rexx
+  File ${SRCDIR}\demo\rexxcps.rexx
+  File ${SRCDIR}\demo\testeof.rexx
+  File ${SRCDIR}\demo\timeconv.rexx
+
+[Core]
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR
+  ; Distribution files...
+  File rexx.exe
+  File regina.exe
+  File regina.dll
+  File regutil.dll
+  File rxstack.exe
+  File rxqueue.exe
+  File de.mtb
+  File en.mtb
+  File es.mtb
+  File no.mtb
+  File pt.mtb
+  File pl.mtb
+  File tr.mtb
+  File sv.mtb
+!if ${ARCH} == "w32-not-required"
+  File /oname=msvcr100.dll "c:\windows\system32\msvcr100.dll"
+!endif
+  File /oname=README${NODOTVER}.txt ${SRCDIR}\README.${NODOTVER}
+  File /oname=READMEW32.txt ${SRCDIR}\README.W32
+  File /oname=LICENSE.txt ${SRCDIR}\COPYING-LIB
+

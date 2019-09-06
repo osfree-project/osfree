@@ -43,6 +43,12 @@ typedef struct { /* mt_tsd: static variables of this module (thread-safe) */
              * ReginaInitializeThread
              */
 
+/* every time a Regina thread is initialised by ReginaInitializeThread, the TSD
+ * for that thread is added to an empty slot in this array. When a thread
+ * terminates and calls Deinitialize, the used slot is freed up
+ */
+tsd_t *tsds[MAX_CONCURRENT_REGINA_THREADS] = {0,};
+
 /* Returns a pointer to the TSD pointer */
 static tsd_t **FindThreadDataIdx(void)
 {
@@ -68,6 +74,9 @@ Leave:
    return(retval);
 }
 
+/* Deinitialize is called when the thread terminates.
+ * This is a wonderful position to place code which frees all allocated stuff!
+ */
 static void Deinitialize(void *buf)
 {
    tsd_t *TSD = buf;
@@ -105,10 +114,7 @@ int IfcReginaCleanup( VOID )
 }
 
 #ifdef DYNAMIC
-/* Deinitialize is called when the thread terminates.
- * This is a wonderful position to place code which frees all allocated stuff!
- */
-#ifdef __EMX__
+# ifdef __EMX__
 /* We provide a DLL entry function. Look at the standard documentation for
  * EMX. See emxdev.doc and testdll6.c. We may use the macros CRT_INIT1 and
  * CRT_TERM1 from sys/startup.h instead but that's undocumented stuff.
@@ -142,7 +148,7 @@ unsigned long _DLL_InitTerm (unsigned long mod_handle, unsigned long flag)
    }
    return 0;
 }
-#endif /* EMX */
+# endif /* EMX */
 #endif /* DYNAMIC */
 
 /* This should prevent some error messages and is used as a #define */
@@ -302,6 +308,27 @@ tsd_t *ReginaInitializeThread(void)
    if (!OK)
       exiterror( ERR_STORAGE_EXHAUSTED, 0 ) ;
    return(retval);
+}
+
+int __regina_get_number_concurrent_regina_threads(void)
+{
+   return MAX_CONCURRENT_REGINA_THREADS;
+}
+
+tsd_t *__regina_get_tsd_for_threadid( unsigned long threadid )
+{
+   int i;
+   for ( i = 0; i < MAX_CONCURRENT_REGINA_THREADS; i++ )
+   {
+      if ( tsds[i]->thread_id == threadid )
+         return tsds[i];
+   }
+   return NULL;
+}
+
+tsd_t *__regina_get_next_tsd( int idx )
+{
+   return tsds[idx];
 }
 
 /* __regina_get_tsd returns a pointer to the thread specific data. Be sure to

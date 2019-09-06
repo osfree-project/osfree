@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: rxstack.c,v 1.34 2006/02/21 11:22:24 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -56,66 +52,67 @@ static char *RCSid = "$Id: rxstack.c,v 1.34 2006/02/21 11:22:24 mark Exp $";
  *       out-> 0000000 (if successful)
  *       out-> 2xxxxxx (if error, eg queue deleted)
  *       out-> 3000000 (memory allocation error)
- *       regina QUEUE, rxqueue /fifo
+ *       regina QUEUE, rxqueue /fifo, websocket /fifo
  *   L - push data onto client's current queue (LIFO)
  *       in->  LFFFFFFxxx--data--xxx
  *       out-> 0000000 (if successful)
  *       out-> 2xxxxxx (if error, eg queue deleted)
  *       out-> 3000000 (memory allocation error)
- *       regina PUSH, rxqueue /lifo
+ *       regina PUSH, rxqueue /lifo, websocket /lifo
  *   C - create queue
  *       in->  CFFFFFFxxx--queue name--xxx (if length 0, create name)
  *       out-> 0FFFFFFxxx--queue name--xxx (if queue name created)
  *       out-> 1FFFFFFxxx--queue name--xxx (if queue name existed)
  *       out-> 2xxxxxx (if error)
- *       regina RXQUEUE('C'), rxqueue N/A
+ *       out-> 6000000 (queue name not passed)
+ *       regina RXQUEUE('C'), rxqueue N/A, websocket /create
  *   D - delete queue
  *       in->  DFFFFFFxxx--queue name--xxx
  *       out-> 0000000 (if queue name deleted)
  *       out-> 5xxxxxx (trying to delete 'SESSION' queue)
  *       out-> 6000000 (queue name not passed)
  *       out-> 9xxxxxx (if error, eg queue already deleted)
- *       regina RXQUEUE('D'), rxqueue N/A
+ *       regina RXQUEUE('D'), rxqueue N/A, websocket /delete
  *   E - empty data from specified queue
- *       in->  KFFFFFFxxx--queue name--xxx
+ *       in->  EFFFFFFxxx--queue name--xxx
  *       out-> 0000000 (if queue emptied)
  *       out-> 2xxxxxx (if error, eg queue deleted)
  *       out-> 3000000 (memory allocation error)
- *       regina N/A, rxqueue /clear
+ *       regina N/A, rxqueue /clear, websocket /clear
  *   P - pop item off client's default queue
  *       in->  P000000
  *       out-> 0FFFFFFxxx--data--xxx (if queue name existed)
  *       out-> 1000000 (if queue empty)
  *       out-> 2xxxxxx (if queue name deleted - length ignored)
  *       out-> 4xxxxxx (if timeout on queue exceeded - length ignored)
- *       regina PULL, rxqueue N/A
+ *       regina PULL, rxqueue /pull, websocket /pull
  *   p - fetch item off client's default queue
  *       in->  p000000
  *       out-> 0FFFFFFxxx--data--xxx (if queue name existed)
  *       out-> 1000000 (if queue empty)
  *       out-> 2xxxxxx (if queue name deleted - length ignored)
- *       regina PULL without timeout, rxqueue N/A
- *x  S - set default queue name (allow false queues)
+ *       regina PULL without timeout, rxqueue N/A, websocket N/A
+ *   S - set default queue name (allow false queues)
  *       in->  SFFFFFFxxx--queue name--xxx
  *       out-> 0000000 (if successful)
  *       out-> 3000000 (memory allocation error)
  *       out-> 6000000 (queue name not passed)
- *       regina RXQUEUE('S'), rxqueue N/A
+ *       regina RXQUEUE('S'), rxqueue N/A, websocket N/A
  *   G - get default queue name
  *       in->  G000000
  *       out-> 0FFFFFFxxx--queue name--xxx
- *       regina RXQUEUE('G'), rxqueue N/A
+ *       regina RXQUEUE('G'), rxqueue N/A, websocket N/A
  *   N - return number of lines on stack
  *       in->  N000000
  *       out-> 0FFFFFF (if queue exists)
  *       out-> 2xxxxxx (if error or queue doesn't exist - length ignored)
- *       regina QUEUED(), rxqueue N/A
+ *       regina QUEUED(), rxqueue /queued, websocket /queued
  *   T - set timeout on queue pull
- *       in->  DFFFFFFTTTTTT
+ *       in->  TFFFFFFTTTTTT
  *       out-> 0000000 (if queue timeout set)
  *       out-> 2xxxxxx (if error, eg invalid argument)
  *       out-> 6000000 (queue name not passed)
- *       regina RXQUEUE('T'), rxqueue N/A
+ *       regina RXQUEUE('T'), rxqueue N/A, websocket N/A
  *   X - client disconnect
  *       in->  X000000
  *       out->
@@ -165,6 +162,7 @@ static char *RCSid = "$Id: rxstack.c,v 1.34 2006/02/21 11:22:24 mark Exp $";
 # ifdef HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
 # endif
+# define closesocket(x) close(x)
 #endif
 #include <string.h>
 
@@ -210,6 +208,8 @@ static char *RCSid = "$Id: rxstack.c,v 1.34 2006/02/21 11:22:24 mark Exp $";
 #endif
 
 #include "extstack.h"
+#include "mygetopt.h"
+#include "contrib/LibSha1.h"
 
 #ifdef BUILD_NT_SERVICE
 # include "service.h"
@@ -232,7 +232,13 @@ HANDLE  hServerStopEvent = NULL;
 # define errno_str(code) strerror(code)
 #endif
 
-
+#define WS_RESPONSE_HEADER "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %.*s\r\n\r\n"
+#define WS_RESPONSE_MAGIC  "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+/*
+ * Translation Table for Base64 encdoing as described in RFC1113
+ */
+static const char cb64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
 /*
  * debugging is turned off. You can turn it on by the command line option "-D".
  */
@@ -240,6 +246,16 @@ static int debug = 0 ;
 #define DEBUGDUMP(x) { if ( debug ) \
                           {x;}      \
                      }
+/*
+ * Length of action string from websocket command
+ */
+#define ACTION_FIFO_LEN 6
+#define ACTION_LIFO_LEN 6
+#define ACTION_QUEUED_LEN 8
+#define ACTION_CLEAR_LEN 7
+#define ACTION_DELETE_LEN 8
+#define ACTION_CREATE_LEN 8
+#define ACTION_PULL_LEN 6
 
 /*
  * DEFAULT_WAKEUP is the time in ms after which the process shall wakeup.
@@ -368,6 +384,11 @@ typedef struct _Client
    int socket;
 
    /*
+    * Indicates if this client is a Websocket client, 0 no, 1 yes
+    */
+   int isWebsocket;
+
+   /*
     * each client has a default queue associated. It must be valid all
     * the times after initialization.
     */
@@ -377,6 +398,8 @@ typedef struct _Client
     * if queue_timeout is set, the client expects an error code after
     * this time instead of waiting until world's end.
     * The value is in milliseconds.
+    * A value of zero means no timeout; return immediately if no data
+    * A value of -1 means wait forever
     */
    long queue_timeout;
 
@@ -408,6 +431,11 @@ Client *clients;
 int running = 1;
 int allclean = 0;
 time_t base_secs; /* the time the process started */
+
+static long portno = 0;
+static int world = 0 ;
+static int isdaemon = 0;
+static int tosuicide = 0;
 
 void empty_queue( RxQueue *q ) ;
 
@@ -619,18 +647,6 @@ static int time_diff( RxTime t1, RxTime t2 )
    return retval ;
 }
 
-streng *Str_upper( streng *str )
-{
-   int i;
-
-   for ( i = 0; i < PSTRENGLEN( str ); i++ )
-   {
-      if ( islower( str->value[i] ) )
-         str->value[i] = (char)toupper( str->value[i] );
-   }
-   return str;
-}
-
 /* compares 2 strengs and returns 0 if they are equal, 1 if not.
  * The second one is converted to uppercase while comparing, the first
  * one must be uppercase.
@@ -693,6 +709,22 @@ streng *Str_dup( const streng *str )
    return Str_buf( PSTRENGVAL( str ), PSTRENGLEN( str ) ) ;
 }
 
+streng *Str_cat( streng *first, const streng *second )
+{
+   streng *ptr;
+   int tmp;
+
+   tmp = Str_len( first ) + Str_len( second );
+
+   if ( ( ptr = MAKESTRENG( tmp ) ) != NULL )
+   {
+      memcpy( ptr->value, first->value, Str_len( first ) );
+      memcpy( ptr->value + Str_len( first ), second->value, Str_len( second ) );
+      ptr->len = tmp;
+   }
+   return ptr;
+}
+
 /*
  * delete_a_queue deletes the queue's content and unlinks it from the list
  * of existing queues if q isn't SESSION.
@@ -748,7 +780,7 @@ void delete_a_queue( RxQueue *q )
  */
 void delete_a_client( Client *c )
 {
-   close( c->socket ) ;
+   closesocket( c->socket ) ;
 
    /*
     * dequeue from the linked list and free space
@@ -802,6 +834,7 @@ char *get_unspecified_queue( void )
 int suicide( void )
 {
    int sock;
+   int myport;
    streng *queue;
    char *in_queue=get_unspecified_queue();
    Queue q;
@@ -809,10 +842,16 @@ int suicide( void )
    if ( init_external_queue( NULL ) )
       return 1;
 
+
    queue = Str_cre_or_exit( in_queue, strlen( in_queue ) ) ;
 
    if ( parse_queue( NULL, queue, &q ) == 1 )
    {
+      if ( portno == 0 )
+         myport = default_port_number();
+      else
+         myport = portno;
+      q.u.e.portno = myport;
       sock = connect_to_rxstack( NULL, &q );
       if ( sock < 0 )
       {
@@ -821,7 +860,7 @@ int suicide( void )
       }
       send_command_to_rxstack( NULL, sock, RXSTACK_KILL_STR, NULL, 0 );
       read_result_from_rxstack( NULL, sock, RXSTACK_HEADER_SIZE );
-      close(sock);
+      closesocket(sock);
    }
    term_external_queue( ) ;
    return 0;
@@ -1016,7 +1055,7 @@ int rxstack_create_client( int socket )
 
    if ( ( c = get_new_client( ) ) == NULL )
    {
-      close( socket ) ;
+      closesocket( socket ) ;
       /* This may have been the connectioon telling us to go down ;-) */
       showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
       exit( ERR_STORAGE_EXHAUSTED );
@@ -1027,40 +1066,92 @@ int rxstack_create_client( int socket )
    return 0;
 }
 
+int encode_ws_payload(u_char const *src, size_t srclength, char *target, size_t targsize, unsigned int opcode)
+{
+   unsigned long long b64_sz, payload_offset = 2, len = 0;
+
+   if ((int)srclength <= 0)
+   {
+      return 0;
+   }
+
+   DEBUGDUMP(printf("Encode new frame\n"););
+   b64_sz = srclength;
+
+   target[0] = (char)((opcode & 0x0F) | 0x80);
+
+   if (b64_sz <= 125)
+   {
+      target[1] = (char) b64_sz;
+      payload_offset = 2;
+   }
+   else if ((b64_sz > 125) && (b64_sz < 65536))
+   {
+      target[1] = (char) 126;
+      *(u_short*)&(target[2]) = htons(b64_sz);
+      payload_offset = 4;
+   }
+   else
+   {
+      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: %s", "Sending frames larger than 65535 bytes not supported" );
+      return -1;
+   }
+
+   memcpy( target+payload_offset, src, srclength );
+   len = srclength;
+   return len + payload_offset;
+}
+
 /* rxstack_send_return writes back to the client the action return code
  * and optionally a string of length len.
  * The functions returns 0 on success, -1 on error
  */
-int rxstack_send_return( int sock, char *action, char *str, int len )
+int rxstack_send_return( Client *client, char *action, char *str, int len )
 {
    streng *qlen, *header;
-   int rc, retval = 0 ;
+   int rc, retval = 0, rcode ;
+   int sock = client->socket;
+   char ws_response[4096];
 
-   DEBUGDUMP(printf("Sending to %d Result: %c <%.*s>\n", sock, *action, len, (str) ? str : ""););
-   qlen = REXX_D2X( len );
-   if ( qlen )
+   if ( client->isWebsocket )
    {
-      header = REXX_RIGHT( qlen, RXSTACK_HEADER_SIZE, '0');
-      DROPSTRENG( qlen );
-      if ( header )
+      DEBUGDUMP(printf("Sending to websocket client %d Result: %c <%.*s>\n", sock, *action, len, (str) ? str : ""););
+      rcode = encode_ws_payload( (const unsigned char *)str, len, ws_response, sizeof(ws_response), 1);
+      rc = send( client->socket, ws_response, rcode, 0 );
+      if ( rc != rcode )
       {
-         header->value[0] = action[0];
-         rc = send( sock, PSTRENGVAL(header), PSTRENGLEN(header), 0 );
-         if ( rc != PSTRENGLEN(header) )
+         DEBUGDUMP(printf("Send failed: rc> %d != len> %d errno = %d\n", rc, len, os_errno ););
+         retval = -1;
+      }
+   }
+   else
+   {
+      DEBUGDUMP(printf("Sending to %d Result: %c <%.*s>\n", sock, *action, len, (str) ? str : ""););
+      qlen = REXX_D2X( len );
+      if ( qlen )
+      {
+         header = REXX_RIGHT( qlen, RXSTACK_HEADER_SIZE, '0');
+         DROPSTRENG( qlen );
+         if ( header )
          {
-            DEBUGDUMP(printf("Send failed: errno = %d\n", os_errno ););
-            retval = -1 ;
-         }
-         else if ( str )
-         {
-            rc = send( sock, str, len, 0 );
+            header->value[0] = action[0];
+            rc = send( sock, PSTRENGVAL(header), PSTRENGLEN(header), 0 );
             if ( rc != PSTRENGLEN(header) )
             {
-               DEBUGDUMP(printf("Send failed: errno = %d\n", os_errno ););
+               DEBUGDUMP(printf("Send failed: rc> %d != PSTRENGLEN(header)> %d errno = %d\n", rc, PSTRENGLEN(header),os_errno ););
                retval = -1 ;
             }
+            else if ( str )
+            {
+               rc = send( sock, str, len, 0 );
+               if ( rc != len )
+               {
+                  DEBUGDUMP(printf("Send failed: errno = %d\n", os_errno ););
+                  retval = -1 ;
+               }
+            }
+            DROPSTRENG( header );
          }
-         DROPSTRENG( header );
       }
    }
    return retval ;
@@ -1068,6 +1159,7 @@ int rxstack_send_return( int sock, char *action, char *str, int len )
 
 int rxstack_delete_client( Client *client )
 {
+   DEBUGDUMP(printf("Deleting client: Socket: %d\n", client->socket ););
    delete_a_client( client ) ;
    return 0;
 }
@@ -1097,7 +1189,7 @@ RxQueue *rxstack_set_default_queue( Client *client, streng *data )
             delete_a_queue( q );
             return NULL;
          }
-         q->name = Str_upper( newq ) ;
+         q->name = REXX_UPPER( newq ) ;
          DEBUGDUMP(printf("Creating the false queue <%.*s>", PSTRENGLEN( q->name ), PSTRENGVAL( q->name ) ););
          /* q->isReal set to 0 by get_new_queue --> false queue */
          client->default_queue = q;
@@ -1115,7 +1207,7 @@ RxQueue *rxstack_set_default_queue( Client *client, streng *data )
    else
    {
       DEBUGDUMP(printf("Setting default queue for client: <%.*s> Prev: %p <%.*s>\n", PSTRENGLEN(q->name), PSTRENGVAL(q->name), prev, PSTRENGLEN(prev->name), PSTRENGVAL(prev->name) ););
-      /* SET or CREATE resets a timeout to 0 */
+      /* SET or CREATE resets a timeout to 0; effectively turns off any timeout */
       client->queue_timeout = 0 ;
    }
    return q;
@@ -1133,7 +1225,8 @@ int rxstack_timeout_queue( Client *client, const streng *data )
    val = REXX_X2D( data, &error );
    if ( error )
       return 2;
-
+   if ( val == 0 )
+      val = -1;
    client->queue_timeout = val;
    DEBUGDUMP(printf("Timeout on queue: %ld\n", client->queue_timeout ););
 
@@ -1221,7 +1314,7 @@ int rxstack_create_queue( Client *client, streng *data, streng **result )
    /*
     * Uppercase the queue name
     */
-   q->name = Str_upper( new_queue );
+   q->name = REXX_UPPER( new_queue );
    q->isReal = 1;
    /* SET or CREATE resets a timeout to 0 */
    client->queue_timeout = 0 ;
@@ -1323,7 +1416,7 @@ void redir( RxQueue *q, streng *data )
 
    dequeue_waiter( q, c ) ;
 
-   rxstack_send_return( c->socket, "0", PSTRENGVAL( data ), PSTRENGLEN( data ) ) ;
+   rxstack_send_return( c, "0", PSTRENGVAL( data ), PSTRENGLEN( data ) ) ;
    DROPSTRENG( data ) ;
 }
 
@@ -1335,7 +1428,7 @@ void bad_news_for_waiter( RxQueue *q, Client *c )
    dequeue_waiter( q, c ) ;
    DEBUGDUMP(printf("Sending negative response to waiting client %d\n", c->socket ););
 
-   rxstack_send_return( c->socket, "0", NULL, 0 ) ;
+   rxstack_send_return( c, "4", NULL, 0 ) ;
 }
 
 int rxstack_queue_data( Client *client, streng *data, char order )
@@ -1452,19 +1545,27 @@ int rxstack_pull_line_off_queue( Client *client, streng **result, int nowait )
    {
       *result = NULL;
       if ( nowait )
-         rc = 1; /* queue empty */
+      {
+         rc = RXSTACK_EMPTY; /* queue empty */
+         DEBUGDUMP(printf("nowait set to 1\n" ););
+      }
       else
       {
          if ( client->queue_timeout == 0 )
-            rc = 1 ; /* queue empty */
+         {
+            rc = RXSTACK_EMPTY; /* queue empty */
+            DEBUGDUMP(printf("client timeout = 0\n" ););
+         }
          else
          {
             assert( client->deadline.milli == -1 );
             assert ( client->newer == NULL );
-            now = get_now( );
-            client->deadline = now;
-            time_add( &client->deadline, client->queue_timeout );
-
+            if ( client->queue_timeout != -1 )
+            {
+               now = get_now( );
+               client->deadline = now;
+               time_add( &client->deadline, client->queue_timeout );
+            }
             q = client->default_queue;
             client->newer = NULL;
             client->older = q->newest;
@@ -1473,7 +1574,8 @@ int rxstack_pull_line_off_queue( Client *client, streng **result, int nowait )
             q->newest = client;
             if ( q->oldest == NULL )
                q->oldest = client;
-            rc = 3; /* waiting */
+            rc = RXSTACK_WAITING; /* waiting */
+            DEBUGDUMP(printf("waiting until %ld.%d\n", client->deadline.seconds,client->deadline.milli ););
          }
       }
    }
@@ -1481,31 +1583,922 @@ int rxstack_pull_line_off_queue( Client *client, streng **result, int nowait )
    return rc;
 }
 
-/* rxstack_process_command reads a new command from the client and processes
- * it.
- * returns 0 if the client has been terminated, 1 if the client persists.
- */
-int rxstack_process_command( Client *client )
+static int eec_base64_encode( unsigned char *rawstr, int strlen, unsigned char **encstr, int *encstrlen )
 {
+   unsigned char in[3], out[4];
+   int len,i,j,k,encoded_length;
+   unsigned char *encoded_code;
+
+   /*
+    * Allocate 4/3 times the rawstring length
+    */
+   encoded_length = 3 + ((strlen * 4) / 3);
+   encoded_code = (unsigned char *)malloc( encoded_length + sizeof(long) );
+   if ( encoded_code == NULL )
+   {
+      return 1;
+   }
+
+   for ( i = 0, j = 0; i < strlen; i +=3 )
+   {
+      len = 1;
+      in[0] = rawstr[i];
+      if (i+1 < strlen)
+      {
+         in[1] = rawstr[i+1];
+         len++;
+      }
+      else
+         in[1] = 0;
+      if (i+2 < strlen)
+      {
+         in[2] = rawstr[i+2];
+         len++;
+      }
+      else
+         in[2] = 0;
+      /* encode */
+      out[0] = cb64[ in[0] >> 2 ];
+      out[1] = cb64[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
+      out[2] = (unsigned char) (len > 1 ? cb64[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=');
+      out[3] = (unsigned char) (len > 2 ? cb64[ in[2] & 0x3f ] : '=');
+      for ( k = 0; k < 4; k++ )
+      {
+         encoded_code[j++] = out[k];
+      }
+   }
+   *encstrlen = j;
+   *encstr = encoded_code;
+   return 0;
+}
+
+#if 0
+static int eec_base64_decode( unsigned char *encstr, long encstrlen, unsigned char **rawstr, long *rawstrlen )
+{
+   unsigned char *raw_code,v;
+   unsigned char *encoded_code;
+   unsigned char in[4], out[3];
+   int i,j,k,len;
+
+   encoded_code = encstr;
+   if ( (encstrlen % 4 ) != 0 )
+   {
+      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: %s", "Length of encoded value must be a multiple of 4." );
+      return 1;
+   }
+   /*
+    * Decode encoded_code to produce raw
+    * Result will always be smaller so allocate memory for encoded length
+    */
+   raw_code = (unsigned char *)malloc( encstrlen );
+   if ( raw_code == NULL )
+   {
+      showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
+      return 1;
+   }
+   /*
+    * Now decode encoded_code
+    */
+   for ( i = 0, j = 0; i < encstrlen;  )
+   {
+      for ( k = 0, len = 0; k < 4; )
+      {
+         v = (unsigned char) encoded_code[i++];
+         v = (unsigned char) ((v < 43 || v > 122) ? 0 : cd64[ v - 43 ]);
+         if( v )
+         {
+            v = (unsigned char) ((v == '$') ? 0 : v - 61);
+            if ( v )
+            {
+               in[k++] = (unsigned char) (v - 1);
+               len++;
+            }
+            else
+               break;
+         }
+      }
+      /* decode */
+      out[ 0 ] = (unsigned char ) (in[0] << 2 | in[1] >> 4);
+      out[ 1 ] = (unsigned char ) (in[1] << 4 | in[2] >> 2);
+      out[ 2 ] = (unsigned char ) (((in[2] << 6) & 0xc0) | in[3]);
+      for ( k = 0; k < len - 1; k++ )
+      {
+         raw_code[j++] = out[k];
+      }
+   }
+   raw_code[j] = '\0';
+   *rawstrlen = j;
+   *rawstr = raw_code;
+   return 0;
+}
+#endif
+
+int memcmpi( char *buf1, char *buf2, int len )
+{
+   register short i=0;
+   char c1=0,c2=0;
+   for(i=0;i<len;i++)
+   {
+      if (isupper(*buf1))
+         c1 = tolower(*buf1);
+      else
+         c1 = *buf1;
+      if (isupper(*buf2))
+         c2 = tolower(*buf2);
+      else
+         c2 = *buf2;
+      if (c1 != c2)
+         return(c1-c2);
+      ++buf1;
+      ++buf2;
+   }
+ return(0);
+}
+
+int countstr( char *str, char ch )
+{
+   int i,count=0;
+   int len = strlen( str );
+
+   for ( i = 0; i < len; i++ )
+   {
+      if ( str[i] == ch )
+         count++;
+   }
+   return count;
+}
+
+char determine_rxstack_command( char *str )
+{
+   if ( memcmpi( "/fifo:", str, ACTION_FIFO_LEN ) == 0
+   &&   countstr( str, ':' ) >= 2 )
+      return RXSTACK_QUEUE_FIFO;
+   else if ( memcmpi( "/lifo:", str, ACTION_FIFO_LEN ) == 0
+   &&   countstr( str, ':' ) >= 2 )
+      return RXSTACK_QUEUE_LIFO;
+   else if ( memcmpi( "/queued:", str, ACTION_QUEUED_LEN ) == 0
+   &&   countstr( str, ':' ) == 1 )
+      return RXSTACK_NUMBER_IN_QUEUE;
+   else if ( memcmpi( "/clear:", str, ACTION_CLEAR_LEN ) == 0
+   &&   countstr( str, ':' ) == 1 )
+      return RXSTACK_EMPTY_QUEUE;
+   else if ( memcmpi( "/pull:", str, ACTION_PULL_LEN ) == 0
+   &&   countstr( str, ':' ) == 1 )
+      return RXSTACK_PULL;
+   else if ( memcmpi( "/create:", str, ACTION_CREATE_LEN ) == 0
+   &&   countstr( str, ':' ) == 1 )
+      return RXSTACK_CREATE_QUEUE;
+   else if ( memcmpi( "/delete:", str, ACTION_DELETE_LEN ) == 0
+   &&   countstr( str, ':' ) == 1 )
+      return RXSTACK_DELETE_QUEUE;
+  /* wrong action or incorrect number of colons - error */
+  return 0;
+}
+
+#define BAD_REQUEST "HTTP/1.1 400 Bad Request\r\n\r\n"
+int bad_request_from_websocket( Client *client )
+{
+   int rc;
+   int len = strlen( BAD_REQUEST );
+
+   rc = send( client->socket, BAD_REQUEST, len, 0 );
+   if ( rc != len )
+   {
+      DEBUGDUMP(printf("Send failed: rc> %d != len> %d errno = %d\n", rc, len, os_errno ););
+      return 0;
+   }
+   return 1;
+}
+
+int rxstack_process_websockets_headers( Client *client )
+{
+   int rc = 1; /* by default successful return */
+   char ws_headers[4096];
+   char key[1024];
+   char protocol[1024];
+   char response[4096];
+   char *start, *end;
+   SHA1_HASH hash[SHA1_HASH_SIZE];
+   Sha1Context context;
+   unsigned char *strptr;
+   int strlength;
+   int len;
+
+   memset( ws_headers, 0, sizeof(ws_headers) );
+   rc = recv( client->socket, ws_headers, 4096, 0 );
+   if ( rc < 0 )
+   {
+      if ( os_errno != ECONNRESET )
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_READING_SOCKET, ERR_RXSTACK_READING_SOCKET_TMPL, errno_str( os_errno ) );
+      }
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   if ( rc == 0 )
+   {
+      DEBUGDUMP(printf("read empty WS header\n"););
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   DEBUGDUMP(printf("header: [%s]\nLength: %d\n",ws_headers,rc););
+   /*
+    * Parse the headers
+    */
+   start = ws_headers+4;
+   /*
+    * must specify "root" as location: ws://localhost:8888 or ws://localhost:8888/ only.
+    * no path allowed after optional port
+    */
+   end = strstr( start, "/ HTTP/1.1" );
+   if ( !end )
+   {
+      bad_request_from_websocket( client );
+      return 0;
+   }
+   /* validate and get protocol header */
+   start = strstr( ws_headers, "\r\nSec-WebSocket-Protocol: ");
+   if (!start)
+   {
+      DEBUGDUMP(printf("No header: \"Sec-WebSocket-Protocol:\"\n"););
+      bad_request_from_websocket( client );
+      return 0;
+   }
+   /* protocol must be "rxstack" */
+   start += 26;
+   end = strstr( start, "\r\n");
+   strncpy( protocol, start, end-start );
+   protocol[end-start] = '\0';
+   if ( strcmp( protocol, "rxstack" ) != 0 )
+   {
+      DEBUGDUMP(printf("Invalid Protocol: %s; should be \"rxstack\"\n",protocol););
+      bad_request_from_websocket( client );
+      return 0;
+   }
+   /* validate and get key header */
+   start = strstr(ws_headers, "\r\nSec-WebSocket-Key: ");
+   if (!start)
+   {
+      bad_request_from_websocket( client );
+      return 0;
+   }
+   start += 21;
+   end = strstr(start, "\r\n");
+   strncpy( key, start, end-start );
+   key[end-start] = '\0';
+
+   start = strstr(ws_headers, "\r\n\r\n");
+   DEBUGDUMP(printf("end of headers at %x: [%s]\n",start,start ););
+
+   /*
+    * Generate our response key
+    */
+   Sha1Initialise( &context );
+   Sha1Update( &context, key, strlen(key) );
+   Sha1Update( &context, WS_RESPONSE_MAGIC, 36 );
+   Sha1Finalise( &context, hash );
+   if ( eec_base64_encode( (unsigned char *)hash, SHA1_HASH_SIZE, (unsigned char **)&strptr, &strlength ) != 0 )
+   {
+      DEBUGDUMP(printf("base64 encoding failed:\n" ););
+      return 0;
+   }
+   DEBUGDUMP(printf("Base64 key: <%.*s>\n", strlength, strptr););
+   /*
+    * Respond with our headers
+    */
+   len = sprintf( response, WS_RESPONSE_HEADER, strlength, strptr );
+   DEBUGDUMP(printf("Sending to %d Result:\n[%.*s]\n", client->socket, len, response););
+   rc = send( client->socket, response, len, 0 );
+   if ( rc != len )
+   {
+      DEBUGDUMP(printf("Send failed: rc> %d != len> %d errno = %d\n", rc, len, os_errno ););
+      return 0;
+   }
+   free( strptr );
+   /*
+    * Indicate we are a Websocket client
+    */
+   client->isWebsocket = 1;
+   return rc;
+}
+
+int decode_ws_payload( unsigned char *src, size_t srclength, unsigned char *target, size_t targsize, unsigned int *opcode, unsigned int *left )
+{
+   unsigned char *frame, *mask, *payload, save_char;
+   int masked = 0;
+   int i = 0, framecount = 0;
+   size_t remaining;
+   unsigned int target_offset = 0, hdr_length = 0, payload_length = 0, decoded_length;
+
+   *left = srclength;
+   frame = src;
+
+   DEBUGDUMP(printf("Decode new frame\n"););
+   while (1)
+   {
+      // Need at least two bytes of the header
+      // Find beginning of next frame. First time hdr_length, masked and
+      // payload_length are zero
+      frame += hdr_length + 4*masked + payload_length;
+      DEBUGDUMP(printf("frame[0..3]: 0x%x 0x%x 0x%x 0x%x (tot: %d)\n",(unsigned char) frame[0],(unsigned char) frame[1],(unsigned char) frame[2],(unsigned char) frame[3], srclength););
+
+      if (frame > src + srclength)
+      {
+         DEBUGDUMP(printf("Truncated frame from client, need %d more bytes\n",frame - (src + srclength)););
+         break;
+      }
+      remaining = (src + srclength) - frame;
+      if (remaining < 2)
+      {
+         DEBUGDUMP(printf("Truncated frame header from client\n"););
+         break;
+      }
+      framecount ++;
+
+      *opcode = frame[0] & 0x0f;
+      masked = (frame[1] & 0x80) >> 7;
+
+      if (*opcode == 0x8)
+      {
+         // client sent orderly close frame
+         break;
+      }
+
+      payload_length = frame[1] & 0x7f;
+      if (payload_length < 126)
+      {
+         hdr_length = 2;
+         //frame += 2 * sizeof(char);
+      }
+      else if (payload_length == 126)
+      {
+         payload_length = (frame[2] << 8) + frame[3];
+         hdr_length = 4;
+      }
+      else
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: %s", "Receiving frames larger than 65535 bytes not supported" );
+         return -1;
+      }
+      if ((hdr_length + 4*masked + payload_length) > remaining)
+      {
+         continue;
+      }
+      DEBUGDUMP(printf("    payload_length: %u, raw remaining: %u, , hdr_length: %d, opcode %d\n",payload_length, remaining,hdr_length, *opcode););
+      payload = frame + hdr_length + 4*masked;
+
+      if (*opcode != 1 && *opcode != 2)
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: Ignoring non-data frame, opcode 0x%x", *opcode );
+         continue;
+      }
+
+      if (payload_length == 0)
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: %s", "Ignoring empty frame" );
+         continue;
+      }
+
+      if ((payload_length > 0) && (!masked))
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: %s", "Received unmasked payload from client" );
+         return -1;
+      }
+
+      // Terminate with a null for base64 decode
+      save_char = payload[payload_length];
+      payload[payload_length] = '\0';
+      if ( debug )
+      {
+         DEBUGDUMP(printf("payload before masking: [%s]\nLength: %d\n",payload,payload_length););
+         for ( i = 0; i < payload_length; i++ )
+            DEBUGDUMP(printf("%x ",payload[i]););
+         DEBUGDUMP(printf("\n"););
+      }
+      // unmask the data
+      mask = payload - 4;
+      for (i = 0; i < payload_length; i++)
+      {
+         payload[i] ^= mask[i%4];
+      }
+      if ( debug )
+      {
+         DEBUGDUMP(printf("payload after masking: [%s]\nLength: %d\n",payload,payload_length););
+         for ( i = 0; i < payload_length; i++ )
+            DEBUGDUMP(printf("%x ",payload[i]););
+         DEBUGDUMP(printf("\n"););
+      }
+#if 0
+      // base64 decode the data - not needed for text-only data ?
+      if ( eec_base64_decode( (unsigned char *)payload, payload_length, &decoded_chunk, &decoded_length ) != 0 )
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, "rxstack websocket interface error: Base64 decode error code %d", len );
+         return -1;
+      }
+      memcpy( target+target_offset, decoded_chunk, decoded_length );
+      free( decoded_chunk );
+#else
+      memcpy( target+target_offset, payload, payload_length+1 ); /* +1 ensures nul terminated string */
+      decoded_length = payload_length;
+#endif
+
+      // Restore the first character of the next frame
+      payload[payload_length] = save_char;
+      target_offset += decoded_length;
+   }
+
+   if (framecount > 1)
+   {
+      DEBUGDUMP(printf("framecount: %d\n",framecount););
+   }
+
+   *left = remaining;
+   return target_offset;
+}
+
+int split_ws_payload( char *ws_payload, int offset, streng **queue, streng **buffer )
+{
+   int i,buffer_start=0;
+   int len = strlen( ws_payload );
+   char *q = ws_payload+offset;
+
+   if ( ws_payload[offset] == '\0'
+   || ( ws_payload[offset] == ':' && len == offset + 1 ) )
+   {
+      /* queue and buffer both empty */
+      /* caters for:
+       * /clear:
+       * /fifo::
+       */
+      *queue = *buffer = NULL;
+      return 0;
+   }
+   for ( i = offset; i < len; i++ )
+   {
+      if ( ws_payload[i] == ':' )
+      {
+         ws_payload[i] = '\0';
+         *queue = Str_buf( q, i - offset );
+         buffer_start = i+1;
+         break;
+      }
+   }
+   /* if no ':' found, buffer is  empty but we have a queue */
+   if ( buffer_start == 0 )
+   {
+      *buffer = NULL;
+      *queue = Str_buf( q, len - offset );
+   }
+   else
+   {
+      *buffer = Str_buf( ws_payload+buffer_start, len - buffer_start + 1 );
+   }
+   return 0;
+}
+
+int send_response_to_client( Client *client, char action, streng *buffer )
+{
+   int rc,length;
+   char rcode[2];
    RxQueue *q ;
+   streng *result=NULL;
+
+   switch( action )
+   {
+      case RXSTACK_QUEUE_FIFO:
+      case RXSTACK_QUEUE_LIFO:
+         DEBUGDUMP(printf("--- Queue %s ---\n", action == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO"););
+         /*
+          * fixes bug 700539
+          */
+         if ( buffer == NULL )
+            buffer = Str_buf( "", 0 );
+         if ( buffer == NULL )
+            rc = 3;
+         else
+            rc = rxstack_queue_data( client, buffer, action );
+         rcode[0] = (char)(rc+'0');
+         rxstack_send_return( client, rcode, NULL, 0 );
+         buffer = NULL ; /* consumed by rxstack_queue_data */
+         break;
+      case RXSTACK_EXIT:
+         DEBUGDUMP(printf("--- Exit ---\n"););
+         /*
+          * Client has requested disconnect, so remove all
+          * references to the client
+          */
+         rxstack_send_return( client, "0", NULL, 0 );
+         rxstack_delete_client( client );
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_KILL:
+         DEBUGDUMP(printf("--- Kill ---\n"););
+         /*
+          * Client has requested server to stop
+          */
+         rxstack_send_return( client, "0", NULL, 0 );
+         rxstack_delete_client( client );
+         running = 0;
+         return 0;
+      case RXSTACK_SET_QUEUE:
+         DEBUGDUMP(printf("--- Set Queue ---\n"););
+         /*
+          * Set the default queue for the client
+          */
+         if ( buffer == NULL )
+            rxstack_send_return( client, "6", NULL, 0 );
+         else
+         {
+            q = rxstack_set_default_queue( client, buffer );
+            if ( q == NULL )
+               rxstack_send_return( client, "3", NULL, 0 );
+            else
+               rxstack_send_return( client, "0", q->name->value, q->name->len );
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_EMPTY_QUEUE:
+         DEBUGDUMP(printf("--- Empty Queue ---\n"););
+         /*
+          * Use the current queue as the default queue.
+          */
+         if ( buffer == NULL )
+            buffer = client->default_queue->name;
+         rc = rxstack_empty_queue( client, buffer );
+         rcode[0] = (char)(rc+'0');
+         rxstack_send_return( client, rcode, NULL, 0 );
+         if ( buffer != client->default_queue->name )
+            DROPSTRENG( buffer );
+         buffer = NULL ;
+         break;
+      case RXSTACK_NUMBER_IN_QUEUE:
+         DEBUGDUMP(printf("--- Number in Queue ---\n"););
+         length = rxstack_number_in_queue( client );
+         rxstack_send_return( client, "0", NULL, length );
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_PULL:
+      case RXSTACK_FETCH:
+         DEBUGDUMP(printf("--- Pull ---\n"););
+         rc = rxstack_pull_line_off_queue( client, &result, action == RXSTACK_FETCH );
+         switch( rc )
+         {
+            case 0: /* all OK */
+               rxstack_send_return( client, "0", PSTRENGVAL( result ), PSTRENGLEN( result ) );
+               DROPSTRENG( result );
+               break;
+            case RXSTACK_WAITING: /* still waiting; don't return */
+               break;
+            default: /* empty/error */
+               rcode[0] = (char)(rc+'0');
+               rxstack_send_return( client, rcode, NULL, 0 );
+               break;
+         }
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_GET_QUEUE:
+         DEBUGDUMP(printf("--- Get Queue ---\n"););
+         rxstack_send_return( client, "0", PSTRENGVAL(client->default_queue->name), PSTRENGLEN(client->default_queue->name) ) ;
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_CREATE_QUEUE:
+         DEBUGDUMP(printf("--- Create Queue ---\n"););
+         /*
+          * Create a new queue
+          */
+         rc = rxstack_create_queue( client, buffer, &result );
+         rcode[0] = (char)(rc+'0');
+         if ( ( rc != 1 ) && ( rc != 0 ) )
+            rxstack_send_return( client, rcode, NULL, 0 );
+         else
+            rxstack_send_return( client, rcode, PSTRENGVAL(result), PSTRENGLEN(result) );
+         buffer = NULL;  /* consumed by rxstack_create_queue */
+         break;
+      case RXSTACK_DELETE_QUEUE:
+         DEBUGDUMP(printf("--- Delete Queue ---\n"););
+         /*
+          * Delete the queue
+          */
+         if ( buffer == NULL )
+            rc = 6;
+         else
+            rc = rxstack_delete_queue( client, buffer );
+         rcode[0] = (char)(rc+'0');
+         rxstack_send_return( client, rcode, NULL, 0 );
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
+      case RXSTACK_TIMEOUT_QUEUE:
+         DEBUGDUMP(printf("--- Timeout Queue ---\n"););
+         /*
+          * Set timeout for pull from queue
+          */
+         if ( buffer == NULL )
+            rc = 6;
+         else
+            rc = rxstack_timeout_queue( client, buffer );
+         rcode[0] = (char)(rc+'0');
+         rxstack_send_return( client, rcode, NULL, 0 );
+         if ( buffer != NULL )
+            DROPSTRENG( buffer );
+         buffer = NULL;
+         break;
+      case RXSTACK_UNKNOWN:
+         /* do nothing */
+         break;
+      default:
+         rxstack_send_return( client, "9", NULL, 0 );
+         break;
+   }
+   assert( buffer == NULL ) ;
+   if ( buffer != NULL )
+      DROPSTRENG( buffer ) ;
+   return 1;
+}
+
+int rxstack_process_websockets_data( Client *client )
+{
+   int rc = 1;
+   char ws_headers[4096];
+   char ws_payload[4096];
+   char ws_response[4096];
+   char response[4096];
+   int response_length;
+   int len,i,rcode;
+   unsigned int opcode, left;
+   streng *queue=NULL, *buffer=NULL, *result;
+   streng *resp_streng, *rcode_streng;
+   char action;
+   int length;
+   char srcode[3];
+   RxQueue *q ;
+
+   srcode[1] = ':';
+   srcode[2] = '\0';
+/* assumes only 4096 bytes can b sent by client and in one chunk */
+   memset( ws_headers, 0, sizeof(ws_headers) );
+   rc = recv( client->socket, ws_headers, 4096, 0 );
+   if ( rc < 0 )
+   {
+      if ( os_errno != ECONNRESET )
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_READING_SOCKET, ERR_RXSTACK_READING_SOCKET_TMPL, errno_str( os_errno ) );
+      }
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   if ( rc == 0 )
+   {
+      DEBUGDUMP(printf("read empty WS data\n"););
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   if ( debug )
+   {
+      DEBUGDUMP(printf("header: [%s]\nLength: %d\n",ws_headers,rc););
+      for ( i = 0; i < rc; i++ )
+         DEBUGDUMP(printf("%x ",ws_headers[i]););
+      DEBUGDUMP(printf("\n"););
+   }
+   /*
+    * Decode the websocket payload
+    */
+   rcode = decode_ws_payload( (unsigned char *)ws_headers, rc, (unsigned char *)ws_payload, sizeof(ws_payload), &opcode, &left );
+   DEBUGDUMP(printf("after decode payload: rcode: %d remaining: %d payload:[%s]\n",rcode,left,ws_payload););
+   if ( opcode == 0x8 )
+   {
+      /* client sent close request; send back a close opcode message with empty payload */
+      len = encode_ws_payload( (unsigned char *)"", 0, ws_response, sizeof(ws_response), opcode);
+      rc = send( client->socket, ws_response, len, 0 );
+      if ( rc != len )
+      {
+         DEBUGDUMP(printf("Send failed: rc> %d != len> %d errno = %d\n", rc, len, os_errno ););
+         return 0;
+      }
+      rxstack_delete_client( client );
+   }
+   else
+   {
+      DEBUGDUMP(printf("got valid command:[%s]\n",ws_payload););
+      /* process command from client - TODO */
+      action = determine_rxstack_command( ws_payload );
+      if ( action == 0 )
+      {
+         DEBUGDUMP(printf("decoded invalid command: opcode %d\n",opcode););
+         /* wrong action or syntax error */
+         len = sprintf( ws_headers, "9:Incorrect rxstack command or invalid format of command: %s", ws_payload );
+         rxstack_send_return( client, &action, ws_headers, len );
+      }
+      else
+      {
+         DEBUGDUMP(printf("decoded valid command:[%c]\n",action););
+         /* valid action: process the request and send response */
+         switch( action )
+         {
+            case RXSTACK_QUEUE_FIFO:
+            case RXSTACK_QUEUE_LIFO:
+               DEBUGDUMP(printf("WS: Queue %s ---\n", action == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO"););
+               split_ws_payload( ws_payload, ACTION_FIFO_LEN, &queue, &buffer );
+               if ( queue
+               &&   PSTRENGLEN( queue ) )
+               {
+                  q = rxstack_set_default_queue( client, queue );
+                  if ( q == NULL )
+                     // errorrxstack_send_return( client, "3", NULL, 0 );
+                     break;
+               }
+               /*
+                * fixes bug 700539
+                */
+               if ( buffer == NULL )
+                  buffer = Str_buf( "", 0 );
+               if ( buffer == NULL )
+                  rc = 3;
+               else
+                  rc = rxstack_queue_data( client, buffer, action );
+
+               response_length = sprintf( response, "%d:", rc );
+               DEBUGDUMP(printf("    Response: [%s] Len: %d\n",response,response_length););
+               rxstack_send_return( client, &action, response, response_length );
+               buffer = NULL ; /* consumed by rxstack_queue_data */
+               break;
+            case RXSTACK_EMPTY_QUEUE:
+               DEBUGDUMP(printf("WS: Empty Queue ---\n"););
+               split_ws_payload( ws_payload, ACTION_CLEAR_LEN, &queue, &buffer );
+               if ( !queue
+               ||   PSTRENGLEN( queue ) == 0 )
+                  queue = client->default_queue->name;
+               rc = rxstack_empty_queue( client, queue );
+               srcode[0] = (char)(rc+'0');
+               rxstack_send_return( client, &action, srcode, 2 );
+               break;
+            case RXSTACK_NUMBER_IN_QUEUE:
+               DEBUGDUMP(printf("WS: Number in Queue ---\n"););
+               split_ws_payload( ws_payload, ACTION_QUEUED_LEN, &queue, &buffer );
+               if ( queue
+               &&   PSTRENGLEN( queue ) )
+               {
+                  q = rxstack_set_default_queue( client, queue );
+                  if ( q == NULL )
+                     // errorrxstack_send_return( client, "3", NULL, 0 );
+                     break;
+               }
+               length = rxstack_number_in_queue( client );
+               response_length = sprintf( response, "0:%d", length );
+               DEBUGDUMP(printf("    Response: [%s] Len: %d\n",response,response_length););
+               rxstack_send_return( client, &action, response, response_length );
+               break;
+            case RXSTACK_PULL:
+               DEBUGDUMP(printf("WS: Pull ---\n"););
+               split_ws_payload( ws_payload, ACTION_PULL_LEN, &queue, &buffer );
+               if ( queue
+               &&   PSTRENGLEN( queue ) )
+               {
+                  q = rxstack_set_default_queue( client, queue );
+                  if ( q == NULL )
+                     // errorrxstack_send_return( client, "3", NULL, 0 );
+                     break;
+               }
+               rc = rxstack_pull_line_off_queue( client, &result, action == RXSTACK_FETCH );
+               srcode[0] = (char)(rc+'0');
+               switch( rc )
+               {
+                  case 0: /* all OK */
+                     rcode_streng = Str_buf( srcode, 2 );
+                     if ( rcode_streng == NULL )
+                     {
+                        rxstack_send_return( client, &action, "9:rxstack: out of memory", 23 );
+                     }
+                     else
+                     {
+                        resp_streng = Str_cat( rcode_streng, result );
+                        if ( resp_streng == NULL )
+                        {
+                           rxstack_send_return( client, &action, "9:rxstack: out of memory", 23 );
+                           DROPSTRENG( rcode_streng );
+                        }
+                        else
+                        {
+                           rxstack_send_return( client, &action, PSTRENGVAL( resp_streng ), PSTRENGLEN( resp_streng ) );
+                           DROPSTRENG( result );
+                           DROPSTRENG( resp_streng );
+                           DROPSTRENG( rcode_streng );
+                        }
+                     }
+                     break;
+                  case RXSTACK_WAITING: /* still waiting; don't return */
+                     break;
+                  default: /* empty/error */
+                     rxstack_send_return( client, &action, srcode, 2 );
+                     break;
+               }
+               break;
+            case RXSTACK_CREATE_QUEUE:
+               DEBUGDUMP(printf("WS: Create Queue ---\n"););
+               /*
+                * Create a new queue
+                */
+               split_ws_payload( ws_payload, ACTION_CREATE_LEN, &queue, &buffer );
+               rc = rxstack_create_queue( client, queue, &result );
+               srcode[0] = (char)(rc+'0');
+               if ( ( rc != 1 ) && ( rc != 0 ) )
+                  rxstack_send_return( client, &action, srcode, 2 );
+               else
+               {
+                  rcode_streng = Str_buf( srcode, 2 );
+                  if ( rcode_streng == NULL )
+                  {
+                     rxstack_send_return( client, &action, "9:rxstack: out of memory", 23 );
+                  }
+                  else
+                  {
+                     resp_streng = Str_cat( rcode_streng, result );
+                     if ( resp_streng == NULL )
+                     {
+                        rxstack_send_return( client, &action, "9:rxstack: out of memory", 23 );
+                        DROPSTRENG( rcode_streng );
+                     }
+                     else
+                     {
+                        rxstack_send_return( client, &action, PSTRENGVAL( resp_streng ), PSTRENGLEN( resp_streng ) );
+                        DROPSTRENG( result );
+                        DROPSTRENG( resp_streng );
+                        DROPSTRENG( rcode_streng );
+                     }
+                  }
+               }
+               buffer = NULL;  /* consumed by rxstack_create_queue */
+               break;
+            case RXSTACK_DELETE_QUEUE:
+               DEBUGDUMP(printf("WS: Delete Queue ---\n"););
+               /*
+                * Delete the queue
+                */
+               split_ws_payload( ws_payload, ACTION_DELETE_LEN, &queue, &buffer );
+               if ( !queue
+               ||   PSTRENGLEN( queue ) == 0 )
+                  rc = 6;
+               else
+                  rc = rxstack_delete_queue( client, queue );
+               srcode[0] = (char)(rc+'0');
+               rxstack_send_return( client, &action, srcode, 2 );
+               break;
+            default:
+               break;
+         }
+         if ( buffer )
+            DROPSTRENG( buffer ) ;
+         if ( queue
+         &&   queue != client->default_queue->name )
+            DROPSTRENG( queue ) ;
+      }
+   }
+
+   DEBUGDUMP(printf("after valid response: rcode: %d\n",rcode););
+
+   return rc;
+}
+
+int rxstack_process_traditional_command( Client * client )
+{
    char cheader[RXSTACK_HEADER_SIZE];
    streng *header;
    streng *buffer = NULL ;
-   streng *result=NULL;
    int rc,length;
-   char rcode[2];
-
-   if ( client->deadline.milli != -1 )
-   {
-      /*
-       * interrupted wait, assume the client don't want to wait for data any
-       * longer
-       */
-      bad_news_for_waiter( client->default_queue, client ) ;
-   }
-   rcode[1] = '\0';
    memset( cheader, 0, sizeof(cheader) );
-   DEBUGDUMP(printf("reading from socket %d\n", client->socket););
+   DEBUGDUMP(printf("\nreading from socket %d\n", client->socket););
    rc = recv( client->socket, cheader, RXSTACK_HEADER_SIZE, 0 );
    if ( rc < 0 )
    {
@@ -1537,7 +2530,7 @@ int rxstack_process_command( Client *client )
       rxstack_delete_client( client );
       return 0 ;
    }
-
+   DEBUGDUMP(printf("header: %.*s\n",RXSTACK_HEADER_SIZE,cheader););
    header = MakeStreng( RXSTACK_HEADER_SIZE - 1 );
    if ( header == NULL )
    {
@@ -1557,7 +2550,7 @@ int rxstack_process_command( Client *client )
        * Errorneous number. Kill the client.
        */
       DEBUGDUMP(printf("Invalid header: <%.*s>, client killed\n", header->len, header->value););
-      rxstack_send_return( client->socket, "9", NULL, 0 );
+      rxstack_send_return( client, "9", NULL, 0 );
       rxstack_delete_client( client );
       return 1;
    }
@@ -1597,178 +2590,80 @@ int rxstack_process_command( Client *client )
       else
          buffer->len = length ;
    }
-
-   switch( cheader[0] )
-   {
-      case RXSTACK_QUEUE_FIFO:
-      case RXSTACK_QUEUE_LIFO:
-         DEBUGDUMP(printf("--- Queue %s ---\n", cheader[0] == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO"););
-         /*
-          * fixes bug 700539
-          */
-         if ( buffer == NULL )
-            buffer = Str_buf( "", 0 );
-         if ( buffer == NULL )
-            rc = 3;
-         else
-            rc = rxstack_queue_data( client, buffer, cheader[0] );
-         rcode[0] = (char)(rc+'0');
-         rxstack_send_return( client->socket, rcode, NULL, 0 );
-         buffer = NULL ; /* consumed by rxstack_queue_data */
-         break;
-      case RXSTACK_EXIT:
-         DEBUGDUMP(printf("--- Exit ---\n"););
-         /*
-          * Client has requested disconnect, so remove all
-          * references to the client
-          */
-         rxstack_send_return( client->socket, "0", NULL, 0 );
-         rxstack_delete_client( client );
-         if ( buffer != NULL )
-         {
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_KILL:
-         DEBUGDUMP(printf("--- Kill ---\n"););
-         /*
-          * Client has requested server to stop
-          */
-         rxstack_send_return( client->socket, "0", NULL, 0 );
-         rxstack_delete_client( client );
-         running = 0;
-         return 0;
-      case RXSTACK_SET_QUEUE:
-         DEBUGDUMP(printf("--- Set Queue ---\n"););
-         /*
-          * Set the default queue for the client
-          */
-         if ( buffer == NULL )
-            rxstack_send_return( client->socket, "6", NULL, 0 );
-         else
-         {
-            q = rxstack_set_default_queue( client, buffer );
-            if ( q == NULL )
-               rxstack_send_return( client->socket, "3", NULL, 0 );
-            else
-               rxstack_send_return( client->socket, "0", q->name->value, q->name->len );
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_EMPTY_QUEUE:
-         DEBUGDUMP(printf("--- Empty Queue ---\n"););
-         /*
-          * Use the current queue as the default queue.
-          */
-         if ( buffer == NULL )
-            buffer = client->default_queue->name;
-         rc = rxstack_empty_queue( client, buffer );
-         rcode[0] = (char)(rc+'0');
-         rxstack_send_return( client->socket, rcode, NULL, 0 );
-         if ( buffer != client->default_queue->name )
-            DROPSTRENG( buffer );
-         buffer = NULL ;
-         break;
-      case RXSTACK_NUMBER_IN_QUEUE:
-         DEBUGDUMP(printf("--- Number in Queue ---\n"););
-         length = rxstack_number_in_queue( client );
-         rxstack_send_return( client->socket, "0", NULL, length );
-         if ( buffer != NULL )
-         {
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_PULL:
-      case RXSTACK_FETCH:
-         DEBUGDUMP(printf("--- Pull ---\n"););
-         rc = rxstack_pull_line_off_queue( client, &result, cheader[0] == RXSTACK_FETCH );
-         switch( rc )
-         {
-            case 0: /* all OK */
-               rxstack_send_return( client->socket, "0", PSTRENGVAL( result ), PSTRENGLEN( result ) );
-               DROPSTRENG( result );
-               break;
-            default: /* empty/error */
-               rcode[0] = (char)(rc+'0');
-               rxstack_send_return( client->socket, rcode, NULL, 0 );
-               break;
-            case 3: /* still waiting; don't return */
-               break;
-         }
-         if ( buffer != NULL )
-         {
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_GET_QUEUE:
-         DEBUGDUMP(printf("--- Get Queue ---\n"););
-         rxstack_send_return( client->socket, "0", PSTRENGVAL(client->default_queue->name), PSTRENGLEN(client->default_queue->name) ) ;
-         if ( buffer != NULL )
-         {
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_CREATE_QUEUE:
-         DEBUGDUMP(printf("--- Create Queue ---\n"););
-         /*
-          * Create a new queue
-          */
-         rc = rxstack_create_queue( client, buffer, &result );
-         rcode[0] = (char)(rc+'0');
-         if ( ( rc != 1 ) && ( rc != 0 ) )
-            rxstack_send_return( client->socket, rcode, NULL, 0 );
-         else
-            rxstack_send_return( client->socket, rcode, PSTRENGVAL(result), PSTRENGLEN(result) );
-         buffer = NULL;  /* consumed by rxstack_create_queue */
-         break;
-      case RXSTACK_DELETE_QUEUE:
-         DEBUGDUMP(printf("--- Delete Queue ---\n"););
-         /*
-          * Delete the queue
-          */
-         if ( buffer == NULL )
-            rc = 6;
-         else
-            rc = rxstack_delete_queue( client, buffer );
-         rcode[0] = (char)(rc+'0');
-         rxstack_send_return( client->socket, rcode, NULL, 0 );
-         if ( buffer != NULL )
-         {
-            DROPSTRENG( buffer );
-            buffer = NULL;
-         }
-         break;
-      case RXSTACK_TIMEOUT_QUEUE:
-         DEBUGDUMP(printf("--- Timeout Queue ---\n"););
-         /*
-          * Set timeout for pull from queue
-          */
-         if ( buffer == NULL )
-            rc = 6;
-         else
-            rc = rxstack_timeout_queue( client, buffer );
-         rcode[0] = (char)(rc+'0');
-         rxstack_send_return( client->socket, rcode, NULL, 0 );
-         if ( buffer != NULL )
-            DROPSTRENG( buffer );
-         buffer = NULL;
-         break;
-      case RXSTACK_UNKNOWN:
-         /* do nothing */
-         break;
-      default:
-         rxstack_send_return( client->socket, "9", NULL, 0 );
-         break;
-   }
-   assert( buffer == NULL ) ;
-   if ( buffer != NULL )
-      DROPSTRENG( buffer ) ;
+   send_response_to_client( client, cheader[0], buffer );
    return 1;
+}
+
+/* rxstack_process_command reads a new command from the client and processes
+ * it.
+ * returns 0 if the client has been terminated, 1 if the client persists.
+ */
+int rxstack_process_command( Client *client )
+{
+   char pheader[RXSTACK_PEEK_HEADER_SIZE];
+   int rc;
+
+   if ( client->deadline.milli != -1 )
+   {
+      /*
+       * interrupted wait, assume the client don't want to wait for data any
+       * longer
+       */
+      bad_news_for_waiter( client->default_queue, client ) ;
+   }
+   memset( pheader, 0, sizeof(pheader) );
+   DEBUGDUMP(printf("\npeeking from socket %d\n", client->socket););
+   rc = recv( client->socket, pheader, RXSTACK_PEEK_HEADER_SIZE, MSG_PEEK );
+   if ( rc < 0 )
+   {
+      if ( os_errno != ECONNRESET )
+      {
+         showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_READING_SOCKET, ERR_RXSTACK_READING_SOCKET_TMPL, errno_str( os_errno ) );
+      }
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   if ( rc == 0 )
+   {
+      DEBUGDUMP(printf("read empty header\n"););
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   else if ( rc != RXSTACK_PEEK_HEADER_SIZE )
+   {
+      DEBUGDUMP(printf("read corrupted header\n"););
+      /*
+       * Assume client has been lost
+       */
+      rxstack_delete_client( client );
+      return 0 ;
+   }
+   DEBUGDUMP(printf("peek header: 0x%x%x\n", pheader[0],pheader[1]););
+   /*
+    * We have peeked at the first 2 bytes of the message. determine what type of connection it is:
+    * GE - header for Websocket interface
+    * first byte < x20 - Websocket data
+    * anything else - assume traditional interface
+    */
+   if ( memcmp( pheader, "GE", 2 ) == 0 )
+   {
+      rc = rxstack_process_websockets_headers( client );
+   }
+   else if ( client->isWebsocket )
+   {
+      rc = rxstack_process_websockets_data( client );
+   }
+   else
+   {
+      rc = rxstack_process_traditional_command( client );
+   }
+   return rc;
 }
 
 /*
@@ -1867,7 +2762,7 @@ int rxstack_doit( )
 #else
    int client_size ;
 #endif
-   int portno,rc;
+   int rc;
    Client *c, *ch ;
    RxQueue *q, *qh ;
 #if defined(HAVE_POLL) && (defined(HAVE_POLL_H) || defined(HAVE_SYS_POLL_H))
@@ -1953,8 +2848,12 @@ int rxstack_doit( )
    }
    memset( &server, 0, sizeof(server) );
    server.sin_family = AF_INET;
-   server.sin_addr.s_addr = htonl(INADDR_ANY);
-   portno = default_port_number();
+   if ( world )
+      server.sin_addr.s_addr = htonl(INADDR_ANY);
+   else
+      server.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+   if ( portno == 0 )
+      portno = default_port_number();
    server.sin_port = htons((unsigned short) portno);
 
 #ifdef BUILD_NT_SERVICE
@@ -1973,12 +2872,20 @@ int rxstack_doit( )
       exit( ERR_RXSTACK_GENERAL );
    }
 #ifdef BUILD_NT_SERVICE
-   sprintf(buf, "Listening on port: %d", portno );
+   sprintf(buf, "Listening on port: %ld", portno );
    if ( IsItNT() )
    {
       if ( !report_service_start() )
          goto notrunning;
-      AddToMessageLog(TEXT(buf));
+      if ( debug == 1 )
+      {
+         printf( "%s\n", buf );
+         fflush(stdout);
+      }
+      else
+      {
+         AddToMessageLog(TEXT(buf));
+      }
    }
    else
    {
@@ -1986,7 +2893,7 @@ int rxstack_doit( )
       fflush(stdout);
    }
 #else
-   printf( "rxstack listening on port: %d\n", portno );
+   printf( "rxstack listening on port: %ld\n", portno );
    fflush(stdout);
 #endif
    /*
@@ -2120,6 +3027,7 @@ int rxstack_doit( )
                if ( FD_ISSET( ch->socket, &ready ) )
 #endif
                {
+                  DEBUGDUMP(printf("Client with socket %d ready for reading\n", ch->socket ););
                   /*
                    * Process the client's command...
                    */
@@ -2160,15 +3068,23 @@ notrunning:
 /*
  * Gives a short usage description on stderr and returns 1
  */
-static int usage( const char *argv0 )
+int usage( const char *argv0 )
 {
-   fprintf( stderr, "Usage: %s [-D] "
+   fprintf( stdout, "\n%s: %s (%d bit). All rights reserved.\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
+   fprintf( stdout,"Regina is distributed under the terms of the GNU Library Public License \n" );
+   fprintf( stdout,"and comes with NO WARRANTY. See the file COPYING-LIB for details.\n" );
+   fprintf( stdout,"\n%s [switches]\n", argv0 );
+   fprintf( stdout,"where switches are:\n\n" );
+   fprintf( stdout,"  --help, -h               show this message\n" );
+   fprintf( stdout,"  --version, -v            display Regina version and exit\n" );
+   fprintf( stdout,"  --debug, -D              turn on debugging\n" );
 #if defined(HAVE_FORK)
-                                     "[-d|-k]"
-#else
-                                     "[-k]"
+   fprintf( stdout,"  --daemon, -d             run %s as a daemon process\n", argv0 );
 #endif
-                                             "\n", argv0 ) ;
+   fprintf( stdout,"  --kill, -k               kill the running %s process\n", argv0 );
+   fprintf( stdout,"  --port=portno, -pportno  listen on TCP port portno\n");
+   fprintf( stdout,"  --world, -w              allow connections from anywhere. By default only connections from localhost allowed\n");
+   fflush( stdout );
    return 1 ;
 }
 
@@ -2181,47 +3097,87 @@ static void checkDebug(void)
 int runNormal( int argc, char **argv )
 {
    int rc = 0 ;
+   int c;
    const char *argv0 = argv[ 0 ] ;
-
-   argv++ ;
-   argc-- ;
+   static struct my_getopt_option long_options[] =
+   {
+      {"help",    no_argument,       0,  'h' },
+      {"version", no_argument,       0,  'v' },
+      {"debug",   no_argument,       0,  'D' },
+      {"kill",    no_argument,       0,  'k' },
+      {"world",   no_argument,       0,  'w' },
+      {"port",    required_argument, 0,  'p' },
+      {"daemon",  no_argument,       0,  'd' },
+      {0,         0,                 0,  0 }
+  };
 
    checkDebug();
+   while (1)
+   {
+      int option_index = 0;
 
-   if ( ( argc >= 1 ) && ( strcmp( *argv, "-D" ) == 0 ) )
-   {
-      debug = 1 ;
-      putenv( "RXDEBUG=1" ) ;
-      argc-- ;
-      argv++ ;
+      c = my_getopt_long( argc, argv, "+hvDdkwp:", long_options, &option_index );
+      if ( c == -1 )
+         break;
+
+      switch(c)
+      {
+         case 'h':
+            return usage( argv0 );
+            break;
+         case 'D':
+            debug = 1;
+            putenv( "RXDEBUG=1" ) ;
+            break;
+         case 'd':
+#ifndef BUILD_NT_SERVICE
+            isdaemon = 1;
+#endif
+            break;
+         case 'k':
+            tosuicide = 1;
+            break;
+         case 'w':
+            world = 1;
+            break;
+         case 'p':
+            portno = atol( optarg );
+            if ( portno == 0
+            || portno > 0xFFFF )
+            {
+               fprintf( stderr, "Option \"-p\" or \"--port\" requires integer between 1 and 65535.\n" ) ;
+               return usage( argv0 );
+            }
+            break;
+         case 'v':
+            fprintf( stderr, "%s: %s (%d bit)\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
+            return 0;
+         default: /* unknown switch */
+            return usage( argv0 );
+            break;
+      }
    }
-   if ( argc > 1 )
+   if ( argc > optind )
    {
+      fprintf( stderr, "Extra, unknown command line argument(s).\n" ) ;
       return usage( argv0 );
    }
-   if ( argc == 1 )
+   if ( tosuicide )
+      return suicide();
+#ifndef BUILD_NT_SERVICE
+   if ( isdaemon )
    {
-      if ( strcmp(*argv, "-k") == 0 )
-      {
-         return suicide();
-      }
-      if ( strcmp(*argv, "-d") == 0 )
-      {
 #if defined(HAVE_FORK)
-         if ( ( rc = fork() ) != 0 )
-            exit(rc < 0);
-         rc = rxstack_doit();
+      if ( ( rc = fork() ) != 0 )
+         exit(rc < 0);
+      rc = rxstack_doit();
 #else
-         fprintf( stderr, "Option \"-d\" option is invalid on this platform.\n" ) ;
-         return usage( argv0 );
+      fprintf( stderr, "Option \"-d\" or \"--daemon\" is invalid on this platform.\n" ) ;
+      return usage( argv0 );
 #endif
-      }
-      else
-      {
-         return usage( argv0 );
-      }
    }
    else
+#endif
    {
       rc = rxstack_doit();
    }
@@ -2242,8 +3198,11 @@ int main(int argc, char *argv[])
    {
       if ( !nt_service_start() )
       {
+/*
          checkDebug();
          rxstack_doit();
+*/
+         runNormal(argc, argv);
       }
       rxstack_cleanup();
       return;

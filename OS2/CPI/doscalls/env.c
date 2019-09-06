@@ -9,8 +9,11 @@
 APIRET APIENTRY DosGetInfoBlocks(PTIB *pptib,
                                  PPIB *pppib)
 {
-  log("%s\n", __FUNCTION__);
-  return KalGetInfoBlocks(pptib, pppib);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
+  rc = KalGetInfoBlocks(pptib, pppib);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 /*!
@@ -35,8 +38,9 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
   PTIB tib;
   int  i;
   char *p, *q, *env;
+  APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("pszName=%s\n", pszName);
 
   /* Get application info blocks */
@@ -62,10 +66,18 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
       *ppszValue = q + 1;
 
       log("pszValue=%s\n", *ppszValue);
-      return NO_ERROR;
+      rc = NO_ERROR;
+      break;
     }
   }
 
   log("not found\n");
-  return ERROR_ENVVAR_NOT_FOUND;
+
+  if (rc)
+  {
+    rc = ERROR_ENVVAR_NOT_FOUND;
+  }
+
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

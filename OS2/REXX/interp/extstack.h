@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: extstack.h,v 1.9 2003/07/17 09:32:22 florian Exp $
- */
-
 #include "rexxbif.h"            /* C functions that mimic REXX BIFs */
 
 #define FIFO_LINE(buf,line) {                                            \
@@ -190,6 +185,7 @@ int get_length_from_header( const tsd_t *TSD, const streng *header );
 #define RXSTACK_UNKNOWN             '?'
 #define RXSTACK_UNKNOWN_STR         "?"
 #define RXSTACK_HEADER_SIZE         7
+#define RXSTACK_PEEK_HEADER_SIZE    2
 #define RXSTACK_TIMEOUT_SIZE        6
 
 #ifndef RXSOCKET
@@ -219,3 +215,12 @@ int get_length_from_header( const tsd_t *TSD, const streng *header );
 #define ERR_RXSTACK_GENERAL_TMPL         "General system error with external queue interface. %s. %s"
 
 #define ERR_STORAGE_EXHAUSTED_TMPL       "System resources exhausted"
+
+/*
+ * Return codes from interacting with rxstack
+ */
+#define RXSTACK_OK      0
+#define RXSTACK_EMPTY   1
+#define RXSTACK_ERROR   2
+#define RXSTACK_WAITING 3
+#define RXSTACK_TIMEOUT 4

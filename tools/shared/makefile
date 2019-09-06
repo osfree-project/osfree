@@ -4,13 +4,13 @@
 
 PROJ = tools_shared
 TRGT = $(PROJ).lib
-DIRS = z idl
-LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib #$(%ROOT)build$(SEP)lib$(SEP)idl.lib
-
-#TARGETS  = subdirs $(PATH)$(PROJ).lib
-#TARGET   = all
+DIRS = z # idl
+LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib # $(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
 !include $(%ROOT)/mk/libs.mk
+
+TARGETS  = subdirs $(PATH)$(PROJ).lib
+#TARGET   = all
 
 $(PATH)$(PROJ).lib: $(LIBS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

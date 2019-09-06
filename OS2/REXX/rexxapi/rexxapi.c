@@ -19,17 +19,26 @@
 /*
  * $Id: rexxapi.c,v 1.3 2005/09/01 10:23:31 mark Exp $
  */
+#if defined(__OSFREE__)
+#define OS2
+#define HAVE_STRING_H
+#define HAVE_STDLIB_H
+#define HAVE_STDARG_H
+#include <ctype.h>
+#endif
+
 #if defined(HAVE_CONFIG_H)
 # include "config.h"
 #endif
+
+#ifndef __OSFREE__
 #include "configur.h"
+#endif
 
 #include <stdio.h>
-#include <ctype.h>
-
-#define INCL_REXXSAA
 
 #if defined(OS2)
+# define INCL_DOSSEMAPHORES
 # define INCL_DOSMODULEMGR
 # define INCL_DOSMISC
 # undef INCL_REXXSAA
@@ -76,6 +85,9 @@
 
 typedef HMODULE handle_type ;
 
+#define RXQUEUE_OK            0        /* Successful return           */
+#define RXQUEUE_NOTREG        9        /* Queue does not exist        */
+
 #define FUNCTION_REXXREGISTEREXITEXE           0
 #define FUNCTION_REXXREGISTEREXITDLL           1
 #define FUNCTION_REXXDEREGISTEREXIT            2
@@ -103,6 +115,25 @@ typedef HMODULE handle_type ;
 
 #define NUM_REXX_FUNCTIONS                    24
 
+APIRET APIENTRY os2CreateQueue( PSZ Buffer,
+                                ULONG BuffLen,
+                                PSZ RequestedName,
+                                ULONG* DupFlag );
+
+APIRET APIENTRY os2DeleteQueue( PSZ QueueName );
+
+APIRET APIENTRY os2QueryQueue( PSZ QueueName,
+                               ULONG* Count );
+
+APIRET APIENTRY os2AddQueue( PSZ QueueName,
+                             PRXSTRING EntryData,
+                             ULONG AddFlag );
+
+APIRET APIENTRY os2PullQueue( PSZ QueueName,
+                              PRXSTRING DataBuf,
+                              PDATETIME TimeStamp,
+                              ULONG WaitFlag );
+
 static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
 {
    /*  0 */  "RexxRegisterExitExe",
@@ -119,9 +150,9 @@ static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
    /* 11 */  "RexxQueryFunction",
    /* 12 */  "RexxCreateQueue",
    /* 13 */  "RexxDeleteQueue",
-   /* 14 */  "RexxQueryQueue",
-   /* 15 */  "RexxAddQueue",
-   /* 16 */  "RexxPullQueue",
+   /* 14 */  "RexxAddQueue",
+   /* 15 */  "RexxPullQueue",
+   /* 16 */  "RexxQueryQueue",
    /* 17 */  "RexxAddMacro",
    /* 18 */  "RexxDropMacro",
    /* 19 */  "RexxSaveMacroSpace",
@@ -188,12 +219,21 @@ static char TraceFileName[256];
 int Trace = 0;
 int InterpreterIdx = -1;
 
+extern HMTX hmtx;
+
 //static 
 void TraceString( char *fmt, ... )
 {
    FILE *fp=NULL;
    int using_stderr = 0;
    va_list argptr;
+
+   if (! hmtx)
+   {
+      return;
+   }
+   
+   DosRequestMutexSem(hmtx, SEM_INDEFINITE_WAIT);
 
    if ( strcmp( TraceFileName, "stderr" ) == 0 )
       using_stderr = 1;
@@ -212,6 +252,8 @@ void TraceString( char *fmt, ... )
       if ( !using_stderr )
          fclose( fp );
    }
+
+   DosReleaseMutexSem(hmtx);
 }
 
 static handle_type FindInterpreter( char *library )
@@ -222,7 +264,7 @@ static handle_type FindInterpreter( char *library )
    register int j=0;
    APIRET rc;
    
-   debug( "%s: Attempting to load \"%s\" using DosLoadModule()...",
+   log( "%s: Attempting to load \"%s\" using DosLoadModule()...",
                 __FUNCTION__,
                 library);
 
@@ -233,7 +275,7 @@ static handle_type FindInterpreter( char *library )
 
    if ( handle != (handle_type)NULL )
    {
-      debug( "found %s\n", library );
+      log( "found %s\n", library );
       
       for ( j = 0; j < NUM_REXX_FUNCTIONS; j++ )
       {
@@ -246,7 +288,7 @@ static handle_type FindInterpreter( char *library )
           * Log the function and address. This is useful if the module
           * doesn't have an address for this procedure.
           */
-         debug( "%s: Address %x\n",
+         log( "%s: Address %x\n",
                 MyFunctionName[j],
                 (addr == NULL) ? 0 : addr );
 
@@ -286,7 +328,7 @@ static handle_type FindInterpreter( char *library )
    }
    else
    {
-      debug( "not found: %s\n", LoadError );
+      log( "not found: %s\n", LoadError );
    }
 
    return handle;
@@ -329,7 +371,7 @@ void LoadInterpreter( void )
       exit( 11 );
    }
 
-   debug( "----------- Initialisation Complete - Program Execution Begins -----------\n" );
+   log( "----------- Initialisation Complete - Program Execution Begins -----------\n" );
 
    InterpreterIdx = 0;
 
@@ -342,12 +384,13 @@ void LoadInterpreter( void )
  */
 APIRET APIENTRY RexxRegisterExitExe(
    PCSZ EnvName,
-   RexxExitHandler *EntryPoint,
+   PFN EntryPoint,
+   //RexxExitHandler *EntryPoint,
    PUCHAR UserArea )
 {
    APIRET rc = RXEXIT_NOTREG;
 
-   debug( "%s: EnvName \"%s\" EntryPoint %x UserArea %x ",
+   log( "%s: EnvName \"%s\" EntryPoint %x UserArea %x ",
           __FUNCTION__,
           EnvName,
           EntryPoint,
@@ -361,7 +404,7 @@ APIRET APIENTRY RexxRegisterExitExe(
          (PUCHAR)    UserArea );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -375,7 +418,7 @@ APIRET APIENTRY RexxRegisterExitDll(
 {
    APIRET rc = RXEXIT_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" ProcedureName \"%s\" UserArea %x DropAuth %d ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" ProcedureName \"%s\" UserArea %x DropAuth %d ",
           __FUNCTION__,
           EnvName,
           ModuleName,
@@ -393,7 +436,7 @@ APIRET APIENTRY RexxRegisterExitDll(
          (ULONG)     DropAuth );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -404,7 +447,7 @@ APIRET APIENTRY RexxDeregisterExit(
 {
    APIRET rc = RXEXIT_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" ",
           __FUNCTION__,
           EnvName,
           (ModuleName == NULL) ? "NULL" : ModuleName );
@@ -416,7 +459,7 @@ APIRET APIENTRY RexxDeregisterExit(
          (PSZ)       ModuleName );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -429,7 +472,7 @@ APIRET APIENTRY RexxQueryExit(
 {
    APIRET rc = RXEXIT_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" Flag %d UserArea %x ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" Flag %d UserArea %x ",
           __FUNCTION__,
           EnvName,
           ModuleName,
@@ -445,7 +488,7 @@ APIRET APIENTRY RexxQueryExit(
          (PUCHAR)    UserArea ) ;
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -455,12 +498,13 @@ APIRET APIENTRY RexxQueryExit(
  */
 APIRET APIENTRY RexxRegisterSubcomExe(
    PCSZ EnvName,
-   RexxSubcomHandler *EntryPoint,
+   PFN EntryPoint,
+   //RexxSubcomHandler *EntryPoint,
    PUCHAR UserArea )
 {
    APIRET rc = RXSUBCOM_NOTREG;
 
-   debug( "%s: EnvName \"%s\" EntryPoint %x UserArea %x ",
+   log( "%s: EnvName \"%s\" EntryPoint %x UserArea %x ",
           __FUNCTION__,
           EnvName,
           EntryPoint,
@@ -474,7 +518,7 @@ APIRET APIENTRY RexxRegisterSubcomExe(
          (PUCHAR)    UserArea );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -485,7 +529,7 @@ APIRET APIENTRY RexxDeregisterSubcom(
 {
    APIRET rc = RXSUBCOM_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" ",
           __FUNCTION__,
           EnvName,
           (ModuleName == NULL) ? "NULL" : ModuleName );
@@ -497,7 +541,7 @@ APIRET APIENTRY RexxDeregisterSubcom(
          (PSZ)       ModuleName );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -511,7 +555,7 @@ APIRET APIENTRY RexxRegisterSubcomDll(
 {
    APIRET rc = RXSUBCOM_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" ProcedureName \"%s\" UserArea %x DropAuth %d ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" ProcedureName \"%s\" UserArea %x DropAuth %d ",
           __FUNCTION__,
           EnvName,
           ModuleName,
@@ -529,7 +573,7 @@ APIRET APIENTRY RexxRegisterSubcomDll(
          (ULONG)     DropAuth );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -542,7 +586,7 @@ APIRET APIENTRY RexxQuerySubcom(
 {
    APIRET rc = RXSUBCOM_NOTREG;
 
-   debug( "%s: EnvName \"%s\" ModuleName \"%s\" Flag %d UserArea %x ",
+   log( "%s: EnvName \"%s\" ModuleName \"%s\" Flag %d UserArea %x ",
           __FUNCTION__,
           Envname,
           ModuleName,
@@ -558,7 +602,7 @@ APIRET APIENTRY RexxQuerySubcom(
          (PUCHAR)    UserArea );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -568,11 +612,12 @@ APIRET APIENTRY RexxQuerySubcom(
  */
 APIRET APIENTRY RexxRegisterFunctionExe(
    PCSZ name,
-   RexxFunctionHandler *EntryPoint )
+   PFN EntryPoint )
+   //RexxFunctionHandler *EntryPoint )
 {
    APIRET rc = RXFUNC_NOTREG;
 
-   debug( "%s: Name \"%s\" Entrypoint %x ",
+   log( "%s: Name \"%s\" Entrypoint %x ",
           __FUNCTION__,
           name,
           EntryPoint );
@@ -584,7 +629,7 @@ APIRET APIENTRY RexxRegisterFunctionExe(
               (PFN)EntryPoint );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -596,7 +641,7 @@ APIRET APIENTRY RexxRegisterFunctionDll(
 {
    APIRET rc = RXFUNC_NOTREG;
 
-   debug( "%s: External %s Library %s Internal %s ",
+   log( "%s: External %s Library %s Internal %s ",
           __FUNCTION__,
           ExternalName,
           LibraryName,
@@ -610,7 +655,7 @@ APIRET APIENTRY RexxRegisterFunctionDll(
               (PSZ)InternalName );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -620,7 +665,7 @@ APIRET APIENTRY RexxDeregisterFunction(
 {
    APIRET rc = RXFUNC_NOTREG;
 
-   debug( "%s: %s ",
+   log( "%s: %s ",
           __FUNCTION__,
           name );
 
@@ -629,7 +674,7 @@ APIRET APIENTRY RexxDeregisterFunction(
       rc = (*ORexxDeregisterFunction)( (PSZ)name );
    }
      
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -639,7 +684,7 @@ APIRET APIENTRY RexxQueryFunction(
 {
    APIRET rc = RXFUNC_NOTREG;
 
-   debug( "%s: %s ",
+   log( "%s: %s ",
           __FUNCTION__,
           name );
 
@@ -648,7 +693,7 @@ APIRET APIENTRY RexxQueryFunction(
       rc = (*ORexxQueryFunction)( (PSZ)name );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -663,13 +708,14 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
 {
    APIRET rc = RXQUEUE_NOTREG;
 
-   debug( "%s: Buffer: %x BuffLen: %d RequestedName: \"%s\" DupFlag: %ld ",
+   log( "%s: Buffer: %x BuffLen: %d RequestedName: \"%s\" DupFlag: %ld ",
           __FUNCTION__,
           Buffer,
           BuffLen,
           RequestedName,
           DupFlag );
 
+#if 1
    if (ORexxCreateQueue)
    {
       rc = (*ORexxCreateQueue)(
@@ -678,13 +724,20 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
          (PSZ)       RequestedName,
          (ULONG*)    DupFlag );
    }
+#else
+      rc = os2CreateQueue(
+         (PSZ)       Buffer,
+         (ULONG)     BuffLen,
+         (PSZ)       RequestedName,
+         (ULONG*)    DupFlag );
+#endif
 
-   debug( "<=> Result: %d ", rc );
+   log( "<=> Result: %d ", rc );
 
    if ( rc == RXQUEUE_OK )
-      debug( "Buffer: \"%s\" DupFlag: %d\n", rc );
+      log( "Buffer: \"%s\" DupFlag: %d\n", rc );
    else
-      debug( "\n" );
+      log( "\n" );
 
    return rc;
 }
@@ -693,17 +746,22 @@ APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
 {
    APIRET rc = RXQUEUE_NOTREG;
 
-   debug( "%s: QueueName: \"%s\" ",
+   log( "%s: QueueName: \"%s\" ",
           __FUNCTION__,
           QueueName );
 
+#if 1
    if (ORexxDeleteQueue)
    {
       rc = (*ORexxDeleteQueue)(
          (PSZ)       QueueName );
    }
+#else
+      rc = os2DeleteQueue(
+         (PSZ)       QueueName );
+#endif
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -713,24 +771,30 @@ APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
 {
    APIRET rc = RXQUEUE_NOTREG;
 
-   debug( "%s: QueueName: \"%s\" Count: %x ",
+   log( "%s: QueueName: \"%s\" Count: %x ",
           __FUNCTION__,
           QueueName,
           Count );
 
+#if 1
    if (ORexxQueryQueue)
    {
       rc = (*ORexxQueryQueue)(
          (PSZ)       QueueName,
          (ULONG*)    Count );
    }
+#else
+      rc = os2QueryQueue(
+         (PSZ)       QueueName,
+         (ULONG*)    Count );
+#endif
 
-   debug( "<=> Result: %d ", rc );
+   log( "<=> Result: %d ", rc );
 
    if ( rc == RXQUEUE_OK )
-      debug( "Count: %ld\n", *Count );
+      log( "Count: %ld\n", *Count );
    else
-      debug( "\n" );
+      log( "\n" );
 
    return rc;
 }
@@ -741,11 +805,12 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
 {
    APIRET rc = RXQUEUE_NOTREG;
 
-   debug( "%s: QueueName: \"%s\" AddFlag: %ld ",
+   log( "%s: QueueName: \"%s\" AddFlag: %ld ",
           __FUNCTION__,
           QueueName,
           AddFlag );
 
+#if 1
    if (ORexxAddQueue)
    {
       rc = (*ORexxAddQueue)(
@@ -753,8 +818,14 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
          (PRXSTRING) EntryData,
          (ULONG)     AddFlag );
    }
+#else
+      rc = os2AddQueue(
+         (PSZ)       QueueName,
+         (PRXSTRING) EntryData,
+         (ULONG)     AddFlag );
+#endif
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -766,13 +837,14 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
 {
    APIRET rc = RXQUEUE_NOTREG;
 
-   debug( "%s: QueueName: \"%s\" DataBuf: %x TimeStamp: %x WaitFlag: %ld ",
+   log( "%s: QueueName: \"%s\" DataBuf: %x TimeStamp: %x WaitFlag: %ld ",
           __FUNCTION__,
           QueueName,
           DataBuf,
           TimeStamp,
           WaitFlag );
 
+#if 1
    if (ORexxPullQueue)
    {
       rc = (*ORexxPullQueue)(
@@ -781,15 +853,22 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
          (PDATETIME) TimeStamp,
          (ULONG)     WaitFlag );
    }
+#else
+      rc = os2PullQueue(
+         (PSZ)       QueueName,
+         (PRXSTRING) DataBuf,
+         (PDATETIME) TimeStamp,
+         (ULONG)     WaitFlag );
+#endif
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    if ( rc == RXQUEUE_OK )
-      debug( "DataBuf->strlength: %ld DataBuf->strptr: \"%s\"\n",
+      log( "DataBuf->strlength: %ld DataBuf->strptr: \"%s\"\n",
              DataBuf->strlength,
              DataBuf->strptr );
    else
-      debug( "\n" );
+      log( "\n" );
 
    return rc;
 }
@@ -803,11 +882,14 @@ APIRET APIENTRY RexxAddMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   debug( "%s: FuncName: \"%s\" SourceFile: \"%s\" Position: %ld ",
-          __FUNCTION__,
-          FuncName,
-          SourceFile,
-          Position );
+   if (FuncName && SourceFile)
+   {
+      log( "%s: FuncName: \"%s\" SourceFile: \"%s\" Position: %ld ",
+           __FUNCTION__,
+           FuncName,
+           SourceFile,
+           Position );
+   }
 
    if (ORexxAddMacro)
    {
@@ -817,7 +899,7 @@ APIRET APIENTRY RexxAddMacro( PSZ FuncName,
          (ULONG)     Position );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -826,9 +908,17 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName)
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   debug( "%s: FuncName: \"%s\" ",
-          __FUNCTION__,
-          FuncName );
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" ",
+           __FUNCTION__,
+           FuncName );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> ",
+           __FUNCTION__);
+   }
 
    if (ORexxDropMacro)
    {
@@ -836,13 +926,14 @@ APIRET APIENTRY RexxDropMacro( PSZ FuncName)
          (PSZ)       FuncName );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
 
 APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
-                                    PSZ * FuncNames,
+                                    //PSZ * FuncNames,
+                                    PSZ const * FuncNames,
                                     PSZ MacroLibFile)
 {
    APIRET rc = RXMACRO_NOT_FOUND;
@@ -851,7 +942,7 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
    {
       unsigned int i;
 
-      debug( "%s: FuncCount %d MacroLibFile \"%s\" ",
+      log( "%s: FuncCount %d MacroLibFile \"%s\" ",
              __FUNCTION__,
              FuncCount, MacroLibFile );
 
@@ -859,9 +950,17 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
       {
          for ( i = 0; i < FuncCount; i++ )
          {
-            debug( "%s: FuncName \"%s\" ",
-                   __FUNCTION__,
-                   FuncNames[i] );
+            if (FuncNames[i])
+            {
+               log( "%s: FuncName \"%s\" ",
+                    __FUNCTION__,
+                    FuncNames[i] );
+            }
+            else
+            {
+               log( "%s: FuncName <NULL> ",
+                    __FUNCTION__);
+            }
          }
       }
    }
@@ -875,13 +974,14 @@ APIRET APIENTRY RexxSaveMacroSpace( ULONG FuncCount,
           );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
 
 APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
-                                    PSZ * FuncNames,
+                                    //PSZ * FuncNames,
+                                    PSZ const * FuncNames,
                                     PSZ MacroLibFile)
 {
    APIRET rc = RXMACRO_NOT_FOUND;
@@ -890,7 +990,7 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
    {
       unsigned int i;
 
-      debug( "%s: FuncCount %d MacroLibFile \"%s\" ",
+      log( "%s: FuncCount %d MacroLibFile \"%s\" ",
              __FUNCTION__,
              FuncCount, MacroLibFile );
 
@@ -898,9 +998,17 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
       {
          for ( i = 0; i < FuncCount; i++ )
          {
-            debug( "%s: FuncName \"%s\" ",
-                   __FUNCTION__,
-                   FuncNames[i] );
+            if (FuncNames[i])
+            {
+               log( "%s: FuncName \"%s\" ",
+                    __FUNCTION__,
+                    FuncNames[i] );
+            }
+            else
+            {
+               log( "%s: FuncName <NULL> ",
+                    __FUNCTION__);
+            }
          }
       }
    }
@@ -914,7 +1022,7 @@ APIRET APIENTRY RexxLoadMacroSpace( ULONG FuncCount,
           );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -924,11 +1032,20 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   debug( "%s: FuncName: \"%s\" Position: %x ",
-          __FUNCTION__,
-          FuncName,
-          Position );
-
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" Position: %x ",
+           __FUNCTION__,
+           FuncName,
+           Position );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> Position: %x ",
+           __FUNCTION__,
+           Position );
+   }
+   
    if (ORexxQueryMacro)
    {
       rc = (*ORexxQueryMacro)(
@@ -939,9 +1056,9 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
    TraceString( "<=> Result: %d\n", rc );
 
    if ( rc == RXMACRO_OK )
-      debug( "Position: %d\n", *Position );
+      log( "Position: %d\n", *Position );
    else
-      debug( "\n" );
+      log( "\n" );
 
    return rc;
 }
@@ -951,10 +1068,19 @@ APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   debug( "%s: FuncName: \"%s\" Position: %ld",
-          __FUNCTION__,
-          FuncName,
-          Position );
+   if (FuncName)
+   {
+      log( "%s: FuncName: \"%s\" Position: %ld",
+           __FUNCTION__,
+           FuncName,
+           Position );
+   }
+   else
+   {
+      log( "%s: FuncName: <NULL> Position: %ld",
+           __FUNCTION__,
+           Position );
+   }
 
    if (ORexxReorderMacro)
    {
@@ -963,7 +1089,7 @@ APIRET APIENTRY RexxReorderMacro( PSZ FuncName,
          (ULONG)     Position );
    }
 
-   debug( "<=> Result: %d\n", rc );
+   log( "<=> Result: %d\n", rc );
 
    return rc;
 }
@@ -972,14 +1098,113 @@ APIRET APIENTRY RexxClearMacroSpace( VOID )
 {
    APIRET rc = RXMACRO_NOT_FOUND;
 
-   debug( "%s:", __FUNCTION__ );
+   log( "%s:", __FUNCTION__ );
 
    if (ORexxClearMacroSpace)
    {
       rc = (*ORexxClearMacroSpace)( );
    }
 
-   debug( ": Result: %x\n", rc );
+   log( "<=> Result: %x\n", rc );
 
    return rc;
 }
+
+#if 1
+
+APIRET unimplemented(char *func)
+{
+  log("%s is not yet implemented!\n", func);
+  return 0;
+}
+
+APIRET APIENTRY RexxLoadSubcom( PSZ envp,
+                                PSZ dllp )
+{
+   APIRET rc = RXSUBCOM_NOTREG;
+
+   log( "%s:", __FUNCTION__ );
+
+   unimplemented(__FUNCTION__);
+   
+   log( "<=> Result: %x\n", rc );
+
+   return rc;
+}
+
+// ???
+APIRET APIENTRY RexxCallFunction (
+        PSZ fn,
+        ULONG argc,
+        PRXSTRING argv,
+        PUSHORT ret,
+        PRXSTRING stor,
+        PSZ data)
+{
+   APIRET rc = RXFUNC_NOTREG;
+
+   log( "%s:", __FUNCTION__ );
+
+   unimplemented(__FUNCTION__);
+   
+   log( "<=> Result: %x\n", rc );
+
+   return rc;
+}
+
+// ???
+APIRET APIENTRY RexxCallSubcom(
+         PSZ env,
+         PSZ dll,
+         PRXSTRING cmd,
+         PUSHORT flag,
+         PUSHORT ret,
+         PRXSTRING stor )
+{
+   APIRET rc = RXSUBCOM_NOTREG;
+
+   log( "%s:", __FUNCTION__ );
+
+   unimplemented(__FUNCTION__);
+   
+   log( "<=> Result: %x\n", rc );
+
+   return rc;
+}
+
+// ???
+APIRET APIENTRY RexxCallExit(
+         ULONG arg1,
+         ULONG arg2,
+         ULONG arg3,
+         ULONG arg4,
+         ULONG arg5 )
+{
+   APIRET rc = RXEXIT_NOTREG;
+
+   log( "%s:", __FUNCTION__ );
+
+   unimplemented(__FUNCTION__);
+   
+   log( "<=> Result: %x\n", rc );
+
+   return rc;
+}
+
+// ???
+APIRET APIENTRY RexxExecuteMacroFunction(
+         ULONG arg1,
+         ULONG arg2 )
+{
+   APIRET rc = RXMACRO_NOT_FOUND;
+
+   log( "%s:", __FUNCTION__ );
+
+   unimplemented(__FUNCTION__);
+   
+   log( "<=> Result: %x\n", rc );
+
+   return rc;
+}
+
+#endif

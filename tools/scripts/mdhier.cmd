@@ -11,6 +11,8 @@ parse arg dir
 parse source os .
 parse version rexxname rexxver releasedate
 
+dir = strip(dir, 'B')
+
 if os = 'OS/2' | os = 'DOS' | os = 'WINDOWS' |,
    os = 'WINNT' | os = 'WIN32'
 then do

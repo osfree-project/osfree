@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: vmsfuncs.c,v 1.10 2006/09/03 09:51:18 mark Exp $
- */
-
 /* huups, have to add one to length in everyting given to Str_ncatstr */
 
 #include "rexx.h"

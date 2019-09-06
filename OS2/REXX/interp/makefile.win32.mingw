@@ -80,7 +80,7 @@ TSFILES =   funcs.ts.o builtin.ts.o error.ts.o variable.ts.o extstack.ts.o rexxb
             options.ts.o os_win.ts.o os_other.ts.o rexx.ts.o client.ts.o rexxsaa.ts.o mt_win32.ts.o      \
             $(GCI_SHO)
 
-MTSSRC =    $(SRCDIR)/en.mts $(SRCDIR)/pt.mts $(SRCDIR)/no.mts $(SRCDIR)/de.mts $(SRCDIR)/es.mts $(SRCDIR)/pl.mts $(SRCDIR)/tr.mts
+MTSSRC =    $(SRCDIR)/en.mts $(SRCDIR)/pt.mts $(SRCDIR)/no.mts $(SRCDIR)/de.mts $(SRCDIR)/es.mts $(SRCDIR)/pl.mts $(SRCDIR)/tr.mts $(SRCDIR)/sv.mts
 
 CEXTRA = $(REXXSOCKET) $(HAVE_GCI) $(VEXTRA) -funsigned-char
 COPT = -MMD $(OPTIMIZE) $(CEXTRA) -I$(SRCDIR)/ $(MEMTRACE) $(NOFLISTS) $(THREADING)
@@ -97,15 +97,20 @@ TCPLIBS = -lwsock32
 
 %.o: %.c
 	$(CC) -c $(COPT) -o $@ $<
-	
+
 %.ts.o: %.c
 	$(CC) -c $(COPTDYN) -o $@ $<
 
-ifdef ($(HAVE_GCI))
-all: gci_convert.h rexx.exe rexx.a execiser.exe $(SHL_TARGETS) rxstack.exe rxqueue.exe threader.exe mtb_files
+ifeq ($(GCI),Y)
+ALL_DEPS = gci_convert.h trexx.exe rexx.exe rexx.a execiser.exe $(SHL_TARGETS) rxstack.exe rxqueue.exe threader.exe mtb_files
 else
-all: rexx.exe rexx.a execiser.exe $(SHL_TARGETS) rxstack.exe rxqueue.exe threader.exe mtb_files
+ALL_DEPS = trexx.exe rexx.exe rexx.a execiser.exe $(SHL_TARGETS) rxstack.exe rxqueue.exe threader.exe mtb_files
 endif
+
+all: $(ALL_DEPS)
+
+trexx.exe : $(OFILES) rexx.o nosaa.o
+	$(CC) $(LDFLAGS1) -o trexx.exe $(OFILES) rexx.o nosaa.o $(TCPLIBS)
 
 rexx.exe : $(OFILES) rexx.o rexxw32exe.o nosaa.o
 	$(CC) $(LDFLAGS1) -o rexx.exe $(OFILES) rexx.o rexxw32exe.o nosaa.o $(TCPLIBS)
@@ -182,7 +187,7 @@ threader.o: $(SRCDIR)/threader.c
 	$(CC) -c $(COPT) -DWIN32_THREADS -o threader.o $(SRCDIR)/threader.c
 
 gci_convert.h: $(SRCDIR)/gci/gci_convert.win32.vc
-	copy $(SRCDIR)\gci\gci_convert.win32.vc gci_convert.h
+	cp $(SRCDIR)/gci/gci_convert.win32.vc gci_convert.h
 
 mtb_files: msgcmp.exe $(MTSSRC)
 	msgcmp $(MTSSRC)
@@ -198,43 +203,43 @@ msgcmp.o: $(SRCDIR)/msgcmp.c
 # We assume we have an already functional regina.exe
 #
 reginaw32dll.rc: $(SRCDIR)\regina.ver $(SRCDIR)\reginaw32dll.rc
-	regina $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\reginaw32dll.rc $@ $(VERDOT) $(VERDATE)
+	trexx $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\reginaw32dll.rc $@ $(VERDOT) $(VERDATE)
 reginaw32exe.rc: $(SRCDIR)\regina.ver $(SRCDIR)\reginaw32exe.rc
-	regina $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\reginaw32exe.rc $@ $(VERDOT) $(VERDATE)
+	trexx $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\reginaw32exe.rc $@ $(VERDOT) $(VERDATE)
 rxstackw32exe.rc: $(SRCDIR)\regina.ver $(SRCDIR)\rxstackw32exe.rc
-	regina $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rxstackw32exe.rc $@ $(VERDOT) $(VERDATE)
+	trexx $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rxstackw32exe.rc $@ $(VERDOT) $(VERDATE)
 rxqueuew32exe.rc: $(SRCDIR)\regina.ver $(SRCDIR)\rxqueuew32exe.rc
-	regina $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rxqueuew32exe.rc $@ $(VERDOT) $(VERDATE)
+	trexx $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rxqueuew32exe.rc $@ $(VERDOT) $(VERDATE)
 rexxw32exe.rc: $(SRCDIR)\regina.ver $(SRCDIR)\rexxw32exe.rc
-	regina $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rexxw32exe.rc $@ $(VERDOT) $(VERDATE)
+	trexx $(COMMONSRCDIR)\fixrc.rexx $(SRCDIR)\rexxw32exe.rc $@ $(VERDOT) $(VERDATE)
 
 reginaw32dll.o: reginaw32dll.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ reginaw32dll.rc reginaw32dll.res
 	windres reginaw32dll.res reginaw32dll.o
 
 reginatsw32dll.o: reginatsw32dll.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ reginatsw32dll.rc reginatsw32dll.res
 	windres reginatsw32dll.res reginatsw32dll.o
 
 reginaw32exe.o: reginaw32exe.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ reginaw32exe.rc reginaw32exe.res
 	windres reginaw32exe.res reginaw32exe.o
 
 rexxw32exe.o: rexxw32exe.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ rexxw32exe.rc rexxw32exe.res
 	windres rexxw32exe.res rexxw32exe.o
 
 rxstackw32exe.o: rxstackw32exe.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ rxstackw32exe.rc rxstackw32exe.res
 	windres rxstackw32exe.res rxstackw32exe.o
 
 rxqueuew32exe.o: rxqueuew32exe.rc
-	copy $(SRCDIR)\reginaw32.ico .
+	cp $(SRCDIR)/reginaw32.ico .
 	windres --include=$(SRCDIR)/ rxqueuew32exe.rc rxqueuew32exe.res
 	windres rxqueuew32exe.res rxqueuew32exe.o
 
@@ -249,7 +254,7 @@ dist: all
 	cp -r $(SRCDIR)/demo .
 	cp $(SRCDIR)/README.W32 .
 	cp $(SRCDIR)/README.33 .
-	cp $(SRCDIR)\COPYING-LIB .
+	cp $(SRCDIR)/COPYING-LIB .
 	cp $(SRCDIR)/regina_ss.ini .
 	cp $(SRCDIR)/regina_fa.ini .
 	cp $(SRCDIR)/regina_mt.ini .

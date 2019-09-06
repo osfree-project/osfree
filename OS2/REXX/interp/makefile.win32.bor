@@ -148,7 +148,7 @@ HFILES = $(SRCDIR)/rexx.h $(SRCDIR)/defs.h $(SRCDIR)/extern.h $(SRCDIR)/regina_t
 
 MTSSRC = $(SRCDIR)/en.mts $(SRCDIR)/pt.mts $(SRCDIR)/no.mts \
 	$(SRCDIR)/de.mts $(SRCDIR)/es.mts $(SRCDIR)/pl.mts \
-	$(SRCDIR)/tr.mts
+	$(SRCDIR)/tr.mts $(SRCDIR)/sv.mts
 
 #.SUFFIXES: .sho $(SUFFIXES)
 #

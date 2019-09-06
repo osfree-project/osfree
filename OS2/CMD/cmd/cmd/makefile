@@ -1,6 +1,7 @@
 
-PROJ = cmd
-TRGT = $(PROJ).exe
+PROJ = cmd1
+PROJ1 = cmd
+TRGT = $(PROJ1).exe
 DESC = Command processor
 srcfiles = $(p)main$(e) $(p)parser$(e) $(p)os2init$(e) $(p)cmds$(e) $(p)expand$(e) $(p)eval$(e) &
            $(p)ea$(e) $(p)dircmds$(e) $(p)filecmds$(e) $(p)syscmds$(e) $(p)os2cmds$(e)   &
@@ -12,12 +13,21 @@ ADD_COPT    = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -ox
 NODEFAULTLIBS = 1
 #    $(BLD)$(SEP)lib$(SEP)os2386.lib,
 #   clibext.lib,
-#ADD_LINKOPT = lib os2386.lib,  clib3r.lib, math387r.lib, emu387.lib, sub32.lib
-#ADD_LINKOPT =
-#STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)$(PROJ).exe
-RESOURCE    = $(PATH)4os2.res
+# ADD_LINKOPT = lib os2386.lib, clib3r.lib, math387r.lib, emu387.lib, sub32.lib
+# ADD_LINKOPT =
+inc         =  -i=. -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include &
+               -i=$(BLD)include # -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
+ADD_COPT    += $(inc)
+STUB        = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
+# RESOURCE    = $(PATH)4os2.res
 IMPORTS     = DOSGETINFOSEG               DOSCALLS.8
 UNI2H = 1
 #DEST = os2
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
+
+TARGETS =  $(PATH)$(PROJ1).exe
+
+$(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)4os2.rc
+ @$(SAY) RESCMP   $^. $(LOG)
+ $(RC) -bt=os2 -i=$(inc) $]@ $[@ -fe=$@ -fo=$(PATH)4os2.res

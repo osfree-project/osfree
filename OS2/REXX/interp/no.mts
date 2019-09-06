@@ -1,8 +1,9 @@
 #
 # Regina error messages - Norwegian (Bokmål)
-# Written by Mark Hessling <M.Hessling@qut.edu.au>
+# Written by Mark Hessling <mark@rexx.org>
 #
-# norwegian (bokmal) - Vidar Tysse <vtysse@broadpark.no>
+# norwegian (bokmal) - Vidar Tysse <news@vidartysse.net>
+#
 #
   0,  1,Feil %s under kjøring av %s, linje %d:|<value>,<source>,<linenumber>
   0,  2,Feil %s i interaktiv sporing:|<value>
@@ -99,7 +100,7 @@
  26,  2,Verdi for repetisjonsantall-uttrykk i DO-instruksjon må være null eller et positivt heltall; fant "%s"|<value>
  26,  3,Verdi for FOR-uttrykk i DO-instruksjon må være null eller et positivt heltall; fant "%s"|<value>
  26,  4,Posisjonsparameter i analysemal må være et heltall; fant "%s"|<value>
- 26,  5,Verdi for NUMERIC DIGITS må være null eller et positivt heltall; fant "%s"|<value>
+ 26,  5,Verdi for NUMERIC DIGITS må være et positivt heltall; fant "%s"|<value>
  26,  6,Verdi for NUMERIC FUZZ må være null eller et positivt heltall; fant "%s"|<value>
  26,  7,Tall brukt i TRACE-innstilling må være et heltall; fant "%s"|<value>
  26,  8,Operand til høyre for opphøyings-operator ("**") må være et heltall; fant "%s"|<value>
@@ -123,8 +124,8 @@
  31,  3,Variabelsymbol må ikke starte med et "."; fant "%s"|<token>
  32,  0,[Ugyldig bruk av «stem»]
  33,  0,Ugyldig resultat av uttrykk
- 33,  1,Verdien for NUMERIC DIGITS "%d" må overstige verdien for NUMERIC FUZZ "(%d)"|<value>,<value>
- 33,  2,Verdien for NUMERIC DIGITS "%d" må ikke overstige %d|<value>,#Limit_Digits
+ 33,  1,Verdien for NUMERIC DIGITS ("%d") må overstige verdien for NUMERIC FUZZ ("%d")|<value>,<value>
+ 33,  2,Verdien for NUMERIC DIGITS ("%d") må ikke overstige %d|<value>,#Limit_Digits
  33,  3,Resultatet av uttrykket etter NUMERIC FORM må starte med "E" eller "S"; fant "%s"|<value>
  34,  0,Logisk verdi ikke "0" eller "1"
  34,  1,Verdien av uttrykket etter nøkkelordet IF må være nøyaktig "0" eller "1"; fant "%s"|<value>
@@ -176,13 +177,15 @@
  40, 39,%s-argument 3 er ikke null eller en; fant "%s"|<bif>,<value>
  40, 41,%s-argument %d må være innenfor grensene for aktuell strøm; fant "%s"|<bif>,<argnumber>,<value>
  40, 42,%s-argument 1; kan ikke posisjonere på aktuell strøm; fant "%s"|<bif>,<value>
+ 40, 43,%s argument %d må være ett enkelt ikke-alfanumeriske tegn eller null-strengen; fant "%s"|<bif>,<argnumber>,<value>
+ 40, 44,%s argument %d, "%s", er et format som ikke er kompatibelt med skilletegnet spesifisert i argument %d|<bif>,<argnumber>,<value>,<argnumber>
  40,914,[%s-argument %d, må være en av "%s"; fant "%s"]|<bif>,<argnumber>,<optionslist>,<value>
  40,920,[%s: lavnivå I/O-feil i strøm; %s]|<bif>,<description>
  40,921,[%s-argument %d, posisjoneringsmodus "%s"; ikke kompatibel med åpnemodus for aktuell strøm]|<bif>,<argnumber>,<value>
  40,922,[%s-argument %d, for få underkommandoer; ventet minst %d; fant %d]|<bif>,<argnumber>,<value>,<value>
  40,923,[%s-argument %d, for mange underkommandoer; ventet maksimalt %d; fant %d]|<bif>,<argnumber>,<value>,<value>
  40,924,[%s-argument %d, ugyldig posisjonsspesifikasjon; ventet en av "%s"; fant "%s"]|<bif>,<argnumber>,<value>,<value>
- 40,930,[RXQUEUE, funksjon TIMEOUT, ventet et heltall mellom -1 og %d; fant \"%s\"]|<value>,<value>
+ 40,930,[RXQUEUE, funksjon TIMEOUT, ventet et heltall mellom 0 og %d; fant \"%s\"]|<value>,<value>
  40,980,Uventet input, enten ukjent type eller ugyldige data%s%s|: ,<location>
  40,981,Tall utenfor tillatt område%s%s|: ,<location>
  40,982,Streng for stor for det definerte bufferet%s%s|: ,<location>
@@ -249,10 +252,12 @@
  90,  1,[BIF %s er en Regina-utvidelse]|<bif>
  90,  2,[Instruksjon %s er en Regina-utvidelse]|<token>
  90,  3,[%s argument %d, opsjon må starte med en av "%s" med "OPTIONS STRICT_ANSI"; fant "%s"; en Regina-utvidelse]|<bif>,<argnumber>,<optionslist>,<value>
+ 90,  4,[Operator %s er en Regina-utvidelse]|<token>
  93,  0,[Uriktig kall til rutine]
  93,  1,[STREAM-kommando %s må etterfølges av en av "%s"; fant "%s"]|<token>,<value>,<value>
  93,  3,[STREAM-kommando må være en av "%s"; fant "%s"]|<value>,<value>
  94,  0,[Feil i grensesnitt mot ekstern kø]
+ 94,  1,[External queue timed out]
  94, 99,[Intern feil med grensesnitt mot ekstern kø: %d "%s"]|<description>,<systemerror>
  94,100,[Generell systemfeil med grensesnitt mot ekstern kø. %s. %s]|<description>,<systemerror>
  94,101,[Feil under tilkobling til %s på port %d: "%s"]|<machine>,<portnumber>,<systemerror>
@@ -276,10 +281,6 @@
 #
 # Extra general phrases requiring translation:
 #
-# Feil 3 under kjøring av "<file>" linje 1:
-# Ikke i stand til å åpne språkfil: %s
-# Uriktig antall meldinger i språkfil: %s
-# Ikke i stand til å lese fra språkfil: %s
-# Ikke i stand til å vise tekst for feil %d.%d; språkfil: %s ikke tilgjengelig
-# Ikke i stand til å vise tekst for feil %d.%d; tekst mangler i språkfil: %s
-# Ikke i stand til å vise tekst for feil %d.%d; språkfil: %s er ødelagt
+P,  0,Feil %d under kjøring av "%.*s" linje %d: %.*s
+P,  1,Feil %d.%d: %.*s
+P,  2,Feil %d under kjøring av "%.*s": %.*s

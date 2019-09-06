@@ -5,14 +5,14 @@
 
 SRC = $(%ROOT)os2$(SEP)REXX$(SEP)interp$(SEP)
 
-!include $(SRC)regina.ver
-
 VERDOT = $(VER_DOT)
 VERDATE = $(VER_DATE)
 
 # enable debug
 deb      = Y
 MULTI    = Y
+
+DYN_CFLAGS = -dDYNAMIC
 
 !ifeq MULTI N
 THREADING =
@@ -31,16 +31,16 @@ HAVE_GCI = -dHAVE_GCI -i=$(MYDIR)gci
 
 !ifeq deb Y
 ADD_COPT     = -d2 $(ADD_COPT)
-ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
+ADD_LINKOPT  = debug all $(ADD_LINKOPT)
+# ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
 !else
 ADD_COPT     =  -dNDEBUG -oneatx $(ADD_COPT)
-ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
+ADD_LINKOPT  =  $(ADD_LINKOPT)
+# ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
 !endif
 
 ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
-                  -dREGINA_VERSION_DATE=$(VER_DATE) -dREGINA_VERSION_MAJOR="$(VER_MAJOR)" &
-                  -dREGINA_VERSION_MINOR="$(VER_MINOR)" -dREGINA_VERSION_SUPP="$(VER_SUPP)" &
-                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 &
+                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)regina-ver.h &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
 # UNI2H = 1
 # NOLIBS = 1

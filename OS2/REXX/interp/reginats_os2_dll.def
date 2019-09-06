@@ -41,3 +41,5 @@ EXPORTS
         RexxSaveMacroSpace
         RexxCallBack
         ReginaCleanup
+        RexxSetTrace
+        RexxResetTrace

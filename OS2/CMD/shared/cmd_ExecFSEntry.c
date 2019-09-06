@@ -85,7 +85,7 @@ APIRET cmd_ExecFSEntry(char *pszFSName,char *pszEntryName,BOOL fVerbose,
   strcpy(pszUtilDllName,"U");
   strcat(pszUtilDllName, pszFSName);
 
-  rc=DosLoadModule(LoadError,sizeof(LoadError),
+  rc=DosLoadModule(LoadError,sizeof(LoadError), ////// ERROR_NOT_ENOUGH_MEMORY == 8
                    pszUtilDllName,&hUtilDllHandle);
 
   if (rc!=NO_ERROR)

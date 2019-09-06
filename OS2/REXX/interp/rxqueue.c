@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: rxqueue.c,v 1.13 2005/08/04 11:28:40 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -64,6 +60,7 @@ static char *RCSid = "$Id: rxqueue.c,v 1.13 2005/08/04 11:28:40 mark Exp $";
 # ifdef HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
 # endif
+# define closesocket(x) close(x)
 #endif
 
 #ifdef __LCC__
@@ -89,6 +86,7 @@ static char *RCSid = "$Id: rxqueue.c,v 1.13 2005/08/04 11:28:40 mark Exp $";
 #endif
 
 #include "extstack.h"
+#include "mygetopt.h"
 
 #define SUCCESS(a) ((a)&&(a)->value[0] == '0')
 
@@ -99,6 +97,8 @@ static int debug = 0 ;
 #define DEBUGDUMP(x) { if ( debug ) \
                           {x;}      \
                      }
+
+static int fromtext = 0;
 
 char *buff=NULL;
 unsigned int bufflen=0;
@@ -152,35 +152,44 @@ int send_all( int sock, char *action )
 
    for ( ; ; )
    {
-      len = 0;
-      while ( ( c = getchar() ) != EOF )
+      if ( fromtext )
       {
-         if ( c == REGINA_EOL )
-         {
-#if defined(DOS) || defined(OS2) || defined(WIN32)
-            if (len && ( buff[len-1] == REGINA_CR ) )
-               len--;
-#endif
-            break;
-         }
-         if ( len >= bufflen
-         && (( buff = (char *)realloc( buff, bufflen <<= 1 ) ) == NULL ) )
-         {
-           showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
-           exit( ERR_STORAGE_EXHAUSTED );
-         }
-         buff[len++] = (char)c;
+         len = strlen( buff );
       }
-      if ( (c == EOF || feof(stdin) )
-      &&  !len)
-         break;
-      DEBUGDUMP(printf("--- Queue %s ---\n", action[0] == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO"););
+      else
+      {
+         len = 0;
+         while ( ( c = getchar() ) != EOF )
+         {
+            if ( c == REGINA_EOL )
+            {
+   #if defined(DOS) || defined(OS2) || defined(WIN32)
+               if (len && ( buff[len-1] == REGINA_CR ) )
+                  len--;
+   #endif
+               break;
+            }
+            if ( len >= bufflen
+            && (( buff = (char *)realloc( buff, bufflen <<= 1 ) ) == NULL ) )
+            {
+              showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
+              exit( ERR_STORAGE_EXHAUSTED );
+            }
+            buff[len++] = (char)c;
+         }
+         if ( (c == EOF || feof(stdin) )
+         &&  !len)
+            break;
+      }
+      DEBUGDUMP(printf("--- Queue %s from %s ---\n", action[0] == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO", fromtext ? "text" : "stdin"););
       rc = send_command_to_rxstack( NULL, sock, action, buff, len );
       if ( rc != -1 )
       {
          result = read_result_from_rxstack( NULL, sock, RXSTACK_HEADER_SIZE );
          DROPSTRENG( result );
       }
+      if ( fromtext )
+         break;
    }
    return 0;
 }
@@ -247,6 +256,31 @@ void junk_return_from_rxstack( int sock, streng *header )
    }
 }
 
+/*
+ * Gives a short usage description on stderr and returns 1
+ */
+static int usage( const char *argv0 )
+{
+   fprintf( stdout, "\n%s: %s (%d bit). All rights reserved.\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
+   fprintf( stdout,"Regina is distributed under the terms of the GNU Library Public License \n" );
+   fprintf( stdout,"and comes with NO WARRANTY. See the file COPYING-LIB for details.\n" );
+   fprintf( stdout,"\n%s [switches] [queue] [command]\n", argv0 );
+   fprintf( stdout,"where switches are:\n\n" );
+   fprintf( stdout,"  --help, -h               show this message\n" );
+   fprintf( stdout,"  --version, -v            display Regina version and exit\n" );
+   fprintf( stdout,"  --debug, -D              turn on debugging\n" );
+   fprintf( stdout,"  --text, -t               text to add to queue (ignores input on stdin)\n" );
+   fprintf( stdout,"\n[queue] is the optional queue name to be used\n");
+   fprintf( stdout,"\nand command is one of:\n\n" );
+   fprintf( stdout,"  /fifo                    add text into [queue] first-in-first-out\n" );
+   fprintf( stdout,"  /lifo                    add text into [queue] last-in-first-out\n" );
+   fprintf( stdout,"  /clear                   clears all lines in [queue]\n" );
+   fprintf( stdout,"  /pull                    pulls all lines from [queue]\n" );
+   fprintf( stdout,"  /queued                  displays number of lines in [queue]\n" );
+   fflush( stdout );
+   return 1 ;
+}
+
 int cleanup( void )
 {
 #ifdef WIN32
@@ -259,12 +293,21 @@ int cleanup( void )
 
 int main( int argc, char *argv[])
 {
-   int sock,rc=0,num;
+   int sock,rc=0,num,c;
    char *action;
    streng *queue=NULL,*server_name=NULL;
    char *in_queue=NULL;
    streng *result;
    Queue q;
+   const char *argv0 = argv[ 0 ] ;
+   static struct my_getopt_option long_options[] =
+   {
+      {"help",    no_argument,       0,  'h' },
+      {"debug",   no_argument,       0,  'D' },
+      {"text",    required_argument, 0,  't' },
+      {"version", no_argument,       0,  'v' },
+      {0,         0,                 0,  0 }
+   };
 #ifdef WIN32
    WORD wsver = (WORD)MAKEWORD(1,1);
    WSADATA wsaData;
@@ -277,27 +320,44 @@ int main( int argc, char *argv[])
       exit(ERR_RXSTACK_NO_WINSOCK);
    }
 #endif
-
-   argv++ ;
-   argc-- ;
-
    if ( getenv( "RXDEBUG" ) != NULL )
       debug = 1 ;
-
-   if ( ( argc >= 1 )
-     && ( ( strcmp( *argv, "-D" ) == 0 ) || ( strcmp( *argv, "/D" ) == 0 ) ) )
+   while (1)
    {
-      debug = 1 ;
-      putenv( "RXDEBUG=1" ) ;
-      argc-- ;
-      argv++ ;
+      int option_index = 0;
+
+      c = my_getopt_long( argc, argv, "+hDt:v", long_options, &option_index );
+      if ( c == -1 )
+         break;
+
+      switch(c)
+      {
+         case 'h':
+            return usage( argv0 );
+            break;
+         case 'D': /* debug */
+            debug = 1;
+            putenv( "RXDEBUG=1" ) ;
+            break;
+         case 't': /* input from command line */
+            fromtext = 1;
+            buff = strdup( optarg );
+            break;
+         case 'v':
+            fprintf( stderr, "%s: %s (%d bit)\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
+            return 0;
+         default: /* unknown switch */
+            return usage( argv0 );
+            break;
+      }
    }
+   num = argc - optind;
 
    action = NULL;
    /*
     * Process the command line
     */
-   if ( argc == 0 )
+   if ( num == 0 )
    {
       /*
        * "rxqueue"
@@ -305,42 +365,42 @@ int main( int argc, char *argv[])
       action = RXSTACK_QUEUE_FIFO_STR;
       in_queue = get_unspecified_queue();
    }
-   else if ( argc == 1 )
+   else if ( num == 1 )
    {
       /*
        * "rxqueue queue"
        * or
        * "rxqueue /switch"
        */
-      if ( argv[0][0] == '/' )
+      if ( argv[optind][0] == '/' )
       {
          /*
           * Only parameter is a switch
           */
          in_queue = get_unspecified_queue();
-         action = get_action( argv[0] );
+         action = get_action( argv[optind] );
       }
       else
       {
          /*
           * Only parameter is a queue name
           */
-         in_queue = argv[0];
+         in_queue = argv[optind];
          action = RXSTACK_QUEUE_FIFO_STR;
       }
    }
-   else if ( argc == 2 )
+   else if ( num == 2 )
    {
       /*
        * "rxqueue queue /switch"
        */
-      in_queue = argv[0];
-      if ( argv[1][0] == '/' )
+      in_queue = argv[optind];
+      if ( argv[optind+1][0] == '/' )
       {
          /*
           * Parameter is a switch
           */
-         action = get_action( argv[1] );
+         action = get_action( argv[optind+1] );
       }
    }
    else
@@ -349,7 +409,28 @@ int main( int argc, char *argv[])
        * ERROR
        */
       fprintf(stderr, "Invalid number of parameters\n");
-      rc = 1;
+      return usage( argv0 );
+   }
+   /*
+    * Validate actions with -t or --text switches
+    */
+   if ( fromtext )
+   {
+      if ( action[0] == RXSTACK_EMPTY_QUEUE )
+      {
+         fprintf(stderr, "-t or --text switch invalid with /clear action.\n");
+         return usage( argv0 );
+      }
+      else if ( action[0] == RXSTACK_PULL )
+      {
+         fprintf(stderr, "-t or --text switch invalid with /pull action.\n");
+         return usage( argv0 );
+      }
+      else if ( action[0] == RXSTACK_NUMBER_IN_QUEUE )
+      {
+         fprintf(stderr, "-t or --text switch invalid with /queued action.\n");
+         return usage( argv0 );
+      }
    }
    in_queue = force_remote( in_queue ) ;
    if ( action )
@@ -396,13 +477,16 @@ int main( int argc, char *argv[])
             case RXSTACK_QUEUE_LIFO:
                DEBUGDUMP(printf("--- Queue %s ", action[0] == RXSTACK_QUEUE_FIFO ? "FIFO" : "LIFO"););
                /*
-                * Allocate the initial buffer
+                * Allocate the initial buffer if input is from stdin
                 */
-               if (( buff = (char *)malloc( bufflen = 256 ) ) == NULL )
+               if ( fromtext == 0 )
                {
-                  showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
-                  rc = ERR_STORAGE_EXHAUSTED;
-                  break;
+                  if (( buff = (char *)malloc( bufflen = 256 ) ) == NULL )
+                  {
+                     showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
+                     rc = ERR_STORAGE_EXHAUSTED;
+                     break;
+                  }
                }
                /*
                 * Set the current queue
@@ -547,11 +631,11 @@ int main( int argc, char *argv[])
           */
          DEBUGDUMP(printf("--- Exit ---\n"););
          send_command_to_rxstack( NULL, sock, RXSTACK_EXIT_STR, NULL, 0 );
-         close(sock);
+         closesocket(sock);
       }
       else
       {
-         DEBUGDUMP(printf( "queue: <%.*s> server: %.*s<%d> Port:%d\n", PSTRENGLEN( queue ), PSTRENGVAL( queue ), PSTRENGLEN( q.u.e.name ), PSTRENGVAL( q.u.e.name ), q.u.e.address, q.u.e.portno ););
+         DEBUGDUMP(printf( "queue: <%.*s>\n", PSTRENGLEN( queue ), PSTRENGVAL( queue ) ););
          rc = 1;
       }
    }

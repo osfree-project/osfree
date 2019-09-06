@@ -6,10 +6,13 @@ APIRET APIENTRY  DosListIOL(LONG  ulCmdMode,
                             LONG  ulNumentries,
                             PVOID pListIOL)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("ulCmdMode=%lx\n", ulCmdMode);
   log("ulNumentries=%lx\n", ulNumentries);
-  return unimplemented(__FUNCTION__);
+  rc = unimplemented(__FUNCTION__);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }
 
 
@@ -22,11 +25,15 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
   ULONG rc, rc2;
   int i;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   rc2 = DosAllocMem((void **)&pListIOL, ulNumentries * sizeof(LISTIOL),
                    PAG_COMMIT | PAG_READ | PAG_WRITE);
 
-  if (rc2) return rc2;
+  if (rc2)
+  {
+    rc = rc2;
+    goto DOSLISTIO_EXIT;
+  }
 
   for (i = 0, p = pListIOL, q = pListIO; i < ulNumentries; i++, p++, q++)
   {
@@ -51,8 +58,13 @@ APIRET  APIENTRY        DosListIO(ULONG ulCmdMode,
 
   rc2 = DosFreeMem(pListIOL);
 
-  if (rc2) return rc2;
+  if (rc2)
+  {
+    rc = rc2;
+  }
 
+DOSLISTIO_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }
 

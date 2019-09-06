@@ -32,7 +32,11 @@
 #endif
 #include <nls_f.h>
 #ifdef _TC_LATER_
+#ifndef LINUX
 #include <direct.h>
+#else
+#include <dirent.h>
+#endif
 #endif
 #ifdef __TURBOC__
 #include <stddef.h>

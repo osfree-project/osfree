@@ -33,3 +33,5 @@ EXPORTS RexxReorderMacro
 EXPORTS RexxSaveMacroSpace
 EXPORTS RexxCallBack
 EXPORTS ReginaCleanup
+EXPORTS RexxSetTrace
+EXPORTS RexxResetTrace

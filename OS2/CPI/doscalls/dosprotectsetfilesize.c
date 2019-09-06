@@ -5,8 +5,9 @@ APIRET APIENTRY  DosProtectSetFileSize(HFILE hFile,
                                        FHLOCK fhFileHandleLockID)
 {
   LONGLONG cbSizeL;
+  APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("cbSize=%lx\n", cbSize);
   log("hLockId=%lx\n", fhFileHandleLockID);
@@ -14,7 +15,10 @@ APIRET APIENTRY  DosProtectSetFileSize(HFILE hFile,
   cbSizeL.ulLo=cbSize;
   cbSizeL.ulHi=0;
 
-  return DosProtectSetFileSizeL(hFile,
-                                cbSizeL,
-                                fhFileHandleLockID);
+  rc = DosProtectSetFileSizeL(hFile,
+                              cbSizeL,
+                              fhFileHandleLockID);
+
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

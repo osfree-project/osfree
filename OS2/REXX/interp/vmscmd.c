@@ -16,11 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: vmscmd.c,v 1.6 2004/05/19 11:30:03 mark Exp $
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

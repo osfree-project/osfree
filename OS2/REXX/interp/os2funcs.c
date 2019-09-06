@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: os2funcs.c,v 1.21 2004/01/17 07:36:50 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -164,7 +160,7 @@ streng *os2_directory( tsd_t *TSD, cparamboxptr parms )
    if (ok==HOOK_GO_ON)
    {
       result = Str_makeTSD( REXX_PATH_MAX );
-      my_fullpath( result->value, "." );
+      my_fullpath( TSD, result->value, "." );
       result->len = strlen( result->value );
    }
    return result;
@@ -174,7 +170,7 @@ streng *os2_beep( tsd_t *TSD, cparamboxptr parms )
 {
    int freq=0,dur=1;
 
-   checkparam(  parms,  2,  1 , "BEEP" ) ;
+   checkparam(  parms,  1,  2 , "BEEP" ) ;
 
    if (parms && parms->value)
    {
@@ -256,6 +252,7 @@ streng *os2_filespec( tsd_t *TSD, cparamboxptr parms )
 #else
    my_splitpath2( inpath->value, fpath, &fdrive, &fdir, &fname, &fext );
 #endif
+   fprintf(stderr, "path=%s, fpath=%s, fdrive=%s:, fdir=%s, fname=%s, fext=%s", inpath->value, fpath, fdrive, fdir, fname, fext);
    switch( format )
    {
       case 'D':

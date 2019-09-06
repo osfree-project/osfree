@@ -49,12 +49,12 @@ if  stream(true,'c','query exists') = '' then do
     say 'You must compile true.c first'
     exit 1
     end
-
+/*
 if  stream(one,'c','query exists') = '' then do
     say 'You must compile 1.c first'
     exit 1
     end
-
+*/
 if ls = 'ls' then files = 'ls'( '*.rexx' )
 else files = 'dir'( '/b *.rexx' )
 

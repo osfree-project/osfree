@@ -47,6 +47,10 @@
 # include "rexxsaa.h"
 #endif
 
+#define RXSTRLEN(r)          (RXNULLSTRING(r)?0L:(r).strlength)
+#define RXSTRPTR(r)          (r).strptr
+#define RXNULLSTRING(r)      (!(r).strptr)
+
 /* a rexx api function has type RexxFunctionHandler, which takes the name of
  * the function, the number of arguments, an array of arguments, a pointer
  * to something else, and a pointer to the result string.

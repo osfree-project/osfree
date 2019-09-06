@@ -2,7 +2,7 @@
 Parse arg ver .
 If ver = '' Then
  Do
-    Say 'Must supply version: eg 20'
+    Say 'Must supply version: eg 382'
     Exit
  End
 SRC = Translate(Value('REGINA_SRCDIR',,'OS2ENVIRONMENT'),'\','/')
@@ -17,6 +17,7 @@ If Translate( here ) \= Translate( src ) Then
 'cd dist'
 'del /Y *.*'
 'copy ..\regina.exe'
+'copy ..\pmregina.exe'
 'copy ..\rexx.exe'
 'copy ..\rxstack.exe'
 'copy ..\rxqueue.exe'
@@ -27,20 +28,22 @@ If Translate( here ) \= Translate( src ) Then
 'copy ..\rexx.lib'
 'copy ..\regina.a'
 'copy ..\regina.lib'
-'copy ..\test1.dll'
-'copy ..\test2.dll'
+'copy ..\rxtest1.dll'
+'copy ..\rxtest2.dll'
+'copy ..\regutil.dll'
 'copy' SRC || '\COPYING-LIB'
 'copy' SRC || '\rexxsaa.h'
 'copy' SRC || '\README.3?'
 'copy' SRC || '\BUGS'
 'copy' SRC || '\README.OS2 README'
 'copy' SRC || '\README_SAFE'
-'copy' SRC || '\file_id.diz.os2 file_id.diz'
 'mkdir demo'
 'copy' SRC || '\demo\*.rexx demo'
 'copy ..\rexx.dll demo'
 'copy ..\rexxapi.dll demo'
 'mkdir nls'
 'copy ..\*.mtb nls'
-'zip -r regina' || ver || 'os2 *'
+'mkdir doc'
+'copy ..\..\doc\*.pdf doc'
+'zip -r Regina' || ver || 'os2.zip *'
 'cd ..\..'

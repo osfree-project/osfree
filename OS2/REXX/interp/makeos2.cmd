@@ -12,7 +12,7 @@ If Translate( here ) \= Translate( src ) Then
       Say 'Must be run from' src 'directory!'
       Exit 1
    End
-'cd os2'
+'cd gcc'
 'mkdir dist'
 'cd dist'
 'del /Y *.*'
@@ -29,6 +29,7 @@ If Translate( here ) \= Translate( src ) Then
 'copy ..\regina.lib'
 'copy ..\test1.dll'
 'copy ..\test2.dll'
+'copy ..\regutil.dll'
 'copy' SRC || '\COPYING-LIB'
 'copy' SRC || '\rexxsaa.h'
 'copy' SRC || '\README.3?'
@@ -38,6 +39,7 @@ If Translate( here ) \= Translate( src ) Then
 'copy' SRC || '\file_id.diz.os2 file_id.diz'
 'mkdir demo'
 'copy' SRC || '\demo\*.rexx demo'
+'copy' SRC || '\regutil\*.rexx demo'
 'mkdir nls'
 'copy ..\*.mtb nls'
 'zip -r rex' || ver || 'os2 *'

@@ -10,7 +10,7 @@
 
 #include "rexxsaa.h"
 
-#define STARTUPMSG "       +++ Interactive trace.  \"Trace Off\" to end debug. ENTER to continue."
+#define STARTUPMSG "       +++ Interactive trace. \"Trace Off\" to end debug. ENTER to continue."
 
 #ifdef _MSC_VER
 /* This picky compiler claims about unused formal parameters.
@@ -111,6 +111,7 @@ static void instore( void )
 
 LONG APIENTRY trace_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
 {
+   char tmp[200];
    RXSIOTRC_PARM *psiotrc;
    iverify( "Exitfunction", ExNum, RXSIO ) ;
    if (Subfun==RXSIOTRC)
@@ -120,7 +121,10 @@ LONG APIENTRY trace_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
                "     1 *-* trace off" ) ;
    }
    else
-      mycomplain( "Unexpected subfunction\n" ) ;
+   {
+      sprintf( tmp, "Unexpected subfunction, got %ld\n", Subfun ) ;
+      mycomplain( tmp );
+   }
 
    return RXEXIT_HANDLED ;
 }
@@ -535,6 +539,85 @@ LONG APIENTRY it_say_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
    return RXEXIT_HANDLED ;
 }
 
+LONG APIENTRY its_init_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
+{
+   SHVBLOCK shv ;
+   char *name="FOO" ;
+   int rc ;
+   char *value="foz" ;
+
+   shv.shvnext = NULL ;
+   shv.shvname.strptr = name ;
+   shv.shvnamelen = shv.shvname.strlength = strlen(name) ;
+   shv.shvvalue.strptr = value ;
+   shv.shvvaluelen = shv.shvvalue.strlength = strlen(value) ;
+   shv.shvcode = RXSHV_SYSET ;
+
+   rc = RexxVariablePool( &shv ) ;
+   iverify( "Init exit", rc, RXSHV_NEWV ) ;
+   iverify( "Init exit", shv.shvret, RXSHV_NEWV ) ;
+   fprintf( stdout, "in RXINI exit handler; setting FOO=foz\n" );
+   return RXEXIT_HANDLED ;
+}
+
+
+LONG APIENTRY its_term_exit( LONG ExNum, LONG Subfun, PEXIT PBlock )
+{
+   SHVBLOCK shv ;
+   char *name ;
+   int rc ;
+   char value[100] ;
+
+   strcpy( value, "" ) ;
+   shv.shvnext = NULL ;
+   name = "MYVAR" ;
+   shv.shvname.strptr = name ;
+   shv.shvnamelen = shv.shvname.strlength = strlen(name) ;
+   shv.shvvalue.strptr = value ;
+   shv.shvvaluelen = sizeof( value );
+   shv.shvcode = RXSHV_SYFET ;
+
+   rc = RexxVariablePool( &shv ) ;
+   iverify( "Term exit", rc, RXSHV_NEWV ) ;
+   iverify( "Term exit", shv.shvret, RXSHV_NEWV ) ;
+   sverify( "Term exit:", &(shv.shvvalue), "MYVAR" ) ;
+
+   shv.shvnext = NULL ;
+   name = "bar" ;
+   shv.shvname.strptr = name ;
+   shv.shvnamelen = shv.shvname.strlength = strlen(name) ;
+
+   /* The value is the same as above (value) and therefore valid */
+#if 0
+    shv.shvvalue.strptr = value ;
+    shv.shvvaluelen = sizeof( value ) ;
+   shv.shvvalue.strlength = strlen(value) ; /* not allowed! not 0-terminated */
+#endif
+   shv.shvcode = RXSHV_SYFET ;
+
+   rc = RexxVariablePool( &shv ) ;
+   iverify( "Term exit", rc, RXSHV_OK ) ;
+   iverify( "Term exit", shv.shvret, RXSHV_OK ) ;
+   sverify( "Term exit:", &(shv.shvvalue), "baz" ) ;
+   fprintf( stdout, "in RXTER exit handler; value of BAR variable should be 'baz'; it is %s\n", shv.shvvalue.strptr );
+
+   /* get some private variables from the interpreter */
+   shv.shvnext = NULL;
+   shv.shvcode = RXSHV_PRIV;
+   shv.shvname.strptr = "VERSION" ;
+   shv.shvname.strlength = 7;
+   shv.shvnamelen = shv.shvname.strlength ;
+   shv.shvvalue.strptr = value;
+   shv.shvvalue.strlength = sizeof( value );
+   shv.shvvaluelen = shv.shvvalue.strlength ;
+   rc = RexxVariablePool( &shv );            /* get the next variable */
+   iverify( "Term exit", rc, RXSHV_OK ) ;
+   iverify( "Term exit", shv.shvret, RXSHV_OK ) ;
+   fprintf( stdout, "\nin RXTER exit handler; Regina's version (via RXSHV_PRIV is %s\n", shv.shvvalue.strptr );
+
+   return RXEXIT_HANDLED ;
+}
+
 static void init_term(void)
 {
    RXSTRING Instore[2] ;
@@ -566,6 +649,35 @@ static void init_term(void)
    RexxDeregisterExit( "init", NULL ) ;
    RexxDeregisterExit( "term", NULL ) ;
    RexxDeregisterExit( "say", NULL ) ;
+}
+
+static void init_term_show(void)
+{
+   RXSTRING Instore[2] ;
+   RXSYSEXIT Exits[3] ;
+   int rc ;
+
+   fprintf( stdout, "init/term exits:\n" ) ;
+
+   RexxRegisterExitExe( "init", its_init_exit, NULL ) ;
+   RexxRegisterExitExe( "term", its_term_exit, NULL ) ;
+
+   Exits[0].sysexit_name = "init" ;
+   Exits[0].sysexit_code = RXINI ;
+   Exits[1].sysexit_name = "term" ;
+   Exits[1].sysexit_code = RXTER ;
+   Exits[2].sysexit_code = RXENDLST ;
+
+   Instore[0].strptr =
+     "say 'in instore program'\nsay 'FOO should be foz; it is:'foo 'and setting BAR=baz'\n\nbar='baz'\nexit" ;
+   Instore[0].strlength = strlen( Instore[0].strptr ) ;
+   Instore[1].strptr = NULL ;
+
+   rc = RexxStart( 0, NULL, "Testing", Instore, "Foo", RXCOMMAND,
+                   Exits, NULL, NULL ) ;
+
+   RexxDeregisterExit( "init", NULL ) ;
+   RexxDeregisterExit( "term", NULL ) ;
 }
 
 
@@ -1284,7 +1396,7 @@ int main( int argc, char *argv[] )
    version.strptr = NULL;
    /* This might not work if we check another Rexx: */
    versioncode = ReginaVersion(&version);
-   printf("Regina's version is %lu.%lu",
+   printf("Regina's version (via ReginaVersion API call) is %lu.%lu",
           versioncode >> 8,
           versioncode & 0xFF);
    if (version.strptr)
@@ -1311,6 +1423,7 @@ int main( int argc, char *argv[] )
 #if !defined(NO_EXTERNAL_QUEUES)
    qtest();
 #endif
+   init_term_show();
    ReginaCleanup();
    printf( "\n" ) ;
    return 0 ;

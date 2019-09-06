@@ -1,4 +1,4 @@
-                              Regina 3.4 for BeOS
+                              Regina for BeOS
 
 This archive contains binaries for the Regina Rexx Interpreter 3.0 for BeOS.
 Regina is one of the fastest Rexx interpreters available, and the most
@@ -24,6 +24,7 @@ bin/rxqueue                - Regina Stack Client
 lib/libregina.a            - Regina Rexx static library
 lib/libregina.so           - Regina Rexx shared library
 include/rexxsaa.h          - Rexx SAA API header file
+add-ons/regina/libregutil.so - Regutil external function library
 add-ons/regina/libtest1.so - sample Rexx external function library
                              built as BeOS add-on - see dynfunc.rexx
 add-ons/regina/libtest2.so - sample Rexx external function library

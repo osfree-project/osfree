@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: files.c,v 1.97 2006/09/08 06:58:54 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -394,47 +390,50 @@ static char *RCSid = "$Id: files.c,v 1.97 2006/09/08 06:58:54 mark Exp $";
  *               anyway, suid scripts are a _very_ bad idea under Unix,
  *               so this is probably not a problem ... :-)
  */
-#define COMMAND_NONE         0
-#define COMMAND_READ         1
-#define COMMAND_WRITE        2
-#define COMMAND_APPEND       3
-#define COMMAND_UPDATE       4
-#define COMMAND_CREATE       5
-#define COMMAND_CLOSE        6
-#define COMMAND_FLUSH        7
-#define COMMAND_STATUS       8
-#define COMMAND_FSTAT        9
-#define COMMAND_RESET       10
-#define COMMAND_READABLE    11
-#define COMMAND_WRITEABLE   12
-#define COMMAND_EXECUTABLE  13
-#define COMMAND_LIST        14
-#define COMMAND_QUERY_DATETIME 15
-#define COMMAND_QUERY_EXISTS   16
-#define COMMAND_QUERY_HANDLE   17
-#define COMMAND_QUERY_SEEK     18
-#define COMMAND_QUERY_SIZE     19
-#define COMMAND_QUERY_STREAMTYPE 20
-#define COMMAND_QUERY_TIMESTAMP  21
-#define COMMAND_QUERY_POSITION    23
-#define COMMAND_QUERY       24
-#define COMMAND_QUERY_POSITION_READ       25
-#define COMMAND_QUERY_POSITION_WRITE      26
-#define COMMAND_QUERY_POSITION_SYS        27
-#define COMMAND_QUERY_POSITION_READ_CHAR  28
-#define COMMAND_QUERY_POSITION_READ_LINE  29
-#define COMMAND_QUERY_POSITION_WRITE_CHAR 30
-#define COMMAND_QUERY_POSITION_WRITE_LINE 31
-#define COMMAND_OPEN                      32
-#define COMMAND_OPEN_READ                 33
-#define COMMAND_OPEN_WRITE                34
-#define COMMAND_OPEN_BOTH                 35
-#define COMMAND_OPEN_BOTH_APPEND          36
-#define COMMAND_OPEN_BOTH_REPLACE         37
-#define COMMAND_OPEN_WRITE_APPEND         38
-#define COMMAND_OPEN_WRITE_REPLACE        39
-#define COMMAND_SEEK                      40
-#define COMMAND_POSITION                  41
+#define COMMAND_NONE                       0
+#define COMMAND_READ                       1
+#define COMMAND_WRITE                      2
+#define COMMAND_APPEND                     3
+#define COMMAND_UPDATE                     4
+#define COMMAND_CREATE                     5
+#define COMMAND_CLOSE                      6
+#define COMMAND_FLUSH                      7
+#define COMMAND_STATUS                     8
+#define COMMAND_FSTAT                      9
+#define COMMAND_RESET                     10
+#define COMMAND_READABLE                  11
+#define COMMAND_WRITEABLE                 12
+#define COMMAND_EXECUTABLE                13
+#define COMMAND_LIST                      14
+#define COMMAND_QUERY_DATETIME            15
+#define COMMAND_QUERY_EXISTS              16
+#define COMMAND_QUERY_HANDLE              17
+#define COMMAND_QUERY_SEEK                18
+#define COMMAND_QUERY_SIZE                19
+#define COMMAND_QUERY_STREAMTYPE          20
+#define COMMAND_QUERY_TIMESTAMP           21
+#define COMMAND_QUERY_CREATETIME          22
+#define COMMAND_QUERY_MODIFYTIME          23
+#define COMMAND_QUERY_ACCESSTIME          24
+#define COMMAND_QUERY_POSITION            25
+#define COMMAND_QUERY                     26
+#define COMMAND_QUERY_POSITION_READ       27
+#define COMMAND_QUERY_POSITION_WRITE      28
+#define COMMAND_QUERY_POSITION_SYS        29
+#define COMMAND_QUERY_POSITION_READ_CHAR  30
+#define COMMAND_QUERY_POSITION_READ_LINE  31
+#define COMMAND_QUERY_POSITION_WRITE_CHAR 32
+#define COMMAND_QUERY_POSITION_WRITE_LINE 33
+#define COMMAND_OPEN                      34
+#define COMMAND_OPEN_READ                 35
+#define COMMAND_OPEN_WRITE                36
+#define COMMAND_OPEN_BOTH                 37
+#define COMMAND_OPEN_BOTH_APPEND          38
+#define COMMAND_OPEN_BOTH_REPLACE         39
+#define COMMAND_OPEN_WRITE_APPEND         40
+#define COMMAND_OPEN_WRITE_REPLACE        41
+#define COMMAND_SEEK                      42
+#define COMMAND_POSITION                  43
 
 #define STREAMTYPE_UNKNOWN     0
 #define STREAMTYPE_PERSISTENT  1
@@ -497,6 +496,60 @@ static char *RCSid = "$Id: files.c,v 1.97 2006/09/08 06:58:54 mark Exp $";
    int stat( char *path, struct stat *buf ) ;
 #endif
 
+#include "regina64.h"
+
+#if defined(WIN32)
+/*
+ * Work around for bug in WIN32 stat() function; can't have trailing slash
+ */
+# if defined(HAVE__STATI64)
+static int rx_w32_stat( const char *path, struct _stati64 *buffer )
+{
+   int lastpos;
+   int rc;
+   char tmpstring[REXX_PATH_MAX ];
+
+   rc = _stati64( path, buffer );
+   if ( rc != 0 && errno == ENOENT )
+   {
+      if ( path )
+      {
+         lastpos = strlen( path ) -  1;
+         if ( path[lastpos] == '\\' || path[lastpos] == '/')
+         {
+            memcpy( tmpstring, path, lastpos ) ;
+            tmpstring[lastpos] = '\0';
+            rc = _stati64( tmpstring, buffer );
+         }
+      }
+   }
+   return rc;
+}
+# else
+static int rx_w32_stat( const char *path, struct _stat *buffer )
+{
+   int lastpos;
+   int rc;
+   char tmpstring[REXX_PATH_MAX ];
+
+   rc = stat( path, buffer );
+   if ( rc != 0 && errno == ENOENT )
+   {
+      if ( path )
+      {
+         lastpos = strlen( path ) -  1;
+         if ( path[lastpos] == '\\'|| path[lastpos] == '/')
+         {
+            memcpy( tmpstring, path, lastpos ) ;
+            tmpstring[lastpos+1] = '\0';
+            rc = stat( tmpstring, buffer );
+         }
+      }
+   }
+   return rc;
+}
+# endif
+#endif
 
 /*
  * Here comes another 'sunshine-story' ...  Since SunOS don't have
@@ -587,8 +640,10 @@ typedef const struct fileboxtype *cfileboxptr ;
 typedef struct fileboxtype {
    FILE *fileptr ;
    unsigned char oper ;
-   size_t readpos, writepos, thispos ;
-   int flag, error, readline, writeline, linesleft ;
+//   size_t readpos, writepos, thispos ;
+   rx_64 readpos, writepos, thispos ;
+   rx_64 readline, writeline, linesleft ;
+   int flag, error;
    fileboxptr prev, next ;    /* within a filehash entry */
    fileboxptr newer, older ;
    streng *filename0 ;
@@ -603,10 +658,10 @@ typedef struct fileboxtype {
  */
 
 #define SWITCH_OPER_READ(fptr)  {if (fptr->oper==OPER_WRITE)          \
-                                    fseek(fptr->fileptr,0l,SEEK_CUR); \
+                                    rx_fseek(fptr->fileptr,0l,SEEK_CUR); \
                                  fptr->oper=OPER_READ;}
 #define SWITCH_OPER_WRITE(fptr) {if (fptr->oper==OPER_READ)           \
-                                    fseek(fptr->fileptr,0l,SEEK_CUR); \
+                                    rx_fseek(fptr->fileptr,0l,SEEK_CUR); \
                                  fptr->oper=OPER_WRITE;}
 
 typedef struct
@@ -662,8 +717,8 @@ static const stream_type_t stream_types[] =
    { STREAMTYPE_UNKNOWN  , " SpecialName"      },
 };
 
-static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr fileptr, int oper, long where, int from );
-static int positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, int lineno, int from );
+static rx_64 positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr fileptr, int oper, rx_64 where, int from );
+static rx_64 positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno, int from );
 static void handle_file_error( tsd_t *TSD, fileboxptr ptr, int rc, const char *errmsg, int level) ;
 static int flush_output( tsd_t *TSD, fileboxptr ptr );
 
@@ -837,6 +892,12 @@ static char get_querycommand( const streng *cmd )
       return COMMAND_QUERY_STREAMTYPE ;
    if (cmd->len==9  && !memcmp(cmd->value, "TIMESTAMP", 9))
       return COMMAND_QUERY_TIMESTAMP ;
+   if (cmd->len==10  && !memcmp(cmd->value, "CREATETIME", 10))
+      return COMMAND_QUERY_CREATETIME;
+   if (cmd->len==10  && !memcmp(cmd->value, "MODIFYTIME", 10))
+      return COMMAND_QUERY_MODIFYTIME;
+   if (cmd->len==10  && !memcmp(cmd->value, "ACCESSTIME", 10))
+      return COMMAND_QUERY_ACCESSTIME;
    return COMMAND_NONE ;
 }
 
@@ -1121,9 +1182,9 @@ tryagain:
    else
    {
       if ( ptr->thispos == (size_t) EOF )
-         fseek( ptr->fileptr, 0, SEEK_SET ) ;
+         rx_fseek( ptr->fileptr, 0, SEEK_SET ) ;
       else
-         fseek( ptr->fileptr, ptr->thispos, SEEK_SET ) ;
+         rx_fseek( ptr->fileptr, ptr->thispos, SEEK_SET ) ;
       /*
        * If the swapped-in file was already after EOF; ie
        * ptr->flag contained FLAG_RDEOF, then force eof()
@@ -1131,7 +1192,7 @@ tryagain:
        */
       if ( ptr->flag & FLAG_RDEOF )
       {
-         fseek( ptr->fileptr, 0, SEEK_END );
+         rx_fseek( ptr->fileptr, 0, SEEK_END );
          fgetc( ptr->fileptr );
       }
    }
@@ -1572,35 +1633,43 @@ void fixup_file( tsd_t *TSD, const streng *filename )
 {
    fileboxptr ptr=NULL ;
 
-   ptr = getfileptr( TSD, filename ) ;
-   if (ptr)
+   if ( filename )
    {
       /*
-       * If the file is open, try to clear it, first clear the error
-       * indicator, and then try to fseek() to a 'safe' point. If the
-       * seeking didn't work out, don't bother, it was worth a try.
+       * filename will be NULL when condition_hook() called with a NULL description
+       * argument. This happens when NOTREADY occurs when pulling from an external
+       * queue with a timeout and the timeout expires.
        */
-      if (ptr->fileptr)
+      ptr = getfileptr( TSD, filename ) ;
+      if (ptr)
       {
-         clearerr( ptr->fileptr ) ;
-         if ( ptr->flag & FLAG_PERSIST )
-            fseek( ptr->fileptr, 0, SEEK_SET ) ;
-         ptr->thispos = 0 ;
-         ptr->oper = OPER_NONE ;
-      }
-
-      if (ptr->flag & FLAG_SURVIVOR)
-      {
-         ptr->flag &= ~(FLAG_ERROR) ;
          /*
-          * MHES Added following 4 flag resets - 30-11-2004
+          * If the file is open, try to clear it, first clear the error
+          * indicator, and then try to fseek() to a 'safe' point. If the
+          * seeking didn't work out, don't bother, it was worth a try.
           */
-         ptr->flag &= ~(FLAG_RDEOF) ;
-         ptr->flag &= ~(FLAG_WREOF) ;
-         ptr->flag &= ~(FLAG_AFTER_RDEOF) ;
-      }
+         if (ptr->fileptr)
+         {
+            clearerr( ptr->fileptr ) ;
+            if ( ptr->flag & FLAG_PERSIST )
+               rx_fseek( ptr->fileptr, 0, SEEK_SET ) ;
+            ptr->thispos = 0 ;
+            ptr->oper = OPER_NONE ;
+         }
 
-      ptr->flag &= ~(FLAG_FAKE) ;
+         if (ptr->flag & FLAG_SURVIVOR)
+         {
+            ptr->flag &= ~(FLAG_ERROR) ;
+            /*
+             * MHES Added following 4 flag resets - 30-11-2004
+             */
+            ptr->flag &= ~(FLAG_RDEOF) ;
+            ptr->flag &= ~(FLAG_WREOF) ;
+            ptr->flag &= ~(FLAG_AFTER_RDEOF) ;
+         }
+
+         ptr->flag &= ~(FLAG_FAKE) ;
+      }
    }
 }
 
@@ -1755,7 +1824,7 @@ static void reopen_file( tsd_t *TSD, fileboxptr ptr )
       ptr->readpos = 0 ;
       ptr->thispos = 0 ;
       if ( ptr->flag & FLAG_PERSIST )
-         fseek( ptr->fileptr, 0, SEEK_SET ) ;
+         rx_fseek( ptr->fileptr, 0, SEEK_SET ) ;
    }
 
    /*
@@ -1769,8 +1838,8 @@ static void reopen_file( tsd_t *TSD, fileboxptr ptr )
    {
       ptr->writeline = 0 ;
       if ( ptr->flag & FLAG_PERSIST )
-         fseek( ptr->fileptr, 0, SEEK_END ) ;
-      ptr->writepos = ftell( ptr->fileptr ) ;
+         rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
+      ptr->writepos = rx_ftell( ptr->fileptr ) ;
       ptr->thispos = ptr->writepos ;
    }
 
@@ -1877,7 +1946,9 @@ try_to_open:
       else if (errno==EMFILE)
          goto kill_one_file ;
       else
+      {
          file_error( ptr, errno, NULL ) ;
+      }
    }
    else if (faccess==ACCESS_WRITE)
    {
@@ -1931,8 +2002,8 @@ try_to_open:
       if (ptr->fileptr)
       {
          ptr->flag |= FLAG_WRITE | FLAG_PERSIST ;
-         fseek( ptr->fileptr, 0, SEEK_END ) ;
-         lpos = ftell( ptr->fileptr ) ;
+         rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
+         lpos = rx_ftell( ptr->fileptr ) ;
          ptr->thispos = ptr->writepos = lpos ;
          ptr->writeline = 0 ;
          ptr->readpos = 0 ;
@@ -1981,8 +2052,8 @@ try_to_open:
       {
          ptr->flag = FLAG_WRITE | FLAG_WREOF | FLAG_PERSIST;
          if ( ptr->flag & FLAG_PERSIST )
-            fseek( ptr->fileptr, 0, SEEK_END ) ;
-         lpos = ftell( ptr->fileptr ) ;
+            rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
+         lpos = rx_ftell( ptr->fileptr ) ;
          ptr->thispos = ptr->writepos = lpos ;
          ptr->writeline = 0 ; /* unknown position */
          ptr->readpos = 0 ;
@@ -2074,10 +2145,10 @@ try_to_open:
    if (ptr->fileptr)
    {
       int fno, rc ;
-      struct stat statbuf ;
+      struct rx_stat_buf statbuf ;
       errno = 0 ;
       fno = fileno(ptr->fileptr) ;
-      rc = fstat( fno, &statbuf ) ;
+      rc = rx_fstat( fno, &statbuf ) ;
       if (rc==0 && !S_ISREG(statbuf.st_mode))
          ptr->flag &= ~(FLAG_PERSIST) ;
       else if (rc!=0)
@@ -2232,7 +2303,7 @@ static streng *readoneline( tsd_t *TSD, fileboxptr ptr )
     */
    ptr->thispos = ptr->readpos;
    if ( ptr->flag & FLAG_PERSIST )
-      fseek(ptr->fileptr,ptr->thispos,SEEK_SET);
+      rx_fseek(ptr->fileptr,ptr->thispos,SEEK_SET);
    for (i=0; ; i++)
    {
       j = getc(ptr->fileptr);
@@ -2319,7 +2390,7 @@ static streng *readoneline( tsd_t *TSD, fileboxptr ptr )
       if ( ptr->thispos == (size_t) EOF )
       {
          errno = 0 ;
-         ptr->thispos = ptr->readpos = ftell( ptr->fileptr ) ;
+         ptr->thispos = ptr->readpos = rx_ftell( ptr->fileptr ) ;
       }
       else
       {
@@ -2330,7 +2401,7 @@ static streng *readoneline( tsd_t *TSD, fileboxptr ptr )
    else
    {
       errno = 0 ;
-      ptr->thispos = ptr->readpos = ftell( ptr->fileptr ) ;
+      ptr->thispos = ptr->readpos = rx_ftell( ptr->fileptr ) ;
    }
 #else
    if (ptr->thispos != (size_t) EOF)
@@ -2390,12 +2461,13 @@ static streng *readoneline( tsd_t *TSD, fileboxptr ptr )
 }
 
 
-static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, int lineno )
+static rx_64 positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno )
 {
-   int ch=0x00 ;
-   int from_line=0, old_errno=0, tmp=0 ;
-   long from_char=0L ;
-   int ret;
+   int ch=0x00;
+   int old_errno=0;
+   rx_64 from_line=0, tmp=0 ;
+   rx_64 from_char=0L ;
+   rx_64 ret;
 
    /*
     * We know the line number of at most three positions in the file:
@@ -2418,7 +2490,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
    if ( oper & OPER_READ
    &&   ptr->flag & FLAG_PERSIST )
    {
-      if ( fseek( ptr->fileptr, ptr->readpos, SEEK_SET ) )
+      if ( rx_fseek( ptr->fileptr, ptr->readpos, SEEK_SET ) )
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2428,7 +2500,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
    if ( oper & OPER_WRITE
    &&   ptr->flag & FLAG_PERSIST )
    {
-      if ( fseek( ptr->fileptr, ptr->writepos, SEEK_SET ) )
+      if ( rx_fseek( ptr->fileptr, ptr->writepos, SEEK_SET ) )
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2487,7 +2559,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
    {
       errno = 0 ;
       if ( ptr->flag & FLAG_PERSIST
-      &&  fseek( ptr->fileptr, from_char, SEEK_SET ))
+      &&  rx_fseek( ptr->fileptr, from_char, SEEK_SET ))
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2495,7 +2567,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
       ptr->oper = OPER_NONE;
       ptr->thispos = from_char ;
    }
-   assert( from_char == ftell(ptr->fileptr) ) ;
+   assert( from_char == rx_ftell(ptr->fileptr) ) ;
 
    /*
     * Now we are positioned at the right spot, so seek forwards or
@@ -2528,7 +2600,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
    {
       errno = 0 ;
       if ( ptr->flag & FLAG_PERSIST
-      &&  fseek(ptr->fileptr, -1, SEEK_CUR))
+      &&  rx_fseek(ptr->fileptr, -1, SEEK_CUR))
       {
          /*
           * Should this happen? Only if someone overwrites EOF chars in
@@ -2543,7 +2615,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
           */
          old_errno = errno ;
          errno = 0 ;
-         if (fseek(ptr->fileptr,0,SEEK_SET))
+         if (rx_fseek(ptr->fileptr,0,SEEK_SET))
          {
             file_error( ptr, errno, NULL ) ;
             return 0;
@@ -2584,7 +2656,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
        */
       errno = 0 ;
       if ( ptr->flag & FLAG_PERSIST
-      &&  fseek(ptr->fileptr, -1, SEEK_CUR))
+      &&  rx_fseek(ptr->fileptr, -1, SEEK_CUR))
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2596,7 +2668,7 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
     * Now we are almost finished. We just have to set the correct
     * information in the Rexx file table entry.
     */
-   ptr->thispos = ftell( ptr->fileptr ) ;
+   ptr->thispos = rx_ftell( ptr->fileptr ) ;
    if (oper & OPER_READ)
    {
       ptr->readline = from_line ; /* was lineno */
@@ -2618,9 +2690,9 @@ static int positionfile_SEEK_SET( tsd_t *TSD, const char *bif, int argno, filebo
    return ret;
 }
 
-static int positionfile_SEEK_CUR( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, int lineno, int from_line, int from_char )
+static rx_64 positionfile_SEEK_CUR( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno, rx_64 from_line, rx_64 from_char )
 {
-   int tmp,ret;
+   rx_64 tmp,ret;
 
    /*
     * Do simple checks first.
@@ -2642,8 +2714,8 @@ static int positionfile_SEEK_CUR( tsd_t *TSD, const char *bif, int argno, filebo
        * We have positioned to before the first line
        *
        */
-      fseek( ptr->fileptr, 0L, SEEK_SET );
-      ptr->thispos = ftell( ptr->fileptr );
+      rx_fseek( ptr->fileptr, 0L, SEEK_SET );
+      ptr->thispos = rx_ftell( ptr->fileptr );
       if ( oper == OPER_READ )
       {
          ptr->readline = 1;
@@ -2667,7 +2739,7 @@ static int positionfile_SEEK_CUR( tsd_t *TSD, const char *bif, int argno, filebo
    return ret;
 }
 
-static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, int lineno )
+static rx_64 positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno )
 {
    /*
     * This function does file positioning on a line basis from the
@@ -2680,7 +2752,8 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
     * end, and read backwards; ie getc(ptr->fileptr), seek() back 2 chars,
     * until the start of file, or we have the specified number of lines.
     */
-   long here, next, save_pos, i, ret, this_lineno, num_lines;
+   rx_64 here, next, save_pos, i, ret, this_lineno, num_lines;
+   size_t bret;
    char buf[512];
    int found = 0;
 
@@ -2694,18 +2767,18 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
       file_error( ptr, 0, "Cannot position on transient stream" );
       return 0;
    }
-   if ( fseek( ptr->fileptr, 0L, SEEK_END ) )
+   if ( rx_fseek( ptr->fileptr, 0L, SEEK_END ) )
    {
       file_error( ptr, errno, NULL ) ;
       return 0;
    }
 
-   here = ftell( ptr->fileptr );
+   here = rx_ftell( ptr->fileptr );
    /*
     * Seek backwards one character and read the character. If the last
     * character is REGINA_EOL, then DON'T treat this as a new line.
     */
-   if ( fseek( ptr->fileptr, -1L, SEEK_CUR ) )
+   if ( rx_fseek( ptr->fileptr, -1L, SEEK_CUR ) )
    {
       file_error( ptr, errno, NULL ) ;
       return 0;
@@ -2718,7 +2791,7 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
    /*
     * Move the file pointer back to after the last character
     */
-   if ( fseek( ptr->fileptr, 0L, SEEK_END ) )
+   if ( rx_fseek( ptr->fileptr, 0L, SEEK_END ) )
    {
       file_error( ptr, errno, NULL ) ;
       return 0;
@@ -2740,7 +2813,7 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
        * reading a buffer.
        */
       next = min( 512, here );
-      if ( fseek( ptr->fileptr, -next, SEEK_CUR ) )
+      if ( rx_fseek( ptr->fileptr, -next, SEEK_CUR ) )
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2748,15 +2821,15 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
       /*
        * Save our current position; start of the buffer being read
        */
-      save_pos = ftell( ptr->fileptr );
+      save_pos = rx_ftell( ptr->fileptr );
       /*
        * Read a buffer, this moves the file pointer forward to the
        * end of the buffer
        */
 
-      ret = fread( buf, sizeof(char), next, ptr->fileptr );
-      if ( ret != next
-      &&   ret != EOF )
+      bret = fread( buf, sizeof(char), next, ptr->fileptr );
+      if ( bret != next
+      &&   bret != EOF )
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2789,7 +2862,7 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
        * read, so the next fseek() backwards is from the START of the
        * buffer.
        */
-      if ( fseek( ptr->fileptr, save_pos, SEEK_SET ) )
+      if ( rx_fseek( ptr->fileptr, save_pos, SEEK_SET ) )
       {
          file_error( ptr, errno, NULL ) ;
          return 0;
@@ -2821,7 +2894,7 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
     * Now we are almost finished. We just have to set the correct
     * information in the Rexx file table entry.
     */
-   if ( fseek( ptr->fileptr, ptr->thispos, SEEK_SET ) )
+   if ( rx_fseek( ptr->fileptr, ptr->thispos, SEEK_SET ) )
    {
       file_error( ptr, errno, NULL ) ;
       return 0;
@@ -2871,11 +2944,11 @@ static int positionfile_SEEK_END( tsd_t *TSD, const char *bif, int argno, filebo
  * should be activated when the line-parameter is negative ... ?
  */
 
-static int positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, int lineno, int from )
+static rx_64 positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr, int oper, rx_64 lineno, int from )
 {
-   int from_line=0;
-   long from_char=0L ;
-   int ret=0;
+   rx_64 from_line=0;
+   rx_64 from_char=0;
+   rx_64 ret=0;
 
    /*
     * If file is in ERROR state, don't touch it.
@@ -2920,7 +2993,7 @@ static int positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr,
    if ( ptr->thispos == (size_t) EOF )
    {
       errno = 0 ;
-      ptr->thispos = ftell( ptr->fileptr ) ;
+      ptr->thispos = rx_ftell( ptr->fileptr ) ;
    }
 
    /*
@@ -3059,9 +3132,9 @@ static int positionfile( tsd_t *TSD, const char *bif, int argno, fileboxptr ptr,
  * in order to position the current read or write position at the
  * correct place in the file.
  */
-static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr fileptr, int oper, long where, int from )
+static rx_64 positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr fileptr, int oper, rx_64 where, int from )
 {
-   int where_read=0,where_write=0;
+   rx_64 where_read=0,where_write=0;
    /*
     * If the file is in state ERROR, don't touch it! Since we are not
     * to return any data, don't bother about the state of FAKE.
@@ -3104,12 +3177,12 @@ static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr 
     * raise the NOTREADY condition instead?
     */
    {
-      long oldp, endp ;
+      rx_64 oldp, endp ;
 
-      oldp = ftell( fileptr->fileptr ) ;
-      fseek(fileptr->fileptr, 0, SEEK_END) ;
-      endp = ftell( fileptr->fileptr ) ;
-      fseek( fileptr->fileptr, oldp, SEEK_SET ) ;
+      oldp = rx_ftell( fileptr->fileptr ) ;
+      rx_fseek(fileptr->fileptr, 0, SEEK_END) ;
+      endp = rx_ftell( fileptr->fileptr ) ;
+      rx_fseek( fileptr->fileptr, oldp, SEEK_SET ) ;
       fileptr->oper = OPER_NONE;
 
       /*
@@ -3190,7 +3263,7 @@ static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr 
     */
    if ( oper & OPER_WRITE )
    {
-      if ( fseek(fileptr->fileptr,(where_write-1),SEEK_SET ) )
+      if ( rx_fseek(fileptr->fileptr,(where_write-1),SEEK_SET ) )
       {
          file_error( fileptr, errno, NULL ) ;
          return 0;
@@ -3199,7 +3272,7 @@ static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr 
    }
    if ( oper & OPER_READ )
    {
-      if ( fseek(fileptr->fileptr,(where_read-1),SEEK_SET) )
+      if ( rx_fseek(fileptr->fileptr,(where_read-1),SEEK_SET) )
       {
          file_error( fileptr, errno, NULL ) ;
          return 0;
@@ -3267,10 +3340,9 @@ static int positioncharfile( tsd_t *TSD, const char *bif, int argno, fileboxptr 
  *
  * No file_error() is thrown if noerrors is set.
  */
-static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, int length,
-                                                                 int noerrors )
+static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, size_t length, int noerrors )
 {
-   int didread=0 ;
+   size_t didread=0 ;
    streng *retvalue=NULL ;
 
    /*
@@ -3298,7 +3370,7 @@ static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, int length,
       {
          errno = 0 ;
          if ( fileptr->flag & FLAG_PERSIST
-         &&  fseek(fileptr->fileptr, fileptr->readpos, SEEK_SET ))
+         &&  rx_fseek(fileptr->fileptr, fileptr->readpos, SEEK_SET ))
          {
             if (!noerrors)
                file_error( fileptr, errno, NULL ) ;
@@ -3319,7 +3391,7 @@ static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, int length,
    {
       errno = 0 ;
       if ( fileptr->flag & FLAG_PERSIST
-      &&  fseek( fileptr->fileptr, 0L, SEEK_CUR ))
+      &&  rx_fseek( fileptr->fileptr, 0L, SEEK_CUR ))
       {
          /* Hey, how could this have happened?!?! NFS down? */
          if (!noerrors)
@@ -3397,13 +3469,12 @@ static streng *readbytes( tsd_t *TSD, fileboxptr fileptr, int length,
  *
  * No file_error() is thrown if noerrors is set.
  */
-static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
-                                                                 int noerrors )
+static size_t writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string, int noerrors )
 {
 #ifdef WIN32
    int rc=0;
 #endif
-   int todo, done, written=0 ;
+   long todo, done, written=0 ;
    const char *buf ;
 
    /*
@@ -3432,7 +3503,7 @@ static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
    {
       errno = 0 ;
       if ( fileptr->flag & FLAG_PERSIST
-      &&  fseek(fileptr->fileptr, fileptr->writepos, SEEK_SET ))
+      &&  rx_fseek(fileptr->fileptr, fileptr->writepos, SEEK_SET ))
       {
          if (!noerrors)
             file_error( fileptr, errno, NULL ) ;
@@ -3451,7 +3522,7 @@ static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
    {
       errno = 0 ;
       if ( fileptr->flag & FLAG_PERSIST
-      &&  fseek(fileptr->fileptr, 0, SEEK_CUR))
+      &&  rx_fseek(fileptr->fileptr, 0, SEEK_CUR))
       {
          if (!noerrors)
             file_error( fileptr, errno, NULL ) ;
@@ -3539,12 +3610,12 @@ static int writebytes( tsd_t *TSD, fileboxptr fileptr, const streng *string,
  * function CHARS()
  */
 
-static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
+static rx_64 calc_chars_left( tsd_t *TSD, fileboxptr ptr )
 {
-   int left=0 ;
-   long oldpoint=0L, newpoint=0L ;
+   rx_64 left=0 ;
+   rx_64 oldpoint=0L, newpoint=0L ;
 
-   if (! ptr->flag & FLAG_READ)
+   if (!(ptr->flag & FLAG_READ))
       return 0 ;
 
    /*
@@ -3569,11 +3640,11 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
 #if 0
       left = ( !(ptr->flag & FLAG_RDEOF)) ;
 #else
-      struct stat finfo;
+      struct rx_stat_buf finfo;
       int fno;
 
       fno = fileno( ptr->fileptr ) ;
-      fstat( fno, &finfo );
+      rx_fstat( fno, &finfo );
       left = finfo.st_size;
 #endif
    }
@@ -3588,7 +3659,7 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
        * First, record the current position in the file.
        */
       errno = 0 ;
-      oldpoint = ftell( ptr->fileptr ) ;
+      oldpoint = rx_ftell( ptr->fileptr ) ;
       if (oldpoint==EOF)
       {
          file_error( ptr, errno, NULL ) ;
@@ -3599,7 +3670,7 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
        * Then, move the current position to the end-of-file
        */
       errno = 0 ;
-      if (fseek(ptr->fileptr, 0L, SEEK_END))
+      if (rx_fseek(ptr->fileptr, 0L, SEEK_END))
       {
          file_error( ptr, errno, NULL ) ;
          return 0 ;
@@ -3610,7 +3681,7 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
        * And record the position of the end-of-file
        */
       errno = 0 ;
-      newpoint = ftell( ptr->fileptr ) ;
+      newpoint = rx_ftell( ptr->fileptr ) ;
       if (newpoint==EOF)
       {
          file_error( ptr, errno, NULL ) ;
@@ -3625,7 +3696,7 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
        * nice ...
        */
       errno = 0 ;
-      if (fseek(ptr->fileptr, oldpoint, SEEK_SET))
+      if (rx_fseek(ptr->fileptr, oldpoint, SEEK_SET))
       {
          file_error( ptr, errno, NULL ) ;
          return 0 ;
@@ -3654,7 +3725,7 @@ static int calc_chars_left( tsd_t *TSD, fileboxptr ptr )
  * by a EOL marker. If the current line is the last line, but it was
  * not explicitly terminated by a EOL marker, zero is returned.
  */
-static int countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
+static rx_64 countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
 {
    long oldpoint=0L ;
    int left=0, ch=0;
@@ -3679,13 +3750,27 @@ static int countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
     * data or not (i.e. unless we are sure that there are no more data,
     * return "1"
     */
-   if (!(ptr->flag & FLAG_PERSIST) )
-   {
+   if (!(ptr->flag & FLAG_PERSIST))
       return (!feof(ptr->fileptr)) ;
-   }
-   else if ( !actual )
+   else if (!actual)
    {
-      return (calc_chars_left( TSD, ptr )) ? 1 : 0 ;
+      /*
+       * We just want to know of there are any lines left for a persistent
+       * file.  First check if we have reached EOF. Return 0 if so.
+       * Next check if the file size is 0; if so then return 0, otherwise
+       * there is at least 1 line left; return 1
+       */
+      if ( feof(ptr->fileptr ) )
+         return 0;
+      else
+      {
+         struct rx_stat_buf buffer ;
+         int fno;
+         memset( &buffer, 0, sizeof(buffer) );
+         fno = fileno( ptr->fileptr ) ;
+         rx_fstat( fno, &buffer ) ;
+         return ((buffer.st_size==0) ? 0 : 1);
+      }
    }
    else
    {
@@ -3703,7 +3788,7 @@ static int countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
        * read position.
        */
       errno = 0 ;
-      oldpoint = ftell( ptr->fileptr ) ;
+      oldpoint = rx_ftell( ptr->fileptr ) ;
       if (oldpoint==EOF)
       {
          file_error( ptr, errno, NULL ) ;
@@ -3722,7 +3807,7 @@ static int countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
          ptr->thispos = ptr->readpos;
       else
          ptr->thispos = ptr->writepos;
-      fseek(ptr->fileptr,ptr->thispos,SEEK_SET);
+      rx_fseek(ptr->fileptr,ptr->thispos,SEEK_SET);
 #if defined(UNIX) || defined(MAC)
       for(left=0;((ch=getc(ptr->fileptr))!=EOF);)
       {
@@ -3760,7 +3845,7 @@ static int countlines( tsd_t *TSD, fileboxptr ptr, int actual, int oper )
        */
       errno = 0 ;
       if ( ptr->flag & FLAG_PERSIST
-      &&  fseek(ptr->fileptr, oldpoint, SEEK_SET))
+      &&  rx_fseek(ptr->fileptr, oldpoint, SEEK_SET))
       {
          file_error( ptr, errno, NULL ) ;
          return 0 ;
@@ -3827,9 +3912,9 @@ static int writeoneline( tsd_t *TSD, fileboxptr ptr, const streng *data )
            return !(ptr->flag & FLAG_FAKE) ;
         }
         if ( ptr->flag & FLAG_PERSIST )
-           fseek( ptr->fileptr, 0, SEEK_END ) ;
+           rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
         ptr->oper = OPER_NONE;
-        ptr->thispos = ptr->writepos = ftell( ptr->fileptr ) ;
+        ptr->thispos = ptr->writepos = rx_ftell( ptr->fileptr ) ;
         if (ptr->readpos>ptr->thispos && ptr->readpos!= (size_t) EOF)
         {
            ptr->readpos = ptr->thispos ;
@@ -3932,10 +4017,10 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
    fileboxptr ptr=NULL ;
    int rc=0 ;
    int fno=0 ;
-   long pos_read = -2L, pos_write = -2L, line_read = -2L, line_write = -2;
+   rx_64 pos_read = -2L, pos_write = -2L, line_read = -2L, line_write = -2;
    int streamtype = STREAMTYPE_UNKNOWN;
    streng *result=NULL ;
-   struct stat buffer ;
+   struct rx_stat_buf buffer ;
    struct tm tmdata, *tmptr ;
    char *fn=NULL;
 #if 0
@@ -3967,7 +4052,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
    if (ptr && ptr->fileptr)
    {
       fno = fileno( ptr->fileptr ) ;
-      rc = fstat( fno, &buffer ) ;
+      rc = rx_fstat( fno, &buffer ) ;
       if (ptr->flag & FLAG_PERSIST)
          streamtype = STREAMTYPE_PERSISTENT;
       else
@@ -3986,7 +4071,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
        * If we don't have S_ISREG macro, then revert to a simple check; if the
        * stream is a directory it is transent; ugly!
        */
-      rc = stat( fn, &buffer ) ;
+      rc = rx_stat( fn, &buffer ) ;
       if ( rc != 0 )
          streamtype = STREAMTYPE_UNKNOWN;
       else
@@ -4007,10 +4092,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
    {
       if ( fn )
          FreeTSD( fn );
-      checkProperStreamName( TSD,
-                             NULL,
-                             (const char *) tmpstr_of( TSD, filename ),
-                             errno );
+      checkProperStreamName( TSD, NULL, (const char *) tmpstr_of( TSD, filename ), errno );
       return nullstringptr();
    }
    switch ( subcommand )
@@ -4040,13 +4122,21 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
             sprintf( tmpgrp, "%d", buffer.st_gid );
 #endif
          result = Str_makeTSD( 128 ) ;
-         if ( sizeof(off_t) == 8 )
+#if defined(HAVE_I64U)
+         sprintf( result->value,
+            "%ld %ld %03o %d %s %s %I64u",
+            (long)(buffer.st_dev), (long)(buffer.st_ino),
+            buffer.st_mode & ACCESSPERMS, buffer.st_nlink,
+            ptmppwd, ptmpgrp,
+            buffer.st_size ) ;
+#else
+         if ( sizeof(rx_64) > 4 )
             sprintf( result->value,
                "%ld %ld %03o %d %s %s %lld",
                (long)(buffer.st_dev), (long)(buffer.st_ino),
                buffer.st_mode & ACCESSPERMS, buffer.st_nlink,
                ptmppwd, ptmpgrp,
-               (off_t)(buffer.st_size) ) ;
+               (rx_64)(buffer.st_size) ) ;
          else
             sprintf( result->value,
                "%ld %ld %03o %d %s %s %ld",
@@ -4054,6 +4144,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
                buffer.st_mode & ACCESSPERMS, buffer.st_nlink,
                ptmppwd, ptmpgrp,
                (long)(buffer.st_size) ) ;
+#endif
          /*
           * Append the stream type name...
           */
@@ -4067,7 +4158,7 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
          else
          {
             result = Str_makeTSD( REXX_PATH_MAX );
-            my_fullpath( result->value, fn );
+            my_fullpath( TSD, result->value, fn );
             result->len = strlen( result->value );
          }
          break;
@@ -4079,10 +4170,14 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
          else
          {
             result = Str_makeTSD( 50 ) ;
-            if ( sizeof(off_t) == 8 )
-               sprintf( result->value, "%lld", (off_t)(buffer.st_size) ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", buffer.st_size ) ;
+#else
+            if ( sizeof(rx_64) > 4 )
+               sprintf( result->value, "%lld", (rx_64)(buffer.st_size) ) ;
             else
                sprintf( result->value, "%ld", (long)(buffer.st_size) ) ;
+#endif
          }
          break;
       case COMMAND_QUERY_HANDLE:
@@ -4145,12 +4240,73 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
 #endif
          }
          break;
+      case COMMAND_QUERY_CREATETIME:
+         if ( streamtype == STREAMTYPE_TRANSIENT )
+         {
+            result = nullstringptr() ;
+         }
+         else
+         {
+            result = Str_makeTSD( 20 ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", buffer.st_ctime );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", buffer.st_ctime );
+            else
+               sprintf( result->value, "%ld", buffer.st_ctime);
+#endif
+         }
+         break;
+      case COMMAND_QUERY_MODIFYTIME:
+         if ( streamtype == STREAMTYPE_TRANSIENT )
+         {
+            result = nullstringptr() ;
+         }
+         else
+         {
+            result = Str_makeTSD( 20 ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", buffer.st_mtime );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", buffer.st_mtime );
+            else
+               sprintf( result->value, "%ld", buffer.st_mtime);
+#endif
+         }
+         break;
+      case COMMAND_QUERY_ACCESSTIME:
+         if ( streamtype == STREAMTYPE_TRANSIENT )
+         {
+            result = nullstringptr() ;
+         }
+         else
+         {
+            result = Str_makeTSD( 20 ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", buffer.st_atime );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", buffer.st_atime );
+            else
+               sprintf( result->value, "%ld", buffer.st_atime);
+#endif
+         }
+         break;
       case COMMAND_QUERY_POSITION_READ_CHAR:
       case COMMAND_QUERY_POSITION_SYS:
          if (pos_read != (-2))
          {
             result = Str_makeTSD( 50 ) ;
-            sprintf( result->value, "%ld", pos_read + 1) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", pos_read + 1 );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", pos_read + 1 );
+            else
+               sprintf( result->value, "%ld", (long)(pos_read + 1) );
+#endif
          }
          else
             result = nullstringptr() ;
@@ -4159,7 +4315,14 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
          if (pos_write != (-2))
          {
             result = Str_makeTSD( 50 ) ;
-            sprintf( result->value, "%ld", pos_write + 1) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", pos_write + 1 );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", pos_write + 1 );
+            else
+               sprintf( result->value, "%ld", (long)(pos_write + 1) );
+#endif
          }
          else
             result = nullstringptr() ;
@@ -4168,7 +4331,14 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
          if (line_read != (-2))
          {
             result = Str_makeTSD( 50 ) ;
-            sprintf( result->value, "%ld", line_read ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", line_read );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", line_read );
+            else
+               sprintf( result->value, "%ld", (long)line_read );
+#endif
          }
          else
             result = nullstringptr() ;
@@ -4176,8 +4346,8 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
       case COMMAND_QUERY_POSITION_WRITE_LINE:
          if ( line_write == 0 )
          {
-            long here;
-            long char_count;
+            rx_64 here;
+            rx_64 char_count;
             int ch;
             /*
              * When a file is first opened for both read and
@@ -4196,8 +4366,8 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
              * of lines form the beginning of the file to the current
              * write pos...
              */
-            here = ftell( ptr->fileptr );
-            fseek( ptr->fileptr, 0L, SEEK_SET );
+            here = rx_ftell( ptr->fileptr );
+            rx_fseek( ptr->fileptr, 0L, SEEK_SET );
             SWITCH_OPER_READ(ptr);
             for( char_count = 0, line_write = 0; char_count < (long) ptr->writepos; char_count++ )
             {
@@ -4207,13 +4377,27 @@ static streng *getstatus( tsd_t *TSD, const streng *filename , int subcommand )
                if ( ch == REGINA_EOL )
                   line_write++;
             }
-            sprintf( result->value, "%ld", line_write+1 ) ;
-            fseek( ptr->fileptr, here, SEEK_SET );
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", line_write + 1 );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", line_write + 1 ) ;
+            else
+               sprintf( result->value, "%ld", (long)(line_write + 1) ) ;
+#endif
+            rx_fseek( ptr->fileptr, here, SEEK_SET );
          }
          else if (line_write != (-2))
          {
             result = Str_makeTSD( 50 ) ;
-            sprintf( result->value, "%ld", line_write ) ;
+#if defined(HAVE_I64U)
+            sprintf( result->value, "%I64u", line_write );
+#else
+            if ( sizeof(off_t) > 4 )
+               sprintf( result->value, "%lld", line_write ) ;
+            else
+               sprintf( result->value, "%ld", (long)line_write ) ;
+#endif
          }
          else
             result = nullstringptr() ;
@@ -4263,11 +4447,26 @@ static streng *getrexxstatus( const tsd_t *TSD, cfileboxptr ptr )
    else
       strcat( result->value, "NONE" ) ;
 
+#if defined(HAVE_I64U)
    sprintf( result->value + strlen(result->value),
-            " READ: char=%ld line=%d WRITE: char=%ld line=%d %s",
-            (long)(ptr->readpos+1), ptr->readline,
-            (long)(ptr->writepos+1), ptr->writeline,
+            " READ: char=%I64u line=%I64u WRITE: char=%I64u line=%I64u %s",
+            (ptr->readpos+1), ptr->readline,
+            (ptr->writepos+1), ptr->writeline,
             (ptr->flag & FLAG_PERSIST) ? "PERSISTENT" : "TRANSIENT" ) ;
+#else
+   if ( sizeof(rx_64) > 4 )
+      sprintf( result->value + strlen(result->value),
+            " READ: char=%lld line=%lld WRITE: char=%lld line=%lld %s",
+            (ptr->readpos+1), ptr->readline,
+            (ptr->writepos+1), ptr->writeline,
+            (ptr->flag & FLAG_PERSIST) ? "PERSISTENT" : "TRANSIENT" ) ;
+   else
+      sprintf( result->value + strlen(result->value),
+            " READ: char=%ld line=%ld WRITE: char=%ld line=%ld %s",
+            (long)(ptr->readpos+1), (long)ptr->readline,
+            (long)(ptr->writepos+1), (long)ptr->writeline,
+            (ptr->flag & FLAG_PERSIST) ? "PERSISTENT" : "TRANSIENT" ) ;
+#endif
 
    result->len = strlen(result->value) ;
    return result ;
@@ -4292,6 +4491,9 @@ static streng *getquery( tsd_t *TSD, const streng *filename , const streng *subc
    {
       case COMMAND_QUERY_DATETIME :
       case COMMAND_QUERY_TIMESTAMP :
+      case COMMAND_QUERY_CREATETIME :
+      case COMMAND_QUERY_MODIFYTIME :
+      case COMMAND_QUERY_ACCESSTIME :
       case COMMAND_QUERY_EXISTS :
       case COMMAND_QUERY_HANDLE :
       case COMMAND_QUERY_SIZE :
@@ -4354,7 +4556,7 @@ static streng *getquery( tsd_t *TSD, const streng *filename , const streng *subc
          Free_stringTSD(psub);
          break;
       default:
-         exiterror( ERR_STREAM_COMMAND, 1, "QUERY", "DATETIME TIMESTAMP EXISTS HANDLE SIZE STREAMTYPE SEEK POSITION", tmpstr_of( TSD, subcommand ) )  ;
+         exiterror( ERR_STREAM_COMMAND, 1, "QUERY", "DATETIME TIMESTAMP CREATETIME MODIFYTIME ACCESSTIME EXISTS HANDLE SIZE STREAMTYPE SEEK POSITION", tmpstr_of( TSD, subcommand ) )  ;
          break;
    }
 
@@ -4482,7 +4684,7 @@ static streng *getseek( tsd_t *TSD, const streng *filename, const streng *cmd )
    int seek_by_line=0;
    int seek_type=0;
    int seek_sign=0;
-   long seek_offset=0,pos=0;
+   rx_64 seek_offset=0,pos=0;
    int pos_type=OPER_NONE,num_params=0;
    int str_start=0,str_end=(-1),words;
    fileboxptr ptr;
@@ -4616,7 +4818,13 @@ static streng *getseek( tsd_t *TSD, const streng *filename, const streng *cmd )
       if (!rx_isdigit(*(offset+i)))
          exiterror( ERR_INCORRECT_CALL, 924, "STREAM", 3, "n, +n, -n, =n or <n", word[0] );
    }
+#if defined(HAVE_ATOLL)
+   seek_offset = atoll(offset);
+#elif defined(HAVE__ATOI64)
+   seek_offset = _atoi64(offset);
+#else
    seek_offset = atol(offset);
+#endif
    if (seek_sign) /* negative */
       seek_offset *= -1;
    ptr = get_file_ptr( TSD, filename, pos_type, (pos_type&OPER_WRITE) ? ACCESS_WRITE : ACCESS_READ ) ;
@@ -4632,7 +4840,14 @@ static streng *getseek( tsd_t *TSD, const streng *filename, const streng *cmd )
    if ( pos >= 0 )
    {
       result = Str_makeTSD( 20 ) ; /* should be enough digits */
-      sprintf(result->value, "%ld", pos );
+#if defined(HAVE_I64U)
+      sprintf(result->value, "%I64u", pos );
+#else
+      if ( sizeof(rx_64) > 4 )
+         sprintf(result->value, "%lld", pos );
+      else
+         sprintf(result->value, "%ld", (long)pos );
+#endif
       Str_len( result ) = strlen( result->value );
    }
    else
@@ -4664,7 +4879,8 @@ streng *std_chars( tsd_t *TSD, cparamboxptr parms )
    char opt = 'N';
    streng *string=NULL ;
    fileboxptr ptr=NULL ;
-   int was_closed=0, result=0 ;
+   int was_closed=0;
+   rx_64 result=0 ;
    fil_tsd_t *ft;
 
    ft = (fil_tsd_t *)TSD->fil_tsd;
@@ -4689,7 +4905,7 @@ streng *std_chars( tsd_t *TSD, cparamboxptr parms )
    if (was_closed)
       closefile( TSD, string ) ;
 
-   return int_to_streng( TSD, result ) ;
+   return rx64_to_streng( TSD, result ) ;
 }
 
 
@@ -4708,8 +4924,8 @@ streng *std_charin( tsd_t *TSD, cparamboxptr parms )
 {
    streng *filename=NULL, *result=NULL ;
    fileboxptr ptr=NULL ;
-   int length=0 ;
-   long start=0 ;
+   size_t length=0 ;
+   rx_64 start=0 ;
    fil_tsd_t *ft;
 
    ft = (fil_tsd_t *)TSD->fil_tsd;
@@ -4730,7 +4946,7 @@ streng *std_charin( tsd_t *TSD, cparamboxptr parms )
     */
    parms = parms->next ;
    if ((parms)&&(parms->value))
-      start = atopos( TSD, parms->value, "CHARIN", 2 ) ;
+      start = atoposrx64( TSD, parms->value, "CHARIN", 2 ) ;
    else
       start = 0 ;
 
@@ -4834,8 +5050,8 @@ streng *std_charout( tsd_t *TSD, cparamboxptr parms )
           */
          if ( ptr->flag & FLAG_PERSIST )
          {
-            fseek( ptr->fileptr, 0, SEEK_END ) ;
-            ptr->writepos = ftell( ptr->fileptr ) ;
+            rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
+            ptr->writepos = rx_ftell( ptr->fileptr ) ;
          }
          else
             ptr->writepos = 0;
@@ -4861,7 +5077,8 @@ streng *std_lines( tsd_t *TSD, cparamboxptr parms )
    char opt = 'N';
    fileboxptr ptr=NULL ;
    streng *filename=NULL ;
-   int was_closed=0, result=0 ;
+   int was_closed=0;
+   rx_64 result=0 ;
    int actual;
    fil_tsd_t *ft;
 
@@ -4913,7 +5130,7 @@ streng *std_lines( tsd_t *TSD, cparamboxptr parms )
       closefile( TSD, filename ) ;
 
 
-   return int_to_streng( TSD, result ) ;
+   return rx64_to_streng( TSD, result ) ;
 }
 
 
@@ -5092,8 +5309,8 @@ streng *std_lineout( tsd_t *TSD, cparamboxptr parms )
           */
          if ( ptr->flag & FLAG_PERSIST )
          {
-            fseek( ptr->fileptr, 0, SEEK_END ) ;
-            ptr->writepos = ftell( ptr->fileptr ) ;
+            rx_fseek( ptr->fileptr, 0, SEEK_END ) ;
+            ptr->writepos = rx_ftell( ptr->fileptr ) ;
          }
          else
             ptr->writepos = 0;
@@ -5506,10 +5723,20 @@ streng *dbg_dumpfiles( tsd_t *TSD, cparamboxptr parms )
          string[8] = (char) (((ptr->flag & FLAG_FAKE) && (ptr->flag & FLAG_ERROR)   ) ? 'F' : ' ') ;
          string[9] = 0x00 ;
 
-         fprintf( TSD->stddump, " %8s %4d %4ld  %4d %4ld\n", string,
-                ptr->readline, (long)(ptr->readpos),
-                ptr->writeline,(long)(ptr->writepos) ) ;
-
+#if defined(HAVE_I64U)
+         fprintf( TSD->stddump, " %8s %4I64u %4I64u  %4I64u %4I64u\n", string,
+                ptr->readline, ptr->readpos,
+                ptr->writeline,ptr->writepos ) ;
+#else
+            if ( sizeof(rx_64) > 4 )
+               fprintf( TSD->stddump, " %8s %4lld %4lld  %4lld %4lld\n", string,
+                      ptr->readline, ptr->readpos,
+                      ptr->writeline,ptr->writepos ) ;
+            else
+               fprintf( TSD->stddump, " %8s %4ld %4ld  %4ld %4ld\n", string,
+                      (long)(ptr->readline), (long)(ptr->readpos),
+                      (long)(ptr->writeline),(long)(ptr->writepos) ) ;
+#endif
          if (ptr->flag & FLAG_ERROR)
          {
             if (ptr->errmsg)
@@ -5682,7 +5909,7 @@ void addr_reset_file( tsd_t *TSD, void *fileptr )
    {
       clearerr( ptr->fileptr );
       if ( ptr->flag & FLAG_PERSIST )
-         fseek( ptr->fileptr, 0, SEEK_SET );
+         rx_fseek( ptr->fileptr, 0, SEEK_SET );
       ptr->thispos = 0;
       ptr->oper = OPER_NONE;
    }
@@ -5805,12 +6032,12 @@ streng *arexx_exists( tsd_t *TSD, cparamboxptr parms )
 {
    char *name;
    streng *retval;
-   struct stat st;
+   struct rx_stat_buf st;
 
    checkparam( parms, 1, 1, "EXISTS" ) ;
 
    name = str_of( TSD, parms->value ) ;
-   retval = int_to_streng( TSD, stat( name, &st ) != -1 ) ;
+   retval = int_to_streng( TSD, rx_stat( name, &st ) != -1 ) ;
    Free_TSD( TSD, name ) ;
 
    return retval;
@@ -5834,7 +6061,7 @@ static streng *get_external_routine_file( const tsd_t *TSD,
    if ( *fp == NULL )
       return NULL;
 
-   my_fullpath( buf, inname );
+   my_fullpath( TSD, buf, inname );
 
    return Str_crestrTSD( buf );
 }
@@ -6227,7 +6454,7 @@ streng *ConfigStreamQualified( tsd_t *TSD, const streng *name )
    fn = str_ofTSD(name);
 
    result = Str_makeTSD( REXX_PATH_MAX );
-   if ( my_fullpath( result->value, fn ) == -1 )
+   if ( my_fullpath( TSD, result->value, fn ) == -1 )
    {
       /*
        * my_fullpath failed, so split the supplied file into filename
@@ -6246,11 +6473,12 @@ streng *ConfigStreamQualified( tsd_t *TSD, const streng *name )
  * a path element is missing.
  * The return value is 0 on success, -1 in case of a severe error.
  */
-int my_fullpath( char *dst, const char *src )
+int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
-   int rc = 0;
+   char *copy=NULL;
+   int rc = 0, len;
 # if defined(__EMX__)
-   int i, len;
+   int i;
 
    if ( _fullpath( dst, src, REXX_PATH_MAX ) == -1)
       strcpy( dst, src );
@@ -6264,18 +6492,42 @@ int my_fullpath( char *dst, const char *src )
          dst[i] = '\\';
    }
 # else
+   /* attempt to get the full path with the supplied source */
    if ( _fullpath( dst, src, REXX_PATH_MAX ) == NULL )
    {
+#  if defined(WIN32)
+      /* now try by removing trailing slash */
+      /* this code may not actually be needed */
+      len = strlen( src ) -  1;
+      if ( src[len] == '\\' || src[len] == '/')
+      {
+         copy = (char *)MallocTSD( len+2 ) ;
+         strcpy( copy, src );
+         copy[len] = '\0';
+         if ( _fullpath( dst, copy, REXX_PATH_MAX ) == NULL )
+         {
+            strcpy( dst, src );
+            rc = -1;
+         }
+      }
+      else
+      {
+         strcpy( dst, src );
+         rc = -1;
+      }
+      if ( copy )
+         FreeTSD( copy );
+#  else
       strcpy( dst, src );
       rc = -1;
+#  endif
    }
 # endif
-
    return rc;
 }
 #elif defined(HAVE__TRUENAME)
 
-int my_fullpath( char *dst, const char *src )
+int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
    _truename( src, dst );
 
@@ -6283,7 +6535,7 @@ int my_fullpath( char *dst, const char *src )
 }
 #elif defined(HAVE_REALPATH)
 
-int my_fullpath( char *dst, const char *src )
+int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
    realpath( src, dst );
 
@@ -6294,7 +6546,7 @@ int my_fullpath( char *dst, const char *src )
 #  include <rmsdef.h>
 #  include <descrip.h>
 
-int my_fullpath( char *dst, const char *src )
+int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
    char *s;
    int status, context = 0;
@@ -6317,14 +6569,14 @@ int my_fullpath( char *dst, const char *src )
 }
 #else /* neither _FULLPATH, _TRUENAME, REALNAME, VMS */
 
-int my_fullpath( char *dst, const char *src )
+int my_fullpath( tsd_t *TSD, char *dst, const char *src )
 {
    char tmp[REXX_PATH_MAX+1];
    char curr_path[REXX_PATH_MAX+1];
    char path[REXX_PATH_MAX+1];
    char fname[REXX_PATH_MAX+1];
    int i = 0, len = -1, retval;
-   struct stat stat_buf;
+   struct rx_stat_buf stat_buf;
 
    getcwd(curr_path,REXX_PATH_MAX);
    strcpy(tmp,src);
@@ -6336,7 +6588,7 @@ int my_fullpath( char *dst, const char *src )
       if ( tmp[ i ] == '\\' )
          tmp[ i ] = '/';
 # endif
-   if ((stat(tmp,&stat_buf) == 0)
+   if ((rx_stat(tmp,&stat_buf) == 0)
    &&  (stat_buf.st_mode & S_IFMT) == S_IFDIR)
    {
       strcpy(path,tmp);
@@ -6421,7 +6673,7 @@ int my_fullpathstreng( const tsd_t *TSD, char *dst, const streng *src )
    int retval;
 
    copy = str_ofTSD( src );
-   retval = my_fullpath( dst, copy );
+   retval = my_fullpath( TSD, dst, copy );
    FreeTSD( copy );
 
    return retval;

@@ -8,15 +8,17 @@ APIRET APIENTRY DosSetFileLocks(HFILE hFile,
 {
   FILELOCKL flUnlockL;
   FILELOCKL flLockL;
+  APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("timeout=%lx\n", timeout);
   log("flags=%lx\n", flags);
 
   if ((pflUnlock==NULL) | (pflLock==NULL))
   {
-    return ERROR_INVALID_PARAMETER;
+    rc = ERROR_INVALID_PARAMETER;
+    goto DOSSETFILELOCKS_EXIT;
   }
 
   flUnlockL.lOffset.ulLo=pflUnlock->lOffset;
@@ -28,5 +30,9 @@ APIRET APIENTRY DosSetFileLocks(HFILE hFile,
   flLockL.lRange.ulLo=pflLock->lRange;
   flLockL.lRange.ulHi=0;
 
-  return DosSetFileLocksL(hFile, &flUnlockL, &flLockL, timeout, flags);
+  rc = DosSetFileLocksL(hFile, &flUnlockL, &flLockL, timeout, flags);
+
+DOSSETFILELOCKS_EXIT:
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

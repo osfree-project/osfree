@@ -5,6 +5,7 @@
 #
 
 SRCDIR=$(REGINA_SRCDIR)
+REGUTILSRCDIR=$(SRCDIR)\regutil
 CC = gcc
 
 include $(SRCDIR)\regina.ver
@@ -60,8 +61,8 @@ GCI_SHO = gci_call.obj gci_convert.obj gci_execute.obj gci_helper.obj \
 HAVE_GCI = -DHAVE_GCI -I$(SRCDIR)\gci -I.
 endif
 
-DYN_CRT =  -Zcrtdll -Zomf -mprobe
-CEXTRA = -DOS2 -DEMX -funsigned-char $(HAVE_GCI) -DREGINA_VERSION_DATE=\"$(VER_DATE)\" -DREGINA_VERSION_MAJOR=\"$(VER_MAJOR)\" -DREGINA_VERSION_MINOR=\"$(VER_MINOR)\" -DREGINA_VERSION_SUPP=\"$(VER_SUPP)\"
+DYN_CRT =  -Zcrtdll -Zomf
+CEXTRA = -DOS2 -DEMX -funsigned-char $(HAVE_GCI) -DREGINA_VERSION_DATE=\"$(VER_DATE)\" -DREGINA_VERSION_MAJOR=\"$(VER_MAJOR)\" -DREGINA_VERSION_MINOR=\"$(VER_MINOR)\" -DREGINA_VERSION_RELEASE=\"$(VER_RELEASE)\" -DREGINA_VERSION_SUPP=\"$(VER_SUPP)\" -DREGINA_BITS=32
 EEXTRA =
 DYN_COMP = -DDYNAMIC -Zdll $(DYN_CRT)
 LIBS = #-ll -lm
@@ -69,7 +70,7 @@ SOCKET = -lsocket
 SHLIBS = $(SHLLIB).$(SHLPST)
 SHLIMPLIB = $(SHLLIB).$(SHLPST)
 SHLLIB = $(SHLFILE)
-DYNAMIC_LDFLAGS = $(THREADING_LINK) $(STRIP_FLAG) -Zcrtdll -Zomf -mprobe
+DYNAMIC_LDFLAGS = $(THREADING_LINK) $(STRIP_FLAG) -Zcrtdll -Zomf
 SHLDEF = $(SRCDIR)\$(SHLLIB)_os2_dll.def
 SHL1 = emximp -o $(SHLLIB).$(LIBPST) $(SHLDEF)
 SHL2 = emximp -o $(SHLLIB).lib $(SHLDEF)
@@ -81,8 +82,9 @@ EXE=.exe
 LD_RXLIB_PRE = $(CC) -Zdll -Zomf -Zcrtdll #-Zso -Zsys
 LD_RXLIB1 = -Zmap=test1.map -o rxtest1.dll $(SRCDIR)\test1_os2_dll.def $(SHLLIB).lib
 LD_RXLIB2 = -Zmap=test2.map -o rxtest2.dll $(SRCDIR)\test2_os2_dll.def $(SHLLIB).lib
+LD_REGUTIL = -Zmap=regutil.map -o regutil.dll $(REGUTILSRCDIR)\regutil.def $(SHLLIB).lib
 SHL_LD=gcc $(THREADING_LINK) -Zdll -Zcrtdll -Zomf -Zmap=regina.map -o $(SHLFILE).$(SHL) $(SHOFILES) $(SHLDEF) $(SOCKET)
-SHL_TARGETS = $(SHLFILE).$(SHL) $(SHLFILE)$(EXE) pmregina.exe rxtest1.$(SHL) rxtest2.$(SHL)
+SHL_TARGETS = $(SHLFILE).$(SHL) $(SHLFILE)$(EXE) pmregina.exe rxtest1.$(SHL) rxtest2.$(SHL) regutil.$(SHL)
 LDEXTRA=emxbind
 LIBPRE =
 LIBFILE = rexx
@@ -140,7 +142,7 @@ OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
 	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
 	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) mt_notmt.$(OBJ) instore.$(OBJ) \
 	yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) os_os2.$(OBJ) wrappers.$(OBJ) \
-	extstack.$(OBJ) rexxbif.$(OBJ) os_other.$(OBJ)
+	extstack.$(OBJ) rexxbif.$(OBJ) os_other.$(OBJ) mygetopt.$(OBJ)
 
 SHOFILES = funcs.obj builtin.obj error.obj variable.obj \
 	interprt.obj debug.obj dbgfuncs.obj memory.obj parsing.obj files.obj \
@@ -149,8 +151,11 @@ SHOFILES = funcs.obj builtin.obj error.obj variable.obj \
 	strmath.obj signals.obj macros.obj envir.obj expr.obj $(THREADING_FILE).obj \
 	yaccsrc.obj lexsrc.obj wrappers.obj options.obj os_os2.obj \
 	drexx.obj client.obj rexxsaa.obj instore.obj \
-	extstack.obj rexxbif.obj os_other.obj \
+	extstack.obj rexxbif.obj os_other.obj mygetopt.obj \
 	$(GCI_SHO)
+REGUTILOFILES = regfilesys.obj regini.obj inifile.obj regmacrospace.obj regscreenos2.obj \
+                regsemos2.obj regutil.obj rxsupport.obj regstem.obj \
+                regunicode.obj regcrypt.obj regtrig.obj
 
 DEMODIR = $(SRCDIR)\demo
 DEMOFILES = $(DEMODIR)\*
@@ -169,7 +174,7 @@ CFILES = $(SRCDIR)\yaccsrc.c $(SRCDIR)\lexsrc.c $(CSRCFILES) $(SRCDIR)\execiser.
 
 MTSSRC = $(SRCDIR)\en.mts $(SRCDIR)\pt.mts $(SRCDIR)\no.mts \
 	$(SRCDIR)\de.mts $(SRCDIR)\es.mts $(SRCDIR)\pl.mts \
-	$(SRCDIR)\tr.mts
+	$(SRCDIR)\tr.mts $(SRCDIR)\sv.mts
 
 GCIHEADERS = $(SRCDIR)\gci\gci.h $(SRCDIR)\gci\embedded.h gci_convert.h
 
@@ -179,7 +184,10 @@ GCIHEADERS = $(SRCDIR)\gci\gci.h $(SRCDIR)\gci\embedded.h gci_convert.h
 #
 .SUFFIXES:
 
-all : rexx$(EXE) $(LIBFILE).$(LIBPST) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) $(SHL_TARGETS) mtb_files threader$(EXE) rexx.dll rexxapi.dll
+all : how rexx$(EXE) $(LIBFILE).$(LIBPST) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) $(SHL_TARGETS) mtb_files threader$(EXE) rexx.dll rexxapi.dll
+
+how:
+	echo make -f $(SRCDIR)\makefile.os2.gcc DEBUG=$(DEBUG) TRACEMEM=$(TRACEMEM) FLISTS=$(FLISTS) SOCKET=$(SOCKET) ^%1 ^%2 > rebuild.cmd
 
 $(CSRCFILES) : $(SRCDIR)\rexx.h
 
@@ -192,8 +200,8 @@ rexx$(EXE) : $(OFILES) rexx.$(OBJ) nosaa.$(OBJ)
 	-$(RC)
 	-$(LXLITE) rexx$(EXE)
 
-regina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
-	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o regina $(SRCDIR)\regina_os2.def regina.obj $(LIBS) $(SHLIBS) $(SOCKET)
+regina : $(SHLFILE).$(SHL) regina.obj mygetopt.obj
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o regina $(SRCDIR)\regina_os2.def regina.obj mygetopt.obj $(LIBS) $(SHLIBS) $(SOCKET)
 
 regina$(EXE) : regina
 	-copy $(SRCDIR)\reginaos2.ico
@@ -201,8 +209,8 @@ regina$(EXE) : regina
 	-$(RC)
 	-$(LXLITE) regina$(EXE)
 
-pmregina : $(SHLFILE).$(SHL) regina.obj $(GETOPT)
-	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o pmregina regina.obj $(LIBS) $(SHLIBS) $(SOCKET) $(SRCDIR)\pmregina.def
+pmregina : $(SHLFILE).$(SHL) regina.obj mygetopt.obj
+	$(CC) $(LINKOPT_DLL) -Zexe $(DYNAMIC_LDFLAGS) -o pmregina regina.obj mygetopt.obj $(LIBS) $(SHLIBS) $(SOCKET) $(SRCDIR)\pmregina.def
 
 pmregina$(EXE) : pmregina
 	-copy $(SRCDIR)\reginaos2.ico
@@ -222,12 +230,12 @@ execiser$(EXE) : execiser
 threader$(EXE) : threader
 	-$(LXLITE) threader$(EXE)
 
-rxqueue$(EXE) : $(OFILES) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ)
-	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxqueue$(EXE) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) $(SOCKET)
+rxqueue$(EXE) : $(OFILES) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) mygetopt.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxqueue$(EXE) rxqueue.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) mygetopt.$(OBJ) $(SOCKET)
 	-$(LXLITE) rxqueue$(EXE)
 
-rxstack$(EXE) : $(OFILES) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ)
-	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxstack$(EXE) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) $(SOCKET)
+rxstack$(EXE) : $(OFILES) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) mygetopt.$(OBJ) LibSha1.$(OBJ)
+	$(CC) $(LINKOPT) $(STATIC_LDFLAGS) -o rxstack$(EXE) rxstack.$(OBJ) eextstack.$(OBJ) erexxbif.$(OBJ) mygetopt.$(OBJ) LibSha1.$(OBJ) $(SOCKET)
 	-$(LXLITE) rxstack$(EXE)
 
 $(LIBFILE).$(LIBPST): $(OFILES) client.$(OBJ) drexx.$(OBJ) rexxsaa.$(OBJ)
@@ -432,8 +440,11 @@ yaccsrc.$(OBJ) : $(SRCDIR)\yaccsrc.c $(SRCDIR)\defs.h $(SRCDIR)\rexx.h
 execiser.obj : $(SRCDIR)\execiser.c $(SRCDIR)\rexx.h
 	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -c $(SRCDIR)\execiser.c
 
-getopt.obj : $(SRCDIR)\getopt.c
-	       $(CC) $(COPT_DLL) $(CC2O) -c $(SRCDIR)\getopt.c
+mygetopt.$(OBJ) : $(SRCDIR)\mygetopt.c
+	       $(CC) $(OTHERCOPT) $(CC2O) -c $(SRCDIR)\mygetopt.c
+
+LibSha1.$(OBJ) : $(SRCDIR)\contrib\LibSha1.c $(SRCDIR)\contrib\LibSha1.h
+	       $(CC) $(OTHERCOPT) $(CC2O) -c $(SRCDIR)\contrib\LibSha1.c
 
 #
 # Rules for shared objects
@@ -687,6 +698,9 @@ yaccsrc.obj : $(SRCDIR)\yaccsrc.c $(SRCDIR)\defs.h $(SRCDIR)\rexx.h
 threader.obj : $(SRCDIR)\threader.c $(SRCDIR)\rexx.h
 	       $(CC) $(COPT_DLL) $(CC2O) $(DYN_CRT) -DOS2_THREADS -c $(SRCDIR)\threader.c
 
+mygetopt.obj : $(SRCDIR)\mygetopt.c
+	       $(CC) $(COPT_DLL) $(CC2O) -c $(SRCDIR)\mygetopt.c
+
 #
 # Rules for GCI
 #
@@ -742,6 +756,91 @@ gci_tree.obj : $(SRCDIR)\gci\gci_tree.c  $(GCIHEADERS)
 	       $(SAVE2O)
 
 #
+# Rules for Regutil
+#
+regutil.dll: $(REGUTILOFILES)
+	       $(LD_RXLIB_PRE) $(REGUTILOFILES) $(LD_REGUTIL)
+#	   del regutil.lib
+
+regfilesys.obj : $(REGUTILSRCDIR)/regfilesys.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT_DLL) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regfilesys.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regini.obj : $(REGUTILSRCDIR)/regini.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regini.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+inifile.obj : $(REGUTILSRCDIR)/inifile.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/inifile.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regmacrospace.obj : $(REGUTILSRCDIR)/regmacrospace.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regmacrospace.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regscreenos2.obj : $(REGUTILSRCDIR)/regscreenos2.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regscreenos2.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regsemos2.obj : $(REGUTILSRCDIR)/regsemos2.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regsemos2.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regsysparm.obj : $(REGUTILSRCDIR)/regsysparm.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regsysparm.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regutil.obj : $(REGUTILSRCDIR)/regutil.c $(REGUTILSRCDIR)/regutil.h $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regutil.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regstem.obj : $(REGUTILSRCDIR)/regstem.c $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regstem.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regunicode.obj : $(REGUTILSRCDIR)/regunicode.c $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regunicode.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regcrypt.obj : $(REGUTILSRCDIR)/regcrypt.c $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regcrypt.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+regtrig.obj : $(REGUTILSRCDIR)/regtrig.c $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/regtrig.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+rxsupport.obj : $(REGUTILSRCDIR)/rxsupport.c $(REGUTILSRCDIR)/rxproto.h
+	       $(O2SAVE)
+	       $(CC) -c $(COPT) $(CC2O) $(DYN_COMP) $(REGUTILSRCDIR)/rxsupport.c
+	       $(O2SHO)
+	       $(SAVE2O)
+
+#
 # Rules for sample programs
 #
 test1.$(OBJ): $(SRCDIR)\test1.c
@@ -769,6 +868,10 @@ tar:
 
 zip:
 	        zip regna$(VER) $(ARCHIVE_FILES)
+
+binary:
+	echo run makegcc.cmd ver from Regina source directory
+
 
 #
 # below here not tested

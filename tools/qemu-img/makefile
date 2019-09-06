@@ -12,20 +12,20 @@ srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-qcow$(e) $(p)aes$(e) &
            $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
            $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e) # $(p)block-cow$(e)
 
-!ifeq ENV OS/2
+!ifeq %OS OS/2
 defs = -d__OS2__
 !endif
-!ifeq ENV WIN32
+!ifeq %OS WIN32
 defs = -d_WIN32
 !endif
-!ifeq ENV DOS
+!ifeq %OS DOS
 defs = -dDPMI32
 !endif
-!ifeq ENV LINUX
+!ifeq %OS LINUX
 defs = -dLINUX
 !endif
 
-!include $(%ROOT)/mk/tools.mk
-
 ADD_COPT += $(defs) -dQEMU_TOOL -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT = lib libz.lib # ALIAS mmap_=_mmap, munmap_=_munmap
+ADD_LINKOPT = lib z.lib # ALIAS mmap_=_mmap, munmap_=_munmap
+
+!include $(%ROOT)/mk/tools.mk

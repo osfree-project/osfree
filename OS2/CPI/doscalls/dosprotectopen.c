@@ -13,7 +13,7 @@ APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
   LONGLONG cbFileL;
   APIRET rc;
 
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("pszFileName=%s\n", *pszFileName);
   log("cbFile=%lx\n", cbFile);
   log("ulAttribute=%lx\n", ulAttribute);
@@ -34,5 +34,6 @@ APIRET APIENTRY  DosProtectOpen(PCSZ  pszFileName,
   log("hf=%lx\n", *phf);
   log("ulAction=%lx\n", *pulAction);
   log("fhLockID=%lx\n", *pfhFileHandleLockID);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

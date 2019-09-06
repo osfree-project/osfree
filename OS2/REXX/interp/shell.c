@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: shell.c,v 1.52 2006/08/13 10:47:02 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -63,12 +59,6 @@ static char *RCSid = "$Id: shell.c,v 1.52 2006/08/13 10:47:02 mark Exp $";
 #endif
 #endif
 
-#if defined(__WINS__) || defined(__EPOC32__)
-# define REGINA_MAX_BUFFER_LENGTH 256
-#else
-# define REGINA_MAX_BUFFER_LENGTH 4096
-#endif
-
 #define STD_IO     0x00
 #define QUEUE      0x01
 #define LIFO       0x02
@@ -89,7 +79,7 @@ typedef struct { /* shl_tsd: static variables of this module (thread-safe) */
    int           status ;
    int           running ;
    void         *AsyncInfo ;
-   unsigned char IObuf[4096]; /* write cache */
+   unsigned char IObuf[REGINA_MAX_BUFFER_SIZE]; /* write cache */
    unsigned      IOBused;
 } shl_tsd_t; /* thread-specific but only needed by this module. see
               * init_shell
@@ -387,23 +377,38 @@ static int write_buffered(const tsd_t *TSD, int hdl, const void *buf,
 
    if ((buf == NULL) || (size == 0)) /* force flush buffers */
    {
-      if (st->IOBused)
-         rc = TSD->OS->write(hdl, st->IObuf, st->IOBused, async_info);
-      else
-         rc = 0;
-      if (rc >= 0)
+      do
       {
-         if (rc == (int) st->IOBused)
-            st->IOBused = 0;
-         else
+         if (st->IOBused)
          {
-            memmove(st->IObuf, st->IObuf + rc, st->IOBused - rc);
-            st->IOBused -= rc;
+            /* the following call will return -EAGAIN if not completed */
+            rc = TSD->OS->write(hdl, st->IObuf, st->IOBused, async_info);
          }
-         rc = TSD->OS->write(hdl, NULL, 0, async_info);
-      }
-      else
-         TSD->OS->write(hdl, NULL, 0, async_info);
+         else
+            rc = 0;
+         if (rc >= 0)
+         {
+            if (rc == (int) st->IOBused)
+            {
+               st->IOBused = 0;
+               rc = TSD->OS->write(hdl, NULL, 0, async_info);
+            }
+            else
+            {
+               memmove(st->IObuf, st->IObuf + rc, st->IOBused - rc);
+               st->IOBused -= rc;
+            }
+         }
+         else
+            TSD->OS->write(hdl, NULL, 0, async_info);
+         /*
+          * continue until everything written or an error like -EAGAIN
+          * is available. -EAGAIN will let the caller come back to this
+          * function when writing is possible again, so everything
+          * will be written after a while.
+          */
+      } while (st->IOBused && (rc >= 0));
+
       return(rc);
    }
 
@@ -501,11 +506,11 @@ static int reap( const tsd_t *TSD, streng **string, int hdl, void *async_info )
  * EOF.
  * async_info is both a structure and a flag. If set, asynchronous IO shall
  * be used, otherwise blocked IO has to be used.
- * A maximum chunk of REGINA_MAX_BUFFER_LENGTH (usually 4096) bytes is read in one operation.
+ * A maximum chunk of REGINA_MAX_BUFFER_SIZE bytes is read in one operation.
  * A return value of EAGAIN is set if we have to wait.
  */
 {
-   char buf[REGINA_MAX_BUFFER_LENGTH] ;
+   char buf[REGINA_MAX_BUFFER_SIZE] ;
    unsigned len, total ;
    streng *s ;
    int done ;
@@ -1216,7 +1221,18 @@ static void drop_crop( tsd_t *TSD, environment *env, streng **string,
          max -= found ;
          ptr += found ;
       }
-      memcpy( s->value, ptr, max ) ;
+      if (max > 0)
+      {
+         if (ptr == s->value)
+         {
+            if (max != Str_len(s))
+            {
+               exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "Illegal memory access");
+            }
+         }
+         else
+            memmove( s->value, ptr, max ) ;
+      }
       s->len = max ;
    }
    *string = s ;
@@ -1229,6 +1245,9 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
    streng *istring = NULL, *ostring = NULL, *estring = NULL ;
    char *cmdline ;
    shl_tsd_t *st = (shl_tsd_t *)TSD->shl_tsd;
+#ifdef SIGPIPE
+   signal_handler prev_sig;
+#endif
 
    fflush( stdout ) ;
    fflush( stderr ) ;
@@ -1304,7 +1323,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
       err = -1;
 
 #ifdef SIGPIPE
-   regina_signal( SIGPIPE, SIG_IGN ) ;
+    prev_sig = regina_signal( SIGPIPE, SIG_IGN ) ;
 #endif
 
    while ((in != -1) || (out != -1) || (err != -1))
@@ -1427,7 +1446,8 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
    rc = TSD->OS->wait(child);
 
 #ifdef SIGPIPE
-   regina_signal( SIGPIPE, SIG_DFL ) ;
+   regina_signal( SIGPIPE, prev_sig ) ;
+//   regina_signal( SIGPIPE, SIG_DFL ) ;
 #endif
 
    if (env->output.FileRedirected)

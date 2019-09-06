@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: extstack.c,v 1.21 2005/08/04 11:28:40 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -64,6 +60,7 @@ static char *RCSid = "$Id: extstack.c,v 1.21 2005/08/04 11:28:40 mark Exp $";
 # ifdef HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
 # endif
+# define closesocket(x) close(x)
 #endif
 
 #include <stdio.h>
@@ -219,13 +216,13 @@ int connect_to_rxstack( tsd_t *TSD, Queue *q )
          return(q->u.e.socket);
       }
       eno = errno;
-      close(q->u.e.socket);
+      closesocket(q->u.e.socket);
       q->u.e.socket = -1;
       errno = eno;
    }
    /* TSD will be NULL when called from rxqueue or rxstack */
    if ( TSD == NULL )
-      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_CANT_CONNECT, ERR_RXSTACK_CANT_CONNECT_TMPL, q->u.e.name, q->u.e.portno, strerror ( errno ) );
+      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_CANT_CONNECT, ERR_RXSTACK_CANT_CONNECT_TMPL, q->u.e.name->value, q->u.e.portno, strerror ( errno ) );
    else if ( !TSD->called_from_saa )
       exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_CANT_CONNECT, tmpstr_of( TSD, q->u.e.name ), q->u.e.portno, strerror ( errno ) );
 
@@ -239,9 +236,9 @@ int disconnect_from_rxstack( const tsd_t *TSD, Queue *q )
    assert( q->type == QisExternal ) ;
    if (q->u.e.socket != -1)
    {
-      DEBUGDUMP(printf("Diconnecting from socket %d\n", q->u.e.socket ););
+      DEBUGDUMP(printf("Disconnecting from socket %d\n", q->u.e.socket ););
       rc = send_command_to_rxstack( TSD, q->u.e.socket, RXSTACK_EXIT_STR, NULL, 0 );
-      close( q->u.e.socket );
+      closesocket( q->u.e.socket );
    }
    else
       rc = 0; /* success: 0 bytes transfered */
@@ -257,7 +254,7 @@ int send_command_to_rxstack( const tsd_t *TSD, int sock, const char *action, con
    streng *qlen, *header;
    int rc=-1;
 
-   DEBUGDUMP(printf("Sending to %d Action: %s <%.*s> Len:%d\n", sock, action, len, (str) ? str : "", len););
+   DEBUGDUMP(printf("\n--> Sending to %d Action: %s <%.*s> Len:%d\n", sock, action, len, (str) ? str : "", len););
    qlen = REXX_D2X( len );
    if ( qlen )
    {
@@ -289,8 +286,8 @@ static int inject_result_from_rxstack( int sock, streng *str, int size )
    int rc;
 
    rc = recv( sock, PSTRENGVAL(str) + PSTRENGLEN(str), size, 0 );
-   DEBUGDUMP(printf("Recv result: %.*s(%d) rc %d\n", size, PSTRENGVAL(str) + PSTRENGLEN(str), PSTRENGLEN(str), rc ); );
    str->len += size;
+   DEBUGDUMP(printf("<-- Recv result: %.*s(%d) rc %d\n", size, PSTRENGVAL(str) + PSTRENGLEN(str), PSTRENGLEN(str), rc ); );
    return rc;
 }
 
@@ -650,28 +647,30 @@ int get_line_from_rxstack( const tsd_t *TSD, int sock, streng **result, int nowa
       if ( header )
       {
          rc = header->value[0]-'0';
-         if ( rc == 0 )
+         DEBUGDUMP(printf("rc from read_result_from_rxstack=%d\n", rc););
+         switch( rc )
          {
-            /*
-             * now get the length from the header and get that many characters...
-             */
-            length = get_length_from_header( TSD, header );
-            *result = read_result_from_rxstack( TSD, sock, length );
-         }
-         else if ( rc == 1 || rc == 4 )
-         {
-            /*
-             * queue is empty - return a NULL
-             */
-            *result = NULL;
-         }
-         else
-         {
-            /* TSD will be NULL when called from rxqueue or rxstack */
-            if ( TSD == NULL )
-               showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, ERR_RXSTACK_INTERNAL_TMPL, rc, "Getting line from queue" );
-            else if ( !TSD->called_from_saa )
-               exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Getting line from queue" );
+            case RXSTACK_OK:
+               /*
+                * now get the length from the header and get that many characters...
+                */
+               length = get_length_from_header( TSD, header );
+               *result = read_result_from_rxstack( TSD, sock, length );
+               break;
+            case RXSTACK_TIMEOUT:
+            case RXSTACK_EMPTY:
+               /*
+                * queue is empty - return a NULL
+                */
+               *result = NULL;
+               break;
+            default:
+               /* TSD will be NULL when called from rxqueue or rxstack */
+               if ( TSD == NULL )
+                  showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, ERR_RXSTACK_INTERNAL_TMPL, rc, "Getting line from queue" );
+               else if ( !TSD->called_from_saa )
+                  exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Getting line from queue" );
+            break;
          }
          DROPSTRENG( header );
       }

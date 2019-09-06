@@ -8,17 +8,17 @@
 PROJ = genext2fs
 TRGT = $(PROJ).exe
 DESC = Generate ext2fs filesystem image
-!ifeq ENV OS/2
+!ifeq %OS OS/2
 defs = -d__OS2__
 !endif
-!ifeq ENV WIN32
+!ifeq %OS WIN32
 defs = -d__NT__
 !endif
-!ifeq ENV DOS
+!ifeq %OS DOS
 defs = -dDPMI32
 !endif
-!ifeq ENV LINUX
-defs = -d_GNU_SOURCE
+!ifeq %OS LINUX
+defs = -dLINUX
 !endif
 DEFINES  = -hw -d3 -d__WATCOM__ $(defs)
 ADD_COPT      = $(DEFINES) -i=.

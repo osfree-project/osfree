@@ -79,7 +79,7 @@ CFILES = $(SRCDIR)/yaccsrc.c $(SRCDIR)/lexsrc.c	$(CSRCFILES) $(SRCDIR)/execiser.
 
 MTSSRC = $(SRCDIR)/en.mts $(SRCDIR)/pt.mts $(SRCDIR)/no.mts \
 	$(SRCDIR)/de.mts $(SRCDIR)/es.mts $(SRCDIR)/pl.mts \
-	$(SRCDIR)/tr.mts
+	$(SRCDIR)/tr.mts $(SRCDIR)/sv.mts
 
 #.SUFFIXES: .sho $(SUFFIXES)
 #

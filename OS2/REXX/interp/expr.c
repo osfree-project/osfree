@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: expr.c,v 1.29 2006/09/08 06:58:51 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1993-1994  Anders Christensen <anders@pvv.unit.no>
@@ -48,7 +44,37 @@ static void mark_in_expr( const tsd_t *TSD )
 
 #define FREE_TMP_STRING(str) if ( str )               \
                                 Free_stringTSD( str )
-
+static char *getoperator( int type )
+{
+   char *retstr;
+   switch ( type )
+   {
+      case X_PLUSS:
+      case X_U_PLUSS: retstr = "+"; break;
+      case 0:
+      case 255:
+      case X_MINUS:
+      case X_U_MINUS:
+         retstr = "-"; break;
+      case X_MULT: retstr = "*"; break;
+      case X_DEVIDE: retstr = "/"; break;
+      case X_MODULUS: retstr = "//"; break;
+      case X_INTDIV: retstr = "%"; break;
+      case X_EXP: retstr = "**"; break;
+      case X_PLUSASSIGN: retstr = "+="; break;
+      case X_MINUSASSIGN: retstr = "-="; break;
+      case X_MULTASSIGN: retstr = "*="; break;
+      case X_DIVASSIGN: retstr = "*="; break;
+      case X_INTDIVASSIGN: retstr = "%="; break;
+      case X_MODULUSASSIGN: retstr = "//="; break;
+      case X_ANDASSIGN: retstr = "&="; break;
+      case X_ORASSIGN: retstr = "|="; break;
+      case X_XORASSIGN: retstr = "&&="; break;
+      case X_CONCATASSIGN: retstr = "||="; break;
+      default: retstr = "unknown"; break;
+   }
+   return retstr;
+}
 int init_expr( tsd_t *TSD )
 {
 #ifdef TRACEMEM
@@ -136,8 +162,11 @@ static num_descr *bool_to_num( const tsd_t *TSD, int input )
  * calcul evaluates a numeric expression. thisptr is the current evaluation tree.
  * kill? return value?
  * Note: This is one of the most time-consuming routines. Be careful.
+ * The operator arg is the initial arithmetic operator when called from outside. It is
+ * overridden by the type of the pointer only for arithmetic operators so the most recent
+ * operator is reported when an error occurs
  */
-num_descr *calcul( tsd_t *TSD, nodeptr thisptr, num_descr **kill )
+num_descr *calcul( tsd_t *TSD, nodeptr thisptr, num_descr **kill, int side, int operator )
 {
    num_descr *numthr, *numone, *numtwo ;
    num_descr *ntmp1=NULL, *ntmp2=NULL ;
@@ -150,8 +179,10 @@ num_descr *calcul( tsd_t *TSD, nodeptr thisptr, num_descr **kill )
       case 0:
       case 255:
       case X_MINUS:
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = calcul( TSD, thisptr->p[1], &ntmp2 ) ;
+      case X_MINUSASSIGN:
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, operator ) ;
          if (!ntmp2)
             ntmp2 = numtwo = copy_num( TSD, numtwo ) ;
 
@@ -159,8 +190,10 @@ num_descr *calcul( tsd_t *TSD, nodeptr thisptr, num_descr **kill )
          goto do_an_add ;
 
       case X_PLUSS:
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = calcul( TSD, thisptr->p[1], &ntmp2 ) ;
+      case X_PLUSASSIGN:
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, operator ) ;
 do_an_add:
          if (ntmp1)
          {
@@ -179,8 +212,10 @@ do_an_add:
          break ;
 
       case X_MULT:
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = calcul( TSD, thisptr->p[1], &ntmp2 ) ;
+      case X_MULTASSIGN:
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, operator ) ;
          if (ntmp1)
          {
             numthr = numone ;
@@ -200,8 +235,9 @@ do_an_add:
       case X_DEVIDE:
       case X_MODULUS:
       case X_INTDIV:
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = calcul( TSD, thisptr->p[1], &ntmp2 ) ;
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, operator ) ;
          if (numtwo->size==1 && numtwo->num[0]=='0')
              exiterror( ERR_ARITH_OVERFLOW, 3 )  ;
 
@@ -212,10 +248,27 @@ do_an_add:
             thisptr->p[0], thisptr->p[1] );
          strip2 = 1;
          break ;
+      case X_DIVASSIGN:
+      case X_INTDIVASSIGN:
+      case X_MODULUSASSIGN:
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, operator ) ;
+         if (numtwo->size==1 && numtwo->num[0]=='0')
+             exiterror( ERR_ARITH_OVERFLOW, 3 )  ;
+
+         numthr = copy_num( TSD, numtwo ) ;
+         string_div( TSD, numone, numtwo, numthr, NULL,
+            ((thisptr->type==X_DIVASSIGN) ? DIVTYPE_NORMAL :
+            ((thisptr->type==X_MODULUSASSIGN) ? DIVTYPE_REMAINDER : DIVTYPE_INTEGER)),
+            thisptr->p[0], thisptr->p[1] );
+         strip2 = 1;
+         break ;
 
       case X_EXP:
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = ntmp2 = calcul( TSD, thisptr->p[1], NULL ) ;
+         operator = thisptr->type;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, operator ) ;
+         numtwo = ntmp2 = calcul( TSD, thisptr->p[1], NULL, SIDE_RIGHT, operator ) ;
          numthr = copy_num( TSD, numone ) ;
          string_pow( TSD, numone, numtwo, numthr, thisptr->p[0], thisptr->p[1] ) ;
          strip2 = 1;
@@ -244,7 +297,11 @@ do_an_add:
 
          nptr = shortcutnum( TSD, thisptr ) ;
          if (!nptr)
-             exiterror( ERR_BAD_ARITHMETIC, 0 )  ;
+         {
+            /* get value of symbol for error reporting */
+            sptr = evaluate( TSD, thisptr, NULL ) ;
+            exiterror( ERR_BAD_ARITHMETIC, side, tmpstr_of( TSD, sptr ), getoperator( operator ) );
+         }
 
          if (kill)
             return nptr ;
@@ -266,7 +323,8 @@ do_an_add:
 
       case X_U_PLUSS:
       case X_U_MINUS:
-         numthr = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
+         operator = thisptr->type;
+         numthr = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_RIGHT, operator ) ;
          if (!ntmp1)
             numthr = copy_num( TSD, numthr ) ;
 
@@ -325,6 +383,9 @@ do_an_add:
       case X_S_GTE:
       case X_S_LT:
       case X_S_LTE:
+      case X_ORASSIGN:
+      case X_XORASSIGN:
+      case X_ANDASSIGN:
          numthr = bool_to_num( TSD, isboolean( TSD, thisptr, 0, NULL )) ;
          if (kill)
             *kill = numthr ;
@@ -440,7 +501,7 @@ static void strip_whitespace( tsd_t *TSD, unsigned char **s1,
 /*
  * evaluate evaluates an expression. The nodeptr "thisptr" must point to an
  * expression part. The return value is the value of the expression.
- * For a proper cleanup the caller probably has to delete a the returned
+ * For a proper cleanup the caller probably has to delete the returned
  * value. For this purpose, the caller may set "kill" to non-NULL.
  * *kill is set to NULL, if the returned value is a const value and must
  * not be freed. *kill is set to a temporary value which has to be deleted
@@ -474,7 +535,7 @@ streng *evaluate( tsd_t *TSD, nodeptr thisptr, streng **kill )
       case X_U_MINUS:
       case X_U_PLUSS:
          ntmp = NULL;
-         stmp1 = num_to_str( TSD, calcul( TSD, thisptr, &ntmp ) );
+         stmp1 = num_to_str( TSD, calcul( TSD, thisptr, &ntmp, SIDE_LEFT, thisptr->type ) );
          if ( ntmp )
          {
             FreeTSD( ntmp->num );
@@ -542,8 +603,11 @@ streng *evaluate( tsd_t *TSD, nodeptr thisptr, streng **kill )
          }
          if ( ( entry = thisptr->u.node ) != NULL )
          {
-            set_reserved_value( TSD, POOL0_SIGL, NULL,
-                                TSD->currentnode->lineno, VFLAG_NUM );
+            /*
+             * We are in an internal routine...
+             */
+            traceline( TSD, entry, TSD->trace_stat, 0 );
+            set_reserved_value( TSD, POOL0_SIGL, NULL, TSD->currentnode->lineno, VFLAG_NUM );
             args = initplist( TSD, thisptr );
 
             ptr = CallInternalFunction( TSD, entry->next, TSD->currentnode,
@@ -657,12 +721,19 @@ streng *evaluate( tsd_t *TSD, nodeptr thisptr, streng **kill )
       }
 
       case X_CONCAT:
+      case X_CONCATASSIGN:
       case X_SPACE:
       {
          char *cptr ;
 
          strone = evaluate( TSD, thisptr->p[0], &stmp1 ) ;
-         strtwo = evaluate( TSD, thisptr->p[1], &stmp2 ) ;
+         if ( thisptr->type == X_CONCATASSIGN )
+         {
+            strtwo = (thisptr->p[1]) ? evaluate( TSD, thisptr->p[1], &stmp2 ) : nullstringptr() ;
+            stmp2 = NULL;
+         }
+         else
+            strtwo = evaluate( TSD, thisptr->p[1], &stmp2 ) ;
          strthr = Str_makeTSD(Str_len(strone)+Str_len(strtwo)+1) ;
          cptr = strthr->value ;
          memcpy( cptr, strone->value, strone->len ) ;
@@ -673,8 +744,8 @@ streng *evaluate( tsd_t *TSD, nodeptr thisptr, streng **kill )
          memcpy( cptr, strtwo->value, strtwo->len ) ;
          strthr->len = (cptr-strthr->value) + strtwo->len ;
 
-         FREE_TMP_STRING( stmp1 );
-         FREE_TMP_STRING( stmp2 );
+         if ( stmp1) FREE_TMP_STRING( stmp1 );
+         if ( stmp2) FREE_TMP_STRING( stmp2 );
 
          if (TSD->trace_stat=='I')
             tracevalue( TSD, strthr, 'O' ) ;
@@ -751,7 +822,7 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
       case X_U_MINUS:
       case X_U_PLUSS:
          ntmp = NULL;
-         tmp = num_to_bool( calcul( TSD, thisptr, &ntmp )) ;
+         tmp = num_to_bool( calcul( TSD, thisptr, &ntmp, SIDE_LEFT, thisptr->type )) ;
          if (ntmp)
          {
             FreeTSD( ntmp->num ) ;
@@ -846,18 +917,21 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
          return sint ;
 
       case X_LOG_OR:
+      case X_ORASSIGN:
          sint = ( isboolean(TSD, thisptr->p[0], 5, "|") | isboolean( TSD, thisptr->p[1], 6, "|" )) ;
          if (TSD->trace_stat=='I')
             tracebool( TSD, sint, 'U' ) ;
          return sint ;
 
       case X_LOG_AND:
+      case X_ANDASSIGN:
          sint = ( isboolean(TSD, thisptr->p[0], 5, "&" ) & isboolean( TSD, thisptr->p[1], 6, "&" )) ;
          if (TSD->trace_stat=='I')
             tracebool( TSD, sint, 'U' ) ;
          return sint ;
 
       case X_LOG_XOR:
+      case X_XORASSIGN:
          /* Well, sort of ... */
          sint = ( isboolean( TSD, thisptr->p[0], 5, "&&" ) ^ isboolean( TSD, thisptr->p[1], 6, "&&" )) ;
          if (TSD->trace_stat=='I')
@@ -1030,8 +1104,8 @@ int isboolean( tsd_t *TSD, nodeptr thisptr, int suberror, const char *op )
          type = thisptr->type ;
 
          ntmp1 = ntmp2 = NULL;
-         numone = calcul( TSD, thisptr->p[0], &ntmp1 ) ;
-         numtwo = calcul( TSD, thisptr->p[1], &ntmp2 ) ;
+         numone = calcul( TSD, thisptr->p[0], &ntmp1, SIDE_LEFT, thisptr->type ) ;
+         numtwo = calcul( TSD, thisptr->p[1], &ntmp2, SIDE_RIGHT, thisptr->type ) ;
          tmp = string_test( TSD, numone, numtwo ) ;
 
          if (ntmp1)

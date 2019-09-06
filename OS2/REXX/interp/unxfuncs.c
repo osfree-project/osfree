@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: unxfuncs.c,v 1.32 2005/09/10 00:59:38 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992  Anders Christensen <anders@pvv.unit.no>
@@ -178,7 +174,7 @@ streng *unx_getpid( tsd_t *TSD, cparamboxptr parms )
 streng *unx_gettid( tsd_t *TSD, cparamboxptr parms )
 {
    checkparam(  parms,  0,  0 , "GETTID" ) ;
-   return int_to_streng( TSD, TSD->thread_id ) ;
+   return rx64u_to_streng( TSD, (rx_64u)TSD->thread_id ) ;
 }
 
 
@@ -210,11 +206,10 @@ streng *unx_uname( tsd_t *TSD, cparamboxptr parms )
    switch( option )
    {
       case 'A':
-         result = Str_makeTSD( 1+sizeof(struct regina_utsname)) ;
-         sprintf( result->value, "%s %s %s %s %s", utsbox.sysname,
-                  utsbox.nodename, utsbox.release, utsbox.version,
-                  utsbox.machine ) ;
-         result->len = strlen( result->value ) ;
+         result = Str_makeTSD( 5+sizeof(struct regina_utsname)) ;
+         result->len = sprintf( result->value, "%s %s %s %s %s", utsbox.sysname,
+                                utsbox.nodename, utsbox.release, utsbox.version,
+                                utsbox.machine ) ;
          assert( result->len <= result->max ) ;
          return result ;
 

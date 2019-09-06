@@ -1,7 +1,3 @@
-#ifndef lint
-static char *RCSid = "$Id: misc.c,v 1.15 2005/09/05 10:52:02 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -442,7 +438,9 @@ const char *system_type( void )
    return "SKYOS" ;
 #elif defined(__CYGWIN__)
    return "UNIX" ;
-#elif defined(WIN32)
+#elif defined(WIN64) || defined(_WIN64)
+   return "WIN64" ;
+#elif defined(WIN32) || defined(_WIN32)
    return "WIN32" ;
 #elif defined(_AMIGA) || defined(AMIGA)
    return "AMIGA" ;
@@ -450,10 +448,21 @@ const char *system_type( void )
    return "QNX" ;
 #elif defined(__BEOS__)
    return "BEOS" ;
+#elif defined(__HAIKU__)
+   return "HAIKU" ;
 #elif defined(__WINS__)
    return "EPOC32-WINS" ;
 #elif defined(__EPOC32__)
    return "EPOC32-MARM" ;
+#elif defined(__APPLE__) && defined(__MACH__)
+# include <TargetConditionals.h>
+# if TARGET_IPHONE_SIMULATOR == 1
+   return "iOS (Simulator)" ;
+# elif TARGET_OS_IPHONE == 1
+   return "iOS" ;
+# elif TARGET_OS_MAC == 1
+   return "UNIX" ;
+# endif
 #else
    return "UNIX" ;
 #endif

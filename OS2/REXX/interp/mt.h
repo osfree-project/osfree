@@ -73,21 +73,21 @@ typedef struct _tsd_t {
    struct _OS_Dep_funcs   *OS;
 } tsd_t;
 
-#if (defined(POSIX) || defined(_POSIX_SOURCE) || defined(_PTHREAD_SEMANTICS)) && (defined(_REENTRANT) || defined(REENTRANT))
-#  include <mt_posix.h>
-#elif defined(_WIN64) && defined(REGINA_SINGLE_THREADED)
-#  include <mt_notmt.h>
+#if (defined(POSIX) || defined(_POSIX_SOURCE) || defined(_PTHREAD_SEMANTICS)) && (defined(_REENTRANT) || defined(REENTRANT)) && defined(REGINA_REENTRANT)
+#  include "mt_posix.h"
+#elif ( defined(_WIN64) || defined(_WIN32) ) && defined(REGINA_SINGLE_THREADED)
+#  include "mt_notmt.h"
 #  define SINGLE_THREADED
 #elif defined(_WIN64) && defined(_MT)
-#  include <mt_win32.h>
+#  include "mt_win64.h"
 #elif defined(_WIN32) && defined(_MT)
-#  include <mt_win32.h>
+#  include "mt_win32.h"
 #elif defined(OS2) && defined(__EMX__) && defined(__MT__) && defined(REGINA_MULTI)
-#  include <mt_os2.h>
+#  include "mt_os2.h"
 #elif defined(OS2) && defined(__WATCOMC__) && defined(REGINA_MULTI)
-#  include <mt_os2.h>
+#  include "mt_os2.h"
 #else
-#  include <mt_notmt.h>
+#  include "mt_notmt.h"
 #  if !defined(SINGLE_THREADED) && !defined(MULTI_THREADED)
 #     define SINGLE_THREADED
 #   endif

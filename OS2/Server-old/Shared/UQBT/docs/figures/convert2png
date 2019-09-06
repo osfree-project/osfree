@@ -1,8 +1,0 @@
-for file in *.eps
-  do
-  base=`basename $file .eps`
-  ps2png $file $base.png
-  ls -ld $base*
-  shift
-done
-

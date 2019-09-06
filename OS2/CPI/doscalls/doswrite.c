@@ -40,11 +40,12 @@
 APIRET APIENTRY DosWrite(const HFILE hFile, const PVOID pBuffer, const ULONG cbWrite, ULONG * pcbActual)
 {
   APIRET rc;
-  log("%s\n", __FUNCTION__);
+  log("%s enter\n", __FUNCTION__);
   log("hFile=%lx\n", hFile);
   log("pBuffer=%x\n", pBuffer);
   log("cbWrite=%x\n", cbWrite);
   rc = KalWrite(hFile, pBuffer, cbWrite, pcbActual);
   log("cbActual=%x\n", *pcbActual);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
   return rc;
 }

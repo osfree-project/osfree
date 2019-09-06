@@ -1,8 +1,4 @@
 %{
-#ifndef lint
-static char *RCSid = "$Id: lexsrc.l,v 1.33 2006/09/21 00:59:44 mark Exp $";
-#endif
-
 /*
  *  The Regina Rexx Interpreter
  *  Copyright (C) 1992-1994  Anders Christensen <anders@pvv.unit.no>
@@ -20,6 +16,18 @@ static char *RCSid = "$Id: lexsrc.l,v 1.33 2006/09/21 00:59:44 mark Exp $";
  *  You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+/*
+ * If you change this file the following has to be done:
+ * - regenerate lexsrc.c using boojum: ~/flex-2.5.4/flex and the
+ *   command from "make lexsrc"
+ * - change the value of YY_BUF_SIZE to 101000 in lexsrc.c
+ *   This value MUST be larger than BUFFERSIZE in rexx.h
+ *   It is not set automatically because certain variables
+ *   are defined with this value BEFORE rexx.h is included
+ *   Increasing this value will slow down parsing a bit.
+ *   This value will be blown away if you regenerate lexxsrc.c
+ *   from this file.
  */
 
 #include "rexx.h"
@@ -134,7 +142,7 @@ static const char *interptrmax ;
 static int cchmax = 0 ;
 
 static YY_CHAR_TYPE *rmspc( YY_CHAR_TYPE *instr ) ;
-static void set_assignment( void );
+static void set_assignment( char delim );
 static int process_number_or_const( const char *text, int len );
 static int process_hex_or_bin_string( char *text, int len, int base );
 static void compress_string( char *dest, const char *src );
@@ -164,7 +172,7 @@ static int fill_buffer( char *buf, int max_size ) ;
  */
 digit             [0-9]
 special           [,:;)(]
-not               [\\^~]
+not               [\\^~¬]
 extra             [#$@]
 general           [_!?A-Za-z]|{extra}
 dot               [.]
@@ -219,7 +227,11 @@ bin_string        ({bin_string_start}{bin_digit_tuple}*)?
 text_string       '([^']|'')*'|\"([^"]|\"\")*\"
 mintext_string    '([^']|'')+'|\"([^"]|\"\")+\"
 
-trace_char        [a-zA-Z?]
+                  /*
+                   * Allow characters for any token in string passed back to TRACE instruction
+                   * Fixes bug 3564586.
+                   */
+trace_char        {symbol}
 
                   /*
                    * The list of keywords.
@@ -533,7 +545,7 @@ key_with          [wW][iI][tT][hH]
 <comm>{key_select}{between} {
    BEGIN other ;
    assert( do_level >= 0 ) ;
-   do_level++ ;
+   do_level++ ; parser_data.select_linenr = linenr - 1;
    SET_NEXTSTART() ;
    return SELECT ; }
 
@@ -601,10 +613,11 @@ key_with          [wW][iI][tT][hH]
  }
 
 <comm>{const_symbol}{between}={between} {
+   /* .var = */
    parser_data.tline = linenr - 1 ; /* set tline for exiterror */
    if ( yytext[0] == '.' )
    {
-      set_assignment();
+      set_assignment( '=' );
       /*
        * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
        *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
@@ -632,12 +645,423 @@ key_with          [wW][iI][tT][hH]
    return ASSIGNMENTVARIABLE ; }
 
 <comm>{var_symbol}{between}={between} {
+   /* var = */
    BEGIN other ;
 
-   set_assignment();
+   set_assignment( '=' );
 
    SET_NEXTSTART() ;
    return ASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\+{blank}*={between} {
+   /* .var += */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '+' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return PLUSASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\+{blank}*={between} {
+   /* var += */
+   BEGIN other ;
+
+   set_assignment( '+' );
+
+   SET_NEXTSTART() ;
+   return PLUSASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\-{blank}*={between} {
+   /* .var -= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '-' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return MINUSASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\-{blank}*={between} {
+   /* var -= */
+   BEGIN other ;
+
+   set_assignment( '-' );
+
+   SET_NEXTSTART() ;
+   return MINUSASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\*{blank}*={between} {
+   /* .var *= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '*' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return MULTASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\*{blank}*={between} {
+   /* var *= */
+   BEGIN other ;
+
+   set_assignment( '*' );
+
+   SET_NEXTSTART() ;
+   return MULTASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\/{blank}*={between} {
+   /* .var /= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '/' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return DIVASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\/{blank}*={between} {
+   /* var /= */
+   BEGIN other ;
+
+   set_assignment( '/' );
+
+   SET_NEXTSTART() ;
+   return DIVASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\%{blank}*={between} {
+   /* .var %= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '%' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return INTDIVASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\%{blank}*={between} {
+   /* var %= */
+   BEGIN other ;
+
+   set_assignment( '%' );
+
+   SET_NEXTSTART() ;
+   return INTDIVASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\/{blank}*\/{blank}*={between} {
+   /* .var //= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '/' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return MODULUSASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\/{blank}*\/{blank}*={between} {
+   /* var //= */
+   BEGIN other ;
+
+   set_assignment( '/' );
+
+   SET_NEXTSTART() ;
+   return MODULUSASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\|{blank}*={between} {
+   /* .var |= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '|' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return ORASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\|{blank}*={between} {
+   /* var |= */
+   BEGIN other ;
+
+   set_assignment( '|' );
+
+   SET_NEXTSTART() ;
+   return ORASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\&{blank}*={between} {
+   /* .var &= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '&' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return ANDASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\&{blank}*={between} {
+   /* var &= */
+   BEGIN other ;
+
+   set_assignment( '&' );
+
+   SET_NEXTSTART() ;
+   return ANDASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\&{blank}*\&{blank}*={between} {
+   /* .var &&= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '&' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return XORASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\&{blank}*\&{blank}*={between} {
+   /* var &&= */
+   BEGIN other ;
+
+   set_assignment( '&' );
+
+   SET_NEXTSTART() ;
+   return XORASSIGNMENTVARIABLE ; }
+
+<comm>{const_symbol}{between}\|{blank}*\|{blank}*={between} {
+   /* .var ||= */
+   parser_data.tline = linenr - 1 ; /* set tline for exiterror */
+   if ( yytext[0] == '.' )
+   {
+      set_assignment( '|' );
+      /*
+       * FIXME, FGC: ANSI 6.2.3.1 forces an error 50.1 if yytext[0]=='.'
+       *             ANSI 6.3.2.8 forces this error 31.3 which is wrong
+       *             in its content.
+       *             We use 6.2.3.1
+       */
+      if ( !KNOWN_RESERVED( retvalue, retlength ) )
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_RESERVED_SYMBOL, 1, yytext );
+      }
+      else
+      {
+         yytext[retlength] = '\0';
+         exiterror( ERR_INVALID_START, 3, yytext );
+      }
+   }
+   else
+   {
+      yytext[retlength] = '\0';
+      exiterror( ERR_INVALID_START, 2, yytext );
+   }
+   /* known reserved variable */
+   SET_NEXTSTART() ;
+   return CONCATASSIGNMENTVARIABLE ; }
+
+<comm>{var_symbol}{between}\|{blank}*\|{blank}*={between} {
+   /* var ||= */
+   BEGIN other ;
+
+   set_assignment( '|' );
+
+   SET_NEXTSTART() ;
+   return CONCATASSIGNMENTVARIABLE ; }
 
 <nmform,signal,value1>{between}{key_value}{between} {
    if (in_call)
@@ -920,7 +1344,7 @@ key_with          [wW][iI][tT][hH]
 <do1>{reserved_symbol}{between}/= {
    BEGIN other ;
    in_do = 2 ;
-   set_assignment();
+   set_assignment( '=' );
    if ( !KNOWN_RESERVED( retvalue, retlength ) )
       exiterror( ERR_RESERVED_SYMBOL, 1, yytext )  ;
    SET_NEXTSTART() ;
@@ -1250,7 +1674,7 @@ key_with          [wW][iI][tT][hH]
      && ( in_address == in_address_main ) )
       REJECT;
 
-   set_assignment();
+   set_assignment( '=' );
    if ( !KNOWN_RESERVED( retvalue, retlength ) )
       REJECT;
 
@@ -1457,16 +1881,16 @@ key_with          [wW][iI][tT][hH]
  * a trailing {between}[={between}] stripped.
  * retlength is set, too.
  */
-static void set_assignment( void )
+static void set_assignment( char delim )
 {
    char ch;
 
    for( retlength = 0; ( ch = yytext[retlength] ) != 0; retlength++ )
    {
       /*
-       * A blank or '=' can't occur in the normal text. They are terminators.
+       * A blank or delim can't occur in the normal text. They are terminators.
        */
-      if ( ( ch == '=' )
+      if ( ( ch == delim )
         || ( ch == '\n' )
         || ( MY_ISBLANK( ch ) ) )
          break;
@@ -1850,7 +2274,13 @@ static int get_next_line( char *line, int max, FILE *stream )
    line[pos++] = '\n';
 
    if (parser_data.incore_source)
-   {  /* We can use the incore string to describe a source line. */
+   {
+      /*
+       * We can use the incore string to describe a source line, but we
+       * MUST incement linenr otherwise .LINE doesn't work in instore macros.
+       * This will probably also allow errors to be reported for the correct line number.
+       */
+      linenr++;
       incore_newline = FreshLine() ;
       incore_newline->length = pos - 1 ;
       incore_newline->offset = last_interptr - parser_data.incore_source ;
@@ -2178,7 +2608,9 @@ repeated_nesting:
                   break ;
 
                case '-':    /* line "--" comments */
-                  if (line[pos + 1] == '-')
+                  if ( line[pos + 1] == '-'
+                  &&   get_options_flag( parser_data.TSD->currlevel, EXT_SINGLE_LINE_COMMENTS )
+                  &&   !get_options_flag( parser_data.TSD->currlevel, EXT_STRICT_ANSI ) )
                   {
                      *dest++ = '`' ;
                      *dest++ = '`' ;

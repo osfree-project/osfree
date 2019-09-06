@@ -1,0 +1,16 @@
+                          Regina 3.8
+                         04 June 2014
+
+Changes in this release (from 3.7)
+----------------------------------
+o Fix for Bugs #390, #412, #403, #397, #417, #415, #421, #420, #427, #407, #420, #389, #426
+o Fix for bug #419 - conversion from TIME('T') and DATE('T') now returns local time as
+  per documentation. Previous versions returned UTC time, so this change may cause breakage!!
+o Moved all native language error messages into *.mts files. *.mts files now stored as UTF-8
+o Error messages returned as a result of processing a native language file will be in English
+  as it is not possible to store UTF-8 strings in source code in a portable manner.
+o Added new logical not operator; ¬ (hex value 'AC'x)
+o Windows installer now allows 32bit and 64bit versions of Regina to be installed on the one machine.
+o Consistency with common switches for all executables. Long options also supported.
+
+

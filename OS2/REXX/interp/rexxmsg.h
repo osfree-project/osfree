@@ -16,10 +16,6 @@
  *  License along with this library; if not, write to the Free
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/*
- * $Id: rexxmsg.h,v 1.15 2004/09/13 09:48:20 mark Exp $
- */
 struct textindex
 {
    unsigned int errorno;
@@ -34,10 +30,19 @@ struct textindex
  * error indicating that the error message files are corrupt will be
  * displayed instead of a real error message.
  */
-#define NUMBER_ERROR_MESSAGES 266
+#define NUMBER_ERROR_MESSAGES 270
+#define NUMBER_PREFIX_MESSAGES  3
 
 /*
  * Default language index
  */
 #define LANGUAGE_ENGLISH     0
 
+/*
+ * Format of .mtb files:
+ * uint - number of messages (must match NUMBER_ERROR_MESSAGES)
+ * uint - language index (see errlang[] in error.c)
+ **uint - number of prefix lines (must match NUMBER_PREFIX_MESSAGES)
+ * struct textindexs (number messages + number prefix lines)
+ * char * error mesage text and prefix text in one chunk
+ */

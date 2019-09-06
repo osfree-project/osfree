@@ -3,7 +3,10 @@
 
 APIRET APIENTRY DosSetDefaultDisk(ULONG disknum)
 {
-  log("%s\n", __FUNCTION__);
+  APIRET rc;
+  log("%s enter\n", __FUNCTION__);
   log("disknum=%lu\n", disknum);
-  return KalSetDefaultDisk(disknum);
+  rc = KalSetDefaultDisk(disknum);
+  log("%s exit => %lx\n", __FUNCTION__, rc);
+  return rc;
 }

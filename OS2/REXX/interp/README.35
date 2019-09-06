@@ -1,0 +1,27 @@
+                          Regina 3.5
+                        31 December 2009
+
+Changes in this release (from 3.4)
+----------------------------------
+o Fix for bugs 1878071, 1913282, 1898218, 1966080, 1745572, 2727006
+o Error 94.1 added
+o MacOS X universal binaries supported
+o Add support for NOTREADY condition on external queue timeout
+o Enable .LINE special variable to return a correct value in instore macros
+o Add .ENDOFLINE special variable
+o Added Svenska local language courtesy of Jan-Erik Larka
+o Support for building RPMs without dependencies on Regina
+o Fix the name of fileds in API RXMSQPSH_PARM structure
+o Attempting to set a variable using RexxVariablePool() starting with a
+  period will result in a return code of RXSHV_BADN.
+o Incorporated Patrick McPhee's Regutil package as part of Regina. Michael
+  Green contributed much of the OS/2 port of Regutil plus the trigonometric
+  functions equivalent to those found in ooRexx.
+
+Cheers, Mark.
+------------------------------------------------------------------------
+* Mark Hessling,  mark@rexx.org  http://www.rexx.org/
+* Author of THE, a Free XEDIT/KEDIT editor and, Rexx/SQL, Rexx/CURL, etc.
+* Maintainer of Regina Rexx interpreter
+* Use Rexx? join the Rexx Language Association: http://www.rexxla.org/
+------------------------------------------------------------------------

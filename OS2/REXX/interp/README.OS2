@@ -1,5 +1,4 @@
-                        Regina 3.4
-                       for OS/2 2.0+
+                        Regina for OS/2 2.0+
 
 This file contains 32 bit executables of the Regina Rexx interpreter for
 OS/2, and some sample programs, most of which are designed to test
@@ -26,6 +25,7 @@ rexx.lib     - Regina static library for Visual Age C++ compiler
 regina.a     - Import library for EMX
 rexx.a       - Regina static library for EMX
 rexxsaa.h    - Header file for access to regina.lib
+regutil.dll  - Regutil dynamic library
 test1.dll    - Sample external function packages; used by dynfunc.rexx
 test2.dll
 demo\*.rexx  - Sample Rexx programs

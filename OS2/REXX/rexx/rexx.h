@@ -8,7 +8,7 @@ void TraceString( char *fmt, ... );
 void null(char *fmt, ...);
 
 //#define debug null
-#define debug if (Trace) TraceString
+#define log if (Trace) TraceString
 
 // To extract offset or selector from any FAR (16:16) pointer
 #define OFFSETOF16(p)   (((PWORD)&(p))[0])
@@ -37,7 +37,7 @@ typedef struct {
 
 typedef RXSTRING16 _Far16 *PRXSTRING16;       /* pointer to a RXSTRING      */
 
-typedef struct shvnode {
+typedef struct {
     struct shvnode _Far16 *shvnext;      /* pointer to the next block   */
     RXSTRING16         shvname;       /* Pointer to the name buffer  */
     RXSTRING16         shvvalue;      /* Pointer to the value buffer */
