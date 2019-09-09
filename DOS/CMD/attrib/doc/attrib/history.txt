@@ -1,0 +1,136 @@
+Abbreviations:
+plb - Phil Brutsche (the original author)
+ber - Brian Reifsnyder (new maintainer as of 2001)
+dal - David Lindauer (added subdirectory support)
+avb - Arkady Belousov, <ark@mos.ru>
+
+1998/02/12 (plb), version 0.1
+ + Initial version.
+
+1998/02/13 (plb)
+ + Started documentation.
+ * Fixed bug in display_attribs where if there were no files found, the
+   program exited regardless of any remaining file specifications in the
+   argument list.
+
+1998/02/18 (plb), version 0.2
+ + Finished documentation.
+ + Changed calls to _dos_setfileattr and _dos_getfileattr to use the
+   internal function setfileattr. This function was created by me for use
+   in this program; It will be submitted to the maintainer of the FreeDOS
+   C Library shortly.
+
+1998/02/22 (plb)
+ + Added MS undocumented function: `attrib ,` will unset all file
+   attributes.
+
+1998/02/24 (plb), version 0.3
+ + Added ability to change attributes on directories.
+
+1998/03/08 (plb), version 0.4
+ * Rewrote to be able to use file lists (ie `attrib @filename` or
+   `attrib @-`) per a suggestion from Charles Dye <raster@highfiber.com>.
+
+1998/03/16 (plb), version 0.5
+ * Updated these friggin' comments :-).
+ + Added a command-line parameter (`/?` in case yer interested. `-?` works
+   too.) to display online help.
+
+1998/07/19 (plb), version 0.60
+ Fixed bugs:
+ * If files in another directory are specified, or are on another drive,
+   it will set the attributes for the appropriately names file in the
+   current directory.
+ * If only a drive is specified (ie `attrib d:`) it will assume `*.*` was
+   meant.
+
+1998/07/21 (plb)
+ Fixed bugs:
+ + In 4DOS attrib and MS-DOS attrib, if you give some attributes but no
+   file names it will give all files and directories in the current
+   directory those attributes. (eg `attrib +r` would set all the files
+   in the current directory as read-only). This attrib didn't do that.
+
+1998/08/29 (plb)
+ Changed behavior:
+ + As per a suggestion from Charles Dye <raster@highfiber.com>, specifying
+   only a directory on the command line will display the attributes for
+   that directory.
+
+1998/08/30 (plb)
+ Changed behavior:
+ * As per a suggestion from Charles Dye <raster@highfiber.com>, it now
+   ignores the directory entries `..` and `.`.
+
+1998/09/02 (plb), version 0.63
+
+1998/09/04 (plb), version 0.63a
+ * When I released 0.63, I forgot to change the variable attrib_version
+   from "0.60" to "0.63". Oops! Fixed now.
+
+1998/09/26 (plb), version 0.64
+ + Fixed a problem where ATTRIB didn't play nicely with FreeDOS.
+
+2000/08/15 (plb), version 1.0
+ There appears that no major new bugs have been reported. I'm releasing
+ this as 1.0 and crossing my fingers...
+
+2001/07/25 (ber), version 1.10
+ Minor changes:
+ * Changed the appearance of the online help information.
+ * Cleaned up and re-ordered source code.
+ + Executable is now a packed with Apack 0.99b, written by Jorgen Ibsen.
+   Greetings to Jorgen Ibsen!
+
+2001/08/07, version 1.20
+ + Added subdir support. (dal)
+ * Re-structured source code. (ber)
+
+2002/08/01 (avb), version 2.0
+ Bugfixes:
+ * two characters targets was ignored: has_filespec wasn't assigned 1 when
+   argument have two characters but not begins from '+' nor '-'.
+ * target with trailing backslash or extension without name now handled
+   correctly.
+ * last line in file-list without CRLF now handled correctly.
+ * [version 0.2] setfileattr() call intr(), which not sets `errno' and
+   thus perror() reflects old (or zero) error code. Instead replacing
+   intr() by intdosx(), setfileattr() replaced back to _dos_setfileattr().
+ * [version 0.3] now comma clear all attributes if no attribute options
+   and for all files if no other targets, else comma will be ignored (as
+   in MS ATTRIB). As previously comma inside arguments will not be parsed
+   (unlike MS ATTRIB, where comma inside argument also splits argument).
+ - [version 0.64?] removed check for FreeDOS bug, which long ago fixed;
+   with this check directory attributes in FreeDOS will not be affected.
+ - [version 1.20] perror() inside set_file_attribs was not removed; this
+   causes extraneous error message for each subdirectory, where required
+   targets not found.
+ - [version 1.20] xsplit() count as extension all after rightmost dot,
+   even if file name itself not contains dot; this causes wrong parsing
+   and buffer overrun.
+ + [version 1.21] with checking old FreeDOS bug was removed FA_DIREC
+   attribute clearing. FA_DIREC attribute clearing returned.
+
+ Changes and additions:
+ + added batch file and configuration file for compilation.
+ + source cleaned and optimized; from executable removed superfluous code.
+ - "Version" and "Copyright" reverted back to "VeRsIoN" and "CoPyRiGhT",
+   but later deleted.
+ * literals replaced by names (PATHLEN) and expressions (sizeof(line)).
+ + added `D' marker for directories.
+ * directories now skipped when target contains wildcards.
+ + added option "/D" to include directories into search by wildcards.
+ * "@" prefix replaced by "/@" option.
+ + new command line parsing: comma before arguments is removed (but clears
+   all attributes if no other attribute options); added support for options
+   combinations ("/s/d", "+r/d") and clusters ("/sd", "+rhs/sd/@"); wrong
+   attributes and options are diagnosed.
+ + added strupr() for lines from file-list.
+ + in lines from file-list removed enclosing spaces and quotes pair.
+ + ordered errorlevels returned for each event.
+
+ Questions:
+ - missed documenation, mentioned above.
+
+2003/07/01 (avb), version 2.1
+ * slightly improved help screen.

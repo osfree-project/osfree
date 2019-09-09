@@ -1,0 +1,14 @@
+Borland C++ 5.2 Copyright (c) 1987, 1997 Borland International
+Mar 19 1997 17:29:40
+find95.c:
+Warning find95.c 100: Call to function 'findfile' with no prototype in function findfirst
+Warning find95.c 109: Call to function 'findfile' with no prototype in function findnext
+fllpth95.c:
+getcwd95.c:
+l2s95.c:
+mkdir95.c:
+open95.c:
+ren95.c:
+win95api.c:
+dir95.c:
+fopen95.c:

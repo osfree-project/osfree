@@ -1,1 +1,1 @@
-Use QB64 as core? Or BWBasic?
+Use bwBasic as core or use FreeBasic with only -lang qb option?

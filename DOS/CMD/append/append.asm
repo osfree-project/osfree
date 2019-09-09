@@ -155,12 +155,11 @@ append_state	dw	0011000000000001b
 ;APPEND_ENVIRON	equ	0100000000000000b
 ;APPEND_EXTENDD	equ	1000000000000000b
 
-NoAppend	db	13, "There are no appended directories.", 13, 10, '$'
+NoAppend	db	13, "No Append", 13, 10, '$'
 Invalid		db	13, "Invalid switch  - ", '$'
 TooMany		db	13, "Too many parameters -  ", '$'
 NotAllw		db	13, "Parameter value not allowed -  ", '$'
 
-if 0
 Help	db	13, "FreeDOS APPEND. Enables programs to open data files in "
 	db		"specified directories as", 13, 10
 	db		"		 if the files were in the current "
@@ -193,31 +192,12 @@ Help	db	13, "FreeDOS APPEND. Enables programs to open data files in "
 	db		"directories.", 13, 10
 	db	"  APPEND without parameters displays the list of appended "
 	db		"directories.", 13, 10, '$'
-endif
-
-Help	db	13, "Use the APPEND command to set a search path for data files", 13, 10
-    	db	    "that are outside the current directory.", 13, 10
-    	db	    "Syntax:", 13, 10
-    	db	    "  APPEND [drive][path];[drive][path][/PATH:ON or /PATH:OFF][/E]", 13, 10
-    	db	    "where:", 13, 10
-    	db	    "  drive\path   Specifies the drive and directory to append.  You can", 13, 10
-    	db	    "               specify more than one directory by using a semicolon.", 13, 10
-    	db	    "  /PATH:ON     Adds appended directories to file requests that", 13, 10
-    	db	    "               that currently specify a path.  /PATH:ON is the default.", 13, 10
-    	db	    "  /PATH:OFF    Turns off the effect of PATH:ON.", 13, 10
-    	db	    "  /E           Files a copy of the appended directory list in an", 13, 10
-    	db	    "               environment variable named APPEND.  /E can be used", 13, 10
-    	db	    "               only the first time you APPEND after starting your", 13, 10
-    	db	    "               session.", 13, 10
-    	db	    "", 13, 10
-    	db	    "To cancel the APPEND command, type: APPEND ;", 13, 10
-    	db	    "To display the appended directory list, type: APPEND", 13, 10, '$'
 
 end_resident:
 ; ================== END OF RESIDENT CODE ================================
 
-WrnInstalled	db	13, "APPEND is already installed.", 13, 10, '$'
-WrongAppend	db	13, "You are attempting to use an incorrect version of APPEND.", 13, 10, '$'
+WrnInstalled	db	13, "APPEND already installed", 13, 10, '$'
+WrongAppend	db	13, "Incorrect APPEND version", 13, 10, '$'
 
 start:		mov	ax, 0B710h	; Check if we're already installed
 		mov	dx, 00000h

@@ -1,1156 +1,342 @@
 /***************************************************************
-  
-   bwb_tbl.c            OPTION VERSION table
+
+	bwb_tbl.c       Command, Function, Operator, 
+			and Error-Message Tables
                         for Bywater BASIC Interpreter
-  
+
                         Copyright (c) 1993, Ted A. Campbell
                         Bywater Software
-  
+
                         email: tcamp@delphi.com
-  
+
         Copyright and Permissions Information:
-  
+
         All U.S. and international rights are claimed by the author,
         Ted A. Campbell.
-  
-   This software is released under the terms of the GNU General
-   Public License (GPL), which is distributed with this software
-   in the file "COPYING".  The GPL specifies the terms under
-   which users may copy and use the software in this distribution.
-  
-   A separate license is available for commercial distribution,
-   for information on which you should contact the author.
-  
+
+	This software is released under the terms of the GNU General
+	Public License (GPL), which is distributed with this software
+	in the file "COPYING".  The GPL specifies the terms under
+	which users may copy and use the software in this distribution.
+
+	A separate license is available for commercial distribution,
+	for information on which you should contact the author.
+
 ***************************************************************/
 
 /*---------------------------------------------------------------*/
 /* NOTE: Modifications marked "JBV" were made by Jon B. Volkoff, */
 /* 11/1995 (eidetics@cerf.net).                                  */
-/*                                                               */
-/* Those additionally marked with "DD" were at the suggestion of */
-/* Dale DePriest (daled@cadence.com).                            */
-/*                                                               */
-/* Version 3.00 by Howard Wulf, AF5NE                            */
-/*                                                               */
-/* Version 3.10 by Howard Wulf, AF5NE                            */
-/*                                                               */
-/* Version 3.20 by Howard Wulf, AF5NE                            */
-/*                                                               */
 /*---------------------------------------------------------------*/
 
-
+#include <stdio.h>
 
 #include "bwbasic.h"
-VersionType bwb_vertable[ /* NUM_VERSIONS */ ] =
-{
-  {
-   "BYWATER",                        /* Name */
-   B15,                                /* OptionVersionBitmask */
-   "B15",                        /* ID */
-   "Bywater BASIC 3",                /* Description */
-   "Bywater BASIC Interpreter, version 3.20",        /* Reference Title */
-   "by Ted A. Campbell, Jon B. Volkoff, Paul Edwards, et al.",        /* Reference Author */
-   "(c) 2014-2017, Howard Wulf, AF5NE",        /* Reference Copyright */
-   "http://wwww.sourceforge.net/bwbasic/",        /* Reference URL1 */
-   "bwbasic-3.20.zip",                /* Reference URL2 */
-   OPTION_LABELS_ON | OPTION_BUGS_ON | OPTION_TRACE_ON,        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '@',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '~',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '@',                                /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "BYWATER-2",                        /* Name */
-   B93,                                /* OptionVersionBitmask */
-   "B93",                        /* ID */
-   "Bywater BASIC 2",                /* Description */
-   "Bywater BASIC Interpreter, version 2.61",        /* Reference Title */
-   "by Ted A. Campbell, Jon B. Volkoff, Paul Edwards, et al.",        /* Reference Author */
-   "Copyright (c) 1993-2014, Ted A. Campbell",        /* Reference Copyright */
-   "http://wwww.sourceforge.net/bwbasic/",        /* Reference URL1 */
-   "bwbasic-2.61.zip",                /* Reference URL2 */
-   OPTION_LABELS_ON | OPTION_BUGS_ON | OPTION_ERROR_GOSUB,        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "CALL/360",                        /* Name */
-   S70,                                /* OptionVersionBitmask */
-   "S70",                        /* ID */
-   "SBC CALL/360 Mainframe BASIC",        /* Description */
-   "CALL/360: BASIC Reference Handbook",        /* Reference Title */
-   "by International Business Machines Corporation",        /* Reference Author */
-   "(c) 1970, The Service Bureau Corporation",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/ibm/360/os/",        /* Reference URL1 */
-   "call_360/CALL_360_BASIC_Reference_Handbook_1970.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   1,                                /* OptionBaseInteger */
-   "%Y/%m/%d",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '\0',                        /* OptionDoubleChar */
-   '\0',                        /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '\0',                        /* OptionLongChar */
-   '\0',                        /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '\0',                        /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   '\0',                        /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '!',                                /* OptionUsingExrad */
-   '\0',                        /* OptionUsingDollar */
-   '\0',                        /* OptionUsingFiller */
-   '\0',                        /* OptionUsingLiteral */
-   '\0',                        /* OptionUsingFirst */
-   '\0',                        /* OptionUsingAll */
-   '\0',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "CBASIC-II",                        /* Name */
-   C77,                                /* OptionVersionBitmask */
-   "C77",                        /* ID */
-   "CBASIC-II for CP/M",        /* Description */
-   "CBASIC-II",                        /* Reference Title */
-   "by Compiler Systems",        /* Reference Author */
-   "(c) 1977, Compiler Systems",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/digitalResearch/cb80/",        /* Reference URL1 */
-   "CBASIC_Version_2_Jan81.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%Y/%m/%d",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '\\',                        /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '/',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "DARTMOUTH",                        /* Name */
-   D64,                                /* OptionVersionBitmask */
-   "D64",                        /* ID */
-   "Dartmouth DTSS BASIC",        /* Description */
-   "BASIC",                        /* Reference Title */
-   "by Computation Center, Dartmouth College",        /* Reference Author */
-   "(c) 1964, Trustees of Dartmouth College",        /* Reference Copyright */
-   "http://www.bitsavers.org/pdf/dartmouth/",        /* Reference URL1 */
-   "BASIC_Oct64.pdf",                /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%y",                        /* OptionDateFormat */
-   "%H:%M",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "ECMA-55",                        /* Name */
-   E78,                                /* OptionVersionBitmask */
-   "E78",                        /* ID */
-   "ANSI Minimal BASIC",        /* Description */
-   "STANDARD ECMA-55: Minimal BASIC",        /* Reference Title */
-   "by EUROPEAN COMPUTER MANUFACTURERS ASSOCIATION",        /* Reference Author */
-   "(c) 1978, EUROPEAN COMPUTER MANUFACTURERS ASSOCIATION",        /* Reference Copyright */
-   "http://www.ecma-international.org/publications/files/",        /* Reference URL1 */
-   "ECMA-ST-WITHDRAWN/ECMA-55,%201st%20Edition,%20January%201978.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "ECMA-116",                        /* Name */
-   E86,                                /* OptionVersionBitmask */
-   "E86",                        /* ID */
-   "ANSI Full BASIC",                /* Description */
-   "STANDARD ECMA-116: Full BASIC",        /* Reference Title */
-   "by EUROPEAN COMPUTER MANUFACTURERS ASSOCIATION",        /* Reference Author */
-   "(c) 1986, EUROPEAN COMPUTER MANUFACTURERS ASSOCIATION",        /* Reference Copyright */
-   "http://www.ecma-international.org/publications/files/",        /* Reference URL1 */
-   "ECMA-ST-WITHDRAWN/ECMA-116,%201st%20edition,%20June%201986.pdf",        /* Reference URL2 */
-   OPTION_LABELS_ON | OPTION_STRICT_ON,        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   1,                                /* OptionBaseInteger */
-   "%Y-%m-%d",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '!',                                /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "GCOS",                        /* Name */
-   G74,                                /* OptionVersionBitmask */
-   "G74",                        /* ID */
-   "GE 600 Mainframe BASIC",        /* Description */
-   "TIME-SHARING SYSTEM POCKET GUIDE, SERIES 600/6000 GCOS",        /* Reference Title */
-   "by Honeywell",                /* Reference Author */
-   "(c) 1974, Honeywell",        /* Reference Copyright */
-   "http://www.trailingedge.com/misc/",        /* Reference URL1 */
-   "GCOS-TSS-PocketGuide.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%y",                        /* OptionDateFormat */
-   "%H:%M",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "HAARDT",                        /* Name */
-   H14,                                /* OptionVersionBitmask */
-   "H14",                        /* ID */
-   "bas 2.4 by Michael Haardt",        /* Description */
-   "BAS",                        /* Reference Title */
-   "by by Michael Haardt",        /* Reference Author */
-   "(c) 2014, by Michael Haardt",        /* Reference Copyright */
-   "http://www.moria.de/~michael/bas/",        /* Reference URL1 */
-   "bas-2.4.tar.gz",                /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   1,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '\0',                        /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "HANDBOOK1",                        /* Name */
-   HB1,                                /* OptionVersionBitmask */
-   "HB1",                        /* ID */
-   "The BASIC Handbook, 1st Edition",        /* Description */
-   "The BASIC Handbook: Encyclopedia of the BASIC Computer Language",        /* Reference Title */
-   "by David A. Lien",                /* Reference Author */
-   "(c) 1978, Compusoft Publishing",        /* Reference Copyright */
-   "ISBN 0-932760-00-7",        /* Reference URL1 */
-   "(1st Edition) 364 pages",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '@',                                /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "HANDBOOK2",                        /* Name */
-   HB2,                                /* OptionVersionBitmask */
-   "HB2",                        /* ID */
-   "The BASIC Handbook, 2nd Edition",        /* Description */
-   "The BASIC Handbook: Encyclopedia of the BASIC Computer Language",        /* Reference Title */
-   "by David A. Lien",                /* Reference Author */
-   "(c) 1981, CompuSoft Publishing",        /* Reference Copyright */
-   "ISBN 0-932760-05-8",        /* Reference URL1 */
-   "(2nd Edition) 480 pages",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '@',                                /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "HEATH",                        /* Name */
-   H80,                                /* OptionVersionBitmask */
-   "H80",                        /* ID */
-   "Heath Benton Harbor BASIC",        /* Description */
-   "Extended Benton Harbor BASIC",        /* Reference Title */
-   "by Heath Company",                /* Reference Author */
-   "(c) 1980, Heath Company",        /* Reference Copyright */
-   "http://www.lesbird.com/sebhc/documentation/software/HDOS-2/",        /* Reference URL1 */
-   "HDOS_Reference_Chapter6.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "",                                /* OptionDateFormat */
-   "",                                /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "MARK-I",                        /* Name */
-   G65,                                /* OptionVersionBitmask */
-   "G65",                        /* ID */
-   "GE 265 Mainframe BASIC",        /* Description */
-   "BASIC LANGUAGE REFERENCE MANUAL",        /* Reference Title */
-   "by Time-Sharing Service, Information Service Department, General Electric",        /* Reference Author */
-   "(c) 1965, Trustees of Dartmouth College",        /* Reference Copyright */
-   "http://www.bitsavers.org/pdf/ge/MarkI_Timesharing/",        /* Reference URL1 */
-   "202026A_BASIC_Language_Reference_Manual_Jan1967.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%y",                        /* OptionDateFormat */
-   "%H:%M",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "MARK-II",                        /* Name */
-   G67,                                /* OptionVersionBitmask */
-   "G67",                        /* ID */
-   "GE 435 Mainframe BASIC",        /* Description */
-   "BASIC Language Reference Manual",        /* Reference Title */
-   "by Time-Sharing Service, Information Service Department, General Electric",        /* Reference Author */
-   "(c) 1968, General Electric Company and the Trustees of Dartmouth College",        /* Reference Copyright */
-   "http://www.bitsavers.org/pdf/ge/MarkI_Timesharing/",        /* Reference URL1 */
-   "711224A_BASICLanguageReferenceManual_Nov1970.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%y",                        /* OptionDateFormat */
-   "%H:%M",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "MBASIC",                        /* Name */
-   M80,                                /* OptionVersionBitmask */
-   "M80",                        /* ID */
-   "Microsoft BASIC-80 for Xenix",        /* Description */
-   "Microsoft BASIC Reference Manual",        /* Reference Title */
-   "by Microsoft",                /* Reference Author */
-   "(c) 1982, Microsoft",        /* Reference Copyright */
-   "http://chiclassiccomp.org/docs/content/computing/Microsoft/",        /* Reference URL1 */
-   "Microsoft_Basic_8086Xenix_Reference.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%m/%d/%Y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "PDP-8",                        /* Name */
-   D73,                                /* OptionVersionBitmask */
-   "D73",                        /* ID */
-   "DEC PDP-8 BASIC",                /* Description */
-   "DEC 8K BASIC",                /* Reference Title */
-   "by Digital Equipement Corporation",        /* Reference Author */
-   "(c) 1973, Digital Equipement Corporation",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/dec/pdp8/basic/",        /* Reference URL1 */
-   "DEC-08-LBSMA-A-D_8K_BASIC_Jul73.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "",                                /* OptionDateFormat */
-   "",                                /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\\',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "PDP-11",                        /* Name */
-   D70,                                /* OptionVersionBitmask */
-   "D70",                        /* ID */
-   "DEC PDP-11 BASIC",                /* Description */
-   "PDP-11 BASIC Programming Manual",        /* Reference Title */
-   "by Digital Equipement Corporation",        /* Reference Author */
-   "(c) 1970, Digital Equipement Corporation",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/dec/pdp11/basic/",        /* Reference URL1 */
-   "DEC-11-AJPB-D_PDP-11_BASIC_Programming_Manual_Dec70.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "",                                /* OptionDateFormat */
-   "",                                /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "RBASIC",                        /* Name */
-   R86,                                /* OptionVersionBitmask */
-   "R86",                        /* ID */
-   "Micronics RBASIC for 6809 FLEX",        /* Description */
-   "RBASIC User's Manual",        /* Reference Title */
-   "by R. Jones",                /* Reference Author */
-   "(c) 1986, Micronics Research Corp.",        /* Reference Copyright */
-   "http://www.evenson-consulting.com/swtpc/downloads/",        /* Reference URL1 */
-   "RBASIC.zip",                /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%d-%b-%y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '!',                                /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "RSTS-11",                        /* Name */
-   D71,                                /* OptionVersionBitmask */
-   "D71",                        /* ID */
-   "DEC RSTS-11 BASIC-PLUS",        /* Description */
-   "RSTS-11 User's Guide : BASIC-PLUS Programming Language",        /* Reference Title */
-   "by Digital Equipment Corporation",        /* Reference Author */
-   "(c) 1971, Digital Equipment Corporation",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts/",        /* Reference URL1 */
-   "PL-11-71-01-01-A-D_RSTS-11UsersGuide_May71.pdf",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   512,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%d-%b-%y",                        /* OptionDateFormat */
-   "%I:%M %p",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '!',                                /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "SYSTEM/360",                /* Name */
-   I70,                                /* OptionVersionBitmask */
-   "I70",                        /* ID */
-   "IBM System/360 Mainframe BASIC",        /* Description */
-   "BASIC Language Reference Manual",        /* Reference Title */
-   "by International Business Machines Corporation",        /* Reference Author */
-   "(c) 1970, International Business Machines Corporation",        /* Reference Copyright */
-   "http://bitsavers.org/pdf/ibm/360/os/tso/",        /* Reference URL1 */
-   "GC28-6837-0_BASIC_Language_Ref_Man_Jun70.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   1,                                /* OptionBaseInteger */
-   "%Y/%m/%d",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '\0',                        /* OptionDoubleChar */
-   '\0',                        /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '\0',                        /* OptionLongChar */
-   '\0',                        /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '\0',                        /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   '\0',                        /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '!',                                /* OptionUsingExrad */
-   '\0',                        /* OptionUsingDollar */
-   '\0',                        /* OptionUsingFiller */
-   '\0',                        /* OptionUsingLiteral */
-   '\0',                        /* OptionUsingFirst */
-   '\0',                        /* OptionUsingAll */
-   '\0',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "SYSTEM/370",                /* Name */
-   I73,                                /* OptionVersionBitmask */
-   "I73",                        /* ID */
-   "IBM System/370 Mainframe BASIC",        /* Description */
-   "IBM Virtual Machine Facility/370: BASIC Language Reference Manual",        /* Reference Title */
-   "by International Business Machines Corporation",        /* Reference Author */
-   "(c) 1973, International Business Machines Corporation",        /* Reference Copyright */
-   "http://bitsavers.trailing-edge.com/pdf/ibm/370/VM_370/Release_1/",        /* Reference URL1 */
-   "GC20-1803-1_VM370_BASIC_Language_Reference_Manual_Rel_1_Apr73.pdf",        /* Reference URL2 */
-   FALSE,                        /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   1,                                /* OptionBaseInteger */
-   "%Y/%m/%d",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '\0',                        /* OptionDoubleChar */
-   '\0',                        /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '\0',                        /* OptionLongChar */
-   '\0',                        /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   '\0',                        /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   ':',                                /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '\0',                        /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   '\0',                        /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '!',                                /* OptionUsingExrad */
-   '\0',                        /* OptionUsingDollar */
-   '\0',                        /* OptionUsingFiller */
-   '\0',                        /* OptionUsingLiteral */
-   '\0',                        /* OptionUsingFirst */
-   '\0',                        /* OptionUsingAll */
-   '\0',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "TRS-80",                        /* Name */
-   T80,                                /* OptionVersionBitmask */
-   "T80",                        /* ID */
-   "TRS-80 Model I/III/4 LBASIC",        /* Description */
-   "LBASIC USER'S GUIDE",        /* Reference Title */
-   "by Galactic Software, Ltd.",        /* Reference Author */
-   "(c) 1981, Galactic Software, Ltd.",        /* Reference Copyright */
-   "http://www.tim-mann.org/trs80/doc/",        /* Reference URL1 */
-   "lbasic.txt",                /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "",                                /* OptionDateFormat */
-   "%m/%d/%y %H:%M:%S",                /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\'',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '@',                                /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '%',                                /* OptionUsingLength */
-   }
-  ,
-  {
-   "VINTAGE",                        /* Name */
-   V09,                                /* OptionVersionBitmask */
-   "V09",                        /* ID */
-   "Vintage BASIC 1.0.1",        /* Description */
-   "Vintage BASIC User's Guide 1.0.1",        /* Reference Title */
-   "by Lyle Kopnicky",                /* Reference Author */
-   "(c) 2009, Lyle Kopnicky",        /* Reference Copyright */
-   "http://www.vintage-basic.net/",        /* Reference URL1 */
-   "vintage-basic-1.0.1.tar.gz",        /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   128,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "",                                /* OptionDateFormat */
-   "",                                /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '\0',                        /* OptionDoubleChar */
-   '\0',                        /* OptionSingleChar */
-   '\0',                        /* OptionCurrencyChar */
-   '\0',                        /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                        /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '\0',                        /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '\0',                        /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-  {
-   "XBASIC",                        /* Name */
-   T79,                                /* OptionVersionBitmask */
-   "T79",                        /* ID */
-   "TSC XBASIC for 6800 FLEX",        /* Description */
-   "Extended BASIC User's Manual",        /* Reference Title */
-   "by Technical Systems Consultants",        /* Reference Author */
-   "(c) 1979, Technical Systems Consultants",        /* Reference Copyright */
-   "http://www.swtpc.com/mholley/Setton/",        /* Reference URL1 */
-   "xbasic.pdf",                /* Reference URL2 */
-   OPTION_BUGS_ON,                /* OptionFlags */
-   0,                                /* OptionReclenInteger */
-   0,                                /* OptionBaseInteger */
-   "%d-%b-%y",                        /* OptionDateFormat */
-   "%H:%M:%S",                        /* OptionTimeFormat */
-   '$',                                /* OptionStringChar */
-   '#',                                /* OptionDoubleChar */
-   '!',                                /* OptionSingleChar */
-   '\0',                                /* OptionCurrencyChar */
-   '&',                                /* OptionLongChar */
-   '%',                                /* OptionIntegerChar */
-   '\0',                                /* OptionByteChar */
-   '"',                                /* OptionQuoteChar */
-   '\0',                        /* OptionCommentChar */
-   ':',                                /* OptionStatementChar */
-   '?',                                /* OptionPrintChar */
-   '\0',                        /* OptionInputChar */
-   '\0',                        /* OptionImageChar */
-   '(',                                /* OptionLparenChar */
-   ')',                                /* OptionRparenChar */
-   '#',                                /* OptionFilenumChar */
-   '\0',                        /* OptionAtChar */
-   '#',                                /* OptionUsingDigit */
-   ',',                                /* OptionUsingComma */
-   '.',                                /* OptionUsingPeriod */
-   '+',                                /* OptionUsingPlus */
-   '-',                                /* OptionUsingMinus */
-   '^',                                /* OptionUsingExrad */
-   '$',                                /* OptionUsingDollar */
-   '*',                                /* OptionUsingFiller */
-   '_',                                /* OptionUsingLiteral */
-   '!',                                /* OptionUsingFirst */
-   '&',                                /* OptionUsingAll */
-   '\\',                        /* OptionUsingLength */
-   }
-  ,
-};
+#include "bwb_mes.h"
+
+int err_line = 0;			/* line in which error occurred */
+int err_number = 0;			/* number of last error */
+
+/***************************************************************
+
+        Command Table for Bywater BASIC
+
+***************************************************************/
+
+struct bwb_command bwb_cmdtable[ COMMANDS ] =
+   {
+
+#if PERMANENT_DEBUG
+      { CMD_VARS,         bwb_vars },
+      { CMD_CMDS,         bwb_cmds },
+      { CMD_FNCS,         bwb_fncs },
+#endif
+
+#if UNIX_CMDS
+      { CMD_CHDIR,        bwb_chdir },
+      { CMD_MKDIR,        bwb_mkdir },
+      { CMD_RMDIR,        bwb_rmdir },
+      { CMD_KILL,         bwb_kill },
+      { CMD_ENVIRON,      bwb_environ },
+#endif
+
+#if INTERACTIVE
+      { CMD_LIST,         bwb_list },
+      { CMD_LOAD,         bwb_load },
+      { CMD_RUN,          bwb_run },
+      { CMD_SAVE,         bwb_save },
+      { CMD_DELETE,       bwb_delete },
+      { CMD_NEW,          bwb_new },
+      { CMD_QUIT,         bwb_system },
+      { CMD_SYSTEM,       bwb_system },
+#endif
+
+#if MS_CMDS
+      { CMD_DEFDBL,       bwb_ddbl },
+      { CMD_DEFINT,       bwb_dint },
+      { CMD_DEFSNG,       bwb_dsng },
+      { CMD_DEFSTR,       bwb_dstr },
+      { CMD_MID,          bwb_mid }, /* Added this extension (JBV) */
+#if IMP_CMDCLS
+      { CMD_CLS,          bwb_cls },
+#endif
+#if IMP_CMDCOLOR
+      { CMD_COLOR,        bwb_color },
+#endif
+#if IMP_CMDLOC
+      { CMD_LOCATE,       bwb_locate },
+#endif
+#endif
+
+#if STRUCT_CMDS
+      { CMD_CALL,         bwb_call },
+      { CMD_SUB,          bwb_sub },
+      { CMD_FUNCTION,     bwb_function },
+      { CMD_LABEL,        bwb_null },
+      { CMD_ELSE,         bwb_else },
+      { CMD_ELSEIF,       bwb_elseif },
+      { CMD_SELECT,       bwb_select },
+      { CMD_CASE,         bwb_case },
+      { CMD_LOOP,         bwb_loop },
+      { CMD_EXIT,         bwb_exit },
+#endif
+
+#if COMMON_CMDS
+      { CMD_MERGE,        bwb_merge },
+      { CMD_CHAIN,        bwb_chain },
+      { CMD_COMMON,       bwb_common },
+      { CMD_ERROR,        bwb_lerror },
+      { CMD_WIDTH,        bwb_width },
+      { CMD_TRON,         bwb_tron },
+      { CMD_TROFF,        bwb_troff },
+      { CMD_FILES,        bwb_files },
+      { CMD_EDIT,         bwb_edit },
+      { CMD_ERASE,        bwb_erase },
+      { CMD_SWAP,         bwb_swap },
+      { CMD_NAME,         bwb_name },
+      { CMD_CLEAR,        bwb_clear },
+      { CMD_WHILE,        bwb_while },
+      { CMD_WEND,         bwb_wend },
+      { CMD_WRITE,        bwb_write },
+      { CMD_OPEN,         bwb_open },
+      { CMD_CLOSE,        bwb_close },
+      { CMD_GET,          bwb_get },
+      { CMD_PUT,          bwb_put },
+      { CMD_LSET,         bwb_lset },
+      { CMD_RSET,         bwb_rset },
+      { CMD_FIELD,        bwb_field },
+      { CMD_LINE,         bwb_line },
+      { CMD_RENUM,        bwb_renum }, /* Added this extension (JBV) */
+#endif
+
+      /* The remainder are the core functions defined for ANSI Minimal BASIC */
+
+      { CMD_DATA,         bwb_data },
+      { CMD_DEF,          bwb_def },
+      { CMD_DIM,          bwb_dim },
+      { CMD_END,          bwb_xend },
+      { CMD_FOR,          bwb_for },
+      { CMD_DO,           bwb_do },  /* not really core but needed in two different places */
+      { CMD_GO,		  bwb_go },
+      { CMD_GOSUB,        bwb_gosub },
+      { CMD_GOTO,         bwb_goto },
+      { CMD_IF,           bwb_if },
+      { CMD_INPUT,        bwb_input },
+      { CMD_LET,          bwb_let },
+      { CMD_NEXT,         bwb_next },
+      { CMD_ON,           bwb_on },
+      { CMD_OPTION,       bwb_option },
+      { CMD_PRINT,        bwb_print },
+      { CMD_RANDOMIZE,    bwb_randomize },
+      { CMD_READ,         bwb_read },
+      { CMD_REM,          bwb_rem },
+      { CMD_RESTORE,      bwb_restore },
+      { CMD_RETURN,       bwb_return },
+      { CMD_STOP,         bwb_stop }
+   };
+
+/***************************************************************
+
+        Predefined Function Table for Bywater BASIC
+
+***************************************************************/
+
+struct bwb_function bwb_prefuncs[ FUNCTIONS ] =
+   {
+
+#if INTENSIVE_DEBUG
+   { "TEST",    NUMBER,         2,   fnc_test,       (struct bwb_function *) NULL, 0    },
+#endif
+
+#if MS_FUNCS			/* Functions unique to Microsoft GWBASIC (tm) */
+   { "ASC",     NUMBER,         1,   fnc_asc,        (struct bwb_function *) NULL, 0    },
+   { "MKD$",    STRING,         1,   fnc_mkd,        (struct bwb_function *) NULL, 0    },
+   { "MKI$",    STRING,         1,   fnc_mki,        (struct bwb_function *) NULL, 0    },
+   { "MKS$",    STRING,         1,   fnc_mks,        (struct bwb_function *) NULL, 0    },
+   { "CVD",     NUMBER,         1,   fnc_cvd,        (struct bwb_function *) NULL, 0    },
+   { "CVS",     NUMBER,         1,   fnc_cvs,        (struct bwb_function *) NULL, 0    },
+   { "CVI",     NUMBER,         1,   fnc_cvi,        (struct bwb_function *) NULL, 0    },
+   { "CINT",    NUMBER,         1,   fnc_cint,       (struct bwb_function *) NULL, 0    },
+   { "CSNG",    NUMBER,         1,   fnc_csng,       (struct bwb_function *) NULL, 0    },
+   { "ENVIRON$",STRING,         1,   fnc_environ,    (struct bwb_function *) NULL, 0    },
+   { "ERR",     NUMBER,         0,   fnc_err,        (struct bwb_function *) NULL, 0    },
+   { "ERL",     NUMBER,         0,   fnc_erl,        (struct bwb_function *) NULL, 0    },
+   { "LOC",     NUMBER,         1,   fnc_loc,        (struct bwb_function *) NULL, 0    },
+   { "LOF",     NUMBER,         1,   fnc_lof,        (struct bwb_function *) NULL, 0    },
+   { "EOF",     NUMBER,         1,   fnc_eof,        (struct bwb_function *) NULL, 0    },
+   { "INSTR",   NUMBER,         1,   fnc_instr,      (struct bwb_function *) NULL, 0    },
+   { "SPC",     STRING,		1,   fnc_spc,        (struct bwb_function *) NULL, 0    },
+   { "SPACE$",  STRING,		1,   fnc_space,      (struct bwb_function *) NULL, 0    },
+   { "STRING$", STRING,		1,   fnc_string,     (struct bwb_function *) NULL, 0    },
+   { "MID$",    STRING,		3,   fnc_mid,        (struct bwb_function *) NULL, 0    },
+   { "LEFT$",   STRING,		2,   fnc_left,       (struct bwb_function *) NULL, 0    },
+   { "RIGHT$",  STRING,		2,   fnc_right,      (struct bwb_function *) NULL, 0    },
+   { "TIMER",   NUMBER,         0,   fnc_timer,      (struct bwb_function *) NULL, 0    },
+   { "HEX$",    STRING,         1,   fnc_hex,        (struct bwb_function *) NULL, 0    },
+   { "OCT$",    STRING,         1,   fnc_oct,        (struct bwb_function *) NULL, 0    },
+#if IMP_FNCINKEY == 1
+   { "INKEY$",  STRING,         1,   fnc_inkey,      (struct bwb_function *) NULL, 0    },
+#endif
+#endif
+
+#if COMMON_FUNCS			/* Functions common to GWBASIC and ANSI Full BASIC */
+   { "CHR$",    NUMBER,         0,   fnc_chr,        (struct bwb_function *) NULL, 0    },
+   { "LEN",     NUMBER,         1,   fnc_len,        (struct bwb_function *) NULL, 0    },
+   { "POS",     NUMBER,         0,   fnc_pos,        (struct bwb_function *) NULL, 0    },
+   { "VAL",     NUMBER,         1,   fnc_val,        (struct bwb_function *) NULL, 0    },
+   { "STR$",    STRING,         1,   fnc_str,        (struct bwb_function *) NULL, 0    },
+   { "DATE$",   STRING,         0,   fnc_date,       (struct bwb_function *) NULL, 0    },
+   { "TIME$",   STRING,         0,   fnc_time,       (struct bwb_function *) NULL, 0    },
+#endif
+
+#if ANSI_FUNCS			/* Functions required for ANSI Full BASIC */
+#endif
+
+   /* The remainder are core functions defined for ANSI Minimal BASIC */
+
+#if COMPRESS_FUNCS
+   { "ABS",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_ABS    },
+   { "ATN",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_ATN    },
+   { "COS",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_COS    },
+   { "EXP",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_EXP    },
+   { "INT",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_INT    },
+   { "LOG",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_LOG    },
+   { "RND",     NUMBER,         0,   fnc_core,        (struct bwb_function *) NULL, F_RND    },
+   { "SGN",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_SGN    },
+   { "SIN",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_SIN    },
+   { "SQR",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_SQR    },
+   { "TAN",     NUMBER,         1,   fnc_core,        (struct bwb_function *) NULL, F_TAN    },
+#else
+   { "ABS",     NUMBER,         1,   fnc_abs,        (struct bwb_function *) NULL, 0    },
+   { "ATN",     NUMBER,         1,   fnc_atn,        (struct bwb_function *) NULL, 0    },
+   { "COS",     NUMBER,         1,   fnc_cos,        (struct bwb_function *) NULL, 0    },
+   { "EXP",     NUMBER,         1,   fnc_exp,        (struct bwb_function *) NULL, 0    },
+   { "INT",     NUMBER,         1,   fnc_int,        (struct bwb_function *) NULL, 0    },
+   { "LOG",     NUMBER,         1,   fnc_log,        (struct bwb_function *) NULL, 0    },
+   { "RND",     NUMBER,         0,   fnc_rnd,        (struct bwb_function *) NULL, 0    },
+   { "SGN",     NUMBER,         1,   fnc_sgn,        (struct bwb_function *) NULL, 0    },
+   { "SIN",     NUMBER,         1,   fnc_sin,        (struct bwb_function *) NULL, 0    },
+   { "SQR",     NUMBER,         1,   fnc_sqr,        (struct bwb_function *) NULL, 0    },
+   { "TAN",     NUMBER,         1,   fnc_tan,        (struct bwb_function *) NULL, 0    },
+#endif
+   { "TAB",     STRING,         1,   fnc_tab,        (struct bwb_function *) NULL, 0    }
+   };
+
+/***************************************************************
+
+	Operator Table for Bywater BASIC
+
+***************************************************************/
+
+struct bwb_op exp_ops[ N_OPERATORS ] =
+   {
+   { "NOT",     OP_NOT,         2  },   /* multiple-character operators */
+   { "AND",     OP_AND,         13 },   /* should be tested first because */
+   { "OR",      OP_OR,          14 },   /* e.g. a ">=" would be matched */
+   { "XOR",     OP_XOR,         15 },   /* as "=" if the single-character */
+   { "IMP",     OP_IMPLIES,     16 },   /* operator came first */
+   { "EQV",     OP_EQUIV,       17 },
+   { "MOD",     OP_MODULUS,     5  },
+   { "<>",      OP_NOTEQUAL,    8  },
+   { "<=",      OP_LTEQ,        11 },
+   { "=<",      OP_LTEQ,        11 },   /* allow either form */
+   { ">=",      OP_GTEQ,        12 },
+   { "=>",      OP_GTEQ,        12 },   /* allow either form */
+   { "<",       OP_LESSTHAN,    9  },
+   { ">",       OP_GREATERTHAN, 10 },
+   { "^",       OP_EXPONENT,    0  },
+   { "*",       OP_MULTIPLY,    3  },
+   { "/",       OP_DIVIDE,      3  },
+   { "\\",      OP_INTDIVISION, 4  },
+   { "+",       OP_ADD,         6  },
+   { "-",       OP_SUBTRACT,    6  },
+   { "=",       OP_EQUALS,      7  },
+   { "=",       OP_ASSIGN,      18 },   /* don't worry: OP_EQUALS will be converted to OP_ASSIGN if necessary */
+   { ";",       OP_STRJOIN,     19 },
+   { ",",       OP_STRTAB,      20 },
+   { "-",       OP_NEGATION,    1  }    /* Right below exponentiation (JBV) */
+   };
+
+/* Error messages used more than once */
+
+char err_openfile[] =   ERR_OPENFILE;
+char err_getmem[] =     ERR_GETMEM;
+char err_noln[] =       ERR_NOLN;
+char err_nofn[] =       ERR_NOFN;
+char err_lnnotfound[] = ERR_LNNOTFOUND;
+char err_incomplete[] = ERR_INCOMPLETE;
+char err_valoorange[] = ERR_VALOORANGE;
+char err_syntax[] =     ERR_SYNTAX;
+char err_devnum[] =     ERR_DEVNUM;
+char err_dev[] =        ERR_DEV;
+char err_opsys[] =	ERR_OPSYS;
+char err_argstr[] = 	ERR_ARGSTR;
+char err_defchar[] = 	ERR_DEFCHAR;
+char err_mismatch[] =	ERR_MISMATCH;
+char err_dimnotarray[] =ERR_DIMNOTARRAY;
+char err_retnogosub[] = ERR_RETNOGOSUB;
+char err_od[] =         ERR_OD;
+char err_overflow[] =   ERR_OVERFLOW;
+char err_nf[] =         ERR_NF;
+char err_uf[] =         ERR_UF;
+char err_dbz[] =        ERR_DBZ;
+char err_redim[] =      ERR_REDIM;
+char err_obdim[] =      ERR_OBDIM;
+char err_uc[] = 	ERR_UC;
+char err_noprogfile[] = ERR_NOPROGFILE;
+
+/***************************************************************
+
+	Error Message Table for Bywater BASIC
+
+***************************************************************/
+
+char *err_table[ N_ERRORS ] =
+   {
+   err_openfile,
+   err_getmem,
+   err_noln,
+   err_nofn,
+   err_lnnotfound,
+   err_incomplete,
+   err_valoorange,
+   err_syntax,
+   err_devnum,
+   err_dev,
+   err_opsys,
+   err_argstr,
+   err_defchar,
+   err_mismatch,
+   err_dimnotarray,
+   err_od,
+   err_overflow,
+   err_nf,
+   err_uf,
+   err_dbz,
+   err_redim,
+   err_obdim,
+   err_uc,
+   err_noprogfile
+   };
 
 
-const size_t NUM_VERSIONS = sizeof (bwb_vertable) / sizeof (VersionType);
-
-
-/* EOF */

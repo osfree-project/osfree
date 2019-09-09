@@ -1,0 +1,26 @@
+NAME
+	COMP.COM - Binary comparison of files.
+
+SYNOPSIS
+	comp [/#] file1 [file2]
+
+DESCRIPTION
+	COMP.COM is a replacement for the MS-DOS command of the same name.
+	It compares the two files as binary files and prints out the
+	differences, one per line, with the character equivalents of any bytes
+	that correspond to printable characters.
+
+	If the second parameter is not given, the first file is compared with
+	a file of the same name in the current directory of the current drive.
+
+	Either argument may be a directory, or may contain wild cards (but
+	not both).  Directory arguments refer to all files in the given
+	directory, but not subdirectories of the directory.
+
+	The `#' parameter gives the maximum number of errors to report per
+	file.  Default is 65535 if file1 is a single file, 10 otherwise.
+
+	The '/' in the above synopsis refers to the switch character.
+
+AUTHOR
+	Paul Vojta, vojta@math.berkeley.edu

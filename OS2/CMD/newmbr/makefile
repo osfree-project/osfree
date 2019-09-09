@@ -15,7 +15,7 @@ ADD_COPT = -i=$(MYDIR) -i=$(PATH) -i=$(MYDIR)..$(SEP)include
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 1
 
-#DEST = os2
+DEST = os2
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 

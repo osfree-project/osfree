@@ -26,28 +26,16 @@ srcfiles = $(p)msg$(e) &
            $(p)doslistio$(e) &
            $(p)dossetfileptr$(e) &
            $(p)dossetfilesize$(e) &
-           $(p)dossetfilelocks$(e)        &
-           $(p)dosprotectopen$(e)         &
-           $(p)dosprotectsetfileptr$(e)   &
-           $(p)dosprotectsetfilesize$(e)  &
+           $(p)dossetfilelocks$(e) &
+           $(p)dosprotectopen$(e) &
+           $(p)dosprotectsetfileptr$(e) &
+           $(p)dosprotectsetfilesize$(e) &
            $(p)dosprotectsetfilelocks$(e) &
-           $(p)dosquerysysinfo$(e)        &
-           $(p)dosread$(e)                &
-           $(p)doswrite$(e)               &
-           $(p)dosexit$(e)                &
-           $(p)dos16exit$(e)              &
-           $(p)dos16getmachinemode$(e)    &
-           $(p)dos16getversion$(e)        &
-           $(p)dos16setverify$(e)         &
-           $(p)dos16qverify$(e)           &
-           $(p)dos16bufreset$(e)          &
-           $(p)dos16close$(e)             &
-           $(p)dos16delete$(e)            &
-           $(p)dos16mkdir$(e)             &
-           $(p)dos16chdir$(e)             &
-           $(p)dos16rmdir$(e)             &
-           $(p)dos16duphandle$(e)         &
-           $(p)dos16selectdisk$(e)        &
+           $(p)dosquerysysinfo$(e) &
+           $(p)dosread$(e)  &
+           $(p)doswrite$(e) &
+           $(p)dosexit$(e) &
+           $(p)dos16exit$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &

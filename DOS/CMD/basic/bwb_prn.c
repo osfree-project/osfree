@@ -1,2973 +1,1882 @@
 /***************************************************************
-  
-        bwb_prn.c       Print and Error-Handling Commands
+
+	bwb_prn.c       Print and Error-Handling Commands
                         for Bywater BASIC Interpreter
-  
+
                         Copyright (c) 1993, Ted A. Campbell
                         Bywater Software
-  
+
                         email: tcamp@delphi.com
-  
+
         Copyright and Permissions Information:
-  
+
         All U.S. and international rights are claimed by the author,
         Ted A. Campbell.
-  
-   This software is released under the terms of the GNU General
-   Public License (GPL), which is distributed with this software
-   in the file "COPYING".  The GPL specifies the terms under
-   which users may copy and use the software in this distribution.
-  
-   A separate license is available for commercial distribution,
-   for information on which you should contact the author.
-  
+
+	This software is released under the terms of the GNU General
+	Public License (GPL), which is distributed with this software
+	in the file "COPYING".  The GPL specifies the terms under
+	which users may copy and use the software in this distribution.
+
+	A separate license is available for commercial distribution,
+	for information on which you should contact the author.
+
 ***************************************************************/
 
 /*---------------------------------------------------------------*/
 /* NOTE: Modifications marked "JBV" were made by Jon B. Volkoff, */
 /* 11/1995 (eidetics@cerf.net).                                  */
-/*                                                               */
-/* Those additionally marked with "DD" were at the suggestion of */
-/* Dale DePriest (daled@cadence.com).                            */
-/*                                                               */
-/* Version 3.00 by Howard Wulf, AF5NE                            */
-/*                                                               */
-/* Version 3.10 by Howard Wulf, AF5NE                            */
-/*                                                               */
-/* Version 3.20 by Howard Wulf, AF5NE                            */
-/*                                                               */
 /*---------------------------------------------------------------*/
 
-
+#include <stdio.h>
+#include <ctype.h>
+#include <math.h>
 
 #include "bwbasic.h"
+#include "bwb_mes.h"
 
-static int buff_read_using (char *buffer, int *position, char *format_string,
-                            int format_length);
-static LineType *bwb_mat_dump (LineType * l, int IsWrite);
-static int bwb_print_at (LineType * l);
-static void CleanNumericString (char *prnbuf, int RemoveDot);
-static int CountDigits (char *Buffer);
-static LineType *D71_PUT (LineType * l);
-static LineType *file_write_matrix (LineType * l, char delimit);
-static LineType *H14_PUT (LineType * Line);
-static void internal_print (LineType * l, int IsCSV);
-static int is_magic_number (char *buffer);
-static int is_magic_string (char *buffer);
-static int line_read_using (LineType * l, char *format_string,
-                            int format_length);
-static void next_zone (void);
-static int parse_file_number (LineType * l);
-static void print_using_number (char *buffer, int *position, VariantType * e);
-static void print_using_string (char *buffer, int *position, VariantType * e);
-static void print_using_variant (char *buffer, int *position, VariantType * e,
-                                 int IsCSV);
-static LineType *S70_PUT (LineType * l);
-static void xputc1 (char c);
-static void xputc2 (char c);
-static void xputs (char *buffer);
+/* Prototypes for functions visible only to this file */
 
+int prn_col = 1;
+static int prn_width = 80;	/* default width for stdout */
 
-/*
-We try to allow as many legacy PRINT USING formats as reasonable.
-Many legacy PRINT USING formats are incompatible with one another.
-For example:
-1) some use '%' for strings, others use '%' for numbers, others consider '%' as a lieral.
-2) some count a leading or traling signs in the width, while others do not.
-3) when a value requires more digits than the assigned width:
-   a) some truncate the displayed value to the width, 
-   b) some expand the width, 
-   c) some print a number of '%' or '*', and 
-   d) some halt processing.
-There is no perfect solution that will work for all possible dialects.
-*/
+struct prn_fmt
+   {
+   int type;			/* STRING, NUMBER, SINGLE, or NUMBER */
+   int exponential;		/* TRUE = use exponential notation */
+   int right_justified;		/* TRUE = right justified else left justified */
+   int width;			/* width of main section */
+   int precision;		/* width after decimal point */
+   int commas;                  /* use commas every three steps */
+   int sign;			/* prefix sign to number */
+   int money;			/* prefix money sign to number */
+   int fill;			/* ASCII value for fill character, normally ' ' */
+   int minus;			/* postfix minus sign to number */
+   };
 
-
-#define PrintUsingNumberDigit    My->CurrentVersion->OptionUsingDigit        /* Digit placeholder, usually '#' */
-#define PrintUsingNumberComma    My->CurrentVersion->OptionUsingComma        /* Comma, such as thousands, usually ',' */
-#define PrintUsingNumberPeriod   My->CurrentVersion->OptionUsingPeriod        /* Period, such as dollars and cents, usually '.' */
-#define PrintUsingNumberPlus     My->CurrentVersion->OptionUsingPlus        /* Plus  sign, positive value, usually '+' */
-#define PrintUsingNumberMinus    My->CurrentVersion->OptionUsingMinus        /* Minus sign, negative value, usually '-' */
-#define PrintUsingNumberExponent My->CurrentVersion->OptionUsingExrad        /* Exponential format, usually '^' */
-#define PrintUsingNumberDollar   My->CurrentVersion->OptionUsingDollar        /* Currency symbol, usually '$' */
-#define PrintUsingNumberFiller   My->CurrentVersion->OptionUsingFiller        /* Print filler, such as checks, usually '*' */
-#define PrintUsingLiteral        My->CurrentVersion->OptionUsingLiteral        /* The next char is a literal, usually '_' */
-#define PrintUsingStringFirst    My->CurrentVersion->OptionUsingFirst        /* The first character of the string, usually '!' */
-#define PrintUsingStringAll      My->CurrentVersion->OptionUsingAll        /* Print the entire string, usually '&' */
-#define PrintUsingStringLength   My->CurrentVersion->OptionUsingLength        /* Print a substring, usually '%' */
-
-
-/*
-**
-** ZoneChar is a MAGIC character code used by file_write_matrix() to request printing by zones.
-** ZoneChar can be any character, other than NulChar, that the user will not use as a literal delimiter.
-** The user is allowed to specify CHR$(9), '\t', as a literal delimiter.
-**
-*/
-#define ZoneChar 0x01                /* an unlikely literal delimiter */
-
-
-int
-is_empty_string (char *Buffer)
-{
-   
-
-  if (Buffer == NULL)
-  {
-    return TRUE;
-  }
-  while (*Buffer == ' ')
-  {
-    Buffer++;
-  }
-  if (*Buffer == NulChar)
-  {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-
-FileType *
-find_file_by_name (char *FileName)
-{
-  FileType *F;
-   
-  if (is_empty_string (FileName))
-  {
-    /* the rules for Console and Printer vary by command */
-    return NULL;
-  }
-  /* search the list of OPEN files */
-  assert( My != NULL );
-  for (F = My->FileHead; F != NULL; F = F->next)
-  {
-    assert( F != NULL );
-    if (F->DevMode == DEVMODE_CLOSED)
-    {
-    }
-    else if (F->FileName == NULL)
-    {
-    }
-    else if (bwb_stricmp (F->FileName, FileName) == 0)
-    {
-      /* FOUND */
-      return F;
-    }
-  }
-  /* NOT FOUND */
-  return NULL;
-}
-
-
-FileType *
-find_file_by_number (int FileNumber)
-{
-  FileType *F;
-   
-
-  /* handle MAGIC file numbers */
-  if (FileNumber <= 0)
-  {
-    /* the rules for Console and Printer vary by command */
-    return NULL;
-  }
-  /* search the list of OPEN files */
-  assert( My != NULL );
-  for (F = My->FileHead; F != NULL; F = F->next)
-  {
-    assert( F != NULL );
-    if (F->DevMode != DEVMODE_CLOSED)
-    {
-      if (F->FileNumber == FileNumber)
-      {
-        /* FOUND */
-        return F;
-      }
-    }
-  }
-  /* NOT FOUND */
-  return NULL;
-}
-
-
-FileType *
-file_new (void)
-{
-  /* search for an empty slot.  If not found, add a new slot. */
-  FileType *F;
-   
-  assert( My != NULL );
-  for (F = My->FileHead; F != NULL; F = F->next)
-  {
-    assert( F != NULL );
-    if (F->DevMode == DEVMODE_CLOSED)
-    {
-      /* FOUND */
-      return F;
-    }
-  }
-  /* NOT FOUND */
-  if ((F = (FileType *) calloc (1, sizeof (FileType))) == NULL)
-  {
-    WARN_OUT_OF_MEMORY;
-    return NULL;
-  }
-  assert( F != NULL );
-  F->next = My->FileHead;
-  My->FileHead = F;
-  return F;
-}
-
-
-void
-file_clear (FileType * F)
-{
-  /* clean up a file slot that is no longer needed */
-   
-  assert (F != NULL);
-
-  clear_virtual_by_file (F->FileNumber);
-  F->FileNumber = 0;
-  F->DevMode = DEVMODE_CLOSED;        /* DEVMODE_ item */
-  F->width = 0;                        /* width for OUTPUT and APPEND; reclen for RANDOM; not used for INPUT or BINARY */
-  F->col = 0;                        /* current column for OUTPUT and APPEND */
-  F->row = 0;                        /* current row for OUTPUT and APPEND */
-  F->EOF_LineNumber = 0;        /* CBASIC-II: IF END # filenumber THEN linenumber */
-  F->delimit = NulChar;                /* DELIMIT for READ and WRITE */
-  if (F->FileName != NULL)
-  {
-    free (F->FileName);
-    F->FileName = NULL;
-  }
-  if (F->cfp != NULL)
-  {
-    bwb_fclose (F->cfp);
-    F->cfp = NULL;
-  }
-  if (F->buffer != NULL)
-  {
-    free (F->buffer);
-    F->buffer = NULL;
-  }
-
-}
-
-int
-file_next_number (void)
-{
-  int FileNumber;
-  FileType *F;
-   
-
-  FileNumber = 0;
-  assert( My != NULL );
-  for (F = My->FileHead; F != NULL; F = F->next)
-  {
-    assert( F != NULL );
-    if (F->DevMode != DEVMODE_CLOSED)
-    {
-      if (F->FileNumber > FileNumber)
-      {
-        FileNumber = F->FileNumber;
-      }
-    }
-  }
-  /* 'FileNumber' is the highest FileNumber that is currently open */
-  FileNumber++;
-  return FileNumber;
-}
-
+#if ANSI_C
+static int prn_cr( char *buffer, FILE *f );
+static struct prn_fmt *get_prnfmt( char *buffer, int *position, FILE *f );
+static int bwb_xerror( char *message );
+static int xxputc( FILE *f, char c );
+static int xxxputc( FILE *f, char c );
+static struct bwb_variable * bwb_esetovar( struct exp_ese *e );
+#else
+static int prn_cr();
+static struct prn_fmt *get_prnfmt();
+static int bwb_xerror();
+static int xxputc();
+static int xxxputc();
+static struct bwb_variable * bwb_esetovar();
+#endif
 
 
 /***************************************************************
-  
-      FUNCTION:       bwx_putc()
-  
-   DESCRIPTION:    This function outputs a single character
-         to the default output device.
-  
-***************************************************************/
 
-static void
-CleanNumericString (char *prnbuf, int RemoveDot)
-{
-  /* remove trailing zeroes */
-  char *E;
-  char *D;
-   
-  assert (prnbuf != NULL);
-
-  E = bwb_strchr (prnbuf, 'E');
-  if (E == NULL)
-  {
-    E = bwb_strchr (prnbuf, 'e');
-  }
-  if (E)
-  {
-    /* SCIENTIFIC == SCALED notation */
-    /* trim leading zeroes in exponent */
-    char *F;
-    char *G;
-
-    F = E;
-    while (bwb_isalpha (*F))
-    {
-      F++;
-    }
-    while (*F == '+' || *F == '-')
-    {
-      /* skip sign */
-      F++;
-    }
-    G = F;
-    while (*G == '0' || *G == ' ')
-    {
-      /* skip leading zeroes or spaces */
-      G++;
-    }
-    if (G > F)
-    {
-      bwb_strcpy (F, G);
-    }
-    G = NULL;                        /* no longer valid */
-    *E = NulChar;                /* for bwb_strlen()  */
-  }
-  D = bwb_strchr (prnbuf, '.');
-  if (D)
-  {
-    int N;
-
-    N = bwb_strlen (D);
-    if (N > 1)
-    {
-      int M;
-
-      N--;
-      M = N;
-      while (D[N] == '0')
-      {
-        /* remove trailing zeroes */
-        D[N] = '_';
-        N--;
-      }
-      if (RemoveDot)
-      {
-        if (E)
-        {
-          /* SCIENTIFIC == SCALED notation */
-          /* do NOT remove '.' */
-        }
-        else
-        {
-          /* NORMAL  == UNSCALED notation */
-          /* remove trailing '.' */
-          /* this will only occur for integer values */
-          while (D[N] == '.')
-          {
-            /* _###. POSITIVE INTEGER */
-            /* -###. NEGATIVE INTEGER */
-            D[N] = '_';
-            N--;
-          }
-        }
-      }
-      if (N < M)
-      {
-        if (E)
-        {
-          /* SCIENTIFIC == SCALED notation */
-          *E = 'E';
-          E = NULL;
-        }
-        N++;
-        /* if INTEGER, then N == 0, else N > 0 */
-        M++;
-        /* if SCIENTIFIC, then  *M == 'E' else *M == NulChar */
-        bwb_strcpy (&(D[N]), &(D[M]));
-      }
-    }
-  }
-  if (E)
-  {
-    /* SCIENTIFIC == SCALED notation */
-    *E = 'E';
-    E = NULL;
-  }
-  if (prnbuf[1] == '0' && prnbuf[2] == '.')
-  {
-    /* _0.### POSITIVE FRACTION ==> _.### */
-    /* -0.### NEGATIVE FRACTION ==> -.### */
-    bwb_strcpy (&(prnbuf[1]), &(prnbuf[2]));
-  }
-  if (prnbuf[1] == '.' && prnbuf[2] == 'E')
-  {
-    /* _.E POSITIVE ZERO ==> _0 */
-    /* -.E NEGATIVE ZERO ==> _0 */
-    bwb_strcpy (prnbuf, " 0");
-  }
-}
-
-static int
-CountDigits (char *Buffer)
-{
-  int NumDigits;
-  char *P;
-   
-  assert (Buffer != NULL);
-
-
-  /* determine the number of significant digits */
-  NumDigits = 0;
-  P = Buffer;
-  while (*P)
-  {
-    if (bwb_isalpha (*P))
-    {
-      /* 'E', 'e', and so on. */
-      break;
-    }
-    if (bwb_isdigit (*P))
-    {
-      NumDigits++;
-    }
-    P++;
-  }
-  return NumDigits;
-}
-
-extern void
-FormatBasicNumber (DoubleType Input, char *Output /* [ NUMLEN ] */ )
-{
-   /*******************************************************************************
-   
-   This is essentially sprintf( Output, "%g", Input ), 
-   except the rules for selecting between "%e", "%f", and "%d" are different.
-
-   The C rules depend upon the value of the exponent.
-   The BASIC rules depend upon the number of significant digits.
-
-   The results of this routine have been verified by the NBS2 test suite, so...
-      
-   THINK VERY CAREFULLY BEFORE MAKING ANY CHANGES TO THIS ROUTINE.   
-   
-   *******************************************************************************/
-  char *E;
-   
-  assert (Output != NULL);
-
-  assert( My != NULL );
-  if (My->OptionScaleInteger >= 1
-      && My->OptionScaleInteger <= My->OptionDigitsInteger)
-  {
-    /* round */
-    DoubleType Scale;
-    Scale = pow (10, My->OptionScaleInteger);
-    assert( Scale != 0 );
-    Input = bwb_rint (Input * Scale) / Scale;
-  }
-  /* print in scientific form first, to determine exponent and significant digits */
-  sprintf (Output, "% 1.*E", My->OptionDigitsInteger - 1, Input);
-  E = bwb_strchr (Output, 'E');
-  if (E == NULL)
-  {
-    E = bwb_strchr (Output, 'e');
-  }
-  if (E)
-  {
-    /* valid */
-    int Exponent;
-    int NumDigits;
-    int DisplayDigits;
-    int zz;
-    char *F;                        /* pointer to the exponent's value */
-    F = E;
-    while (bwb_isalpha (*F))
-    {
-      F++;
-    }
-    Exponent = atoi (F);
-    CleanNumericString (Output, FALSE);
-    NumDigits = CountDigits (Output);
-    DisplayDigits = MIN (NumDigits, My->OptionDigitsInteger);
-    zz = MAX (Exponent, DisplayDigits - Exponent - 2);
-    if (zz >= My->OptionDigitsInteger)
-    {
-      /* SCIENTIFIC */
-      sprintf (Output, "%# 1.*E", DisplayDigits - 1, Input);
-    }
-    else if (Input == (int) Input)
-    {
-      /* INTEGER */
-      sprintf (Output, "% *d", DisplayDigits, (int) Input);
-    }
-    else
-    {
-      /* FLOAT */
-      int Before;                /* number of digits before the '.' */
-      int After;                /* number of digits after  the '.' */
-
-      Before = Exponent + 1;
-      if (Before < 0)
-      {
-        Before = 0;
-      }
-      After = My->OptionDigitsInteger - Before;
-      if (After < 0)
-      {
-        After = 0;
-      }
-      sprintf (Output, "%# *.*f", Before, After, Input);
-    }
-    CleanNumericString (Output, FALSE);
-  }
-  else
-  {
-    /* ERROR, NAN, INFINITY, ETC. */
-  }
-}
-
-
-
-LineType *
-bwb_LPRINT (LineType * l)
-{
-  int IsCSV;
-   
-  assert (l != NULL);
-
-  assert( My != NULL );
-  assert( My->SYSPRN != NULL );
-  My->CurrentFile = My->SYSPRN;
-  IsCSV = FALSE;
-  internal_print (l, IsCSV);
-  return (l);
-}
-
-
-/***************************************************************
-  
         FUNCTION:       bwb_print()
-  
+
         DESCRIPTION:    This function implements the BASIC PRINT
                         command.
-  
-   SYNTAX:     PRINT [# device-number,][USING format-string$;] expressions...
-  
+
+	SYNTAX:		PRINT [# device-number,][USING format-string$;] expressions...
+
 ***************************************************************/
 
+#if ANSI_C
+struct bwb_line *
+bwb_print( struct bwb_line *l )
+#else
+struct bwb_line *
+bwb_print( l )
+   struct bwb_line *l;
+#endif
+   {
+   FILE *fp;
+   static int pos;
+   int req_devnumber;
+   struct exp_ese *v;
+   static char *s_buffer;          	/* small, temporary buffer */
+   static int init = FALSE;
 
-static int
-bwb_print_at (LineType * l)
-{
-  int position;
-  int r;
-  int c;
-   
-  assert (l != NULL);
+#if INTENSIVE_DEBUG
+   sprintf( bwb_ebuf, "in bwb_print(): enter function" );
+   bwb_debug( bwb_ebuf );
+#endif
 
+   /* initialize buffers if necessary */
 
-  position = 0;
-  r = 0;
-  c = 0;
-  if (line_read_integer_expression (l, &position))
-  {
-    /* OK */
-  }
-  else
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-
-  if (line_skip_seperator (l))
-  {
-    /* OK */
-  }
-  else
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-
-  if (position < 0)
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-
-
-  assert( My != NULL );
-  assert( My->SYSOUT != NULL );
-  if (My->SYSOUT->width <= 0)
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-  if (My->SCREEN_ROWS <= 0)
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-  assert( My->CurrentFile == My->SYSOUT );
-  /* position is 0-based.  0 is top left, */
-  assert( My->CurrentFile != NULL );
-  assert( My->CurrentFile->width != 0 );
-  r = position / My->CurrentFile->width;
-  c = position - r * My->CurrentFile->width;
-  while (r >= My->SCREEN_ROWS)
-  {
-    r -= My->SCREEN_ROWS;
-  }
-  r++;                                /* 0-based to 1-based */
-  c++;                                /* 0-based to 1-based */
-  bwx_LOCATE (r, c);
-  return TRUE;
-}
-
-
-static int
-parse_file_number (LineType * l)
-{
-  /* ... # FileNumber , ... */
-  int FileNumber;
-   
-  assert (l != NULL);
-
-
-  if (line_read_integer_expression (l, &FileNumber) == FALSE)
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-
-  assert( My != NULL );
-  assert( My->CurrentVersion != NULL );
-  if (My->CurrentVersion->OptionVersionValue & (C77))
-  {
-    /* 
-       CBASIC-II: SERIAL & RANDOM file writes
-       PRINT # file_number                 ; expression [, expression] ' SERIAL write
-       PRINT # file_number , record_number ; expression [, expression] ' RANDOM write
-     */
-
-    if (FileNumber <= 0)
-    {
-      WARN_BAD_FILE_NUMBER;
-      return FALSE;
-    }
-    /* normal file */
-    My->CurrentFile = find_file_by_number (FileNumber);
-    if (My->CurrentFile == NULL)
-    {
-      WARN_BAD_FILE_NUMBER;
-      return FALSE;
-    }
-
-
-    if (line_skip_CommaChar (l) /* comma specific */ )
-    {
-      /* 
-         PRINT # file_number , record_number ; expression [, expression] ' RANDOM write
-       */
-      /* get the RecordNumber */
-      int RecordNumber;
-
-      if ((My->CurrentFile->DevMode & DEVMODE_RANDOM) == 0)
+   if ( init == FALSE )
       {
-        WARN_BAD_FILE_MODE;
-        return FALSE;
-      }
-      if (My->CurrentFile->width <= 0)
-      {
-        WARN_FIELD_OVERFLOW;
-        return FALSE;
-      }
-      if (line_read_integer_expression (l, &RecordNumber) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return FALSE;
-      }
-      if (RecordNumber <= 0)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return FALSE;
-      }
-      RecordNumber--;                /* BASIC to C */
-      /* if( TRUE ) */
-      {
-        long offset;
-        offset = RecordNumber;
-        offset *= My->CurrentFile->width;
-        fseek (My->CurrentFile->cfp, offset, SEEK_SET);
-      }
-    }
-    if (line_is_eol (l))
-    {
-      /* PRINT # filenum          */
-      /* PRINT # filenum , recnum */
-    }
-    else if (line_skip_SemicolonChar (l) /* semicolon specific */ )
-    {
-      /* PRINT # filenum          ; */
-      /* PRINT # filenum , recnum ; */
-    }
-    else
-    {
-      WARN_SYNTAX_ERROR;
-      return FALSE;
-    }
-    return TRUE;
-  }
-  /* 
-     SERIAL file writes:
-     PRINT # file_number   
-     PRINT # file_number [, expression]
-   */
-  if (FileNumber < 0)
-  {
-    My->CurrentFile = My->SYSPRN;
-  }
-  else if (FileNumber == 0)
-  {
-    My->CurrentFile = My->SYSOUT;
-  }
-  else
-  {
-    /* normal file */
-    My->CurrentFile = find_file_by_number (FileNumber);
-  }
-  if (My->CurrentFile == NULL)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return FALSE;
-  }
-  if ((My->CurrentFile->DevMode & DEVMODE_WRITE) == 0)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return FALSE;
-  }
-  if (line_is_eol (l))
-  {
-    /* PRINT # 2 */
-  }
-  else if (line_skip_seperator (l))
-  {
-    /* PRINT # 2 , ... */
-  }
-  else
-  {
-    WARN_SYNTAX_ERROR;
-    return FALSE;
-  }
-  return TRUE;
-}
+      init = TRUE;
 
-LineType *
-bwb_PRINT (LineType * l)
-{
-  int IsCSV;
-   
-  assert (l != NULL);
+      /* Revised to CALLOC pass-thru call by JBV */
+      if ( ( s_buffer = CALLOC( MAXSTRINGSIZE + 1, sizeof(char), "bwb_print") ) == NULL )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_print(): failed to get memory for s_buffer" );
+#else
+         bwb_error( err_getmem );
+#endif
+         }
+      }
 
-  IsCSV = FALSE;
-  assert( My != NULL );
-  if (My->IsPrinter == TRUE)
-  {
-    My->CurrentFile = My->SYSPRN;
-  }
-  else
-  {
-    My->CurrentFile = My->SYSOUT;
-  }
-  internal_print (l, IsCSV);
-  return (l);
-}
+   /* advance beyond whitespace and check for the '#' sign */
+
+   adv_ws( l->buffer, &( l->position ) );
+
+#if COMMON_CMDS
+   if ( l->buffer[ l->position ] == '#' )
+      {
+      ++( l->position );
+      adv_element( l->buffer, &( l->position ), s_buffer );
+      pos = 0;
+      v = bwb_exp( s_buffer, FALSE, &pos );
+      adv_ws( l->buffer, &( l->position ) );
+      if ( l->buffer[ l->position ] == ',' )
+         {
+         ++( l->position );
+         }
+      else
+         {
+#if PROG_ERRORS
+	 bwb_error( "in bwb_print(): no comma after #n" );
+#else
+         bwb_error( err_syntax );
+#endif
+         return bwb_zline( l );
+         }
+
+      req_devnumber = (int) exp_getnval( v );
+
+      /* check the requested device number */
+
+      if ( ( req_devnumber < 0 ) || ( req_devnumber >= DEF_DEVICES ))
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_input(): Requested device number is out of range." );
+#else
+         bwb_error( err_devnum );
+#endif
+         return bwb_zline( l );
+         }
+
+      if (( dev_table[ req_devnumber ].mode == DEVMODE_CLOSED ) ||
+         ( dev_table[ req_devnumber ].mode == DEVMODE_AVAILABLE ))
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_input(): Requested device number is not open." );
+#else
+         bwb_error( err_devnum );
+#endif
+
+         return bwb_zline( l );
+         }
+
+      if ( dev_table[ req_devnumber ].mode != DEVMODE_OUTPUT )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_print(): Requested device is not open for OUTPUT." );
+#else
+         bwb_error( err_devnum );
+#endif
+
+         return bwb_zline( l );
+         }
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in bwb_print(): device number is <%d>",
+         req_devnumber );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      /* look up the requested device in the device table */
+
+      fp = dev_table[ req_devnumber ].cfp;
+
+      }
+
+   else
+      {
+      fp = stdout;
+      }
+
+#else
+   fp = stdout;
+#endif				/* COMMON_CMDS */
+
+   bwb_xprint( l, fp );
+
+   return bwb_zline( l );
+   }
 
 /***************************************************************
-  
-        FUNCTION:       internal_print()
-  
-   DESCRIPTION:    This function implements the PRINT
-         command, utilizing a specified file our
-         output device.
-  
+
+        FUNCTION:       bwb_xprint()
+
+	DESCRIPTION:    This function implements the BASIC PRINT
+			command, utilizing a specified file our
+			output device.
+
 ***************************************************************/
 
-static int
-buff_read_using (char *buffer, int *position, char *format_string,
-                 int format_length)
-{
-  int p;
-   
-  assert (buffer != NULL);
-  assert (position != NULL);
-  assert (format_string != NULL);
+#if ANSI_C
+int
+bwb_xprint( struct bwb_line *l, FILE *f )
+#else
+int
+bwb_xprint( l, f )
+   struct bwb_line *l;
+   FILE *f;
+#endif
+   {
+   struct exp_ese *e;
+   int loop;
+   static int p;
+   static int fs_pos;
+   struct prn_fmt *format;
+   static char *format_string;
+   static char *output_string;
+   static char *element;
+   static char *prnbuf;
+   static int init = FALSE;
+   register int i, j; /* JBV */
+   int dig_pos, dec_pos; /* JBV */
+   char tbuf[ MAXSTRINGSIZE + 1 ]; /* JBV */
+#if INTENSIVE_DEBUG || TEST_BSTRING
+   bstring *b;
+#endif
 
-  p = *position;
+   /* initialize buffers if necessary */
 
-  if (buff_skip_word (buffer, &p, "USING"))
-  {
-    buff_skip_spaces (buffer, &p);        /* keep this */
-    if (bwb_isdigit (buffer[p]))
-    {
-      /* PRINT USING ### */
-      int n;
-      int LineNumber;
-      LineType *x;
-      char *C;
-      char *F;
+   if ( init == FALSE )
+      {
+      init = TRUE;
 
-      n = 0;
-      LineNumber = 0;
-      x = NULL;
-      if (buff_read_line_number (buffer, &p, &LineNumber) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return FALSE;
+      /* Revised to CALLOC pass-thru call by JBV */
+      if ( ( format_string = CALLOC( MAXSTRINGSIZE + 1, sizeof(char), "bwb_xprint") ) == NULL )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_xprint(): failed to get memory for format_string" );
+#else
+         bwb_error( err_getmem );
+#endif
+         }
+      /* Revised to CALLOC pass-thru call by JBV */
+      if ( ( output_string = CALLOC( MAXSTRINGSIZE + 1, sizeof(char), "bwb_xprint") ) == NULL )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_xprint(): failed to get memory for output_string" );
+#else
+         bwb_error( err_getmem );
+#endif
+         }
+      /* Revised to CALLOC pass-thru call by JBV */
+      if ( ( element = CALLOC( MAXSTRINGSIZE + 1, sizeof(char), "bwb_xprint") ) == NULL )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_xprint(): failed to get memory for element buffer" );
+#else
+         bwb_error( err_getmem );
+#endif
+         }
+      /* Revised to CALLOC pass-thru call by JBV */
+      if ( ( prnbuf = CALLOC( MAXSTRINGSIZE + 1, sizeof(char), "bwb_xprint") ) == NULL )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_xprint(): failed to get memory for prnbuf" );
+#else
+         bwb_error( err_getmem );
+#endif
+         }
       }
-      /* check for target label */
-      x = find_line_number (LineNumber);        /* USING 100 */
-      if (x == NULL)
+
+   /* Detect USING Here */
+
+   fs_pos = -1;
+
+   /* get "USING" in format_string */
+
+   p = l->position;
+   adv_element( l->buffer, &p, format_string );
+   bwb_strtoupper( format_string );
+
+#if COMMON_CMDS
+
+   /* check to be sure */
+
+   if ( strcmp( format_string, CMD_XUSING ) == 0 )
       {
-        WARN_UNDEFINED_LINE;
-        return FALSE;
-      }
-      /* line exists */
-      if (x->cmdnum != C_IMAGE)
-      {
-        WARN_UNDEFINED_LINE;
-        return FALSE;
-      }
-      /* line contains IMAGE command */
-      C = x->buffer;
-      C += x->Startpos;
-      F = format_string;
-      /* look for leading quote in IMAGE "..." */
-      while (*C == ' ')
-      {
-        C++;
-      }
-      assert( My != NULL );
-      assert( My->CurrentVersion != NULL );
-      if (*C == My->CurrentVersion->OptionQuoteChar)
-      {
-        /* QUOTED */
-        /* skip leading quote */
-        C++;
-        while (*C != NulChar && *C != My->CurrentVersion->OptionQuoteChar)
-        {
-          /* copy format string, but not the trailing quote */
-          if (n == format_length)
-          {
-            WARN_STRING_TOO_LONG;
-            break;
-          }
-          *F = *C;
-          C++;
-          F++;
-          n++;
-        }
-        /* skip trailing quote */
-      }
+      l->position = p;
+      adv_ws( l->buffer, &( l->position ) );
+
+      /* now get the format string in format_string */
+
+      e = bwb_exp( l->buffer, FALSE, &( l->position ) );
+      if ( e->type == STRING )
+         {
+
+         /* copy the format string to buffer */
+
+         str_btoc( format_string, exp_getsval( e ) );
+
+         /* look for ';' after format string */
+
+         fs_pos = 0;
+         adv_ws( l->buffer, &( l->position ) );
+         if ( l->buffer[ l->position ] == ';' )
+            {
+            ++l->position;
+            adv_ws( l->buffer, &( l->position ) );
+            }
+         else
+            {
+#if PROG_ERRORS
+            bwb_error( "Failed to find \";\" after format string in PRINT USING" );
+#else
+            bwb_error( err_syntax );
+#endif
+            return FALSE;
+            }
+
+#if INTENSIVE_DEBUG
+         sprintf( bwb_ebuf, "in bwb_xprint(): Found USING, format string <%s>",
+            format_string );
+         bwb_debug( bwb_ebuf );
+#endif
+
+         }
+
       else
-      {
-        /* UNQUOTED */
-        while (*C)
-        {
-          /* copy format string verbatim */
-          if (n == format_length)
-          {
-            WARN_STRING_TOO_LONG;
-            break;
-          }
-          *F = *C;
-          C++;
-          F++;
-          n++;
-        }
+         {
+#if PROG_ERRORS
+         bwb_error( "Failed to find format string after PRINT USING" );
+#else
+         bwb_error( err_syntax );
+#endif
+         return FALSE;
+         }
       }
-      /* terminate format string */
-      *F = NulChar;
-      if (buff_skip_seperator (buffer, &p) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return FALSE;
-      }
-    }
-    else
-    {
-      {
-        char *Value;
 
-        Value = NULL;
-        if (buff_read_string_expression (buffer, &p, &Value) == FALSE)
-        {
-          WARN_SYNTAX_ERROR;
-          return FALSE;
-        }
-        if (Value == NULL)
-        {
-          WARN_SYNTAX_ERROR;
-          return FALSE;
-        }
-        if (bwb_strlen (Value) > format_length)
-        {
-          WARN_STRING_TOO_LONG;
-          Value[format_length] = NulChar;
-        }
-        bwb_strcpy (format_string, Value);
-        free (Value);
-        Value = NULL;
-      }
-      if (buff_skip_seperator (buffer, &p) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return FALSE;
-      }
-    }
-    *position = p;
-    return TRUE;
-  }
-  return FALSE;
-}
+#endif 			/* COMMON_CMDS */
 
-static int
-line_read_using (LineType * l, char *format_string, int format_length)
-{
-  assert (l != NULL);
-  assert (format_string != NULL);
-  return buff_read_using (l->buffer, &(l->position), format_string,
-                          format_length);
-}
+   /* if no arguments, simply print CR and return */
 
-static void
-internal_print (LineType * l, int IsCSV)
-{
-  /* if no arguments, simply print CR and return */
-  /* 1980 PRINT  , , ,"A" */
-  int OutputCR;
-  char *format_string;
-  int format_length;
-  int format_position;
-   
-  assert (l != NULL);
+   adv_ws( l->buffer, &( l->position ) );
+   switch( l->buffer[ l->position ] )
+      {
+      case '\0':
+      case '\n':
+      case '\r':
+      case ':':
+         prn_xprintf( f, "\n" );
+         return TRUE;
+      default:
+         break;
+      }
 
+   /* LOOP THROUGH PRINT ELEMENTS */
 
-  OutputCR = TRUE;
-  assert( My != NULL );
-  assert( My->ConsoleOutput != NULL );
-  assert( MAX_LINE_LENGTH > 1 );
-  format_string = My->ConsoleOutput;
-  format_length = MAX_LINE_LENGTH;
-  format_position = 0;
-  format_string[0] = NulChar;
+   loop = TRUE;
+   while( loop == TRUE )
+      {
 
-  if (line_skip_FilenumChar (l))
-  {
-    /* PRINT # file, ... */
-    if (parse_file_number (l) == FALSE)
-    {
-      return;
-    }
-    assert( My->CurrentVersion != NULL );
-    if (My->CurrentVersion->OptionVersionValue & (C77)
-        && My->CurrentFile->FileNumber > 0)
-    {
-      /* 
-       **
-       ** CBASIC-II files are CSV files.
-       **
-       ** Strings are quoted other than PRINT USING.
-       ** Comma seperator writes a literal comma.
-       ** Semicolon seperator writes a literal comma.
-       ** Numbers do NOT have leading or trailing spaces.
-       **
-       */
-      IsCSV = TRUE;
-    }
-    OutputCR = TRUE;
-  }
-  else if (line_skip_AtChar (l))
-  {
-    /* PRINT @ position, ... */
-    assert( My->SYSOUT != NULL );
-    My->CurrentFile = My->SYSOUT;
-    if (bwb_print_at (l) == FALSE)
-    {
-      return;
-    }
-    OutputCR = TRUE;
-  }
-  else if (My->CurrentVersion->OptionVersionValue & (B15|T80|HB1|HB2) 
-  &&  line_skip_word (l, "AT"))
-  {
-    /* PRINT AT position, ... */
-    assert( My->SYSOUT != NULL );
-    My->CurrentFile = My->SYSOUT;
-    if (bwb_print_at (l) == FALSE)
-    {
-      return;
-    }
-    OutputCR = TRUE;
-  }
-  assert( My->CurrentFile != NULL );
-
-  while (line_is_eol (l) == FALSE)
-  {
-    /* LOOP THROUGH PRINT ELEMENTS */
-    VariantType e;
-    VariantType *E;
-
-    E = &e;
-    CLEAR_VARIANT (E);
-    if (line_skip_CommaChar (l) /* comma-specific */ )
-    {
-      if (format_string[0])
-      {
-        /* PRINT USING active */
-      }
-      else if (IsCSV)
-      {
-        xputc1 (',');
-      }
-      else
-      {
-        /* tab over */
-        next_zone ();
-      }
-      OutputCR = FALSE;
-    }
-    else if (line_skip_SemicolonChar (l) /* semicolon-specific */ )
-    {
-      if (format_string[0])
-      {
-        /* PRINT USING active */
-      }
-      else if (IsCSV)
-      {
-        xputc1 (',');
-      }
-      else
-      {
-        /* concatenate strings */
-      }
-      OutputCR = FALSE;
-    }
-    else if (line_read_using (l, format_string, format_length))
-    {
-      format_position = 0;
-      OutputCR = TRUE;
-    }
-    else if (line_read_expression (l, E))        /* internal_print */
-    {
       /* resolve the string */
-      if (My->IsErrorPending /* Keep This */ )
-      {
-        /* 
-         **
-         ** this might look odd... 
-         ** but we want to abort printing on the first warning.
-         ** The expression list could include a function with side-effects,
-         ** so any error should immediately halt further evaluation.
-         **
-         */
-        RELEASE_VARIANT (E);
-        return;
-      }
-      print_using_variant (format_string, &format_position, E, IsCSV);
-      RELEASE_VARIANT (E);
-      OutputCR = TRUE;
-    }
-    else
-    {
-      WARN_SYNTAX_ERROR;
-      return;
-    }
-  }
 
-  if (OutputCR == TRUE)
-  {
-    /* did not end with ',' or ';' */
-    xputc1 ('\n');
-  }
-  if (My->CurrentFile == My->SYSOUT)
-  {
-    /* FOR I = 1 TO 1000: PRINT "."; : NEXT I : PRINT */
-    fflush (My->SYSOUT->cfp);
-  }
-}
+      e = bwb_exp( l->buffer, FALSE, &( l->position ) );
 
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in bwb_xprint(): op <%d> type <%d>",
+         e->operation, e->type );
+      bwb_debug( bwb_ebuf );
+#endif
 
-/***************************************************************
-  
-        FUNCTION:       print_using_variant()
-  
-   DESCRIPTION:    This function gets the PRINT USING
-         format string, returning a structure
-         to the format.
-  
-***************************************************************/
-static void
-print_using_number (char *buffer, int *position, VariantType * e)
-{
-  /*
-     Format a NUMBER.
-     'buffer' points to the beginning of a PRINT USING format string, such as "###.##".
-     'position' is the current offset in 'buffer'.
-     'e' is the current expression to print.
-   */
-  int width;
-  int precision;
-  int exponent;
-  char HeadChar;
-  char FillChar;
-  char CurrChar;
-  char ComaChar;
-  char TailChar;
-  int p;
-  char *tbuf;
-   
-  assert (buffer != NULL);
-  assert (position != NULL);
-  assert (e != NULL);
+      /* an OP_NULL probably indicates a terminating ';', but this
+         will be detected later, so we can ignore it for now */
 
-
-
-  width = 0;
-  precision = 0;
-  exponent = 0;
-  HeadChar = ' ';
-  FillChar = ' ';
-  CurrChar = ' ';
-  ComaChar = ' ';
-  TailChar = ' ';
-  assert( My != NULL );
-  assert( My->ConsoleInput != NULL );
-  tbuf = My->ConsoleInput;
-
-
-  p = *position;
-  while (IS_CHAR (buffer[p], PrintUsingNumberPlus)
-         || IS_CHAR (buffer[p], PrintUsingNumberMinus))
-  {
-    HeadChar = buffer[p];
-    width++;
-    p++;
-  }
-  while (IS_CHAR (buffer[p], PrintUsingNumberFiller)
-         || IS_CHAR (buffer[p], PrintUsingNumberDollar))
-  {
-    if (IS_CHAR (buffer[p], PrintUsingNumberFiller))
-    {
-      FillChar = PrintUsingNumberFiller;
-    }
-    else if (IS_CHAR (buffer[p], PrintUsingNumberDollar))
-    {
-      CurrChar = PrintUsingNumberDollar;
-    }
-    width++;
-    p++;
-  }
-  while (IS_CHAR (buffer[p], PrintUsingNumberDigit)
-         || IS_CHAR (buffer[p], PrintUsingNumberComma))
-  {
-    if (IS_CHAR (buffer[p], PrintUsingNumberComma))
-    {
-      ComaChar = PrintUsingNumberComma;
-    }
-    width++;
-    p++;
-  }
-  if (IS_CHAR (buffer[p], PrintUsingNumberPeriod))
-  {
-    while (IS_CHAR (buffer[p], PrintUsingNumberPeriod))
-    {
-      width++;
-      p++;
-    }
-    while (IS_CHAR (buffer[p], PrintUsingNumberDigit))
-    {
-      precision++;
-      width++;
-      p++;
-    }
-  }
-  while (IS_CHAR (buffer[p], PrintUsingNumberExponent))
-  {
-    exponent++;
-    precision++;
-    width++;
-    p++;
-  }
-  while (IS_CHAR (buffer[p], PrintUsingNumberPlus)
-         || IS_CHAR (buffer[p], PrintUsingNumberMinus))
-  {
-    TailChar = buffer[p];
-    width++;
-    p++;
-  }
-  /* format the number */
-
-
-  /* displaying both a Heading and a Trailing sign is NOT supported */
-  if (TailChar == ' ')
-  {
-    /* do nothing */
-  }
-  else
-    if (IS_CHAR (TailChar, PrintUsingNumberPlus)
-        || IS_CHAR (TailChar, PrintUsingNumberMinus))
-  {
-    /* force the sign to be printed, so we can move it */
-    HeadChar = TailChar;
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-
-
-  if (HeadChar == ' ')
-  {
-    /* only display a '-' sign */
-    if (exponent > 0)
-    {
-      sprintf (tbuf, "%*.*e", width, precision, e->Number);
-    }
-    else
-    {
-      sprintf (tbuf, "%*.*f", width, precision, e->Number);
-    }
-  }
-  else
-    if (IS_CHAR (HeadChar, PrintUsingNumberPlus)
-        || IS_CHAR (HeadChar, PrintUsingNumberMinus))
-  {
-    /* force a leading sign '+' or '-' */
-    if (exponent > 0)
-    {
-      sprintf (tbuf, "%+*.*e", width, precision, e->Number);
-    }
-    else
-    {
-      sprintf (tbuf, "%+*.*f", width, precision, e->Number);
-    }
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-
-  if (TailChar == ' ')
-  {
-    /* do nothing */
-  }
-  else
-    if (IS_CHAR (TailChar, PrintUsingNumberPlus)
-        || IS_CHAR (TailChar, PrintUsingNumberMinus))
-  {
-    /* move sign '+' or '-' to end */
-    int i;
-    int n;
-
-    n = bwb_strlen (tbuf);
-
-    for (i = 0; i < n; i++)
-    {
-      if (tbuf[i] != ' ')
-      {
-        if (IS_CHAR (tbuf[i], PrintUsingNumberPlus))
-        {
-          tbuf[i] = ' ';
-          if (IS_CHAR (TailChar, PrintUsingNumberPlus))
-          {
-            /* TailChar of '+' does print a '+' */
-            bwb_strcat (tbuf, "+");
-          }
-          else if (IS_CHAR (TailChar, PrintUsingNumberMinus))
-          {
-            /* TailChar of '-' does NOT print a '+' */
-            bwb_strcat (tbuf, " ");
-          }
-        }
-        else if (IS_CHAR (tbuf[i], PrintUsingNumberMinus))
-        {
-          tbuf[i] = ' ';
-          bwb_strcat (tbuf, "-");
-        }
-        break;
-      }
-    }
-    if (tbuf[0] == ' ')
-    {
-      n = bwb_strlen (tbuf);
-      /* n > 0 */
-      for (i = 1; i < n; i++)
-      {
-        tbuf[i - 1] = tbuf[i];
-      }
-      tbuf[n - 1] = NulChar;
-    }
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-
-
-  if (CurrChar == ' ')
-  {
-    /* do nothing */
-  }
-  else if (IS_CHAR (CurrChar, PrintUsingNumberDollar))
-  {
-    int i;
-    int n;
-
-    n = bwb_strlen (tbuf);
-
-    for (i = 0; i < n; i++)
-    {
-      if (tbuf[i] != ' ')
-      {
-        if (i > 0)
-        {
-          if (bwb_isdigit (tbuf[i]))
-          {
-            tbuf[i - 1] = CurrChar;
-          }
-          else
-          {
-            /* sign char */
-            tbuf[i - 1] = tbuf[i];
-            tbuf[i] = CurrChar;
-          }
-        }
-        break;
-      }
-    }
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-
-  if (FillChar == ' ')
-  {
-    /* do nothing */
-  }
-  else if (IS_CHAR (FillChar, PrintUsingNumberFiller))
-  {
-    int i;
-    int n;
-
-    n = bwb_strlen (tbuf);
-
-    for (i = 0; i < n; i++)
-    {
-      if (tbuf[i] != ' ')
-      {
-        break;
-      }
-      tbuf[i] = PrintUsingNumberFiller;
-    }
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-
-  if (ComaChar == ' ')
-  {
-    xputs (tbuf);
-  }
-  else if (IS_CHAR (ComaChar, PrintUsingNumberComma))
-  {
-    int dig_pos;
-    int dec_pos;
-    int i;
-    int n;
-    int commas;
-
-    dig_pos = -1;
-    dec_pos = -1;
-    n = bwb_strlen (tbuf);
-
-    for (i = 0; i < n; i++)
-    {
-      if ((bwb_isdigit (tbuf[i]) != 0) && (dig_pos == -1))
-      {
-        dig_pos = i;
-      }
-      if ((tbuf[i] == PrintUsingNumberPeriod) && (dec_pos == -1))
-      {
-        dec_pos = i;
-      }
-      if ((dig_pos != -1) && (dec_pos != -1))
-      {
-        break;
-      }
-    }
-    if (dig_pos == -1)
-    {
-      dec_pos = n;
-    }
-    if (dec_pos == -1)
-    {
-      dec_pos = n;
-    }
-    /* count the number of commas */
-    commas = 0;
-    for (i = 0; i < n; i++)
-    {
-      if (((dec_pos - i) % 3 == 0) && (i > dig_pos) && (i < dec_pos))
-      {
-        commas++;
-      }
-    }
-    /* now, actually print */
-    for (i = 0; i < n; i++)
-    {
-      if (i < commas && tbuf[i] == FillChar)
-      {
-        /* 
-           Ignore the same number of leading spaces as there are commas.
-           While not perfect for all possible cases, 
-           it is usually good enough for practical purposes.
-         */
-      }
+      if ( e->operation != OP_NULL )
+         {
+#if TEST_BSTRING
+         b = exp_getsval( e );
+         sprintf( bwb_ebuf, "in bwb_xprint(): bstring name is <%s>",
+            b->name );
+         bwb_debug( bwb_ebuf );
+#endif
+         str_btoc( element, exp_getsval( e ) );
+         }
       else
-      {
-        if (((dec_pos - i) % 3 == 0) && (i > dig_pos) && (i < dec_pos))
-        {
-          xputc1 (PrintUsingNumberComma);
-        }
-        xputc1 (tbuf[i]);
-      }
-    }
-  }
-  else
-  {
-    WARN_INTERNAL_ERROR;
-    return;
-  }
-  *position = p;
-}
+         {
+         element[ 0 ] = '\0';
+         }
 
-static void
-print_using_string (char *buffer, int *position, VariantType * e)
-{
-  /*
-     Format a STRING.
-     'buffer' points to the beginning of a PRINT USING format string, such as "###.##".
-     'position' is the current offset in 'buffer'.
-     'e' is the current expression to print.
-   */
-  int p;
-  char *tbuf;
-   
-  assert (buffer != NULL);
-  assert (position != NULL);
-  assert (e != NULL);
-  assert( My != NULL );
-  assert( My->NumLenBuffer != NULL );
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in bwb_xprint(): element <%s>",
+         element );
+      bwb_debug( bwb_ebuf );
+#endif
 
-  p = *position;
+      /* print with format if there is one */
 
-  if (e->VariantTypeCode == StringTypeCode)
-  {
-    tbuf = e->Buffer;
-  }
-  else
-  {
-    tbuf = My->NumLenBuffer;
-    FormatBasicNumber (e->Number, tbuf);
-  }
+      if (( fs_pos > -1 ) && ( strlen( element ) > 0 ))
+         {
 
-  if (IS_CHAR (buffer[p], PrintUsingStringFirst))
-  {
-    /* print first character only */
-    int i;
+#if COMMON_CMDS
 
-    i = 0;
-    if (tbuf[i] == NulChar)
-    {
-      xputc1 (' ');
-    }
-    else
-    {
-      xputc1 (tbuf[i]);
-      i++;
-    }
-    p++;
-  }
-  else if (IS_CHAR (buffer[p], PrintUsingStringAll))
-  {
-    /* print entire string */
-    p++;
-    xputs (tbuf);
-  }
-  else if (IS_CHAR (buffer[p], PrintUsingStringLength))
-  {
-    /* print N characters or spaces */
-    int i;
+         format = get_prnfmt( format_string, &fs_pos, f );
 
-    i = 0;
-    if (tbuf[i] == NulChar)
-    {
-      xputc1 (' ');
-    }
-    else
-    {
-      xputc1 (tbuf[i]);
-      i++;
-    }
-    p++;
+#if INTENSIVE_DEBUG
+	 sprintf( bwb_ebuf, "in bwb_xprint(): format type <%d> width <%d>",
+            format->type, format->width );
+         bwb_debug( bwb_ebuf );
+#endif
 
-    while (buffer[p] != NulChar && buffer[p] != PrintUsingStringLength)
-    {
-      if (tbuf[i] == NulChar)
-      {
-        xputc1 (' ');
-      }
-      else
-      {
-        xputc1 (tbuf[i]);
-        i++;
-      }
-      p++;
-    }
-    if (IS_CHAR (buffer[p], PrintUsingStringLength))
-    {
-      if (tbuf[i] == NulChar)
-      {
-        xputc1 (' ');
-      }
-      else
-      {
-        xputc1 (tbuf[i]);
-        i++;
-      }
-      p++;
-    }
-  }
-  *position = p;
-}
-
-static int
-is_magic_string (char *buffer)
-{
-  /* 
-     for the character string pointed to 'buffer':
-     return TRUE if it is a MagicString sequence,
-     return FALSE otherwise.
-   */
-   
-  assert (buffer != NULL);
-
-
-  /* 1 character sequences */
-  if (IS_CHAR (buffer[0], PrintUsingStringFirst))
-  {
-    /* "!" */
-    return TRUE;
-  }
-  if (IS_CHAR (buffer[0], PrintUsingStringAll))
-  {
-    /* "&" */
-    return TRUE;
-  }
-  if (IS_CHAR (buffer[0], PrintUsingStringLength))
-  {
-    /* "%...%" */
-    return TRUE;
-  }
-
-  /* 2 character sequences */
-
-  /* 3 character sequences */
-
-  return FALSE;
-}
-
-static int
-is_magic_number (char *buffer)
-{
-  /* 
-     for the character string pointed to 'buffer':
-     return TRUE if it is a MagicNumber sequence,
-     return FALSE otherwise.
-   */
-   
-  assert (buffer != NULL);
-
-  /* 1 character sequences */
-  if (IS_CHAR (buffer[0], PrintUsingNumberDigit))
-  {
-    /* "#" */
-    return TRUE;
-  }
-
-  /* 2 character sequences */
-  if (IS_CHAR (buffer[0], PrintUsingNumberFiller))
-    if (IS_CHAR (buffer[1], PrintUsingNumberFiller))
-    {
-      /* "**" */
-      return TRUE;
-    }
-  if (IS_CHAR (buffer[0], PrintUsingNumberDollar))
-    if (IS_CHAR (buffer[1], PrintUsingNumberDollar))
-    {
-      /* "$$" */
-      return TRUE;
-    }
-
-  if (IS_CHAR (buffer[0], PrintUsingNumberPlus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberDigit))
-    {
-      /* "+#" */
-      return TRUE;
-    }
-  if (IS_CHAR (buffer[0], PrintUsingNumberMinus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberDigit))
-    {
-      /* "-#" */
-      return TRUE;
-    }
-
-  /* 3 character sequences */
-  if (IS_CHAR (buffer[0], PrintUsingNumberPlus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberFiller))
-      if (IS_CHAR (buffer[2], PrintUsingNumberFiller))
-      {
-        /* "+**" */
-        return TRUE;
-      }
-  if (IS_CHAR (buffer[0], PrintUsingNumberPlus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberDollar))
-      if (IS_CHAR (buffer[2], PrintUsingNumberDollar))
-      {
-        /* "+$$" */
-        return TRUE;
-      }
-  if (IS_CHAR (buffer[0], PrintUsingNumberMinus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberFiller))
-      if (IS_CHAR (buffer[2], PrintUsingNumberFiller))
-      {
-        /* "-**" */
-        return TRUE;
-      }
-  if (IS_CHAR (buffer[0], PrintUsingNumberMinus))
-    if (IS_CHAR (buffer[1], PrintUsingNumberDollar))
-      if (IS_CHAR (buffer[2], PrintUsingNumberDollar))
-      {
-        /* "-$$" */
-        return TRUE;
-      }
-
-  return FALSE;
-}
-
-static void
-print_using_variant (char *buffer, int *position, VariantType * e, int IsCSV)
-{
-  /*
-     Format an EXPRESSION.
-     'buffer' points to the beginning of a PRINT USING format string, such as "###.##".
-     'position' is the current offset in 'buffer'.
-     'e' is the current expression to print.
-   */
-  int IsUsed;
-   
-  assert (buffer != NULL);
-  assert (position != NULL);
-  assert (e != NULL);
-  assert( My != NULL );
-  assert( My->NumLenBuffer != NULL );
-
-  /* PRINT A, B, C */
-  /* PRINT USING "", A, B, C */
-  /* PRINT USING "#", A, B, C */
-
-  IsUsed = FALSE;
-  if (buffer[0])
-  {
-    /* we have a format string */
-    int p;
-    p = *position;
-
-    if (p > 0 && buffer[p] == NulChar)
-    {
-      /* recycle the format string */
-      p = 0;
-    }
-    while (buffer[p])
-    {
-      if (is_magic_string (&buffer[p]))
-      {
-        if (IsUsed)
-        {
-          /* stop here, ready for next string value */
-          break;
-        }
-        if (e->VariantTypeCode != StringTypeCode)
-        {
-          /* we are a number value, so we cannot match a magic string */
-          break;
-        }
-        /* magic and value are both string */
-        print_using_string (buffer, &p, e);
-        IsUsed = TRUE;
-      }
-      else if (is_magic_number (&buffer[p]))
-      {
-        if (IsUsed)
-        {
-          /* stop here, ready for next number value */
-          break;
-        }
-        if (e->VariantTypeCode == StringTypeCode)
-        {
-          /* we are a string value, so we cannot match a magic number */
-          break;
-        }
-        /* magic and value are both number */
-        print_using_number (buffer, &p, e);
-        IsUsed = TRUE;
-      }
-      else if (IS_CHAR (buffer[p], PrintUsingLiteral))
-      {
-        /* print next character as literal */
-        p++;
-        if (buffer[p] == NulChar)
-        {
-          /* PRINT USING "_" */
-          xputc1 (' ');
-        }
-        else
-        {
-          /* PRINT USING "_%" */
-          xputc1 (buffer[p]);
-          p++;
-        }
-      }
-      else
-      {
-        /* print this character as literal */
-        /* PRINT USING "A" */
-        xputc1 (buffer[p]);
-        p++;
-      }
-    }
-    *position = p;
-  }
-
-  if (IsUsed == FALSE)
-  {
-    /* we did not actually print the vlue */
-    if (e->VariantTypeCode == StringTypeCode)
-    {
-      /*
-       **
-       ** PRINT A$    
-       ** PRINT USING "";A$    
-       ** PRINT USING "ABC";A$ 
-       **
-       */
-      if (IsCSV)
-      {
-        xputc1 ('\"');
-        xputs (e->Buffer);
-        xputc1 ('\"');
-      }
-      else
-      {
-        xputs (e->Buffer);
-      }
-    }
-    else
-    {
-      /*
-       **
-       ** PRINT X     
-       ** PRINT USING "";X     
-       ** PRINT USING "ABC";X  
-       **
-       ** [space]number[space]   POSITIVE or ZERO
-       ** [minus]number[space]   NEGATIVE 
-       **
-       **/
-      char *tbuf;
-
-      tbuf = My->NumLenBuffer;
-
-      FormatBasicNumber (e->Number, tbuf);
-
-      if (IsCSV)
-      {
-        char *P;
-        P = tbuf;
-        while (*P == ' ')
-        {
-          P++;
-        }
-        xputs (P);
-      }
-      else
-      {
-        xputs (tbuf);
-        xputc1 (' ');
-      }
-    }
-  }
-}
-
-/***************************************************************
-  
-        FUNCTION:       xputs()
-  
-   DESCRIPTION:    This function outputs a null-terminated
-         string to a specified file or output
-         device.
-  
-***************************************************************/
-
-static void
-xputs (char *buffer)
-{
-   
-  assert (buffer != NULL);
-  assert( My != NULL );  
-  assert (My->CurrentFile != NULL);
-
-  if (My->CurrentFile->width > 0)
-  {
-    /* check to see if the width will be exceeded */
-    int n;
-    n = My->CurrentFile->col + bwb_strlen (buffer) - 1;
-    if (n > My->CurrentFile->width)
-    {
-      xputc1 ('\n');
-    }
-  }
-  /* output the string */
-  while (*buffer)
-  {
-    xputc1 (*buffer);
-    buffer++;
-  }
-}
-
-
-/***************************************************************
-  
-        FUNCTION:       next_zone()
-  
-   DESCRIPTION:    Advance to the next print zone.
-  
-***************************************************************/
-static void
-next_zone (void)
-{
-  assert( My != NULL );
-  assert (My->CurrentFile != NULL);
-
-  if (My->CurrentFile->width > 0)
-  {
-    /*
-     **
-     ** check to see if width will be exceeded 
-     **
-     */
-    int LastZoneColumn;
-
-    LastZoneColumn = 1;
-    while (LastZoneColumn < My->CurrentFile->width)
-    {
-      LastZoneColumn += My->OptionZoneInteger;
-    }
-    LastZoneColumn -= My->OptionZoneInteger;
-
-    if (My->CurrentFile->col >= LastZoneColumn)
-    {
-      /*
-       **
-       ** width will be exceeded, so advance to a new line
-       **
-       */
-      xputc1 ('\n');
-      return;
-    }
-  }
-  /*
-   **
-   ** advance to the next print zone
-   **
-   */
-  if ((My->CurrentFile->col % My->OptionZoneInteger) == 1)
-  {
-    xputc1 (' ');
-  }
-  while ((My->CurrentFile->col % My->OptionZoneInteger) != 1)
-  {
-    xputc1 (' ');
-  }
-}
-
-/***************************************************************
-  
-        FUNCTION:       xputc1()
-  
-   DESCRIPTION:    This function outputs a character to a
-         specified file or output device, checking
-         to be sure the PRINT width is within
-         the bounds specified for that device.
-  
-***************************************************************/
-
-static void
-xputc1 (char c)
-{
-  assert( My != NULL );
-  assert (My->CurrentFile != NULL);
-
-  if (My->CurrentFile->width > 0)
-  {
-    /*
-     **
-     ** check to see if width has been exceeded 
-     **
-     */
-    if (c != '\n')
-    {
-      /*
-       **
-       ** REM this should print one line, not two lines 
-       ** WIDTH 80
-       ** PRINT SPACE$( 80 ) 
-       **
-       */
-      if (My->CurrentFile->col > My->CurrentFile->width)
-      {
-        xputc2 ('\n');                /* output LF */
-      }
-    }
-  }
-  /*
-   **
-   ** output the character
-   **
-   */
-  xputc2 (c);
-}
-
-/***************************************************************
-  
-   FUNCTION:       xputc2()
-  
-   DESCRIPTION:    This function sends a character to a
-         specified file or output device.
-  
-***************************************************************/
-
-
-static void
-xputc2 (char c)
-{
-  assert( My != NULL );
-  assert (My->CurrentFile != NULL);
-  assert (My->CurrentFile->cfp != NULL);
-  assert( My->CurrentVersion != NULL );
-
-  if (c == '\n')
-  {
-    /*
-     **
-     ** CBASIC-II: RANDOM files are padded on the right with spaces 
-     **
-     */
-    if (My->CurrentVersion->OptionVersionValue & (C77))
-      if (My->CurrentFile->DevMode & DEVMODE_RANDOM)
-        if (My->CurrentFile->width > 0)
-        {
-#if HAVE_MSDOS
-          /* "\n" is converted to "\r\n" */
-          while (My->CurrentFile->col < (My->CurrentFile->width - 1))
-#else /*  ! HAVE_MSDOS */
-          while (My->CurrentFile->col < My->CurrentFile->width)
-#endif /* ! HAVE_MSDOS */
-          {
-            fputc (' ', My->CurrentFile->cfp);
-            My->CurrentFile->col++;
-          }
-        }
-    /*
-     **
-     ** output the character 
-     **
-     */
-    fputc (c, My->CurrentFile->cfp);
-    /*
-     **
-     ** NULLS 
-     **
-     */
-    if (My->LPRINT_NULLS > 0)
-      if (My->CurrentFile == My->SYSPRN)
-        if (My->CurrentFile->width > 0)
-        {
-          int i;
-          for (i = 0; i < My->LPRINT_NULLS; i++)
-          {
-            fputc (NulChar, My->SYSPRN->cfp);
-          }
-        }
-    /*
-     **
-     ** update current column position 
-     **
-     */
-    My->CurrentFile->col = 1;
-    My->CurrentFile->row++;
-    return;
-  }
-  /*
-   **
-   ** output the character 
-   **
-   */
-  fputc (c, My->CurrentFile->cfp);
-  /*
-   **
-   ** update current column position 
-   **
-   */
-  My->CurrentFile->col++;
-}
-
-
-extern void
-ResetConsoleColumn (void)
-{
-  assert( My != NULL );
-  assert (My->SYSOUT != NULL);
-
-  My->SYSOUT->col = 1;
-}
-
-static LineType *
-S70_PUT (LineType * l)
-{
-  /* PUT filename$ , value [, ...] */
-  VariantType e;
-  VariantType *E;
-   
-  assert (l != NULL);
-  assert( My != NULL );
-  assert( My->CurrentVersion != NULL );
-  assert( My->NumLenBuffer != NULL );
-
-  E = &e;
-  CLEAR_VARIANT (E);
-  if (line_read_expression (l, E) == FALSE)        /* bwb_PUT */
-  {
-    goto EXIT;
-  }
-  if (E->VariantTypeCode == StringTypeCode)
-  {
-    /* STRING */
-    /* PUT filename$ ... */
-    if (is_empty_string (E->Buffer))
-    {
-      /* PUT "" ... is an error */
-      WARN_BAD_FILE_NAME;
-      goto EXIT;
-    }
-    My->CurrentFile = find_file_by_name (E->Buffer);
-    if (My->CurrentFile == NULL)
-    {
-      /* implicitly OPEN for writing */
-      My->CurrentFile = file_new ();
-      My->CurrentFile->cfp = fopen (E->Buffer, "w");
-      if (My->CurrentFile->cfp == NULL)
-      {
-        WARN_BAD_FILE_NAME;
-        goto EXIT;
-      }
-      My->CurrentFile->FileNumber = file_next_number ();
-      My->CurrentFile->DevMode = DEVMODE_OUTPUT;
-      My->CurrentFile->width = 0;
-      /* WIDTH == RECLEN */
-      My->CurrentFile->col = 1;
-      My->CurrentFile->row = 1;
-      My->CurrentFile->delimit = ',';
-      My->CurrentFile->buffer = NULL;
-      if (My->CurrentFile->FileName != NULL)
-      {
-        free (My->CurrentFile->FileName);
-        My->CurrentFile->FileName = NULL;
-      }
-      My->CurrentFile->FileName = E->Buffer;
-      E->Buffer = NULL;
-    }
-  }
-  else
-  {
-    /* NUMBER -- file must already be OPEN */
-    /* PUT filenumber ... */
-    if (E->Number < 0)
-    {
-      /* "PUT # -1" is an error */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-    if (E->Number == 0)
-    {
-      /* "PUT # 0" is an error */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-    /* normal file */
-    My->CurrentFile = find_file_by_number ((int) bwb_rint (E->Number));
-    if (My->CurrentFile == NULL)
-    {
-      /* file not OPEN */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-  }
-  if (My->CurrentFile == NULL)
-  {
-    WARN_BAD_FILE_NUMBER;
-    goto EXIT;
-  }
-  if ((My->CurrentFile->DevMode & DEVMODE_WRITE) == 0)
-  {
-    WARN_BAD_FILE_NUMBER;
-    goto EXIT;
-  }
-  if (line_is_eol (l))
-  {
-    /* PUT F$ */
-    /* PUT #1 */
-    xputc1 ('\n');
-    goto EXIT;
-  }
-  else if (line_skip_seperator (l))
-  {
-    /* OK */
-  }
-  else
-  {
-    WARN_SYNTAX_ERROR;
-    goto EXIT;
-  }
-
-  /* loop through elements */
-
-  while (line_is_eol (l) == FALSE)
-  {
-    while (line_skip_seperator (l))
-    {
-      /* PUT F$, ,,,A,,,B,,, */
-      /* PUT #1, ,,,A,,,B,,, */
-      xputc1 (My->CurrentFile->delimit);
-    }
-
-    if (line_is_eol (l) == FALSE)
-    {
-      /* print this item */
-
-      CLEAR_VARIANT (E);
-      if (line_read_expression (l, E) == FALSE)        /* bwb_PUT */
-      {
-        goto EXIT;
-      }
-      if (E->VariantTypeCode == StringTypeCode)
-      {
-        /* STRING */
-        xputc1 (My->CurrentVersion->OptionQuoteChar);
-        xputs (E->Buffer);
-        xputc1 (My->CurrentVersion->OptionQuoteChar);
-      }
-      else
-      {
-        /* NUMBER */
-        char *tbuf;
-
-        tbuf = My->NumLenBuffer;
-        FormatBasicNumber (E->Number, tbuf);
-        xputs (tbuf);
-      }
-      RELEASE_VARIANT (E);
-    }
-  }
-  /* print LF */
-  xputc1 ('\n');
-  /* OK */
-EXIT:
-  RELEASE_VARIANT (E);
-  return (l);
-}
-
-
-static LineType *
-D71_PUT (LineType * l)
-{
-  /* PUT # file_number [ , RECORD record_number ] */
-  int file_number;
-   
-  assert (l != NULL);
-  assert( My != NULL );
-
-  file_number = 0;
-  if (line_skip_FilenumChar (l))
-  {
-    /* OPTIONAL */
-  }
-  if (line_read_integer_expression (l, &file_number) == FALSE)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (l);
-  }
-  if (file_number < 1)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (l);
-  }
-  My->CurrentFile = find_file_by_number (file_number);
-  if (My->CurrentFile == NULL)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (l);
-  }
-  if (My->CurrentFile->DevMode != DEVMODE_RANDOM)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (l);
-  }
-  if (My->CurrentFile->width <= 0)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (l);
-  }
-  if (line_is_eol (l))
-  {
-    /* PUT # file_number */
-  }
-  else
-  {
-    /* PUT # file_number , RECORD record_number */
-    int record_number;
-    long offset;
-
-    record_number = 0;
-    offset = 0;
-    if (line_skip_seperator (l) == FALSE)
-    {
-      WARN_SYNTAX_ERROR;
-      return (l);
-    }
-    if (line_skip_word (l, "RECORD") == FALSE)
-    {
-      WARN_SYNTAX_ERROR;
-      return (l);
-    }
-    if (line_read_integer_expression (l, &record_number) == FALSE)
-    {
-      WARN_BAD_RECORD_NUMBER;
-      return (l);
-    }
-    if (record_number <= 0)
-    {
-      WARN_BAD_RECORD_NUMBER;
-      return (l);
-    }
-    record_number--;                /* BASIC to C */
-    offset = record_number;
-    offset *= My->CurrentFile->width;
-    if (fseek (My->CurrentFile->cfp, offset, SEEK_SET) != 0)
-    {
-      WARN_BAD_RECORD_NUMBER;
-      return (l);
-    }
-  }
-  field_put (My->CurrentFile);
-  /* if( TRUE ) */
-  {
-    int i;
-    for (i = 0; i < My->CurrentFile->width; i++)
-    {
-      char c;
-      c = My->CurrentFile->buffer[i];
-      fputc (c, My->CurrentFile->cfp);
-    }
-  }
-  /* OK */
-  return (l);
-}
-
-static LineType *
-H14_PUT (LineType * Line)
-{
-  /* PUT # FileNumber [ , RecordNumber ]                   ' RANDOM */
-  /* PUT # FileNumber   , [ BytePosition ] , scalar [,...] ' BINARY */
-  int file_number;
-   
-  assert (Line != NULL);
-  assert( My != NULL );
-
-  file_number = 0;
-  if (line_skip_FilenumChar (Line))
-  {
-    /* OPTIONAL */
-  }
-  if (line_read_integer_expression (Line, &file_number) == FALSE)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (Line);
-  }
-  if (file_number < 1)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (Line);
-  }
-  My->CurrentFile = find_file_by_number (file_number);
-  if (My->CurrentFile == NULL)
-  {
-    WARN_BAD_FILE_NUMBER;
-    return (Line);
-  }
-  if (My->CurrentFile->DevMode == DEVMODE_RANDOM)
-  {
-    /* PUT # FileNumber [ , RecordNumber ]                   ' RANDOM */
-    if (My->CurrentFile->width <= 0)
-    {
-      WARN_BAD_FILE_NUMBER;
-      return (Line);
-    }
-    if (line_is_eol (Line))
-    {
-      /* PUT # file_number */
-    }
-    else
-    {
-      /* PUT # FileNumber , RecordNumber                   ' RANDOM */
-      int record_number;
-      long offset;
-
-      record_number = 0;
-      offset = 0;
-      if (line_skip_seperator (Line) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return (Line);
-      }
-      if (line_read_integer_expression (Line, &record_number) == FALSE)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-      if (record_number <= 0)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-      record_number--;                /* BASIC to C */
-      offset = record_number;
-      offset *= My->CurrentFile->width;
-      if (fseek (My->CurrentFile->cfp, offset, SEEK_SET) != 0)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-    }
-    field_put (My->CurrentFile);
-    /* if( TRUE ) */
-    {
-      int i;
-      for (i = 0; i < My->CurrentFile->width; i++)
-      {
-        char c;
-        c = My->CurrentFile->buffer[i];
-        fputc (c, My->CurrentFile->cfp);
-      }
-    }
-    /* OK */
-    return (Line);
-  }
-  else if (My->CurrentFile->DevMode == DEVMODE_BINARY)
-  {
-    /* PUT # FileNumber   , [ BytePosition ] , scalar [,...] ' BINARY */
-    if (line_skip_seperator (Line) == FALSE)
-    {
-      WARN_SYNTAX_ERROR;
-      return (Line);
-    }
-    if (line_skip_seperator (Line))
-    {
-      /* BytePosition not provided */
-    }
-    else
-    {
-      int RecordNumber;
-      long offset;
-
-      RecordNumber = 0;
-      offset = 0;
-      if (line_read_integer_expression (Line, &RecordNumber) == FALSE)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-      if (RecordNumber <= 0)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-      RecordNumber--;                /* BASIC to C */
-      offset = RecordNumber;
-      if (fseek (My->CurrentFile->cfp, offset, SEEK_SET) != 0)
-      {
-        WARN_BAD_RECORD_NUMBER;
-        return (Line);
-      }
-      if (line_skip_seperator (Line) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return (Line);
-      }
-    }
-    do
-    {
-      VariableType *v;
-
-      if ((v = line_read_scalar (Line)) == NULL)
-      {
-        WARN_SYNTAX_ERROR;
-        return (Line);
-      }
-      if (binary_get_put (v, TRUE) == FALSE)
-      {
-        WARN_SYNTAX_ERROR;
-        return (Line);
-      }
-    }
-    while (line_skip_seperator (Line));
-    /* OK */
-    return (Line);
-  }
-  WARN_BAD_FILE_MODE;
-  return (Line);
-}
-
-
-extern LineType *
-bwb_PUT (LineType * Line)
-{
-   
-  assert (Line != NULL);
-  assert( My != NULL );
-  assert( My->CurrentVersion != NULL );
-
-  if (My->CurrentVersion->OptionVersionValue & (S70 | I70 | I73))
-  {
-    return S70_PUT (Line);
-  }
-  if (My->CurrentVersion->OptionVersionValue & (D71 | R86))
-  {
-    return D71_PUT (Line);
-  }
-  if (My->CurrentVersion->OptionVersionValue & (H14))
-  {
-    return H14_PUT (Line);
-  }
-  WARN_INTERNAL_ERROR;
-  return (Line);
-}
-
-
-/***************************************************************
-  
-        FUNCTION:       bwb_write()
-  
-   DESCRIPTION:    This C function implements the BASIC WRITE
-         command.
-  
-   SYNTAX:     WRITE [# device-number,] element [, element ]....
-  
-***************************************************************/
-
-
-extern LineType *
-bwb_WRITE (LineType * l)
-{
-  int IsCSV;
-   
-  assert (l != NULL);
-
-  IsCSV = TRUE;
-  assert( My != NULL );
-  assert( My->SYSOUT != NULL );
-  My->CurrentFile = My->SYSOUT;
-  internal_print (l, IsCSV);
-  return (l);
-}
-
-static LineType *
-file_write_matrix (LineType * l, char delimit)
-{
-  /* MAT PRINT  [ # filenumber , ] matrix [;|,] ... */
-  /* MAT WRITE  [ # filenumber , ] matrix [;|,] ... */
-  /* MAT PUT    filename$      ,   matrix [;|,] ... */
-  /* MAT PUT    filenumber     ,   matrix [;|,] ... */
-  /* Array must be 1, 2 or 3 dimensions    */
-  /* Array may be either NUMBER or STRING  */
-   
-  assert (l != NULL);
-
-  do
-  {
-    VariableType *v;
-    char ItemSeperator;
-
-    /* get matrix name */
-    if ((v = line_read_matrix (l)) == NULL)
-    {
-      WARN_SUBSCRIPT_OUT_OF_RANGE;
-      return (l);
-    }
-
-    /* variable MUST be an array of 1, 2 or 3 dimensions */
-    if (v->dimensions < 1)
-    {
-      WARN_SUBSCRIPT_OUT_OF_RANGE;
-      return (l);
-    }
-    if (v->dimensions > 3)
-    {
-      WARN_SUBSCRIPT_OUT_OF_RANGE;
-      return (l);
-    }
-    /*
-     **
-     ** This may look odd, but MAT PRINT is special.
-     ** The variable seperator AFTER the variable determines how the variable's values are printed.
-     ** The number of dimension determines:
-     ** a) the meaning of comma (,) and semicolon (;)
-     ** b) the default of row-by-row or col-by-col
-     **
-     */
-    ItemSeperator = NulChar;        /* concatenate the columns */
-    if (line_skip_CommaChar (l) /* comma-specific */ )
-    {
-      /*
-       **
-       ** force printing with the specified delimiter,
-       ** which is usually a Comma but can be any character.
-       **
-       */
-      ItemSeperator = delimit;        /* for MAT PRINT this is forced to be a ZoneChar */
-    }
-    else if (line_skip_SemicolonChar (l) /* semicolon-specific */ )
-    {
-      /*
-       **
-       ** force concatenating the columns,
-       ** ignoring the specified delimiter.
-       **
-       */
-      ItemSeperator = NulChar;
-    }
-    else
-    {
-      /*
-       **
-       ** default the item seperator based upon variable's dimensions
-       **
-       */
-      switch (v->dimensions)
-      {
-      case 1:
-        /* by default, a one dimension array is printed row-by-row */
-        ItemSeperator = '\n';
-        break;
-      case 2:
-        /* by default, a two dimension array is printed col-by-col */
-        ItemSeperator = delimit;
-        break;
-      case 3:
-        /* by default, a three dimension array is printed col-by-col */
-        ItemSeperator = delimit;
-        break;
-      }
-    }
-    /* print array */
-    switch (v->dimensions)
-    {
-    case 1:
-      {
-        /*
-           OPTION BASE 0
-           DIM A(5)
-           ...
-           MAT PRINT A 
-           ...
-           FOR I = 0 TO 5
-           PRINT A(I)
-           NEXT I
-           ...
-         */
-        for (v->VINDEX[0] = v->LBOUND[0]; v->VINDEX[0] <= v->UBOUND[0];
-             v->VINDEX[0]++)
-        {
-          VariantType variant;
-          CLEAR_VARIANT (&variant);
-
-          if (v->VINDEX[0] > v->LBOUND[0])
-          {
-            switch (ItemSeperator)
+         switch( format->type )
             {
-            case NulChar:
-              break;
-            case ZoneChar:
-              next_zone ();
-              break;
+            case STRING:
+               if ( e->type != STRING )
+                  {
+#if PROG_ERRORS
+                  bwb_error( "Type mismatch in PRINT USING" );
+#else
+                  bwb_error( err_mismatch );
+#endif
+                  }
+               if ( format->width == -1 ) /* JBV */
+                  sprintf( output_string, "%s", element );
+               else sprintf( output_string, "%.*s", format->width, element );
+
+#if INTENSIVE_DEBUG
+               sprintf( bwb_ebuf, "in bwb_xprint(): output string <%s>",
+                  output_string );
+               bwb_debug( bwb_ebuf );
+#endif
+
+               prn_xxprintf( f, output_string ); /* Was prn_xprintf (JBV) */
+               break;
+
+	    case NUMBER:
+               if ( e->type == STRING )
+                  {
+#if PROG_ERRORS
+                  bwb_error( "Type mismatch in PRINT USING" );
+#else
+                  bwb_error( err_mismatch );
+#endif
+                  }
+
+	       if ( format->exponential == TRUE )
+		  {
+                  /*------------------------------------------------------*/
+                  /* NOTE: Width and fill have no effect on C exponential */
+                  /* format (JBV)                                         */
+                  /*------------------------------------------------------*/
+		  if ( format->sign == TRUE ) /* Added by JBV */
+                     sprintf( output_string, "%+e", exp_getnval( e ) );
+		  else
+                     sprintf( output_string, "%e", exp_getnval( e ) );
+		  }
+	       else
+		  {
+                  /*---------------------------------------------------*/
+                  /* NOTE: Minus, commas, and money are only valid for */
+                  /* floating point format (JBV)                       */
+                  /*---------------------------------------------------*/
+		  if ( format->sign == TRUE ) /* Added by JBV */
+		  sprintf( output_string, "%+*.*f",
+		     format->width, format->precision, exp_getnval( e ) );
+		  else if ( format->minus == TRUE ) /* Added by JBV */
+                  {
+		      sprintf( output_string, "%*.*f",
+		         format->width, format->precision, exp_getnval( e ) );
+                      for (i = 0; i < strlen( output_string ); ++i )
+                      {
+                          if ( output_string[ i ] != ' ' )
+                          {
+                              if ( output_string[ i ] == '-' )
+                              {
+                                  output_string[ i ] = ' ';
+                                  strcat( output_string, "-" );
+                              }
+                              else strcat( output_string, " " );
+                              break;
+                          }
+                      }
+                  }
+		  else
+		  sprintf( output_string, "%*.*f",
+		     format->width, format->precision, exp_getnval( e ) );
+
+                  if ( format->commas == TRUE ) /* Added by JBV */
+                  {
+                      dig_pos = -1;
+                      dec_pos = -1;
+                      for ( i = 0; i < strlen( output_string ); ++i )
+                      {
+                          if ( ( isdigit( output_string[ i ] ) != 0 )
+                          && ( dig_pos == -1 ) )
+                             dig_pos = i;
+                          if ( ( output_string[ i ] == '.' )
+                          && ( dec_pos == -1 ) )
+                             dec_pos = i;
+                          if ( ( dig_pos != -1 ) && ( dec_pos != -1 ) ) break;
+                      }
+                      if ( dec_pos == -1 ) dec_pos = strlen( output_string );
+                      j = 0;
+                      for ( i = 0; i < strlen( output_string ); ++i )
+                      {
+                          if ( ( ( dec_pos - i ) % 3 == 0 )
+                          && ( i > dig_pos ) && ( i < dec_pos ) )
+                          {
+                              tbuf[ j ] = ',';
+                              ++j;
+                              tbuf[ j ] = '\0';
+                          }
+                          tbuf[ j ] = output_string[ i ];
+                          ++j;
+                          tbuf[ j ] = '\0';
+                      }
+                      strcpy( output_string,
+                         &tbuf[ strlen( tbuf ) - strlen( output_string ) ] );
+                  }
+
+                  if ( format->money == TRUE ) /* Added by JBV */
+                  {
+                      for ( i = 0; i < strlen( output_string ); ++i )
+                      {
+                          if ( output_string[ i ] != ' ' )
+                          {
+                              if ( i > 0 )
+                              {
+                                  if ( isdigit( output_string[ i ] ) == 0 )
+                                  {
+                                      output_string[ i - 1 ]
+                                         = output_string[ i ];
+                                      output_string[ i ] = '$';
+                                  }
+                                  else output_string[ i - 1 ] = '$';
+                              }
+                              break;
+                          }
+                      }
+                  }
+
+		  }
+
+                  if ( format->fill == '*' ) /* Added by JBV */
+                  for ( i = 0; i < strlen( output_string ); ++i )
+                  {
+                     if ( output_string[ i ] != ' ' ) break;
+                     output_string[ i ] = '*';
+                  }
+
+#if INTENSIVE_DEBUG
+	       sprintf( bwb_ebuf, "in bwb_xprint(): output number <%f> string <%s>",
+		  exp_getnval( e ), output_string );
+	       bwb_debug( bwb_ebuf );
+#endif
+
+               prn_xxprintf( f, output_string ); /* Was prn_xprintf (JBV) */
+               break;
+
+	    default:
+#if PROG_ERRORS
+               sprintf( bwb_ebuf, "in bwb_xprint(): get_prnfmt() returns unknown type <%c>",
+                  format->type );
+               bwb_error( bwb_ebuf );
+#else
+               bwb_error( err_mismatch );
+#endif
+               break;
+            }
+
+#endif			/* COMMON_CMDS */
+
+         }
+
+      /* not a format string: use defaults */
+
+      else if ( strlen( element ) > 0 )
+         {
+
+         switch( e->type )
+            {
+            case STRING:
+               prn_xprintf( f, element );
+               break;
             default:
-              xputc1 (ItemSeperator);
+#if NUMBER_DOUBLE
+               sprintf( prnbuf, " %.*lf", prn_precision( bwb_esetovar( e )),
+                  exp_getnval( e ) );
+#else
+               sprintf( prnbuf, " %.*f", prn_precision( bwb_esetovar( e )),
+                  exp_getnval( e ) );
+#endif
+               prn_xprintf( f, prnbuf );
+               break;
             }
-          }
-          if (var_get (v, &variant) == FALSE)
-          {
-            WARN_VARIABLE_NOT_DECLARED;
-            return (l);
-          }
-          if (variant.VariantTypeCode == StringTypeCode)
-          {
-            xputs (variant.Buffer);
-          }
-          else
-          {
-            char *tbuf;
+         }
 
-            tbuf = My->NumLenBuffer;
-            FormatBasicNumber (variant.Number, tbuf);
-            xputs (tbuf);
-          }
-        }
-        xputc1 ('\n');
-      }
-      break;
-    case 2:
+      /* check the position to see if the loop should continue */
+
+      adv_ws( l->buffer, &( l->position ) );
+      switch( l->buffer[ l->position ] )
+         {
+#if OLDSTUFF
+         case ':':		/* end of line segment */
+	    loop = FALSE;
+	    break;
+         case '\0':		/* end of buffer */
+         case '\n':
+         case '\r':
+	    loop = FALSE;
+            break;
+#endif
+         case ',':		/* tab over */
+            /* Tab only if there's no format specification! (JBV) */
+            if (( fs_pos == -1 ) || ( strlen( element ) == 0 ))
+               xputc( f, '\t' );
+            ++l->position;
+            adv_ws( l->buffer, &( l->position ) );
+            break;
+         case ';':		/* concatenate strings */
+            ++l->position;
+            adv_ws( l->buffer, &( l->position ) );
+            break;
+         default:
+            loop = FALSE;
+            break;
+         }
+
+      }				/* end of loop through print elements */
+
+   if (( fs_pos > -1 ) && ( strlen( element ) > 0 ))
+      format = get_prnfmt( format_string, &fs_pos, f ); /* Finish up (JBV) */
+
+   /* call prn_cr() to print a CR if it is not overridden by a
+      concluding ';' mark */
+
+   prn_cr( l->buffer, f );
+
+   return TRUE;
+
+   }                            /* end of function bwb_xprint() */
+
+#if COMMON_CMDS
+
+/***************************************************************
+
+        FUNCTION:       get_prnfmt()
+
+	DESCRIPTION:    This function gets the PRINT USING
+			format string, returning a structure
+			to the format.
+
+***************************************************************/
+
+#if ANSI_C
+static struct prn_fmt *
+get_prnfmt( char *buffer, int *position, FILE *f )
+#else
+static struct prn_fmt *
+get_prnfmt( buffer, position, f )
+   char *buffer;
+   int *position;
+   FILE *f;
+#endif
+   {
+   static struct prn_fmt retstruct;
+   int loop;
+
+   /* set some defaults */
+
+   retstruct.precision = 0;
+   retstruct.type = FALSE;
+   retstruct.exponential = FALSE;
+   retstruct.right_justified = FALSE;
+   retstruct.commas = FALSE;
+   retstruct.sign = FALSE;
+   retstruct.money = FALSE;
+   retstruct.fill = ' ';
+   retstruct.minus = FALSE;
+   retstruct.width = 0;
+
+   /* check for negative position */
+
+   if ( *position < 0 )
       {
-        /*
-           OPTION BASE 0
-           DIM B(2,3)
-           ...
-           MAT PRINT B 
-           ...
-           FOR I = 0 TO 2
-           FOR J = 0 TO 3
-           PRINT B(I,J),
-           NEXT J
-           PRINT
-           NEXT I
-           ...
-         */
-        for (v->VINDEX[0] = v->LBOUND[0]; v->VINDEX[0] <= v->UBOUND[0];
-             v->VINDEX[0]++)
-        {
-          for (v->VINDEX[1] = v->LBOUND[1]; v->VINDEX[1] <= v->UBOUND[1];
-               v->VINDEX[1]++)
-          {
-            VariantType variant;
-            CLEAR_VARIANT (&variant);
-
-            if (v->VINDEX[1] > v->LBOUND[1])
-            {
-              switch (ItemSeperator)
-              {
-              case NulChar:
-                break;
-              case ZoneChar:
-                next_zone ();
-                break;
-              default:
-                xputc1 (ItemSeperator);
-              }
-            }
-            if (var_get (v, &variant) == FALSE)
-            {
-              WARN_VARIABLE_NOT_DECLARED;
-              return (l);
-            }
-            if (variant.VariantTypeCode == StringTypeCode)
-            {
-              xputs (variant.Buffer);
-            }
-            else
-            {
-              char *tbuf;
-
-              tbuf = My->NumLenBuffer;
-              FormatBasicNumber (variant.Number, tbuf);
-              xputs (tbuf);
-            }
-          }
-          xputc1 ('\n');
-        }
+      return &retstruct;
       }
-      break;
-    case 3:
+
+   /* advance past whitespace */
+
+   /* adv_ws( buffer, position ); */  /* Don't think we want this (JBV) */
+
+   /* check first character: a lost can be decided right here */
+
+   loop = TRUE;
+   while( loop == TRUE )
       {
-        /*
-           OPTION BASE 0
-           DIM C(2,3,4)
-           ...
-           MAT PRINT C 
-           ...
-           FOR I = 0 TO 2
-           FOR J = 0 TO 3
-           FOR K = 0 TO 4
-           PRINT C(I,J,K),
-           NEXT K
-           PRINT
-           NEXT J
-           PRINT
-           NEXT I
-           ...
-         */
-        for (v->VINDEX[0] = v->LBOUND[0]; v->VINDEX[0] <= v->UBOUND[0];
-             v->VINDEX[0]++)
-        {
-          for (v->VINDEX[1] = v->LBOUND[1]; v->VINDEX[1] <= v->UBOUND[1];
-               v->VINDEX[1]++)
-          {
-            for (v->VINDEX[2] = v->LBOUND[2]; v->VINDEX[2] <= v->UBOUND[2];
-                 v->VINDEX[2]++)
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in get_prnfmt(): loop, buffer <%s>",
+         &( buffer[ *position ] ) );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      switch( buffer[ *position ] )
+         {
+         case ' ':		/* end of this format segment */
+            xxputc( f, buffer[ *position ] ); /* Gotta output it (JBV) */
+            ++( *position ); /* JBV */
+            if (retstruct.type != FALSE) loop = FALSE; /* JBV */
+            break;
+         case '\0':		/* end of format string */
+         case '\n':
+         case '\r':
+            *position = -1;
+            return &retstruct;
+         case '_':		/* print next character as literal */
+            ++( *position );
+            xxputc( f, buffer[ *position ] ); /* Not xputc, no tabs (JBV) */
+            ++( *position );
+            break;
+
+	 case '!':
+            retstruct.type = STRING;
+            retstruct.width = 1;
+            ++( *position ); /* JBV */
+            return &retstruct;
+
+	 case '&': /* JBV */
+            retstruct.type = STRING;
+            retstruct.width = -1; 
+            ++( *position );
+            return &retstruct;
+
+	 case '\\':
+
+#if INTENSIVE_DEBUG
+            sprintf( bwb_ebuf, "in get_prnfmt(): found \\" );
+            bwb_debug( bwb_ebuf );
+#endif
+
+	    retstruct.type = STRING;
+	    ++retstruct.width;
+	    ++( *position );
+	    for ( ; buffer[ *position ] == ' '; ++( *position ) )
+               {
+               ++retstruct.width;
+               }
+            if ( buffer[ *position ] == '\\' )
+	       {
+	       ++retstruct.width;
+               ++( *position );
+               }
+            return &retstruct;
+         case '$':
+            ++retstruct.width; /* JBV */
+            ++( *position );
+            retstruct.money = TRUE;
+            if ( buffer[ *position ] == '$' )
+               {
+               ++retstruct.width; /* JBV */
+               ++( *position );
+               }
+            break;
+         case '*':
+            ++retstruct.width; /* JBV */
+            ++( *position );
+            retstruct.fill = '*';
+            if ( buffer[ *position ] == '*' )
+               {
+               ++retstruct.width; /* JBV */
+               ++( *position );
+               }
+            break;
+         case '+':
+            ++( *position );
+            retstruct.sign = TRUE;
+            break;
+         case '#':
+            retstruct.type = NUMBER;		/* for now */
+            /* ++( *position ); */  /* Removed by JBV */
+            /* The initial condition shouldn't be retstruct.width = 1 (JBV) */
+            for ( ; buffer[ *position ] == '#'; ++( *position ) )
+               {
+               ++retstruct.width;
+               }
+            if ( buffer[ *position ] == ',' )
+               {
+               retstruct.commas = TRUE;
+               ++retstruct.width; /* JBV */
+               ++( *position ); /* JBV */
+               }
+            if ( buffer[ *position ] == '.' )
+               {
+	       retstruct.type = NUMBER;
+	       ++retstruct.width;
+               ++( *position );
+               for ( retstruct.precision = 0; buffer[ *position ] == '#'; ++( *position ) )
+                  {
+		  ++retstruct.precision;
+		  ++retstruct.width;
+                  }
+               }
+            if ( buffer[ *position ] == '-' )
+               {
+               retstruct.minus = TRUE;
+               ++( *position );
+               }
+            return &retstruct;
+
+	 case '^':
+            retstruct.type = NUMBER;
+            retstruct.exponential = TRUE;
+            for ( retstruct.width = 1; buffer[ *position ] == '^'; ++( *position ) )
+               {
+               ++retstruct.width;
+               }
+            return &retstruct;
+
+	 default: /* JBV */
+            xxputc( f, buffer[ *position ] ); /* Gotta output it (JBV) */
+            ++( *position );
+            break;
+
+         }
+      }					/* end of loop */
+
+   return &retstruct;
+   }
+
+#endif
+
+/***************************************************************
+
+        FUNCTION:       prn_cr()
+
+	DESCRIPTION:    This function outputs a carriage-return
+			to a specified file or output device.
+
+***************************************************************/
+
+#if ANSI_C
+static int
+prn_cr( char *buffer, FILE *f )
+#else
+static int
+prn_cr( buffer, f )
+   char *buffer;
+   FILE *f;
+#endif
+   {
+   register int c;
+   int loop;
+
+   /* find the end of the buffer */
+
+   for ( c = 0; buffer[ c ] != '\0'; ++c )
+      {
+      }
+
+#if INTENSIVE_DEBUG
+   sprintf( bwb_ebuf, "in prn_cr(): initial c is <%d>", c );
+   bwb_debug( bwb_ebuf );
+#endif
+
+   /* back up through any whitespace */
+
+   loop = TRUE;
+   while ( loop == TRUE )
+      {
+      switch( buffer[ c ] )
+         {
+         case ' ':                              /* if whitespace */
+         case '\t':
+         case 0:
+
+#if INTENSIVE_DEBUG
+            sprintf( bwb_ebuf, "in prn_cr(): backup: c is <%d>, char <%c>[0x%x]",
+               c, buffer[ c ], buffer[ c ] );
+            bwb_debug( bwb_ebuf );
+#endif
+
+            --c;                                /* back up */
+            if ( c < 0 )                        /* check position */
+               {
+               loop = FALSE;
+               }
+            break;
+
+         default:                               /* else break out */
+#if INTENSIVE_DEBUG
+            sprintf( bwb_ebuf, "in prn_cr(): breakout: c is <%d>, char <%c>[0x%x]",
+               c, buffer[ c ], buffer[ c ] );
+            bwb_debug( bwb_ebuf );
+#endif
+            loop = FALSE;
+            break;
+         }
+      }
+
+   if ( buffer[ c ] == ';' )
+      {
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in prn_cr(): concluding <;> detected." );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      return FALSE;
+      }
+
+   else
+      {
+      prn_xprintf( f, "\n" );
+      return TRUE;
+      }
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       prn_xprintf()
+
+	DESCRIPTION:    This function outputs a null-terminated
+			string to a specified file or output
+			device.
+
+***************************************************************/
+
+#if ANSI_C
+int
+prn_xprintf( FILE *f, char *buffer )
+#else
+int
+prn_xprintf( f, buffer )
+   FILE *f;
+   char *buffer;
+#endif
+   {
+   char *p;
+
+   /* DO NOT try anything so stupid as to run bwb_debug() from
+      here, because it will create an endless loop. And don't
+      ask how I know. */
+
+   for ( p = buffer; *p != '\0'; ++p )
+      {
+      xputc( f, *p );
+      }
+
+   return TRUE;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       prn_xxprintf()
+
+	DESCRIPTION:    This function outputs a null-terminated
+			string to a specified file or output
+			device without expanding tabs.
+			Added by JBV 10/95
+
+***************************************************************/
+
+#if ANSI_C
+int
+prn_xxprintf( FILE *f, char *buffer )
+#else
+int
+prn_xxprintf( f, buffer )
+   FILE *f;
+   char *buffer;
+#endif
+   {
+   char *p;
+
+   /* DO NOT try anything so stupid as to run bwb_debug() from
+      here, because it will create an endless loop. And don't
+      ask how I know. */
+
+   for ( p = buffer; *p != '\0'; ++p )
+      {
+      xxputc( f, *p );
+      }
+
+   return TRUE;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       xputc()
+
+	DESCRIPTION:    This function outputs a character to a
+			specified file or output device, expanding
+			TABbed output approriately.
+
+***************************************************************/
+
+#if ANSI_C
+int
+xputc( FILE *f, char c )
+#else
+int
+xputc( f, c )
+   FILE *f;
+   char c;
+#endif
+   {
+   static int tab_pending = FALSE;
+
+   /* check for pending TAB */
+
+   if ( tab_pending == TRUE )
+      {
+      if ( (int) c < ( * prn_getcol( f ) ) )
+         {
+         xxputc( f, '\n' );
+         }
+      while( ( * prn_getcol( f )) < (int) c )
+         {
+         xxputc( f, ' ' );
+         }
+      tab_pending = FALSE;
+      return TRUE;
+      }
+
+   /* check c for specific output options */
+
+   switch( c )
+      {
+      case PRN_TAB:
+         tab_pending = TRUE;
+         break;
+
+      case '\t':
+         while( ( (* prn_getcol( f )) % 14 ) != 0 )
             {
-              VariantType variant;
-              CLEAR_VARIANT (&variant);
-
-              if (v->VINDEX[2] > v->LBOUND[2])
-              {
-                switch (ItemSeperator)
-                {
-                case NulChar:
-                  break;
-                case ZoneChar:
-                  next_zone ();
-                  break;
-                default:
-                  xputc1 (ItemSeperator);
-                }
-              }
-              if (var_get (v, &variant) == FALSE)
-              {
-                WARN_VARIABLE_NOT_DECLARED;
-                return (l);
-              }
-              if (variant.VariantTypeCode == StringTypeCode)
-              {
-                xputs (variant.Buffer);
-              }
-              else
-              {
-                char *tbuf;
-
-                tbuf = My->NumLenBuffer;
-                FormatBasicNumber (variant.Number, tbuf);
-                xputs (tbuf);
-              }
+            xxputc( f, ' ' );
             }
-            xputc1 ('\n');
-          }
-          xputc1 ('\n');
-        }
+         break;
+
+      default:
+         xxputc( f, c );
+         break;
       }
-      break;
-    }
-    /* process the next variable, if any  */
-  }
-  while (line_is_eol (l) == FALSE);
-  return (l);
-}
 
-extern LineType *
-bwb_MAT_PUT (LineType * l)
-{
-  /* MAT PUT filename$  , matrix [;|,] ... */
-  /* MAT PUT filenumber , matrix [;|,] ... */
-  /* Array must be 1, 2 or 3 dimensions    */
-  /* Array may be either NUMBER or STRING  */
-  VariantType x;
-  VariantType *X;
-   
-  assert (l != NULL);
-  assert( My != NULL );
-  assert( My->SYSOUT != NULL );
+   return TRUE;
 
-  My->CurrentFile = My->SYSOUT;
-  X = &x;
-  CLEAR_VARIANT (X);
-  if (line_read_expression (l, X) == FALSE)        /* bwb_MAT_PUT */
-  {
-    goto EXIT;
-  }
-  if (X->VariantTypeCode == StringTypeCode)
-  {
-    /* STRING */
-    /* MAT PUT filename$ ... */
-    if (is_empty_string (X->Buffer))
-    {
-      /* MAT PUT "" ... is an error */
-      WARN_BAD_FILE_NAME;
-      goto EXIT;
-    }
-    My->CurrentFile = find_file_by_name (X->Buffer);
-    if (My->CurrentFile == NULL)
-    {
-      /* implicitly OPEN for writing */
-      My->CurrentFile = file_new ();
-      My->CurrentFile->cfp = fopen (X->Buffer, "w");
-      if (My->CurrentFile->cfp == NULL)
+   }
+
+/***************************************************************
+
+        FUNCTION:       xxputc()
+
+	DESCRIPTION:    This function outputs a character to a
+			specified file or output device, checking
+			to be sure the PRINT width is within
+			the bounds specified for that device.
+
+***************************************************************/
+
+#if ANSI_C
+static int
+xxputc( FILE *f, char c )
+#else
+static int
+xxputc( f, c )
+   FILE *f;
+   char c;
+#endif
+   {
+
+   /* check to see if width has been exceeded */
+
+   if ( * prn_getcol( f ) >= prn_getwidth( f ))
       {
-        WARN_BAD_FILE_NAME;
-        goto EXIT;
+      xxxputc( f, '\n' );                 /* output LF */
+      * prn_getcol( f ) = 1;		/* and reset */
       }
-      My->CurrentFile->FileNumber = file_next_number ();
-      My->CurrentFile->DevMode = DEVMODE_OUTPUT;
-      My->CurrentFile->width = 0;
-      /* WIDTH == RECLEN */
-      My->CurrentFile->col = 1;
-      My->CurrentFile->row = 1;
-      My->CurrentFile->delimit = ',';
-      My->CurrentFile->buffer = NULL;
-      if (My->CurrentFile->FileName != NULL)
+
+   /* adjust the column counter */
+
+   if ( c == '\n' )
       {
-        free (My->CurrentFile->FileName);
-        My->CurrentFile->FileName = NULL;
+      * prn_getcol( f ) = 1;
       }
-      My->CurrentFile->FileName = X->Buffer;
-      X->Buffer = NULL;
-    }
-  }
-  else
-  {
-    /* NUMBER -- file must already be OPEN */
-    /* MAT PUT filenumber ... */
-    if (X->Number < 0)
-    {
-      /* "MAT PUT # -1" is an error */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-    if (X->Number == 0)
-    {
-      /* "MAT PUT # 0" is an error */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-    /* normal file */
-    My->CurrentFile = find_file_by_number ((int) bwb_rint (X->Number));
-    if (My->CurrentFile == NULL)
-    {
-      /* file not OPEN */
-      WARN_BAD_FILE_NUMBER;
-      goto EXIT;
-    }
-  }
-  RELEASE_VARIANT (X);
-  if (My->CurrentFile == NULL)
-  {
-    WARN_BAD_FILE_NUMBER;
-    goto EXIT;
-  }
-  if ((My->CurrentFile->DevMode & DEVMODE_WRITE) == 0)
-  {
-    WARN_BAD_FILE_NUMBER;
-    goto EXIT;
-  }
-  if (line_skip_seperator (l))
-  {
-    /* OK */
-  }
-  else
-  {
-    WARN_SYNTAX_ERROR;
-    goto EXIT;
-  }
-  return file_write_matrix (l, My->CurrentFile->delimit);
-EXIT:
-  RELEASE_VARIANT (X);
-  return (l);
-}
+   else
+      {
+      ++( * prn_getcol( f ));
+      }
 
-static LineType *
-bwb_mat_dump (LineType * l, int IsWrite)
-{
-  /* MAT PRINT  [ # filenumber , ] matrix [;|,] ... */
-  /* MAT WRITE  [ # filenumber , ] matrix [;|,] ... */
-  /* Array must be 1, 2 or 3 dimensions    */
-  /* Array may be either NUMBER or STRING  */
-  char delimit;
-   
-  assert (l != NULL);
-  assert( My != NULL );
-  assert( My->SYSOUT != NULL );
+   /* now output the character */
 
-  My->CurrentFile = My->SYSOUT;
-  if (line_skip_FilenumChar (l))
-  {
-    /* ... # file, ... */
-    if (parse_file_number (l) == FALSE)
-    {
-      return (l);
-    }
-    if (line_is_eol (l))
-    {
-      WARN_SYNTAX_ERROR;
-      return (l);
-    }
-  }
+   return xxxputc( f, c );
 
-  if (IsWrite)
-  {
-    /* MAT WRITE */
-    delimit = My->CurrentFile->delimit;
-  }
-  else
-  {
-    /* MAT PRINT */
-    delimit = ZoneChar;
-  }
-  return file_write_matrix (l, delimit);
-}
+   }
 
-extern LineType *
-bwb_MAT_WRITE (LineType * l)
-{
-   
-  assert (l != NULL);
+/***************************************************************
 
-  return bwb_mat_dump (l, TRUE);
-}
+	FUNCTION:       xxxputc()
 
-extern LineType *
-bwb_MAT_PRINT (LineType * l)
-{
-   
-  assert (l != NULL);
+	DESCRIPTION:    This function sends a character to a
+			specified file or output device.
 
-  return bwb_mat_dump (l, FALSE);
-}
+***************************************************************/
 
+#if ANSI_C
+static int
+xxxputc( FILE *f, char c )
+#else
+static int
+xxxputc( f, c )
+   FILE *f;
+   char c;
+#endif
+   {
+   if (( f == stdout ) || ( f == stderr ))
+      {
+      return bwx_putc( c );
+      }
+   else
+      {
+      return fputc( c, f );
+      }
+   }
 
+/***************************************************************
 
-/*  EOF  */
+        FUNCTION:       prn_getcol()
+
+	DESCRIPTION:    This function returns a pointer to an
+			integer containing the current PRINT
+			column for a specified file or device.
+
+***************************************************************/
+
+#if ANSI_C
+int *
+prn_getcol( FILE *f )
+#else
+int *
+prn_getcol( f )
+   FILE *f;
+#endif
+   {
+   register int n;
+   static int dummy_pos;
+
+   if (( f == stdout ) || ( f == stderr ))
+      {
+      return &prn_col;
+      }
+
+#if COMMON_CMDS
+   for ( n = 0; n < DEF_DEVICES; ++n )
+      {
+      if ( dev_table[ n ].cfp == f )
+         {
+         return &( dev_table[ n ].col );
+         }
+      }
+#endif
+
+   /* search failed */
+
+#if PROG_ERRORS
+   bwb_error( "in prn_getcol(): failed to find file pointer" );
+#else
+   bwb_error( err_devnum );
+#endif
+
+   return &dummy_pos;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       prn_getwidth()
+
+	DESCRIPTION:    This function returns the PRINT width for
+			a specified file or output device.
+
+***************************************************************/
+
+#if ANSI_C
+int
+prn_getwidth( FILE *f )
+#else
+int
+prn_getwidth( f )
+   FILE *f;
+#endif
+   {
+   register int n;
+
+   if (( f == stdout ) || ( f == stderr ))
+      {
+      return prn_width;
+      }
+
+#if COMMON_CMDS
+   for ( n = 0; n < DEF_DEVICES; ++n )
+      {
+      if ( dev_table[ n ].cfp == f )
+         {
+         return dev_table[ n ].width;
+         }
+      }
+#endif
+
+   /* search failed */
+
+#if PROG_ERRORS
+   bwb_error( "in prn_getwidth(): failed to find file pointer" );
+#else
+   bwb_error( err_devnum );
+#endif
+
+   return 1;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       prn_precision()
+
+	DESCRIPTION:    This function returns the level of precision
+			required for a specified numerical value.
+
+***************************************************************/
+
+#if ANSI_C
+int
+prn_precision( struct bwb_variable *v )
+#else
+int
+prn_precision( v )
+   struct bwb_variable *v;
+#endif
+   {
+   int max_precision = 6;
+   bnumber nval, d;
+   int r;
+
+   /* check for double value */
+
+   if ( v->type == NUMBER )
+      {
+      max_precision = 12;
+      }
+
+   /* get the value in nval */
+
+   nval = (bnumber) fabs( (double) var_getnval( v ) );
+
+   /* cycle through until precision is found */
+
+   d = (bnumber) 1;
+   for ( r = 0; r < max_precision; ++r )
+      {
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in prn_precision(): fmod( %f, %f ) = %.12f",
+         nval, d, fmod( (double) nval, (double) d ) );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      if ( fmod( (double) nval, (double) d ) < 0.0000001 ) /* JBV */
+         {
+         return r;
+         }
+      d /= 10;
+      }
+
+   /* return */
+
+   return r;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       bwb_debug()
+
+        DESCRIPTION:    This function is called to display
+                        debugging messages in Bywater BASIC.
+                        It does not break out at the current
+                        point (as bwb_error() does).
+
+***************************************************************/
+
+#if PERMANENT_DEBUG
+
+#if ANSI_C
+int
+bwb_debug( char *message )
+#else
+int
+bwb_debug( message )
+   char *message;
+#endif
+   {
+   char tbuf[ MAXSTRINGSIZE + 1 ];
+
+   fflush( stdout );
+   fflush( errfdevice );
+   if ( prn_col != 1 )
+      {
+      prn_xprintf( errfdevice, "\n" );
+      }
+   sprintf( tbuf, "DEBUG %s\n", message );
+   prn_xprintf( errfdevice, tbuf );
+
+   return TRUE;
+   }
+#endif
+
+#if COMMON_CMDS
+
+/***************************************************************
+
+        FUNCTION:       bwb_lerror()
+
+        DESCRIPTION:    This function implements the BASIC ERROR
+                        command.
+
+***************************************************************/
+
+#if ANSI_C
+struct bwb_line *
+bwb_lerror( struct bwb_line *l )
+#else
+struct bwb_line *
+bwb_lerror( l )
+   struct bwb_line *l;
+#endif
+   {
+   char tbuf[ MAXSTRINGSIZE + 1 ];
+   int n;
+   struct exp_ese *e; /* JBV */
+   int pos; /* JBV */
+
+#if INTENSIVE_DEBUG
+   sprintf( bwb_ebuf, "in bwb_lerror(): entered function " );
+   bwb_debug( bwb_ebuf );
+#endif
+
+   /* Check for argument */
+
+   adv_ws( l->buffer, &( l->position ) );
+   switch( l->buffer[ l->position ] )
+      {
+      case '\0':
+      case '\n':
+      case '\r':
+      case ':':
+         bwb_error( err_incomplete );
+         return bwb_zline( l );
+      default:
+         break;
+      }
+
+   /* get the variable name or numerical constant */
+
+   adv_element( l->buffer, &( l->position ), tbuf );
+   /* n = atoi( tbuf ); */  /* Removed by JBV */
+
+   /* Added by JBV */
+   pos = 0;
+   e = bwb_exp( tbuf, FALSE, &pos );
+   n = (int) exp_getnval( e );
+
+#if INTENSIVE_DEBUG
+   sprintf( bwb_ebuf, "in bwb_lerror(): error number is <%d> ", n );
+   bwb_debug( bwb_ebuf );
+#endif
+
+   /* check the line number value */
+
+   if ( ( n < 0 ) || ( n >= N_ERRORS ))
+      {
+      sprintf( bwb_ebuf, "Error number %d is out of range", n );
+      bwb_xerror( bwb_ebuf );
+      return bwb_zline( l );
+      }
+
+   bwb_xerror( err_table[ n ] );
+
+   return bwb_zline( l );
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       bwb_width()
+
+	DESCRIPTION:    This C function implements the BASIC WIDTH
+			command, setting the maximum output width
+			for a specified file or output device.
+
+	SYNTAX:		WIDTH [# device-number,] number
+
+***************************************************************/
+
+#if ANSI_C
+struct bwb_line *
+bwb_width( struct bwb_line *l )
+#else
+struct bwb_line *
+bwb_width( l )
+   struct bwb_line *l;
+#endif
+   {
+   int req_devnumber;
+   int req_width;
+   struct exp_ese *e;
+   char tbuf[ MAXSTRINGSIZE + 1 ];
+   int pos;
+
+   /* detect device number if present */
+
+   req_devnumber = -1;
+   adv_ws( l->buffer, &( l->position ) );
+
+   if ( l->buffer[ l->position ] == '#' )
+      {
+      ++( l->position );
+      adv_element( l->buffer, &( l->position ), tbuf );
+      pos = 0;
+      e = bwb_exp( tbuf, FALSE, &pos );
+      adv_ws( l->buffer, &( l->position ) );
+      if ( l->buffer[ l->position ] == ',' )
+         {
+         ++( l->position );
+         }
+      else
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_width(): no comma after#n" );
+#else
+         bwb_error( err_syntax );
+#endif
+         return bwb_zline( l );
+         }
+
+      req_devnumber = (int) exp_getnval( e );
+
+      /* check the requested device number */
+
+      if ( ( req_devnumber < 0 ) || ( req_devnumber >= DEF_DEVICES ))
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_width(): Requested device number is out of range." );
+#else
+         bwb_error( err_devnum );
+#endif
+         return bwb_zline( l );
+         }
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in bwb_width(): device number is <%d>",
+         req_devnumber );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      }
+
+   /* read the width requested */
+
+   e = bwb_exp( l->buffer, FALSE, &( l->position ));
+   req_width = (int) exp_getnval( e );
+
+   /* check the width */
+
+   if ( ( req_width < 1 ) || ( req_width > 255 ))
+      {
+#if PROG_ERRORS
+      bwb_error( "in bwb_width(): Requested width is out of range (1-255)" );
+#else
+      bwb_error( err_valoorange );
+#endif
+      }
+
+   /* assign the width */
+
+   if ( req_devnumber == -1 )
+      {
+      prn_width = req_width;
+      }
+   else
+      {
+      dev_table[ req_devnumber ].width = req_width;
+      }
+
+   /* return */
+
+   return bwb_zline( l );
+   }
+
+#endif			/* COMMON_CMDS */
+
+/***************************************************************
+
+        FUNCTION:       bwb_error()
+
+        DESCRIPTION:    This function is called to handle errors
+                        in Bywater BASIC.  It displays the error
+                        message, then calls the break_handler()
+                        routine.
+
+***************************************************************/
+
+#if ANSI_C
+int
+bwb_error( char *message )
+#else
+int
+bwb_error( message )
+   char *message;
+#endif
+   {
+   register int e;
+   static char tbuf[ MAXSTRINGSIZE + 1 ];	/* must be permanent */
+   static struct bwb_line eline;
+   int save_elevel;
+   struct bwb_line *cur_l;
+   int cur_mode;
+
+   /* try to find the error message to identify the error number */
+
+   err_number = -1;			/* just for now */
+   err_line = CURTASK number;		/* set error line number */
+
+   for ( e = 0; e < N_ERRORS; ++e )
+      {
+      if ( message == err_table[ e ] )	/* set error number */
+         {
+         err_number = e;
+         e = N_ERRORS;			/* break out of loop quickly */
+         }
+      }
+
+   /* set the position in the current line to the end */
+
+   while( is_eol( bwb_l->buffer, &( bwb_l->position ) ) != TRUE )
+      {
+      ++( bwb_l->position );
+      }
+
+   /* if err_gosubl is not set, then use xerror routine */
+
+   if ( strlen( err_gosubl ) == 0 )
+      {
+      return bwb_xerror( message );
+      }
+
+#if INTENSIVE_DEBUG
+   fprintf( stderr, "!!!!! USER_CALLED ERROR HANDLER\n" );
+#endif
+
+   /* save line and mode */
+
+   cur_l = bwb_l;
+   cur_mode = CURTASK excs[ CURTASK exsc ].code;
+
+   /* err_gosubl is set; call user-defined error subroutine */
+
+   sprintf( tbuf, "%s %s", CMD_GOSUB, err_gosubl );
+   eline.next = &CURTASK bwb_end;
+   eline.position = 0;
+   eline.marked = FALSE;
+   eline.buffer = tbuf;
+   bwb_setexec( &eline, 0, EXEC_NORM );
+
+   /* must be executed now */
+
+   save_elevel = CURTASK exsc;
+   bwb_execline();              /* This is a call to GOSUB and will increment
+				   the exsc counter above save_elevel */
+
+   while ( CURTASK exsc != save_elevel )        /* loop until return from GOSUB loop */
+      {
+      bwb_execline();
+      }
+
+   cur_l->next->position = 0;
+   bwb_setexec( cur_l->next, 0, cur_mode );
+
+   return TRUE;
+
+   }
+
+/***************************************************************
+
+        FUNCTION:       bwb_xerror()
+
+        DESCRIPTION:    This function is called by bwb_error()
+                        in Bywater BASIC.  It displays the error
+                        message, then calls the break_handler()
+                        routine.
+
+***************************************************************/
+
+#if ANSI_C
+static int
+bwb_xerror( char *message )
+#else
+static int
+bwb_xerror( message )
+   char *message;
+#endif
+   {
+
+   bwx_errmes( message );
+
+   break_handler();
+
+   return FALSE;
+   }
+
+/***************************************************************
+
+        FUNCTION:       bwb_esetovar()
+
+        DESCRIPTION:    This function converts the value in expression
+			stack 'e' to a bwBASIC variable structure.
+
+***************************************************************/
+
+#if ANSI_C
+static struct bwb_variable *
+bwb_esetovar( struct exp_ese *e )
+#else
+static struct bwb_variable *
+bwb_esetovar( e )
+   struct exp_ese *e;
+#endif
+   {
+   static struct bwb_variable b;
+
+   var_make( &b, e->type );
+
+   switch( e->type )
+      {
+      case STRING:
+         str_btob( var_findsval( &b, b.array_pos ), exp_getsval( e ) );
+         break;
+      default:
+         * var_findnval( &b, b.array_pos ) = e->nval;
+         break;
+      }
+
+   return &b;
+
+   }
+
+#if COMMON_CMDS
+
+/***************************************************************
+
+        FUNCTION:       bwb_write()
+
+	DESCRIPTION:    This C function implements the BASIC WRITE
+			command.
+
+	SYNTAX:		WRITE [# device-number,] element [, element ]....
+
+***************************************************************/
+
+#if ANSI_C
+struct bwb_line *
+bwb_write( struct bwb_line *l )
+#else
+struct bwb_line *
+bwb_write( l )
+   struct bwb_line *l;
+#endif
+   {
+   struct exp_ese *e;
+   int req_devnumber;
+   int pos;
+   FILE *fp;
+   char tbuf[ MAXSTRINGSIZE + 1 ];
+   int loop;
+   static struct bwb_variable nvar;
+   static int init = FALSE;
+
+   /* initialize variable if necessary */
+
+   if ( init == FALSE )
+      {
+      init = TRUE;
+      var_make( &nvar, NUMBER );
+      }
+
+   /* detect device number if present */
+
+   adv_ws( l->buffer, &( l->position ) );
+
+   if ( l->buffer[ l->position ] == '#' )
+      {
+      ++( l->position );
+      adv_element( l->buffer, &( l->position ), tbuf );
+      pos = 0;
+      e = bwb_exp( tbuf, FALSE, &pos );
+      adv_ws( l->buffer, &( l->position ) );
+      if ( l->buffer[ l->position ] == ',' )
+         {
+         ++( l->position );
+         }
+      else
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_write(): no comma after#n" );
+#else
+         bwb_error( err_syntax );
+#endif
+         return bwb_zline( l );
+         }
+
+      req_devnumber = (int) exp_getnval( e );
+
+      /* check the requested device number */
+
+      if ( ( req_devnumber < 0 ) || ( req_devnumber >= DEF_DEVICES ))
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_write(): Requested device number is out of range." );
+#else
+         bwb_error( err_devnum );
+#endif
+         return bwb_zline( l );
+         }
+
+      if (( dev_table[ req_devnumber ].mode == DEVMODE_CLOSED ) ||
+         ( dev_table[ req_devnumber ].mode == DEVMODE_AVAILABLE ))
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_write(): Requested device number is not open." );
+#else
+         bwb_error( err_devnum );
+#endif
+
+         return bwb_zline( l );
+         }
+
+      if ( dev_table[ req_devnumber ].mode != DEVMODE_OUTPUT )
+         {
+#if PROG_ERRORS
+         bwb_error( "in bwb_write(): Requested device is not open for OUTPUT." );
+#else
+         bwb_error( err_devnum );
+#endif
+
+         return bwb_zline( l );
+         }
+
+#if INTENSIVE_DEBUG
+      sprintf( bwb_ebuf, "in bwb_write(): device number is <%d>",
+         req_devnumber );
+      bwb_debug( bwb_ebuf );
+#endif
+
+      /* look up the requested device in the device table */
+
+      fp = dev_table[ req_devnumber ].cfp;
+
+      }
+
+   else
+      {
+      fp = stdout;
+      }
+
+   /* be sure there is an element to print */
+
+   adv_ws( l->buffer, &( l->position ) );
+   loop = TRUE;
+   switch( l->buffer[ l->position ] )
+      {
+      case '\n':
+      case '\r':
+      case '\0':
+      case ':':
+         loop = FALSE;
+         break;
+      }
+
+   /* loop through elements */
+
+   while ( loop == TRUE )
+      {
+
+      /* get the next element */
+
+      e = bwb_exp( l->buffer, FALSE, &( l->position ));
+
+      /* perform type-specific output */
+
+      switch( e->type )
+         {
+         case STRING:
+            xputc( fp, '\"' );
+            str_btoc( tbuf, exp_getsval( e ) );
+            prn_xprintf( fp, tbuf );
+            xputc( fp, '\"' );
+#if INTENSIVE_DEBUG
+            sprintf( bwb_ebuf, "in bwb_write(): output string element <\"%s\">",
+               tbuf );
+            bwb_debug( bwb_ebuf );
+#endif
+            break;
+         default:
+            * var_findnval( &nvar, nvar.array_pos ) =
+               exp_getnval( e );
+#if NUMBER_DOUBLE
+            sprintf( tbuf, " %.*lf", prn_precision( &nvar ),
+               var_getnval( &nvar ) );
+#else
+            sprintf( tbuf, " %.*f", prn_precision( &nvar ),
+               var_getnval( &nvar ) );
+#endif
+            prn_xprintf( fp, tbuf );
+#if INTENSIVE_DEBUG
+            sprintf( bwb_ebuf, "in bwb_write(): output numerical element <%s>",
+               tbuf );
+            bwb_debug( bwb_ebuf );
+#endif
+            break;
+         }				/* end of case for type-specific output */
+
+      /* seek a comma at end of element */
+
+      adv_ws( l->buffer, &( l->position ) );
+      if ( l->buffer[ l->position ] == ',' )
+         {
+         xputc( fp, ',' );
+         ++( l->position );
+         }
+
+      /* no comma: end the loop */
+
+      else
+         {
+         loop = FALSE;
+         }
+
+      }					/* end of loop through elements */
+
+   /* print LF */
+
+   xputc( fp, '\n' );
+
+   /* return */
+
+   return bwb_zline( l );
+   }
+
+#endif
+

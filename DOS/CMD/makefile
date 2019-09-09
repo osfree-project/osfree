@@ -5,7 +5,6 @@
 #
 
 DIRS =   attrib    &
-         assign    &
          help      &
          find      &
          diskcomp  &
@@ -19,10 +18,7 @@ DIRS =   attrib    &
          command   &
          debug     &
          comp      &
-         append    &
-         setcom40  &
-         exit_vdm  &
-         iswindow
+         append
 
 !include $(%ROOT)/mk/all.mk
 
