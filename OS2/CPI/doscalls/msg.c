@@ -85,7 +85,7 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
   log("%s enter\n", __FUNCTION__);
 
   // output args to log
-  log("cbMsg=%u", cbMsg);
+  log("cbMsg=%u\n", cbMsg);
   log("pszMsg=");
 
   for (i = 0; i < cbMsg; i++)
@@ -198,7 +198,7 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
             strncpy(dst, pTable[*src - '1'],  len);
             dst    += len;
             dstlen += len;
-            //srclen -= len;
+            srclen--;
             break;
           default:  // Can't perfom action?
             if (srclen <= 0)
@@ -220,7 +220,7 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
         break;
 
       // if no bytes remaining for terminating zero, return an error
-      if (dstlen > maxlen)
+      if (dstlen + 1 > maxlen)
       {
         *pcbMsg = cbBuf;
         pBuf[cbBuf - 1] = '\0';
@@ -229,7 +229,7 @@ APIRET APIENTRY DosInsertMessage(PCHAR *pTable, ULONG cTable,
       }
     }
 
-    pBuf[dstlen++] = '\0';
+    pBuf[dstlen] = '\0';
     *pcbMsg = dstlen;
     log("*pcbMsg=%lu\n", *pcbMsg);
 
@@ -670,7 +670,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
   strncpy(id, hdr->id, 3);
   id[3] = '\0';
 
-  switch (*msg)
+  /* switch (*msg)
   {
     case 'E': // Error
     case 'W': // Warning
@@ -681,7 +681,7 @@ APIRET APIENTRY DosTrueGetMessage(void *msgSeg, PCHAR *pTable, ULONG cTable, PCH
       break;
     default:
       break;
-  }
+  } */
 
   // skip message type letter
   msg++;
