@@ -71,10 +71,9 @@ APIRET APIENTRY  DosScanEnv(PCSZ  pszName,
     }
   }
 
-  log("not found\n");
-
   if (rc)
   {
+    log("not found\n");
     rc = ERROR_ENVVAR_NOT_FOUND;
   }
 

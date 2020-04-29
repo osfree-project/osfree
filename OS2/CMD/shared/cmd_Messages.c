@@ -55,12 +55,13 @@ int cmd_prntmsg(PCHAR *pTable, ULONG cTable, ULONG ulMsgID,PSZ pszFileName)
     APIRET  ulrc;
 
     ulrc = DosGetMessage(pTable, cTable, pBuf, sizeof(pBuf), ulMsgID, pszFileName, &cbMsgL);
+
     if (ulrc != NO_ERROR) 
         printf(all_GetSystemErrorMessage(ulrc));
+    else
+        printf("%s", pBuf);
 
-    printf("%s", pBuf);
-
-    return NO_ERROR;
+    return ulrc;
 }
 
 

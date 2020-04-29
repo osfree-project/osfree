@@ -241,7 +241,8 @@ USHORT __pascal         DOS16EXITLIST(void)
 }
 
 
-USHORT __pascal         DOS16GETINFOSEG(void)
+USHORT _Far16 _Pascal   DOS16GETINFOSEG(USHORT _Far16 *pGlobalSeg,
+                                        USHORT _Far16 *pLocalSeg)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -276,8 +277,10 @@ USHORT __pascal         DOS16HOLDSIGNAL(void)
   return unimplemented(__FUNCTION__);
 }
 
+typedef void _Far16 *PFNSIGHANDLER;
 
-USHORT __pascal         DOS16SETSIGHANDLER(void)
+USHORT _Far16 _Pascal   DOS16SETSIGHANDLER(PFNSIGHANDLER routine, PFNSIGHANDLER _Far16 *prevAddr,
+                                           PUSHORT prevAction, USHORT Action, USHORT sigNumber)
 {
   return unimplemented(__FUNCTION__);
 }

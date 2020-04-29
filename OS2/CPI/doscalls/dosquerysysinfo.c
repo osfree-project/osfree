@@ -79,12 +79,12 @@ DosQuerySysInfo(ULONG iStart, ULONG iLast,
         break;
       case QSV_VERSION_MAJOR:
         {
-          *pul = 17;
+          *pul = 20;
         }
         break;
       case QSV_VERSION_MINOR:
         {
-          *pul = 1;
+          *pul = 45;
         }
         break;
       case QSV_VERSION_REVISION:

@@ -11,6 +11,7 @@ DESC = Displays System Version Number
 srcfiles = $(p)ver$(e)
 # defines additional options for C compiler
 ADD_COPT = -i=$(MYDIR)..$(SEP)include
+# ADD_LINKOPT = debug all
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 UNI2H = 1
 

@@ -1280,3 +1280,12 @@ DEST    = os2$(SEP)dll
 #   делал ;-)
 # <04:59> <[Pasha]> valeriusN: ну тогда намотай Прокушеву на ус, что это жабоские internal
 #         function ;-)
+
+
+# <_dixie_> lys 64-bit file size is available only via (another) 32-bit open function ...
+# <_dixie_> moveton да, 16-битного DosOpenL походу нету :)
+# <moveton> _dixie_ исчо чего не хватало. Хватит того, что DosOpenL с HMA не совместим. Тоже, можно сказать, ода 16 бит
+# <_dixie_> moveton ЫЫ :) DOSIOPENL       proc near
+# <moveton> _dixie_ а так-то Dos32OpenL - это враппер на DOS32POPENL, а он цанк на 16 бит DosIOpenL. Т.е. позвать это всё из 16 бит можно и напрямую, но всё таки оно internal
+# <_dixie_> moveton ну, 541 ORD_DOSIOPENL - походу таки функция... 
+# <moveton> _dixie_ тут в фениксе рефакторили. Есть камент "DosIOpenL (567) теперь экспортируется из ядра". Уже не скажу, как на бимерском. Но в любом случае, это internal. Т.е. позвать можно, но типа приложение такое будет очень еретическим. Как я виду использование, бимеры это вытащили, чтобы 16 бит CopyFile работал и с большими файлами
