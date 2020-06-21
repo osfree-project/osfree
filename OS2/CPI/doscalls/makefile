@@ -234,16 +234,17 @@ IMPORTS = &
         MouSetThreshold          SUB32.329, &
         MouGetThreshold          SUB32.330, &
                                             &
-        DosMonWrite              SUB32.401, &
-        DosMonRead               SUB32.402, &
-        DosMonClose              SUB32.403, &
-        DosMonOpen               SUB32.404, &
-        DosMonReg                SUB32.405
+        Dos32MonWrite            SUB32.401, &
+        Dos32MonRead             SUB32.402, &
+        Dos32MonClose            SUB32.403, &
+        Dos32MonOpen             SUB32.404, &
+        Dos32MonReg              SUB32.405
 
-EXPORTS = DosICreateThread           .1, &
+EXPORTS = &
+        DOSICREATETHREAD           .1, &
         DOS16CWAIT                 .2, &
         DOS16ENTERCRITSEC          .3, &
-        DosIExecPgm                .4, &
+        DOSIEXECPGM                .4, &
         DOS16EXIT                  .5, &
         DOS16EXITCRITSEC           .6, &
         DOS16EXITLIST              .7, &
@@ -256,11 +257,11 @@ EXPORTS = DosICreateThread           .1, &
         DOS16SETSIGHANDLER         .14, &
         DOS16FLAGPROCESS           .15, &
         DOS16MAKEPIPE              .16, &
-        DosISysSemClear            .17, &
-        DosISemRequest             .18, &
-        DosISysSemSet              .19, &
+        DOSISYSSEMCLEAR            .17, &
+        DOSISEMREQUEST             .18, &
+        DOSISYSSEMSET              .19, &
         DOS16SEMSETWAIT            .20, &
-        DosISemWait                .21, &
+        DOSISEMWAIT                .21, &
         DOS16MUXSEMWAIT            .22, &
         DOS16CLOSESEM              .23, &
         DOS16CREATESEM             .24, &
@@ -318,7 +319,7 @@ EXPORTS = DosICreateThread           .1, &
         DOS16QFSINFO               .76, &
         DOS16QHANDTYPE             .77, &
         DOS16QVERIFY               .78, &
-        DosIRead                   .79, &
+        DOSIREAD                   .79, &
         DOS16RMDIR                 .80, &
         DOS16SELECTDISK            .81, &
         DOS16SETFHANDSTATE         .82, &
@@ -326,7 +327,7 @@ EXPORTS = DosICreateThread           .1, &
         DOS16SETFILEMODE           .84, &
         DOS16SETMAXFH              .85, &
         DOS16SETVERIFY             .86, &
-        DosIWrite                  .87, &
+        DOSIWRITE                  .87, &
         DOS16SYSTEMSERVICE         .88, &
         DOS16SETVEC                .89, &
         DOS16SYSTRACE              .90, &
@@ -339,7 +340,7 @@ EXPORTS = DosICreateThread           .1, &
         DOS16SETFSINFO             .97, &
         DOS16QPATHINFO             .98, &
         DOS16DEVIOCTL2             .99, &
-        DosICanonicalize           .100, &
+        DOSICANONICALIZE           .100, &
         DOS16SETFGND               .101, &
         DOS16SWAPTASKINIT          .102, &
         DOS16READPHYS              .103, &
@@ -347,8 +348,8 @@ EXPORTS = DosICreateThread           .1, &
         DOS16SGSWITCHPROC2         .105, &
         STRUCHECK                  .106, &
         STRURESUPDATE              .107, &
-        DosISetRelMaxFH            .108, &
-        DosIDevIOCtl               .109, &
+        DOSISETRELMAXFH            .108, &
+        DOSIDEVIOCTL               .109, &
         DosForceDelete             .110, &
         DosKillThread              .111, &
         DosQueryRASInfo            .112, &
@@ -364,13 +365,13 @@ EXPORTS = DosICreateThread           .1, &
         DOS16LOCKSEG               .122, &
         DOS16UNLOCKSEG             .123, &
         DOS16SGSWITCHPROC          .124, &
-        DosIRamSemWake             .125, &
+        DOSIRAMSEMWAKE             .125, &
         DOS16SIZESEG               .126, &
         DOS16MEMAVAIL              .127, &
-        DosIRamSemRequest          .128, &
+        DOSIRAMSEMREQUEST          .128, &
         DOS16PHYSICALDISK          .129, &
         DOS16GETCP                 .130, &
-        DosISetCP                  .131, &
+        DOSISETCP                  .131, &
         DOS16GLOBALSEG             .132, &
         DOS16PROFILE               .133, &
         DOS16SENDSIGNAL            .134, &
@@ -397,7 +398,7 @@ EXPORTS = DosICreateThread           .1, &
         DOS16GETRESOURCE           .155, &
         DOS16GETPPID               .156, &
         DOS16CALLBACK              .157, &
-        DosICallBack               .158, &
+        DOSICALLBACK               .158, &
         DOS16RETFORWARD            .159, &
         DOS16R2STACKREALLOC        .160, &
         DOS16FSRAMSEMREQUEST       .161, &
@@ -406,20 +407,20 @@ EXPORTS = DosICreateThread           .1, &
         DOS16SETPROCCP             .164, &
         DOS16DYNAMICTRACE          .165, &
         DOS16QSYSINFO              .166, &
-        DosIMakeNmPipe             .167, &
-        DosICallNmPipe             .168, &
-        DosIConnectNmPipe          .169, &
-        DosIDisconnectNmPipe       .170, &
-        DosIPeekNmPipe             .171, &
-        DosIQNmPipeInfo            .172, &
-        DosIQNmPHandState          .173, &
-        DosISetNmPHandState        .174, &
-        DosITransactNmPipe         .175, &
-        DosIWaitNmPipe             .176, &
-        DosISetNmPipeSem           .177, &
-        DosIQNmPipeSemState        .178, &
-        DosIRawReadNmPipe          .179, &
-        DosIRawWriteNmPipe         .180, &
+        DOSIMAKENMPIPE             .167, &
+        DOSICALLNMPIPE             .168, &
+        DOSICONNECTNMPIPE          .169, &
+        DOSIDISCONNECTNMPIPE       .170, &
+        DOSIPEEKNMPIPE             .171, &
+        DOSIQNMPIPEINFO            .172, &
+        DOSIQNMPHANDSTATE          .173, &
+        DOSISETNMPHANDSTATE        .174, &
+        DOSITRANSACTNMPIPE         .175, &
+        DOSIWAITNMPIPE             .176, &
+        DOSISETNMPIPESEM           .177, &
+        DOSIQNMPIPESEMSTATE        .178, &
+        DOSIRAWREADNMPIPE          .179, &
+        DOSIRAWWRITENMPIPE         .180, &
         DOS16FSATTACH              .181, &
         DOS16QFSATTACH             .182, &
         DOS16FSCTL                 .183, &
@@ -439,9 +440,9 @@ EXPORTS = DosICreateThread           .1, &
         DOS16FINDFROMNAME          .197, &
         DOS16OPLOCKRELEASE         .198, &
         DOS16OPLOCKWAIT            .199, &
-        DosICopy                   .200, &
+        DOSICOPY                   .200, &
         DOS16COPY                  .201, &
-        DosIQAppType               .202, &
+        DOSIQAPPTYPE               .202, &
         DOS16FORCEDELETE           .203, &
         DOS16ENUMATTRIBUTE         .204, &
         DOS16OPLOCKSHUTDOWN        .205, &
@@ -453,7 +454,9 @@ EXPORTS = DosICreateThread           .1, &
         DosErrClass                .211, &
         DosError                   .212, &
         DosCreateVDM               .213, &
+# Max Path len value
         DOS16MAXPATHLEN            .214, &
+# Page size value
         DOS16PAGESIZE              .215, &
 # Local Infoseg selector
         DOS16LOCALINFO             .216, &
@@ -665,7 +668,7 @@ EXPORTS = DosICreateThread           .1, &
         _QueInst_Data              .414, &
 #
         DosShutdown                .415, &
-        DosICacheModule            .416, &
+        DOSICACHEMODULE            .416, &
         DosReplaceModule           .417, &
         DosAcknowledgeSignalException .418, &
         _DosTIB                    .419, &
@@ -747,10 +750,10 @@ EXPORTS = DosICreateThread           .1, &
                                          &
 # hole
                                          &
-        DosIOpenL                  .541, &
-        DosIProtectOpenL           .542, &
-        DosISetFileSizeL           .543, &
-        DosIProtectSetFileSizeL    .544, &
+        DOSIOPENL                  .541, &
+        DOSIPROTECTOPENL           .542, &
+        DOSISETFILESIZEL           .543, &
+        DOSIPROTECTSETFILESIZEL    .544, &
         DosExceptionCallBack       .545, &
         THK32STRLEN                .546, &
         THK32_UNITHUNK             .547, &
@@ -771,10 +774,10 @@ EXPORTS = DosICreateThread           .1, &
         Dos32PMR3PostEventSem      .562, &
         DosQueryThreadAffinity     .563, &
         DosSetThreadAffinity       .564, &
-        DosISetFileInfo            .565, &
-        DosISetPathInfo            .566, &
+        DOSISETFILEINFO            .565, &
+        DOSISETPATHINFO            .566, &
                                          &
-        DosIFindNext               .569, &
+        DOSIFINDNEXT               .569, &
                                          &
 # ???        Dos16SetFileSizeL            .570
                                          &
@@ -795,30 +798,30 @@ EXPORTS = DosICreateThread           .1, &
         DosQueryProcType           .586, &
         DOS16QUERYPROCTYPE         .587, &
         Mon32MonWrite              .588, &
-        DosISigDispatch            .589, &
+        DOSISIGDISPATCH            .589, &
         Dos32PMPostEventSem        .590, &
         Dos32PMWaitEventSem        .591, &
         DosDllTermDisp             .592, &
         Dos32PMRequestMutexSem     .593, &
-        DosIRaiseException         .594, &
+        DOSIRAISEEXCEPTION         .594, &
         Dos32PMWaitMuxWaitSem      .595, &
         DOSPM16SEMCHK              .596, &
-        DosIQueryFHState           .597, &
-        DosISetFHState             .598, &
+        DOSIQUERYFHSTATE           .597, &
+        DOSISETFHSTATE             .598, &
         DosLDTSel                  .599, &
         DosR3Frestor               .600, &
-        DosIFindFirst              .601, &
+        DOSIFINDFIRST              .601, &
                                          &
 # moncalls
-        Dos16MonOpen               .606, &
-        Dos16MonClose              .607, &
-        Dos16MonRead               .608, &
-        Dos16MonWrite              .609, &
-        Dos16MonReg                .610, &
+        DOS16MONOPEN               .606, &
+        DOS16MONCLOSE              .607, &
+        DOS16MONREAD               .608, &
+        DOS16MONWRITE              .609, &
+        DOS16MONREG                .610, &
                                          &
         Dos32IProtectWrite         .615, &
                                          &
-        DosIProtectSetFileInfo     .617, &
+        DOSIPROTECTSETFILEINFO     .617, &
         Dos32IProtectSetFileInfo   .618, &
         Dos32IProtectSetFHState    .619, &
         Dos32IProtectQueryFHState  .620, &
@@ -826,8 +829,8 @@ EXPORTS = DosICreateThread           .1, &
         DOS16PROTECTCLOSE          .622, &
         DOS16PROTECTFILEIO         .623, &
         DOS16PROTECTFILELOCKS      .624, &
-        DosIProtectRead            .625, &
-        DosIProtectWrite           .626, &
+        DOSIPROTECTREAD            .625, &
+        DOSIPROTECTWRITE           .626, &
         DOS16PROTECTNEWSIZE        .627, &
         DOS16PROTECTOPEN           .628, &
         DOS16PROTECTQFHANDSTATE    .629, &

@@ -10,6 +10,7 @@
 #define INCL_DOSSEMAPHORES
 #define INCL_DOSDATETIME
 #define INCL_DOSEXCEPTIONS
+#define INCL_DOSSESMGR
 #include <os2.h>
 
 #ifndef HVPS
@@ -39,1904 +40,2196 @@ typedef struct _COUNTRYINFO {
     USHORT abReserved2[5];
 } COUNTRYINFO, *PCOUNTRYINFO;
 
-typedef struct _QMRESULT{
-    USHORT seg;
-    USHORT htme;
-    char name[256];
-} QMRESULT;
-
-typedef QMRESULT *PQMRESULT;
-
 typedef SHANDLE  HMONITOR;
 typedef HMONITOR *PHMONITOR;
 
+typedef int (APIENTRY16 _PFN16)();
+typedef _PFN16  * _Seg16 PFN16;
+
+typedef struct _PIDINFO
+{
+    PID pid;
+    TID tid;
+    PID ppid;
+} PIDINFO, * _Seg16 PPIDINFO;
+
+typedef BYTE * _Seg16 PCNPATH;
+
+typedef BYTE * _Seg16 PCNINFO;
+
+typedef LHANDLE HVDD, * _Seg16 PHVDD;
+
+typedef ULONG HSPINLOCK, * _Seg16 PHSPINLOCK;
+
+typedef struct {
+   ULONG sl_vaddr; /* start of VA segment to profile */
+   ULONG sl_size;  /* length of VA segment */
+   ULONG sl_mode;  /* !=0 use PRF_VA* flags, */
+                   /* =0, simple count */
+} PRFSLOT;
+
+typedef struct {
+   PRFSLOT * _Seg16 cm_slots;      /* Virtual address slots */
+   USHORT   cm_nslots;             /* # of VA slots < 256 (!) */
+   USHORT   cm_flags;              /* command */
+   ULONG    cm_bufsz;              /* reserve # of bytes for buffers */
+                                   /* e.g. for hit buffer or detailed */
+                                   /* counters */
+   USHORT   cm_timval;             /* timer resolution */
+                                   /* if 0, use default == 1000 */
+   /* valid if PRF_FLAGBITS set */
+   char * _Seg16  cm_flgbits;      /* vector of flag bits (?) */
+   UCHAR    cm_nflgs;              /* # of flag bits >= 2 if present */
+} PRFCMD; /* 19 bytes */
+
+      #define PRF_RET_GLOBAL   0 /* return global data */
+                                 /* set us_thrdno for specific thread */
+                                 /* us_buf = struct PRFRET0 */
+      #define PRF_RET_VASLOTS  1 /* return VA slot data (PRFRET1) */
+      #define PRF_RET_VAHITS   2 /* return hit table (PRFRET2) */
+      #define PRF_RET_VADETAIL 3 /* return detailed counters (PRFRET3) */
+                                 /* specify us_vaddr */
+typedef struct {
+   UCHAR us_cmd;                /* command */
+   USHORT us_thrdno;            /* thread requested for cmd=0 */
+   ULONG us_vaddr;              /* VA for cmd=3*/
+   ULONG us_bufsz;              /* length of return buffer */
+   VOID *us_buf;                /* return buffer */
+} PRFRET; /* 15 bytes */
+
+typedef struct {
+   USHORT r0_flags;             /* profile flags */
+                                 /* see PRF_* defines */
+   USHORT r0_shift;             /* shift factor */
+                                 /* 2^N = length of a segment for */
+                                 /* detailed counters */
+   ULONG  r0_idle;              /* count if process is idle */
+   ULONG  r0_vm86;              /* count if process is in VM mode */
+   ULONG  r0_kernel;            /* count if process is in kernel */
+   ULONG  r0_shrmem;            /* count if process is in shr mem */
+   ULONG  r0_unknown;           /* count if process is elsewhere */
+   ULONG  r0_nhitbufs;          /* # of dwords in hitbufs */
+   ULONG  r0_hitbufcnt;         /* # of entries in hit table */
+   ULONG  r0_reserved1;         /* internally used */
+   ULONG  r0_reserved2;         /* internally used */
+   USHORT r0_timval;            /* timer resolution */
+   UCHAR  r0_errcnt;            /* error count */
+   USHORT r0_nstruc1;           /* # of add structures 1 (?) */
+   USHORT r0_nstruc2;           /* # of add structures 2 (?) */
+} PRFRET0;
+
+typedef struct {
+   ULONG va_vaddr;              /* virtual address of segment */
+   ULONG va_size;               /* length of segment */
+   ULONG va_flags;              /* == 8, va_cnt is valid */
+   ULONG va_reserved;           /* internally used */
+   ULONG va_cnt;                /* profile count */
+} PRFVA;
+
+typedef struct {
+   UCHAR r1_nslots;             /* # of slots (bug: prevents */
+                                 /* correct # if #slots >255) */
+   PRFVA r1_slots[1];           /* slots */
+} PRFRET1;
+
+typedef struct {
+   ULONG r2_nhits;              /* # of entries in table */
+   ULONG r2_hits[1];            /* hit table */
+} PRFRET2;
+
+typedef struct {
+   ULONG r3_size;               /* size of segment */
+   ULONG r3_ncnts;              /* # of entries in table */
+   ULONG r3_cnts[1];            /* counters */
+} PRFRET3;
+
+typedef LHANDLE HQUEUE, * _Seg16 PHQUEUE;
+
 APIRET unimplemented(char *func);
 
-APIRET APIENTRY      DosAllocProtSeg(void)
+
+// fix prototype !!!
+USHORT APIENTRY16 DOS16ALLOCPROTSEG(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosAllocShrProtSeg(void)
+// fix prototype !!!
+USHORT APIENTRY16 DOS16ALLOCSHRPROTSEG(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosAllocProtHuge(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosCaseMap(USHORT Length, PCOUNTRYCODE Country, PCHAR BinaryString)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosGetCollate(USHORT Length, PCOUNTRYCODE Country,
-                                   PCHAR MemoryBuffer, PUSHORT DataLength)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosGetCtryInfo(USHORT Length, PCOUNTRYCODE Country,
-                                    PCOUNTRYINFO MemoryBuffer, PUSHORT DataLength)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosGetDBCSEv(USHORT Length, PCOUNTRYCODE Country, PCHAR MemoryBuffer)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosDynamicTrace(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosQueryModFromCS(SEL sel, PQMRESULT qmresult)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosMakeNmPipe(PSZ PipeName, PHPIPE PipeHandle, USHORT OpenMode,
-                                   USHORT PipeMode, USHORT OutBufSize, USHORT InBufSize, ULONG TimeOut)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosQNmPipeInfo(HPIPE Handle, USHORT InfoLevel, PBYTE InfoBuf, USHORT InfoBufSize)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosConnectNmPipe(HPIPE handle)
+// fix prototype !!!
+USHORT APIENTRY16 DOS16ALLOCPROTHUGE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosDisconnectNmPipe(HPIPE handle)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosQNmPHandState(HPIPE Handle, PUSHORT PipeHandleState)
+USHORT APIENTRY16 DOS16CASEMAP(USHORT Length, COUNTRYCODE * _Seg16 Country, CHAR * _Seg16 BinaryString)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosSetNmPHandState(HPIPE Handle, USHORT PipeHandleState)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosPeekNmPipe(HPIPE Handle, PBYTE Buffer, USHORT BufferLen,
-                                   PUSHORT BytesRead, PUSHORT BytesAvail, PUSHORT PipeState)
+USHORT APIENTRY16 DOS16GETCOLLATE(USHORT Length, COUNTRYCODE * _Seg16 Country,
+                                  CHAR * _Seg16 MemoryBuffer, USHORT * _Seg16 DataLength)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosWaitNmPipe(PSZ FileName, ULONG TimeOut)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosCallNmPipe(PSZ FileName, PBYTE InBuffer, USHORT InBufferLen,
-                                   PBYTE OutBuffer, USHORT OutBufferLen, 
-                                   PUSHORT BytesOut, ULONG TimeOut)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosRawReadNmPipe(HPIPE handle, USHORT cbBuf, PBYTE pBuf) // undoc (???)
+USHORT APIENTRY16 DOS16GETCTRYINFO(USHORT Length, COUNTRYCODE * _Seg16 Country,
+                                   COUNTRYINFO * _Seg16 MemoryBuffer, USHORT * _Seg16 DataLength)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosRawWriteNmPipe(HPIPE handle, USHORT cbBuf, PBYTE pBuf) // undoc (???)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosSetNmPipeSem(HPIPE Handle, HSEM SemHandle, USHORT KeyHandle)
+USHORT APIENTRY16 DOS16GETDBCSEV(USHORT Length, COUNTRYCODE * _Seg16 Country, CHAR * _Seg16 MemoryBuffer)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosQNmPipeSemState(HSEM SemHandle, PBYTE InfoBuf, USHORT InfoBufLen)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      Dos16MonOpen(PSZ Devname, PHMONITOR Handle)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-APIRET APIENTRY      Dos16MonClose(HMONITOR handle)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 DOS16DYNAMICTRACE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      Dos16MonRead(PBYTE BufferI, UCHAR WaitFlag, PBYTE DataBuffer, PUSHORT Bytecnt)
+USHORT APIENTRY16 DOS16MAKENMPIPE(CHAR * _Seg16 PipeName, HPIPE * _Seg16 PipeHandle, USHORT OpenMode,
+                                  USHORT PipeMode, USHORT OutBufSize, USHORT InBufSize, ULONG TimeOut)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      Dos16MonWrite(PBYTE BufferO, PBYTE DataBuffer, USHORT Bytecnt)
+USHORT APIENTRY16  DOS16QNMPIPEINFO(HPIPE Handle, USHORT InfoLevel, BYTE * _Seg16 InfoBuf, USHORT InfoBufSize)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      Dos16MonReg(HMONITOR Handle, PBYTE BufferI, PBYTE BufferO,
-                               USHORT Posflag, USHORT Index)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DosICreateThread(void)
+USHORT APIENTRY16  DOS16CONNECTNMPIPE(HPIPE handle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ENTERCRITSEC(void)
+USHORT APIENTRY16  DOS16DISCONNECTNMPIPE(HPIPE handle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIExecPgm(void)
+USHORT APIENTRY16  DOS16QNMPHANDSTATE(HPIPE Handle, USHORT * _Seg16 PipeHandleState)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-//USHORT __pascal         DOS16EXIT(void)
-//{
-//  return unimplemented(__FUNCTION__);
-//}
-
-
-USHORT __pascal         DOS16EXITCRITSEC(void)
+USHORT APIENTRY16  DOS16SETNMPHANDSTATE(HPIPE Handle, USHORT PipeHandleState)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16EXITLIST(void)
+USHORT APIENTRY16 DOS16PEEKNMPIPE(HPIPE Handle, BYTE * _Seg16 Buffer, USHORT BufferLen,
+                                  USHORT * _Seg16 BytesRead, USHORT * _Seg16 BytesAvail,
+                                  USHORT * _Seg16 PipeState)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT _Far16 _Pascal   DOS16GETINFOSEG(USHORT _Far16 *pGlobalSeg,
-                                        USHORT _Far16 *pLocalSeg)
+USHORT APIENTRY16  DOS16WAITNMPIPE(CHAR * _Seg16 FileName, ULONG TimeOut)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETPRTY(void)
+USHORT APIENTRY16  DOS16CALLNMPIPE(CHAR * _Seg16 FileName, BYTE * _Seg16 InBuffer, USHORT InBufferLen,
+                                       BYTE * _Seg16 OutBuffer, USHORT OutBufferLen, 
+                                       USHORT * _Seg16 BytesOut, ULONG TimeOut)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16KILLPROCESS(void)
+// undoc (???)
+USHORT APIENTRY16  DOS16RAWREADNMPIPE(HPIPE handle, USHORT cbBuf, BYTE * _Seg16 pBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETPRTY(void)
+// undoc (???)
+USHORT APIENTRY16  DOS16RAWWRITENMPIPE(HPIPE handle, USHORT cbBuf, BYTE * _Seg16 pBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PTRACE(void)
+USHORT APIENTRY16  DOS16SETNMPIPESEM(HPIPE Handle, HSEM SemHandle, USHORT KeyHandle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16HOLDSIGNAL(void)
+USHORT APIENTRY16  DOS16QNMPIPESEMSTATE(HSEM SemHandle, BYTE * _Seg16 InfoBuf, USHORT InfoBufLen)
 {
   return unimplemented(__FUNCTION__);
 }
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16  DOSICREATETHREAD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16  DOS16ENTERCRITSEC(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16  DOS16EXITCRITSEC(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16   DOSIEXECPGM(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16EXITLIST(USHORT FcnCode_Order, FNEXITLIST * _Seg16 RtnAddress)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16GETINFOSEG(USHORT * _Seg16 pGlobalSeg,
+                                    USHORT * _Seg16 pLocalSeg)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16GETPRTY(USHORT Scope, USHORT * _Seg16 Priority, USHORT id)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16KILLPROCESS(USHORT ActionCode, PID pid)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16SETPRTY(USHORT scope, USHORT PriorityClass,
+                                 SHORT PriorityDelta, USHORT id)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16PTRACE(BYTE * _Seg16 PtraceB)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16   DOS16HOLDSIGNAL(USHORT ActionCode)
+{
+  return unimplemented(__FUNCTION__);
+}
+
 
 typedef void _Far16 *PFNSIGHANDLER;
 
-USHORT _Far16 _Pascal   DOS16SETSIGHANDLER(PFNSIGHANDLER routine, PFNSIGHANDLER _Far16 *prevAddr,
-                                           PUSHORT prevAction, USHORT Action, USHORT sigNumber)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
-USHORT __pascal         DOS16FLAGPROCESS(void)
+USHORT APIENTRY16   DOS16SETSIGHANDLER(PFNSIGHANDLER routine, PFNSIGHANDLER * _Seg16 prevAddr,
+                                       PUSHORT * _Seg16 prevAction, USHORT Action, USHORT sigNumber)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MAKEPIPE(void)
+USHORT APIENTRY16   DOS16FLAGPROCESS(PID pid, USHORT ActionCode, USHORT FlagNum, USHORT FlagArg)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISysSemClear(void)
+USHORT APIENTRY16   DOS16MAKEPIPE(HFILE * _Seg16 ReadHandle, HFILE * _Seg16 WriteHandle,
+                                  USHORT PipeSize)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISemRequest(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16   DOSISYSSEMCLEAR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISysSemSet(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16   DOSISEMREQUEST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEMSETWAIT(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16   DOSISYSSEMSET(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISemWait(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16   DOSISEMWAIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MUXSEMWAIT(void)
+USHORT APIENTRY16   DOS16MUXSEMWAIT(USHORT * _Seg16 IndexNbr, void * _Seg16 ListAddr,
+                                    LONG timeout)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLOSESEM(void)
+USHORT APIENTRY16   DOS16CLOSESEM(HSEM sem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CREATESEM(void)
+USHORT APIENTRY16   DOS16CREATESEM(USHORT NoExclusive, HSEM * _Seg16 sem,
+                                   char * _Seg16 SemName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPENSEM(void)
+USHORT APIENTRY16   DOS16OPENSEM(HSEM * _Seg16 sem, char * _Seg16 SemName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RESUMETHREAD(void)
+USHORT APIENTRY16   DOS16RESUMETHREAD(TID tid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SUSPENDTHREAD(void)
+USHORT APIENTRY16   DOS16SUSPENDTHREAD(TID tid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETDATETIME(void)
+USHORT APIENTRY16   DOS16SETDATETIME(DATETIME * _Seg16 pdatetime)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TIMERASYNC(void)
+USHORT APIENTRY16   DOS16TIMERASYNC(ULONG interval, HSEM sem, HTIMER * _Seg16 timer)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TIMERSTART(void)
+USHORT APIENTRY16   DOS16TIMERSTART(ULONG interval, HSEM sem, HTIMER * _Seg16 timer)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TIMERSTOP(void)
+USHORT APIENTRY16   DOS16TIMERSTOP(HTIMER timer)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SLEEP(void)
+USHORT APIENTRY16   DOS16SLEEP(ULONG time)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETDATETIME(void)
+USHORT APIENTRY16   DOS16GETDATETIME(DATETIME * _Seg16 pdatetime)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCSEG(void)
+USHORT APIENTRY16   DOS16ALLOCSEG(USHORT size, SEL * _Seg16 psel,
+                                  USHORT flags)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCSHRSEG(void)
+USHORT APIENTRY16   DOS16ALLOCSHRSEG(USHORT size, char * _Seg16 name,
+                                     SEL * _Seg16 psel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETSHRSEG(void)
+USHORT APIENTRY16   DOS16GETSHRSEG(char * _Seg16 name, SEL * _Seg16 psel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GIVESEG(void)
+USHORT APIENTRY16   DOS16GIVESEG(SEL CallerSegSel, PID pid, SEL * _Seg16 RecepientSegSel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16REALLOCSEG(void)
+USHORT APIENTRY16   DOS16REALLOCSEG(USHORT size, SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FREESEG(void)
+USHORT APIENTRY16   DOS16FREESEG(SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCHUGE(void)
+USHORT APIENTRY16   DOS16ALLOCHUGE(USHORT numSeg, USHORT size, SEL * _Seg16 psel,
+                                   USHORT MaxNumSeg, USHORT flags)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETHUGESHIFT(void)
+USHORT APIENTRY16   DOS16GETHUGESHIFT(USHORT * _Seg16 ShiftCount)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16REALLOCHUGE(void)
+USHORT APIENTRY16   DOS16REALLOCHUGE(USHORT NumSeg, USHORT size, SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CREATECSALIAS(void)
+USHORT APIENTRY16   DOS16CREATECSALIAS(SEL DataSelector, SEL * _Seg16 CodeSelector)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOADMODULE(void)
+USHORT APIENTRY16   DOS16LOADMODULE(char * _Seg16 pszNameBuf, USHORT cbBufLen,
+                                    char * _Seg16 pszModName, HMODULE * _Seg16 phmod)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETPROCADDR(void)
+USHORT APIENTRY16   DOS16GETPROCADDR(HMODULE hmod, char * _Seg16 pszProcName,
+                                     PFN16 ppfn)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FREEMODULE(void)
+USHORT APIENTRY16   DOS16FREEMODULE(HMODULE hmod)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETMODHANDLE(void)
+USHORT APIENTRY16   DOS16GETMODHANDLE(char * _Seg16 pszName, HMODULE * _Seg16 phmod)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETMODNAME(void)
+USHORT APIENTRY16   DOS16GETMODNAME(HMODULE hmod, USHORT cbBuf, char * _Seg16 szBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETMACHINEMODE(void)
+USHORT APIENTRY16   DOS16GETMACHINEMODE(BYTE * _Seg16 MachineMode)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16BEEP(void)
+USHORT APIENTRY16   DOS16BEEP(USHORT freq, USHORT duration)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLIACCESS(void)
+USHORT APIENTRY16   DOS16CLIACCESS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DEVCONFIG(void)
+USHORT APIENTRY16   DOS16DEVCONFIG(void * _Seg16 DeviceInfo, USHORT item, USHORT parm)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DEVIOCTL(void)
+USHORT APIENTRY16   DOS16DEVIOCTL(void * _Seg16 data, void * _Seg16 parm,
+                                  USHORT func, USHORT cat, HFILE hf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SGSWITCH(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16   DOS16SGSWITCH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SGSWITCHME(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16   DOS16SGSWITCHME(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16BUFRESET(void)
+USHORT APIENTRY16   DOS16BUFRESET(HFILE hf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CHDIR(void)
+USHORT APIENTRY16   DOS16CHDIR(char * _Seg16 dirname)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CHGFILEPTR(void)
+USHORT APIENTRY16   DOS16CHGFILEPTR(HFILE hf, LONG distance,
+                                    USHORT MoveType, ULONG * _Seg16 NewPointer)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLOSE(void)
+USHORT APIENTRY16   DOS16CLOSE(HFILE hf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DELETE(void)
+USHORT APIENTRY16   DOS16DELETE(char * _Seg16 pszFilename, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DUPHANDLE(void)
+USHORT APIENTRY16   DOS16DUPHANDLE(HFILE hf, HFILE * _Seg16 phf2)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FILELOCKS(void)
+USHORT APIENTRY16   DOS16FILELOCKS(HFILE hf, LONG * _Seg16 UnLockRange, LONG * _Seg16 LockRange)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDCLOSE(void)
+USHORT APIENTRY16   DOS16FINDCLOSE(HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDFIRST(void)
+USHORT APIENTRY16   DOS16FINDFIRST(char * _Seg16 pszFilename, HDIR * _Seg16 phdir,
+                                   USHORT attr, FILEFINDBUF * _Seg16 pFileFindBuf,
+                                   USHORT cbBuf, USHORT * _Seg16 pcount, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDNEXT(void)
+USHORT APIENTRY16   DOS16FINDNEXT(HDIR hdir, FILEFINDBUF * _Seg16 pFileFindBuf,
+                                  USHORT cbBuf, USHORT * _Seg16 pcount)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MKDIR(void)
+USHORT APIENTRY16   DOS16MKDIR(char * _Seg16 dirname, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MOVE(void)
+USHORT APIENTRY16   DOS16MOVE(char * _Seg16 old, char * _Seg16 new, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16NEWSIZE(void)
+USHORT APIENTRY16   DOS16NEWSIZE(HFILE hf, ULONG size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PORTACCESS(void)
+USHORT APIENTRY16   DOS16PORTACCESS(USHORT reserved, USHORT type,
+                                    USHORT firstport ,USHORT lastport)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPEN(void)
+USHORT APIENTRY16   DOS16OPEN(char * _Seg16 pszFileName, HFILE * _Seg16 phf,
+                              USHORT * _Seg16 action, ULONG cbSize, USHORT attr,
+                              USHORT usOpenFlags, USHORT usOpenMode, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QCURDIR(void)
+USHORT APIENTRY16    DOS16QCURDIR(USHORT drivenum, char * _Seg16 pszPath, USHORT * _Seg16 cbPath)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QCURDISK(void)
+USHORT APIENTRY16    DOS16QCURDISK(USHORT * _Seg16 drivenum, ULONG * _Seg16 drivemap)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QFHANDSTATE(void)
+USHORT APIENTRY16    DOS16QFHANDSTATE(HFILE hf, USHORT * _Seg16 state)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QFILEINFO(void)
+USHORT APIENTRY16    DOS16QFILEINFO(HFILE hf, USHORT level,
+                                    char * _Seg16 pBuf, USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QFILEMODE(void)
+USHORT APIENTRY16    DOS16QFILEMODE(char * _Seg16 pszFilename, USHORT * _Seg16 attr,
+                                    ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QFSINFO(void)
+USHORT APIENTRY16    DOS16QFSINFO(USHORT drivenum, USHORT level, char * _Seg16 pBuf,
+                                  USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QHANDTYPE(void)
+USHORT APIENTRY16    DOS16QHANDTYPE(HFILE hf, USHORT * _Seg16 type, USHORT * _Seg16 flag)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QVERIFY(void)
+USHORT APIENTRY16    DOS16QVERIFY(USHORT * _Seg16 verify)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIRead(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSIREAD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RMDIR(void)
+USHORT APIENTRY16    DOS16RMDIR(char * _Seg16 pszDir, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SELECTDISK(void)
+USHORT APIENTRY16    DOS16SELECTDISK(USHORT drivenum)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETFHANDSTATE(void)
+USHORT APIENTRY16    DOS16SETFHANDSTATE(HFILE hf, USHORT state)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETFILEINFO(void)
+USHORT APIENTRY16    DOS16SETFILEINFO(HFILE hf, USHORT level, char * _Seg16 pBuf,
+                                      USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETFILEMODE(void)
+USHORT APIENTRY16    DOS16SETFILEMODE(char * _Seg16 pszFilename, USHORT attr,
+                                      ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
-
-USHORT __pascal         DOS16SETMAXFH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
-USHORT __pascal         DOS16SETVERIFY(void)
+USHORT APIENTRY16    DOS16SETMAXFH(USHORT usNumHandles)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIWrite(void)
+USHORT APIENTRY16    DOS16SETVERIFY(USHORT verify)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SYSTEMSERVICE(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSIWRITE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETVEC(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SYSTEMSERVICE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SYSTRACE(void)
+USHORT APIENTRY16    DOS16SETVEC(USHORT usVecNum, PFN16 routine, PFN16 prev)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETENV(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SYSTRACE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETVERSION(void)
+USHORT APIENTRY16    DOS16GETENV(SEL * _Seg16 pEnvSel, USHORT * _Seg16 off)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QTRACEINFO(void)
+USHORT APIENTRY16    DOS16GETVERSION(USHORT * _Seg16 version)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETPID(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16QTRACEINFO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPEN2(void)
+USHORT APIENTRY16    DOS16GETPID(PIDINFO * _Seg16 info)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LIBINIT(void)
+USHORT APIENTRY16    DOS16OPEN2(char * _Seg16 pszFilename, HFILE * _Seg16 hf,
+                                USHORT * _Seg16 action, ULONG cbFile, USHORT attr,
+                                USHORT usOpenFlags, ULONG ulOpenMode, EAOP2 * _Seg16 peaop2,
+                                ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETFSINFO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16LIBINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QPATHINFO(void)
+USHORT APIENTRY16    DOS16SETFSINFO(USHORT drivenum, USHORT level,
+                                    char * _Seg16 pBuf, USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DEVIOCTL2(void)
+USHORT APIENTRY16    DOS16QPATHINFO(char * _Seg16 pszName, USHORT level,
+                                    char * _Seg16 pBuf, USHORT cbBuf, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosICanonicalize(void)
+USHORT APIENTRY16    DOS16DEVIOCTL2(void * _Seg16 data, USHORT datalen,
+                                    void * _Seg16 parm, USHORT parmlen,
+                                    USHORT func, USHORT cat, HFILE hf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETFGND(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSICANONICALIZE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SWAPTASKINIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SETFGND(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16READPHYS(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SWAPTASKINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETPATHINFO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16READPHYS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SGSWITCHPROC2(void)
+USHORT APIENTRY16    DOS16SETPATHINFO(char * _Seg16 pszName, USHORT level,
+                                      char * _Seg16 pBuf, USHORT cbBuf,
+                                      USHORT flags, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         STRUCHECK(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SGSWITCHPROC2(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         STRURESUPDATE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    STRUCHECK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISetRelMaxFH(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    STRURESUPDATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIDevIOCtl(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSISETRELMAXFH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETSTDA(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSIDEVIOCTL(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ERROR(void)
+// fix prototype !!! (internal)
+USHORT APIENTRY16    DOS16GETSTDA(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETSEG(void)
+USHORT APIENTRY16    DOS16ERROR(USHORT flag)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOCKSEG(void)
+USHORT APIENTRY16    DOS16GETSEG(SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16UNLOCKSEG(void)
+USHORT APIENTRY16    DOS16LOCKSEG(SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SGSWITCHPROC(void)
+USHORT APIENTRY16    DOS16UNLOCKSEG(SEL sel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIRamSemWake(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16    DOS16SGSWITCHPROC(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SIZESEG(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSIRAMSEMWAKE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MEMAVAIL(void)
+USHORT APIENTRY16    DOS16SIZESEG(SEL sel, ULONG * _Seg16 size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosIRamSemRequest(void)
+USHORT APIENTRY16    DOS16MEMAVAIL(ULONG * _Seg16 size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PHYSICALDISK(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSIRAMSEMREQUEST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETCP(void)
+USHORT APIENTRY16    DOS16PHYSICALDISK(USHORT func, char * _Seg16 data,
+                                       USHORT datalen, char * _Seg16 parm,
+                                       USHORT parmlen)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DosISetCP(USHORT codepage, USHORT reserved)
+USHORT APIENTRY16    DOS16GETCP(USHORT len, USHORT * _Seg16 CodePageList,
+                                USHORT * _Seg16 datalen)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GLOBALSEG(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16    DOSISETCP(USHORT codepage, USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROFILE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// Global Infoseg Selector
+SEL DOS16GLOBALSEG;
+#pragma aux DOS16GLOBALSEG "*"
 
 
-USHORT __pascal         DOS16SENDSIGNAL(void)
+USHORT APIENTRY16    DOS16PROFILE(ULONG func, PID pid, PRFCMD * _Seg16 profcmd,
+                                  PRFRET * _Seg16 profret)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16HUGESHIFT(void)
+USHORT APIENTRY16    DOS16SENDSIGNAL(PID pid, USHORT sigNum)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16HUGEINCR(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// Huge Shift value
+USHORT DOS16HUGESHIFT;
+#pragma aux DOS16HUGESHIFT "*"
 
 
-USHORT __pascal         DOS16READ(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// Huge Increment value
+USHORT DOS16HUGEINCR;
+#pragma aux DOS16HUGEINCR "*"
 
 
-USHORT __pascal         DOS16WRITE(void)
+USHORT APIENTRY16     DOS16READ(HFILE hf, void * _Seg16 pBuf,
+                                USHORT cbBuf, USHORT * _Seg16 pcbRead)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ERRCLASS(void)
+USHORT APIENTRY16     DOS16WRITE(HFILE hf, void * _Seg16 pBuf,
+                                 USHORT cbBif, USHORT * _Seg16 pcbWritten)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEMREQUEST(void)
+USHORT APIENTRY16     DOS16ERRCLASS(USHORT code, USHORT * _Seg16 class,
+                                    USHORT * _Seg16 action, USHORT * _Seg16 locus)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEMCLEAR(void)
+USHORT APIENTRY16     DOS16SEMREQUEST(HSEM sem, LONG timeout)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEMWAIT(void)
+USHORT APIENTRY16     DOS16SEMCLEAR(HSEM sem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEMSET(void)
+USHORT APIENTRY16     DOS16SEMWAIT(HSEM sem, LONG timeout)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16EXECPGM(void)
+USHORT APIENTRY16     DOS16SEMSET(HSEM sem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CREATETHREAD(void)
+USHORT APIENTRY16   DOS16SEMSETWAIT(HSEM sem, LONG Timeout)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SUBSET(void)
+USHORT APIENTRY16     DOS16EXECPGM(char * _Seg16 szObjName, SHORT cbObjBuf,
+                                   USHORT execflags, char * _Seg16 argptr,
+                                   char * _Seg16 envptr, RESULTCODES * _Seg16 res,
+                                   char * _Seg16 pgmptr)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SUBALLOC(void)
+USHORT APIENTRY16     DOS16CREATETHREAD(FNTHREAD * _Seg16 pfnthread, TID * _Seg16 ptid,
+                                        void * _Seg16 stack)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SUBFREE(void)
+USHORT APIENTRY16     DOS16SUBSET(SEL sel, USHORT flags, USHORT size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16READASYNC(void)
+USHORT APIENTRY16     DOS16SUBALLOC(SEL sel, USHORT * _Seg16 blkOffset,
+                                    USHORT size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16WRITEASYNC(void)
+USHORT APIENTRY16     DOS16SUBFREE(SEL sel, USHORT blkOffset, USHORT size)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SEARCHPATH(void)
+USHORT APIENTRY16     DOS16READASYNC(HFILE hf, ULONG * _Seg16 ramsem,
+                                     USHORT * _Seg16 retcode, void * _Seg16 pBuf,
+                                     USHORT cbBuf, USHORT * _Seg16 cbRead)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SCANENV(void)
+USHORT APIENTRY16     DOS16WRITEASYNC(HFILE hf, ULONG * _Seg16 ramsem,
+                                      USHORT * _Seg16 retcode, void * _Seg16 pBuf,
+                                      USHORT cbBuf, USHORT * _Seg16 cbRead)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETCP(void)
+USHORT APIENTRY16     DOS16SEARCHPATH(USHORT control, char * _Seg16 pszPath,
+                                      char * _Seg16 pszFilename, BYTE * _Seg16 pBuf,
+                                      USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QPROCSTATUS(void)
+USHORT APIENTRY16     DOS16SCANENV(char * _Seg16 pszEnvVar, char * _Seg16 * _Seg16 ppszResult)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETRESOURCE(void)
+USHORT APIENTRY16     DOS16SETCP(USHORT codepage, USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETPPID(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16QPROCSTATUS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CALLBACK(void)
+USHORT APIENTRY16     DOS16GETRESOURCE(HMODULE hmod, USHORT typeId,
+                                       USHORT nameId, SEL * _Seg16 psel)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RETFORWARD(void)
+USHORT APIENTRY16     DOS16GETPPID(PID pid, PID * _Seg16 ppid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16R2STACKREALLOC(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16CALLBACK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSRAMSEMREQUEST(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSICALLBACK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSRAMSEMCLEAR(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16RETFORWARD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QAPPTYPE(void)
+USHORT APIENTRY16     DOS16R2STACKREALLOC(USHORT cbNewSize)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETPROCCP(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16FSRAMSEMREQUEST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16DYNAMICTRACE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16FSRAMSEMCLEAR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QSYSINFO(void)
+USHORT APIENTRY16     DOS16QAPPTYPE(char * _Seg16 pszFilename, USHORT * _Seg16 apptype)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSATTACH(void)
+USHORT APIENTRY16     DOS16SETPROCCP(USHORT cp, USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QFSATTACH(void)
+USHORT APIENTRY16     DOS16QSYSINFO(USHORT index, void * _Seg16 pBuf, USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSCTL(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIMAKENMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDFIRST2(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSICALLNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MKDIR2(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSICONNECTNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FILEIO(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIDISCONNECTNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDNOTIFYCLOSE(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIPEEKNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDNOTIFYFIRST(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIQNMPIPEINFO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDNOTIFYNEXT(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIQNMPHANDSTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETTRACEINFO(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSISETNMPHANDSTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16EDITNAME(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSITRANSACTNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOGMODE(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIWAITNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOGENTRY(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSISETNMPIPESEM(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETLOGBUFFER(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIQNMPIPESEMSTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOGREGISTER(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIRAWREADNMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOGREAD(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16     DOSIRAWWRITENMPIPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FINDFROMNAME(void)
+USHORT APIENTRY16     DOS16FSATTACH(char * _Seg16 pszDeviceName, char * _Seg16 fsdName,
+                                    void * _Seg16 pBuf, USHORT cbBufLen, USHORT opFlag,
+                                    ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPLOCKRELEASE(void)
+USHORT APIENTRY16     DOS16QFSATTACH(char * _Seg16 pszDeviceName, USHORT ordinal,
+                                     USHORT fsaInfoLevel, void * _Seg16 pBuf,
+                                     USHORT * _Seg16 pcbBuf, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPLOCKWAIT(void)
+USHORT APIENTRY16     DOS16FSCTL(void * _Seg16 pData, USHORT cbDataLenMax, USHORT * _Seg16 pcbDataLen,
+                                 void * _Seg16 pParm, USHORT cbParmLenMax, USHORT * _Seg16 pcbParmLen,
+                                 USHORT func, char * _Seg16 pszRouteName, HFILE hf, USHORT usRouteMethod,
+                                 ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16COPY(void)
+USHORT APIENTRY16     DOS16FINDFIRST2(char * _Seg16 pszFilename, HDIR * _Seg16 phdir, USHORT attr,
+                                      void * _Seg16 pBuf, USHORT cbBuf, USHORT * _Seg16 psearchcnt,
+                                      USHORT level, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FORCEDELETE(void)
+USHORT APIENTRY16     DOS16MKDIR2(char * _Seg16 pszDir, EAOP2 * _Seg16 peaop2, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ENUMATTRIBUTE(void)
+USHORT APIENTRY16     DOS16FILEIO(HFILE hf, void * _Seg16 pCmdList, USHORT cbList,
+                                  LONG * _Seg16 ErrorOffset)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPLOCKSHUTDOWN(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16FINDNOTIFYCLOSE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SHUTDOWN(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16FINDNOTIFYFIRST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETRESOURCE2(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16FINDNOTIFYNEXT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FREERESOURCE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16SETTRACEINFO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MAXPATHLEN(void)
+USHORT APIENTRY16     DOS16EDITNAME(USHORT level, char * _Seg16 pszSrc,
+                                    char * _Seg16 pszEditStr, void * _Seg16 pBuf,
+                                    USHORT cbBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PAGESIZE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16LOGMODE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LOCALINFO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16LOGENTRY(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GLOBALINFO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16GETLOGBUFFER(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPENVDD(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16LOGREGISTER(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16REQUESTVDD(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16LOGREAD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLOSEVDD(void)
+USHORT APIENTRY16      DOS16FINDFROMNAME(HDIR hDir, void * _Seg16 pfindbuf, USHORT cbBuf,
+                                     USHORT * _Seg16 pcFileNames, USHORT ulPosition,
+                                     char * _Seg16 pszFileSpec)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCPROTSEG(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16OPLOCKRELEASE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCSHRPROTSEG(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16OPLOCKWAIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ALLOCPROTHUGE(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSICOPY(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYDOSPROPERTY(void)
+USHORT APIENTRY16      DOS16COPY(char * _Seg16 pszSrc, char * _Seg16 pszDst,
+                                 USHORT opMode, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETDOSPROPERTY(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSIQAPPTYPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PUTMESSAGE(void)
+USHORT APIENTRY16      DOS16FORCEDELETE(char * _Seg16 pszFile)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TRUEGETMESSAGE(void)
+USHORT APIENTRY16      DOS16ENUMATTRIBUTE(USHORT refType, void * _Seg16 fileRef,
+                                          ULONG ulEntryNum, void * _Seg16 pBuf,
+                                          ULONG cbBuf, ULONG * _Seg16 cEnum,
+                                          ULONG level, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16INSMESSAGE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16      DOS16OPLOCKSHUTDOWN(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16IQUERYMESSAGECP(void)
+USHORT APIENTRY16      DOS16SHUTDOWN(ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CASEMAP(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY      DOSICACHEMODULE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETCOLLATE(void)
+USHORT APIENTRY16      DOS16GETRESOURCE2(HMODULE hmod, USHORT typeId, USHORT nameId,
+                                         ULONG * _Seg16 resAddr)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETCTRYINFO(void)
+USHORT APIENTRY16      DOS16FREERESOURCE(BYTE * _Seg16 resAddr)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETDBCSEV(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// max Path len value
+USHORT DOS16MAXPATHLEN;
+#pragma aux DOS16MAXPATHLEN "*"
 
 
-USHORT __pascal         DOS16MAKENMPIPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// max processor page size value
+USHORT DOS16PAGESIZE;
+#pragma aux DOS16PAGESIZE "*"
 
 
-USHORT __pascal         DOS16QNMPIPEINFO(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// LIS selector value
+SEL DOS16LOCALINFO;
+#pragma aux DOS16LOCALINFO "*"
 
 
-USHORT __pascal         DOS16CONNECTNMPIPE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
+// GIS selector value
+SEL DOS16GLOBALINFO;
+#pragma aux DOS16GLOBALINFO "*"
 
 
-USHORT __pascal         DOS16DISCONNECTNMPIPE(void)
+USHORT APIENTRY16     DOS16OPENVDD(char * _Seg16 pszVDD, HVDD * _Seg16 phvdd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QNMPHANDSTATE(void)
+USHORT APIENTRY16     DOS16REQUESTVDD(HVDD hvdd, SGID sgid, USHORT cmd,
+                                      USHORT cbInput, void * _Seg16 pInput,
+                                      USHORT cbOutput, void * _Seg16 pOutput)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETNMPHANDSTATE(void)
+USHORT APIENTRY16     DOS16CLOSEVDD(HVDD hvdd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PEEKNMPIPE(void)
+USHORT APIENTRY16     DOS16QUERYDOSPROPERTY(SGID sgid, char * _Seg16 pszName,
+                                            ULONG cb, char * _Seg16 pszBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16WAITNMPIPE(void)
+USHORT APIENTRY16     DOS16SETDOSPROPERTY(SGID sgid, char * _Seg16 pszName,
+                                          ULONG cb, char * _Seg16 pszBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TRANSACTNMPIPE(void)
+USHORT APIENTRY16     DOS16PUTMESSAGE(HFILE hf, USHORT msglen, char * _Seg16 pMsgBuf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CALLNMPIPE(void)
+USHORT APIENTRY16     DOS16TRUEGETMESSAGE(void * _Seg16 pMsgSeg, char * _Seg16 * _Seg16 ivTable,
+                                          USHORT ivCount, char * _Seg16 pData, USHORT cbData,
+                                          USHORT msgNum, char * _Seg16 pszFileName,
+                                          USHORT * _Seg16 msgLen)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RAWREADNMPIPE(void)
+USHORT APIENTRY16     DOS16INSMESSAGE(char * _Seg16 * _Seg16 ivTable, USHORT ivCount,
+                                      char * _Seg16 pszMsg, USHORT cbMsgLen, char * _Seg16 pData,
+                                      USHORT cbDataLen, USHORT * _Seg16 cbMsgActual)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RAWWRITENMPIPE(void)
+USHORT APIENTRY16     DOS16IQUERYMESSAGECP(char * _Seg16 pb, USHORT cb,
+                                        char * _Seg16 pszFile,
+                                        PUSHORT cbBuf, void * _Seg16 msgSeg)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETNMPIPESEM(void)
+USHORT APIENTRY16     DOS16TRANSACTNMPIPE(HPIPE hpipe, void * _Seg16 pInBuf, USHORT cbInBuf,
+                                          void * _Seg16 pOutBuf, USHORT cbOutBuf, USHORT * _Seg16 pcbOut)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QNMPIPESEMSTATE(void)
+USHORT APIENTRY16     DOS16TMRQUERYFREQ(ULONG * _Seg16 pulFreq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TMRQUERYFREQ(void)
+USHORT APIENTRY16     DOS16TMRQUERYTIME(QWORD * _Seg16 pqwTime)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16TMRQUERYTIME(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16REGISTERPERFCTRS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16REGISTERPERFCTRS(void)
+USHORT APIENTRY16     DOS16FLATTOSEL(ULONG addr)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FLATTOSEL(void)
+USHORT APIENTRY16     DOS16SELTOFLAT(ULONG addr)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SELTOFLAT(void)
+USHORT APIENTRY16     DOS16OPENCHANGENOTIFY(PCNPATH PathBuf,
+                                            USHORT LogSize,
+                                            HDIR * _Seg16 hdir,
+                                            ULONG ulReserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPENCHANGENOTIFY(void)
+USHORT APIENTRY16     DOS16RESETCHANGENOTIFY(PCNINFO LogBuf,
+                                             USHORT BufferSize,
+                                             USHORT * _Seg16 LogCount,
+                                             HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RESETCHANGENOTIFY(void)
+USHORT APIENTRY16     DOS16CLOSECHANGENOTIFY(HDIR hdir)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLOSECHANGENOTIFY(void)
+USHORT APIENTRY16     DOS16QUERYABIOSSUPPORT(USHORT reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYABIOSSUPPORT(void)
+USHORT APIENTRY16     DOS16CREATESPINLOCK(PHSPINLOCK pHandle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CREATESPINLOCK(void)
+USHORT APIENTRY16     DOS16ACQUIRESPINLOCK(HSPINLOCK Handle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16ACQUIRESPINLOCK(void)
+USHORT APIENTRY16     DOS16RELEASESPINLOCK(HSPINLOCK Handle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16RELEASESPINLOCK(void)
+USHORT APIENTRY16     DOS16FREESPINLOCK(HSPINLOCK Handle)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FREESPINLOCK(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16R3EXITADDR(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16R3EXITADDR(void)
+USHORT APIENTRY16     DOS16QUERYRESOURCESIZE(HMODULE hmod, USHORT idt,
+                                             USHORT idn, USHORT * _Seg16 pulSize)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYRESOURCESIZE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16INITIALIZEPORTHOLE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16INITIALIZEPORTHOLE(void)
+USHORT APIENTRY16     DOS16QUERYHEADERINFO(HMODULE hmod, USHORT usIndex, void * _Seg16 pvBuffer,
+                                           USHORT cbBuffer, USHORT usSubFunction)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYHEADERINFO(void)
+USHORT APIENTRY16     DOS16QUERYPROCTYPE(HMODULE hmod, USHORT ordinal,
+                                         char * _Seg16 pszName, USHORT * _Seg16 pulProcType)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYPROCTYPE(void)
+USHORT APIENTRY16     DOS16PROTECTCLOSE(HFILE hFile,
+                                        FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTCLOSE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16     DOS16PROTECTFILEIO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTFILEIO(void)
+USHORT APIENTRY16     DOS16PROTECTFILELOCKS(HFILE hFile,
+                                            FILELOCKL * _Seg16 pflUnlock,
+                                            FILELOCKL * _Seg16 pflLock,
+                                            ULONG timeout, USHORT flags,
+                                            FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTFILELOCKS(void)
+USHORT APIENTRY16     DOS16PROTECTNEWSIZE(HFILE hFile,
+                                          LONG cbSize,
+                                          FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTNEWSIZE(void)
+USHORT APIENTRY16     DOS16PROTECTOPEN(char * _Seg16 pszFileName,
+                                       HFILE * _Seg16 phf,
+                                       ULONG * _Seg16 pulAction,
+                                       LONG cbFile,
+                                       USHORT usAttribute,
+                                       USHORT fsOpenFlags,
+                                       USHORT fsOpenMode,
+                                       EAOP2 * _Seg16 peaop2,
+                                       FHLOCK * _Seg16 pfhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTOPEN(void)
+USHORT APIENTRY16     DOS16PROTECTQFHANDSTATE(HFILE hFile,
+                                              USHORT * _Seg16 pMode,
+                                              FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTQFHANDSTATE(void)
+USHORT APIENTRY16     DOS16PROTECTSETFHANDSTATE(HFILE hFile,
+                                                USHORT mode,
+                                                FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTSETFHANDSTATE(void)
+USHORT APIENTRY16     DOS16PROTECTQFILEINFO(HFILE hf,
+                                            USHORT usInfoLevel,
+                                            void * _Seg16 pInfo,
+                                            USHORT cbInfoBuf,
+                                            FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTQFILEINFO(void)
+USHORT APIENTRY16      DOS16PROTECTSETFILEINFO(HFILE hf,
+                                               USHORT usInfoLevel,
+                                               void * _Seg16 pInfoBuf,
+                                               USHORT cbInfoBuf,
+                                               FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
-
 
-USHORT __pascal         DOS16PROTECTSETFILEINFO(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
-USHORT __pascal         DOS16PROTECTCHGFILEPTR(void)
+USHORT APIENTRY16       DOS16PROTECTCHGFILEPTR(HFILE hFile,
+                                               LONG ib,
+                                               USHORT method,
+                                               LONG * _Seg16 ibActual,
+                                               FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PROTECTENUMATTRIBUTE(void)
+USHORT APIENTRY16 DOS16PROTECTENUMATTRIBUTE(USHORT usRefType,
+                                            void * _Seg16 pvFile,
+                                            ULONG usEntry,
+                                            void * _Seg16 pvBuf,
+                                            ULONG cbBuf,
+                                            ULONG * _Seg16 pusCount,
+                                            ULONG ulInfoLevel,
+                                            FHLOCK fhFileHandleLockID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16LDRDIRTYWORKER(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16LDRDIRTYWORKER(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16READQUEUE(void)
+USHORT APIENTRY16       DOS16READQUEUE(HQUEUE hq, ULONG * _Seg16 req,
+                                       USHORT * _Seg16 pDataLen, ULONG * _Seg16 pDataAddr,
+                                       USHORT elCode, UCHAR NoWait, BYTE * _Seg16 elPriority,
+                                       HSEM sem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PURGEQUEUE(void)
+USHORT APIENTRY16       DOS16PURGEQUEUE(HQUEUE hq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CLOSEQUEUE(void)
+USHORT APIENTRY16       DOS16CLOSEQUEUE(HQUEUE hq)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYQUEUE(void)
+USHORT APIENTRY16       DOS16QUERYQUEUE(HQUEUE hq, USHORT * _Seg16 numelem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16PEEKQUEUE(void)
+USHORT APIENTRY16       DOS16PEEKQUEUE(HQUEUE hq, ULONG * _Seg16 req, USHORT * _Seg16 datalen,
+                                       ULONG * _Seg16 dataaddr, USHORT * _Seg16 elcode, UCHAR NoWait,
+                                       BYTE * _Seg16 elPriority, ULONG sem)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16WRITEQUEUE(void)
+USHORT APIENTRY16       DOS16WRITEQUEUE(HQUEUE hq, USHORT req, USHORT datalen,
+                                        BYTE * _Seg16 pDataBuf, UCHAR elPriority)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16OPENQUEUE(void)
+USHORT APIENTRY16       DOS16OPENQUEUE(PID * _Seg16 ownerPid, HQUEUE * _Seg16 phq,
+                                       char * _Seg16 pszQueName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16CREATEQUEUE(void)
+USHORT APIENTRY16       DOS16CREATEQUEUE(HQUEUE * _Seg16 phq, USHORT quePrty,
+                                         char * _Seg16 pszQueName)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMGETMEM(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMGETMEM(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMFREEMEM(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMFREEMEM(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMGETSGCB(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMGETSGCB(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMINITSGCB(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMINITSGCB(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSGDOPOPUP(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSGDOPOPUP(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSWITCH(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSWITCH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSERVEAPPREQ(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSERVEAPPREQ(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16GETTIMES(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16GETTIMES(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSETTITLE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSETTITLE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SCRUNLOCK(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SCRUNLOCK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMDOAPPREQ(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMDOAPPREQ(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16STOPSESSION(void)
+USHORT APIENTRY16       DOS16STOPSESSION(USHORT option, USHORT sessid,
+                                         ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SELECTSESSION(void)
+USHORT APIENTRY16       DOS16SELECTSESSION(USHORT sessid, ULONG reserved)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SCRLOCK(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SCRLOCK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SAVREDRAWWAIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SAVREDRAWWAIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SAVREDRAWUNDO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SAVREDRAWUNDO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSGENDPOPUP(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSGENDPOPUP(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETSESSION(void)
+USHORT APIENTRY16       DOS16SETSESSION(USHORT sessid, STATUSDATA * _Seg16 statusdata)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETMNLOCKTIME(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SETMNLOCKTIME(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MODEUNDO(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16MODEUNDO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16STARTSESSION(void)
+USHORT APIENTRY16       DOS16STARTSESSION(STARTDATA * _Seg16 startdata, USHORT * _Seg16 sessid,
+                                          USHORT * _Seg16 pid)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMGETSTATUS(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMGETSTATUS(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16MODEWAIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16MODEWAIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMTERMINATE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMTERMINATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMGETAPPREQ(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMGETAPPREQ(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMINITIALIZE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMINITIALIZE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSTART(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSTART(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMPARENTSWITCH(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMPARENTSWITCH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMPAUSE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMPAUSE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMHDEINIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMHDEINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMPMPRESENT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMPMPRESENT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMREGISTERDD(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMREGISTERDD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMNOTIFYDD(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMNOTIFYDD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMNOTIFYDD2(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMNOTIFYDD2(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMOPENDD(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMOPENDD(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SMSETSESSIONTYPE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       DOS16SMSETSESSIONTYPE(void)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1944,483 +2237,595 @@ USHORT __pascal         DOS16SMSETSESSIONTYPE(void)
 
 /* MouCalls */
 
-USHORT __pascal MOUREGISTER(const PSZ pszModName, const PSZ pszEntryName, const ULONG flFuns)
+
+USHORT APIENTRY16 MOUREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryName,
+                              const ULONG flFuns)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUDEREGISTER(VOID)
+USHORT APIENTRY16 MOUDEREGISTER(VOID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUFLUSHQUE(const HMOU hmou)
+USHORT APIENTRY16 MOUFLUSHQUE(const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETPTRPOS(PTRLOC * pmouLoc, const HMOU hmou)
+USHORT APIENTRY16 MOUGETPTRPOS(PTRLOC * _Seg16 pmouLoc, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETPTRPOS(const PPTRLOC pmouLoc, const HMOU hmou)
+USHORT APIENTRY16 MOUSETPTRPOS(const PTRLOC * _Seg16 pmouLoc, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETPTRSHAPE(const PBYTE pBuf, const PPTRSHAPE pmoupsInfo, const HMOU hmou)
+USHORT APIENTRY16 MOUSETPTRSHAPE(const BYTE * _Seg16 pBuf, const PTRSHAPE * _Seg16 pmoupsInfo, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETPTRSHAPE(BYTE * pBuf, PTRSHAPE * pmoupsInfo, const HMOU hmou)
+USHORT APIENTRY16 MOUGETPTRSHAPE(BYTE * _Seg16 pBuf, PTRSHAPE * _Seg16 pmoupsInfo, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETDEVSTATUS(USHORT * pfsDevStatus, const HMOU hmou)
+USHORT APIENTRY16 MOUGETDEVSTATUS(USHORT * _Seg16 pfsDevStatus, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETNUMBUTTONS(USHORT * pcButtons, const HMOU hmou)
+USHORT APIENTRY16 MOUGETNUMBUTTONS(USHORT * _Seg16 pcButtons, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETNUMMICKEYS(USHORT * pcMickeys, const HMOU hmou)
+USHORT APIENTRY16 MOUGETNUMMICKEYS(USHORT * _Seg16 pcMickeys, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUREADEVENTQUE(MOUEVENTINFO * pmouevEvent, const PUSHORT pfWait, const HMOU hmou)
+USHORT APIENTRY16 MOUREADEVENTQUE(MOUEVENTINFO * _Seg16 pmouevEvent, const USHORT * _Seg16 pfWait, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETNUMQUEEL(MOUQUEINFO * qmouqi, const HMOU hmou)
+USHORT APIENTRY16 MOUGETNUMQUEEL(MOUQUEINFO * _Seg16 qmouqi, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETEVENTMASK(USHORT * pfsEvents, const HMOU hmou)
+USHORT APIENTRY16 MOUGETEVENTMASK(USHORT * _Seg16 pfsEvents, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETEVENTMASK(const PUSHORT pfsEvents, const HMOU hmou)
+USHORT APIENTRY16 MOUSETEVENTMASK(const USHORT * _Seg16 pfsEvents, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUGETSCALEFACT(SCALEFACT * pmouscFactors, const HMOU hmou)
+USHORT APIENTRY16 MOUGETSCALEFACT(SCALEFACT * _Seg16 pmouscFactors, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETSCALEFACT(const PSCALEFACT pmouscFactors, const HMOU hmou)
+USHORT APIENTRY16 MOUSETSCALEFACT(const SCALEFACT * _Seg16 pmouscFactors, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUOPEN(const PSZ pszDvrName, HMOU * phmou)
+USHORT APIENTRY16 MOUOPEN(const char * _Seg16 pszDvrName, HMOU * _Seg16 phmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUCLOSE(const HMOU hmou)
+USHORT APIENTRY16 MOUCLOSE(const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUREMOVEPTR(const PNOPTRRECT pmourtRect, const HMOU hmou)
+USHORT APIENTRY16 MOUREMOVEPTR(const NOPTRRECT * _Seg16 pmourtRect, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUDRAWPTR(const HMOU hmou)
+USHORT APIENTRY16 MOUDRAWPTR(const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSETDEVSTATUS(const PUSHORT pfsDevStatus, const HMOU hmou)
+USHORT APIENTRY16 MOUSETDEVSTATUS(const USHORT * _Seg16 pfsDevStatus, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUINITREAL(const PSZ str)
+USHORT APIENTRY16 MOUINITREAL(const char * _Seg16 str)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal MOUSYNCH(const USHORT pszDvrName)
+USHORT APIENTRY16 MOUSYNCH(const USHORT ioWait)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-//USHORT __pascal MOUGETTHRESHOLD(THRESHOLD *pthreshold, const HMOU hmou)
-USHORT __pascal MOUGETTHRESHOLD(void *pthreshold, const HMOU hmou)
+//USHORT APIENTRY16 MOUGETTHRESHOLD(THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
+USHORT APIENTRY16 MOUGETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-//USHORT __pascal MOUSETTHRESHOLD(const PTHRESHOLD pthreshold, const HMOU hmou)
-USHORT __pascal MOUSETTHRESHOLD(void *pthreshold, const HMOU hmou)
+//USHORT APIENTRY16 MOUSETTHRESHOLD(const THRESHOLD * _Seg16 pthreshold, const HMOU hmou)
+USHORT APIENTRY16 MOUSETTHRESHOLD(void * _Seg16 pthreshold, const HMOU hmou)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         MOUGETHOTKEY(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 MOUGETHOTKEY(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         MOUSETHOTKEY(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-USHORT __pascal         MOUSHELLINIT(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         KBDINIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 MOUSETHOTKEY(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         KBDSHELLINIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 MOUSHELLINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         KBDSWITCHFGND(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-USHORT __pascal         KBDLOADINSTANCE(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT __pascal         KBDFREE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16       KBDINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDREGISTER(const PSZ pszModName, const PSZ pszEntryPt,
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         KBDSHELLINIT(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         KBDSWITCHFGND(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         KBDLOADINSTANCE(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         KBDFREE(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+USHORT APIENTRY16 KBDREGISTER(const char * _Seg16 pszModName, const char * _Seg16 pszEntryPt,
                             const ULONG FunMask)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDDEREGISTER(VOID)
+USHORT APIENTRY16 KBDDEREGISTER(VOID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDCHARIN(KBDKEYINFO * pkbci, const USHORT fWait, const HKBD hkbd)
+USHORT APIENTRY16 KBDCHARIN(KBDKEYINFO * _Seg16 pkbci, const USHORT fWait, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDPEEK(KBDKEYINFO * pkbci, const HKBD hkbd)
+USHORT APIENTRY16 KBDPEEK(KBDKEYINFO * _Seg16 pkbci, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDFLUSHBUFFER(const HKBD hkbd)
+USHORT APIENTRY16 KBDFLUSHBUFFER(const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSTRINGIN(CHAR * pch, STRINGINBUF * pchIn, const USHORT fsWait, const HKBD hkbd)
+USHORT APIENTRY16 KBDSTRINGIN(CHAR * _Seg16 pch, STRINGINBUF * _Seg16 pchIn,
+                              const USHORT fsWait, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSETSTATUS(const PKBDINFO pkbdinfo, const HKBD hkbd)
+USHORT APIENTRY16 KBDSETSTATUS(const KBDINFO * _Seg16 pkbdinfo, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDGETSTATUS(KBDINFO * pkbdinfo, const HKBD hdbd)
+USHORT APIENTRY16 KBDGETSTATUS(KBDINFO * _Seg16 pkbdinfo, const HKBD hdbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSETCP(const USHORT usReserved, const USHORT pidCP, const HKBD hdbd)
+USHORT APIENTRY16 KBDSETCP(const USHORT usReserved, const USHORT pidCP, const HKBD hdbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDGETCP(const ULONG ulReserved, USHORT * pidCP, const HKBD hkbd)
+USHORT APIENTRY16 KBDGETCP(const ULONG ulReserved, USHORT * _Seg16 pidCP, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDOPEN(PHKBD * hkbd)
+USHORT APIENTRY16 KBDOPEN(HKBD * _Seg16 hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDCLOSE(const HKBD hkbd)
+USHORT APIENTRY16 KBDCLOSE(const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDGETFOCUS(const USHORT fWait, const HKBD hkbd)
+USHORT APIENTRY16 KBDGETFOCUS(const USHORT fWait, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDFREEFOCUS(const HKBD hkbd)
+USHORT APIENTRY16 KBDFREEFOCUS(const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSYNCH(const USHORT fsWait)
+USHORT APIENTRY16 KBDSYNCH(const USHORT fsWait)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSETFGND(VOID)
+USHORT APIENTRY16 KBDSETFGND(VOID)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDGETHWID(PKBDHWID * kbdhwid, const HKBD hkbd)
+USHORT APIENTRY16 KBDGETHWID(PKBDHWID * _Seg16 kbdhwid, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSETHWID(const PKBDHWID pkbdhwid, const HKBD hkbd)
+USHORT APIENTRY16 KBDSETHWID(const KBDHWID * _Seg16 pkbdhwid, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDXLATE(const PKBDTRANS pkbdtrans, const HKBD hkbd)
+USHORT APIENTRY16 KBDXLATE(const KBDTRANS * _Seg16 pkbdtrans, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal KBDSETCUSTXT(const PUSHORT usCodePage, const HKBD hkbd)
+USHORT APIENTRY16 KBDSETCUSTXT(const USHORT * _Seg16 usCodePage, const HKBD hkbd)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-
-USHORT __pascal BVSMAIN(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 BVSMAIN(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal BVSREDRAWSIZE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 BVSREDRAWSIZE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal BVSGETPTRDRAWNAME(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16 BVSGETPTRDRAWNAME(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         BKSMAIN(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         BKSMAIN(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         BMSMAIN(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         BMSMAIN(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-
-USHORT __pascal            DOS16SMSYSINIT(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOS16SMSYSINIT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         QhKeybdHandle(void)
+// keyboard handle value
+USHORT QhKeybdHandle;
+#pragma aux QhKeybdHandle "*"
+
+
+// mouse handle value
+USHORT QhMouseHandle;
+#pragma aux QhMouseHandle "*"
+
+
+// SM Queue RAM Sem
+HSEM SMQueueRamSem;
+#pragma aux SMQueueRamSem "*"
+
+
+// SM Array
+USHORT SMArray[];
+#pragma aux SMArray "*"
+
+
+// SM PID Array
+PID SMPIDArray[];
+#pragma aux SMPIDArray "*"
+
+
+// SM Initialized value
+USHORT SMInitialized;
+#pragma aux SMInitialized "*"
+
+
+// SM Array size
+USHORT SMArraySize;
+#pragma aux SMArraySize "*"
+
+
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         BVSGLOBAL(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         QhMouseHandle(void)
+// SMG Instance
+USHORT SMGINSTANCE;
+#pragma aux SMGINSTANCE "*"
+
+
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOSPM16SEMRST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMQueueRamSem(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOS16FSRAMSEMREQUEST2(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMArray(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOS16FSRAMSEMCLEAR2(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMPIDArray(void)
+USHORT APIENTRY16         DOS16SETEXTLIBPATH(const char * _Seg16 pszExtLIBPATH, USHORT flags)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMInitialized(void)
+USHORT APIENTRY16         DOS16QUERYEXTLIBPATH(const char * _Seg16 pszExtLIBPATH, USHORT flags)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMArraySize(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOSPM16SETRST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         BVSGLOBAL(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         DOSPM16SEMCHK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         SMGINSTANCE(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         THK16_UNITHUNK(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOSPM16SEMRST(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         HT16_STARTUP(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSRAMSEMREQUEST2(void)
+// fix prototype !!! (undoc)
+USHORT APIENTRY16         HT16_CLEANUP(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16FSRAMSEMCLEAR2(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSISETFILEINFO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16SETEXTLIBPATH(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSISETPATHINFO(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOS16QUERYEXTLIBPATH(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSIFINDNEXT(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOSPM16SETRST(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSISIGDISPATCH(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         DOSPM16SEMCHK(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSIRAISEEXCEPTION(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-APIRET APIENTRY      DOSQPROCSTATUS(PVOID pBuf, USHORT cbBuf)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-APIRET APIENTRY      DOSRETFORWARD(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-USHORT __pascal         THK16_UNITHUNK(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSIQUERYFHSTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         HT16_STARTUP(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSISETFHSTATE(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
 
-USHORT __pascal         HT16_CLEANUP(void)
+// fix prototype !!! (internal)
+APIRET APIENTRY16      DOSIFINDFIRST(void)
 {
   return unimplemented(__FUNCTION__);
 }
 
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIPROTECTSETFILEINFO(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIPROTECTREAD(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIPROTECTWRITE(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIOPENL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIPROTECTOPENL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSISETFILESIZEL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
+
+
+// fix prototype !!! (internal)
+APIRET APIENTRY16         DOSIPROTECTSETFILESIZEL(void)
+{
+  return unimplemented(__FUNCTION__);
+}
