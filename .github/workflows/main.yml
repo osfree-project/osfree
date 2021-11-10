@@ -30,5 +30,6 @@ jobs:
           curl 'https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe' > setup.exe
           setup.exe  -s p -ns
           dir
+        shell: cmd
           
   
