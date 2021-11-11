@@ -44,3 +44,7 @@ jobs:
       - name: Download Regine REXX
         run: wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w64.exe
 
+      # Install Regina REXX
+      - name: Install Regina REXX
+        run: Regina394w64.exe /S
+        shell: cmd
