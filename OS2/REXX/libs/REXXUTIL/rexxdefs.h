@@ -165,4 +165,9 @@ unsigned long SetRexxVariable(char *name, char *value);
 
 void logmessage( char *entry);
 
+#define RXNULLSTRING(r)     (!(r).strptr)
+#define RXVALIDSTRING(r)    ((r).strptr && (r).strlength)
+#define RXZEROLENSTRING(r)  ((r).strptr && !(r).strlength)
+#define RXSTRLEN(r)         (RXNULLSTRING(r)?0L:(r).strlength)
+#define RXSTRPTR(r)         (r).strptr
 

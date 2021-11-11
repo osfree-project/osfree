@@ -280,36 +280,91 @@ LONG APIENTRY RexxStart(
    PRXSTRING Result )
 {
    LONG rc = (LONG)RXFUNC_NOTREG;
+   APIRET ret;
+   ULONG cb, flags;
+   int i;
 
-   log( "%s: ArgCount: %d ArgList: %x ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x ReturnCode: %x Result: %x",
-          __FUNCTION__,
-          ArgCount,
-          ArgList,
-          ProgramName,
-          Instore,
-          EnvName,
-          CallType,
-          Exits,
-          ReturnCode,
-          Result );
+   log( "%s: ", __FUNCTION__ );
 
-   if (ORexxStart)
+   if ( Instore && (Instore[0].strptr || Instore[1].strptr) )
    {
-      rc = (*ORexxStart)(
-         (ULONG)      ArgCount,
-         (PRXSTRING) ArgList,
-         (PSZ)       ProgramName,
-         (PRXSTRING) Instore,
-         (PSZ)       EnvName,
-         (LONG)      CallType,
-         (PRXSYSEXIT)Exits,
-         (PSHORT)    ReturnCode,
-         (PRXSTRING) Result ) ;
+      ProgramName = "";
    }
 
-   log( "<=> ReturnCode %d ResultString \"%s\" Result: %d\n",
+   ret = DosQueryMem(ProgramName, &cb, &flags);
+
+   if ( ret == ERROR_INVALID_ADDRESS ||
+        ret == ERROR_INVALID_PARAMETER ||
+        ! (flags & (PAG_COMMIT | PAG_READ)) )
+   {
+      ProgramName = "";
+   }
+
+   if (ArgList)
+   {
+      ret = DosQueryMem(ArgList, &cb, &flags);
+
+      if ( ret == ERROR_INVALID_ADDRESS ||
+           ret == ERROR_INVALID_PARAMETER ||
+           ! (flags & (PAG_COMMIT | PAG_READ)) )
+      {
+         ArgCount = 0;
+         ArgList = NULL;
+      }
+   }
+
+   log( "ArgCount: %d ArgList: ", ArgCount );
+ 
+   for ( i = 0; i < ArgCount; i++ )
+   {
+      log( "\"%.*s\" ", ArgList[i].strlength, (ArgList[i].strptr) ? ArgList[i].strptr : "" );
+   }
+
+   log( "ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x\n",
+          ProgramName,
+          Instore,
+          (EnvName) ? EnvName : "",
+          CallType,
+          Exits );
+
+   if (Instore && Instore[0].strptr)
+   {
+      log( "Instore (source): \"%.*s\"\n", Instore[0].strlength, Instore[0].strptr );
+   }
+
+   if (Instore && Instore[1].strptr)
+   {
+      log( "Instore (tokenized) present\n" );
+   }
+
+   if ( ProgramName && ! *ProgramName && Instore &&
+        ! Instore[0].strptr && ! Instore[1].strptr )
+   {
+      log( "Macrospace function with empty name!\n" );
+      *ReturnCode = 0;
+      Result->strptr = NULL;
+      Result->strlength = 0;
+   }
+   else
+   {
+      if (ORexxStart)
+      {
+         rc = (*ORexxStart)(
+            (ULONG)     ArgCount,
+            (PRXSTRING) ArgList,
+            (PSZ)       ProgramName,
+            (PRXSTRING) Instore,
+            (PSZ)       EnvName,
+            (LONG)      CallType,
+            (PRXSYSEXIT)Exits,
+            (PSHORT)    ReturnCode,
+            (PRXSTRING) Result ) ;
+      }
+   }
+
+   log( "<=> ReturnCode %x ResultString \"%s\" rc: %x\n",
+          (ReturnCode) ? *ReturnCode : 0,
           (Result && Result->strptr) ? Result->strptr : "",
-          ReturnCode,
           rc );
    
    return rc;

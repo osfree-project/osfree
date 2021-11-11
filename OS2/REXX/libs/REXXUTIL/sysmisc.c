@@ -70,6 +70,9 @@
 #define INCL_DOSMISC
 #define INCL_VIO
 
+#define INCL_WPCLASS
+#undef  INCL_NOCOMMON
+
 #include <os2.h>
 #include <stdio.h>
 #include <stdlib.h>

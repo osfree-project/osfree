@@ -210,28 +210,6 @@ struct ExitHandlers
 #define RXMAP_TYPE(a) ((a)==RXCOMMAND ? RX_TYPE_COMMAND : \
               (a)==RXFUNCTION ? RX_TYPE_FUNCTION : RX_TYPE_SUBROUTINE)
 
-
-#ifdef __OS2__
-APIRET APIENTRY rexxCreateQueue( PSZ Buffer,
-                                 ULONG BuffLen,
-                                 PSZ RequestedName,
-                                 ULONG* DupFlag );
-
-APIRET APIENTRY rexxDeleteQueue( PSZ QueueName );
-
-APIRET APIENTRY rexxQueryQueue( PSZ QueueName,
-                                ULONG* Count );
-
-APIRET APIENTRY rexxAddQueue( PSZ QueueName,
-                              PRXSTRING EntryData,
-                              ULONG AddFlag );
-
-APIRET APIENTRY rexxPullQueue( PSZ QueueName,
-                               PRXSTRING DataBuf,
-                               PDATETIME TimeStamp,
-                               ULONG WaitFlag );
-#endif
-
 /* init_rexxsaa initializes the module.
  * Currently, we set up the thread specific data.
  * The function returns 1 on success, 0 if memory is short.
@@ -1890,11 +1868,7 @@ EXPORT_C APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
    StartupInterface(TSD);
 
    TSD->called_from_saa = 1;
-#ifdef __OS2__
-   code = rexxCreateQueue( Buffer, BuffLen, RequestedName, DupFlag );
-#else
    code = IfcCreateQueue( TSD, RequestedName, (RequestedName) ? strlen( RequestedName): 0, Buffer, DupFlag, BuffLen );
-#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1912,11 +1886,7 @@ EXPORT_C APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
-#ifdef __OS2__
-      code = rexxDeleteQueue( QueueName );
-#else
       code = IfcDeleteQueue( TSD, QueueName, strlen( QueueName ) );
-#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1935,11 +1905,7 @@ EXPORT_C APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
-#ifdef __OS2__
-      code = rexxQueryQueue( QueueName, Count );
-#else
       code = IfcQueryQueue( TSD, QueueName, strlen( QueueName ), Count );
-#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1959,11 +1925,7 @@ EXPORT_C APIRET APIENTRY RexxAddQueue( PSZ QueueName,
    if (!QueueName || !strlen(QueueName))
       code = RXQUEUE_BADQNAME;
    else
-#ifdef __OS2__
-      code = rexxAddQueue( QueueName, EntryData, AddFlag );
-#else
       code = IfcAddQueue( TSD, QueueName, strlen( QueueName), EntryData->strptr, EntryData->strlength, AddFlag==RXQUEUE_LIFO );
-#endif
    TSD->called_from_saa = 0;
    return code;
 }
@@ -1991,14 +1953,10 @@ EXPORT_C APIRET APIENTRY RexxPullQueue( PSZ QueueName,
       code = RXQUEUE_BADQNAME;
    else
    {
-#ifdef __OS2__
-      code = rexxPullQueue( QueueName, DataBuf, TimeStamp, WaitFlag );
-#else
       code = IfcPullQueue( TSD,
                            QueueName, strlen( QueueName ),
                            &DataBuf->strptr, &DataBuf->strlength,
                            WaitFlag==RXQUEUE_WAIT );
-#endif
       if ( code == 0 )
       {
          if ( TimeStamp )

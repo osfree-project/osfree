@@ -1,0 +1,1304 @@
+diff --git a/OS2/CPI/doscalls/unimplemented.c b/OS2/CPI/doscalls/unimplemented.c
+index 451f094b..525a4645 100644
+--- a/OS2/CPI/doscalls/unimplemented.c
++++ b/OS2/CPI/doscalls/unimplemented.c
+@@ -1797,6 +1797,7 @@ APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
+ }
+ 
+ 
++// fix prototype !!! (undoc)
+ APIRET APIENTRY      DosSystemService(void)
+ {
+   return unimplemented(__FUNCTION__);
+diff --git a/OS2/REXX/cmd/makefile b/OS2/REXX/cmd/makefile
+index 816be4ce..54464e36 100644
+--- a/OS2/REXX/cmd/makefile
++++ b/OS2/REXX/cmd/makefile
+@@ -4,7 +4,7 @@
+ # valerius, 2006/10/30
+ #
+ 
+-DIRS = rexxtry pmrexx
++DIRS = rexxtry pmrexx rxqueue
+ 
+ !include $(%ROOT)/mk/all.mk
+ 
+diff --git a/OS2/REXX/cmd/pmrexx/makefile b/OS2/REXX/cmd/pmrexx/makefile
+index c3bf7320..07451ae5 100644
+--- a/OS2/REXX/cmd/pmrexx/makefile
++++ b/OS2/REXX/cmd/pmrexx/makefile
+@@ -6,7 +6,7 @@ DIRS = pmrexxio help
+ srcfiles     = $(p)pmrexx$(e) $(p)rxhafile$(e)
+ inc          = $(MYDIR)include
+ ADD_COPT     = -i=$(inc) -sg -3r # -3s
+-#ADD_LINKOPT  = lib os2386.lib,clib3s.lib,math387r.lib,emu387.lib,rexx.lib
++#ADD_LINKOPT  = lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
+ OPTIONS      = heapsize=8192
+ STACKSIZE    = 16384
+ WINDOWCOMPAT = 1
+diff --git a/OS2/REXX/cmd/pmrexx/pmrexxio/makefile b/OS2/REXX/cmd/pmrexx/pmrexxio/makefile
+index eb2b48c9..2eafc24c 100644
+--- a/OS2/REXX/cmd/pmrexx/pmrexxio/makefile
++++ b/OS2/REXX/cmd/pmrexx/pmrexxio/makefile
+@@ -8,7 +8,7 @@ srcfiles     = $(p)pmrexxio$(e) $(p)pmrxsubs$(e)
+ inc          = $(MYDIR)..$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 # -i=$(BLD)include -i=$(BLD)include$(SEP)os2 -i=$(BLD)include$(SEP)shared
+ ADD_COPT     = -i=$(inc) -sg -3r # -3s
+ ADD_RCOPT    = -i=$(inc)
+-ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3r.lib,math387s.lib,emu387.lib,rexx.lib
++ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
+ DLL          = 1
+ OPTIONS      = manyautodata, caseexact, heapsize=8192, quiet
+ DLLOPT       = initinstance
+diff --git a/OS2/REXX/interp/builtin.c b/OS2/REXX/interp/builtin.c
+index 84ba187b..75d974bb 100644
+--- a/OS2/REXX/interp/builtin.c
++++ b/OS2/REXX/interp/builtin.c
+@@ -1058,11 +1058,11 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
+ #ifdef VMS
+          timediff = mktime(localtime(&now));
+ #else
+-#if defined(__OS2__) && defined(__WATCOMC__)
+-         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
+-#else
++//#if defined(__OS2__) && defined(__WATCOMC__)
++//         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
++//#else
+          timediff = (long)(mktime(localtime(&now))-mktime(gmtime(&now)));
+-#endif
++//#endif
+          tmptr = localtime(&now);
+          if ( tmptr->tm_isdst )
+             timediff += 3600;
+@@ -1075,11 +1075,11 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
+          break ;
+ 
+       case 'T':
+-#if defined(__OS2__) && defined(__WATCOMC__)
+-         rnow = mktime2( &tmdata );
+-#else
++//#if defined(__OS2__) && defined(__WATCOMC__)
++//         rnow = mktime2( &tmdata );
++//#else
+          rnow = mktime( &tmdata );
+-#endif
++//#endif
+          answer->len = sprintf(answer->value, "%ld", rnow );
+          break ;
+ 
+@@ -1319,11 +1319,11 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
+ 
+       case 'T':
+          tmdata.tm_year -= 1900;
+-#if defined(__OS2__) && defined(__WATCOMC__)
+-         rnow = mktime2( &tmdata );
+-#else
++//#if defined(__OS2__) && defined(__WATCOMC__)
++//         rnow = mktime2( &tmdata );
++//#else
+          rnow = mktime( &tmdata );
+-#endif
++//#endif
+          answer->len = sprintf(answer->value, "%ld", rnow );
+          break ;
+ 
+diff --git a/OS2/REXX/interp/contrib/LibSha1.c b/OS2/REXX/interp/contrib/LibSha1.c
+index 3d14b422..995e8865 100644
+--- a/OS2/REXX/interp/contrib/LibSha1.c
++++ b/OS2/REXX/interp/contrib/LibSha1.c
+@@ -15,7 +15,12 @@
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ #include "LibSha1.h"
+-#include <memory.h>
++
++#ifdef __WATCOMC__
++# include <string.h>
++#else
++# include <memory.h>
++#endif
+ 
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //  TYPES
+diff --git a/OS2/REXX/interp/dll/makefile b/OS2/REXX/interp/dll/makefile
+index c5853d68..4af228a7 100644
+--- a/OS2/REXX/interp/dll/makefile
++++ b/OS2/REXX/interp/dll/makefile
+@@ -15,6 +15,7 @@ ADD_COPT  = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) -bd
+ ADD_LINKOPT  = segment   type DATA nonshared
+ 
+ srcfiles  = &
++$(p)mktime$(e) &
+ $(p)mygetopt$(e) &
+ $(p)client$(e) &
+ $(p)drexx$(e) &
+@@ -38,7 +39,6 @@ $(p)shell$(e) &
+ $(p)rexxext$(e) &
+ $(p)stack$(e) &
+ # $(p)os2que$(e) &
+-$(p)mktime$(e) &
+ $(p)tracing$(e) &
+ $(p)interp$(e) &
+ $(p)cmath$(e) &
+@@ -70,12 +70,12 @@ $(p)gci_rxfuncdefine$(e) &
+ $(p)gci_tree$(e)
+ !endif
+ 
+-IMPORTS = &
+- rexxCreateQueue REXXAPI.1, &
+- rexxDeleteQueue REXXAPI.2, &
+- rexxAddQueue    REXXAPI.3, &
+- rexxPullQueue   REXXAPI.4, &
+- rexxQueryQueue  REXXAPI.5
++#IMPORTS = &
++# rexxCreateQueue REXXAPI.1, &
++# rexxDeleteQueue REXXAPI.2, &
++# rexxAddQueue    REXXAPI.3, &
++# rexxPullQueue   REXXAPI.4, &
++# rexxQueryQueue  REXXAPI.5
+ 
+ EXPORTS = &
+  RexxAllocateMemory, &
+@@ -94,6 +94,8 @@ EXPORTS = &
+  RexxRegisterSubcomExe, &
+  RexxSetHalt, &
+  RexxStart, &
++ RexxSetTrace, &
++ RexxResetTrace, &
+  RexxVariablePool, &
+  ReginaVersion, &
+  __regina_faked_main, &
+diff --git a/OS2/REXX/interp/exe/makefile b/OS2/REXX/interp/exe/makefile
+index d70f7370..6fb13acc 100644
+--- a/OS2/REXX/interp/exe/makefile
++++ b/OS2/REXX/interp/exe/makefile
+@@ -29,8 +29,8 @@ srcfiles = &
+  $(p)cmsfuncs$(e) &
+  $(p)shell$(e) &
+  $(p)rexxext$(e) &
+-# $(p)stack$(e) &
+- $(p)os2que$(e) &
++ $(p)stack$(e) &
++# $(p)os2que$(e) &
+  $(p)mktime$(e) &
+  $(p)tracing$(e) &
+  $(p)interp$(e) &
+@@ -42,7 +42,7 @@ srcfiles = &
+  $(p)signals$(e) &
+  $(p)macros$(e) &
+  $(p)envir$(e) &
+- $(p)mt_os2$(e) &
++ $(p)$(THREADING_FILE)$(e) &
+  $(p)instore$(e) &
+  $(p)expr$(e) &
+  $(p)yaccsrc$(e) &
+@@ -50,7 +50,7 @@ srcfiles = &
+  $(p)wrappers$(e) &
+  $(p)options$(e) &
+  $(p)os_os2$(e) &
+-# $(p)extstack$(e) &
++ $(p)extstack$(e) &
+  $(p)rexxbif$(e) &
+  $(p)nosaa$(e)
+ 
+diff --git a/OS2/REXX/interp/extstack.c b/OS2/REXX/interp/extstack.c
+index 782753c8..c8e41f28 100644
+--- a/OS2/REXX/interp/extstack.c
++++ b/OS2/REXX/interp/extstack.c
+@@ -176,7 +176,11 @@ int default_port_number( void )
+ 
+ int default_external_address( void )
+ {
++//#ifdef __OS2__
++//   return 0;
++//#else
+    return inet_addr( ReginaLocalHost );
++//#endif
+ }
+ 
+ streng *default_external_name( const tsd_t *TSD )
+@@ -193,7 +197,9 @@ streng *default_external_name( const tsd_t *TSD )
+ 
+ int connect_to_rxstack( tsd_t *TSD, Queue *q )
+ {
++//#ifndef __OS2__
+    struct sockaddr_in server;
++//#endif
+    int eno;
+ 
+    /*
+@@ -201,6 +207,9 @@ int connect_to_rxstack( tsd_t *TSD, Queue *q )
+     */
+    assert( q->type == QisExternal ) ;
+    DEBUGDUMP(printf("In connect_to_rxstack: q = {name=%.*s, address=%08X, portno=%d}\n", q->u.e.name->len, q->u.e.name->value, q->u.e.address, q->u.e.portno););
++//#ifdef __OS2__
++//   return 0;
++//#else
+    memset( &server, 0, sizeof(server) );
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = q->u.e.address;
+@@ -227,6 +236,7 @@ int connect_to_rxstack( tsd_t *TSD, Queue *q )
+       exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_CANT_CONNECT, tmpstr_of( TSD, q->u.e.name ), q->u.e.portno, strerror ( errno ) );
+ 
+    return -1;
++//#endif
+ }
+ 
+ int disconnect_from_rxstack( const tsd_t *TSD, Queue *q )
+@@ -238,7 +248,11 @@ int disconnect_from_rxstack( const tsd_t *TSD, Queue *q )
+    {
+       DEBUGDUMP(printf("Disconnecting from socket %d\n", q->u.e.socket ););
+       rc = send_command_to_rxstack( TSD, q->u.e.socket, RXSTACK_EXIT_STR, NULL, 0 );
++#ifndef __OS2__
+       closesocket( q->u.e.socket );
++#else
++      soclose( q->u.e.socket );
++#endif
+    }
+    else
+       rc = 0; /* success: 0 bytes transfered */
+@@ -262,6 +276,9 @@ int send_command_to_rxstack( const tsd_t *TSD, int sock, const char *action, con
+       DROPSTRENG( qlen );
+       if ( header )
+       {
++//#ifdef __OS2__
++//         rc = 0; // unimp
++//#else
+          header->value[0] = action[0];
+          rc = send( sock, PSTRENGVAL(header), PSTRENGLEN(header), 0 );
+          DEBUGDUMP(printf("Send length: %.*s(%d) rc %d\n", PSTRENGLEN(header),PSTRENGVAL(header),PSTRENGLEN(header),rc););
+@@ -271,6 +288,7 @@ int send_command_to_rxstack( const tsd_t *TSD, int sock, const char *action, con
+             DEBUGDUMP(printf("Send str length: %d\n", rc););
+          }
+          DROPSTRENG( header );
++//#endif
+       }
+    }
+    return rc;
+@@ -285,7 +303,11 @@ static int inject_result_from_rxstack( int sock, streng *str, int size )
+    */
+    int rc;
+ 
++//#ifdef __OS2__
++//   rc = 0; // unimp
++//#else
+    rc = recv( sock, PSTRENGVAL(str) + PSTRENGLEN(str), size, 0 );
++//#endif
+    str->len += size;
+    DEBUGDUMP(printf("<-- Recv result: %.*s(%d) rc %d\n", size, PSTRENGVAL(str) + PSTRENGLEN(str), PSTRENGLEN(str), rc ); );
+    return rc;
+@@ -327,6 +349,9 @@ streng *read_result_from_rxstack( const tsd_t *TSD, int sock, int result_size )
+  */
+ int parse_queue( tsd_t *TSD, streng *queue, Queue *q )
+ {
++//#ifdef __OS2__
++//   return 0; // unimp
++//#else
+    int len, AtPos;
+    char *h, dummy;
+    struct hostent *he;
+@@ -424,6 +449,7 @@ int parse_queue( tsd_t *TSD, streng *queue, Queue *q )
+ 
+    queue->len = AtPos ; /* chop off the host part */
+    return 1 ;
++//#endif
+ }
+ 
+ int delete_queue_from_rxstack( const tsd_t *TSD, int sock, const streng *queue_name )
+@@ -567,9 +593,12 @@ static void add_connect_string( const Queue *q, streng *str )
+    int sum = 0, len ;
+    char *ptr = PSTRENGVAL( str ) ;
+    char *addr ;
++//#ifndef __OS2__
+    struct in_addr ia ;
++//#endif
+ 
+    assert( q->type == QisExternal ) ;
++//#ifndef __OS2__
+    ptr += PSTRENGLEN( str ) ;
+    *ptr++ = '@' ;
+    sum++ ;
+@@ -592,6 +621,7 @@ static void add_connect_string( const Queue *q, streng *str )
+    /* finally add the port */
+    sum += sprintf( ptr, ":%u", (unsigned) q->u.e.portno ) ;
+    str->len += sum ;
++//#endif
+ }
+ 
+ int get_queue_from_rxstack( const tsd_t *TSD, const Queue *q, streng **result )
+diff --git a/OS2/REXX/interp/lib/makefile b/OS2/REXX/interp/lib/makefile
+index 440a1615..2e7432cb 100644
+--- a/OS2/REXX/interp/lib/makefile
++++ b/OS2/REXX/interp/lib/makefile
+@@ -28,8 +28,8 @@ $(p)os2funcs$(e) &
+ $(p)cmsfuncs$(e) &
+ $(p)shell$(e)    &
+ $(p)rexxext$(e)  &
+-# $(p)stack$(e)  &
+-$(p)os2que$(e) &
++$(p)stack$(e)  &
++# $(p)os2que$(e) &
+ $(p)mktime$(e) &
+ $(p)tracing$(e)  &
+ $(p)interp$(e)   &
+@@ -49,7 +49,7 @@ $(p)lexsrc$(e)   &
+ $(p)wrappers$(e) &
+ $(p)options$(e)  &
+ $(p)os_os2$(e)   &
+-# $(p)extstack$(e) &
++$(p)extstack$(e) &
+ $(p)rexxbif$(e)
+ 
+ !include $(%ROOT)mk/dirs.mk
+diff --git a/OS2/REXX/interp/os2que.c b/OS2/REXX/interp/os2que.c
+index 79925fe4..c38d8033 100644
+--- a/OS2/REXX/interp/os2que.c
++++ b/OS2/REXX/interp/os2que.c
+@@ -1,130 +1,38 @@
+-#include "rexx.h"
++/* External queues implementation using OS/2 quecalls */
+ 
+-int addr_same_queue( const tsd_t *TSD, const Queue *q1, const Queue *q2 )
+-{
+-    return 0;
+-}
+-
+-Queue *addr_redir_queue( const tsd_t *TSD, Queue *q )
+-{
+-    return NULL;
+-}
+-
+-void addr_purge_queue( const tsd_t *TSD, Queue *q )
+-{
+-}
+-
+-Queue *addr_reopen_queue( tsd_t *TSD, const streng *queuename, char code )
+-{
+-    return NULL;
+-}
+-
+-void addr_close_queue( const tsd_t *TSD, Queue *q )
+-{
+-}
+-
+-streng *addr_io_queue( tsd_t *TSD, Queue *q, streng *buffer, int isFIFO )\
+-{
+-    return NULL;
+-}
+-
+-int create_queue( tsd_t *TSD, const streng *queue_name, streng **result )
+-{
+-    return 0;
+-}
+-
+-int delete_queue( tsd_t *TSD, const streng *queue_name )
+-{
+-    return 0;
+-}
+-
+-streng *get_queue( tsd_t *TSD )
+-{
+-    return NULL;
+-}
+-
+-streng *set_queue( tsd_t *TSD, const streng *queue_name )
+-{
+-    return NULL;
+-}
+-
+-int timeout_queue( tsd_t *TSD, const streng *timeout, const streng *queue_name )
+-{
+-    return 0;
+-}
++#include "rexxsaa.h"
+ 
+-void flush_stack( const tsd_t *TSD, Queue *src, Queue *dst, int is_fifo )
+-{
+-}
+-
+-Queue *find_free_slot( const tsd_t *TSD )
+-{
+-    return NULL;
+-}
+-
+-void purge_stacks( const tsd_t *TSD )
+-{
+-}
+-
+-int lines_in_stack( tsd_t *TSD, const streng *queue_name )
+-{
+-    return 0;
+-}
+-
+-int init_stacks( tsd_t *TSD )
+-{
+-    return 0;
+-}
+-
+-int stack_lifo( tsd_t *TSD, streng *line, const streng *queue_name )
+-{
+-    return 0;
+-}
+-
+-int stack_fifo( tsd_t *TSD, streng *line, const streng *queue_name )
+-{
+-    return 0;
+-}
+-
+-streng *stack_to_line( const tsd_t *TSD, Queue *q )
+-{
+-    return NULL;
+-}
+-
+-streng *popline( tsd_t *TSD, const streng *queue_name, int *result, unsigned long waitflag )
+-{
+-    return NULL;
+-}
+-
+-int make_buffer( tsd_t *TSD )
+-{
+-    return 0;
+-}
+-
+-int drop_buffer( const tsd_t *TSD, int num )
+-{
+-    return 0;
+-}
+ 
+-void type_buffer( tsd_t *TSD )
++APIRET APIENTRY rexxCreateQueue( PSZ Buffer,
++                                 ULONG BuffLen,
++                                 PSZ RequestedName,
++                                 ULONG* DupFlag )
+ {
++   return 0;
+ }
+ 
+-int external_queues_used( const tsd_t *TSD )
++APIRET APIENTRY rexxDeleteQueue( PSZ QueueName )
+ {
+-    return 0;
++   return 0;
+ }
+ 
+-Queue *fill_input_queue_stem( tsd_t *TSD, streng *stemname, int stem0 )
++APIRET APIENTRY rexxQueryQueue( PSZ QueueName,
++                                ULONG* Count )
+ {
+-    return NULL;
++   return 0;
+ }
+ 
+-Queue *fill_input_queue_stream( tsd_t *TSD, void *fileptr )
++APIRET APIENTRY rexxAddQueue( PSZ QueueName,
++                              PRXSTRING EntryData,
++                              ULONG AddFlag )
+ {
+-    return NULL;
++   return 0;
+ }
+ 
+-void fill_queue_name( const tsd_t *TSD, int *len, char **name )
++APIRET APIENTRY rexxPullQueue( PSZ QueueName,
++                               PRXSTRING DataBuf,
++                               PDATETIME TimeStamp,
++                               ULONG WaitFlag )
+ {
++   return 0;
+ }
+diff --git a/OS2/REXX/interp/pmregina/makefile b/OS2/REXX/interp/pmregina/makefile
+index c31ef523..1176b150 100644
+--- a/OS2/REXX/interp/pmregina/makefile
++++ b/OS2/REXX/interp/pmregina/makefile
+@@ -13,9 +13,9 @@ OPTIONS     = caseexact
+ srcfiles    = $(p)regina$(e)
+ ADD_COPT    = $(THREADING) $(HAVE_GCI)
+ ADD_LINKOPT = lib $(PATH)..$(SEP)implib$(SEP)regina.lib
+-#RESOURCE    = $(PATH)reginaos2.res
++RESOURCE    = $(PATH)reginaos2.res
+ WINDOWCOMPAT = 1
+-# UNI2H       = 1
++UNI2H        = 1
+ 
+ !include $(%ROOT)mk/dirs.mk
+ !include $(MYDIR)..$(SEP)regina.mk
+diff --git a/OS2/REXX/interp/regina.mk b/OS2/REXX/interp/regina.mk
+index 6be58c0a..033531ee 100644
+--- a/OS2/REXX/interp/regina.mk
++++ b/OS2/REXX/interp/regina.mk
+@@ -12,6 +12,9 @@ VERDATE = $(VER_DATE)
+ deb      = Y
+ MULTI    = Y
+ 
++# stack calling convention
++C = s
++
+ DYN_CFLAGS = -dDYNAMIC
+ 
+ !ifeq MULTI N
+@@ -28,21 +31,24 @@ HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configu
+ GCIHEADERS = $(SRC)gci$(SEP)gci.h $(SRC)gci$(SEP)embedded.h $(SRC)gci$(SEP)gci_convert.h
+ 
+ HAVE_GCI = -dHAVE_GCI -i=$(MYDIR)gci
++ADD_COPT  += -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ 
+ !ifeq deb Y
+ ADD_COPT     = -d2 $(ADD_COPT)
+ ADD_LINKOPT  = debug all $(ADD_LINKOPT)
+-# ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
++ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
++# ADD_LINKOPT  = debug all $(ADD_LINKOPT)
+ !else
+ ADD_COPT     =  -dNDEBUG -oneatx $(ADD_COPT)
+ ADD_LINKOPT  =  $(ADD_LINKOPT)
+-# ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
++ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
++# ADD_LINKOPT  =  $(ADD_LINKOPT)
+ !endif
+ 
+ ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
+                   -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)regina-ver.h &
+                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
+-# UNI2H = 1
++UNI2H = 1
+ # NOLIBS = 1
+ 
+ !include $(%ROOT)/mk/appsos2_cmd.mk
+diff --git a/OS2/REXX/interp/regina/makefile b/OS2/REXX/interp/regina/makefile
+index c802f362..c791bfee 100644
+--- a/OS2/REXX/interp/regina/makefile
++++ b/OS2/REXX/interp/regina/makefile
+@@ -10,8 +10,8 @@ DESC        = Regina REXX interpreter
+ DEST        = os2
+ OPTIONS     = caseexact
+ srcfiles    = $(p)regina$(e)
+-ADD_COPT    = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) #-bd
+-ADD_LINKOPT = libpath $(PATH)..$(SEP)implib lib $(PROJ).lib
++ADD_COPT    = $(THREADING) $(HAVE_GCI) $(DYN_CFLAGS) # -bd
++ADD_LINKOPT = lib $(BLD)lib$(SEP)$(PROJ).lib
+ 
+ !include $(%ROOT)mk/dirs.mk
+ !include $(MYDIR)..$(SEP)regina.mk
+diff --git a/OS2/REXX/interp/rexxsaa.c b/OS2/REXX/interp/rexxsaa.c
+index 791f1a08..ebc16572 100644
+--- a/OS2/REXX/interp/rexxsaa.c
++++ b/OS2/REXX/interp/rexxsaa.c
+@@ -210,28 +210,6 @@ struct ExitHandlers
+ #define RXMAP_TYPE(a) ((a)==RXCOMMAND ? RX_TYPE_COMMAND : \
+               (a)==RXFUNCTION ? RX_TYPE_FUNCTION : RX_TYPE_SUBROUTINE)
+ 
+-
+-#ifdef __OS2__
+-APIRET APIENTRY rexxCreateQueue( PSZ Buffer,
+-                                 ULONG BuffLen,
+-                                 PSZ RequestedName,
+-                                 ULONG* DupFlag );
+-
+-APIRET APIENTRY rexxDeleteQueue( PSZ QueueName );
+-
+-APIRET APIENTRY rexxQueryQueue( PSZ QueueName,
+-                                ULONG* Count );
+-
+-APIRET APIENTRY rexxAddQueue( PSZ QueueName,
+-                              PRXSTRING EntryData,
+-                              ULONG AddFlag );
+-
+-APIRET APIENTRY rexxPullQueue( PSZ QueueName,
+-                               PRXSTRING DataBuf,
+-                               PDATETIME TimeStamp,
+-                               ULONG WaitFlag );
+-#endif
+-
+ /* init_rexxsaa initializes the module.
+  * Currently, we set up the thread specific data.
+  * The function returns 1 on success, 0 if memory is short.
+@@ -1890,11 +1868,7 @@ EXPORT_C APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
+    StartupInterface(TSD);
+ 
+    TSD->called_from_saa = 1;
+-#ifdef __OS2__
+-   code = rexxCreateQueue( Buffer, BuffLen, RequestedName, DupFlag );
+-#else
+    code = IfcCreateQueue( TSD, RequestedName, (RequestedName) ? strlen( RequestedName): 0, Buffer, DupFlag, BuffLen );
+-#endif
+    TSD->called_from_saa = 0;
+    return code;
+ }
+@@ -1912,11 +1886,7 @@ EXPORT_C APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
+    if (!QueueName || !strlen(QueueName))
+       code = RXQUEUE_BADQNAME;
+    else
+-#ifdef __OS2__
+-      code = rexxDeleteQueue( QueueName );
+-#else
+       code = IfcDeleteQueue( TSD, QueueName, strlen( QueueName ) );
+-#endif
+    TSD->called_from_saa = 0;
+    return code;
+ }
+@@ -1935,11 +1905,7 @@ EXPORT_C APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
+    if (!QueueName || !strlen(QueueName))
+       code = RXQUEUE_BADQNAME;
+    else
+-#ifdef __OS2__
+-      code = rexxQueryQueue( QueueName, Count );
+-#else
+       code = IfcQueryQueue( TSD, QueueName, strlen( QueueName ), Count );
+-#endif
+    TSD->called_from_saa = 0;
+    return code;
+ }
+@@ -1959,11 +1925,7 @@ EXPORT_C APIRET APIENTRY RexxAddQueue( PSZ QueueName,
+    if (!QueueName || !strlen(QueueName))
+       code = RXQUEUE_BADQNAME;
+    else
+-#ifdef __OS2__
+-      code = rexxAddQueue( QueueName, EntryData, AddFlag );
+-#else
+       code = IfcAddQueue( TSD, QueueName, strlen( QueueName), EntryData->strptr, EntryData->strlength, AddFlag==RXQUEUE_LIFO );
+-#endif
+    TSD->called_from_saa = 0;
+    return code;
+ }
+@@ -1991,14 +1953,10 @@ EXPORT_C APIRET APIENTRY RexxPullQueue( PSZ QueueName,
+       code = RXQUEUE_BADQNAME;
+    else
+    {
+-#ifdef __OS2__
+-      code = rexxPullQueue( QueueName, DataBuf, TimeStamp, WaitFlag );
+-#else
+       code = IfcPullQueue( TSD,
+                            QueueName, strlen( QueueName ),
+                            &DataBuf->strptr, &DataBuf->strlength,
+                            WaitFlag==RXQUEUE_WAIT );
+-#endif
+       if ( code == 0 )
+       {
+          if ( TimeStamp )
+diff --git a/OS2/REXX/interp/rxqueue/makefile b/OS2/REXX/interp/rxqueue/makefile
+index fbd5b9c0..73844801 100644
+--- a/OS2/REXX/interp/rxqueue/makefile
++++ b/OS2/REXX/interp/rxqueue/makefile
+@@ -9,9 +9,9 @@ TRGT        = $(PROJ).exe
+ DESC        = Regina REXX interpreter
+ DEST        = os2
+ OPTIONS     = quiet, stack=0x10000000, heapsize=40960
+-srcfiles    = $(p)rxqueue$(e) $(p)eextstack$(e) $(p)erexxbif$(e) $(p)mygetopt$(e)
++srcfiles    = $(p)rxqueue$(e) $(p)erexxbif$(e) $(p)mygetopt$(e) $(p)eextstack$(e)
+ ADD_COPT    = $(THREADING) $(HAVE_GCI) # $(DYN_CFLAGS) #-bd
+-ADD_LINKOPT = lib rexx.lib,tcpip32.lib
++ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,tcpip32.lib
+ # ALIASES     = main_=main
+ 
+ !include $(%ROOT)mk/dirs.mk
+@@ -20,3 +20,7 @@ ADD_LINKOPT = lib rexx.lib,tcpip32.lib
+ $(PATH)rxqueue.obj:  $(SRC)rxqueue.c $(HFILES)
+  @$(SAY) CC       $^. $(LOG)
+  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
++
++#$(PATH)rexxbif.obj:  $(SRC)rexxbif.c $(HFILES)
++# @$(SAY) CC       $^. $(LOG)
++# @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
+diff --git a/OS2/REXX/interp/rxstack.c b/OS2/REXX/interp/rxstack.c
+index d94b2aac..8142c8eb 100644
+--- a/OS2/REXX/interp/rxstack.c
++++ b/OS2/REXX/interp/rxstack.c
+@@ -144,6 +144,7 @@
+ # include <io.h>
+ #else
+ # ifdef HAVE_SYS_SOCKET_H
++#  include <types.h>
+ #  include <sys/socket.h>
+ # endif
+ # ifdef HAVE_NETINET_IN_H
+@@ -227,6 +228,12 @@ HANDLE  hServerStopEvent = NULL;
+ # define EINTR WSAEINTR
+ # undef ECONNRESET
+ # define ECONNRESET WSAECONNRESET
++#elif defined(__OS2__) && defined(__WATCOMC__)
++# include <sys/time.h>
++# include <nerrno.h>
++# define os_errno errno
++# define errno_str(code) strerror(code)
++# define INADDR_LOOPBACK (u_long)0x7f000001
+ #else
+ # define os_errno errno
+ # define errno_str(code) strerror(code)
+diff --git a/OS2/REXX/interp/rxstack/makefile b/OS2/REXX/interp/rxstack/makefile
+index cb43d1b7..aeab213b 100644
+--- a/OS2/REXX/interp/rxstack/makefile
++++ b/OS2/REXX/interp/rxstack/makefile
+@@ -9,14 +9,20 @@ TRGT        = $(PROJ).exe
+ DESC        = Regina REXX interpreter
+ DEST        = os2
+ OPTIONS     = quiet, stack=0x10000000, heapsize=40960
+-srcfiles    = $(p)rxstack$(e) $(p)eextstack$(e) $(p)erexxbif$(e) $(p)mygetopt$(e)
+-ADD_COPT    = $(THREADING) $(HAVE_GCI) # $(DYN_CFLAGS) #-bd
+-ADD_LINKOPT = lib rexx.lib,tcpip32.lib
++srcfiles    = $(p)rxstack$(e) $(p)eextstack$(e) $(p)erexxbif$(e) $(p)mygetopt$(e) $(p)LibSha1$(e)
++ADD_COPT    = -i=$(MYDIR)..$(SEP)contrib $(THREADING) $(HAVE_GCI) # $(DYN_CFLAGS) #-bd
++ADD_LINKOPT = lib $(BLD)lib$(SEP)rexx.lib,tcpip32.lib
+ # ALIASES     = main_=main
+ 
++.c: $(MYDIR)..$(SEP)contrib
++
+ !include $(%ROOT)mk/dirs.mk
+ !include $(MYDIR)..$(SEP)regina.mk
+ 
+-$(PATH)rxstack.obj:  $(SRC)rxqueue.c $(HFILES)
++$(PATH)rxstack.obj:  $(SRC)rxstack.c $(HFILES)
+  @$(SAY) CC       $^. $(LOG)
+  @$(CC) $(COPT) -dEXTERNAL_TO_REGINA  -fr=$^*.err -fo=$^@ $[@
++
++$(PATH)LibSha1.obj:  $(MYDIR)..$(SEP)contrib$(SEP)LibSha1.c $(MYDIR)..$(SEP)contrib$(SEP)LibSha1.h
++ @$(SAY) CC       $^. $(LOG)
++ @$(CC) $(COPT) -fr=$^*.err -fo=$^@ $[@
+diff --git a/OS2/REXX/interp/stack.c b/OS2/REXX/interp/stack.c
+index e8b3fd4a..53f6df5e 100644
+--- a/OS2/REXX/interp/stack.c
++++ b/OS2/REXX/interp/stack.c
+@@ -610,7 +610,9 @@ static int use_external( const tsd_t *TSD, const streng *queue_name )
+    if ( get_options_flag( TSD->currlevel, EXT_INTERNAL_QUEUES ) )
+       return 0;     /* user forces a local queue in every case */
+    if ( ( queue_name == NULL ) || ( PSTRENGLEN( queue_name ) == 0 ) )
++   {
+       return st->current_queue->type == QisExternal;
++   }
+ 
+    if ( get_options_flag( TSD->currlevel, EXT_QUEUES_301 ) == 0 )
+    {
+diff --git a/OS2/REXX/libs/REXXUTIL/makefile b/OS2/REXX/libs/REXXUTIL/makefile
+index 5c76dc1d..7b880c9f 100644
+--- a/OS2/REXX/libs/REXXUTIL/makefile
++++ b/OS2/REXX/libs/REXXUTIL/makefile
+@@ -12,7 +12,10 @@ PROJ        = rexxutil
+ TRGT        = $(PROJ).dll
+ DESC        = REXX Utilities API
+ # UNI2H       = 1
++# NOLIBS      = 0
++C = s
+ ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 -6s
++# ADD_COPT    = -i=$(MYDIR) -i=..$(SEP)..$(SEP)..$(SEP)CMD$(SEP)include -bm -wx -s -mf $(OPT) -fp6 -6s
+ DLL         = 1
+ DLLOPT      = initinstance terminstance
+ OPTIONS     = manyautodata
+diff --git a/OS2/REXX/libs/REXXUTIL/rexxdefs.h b/OS2/REXX/libs/REXXUTIL/rexxdefs.h
+index 92ace7e3..ec6bb887 100644
+--- a/OS2/REXX/libs/REXXUTIL/rexxdefs.h
++++ b/OS2/REXX/libs/REXXUTIL/rexxdefs.h
+@@ -165,4 +165,9 @@ unsigned long SetRexxVariable(char *name, char *value);
+ 
+ void logmessage( char *entry);
+ 
++#define RXNULLSTRING(r)     (!(r).strptr)
++#define RXVALIDSTRING(r)    ((r).strptr && (r).strlength)
++#define RXZEROLENSTRING(r)  ((r).strptr && !(r).strlength)
++#define RXSTRLEN(r)         (RXNULLSTRING(r)?0L:(r).strlength)
++#define RXSTRPTR(r)         (r).strptr
+ 
+diff --git a/OS2/REXX/libs/REXXUTIL/syseautil.c b/OS2/REXX/libs/REXXUTIL/syseautil.c
+index 30850e40..8dbc8c45 100644
+--- a/OS2/REXX/libs/REXXUTIL/syseautil.c
++++ b/OS2/REXX/libs/REXXUTIL/syseautil.c
+@@ -195,7 +195,7 @@ unsigned long SysPutEA(unsigned char *name,
+     if (numargs != 3 || !RXVALIDSTRING(args[0]) || !RXVALIDSTRING(args[1]))
+             return INVALID_ROUTINE;
+ 
+-    if (rc = DosOpen2(args[0].strptr, &handle, &act,
++    if (rc = DosOpen(args[0].strptr, &handle, &act,
+                       0L, 0, OPEN_ACTION_OPEN_IF_EXISTS,
+                       OPEN_ACCESS_READWRITE + OPEN_SHARE_DENYWRITE +
+                       OPEN_FLAGS_FAIL_ON_ERROR + OPEN_FLAGS_WRITE_THROUGH,
+diff --git a/OS2/REXX/libs/REXXUTIL/sysmisc.c b/OS2/REXX/libs/REXXUTIL/sysmisc.c
+index 3b6de206..531f620d 100644
+--- a/OS2/REXX/libs/REXXUTIL/sysmisc.c
++++ b/OS2/REXX/libs/REXXUTIL/sysmisc.c
+@@ -70,6 +70,9 @@
+ #define INCL_DOSMISC
+ #define INCL_VIO
+ 
++#define INCL_WPCLASS
++#undef  INCL_NOCOMMON
++
+ #include <os2.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/OS2/REXX/libs/REXXUTIL/sysobjects.c b/OS2/REXX/libs/REXXUTIL/sysobjects.c
+index 03840a4b..9b1af4fe 100644
+--- a/OS2/REXX/libs/REXXUTIL/sysobjects.c
++++ b/OS2/REXX/libs/REXXUTIL/sysobjects.c
+@@ -67,6 +67,9 @@
+ 
+ #define  INCL_BASE
+ #define  INCL_PMWP
++#define  INCL_WPCLASS
++#undef   INCL_NOCOMMON
++
+ #include <os2.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/OS2/REXX/rexx/rexx.c b/OS2/REXX/rexx/rexx.c
+index 064f22a5..0825eebb 100644
+--- a/OS2/REXX/rexx/rexx.c
++++ b/OS2/REXX/rexx/rexx.c
+@@ -280,36 +280,91 @@ LONG APIENTRY RexxStart(
+    PRXSTRING Result )
+ {
+    LONG rc = (LONG)RXFUNC_NOTREG;
++   APIRET ret;
++   ULONG cb, flags;
++   int i;
+ 
+-   log( "%s: ArgCount: %d ArgList: %x ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x ReturnCode: %x Result: %x",
+-          __FUNCTION__,
+-          ArgCount,
+-          ArgList,
++   log( "%s: ", __FUNCTION__ );
++
++   if ( Instore && (Instore[0].strptr || Instore[1].strptr) )
++   {
++      ProgramName = "";
++   }
++
++   ret = DosQueryMem(ProgramName, &cb, &flags);
++
++   if ( ret == ERROR_INVALID_ADDRESS ||
++        ret == ERROR_INVALID_PARAMETER ||
++        ! (flags & (PAG_COMMIT | PAG_READ)) )
++   {
++      ProgramName = "";
++   }
++
++   if (ArgList)
++   {
++      ret = DosQueryMem(ArgList, &cb, &flags);
++
++      if ( ret == ERROR_INVALID_ADDRESS ||
++           ret == ERROR_INVALID_PARAMETER ||
++           ! (flags & (PAG_COMMIT | PAG_READ)) )
++      {
++         ArgCount = 0;
++         ArgList = NULL;
++      }
++   }
++
++   log( "ArgCount: %d ArgList: ", ArgCount );
++ 
++   for ( i = 0; i < ArgCount; i++ )
++   {
++      log( "\"%.*s\" ", ArgList[i].strlength, (ArgList[i].strptr) ? ArgList[i].strptr : "" );
++   }
++
++   log( "ProgramName: \"%s\" Instore: %x EnvName: \"%s\" Calltype: %d Exits: %x\n",
+           ProgramName,
+           Instore,
+-          EnvName,
++          (EnvName) ? EnvName : "",
+           CallType,
+-          Exits,
+-          ReturnCode,
+-          Result );
++          Exits );
+ 
+-   if (ORexxStart)
++   if (Instore && Instore[0].strptr)
+    {
+-      rc = (*ORexxStart)(
+-         (ULONG)      ArgCount,
+-         (PRXSTRING) ArgList,
+-         (PSZ)       ProgramName,
+-         (PRXSTRING) Instore,
+-         (PSZ)       EnvName,
+-         (LONG)      CallType,
+-         (PRXSYSEXIT)Exits,
+-         (PSHORT)    ReturnCode,
+-         (PRXSTRING) Result ) ;
++      log( "Instore (source): \"%.*s\"\n", Instore[0].strlength, Instore[0].strptr );
++   }
++
++   if (Instore && Instore[1].strptr)
++   {
++      log( "Instore (tokenized) present\n" );
++   }
++
++   if ( ProgramName && ! *ProgramName && Instore &&
++        ! Instore[0].strptr && ! Instore[1].strptr )
++   {
++      log( "Macrospace function with empty name!\n" );
++      *ReturnCode = 0;
++      Result->strptr = NULL;
++      Result->strlength = 0;
++   }
++   else
++   {
++      if (ORexxStart)
++      {
++         rc = (*ORexxStart)(
++            (ULONG)     ArgCount,
++            (PRXSTRING) ArgList,
++            (PSZ)       ProgramName,
++            (PRXSTRING) Instore,
++            (PSZ)       EnvName,
++            (LONG)      CallType,
++            (PRXSYSEXIT)Exits,
++            (PSHORT)    ReturnCode,
++            (PRXSTRING) Result ) ;
++      }
+    }
+ 
+-   log( "<=> ReturnCode %d ResultString \"%s\" Result: %d\n",
++   log( "<=> ReturnCode %x ResultString \"%s\" rc: %x\n",
++          (ReturnCode) ? *ReturnCode : 0,
+           (Result && Result->strptr) ? Result->strptr : "",
+-          ReturnCode,
+           rc );
+    
+    return rc;
+diff --git a/OS2/REXX/rexxapi/rexxapi.c b/OS2/REXX/rexxapi/rexxapi.c
+index c145ee25..c70db4b0 100644
+--- a/OS2/REXX/rexxapi/rexxapi.c
++++ b/OS2/REXX/rexxapi/rexxapi.c
+@@ -115,25 +115,6 @@ typedef HMODULE handle_type ;
+ 
+ #define NUM_REXX_FUNCTIONS                    24
+ 
+-APIRET APIENTRY os2CreateQueue( PSZ Buffer,
+-                                ULONG BuffLen,
+-                                PSZ RequestedName,
+-                                ULONG* DupFlag );
+-
+-APIRET APIENTRY os2DeleteQueue( PSZ QueueName );
+-
+-APIRET APIENTRY os2QueryQueue( PSZ QueueName,
+-                               ULONG* Count );
+-
+-APIRET APIENTRY os2AddQueue( PSZ QueueName,
+-                             PRXSTRING EntryData,
+-                             ULONG AddFlag );
+-
+-APIRET APIENTRY os2PullQueue( PSZ QueueName,
+-                              PRXSTRING DataBuf,
+-                              PDATETIME TimeStamp,
+-                              ULONG WaitFlag );
+-
+ static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
+ {
+    /*  0 */  "RexxRegisterExitExe",
+@@ -715,7 +696,6 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
+           RequestedName,
+           DupFlag );
+ 
+-#if 1
+    if (ORexxCreateQueue)
+    {
+       rc = (*ORexxCreateQueue)(
+@@ -724,13 +704,6 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
+          (PSZ)       RequestedName,
+          (ULONG*)    DupFlag );
+    }
+-#else
+-      rc = os2CreateQueue(
+-         (PSZ)       Buffer,
+-         (ULONG)     BuffLen,
+-         (PSZ)       RequestedName,
+-         (ULONG*)    DupFlag );
+-#endif
+ 
+    log( "<=> Result: %d ", rc );
+ 
+@@ -750,16 +723,11 @@ APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
+           __FUNCTION__,
+           QueueName );
+ 
+-#if 1
+    if (ORexxDeleteQueue)
+    {
+       rc = (*ORexxDeleteQueue)(
+          (PSZ)       QueueName );
+    }
+-#else
+-      rc = os2DeleteQueue(
+-         (PSZ)       QueueName );
+-#endif
+ 
+    log( "<=> Result: %d\n", rc );
+ 
+@@ -776,18 +744,12 @@ APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
+           QueueName,
+           Count );
+ 
+-#if 1
+    if (ORexxQueryQueue)
+    {
+       rc = (*ORexxQueryQueue)(
+          (PSZ)       QueueName,
+          (ULONG*)    Count );
+    }
+-#else
+-      rc = os2QueryQueue(
+-         (PSZ)       QueueName,
+-         (ULONG*)    Count );
+-#endif
+ 
+    log( "<=> Result: %d ", rc );
+ 
+@@ -810,7 +772,6 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
+           QueueName,
+           AddFlag );
+ 
+-#if 1
+    if (ORexxAddQueue)
+    {
+       rc = (*ORexxAddQueue)(
+@@ -818,12 +779,6 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
+          (PRXSTRING) EntryData,
+          (ULONG)     AddFlag );
+    }
+-#else
+-      rc = os2AddQueue(
+-         (PSZ)       QueueName,
+-         (PRXSTRING) EntryData,
+-         (ULONG)     AddFlag );
+-#endif
+ 
+    log( "<=> Result: %d\n", rc );
+ 
+@@ -844,7 +799,6 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
+           TimeStamp,
+           WaitFlag );
+ 
+-#if 1
+    if (ORexxPullQueue)
+    {
+       rc = (*ORexxPullQueue)(
+@@ -853,13 +807,6 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
+          (PDATETIME) TimeStamp,
+          (ULONG)     WaitFlag );
+    }
+-#else
+-      rc = os2PullQueue(
+-         (PSZ)       QueueName,
+-         (PRXSTRING) DataBuf,
+-         (PDATETIME) TimeStamp,
+-         (ULONG)     WaitFlag );
+-#endif
+ 
+    log( "<=> Result: %d\n", rc );
+ 
+@@ -1031,18 +978,25 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
+                                 PUSHORT Position )
+ {
+    APIRET rc = RXMACRO_NOT_FOUND;
++   APIRET ret;
++   ULONG cb = 0, flag = 0;
+ 
+    if (FuncName)
+    {
+-      log( "%s: FuncName: \"%s\" Position: %x ",
+-           __FUNCTION__,
+-           FuncName,
+-           Position );
++      ret = DosQueryMem(FuncName, &cb, &flag);
+    }
+-   else
++
++   if ( ret == ERROR_INVALID_ADDRESS ||
++        ret == ERROR_INVALID_PARAMETER ||
++        ! (flag & (PAG_READ | PAG_COMMIT)) )
+    {
+-      log( "%s: FuncName: <NULL> Position: %x ",
+-           __FUNCTION__,
++      FuncName = "";
++   }
++
++   if (FuncName)
++   {
++      log( "FuncName: \"%s\" Position: %x ",
++           FuncName,
+            Position );
+    }
+    
+@@ -1056,7 +1010,7 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
+    TraceString( "<=> Result: %d\n", rc );
+ 
+    if ( rc == RXMACRO_OK )
+-      log( "Position: %d\n", *Position );
++      log( "Position: %u\n", *Position );
+    else
+       log( "\n" );
+ 
+diff --git a/OS2/REXX/rexxinit/exe/makefile b/OS2/REXX/rexxinit/exe/makefile
+index 78a4f654..c7adc865 100644
+--- a/OS2/REXX/rexxinit/exe/makefile
++++ b/OS2/REXX/rexxinit/exe/makefile
+@@ -8,7 +8,7 @@ TRGT = $(PROJ).exe
+ DESC = REXX DLL loader
+ srcfiles     = $(p)rexxinit$(e)
+ ADD_COPT     = -i=. -sg -3r # -d3
+-ADD_LINKOPT  = segment type DATA shared # lib os2386.lib,clib3s.lib,math387r.lib,emu387.lib # debug all
++ADD_LINKOPT  = segment type DATA shared # lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib # debug all
+ UNI2H        = 1
+ DEST         = os2
+ 
+diff --git a/OS2/Shared/libs/libogg/src/dll/makefile b/OS2/Shared/libs/libogg/src/dll/makefile
+index 7bec9ff0..bde81a6c 100644
+--- a/OS2/Shared/libs/libogg/src/dll/makefile
++++ b/OS2/Shared/libs/libogg/src/dll/makefile
+@@ -5,7 +5,7 @@
+ PROJ = ogg
+ TRGT = $(PROJ).dll
+ ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
+-ADD_LINKOPT = lib clib3r.lib, os2386.lib # $(PATH)..$(SEP)libogg.lib
++ADD_LINKOPT = lib clib3r.lib, os2386.lib, $(PATH)..$(SEP)libogg.lib
+ 
+ OBJS = $(PATH)..$(SEP)framing.$(O) $(PATH)..$(SEP)bitwise.$(O)
+ DLL = 1
+diff --git a/OS2/Shared/makefile b/OS2/Shared/makefile
+index ef626fc5..1d244e87 100644
+--- a/OS2/Shared/makefile
++++ b/OS2/Shared/makefile
+@@ -11,7 +11,7 @@ srcfiles = $(p)all_messages$(e) $(p)all_querycurrentdisk$(e) $(p)all_queryfsname
+ 
+ UNI2H = 1
+ ADD_COPT =  
+-# ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
++ADD_LINKOPT = lib $(BLD)$(SEP)lib$(SEP)os2386.lib
+ NOLIBS      = 1
+ 
+ !include $(%ROOT)/mk/libsos2.mk
+diff --git a/mk/appsos2.mk b/mk/appsos2.mk
+index de62d150..6a484fc7 100644
+--- a/mk/appsos2.mk
++++ b/mk/appsos2.mk
+@@ -13,6 +13,11 @@ CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
+ 
+ ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
+ 
++!ifneq C s
++# stack calling convention
++C = r
++!endif
++
+ !ifeq UNI2H 1
+ 
+ # generated uni2h headers
+@@ -25,13 +30,13 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
+ #                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ 
+ !ifneq NOLIBS 1
+-ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &
++ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
+                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
+-               $(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)sub32.lib, &
++               $(BLD)lib$(SEP)clibext$(C).lib,$(BLD)lib$(SEP)sub32.lib, &
+ !ifeq CXX 1
+-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3r.lib, &
++               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
+ !endif
+-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib, &
++               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3$(C).lib, &
+                $(BLD)lib$(SEP)os2386.lib, &
+                rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
+ 
+diff --git a/setvars.bat b/setvars.bat
+index 1083a775..7f67a733 100644
+--- a/setvars.bat
++++ b/setvars.bat
+@@ -1,14 +1,11 @@
+ @echo off
+-set ROOT=\data\src\svn\osfree\trunk\
++set ROOT=l:\src\osfree\trunk\
+ 
+-set WATCOM=\data\dev\watcom
++set WATCOM=f:\dev\watcom
+ set svn=\data\dev\svn-win32-1.6.6\bin
+ set tools=%root%\bin\tools
+-SET REGINA=\data\dev\regina
+-set FPPATH=\data\dev\fpc\2.0.4\bin\i386-win32
++set FPPATH=f:\dev\fpc\2.0.4\bin\i386-win32
+ set imgdir=\data\vm\img
+-set shell=c:\windows\cmd.exe
+-set rexx=\data\dev\regina\regina.exe
+ set mkisofs=\data\dev\cdrtools\mkisofs.exe
+ set serverenv=win32
+ set os=WIN32
+diff --git a/tools/os2386/libc/makefile b/tools/os2386/libc/makefile
+index b466c189..90e898ff 100644
+--- a/tools/os2386/libc/makefile
++++ b/tools/os2386/libc/makefile
+@@ -1,21 +1,6 @@
+-#
+-# A Makefile for ANSI
+-# (c) osFree project,
+-# author, date
+-#
++DIRS = r s
+ 
+-PROJ = clibext
+-TRGT = $(PROJ).lib
+-srcfiles = $(p)cgetsos2$(e) $(p)getchos2$(e) $(p)putchos2$(e) $(p)kbhitos2$(e)
+-# defines additional options for C compiler
+-ADD_COPT    =
+-NODEFAULTLIBS = 1
+-ADD_LINKOPT = lib sub32.lib
+-UNI2H = 1
++!include $(%ROOT)/mk/all.mk
+ 
+-#TARGETS  = $(PATH)$(PROJ).lib
+-
+-!include $(%ROOT)/mk/libsos2.mk
+-
+-$(PATH)$(PROJ).lib: $(OBJS)
+- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
++#TARGETS = subdirs
++#TARGET = all
+diff --git a/tools/rexxwrap/makefile b/tools/rexxwrap/makefile
+index 5d3004e1..c54d93ac 100644
+--- a/tools/rexxwrap/makefile
++++ b/tools/rexxwrap/makefile
+@@ -9,7 +9,7 @@ DESC = rexx to executable wrapper
+ #TARGETS = $(PATH)$(PROJ).exe
+ 
+ $(PATH)$(PROJ).exe: $(MYDIR)rexxwrap.cmd
+-!ifeq %OS OS/2
++!ifeq %OS OS2
+   $(REXX) rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
+ !endif
+ !ifeq %OS Windows
+diff --git a/tools/rexxwrap/rexxwrap.cmd b/tools/rexxwrap/rexxwrap.cmd
+index 3ab72b14..c4d58c96 100644
+--- a/tools/rexxwrap/rexxwrap.cmd
++++ b/tools/rexxwrap/rexxwrap.cmd
+@@ -725,7 +725,7 @@ Select
+          /* wcc */
+          cc.wcc = 'wcc386'
+          obj.wcc = '.o'
+-         exe_ext = '.exe'
++         exe_ext = '.exe'
+          dirsep.wcc = '/'
+          watcom = value('WATCOM',, 'ENVIRONMENT')
+          cflags.wcc = '-dUNIX -dLINUX -D__LINUX__ -4s -wx -zq -mf -i='watcom'/lh' opt
+@@ -1043,10 +1043,7 @@ If _debug > 0 Then Say '   <<debug>>' cmd
+ cmd
+ If rc \= 0 Then Call Abort 'error running intbuild'
+ Say 'Compiling' !program || '.c...'
+-if os \= 'UNIX' then
+-   cmd = !cc !cflags !defines !includes '.' || !dirsep || !program || '.c'
+-else
+-   cmd = !cc !cflags !defines !includes !program || '.c'
++cmd = !cc !cflags !defines !includes !program || '.c'
+ If _debug > 0 Then Say '   <<debug>>' cmd
+ cmd
+ If rc \= 0 Then Call Abort 'error compiling' !program || '.c'
+diff --git a/valerius.conf b/valerius.conf
+index 09eeb146..662fbcba 100644
+--- a/valerius.conf
++++ b/valerius.conf
+@@ -8,7 +8,7 @@
+ ; Watcom root
+ watcom  = 'f:\dev\watcom'
+ ; osFree sources root
+-root    = 'f:\src\osfree'
++root    = 'f:\src\osfree\trunk'
+ ; disk images directory
+ imgdir  = 'f:\data\vm\img'
+ ; OS/2 toolkit location

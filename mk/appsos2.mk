@@ -13,6 +13,11 @@ CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 
 ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 
+!ifneq C s
+# stack calling convention
+C = r
+!endif
+
 !ifeq UNI2H 1
 
 # generated uni2h headers
@@ -25,13 +30,13 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
 #                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifneq NOLIBS 1
-ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387r.lib, &
+ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)emu387.lib, &
-               $(BLD)lib$(SEP)clibext.lib,$(BLD)lib$(SEP)sub32.lib, &
+               $(BLD)lib$(SEP)clibext$(C).lib,$(BLD)lib$(SEP)sub32.lib, &
 !ifeq CXX 1
-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3r.lib, &
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
 !endif
-               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3r.lib, &
+               $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3$(C).lib, &
                $(BLD)lib$(SEP)os2386.lib, &
                rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
 

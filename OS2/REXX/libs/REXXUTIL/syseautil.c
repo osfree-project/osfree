@@ -195,7 +195,7 @@ unsigned long SysPutEA(unsigned char *name,
     if (numargs != 3 || !RXVALIDSTRING(args[0]) || !RXVALIDSTRING(args[1]))
             return INVALID_ROUTINE;
 
-    if (rc = DosOpen2(args[0].strptr, &handle, &act,
+    if (rc = DosOpen(args[0].strptr, &handle, &act,
                       0L, 0, OPEN_ACTION_OPEN_IF_EXISTS,
                       OPEN_ACCESS_READWRITE + OPEN_SHARE_DENYWRITE +
                       OPEN_FLAGS_FAIL_ON_ERROR + OPEN_FLAGS_WRITE_THROUGH,

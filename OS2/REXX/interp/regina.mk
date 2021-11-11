@@ -12,6 +12,9 @@ VERDATE = $(VER_DATE)
 deb      = Y
 MULTI    = Y
 
+# stack calling convention
+C = s
+
 DYN_CFLAGS = -dDYNAMIC
 
 !ifeq MULTI N
@@ -28,21 +31,24 @@ HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configu
 GCIHEADERS = $(SRC)gci$(SEP)gci.h $(SRC)gci$(SEP)embedded.h $(SRC)gci$(SEP)gci_convert.h
 
 HAVE_GCI = -dHAVE_GCI -i=$(MYDIR)gci
+ADD_COPT  += -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifeq deb Y
 ADD_COPT     = -d2 $(ADD_COPT)
 ADD_LINKOPT  = debug all $(ADD_LINKOPT)
-# ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
+ADD_LINKOPT  = debug all library tcpip32 $(ADD_LINKOPT)
+# ADD_LINKOPT  = debug all $(ADD_LINKOPT)
 !else
 ADD_COPT     =  -dNDEBUG -oneatx $(ADD_COPT)
 ADD_LINKOPT  =  $(ADD_LINKOPT)
-# ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
+ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
+# ADD_LINKOPT  =  $(ADD_LINKOPT)
 !endif
 
 ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
                   -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)regina-ver.h &
                   -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
-# UNI2H = 1
+UNI2H = 1
 # NOLIBS = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

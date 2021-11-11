@@ -12,7 +12,10 @@ PROJ        = rexxutil
 TRGT        = $(PROJ).dll
 DESC        = REXX Utilities API
 # UNI2H       = 1
+# NOLIBS      = 0
+C = s
 ADD_COPT    = -i=$(MYDIR) -bm -wx -s -mf $(OPT) -6r -fp6 -6s
+# ADD_COPT    = -i=$(MYDIR) -i=..$(SEP)..$(SEP)..$(SEP)CMD$(SEP)include -bm -wx -s -mf $(OPT) -fp6 -6s
 DLL         = 1
 DLLOPT      = initinstance terminstance
 OPTIONS     = manyautodata
