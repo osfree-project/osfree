@@ -40,4 +40,7 @@ jobs:
         run: open-watcom-2_0-c-win-x64.exe -s -p -ns
         shell: cmd
 
-  
+      # Download Regina REXX
+      - name: Download Regine REXX
+        run: wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w64.exe
+
