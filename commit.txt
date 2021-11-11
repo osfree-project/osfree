@@ -1,8 +1,0 @@
-REXX and build system fixes
-- Use correct calling convention
-- Add a "C" make parameter to choose between a register based and stack-based
-calling convention.
-- Fix native Regina REXX queues support in rxstack and rxqueue
-- Fix pmgegina
-- REXX and REXXAPI fixes to work with GpfREXX and other visual REXX extensions
-- Minor build system fixes
