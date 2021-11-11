@@ -24,11 +24,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
+      # Download latest Open Watcom
+      - name: Download latest Open Watcom
         run: |
-          curl 'https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe' > setup.exe
-          setup.exe  -s p -ns
+          wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe
+          #setup.exe  -s p -ns
           dir
         shell: cmd
           
