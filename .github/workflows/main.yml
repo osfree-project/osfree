@@ -33,7 +33,10 @@ jobs:
         run: |
           wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe
           #setup.exe  -s p -ns
-          dir
-        shell: cmd
-          
+          #dir
+
+      # Install OpenWatcom
+      - name: Install OpenWatcom
+        run: open-watcom-2_0-c-win-x64.exe -s p -ns
+
   
