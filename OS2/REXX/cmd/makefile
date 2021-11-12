@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = rexxtry pmrexx
+DIRS = rexxtry pmrexx rxqueue
 
 !include $(%ROOT)/mk/all.mk
 

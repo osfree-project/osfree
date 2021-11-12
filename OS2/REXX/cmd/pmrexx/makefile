@@ -6,7 +6,7 @@ DIRS = pmrexxio help
 srcfiles     = $(p)pmrexx$(e) $(p)rxhafile$(e)
 inc          = $(MYDIR)include
 ADD_COPT     = -i=$(inc) -sg -3r # -3s
-#ADD_LINKOPT  = lib os2386.lib,clib3s.lib,math387r.lib,emu387.lib,rexx.lib
+#ADD_LINKOPT  = lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 OPTIONS      = heapsize=8192
 STACKSIZE    = 16384
 WINDOWCOMPAT = 1

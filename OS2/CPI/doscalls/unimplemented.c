@@ -1797,6 +1797,7 @@ APIRET APIENTRY DosCancelLockRequestL(HFILE hFile,
 }
 
 
+// fix prototype !!! (undoc)
 APIRET APIENTRY      DosSystemService(void)
 {
   return unimplemented(__FUNCTION__);

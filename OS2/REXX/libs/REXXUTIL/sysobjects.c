@@ -67,6 +67,9 @@
 
 #define  INCL_BASE
 #define  INCL_PMWP
+#define  INCL_WPCLASS
+#undef   INCL_NOCOMMON
+
 #include <os2.h>
 #include <stdio.h>
 #include <stdlib.h>

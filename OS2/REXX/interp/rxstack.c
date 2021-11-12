@@ -144,6 +144,7 @@
 # include <io.h>
 #else
 # ifdef HAVE_SYS_SOCKET_H
+#  include <types.h>
 #  include <sys/socket.h>
 # endif
 # ifdef HAVE_NETINET_IN_H
@@ -227,6 +228,12 @@ HANDLE  hServerStopEvent = NULL;
 # define EINTR WSAEINTR
 # undef ECONNRESET
 # define ECONNRESET WSAECONNRESET
+#elif defined(__OS2__) && defined(__WATCOMC__)
+# include <sys/time.h>
+# include <nerrno.h>
+# define os_errno errno
+# define errno_str(code) strerror(code)
+# define INADDR_LOOPBACK (u_long)0x7f000001
 #else
 # define os_errno errno
 # define errno_str(code) strerror(code)

@@ -29,8 +29,8 @@ srcfiles = &
  $(p)cmsfuncs$(e) &
  $(p)shell$(e) &
  $(p)rexxext$(e) &
-# $(p)stack$(e) &
- $(p)os2que$(e) &
+ $(p)stack$(e) &
+# $(p)os2que$(e) &
  $(p)mktime$(e) &
  $(p)tracing$(e) &
  $(p)interp$(e) &
@@ -42,7 +42,7 @@ srcfiles = &
  $(p)signals$(e) &
  $(p)macros$(e) &
  $(p)envir$(e) &
- $(p)mt_os2$(e) &
+ $(p)$(THREADING_FILE)$(e) &
  $(p)instore$(e) &
  $(p)expr$(e) &
  $(p)yaccsrc$(e) &
@@ -50,7 +50,7 @@ srcfiles = &
  $(p)wrappers$(e) &
  $(p)options$(e) &
  $(p)os_os2$(e) &
-# $(p)extstack$(e) &
+ $(p)extstack$(e) &
  $(p)rexxbif$(e) &
  $(p)nosaa$(e)
 

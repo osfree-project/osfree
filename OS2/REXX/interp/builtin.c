@@ -1058,11 +1058,11 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
 #ifdef VMS
          timediff = mktime(localtime(&now));
 #else
-#if defined(__OS2__) && defined(__WATCOMC__)
-         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
-#else
+//#if defined(__OS2__) && defined(__WATCOMC__)
+//         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
+//#else
          timediff = (long)(mktime(localtime(&now))-mktime(gmtime(&now)));
-#endif
+//#endif
          tmptr = localtime(&now);
          if ( tmptr->tm_isdst )
             timediff += 3600;
@@ -1075,11 +1075,11 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
          break ;
 
       case 'T':
-#if defined(__OS2__) && defined(__WATCOMC__)
-         rnow = mktime2( &tmdata );
-#else
+//#if defined(__OS2__) && defined(__WATCOMC__)
+//         rnow = mktime2( &tmdata );
+//#else
          rnow = mktime( &tmdata );
-#endif
+//#endif
          answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 
@@ -1319,11 +1319,11 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
 
       case 'T':
          tmdata.tm_year -= 1900;
-#if defined(__OS2__) && defined(__WATCOMC__)
-         rnow = mktime2( &tmdata );
-#else
+//#if defined(__OS2__) && defined(__WATCOMC__)
+//         rnow = mktime2( &tmdata );
+//#else
          rnow = mktime( &tmdata );
-#endif
+//#endif
          answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 

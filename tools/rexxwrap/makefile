@@ -9,7 +9,7 @@ DESC = rexx to executable wrapper
 #TARGETS = $(PATH)$(PROJ).exe
 
 $(PATH)$(PROJ).exe: $(MYDIR)rexxwrap.cmd
-!ifeq %OS OS/2
+!ifeq %OS OS2
   $(REXX) rexxwrap.cmd -program=$^* -rexxfiles=$]@ -srcdir=$(MYDIR) -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress
 !endif
 !ifeq %OS Windows

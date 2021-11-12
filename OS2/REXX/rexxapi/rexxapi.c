@@ -115,25 +115,6 @@ typedef HMODULE handle_type ;
 
 #define NUM_REXX_FUNCTIONS                    24
 
-APIRET APIENTRY os2CreateQueue( PSZ Buffer,
-                                ULONG BuffLen,
-                                PSZ RequestedName,
-                                ULONG* DupFlag );
-
-APIRET APIENTRY os2DeleteQueue( PSZ QueueName );
-
-APIRET APIENTRY os2QueryQueue( PSZ QueueName,
-                               ULONG* Count );
-
-APIRET APIENTRY os2AddQueue( PSZ QueueName,
-                             PRXSTRING EntryData,
-                             ULONG AddFlag );
-
-APIRET APIENTRY os2PullQueue( PSZ QueueName,
-                              PRXSTRING DataBuf,
-                              PDATETIME TimeStamp,
-                              ULONG WaitFlag );
-
 static char *MyFunctionName[ NUM_REXX_FUNCTIONS ] =
 {
    /*  0 */  "RexxRegisterExitExe",
@@ -715,7 +696,6 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
           RequestedName,
           DupFlag );
 
-#if 1
    if (ORexxCreateQueue)
    {
       rc = (*ORexxCreateQueue)(
@@ -724,13 +704,6 @@ APIRET APIENTRY RexxCreateQueue( PSZ Buffer,
          (PSZ)       RequestedName,
          (ULONG*)    DupFlag );
    }
-#else
-      rc = os2CreateQueue(
-         (PSZ)       Buffer,
-         (ULONG)     BuffLen,
-         (PSZ)       RequestedName,
-         (ULONG*)    DupFlag );
-#endif
 
    log( "<=> Result: %d ", rc );
 
@@ -750,16 +723,11 @@ APIRET APIENTRY RexxDeleteQueue( PSZ QueueName )
           __FUNCTION__,
           QueueName );
 
-#if 1
    if (ORexxDeleteQueue)
    {
       rc = (*ORexxDeleteQueue)(
          (PSZ)       QueueName );
    }
-#else
-      rc = os2DeleteQueue(
-         (PSZ)       QueueName );
-#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -776,18 +744,12 @@ APIRET APIENTRY RexxQueryQueue( PSZ QueueName,
           QueueName,
           Count );
 
-#if 1
    if (ORexxQueryQueue)
    {
       rc = (*ORexxQueryQueue)(
          (PSZ)       QueueName,
          (ULONG*)    Count );
    }
-#else
-      rc = os2QueryQueue(
-         (PSZ)       QueueName,
-         (ULONG*)    Count );
-#endif
 
    log( "<=> Result: %d ", rc );
 
@@ -810,7 +772,6 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
           QueueName,
           AddFlag );
 
-#if 1
    if (ORexxAddQueue)
    {
       rc = (*ORexxAddQueue)(
@@ -818,12 +779,6 @@ APIRET APIENTRY RexxAddQueue( PSZ QueueName,
          (PRXSTRING) EntryData,
          (ULONG)     AddFlag );
    }
-#else
-      rc = os2AddQueue(
-         (PSZ)       QueueName,
-         (PRXSTRING) EntryData,
-         (ULONG)     AddFlag );
-#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -844,7 +799,6 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
           TimeStamp,
           WaitFlag );
 
-#if 1
    if (ORexxPullQueue)
    {
       rc = (*ORexxPullQueue)(
@@ -853,13 +807,6 @@ APIRET APIENTRY RexxPullQueue( PSZ QueueName,
          (PDATETIME) TimeStamp,
          (ULONG)     WaitFlag );
    }
-#else
-      rc = os2PullQueue(
-         (PSZ)       QueueName,
-         (PRXSTRING) DataBuf,
-         (PDATETIME) TimeStamp,
-         (ULONG)     WaitFlag );
-#endif
 
    log( "<=> Result: %d\n", rc );
 
@@ -1031,18 +978,25 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
                                 PUSHORT Position )
 {
    APIRET rc = RXMACRO_NOT_FOUND;
+   APIRET ret;
+   ULONG cb = 0, flag = 0;
 
    if (FuncName)
    {
-      log( "%s: FuncName: \"%s\" Position: %x ",
-           __FUNCTION__,
-           FuncName,
-           Position );
+      ret = DosQueryMem(FuncName, &cb, &flag);
    }
-   else
+
+   if ( ret == ERROR_INVALID_ADDRESS ||
+        ret == ERROR_INVALID_PARAMETER ||
+        ! (flag & (PAG_READ | PAG_COMMIT)) )
    {
-      log( "%s: FuncName: <NULL> Position: %x ",
-           __FUNCTION__,
+      FuncName = "";
+   }
+
+   if (FuncName)
+   {
+      log( "FuncName: \"%s\" Position: %x ",
+           FuncName,
            Position );
    }
    
@@ -1056,7 +1010,7 @@ APIRET APIENTRY RexxQueryMacro( PSZ FuncName,
    TraceString( "<=> Result: %d\n", rc );
 
    if ( rc == RXMACRO_OK )
-      log( "Position: %d\n", *Position );
+      log( "Position: %u\n", *Position );
    else
       log( "\n" );
 

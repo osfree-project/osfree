@@ -610,7 +610,9 @@ static int use_external( const tsd_t *TSD, const streng *queue_name )
    if ( get_options_flag( TSD->currlevel, EXT_INTERNAL_QUEUES ) )
       return 0;     /* user forces a local queue in every case */
    if ( ( queue_name == NULL ) || ( PSTRENGLEN( queue_name ) == 0 ) )
+   {
       return st->current_queue->type == QisExternal;
+   }
 
    if ( get_options_flag( TSD->currlevel, EXT_QUEUES_301 ) == 0 )
    {

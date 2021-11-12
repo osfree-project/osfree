@@ -5,7 +5,7 @@
 PROJ = ogg
 TRGT = $(PROJ).dll
 ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT = lib clib3r.lib, os2386.lib # $(PATH)..$(SEP)libogg.lib
+ADD_LINKOPT = lib clib3r.lib, os2386.lib, $(PATH)..$(SEP)libogg.lib
 
 OBJS = $(PATH)..$(SEP)framing.$(O) $(PATH)..$(SEP)bitwise.$(O)
 DLL = 1

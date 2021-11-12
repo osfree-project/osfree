@@ -1043,10 +1043,7 @@ If _debug > 0 Then Say '   <<debug>>' cmd
 cmd
 If rc \= 0 Then Call Abort 'error running intbuild'
 Say 'Compiling' !program || '.c...'
-if os \= 'UNIX' then
-   cmd = !cc !cflags !defines !includes '.' || !dirsep || !program || '.c'
-else
-   cmd = !cc !cflags !defines !includes !program || '.c'
+cmd = !cc !cflags !defines !includes !program || '.c'
 If _debug > 0 Then Say '   <<debug>>' cmd
 cmd
 If rc \= 0 Then Call Abort 'error compiling' !program || '.c'
