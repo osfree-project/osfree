@@ -1,13 +1,13 @@
 @echo off
 
-set WATCOM=f:\dev\watcom15
-set ROOT=f:\var\src\os2\svn\osfree\trunk
+set WATCOM=c:\watcom
+set ROOT=d:\osfree\
 
 set TKPATH=f:\os2tk45
 set FPPATH=f:\dev\pp
 
-set TOOLS=%ROOT%\tools\bin
-set PATH=%WATCOM%\binp;%TOOLS%;%TKPATH%\bin;%FPPATH%\bin\os2;%PATH%
+set TOOLS=%ROOT%\bin\tools
+set PATH=%WATCOM%\binnt64;%TOOLS%;%TKPATH%\bin;%FPPATH%\bin\os2;%PATH%
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\dos;%WATCOM%\h\os2
 set FINCLUDE=%WATCOM%\src\fortran
 set EDPATH=%WATCOM%\eddat
@@ -23,4 +23,6 @@ rem set OS_REXX=Object
 rem Regina REXX
 rem set OS_REXX   = Regina
 rem Special case
-set OS_REXX=c:\regina\rexx.exe
+set OS_REXX=c:\rexx\regina.exe
+
+cmd

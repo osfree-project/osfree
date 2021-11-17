@@ -8,7 +8,7 @@ srcfiles = $(p)sedcomp$(e) $(p)sedexec$(e)
 #Notes:
 # awk lex and yacc files not added to repository
 
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)include -za
 STACKSIZE = 65536
 
 !include $(%ROOT)/mk/tools.mk
