@@ -1,7 +1,7 @@
 @echo off
 
 set WATCOM=c:\watcom
-set ROOT=d:\osfree\
+set ROOT=d:\a\osfree\
 
 set TKPATH=f:\os2tk45
 set FPPATH=f:\dev\pp
@@ -25,4 +25,3 @@ rem set OS_REXX   = Regina
 rem Special case
 set OS_REXX=c:\rexx\regina.exe
 
-cmd
