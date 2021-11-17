@@ -25,4 +25,6 @@ rem set OS_REXX   = Regina
 rem Special case
 set OS_REXX=c:\rexx\regina.exe
 set REXX=c:\rexx\regina.exe
+SET OS=Windows
+
 
