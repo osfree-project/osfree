@@ -52,5 +52,7 @@ jobs:
       - name: build
         run: | 
           setvars-git.cmd
+          set
+          dir
           build-git.cmd
         shell: cmd
