@@ -1,7 +1,7 @@
 @echo off
 
 set WATCOM=c:\watcom
-set ROOT=d:\a\osfree\osfree\
+set ROOT=%GITHUB_WORKSPACE%\
 
 set TKPATH=f:\os2tk45
 set FPPATH=f:\dev\pp
@@ -24,4 +24,5 @@ rem Regina REXX
 rem set OS_REXX   = Regina
 rem Special case
 set OS_REXX=c:\rexx\regina.exe
+set REXX=c:\rexx\regina.exe
 
