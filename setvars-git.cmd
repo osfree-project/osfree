@@ -1,7 +1,7 @@
 @echo off
 
 set WATCOM=c:\watcom
-set ROOT=d:\a\osfree\
+set ROOT=d:\a\osfree\osfree\
 
 set TKPATH=f:\os2tk45
 set FPPATH=f:\dev\pp
