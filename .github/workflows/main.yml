@@ -48,3 +48,9 @@ jobs:
       - name: Install Regina REXX
         run: Regina394w64.exe /S /D=C:\REXX
         shell: cmd
+      # build
+      - name: build
+        run: | 
+          setvars-git.cmd
+          build-git.cmd
+        shell: cmd
