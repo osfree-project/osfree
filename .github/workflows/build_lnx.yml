@@ -1,0 +1,12 @@
+name: Execute build and tests
+
+on:
+    repository_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses:  actions/checkout@v2
+            - run:   /bin/sh _setup.sh
+            - run:   /bin/sh _wcc.sh
