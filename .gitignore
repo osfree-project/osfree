@@ -1,7 +1,8 @@
 *~
-.svn
+.git
+.github
 
-/bin
-/build
-/svnlog.txt
-/diff.diff
+bin
+build
+gitlog.txt
+git.diff
