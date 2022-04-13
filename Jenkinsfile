@@ -20,9 +20,11 @@ pipeline {
         //}
         stage('docker builds') {
             agent {
-                label 'linux-i386-docker'
-                docker { dockerfile true }
-                args '-v /var/lib/jenkins/workspace/osfree_master:/root/osfree'
+                docker {
+                    label 'linux-i386-docker'
+                    dockerfile true
+                    args '-v /var/lib/jenkins/workspace/osfree_master:/root/osfree'
+                }
             }
             steps {
                 sh 'echo Done.'
