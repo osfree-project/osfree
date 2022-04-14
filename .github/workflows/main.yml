@@ -48,6 +48,19 @@ jobs:
       - name: Install Regina REXX
         run: Regina394w64.exe /S /D=C:\REXX
         shell: cmd
+       
+      # Download FPC
+      - name: Download FPC
+        run: |
+          wget  https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe
+          dir
+        shell: cmd
+      
+      # install  
+      - name: install fpc
+        run: fpc-3.2.2.i386-win32.exe /silent
+        shell: cmd
+        
       # build
       - name: build
         run: | 
