@@ -6,7 +6,7 @@
 #define FOR_EXEHDR          1           /* exe386.h flag */
 
 #include <newexe.h>
-#if defined __LINUX__ || defined __OS2__
+#if defined __LINUX__ || defined __OS2__ || defined __NT__
  #define DWORD unsigned long int 
  #define WORD unsigned short int 
 #endif

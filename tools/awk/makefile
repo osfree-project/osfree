@@ -6,7 +6,7 @@ DESC = AWK language interpreter
 srcfiles = $(p)b$(e) $(p)main$(e) $(p)parse$(e) $(p)proctab$(e) $(p)tran$(e) $(p)lib$(e) $(p)run$(e) $(p)lex$(e) &
            $(p)ytab$(e) $(p)missing95$(e)
 
-ADD_COPT = -i=..$(SEP)include
+ADD_COPT = -i=..$(SEP)include 
 #TARGETS = $(PATH)$(PROJ).exe
 STACKSIZE = 65536
 

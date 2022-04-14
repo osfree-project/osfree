@@ -19,6 +19,7 @@
 #ifdef __WATCOMC__
 #include <graph.h>
 #include <time.h>
+#include <sys/types.h>
 
 struct ftime /* As defined by Borland C */
 {
@@ -262,7 +263,7 @@ void normvideo (void);
 #if __WATCOMC__ < 1280
 int _write(int handle, void *buf, int nbyte);
 #endif
-int _creat(const char *filename, int attrib);
+int _creat(const char *filename, mode_t attrib);
 int creatnew(const char *filename, int attrib);
 int creattemp(char *filename, int attrib);
 void gettextinfo(struct text_info inforec);

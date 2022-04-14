@@ -11,7 +11,7 @@ chunksize = 20
 if os = 'OS/2' then do
   del = '@del '
   nul = 'nul'
-end; else if os = 'WIN32' then do
+end; else if os = 'WIN32' | os = 'WIN64' then do
   del = '@del '
   nul = 'nul'
 end; else do

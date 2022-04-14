@@ -34,6 +34,7 @@ jobs:
           wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe
           #setup.exe  -s p -ns
           #dir
+
       # Install OpenWatcom
       - name: Install OpenWatcom
         run: open-watcom-2_0-c-win-x64.exe -s -p -ns
@@ -47,7 +48,7 @@ jobs:
       - name: Install Regina REXX
         run: Regina394w64.exe /S /D=C:\REXX
         shell: cmd
-        
+       
       # Download FPC
       - name: Download FPC
         run: |

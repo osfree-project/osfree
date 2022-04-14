@@ -14,7 +14,7 @@ parse source sys .
 /* System-dependent variables */
 if sys = 'OS/2'    | sys = 'DOS'     |,
    sys = 'WINDOWS' | sys = 'Windows' |,
-   sys = 'WINNT'   | sys = 'NT'   then do
+   sys = 'WINNT'   | sys = 'NT' | sys = 'WIN64'   then do
   drop sys
   opt.sys = 'OS/2'
 end; else
