@@ -4,7 +4,7 @@ set WATCOM=c:\watcom
 set ROOT=d:\osfree\
 
 set TKPATH=f:\os2tk45
-set FPPATH=f:\dev\pp
+set FPPATH=c:\fpc\3.2.2
 
 set TOOLS=%ROOT%\bin\tools
 set PATH=%WATCOM%\binnt64;%TOOLS%;%TKPATH%\bin;%FPPATH%\bin\os2;%PATH%
