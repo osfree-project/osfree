@@ -23,9 +23,9 @@ jobs:
             # Install prerequisites
             - name:  Install prerequisites
               run:   _setup.sh
-              shell: /bin/sh
+              shell: sh
 
             # Build
             - name: Build
               run:   _wcc.sh
-              shell: /bin/sh
+              shell: sh
