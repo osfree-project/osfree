@@ -8,5 +8,6 @@
 echo "VARS=$VARS"
 echo "OS=$OS"
 echo "SHELL=$SHELL"
+echo "OS_SHELL=$OS_SHELL"
 echo "REXX=$REXX"
 wmake -h $1 $2 $3 $4 $5 $6 $7 $8 $9
