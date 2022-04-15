@@ -15,7 +15,7 @@ STACKSIZE = 65536
 
 #TARGETS = inst
 
-install_add: $(MYDIR)bison.simple $(MYDIR)bison.hairy # $(PATH)$(TRGT)
+install_add: $(MYDIR)bison.simple $(MYDIR)bison.hairy .symbolic # $(PATH)$(TRGT)
  @$(CP) $(MYDIR)bison.simple $(DEST) $(BLACKHOLE)
  @$(CP) $(MYDIR)bison.hairy $(DEST) $(BLACKHOLE)
  @$(CP) $(PATH)$(TRGT) $(DEST) $(BLACKHOLE)

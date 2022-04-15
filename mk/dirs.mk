@@ -16,6 +16,7 @@ MYDIR        = $(%cwd)$(SEP)
 ROOT         = $(%ROOT)
 
 RELDIR       = $(MYDIR:$(ROOT)=)
+
 PATH         = $(RELDIR)
 
 BLD  = $(ROOT)build$(SEP)
