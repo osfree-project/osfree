@@ -1,10 +1,10 @@
 @echo off
-set ROOT=l:\src\osfree\trunk\
+set ROOT=c:\a\osfree\osfree\
 
-set WATCOM=f:\dev\watcom
+set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
 set tools=%root%\bin\tools
-set FPPATH=f:\dev\fpc\2.0.4\bin\i386-win32
+set FPPATH=с:\fpc\3.2.2\bin\i386-win32
 set imgdir=\data\vm\img
 set mkisofs=\data\dev\cdrtools\mkisofs.exe
 set serverenv=win32

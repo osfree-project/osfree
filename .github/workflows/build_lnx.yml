@@ -15,6 +15,17 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses:  actions/checkout@v2
-            - run:   /bin/sh _setup.sh
-            - run:   /bin/sh _wcc.sh
+
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - name: Check out from repository
+              uses: actions/checkout@v2
+
+            # Install prerequisites
+            - name:  Install prerequisites
+            - run:   _setup.sh
+              shell: /bin/sh
+
+            # Build
+            - name: Build
+            - run:   _wcc.sh
+              shell: /bin/sh
