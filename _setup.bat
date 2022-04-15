@@ -4,7 +4,6 @@ choco install wget --no-progress
 
 rem Download latest Open Watcom
 wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe
-setup.exe  -s p -ns
 dir
 
 rem Install OpenWatcom
@@ -24,6 +23,6 @@ rem install fpc
 fpc-3.2.2.i386-win32.exe /silent
 
 rem build
-rem set
-rem dir
+set
+dir
 rem call build-git.cmd
