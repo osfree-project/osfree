@@ -5,6 +5,6 @@ rem set comspec=d:\os2\cmd.exe
 rem set os2_shell=d:\os2\cmd.exe
 set conf=note.conf
 rem --------------------------------
-call setenv.cmd %conf% >nul 2>&1
+c:\rexx\regina setenv.cmd %conf% >nul 2>&1
 wmake -h %1 %2 %3 %4 %5 %6 %7 %8 %9
 endlocal
