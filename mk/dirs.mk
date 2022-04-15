@@ -7,7 +7,12 @@
 
 !include $(%ROOT)/mk/site.mk
 
+!ifneq %cdrive
+MYDIR        = $(%cdrive):$(%cwd)$(SEP)
+!else
 MYDIR        = $(%cwd)$(SEP)
+!endif
+
 ROOT         = $(%ROOT)
 
 RELDIR       = $(MYDIR:$(ROOT)=)
