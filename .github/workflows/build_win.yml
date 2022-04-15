@@ -21,19 +21,19 @@ jobs:
         # The type of runner that the job will run on
         runs-on: windows-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
 
-        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-        - name: Check out from repository
-          uses: actions/checkout@v2
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - name: Check out from repository
+              uses: actions/checkout@v2
 
-        # Install prerequisites
-        - name:  Install prerequisites
-          run:   _setup.bat
-          shell: cmd
+            # Install prerequisites
+            - name:  Install prerequisites
+              run:   _setup.bat
+              shell: cmd
 
-        # Build
-        - name: Build
-          run:   _wcc.bat
-          shell: cmd
+            # Build
+            - name: Build
+              run:   _wcc.bat
+              shell: cmd
