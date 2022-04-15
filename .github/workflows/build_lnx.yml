@@ -14,8 +14,12 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+
         env:
-            ME: cirrus
+            ME:  cirrus
+            CC:  gcc
+            CXX: g++
+
         steps:
 
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
