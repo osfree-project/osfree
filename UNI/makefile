@@ -181,7 +181,7 @@ $(LIBOUT)sub32.lib: $(MYDIR)os2$(SEP)vio.uni
  @$(SAY) LIB      $^.
  @uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
  @$(LIB) $(LIBOPT) $^@ @$^*.def
- @$(DC) $^*.def $(BLACKHOLE)
+# @$(DC) $^*.def $(BLACKHOLE)
 
 $(OUT)$(SEP)os2$(SEP)os2.h: os2$(SEP)os2.uni
 
@@ -498,4 +498,4 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .uni.lib: .AUTODEPEND
  @$(SAY) LIB      $^.
  $(verbose)uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
- $(verbose)$(LIB) $(LIBOPT) $^@ @$^*.def
+# $(verbose)$(LIB) $(LIBOPT) $^@ @$^*.def
