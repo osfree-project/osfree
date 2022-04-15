@@ -10,7 +10,7 @@ INSTALL_ADD = 1
 
 !include $(%ROOT)/mk/toolspas.mk
 
-install_add: .SYMBOLIC
+install_add: .symbolic
  @cd $(ROOT)UNI
  @$(MAKE) $(MAKEOPT) h
- @cd $(ROOT)tools$(SEP)UNIAPI
+ @cd $(ROOT)tools$(SEP)uniapi
