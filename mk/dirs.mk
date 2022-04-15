@@ -25,26 +25,17 @@ MYDIR = $(PATH:$(x)=)
 !endif
 
 PATH  = $(BLD)$(PATH)
-_ss    = $(SEP)$(SEP)
 
 # change two slashes into one
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
-PATH  = $(PATH:$(_ss)=/)
+PATH  = $(PATH://=/)
+PATH  = $(PATH:/\=/)
+PATH  = $(PATH:\/=/)
+PATH  = $(PATH:\\=/)
 
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
-MYDIR = $(MYDIR:$(_ss)=/)
+MYDIR = $(MYDIR://=/)
+MYDIR = $(MYDIR:/\=/)
+MYDIR = $(MYDIR:\/=/)
+MYDIR = $(MYDIR:\\=/)
 
 # change slashes according to $(SEP)
 !ifneq SEP /
