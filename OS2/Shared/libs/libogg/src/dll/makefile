@@ -7,7 +7,12 @@ TRGT = $(PROJ).dll
 ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib clib3r.lib, os2386.lib, $(PATH)..$(SEP)libogg.lib
 
-OBJS = $(PATH)..$(SEP)framing.$(O) $(PATH)..$(SEP)bitwise.$(O)
+
+.$(O): $(PATH)..
+
+.c: $(MYDIR)..
+
+srcfiles = $(p)framing$(e) $(p)bitwise$(e)
 DLL = 1
 DLLOPT = initinstance
 EXPORTS = &

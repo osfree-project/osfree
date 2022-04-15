@@ -29,7 +29,7 @@ TARGETS = $(PATH)..$(SEP)context.def subdirs
 $(PATH)criter.obj: $(PATH)..$(SEP)context.def criter.asm dmy_cbrk.asm ..$(SEP)include$(SEP)stuff.inc
 
 $(PATH)..$(SEP)context.def: $(MYDIR)context.x
- @mkctxt $<
+ @mkctxt$(EXE_SUF) $<
  @$(CP) $(MYDIR)context.h_c $(PATH).. $(BLACKHOLE)
  @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)
 

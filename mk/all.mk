@@ -197,7 +197,7 @@ NULL      = nul
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = @mkdir
 
-CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do @$(DC) $(PATH)%i $(BLACKHOLE)
+CLEAN_CMD    = @echo for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i $(BLACKHOLE)
 
 EXE_SUF    = .exe
 EXE_SUFFIX = .exe
@@ -227,10 +227,10 @@ NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
 MKDIR     = mkdir
 
-CLEAN_CMD    = @for %i in ($(CLEANMASK)) do @$(DC) $(PATH)%i
+CLEAN_CMD    = @for %i in ($(CLEANMASK)) do $(verbose)$(DC) $(PATH)%i
 
-EXE_SUF    =
-EXE_SUFFIX = l
+EXE_SUF    = .exe
+EXE_SUFFIX = .exe
 LIB_SUFFIX = .lib
 LIB_PREFIX =
 DLL_PREFIX =
@@ -321,9 +321,9 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .l.c: .autodepend
  @$(SAY) LEX      $^. $(LOG)
 !ifeq UNIX TRUE
- @$(DC) $^@ $(BLACKHOLE)
+ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !else
- @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
+ $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
  $(verbose)lex.exe -t $[@ >$^@ $(LOG)
 
@@ -331,11 +331,11 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .y.c: .autodepend
  @$(SAY) YACC     $^. $(LOG)
 !ifeq UNIX TRUE
- @(verbose)@$(DC) $^*.h $(BLACKHOLE)
- @$(DC) $^*.c $(BLACKHOLE)
+ $(verbose)$(DC) $^*.h $(BLACKHOLE)
+ $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !else
- @if exist $^*.h @$(DC) $^*.h $(BLACKHOLE)
- @if exist $^*.c @$(DC) $^*.c $(BLACKHOLE)
+ $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
+ $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
  $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
 
@@ -380,7 +380,7 @@ SUF = $(SUF) .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp 
 .map.sym: .AUTODEPEND
  @$(SAY) MAPSYM   $^. $(LOG)
  $(verbose)$(MAPSYM) $[@ $(LOG)
- @$(RN) $^. $^: $(LOG)
+ $(verbose)$(RN) $^. $^: $(LOG)
 
 .ipf.inf: .AUTODEPEND
  @$(SAY) IPFC     $^. $(LOG)
@@ -470,7 +470,7 @@ install3: .symbolic
  @if exist $(DEST)$(SEP)$(file) @%quit
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST)
- @$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+ $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 
 #install: build .symbolic
 #!ifeq PROJ
@@ -502,20 +502,20 @@ prelibs: .symbolic
  #!ifdef __appsos2_mk__
  # build all_shared.lib
  #@$(SAY) cd $(%ROOT)OS2$(SEP)Shared
- @$(CD) $(%ROOT)OS2$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ $(verbose)$(CD) $(%ROOT)OS2$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
  #!endif
  #!ifdef __apps_os2_cmd_mk__
  # build cmd_shared.lib
  #@$(SAY) cd $(%ROOT)OS2$(SEP)cmd$(SEP)Shared
- @$(CD) $(%ROOT)OS2$(SEP)CMD$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ $(verbose)$(CD) $(%ROOT)OS2$(SEP)CMD$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
  #!endif
  #!ifdef __apps_os2_pm_mk__
  # build pm_shared.lib
  @$(SAY) cd $(%ROOT)OS2$(SEP)PM$(SEP)Shared
- @$(CD) $(%ROOT)OS2$(SEP)PM$(SEP)Shared && @$(MAKE) $(MAKEOPT) all
+ $(verbose)$(CD) $(%ROOT)OS2$(SEP)PM$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
  #!endif
  # @touch $(FILESDIR)$(SEP)libs-built-flag
- @$(CD) $(MYDIR)
+ $(verbose)$(CD) $(MYDIR)
 
 .error:
   %abort

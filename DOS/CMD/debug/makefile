@@ -8,7 +8,7 @@ PROJ      = debug
 TRGT      = $(PROJ).com
 DESC      = DOS debugger
 #defines object file names in format objname.$(O)
-srcfiles  = $(p)DEBUG$(e)
+srcfiles  = $(p)debug$(e)
 # defines additional options for C compiler
 ADD_ASMOPT  = -dPM=0 -dNASM=0
 ADD_LINKOPT = lib $(%WATCOM)$(SEP)lib286$(SEP)noemu87.lib
