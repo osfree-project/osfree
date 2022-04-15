@@ -6,7 +6,7 @@
 #`which rexx` setenv.cmd ${conf} >/dev/null 2>&1
 . ./setvars-lnx.sh
 for var in $VARS; do
-    vv=$var
+    vv=${$var}
     echo "$var=\"$vv\""
 done
 echo "VARS=\"$VARS\""
