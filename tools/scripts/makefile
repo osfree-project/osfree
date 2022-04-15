@@ -12,7 +12,7 @@ DEST    = tools
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg
-srcdir = $(MYDIR)
+srcdir = $(ROOT)tools$(SEP)scripts
 
 tools: copy  .symbolic
  @cd .. 
