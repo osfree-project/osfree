@@ -18,7 +18,7 @@ CLEAN_ADD = *.oo2 *.ppo *.o
 
 TARGETS  = $(PATH)$(TRGT)
 
-$(PATH)$(PROJ).lnk:
+$(PATH)$(PROJ).lnk: .symbolic
  @%null
 
 !endif
