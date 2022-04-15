@@ -10,8 +10,8 @@ set mkisofs=\data\dev\cdrtools\mkisofs.exe
 set serverenv=win32
 set os=WIN32
 
-set PATH=%WATCOM%\bin;%%WATCOM%\binw;TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
+set PATH=%WATCOM%\binnt64;%WATCOM%\binw;%TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
 set INCLUDE=%WATCOM%\h;%WATCOM%\h\os21x;%WATCOM%\h\dos
 set LIB=%WATCOM%\lib386\nt
-set WD_PATH=%WATCOM%\binnt
+set WD_PATH=%WATCOM%\binnt64
 set LANG=%WATCOM%
