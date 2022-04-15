@@ -130,7 +130,7 @@ PC        = ppc386
 !ifeq %OS WINNT64
 PC        = ppcx64
 !endif
-!ifeq %ARCH x86_64
+!ifeq %ARCH amd64
 PC        = ppcx64
 !endif
 PCOPT     = -Sg2h $(ADD_PCOPT)

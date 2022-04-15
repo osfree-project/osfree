@@ -14,7 +14,7 @@ SHELL=`which sh`
 REXX=`which rexx`
 REXX_PATH=`which rexx`
 SERVERENV=os2
-ARCH=`uname -m`
+ARCH=`dpkg --print-architecture`
 
 TOOLS=$ROOT/bin/tools
 INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
