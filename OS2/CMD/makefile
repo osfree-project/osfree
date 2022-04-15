@@ -25,8 +25,8 @@ DIRS =        shared &
               helpmsg &
               keyb &
               label &
-#              LVM
-              LVMGUI &
+#              lvm
+              lvmgui &
               makeini &
               minicmd &
               mkdir &
