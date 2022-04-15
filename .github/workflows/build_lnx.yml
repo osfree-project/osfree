@@ -33,6 +33,6 @@ jobs:
 
             # Build
             - name: Build
-              run:   ./_wcc.sh
+              run:   sudo ./_wcc.sh
               working-directory: /root/osfree
               shell: sh
