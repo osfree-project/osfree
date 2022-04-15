@@ -1,5 +1,5 @@
 @echo off
-set ROOT=c:\a\osfree\osfree\
+set ROOT=D:\a\osfree\osfree\
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
