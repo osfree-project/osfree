@@ -5,7 +5,6 @@
 # Install osfree build deps
 #
 
-ME=`whoami`
 mkdir -p /root/osfree /root/dist /root/src
 #echo "deb http://deb.debian.org/debian bullseye main contrib non-free" >/etc/apt/sources.list
 #echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >>/etc/apt/sources.list

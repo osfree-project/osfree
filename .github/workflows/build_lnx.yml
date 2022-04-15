@@ -14,6 +14,8 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        env:
+            ME: cirrus
         steps:
 
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -28,4 +30,5 @@ jobs:
             # Build
             - name: Build
               run:   ./_wcc.sh
+              working-directory: /root/osfree
               shell: sh
