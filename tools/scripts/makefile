@@ -12,7 +12,7 @@ DEST    = tools
 
 list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg
-srcdir = $(%ROOT)$(SEP)tools$(SEP)scripts
+srcdir = $(%TOOLS)$(SEP)scripts
 
 tools: copy  .symbolic
  @cd .. 
@@ -26,4 +26,3 @@ copy: .symbolic
  @for %i in ($(filelist)) do @$(CP) %i $(DEST) $(BLACKHOLE)
  @wtouch $(FILESDIR)$(SEP)base-copied-flag.flg
 
- 
