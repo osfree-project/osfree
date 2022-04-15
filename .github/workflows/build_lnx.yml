@@ -22,10 +22,10 @@ jobs:
 
             # Install prerequisites
             - name:  Install prerequisites
-              run:   _setup.sh
+              run:   ./_setup.sh
               shell: sh
 
             # Build
             - name: Build
-              run:   _wcc.sh
+              run:   ./_wcc.sh
               shell: sh
