@@ -22,7 +22,7 @@ jobs:
 
             # Install prerequisites
             - name:  Install prerequisites
-              run:   ./_setup.sh
+              run:   sudo ./_setup.sh
               shell: sh
 
             # Build
