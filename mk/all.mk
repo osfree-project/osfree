@@ -125,7 +125,11 @@ LIBOPT    = -q -n -fo
 MAKE      = wmake
 MAKEOPT   = -h
 
+!ifeq OS OS2
 PC        = ppc386
+!else
+PC        = ppc
+!endif
 PCOPT     = -Sg2h $(ADD_PCOPT)
 
 DD        = dd
