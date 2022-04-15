@@ -1,7 +1,11 @@
 name: Execute build and tests
 
 on:
+    # run at the event pushed by Jenkins
     repository_dispatch:
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
 
 jobs:
     build:

@@ -2,15 +2,15 @@
 #
 #
 
-ROOT=/mnt/os2f/src/osfree/
+ROOT=/root/osfree/
 #WATCOM=/mnt/data1/WATCOM
 watcom=/opt/watcom
 WATCOM=$watcom
-FPC=/opt/fpc
+FPC=/usr/bin
 OS=LINUX
 ENV=LINUX
 SHELL=Bourne
-REXX=/usr/bin/rexx
+REXX=`which rexx`
 
 TOOLS=$ROOT/bin/tools
 INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
