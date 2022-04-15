@@ -71,10 +71,10 @@
  */
 
 #if PREPROCESSED
-#include    "mcpp.H"
+#include    "mcpp.h"
 #else
-#include    "system.H"
-#include    "internal.H"
+#include    "system.h"
+#include    "internal.h"
 #endif
 
 static void     scan_id( int c);

@@ -36,10 +36,10 @@
  */
 
 #if PREPROCESSED
-#include    "mcpp.H"
+#include    "mcpp.h"
 #else
-#include    "system.H"
-#include    "internal.H"
+#include    "system.h"
+#include    "internal.h"
 #endif
 
 static int      do_if( int hash, const char * directive_name);

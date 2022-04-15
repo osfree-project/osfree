@@ -9,6 +9,7 @@
 
 MYDIR        = $(%cwd)$(SEP)
 ROOT         = $(%ROOT)
+
 RELDIR       = $(MYDIR:$(ROOT)=)
 PATH         = $(RELDIR)
 
@@ -26,23 +27,28 @@ MYDIR = $(PATH:$(x)=)
 PATH  = $(BLD)$(PATH)
 
 # change two slashes into one
-PATH  = $(PATH:\\=\)
-PATH  = $(PATH://=\)
-PATH  = $(PATH:\/=\)
-PATH  = $(PATH:/\=\)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
+PATH  = $(PATH:$(SEP)$(SEP)=/)
 
-MYDIR = $(MYDIR:\\=\)
-MYDIR = $(MYDIR://=\)
-MYDIR = $(MYDIR:\/=\)
-MYDIR = $(MYDIR:/\=\)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
+MYDIR = $(MYDIR:$(SEP)$(SEP)=/)
 
 # change slashes according to $(SEP)
-!ifeq SEP \
+!ifneq SEP /
 PATH  = $(PATH:/=\)
 MYDIR = $(MYDIR:/=\)
-!else
-PATH  = $(PATH:\=/)
-MYDIR = $(MYDIR:\=/)
 !endif
 
 TOOLDIR   = $(ROOT)$(SEP)tools$(SEP)
