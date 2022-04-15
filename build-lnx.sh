@@ -7,10 +7,10 @@
 . setvars-lnx.sh
 wmake -h $1 $2 $3 $4 $5 $6 $7 $8 $9
 
-echo "SEP=$SEP"
 echo "ENV=$ENV"
 echo "OS=$OS"
 echo "SHELL=$SHELL"
 echo "REXX=$REXX"
 echo "WATCOM=$WATCOM"
 echo "PATH=$PATH"
+echo "ROOT=$ROOT"
