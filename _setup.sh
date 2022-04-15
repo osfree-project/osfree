@@ -5,6 +5,7 @@
 # Install osfree build deps
 #
 
+sudo bash
 mkdir -p /root/osfree /root/dist /root/src
 #echo "deb http://deb.debian.org/debian bullseye main contrib non-free" >/etc/apt/sources.list
 #echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >>/etc/apt/sources.list
@@ -23,3 +24,4 @@ cd .. && rm -rf regina-rexx-3.9.4
 echo /usr/local/lib >>/etc/ld.so.conf.d/local.conf
 ldconfig
 cd /root/osfree
+exit
