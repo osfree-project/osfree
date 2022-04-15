@@ -1,5 +1,6 @@
 @echo off
-set ROOT=%~dp0
+rem set ROOT=%~dp0
+set ROOT=%cwd%\
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
