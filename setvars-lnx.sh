@@ -2,6 +2,7 @@
 #
 #
 
+CWD=`pwd`
 ROOT=$CWD/
 #WATCOM=/mnt/data1/WATCOM
 watcom=/opt/watcom
@@ -9,8 +10,11 @@ WATCOM=$watcom
 FPC=/usr/bin
 OS=LINUX
 ENV=LINUX
-SHELL=Bourne
+SHELL=`which sh`
 REXX=`which rexx`
+REXX_PATH=`which rexx`
+SERVERENV=os2
+SEP=/
 
 TOOLS=$ROOT/bin/tools
 INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
@@ -20,4 +24,4 @@ WD_PATH=$watcom/binl
 LANG=$watcom
 WIPFC=$watcom/wipfc
 
-export OS REXX WATCOM ROOT TOOLS INCLUDE LIB PATH WD_PATH LANG WIPFC
+export OS REXX REXX_PATH WATCOM ROOT TOOLS INCLUDE LIB PATH WD_PATH LANG WIPFC
