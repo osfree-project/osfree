@@ -127,10 +127,10 @@ MAKEOPT   = -h
 
 PC        = ppc386
 
-!ifeq OS WINNT64
+!ifeq %OS WINNT64
 PC        = ppcx64
 !endif
-!ifeq ARCH x86_64
+!ifeq %ARCH x86_64
 PC        = ppcx64
 !endif
 PCOPT     = -Sg2h $(ADD_PCOPT)
