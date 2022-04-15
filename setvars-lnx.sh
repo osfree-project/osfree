@@ -25,7 +25,9 @@ LANG=$watcom
 WIPFC=$watcom/wipfc
 
 VARS="OS REXX REXX_PATH WATCOM ROOT TOOLS INCLUDE LIB PATH WD_PATH LANG WIPFC"
-export VARS
+
+export $VARS
+
 for var in $VARS; do
     export $var
 done
