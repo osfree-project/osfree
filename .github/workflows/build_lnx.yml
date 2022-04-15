@@ -29,5 +29,4 @@ jobs:
             # Build
             - name: Build
               run:   sudo ./_wcc.sh
-              working-directory: /root/osfree
               shell: sh
