@@ -2,7 +2,7 @@
 #
 #
 
-ROOT=/root/osfree/
+ROOT=$CWD
 #WATCOM=/mnt/data1/WATCOM
 watcom=/opt/watcom
 WATCOM=$watcom
