@@ -6,5 +6,6 @@ rem set os2_shell=d:\os2\cmd.exe
 set conf=git.conf
 rem --------------------------------
 c:\rexx\regina setenv.cmd %conf% >nul 2>&1
+set path
 wmake -h %1 %2 %3 %4 %5 %6 %7 %8 %9
 endlocal
