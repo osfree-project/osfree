@@ -11,7 +11,7 @@ set serverenv=win32
 set env=WIN64
 set os=WIN64
 set REGINA=c:\rexx
-set %REGINA%\regina
+set REXX=%REGINA%\regina
 set SERVERENV=win32
 
 set PATH=%WATCOM%\binnt64;%WATCOM%\binw;%TOOLS%;%FPPATH%;%svn%;%regina%;\data\dev\qemu;\data\dev\cdrtools;\data\dev\Bochs-2.3.5;\data\dev\bin;\usr\local\wbin;%PATH%;
