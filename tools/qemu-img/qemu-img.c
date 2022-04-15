@@ -193,8 +193,8 @@ static void get_human_readable_size(char *buf, int buf_size, int64_t size)
     }
 }
 
-#if defined(WIN32) || defined(__OS2__)
-/* XXX: put correct support for win32 */
+#if defined(WIN32) || defined(__OS2__) || defined(__NT__)
+/* XXX: put correct support for win32/NT */
 static int read_password(char *buf, int buf_size)
 {
     int c, i;

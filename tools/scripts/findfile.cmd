@@ -21,7 +21,7 @@ parse source sys .
 if sys = 'OS/2'    | sys = 'DOS'     |, 
    sys = 'WINDOWS' | sys = 'Windows' |, 
    sys = 'WINNT'   | sys = 'NT'   then do
-  sys = 'OS/2'
+  sys = 'OS/2' | sys = 'WIN64'
 end; else
 if sys = 'UNIX'    | sys = 'Linux'   |,
    sys = 'LINUX'   then do

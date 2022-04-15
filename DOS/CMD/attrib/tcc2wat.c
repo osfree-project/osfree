@@ -453,7 +453,7 @@ int _write(int handle, void *buf, int nbyte)
 }
 #endif
 
-int _creat(const char *filename, int attrib)
+int _creat(const char *filename, mode_t attrib)
 {
 	int a;
 	if(_dos_creat(filename, attrib, &a) == 0) return a;
