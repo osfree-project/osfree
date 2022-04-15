@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "mmiomp3.h"
+#include "mmioMP3.h"
 
 int main(int argc, char *argv[]) {
 	PMMIOPROC pmmioprocMp3IOProc;

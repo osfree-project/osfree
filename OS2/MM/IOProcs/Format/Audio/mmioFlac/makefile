@@ -4,7 +4,7 @@
 # author, date
 #
 
-PROJ     = mmioFLAC
+PROJ     = mmioflac
 TRGT     = $(PROJ).dll
 DESC     = FLAC Format I/O Procedure
 srcfiles = $(p)main$(e) $(p)mmioFLAC$(e)

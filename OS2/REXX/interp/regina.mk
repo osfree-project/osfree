@@ -3,7 +3,7 @@
 #
 #
 
-SRC = $(%ROOT)os2$(SEP)REXX$(SEP)interp$(SEP)
+SRC = $(%ROOT)OS2$(SEP)REXX$(SEP)interp$(SEP)
 
 VERDOT = $(VER_DOT)
 VERDATE = $(VER_DATE)

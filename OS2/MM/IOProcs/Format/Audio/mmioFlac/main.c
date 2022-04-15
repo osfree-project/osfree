@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "mmioflac.h"
+#include "mmioFlac.h"
 
 int main(int argc, char *argv[]) {
 	PMMIOPROC pmmioprocMp3IOProc;

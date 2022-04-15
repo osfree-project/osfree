@@ -4,7 +4,7 @@
 # author, date
 #
 
-PROJ     = mmioGIF
+PROJ     = mmiogif
 TRGT     = $(PROJ).dll
 DESC     = GIF Format I/O Procedure
 srcfiles = $(p)gifproc$(e)

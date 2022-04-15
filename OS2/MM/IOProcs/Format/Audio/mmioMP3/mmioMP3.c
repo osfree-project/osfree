@@ -18,7 +18,7 @@
 #include <time.h>
 #endif
 
-#include "mmiomp3.h"
+#include "mmioMP3.h"
 #include "xing.h"
 
 #define BUFSIZE 16384

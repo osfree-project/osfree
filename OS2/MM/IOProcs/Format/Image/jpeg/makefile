@@ -4,7 +4,7 @@
 # author, date
 #
 
-PROJ     = mmioJPEG
+PROJ     = mmiojpeg
 TRGT     = $(PROJ).dll
 DESC     = JPEG Format I/O Procedure
 srcfiles = $(p)jpgfunc$(e) $(p)jpgproc$(e) $(p)debug$(e)

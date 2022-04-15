@@ -22,9 +22,9 @@
 #include <os2.h>
 //#endif
 
-//DLGINCLUDE 1 "STY_DLG.H"
-#include "sty_dlg.H"
-#include "sty_main.H"
+//DLGINCLUDE 1 "sty_dlg.h"
+#include "sty_dlg.h"
+#include "sty_main.h"
 
 DLGTEMPLATE IDD_BUTTONSDLG LOADONCALL MOVEABLE DISCARDABLE
 BEGIN

@@ -4,7 +4,7 @@
 # author, date
 #
 
-PROJ     = mmioMP3
+PROJ     = mmiomp3
 TRGT     = $(PROJ).dll
 DESC     = MP3 Format I/O Procedure
 srcfiles = $(p)mmioMP3$(e) $(p)xing$(e)

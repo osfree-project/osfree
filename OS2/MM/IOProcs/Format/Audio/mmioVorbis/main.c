@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "mmiovorbis.h"
+#include "mmioVorbis.h"
 
 int main(int argc, char *argv[]) {
 	MMIOINFO mmioinfo;

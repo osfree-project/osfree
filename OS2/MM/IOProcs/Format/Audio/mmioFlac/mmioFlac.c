@@ -17,7 +17,7 @@
 #include <FLAC/seekable_stream_encoder.h>
 #include <FLAC/ordinals.h>
 #include <FLAC/format.h>
-#include "mmioFLAC.h"
+#include "mmioFlac.h"
 
 #ifdef DEBUG
 static FILE *file;

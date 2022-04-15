@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "GIFproc.h"
+#include "gifproc.h"
 #include "gbm.h"
 #include "gbmerr.h"
 #include "gbmtrunc.h"
