@@ -2,7 +2,7 @@
 #
 #
 
-ROOT=$CWD
+ROOT=$CWD/
 #WATCOM=/mnt/data1/WATCOM
 watcom=/opt/watcom
 WATCOM=$watcom
