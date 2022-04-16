@@ -5,7 +5,7 @@
 # Install osfree build deps
 #
 
-ME=`whoami`
+_ME=`whoami`
 _CWD=`pwd`
 mkdir -p $_CWD/dist $_CWD/src $_CWD/bin $_CWD/osfree
 PATH=$_CWD/bin:$PATH
