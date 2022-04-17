@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 rem Install wget
 choco install wget unzip --no-progress
 
