@@ -2,8 +2,15 @@
 Program osFree_Install;
 
 {&Linker
-DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
+DESCRIPTION '@#osFree:0.0.1.16Ã¡#@##1## 11 may 2010 11:05:10Ã¿Ã¿Ã¿  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
 }
+
+// Compiler settings
+{$H+,I+,P+,Q+,R+,S+,T-,V-,X+}
+{$IFNDEF FPC}{$B-,J+,W-}{$ENDIF}
+{&AlignCode+,AlignData+,AlignRec-,Cdecl-,Delphi+,Frame+}
+{&Open32-,Optimise+,OrgName-,Speed+}
+{$M 32768}
 
 Uses
               Common, Utl, SysLow,
@@ -23,13 +30,6 @@ Uses
 {$ENDIF}
               Strings, SysUtils, Crt, Dos;
 
-
-// Compiler settings
-{$H+,I+,P+,Q+,R+,S+,T-,V-,X+}
-{$IFNDEF FPC}{$B-,J+,W-}{$ENDIF}
-{&AlignCode+,AlignData+,AlignRec-,Cdecl-,Delphi+,Frame+}
-{&Open32-,Optimise+,OrgName-,Speed+}
-{$M 32768}
 
 {$IFDEF FPC}
 {$I os2types.pas}
