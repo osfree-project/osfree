@@ -2,8 +2,15 @@
 Program osFree_Install;
 
 {&Linker
-DESCRIPTION '@#osFree:0.0.1.16á#@##1## 11 may 2010 11:05:10ÿÿÿ  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
+DESCRIPTION '@#osFree:0.0.1.16Ã¡#@##1## 11 may 2010 11:05:10Ã¿Ã¿Ã¿  Asus SMP::en:us:1::@@  Installation app for FreeLDR'
 }
+
+// Compiler settings
+{$H+,I+,P+,Q+,R+,S+,T-,V-,X+}
+{$IFNDEF FPC}{$B-,J+,W-}{$ENDIF}
+{&AlignCode+,AlignData+,AlignRec-,Cdecl-,Delphi+,Frame+}
+{&Open32-,Optimise+,OrgName-,Speed+}
+{$M 32768}
 
 Uses
               Common, Utl, SysLow,
@@ -23,13 +30,6 @@ Uses
 {$ENDIF}
               Strings, SysUtils, Crt, Dos;
 
-
-// Compiler settings
-{$H+,I+,P+,Q+,R+,S+,T-,V-,X+}
-{$IFNDEF FPC}{$B-,J+,W-}{$ENDIF}
-{&AlignCode+,AlignData+,AlignRec-,Cdecl-,Delphi+,Frame+}
-{&Open32-,Optimise+,OrgName-,Speed+}
-{$M 32768}
 
 {$IFDEF FPC}
 {$I os2types.pas}
@@ -54,7 +54,7 @@ Var
 Procedure Fix_Preldr0(DriveT:TdriveType);
 Var
   FH:           Integer;
-  Count:        Word;
+  //Count:        Word;
   ldr0:         Packed Record
                 head:           Array[0..1] Of Byte;
                 l1:             Word;
@@ -74,7 +74,8 @@ FillChar(ldr0, sizeof(ldr0),0);
 FH := FileOpen( Drive1+'\boot\loader\preldr0.mdl', fmOpenReadWrite OR fmShareDenyNone);
 If FH > 0 Then
   Begin
-  Count  := Word(Fileread( FH, ldr0, 60 ));
+  //Count  := Word(Fileread( FH, ldr0, 60 ));
+  Fileread( FH, ldr0, 60 );
   length := Word(FileSeek( FH, 0, 2 ));
   End
  Else
@@ -121,12 +122,14 @@ VAR
   bootNr:       Byte;
   FH:           Integer;
   FreeMBR:      Sector0Buf;
+{$ifdef OS2}
   drvletterbuf: ARRAY [0..255] of Drvtype;
   line1:        String;
   File1:        Text;
   LetterNr:     Word;
   ReadLetters:  Boolean;
   Prim, Log, i: Word;
+{$endif}
 
 
 Begin

@@ -68,6 +68,6 @@ FILE *popen(const char * s, const char * m)
 int pclose(FILE *f)
 {
   fclose(f);
-  return NULL;
+  return 0;
 }
 #endif
