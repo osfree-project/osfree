@@ -1,33 +1,6 @@
 @echo off
 set ROOT=%~dp0
 
-set ROOT=%ROOT:A:=a:%
-set ROOT=%ROOT:B:=b:%
-set ROOT=%ROOT:C:=c:%
-set ROOT=%ROOT:D:=d:%
-set ROOT=%ROOT:E:=e:%
-set ROOT=%ROOT:F:=f:%
-set ROOT=%ROOT:G:=g:%
-set ROOT=%ROOT:H:=h:%
-set ROOT=%ROOT:I:=i:%
-set ROOT=%ROOT:J:=j:%
-set ROOT=%ROOT:K:=k:%
-set ROOT=%ROOT:L:=l:%
-set ROOT=%ROOT:M:=m:%
-set ROOT=%ROOT:N:=n:%
-set ROOT=%ROOT:O:=o:%
-set ROOT=%ROOT:P:=p:%
-set ROOT=%ROOT:Q:=q:%
-set ROOT=%ROOT:R:=r:%
-set ROOT=%ROOT:S:=s:%
-set ROOT=%ROOT:T:=t:%
-set ROOT=%ROOT:U:=u:%
-set ROOT=%ROOT:V:=v:%
-set ROOT=%ROOT:W:=w:%
-set ROOT=%ROOT:X:=x:%
-set ROOT=%ROOT:Y:=y:%
-set ROOT=%ROOT:Z:=z:%
-
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
 set tools=%root%\bin\tools
