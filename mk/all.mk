@@ -127,7 +127,7 @@ MAKEOPT   = -h
 
 PC        = ppc386
 
-!ifeq %OS WINNT64
+!ifeq %OS WIN64
 PC        = ppcx64
 !endif
 !ifeq %ARCH amd64
