@@ -27,7 +27,7 @@ dir
 rem install fpc
 dir "c:\Documents and Settings\Downloads\"
 "c:\Documents and Settings\Downloads\fpc-3.2.2.i386-win32.exe" /silent
-dir "c:\fpc"
+dir "c:\fpc\3.2.2" /S
 
 rem build
 set
