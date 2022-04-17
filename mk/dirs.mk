@@ -7,11 +7,11 @@
 
 !include $(%ROOT)/mk/site.mk
 
-#!ifneq %cdrive
-#MYDIR        = $(%cdrive):$(%cwd)$(SEP)
-#!else
+!ifeq UNIX FALSE
+MYDIR        = $(%cdrive):$(%cwd)$(SEP)
+!else
 MYDIR        = $(%cwd)$(SEP)
-#!endif
+!endif
 
 ROOT         = $(%ROOT)
 

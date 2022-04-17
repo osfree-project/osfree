@@ -61,7 +61,14 @@ end; else do
 end
 
 /* delete a driveletter from root */
-if pos(':', root) = 2 then root = substr(root, 3)
+/**! if pos(':', root) = 2 then root = substr(root, 3) */
+
+/* change a drive letter from small to big letter */
+if pos(':', root) = 2 then do
+  drvlttr = substr(root, 1, 1)
+  drvlttr = translate(drvlttr)
+  root = drvlttr || substr(root, 2)
+end
 
 if os == 'UNIX' | os == 'LINUX' then do
   root = translate(root, '/', '\')
