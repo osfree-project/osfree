@@ -17,9 +17,9 @@ apt-get install -y wget curl unzip tar gzip bash
 cd $_CWD/dist
 wget ftp://osfree.org/upload/ow/ow-1.9.zip
 unzip ow-1.9.zip -d /opt
-wget ftp://ftp.hu.freepascal.org/pub/fpc/dist/3.2.2/x86_64-linux/fpc-3.2.2.x86_64-linux.tar
-tar xvf fpc-3.2.2.x86_64-linux.tar
-cd fpc-3.2.2.x86_64-linux
+wget ftp://ftp.hu.freepascal.org/pub/fpc/dist/3.2.2/i386-linux/fpc-3.2.2.i386-linux.tar
+tar xvf fpc-3.2.2.i386-linux.tar
+cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
 cd ..
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
