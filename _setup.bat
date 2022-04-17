@@ -18,7 +18,7 @@ wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina
 rem Install Regina REXX
 dir "c:\Documents and Settings\Downloads\"
 "c:\Documents and Settings\Downloads\Regina394w64.exe" /S /D=C:\REXX
-dir c:\regina
+dir c:\rexx
 
 rem Download FPC
 wget  https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
