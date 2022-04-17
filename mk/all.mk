@@ -127,12 +127,12 @@ MAKEOPT   = -h
 
 PC        = ppc386
 
-!ifeq %OS WINNT64
-PC        = ppcx64
-!endif
-!ifeq %ARCH amd64
-PC        = ppcx64
-!endif
+#!ifeq %OS WINNT64
+#PC        = ppcx64
+#!endif
+#!ifeq %ARCH amd64
+#PC        = ppcx64
+#!endif
 PCOPT     = -Sg2h $(ADD_PCOPT)
 
 DD        = dd
@@ -419,18 +419,19 @@ targets: prereq subdirs install .symbolic
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
+ @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(SAY) cd $(DIR_PWD)$(SEP)%d && $(MAKE) $(MAKEOPT) targets && cd ..
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 # @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
 # @for %i in ($(DIRS)) do  @if exist $(MYDIR)%i @cd $(MYDIR)%i && @$(MAKE) $(MAKEOPT) $(TARGET)
- @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) targets
+## @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) targets
 
 dirhier: precopy .symbolic
- # @$(SAY) MKDIR    $(PATH) $(LOG)
+ @$(SAY) mkdir    $(PATH) $(LOG)
  $(verbose)$(MDHIER) $(PATH) $(LOG)
 
 .IGNORE
 clean: .SYMBOLIC
- # @$(SAY) CLEAN    $(LOG)
+ @$(SAY) clean    $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
  # @$(SAY)   "$(TARGETS) -> $(DEST)"
