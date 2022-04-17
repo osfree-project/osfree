@@ -14,5 +14,3 @@ DIRS = tools bootseq DOS OS2
 
 #TARGETS = subdirs
 #TARGET = all
-
-
