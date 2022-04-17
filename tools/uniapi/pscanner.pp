@@ -508,7 +508,7 @@ begin
           Inc(TokenStr);
           repeat
             Inc(TokenStr);
-          until not (TokenStr[0] in ['0'..'9', 'A'..'F', 'a'..'F']);
+          until not (TokenStr[0] in ['0'..'9', 'A'..'F', 'a'..'f']);
         end else
           repeat
             Inc(TokenStr);
@@ -537,7 +537,7 @@ begin
         TokenStart := TokenStr;
         repeat
           Inc(TokenStr);
-        until not (TokenStr[0] in ['0'..'9', 'A'..'F', 'a'..'F']);
+        until not (TokenStr[0] in ['0'..'9', 'A'..'F', 'a'..'f']);
         SectionLength := TokenStr - TokenStart;
         SetLength(FCurTokenString, SectionLength);
         if SectionLength > 0 then
