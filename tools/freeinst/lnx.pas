@@ -7,7 +7,7 @@ type
     f_BAvail: LongInt;
     f_Files: LongInt;
     f_FFree: LongInt;
-    f_FSid: array[0..1] of LongInt;
+    f_FSid: array[0..1] of LongWord;
     f_NameLen: LongInt;
     f_Spare: array[0..5] of LongInt;
   end;
