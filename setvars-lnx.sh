@@ -4,7 +4,6 @@
 
 _CWD=`pwd`
 ROOT=$_CWD/
-#WATCOM=/mnt/data1/WATCOM
 watcom=/opt/watcom
 WATCOM=$watcom
 FPC=/usr/bin

@@ -21,6 +21,7 @@ wget ftp://ftp.hu.freepascal.org/pub/fpc/dist/3.2.2/x86_64-linux/fpc-3.2.2.x86_6
 tar xvf fpc-3.2.2.x86_64-linux.tar
 cd fpc-3.2.2.x86_64-linux
 ./install.sh </dev/null
+cd ..
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
 tar xvzf regina-rexx-3.9.4.tar.gz -C $_CWD/src
 chown -R $_ME.$_ME $_CWD/osfree $_CWD/dist $_CWD/src $_CWD/bin
