@@ -1,13 +1,15 @@
 @echo off
 rem Install wget
-choco install wget --no-progress
+choco install wget unzip --no-progress
 
 rem Download latest Open Watcom
-wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"
+rem wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"
+wget ftp://ftp.osfree.org/upload/ow/ow-19.zip -P "c:/Documents and settings/Downloads"
 dir
 
 rem Install OpenWatcom
-"c:/Documents and settings/Downloads/open-watcom-2_0-c-win-x64.exe" -s -p -ns
+rem "c:/Documents and settings/Downloads/open-watcom-2_0-c-win-x64.exe" -s -p -ns
+unzip "c:/Documents and settings/Downloads/ow-19.zip" -d c:\
 
 rem Download Regina REXX
 wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w64.exe -P "c:/Documents and settings/Downloads"
