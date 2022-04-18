@@ -11,12 +11,12 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307	USA
 */
 
 #include <stdio.h>			/* sprintf */
@@ -100,45 +100,45 @@ parm [bx];
 #else
 
 int dos_open(char *filename, int mode)
-{   
+{
   union REGS r;
-	
+
   if (mode);					/* mode ignored - readonly supported */
-	
+
   r.h.ah = 0x3d;
   r.h.al = 0;					/* read mode only supoported now !! */
   r.x.dx = (unsigned)filename;
   intdos(&r,&r);
-	
+
   if (r.x.cflag)
     return -1;
   return r.x.ax;
-}			
+}
 
 int dos_read(int file, void *ptr, unsigned count)
-{   
+{
   union REGS r;
-	
+
   r.h.ah = 0x3f;
   r.x.bx = file;
   r.x.cx = count;
   r.x.dx = (unsigned)ptr;
   intdos(&r,&r);
-	
+
   if (r.x.cflag)
     return 0;
   return r.x.ax;
-}			
+}
 
 void dos_close(int file)
-{   
+{
   union REGS r;
-	
+
   r.h.ah = 0x3e;
   r.x.bx = file;
   intdos(&r,&r);
-}			
-	
+}
+
 #endif
 #endif
 
@@ -188,12 +188,12 @@ kittenopen(char *name)
 
   /* 'flag' is completely ignored here. */
 
-  char catfile[256];		        /* full path to the msg _kitten_catalog */
+  char catfile[256];			/* full path to the msg _kitten_catalog */
   char *nlsptr;				/* ptr to NLSPATH */
-  char *lang;                   /* ptr to LANG */
-  
-  
-  	
+  char *lang;			/* ptr to LANG */
+
+
+
   /* Open the _kitten_catalog file */
 
   /* The value of `_kitten_catalog' will be set based on catread */
@@ -202,7 +202,7 @@ kittenopen(char *name)
     {
       /* Already one open */
 
-      printf("cat already open\n");	
+      printf("cat already open\n");
       return (-1);
     }
 
@@ -214,7 +214,7 @@ kittenopen(char *name)
   if (strchr (name, '\\'))
     {
       /* first approximation: 'name' is a filename */
-      
+
       printf("found \\\n");
 
       _kitten_catalog = catread (name);
@@ -231,9 +231,9 @@ kittenopen(char *name)
   lang = getenv ("LANG");
 
   if (lang == NULL)
-    {  
+    {
       /* printf("no lang= found\n"); */
-    
+
       /* Return failure - we won't be able to locate the cat file */
       return (-1);
     }
@@ -242,7 +242,7 @@ kittenopen(char *name)
   /* step through NLSPATH */
 
   nlsptr = getenv ("NLSPATH");
-  
+
 
   if (nlsptr == NULL)
     {
@@ -257,8 +257,8 @@ kittenopen(char *name)
   while (*nlsptr)
     {
       char *tok = strchr(nlsptr, ';');
-      int toklen;    
-      
+      int toklen;
+
 
       if (tok == NULL) tok = nlsptr + strlen(nlsptr);
       toklen=tok-nlsptr;
@@ -287,10 +287,10 @@ kittenopen(char *name)
 	}
 
       /* Rule #3: if LANG looks to be in format "en-UK" then
-         %NLSPATH%\cat.EN */
+	 %NLSPATH%\cat.EN */
 
       if (lang[2] == '-')
-        {
+	{
 	  lang[2] = 0;
 	  sprintf(catfile+toklen,"\\%s.%s",name,lang);
 	  lang[2] = '-';
@@ -300,12 +300,12 @@ kittenopen(char *name)
 	    {
 	      return (_kitten_catalog);
 	    }
-        }
+	}
 
       /* Grab next tok for the next while iteration */
       nlsptr = tok;
       if (*nlsptr) nlsptr++;
-      
+
     } /* while tok */
 
   /* We could not find it.  Return failure. */
@@ -316,19 +316,19 @@ kittenopen(char *name)
 int
 catread (char *catfile)
 {
-  int   file;				/* pointer to the catfile */
+  int	file;				/* pointer to the catfile */
   char *key;				/* part of key-value for hash */
   char *value;				/* part of key-value for hash */
-  char inBuffer[256];                   /* the string read from the file */
+  char inBuffer[256];			/* the string read from the file */
 
   /* Open the catfile for reading */
-  
+
   /*printf("catread %s\n",catfile); */
 
   file = open (catfile, O_RDONLY | O_TEXT);
   if (file < 0)
     {
-      /* Cannot open the file.  Return failure */
+      /* Cannot open the file.	Return failure */
 	  /* printf("catread: cant read %s\n",catfile); */
       return (0);
     }
@@ -343,7 +343,7 @@ catread (char *catfile)
 	 "1.2:This is a message" */
 
       /* A line that starts with '#' is considered a comment, and will
-         be thrown away without reading it. */
+	 be thrown away without reading it. */
 
       if (inBuffer[0] == '#')		/* comment */
 	continue;
@@ -351,9 +351,9 @@ catread (char *catfile)
       if ((key = strchr (inBuffer, ':')) != NULL)
 	{
 	  *key = 0;
-	  	
+
 	  value = processEscChars(key+1);
-	  	
+
 	  db_insert (inBuffer, value);
 	}
 
@@ -377,7 +377,7 @@ kittenclose (void)
 
 
 /**
- * Process strings, converting \n, \t, \v, \b, \r, \f, \\, \ddd, \xdd and \x0dd 
+ * Process strings, converting \n, \t, \v, \b, \r, \f, \\, \ddd, \xdd and \x0dd
  * to actual chars. (Note: \x is an extension to support hexadecimal)
  * This method is used to allow the message _kitten_catalog to use c escape sequences.
  * Modifies the line in-place (always same size or shorter).
@@ -389,12 +389,12 @@ int mystrtoul(char *src, int base, int size, int *error)
   int ret = 0;
 
   *error = 1;
-	
+
   for (; size > 0; size--)
     {
       int digit;
       int ch = *src++;
-	  
+
       if (ch >= '0' && ch <= '9') digit = ch - '0';
       else if (ch >= 'A' && ch <= 'Z') digit = ch - 'A' + 10;
       else if (ch >= 'a' && ch <= 'z') digit = ch - 'a' + 10;
@@ -407,15 +407,15 @@ int mystrtoul(char *src, int base, int size, int *error)
 	{
 	  return 0;
 	}
-	  
+
       ret = ret * base + digit;
     }
 
   *error = 0;
-	
+
   return ret;
-}		  	  	
-	  	
+}
+
 
 char *processEscChars(char *line)
 {
@@ -430,9 +430,9 @@ char *processEscChars(char *line)
   for ( ; *src != '\0'; src++, dst++)
     {
       ch = *src;
-    
+
       if (ch == '\\')
-	{           
+	{
 	  src++; /* point to char following slash */
 	  switch (ch = *src)
 	    {
@@ -476,7 +476,7 @@ char *processEscChars(char *line)
 
 	      break;
 	    default: /* just store letter (loose slash) or handle octal */
-	  
+
 	      {
 		int error;
 		ch  = mystrtoul(src,8,3, &error); /* get value */
@@ -486,8 +486,8 @@ char *processEscChars(char *line)
 		  }
 		else
 		  ch = *src;
-	      }  
-	  
+	      }
+
 	      break;
 	    }
 	}
@@ -503,7 +503,7 @@ char *processEscChars(char *line)
 
 
 
-int 
+int
 get_line (int file, char *str, int size)
 {
   int success = 0;
@@ -513,18 +513,18 @@ get_line (int file, char *str, int size)
   for ( ; size > 0; )
     {
       if (read(file,str,1) <= 0)
-    	break;
-    	
+	break;
+
       success = 1;
-	
+
       if (*str == '\r')
-    	continue;
-    
+	continue;
+
       if (*str == '\n')
-    	break;
-    	
+	break;
+
       str++;
-      size--;	
+      size--;
 
     } /* while */
 
@@ -545,7 +545,7 @@ static db_t *hashtab[1];
 
 
 /* db_fetch() - Query the hash and return a struct that contains the
-   key and the pointer.  The calling function should not look beyond
+   key and the pointer.	 The calling function should not look beyond
    that. */
 
 db_t *

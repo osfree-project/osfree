@@ -1,4 +1,4 @@
-/* $Id: kitten.h 1045 2004-09-19 10:01:26Z bartoldeman $ */
+/* $Id: kitten.h,v 1.1 2004/09/19 10:01:26 bartoldeman Exp $ */
 
 /* Functions that emulate UNIX catgets */
 
