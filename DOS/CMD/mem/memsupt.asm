@@ -62,6 +62,7 @@ _is_386_:
         pushf
         pop     ax
         or      ax, 0x7000
+	and	ax, 0x7fff
         push    ax
         popf
         pushf
@@ -95,4 +96,16 @@ _check_e820:
 	mov	dx, bx
 	pop	si
 	pop	di
+	ret
+
+; ulong get_ext_mem_size(void)
+global _get_ext_mem_size
+_get_ext_mem_size:
+	mov	ah, 0x88
+;;; FIXME: need to save registers first?
+	int	15h
+	mov	dx, 0	; do not use xor here, it would modify flags
+	jnc	success
+	mov	dx, 1
+ success:
 	ret

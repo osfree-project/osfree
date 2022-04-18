@@ -1,29 +1,29 @@
 /****************************************************************/
-/*                                                              */
-/*                            prf.c                             */
-/*                                                              */
-/*                  Abbreviated printf Function                 */
-/*                                                              */
-/*                      Copyright (c) 1995                      */
-/*                      Pasquale J. Villani                     */
-/*                      All Rights Reserved                     */
-/*                                                              */
-/* This file is part of DOS-C.                                  */
-/*                                                              */
-/* DOS-C is free software; you can redistribute it and/or       */
-/* modify it under the terms of the GNU General Public License  */
+/*								*/
+/*			      prf.c				*/
+/*								*/
+/*		    Abbreviated printf Function			*/
+/*								*/
+/*			Copyright (c) 1995			*/
+/*			Pasquale J. Villani			*/
+/*			All Rights Reserved			*/
+/*								*/
+/* This file is part of DOS-C.					*/
+/*								*/
+/* DOS-C is free software; you can redistribute it and/or	*/
+/* modify it under the terms of the GNU General Public License	*/
 /* as published by the Free Software Foundation; either version */
-/* 2, or (at your option) any later version.                    */
-/*                                                              */
+/* 2, or (at your option) any later version.			*/
+/*								*/
 /* DOS-C is distributed in the hope that it will be useful, but */
-/* WITHOUT ANY WARRANTY; without even the implied warranty of   */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See    */
-/* the GNU General Public License for more details.             */
-/*                                                              */
-/* You should have received a copy of the GNU General Public    */
-/* License along with DOS-C; see the file COPYING.  If not,     */
-/* write to the Free Software Foundation, 675 Mass Ave,         */
-/* Cambridge, MA 02139, USA.                                    */
+/* WITHOUT ANY WARRANTY; without even the implied warranty of	*/
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See	*/
+/* the GNU General Public License for more details.		*/
+/*								*/
+/* You should have received a copy of the GNU General Public	*/
+/* License along with DOS-C; see the file COPYING.  If not,	*/
+/* write to the Free Software Foundation, 675 Mass Ave,		*/
+/* Cambridge, MA 02139, USA.					*/
 /****************************************************************/
 
 #include <io.h>
@@ -66,19 +66,19 @@ int printf(const char * fmt, ...);
 void put_console(int c)
 {
   static int line_counter = 0;
-  
+
   if (c == '\n')
   {
     if(num_lines >= 0)
     {
-      line_counter++; 
+      line_counter++;
       if(line_counter >= num_lines - 1)
       {
-        line_counter = 0;
-        printf(_(8,0,"\nPress <Enter> to continue or <Esc> to exit . . ."));
-        if (bioskey(0) == 27)
-            exit(1);
-        line_counter = 0;
+	line_counter = 0;
+	printf(_(8,0,"\nPress <Enter> to continue or <Esc> to exit . . ."));
+	if (bioskey(0) == 27)
+	    exit(1);
+	line_counter = 0;
       }
     }
     put_console('\r');
@@ -90,7 +90,7 @@ void put_console(int c)
     _dos_write(1, &c, 1, &bytes);
   }
 #else
-  write(1, &c, 1);              /* write character to stdout */
+  write(1, &c, 1);		/* write character to stdout */
 #endif
 }
 
@@ -103,8 +103,8 @@ static void handle_char(int c)
     *charp++ = c;
 }
 
-#define LEFT    0
-#define RIGHT   1
+#define LEFT	0
+#define RIGHT	1
 #define ZEROSFILL 2
 #define LONGARG 4
 
@@ -171,7 +171,7 @@ static void do_printf(const char * fmt, va_list arg)
     {
       unsigned c = (unsigned char)(*fmt - '0');
       if (c > 9)
-        break;
+	break;
       fmt++;
       size = size * 10 + c;
     }
@@ -185,75 +185,75 @@ static void do_printf(const char * fmt, va_list arg)
     switch (*fmt)
     {
       case '\0':
-        va_end(arg);
-        return;
+	va_end(arg);
+	return;
 
       case 'c':
-        handle_char(va_arg(arg, int));
-        continue;
+	handle_char(va_arg(arg, int));
+	continue;
 
       case 'p':
-        {
-          unsigned w0 = va_arg(arg, unsigned);
-          char *tmp = charp;
-          sprintf(s, "%04x:%04x", va_arg(arg, unsigned), w0);
-          p = s;
-          charp = tmp;
-          break;
-        }
+	{
+	  unsigned w0 = va_arg(arg, unsigned);
+	  char *tmp = charp;
+	  sprintf(s, "%04x:%04x", va_arg(arg, unsigned), w0);
+	  p = s;
+	  charp = tmp;
+	  break;
+	}
 
       case 's':
-        p = va_arg(arg, char *);
-        break;
+	p = va_arg(arg, char *);
+	break;
 
       case 'F':
-        fmt++;
-        /* we assume %Fs here */
+	fmt++;
+	/* we assume %Fs here */
       case 'S':
-        p = va_arg(arg, char far *);
-        break;
+	p = va_arg(arg, char far *);
+	break;
 
       case 'i':
       case 'd':
-        base = -10;
-        goto lprt;
+	base = -10;
+	goto lprt;
 
       case 'o':
-        base = 8;
-        goto lprt;
+	base = 8;
+	goto lprt;
 
       case 'u':
-        base = 10;
-        goto lprt;
+	base = 10;
+	goto lprt;
 
       case 'X':
       case 'x':
-        base = 16;
+	base = 16;
 
     lprt:
-        {
-          long currentArg;
-          if (flags & LONGARG)
-            currentArg = va_arg(arg, long);
-          else
-          {
-            currentArg = va_arg(arg, int);
-            if (base >= 0)
-              currentArg =  (long)(unsigned)currentArg;
-          }
-          if (base<0)
-            ltoa(currentArg, s, -base);
-          else
-            ultoa(currentArg, s, base);
-          p = s;
-        }
-        break;
+	{
+	  long currentArg;
+	  if (flags & LONGARG)
+	    currentArg = va_arg(arg, long);
+	  else
+	  {
+	    currentArg = va_arg(arg, int);
+	    if (base >= 0)
+	      currentArg =  (long)(unsigned)currentArg;
+	  }
+	  if (base<0)
+	    ltoa(currentArg, s, -base);
+	  else
+	    ultoa(currentArg, s, base);
+	  p = s;
+	}
+	break;
 
       default:
-        handle_char('?');
+	handle_char('?');
 
-        handle_char(*fmt);
-        continue;
+	handle_char(*fmt);
+	continue;
 
     }
     {
@@ -267,7 +267,7 @@ static void do_printf(const char * fmt, va_list arg)
       int ch = ' ';
       if (flags & ZEROSFILL) ch = '0';
       for (; size > 0; size--)
-        handle_char(ch);
+	handle_char(ch);
     }
     for (; *p != '\0'; p++)
       handle_char(*p);
@@ -282,11 +282,11 @@ static void do_printf(const char * fmt, va_list arg)
 /*
 	this testprogram verifies that the strings are printed correctly
 	( or the way, I expect them to print)
-	
+
 	compile like (note -DTEST !)
 
 	c:\tc\tcc -DTEST -DI86 -I..\hdr prf.c
-	
+
 	and run. if strings are wrong, the program will wait for the ANYKEY
 
 */
@@ -304,7 +304,7 @@ struct {
   unsigned lowint;
   unsigned highint;
 
-} testarray[] = {
+} testarray[] =	{
   {
   "hello world", "%s %s", (unsigned)"hello", (unsigned)"world"},
   {
@@ -393,7 +393,7 @@ int main(void)
   for (i = 0; testarray[i].should; i++)
   {
     test(testarray[i].should, testarray[i].format, testarray[i].lowint,
-         testarray[i].highint);
+	 testarray[i].highint);
   }
   return 0;
 }
