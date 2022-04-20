@@ -2,7 +2,7 @@
 #
 #
 
-_CWD=`pwd`
+_CWD=/mnt/os2f/src/osfree/osfree
 ROOT=$_CWD/
 watcom=/opt/watcom
 WATCOM=$watcom
