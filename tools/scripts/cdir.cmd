@@ -36,7 +36,7 @@ if length(drv) = 2 & substr(drv, 2, 1) = ':'
 then do
   drv /* change drive first */
   dir = sep || dir
-end; else do
+end; else; do
   dir = drv || '\' dir
 end
 
