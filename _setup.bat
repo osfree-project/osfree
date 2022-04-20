@@ -11,10 +11,10 @@ rem "c:/Documents and settings/Downloads/open-watcom-2_0-c-win-x64.exe" -s -p -n
 unzip "c:/Documents and Settings/Downloads/ow-1.9.zip" -d c:\
 
 rem Download Regina REXX
-wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w64.exe -P "c:/Documents and settings/Downloads"
+wget https://sourceforge.net/projects/regina-rexx/files/regina-rexx/3.9.4/Regina394w32.exe -P "c:/Documents and settings/Downloads"
 
 rem Install Regina REXX
-"c:\Documents and Settings\Downloads\Regina394w64.exe" /S /D=C:\REXX
+"c:\Documents and Settings\Downloads\Regina394w32.exe" /S /D=C:\REXX
 
 rem Download FPC
 wget  https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
