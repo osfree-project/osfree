@@ -37,8 +37,12 @@
 #    define STIN static
 #  endif
 
-#ifdef DJGPP
+#if defined(DJGPP) || defined(__WATCOMC__)
 #  define rint(x)   (floor((x)+0.5f))
+#endif
+
+#ifdef __WATCOMC__
+#include <malloc.h>
 #endif
 
 #ifndef M_PI

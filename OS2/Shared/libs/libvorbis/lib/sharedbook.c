@@ -25,10 +25,6 @@
 #include "codebook.h"
 #include "scales.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-double rint(double x);
-#endif
 
 /**** pack/unpack helpers ******************************************/
 int _ilog(unsigned int v){

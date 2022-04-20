@@ -31,10 +31,6 @@
 #include "misc.h"
 #include "os.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-double rint(double x);
-#endif
 
 #if defined(TRAIN_RES) || defined (TRAIN_RESAUX)
 #include <stdio.h>

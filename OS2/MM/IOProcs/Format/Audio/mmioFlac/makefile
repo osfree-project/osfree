@@ -7,7 +7,7 @@
 PROJ     = mmioflac
 TRGT     = $(PROJ).dll
 DESC     = FLAC Format I/O Procedure
-srcfiles = $(p)main$(e) $(p)mmioFLAC$(e)
+srcfiles = $(p)main$(e) $(p)mmioFlac$(e)
 ADD_COPT = -i=$(MYDIR) -i=$(MYDIR)..$(SEP)..$(SEP)..$(SEP)..$(SEP)..$(SEP)Shared$(SEP)libs$(SEP)libflac$(SEP)include &
            -i=$(%WATCOM)$(SEP)h$(SEP)os2 # until mmos2 .uni modules will be ready
 ADD_LINKOPT  = lib libz.lib, mmpm2.lib, libflac.lib &

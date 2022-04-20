@@ -23,6 +23,9 @@
 /*+---------------------------------+*/
 #include <pmclient.h>
 
+//when cross-compiling for OS/2 under NT
+#undef __NT__
+
 //class F_ClientConfig FPM_config;
 
 const char *const _FreePM_Application_Name = FREEPM_CLIENT_APPLICATION_NAME;

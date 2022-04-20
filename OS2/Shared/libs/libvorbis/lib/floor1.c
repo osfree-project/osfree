@@ -28,9 +28,6 @@
 
 #include <stdio.h>
 
-#ifdef __WATCOMC__
-double rint(double x);
-#endif
 
 #define floor1_rangedB 140 /* floor 1 fixed at -140dB to 0dB range */
 

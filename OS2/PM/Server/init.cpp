@@ -20,6 +20,8 @@
 #include "F_def.hpp"
 #include "FreePM.hpp"
 
+//when cross-compiling for OS/2 under NT
+#undef __NT__
 //#define db_print _db_print_
 
 extern HMTX    FREEPM_hmtx;

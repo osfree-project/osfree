@@ -29,10 +29,6 @@
 #include "scales.h"
 #include "misc.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-double rint(double x);
-#endif
 
 #define NEGINF -9999.f
 static double stereo_threshholds[]={0.0, .5, 1.0, 1.5, 2.5, 4.5, 8.5, 16.5, 9e10};

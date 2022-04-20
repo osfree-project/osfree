@@ -25,9 +25,6 @@
 #include "misc.h"
 #include "bitrate.h"
 
-#ifdef __WATCOMC__
-double rint(double x);
-#endif
 
 /* compute bitrate tracking setup  */
 void vorbis_bitrate_init(vorbis_info *vi,bitrate_manager_state *bm){

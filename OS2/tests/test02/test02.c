@@ -40,6 +40,8 @@
 #define INCL_DOSPROCESS
 #include "os2.h"
 
+//when cross-compiling for OS/2 under NT
+#undef __NT__
 
 /*----------------------------------------------------------------------------*/
 /* thread1 - thread started by DosCreateThread                                */

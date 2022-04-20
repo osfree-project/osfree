@@ -46,12 +46,6 @@
 #include "os.h"
 #include "misc.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-
-double rint(double x);
-
-#endif
 
 /* build lookups for trig functions; also pre-figure scaling and
    some window function algebra. */

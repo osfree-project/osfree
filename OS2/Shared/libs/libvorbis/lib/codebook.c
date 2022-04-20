@@ -25,10 +25,6 @@
 #include "misc.h"
 #include "os.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-double rint(double x);
-#endif
 
 /* packs the given codebook into the bitstream **************************/
 

@@ -27,10 +27,6 @@
 #include "os.h"
 #include "misc.h"
 
-#ifdef __WATCOMC__
-#include <malloc.h>
-double rint(double x);
-#endif
 
 /* A 'chained bitstream' is a Vorbis bitstream that contains more than
    one logical bitstream arranged end to end (the only form of Ogg

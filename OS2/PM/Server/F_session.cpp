@@ -23,6 +23,8 @@
 #include <pmclient.h>
 #include "F_def.hpp"
 
+//when cross-compiling for OS/2 under NT
+#undef __NT__
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
 
