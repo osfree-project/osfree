@@ -37,9 +37,12 @@ started
 
 /*ska: no resource in this project! #include "../resource.h"*/
 
-char *fDAT = "STRINGS.ERR";
-char *fTXT = "DEFAULT.ERR";
-char *fEXT = ".ERR";
+//char *fDAT = "STRINGS.ERR";
+//char *fTXT = "DEFAULT.ERR";
+//char *fEXT = ".ERR";
+char *fDAT = "strings.err";
+char *fTXT = "default.err";
+char *fEXT = ".err";
 
 
 #define MAXSTRINGS       256
