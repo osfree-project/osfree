@@ -471,7 +471,7 @@ install3: .symbolic
  @if exist $(DEST)$(SEP)$(file) @%quit
  @$(SAY) INST     $(file) $(LOG)
  @$(MDHIER) $(DEST)
- $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
+ echo $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 
 #install: build .symbolic
 #!ifeq PROJ
