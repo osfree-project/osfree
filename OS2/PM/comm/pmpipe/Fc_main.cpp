@@ -2,6 +2,8 @@
 /* FreePM client side main*/
 /* DEBUG: section 1     main client */
 /* ver 0.01 22.08.2002       */
+//when cross-compiling for OS/2 under NT
+#undef __NT__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +25,6 @@
 /*+---------------------------------+*/
 #include <pmclient.h>
 
-//when cross-compiling for OS/2 under NT
-#undef __NT__
 
 //class F_ClientConfig FPM_config;
 

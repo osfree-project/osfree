@@ -21,3 +21,4 @@ ADD_ASMOPT  = -ml -dMODEL=l -d2 -db  -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(S
 ADD_LINKOPT = debug all libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
 
 !include $(%ROOT)/mk/appsdos.mk
+

@@ -3,6 +3,8 @@
 */
 /* FreePM_session.cpp */
 /* DEBUG: section 7     Server session class */
+//when cross-compiling for OS/2 under NT
+#undef __NT__
 /* functions of class FreePM_session */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +25,6 @@
 #include <pmclient.h>
 #include "F_def.hpp"
 
-//when cross-compiling for OS/2 under NT
-#undef __NT__
 /* Creates a palette-based image (up to 256 colors). */
 /*gdImagePtr gdImageCreate(int sx, int sy);*/
 
