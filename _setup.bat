@@ -23,6 +23,7 @@ wget  https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip
 rem install fpc
 "c:\Documents and Settings\Downloads\fpc-3.2.2.i386-win32.exe" /silent
 unzip "c:\Documents and Settings\Downloads\os2322.zip" -d "c:/Documents and settings/Downloads"
+unzip "c:\Documents and Settings\Downloads\baseos2.zip" units\* -dc:\fpc
 
 dir "c:/Documents and settings/Downloads"
 dir c:\fpc /s
