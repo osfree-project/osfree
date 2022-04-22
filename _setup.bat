@@ -21,6 +21,6 @@ wget  https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2
 
 rem install fpc
 "c:\Documents and Settings\Downloads\fpc-3.2.2.i386-win32.exe" /silent
-
+dir c:\fpc /s
 rem build
 rem call build-git.cmd
