@@ -29,7 +29,8 @@ dllopt =
 !endif
 
 RC       = winrc.exe
-RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(MYDIR)..$(SEP)include
+# RCOPT    = -I $(MYDIR) -I $(PATH) -I . -I $(MYDIR)..$(SEP)..$(SEP)include -I $(MYDIR)..$(SEP)include
+RCOPT    = -i=$(MYDIR) -i=$(PATH) -i=. -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$(SEP)include
 
 #.res: $(PATH)
 
