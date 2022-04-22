@@ -2,12 +2,12 @@
 #
 #
 
-#_CWD=/mnt/os2f/src/osfree/osfree
-_CWD=`pwd`
+_CWD=/mnt/os2f/src/osfree/osfree
+#_CWD=`pwd`
 ROOT=$_CWD/
 watcom=/opt/watcom
 WATCOM=$watcom
-FPC=/usr/bin
+FPCPATH=/usr/lib/fpc/3.2.2
 OS=LINUX
 ENV=LINUX
 SHELL=`which sh`
@@ -19,7 +19,7 @@ SERVERENV=os2
 TOOLS=$ROOT/bin/tools
 INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
 LIB=$watcom/lib386:$watcom/lib386/dos:$watcom/lib286:$ROOT/lib
-PATH=$TOOLS:$watcom/binl:$FPC/bin:$ROOT:$PATH
+PATH=$TOOLS:$watcom/binl:$FPCPATH:$ROOT:$PATH
 WD_PATH=$watcom/binl
 LANG=$watcom
 WIPFC=$watcom/wipfc
