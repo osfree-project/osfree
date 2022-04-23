@@ -1,3 +1,7 @@
+#define INCL_PM
+#define INCL_WIN
+#include <os2.h>
+
 GpiAssociate(void)
 {
   return unimplemented(__FUNCTION__);
