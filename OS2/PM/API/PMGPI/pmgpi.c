@@ -1,3 +1,5 @@
+#include <os2.h>
+
 /*
 ULONG APIENTRY GpiQueryFontMappingFlags(HPS);
 BOOL  APIENTRY GpiQueryRasterizerCaps(PRASTERIZERCAPS);
