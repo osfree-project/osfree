@@ -13,7 +13,7 @@ HRGN   APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect);
 HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, LONG lVRound);
 */
 
-BOOL   APIENTRY GpiAssociate(HPS,HDC)
+BOOL   APIENTRY GpiAssociate(HPS hps, HDC hdc)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -29,12 +29,12 @@ ULONG APIENTRY GpiBeginElement(void)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiBeginPath(HPS,LONG)
+BOOL   APIENTRY GpiBeginPath(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiBitBlt(HPS,HPS,LONG,PPOINTL,LONG,ULONG)
+LONG    APIENTRY GpiBitBlt(HPS hps,HPS,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -44,7 +44,7 @@ LONG   APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint, LONG lHRound, 
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCallSegmentMatrix(HPS,LONG,LONG,PMATRIXLF,LONG)
+LONG   APIENTRY GpiCallSegmentMatrix(HPS hps,LONG,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -74,12 +74,12 @@ LONG   APIENTRY GpiCombineRegion(HPS hps, HRGN hrgnDest, HRGN hrgnSr1, HRGN hrgn
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiComment(HPS,LONG,PBYTE)
+BOOL   APIENTRY GpiComment(HPS hps,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiConvert(HPS,LONG,LONG,LONG,PPOINTL)
+BOOL   APIENTRY GpiConvert(HPS hps,LONG,LONG,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -89,17 +89,17 @@ HMF    APIENTRY GpiCopyMetaFile(HMF)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCorrelateChain(HPS,LONG,PPOINTL,LONG,LONG,PLONG)
+LONG   APIENTRY GpiCorrelateChain(HPS hps,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCorrelateFrom(HPS,LONG,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
+LONG   APIENTRY GpiCorrelateFrom(HPS hps,LONG,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG  APIENTRY GpiCreateLogFont(HPS,PSTR8,LONG,PFATTRS)
+LONG  APIENTRY GpiCreateLogFont(HPS hps,PSTR8,LONG,PFATTRS)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -142,17 +142,17 @@ BOOL   APIENTRY GpiDeleteMetaFile(HMF)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDeleteSegment(HPS,LONG)
+BOOL   APIENTRY GpiDeleteSegment(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDeleteSegments(HPS,LONG,LONG)
+BOOL   APIENTRY GpiDeleteSegments(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiDeleteSetId(HPS,LONG)
+BOOL  APIENTRY GpiDeleteSetId(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -172,12 +172,12 @@ BOOL   APIENTRY GpiDrawDynamics(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDrawFrom(HPS,LONG,LONG)
+BOOL   APIENTRY GpiDrawFrom(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDrawSegment(HPS,LONG)
+BOOL   APIENTRY GpiDrawSegment(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -225,22 +225,22 @@ LONG   APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiFillPath(HPS,LONG,LONG)
+LONG   APIENTRY GpiFillPath(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiFullArc(HPS,LONG,FIXED)
+LONG   APIENTRY GpiFullArc(HPS hps,LONG,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiGetData(HPS,LONG,PLONG,LONG,LONG,PBYTE)
+LONG   APIENTRY GpiGetData(HPS hps,LONG,PLONG,LONG,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiImage(HPS,LONG,PSIZEL,LONG,PBYTE)
+LONG   APIENTRY GpiImage(HPS hps,LONG,PSIZEL,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -271,12 +271,12 @@ HMF    APIENTRY GpiLoadMetaFile(HAB,PCSZ)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiMarker(HPS,PPOINTL)
+LONG   APIENTRY GpiMarker(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiModifyPath(HPS,LONG,LONG)
+BOOL   APIENTRY GpiModifyPath(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -302,7 +302,7 @@ BOOL   APIENTRY GpiOffsetRegion(HPS hps, HRGN Hrgn, PPOINTL pptlOffset)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiOpenSegment(HPS,LONG)
+BOOL   APIENTRY GpiOpenSegment(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -312,22 +312,22 @@ LONG   APIENTRY GpiPaintRegion(HPS hps, HRGN hrgn)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPlayMetaFile(HPS,HMF,LONG,PLONG,PLONG,LONG,PCSZ)
+LONG   APIENTRY GpiPlayMetaFile(HPS hps,HMF,LONG,PLONG,PLONG,LONG,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPointArc(HPS,PPOINTL)
+LONG   APIENTRY GpiPointArc(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolyFillet(HPS,LONG,PPOINTL)
+LONG   APIENTRY GpiPolyFillet(HPS hps,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolyFilletSharp(HPS,LONG,PPOINTL,PFIXED)
+LONG   APIENTRY GpiPolyFilletSharp(HPS hps,LONG,PPOINTL,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -337,17 +337,17 @@ LONG   APIENTRY GpiPolyLine(HPS hps, LONG lCount, PPOINTL aptlPoints)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolyMarker(HPS,LONG,PPOINTL)
+LONG   APIENTRY GpiPolyMarker(HPS hps,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPolySpline(HPS,LONG,PPOINTL)
+LONG   APIENTRY GpiPolySpline(HPS hps,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiPop(HPS,LONG)
+BOOL   APIENTRY GpiPop(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -357,12 +357,12 @@ LONG   APIENTRY GpiPtInRegion(HPS hps, HRGN hrgn, PPOINTL pptlPoint)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPtVisible(HPS,PPOINTL)
+LONG   APIENTRY GpiPtVisible(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPutData(HPS,LONG,PLONG,PBYTE)
+LONG   APIENTRY GpiPutData(HPS hps,LONG,PLONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -393,22 +393,22 @@ BOOL    APIENTRY GpiQueryBitmapDimension(HBITMAP,PSIZEL)
   return unimplemented(__FUNCTION__);
 }
 
-HBITMAP APIENTRY GpiQueryBitmapHandle(HPS,LONG)
+HBITMAP APIENTRY GpiQueryBitmapHandle(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryBoundaryData(HPS,PRECTL)
+BOOL   APIENTRY GpiQueryBoundaryData(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharAngle(HPS,PGRADIENTL)
+BOOL   APIENTRY GpiQueryCharAngle(HPS hps,PGRADIENTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharBox(HPS,PSIZEF)
+BOOL   APIENTRY GpiQueryCharBox(HPS hps,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -428,7 +428,7 @@ LONG   APIENTRY GpiQueryCharSet(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharShear(HPS,PPOINTL)
+BOOL   APIENTRY GpiQueryCharShear(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -448,12 +448,12 @@ LONG   APIENTRY GpiQueryColor(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryColorData(HPS,LONG,PLONG)
+BOOL   APIENTRY GpiQueryColorData(HPS hps,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryColorIndex(HPS,ULONG,LONG)
+LONG   APIENTRY GpiQueryColorIndex(HPS hps,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -463,17 +463,17 @@ ULONG APIENTRY GpiQueryCp(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCurrentPosition(HPS,PPOINTL)
+BOOL   APIENTRY GpiQueryCurrentPosition(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefCharBox(HPS,PSIZEL)
+BOOL   APIENTRY GpiQueryDefCharBox(HPS hps,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS,LONG,PMATRIXLF)
+BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS hps,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -483,12 +483,12 @@ HDC    APIENTRY GpiQueryDevice(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS,LONG,PLONG)
+BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS hps,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryDrawControl(HPS,LONG)
+LONG   APIENTRY GpiQueryDrawControl(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -527,22 +527,22 @@ LONG  APIENTRY GpiQueryFontFileDescriptions(HAB,PCSZ,PLONG,PFFDESCS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiQueryFontMetrics(HPS,LONG,PFONTMETRICS)
+BOOL  APIENTRY GpiQueryFontMetrics(HPS hps,LONG,PFONTMETRICS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryGraphicsField(HPS,PRECTL)
+BOOL   APIENTRY GpiQueryGraphicsField(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryInitialSegmentAttrs(HPS,LONG)
+LONG   APIENTRY GpiQueryInitialSegmentAttrs(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG  APIENTRY GpiQueryKerningPairs(HPS,LONG,PKERNINGPAIRS)
+LONG  APIENTRY GpiQueryKerningPairs(HPS hps,LONG,PKERNINGPAIRS)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -577,7 +577,7 @@ LONG   APIENTRY GpiQueryMarker(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryMarkerBox(HPS,PSIZEF)
+BOOL   APIENTRY GpiQueryMarkerBox(HPS hps,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -602,12 +602,12 @@ LONG   APIENTRY GpiQueryMix(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryModelTransformMatrix(HPS,LONG,PMATRIXLF)
+BOOL   APIENTRY GpiQueryModelTransformMatrix(HPS hps,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryNearestColor(HPS,ULONG,LONG)
+LONG   APIENTRY GpiQueryNearestColor(HPS hps,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -617,12 +617,12 @@ LONG  APIENTRY GpiQueryNumberSetIds(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-ULONG  APIENTRY GpiQueryPS(HPS,PSIZEL)
+ULONG  APIENTRY GpiQueryPS(HPS hps,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryPageViewport(HPS,PRECTL)
+BOOL   APIENTRY GpiQueryPageViewport(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -632,7 +632,7 @@ LONG   APIENTRY GpiQueryPattern(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryPatternRefPoint(HPS,PPOINTL)
+BOOL   APIENTRY GpiQueryPatternRefPoint(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -642,27 +642,27 @@ LONG   APIENTRY GpiQueryPatternSet(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiQueryPel(HPS,PPOINTL)
+LONG    APIENTRY GpiQueryPel(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryPickAperturePosition(HPS,PPOINTL)
+BOOL   APIENTRY GpiQueryPickAperturePosition(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryPickApertureSize(HPS,PSIZEL)
+BOOL   APIENTRY GpiQueryPickApertureSize(HPS hps,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryRGBColor(HPS,ULONG,LONG)
+LONG   APIENTRY GpiQueryRGBColor(HPS hps,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryRealColors(HPS,ULONG,LONG,LONG,PLONG)
+LONG   APIENTRY GpiQueryRealColors(HPS hps,ULONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -672,27 +672,27 @@ LONG   APIENTRY GpiQueryRegionBox(HPS hps, HRGN hrgn, PRECTL prclBound)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQuerySegmentAttrs(HPS,LONG,LONG)
+LONG   APIENTRY GpiQuerySegmentAttrs(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQuerySegmentNames(HPS,LONG,LONG,LONG,PLONG)
+LONG   APIENTRY GpiQuerySegmentNames(HPS hps,LONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQuerySegmentPriority(HPS,LONG,LONG)
+LONG   APIENTRY GpiQuerySegmentPriority(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQuerySegmentTransformMatrix(HPS,LONG,LONG,PMATRIXLF)
+BOOL   APIENTRY GpiQuerySegmentTransformMatrix(HPS hps,LONG,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiQuerySetIds(HPS,LONG,PLONG,PSTR8,PLONG)
+BOOL  APIENTRY GpiQuerySetIds(HPS hps,LONG,PLONG,PSTR8,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -702,27 +702,27 @@ LONG   APIENTRY GpiQueryStopDraw(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryTag(HPS,PLONG)
+BOOL   APIENTRY GpiQueryTag(HPS hps,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryTextBox(HPS,LONG,PCH,LONG,PPOINTL)
+BOOL   APIENTRY GpiQueryTextBox(HPS hps,LONG,PCH,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryViewingLimits(HPS,PRECTL)
+BOOL   APIENTRY GpiQueryViewingLimits(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryViewingTransformMatrix(HPS,LONG,PMATRIXLF)
+BOOL   APIENTRY GpiQueryViewingTransformMatrix(HPS hps,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiQueryWidthTable(HPS,LONG,LONG,PLONG)
+BOOL  APIENTRY GpiQueryWidthTable(HPS hps,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -732,12 +732,12 @@ LONG   APIENTRY GpiRectInRegion(HPS hps, HRGN hrgn, PRECTL prclRect)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiRectVisible(HPS,PRECTL)
+LONG   APIENTRY GpiRectVisible(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiRemoveDynamics(HPS,LONG,LONG)
+BOOL   APIENTRY GpiRemoveDynamics(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -747,12 +747,12 @@ BOOL   APIENTRY GpiResetBoundaryData(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiResetPS(HPS,ULONG)
+BOOL   APIENTRY GpiResetPS(HPS hps,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiRestorePS(HPS,LONG)
+BOOL   APIENTRY GpiRestorePS(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -767,27 +767,27 @@ LONG   APIENTRY GpiSavePS(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetArcParams(HPS,PARCPARAMS)
+BOOL   APIENTRY GpiSetArcParams(HPS hps,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetAttrMode(HPS,LONG)
+BOOL   APIENTRY GpiSetAttrMode(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetBackColor(HPS,LONG)
+BOOL   APIENTRY GpiSetBackColor(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetBackMix(HPS,LONG)
+BOOL   APIENTRY GpiSetBackMix(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-HBITMAP APIENTRY GpiSetBitmap(HPS,HBITMAP)
+HBITMAP APIENTRY GpiSetBitmap(HPS hps,HBITMAP)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -797,42 +797,42 @@ BOOL    APIENTRY GpiSetBitmapDimension(HBITMAP,PSIZEL)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL    APIENTRY GpiSetBitmapId(HPS,HBITMAP,LONG)
+BOOL    APIENTRY GpiSetBitmapId(HPS hps,HBITMAP,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharAngle(HPS,PGRADIENTL)
+BOOL   APIENTRY GpiSetCharAngle(HPS hps,PGRADIENTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharBox(HPS,PSIZEF)
+BOOL   APIENTRY GpiSetCharBox(HPS hps,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharDirection(HPS,LONG)
+BOOL   APIENTRY GpiSetCharDirection(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharMode(HPS,LONG)
+BOOL   APIENTRY GpiSetCharMode(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharSet(HPS,LONG)
+BOOL   APIENTRY GpiSetCharSet(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharShear(HPS,PPOINTL)
+BOOL   APIENTRY GpiSetCharShear(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetClipPath(HPS,LONG,LONG)
+BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -847,27 +847,27 @@ BOOL   APIENTRY GpiSetColor(HPS hps, LONG lColor)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiSetCp(HPS,ULONG)
+BOOL  APIENTRY GpiSetCp(HPS hps,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCurrentPosition(HPS,PPOINTL)
+BOOL   APIENTRY GpiSetCurrentPosition(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDefaultViewMatrix(HPS,LONG,PMATRIXLF,LONG)
+BOOL   APIENTRY GpiSetDefaultViewMatrix(HPS hps,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDrawControl(HPS,LONG,LONG)
+BOOL   APIENTRY GpiSetDrawControl(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDrawingMode(HPS,LONG)
+BOOL   APIENTRY GpiSetDrawingMode(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -890,52 +890,52 @@ ULONG APIENTRY GpiSetElementPointerAtLabel(void)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetGraphicsField(HPS,PRECTL)
+BOOL   APIENTRY GpiSetGraphicsField(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetInitialSegmentAttrs(HPS,LONG,LONG)
+BOOL   APIENTRY GpiSetInitialSegmentAttrs(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetLineEnd(HPS,LONG)
+BOOL   APIENTRY GpiSetLineEnd(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetLineJoin(HPS,LONG)
+BOOL   APIENTRY GpiSetLineJoin(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetLineType(HPS,LONG)
+BOOL   APIENTRY GpiSetLineType(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetLineWidth(HPS,FIXED)
+BOOL   APIENTRY GpiSetLineWidth(HPS hps,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetLineWidthGeom(HPS,LONG)
+BOOL   APIENTRY GpiSetLineWidthGeom(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetMarker(HPS,LONG)
+BOOL   APIENTRY GpiSetMarker(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetMarkerBox(HPS,PSIZEF)
+BOOL   APIENTRY GpiSetMarkerBox(HPS hps,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetMarkerSet(HPS,LONG)
+BOOL   APIENTRY GpiSetMarkerSet(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -945,22 +945,22 @@ BOOL   APIENTRY GpiSetMetaFileBits(HMF,LONG,LONG,PBYTE)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetMix(HPS,LONG)
+BOOL   APIENTRY GpiSetMix(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetModelTransformMatrix(HPS,LONG,PMATRIXLF,LONG)
+BOOL   APIENTRY GpiSetModelTransformMatrix(HPS hps,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPS(HPS,PSIZEL,ULONG)
+BOOL   APIENTRY GpiSetPS(HPS hps,PSIZEL,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPageViewport(HPS,PRECTL)
+BOOL   APIENTRY GpiSetPageViewport(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -970,22 +970,22 @@ BOOL   APIENTRY GpiSetPattern(HPS hps, LONG lPatternSymbol)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPatternRefPoint(HPS,PPOINTL)
+BOOL   APIENTRY GpiSetPatternRefPoint(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPatternSet(HPS,LONG)
+BOOL   APIENTRY GpiSetPatternSet(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiSetPel(HPS,PPOINTL)
+LONG    APIENTRY GpiSetPel(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPickAperturePosition(HPS,PPOINTL)
+BOOL   APIENTRY GpiSetPickAperturePosition(HPS hps,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -995,42 +995,42 @@ BOOL   APIENTRY GpiSetRegion(HPS hps, HRGN hrgn, LONG lcount, PRECTL arclRectang
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetSegmentAttrs(HPS,LONG,LONG,LONG)
+BOOL   APIENTRY GpiSetSegmentAttrs(HPS hps,LONG,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetSegmentPriority(HPS,LONG,LONG,LONG)
+BOOL   APIENTRY GpiSetSegmentPriority(HPS hps,LONG,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPageViewport(HPS,PRECTL)
+BOOL   APIENTRY GpiSetPageViewport(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetStopDraw(HPS,LONG)
+BOOL   APIENTRY GpiSetStopDraw(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetTag(HPS,LONG)
+BOOL   APIENTRY GpiSetTag(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetViewingLimits(HPS,PRECTL)
+BOOL   APIENTRY GpiSetViewingLimits(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetViewingTransformMatrix(HPS,LONG,PMATRIXLF,LONG)
+BOOL   APIENTRY GpiSetViewingTransformMatrix(HPS hps,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiStrokePath(HPS,LONG,ULONG)
+LONG   APIENTRY GpiStrokePath(HPS hps,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1040,7 +1040,7 @@ BOOL  APIENTRY GpiUnloadFonts(HAB,PCSZ)
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiWCBitBlt(HPS,HBITMAP,LONG,PPOINTL,LONG,ULONG)
+LONG    APIENTRY GpiWCBitBlt(HPS hps,HBITMAP,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1050,12 +1050,12 @@ LONG   APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
   return unimplemented(__FUNCTION__);
 }
 
-HRGN   APIENTRY GpiPathToRegion(HPS,LONG,LONG)
+HRGN   APIENTRY GpiPathToRegion(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiFloodFill(HPS,LONG,LONG)
+LONG    APIENTRY GpiFloodFill(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1070,52 +1070,52 @@ BOOL   APIENTRY GpiResumePlay(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiOutlinePath(HPS,LONG,LONG)
+LONG   APIENTRY GpiOutlinePath(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiTranslate(HPS,PMATRIXLF,LONG,PPOINTL)
+BOOL   APIENTRY GpiTranslate(HPS hps,PMATRIXLF,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiScale(HPS,PMATRIXLF,LONG,PFIXED,PPOINTL)
+BOOL   APIENTRY GpiScale(HPS hps,PMATRIXLF,LONG,PFIXED,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiRotate(HPS,PMATRIXLF,LONG,FIXED,PPOINTL)
+BOOL   APIENTRY GpiRotate(HPS hps,PMATRIXLF,LONG,FIXED,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefArcParams(HPS,PARCPARAMS)
+BOOL   APIENTRY GpiQueryDefArcParams(HPS hps,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefTag(HPS,PLONG)
+BOOL   APIENTRY GpiQueryDefTag(HPS hps,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefViewingLimits(HPS,PRECTL)
+BOOL   APIENTRY GpiQueryDefViewingLimits(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDefArcParams(HPS,PARCPARAMS)
+BOOL   APIENTRY GpiSetDefArcParams(HPS hps,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDefTag(HPS,LONG)
+BOOL   APIENTRY GpiSetDefTag(HPS hps,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDefViewingLimits(HPS,PRECTL)
+BOOL   APIENTRY GpiSetDefViewingLimits(HPS hps,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1125,12 +1125,12 @@ BOOL    APIENTRY GpiQueryBitmapParameters(HBITMAP,PBITMAPINFOHEADER)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiQueryLogicalFont(HPS,LONG,PSTR8,PFATTRS,LONG)
+BOOL  APIENTRY GpiQueryLogicalFont(HPS hps,LONG,PSTR8,PFATTRS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-ULONG APIENTRY GpiQueryFaceString(HPS,PCSZ,PFACENAMEDESC,LONG,PCSZ)
+ULONG APIENTRY GpiQueryFaceString(HPS hps,PCSZ,PFACENAMEDESC,LONG,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1145,7 +1145,7 @@ BOOL   APIENTRY GpiDeletePalette(HPAL)
   return unimplemented(__FUNCTION__);
 }
 
-HPAL   APIENTRY GpiSelectPalette(HPS,HPAL)
+HPAL   APIENTRY GpiSelectPalette(HPS hps,HPAL)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1155,37 +1155,37 @@ HPAL   APIENTRY GpiQueryPalette(HPS)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCharStringPos(HPS,PRECTL,ULONG,LONG,PCH,PLONG)
+LONG   APIENTRY GpiCharStringPos(HPS hps,PRECTL,ULONG,LONG,PCH,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCharStringPosAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,PLONG)
+LONG   APIENTRY GpiCharStringPosAt(HPS hps,PPOINTL,PRECTL,ULONG,LONG,PCH,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCorrelateSegment(HPS,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
+LONG   APIENTRY GpiCorrelateSegment(HPS hps,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryAttrs(HPS,LONG,ULONG,PBUNDLE)
+LONG   APIENTRY GpiQueryAttrs(HPS hps,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharStringPos(HPS,ULONG,LONG,PCH,PLONG,PPOINTL)
+BOOL   APIENTRY GpiQueryCharStringPos(HPS hps,ULONG,LONG,PCH,PLONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharStringPosAt(HPS,PPOINTL,ULONG,LONG,PCH,PLONG,PPOINTL)
+BOOL   APIENTRY GpiQueryCharStringPosAt(HPS hps,PPOINTL,ULONG,LONG,PCH,PLONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG  APIENTRY GpiQueryFonts(HPS,ULONG,PCSZ,PLONG,LONG,PFONTMETRICS)
+LONG  APIENTRY GpiQueryFonts(HPS hps,ULONG,PCSZ,PLONG,LONG,PFONTMETRICS)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1196,32 +1196,32 @@ BOOL   APIENTRY GpiQueryRegionRects(HPS hps, HRGN hrgn, PRECTL prclBound,
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetAttrs(HPS,LONG,ULONG,ULONG,PBUNDLE)
+BOOL   APIENTRY GpiSetAttrs(HPS hps,LONG,ULONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPickApertureSize(HPS,LONG,PSIZEL)
+BOOL   APIENTRY GpiSetPickApertureSize(HPS hps,LONG,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefAttrs(HPS,LONG,ULONG,PBUNDLE)
+BOOL   APIENTRY GpiQueryDefAttrs(HPS hps,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDefAttrs(HPS,LONG,ULONG,PBUNDLE)
+BOOL   APIENTRY GpiSetDefAttrs(HPS hps,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiCreateLogColorTable(HPS,ULONG,LONG,LONG,LONG,PLONG)
+BOOL   APIENTRY GpiCreateLogColorTable(HPS hps,ULONG,LONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryLogColorTable(HPS,ULONG,LONG,LONG,PLONG)
+LONG   APIENTRY GpiQueryLogColorTable(HPS hps,ULONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1246,12 +1246,12 @@ LONG   APIENTRY GpiQueryPaletteInfo(HPAL,HPS,ULONG,ULONG,ULONG,PULONG)
   return unimplemented(__FUNCTION__);
 }
 
-HBITMAP APIENTRY GpiCreateBitmap(HPS,PBITMAPINFOHEADER2,ULONG,PBYTE,PBITMAPINFO2)
+HBITMAP APIENTRY GpiCreateBitmap(HPS hps,PBITMAPINFOHEADER2,ULONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiQueryBitmapBits(HPS,LONG,LONG,PBYTE,PBITMAPINFO2)
+LONG    APIENTRY GpiQueryBitmapBits(HPS hps,LONG,LONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1261,12 +1261,12 @@ BOOL    APIENTRY GpiQueryBitmapInfoHeader(HBITMAP,PBITMAPINFOHEADER2)
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiSetBitmapBits(HPS,LONG,LONG,PBYTE,PBITMAPINFO2)
+LONG    APIENTRY GpiSetBitmapBits(HPS hps,LONG,LONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-LONG    APIENTRY GpiDrawBits(HPS,PVOID,PBITMAPINFO2,LONG,PPOINTL,LONG,ULONG)
+LONG    APIENTRY GpiDrawBits(HPS hps,PVOID,PBITMAPINFO2,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1318,27 +1318,27 @@ BOOL   APIENTRY GpiDestroyRegion(HPS hps, HRGN hrgn)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiPartialArc(HPS,PPOINTL,FIXED,FIXED,FIXED)
+LONG   APIENTRY GpiPartialArc(HPS hps,PPOINTL,FIXED,FIXED,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharExtra(HPS,PFIXED)
+BOOL   APIENTRY GpiQueryCharExtra(HPS hps,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharExtra(HPS,FIXED)
+BOOL   APIENTRY GpiSetCharExtra(HPS hps,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryCharBreakExtra(HPS,PFIXED)
+BOOL   APIENTRY GpiQueryCharBreakExtra(HPS hps,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetCharBreakExtra(HPS,FIXED)
+BOOL   APIENTRY GpiSetCharBreakExtra(HPS hps,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1348,7 +1348,7 @@ LONG   APIENTRY GpiFrameRegion(HPS hps, HRGN hrgn, PSIZEL thickness)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiConvertWithMatrix(HPS,LONG,PPOINTL,LONG,PMATRIXLF)
+BOOL   APIENTRY GpiConvertWithMatrix(HPS hps,LONG,PPOINTL,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1519,12 +1519,12 @@ ULONG APIENTRY undoc646(void)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryTextAlignment(HPS,PLONG,PLONG)
+BOOL   APIENTRY GpiQueryTextAlignment(HPS hps,PLONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetTextAlignment(HPS,LONG,LONG)
+BOOL   APIENTRY GpiSetTextAlignment(HPS hps,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
