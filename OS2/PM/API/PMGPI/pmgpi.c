@@ -1,14 +1,22 @@
-#define INCL_PM
-#define INCL_WIN
-#include <os2.h>
+/*
+ULONG APIENTRY GpiQueryFontMappingFlags(HPS);
+BOOL  APIENTRY GpiQueryRasterizerCaps(PRASTERIZERCAPS);
+ULONG APIENTRY GpiSetFontMappingFlags(HPS,ULONG);
+LONG   APIENTRY GpiQueryNearestPaletteIndex(HPAL,ULONG);
+ULONG  APIENTRY GpiResizePalette(HPAL,ULONG);
+LONG   APIENTRY GpiOval(HPS,PPOINTL,FIXED,FIXED,ULONG);
+LONG   APIENTRY GpiQueryTabbedTextExtent(HPS,LONG,PCH,LONG,PULONG);
+LONG   APIENTRY GpiTabbedCharStringAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,LONG,PULONG,LONG);
+HRGN   APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect);
+HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, LONG lVRound);
+*/
 
-GpiAssociate(void)
+BOOL   APIENTRY GpiAssociate(HPS,HDC)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiBeginArea(void)
+BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -19,110 +27,92 @@ ULONG APIENTRY GpiBeginElement(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiBeginPath(void)
+BOOL   APIENTRY GpiBeginPath(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiBitBlt(void)
+LONG    APIENTRY GpiBitBlt(HPS,HPS,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiBox(void)
+LONG   APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint, LONG lHRound, LONG lVRound)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCallSegmentMatrix(void)
+LONG   APIENTRY GpiCallSegmentMatrix(HPS,LONG,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCharString(void)
+LONG   APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCharStringAt(void)
+LONG   APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptlPoint, LONG lCount, PCH pchString)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCloseFigure(void)
+BOOL   APIENTRY GpiCloseFigure(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCloseSegment(void)
+BOOL   APIENTRY GpiCloseSegment(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCombineRegion(void)
+LONG   APIENTRY GpiCombineRegion(HPS hps, HRGN hrgnDest, HRGN hrgnSr1, HRGN hrgnSr2, LONG lMode)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiComment(void)
+BOOL   APIENTRY GpiComment(HPS,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiConvert(void)
+BOOL   APIENTRY GpiConvert(HPS,LONG,LONG,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCopyMetaFile(void)
+HMF    APIENTRY GpiCopyMetaFile(HMF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCorrelateChain(void)
+LONG   APIENTRY GpiCorrelateChain(HPS,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCorrelateFrom(void)
+LONG   APIENTRY GpiCorrelateFrom(HPS,LONG,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreateLogFont(void)
+LONG  APIENTRY GpiCreateLogFont(HPS,PSTR8,LONG,PFATTRS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreatePS(void)
+HPS    APIENTRY GpiCreatePS(HAB,HDC,PSIZEL,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreateRegion(void)
+HRGN   APIENTRY GpiCreateRegion(HPS hps, LONG lCount, PRECTL arclRectangles)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteBitmap(void)
+BOOL    APIENTRY GpiDeleteBitmap(HBITMAP)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -145,56 +135,47 @@ ULONG APIENTRY GpiDeleteElementsBetweenLabels(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteMetaFile(void)
+BOOL   APIENTRY GpiDeleteMetaFile(HMF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteSegment(void)
+BOOL   APIENTRY GpiDeleteSegment(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteSegments(void)
+BOOL   APIENTRY GpiDeleteSegments(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeleteSetId(void)
+BOOL  APIENTRY GpiDeleteSetId(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDestroyPS(void)
+BOOL   APIENTRY GpiDestroyPS(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDrawChain(void)
+BOOL   APIENTRY GpiDrawChain(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDrawDynamics(void)
+BOOL   APIENTRY GpiDrawDynamics(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDrawFrom(void)
+BOOL   APIENTRY GpiDrawFrom(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDrawSegment(void)
+BOOL   APIENTRY GpiDrawSegment(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -205,8 +186,7 @@ ULONG APIENTRY GpiElement(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiEndArea(void)
+LONG   APIENTRY GpiEndArea(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -217,20 +197,17 @@ ULONG APIENTRY GpiEndElement(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiEndPath(void)
+BOOL   APIENTRY GpiEndPath(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiEqualRegion(void)
+LONG   APIENTRY GpiEqualRegion(HPS hps, HRGN hrgnSrc1, HRGN hrgnSrc2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiErase(void)
+BOOL   APIENTRY GpiErase(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -241,38 +218,32 @@ ULONG APIENTRY GpiErrorSegmentData(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiExcludeClipRectangle(void)
+LONG   APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiFillPath(void)
+LONG   APIENTRY GpiFillPath(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiFullArc(void)
+LONG   APIENTRY GpiFullArc(HPS,LONG,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiGetData(void)
+LONG   APIENTRY GpiGetData(HPS,LONG,PLONG,LONG,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiImage(void)
+LONG   APIENTRY GpiImage(HPS,LONG,PSIZEL,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiIntersectClipRectangle(void)
+LONG   APIENTRY GpiIntersectClipRectangle(HPS hps, PRECTL prclRectangle)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -283,44 +254,37 @@ ULONG APIENTRY GpiLabel(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiLine(void)
+LONG   APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiLoadFonts(void)
+BOOL  APIENTRY GpiLoadFonts(HAB,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiLoadMetaFile(void)
+HMF    APIENTRY GpiLoadMetaFile(HAB,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiMarker(void)
+LONG   APIENTRY GpiMarker(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiModifyPath(void)
+BOOL   APIENTRY GpiModifyPath(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiMove(void)
+BOOL   APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiOffsetClipRegion(void)
+LONG   APIENTRY GpiOffsetClipRegion(HPS hps, PPOINTL pptlPoint)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -331,86 +295,72 @@ ULONG APIENTRY GpiOffsetElementPointer(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiOffsetRegion(void)
+BOOL   APIENTRY GpiOffsetRegion(HPS hps, HRGN Hrgn, PPOINTL pptlOffset)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiOpenSegment(void)
+BOOL   APIENTRY GpiOpenSegment(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPaintRegion(void)
+LONG   APIENTRY GpiPaintRegion(HPS hps, HRGN hrgn)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPlayMetaFile(void)
+LONG   APIENTRY GpiPlayMetaFile(HPS,HMF,LONG,PLONG,PLONG,LONG,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPointArc(void)
+LONG   APIENTRY GpiPointArc(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolyFillet(void)
+LONG   APIENTRY GpiPolyFillet(HPS,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolyFilletSharp(void)
+LONG   APIENTRY GpiPolyFilletSharp(HPS,LONG,PPOINTL,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolyLine(void)
+LONG   APIENTRY GpiPolyLine(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolyMarker(void)
+LONG   APIENTRY GpiPolyMarker(HPS,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolySpline(void)
+LONG   APIENTRY GpiPolySpline(HPS,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPop(void)
+BOOL   APIENTRY GpiPop(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPtInRegion(void)
+LONG   APIENTRY GpiPtInRegion(HPS hps, HRGN hrgn, PPOINTL pptlPoint)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPtVisible(void)
+LONG   APIENTRY GpiPtVisible(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPutData(void)
+LONG   APIENTRY GpiPutData(HPS,LONG,PLONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -421,152 +371,127 @@ ULONG APIENTRY GpiQueryArcParams(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryAttrMode(void)
+LONG   APIENTRY GpiQueryAttrMode(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBackColor(void)
+LONG   APIENTRY GpiQueryBackColor(HPS)
+{
+  return unimplemented(__FUNCTION__)
+}
+
+LONG   APIENTRY GpiQueryBackMix(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBackMix(void)
+BOOL    APIENTRY GpiQueryBitmapDimension(HBITMAP,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBitmapDimension(void)
+HBITMAP APIENTRY GpiQueryBitmapHandle(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBitmapHandle(void)
+BOOL   APIENTRY GpiQueryBoundaryData(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBoundaryData(void)
+BOOL   APIENTRY GpiQueryCharAngle(HPS,PGRADIENTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharAngle(void)
+BOOL   APIENTRY GpiQueryCharBox(HPS,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharBox(void)
+LONG   APIENTRY GpiQueryCharDirection(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharDirection(void)
+LONG   APIENTRY GpiQueryCharMode(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharMode(void)
+LONG   APIENTRY GpiQueryCharSet(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharSet(void)
+BOOL   APIENTRY GpiQueryCharShear(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharShear(void)
+LONG   APIENTRY GpiQueryClipBox(HPS hps, PRECTL prclBound)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryClipBox(void)
+HRGN   APIENTRY GpiQueryClipRegion(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryClipRegion(void)
+LONG   APIENTRY GpiQueryColor(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryColor(void)
+BOOL   APIENTRY GpiQueryColorData(HPS,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryColordata(void)
+LONG   APIENTRY GpiQueryColorIndex(HPS,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryColorIndex(void)
+ULONG APIENTRY GpiQueryCp(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCp(void)
+BOOL   APIENTRY GpiQueryCurrentPosition(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCurrentPosition(void)
+BOOL   APIENTRY GpiQueryDefCharBox(HPS,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefCharBox(void)
+BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefaultViewMatrix(void)
+HDC    APIENTRY GpiQueryDevice(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDevice(void)
+BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDeviceBitmapFormats(void)
+LONG   APIENTRY GpiQueryDrawControl(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDrawControl(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDrawingMode(void)
+LONG   APIENTRY GpiQueryDrawingMode(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -595,422 +520,352 @@ ULONG APIENTRY GpiQueryElementType(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFontFileDescriptions(void)
+LONG  APIENTRY GpiQueryFontFileDescriptions(HAB,PCSZ,PLONG,PFFDESCS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFontMetrics(void)
+BOOL  APIENTRY GpiQueryFontMetrics(HPS,LONG,PFONTMETRICS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryGraphicsField(void)
+BOOL   APIENTRY GpiQueryGraphicsField(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryInitialSegmentAttrs(void)
+LONG   APIENTRY GpiQueryInitialSegmentAttrs(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryKerningPairs(void)
+LONG  APIENTRY GpiQueryKerningPairs(HPS,LONG,PKERNINGPAIRS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLineEnd(void)
+LONG   APIENTRY GpiQueryLineEnd(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLineJoin(void)
+LONG   APIENTRY GpiQueryLineJoin(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLineType(void)
+LONG   APIENTRY GpiQueryLineType(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLineWidth(void)
+FIXED  APIENTRY GpiQueryLineWidth(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLineWidthGeom(void)
+LONG   APIENTRY GpiQueryLineWidthGeom(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMarker(void)
+LONG   APIENTRY GpiQueryMarker(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMarkerBox(void)
+BOOL   APIENTRY GpiQueryMarkerBox(HPS,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMarkerSet(void)
+LONG   APIENTRY GpiQueryMarkerSet(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMetaFileBits(void)
+BOOL   APIENTRY GpiQueryMetaFileBits(HMF,LONG,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMetaFileLength(void)
+LONG   APIENTRY GpiQueryMetaFileLength(HMF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryMix(void)
+LONG   APIENTRY GpiQueryMix(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryModelTransformMatrix(void)
+BOOL   APIENTRY GpiQueryModelTransformMatrix(HPS,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryNearestColor(void)
+LONG   APIENTRY GpiQueryNearestColor(HPS,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryNumberSetIds(void)
+LONG  APIENTRY GpiQueryNumberSetIds(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPS(void)
+ULONG  APIENTRY GpiQueryPS(HPS,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPageViewport(void)
+BOOL   APIENTRY GpiQueryPageViewport(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPattern(void)
+LONG   APIENTRY GpiQueryPattern(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPatternRefPoint(void)
+BOOL   APIENTRY GpiQueryPatternRefPoint(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPatternSet(void)
+LONG   APIENTRY GpiQueryPatternSet(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPel(void)
+LONG    APIENTRY GpiQueryPel(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPickAperturePosition(void)
+BOOL   APIENTRY GpiQueryPickAperturePosition(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPickApertureSize(void)
+BOOL   APIENTRY GpiQueryPickApertureSize(HPS,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryRGBColor(void)
+LONG   APIENTRY GpiQueryRGBColor(HPS,ULONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryRealColors(void)
+LONG   APIENTRY GpiQueryRealColors(HPS,ULONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryRegionBox(void)
+LONG   APIENTRY GpiQueryRegionBox(HPS hps, HRGN hrgn, PRECTL prclBound)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQuerySegmentAttrs(void)
+LONG   APIENTRY GpiQuerySegmentAttrs(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQuerySegmentNames(void)
+LONG   APIENTRY GpiQuerySegmentNames(HPS,LONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQuerySegmentPriority(void)
+LONG   APIENTRY GpiQuerySegmentPriority(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQuerySegmentTransformMatrix(void)
+BOOL   APIENTRY GpiQuerySegmentTransformMatrix(HPS,LONG,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQuerySetIds(void)
+BOOL  APIENTRY GpiQuerySetIds(HPS,LONG,PLONG,PSTR8,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryStopDraw(void)
+LONG   APIENTRY GpiQueryStopDraw(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryTag(void)
+BOOL   APIENTRY GpiQueryTag(HPS,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryTextBox(void)
+BOOL   APIENTRY GpiQueryTextBox(HPS,LONG,PCH,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryViewingLimits(void)
+BOOL   APIENTRY GpiQueryViewingLimits(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryViewingTransformMatrix(void)
+BOOL   APIENTRY GpiQueryViewingTransformMatrix(HPS,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryWidthTable(void)
+BOOL  APIENTRY GpiQueryWidthTable(HPS,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiRectInRegion(void)
+LONG   APIENTRY GpiRectInRegion(HPS hps, HRGN hrgn, PRECTL prclRect)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiRectVisible(void)
+LONG   APIENTRY GpiRectVisible(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiRemoveDynamics(void)
+BOOL   APIENTRY GpiRemoveDynamics(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiResetBoundaryData(void)
+BOOL   APIENTRY GpiResetBoundaryData(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiResetPS(void)
+BOOL   APIENTRY GpiResetPS(HPS,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiRestorePS(void)
+BOOL   APIENTRY GpiRestorePS(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSaveMetaFile(void)
+BOOL   APIENTRY GpiSaveMetaFile(HMF,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSavePS(void)
+LONG   APIENTRY GpiSavePS(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetArcParams(void)
+BOOL   APIENTRY GpiSetArcParams(HPS,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetAttrMode(void)
+BOOL   APIENTRY GpiSetAttrMode(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBackColor(void)
+BOOL   APIENTRY GpiSetBackColor(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBackMix(void)
+BOOL   APIENTRY GpiSetBackMix(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBitmap(void)
+HBITMAP APIENTRY GpiSetBitmap(HPS,HBITMAP)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBitmapDimension(void)
+BOOL    APIENTRY GpiSetBitmapDimension(HBITMAP,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBitmapId(void)
+BOOL    APIENTRY GpiSetBitmapId(HPS,HBITMAP,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharAngle(void)
+BOOL   APIENTRY GpiSetCharAngle(HPS,PGRADIENTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharBox(void)
+BOOL   APIENTRY GpiSetCharBox(HPS,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharDirection(void)
+BOOL   APIENTRY GpiSetCharDirection(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharMode(void)
+BOOL   APIENTRY GpiSetCharMode(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharSet(void)
+BOOL   APIENTRY GpiSetCharSet(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharShear(void)
+BOOL   APIENTRY GpiSetCharShear(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetClipPath(void)
+BOOL   APIENTRY GpiSetClipPath(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetClipRegion(void)
+LONG   APIENTRY GpiSetClipRegion(HPS hps, HRGN hrgn, PHRGN phrgnOld)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetColor(void)
+BOOL   APIENTRY GpiSetColor(HPS hps, LONG lColor)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCp(void)
+BOOL  APIENTRY GpiSetCp(HPS,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCurrentPosition(void)
+BOOL   APIENTRY GpiSetCurrentPosition(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDefaultViewMatrix(void)
+BOOL   APIENTRY GpiSetDefaultViewMatrix(HPS,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDrawControl(void)
+BOOL   APIENTRY GpiSetDrawControl(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDrawingMode(void)
+BOOL   APIENTRY GpiSetDrawingMode(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1033,458 +888,383 @@ ULONG APIENTRY GpiSetElementPointerAtLabel(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetGraphicsField(void)
+BOOL   APIENTRY GpiSetGraphicsField(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetInitialSegmentAttrs(void)
+BOOL   APIENTRY GpiSetInitialSegmentAttrs(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetLineEnd(void)
+BOOL   APIENTRY GpiSetLineEnd(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetLineJoin(void)
+BOOL   APIENTRY GpiSetLineJoin(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetLineType(void)
+BOOL   APIENTRY GpiSetLineType(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetLineWidth(void)
+BOOL   APIENTRY GpiSetLineWidth(HPS,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetLineWidthGeom(void)
+BOOL   APIENTRY GpiSetLineWidthGeom(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetMarker(void)
+BOOL   APIENTRY GpiSetMarker(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetMarkerBox(void)
+BOOL   APIENTRY GpiSetMarkerBox(HPS,PSIZEF)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetMarkerSet(void)
+BOOL   APIENTRY GpiSetMarkerSet(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetMetaFileBits(void)
+BOOL   APIENTRY GpiSetMetaFileBits(HMF,LONG,LONG,PBYTE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetMix(void)
+BOOL   APIENTRY GpiSetMix(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetModelTransformMatrix(void)
+BOOL   APIENTRY GpiSetModelTransformMatrix(HPS,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPS(void)
+BOOL   APIENTRY GpiSetPS(HPS,PSIZEL,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPageViewport(void)
+BOOL   APIENTRY GpiSetPageViewport(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPattern(void)
+BOOL   APIENTRY GpiSetPattern(HPS hps, LONG lPatternSymbol)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPatternRefPoint(void)
+BOOL   APIENTRY GpiSetPatternRefPoint(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPatternSet(void)
+BOOL   APIENTRY GpiSetPatternSet(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPel(void)
+LONG    APIENTRY GpiSetPel(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPickAperturePosition(void)
+BOOL   APIENTRY GpiSetPickAperturePosition(HPS,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetRegion(void)
+BOOL   APIENTRY GpiSetRegion(HPS hps, HRGN hrgn, LONG lcount, PRECTL arclRectangles)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetSegmentAttrs(void)
+BOOL   APIENTRY GpiSetSegmentAttrs(HPS,LONG,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetSegmentPriority(void)
+BOOL   APIENTRY GpiSetSegmentPriority(HPS,LONG,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetSegmentTransformMatrix(void)
+BOOL   APIENTRY GpiSetPageViewport(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetStopDraw(void)
+BOOL   APIENTRY GpiSetStopDraw(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetTag(void)
+BOOL   APIENTRY GpiSetTag(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetViewingLimits(void)
+BOOL   APIENTRY GpiSetViewingLimits(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetViewingTransformMatrix(void)
+BOOL   APIENTRY GpiSetViewingTransformMatrix(HPS,LONG,PMATRIXLF,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiStrokePath(void)
+LONG   APIENTRY GpiStrokePath(HPS,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiUnloadFonts(void)
+BOOL  APIENTRY GpiUnloadFonts(HAB,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiWCBitBlt(void)
+LONG    APIENTRY GpiWCBitBlt(HPS,HBITMAP,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolyLineDisjoint(void)
+LONG   APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPathToRegion(void)
+HRGN   APIENTRY GpiPathToRegion(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiFloodFill(void)
+LONG    APIENTRY GpiFloodFill(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSuspendPlay(void)
+BOOL   APIENTRY GpiSuspendPlay(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiResumePlay(void)
+BOOL   APIENTRY GpiResumePlay(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiOutlinePath(void)
+LONG   APIENTRY GpiOutlinePath(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiTranslate(void)
+BOOL   APIENTRY GpiTranslate(HPS,PMATRIXLF,LONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiScale(void)
+BOOL   APIENTRY GpiScale(HPS,PMATRIXLF,LONG,PFIXED,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiRotate(void)
+BOOL   APIENTRY GpiRotate(HPS,PMATRIXLF,LONG,FIXED,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefArcParams(void)
+BOOL   APIENTRY GpiQueryDefArcParams(HPS,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefTag(void)
+BOOL   APIENTRY GpiQueryDefTag(HPS,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefViewingLimits(void)
+BOOL   APIENTRY GpiQueryDefViewingLimits(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDefArcParams(void)
+BOOL   APIENTRY GpiSetDefArcParams(HPS,PARCPARAMS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDefTag(void)
+BOOL   APIENTRY GpiSetDefTag(HPS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDefViewingLimits(void)
+BOOL   APIENTRY GpiSetDefViewingLimits(HPS,PRECTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBitmapParameters(void)
+BOOL    APIENTRY GpiQueryBitmapParameters(HBITMAP,PBITMAPINFOHEADER)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLogicalFont(void)
+BOOL  APIENTRY GpiQueryLogicalFont(HPS,LONG,PSTR8,PFATTRS,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFaceString(void)
+ULONG APIENTRY GpiQueryFaceString(HPS,PCSZ,PFACENAMEDESC,LONG,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFontAction(void)
+ULONG APIENTRY GpiQueryFontAction(HAB,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDeletePalette(void)
+BOOL   APIENTRY GpiDeletePalette(HPAL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSelectPalette(void)
+HPAL   APIENTRY GpiSelectPalette(HPS,HPAL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPalette(void)
+HPAL   APIENTRY GpiQueryPalette(HPS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCharStringPos(void)
+LONG   APIENTRY GpiCharStringPos(HPS,PRECTL,ULONG,LONG,PCH,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCharStringPosAt(void)
+LONG   APIENTRY GpiCharStringPosAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCorrelateSegment(void)
+LONG   APIENTRY GpiCorrelateSegment(HPS,LONG,LONG,PPOINTL,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryAttrs(void)
+LONG   APIENTRY GpiQueryAttrs(HPS,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharStringPos(void)
+BOOL   APIENTRY GpiQueryCharStringPos(HPS,ULONG,LONG,PCH,PLONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharStringPosAt(void)
+BOOL   APIENTRY GpiQueryCharStringPosAt(HPS,PPOINTL,ULONG,LONG,PCH,PLONG,PPOINTL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFonts(void)
+LONG  APIENTRY GpiQueryFonts(HPS,ULONG,PCSZ,PLONG,LONG,PFONTMETRICS)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryRegionRects(void)
+BOOL   APIENTRY GpiQueryRegionRects(HPS hps, HRGN hrgn, PRECTL prclBound,
+                   PRGNRECT prgnrcControl, PRECTL prclRect)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetAttrs(void)
+BOOL   APIENTRY GpiSetAttrs(HPS,LONG,ULONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPickApertureSize(void)
+BOOL   APIENTRY GpiSetPickApertureSize(HPS,LONG,PSIZEL)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryDefAttrs(void)
+BOOL   APIENTRY GpiQueryDefAttrs(HPS,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetDefAttrs(void)
+BOOL   APIENTRY GpiSetDefAttrs(HPS,LONG,ULONG,PBUNDLE)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreateLogColorTable(void)
+BOOL   APIENTRY GpiCreateLogColorTable(HPS,ULONG,LONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryLogColorTable(void)
+LONG   APIENTRY GpiQueryLogColorTable(HPS,ULONG,LONG,LONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreatePalette(void)
+HPAL   APIENTRY GpiCreatePalette(HAB,ULONG,ULONG,ULONG,PULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiAnimatePalette(void)
+LONG   APIENTRY GpiAnimatePalette(HPAL,ULONG,ULONG,ULONG,PULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetPaletteEntries(void)
+BOOL   APIENTRY GpiSetPaletteEntries(HPAL,ULONG,ULONG,ULONG,PULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryPaletteInfo(void)
+LONG   APIENTRY GpiQueryPaletteInfo(HPAL,HPS,ULONG,ULONG,ULONG,PULONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiCreateBitmap(void)
+HBITMAP APIENTRY GpiCreateBitmap(HPS,PBITMAPINFOHEADER2,ULONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY Gpi32QueryBitmapBits(void)
+LONG    APIENTRY GpiQueryBitmapBits(HPS,LONG,LONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryBitmapInfoHeader(void)
+BOOL    APIENTRY GpiQueryBitmapInfoHeader(HBITMAP,PBITMAPINFOHEADER2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetBitmapBits(void)
+LONG    APIENTRY GpiSetBitmapBits(HPS,LONG,LONG,PBYTE,PBITMAPINFO2)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDrawBits(void)
+LONG    APIENTRY GpiDrawBits(HPS,PVOID,PBITMAPINFO2,LONG,PPOINTL,LONG,ULONG)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1531,50 +1311,42 @@ ULONG APIENTRY DevOpenDC(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiDestroyRegion(void)
+BOOL   APIENTRY GpiDestroyRegion(HPS hps, HRGN hrgn)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPartialArc(void)
+LONG   APIENTRY GpiPartialArc(HPS,PPOINTL,FIXED,FIXED,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharExtra(void)
+BOOL   APIENTRY GpiQueryCharExtra(HPS,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharExtra(void)
+BOOL   APIENTRY GpiSetCharExtra(HPS,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryCharBreakExtra(void)
+BOOL   APIENTRY GpiQueryCharBreakExtra(HPS,PFIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetCharBreakExtra(void)
+BOOL   APIENTRY GpiSetCharBreakExtra(HPS,FIXED)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiFrameRegion(void)
+LONG   APIENTRY GpiFrameRegion(HPS hps, HRGN hrgn, PSIZEL thickness)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiConvertWithMatrix(void)
+BOOL   APIENTRY GpiConvertWithMatrix(HPS,LONG,PPOINTL,LONG,PMATRIXLF)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1597,14 +1369,12 @@ ULONG APIENTRY GpiSetRegionOwner(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiLoadPublicFonts(void)
+BOOL  APIENTRY GpiLoadPublicFonts(HAB,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiUnloadPublicFonts(void)
+BOOL  APIENTRY GpiUnloadPublicFonts(HAB,PCSZ)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1747,20 +1517,17 @@ ULONG APIENTRY undoc646(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryTextAlignment(void)
+BOOL   APIENTRY GpiQueryTextAlignment(HPS,PLONG,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiSetTextAlignment(void)
+BOOL   APIENTRY GpiSetTextAlignment(HPS,LONG,LONG)
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiPolygons(void)
+LONG   APIENTRY GpiPolygons(HPS hps, ULONG ulCount, PPOLYGON paplgn, ULONG flOpts, ULONG flMdl)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1801,8 +1568,7 @@ ULONG APIENTRY DspInitSystemDriverName(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY GpiQueryFullFontFileDescs(void)
+LONG  APIENTRY GpiQueryFullFontFileDescs(HAB,PCSZ,PLONG,PVOID,PLONG)
 {
   return unimplemented(__FUNCTION__);
 }
