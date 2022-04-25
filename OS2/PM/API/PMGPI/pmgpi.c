@@ -379,7 +379,7 @@ LONG   APIENTRY GpiQueryAttrMode(HPS hps)
 
 LONG   APIENTRY GpiQueryBackColor(HPS hps)
 {
-  return unimplemented(__FUNCTION__)
+  return unimplemented(__FUNCTION__);
 }
 
 LONG   APIENTRY GpiQueryBackMix(HPS hps)
@@ -1000,11 +1000,6 @@ BOOL   APIENTRY GpiSetSegmentAttrs(HPS hps,LONG a,LONG b,LONG c)
 }
 
 BOOL   APIENTRY GpiSetSegmentPriority(HPS hps,LONG a,LONG b,LONG c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiSetPageViewport(HPS hps,PRECTL a)
 {
   return unimplemented(__FUNCTION__);
 }

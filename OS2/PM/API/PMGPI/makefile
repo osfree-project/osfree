@@ -309,10 +309,6 @@ GPISETBITMAPOWNER                      .0309 RESIDENT, &
 GPISETREGIONOWNER                      .0310 RESIDENT, &
 GPIINSTALLIFIFONT                      .0311 RESIDENT, &
 DSPINITSYSTEMDRIVERNAME                .0312 RESIDENT, &
-GPIBEGININKPATH                        .0670 RESIDENT, &
-GPIENDINKPATH                          .0671 RESIDENT, &
-GPISTROKEINKPATH                       .0672 RESIDENT, &
-DEVPOSTESCAPE                          .0729 RESIDENT, &
 # 32-bit functions
 GpiAssociate                    .0351, &
 GpiBeginArea                    .0352, &
@@ -628,9 +624,9 @@ undoc666                         .0666, &
 undoc667                         .0667, &
 undoc668                         .0668, &
 undoc669                         .0669, &
-GPIBEGININKPATH                 .0670, &
-GPIENDINKPATH                   .0671, &
-GPISTROKEINKPATH                .0672, &
+GPIBEGININKPATH                 .0670 RESIDENT, &
+GPIENDINKPATH                   .0671 RESIDENT, &
+GPISTROKEINKPATH                .0672 RESIDENT, &
 PaxGetPolyFillMode              .0700, &
 PaxSetPolyFillMode              .0701, &
 PaxBeginPath                    .0703, &
@@ -656,7 +652,7 @@ undoc725                         .0725, &
 GpiQueryYInversion              .0726, &
 undoc727                         .0727, &
 GpiSaveMetaFile2                .0728, &
-DEVPOSTESCAPE                   .0729, &
+DEVPOSTESCAPE                   .0729 RESIDENT, &
 undoc730                         .0730
 
 DEST         = os2$(SEP)dll
