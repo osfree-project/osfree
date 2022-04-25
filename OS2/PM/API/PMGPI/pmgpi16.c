@@ -1,5 +1,6 @@
+#include <os2.h>
+
 /*
-BOOL APIENTRY GpiAssociate(HPS,HDC);
 HPS  APIENTRY GpiCreatePS(HAB,HDC,PSIZEL,ULONG);
 BOOL APIENTRY GpiDestroyPS(HPS);
 BOOL APIENTRY GpiErase(HPS);
@@ -309,8 +310,7 @@ USHORT APIENTRY16 GPIRESTOREPS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIASSOCIATE(void)
+BOOL APIENTRY16 GpiAssociate(HPS hps,HDC hdc);
 {
   return unimplemented(__FUNCTION__);
 }
