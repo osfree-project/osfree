@@ -472,7 +472,7 @@ BOOL   APIENTRY GpiQueryDefCharBox(HPS hps,PSIZEL a)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF a)
+BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -541,7 +541,7 @@ LONG   APIENTRY GpiQueryInitialSegmentAttrs(HPS hps,LONG a)
   return unimplemented(__FUNCTION__);
 }
 
-LONG  APIENTRY GpiQueryKerningPairs(HPS hps,LONG a,PKERNINGPAIRS a)
+LONG  APIENTRY GpiQueryKerningPairs(HPS hps,LONG a,PKERNINGPAIRS b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -586,7 +586,7 @@ LONG   APIENTRY GpiQueryMarkerSet(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiQueryMetaFileBits(HMF hmf,LONG a,LONG a,PBYTE a)
+BOOL   APIENTRY GpiQueryMetaFileBits(HMF hmf,LONG a,LONG b,PBYTE c)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -656,7 +656,7 @@ BOOL   APIENTRY GpiQueryPickApertureSize(HPS hps,PSIZEL a)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryRGBColor(HPS hps,ULONG a,LONG a)
+LONG   APIENTRY GpiQueryRGBColor(HPS hps,ULONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -796,7 +796,7 @@ BOOL    APIENTRY GpiSetBitmapDimension(HBITMAP hbm,PSIZEL a)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL    APIENTRY GpiSetBitmapId(HPS hps,HBITMAP a,LONG a)
+BOOL    APIENTRY GpiSetBitmapId(HPS hps,HBITMAP a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -831,7 +831,7 @@ BOOL   APIENTRY GpiSetCharShear(HPS hps,PPOINTL a)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG a)
+BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
