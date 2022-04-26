@@ -1,0 +1,34 @@
+group gpiprimitives;
+
+constant CVTC_WORLD        = 1;
+constant CVTC_MODEL        = 2;
+constant CVTC_DEFAULTPAGE  = 3;
+constant CVTC_PAGE         = 4;
+constant CVTC_DEVICE       = 5;
+
+constant TRANSFORM_REPLACE = 0;
+constant TRANSFORM_ADD     = 1;
+constant TRANSFORM_PREEMPT = 2;
+
+function GpiCallSegmentMatrix(hps: HPS, a: LONG, b: LONG, c: PMATRIXLF, d:LONG): LONG;
+function GpiConvert(hps: HPS, a: LONG, b: LONG, c: LONG, d: PPOINTL): BOOL;
+function GpiConvertWithMatrix(hps: HPS, a: LONG, b: PPOINTL, c: LONG, d: PMATRIXLF): BOOL;
+function GpiQueryDefaultViewMatrix(hps: HPS, a: LONG, b: PMATRIXLF): BOOL;
+function GpiQueryGraphicsField(hps: HPS, a: PRECTL): BOOL;
+function GpiQueryModelTransformMatrix(hps: HPS, a: LONG, b: PMATRIXLF): BOOL;
+function GpiQueryPageViewport(hps: HPS, a: PRECTL): BOOL;
+function GpiQuerySegmentTransformMatrix(hps: HPS, a: LONG, b: LONG, c: PMATRIXLF): BOOL;
+function GpiQueryViewingTransformMatrix(hps: HPS, a: LONG, b: PMATRIXLF): BOOL;
+function GpiQueryViewingLimits(hps: HPS, a: PRECTL): BOOL;
+function GpiRotate(hps: HPS, a: PMATRIXLF, b: LONG, c: FIXED, d: PPOINTL): BOOL;
+function GpiScale(hps: HPS, a: PMATRIXLF, b: LONG, c: PFIXED, d: PPOINTL): BOOL;
+function GpiSetDefaultViewMatrix(hps: HPS, a: LONG, b: PMATRIXLF, c: LONG): BOOL;
+function GpiSetGraphicsField(hps: HPS, a: PRECTL): BOOL;
+function GpiSetModelTransformMatrix(hps: HPS, a: LONG, b: PMATRIXLF, c: LONG): BOOL;
+function GpiSetPageViewport(hps: HPS, a: PRECTL): BOOL;
+function GpiSetSegmentTransformMatrix(hps: HPS, a: LONG,b: LONG, c: PMATRIXLF, d: LONG): BOOL;
+function GpiSetViewingTransformMatrix(hps: HPS, a: LONG, b: PMATRIXLF, c: LONG): BOOL;
+function GpiSetViewingLimits(hps: HPS, a: PRECTL): BOOL;
+function GpiTranslate(hps: HPS, a: PMATRIXLF, b: LONG, c: PPOINTL): BOOL;
+
+end.
