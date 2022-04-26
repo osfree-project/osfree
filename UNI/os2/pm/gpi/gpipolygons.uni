@@ -21,7 +21,7 @@ type POLYSET=structure
     aPolygon: POLYGON;  (* array *)
 end;
 
-type PPOLYSET=^PPOLYSET;
+type PPOLYSET=^POLYSET;
 
 function GpiPolygons(hps: HPS, ulCount: ULONG, paplgn: PPOLYGON, flOpts: ULONG, flMdl: ULONG): LONG;
 
