@@ -14,7 +14,7 @@ type POLYGON=structure
     aPointl: PPOINTL;
 end;
 
-type PPOLYGON=^PPOLYGON;
+type PPOLYGON=^POLYGON;
 
 type POLYSET=structure
     ulPolys: ULONG;
