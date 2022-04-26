@@ -10,7 +10,7 @@ constant TRANSFORM_REPLACE = 0;
 constant TRANSFORM_ADD     = 1;
 constant TRANSFORM_PREEMPT = 2;
 
-function GpiCallSegmentMatrix(hps: HPS, a: LONG, b: LONG, c: PMATRIXLF, d:LONG): LONG;
+function GpiCallSegmentMatrix(in hps: HPS, a: LONG, b: LONG, c: PMATRIXLF, d:LONG): LONG;
 function GpiConvert(hps: HPS, a: LONG, b: LONG, c: LONG, d: PPOINTL): BOOL;
 function GpiConvertWithMatrix(hps: HPS, a: LONG, b: PPOINTL, c: LONG, d: PMATRIXLF): BOOL;
 function GpiQueryDefaultViewMatrix(hps: HPS, a: LONG, b: PMATRIXLF): BOOL;
