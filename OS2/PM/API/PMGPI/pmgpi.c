@@ -1265,8 +1265,8 @@ LONG    APIENTRY GpiDrawBits(HPS hps,PVOID a,PBITMAPINFO2 b,LONG c,PPOINTL d,LON
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY DevCloseDC(void)
+
+HMF    APIENTRY DevCloseDC(HDC hdc)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1277,8 +1277,7 @@ ULONG APIENTRY DevEscape(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY DevQueryCaps(void)
+BOOL   APIENTRY DevQueryCaps(HDC hdc,LONG a,LONG b,PLONG c);
 {
   return unimplemented(__FUNCTION__);
 }
@@ -1295,14 +1294,12 @@ ULONG APIENTRY DevQueryHardcopyCaps(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY DevPostDeviceModes(void)
+LONG   APIENTRY DevPostDeviceModes(HAB hab,PDRIVDATA a,PCSZ b,PCSZ c,PCSZ d,ULONG e);
 {
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-ULONG APIENTRY DevOpenDC(void)
+HDC    APIENTRY DevOpenDC(HAB hab,LONG a,PCSZ b,LONG c,PDEVOPENDATA d,HDC hdc);
 {
   return unimplemented(__FUNCTION__);
 }
