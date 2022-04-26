@@ -18,9 +18,13 @@ rem Install Regina REXX
 
 rem Download FPC
 wget  https://downloads.sourceforge.net/project/freepascal/Win32/3.2.2/fpc-3.2.2.i386-win32.exe -P "c:/Documents and settings/Downloads"
+wget  https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip -P "c:/Documents and settings/Downloads"
 
 rem install fpc
 "c:\Documents and Settings\Downloads\fpc-3.2.2.i386-win32.exe" /silent
-
+unzip "c:\Documents and Settings\Downloads\os2322.zip" -d "c:/Documents and settings/Downloads"
+unzip "c:\Documents and Settings\Downloads\baseos2.zip" units\* -dc:\fpc\3.2.2
+dir "c:/Documents and settings/Downloads"
+dir c:\fpc /s
 rem build
 rem call build-git.cmd

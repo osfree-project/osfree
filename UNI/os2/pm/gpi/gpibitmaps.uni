@@ -175,7 +175,7 @@ function GpiQueryBitmapBits(in a: HPS;
                                                         in e: PBITMAPINFO2): LONG;
 
 function GpiQueryBitmapDimension(in  a: HBITMAP;
-                                 out b: PSIZEL): BOOL;
+                                 out b: SIZEL): BOOL;
 
 function GpiQueryBitmapHandle(in a: HPS;
                               in b: LONG): HBITMAP;

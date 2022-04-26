@@ -7,9 +7,9 @@
 LANG = russian
 LNG = $(MYDIR)..$(SEP)$(LANG).err
 
-!include $(%ROOT)/mk/tools.mk
+!include $(%ROOT)/mk/all.mk
 
-DEST = none
+DEST = os2
 TARGETS = $(PATH)strings.err
 
 .SUFFIXES: .err

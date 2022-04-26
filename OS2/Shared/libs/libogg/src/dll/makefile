@@ -4,13 +4,8 @@
 
 PROJ = ogg
 TRGT = $(PROJ).dll
-ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
+ADD_COPT = $(defines) -i=$(MYDIR) -i=$(MYDIR)..$(SEP)..$(SEP)include
 ADD_LINKOPT = lib clib3r.lib, os2386.lib, $(PATH)..$(SEP)libogg.lib
-
-
-.$(O): $(PATH)..
-
-.c: $(MYDIR)..
 
 srcfiles = $(p)framing$(e) $(p)bitwise$(e)
 DLL = 1
@@ -71,3 +66,8 @@ DEST = mmos2$(SEP)dll
 !include $(%ROOT)/mk/appsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).dll
+
+.$(O): $(PATH)..
+
+.c: $(MYDIR)..
+
