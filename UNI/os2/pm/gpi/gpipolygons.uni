@@ -19,7 +19,7 @@ type PPOLYGON=^PPOLYGON;
 type POLYSET=structure
     ulPolys: ULONG;
     aPolygon: POLYGON;  (* array *)
-end
+end;
 
 type PPOLYSET=^PPOLYSET;
 
