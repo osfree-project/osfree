@@ -23,6 +23,6 @@ end;
 
 type PPOLYSET=^POLYSET;
 
-function GpiPolygons(hps: HPS, ulCount: ULONG, paplgn: PPOLYGON, flOpts: ULONG, flMdl: ULONG): LONG;
+function GpiPolygons(in hps: HPS, in ulCount: ULONG, in paplgn: PPOLYGON, in flOpts: ULONG, in flMdl: ULONG): LONG;
 
 end.
