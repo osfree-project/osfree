@@ -7,13 +7,13 @@
 PROJ = pmgpi
 TRGT = $(PROJ).dll
 DESC = Presentation Manager GPI
-srcfiles     = $(p)pmgpi16$(e) $(p)pmgpi$(e)
+srcfiles     = $(p)pmgpi16$(e) $(p)pmgpi$(e) $(p)unimpl$(e)
 ADD_COPT     = -i=. -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
 DLL          = 1
 DLLOPT       = initinstance terminstance
-OPTIONS      = manyautodata, caseexact, heapsize=40960, start=dll_initterm
+OPTIONS      = manyautodata, caseexact
 IMPORTS      = GpiLoadBitmap PMMERGE.5047
 EXPORTS      = &
 # 16-bit functions
