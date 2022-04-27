@@ -1,10 +1,10 @@
 group gpiregions;
 
-constant CRGN_OR   1;
-constant CRGN_COPY 2;
-constant CRGN_XOR  4;
-constant CRGN_AND  6;
-constant CRGN_DIFF 7;
+constant CRGN_OR   = 1;
+constant CRGN_COPY = 2;
+constant CRGN_XOR  = 4;
+constant CRGN_AND  = 6;
+constant CRGN_DIFF = 7;
 
 constant EQRGN_ERROR    = 0;
 constant EQRGN_NOTEQUAL = 1;
