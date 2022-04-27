@@ -398,7 +398,7 @@ GpiQueryCharShear               .0434, &
 GpiQueryClipBox                 .0435, &
 GpiQueryClipRegion              .0436, &
 GpiQueryColor                   .0437, &
-GpiQueryColordata               .0438, &
+GpiQueryColorData               .0438, &
 GpiQueryColorIndex              .0439, &
 GpiQueryCp                      .0440, &
 GpiQueryCurrentPosition         .0441, &
@@ -557,7 +557,7 @@ GpiAnimatePalette               .0595, &
 GpiSetPaletteEntries            .0596, &
 GpiQueryPaletteInfo             .0597, &
 GpiCreateBitmap                 .0598, &
-Gpi32QueryBitmapBits            .0599, &
+GpiQueryBitmapBits              .0599, &
 GpiQueryBitmapInfoHeader        .0601, &
 GpiSetBitmapBits                .0602, &
 GpiDrawBits                     .0603, &
