@@ -158,6 +158,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)gpibitmaps.h &
      $(OUT)$(SEP)os2$(SEP)gpilogcoltable.h &
      $(OUT)$(SEP)os2$(SEP)gpipolygons.h &
+     $(OUT)$(SEP)os2$(SEP)gpiregions.h &
      $(OUT)$(SEP)os2$(SEP)os2me.h &
      $(OUT)$(SEP)os2$(SEP)os2mm.h &
      $(OUT)$(SEP)os2$(SEP)meerror.h &
@@ -442,6 +443,8 @@ $(OUT)$(SEP)os2$(SEP)gpicontrolcommon.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpicontrolcom
 $(OUT)$(SEP)os2$(SEP)gpilogcoltable.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpilogcoltable.uni
 
 $(OUT)$(SEP)os2$(SEP)gpipolygons.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpipolygons.uni
+
+$(OUT)$(SEP)os2$(SEP)gpiregions.h: os2$(SEP)pm$(SEP)gpi$(SEP)gpiregions.uni
 
 $(OUT)$(SEP)dos$(SEP)os2me.h: dos$(SEP)os2me.uni
 
