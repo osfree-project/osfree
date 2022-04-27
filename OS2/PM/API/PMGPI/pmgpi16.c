@@ -310,7 +310,8 @@ USHORT APIENTRY16 GPIRESTOREPS(void)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL APIENTRY16 GpiAssociate(HPS hps,HDC hdc);
+BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc);
+BOOL APIENTRY16 GPIASSOCIATE(HPS hps,HDC hdc)
 {
   return unimplemented(__FUNCTION__);
 }
