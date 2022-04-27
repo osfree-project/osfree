@@ -1,8 +1,6 @@
 #include <os2.h>
 
 /*
-HPS  APIENTRY GpiCreatePS(HAB,HDC,PSIZEL,ULONG);
-BOOL APIENTRY GpiDestroyPS(HPS);
 BOOL APIENTRY GpiErase(HPS);
 HDC  APIENTRY GpiQueryDevice(HPS);
 BOOL APIENTRY GpiRestorePS(HPS,LONG);
@@ -274,8 +272,8 @@ USHORT APIENTRY16 DEVQUERYCAPS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPICREATEPS(void)
+HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL a,ULONG b);
+HPS  APIENTRY16 GPICREATEPS(HAB hab,HDC hdc,PSIZEL a,ULONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -286,8 +284,8 @@ USHORT APIENTRY16 GPIQUERYPS(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIDESTROYPS(void)
+BOOL APIENTRY16 GPIDESTROYPS(HPS hps);
+BOOL APIENTRY16 GPIDESTROYPS(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }

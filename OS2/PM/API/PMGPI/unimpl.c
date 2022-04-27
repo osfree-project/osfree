@@ -9,7 +9,10 @@
 // DosLogWrite ordinal
 #define LOG_ORD 1112
 
-void APIENTRY_db_print(const char *format,...);
+void APIENTRY _db_print(const char *format,...);
+void APIENTRY _db_print(const char *format,...)
+{
+}
 
 typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
 
