@@ -2002,21 +2002,4 @@ USHORT APIENTRY16 DSPINITSYSTEMDRIVERNAME(void)
   return unimplemented(__FUNCTION__);
 }
 
-// fix prototype !!!
-USHORT APIENTRY16 GPIBEGININKPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPIENDINKPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 GPISTROKEINKPATH(void)
-{
-  return unimplemented(__FUNCTION__);
-}
 

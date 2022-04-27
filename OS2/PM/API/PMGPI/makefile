@@ -1,6 +1,7 @@
-# $Id: makefile,v 1.4 2004/08/16 04:51:07 prokushev Exp $
 #
-#
+# A Makefile for pmdgpi.dll
+# (c) osFree project,
+# author, date
 #
 
 PROJ = pmgpi
@@ -13,6 +14,7 @@ NOLIBS       = 1
 DLL          = 1
 DLLOPT       = initinstance terminstance
 OPTIONS      = manyautodata, caseexact, heapsize=40960, start=dll_initterm
+IMPORTS      = GpiLoadBitmap PMMERGE.5047
 EXPORTS      = &
 # 16-bit functions
 DEVOPENDC                              .0001 RESIDENT, &
@@ -358,7 +360,7 @@ GpiImage                        .0395, &
 GpiIntersectClipRectangle       .0396, &
 GpiLabel                        .0397, &
 GpiLine                         .0398, &
-Bitmap, (GpiLoadBitmap         .0399, &
+GpiLoadBitmap                   .0399, &
 GpiLoadFonts                    .0400, &
 GpiLoadMetaFile                 .0401, &
 GpiMarker                       .0402, &
