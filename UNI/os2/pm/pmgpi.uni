@@ -25,5 +25,7 @@ uses gpicontrolcommon default;
 uses gpibitmapscommon default;
 uses gpibitmaps default;
 uses gpilogcoltable default;
+uses gpipolygons default;
+uses gpiregions default;
 
 end.

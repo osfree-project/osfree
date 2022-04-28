@@ -1,12 +1,12 @@
 #
-# A Makefile for pmdrag.dll
+# A Makefile for pmwin.dll
 # (c) osFree project,
 # author, date
 #
 
 PROJ     = pmwin
 TRGT     = $(PROJ).dll
-DESC     = Drag and Drop API
+DESC     = PM Windowing API
 srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
 ADD_COPT = -i=..$(SEP)include
 ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared

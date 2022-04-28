@@ -175,20 +175,20 @@ function GpiQueryBitmapBits(in a: HPS;
                                                         in e: PBITMAPINFO2): LONG;
 
 function GpiQueryBitmapDimension(in  a: HBITMAP;
-                                 out b: PSIZEL): BOOL;
+                                 out b: SIZEL): BOOL;
 
 function GpiQueryBitmapHandle(in a: HPS;
                               in b: LONG): HBITMAP;
 
 function GpiQueryBitmapInfoHeader(in  a: HBITMAP;
-                                  out b:PBITMAPINFOHEADER2): BOOL;
+                                  out b: BITMAPINFOHEADER2): BOOL;
 
 function GpiQueryBitmapParameters(in  a: HBITMAP;
-                                  out b: PBITMAPINFOHEADER): BOOL;
+                                  out b: BITMAPINFOHEADER): BOOL;
 
 function GpiQueryDeviceBitmapFormats(in a: HPS;
-                                                                 in b: LONG;
-                                                                         in c: PLONG): BOOL;
+                                     in b: LONG;
+                                     in c: PLONG): BOOL;
 
 function GpiQueryPel(in  a: HPS;
                      out b: POINTL): LONG;

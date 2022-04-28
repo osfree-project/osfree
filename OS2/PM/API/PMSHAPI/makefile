@@ -1,5 +1,5 @@
 #
-# A Makefile for pmdrag.dll
+# A Makefile for pmshell.dll
 # (c) osFree project,
 # author, date
 #
