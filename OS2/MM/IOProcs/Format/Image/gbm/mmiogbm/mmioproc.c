@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <gbm.h>
+#include <gbmtrunc.h>
 #pragma pack(2)
 typedef struct _GBMFILESTATUS
 {

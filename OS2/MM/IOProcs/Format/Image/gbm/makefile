@@ -7,7 +7,7 @@
 PROJ  = makeproc
 TRGT  = $(PROJ).exe
 PROJ0 = mmiogbm
-DIRS  = mmioproc
+DIRS  = mmiogbm
 DESC  = GBM IOProc generator
 #defines object file names in format objname.$(O)
 srcfiles = $(p)makeproc$(e)

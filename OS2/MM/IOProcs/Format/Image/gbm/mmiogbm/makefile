@@ -4,8 +4,8 @@
 # author, date
 #
 
-PROJ  = mmiogen
-TRGT  = $(PROJ).exe
+PROJ  = mmiogbm
+TRGT  = $(PROJ).dll
 PROJ0 = mmiogbm
 DESC  = GBM IOProc generator
 #defines object file names in format objname.$(O)
@@ -16,5 +16,6 @@ STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
 ADD_LINKOPT  = lib mmpm2.lib, gbm.lib, libtiff.lib, libjpeg.lib, libpng.lib, libz.lib, ojpeg.lib &
                segment type DATA shared
 UNI2H    = 1
+DLL = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk

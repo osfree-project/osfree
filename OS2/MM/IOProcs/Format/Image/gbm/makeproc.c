@@ -94,6 +94,7 @@ void main(void)
   printf("#include <sys/types.h>\n");
   printf("#include <sys/stat.h>\n");
   printf("#include <gbm.h>\n");
+  printf("#include <gbmtrunc.h>\n");
   printf("#pragma pack(2)\n");
   printf("typedef struct _GBMFILESTATUS\n");
   printf("{\n");
