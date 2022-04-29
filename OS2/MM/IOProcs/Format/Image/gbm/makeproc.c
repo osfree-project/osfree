@@ -106,8 +106,8 @@ void main(void)
   printf("  ULONG   ulImgTotalBytes;\n");
   printf("  BOOL    bSetHeader;             /* TRUE if header set in WRITE mode*/\n");
   printf("  MMIMAGEHEADER   mmImgHdr;       /* Standard image header         */\n");
-  printf("} GIFFILESTATUS;\n");
-  printf("typedef GIFFILESTATUS FAR *PGIFFILESTATUS;\n");
+  printf("} GBMFILESTATUS;\n");
+  printf("typedef GBMFILESTATUS FAR *PGBMFILESTATUS;\n");
   printf("ULONG readImageData(PGBMFILESTATUS pGBMInfo)\n");
   printf("{\n");
   printf("  GBM_ERR rcGBM;\n");
@@ -171,8 +171,8 @@ void main(void)
       printf("          case 8:\n");
       printf("          default: break;\n");
       printf("        };\n");
-      printf("        if ( (rc = gbm_write("", pGBMInfo->fHandleGBM, pGBMInfo->ft, &pGBMInfo->gbm,\n");
-      printf("                                     gbmrgb, pGBMInfo->lpRGBBuf, "")) != GBM_ERR_OK )\n");
+      printf("        if ( (rc = gbm_write(\"\", pGBMInfo->fHandleGBM, pGBMInfo->ft, &pGBMInfo->gbm,\n");
+      printf("                                     gbmrgb, pGBMInfo->lpRGBBuf, \"\")) != GBM_ERR_OK )\n");
       printf("        {\n");
       printf("        }\n");
       printf("      }\n");
@@ -274,7 +274,7 @@ void main(void)
       printf("      gbm_query_n_filetypes(&n_ft);\n");
       printf("      for ( ft = 0; ft < n_ft; ft++ )\n");
       printf("      {\n");
-      printf("        if ( gbm_read_header((PSZ) lParam1, fd, ft, &pGBMInfo->gbm, "") == GBM_ERR_OK )\n");
+      printf("        if ( gbm_read_header((PSZ) lParam1, fd, ft, &pGBMInfo->gbm, \"\") == GBM_ERR_OK )\n");
       printf("        {\n");
       printf("          gbm_query_filetype(ft, &gbmft);\n");
       printf("          if(!stricmp(gbmft.short_name, \"%s\"))\n",gbmft.short_name);
@@ -582,7 +582,7 @@ void main(void)
       printf("      for ( ft = 0; ft < n_ft; ft++ )\n");
       printf("      {\n");
       printf("        GBM gbm;\n");
-      printf("        if ( gbm_read_header((PSZ) lParam1, fd, ft, &gbm, "") == GBM_ERR_OK )\n");
+      printf("        if ( gbm_read_header((PSZ) lParam1, fd, ft, &gbm, \"\") == GBM_ERR_OK )\n");
       printf("        {\n");
       printf("          gbm_query_filetype(ft, &gbmft);\n");
       printf("          if(!stricmp(gbmft.short_name, \"%s\")) bValidGBM=TRUE;\n", gbmft.short_name);
