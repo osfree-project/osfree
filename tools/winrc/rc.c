@@ -29,6 +29,9 @@ To send email to the maintainer of the Willows Twin Libraries.
 *	platform-independent entry points to resource compiler
 
  */
+#if defined(__WATCOMC__) && defined(_WIN32)
+#include "basetsd.h"
+#endif
 
 #include <stdio.h>
 #include <unistd.h>
