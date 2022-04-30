@@ -26,6 +26,10 @@ at the address twin@willows.com
 
 **************************************************************************/
 
+#if defined(__WATCOMC__) && defined(_WIN32)
+#include "basetsd.h"
+#endif
+
 #include "windows.h"
 
 #ifdef _MAX_DRIVE

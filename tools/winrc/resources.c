@@ -30,6 +30,11 @@ To send email to the maintainer of the Willows Twin Libraries.
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#if defined(__WATCOMC__) && defined(_WIN32)
+#include "basetsd.h"
+#endif
+
 #include <string.h>
 #include "windows.h"
 #include "Resources.h"

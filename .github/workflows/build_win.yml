@@ -35,5 +35,5 @@ jobs:
 
             # Build
             - name: Build
-              run:   _wcc.bat
+              run:   _wcc.cmd
               shell: cmd
