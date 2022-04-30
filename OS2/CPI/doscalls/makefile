@@ -812,7 +812,7 @@ EXPORTS = &
         DosR3Frestor               .600, &
         DOSIFINDFIRST              .601, &
                                          &
-# moncalls
+# moncalls (???: no such ordinals imported by moncalls from eCS 2.2 beta II)
         DOS16MONOPEN               .606, &
         DOS16MONCLOSE              .607, &
         DOS16MONREAD               .608, &

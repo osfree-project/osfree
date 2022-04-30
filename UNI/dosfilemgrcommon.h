@@ -186,15 +186,15 @@ typedef SPOOLATTACH * PSPOOLATTACH;
 #define FHB_CHRDEVREMOTE 0x8000
 #define FHB_PIPEREMOTE 0x8000
 typedef struct _FTIME {
-USHORT twosecs:5;
-USHORT minutes:6;
-USHORT hours:5;
+USHORT twosecs;
+USHORT minutes;
+USHORT hours;
 } FTIME;
 typedef FTIME * PFTIME;
 typedef struct _FDATE {
-USHORT day:5;
-USHORT month:4;
-USHORT year:7;
+USHORT day;
+USHORT month;
+USHORT year;
 } FDATE;
 typedef FDATE * PFDATE;
 typedef struct _VOLUMELABEL {
