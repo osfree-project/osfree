@@ -3,6 +3,7 @@
 
 bin
 build
+build.txt
 commit.txt
 gitlog.txt
 git.diff
