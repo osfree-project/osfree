@@ -37,7 +37,11 @@ LOPT = -q -n
 
 $(PATH)os2386.lbc: $(lbcs)
         @%create $@
+!ifeq UNIX TRUE
         @for %f in ($<) do @cat %f >>$@
+!else
+        @for %f in ($<) do @type %f >>$@
+!endif
 
 .def.lbc:
         @sed -f $(MYDIR)def2lbc.sed $(MYDIR)$[@ >$(PATH)$^@
