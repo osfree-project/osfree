@@ -1,6 +1,9 @@
 @echo off
+rem download wget and unzip for win32 manually
+rem https://kumisystems.dl.sourceforge.net/project/mingw/Installer/mingw-get-setup.exe
+rem https://eternallybored.org/misc/wget/1.19.4/32/wget.exe
 rem set path=e:\win32\bin;%path%
-
+rem or...
 rem Install wget
 choco install wget unzip --no-progress
 
