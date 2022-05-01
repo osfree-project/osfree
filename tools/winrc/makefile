@@ -37,7 +37,8 @@ $(PATH)ifyacc.flg: $(PATH)ifyacc.h $(PATH)ifyacc.c
   @sed.exe -e "s/yy/zz/g" -e "s/YY/ZZ/g" $(PATH)ifyacc.h >$(PATH)rc.z.tab.h
   @$(DC) $(PATH)ifyacc.c $(BLACKHOLE)
   @$(DC) $(PATH)ifyacc.h $(BLACKHOLE)
-  @$(RN) $(PATH)rc.z.tab.c $(PATH)ifyacc.c $(BLACKHOLE)
-  @$(RN) $(PATH)rc.z.tab.h $(PATH)ifyacc.h $(BLACKHOLE)
+  @$(CP) $(PATH)rc.z.tab.c $(PATH)ifyacc.c $(BLACKHOLE)
+  @$(CP) $(PATH)rc.z.tab.h $(PATH)ifyacc.h $(BLACKHOLE)
+  @$(DC) $(PATH)rc.z.tab.c $(BLACKHOLE)
+  @$(DC) $(PATH)rc.z.tab.h $(BLACKHOLE)
   @wtouch $(PATH)ifyacc.flg
-
