@@ -1100,7 +1100,7 @@ struct userresbuffer *urb_cat(struct userresbuffer *urb1, struct userresbuffer *
   return urb1;
 }
 
-char *makeintresource(int id)
+char const *makeintresource(int id)
 {
   return MAKEINTRESOURCE(id);
 }
