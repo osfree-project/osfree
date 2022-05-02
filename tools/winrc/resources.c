@@ -1100,7 +1100,7 @@ struct userresbuffer *urb_cat(struct userresbuffer *urb1, struct userresbuffer *
   return urb1;
 }
 
-char const *makeintresource(int id)
+LPCSTR makeintresource(int id)
 {
   return MAKEINTRESOURCE(id);
 }
