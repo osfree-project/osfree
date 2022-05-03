@@ -55,7 +55,7 @@ all: targets .symbolic
 # $(CD) $(MYDIR)
 
 # build and install each target in sequence
-build: precopy prereq .symbolic
+build: precopy prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) $(MAKEOPT) -f $(mf) %t
 # @cd $(PATH) && @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS) && @cd ..
 
@@ -424,7 +424,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
 
-targets: subdirs build install .symbolic
+targets: build install .symbolic
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
