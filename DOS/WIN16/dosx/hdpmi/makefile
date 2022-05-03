@@ -12,7 +12,7 @@ $(p)i31int$(e) $(p)i31mem$(e) $(p)i31sel$(e) $(p)i31swt$(e) $(p)init$(e) $(p)int
 $(p)int2xapi$(e) $(p)int31api$(e) $(p)int33api$(e) $(p)int41api$(e) $(p)intxxapi$(e) $(p)movehigh$(e) $(p)pagemgr$(e) &
 $(p)putchr$(e) $(p)putchrr$(e) $(p)switch$(e) $(p)vxd$(e)
 JWASM      = 1
-ADD_ASMOPT = -D?32BIT=0
+ADD_ASMOPT = -D?32BIT=0 -c -Cp -Sg 
 
 
 !include $(%ROOT)/mk/appsdos.mk
