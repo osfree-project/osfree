@@ -56,7 +56,7 @@ all: targets .symbolic
 
 # build and install each target in sequence
 build: precopy prereq subdirs .symbolic
- @for %t in ($(TARGETS)) do @$(MAKE) $(MAKEOPT) -f $(mf) %t
+ @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 # @cd $(PATH) && @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS) && @cd ..
 
 TRG  =

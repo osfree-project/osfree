@@ -14,10 +14,10 @@ list = $(FILESDIR) $(FILESDIR)$(SEP)tools
 filelist = *.cmd *.awk *.cfg
 srcdir = $(ROOT)tools$(SEP)scripts
 
-tools: copy  .symbolic
- @cd .. 
- @$(MAKE) $(MAKEOPT) subdirs
- @$(CD) $(MYDIR)
+tools: copy subdirs .symbolic
+# @cd .. 
+# @$(MAKE) $(MAKEOPT) subdirs
+# @$(CD) $(MYDIR)
 
 copy: .symbolic
  @if exist $(FILESDIR)$(SEP)base-copied-flag.flg @%quit

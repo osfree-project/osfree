@@ -1293,5 +1293,5 @@ $(PATH)errors$(SEP)f_errors.obj: $(MYDIR)errors$(SEP)f_errors.cpp
 .cpp: $(MYDIR)dialogs
 .cpp: $(MYDIR)errors
 
-TARGETS = subdirs $(PATH)$(PROJ).dll
-TARGET = all
+#TARGETS = subdirs $(PATH)$(PROJ).dll
+#TARGET = all
