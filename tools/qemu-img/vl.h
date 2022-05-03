@@ -52,7 +52,7 @@
 /* XXX: find 64 bit version */
 #define ftruncate chsize
 
-static inline char *realpath(const char *path, char *resolved_path)
+char *realpath(const char *path, char *resolved_path)
 {
     _fullpath(resolved_path, path, _MAX_PATH);
     return resolved_path;
