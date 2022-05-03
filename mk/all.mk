@@ -105,9 +105,9 @@ CC16      = wcc
 CPPC16    = wpp
 
 !ifeq JWASM 1
-ASM       = wasm
-!else
 ASM       = jwasm
+!else
+ASM       = wasm
 !endif
 
 LINKER    = wlink
