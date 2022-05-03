@@ -10,4 +10,6 @@ DESC       = 286 MS-DOS Extender
 srcfiles   = $(p)dosx$(e)
 JWASM      = 1
 
+DIRS = startup
+
 !include $(%ROOT)/mk/appsdos.mk

@@ -1,14 +1,18 @@
+#
+# A Makefile for HDPMI16
+# (c) osFree project,
+# author, date
+#
 
-!include <..\dirs>
+PROJ       = hdpmi16
+TRGT       = $(PROJ).exe
+DESC       = 286 MS-DOS Extender
+srcfiles   = $(p)a20gate $(p)clients $(p)except $(p)hdpmi $(p)heap $(p)helpers $(p)i31deb$(e) $(p)i31dos$(e) $(p)i31fpu$(e) &
+$(p)i31int$(e) $(p)i31mem$(e) $(p)i31sel$(e) $(p)i31swt$(e) $(p)init$(e) $(p)int13api$(e) $(p)int21api$(e) $(p)int2fapi$(e) &
+$(p)int2xapi$(e) $(p)int31api$(e) $(p)int33api$(e) $(p)int41api$(e) $(p)intxxapi$(e) $(p)movehigh$(e) $(p)pagemgr$(e) &
+$(p)putchr$(e) $(p)putchrr$(e) $(p)switch$(e) $(p)vxd$(e)
+JWASM      = 1
 
-!ifndef DEBUG
-DEBUG = 0
-!endif
+DIRS = startup
 
-ALL:
-    @$(MAKE) -s -f HDPMI32.MAK DEBUG=$(DEBUG) 
-    @$(MAKE) -s -f HDPMI16.MAK DEBUG=$(DEBUG) 
-
-clean:
-    @$(MAKE) -s -f HDPMI32.MAK clean DEBUG=$(DEBUG) 
-    @$(MAKE) -s -f HDPMI16.MAK clean DEBUG=$(DEBUG) 
+!include $(%ROOT)/mk/appsdos.mk
