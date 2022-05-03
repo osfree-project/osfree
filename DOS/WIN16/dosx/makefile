@@ -8,6 +8,6 @@ PROJ       = dosx
 TRGT       = $(PROJ).exe
 DESC       = 286 MS-DOS Extender
 srcfiles   = $(p)dosx$(e)
-ADD_ASMOPT = -zcm=masm
+JWASM      = 1
 
 !include $(%ROOT)/mk/appsdos.mk
