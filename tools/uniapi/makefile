@@ -13,4 +13,4 @@ INSTALL_ADD = 1
 install_add: .symbolic
  @cd $(ROOT)UNI
  @$(MAKE) $(MAKEOPT) h
- @cd $(ROOT)tools$(SEP)uniapi
+# @cd $(ROOT)tools$(SEP)uniapi

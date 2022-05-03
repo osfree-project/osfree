@@ -9,7 +9,7 @@ call build-os2 %1 %2 %3 %4 %5 %6 %7 %8 %9
 exit
 
 :_win
-if %PROCESSOR_ARCHITECTURE% == x86 goto _w32
+if x%PROCESSOR_ARCHITECTURE% == xx86 goto _w32
 
 :_w64
 call build-w64 %1 %2 %3 %4 %5 %6 %7 %8 %9
