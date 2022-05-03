@@ -1,14 +1,10 @@
 #
-# A main Makefile for OS/3 boot sequence project
+# A main Makefile for WIN16
 # (c) osFree project,
-# valerius, 2006/10/30
+# author
 #
 
-# First directory must be UNI which produces C/C++ header files
-
-DIRS = samples programs lzexpand
+DIRS = dosx kernel samples programs lzexpand
 
 !include $(%ROOT)/mk/all.mk
 
-#TARGETS=subdirs
-#TARGET=all

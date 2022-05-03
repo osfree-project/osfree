@@ -58,6 +58,7 @@
  #pragma alloca
 #define YYSTACK_USE_ALLOCA
 #else /* not MSDOS, or __TURBOC__, or _AIX */
+#include <malloc.h>
 #if 0
 #ifdef __hpux /* haible@ilog.fr says this works for HPUX 9.05 and up,
 		 and on HPUX 10.  Eventually we can turn this on.  */
