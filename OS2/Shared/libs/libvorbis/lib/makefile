@@ -16,7 +16,7 @@ srcfiles = &
 
 !include $(%ROOT)/mk/libsos2.mk
 
-TARGETS  = $(PATH)$(PROJ).lib subdirs
+#TARGETS  = $(PATH)$(PROJ).lib subdirs
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

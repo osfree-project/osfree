@@ -30,6 +30,6 @@ DEST = os2$(SEP)dll
 
 !include $(%ROOT)/mk/appsos2.mk
 
-TARGETS  = $(PATH)$(PROJ).dll
+#TARGETS  = $(PATH)$(PROJ).dll
 
 .c: $(MYDIR)..

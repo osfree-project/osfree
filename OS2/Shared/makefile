@@ -16,7 +16,7 @@ NOLIBS      = 1
 
 !include $(%ROOT)/mk/libsos2.mk
 
-TARGETS  = $(PATH)$(PROJ).lib # subdirs
+#TARGETS  = $(PATH)$(PROJ).lib # subdirs
 #TARGET = all
 
 $(PATH)$(PROJ).lib: $(OBJS)

@@ -8,5 +8,5 @@ DIRS = shared ampmxmcd audioif audiomcd audiosh fssh indeor31 midiio midimcd &
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

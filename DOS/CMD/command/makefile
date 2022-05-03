@@ -14,12 +14,12 @@ DEST = os2$(SEP)mdos
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS=$(PATH)$(PROJ).com
+#TARGETS=$(PATH)$(PROJ).com
 
 $(PATH)$(PROJ).lnk:
  @%null
 
-$(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)infores
+$(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)utils$(SEP)infores.exe
 !ifneq ENV LINUX
   @copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1$(SEP)criter1.exe + $(PATH)criter$(SEP)criter.exe + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
   @copy $(PATH)command.com $(DEST)
@@ -28,5 +28,5 @@ $(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)infores
   @cp $(PATH)command.com $(DEST)
 !endif
 
-$(PATH)infores:
+$(PATH)utils$(SEP)infores.exe:
  @$(PATH)utils$(SEP)mkinfres.exe $(PATH)infores $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe

@@ -9,5 +9,5 @@ DIRS = exe dll lib implib regina pmregina execiser &
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

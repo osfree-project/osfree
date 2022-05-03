@@ -10,5 +10,5 @@ DIRS = shared PMMERGE PMDRAG PMWIN PMMLE PMSHAPI PMGRE OS2SM PMGPI
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

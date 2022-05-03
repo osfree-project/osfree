@@ -4,9 +4,9 @@
 # valerius, 2006/10/30
 #
 
-DIRS = bdcalls pmbidi
+DIRS = bdcalls pmbidi bdcall32
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

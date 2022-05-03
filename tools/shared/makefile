@@ -9,7 +9,7 @@ LIBS = $(%ROOT)build$(SEP)lib$(SEP)z.lib # $(%ROOT)build$(SEP)lib$(SEP)idl.lib
 
 !include $(%ROOT)/mk/libs.mk
 
-TARGETS  = subdirs $(PATH)$(PROJ).lib
+#TARGETS  = subdirs $(PATH)$(PROJ).lib
 #TARGET   = all
 
 $(PATH)$(PROJ).lib: $(LIBS)

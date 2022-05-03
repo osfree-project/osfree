@@ -7,15 +7,20 @@
 DIRS         = shared filesys term preldr loader kernels
 DEST         = boot$(SEP)loader
 INSTALL_ADD  = 1
+INSTALL = boot.cfg preldr.ini
 
 !include $(%ROOT)/mk/all.mk
 
+$(DEST)$(SEP)boot.cfg: $(PATH)boot.cfg
+
+$(DEST)$(SEP)preldr.ini: $(PATH)preldr.ini
+
 install_add: $(DEST)$(SEP)boot.cfg $(DEST)$(SEP)preldr.ini .symbolic
 
-$(DEST)$(SEP)boot.cfg: $(MYDIR)boot.cfg
+$(PATH)boot.cfg: $(MYDIR)boot.cfg
  @$(SAY) INST     $^. $(LOG)
  @$(CP) $< $^@ $(BLACKHOLE)
 
-$(DEST)$(SEP)preldr.ini: $(MYDIR)preldr.ini
+$(PATH)preldr.ini: $(MYDIR)preldr.ini
  @$(SAY) INST     $^. $(LOG)
  @$(CP) $< $^@ $(BLACKHOLE)

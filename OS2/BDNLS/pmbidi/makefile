@@ -189,7 +189,3 @@ $(PROJ).dll: $(OBJS)
 install: .SYMBOLIC
  $(CP) $(PROJ).dll ..$(SEP)bin
 
-.IGNORE
-clean: .SYMBOLIC
- $(SAY) Making clean... $(LOG)
- $(CLEAN_CMD)

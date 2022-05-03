@@ -26,7 +26,7 @@ UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-TARGETS =  $(PATH)$(PROJ1).exe
+#TARGETS =  $(PATH)$(PROJ1).exe
 
 $(PATH)$(PROJ1).exe: $(PATH)$(PROJ).exe $(MYDIR)4os2.rc
  @$(SAY) RESCMP   $^. $(LOG)

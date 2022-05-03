@@ -23,7 +23,3 @@ $(PATH)parser.c: $(MYDIR)parser.y
 $(PATH)lexer.c: $(MYDIR)lexer.l $(PATH)parser.h
  $(DC) $@
  lex -t $[@ | sed -e "s/yy/__IDL_/g" >$@
-
-s: .SYMBOLIC
- $(SAY) $(PATH)
- $(SAY) $(MYDIR)
