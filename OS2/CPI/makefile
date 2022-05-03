@@ -10,5 +10,5 @@ DIRS = shared ansicall msg nls sesmgr kbdcalls moucalls moncalls quecalls viocal
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS = subdirs
-TARGET = all
+#TARGETS = subdirs
+#TARGET = all

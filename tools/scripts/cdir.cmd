@@ -29,16 +29,16 @@ do forever
     leave
 end
 
-if pos('\', dir) > 0
-then parse value dir with drv '\' dir
+parse value dir with drv ':' dir
 
-if length(drv) = 2 & substr(drv, 2, 1) = ':'
-then do
-  drv /* change drive first */
-  dir = sep || dir
+if length(drv) = 1 then do
+  /* change drive first */
+  '@' || drv || ':'
 end; else; do
-  dir = drv || '\' dir
+  dir = drv
+  drv = ''
 end
 
 dir = strip(dir, 'T', '\')
-call directory(dir)
+if sep = '/' then dir = translate(dir, '/', '\')
+'cd ' || dir

@@ -19,7 +19,7 @@ DEST = os2$(SEP)mdos
 $(PATH)$(PROJ).lnk:
  @%null
 
-$(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)utils$(SEP)infores.exe
+$(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)infores
 !ifneq ENV LINUX
   @copy /b $(PATH)shell$(SEP)command.exe + $(PATH)infores + $(PATH)criter$(SEP)criter1$(SEP)criter1.exe + $(PATH)criter$(SEP)criter.exe + $(PATH)strings$(SEP)strings.dat $(PATH)command.com
   @copy $(PATH)command.com $(DEST)
@@ -28,5 +28,5 @@ $(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)utils$(SEP)infores.exe
   @cp $(PATH)command.com $(DEST)
 !endif
 
-$(PATH)utils$(SEP)infores.exe:
- @$(PATH)utils$(SEP)mkinfres.exe $(PATH)infores $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe
+$(PATH)infores: $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe
+ @$(PATH)utils$(SEP)mkinfres.exe $^@ $(PATH)shell$(SEP)command.wmp $(PATH)shell$(SEP)command.exe

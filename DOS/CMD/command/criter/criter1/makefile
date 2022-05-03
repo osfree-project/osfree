@@ -35,4 +35,4 @@ $(PATH)..$(SEP)context.def: $(MYDIR)..$(SEP)context.x
  @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)
 
 
-DEST =
+DEST = $(NULL)
