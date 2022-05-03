@@ -431,7 +431,7 @@ targets: subdirs build install .symbolic
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(SAY) "cd      " $(RELDIR)%d && $(MAKE) $(MAKEOPT) targets
+ @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(SAY) "cd       $(RELDIR)%d" && $(MAKE) $(MAKEOPT) targets
 ## @for %d in ($(DIRS)) do @cd $(PATH)%d && $(SAY) cd $(DIR_PWD)$(SEP)%d && $(MAKE) $(MAKEOPT)
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 # @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
