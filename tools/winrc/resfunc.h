@@ -108,4 +108,4 @@ struct userresbuffer *urb_binary(buffp b);
 struct userresbuffer *urb_cat(struct userresbuffer *urb1, struct userresbuffer *urb2);
 
 /* Some other potentially useful stuff */
-LPCSTR makeintresource(int id); /* MAKEINTRESOURCE without windows.h */
+char *makeintresource(int id); /* MAKEINTRESOURCE without windows.h */
