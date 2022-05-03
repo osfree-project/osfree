@@ -82,9 +82,9 @@ EXPORTS
     _LOPEN                         @85
     _LWRITE                        @86
     RESERVED5                      @87
-    LSTRCPY                        @88
-    LSTRCAT                        @89
-    LSTRLEN                        @90
+    LSTRCPY                        @88 +
+    LSTRCAT                        @89 +
+    LSTRLEN                        @90 +
     INITTASK                       @91
     GETTEMPDRIVE                   @92
     GETCODEHANDLE                  @93
@@ -122,8 +122,8 @@ EXPORTS
     DISABLEKERNEL                  @125
     MEMORYFREED                    @126
     GETPRIVATEPROFILEINT           @127
-    GETPRIVATEPROFILESTRING        @128
-    WRITEPRIVATEPROFILESTRING      @129
+    GETPRIVATEPROFILESTRING        @128 +
+    WRITEPRIVATEPROFILESTRING      @129 +
     FILECDR                        @130
     GETDOSENVIRONMENT              @131
     GETWINFLAGS                    @132
