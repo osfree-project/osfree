@@ -64,7 +64,11 @@ TRG  =
 # Preprocessor defines
 #
 C_DEFS    = -zq -q -d__WATCOM__ -d__OSFREE__
+!ifeq JWASM 1
+ASM_DEFS  = -q -D__WATCOM__ -D__OSFREE__
+!else
 ASM_DEFS  = -zq -d__WATCOM__ -d__OSFREE__
+!endif
 
 #
 # ADD_COPT and ADD_ASMOPT are defined in
@@ -104,7 +108,11 @@ CPPC      = wpp
 CC16      = wcc
 CPPC16    = wpp
 
+!ifeq JWASM 1
+ASM       = jwasm
+!else
 ASM       = wasm
+!endif
 
 LINKER    = wlink
 # Note by valerius:
@@ -363,7 +371,11 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .asm.obj: .AUTODEPEND
  @$(SAY) ASM      $^. $(LOG)
+!ifeq JWASM 1
+ $(verbose)$(ASM) $(ASMOPT) -Fw=$^*.err -Fo=$^@ $[@ $(LOG)
+!else
  $(verbose)$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+!endif
 
 .cpp.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
