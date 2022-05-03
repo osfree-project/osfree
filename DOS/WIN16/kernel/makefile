@@ -10,7 +10,7 @@ srcfiles = $(p)main$(e) $(p)version$(e) $(p)hmemset$(e) $(p)lstrcat$(e) $(p)lstr
 
 # defines additional options for C compiler
 ADD_COPT = -zW -sg -zw -bw -bg -d3 -db -hw
-ADD_ASMOPT = -D?32BIT=0
+ADD_ASMOPT = -D?32BIT=0 -D?DEBUG=0
 JWASM = 1
 EXPORTS =     FATALEXIT            .1, &
     EXITKERNEL                     .2, &
