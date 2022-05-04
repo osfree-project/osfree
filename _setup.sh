@@ -18,16 +18,19 @@ cd $_CWD/dist
 wget ftp://osfree.org/upload/ow/ow-1.9.zip
 unzip ow-1.9.zip -d /opt
 wget ftp://ftp.hu.freepascal.org/pub/fpc/dist/3.2.2/i386-linux/fpc-3.2.2.i386-linux.tar
+wget https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip
 tar xvf fpc-3.2.2.i386-linux.tar
 cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
+unzip os2322.zip
+unzip baseos2.zip units/* -d/usr/lib/fpc/3.2.2/
 cd ..
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
 tar xvzf regina-rexx-3.9.4.tar.gz -C $_CWD/src
 chown -R $_ME.$_ME $_CWD/osfree $_CWD/dist $_CWD/src $_CWD/bin
 cd $_CWD/src/regina-rexx-3.9.4
 ./configure --prefix=/usr/local
-CC=gcc CXX=g++ make && make install
+make && make install
 rm -rf $_CWD/src/regina-rexx-3.9.4
 echo /usr/local/lib >>/etc/ld.so.conf.d/local.conf
 ldconfig
