@@ -259,7 +259,7 @@
  40,986,An element of the structure is missing%s%s|: ,<location>
  40,987,A value of the structure is missing%s%s|: ,<location>
  40,988,The name or part of the name is illegal for the interpreter%s%s|: ,<location>
- 40,989,A problem occured at the interface between Regina and GCI%s%s|: ,<location>
+ 40,989,A problem occurred at the interface between Regina and GCI%s%s|: ,<location>
  40,990,The type won't fit the requirements for basic types (arguments/return value)%s%s|: ,<location>
  40,991,The number of arguments is wrong or an argument is missing%s%s|: ,<location>
  40,992,GCI's internal stack for arguments got an overflow%s%s|: ,<location>
@@ -335,6 +335,7 @@
  94,109,[Queue \"%s\" not found]|<queuename>
  94,110,[%s invalid for external queues]|<bif>
  94,111,[RXQUEUE function %s invalid for internal queues]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[Propiedad restringida usada en modo "seguro" (safe)]
  95,  1,[%s inválido en modo "seguro" (safe)]|<token>
  95,  2,[Argumento de %s número %d inválido en modo "seguro" (safe)]|<bif>,<argnumber>

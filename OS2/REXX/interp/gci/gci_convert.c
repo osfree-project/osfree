@@ -358,8 +358,6 @@ static void preparenum( void *hidden,
    const char *s = *str;
    int len = *size;
 
-   (hidden = hidden);
-
    /*
     * We prepare the number by hand and strip away blanks and useless zeros.
     */
@@ -409,8 +407,6 @@ static int iswhole( void *hidden,
                     const char *str,
                     int size )
 {
-   (hidden = hidden);
-
    while ( size && GCI_isdigit( *str ) )
    {
       str++;
@@ -477,7 +473,6 @@ static GCI_result int2string( void *hidden,
                               char *str,
                               int *strsize )
 {
-   (hidden = hidden);
    assert( *strsize >= 80 );
 
    *strsize = GCI_Iw( str, bin );
@@ -536,7 +531,6 @@ static GCI_result uint2string( void *hidden,
                                char *str,
                                int *strsize )
 {
-   (hidden = hidden);
    assert( *strsize >= 80 );
 
    *strsize = GCI_Uw( str, bin );
@@ -562,7 +556,6 @@ static GCI_result string2float( void *hidden,
    char *buf;
    char *p;
 
-   (hidden = hidden);
    preparenum( hidden, &str, &size );
    if ( !size )
       return GCI_WrongInput;
@@ -613,7 +606,6 @@ static GCI_result float2string( void *hidden,
                                 char *str,
                                 int *strsize )
 {
-   (hidden = hidden);
    assert( *strsize >= 128 );
 
    *strsize = GCI_Fw( str, bin );

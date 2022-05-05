@@ -55,7 +55,7 @@
 #define GCI_U_8       unsigned long
 #define GCI_U_8M      ULONG_MAX
 
-#if 0
+#if 1
 
              AMD's Opteron uses argument passing on the floating point unit
              which isn't supported by GCI!

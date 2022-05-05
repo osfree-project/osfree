@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regutil.h,v 1.6 2013/10/11 06:19:05 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regutil.h,v 1.7 2021/07/11 05:11:23 mark Exp $
  */
 
 
@@ -45,6 +45,8 @@ rxfunc(sysmoveobject);
 rxfunc(syscreateshadow);
 rxfunc(syscurstate);
 rxfunc(sysgetkey);
+rxfunc(sysgetline);
+rxfunc(sysgetlinehistory);
 rxfunc(systextscreenread);
 rxfunc(systextscreensize);
 rxfunc(syscloseeventsem);
@@ -70,6 +72,7 @@ rxfunc(sysdrivemap);
 rxfunc(syssetpriority);
 rxfunc(syssleep);
 rxfunc(sysswitchsession);
+rxfunc(syshomedirectory);
 rxfunc(syssystemdirectory);
 rxfunc(sysvolumelabel);
 rxfunc(sysloadfuncs);

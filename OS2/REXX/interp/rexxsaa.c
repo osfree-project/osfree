@@ -210,6 +210,7 @@ struct ExitHandlers
 #define RXMAP_TYPE(a) ((a)==RXCOMMAND ? RX_TYPE_COMMAND : \
               (a)==RXFUNCTION ? RX_TYPE_FUNCTION : RX_TYPE_SUBROUTINE)
 
+
 /* init_rexxsaa initializes the module.
  * Currently, we set up the thread specific data.
  * The function returns 1 on success, 0 if memory is short.
@@ -433,7 +434,7 @@ int IfcSubCmd( tsd_t *TSD, int EnvLen, const char *EnvStr,
          if ( Envir->lib != NULL )
          {
             cmdhst.rxcmd_dll = (unsigned char*) Str_val( Envir->lib->name ) ;
-            cmdhst.rxcmd_dll_len = Str_len( Envir->lib->name );
+            cmdhst.rxcmd_dll_len = (USHORT)Str_len( Envir->lib->name );
          }
       }
       parm = (PUCHAR)&cmdhst;
@@ -567,8 +568,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          siosay.rxsio_string.strlength = OutputLength1 ;
          parm = (PEXIT)&siosay;
          SubCode = (Code==RX_EXIT_STDOUT) ? RXSIOSAY : RXSIOTRC ;
-         MainCode = RXSIO ;
-
          break ;
 
       case RX_EXIT_TRCIN:
@@ -582,7 +581,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          siodtr.rxsiodtr_retc.strptr = *InputString ;
          parm = (PEXIT)&siodtr;
          SubCode = RXSIODTR ;
-         MainCode = RXSIO ;
          break ;
 
       case RX_EXIT_PULL:
@@ -596,7 +594,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          siotrd.rxsiotrd_retc.strptr = *InputString ;
          parm = (PEXIT)&siotrd;
          SubCode = RXSIOTRD ;
-         MainCode = RXSIO ;
          break ;
 
       case RX_EXIT_INIT:
@@ -606,7 +603,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
                 InputString == NULL &&
                 OutputLength2 == 0 &&
                 OutputString2 == NULL);
-         MainCode = RXINI ;
          SubCode = RXINIEXT ;
          break ;
 
@@ -617,7 +613,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
                 InputString == NULL &&
                 OutputLength2 == 0 &&
                 OutputString2 == NULL);
-         MainCode = RXTER ;
          SubCode = RXTEREXT ;
          break ;
 
@@ -633,7 +628,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          envset.rxenv_value.strptr = OutputString2 ;
          envset.rxenv_value.strlength = OutputLength2 ;
          parm = (PEXIT)&envset;
-         MainCode = RXENV ;
          SubCode = RXENVSET ;
          break ;
 
@@ -650,7 +644,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          envget.rxenv_name.strlength = OutputLength1 ;
          parm = (PEXIT)&envget;
          SubCode = RXENVGET ;
-         MainCode = RXENV ;
          break ;
 
       case RX_EXIT_SETCWD:
@@ -661,7 +654,6 @@ int IfcDoExit( tsd_t *TSD, int Code,
          cwdset.rxcwd_value.strptr = OutputString1 ;
          cwdset.rxcwd_value.strlength = OutputLength1 ;
          parm = (PEXIT)&cwdset;
-         MainCode = RXENV ;
          SubCode = RXCWDSET ;
          break ;
 
@@ -676,18 +668,25 @@ int IfcDoExit( tsd_t *TSD, int Code,
          cwdget.rxcwd_value.strptr = *InputString ;
          parm = (PEXIT)&cwdget;
          SubCode = RXCWDGET ;
-         MainCode = RXENV ;
          break ;
 
       default:
          exiterror( ERR_INTERPRETER_FAILURE, 1, __FILE__, __LINE__, "" )  ;
          break;
    }
+   MainCode = IfcMapExits( Code );
 
-   assert( rt->CurrentHandlers->Handlers[MainCode] ) ;
+   //assert( rt->CurrentHandlers->Handlers[MainCode] ) ;
+   if ( rt->CurrentHandlers->Handlers[MainCode] )
+   {
 
-   rc = (*(rt->CurrentHandlers->Handlers[MainCode]))(MainCode, SubCode, parm);
-   TSD->var_indicator = 0;
+      rc = (*(rt->CurrentHandlers->Handlers[MainCode]))(MainCode, SubCode, parm);
+      TSD->var_indicator = 0;
+   }
+   else
+   {
+      rc = RXEXIT_NOT_HANDLED;
+   }
    assert( rc==RXEXIT_HANDLED || rc==RXEXIT_NOT_HANDLED ||
            rc==RXEXIT_RAISE_ERROR ) ;
 
@@ -846,6 +845,7 @@ EXPORT_C APIRET APIENTRY RexxStart(LONG       ArgCount,
       if ( ParStrings[cnt] == NULL )
          ParLengths[cnt] = RX_NO_STRING;
    }
+
    if ( Result != NULL )
    {
       RLength = (int) RXSTRLEN( *Result );
@@ -1307,7 +1307,7 @@ EXPORT_C APIRET APIENTRY RexxVariablePool(PSHVBLOCK RequestBlockList )
 
             else
             {
-               int Code=0 ;
+               Code=0 ;
                if (Req->shvname.strptr)
                {
                   if (Req->shvname.strlength==7 &&
@@ -2061,4 +2061,63 @@ fastexit:
 EXPORT_C APIRET APIENTRY ReginaCleanup( VOID )
 {
    return( IfcReginaCleanup() );
+}
+
+/*
+ * Maps the "internal" system exit codes used in client.c to the SAA exit codes
+ */
+int IfcMapExits( int internal )
+{
+   int MainCode = 0;
+   switch( internal )
+   {
+      case RX_EXIT_STDERR:
+      case RX_EXIT_STDOUT:
+         MainCode = RXSIO ;
+         break;
+      case RX_EXIT_TRCIN:
+         MainCode = RXSIO ;
+         break;
+      case RX_EXIT_PULL:
+         MainCode = RXSIO ;
+         break;
+      case RX_EXIT_INIT:
+         MainCode = RXINI ;
+         break;
+      case RX_EXIT_TERMIN:
+         MainCode = RXTER ;
+         break;
+      case RX_EXIT_SETENV:
+         MainCode = RXENV ;
+         break;
+      case RX_EXIT_GETENV:
+         MainCode = RXENV ;
+         break;
+      case RX_EXIT_SETCWD:
+         MainCode = RXENV ;
+         break;
+      case RX_EXIT_GETCWD:
+         MainCode = RXENV ;
+         break;
+   }
+   return MainCode;
+}
+
+/*
+ * Determine if the current interpreter has regsitered handlers for the supplied "internal"
+ * exit handler.
+ * Called from client.c
+ */
+int IfcExitHandlerExists( tsd_t *TSD, int internal )
+{
+   int MainCode;
+   rex_tsd_t *rt;
+
+   MainCode = IfcMapExits( internal );
+   rt = (rex_tsd_t *)TSD->rex_tsd;
+   if ( !rt->CurrentHandlers )
+      return 0;
+   if ( !rt->CurrentHandlers->Handlers[MainCode] )
+      return 0;
+   return 1;
 }

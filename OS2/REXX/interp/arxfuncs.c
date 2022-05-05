@@ -492,7 +492,6 @@ streng *arexx_close( tsd_t *TSD, cparamboxptr parm1 )
 streng *arexx_writech( tsd_t *TSD, cparamboxptr parm1 )
 {
   cparamboxptr parm2;
-  char *txt;
   FILE *file;
   int count;
 
@@ -503,9 +502,7 @@ streng *arexx_writech( tsd_t *TSD, cparamboxptr parm1 )
   if ( file==NULL )
     exiterror( ERR_INCORRECT_CALL, 27, "WRITECH", tmpstr_of( TSD, parm1->value ));
 
-  txt = str_of( TSD, parm2->value );
-  count = fprintf( file, "%s", txt );
-  FreeTSD( txt );
+  count = fwrite( parm2->value->value, 1, Str_len(parm2->value), file );
 
   return int_to_streng( TSD, count );
 }
@@ -576,7 +573,11 @@ streng *arexx_seek( tsd_t *TSD, cparamboxptr parm1 )
       break;
   }
 
-  pos = fseek( file, offset, wench );
+  pos = ftell( file );
+  if ( fseek( file, offset, wench ) != -1 )
+  {
+     pos = ftell( file );
+  }
   return int_to_streng( TSD, pos );
 }
 
@@ -625,7 +626,7 @@ streng *arexx_readch( tsd_t *TSD, cparamboxptr parm1 )
         */
        count = 0;
     }
-    Str_len( ret ) = count;
+    ret->len = count;
 
     return ret;
   }
@@ -953,7 +954,7 @@ streng *arexx_trim( tsd_t *TSD, cparamboxptr parm1 )
 
 streng *arexx_upper( tsd_t *TSD, cparamboxptr parms )
 {
-   int rlength=0, length=0, start=1, i=0 ;
+   rx_64 rlength=0, length=0, start=1, i=0 ;
    int changecount;
    char padch=' ' ;
    streng *str=NULL, *ptr=NULL ;
@@ -971,14 +972,14 @@ streng *arexx_upper( tsd_t *TSD, cparamboxptr parms )
     */
    if ( parms->next != NULL
    &&   parms->next->value )
-      start = atopos( TSD, parms->next->value, "UPPER", 2 ) ;
+      start = atoposrx64( TSD, parms->next->value, "UPPER", 2 ) ;
    /*
     * Get length, if supplied...
     */
    if ( parms->next != NULL
    && ( (bptr = parms->next->next) != NULL )
    && ( parms->next->next->value ) )
-      length = atozpos( TSD, parms->next->next->value, "UPPER", 3 ) ;
+      length = atozposrx64( TSD, parms->next->next->value, "UPPER", 3 ) ;
    else
       length = ( rlength >= start ) ? rlength - start + 1 : 0;
    /*
@@ -991,7 +992,7 @@ streng *arexx_upper( tsd_t *TSD, cparamboxptr parms )
    /*
     * Create our new starting; duplicate of input string
     */
-   ptr = Str_makeTSD( length );
+   ptr = Str_makeTSD( rlength );
    memcpy( Str_val( ptr ), Str_val( str ), Str_len( str ) );
    /*
     * Determine where to start changing case...
@@ -1004,7 +1005,7 @@ streng *arexx_upper( tsd_t *TSD, cparamboxptr parms )
    /*
     * Change them
     */
-   mem_upper( &ptr->value[i], changecount );
+   mem_upperrx64( &ptr->value[i], changecount );
    /*
     * Append pad characters if required...
     */

@@ -51,7 +51,7 @@ streng *dointerpret( tsd_t *TSD, streng *string )
    nodeptr savecurrentnode ;
    streng *ptr;
    internal_parser_type parsing;
-   int errpos;
+   int errpos=0;
 
    fetch_string( TSD, string, &parsing );
 
@@ -62,8 +62,11 @@ streng *dointerpret( tsd_t *TSD, streng *string )
        * get position from parent script if available and add it.
        * fixes bug 658542.
        */
-      errpos = TSD->currentnode->lineno;
-      errpos = ( errpos > 0 ) ? errpos - 1 : 0 ;
+      if ( TSD->currentnode )
+      {
+         errpos = TSD->currentnode->lineno;
+         errpos = ( errpos > 0 ) ? errpos - 1 : 0 ;
+      }
       exiterror( ERR_YACC_SYNTAX, 1, parsing.tline + errpos ) ;
       return NULL ;
    }

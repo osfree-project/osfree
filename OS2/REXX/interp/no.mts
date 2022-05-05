@@ -271,6 +271,7 @@
  94,109,[Finner ikke køen \"%s\"]|<queuename>
  94,110,[%s ugyldig for eksterne køer]|<bif>
  94,111,[RXQUEUE-funksjon %s ugyldig for interne køer]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[Begrenset feature ble brukt i "sikker" modus]
  95,  1,[%s ugyldig i "sikker" modus]|<token>
  95,  2,[%s argument %d ugyldig i "sikker" modus]|<bif>,<argnumber>

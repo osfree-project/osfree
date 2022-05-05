@@ -693,7 +693,7 @@ my_getopt_long
 int
 my_getopt_long_only
 #ifdef HAVE_PROTO
-(int argc, char *const *argv, const char *my_getopt_options, const struct option *long_options, int *opt_index)
+(int argc, char *const *argv, const char *options, const struct my_getopt_option *long_options, int *opt_index)
 #else
 (argc, argv, options, long_options, opt_index)
    int argc;

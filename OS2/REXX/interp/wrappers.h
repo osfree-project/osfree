@@ -351,6 +351,8 @@
 #define mem_cmpic                    __regina_mem_cmpic
 #define mem_lower                    __regina_mem_lower
 #define mem_upper                    __regina_mem_upper
+#define mem_lowerrx64                __regina_mem_lowerrx64
+#define mem_upperrx64                __regina_mem_upperrx64
 #define memory_stats                 __regina_memory_stats
 #define months                       __regina_months
 #define my_fullpath                  __regina_my_fullpath
@@ -563,7 +565,6 @@
 #define unx_eof                      __regina_unx_eof
 #define unx_fork                     __regina_unx_fork
 #define unx_getenv                   __regina_unx_getenv
-#define unx_getpath                  __regina_unx_getpath
 #define unx_getpid                   __regina_unx_getpid
 #define unx_gettid                   __regina_unx_gettid
 #define unx_open                     __regina_unx_open

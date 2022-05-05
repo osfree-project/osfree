@@ -1,7 +1,7 @@
 %{
 
 #ifndef lint
-static char *RCSid = "$Id: yaccsrc.y,v 1.43 2015/04/02 06:18:55 mark Exp $";
+static char *RCSid = "$Id: yaccsrc.y,v 1.44 2019/04/06 10:11:51 mark Exp $";
 #endif
 
 /*
@@ -127,7 +127,7 @@ static void move_labels( nodeptr front, nodeptr end, int level );
 %token LABEL DOVARIABLE HEXSTRING STRING VERSION LINEIN WHATEVER NAME
 %token FAILURE BINSTRING OPTIONS ENVIRONMENT LOSTDIGITS
 %token GTGT LTLT NOTGTGT NOTLTLT GTGTE LTLTE
-%token INPUT OUTPUT ERROR NORMAL APPEND REPLACE STREAM STEM LIFO FIFO
+%token INPUT OUTPUT ERROR NORMAL APPEND REPLACE STREAM STEM LIFO FIFO NOEOL
 %token LOWER CASELESS
 %token PLUSASSIGNMENTVARIABLE MINUSASSIGNMENTVARIABLE MULTASSIGNMENTVARIABLE DIVASSIGNMENTVARIABLE MODULUSASSIGNMENTVARIABLE INTDIVASSIGNMENTVARIABLE ORASSIGNMENTVARIABLE XORASSIGNMENTVARIABLE ANDASSIGNMENTVARIABLE CONCATASSIGNMENTVARIABLE
 
@@ -583,6 +583,9 @@ errorstmt    : nspace ERROR nspace resourceo { with->p[2] = $4; }
              ;
 
 resourcei    : resources               { $$ = $1 ; }
+             | NOEOL resources         { $$ = $2 ;
+                                         $$->u.of.noeol = 1 ; }
+             | NOEOL error             { exiterror( ERR_INV_SUBKEYWORD, 8, __reginatext ) ; }
              | NORMAL                  { $$ = makenode(X_ADDR_WITH, 0) ;
                                          $$->lineno = parser_data.tline ;
                                          $$->charnr = parser_data.tstart ; }

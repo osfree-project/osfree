@@ -382,7 +382,7 @@ static int write_buffered(const tsd_t *TSD, int hdl, const void *buf,
          if (st->IOBused)
          {
             /* the following call will return -EAGAIN if not completed */
-            rc = TSD->OS->write(hdl, st->IObuf, st->IOBused, async_info);
+            rc = TSD->OS->write_exec(hdl, st->IObuf, st->IOBused, async_info);
          }
          else
             rc = 0;
@@ -391,7 +391,7 @@ static int write_buffered(const tsd_t *TSD, int hdl, const void *buf,
             if (rc == (int) st->IOBused)
             {
                st->IOBused = 0;
-               rc = TSD->OS->write(hdl, NULL, 0, async_info);
+               rc = TSD->OS->write_exec(hdl, NULL, 0, async_info);
             }
             else
             {
@@ -400,7 +400,7 @@ static int write_buffered(const tsd_t *TSD, int hdl, const void *buf,
             }
          }
          else
-            TSD->OS->write(hdl, NULL, 0, async_info);
+            TSD->OS->write_exec(hdl, NULL, 0, async_info);
          /*
           * continue until everything written or an error like -EAGAIN
           * is available. -EAGAIN will let the caller come back to this
@@ -430,7 +430,7 @@ static int write_buffered(const tsd_t *TSD, int hdl, const void *buf,
          return(done);
 
       /* step 3: buffer full, giving optimal performance (I hope!) */
-      rc = TSD->OS->write(hdl, st->IObuf, st->IOBused, async_info);
+      rc = TSD->OS->write_exec(hdl, st->IObuf, st->IOBused, async_info);
       if (rc <= 0)
       {
          if (done)
@@ -518,7 +518,7 @@ static int reap( const tsd_t *TSD, streng **string, int hdl, void *async_info )
    if (string == NULL)
       return( 0 ) ;
 
-   done = TSD->OS->read( hdl, buf, sizeof(buf), async_info ) ;
+   done = TSD->OS->read_exec( hdl, buf, sizeof(buf), async_info ) ;
    if (done <= 0)
    {
       if (done == 0)
@@ -563,12 +563,12 @@ void cleanup_envirpart(const tsd_t *TSD, environpart *ep)
 
    if (ep->hdls[0] != -1)
    {
-      TSD->OS->close(ep->hdls[0], (ep->FileRedirected) ? NULL : st->AsyncInfo);
+      TSD->OS->close_exec(ep->hdls[0], (ep->FileRedirected) ? NULL : st->AsyncInfo);
       ep->hdls[0] = -1;
    }
    if (ep->hdls[1] != -1)
    {
-      TSD->OS->close(ep->hdls[1], (ep->FileRedirected) ? NULL : st->AsyncInfo);
+      TSD->OS->close_exec(ep->hdls[1], (ep->FileRedirected) ? NULL : st->AsyncInfo);
       ep->hdls[1] = -1;
    }
    if (ep->hdls[2] != -1)
@@ -1000,21 +1000,30 @@ static streng *fetch_food( tsd_t *TSD, environment *env )
 
    if ( env->input.type != STREAM )
    {
-   /* Append a newline to the end of the line before returning */
+      if ( env->input.flags.noeol )
+      {
+         /* ADDRESS SYSTEM ... WITH INPUT NOEOL ... */
+         assert( delflag ) ;
+         retval = (streng *) c ; /* will be destroyed */
+      }
+      else
+      {
+         /* Append a newline to the end of the line before returning */
 #if defined(DOS) || defined(OS2) || defined(WIN32)
-      retval = Str_makeTSD( c->len + 2 ) ;
-      memcpy(retval->value, c->value, c->len);
-      retval->value[c->len] = REGINA_CR;
-      retval->value[c->len + 1] = REGINA_EOL;
-      retval->len = c->len + 2;
+         retval = Str_makeTSD( c->len + 2 ) ;
+         memcpy(retval->value, c->value, c->len);
+         retval->value[c->len] = REGINA_CR;
+         retval->value[c->len + 1] = REGINA_EOL;
+         retval->len = c->len + 2;
 #else
-      retval = Str_makeTSD( c->len + 1 ) ;
-      memcpy(retval->value, c->value, c->len);
-      retval->value[c->len] = REGINA_EOL;
-      retval->len = c->len + 1;
+         retval = Str_makeTSD( c->len + 1 ) ;
+         memcpy(retval->value, c->value, c->len);
+         retval->value[c->len] = REGINA_EOL;
+         retval->len = c->len + 1;
 #endif
-      if (delflag)
-         Free_stringTSD( (streng *) c ) ;
+         if (delflag)
+            Free_stringTSD( (streng *) c ) ;
+      }
    }
    else
    {
@@ -1277,7 +1286,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
       }
       /* seek positions of both fdin may have been destroyed */
       TSD->OS->restart_file(env->input.hdls[0]);
-      TSD->OS->close(env->input.hdls[1], NULL);
+      TSD->OS->close_exec(env->input.hdls[1], NULL);
       env->input.hdls[1] = -1;
    }
 
@@ -1297,9 +1306,9 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
    }
 
    /* Close the child part of the handles */
-   if (env->input.hdls[0]  != -1) TSD->OS->close(env->input.hdls[0], NULL) ;
-   if (env->output.hdls[1] != -1) TSD->OS->close(env->output.hdls[1], NULL) ;
-   if (env->error.hdls[1]  != -1) TSD->OS->close(env->error.hdls[1], NULL) ;
+   if (env->input.hdls[0]  != -1) TSD->OS->close_exec(env->input.hdls[0], NULL) ;
+   if (env->output.hdls[1] != -1) TSD->OS->close_exec(env->output.hdls[1], NULL) ;
+   if (env->error.hdls[1]  != -1) TSD->OS->close_exec(env->error.hdls[1], NULL) ;
    env->input.hdls[0] = env->output.hdls[1] = env->error.hdls[1] = -1;
 
    /* Force our own handles to become nonblocked */
@@ -1346,7 +1355,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
                      errno = -rc;
                      exiterror( ERR_SYSTEM_FAILURE, 920, "writing to", "input redirection", strerror(errno) );
                   }
-                  if (TSD->OS->close(in, st->AsyncInfo))
+                  if (TSD->OS->close_exec(in, st->AsyncInfo))
                      exiterror( ERR_SYSTEM_FAILURE, 920, "closing redirection", "for input", strerror(errno) );
                   env->input.hdls[1] = in = -1 ;
                   rc = -1 ; /* indicate a closed stream */
@@ -1361,7 +1370,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
                      TSD->OS->add_async_waiter(st->AsyncInfo, in, 0);
                   else
                   {
-                     TSD->OS->close(in, st->AsyncInfo) ;
+                     TSD->OS->close_exec(in, st->AsyncInfo) ;
                      env->input.hdls[1] = in = -1 ;
                   }
                }
@@ -1390,7 +1399,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
                   TSD->OS->add_async_waiter(st->AsyncInfo, out, 1);
                else
                {
-                  TSD->OS->close(out, st->AsyncInfo) ;
+                  TSD->OS->close_exec(out, st->AsyncInfo) ;
                   env->output.hdls[0] = out = -1 ;
                }
             }
@@ -1410,7 +1419,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
                   TSD->OS->add_async_waiter(st->AsyncInfo, err, 1);
                else
                {
-                  TSD->OS->close(err, st->AsyncInfo) ;
+                  TSD->OS->close_exec(err, st->AsyncInfo) ;
                   env->error.hdls[0] = err = -1 ;
                }
             }
@@ -1443,7 +1452,7 @@ int posix_do_command( tsd_t *TSD, const streng *command, int io_flags, environme
    if ( ( env->input.type == QUEUE ) && ( env->input.tmp_queue == NULL ) )
       addr_purge_queue( TSD, env->input.queue ) ;
 
-   rc = TSD->OS->wait(child);
+   rc = TSD->OS->wait_exec(child);
 
 #ifdef SIGPIPE
    regina_signal( SIGPIPE, prev_sig ) ;

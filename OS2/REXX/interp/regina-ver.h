@@ -1,9 +1,9 @@
-#define VER           "391"
-#define VER_DOT       "3.9.1"
-#define VER_DATE      "5 Apr 2015"
+#define VER           "394"
+#define VER_DOT       "3.9.4"
+#define VER_DATE      "25 Oct 2021"
 #define VER_MAJOR     "3"
 #define VER_MINOR     "9"
-#define VER_RELEASE   "1"
+#define VER_RELEASE   "4"
 #define VER_SUPP
 
 #define REGINA_VERSION_DATE     VER_DATE

@@ -4,7 +4,7 @@ dnl *******************WARNING****************************
 dnl Using an autoconf later than 2.61 will result in configure
 dnl failing to run on QNX4
 dnl *******************WARNING****************************
-AC_INIT(Regina Rexx Interpreter, m4_esyscmd_s([grep VER_DOT ./regina.ver | cut -f 2 -d '=']),mark@rexx.org, Regina-REXX)
+AC_INIT(Regina Rexx Interpreter, m4_esyscmd_s([grep VER_DOT ./regina.ver | cut -f 2 -d '=']),mark@rexx.org, regina-rexx)
 AC_PREFIX_DEFAULT(/usr/local)
 
 . $srcdir/regina.ver
@@ -20,6 +20,11 @@ AC_SUBST(VER_MAJOR)
 AC_SUBST(VER_MINOR)
 AC_SUBST(VER_RELEASE)
 AC_SUBST(VER_SUPP)
+AC_SUBST(VER_SOMAJOR)
+AC_SUBST(VER_SOMINOR)
+REGINA_PACKAGE_NAME="regina-rexx"
+AC_SUBST(REGINA_PACKAGE_NAME)
+MH_SET_FULL_PACKAGE_NAME($REGINA_PACKAGE_NAME,$VER_DOT)
 cp $srcdir/common/config.guess $srcdir
 cp $srcdir/common/config.sub $srcdir
 
@@ -46,6 +51,7 @@ sinclude(common/inclibarch.m4)
 mymakefile="Makefile"
 on_qnx4=no
 on_beos=no
+on_haiku=no
 gci_available=no
 GCI_CONVERT_HEADER="gci_convert.unsupported"
 case "$target" in
@@ -75,12 +81,12 @@ case "$target" in
       ;;
    sparc*sunos*)
       ;;
-   i*86-*linux*|*-k*bsd-gnu*|*-gnu*)
-      GCI_CONVERT_HEADER="gci_convert.linux.i86"
+   *86_64-*linux*)
+      GCI_CONVERT_HEADER="gci_convert.linux.86_64"
       gci_available=yes
       ;;
-   *86_64-*linux*|*-k*bsd-gnu*|*-gnu*)
-      GCI_CONVERT_HEADER="gci_convert.linux.86_64"
+   i*86-*linux*|*-k*bsd-gnu*|*-gnu*)
+      GCI_CONVERT_HEADER="gci_convert.linux.i86"
       gci_available=yes
       ;;
    alpha*-*linux*)
@@ -108,6 +114,9 @@ case "$target" in
    *beos*)
       on_beos=yes
       ;;
+   *haiku*)
+      on_haiku=yes
+      ;;
    *minix*)
       SYS_DEFS="-D__MINIX__"
       ;;
@@ -125,7 +134,7 @@ dnl Check for extra required libraries - don't include libfl or libl
 #MH_EXTRA_LIBS=""
 #MH_CHECK_LIB(m nsl nsl_s socket net network)
 dnl -- check for crypt library and function
-MH_CHECK_CRYPT
+REG_CHECK_CRYPT
 if test "$on_qnx4" = "no"; then
   AC_PROG_LEX
 fi
@@ -150,11 +159,13 @@ AC_CHECK_HEADERS( \
    fcntl.h \
    fnmatch.h \
    grp.h \
+   readline/history.h \
    iconv.h \
    inttypes.h \
    limits.h \
    malloc.h \
    math.h \
+   memory.h \
    ncurses.h \
    netdb.h \
    netinet/in.h \
@@ -162,6 +173,7 @@ AC_CHECK_HEADERS( \
    poll.h \
    process.h \
    pwd.h \
+   readline/readline.h \
    setjmp.h \
    share.h \
    signal.h \
@@ -197,7 +209,7 @@ AC_CHECK_FUNCS(sysconf div raise putenv usleep random ftruncate \
    _fullpath vsprintf _splitpath2 _splitpath sigaction strtof \
    lstat mkstemp inet_ntop gmtime_r localtime_r \
    getgrgid_r getpwuid_r gethostbyname_r \
-   atoll fseeko ftello \
+   atoll fseeko ftello getopt_long \
    readlink realpath getbootfile tgetstr statfs mbstowcs mmap iconv)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -205,18 +217,18 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
-MH_CHECK_CC_O
-MH_CHECK__SIGHANDLER_T
-MH_STRUCT_RANDOM_DATA
-MH_CHECK_BUILTIN_RETURN_ADDRESS
+REG_CHECK_CC_O
+REG_CHECK__SIGHANDLER_T
+REG_STRUCT_RANDOM_DATA
+REG_CHECK_BUILTIN_RETURN_ADDRESS
 MH_C_LONG_LONG
-MH_CHECK_TYPE_SOCKLEN_T
+REG_CHECK_TYPE_SOCKLEN_T
 AC_CHECK_TYPES([union semun],[],[],
 [#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>])
 
-MH_CHECK_F_MNTFROMNAME
+REG_CHECK_F_MNTFROMNAME
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
@@ -267,20 +279,37 @@ AC_SUBST(REGSCREENUX)
 
 dnl
 dnl where are termcap functions
-save_LIBS="$LIBS"
-AC_SEARCH_LIBS(tgetent,[ncurses termcap curses termlib],REGUTIL_TERM_LIB="$ac_cv_search_tgetent",REGUTIL_TERM_LIB="")
-if test "$REGUTIL_TERM_LIB" = "none required" -o "$REGUTIL_TERM_LIB" = "no" -o "$with_screen" = "no"; then
-  REGUTIL_TERM_LIB=""
-fi
-LIBS="$save_LIBS"
-
+REGUTIL_TERM_LIB=""
+#if test "$on_qnx4" = "no"; then
+   save_LIBS="$LIBS"
+   AC_SEARCH_LIBS(tgetent,[ncurses termcap curses termlib],REGUTIL_TERM_LIB="$ac_cv_search_tgetent",REGUTIL_TERM_LIB="")
+   if test "$REGUTIL_TERM_LIB" = "none required" -o "$REGUTIL_TERM_LIB" = "no" -o "$with_screen" = "no"; then
+     REGUTIL_TERM_LIB=""
+   fi
+   LIBS="$save_LIBS"
+#fi
 dnl where are math functions
-save_LIBS="$LIBS"
-AC_SEARCH_LIBS(log10,[m c],REGUTIL_MATH_LIB="$ac_cv_search_log10",REGUTIL_MATH_LIB="")
-if test "$REGUTIL_MATH_LIB" = "none required" -o "$REGUTIL_MATH_LIB" = "no"; then
-  REGUTIL_MATH_LIB=""
-fi
-LIBS="$save_LIBS"
+REGUTIL_MATH_LIB=""
+#if test "$on_qnx4" = "no"; then
+   save_LIBS="$LIBS"
+   AC_SEARCH_LIBS(log10,[m c],REGUTIL_MATH_LIB="$ac_cv_search_log10",REGUTIL_MATH_LIB="")
+   if test "$REGUTIL_MATH_LIB" = "none required" -o "$REGUTIL_MATH_LIB" = "no"; then
+     REGUTIL_MATH_LIB=""
+   fi
+   LIBS="$save_LIBS"
+#fi
+
+dnl
+dnl where are readline functions
+REGUTIL_READLINE_LIB=""
+#if test "$on_qnx4" = "no"; then
+   save_LIBS="$LIBS"
+   AC_SEARCH_LIBS(add_history,[readline],REGUTIL_READLINE_LIB="$ac_cv_search_add_history",REGUTIL_READLINE_LIB="")
+   if test "$REGUTIL_READLINE_LIB" = "none required" -o "$REGUTIL_READLINE_LIB" = "no"; then
+     REGUTIL_READLINE_LIB=""
+   fi
+   LIBS="$save_LIBS"
+#fi
 
 dnl where is crypt
 save_LIBS="$LIBS"
@@ -377,12 +406,22 @@ fi
 AC_SUBST(GCI_SHO)
 AC_SUBST(HAVE_GCI)
 
+if test "$ac_cv_func_getopt_long" = yes; then
+   MY_GETOPT_O=
+   MY_GETOPT_SO_O=
+else
+   MY_GETOPT_O="mygetopt.\$(OBJ)"
+   MY_GETOPT_SO_O="mygetopt.so.\$(OBJ)"
+fi
+AC_SUBST(MY_GETOPT_O)
+AC_SUBST(MY_GETOPT_SO_O)
+
 if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++"; then
-   MH_CHECK_GCC_VERSION_SCRIPT
+   REG_CHECK_GCC_VERSION_SCRIPT
 fi
 
 dnl enable_posix_threads="yes"
-MH_CHECK_POSIX_THREADS
+REG_CHECK_POSIX_THREADS
 if test "$mh_has_pthreads" = yes; then
    AC_SEARCH_LIBS(pthread_exit,[pthread pthreads c_r],REGINA_PTHREAD_LIB="$ac_cv_search_pthread_exit",REGINA_PTHREAD_LIB="")
    if test "$REGINA_PTHREAD_LIB" = "none required" -o "$REGINA_PTHREAD_LIB" = "no"; then
@@ -398,27 +437,27 @@ if test "$mh_has_pthreads" = yes; then
 # only test for that case
 #
    if test "$ac_cv_func_getgrgid_r" = yes; then
-      MH_GETGRGID_R_INT_RETURN_5_PARAMS
+      REG_GETGRGID_R_INT_RETURN_5_PARAMS
       if test "$mh_cv_getgrgid_r_int5" = "no"; then
-         MH_GETGRGID_R_INT_RETURN_4_PARAMS
+         REG_GETGRGID_R_INT_RETURN_4_PARAMS
          if test "$mh_cv_getgrgid_r_int4" = "no"; then
-            MH_GETGRGID_R_STRUCT_RETURN
+            REG_GETGRGID_R_STRUCT_RETURN
             if test "$mh_cv_getgrgid_r_int4" = "no"; then
-               MH_GETGRGID_R_STRUCT_RETURN
+               REG_GETGRGID_R_STRUCT_RETURN
             fi
          fi
       fi
    fi
    if test "$ac_cv_func_getpwuid_r" = yes; then
-      MH_GETPWUID_R_INT_RETURN
+      REG_GETPWUID_R_INT_RETURN
       if test "$mh_cv_getpwuid_r_int" = "no"; then
-         MH_GETPWUID_R_STRUCT_RETURN
+         REG_GETPWUID_R_STRUCT_RETURN
       fi
    fi
    if test "$ac_cv_func_gethostbyname_r" = yes; then
-      MH_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS
+      REG_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS
       if test "$mh_cv_gethostbyname_r_int6" = "no"; then
-         MH_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS
+         REG_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS
       fi
    fi
 
@@ -432,22 +471,22 @@ if test "$build_static" = "yes"; then
    STATICLD_SHO="staticld.so.o rxpack.so.o"
    if test "$on_qnx4" = "yes"; then
       with_regutil="yes"
-      MH_STATIC_LOADING(regutil)
+      REG_STATIC_LOADING(regutil)
    else
-      MH_STATIC_LOADING
+      REG_STATIC_LOADING
    fi
 else
    STATICLD_SHO=""
 dnl --------------- Check how to make shared libraries -------------------
-dnl MH_SHARED_LIBRARY must be called after determining if POSIX threads is specified
-   MH_SHARED_LIBRARY
+dnl REG_SHARED_LIBRARY must be called after determining if POSIX threads is specified
+   REG_SHARED_LIBRARY
 
 dnl --------------- Check if underscore is needed in loadable modules ----
 dnl MH_CHECK_LEADING_USCORE must be called after processing --with-dlfcn[inc,lib]dir switches
    MH_CHECK_LEADING_USCORE
 fi
 AC_SUBST(STATICLD_SHO)
-MH_SET_SHLPST
+REG_SET_SHLPST
 
 dnl
 dnl Check for large file support
@@ -471,17 +510,19 @@ dnl libraries for binaries associated with external queues; rxqueue, rxstack
 STACK_BINARY_LIBS="$REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB"
 AC_SUBST(STACK_BINARY_LIBS)
 dnl libraries for rexx
-REXX_BINARY_LIBS="$REGINA_CRYPT_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_MATH_LIB $REGINA_PTHREAD_LIB"
+REXX_BINARY_LIBS="$REGINA_CRYPT_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_MATH_LIB $REGUTIL_READLINE_LIB $REGINA_PTHREAD_LIB"
 AC_SUBST(REXX_BINARY_LIBS)
 #STATIC_BINARY_LIBS="$REGINA_CRYPT_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGINA_PTHREAD_LIB"
 #AC_SUBST(STATIC_BINARY_LIBS)
 if test "$build_static" = "yes"; then
    dnl libraries for adding to regina-config --libs
-   REGINA_CONFIG_LIBS="$REGINA_CRYPT_LIB $REGINA_PTHREAD_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_MATH_LIB"
+   REGINA_CONFIG_LIBS="$REGINA_CRYPT_LIB $REGINA_PTHREAD_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_READLINE_LIB $REGUTIL_MATH_LIB"
    dnl libraries for libregina.lib
    LIBREGINA_BINARY_LIBS=""
+   dnl libraries for libregutil
+   LIBREGUTIL_BINARY_LIBS=""
    dnl libraries for regina
-   REGINA_BINARY_LIBS="$REGINA_CRYPT_LIB $REGINA_PTHREAD_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_MATH_LIB"
+   REGINA_BINARY_LIBS="${MH_FUNC_LIBS} -L. -lregina $REGINA_CRYPT_LIB $REGINA_PTHREAD_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB $REGUTIL_TERM_LIB $REGUTIL_READLINE_LIB $REGUTIL_MATH_LIB"
    dnl libraries for threader
    THREADER_BINARY_LIBS="-L. -lrexx $REGINA_PTHREAD_LIB"
    dnl libraries for execiser
@@ -491,6 +532,8 @@ else
    REGINA_CONFIG_LIBS=""
    dnl libraries for libregina.so
    LIBREGINA_BINARY_LIBS="$REGINA_CRYPT_LIB $REGINA_PTHREAD_LIB $REGINA_DLOPEN_LIB $REGINA_SHL_LOAD_LIB $REGINA_SOCKET_LIB $REGINA_GETHOSTBYNAME_LIB"
+   dnl libraries for libregutil
+   LIBREGUTIL_BINARY_LIBS="$REGUTIL_TERM_LIB $REGUTIL_READLINE_LIB $REGUTIL_MATH_LIB"
    dnl libraries for regina
    REGINA_BINARY_LIBS="-L. -lregina"
    dnl libraries for threader
@@ -499,6 +542,7 @@ else
    EXECISER_BINARY_LIBS="-L. -lregina"
 fi
 AC_SUBST(LIBREGINA_BINARY_LIBS)
+AC_SUBST(LIBREGUTIL_BINARY_LIBS)
 AC_SUBST(REGINA_BINARY_LIBS)
 AC_SUBST(THREADER_BINARY_LIBS)
 AC_SUBST(EXECISER_BINARY_LIBS)
@@ -547,27 +591,29 @@ dnl --------------- allow --with-addon-dir to specify location of external funct
 AC_ARG_WITH(addon-dir,
    [  --with-addon-dir=dir    location of external function packages (default blank)],
    [addonsdir=$withval],
-   [addonsdir=$datadir/$REGINA_PACKAGE_NAME/addons],
+   [addonsdir=$libdir/regina-rexx/addons],
 )
 AC_DEFINE_DIR(HAVE_REGINA_ADDON_DIR,"$addonsdir")
 AC_SUBST(addonsdir)
 
 dnl
-MH_CHECK_RPM
+#MH_CHECK_RPM
+MH_CHECK_PACKAGE_BUILDERS()
 MH_GET_DISTRO_NAME()
+REG_HAVE_SYSTEMD()
 
 dnl --------------- Force definition of pre-compiler macro UNIX ----------
 AC_DEFINE(UNIX)
 
 dnl --------------- Check what compiler switch sets unsigned char ----------
-MH_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH()
+REG_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH()
 
 dnl AC_OUTPUT(Makefile)
 
-AC_OUTPUT($mymakefile regina-config rxstack.init.d)
+AC_OUTPUT($mymakefile regina-config rxstack.init.d libregina.pc APKBUILD PackageInfo PackageInfo-devel PackageInfo-lib Regina.spec debian/rules)
 chmod 755 regina-config
 echo
-echo "Regina has now been configured with the following options:"
+echo "Regina ($FULL_PACKAGE_NAME) has now been configured with the following options:"
 echo
 if test "x$SHL_TARGETS" = "x"; then
    echo "         Dynamic Loading Support: none"
@@ -647,6 +693,9 @@ if test "$build_static" = "yes"; then
    if test "$with_rexxpdf" = "yes"; then
       myfuncs="$myfuncs rexxpdf"
    fi
+   if test "$with_rexxws" = "yes"; then
+      myfuncs="$myfuncs rexxws"
+   fi
    echo "          Static Loaded Packages: $myfuncs"
 fi
 
@@ -655,15 +704,30 @@ if test "$on_beos" = yes; then
    libdir="/boot/home/config/lib"
 fi
 
+if test "$on_haiku" = yes; then
+   bindir="/boot/home/config/non-packaged/bin"
+   libdir="/boot/home/config/non-packaged/lib"
+   addonsdir="/boot/home/config/non-packaged/lib/regina-rexx/addons"
+fi
+
 echo "                   Build options: $myopts"
 echo "   binaries will be installed in: $bindir"
 if test "x$binarybitprefix" = "x32"; then
    echo "   binaries will have '32' appended to them. eg rexx32, regina32"
 fi
 echo "  libraries will be installed in: $libdir"
+echo "     addons will be installed in: $addonsdir"
 echo "                        {prefix}: $prefix"
 echo "                   {exec_prefix}: $exec_prefix"
-echo "                      RPM topdir: $RPMTOPDIR"
+if test "x$rpmtopdir" != "x" ; then
+   echo "                      RPM topdir: $rpmtopdir"
+fi
+if test "x$debtopdir" != "x" ; then
+   echo "                      DEB topdir: $debtopdir"
+fi
+if test "x$apktopdir" != "x" ; then
+   echo "                      APK topdir: $apktopdir"
+fi
 echo
 echo "To build the Regina binaries, and dynamically loadable libraries, type 'make'"
 echo "To install Regina in the above directories, type 'make install'"

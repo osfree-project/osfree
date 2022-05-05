@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /*
  * This is an example for using GCI. Enjoy, copy and paste!
  * We have three different execution paths for Unix, Win32 and OS/2.
@@ -100,7 +101,7 @@ say ""
  * After the prelimnaries try to use the GCI.
  */
 if system = "OS/2" then signal useOS2
-trace i
+
 say "Trying to copy string 'hello' to a string 'world' using the C library"
 stem.calltype = cdecl
 stem.0 = 2
@@ -209,24 +210,19 @@ if RESULT \= 0 then do
    call RxFuncDefine logl, MathLib, "log", stem
    end
 if RESULT \= 0 then do
-   stem.1.type = float32
-   stem.return.type = float32
-   call RxFuncDefine logl, MathLib, "log", stem
-   end
-if RESULT \= 0 then do
    if IsRegina & InternalGCI then
       say "Error, code" RESULT || ":" RxFuncErrMsg()
    else
       say "Error, code" RESULT || ":" GCI_RC
-   return 1
    end
+else do
+   say "some logarithms"
+   do i = 1 to 5
+      say "log("i")="logl(i)
+      end
 
-say "some logarithms"
-do i = 1 to 5
-   say "log("i")="logl(i)
-   end
-
-call funcDrop logl
+   call funcDrop logl
+end
 say ""
 /*******************************/
 say "Using a structure and checking the file system's size."

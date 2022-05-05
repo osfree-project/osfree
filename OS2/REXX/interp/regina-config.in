@@ -24,8 +24,6 @@ usage()
     echo "                 [@REGINAMULTITHREAD@]"
     echo "  --libs         library linking information"
     echo "                 [-L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@]"
-    echo "  --libs_ts      library linking information for thread-safe library"
-    echo "                 [-L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@]"
     echo "  --libs32       library linking information for specific 32bit build"
     echo "                 [-L$libdir32 -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@  @REGINA_CONFIG_LIBS@]"
     echo "  --libs64       library linking information for specific 64bit build"
@@ -76,10 +74,6 @@ while test $# -gt 0; do
 
        --libs)
           echo -L$libdir -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
-          ;;
-
-       --libs_ts)
-          echo -L$libdir -l@TSLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@
           ;;
 
        --libs32)

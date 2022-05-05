@@ -525,6 +525,7 @@ int known_reserved_variable( const char *name, unsigned length )
    RET_IF( LINE );
    RET_IF( FILE );
    RET_IF( ENDOFLINE );
+   RET_IF( DIRSEP );
 #undef REF_IF
 
    return POOL0_NOT_RESERVED;
@@ -534,8 +535,6 @@ void detach( const tsd_t *TSD, variableptr ptr )
 {
 #ifdef DEBUG
    var_tsd_t *vt = (var_tsd_t *)TSD->var_tsd;
-#else
-   TSD = TSD; /* keep compiler happy */
 #endif
 
    assert( ptr->hwired > 0 );
@@ -926,7 +925,7 @@ int valid_var_symbol( const streng *name )
    }
 
    /*
-    * We have to check for a const_symbol. If a sign has occured until now
+    * We have to check for a const_symbol. If a sign has occurred until now
     * we have a bad symbol.
     * ch is loaded with the current character.
     */
@@ -1205,7 +1204,8 @@ int init_vars( tsd_t *TSD )
    vt->pool0nodes[POOL0_MN][0].name     = Str_creTSD( ".MN" );
    vt->pool0nodes[POOL0_LINE][0].name   = Str_creTSD( ".LINE" );
    vt->pool0nodes[POOL0_FILE][0].name   = Str_creTSD( ".FILE" );
-   vt->pool0nodes[POOL0_ENDOFLINE][0].name   = Str_creTSD( ".ENDOFLINE" );
+   vt->pool0nodes[POOL0_DIRSEP][0].name = Str_creTSD( ".DIRSEP" );
+   vt->pool0nodes[POOL0_ENDOFLINE][0].name = Str_creTSD( ".ENDOFLINE" );
    for ( i = 0; i < POOL0_CNT; i++ )
    {
       for ( j = 0; j < 2; j++ )
@@ -1215,7 +1215,7 @@ int init_vars( tsd_t *TSD )
       }
    }
    /*
-    * We can set .ENDOFLINE here
+    * We can set .ENDOFLINE and DIRSEP here
     * Yes its crude!
     */
 #if defined(UNIX)
@@ -1227,6 +1227,9 @@ int init_vars( tsd_t *TSD )
 #endif
    ptr = Str_creTSD( buf );
    set_reserved_value( TSD, POOL0_ENDOFLINE, ptr, 0, VFLAG_STR );
+   strcpy( buf, FILE_SEPARATOR_STR );
+   ptr = Str_creTSD( buf );
+   set_reserved_value( TSD, POOL0_DIRSEP, ptr, 0, VFLAG_STR );
 
    DPRINTF((TSD,"init_vars"));
    return(1);
@@ -2536,7 +2539,7 @@ const streng *getvalue( tsd_t *TSD, const streng *name, int pool )
    /*
     * getvalue_stem is equivalent to getvalue_simple
     */
-   if ( i >= len - 1 )
+   if ( i == 0 || i >= len - 1 )
       return getvalue_simple( TSD, vars, name );
 
    return getvalue_compound( TSD, vars, name );
@@ -3125,7 +3128,6 @@ num_descr *shortcutnum( tsd_t *TSD, nodeptr thisptr )
    variableptr vptr;
    num_descr *result;
    const streng *resstr;
-   char ch;
    var_tsd_t *vt;
 
    vt = (var_tsd_t *)TSD->var_tsd;
@@ -3138,7 +3140,6 @@ num_descr *shortcutnum( tsd_t *TSD, nodeptr thisptr )
          DSTART;DPRINT((TSD,"shortcutnum:       "));DVAR(TSD,"valid vptr",vptr);
                 DPRINT((TSD," on start"));DEND;
          SEEK_EXPOSED( vptr );
-         ch = 'V';
          if ( vptr->flag & VFLAG_NUM )
          {
             result = vptr->num;

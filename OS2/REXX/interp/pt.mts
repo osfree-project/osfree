@@ -280,6 +280,7 @@
  94,109,[Fila \"%s\" nao encontrada]|<queuename>
  94,110,[%s invalido para linhas externasl|<bif>
  94,111,[RXQUEUE funcao %s invalida para linhas internas]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[dispositivo restrito usado em modo "seguro"]
  95,  1,[%s invalido no modo "seguro"]|<token>
  95,  2,[%s argumento %d invalido no modo "seguro"]|<bif>,<argnumber>

@@ -19,7 +19,7 @@
 /* huups, have to add one to length in everyting given to Str_ncatstr */
 
 #include "rexx.h"
-#include "strings.h"
+#include "strengs.h"
 
 #include <assert.h>
 #include <stdio.h>

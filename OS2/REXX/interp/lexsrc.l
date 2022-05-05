@@ -19,8 +19,8 @@
  */
 /*
  * If you change this file the following has to be done:
- * - regenerate lexsrc.c using boojum: ~/flex-2.5.4/flex and the
- *   command from "make lexsrc"
+ * - regenerate lexsrc.c using an old version of Flex: 2.5.4. This is
+ *   provided by flex-old package. Run: make lexsrc
  * - change the value of YY_BUF_SIZE to 101000 in lexsrc.c
  *   This value MUST be larger than BUFFERSIZE in rexx.h
  *   It is not set automatically because certain variables
@@ -172,7 +172,7 @@ static int fill_buffer( char *buf, int max_size ) ;
  */
 digit             [0-9]
 special           [,:;)(]
-not               [\\^~¬]
+not               [\\^~\xAC\xAA]
 extra             [#$@]
 general           [_!?A-Za-z]|{extra}
 dot               [.]
@@ -1656,6 +1656,7 @@ key_with          [wW][iI][tT][hH]
       RET_IF(STEM);
       RET_IF(LIFO);
       RET_IF(FIFO);
+      RET_IF(NOEOL);
 #undef RET_IF
    }
    return SIMSYMBOL ; }
@@ -2155,7 +2156,8 @@ static int process_hex_or_bin_string( char *text, int len, int base )
 
    if ( insert_abuttal && !in_parse && !in_call )
    {
-      delayed_symbol = STRING;
+      /* fix bug 456 - the delayed symbol MUST be BINSTRING or HEXSTRING */
+      delayed_symbol = ( base == 2 ) ? BINSTRING : HEXSTRING;
       return CONCATENATE;
    }
 

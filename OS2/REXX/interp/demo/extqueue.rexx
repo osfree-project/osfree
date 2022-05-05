@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /*
  * This program tests the external queue interface of Regina
  * It runs num_clients instances of itself, each instance will create a

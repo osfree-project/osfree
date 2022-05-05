@@ -1,7 +1,8 @@
+#!/usr/bin/env regina
 /* Written by Stig Hemmer <stig@pvv.unit.no> */
 
 parse arg infile .
-if infile\='' then 
+if infile\='' then
    do while lines(infile)>0
       interpret linein(infile) ;
       end
@@ -49,22 +50,22 @@ do until left(answer,1) = 'N'
    say 'Another play?'
    pull answer
    answer = space(answer)
-end 
+end
 
 say 'File to save in (leave empty if you don''t want to save)?'
 parse pull filename
 if filename\='' then do
    call lineout filename,, 1
    signal on notready
-   call dump 'NODE' 
+   call dump 'NODE'
    end
 
 exit 0
 
 dump: procedure expose filename node node.
-   parse arg arg 
+   parse arg arg
    if symbol(arg)='VAR' then do
-      call lineout filename, arg'="'insulate(value(arg))'"' 
+      call lineout filename, arg'="'insulate(value(arg))'"'
       call dump arg'.Y'
       call dump arg'.N'
       end

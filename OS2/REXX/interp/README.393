@@ -1,0 +1,32 @@
+                         Regina 3.9.3
+                        5 October 2019
+
+Changes in this release (from 3.9.1)
+------------------------------------
+  * Fix for Bug #456, #463, #474, #484, #489, #490
+  * Fix for Bug #311, #312, #392, #394, #422, #454, #500, #501, #508, #511, #512, #524, #525, #528, #529
+  * Fixed some issues with bug #455; some still remain
+  * Removal of some compilation warnings
+  * Fix for syscls() under Linux
+  * Changed addons dir in regina-config script to exclude prefix - breakage
+  * Add optional setting of PATHEXT under Windows installer
+  * Recognise Windows 10 in UNAME BIF
+  * Enabled rxstack to run as a Websocket server. This allows a portable
+    mechanism for other languages to use the Regina stack process; eg Javascript
+  * Added .DIRSEP reserved variable for current directory separator
+  * Added NOEOL option on ADDRESS...WITH INPUT.. to suppress Regina's default of
+    appending EOL to each line read from the INPUT. Bug #525
+  * Support ~ as first character in filenames under Un*x/Linux platforms to signify
+    current user's HOME directory
+  * Added 'I' option to sysfiletree() in regutil to enable files to be found
+    irrespective of case
+  * Add libregina.pc for pkg-config
+  * Version information display via "regina -v" now goes to stdout
+  * Added options to -v switch to provide more information to external function packages
+    -va - displays location of Regina's addons directory
+    -vb - displays number of bits for platform; eg 32 or 64
+    -vv - displays Regina numeric version; eg 3.9.3
+  * Added /list switch to rxqueue to list the names of the stacks held by a rxstack service
+  * Added support for update-alternatives mechanism on Linux to allow Regina and ooRexx to be installed
+    at the same time
+  * Overhauled Linux packaging. Added Alpine Linux package support

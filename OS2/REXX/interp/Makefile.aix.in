@@ -116,7 +116,7 @@ FILES = funcs builtin error variable interprt debug dbgfuncs \
 OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
 	interprt.$(OBJ) debug.$(OBJ) dbgfuncs.$(OBJ) memory.$(OBJ) parsing.$(OBJ) files.$(OBJ) \
 	misc.$(OBJ) unxfuncs.$(OBJ) cmsfuncs.$(OBJ) os2funcs.$(OBJ) shell.$(OBJ) rexxext.$(OBJ) stack.$(OBJ) \
-	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
+	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strengs.$(OBJ) library.$(OBJ) \
 	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) extstack.$(OBJ) \
 	extlib.$(OBJ) yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) os_unx.$(OBJ) rexxbif.$(OBJ) \
 	wrappers.$(OBJ) $(ALLOCA) $(MT_FILE).$(OBJ) instore.$(OBJ) #r2perl.$(OBJ)
@@ -141,7 +141,7 @@ MTBFILES = en.mtb pt.mtb no.mtb \
            de.mtb es.mtb
 
 HFILES = $(REG_DIR)/rexx.h $(REG_DIR)/defs.h $(REG_DIR)/extern.h $(REG_DIR)/regina_t.h \
-         $(REG_DIR)/strings.h $(REG_DIR)/configur.h $(REG_DIR)/yaccsrc.h \
+         $(REG_DIR)/strengs.h $(REG_DIR)/configur.h $(REG_DIR)/yaccsrc.h \
          $(REG_DIR)/rxiface.h $(REG_DIR)/rexxsaa.h $(REG_DIR)/utsname.h
 CFILES = $(CSRCFILES) $(REG_DIR)/yaccsrc.c $(REG_DIR)/lexsrc.c $(REG_DIR)/execiser.c \
          $(REG_DIR)/rexxsaa.c $(REG_DIR)/rexx.c $(REG_DIR)/regina.c $(REG_DIR)/client.c \
@@ -157,7 +157,7 @@ JUNK = *.o $(STATICLIB) execiser$(EXE) threader$(EXE) rxqueue$(EXE) rxstack$(EXE
 
 all : rexx$(EXE) execiser$(EXE) trexx$(EXE) $(SHL_TARGETS) rxstack$(EXE) rxqueue$(EXE) $(MTBFILES)
 
-$(srcdir)/rexx.h : $(srcdir)/extern.h $(srcdir)/strings.h $(srcdir)/defs.h $(srcdir)/regina_t.h $(srcdir)/mt.h
+$(srcdir)/rexx.h : $(srcdir)/extern.h $(srcdir)/strengs.h $(srcdir)/defs.h $(srcdir)/regina_t.h $(srcdir)/mt.h
 
 $(srcdir)/mt.h : $(srcdir)/$(MT_FILE).h
 
@@ -275,8 +275,8 @@ cmath.$(OBJ) :   $(srcdir)/cmath.c
 convert.$(OBJ) : $(srcdir)/convert.c
 	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/convert.c
 
-strings.$(OBJ) : $(srcdir)/strings.c
-	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/strings.c
+strengs.$(OBJ) : $(srcdir)/strengs.c
+	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/strengs.c
 
 library.$(OBJ) : $(srcdir)/library.c
 	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(srcdir)/library.c

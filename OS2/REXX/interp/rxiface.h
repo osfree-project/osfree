@@ -182,3 +182,6 @@ int IfcDeleteQueue( tsd_t *TSD, const char *qname, const int qlen );
 int IfcQueryQueue( tsd_t *TSD, const char *qname, const int qlen, unsigned long *count );
 int IfcAddQueue( tsd_t *TSD, const char *qname, const int qlen, const char *data, const int datalen, unsigned long addlifo );
 int IfcPullQueue( tsd_t *TSD, const char *qname, const int qlen, char **data, unsigned long *datalen, unsigned long waitforline );
+
+int IfcMapExits( int internal );
+int IfcExitHandlerExists( tsd_t *TSD, int internal );

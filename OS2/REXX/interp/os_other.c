@@ -150,7 +150,7 @@ static int Oth_fork_exec(tsd_t *TSD, environment *env, const char *cmdline, int 
    {
       environment e = *env;
       char *new_cmdline;
-      int i, rc;
+      int i;
       unsigned len;
 
       if (argv0 == NULL)

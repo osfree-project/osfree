@@ -14,20 +14,20 @@ srcfiles = $(p)apiemu$(e) $(p)assemble$(e) $(p)assume$(e) $(p)atofloat$(e) $(p)b
   $(p)reswords$(e) $(p)safeseh$(e) $(p)segment$(e) $(p)simsegm$(e) $(p)string$(e)           &
   $(p)symbols$(e) $(p)tbyte$(e) $(p)tokenize$(e) $(p)types$(e) $(p)main$(e)
 
-!ifeq ENV OS/2
-defs = -i=$(%WATCOM)$(SEP)h$(SEP)os2
+!ifeq %OS OS2
+defs = $(%WATCOM)$(SEP)h$(SEP)os2
 !endif
-!ifeq ENV WIN32
-defs = -i=$(%WATCOM)$(SEP)h$(SEP)nt
+!ifeq %OS WIN32
+defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
-!ifeq ENV DOS
-defs = -i=$(%WATCOM)$(SEP)h$(SEP)dos
+!ifeq %OS DOS
+defs = $(%WATCOM)$(SEP)h$(SEP)dos
 !endif
-!ifeq ENV LINUX
-defs = -i=$(%WATCOM)$(SEP)lh
+!ifeq %OS LINUX
+defs = $(%WATCOM)$(SEP)lh
 !endif
 
-ADD_COPT = -dNDEBUG -i=$(MYDIR)contrib$(SEP)src$(SEP)H $(defs)
+ADD_COPT = -dNDEBUG -i=$(MYDIR)contrib$(SEP)src$(SEP)H -i=$(defs)
 ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 #UNI2H = 1

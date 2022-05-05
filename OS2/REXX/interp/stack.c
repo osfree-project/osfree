@@ -610,9 +610,7 @@ static int use_external( const tsd_t *TSD, const streng *queue_name )
    if ( get_options_flag( TSD->currlevel, EXT_INTERNAL_QUEUES ) )
       return 0;     /* user forces a local queue in every case */
    if ( ( queue_name == NULL ) || ( PSTRENGLEN( queue_name ) == 0 ) )
-   {
       return st->current_queue->type == QisExternal;
-   }
 
    if ( get_options_flag( TSD->currlevel, EXT_QUEUES_301 ) == 0 )
    {
@@ -679,14 +677,14 @@ int stack_lifo( tsd_t *TSD, streng *line, const streng *queue_name )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1,*work;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 0, NULL ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 0, NULL ) ) == NULL )
          return rc;
 
       if ( ( rc = queue_line_lifo_to_rxstack( TSD, work->u.e.socket, line ) ) == -1 )
          rc = 100;
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
    }
 #endif
    return rc;
@@ -738,14 +736,14 @@ int stack_fifo( tsd_t *TSD, streng *line, const streng *queue_name )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 0, NULL ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 0, NULL ) ) == NULL )
          return rc;
 
       if ( ( rc = queue_line_fifo_to_rxstack( TSD, work->u.e.socket, line ) ) == -1 )
          rc = 100;
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
    }
 #endif
    return rc;
@@ -893,9 +891,9 @@ streng *popline( tsd_t *TSD, const streng *queue_name, int *result, unsigned lon
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 0, NULL ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 0, NULL ) ) == NULL )
       {
          if ( result )
             *result = rc;
@@ -915,7 +913,7 @@ streng *popline( tsd_t *TSD, const streng *queue_name, int *result, unsigned lon
          case RXSTACK_ERROR:     rc = 9;   break;  /* map generic error to RXQUEUE_NOTREG */
          default:    ;
       }
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
       if ( rc == RXSTACK_TIMEOUT )
       {
          condition_hook( TSD, SIGNAL_NOTREADY, 94, 1, -1, NULL, Str_cre_TSD( TSD, "Timeout on external queue" ) );
@@ -986,14 +984,14 @@ int lines_in_stack( tsd_t *TSD, const streng *queue_name )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
       int rc;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 0, NULL ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 0, NULL ) ) == NULL )
          return -rc;
 
       lines = get_number_in_queue_from_rxstack( TSD, work->u.e.socket, &rc );
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
       if ( rc != 0 )
          lines = -rc;
    }
@@ -1377,10 +1375,10 @@ int create_queue( tsd_t *TSD, const streng *queue_name, streng **result )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
       streng *base;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 1, &base ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 1, &base ) ) == NULL )
          return rc;
 
       if ( ( rc = create_queue_on_rxstack( TSD, work, base, result ) ) == -1 )
@@ -1388,7 +1386,7 @@ int create_queue( tsd_t *TSD, const streng *queue_name, streng **result )
 
       if ( base != NULL )
          Free_stringTSD( base );
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
    }
 #endif
    return rc;
@@ -1433,10 +1431,10 @@ int delete_queue( tsd_t *TSD, const streng *queue_name )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
       streng *base;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 1, &base ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 1, &base ) ) == NULL )
          return rc;
 
       if ( ( base == NULL ) || ( PSTRENGLEN( base ) == 0 ) )
@@ -1457,7 +1455,7 @@ int delete_queue( tsd_t *TSD, const streng *queue_name )
 
       if ( base != NULL )
          Free_stringTSD( base );
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
 
       if ( rc == -1 )
          rc = 100;
@@ -1591,18 +1589,18 @@ streng *set_queue( tsd_t *TSD, const streng *queue_name )
 #if !defined(NO_EXTERNAL_QUEUES)
    else
    {
-      Queue q, *work;
+      Queue q1, *work;
       streng *base, *result;
       int rc;
 
-      if ( ( work = open_external( TSD, queue_name, &q, &rc, 1, &base ) ) == NULL )
+      if ( ( work = open_external( TSD, queue_name, &q1, &rc, 1, &base ) ) == NULL )
          exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Setting queue from stack" );
 
       if ( ( base == NULL ) || ( PSTRENGLEN( base ) == 0 ) )
       {
          if ( base != NULL )
             Free_stringTSD( base );
-         disconnect_from_rxstack( TSD, &q ) ;
+         disconnect_from_rxstack( TSD, &q1 ) ;
          assert( !TSD->called_from_saa );
          exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INVALID_QUEUE, tmpstr_of(TSD, queue_name ) ) ;
       }
@@ -1611,19 +1609,19 @@ streng *set_queue( tsd_t *TSD, const streng *queue_name )
          Free_stringTSD( base );
          if ( ( rc = get_queue_from_rxstack( TSD, work, &result ) ) != 0 )
          {
-            disconnect_from_rxstack( TSD, &q );
+            disconnect_from_rxstack( TSD, &q1 );
             assert( !TSD->called_from_saa );
             exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Getting queue back from stack" );
          }
-         if ( work == &q )
+         if ( work == &q1 )
          {
             work = find_free_slot( TSD );
-            *work = q;
+            *work = q1;
          }
          return SetCurrentQueue( TSD, st, work, result );
       }
       Free_stringTSD( base );
-      disconnect_from_rxstack( TSD, &q ) ;
+      disconnect_from_rxstack( TSD, &q1 ) ;
       assert( !TSD->called_from_saa );
       exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Setting queue from stack" );
    }

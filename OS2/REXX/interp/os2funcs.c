@@ -252,7 +252,6 @@ streng *os2_filespec( tsd_t *TSD, cparamboxptr parms )
 #else
    my_splitpath2( inpath->value, fpath, &fdrive, &fdir, &fname, &fext );
 #endif
-   fprintf(stderr, "path=%s, fpath=%s, fdrive=%s:, fdir=%s, fname=%s, fext=%s", inpath->value, fpath, fdrive, fdir, fname, fext);
    switch( format )
    {
       case 'D':

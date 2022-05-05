@@ -35,8 +35,6 @@ int Rexx_x2d( const tsd_t *TSD, const streng *hex, int *error )
    int dec=0,i;
    char c;
 
-   TSD = TSD; /* keep compiler happy */
-
    if ( PSTRENGLEN(hex) == 0 )
    {
       *error = 1;

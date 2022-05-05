@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regfilesys.c,v 1.16 2015/04/04 08:16:23 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regfilesys.c,v 1.19 2019/10/06 04:06:17 mark Exp $
  */
 #ifdef __EMX__
 # define INCL_DOSFILEMGR
@@ -44,6 +44,7 @@
 # endif
 # include <sys/stat.h>
 # include <dirent.h>
+# define _GNU_SOURCE 1
 # include <fnmatch.h>
 # include <limits.h>
 #else
@@ -457,7 +458,7 @@ rxfunc(sysfilesystemtype)
 static void get_matched_files(chararray * ca, const char * dir,
                               int criterion, const char * const pattern,
                               const char * attrs,
-                              rxbool do_subdirs, rxbool name_only,
+                              rxbool do_subdirs, rxbool name_only, rxbool case_insensitive,
                               int time_format, rxbool huge_files)
 {
     DIR * dirp = opendir(dir);
@@ -467,6 +468,7 @@ static void get_matched_files(chararray * ca, const char * dir,
     rxbool may_have_subdirs, filename_matches;
     char pth[MAXPATHLEN], buf[MAXPATHLEN+40], *slash = "/";
     int l, dl, matchattr = 0, skipattr = 0, system_files = 0, check_links = 0;
+    int fnmatch_flags = 0;
     char *fmt;
 
     if (dirp == NULL) return;
@@ -518,6 +520,11 @@ static void get_matched_files(chararray * ca, const char * dir,
        if (attrs[4] == '+') system_files = 1;
        else if (attrs[4] == '-') system_files = -1;
     }
+#ifdef FNM_CASEFOLD
+    if ( case_insensitive ) {
+       fnmatch_flags = FNM_CASEFOLD;
+    }
+#endif
 
     for (thede = readdir(dirp); thede; thede = readdir(dirp)) {
 
@@ -527,7 +534,7 @@ static void get_matched_files(chararray * ca, const char * dir,
              (thede->d_name[1] == '.' && thede->d_name[2] == 0)))
            continue;
 
-        filename_matches = !fnmatch(pattern, thede->d_name, 0);
+        filename_matches = !fnmatch(pattern, thede->d_name, fnmatch_flags);
 
         /* no need to continue if this doesn't match and we aren't
          * recursing */
@@ -596,7 +603,7 @@ static void get_matched_files(chararray * ca, const char * dir,
                 cha_addstr(ca, pth, l);
             }
             else {
-               char dbuf[30], ftype = '-';
+               char dbuf[100], ftype = '-';
 
                if (time_format == TF_SORTABLE)
                   sprintf(dbuf, "%4d/%02d/%02d/%02d/%02d", tm->tm_year+1900,
@@ -655,7 +662,7 @@ static void get_matched_files(chararray * ca, const char * dir,
                  cha_addstr(ca, pth, l);
               }
               else {
-                 char dbuf[30];
+                 char dbuf[100];
 
                  if (time_format == TF_SORTABLE)
                     sprintf(dbuf, "%4d/%02d/%02d/%02d/%02d", tm->tm_year+1900,
@@ -691,7 +698,7 @@ static void get_matched_files(chararray * ca, const char * dir,
               }
             }
             if (do_subdirs)
-               get_matched_files(ca, pth, criterion, pattern, attrs, do_subdirs, name_only, time_format, huge_files);
+               get_matched_files(ca, pth, criterion, pattern, attrs, do_subdirs, name_only, case_insensitive, time_format, huge_files);
         }
     }
 
@@ -701,7 +708,7 @@ static void get_matched_files(chararray * ca, const char * dir,
 static void get_matched_files(chararray * ca, const char * dir,
                               int criterion, const char * const pattern,
                               const char * attrs,
-                              rxbool do_subdirs, rxbool name_only,
+                              rxbool do_subdirs, rxbool name_only, rxbool case_insensitive,
                               int time_format, rxbool huge_files)
 {
    WIN32_FIND_DATA fd;
@@ -834,7 +841,7 @@ static void get_matched_files(chararray * ca, const char * dir,
          }
      }
      if (do_subdirs && (fd.dwFileAttributes&_A_SUBDIR))
-        get_matched_files(ca, pth, criterion, pattern, attrs, do_subdirs, name_only, time_format, huge_files);
+        get_matched_files(ca, pth, criterion, pattern, attrs, do_subdirs, name_only, case_insensitive, time_format, huge_files);
 
   }
 
@@ -850,9 +857,9 @@ static void get_matched_files(chararray * ca, const char * dir,
      if (!dirs)
         return;
 
-     get_matched_files(dirs, dir, CR_DIRS, "*", "", true, true, true, huge_files);
+     get_matched_files(dirs, dir, CR_DIRS, "*", "", true, true, true, true, huge_files);
      for (i = 0; i < dirs->count; i++) {
-        get_matched_files(ca, dirs->array[i].strptr, criterion, pattern, attrs, false, name_only, time_format, huge_files);
+        get_matched_files(ca, dirs->array[i].strptr, criterion, pattern, attrs, false, name_only, case_insensitive, time_format, huge_files);
      }
      delete_chararray(dirs);
   }
@@ -865,7 +872,7 @@ rxfunc(sysfiletree)
 {
     char * pattern, *dir, *options, *attrs = NULL;
     int criterion = 0;
-    rxbool do_subdirs=false, name_only=false, huge_files=false;
+    rxbool do_subdirs=false, name_only=false, case_insensitive=false, huge_files=false;
     int time_format = 0;
     chararray * files;
     int rc = 0;
@@ -894,7 +901,8 @@ rxfunc(sysfiletree)
                 case 'T': time_format = TF_SORTABLE; break;
                 case 'L': time_format = TF_SENSIBLE; break;
                 case 'H': huge_files = true; break;
-                case 'O': name_only = true;
+                case 'O': name_only = true; break;
+                case 'I': case_insensitive = true; break;
                 default: /* ignore invalid options */ ;
             }
         options++;
@@ -1025,7 +1033,7 @@ rxfunc(sysfiletree)
 
         /* get a list of all files which match the name and file type */
         if (dir)
-           get_matched_files(files, dir, criterion, pattern, attrs, do_subdirs, name_only, time_format, huge_files);
+           get_matched_files(files, dir, criterion, pattern, attrs, do_subdirs, name_only, case_insensitive, time_format, huge_files);
         setastem(argv+1, files);
         delete_chararray(files);
     }
