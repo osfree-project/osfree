@@ -1,4 +1,4 @@
-include dpmildr.inc
+include pusha.inc
 if ?REAL
 		.8086
 else
