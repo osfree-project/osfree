@@ -975,8 +975,7 @@ endif
 	pop cx
 	jcxz @F					;no valid NE hdr!
 	mov es, cx
-	mov ax, offset szLoadErr
-	push offset szLoadErr
+	@pushString szLoadErr
 	call stroutstk_err
 	call displaymodandseg
 
@@ -994,7 +993,7 @@ endif
 exc0berrorexit endp
 
 displaymodandseg proc        
-	push offset szModule
+	@pushString szModule
 	call stroutstk
 	call modnameout			;expects ES=NE hdr
 	mov ax, si
@@ -1003,7 +1002,7 @@ displaymodandseg proc
 	inc ax
 	mov di, offset SegNo
 	call BYTEOUT
-	push offset szSegment
+	@pushString szSegment
 	call stroutstk
 	@cr_out
 	ret
@@ -5437,7 +5436,7 @@ freesegmmem proc near uses di
 	call FreeMemory			;free memory (Handle in AX or SI:DI)
 	pop si
 	jnc exit
-	push offset szErr32		;error: deallocate memory
+	@pushString szErr32		;error: deallocate memory
 	call stroutstk_err
 	call displaymodandseg
 	stc
