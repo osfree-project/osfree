@@ -361,8 +361,13 @@ _TRACEUSED_ = 0   ;internal variable
 local NewStr
   ifnb <bIsDefined>
 if ?REAL
-    mov ax, offset String
-	push ax
+	push bx
+	push bp
+	mov bp ,sp
+	mov ax, offset String
+	xchg bx,[bp+4]
+	pop bp
+	pop bx
 else  
     push offset String
 endif
