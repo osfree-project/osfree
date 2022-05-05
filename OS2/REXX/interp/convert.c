@@ -565,7 +565,11 @@ streng *std_b2x( tsd_t *TSD, cparamboxptr parms )
          exiterror( ERR_INCORRECT_CALL, 24, "B2X", tmpstr_of( TSD, string ) );
       }
    }
-
+   if (cur_bit!=0)
+   {
+      Free_stringTSD( result );
+      exiterror( ERR_INCORRECT_CALL, 24, "B2X", tmpstr_of( TSD, string ) );
+   }
    /*
     * Wow, we're finished, we just have to set the length of 'result'
     */

@@ -535,11 +535,6 @@ GCI_result GCI_RegisterDefinedFunction( void *hidden,
                                         const GCI_str *external,
                                         const GCI_treeinfo *ti )
 {
-   (hidden = hidden);
-   (internal = internal);
-   (library = library);
-   (external = external);
-   (ti = ti);
    return GCI_OK;
 }
 

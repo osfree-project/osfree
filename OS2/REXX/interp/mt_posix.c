@@ -64,6 +64,20 @@ tsd_t *tsds[MAX_CONCURRENT_REGINA_THREADS] = {0,};
 static pthread_key_t ThreadIndex; /* index of the TSD, no initial value */
 static pthread_once_t ThreadOnce = PTHREAD_ONCE_INIT; /* for pthread_once */
 
+/* The following global structure may seem incongruous in this file.
+ * When we run with the OPTION SINGLE_INTERPRETER, then we need to save
+ * the thread-safe data from the thread-safe functions in a global variable
+ * so that the data is available elsewhere.
+ * The need for this is if you call a Rexx callback and that callback was
+ * initiated by a thread controlled by an external API, then the thread-safe
+ * structures in this file have not been set up, causing a SEGFAULT.
+ * It is easier having a single global structure than replicating each field
+ * of the structure in each of the below functions.
+ * It would have been simpler to just call the non-thread-safe versions of the
+ * below functions than setting this up, but then we get a stack overflow :-)
+ */
+mt_tsd_t g_mt_tsd;
+
 /* Deinitialize is called when the thread terminates.
  * This is a wonderful position to place code which frees all allocated stuff!
  */
@@ -325,21 +339,35 @@ tsd_t *__regina_get_tsd(void)
 /* see documentation of getgrgid and getgrgid_r */
 struct group *getgrgid(gid_t gid)
 {
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
    struct group *ptr=NULL;
    int rc=0;
 # ifdef HAVE_GETGRGID_R_RETURNS_INT_5_PARAMS
-   rc = getgrgid_r(gid,
-                   &mt->getgrgid_retval,
-                   mt->getgrgid_buf,
-                   sizeof(mt->getgrgid_buf),
-                   &ptr);
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      rc = getgrgid_r(gid,
+                      &g_mt_tsd.getgrgid_retval,
+                      g_mt_tsd.getgrgid_buf,
+                      sizeof(g_mt_tsd.getgrgid_buf),
+                      &ptr);
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      rc = getgrgid_r(gid,
+                      &mt->getgrgid_retval,
+                      mt->getgrgid_buf,
+                      sizeof(mt->getgrgid_buf),
+                      &ptr);
+   }
 # endif
 # ifdef HAVE_GETGRGID_R_RETURNS_INT_4_PARAMS
-   rc = getgrgid_r(gid,
-                   &mt->getgrgid_retval,
-                   mt->getgrgid_buf,
-                   sizeof(mt->getgrgid_buf));
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      rc = getgrgid_r(gid,
+                      &mt->getgrgid_retval,
+                      mt->getgrgid_buf,
+                      sizeof(mt->getgrgid_buf));
+
    ptr = &mt->getgrgid_retval;
 # endif
 # ifdef HAVE_GETGRGID_R_RETURNS_STRUCT
@@ -361,21 +389,43 @@ struct group *getgrgid(gid_t gid)
 /* see documentation of getpwuid and getpwuid_r */
 struct passwd *getpwuid(uid_t uid)
 {
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
    struct passwd *ptr=NULL;
    int rc=0;
 
 # ifdef HAVE_GETPWUID_R_RETURNS_INT
-   rc = getpwuid_r(uid,
-                   &mt->getpwuid_retval,
-                   mt->getpwuid_buf,
-                   sizeof(mt->getpwuid_buf),
-                   &ptr);
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      rc = getpwuid_r(uid,
+                      &g_mt_tsd.getpwuid_retval,
+                      g_mt_tsd.getpwuid_buf,
+                      sizeof(g_mt_tsd.getpwuid_buf),
+                      &ptr);
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      rc = getpwuid_r(uid,
+                      &mt->getpwuid_retval,
+                      mt->getpwuid_buf,
+                      sizeof(mt->getpwuid_buf),
+                      &ptr);
+   }
 # else
-   ptr = getpwuid_r(uid,
-                   &mt->getpwuid_retval,
-                   mt->getpwuid_buf,
-                   sizeof(mt->getpwuid_buf) );
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      ptr = getpwuid_r(uid,
+                      &g_mt_tsd.getpwuid_retval,
+                      g_mt_tsd.getpwuid_buf,
+                      sizeof(g_mt_tsd.getpwuid_buf) );
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      ptr = getpwuid_r(uid,
+                      &mt->getpwuid_retval,
+                      mt->getpwuid_buf,
+                      sizeof(mt->getpwuid_buf) );
+   }
 # endif
    if ((rc != 0) || (ptr == NULL))
    {
@@ -389,23 +439,36 @@ struct passwd *getpwuid(uid_t uid)
 /* see documentation of gmtime and gmtime_r */
 struct tm *gmtime(const time_t *time)
 {
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
 #ifdef HAVE_GMTIME_R
-   return(gmtime_r(time,&mt->gmtime_retval));
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      return(gmtime_r(time,&g_mt_tsd.gmtime_retval));
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      return(gmtime_r(time,&mt->gmtime_retval));
+   }
 #else
-   return NULL;
+   return(NULL);
 #endif
 }
 
 /* see documentation of localtime and localtime_r */
 struct tm *localtime(const time_t *time)
 {
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
-
 #ifdef HAVE_LOCALTIME_R
-   return(localtime_r(time,&mt->localtime_retval));
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      return(localtime_r(time,&g_mt_tsd.localtime_retval));
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      return(localtime_r(time,&mt->localtime_retval));
+   }
 #else
-   return NULL;
+   return(NULL);
 #endif
 }
 
@@ -414,23 +477,47 @@ struct hostent *gethostbyname(const char *name)
 {
    int herr;
    struct hostent *he=NULL;
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
 
 #ifdef HAVE_GETHOSTBYNAME_R_RETURNS_INT_6_PARAMS
-   if (gethostbyname_r(name,
-                       &mt->gethbyn_retval,
-                       mt->gethbyn_buf,
-                       sizeof(mt->gethbyn_buf),
-                       &he,
-                       &herr) != 0)
-      return(NULL);
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      if (gethostbyname_r(name,
+                          &g_mt_tsd.gethbyn_retval,
+                          g_mt_tsd.gethbyn_buf,
+                          sizeof(g_mt_tsd.gethbyn_buf),
+                          &he,
+                          &herr) != 0)
+         return(NULL);
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      if (gethostbyname_r(name,
+                          &mt->gethbyn_retval,
+                          mt->gethbyn_buf,
+                          sizeof(mt->gethbyn_buf),
+                          &he,
+                          &herr) != 0)
+         return(NULL);
+   }
 #endif
 #ifdef HAVE_GETHOSTBYNAME_R_RETURNS_STRUCT_5_PARAMS
-   he = gethostbyname_r(name,
-                        &mt->gethbyn_retval,
-                        mt->gethbyn_buf,
-                        sizeof(mt->gethbyn_buf),
-                        &herr);
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      he = gethostbyname_r(name,
+                           &g_mt_tsd.gethbyn_retval,
+                           g_mt_tsd.gethbyn_buf,
+                           sizeof(g_mt_tsd.gethbyn_buf),
+                           &herr);
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+      he = gethostbyname_r(name,
+                           &mt->gethbyn_retval,
+                           mt->gethbyn_buf,
+                           sizeof(mt->gethbyn_buf),
+                           &herr);
+   }
 #endif
    return(he);
 }
@@ -439,12 +526,22 @@ struct hostent *gethostbyname(const char *name)
 char *inet_ntoa(struct in_addr in)
 {
 #ifdef HAVE_INET_NTOP
-   mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      return((char *) inet_ntop(AF_INET,
+                                &in,
+                                g_mt_tsd.inetntoa_buf,
+                                sizeof(g_mt_tsd.inetntoa_buf)));
+   }
+   else
+   {
+      mt_tsd_t *mt = (mt_tsd_t *)__regina_get_tsd()->mt_tsd;
 
-   return((char *) inet_ntop(AF_INET,
-                             &in,
-                             mt->inetntoa_buf,
-                             sizeof(mt->inetntoa_buf)));
+      return((char *) inet_ntop(AF_INET,
+                                &in,
+                                mt->inetntoa_buf,
+                                sizeof(mt->inetntoa_buf)));
+   }
 #else
    return NULL;
 #endif
@@ -456,12 +553,21 @@ char *inet_ntoa(struct in_addr in)
  */
 int32_t random(void)
 {
-   mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
    int32_t retval;
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      if (!g_mt_tsd.random_init) /* according to the ANSI this is equivalent to */
+         srandom(1);        /* an initial value of 1 for the seed!         */
+      random_r(&g_mt_tsd.random,&retval); /* ignore errors, we MUST return anything */
+   }
+   else
+   {
+      mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
 
-   if (!mt->random_init) /* according to the ANSI this is equivalent to */
-      srandom(1);        /* an initial value of 1 for the seed!         */
-   random_r(&mt->random,&retval); /* ignore errors, we MUST return anything */
+      if (!mt->random_init) /* according to the ANSI this is equivalent to */
+         srandom(1);        /* an initial value of 1 for the seed!         */
+      random_r(&mt->random,&retval); /* ignore errors, we MUST return anything */
+   }
    return(retval);
 }
 
@@ -470,31 +576,61 @@ int32_t random(void)
  */
 void srandom(unsigned seed)
 {
-   mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
-   /* The stack is normally not cleared: wonderful random stuff. */
-   char this_is_random_stuff[sizeof(mt->random_buf)];
-
-   if (!mt->random_init)
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
    {
-      mt->random_init = 1;
-      /* In case of a cleared new stack seqment we initialize our buffer
-       * with at least one random stuff:
-       */
-      time((time_t *) this_is_random_stuff);
-      /* If the buffer is large enough, use a second one */
-      if (sizeof(time_t) + sizeof(clock_t) < sizeof(this_is_random_stuff))
-         *((clock_t *) (this_is_random_stuff + sizeof(time_t))) = clock();
+      /* The stack is normally not cleared: wonderful random stuff. */
+      char this_is_random_stuff[sizeof(g_mt_tsd.random_buf)];
 
-      memcpy(mt->random_buf,this_is_random_stuff,sizeof(mt->random_buf));
+      if (!g_mt_tsd.random_init)
+      {
+         g_mt_tsd.random_init = 1;
+         /* In case of a cleared new stack seqment we initialize our buffer
+          * with at least one random stuff:
+          */
+         time((time_t *) this_is_random_stuff);
+         /* If the buffer is large enough, use a second one */
+         if (sizeof(time_t) + sizeof(clock_t) < sizeof(this_is_random_stuff))
+            *((clock_t *) (this_is_random_stuff + sizeof(time_t))) = clock();
 
-      initstate_r(seed,
-                  mt->random_buf,
-                  sizeof(mt->random_buf),
-                  &mt->random);
-      /* initstate calls srandom. We can return savely. */
-      return;
+         memcpy(g_mt_tsd.random_buf,this_is_random_stuff,sizeof(g_mt_tsd.random_buf));
+
+         initstate_r(seed,
+                     g_mt_tsd.random_buf,
+                     sizeof(g_mt_tsd.random_buf),
+                     &g_mt_tsd.random);
+         /* initstate calls srandom. We can return savely. */
+         return;
+      }
+      srandom_r(seed,&g_mt_tsd.random);
    }
-   srandom_r(seed,&mt->random);
+   else
+   {
+      mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
+      /* The stack is normally not cleared: wonderful random stuff. */
+      char this_is_random_stuff[sizeof(mt->random_buf)];
+
+      if (!mt->random_init)
+      {
+         mt->random_init = 1;
+         /* In case of a cleared new stack seqment we initialize our buffer
+          * with at least one random stuff:
+          */
+         time((time_t *) this_is_random_stuff);
+         /* If the buffer is large enough, use a second one */
+         if (sizeof(time_t) + sizeof(clock_t) < sizeof(this_is_random_stuff))
+            *((clock_t *) (this_is_random_stuff + sizeof(time_t))) = clock();
+
+         memcpy(mt->random_buf,this_is_random_stuff,sizeof(mt->random_buf));
+
+         initstate_r(seed,
+                     mt->random_buf,
+                     sizeof(mt->random_buf),
+                     &mt->random);
+         /* initstate calls srandom. We can return savely. */
+         return;
+      }
+      srandom_r(seed,&mt->random);
+   }
 }
 #endif
 
@@ -502,9 +638,15 @@ void srandom(unsigned seed)
 /* see documentation of strerror and strerror_r. */
 char *strerror(int errnum)
 {
-   mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
-
-   return(strerror_r(errnum,mt->strerror_buf,sizeof(mt->strerror_buf)));
+   if ( getGlobalTSD() || __regina_get_tsd() == NULL )
+   {
+      return(strerror_r(errnum,g_mt_tsd.strerror_buf,sizeof(g_mt_tsd.strerror_buf)));
+   }
+   else
+   {
+      mt_tsd_t *mt = __regina_get_tsd()->mt_tsd;
+      return(strerror_r(errnum,mt->strerror_buf,sizeof(mt->strerror_buf)));
+   }
 }
 #endif
 

@@ -748,13 +748,13 @@ static void Os2_init(void)
       extern OS_Dep_funcs __regina_OS_Other;
 
       OS2.fork_exec                  = DOS.fork_exec;
-      OS2.wait                       = DOS.wait;
+      OS2.wait_exec                  = DOS.wait_exec;
       OS2.open_subprocess_connection = DOS.open_subprocess_connection;
       OS2.unblock_handle             = DOS.unblock_handle;
       OS2.restart_file               = DOS.restart_file;
-      OS2.close                      = DOS.close;
-      OS2.read                       = DOS.read;
-      OS2.write                      = DOS.write;
+      OS2.close_exec                 = DOS.close_exec;
+      OS2.read_exec                  = DOS.read_exec;
+      OS2.write_exec                 = DOS.write_exec;
       OS2.create_async_info          = DOS.create_async_info;
       OS2.delete_async_info          = DOS.delete_async_info;
       OS2.reset_async_info           = DOS.reset_async_info;

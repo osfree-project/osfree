@@ -30,7 +30,7 @@
 #include <rmsdef.h>
 
 #include "rexx.h"
-#include "strings.h"
+#include "strengs.h"
 
 struct mbox_status {
    unsigned short status ;

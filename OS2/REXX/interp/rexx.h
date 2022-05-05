@@ -23,7 +23,7 @@
 
 #if defined(__APPLE__) && defined(__MACH__)
 # undef REGINA_BITS
-# if defined(__x86_64__) || defined(__ppc64__)
+# if defined(__x86_64__) || defined(__ppc64__) || defined(__aarch64__)
 #  define REGINA_BITS 64
 # else
 #  define REGINA_BITS 32
@@ -253,7 +253,7 @@
 # include <mem.h>
 #endif
 
-#include "strings.h"            /* definitions of REXX strings */
+#include "strengs.h"            /* definitions of REXX strings */
 
 #if defined(_MSC_VER) && !defined(__WINS__)
 # include "contrib/time64.h"
@@ -261,7 +261,7 @@
 
 #include "regina_t.h"           /* various Regina types */
 
-#include <mt.h>                 /* multi-threading support */
+#include "mt.h"                 /* multi-threading support */
 #include "extern.h"             /* function prototypes */
 
 #define FREE_IF_DEFINED(a,b) { if (b) Free_TSD(a,b); b=NULL ; }
@@ -271,6 +271,12 @@
 #  undef EXIT_SUCCESS
 # endif
 # define EXIT_SUCCESS 1
+#endif
+
+#ifdef HAVE_GETOPT_LONG
+# include <getopt.h>
+# define my_getopt_long getopt_long
+# define my_getopt_option option
 #endif
 
 /* For some mysterious reason, this macro is very difficult for some vendors */

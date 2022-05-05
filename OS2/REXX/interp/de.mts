@@ -275,6 +275,7 @@
  94,109,[Queue \"%s\" nicht gefunden]|<queuename>
  94,110,[Routine %s ungültig bei externen Queues]|<bif>
  94,111,[Routine RXQUEUE, Funktion %s ungültig bei internen Queues]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[Gesperrte Routine im "geschützten" Modus benutzt]
  95,  1,[Routine %s ungültig im "geschützten" Modus]|<token>
  95,  2,[Routine %s, Argument %d ungültig im "geschützten" Modus]|<bif>,<argnumber>

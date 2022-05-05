@@ -207,7 +207,7 @@ static int Win_fork_exec(tsd_t *TSD, environment *env, const char *cmdline, int 
    {
       environment e = *env;
       char *new_cmdline;
-      int i, rc;
+      int i, rc1;
       unsigned len;
 
       if (argv0 == NULL)
@@ -230,11 +230,11 @@ static int Win_fork_exec(tsd_t *TSD, environment *env, const char *cmdline, int 
          strcat(new_cmdline, "\" ");
          strcat(new_cmdline, cmdline);
          e.subtype = SUBENVIR_COMMAND;
-         rc = Win_fork_exec(TSD, &e, new_cmdline, &rc);
-         if ( ( rc != 0 ) && ( rc != -1 ) )
+         rc1 = Win_fork_exec(TSD, &e, new_cmdline, &rc1);
+         if ( ( rc1 != 0 ) && ( rc1 != -1 ) )
          {
             free(new_cmdline);
-            return(rc);
+            return(rc1);
          }
       }
 
@@ -245,11 +245,11 @@ static int Win_fork_exec(tsd_t *TSD, environment *env, const char *cmdline, int 
          strcat(new_cmdline, " ");
          strcat(new_cmdline, cmdline);
          e.subtype = SUBENVIR_COMMAND;
-         rc = Win_fork_exec(TSD, &e, new_cmdline, &rc);
-         if ( ( rc != 0 ) && ( rc != -1 ) )
+         rc1 = Win_fork_exec(TSD, &e, new_cmdline, &rc1);
+         if ( ( rc1 != 0 ) && ( rc1 != -1 ) )
          {
             free(new_cmdline);
-            return(rc);
+            return(rc1);
          }
       }
 
@@ -1189,6 +1189,14 @@ int Win_uname(struct regina_utsname *name)              /* MH 10-06-96 */
             else
                strcpy( name->sysname, "UNKNOWN" );
          }
+         else if ( osinfo.dwMajorVersion == 10 )
+         {
+            strcpy( name->sysname, "WIN10" );
+         }
+         else if ( osinfo.dwMajorVersion == 11 )
+         {
+            strcpy( name->sysname, "WIN11" );
+         }
          else
             strcpy( name->sysname, "UNKNOWN" );
          break;
@@ -1301,14 +1309,14 @@ static void Win_init(void)
       WIN.open_subprocess_connection = DOS.open_subprocess_connection;
       WIN.unblock_handle             = DOS.unblock_handle;
       WIN.restart_file               = DOS.restart_file;
-      WIN.close                      = DOS.close;
-      WIN.read                       = DOS.read;
-      WIN.write                      = DOS.write;
+      WIN.close_exec                 = DOS.close_exec;
+      WIN.read_exec                  = DOS.read_exec;
+      WIN.write_exec                 = DOS.write_exec;
       WIN.create_async_info          = DOS.create_async_info;
       WIN.delete_async_info          = DOS.delete_async_info;
       WIN.reset_async_info           = DOS.reset_async_info;
       WIN.add_async_waiter           = DOS.add_async_waiter;
       WIN.wait_async_info            = DOS.wait_async_info;
-      WIN.wait                       = DOS.wait;
+      WIN.wait_exec                  = DOS.wait_exec;
    }
 }

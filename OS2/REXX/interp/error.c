@@ -135,7 +135,7 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  25,  3,"SIGNAL ON must be followed by one of the keywords %s; found \"%s\"|<keywords>,<token>" },
    {  25,  4,"SIGNAL OFF must be followed by one of the keywords %s; found \"%s\"|<keywords>,<token>" },
    {  25,  5,"ADDRESS WITH must be followed by one of the keywords INPUT, OUTPUT or ERROR; found \"%s\"|<token>" },
-   {  25,  6,"INPUT must be followed by one of the keywords STREAM, STEM, LIFO, FIFO or NORMAL; found \"%s\"|<token>" },
+   {  25,  6,"INPUT must be followed by one of the keywords STREAM, STEM, LIFO, FIFO, NOEOL or NORMAL; found \"%s\"|<token>" },
    {  25,  7,"OUTPUT must be followed by one of the keywords STREAM, STEM, LIFO, FIFO, APPEND, REPLACE or NORMAL; found \"%s\"|<token>" },
    {  25,  8,"APPEND must be followed by one of the keywords STREAM, STEM, LIFO or FIFO; found \"%s\"|<token>" },
    {  25,  9,"REPLACE must be followed by one of the keywords STREAM, STEM, LIFO or FIFO; found \"%s\"|<token>" },
@@ -319,6 +319,7 @@ static const errtext_t errtext[NUMBER_ERROR_MESSAGES] =
    {  94,109,"[Queue \"%s\" not found]|<queuename>" },
    {  94,110,"[%s invalid for external queues]|<bif>" },
    {  94,111,"[RXQUEUE function %s invalid for internal queues]|<functionname>" },
+   {  94,112,"[Unable to %s SESSION queue]|<action>" },
    {  95,  0,"[Restricted feature used in \"safe\" mode]" },
    {  95,  1,"[%s invalid in \"safe\" mode]|<token>" },
    {  95,  2,"[%s argument %d invalid in \"safe\" mode]|<bif>,<argnumber>" },
@@ -520,7 +521,8 @@ void exiterror( int errorno, int suberrorno, ... )
 {
    staticstreng( nofile, "<name>" );
    va_list argptr;
-   int lineno,charno,signtype;
+   int lineno,signtype;
+/*   int charno; could be useful for pinpointing actual error */
    streng *inputfile;
    streng *suberror_streng=NULL;
    streng *errmsg, *ptr;
@@ -528,7 +530,6 @@ void exiterror( int errorno, int suberrorno, ... )
    const streng *fmt, *etext ;
    FILE *fp = stderr ;
    err_tsd_t *et;
-   const char *errfn;
    int is_fmt=1;
    tsd_t *TSD = __regina_get_tsd(); /* The TSD should be fetched directly. This
                                      * will help if someone corrupted a TSD as
@@ -566,21 +567,16 @@ void exiterror( int errorno, int suberrorno, ... )
       fputc( REGINA_EOL, fp );
       goto not_hookable;
    }
-#if defined(__EPOC32__) || defined(__WINS__)
-   errfn="default";
-#else
-   errfn=errlang[et->native_language];
-#endif
    et->conditions++;
 
    if ( TSD->currentnode )
    {
       lineno = lineno_of( TSD->currentnode );
-      charno = charno_of( TSD->currentnode );
+/*      charno = charno_of( TSD->currentnode ); */
    }
    else
    {
-      charno = 0;
+/*      charno = 0; */
       lineno = parser_data.tline;
    }
 
@@ -659,7 +655,10 @@ void exiterror( int errorno, int suberrorno, ... )
 
    /* Here we should set sigtype to SIGNAL_FATAL for some 'errno's */
 
-   /* Get the text for the base errorno */
+   /* clean up internal buffers before calling condition_hook() as this may not return */
+   /* Fixes bug #463 */
+   clear_errortext_buffers( TSD );
+   /* Get the text for the base errorno for condition_hook() */
    etext = errortext( TSD, errorno, 0, 0, 0 );
 
    /*
@@ -682,6 +681,7 @@ void exiterror( int errorno, int suberrorno, ... )
 
    /* enable a hook into the condition system */
    et->conditions--;
+
    if ( condition_hook( TSD, signtype, errorno, suberrorno, lineno,
                         Str_dupTSD( etext ), suberror_streng ) )
    {

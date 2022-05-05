@@ -86,7 +86,9 @@
 #endif
 
 #include "extstack.h"
-#include "mygetopt.h"
+#ifndef HAVE_GETOPT_LONG
+# include "mygetopt.h"
+#endif
 
 #define SUCCESS(a) ((a)&&(a)->value[0] == '0')
 
@@ -102,6 +104,8 @@ static int fromtext = 0;
 
 char *buff=NULL;
 unsigned int bufflen=0;
+
+static streng *session = NULL;
 
 #if !defined(HAVE_STRERROR)
 /*
@@ -137,6 +141,17 @@ streng *Str_upper( streng *str )
          str->value[i] = (char)toupper( str->value[i] );
    }
    return str;
+}
+
+int Str_cmp( const streng *first, const streng *second )
+{
+   int lim;
+
+   lim = Str_len( first );
+   if ( lim != Str_len( second ) )
+      return 1;
+
+   return memcmp( first->value, second->value, lim );
 }
 
 int send_all( int sock, char *action )
@@ -233,9 +248,13 @@ char *get_action( char *parm )
       action = RXSTACK_PULL_STR;
    else if ( strcmp( parm, "/queued" ) == 0 )
       action = RXSTACK_NUMBER_IN_QUEUE_STR;
+   else if ( strcmp( parm, "/delete" ) == 0 )
+      action = RXSTACK_DELETE_QUEUE_STR;
+   else if ( strcmp( parm, "/list" ) == 0 )
+      action = RXSTACK_SHOW_QUEUES_STR;
    else
    {
-      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INVALID_SWITCH, ERR_RXSTACK_INVALID_SWITCH_TMPL, "/fifo, /lifo, /clear, /queued, /pull" );
+      showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INVALID_SWITCH, ERR_RXSTACK_INVALID_SWITCH_TMPL, "/fifo, /lifo, /clear, /queued, /pull, /list" );
       /* not setting action will exit */
    }
    return action;
@@ -262,7 +281,7 @@ void junk_return_from_rxstack( int sock, streng *header )
 static int usage( const char *argv0 )
 {
    fprintf( stdout, "\n%s: %s (%d bit). All rights reserved.\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
-   fprintf( stdout,"Regina is distributed under the terms of the GNU Library Public License \n" );
+   fprintf( stdout,"Regina is distributed under the terms of the GNU Library General Public License \n" );
    fprintf( stdout,"and comes with NO WARRANTY. See the file COPYING-LIB for details.\n" );
    fprintf( stdout,"\n%s [switches] [queue] [command]\n", argv0 );
    fprintf( stdout,"where switches are:\n\n" );
@@ -275,8 +294,10 @@ static int usage( const char *argv0 )
    fprintf( stdout,"  /fifo                    add text into [queue] first-in-first-out\n" );
    fprintf( stdout,"  /lifo                    add text into [queue] last-in-first-out\n" );
    fprintf( stdout,"  /clear                   clears all lines in [queue]\n" );
+   fprintf( stdout,"  /delete                  delete queue\n" );
    fprintf( stdout,"  /pull                    pulls all lines from [queue]\n" );
    fprintf( stdout,"  /queued                  displays number of lines in [queue]\n" );
+   fprintf( stdout,"  /list                    displays list of queues held by rxstack\n" );
    fflush( stdout );
    return 1 ;
 }
@@ -431,6 +452,16 @@ int main( int argc, char *argv[])
          fprintf(stderr, "-t or --text switch invalid with /queued action.\n");
          return usage( argv0 );
       }
+      else if ( action[0] == RXSTACK_DELETE_QUEUE )
+      {
+         fprintf(stderr, "-t or --text switch invalid with /delete action.\n");
+         return usage( argv0 );
+      }
+      else if ( action[0] == RXSTACK_SHOW_QUEUES )
+      {
+         fprintf(stderr, "-t or --text switch invalid with /list action.\n");
+         return usage( argv0 );
+      }
    }
    in_queue = force_remote( in_queue ) ;
    if ( action )
@@ -569,6 +600,47 @@ int main( int argc, char *argv[])
                num = get_number_in_queue_from_rxstack( NULL, sock, &rc );
                if ( rc == 0 )
                   printf("%d\n", num );
+               break;
+            case RXSTACK_DELETE_QUEUE:
+               /*
+                * Delete the specified queue
+                */
+               DEBUGDUMP(printf("--- Delete Queue ---\n"););
+               session = MAKESTRENG( 7 );
+               memcpy( PSTRENGVAL( session ), "SESSION", 7 );
+               session->len = 7;
+               if ( Str_cmp( session, queue ) == 0 )
+               {
+                  showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_ACTION_SESSION, ERR_RXSTACK_ACTION_SESSION_TMPL, "delete" );
+                  rc = ERR_RXSTACK_INTERNAL;
+                  break;
+               }
+               rc = send_command_to_rxstack( NULL, sock, action, PSTRENGVAL( queue) , PSTRENGLEN( queue ) );
+               if ( rc == -1 )
+               {
+                  showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, ERR_RXSTACK_INTERNAL_TMPL, rc, "Deleting queue" );
+                  rc = ERR_RXSTACK_INTERNAL;
+                  break;
+               }
+               result = read_result_from_rxstack( NULL, sock, RXSTACK_HEADER_SIZE );
+               if ( !SUCCESS( result ) )
+               {
+                  showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, ERR_RXSTACK_INTERNAL_TMPL, rc, "Deleting queue" );
+                  DROPSTRENG( result );
+                  rc = ERR_RXSTACK_INTERNAL;
+                  break;
+               }
+               DROPSTRENG( result );
+               rc = 0;
+               break;
+            case RXSTACK_SHOW_QUEUES:
+               DEBUGDUMP(printf("----- Show Queues -----\n"););
+               num = get_queues_from_rxstack( NULL, sock, &rc, &result );
+               if ( rc == 0 )
+               {
+                  printf( "%.*s\n", PSTRENGLEN( result ), PSTRENGVAL( result ) ) ;
+               }
+               DROPSTRENG( result );
                break;
             case RXSTACK_PULL:
                /*

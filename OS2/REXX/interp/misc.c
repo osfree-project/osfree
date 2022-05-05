@@ -357,6 +357,34 @@ void mem_lower( void *m, int length )
    }
 }
 
+void mem_upperrx64( void *m, rx_64 length )
+{
+   unsigned char *c = (unsigned char *) m;
+
+   if ( ! ( char_info[256] & RX_ISUPPER ) )
+      load_info( RX_ISUPPER );
+
+   while ( length-- > 0 )
+   {
+      *c = l_to_u[ *c ];
+      c++;
+   }
+}
+
+void mem_lowerrx64( void *m, rx_64 length )
+{
+   unsigned char *c = (unsigned char *) m;
+
+   if ( ! ( char_info[256] & RX_ISLOWER ) )
+      load_info( RX_ISLOWER );
+
+   while ( length-- > 0 )
+   {
+      *c = u_to_l[ *c ];
+      c++;
+   }
+}
+
 int mem_cmpic( const void *buf1, const void *buf2, int len )
 /*
  * Function  : Compares two memory buffers for equality;

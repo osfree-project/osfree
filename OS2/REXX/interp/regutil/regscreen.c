@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regscreen.c,v 1.2 2009/11/02 22:40:18 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regscreen.c,v 1.4 2021/10/12 22:33:36 mark Exp $
  */
 #include "regutil.h"
 
@@ -27,6 +27,9 @@
 /* ******************************************************************** */
 
 /* using the windows console api */
+
+static const char notimp[] = "not implemented";
+#define what() memcpy(result->strptr, notimp, sizeof(notimp)-1), result->strlength = sizeof(notimp)-1
 
 /* hold information about the screen */
 #ifdef _WIN32
@@ -355,6 +358,101 @@ rxfunc(sysgetkey)
 #    endif
    }
 
+   return 0;
+}
+
+rxfunc(sysgetline)
+{
+#ifdef HAVE_READLINE_HISTORY_H
+   char *prompt = NULL;
+   char *expansion;
+   char *line;
+   int rc;
+
+   if (argc > 0 && argv[0].strptr)
+   {
+      prompt = argv[0].strptr;
+   }
+   line = readline( prompt );
+   if ( line && line[0] )
+   {
+      rc = history_expand(line, &expansion);
+      if (rc)
+         fprintf (stderr, "%s\n", expansion);
+
+      if (rc < 0 || rc == 2)
+      {
+         free (expansion);
+      }
+      else
+      {
+         add_history(expansion);
+         strncpy(result->strptr, expansion, strlen(expansion));
+         result->strlength = strlen( result->strptr );
+         free(expansion);
+      }
+   }
+   else
+   {
+      strcpy(result->strptr, "");
+      result->strlength = 0;
+   }
+#else
+   what();
+#endif
+   return 0;
+}
+
+rxfunc(sysgetlinehistory)
+{
+#ifdef HAVE_READLINE_HISTORY_H
+   char *action;
+   char *filename = NULL;
+   register rxbool readhistory=false, inithistory=false;
+   int rc=0;
+
+   checkparam(2,2);
+
+   if (argv[0].strptr)
+   {
+      filename = argv[0].strptr;
+   }
+   else
+      return BADARGS;
+   if ( argv[1].strptr )
+   {
+      rxstrdup(action, argv[1]);
+      strupr(action);
+      if (strcmp(action,"R") == 0 || strcmp(action,"READ") == 0 )
+         readhistory = true;
+      else if (strcmp(action,"W") == 0 || strcmp(action,"WRITE") == 0 )
+         readhistory = false;
+      else if (strcmp(action,"I") == 0 || strcmp(action,"INIT") == 0 )
+         inithistory = true;
+      else
+         return BADARGS;
+   }
+   else
+      return BADARGS;
+   if ( inithistory )
+   {
+      using_history();
+   }
+   else if ( readhistory )
+   {
+      rc = read_history( filename );
+   }
+   else
+   {
+      rc = write_history( filename );
+   }
+   if (rc)
+      result_one();
+   else
+      result_zero();
+#else
+   what();
+#endif
    return 0;
 }
 

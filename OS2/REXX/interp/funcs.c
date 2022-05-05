@@ -148,7 +148,6 @@ static const struct function_type functions[] = {
   { EXT_REGINA_BIFS,rex_getcaller,         "GETCALLER" },
   { EXT_REGINA_BIFS,rex_getcallstack,      "GETCALLSTACK" },
   { EXT_REGINA_BIFS,unx_getenv,            "GETENV" },
-  { EXT_REGINA_BIFS,unx_getpath,           "GETPATH" },
   { EXT_REGINA_BIFS,unx_getpid,            "GETPID" },
   { EXT_AREXX_BIFS, arexx_getspace,        "GETSPACE" },
   { EXT_REGINA_BIFS,unx_gettid,            "GETTID" },
@@ -788,8 +787,13 @@ void checkparam( cparamboxptr params, int min, int max, const char *name )
    int i=0 ;
 
    for (i=0;i<min;i++,params=(cparamboxptr) (params->next))
-      if ((!params)||(!params->value))
+   {
+/*      if ((!params)||(!params->value)) */
+      if ((!params))
          exiterror( ERR_INCORRECT_CALL, 3, name, min )  ;
+      if ( !params->value )
+         exiterror( ERR_INCORRECT_CALL, 5, name, i+1 );
+   }
 
    for (;(i<max)&&(params);i++,params=(cparamboxptr) (params->next)) ;
    if (((i==max)&&(params))&&((max)||(params->value)))

@@ -11,12 +11,12 @@ debversion=$(shell head -n1 debian/changelog | \
 
 version=$(shell echo $(debversion) | cut -d"-" -f1)
 
-soname=3
+soname=@VER_SOMAJOR@
 #
 # If the version of Regina being built includes a value for VER_SUPP in the regina.ver file,
 # ensure that soversion includes the full dotted version followed by VER_SUPP. eg 3.7RC1
-soversion=3.9
-changelog=README.391
+soversion=@VER_SOMAJOR@
+changelog=README.@VERSION_NODOT@
 
 package=libregina$(soname)
 rexxpackage=regina-rexx
@@ -29,11 +29,12 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 #libdir=$(destprefix)/lib/$(DEB_HOST_MULTIARCH)
 malibdir=lib/$(DEB_HOST_MULTIARCH)
 
-confflags=--prefix=/$(destprefix) --with-addon-dir=/$(destprefix)/$(malibdir)/regina-rexx/$(version) --libdir=/$(destprefix)/$(malibdir)
+confflags=--prefix=/$(destprefix) --with-addon-dir=/$(destprefix)/$(malibdir)/regina-rexx/addons --libdir=/$(destprefix)/$(malibdir)
 # Enable Regina GCI only on supported platforms.
-ifneq ($(filter alpha amd64 i386,$(DEB_HOST_ARCH)), )
-  confflags+=--enable-gci
-endif
+# Let configure work it out!
+#ifneq ($(filter alpha amd64 i386,$(DEB_HOST_ARCH)), )
+#  confflags+=--enable-gci
+#endif
 
 ifeq ($(DEB_BUILD_ARCH), ia64)
   CCOPTS=-O2 -g
@@ -52,6 +53,7 @@ stamp-configure:
 	$(checkdir)
 	./configure $(confflags)
 	touch stamp-configure
+	chmod 755 ./debian/rules
 
 clean:
 	$(checkdir)
@@ -72,22 +74,31 @@ binary-arch: checkroot build
 	install -d -m 755 debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)
 	install -d -m 755 debian/tmp-dev/$(destprefix)/share/doc/$(package)-dev
 #
-	install -m 755 debian/postinst debian/tmp-lib/DEBIAN/postinst
-	install -m 755 debian/postrm debian/tmp-lib/DEBIAN/postrm
+	install -m 755 debian/$(rexxpackage).postinst debian/tmp-rexx/DEBIAN/postinst
+	install -m 755 debian/$(rexxpackage).prerm debian/tmp-rexx/DEBIAN/prerm
+#
+	install -m 755 debian/$(package).postinst debian/tmp-lib/DEBIAN/postinst
+	install -m 755 debian/$(package).postrm debian/tmp-lib/DEBIAN/postrm
 	echo "libregina $(soname) $(package) (>= $(debversion))" > debian/shlibs.local
 	install -m 644 debian/shlibs.local debian/tmp-lib/DEBIAN/shlibs
 #
 #	$(MAKE) install-lib prefix=debian/tmp-lib/$(destprefix)
 #	$(MAKE) install-dev prefix=debian/tmp-dev/$(destprefix)
-	$(MAKE) install-lib prefix=debian/tmp-lib
-	$(MAKE) install-dev prefix=debian/tmp-dev
-	$(MAKE) install-rexx prefix=debian/tmp-rexx rexx_examples=share/$(rexxpackage)/examples
+	$(MAKE) install-lib DESTDIR=debian/tmp-lib
+	$(MAKE) install-dev DESTDIR=debian/tmp-dev
+	$(MAKE) install-rexx DESTDIR=debian/tmp-rexx rexx_examples=$(destprefix)/share/$(rexxpackage)/examples rexx_mtb=$(destprefix)/share/$(rexxpackage)
+#	$(MAKE) install-lib prefix=debian/tmp-lib
+#	$(MAKE) install-dev prefix=debian/tmp-dev
+#	$(MAKE) install-rexx prefix=debian/tmp-rexx rexx_examples=share/$(rexxpackage)/examples
 #
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/libregina.so.$(soversion)
-	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/$(version)/libregutil.so
+	strip --strip-unneeded --remove-section=.comment --remove-section=.note debian/tmp-lib/$(destprefix)/$(malibdir)/regina-rexx/addons/libregutil.so
 	strip --strip-debug debian/tmp-dev/$(destprefix)/$(malibdir)/libregina.a
-	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/*
+	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/regina
+	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/rexx-regina-rexx
+	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/rxqueue-regina-rexx
+	strip --strip-all --remove-section=.comment --remove-section=.note debian/tmp-rexx/$(destprefix)/bin/rxstack
 endif
 #
 #	cp README.[0-9]* debian/tmp-lib/$(destprefix)/share/doc/$(package)
@@ -97,7 +108,7 @@ endif
 	cp debian/copyright debian/tmp-lib/$(destprefix)/share/doc/$(package)
 #
 	gzip -9f debian/tmp-rexx/$(destprefix)/share/man/man1/*.1
-	ln -sf regina.1.gz debian/tmp-rexx/$(destprefix)/share/man/man1/rexx.1.gz
+#	ln -sf regina.1.gz debian/tmp-rexx/$(destprefix)/share/man/man1/rexx-regina-rexx.1.gz
 	cp $(changelog) debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog
 	cp debian/changelog  debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog.Debian
 	gzip -9f debian/tmp-rexx/$(destprefix)/share/doc/$(rexxpackage)/changelog*
@@ -114,7 +125,7 @@ endif
 	echo "regver:Depends=$(package) (= $(debversion))" > debian/substvars
 	dpkg-gencontrol -isp -p$(package)-dev -Pdebian/tmp-dev
 #
-	LD_LIBRARY_PATH=/$(destprefix)/lib/libfakeroot:$(DESTDIR)-lib/$(destprefix)/$(malibdir) dpkg-shlibdeps debian/tmp-rexx/$(destprefix)/bin/*
+	LD_LIBRARY_PATH=/$(destprefix)/lib/libfakeroot:$(DESTDIR)-lib/$(destprefix)/$(malibdir) dpkg-shlibdeps debian/tmp-rexx/$(destprefix)/bin/regina debian/tmp-rexx/$(destprefix)/bin/rexx-regina-rexx debian/tmp-rexx/$(destprefix)/bin/rxqueue-regina-rexx debian/tmp-rexx/$(destprefix)/bin/rxstack
 	dpkg-gencontrol -isp -p$(rexxpackage) -Pdebian/tmp-rexx
 #
 	chown -R root.root debian/tmp-{lib,dev,rexx}

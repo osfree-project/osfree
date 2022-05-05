@@ -67,7 +67,7 @@ tracing.obj   &
 interp.obj    &
 cmath.obj     &
 convert.obj   &
-strings.obj   &
+strengs.obj   &
 library.obj   &
 strmath.obj   &
 signals.obj   &
@@ -107,7 +107,7 @@ tracing.dlo   &
 interp.dlo    &
 cmath.dlo     &
 convert.dlo   &
-strings.dlo   &
+strengs.dlo   &
 library.dlo   &
 strmath.dlo   &
 signals.dlo   &
@@ -144,7 +144,7 @@ LINK            = wlink
 LIBEXE          = wlib
 LIBFLAGS                = /q /n
 
-HFILES = $(SRC)\rexx.h $(SRC)\defs.h $(SRC)\extern.h $(SRC)\regina_t.h $(SRC)\strings.h
+HFILES = $(SRC)\rexx.h $(SRC)\defs.h $(SRC)\extern.h $(SRC)\regina_t.h $(SRC)\strengs.h
 
 MTSSRC = $(SRC)\en.mts $(SRC)\pt.mts $(SRC)\no.mts $(SRC)\de.mts $(SRC)\es.mts $(SRC)\pl.mts $(SRC)\tr.mts $(SRC)\sv.mts
 
@@ -318,7 +318,7 @@ cmath.obj:    $(SRC)\cmath.c $(HFILES)
 convert.obj:  $(SRC)\convert.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)\$*.c
 
-strings.obj:  $(SRC)\strings.c $(HFILES)
+strengs.obj:  $(SRC)\strengs.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)\$*.c
 
 library.obj:  $(SRC)\library.c $(HFILES)
@@ -480,7 +480,7 @@ cmath.dlo:    $(SRC)\cmath.c $(HFILES)
 convert.dlo:  $(SRC)\convert.c $(HFILES)
         $(CC) $(CCFLAGS) $(DYN_COMP) /fo=$*.dlo $(SRC)\$*.c
 
-strings.dlo:  $(SRC)\strings.c $(HFILES)
+strengs.dlo:  $(SRC)\strengs.c $(HFILES)
         $(CC) $(CCFLAGS) $(DYN_COMP) /fo=$*.dlo $(SRC)\$*.c
 
 library.dlo:  $(SRC)\library.c $(HFILES)

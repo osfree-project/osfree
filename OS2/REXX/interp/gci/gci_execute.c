@@ -759,7 +759,7 @@ static GCI_result assignArgumentsFromStem( void *hidden,
    GCI_result rc;
    int i, start;
    int origlen = GCI_strlen( base );
-   char iter[3];
+   char iter[10];
    reader rdr;
    /*
     * All simple arguments must fit into a static buffer.

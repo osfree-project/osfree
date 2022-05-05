@@ -450,8 +450,6 @@ internal_parser_type ExpandTinnedTree(const tsd_t *TSD,
             thisptr->p[j] = ipt.nodes->elems + (unsigned long) thisptr->p[j];
       }
    }
-   size = size; /* keep compiler happy */
-
    return(ipt);
 }
 
@@ -715,7 +713,6 @@ external_parser_type *TinTree(const tsd_t *TSD,
    assert((unsigned long) len + sizeof(retval->Magic) == *length);
 
    /* DEBUGGING: return NULL if you don't want tinned trees */
-   TSD = TSD; /* keep compiler happy */
    return(retval);
 }
 

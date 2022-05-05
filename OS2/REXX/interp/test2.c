@@ -57,7 +57,7 @@ static const RexxTestFunction RexxTestFunctions[] = {
    {(PSZ)NAME_FUNCTION1,   (PFN)Test2Function1  },
    {(PSZ)NAME_FUNCTION2,   (PFN)Test2Function2  },
    {(PSZ)NAME_DROPFUNCS,   (PFN)Test2DropFuncs  },
-   {(PSZ)NAME_LOADFUNCS,   (PFN)Test2LoadFuncs  },
+/*   {(PSZ)NAME_LOADFUNCS,   (PFN)Test2LoadFuncs  },*/
    {NULL,NULL}
 };
 
@@ -224,7 +224,7 @@ static int InitTestRexx(PSZ progname)
    for (func = RexxTestFunctions; func->function_name; func++)
       rc = RexxRegisterFunctionDll(func->function_name,DLLNAME,func->function_name);
 
-   return 0;
+   return rc;
 }
 
 APIRET APIENTRY LOADFUNCS(PCSZ name,ULONG argc,PRXSTRING argv,PCSZ stck,PRXSTRING retstr)
@@ -245,7 +245,7 @@ void *getTest2FunctionAddress( char *name )
    for (func = RexxTestFunctions; func->function_name; func++)
    {
       if ( strcmp( func->function_name, name) == 0 )
-         return func->EntryPoint;
+         return (void *)func->EntryPoint;
    }
    return NULL;
 }

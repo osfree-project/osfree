@@ -257,8 +257,6 @@ void free_orphaned_libs( tsd_t *TSD )
    lib_tsd_t *lt = (lib_tsd_t *)TSD->lib_tsd;
 
    unlink_orphaned_libs( TSD, lt, 0 );
-#else
-   (TSD = TSD);
 #endif
 }
 
@@ -704,7 +702,7 @@ static int loadrxhook( const tsd_t *TSD, struct library *lptr,
 }
 
 /*
- * unloadrxhook removes a registered function entry point.
+ * unloadrxfunc removes a registered function entry point.
  *
  * rxname is the name that can be used by a REXX script.
  *
@@ -777,42 +775,22 @@ static int rex_funcadd( const tsd_t *TSD, const streng *rxname,
 #ifdef DYNAMIC
       if ( Str_ccmp( module, rexxutil ) == 0 )
       {
-         if ( ( lptr = find_library( TSD, rexxutil ) ) == NULL )
+         if ( ( lptr = find_library( TSD, regutil ) ) == NULL )
          {
             newhandle = 1;
-            handle = wrapper_load( TSD, rexxutil ) ;
+            handle = wrapper_load( TSD, regutil ) ;
             if ( handle )
             {
                lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
-               lptr->name = Str_dupstrTSD( rexxutil ) ;
+               lptr->name = Str_dupstrTSD( regutil ) ;
                lptr->handle = handle ;
                lptr->used = 0l;
             }
             else
             {
+               Free_stringTSD( regutil );
                Free_stringTSD( rexxutil );
-
-               if ( Str_ccmp( module, regutil ) == 0 )
-               {
-                  if ( ( lptr = find_library( TSD, regutil ) ) == NULL )
-                  {
-                  newhandle = 1;
-                  handle = wrapper_load( TSD, regutil ) ;
-                  if ( handle )
-                  {
-                     lptr = (struct library *)MallocTSD( sizeof( struct library )) ;
-                     lptr->name = Str_dupstrTSD( regutil ) ;
-                     lptr->handle = handle ;
-                     lptr->used = 0l;
-                  }
-                  else
-                  {
-                     Free_stringTSD( regutil );
-                     return 40; /* RXFUNC_MODNOTFND */
-                  }
-                  insert_library( TSD, lptr ) ;
-                  }
-               }
+               return 40; /* RXFUNC_MODNOTFND */
             }
             insert_library( TSD, lptr ) ;
          }

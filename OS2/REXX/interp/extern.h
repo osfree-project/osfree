@@ -222,6 +222,8 @@
    void set_locale_info( const char *info );
    void mem_upper( void *m, int len );
    void mem_lower( void *m, int len );
+   void mem_upperrx64( void *m, rx_64 len );
+   void mem_lowerrx64( void *m, rx_64 len );
    int mem_cmpic( const void *buf1, const void *buf2, int len );
    const char *system_type( void ) ;
    double cpu_time( void ) ;
@@ -310,6 +312,7 @@
  * Routines in tracing.c
  */
    int init_tracing( tsd_t *TSD ) ;
+   int purge_tracing( tsd_t *TSD ) ;
    void set_trace( tsd_t *TSD, const streng * ) ;
    void set_trace_char( tsd_t *TSD, char ) ;
    void flush_trace_chars( tsd_t *TSD ) ;
@@ -437,8 +440,8 @@ extern "C" {
    nodeptr treadit( cnodeptr ) ;
    void setup_system( tsd_t *TSD, int isclient );
    sysinfobox *creat_sysinfo( const tsd_t *TSD, streng *envir );
-   void setGlobalTSD( tsd_t *TSD);
-   tsd_t *getGlobalTSD( void );
+   void setGlobalTSD( const tsd_t *TSD);
+   const tsd_t *getGlobalTSD( void );
 
 
 /*
@@ -708,7 +711,6 @@ extern "C" {
 /*
  * Routines in unxfuncs.c
  */
-   streng *unx_getpath( tsd_t *TSD, cparamboxptr dummy ) ;
    streng *unx_popen( tsd_t *TSD, cparamboxptr parms ) ;
    streng *unx_getpid( tsd_t *TSD, cparamboxptr parms ) ;
    streng *unx_gettid( tsd_t *TSD, cparamboxptr parms ) ;
@@ -756,7 +758,7 @@ extern "C" {
 #endif
 
 /*
- * Routines in strings.c
+ * Routines in strengs.c
  * string and streng routines are ugly but we need the speedup of passing the
  * TSD to take profit from flists in the multi-threading environment.
  */
@@ -948,7 +950,8 @@ extern unsigned SymbolDetect ; /* value shared by lexsrc.l and yaccsrc.y only */
 #define SD_STEM         0x00000080
 #define SD_LIFO         0x00000100
 #define SD_FIFO         0x00000200
-#define SD_ADDRWITH     0x000003FF /* All the above */
+#define SD_NOEOL        0x00000400
+#define SD_ADDRWITH     0x000007FF /* All the above */
 #ifndef NDEBUG
 extern int __reginadebug ;
 #endif

@@ -69,7 +69,7 @@
 #include <string.h>
 #include <stdio.h>  /* Stupid SunOS acc uses stderr in assert(), yuk! */
 #include <assert.h>
-#include "strings.h"
+#include "strengs.h"
 
 /*
  * Using the 'tracestat' field of 'currlevel' in order to determine
@@ -350,7 +350,16 @@ static void doparse3( tsd_t *TSD, cnodeptr thisptr, const char *start, int len )
       if ( thisptr->p[1]->type == X_HEAD_SYMBOL )
          fix_compound( TSD, thisptr->p[1], tptr );
       else
-         setshortcut( TSD, thisptr->p[1], tptr );
+      {
+         if ( KNOWN_RESERVED( thisptr->p[1]->name->value, thisptr->p[1]->name->len ) )
+         {
+            exiterror( ERR_INVALID_START, 3, tmpstr_of( TSD, thisptr->p[1]->name ) );
+         }
+         else
+         {
+           setshortcut( TSD, thisptr->p[1], tptr );
+         }
+      }
    }
    else
    {

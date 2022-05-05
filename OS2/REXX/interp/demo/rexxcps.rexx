@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /* ReXX */
   /* Take a measure of REXX clauses-per-second (CPS)                 */
   /* Mike Cowlishaw (mfc@ibm.com).  Multi-platform.                  */
@@ -23,9 +24,9 @@
   /* virtual time.                                                   */
 
   Parse Arg averaging count tracevar
-  if averaging = '' Then averaging = 10  /* Averaging-over count */
-  if count = '' Then count = 30  /* Repetition count */
-  if tracevar = '' then tracevar = 'Off' /* Trace setting (for development use) */
+  if averaging = '' Then averaging = 100  /* Averaging-over count */
+  if count = '' Then count = 100  /* Repetition count */
+  if tracevar = '' then tracevar = 'o' /* Trace setting (for development use) */
   signal on novalue
   parse source  source  1 system .
   parse version version
@@ -50,12 +51,12 @@
      say 'Calibration (empty DO):' empty 'secs (average of' averaging')'
      say 'Spooling trace NOTERM'
      'CP SPOOL CON * START NOTERM'; 'CP CLOSE CON PUR'
-     end 
+     end
 
   /* Now the true timer loop .. average timing again */
-  full=0 
+  full=0
   do i=1 to averaging
-    trace value tracevar 
+    trace value tracevar
     call time 'R'
     do count;
       /* -----  This is first of the 1000 clauses ----- */
@@ -109,7 +110,7 @@
   if noterm then do
      'CP CLOSE CON'; 'CP SPOOL CON * START TERM'
      say 'Spooling now back on TERM'
-     end 
+     end
 
   /* Now display the statistics */
   looptime=(full-empty)/count

@@ -191,8 +191,6 @@ GCI_result GCI_stralloc( void *hidden,
                          GCI_str *str,
                          unsigned size )
 {
-   (hidden = hidden);
-
    if ( size == 0 )
       size = 1;
    if ( ( str->val = (char *) GCI_malloc( hidden, size ) ) == NULL )
@@ -210,8 +208,6 @@ GCI_result GCI_stralloc( void *hidden,
 void GCI_strfree( void *hidden,
                   GCI_str *str )
 {
-   (hidden = hidden);
-
    if ( str->val != NULL )
       GCI_free( hidden, str->val );
 
@@ -229,8 +225,6 @@ GCI_result GCI_strdup( void *hidden,
                        GCI_str *first,
                        const GCI_str *second )
 {
-   (hidden = hidden);
-
    if ( ( first->val = (char *) GCI_malloc( hidden, second->used ) ) == NULL )
       return GCI_NoMemory;
 
@@ -248,8 +242,6 @@ char *GCI_strtoascii( void *hidden,
                       const GCI_str *str )
 {
    char *retval;
-
-   (hidden = hidden);
 
    if ( ( str == NULL ) || ( str->val == NULL ) )
       return NULL;
@@ -271,8 +263,6 @@ void GCI_uppercase( void *hidden,
 {
    int i, len = str->used;
    char *ptr = str->val;
-
-   (hidden = hidden);
 
    for ( i = 0; i < len; i++, ptr++ )
       *ptr = (char) GCI_toupper( *ptr );
@@ -304,7 +294,7 @@ void GCI_describe( GCI_str *description,
       case GCI_IllegalName:          ptr = "The name or part of the name is illegal for the interpreter";                     break;
       case GCI_RexxError:            ptr = "A problem raises when communicating with the interpreter";                        break;
       case GCI_NoBaseType:           ptr = "The type won't fit the requirements for basic types (arguments/return value)";    break;
-      case GCI_InternalError:        ptr = "An unknown internal GCI error occured";                                           break;
+      case GCI_InternalError:        ptr = "An unknown internal GCI error occurred";                                          break;
       case GCI_FunctionAlreadyKnown: ptr = "New REXX function already registered to the interpreter";                         break;
       case GCI_LibraryNotFound:      ptr = "The external library was not found or can't be loaded";                           break;
       case GCI_NoLibraryFunction:    ptr = "The external function can't be found in the external library";                    break;

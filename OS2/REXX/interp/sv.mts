@@ -298,6 +298,7 @@
  94,109,[Kunde inte hitta kön \"%s\"]|<queuename>
  94,110,[%s är ogiltig för externa köer]|<bif>
  94,111,[Funktionen %s för RXQUEUE kan inte användas med interna köer]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[Begränsad användning i "säkerhetsläge"]
  95,  1,[%s ogiltig i "säkerhetsläge"]|<token>
  95,  2,[%s argument %d ogiltigt i "säkerhetsläge"]|<bif>,<argnumber>

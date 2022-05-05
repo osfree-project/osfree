@@ -17,13 +17,6 @@
  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-//#ifdef __OSFREE__
-//#else
-#if defined(__WATCOMC__) && defined(OS2)
-# include <sys/types.h>
-# include <os2/types.h>
-#endif
-//#endif
 #include "rexx.h"
 
 #if defined(WIN32)
@@ -128,8 +121,6 @@ int init_external_queue( const tsd_t *TSD )
          exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_NO_WINSOCK, WSAGetLastError() );
       rc = 1;
    }
-#else
-   TSD = TSD; /* keep compiler happy */
 #endif
    return rc;
 }
@@ -176,11 +167,7 @@ int default_port_number( void )
 
 int default_external_address( void )
 {
-//#ifdef __OS2__
-//   return 0;
-//#else
    return inet_addr( ReginaLocalHost );
-//#endif
 }
 
 streng *default_external_name( const tsd_t *TSD )
@@ -197,9 +184,7 @@ streng *default_external_name( const tsd_t *TSD )
 
 int connect_to_rxstack( tsd_t *TSD, Queue *q )
 {
-//#ifndef __OS2__
    struct sockaddr_in server;
-//#endif
    int eno;
 
    /*
@@ -207,9 +192,6 @@ int connect_to_rxstack( tsd_t *TSD, Queue *q )
     */
    assert( q->type == QisExternal ) ;
    DEBUGDUMP(printf("In connect_to_rxstack: q = {name=%.*s, address=%08X, portno=%d}\n", q->u.e.name->len, q->u.e.name->value, q->u.e.address, q->u.e.portno););
-//#ifdef __OS2__
-//   return 0;
-//#else
    memset( &server, 0, sizeof(server) );
    server.sin_family = AF_INET;
    server.sin_addr.s_addr = q->u.e.address;
@@ -236,7 +218,6 @@ int connect_to_rxstack( tsd_t *TSD, Queue *q )
       exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_CANT_CONNECT, tmpstr_of( TSD, q->u.e.name ), q->u.e.portno, strerror ( errno ) );
 
    return -1;
-//#endif
 }
 
 int disconnect_from_rxstack( const tsd_t *TSD, Queue *q )
@@ -248,11 +229,7 @@ int disconnect_from_rxstack( const tsd_t *TSD, Queue *q )
    {
       DEBUGDUMP(printf("Disconnecting from socket %d\n", q->u.e.socket ););
       rc = send_command_to_rxstack( TSD, q->u.e.socket, RXSTACK_EXIT_STR, NULL, 0 );
-#ifndef __OS2__
       closesocket( q->u.e.socket );
-#else
-      soclose( q->u.e.socket );
-#endif
    }
    else
       rc = 0; /* success: 0 bytes transfered */
@@ -276,9 +253,6 @@ int send_command_to_rxstack( const tsd_t *TSD, int sock, const char *action, con
       DROPSTRENG( qlen );
       if ( header )
       {
-//#ifdef __OS2__
-//         rc = 0; // unimp
-//#else
          header->value[0] = action[0];
          rc = send( sock, PSTRENGVAL(header), PSTRENGLEN(header), 0 );
          DEBUGDUMP(printf("Send length: %.*s(%d) rc %d\n", PSTRENGLEN(header),PSTRENGVAL(header),PSTRENGLEN(header),rc););
@@ -288,7 +262,6 @@ int send_command_to_rxstack( const tsd_t *TSD, int sock, const char *action, con
             DEBUGDUMP(printf("Send str length: %d\n", rc););
          }
          DROPSTRENG( header );
-//#endif
       }
    }
    return rc;
@@ -303,11 +276,7 @@ static int inject_result_from_rxstack( int sock, streng *str, int size )
    */
    int rc;
 
-//#ifdef __OS2__
-//   rc = 0; // unimp
-//#else
    rc = recv( sock, PSTRENGVAL(str) + PSTRENGLEN(str), size, 0 );
-//#endif
    str->len += size;
    DEBUGDUMP(printf("<-- Recv result: %.*s(%d) rc %d\n", size, PSTRENGVAL(str) + PSTRENGLEN(str), PSTRENGLEN(str), rc ); );
    return rc;
@@ -349,9 +318,6 @@ streng *read_result_from_rxstack( const tsd_t *TSD, int sock, int result_size )
  */
 int parse_queue( tsd_t *TSD, streng *queue, Queue *q )
 {
-//#ifdef __OS2__
-//   return 0; // unimp
-//#else
    int len, AtPos;
    char *h, dummy;
    struct hostent *he;
@@ -449,7 +415,6 @@ int parse_queue( tsd_t *TSD, streng *queue, Queue *q )
 
    queue->len = AtPos ; /* chop off the host part */
    return 1 ;
-//#endif
 }
 
 int delete_queue_from_rxstack( const tsd_t *TSD, int sock, const streng *queue_name )
@@ -536,6 +501,45 @@ int get_number_in_queue_from_rxstack( const tsd_t *TSD, int sock, int *errcode )
    return length;
 }
 
+int get_queues_from_rxstack( const tsd_t *TSD, int sock, int *errcode , streng **result )
+{
+   int rc,length=0;
+   streng *header;
+
+   DEBUGDUMP(printf("before send_command_to_rxstack:\n"););
+   rc = send_command_to_rxstack( TSD, sock, RXSTACK_SHOW_QUEUES_STR, NULL, 0 );
+   if ( rc != -1 )
+   {
+      header = read_result_from_rxstack( TSD, sock, RXSTACK_HEADER_SIZE );
+      if ( header )
+      {
+         rc = header->value[0]-'0';
+         if ( rc == 0 )
+         {
+            /*
+             * now get the length from the header
+             */
+            DEBUGDUMP(printf("before get_length_from_header: %.*s\n", header->len, header->value););
+            length = get_length_from_header( TSD, header );
+            *result = read_result_from_rxstack( TSD, sock, length );
+         }
+         else
+         {
+            /* TSD will be NULL when called from rxqueue or rxstack */
+            if ( TSD == NULL )
+               showerror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, ERR_RXSTACK_INTERNAL_TMPL, rc, "Getting queues" );
+            else if ( !TSD->called_from_saa )
+               exiterror( ERR_EXTERNAL_QUEUE, ERR_RXSTACK_INTERNAL, rc, "Getting queues"  );
+            rc = 9; /* RXQUEUE_NOTREG */
+         }
+         DROPSTRENG( header );
+      }
+   }
+   if ( errcode )
+      *errcode = rc;
+   return length;
+}
+
 int clear_queue_on_rxstack( const tsd_t *TSD, int sock )
 {
    int rc ;
@@ -593,12 +597,9 @@ static void add_connect_string( const Queue *q, streng *str )
    int sum = 0, len ;
    char *ptr = PSTRENGVAL( str ) ;
    char *addr ;
-//#ifndef __OS2__
    struct in_addr ia ;
-//#endif
 
    assert( q->type == QisExternal ) ;
-//#ifndef __OS2__
    ptr += PSTRENGLEN( str ) ;
    *ptr++ = '@' ;
    sum++ ;
@@ -621,7 +622,6 @@ static void add_connect_string( const Queue *q, streng *str )
    /* finally add the port */
    sum += sprintf( ptr, ":%u", (unsigned) q->u.e.portno ) ;
    str->len += sum ;
-//#endif
 }
 
 int get_queue_from_rxstack( const tsd_t *TSD, const Queue *q, streng **result )

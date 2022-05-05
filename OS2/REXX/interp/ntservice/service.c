@@ -490,7 +490,7 @@ void CmdStartService()
                  if ( ssStatus.dwCurrentState == SERVICE_RUNNING )
                     _tprintf(TEXT("started.\n") );
                  else
-                    _tprintf(TEXT("failed to start.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+                    _tprintf(TEXT("failed to start: %s.\n"), TEXT(SZSERVICEDISPLAYNAME) );
            }
            else
            {

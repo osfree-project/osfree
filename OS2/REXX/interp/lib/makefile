@@ -35,7 +35,7 @@ $(p)tracing$(e)  &
 $(p)interp$(e)   &
 $(p)cmath$(e)    &
 $(p)convert$(e)  &
-$(p)strings$(e)  &
+$(p)strengs$(e)  &
 $(p)library$(e)  &
 $(p)strmath$(e)  &
 $(p)signals$(e)  &

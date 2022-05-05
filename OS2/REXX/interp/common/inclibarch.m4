@@ -26,7 +26,8 @@ gcc_64bit="-m64"
 gcc_32bit="-m32"
 on_osx="no"
 osis64bit=no
-bitflag=""
+bitflag="32"
+MACH_ARCH=`$ac_config_guess | cut -f1 -d-`
 case "$target" in
    *hp-hpux*)
       ;;
@@ -41,6 +42,11 @@ case "$target" in
       #
       gcc_64bit="-maix64"
       gcc_32bit="-maix32"
+      ;;
+   powerpc-ibm-os400)
+      bitflag="64"
+      osis64bit=yes
+      gcc_64bit=""
       ;;
    *dec-osf4*)
       ;;
@@ -65,6 +71,13 @@ case "$target" in
          bitflag="64"
          osis64bit=yes
       fi
+#      if test -f "/etc/os-release"; then
+         # get Linux ID...
+#      fi
+      if test -f "/etc/apk/arch"; then
+         # get Alpine Linux architecture for APK
+         MACH_ARCH="`cat /etc/apk/arch`"
+      fi
       ;;
    *-freebsd* | *-openbsd*)
       mach="`uname -m`"
@@ -78,6 +91,13 @@ case "$target" in
    *qnx*)
       ;;
    *beos*)
+      ;;
+   *haiku*)
+      mach="`uname -m`"
+      if test "$mach" = "x86_64"; then
+         bitflag="64"
+         osis64bit=yes
+      fi
       ;;
    *cygwin*)
       mach="`uname -m`"
@@ -113,12 +133,36 @@ if test "x$bitflag32" = "xyes"; then
 elif test "x$bitflag64" = "xyes"; then
    bitflag="64"
 fi
-MACH_ARCH=`$ac_config_guess | cut -f1 -d-`
 AC_SUBST(MACH_ARCH)
 dnl
 dnl following variable used to name 32bit binaries on a 64bit system
 dnl allows 32bit and 64bit binaries t co-exist on a 64bit system
 AC_SUBST(binarybitprefix)
+
+dnl
+dnl Need to check if $gcc_32bit and $gcc_64bit switches are valid, As of gcc 8.3.0, -m32 is no longer
+dnl valid on some platforms
+dnl
+if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
+   save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $gcc_32bit"
+   AC_TRY_COMPILE(
+      [#include <stdlib.h>],
+      [int a=2],
+      [],
+      [gcc_32bit=""]
+      )
+   CPPFLAGS="$save_CPPFLAGS"
+   save_CPPFLAGS="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS $gcc_64bit"
+   AC_TRY_COMPILE(
+      [#include <stdlib.h>],
+      [int a=2],
+      [],
+      [gcc_64bit=""]
+      )
+   CPPFLAGS="$save_CPPFLAGS"
+fi
 
 dnl --------------- allow --with-arch to specify which architectures to build universal binaries
 dnl

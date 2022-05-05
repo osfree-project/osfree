@@ -978,7 +978,7 @@ void give_a_chunkTSD( const tsd_t *TSD, void *ptr )
 
 /*
  * This function frees up all memory allocated by the flists internal
- * meomory management routines
+ * memory management routines
  */
 void purge_flists( const tsd_t *TSD )
 {

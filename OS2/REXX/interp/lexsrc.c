@@ -116,7 +116,7 @@
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
-#define YY_BUF_SIZE 16384
+#define YY_BUF_SIZE 101000
 
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 
@@ -312,7 +312,7 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
  */
 #define YY_DO_BEFORE_ACTION \
         yytext_ptr = yy_bp; \
-   yyleng = (int) (yy_cp - yy_bp); \
+ yyleng = (int) (yy_cp - yy_bp); \
         yy_hold_char = *yy_cp; \
         *yy_cp = '\0'; \
         yy_c_buf_p = yy_cp;
@@ -607,7 +607,7 @@ static yyconst int yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,   52,
         1,   52,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -2319,8 +2319,8 @@ char *yytext;
  */
 /*
  * If you change this file the following has to be done:
- * - regenerate lexsrc.c using boojum: ~/flex-2.5.4/flex and the
- *   command from "make lexsrc"
+ * - regenerate lexsrc.c using an old version of Flex: 2.5.4. This is
+ *   provided by flex-old package. Run: make lexsrc
  * - change the value of YY_BUF_SIZE to 101000 in lexsrc.c
  *   This value MUST be larger than BUFFERSIZE in rexx.h
  *   It is not set automatically because certain variables
@@ -2601,9 +2601,20 @@ YY_MALLOC_DECL
          YY_FATAL_ERROR( "input in flex scanner failed" ); \
       result = n; \
       } \
-   else if ( ((result = fread( buf, 1, max_size, yyin )) == 0) \
-        && ferror( yyin ) ) \
-      YY_FATAL_ERROR( "input in flex scanner failed" );
+   else \
+      { \
+      errno=0; \
+      while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+         { \
+         if( errno != EINTR) \
+            { \
+            YY_FATAL_ERROR( "input in flex scanner failed" ); \
+            break; \
+            } \
+         errno=0; \
+         clearerr(yyin); \
+         } \
+      }
 #line 422 "flex.skl"
 #endif
 #line 429 "flex.skl"
@@ -2716,7 +2727,7 @@ YY_DECL
      expression_ended = 0 ;
    }
 
-#line 2720 "./lexsrc.c"
+#line 2731 "./lexsrc.c"
 #line 492 "flex.skl"
 
         if ( yy_init )
@@ -4453,13 +4464,14 @@ YY_RULE_SETUP
       RET_IF(STEM);
       RET_IF(LIFO);
       RET_IF(FIFO);
+      RET_IF(NOEOL);
 #undef RET_IF
    }
    return SIMSYMBOL ; }
    YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 1663 "./lexsrc.l"
+#line 1664 "./lexsrc.l"
 {
    int i,j;
    /*
@@ -4511,7 +4523,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 1712 "./lexsrc.l"
+#line 1713 "./lexsrc.l"
 {
    expression_ended = 1 ;
    SET_NEXTSTART() ;
@@ -4519,7 +4531,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 1717 "./lexsrc.l"
+#line 1718 "./lexsrc.l"
 {
    BEGIN other ;
    if ( insert_abuttal )
@@ -4534,14 +4546,14 @@ YY_RULE_SETUP
    YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 1729 "./lexsrc.l"
+#line 1730 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return ',' ; }
    YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 1733 "./lexsrc.l"
+#line 1734 "./lexsrc.l"
 {
    BEGIN other ;
    SET_NEXTSTART() ;
@@ -4549,7 +4561,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 115:
 YY_RULE_SETUP
-#line 1738 "./lexsrc.l"
+#line 1739 "./lexsrc.l"
 {
    BEGIN other ;
    SET_NEXTSTART() ;
@@ -4557,49 +4569,49 @@ YY_RULE_SETUP
    YY_BREAK
 case 116:
 YY_RULE_SETUP
-#line 1743 "./lexsrc.l"
+#line 1744 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '/' ; }
    YY_BREAK
 case 117:
 YY_RULE_SETUP
-#line 1747 "./lexsrc.l"
+#line 1748 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '%' ; }
    YY_BREAK
 case 118:
 YY_RULE_SETUP
-#line 1751 "./lexsrc.l"
+#line 1752 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '*' ; }
    YY_BREAK
 case 119:
 YY_RULE_SETUP
-#line 1755 "./lexsrc.l"
+#line 1756 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '|' ; }
    YY_BREAK
 case 120:
 YY_RULE_SETUP
-#line 1759 "./lexsrc.l"
+#line 1760 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '&' ; }
    YY_BREAK
 case 121:
 YY_RULE_SETUP
-#line 1763 "./lexsrc.l"
+#line 1764 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return '=' ; }
    YY_BREAK
 case 122:
 YY_RULE_SETUP
-#line 1767 "./lexsrc.l"
+#line 1768 "./lexsrc.l"
 {
    /* why don't I have a {between} in the beginning of this re? bug? */
    BEGIN other ;
@@ -4608,126 +4620,126 @@ YY_RULE_SETUP
    YY_BREAK
 case 123:
 YY_RULE_SETUP
-#line 1773 "./lexsrc.l"
+#line 1774 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return GTGT ; }
    YY_BREAK
 case 124:
 YY_RULE_SETUP
-#line 1777 "./lexsrc.l"
+#line 1778 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return LTLT ; }
    YY_BREAK
 case 125:
 YY_RULE_SETUP
-#line 1781 "./lexsrc.l"
+#line 1782 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return NOTGTGT ; }
    YY_BREAK
 case 126:
 YY_RULE_SETUP
-#line 1785 "./lexsrc.l"
+#line 1786 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return NOTLTLT ; }
    YY_BREAK
 case 127:
 YY_RULE_SETUP
-#line 1789 "./lexsrc.l"
+#line 1790 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return GTGTE ; }
    YY_BREAK
 case 128:
 YY_RULE_SETUP
-#line 1793 "./lexsrc.l"
+#line 1794 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return LTLTE ; }
    YY_BREAK
 case 129:
 YY_RULE_SETUP
-#line 1797 "./lexsrc.l"
+#line 1798 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return GT ; }
    YY_BREAK
 case 130:
 YY_RULE_SETUP
-#line 1801 "./lexsrc.l"
+#line 1802 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return GTE ; }
    YY_BREAK
 case 131:
 YY_RULE_SETUP
-#line 1805 "./lexsrc.l"
+#line 1806 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return LT ; }
    YY_BREAK
 case 132:
 YY_RULE_SETUP
-#line 1809 "./lexsrc.l"
+#line 1810 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return LTE ; }
    YY_BREAK
 case 133:
 YY_RULE_SETUP
-#line 1813 "./lexsrc.l"
+#line 1814 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return DIFFERENT ; }
    YY_BREAK
 case 134:
 YY_RULE_SETUP
-#line 1817 "./lexsrc.l"
+#line 1818 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return EQUALEQUAL ; }
    YY_BREAK
 case 135:
 YY_RULE_SETUP
-#line 1821 "./lexsrc.l"
+#line 1822 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return NOTEQUALEQUAL ; }
    YY_BREAK
 case 136:
 YY_RULE_SETUP
-#line 1825 "./lexsrc.l"
+#line 1826 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return MODULUS ; }
    YY_BREAK
 case 137:
 YY_RULE_SETUP
-#line 1829 "./lexsrc.l"
+#line 1830 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return XOR ; }
    YY_BREAK
 case 138:
 YY_RULE_SETUP
-#line 1833 "./lexsrc.l"
+#line 1834 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return CONCATENATE ; }
    YY_BREAK
 case 139:
 YY_RULE_SETUP
-#line 1837 "./lexsrc.l"
+#line 1838 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    return EXP ; }
    YY_BREAK
 case 140:
 YY_RULE_SETUP
-#line 1841 "./lexsrc.l"
+#line 1842 "./lexsrc.l"
 {
    if ( in_address == in_address_value ) /* Always allow spaces in the VALUE */
    {                                   /* part of the ADDRESS stmt.        */
@@ -4744,7 +4756,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 141:
 YY_RULE_SETUP
-#line 1855 "./lexsrc.l"
+#line 1856 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    parser_data.tline = linenr - 1 ; /* set tline for exiterror */
@@ -4752,7 +4764,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 142:
 YY_RULE_SETUP
-#line 1861 "./lexsrc.l"
+#line 1862 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    parser_data.tline = linenr - 1 ; /* set tline for exiterror */
@@ -4760,7 +4772,7 @@ YY_RULE_SETUP
    YY_BREAK
 case 143:
 YY_RULE_SETUP
-#line 1866 "./lexsrc.l"
+#line 1867 "./lexsrc.l"
 {
    SET_NEXTSTART() ;
    parser_data.tline = linenr - 1 ; /* set tline for exiterror */
@@ -4768,10 +4780,10 @@ YY_RULE_SETUP
    YY_BREAK
 case 144:
 YY_RULE_SETUP
-#line 1872 "./lexsrc.l"
+#line 1873 "./lexsrc.l"
 ECHO;
    YY_BREAK
-#line 4775 "./lexsrc.c"
+#line 4787 "./lexsrc.c"
          case YY_STATE_EOF(INITIAL):
          case YY_STATE_EOF(comm):
          case YY_STATE_EOF(signal):
@@ -5717,7 +5729,7 @@ int main()
         return 0;
         }
 #endif
-#line 1872 "./lexsrc.l"
+#line 1873 "./lexsrc.l"
 
 
 #define NORMALSTAT  0
@@ -6004,7 +6016,8 @@ static int process_hex_or_bin_string( char *text, int len, int base )
 
    if ( insert_abuttal && !in_parse && !in_call )
    {
-      delayed_symbol = STRING;
+      /* fix bug 456 - the delayed symbol MUST be BINSTRING or HEXSTRING */
+      delayed_symbol = ( base == 2 ) ? BINSTRING : HEXSTRING;
       return CONCATENATE;
    }
 

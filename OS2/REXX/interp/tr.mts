@@ -304,6 +304,7 @@
  94,109,[\"%s\" kuyrugu bulunamadi]|<queuename>
  94,110,[%s ogesi dissal kuyruklar icin gecersizdir]|<bif>
  94,111,[%s ismindeki RXQUEUE islevi icsel kuyruklar icin gecersizdir]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,["guvenli" kipte sinirli ozellik kullanilir]
  95,  1,[%s ogesi "guvenli" kipte gecersizdir]|<token>
  95,  2,[%s degistirgesini iceren %d. siradaki oge "guvenli" kipte gecersizdir]|<bif>,<argnumber>

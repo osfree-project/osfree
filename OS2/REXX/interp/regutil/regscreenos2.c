@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regscreenos2.c,v 1.3 2009/11/01 01:26:09 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regscreenos2.c,v 1.4 2021/07/11 05:09:19 mark Exp $
  */
 #define INCL_DOSMEMMGR
 #define INCL_VIO
@@ -142,6 +142,101 @@ rxfunc(syscurstate)
 rxfunc(sysgetkey)
 {
    what();
+   return 0;
+}
+
+rxfunc(sysgetline)
+{
+#ifdef HAVE_READLINE_HISTORY_H
+   char *prompt = NULL;
+   char *expansion;
+   char *line;
+   int rc;
+
+   if (argc > 0 && argv[0].strptr)
+   {
+      prompt = argv[0].strptr;
+   }
+   line = readline( prompt );
+   if ( line && line[0] )
+   {
+      rc = history_expand(line, &expansion);
+      if (rc)
+         fprintf (stderr, "%s\n", expansion);
+
+      if (rc < 0 || rc == 2)
+      {
+         free (expansion);
+      }
+      else
+      {
+         add_history(expansion);
+         strncpy(result->strptr, expansion, strlen(expansion));
+         result->strlength = strlen( result->strptr );
+         free(expansion);
+      }
+   }
+   else
+   {
+      strcpy(result->strptr, "");
+      result->strlength = 0;
+   }
+#else
+   what();
+#endif
+   return 0;
+}
+
+rxfunc(sysgetlinehistory)
+{
+#ifdef HAVE_READLINE_HISTORY_H
+   char *action;
+   char *filename = NULL;
+   register rxbool readhistory=false, inithistory=false;
+   int rc=0;
+
+   checkparam(2,2);
+
+   if (argv[0].strptr)
+   {
+      filename = argv[0].strptr;
+   }
+   else
+      return BADARGS;
+   if ( argv[1].strptr )
+   {
+      rxstrdup(action, argv[1]);
+      strupr(action);
+      if (strcmp(action,"R") == 0 || strcmp(action,"READ") == 0 )
+         readhistory = true;
+      else if (strcmp(action,"W") == 0 || strcmp(action,"WRITE") == 0 )
+         readhistory = false;
+      else if (strcmp(action,"I") == 0 || strcmp(action,"INIT") == 0 )
+         inithistory = true;
+      else
+         return BADARGS;
+   }
+   else
+      return BADARGS;
+   if ( inithistory )
+   {
+      using_history();
+   }
+   else if ( readhistory )
+   {
+      rc = read_history( filename );
+   }
+   else
+   {
+      rc = write_history( filename );
+   }
+   if (rc)
+      result_one();
+   else
+      result_zero();
+#else
+   what();
+#endif
    return 0;
 }
 

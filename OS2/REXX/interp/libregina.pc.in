@@ -1,0 +1,18 @@
+# Package Information for pkg-config
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+# extra variables
+multithread=@REGINAMULTITHREAD@
+libs32=-L@libdir32@ -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
+libs64=-L@libdir64@ -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
+addons=@addonsdir@
+
+Name: Regina REXX Interpreter
+Description: An ANSI compliant REXX interpreter for multiple platforms.
+URL: http://regina-rexx.sf.net
+Version: @VERSION_UNQUOTED@
+Libs: -L@libdir@ -l@SHLFILE@ @BOTHLIBS@ @SHLIBS@ @DLFCNLIBDIR@ @THREADING_LINK@ @MH_FUNC_LIBS@ @REGINA_CONFIG_LIBS@
+Cflags: -I@includedir@

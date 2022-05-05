@@ -37,15 +37,18 @@ if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC"
    if test "$with_debug" = yes; then
       CFLAGS="${CFLAGS} -Wall"
    else
-#      CFLAGS="${CFLAGS} -O3 -Wall -fomit-frame-pointer -fno-strict-aliasing -Wno-char-subscripts"
-      CFLAGS="${CFLAGS} -O3 -Wall"
+      CFLAGS="${CFLAGS} -O3 -Wall -fomit-frame-pointer -fno-strict-aliasing -Wno-char-subscripts"
    fi
 fi
 if test "$on_qnx4" = yes; then
    if test "$ac_cv_prog_CC" = "gcc"; then
       QNX4_CFLAGS=""
    else
-      QNX4_CFLAGS="-Wc,-r -b -j -Wc,-ei -N4096000 -mf -DNO_REGEX -DQNX -DQNX4 -D__QNX__ -DSTRINGS_ALIGNED -Q"
+      if test "$SIMPLE_CFLAGS" = "yes"; then
+         QNX4_CFLAGS="-O"
+      else
+         QNX4_CFLAGS="-Wc,-r -b -j -Wc,-ei -N4096000 -mf -DNO_REGEX -DQNX -DQNX4 -D__QNX__ -DSTRINGS_ALIGNED -Q"
+      fi
    fi
    if test "$with_debug" = yes; then
       CFLAGS="-g $QNX4_CFLAGS"
@@ -61,6 +64,16 @@ if test "$on_beos" = yes; then
    fi
    if test "$datadir" = "\${prefix}/share"; then
       datadir="/boot/home/config/add-ons"
+   fi
+fi
+if test "$on_haiku" = yes; then
+   if test "$with_debug" = yes; then
+      CFLAGS="${CFLAGS} -Wall"
+   else
+      CFLAGS="${CFLAGS} -O2 -Wall"
+   fi
+   if test "$datadir" = "\${prefix}/share"; then
+      datadir="/boot/home/config/non-packaged/add-ons"
    fi
 fi
 AC_SUBST(DEBUG)
@@ -116,6 +129,8 @@ if test "$with_dlfcnincdir" = no; then
       #
       case "$target" in
          *beos*)
+            ;;
+         *qnx*)
             ;;
          *)
             AC_MSG_WARN(Could not find dlfcn.h in the standard header locations.)

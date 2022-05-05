@@ -34,6 +34,7 @@ If Translate( here ) \= Translate( src ) Then
 'copy' SRC || '\COPYING-LIB'
 'copy' SRC || '\rexxsaa.h'
 'copy' SRC || '\README.3?'
+'copy' SRC || '\README.3??'
 'copy' SRC || '\BUGS'
 'copy' SRC || '\README.OS2 README'
 'copy' SRC || '\README_SAFE'
