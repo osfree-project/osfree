@@ -4,6 +4,6 @@
 #
 
 
-DIRS = krnl286 krnl386 kernel
+DIRS = kernel krnl286 krnl386
 
-!include $(%ROOT)/mk/appsdos.mk
+!include $(%ROOT)/mk/all.mk
