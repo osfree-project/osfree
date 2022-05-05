@@ -903,7 +903,12 @@ else
 	@trace_w EXCSP
 endif
 	@trace_s <" ***",lf>
+if ?REAL
+	xor ax, ax
+	push ax
+else
 	push 0
+endif
 	pop es
 	mov ax,cs
 	and al,03
@@ -970,6 +975,7 @@ endif
 	pop cx
 	jcxz @F					;no valid NE hdr!
 	mov es, cx
+	mov ax, offset szLoadErr
 	push offset szLoadErr
 	call stroutstk_err
 	call displaymodandseg
