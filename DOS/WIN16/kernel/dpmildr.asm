@@ -94,7 +94,7 @@ _DISCARD_		= 0		;0 1=remove discardable segments if out of memory
   endif
 else
 _DISCARD_		= 1		;1 1=remove discardable segments if out of memory
-?OS2COMPAT		= 1		;1 1=OS/2 compatible app entry call
+?OS2COMPAT		= 0		;1 1=OS/2 compatible app entry call
 ?AUTOCSALIAS	= 1		;1 1=optionally alloc a CS alias for code segments
 ?NEAPPS			= 1		;1 0=dont support NE apps
 endif
