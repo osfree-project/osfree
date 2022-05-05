@@ -16,22 +16,27 @@ apt-get update
 apt-get install -y wget curl unzip tar gzip bash
 cd $_CWD/dist
 wget ftp://osfree.org/upload/ow/ow-1.9.zip
-unzip ow-1.9.zip -d /opt
-wget ftp://ftp.hu.freepascal.org/pub/fpc/dist/3.2.2/i386-linux/fpc-3.2.2.i386-linux.tar
+unzip -o ow-1.9.zip -d /opt
 wget https://downloads.sourceforge.net/project/freepascal/OS_2/3.2.2/os2322.zip
-tar xvf fpc-3.2.2.i386-linux.tar
+unzip -o os2322.zip -d $_CWD/dist/os2
+for file in os2/*.zip; do
+  unzip -o $file units/* fpmkinst/* -d /usr/lib/fpc/3.2.2/
+done
+wget https://downloads.sourceforge.net/project/freepascal/Linux/3.2.2/fpc-3.2.2.i386-linux.tar
+tar xf fpc-3.2.2.i386-linux.tar
 cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
-unzip os2322.zip
-unzip baseos2.zip units/* -d/usr/lib/fpc/3.2.2/
-cd ..
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
 tar xvzf regina-rexx-3.9.4.tar.gz -C $_CWD/src
 chown -R $_ME.$_ME $_CWD/osfree $_CWD/dist $_CWD/src $_CWD/bin
 cd $_CWD/src/regina-rexx-3.9.4
 ./configure --prefix=/usr/local
 make && make install
+cd ..
 rm -rf $_CWD/src/regina-rexx-3.9.4
 echo /usr/local/lib >>/etc/ld.so.conf.d/local.conf
 ldconfig
 cd $_CWD
+find /opt/watcom -type d -exec chmod 755 {} \;
+find /opt/watcom -type f -exec chmod 644 {} \;
+find /opt/watcom/binl -type f -exec chmod 755 {} \;
