@@ -257,14 +257,14 @@ LocalInit proc far pascal uSegment:word, uStart:word, uEnd:word
 @@:
 	cmp dx,4
 	jb LocalInit_err
-	lar bx,ax
+	lar bx,ax                  ;!!!!!!!!!!!!!!!
 	jnz LocalInit_err
 	jcxz LocalInit_1
 	cmp dx,cx
 	jb LocalInit_err
 	jmp LocalInit_2
 LocalInit_1:
-	lsl bx,ax
+	lsl bx,ax		; !!!!!!!!!!!!!!
 	inc bx
 	mov cx,dx
 	mov dx,bx
@@ -481,7 +481,7 @@ if ?32BIT
 	pop dx
 else
 	xor dx,dx
-	lsl ax,ax
+	lsl ax,ax		; !!!!!!!!!!!!!!!!!!!!!!
 	jnz @F
 endif
 	add ax,1
@@ -505,8 +505,27 @@ GlobalDOSAlloc proc far pascal
 	push cx
 	push bx
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12		;skip bits 4-15 of DX
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -889,7 +908,7 @@ GlobalLock proc far pascal
 	push bx
 	push cx
 	xor ax,ax
-	verr dx
+	verr dx			; !!!!!!!!!!!!!!
 	jnz @F
 	retf
 @@:
@@ -941,8 +960,27 @@ else
   else
 	jnz error
   endif
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -986,8 +1024,14 @@ public __AHINCR
 __AHINCR equ 8
 
 	push ax		;selector
+if ?REAL
+	xor ax,ax
+	push ax
+	push ax
+else
 	push 0		;offset
 	push 0		;value
+endif
 	mov ax,[parm1+0]
 	mov dx,[parm1+2]
 	push dx		;HiWord(cnt)
@@ -1012,7 +1056,7 @@ if ?LARGEALLOC
 largealloc:
 	test byte ptr cs:[eWinFlags.wOfs], WF_CPU286
 	jnz error
-	pusha
+	@push_a
 	mov bp,sp
 	push 0
 	push bx
@@ -1074,7 +1118,7 @@ nextdesc:
 	cmp si,1
 	jnz @F
 	mov cx,es
-	lsl dx,cx
+	lsl dx,cx		; !!!!!!!!!!!!!!
 @@:
 	mov cx,0
 	int 31h
@@ -1089,7 +1133,7 @@ failed2:
 	int 31h
 failed:
 	mov sp,bp
-	popa
+	@pop_a
 	jmp error
 endif
 GlobalAlloc endp
