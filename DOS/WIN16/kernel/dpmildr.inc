@@ -364,7 +364,7 @@ if ?REAL
 	push bx
 	push bp
 	mov bp ,sp
-	mov ax, offset String
+	mov bx, offset String
 	xchg bx,[bp+4]
 	pop bp
 	pop bx
@@ -377,8 +377,13 @@ NewStr  db String
         db 00
 CCONST   ends
 if ?REAL
-    mov ax, offset NewStr
-	push ax
+	push bx
+	push bp
+	mov bp ,sp
+	mov bx, offset NewStr
+	xchg bx,[bp+4]
+	pop bp
+	pop bx
 else  
     push offset NewStr
 endif
@@ -435,7 +440,7 @@ if ?32BIT
 else
 	push es
 	push ds
-	pusha
+	@push_a
 ?SIZE_SAVEREGS equ 8*2+2*2
 endif
 	endm
@@ -470,11 +475,41 @@ endif
 	retf
 	endm
 
+@push_a macro
+if ?REAL
+	push ax
+	push cx
+	push dx
+	push bx
+	push sp
+	push bp
+	push si
+	push di
+else
+	pusha
+endif
+	endm
+
+@pop_a macro
+if ?REAL
+	pop di
+	pop si
+	pop bp
+	pop ax		; sp
+	pop bx
+	pop dx
+	pop cx
+	pop ax
+else
+	popa
+endif
+	endm
+
 @pusha macro
 if ?32BIT
 	pushad
 else
-	pusha
+	@push_a
 endif
 	endm
 
@@ -482,7 +517,7 @@ endif
 if ?32BIT
 	popad
 else
-	popa
+	@pop_a
 endif
 	endm
 

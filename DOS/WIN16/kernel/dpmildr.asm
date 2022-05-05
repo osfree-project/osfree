@@ -873,7 +873,7 @@ if ?32BIT
 	movzx ecx,cx
 	mov ebx,EXCERRC
 else
-	pusha
+	@push_a
 	mov bp,sp
 	mov bx,EXCERRC
 endif
@@ -2022,7 +2022,7 @@ if 0
 	cmp cs:[wTasks], 0	;is anything loaded at all?
 	jz exit
 endif
-	pusha
+	@push_a
 	mov bl, 2fh
 	mov ax, 200h
 	int 31h
@@ -2032,13 +2032,13 @@ endif
 	mov dx, 0100h+offset int2frm
 	mov ax, 0201h
 	int 31h
-	popa
+	@pop_a
 exit:
 	ret
 disableserver endp
 
 enableserver proc public uses ds
-	pusha
+	@push_a
 	mov ds, cs:[wLdrPSP]
 	xor dx,dx
 	xor cx,cx
@@ -2049,7 +2049,7 @@ enableserver proc public uses ds
 	mov ax, 0201h
 	int 31h
 @@:
-	popa
+	@pop_a
 	ret
 enableserver endp
 
@@ -2090,7 +2090,7 @@ if ?32BIT
 	sub esp,sizeof RMCS+2
 	mov ebp,esp
 else
-	pusha
+	@push_a
 	sub sp,sizeof RMCS+2
 	mov bp,sp
 endif
@@ -2194,7 +2194,7 @@ if ?32BIT
 	popad
 else
 	add sp,sizeof RMCS+2
-	popa
+	@pop_a
 endif
 	ret
 SetAppTitle endp
@@ -2209,7 +2209,7 @@ if ?MULTPSP
 
 if ?MAKENEWENV
 CopyPgmInEnv proc
-	pusha
+	@push_a
 ;### changes for differences in environment block
   if ?OS2COMPAT
 	mov bl,ds:[0080h]			;length of cmd tail (used later)
@@ -2337,7 +2337,7 @@ CopyPgmInEnv proc
 ;### end changes for environment
 done:
 	pop ds
-	popa
+	@pop_a
 	ret
 CopyPgmInEnv endp
 endif
@@ -2458,7 +2458,7 @@ else
 	pop cx
 	jc createpsp_1
 	push ds
-	pusha
+	@push_a
 	mov ds,[si.TASK.wModul]
 	mov es,bx
 	mov es:[0001],cx
@@ -2469,7 +2469,7 @@ else
 	movsw
 	movsw
 	movsw
-	popa
+	@pop_a
 	pop ds
 	mov ax,0001
 	int 31h
@@ -2798,7 +2798,7 @@ checkifreferencedex:
 checkifreferenced endp
 
 freemodulerest proc
-	pusha
+	@push_a
 if ?LOADDBGDLL
 	mov ax,[hModDbg]
 	and ax,ax
@@ -2850,7 +2850,7 @@ if ?PESUPP
 endif
 	@trace_s <"*** exit auto delete mode ***",lf>
 freemodulerestex:
-	popa
+	@pop_a
 	ret
 freemodulerest endp
 
@@ -2890,7 +2890,7 @@ SetCmdLine proc public uses es ds
 if ?32BIT
 	pushad
 else
-	pusha
+	@push_a
 endif
 	mov ds,cs:[wLdrDS]
 	xor al,al
@@ -2955,7 +2955,7 @@ endif
 if ?32BIT
 	popad
 else
-	popa
+	@pop_a
 endif
 	@trace_s <"SetCmdLine exit",lf>
 	ret
@@ -2989,10 +2989,10 @@ if _WINNT40BUG_
 							;winnt 4.0 might not create a NP exc!
 	test es:[bx.SEGITEM.flags],SF_ALIAS
 	jz @F
-	pusha
+	@push_a
 	mov si,bx
 	call Load_Segm			;this will do a "Realloc"
-	popa
+	@pop_a
 @@:
 endif
 getsssp_1:
@@ -3481,7 +3481,7 @@ checkpathname endp
 checkoutoffh proc
 	cmp ax,4
 	jnz exit
-	pusha
+	@push_a
 	push es
 	mov ah,62h
 	int 21h
@@ -3496,13 +3496,13 @@ checkoutoffh proc
 	@trace_w bx
 	@trace_s <lf>
 	pop es
-	popa
+	@pop_a
 	stc
 	ret
 @@:
 	@trace_s <"cannot increase file handle table",lf>
 	pop es
-	popa
+	@pop_a
 exit:
 	clc
 	ret
@@ -4423,7 +4423,7 @@ if ?32BIT
 	lsl ecx,eax
 	test ecx,0FFFF0000h
 	jz @F
-	pusha
+	@push_a
 	mov bx,word ptr [blkaddr+2]
 	mov cx,word ptr [blkaddr+0]
 	inc ecx
@@ -4432,7 +4432,7 @@ if ?32BIT
 	pop si
 	mov ax,0703h
 	int 31h
-	popa
+	@pop_a
 @@:
 endif
 	mov cx,word ptr [blkaddr+2] 	;address in CX:DX
@@ -4454,7 +4454,7 @@ AllocDosMem:
 	call dpmicall
 	jc error3
 ife ?USELOADERPSP
-	pusha
+	@push_a
 	dec ax
 	mov cx,ax
 	shr cx,12
@@ -4468,7 +4468,7 @@ ife ?USELOADERPSP
 	mov ds,bx
 	mov ds:[1],ax
 	pop ds
-	popa
+	@pop_a
 endif
 	push dx
 	mov cx,ax
@@ -4508,7 +4508,7 @@ if _DISCARD_
 ;*** in BX:CX number of bytes ***
 
 discardmem proc public
-	pusha
+	@push_a
 	push es
 	@trace_s <"memory is scarce, try to discard segments",lf>
 	mov ax,[wMDSta]
@@ -4555,7 +4555,7 @@ discardmem_1:
 	jmp discardmem_2
 discardmem_ex:
 	pop es
-	popa
+	@pop_a
 	ret
 discardmem endp
 
@@ -4717,11 +4717,11 @@ setaccrights endp
 ;*** RC: C on errors
 
 Set_AX_Present:
-	pusha
+	@push_a
 	mov cx,0FFFFh
 	mov dx,0080h	 ;set PRESENT bit
 	call setaccrights
-	popa
+	@pop_a
 	ret
 
 setexc0b proc uses bx
@@ -5667,11 +5667,11 @@ endif
 	pop es
 	jmp hr_continue
 hr_01_1:
-	pusha
+	@push_a
 	mov ax,[di+6]
 	mov di,offset LENTERR
 	call WORDOUT
-	popa
+	@pop_a
 	mov bx,offset errstr24	;error "entry not found"
 
 notfounderror:				;<--- imported name not found
@@ -6135,7 +6135,7 @@ done:
 	clc
 	ret
 error1:									;error in LibEntry
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 ;;	dec es:[NEHDR.ne_count]
@@ -6155,7 +6155,7 @@ nextchar:
 	mov ax,offset szEntryErr
 	call stroutax
 	pop ds
-	popa
+	@pop_a
 ;	mov ax,offset errstr15		;DLL init error
 	@trace_s <"CallLibEntry exit",lf>
 	stc
@@ -6783,7 +6783,7 @@ nextitem:					;<----
 	jcxz notfound	;table end reached -> error
 	inc di
 if _TESTIMPORT_
-	pusha
+	@push_a
 	push ds
 	push es
 
@@ -6795,7 +6795,7 @@ if _TESTIMPORT_
 
 	pop es
 	pop ds
-	popa
+	@pop_a
 endif
 	cmp bl,cl		 ;do lengths match?
 	jnz skipitem
@@ -7126,7 +7126,7 @@ if _SUPRESDOSERR_
 	test cs:fMode, FMODE_NOERRDISP
 	jnz nodisp
 endif
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 ife ?32BIT
@@ -7151,7 +7151,7 @@ endif
 	@strout_err szDpmiErr,1
 @@:
 	pop ds
-	popa
+	@pop_a
 nodisp:
 	add sp,2
 	stc
@@ -7221,13 +7221,13 @@ endif
 printchar endp
 
 dpmildrout proc
-	pusha
+	@push_a
 if ?32BIT
 	@strout <"DPMILD32: ">
 else
 	@strout <"DPMILD16: ">
 endif
-	popa
+	@pop_a
 	ret
 dpmildrout endp
 
@@ -7307,14 +7307,14 @@ stroutBXn endp
 ;--- display module name of ES
 
 modnameout proc near
-	pusha
+	@push_a
 	push ds
 	push es
 	pop ds
 	mov bx,offset NEHDR.szModPath
 	@stroutbx
 	pop ds
-	popa
+	@pop_a
 	ret
 modnameout endp
 
@@ -7340,13 +7340,13 @@ if ?32BIT
 	repz cmps byte ptr [edi],[esi]
 	popad
 else
-	pusha
+	@push_a
 	mov bp,sp
 	mov si,offset ctxt
 	les di,[bp+8*2+2*2+2]
 	mov cx,lctxt
 	repz cmpsb
-	popa
+	@pop_a
 endif
 	pop es
 	pop ds
@@ -7377,7 +7377,7 @@ getpspr proc uses bx cx
 getpspr endp
 
 checkpsp proc
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 	mov ah,51h
@@ -7437,7 +7437,7 @@ allok:
 	clc
 exit:
 	pop ds
-	popa
+	@pop_a
 	ret
 checkpsp endp
 
@@ -7446,12 +7446,12 @@ checkpsp endp
 ;endif
 
 _mycrout proc public
-	pusha
+	@push_a
 	mov al,cr
 	call printchar
 	mov al,lf
 	call printchar
-	popa
+	@pop_a
 	ret
 _mycrout endp
 
@@ -7615,7 +7615,7 @@ if ?HDPMI
 ;--- runs in real-mode!
 
 inithdpmi proc
-	pusha
+	@push_a
 	push ds
 	mov ah,51h
 	int 21h
@@ -7631,7 +7631,7 @@ inithdpmi proc
 	mov ah,0
 	cmp al,4
 	cmc
-	popa 
+	@pop_a
 	ret
 inithdpmi endp
 
@@ -7642,7 +7642,7 @@ endif
 
 if ?SERVER
 loadserver proc
-	pusha
+	@push_a
 	mov bp,sp
 
 	push ds
@@ -7689,7 +7689,7 @@ tryagain:
 	jc loadfailed
 doneload:
 	mov sp,bp
-	popa
+	@pop_a
 	ret
 loadfailed:
 if ?STUB
@@ -7753,7 +7753,7 @@ endif
 ;--- set vector for int 21h in protected mode
 
 setvec21 proc
-	pusha
+	@push_a
 	mov bl,21h
 	mov cx,cs
 if ?32BIT
@@ -7763,7 +7763,7 @@ else
 endif
 	mov ax,0205h			;set Int 21 PM vector
 	call dpmicall
-	popa
+	@pop_a
 	ret
 setvec21 endp
 
