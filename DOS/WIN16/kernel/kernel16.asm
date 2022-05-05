@@ -49,6 +49,7 @@ _DATA ends
 	include debug.inc
 	include debugsys.inc
 	include version.inc
+	include pusha.inc
 
 _ITEXT segment word public 'DATA'	;use 'DATA' (OPTLINK bug)
 _ITEXT ends
@@ -167,7 +168,12 @@ __incseg proc uses bx cx dx
 	push ds					  ;selector
 	push cx
 	push ax					  ;CX:AX bytes request  
+if ?REAL
+	mov ax, 0
+	push ax
+else
 	push 0					  ;flags (means: FIXED)
+endif
 	call far ptr GlobalReAlloc
 	and ax,ax
 	jz error
