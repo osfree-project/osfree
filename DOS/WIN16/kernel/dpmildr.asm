@@ -596,7 +596,12 @@ else
 	mov [wStktop],ax
 endif
 	mov bx,sp
+if ?REAL
+	mov cx, 4
+	shr bx,cx
+else
 	shr bx,4
+endif
 if ?HDPMI
 	mov ax,cs		;it's not a TINY model if HDPMI is included!
 	mov cx,es
@@ -610,7 +615,12 @@ endif
 	mov bx,offset szShrkErr
 	jc main_err1	;shrink error (can this happen?)
 if ?DOSEMUSUPP
+if ?REAL
+	mov cx, 0F000h
+	push cx
+else
 	push 0F000h
+endif
 	pop es
 	mov di,0FFF5h
 	mov si,offset szDosEmuDate

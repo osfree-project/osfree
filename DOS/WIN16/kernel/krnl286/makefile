@@ -1,5 +1,5 @@
 #
-# A Makefile for KERNEL.EXE
+# A Makefile for KRNL286.EXE
 # (c) osFree project,
 #
 
