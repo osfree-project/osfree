@@ -2,6 +2,7 @@
 .git
 
 bin
+dist
 build
 build.txt
 commit.txt
