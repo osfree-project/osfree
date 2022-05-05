@@ -1,5 +1,9 @@
 
+if ?REAL
+		.8086
+else
 		.286
+endif
 
 cr	equ 13
 lf	equ 10

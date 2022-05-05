@@ -111,7 +111,11 @@ if ?32BIT
 @use16	textequ <use16>
 
 else
+if ?REAL
+		.8086
+else
 		.286
+endif
 		
 ?PESUPP = 0
 @use16	textequ <>

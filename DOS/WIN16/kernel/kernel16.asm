@@ -4,7 +4,11 @@
 ;--- since the latter supports loading of 16bit dlls
 ;--- best viewed with TABSIZE 4
 
-	.286
+if ?REAL
+		.8086
+else
+		.286
+endif
 	option casemap:none
 	option proc:private
 
