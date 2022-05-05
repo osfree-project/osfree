@@ -10,4 +10,6 @@ DESC       = 286 MS-DOS Extender
 srcfiles   = $(p)dosx$(e)
 JWASM      = 1
 
+DIRS = hdpmi
+
 !include $(%ROOT)/mk/appsdos.mk
