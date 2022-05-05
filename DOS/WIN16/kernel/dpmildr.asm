@@ -597,8 +597,10 @@ else
 endif
 	mov bx,sp
 if ?REAL
-	mov cx, 4
-	shr bx,cx
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
 else
 	shr bx,4
 endif

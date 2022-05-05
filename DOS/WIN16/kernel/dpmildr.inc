@@ -356,16 +356,27 @@ _TRACEUSED_ = 0   ;internal variable
 ;-- define string if not already done
 ;-- then push string address onto stack
 
+;!!!!!!!! ax is bad!!!
 @pushString macro String, bIsDefined
 local NewStr
   ifnb <bIsDefined>
+if ?REAL
+    mov ax, offset String
+	push ax
+else  
     push offset String
+endif
   else
 CCONST   segment
 NewStr  db String
         db 00
 CCONST   ends
+if ?REAL
+    mov ax, offset NewStr
+	push ax
+else  
     push offset NewStr
+endif
   endif
 	endm
 
