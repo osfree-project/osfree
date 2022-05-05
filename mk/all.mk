@@ -8,7 +8,8 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-all: targets .symbolic
+# all: targets .symbolic
+all: precopy prereq install .symbolic
 # @%null
 
 # a double (see the end of file )
@@ -55,8 +56,9 @@ all: targets .symbolic
 # $(CD) $(MYDIR)
 
 # build and install each target in sequence
-build: precopy prereq subdirs .symbolic
- @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
+# build: precopy prereq subdirs .symbolic
+#targets: prereq .symbolic
+# @for %t in ($(TARGETS)) do @$(MAKE) $(MAKEOPT) %t
 # @cd $(PATH) && @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS) && @cd ..
 
 TRG  =
@@ -110,7 +112,7 @@ CC16      = wcc
 CPPC16    = wpp
 
 !ifeq JWASM 1
-ASM       = jwasm
+ASM       = jwasm.exe
 !else
 ASM       = wasm
 !endif
@@ -424,14 +426,14 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
 
-targets: build install .symbolic
+# targets: build install .symbolic
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(SAY) "cd       $(RELDIR)%d" && $(MAKE) $(MAKEOPT) targets
+ @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MDHIER) $(PATH)%d && $(SAY) "cd       $(RELDIR)%d" && $(MAKE) $(MAKEOPT) install
 ## @for %d in ($(DIRS)) do @cd $(PATH)%d && $(SAY) cd $(DIR_PWD)$(SEP)%d && $(MAKE) $(MAKEOPT)
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 # @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
@@ -463,13 +465,16 @@ FLG  = install2
 !else
 FLG  = 
 !endif
-!else ifneq DEST none
+!else ifneq DEST
 FLG  = $(DEST)$(SEP)$(TRGT)
 !else
-FLG  = $(PATH)$(TRGT)
+FLG  = # $(PATH)$(TRGT)
 !endif
 
-install: $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
+targets: prereq subdirs .symbolic
+ @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
+
+install: targets $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
 !ifeq INSTALL_ADD 1
  @$(MAKE) $(MAKEOPT) install_add
 !endif

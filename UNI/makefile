@@ -10,7 +10,7 @@ OUT = $(%ROOT)build$(SEP)include
 LIBOUT = $(%ROOT)build$(SEP)lib$(SEP)
 #TARGETS = h
 
-build: h
+install: h
 
 outdirs = $(OUT) $(LIBOUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
 
