@@ -7849,7 +7849,7 @@ loadserver proc
 ;----------------------------- build an exec param struct on stack (real mode)
 	mov cx,[wLdrPSP]
 	push cx
-	mov bx offset 006Ch		;fcb2
+	mov bx, offset 006Ch		;fcb2
 	push bx
 	push cx
 	mov bx, offset 005Ch		;fcb1
