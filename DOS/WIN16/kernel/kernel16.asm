@@ -1195,7 +1195,7 @@ endif
 	mov ah,49h
 	int 21h
 	pop ax
-	verr ax
+	verr ax				;!!!!!!
 	jnz done
 	mov es,ax
 done:
@@ -1226,7 +1226,7 @@ largefree:
 	mov ax,es:[6]
 	and ax,ax
 	jz failed
-	pusha
+	@push_a
 	mov cx,ax
 	mov di,es:[0]
 	mov si,es:[2]
@@ -1237,7 +1237,7 @@ largefree:
 	int 31h
 	add bx,8
 	loop @B
-	popa
+	@pop_a
 	jmp done
 endif
 GlobalFree endp
@@ -1250,8 +1250,27 @@ resizedosblock proc
 	test dx,0FFF0h					;size > 1 MB is impossible
 	jnz error
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -1436,8 +1455,27 @@ else
 	test dx,0FFF0h
 	jnz globalreallocerr		;for 16-bit 1 MB - 10h is maximum
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh					;since no D bit exists
 	jz @F
@@ -1493,7 +1531,8 @@ GlobalCompact proc far pascal dwMinFree:DWORD
 	call discardmem
 	pop ds
 @@:
-	push 0
+	xor ax,ax
+	push ax
 	call GetFreeSpace
 	ret
 GlobalCompact endp
@@ -1693,7 +1732,8 @@ InitTask proc far pascal uses ds
 if ?LOCALHEAP
 	jcxz @F
 	push ds			;data segment
-	push 0			;start
+	xor ax,ax
+	push ax			;start
 	push cx			;end
 	push cs
 	call near ptr LocalInit	;preserves ES
@@ -1765,7 +1805,7 @@ SIZESEGS equ ($ - segments) / 4
 
 
 InitKernel proc public
-	pusha
+	@push_a
 	mov KernelNE.ne_cseg, 1
 	mov KernelNE.ne_segtab, KernelSeg -  KernelNE
 	mov KernelNE.ne_restab, KernelNames - KernelNE
@@ -1843,7 +1883,7 @@ if ?MEMFORKERNEL
 endif
 	clc
 exit:
-	popa
+	@pop_a
 	ret
 InitKernel endp
 
