@@ -3039,7 +3039,7 @@ else
 	lar cx,ax
 	test ch,08h				;is SS a code selector?
 	jz getsssp_1			;(might be true for model tiny)
-enfi
+endif
 	mov bx,es:[NEHDR.DGROFS]
 	mov ax,es:[bx].SEGITEM.wSel
 if _WINNT40BUG_
