@@ -1195,8 +1195,12 @@ endif
 	mov ah,49h
 	int 21h
 	pop ax
-	verr ax				;!!!!!!
+if ?REAL
+			; no access check
+else
+	verr ax
 	jnz done
+endif
 	mov es,ax
 done:
 	xor ax,ax
