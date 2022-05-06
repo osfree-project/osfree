@@ -3033,9 +3033,13 @@ GetSSSP proc
 	jnz MultInst			;error
 @@:
 	call SegNo2Sel			;get selector in AX
-	lar cx,ax			;!!!!!!!!!
+if ?REAL
+					; no access rights
+else
+	lar cx,ax
 	test ch,08h				;is SS a code selector?
 	jz getsssp_1			;(might be true for model tiny)
+enfi
 	mov bx,es:[NEHDR.DGROFS]
 	mov ax,es:[bx].SEGITEM.wSel
 if _WINNT40BUG_
@@ -4178,7 +4182,10 @@ segspecial proc
 	add ax,es:[NEHDR.ne_segtab]
 	xchg bx,ax
 	mov ax,es:[bx].SEGITEM.wSel
-	lar cx,ax			;!!!!!!!
+if ?REAL
+							; no access rights
+else
+	lar cx,ax
 	test ch,8					;is dgroup a code segment?
 	jz @F						;no, then done
 	and word ptr es:[bx.SEGITEM.flags],NOT SF_DISCRD
@@ -4200,6 +4207,7 @@ endif
 	mov es:[bx.SEGITEM.filesiz],cx
 	mov es:[bx.SEGITEM.memsiz],cx
 	inc word ptr es:[NEHDR.ne_autodata]
+endif
 @@:
 segspecial1:
 	mov es:[NEHDR.DGROFS],bx	;^ Dgroup Segment
@@ -4752,7 +4760,10 @@ SetBaseLimit proc uses bx
 	mov ax,offset szErr35	;error 'set segment limit'
 	jc error2
 if ?AUTOCSALIAS
-	lar ax,bx			;!!!!!!!!!!!!!!!!
+if ?REAL
+					; no access rights
+else
+	lar ax,bx
 	test ah,8
 	jz @F
 	test es:[NEHDR.APPFLGS],10h	;is it RTM app?
@@ -4761,6 +4772,7 @@ if ?AUTOCSALIAS
 	add ax,8
 	call SetBaseLimit
 	jc error1
+endif
 @@:
 endif
 	mov ax,bx
@@ -4890,8 +4902,12 @@ GetNPBase proc
 	mov ax,0006h		 ;get segment base -> cx:dx
 	call dpmicall
 	jc error
-	lar ax,cx			 ;in Base there is ^NE.Segment		;!!!!!!!!!!!!!
+if ?REAL
+					; no access rights
+else
+	lar ax,cx			 ;in Base there is ^NE.Segment
 	jnz error
+endif
 	mov es,cx
 	cmp es:[NEHDR.ne_magic],'EN'
 	jnz error
@@ -5947,7 +5963,11 @@ ps_fptr:
 isList:
 if _CHECKSEGSIZE_
 	mov bp,ds
-	lsl bp,bp			;!!!!!!!!!!!!!!!
+if ?REAL
+	mov bp, 0ffffh
+else
+	lsl bp,bp
+endif
 endif
 	cmp al,02			;far pointer?
 	ja isfar
@@ -6325,7 +6345,11 @@ CallAllLibEntries proc public uses es
 	@trace_s <"CallAllLibEntries enter, ax=">
 	@trace_w ax
 	@trace_s <lf>
-	lsl ax,ax			;!!!!!!!!!!!!!!!!
+if ?REAL
+	mov ax, 0ffffh
+else
+	lsl ax,ax
+endif
 	@trace_s <"CallAllLibEntries limit of es=">
 	@trace_w ax
 	@trace_s <lf>
