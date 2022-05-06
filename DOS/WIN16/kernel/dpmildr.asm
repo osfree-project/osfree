@@ -975,8 +975,11 @@ endif
 	pop cx
 	jcxz @F					;no valid NE hdr!
 	mov es, cx
-	@pushString szLoadErr
+	push cx
+	mov cx, offset szLoadErr
+	push cx
 	call stroutstk_err
+	pop cx
 	call displaymodandseg
 
 ;--- display <Modulename>.<Segment#> in ES:SI
@@ -993,16 +996,25 @@ endif
 exc0berrorexit endp
 
 displaymodandseg proc        
-	@pushString szModule
+	mov ax, offset szModule
+	push ax
 	call stroutstk
 	call modnameout			;expects ES=NE hdr
 	mov ax, si
 	sub ax, es:[NEHDR.ne_segtab]
+if ?REAL
+	shr ax, 1				;size of segment table in ES is 16!!!
+	shr ax, 1
+	shr ax, 1
+	shr ax, 1
+else
 	shr ax, 3+1				;size of segment table in ES is 16!!!
+endif
 	inc ax
 	mov di, offset SegNo
 	call BYTEOUT
-	@pushString szSegment
+	mov ax, offset szSegment
+	push ax
 	call stroutstk
 	@cr_out
 	ret
@@ -2850,8 +2862,12 @@ freemodulerest3:				   ;<----
 	and ax,ax
 	jz freemodulerestex_1
 @@:
-	verr ax				;!!!!!!!
+if ?REAL
+					; no access rights
+else
+	verr ax
 	jnz freemodulerestex_1	;error in module list
+endif
 	mov es,ax
 	mov ax,es:[NEHDR.NXTMOD]
 	and ax,ax
@@ -5552,8 +5568,11 @@ freesegmmem proc near uses di
 	call FreeMemory			;free memory (Handle in AX or SI:DI)
 	pop si
 	jnc exit
-	@pushString szErr32		;error: deallocate memory	;!!!!!!!!!!!
+	push ax
+	mov ax, offset szErr32		;error: deallocate memory
+	push ax
 	call stroutstk_err
+	pop ax
 	call displaymodandseg
 	stc
 exit:
@@ -6691,8 +6710,12 @@ UnloadMod16 proc
 nextitem:
 	push es
 	mov ax,es:[si]
-	verr ax				;!!!!!!!!!!!!!!!!!!
+if ?REAL
+					; no access rights
+else
+	verr ax
 	jnz @F
+endif
 	mov es,ax
 ;	cmp es:[NEHDR.ne_count],0
 ;	jnz @F
@@ -6800,8 +6823,12 @@ dowep endp
 
 
 checkne proc public
-	verr ax				;!!!!!!!!!!!!!!!!!
+if ?REAL
+				; no access rights
+else
+	verr ax
 	jnz @F
+endif
 	mov es,ax
 	cmp word ptr es:[0],"EN"
 	jnz @F
@@ -6856,8 +6883,12 @@ nextitem:
 refsdone:
 	pop cx
 	mov ax,es
-	verw ax				;!!!!!!!!!!!!!!!
+if ?REAL
+					; No access rights
+else
+	verw ax
 	jnz done
+endif
 	mov es:[NEHDR.ne_cmod],cx
 	cmp es:[NEHDR.ne_count],0
 	jz @F
@@ -6874,12 +6905,16 @@ done:
 exit:
 	pop cx
 	pushf
-	verr cx				;if ES is invalid now, clear it	;!!!!!!!!!!!!!!!!!
+if ?REAL
+					; no access rights
+else
+	verr cx				;if ES is invalid now, clear it
 	jz @F
 	@trace_s <"MD ">
 	@trace_w cx
 	@trace_s <" now invalid, clearing ES",lf>
 	xor cx, cx
+endif
 @@:
 	mov es, cx
 	popf
