@@ -2301,7 +2301,14 @@ CopyPgmInEnv proc
 ;### end
 	add ax,15		;paragraph align
 	and al,0F0h
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+else
 	shr ax,4
+endif
 	mov bx,ax
   if ?LOWENV
 	mov ax,100h
@@ -2843,7 +2850,7 @@ freemodulerest3:				   ;<----
 	and ax,ax
 	jz freemodulerestex_1
 @@:
-	verr ax
+	verr ax				;!!!!!!!
 	jnz freemodulerestex_1	;error in module list
 	mov es,ax
 	mov ax,es:[NEHDR.NXTMOD]
@@ -3010,7 +3017,7 @@ GetSSSP proc
 	jnz MultInst			;error
 @@:
 	call SegNo2Sel			;get selector in AX
-	lar cx,ax
+	lar cx,ax			;!!!!!!!!!
 	test ch,08h				;is SS a code selector?
 	jz getsssp_1			;(might be true for model tiny)
 	mov bx,es:[NEHDR.DGROFS]
@@ -4104,7 +4111,9 @@ LoadSegmTable proc
 	mov ax,es:[NEHDR.ne_cseg]
 	cmp ax,?MAXSEG
 	jg error2
-	shl ax,3					;8 bytes/segment in file
+	shl ax,1					;8 bytes/segment in file
+	shl ax,1
+	shl ax,1
 	mov cx,ax
 	mov dx,offset segtable
 	mov ah,3Fh					;read table
@@ -4153,7 +4162,7 @@ segspecial proc
 	add ax,es:[NEHDR.ne_segtab]
 	xchg bx,ax
 	mov ax,es:[bx].SEGITEM.wSel
-	lar cx,ax
+	lar cx,ax			;!!!!!!!
 	test ch,8					;is dgroup a code segment?
 	jz @F						;no, then done
 	and word ptr es:[bx.SEGITEM.flags],NOT SF_DISCRD
@@ -4386,7 +4395,15 @@ SetAccBits proc uses ax bx
 	mov bx,ax
 	mov ax,cs
 	and ax,0003h
+if ?REAL
+	shl ax,1
+	shl ax,1
+	shl ax,1
+	shl ax,1
+	shl ax,1
+else
 	shl ax,05
+endif
 	or cx,ax
 	mov ax,0009h	;set access rights
 	call dpmicall
@@ -4478,7 +4495,13 @@ AllocDosMem:
 	shr bx,1
 	rcr cx,1
 	mov bx,cx			;now in CX number of words
+if ?REAL
+	shr bx,1
+	shr bx,1
+	shr bx,1
+else
 	shr bx,03			;-> paragraphs
+endif
 	inc bx
 	mov ax,0100h		;alloc DOS memory
 	call dpmicall
@@ -4487,9 +4510,31 @@ ife ?USELOADERPSP
 	@push_a
 	dec ax
 	mov cx,ax
+if ?REAL
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+else
 	shr cx,12
+endif
 	mov dx,ax
+if ?REAL
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shl dx,4
+endif
 	mov bx, [aliassel]
 	mov ax,7
 	int 31h
@@ -4624,9 +4669,31 @@ AllocRMSegment proc uses cx dx
 	jc exit
 	xchg ax,bx				;segment in bx
 	mov dx,ax				;zu addr in cx:dx
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+else
 	shr ax,12
+endif
 	mov cx,ax
+if ?REAL
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shl dx,4
+endif
 	mov ax,0007
 	int 31h 				;set base
 	jc exit
@@ -4669,7 +4736,7 @@ SetBaseLimit proc uses bx
 	mov ax,offset szErr35	;error 'set segment limit'
 	jc error2
 if ?AUTOCSALIAS
-	lar ax,bx
+	lar ax,bx			;!!!!!!!!!!!!!!!!
 	test ah,8
 	jz @F
 	test es:[NEHDR.APPFLGS],10h	;is it RTM app?
@@ -4807,7 +4874,7 @@ GetNPBase proc
 	mov ax,0006h		 ;get segment base -> cx:dx
 	call dpmicall
 	jc error
-	lar ax,cx			 ;in Base there is ^NE.Segment
+	lar ax,cx			 ;in Base there is ^NE.Segment		;!!!!!!!!!!!!!
 	jnz error
 	mov es,cx
 	cmp es:[NEHDR.ne_magic],'EN'
@@ -5101,8 +5168,27 @@ endif
 	mov dx,ax
 	test bx,0FFF0h					;is limited to 1 MB
 	jnz ReallocMem_err
+if ?REAL
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+else
 	shr cx,4
 	shl bx,12
+endif
 	or bx,cx
 	mov ax,0102h		   ;the address cannot change
 	int 31h 			   ;server will do the selector tiling
@@ -5397,8 +5483,13 @@ done:
 	@trace_s lf
 	mov si,word ptr es:[NEHDR.MEMHDL+0] ;now do MD itself
 	mov di,word ptr es:[NEHDR.MEMHDL+2]
-	mov bx,es
+if ?REAL
+	mov bx, 0
+	push bx
+else
 	push 0
+endif
+	mov bx,es
 	pop es						  ;clear es before dpmi call
 	mov ax,0001
 	call dpmicall
@@ -5461,7 +5552,7 @@ freesegmmem proc near uses di
 	call FreeMemory			;free memory (Handle in AX or SI:DI)
 	pop si
 	jnc exit
-	@pushString szErr32		;error: deallocate memory
+	@pushString szErr32		;error: deallocate memory	;!!!!!!!!!!!
 	call stroutstk_err
 	call displaymodandseg
 	stc
@@ -5567,7 +5658,13 @@ ReadReloc proc
 	jb @F
 	mov cx,RELSIZE/8
 @@:
+if ?REAL
+	shl cx,1					;each entry requirest 8 bytes
+	shl cx,1
+	shl cx,1
+else
 	shl cx,3					;each entry requirest 8 bytes
+endif
 	mov dx,offset relbuf
 	mov ah,3Fh
 	int 21h 					;read relocations
@@ -5610,7 +5707,12 @@ endif
 	ret
 @@:
 	dec bx
+if ?REAL
+	shl bx,1
+	shl bx,1
+else
 	shl bx,2
+endif
 	add bx,offset fpOSFixups
 	mov dx,[bx+2]
 	mov cx,[bx+0]
@@ -5826,7 +5928,7 @@ ps_fptr:
 isList:
 if _CHECKSEGSIZE_
 	mov bp,ds
-	lsl bp,bp
+	lsl bp,bp			;!!!!!!!!!!!!!!!
 endif
 	cmp al,02			;far pointer?
 	ja isfar
@@ -6204,7 +6306,7 @@ CallAllLibEntries proc public uses es
 	@trace_s <"CallAllLibEntries enter, ax=">
 	@trace_w ax
 	@trace_s <lf>
-	lsl ax,ax
+	lsl ax,ax			;!!!!!!!!!!!!!!!!
 	@trace_s <"CallAllLibEntries limit of es=">
 	@trace_w ax
 	@trace_s <lf>
@@ -6589,7 +6691,7 @@ UnloadMod16 proc
 nextitem:
 	push es
 	mov ax,es:[si]
-	verr ax
+	verr ax				;!!!!!!!!!!!!!!!!!!
 	jnz @F
 	mov es,ax
 ;	cmp es:[NEHDR.ne_count],0
@@ -6660,9 +6762,11 @@ else
 	push es
 	push ds
 	mov si,sp
-	push 0000				;WEP Parameter
+	xor dx,dx
+	push dx					;WEP Parameter
 	push cs
-	push offset dowep_1
+	mov dx,offset dowep_1
+	push dx
 	push ax
 	push bx
 	xor ax,ax
@@ -6696,7 +6800,7 @@ dowep endp
 
 
 checkne proc public
-	verr ax
+	verr ax				;!!!!!!!!!!!!!!!!!
 	jnz @F
 	mov es,ax
 	cmp word ptr es:[0],"EN"
@@ -6752,7 +6856,7 @@ nextitem:
 refsdone:
 	pop cx
 	mov ax,es
-	verw ax
+	verw ax				;!!!!!!!!!!!!!!!
 	jnz done
 	mov es:[NEHDR.ne_cmod],cx
 	cmp es:[NEHDR.ne_count],0
@@ -6770,7 +6874,7 @@ done:
 exit:
 	pop cx
 	pushf
-	verr cx				;if ES is invalid now, clear it
+	verr cx				;if ES is invalid now, clear it	;!!!!!!!!!!!!!!!!!
 	jz @F
 	@trace_s <"MD ">
 	@trace_w cx
@@ -7117,7 +7221,8 @@ if ?HDPMI
 	add ax, offset endhdpmi
 	push ax
 else
-	push offset psp_rou + 100h	;IP
+	mov ax,offset psp_rou + 100h	;IP
+	push ax
 endif
 	mov ax,0502h
 	mov bx,cs
@@ -7207,7 +7312,10 @@ WORDOUT:
 	pop ax
 BYTEOUT:
 	mov ah,al
-	shr al,4
+	shr al,1
+	shr al,1
+	shr al,1
+	shr al,1
 	call NIBOUT
 	mov al,ah
 NIBOUT:
@@ -7400,8 +7508,27 @@ getpspr proc uses bx cx
 	mov ax,6
 	call dpmicall
 	mov ax,dx
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+else
 	shr ax,4
 	shl cx,12
+endif
 	or ax,cx
 	ret
 getpspr endp
@@ -7496,7 +7623,8 @@ next:
 	ja exit
 	add dx, dx
 	mov cx, dx
-	shl dx, 2
+	shl dx, 1
+	shl dx, 1
 	add dx, cx
 	mov ah, 0
 	add dx, ax
@@ -7573,16 +7701,18 @@ else
 	jc exit
 	@trace_s <"extload: CreateAlias ok",lf>
 	push ax
+	mov ax,offset nextsm			;switch to new CS
+	push ax
 	mov ax,cs
-	push offset nextsm			;switch to new CS
 	retf
 nextsm:
 	call CreateAlias				;now original CS can be modified
 	jc exit
 	push bx
 	push ax
+	mov bx, offset nextsm2
+	push bx
 	mov bx,cs
-	push offset nextsm2
 	retf
 nextsm2:
 	@trace_s <"extload: nextsm2 reached",lf>
@@ -7612,7 +7742,10 @@ if _RESIZEPSP_
   else
 	mov bx, offset endoflowcode
 	mov al, bl
-	shr bx, 4
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
 	test al, 0Fh
 	jz @F
 	inc bx
@@ -7681,12 +7814,16 @@ loadserver proc
 ;----------------------------- build an exec param struct on stack (real mode)
 	mov cx,[wLdrPSP]
 	push cx
-	push offset 006Ch		;fcb2
+	mov bx offset 006Ch		;fcb2
+	push bx
 	push cx
-	push offset 005Ch		;fcb1 
+	mov bx, offset 005Ch		;fcb1
+	push bx
 	push ds
-	push offset nullstr		;dos command tail
-	push 0					;environment segment
+	mov bx, offset nullstr		;dos command tail
+	push bx
+	mov bx, 0
+	push bx					;environment segment
 if ?KERNEL16
 	mov si,offset KernelNE.szModPath
 else
