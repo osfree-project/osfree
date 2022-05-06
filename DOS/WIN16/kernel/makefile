@@ -1,5 +1,5 @@
 #
-# A Makefile for KERNEL.EXE
+# A Makefile for Windows kernels
 # (c) osFree project,
 #
 
