@@ -975,7 +975,7 @@ endif
 	pop cx
 	jcxz @F					;no valid NE hdr!
 	mov es, cx
-	@pushString offset szLoadErr
+	@pushString szLoadErr
 	call stroutstk_err
 	call displaymodandseg
 
@@ -993,7 +993,7 @@ endif
 exc0berrorexit endp
 
 displaymodandseg proc        
-	@pushString offset szModule
+	@pushString szModule
 	call stroutstk
 	call modnameout			;expects ES=NE hdr
 	mov ax, si
@@ -1002,7 +1002,7 @@ displaymodandseg proc
 	inc ax
 	mov di, offset SegNo
 	call BYTEOUT
-	@pushString offset szSegment
+	@pushString szSegment
 	call stroutstk
 	@cr_out
 	ret
@@ -1473,8 +1473,8 @@ else
 ;--- even if dos kill works it doesn't free selectors for PSP and ENV
 
 	push es:[ENVIRON]
-	push 0					;clear es
-	pop es
+	xor ax, ax
+	mov es, ax
 	push bx
 
 if _LOADERPARENT_
@@ -1497,7 +1497,11 @@ endif
 	mov ah,50h				;set "new" PSP direktly
 	call doscall
 	pop bx					;selector of killed PSP
+if ?REAL
+	xor ax, ax		; emulate write access
+else
 	verw bx
+endif
 	jnz pspfreed
 	mov ax,1
 	and di,di
@@ -1510,7 +1514,11 @@ pspfreed:
 	pop bx
 	cmp [wTDStk],offset starttaskstk	;dont free enviroment sel of task 0
 	jz childselsdone		;because it is the loader's ENV as well
+if ?REAL
+	xor ax, ax		; emulate write access
+else
 	verw bx
+endif
 	jnz childselsdone
 	mov ax,1
 	and di,di
@@ -1537,7 +1545,13 @@ else
 	@trace_w [si.TASK.wSP]
 endif
 	@trace_s lf
+if ?REAL
+	push ax
+	xor ax, ax		; emulate write access
+	pop ax
+else
 	verw ax
+endif
 	jnz l214c_3
 	mov ss,ax
 if ?32BIT
@@ -1832,7 +1846,13 @@ endif
 	push ds
 	mov ds,ax				;cause a NP exception
 	pop ds					;to ensure stack segment is loaded
-	verw ax
+if ?REAL
+	push ax
+	xor ax, ax		; emulate write access
+	pop ax
+else
+	verw Ax
+endif
 	jnz StartApp_Err17
 	mov ss,ax
 if ?32BIT
@@ -1946,8 +1966,13 @@ ife ?32BIT
 	cmp al,es:[bx]
 	jnz @B
 	inc bx
-	mov ax,es
+if ?REAL
+	xor ax, ax
+	push ax
+else
 	push 0
+endif
+	mov ax,es
 	pop es
 notos2:
 endif
@@ -5436,7 +5461,7 @@ freesegmmem proc near uses di
 	call FreeMemory			;free memory (Handle in AX or SI:DI)
 	pop si
 	jnc exit
-	@pushString offset szErr32		;error: deallocate memory
+	@pushString szErr32		;error: deallocate memory
 	call stroutstk_err
 	call displaymodandseg
 	stc

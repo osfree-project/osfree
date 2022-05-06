@@ -452,7 +452,7 @@ if ?32BIT
 	pop es
 	pop gs
 else
-	popa
+	@pop_a
 	pop ds
 	pop es
 endif
