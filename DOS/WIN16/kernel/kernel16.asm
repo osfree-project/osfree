@@ -257,14 +257,22 @@ LocalInit proc far pascal uSegment:word, uStart:word, uEnd:word
 @@:
 	cmp dx,4
 	jb LocalInit_err
-	lar bx,ax                  ;!!!!!!!!!!!!!!!
+if ?REAL
+	xor bx, bx		; Emulate access rights
+else
+	lar bx,ax
+endif
 	jnz LocalInit_err
 	jcxz LocalInit_1
 	cmp dx,cx
 	jb LocalInit_err
 	jmp LocalInit_2
 LocalInit_1:
-	lsl bx,ax		; !!!!!!!!!!!!!!
+if ?REAL
+	mov bx, 0FFFFH		; Emulate segment limit
+else
+	lsl bx,ax
+endif
 	inc bx
 	mov cx,dx
 	mov dx,bx
@@ -481,7 +489,12 @@ if ?32BIT
 	pop dx
 else
 	xor dx,dx
-	lsl ax,ax		; !!!!!!!!!!!!!!!!!!!!!!
+if ?REAL
+	xor ax, ax
+	mov ax, 0FFFFH		; Emulate segment limit
+else
+	lsl ax,ax
+endif
 	jnz @F
 endif
 	add ax,1
@@ -908,7 +921,11 @@ GlobalLock proc far pascal
 	push bx
 	push cx
 	xor ax,ax
-	verr dx			; !!!!!!!!!!!!!!
+if ?REAL
+				; Emulate readable (ZF=1)
+else
+	verr dx
+endif
 	jnz @F
 	retf
 @@:
@@ -1118,7 +1135,11 @@ nextdesc:
 	cmp si,1
 	jnz @F
 	mov cx,es
-	lsl dx,cx		; !!!!!!!!!!!!!!
+if ?REAL
+	mov dx, 0FFFFH		; Emulate segment size
+else
+	lsl dx,cx
+endif
 @@:
 	mov cx,0
 	int 31h
