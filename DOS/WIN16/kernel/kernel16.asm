@@ -1075,7 +1075,12 @@ largealloc:
 	jnz error
 	@push_a
 	mov bp,sp
+if ?REAL
+	xor ax,ax
+	push ax
+else
 	push 0
+endif
 	push bx
 	push cx
 	add cx,8h		;add 8 bytes as prefix
@@ -1147,7 +1152,7 @@ endif
 done:
 	mov sp,bp
 	mov [bp+0Eh],es
-	popa
+	@pop_a
 	jmp allocok
 failed2:
 	mov ax,0502h
@@ -1178,7 +1183,11 @@ if ?LARGEALLOC
 ;	jnz largefree
 	cmp eax,0FFFEFh			;largest block for int 21h
 	jnc largefree
+if ?REAL
+	.8086
+else
 	.286
+endif
 @@:
 endif
 	push es
