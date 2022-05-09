@@ -5,7 +5,7 @@ FROM $BASE_IMAGE
 COPY ./_setup.sh /root
 
 RUN apt update -y && \
-  apt install -y openjdk-11-jre
+  apt install -y openjdk-11-jre openssh-server
 
 RUN /root/_setup.sh
 
