@@ -23,13 +23,21 @@ pipeline {
         //}
         stage('docker builds') {
             agent {
-                dockerfile {
+                //dockerfile {
+                //    label 'local-docker-i386'
+                //    filename 'Dockerfile'
+                //    additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t ${ARCH}/osfreebld:latest"
+                //    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network bridge"
+                //    reuseNode true
+                //}
+            agent {
+                docker {
+                    image "${ARCH}/osfreebld:latest"
                     label 'local-docker-i386'
-                    filename 'Dockerfile'
-                    additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t ${ARCH}/osfreebld:latest"
                     args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network bridge"
                     reuseNode true
                 }
+            }
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
