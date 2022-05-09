@@ -28,9 +28,9 @@ pipeline {
                 }
             }
             steps {
-                echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+                echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
 
-                dir('/root/osfree') {
+                ws('/root/osfree') {
                     sh './_wcc.sh'
                 }
             }
