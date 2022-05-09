@@ -1,4 +1,4 @@
-FROM i386/debian:bullseye
+FROM ${ARCH}/debian:bullseye
 
 COPY ./_setup.sh /root
 

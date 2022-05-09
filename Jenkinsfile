@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        WORKSPACE = "/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}"
+        ARCH = 'i386'
+    }
     stages {
         //stage('builds on github') {
         //    steps {
@@ -21,16 +25,14 @@ pipeline {
         stage('docker builds') {
             agent {
                 dockerfile {
+                    filename = 'Dockerfile'
                     label 'main'
                     // reuseNode true
                 }
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
-
-                ws("/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}") {
-                    sh './_wcc.sh'
-                }
+                sh './_wcc.sh'
             }
         }
     }
