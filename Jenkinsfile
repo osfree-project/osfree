@@ -22,11 +22,12 @@ pipeline {
             agent {
                 dockerfile {
                     label 'main'
-                    dir '/root/osfree'
-                    // args '-v /var/lib/jenkins/workspace/osfree_master@2:/root/osfree'
+                    // dir '/root/osfree/build'
+                    args '-v ${env.WORKSPACE}:/root/osfree'
                 }
             }
             steps {
+                echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
                 sh './_wcc.sh'
             }
         }
