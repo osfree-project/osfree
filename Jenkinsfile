@@ -26,6 +26,7 @@ pipeline {
                 }
             }
             steps {
+                sh ./_wcc.sh
                 sh 'echo Done.'
             }
         }
