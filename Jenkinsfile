@@ -21,8 +21,8 @@ pipeline {
         stage('docker builds') {
             agent {
                 dockerfile {
-                    label 'main'
-                    args '-v "/var/lib/jenkins/workspace/osfree_master@2":/root/osfree'
+                    label 'main-docker'
+                    args '-v /var/lib/jenkins/workspace/osfree_master@2:/root/osfree'
                 }
             }
             steps {
