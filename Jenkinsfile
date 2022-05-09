@@ -23,12 +23,16 @@ pipeline {
                 dockerfile {
                     label 'main'
                     // dir '/root/osfree/build'
-                    args "-v ${env.WORKSPACE}:/root/osfree"
+                    // args "-v ${env.WORKSPACE}:/root/osfree"
+                    reuseNode true
                 }
             }
             steps {
                 echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
-                sh './_wcc.sh'
+
+                dir('/root/osfree') {
+                    sh './_wcc.sh'
+                }
             }
         }
     }
