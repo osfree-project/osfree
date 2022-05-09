@@ -27,6 +27,7 @@ pipeline {
                 dockerfile {
                     filename 'Dockerfile'
                     label 'main'
+                    additionalBuildArgs "--build-arg ${env.ARCH}"
                     // reuseNode true
                 }
             }
