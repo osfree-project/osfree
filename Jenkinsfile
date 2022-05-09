@@ -22,15 +22,13 @@ pipeline {
             agent {
                 dockerfile {
                     label 'main'
-                    // dir '/root/osfree/build'
-                    // args "-v ${env.WORKSPACE}:/root/osfree"
                     reuseNode true
                 }
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
 
-                ws('/root/osfree') {
+                ws('/var/lib/jenkins/workspace/osfree_master') {
                     sh './_wcc.sh'
                 }
             }
