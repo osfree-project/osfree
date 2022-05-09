@@ -22,13 +22,13 @@ pipeline {
             agent {
                 dockerfile {
                     label 'main'
-                    reuseNode true
+                    // reuseNode true
                 }
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
 
-                dir('/var/lib/jenkins/workspace/osfree_master') {
+                ws("/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}") {
                     sh './_wcc.sh'
                 }
             }
