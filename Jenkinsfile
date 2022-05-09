@@ -21,12 +21,13 @@ pipeline {
         stage('docker builds') {
             agent {
                 dockerfile {
-                    label 'main-docker'
-                    args '-v /var/lib/jenkins/workspace/osfree_master@2:/root/osfree'
+                    label 'main'
+                    dir '/root/osfree'
+                    // args '-v /var/lib/jenkins/workspace/osfree_master@2:/root/osfree'
                 }
             }
             steps {
-                sh 'cd /root/osfree && ./_wcc.sh'
+                sh './_wcc.sh'
             }
         }
     }
