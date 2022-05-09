@@ -24,7 +24,7 @@ pipeline {
         stage('docker builds') {
             agent {
                 dockerfile {
-                    label 'main-docker-i386'
+                    label 'local-docker-i386'
                     filename 'Dockerfile'
                     additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t osfbld:latest"
                     args "-e 1111:1111 -v ${WORKSPACE}:/root/osfree -w /root/osfree"
