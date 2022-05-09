@@ -22,7 +22,7 @@ pipeline {
             agent {
                 dockerfile {
                     label 'main'
-                    args '-v /var/lib/jenkins/workspace/osfree_master@2:/root/osfree'
+                    args '-v /var/lib/jenkins/workspace/osfree_master:/root/osfree'
                 }
             }
             steps {
