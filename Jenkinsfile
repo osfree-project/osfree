@@ -28,7 +28,7 @@ pipeline {
                     label 'main'
                     filename 'Dockerfile'
                     additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye"
-                    // reuseNode true
+                    reuseNode true
                 }
             }
             steps {
