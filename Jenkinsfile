@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         ARCH = 'i386'
-        // WORKSPACE = "/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}"
+        WORKDIR = "/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}"
     }
     stages {
         //stage('builds on github') {
@@ -28,15 +28,12 @@ pipeline {
                     label 'main'
                     filename 'Dockerfile'
                     additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye"
-                    reuseNode true
+                    //  reuseNode true
                 }
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
-
-                dir("/var/lib/jenkins/workspace/osfree_master") {
-                    sh './_wcc.sh'
-                }
+                sh './_wcc.sh'
             }
         }
     }
