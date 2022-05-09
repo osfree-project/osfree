@@ -23,7 +23,12 @@ pipeline {
         //}
         stage('docker builds') {
             agent {
-                docker { image 'i386/osfreebld:latest' }
+                docker {
+                    label 'local-docker-i386'
+                    image "${ARCH}/osfreebld:latest"
+                    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network bridge"
+                    reuseNode true
+                }
                 //dockerfile {
                 //    label 'local-docker-i386'
                 //    filename 'Dockerfile'
