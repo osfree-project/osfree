@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=$ARCH/debian:bullseye
+ARG BASE_IMAGE=amd64/debian:bullseye
 
 FROM $BASE_IMAGE
 
