@@ -27,7 +27,7 @@ pipeline {
                     label 'local-docker-i386'
                     filename 'Dockerfile'
                     additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t ${ARCH}/osfreebld:latest"
-                    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network skynet-webportal_shared --ip 10.8.10.99"
+                    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network bridge --ip 172.17.0.100"
                     reuseNode true
                 }
             }
