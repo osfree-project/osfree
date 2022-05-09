@@ -23,7 +23,7 @@ pipeline {
                 dockerfile {
                     label 'main'
                     // dir '/root/osfree/build'
-                    args '-v ${env.WORKSPACE}:/root/osfree'
+                    args "-v ${env.WORKSPACE}:/root/osfree"
                 }
             }
             steps {
