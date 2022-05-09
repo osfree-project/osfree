@@ -26,7 +26,7 @@ pipeline {
                 }
             }
             steps {
-                sh './_wcc.sh'
+                sh 'cd /root/osfree && ./_wcc.sh'
             }
         }
     }
