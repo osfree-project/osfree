@@ -13,7 +13,7 @@ PATH=$_CWD/bin:$PATH
 #echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >>/etc/apt/sources.list
 #echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >>/etc/apt/sources.list
 apt-get update
-apt-get install -y wget curl unzip tar gzip bash
+apt-get install -y wget curl unzip tar gzip bash build-essential make
 cd $_CWD/dist
 wget ftp://osfree.org/upload/ow/ow-1.9.zip
 unzip -o ow-1.9.zip -d /opt
@@ -23,7 +23,7 @@ wget https://downloads.sourceforge.net/project/freepascal/Linux/3.2.2/fpc-3.2.2.
 tar xf fpc-3.2.2.i386-linux.tar
 cd fpc-3.2.2.i386-linux
 ./install.sh </dev/null
-for file in os2/*.zip; do
+for file in $CWD/dist/os2/*.zip; do
   unzip -o $file units/* fpmkinst/* -d /usr/lib/fpc/3.2.2/
 done
 wget https://nav.dl.sourceforge.net/project/regina-rexx/regina-rexx/3.9.4/regina-rexx-3.9.4.tar.gz
