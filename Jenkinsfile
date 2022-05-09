@@ -26,7 +26,7 @@ pipeline {
                 dockerfile {
                     label 'local-docker-i386'
                     filename 'Dockerfile'
-                    additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t osfbld:latest"
+                    additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t ${ARCH}/osfreebld:latest"
                     args "-e 1111:1111 -v ${WORKSPACE}:/root/osfree -w /root/osfree"
                     reuseNode true
                 }
