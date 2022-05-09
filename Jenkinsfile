@@ -23,10 +23,7 @@ pipeline {
         //}
         stage('docker builds') {
             agent {
-                docker {
-                    label 'local-docker-i386'
-                    image 'osfreebld:latest'
-                }
+                docker { image 'i386/osfreebld:latest' }
                 //dockerfile {
                 //    label 'local-docker-i386'
                 //    filename 'Dockerfile'
