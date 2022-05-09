@@ -25,7 +25,7 @@ pipeline {
         stage('docker builds') {
             agent {
                 dockerfile {
-                    filename = 'Dockerfile'
+                    filename 'Dockerfile'
                     label 'main'
                     // reuseNode true
                 }
