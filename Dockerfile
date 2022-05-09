@@ -1,6 +1,6 @@
 ENV IMAGE "$ARCH/debian:bullseye"
 
-FROM IMAGE
+FROM $IMAGE
 
 COPY ./_setup.sh /root
 
