@@ -7,4 +7,4 @@ RUN apt update -y && \
 
 RUN /root/_setup.sh
 
-ENTRYPOINT [ "/bin/sh" -c "cd /root/osfree" ]
+ENTRYPOINT [ "/bin/sh", "-c", "cd /root/osfree" ]
