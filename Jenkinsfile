@@ -34,7 +34,7 @@ pipeline {
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
 
-                dir("/var/lib/jenkins/workspace/osfree_master_${env.EXECUTOR_NUMBER}") {
+                dir("/var/lib/jenkins/workspace/osfree_master") {
                     sh './_wcc.sh'
                 }
             }
