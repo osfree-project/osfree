@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        JNLP_SECRET="69b95e0e528c84b29b07a459ec1674cb92b22a93c405dd5fdc1f13cf58d8da4a"
         ARCH = 'i386'
     }
     stages {
@@ -43,9 +44,9 @@ pipeline {
                 sh 'wget ${JENKINS_URL}jnlpJars/agent.jar -P /root'
 
                 echo "Starting JNLP agent in container"
-                sh 'java -jar /root/agent.jar \
+                sh "java -jar /root/agent.jar \
                     -jnlpUrl ${JENKINS_URL}computer/${NODE_NAME}/jenkins-agent.jnlp \
-                    -secret ${JNLP_SECRET} -workDir /var/lib/jenkins'
+                    -secret ${env.JNLP_SECRET} -workDir ${WORKSPACE}"
 
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
                 sh './_wcc.sh'
