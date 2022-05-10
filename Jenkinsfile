@@ -40,13 +40,13 @@ pipeline {
             }
             steps {
                 echo "Downloading the agent"
-                wget ${JENKINS_URL}/jnlpJars/agent.jar -O /root
+                sh 'wget ${JENKINS_URL}/jnlpJars/agent.jar -O /root'
             }
             steps {
                 echo "Starting JNLP agent in container"
-                java -jar /root/agent.jar \
+                sh 'java -jar /root/agent.jar \
                     -jnlpUrl ${JENKINS_URL}/computer/${NODE_NAME}/jenkins-agent.jnlp \
-                    -secret ${JNLP_SECRET} -workDir "/var/lib/jenkins"
+                    -secret ${JNLP_SECRET} -workDir "/var/lib/jenkins"'
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
