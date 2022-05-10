@@ -33,9 +33,17 @@ pipeline {
                     label 'local-docker-i386'
                     filename 'Dockerfile'
                     additionalBuildArgs "--build-arg BASE_IMAGE=${env.ARCH}/debian:bullseye -t ${ARCH}/osfreebld:latest"
-                    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree --network bridge"
+                    args "-v ${WORKSPACE}:/root/osfree -w /root/osfree \
+                          -v /var/lib/jenkins:/root --network bridge"
                     reuseNode true
                 }
+            }
+            steps {
+                echo "Starting JNLP agent in container"
+                wget ${JENKINS_URL}/jnlpJars/agent.jar
+                java -jar agent.jar \
+                    -jnlpUrl ${JENKINS_URL}/computer/${NODE_NAME}/jenkins-agent.jnlp \
+                    -secret ${JNLP_SECRET} -workDir "/var/lib/jenkins"
             }
             steps {
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
