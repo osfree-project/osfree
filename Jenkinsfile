@@ -40,7 +40,7 @@ pipeline {
             }
             steps {
                 echo "Downloading the agent"
-                sh 'wget ${JENKINS_URL}jnlpJars/agent.jar -O /root'
+                sh 'wget ${JENKINS_URL}jnlpJars/agent.jar -P /root'
 
                 echo "Starting JNLP agent in container"
                 sh 'java -jar /root/agent.jar \
