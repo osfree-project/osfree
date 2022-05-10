@@ -45,7 +45,7 @@ pipeline {
                 echo "Starting JNLP agent in container"
                 sh 'java -jar /root/agent.jar \
                     -jnlpUrl ${JENKINS_URL}computer/${NODE_NAME}/jenkins-agent.jnlp \
-                    -secret ${JNLP_SECRET} -workDir "/var/lib/jenkins"'
+                    -secret ${JNLP_SECRET} -workDir /var/lib/jenkins'
 
                 echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
                 sh './_wcc.sh'
