@@ -9,4 +9,4 @@ RUN apt update -y && \
 
 RUN /root/_setup.sh
 
-ENTRYPOINT []
+ENTRYPOINT [ "exec", "$@" ]
