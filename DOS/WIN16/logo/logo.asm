@@ -14,11 +14,11 @@
 
 .8086
 			include	video.inc
-
+code			segment
 			org	0h
 
 			db	'LOGO'
-inp			jmp	near ptr Init
+			jmp	near ptr Init
 ;			jmp	near ptr Done
 Done:			@SetMode [CurrentVideoMode]
 			retf
@@ -76,4 +76,5 @@ Hello			db	10,13,10,13
 ;$f3                 $f3'VEzjt:;;z>*\`        
 
 
-			end inp
+code			ends
+			end
