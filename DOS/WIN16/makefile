@@ -4,7 +4,7 @@
 # author
 #
 
-DIRS = dosx kernel samples programs lzexpand
+DIRS = win dosx kernel samples programs lzexpand
 
 !include $(%ROOT)/mk/all.mk
 
