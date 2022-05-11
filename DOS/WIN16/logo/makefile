@@ -5,10 +5,11 @@
 #
 
 PROJ       = logo
-TRGT       = $(PROJ).com
+TRGT       = $(PROJ).bin
 DESC       = Windows Boot Logo screen
 srcfiles   = $(p)logo$(e)
 JWASM      = 1
 COM        = 1
 
 !include $(%ROOT)/mk/appsdos.mk
+

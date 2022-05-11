@@ -17,7 +17,7 @@
 code			segment
 			org	0h
 
-			db	'LOGO'
+strt:			db	'LOGO'
 			jmp	near ptr Init
 ;			jmp	near ptr Done
 Done:			@SetMode [CurrentVideoMode]
@@ -77,4 +77,4 @@ Hello			db	10,13,10,13
 
 
 code			ends
-			end
+			end strt
