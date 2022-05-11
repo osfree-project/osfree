@@ -18,7 +18,7 @@
 			org	0h
 
 			db	'LOGO'
-			jmp	near ptr Init
+inp			jmp	near ptr Init
 ;			jmp	near ptr Done
 Done:			@SetMode [CurrentVideoMode]
 			retf
@@ -76,4 +76,4 @@ Hello			db	10,13,10,13
 ;$f3                 $f3'VEzjt:;;z>*\`        
 
 
-			end
+			end inp
