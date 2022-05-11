@@ -12,6 +12,3 @@ JWASM      = 1
 COM        = 1
 
 !include $(%ROOT)/mk/appsdos.mk
-
-$(PROJ).lgo: $(PROJ).com
-  $(CP) $(PROJ).com $(PROJ).lgo
