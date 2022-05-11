@@ -5,17 +5,23 @@
 #
 
 PROJ       = logo1
-PROJ1       = logo
-TRGT       = $(PROJ1).lgo
+PROJ1      = logo
+TRGT       = $(PROJ).com
 DESC       = Windows Boot Logo screen
 srcfiles   = $(p)logo$(e)
 JWASM      = 1
 COM        = 1
-
-!include $(%ROOT)/mk/appsdos.mk
+INSTALL_ADD = 1
 
 TARGETS = $(PATH)$(PROJ1).lgo
 
-$(PATH)$(PROJ1).lgo: $(PATH)$(PROJ).com
- $(RN) $]@ $[@
+!include $(%ROOT)/mk/appsdos.mk
 
+.SUFFIXES: .lgo .com
+
+.lgo: $(PATH)
+
+install_add: .symbolic
+ @$(SAY) INST     $(PROJ1).lgo $(LOG)
+ @$(CP) $(PATH)$(PROJ).com $(PATH)$(PROJ1).lgo
+ @$(CP) $(PATH)$(PROJ1).lgo $(DEST)
