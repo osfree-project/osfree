@@ -17,8 +17,8 @@
 code			segment
 			org	0h
 
-strt:			db	'LOGO'
-			jmp	near ptr Init
+			db	'LOGO'
+strt:			jmp	near ptr Init
 ;			jmp	near ptr Done
 Done:			@SetMode [CurrentVideoMode]
 			retf
