@@ -2,9 +2,9 @@
 ; This is function to execute windows logo file
 ;
 .8086
-
-code segment
 	org 100h
+
+main
 	call 	ShowLogo
 	int	20h
 
@@ -40,6 +40,6 @@ HideLogo:
 
 	align 16
 LogoStart:
-code	ends
-	END
+
+	END main
 
