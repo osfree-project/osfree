@@ -12,8 +12,6 @@ JWASM       = 1
 COM         = 1
 INSTALL_ADD = 1
 
-TARGETS = $(PATH)$(PROJ1).lgo
-
 !include $(%ROOT)/mk/appsdos.mk
 
 .SUFFIXES: .lgo .com
