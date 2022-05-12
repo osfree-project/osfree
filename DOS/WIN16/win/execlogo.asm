@@ -21,7 +21,7 @@ main:
 
 ; search KERNEL.EXE
 	mov	ah, 4eh			; Find first file entry
-	lds	dx, offset szKernel	; Filename
+	mov	dx, szKernel		; Filename
 	xor	cx, cx
 	int	21h
 	jc	NoKernel
