@@ -4,17 +4,23 @@
 # author, date
 #
 
-PROJ       = logo1
-PROJ1      = logo
-TRGT       = $(PROJ1).lgo
-DESC       = Windows Boot Logo screen
-srcfiles   = $(p)logo$(e)
-JWASM      = 1
-COM        = 1
-
-!include $(%ROOT)/mk/appsdos.mk
+PROJ        = logo
+TRGT        = $(PROJ).com
+DESC        = Windows Boot Logo screen
+srcfiles    = $(p)logo$(e)
+JWASM       = 1
+COM         = 1
+INSTALL_ADD = 1
 
 TARGETS = $(PATH)$(PROJ1).lgo
 
-$(PATH)$(PROJ1).lgo: $(PATH)$(PROJ).com
- $(RN) $]@ $[@
+!include $(%ROOT)/mk/appsdos.mk
+
+.SUFFIXES: .lgo .com
+
+.lgo: $(PATH)
+
+install_add: .symbolic
+ @$(SAY) INST     $(PROJ).lgo $(LOG)
+ @$(CP) $(PATH)$(PROJ).com $(PATH)$(PROJ).lgo
+ @$(CP) $(PATH)$(PROJ).lgo $(DEST)
