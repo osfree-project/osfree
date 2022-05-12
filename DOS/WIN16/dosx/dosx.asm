@@ -5,7 +5,6 @@
 
 		.286
 		.MODEL SMALL, stdcall
-;		.386
 		.dosseg
 
 ?XMSHOOK	equ 0		;1 doesnt work reliably!
