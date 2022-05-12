@@ -21,7 +21,7 @@ main:
 
 ; search KERNEL.EXE
 	mov	ah, 4eh			; Find first file entry
-	mov	dx, szKernel		; Filename
+	lea	dx, szKernel		; Filename
 	xor	cx, cx
 	int	21h
 	jc	NoKernel
@@ -29,23 +29,24 @@ main:
 ; load and execute KERNEL.EXE
 	push	ds
 	pop	es
-	mov	dx, szKernel
-	mov	bx, exeparams
+	lea	dx, szKernel
+	lea	bx, exeparams
 	mov	ax, 4b00h		; Execute program
 	int	21h
-	jc	execErr
-; exit from windows kernel
+	jc	ExecErr
 
+; exit from windows kernel
 	call	HideLogo
 	int	20h			; die
 
+; Call ShowLogo
 ShowLogo:
 	push	cs			; prepare return from ShowLogo
-	mov	ax, offset LogoRet
+	lea	ax, LogoRet
 	push	ax
 ; check for signature
 	mov	ax, cs
-	mov	bx, LogoStart
+	lea	bx, LogoStart
 	mov	cl, 4
 	shr	bx, cl
 	add	ax, bx			; Number of segments before logo starts
@@ -57,12 +58,13 @@ LogoRet:
 ; free unneeded memory (part of LOGO code/data)
 	retn
 
+; Call HideLogo
 HideLogo:
 	push	cs			; prepare return from ShowLogo
-	mov	ax, offset HideLogoRet
+	lea	ax, HideLogoRet
 	push	ax
 	mov	ax, cs
-	mov	bx, LogoStart
+	lea	bx, LogoStart
 	mov	cl, 4
 	shr	bx, cl
 	add	ax, bx			; Number of segments before logo starts
