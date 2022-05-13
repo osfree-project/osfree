@@ -30,7 +30,7 @@
 
 #define NONAMELESSUNION
 #include <windows.h>
-#include <commctrl.h>
+//#include <commctrl.h>
 #include <commdlg.h>
 
 #ifdef UNICODE
@@ -44,7 +44,7 @@
 #include <time.h>
 
 #include <shellapi.h>   /* for ShellExecute() */
-#include <shlobj.h>     /* for SHFormatDrive() */
+//#include <shlobj.h>     /* for SHFormatDrive() */
 
 #ifndef _NO_EXTENSIONS
 #define _SHELL_FOLDERS
