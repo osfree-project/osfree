@@ -12,6 +12,7 @@ srcfiles = $(p)dpmildr$(e) $(p)hmemset$(e) $(p)lstrcat$(e) $(p)lstrcpy$(e) $(p)l
 
 ADD_ASMOPT = -D?32BIT=0 -D?DEBUG=0 -D?REAL=0
 JWASM = 1
+DEST        = os2$(SEP)mdos$(SEP)winos2
 
 
 !include $(%ROOT)/mk/appsdos.mk
