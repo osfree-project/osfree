@@ -10,5 +10,6 @@ DESC       = Windows Loader
 srcfiles   = $(p)execlogo$(e)
 JWASM      = 1
 COM        = 1
+DEST        = os2$(SEP)mdos$(SEP)winos2
 
 !include $(%ROOT)/mk/appsdos.mk

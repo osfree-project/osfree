@@ -5,9 +5,9 @@ rem https://eternallybored.org/misc/wget/1.19.4/32/wget.exe
 rem set path=e:\win32\bin;%path%
 rem or...
 rem Install wget
-choco install wget unzip --no-progress
+choco install wget --no-progress
 
-wget http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe -P "%tmp%"
+wget http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe -P "%tmp%" -c
 
 rem Download latest Open Watcom
 rem wget https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe -P "c:/Documents and settings/Downloads"

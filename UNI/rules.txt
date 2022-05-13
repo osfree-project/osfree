@@ -16,7 +16,7 @@ uses base;
 
 и создается файл base.uni с содержимым
 
-module base;
+group base;
 
 uses dos default;
 uses sub default;
