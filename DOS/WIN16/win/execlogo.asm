@@ -1,7 +1,12 @@
 ;
-; This is function to execute windows logo file
+; This is Windows loader
 ;
 .8086
+
+WINVER		EQU	101		; Windows 1.01
+;WINVER		EQU	102		; Windows 1.02
+;WINVER		EQU	103		; Windows 1.03
+;WINVER		EQU	104		; Windows 1.04
 
 code segment
 	org 100h
@@ -93,7 +98,10 @@ NoKernelMsg:
 ExecErrMsg:
 	db	'Can''t execute Windows kernel$'
 szKernel:
-	db	'SYSTEM\KERNEL.EXE', 0
+if WINVER eq 101
+	db	'WIN100.BIN', 0
+endif
+;	db	'SYSTEM\KERNEL.EXE', 0
 
 ExecErr:
 	lea	dx, ExecErrMsg
