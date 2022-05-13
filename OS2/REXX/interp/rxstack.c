@@ -107,6 +107,13 @@
  *       out-> 0FFFFFF (if queue exists)
  *       out-> 2xxxxxx (if error or queue doesn't exist - length ignored)
  *       regina QUEUED(), rxqueue /queued, websocket /queued
+ *   Q - return names of stacks
+ *       in->  Q000000
+ *       out-> 0FFFFFFxxx--queue name--xxxDDxxx--queue name---xxxDD...
+ *          where FFFFFF is length of all names
+ *          and DD is xFF delimiting names of queues and ... is more queues
+ *       out-> 2xxxxxx (if error)
+ *       regina RXQUEUE(), rxqueue /queues, websocket /queues
  *   T - set timeout on queue pull
  *       in->  TFFFFFFTTTTTT
  *       out-> 0000000 (if queue timeout set)
@@ -123,7 +130,6 @@
 
 #define NO_CTYPE_REPLACEMENT
 #include "rexx.h"
-
 #if defined(WIN32) || defined(__LCC__)
 # if defined(_MSC_VER)
 #  if _MSC_VER >= 1100
@@ -209,7 +215,9 @@
 #endif
 
 #include "extstack.h"
-#include "mygetopt.h"
+#if defined(HAVE_GETOPT_LONG) || (defined(OS2) && defined(__WATCOMC__))
+# include "mygetopt.h"
+#endif
 #include "contrib/LibSha1.h"
 
 #ifdef BUILD_NT_SERVICE
@@ -242,10 +250,12 @@ HANDLE  hServerStopEvent = NULL;
 #define WS_RESPONSE_HEADER "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %.*s\r\n\r\n"
 #define WS_RESPONSE_MAGIC  "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 /*
- * Translation Table for Base64 encdoing as described in RFC1113
+ * Translation Table for Base64 encoding as described in RFC1113
  */
 static const char cb64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+#ifdef REQUIRE_BASE64_DECODE
 static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
+#endif
 /*
  * debugging is turned off. You can turn it on by the command line option "-D".
  */
@@ -405,6 +415,7 @@ typedef struct _Client
     * if queue_timeout is set, the client expects an error code after
     * this time instead of waiting until world's end.
     * The value is in milliseconds.
+    * These values have internal meaning; in the call to rxqueue('T',0) the zero is converted to -1
     * A value of zero means no timeout; return immediately if no data
     * A value of -1 means wait forever
     */
@@ -1063,7 +1074,7 @@ int rxstack_create_client( int socket )
    if ( ( c = get_new_client( ) ) == NULL )
    {
       closesocket( socket ) ;
-      /* This may have been the connectioon telling us to go down ;-) */
+      /* This may have been the connection telling us to go down ;-) */
       showerror( ERR_STORAGE_EXHAUSTED, 0, ERR_STORAGE_EXHAUSTED_TMPL );
       exit( ERR_STORAGE_EXHAUSTED );
    }
@@ -1142,6 +1153,7 @@ int rxstack_send_return( Client *client, char *action, char *str, int len )
          if ( header )
          {
             header->value[0] = action[0];
+            DEBUGDUMP(printf("Sending Header: %.*s\n", PSTRENGLEN(header), PSTRENGVAL(header)););
             rc = send( sock, PSTRENGVAL(header), PSTRENGLEN(header), 0 );
             if ( rc != PSTRENGLEN(header) )
             {
@@ -1590,6 +1602,56 @@ int rxstack_pull_line_off_queue( Client *client, streng **result, int nowait )
    return rc;
 }
 
+/*
+ * Gets all queues for all clients
+ */
+int rxstack_get_queues( Client *client, streng **result )
+{
+   int rc,i=0;
+   int len=0;
+   RxQueue *q;
+   char eol[3];
+   streng *seol,*tmp1=NULL,*tmp2=NULL;
+
+   DEBUGDUMP(printf("Getting queues...\n" ););
+   /* get the length of all queues and the nul terminator and EOL delimiter */
+   for ( q = queues; q != NULL; )
+   {
+      len += PSTRENGLEN( q->name)+1;
+#if !defined(UNIX) && !defined(MAC)
+      len++;
+#endif
+      DEBUGDUMP(printf("Queue name <%.*s>\n", PSTRENGLEN( q->name), PSTRENGVAL( q->name)););
+      q = q->next ;
+   }
+   /* determine eol for appending */
+#if !defined(UNIX)
+   eol[i++] = REGINA_CR;
+#endif
+#if !defined(MAC)
+   eol[i++] = REGINA_EOL;
+#endif
+   eol[i] = '\0';
+   seol = Str_cre_or_exit( eol, i );
+   for ( q = queues; q != NULL; )
+   {
+      if ( tmp1 )
+         tmp1 = Str_cat( tmp2, q->name );
+      else
+         tmp1 = Str_dup( q->name ) ;
+      /* free tmp2 ? if null */
+      DROPSTRENG( tmp2 );
+      tmp2 = Str_cat( tmp1, seol );
+      /* free tmp1 ? */
+      DROPSTRENG( tmp1 );
+      q = q->next ;
+   }
+   *result = tmp2;
+   rc = 0;
+
+   return rc;
+}
+
 static int eec_base64_encode( unsigned char *rawstr, int strlen, unsigned char **encstr, int *encstrlen )
 {
    unsigned char in[3], out[4];
@@ -1639,7 +1701,7 @@ static int eec_base64_encode( unsigned char *rawstr, int strlen, unsigned char *
    return 0;
 }
 
-#if 0
+#if REQUIRE_BASE64_DECODE
 static int eec_base64_decode( unsigned char *encstr, long encstrlen, unsigned char **rawstr, long *rawstrlen )
 {
    unsigned char *raw_code,v;
@@ -1900,7 +1962,7 @@ int decode_ws_payload( unsigned char *src, size_t srclength, unsigned char *targ
    unsigned char *frame, *mask, *payload, save_char;
    int masked = 0;
    int i = 0, framecount = 0;
-   size_t remaining;
+   size_t remaining = 0;
    unsigned int target_offset = 0, hdr_length = 0, payload_length = 0, decoded_length;
 
    *left = srclength;
@@ -2001,7 +2063,7 @@ int decode_ws_payload( unsigned char *src, size_t srclength, unsigned char *targ
             DEBUGDUMP(printf("%x ",payload[i]););
          DEBUGDUMP(printf("\n"););
       }
-#if 0
+#ifdef REQUIRE_BASE64_DECODE
       // base64 decode the data - not needed for text-only data ?
       if ( eec_base64_decode( (unsigned char *)payload, payload_length, &decoded_chunk, &decoded_length ) != 0 )
       {
@@ -2159,6 +2221,26 @@ int send_response_to_client( Client *client, char action, streng *buffer )
             buffer = NULL;
          }
          break;
+      case RXSTACK_SHOW_QUEUES:
+         DEBUGDUMP(printf("--- Show ---\n"););
+         rc = rxstack_get_queues( client, &result );
+         switch( rc )
+         {
+            case 0: /* all OK */
+               rxstack_send_return( client, "0", PSTRENGVAL( result ), PSTRENGLEN( result ) );
+               DROPSTRENG( result );
+               break;
+            default: /* empty/error */
+               rcode[0] = (char)(rc+'0');
+               rxstack_send_return( client, rcode, NULL, 0 );
+               break;
+         }
+         if ( buffer != NULL )
+         {
+            DROPSTRENG( buffer );
+            buffer = NULL;
+         }
+         break;
       case RXSTACK_PULL:
       case RXSTACK_FETCH:
          DEBUGDUMP(printf("--- Pull ---\n"););
@@ -2252,7 +2334,7 @@ int send_response_to_client( Client *client, char action, streng *buffer )
 int rxstack_process_websockets_data( Client *client )
 {
    int rc = 1;
-   char ws_headers[4096];
+   char ws_headers[8192];
    char ws_payload[4096];
    char ws_response[4096];
    char response[4096];
@@ -2504,8 +2586,9 @@ int rxstack_process_traditional_command( Client * client )
    streng *header;
    streng *buffer = NULL ;
    int rc,length;
+   now = get_now();
    memset( cheader, 0, sizeof(cheader) );
-   DEBUGDUMP(printf("\nreading from socket %d\n", client->socket););
+   DEBUGDUMP(printf("\nreading from socket %d at %ld,%03d\n", client->socket, now.seconds, now.milli););
    rc = recv( client->socket, cheader, RXSTACK_HEADER_SIZE, 0 );
    if ( rc < 0 )
    {
@@ -2597,7 +2680,11 @@ int rxstack_process_traditional_command( Client * client )
       else
          buffer->len = length ;
    }
+   now = get_now();
+   DEBUGDUMP(printf("\nbefore send_response_to_client from socket %d at %ld,%03d\n", client->socket, now.seconds, now.milli););
    send_response_to_client( client, cheader[0], buffer );
+   now = get_now();
+   DEBUGDUMP(printf("\nafter send_response_to_client from socket %d at %ld,%03d\n", client->socket, now.seconds, now.milli););
    return 1;
 }
 
@@ -2619,7 +2706,8 @@ int rxstack_process_command( Client *client )
       bad_news_for_waiter( client->default_queue, client ) ;
    }
    memset( pheader, 0, sizeof(pheader) );
-   DEBUGDUMP(printf("\npeeking from socket %d\n", client->socket););
+   now = get_now();
+   DEBUGDUMP(printf("\npeeking from socket %d at %ld,%03d\n", client->socket, now.seconds, now.milli););
    rc = recv( client->socket, pheader, RXSTACK_PEEK_HEADER_SIZE, MSG_PEEK );
    if ( rc < 0 )
    {
@@ -2651,23 +2739,26 @@ int rxstack_process_command( Client *client )
       rxstack_delete_client( client );
       return 0 ;
    }
-   DEBUGDUMP(printf("peek header: 0x%x%x\n", pheader[0],pheader[1]););
+   DEBUGDUMP(printf("peek at 1st two bytes of header: 0x%x%x\n", pheader[0],pheader[1]););
    /*
     * We have peeked at the first 2 bytes of the message. determine what type of connection it is:
-    * GE - header for Websocket interface
+    * GE - header for Websocket interface (start of GET)
     * first byte < x20 - Websocket data
     * anything else - assume traditional interface
     */
    if ( memcmp( pheader, "GE", 2 ) == 0 )
    {
+      DEBUGDUMP(printf("have a WS header...\n"););
       rc = rxstack_process_websockets_headers( client );
    }
    else if ( client->isWebsocket )
    {
+      DEBUGDUMP(printf("have WS data...\n"););
       rc = rxstack_process_websockets_data( client );
    }
    else
    {
+      DEBUGDUMP(printf("have normal data...\n"););
       rc = rxstack_process_traditional_command( client );
    }
    return rc;
@@ -3078,7 +3169,7 @@ notrunning:
 int usage( const char *argv0 )
 {
    fprintf( stdout, "\n%s: %s (%d bit). All rights reserved.\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
-   fprintf( stdout,"Regina is distributed under the terms of the GNU Library Public License \n" );
+   fprintf( stdout,"Regina is distributed under the terms of the GNU General Library Public License \n" );
    fprintf( stdout,"and comes with NO WARRANTY. See the file COPYING-LIB for details.\n" );
    fprintf( stdout,"\n%s [switches]\n", argv0 );
    fprintf( stdout,"where switches are:\n\n" );

@@ -98,7 +98,9 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "mygetopt.h"
+#ifndef HAVE_GETOPT_LONG
+# include "mygetopt.h"
+#endif
 
 #ifdef VMS
 # include <stat.h>
@@ -158,7 +160,7 @@ const char *argv0 = NULL;
  * This enables multiple threads to run within the one interpreter instance.
  * Set by OPTIONS SINGLE_INTERPRETER
  */
-tsd_t *__regina_global_TSD = NULL;
+const tsd_t *__regina_global_TSD = NULL;
 
 static void usage( char * );
 
@@ -326,7 +328,7 @@ static struct my_getopt_option long_options[] =
    {"debug",       optional_argument, 0,  'd' },
    {"trace",       optional_argument, 0,  't' },
    {"pause",       no_argument,       0,  'p' },
-   {"version",     no_argument,       0,  'v' },
+   {"version",     optional_argument, 0,  'v' },
    {"yaccdbg",     no_argument,       0,  'y' },
    {"restricted",  no_argument,       0,  'r' },
    {"interactive", optional_argument, 0,  'i' },
@@ -353,7 +355,7 @@ static int check_args( tsd_t *TSD, int argc, char **argv,
    {
       int option_index = 0;
 
-      c = my_getopt_long( argc, argv, "+hi::D::t::pvyrd::acel:o:", long_options, &option_index );
+      c = my_getopt_long( argc, argv, "+hi::D::t::pv::yrd::acel:o:", long_options, &option_index );
       if ( c == -1 )
          break;
 
@@ -392,13 +394,43 @@ static int check_args( tsd_t *TSD, int argc, char **argv,
             break;
 
          case 'v':
-            fprintf( stderr, "%s: %s (%d bit)\n", argv[0], PARSE_VERSION_STRING, REGINA_BITS );
-            /*
-             * Also display any statically linked packages
-             */
-#if defined( DYNAMIC_STATIC )
-            static_list_packages();
+            if ( optarg )
+            {
+               if ( strlen( optarg ) > 1 )
+               {
+                  fprintf( stdout, "\nThe passed switch `-v' allows just one additional character, Regina exits.\n" );
+                  exit( 1 );
+               }
+               switch( *optarg )
+               {
+#if defined(HAVE_REGINA_ADDON_DIR)
+                  case 'a':
+                     fprintf( stdout, "%s\n", HAVE_REGINA_ADDON_DIR );
+                     break;
 #endif
+                  case 'p':
+                     /*
+                      * Display any statically linked packages
+                      */
+#if defined( DYNAMIC_STATIC )
+                     static_list_packages();
+#else
+                     fprintf( stdout, "\nRegina not built with static dynamic loading support.\n" );
+#endif
+                     break;
+                  case 'v':
+                     fprintf( stdout, "%s\n", REGINA_VERSION_MAJOR "." REGINA_VERSION_MINOR "." REGINA_VERSION_RELEASE REGINA_VERSION_SUPP );
+                     break;
+                  case 'b':
+                     fprintf( stdout, "%d\n", REGINA_BITS );
+                     break;
+                  default:
+                     fprintf( stdout, "\nUnsupported option to '-v' switch, Regina exits.\n" );
+                     exit( 1 );
+               }
+            }
+            else
+               fprintf( stdout, "%s: %s (%d bit)\n", argv[0], PARSE_VERSION_STRING, REGINA_BITS );
             return 0;
 
          case 'y':
@@ -471,6 +503,7 @@ static int check_args( tsd_t *TSD, int argc, char **argv,
             do_options( TSD, TSD->currlevel, opts, 0 );
             break;
          }
+
          case 'h': /* usage */
          case '?': /* usage */
             usage( argv[0] );
@@ -1033,12 +1066,12 @@ sysinfobox *creat_sysinfo( const tsd_t *TSD, streng *envir )
  * The following two functions are used to set and retrieve the value of
  * the global TSD
  */
-void setGlobalTSD( tsd_t *TSD)
+void setGlobalTSD( const tsd_t *TSD)
 {
    __regina_global_TSD = TSD;
 }
 
-tsd_t *getGlobalTSD( void )
+const tsd_t *getGlobalTSD( void )
 {
    return __regina_global_TSD;
 }
@@ -1056,8 +1089,6 @@ int hookup( tsd_t *TSD, int dummy )
     * Then we should never get a system exit!
     */
    assert( 0 ) ;
-   dummy = dummy; /* keep compiler happy */
-   TSD = TSD; /* keep compiler happy */
    return 1 ;  /* to keep compiler happy */
 }
 int hookup_input( tsd_t *TSD, int dummy1, streng **dummy2 )
@@ -1065,9 +1096,6 @@ int hookup_input( tsd_t *TSD, int dummy1, streng **dummy2 )
    /* This should never happen, if we don't have support for SAA API,
     * Then we should never get a system exit!
     */
-   TSD = TSD; /* keep compiler happy */
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
    assert( 0 ) ;
    return 1 ;  /* to keep compiler happy */
 }
@@ -1076,10 +1104,6 @@ int hookup_input_output( tsd_t *TSD, int dummy1, const streng *dummy2, streng **
    /* This should never happen, if we don't have support for SAA API,
     * Then we should never get a system exit!
     */
-   TSD = TSD; /* keep compiler happy */
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   dummy3 = dummy3; /* keep compiler happy */
    assert( 0 ) ;
    return 1 ;  /* to keep compiler happy */
 }
@@ -1089,9 +1113,6 @@ int hookup_output( tsd_t *TSD, int dummy1, const streng *dummy2 )
     * Then we should never get a system exit!
     */
    assert( 0 ) ;
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   TSD = TSD; /* keep compiler happy */
    return 1 ;  /* to keep compiler happy */
 }
 int hookup_output2( tsd_t *TSD, int dummy1, const streng *dummy2, const streng *dummy3 )
@@ -1100,10 +1121,6 @@ int hookup_output2( tsd_t *TSD, int dummy1, const streng *dummy2, const streng *
     * Then we should never get a system exit!
     */
    assert( 0 ) ;
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   dummy3 = dummy3; /* keep compiler happy */
-   TSD = TSD; /* keep compiler happy */
    return 1 ;  /* to keep compiler happy */
 }
 
@@ -1118,9 +1135,6 @@ static void Exit( const tsd_t *TSD )
 streng *call_unknown_external( tsd_t *TSD, const streng *dummy1, cparamboxptr dummy2, char dummy3 )
 {
    NoAPI();
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   dummy3 = dummy3; /* keep compiler happy */
    Exit( TSD ) ;
    return NULL;
 }
@@ -1128,9 +1142,6 @@ streng *call_unknown_external( tsd_t *TSD, const streng *dummy1, cparamboxptr du
 streng *call_known_external( tsd_t *TSD, const struct entry_point *dummy1, cparamboxptr dummy2, char dummy3 )
 {
    NoAPI();
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   dummy3 = dummy3; /* keep compiler happy */
    Exit( TSD ) ;
    return NULL;
 }
@@ -1139,16 +1150,12 @@ streng *call_known_external( tsd_t *TSD, const struct entry_point *dummy1, cpara
 streng *SubCom( tsd_t *TSD, const streng *dummy1, const streng *dummy2, int *dummy3 )
 {
    NoAPI();
-   dummy1 = dummy1; /* keep compiler happy */
-   dummy2 = dummy2; /* keep compiler happy */
-   dummy3 = dummy3; /* keep compiler happy */
    Exit( TSD ) ;
    return NULL;
 }
 
 int IfcHaveFunctionExit(const tsd_t *TSD)
 {
-   TSD = TSD; /* keep compiler happy */
    return(0);
 }
 
@@ -1157,13 +1164,19 @@ int IfcHaveFunctionExit(const tsd_t *TSD)
 static void usage( char *argv0 )
 {
    fprintf( stdout, "\n%s: %s (%d bit). All rights reserved.\n", argv0, PARSE_VERSION_STRING, REGINA_BITS );
-   fprintf( stdout,"Regina is distributed under the terms of the GNU Library Public License \n" );
+   fprintf( stdout,"Regina is distributed under the terms of the GNU Library General Public License \n" );
    fprintf( stdout,"and comes with NO WARRANTY. See the file COPYING-LIB for details.\n" );
    fprintf( stdout,"\nTo run a Rexx program:\n" );
    fprintf( stdout,"%s [switches] [program] [arguments...]\n", argv0 );
    fprintf( stdout,"where switches are:\n\n" );
    fprintf( stdout,"  --help, -h                      show this message\n" );
-   fprintf( stdout,"  --version, -v                   display Regina version and exit\n" );
+   fprintf( stdout,"  --version[=option], -v[option]  display various Regina details and exit\n" );
+   fprintf( stdout,"    option one of:\n" );
+   fprintf( stdout,"       no option - full Regina version\n" );
+   fprintf( stdout,"       a - ADDONS directory\n" );
+   fprintf( stdout,"       b - bits; 32 or 64\n" );
+   fprintf( stdout,"       p - external packages statically linked\n" );
+   fprintf( stdout,"       v - version only\n" );
    fprintf( stdout,"  --restricted, -r                run Regina in \"safe\" mode\n" );
    fprintf( stdout,"  --trace[=char], -t[char]        set TRACE to any valid TRACE character - default A\n" );
    fprintf( stdout,"  --interactive[=char], -i[char]  set TRACE to any valid TRACE character and run interactively - default A\n" );

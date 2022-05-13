@@ -185,30 +185,22 @@ DPMI_SetAccRights equ 9
         @DpmiCall 000Ah
         endm
 
-@DPMI_GetDescriptor macro selector,puffer  ;get 8 byte descriptor in ES:E/DI
+@DPMI_GetDescriptor macro selector,puffer  ;get 8 byte descriptor in ES:DI
         ifnb <selector>
           mov bx,selector
         endif
         ifnb <puffer>
-           if ?32BIT
-             les edi,puffer
-           else
              les di,puffer
-           endif
         endif
         @DpmiCall 000Bh
         endm
 
-@DPMI_SetDescriptor macro selector,puffer  ;set descriptor ES:E/DI
+@DPMI_SetDescriptor macro selector,puffer  ;set descriptor ES:DI
         ifnb <selector>
           mov bx,selector
         endif
         ifnb <puffer>
-           if ?32BIT
-             les edi,puffer
-           else
              les di,puffer
-           endif
         endif
         @DpmiCall 000Ch
         endm
@@ -237,28 +229,28 @@ endif
         @DpmiCall 0201h
         endm
 
-@DPMI_GetExcVec macro xx      ;get exception vector in CX:E/DX
+@DPMI_GetExcVec macro xx      ;get exception vector in CX:DX
 ifnb <xx>
         mov bl,xx
 endif        
         @DpmiCall 0202h
         endm
 
-@DPMI_SetExcVec macro xx      ;set exception vector in CX:E/DX
+@DPMI_SetExcVec macro xx      ;set exception vector in CX:DX
 ifnb <xx>
         mov bl,xx
 endif        
         @DpmiCall 0203h
         endm
 
-@DPMI_GetPMIntVec macro xx    ;get PM interrupt vector into CX:E/DX
+@DPMI_GetPMIntVec macro xx    ;get PM interrupt vector into CX:DX
 ifnb <xx>
         mov bl,xx
 endif        
         @DpmiCall 0204h
         endm
 
-@DPMI_SetPMIntVec macro xx    ;set PM interrupt vector in CX:E/DX
+@DPMI_SetPMIntVec macro xx    ;set PM interrupt vector in CX:DX
 ifnb <xx>
         mov bl,xx
 endif        
@@ -266,7 +258,7 @@ endif
         endm
 
 @DPMI_SimRMInt macro xx,yy    ;simulate real mode interrupt
-        mov   bx,xx           ;ES:E/DI->RMCS
+        mov   bx,xx           ;ES:DI->RMCS
         ifnb <yy>
           mov cx,yy           ;CX = words to copy to RM stack
         endif
@@ -274,7 +266,7 @@ endif
         endm
 
 @DPMI_CallRMFarProc macro     ;call real mode far proc
-        mov   bh,00           ;ES:E/DI->RMCS
+        mov   bh,00           ;ES:DI->RMCS
         @DpmiCall 0301h       ;CX = words to copy to RM stack
         endm
 
@@ -284,8 +276,8 @@ endif
         endm
 
 @DPMI_AllocRMCallback macro   ;allocate real mode callback
-        @DpmiCall 0303h       ;DS:E/SI protected mode proc to call
-        endm                  ;ES:E/DI RMCS to use
+        @DpmiCall 0303h       ;DS:SI protected mode proc to call
+        endm                  ;ES:DI RMCS to use
 
 @DPMI_FreeRMCallback macro    ;free real mode callback in CX:DX
         @DpmiCall 0304h

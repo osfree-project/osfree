@@ -296,7 +296,7 @@ int descr_to_int( const tsd_t *TSD, const num_descr *input, int errnum, int sube
       streng *h;
 
       h = name_of_node( TSD, NULL, input );
-      fs = tmpstr_of( TSD, h );
+      fs = tmpstr_of( (tsd_t *)TSD, h );
       Free_stringTSD( h );
       switch( errnum )
       {
@@ -1468,6 +1468,15 @@ streng *str_norm( const tsd_t *TSD, num_descr *in, streng *trystr )
       }
       else
          trystr = Str_creTSD( "0" );
+#if NOT_YET_TESTED
+      /* free memory to fix memory leak; Bug #455 */
+      if (mt->norm_out)
+      {
+         FreeTSD(mt->norm_out);
+         mt->norm_out = NULL;
+         mt->norm_outsize = 0;
+      }
+#endif
 
       return trystr;
    }
@@ -1648,7 +1657,15 @@ streng *str_norm( const tsd_t *TSD, num_descr *in, streng *trystr )
       result = Str_makeTSD( size );
    result->len = size;
    memcpy( result->value, mt->norm_out, size );
-
+#if NOT_YET_TESTED
+   /* free memory to fix memory leak; Bug #455 */
+   if (mt->norm_out)
+   {
+      FreeTSD(mt->norm_out);
+      mt->norm_out = NULL;
+      mt->norm_outsize = 0;
+   }
+#endif
    return result ;
 }
 
@@ -2177,6 +2194,13 @@ static void string_div2( tsd_t *TSD, const num_descr *f, const num_descr *s,
       if ( r->num[r->size - 1] != '0' )
          break;
    }
+   /* free memory to fix memory leak; Bug #455 */
+   if (mt->div_out)
+   {
+      FreeTSD(mt->div_out);
+      mt->div_out = NULL;
+      mt->div_outsize = 0;
+   }
 }
 
 void string_div( tsd_t *TSD, const num_descr *f, const num_descr *s,
@@ -2284,6 +2308,13 @@ static void string_mul2( tsd_t *TSD, const num_descr *f, const num_descr *s,
    r->negative = log_xor( f->negative, s->negative ) ;
    r->size = j ;
    str_round( r, ccns ) ;
+   /* free memory to fix memory leak; Bug #455 */
+   if (mt->mul_out)
+   {
+      FreeTSD(mt->mul_out);
+      mt->mul_out = NULL;
+      mt->mul_outsize = 0;
+   }
 }
 
 void string_mul( tsd_t *TSD, const num_descr *f, const num_descr *s,

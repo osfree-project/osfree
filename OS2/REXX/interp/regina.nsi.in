@@ -8,7 +8,7 @@
 
 !define LONGNAME "Regina Rexx ${MACH}"  ;Long Name (for descriptions)
 !define SHORTNAME "Regina" ;Short name (no slash) of package
-!define REGISTRYNAME "ReginaRexx" ;Name used in Windows registry; NO slashes
+!define REGISTRYNAME "ReginaRexx${MACH}" ;Name used in Windows registry; NO slashes
 !define SFHOME "http://regina-rexx.sourceforge.net"
 !define SFGROUP "28102"
 !define UNINSTALLER "uninstall.exe"
@@ -157,40 +157,32 @@ Section "${LONGNAME} Core (required)" SecMain
   Push $R1
   Call InstallRxstack
   StrCpy $5 0
+  ; add to PATHEXT flag
+  ReadIniStr $R2 "$PLUGINSDIR\regina_fa.ini" "Field 6" State
+  ; get state of each extension
   ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 2" State
   ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 2" Text
   Push $R0
   Push $R1
+  Push $R2
   Call DoFileAssociation
   ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 3" State
   ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 3" Text
   Push $R0
   Push $R1
+  Push $R2
   Call DoFileAssociation
   ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 4" State
   ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 4" Text
   Push $R0
   Push $R1
+  Push $R2
   Call DoFileAssociation
   ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 5" State
   ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 5" Text
   Push $R0
   Push $R1
-  Call DoFileAssociation
-  ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 6" State
-  ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 6" Text
-  Push $R0
-  Push $R1
-  Call DoFileAssociation
-  ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 7" State
-  ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 7" Text
-  Push $R0
-  Push $R1
-  Call DoFileAssociation
-  ReadIniStr $R0 "$PLUGINSDIR\regina_fa.ini" "Field 8" State
-  ReadIniStr $R1 "$PLUGINSDIR\regina_fa.ini" "Field 8" Text
-  Push $R0
-  Push $R1
+  Push $R2
   Call DoFileAssociation
   Call DoFileAssociationDetails
   Call DoLanguageDefault
@@ -275,6 +267,7 @@ Function .onMouseOverSection
 FunctionEnd
 
 Function DoFileAssociation
+  Pop $R2
   Pop $R1
   Pop $R0
   Strcmp $R0 0 exitfa
@@ -283,6 +276,13 @@ Function DoFileAssociation
   DetailPrint "Registering $R1 extension to run with Regina"
   IntOp $5 $5 + 1
   WriteRegStr HKCR $R1 "" "Regina"
+  ; add to PATHEXT if $R2 \= 0
+  Strcmp $R2 0 exitfa
+  DetailPrint "Adding $R1 to PATHEXT"
+  Push $R1
+  Push $IsAdminUser ; "true" or "false" per admin user
+  Push "PATHEXT"
+  Call AddToPath
   exitfa:
   Return
 FunctionEnd
@@ -398,7 +398,12 @@ Function un.DeleteFileAssociation
   ReadRegStr $R1 HKCR "$R0" ""
   StrCmp $R1 "Regina" 0 NoOwn ; only delete key if we own it
   DeleteRegKey HKCR "$R0"
-  DetailPrint "Deleting file association for $R0"
+  DetailPrint "Deleted file association for $R0"
+  Push $R0
+  Push $IsAdminUser ; pushes "true" or "false"
+  Push "PATHEXT"
+  Call un.RemoveFromPath
+  DetailPrint "Removed $R0 from PATHEXT"
   NoOwn:
 FunctionEnd
 

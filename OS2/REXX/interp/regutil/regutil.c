@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regutil.c,v 1.7 2014/10/19 04:07:12 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regutil.c,v 1.8 2021/07/11 05:11:20 mark Exp $
  */
 #ifdef _WIN32
 # include <windows.h>
@@ -66,6 +66,8 @@ struct {
     {"SYSCURPOS", syscurpos},
     {"SYSCURSTATE", syscurstate},
     {"SYSGETKEY", sysgetkey},
+    {"SYSGETLINE", sysgetline},
+    {"SYSGETLINEHISTORY", sysgetlinehistory},
     {"SYSTEXTSCREENREAD", systextscreenread},
     {"SYSTEXTSCREENSIZE", systextscreensize},
 #endif
@@ -100,6 +102,7 @@ struct {
     {"SYSSETPRIORITY", syssetpriority},
     {"SYSSLEEP", syssleep},
     {"SYSSWITCHSESSION", sysswitchsession},
+    {"SYSHOMEDIRECTORY", syshomedirectory},
     {"SYSSYSTEMDIRECTORY", syssystemdirectory},
     {"SYSVOLUMELABEL", sysvolumelabel},
     {"SYSWAITNAMEDPIPE", syswaitnamedpipe},

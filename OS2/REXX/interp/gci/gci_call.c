@@ -251,8 +251,6 @@ GCI_result GCI_call( void *hidden,
    char *dest = (char *) buf;
    int start, incr, end;
 
-   (hidden = hidden);
-
    memset( buf, 0, sizeof( buf ) );
 
    switch ( ti->callinfo.type )

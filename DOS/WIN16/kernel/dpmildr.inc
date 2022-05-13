@@ -356,16 +356,37 @@ _TRACEUSED_ = 0   ;internal variable
 ;-- define string if not already done
 ;-- then push string address onto stack
 
+;!!!!!!!! ax is bad!!!
 @pushString macro String, bIsDefined
 local NewStr
   ifnb <bIsDefined>
+if ?REAL
+	push bx
+	push bp
+	mov bp ,sp
+	mov bx, offset String
+	xchg bx,[bp+4]
+	pop bp
+	pop bx
+else  
     push offset String
+endif
   else
 CCONST   segment
 NewStr  db String
         db 00
 CCONST   ends
+if ?REAL
+	push bx
+	push bp
+	mov bp ,sp
+	mov bx, offset NewStr
+	xchg bx,[bp+4]
+	pop bp
+	pop bx
+else  
     push offset NewStr
+endif
   endif
 	endm
 
@@ -419,7 +440,7 @@ if ?32BIT
 else
 	push es
 	push ds
-	pusha
+	@push_a
 ?SIZE_SAVEREGS equ 8*2+2*2
 endif
 	endm
@@ -431,7 +452,7 @@ if ?32BIT
 	pop es
 	pop gs
 else
-	popa
+	@pop_a
 	pop ds
 	pop es
 endif
@@ -454,11 +475,13 @@ endif
 	retf
 	endm
 
+include pusha.inc
+
 @pusha macro
 if ?32BIT
 	pushad
 else
-	pusha
+	@push_a
 endif
 	endm
 
@@ -466,7 +489,7 @@ endif
 if ?32BIT
 	popad
 else
-	popa
+	@pop_a
 endif
 	endm
 

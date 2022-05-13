@@ -147,6 +147,7 @@ streng *read_result_from_rxstack( const tsd_t *TSD, int sock, int result_size );
 int delete_queue_from_rxstack( const tsd_t *TSD, int sock, const streng *queue_name );
 int set_queue_in_rxstack( const tsd_t *TSD, int sock, const streng *queue_name );
 int get_number_in_queue_from_rxstack( const tsd_t *TSD, int sock, int *errcode );
+int get_queues_from_rxstack( const tsd_t *TSD, int sock, int *errcode, streng **results );
 int clear_queue_on_rxstack( const tsd_t *TSD, int sock ) ;
 int get_queue_from_rxstack( const tsd_t *TSD, const Queue *q, streng **result );
 int create_queue_on_rxstack( const tsd_t *TSD, const Queue *q, const streng *queue, streng **result );
@@ -180,6 +181,8 @@ int get_length_from_header( const tsd_t *TSD, const streng *header );
 #define RXSTACK_GET_QUEUE_STR       "G"
 #define RXSTACK_NUMBER_IN_QUEUE     'N'
 #define RXSTACK_NUMBER_IN_QUEUE_STR "N"
+#define RXSTACK_SHOW_QUEUES         'Q'
+#define RXSTACK_SHOW_QUEUES_STR     "Q"
 #define RXSTACK_TIMEOUT_QUEUE       'T'
 #define RXSTACK_TIMEOUT_QUEUE_STR   "T"
 #define RXSTACK_UNKNOWN             '?'
@@ -205,9 +208,11 @@ int get_length_from_header( const tsd_t *TSD, const streng *header );
 #define ERR_RXSTACK_TOO_MANY_QUEUES    106
 #define ERR_RXSTACK_TOO_MANY_QUEUES_TMPL "Maximum number of external queues exceeded: %d"
 #define ERR_RXSTACK_READING_SOCKET     107
-#define ERR_RXSTACK_READING_SOCKET_TMPL  "Error occured reading socket: %s"
+#define ERR_RXSTACK_READING_SOCKET_TMPL  "Error occurred reading socket: %s"
 #define ERR_RXSTACK_INVALID_SWITCH     108
 #define ERR_RXSTACK_INVALID_SWITCH_TMPL  "Invalid switch passed. Must be one of \"%s\""
+#define ERR_RXSTACK_ACTION_SESSION     112
+#define ERR_RXSTACK_ACTION_SESSION_TMPL  "Unable to %s SESSION queue"
 
 #define ERR_RXSTACK_INTERNAL            99
 #define ERR_RXSTACK_INTERNAL_TMPL        "Internal error with external queue interface: %d \"%s\""

@@ -301,6 +301,7 @@
  94,109,[Kolejka \"%s\" nie znaleziona]|<queuename>
  94,110,[%s niepoprawna dla zewn©trznych kolejek]|<bif>
  94,111,[Funkcja RXQUEUE %s niepoprawna dla wewn©trznych kolejek]|<functionname>
+ 94,112,[Unable to %s SESSION queue]|<action>
  95,  0,[Zastrze¾ona opcja u¾yta w trybie "bezpiecznym"]
  95,  1,[%s niedozwolony w trybie "bezpiecznym"]|<token>
  95,  2,[%s argument %d niedozwolony w trybie "bezpiecznym"]|<bif>,<argnumber>

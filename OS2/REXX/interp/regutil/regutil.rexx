@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /* test of the regina utilities */
 call rxfuncadd 'sysloadfuncs','RexxUtil','sysloadfuncs'
 
@@ -60,6 +61,7 @@ say 'SysDriveMap' SysDriveMap()
 say 'SysSleep' SysSleep(1.1)
 say 'SysSwitchSession' SysSwitchSession()
 say 'SysSystemDirectory' SysSystemDirectory()
+say 'SysHomeDirectory' SysHomeDirectory()
 say 'SysVolumeLabel' SysVolumeLabel()
 say 'SysFileSystemType' SysFileSystemType('/')
 say 'SysGetErrorText' SysGetErrorText(36)

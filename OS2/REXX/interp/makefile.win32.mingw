@@ -68,14 +68,14 @@ VPATH=$(SRCDIR)/ $(SRCDIR)/gci $(SRCDIR)/ntservice
 
 OFILES =    funcs.o builtin.o error.o variable.o interprt.o debug.o dbgfuncs.o memory.o parsing.o   \
             files.o misc.o unxfuncs.o arxfuncs.o cmsfuncs.o os2funcs.o shell.o rexxext.o stack.o    \
-            extstack.o tracing.o interp.o cmath.o convert.o strings.o library.o strmath.o signals.o \
+            extstack.o tracing.o interp.o cmath.o convert.o strengs.o library.o strmath.o signals.o \
             macros.o envir.o expr.o instore.o rexxbif.o yaccsrc.o lexsrc.o options.o os_win.o       \
             wrappers.o os_other.o $(MT_FILE)
 
 TSFILES =   funcs.ts.o builtin.ts.o error.ts.o variable.ts.o extstack.ts.o rexxbif.ts.o interprt.ts.o \
             debug.ts.o dbgfuncs.ts.o memory.ts.o parsing.ts.o files.ts.o misc.ts.o unxfuncs.ts.o      \
             arxfuncs.ts.o cmsfuncs.ts.o os2funcs.ts.o shell.ts.o rexxext.ts.o stack.ts.o tracing.ts.o \
-            interp.ts.o cmath.ts.o convert.ts.o strings.ts.o library.ts.o strmath.ts.o signals.ts.o   \
+            interp.ts.o cmath.ts.o convert.ts.o strengs.ts.o library.ts.o strmath.ts.o signals.ts.o   \
             macros.ts.o envir.ts.o expr.ts.o instore.ts.o yaccsrc.ts.o lexsrc.ts.o wrappers.ts.o      \
             options.ts.o os_win.ts.o os_other.ts.o rexx.ts.o client.ts.o rexxsaa.ts.o mt_win32.ts.o      \
             $(GCI_SHO)

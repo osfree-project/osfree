@@ -98,14 +98,14 @@ FILES = funcs builtin error variable interprt debug dbgfuncs \
 CSRCFILES = $(SRCDIR)/funcs.c $(SRCDIR)/builtin.c $(SRCDIR)/error.c $(SRCDIR)/variable.c \
 	$(SRCDIR)/interprt.c $(SRCDIR)/debug.c $(SRCDIR)/dbgfuncs.c $(SRCDIR)/memory.c $(SRCDIR)/parsing.c $(SRCDIR)/files.c \
 	$(SRCDIR)/misc.c $(SRCDIR)/unxfuncs.c $(SRCDIR)/arxfuncs.c $(SRCDIR)/os2funcs.c $(SRCDIR)/cmsfuncs.c $(SRCDIR)/shell.c $(SRCDIR)/rexxext.c $(SRCDIR)/stack.c \
-	$(SRCDIR)/tracing.c $(SRCDIR)/interp.c $(SRCDIR)/cmath.c $(SRCDIR)/convert.c $(SRCDIR)/strings.c $(SRCDIR)/library.c \
+	$(SRCDIR)/tracing.c $(SRCDIR)/interp.c $(SRCDIR)/cmath.c $(SRCDIR)/convert.c $(SRCDIR)/strengs.c $(SRCDIR)/library.c \
 	$(SRCDIR)/strmath.c $(SRCDIR)/signals.c $(SRCDIR)/macros.c $(SRCDIR)/envir.c $(SRCDIR)/expr.c \
 	$(SRCDIR)/wrappers.c $(SRCDIR)/options.c $(SRCDIR)/os_unx.c $(SRCDIR)/alloca.c $(SRCDIR)/mt_notmt $(SRCDIR)/nosaa $(SRCDIR)/instore.c #$(SRCDIR)/r2perl.c
 
 OFILES = funcs.$(OBJ) builtin.$(OBJ) error.$(OBJ) variable.$(OBJ) \
 	interprt.$(OBJ) debug.$(OBJ) dbgfuncs.$(OBJ) memory.$(OBJ) parsing.$(OBJ) files.$(OBJ) \
 	misc.$(OBJ) unxfuncs.$(OBJ) arxfuncs.$(OBJ) cmsfuncs.$(OBJ) os2funcs.$(OBJ) shell.$(OBJ) rexxext.$(OBJ) stack.$(OBJ) \
-	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strings.$(OBJ) library.$(OBJ) \
+	tracing.$(OBJ) interp.$(OBJ) cmath.$(OBJ) convert.$(OBJ) strengs.$(OBJ) library.$(OBJ) \
 	strmath.$(OBJ) signals.$(OBJ) macros.$(OBJ) envir.$(OBJ) expr.$(OBJ) alloca.$(OBJ) \
 	yaccsrc.$(OBJ) lexsrc.$(OBJ) options.$(OBJ) os_unx.$(OBJ) wrappers.$(OBJ) $(MT_FILE).$(OBJ) instore.$(OBJ) #nosaa.$(OBJ) r2perl.$(OBJ)
 OBJECTS	    = $(OFILES)
@@ -113,7 +113,7 @@ OBJECTS	    = $(OFILES)
 SHOFILES = funcs.sho builtin.sho error.sho variable.sho \
 	interprt.sho debug.sho dbgfuncs.sho memory.sho parsing.sho files.sho \
 	misc.sho unxfuncs.sho arxfuncs.sho cmsfuncs.sho shell.sho os2funcs.sho rexxext.sho stack.sho \
-	tracing.sho interp.sho cmath.sho convert.sho strings.sho library.sho \
+	tracing.sho interp.sho cmath.sho convert.sho strengs.sho library.sho \
 	strmath.sho signals.sho macros.sho envir.sho expr.sho alloca.sho \
 	yaccsrc.sho lexsrc.sho wrappers.sho options.sho os_unx.sho \
 	drexx.sho client.sho rexxsaa.sho
@@ -126,7 +126,7 @@ TRIPFILES = $(TRIPDIR)/*
 ALLSRC = $(CFILES) $(HFILES)
 
 HFILES = $(SRCDIR)/rexx.h $(SRCDIR)/defs.h $(SRCDIR)/extern.h $(SRCDIR)/regina_t.h \
-		$(SRCDIR)/config.h $(SRCDIR)/strings.h $(SRCDIR)/configur.h $(SRCDIR)/yaccsrc.h \
+		$(SRCDIR)/config.h $(SRCDIR)/strengs.h $(SRCDIR)/configur.h $(SRCDIR)/yaccsrc.h \
 		$(SRCDIR)/rxiface.h $(SRCDIR)/rexxsaa.h $(SRCDIR)/utsname.h
 CFILES = $(SRCDIR)/yaccsrc.c $(SRCDIR)/lexsrc.c $(CSRCFILES) $(SRCDIR)/execiser.c \
 		$(SRCDIR)/rexxsaa.c $(SRCDIR)/rexx.c $(SRCDIR)/regina.c $(SRCDIR)/client.c \
@@ -142,7 +142,7 @@ JUNK = $(OFILES) rexx.o client.o drexx.o rexxsaa.o execiser.o \#?.lnk
 
 all : rexx$(EXE) execiser$(EXE) rxstack$(EXE) rxqueue$(EXE) #$(SHL_TARGETS)
 
-$(SRCDIR)/rexx.h : $(SRCDIR)/extern.h $(SRCDIR)/strings.h $(SRCDIR)/defs.h $(SRCDIR)/regina_t.h $(SRCDIR)/mt.h
+$(SRCDIR)/rexx.h : $(SRCDIR)/extern.h $(SRCDIR)/strengs.h $(SRCDIR)/defs.h $(SRCDIR)/regina_t.h $(SRCDIR)/mt.h
 
 $(SRCDIR)/mt.h : $(SRCDIR)/$(MT_FILE).h
 
@@ -250,8 +250,8 @@ cmath.$(OBJ) :	 $(SRCDIR)/cmath.c
 convert.$(OBJ) : $(SRCDIR)/convert.c
 	$(CC) $(COPT) $(CC2O) $(SRCDIR)/convert.c
 
-strings.$(OBJ) : $(SRCDIR)/strings.c
-	$(CC) $(COPT) $(CC2O) $(SRCDIR)/strings.c
+strengs.$(OBJ) : $(SRCDIR)/strengs.c
+	$(CC) $(COPT) $(CC2O) $(SRCDIR)/strengs.c
 
 library.$(OBJ) : $(SRCDIR)/library.c
 	$(CC) $(COPT) $(CC2O) $(SRCDIR)/library.c
@@ -474,9 +474,9 @@ convert.sho : $(SRCDIR)/convert.c
 	$(O2SHO)
 	$(SAVE2O)
 
-strings.sho : $(SRCDIR)/strings.c
+strengs.sho : $(SRCDIR)/strengs.c
 	$(O2SAVE)
-	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/strings.c
+	$(CC) $(COPT) $(CC2O) $(DYN_COMP) -c $(SRCDIR)/strengs.c
 	$(O2SHO)
 	$(SAVE2O)
 

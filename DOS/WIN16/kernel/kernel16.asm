@@ -4,7 +4,11 @@
 ;--- since the latter supports loading of 16bit dlls
 ;--- best viewed with TABSIZE 4
 
-	.286
+if ?REAL
+		.8086
+else
+		.286
+endif
 	option casemap:none
 	option proc:private
 
@@ -45,6 +49,7 @@ _DATA ends
 	include debug.inc
 	include debugsys.inc
 	include version.inc
+	include pusha.inc
 
 _ITEXT segment word public 'DATA'	;use 'DATA' (OPTLINK bug)
 _ITEXT ends
@@ -163,7 +168,12 @@ __incseg proc uses bx cx dx
 	push ds					  ;selector
 	push cx
 	push ax					  ;CX:AX bytes request  
+if ?REAL
+	mov ax, 0
+	push ax
+else
 	push 0					  ;flags (means: FIXED)
+endif
 	call far ptr GlobalReAlloc
 	and ax,ax
 	jz error
@@ -247,14 +257,22 @@ LocalInit proc far pascal uSegment:word, uStart:word, uEnd:word
 @@:
 	cmp dx,4
 	jb LocalInit_err
+if ?REAL
+	xor bx, bx		; Emulate access rights
+else
 	lar bx,ax
+endif
 	jnz LocalInit_err
 	jcxz LocalInit_1
 	cmp dx,cx
 	jb LocalInit_err
 	jmp LocalInit_2
 LocalInit_1:
+if ?REAL
+	mov bx, 0FFFFH		; Emulate segment limit
+else
 	lsl bx,ax
+endif
 	inc bx
 	mov cx,dx
 	mov dx,bx
@@ -471,7 +489,12 @@ if ?32BIT
 	pop dx
 else
 	xor dx,dx
+if ?REAL
+	xor ax, ax
+	mov ax, 0FFFFH		; Emulate segment limit
+else
 	lsl ax,ax
+endif
 	jnz @F
 endif
 	add ax,1
@@ -495,8 +518,27 @@ GlobalDOSAlloc proc far pascal
 	push cx
 	push bx
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12		;skip bits 4-15 of DX
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -879,7 +921,11 @@ GlobalLock proc far pascal
 	push bx
 	push cx
 	xor ax,ax
+if ?REAL
+				; Emulate readable (ZF=1)
+else
 	verr dx
+endif
 	jnz @F
 	retf
 @@:
@@ -931,8 +977,27 @@ else
   else
 	jnz error
   endif
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -976,8 +1041,14 @@ public __AHINCR
 __AHINCR equ 8
 
 	push ax		;selector
+if ?REAL
+	xor ax,ax
+	push ax
+	push ax
+else
 	push 0		;offset
 	push 0		;value
+endif
 	mov ax,[parm1+0]
 	mov dx,[parm1+2]
 	push dx		;HiWord(cnt)
@@ -1002,9 +1073,14 @@ if ?LARGEALLOC
 largealloc:
 	test byte ptr cs:[eWinFlags.wOfs], WF_CPU286
 	jnz error
-	pusha
+	@push_a
 	mov bp,sp
+if ?REAL
+	xor ax,ax
+	push ax
+else
 	push 0
+endif
 	push bx
 	push cx
 	add cx,8h		;add 8 bytes as prefix
@@ -1064,7 +1140,11 @@ nextdesc:
 	cmp si,1
 	jnz @F
 	mov cx,es
+if ?REAL
+	mov dx, 0FFFFH		; Emulate segment size
+else
 	lsl dx,cx
+endif
 @@:
 	mov cx,0
 	int 31h
@@ -1072,14 +1152,14 @@ nextdesc:
 done:
 	mov sp,bp
 	mov [bp+0Eh],es
-	popa
+	@pop_a
 	jmp allocok
 failed2:
 	mov ax,0502h
 	int 31h
 failed:
 	mov sp,bp
-	popa
+	@pop_a
 	jmp error
 endif
 GlobalAlloc endp
@@ -1103,7 +1183,11 @@ if ?LARGEALLOC
 ;	jnz largefree
 	cmp eax,0FFFEFh			;largest block for int 21h
 	jnc largefree
+if ?REAL
+	.8086
+else
 	.286
+endif
 @@:
 endif
 	push es
@@ -1111,8 +1195,12 @@ endif
 	mov ah,49h
 	int 21h
 	pop ax
+if ?REAL
+			; no access check
+else
 	verr ax
 	jnz done
+endif
 	mov es,ax
 done:
 	xor ax,ax
@@ -1142,7 +1230,7 @@ largefree:
 	mov ax,es:[6]
 	and ax,ax
 	jz failed
-	pusha
+	@push_a
 	mov cx,ax
 	mov di,es:[0]
 	mov si,es:[2]
@@ -1153,7 +1241,7 @@ largefree:
 	int 31h
 	add bx,8
 	loop @B
-	popa
+	@pop_a
 	jmp done
 endif
 GlobalFree endp
@@ -1166,8 +1254,27 @@ resizedosblock proc
 	test dx,0FFF0h					;size > 1 MB is impossible
 	jnz error
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh
 	jz @F
@@ -1352,8 +1459,27 @@ else
 	test dx,0FFF0h
 	jnz globalreallocerr		;for 16-bit 1 MB - 10h is maximum
 	mov cl,al
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shr ax,4
 	shl dx,12
+endif
 	or ax,dx
 	test cl,0Fh					;since no D bit exists
 	jz @F
@@ -1409,7 +1535,8 @@ GlobalCompact proc far pascal dwMinFree:DWORD
 	call discardmem
 	pop ds
 @@:
-	push 0
+	xor ax,ax
+	push ax
 	call GetFreeSpace
 	ret
 GlobalCompact endp
@@ -1609,7 +1736,8 @@ InitTask proc far pascal uses ds
 if ?LOCALHEAP
 	jcxz @F
 	push ds			;data segment
-	push 0			;start
+	xor ax,ax
+	push ax			;start
 	push cx			;end
 	push cs
 	call near ptr LocalInit	;preserves ES
@@ -1681,7 +1809,7 @@ SIZESEGS equ ($ - segments) / 4
 
 
 InitKernel proc public
-	pusha
+	@push_a
 	mov KernelNE.ne_cseg, 1
 	mov KernelNE.ne_segtab, KernelSeg -  KernelNE
 	mov KernelNE.ne_restab, KernelNames - KernelNE
@@ -1759,7 +1887,7 @@ if ?MEMFORKERNEL
 endif
 	clc
 exit:
-	popa
+	@pop_a
 	ret
 InitKernel endp
 

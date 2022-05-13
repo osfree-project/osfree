@@ -33,13 +33,6 @@
 # define SIG_ERR ((void(*)())(-1))
 #endif
 
-#if defined(__WATCOMC__)
-// no SIGHUP on OW
-#undef SIGHUP
-#undef SIGUSR1
-#undef SIGUSR2
-#endif
-
 const char *signalnames[] = {
    "ERROR",
    "FAILURE",
@@ -204,7 +197,7 @@ int identify_trap( int type )
 /* the rest should probably also be defined */
 static const char *signals_names[] = {
      "", "SIGHUP", "SIGINT", "", "", "", "", "", "", "",
-     "SIGUSR1", "SIGUSR2", "", "", "", "SIGTERM", "", "", "", "", "",
+     "", "", "", "", "", "SIGTERM", "", "", "", "", "",
      "SIGBREAK", "", "", "", "", "", "", "", "", "",
      "", ""
 } ;
@@ -307,8 +300,6 @@ static void hup_handler( int dummy )
 
 void signal_setup( const tsd_t *TSD )
 {
-   TSD = TSD; /* keep compiler happy */
-
 /*
  * EPOC32 does not have signal()!!
  */
@@ -327,14 +318,6 @@ void signal_setup( const tsd_t *TSD )
 # endif
 # if defined(SIGHUP)
    if (regina_signal( SIGHUP, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
-      exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
-# endif
-# if defined(SIGUSR1)
-   if (regina_signal( SIGUSR1, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
-      exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
-# endif
-# if defined(SIGUSR2)
-   if (regina_signal( SIGUSR2, (TSD->isclient)?(hup_handler):(halt_handler)) == SIG_ERR)
       exiterror( ERR_SYSTEM_FAILURE, 0 )  ;
 # endif
 #endif

@@ -56,13 +56,13 @@ Sets tracing of the program to the option(s); "x" specified. Any
 commands in the program will be ignored.
 If you want to run your program with tracing set to "Intermediate",
 you can use the option
-.B -ti.
+.B \-ti.
 If only
-.B -t
+.B \-t
 is specified, "All" is the trace mode set.
 Multiple tracing options can be specified. eg. To specify "intermediate",
 "interactive" tracing, specify
-.B -ti -t?.
+.B \-ti \-t?.
 
 .IP \-i
 Starts Regina in interactive mode. No script will be executed.
@@ -115,7 +115,7 @@ The tokenised image is not allowed to be supplied via stdin.
 
 
 .SH Built-ins
-Below is a list of all the standard built-in functions in Rexx. For a
+Below is a list of all the standard built\-in functions in Rexx. For a
 more complete description of each function, see the documentation
 accompanying Regina.
 
@@ -144,7 +144,7 @@ or was omitted. The option `N' is the same as not specifying an
 option.
 
 .IP B2X(binstring)
-Converts the bin-string `binstring' to a hex-string.
+Converts the binary string `binstring' to a hex string.
 
 .IP BITAND(string1[,[string2][,padchar]])
 Returns a string which is the bitwise AND of its two first parameters.
@@ -161,7 +161,7 @@ Converts the character string `string' to a decimal number. `Length'
 specifies the number of characters in `string' to convert.
 
 .IP C2X(string)
-Converts the character string `string' to a hex-string.
+Converts the character string `string' to a hex string.
 
 .IP CENTER(string,length[,padchar])
 .IP CENTRE(string,length[,padchar])
@@ -208,7 +208,7 @@ is a variable, and `BAD' otherwise. If `option' is specified, it must
 be one of these four, and then `0' or `1' is returned, depending on
 whether `string' is of the named type.
 
-.IP DATE([option-out,[date,[option-in]]])
+.IP DATE([option\-out,[date,[option\-in]]])
 Returns the date, in various formats, which can be Base, Century,
 Days, European, Month, Normal, Ordered, Standard, USA, UnixTime, or Weekday.
 Can also be used to convert a date `date' from one format `option-in'
@@ -230,12 +230,12 @@ Converts the decimal number `integer' to a character string of length
 `length'.
 
 .IP D2X(integer[,length])
-Converts the decimal number `integer' to a hex-string of length
+Converts the decimal number `integer' to a hex string of length
 `length'.
 
 .IP ERRORTEXT(errno)
 Returns the error text associated with error number `errno'.
-`errno' can specify a sub-error number in the format n.n. eg. 40.1
+`errno' can specify a sub\-error number in the format n.n. eg. 40.1
 
 .IP FORM()
 Returns the current setting of NUMERIC FORM.
@@ -306,7 +306,7 @@ Loads an external function called; `internal' residing in the
 as known to the interpreter.
 
 .IP SIGN(number)
-Returns `-1', `0', or `1', depending on the sign of `number'.
+Returns `\-1', `0', or `1', depending on the sign of `number'.
 
 .IP SOURCELINE([lineno])
 Returns the number of lines in the source for the current script, or
@@ -317,7 +317,7 @@ Transform any sequence of spaces in `string' into exactly `length'
 spaces, and strips off leading and trailing spaces.
 
 .IP STREAM(streamid[,option[,command]])
-Returns infomation about a stream, valid options are `Command',
+Returns information about a stream, valid options are `Command',
 `Description', and `State'. See other documentation for more
 information.
 
@@ -335,11 +335,11 @@ Returns a subsequence of `length' words from `string' starting at `start'.
 .IP SYMBOL(name)
 Test whether `name' is a numbol, variable, literal.
 
-.IP TIME([option-out,[time,[option-in]]])
+.IP TIME([option\-out,[time,[option\-in]]])
 Returns the time, options are Civil, Elapsed, Hours, Long, Minutes,
 Normal, Reset, and Seconds.
-Can also be used to convert a time `time' from one format `option-in'
-to another; `option-out'.
+Can also be used to convert a time `time' from one format `option\-in'
+to another; `option\-out'.
 
 .IP TRACE([setting])
 Returns the current trace setting, and optionally sets a new one.
@@ -379,20 +379,20 @@ Returns in alphabetic order all the characters in the character set
 from the character `start' to the character `end'.
 
 .IP X2B(hexstring)
-Converts the hex-string `hexstring' to a bin-string.
+Converts the hex string `hexstring' to a binary string.
 
 .IP X2C(hexstring)
-Converts the hex-string `hexstring' to a character string.
+Converts the hex string `hexstring' to a character string.
 
 .IP X2D(hexstring[,length])
 Converts the `length' rightmost characters
-of the hex-string `hexstring' to a decimal number.
+of the hex string `hexstring' to a decimal number.
 
 
 
 .SH Copyright
 The Regina Rexx interpreter is distributed under the GNU Library
-General Public License, see the file `COPYING-LIB' in the source code
+General Public License, see the file `COPYING\-LIB' in the source code
 distribution.
 
 .SH Author
@@ -402,11 +402,11 @@ Anders Christensen, University of Trondheim, Norway
 .SH Maintainer
 Changes to Regina since 0.07a, Mark Hessling
 <mark (at) rexx.org>
-with significant assistance from Florian Grosse-Coosmann.
+with significant assistance from Florian Grosse\-Coosmann.
 
 .SH See Also
 There are several good reference books on Rexx. The most famous is
 "The Rexx Language" by Mike Cowlishaw.
-Visit http://www.rexxla.org (The Rexx Language Association) for any Rexx
+Visit https://www.rexxla.org (The Rexx Language Association) for any Rexx
 related information.
 

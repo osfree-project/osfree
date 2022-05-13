@@ -1,0 +1,44 @@
+#!/bin/sh
+set -e
+case "$1" in
+    configure|abort-upgrade)
+    update-alternatives --install /usr/bin/rexx rexx /usr/bin/rexx-regina-rexx 15 \
+        --slave /usr/bin/rxqueue rxqueue /usr/bin/rxqueue-regina-rexx \
+        --slave /usr/share/man/man1/rxqueue.1.gz rxqueue.1.gz /usr/share/man/man1/rxqueue-regina-rexx.1.gz \
+        --slave /usr/share/man/man1/rexx.1.gz rexx.1.gz /usr/share/man/man1/rexx-regina-rexx.1.gz
+
+    if [ -f /usr/bin/systemctl -o -f /bin/systemctl ]; then
+        # systemd
+        systemctl enable rxstack
+        echo "Enabling systemd rxstack service" >&2
+    else
+        if [ -f /sbin/initctl ]; then
+            # upstart
+            # nothing to do
+            :
+        else
+            if [ -f /sbin/insserv ]; then
+                # SuSE sysvinit - no debs on SuSE?
+                echo "Adding rxstack service" >&2
+                insserv -f rxstack
+            else
+                # plain old sysvinit
+                chkconfig --add rxstack
+                chkconfig rxstack on
+                echo "Adding and enabling rxstack service" >&2
+            fi
+        fi
+    fi
+    ;;
+
+    abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

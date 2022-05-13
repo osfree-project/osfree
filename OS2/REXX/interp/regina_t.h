@@ -91,6 +91,7 @@ typedef struct {
    unsigned int iserror:1;
    unsigned int awt:3; /* overlay with AddressWithType */
    unsigned int ant:2; /* overlay with AddressNameType */
+   unsigned int noeol:1; /* for INPUT NOEOL */
 } outputflags; /* used by ADDRESS WITH resourceo */
 
 typedef enum {
@@ -374,8 +375,8 @@ typedef struct { /* internal_parser_type is a structure containing data from a
                   */
    lineboxptr     first_source_line; /* Either this two values  */
    lineboxptr     last_source_line ; /* exist or srclines below */
-   int            tline;             /* line number where error occured */
-   int            tstart;            /* column number where error occured */
+   int            tline;             /* line number where error occurred */
+   int            tstart;            /* column number where error occurred */
    int            if_linenr;         /* line number of last IF keyword */
    int            when_linenr;       /* line number of last WHEN keyword */
    int            select_linenr;     /* line number of last SELECT keyword */
@@ -521,22 +522,22 @@ struct _tsd_t;
 struct regina_utsname;
 typedef struct _OS_Dep_funcs {
    void   (*init)                       (void);
-   int    (*setenv)                     (const char *name, const char *value);
+   int    (*setenv_exec)                (const char *name, const char *value);
    int    (*fork_exec)                  (struct _tsd_t *TSD, environment *env, const char *cmdline, int *rc);
-   int    (*wait)                       (int process);
+   int    (*wait_exec)                  (int process);
    int    (*open_subprocess_connection) (const struct _tsd_t *TSD, environpart *ep);
    void   (*unblock_handle)             (int *handle, void *async_info);
    void   (*restart_file)               (int hdl);
-   int    (*close)                      (int handle, void *async_info);
+   int    (*close_exec)                 (int handle, void *async_info);
    void   (*close_special)              (int handle);
-   int    (*read)                       (int hdl, void *buf, unsigned size, void *async_info) ;
-   int    (*write)                      (int hdl, const void *buf, unsigned size, void *async_info);
+   int    (*read_exec)                  (int hdl, void *buf, unsigned size, void *async_info) ;
+   int    (*write_exec)                 (int hdl, const void *buf, unsigned size, void *async_info);
    void*  (*create_async_info)          (const struct _tsd_t *TSD);
    void   (*delete_async_info)          (void *async_info);
    void   (*reset_async_info)           (void *async_info);
    void   (*add_async_waiter)           (void *async_info, int handle, int add_as_read_handle);
    void   (*wait_async_info)            (void *async_info);
-   int    (*uname)                      (struct regina_utsname *name);
+   int    (*uname_exec)                 (struct regina_utsname *name);
 } OS_Dep_funcs;
 
 #include "regina64.h"

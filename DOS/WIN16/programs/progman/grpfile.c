@@ -177,11 +177,12 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
 
   /* checksum = GET_USHORT(buffer, 4)   (ignored) */
 
-  extension = buffer + header->cbGroup; //GET_USHORT(buffer, 6);
+  //extension = buffer + header->cbGroup; //GET_USHORT(buffer, 6);
+  extension = buffer + GET_USHORT(buffer, 6);
   if (extension == buffer + size) extension = 0;
   else if (extension + 6 > buffer + size) return(0);
 
-
+/*
   nCmdShow = header->nCmdShow; //GET_USHORT(buffer,  8);
   x        = header->rcNormal.left;//GET_SHORT(buffer,  10);
   y        = header->rcNormal.top;//GET_SHORT(buffer,  12);
@@ -190,8 +191,17 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
   iconx    = header->ptMin.x;//GET_SHORT(buffer,  18);
   icony    = header->ptMin.y;//GET_SHORT(buffer,  20);
   lpszName = buffer + header->pName;//GET_USHORT(buffer, 22);
-  if (lpszName >= buffer + size) return(0);
+ */
 
+  nCmdShow = GET_USHORT(buffer,  8);
+  x        = GET_SHORT(buffer,  10);
+  y        = GET_SHORT(buffer,  12);
+  width    = GET_USHORT(buffer, 14);
+  height   = GET_USHORT(buffer, 16);
+  iconx    = GET_SHORT(buffer,  18);
+  icony    = GET_SHORT(buffer,  20);
+  lpszName = buffer + GET_USHORT(buffer, 22);
+  if (lpszName >= buffer + size) return(0);
 
   /* unknown bytes 24 - 31 ignored */
   /*
@@ -211,13 +221,15 @@ static HLOCAL GRPFILE_ScanGroup(LPCSTR buffer, int size,
 
 
 
-  number_of_programs = header->cItems;//GET_USHORT(buffer, 32);
-  if (2 * number_of_programs + 34 > size)
-  {
+  //number_of_programs = header->cItems;//GET_USHORT(buffer, 32);
+  number_of_programs = GET_USHORT(buffer, 32);
+  if (2 * number_of_programs + 34 > size) return(0);
+  //if (2 * number_of_programs + 34 > size)
+  //{
   //!!! THis is number of items in array not number of programs in group!
-    MessageBox(Globals.hMainWnd, "1", "debug", MB_YESNO);
-//    return(0);
-  }
+  //    MessageBox(Globals.hMainWnd, "1", "debug", MB_YESNO);
+  //    return(0);
+  //}
   for (i=0, seqnum=0; i < number_of_programs; i++, seqnum++)
     {
       LPCSTR program_ptr = buffer + GET_USHORT(buffer, 34 + 2*i);

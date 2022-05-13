@@ -3,7 +3,6 @@
 # (c) osFree project,
 # author, date
 #
-
 PROJ       = hdpmi16
 TRGT       = $(PROJ).exe
 DESC       = 286 MS-DOS Extender
@@ -13,6 +12,6 @@ $(p)int2xapi$(e) $(p)int31api$(e) $(p)int33api$(e) $(p)int41api$(e) $(p)intxxapi
 $(p)putchr$(e) $(p)putchrr$(e) $(p)switch$(e) $(p)vxd$(e)
 JWASM      = 1
 ADD_ASMOPT = -D?32BIT=0 -c -Cp -Sg 
-
+DEST       = os2$(SEP)mdos$(SEP)winos2
 
 !include $(%ROOT)/mk/appsdos.mk

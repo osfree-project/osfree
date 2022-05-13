@@ -1,0 +1,24 @@
+name        libregina3
+summary     "The Regina Rexx interpreter. Shared library."
+description "Regina is an implementation of a Rexx interpreter, compliant with
+the ANSI Standard for Rexx (1996)."
+vendor      "Mark Hessling"
+packager    "Mark Hessling <mark@rexx.org>"
+architecture @MACH_ARCH@
+version      @VERSION_UNQUOTED@-1
+copyrights {
+             "1992-1993 Anders Christensen"
+             "1993-2021 Mark Hessling"
+           }
+licenses   {
+             "GNU LGPL v2"
+           }
+urls       {
+             "https://regina-rexx.sourceforge.io/"
+           }
+source-urls {
+             "https://regina-rexx.sf.net/downloads/regina-rexx.3.9.4.tar.bz2"
+           }
+provides   {
+             libregina3 = @VERSION_UNQUOTED@
+           }

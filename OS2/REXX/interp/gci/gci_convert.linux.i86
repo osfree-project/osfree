@@ -31,6 +31,12 @@
 #include <float.h>
 #include "gci.h"
 
+#ifndef LONG_LONG_MIN
+# define LONG_LONG_MIN  LLONG_MIN
+# define LONG_LONG_MAX  LLONG_MAX
+# define ULONG_LONG_MAX ULLONG_MAX
+#endif
+
 #define GCI_Ir        strtoll
 #define GCI_Iw(s,v)   sprintf( s, "%Ld", v )
 #define GCI_I_1       signed char

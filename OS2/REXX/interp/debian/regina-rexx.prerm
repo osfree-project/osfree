@@ -1,0 +1,45 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove)
+    update-alternatives --remove rexx /usr/bin/rexx-regina-rexx
+    echo "Removing regina-rexx alternatives" >&2
+
+    if [ -f /usr/bin/systemctl -o -f /bin/systemctl ]; then
+        # systemd
+        systemctl stop rxstack
+        systemctl disable rxstack
+        echo "Stopping and disabling systemd rxstack service" >&2
+    else
+        if [ -f /sbin/initctl ]; then
+            # upstart
+            initctl stop rxstack
+            echo "Stopping upstart rxstack service" >&2
+        else
+            if [ -f /sbin/insserv ]; then
+                # SuSE sysvinit - no debs on SuSE?
+                echo "Adding rxstack service" >&2
+                /etc/init.d/rxstack stop
+                insserv -r -f rxstack
+                echo "Stopping and deleting rxstack service" >&2
+            else
+                # plain old sysvinit
+                /etc/init.d/rxstack stop
+                chkconfig --del rxstack
+                echo "Stopping and deleting rxstack service" >2&
+            fi
+        fi
+    fi
+    ;;
+
+    upgrade|deconfigure|failed-upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

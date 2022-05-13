@@ -22,21 +22,29 @@ dnl MH_CHECK_LEADING_USCORE
 dnl MH_SHLPST
 dnl MH_CHECK_POSIX_THREADS
 dnl MH_CHECK_RPM
+dnl MH_CHECK_PACKAGE_BUILDERS
 dnl MH_C_LONG_LONG
 dnl MH_SHOW_STATUS
 dnl MH_CHECK_OSX_ARCH
 dnl MH_GET_KERNEL_NAME
-dnl MH_CHECK_CURSES
-dnl MH_LARGE_FILE_SUPPORT
-dnl MH_CHECK_FUNCS
 dnl MH_GET_DISTRO_NAME
+dnl MH_CHECK_CURSES
+dnl MH_CHECK_FUNCS
+dnl MH_CHECK_TYPES
+dnl MH_SET_FULL_PACKAGE_NAME
+dnl MH_LARGE_FILE_SUPPORT
 
 dnl
 dnl include the stdint.h wrapper
+  # before sinclude(common/ax_create_stdint_h.m4)
 sinclude(common/ax_create_stdint_h.m4)
+dnl include the compare_version test
+  # before sinclude(common/ax_compare_version.m4)
+sinclude(common/ax_compare_version.m4)
 dnl
 dnl add our expansion macro for directories
 dnl
+  # before sinclude(common/ac_define_dir.m4)
 sinclude(common/ac_define_dir.m4)
 dnl ---------------------------------------------------------------------------
 dnl Check REXX library and header files
@@ -51,9 +59,12 @@ extra_rexx_libs=""
 extra_rexx_defines=""
 extra_incdirs=""
 extra_libdirs=""
+REXX_USING_CONFIG=no
 REXX_LIBS=""
 REXX_INCLUDES=""
 REXX_VER="unknown"
+REXX_ADDONS="$libdir"
+REXX_VER=""
 case "$with_rexx" in
    regina)               dnl -------- Regina
       AC_DEFINE(USE_REGINA)
@@ -72,19 +83,24 @@ case "$with_rexx" in
          fi
          REXX_INT="Regina (using regina-config)"
          REXX_VER=`regina-config --version`
+         REXX_USING_CONFIG=yes
+         regina_prefix=`regina-config --prefix`
+         regina_addons=`regina-config --addons`
+         REGINA_ADDONS="$regina_addons"
+         AX_COMPARE_VERSION([$REXX_VER],[gt],[3.6],[REXX_ADDONS=$REGINA_ADDONS],[REXX_ADDONS=$libdir])
       else
          case "$target" in
             *nto-qnx*)
                AC_SEARCH_LIBS(dlopen,dl)
-               ;;
+            ;;
             *qnx*)
-               ;;
+            ;;
             *hp-hpux*)
                AC_SEARCH_LIBS(shl_load,dld)
-               ;;
+            ;;
             *)
                AC_SEARCH_LIBS(dlopen,dl)
-               ;;
+            ;;
          esac
          AC_SEARCH_LIBS(crypt,crypt)
          AC_CHECK_PROG(flex,[flex],yes,no)
@@ -98,9 +114,9 @@ case "$with_rexx" in
       case "$target" in
          *freebsd*)
             REXX_LIBS="`echo ${REXX_LIBS} | sed -e s/-pthread//`"
-            ;;
+         ;;
          *)
-            ;;
+         ;;
       esac
    ;;
    rexxtrans)            dnl -------- Rexx/Trans
@@ -124,6 +140,7 @@ dnl
          REXX_LIBS=`rexxtrans-config --libs-static`
          REXX_INT="Rexx/Trans - static (using rexxtrans-config)"
          REXX_VER=`rexxtrans-config --version`
+         REXX_USING_CONFIG=yes
       else
          AC_SEARCH_LIBS(dlopen,dl)
       fi
@@ -140,7 +157,7 @@ dnl
       extra_libdirs="/opt/orexx/lib /usr/local/orexx/lib /usr/lpp/orexx/lib"
       case "$target" in
          *linux*)
-         extra_rexx_defines="-DLINUX"
+            extra_rexx_defines="-DLINUX"
          ;;
          *)
          ;;
@@ -157,14 +174,18 @@ dnl
       REXX_TARGET="ooRexx"
       if test "$ac_cv_prog_oorexx_config" = yes; then
          REXX_INCLUDES="-DLINUX `oorexx-config --cflags`"
-         REXX_LIBS=`oorexx-config --libs`
+         REXX_LIBS="`oorexx-config --libs` -ldl"
          REXX_INT="ooRexx (using oorexx-config)"
          REXX_VER=`oorexx-config --version`
-dnl if we are using ooRexx 4.0 treat it as another interpreter :-(
+         dnl if we are using ooRexx 4.x and greater treat it as another interpreter :-(
          REXX_MAJOR=`echo $REXX_VER | cut -d. -f1`
          if test "x$REXX_MAJOR" = "x4"; then
             AC_DEFINE(OOREXX_40)
          fi
+         if test "x$REXX_MAJOR" = "x5"; then
+            AC_DEFINE(OOREXX_40)
+         fi
+         REXX_USING_CONFIG=yes
       else
          extra_rexx_libs="-lrexx"
          extra_incdirs="/usr/local/include/ooRexx /usr/include/ooRexx /opt/ooRexx/include"
@@ -189,10 +210,10 @@ dnl
       if test "$with_rexx6000" = yes ; then
       case "$target" in
          *aix*)
-            ;;
+         ;;
          *)
-               AC_MSG_ERROR(REXX/6000 support only available on AIX; cannot configure)
-               ;;
+            AC_MSG_ERROR(REXX/6000 support only available on AIX; cannot configure)
+            ;;
       esac
    fi
       AC_DEFINE(USE_REXX6000)
@@ -221,8 +242,10 @@ dnl
    ;;
 esac
 AC_SUBST(REXX_TARGET)
+AC_SUBST(REXX_ADDONS)
 REXX_BUILD=$with_rexx
 AC_SUBST(REXX_BUILD)
+AC_SUBST(REXX_VER)
 
 dnl look for REXX header and library, exit if not found
 
@@ -504,12 +527,19 @@ else
       MH_X11_LIBS="Xaw Xmu Xt X11"
    fi
 fi
-MH_X11R6_LIBS="SM ICE Xext"
+MH_X11R6_LIBS="SM ICE Xext Xpm"
 mh_x11r6=no
+
+which dpkg-architecture > /dev/null
+if test $? -eq 0; then
+   multiarch_libdir="/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH`"
+else
+   multiarch_libdir=""
+fi
 dnl
 dnl specify latest release of X directories first
 dnl
-mh_lib_dirs="\
+mh_lib_dirs="$multiarch_libdir \
     $HOME/lib64           \
     $HOME/lib32           \
     $HOME/lib             \
@@ -700,7 +730,7 @@ AC_CACHE_VAL(ac_cv_prog_CC,[
 if test -n "$CC"; then
   ac_cv_prog_CC="$CC" # Let the user override the test.
 else
-  IFS="${IFS=  }"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
   for mh_cc in $all_words; do
     for ac_dir in $PATH; do
       test -z "$ac_dir" && ac_dir=.
@@ -741,7 +771,7 @@ AC_CACHE_VAL(ac_cv_prog_CXX,[
 if test -n "$CXX"; then
   ac_cv_prog_CXX="$CC" # Let the user override the test.
 else
-  IFS="${IFS=  }"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
   for mh_cc in $all_words; do
     for ac_dir in $PATH; do
       test -z "$ac_dir" && ac_dir=.
@@ -845,13 +875,13 @@ AC_DEFUN([MH_CHECK_LIB],
 [
 MH_EXTRA_LIBS=''
 for mh_lib in $1; do
-   if test "$on_qnx4" = yes; then
+   if test "$on_qnx4" = yes -a "$ac_cv_prog_CC" != "gcc"; then
       AC_MSG_CHECKING(for library -l${mh_lib})
       if test -r /usr/lib/${mh_lib}3r.lib; then
          AC_MSG_RESULT(found)
          MH_EXTRA_LIBS="${MH_EXTRA_LIBS} -l${mh_lib}"
       else
-      AC_MSG_RESULT(not found)
+         AC_MSG_RESULT(not found)
       fi
    else
       AC_CHECK_LIB($mh_lib,main,mh_lib_found=yes,mh_lib_found=no)
@@ -879,42 +909,35 @@ return(0);
 EOF
 if AC_TRY_EVAL(mh_compile) && test -s conftest.o; then
    mh_dyn_link='ld -shared -o conftest.so.1.0 conftest.o -lc 1>&AC_FD_CC'
-#  mh_dyn_link='${CC} -Wl,-shared -o conftest.so.1.0 conftest.o -lc 1>&AC_FD_CC'
    if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
       SHL_LD="ld -shared -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'" -lc"
-#     SHL_LD="${CC} -Wl,-shared -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'" -lc"
    else
       mh_dyn_link='ld -G -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#     mh_dyn_link='${CC} -Wl,-G -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
       if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
          SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#        SHL_LD="${CC} -Wl,-G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
       else
          mh_dyn_link='ld -o conftest.so.1.0 -shared -no_archive conftest.o  -lc 1>&AC_FD_CC'
-#        mh_dyn_link='${CC} -o conftest.so.1.0 -Wl,-shared,-no_archive conftest.o  -lc 1>&AC_FD_CC'
          if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
             SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -shared -no_archive "'$('SHOFILES')'" -lc"
-#           SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-shared,-no_archive "'$('SHOFILES')'" -lc"
          else
             mh_dyn_link='ld -b -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#           mh_dyn_link='${CC} -Wl,-b -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
             if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
                SHL_LD="ld -b -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#              SHL_LD="${CC} -Wl,-b -o ${SHLPRE}${SHLFILE}.${SHLPST} "'$('SHOFILES')'
             else
                mh_dyn_link='ld -Bshareable -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#              mh_dyn_link='${CC} -Wl,-Bshareable -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
                if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
                   SHL_LD="ld -Bshareable -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                 SHL_LD="${CC} -Wl,-Bshareable -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
                else
                   mh_dyn_link='ld -assert pure-text -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#                 mh_dyn_link='${CC} -Wl,-assert pure-text -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
                   if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
                      SHL_LD="ld -assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                    SHL_LD="${CC} -Wl,-assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
                   else
-                     SHL_LD=""
+                     mh_dyn_link='${CC} -shared -o conftest.so.1.0 conftest.o -lc 1>&AC_FD_CC'
+                     if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
+                        SHL_LD="${CC} -shared -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'" -lc"
+                     else
+                        SHL_LD=""
+                     fi
                   fi
                fi
             fi
@@ -946,33 +969,39 @@ return(0);
 EOF
 if AC_TRY_EVAL(mh_compile) && test -s conftest.o; then
    mh_dyn_link='ld -shared -o conftest.rxlib conftest.o -lc 1>&AC_FD_CC'
-#  mh_dyn_link='${CC} -Wl,-shared -o conftest.rxlib conftest.o -lc 1>&AC_FD_CC'
    if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
       LD_RXLIB1="ld -shared"
       LD_RXTRANSLIB1="$LD_RXLIB1"
-#     LD_RXLIB1="${CC} -Wl,-shared"
       LD_RXLIB2="${REXX_LIBS}"
       SHLPRE="lib"
       SHLPST=".so"
       RXLIBLEN="6"
    else
       mh_dyn_link='ld -G -o conftest.rxlib conftest.o 1>&AC_FD_CC'
-#     mh_dyn_link='${CC} -Wl,-G -o conftest.rxlib conftest.o 1>&AC_FD_CC'
       if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
          LD_RXLIB1="ld -G"
          LD_RXTRANSLIB1="$LD_RXLIB1"
-#        LD_RXLIB1="${CC} -Wl,-G"
          LD_RXLIB2="${REXX_LIBS}"
          SHLPRE="lib"
          SHLPST=".so"
          RXLIBLEN="6"
       else
-         LD_RXLIB1=""
-         LD_RXTRANSLIB1="$LD_RXLIB1"
-         LD_RXLIB2=""
-         SHLPRE=""
-         SHLPST=""
-         RXLIBLEN="0"
+         mh_dyn_link='${CC} -shared -o conftest.rxlib conftest.o 1>&AC_FD_CC'
+         if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
+            LD_RXLIB1="${CC} -shared"
+            LD_RXTRANSLIB1="$LD_RXLIB1"
+            LD_RXLIB2="${REXX_LIBS}"
+            SHLPRE="lib"
+            SHLPST=".so"
+            RXLIBLEN="6"
+         else
+            LD_RXLIB1=""
+            LD_RXTRANSLIB1="$LD_RXLIB1"
+            LD_RXLIB2=""
+            SHLPRE=""
+            SHLPST=""
+            RXLIBLEN="0"
+         fi
       fi
    fi
 fi
@@ -992,7 +1021,6 @@ dnl
 OSAVE=".o.save"
 OBJ="o"
 EXE=""
-GETOPT=""
 STATIC_LDFLAGS=""
 DYNAMIC_LDFLAGS=""
 AIX_DYN="no"
@@ -1046,6 +1074,10 @@ case "$target" in
       RXPACKEXPORTS="-bE:$SHLFILE.exp"
       RXPACKEXP="$SHLFILE.exp"
       ;;
+   powerpc-ibm-os400)
+      LD_RXLIB1="${CC} -shared  ${LDFLAGS}"
+      LD_RXTRANSLIB1="$LD_RXLIB1"
+      ;;
    *dec-osf*)
       if test "$ac_cv_prog_CC" = "gcc"; then
          SYS_DEFS="-D_POSIX_SOURCE -D_XOPEN_SOURCE"
@@ -1082,7 +1114,7 @@ case "$target" in
       LD_RXTRANSLIB1="$LD_RXLIB1"
       ;;
    *linux*|*kfreebsd*-gnu*)
-      LD_RXLIB1="${CC} -shared  ${LDFLAGS} -Wl,-soname,\$(SONAME)"
+      LD_RXLIB1="${CC} -shared  ${LDFLAGS} -Wl,-soname,\$(@)"
       LD_RXTRANSLIB1="$LD_RXLIB1"
       CAN_USE_ABI="yes"
       if test "$USE_ABI" = "yes"; then
@@ -1107,13 +1139,23 @@ case "$target" in
       LD_RXLIB1="ld -dy -G  ${LDFLAGS}"
       LD_RXTRANSLIB1="$LD_RXLIB1"
       ;;
-   *beos* | *haiku*)
+   *beos*)
       LD_RXLIB1="${CC}  ${LDFLAGS} -Wl,-shared -nostart -Xlinker -soname=\$(@)"
       LD_RXTRANSLIB1="$LD_RXLIB1"
       BEOS_DYN="yes"
       BASE_INSTALL="beosinstall"
       BASE_BINARY="beosbinary"
       OTHER_INSTALLS=""
+      ;;
+   *haiku*)
+      LD_RXLIB1="${CC} -shared  ${LDFLAGS} -Wl,-soname,\$(SONAME)"
+      LD_RXTRANSLIB1="$LD_RXLIB1"
+      CAN_USE_ABI="yes"
+      if test "$USE_ABI" = "yes"; then
+         OTHER_INSTALLS="installabilib"
+      fi
+      BASE_INSTALL="haikuinstall"
+      BASE_BINARY="haikubinary"
       ;;
    *nto-qnx*)
       LD_RXLIB1="${CC} -shared  ${LDFLAGS}"
@@ -1149,7 +1191,7 @@ case "$target" in
 # ensure we use two-name namespace on Mac so that when a function in a common source file is called the one
 # in the shared library the call came from is executed, not one with the same name from another shared library
 # otherwise you will get memory corruption.
-      LD_RXLIB1="${CC}  ${LDFLAGS} -dynamiclib -install_name=\$(@) -headerpad_max_install_names"
+      LD_RXLIB1="${CC}  ${LDFLAGS} ${EEXTRA} -dynamiclib -headerpad_max_install_names"
       LD_RXTRANSLIB1="$LD_RXLIB1"
       ;;
    *)
@@ -1254,7 +1296,6 @@ AC_SUBST(CEXTRA)
 AC_SUBST(OSAVE)
 AC_SUBST(OBJ)
 AC_SUBST(EXE)
-AC_SUBST(GETOPT)
 AC_SUBST(DYN_COMP)
 AC_SUBST(LIBS)
 AC_SUBST(SHLIBS)
@@ -1291,10 +1332,10 @@ AC_DEFUN([MH_CHECK_CC_O],
 AC_MSG_CHECKING(whether $CC understand -c and -o together)
 set dummy $CC; ac_cc="`echo [$]2 |
 changequote(, )dnl
-             sed -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^[0-9]/_/'`"
+sed -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^[0-9]/_/'`"
 changequote([, ])dnl
 AC_CACHE_VAL(ac_cv_prog_cc_${ac_cc}_c_o,
-[echo 'foo(){}' > conftest.c
+[echo 'int foo(){}' > conftest.c
 # We do the test twice because some compilers refuse to overwrite an
 # existing .o file with -o, though they will create one.
 eval ac_cv_prog_cc_${ac_cc}_c_o=no
@@ -1348,10 +1389,12 @@ if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
            f1 = dlsym (handle, "mh_underscore_test");
            f2 = dlsym (handle, "_mh_underscore_test");
          } return (!f2 || f1);
-       ])],
-     mh_cv_uscore=yes,
-     mh_cv_uscore=no
+       }],
+     [mh_cv_uscore=yes],
+     [mh_cv_uscore=no],
+     [mh_cv_uscore=no]
    )
+   ],[mh_cv_uscore=yes],[mh_cv_uscore=no],mh_cv_uscore=no)
    ])
    AC_MSG_RESULT($mh_cv_uscore)
    if test "x$mh_cv_uscore" = "xyes"; then
@@ -1372,30 +1415,36 @@ SHLPST=".so"
 MODPST=".so"
 AC_REQUIRE([AC_CANONICAL_SYSTEM])
 case "$target" in
-        *hp-hpux*)
-                SHLPST=".sl"
-                MODPST=".sl"
-                ;;
-        *ibm-aix5*)
-                SHLPST=".a"
-                MODPST=".a"
-                ;;
-        *ibm-aix*)
-                SHLPST=".a"
-                MODPST=".a"
-                ;;
-        *qnx*)
-                SHLPST=".junk"
-                MODPST=""
-                ;;
-        *cygwin*)
-                SHLPST=".dll"
-                MODPST=".dll"
-                ;;
-        *darwin*)
-                SHLPST=".dylib"
-                MODPST=".dylib"
-                ;;
+   *hp-hpux*)
+      SHLPST=".sl"
+      MODPST=".sl"
+      ;;
+   *ibm-aix5*)
+      SHLPST=".a"
+      MODPST=".a"
+      ;;
+   *ibm-aix*)
+      SHLPST=".a"
+      MODPST=".a"
+      ;;
+   *nto-qnx*)
+      ;;
+   *qnx*)
+      SHLPST=".junk"
+      MODPST=""
+      ;;
+   *cygwin*)
+      SHLPST=".dll"
+      MODPST=".dll"
+      ;;
+   *skyos*)
+      SHLPST=".dll"
+      MODPST=".dll"
+      ;;
+   *darwin*)
+      SHLPST=".dylib"
+      MODPST=".dylib"
+      ;;
 esac
 AC_SUBST(SHLPST)
 AC_SUBST(MODPST)
@@ -1461,7 +1510,11 @@ if test "$enable_posix_threads" = yes; then
                fi
                ;;
             *linux*)
-               THREADING_LINK="-lpthread"
+               if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
+                  THREADING_LINK="-lpthread"
+               else
+                  THREADING_LINK="-lpthread"
+               fi
                ;;
             *freebsd*)
                THREADING_COMPILE="-pthread -D_REENTRANT -DPOSIX"
@@ -1491,7 +1544,7 @@ AC_SUBST(MT_FILE)
 ])
 
 dnl ---------------------------------------------------------------------------
-dnl Determines where rpm build files are located
+dnl Determines where rpm build files are located - use MH_CHECK_PACKAGE_BUILDERS instead
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MH_CHECK_RPM],
 [
@@ -1505,20 +1558,79 @@ fi
 ])
 
 dnl ---------------------------------------------------------------------------
+dnl Sets package directories within the source tree
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MH_CHECK_PACKAGE_BUILDERS],
+[
+#
+# get our own abs_srcdir as autoconf sucks
+#
+here=`pwd`
+cd $srcdir
+absolute_srcdir=`pwd`
+cd $here
+#
+packagesdir="$absolute_srcdir/packages"
+AC_SUBST(packagesdir)
+AC_MSG_CHECKING(where rpms are built)
+AC_CHECK_PROG(mh_rpm_exists, rpmbuild, yes, no )
+if test "$mh_rpm_exists" = yes; then
+#   rpmtopdir=`rpm --eval "%{_topdir}"`
+   rpmtopdir="${packagesdir}/RPM"
+   AC_MSG_RESULT($rpmtopdir)
+else
+   rpmtopdir=""
+   AC_MSG_RESULT("not avaliable")
+fi
+AC_SUBST(rpmtopdir)
+#
+AC_MSG_CHECKING(where deb packages are built)
+AC_CHECK_PROG(mh_dpkg_exists, dpkg-buildpackage, yes, no )
+if test "$mh_dpkg_exists" = yes; then
+   debtopdir="${packagesdir}/DEB"
+   AC_MSG_RESULT($debtopdir)
+else
+   debtopdir=""
+   AC_MSG_RESULT("not avaliable")
+fi
+AC_SUBST(debtopdir)
+#
+AC_MSG_CHECKING(where apk packages are built)
+AC_CHECK_PROG(mh_apk_exists, abuild, yes, no )
+if test "$mh_apk_exists" = yes; then
+   apktopdir="${packagesdir}/APK"
+   AC_MSG_RESULT($apktopdir)
+else
+   apktopdir=""
+   AC_MSG_RESULT("not avaliable")
+fi
+AC_SUBST(apktopdir)
+# if we haven't set an environment variable; PACKAGE_RELEASE to a value,
+# get a timestamp for use in eg RPM Spec file Release
+AC_MSG_CHECKING(getting PACKAGE_RELEASE value)
+PACKAGE_RELEASE=`echo $PACKAGE_RELEASE`
+if test x"$PACKAGE_RELEASE" == "x"; then
+   PACKAGE_RELEASE=`date +%y%m%d.%H%M`
+fi
+AC_MSG_RESULT($PACKAGE_RELEASE)
+AC_SUBST(PACKAGE_RELEASE)
+])
+
+dnl ---------------------------------------------------------------------------
 dnl Determines whether compiler supports long long
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MH_C_LONG_LONG],
 [AC_CACHE_CHECK(for long long int, mh_cv_c_long_long,
-[if test "$ac_cv_prog_CC" = "gcc"; then
-  mh_cv_c_long_long=yes
+ [if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
+    mh_cv_c_long_long=yes
   else
-        AC_TRY_COMPILE(,[long long int i;],
-   mh_cv_c_long_long=yes,
-   mh_cv_c_long_long=no)
-   fi])
-   if test $mh_cv_c_long_long = yes; then
-     AC_DEFINE(HAVE_LONG_LONG, 1, [compiler understands long long])
-   fi
+    AC_TRY_COMPILE(,[long long int i;],
+      mh_cv_c_long_long=yes,
+      mh_cv_c_long_long=no)
+  fi])
+ if test $mh_cv_c_long_long = yes; then
+   AC_DEFINE(HAVE_LONG_LONG, 1, [compiler understands long long])
+ fi
 ])
 
 dnl ---------------------------------------------------------------------------
@@ -1527,7 +1639,7 @@ dnl ---------------------------------------------------------------------------
 AC_DEFUN([MH_SHOW_STATUS],
 [
 echo
-echo "$MH_PACKAGE has now been configured with the following options:"
+echo "$FULL_PACKAGE_NAME has now been configured with the following options:"
 echo
 echo "                 Rexx Interpreter: $REXX_INT"
 
@@ -1578,14 +1690,29 @@ if test "$on_beos" = yes; then
    libdir="/boot/home/config/lib"
 fi
 
+if test "$on_haiku" = yes; then
+   bindir="/boot/home/config/non-packaged/bin"
+   libdir="/boot/home/config/non-packaged/lib"
+   addonsdir="/boot/home/config/non-packaged/lib/regina-rexx/addons"
+fi
+
 echo "                    Build options: $myopts"
 echo "    binaries will be installed in: $bindir"
 if test "x$binarybitprefix" = "x32"; then
    echo "   32bit binaries will have '32' appended to them."
 fi
-echo "   libraries will be installed in: $libdir"
+echo "   libraries will be installed in: $REXX_ADDONS"
 echo "                         {prefix}: $prefix"
 echo "                    {exec_prefix}: $exec_prefix"
+if test "x$rpmtopdir" != "x" ; then
+   echo "                       RPM topdir: $rpmtopdir"
+fi
+if test "x$debtopdir" != "x" ; then
+   echo "                       DEB topdir: $debtopdir"
+fi
+if test "x$apktopdir" != "x" ; then
+   echo "                       APK topdir: $apktopdir"
+fi
 echo
 if test "x$2" != "xnotrailer"; then
    echo "To build the $MH_PACKAGE binaries, and dynamically loadable libraries, type 'make'"
@@ -1602,7 +1729,7 @@ AC_DEFUN([MH_CHECK_OSX_ARCH],
 valid_arch_flags=""
 found_arch_flags=""
 AC_ARG_WITH(arch,
-   [  --with-arch=option      build universal binaries on OS X, option: one of "all 32bit 64bit intel ppc ppc64 x86_64 i386"],
+   [  --with-arch=option      build universal binaries on MacOS, option: one of "all 32bit 64bit intel apple-silicon ppc ppc64 x86_64 i386 arm64"],
    [with_arch=$withval],
    [with_arch=none],
 )
@@ -1611,16 +1738,22 @@ case "$with_arch" in
       arch_flags=""
       ;;
    all)
-      arch_flags="-arch ppc -arch ppc64 -arch x86_64 -arch i386"
+      arch_flags="-arch ppc -arch ppc64 -arch x86_64 -arch i386 -arch arm64"
       ;;
    32bit)
       arch_flags="-arch ppc -arch i386"
       ;;
    64bit)
-      arch_flags="-arch ppc64 -arch x86_64"
+      arch_flags="-arch ppc64 -arch x86_64 -arch arm64"
+      ;;
+   apple-silicon)
+      arch_flags="-arch x86_64 -arch arm64"
       ;;
    intel)
       arch_flags="-arch i386 -arch x86_64"
+      ;;
+   apple-silicon)
+      arch_flags="-arch x86_64 -arch arm64"
       ;;
    *)
       arch_flags="-arch $with_arch"
@@ -1630,17 +1763,20 @@ esac
 valid_arch_flags=""
 found_arch_flags=""
 if test $on_osx = "yes"; then
-  AC_MSG_CHECKING(for which Mac OSX -arch flags are supported for universal binaries)
+  AC_MSG_CHECKING(for which MacOS -arch flags are supported for universal binaries)
   for a in $arch_flags; do
-    save_ldflags="$LDFLAGS"
-    LDFLAGS="$LDFLAGS -arch $a"
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([#include <stdio.h>],
-    [exit(0)])],
-    [valid_arch_flags="$valid_arch_flags -arch $a";found_arch_flags="$found_arch_flags $a"],
-    [a="$a"]
+    if test $a != "-arch"; then
+        save_ldflags="$LDFLAGS"
+        LDFLAGS="$LDFLAGS -arch $a"
+        AC_LINK_IFELSE(
+        [AC_LANG_PROGRAM([#include <stdio.h>
+#include <stdlib.h>],
+        [exit(0)])],
+        [valid_arch_flags="$valid_arch_flags -arch $a";found_arch_flags="$found_arch_flags $a"],
+        [a="$a"]
     )
-    LDFLAGS="$save_ldflags"
+        LDFLAGS="$save_ldflags"
+    fi
   done
   AC_MSG_RESULT($found_arch_flags)
   AC_SUBST(valid_arch_flags)
@@ -1664,9 +1800,206 @@ AC_MSG_RESULT($kn)
 ])
 
 dnl ---------------------------------------------------------------------------
+dnl Determines the Linux distribution name
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MH_GET_DISTRO_NAME],
+[
+AC_CHECK_PROG(lsb_release, [lsb_release], yes, no)
+if test "$ac_cv_prog_lsb_release" = yes; then
+   AC_MSG_CHECKING(OS distribution name)
+   MYDISTRO="`lsb_release -i | cut -f 2`-`lsb_release -r | cut -f 2`"
+   MYDISTRO="`echo $MYDISTRO | sed \"s/ /_/g\"`"
+   AC_MSG_RESULT($MYDISTRO)
+else
+   case "$target" in
+      *linux*)
+         if test -f "/etc/os-release"; then
+            myid="`grep ^ID= /etc/os-release | cut -f2 -d\=`"
+            myver="`grep ^VERSION_ID= /etc/os-release | cut -f2 -d\= | sed 's/\"//g'`"
+            MYDISTRO="$myid-$myver"
+         else
+            MYDISTRO="`echo $target | cut -f3 -d-`"
+         fi
+      ;;
+      *freebsd* | *openbsd*)
+         MYDISTRO="`echo $target | cut -f3 -d-`"
+      ;;
+      *darwin*)
+         MYDISTRO="`echo $target | cut -f2-3 -d-`"
+      ;;
+      *pc-solaris2*)
+         MYDISTRO="`echo $target | cut -f2- -d-`"
+      ;;
+      *cygwin*)
+         MYDISTRO="`echo $target | cut -f2- -d-`"
+      ;;
+      *nto-qnx*)
+         MYDISTRO="`uname -s`-`uname -r`"
+      ;;
+      *qnx*)
+         MYDISTRO="`uname -s`-`uname -v`"
+      ;;
+      *)
+         MYDISTRO="$target"
+      ;;
+   esac
+fi
+AC_SUBST(MYDISTRO)
+])
+
+AC_DEFUN([MH_CHECK_NCURSES],
+[
+curs=$1
+NCURSES_PKG="${curs}"
+# look for pkg-config first
+AC_CHECK_PROG(pkg_config, [pkg-config], "yes", no)
+if test "$pkg_config" = yes; then
+   # we have pkg_config, do we have ncurses[w]?
+   pkg-config --exists ${NCURSES_PKG} > /dev/null
+   if test $? -eq 0; then
+      MH_CURSES_INC="`pkg-config --cflags ${NCURSES_PKG}`"
+      MH_CURSES_LIB="`pkg-config --libs ${NCURSES_PKG}`"
+      CURSES_BUILD=$with_curses
+      CURSES_CONFIG="pkg-config ${NCURSES_PKG}"
+      curses_h="curses.h"
+      curses_l="$NCURSES_PKG"
+      AC_DEFINE(USE_NCURSES)
+   else
+      # no pkg-config, what about ncurses-config?
+      if test "$curs" = "ncursesw" -o "$curs" = "ncursesw8"; then
+         curses_configs="ncursesw-config ncursesw6-config ncursesw5-config"
+      else
+         curses_configs="ncurses-config ncurses6-config ncurses5-config"
+      fi
+      for config_name in $curses_configs ;
+         do
+            AC_CHECK_PROG([config_var], [$config_name], [yes], no)
+            if test "x$config_var" = "xyes"; then
+               MH_CURSES_INC="`${config_name} --cflags`"
+               MH_CURSES_LIB="`${config_name} --libs`"
+               CURSES_BUILD=$with_curses
+               CURSES_CONFIG="${config_name}"
+               curses_h="curses.h"
+               curses_l="$NCURSES_PKG"
+               AC_DEFINE(USE_NCURSES)
+               break
+            fi
+            # ensure variable is not cached
+            unset ac_cv_prog_config_var
+            unset config_var
+         done
+      if test "x$curses_h" = "x"; then
+         AC_MSG_ERROR(unable to find configuration for ${NCURSES_PKG} package; cannot configure)
+      fi
+   fi
+fi
+])
+
+AC_DEFUN([MH_CHECK_PDCURSES_X11],
+[
+curs=$1
+PDCURSES_PKG="lib${curs}"
+# look for pkg-config first
+AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+if test "$ac_cv_prog_pkg_config" = yes; then
+   # we have pkg_config, do we have ncursesw?
+   pkg-config --exists ${PDCURSES_PKG} > /dev/null
+   if test $? -eq 0; then
+      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+      curses_h="curses.h" #xcurses.h
+      curses_l="XCurses"
+   else
+      AC_MSG_ERROR(pkg-config cannot find ${PDCURSES_PKG} package; cannot configure)
+   fi
+fi
+])
+
+AC_DEFUN([MH_CHECK_PDCURSES_SDL1],
+[
+curs=$1
+PDCURSES_PKG="lib${curs}"
+# look for pkg-config first
+AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+if test "$ac_cv_prog_pkg_config" = yes; then
+   # we have pkg_config, do we have ncursesw?
+   pkg-config --exists ${PDCURSES_PKG} > /dev/null
+   if test $? -eq 0; then
+      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+      CURSES_BUILD=$with_curses
+      CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+      curses_h="curses.h"
+      curses_l="pdcurses"
+   fi
+fi
+])
+
+AC_DEFUN([MH_CHECK_PDCURSES_SDL2],
+[
+curs=$1
+PDCURSES_PKG="lib${curs}"
+# look for pkg-config first
+AC_CHECK_PROG(pkg_config, [pkg-config], yes, no)
+if test "$ac_cv_prog_pkg_config" = yes; then
+   # we have pkg_config, do we have ncursesw?
+   pkg-config --exists ${PDCURSES_PKG} > /dev/null
+   if test $? -eq 0; then
+      MH_CURSES_INC="`pkg-config --cflags ${PDCURSES_PKG}`"
+      MH_CURSES_LIB="`pkg-config --libs ${PDCURSES_PKG}`"
+      CURSES_BUILD=$with_curses
+      CURSES_CONFIG="pkg-config ${PDCURSES_PKG}"
+      curses_h="curses.h"
+      curses_l="pdcurses"
+   fi
+fi
+])
+
+dnl ---------------------------------------------------------------------------
 dnl Check curses library and header files
 dnl ---------------------------------------------------------------------------
 AC_DEFUN([MH_CHECK_CURSES],
+[
+AC_MSG_CHECKING(curses platform)
+CURSES_BUILD=""
+CURSES_CONFIG=""
+case "$target" in
+   *hpux1*)
+         mh_curses_colr=yes
+         mh_pre_curses_h_include="stdarg"
+      ;;
+   *aix*4.2*)
+         mh_curses_colr=no
+         mh_pre_curses_h_include="stdarg"
+      ;;
+   *)
+         mh_curses_colr=no
+         mh_pre_curses_h_include=""
+esac
+case "$with_curses" in
+   ncurses|ncursesw|ncursesw8)
+      MH_CHECK_NCURSES($with_curses)
+      ;;
+   pdcurses-x11|pdcurses-x11w|pdcurses-x11w8)
+      MH_CHECK_PDCURSES_X11($with_curses)
+      ;;
+   pdcurses-sdl1|pdcurses-sdl1w|pdcurses-sdl1w8)
+      MH_CHECK_PDCURSES_SDL1($with_curses)
+      ;;
+   pdcurses-sdl2|pdcurses-sdl2w|pdcurses-sdl2w8)
+      MH_CHECK_PDCURSES_SDL2($with_curses)
+      ;;
+   *)
+      # none specified
+esac
+AC_SUBST(MH_CURSES_INC)
+AC_SUBST(MH_CURSES_LIB)
+CURSES_BUILD=$with_curses
+AC_SUBST(CURSES_BUILD)
+AC_MSG_RESULT($CURSES_BUILD)
+])
+
+AC_DEFUN([MH_CHECK_CURSES_OLD],
 [
 case "$target" in
    *hpux1*)
@@ -1682,11 +2015,11 @@ case "$target" in
          mh_pre_curses_h_include=""
 esac
 
-if test "$with_xcurses" = yes -o "$with_xcurses_static" = yes; then
-   AC_DEFINE(USE_XCURSES)
-   curses_h="xcurses.h"
+if test "$with_xcurses" = yes; then
    CURSES_TARGET="XCurses"
+   AC_DEFINE(USE_XCURSES)
    AC_CHECK_PROG(xcurses_config, [xcurses-config], yes, no)
+   curses_h="xcurses.h"
    curses_l="XCurses"
 else
    if test "$with_pdcurses" = yes; then
@@ -1696,17 +2029,21 @@ else
       curses_l="pdcurses"
    else
       if test "$with_ncurses" = yes; then
-         curses_h="ncurses.h"
+         CURSES_TARGET="ncurses"
          AC_DEFINE(USE_NCURSES)
-         if test "$enable_utf8" = yes; then
-            CURSES_TARGET="ncursesw"
-            AC_CHECK_PROG(ncursesw5_config, [ncursesw5-config], yes, no)
-            curses_l="ncursesw"
+         AC_CHECK_PROG(ncurses5_config, [ncurses5-config], yes, no)
+         if test "$ac_cv_prog_ncurses5_config" = yes; then
+            ncurses_config_bin="ncurses5-config"
          else
-            CURSES_TARGET="ncurses"
-            AC_CHECK_PROG(ncurses5_config, [ncurses5-config], yes, no)
-            curses_l="ncurses"
+            AC_CHECK_PROG(ncursesw5_config, [ncursesw5-config], yes, no)
+            if test "$ac_cv_prog_ncursesw5_config" = yes; then
+               ncurses_config_bin="ncurses5.4-config"
+            else
+               ncurses_config_bin=""
+            fi
          fi
+         curses_h="ncurses.h"
+         curses_l="ncurses"
       else
          if test "$with_extcurses" = yes; then
             CURSES_TARGET="extcurses"
@@ -1834,11 +2171,7 @@ fi
 if test "$ac_cv_prog_xcurses_config" = yes -a "$with_curseslibdir" = no; then
 AC_MSG_CHECKING(for location of $curses_l library file)
    AC_MSG_RESULT(obtained from xcurses-config)
-   if test "$with_xcurses_static" = yes; then
-      MH_CURSES_LIB=`xcurses-config --libs-static`
-   else
-      MH_CURSES_LIB=`xcurses-config --libs`
-   fi
+   MH_CURSES_LIB=`xcurses-config --libs`
    AC_SUBST(MH_CURSES_LIB)
 else
    if test "$ac_cv_prog_ncurses5_config" = yes -a "$with_curseslibdir" = no; then
@@ -1847,69 +2180,113 @@ else
       MH_CURSES_LIB=`ncurses5-config --libs`
       AC_SUBST(MH_CURSES_LIB)
    else
-      if test "$ac_cv_prog_ncursesw5_config" = yes -a "$with_curseslibdir" = no; then
+      if test "$ac_cv_prog_dw_config" = yes -a "$with_curseslibdir" = no; then
       AC_MSG_CHECKING(for location of $curses_l library file)
-         AC_MSG_RESULT(obtained from ncurses5w-config)
-         MH_CURSES_LIB=`ncursesw5-config --libs`
+         AC_MSG_RESULT(obtained from dw-config)
+         MH_CURSES_LIB=`dw-config --libs`
          AC_SUBST(MH_CURSES_LIB)
       else
-         if test "$ac_cv_prog_dw_config" = yes -a "$with_curseslibdir" = no; then
          AC_MSG_CHECKING(for location of $curses_l library file)
-            AC_MSG_RESULT(obtained from dw-config)
-            MH_CURSES_LIB=`dw-config --libs`
-            AC_SUBST(MH_CURSES_LIB)
-         else
-            AC_MSG_CHECKING(for location of $curses_l library file)
-            mh_curses_lib_dir=""
-            mh_lib_dirs="\
-                ${CURSESLIBDIR}           \
-                ${mh_sysv_libdir}         \
-                ${exec_prefix}/lib64      \
-                ${exec_prefix}/lib        \
-                ${HOME}/lib64             \
-                ${HOME}/lib               \
-                /usr/local/lib64          \
-                /usr/local/lib            \
-                /usr/contrib/lib          \
-                /opt/lib                  \
-                /usr/lib64                \
-                /usr/lib                  \
-                /usr/ccs/lib              \
-                /usr/ucblib               \
-                /opt/sfw/lib              \
-                /sw/lib                   \
-                /usr/unsupported/lib      \
-                /boot/home/config/lib"
+         mh_curses_lib_dir=""
+         mh_lib_dirs="\
+             ${CURSESLIBDIR}           \
+             ${mh_sysv_libdir}         \
+             ${exec_prefix}/lib64      \
+             ${exec_prefix}/lib        \
+             ${HOME}/lib64             \
+             ${HOME}/lib               \
+             /usr/local/lib64          \
+             /usr/local/lib            \
+             /usr/contrib/lib          \
+             /opt/lib                  \
+             /usr/lib64                \
+             /usr/lib                  \
+             /usr/ccs/lib              \
+             /usr/ucblib               \
+             /opt/sfw/lib              \
+             /sw/lib                   \
+             /usr/unsupported/lib      \
+             /boot/home/config/lib"
 dnl
 dnl Provide for user supplying directory
 dnl
-            if test "$with_curseslibdir" != no ; then
-               mh_lib_dirs="$with_curseslibdir $mh_lib_dirs"
-            fi
+         if test "$with_curseslibdir" != no ; then
+            mh_lib_dirs="$with_curseslibdir $mh_lib_dirs"
+         fi
 dnl
 dnl Try to determine the directory containing curses library
 dnl
-            for ac_dir in $mh_lib_dirs ; do
-               for mh_ext in lib${curses_l}.a lib${curses_l}.so lib${curses_l}.sl ${curses_l}.lib ${curses_l}3r.lib lib${curses_l}.dylib; do
-                 if test -r $ac_dir/$mh_ext; then
-                    mh_curses_lib_dir=$ac_dir
-                    break 2
-                 fi
-               done
+         for ac_dir in $mh_lib_dirs ; do
+            for mh_ext in lib${curses_l}.a lib${curses_l}.so lib${curses_l}.sl ${curses_l}.lib ${curses_l}3r.lib lib${curses_l}.dylib; do
+              if test -r $ac_dir/$mh_ext; then
+                 mh_curses_lib_dir=$ac_dir
+                 break 2
+              fi
             done
-            if test "x$mh_curses_lib_dir" != "x" ; then
-               MH_CURSES_LIB="-L$mh_curses_lib_dir -l$curses_l"
-               AC_MSG_RESULT(found in $mh_curses_lib_dir)
-               AC_SUBST(MH_CURSES_LIB)
-            else
-               AC_MSG_ERROR(Cannot find curses library file: $curses_l; cannot configure)
-            fi
+         done
+         if test "x$mh_curses_lib_dir" != "x" ; then
+            MH_CURSES_LIB="-L$mh_curses_lib_dir -l$curses_l"
+            AC_MSG_RESULT(found in $mh_curses_lib_dir)
+            AC_SUBST(MH_CURSES_LIB)
+         else
+            AC_MSG_ERROR(Cannot find curses library file: $curses_l; cannot configure)
          fi
       fi
    fi
 fi
 ])dnl
 
+dnl ---------------------------------------------------------------------------
+dnl Wrapper for AC_CHECK_FUNCS.
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MH_CHECK_FUNCS],
+[
+dnl check a standard list of functions, then those passed in as args
+AC_CHECK_FUNCS(memcpy memmove strerror getopt strtof $*)
+])dnl
+
+dnl ---------------------------------------------------------------------------
+dnl Check if various types have been typedefed by supplied header files
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MH_CHECK_TYPES],
+[
+header=$1
+inc=$2
+types="LONG CHAR SHORT ULONG UCHAR USHORT $3"
+if test "x$inc" != "x"; then
+   save_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS $inc"
+fi
+CFLAGS="$CFLAGS $DB_INCLUDES"
+for mh_type in $types; do
+   AC_MSG_CHECKING(if $mh_type already defined)
+   if test "x$header" = "x"; then
+      AC_TRY_COMPILE([],
+         [${mh_type} var1;],
+         mh_type_found=yes, mh_type_found=no )
+   else
+      AC_TRY_COMPILE([#include <$header>],
+         [${mh_type} var1;],
+         mh_type_found=yes, mh_type_found=no )
+   fi
+   AC_MSG_RESULT($mh_type_found)
+   if test "$mh_type_found" = yes; then
+      AC_DEFINE_UNQUOTED(${mh_type}_TYPEDEFED)
+   fi
+done
+if test "x$inc" != "x"; then
+   CFLAGS=$save_CFLAGS
+fi
+])dnl
+
+dnl ---------------------------------------------------------------------------
+dnl Set full package name from package name and version
+dnl ---------------------------------------------------------------------------
+AC_DEFUN([MH_SET_FULL_PACKAGE_NAME],
+[
+FULL_PACKAGE_NAME=$1-$2
+AC_SUBST(FULL_PACKAGE_NAME)
+])
 
 dnl ---------------------------------------------------------------------------
 dnl Check if large file support available
@@ -1923,53 +2300,8 @@ if test "$ac_cv_prog_getconf" = yes; then
    LARGE_FILE_SUPPORT=`getconf LFS_CFLAGS`
    AC_MSG_RESULT($LARGE_FILE_SUPPORT)
 fi
+if test "$LARGE_FILE_SUPPORT" = "undefined"; then
+   LARGE_FILE_SUPPORT=""
+fi
 AC_SUBST(LARGE_FILE_SUPPORT)
 ])dnl
-
-dnl ---------------------------------------------------------------------------
-dnl Wrapper for AC_CHECK_FUNCS.
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_FUNCS],
-[
-dnl check a standard list of functions, then those passed in as args
-AC_CHECK_FUNCS(memcpy memmove strerror getopt strtof $*)
-])dnl
-
-dnl ---------------------------------------------------------------------------
-dnl Determines the Linux distribution name
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_GET_DISTRO_NAME],
-[
-AC_CHECK_PROG(lsb_release, [lsb_release], yes, no)
-if test "$ac_cv_prog_lsb_release" = yes; then
-   AC_MSG_CHECKING(OS distribution name)
-   MYDISTRO="`lsb_release -i | cut -f 2`-`lsb_release -r | cut -f 2`"
-   MYDISTRO="`echo $MYDISTRO | sed \"s/ /_/g\"`"
-   AC_MSG_RESULT($MYDISTRO)
-else
-   case "$target" in
-      *freebsd* | *openbsd*)
-         MYDISTRO="`echo $target | cut -f3 -d-`"
-      ;;
-      *darwin*)
-         MYDISTRO="`echo $target | cut -f2-3 -d-`"
-      ;;
-      *pc-solaris2*)
-         MYDISTRO="`echo $target | cut -f2- -d-`"
-      ;;
-      *cygwin*)
-         MYDISTRO="`echo $target | cut -f2- -d-`"
-      ;;
-      *nto-qnx*)
-         MYDISTRO="`uname -s`-`uname -r`"
-      ;;
-      *qnx*)
-         MYDISTRO="`uname -s`-`uname -v`"
-      ;;
-      *)
-         MYDISTRO="$target"
-      ;;
-   esac
-fi
-AC_SUBST(MYDISTRO)
-])

@@ -1,5 +1,9 @@
-
+include pusha.inc
+if ?REAL
+		.8086
+else
 		.286
+endif
 
 cr	equ 13
 lf	equ 10
@@ -121,7 +125,7 @@ GetPrivateProfileString proc far pascal uses ds es lpszSection:far ptr byte,
 local	rc:word
 local	sel:word
 
-        pusha
+        @push_a
         xor     ax,ax
         mov     rc,ax
         mov     ah,48h
@@ -196,7 +200,7 @@ getpps_ex1:
         mov     ah,49h
         int     21h
 getpps_ex:
-        popa
+        @pop_a
         mov     ax,rc
         ret
 
@@ -209,7 +213,7 @@ local	rc:word
 local	sel:word
 local	lbuf:word
 
-        pusha
+        @push_a
         xor     ax,ax
         mov     rc,ax
         mov     ah,48h
@@ -273,7 +277,7 @@ writepps_ex1:
         mov     ah,49h
         int     21h
 writepps_ex:
-        popa
+        @pop_a
         mov     ax,rc
         ret
 

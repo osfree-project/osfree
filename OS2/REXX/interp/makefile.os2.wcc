@@ -64,7 +64,7 @@ tracing.obj   &
 interp.obj    &
 cmath.obj     &
 convert.obj   &
-strings.obj   &
+strengs.obj   &
 library.obj   &
 strmath.obj   &
 signals.obj   &
@@ -105,7 +105,7 @@ tracing.dlo   &
 interp.dlo    &
 cmath.dlo     &
 convert.dlo   &
-strings.dlo   &
+strengs.dlo   &
 library.dlo   &
 strmath.dlo   &
 signals.dlo   &
@@ -156,7 +156,7 @@ LINK            = wlink
 LIBEXE          = wlib
 LIBFLAGS                = /q /n
 
-HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configur.h $(SRC)strings.h
+HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configur.h $(SRC)strengs.h
 
 GCIHEADERS = $(SRC)gci\gci.h $(SRC)gci\embedded.h gci_convert.h
 
@@ -191,7 +191,7 @@ rexx.exe : $(OFILES) rexx.obj nosaa.obj
         @%append dummy.lnk file interp.obj
         @%append dummy.lnk file cmath.obj
         @%append dummy.lnk file convert.obj
-        @%append dummy.lnk file strings.obj
+        @%append dummy.lnk file strengs.obj
         @%append dummy.lnk file library.obj
         @%append dummy.lnk file strmath.obj
         @%append dummy.lnk file signals.obj
@@ -271,7 +271,7 @@ $(LIBFILE): $(OFILES) client.obj drexx.obj rexxsaa.obj
         @%append lib.rsp +interp.obj
         @%append lib.rsp +cmath.obj
         @%append lib.rsp +convert.obj
-        @%append lib.rsp +strings.obj
+        @%append lib.rsp +strengs.obj
         @%append lib.rsp +library.obj
         @%append lib.rsp +strmath.obj
         @%append lib.rsp +signals.obj
@@ -322,7 +322,7 @@ $(DLLFILE): $(DLOFILES) client.dlo drexx.dlo rexxsaa.dlo
         @%append dummy.lnk file interp.dlo
         @%append dummy.lnk file cmath.dlo
         @%append dummy.lnk file convert.dlo
-        @%append dummy.lnk file strings.dlo
+        @%append dummy.lnk file strengs.dlo
         @%append dummy.lnk file library.dlo
         @%append dummy.lnk file strmath.dlo
         @%append dummy.lnk file signals.dlo
@@ -486,7 +486,7 @@ cmath.obj:    $(SRC)cmath.c $(HFILES)
 convert.obj:  $(SRC)convert.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)$*.c
 
-strings.obj:  $(SRC)strings.c $(HFILES)
+strengs.obj:  $(SRC)strengs.c $(HFILES)
         $(CC) $(CCFLAGS) /fo=$@ $(SRC)$*.c
 
 library.obj:  $(SRC)library.c $(HFILES)
@@ -627,7 +627,7 @@ cmath.dlo:    $(SRC)cmath.c $(HFILES)
 convert.dlo:  $(SRC)convert.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(SRC)$*.c
 
-strings.dlo:  $(SRC)strings.c $(HFILES)
+strengs.dlo:  $(SRC)strengs.c $(HFILES)
         $(CC) $(CCFLAGS) $(THREADING) $(HAVE_GCI) /bd /fo=$*.dlo $(SRC)$*.c
 
 library.dlo:  $(SRC)library.c $(HFILES)

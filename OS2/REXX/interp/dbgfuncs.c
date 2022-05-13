@@ -33,7 +33,6 @@ streng *dbg_freelists( tsd_t *TSD, cparamboxptr dummy )
 streng *dbg_traceback( tsd_t *TSD, cparamboxptr dummy )
 {
    traceback(TSD) ;
-   dummy = dummy; /* keep compiler happy */
    return nullstringptr() ;
 }
 

@@ -47,7 +47,7 @@
  * Emulate the inclusion of <ctype.h> by defining popular values.
  */
 #define _CTYPE_H_INCLUDED
-#define _CTYPE_H
+#define _CTYPE_H 1
 #define _INC_CTYPE
 #define _CTYPE_DEFINED
 #define is_expand( c, bit, func ) ( ( char_info[256] & bit ) ?               \

@@ -94,7 +94,7 @@ _DISCARD_		= 0		;0 1=remove discardable segments if out of memory
   endif
 else
 _DISCARD_		= 1		;1 1=remove discardable segments if out of memory
-?OS2COMPAT		= 1		;1 1=OS/2 compatible app entry call
+?OS2COMPAT		= 0		;1 1=OS/2 compatible app entry call
 ?AUTOCSALIAS	= 1		;1 1=optionally alloc a CS alias for code segments
 ?NEAPPS			= 1		;1 0=dont support NE apps
 endif
@@ -111,7 +111,11 @@ if ?32BIT
 @use16	textequ <use16>
 
 else
+if ?REAL
+		.8086
+else
 		.286
+endif
 		
 ?PESUPP = 0
 @use16	textequ <>
@@ -592,7 +596,14 @@ else
 	mov [wStktop],ax
 endif
 	mov bx,sp
+if ?REAL
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
+else
 	shr bx,4
+endif
 if ?HDPMI
 	mov ax,cs		;it's not a TINY model if HDPMI is included!
 	mov cx,es
@@ -606,7 +617,12 @@ endif
 	mov bx,offset szShrkErr
 	jc main_err1	;shrink error (can this happen?)
 if ?DOSEMUSUPP
+if ?REAL
+	mov cx, 0F000h
+	push cx
+else
 	push 0F000h
+endif
 	pop es
 	mov di,0FFF5h
 	mov si,offset szDosEmuDate
@@ -857,7 +873,7 @@ if ?32BIT
 	movzx ecx,cx
 	mov ebx,EXCERRC
 else
-	pusha
+	@push_a
 	mov bp,sp
 	mov bx,EXCERRC
 endif
@@ -887,7 +903,12 @@ else
 	@trace_w EXCSP
 endif
 	@trace_s <" ***",lf>
+if ?REAL
+	xor ax, ax
+	push ax
+else
 	push 0
+endif
 	pop es
 	mov ax,cs
 	and al,03
@@ -954,8 +975,11 @@ endif
 	pop cx
 	jcxz @F					;no valid NE hdr!
 	mov es, cx
-	push offset szLoadErr
+	push cx
+	mov cx, offset szLoadErr
+	push cx
 	call stroutstk_err
+	pop cx
 	call displaymodandseg
 
 ;--- display <Modulename>.<Segment#> in ES:SI
@@ -972,16 +996,25 @@ endif
 exc0berrorexit endp
 
 displaymodandseg proc        
-	push offset szModule
+	mov ax, offset szModule
+	push ax
 	call stroutstk
 	call modnameout			;expects ES=NE hdr
 	mov ax, si
 	sub ax, es:[NEHDR.ne_segtab]
+if ?REAL
+	shr ax, 1				;size of segment table in ES is 16!!!
+	shr ax, 1
+	shr ax, 1
+	shr ax, 1
+else
 	shr ax, 3+1				;size of segment table in ES is 16!!!
+endif
 	inc ax
 	mov di, offset SegNo
 	call BYTEOUT
-	push offset szSegment
+	mov ax, offset szSegment
+	push ax
 	call stroutstk
 	@cr_out
 	ret
@@ -1452,8 +1485,8 @@ else
 ;--- even if dos kill works it doesn't free selectors for PSP and ENV
 
 	push es:[ENVIRON]
-	push 0					;clear es
-	pop es
+	xor ax, ax
+	mov es, ax
 	push bx
 
 if _LOADERPARENT_
@@ -1476,7 +1509,11 @@ endif
 	mov ah,50h				;set "new" PSP direktly
 	call doscall
 	pop bx					;selector of killed PSP
+if ?REAL
+	xor ax, ax		; emulate write access
+else
 	verw bx
+endif
 	jnz pspfreed
 	mov ax,1
 	and di,di
@@ -1489,7 +1526,11 @@ pspfreed:
 	pop bx
 	cmp [wTDStk],offset starttaskstk	;dont free enviroment sel of task 0
 	jz childselsdone		;because it is the loader's ENV as well
+if ?REAL
+	xor ax, ax		; emulate write access
+else
 	verw bx
+endif
 	jnz childselsdone
 	mov ax,1
 	and di,di
@@ -1516,7 +1557,13 @@ else
 	@trace_w [si.TASK.wSP]
 endif
 	@trace_s lf
+if ?REAL
+	push ax
+	xor ax, ax		; emulate write access
+	pop ax
+else
 	verw ax
+endif
 	jnz l214c_3
 	mov ss,ax
 if ?32BIT
@@ -1811,7 +1858,13 @@ endif
 	push ds
 	mov ds,ax				;cause a NP exception
 	pop ds					;to ensure stack segment is loaded
-	verw ax
+if ?REAL
+	push ax
+	xor ax, ax		; emulate write access
+	pop ax
+else
+	verw Ax
+endif
 	jnz StartApp_Err17
 	mov ss,ax
 if ?32BIT
@@ -1925,8 +1978,13 @@ ife ?32BIT
 	cmp al,es:[bx]
 	jnz @B
 	inc bx
-	mov ax,es
+if ?REAL
+	xor ax, ax
+	push ax
+else
 	push 0
+endif
+	mov ax,es
 	pop es
 notos2:
 endif
@@ -2006,7 +2064,7 @@ if 0
 	cmp cs:[wTasks], 0	;is anything loaded at all?
 	jz exit
 endif
-	pusha
+	@push_a
 	mov bl, 2fh
 	mov ax, 200h
 	int 31h
@@ -2016,13 +2074,13 @@ endif
 	mov dx, 0100h+offset int2frm
 	mov ax, 0201h
 	int 31h
-	popa
+	@pop_a
 exit:
 	ret
 disableserver endp
 
 enableserver proc public uses ds
-	pusha
+	@push_a
 	mov ds, cs:[wLdrPSP]
 	xor dx,dx
 	xor cx,cx
@@ -2033,7 +2091,7 @@ enableserver proc public uses ds
 	mov ax, 0201h
 	int 31h
 @@:
-	popa
+	@pop_a
 	ret
 enableserver endp
 
@@ -2074,7 +2132,7 @@ if ?32BIT
 	sub esp,sizeof RMCS+2
 	mov ebp,esp
 else
-	pusha
+	@push_a
 	sub sp,sizeof RMCS+2
 	mov bp,sp
 endif
@@ -2178,7 +2236,7 @@ if ?32BIT
 	popad
 else
 	add sp,sizeof RMCS+2
-	popa
+	@pop_a
 endif
 	ret
 SetAppTitle endp
@@ -2193,7 +2251,7 @@ if ?MULTPSP
 
 if ?MAKENEWENV
 CopyPgmInEnv proc
-	pusha
+	@push_a
 ;### changes for differences in environment block
   if ?OS2COMPAT
 	mov bl,ds:[0080h]			;length of cmd tail (used later)
@@ -2255,7 +2313,14 @@ CopyPgmInEnv proc
 ;### end
 	add ax,15		;paragraph align
 	and al,0F0h
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+else
 	shr ax,4
+endif
 	mov bx,ax
   if ?LOWENV
 	mov ax,100h
@@ -2321,7 +2386,7 @@ CopyPgmInEnv proc
 ;### end changes for environment
 done:
 	pop ds
-	popa
+	@pop_a
 	ret
 CopyPgmInEnv endp
 endif
@@ -2442,7 +2507,7 @@ else
 	pop cx
 	jc createpsp_1
 	push ds
-	pusha
+	@push_a
 	mov ds,[si.TASK.wModul]
 	mov es,bx
 	mov es:[0001],cx
@@ -2453,7 +2518,7 @@ else
 	movsw
 	movsw
 	movsw
-	popa
+	@pop_a
 	pop ds
 	mov ax,0001
 	int 31h
@@ -2782,7 +2847,7 @@ checkifreferencedex:
 checkifreferenced endp
 
 freemodulerest proc
-	pusha
+	@push_a
 if ?LOADDBGDLL
 	mov ax,[hModDbg]
 	and ax,ax
@@ -2797,8 +2862,12 @@ freemodulerest3:				   ;<----
 	and ax,ax
 	jz freemodulerestex_1
 @@:
+if ?REAL
+					; no access rights
+else
 	verr ax
 	jnz freemodulerestex_1	;error in module list
+endif
 	mov es,ax
 	mov ax,es:[NEHDR.NXTMOD]
 	and ax,ax
@@ -2834,7 +2903,7 @@ if ?PESUPP
 endif
 	@trace_s <"*** exit auto delete mode ***",lf>
 freemodulerestex:
-	popa
+	@pop_a
 	ret
 freemodulerest endp
 
@@ -2874,7 +2943,7 @@ SetCmdLine proc public uses es ds
 if ?32BIT
 	pushad
 else
-	pusha
+	@push_a
 endif
 	mov ds,cs:[wLdrDS]
 	xor al,al
@@ -2939,7 +3008,7 @@ endif
 if ?32BIT
 	popad
 else
-	popa
+	@pop_a
 endif
 	@trace_s <"SetCmdLine exit",lf>
 	ret
@@ -2964,19 +3033,23 @@ GetSSSP proc
 	jnz MultInst			;error
 @@:
 	call SegNo2Sel			;get selector in AX
+if ?REAL
+					; no access rights
+else
 	lar cx,ax
 	test ch,08h				;is SS a code selector?
 	jz getsssp_1			;(might be true for model tiny)
+endif
 	mov bx,es:[NEHDR.DGROFS]
 	mov ax,es:[bx].SEGITEM.wSel
 if _WINNT40BUG_
 							;winnt 4.0 might not create a NP exc!
 	test es:[bx.SEGITEM.flags],SF_ALIAS
 	jz @F
-	pusha
+	@push_a
 	mov si,bx
 	call Load_Segm			;this will do a "Realloc"
-	popa
+	@pop_a
 @@:
 endif
 getsssp_1:
@@ -3465,7 +3538,7 @@ checkpathname endp
 checkoutoffh proc
 	cmp ax,4
 	jnz exit
-	pusha
+	@push_a
 	push es
 	mov ah,62h
 	int 21h
@@ -3480,13 +3553,13 @@ checkoutoffh proc
 	@trace_w bx
 	@trace_s <lf>
 	pop es
-	popa
+	@pop_a
 	stc
 	ret
 @@:
 	@trace_s <"cannot increase file handle table",lf>
 	pop es
-	popa
+	@pop_a
 exit:
 	clc
 	ret
@@ -4058,7 +4131,9 @@ LoadSegmTable proc
 	mov ax,es:[NEHDR.ne_cseg]
 	cmp ax,?MAXSEG
 	jg error2
-	shl ax,3					;8 bytes/segment in file
+	shl ax,1					;8 bytes/segment in file
+	shl ax,1
+	shl ax,1
 	mov cx,ax
 	mov dx,offset segtable
 	mov ah,3Fh					;read table
@@ -4107,6 +4182,9 @@ segspecial proc
 	add ax,es:[NEHDR.ne_segtab]
 	xchg bx,ax
 	mov ax,es:[bx].SEGITEM.wSel
+if ?REAL
+							; no access rights
+else
 	lar cx,ax
 	test ch,8					;is dgroup a code segment?
 	jz @F						;no, then done
@@ -4129,6 +4207,7 @@ endif
 	mov es:[bx.SEGITEM.filesiz],cx
 	mov es:[bx.SEGITEM.memsiz],cx
 	inc word ptr es:[NEHDR.ne_autodata]
+endif
 @@:
 segspecial1:
 	mov es:[NEHDR.DGROFS],bx	;^ Dgroup Segment
@@ -4340,7 +4419,15 @@ SetAccBits proc uses ax bx
 	mov bx,ax
 	mov ax,cs
 	and ax,0003h
+if ?REAL
+	shl ax,1
+	shl ax,1
+	shl ax,1
+	shl ax,1
+	shl ax,1
+else
 	shl ax,05
+endif
 	or cx,ax
 	mov ax,0009h	;set access rights
 	call dpmicall
@@ -4407,7 +4494,7 @@ if ?32BIT
 	lsl ecx,eax
 	test ecx,0FFFF0000h
 	jz @F
-	pusha
+	@push_a
 	mov bx,word ptr [blkaddr+2]
 	mov cx,word ptr [blkaddr+0]
 	inc ecx
@@ -4416,7 +4503,7 @@ if ?32BIT
 	pop si
 	mov ax,0703h
 	int 31h
-	popa
+	@pop_a
 @@:
 endif
 	mov cx,word ptr [blkaddr+2] 	;address in CX:DX
@@ -4432,18 +4519,46 @@ AllocDosMem:
 	shr bx,1
 	rcr cx,1
 	mov bx,cx			;now in CX number of words
+if ?REAL
+	shr bx,1
+	shr bx,1
+	shr bx,1
+else
 	shr bx,03			;-> paragraphs
+endif
 	inc bx
 	mov ax,0100h		;alloc DOS memory
 	call dpmicall
 	jc error3
 ife ?USELOADERPSP
-	pusha
+	@push_a
 	dec ax
 	mov cx,ax
+if ?REAL
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+else
 	shr cx,12
+endif
 	mov dx,ax
+if ?REAL
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shl dx,4
+endif
 	mov bx, [aliassel]
 	mov ax,7
 	int 31h
@@ -4452,7 +4567,7 @@ ife ?USELOADERPSP
 	mov ds,bx
 	mov ds:[1],ax
 	pop ds
-	popa
+	@pop_a
 endif
 	push dx
 	mov cx,ax
@@ -4492,7 +4607,7 @@ if _DISCARD_
 ;*** in BX:CX number of bytes ***
 
 discardmem proc public
-	pusha
+	@push_a
 	push es
 	@trace_s <"memory is scarce, try to discard segments",lf>
 	mov ax,[wMDSta]
@@ -4539,7 +4654,7 @@ discardmem_1:
 	jmp discardmem_2
 discardmem_ex:
 	pop es
-	popa
+	@pop_a
 	ret
 discardmem endp
 
@@ -4578,9 +4693,31 @@ AllocRMSegment proc uses cx dx
 	jc exit
 	xchg ax,bx				;segment in bx
 	mov dx,ax				;zu addr in cx:dx
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+else
 	shr ax,12
+endif
 	mov cx,ax
+if ?REAL
+	shl dx,1
+	shl dx,1
+	shl dx,1
+	shl dx,1
+else
 	shl dx,4
+endif
 	mov ax,0007
 	int 31h 				;set base
 	jc exit
@@ -4623,6 +4760,9 @@ SetBaseLimit proc uses bx
 	mov ax,offset szErr35	;error 'set segment limit'
 	jc error2
 if ?AUTOCSALIAS
+if ?REAL
+					; no access rights
+else
 	lar ax,bx
 	test ah,8
 	jz @F
@@ -4632,6 +4772,7 @@ if ?AUTOCSALIAS
 	add ax,8
 	call SetBaseLimit
 	jc error1
+endif
 @@:
 endif
 	mov ax,bx
@@ -4701,11 +4842,11 @@ setaccrights endp
 ;*** RC: C on errors
 
 Set_AX_Present:
-	pusha
+	@push_a
 	mov cx,0FFFFh
 	mov dx,0080h	 ;set PRESENT bit
 	call setaccrights
-	popa
+	@pop_a
 	ret
 
 setexc0b proc uses bx
@@ -4761,8 +4902,12 @@ GetNPBase proc
 	mov ax,0006h		 ;get segment base -> cx:dx
 	call dpmicall
 	jc error
+if ?REAL
+					; no access rights
+else
 	lar ax,cx			 ;in Base there is ^NE.Segment
 	jnz error
+endif
 	mov es,cx
 	cmp es:[NEHDR.ne_magic],'EN'
 	jnz error
@@ -5055,8 +5200,27 @@ endif
 	mov dx,ax
 	test bx,0FFF0h					;is limited to 1 MB
 	jnz ReallocMem_err
+if ?REAL
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shr cx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+	shl bx,1
+else
 	shr cx,4
 	shl bx,12
+endif
 	or bx,cx
 	mov ax,0102h		   ;the address cannot change
 	int 31h 			   ;server will do the selector tiling
@@ -5351,8 +5515,13 @@ done:
 	@trace_s lf
 	mov si,word ptr es:[NEHDR.MEMHDL+0] ;now do MD itself
 	mov di,word ptr es:[NEHDR.MEMHDL+2]
-	mov bx,es
+if ?REAL
+	mov bx, 0
+	push bx
+else
 	push 0
+endif
+	mov bx,es
 	pop es						  ;clear es before dpmi call
 	mov ax,0001
 	call dpmicall
@@ -5415,8 +5584,11 @@ freesegmmem proc near uses di
 	call FreeMemory			;free memory (Handle in AX or SI:DI)
 	pop si
 	jnc exit
-	push offset szErr32		;error: deallocate memory
+	push ax
+	mov ax, offset szErr32		;error: deallocate memory
+	push ax
 	call stroutstk_err
+	pop ax
 	call displaymodandseg
 	stc
 exit:
@@ -5521,7 +5693,13 @@ ReadReloc proc
 	jb @F
 	mov cx,RELSIZE/8
 @@:
+if ?REAL
+	shl cx,1					;each entry requirest 8 bytes
+	shl cx,1
+	shl cx,1
+else
 	shl cx,3					;each entry requirest 8 bytes
+endif
 	mov dx,offset relbuf
 	mov ah,3Fh
 	int 21h 					;read relocations
@@ -5564,7 +5742,12 @@ endif
 	ret
 @@:
 	dec bx
+if ?REAL
+	shl bx,1
+	shl bx,1
+else
 	shl bx,2
+endif
 	add bx,offset fpOSFixups
 	mov dx,[bx+2]
 	mov cx,[bx+0]
@@ -5651,11 +5834,11 @@ endif
 	pop es
 	jmp hr_continue
 hr_01_1:
-	pusha
+	@push_a
 	mov ax,[di+6]
 	mov di,offset LENTERR
 	call WORDOUT
-	popa
+	@pop_a
 	mov bx,offset errstr24	;error "entry not found"
 
 notfounderror:				;<--- imported name not found
@@ -5780,7 +5963,11 @@ ps_fptr:
 isList:
 if _CHECKSEGSIZE_
 	mov bp,ds
+if ?REAL
+	mov bp, 0ffffh
+else
 	lsl bp,bp
+endif
 endif
 	cmp al,02			;far pointer?
 	ja isfar
@@ -6119,7 +6306,7 @@ done:
 	clc
 	ret
 error1:									;error in LibEntry
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 ;;	dec es:[NEHDR.ne_count]
@@ -6139,7 +6326,7 @@ nextchar:
 	mov ax,offset szEntryErr
 	call stroutax
 	pop ds
-	popa
+	@pop_a
 ;	mov ax,offset errstr15		;DLL init error
 	@trace_s <"CallLibEntry exit",lf>
 	stc
@@ -6158,7 +6345,11 @@ CallAllLibEntries proc public uses es
 	@trace_s <"CallAllLibEntries enter, ax=">
 	@trace_w ax
 	@trace_s <lf>
+if ?REAL
+	mov ax, 0ffffh
+else
 	lsl ax,ax
+endif
 	@trace_s <"CallAllLibEntries limit of es=">
 	@trace_w ax
 	@trace_s <lf>
@@ -6543,8 +6734,12 @@ UnloadMod16 proc
 nextitem:
 	push es
 	mov ax,es:[si]
+if ?REAL
+					; no access rights
+else
 	verr ax
 	jnz @F
+endif
 	mov es,ax
 ;	cmp es:[NEHDR.ne_count],0
 ;	jnz @F
@@ -6614,9 +6809,11 @@ else
 	push es
 	push ds
 	mov si,sp
-	push 0000				;WEP Parameter
+	xor dx,dx
+	push dx					;WEP Parameter
 	push cs
-	push offset dowep_1
+	mov dx,offset dowep_1
+	push dx
 	push ax
 	push bx
 	xor ax,ax
@@ -6650,8 +6847,12 @@ dowep endp
 
 
 checkne proc public
+if ?REAL
+				; no access rights
+else
 	verr ax
 	jnz @F
+endif
 	mov es,ax
 	cmp word ptr es:[0],"EN"
 	jnz @F
@@ -6706,8 +6907,12 @@ nextitem:
 refsdone:
 	pop cx
 	mov ax,es
+if ?REAL
+					; No access rights
+else
 	verw ax
 	jnz done
+endif
 	mov es:[NEHDR.ne_cmod],cx
 	cmp es:[NEHDR.ne_count],0
 	jz @F
@@ -6724,12 +6929,16 @@ done:
 exit:
 	pop cx
 	pushf
+if ?REAL
+					; no access rights
+else
 	verr cx				;if ES is invalid now, clear it
 	jz @F
 	@trace_s <"MD ">
 	@trace_w cx
 	@trace_s <" now invalid, clearing ES",lf>
 	xor cx, cx
+endif
 @@:
 	mov es, cx
 	popf
@@ -6767,7 +6976,7 @@ nextitem:					;<----
 	jcxz notfound	;table end reached -> error
 	inc di
 if _TESTIMPORT_
-	pusha
+	@push_a
 	push ds
 	push es
 
@@ -6779,7 +6988,7 @@ if _TESTIMPORT_
 
 	pop es
 	pop ds
-	popa
+	@pop_a
 endif
 	cmp bl,cl		 ;do lengths match?
 	jnz skipitem
@@ -7071,7 +7280,8 @@ if ?HDPMI
 	add ax, offset endhdpmi
 	push ax
 else
-	push offset psp_rou + 100h	;IP
+	mov ax,offset psp_rou + 100h	;IP
+	push ax
 endif
 	mov ax,0502h
 	mov bx,cs
@@ -7110,7 +7320,7 @@ if _SUPRESDOSERR_
 	test cs:fMode, FMODE_NOERRDISP
 	jnz nodisp
 endif
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 ife ?32BIT
@@ -7135,7 +7345,7 @@ endif
 	@strout_err szDpmiErr,1
 @@:
 	pop ds
-	popa
+	@pop_a
 nodisp:
 	add sp,2
 	stc
@@ -7161,7 +7371,10 @@ WORDOUT:
 	pop ax
 BYTEOUT:
 	mov ah,al
-	shr al,4
+	shr al,1
+	shr al,1
+	shr al,1
+	shr al,1
 	call NIBOUT
 	mov al,ah
 NIBOUT:
@@ -7205,13 +7418,13 @@ endif
 printchar endp
 
 dpmildrout proc
-	pusha
+	@push_a
 if ?32BIT
 	@strout <"DPMILD32: ">
 else
 	@strout <"DPMILD16: ">
 endif
-	popa
+	@pop_a
 	ret
 dpmildrout endp
 
@@ -7291,14 +7504,14 @@ stroutBXn endp
 ;--- display module name of ES
 
 modnameout proc near
-	pusha
+	@push_a
 	push ds
 	push es
 	pop ds
 	mov bx,offset NEHDR.szModPath
 	@stroutbx
 	pop ds
-	popa
+	@pop_a
 	ret
 modnameout endp
 
@@ -7324,13 +7537,13 @@ if ?32BIT
 	repz cmps byte ptr [edi],[esi]
 	popad
 else
-	pusha
+	@push_a
 	mov bp,sp
 	mov si,offset ctxt
 	les di,[bp+8*2+2*2+2]
 	mov cx,lctxt
 	repz cmpsb
-	popa
+	@pop_a
 endif
 	pop es
 	pop ds
@@ -7354,14 +7567,33 @@ getpspr proc uses bx cx
 	mov ax,6
 	call dpmicall
 	mov ax,dx
+if ?REAL
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shr ax,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+	shl cx,1
+else
 	shr ax,4
 	shl cx,12
+endif
 	or ax,cx
 	ret
 getpspr endp
 
 checkpsp proc
-	pusha
+	@push_a
 	push ds
 	mov ds,cs:[wLdrDS]
 	mov ah,51h
@@ -7421,7 +7653,7 @@ allok:
 	clc
 exit:
 	pop ds
-	popa
+	@pop_a
 	ret
 checkpsp endp
 
@@ -7430,12 +7662,12 @@ checkpsp endp
 ;endif
 
 _mycrout proc public
-	pusha
+	@push_a
 	mov al,cr
 	call printchar
 	mov al,lf
 	call printchar
-	popa
+	@pop_a
 	ret
 _mycrout endp
 
@@ -7450,7 +7682,8 @@ next:
 	ja exit
 	add dx, dx
 	mov cx, dx
-	shl dx, 2
+	shl dx, 1
+	shl dx, 1
 	add dx, cx
 	mov ah, 0
 	add dx, ax
@@ -7527,16 +7760,18 @@ else
 	jc exit
 	@trace_s <"extload: CreateAlias ok",lf>
 	push ax
+	mov ax,offset nextsm			;switch to new CS
+	push ax
 	mov ax,cs
-	push offset nextsm			;switch to new CS
 	retf
 nextsm:
 	call CreateAlias				;now original CS can be modified
 	jc exit
 	push bx
 	push ax
+	mov bx, offset nextsm2
+	push bx
 	mov bx,cs
-	push offset nextsm2
 	retf
 nextsm2:
 	@trace_s <"extload: nextsm2 reached",lf>
@@ -7566,7 +7801,10 @@ if _RESIZEPSP_
   else
 	mov bx, offset endoflowcode
 	mov al, bl
-	shr bx, 4
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
+	shr bx, 1
 	test al, 0Fh
 	jz @F
 	inc bx
@@ -7599,7 +7837,7 @@ if ?HDPMI
 ;--- runs in real-mode!
 
 inithdpmi proc
-	pusha
+	@push_a
 	push ds
 	mov ah,51h
 	int 21h
@@ -7615,7 +7853,7 @@ inithdpmi proc
 	mov ah,0
 	cmp al,4
 	cmc
-	popa 
+	@pop_a
 	ret
 inithdpmi endp
 
@@ -7626,7 +7864,7 @@ endif
 
 if ?SERVER
 loadserver proc
-	pusha
+	@push_a
 	mov bp,sp
 
 	push ds
@@ -7635,12 +7873,16 @@ loadserver proc
 ;----------------------------- build an exec param struct on stack (real mode)
 	mov cx,[wLdrPSP]
 	push cx
-	push offset 006Ch		;fcb2
+	mov bx, offset 006Ch		;fcb2
+	push bx
 	push cx
-	push offset 005Ch		;fcb1 
+	mov bx, offset 005Ch		;fcb1
+	push bx
 	push ds
-	push offset nullstr		;dos command tail
-	push 0					;environment segment
+	mov bx, offset nullstr		;dos command tail
+	push bx
+	mov bx, 0
+	push bx					;environment segment
 if ?KERNEL16
 	mov si,offset KernelNE.szModPath
 else
@@ -7673,7 +7915,7 @@ tryagain:
 	jc loadfailed
 doneload:
 	mov sp,bp
-	popa
+	@pop_a
 	ret
 loadfailed:
 if ?STUB
@@ -7737,7 +7979,7 @@ endif
 ;--- set vector for int 21h in protected mode
 
 setvec21 proc
-	pusha
+	@push_a
 	mov bl,21h
 	mov cx,cs
 if ?32BIT
@@ -7747,7 +7989,7 @@ else
 endif
 	mov ax,0205h			;set Int 21 PM vector
 	call dpmicall
-	popa
+	@pop_a
 	ret
 setvec21 endp
 

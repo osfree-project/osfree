@@ -9,6 +9,9 @@ TRGT       = $(PROJ).exe
 DESC       = 286 MS-DOS Extender
 srcfiles   = $(p)dosx$(e)
 JWASM      = 1
+DEST       = os2$(SEP)mdos$(SEP)winos2
+
+DIRS = hdpmi
 
 DIRS = hdpmi
 

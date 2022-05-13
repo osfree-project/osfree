@@ -754,7 +754,13 @@ int hookup_output( tsd_t *TSD, int hook, const streng *outdata )
    int len = 0;
 
    code = MapHook( TSD, hook );
-/*   assert (code == RX_EXIT_STDOUT || code == RX_EXIT_STDERR ); */
+   /*
+    * Another level of checking to see if we have an exit handler
+    * This probably should be added to hookup_input etc
+    */
+   if ( !IfcExitHandlerExists( TSD, code ) )
+      return HOOK_GO_ON;
+
    if (outdata)
    {
       str = str_of( TSD, outdata ) ;

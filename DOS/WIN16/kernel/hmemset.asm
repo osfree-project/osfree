@@ -1,7 +1,11 @@
 
 ;*** copy huge array
 
+if ?REAL
+		.8086
+else
 		.286
+endif
 
 externdef __AHINCR:far
 

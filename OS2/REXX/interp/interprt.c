@@ -20,6 +20,7 @@
 #include "rexx.h"
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #ifndef VMS
 # ifdef HAVE_UNISTD_H
 #  include <unistd.h>
@@ -1322,8 +1323,8 @@ endloop: if (s.increment)
          if (retval != NULL) /* we interpreted a RETURN WITH a value */
          {
             stackelem *top = stacktop(TSD);
-            unsigned i;
-            for (i = stacktrigger(TSD);i > stktrigger;i--,top = top->prev)
+            unsigned i1;
+            for (i1 = stacktrigger(TSD);i1 > stktrigger;i1--,top = top->prev)
             {
                if (top->increment == s.increment)
                   s.increment = NULL;
@@ -1687,12 +1688,12 @@ endloop: if (s.increment)
          streng *cptr, *kill=NULL;
          volatile char *tmp_str;
          stackelem *top;
-         unsigned i;
+         unsigned i1;
 
          cptr = (thisptr->name) ? thisptr->name : evaluate( TSD, thisptr->p[0], &kill );
          nstackcleanup( TSD, nstktrigger, NULL );
          top = stacktop( TSD );
-         for ( i = stacktrigger( TSD ); i > stktrigger; i--, top = top->prev )
+         for ( i1 = stacktrigger( TSD ); i1 > stktrigger; i1--, top = top->prev )
          {
             if ( top->increment == s.increment )
                s.increment = NULL;
@@ -2051,7 +2052,7 @@ endloop: if (s.increment)
       case X_RETURN:
       {
          stackelem *top;
-         unsigned i;
+         unsigned i1;
          streng *retval;
 
          /* buggy, need to deallocate procbox and vars ... */
@@ -2061,7 +2062,7 @@ endloop: if (s.increment)
             retval = NULL ;
 
          top = stacktop(TSD);
-         for (i = stacktrigger(TSD);i > stktrigger;i--,top = top->prev)
+         for (i1 = stacktrigger(TSD);i1 > stktrigger;i1--,top = top->prev)
          {
             if (top->increment == s.increment)
                s.increment = NULL;
@@ -2273,19 +2274,19 @@ endloop: if (s.increment)
       {
          streng *tmpstr,*kill;
          int len;
-         char *s;
+         char *s1;
 
          tmpstr = evaluate( TSD, thisptr->p[0], &kill );
          len = tmpstr->len;
-         s = tmpstr->value;
+         s1 = tmpstr->value;
 
-         if ( ( len == 10 ) && ( mem_cmpic( s, "SCIENTIFIC", 10 ) == 0 ) )
+         if ( ( len == 10 ) && ( mem_cmpic( s1, "SCIENTIFIC", 10 ) == 0 ) )
             TSD->currlevel->numform = NUM_FORM_SCI ;
-         else if ( ( len == 11 ) && ( mem_cmpic( s, "ENGINEERING", 11 ) == 0 ) )
+         else if ( ( len == 11 ) && ( mem_cmpic( s1, "ENGINEERING", 11 ) == 0 ) )
             TSD->currlevel->numform = NUM_FORM_ENG ;
-         else if ( ( len == 1 ) && ( rx_toupper( *s ) == 'S' ) )
+         else if ( ( len == 1 ) && ( rx_toupper( *s1 ) == 'S' ) )
             TSD->currlevel->numform = NUM_FORM_SCI ;
-         else if ( ( len == 1 ) && ( rx_toupper( *s ) == 'E' ) )
+         else if ( ( len == 1 ) && ( rx_toupper( *s1 ) == 'E' ) )
             TSD->currlevel->numform = NUM_FORM_ENG ;
          else
             exiterror( ERR_INVALID_RESULT, 0 )  ;

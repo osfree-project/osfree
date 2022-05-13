@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regunicode.c,v 1.3 2012/08/08 01:26:20 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regunicode.c,v 1.5 2019/07/03 22:39:28 mark Exp $
  */
 #include "rxproto.h"
 
@@ -349,8 +349,9 @@ static int mb64tou(unsigned short * us, const unsigned char * mb64s, int ul, int
     unsigned char uc[2];
 
     nb = 16;    /* start needing all 16 bits */
-    r = 0;
     c = 0;
+    uc[0] = '\0';
+    uc[1] = '\0';
 
     /* yes, this should be i++ */
     for (i = j = 0; i < ul; i++) {
@@ -438,7 +439,9 @@ static int u7tou(unsigned short *us, const unsigned char * u7s, int ul)
 rxfunc(systounicode)
 {
    int cp;
+#ifdef _WIN32
    int flags = 0;
+#endif
    RXSTRING outs;
    RXSTRING stemv;
    static const char text[] = "!TEXT";
@@ -616,13 +619,15 @@ rxfunc(systounicode)
 rxfunc(sysfromunicode)
 {
    int cp;
-   int flags = 0;
    RXSTRING outs;
    RXSTRING stemv;
    static const char text[] = "!TEXT", usedd[] = "!USEDDEFAULTCHAR";
    int usedDefaultChar = 0;
-   char * defchar = NULL;
+#ifdef _WIN32
+   int flags = 0;
    int * pusedDefaultChar = NULL;
+   char * defchar = NULL;
+#endif
 
    checkparam(5, 5);
 

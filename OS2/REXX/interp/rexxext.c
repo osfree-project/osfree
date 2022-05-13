@@ -123,14 +123,12 @@ streng *rex_getcaller( tsd_t *TSD, cparamboxptr parms )
 
 streng *rex_getcallstack( tsd_t *TSD, cparamboxptr parms )
 {
-   char ch=0 ;
-   int i=0 ;
-
-   checkparam(  parms,  1,  1 , "GETCALLSTACK" ) ;
+   checkparam(  parms,  0,  1 , "GETCALLSTACK" ) ;
    if (parms->value)
       getcallstack( TSD, parms->value );
    else
-      exiterror( ERR_INCORRECT_CALL, 28, "GETCALLSTACK", "ALN", tmpstr_of( TSD, parms->value ) )  ;
+//      exiterror( ERR_INCORRECT_CALL, 28, "GETCALLSTACK", "", tmpstr_of( TSD, parms->value ) )  ;
+      getcallstack( TSD, NULL );
 
    return nullstringptr( ) ;
 }

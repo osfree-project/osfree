@@ -41,7 +41,7 @@ OBJ4=mt_notmt.obj,rexxbif.obj,instore.obj,extstack.obj,os2funcs.obj,
 OBJ5=interp.obj,interprt.obj,lexsrc.obj,library.obj,macros.obj,memory.obj,
 OBJ6=misc.obj,options.obj,parsing.obj,rexxext.obj,rexxsaa.obj,shell.obj,
 !OBJ6=misc.obj,options.obj,parsing.obj,rexxext.obj,shell.obj,
-OBJ7=signals.obj,stack.obj,strings.obj,strmath.obj,tracing.obj,unxfuncs.obj,
+OBJ7=signals.obj,stack.obj,strengs.obj,strmath.obj,tracing.obj,unxfuncs.obj,
 .IFDEF DOESNT_HAVE_UNAME
 OBJ8=uname.obj,
 .ELSE
@@ -222,7 +222,7 @@ os2funcs.obj :   os2funcs.c, rexx.h
         @ write sys$output "Compiling $(MMS$SOURCE) "
         $(CC) $(CFLAGS) $(MMS$SOURCE)
         @ write sys$output "Done (compiling)."
-parsing.obj :   parsing.c, rexx.h, strings.h
+parsing.obj :   parsing.c, rexx.h, strengs.h
         @ write sys$output ""
         @ write sys$output "Compiling $(MMS$SOURCE) "
         $(CC) $(CFLAGS) $(MMS$SOURCE)
@@ -277,7 +277,7 @@ stack.obj :     stack.c, rexx.h
         @ write sys$output "Compiling $(MMS$SOURCE) "
         $(CC) $(CFLAGS) $(MMS$SOURCE)
         @ write sys$output "Done (compiling)."
-strings.obj :   strings.c, rexx.h
+strengs.obj :   strengs.c, rexx.h
         @ write sys$output ""
         @ write sys$output "Compiling $(MMS$SOURCE) "
         $(CC) $(CFLAGS) $(MMS$SOURCE)

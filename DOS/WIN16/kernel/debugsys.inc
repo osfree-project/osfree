@@ -50,3 +50,23 @@ DS_CondBP		equ 0F001h
 DS_ForcedBP		equ 0F002h
 DS_ForcedGO		equ 0F003h
 
+
+;410000 INT 41 CPU - MS Windows debugging kernel - OUTPUT CHARACTER FOR USER
+;410001 INT 41 CPU - MS Windows debugging kernel - INPUT CHARACTER
+;41000D INT 41 CPU - MS Windows debugging kernel - TASK GOING OUT
+;41000E INT 41 CPU - MS Windows debugging kernel - TASK COMING IN
+;410012 INT 41 CPU - MS Windows debugging kernel - "OutputDebugString"
+;41004F INT 41 CPU - MS Windows debugging kernel - DEBUGGER INSTALLATION CHECK
+;410050 INT 41 P - MS Windows debugging kernel - "DefineDebugSegment"
+;410051 INT 41 CPU - MS Windows debugging kernel - MOVE SEGMENT
+;410052 INT 41 CPU - MS Windows debugging kernel - FREE SEGMENT
+;410059 INT 41 CPU - MS Windows debugging kernel - LOAD TASK
+;41005C INT 41 CPU - MS Windows debugging kernel - FREE INITIAL SEGMENT
+;410060 INT 41 CPU - MS Windows debugging kernel -  END OF SEGMENT LOAD
+;410061 INT 41 CPU - MS Windows debugging kernel - END OF SEGMENT DISCARD
+;410062 INT 41 CPU - MS Windows debugging kernel - APPLICATION TERMINATING
+;410063 INT 41 CPU - MS Windows debugging kernel - ASYNCHRONOUS STOP (Ctrl-Alt-SysReq)
+;410064 INT 41 CPU - MS Windows debugging kernel - DLL LOADED
+;410065 INT 41 CPU - MS Windows debugging kernel - MODULE REMOVED
+;410066 INT 41 CPU - MS Windows debugging kernel - ERROR
+;410067 INT 41 CPU - MS Windows debugging kernel - PARAMETER ERROR

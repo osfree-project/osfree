@@ -1,99 +1,34 @@
-dnl MH_HAVE_PROTO
-dnl MH_PROG_CC
-dnl MH_CHECK_CC_O
-dnl MH_CHECK__SIGHANDLER_T
-dnl MH_STRUCT_RANDOM_DATA
-dnl MH_GETGRGID_R_INT_RETURN_5_PARAMS
-dnl MH_GETGRGID_R_INT_RETURN_4_PARAMS
-dnl MH_GETGRGID_R_STRUCT_RETURN
-dnl MH_GETPWUID_R_INT_RETURN
-dnl MH_GETPWUID_R_STRUCT_RETURN
-dnl MH_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS
-dnl MH_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS
-dnl MH_CHECK_POSIX_THREADS
-dnl MH_CHECK_LEADING_USCORE
-dnl MH_HOWTO_DYN_LINK
-dnl MH_HOWTO_SHARED_LIBRARY
-dnl MH_CHECK_LIB
-dnl MH_CHECK_CRYPT
-dnl MH_SHLPST
-dnl MH_SET_SHLPST
-dnl MH_SHARED_LIBRARY
-dnl MH_STATIC_LOADING
-dnl MH_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH
-dnl MH_CHECK_RPM
-dnl MH_C_LONG_LONG
-dnl MH_CHECK_TYPE_SOCKLEN_T
-dnl MH_CHECK_F_MNTFROMNAME
-dnl MH_LARGE_FILE_SUPPORT
-dnl MH_CHECK_OSX_ARCH
-dnl MH_GET_DISTRO_NAME
+dnl REG_CHECK_CC_O
+dnl REG_CHECK__SIGHANDLER_T
+dnl REG_STRUCT_RANDOM_DATA
+dnl REG_GETGRGID_R_INT_RETURN_5_PARAMS
+dnl REG_GETGRGID_R_INT_RETURN_4_PARAMS
+dnl REG_GETGRGID_R_STRUCT_RETURN
+dnl REG_GETPWUID_R_INT_RETURN
+dnl REG_GETPWUID_R_STRUCT_RETURN
+dnl REG_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS
+dnl REG_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS
+dnl REG_CHECK_POSIX_THREADS
+dnl REG_HOWTO_DYN_LINK
+dnl REG_CHECK_CRYPT
+dnl REG_SHLPST
+dnl REG_SET_SHLPST
+dnl REG_SHARED_LIBRARY
+dnl REG_STATIC_LOADING
+dnl REG_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH
+dnl REG_CHECK_TYPE_SOCKLEN_T
+dnl REG_CHECK_F_MNTFROMNAME
+dnl REG_HAVE_SYSTEMD
 dnl
-dnl ---------------------------------------------------------------------------
-dnl Determine if C compiler handles ANSI prototypes
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_HAVE_PROTO],
-[
-AC_MSG_CHECKING(if compiler supports ANSI prototypes)
-dnl
-dnl override existing value of $ac_compile so we use the correct compiler
-dnl SHOULD NOT NEED THIS
-dnl
-ac_compile='$ac_cv_prog_CC conftest.$ac_ext $CFLAGS $CPPFLAGS -c 1>&5 2>&5'
-AC_TRY_COMPILE([#include <stdio.h>],
-[extern int xxx(int, char *);],
-  mh_have_proto=yes; AC_DEFINE(HAVE_PROTO), mh_have_proto=no )
-AC_MSG_RESULT($mh_have_proto)
-])dnl
-dnl ---------------------------------------------------------------------------
-dnl Determine the best C compiler to use given a list
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_PROG_CC],
-[
-mh_sysv_incdir=""
-mh_sysv_libdir=""
-all_words="clang xlc gcc c99 c89 acc cc"
-ac_dir=""
-AC_MSG_CHECKING(for one of the following C compilers: $all_words)
-AC_CACHE_VAL(ac_cv_prog_CC,[
-if test -n "$CC"; then
-  ac_cv_prog_CC="$CC" # Let the user override the test.
-else
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
-  for mh_cc in $all_words; do
-    for ac_dir in $PATH; do
-      test -z "$ac_dir" && ac_dir=.
-      if test -f $ac_dir/$mh_cc; then
-        ac_cv_prog_CC="$mh_cc"
-        if test "$ac_dir" = "/usr/5bin"; then
-          mh_sysv_incdir="/usr/5include"
-          mh_sysv_libdir="/usr/5lib"
-        fi
-        break 2
-      fi
-    done
-  done
-  IFS="$ac_save_ifs"
-  test -z "$ac_cv_prog_CC" && ac_cv_prog_CC="cc"
-fi
-CC="$ac_cv_prog_CC"
-])
-AC_SUBST(CC)
-if test "$ac_dir" = ""; then
-   AC_MSG_RESULT(using $ac_cv_prog_CC specified in CC env variable)
-else
-   AC_MSG_RESULT(using $ac_dir/$ac_cv_prog_CC)
-fi
-])dnl
 dnl ---------------------------------------------------------------------------
 dnl Check if C compiler supports -c -o file.ooo
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_CC_O],
+AC_DEFUN([REG_CHECK_CC_O],
 [
 AC_MSG_CHECKING(whether $CC understands -c and -o together)
 set dummy $CC; ac_cc="`echo [$]2 |
 changequote(, )dnl
-                       sed -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^[0-9]/_/'`"
+sed -e 's/[^a-zA-Z0-9_]/_/g' -e 's/^[0-9]/_/'`"
 changequote([, ])dnl
 AC_CACHE_VAL(ac_cv_prog_cc_${ac_cc}_c_o,
 [echo 'int foo(){}' > conftest.c
@@ -132,9 +67,9 @@ else
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl Check if gcc compiler supports -fno-strict-aliasing
+dnl Check if gcc compiler supports -fno-strict-aliasing - not used
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_GCC_STRICT_ALIASING],
+AC_DEFUN([REG_CHECK_GCC_STRICT_ALIASING],
 [
 AC_MSG_CHECKING(whether gcc understands -fno-strict-aliasing)
 AC_CACHE_VAL(
@@ -143,7 +78,8 @@ AC_CACHE_VAL(
 mh_save_libs="$LIBS"
 LIBS="-fno-strict-aliasing"
 AC_LINK_IFELSE(
-[AC_LANG_PROGRAM([#include <stdio.h>],
+[AC_LANG_PROGRAM([#include <stdio.h>
+#include <stdlib.h>],
 [exit(0)])],
 [mh_strict_aliasing=yes],
 [mh_strict_aliasing=no]
@@ -161,7 +97,7 @@ AC_MSG_RESULT($mh_strict_aliasing)
 dnl ---------------------------------------------------------------------------
 dnl Check if compiler supports __builtin_return_address
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_BUILTIN_RETURN_ADDRESS],
+AC_DEFUN([REG_CHECK_BUILTIN_RETURN_ADDRESS],
 [
 AC_MSG_CHECKING(whether compiler supports __builtin_return_address inline function)
 AC_CACHE_VAL(
@@ -183,7 +119,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Determine compiler's "unsigned char" is default switch
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH],
+AC_DEFUN([REG_CHECK_UNSIGNED_CHAR_COMPILER_SWITCH],
 [
 AC_C_CHAR_UNSIGNED()
 AC_MSG_CHECKING(compiler switch for unsigned char)
@@ -233,7 +169,7 @@ AC_SUBST(MH_UNSIGNED_CHAR_SWITCH)
 dnl ---------------------------------------------------------------------------
 dnl Check if gcc compiler supports --version-script
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_GCC_VERSION_SCRIPT],
+AC_DEFUN([REG_CHECK_GCC_VERSION_SCRIPT],
 [
 AC_MSG_CHECKING(whether gcc understands --version-script)
 AC_CACHE_VAL(
@@ -246,7 +182,8 @@ echo "};" >> conftest.def
 mh_save_libs="$LDFLAGS"
 LDFLAGS="$LDFLAGS -Wl,--version-script=conftest.def"
 AC_LINK_IFELSE(
-[AC_LANG_PROGRAM([#include <stdio.h>],
+[AC_LANG_PROGRAM([#include <stdio.h>
+#include <stdlib.h>],
 [exit(0);])],
 [mh_cv_version_script=yes],
 [mh_cv_version_script=no]
@@ -266,7 +203,7 @@ AC_MSG_RESULT($mh_cv_version_script)
 dnl ---------------------------------------------------------------------------
 dnl Check if __sighandler_t is defined
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK__SIGHANDLER_T],
+AC_DEFUN([REG_CHECK__SIGHANDLER_T],
 [
 AC_MSG_CHECKING(whether __sighandler_t is defined)
 
@@ -291,7 +228,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if struct random_data is defined
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_STRUCT_RANDOM_DATA,
+AC_DEFUN(REG_STRUCT_RANDOM_DATA,
 [AC_CACHE_CHECK([for struct random_data], mh_cv_struct_random_data,
 [AC_TRY_COMPILE([#include <stdlib.h>
 #include <stdio.h>],
@@ -305,7 +242,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if getgrgid_r returns an int and has 5 parameters
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETGRGID_R_INT_RETURN_5_PARAMS,
+AC_DEFUN(REG_GETGRGID_R_INT_RETURN_5_PARAMS,
 [AC_CACHE_CHECK([if getgrgid_r has 5 args and returns an int], mh_cv_getgrgid_r_int5,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <grp.h>
@@ -326,7 +263,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if getgrgid_r returns an int and has 4 parameters
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETGRGID_R_INT_RETURN_4_PARAMS,
+AC_DEFUN(REG_GETGRGID_R_INT_RETURN_4_PARAMS,
 [AC_CACHE_CHECK([if getgrgid_r has 4 args and returns an int], mh_cv_getgrgid_r_int4,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <grp.h>
@@ -347,7 +284,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if getgrgid_r returns a struct group *
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETGRGID_R_STRUCT_RETURN,
+AC_DEFUN(REG_GETGRGID_R_STRUCT_RETURN,
 [AC_CACHE_CHECK([if getgrgid_r returns a struct group *], mh_cv_getgrgid_r_struct,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <grp.h>
@@ -368,7 +305,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if getpwuid_r returns an int
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETPWUID_R_INT_RETURN,
+AC_DEFUN(REG_GETPWUID_R_INT_RETURN,
 [AC_CACHE_CHECK([if getpwuid_r returns an int], mh_cv_getpwuid_r_int,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <grp.h>
@@ -389,7 +326,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if getpwuid_r returns a struct group *
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETPWUID_R_STRUCT_RETURN,
+AC_DEFUN(REG_GETPWUID_R_STRUCT_RETURN,
 [AC_CACHE_CHECK([if getpwuid_r returns a struct passwd *], mh_cv_getpwuid_r_struct,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <grp.h>
@@ -410,7 +347,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if gethostbyname_r returns a struct and has 6 parameters
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS,
+AC_DEFUN(REG_GETHOSTBYNAME_R_INT_RETURN_6_PARAMS,
 [AC_CACHE_CHECK([if gethostbyname_r has 6 args and returns an int], mh_cv_gethostbyname_r_int6,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <netdb.h>],
@@ -430,7 +367,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if gethostbyname_r returns a struct and has 5 parameters
 dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS,
+AC_DEFUN(REG_GETHOSTBYNAME_R_STRUCT_RETURN_5_PARAMS,
 [AC_CACHE_CHECK([if gethostbyname_r has 5 args and returns a struct], mh_cv_gethostbyname_r_struct5,
 [AC_TRY_COMPILE([#include <sys/types.h>
 #include <netdb.h>],
@@ -450,7 +387,7 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl Work out if POSIX Threads are supported
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_POSIX_THREADS],
+AC_DEFUN([REG_CHECK_POSIX_THREADS],
 [
 MH_MT_LIBS=""
 THREADING_COMPILE=""
@@ -537,48 +474,9 @@ AC_SUBST(MT_FILE)
 ])
 
 dnl ---------------------------------------------------------------------------
-dnl Work out if functions in dynamically loadable libraries need leading _
-dnl Tests based on glib code and only valid for dlopen() mechanism
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_LEADING_USCORE],
-[
-if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
-   AC_MSG_CHECKING(if symbols need underscore prepended in loadable modules)
-   tmpLIBS="$LIBS"
-   save_cflags="$CFLAGS"
-   LIBS="$LIBS $DLFCNLIBDIR"
-   CFLAGS="$CFLAGS $DLFCNINCDIR"
-   AC_CACHE_VAL(mh_cv_uscore,[
-   AC_RUN_IFELSE([AC_LANG_SOURCE([
-   #include <dlfcn.h>
-   int mh_underscore_test (void) { return 42; }
-   int main() {
-     void *f1 = (void*)0, *f2 = (void*)0, *handle;
-     handle = dlopen ((void*)0, 0);
-     if (handle) {
-       f1 = dlsym (handle, "mh_underscore_test");
-       f2 = dlsym (handle, "_mh_underscore_test");
-     } return (!f2 || f1);
-   }],
-   [mh_cv_uscore=yes],
-   [mh_cv_uscore=no],
-   [mh_cv_uscore=no]
-   )
-   ],[mh_cv_uscore=yes],[mh_cv_uscore=no],mh_cv_uscore=no)
-   ])
-   AC_MSG_RESULT($mh_cv_uscore)
-   if test "x$mh_cv_uscore" = "xyes"; then
-     AC_DEFINE(MODULES_NEED_USCORE)
-   fi
-   LIBS="$tmpLIBS"
-   CFLAGS="$save_cflags"
-fi
-])
-
-dnl ---------------------------------------------------------------------------
 dnl Work out how to create a dynamically loaded module
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_HOWTO_DYN_LINK],
+AC_DEFUN([REG_HOWTO_DYN_LINK],
 [
 mh_compile='${CC-cc} -c $DYN_COMP conftest.$ac_ext 1>&AC_FD_CC'
 cat > conftest.$ac_ext <<EOF
@@ -590,142 +488,59 @@ return(0);
 }
 EOF
 if AC_TRY_EVAL(mh_compile) && test -s conftest.o; then
-        mh_dyn_link='ld -shared -o conftest.rxlib conftest.o -lc 1>&AC_FD_CC'
-#       mh_dyn_link='${CC} -Wl,-shared -o conftest.rxlib conftest.o -lc 1>&AC_FD_CC'
-        if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
-                LD_RXLIB_A1="ld -shared -o \$(@)"
-                LD_RXLIB_A2="ld -shared -o \$(@)"
-                LD_RXLIB_UTILA="ld -shared -o \$(@)"
-#               LD_RXLIB1="${CC} -Wl,-shared"
-                LD_RXLIB_B1="-L. -l${SHLFILE}"
-                LD_RXLIB_B2="-L. -l${SHLFILE}"
-                LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                SHLPRE="lib"
-                SHLPST=".so"
-        else
-                mh_dyn_link='ld -G -o conftest.rxlib conftest.o 1>&AC_FD_CC'
-#               mh_dyn_link='${CC} -Wl,-G -o conftest.rxlib conftest.o 1>&AC_FD_CC'
-                if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
-                        LD_RXLIB_A1="ld -G -o \$(@)"
-                        LD_RXLIB_A2="ld -G -o \$(@)"
-                        LD_RXLIB_UTILA="ld -G -o \$(@)"
-#                       LD_RXLIB1="${CC} -Wl,-G"
-                        LD_RXLIB_B1="-L. -l${SHLFILE}"
-                        LD_RXLIB_B2="-L. -l${SHLFILE}"
-                        LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                        SHLPRE="lib"
-                        SHLPST=".so"
-                else
-                        LD_RXLIB_A1=""
-                        LD_RXLIB_A2=""
-                        LD_RXLIB_UTILA=""
-                        LD_RXLIB_B1=""
-                        LD_RXLIB_B2=""
-                        LD_RXLIB_UTILB=""
-                        SHLPRE=""
-                        SHLPST=""
-                fi
-        fi
-fi
-rm -f conftest*
-])dnl
-
-dnl ---------------------------------------------------------------------------
-dnl Work out how to create a shared library
-dnl ---------------------------------------------------------------------------
-AC_DEFUN(MH_HOWTO_SHARED_LIBRARY,
-[
-AC_MSG_CHECKING(how to create a shared library)
-mh_compile='${CC-cc} -c $DYN_COMP conftest.$ac_ext 1>&AC_FD_CC'
-cat > conftest.$ac_ext <<EOF
-dnl [#]line __oline__ "[$]0"
-[#]line __oline__ "configure"
-int foo()
-{
-return(0);
-}
-EOF
-if AC_TRY_EVAL(mh_compile) && test -s conftest.o; then
-        mh_dyn_link='ld -shared -o conftest.so.1.0 conftest.o -lc 1>&AC_FD_CC'
-#       mh_dyn_link='${CC} -Wl,-shared -o conftest.so.1.0 conftest.o -lc 1>&AC_FD_CC'
-        if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                SHL_LD="ld -shared -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'" -lc"
-#               SHL_LD="${CC} -Wl,-shared -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'" -lc"
-        else
-                mh_dyn_link='ld -G -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#               mh_dyn_link='${CC} -Wl,-G -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-                if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                        SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                       SHL_LD="${CC} -Wl,-G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                else
-                        mh_dyn_link='ld -o conftest.so.1.0 -shared -no_archive conftest.o  -lc 1>&AC_FD_CC'
-#                       mh_dyn_link='${CC} -o conftest.so.1.0 -Wl,-shared,-no_archive conftest.o  -lc 1>&AC_FD_CC'
-                        if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                                SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -shared -no_archive "'$('SHOFILES')'" -lc"
-#                               SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-shared,-no_archive "'$('SHOFILES')'" -lc"
-                        else
-                                mh_dyn_link='ld -b -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#                               mh_dyn_link='${CC} -Wl,-b -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-                                if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                                        SHL_LD="ld -b -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                                       SHL_LD="${CC} -Wl,-b -o ${SHLPRE}${SHLFILE}.${SHLPST} "'$('SHOFILES')'
-                                else
-                                        mh_dyn_link='ld -Bshareable -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#                                       mh_dyn_link='${CC} -Wl,-Bshareable -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-                                        if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                                                SHL_LD="ld -Bshareable -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                                               SHL_LD="${CC} -Wl,-Bshareable -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                                        else
-                                                mh_dyn_link='ld -assert pure-text -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-#                                               mh_dyn_link='${CC} -Wl,-assert pure-text -o conftest.so.1.0 conftest.o 1>&AC_FD_CC'
-                                                if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.so.1.0; then
-                                                        SHL_LD="ld -assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-#                                                       SHL_LD="${CC} -Wl,-assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                                                else
-                                                        SHL_LD=""
-                                                fi
-                                        fi
-                                fi
-                        fi
-                fi
-        fi
-fi
-if test "$SHL_LD" = ""; then
-        AC_MSG_RESULT(unknown)
-else
-        AC_MSG_RESULT(found)
-fi
-rm -f conftest*
-])
-
-dnl ---------------------------------------------------------------------------
-dnl Check for presence of various libraries
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_LIB],
-[
-MH_EXTRA_LIBS=''
-for mh_lib in $1; do
-   if test "$on_qnx4" = yes -a "$ac_cv_prog_CC" != "gcc"; then
-      AC_MSG_CHECKING(for library -l${mh_lib})
-      if test -r /usr/lib/${mh_lib}3r.lib; then
-         AC_MSG_RESULT(found)
-         MH_EXTRA_LIBS="${MH_EXTRA_LIBS} -l${mh_lib}"
-      else
-         AC_MSG_RESULT(not found)
-      fi
+   mh_dyn_link='ld -shared -o conftest.rxlib conftest.o -lc 1>&AC_FD_CC'
+   if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
+      LD_RXLIB_A1="ld -shared -o \$(@)"
+      LD_RXLIB_A2="ld -shared -o \$(@)"
+      LD_RXLIB_UTILA="ld -shared -o \$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE}"
+      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+      SHLPRE="lib"
+      SHLPST=".so"
    else
-      AC_CHECK_LIB($mh_lib,main,mh_lib_found=yes,mh_lib_found=no)
-      if test "$mh_lib_found" = yes; then
-         MH_EXTRA_LIBS="${MH_EXTRA_LIBS} -l${mh_lib}"
+      mh_dyn_link='ld -G -o conftest.rxlib conftest.o 1>&AC_FD_CC'
+      if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
+         LD_RXLIB_A1="ld -G -o \$(@)"
+         LD_RXLIB_A2="ld -G -o \$(@)"
+         LD_RXLIB_UTILA="ld -G -o \$(@)"
+         LD_RXLIB_B1="-L. -l${SHLFILE}"
+         LD_RXLIB_B2="-L. -l${SHLFILE}"
+         LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+         SHLPRE="lib"
+         SHLPST=".so"
+      else
+         mh_dyn_link='${CC} -shared -o conftest.rxlib conftest.o 1>&AC_FD_CC'
+         if AC_TRY_EVAL(mh_dyn_link) && test -s conftest.rxlib; then
+            LD_RXLIB_A1="${CC} -shared -o \$(@)"
+            LD_RXLIB_A2="${CC} -shared -o \$(@)"
+            LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
+            LD_RXLIB_B1="-L. -l${SHLFILE}"
+            LD_RXLIB_B2="-L. -l${SHLFILE}"
+            LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+            SHLPRE="lib"
+            SHLPST=".so"
+         else
+            LD_RXLIB_A1=""
+            LD_RXLIB_A2=""
+            LD_RXLIB_UTILA=""
+            LD_RXLIB_B1=""
+            LD_RXLIB_B2=""
+            LD_RXLIB_UTILB=""
+            SHLPRE=""
+            SHLPST=""
+         fi
       fi
    fi
-done
+fi
+rm -f conftest*
 ])dnl
+
 
 dnl ---------------------------------------------------------------------------
 dnl Check for presence of various libraries
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_CRYPT],
+AC_DEFUN([REG_CHECK_CRYPT],
 [
 mh_save_libs="$LIBS"
 
@@ -763,46 +578,45 @@ AC_SUBST(STATIC_BINARY_LIBS)
 ])dnl
 
 dnl ---------------------------------------------------------------------------
-dnl Determines the file extension for shared libraries
+dnl Determines the file extension for shared libraries - not used?
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_SHLPST],
+AC_DEFUN([REG_SHLPST],
 [
 AC_MSG_CHECKING(shared library/external function extensions)
 SHLPST=".so"
 MODPST=".so"
 AC_REQUIRE([AC_CANONICAL_SYSTEM])
 case "$target" in
-        *hp-hpux*)
-                SHLPST=".sl"
-                MODPST=".sl"
-                ;;
-        *ibm-aix5*)
-                SHLPST=".a"
-                MODPST=".a"
-                ;;
-        *ibm-aix*)
-                SHLPST=".a"
-                MODPST=".a"
-                ;;
-        *nto-qnx*)
-                ;;
-        *qnx*)
-                SHLPST=""
-                MODPST=""
-                ;;
-        *cygwin*)
-                SHLPST=".dll"
-                MODPST=".dll"
-                ;;
-        *skyos*)
-                SHLPST=".dll"
-                MODPST=".dll"
-                ;;
-        *darwin*)
-                SHLPST=".dylib"
-                MODPST=".dylib"
-# MH                MODPST=".so"
-                ;;
+   *hp-hpux*)
+      SHLPST=".sl"
+      MODPST=".sl"
+      ;;
+   *ibm-aix5*)
+      SHLPST=".a"
+      MODPST=".a"
+      ;;
+   *ibm-aix*)
+      SHLPST=".a"
+      MODPST=".a"
+      ;;
+   *nto-qnx*)
+      ;;
+   *qnx*)
+      SHLPST=".junk"
+      MODPST=""
+      ;;
+   *cygwin*)
+      SHLPST=".dll"
+      MODPST=".dll"
+      ;;
+   *skyos*)
+      SHLPST=".dll"
+      MODPST=".dll"
+      ;;
+   *darwin*)
+      SHLPST=".dylib"
+      MODPST=".dylib"
+      ;;
 esac
 AC_MSG_RESULT($SHLPST/$MODPST)
 ])
@@ -810,7 +624,7 @@ AC_MSG_RESULT($SHLPST/$MODPST)
 dnl ---------------------------------------------------------------------------
 dnl Sets SHLPST and MODPST
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_SET_SHLPST],
+AC_DEFUN([REG_SET_SHLPST],
 [
 AC_SUBST(SHLPST)
 AC_SUBST(MODPST)
@@ -819,9 +633,9 @@ AC_SUBST(MODPST)
 dnl ---------------------------------------------------------------------------
 dnl Determine how to build shared libraries etc..
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_SHARED_LIBRARY],
+AC_DEFUN([REG_SHARED_LIBRARY],
 [
-AC_REQUIRE([MH_SET_SHLPST])
+AC_REQUIRE([REG_SET_SHLPST])
 dnl
 dnl If compiler is gcc, then flags should be the same for all platforms
 dnl (just guessing on this)
@@ -953,338 +767,376 @@ SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
 # by default; ie. no .\$(ABI) suffix. If the regina executable is not built,
 # then there is no shared library. Set OTHER_INSTALLS="installabilib" if you
 # are building a version numbered shared library.
-RXSTACK_INSTALL="installrxstack"
+#RXSTACK_INSTALL="installrxstack"
+RXSTACK_INSTALL=""
 OTHER_INSTALLS="installlib"
 BASE_INSTALL="installbase"
 BASE_BINARY="binarybase"
 USE_ABI="no"
 BUNDLE=""
 EXTRATARGET=""
-REGINA_PACKAGE_NAME="Regina-REXX"
 case "$target" in
-        *hp-hpux*)
-                SHLPRE="lib"
-                if test "$ac_cv_prog_CC" = "gcc"; then
-                   LD_RXLIB_A1="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_B1="-L. -l${SHLFILE}"
-                   LD_RXLIB_B2="-L. -l${SHLFILE}"
-                   LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                   SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -fPIC -shared ${LDFLAGS} \$(SHOFILES)"
-                else
-                   EEXTRA="-Wl,-E"
-                   LD_RXLIB_A1="ld -b -q -n -o \$(@)"
-                   LD_RXLIB_A2="ld -b -q -n -o \$(@)"
-                   LD_RXLIB_UTILA="ld -b -q -n -o \$(@)"
-                   LD_RXLIB_B1=""
-                   LD_RXLIB_B2=""
-                   LD_RXLIB_UTILB=""
-                   DYNAMIC_LDFLAGS="-Wl,+s"
-                   SHL_LD="ld -b -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                fi
-                ;;
-        *ibm-aix3*)
-                STATIC_LDFLAGS="-bnso -bI:/lib/syscalls.exp"
-                LD_RXLIB_A1="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
-                LD_RXLIB_A2="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
-                LD_RXLIB_UTILA="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
-                LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                SHLPRE="lib"
-                TEST1EXPORTS="-bE:test1.exp"
-                TEST2EXPORTS="-bE:test2.exp"
-                TEST1EXP="test1.exp"
-                TEST2EXP="test2.exp"
-                REGINAEXP="regina.exp"
-                REGUTILEXP="regutil.exp"
-                if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
-                        AIX_DYN="yes"
-                        DYN_COMP="-DDYNAMIC"
-                        SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -bnoentry -bE:regina.exp -bM:SRE -bT:512 -bH:512 "'$('SHOFILES')'" -lc"
-                else
-                        SHL_LD=" "'$('LIBEXE')'" "'$('LIBFLAGS')'" "'$('SHOFILES')'
-                        DYN_COMP=""
-                fi
-                ;;
-        *ibm-aix*)
-#                STATIC_LDFLAGS="-bnso -bI:/lib/syscalls.exp"
-                SHLPRE="lib"
-                if test "$ac_cv_prog_CC" = "gcc"; then
-                   LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_B1="-L. -l${SHLFILE}"
-                   LD_RXLIB_B2="-L. -l${SHLFILE}"
-                   LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                else
-                   LD_RXLIB_A1="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                   LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                   LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST} -lc"
-                   TEST1EXPORTS="-bE:test1.exp"
-                   TEST2EXPORTS="-bE:test2.exp"
-                   TEST1EXP="test1.exp"
-                   TEST2EXP="test2.exp"
-                   REGUTILEXPORTS="-bE:regutil.exp"
-                   REGUTILEXP="regutil.exp"
-                fi
-                REGINAEXP="regina.exp"
-                if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
-                   AIX_DYN="yes"
-                   DYN_COMP="-DDYNAMIC"
-                   if test "$ac_cv_prog_CC" = "gcc"; then
-                      SHL_LD="${CC} -shared -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-bnoentry -Wl,-bE:regina.exp -Wl,-bM:SRE ${LDFLAGS} \$(SHOFILES) -lc \$(SHLIBS) \$(MH_MT_LIBS)"
-                   else
-                      SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -bnoentry -bE:regina.exp -bM:SRE ${LDFLAGS} \$(SHOFILES) -lc \$(SHLIBS) \$(MH_MT_LIBS)"
-                   fi
-                else
-                   SHL_LD=" "'$('LIBEXE')'" "'$('LIBFLAGS')'" "'$('SHOFILES')'
-                   DYN_COMP=""
-                fi
-                ;;
-        *dec-osf*)
-                LD_RXLIB_A1="ld -shared -o \$(@)"
-                LD_RXLIB_A2="ld -shared -o \$(@)"
-                LD_RXLIB_UTILA="ld -shared -o \$(@)"
-                LD_RXLIB_B1="-lc -L. -l${SHLFILE}"
-                LD_RXLIB_B2="-lc -L. -l${SHLFILE}"
-                LD_RXLIB_UTILB="-lc -L. -l${SHLFILE}"
-                SHLPRE="lib"
-                SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -shared -no_archive "'$('SHOFILES')'" -lc"
-                ;;
-        *esix*)
-                LD_RXLIB_A1="ld -G -o \$(@)"
-                LD_RXLIB_A2="ld -G -o \$(@)"
-                LD_RXLIB_UTILA="ld -G -o \$(@)"
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                DYNAMIC_LDFLAGS=""
-                SHLPRE="lib"
-                SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                ;;
-        *dgux*)
-                LD_RXLIB_A1="ld -G -o \$(@)"
-                LD_RXLIB_A2="ld -G -o \$(@)"
-                LD_RXLIB_UTILA="ld -G -o \$(@)"
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                DYNAMIC_LDFLAGS=""
-                SHLPRE="lib"
-                SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                ;;
-        *pc-sco*)
-                LD_RXLIB_A1="ld -dy -G -o \$(@)"
-                LD_RXLIB_A2="ld -dy -G -o \$(@)"
-                LD_RXLIB_UTILA="ld -dy -G -o \$(@)"
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                DYNAMIC_LDFLAGS=""
-                SHLPRE="lib"
-                SHL_LD="ld -dy -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                ;;
-        *solaris*)
-               if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
-                   LD_RXLIB_A1="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   SHL_LD="$ac_cv_prog_CC -shared ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                else
-                   LD_RXLIB_A1="ld -G ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="ld -G ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="ld -G ${LDFLAGS} -o \$(@)"
-                   SHL_LD="ld -G ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                fi
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                DYNAMIC_LDFLAGS=""
-                SHLPRE="lib"
-                ;;
-        sparc*sunos*)
-                LD_RXLIB_A1="ld -o \$(@)"
-                LD_RXLIB_A2="ld -o \$(@)"
-                LD_RXLIB_UTILA="ld -o \$(@)"
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                SHLPRE="lib"
-                SHL_LD="ld -assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                ;;
-        *-freebsd* | *openbsd*)
-                if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
-                   LD_RXLIB_A1="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
-                   SHL_LD="$ac_cv_prog_CC -shared ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                else
-                   LD_RXLIB_A1="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_A2="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_UTILA="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
-                   LD_RXLIB_B1="-lc -L. -l${SHLFILE}"
-                   LD_RXLIB_B2="-lc -L. -l${SHLFILE}"
-                   LD_RXLIB_UTILB="-lc -L. -l${SHLFILE}"
-                   SHL_LD="ld -Bdynamic -Bshareable ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                fi
-                STATIC_LDFLAGS="-static"
-                SHLPRE="lib"
-                ;;
-        *linux*|*kfreebsd*-gnu*)
-                LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
-#                LD_RXLIB_B1="-L. -l${SHLFILE}"
-#                LD_RXLIB_B2="-L. -l${SHLFILE}"
-                LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${LDFLAGS} ${SHL_SCRIPT} -Wl,-soname=${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI_MAJOR) \$(SHOFILES)"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                OTHER_INSTALLS="installabilib"
-                USE_ABI="yes"
-                ;;
-        *gnu*)
-                LD_RXLIB_A1="${CC} -shared -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
-                LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${SHL_SCRIPT} -Wl,-soname=${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI_MAJOR) \$(SHOFILES) -lc"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
-                OTHER_INSTALLS="installabilib"
-                USE_ABI="yes"
-                ;;
-        *atheos* | *syllable*)
-                LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_B1="-L. -l${SHLFILE} "'$('BOTHLIBS')'
-                LD_RXLIB_B2="-L. -l${SHLFILE} "'$('BOTHLIBS')'
-                LD_RXLIB_UTILB="-L. -l${SHLFILE} "'$('BOTHLIBS')'
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared ${LDFLAGS} \$(SHOFILES) "'$('BOTHLIBS')'
-                SHL_BASE="${LIBPRE}${SHLFILE}${SHLPST}"
-                BASE_BINARY="atheosbinary"
-                ;;
-        *beos* | *haiku*)
-                LD_RXLIB_A1="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
-                LD_RXLIB_A2="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
-                LD_RXLIB_UTILA="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
-                LD_RXLIB_B1="-L. -l${SHLFILE}"
-                LD_RXLIB_B2="-L. -l${SHLFILE}"
-                LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-shared -nostart -Xlinker \$(SHOFILES)"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
-                BEOS_DYN="yes"
-                BASE_INSTALL="beosinstall"
-                BASE_BINARY="beosbinary"
-                OTHER_INSTALLS=""
-                ;;
-        *nto-qnx*)
-                LD_RXLIB_A1="${CC} -shared -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
-                LD_RXLIB_B1="-L. -l${SHLFILE}"
-                LD_RXLIB_B2="-L. -l${SHLFILE}"
-                LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared \$(SHOFILES)"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
-                ;;
-        *skyos*)
-                LD_RXLIB_A1="${CC} -shared -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
-                LD_RXLIB_B1="-L. -l${SHLFILE}"
-                LD_RXLIB_B2="-L. -l${SHLFILE}"
-                LD_RXLIB_UTILB="-L. -l${SHLFILE}"
-                SHLPRE="lib"
-                SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared \$(SHOFILES)"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
-                ;;
-        *qnx*)
-                LD_RXLIB_A1=""
-                LD_RXLIB_A2=""
-                LD_RXLIB_UTILA=""
-                LD_RXLIB_B1=""
-                LD_RXLIB_B2=""
-                LD_RXLIB_UTILB=""
-                SHLPRE=""
-                # set BUNDLE to unique junk names to stop the Makefile
-                # getting duplicate targets
-                BUNDLE=".junk2"
-                SHLPST=".junk"
-                SHL_LD=""
-                EEXTRA="-mf -N0x20000 -Q"
-                LIBPRE=""
-                LIBPST=".lib"
-                LIBFILE="rexx"
-                ;;
-        *cygwin*)
-                LD_RXLIB_A1="${CC} -shared -o \$(@)"
-                LD_RXLIB_A2="${CC} -shared -o \$(@)"
-                LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
-                LD_RXLIB_B1="-L. -lcygregina"
-                LD_RXLIB_B2="-L. -lcygregina"
-                LD_RXLIB_UTILB="-L. -lcygregina"
-                SHLPRE="cyg"
-                SHL_LD="${CC} -shared -o \$(@) -o cygregina.dll \$(SHOFILES)"
-                EEXTRA=""
-                LIBPRE="lib"
-                LIBPST=".a"
-                LIBFILE="rexx"
-                SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
-                TEST1EXPORTS=""
-                TEST2EXPORTS=""
-                REGUTILEXPORTS=""
-                TEST1EXP="${srcdir}/test1_w32_dll.def"
-                TEST2EXP="${srcdir}/test2_w32_dll.def"
-                REGINAEXP="${srcdir}/regina_w32_dll.def"
-                REGUTILEXP="${srcdir}/regutil/regutil.def"
-                BASE_INSTALL="cygwininstall"
-                OTHER_INSTALLS=""
-                RXSTACK_INSTALL=""
-                REGINA_PACKAGE_NAME="regina-rexx"
-                ;;
-        *apple-darwin*)
-                # to test on platform other than real Mac OSX use: --build=ppc-apple-darwin10.1 --target=ppc-apple-darwin10.1
-                #
-                # Link switches for building "bundles"
-                #
-# MH                LD_RXLIB_A1="${CC} -bundle -flat_namespace -undefined suppress -o \$(@)"
-# MH                LD_RXLIB_A2="${CC} -bundle -flat_namespace -undefined suppress -o \$(@)"
-                LD_RXLIB_A1="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_A2="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_UTILA="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
-                LD_RXLIB_B1="-L. -l${SHLFILE} -lc \$(SHLIBS)"
-                LD_RXLIB_B2="-L. -l${SHLFILE} -lc \$(SHLIBS)"
-                LD_RXLIB_UTILB="-L. -l${SHLFILE} -lc \$(SHLIBS) $REGUTIL_TERM_LIB"
-                DYN_COMP="-DDYNAMIC -fno-common"
-                SHLPRE="lib"
-                BUNDLE=".junk"
-                SHL_LD="${CC} ${EEXTRA} -dynamiclib ${LDFLAGS} -headerpad_max_install_names -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
-                SHL_BASE="${LIBPRE}${SHLFILE}${SHLPST}"
-                OTHER_INSTALLS="installmaclib"
-                ;;
-        *)
-                MH_HOWTO_SHARED_LIBRARY()
-                MH_HOWTO_DYN_LINK()
-                ;;
+   *hp-hpux*)
+      SHLPRE="lib"
+      if test "$ac_cv_prog_CC" = "gcc"; then
+         LD_RXLIB_A1="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="${CC} -fPIC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_B1="-L. -l${SHLFILE}"
+         LD_RXLIB_B2="-L. -l${SHLFILE}"
+         LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+         SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -fPIC -shared ${LDFLAGS} \$(SHOFILES)"
+      else
+         EEXTRA="-Wl,-E"
+         LD_RXLIB_A1="ld -b -q -n -o \$(@)"
+         LD_RXLIB_A2="ld -b -q -n -o \$(@)"
+         LD_RXLIB_UTILA="ld -b -q -n -o \$(@)"
+         LD_RXLIB_B1=""
+         LD_RXLIB_B2=""
+         LD_RXLIB_UTILB=""
+         DYNAMIC_LDFLAGS="-Wl,+s"
+         SHL_LD="ld -b -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      fi
+      ;;
+   *ibm-aix3*)
+      STATIC_LDFLAGS="-bnso -bI:/lib/syscalls.exp"
+      LD_RXLIB_A1="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
+      LD_RXLIB_A2="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
+      LD_RXLIB_UTILA="ld -bnoentry -bM:SRE -bT:512 -bH:512 -bI:regina.exp -o \$(@)"
+      LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+      LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+      LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+      SHLPRE="lib"
+      TEST1EXPORTS="-bE:test1.exp"
+      TEST2EXPORTS="-bE:test2.exp"
+      TEST1EXP="test1.exp"
+      TEST2EXP="test2.exp"
+      REGINAEXP="regina.exp"
+      REGUTILEXP="regutil.exp"
+      if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
+              AIX_DYN="yes"
+              DYN_COMP="-DDYNAMIC"
+              SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -bnoentry -bE:regina.exp -bM:SRE -bT:512 -bH:512 "'$('SHOFILES')'" -lc"
+      else
+              SHL_LD=" "'$('LIBEXE')'" "'$('LIBFLAGS')'" "'$('SHOFILES')'
+              DYN_COMP=""
+      fi
+      ;;
+   *ibm-aix*)
+#      STATIC_LDFLAGS="-bnso -bI:/lib/syscalls.exp"
+      SHLPRE="lib"
+      if test "$ac_cv_prog_CC" = "gcc"; then
+         LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_B1="-L. -l${SHLFILE}"
+         LD_RXLIB_B2="-L. -l${SHLFILE}"
+         LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+      else
+         LD_RXLIB_A1="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="ld -bnoentry -bM:SRE ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+         LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+         LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST} -lc"
+         TEST1EXPORTS="-bE:test1.exp"
+         TEST2EXPORTS="-bE:test2.exp"
+         TEST1EXP="test1.exp"
+         TEST2EXP="test2.exp"
+         REGUTILEXPORTS="-bE:regutil.exp"
+         REGUTILEXP="regutil.exp"
+      fi
+      REGINAEXP="regina.exp"
+      if test "$ac_cv_header_dlfcn_h" = "yes" -o "$HAVE_DLFCN_H" = "1"; then
+         AIX_DYN="yes"
+         DYN_COMP="-DDYNAMIC"
+         if test "$ac_cv_prog_CC" = "gcc"; then
+            SHL_LD="${CC} -shared -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-bnoentry -Wl,-bE:regina.exp -Wl,-bM:SRE ${LDFLAGS} \$(SHOFILES) -lc \$(SHLIBS) \$(MH_MT_LIBS)"
+         else
+            SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -bnoentry -bE:regina.exp -bM:SRE ${LDFLAGS} \$(SHOFILES) -lc \$(SHLIBS) \$(MH_MT_LIBS)"
+         fi
+      else
+         SHL_LD=" "'$('LIBEXE')'" "'$('LIBFLAGS')'" "'$('SHOFILES')'
+         DYN_COMP=""
+      fi
+      ;;
+   *dec-osf*)
+      LD_RXLIB_A1="ld -shared -o \$(@)"
+      LD_RXLIB_A2="ld -shared -o \$(@)"
+      LD_RXLIB_UTILA="ld -shared -o \$(@)"
+      LD_RXLIB_B1="-lc -L. -l${SHLFILE}"
+      LD_RXLIB_B2="-lc -L. -l${SHLFILE}"
+      LD_RXLIB_UTILB="-lc -L. -l${SHLFILE}"
+      SHLPRE="lib"
+      SHL_LD="ld -o ${SHLPRE}${SHLFILE}${SHLPST} -shared -no_archive "'$('SHOFILES')'" -lc"
+      ;;
+   *esix*)
+      LD_RXLIB_A1="ld -G -o \$(@)"
+      LD_RXLIB_A2="ld -G -o \$(@)"
+      LD_RXLIB_UTILA="ld -G -o \$(@)"
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      DYNAMIC_LDFLAGS=""
+      SHLPRE="lib"
+      SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      ;;
+   *dgux*)
+      LD_RXLIB_A1="ld -G -o \$(@)"
+      LD_RXLIB_A2="ld -G -o \$(@)"
+      LD_RXLIB_UTILA="ld -G -o \$(@)"
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      DYNAMIC_LDFLAGS=""
+      SHLPRE="lib"
+      SHL_LD="ld -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      ;;
+   *pc-sco*)
+      LD_RXLIB_A1="ld -dy -G -o \$(@)"
+      LD_RXLIB_A2="ld -dy -G -o \$(@)"
+      LD_RXLIB_UTILA="ld -dy -G -o \$(@)"
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      DYNAMIC_LDFLAGS=""
+      SHLPRE="lib"
+      SHL_LD="ld -dy -G -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      ;;
+   *solaris*)
+      if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
+         LD_RXLIB_A1="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         SHL_LD="$ac_cv_prog_CC -shared ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      else
+         LD_RXLIB_A1="ld -G ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="ld -G ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="ld -G ${LDFLAGS} -o \$(@)"
+         SHL_LD="ld -G ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      fi
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      DYNAMIC_LDFLAGS=""
+      SHLPRE="lib"
+      ;;
+   sparc*sunos*)
+      LD_RXLIB_A1="ld -o \$(@)"
+      LD_RXLIB_A2="ld -o \$(@)"
+      LD_RXLIB_UTILA="ld -o \$(@)"
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      SHLPRE="lib"
+      SHL_LD="ld -assert pure-text -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      ;;
+   *-freebsd* | *openbsd*)
+      if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
+         LD_RXLIB_A1="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="$ac_cv_prog_CC -shared ${LDFLAGS} -o \$(@)"
+         SHL_LD="$ac_cv_prog_CC -shared ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      else
+         LD_RXLIB_A1="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_A2="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_UTILA="ld -Bdynamic -Bshareable ${LDFLAGS} -o \$(@)"
+         LD_RXLIB_B1="-lc -L. -l${SHLFILE}"
+         LD_RXLIB_B2="-lc -L. -l${SHLFILE}"
+         LD_RXLIB_UTILB="-lc -L. -l${SHLFILE}"
+         SHL_LD="ld -Bdynamic -Bshareable ${LDFLAGS} -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      fi
+      STATIC_LDFLAGS="-static"
+      SHLPRE="lib"
+      ;;
+   *linux*|*kfreebsd*-gnu*)
+      LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
+#      LD_RXLIB_B1="-L. -l${SHLFILE}"
+#      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${LDFLAGS} ${SHL_SCRIPT} -Wl,-soname=${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI_MAJOR) \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      OTHER_INSTALLS="installabilib"
+      USE_ABI="yes"
+      ;;
+   powerpc-ibm-os400)
+      LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
+#      LD_RXLIB_B1="-L. -l${SHLFILE}"
+#      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${LDFLAGS} ${SHL_SCRIPT}  \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      OTHER_INSTALLS="installabilib"
+      USE_ABI="yes"
+      ;;
+   *gnu*)
+      LD_RXLIB_A1="${CC} -shared -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
+      LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${SHL_SCRIPT} -Wl,-soname=${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI_MAJOR) \$(SHOFILES) -lc"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      OTHER_INSTALLS="installabilib"
+      USE_ABI="yes"
+      ;;
+   *atheos* | *syllable*)
+      LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE} "'$('BOTHLIBS')'
+      LD_RXLIB_B2="-L. -l${SHLFILE} "'$('BOTHLIBS')'
+      LD_RXLIB_UTILB="-L. -l${SHLFILE} "'$('BOTHLIBS')'
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared ${LDFLAGS} \$(SHOFILES) "'$('BOTHLIBS')'
+      SHL_BASE="${LIBPRE}${SHLFILE}${SHLPST}"
+      BASE_BINARY="atheosbinary"
+      ;;
+   *beos*)
+      LD_RXLIB_A1="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
+      LD_RXLIB_A2="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
+      LD_RXLIB_UTILA="${CC} -Wl,-shared -nostart -Xlinker -o\$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE}"
+      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -Wl,-shared -nostart -Xlinker \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
+      BEOS_DYN="yes"
+      BASE_INSTALL="beosinstall"
+      BASE_BINARY="beosbinary"
+      OTHER_INSTALLS=""
+      ;;
+   *haiku*)
+      BEOS_DYN="no"
+      LD_RXLIB_A1="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared ${LDFLAGS} -o \$(@)"
+#      LD_RXLIB_B1="-L. -l${SHLFILE}"
+#      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_B1="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_B2="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      LD_RXLIB_UTILB="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI) -shared ${LDFLAGS} -Wl,-soname=${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI_MAJOR) \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}.\$(ABI)"
+      BASE_INSTALL="haikuinstall"
+      BASE_BINARY="beosbinary"
+      OTHER_INSTALLS="installabilib"
+      USE_ABI="yes"
+      ;;
+   *nto-qnx*)
+      LD_RXLIB_A1="${CC} -shared -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE}"
+      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
+      ;;
+   *skyos*)
+      LD_RXLIB_A1="${CC} -shared -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE}"
+      LD_RXLIB_B2="-L. -l${SHLFILE}"
+      LD_RXLIB_UTILB="-L. -l${SHLFILE}"
+      SHLPRE="lib"
+      SHL_LD="${CC} -o ${SHLPRE}${SHLFILE}${SHLPST} -shared \$(SHOFILES)"
+      SHL_BASE="${SHLPRE}${SHLFILE}${SHLPST}"
+      ;;
+   *qnx*)
+      LD_RXLIB_A1=""
+      LD_RXLIB_A2=""
+      LD_RXLIB_UTILA=""
+      LD_RXLIB_B1=""
+      LD_RXLIB_B2=""
+      LD_RXLIB_UTILB=""
+      SHLPRE=""
+      # set BUNDLE to unique junk names to stop the Makefile
+      # getting duplicate targets
+      BUNDLE=".junk2"
+      SHLPST=".junk"
+      SHL_LD=""
+      EEXTRA="-mf -N0x20000 -Q"
+      LIBPRE=""
+      LIBPST=".lib"
+      LIBFILE="rexx"
+      ;;
+   *cygwin*)
+      LD_RXLIB_A1="${CC} -shared -o \$(@)"
+      LD_RXLIB_A2="${CC} -shared -o \$(@)"
+      LD_RXLIB_UTILA="${CC} -shared -o \$(@)"
+      LD_RXLIB_B1="-L. -lregina"
+      LD_RXLIB_B2="-L. -lregina"
+      LD_RXLIB_UTILB="-L. -lregina"
+      SHLPRE="lib"
+      SHL_LD="${CC} -shared -o \$(@) \$(SHOFILES)"
+      EEXTRA=""
+      LIBPRE="lib"
+      LIBPST=".a"
+      LIBFILE="rexx"
+      SHL_BASE="cyg${SHLFILE}${SHLPST}"
+      TEST1EXPORTS=""
+      TEST2EXPORTS=""
+      REGUTILEXPORTS=""
+      TEST1EXP="${srcdir}/test1_w32_dll.def"
+      TEST2EXP="${srcdir}/test2_w32_dll.def"
+      REGINAEXP="${srcdir}/regina_w32_dll.def"
+      REGUTILEXP="${srcdir}/regutil/regutil.def"
+      BASE_INSTALL="cygwininstall"
+      OTHER_INSTALLS=""
+      RXSTACK_INSTALL=""
+      ;;
+   *apple-darwin*)
+      # to test on platform other than real Mac OSX use: --build=ppc-apple-darwin10.1 --target=ppc-apple-darwin10.1
+      #
+      # Link switches for building "bundles"
+      #
+# MH       LD_RXLIB_A1="${CC} -bundle -flat_namespace -undefined suppress -o \$(@)"
+# MH       LD_RXLIB_A2="${CC} -bundle -flat_namespace -undefined suppress -o \$(@)"
+      LD_RXLIB_A1="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_A2="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_UTILA="${CC} ${EEXTRA} -dynamiclib -headerpad_max_install_names ${LDFLAGS} -o \$(@)"
+      LD_RXLIB_B1="-L. -l${SHLFILE} -lc \$(SHLIBS)"
+      LD_RXLIB_B2="-L. -l${SHLFILE} -lc \$(SHLIBS)"
+      LD_RXLIB_UTILB="-L. -l${SHLFILE} -lc \$(SHLIBS) $REGUTIL_TERM_LIB"
+      DYN_COMP="-DDYNAMIC -fno-common"
+      SHLPRE="lib"
+      BUNDLE=".junk"
+      SHL_LD="${CC} ${EEXTRA} -dynamiclib ${LDFLAGS} -headerpad_max_install_names -o ${SHLPRE}${SHLFILE}${SHLPST} "'$('SHOFILES')'
+      SHL_BASE="${LIBPRE}${SHLFILE}${SHLPST}"
+      OTHER_INSTALLS="installmaclib"
+      ;;
+   *)
+      MH_HOWTO_SHARED_LIBRARY()
+      REG_HOWTO_DYN_LINK()
+      ;;
 esac
 
 LIBFLAGS="cr ${LIBPRE}${LIBFILE}${LIBPST}"
 LIBLINK="-L. -l${LIBFILE}"
 LINKSHL="-L. -l${SHLFILE}"
+
+SHL_NAME_REGINA="${SHLPRE}${SHLFILE}${SHLPST}"
+SHL_NAME_REGUTIL="${SHLPRE}regutil${SHLPST}"
+SHL_NAME_RXTEST1="${SHLPRE}rxtest1${SHLPST}"
+SHL_NAME_RXTEST2="${SHLPRE}rxtest2${SHLPST}"
+RANLIB_DYNAMIC=""
 
 case "$target" in
         *hp-hpux*)
@@ -1301,6 +1153,10 @@ case "$target" in
                 # not the actual DLL
                 #
                 LINKREG="${LINKSHL}"
+                SHL_NAME_REGINA="cygregina.dll"
+                SHL_NAME_REGUTIL="regutil.dll"
+                SHL_NAME_RXTEST1="rxtest1.dll"
+                SHL_NAME_RXTEST2="rxtest2.dll"
                 ;;
         *skyos*)
                 #
@@ -1323,7 +1179,7 @@ fi
 
 AC_MSG_CHECKING(if dynamic loading of external functions is supported)
 if test "$HAVE_DLFCN_H" = "1" -o "$ac_cv_header_dl_h" = "yes" -o "$ac_cv_header_dlfcn_h" = "yes" -o "$AIX_DYN" = "yes" -o "$BEOS_DYN" = "yes"; then
-   SHL_TARGETS="${SHL_BASE} regina${binarybitprefix}${EXEEXT} ${SHLPRE}regutil${MODPST} ${SHLPRE}rxtest1${MODPST} ${SHLPRE}rxtest2${MODPST} $EXTRATARGET"
+   SHL_TARGETS="${SHL_NAME_REGINA} regina${binarybitprefix}${EXEEXT} ${SHL_NAME_REGUTIL} ${SHL_NAME_RXTEST1} ${SHL_NAME_RXTEST2} $EXTRATARGET"
    EXECISER_DEP="${SHL_BASE}"
    OTHER_INSTALLS="regina${binarybitprefix}${EXEEXT} $OTHER_INSTALLS"
    AC_MSG_RESULT("yes")
@@ -1345,7 +1201,6 @@ else
    STATICLIB="${LIBPRE}${LIBFILE}${LIBPST}"
 fi
 
-RANLIB_DYNAMIC=""
 AC_SUBST(BASE_BINARY)
 AC_SUBST(BASE_INSTALL)
 AC_SUBST(BOTHLIBS)
@@ -1396,13 +1251,16 @@ AC_SUBST(REGUTILEXP)
 AC_SUBST(REGUTILEXPORTS)
 AC_SUBST(USE_ABI)
 AC_SUBST(RANLIB_DYNAMIC)
-AC_SUBST(REGINA_PACKAGE_NAME)
+AC_SUBST(SHL_NAME_REGINA)
+AC_SUBST(SHL_NAME_REGUTIL)
+AC_SUBST(SHL_NAME_RXTEST1)
+AC_SUBST(SHL_NAME_RXTEST2)
 ])dnl
 
 dnl ---------------------------------------------------------------------------
 dnl Determine how to build shared libraries etc..
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_STATIC_LOADING],
+AC_DEFUN([REG_STATIC_LOADING],
 [
 SHLPRE="lib"
 SHLPST=".a"
@@ -1470,8 +1328,13 @@ case "$target" in
         *atheos* | *syllable*)
                 BASE_BINARY="atheosbinary"
                 ;;
-        *beos* | *haiku*)
+        *beos*)
                 BASE_INSTALL="beosinstall"
+                BASE_BINARY="beosbinary"
+                OTHER_INSTALLS=""
+                ;;
+        *haiku*)
+                BASE_INSTALL="haikuinstall"
                 BASE_BINARY="beosbinary"
                 OTHER_INSTALLS=""
                 ;;
@@ -1489,7 +1352,7 @@ case "$target" in
                 ;;
         *cygwin*)
                 LIBPRE="lib"
-                SHLPRE="cyg"
+                SHLPRE="lib"
                 LIBPST=".a"
                 BASE_INSTALL="cygwininstall"
                 BASE_BINARY="cygwinbinary"
@@ -1749,6 +1612,24 @@ if test "$with_rexxpdf" = "yes"; then
            AC_MSG_ERROR(rexxpdf-config not found. Cannot use --with-rexxpdf switch)
         fi
 fi
+dnl
+dnl Settings for Rexx/PDF
+dnl
+AC_ARG_WITH(rexxws,
+    [     --with-rexxws        enable static linking with Rexx/WS external function package],
+    [with_rexxws=$withval],
+    [with_rexxws=no],
+)
+if test "$with_rexxws" = "yes"; then
+        AC_CHECK_PROG(rexxws_config, [rexxws-config], yes, no)
+        if test "$ac_cv_prog_rexxws_config" = yes; then
+           EXTRA_LIB=`rexxws-config --libs-static`
+           MH_FUNC_LIBS="$MH_FUNC_LIBS $EXTRA_LIB"
+           AC_DEFINE(HAVE_REXXPDF_PACKAGE)
+        else
+           AC_MSG_ERROR(rexxws-config not found. Cannot use --with-rexxws switch)
+        fi
+fi
 
 LINKREG="${SHLPRE}${SHLFILE}${SHLPST} ${MH_FUNC_LIBS} ${SHLPRE}${SHLFILE}${SHLPST}"
 
@@ -1805,40 +1686,9 @@ AC_SUBST(RANLIB_DYNAMIC)
 ])
 
 dnl ---------------------------------------------------------------------------
-dnl Determines where rpm build files are located
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_RPM],
-[
-AC_CHECK_PROG(mh_rpm_exists, rpm, yes, no )
-if test "$mh_rpm_exists" = yes; then
-   AC_MSG_CHECKING(where rpms are built)
-   RPMTOPDIR=`rpm --eval "%{_topdir}"`
-   AC_MSG_RESULT($RPMTOPDIR)
-   AC_SUBST(RPMTOPDIR)
-fi
-])
-
-dnl ---------------------------------------------------------------------------
-dnl Determines whether compiler supports long long
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_C_LONG_LONG],
-[AC_CACHE_CHECK(for long long int, mh_cv_c_long_long,
- [if test "$ac_cv_prog_CC" = "gcc" -o "$ac_cv_prog_CC" = "g++" -o "$ac_cv_prog_CC" = "clang"; then
-    mh_cv_c_long_long=yes
-  else
-    AC_TRY_COMPILE(,[long long int i;],
-      mh_cv_c_long_long=yes,
-      mh_cv_c_long_long=no)
-  fi])
- if test $mh_cv_c_long_long = yes; then
-   AC_DEFINE(HAVE_LONG_LONG, 1, [compiler understands long long])
- fi
-])
-
-dnl ---------------------------------------------------------------------------
 dnl Determines if socklen_t is valid
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_TYPE_SOCKLEN_T],
+AC_DEFUN([REG_CHECK_TYPE_SOCKLEN_T],
 [AC_CACHE_CHECK([for socklen_t], ac_cv_type_socklen_t,
 [
   AC_TRY_COMPILE(
@@ -1856,7 +1706,7 @@ AC_DEFUN([MH_CHECK_TYPE_SOCKLEN_T],
 dnl ---------------------------------------------------------------------------
 dnl Determines is struct statvfs contains f_mntfromname member
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_F_MNTFROMNAME],
+AC_DEFUN([REG_CHECK_F_MNTFROMNAME],
 [AC_CHECKING(if statvfs.f_mntfromname exists)
 AC_TRY_COMPILE([
   #include <sys/types.h>
@@ -1875,110 +1725,32 @@ AC_TRY_COMPILE([
 ])
 
 dnl ---------------------------------------------------------------------------
-dnl Check if large file support available
+dnl Determines if the current system uses systemd
 dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_LARGE_FILE_SUPPORT],
+AC_DEFUN([REG_HAVE_SYSTEMD],
 [
-LARGE_FILE_SUPPORT=""
-AC_CHECK_PROG(getconf, [getconf], yes, no)
-if test "$ac_cv_prog_getconf" = yes; then
-   AC_MSG_CHECKING(large file support flags)
-   LARGE_FILE_SUPPORT=`getconf LFS_CFLAGS`
-   AC_MSG_RESULT($LARGE_FILE_SUPPORT)
-fi
-if test "$LARGE_FILE_SUPPORT" = "undefined"; then
-   LARGE_FILE_SUPPORT=""
-fi
-AC_SUBST(LARGE_FILE_SUPPORT)
-])dnl
-
-dnl ---------------------------------------------------------------------------
-dnl Determines which -arch flags valid on Mac OSX with gcc
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_CHECK_OSX_ARCH],
-[
-valid_arch_flags=""
-found_arch_flags=""
-AC_ARG_WITH(arch,
-   [  --with-arch=option      build universal binaries on OS X, option: one of "all 32bit 64bit intel ppc ppc64 x86_64 i386"],
-   [with_arch=$withval],
-   [with_arch=none],
-)
-case "$with_arch" in
-   none)
-      arch_flags=""
-      ;;
-   all)
-      arch_flags="-arch ppc -arch ppc64 -arch x86_64 -arch i386"
-      ;;
-   32bit)
-      arch_flags="-arch ppc -arch i386"
-      ;;
-   64bit)
-      arch_flags="-arch ppc64 -arch x86_64"
-      ;;
-   intel)
-      arch_flags="-arch i386 -arch x86_64"
-      ;;
-   *)
-      arch_flags="-arch $with_arch"
-      ;;
-esac
-
-valid_arch_flags=""
-found_arch_flags=""
-if test $on_osx = "yes"; then
-  AC_MSG_CHECKING(for which Mac OSX -arch flags are supported for universal binaries)
-  for a in $arch_flags; do
-    save_ldflags="$LDFLAGS"
-    LDFLAGS="$LDFLAGS -arch $a"
-    AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([#include <stdio.h>],
-    [exit(0)])],
-    [valid_arch_flags="$valid_arch_flags -arch $a";found_arch_flags="$found_arch_flags $a"],
-    [a="$a"]
-    )
-    LDFLAGS="$save_ldflags"
-  done
-  AC_MSG_RESULT($found_arch_flags)
-  AC_SUBST(valid_arch_flags)
-fi
-])
-
-dnl ---------------------------------------------------------------------------
-dnl Determines the Linux distribution name
-dnl ---------------------------------------------------------------------------
-AC_DEFUN([MH_GET_DISTRO_NAME],
-[
-AC_CHECK_PROG(lsb_release, [lsb_release], yes, no)
-if test "$ac_cv_prog_lsb_release" = yes; then
-   AC_MSG_CHECKING(OS distribution name)
-   MYDISTRO="`lsb_release -i | cut -f 2`-`lsb_release -r | cut -f 2`"
-   MYDISTRO="`echo $MYDISTRO | sed \"s/ /_/g\"`"
-   AC_MSG_RESULT($MYDISTRO)
+AC_MSG_CHECKING(for service manager)
+if test [ -f /usr/bin/systemctl -o -f /bin/systemctl ]; then
+   initinstaller="installsystemd"
+   systemdinstallpath=`pkg-config systemd --variable=systemdsystemunitdir`
+   AC_MSG_RESULT(systemd)
+elif test [ -f /sbin/initctl ]; then
+   initinstaller="installupstart"
+   AC_MSG_RESULT(upstart)
+elif test [ -f /sbin/insserv ]; then
+# SuSE sysvinit
+   initinstaller="installinsserv"
+   AC_MSG_RESULT(insserv)
 else
-   case "$target" in
-      *freebsd* | *openbsd*)
-         MYDISTRO="`echo $target | cut -f3 -d-`"
-      ;;
-      *darwin*)
-         MYDISTRO="`echo $target | cut -f2-3 -d-`"
-      ;;
-      *pc-solaris2*)
-         MYDISTRO="`echo $target | cut -f2- -d-`"
-      ;;
-      *cygwin*)
-         MYDISTRO="`echo $target | cut -f2- -d-`"
-      ;;
-      *)
-         MYDISTRO="$target"
-      ;;
-   esac
+   initinstaller="installsysvinit"
+   AC_MSG_RESULT(sysvinit)
 fi
-AC_SUBST(MYDISTRO)
+AC_SUBST(initinstaller)
+AC_SUBST(systemdinstallpath)
 ])
-
 dnl
 dnl add our expansion macro for addonsdir
+dnl already included by common/accommon.m4
 dnl
-sinclude(common/ac_define_dir.m4)
+dnl sinclude(common/ac_define_dir.m4)
+sinclude(common/accommon.m4)

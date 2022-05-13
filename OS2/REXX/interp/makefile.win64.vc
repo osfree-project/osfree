@@ -29,5 +29,6 @@ LARCH=w64
 BARCH=W64
 WARCH=win64
 MACH=x64
+MMACH=AMD64
 BITS=64
 !include $(SRCDIR)\makefile.win.vc

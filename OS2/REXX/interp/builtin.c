@@ -575,8 +575,6 @@ streng *ext_pool_value( tsd_t *TSD, streng *name, streng *value,
    streng *retval=NULL;
    int ok=HOOK_GO_ON;
 
-   (env = env); /* Make the compiler happy */
-
    /*
     * Get the current value from the exit if we have one, or from the
     * environment directly if not...
@@ -632,7 +630,7 @@ streng *ext_pool_value( tsd_t *TSD, streng *name, streng *value,
 # if defined(HAVE_MY_WIN32_SETENV)
          streng *strvalue = Str_dupstrTSD( value );
 
-         TSD->OS->setenv(name->value, strvalue->value );
+         TSD->OS->setenv_exec(name->value, strvalue->value );
          Free_stringTSD( strvalue );
 # elif defined(HAVE_SETENV)
          streng *strvalue = Str_dupstrTSD( value );
@@ -674,7 +672,7 @@ streng *std_value( tsd_t *TSD, cparamboxptr parms )
 {
    streng *name,*retval;
    streng *value=NULL,*env=NULL;
-   int i,err,pool=-1;
+   int i,err,pool=-1,ext_pool=0;
 
    checkparam(  parms, 1, 3 , "VALUE" );
    name = Str_dupstrTSD( parms->value );
@@ -693,6 +691,31 @@ streng *std_value( tsd_t *TSD, cparamboxptr parms )
       ||   ( ( i == 14 ) && ( memcmp( env->value, "OS2ENVIRONMENT", 14 ) == 0 ) )
       ||   ( ( i == 11 ) && ( memcmp( env->value, "ENVIRONMENT", 11 ) == 0 ) ) )
       {
+         ext_pool = 1;
+      }
+      else if ( ( i == 6 ) && ( memcmp( env->value, "CALLER", 6) == 0 ) )
+      {
+         pool = TSD->currlevel->pool - 1;
+      }
+      else
+      {
+         pool = streng_to_int( TSD, env, &err );
+         /*
+          * Accept a builtin pool if it is a number >= 0.
+          */
+         if ( pool < 0 )
+            err = 1;
+         if ( pool > TSD->currlevel->pool )
+            err = 1;
+         if ( err )
+            exiterror( ERR_INCORRECT_CALL, 37, "VALUE", tmpstr_of( TSD, env ) );
+      }
+
+      if ( ext_pool == 1 )
+      {
+         /*
+          * Use external environment
+          */
          retval = ext_pool_value( TSD, name, value, env );
          Free_stringTSD( name );
          if ( retval == NULL )
@@ -700,18 +723,6 @@ streng *std_value( tsd_t *TSD, cparamboxptr parms )
 
          return retval;
       }
-
-      pool = streng_to_int( TSD, env, &err );
-
-      /*
-       * Accept a builtin pool if it is a number >= 0.
-       */
-      if ( pool < 0 )
-         err = 1;
-      if ( pool > TSD->currlevel->pool )
-         err = 1;
-      if ( err )
-         exiterror( ERR_INCORRECT_CALL, 37, "VALUE", tmpstr_of( TSD, env ) );
    }
 
    /*
@@ -982,11 +993,11 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
       if (convert_time(TSD,supptime,suppformat,&tmdata,&unow))
       {
          char *p1, *p2;
-         if (supptime && supptime->value)
+         if (supptime && supptime->len)
             p1 = (char *) tmpstr_of( TSD, supptime ) ;
          else
             p1 = "";
-         if (str_suppformat && str_suppformat->value)
+         if (str_suppformat && str_suppformat->len)
             p2 = (char *) tmpstr_of( TSD, str_suppformat ) ;
          else
             p2 = "N";
@@ -1058,14 +1069,14 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
 #ifdef VMS
          timediff = mktime(localtime(&now));
 #else
-//#if defined(__OS2__) && defined(__WATCOMC__)
-//         timediff = (long)(mktime2(localtime(&now))-mktime2(gmtime(&now)));
-//#else
          timediff = (long)(mktime(localtime(&now))-mktime(gmtime(&now)));
-//#endif
          tmptr = localtime(&now);
+# if !defined(WIN32)
+         /* Windows already includes the daylight savings hour in localtime() */
+         /* Bug #450 - change suggested by Stefan Haubenthal */
          if ( tmptr->tm_isdst )
             timediff += 3600;
+# endif
 #endif
          answer->len = sprintf( answer->value, "%ld%s", timediff,(timediff)?"000000":"" );
          break ;
@@ -1075,11 +1086,7 @@ streng *std_time( tsd_t *TSD, cparamboxptr parms )
          break ;
 
       case 'T':
-//#if defined(__OS2__) && defined(__WATCOMC__)
-//         rnow = mktime2( &tmdata );
-//#else
          rnow = mktime( &tmdata );
-//#endif
          answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 
@@ -1111,24 +1118,25 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
    struct tm tmdata, *tmptr ;
    time_t now=0, unow=0, rnow=0 ;
    char osep = '?', isep = '?';
-   streng *str_isep=NULL;
-   streng *str_osep=NULL;
 
    if ( get_options_flag( TSD->currlevel, EXT_STRICT_ANSI ) )
       checkparam(  parms,  0,  3 , "DATE" ) ;
    else
       checkparam(  parms,  0,  5 , "DATE" ) ;
+   /* check first argument; output format of date */
    if ((parms)&&(parms->value))
       format = getoptionchar( TSD, parms->value, "DATE", 1, "BDEMNOSUW", "CIT" ) ;
 
    tmpptr = parms->next ;
    if (tmpptr)
    {
+      /* we will be doing a conversion */
       if (tmpptr->value)
          suppdate = tmpptr->value ;
       tmpptr = tmpptr->next ;
       if (tmpptr)
       {
+         /* format of suppdate; input date */
          if (tmpptr->value)
          {
             str_suppformat = tmpptr->value;
@@ -1137,9 +1145,9 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
          tmpptr = tmpptr->next ;
          if (tmpptr)
          {
+            /* this arg is the output separator */
             if (tmpptr->value)
             {
-               str_osep = tmpptr->value;
                if ( Str_len( tmpptr->value ) == 0 )
                   osep = '\0';
                else
@@ -1150,9 +1158,9 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
             tmpptr = tmpptr->next ;
             if (tmpptr)
             {
+               /* this arg is the input separator */
                if (tmpptr->value)
                {
-                  str_isep = tmpptr->value;
                   if ( Str_len( tmpptr->value ) == 0 )
                      isep = '\0';
                   else
@@ -1206,7 +1214,7 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
              break;
        }
    }
-
+   /* get the current time for the clause */
    if (TSD->currentnode->now)
    {
       now = TSD->currentnode->now->sec ;
@@ -1229,6 +1237,7 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
       now ++ ;
    */
 
+   /* get current time in case we are not doing a conversion */
    if ( ( tmptr = localtime( &now ) ) != NULL )
       tmdata = *tmptr;
    else
@@ -1237,15 +1246,15 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
 
    if ( suppdate )
    {
-      /* date conversion required */
+      /* date conversion of input date required */
       if ( ( rcode = convert_date( TSD, suppdate, suppformat, &tmdata, isep ) ) )
       {
          char *p1, *p2;
-         if (suppdate && suppdate->value)
+         if (suppdate && suppdate->len)
             p1 = (char *) tmpstr_of( TSD, suppdate ) ;
          else
             p1 = "";
-         if (str_suppformat && str_suppformat->value)
+         if (str_suppformat && str_suppformat->len)
             p2 = (char *) tmpstr_of( TSD, str_suppformat ) ;
          else
             p2 = "N";
@@ -1319,11 +1328,7 @@ streng *std_date( tsd_t *TSD, cparamboxptr parms )
 
       case 'T':
          tmdata.tm_year -= 1900;
-//#if defined(__OS2__) && defined(__WATCOMC__)
-//         rnow = mktime2( &tmdata );
-//#else
          rnow = mktime( &tmdata );
-//#endif
          answer->len = sprintf(answer->value, "%ld", rnow );
          break ;
 
@@ -2684,7 +2689,7 @@ streng *rex_poolid( tsd_t *TSD, cparamboxptr parms )
 
 streng *rex_lower( tsd_t *TSD, cparamboxptr parms )
 {
-   int rlength=0, length=0, start=1, i=0 ;
+   rx_64 rlength=0, length=0, start=1, i=0 ;
    int changecount;
    char padch=' ' ;
    streng *str=NULL, *ptr=NULL ;
@@ -2702,14 +2707,14 @@ streng *rex_lower( tsd_t *TSD, cparamboxptr parms )
     */
    if ( parms->next != NULL
    &&   parms->next->value )
-      start = atopos( TSD, parms->next->value, "LOWER", 2 ) ;
+      start = atoposrx64( TSD, parms->next->value, "LOWER", 2 ) ;
    /*
     * Get length, if supplied...
     */
    if ( parms->next != NULL
    && ( (bptr = parms->next->next) != NULL )
    && ( parms->next->next->value ) )
-      length = atozpos( TSD, parms->next->next->value, "LOWER", 3 ) ;
+      length = atozposrx64( TSD, parms->next->next->value, "LOWER", 3 ) ;
    else
       length = ( rlength >= start ) ? rlength - start + 1 : 0;
    /*
@@ -2722,7 +2727,7 @@ streng *rex_lower( tsd_t *TSD, cparamboxptr parms )
    /*
     * Create our new starting; duplicate of input string
     */
-   ptr = Str_makeTSD( length );
+   ptr = Str_makeTSD( rlength );
    memcpy( Str_val( ptr ), Str_val( str ), Str_len( str ) );
    /*
     * Determine where to start changing case...
@@ -2735,7 +2740,7 @@ streng *rex_lower( tsd_t *TSD, cparamboxptr parms )
    /*
     * Change them
     */
-   mem_lower( &ptr->value[i], changecount );
+   mem_lowerrx64( &ptr->value[i], changecount );
    /*
     * Append pad characters if required...
     */

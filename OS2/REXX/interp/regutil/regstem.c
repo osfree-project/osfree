@@ -18,7 +18,7 @@
  *
  * Contributors:
  *
- * $Header: /opt/cvs/Regina/regutil/regstem.c,v 1.10 2013/11/07 23:02:50 mark Exp $
+ * $Header: /opt/cvs/Regina/regutil/regstem.c,v 1.11 2016/01/20 00:21:05 mark Exp $
  */
 
 /* ******************************************************************** */
@@ -525,7 +525,7 @@ rxfunc(sysstemcopy)
          /* make sure there's room */
          if (tca->ptr_alloc < (tca->count + count + tind)) {
             tca->ptr_alloc = tca->count+count+tind;
-            tca->array = realloc(tca->array, tca->ptr_alloc*sizeof(tca->array));
+            tca->array = realloc(tca->array, tca->ptr_alloc*sizeof(*tca->array));
          }
 
          /* if we're extending past the end of the current array, set the
@@ -547,7 +547,7 @@ rxfunc(sysstemcopy)
          /* still make sure there's room */
          if (tca->ptr_alloc < (count + tind)) {
             tca->ptr_alloc = count+tind;
-            tca->array = realloc(tca->array, tca->ptr_alloc*sizeof(tca->array));
+            tca->array = realloc(tca->array, tca->ptr_alloc*sizeof(*tca->array));
          }
 
          /* if we're extending past the end of the current array, set the
@@ -564,7 +564,6 @@ rxfunc(sysstemcopy)
             tca->count = tind + count;
          }
       }
-
       memcpy(tca->array+tind, ca->array+find, count*sizeof(*ca->array));
 
       setastem(argv+1, tca);

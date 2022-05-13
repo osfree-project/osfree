@@ -1,3 +1,4 @@
+#!/usr/bin/env regina
 /* this program tests the behaviour of reaching EOF using LINEIN */
 
 Parse Source os . fn

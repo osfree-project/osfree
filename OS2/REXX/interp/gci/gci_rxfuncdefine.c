@@ -108,8 +108,6 @@ static GCI_result parseCallType( void *hidden,
    const char *ptr = GCI_ccontent( str );
    int size = GCI_strlen( str );
 
-   (hidden = hidden);
-
    lastit = InfoUnknown;
    memset( ci, 0, sizeof( GCI_callinfo ) );
 
@@ -199,8 +197,6 @@ static int isempty( void *hidden,
 {
    const char *s = GCI_ccontent( str );
    int len = GCI_strlen( str );
-
-   (hidden = hidden);
 
    while ( len > 0 ) {
       if ( !GCI_isspace( *s ) )

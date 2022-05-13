@@ -146,6 +146,7 @@
 # define HAVE_PUTENV
 # define HAVE_RAISE
 # define HAVE_SETENV
+# define HAVE_STDINT_H
 # define HAVE_LIMITS_H
 # define HAVE_SETJMP_H
 # define HAVE_PROCESS_H

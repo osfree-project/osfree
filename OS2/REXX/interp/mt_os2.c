@@ -20,7 +20,7 @@
 # include <os2.h>
 #endif
 
-#include <rexx.h>
+#include "rexx.h"
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>

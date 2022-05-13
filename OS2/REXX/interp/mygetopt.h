@@ -28,11 +28,8 @@ extern "C" {
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
-#ifndef __WATCOMC__
-#define _WCRTDATA
-#endif
-   
-_WCRTDATA extern char *optarg;
+#if !defined(__WATCOMC__)
+  extern char *optarg;
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -46,17 +43,18 @@ _WCRTDATA extern char *optarg;
    Otherwise, `optind' communicates from one call to the next
    how much of ARGV has been scanned so far.  */
 
-_WCRTDATA extern int optind;
+extern int optind;
 
 /* Callers store zero here to inhibit the error message `getopt' prints
    for unrecognized options.  */
 
-_WCRTDATA extern int opterr;
+extern int opterr;
 
 /* Set to an option character which was unrecognized.  */
 
-_WCRTDATA extern int optopt;
+extern int optopt;
 
+#endif
 /* Describe the long-named options requested by the application.
    The LONG_OPTIONS argument to my_getopt_long or my_getopt_long_only is a vector
    of `struct option' terminated by an element containing a name which is
