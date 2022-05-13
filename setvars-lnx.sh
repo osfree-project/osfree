@@ -2,9 +2,7 @@
 #
 #
 
-#_CWD=/mnt/os2f/src/osfree/osfree
-_CWD=`pwd`
-ROOT=$_CWD/
+ROOT=`readlink -f $ROOT`/
 watcom=/opt/watcom
 WATCOM=$watcom
 FPCPATH=/usr/lib/fpc/3.2.2

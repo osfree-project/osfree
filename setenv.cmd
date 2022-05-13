@@ -7,10 +7,12 @@ cfg = strip(cfg, 'B')
 parse source os addr src
 
 if cfg = '' then signal usage
+src = translate(src, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
 /* Build the full path to the config file */
 if pos('/', translate(cfg, '/', '\')) == 0 then do
    l = lastpos('/', translate(src, '/', '\'))
+   root = delstr(src, l + 1)
    if l > 0 then cfg = delstr(src, l + 1) || cfg
 end
 
@@ -111,7 +113,7 @@ else
 
 lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
-vars = 'WATCOM ROOT IMGDIR IMGDIR1 TOOLS PATH INCLUDE ',
+vars = 'WATCOM IMGDIR ROOT IMGDIR1 TOOLS PATH INCLUDE ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 

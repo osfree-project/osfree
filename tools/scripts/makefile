@@ -15,9 +15,9 @@ filelist = *.cmd *.awk *.cfg
 srcdir = $(ROOT)tools$(SEP)scripts
 
 tools: copy subdirs .symbolic
-# @cd .. 
-# @$(MAKE) $(MAKEOPT) subdirs
-# @$(CD) $(MYDIR)
+ @cd .. 
+ @$(MAKE) $(MAKEOPT) subdirs
+ @$(CD) $(MYDIR)
 
 copy: .symbolic
  @if exist $(FILESDIR)$(SEP)base-copied-flag.flg @%quit

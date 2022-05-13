@@ -1,5 +1,6 @@
 @echo off
-set ROOT=%~dp0
+rem canonicazlize path
+for /f %%i in (%path%) do set path=%%~fi
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
