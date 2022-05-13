@@ -11,16 +11,32 @@ srcfiles = $(p)ChooseColor$(e) $(p)ChooseFont$(e) $(p)Commdlg$(e) $(p)FindReplDl
 
 # linking dll file
 DLL     = 1
-EXPORTS = LZCOPY          .1, &
-          LZOPENFILE      .2, &
-          LZINIT          .3, &
-          LZSEEK          .4, &
-          LZREAD          .5, &
-          LZCLOSE         .6, &
-          LZSTART         .7, &
-          COPYLZFILE      .8, &
-          LZDONE          .9, &
-          GETEXPANDEDNAME .10
+EXPORTS = GETOPENFILENAME.1, &
+GETSAVEFILENAME.2, &
+CHOOSECOLOR.5, &
+FILEOPENDLGPROC.6, &
+FILESAVEDLGPROC.7, &
+COLORDLGPROC.8, &
+LOADALTERBITMAP.9, &
+FINDTEXT.11, &
+REPLACETEXT.12, &
+FINDTEXTDLGPROC.13, &
+REPLACETEXTDLGPROC.14, &
+CHOOSEFONT.15, &
+FORMATCHARDLGPROC.16, &
+FONTSTYLEENUMPROC.18, &
+FONTFAMILYENUMPROC.19, &
+PRINTDLG.20, &
+PRINTDLGPROC.21, &
+PRINTSETUPDLGPROC.22, &
+EDITINTEGERONLY.23, &
+WANTARROWS.25, &
+COMMDLGEXTENDEDERROR.26, &
+GETFILETITLE.27, &
+DWLBSUBCLASS.29, &
+DWUPARROWHACK.30, &
+DWOKSUBCLASS.31
+
 OPTIONS = heapsize=32K libfile libentry.obj
 DEST = os2$(SEP)mdos$(SEP)winos2$(SEP)system
 
