@@ -1,6 +1,6 @@
 @echo off
 rem canonicazlize path
-for /f %%i in (%path%) do set path=%%~fi
+for /f %%i in (%root%) do set root=%%~fi
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
