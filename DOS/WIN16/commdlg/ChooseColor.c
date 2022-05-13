@@ -30,7 +30,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 
 /*===== Include files =====*/
 #include "windows.h"
-#include "windowsx.h"
+//#include "windowsx.h"
 #include "commdlg.h"
 #include "cderr.h"
 
@@ -40,6 +40,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include "dlgs.h"
 
 #include "CommdlgRC.h"
+#include "porting.h"
 
 
 
@@ -629,10 +630,8 @@ WCCPaintCustomColors
     WCCColorIndexToRect ( hWnd, WCCWinCustomColors, ColorIndex, 
 													NUM_CUSTOM_COLOR_ROWS,
                           NUM_PIXELS_BETWEEN_COLORS, &CustomColorRect );
-    ErrorCode = 
-			WCCPaintRect ( lpPaintStruct->hdc, &CustomColorRect,
-                      WCCStruct.lpChooseColor->lpCustColors [ ColorIndex ], 
-											TRUE );
+
+    ErrorCode =	WCCPaintRect(lpPaintStruct->hdc, &CustomColorRect, WCCStruct.lpChooseColor->lpCustColors[ColorIndex], TRUE);
   }
 
   return ( ErrorCode );

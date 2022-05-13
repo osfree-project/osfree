@@ -29,8 +29,8 @@ To send email to the maintainer of the Willows Twin Libraries.
  */
 
 #include "windows.h"
-#include "Win_User.h"
-#include "windowsx.h"
+//#include "Win_User.h"
+//#include "windowsx.h"
 #include "commdlg.h"
 #include "memory.h"
 
@@ -44,6 +44,7 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include "CommdlgRC.h"
 #include "WinConfig.h"
 #include "Log.h"
+#include "porting.h"
 
 #define WGOFNERR_NULLPOINTER            -1
 #define WGOFNERR_STRUCTSIZE             -2
@@ -169,11 +170,11 @@ static UINT                     WGOFNWM_ShareViolation      = ( UINT )NULL;
 #define WGOFNGetInstance        GetInstance
 #define WGOFNSetExtendedError   WCDSetExtendedError
 
-int WINAPI GetFileTitle(LPCSTR , LPSTR , UINT );
+//int WINAPI GetFileTitle(LPCSTR , LPSTR , UINT );
 HINSTANCE GetInstance();
 DWORD WCDSetExtendedError ( DWORD );
 
-#ifdef WINOS
+//#ifdef WINOS
 #include <dos.h>
 LPSTR WINAPI strpbrkr (
 	LPSTR                   lpSource,
@@ -183,13 +184,13 @@ LPSTR WINAPI strpbrkr (
 
 	LPSTR                   lpstrpbrkr = NULL;
 	
-	while ( lpSource = strpbrk ( ++lpSource, lpSet ) )
+	while ( lpSource = _fstrpbrk ( ++lpSource, lpSet ) )
 		lpstrpbrkr = lpSource;
 	
 	return ( lpstrpbrkr );
 	
 }
-#endif
+//#endif
 /*============================================================================*/
 short WINAPI WGOFNIsADirectory ( 
 	LPSTR                   lpPath ) 
@@ -257,7 +258,8 @@ void WINAPI WGOFNUnlockOpenFileName (
 		GlobalUnlock ( hOpenFile );
   
 }
-LPSTR strpbrkr(LPSTR, LPSTR);
+
+//LPSTR strpbrkr(LPSTR, LPSTR);
 
 void WINAPI WGOFNSplitPathAndFile ( 
 	LPSTR                   PathAndFile, 
@@ -266,7 +268,7 @@ void WINAPI WGOFNSplitPathAndFile (
 	
 {
  
-	LPSTR                   lpFile = ( LPSTR )strpbrkr ( PathAndFile, 
+	LPSTR                   lpFile = (LPSTR)strpbrkr ( PathAndFile, 
 							     WGOFNCharSet_PathSeparators );
 	
 	if ( ! lpFile ) 
@@ -461,7 +463,7 @@ short WINAPI WGOFNSetTextDirectory (
 	MFS_GETCWD ( 0, DisplayPath, sizeof ( DisplayPath ) );
 	if ( lpPath )
 	{
-		if ((lpDrivePath = strpbrk ( lpPath, WGOFNCharSet_DriveSeparator ) ) )
+		if ((lpDrivePath = _fstrpbrk ( lpPath, WGOFNCharSet_DriveSeparator ) ) )
 		{
 			DriveSelection = ( WORD )( *( lpDrivePath - 1 ) - 'A' ) + 1;
 			MFS_GETDRIVEMAP ( DriveSelection, WorkingPath, sizeof ( WorkingPath ) );
@@ -503,12 +505,12 @@ short WINAPI WGOFNSetTextDirectory (
 		lpPartialPath = WorkingPath + lstrlen ( DrivePath ) - 3;
 	}
 	else
-		lpPartialPath = strpbrk ( WorkingPath, WGOFNCharSet_PathSeparators );
+		lpPartialPath = _fstrpbrk ( WorkingPath, WGOFNCharSet_PathSeparators );
 
 	if ( ( *lpPartialPath ==  WChar_PathSeparator ) || ( *lpPartialPath == WChar_SecondaryPathSeparator ) )
 	  lpPartialPath++;
 
-	while ((lpPartialPath = strpbrk ( lpPartialDisplayPath = lpPartialPath,
+	while ((lpPartialPath = _fstrpbrk ( lpPartialDisplayPath = lpPartialPath,
 	                                   WGOFNCharSet_PathSeparators ) ))
 	{
 		*lpPartialPath = '\0';
@@ -552,13 +554,13 @@ short WINAPI WGOFNSetTextDirectory (
 			if ( LOWORD ( TextExtent ) > DisplayWidth )
 			{
 				if ( lpPartialPath )
-					lpPartialPath = ( LPSTR )strpbrk ( lpPartialPath, 
+					lpPartialPath = ( LPSTR )_fstrpbrk ( lpPartialPath, 
 					                                     WGOFNCharSet_PathSeparators );
 				else
 				{
-					lpPartialPath = ( LPSTR )strpbrk ( WorkingPath, 
+					lpPartialPath = ( LPSTR )_fstrpbrk ( WorkingPath, 
 					                                     WGOFNCharSet_PathSeparators );
-					if ((lpPartialDisplayPath = ( LPSTR )strpbrk ( DisplayPath, 
+					if ((lpPartialDisplayPath = ( LPSTR )_fstrpbrk ( DisplayPath, 
 					                                                 WGOFNCharSet_PathSeparators ) ))
 					{
 						lpPartialDisplayPath++;

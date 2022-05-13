@@ -81,7 +81,7 @@ MakeDialogBox(HINSTANCE hInstance, HWND hwndOwner, LPCSTR lpTemplateName,
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-DWORD CommDlgExtendedError ( void )
+DWORD WINAPI CommDlgExtendedError ( void )
 {
 
 	return ( LastCommonDialogError );
@@ -93,7 +93,7 @@ extern BOOL  WGetSaveFileName (LPOPENFILENAME);
 extern short WGOFNInitDialog ();
 extern short WGOFNTerminateDialog ();
 
-BOOL GetOpenFileName (
+BOOL WINAPI GetOpenFileName (
 	LPOPENFILENAME                   lpOpenFileName )
 
 {
@@ -102,7 +102,7 @@ BOOL GetOpenFileName (
 
 }
 
-BOOL GetSaveFileName (
+BOOL WINAPI GetSaveFileName (
 	LPOPENFILENAME                   lpOpenFileName )
 
 {

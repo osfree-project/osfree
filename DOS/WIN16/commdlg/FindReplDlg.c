@@ -29,7 +29,7 @@ To send email to the maintainer of the Willows Twin Libraries.
  */
 
 #include "windows.h"
-#include "windowsx.h"
+//#include "windowsx.h"
 #include "commdlg.h"
 #include "dlgs.h"
 #include "cderr.h"
@@ -39,6 +39,8 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "porting.h"
 
 
 /* Dialog procedures for CommDlg, these are NOT exported */
@@ -54,7 +56,7 @@ extern DWORD	LastCommonDialogError;
 				FindText()
   ----------------------------------------------------------------------------*/
 HWND
-FindText(FINDREPLACE *lpfr)
+WINAPI FindText(FINDREPLACE FAR*lpfr)
 {
 	if ( lpfr->Flags & FR_ENABLEHOOK  &&  !lpfr->lpfnHook ) {
 		LastCommonDialogError = CDERR_NOHOOK;
@@ -91,7 +93,7 @@ FindDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch(message) {
 	case WM_INITDIALOG:
 		SendDlgItemMessage(hDlg, edt1, WM_SETTEXT,
-				strlen(cf->lpstrFindWhat),
+				_fstrlen(cf->lpstrFindWhat),
 				(LPARAM)cf->lpstrFindWhat);
 
 		/* Show/hide the whole word stuff */
@@ -139,7 +141,7 @@ FindDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 		uiFindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-		if ( !strlen(cf->lpstrFindWhat) )
+		if ( !_fstrlen(cf->lpstrFindWhat) )
 			EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
 
 		if ( cf->Flags & FR_ENABLEHOOK )
@@ -158,7 +160,7 @@ FindDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				WM_GETTEXT,
 				cf->wFindWhatLen, (LPARAM)cf->lpstrFindWhat);
 			hWnd = GetDlgItem(hDlg, IDOK);
-			if ( strlen(cf->lpstrFindWhat) ) {
+			if ( _fstrlen(cf->lpstrFindWhat) ) {
 				if ( !IsWindowEnabled(hWnd) )
 					EnableWindow(hWnd, TRUE);
 			} else {
@@ -226,7 +228,7 @@ FindDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				ReplaceText()
   ----------------------------------------------------------------------------*/
 HWND
-ReplaceText(FINDREPLACE *lpfr)
+WINAPI ReplaceText(FINDREPLACE FAR*lpfr)
 {
 	if ( lpfr->Flags & FR_ENABLEHOOK  &&  !lpfr->lpfnHook ) {
 		LastCommonDialogError = CDERR_NOHOOK;
@@ -263,11 +265,11 @@ ReplaceDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch(message) {
 	case WM_INITDIALOG:
 		SendDlgItemMessage(hDlg,edt1,WM_SETTEXT,
-				strlen(cf->lpstrFindWhat),
+				_fstrlen(cf->lpstrFindWhat),
 				(LONG)cf->lpstrFindWhat);
 
 		SendDlgItemMessage(hDlg,edt2,WM_SETTEXT,
-				strlen(cf->lpstrReplaceWith),
+				_fstrlen(cf->lpstrReplaceWith),
 				(LPARAM)cf->lpstrReplaceWith);
 
 		/* Show/hide the whole word stuff */
@@ -300,7 +302,7 @@ ReplaceDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		if ( cf->Flags & FR_ENABLEHOOK )
 			cf->lpfnHook(hDlg,message,wParam,lParam);
 
-		if ( !strlen(cf->lpstrFindWhat) ) {
+		if ( !_fstrlen(cf->lpstrFindWhat) ) {
 			EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
 			EnableWindow(GetDlgItem(hDlg, psh1), FALSE);
 			EnableWindow(GetDlgItem(hDlg, psh2), FALSE);
@@ -323,7 +325,7 @@ ReplaceDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				WM_GETTEXT, cf->wFindWhatLen,
 				(LPARAM)cf->lpstrFindWhat);
 			hWnd = GetDlgItem(hDlg, IDOK);
-			if ( strlen(cf->lpstrFindWhat) ) {
+			if ( _fstrlen(cf->lpstrFindWhat) ) {
 				if ( !IsWindowEnabled(hWnd) ) {
 					EnableWindow(hWnd,TRUE);
 					EnableWindow(GetDlgItem(hDlg,psh1),TRUE);

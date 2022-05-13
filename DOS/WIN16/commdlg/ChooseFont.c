@@ -36,12 +36,13 @@ To send email to the maintainer of the Willows Twin Libraries.
 #include <stdlib.h>
 
 #include "windows.h"
-#include "windowsx.h"
+//#include "windowsx.h"
 #include "commdlg.h"
 #include "cderr.h"
 #include "dlgs.h"
 #include "CommdlgRC.h"
 #include "Log.h"
+#include "porting.h"
 
 /*===== External Platform specific defines =====*/
 #define WCFCALLBACK                        CALLBACK _export
@@ -629,10 +630,10 @@ WCFInitFontSelector
     {
       EnumFontData.PrinterFonts = TRUE;
       EnumFontData.hDC          = lpCurrentChooseFont->hDC;
-      if ( ! EnumFontFamilies ( lpCurrentChooseFont->hDC,
+      if ( ! EnumFontFamilies (lpCurrentChooseFont->hDC,
                                  NULL,
                                  lpfnEnumProc,
-                                 ( LPARAM )&EnumFontData ) )
+                                 (LPSTR)&EnumFontData))
         ErrorCode = CDERR_INITIALIZATION;
     }
     if ( ( ! ( lpCurrentChooseFont->Flags & CF_PRINTERFONTS ) ) ||
@@ -641,10 +642,11 @@ WCFInitFontSelector
       {
         EnumFontData.PrinterFonts = FALSE;
         EnumFontData.hDC          = hDC;
-        if ( ! EnumFontFamilies ( hDC,
-                                   NULL,
-                                   lpfnEnumProc,
-                                   ( LPARAM )&EnumFontData ) )
+        if ( ! EnumFontFamilies (hDC,
+                                 NULL,
+                                 lpfnEnumProc,
+                                 (LPSTR)&EnumFontData))
+
           ErrorCode = CDERR_INITIALIZATION;
       }
     if ( ! ErrorCode )
@@ -852,7 +854,7 @@ WCFAddFontStyles
       if ( ! EnumFontFamilies ( EnumFontData.hDC,
                                 FontName,
                                 lpfnFontStyleProc,
-                                ( LPARAM )&EnumFontData ) )
+                                ( LPSTR )&EnumFontData ) )
         ErrorCode = CDERR_INITIALIZATION;
       else
       {
@@ -1219,7 +1221,7 @@ WCFDisplayFontData
 /*        SendMessage(hFontStyleWnd, WM_SETREDRAW, FALSE, 0L);*/
         SendMessage(hFontSizeWnd, WM_SETREDRAW, FALSE, 0L);
         if ( ! EnumFontFamilies ( hDC, lpFontName, WCFAddFontData,
-                                  ( LPARAM )&EnumFontData ) )
+                                  ( LPSTR )&EnumFontData ) )
           ErrorCode = CDERR_DIALOGFAILURE;
         else
         if ( WCFAddFontStyles ( hDialogWnd ) )

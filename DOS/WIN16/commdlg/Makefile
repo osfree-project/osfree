@@ -1,38 +1,43 @@
-#*************************************************************************
-# @(#)Makefile	1.18 
 #
-#  Makefile for Commdlg
+# A Makefile for lzexpand.dll
+# (c) osFree project,
+# author, date
 #
-#  Copyright (c) 1995-1996, Willows Software Inc.  All rights reserved.
-#
-#*************************************************************************/
 
-include $(TWINDIR)/Makefile.config
-TWIN_AUXINC     = -I$(TWINDIR)/win -I$(TWINDIR)
+PROJ     = commdlg
+TRGT     = $(PROJ).dll
+DESC     = Windows common dialogs library
+srcfiles = $(p)ChooseColor$(e) $(p)ChooseFont$(e) $(p)Commdlg$(e) $(p)FindReplDlg$(e) $(p)GetOpenFileName$(e) $(p)PrintDlg$(e) $(p)WinConfig$(e) #$(p)CommdlgIF$(e) $(p)CommdlgIT$(e)
 
-project		= libcommdlg$(TWIN_APISIZE)
-components	= ChooseColor.o ChooseFont.o Commdlg.o  \
-		FindReplDlg.o GetOpenFileName.o PrintDlg.o \
-		CommdlgIF.o CommdlgIT.o Commdlg.res.o
+# linking dll file
+DLL     = 1
+EXPORTS = GETOPENFILENAME.1, &
+GETSAVEFILENAME.2, &
+CHOOSECOLOR.5, &
+FILEOPENDLGPROC.6, &
+FILESAVEDLGPROC.7, &
+COLORDLGPROC.8, &
+LOADALTERBITMAP.9, &
+FINDTEXT.11, &
+REPLACETEXT.12, &
+FINDTEXTDLGPROC.13, &
+REPLACETEXTDLGPROC.14, &
+CHOOSEFONT.15, &
+FORMATCHARDLGPROC.16, &
+FONTSTYLEENUMPROC.18, &
+FONTFAMILYENUMPROC.19, &
+PRINTDLG.20, &
+PRINTDLGPROC.21, &
+PRINTSETUPDLGPROC.22, &
+EDITINTEGERONLY.23, &
+WANTARROWS.25, &
+COMMDLGEXTENDEDERROR.26, &
+GETFILETITLE.27, &
+DWLBSUBCLASS.29, &
+DWUPARROWHACK.30, &
+DWOKSUBCLASS.31
 
-libraries	= 
-resource	= Commdlg
-resource_flags	= -ECommdlg_LibMain
-localclean	= 
+OPTIONS = heapsize=32K libfile libentry.obj
+DEST = os2$(SEP)mdos$(SEP)winos2$(SEP)system
 
-include $(TWINDIR)/makeinclude/makefile$(TWIN_APISIZE).lib
-
-install: $(TWINLIB)/$(project)$(DLL_EXT) $(TWINLIB)/$(project).$(DLL_EXT)
-
-install32:
-	$(MAKE) install
-
-all32:
-	$(MAKE) all $(PASSFLAGS) TWIN_APISIZE=32
-
-$(TWINLIB)/$(project).$(DLL_EXT): $(project)$(DLL_EXT)
-	rm -f $(TWINLIB)/$(project).$(DLL_EXT)
-	cp $(project).$(DLL_EXT) $(TWINLIB)/$(project).$(DLL_EXT)
-	chmod 755 $(TWINLIB)/$(project).$(DLL_EXT)
-
-depend:
+!include $(%ROOT)/mk/appsw16.mk
