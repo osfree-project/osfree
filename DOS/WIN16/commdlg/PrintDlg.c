@@ -29,7 +29,7 @@ To send email to the maintainer of the Willows Twin Libraries.
  */
 
 #include "windows.h"
-#include "windowsx.h"
+//#include "windowsx.h"
 #include "dlgs.h"
 #include "print.h"
 #include "cderr.h"
@@ -58,7 +58,7 @@ static LRESULT FAR PASCAL PrintSetupDlgProc(HWND, UINT, WPARAM, LPARAM);
 BOOL MakeDialogBox(HINSTANCE, HWND, LPCSTR, BOOL, BOOL, LPCSTR, 
 			void *, DLGPROC);
 static void InitPrintSetupControls(HWND, LPSTR, LPSTR, LPSTR, PRINTDLG *);
-static int MakeDEVStruct(HWND, HWND, PRINTDLG *);
+static int MakeDEVStruct(HWND, HWND, PRINTDLG FAR*);
 
 HINSTANCE LoadDriver(LPCSTR);
 
@@ -68,7 +68,7 @@ extern DWORD	LastCommonDialogError;
 				PrintDlg()
   ----------------------------------------------------------------------------*/
 BOOL
-PrintDlg(PRINTDLG FAR *lppd)
+WINAPI PrintDlg(PRINTDLG FAR *lppd)
 {
 #ifdef macintosh
 	DEVMODE*		lpDevMode;
@@ -93,13 +93,13 @@ PrintDlg(PRINTDLG FAR *lppd)
 				LastCommonDialogError = CDERR_MEMALLOCFAILURE;
 				return FALSE;
 			}
-			strcpy(szBuf,(LPSTR)lpDevNames +
+			_fstrcpy(szBuf,(LPSTR)lpDevNames +
 					lpDevNames->wDriverOffset);
 			lpszDriver = szBuf;
-			strcpy(szDevice,(LPSTR)lpDevNames +
+			_fstrcpy(szDevice,(LPSTR)lpDevNames +
 					lpDevNames->wDeviceOffset);
 			lpszDevice = szDevice;
-			strcpy(szPort,(LPSTR)lpDevNames +
+			_fstrcpy(szPort,(LPSTR)lpDevNames +
 					lpDevNames->wOutputOffset);
 			lpszPort = szPort;
 			GlobalUnlock(lppd->hDevNames);
@@ -803,7 +803,7 @@ InitPrintSetupControls(HWND hDlg, LPSTR lpszDriver, LPSTR lpszDevice,
 #ifdef	macintosh
 
 static int
-MakeDEVStruct( HWND hDlg, HWND hWndOwner, PRINTDLG* cf )
+MakeDEVStruct( HWND hDlg, HWND hWndOwner, PRINTDLG FAR* cf )
 {
 
 #ifdef	COMMENT
@@ -858,7 +858,7 @@ MakeDEVStruct( HWND hDlg, HWND hWndOwner, PRINTDLG* cf )
 }
 #else	/*	macintosh */
 static int
-MakeDEVStruct(HWND hDlg, HWND hWndOwner, PRINTDLG *cf)
+MakeDEVStruct(HWND hDlg, HWND hWndOwner, PRINTDLG FAR*cf)
 {
 	int		n, iRet;
 	HGLOBAL		hDevMode, hDevNames;

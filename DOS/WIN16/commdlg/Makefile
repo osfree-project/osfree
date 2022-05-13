@@ -1,38 +1,27 @@
-#*************************************************************************
-# @(#)Makefile	1.18 
 #
-#  Makefile for Commdlg
+# A Makefile for lzexpand.dll
+# (c) osFree project,
+# author, date
 #
-#  Copyright (c) 1995-1996, Willows Software Inc.  All rights reserved.
-#
-#*************************************************************************/
 
-include $(TWINDIR)/Makefile.config
-TWIN_AUXINC     = -I$(TWINDIR)/win -I$(TWINDIR)
+PROJ     = commdlg
+TRGT     = $(PROJ).dll
+DESC     = Windows common dialogs library
+srcfiles = $(p)ChooseColor$(e) $(p)ChooseFont$(e) $(p)Commdlg$(e) $(p)FindReplDlg$(e) $(p)GetOpenFileName$(e) $(p)PrintDlg$(e) $(p)WinConfig$(e) #$(p)CommdlgIF$(e) $(p)CommdlgIT$(e)
 
-project		= libcommdlg$(TWIN_APISIZE)
-components	= ChooseColor.o ChooseFont.o Commdlg.o  \
-		FindReplDlg.o GetOpenFileName.o PrintDlg.o \
-		CommdlgIF.o CommdlgIT.o Commdlg.res.o
+# linking dll file
+DLL     = 1
+EXPORTS = LZCOPY          .1, &
+          LZOPENFILE      .2, &
+          LZINIT          .3, &
+          LZSEEK          .4, &
+          LZREAD          .5, &
+          LZCLOSE         .6, &
+          LZSTART         .7, &
+          COPYLZFILE      .8, &
+          LZDONE          .9, &
+          GETEXPANDEDNAME .10
+OPTIONS = heapsize=32K libfile libentry.obj
+DEST = os2$(SEP)mdos$(SEP)winos2$(SEP)system
 
-libraries	= 
-resource	= Commdlg
-resource_flags	= -ECommdlg_LibMain
-localclean	= 
-
-include $(TWINDIR)/makeinclude/makefile$(TWIN_APISIZE).lib
-
-install: $(TWINLIB)/$(project)$(DLL_EXT) $(TWINLIB)/$(project).$(DLL_EXT)
-
-install32:
-	$(MAKE) install
-
-all32:
-	$(MAKE) all $(PASSFLAGS) TWIN_APISIZE=32
-
-$(TWINLIB)/$(project).$(DLL_EXT): $(project)$(DLL_EXT)
-	rm -f $(TWINLIB)/$(project).$(DLL_EXT)
-	cp $(project).$(DLL_EXT) $(TWINLIB)/$(project).$(DLL_EXT)
-	chmod 755 $(TWINLIB)/$(project).$(DLL_EXT)
-
-depend:
+!include $(%ROOT)/mk/appsw16.mk
