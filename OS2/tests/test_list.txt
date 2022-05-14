@@ -1,3 +1,5 @@
+!!TODO!! It is good idea to put these tests as examples in documentation
+
 This is list of functions tests used for
 -------------------------------
 DosAcknowledgeSignalException	test31

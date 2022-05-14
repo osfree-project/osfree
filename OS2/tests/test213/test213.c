@@ -3,9 +3,11 @@
 
 #include <os2.h>
 
+int main(VOID)
+{
+APIRET    rc;  /*  Return code. */
+ 
+rc = KbdFlushBuffer(hkbd);
 
-APIRET    return;  /*  Return code. */
-
-
-
-return = KbdFlushBuffer(hkbd);
+return 0;
+}
