@@ -15,9 +15,9 @@ srcfiles = $(p)cb_catch$(e) &
            $(p)tcc2wat$(e) # $(p)xms_crit$(e) $(p)xms_brk$(e) $(p)xms_2e$(e) $(p)cswap$(e) 
 # defines additional options for C compiler
 
-ADD_COPT    = -ml -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
-ADD_ASMOPT  = -ml -dMODEL=l -d2 -db  -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. &
-              -i=$(MYDIR)..$(SEP)criter -i=$(PATH)..$(SEP)strings$(SEP)critstrs
+ADD_COPT    = -ml -dMODEL=l -d2 -db -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR)..
+ADD_ASMOPT  = -ml -dMODEL=l -d2 -db -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)strings -i=$(MYDIR)..$(SEP)suppl  -i=$(MYDIR)..$(SEP)include -i=$(MYDIR) -i=$(MYDIR).. &
+              -i=$(PATH)..$(SEP)strings$(SEP)critstrs
 ADD_LINKOPT = debug all libpath $(%ROOT)build$(SEP)lib lib cmd.lib, lib.lib, suppl.lib, strings.lib
 
 !include $(%ROOT)/mk/appsdos.mk

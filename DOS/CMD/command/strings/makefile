@@ -6,6 +6,7 @@
 
 PROJ  = fixstrs
 DESC  = Control file attributes
+TRGT  = strings.lib
 DIRS  = critstrs
 #defines object file names in format objname.$(O)
 srcfiles = $(p)fixstrs$(e) $(p)porting$(e) # $(p)..$(SEP)tcc2wat$(e)
@@ -19,13 +20,15 @@ LANG = russian
 LNG = $(MYDIR)$(LANG).lng
 
 DEST    = ..$(SEP)build$(SEP)lib
-INSTALL = strings.lib
 
 !include $(%ROOT)/mk/tools.mk
 
 TARGETS = $(PATH)$(PROJ).exe $(PATH)strings.h subdirs $(PATH)strings.lib
+INSTALL = $(PATH)strings.lib
 
 $(PATH)$(PROJ).exe:
+
+$(PATH)$(PATH)strings.lib: .symbolic
 
 $(PATH)strings.h : $(MYDIR)default.lng $(PATH)$(PROJ).exe
  @$(PATH)$(PROJ).exe /lib /dir $(PATH) $(LNG)

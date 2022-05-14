@@ -22,7 +22,7 @@ DIRS =        shared &
               find &
               format &
               help &
-              helpmsg &
+#              helpmsg &
               keyb &
               label &
 #              lvm

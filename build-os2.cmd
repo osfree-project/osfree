@@ -1,7 +1,7 @@
 @echo off
 setlocal
 rem Edit here to use your own *.conf
-rem set comspec=d:\os2\cmd.exe
+rem comspec=d:\os2\cmd.exe
 rem set os2_shell=d:\os2\cmd.exe
 set conf=note.conf
 rem --------------------------------

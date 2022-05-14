@@ -70,6 +70,8 @@ defs=-d$(basename) -dSHIFT=$$(SHIFT)
 defs=-d$(basename) -dSHIFT=0
 !endif
 
+$(MYDIR)fsys_ntfs_nocomp.c: .symbolic
+
 $(PATH)start.$(O): $(MYDIR)start.asm
  @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -d$(basename) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)

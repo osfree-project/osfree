@@ -171,7 +171,7 @@ $(PATH)$(T)$(S).lnk: $(OBJS)
 #
 # See $(%ROOT)/mk/genrules.mk for details
 #
-gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
+gen_compile_rules_wrapper: $(MYDIR)$(file) .symbolic
 !ifeq sh
  # compile rules for ordinary files
 !ifdef __UNIX__
@@ -188,7 +188,7 @@ gen_compile_rules_wrapper: $(MYDIR)$(file) .SYMBOLIC
 !endif
 !endif
 
-gen_deps_wrapper:
+gen_deps_wrapper: .symbolic
  # file.rel: file.mdl file.mds
 !ifdef __UNIX__
  @for %i in ($(bbx)) do @$(MAKE) $(MAKEOPT) file=%i trgt='$$$$(PATH)$$(file).rel' &

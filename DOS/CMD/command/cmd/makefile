@@ -19,13 +19,8 @@ srcfiles = $(p)tcc2wat$(e) $(p)alias$(e) $(p)beep$(e) $(p)break$(e) $(p)call$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH) -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
+ADD_COPT = -ml -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH) -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
 TARGETS = $(PATH)cmd.lib
 
-$(TARGETS): $(OBJS) $(PATH)..$(SEP)context.def
+$(TARGETS): $(OBJS) $(PATH)..$(SEP)criter$(SEP)context.def
  @$(MAKE) $(MAKEOPT) library=$(TARGETS) library
-
-$(PATH)..$(SEP)context.def: $(MYDIR)context.x
- @mkctxt $<
- @$(CP) $(MYDIR)context.h_c $(PATH).. $(BLACKHOLE)
- @$(CP) $(MYDIR)context.inc $(PATH).. $(BLACKHOLE)

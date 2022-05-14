@@ -16,8 +16,7 @@ DEST = os2$(SEP)mdos
 
 #TARGETS=$(PATH)$(PROJ).com
 
-$(PATH)$(PROJ).lnk:
- @%null
+$(PATH)$(PROJ).lnk: .symbolic
 
 $(PATH)$(PROJ).com: $(PATH)shell$(SEP)$(PROJ).exe $(PATH)infores
 !ifneq ENV LINUX

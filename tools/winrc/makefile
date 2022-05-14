@@ -28,6 +28,12 @@ $(PATH)rcyacc.obj: $(PATH)rcyacc.c
 
 $(PATH)ifyacc.obj: $(PATH)ifyacc.flg
 
+$(PATH)ifyacc.h: $(MYDIR)ifyacc.y
+
+$(PATH)ifyacc.c: $(MYDIR)ifyacc.y
+
+.y: $(MYDIR)
+
 .c: $(PATH)
 
 .h: $(PATH)

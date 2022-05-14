@@ -42,7 +42,7 @@ then absolute = 1
 
 /* if the path is absolute, then go root */
 if absolute then do
-  if drv \= '' then drv /* change drive */
+  if drv \= '' then '@' || drv /* change drive */
   call directory sep
 end
 
@@ -56,9 +56,13 @@ do while path \= ''
 
   cdir=directory()
   ndir=directory(dir)
+
+  md = 'mkdir '
+  if sep = '\' then md = '@' || md
+
   if ((ndir = cdir)|(ndir='')) /* ooREXX 4.0 6.03 returns current dir instead null*/
   then do
-    'mkdir ' || dir
+    md || dir
     call directory dir
   end
 end

@@ -19,7 +19,7 @@ DEST     = ..$(SEP)build$(SEP)lib
 $(PATH)$(PROJ).lib:
 
 # makes library $(library) from object files $(OBJS)
-library: $(OBJS) $(LIBS)
+library: $(OBJS) $(LIBS) .symbolic
  @$(SAY) LIB      $(PROJ).lib
 !ifndef NODELETE
 !ifeq UNIX TRUE

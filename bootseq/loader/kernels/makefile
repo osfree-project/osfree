@@ -115,6 +115,12 @@ defs=-dNO_PROT -dREAL_BASE=$(base) -dSHIFT=0
 
 .inc: $(PATH)
 
+$(MYDIR)bootos2.asm: .symbolic
+
+$(MYDIR)modesw-npc.asm: .symbolic
+
+$(MYDIR)modesw-npl.asm: .symbolic
+
 $(PATH)modesw-npo.$(O): $(MYDIR)..$(SEP)modesw.asm
  @$(SAY) ASM      $^. $(LOG)
  $(verbose)$(ASM) -dNO_PROT -dMB_KERN -dREAL_BASE=0x90000 -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)

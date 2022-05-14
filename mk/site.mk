@@ -65,10 +65,20 @@ SEP        = /
 # as it is a library, not executable file)
 !ifeq OS_REXX Classic
 REXX    =
+%REXX_DLL     = rexc
+%REXXAPI_DLL  = rexcapi
 !else ifeq OS_REXX Object
 REXX    =
+%REXX_DLL     = rexo
+%REXXAPI_DLL  = rexoapi
 !else ifeq OS_REXX Regina
+!ifeq ENV OS2
+REXX    =
+%REXX_DLL     = regina
+%REXXAPI_DLL  = regina
+!else
 REXX    = rexx
+!endif
 !else
 REXX    = $OS_REXX
 !endif

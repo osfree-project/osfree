@@ -2,6 +2,7 @@
 #
 #
 
+# canonicalize ROOT
 ROOT=`readlink -f $ROOT`/
 watcom=/opt/watcom
 WATCOM=$watcom

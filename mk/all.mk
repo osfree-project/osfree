@@ -9,7 +9,8 @@
 !define __all_mk__
 
 # all: targets .symbolic
-all: precopy prereq install .symbolic
+## all: precopy prereq install .symbolic
+all: precopy install .symbolic
 # @%null
 
 # a double (see the end of file )
@@ -175,8 +176,8 @@ CLEANMASK = *.dlo *.lnk *.map *.obj *.o16 *.err *.log *.bak *.lib *.com *.sym *.
 !ifeq UNIX FALSE                 # Non-unix
 
 !ifeq ENV OS2
-COMSPEC   = $(OS_SHELL)          # Shell
-OS2_SHELL = $(OS_SHELL)          #
+%COMSPEC   = $(OS_SHELL)          # Shell
+%OS2_SHELL = $(OS_SHELL)          #
 RN  = move                       # Rename command
 !else ifeq ENV Windows
 RN  = move                       # Rename command
@@ -195,7 +196,6 @@ MKBIN     = $(REXX) mkbin.cmd
 GENHDD    = $(REXX) genhdd.cmd
 GENFDD    = $(REXX) genfdd.cmd
 FINDFILE  = $(REXX) findfile.cmd
-if_not_exist_mkdir = if_not_exist_mkdir.cmd
 
 !ifeq ENV Windows
 NULL      = nul
@@ -231,8 +231,6 @@ MKBIN     = mkbin
 GENHDD    = genhdd
 GENFDD    = genfdd
 FINDFILE  = findfile
-
-if_not_exist_mkdir = $(ROOT)$(SEP)if_not_exist_mkdir.sh
 
 NULL      = /dev/null
 BLACKHOLE = 2>&1 >$(NULL)
@@ -351,6 +349,17 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 !endif
  $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
 
+.y.h: .autodepend
+ @$(SAY) YACC     $^. $(LOG)
+!ifeq UNIX TRUE
+ $(verbose)$(DC) $^*.h $(BLACKHOLE)
+ $(verbose)$(DC) $^*.c $(BLACKHOLE)
+!else
+ $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
+ $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
+!endif
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
+
 .c:   $(MYDIR)
 
 .cpp: $(MYDIR)
@@ -433,7 +442,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MDHIER) $(PATH)%d && $(SAY) "cd       $(RELDIR)%d" && $(MAKE) $(MAKEOPT) install
+ @for %d in ($(DIRS)) do @cd %d && $(MAKE) $(MAKEOPT) install
 ## @for %d in ($(DIRS)) do @cd $(PATH)%d && $(SAY) cd $(DIR_PWD)$(SEP)%d && $(MAKE) $(MAKEOPT)
 # @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
 # @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
@@ -441,10 +450,10 @@ subdirs: .symbolic
 ## @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) targets
 
 dirhier: .symbolic
- # @$(SAY) mkdir    $(PATH) $(LOG)
+ @$(SAY) cd       $(RELDIR) $(LOG)
  $(verbose)$(MDHIER) $(PATH) $(LOG)
 
-.ignore
+#.ignore
 clean: .SYMBOLIC
  @$(SAY) clean    $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
@@ -459,6 +468,9 @@ clean: .SYMBOLIC
 
 #$(PATH)$(PROJ).lnk: $(PATH)makefile
 
+targets: prereq subdirs .symbolic
+ @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
+
 !ifndef TRGT
 !ifdef INSTALL
 FLG  = install2
@@ -470,9 +482,6 @@ FLG  = $(DEST)$(SEP)$(TRGT)
 !else
 FLG  = # $(PATH)$(TRGT)
 !endif
-
-targets: prereq subdirs .symbolic
- @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
 install: targets $(FLG) .symbolic # $(TARGETS) $(DEST)$(SEP)$(TRGT)
 !ifeq INSTALL_ADD 1
@@ -510,47 +519,43 @@ install3: $(PATH)$(file) .symbolic
 # @wtouch $(PATH)$(PROJ).flg
 #!endif
 
-.ignore
-precopy: .SYMBOLIC
- # @$(SAY) PRECOPY  scrpits $(LOG)
- @$(MAKE) $(MAKEOPT) -f $(%ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
+#.ignore
+precopy: .symbolic
+ @$(SAY) PRECOPY  scrpits $(LOG)
+ @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
 
 # $(FILESDIR)$(SEP)libs-built-flag: prelibs .symbolic
 
 # prebuild libs
 prelibs: .symbolic
- #!ifdef __appsos2_mk__
+ @if exist $(FILESDIR)$(SEP)libs-built-flag.flg @%quit
+!ifdef __appsos2_mk__
  # build all_shared.lib
- #@$(SAY) cd $(%ROOT)OS2$(SEP)Shared
- $(verbose)$(CD) $(%ROOT)OS2$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
- #!endif
- #!ifdef __apps_os2_cmd_mk__
+ $(verbose)cd $(ROOT)OS2$(SEP)Shared && $(MAKE) $(MAKEOPT) install
+!endif
+!ifdef __apps_os2_cmd_mk__
  # build cmd_shared.lib
- #@$(SAY) cd $(%ROOT)OS2$(SEP)cmd$(SEP)Shared
- $(verbose)$(CD) $(%ROOT)OS2$(SEP)CMD$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
- #!endif
- #!ifdef __apps_os2_pm_mk__
+ $(verbose)cd $(ROOT)OS2$(SEP)CMD$(SEP)shared && $(MAKE) $(MAKEOPT) install
+!endif
+!ifdef __apps_os2_pm_mk__
  # build pm_shared.lib
- @$(SAY) cd $(%ROOT)OS2$(SEP)PM$(SEP)Shared
- $(verbose)$(CD) $(%ROOT)OS2$(SEP)PM$(SEP)Shared && $(verbose)$(MAKE) $(MAKEOPT) all
- #!endif
- # @touch $(FILESDIR)$(SEP)libs-built-flag
- $(verbose)$(CD) $(MYDIR)
+ $(verbose)cd $(ROOT)OS2$(SEP)PM$(SEP)shared && $(MAKE) $(MAKEOPT) install
+!endif
+ @wtouch $(FILESDIR)$(SEP)libs-built-flag.flg
+ $(verbose)cd $(MYDIR)
 
-.error:
-  %abort
-
-test:
- @echo $(TRGT)
+#.error:
+#  @echo abort
+#  @%abort
 
 !ifndef WRAPPERS
 
 # define if gen_compile_rules_wrapper and gen_deps_wrapper
 # are not defined
-gen_compile_rules_wrapper: .SYMBOLIC
+gen_compile_rules_wrapper: .symbolic
  @%null
 
-gen_deps_wrapper: .SYMBOLIC
+gen_deps_wrapper: .symbolic
  @%null
 
 !endif

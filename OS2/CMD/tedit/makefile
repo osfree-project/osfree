@@ -24,7 +24,7 @@ ADD_COPT = -i=$(MYDIR)..$(SEP)include -dOS2 -dUSE_OS2REXX -sg -ecw # -dSTDC_HEAD
 NODEFAULTLIBS = 1
 STACK=65536
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-INSTALL_ADD = 1
+#INSTALL_ADD = 1
 UNI2H = 1
 #IMPORTS = KbdGetStatus                EMXWRAP.210, &
 #          KbdSetStatus                EMXWRAP.211, &
@@ -41,5 +41,5 @@ UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-install_add: .SYMBOLIC $(DEST)tedit.hlp
- @$(CP) tedit.hlp $(DEST) $(BLACKHOLE)
+#install_add: .SYMBOLIC $(MYDIR)tedit.hlp
+# @$(CP) tedit.hlp $(DEST) $(BLACKHOLE)

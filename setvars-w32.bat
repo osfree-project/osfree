@@ -1,5 +1,5 @@
 @echo off
-rem canonicazlize path
+rem canonicalize root
 for %%i in (%root%) do set root=%%~fi\
 
 set WATCOM=c:\watcom

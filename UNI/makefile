@@ -10,21 +10,20 @@ OUT = $(%ROOT)build$(SEP)include
 LIBOUT = $(%ROOT)build$(SEP)lib$(SEP)
 #TARGETS = h
 
-install: h
+install: h .symbolic
 
 outdirs = $(OUT) $(LIBOUT) $(OUT)$(SEP)dos $(OUT)$(SEP)os2 $(OUT)$(SEP)shared
 
-h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos
-  @%null
+h: pre workaround $(OUT)$(SEP)osfree.h os2 os2libs dos .symbolic
 
-pre: .SYMBOLIC
+pre: .symbolic
  # @$(SAY) Creating directories...
  @for %i in ($(outdirs)) do @$(MDHIER) %i $(BLACKHOLE)
 
 $(OUT)$(SEP)osfree.h: osfree.uni
 # Main osFree file
 
-workaround: cdeftypes2.h dosfilemgrcommon.h
+workaround: cdeftypes2.h dosfilemgrcommon.h .symbolic
 # Workaround of uniplemented features of uni2h tool
   @$(CP) cdeftypes2.h $(OUT) $(BLACKHOLE)
   @$(CP) dosfilemgrcommon.h $(OUT)$(SEP)os2 $(BLACKHOLE)
@@ -149,7 +148,7 @@ os2: $(OUT)$(SEP)os2$(SEP)os2.h &
      $(OUT)$(SEP)os2$(SEP)winlistboxes.h &
      $(OUT)$(SEP)os2$(SEP)pmhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmsei.h &
-     $(OUT)$(SEP)os2$(SEP)winei.h &
+#     $(OUT)$(SEP)os2$(SEP)winei.h &
      $(OUT)$(SEP)os2$(SEP)winhelp.h &
      $(OUT)$(SEP)os2$(SEP)pmgpi.h &
      $(OUT)$(SEP)os2$(SEP)gpiprimitives.h &

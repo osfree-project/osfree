@@ -876,14 +876,14 @@ srcfiles = ", fdmake);
 # defines additional options for C compiler\n\
 ADD_COPT = -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl\n\
 \n\
-TARGETS  = $(PATH)$(TRGT)\n\
-\n\
-lib: $(PATH)$(TRGT)\n\
-\n\
-$(PATH)$(TRGT): # $(OBJS)\n\
- @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(PATH)$(TRGT) library # install\n\
-\n\
 !include $(%ROOT)/mk/libsdos.mk\n\
+\n\
+TARGETS  = lib\n\
+\n\
+lib: $(PATH)$(TRGT) .symbolic\n\
+\n\
+$(PATH)$(TRGT): $(OBJS)\n\
+ @$(MAKE) $(MAKEOPT) -f $(PATH)makefile.mk library=$(PATH)$(TRGT) library # install\n\
 \n\
 \n", fdmake);
 

@@ -27,7 +27,7 @@ THREADING_LINK = -bm
 THREADING_FILE = mt_os2
 !endif
 
-HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configur.h $(SRC)strings.h
+HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configur.h $(SRC)strengs.h
 GCIHEADERS = $(SRC)gci$(SEP)gci.h $(SRC)gci$(SEP)embedded.h $(SRC)gci$(SEP)gci_convert.h
 
 HAVE_GCI = -dHAVE_GCI -i=$(MYDIR)gci

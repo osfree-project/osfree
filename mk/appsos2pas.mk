@@ -21,7 +21,6 @@ TARGETS  = $(PATH)$(TRGT)
 
 !include $(%ROOT)/mk/all.mk
 
-$(PATH)$(PROJ).lnk:
- @%null
+$(PATH)$(PROJ).lnk: .symbolic
 
 !endif
