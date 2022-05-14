@@ -8,7 +8,8 @@
 
  #include <string.h>
 
-
+int main(VOID)
+{
 
  HFILE   DevHandle        = NULLHANDLE;   /* Handle for device */
 
@@ -71,3 +72,5 @@
       return 1;
 
   }
+return 0;
+}

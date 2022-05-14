@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 PCHAR     *pTable;     /*  Pointer table. */
 
@@ -25,3 +26,6 @@ APIRET     ulrc;       /*  Return Code. */
 ulrc = DosGetMessage(pTable, cTable, pBuf,
 
          cbBuf, msgnumber, pszFile, pcbMsg);
+
+return 0;
+}

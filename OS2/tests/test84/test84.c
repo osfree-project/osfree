@@ -8,7 +8,8 @@
 
  #include <string.h>
 
-
+int main(VOID)
+{
 
  UCHAR   uchDataArea[200] = {0};          /* Input and output data area */
 
@@ -71,3 +72,6 @@
       return 1;
 
   }
+
+return 0;
+}

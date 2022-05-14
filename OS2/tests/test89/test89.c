@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HMODULE    hmod;    /*  Handle of module that has the required resource. */
 
@@ -19,3 +20,6 @@ APIRET     ulrc;    /*  Return Code. */
 ulrc = DosGetResource(hmod, idType, idName,
 
          ppb);
+
+return 0;
+}

@@ -66,10 +66,3 @@ int main(VOID)
 
 }
 
-If you only want the address of the TIB returned, code the DosGetInfoBlocks call as follows:
-
-      rc = DosGetInfoBlocks(&ptib, NULL);
-
-If you only want the address of the PIB returned, code the DosGetInfoBlocks call as follows:
-
-      rc = DosGetInfoBlocks(NULL, &ppib.);

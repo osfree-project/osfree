@@ -6,6 +6,7 @@
 
  #include <stdio.h>
 
+int main(VOID) {
 
 
  UCHAR   VDDName[10] = "VDD007";    /* Name of VDD */
@@ -69,3 +70,5 @@
         return 1;
 
     }
+    return 0;
+}
