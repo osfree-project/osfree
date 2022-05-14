@@ -116,32 +116,3 @@ void _System CntThreadProc(ULONG LoopMax )  /* Count thread */
 
 }
 
-Example 2
-
-This example passes the address of MyStuff as a pointer to a thread:
-
-  DosCreateThread ( &tid,
-
-                    AFunct,
-
-                    (ULONG) &MyStuff,    /* Cast pointer to ULONG */
-
-                    0L,
-
-                    8192L);
-
-When the thread is executed, the ULONG value passed in is a pointer to the structure:
-
-  void APIENTRY AFunct (ULONG arg)
-
-    {
-
-    MYSTUFF  *pMyStuff = (MYSTUFF*) arg;
-
-    /* At this point, pMyStuff is the address of the MyStuff structure */
-
-    DosExit (0L,
-
-             0L);
-
-    }

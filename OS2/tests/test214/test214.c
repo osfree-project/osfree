@@ -2,14 +2,12 @@
 
 #include <os2.h>
 
-
-
+int main(VOID)
+{
 PVOID     Data;    /*  Pointer to event data. */
-
 PULONG    Kind;    /*  Kind of event returned. */
+APIRET    rc;  /*  Return code. */
 
-APIRET    return;  /*  Return code. */
-
-
-
-return = KbdGetConsole(Data, Kind, Flag, hkbd);
+rc = KbdGetConsole(Data, Kind, Flag, hkbd);
+return 0;
+}

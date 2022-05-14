@@ -2,12 +2,11 @@
 
 #include <os2.h>
 
-
-
+int main(VOID)
+{
 PKBDHWID    pkbdhwid;  /*  Pointer to hardware ID. */
+APIRET      rc;    /*  Return code. */
 
-APIRET      return;    /*  Return code. */
-
-
-
-return = KbdGetHWID(pkbdhwid, hkbd);
+rc = KbdGetHWID(pkbdhwid, hkbd);
+return 0;
+}

@@ -6,7 +6,8 @@
 
  #include <stdio.h>
 
-
+int main(VOID)
+{
 
  uDB_t   DebugBuf   = {0};        /* Debug buffer */
 
@@ -45,3 +46,5 @@
         return 1;
 
     }
+return 0;
+}
