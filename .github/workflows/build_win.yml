@@ -33,13 +33,12 @@ jobs:
               uses: actions/checkout@v2
               with:
                   # token: ${{ secrets.CI_TOKEN }}
-                  submodules: recursive
+                  submodules: true
 
             # Update references
             - name: Git Sumbodule Update
               run: |
-                  git pull --recurse-submodules
-                  git submodule update --remote --recursive
+                  git submodule update --init --recursive --remote
 
             # Commit
             #- name: Commit update
