@@ -30,7 +30,10 @@ $(PATH)criter.obj: $(PATH)context.def criter.asm dmy_cbrk.asm ..$(SEP)include$(S
 
 $(PATH)context.def: $(MYDIR)context.x
  @mkctxt.exe $<
- @$(RN) $(MYDIR)context.h_c $(PATH) $(BLACKHOLE)
- @$(RN) $(MYDIR)context.inc $(PATH) $(BLACKHOLE)
- @$(RN) $(MYDIR)context.def $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.h_c $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.inc $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)context.def $(PATH) $(BLACKHOLE)
+ @$(DC) $(MYDIR)context.h_c $(BLACKHOLE)
+ @$(DC) $(MYDIR)context.inc $(BLACKHOLE)
+ @$(DC) $(MYDIR)context.def $(BLACKHOLE)
 

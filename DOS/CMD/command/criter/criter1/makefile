@@ -29,8 +29,11 @@ TARGETS = $(PATH)context.def
 
 $(PATH)context.def: $(MYDIR)..$(SEP)context.x
  @mkctxt.exe $<
- @$(RN) $(MYDIR)..$(SEP)context.h_c $(PATH) $(BLACKHOLE)
- @$(RN) $(MYDIR)..$(SEP)context.inc $(PATH) $(BLACKHOLE)
- @$(RN) $(MYDIR)..$(SEP)context.def $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)..$(SEP)context.h_c $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)..$(SEP)context.inc $(PATH) $(BLACKHOLE)
+ @$(CP) $(MYDIR)..$(SEP)context.def $(PATH) $(BLACKHOLE)
+ @$(DC) $(MYDIR)..$(SEP)context.h_c $(BLACKHOLE)
+ @$(DC) $(MYDIR)..$(SEP)context.inc $(BLACKHOLE)
+ @$(DC) $(MYDIR)..$(SEP)context.def $(BLACKHOLE)
 
 $(PATH)criter.obj: $(PATH)context.def criter.asm dmy_cbrk.asm ..$(SEP)..$(SEP)include$(SEP)stuff.inc
