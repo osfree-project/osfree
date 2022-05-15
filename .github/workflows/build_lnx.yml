@@ -20,7 +20,9 @@ jobs:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - name: Check out from repository
               uses: actions/checkout@v2
-
+              with:
+                submodules: recursive
+  
             # Install prerequisites
             - name:  Install prerequisites
               run:   sudo ./conf/scripts/_setup.sh

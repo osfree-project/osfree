@@ -62,7 +62,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>
-#include <dir.h>
+//#include <dir.h>
 #endif
 #include <portable.h>
 #include <getopt.h>

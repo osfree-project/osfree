@@ -6,7 +6,7 @@
 
 # First directory must be SHARED which provides shared libs
 
-DIRS = shared CMD WIN16
+DIRS = shared fapi CMD WIN16
 
 !include $(%ROOT)/mk/all.mk
 
