@@ -26,7 +26,7 @@ TARGETS = $(PATH)context.def subdirs
 
 .x: $(MYDIR)
 
-$(PATH)criter.obj: $(PATH)context.def criter.asm dmy_cbrk.asm ..$(SEP)include$(SEP)stuff.inc
+$(PATH)criter.obj: $(PATH)context.def $(MYDIR)criter.asm $(MYDIR)dmy_cbrk.asm ..$(SEP)include$(SEP)stuff.inc
 
 $(PATH)context.def: $(MYDIR)context.x
  @mkctxt.exe $<
