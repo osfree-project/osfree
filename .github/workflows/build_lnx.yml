@@ -25,28 +25,25 @@ jobs:
 
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - name: Check out from repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
               with:
+                  repository: {owner}/repo
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  # token: ${{ secrets.CI_TOKEN }}
-                  submodules: true
+                  submodules: recursive
 
             # Update references
             - name: Git Sumbodule Update
               run: |
                   git submodule update --init --recursive
-                  git submodule update --recursive --remote
-                  # git submodule update --init --recursive --remote
-                  # git pull --recurse-submodules
 
             # Commit
-            - name: Commit update
-              run: |
-                  git config --global user.name 'Git bot'
-                  git config --global user.email 'bot@noreply.github.com'
-                  git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-                  git commit -a -m "Auto updated submodule references" || echo "No changes to commit #1"
-                  git push || echo "No changes to commit #2"
+            #- name: Commit update
+            #  run: |
+            #      git config --global user.name 'Git bot'
+            #      git config --global user.email 'bot@noreply.github.com'
+            #      git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+            #      git commit -a -m "Auto updated submodule references" || echo "No changes to commit #1"
+            #      git push || echo "No changes to commit #2"
 
             # Install prerequisites
             - name:  Install prerequisites
