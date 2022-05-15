@@ -1,4 +1,4 @@
-name: Execute build and tests
+name: osFree userland Linux build and tests
 
 on:
     # run at the event pushed by Jenkins
@@ -33,7 +33,7 @@ jobs:
             # Update references
             - name: Git Sumbodule Update
               run: |
-                  git submodule update --init --recursive --remote
+              git submodule update --init --recursive --remote
 
             # Commit
             #- name: Commit update
