@@ -31,14 +31,15 @@ jobs:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - name: Check out from repository
               uses: actions/checkout@v2
-              with:
+              #with:
                   # token: ${{ secrets.CI_TOKEN }}
-                  submodules: true
+                  #submodules: true
 
             # Update references
             - name: Git Sumbodule Update
               run: |
                   git submodule update --init --recursive --remote
+                  git pull --recurse-submodules
 
             # Commit
             #- name: Commit update
