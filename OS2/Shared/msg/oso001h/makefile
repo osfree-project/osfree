@@ -9,13 +9,13 @@ DEST    = os2$(SEP)system
 
 !include $(%ROOT)/mk/appsos2.mk
 
-TARGETS = $(PATH)OSO001h.msg $(PATH)oso001h.pl $(PATH)OSO001h.ru
+TARGETS = $(PATH)oso001h.msg $(PATH)oso001h.pl $(PATH)oso001h.ru
 
-$(PATH)OSO001h.msg:
+$(PATH)oso001h.msg:
 
 $(PATH)oso001h.pl:
 
-$(PATH)OSO001h.ru:
+$(PATH)oso001h.ru:
 
 $(PATH)oso001h.rsf:
  @$(MAKE) $(MAKEOPT) T=$^. rsf
