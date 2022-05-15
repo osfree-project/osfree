@@ -10,4 +10,3 @@
 [submodule "DOS/fapi"]
 	path = DOS/fapi
 	url = https://github.com/osfree-project/FamilyAPI
-	branch = main
