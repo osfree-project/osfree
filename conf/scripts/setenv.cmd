@@ -12,10 +12,23 @@ src = translate(src, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 /* Build the full path to the config file */
 if pos('/', translate(cfg, '/', '\')) == 0 then do
    l = lastpos('/', translate(src, '/', '\'))
-   root = delstr(src, l + 1)
    if l > 0 then cfg = delstr(src, l + 1) || cfg
 end
 
+ll = lastpos('\', src)
+root = delstr(src, ll)
+
+say root
+
+ll = lastpos('\', root)
+if ll > 0 then root = delstr(root, ll)
+
+say root
+
+ll = lastpos('\', root)
+if ll > 0 then root = delstr(root, ll + 1)
+
+say root
 
 if stream(cfg, 'c', 'query exists') = '' then signal usage
 

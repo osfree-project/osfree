@@ -30,7 +30,7 @@ jobs:
 
             # Install prerequisites
             - name:  Install prerequisites
-              run:   _setup.bat
+              run:   conf\scripts\_setup.bat
               shell: cmd
 
             # Build
