@@ -48,6 +48,6 @@ $(PATH)$(PROJ).lnk: $(OBJS)
 
 $(PATH)$(TRGT): $(PATH)$(PROJ).lnk $(OBJS)
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 !endif

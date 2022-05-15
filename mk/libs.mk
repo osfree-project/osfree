@@ -29,14 +29,14 @@ library: $(OBJS) $(LIBS) .symbolic
 !endif
 !endif
 !ifdef OBJS
- $(verbose)$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG)
+ $(verbose)$(LIB) $(LIBOPT) $(library).tmp1 +$(OBJS) $(LOG2)
 !endif
 !ifdef LIBS
- $(verbose)$(LIB) $(LIBOPT) $(library).tmp1 +$(LIBS) $(LOG)
+ $(verbose)$(LIB) $(LIBOPT) $(library).tmp1 +$(LIBS) $(LOG2)
 !endif
 !ifdef OBJS16
- $(verbose)$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG)
- $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2
+ $(verbose)$(LIB) $(LIBOPT) $(library).tmp2 +$(OBJS16) $(LOG2)
+ $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 +$(library).tmp2 $(LOG2)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $(library).tmp1
  $(verbose)$(DC) $(library).tmp2
@@ -45,7 +45,7 @@ library: $(OBJS) $(LIBS) .symbolic
  @if exist $(library).tmp2 @$(DC) $(library).tmp2 $(BLACKHOLE)
 !endif
 !else
- $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1
+ $(verbose)$(LIB) $(LIBOPT) $(library)      +$(library).tmp1 $(LOG2)
 !ifeq UNIX TRUE
  $(verbose)$(DC) $(library).tmp1
 !else

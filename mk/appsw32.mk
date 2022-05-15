@@ -86,6 +86,6 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 !endif

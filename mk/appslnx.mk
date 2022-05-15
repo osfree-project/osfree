@@ -94,6 +94,6 @@ $(PATH)$(PROJ).so: $(PATH)$(PROJ).lnk
 $(PATH)$(PROJ)$(EXE_SUFFIX): $(PATH)$(PROJ).lnk
 !endif
  @$(SAY) LINK      $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 !endif

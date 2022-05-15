@@ -17,11 +17,22 @@ drv = $(%cdrive):
 drv =
 !endif
 
+!ifeq UNIX TRUE
+wcc = $(PATH)_wcc.sh
+!else
+wcc = $(PATH)_wcc.cmd
+!endif
+
 mfh = $(MYDIR)makefile
 mf  = $(PATH)makefile
 
-prereq: dirhier $(mf) .symbolic
-# @%null
+prereq: dirhier $(wcc) $(mf) .symbolic
+
+$(wcc):
+ @$(REXX) $(ROOT)conf$(SEP)scripts$(SEP)updwcc.cmd $^@ $(SEP)
+!ifeq UNIX TRUE
+ @chmod 755 $^@
+!endif
 
 $(mf): $(MYDIR)makefile
  @%create $(mf)

@@ -126,7 +126,7 @@ else
 
 lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
-vars = 'WATCOM IMGDIR ROOT IMGDIR1 TOOLS PATH INCLUDE ',
+vars = 'WATCOM IMGDIR ROOT IMGDIR1 TOOLS PATH INCLUDE LOG ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 

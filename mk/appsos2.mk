@@ -95,7 +95,7 @@ cplist = en pl ru
 
 .rsf.msg:
  @$(SAY) MKMSGF   $^. $(LOG)
- $(verbose)$(MC) @$< $(BLACKHOLE)
+ $(verbose)$(MC) @$< $(LOG2)
 
 rsf: .SYMBOLIC .PROCEDURE
  @%create $(PATH)$(T)
@@ -171,6 +171,6 @@ $(PATH)$(PROJ).dll: $(PATH)$(PROJ).lnk
 $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 !endif
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 !endif

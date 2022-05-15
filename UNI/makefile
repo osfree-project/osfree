@@ -498,10 +498,10 @@ $(OUT)$(SEP)dos$(SEP)os2vdm.h: dos$(SEP)os2vdm.uni
 .lib: $(PATH)
 
 .uni.h: .AUTODEPEND
- @$(SAY) UNI2H    $^.
- $(verbose)uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@
+ @$(SAY) UNI2H    $^. $(LOG)
+ $(verbose)uni2h.exe -e h -a $(MYDIR)os2$(SEP)os2386.abi $< $^@ $(LOG2)
 
 .uni.lib: .AUTODEPEND
- @$(SAY) LIB      $^.
- $(verbose)uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def
+ @$(SAY) LIB      $^. $(LOG)
+ $(verbose)uni2h.exe -e def -a $(MYDIR)os2$(SEP)os2386.abi $< $^*.def $(LOG2)
 # $(verbose)$(LIB) $(LIBOPT) $^@ @$^*.def

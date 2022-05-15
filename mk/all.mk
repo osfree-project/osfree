@@ -13,28 +13,31 @@ all: precopy install .symbolic
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
 
-#print_vars: .SYMBOLIC
-#        @echo FILESDIR $(FILESDIR)
-#        @echo MYDIR    $(MYDIR) 
-#        @echo ROOT     $(ROOT)  
-#        @echo RELDIR   $(RELDIR)
-#        @echo PATH     $(PATH) 
-#        @echo BLD      $(BLD)
-#        @echo RELDIR   $(RELDIR)
-#        @echo TOOLDIR  $(TOOLDIR)
-#        @echo DEST     $(DEST)
-#        @echo x        $(x)
-#        @echo q        $(q)
-#        @echo OS_REXX  $(OS_REXX)
-#        @echo OS_SHELL $(OS_SHELL)
-#        @echo ENV      $(ENV)
-#        @echo IMGDIR   $(IMGDIR)
-#        @echo IMGDIR1  $(IMGDIR1)
-#        @echo LIBDIR   $(LIBDIR)
-#        @echo LIBC     $(LIBC)
-#        @echo SEP      $(SEP)
-#        @echo TARGETS  $(TARGETS)
-#        @echo DEST     $(DEST)
+print_vars: .symbolic
+        @echo FILESDIR $(FILESDIR)
+        @echo MYDIR    $(MYDIR) 
+        @echo ROOT     $(ROOT)  
+        @echo RELDIR   $(RELDIR)
+        @echo PATH     $(PATH) 
+        @echo BLD      $(BLD)
+        @echo RELDIR   $(RELDIR)
+        @echo TOOLDIR  $(TOOLDIR)
+        @echo DEST     $(DEST)
+        @echo x        $(x)
+        @echo q        $(q)
+        @echo OS_REXX  $(OS_REXX)
+        @echo OS_SHELL $(OS_SHELL)
+        @echo ENV      $(ENV)
+        @echo IMGDIR   $(IMGDIR)
+        @echo IMGDIR1  $(IMGDIR1)
+        @echo LIBDIR   $(LIBDIR)
+        @echo LIBC     $(LIBC)
+        @echo SEP      $(SEP)
+        @echo TARGETS  $(TARGETS)
+        @echo DEST     $(DEST)
+        @echo LOGx     $(%LOG)
+        @echo LOG      $(LOG)
+        @echo LOG2     $(LOG2)
 
 #prevshared: .symbolic
 # @if not exist $(MYDIR)..$(SEP)..$(SEP)Shared @%quit
@@ -246,10 +249,13 @@ RELDIR_PWD       = $+  $(DIR_PWD:$(ROOT)=) $-
 MAPSYM    = @mapsym.exe
 
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
-LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
-            # 2>&1 >> $(ROOT)$(SEP)compile.log
-            # Alternative log command (use manually on cmd line, for bash):
-            #   2>&1 | tee ${ROOT}${SEP}compile.log
+!ifneq %LOG
+LOG       = #>>$(BLD)build.txt
+LOG2      = #2>&1
+!else
+LOG       = 
+LOG2      = 
+!endif
 verbose=$(%VERBOSE)
 !ifeq verbose yes
 verbose=
@@ -323,7 +329,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 !else
  $(verbose)if exist $^@ $(verbose)$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)lex.exe -t $[@ >$^@ $(LOG)
+ $(verbose)lex.exe -t $[@ >$^@ $(LOG2)
 
 # With -l yacc does not print "#line <nr>" in the generated C code.
 .y.c: .autodepend
@@ -335,7 +341,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .y.h: .autodepend
  @$(SAY) YACC     $^. $(LOG)
@@ -346,7 +352,7 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  $(verbose)if exist $^*.h $(verbose)$(DC) $^*.h $(BLACKHOLE)
  $(verbose)if exist $^*.c $(verbose)$(DC) $^*.c $(BLACKHOLE)
 !endif
- $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG)
+ $(verbose)yacc.exe -y -d -o $^@ $[@ $(LOG2)
 
 .c:   $(MYDIR)
 
@@ -364,64 +370,64 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .c16.o16: .AUTODEPEND
  @$(SAY) CC16     $^. $(LOG)
- $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.obj: .AUTODEPEND
  @$(SAY) CC       $^. $(LOG)
- $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.obj: .AUTODEPEND
  @$(SAY) ASM      $^. $(LOG)
 !ifeq JWASM 1
- $(verbose)$(ASM) $(ASMOPT) -Fw=$^*.err -Fo=$^@ $[@ $(LOG)
+ $(verbose)$(ASM) $(ASMOPT) -Fw=$^*.err -Fo=$^@ $[@ $(LOG2)
 !else
- $(verbose)$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 !endif
 
 .cpp.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
- $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .cc.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
- $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .wmp.map: .AUTODEPEND
  @$(SAY) WMP2MAP  $^. $(LOG)
- $(verbose)$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG)
+ $(verbose)$(AWK) -f $(FILESDIR)$(SEP)tools$(SEP)mapsym.awk <$< >$(PATH)$^@ $(LOG2)
 
 .map.sym: .AUTODEPEND
  @$(SAY) MAPSYM   $^. $(LOG)
- $(verbose)$(MAPSYM) $[@ $(LOG)
- $(verbose)$(RN) $^. $^: $(LOG)
+ $(verbose)$(MAPSYM) $[@ $(LOG2)
+ $(verbose)$(RN) $^. $^: $(LOG2)
 
 .ipf.inf: .AUTODEPEND
  @$(SAY) IPFC     $^. $(LOG)
- $(verbose)$(HC) -i $[@ -o $^@ $(BLACKHOLE)
+ $(verbose)$(HC) -i $[@ -o $^@ $(LOG2)
 
 .ipf.hlp: .AUTODEPEND
  @$(SAY) IPFC     $^. $(LOG)
- $(verbose)$(HC) $[@ -o $^@ $(BLACKHOLE)
+ $(verbose)$(HC) $[@ -o $^@ $(LOG2)
 
 .pas.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ # $(BLACKHOLE)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG2)
 
 .pp.exe: .symbolic
  @$(SAY) PPC      $^. $(LOG)
- $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ # $(BLACKHOLE)
+ $(verbose)$(PC) $(PCOPT) -o$^. -FE$^: -Fe$^: $[@ $(LOG2)
 
 .lnk.exe: .autodepend
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 .lnk.dll: .autodepend
  @$(SAY) LINK     $^. $(LOG)
- $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG)
+ $(verbose)$(LINKER) $(LINKOPT) @$[@ $(LOG2)
 
 .rexx.exe: .AUTODEPEND
  @$(SAY) WRAPXX   $^. $(LOG)
- $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
+ $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -432,13 +438,12 @@ subdirs: .symbolic
 
 dirhier: .symbolic
  $(verbose)$(SAY) cd       $(RELDIR) $(LOG)
- $(verbose)$(MDHIER) $(PATH) $(LOG)
+ $(verbose)$(MDHIER) $(PATH)
 
 clean: .SYMBOLIC
  @$(SAY) clean    $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
- # @$(SAY)   "$(TARGETS) -> $(DEST)"
 
 targets: prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
@@ -471,7 +476,7 @@ $(DEST)$(SEP)$(TRGT): $(PATH)$(TRGT)
 install3: $(PATH)$(file) .symbolic
  @if exist $(DEST)$(SEP)$(file) @%quit
  @$(SAY) INST     $(file) $(LOG)
- @$(MDHIER) $(DEST)
+ @$(MDHIER) $(DEST) $(LOG2)
  $(verbose)$(CP) $(PATH)$(file) $(DEST)$(SEP)$(file) $(BLACKHOLE)
 
 #install: build .symbolic
@@ -495,7 +500,7 @@ install3: $(PATH)$(file) .symbolic
 
 #.ignore
 precopy: .symbolic
- @$(SAY) PRECOPY  scrpits $(LOG)
+# @$(SAY) PRECOPY  scrpits >>$(LOG)
  @$(MAKE) $(MAKEOPT) -f $(ROOT)$(SEP)tools$(SEP)scripts$(SEP)makefile tools
 
 # $(FILESDIR)$(SEP)libs-built-flag: prelibs .symbolic

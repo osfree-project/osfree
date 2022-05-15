@@ -2,7 +2,7 @@
  *
  * Usage:
  *    cd %ROOT%
- *    find . -type f -name _wcc.sh -exec /usr/local/bin/rexx ./x.cmd {} \;
+ *    find . -type f -name _wcc.sh -exec /usr/local/bin/rexx ./conf/scripts/updwcc.cmd {} / \;
  *    find . -type f -name _wcc.sh -exec chmod 755 {} \;
  *    find . -type f -name _wcc.sh -exec git add {} \;
  *
@@ -10,12 +10,16 @@
 
 parse arg fn sep
 
-if sep = '' sep = '\'
-fn  = translate(fn, '/', sep)
-l   = levels(fn)
+if sep = '' then sep = '\'
+root = value('ROOT',, 'ENVIRONMENT')
+if root = '' then root = './'
+fn  = translate(fn, '/', '\')
+fn2 = substr(fn, length(root))
+l   = levels(fn2)
+p   = lastpos('.', fn)
+ext = substr(fn, p + 1)
 
-if sep = '/' then ext = 'sh' else ext = 'cmd'
-'sed -e ''s,\@RT\@,'l','' conf/scripts/_wcc.'ext'-template >'fn
+'sed -e ''s,\@RT\@,'l','' 'root'conf/scripts/_wcc.'ext'-template >'fn
 
 exit
 /* ----------------------------------- */

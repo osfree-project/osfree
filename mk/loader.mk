@@ -58,7 +58,7 @@ LOUT         = lbi
 
 .mdl.rel
  @$(SAY) GENREL   $^. $(LOG)
- $(verbose)$(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@ $(LOG)
+ $(verbose)$(GENREL) $[*.mdl $[*.mds $(SHIFT) >$^@ $(LOG2)
 !ifeq UNIX TRUE
  #@$(DC) $[*.mds
 !else
@@ -72,7 +72,7 @@ LOUT         = lbi
 !else
  @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@ $(LOG)
+ $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc >$^@ $(LOG2)
 !ifeq UNIX TRUE
  #@$(DC) $[@
 !else
@@ -86,7 +86,7 @@ LOUT         = lbi
 !else
  @if exist $^@ @$(DC) $^@ $(BLACKHOLE)
 !endif
- $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@ $(LOG)
+ $(verbose)$(RIP) $[@ $(MOD_BASE) $(%ROOT)$(SEP)bootseq$(SEP)loader$(SEP)include$(SEP)fsd.inc $(SHIFT) >$^@ $(LOG2)
 !ifeq UNIX TRUE
  #@$(DC) $[@
 !else
@@ -95,7 +95,7 @@ LOUT         = lbi
 
 link: $(PATH)$(T)$(S).lnk .SYMBOLIC .PROCEDURE
  @$(SAY) LINK     $(T)$(S).$(E) $(LOG)
- $(verbose)$(LINKER) @$< $(LOG)
+ $(verbose)$(LINKER) @$< $(LOG2)
 
 $(PATH)$(T)$(S).lnk: $(OBJS)
  @%create $^@
@@ -142,31 +142,31 @@ $(PATH)$(T)$(S).lnk: $(OBJS)
 
 .c.$(O):
  @$(SAY) CC       $^. $(LOG)
- $(verbose)$(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CC) -dSHIFT=0 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.$(SO):
  @$(SAY) CC       $^. $(LOG)
- $(verbose)$(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CC) -dSHIFT=$(SHIFT) $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.$(LO):
  @$(SAY) CC       $^. $(LOG)
- $(verbose)$(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(CC) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.$(O):
  @$(SAY) ASM      $^. $(LOG)
- $(verbose)$(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(ASM) -dSHIFT=0 $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.$(LO):
  @$(SAY) ASM      $^. $(LOG)
- $(verbose)$(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(ASM) -dSHIFT=0 -dSTAGE1_5 -dNO_BLOCK_FILES $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.$(SO):
  @$(SAY) ASM      $^. $(LOG)
- $(verbose)$(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ $(verbose)$(ASM) -dSHIFT=$(SHIFT) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .inc.h:
  @$(SAY) INC2H    $^. $(LOG)
- $(verbose)$(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@ $(LOG)
+ $(verbose)$(AWK) -f $(ROOT)$(SEP)bin$(SEP)inc2h.awk <$[@ >$^@ $(LOG2)
 
 #
 # See $(%ROOT)/mk/genrules.mk for details

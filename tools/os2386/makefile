@@ -33,7 +33,7 @@ LOPT = -q -n
 
 .asm.obj: .AUTODEPEND
  @$(SAY) ASM      $^. $(LOG)
- @$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG)
+ @$(ASM) $(ASMOPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 $(PATH)os2386.lbc: $(lbcs)
         @%create $@
@@ -47,4 +47,4 @@ $(PATH)os2386.lbc: $(lbcs)
         @sed -f $(MYDIR)def2lbc.sed $(MYDIR)$[@ >$(PATH)$^@
 
 $(PATH)$(PROJ).lib: $(PATH)os2386.lbc $(PATH)msgseg32.obj
-        @$(LIB) $(LOPT) $@ @$[@ +$]@
+        @$(LIB) $(LOPT) $@ @$[@ +$]@ $(LOG2)
