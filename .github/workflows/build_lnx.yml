@@ -21,8 +21,8 @@ jobs:
             - name: Check out from repository
               uses: actions/checkout@v2
               with:
-                submodules: recursive
-  
+                submodules: recursive remote
+
             # Install prerequisites
             - name:  Install prerequisites
               run:   sudo ./conf/scripts/_setup.sh
