@@ -31,7 +31,7 @@ jobs:
             - name: Check out from repository
               uses: actions/checkout@v2
               with:
-                  token: ${{ secrets.CI_TOKEN }}
+                  # token: ${{ secrets.CI_TOKEN }}
                   submodules: true
 
             # Update references
