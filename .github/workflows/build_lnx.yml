@@ -21,6 +21,9 @@ jobs:
             - name: Check out from repository
               uses: actions/checkout@v2
 
+            - name: Checkout submodules
+              uses: textbook/git-checkout-submodule-action@master
+  
             # Install prerequisites
             - name:  Install prerequisites
               run:   sudo ./conf/scripts/_setup.sh
