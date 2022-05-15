@@ -16,6 +16,39 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+    # Sync submodules
+    sync:
+        name: 'Submodules Sync'
+        runs-on: ubuntu-latest
+
+        # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            # Checkout the repository to the GitHub Actions runner
+            - name: Checkout
+              uses: actions/checkout@v2
+              with:
+                  # token: ${{ secrets.CI_TOKEN }}
+                  submodules: true
+
+            # Update references
+            - name: Git Sumbodule Update
+              run: |
+                  git pull --recurse-submodules
+                  git submodule update --remote --recursive
+
+            # Commit
+            #- name: Commit update
+            #  run: |
+            #      git config --global user.name 'Git bot'
+            #      git config --global user.email 'bot@noreply.github.com'
+            #      git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+            #      git commit -am "Auto updated submodule references" && git push || echo "No changes to commit"
+
+
     # This workflow contains a single job called "build"
     build:
         # The type of runner that the job will run on
@@ -23,14 +56,12 @@ jobs:
 
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
-
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
             - name: Check out from repository
               uses: actions/checkout@v2
               with:
-                submodules: recursive
+                submodules: true
 
-  
             # Install prerequisites
             - name:  Install prerequisites
               run:   conf\scripts\_setup.bat
