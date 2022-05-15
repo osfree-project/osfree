@@ -9,4 +9,4 @@
 	url = https://github.com/osfree-project/os3.git
 [submodule "DOS/fapi"]
 	path = DOS/fapi
-	url = https://github.com/prokushev/FamilyAPI
+	url = https://github.com/osfree-project/FamilyAPI
