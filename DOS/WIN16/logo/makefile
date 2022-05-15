@@ -23,3 +23,5 @@ install_add: .symbolic
  @$(SAY) INST     $(PROJ).lgo $(LOG)
  @$(CP) $(PATH)$(PROJ).com $(PATH)$(PROJ).lgo
  @$(CP) $(PATH)$(PROJ).lgo $(DEST)
+
+$(PATH)$(PROJ).exe: .symbolic

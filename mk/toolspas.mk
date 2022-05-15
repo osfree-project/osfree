@@ -16,7 +16,11 @@ CLEAN_ADD = *.oo2 *.ppo *.o
 
 !include $(%ROOT)/mk/all.mk
 
-TARGETS  = $(PATH)$(TRGT)
+!ifeq DLL 1
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+!else
+TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+!endif
 
 $(PATH)$(PROJ).lnk: .symbolic
 

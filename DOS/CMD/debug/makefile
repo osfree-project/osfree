@@ -23,3 +23,5 @@ COM = 1
 # echo creating debugx.com
 # rem nasmw debug.asm -D PM=1 -D NASM=1 -O 2 -o debugx.com -l debugx.lst 
 # yasm debug.asm -D PM=1 -D NASM=0 -o debugx.com -l debugx.lst 
+
+$(PATH)debug.exe: .symbolic

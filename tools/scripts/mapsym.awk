@@ -4,6 +4,8 @@
 # WARNING: It has only been briefly tested with 32-bit LX output.
 # Feb 27, 2014, valerius
 # Added support for 16-bit NE executables
+# Feb 15, 2017, valerius
+# Added support for 32-bit PE executables
 
 BEGIN {
  group=1
@@ -12,17 +14,31 @@ BEGIN {
 }
 
 /^Executable Image:/ {
- sub("\\..*$", "", $3)
+ # delete the driveletter (if any)
+ sub("^[a-zA-Z]:", "", $3)
+
+ # change slashes to backslashes
+ gsub("/", "\\", $3)
+
+ # extract the basename
+ while ((p = index($3, "\\")) > 0) {
+   $3 = substr($3, ++p)
+ }
+
  printf "\n %s\n\n", $3
 }
 
 /^Entry point address:/ {
- printf "\nProgram entry point at %s", $4
+ if (length($4) == 8)
+   printf "\nProgram entry point at %s:%s", "0001", $4
+ else
+   printf "\nProgram entry point at %s", $4
 }
 
 /^Group *Address *Size/ {
  mode=group
  groups=0
+ next
 }
 
 /^Segment *Class *Group *Address *Size/ {
@@ -48,6 +64,18 @@ BEGIN {
  next
 }
 
+# The same with WEAK$ZERO (weak prelinker hack in newer wlinks)
+/0000:00000000/ {
+ next
+}
+
+/^[^= ]* *....:....  *........$/ {
+ if(mode==group)
+ {
+  group_buf[groups++]=sprintf(" %s   %s", toupper($2), $1)
+ }
+}
+
 /^[^= ]* *....:........  *........$/ {
  if(mode==group)
  {
@@ -55,10 +83,10 @@ BEGIN {
  }
 }
 
-/^[^= ]* *....:....  *........$/ {
+/^[^= ]* *........  *........$/ {
  if(mode==group)
  {
-  group_buf[groups++]=sprintf(" %s   %s", toupper($2), $1)
+  group_buf[groups++]=sprintf(" %s:%s   %s", "0001", toupper($2), $1)
  }
 }
 
@@ -76,7 +104,14 @@ BEGIN {
  }
 }
 
-/^....:....\*?  *[^ ]*$/ {
+/^[^= ]* *[^ ]* *[^ ]*  *........  *........$/ {
+ if(mode==segment && length($4) == 8)
+ {
+  printf " %s:%s 0%sH %-22s %s 32-bit\n", "0001", toupper($4), toupper($5), $1, $2
+ }
+}
+
+/^....:....[\*\+]?  *[^ ]*$/ {
  if(mode==memory && length($1) <= 10)
  {
   sel = substr($1, 1, 4)
@@ -85,10 +120,17 @@ BEGIN {
  }
 }
 
-/^....:........\*?  *[^ ]*$/ {
+/^....:........[\*\+]?  *[^ ]*$/ {
  if(mode==memory && length($1) >= 13)
  {
   printf " %s       %s\n", toupper(substr($1, 1, 13)), $2
+ }
+}
+
+/^[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][\*\+]?  *[^ ]*$/ {
+ if(mode==memory)
+ {
+  printf " %s:%s       %s\n", "0001", toupper(substr($1, 1, 8)), $2
  }
 }
 

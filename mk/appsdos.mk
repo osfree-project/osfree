@@ -25,7 +25,13 @@ com = com
 com = 
 !endif
 
-TARGETS  = $(PATH)$(TRGT)
+!ifeq DLL 1
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+!else ifeq COM 1
+TARGETS  = $(PATH)$(PROJ).com # $(PATH)$(PROJ).sym
+!else
+TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+!endif
 
 $(PATH)$(PROJ).lnk: $(OBJS)
  @%create $^@

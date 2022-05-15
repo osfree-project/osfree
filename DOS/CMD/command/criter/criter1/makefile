@@ -13,6 +13,7 @@ srcfiles = $(p)..$(SEP)criter$(e)
 # defines additional options for C compiler
 ADD_ASMOPT = -dAUTO_FAIL  -dMODEL=l -i=$(PATH)..$(SEP)..$(SEP)strings$(SEP)critstrs -i=$(PATH) -i=$(MYDIR)
 ADD_LINKOPT = lib suppl.lib
+DEST = none
 #COM = 1
 
 !include $(%ROOT)/mk/appsdos.mk

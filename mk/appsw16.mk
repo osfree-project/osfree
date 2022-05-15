@@ -21,10 +21,10 @@ DEST     = os2$(SEP)mdos$(SEP)winos2
 !include $(%ROOT)/mk/all.mk
 
 !ifdef DLL
-TARGETS  = $(PATH)$(PROJ).dll
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 dllopt = dll
 !else
-TARGETS  = $(PATH)$(PROJ).exe
+TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 dllopt =
 !endif
 

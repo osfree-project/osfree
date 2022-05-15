@@ -11,3 +11,5 @@ srcfiles  = $(p)segs$(e) $(p)environ$(e) $(p)cmdline$(e) $(p)int2f$(e) $(p)int21
 COM       = 1
 
 !include $(%ROOT)/mk/appsdos.mk
+
+$(PATH)append.exe: .symbolic

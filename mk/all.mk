@@ -8,13 +8,7 @@
 !ifndef __all_mk__
 !define __all_mk__
 
-# all: targets .symbolic
-## all: precopy prereq install .symbolic
 all: precopy install .symbolic
-# @%null
-
-# a double (see the end of file )
-#install: build
 
 !include $(%ROOT)/mk/dirs.mk
 !include $(%ROOT)/mk/genrules.mk
@@ -55,12 +49,6 @@ all: precopy install .symbolic
 # @cd $(MYDIR)..$(SEP)Shared
 # @$(MAKE) $(MAKEOPT)
 # $(CD) $(MYDIR)
-
-# build and install each target in sequence
-# build: precopy prereq subdirs .symbolic
-#targets: prereq .symbolic
-# @for %t in ($(TARGETS)) do @$(MAKE) $(MAKEOPT) %t
-# @cd $(PATH) && @$(MAKE) $(MAKEOPT) -f $(mf) $(TARGETS) && @cd ..
 
 TRG  =
 
@@ -255,7 +243,7 @@ RELDIR_PWD       = $+  $(DIR_PWD:$(ROOT)=) $-
 # Without it, the first time value stays the same (wmake caches it).
 # $(%PWD)
 
-MAPSYM    = @mapsym
+MAPSYM    = @mapsym.exe
 
 TOOLS     = $(ROOT)$(SEP)tools$(SEP)bin
 LOG       = # >$(ROOT)$(SEP)compile.log 2>&1
@@ -435,38 +423,22 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG)
 
-# targets: build install .symbolic
-
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
  @for %d in ($(DIRS)) do @cd %d && $(MAKE) $(MAKEOPT) install
-## @for %d in ($(DIRS)) do @cd $(PATH)%d && $(SAY) cd $(DIR_PWD)$(SEP)%d && $(MAKE) $(MAKEOPT)
-# @for %%i in ($(DIRS)) do @cd $(MYDIR)%%i && $(SAY) cd $(DIR_PWD)$(SEP)%%i && $(MAKE) $(MAKEOPT) $(TARGET) && cd ..
-# @for %%i in ($(DIRS)) do  @(@cd $(MYDIR)%%i && @$(MAKE) $(MAKEOPT) $(TARGET) && cd ..)
-# @for %i in ($(DIRS)) do  @if exist $(MYDIR)%i @cd $(MYDIR)%i && @$(MAKE) $(MAKEOPT) $(TARGET)
-## @for %d in ($(DIRS)) do @cd $(MYDIR)%d && $(MAKE) $(MAKEOPT) targets
 
 dirhier: .symbolic
- @$(SAY) cd       $(RELDIR) $(LOG)
+ $(verbose)$(SAY) cd       $(RELDIR) $(LOG)
  $(verbose)$(MDHIER) $(PATH) $(LOG)
 
-#.ignore
 clean: .SYMBOLIC
  @$(SAY) clean    $(LOG)
  @$(MAKE) $(MAKEOPT) TARGET=$^@ subdirs
  $(verbose)$(CLEAN_CMD)
  # @$(SAY)   "$(TARGETS) -> $(DEST)"
-
-#$(PATH)$(PROJ)$(EXE_SUF):
-
-#$(PATH)$(PROJ).com:
-
-#$(PATH)$(PROJ):
-
-#$(PATH)$(PROJ).lnk: $(PATH)makefile
 
 targets: prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
@@ -477,6 +449,8 @@ FLG  = install2
 !else
 FLG  = 
 !endif
+!else ifeq  DEST none
+FLG  =
 !else ifneq DEST
 FLG  = $(DEST)$(SEP)$(TRGT)
 !else
@@ -543,10 +517,6 @@ prelibs: .symbolic
 !endif
  @wtouch $(FILESDIR)$(SEP)libs-built-flag.flg
  $(verbose)cd $(MYDIR)
-
-#.error:
-#  @echo abort
-#  @%abort
 
 !ifndef WRAPPERS
 

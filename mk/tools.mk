@@ -32,7 +32,11 @@ ADD_COPT       += -i=$(%WATCOM)$(SEP)lh # -x
 # because add_copt is overwritten in this file.
 CLEAN_ADD = *.c *.h
 
+!ifeq DLL 1
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+!else
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+!endif
 
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 

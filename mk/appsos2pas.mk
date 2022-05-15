@@ -17,7 +17,11 @@ ADD_PCOPT = -Tos2
 
 #CLEANMASK = *.lnk *.wmp *.obj *.err *.log *.bak *.sym
 
-TARGETS  = $(PATH)$(TRGT)
+!ifeq DLL 1
+TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
+!else
+TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
+!endif
 
 !include $(%ROOT)/mk/all.mk
 
