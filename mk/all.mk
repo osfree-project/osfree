@@ -448,6 +448,10 @@ clean: .SYMBOLIC
 targets: prereq subdirs .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) %t
 
+!ifdef PROJ
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
+!endif
+
 !ifndef TRGT
 !ifdef INSTALL
 FLG  = install2
