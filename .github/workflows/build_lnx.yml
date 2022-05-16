@@ -27,7 +27,7 @@ jobs:
             - name: Check out from repository
               uses: actions/checkout@v3
               with:
-                  repository: {owner}/repo
+                  # repository: {owner}/repo
                   token: ${{ secrets.GITHUB_TOKEN }}
                   submodules: recursive
 
