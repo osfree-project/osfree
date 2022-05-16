@@ -24,7 +24,7 @@ ADD_COPT = $(ADD_COPT) -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
 !ifeq UNIX TRUE
 OS       = UNIX
 NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
-ADD_LINKOPT    += system linux  debug dwarf all
+ADD_LINKOPT    += system linux
 ADD_COPT       += -i=$(%WATCOM)$(SEP)lh # -x
 !endif
 
@@ -40,9 +40,12 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 #$(PATH)$(PROJ)$(EXE_SUF): $(PATH)$(PROJ).lnk
 
-$(PATH)$(PROJ).lnk: $(OBJS)
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ NAME $^*.exe
+#!ifeq UNIX TRUE
+# @%append $^@ debug dwarf all
+#!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif

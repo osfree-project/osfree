@@ -41,7 +41,7 @@ Var
   F32Buf:       FAT32Buf;
   HPbuf:        HPFSbuf;
   DevHandle:    Hfile;
-  Drive2:       Array[0..2] of Char ;
+  Drive2:       Array[0..2] of Char =(#0,#0,#0);
   Drive:        PChar;
   DriveT:       tDrivetype;     // FS type on selected drive
   PartNr:       Byte;           // Partition number

@@ -15,6 +15,7 @@ srcfiles = &
  $(p)..$(SEP)lookup$(e) $(p)..$(SEP)bitrate$(e) $(p)..$(SEP)vorbisfile$(e) $(p)..$(SEP)vorbisenc$(e)  $(p)..$(SEP)porting$(e)
 
 DLL = 1
+NOLIBS = 1
 DLLOPT = initinstance
 #STACKSIZE = 0xa0000000
 IMPORTS = &
