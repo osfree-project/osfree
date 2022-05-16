@@ -116,7 +116,7 @@ LINKER    = wlink
 # as it breaks all non-LX executables, for ex., bootsectors
 
 !ifndef NOLIBS 1
-LINKOPT   = op q libpath $(%ROOT)$(SEP)build$(SEP)lib $(ADD_LINKOPT)
+LINKOPT   = op q $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib
 !else
 LINKOPT   = op q $(ADD_LINKOPT)
 !endif
