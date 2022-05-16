@@ -43,9 +43,9 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ NAME $^*.exe
-!ifeq UNIX TRUE
- @%append $^@ debug dwarf all
-!endif
+#!ifeq UNIX TRUE
+# @%append $^@ debug dwarf all
+#!endif
 !ifdef STACKSIZE
  @%append $^@ OPTION ST=$(STACKSIZE)
 !endif
