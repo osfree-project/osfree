@@ -136,7 +136,7 @@ PC        = ppc386
 !ifeq %ARCH amd64
 PC        = ppcx64
 !endif
-PCOPT     = -Sg2h $(ADD_PCOPT)
+PCOPT     = -l- -Sg2h $(ADD_PCOPT)
 
 DD        = dd
 
