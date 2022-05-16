@@ -123,7 +123,7 @@ deps = $(RESOURCE)
 OBJS = $(OBJS) $(OBJS16)
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
 !ifdef WINDOWCOMPAT
  @%append $^@ SYSTEM os2v2_pm $(dllopts)
