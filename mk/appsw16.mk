@@ -44,7 +44,7 @@ RCOPT    = -I$(MYDIR) -I$(PATH) -I. -I$(MYDIR)..$(SEP)..$(SEP)include -I$(MYDIR)
 deps = $(RESOURCE)
 !endif
 
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS)
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ SYSTEM windows $(dllopt)
  @%append $^@ NAME $^*

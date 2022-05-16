@@ -33,7 +33,7 @@ TARGETS  = $(PATH)$(PROJ).com # $(PATH)$(PROJ).sym
 TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 !endif
 
-$(PATH)$(PROJ).lnk: $(OBJS)
+$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
  @%append $^@ SYSTEM dos $(com)
  @%append $^@ NAME $^*
