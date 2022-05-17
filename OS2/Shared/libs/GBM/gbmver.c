@@ -30,7 +30,7 @@ static gbm_boolean show_info(void)
 
     gbm_deinit();
 
-    printf("GBM.DLL version: %d.%d\n", version/100, version-100);
+    printf("GBM version: %d.%d\n", version/100, version-100);
     return GBM_TRUE;
 }
 

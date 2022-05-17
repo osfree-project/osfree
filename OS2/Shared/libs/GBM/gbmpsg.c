@@ -412,7 +412,7 @@ GBM_ERR psg_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
 	/* Comment */
 	ebcdic((char *) r, by_gbm);
-	if ( !record(fd, rec, "\xd3\xee\xee", strlen(by_gbm), &recnum) )
+	if ( !record(fd, rec, "\xd3\xee\xee", (int)strlen(by_gbm), &recnum) )
 		{ gbmmem_free(rec); return GBM_ERR_WRITE; }
 
 	/* BeginPageSegment (we will use filename) */

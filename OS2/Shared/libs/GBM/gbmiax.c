@@ -138,11 +138,12 @@ GBM_ERR iax_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 /*...siax_rdata:0:*/
 GBM_ERR iax_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
-	int	i, stride;
+	int	i;
+	size_t	stride;
 	gbm_u8	*p;
 
 	stride = ((gbm->w + 3) & ~3);
-	p = data + ((gbm->h - 1) * stride);
+	p = data + (stride * (gbm->h - 1));
 	for ( i = gbm->h - 1; i >= 0; i-- )
 		{
 		gbm_file_read(fd, p, gbm->w);
@@ -154,7 +155,8 @@ GBM_ERR iax_rdata(int fd, GBM *gbm, gbm_u8 *data)
 /*...siax_w:0:*/
 GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	int i, j, stride;
+	int i, j;
+	size_t	stride;
 	gbm_u8 grey[0x100];
 	const gbm_u8 *p;
 	gbm_u8 *linebuf;
@@ -171,7 +173,7 @@ GBM_ERR iax_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 		return GBM_ERR_MEM;
 
 	stride = ((gbm->w + 3) & ~3);
-	p = data + ((gbm->h - 1) * stride);
+	p = data + (stride * (gbm->h - 1));
 	for ( i = gbm->h - 1; i >= 0; i-- )
 		{
 		for ( j = 0; j < gbm->w; j++ )

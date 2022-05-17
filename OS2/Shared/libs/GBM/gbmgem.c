@@ -89,7 +89,7 @@ typedef struct
 	} GEM_PRIV;
 
 /*...srgb_bgr:0:*/
-static void rgb_bgr(const gbm_u8 *p, gbm_u8 *q, int n)
+static void rgb_bgr(const gbm_u8 *p, gbm_u8 *q, size_t n)
 	{
 	while ( n-- )
 		{
@@ -398,15 +398,15 @@ static void spread(gbm_u8 b, gbm_u8 bit_to_set, gbm_u8 *dest)
 GBM_ERR gem_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
 	GEM_PRIV *priv = (GEM_PRIV *) gbm->priv;
-	int scan = (gbm->w+7)/8;
-	int stride = ((gbm->w*gbm->bpp + 31) / 32) * 4;
+	size_t scan = (gbm->w+7)/8;
+	size_t stride = ((gbm->w*gbm->bpp + 31) / 32) * 4;
 	gbm_u8 *line;
 	AHEAD *ahead;
 
 	if ( (ahead = gbm_create_ahead(fd)) == NULL )
 		return GBM_ERR_MEM;
 
-	if ( (line = gbmmem_malloc((size_t) scan)) == NULL )
+	if ( (line = gbmmem_malloc(scan)) == NULL )
 		{
 		gbm_destroy_ahead(ahead);
 		return GBM_ERR_MEM;
@@ -418,12 +418,12 @@ GBM_ERR gem_rdata(int fd, GBM *gbm, gbm_u8 *data)
 case 1:
 	{
 	int y, vrep = 0;
-	data += (gbm->h-1) * stride;
+	data += stride * (gbm->h-1);
 	for ( y = gbm->h - 1; y >= 0; y--, data -= stride )
 		if ( vrep )
 			{ memcpy(data, data+stride, stride); vrep--; }
 		else
-			read_gem_line(ahead, data, scan, priv->patlen, &vrep, GBM_TRUE);
+			read_gem_line(ahead, data, (int)scan, priv->patlen, &vrep, GBM_TRUE);
 	}
 	break;
 /*...e*/
@@ -434,7 +434,7 @@ case 4:
 	int bytes = (gbm->w / 8);
 	int bits  = (gbm->w & 7);
 
-	memset(data, 0, gbm->h * stride);
+	memset(data, 0, stride * gbm->h);
 	data += (gbm->h-1) * stride;
 	for ( y = gbm->h - 1; y >= 0; y--, data -= stride )
 		if ( vrep )
@@ -448,7 +448,7 @@ case 4:
 				{
 				int x;
 				gbm_u8 *dest = data;
-				read_gem_line(ahead, line, scan, priv->patlen, &vrep, p==0);
+				read_gem_line(ahead, line, (int)scan, priv->patlen, &vrep, p==0);
 				for ( x = 0; x < bytes; x++, dest += 4 )
 					spread(line[x], bit, dest);
 				if ( bits )
@@ -462,7 +462,7 @@ case 4:
 case 8:
 	{
 	int y, vrep = 0;
-	memset(data, 0, gbm->h*stride);
+	memset(data, 0, stride * gbm->h);
 	data += (gbm->h-1) * stride;
 	for ( y = gbm->h - 1; y >= 0; y--, data -= stride )
 		if ( vrep )
@@ -474,7 +474,7 @@ case 8:
 			for ( p = 0, bit = 0x01; p < priv->planes; p++, bit <<= 1 )
 				{
 				int x;
-				read_gem_line(ahead, line, scan, priv->patlen, &vrep, p==0);
+				read_gem_line(ahead, line, (int)scan, priv->patlen, &vrep, p==0);
 				for ( x = 0; x < gbm->w; x++ )
 					if ( line[x>>3]&(0x80U>>(x&7)) )
 						data[x] |= bit;
@@ -492,7 +492,7 @@ case 24:
 	   GBM used B,G,R, i'll have to reverse the order. */
 	{
 	int y, vrep = 0;
-	memset(data, 0, gbm->h*stride);
+	memset(data, 0, stride * gbm->h);
 	data += (gbm->h-1) * stride;
 	for ( y = gbm->h - 1; y >= 0; y--, data -= stride )
 		if ( vrep )
@@ -635,7 +635,7 @@ static gbm_u8 find_lit1(const gbm_u8 *data, int len)
 	while ( len-- > 3 && p[0] != p[1] && p[1] != 0x00 && p[1] != 0xff )
 		p++;
 
-	return p-data;	
+	return (gbm_u8)(p-data);	
 	}
 /*...e*/
 
@@ -664,7 +664,7 @@ static int encode1(const gbm_u8 *data, int scan, gbm_u8 *enc)
 		data += len;
 		scan -= len;
 		}		
-	return enc-enc_start;
+	return (int)(enc-enc_start);
 	}
 /*...e*/
 /*...sencode3:0:*/
@@ -755,7 +755,7 @@ static int encode3(const gbm_u8 *data, int scan, gbm_u8 *enc)
 			scan -= len;
 			}
 		}
-	return enc-enc_start;
+	return (int)(enc-enc_start);
 	}
 /*...e*/
 /*...sliterally:0:*/
@@ -778,7 +778,7 @@ static int literally(const gbm_u8 *data, int scan, gbm_u8 *enc, int len_enc)
 		data += len;
 		scan -= len;
 		}
-	return enc-enc_start;
+	return (int)(enc-enc_start);
 	}
 /*...e*/
 
@@ -817,7 +817,7 @@ if ( (s = gbm_find_word_prefix(opt, "pixh=")) != NULL )
 	put_u16(hdr+6*2, (gbm_u16) gbm->w);	/* Width in pixels */
 	put_u16(hdr+7*2, (gbm_u16) gbm->h);	/* Height in pixels */
 
-	data += (gbm->h-1) * stride;
+	data += stride * (gbm->h-1);
 
 	switch ( gbm->bpp )
 		{
@@ -853,7 +853,7 @@ case 1:
 	if ( (enc = gbmmem_malloc((size_t) (scan*2+2))) == NULL )
 		{ gbmmem_free(line); return GBM_ERR_MEM; }
 
-	for ( y = gbm->h; y > 0; y -= dy, data -= dy*stride )
+	for ( y = gbm->h; y > 0; y -= dy, data -= stride * dy )
 		{
 		int len_enc;
 		const gbm_u8 *p;

@@ -30,57 +30,113 @@ gbmhelp.c - Helpers for GBM file I/O stuff
 /* ---------------------------- */
 /* ---------------------------- */
 
-gbm_boolean gbm_same(const char *s1, const char *s2, int n)
+gbm_boolean gbm_same(const char *s1, const char *s2, size_t n)
 {
-    for ( ; n--; s1++, s2++ )
+    const size_t s1len = strlen(s1);
+    const size_t s2len = strlen(s2);
+    size_t i;
+
+    for (i = 0; (i < n) && (i < s1len) && (i < s2len); i++, s1++, s2++ )
+    {
         if ( tolower(*s1) != tolower(*s2) )
+        {
             return GBM_FALSE;
-    return GBM_TRUE;
+        }
     }
+    if (i < n)
+    {
+        return GBM_FALSE;
+    }
+    return GBM_TRUE;
+}
 
 /* ---------------------------- */
 
 const char *gbm_find_word(const char *str, const char *substr)
-    {
-    char buf[100+1], *s;
-    int  len = strlen(substr);
+{
+         char        *buf, *s;
+         char        strbuf[51] = { 0 };
+         size_t      len            = strlen(substr);
+   const size_t      strlength      = strlen(str);
+   const gbm_boolean needsDynBuffer = (strlength > (sizeof(strbuf)-1));
 
-    for ( s  = strtok(strcpy(buf, str), " \t,");
-          s != NULL;
-          s  = strtok(NULL, " \t,") )
-        if ( gbm_same(s, substr, len) && s[len] == '\0' )
-            {
-            int inx = s - buf;
-            return str + inx;
-                /* Avoid referencing buf in the final return.
-                   lcc and a Mac compiler see the buf, and then
-                   warn about possibly returning the address
-                   of an automatic variable! */
-            }
-    return NULL;
-    }
+   /* only use dynamic buffer if needed to speedup a bit */
+   if (needsDynBuffer)
+   {
+     buf = (char *) gbmmem_calloc(strlength + 1, sizeof(char));
+     if (buf == NULL)
+     {
+       return NULL;
+     }
+   }
+   else
+   {
+     buf = strbuf;
+   }
+   for ( s  = strtok(strcpy(buf, str), " \t,");
+         s != NULL;
+         s  = strtok(NULL, " \t,") )
+   {
+     if ( gbm_same(s, substr, len) && s[len] == '\0' )
+     {
+       int inx = (int)(s - buf);
+       if (needsDynBuffer)
+       {
+         gbmmem_free(buf);
+       }
+       return str + inx;
+     }
+   }
+   if (needsDynBuffer)
+   {
+     gbmmem_free(buf);
+   }
+   return NULL;
+}
 
 /* ---------------------------- */
 
 const char *gbm_find_word_prefix(const char *str, const char *substr)
-    {
-    char buf[100+1], *s;
-    int  len = strlen(substr);
+{
+         char        *buf, *s;
+         char        strbuf[51] = { 0 };
+         size_t      len            = strlen(substr);
+   const size_t      strlength      = strlen(str);
+   const gbm_boolean needsDynBuffer = (strlength > (sizeof(strbuf)-1));
 
-    for ( s  = strtok(strcpy(buf, str), " \t,");
-          s != NULL;
-          s  = strtok(NULL, " \t,") )
-        if ( gbm_same(s, substr, len) )
-            {
-            int inx = s - buf;
-            return str + inx;
-                /* Avoid referencing buf in the final return.
-                   lcc and a Mac compiler see the buf, and then
-                   warn about possibly returning the address
-                   of an automatic variable! */
-            }
-    return NULL;
-    }
+   /* only use dynamic buffer if needed to speedup a bit */
+   if (needsDynBuffer)
+   {
+     buf = (char *) gbmmem_calloc(strlength + 1, sizeof(char));
+     if (buf == NULL)
+     {
+       return NULL;
+     }
+   }
+   else
+   {
+     buf = strbuf;
+   }
+   for ( s  = strtok(strcpy(buf, str), " \t,");
+         s != NULL;
+         s  = strtok(NULL, " \t,") )
+   {
+     if ( gbm_same(s, substr, len) )
+     {
+       int inx = (int)(s - buf);
+       if (needsDynBuffer)
+       {
+         gbmmem_free(buf);
+       }
+       return str + inx;
+     }
+   }
+   if (needsDynBuffer)
+   {
+     gbmmem_free(buf);
+   }
+   return NULL;
+}
 
 /* ---------------------------- */
 
@@ -128,10 +184,12 @@ static int get_checked_internal_open_mode(int mode)
    {
       open_mode |= O_EXCL;
    }
-   if (mode & GBM_O_NOINHERIT)
-   {
-      open_mode |= O_NOINHERIT;
-   }
+   #ifdef O_NOINHERIT
+     if (mode & GBM_O_NOINHERIT)
+     {
+        open_mode |= O_NOINHERIT;
+     }
+   #endif
 
    /* force binary mode if necessary */
    #ifdef O_BINARY
@@ -142,6 +200,24 @@ static int get_checked_internal_open_mode(int mode)
 }
 
 /* ---------------------------- */
+
+#if defined(WIN32) && defined(_MSC_VER)
+  /* Use ISO variants */
+  #define	fd_creat _creat
+  #define	fd_open  _open
+  #define	fd_close _close
+  #define	fd_read  _read
+  #define	fd_write _write
+  #define	fd_lseek _lseek
+#else
+  /* Use POSIX variants */
+  #define	fd_creat creat
+  #define	fd_open  open
+  #define	fd_close close
+  #define	fd_read  read
+  #define	fd_write write
+  #define	fd_lseek lseek
+#endif
 
 /* Looking at this, you might think that the gbm_file_* function pointers
    could be made to point straight at the regular read,write etc..
@@ -157,7 +233,7 @@ static int GBMENTRY def_open(const char *fn, int mode)
    /* In case of a mapping error we get 0xffffffff which is an illegal mode.
     * So let the OS take care for correct error reporting.
     */
-   return open(fn, internal_mode);
+   return fd_open(fn, internal_mode);
 }
 
 /* ---------------------------- */
@@ -174,14 +250,18 @@ static int GBMENTRY def_create(const char *fn, int mode)
    return open(fn, O_CREAT | O_TRUNC | internal_mode);
         /* S_IREAD and S_IWRITE won't exist on the Mac until MacOS/X */
 #else
-   return open(fn, O_CREAT | O_TRUNC | internal_mode, S_IREAD | S_IWRITE);
+ #if defined(S_IWOTH) /* Unix like system */
+   return fd_open(fn, O_CREAT | O_TRUNC | internal_mode, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+ #else
+   return fd_open(fn, O_CREAT | O_TRUNC | internal_mode, S_IREAD | S_IWRITE);
+ #endif
 #endif
 }
 
 /* ---------------------------- */
 
 static void GBMENTRY def_close(int fd)
-{ close(fd); }
+{ fd_close(fd); }
 
 /* ---------------------------- */
 
@@ -210,13 +290,13 @@ static long GBMENTRY def_lseek(int fd, long pos, int whence)
          break;
    }
 
-   return lseek(fd, pos, internal_whence);
+   return fd_lseek(fd, pos, internal_whence);
 }
 
 /* ---------------------------- */
 
 static int GBMENTRY def_read(int fd, void *buf, int len)
-    { return read(fd, buf, len); }
+    { return fd_read(fd, buf, len); }
 
 /* ---------------------------- */
 
@@ -225,7 +305,7 @@ static int GBMENTRY def_write(int fd, const void *buf, int len)
     /* Prototype for write is missing a 'const' */
     { return write(fd, (void *) buf, len); }
 #else
-    { return write(fd, buf, len); }
+    { return fd_write(fd, buf, len); }
 #endif
 
 /* ---------------------------- */
@@ -572,7 +652,7 @@ int gbm_writebuf_wcache(WCACHE *wcache, const gbm_u8 * buf, int buflen)
      else
      {
        /* split into multiple chunks and flush the cache inbetween if necessary */
-       const char * splitBuf = NULL;
+       const gbm_u8 * splitBuf = NULL;
        int splitLen  = buflen;
        int numChunks = 0;
        int i;

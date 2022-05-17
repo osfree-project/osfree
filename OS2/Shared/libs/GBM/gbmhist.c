@@ -58,8 +58,8 @@ gbm_boolean gbm_add_to_hist(
 	const GBM *gbm, const gbm_u8 *data24
 	)
 	{
-	int stride24 = ((gbm->w * 3 + 3) & ~3);
-	int step24   = stride24 - gbm->w * 3;
+	size_t stride24 = ((gbm->w * 3 + 3) & ~3);
+	size_t step24   = stride24 - gbm->w * 3;
 	FREQ *f      = hist->f ;
 	gbm_u16 *ht  = hist->ht;
 	gbm_u8 rm    = hist->rm;
@@ -124,7 +124,7 @@ void gbm_pal_hist(
 
 	for ( i = 0; i < n_cols_wanted && i < hist->n_cols; i++ )
 		{
-		int j, max_j;
+		int j, max_j = 0;
 		gbm_u32 max_freq = 0;
 
 		for ( j = 0; j < hist->n_cols; j++ )
@@ -153,7 +153,7 @@ void gbm_pal_hist(
 	for ( i = 0; i < hist->n_cols; i++ )
 		if ( f[i].freq != (gbm_u32) 0 )
 			{
-			int j, min_j;
+			int j, min_j = 0;
 			int min_dist = 3*256*256;
 
 			for ( j = 0; j < n_cols_wanted; j++ )
@@ -179,10 +179,10 @@ void gbm_map_hist(
 	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	)
 	{
-	int stride24 = ((gbm->w * 3 + 3) & ~3);
-	int step24   = stride24 - gbm->w * 3;
-	int stride8  = ((gbm->w + 3) & ~3);
-	int step8    = stride8 - gbm->w;
+	size_t stride24 = ((gbm->w * 3 + 3) & ~3);
+	size_t step24   = stride24 - gbm->w * 3;
+	size_t stride8  = ((gbm->w + 3) & ~3);
+	size_t step8    = stride8 - gbm->w;
 	FREQ *f      = hist->f;
 	gbm_u16 *ht  = hist->ht;
 	gbm_u8 rm    = hist->rm;

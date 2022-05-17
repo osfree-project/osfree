@@ -16,6 +16,17 @@ History
              * Fix a possible memory leak in error case of parsing
 
 15-Aug-2008: Integrate new GBM types
+
+10-Oct-2008: The command line parser now additionally supports the following
+             file specification templates:
+             "filename"\",\"options
+             "filename"\",\""options"
+             This should be hopefully work for all variants now.
+             "\"filename\"{,opt}" does not work together when &, |, < or >
+             are part of the filename because the shell will interprete them
+             as operators and cut the filename.
+             The old template will continue to work for backward compatibility
+             reasons but the tools will from now on recommend the new template
 */
 
 #include <assert.h>
@@ -221,13 +232,23 @@ GBM_ERR gbmtool_parse_argument(GBMTOOL_FILEARG * gbmfilearg, const gbm_boolean e
     strcpy(filename, "");
     strcpy(options , "");
 
-    /* rescan for: filename,options */
-    sprintf(buffer, "%%%d[^,],%%%d[^\n]", GBMTOOL_FILENAME_MAX, GBMTOOL_OPTIONS_MAX);
+    /* rescan for: filename","options */
+    sprintf(buffer, "%%%d[^\"]\",\"%%%d[^\n]", GBMTOOL_FILENAME_MAX, GBMTOOL_OPTIONS_MAX);
     num = sscanf(gbmfilearg->argin, buffer, filename, options);
 
-    if ((num < 0) || (num > 2))
+    if (num != 2)
     {
-      return GBM_ERR_BAD_ARG;
+      strcpy(filename, "");
+      strcpy(options , "");
+
+      /* rescan for: filename,options */
+      sprintf(buffer, "%%%d[^,],%%%d[^\n]", GBMTOOL_FILENAME_MAX, GBMTOOL_OPTIONS_MAX);
+      num = sscanf(gbmfilearg->argin, buffer, filename, options);
+
+      if ((num < 0) || (num > 2))
+      {
+        return GBM_ERR_BAD_ARG;
+      }
     }
   }
 

@@ -22,7 +22,7 @@ History
 27-Jan-2008: Sync to GBMRX.DLL 1.10 API changes
 
 26-Aug-2008: Integrate new GBM types
-                          Get rid of generic code (moved to separate file)
+             Get rid of generic code (moved to separate file)
 */
 
 #define INCL_DOS
@@ -54,13 +54,13 @@ typedef struct
    int         version;
 } VERSION;
 
-typedef struct FUNCTION_TABLE_DEF
+typedef struct
 {
   PSZ callingConvention; /* calling convention of the function */
   PSZ functionName;      /* name of the function */
   PFN functionAddress;   /* the address of the function from the loaded module */
   int baseVersion;       /* base version since the function is available */
-};
+} FUNCTION_TABLE_DEF;
 
 #define GET_GBM_VERSION(version)  ((float)version/100.0)
 
@@ -68,50 +68,50 @@ typedef struct FUNCTION_TABLE_DEF
 #define GBM_UPPER_MIN_VERSION  135  /* version with latest API extensions */
 
 /** GBM.DLL exports */
-static struct FUNCTION_TABLE_DEF GBM_FUNCTION_TABLE [] =
+static FUNCTION_TABLE_DEF GBM_FUNCTION_TABLE [] =
 {
    /* as _System exported functions (old) */
-   "_System ", "Gbm_version"          , NULL, 100,
-   "_System ", "Gbm_init"             , NULL, 100,
-   "_System ", "Gbm_deinit"           , NULL, 100,
-   "_System ", "Gbm_io_open"          , NULL, 109,
-   "_System ", "Gbm_io_create"        , NULL, 109,
-   "_System ", "Gbm_io_close"         , NULL, 109,
-   "_System ", "Gbm_io_lseek"         , NULL, 109,
-   "_System ", "Gbm_io_read"          , NULL, 109,
-   "_System ", "Gbm_io_write"         , NULL, 109,
-   "_System ", "Gbm_query_n_filetypes", NULL, 100,
-   "_System ", "Gbm_guess_filetype"   , NULL, 100,
-   "_System ", "Gbm_query_filetype"   , NULL, 100,
-   "_System ", "Gbm_read_header"      , NULL, 100,
-   "_System ", "Gbm_read_palette"     , NULL, 100,
-   "_System ", "Gbm_read_data"        , NULL, 100,
-   "_System ", "Gbm_write"            , NULL, 100,
-   "_System ", "Gbm_err"              , NULL, 100,
+   { "_System ", "Gbm_version"          , NULL, 100 },
+   { "_System ", "Gbm_init"             , NULL, 100 },
+   { "_System ", "Gbm_deinit"           , NULL, 100 },
+   { "_System ", "Gbm_io_open"          , NULL, 109 },
+   { "_System ", "Gbm_io_create"        , NULL, 109 },
+   { "_System ", "Gbm_io_close"         , NULL, 109 },
+   { "_System ", "Gbm_io_lseek"         , NULL, 109 },
+   { "_System ", "Gbm_io_read"          , NULL, 109 },
+   { "_System ", "Gbm_io_write"         , NULL, 109 },
+   { "_System ", "Gbm_query_n_filetypes", NULL, 100 },
+   { "_System ", "Gbm_guess_filetype"   , NULL, 100 },
+   { "_System ", "Gbm_query_filetype"   , NULL, 100 },
+   { "_System ", "Gbm_read_header"      , NULL, 100 },
+   { "_System ", "Gbm_read_palette"     , NULL, 100 },
+   { "_System ", "Gbm_read_data"        , NULL, 100 },
+   { "_System ", "Gbm_write"            , NULL, 100 },
+   { "_System ", "Gbm_err"              , NULL, 100 },
 
    /* as _Optlink exported functions */
-   "_Optlink", "gbm_version"          , NULL, 100,
-   "_Optlink", "gbm_init"             , NULL, 100,
-   "_Optlink", "gbm_deinit"           , NULL, 100,
-   "_Optlink", "gbm_io_setup"         , NULL, 107,
-   "_Optlink", "gbm_io_open"          , NULL, 107,
-   "_Optlink", "gbm_io_create"        , NULL, 107,
-   "_Optlink", "gbm_io_close"         , NULL, 107,
-   "_Optlink", "gbm_io_lseek"         , NULL, 107,
-   "_Optlink", "gbm_io_read"          , NULL, 107,
-   "_Optlink", "gbm_io_write"         , NULL, 107,
-   "_Optlink", "gbm_query_n_filetypes", NULL, 100,
-   "_Optlink", "gbm_guess_filetype"   , NULL, 100,
-   "_Optlink", "gbm_query_filetype"   , NULL, 100,
-   "_Optlink", "gbm_read_header"      , NULL, 100,
-   "_Optlink", "gbm_read_palette"     , NULL, 100,
-   "_Optlink", "gbm_read_data"        , NULL, 100,
-   "_Optlink", "gbm_write"            , NULL, 100,
-   "_Optlink", "gbm_err"              , NULL, 100,
+   { "_Optlink", "gbm_version"          , NULL, 100 },
+   { "_Optlink", "gbm_init"             , NULL, 100 },
+   { "_Optlink", "gbm_deinit"           , NULL, 100 },
+   { "_Optlink", "gbm_io_setup"         , NULL, 107 },
+   { "_Optlink", "gbm_io_open"          , NULL, 107 },
+   { "_Optlink", "gbm_io_create"        , NULL, 107 },
+   { "_Optlink", "gbm_io_close"         , NULL, 107 },
+   { "_Optlink", "gbm_io_lseek"         , NULL, 107 },
+   { "_Optlink", "gbm_io_read"          , NULL, 107 },
+   { "_Optlink", "gbm_io_write"         , NULL, 107 },
+   { "_Optlink", "gbm_query_n_filetypes", NULL, 100 },
+   { "_Optlink", "gbm_guess_filetype"   , NULL, 100 },
+   { "_Optlink", "gbm_query_filetype"   , NULL, 100 },
+   { "_Optlink", "gbm_read_header"      , NULL, 100 },
+   { "_Optlink", "gbm_read_palette"     , NULL, 100 },
+   { "_Optlink", "gbm_read_data"        , NULL, 100 },
+   { "_Optlink", "gbm_write"            , NULL, 100 },
+   { "_Optlink", "gbm_err"              , NULL, 100 },
 
    /* as _System exported functions (new) */
-   "_System ", "gbm_restore_io_setup" , NULL, 135,
-   "_System ", "gbm_read_imgcount"    , NULL, 135
+   { "_System ", "gbm_restore_io_setup" , NULL, 135 },
+   { "_System ", "gbm_read_imgcount"    , NULL, 135 }
 };
 const int GBM_FUNCTION_TABLE_LENGTH = sizeof(GBM_FUNCTION_TABLE) /
                                       sizeof(GBM_FUNCTION_TABLE[0]);
@@ -120,10 +120,10 @@ const int GBM_VERSION_ID = 0;
 /* ------------------------------ */
 
 /** GBMDLG.DLL exports */
-static struct FUNCTION_TABLE_DEF GBMDLG_FUNCTION_TABLE [] =
+static FUNCTION_TABLE_DEF GBMDLG_FUNCTION_TABLE [] =
 {
-   "_System", "GbmFileDlg"       , NULL, 100,
-   "_System", "GbmDefFileDlgProc", NULL, 131
+   { "_System", "GbmFileDlg"       , NULL, 100 },
+   { "_System", "GbmDefFileDlgProc", NULL, 131 }
 };
 const int GBMDLG_FUNCTION_TABLE_LENGTH = sizeof(GBMDLG_FUNCTION_TABLE) /
                                          sizeof(GBMDLG_FUNCTION_TABLE[0]);
@@ -132,29 +132,29 @@ const int GBMDLG_FUNCTION_TABLE_LENGTH = sizeof(GBMDLG_FUNCTION_TABLE) /
 /* ------------------------------ */
 
 /** GBMRX.DLL exports */
-static struct FUNCTION_TABLE_DEF GBMRX_FUNCTION_TABLE [] =
+static FUNCTION_TABLE_DEF GBMRX_FUNCTION_TABLE [] =
 {
-   "_System", "GBM_LOADFUNCS"         , NULL, 100,
-   "_System", "GBM_DROPFUNCS"         , NULL, 100,
-   "_System", "GBM_VERSION"           , NULL, 100,
-   "_System", "GBM_VERSIONREXX"       , NULL, 100,
-   "_System", "GBM_TYPES"             , NULL, 100,
-   "_System", "GBM_ISBPPSUPPORTED"    , NULL, 100,
-   "_System", "GBM_FILETYPE"          , NULL, 100,
-   "_System", "GBM_FILEPAGES"         , NULL, 100,
-   "_System", "GBM_FILEHEADER"        , NULL, 100,
-   "_System", "GBM_FILEPALETTE"       , NULL, 100,
-   "_System", "GBM_FILEDATA"          , NULL, 100,
-   "_System", "GBM_FILEWRITE"         , NULL, 100,
+   { "_System", "GBM_LOADFUNCS"         , NULL, 100 },
+   { "_System", "GBM_DROPFUNCS"         , NULL, 100 },
+   { "_System", "GBM_VERSION"           , NULL, 100 },
+   { "_System", "GBM_VERSIONREXX"       , NULL, 100 },
+   { "_System", "GBM_TYPES"             , NULL, 100 },
+   { "_System", "GBM_ISBPPSUPPORTED"    , NULL, 100 },
+   { "_System", "GBM_FILETYPE"          , NULL, 100 },
+   { "_System", "GBM_FILEPAGES"         , NULL, 100 },
+   { "_System", "GBM_FILEHEADER"        , NULL, 100 },
+   { "_System", "GBM_FILEPALETTE"       , NULL, 100 },
+   { "_System", "GBM_FILEDATA"          , NULL, 100 },
+   { "_System", "GBM_FILEWRITE"         , NULL, 100 },
 
-   "_System", "GBM_SCALEALGORITHMS"   , NULL, 110,
-   "_System", "GBM_SCALEISSUPPORTED"  , NULL, 110,
-   "_System", "GBM_SCALE"             , NULL, 110,
+   { "_System", "GBM_SCALEALGORITHMS"   , NULL, 110 },
+   { "_System", "GBM_SCALEISSUPPORTED"  , NULL, 110 },
+   { "_System", "GBM_SCALE"             , NULL, 110 },
 
-   "_System", "GBM_REFLECT"           , NULL, 110,
-   "_System", "GBM_ROTATE"            , NULL, 110,
+   { "_System", "GBM_REFLECT"           , NULL, 110 },
+   { "_System", "GBM_ROTATE"            , NULL, 110 },
 
-   "_System", "GBM_PALETTEDATATO24BPP", NULL, 110
+   { "_System", "GBM_PALETTEDATATO24BPP", NULL, 110 }
 };
 const int GBMRX_FUNCTION_TABLE_LENGTH = sizeof(GBMRX_FUNCTION_TABLE) /
                                         sizeof(GBMRX_FUNCTION_TABLE[0]);
@@ -162,13 +162,13 @@ const int GBMRX_FUNCTION_TABLE_LENGTH = sizeof(GBMRX_FUNCTION_TABLE) /
 /* ------------------------------ */
 
 /** GBMDLGRX.DLL exports */
-static struct FUNCTION_TABLE_DEF GBMDLGRX_FUNCTION_TABLE [] =
+static FUNCTION_TABLE_DEF GBMDLGRX_FUNCTION_TABLE [] =
 {
-   "_System", "GBMDLG_LOADFUNCS"     , NULL, 100,
-   "_System", "GBMDLG_DROPFUNCS"     , NULL, 100,
-   "_System", "GBMDLG_OPENFILEDLG"   , NULL, 100,
-   "_System", "GBMDLG_SAVEASFILEDLG" , NULL, 100,
-   "_System", "GBMDLG_VERSIONREXX"   , NULL, 101
+   { "_System", "GBMDLG_LOADFUNCS"     , NULL, 100 },
+   { "_System", "GBMDLG_DROPFUNCS"     , NULL, 100 },
+   { "_System", "GBMDLG_OPENFILEDLG"   , NULL, 100 },
+   { "_System", "GBMDLG_SAVEASFILEDLG" , NULL, 100 },
+   { "_System", "GBMDLG_VERSIONREXX"   , NULL, 101 }
 };
 const int GBMDLGRX_FUNCTION_TABLE_LENGTH = sizeof(GBMDLGRX_FUNCTION_TABLE) /
                                            sizeof(GBMDLGRX_FUNCTION_TABLE[0]);
@@ -176,11 +176,11 @@ const int GBMDLGRX_FUNCTION_TABLE_LENGTH = sizeof(GBMDLGRX_FUNCTION_TABLE) /
 /* ------------------------------ */
 
 /** Load functions from a DLL. */
-static HMODULE load_functions(PSZ                         moduleName,
-                              struct FUNCTION_TABLE_DEF * table,
-                              const int                   tableLength,
-                              char                      * foundModuleName,
-                              const int                   foundModuleNameLength)
+static HMODULE load_functions(PSZ                  moduleName,
+                              FUNCTION_TABLE_DEF * table,
+                              const int            tableLength,
+                              char               * foundModuleName,
+                              const int            foundModuleNameLength)
 {
   int      i;
   HMODULE  moduleHandle                     = NULLHANDLE;
@@ -226,9 +226,9 @@ static HMODULE load_functions(PSZ                         moduleName,
 /* ------------------------------ */
 
 /** Load functions from GBM.DLL. */
-static void unload_functions(HMODULE                     hModule,
-                             struct FUNCTION_TABLE_DEF * table,
-                             const int                   tableLength)
+static void unload_functions(HMODULE              hModule,
+                             FUNCTION_TABLE_DEF * table,
+                             const int            tableLength)
 {
   int i;
 
@@ -262,10 +262,10 @@ int version_compare(const void * num1, const void * num2)
 }
 
 /** Show version info about found DLL functions */
-static gbm_boolean show_info(struct FUNCTION_TABLE_DEF * table,
-                             const  int                  tableLength,
-                             const  char               * filename,
-                             const  int                  version)
+static gbm_boolean show_info(FUNCTION_TABLE_DEF * table,
+                             const  int           tableLength,
+                             const  char        * filename,
+                             const  int           version)
 {
   int i;
   int found = 0;

@@ -14,6 +14,9 @@ History:
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
 15-Aug-2008  Integrate new GBM types
+
+10-Oct-2008: Changed recommended file specification template to
+             "file.ext"\",options   or   "file.ext"\",\""options"
 */
 
 /*...sincludes:0:*/
@@ -23,6 +26,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
@@ -63,7 +67,7 @@ static void usage(void)
 	{
 	int ft, n_ft;
 
-	fprintf(stderr, "usage: %s [-m map] [-v] n1 n2 n3 \"\\\"ifspec\\\"{,opt}\" \"\\\"ofspec\\\"{,opt}\"\n", progname);
+	fprintf(stderr, "usage: %s [-m map] [-v] n1 n2 n3 \"ifspec\"{\\\",\\\"\"opt\"} \"ofspec\"{\\\",\\\"\"opt\"}\n", progname);
 	fprintf(stderr, "flags: -m map       mapping to perform (default freq6:6:6:256)\n");
 	fprintf(stderr, "                    freqR:G:B:N       map all bitmaps to same palette, worked\n");
 	fprintf(stderr, "                                      out using frequency of use histogram\n");
@@ -101,21 +105,31 @@ static void usage(void)
 	fprintf(stderr, "\n   eg: %s -m mcut256 0 100 1 24bit%%03d.bmp 8bit%%03d.bmp\n", progname);
 
 	fprintf(stderr, "\n       In case the spec contains a comma or spaces and options\n");
-	fprintf(stderr,   "       need to be added, the syntax \"\\\"fspec\\\"{,opt}\" must be used\n");
-	fprintf(stderr,   "       to clearly separate it from the options.\n");
+    fprintf(stderr,   "       need to be added, syntax \"fspec\"{\\\",\\\"opt} or \"fspec\"{\\\",\\\"\"opt\"}\n");
+	fprintf(stderr,   "       must be used to clearly separate it from the options.\n");
 
 	exit(1);
 	}
 /*...e*/
-/*...ssame:0:*/
-static gbm_boolean same(const char *s1, const char *s2, int n)
-	{
-	for ( ; n--; s1++, s2++ )
-		if ( tolower(*s1) != tolower(*s2) )
-			return GBM_FALSE;
-	return GBM_TRUE;
-	}
-/*...e*/
+static gbm_boolean same(const char *s1, const char *s2, size_t n)
+{
+    const size_t s1len = strlen(s1);
+    const size_t s2len = strlen(s2);
+    size_t i;
+
+    for (i = 0; (i < n) && (i < s1len) && (i < s2len); i++, s1++, s2++ )
+    {
+        if ( tolower(*s1) != tolower(*s2) )
+        {
+            return GBM_FALSE;
+        }
+    }
+    if (i < n)
+    {
+        return GBM_FALSE;
+    }
+    return GBM_TRUE;
+}
 /*...smain:0:*/
 #define	CVT_FREQ   0
 #define	CVT_MCUT   1
@@ -151,14 +165,19 @@ static gbm_boolean get_masks(char *map, gbm_u8 *rm, gbm_u8 *gm, gbm_u8 *bm)
 /*...salloc_mem:0:*/
 static gbm_u8 *alloc_mem(const GBM *gbm)
 	{
-	unsigned long stride, bytes;
+	size_t stride, bytes;
 	gbm_u8 *p;
 
 	stride = ( ((gbm->w * gbm->bpp + 31)/32) * 4 );
 	bytes = stride * gbm->h;
 	if ( (p = gbmmem_malloc(bytes)) == NULL )
-		fatal("out of memory allocating %d bytes", bytes);
-
+	{
+		#if (ULONG_MAX > UINT_MAX)
+		fatal("out of memory allocating %zu bytes", bytes);
+		#else
+		fatal("out of memory allocating %u bytes", bytes);
+		#endif
+	}
 	return p;
 	}
 /*...e*/
@@ -228,9 +247,9 @@ static void read_bitmap(
 /*...sexpand_to_24bit:0:*/
 static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
 	{
-	unsigned long stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-	unsigned long new_stride = ((gbm->w * 3 + 3) & ~3);
-	unsigned long bytes;
+	size_t stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
+	size_t new_stride = ((gbm->w * 3 + 3) & ~3);
+	size_t bytes;
     int y;
 	gbm_u8 *new_data;
 
@@ -239,12 +258,17 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
 
 	bytes = new_stride * gbm->h;
 	if ( (new_data = gbmmem_malloc(bytes)) == NULL )
-		fatal("out of memory allocating %d bytes", bytes);
-
+	{
+		#if (ULONG_MAX > UINT_MAX)
+		fatal("out of memory allocating %zu bytes", bytes);
+		#else
+		fatal("out of memory allocating %u bytes", bytes);
+		#endif
+	}
 	for ( y = 0; y < gbm->h; y++ )
 		{
-		gbm_u8	*src = *data + y * stride;
-		gbm_u8	*dest = new_data + y * new_stride;
+		gbm_u8	*src = *data + stride * y;
+		gbm_u8	*dest = new_data + new_stride * y;
 		int	x;
 
 		switch ( gbm->bpp )
@@ -252,7 +276,7 @@ static void expand_to_24bit(GBM *gbm, GBMRGB *gbmrgb, gbm_u8 **data)
 /*...s1:24:*/
 case 1:
 	{
-	gbm_u8 c;
+	gbm_u8 c = 0;
 
 	for ( x = 0; x < gbm->w; x++ )
 		{
@@ -599,7 +623,7 @@ static void calc_mapP(
 		{
 		const GBMRGB *p = &(gbmrgb[map[i]]);
 		int mindist = 255*255*3 + 1;
-		int j, minj;
+		int j, minj = 0;
 		/* Find closest entry in new palette */
 		for ( j = 0; j < ncols; j++ )
 			{
@@ -661,7 +685,7 @@ int j;
 
 for ( i = 0; i < ncolsextra; i++ )
 	{
-	int jmax, maxdist = -1;
+	int jmax = 0, maxdist = -1;
 	for ( j = 0; j < ncols; j++ )
 		if ( dists[j] != -1 && dists[j] > maxdist )
 			{
@@ -777,11 +801,11 @@ int main(int argc, char *argv[])
 	{
 	GBMTOOL_FILEARG gbmfilearg;
 	char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
-                opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
+	        opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
 	char *map = "freq6:6:6:256";
-	int i, m, ncols, ncolsextra, first, last, step;
-	gbm_u8 rm, gm, bm;
+	int i, m = 0, ncols, ncolsextra, first, last, step;
+	gbm_u8 rm = 0, gm = 0, bm = 0;
 
 /*...sprocess command line options:8:*/
 for ( i = 1; i < argc; i++ )

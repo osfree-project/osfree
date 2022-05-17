@@ -24,6 +24,7 @@ Standard formats (backward compatible):
   Reads 32 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
   Reads 48 bpp colour files and presents them as 24 bpp.
   Reads 64 bpp colour files (RGB + alpha channel) and presents them as 24 bpp.
+  Reads also PNGs with APNG extension.
 
 Extended formats (not backward compatible, import option ext_bpp required):
   Reads 16 bpp gray level files and presents them as 48 bpp.
@@ -49,6 +50,9 @@ Extended formats (not backward compatible, import option ext_bpp required):
     background color has been specified by the client or is provided by the bitmap.
     Otherwise the alpha channel data is ignored.
 
+  Can specify image within APNG file with multiple images
+    Input option: index=# (default: 0)
+    
   Can specify screen gamma
     Input option: gamma=# (default=2.2)
 
@@ -95,6 +99,9 @@ Extended formats (not backward compatible, import option ext_bpp required):
   Can specify compression level
     Output option: compression=# (default=6, 0..9, no compression to max)
 
+Write additonal comment
+    Output option: comment=text
+
 
 History:
 --------
@@ -131,6 +138,16 @@ History:
              high memory also on OS/2 (gbmmem_).
              Update to Libpng 1.2.31
 
+2-Oct-2008: Update to Libpng 1.2.32
+             add support for writing a comment
+
+2-Mar-2010: Update to Libpng 1.4.1
+              Fix some issues with deprecated png_ptr struct io_ptr member.
+
+13-Mai-2010: Update to Libpng 1.4.2
+             Integrate APNG patch 1.4.2 (PNG extension to read animated PNGs)
+             Add support for reading APNGs (individual images from a file)
+
 ******************************************************************************/
 
 #ifdef ENABLE_PNG
@@ -154,6 +171,7 @@ History:
 #define GBM_ERR_PNG                   ((GBM_ERR) 5199)
 #define GBM_ERR_PNG_BPP               ((GBM_ERR) 5100)
 #define GBM_ERR_PNG_HEADER            ((GBM_ERR) 5101)
+#define GBM_ERR_PNG_BAD_COMMENT       ((GBM_ERR) 5102)
 #define GBM_PNG_BYTES_TO_CHECK        4        /* 1..8 for file format prediction */
 #define GBM_PNG_NUM_COLORS            0x100    /* 256 entries in color table */
 
@@ -170,9 +188,10 @@ typedef struct
 
 static PNG_GBMERR_MSG png_errmsg[] =
 {
-    { GBM_ERR_PNG_BPP      , "bad bits per pixel" },
-    { GBM_ERR_PNG_HEADER   , "bad header"         },
-    { -1                   , NULL                 },
+    { GBM_ERR_PNG_BPP        , "bad bits per pixel" },
+    { GBM_ERR_PNG_HEADER     , "bad header"         },
+    { GBM_ERR_PNG_BAD_COMMENT, "comment could not be parsed" },
+    { -1                     , NULL                 }
 };
 
 static GBMFT png_gbmft =
@@ -215,6 +234,8 @@ typedef struct
 
     int          bpp_src;                  /* bpp of the source bitmap (used for format translation */
     int          color_type;               /* the bitmap color encoding */
+    int          img_index;                /* the index of the image to read */
+    int          img_count;                /* the number of images found */
     gbm_boolean  upsamplePaletteToPalette; /* GBM_TRUE if palette file has to be upsampled to other palette */
     gbm_boolean  unassociatedAlpha;        /* GBM_TRUE if an unassociated alpha channel exists */
     GBMRGB_16BPP backrgb;                  /* background RGB color for Alpha channel mixing */
@@ -225,10 +246,10 @@ typedef struct
     char read_options[PRIV_SIZE - sizeof(PNG_PRIV_IO)
                                 - sizeof(png_structp)
                                 - (2*sizeof(png_infop))
-                                - (2*sizeof(int))
+                                - (4*sizeof(int))
                                 - (2*sizeof(gbm_boolean))
                                 - sizeof(GBMRGB_16BPP)
-                                - 20 /* space for structure element padding */ ];
+                                - 100 /* space for structure element padding */ ];
 
 } PNG_PRIV_READ;
 
@@ -317,9 +338,9 @@ static void PNGAPI png_gbm_error(png_structp png_ptr, png_const_charp error_msg)
    PNG_PRIV_IO *io_p = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr); /* io_ptr is pointer to private IO struct */
    io_p->errok = GBM_FALSE; /* error occured */
 
-   longjmp(png_ptr->jmpbuf, 1);
-
    error_msg = error_msg; /* prevent compiler warning */
+
+   longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 static void PNGAPI png_gbm_warning(png_structp png_ptr, png_const_charp warning_msg)
@@ -331,15 +352,15 @@ static void PNGAPI png_gbm_warning(png_structp png_ptr, png_const_charp warning_
 /* ----------------------------------------------------------- */
 
 /* register customized read functions for libpng */
-static void register_read_mapping(png_structp read_ptr)
+static void register_read_mapping(png_structp read_ptr, PNG_PRIV_IO *io_p)
 {
-    png_set_read_fn(read_ptr, png_get_io_ptr(read_ptr), png_gbm_read_data);
+    png_set_read_fn(read_ptr, io_p, png_gbm_read_data);
 }
 
 /* register customized write functions for libpng */
-static void register_write_mapping(png_structp write_ptr)
+static void register_write_mapping(png_structp write_ptr, PNG_PRIV_IO *io_p)
 {
-    png_set_write_fn(write_ptr, png_get_io_ptr(write_ptr), png_gbm_write_data, png_gbm_flush_data);
+    png_set_write_fn(write_ptr, io_p, png_gbm_write_data, png_gbm_flush_data);
 }
 
 /* ----------------------------------------------------------- */
@@ -347,13 +368,13 @@ static void register_write_mapping(png_structp write_ptr)
 /* unregister customized read functions for libpng and reset to the default */
 static void unregister_read_mapping(png_structp read_ptr)
 {
-    png_set_read_fn(read_ptr, png_get_io_ptr(read_ptr), NULL);
+    png_set_read_fn(read_ptr, NULL, NULL);
 }
 
 /* unregister customized write functions for libpng and reset to the default */
 static void unregister_write_mapping(png_structp write_ptr)
 {
-    png_set_write_fn(write_ptr, png_get_io_ptr(write_ptr), NULL, NULL);
+    png_set_write_fn(write_ptr, NULL, NULL, NULL);
 }
 
 /* ----------------------------------------------------------- */
@@ -410,10 +431,9 @@ static gbm_boolean png_read_init(PNG_PRIV_READ *png_priv, int fd)
     }
 
     png_priv->io.errok = GBM_TRUE;
-    png_priv->png_ptr->io_ptr = &png_priv->io;
 
     /* set up the input control */
-    register_read_mapping(png_priv->png_ptr);
+    register_read_mapping(png_priv->png_ptr, &png_priv->io);
 
     return GBM_TRUE;
 }
@@ -430,8 +450,6 @@ static void png_read_deinit(PNG_PRIV_READ *png_priv)
        png_priv->io.file.ahead = NULL;
     }
 
-    png_priv->png_ptr->io_ptr = NULL;
-
     if ((png_priv->png_ptr  != NULL) ||
         (png_priv->info_ptr != NULL) ||
         (png_priv->end_info != NULL))
@@ -439,7 +457,7 @@ static void png_read_deinit(PNG_PRIV_READ *png_priv)
        /* set error handler to prevent recursion due to unintended multiple calls */
        if (png_priv->png_ptr != NULL)
        {
-          if (setjmp(png_priv->png_ptr->jmpbuf))
+          if (setjmp(png_jmpbuf(png_priv->png_ptr)))
           {
              /* If we get here, we had a problem in freeing the info structs */
              png_priv->png_ptr  = NULL;
@@ -502,10 +520,9 @@ static gbm_boolean png_write_init(PNG_PRIV_WRITE *png_priv, int fd)
     }
 
     png_priv->io.errok = GBM_TRUE;
-    png_priv->png_ptr->io_ptr = &png_priv->io;
 
     /* set up the ouput control */
-    register_write_mapping(png_priv->png_ptr);
+    register_write_mapping(png_priv->png_ptr, &png_priv->io);
 
     return GBM_TRUE;
 }
@@ -530,15 +547,13 @@ static void png_write_deinit(PNG_PRIV_WRITE *png_priv)
        png_priv->palette_ptr = NULL;
     }
 
-    png_priv->png_ptr->io_ptr = NULL;
-
     if ((png_priv->png_ptr  != NULL) ||
         (png_priv->info_ptr != NULL))
     {
        /* set error handler to prevent recursion due to unintended multiple calls */
        if (png_priv->png_ptr != NULL)
        {
-          if (setjmp(png_priv->png_ptr->jmpbuf))
+          if (setjmp(png_jmpbuf(png_priv->png_ptr)))
           {
              /* If we get here, we had a problem in freeing the info structs */
              png_priv->png_ptr  = NULL;
@@ -568,29 +583,14 @@ GBM_ERR png_qft(GBMFT *gbmft)
 /* ----------------------------------------------------------- */
 
 /* internal_png_rhdr - Read file header to init GBM struct */
-static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
+static GBM_ERR internal_png_rhdr_init(int fd, PNG_PRIV_READ *png_priv)
 {
-    PNG_PRIV_READ *png_priv = (PNG_PRIV_READ *) gbm->priv;
-
+    /* Try to read the number of frames in an APNG image */
     PNG_PRIV_IO   *io_p     = NULL;
     png_structp    png_ptr  = NULL;
     png_infop      info_ptr = NULL;
 
-    png_color_16p image_background;
-
-    const char *s;
-    char signature[GBM_PNG_BYTES_TO_CHECK];
-
-    png_uint_32 width, height;
-
-    int ch_bit_depth, interlace_type, compression_type, filter_type;
-    int channel_count, intent;
-
-    double image_gamma  = GBM_PNG_DEFAULT_IMAGE_GAMMA;
-    double screen_gamma = GBM_PNG_DEFAULT_SCREEN_GAMMA;
-
-    gbm_boolean use_native_bpp = GBM_FALSE;
-    gbm_boolean ignore_back    = GBM_FALSE;
+    png_byte signature[GBM_PNG_BYTES_TO_CHECK] = { 0 };
 
     /* As we read the header multiple times, set file pointer to start. */
     if (gbm_file_lseek(fd, 0L, GBM_SEEK_SET) != 0)
@@ -622,7 +622,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
     info_ptr = png_priv->info_ptr;
 
     /* set error handling */
-    if (setjmp(png_ptr->jmpbuf))
+    if (setjmp(png_jmpbuf(png_ptr)))
     {
         /* If we get here, we had a problem reading the file */
         png_read_deinit(png_priv);
@@ -642,12 +642,96 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
        return GBM_ERR_READ;
     }
 
+    png_priv->img_index = 0;
+    png_priv->img_count = 1;
+    
+#ifdef PNG_READ_APNG_SUPPORTED
+    /* check for APNG (acTL extension) */
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_acTL))
+    {
+       png_priv->img_count = (int) png_get_num_frames(png_ptr, info_ptr);
+       if (png_priv->img_count < 1)
+       {
+          png_read_deinit(png_priv);
+          return GBM_ERR_BAD_MAGIC;
+       }
+    }
+#endif
+
+    return GBM_ERR_OK;
+}
+
+/* ----------------------------------------------------------- */
+
+/* internal_png_rhdr - Read file header to init GBM struct */
+static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
+{
+    PNG_PRIV_READ *png_priv = (PNG_PRIV_READ *) gbm->priv;
+
+    PNG_PRIV_IO   *io_p     = NULL;
+    png_structp    png_ptr  = NULL;
+    png_infop      info_ptr = NULL;
+
+    png_color_16p image_background;
+
+    const char *s = NULL;
+
+    png_uint_32 width = 0, height = 0;
+    int ch_bit_depth = 0, interlace_type = 0, compression_type = 0, filter_type = 0;
+    int channel_count = 0, intent = 0;
+
+    double image_gamma  = GBM_PNG_DEFAULT_IMAGE_GAMMA;
+    double screen_gamma = GBM_PNG_DEFAULT_SCREEN_GAMMA;
+
+    gbm_boolean use_native_bpp = GBM_FALSE;
+    gbm_boolean ignore_back    = GBM_FALSE;
+
+    const GBM_ERR rc = internal_png_rhdr_init(fd, png_priv);
+    if (GBM_ERR_OK != rc)
+    {
+        return rc;
+    }
+
+    png_ptr  = png_priv->png_ptr;
+    info_ptr = png_priv->info_ptr;
+    io_p     = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr); /* io_ptr is pointer to private IO struct */
+
+    /* set error handling */
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        /* If we get here, we had a problem reading the file */
+        png_read_deinit(png_priv);
+        return GBM_ERR_READ;
+    }
+
     /* extract header infos */
     if (! png_get_IHDR(png_ptr, info_ptr, &width, &height, &ch_bit_depth,
                        &png_priv->color_type, &interlace_type, &compression_type, &filter_type))
     {
        png_read_deinit(png_priv);
        return GBM_ERR_PNG_HEADER;
+    }
+    
+    /* goto requested image index */
+    png_priv->img_index = 0;
+    if ((s = gbm_find_word_prefix(png_priv->read_options, "index=")) != NULL)
+    {
+      int image_index = 0;
+      if (sscanf(s + 6, "%d", &image_index) != 1)
+      {
+        png_read_deinit(png_priv);
+        return GBM_ERR_BAD_OPTION;
+      }
+      #ifdef PNG_READ_APNG_SUPPORTED
+      if ((image_index < 0) || (image_index >= png_priv->img_count))
+      #else
+      if (image_index != 0)
+      #endif
+      {
+        png_read_deinit(png_priv);
+        return GBM_ERR_BAD_OPTION;
+      }
+      png_priv->img_index = image_index;
     }
 
     /* limit size to INT_MAX values (width, height) */
@@ -925,7 +1009,7 @@ static GBM_ERR internal_png_rhdr(int fd, GBM *gbm)
        png_read_deinit(png_priv);
        return GBM_ERR_PNG_HEADER;
     }
-
+    
     /* check if color depth is supported */
     channel_count = png_get_channels(png_ptr, info_ptr);
 
@@ -1118,6 +1202,31 @@ GBM_ERR png_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
 
+/* Read number of images in the PNG(APNG) file. */
+GBM_ERR png_rimgcnt(const char *fn, int fd, int *pimgcnt)
+{
+    PNG_PRIV_READ png_priv;
+    GBM_ERR       rc;
+
+    fn = fn; /* prevent compiler warning */
+
+    /* init options buffer */
+    memset(png_priv.read_options, 0, sizeof(png_priv.read_options));
+
+    rc = internal_png_rhdr_init(fd, &png_priv);
+    if (rc != GBM_ERR_OK)
+    {
+       return rc;
+    }
+    *pimgcnt = png_priv.img_count;
+    
+    png_read_deinit(&png_priv);
+    return GBM_ERR_OK;
+}
+
+/* ----------------------------------------------------------- */
+/* ----------------------------------------------------------- */
+
 /* internal_png_rpal_8bpp() - Read 8bpp palette */
 static GBM_ERR internal_png_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
 {
@@ -1132,7 +1241,7 @@ static GBM_ERR internal_png_rpal_8bpp(GBM *gbm, GBMRGB *gbmrgb)
        int increment;
 
        /* init palette */
-       memset(gbmrgb, 0, (sizeof(GBMRGB) * (1 << gbm->bpp)));
+       memset(gbmrgb, 0, ((int)sizeof(GBMRGB) * (1 << gbm->bpp)));
 
        switch(png_priv->bpp_src)
        {
@@ -1278,9 +1387,22 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
                       end_info = png_priv->end_info;
        PNG_PRIV_IO   *io_p     = (PNG_PRIV_IO *) png_get_io_ptr(png_priv->png_ptr);
 
+       #ifdef PNG_READ_APNG_SUPPORTED
+       png_uint_32 next_frame_width;
+       png_uint_32 next_frame_height;
+       png_uint_32 next_frame_x_offset;
+       png_uint_32 next_frame_y_offset;
+       png_uint_16 next_frame_delay_num;
+       png_uint_16 next_frame_delay_den;
+       png_byte next_frame_dispose_op;
+       png_byte next_frame_blend_op;
+       int idx;
+       #endif
+       
        png_bytep *gbm_row_pointers = NULL;
-       int row, gbm_row_bytes, src_row_bytes;
-
+       int row;
+       size_t gbm_row_bytes, src_row_bytes;
+       
        /* Read the image. Attn: Align to 32 bit rows for GBM !!! */
        src_row_bytes    = png_get_rowbytes(png_ptr, info_ptr);
        gbm_row_bytes    = ((gbm->w * gbm->bpp + 31)/32) * 4;
@@ -1292,7 +1414,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
        }
 
        /* set error handling */
-       if (setjmp(png_ptr->jmpbuf))
+       if (setjmp(png_jmpbuf(png_ptr)))
        {
            /* If we get here, we had a problem reading the file */
            gbmmem_free(gbm_row_pointers);
@@ -1303,8 +1425,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
        /* init pointers from bottom to top because the image is internally a DIB
         * which is mirrored vertically
         */
-       gbm_row_pointers[0] = ((png_bytep) data) + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
-
+       gbm_row_pointers[0] = ((png_bytep) data) + (gbm_row_bytes * gbm->h) - gbm_row_bytes;
        for (row = 1; row < gbm->h; row++)
        {
            gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
@@ -1313,8 +1434,39 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
        /* Now it's time to read the image. */
        if ((gbm->bpp <= 8) && (! png_priv->upsamplePaletteToPalette))
        {
-          /* read via high level interface */
-          png_read_image(png_ptr, gbm_row_pointers);
+          /* Seek to the requested frame. */
+          if (png_priv->img_count > 1)
+          {
+            #ifdef PNG_READ_APNG_SUPPORTED
+            for (idx = 0; idx <= png_priv->img_index; ++idx)
+            {
+              png_read_frame_head(png_ptr, info_ptr);
+              if (png_get_valid(png_ptr, info_ptr, PNG_INFO_fcTL))
+              {
+                png_get_next_frame_fcTL(png_ptr, info_ptr,
+                                        &next_frame_width, &next_frame_height,
+                                        &next_frame_x_offset, &next_frame_y_offset,
+                                        &next_frame_delay_num, &next_frame_delay_den,
+                                        &next_frame_dispose_op, &next_frame_blend_op);
+              }
+              else
+              {
+                /* the first frame doesn't have an fcTL */
+                next_frame_width  = png_get_image_width(png_ptr, info_ptr);
+                next_frame_height = png_get_image_height(png_ptr, info_ptr);
+              }
+              png_read_image(png_ptr, gbm_row_pointers);
+            }
+            #else
+            gbmmem_free(gbm_row_pointers);
+            png_read_deinit(png_priv);
+            return GBM_ERR_READ;
+            #endif
+          }
+          else
+          {
+            png_read_image(png_ptr, gbm_row_pointers);
+          }
        }
        else if (png_priv->upsamplePaletteToPalette)
        {
@@ -1356,7 +1508,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
           }
 
           /* set error handling */
-          if (setjmp(png_ptr->jmpbuf))
+          if (setjmp(png_jmpbuf(png_ptr)))
           {
              /* If we get here, we had a problem reading the file */
              gbmmem_free(src_row_pointers);
@@ -1366,9 +1518,42 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
              return GBM_ERR_READ;
           }
 
-          /* read via high level interface */
-          png_read_image(png_ptr, src_row_pointers);
-
+          /* Seek to the requested frame. */
+          if (png_priv->img_count > 1)
+          {
+            #ifdef PNG_READ_APNG_SUPPORTED
+            for (idx = 0; idx <= png_priv->img_index; ++idx)
+            {
+              png_read_frame_head(png_ptr, info_ptr);
+              if (png_get_valid(png_ptr, info_ptr, PNG_INFO_fcTL))
+              {
+                png_get_next_frame_fcTL(png_ptr, info_ptr,
+                                        &next_frame_width, &next_frame_height,
+                                        &next_frame_x_offset, &next_frame_y_offset,
+                                        &next_frame_delay_num, &next_frame_delay_den,
+                                        &next_frame_dispose_op, &next_frame_blend_op);
+              }
+              else
+              {
+                /* the first frame doesn't have an fcTL */
+                next_frame_width  = png_get_image_width(png_ptr, info_ptr);
+                next_frame_height = png_get_image_height(png_ptr, info_ptr);
+              }
+              png_read_image(png_ptr, src_row_pointers);
+            }
+            #else
+            gbmmem_free(src_row_pointers);
+            gbmmem_free(src_buffer);
+            gbmmem_free(gbm_row_pointers);
+            png_read_deinit(png_priv);
+            return GBM_ERR_READ;
+            #endif
+          }
+          else
+          {
+            png_read_image(png_ptr, src_row_pointers);
+          }
+          
           for (row = 0; row < gbm->h; row++)
           {
              if (! gbm_map_row_PAL_PAL(src_row_pointers[row], &gbm_src,
@@ -1381,7 +1566,6 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
                 return GBM_ERR_READ;
              }
           }
-
           gbmmem_free(src_row_pointers);
           gbmmem_free(src_buffer);
        }
@@ -1428,7 +1612,7 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
              }
 
              /* set error handling */
-             if (setjmp(png_ptr->jmpbuf))
+             if (setjmp(png_jmpbuf(png_ptr)))
              {
                 /* If we get here, we had a problem reading the file */
                 gbmmem_free(src_row_pointers);
@@ -1438,8 +1622,41 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
                 return GBM_ERR_READ;
              }
 
-             /* read via high level interface */
-             png_read_image(png_ptr, src_row_pointers);
+             /* Seek to the requested frame. */
+             if (png_priv->img_count > 1)
+             {
+                #ifdef PNG_READ_APNG_SUPPORTED
+                for (idx = 0; idx <= png_priv->img_index; ++idx)
+                {
+                  png_read_frame_head(png_ptr, info_ptr);
+                  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_fcTL))
+                  {
+                    png_get_next_frame_fcTL(png_ptr, info_ptr,
+                                            &next_frame_width, &next_frame_height,
+                                            &next_frame_x_offset, &next_frame_y_offset,
+                                            &next_frame_delay_num, &next_frame_delay_den,
+                                            &next_frame_dispose_op, &next_frame_blend_op);
+                  }
+                  else
+                  {
+                    /* the first frame doesn't have an fcTL */
+                    next_frame_width  = png_get_image_width(png_ptr, info_ptr);
+                    next_frame_height = png_get_image_height(png_ptr, info_ptr);
+                  }
+                  png_read_image(png_ptr, src_row_pointers);
+                }
+                #else
+                gbmmem_free(src_row_pointers);
+                gbmmem_free(src_buffer);
+                gbmmem_free(gbm_row_pointers);
+                png_read_deinit(png_priv);
+                return GBM_ERR_READ;
+                #endif
+             }
+             else
+             {
+                png_read_image(png_ptr, src_row_pointers);
+             }
 
              for (row = 0; row < gbm->h; row++)
              {
@@ -1459,7 +1676,40 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
           }
           else /* copy directly */
           {
-             png_read_image(png_ptr, gbm_row_pointers);
+             /* Seek to the requested frame. */
+             if (png_priv->img_count > 1)
+             {
+                #ifdef PNG_READ_APNG_SUPPORTED
+                for (idx = 0; idx <= png_priv->img_index; ++idx)
+                {
+                  png_read_frame_head(png_ptr, info_ptr);
+                  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_fcTL))
+                  {
+                    png_get_next_frame_fcTL(png_ptr, info_ptr,
+                                            &next_frame_width, &next_frame_height,
+                                            &next_frame_x_offset, &next_frame_y_offset,
+                                            &next_frame_delay_num, &next_frame_delay_den,
+                                            &next_frame_dispose_op, &next_frame_blend_op);
+                  }
+                  else
+                  {
+                    /* the first frame doesn't have an fcTL */
+                    next_frame_width  = png_get_image_width(png_ptr, info_ptr);
+                    next_frame_height = png_get_image_height(png_ptr, info_ptr);
+                  }
+                  png_read_image(png_ptr, gbm_row_pointers);
+                }
+                #else
+                gbmmem_free(gbm_row_pointers);
+                png_read_deinit(png_priv);
+                return GBM_ERR_READ;
+                #endif
+             }
+             else
+             {
+                png_read_image(png_ptr, gbm_row_pointers);
+             }
+             
              for (row = 0; row < gbm->h; row++)
              {
                 if (! gbm_map_row_RGBx_BGRx(gbm_row_pointers[row], &gbm_src,
@@ -1473,7 +1723,6 @@ GBM_ERR png_rdata(int fd, GBM *gbm, gbm_u8 *data)
              }
           }
        }
-
        gbmmem_free(gbm_row_pointers);
 
        /* close reading */
@@ -1516,11 +1765,12 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     png_color_16 my_background = { 0, 0, 0, 0, 0 };
 
     const char *s;
+    png_charp comment = NULL;
 
     fn=fn; /* Suppress 'unref arg' compiler warnings */
 
     /* check for height processing limitations */
-    if (gbm->h > PNG_UINT_32_MAX/png_sizeof(png_bytep))
+    if (gbm->h > PNG_UINT_32_MAX/sizeof(png_bytep))
     {
        return GBM_ERR_WRITE;
     }
@@ -1542,7 +1792,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     io_p     = (PNG_PRIV_IO *) png_get_io_ptr(png_ptr);
 
     /* set error handling */
-    if (setjmp(png_ptr->jmpbuf))
+    if (setjmp(png_jmpbuf(png_ptr)))
     {
         /* If we get here, we had a problem writing the file */
         png_write_deinit(&png_priv);
@@ -1606,7 +1856,7 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
           /* set the palette, REQUIRED for indexed-color images */
           png_priv.palette_ptr = (png_colorp) png_malloc(png_ptr,
-                                                         palette_entries * png_sizeof(png_color));
+                                                         palette_entries * sizeof(png_color));
 
           /* copy gbm palette -> libpng palette */
           for (i = 0; i < palette_entries; i++)
@@ -1859,11 +2109,47 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
     /* ------------------------------------------------------ */
 
+    /* Write a comment */
+    comment = NULL;
+    if ((s = gbm_find_word_prefix(opt, "comment=")) != NULL)
+    {
+       png_text textStruct;
+       textStruct.text_length = strlen(s + 8);
+
+       /* Use zlib compression for comments larger than 1024 characters according to recommendation */
+       textStruct.compression = (textStruct.text_length <= 1024)
+                                ? PNG_TEXT_COMPRESSION_NONE
+                                : PNG_TEXT_COMPRESSION_zTXt;
+       textStruct.key  = (png_charp) "Comment";
+       textStruct.text = gbmmem_calloc(textStruct.text_length + 1, sizeof(char));
+
+       if (sscanf(s + 8, "%[^\"]", textStruct.text) != 1)
+       {
+          if (sscanf(s + 8, "%[^ ]", textStruct.text) != 1)
+          {
+             gbmmem_free(textStruct.text);
+             png_write_deinit(&png_priv);
+             return GBM_ERR_PNG_BAD_COMMENT;
+          }
+       }
+       #ifdef PNG_iTXt_SUPPORTED
+         textStruct.itxt_length = 0;
+         textStruct.lang        = (png_charp) "";
+         textStruct.lang_key    = (png_charp) "";
+       #endif
+
+       png_set_text(png_ptr, info_ptr, &textStruct, 1);
+       comment = textStruct.text;
+    }
+
+    /* ------------------------------------------------------ */
+
     /* Write the file header information. */
     png_write_info(png_ptr, info_ptr);
     if (io_p->errok != GBM_TRUE)
     {
        png_write_deinit(&png_priv);
+       gbmmem_free(comment); comment = NULL;
        return GBM_ERR_WRITE;
     }
 
@@ -1884,13 +2170,13 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        int row;
 
        /* The easiest way to write the image. Attn: Align to 32 bit rows for GBM !!! */
-       const int row_bytes     = (((gbm->w * gbm->bpp) + 31)/32) * 4;
+       const size_t row_bytes  = (((gbm->w * gbm->bpp) + 31)/32) * 4;
        png_bytep *row_pointers = (png_bytep*) gbmmem_malloc(gbm->h * sizeof(png_bytep));
 
        /* init pointers from bottom to top because the image is internally a DIB
-        * which is mirrored vertically
-        */
-       row_pointers[0] = ((png_bytep) data) + (gbm->h * row_bytes) - row_bytes;
+                    * which is mirrored vertically
+                    */
+       row_pointers[0] = ((png_bytep) data) + (row_bytes * gbm->h) - row_bytes;
 
        for (row = 1; row < gbm->h; row++)
        {
@@ -1907,12 +2193,15 @@ GBM_ERR png_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
        if (io_p->errok != GBM_TRUE)
        {
           png_write_deinit(&png_priv);
+          gbmmem_free(comment); comment = NULL;
           return GBM_ERR_WRITE;
        }
      }
 
      /* clean up after the write, and free any memory allocated */
      png_write_deinit(&png_priv);
+
+     gbmmem_free(comment); comment = NULL;
 
      return GBM_ERR_OK;
 }

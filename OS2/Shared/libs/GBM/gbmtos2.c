@@ -46,16 +46,15 @@ static gbm_boolean getPathFromFullFilename(const char * filename, char ** path)
 {
   char drive[_MAX_DRIVE] = { 0 };
   char dir[_MAX_DIR]     = { 0 };
-  char * split_filename  = NULL;
+  char split_filename[_MAX_PATH+1] = { 0 };
 
   if ((filename == NULL) || (path == NULL))
   {
      return GBM_FALSE;
   }
 
-  split_filename = strdup(filename);
+  strcpy(split_filename, filename);
   _splitpath(split_filename, drive, dir, NULL, NULL);
-  free(split_filename); split_filename = NULL;
   
   *path = (char *) malloc(strlen(drive) + strlen(dir) + 1);
   strcpy(*path, drive);

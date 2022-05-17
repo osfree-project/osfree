@@ -423,10 +423,10 @@ GBM_ERR bmp_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
               ((cbFix & 3) == 0 || cbFix == 42 || cbFix == 46) )
     /*...sOS\47\2 2\46\0 and Windows 3\46\0:16:*/
     {
-       gbm_u16 cPlanes, cBitCount, usUnits, usReserved, usRecording, usRendering;
-       gbm_u32 ulWidth, ulHeight, ulCompression;
-       gbm_u32 ulSizeImage, ulXPelsPerMeter, ulYPelsPerMeter;
-       gbm_u32 cclrUsed, cclrImportant, cSize1, cSize2, ulColorEncoding, ulIdentifier;
+       gbm_u16 cPlanes = 0, cBitCount = 0, usUnits = 0, usReserved = 0, usRecording = 0, usRendering = 0;
+       gbm_u32 ulWidth = 0, ulHeight = 0, ulCompression = 0;
+       gbm_u32 ulSizeImage = 0, ulXPelsPerMeter = 0, ulYPelsPerMeter = 0;
+       gbm_u32 cclrUsed = 0, cclrImportant = 0, cSize1 = 0, cSize2 = 0, ulColorEncoding = 0, ulIdentifier = 0;
        gbm_boolean ok;
 
        ok  = read_u32(fd, &ulWidth);
@@ -1045,9 +1045,9 @@ static GBM_ERR read_16bpp_data(int fd, GBM *gbm, gbm_u8 *data,
 
         data16 = *data16_src++;
 
-        *data8_dst++ = GetB(data16, maskdef);
-        *data8_dst++ = GetG(data16, maskdef);
-        *data8_dst++ = GetR(data16, maskdef);
+        *data8_dst++ = (gbm_u8) GetB(data16, maskdef);
+        *data8_dst++ = (gbm_u8) GetG(data16, maskdef);
+        *data8_dst++ = (gbm_u8) GetR(data16, maskdef);
      }
      #undef GetB
      #undef GetG
@@ -1121,9 +1121,9 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, gbm_u8 *data,
 
         data32 = *data32_src++;
 
-        *data8_dst++ = GetB(data32, maskdef);
-        *data8_dst++ = GetG(data32, maskdef);
-        *data8_dst++ = GetR(data32, maskdef);
+        *data8_dst++ = (gbm_u8) GetB(data32, maskdef);
+        *data8_dst++ = (gbm_u8) GetG(data32, maskdef);
+        *data8_dst++ = (gbm_u8) GetR(data32, maskdef);
      }
      #undef GetB
      #undef GetG
@@ -1143,8 +1143,8 @@ static GBM_ERR read_32bpp_data(int fd, GBM *gbm, gbm_u8 *data,
 /* Read RLE24 encoded data */
 static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
 {
-   const int cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-   const gbm_u8 * dataEnd  = data + (cLinesWorth * gbm->h);
+   const size_t cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+   const gbm_u8 * dataEnd   = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
    int x = 0, y = 0;
@@ -1157,7 +1157,6 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
    {
             gbm_u8 c = (gbm_u8) gbm_read_ahead(ahead);
       const gbm_u8 d = (gbm_u8) gbm_read_ahead(ahead);
-      /* fprintf(stderr, "(%d,%d) c=%d,d=%d\n", x, y, c, d); */
 
       if ( c )
       {
@@ -1168,7 +1167,7 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
 
          if (data + (c * 3) > dataEnd)
          {
-             c = (dataEnd - data > 0) ? 0 : ((dataEnd - data) / 3);
+             c = (gbm_u8)((dataEnd - data > 0) ? 0 : ((dataEnd - data) / 3));
          }
 
          for (i = 0; i < c; i++)
@@ -1187,10 +1186,10 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
             /* MSWCC_EOL */
             case MSWCC_EOL:
             {
-               const int to_eol = cLinesWorth - x;
+               const size_t to_eol = cLinesWorth - x;
                if (x > 0)
                {
-                  memset(data, 0, (size_t) to_eol);
+                  memset(data, 0, to_eol);
                   data += to_eol;
                }
                x = 0;
@@ -1205,11 +1204,11 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
             case MSWCC_EOB:
                if ( y < gbm->h )
                {
-                  const int to_eol = cLinesWorth - x;
+                  const size_t to_eol = cLinesWorth - x;
 
                   if (x > 0)
                   {
-                     memset(data, 0, (size_t) to_eol);
+                     memset(data, 0, to_eol);
                      data += to_eol;
                   }
                   x = 0; y++;
@@ -1217,13 +1216,13 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
                   {
                      if (data + cLinesWorth > dataEnd)
                      {
-                        const int len = (dataEnd - data > 0) ? 0 : dataEnd - data;
-                        memset(data, 0, (size_t) len);
+                        const size_t len = (dataEnd - data > 0) ? 0 : dataEnd - data;
+                        memset(data, 0, len);
                         data += len;
                      }
                      else
                      {
-                        memset(data, 0, (size_t) cLinesWorth);
+                        memset(data, 0, cLinesWorth);
                         data += cLinesWorth;
                      }
                      y++;
@@ -1237,13 +1236,13 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
             {
                const gbm_u8 dx  = (gbm_u8) gbm_read_ahead(ahead);
                const gbm_u8 dy  = (gbm_u8) gbm_read_ahead(ahead);
-               int fill = (dx * 3) + (dy * cLinesWorth);
+               size_t fill = (dx * 3) + (cLinesWorth * dy);
 
                if (data + fill > dataEnd)
                {
                   fill = (dataEnd - data > 0) ? 0 : dataEnd - data;
                }
-               memset(data, 0, (size_t) fill);
+               memset(data, 0, fill);
                data += fill;
                x += dx * 3; y += dy;
                if ( y == gbm->h )
@@ -1256,12 +1255,12 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
             /* default */
             default:
             {
-               int n = (int) d;
+               int n = d;
                int diff = 0;
 
                if (data + (n * 3) > dataEnd)
                {
-                  n    = (dataEnd - data > 0) ? 0 : ((dataEnd - data) / 3);
+                  n    = (int)((dataEnd - data > 0) ? 0 : ((dataEnd - data) / 3));
                   diff = d - n;
                }
                while ( n-- > 0 )
@@ -1293,7 +1292,7 @@ static GBM_ERR read_rle24_data(int fd, GBM *gbm, gbm_u8 *data)
 /* Read RLE8 encoded data */
 static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
 {
-   const int cLinesWorth  = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+   const size_t cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
    const gbm_u8 * dataEnd   = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
@@ -1312,7 +1311,7 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
       {
          if (data + c > dataEnd)
          {
-             c = (dataEnd - data > 0) ? 0 : dataEnd - data;
+             c = (gbm_u8)((dataEnd - data > 0) ? 0 : dataEnd - data);
          }
          memset(data, d, c);
          x    += c;
@@ -1324,11 +1323,11 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
             /* MSWCC_EOL */
             case MSWCC_EOL:
             {
-               const int to_eol = cLinesWorth - x;
+               const size_t to_eol = cLinesWorth - x;
 
                if (x > 0)
                {
-                  memset(data, 0, (size_t) to_eol);
+                  memset(data, 0, to_eol);
                   data += to_eol;
                }
                x = 0;
@@ -1343,11 +1342,11 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
             case MSWCC_EOB:
                if ( y < gbm->h )
                {
-                  const int to_eol = cLinesWorth - x;
+                  const size_t to_eol = cLinesWorth - x;
 
                   if (x > 0)
                   {
-                     memset(data, 0, (size_t) to_eol);
+                     memset(data, 0, to_eol);
                      data += to_eol;
                   }
                   x = 0; y++;
@@ -1355,13 +1354,13 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
                   {
                      if (data + cLinesWorth > dataEnd)
                      {
-                        const int len = (dataEnd - data > 0) ? 0 : dataEnd - data;
-                        memset(data, 0, (size_t) len);
+                        const size_t len = (dataEnd - data > 0) ? 0 : dataEnd - data;
+                        memset(data, 0, len);
                         data += len;
                      }
                      else
                      {
-                        memset(data, 0, (size_t) cLinesWorth);
+                        memset(data, 0, cLinesWorth);
                         data += cLinesWorth;
                      }
                      y++;
@@ -1375,13 +1374,13 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
             {
                const gbm_u8 dx  = (gbm_u8) gbm_read_ahead(ahead);
                const gbm_u8 dy  = (gbm_u8) gbm_read_ahead(ahead);
-               int fill = dx + dy * cLinesWorth;
+               size_t fill = dx + cLinesWorth * dy;
 
                if (data + fill > dataEnd)
                {
                   fill = (dataEnd - data > 0) ? 0 : dataEnd - data;
                }
-               memset(data, 0, (size_t) fill);
+               memset(data, 0, fill);
                data += fill;
                x += dx; y += dy;
                if ( y == gbm->h )
@@ -1394,12 +1393,12 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
             /* default */
             default:
             {
-               int n = (int) d;
+               int n    = d;
                int diff = 0;
 
                if (data + n > dataEnd)
                {
-                  n    = (dataEnd - data > 0) ? 0 : dataEnd - data;
+                  n    = (int)((dataEnd - data > 0) ? 0 : dataEnd - data);
                   diff = d - n;
                }
 
@@ -1429,18 +1428,18 @@ static GBM_ERR read_rle8_data(int fd, GBM *gbm, gbm_u8 *data)
 /* Read RLE4 encoded data */
 static GBM_ERR read_rle4_data(int fd, GBM *gbm, gbm_u8 *data)
 {
-   const int cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-   const gbm_u8 * dataEnd  = data + (cLinesWorth * gbm->h);
+   const size_t cLinesWorth = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+   const gbm_u8 * dataEnd   = data + (cLinesWorth * gbm->h);
 
    AHEAD *ahead;
    int x = 0, y = 0;
    gbm_boolean eof4 = GBM_FALSE;
-   int inx = 0;
+   size_t inx = 0;
 
    if ( (ahead = gbm_create_ahead(fd)) == NULL )
       return GBM_ERR_MEM;
 
-   memset(data, 0, (size_t) (gbm->h * cLinesWorth));
+   memset(data, 0, cLinesWorth * gbm->h);
 
    while ( !eof4 )
    {
@@ -1458,7 +1457,7 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, gbm_u8 *data)
 
          if (data + (c/2) > dataEnd)
          {
-             c = (dataEnd - data > 0) ? 0 : ((dataEnd - data) * 2);
+             c = (gbm_u8)((dataEnd - data > 0) ? 0 : ((dataEnd - data) * 2));
          }
 
          for ( i = 0; i < (int) c; i++, x++ )
@@ -1494,7 +1493,7 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, gbm_u8 *data)
                const gbm_u8 dy = (gbm_u8) gbm_read_ahead(ahead);
 
                x += dx; y += dy;
-               inx = y * cLinesWorth + (x/2);
+               inx = cLinesWorth * y + (x/2);
 
                if ( y == gbm->h )
                {
@@ -1512,7 +1511,7 @@ static GBM_ERR read_rle4_data(int fd, GBM *gbm, gbm_u8 *data)
                if (data + (d/2) > dataEnd)
                {
                   const int d_org = d;
-                  d    = (dataEnd - data > 0) ? 0 : ((dataEnd - data) * 2);
+                  d    = (gbm_u8)((dataEnd - data > 0) ? 0 : ((dataEnd - data) * 2));
                   diff = d_org - d;
                }
 

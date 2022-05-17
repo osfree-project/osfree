@@ -16,6 +16,11 @@ History:
 01-Mar-2007: Seek to file end after reading/writing the image data as some
              readers/writers operate non-sequential.
 15-Aug-2008: Integrate new GBM types
+15-Mai-2010: Add PNG image count callback for APNG support
+             Fix: gbm_guess_filetype() did only check for the first matching extension chars
+                  but not the whole extension. This resulted in reporting of .p as valid
+                  .png file for instance. Now the complete extension is checked.
+18-Sep-2010: Add RAW format handler
 */
 
 #include <stdio.h>
@@ -38,6 +43,7 @@ History:
 #endif
 #include "gbm.h"
 #include "gbmhelp.h"
+#include "gbmmem.h"
 
 /*...sentrypoints:0:*/
 #include "gbmxpm.h"
@@ -62,8 +68,10 @@ History:
 #include "gbmcvp.h"
 #include "gbmjpg.h"
 #include "gbmj2k.h"
+#include "gbmjbg.h"
+#include "gbmraw.h"
 
-#define GBM_VERSION   160  /* 1.60 */
+#define GBM_VERSION   176  /* 1.76 */
 
 /* --------------------------- */
 
@@ -81,37 +89,43 @@ typedef struct
 
 static FT fts[] =
 {
-   { bmp_qft, bmp_rimgcnt, bmp_rhdr, bmp_rpal, bmp_rdata, bmp_w, bmp_err },
-   { gif_qft, gif_rimgcnt, gif_rhdr, gif_rpal, gif_rdata, gif_w, gif_err },
-   { pcx_qft, NULL       , pcx_rhdr, pcx_rpal, pcx_rdata, pcx_w, pcx_err },
+    { bmp_qft, bmp_rimgcnt, bmp_rhdr, bmp_rpal, bmp_rdata, bmp_w, bmp_err }
+   ,{ gif_qft, gif_rimgcnt, gif_rhdr, gif_rpal, gif_rdata, gif_w, gif_err }
+   ,{ pcx_qft, NULL       , pcx_rhdr, pcx_rpal, pcx_rdata, pcx_w, pcx_err }
 #ifdef ENABLE_TIF
-   { tif_qft, tif_rimgcnt, tif_rhdr, tif_rpal, tif_rdata, tif_w, tif_err },
+   ,{ tif_qft, tif_rimgcnt, tif_rhdr, tif_rpal, tif_rdata, tif_w, tif_err }
 #endif
-   { tga_qft, NULL       , tga_rhdr, tga_rpal, tga_rdata, tga_w, tga_err },
-   { lbm_qft, NULL       , lbm_rhdr, lbm_rpal, lbm_rdata, lbm_w, lbm_err },
-   { vid_qft, NULL       , vid_rhdr, vid_rpal, vid_rdata, vid_w, vid_err },
-   { pbm_qft, pbm_rimgcnt, pbm_rhdr, pbm_rpal, pbm_rdata, pbm_w, pbm_err },
-   { pgm_qft, pgm_rimgcnt, pgm_rhdr, pgm_rpal, pgm_rdata, pgm_w, pgm_err },
-   { ppm_qft, ppm_rimgcnt, ppm_rhdr, ppm_rpal, ppm_rdata, ppm_w, ppm_err },
-   { pnm_qft, pnm_rimgcnt, pnm_rhdr, pnm_rpal, pnm_rdata, pnm_w, pnm_err },
-   { kps_qft, NULL       , kps_rhdr, kps_rpal, kps_rdata, kps_w, kps_err },
-   { iax_qft, NULL       , iax_rhdr, iax_rpal, iax_rdata, iax_w, iax_err },
-   { xbm_qft, NULL       , xbm_rhdr, xbm_rpal, xbm_rdata, xbm_w, xbm_err },
-   { xpm_qft, NULL       , xpm_rhdr, xpm_rpal, xpm_rdata, xpm_w, xpm_err },
-   { spr_qft, spr_rimgcnt, spr_rhdr, spr_rpal, spr_rdata, spr_w, spr_err },
-   { psg_qft, NULL       , psg_rhdr, psg_rpal, psg_rdata, psg_w, psg_err },
-   { gem_qft, NULL       , gem_rhdr, gem_rpal, gem_rdata, gem_w, gem_err },
-   { cvp_qft, NULL       , cvp_rhdr, cvp_rpal, cvp_rdata, cvp_w, cvp_err },
+   ,{ tga_qft, NULL       , tga_rhdr, tga_rpal, tga_rdata, tga_w, tga_err }
+   ,{ lbm_qft, NULL       , lbm_rhdr, lbm_rpal, lbm_rdata, lbm_w, lbm_err }
+   ,{ vid_qft, NULL       , vid_rhdr, vid_rpal, vid_rdata, vid_w, vid_err }
+   ,{ pbm_qft, pbm_rimgcnt, pbm_rhdr, pbm_rpal, pbm_rdata, pbm_w, pbm_err }
+   ,{ pgm_qft, pgm_rimgcnt, pgm_rhdr, pgm_rpal, pgm_rdata, pgm_w, pgm_err }
+   ,{ ppm_qft, ppm_rimgcnt, ppm_rhdr, ppm_rpal, ppm_rdata, ppm_w, ppm_err }
+   ,{ pnm_qft, pnm_rimgcnt, pnm_rhdr, pnm_rpal, pnm_rdata, pnm_w, pnm_err }
+   ,{ kps_qft, NULL       , kps_rhdr, kps_rpal, kps_rdata, kps_w, kps_err }
+   ,{ iax_qft, NULL       , iax_rhdr, iax_rpal, iax_rdata, iax_w, iax_err }
+   ,{ xbm_qft, NULL       , xbm_rhdr, xbm_rpal, xbm_rdata, xbm_w, xbm_err }
+   ,{ xpm_qft, NULL       , xpm_rhdr, xpm_rpal, xpm_rdata, xpm_w, xpm_err }
+   ,{ spr_qft, spr_rimgcnt, spr_rhdr, spr_rpal, spr_rdata, spr_w, spr_err }
+   ,{ psg_qft, NULL       , psg_rhdr, psg_rpal, psg_rdata, psg_w, psg_err }
+   ,{ gem_qft, NULL       , gem_rhdr, gem_rpal, gem_rdata, gem_w, gem_err }
+   ,{ cvp_qft, NULL       , cvp_rhdr, cvp_rpal, cvp_rdata, cvp_w, cvp_err }
 #ifdef ENABLE_PNG
-   { png_qft, NULL       , png_rhdr, png_rpal, png_rdata, png_w, png_err },
+   ,{ png_qft, png_rimgcnt, png_rhdr, png_rpal, png_rdata, png_w, png_err }
 #endif
 #ifdef ENABLE_IJG
-   { jpg_qft, NULL       , jpg_rhdr, jpg_rpal, jpg_rdata, jpg_w, jpg_err },
+   ,{ jpg_qft, NULL       , jpg_rhdr, jpg_rpal, jpg_rdata, jpg_w, jpg_err }
 #endif
 #ifdef ENABLE_J2K
-   { j2k_jp2_qft, NULL   , j2k_jp2_rhdr, j2k_rpal, j2k_rdata, j2k_jp2_w, j2k_err },
-   { j2k_j2k_qft, NULL   , j2k_j2k_rhdr, j2k_rpal, j2k_rdata, j2k_j2k_w, j2k_err },
-   { j2k_jpt_qft, NULL   , j2k_jpt_rhdr, j2k_rpal, j2k_rdata, NULL     , j2k_err }
+   ,{ j2k_jp2_qft, NULL   , j2k_jp2_rhdr, j2k_rpal, j2k_rdata, j2k_jp2_w, j2k_err }
+   ,{ j2k_j2k_qft, NULL   , j2k_j2k_rhdr, j2k_rpal, j2k_rdata, j2k_j2k_w, j2k_err }
+   ,{ j2k_jpt_qft, NULL   , j2k_jpt_rhdr, j2k_rpal, j2k_rdata, NULL     , j2k_err }
+#endif
+#ifdef ENABLE_JBIG
+   ,{ jbg_qft, NULL       , jbg_rhdr, jbg_rpal, jbg_rdata, jbg_w, jbg_err }
+#endif
+#ifdef ENABLE_RAW
+   ,{ raw_qft, raw_rimgcnt, raw_rhdr, raw_rpal, raw_rdata, NULL, raw_err }
 #endif
 };
 
@@ -215,28 +229,65 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_query_n_filetypes(int *n_ft)
 GBMEXPORT GBM_ERR GBMENTRY gbm_guess_filetype(const char *fn, int *ft)
 {
     int i;
-    const char *ext;
+    const char *ext = NULL;
+    size_t lext = 0;
 
     if ( fn == NULL || ft == NULL )
+    {
         return GBM_ERR_BAD_ARG;
+    }
 
     if ( (ext = extension(fn)) == NULL )
+    {
         ext = "";
+    }
+    lext = strlen(ext);
 
     for ( i = 0; i < N_FT; i++ )
     {
-        GBMFT gbmft;
-        char  buf[100+1], *s;
+        GBMFT gbmft = { 0 };
+        char  statbuf[200] = { 0 };
+        char *buf = statbuf;
+        const char *s = NULL;
+        size_t extension_len = 0;
+        GBM_ERR rc;
 
-        fts[i].query_filetype(&gbmft);
-        for ( s  = strtok(strcpy(buf, gbmft.extensions), " \t,");
+        rc = fts[i].query_filetype(&gbmft);
+        if (rc != GBM_ERR_OK)
+        {
+            return rc;
+        }
+        extension_len = strlen(gbmft.extensions);
+        if (extension_len >= sizeof(statbuf))
+        {
+           buf = gbmmem_calloc(extension_len + 1, sizeof(char));
+           if (buf == NULL)
+           {
+               return GBM_ERR_MEM;
+           }
+        }
+        strcpy(buf, gbmft.extensions);
+        for ( s  = strtok(buf, " \t,");
               s != NULL;
               s  = strtok(NULL, " \t,") )
-            if ( gbm_same(s, ext, (int) strlen(ext) + 1) )
+        {
+            if (strlen(s) == lext)
             {
-                *ft = i;
-                return GBM_ERR_OK;
+                if ( gbm_same(s, ext, (int) lext) )
+                {
+                    *ft = i;
+                    if (buf != statbuf)
+                    {
+                        gbmmem_free(buf);
+                    }
+                    return GBM_ERR_OK;
+                }
             }
+        }
+        if (buf != statbuf)
+        {
+            gbmmem_free(buf);
+        }
     }
     return GBM_ERR_NOT_FOUND;
 }
@@ -254,6 +305,7 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_query_filetype(int ft, GBMFT *gbmft)
 
 GBMEXPORT GBM_ERR GBMENTRY_SYS gbm_read_imgcount(const char *fn, int fd, int ft, int *pimgcnt)
 {
+   *pimgcnt = 0;
    if ( fn == NULL || pimgcnt == NULL)
    {
       return GBM_ERR_BAD_ARG;
@@ -344,7 +396,7 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_read_data(int fd, int ft, GBM *gbm, gbm_u8 *data)
     case  1: flag = GBM_FT_R1;  break;
     default: flag = 0;          break;
   }
-  if ( (gbmft.flags & flag) == 0 )
+  if ( ((gbmft.flags & flag) == 0) || (fts[ft].read_data == NULL))
   {
     return GBM_ERR_NOT_SUPP;
   }
@@ -386,7 +438,7 @@ GBMEXPORT GBM_ERR GBMENTRY gbm_write(const char *fn, int fd, int ft, const GBM *
     case  1: flag = GBM_FT_W1;  break;
     default: flag = 0;          break;
   }
-  if ( (gbmft.flags & flag) == 0 )
+  if ( ((gbmft.flags & flag) == 0) || (fts[ft].write == NULL))
   {
     return GBM_ERR_NOT_SUPP;
   }

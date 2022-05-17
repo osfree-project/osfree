@@ -370,7 +370,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
   int         type = 0;
   gbm_boolean invert;
 
-  const int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+  const size_t stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
   GBM_ERR rc = internal_pbm_rhdr(fd, gbm, &type);
   if (rc != GBM_ERR_OK)
@@ -378,7 +378,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
      return rc;
   }
   /* check for correct parameters */
-  if (stride != ((gbm->w * gbm->bpp + 31)/32) * 4)
+  if (stride != (size_t)((gbm->w * gbm->bpp + 31)/32) * 4)
   {
      return GBM_ERR_READ;
   }
@@ -396,7 +396,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
     int i;
     const int line_bytes = (gbm->w + 7) / 8;
 
-    gbm_u8 * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * p = data + (stride * (gbm->h - 1));
 
     for (i = gbm->h - 1; i >= 0; i--)
     {
@@ -424,7 +424,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
     int    i, x;
     int    num;
     gbm_u8 * pNumFill;
-    gbm_u8 * p = data + ((gbm->h - 1) * stride);
+    gbm_u8 * p = data + (stride * (gbm->h - 1));
 
     const int line_bytes     = gbm->w / 8;
     const int line_bits_left = gbm->w % 8;
@@ -493,7 +493,7 @@ GBM_ERR pbm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 
 static gbm_boolean internal_pbm_w_ascii(WCACHE * wcache, const gbm_u8 * data, int bits)
 {
-  char d[2];
+  gbm_u8 d[2];
   int  b, i, xb, c;
   const int bytes = (bits + 7) / 8;
 
@@ -542,8 +542,8 @@ static gbm_boolean internal_pbm_write_comment(int fd, const char *options)
 
    if ((s = gbm_find_word_prefix(options, "comment=")) != NULL)
    {
-     int   len = 0;
-     char  buf[200+1] = { 0 };
+     int  len = 0;
+     char buf[200+1] = { 0 };
 
      if (sscanf(s + 8, "%200[^\"]", buf) != 1)
      {
@@ -558,8 +558,8 @@ static gbm_boolean internal_pbm_write_comment(int fd, const char *options)
        return GBM_FALSE;
      }
 
-     len = strlen(buf);
-     if (gbm_file_write(fd, buf, len) != len)
+     len = (int)strlen(buf);
+     if (gbm_file_write(fd, (gbm_u8 *)buf, len) != len)
      {
        return GBM_FALSE;
      }
@@ -578,9 +578,10 @@ static gbm_boolean internal_pbm_write_comment(int fd, const char *options)
 GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
   char s[100+1];
-  int i, stride, line_bytes;
+  int  i;
+  size_t stride, line_bytes;
   const gbm_u8 *p;
-  gbm_u8   * linebuf = NULL;
+  gbm_u8 * linebuf = NULL;
   WCACHE * wcache  = NULL;
 
   const gbm_boolean invert = ( gbm_find_word(opt, "invb"  ) != NULL );
@@ -624,7 +625,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   }
   if (invert)
   {
-    linebuf = (gbm_u8 *) gbmmem_malloc((size_t) line_bytes);
+    linebuf = (gbm_u8 *) gbmmem_malloc(line_bytes);
     if (linebuf == NULL)
     {
       if (ascii)
@@ -636,13 +637,13 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
   }
 
   stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
-  p = data + ((gbm->h - 1) * stride);
+  p = data + (stride * (gbm->h - 1));
   for ( i = gbm->h - 1; i >= 0; i-- )
   {
     const gbm_u8 * writep = p;
     if (invert)
     {
-       int x;
+       size_t x;
        const gbm_u8 * pTemp = p;
        gbm_u8 * pInv = linebuf;
 
@@ -669,7 +670,7 @@ GBM_ERR pbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
     }
     else
     {
-      if (gbm_file_write(fd, writep, line_bytes) != line_bytes)
+      if (gbm_file_write(fd, writep, (int)line_bytes) != line_bytes)
       {
         if (ascii)
         {

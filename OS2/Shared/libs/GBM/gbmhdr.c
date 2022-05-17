@@ -13,7 +13,7 @@ History:
              Fix issue with comma separation between file and options.
              Now the file can have quotes and thus clearly separating
              it from the options.
-             On OS/2 command line use: "\"file*.ext\",options"
+             On command line use: "\"file*.ext\",options"
 
 30-Apr-2006: Always report full colour depth even though the user
              did not specify ext_bpp.
@@ -29,6 +29,9 @@ History:
              than 1 byte (e.g. 1x1x1bpp).
 
 15-Aug-2008: Integrate new GBM types
+
+10-Oct-2008: Changed recommended file specification template to
+             "file*.ext"\",options   or   "file*.ext"\",\""options"
 */
 
 /*...sincludes:0:*/
@@ -38,6 +41,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
  #include <unistd.h>
 #else
@@ -55,6 +59,8 @@ History:
 #if defined(__OS2__) || defined(OS2)
   #define INCL_DOS
   #include <os2.h>
+#elif defined(WIN32)  
+  #include <windows.h>
 #endif
 
 #include "gbm.h"
@@ -73,7 +79,7 @@ static void usage(void)
 {
     int ft, n_ft;
 
-    fprintf(stderr, "usage: %s [-g] [-s] [--] {\"\\\"fn.ext\\\"{,opt}\"} ...\n", progname);
+    fprintf(stderr, "usage: %s [-g] [-s] [--] {\"fn.ext\"{\\\",\\\"\"opt\"}} ...\n", progname);
     fprintf(stderr, "       -g           don't guess bitmap format, try each type\n");
     fprintf(stderr, "       -s           be silent about errors\n");
     if (SupportsNumberOfPagesQuery())
@@ -97,8 +103,8 @@ static void usage(void)
     fprintf(stderr, "        opt         bitmap format specific option to pass to bitmap reader\n");
 
     fprintf(stderr, "\n        In case the filename contains a comma or spaces and options\n");
-    fprintf(stderr,   "        need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
-    fprintf(stderr,   "        to clearly separate the filename from the options.\n");
+    fprintf(stderr,   "        need to be added, syntax \"fn.ext\"{\\\",\\\"opt} or \"fn.ext\"{\\\",\\\"\"opt\"}\n");
+    fprintf(stderr,   "        must be used to clearly separate the filename from the options.\n");
 
     exit(1);
 }
@@ -123,13 +129,12 @@ static gbm_boolean show_guess(const char *fn, const char *opt, int fd)
 {
     int ft, rc;
     int imgcount = 0;
-    long filelen, datalen;
+    size_t filelen, datalen;
     GBMFT gbmft;
     GBM gbm;
 
     if ( gbm_guess_filetype(fn, &ft) != GBM_ERR_OK )
     {
-        gbm_io_close(fd);
         show_error(fn, "can't guess bitmap file format from extension");
         return GBM_FALSE;
     }
@@ -144,9 +149,7 @@ static gbm_boolean show_guess(const char *fn, const char *opt, int fd)
 
         if (! GetNumberOfPages(fn, fd, ft, &imgcount))
         {
-            char s[100+1];
-            gbm_io_close(fd);
-            sprintf(s, "can't read file header: %s", gbm_err(rc));
+            const char * s = "can't read file header";
             show_error(fn, s);
             return GBM_FALSE;
         }
@@ -165,29 +168,35 @@ static gbm_boolean show_guess(const char *fn, const char *opt, int fd)
             if ( (rc = gbm_read_header(fn, fd, ft, &gbm, opt_index)) != GBM_ERR_OK )
             {
                 char s[100+1];
-                gbm_io_close(fd);
                 sprintf(s, "can't read file header: %s", gbm_err(rc));
                 show_error(fn, s);
                 return GBM_FALSE;
             }
 
             datalen += (gbm.w*gbm.h*gbm.bpp+7)/8;
-            printf("Index %3d: %4dx%-4d %2dbpp %5ldKb %4d%% %-10s %s\n",
+            #if (ULONG_MAX > UINT_MAX)
+             printf("Index %3d: %4dx%-4d %2dbpp %5zuKb %4zu%% %-10s %s\n",
+            #else
+             printf("Index %3d: %4dx%-4d %2dbpp %5uKb %4u%% %-10s %s\n",
+            #endif
                    i,
                    gbm.w, gbm.h, gbm.bpp,
                    (filelen+1023)/1024,
-                   (filelen*100)/datalen,
+                   (datalen != 0) ? (filelen*100)/datalen : 0,
                    gbmft.short_name,
                    fn);
         }
-        printf("Compression ratio: %3ld%%\n", filelen*100/datalen);
+        #if (ULONG_MAX > UINT_MAX)
+         printf("Compression ratio: %3zu%%\n", filelen*100/datalen);
+        #else
+         printf("Compression ratio: %3u%%\n", filelen*100/datalen);
+        #endif
     }
     else
     {
         if ( (rc = gbm_read_header(fn, fd, ft, &gbm, opt)) != GBM_ERR_OK )
         {
             char s[100+1];
-            gbm_io_close(fd);
             sprintf(s, "can't read file header: %s", gbm_err(rc));
             show_error(fn, s);
             return GBM_FALSE;
@@ -195,10 +204,15 @@ static gbm_boolean show_guess(const char *fn, const char *opt, int fd)
 
         filelen = gbm_io_lseek(fd, 0L, GBM_SEEK_END);
         datalen = (gbm.w*gbm.h*gbm.bpp+7)/8;
-        printf("%4dx%-4d %2dbpp %5ldKb %4d%% %-10s %s\n",
+
+        #if (ULONG_MAX > UINT_MAX)
+         printf("%4dx%-4d %2dbpp %5zuKb %4zu%% %-10s %s\n",
+        #else
+         printf("%4dx%-4d %2dbpp %5uKb %4u%% %-10s %s\n",
+        #endif
                gbm.w, gbm.h, gbm.bpp,
                (filelen+1023)/1024,
-               (filelen*100)/datalen,
+               (datalen != 0) ? (filelen*100)/datalen : 0,
                gbmft.short_name,
                fn);
     }
@@ -411,6 +425,36 @@ gbm_boolean SupportsNumberOfPagesQuery(void)
    DosFreeModule(hmod);
 
    return rc ? GBM_FALSE : GBM_TRUE;
+
+#elif defined (WIN32)
+
+   HMODULE hmod;
+   FARPROC functionAddr = NULL;
+
+   /* check version first */
+   if (gbm_version() < 135)
+   {
+      return GBM_FALSE;
+   }
+
+   /* now dynamically link GBM.DLL */
+   hmod = LoadLibrary("GBM");
+   if (hmod == NULL)
+   {
+      return GBM_FALSE;
+   }
+
+   /* lookup gbm_read_imgcount() */
+#if defined(_MSC_VER) && defined(_M_X64)
+   functionAddr = GetProcAddress(hmod, "gbm_read_imgcount");
+#else
+   functionAddr = GetProcAddress(hmod, "_gbm_read_imgcount@16");
+#endif   
+
+   FreeLibrary(hmod);
+
+   return (functionAddr == NULL) ? GBM_FALSE : GBM_TRUE;
+   
 #else
    /* On all other platforms we assume so far that the correct lib is there. */
    return GBM_TRUE;
@@ -461,8 +505,48 @@ gbm_boolean GetNumberOfPages(const char * fileName, const int fd, const int ft, 
    }
 
    DosFreeModule(hmod);
-
    return GBM_TRUE;
+   
+#elif defined (WIN32)
+
+   HMODULE hmod;
+   FARPROC functionAddr = NULL;
+
+   /* check version first */
+   if (gbm_version() < 135)
+   {
+      return GBM_FALSE;
+   }
+
+   /* now dynamically link GBM.DLL */
+   hmod = LoadLibrary("GBM");
+   if (hmod == NULL)
+   {
+      return GBM_FALSE;
+   }
+
+   /* lookup gbm_read_imgcount() */
+#if defined(_MSC_VER) && defined(_M_X64)
+   functionAddr = GetProcAddress(hmod, "gbm_read_imgcount");
+#else
+   functionAddr = GetProcAddress(hmod, "_gbm_read_imgcount@16");
+#endif   
+   if (functionAddr == NULL)
+   {
+      FreeLibrary(hmod);
+      return GBM_FALSE;
+   }
+
+   /* call gbm_read_imgcount(const char *fn, int fd, int ft, int *pimgcnt) */
+   if (functionAddr(fileName, fd, ft, numPages) != GBM_ERR_OK)
+   {
+      FreeLibrary(hmod);
+      return GBM_FALSE;
+   }
+
+   FreeLibrary(hmod);
+   return GBM_TRUE;
+   
 #else
    /* On all other platforms we assume so far that the correct lib is there. */
    return (gbm_read_imgcount(fileName, fd, ft, numPages) != GBM_ERR_OK) ? GBM_FALSE : GBM_TRUE;

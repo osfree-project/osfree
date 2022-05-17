@@ -535,13 +535,13 @@ GBM_ERR xbm_w(char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_
 			*p = '_';
 
 	sprintf(s, "#define %s_width %d\r\n" , name, gbm->w);
-	if ( (size_t) gbm_file_write(fd, s, strlen(s)) != strlen(s) )
+	if ( (size_t) gbm_file_write(fd, s, (int)strlen(s)) != strlen(s) )
 		return GBM_ERR_WRITE;
 	sprintf(s, "#define %s_height %d\r\n", name, gbm->h);
-	if ( (size_t) gbm_file_write(fd, s, strlen(s)) != strlen(s) )
+	if ( (size_t) gbm_file_write(fd, s, (int)strlen(s)) != strlen(s) )
 		return GBM_ERR_WRITE;
 	sprintf(s, "static char %s_bits[] = {\r\n", name);
-	if ( (size_t) gbm_file_write(fd, s, strlen(s)) != strlen(s) )
+	if ( (size_t) gbm_file_write(fd, s, (int)strlen(s)) != strlen(s) )
 		return GBM_ERR_WRITE;
 
 	data += (gbm->h - 1) * stride;
@@ -555,7 +555,7 @@ GBM_ERR xbm_w(char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_
 				strcat(s, "\r\n");
 				col = 0;
 				}
-			if ( (size_t) gbm_file_write(fd, s, strlen(s)) != strlen(s) )
+			if ( (size_t) gbm_file_write(fd, s, (int)strlen(s)) != strlen(s) )
 				return GBM_ERR_WRITE;
 			}
 

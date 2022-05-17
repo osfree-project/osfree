@@ -15,6 +15,7 @@ History:
 11-Jun-2006: Add PNM format
              Shorten BMP long description
 16-Jun-2006: Remove not on binary restriction of PxM formats (ascii is supported now)
+12-Jun-2009: Add JBG format
 */
 
 /* ------------------------------------------------- */
@@ -55,11 +56,11 @@ History:
 #ifdef ENABLE_J2K
   #define GBM_FMT_DESC_SHORT_JP2  "JP2"
   #define GBM_FMT_DESC_LONG_JP2   "JPEG2000 Graphics File Format"
-  #define GBM_FMT_DESC_EXT_JP2    "JP2 J2C"
+  #define GBM_FMT_DESC_EXT_JP2    "JP2"
 
   #define GBM_FMT_DESC_SHORT_J2K  "J2K"
   #define GBM_FMT_DESC_LONG_J2K   "JPEG2000 Codestream"
-  #define GBM_FMT_DESC_EXT_J2K    "J2K JPC"
+  #define GBM_FMT_DESC_EXT_J2K    "J2K J2C"
 
   #define GBM_FMT_DESC_SHORT_JPT  "JPT"
   #define GBM_FMT_DESC_LONG_JPT   "JPT Stream (JPEG2000, JPIP)"
@@ -126,7 +127,7 @@ History:
 /* Microsoft/Aldus Tagged Image File Format */
 #ifdef ENABLE_TIF
   #define GBM_FMT_DESC_SHORT_TIF  "TIFF"
-  #define GBM_FMT_DESC_LONG_TIF   "Tagged Image File Format support (TIFF 6.0)"
+  #define GBM_FMT_DESC_LONG_TIF   "Tagged Image File Format"
   #define GBM_FMT_DESC_EXT_TIF    "TIF TIFF"
 #endif
 
@@ -145,6 +146,15 @@ History:
 #define GBM_FMT_DESC_LONG_XPM   "X Windows PixMap"
 #define GBM_FMT_DESC_EXT_XPM    "XPM"
 
+/* JBIG format */
+#define GBM_FMT_DESC_SHORT_JBG  "JBIG"
+#define GBM_FMT_DESC_LONG_JBG   "Joint Bi-level Image experts Group"
+#define GBM_FMT_DESC_EXT_JBG    "JBG JBIG"
+
+/* RAW format */
+#define GBM_FMT_DESC_SHORT_RAW  "RAW"
+#define GBM_FMT_DESC_LONG_RAW   "Camera RAW Image Format"
+#define GBM_FMT_DESC_EXT_RAW    "DNG 3FR ARW BAY CAP CRW CR2 DCR DCS DRF ERF KDC MDC MEF MOS MRW NEF NRW ORF PEF RAF RAW RW2 RWL SRF SR2"
 
 #endif
 
