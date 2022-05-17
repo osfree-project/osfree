@@ -10,20 +10,23 @@
 
 parse arg fn sep
 
-if sep = '' then sep = '\'
+verbose = ''
+if sep = ''  then sep = '\'
+if sep = '\' then verbose = '@'
+if sep = '\' then sep2 = sep || sep; else sep2 = sep
 root = value('ROOT',, 'ENVIRONMENT')
 if root = '' then root = './'
-fn  = translate(fn, '/', '\')
-fn2 = substr(fn, length(root))
+fn1  = translate(fn, '/', '\')
+fn2 = substr(fn1, length(root))
 l   = levels(fn2)
 p   = lastpos('.', fn)
 ext = substr(fn, p + 1)
 
-'sed -e ''s,\@RT\@,'l','' 'root'conf/scripts/_wcc.'ext'-template >'fn
+verbose'sed -e "s,\@RT\@,'l'," 'root'conf/scripts/_wcc.'ext'-template >'fn
 
 exit
 /* ----------------------------------- */
-levels: procedure expose sep
+levels: procedure expose sep2
 parse arg fn
 
 count = 0
@@ -42,7 +45,7 @@ select
   when count = 1 then dir = '.'
   when count = 2 then dir = '..'
   otherwise do i = 3 to count
-    dir = dir || sep'..'
+    dir = dir || sep2'..'
   end
 end
 

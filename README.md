@@ -4,8 +4,23 @@ Russian:
 
 # Система сборки osFree
 
-Запустите _setup для скачивания и установки системы сборки.
-После окончания работы скрипта можно запустить сборку с помощью _wcc
+Сначала, запустите %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, чтобы скачать необходимые
+зависимости для сборки. Но прежде всего, нужно установить wget (для случая Windows), если
+он у вас еще не установлен. Для сборки нужен только OpenWatcom, FreePascal, а также Regina
+REXX (но, в случае OS/2 хоста, вы можете использовать уже установленную инсталляцию REXX).
+
+Запустите _setup.* для скачивания и установки системы сборки.
+После окончания работы скрипта можно запустить сборку с помощью _wcc.{cmd|sh}.
+
+Но перед сборкой нужно подправить %root%\conf\scripts\setvars.{sh|cmd|bat}, чтобы указать правильные
+пути к необходимым для сборки программам, после чего, можно запустить _wcc.{sh|cmd} для
+сборки.
+
+Замечание. _wcc.cmd автоопределяет ОС (OS/2, win32 или win64) автоматически.
+
+В общем случае, скрипты с расширением .bat у нас обычно специфичны для windows хоста,
+.cmd для OS/2 хоста, и .sh для UNIX/Linux хоста.
+
 
 ---
 
@@ -15,19 +30,23 @@ English:
 
 # osFree build system
 
-For  compilation,  fix  build.conf  to  suit  your  system.  (There are 3
-versions  of  build.conf  for  OS/2, Linux and Windows in the root directory.
-Also developer-specific config exists with names like build-valerius.conf,
-build-prokushev.conf, etc).
-OpenWatcom  compiler  is used for development. I tried OpenWatcom versions 1.3
-as  well  as  1.5.  Also,  for *.cmd scripts a REXX language interpreter is
-needed.      For      Linux      and     Windows     users     Regina     REXX
-(http://regina-rexx.sourceforge.net/)  may  be  used.  Before compilation, for
-setting  environment  variables,  use  setvars{.cmd  --  for OS/2, .bat -- for
-Windows, and .sh -- for Linux}.
+First, start %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, to pull the build dependencies.
+But prior to that, you need to download wget binary (in case of windows), if it
+is not installed. For building these sources, you only need to install OpenWatcom,
+FreePascal and Regina REXX (but, in case of OS/2 host, you can use the default REXX
+interpreter, which is already in the system).
 
-Валерий В. Седлецкий, aka valerius,
-Valery V. Sedletski, aka valerius,
+Start _setup.* for downloading the build tools.
+After finishing the script work, you can start build with _wcc.{sh|cmd}.
+
+But before you start building, you need to edit %root%\conf\scripts\setvars.{sh|cmd|bat} accordingly, to set tools
+paths. After which, you can start build by launching _wcc.{sh|cmd}.
+
+Note that _wcc.cmd autodetects OS (OS/2, win32 or win64).
+
+Generally, we use .bat scripts to be specific for windows, .cmd specific to OS/2, and
+.sh specific to UNIX/Linux.
+
 (c) osFree project,
 http://www.osfree.org/
 
