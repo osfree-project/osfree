@@ -67,7 +67,8 @@ GBM_ERR cvp_rpal(int fd, GBM *gbm, GBMRGB *gbmrgb)
 
 GBM_ERR cvp_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
-	int p, stride = ((gbm->w*3+3)&~3);
+	int p;
+	size_t stride = ((gbm->w*3+3)&~3);
 	gbm_u8 *line;
 	if ( (line = gbmmem_malloc((size_t) gbm->w)) == NULL )
 		return GBM_ERR_MEM;
@@ -93,7 +94,8 @@ GBM_ERR cvp_rdata(int fd, GBM *gbm, gbm_u8 *data)
 
 GBM_ERR cvp_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	int p, stride = ((gbm->w*3+3)&~3);
+	int p;
+	size_t stride = ((gbm->w*3+3)&~3);
 	gbm_u8 *line;
 
 	fn=fn; gbmrgb=gbmrgb; opt=opt; /* Suppress 'unref arg' compiler warning */

@@ -14,6 +14,9 @@ History:
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
 15-Aug-2008  Integrate new GBM types
+
+10-Oct-2008: Changed recommended file specification template to
+             "file.ext"\",options   or   "file.ext"\",\""options"
 */
 
 /*...sincludes:0:*/
@@ -23,6 +26,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
@@ -65,7 +69,7 @@ static void usage(void)
 	{
 	int ft, n_ft;
 
-	fprintf(stderr, "usage: %s [-h] [-v] [-t] \"\\\"fn1.ext\\\"{,opt}\" [--] [\"\\\"fn2.ext\\\"{,opt}\"]\n", progname);
+	fprintf(stderr, "usage: %s [-h] [-v] [-t] \"fn1.ext\"{\\\",\\\"\"opt\"} [--] [\"fn2.ext\"{\\\",\\\"\"opt\"}]\n", progname);
 	fprintf(stderr, "flags: -h             reflect horizontally\n");
 	fprintf(stderr, "       -v             reflect vertically\n");
 	fprintf(stderr, "       -t             transpose x by y\n");
@@ -88,8 +92,8 @@ static void usage(void)
 	fprintf(stderr, "       opt's          bitmap format specific options\n");
 
 	fprintf(stderr, "\n       In case the filename contains a comma or spaces and options\n");
-	fprintf(stderr,   "       need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
-	fprintf(stderr,   "       to clearly separate the filename from the options.\n");
+    fprintf(stderr,   "       need to be added, syntax \"fn.ext\"{\\\",\\\"opt} or \"fn.ext\"{\\\",\\\"\"opt\"}\n");
+    fprintf(stderr,   "       must be used to clearly separate the filename from the options.\n");
 
 	exit(1);
 	}
@@ -99,10 +103,11 @@ int main(int argc, char *argv[])
 	{
 	GBMTOOL_FILEARG gbmfilearg;
 	char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
-                opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
+	        opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
 	gbm_boolean	horz = GBM_FALSE, vert = GBM_FALSE, trans = GBM_FALSE;
-	int	fd, ft_src, ft_dst, i, stride, bytes, flag;
+	int	fd, ft_src, ft_dst, i, flag;
+	size_t	stride, bytes;
 	GBM_ERR	rc;
 	GBMFT	gbmft;
 	GBM	gbm;
@@ -223,7 +228,11 @@ int main(int argc, char *argv[])
 	if ( (data = gbmmem_malloc(bytes)) == NULL )
 		{
 		gbm_io_close(fd);
-		fatal("out of memory allocating %d bytes for bitmap", bytes);
+		#if (ULONG_MAX > UINT_MAX)
+		fatal("out of memory allocating %zu bytes for bitmap", bytes);
+		#else
+		fatal("out of memory allocating %u bytes for bitmap", bytes);
+		#endif
 		}
 
 	if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
@@ -244,10 +253,17 @@ int main(int argc, char *argv[])
 
 	if ( trans )
 		{
-		int t, stride_t = ((gbm.h * gbm.bpp + 31) / 32) * 4;
+		int t;
+		size_t stride_t = ((gbm.h * gbm.bpp + 31) / 32) * 4;
 		gbm_u8 *data_t;
-		if ( (data_t = gbmmem_malloc(gbm.w * stride_t)) == NULL )
-			fatal("out of memory allocating %u bytes", gbm.w * stride_t);
+		if ( (data_t = gbmmem_malloc(stride_t * gbm.w)) == NULL )
+		{
+		#if (ULONG_MAX > UINT_MAX)
+			fatal("out of memory allocating %zu bytes", stride_t * gbm.w);
+		#else
+			fatal("out of memory allocating %u bytes", stride_t * gbm.w);
+		#endif
+		}
 
 		gbm_transpose(&gbm, data, data_t);
 		t = gbm.w; gbm.w = gbm.h; gbm.h = t;

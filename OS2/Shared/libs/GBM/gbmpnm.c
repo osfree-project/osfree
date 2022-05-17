@@ -11,11 +11,13 @@ Anymap : Portable Anymap : .PNM
 
 Standard formats (backward compatible):
   Reads  1 bpp black/white images     (ASCII format P1, binary format P4).
-  Reads  8 bpp grey images            (ASCII format P2, binary format P5).
+  Reads  8 bpp grey images                 (ASCII format P2, binary format P5).
+  Reads 16 bpp grey images                (ASCII format P2, binary format P5) and presents them as 8 bpp.
   Reads 24 bpp unpalettised RGB files (ASCII format P3, binary format P6).
   Reads 48 bpp unpalettised RGB files and presents them as 24 bpp (ASCII format P3, binary format P6).
 
 Extended formats (not backward compatible, import option ext_bpp required):
+  Reads 16 bpp grey images (ASCII format P2, binary format P5) and presents them as 48 bpp.
   Reads 48 bpp unpalettised RGB files and presents them as 48 bpp (ASCII format P3, binary format P6).
 
 Writes 1 bpp black/white images (ASCII format P1, binary format P4).
@@ -42,7 +44,7 @@ Output:
 Invert the data bits on output (1 bpp only)
   Output options: invb
 
-Can specify the colour channel the output grey values are based on (8 bpp only)
+Can specify the colour channel the output grey values are based on
   Output options: r,g,b,k (default: k, combine color channels and write grey equivalent)
 
 Write ASCII format (default is binary)
@@ -336,6 +338,13 @@ GBM_ERR pnm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 
 GBM_ERR pnm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 {
+   #define  SW4(a,b,c,d)   ((a)*8+(b)*4+(c)*2+(d))
+
+  const gbm_boolean kb = ( gbm_find_word(opt, "k") != NULL );
+  const gbm_boolean rb = ( gbm_find_word(opt, "r") != NULL );
+  const gbm_boolean gb = ( gbm_find_word(opt, "g") != NULL );
+  const gbm_boolean bb = ( gbm_find_word(opt, "b") != NULL );
+    
    /* dispatch to the specific codec (PBM, PGM or PPM) */
    switch(gbm->bpp)
    {
@@ -345,8 +354,13 @@ GBM_ERR pnm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
      case 8: /* PGM */
        return pgm_w(fn, fd, gbm, gbmrgb, data, opt);
 
-     case 24: /* PPM */
-     case 48: /* PPM */
+     case 24: /* PGM/PPM */
+     case 48: /* PGM/PPM */
+       /* if gray output is requested, export a PGM file. The encoder supports conversion for 24->8bpp and 48->16bpp gray */
+       if (kb || rb || gb || bb)
+       {
+         return pgm_w(fn, fd, gbm, gbmrgb, data, opt);
+       }
        return ppm_w(fn, fd, gbm, gbmrgb, data, opt);
 
      default: /* all others are not supported */

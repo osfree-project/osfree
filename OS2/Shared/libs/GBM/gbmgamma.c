@@ -14,6 +14,9 @@ History:
              stretch limit for out-of-memory errors
              (requires kernel with high memory support)
 15-Aug-2008: Integrate new GBM types
+
+10-Oct-2008: Changed recommended file specification template to
+             "file.ext"\",options   or   "file.ext"\",\""options"
 */
 
 /*...sincludes:0:*/
@@ -24,6 +27,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
@@ -64,7 +68,8 @@ static void usage(void)
 	{
 	int ft, n_ft;
 
-	fprintf(stderr, "usage: %s [-m map] [-g gamma] [-s shelf] \"\\\"fn1.ext\\\"{,opt}\" [--] [\"\\\"fn2.ext\\\"{,opt}\"]\n", progname);
+	fprintf(stderr, "usage: %s [-m map] [-g gamma] [-s shelf]\n", progname);
+	fprintf(stderr, "                \"fn1.ext\"{\\\",\\\"\"opt\"} [--] [\"fn2.ext\"{\\\",\\\"\"opt\"}]\n");
 	fprintf(stderr, "flags: -m map         mapping in the form ?_to_? (default: none), where ? is\n");
 	fprintf(stderr, "                      i  physical intensitys (eg: raytracer output)\n");
 	fprintf(stderr, "                      p  gamma corrected for a specific monitor\n");
@@ -93,8 +98,8 @@ static void usage(void)
 	fprintf(stderr, "       opt's          bitmap format specific options\n");
 
 	fprintf(stderr, "\n       In case the filename contains a comma or spaces and options\n");
-	fprintf(stderr,   "       need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
-	fprintf(stderr,   "       to clearly separate the filename from the options.\n");
+    fprintf(stderr,   "       need to be added, syntax \"fn.ext\"{\\\",\\\"opt} or \"fn.ext\"{\\\",\\\"\"opt\"}\n");
+    fprintf(stderr,   "       must be used to clearly separate the filename from the options.\n");
 
 	exit(1);
 	}
@@ -111,15 +116,27 @@ static double get_opt_double(const char *s, const char *name)
 	return v;
 	}
 /*...e*/
-/*...ssame:0:*/
-static gbm_boolean same(const char *s1, const char *s2, int n)
-	{
-	for ( ; n--; s1++, s2++ )
-		if ( tolower(*s1) != tolower(*s2) )
-			return GBM_FALSE;
-	return GBM_TRUE;
-	}
-/*...e*/
+
+static gbm_boolean same(const char *s1, const char *s2, size_t n)
+{
+    const size_t s1len = strlen(s1);
+    const size_t s2len = strlen(s2);
+    size_t i;
+
+    for (i = 0; (i < n) && (i < s1len) && (i < s2len); i++, s1++, s2++ )
+    {
+        if ( tolower(*s1) != tolower(*s2) )
+        {
+            return GBM_FALSE;
+        }
+    }
+    if (i < n)
+    {
+        return GBM_FALSE;
+    }
+    return GBM_TRUE;
+}
+
 /*...smain:0:*/
 /*...smapinfos:0:*/
 #define	CVT_NONE	0
@@ -133,15 +150,15 @@ static gbm_boolean same(const char *s1, const char *s2, int n)
 typedef struct { char *name; int m; } MAPINFO;
 
 static MAPINFO mapinfos[] =
-	{
-	"none",		CVT_NONE,
-	"i_to_p",	CVT_I_TO_P,
-	"p_to_i",	CVT_P_TO_I,
-	"i_to_l",	CVT_I_TO_L,
-	"l_to_i",	CVT_L_TO_I,
-	"p_to_l",	CVT_P_TO_L,
-	"l_to_p",	CVT_L_TO_P,
-	};
+{
+	{ "none",		CVT_NONE },
+	{ "i_to_p",	CVT_I_TO_P },
+	{ "p_to_i",	CVT_P_TO_I },
+	{ "i_to_l",	CVT_I_TO_L },
+	{ "l_to_i",	CVT_L_TO_I },
+	{ "p_to_l",	CVT_P_TO_L },
+	{ "l_to_p",	CVT_L_TO_P }
+};
 
 #define	N_MAPINFOS	(sizeof(mapinfos)/sizeof(mapinfos[0]))
 /*...e*/
@@ -335,7 +352,7 @@ static void map_compute_16(int m, gbm_u16 remap[], double gam, double shelf)
 /*...smap_data_24:0:*/
 static void map_data_24(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 {
-   const int stride = ((w * 3 + 3) & ~3);
+   const size_t stride = ((w * 3 + 3) & ~3);
    int x, y;
 
    for ( y = 0; y < h; y++, data += stride )
@@ -350,8 +367,9 @@ static void map_data_24(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 /*...smap_data_32:0:*/
 static void map_data_32(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 {
-   const int stride = w * 4;
-   int x, y;
+   const size_t stride = w * 4;
+   size_t x;
+   int y;
 
    for ( y = 0; y < h; y++, data += stride )
    {
@@ -368,7 +386,7 @@ static void map_data_32(gbm_u8 *data, int w, int h, const gbm_u8 remap[])
 /*...smap_data_48:0:*/
 static void map_data_48(gbm_u8 *data, int w, int h, const gbm_u16 remap[])
 {
-   const int stride = ((w * 6 + 3) & ~3);
+   const size_t stride = ((w * 6 + 3) & ~3);
    int x, y;
 
    gbm_u16 * data16;
@@ -386,7 +404,7 @@ static void map_data_48(gbm_u8 *data, int w, int h, const gbm_u16 remap[])
 /*...smap_data_64:0:*/
 static void map_data_64(gbm_u8 *data, int w, int h, const gbm_u16 remap[])
 {
-   const int stride = w * 8;
+   const size_t stride = w * 8;
    int x, y;
 
    gbm_u16 * data16;
@@ -422,7 +440,8 @@ int main(int argc, char *argv[])
 	char    fn_src[GBMTOOL_FILENAME_MAX+1], fn_dst[GBMTOOL_FILENAME_MAX+1],
                 opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
-	int	fd, ft_src, ft_dst, i, stride, bytes, flag, m;
+	int	fd, ft_src, ft_dst, i, flag, m;
+	size_t stride, bytes;
 	GBM_ERR	rc;
 	GBMFT	gbmft;
 	GBM	gbm;
@@ -469,7 +488,7 @@ for ( i = 1; i < argc; i++ )
 int j;
 
 for ( j = 0; j < N_MAPINFOS; j++ )
-	if ( same(map, mapinfos[j].name, (int) strlen(map) + 1) )
+	if ( same(map, mapinfos[j].name, (int) strlen(map)) )
 		break;
 if ( j == N_MAPINFOS )
 	fatal("unrecognised mapping %s", map);
@@ -576,7 +595,11 @@ m = mapinfos[j].m;
 	if ( (data = gbmmem_malloc(bytes)) == NULL )
 		{
 		gbm_io_close(fd);
-		fatal("out of memory allocating %d bytes for bitmap", bytes);
+		#if (ULONG_MAX > UINT_MAX)
+		fatal("out of memory allocating %zu bytes for bitmap", bytes);
+		#else
+		fatal("out of memory allocating %u bytes for bitmap", bytes);
+		#endif
 		}
 
 	if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )

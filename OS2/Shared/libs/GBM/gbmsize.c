@@ -18,15 +18,25 @@ History:
              (requires kernel with high memory support)
              Removed maximum size limit
 15-Aug-2008  Integrate new GBM types
+
+10-Oct-2008: Changed recommended file specification template to
+             "file.ext"\",options   or   "file.ext"\",\""options"
+
+24-Sep-2010: Add SSE support for resampling scaler
+01-Nov-2010: Add more resampling filters (blackman,catmullrom,quadratic,gaussian,kaiser)
 */
 
 /* activate to enable measurement of conversion time */
-/* #define MEASURE_TIME */
+/* #define MEASURE_TIME 1 */
 
 #ifdef MEASURE_TIME
-#ifdef __OS2__
+#if defined(__OS2__)
   #define INCL_DOSDATETIME
   #include <os2.h>
+#elif defined(WIN32)
+  #include <windows.h>
+#elif defined(LINUX)
+  #include <sys/time.h>
 #endif
 #endif
 
@@ -36,6 +46,7 @@ History:
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
 #include <unistd.h>
 #else
@@ -59,22 +70,27 @@ static char progname[] = "gbmsize";
 
 /* ----------------- */
 
-typedef struct FILTER_NAME_TABLE_DEF
+typedef struct
 {
   char * name;   /* filter name */
   int    filter; /* filter type */
-};
+} FILTER_NAME_TABLE_DEF;
 
 static const int FILTER_INDEX_SIMPLE = 0;
 
-static struct FILTER_NAME_TABLE_DEF FILTER_NAME_TABLE [] =
-{ "simple"         , -1,
-  "nearestneighbor", GBM_SCALE_FILTER_NEARESTNEIGHBOR,
-  "bilinear"       , GBM_SCALE_FILTER_BILINEAR,
-  "bell"           , GBM_SCALE_FILTER_BELL,
-  "bspline"        , GBM_SCALE_FILTER_BSPLINE,
-  "mitchell"       , GBM_SCALE_FILTER_MITCHELL,
-  "lanczos"        , GBM_SCALE_FILTER_LANCZOS
+static FILTER_NAME_TABLE_DEF FILTER_NAME_TABLE [] =
+{ { "simple"         , -1 },
+  { "nearestneighbor", GBM_SCALE_FILTER_NEARESTNEIGHBOR },
+  { "bilinear"       , GBM_SCALE_FILTER_BILINEAR        },
+  { "bell"           , GBM_SCALE_FILTER_BELL            },
+  { "bspline"        , GBM_SCALE_FILTER_BSPLINE         },
+  { "mitchell"       , GBM_SCALE_FILTER_MITCHELL        },
+  { "lanczos"        , GBM_SCALE_FILTER_LANCZOS         },
+  { "blackman"       , GBM_SCALE_FILTER_BLACKMAN        },
+  { "catmullrom"     , GBM_SCALE_FILTER_CATMULLROM      },
+  { "quadratic"      , GBM_SCALE_FILTER_QUADRATIC       },
+  { "gaussian"       , GBM_SCALE_FILTER_GAUSSIAN        },
+  { "kaiser"         , GBM_SCALE_FILTER_KAISER          }
 };
 const int FILTER_NAME_TABLE_LENGTH = sizeof(FILTER_NAME_TABLE) /
                                      sizeof(FILTER_NAME_TABLE[0]);
@@ -98,13 +114,14 @@ static void usage(void)
    int ft, n_ft;
 
    fprintf(stderr, "usage:\n");
-   fprintf(stderr, "%s [-w w] [-h h] [-a] [-f f] \"\\\"fn1.ext\\\"{,opt}\" [\"\\\"fn2.ext\\\"{,opt}\"]\n", progname);
+   fprintf(stderr, "%s [-w w] [-h h] [-a] [-f f] \"fn1.ext\"{\\\",\\\"\"opt\"} [\"fn2.ext\"{\\\",\\\"\"opt\"}]\n", progname);
    fprintf(stderr, "-w w           new width of bitmap  (default width of bitmap)\n");
    fprintf(stderr, "-h h           new height of bitmap (default height of bitmap)\n");
    fprintf(stderr, "-a             preserve aspect ratio\n");
    fprintf(stderr, "-f f           do quality scaling using one of the algorithms:\n");
    fprintf(stderr, "               * simple (default)\n");
    fprintf(stderr, "               * nearestneighbor,bilinear,bell,bspline,mitchell,lanczos\n");
+   fprintf(stderr, "               * blackman,catmullrom,quadratic,gaussian,kaiser\n");
    fprintf(stderr, "                 Note: Only grayscale and true color images.\n");
    fprintf(stderr, "fn1.ext{,opt}  input filename (with any format specific options)\n");
    fprintf(stderr, "fn2.ext{,opt}  optional output filename (or will use fn1 if not present)\n");
@@ -125,8 +142,8 @@ static void usage(void)
    fprintf(stderr, "opt's          bitmap format specific options\n");
 
    fprintf(stderr, "\nIn case the filename contains a comma or spaces and options\n");
-   fprintf(stderr,   "need to be added, the syntax \"\\\"fn.ext\\\"{,opt}\" must be used\n");
-   fprintf(stderr,   "to clearly separate the filename from the options.\n");
+   fprintf(stderr,   "need to be added, syntax \"fn.ext\"{\\\",\\\"opt} or \"fn.ext\"{\\\",\\\"\"opt\"}\n");
+   fprintf(stderr,   "must be used to clearly separate the filename from the options.\n");
 
    exit(1);
 }
@@ -157,7 +174,7 @@ static int get_opt_value_pos(const char *s, const char *name)
 }
 
 static int get_opt_value_filterIndex(const char *s,
-                                     const struct FILTER_NAME_TABLE_DEF *table,
+                                     const FILTER_NAME_TABLE_DEF *table,
                                      const int tableLength)
 {
    int n;
@@ -201,7 +218,8 @@ int main(int argc, char *argv[])
            opt_src[GBMTOOL_OPTIONS_MAX+1], opt_dst[GBMTOOL_OPTIONS_MAX+1];
 
    int   w = -1, h = -1, filterIndex = FILTER_INDEX_SIMPLE;
-   int   fd, ft_src, ft_dst, i, stride, stride2, flag;
+   int   fd, ft_src, ft_dst, i, flag;
+   size_t stride, stride2;
    GBM_ERR  rc;
    GBMFT    gbmft;
    GBM      gbm, gbm2;
@@ -212,11 +230,15 @@ int main(int argc, char *argv[])
    gbm_u8    *data, *data2;
 
 #ifdef MEASURE_TIME
-#ifdef __OS2__
+#if defined(__OS2__)
    DATETIME start_time, end_time;
    double   time_s;
-
-   DosGetDateTime(&start_time);
+#elif defined(WIN32)
+   SYSTEMTIME start_time, end_time;
+   double     time_s;
+#elif defined(LINUX)
+   struct timeval start_time, end_time;
+   double  time_s;
 #endif
 #endif
 
@@ -296,6 +318,16 @@ int main(int argc, char *argv[])
 
    if (i < argc)
       usage();
+
+#ifdef MEASURE_TIME
+#if defined(__OS2__)
+   DosGetDateTime(&start_time);
+#elif defined(WIN32)
+   GetSystemTime(&start_time);
+#elif defined(LINUX)
+   gettimeofday(&start_time, NULL);
+#endif
+#endif
 
    /* processing */
    gbm_init();
@@ -400,7 +432,11 @@ int main(int argc, char *argv[])
    if ( (data = gbmmem_malloc(stride * gbm.h)) == NULL )
    {
       gbm_io_close(fd);
-      fatal("out of memory allocating %d bytes for input bitmap", stride * gbm.h);
+      #if (ULONG_MAX > UINT_MAX)
+      fatal("out of memory allocating %zu bytes for input bitmap", stride * gbm.h);
+      #else
+      fatal("out of memory allocating %u bytes for input bitmap", stride * gbm.h);
+      #endif
    }
 
    stride2 = ( ((gbm2.w * gbm2.bpp + 31)/32) * 4 );
@@ -408,7 +444,11 @@ int main(int argc, char *argv[])
    {
       gbmmem_free(data);
       gbm_io_close(fd);
-      fatal("out of memory allocating %d bytes for output bitmap", stride2 * gbm2.h);
+      #if (ULONG_MAX > UINT_MAX)
+      fatal("out of memory allocating %zu bytes for output bitmap", stride2 * gbm2.h);
+      #else
+      fatal("out of memory allocating %u bytes for output bitmap", stride2 * gbm2.h);
+      #endif
    }
 
    if ( (rc = gbm_read_data(fd, ft_src, &gbm, data)) != GBM_ERR_OK )
@@ -420,6 +460,35 @@ int main(int argc, char *argv[])
    }
 
    gbm_io_close(fd);
+
+#ifdef MEASURE_TIME
+#if defined(__OS2__)
+   DosGetDateTime(&end_time);
+   time_s = ((double) (end_time  .minutes * 60) + end_time  .seconds + (end_time  .hundredths/100.0)) -
+            ((double) (start_time.minutes * 60) + start_time.seconds + (start_time.hundredths/100.0));
+   printf("Elapsed time LOAD : %lf\n", time_s);
+#elif defined(WIN32)
+   GetSystemTime(&end_time);
+   time_s = ((double) (end_time  .wMinute * 60) + end_time  .wSecond + (end_time  .wMilliseconds/1000.0)) -
+            ((double) (start_time.wMinute * 60) + start_time.wSecond + (start_time.wMilliseconds/1000.0));
+   printf("Elapsed time LOAD : %lf\n", time_s);
+#elif defined(LINUX)
+   gettimeofday(&end_time, NULL);
+   time_s = ((double) (end_time  .tv_sec) + (end_time  .tv_usec/1000000.0)) -
+            ((double) (start_time.tv_sec) + (start_time.tv_usec/1000000.0));
+   printf("Elapsed time LOAD : %lf\n", time_s);
+#endif
+#endif
+
+#ifdef MEASURE_TIME
+#if defined(__OS2__)
+   DosGetDateTime(&start_time);
+#elif defined(WIN32)
+   GetSystemTime(&start_time);
+#elif defined(LINUX)
+   gettimeofday(&start_time, NULL);
+#endif
+#endif
 
    if (qualityScalingEnabled)
    {
@@ -441,6 +510,25 @@ int main(int argc, char *argv[])
        rc = gbm_simple_scale(data, gbm.w, gbm.h, data2, gbm2.w, gbm2.h, gbm.bpp);
    }
 
+#ifdef MEASURE_TIME
+#if defined(__OS2__)
+   DosGetDateTime(&end_time);
+   time_s = ((double) (end_time  .minutes * 60) + end_time  .seconds + (end_time  .hundredths/100.0)) -
+            ((double) (start_time.minutes * 60) + start_time.seconds + (start_time.hundredths/100.0));
+   printf("Elapsed time SCALE: %lf\n", time_s);
+#elif defined(WIN32)
+   GetSystemTime(&end_time);
+   time_s = ((double) (end_time  .wMinute * 60) + end_time  .wSecond + (end_time  .wMilliseconds/1000.0)) -
+            ((double) (start_time.wMinute * 60) + start_time.wSecond + (start_time.wMilliseconds/1000.0));
+   printf("Elapsed time SCALE: %lf\n", time_s);
+#elif defined(LINUX)
+   gettimeofday(&end_time, NULL);
+   time_s = ((double) (end_time  .tv_sec) + (end_time  .tv_usec/1000000.0)) -
+            ((double) (start_time.tv_sec) + (start_time.tv_usec/1000000.0));
+   printf("Elapsed time SCALE: %lf\n", time_s);
+#endif
+#endif
+
    gbmmem_free(data);
 
    if (rc != GBM_ERR_OK)
@@ -448,6 +536,16 @@ int main(int argc, char *argv[])
       gbmmem_free(data2);
       fatal("can't scale: %s", gbm_err(rc));
    }
+
+#ifdef MEASURE_TIME
+#if defined(__OS2__)
+   DosGetDateTime(&start_time);
+#elif defined(WIN32)
+   GetSystemTime(&start_time);
+#elif defined(LINUX)
+   gettimeofday(&start_time, NULL);
+#endif
+#endif
 
    if ( (fd = gbm_io_create(fn_dst, GBM_O_WRONLY)) == -1 )
    {
@@ -488,11 +586,21 @@ int main(int argc, char *argv[])
    gbm_deinit();
 
 #ifdef MEASURE_TIME
-#ifdef __OS2__
+#if defined(__OS2__)
    DosGetDateTime(&end_time);
    time_s = ((double) (end_time  .minutes * 60) + end_time  .seconds + (end_time  .hundredths/100.0)) -
             ((double) (start_time.minutes * 60) + start_time.seconds + (start_time.hundredths/100.0));
-   printf("Elapsed time: %lf\n", time_s);
+   printf("Elapsed time WRITE: %lf\n", time_s);
+#elif defined(WIN32)
+   GetSystemTime(&end_time);
+   time_s = ((double) (end_time  .wMinute * 60) + end_time  .wSecond + (end_time  .wMilliseconds/1000.0)) -
+            ((double) (start_time.wMinute * 60) + start_time.wSecond + (start_time.wMilliseconds/1000.0));
+   printf("Elapsed time WRITE: %lf\n", time_s);
+#elif defined(LINUX)
+   gettimeofday(&end_time, NULL);
+   time_s = ((double) (end_time  .tv_sec) + (end_time  .tv_usec/1000000.0)) -
+            ((double) (start_time.tv_sec) + (start_time.tv_usec/1000000.0));
+   printf("Elapsed time WRITE: %lf\n", time_s);
 #endif
 #endif
 

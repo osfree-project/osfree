@@ -16,10 +16,10 @@ History
   #define INCL_DOSMEMMGR   /* Memory Manager */
   #define INCL_DOSERRORS   /* DOS error values */
   #include <os2.h>
-  #include <memory.h>
-#else
-  #include <memory.h>
 #endif
+
+#include <memory.h>
+#include <stdlib.h>
 
 #ifdef NDEBUG
   #undef NDEBUG
@@ -121,9 +121,12 @@ void * gbmmem_realloc(void *ptr, size_t size)
         }
     }
     return NULL;
-#endif
+
+#else
 
     return realloc(ptr, size);
+
+#endif
 }
 
 /************************************************************/

@@ -64,7 +64,8 @@ gbm_boolean gbm_map_row_PAL_PAL(const gbm_u8 * data_src, const GBM * gbm_src,
 
             if (x < gbm_src->w)
             {
-               *data_dst++ = *data_dst | ((colorIndex >> 4) & 3);
+               *data_dst |= ((colorIndex >> 4) & 3);
+               data_dst++;
                x++;
 
                if (x < gbm_src->w)
@@ -74,7 +75,7 @@ gbm_boolean gbm_map_row_PAL_PAL(const gbm_u8 * data_src, const GBM * gbm_src,
 
                   if (x < gbm_src->w)
                   {
-                     *data_dst = *data_dst | (colorIndex & 3);
+                     *data_dst |= (colorIndex & 3);
                   }
                }
             }
@@ -107,7 +108,7 @@ gbm_boolean gbm_map_row_PAL_BGR(const gbm_u8       * data_src, const GBM * gbm_s
 {
    int  block_count = gbm_src->w;
    int  colorIndex, x, s;
-   gbm_u8 c;
+   gbm_u8 c = 0;
 
          gbm_u16 * data16_dst =       (gbm_u16 *) data_dst;
    const gbm_u16 * data16_src = (const gbm_u16 *) data_src;
@@ -330,9 +331,9 @@ gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -374,9 +375,9 @@ gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -432,9 +433,9 @@ gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm
                   data16_1  = *data16_src++; /* green */
                   data16_2  = *data16_src++; /* blue  */
 
-                  *data_dst++ = CVT(data16_2); /* blue  */
-                  *data_dst++ = CVT(data16_1); /* green */
-                  *data_dst++ = CVT(data16);   /* red   */
+                  *data_dst++ = (gbm_u8) CVT(data16_2); /* blue  */
+                  *data_dst++ = (gbm_u8) CVT(data16_1); /* green */
+                  *data_dst++ = (gbm_u8) CVT(data16);   /* red   */
                }
                break;
 
@@ -485,9 +486,9 @@ gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm
                      alpha_diff = 65535 - alpha16;
 
                      /* calc alpha channel against background color */
-                     *data_dst++ = CVT(((gbm_u32) data16_2 * alpha_mult + back_rgb->b * alpha_diff) >> 16);
-                     *data_dst++ = CVT(((gbm_u32) data16_1 * alpha_mult + back_rgb->g * alpha_diff) >> 16);
-                     *data_dst++ = CVT(((gbm_u32) data16   * alpha_mult + back_rgb->r * alpha_diff) >> 16);
+                     *data_dst++ = (gbm_u8) CVT(((gbm_u32) data16_2 * alpha_mult + back_rgb->b * alpha_diff) >> 16);
+                     *data_dst++ = (gbm_u8) CVT(((gbm_u32) data16_1 * alpha_mult + back_rgb->g * alpha_diff) >> 16);
+                     *data_dst++ = (gbm_u8) CVT(((gbm_u32) data16   * alpha_mult + back_rgb->r * alpha_diff) >> 16);
                   }
                }
                else
@@ -502,9 +503,9 @@ gbm_boolean gbm_map_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM * gbm
                      data16_2 = *data16_src++; /* blue  */
                      data16_src++;             /* skip alpha */
 
-                     *data_dst++ = CVT(data16_2); /* blue  */
-                     *data_dst++ = CVT(data16_1); /* green */
-                     *data_dst++ = CVT(data16);   /* red   */
+                     *data_dst++ = (gbm_u8) CVT(data16_2); /* blue  */
+                     *data_dst++ = (gbm_u8) CVT(data16_1); /* green */
+                     *data_dst++ = (gbm_u8) CVT(data16);   /* red   */
                   }
                }
                break;
@@ -830,7 +831,7 @@ gbm_boolean gbm_map_sep_row_CMYK_to_BGR(const gbm_u8 * data_src, const GBM * gbm
                   {
                      --block_count;
 
-                     *data_dst  = CVT(*data16_src);
+                     *data_dst  = (gbm_u8) CVT(*data16_src);
                      data_dst  += 3;
                      data16_src++;
                   }
@@ -1052,7 +1053,7 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
                   {
                      --block_count;
 
-                     *data_dst  = CVT(*data16_src);
+                     *data_dst  = (gbm_u8) CVT(*data16_src);
                      data_dst  += 3;
                      data16_src++;
                   }
@@ -1095,9 +1096,9 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -1123,9 +1124,9 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -1160,9 +1161,9 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -1190,9 +1191,9 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
                   gbm_u16 alpha_mult;
                   gbm_u8 alpha_diff;
                   GBMRGB back_rgb8;
-                  back_rgb8.r = CVT(back_rgb->r);
-                  back_rgb8.g = CVT(back_rgb->g);
-                  back_rgb8.b = CVT(back_rgb->b);
+                  back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+                  back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+                  back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
                   while (block_count > 0)
                   {
@@ -1284,7 +1285,8 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
 /* Convert bitmap data from RGBA to BGR (24 bit) */
 gbm_boolean gbm_map_RGBA_BGR(const gbm_u32 * data_src,       gbm_u8       * data_dst,
                              const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
-                             const gbm_boolean unassociatedAlpha)
+                             const gbm_boolean unassociatedAlpha,
+                             const gbm_boolean flipVertical)
 {
    if (gbm_dst->bpp != 24)
    {
@@ -1293,16 +1295,20 @@ gbm_boolean gbm_map_RGBA_BGR(const gbm_u32 * data_src,       gbm_u8       * data
    else
    {
       int h;
-
-      const int stride_src = gbm_dst->w * 4;
+            int stride_src = gbm_dst->w * 4;
       const int stride_dst = ((gbm_dst->w * 24 + 31) / 32) * 4;
 
       const gbm_u8 * data8_src = (const gbm_u8 *) data_src;
-
+      
       GBM gbm_src = *gbm_dst;
       gbm_src.bpp = 32;
 
-      for (h = 0; h < gbm_dst->h; h++)
+      if (flipVertical)
+      {
+          data8_src  += stride_src * (gbm_dst->h - 1);
+          stride_src  = -stride_src;
+      }
+      for (h = gbm_dst->h - 1; h >= 0; --h)
       {
          if (! gbm_map_row_RGBx_BGRx(data8_src, &gbm_src,
                                      data_dst ,  gbm_dst,
@@ -1310,7 +1316,6 @@ gbm_boolean gbm_map_RGBA_BGR(const gbm_u32 * data_src,       gbm_u8       * data
          {
             return GBM_FALSE;
          }
-
          data8_src += stride_src;
          data_dst  += stride_dst;
       }
@@ -1353,9 +1358,9 @@ gbm_boolean gbm_map_RGBA_RGB(const gbm_u32 * data_src,       gbm_u8       * data
             gbm_u16 alpha_mult;
             gbm_u8 alpha_diff;
             GBMRGB back_rgb8;
-            back_rgb8.r = CVT(back_rgb->r);
-            back_rgb8.g = CVT(back_rgb->g);
-            back_rgb8.b = CVT(back_rgb->b);
+            back_rgb8.r = (gbm_u8) CVT(back_rgb->r);
+            back_rgb8.g = (gbm_u8) CVT(back_rgb->g);
+            back_rgb8.b = (gbm_u8) CVT(back_rgb->b);
 
             while (block_count > 0)
             {
@@ -1457,85 +1462,110 @@ static gbm_u8 find_color_index(const gbm_u32 rgb, const GBMRGB *gbmrgb, const in
 /* ----------------------------------------------------------- */
 
 static void trunc_1bpp(const gbm_u32 *data32_src,       gbm_u8 *data1_dst,
-                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst)
+                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst,
+                       const gbm_boolean flipVertical)
 {
-    const int stride_dest = ((gbm_dst->w + 31) / 32) * 4;
+    const int stride_src = gbm_dst->w * 4;
+    const int stride_dst = ((gbm_dst->w + 31) / 32) * 4;
+    
+    const gbm_u32 * data32_src_tmp = data32_src;
 
-    int    x, y;
-    gbm_u32  d32;
-    gbm_u8 i;
-
-    memset(data1_dst, 0, gbm_dst->h * stride_dest);
-
-    for ( y = 0; y < gbm_dst->h; y++ )
+    int     x, y;
+    gbm_u32 d32;
+    gbm_u8  i;
+    
+    memset(data1_dst, 0, gbm_dst->h * stride_dst);
+    
+    for ( y = gbm_dst->h - 1; y >= 0; --y )
     {
-        for ( x = 0; x < gbm_dst->w; x++ )
+        if (flipVertical)
         {
-            d32 = *data32_src++;
+            data32_src_tmp = (const gbm_u32 *)
+                               ((const gbm_u8 *)data32_src + (stride_src * y));
+        }
+        for ( x = 0; x < gbm_dst->w; ++x )
+        {
+            d32 = *data32_src_tmp++;
             i   = find_color_index(GetRGB(d32), gbmrgb_dst, 2);
             if ( i )
             {
                 data1_dst[x>>3] |= ( 0x80 >> (x & 7) );
             }
         }
-        data1_dst += stride_dest;
+        data1_dst += stride_dst;
     }
 }
 
 /* ----------------------------------------------------------- */
 
 static void trunc_4bpp(const gbm_u32 *data32_src,       gbm_u8 *data4_dst,
-                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst)
+                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst,
+                       const gbm_boolean flipVertical)
 {
-    const int stride_dest = ((gbm_dst->w * 4 + 31) / 32) * 4;
-    const int step_dest   = stride_dest - ((gbm_dst->w * 4)+7)/8;
+    const int stride_src = gbm_dst->w * 4;
+    const int stride_dst = ((gbm_dst->w * 4 + 31) / 32) * 4;
+    const int step_dst   = stride_dst - ((gbm_dst->w * 4)+7)/8;
 
-    int    x, y;
-    gbm_u32  d32;
-    gbm_u8 i0, i1;
+    int     x, y;
+    gbm_u32 d32;
+    gbm_u8  i0, i1;
 
-    for ( y = 0; y < gbm_dst->h; y++ )
+    const gbm_u32 * data32_src_tmp = data32_src;
+    for ( y = gbm_dst->h - 1; y >= 0; --y )
     {
+        if (flipVertical)
+        {
+            data32_src_tmp = (const gbm_u32 *)
+                               ((const gbm_u8 *)data32_src + (stride_src * y));
+        }
         for ( x = 0; x+1 < gbm_dst->w; x += 2 )
         {
-            d32 = *data32_src++;
+            d32 = *data32_src_tmp++;
             i0  = find_color_index(GetRGB(d32), gbmrgb_dst, 16);
 
-            d32 = *data32_src++;
+            d32 = *data32_src_tmp++;
             i1  = find_color_index(GetRGB(d32), gbmrgb_dst, 16);
 
             *data4_dst++ = ( ( i0 << 4 ) | i1 );
         }
         if ( gbm_dst->w & 1 )
         {
-            d32 = *data32_src++;
+            d32 = *data32_src_tmp++;
             i0  = find_color_index(GetRGB(d32), gbmrgb_dst, 16);
 
             *data4_dst++ = ( i0 << 4 );
         }
-        data4_dst += step_dest;
+        data4_dst += step_dst;
     }
 }
 
 /* ----------------------------------------------------------- */
 
 static void trunc_8bpp(const gbm_u32 *data32_src,       gbm_u8 *data8_dst,
-                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst)
+                       const GBM     *gbm_dst   , const GBMRGB *gbmrgb_dst,
+                       const gbm_boolean flipVertical)
 {
-    const int stride_dest = ((gbm_dst->w * 8 + 31) / 32) * 4;
-    const int step_dest   = stride_dest - gbm_dst->w;
+    const int stride_src = gbm_dst->w * 4;
+    const int stride_dst = ((gbm_dst->w * 8 + 31) / 32) * 4;
+    const int step_dst   = stride_dst - gbm_dst->w;
 
-    int    x, y;
-    gbm_u32  d32;
+    int     x, y;
+    gbm_u32 d32;
 
-    for ( y = 0; y < gbm_dst->h; y++ )
+    const gbm_u32 * data32_src_tmp = data32_src;
+    for ( y = gbm_dst->h - 1; y >= 0; --y )
     {
-        for ( x = 0; x < gbm_dst->w; x++ )
+        if (flipVertical)
         {
-            d32          = *data32_src++;
+            data32_src_tmp = (const gbm_u32 *)
+                               ((const gbm_u8 *)data32_src + (stride_src * y));
+        }
+        for ( x = 0; x < gbm_dst->w; ++x )
+        {
+            d32          = *data32_src_tmp++;
             *data8_dst++ = find_color_index(GetRGB(d32), gbmrgb_dst, 256);
         }
-        data8_dst += step_dest;
+        data8_dst += step_dst;
     }
 }
 
@@ -1543,21 +1573,22 @@ static void trunc_8bpp(const gbm_u32 *data32_src,       gbm_u8 *data8_dst,
 
 /* Convert bitmap data from RGBA to palette */
 gbm_boolean gbm_map_RGBA_PAL(const gbm_u32 * data_src,       gbm_u8 * data_dst,
-                             const GBM     * gbm_dst , const GBMRGB * gbmrgb_dst)
+                             const GBM     * gbm_dst , const GBMRGB * gbmrgb_dst,
+                             const gbm_boolean flipVertical)
 {
    /* Map to palette format */
    switch(gbm_dst->bpp)
    {
       case 1:
-         trunc_1bpp(data_src, data_dst, gbm_dst, gbmrgb_dst);
+         trunc_1bpp(data_src, data_dst, gbm_dst, gbmrgb_dst, flipVertical);
          break;
 
       case 4:
-         trunc_4bpp(data_src, data_dst, gbm_dst, gbmrgb_dst);
+         trunc_4bpp(data_src, data_dst, gbm_dst, gbmrgb_dst, flipVertical);
          break;
 
       case 8:
-         trunc_8bpp(data_src, data_dst, gbm_dst, gbmrgb_dst);
+         trunc_8bpp(data_src, data_dst, gbm_dst, gbmrgb_dst, flipVertical);
          break;
 
       default:

@@ -118,7 +118,7 @@ GBM_ERR lbm_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	LBM_PRIV *priv = (LBM_PRIV *) gbm->priv;
 	gbm_u8 b[20];
-	int w, h, bpp, actual_size_cmap = 0;
+	int w = 0, h = 0, bpp = 0, actual_size_cmap = 0;
 	gbm_boolean	had_bmhd = GBM_FALSE, had_cmap = GBM_FALSE, had_body = GBM_FALSE;
 	gbm_u32 camg = 0;
 
@@ -346,7 +346,7 @@ static gbm_boolean decode_line(AHEAD *ahead, gbm_u8 *dest, int w)
 			int cnt = (0x100 - c + 1);
 			if (dest + cnt > destEnd)
 				{
-				cnt = (destEnd - dest > 0) ? 0 : destEnd - dest;
+				cnt = (int)((destEnd - dest > 0) ? 0 : destEnd - dest);
 				}
 			memset(dest, (gbm_u8) gbm_read_ahead(ahead), cnt);
 			x += cnt;
@@ -357,7 +357,7 @@ static gbm_boolean decode_line(AHEAD *ahead, gbm_u8 *dest, int w)
 			int cnt = (c + 1);
 			if (dest + cnt > destEnd)
 				{
-				cnt = (destEnd - dest > 0) ? 0 : destEnd - dest;
+				cnt = (int)((destEnd - dest > 0) ? 0 : destEnd - dest);
 				}
 			x += cnt;
 			while ( cnt-- )
@@ -480,8 +480,8 @@ for ( y = 0; y < gbm->h; y++, data -= stride )
 	else
 /*...sHAM6\44\ HAM8 or SHAM6:32:*/
 {
-gbm_u8 *ham, *sham_pals;
-int n_sham_pals, sham_inx = 0;
+gbm_u8 *ham = NULL, *sham_pals = NULL;
+int n_sham_pals = 0, sham_inx = 0;
 
 if ( (ham = gbmmem_malloc((size_t) gbm->w)) == NULL )
 	{
@@ -877,8 +877,8 @@ static void lbm_rle(const gbm_u8 *src, int n_src, gbm_u8 *dst, int *n_dst)
 
 static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const gbm_u8 *data, long *end)
 	{
-	int scan = ((((gbm->w + 7) / 8)+1)/2)*2;
-	int stride = ((gbm->w * bpp + 31) / 32) * 4;
+	size_t scan = ((((gbm->w + 7) / 8)+1)/2)*2;
+	size_t stride = ((gbm->w * bpp + 31) / 32) * 4;
 	gbm_u8 *comp;
 	int n_comp;
 	gbm_u8 body[8];
@@ -892,7 +892,7 @@ static GBM_ERR write_body(int fd, const GBM *gbm, int bpp, int n_planes, const g
 
 	offset_body = gbm_file_lseek(fd, 0L, GBM_SEEK_CUR);
 
-	data += ( gbm->h - 1 ) * stride;
+	data += stride * ( gbm->h - 1 );
 
 	if ( (comp = gbmmem_malloc((size_t) (scan * 3))) == NULL )
 		return GBM_ERR_MEM;
@@ -905,7 +905,7 @@ case 24:
 	int y, c, p, plane, j;
 	gbm_u8 *buf;
 
-	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc(scan)) == NULL )
 		{
 		gbmmem_free(comp);
 		return GBM_ERR_MEM;
@@ -919,7 +919,7 @@ case 24:
 				for ( j = 0; j < gbm->w; j++ )
 					if ( data[c+j*3] & p )
 						buf[(unsigned)j >> 3] |= (0x80U >> ((unsigned)j & 7U));
-				lbm_rle(buf, scan, comp, &n_comp);
+				lbm_rle(buf, (int)scan, comp, &n_comp);
 				if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 					{
 					gbmmem_free(buf);
@@ -937,7 +937,7 @@ case 8:
 	int y, p, plane, j;
 	gbm_u8 *buf;
 
-	if ( (buf = gbmmem_malloc((size_t) scan)) == NULL )
+	if ( (buf = gbmmem_malloc(scan)) == NULL )
 		{
 		gbmmem_free(comp);
 		return GBM_ERR_MEM;
@@ -950,7 +950,7 @@ case 8:
 			for ( j = 0; j < gbm->w; j++ )
 				if ( data[j] & p )
 					buf[(unsigned)j >> 3] |= (0x80U >> ((unsigned)j & 7U));
-			lbm_rle(buf, scan, comp, &n_comp);
+			lbm_rle(buf, (int)scan, comp, &n_comp);
 			if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 				{
 				gbmmem_free(buf);
@@ -981,7 +981,7 @@ case 4:
 			for ( j = 0, mask = 0xf0; j < gbm->w; j++, mask ^= 0xff )
 				if ( data[(unsigned)j >> 1] & ((unsigned)p & (unsigned)mask) )
 					buf[(unsigned)j >> 3] |= (0x80U >> ((unsigned)j & 7U));
-			lbm_rle(buf, scan, comp, &n_comp);
+			lbm_rle(buf, (int)scan, comp, &n_comp);
 			if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 				{
 				gbmmem_free(buf);
@@ -1000,7 +1000,7 @@ case 1:
 
 	for ( y = 0; y < gbm->h; y++, data -= stride )
 		{
-		lbm_rle(data, scan, comp, &n_comp);
+		lbm_rle(data, (int)scan, comp, &n_comp);
 		if ( gbm_file_write(fd, comp, n_comp) != n_comp )
 			{
 			gbmmem_free(comp);
@@ -1223,9 +1223,9 @@ GBM_ERR lbm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 /*...smap to ham6 write bmhd\44\ camg\44\ cmap and body:24:*/
 {
 gbm_u8 *ham;
-GBMRGB gbmrgb_grey[0x10];
-int stride8 = ((gbm->w + 3) & ~3);
-int stride24 = ((gbm->w * 3 + 3) & ~3);
+GBMRGB gbmrgb_grey[0x11];
+size_t stride8  = ((gbm->w + 3) & ~3);
+size_t stride24 = ((gbm->w * 3 + 3) & ~3);
 int i;
 
 if ( (rc = write_bmhd(fd, gbm, 6, opt)) != GBM_ERR_OK )
@@ -1245,7 +1245,7 @@ if ( (ham = gbmmem_malloc((size_t) (stride8 * gbm->h))) == NULL )
 
 lbm_build_abstab();
 for ( i = 0; i < gbm->h; i++ )
-	lbm_ham6(data + i * stride24, ham + i * stride8, gbm->w);
+	lbm_ham6(data + stride24 * i, ham + stride8 * i, gbm->w);
 
 if ( (rc = write_body(fd, gbm, 8, 6, ham, &end)) != GBM_ERR_OK )
 	{

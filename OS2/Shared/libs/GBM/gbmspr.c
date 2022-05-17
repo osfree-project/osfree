@@ -530,12 +530,12 @@ if ( gbm->bpp == 8 )
 /*...sspr_rdata:0:*/
 GBM_ERR spr_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	{
-	int stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+	size_t stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
 	SPR_PRIV *priv = (SPR_PRIV *) gbm->priv;
-	int scan_stride = priv->bytes_per_line;
+	size_t scan_stride = priv->bytes_per_line;
 	int scan_first = ((priv->first_bit) >> 3);
 	int scan_bytes, i, j;
-	gbm_u8 *datal = data + (gbm->h - 1) * stride;
+	gbm_u8 *datal = data + stride * (gbm->h - 1);
 
 	gbm_file_lseek(fd, priv->pos_image, GBM_SEEK_SET);
 
@@ -546,7 +546,7 @@ case 8:
 	scan_bytes = gbm->w;
 	for ( j = 0; j < gbm->h; j++, datal -= stride )
 		{
-		gbm_file_lseek(fd, priv->pos_image + j * scan_stride + scan_first, GBM_SEEK_SET);
+		gbm_file_lseek(fd, (long)(priv->pos_image + scan_stride * j + scan_first), GBM_SEEK_SET);
 		if ( gbm_file_read(fd, datal, scan_bytes) != scan_bytes )
 			return GBM_ERR_READ;
 		}
@@ -557,7 +557,7 @@ case 4:
 	scan_bytes = ((unsigned)(gbm->w + 1) >> 1);
 	for ( j = 0; j < gbm->h; j++, datal -= stride )
 		{
-		gbm_file_lseek(fd, priv->pos_image + j * scan_stride + scan_first, GBM_SEEK_SET);
+		gbm_file_lseek(fd, (long)(priv->pos_image + scan_stride * j + scan_first), GBM_SEEK_SET);
 		if ( gbm_file_read(fd, datal, scan_bytes) != scan_bytes )
 			return GBM_ERR_READ;
 		for ( i = 0; i < scan_bytes; i++ )
@@ -576,7 +576,7 @@ case 2:
 	scan_bytes = ((unsigned)(gbm->w + 3) >> 2);
 	for ( j = 0; j < gbm->h; j++, datal -= stride )
 		{
-		gbm_file_lseek(fd, priv->pos_image + j * scan_stride + scan_first, GBM_SEEK_SET);
+		gbm_file_lseek(fd, (long)(priv->pos_image + scan_stride * j + scan_first), GBM_SEEK_SET);
 		if ( gbm_file_read(fd, datal + scan_bytes, scan_bytes) != scan_bytes )
 			return GBM_ERR_READ;
 		for ( i = 0; i < scan_bytes; i++ )
@@ -592,7 +592,7 @@ case 1:
 	scan_bytes = ((unsigned)(gbm->w + 7) >> 3);
 	for ( j = 0; j < gbm->h; j++, datal -= stride )
 		{
-		gbm_file_lseek(fd, priv->pos_image + j * scan_stride + scan_first, GBM_SEEK_SET);
+		gbm_file_lseek(fd, (long)(priv->pos_image + scan_stride * j + scan_first), GBM_SEEK_SET);
 		if ( gbm_file_read(fd, datal, scan_bytes) != scan_bytes )
 			return GBM_ERR_READ;
 		for ( i = 0; i < scan_bytes; i++ )
@@ -641,8 +641,9 @@ static gbm_boolean write_pal(int fd, GBMRGB gbmrgb)
 
 GBM_ERR spr_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	int stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
-	int i, j, npal = ( 1 << gbm->bpp );
+	size_t stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+	size_t i;
+	int j, npal = ( 1 << gbm->bpp );
 	gbm_u32 dword_w, last_bit, offset_image, mode;
 	char name[12];
 	gbm_u8 qpal[0x100], *buf;
@@ -658,9 +659,9 @@ GBM_ERR spr_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
 
 	ok  = write_dword(fd, 1);		/* Number of sprites */
 	ok &= write_dword(fd, 12 + 4);		/* Offset to sprite */
-	ok &= write_dword(fd, (12 + 44 + npal * 8 + stride * gbm->h) + 4);
+	ok &= write_dword(fd, (gbm_u32)((12 + 44 + npal * 8 + stride * gbm->h) + 4));
 						/* Offset to free word (beyond sprites) */
-	ok &= write_dword(fd, 44 + npal * 8 + stride * gbm->h);
+	ok &= write_dword(fd, (gbm_u32)(44 + npal * 8 + stride * gbm->h));
 
 /*...sbuild a name:8:*/
 /*
@@ -681,7 +682,7 @@ if ( (q = strrchr(p, '/')) != NULL )
 	p = q + 1;
 memset(name, 0, 12);
 strncpy(name, p, 11);
-if ( (q = strrchr(name, '.')) != NULL && gbm_same(q + 1, "spr", 4) )
+if ( (q = strrchr(name, '.')) != NULL && gbm_same(q + 1, "spr", 3) )
 	memset(q, '\0', 4);
 for ( q = name; (q - name) < 12 && *q != '\0'; q++ )
 	*q = tolower(*q);
@@ -743,8 +744,8 @@ case 8:
 case 4:
 case 1:
 	/* Write the palette */
-	for ( i = 0; i < (1 << gbm->bpp); i++ )
-		if ( !write_pal(fd, gbmrgb[i]) )
+	for ( j = 0; j < (1 << gbm->bpp); j++ )
+		if ( !write_pal(fd, gbmrgb[j]) )
 			return GBM_ERR_WRITE;
 	break;
 /*...e*/
@@ -752,11 +753,11 @@ case 1:
 
 	/* Write data */
 
-	if ( (buf = gbmmem_malloc((size_t) stride)) == NULL )
+	if ( (buf = gbmmem_malloc(stride)) == NULL )
 		return GBM_ERR_MEM;
 	memset(buf, 0, stride);
 
-	data += (gbm->h - 1) * stride; /* Start at the top */
+	data += stride * (gbm->h - 1); /* Start at the top */
 	switch ( gbm->bpp )
 		{
 /*...s8 \45\ write mapped pixels\44\ funny order:16:*/
@@ -765,7 +766,7 @@ case 8:
 		{
 		for ( i = 0; i < stride; i++ )
 			buf[i] = qpal[data[i]];
-		if ( gbm_file_write(fd, buf, stride) != stride )
+		if ( gbm_file_write(fd, buf, (int)stride) != stride )
 			{
 			gbmmem_free(buf);
 			return GBM_ERR_WRITE;
@@ -779,7 +780,7 @@ case 4:
 		{
 		for ( i = 0; i < stride; i++ )
 			buf[i] = nibble_swap[data[i]];
-		if ( gbm_file_write(fd, buf, stride) != stride )
+		if ( gbm_file_write(fd, buf, (int)stride) != stride )
 			{
 			gbmmem_free(buf);
 			return GBM_ERR_WRITE;
@@ -793,7 +794,7 @@ case 1:
 		{
 		for ( i = 0; i < stride; i++ )
 			buf[i] = bit_swap[data[i]];
-		if ( gbm_file_write(fd, buf, stride) != stride )
+		if ( gbm_file_write(fd, buf, (int)stride) != stride )
 			{
 			gbmmem_free(buf);
 			return GBM_ERR_WRITE;

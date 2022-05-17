@@ -95,6 +95,13 @@ to older DLL versions. Use the API change log below for reference.
 1.60: Old types BOOLEAN, byte, word and dword are obsolete and should no longer be used.
       Replacements are gbm_boolean, gbm_u8, gbm_u16, gbm_u32.
       To enable backward compatible types, define OLD_GBM_TYPES.
+
+      For WIN32 builds by default DLL functions are exported. If linking the DLL
+      against an executable is intended, define GBM_USE_DLL.
+      
+1.66: For WIN64 builds by default DLL functions are exported. If linking the DLL
+      against an executable is intended, define GBM_USE_DLL.
+      
 */
 
 #ifndef GBM_H
@@ -112,7 +119,7 @@ typedef   signed short  gbm_s16;
   typedef   signed int  gbm_s32;
 #else
   typedef unsigned long gbm_u32;
-  typedef unsigned long gbm_s32;
+  typedef   signed long gbm_s32;
 #endif
 
 /* Old types for backward compatibility. */
@@ -244,8 +251,12 @@ typedef struct
     #define GBMENTRYP      _Optlink *
     #define GBMENTRYP_SYS  _System  *
   #endif
-#elif defined(WIN32)
-  #define GBMEXPORT     __declspec(dllexport)
+#elif defined(WIN32) || defined(WIN64)
+  #if defined(GBM_USE_DLL)
+    #define GBMEXPORT __declspec(dllimport)
+  #else
+    #define GBMEXPORT __declspec(dllexport)
+  #endif
   #define GBMENTRY_SYS  __stdcall
   #define GBMENTRY      __stdcall
   #define GBMENTRYP     __stdcall *

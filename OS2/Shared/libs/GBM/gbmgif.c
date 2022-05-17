@@ -16,7 +16,10 @@ History:
 19-Feb-2006: Add function to query number of images
 22-Feb-2006: Move format description strings to gbmdesc.h
 15-Aug-2008: Integrate new GBM types
-
+05-Jan-2010: Fix local vs. global color palette handling
+             (global palette overwritten in multipage images
+              where images before the requested had a local
+              palette but the requested did not)
 */
 
 /*...sincludes:0:*/
@@ -125,7 +128,7 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
     if ( scn_desc[4] & 0x80 )
     /* Global colour table follows screen descriptor */
     {
-        if ( gbm_file_read(fd, gif_priv->pal, 3 << bits_gct) != (3 << bits_gct) )
+        if (gbm_file_lseek(fd, 3 << bits_gct, GBM_SEEK_CUR) < 0)
             return GBM_ERR_READ;
     }
 
@@ -143,20 +146,20 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
                 /* Local colour table follows */
                 {
                     gif_priv->bpp = (image_desc[9] & 7) + 1;
-                    if ( gbm_file_read(fd, gif_priv->pal, 3 << gif_priv->bpp) != (3 << gif_priv->bpp) )
+                    if (gbm_file_lseek(fd, 3 << gif_priv->bpp, GBM_SEEK_CUR) < 0)
                         return GBM_ERR_READ;
                 }
                 /* Skip the image data */
                 {
                     gbm_u8 code_size, block_size;
-
                     if ( gbm_file_read(fd, &code_size, 1) != 1 )
                         return GBM_ERR_READ;
                     do
                     {
                        if ( gbm_file_read(fd, &block_size, 1) != 1 )
                            return GBM_ERR_READ;
-                       gbm_file_lseek(fd, block_size, GBM_SEEK_CUR);
+                       if ( gbm_file_lseek(fd, block_size, GBM_SEEK_CUR) < 0)
+                           return GBM_ERR_READ;
                     }
                     while ( block_size );
                 }
@@ -170,14 +173,14 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
             case 0x21:
             {
                 gbm_u8 func_code, byte_count;
-
                 if ( gbm_file_read(fd, &func_code, 1) != 1 )
                     return GBM_ERR_READ;
                 do
                 {
                     if ( gbm_file_read(fd, &byte_count, 1) != 1 )
                         return GBM_ERR_READ;
-                    gbm_file_lseek(fd, byte_count, GBM_SEEK_CUR);
+                    if ( gbm_file_lseek(fd, byte_count, GBM_SEEK_CUR) < 0)
+                        return GBM_ERR_READ;
                 }
                 while ( byte_count );
             }
@@ -203,14 +206,14 @@ GBM_ERR gif_rimgcnt(const char *fn, int fd, int *pimgcnt)
 
 /* ---------------------------------------- */
 
-/*...sgif_rhdr:0:*/
 GBM_ERR gif_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 	{
 	GIF_PRIV *gif_priv = (GIF_PRIV *) gbm->priv;
 	gbm_u8 signiture[6], scn_desc[7], image_desc[10];
 	const char *index;
 	int img = -1, img_want = 0;
-	int bits_gct;
+	int bits_gct, bytes_gct;
+	gbm_u8 gct[0x100*3] = { 0 };
 
 	fn=fn; /* Suppress 'unref arg' compiler warnings */
 
@@ -233,96 +236,104 @@ GBM_ERR gif_rhdr(const char *fn, int fd, GBM *gbm, const char *opt)
 
 	if ( gbm_file_read(fd, scn_desc, 7) != 7 )
 		return GBM_ERR_READ;
-	gif_priv->bpp = bits_gct = (scn_desc[4] & 7) + 1;
+	bits_gct  = (scn_desc[4] & 7) + 1;
+    bytes_gct = 3 << bits_gct;
+	gif_priv->bpp = bits_gct;
 
 	if ( scn_desc[4] & 0x80 )
-		/* Global colour table follows screen descriptor */
-		{
-		if ( gbm_file_read(fd, gif_priv->pal, 3 << bits_gct) != (3 << bits_gct) )
+	/* Global colour table follows screen descriptor */
+	{
+		if (gbm_file_read(fd, gct, bytes_gct) != bytes_gct)
 			return GBM_ERR_READ;
-		}
+	}
 	else
-		/* Blank out palette, but make entry 1 white */
-		{
-		memset(gif_priv->pal, 0, 3 << bits_gct);
-		gif_priv->pal[3] =
-		gif_priv->pal[4] =
-		gif_priv->pal[5] = 0xff;
-		}
+	/* Blank out palette, but make entry 1 white */
+	{
+		memset(gct, 0, bytes_gct);
+		gct[3] =
+		gct[4] =
+		gct[5] = 0xff;
+	}
+    memcpy(gif_priv->pal, gct, bytes_gct);
 
 	/* Expected image descriptors / extension blocks / terminator */
 
 	while ( img < img_want )
-		{
+	{
 		if ( gbm_file_read(fd, image_desc, 1) != 1 )
 			return GBM_ERR_READ;
+            
 		switch ( image_desc[0] )
-			{
-/*...s0x2c \45\ image descriptor:24:*/
-case 0x2c:
-	if ( gbm_file_read(fd, image_desc + 1, 9) != 9 )
-		return GBM_ERR_READ;
-	gbm->w = make_word(image_desc[5], image_desc[6]);
-	gbm->h = make_word(image_desc[7], image_desc[8]);
-	gif_priv->ilace = ( (image_desc[9] & 0x40) != 0 );
-
-	if ( image_desc[9] & 0x80 )
-		/* Local colour table follows */
 		{
-		gif_priv->bpp = (image_desc[9] & 7) + 1;
-		if ( gbm_file_read(fd, gif_priv->pal, 3 << gif_priv->bpp) != (3 << gif_priv->bpp) )
-			return GBM_ERR_READ;
-		}
+            /*...s0x2c \45\ image descriptor:24:*/
+            case 0x2c:
+                if ( gbm_file_read(fd, image_desc + 1, 9) != 9 )
+                    return GBM_ERR_READ;
+                gbm->w = make_word(image_desc[5], image_desc[6]);
+                gbm->h = make_word(image_desc[7], image_desc[8]);
+                gif_priv->ilace = ( (image_desc[9] & 0x40) != 0 );
 
-	if ( ++img != img_want )
-		/* Skip the image data */
-		{
-		gbm_u8 code_size, block_size;
+                if ( image_desc[9] & 0x80 )
+                /* Local colour table follows */
+                {
+                    gif_priv->bpp = (image_desc[9] & 7) + 1;
+                    if ( gbm_file_read(fd, gif_priv->pal, 3 << gif_priv->bpp) != (3 << gif_priv->bpp) )
+                        return GBM_ERR_READ;
+                }
+                else
+                /* Use Global colour table instead (already read) */
+                {
+                    memcpy(gif_priv->pal, gct, bytes_gct);
+                }
 
-		if ( gbm_file_read(fd, &code_size, 1) != 1 )
-			return GBM_ERR_READ;
-		do
-			{
-			if ( gbm_file_read(fd, &block_size, 1) != 1 )
-				return GBM_ERR_READ;
-			gbm_file_lseek(fd, block_size, GBM_SEEK_CUR);
-			}
-		while ( block_size );
-		}
-
-	break;
+                if ( ++img != img_want )
+                /* Skip the image data */
+                {
+                    gbm_u8 code_size, block_size;
+                    if (gbm_file_read(fd, &code_size, 1) != 1)
+                        return GBM_ERR_READ;
+                    do
+                    {
+                        if (gbm_file_read(fd, &block_size, 1) != 1)
+                            return GBM_ERR_READ;
+                        if (gbm_file_lseek(fd, block_size, GBM_SEEK_CUR) < 0)
+                            return GBM_ERR_READ;
+                    }
+                    while ( block_size );
+                }
+                break;
+                /*...e*/
+                
+            /*...s0x21 \45\ extension block:24:*/
+            /* Ignore all extension blocks */
+            case 0x21:
+            {
+                gbm_u8 func_code, byte_count;
+                if (gbm_file_read(fd, &func_code, 1) != 1)
+                    return GBM_ERR_READ;
+                do
+                {
+                    if (gbm_file_read(fd, &byte_count, 1) != 1)
+                        return GBM_ERR_READ;
+                    if (gbm_file_lseek(fd, byte_count, GBM_SEEK_CUR) < 0)
+                        return GBM_ERR_READ;
+                }
+                while ( byte_count );
+            }
+            break;
+            /*...e*/
+            
+            /*...s0x3b \45\ terminator:24:*/
+            /* Oi, we were hoping to get an image descriptor! */
+            case 0x3b:
+                return GBM_ERR_GIF_TERM;
+            /*...e*/
+            /*...sdefault:24:*/
+            default:
+                return GBM_ERR_GIF_HEADER;
 /*...e*/
-/*...s0x21 \45\ extension block:24:*/
-/* Ignore all extension blocks */
-
-case 0x21:
-	{
-	gbm_u8 func_code, byte_count;
-
-	if ( gbm_file_read(fd, &func_code, 1) != 1 )
-		return GBM_ERR_READ;
-	do
-		{
-		if ( gbm_file_read(fd, &byte_count, 1) != 1 )
-			return GBM_ERR_READ;
-		gbm_file_lseek(fd, byte_count, GBM_SEEK_CUR);
 		}
-	while ( byte_count );
 	}
-	break;
-/*...e*/
-/*...s0x3b \45\ terminator:24:*/
-/* Oi, we were hoping to get an image descriptor! */
-
-case 0x3b:
-	return GBM_ERR_GIF_TERM;
-/*...e*/
-/*...sdefault:24:*/
-default:
-	return GBM_ERR_GIF_HEADER;
-/*...e*/
-			}
-		}
 
 	switch ( gif_priv->bpp )
 		{
@@ -412,7 +423,7 @@ typedef struct
 	{
 	int x, y, w, h, bpp, pass;
 	gbm_boolean ilace;
-	int stride;
+	size_t stride;
 	gbm_u8 *data, *data_this_line;
 	} OUTPUT_CONTEXT;
 
@@ -447,7 +458,7 @@ static void output(gbm_u8 value, OUTPUT_CONTEXT *o)
 	if ( o->ilace )
 		{
 		o->y = step_ilace(o->y, o->h, &(o->pass));
-		o->data_this_line = o->data + (o->h - 1 - o->y) * o->stride;
+		o->data_this_line = o->data + o->stride * (o->h - 1 - o->y);
 		}
 	else
 		{
@@ -819,7 +830,7 @@ hashtable is big enough so that MAX_HASH > 4*MAX_DICT.
 #define	INIT_HASH(p)	(((p)+3)*301)		/* Initial hash value        */
 
 {
-int stride = ((gbm->w * gbm->bpp + 31) / 32) * 4;
+size_t stride = ((gbm->w * gbm->bpp + 31) / 32) * 4;
 gbm_u8 min_code_size;
 int init_code_size, x, y, pass;
 cword clear_code = 0, eoi_code = 0, last_code = 0, max_code = 0, tail = 0;
@@ -876,10 +887,10 @@ if ( !write_code(clear_code, &w) )
 for ( j = 0; j < MAX_HASH; j++ )
 	hashtable[j] = NULL;
 
-data += ( (gbm->h - 1) * stride );
+data += ( stride * (gbm->h - 1) );
 for ( y = pass = 0; y < gbm->h; )
 	{
-	const gbm_u8 *pdata = data - y * stride;
+	const gbm_u8 *pdata = data - stride * y;
 	for ( x = 0; x < gbm->w; x++ )
 		{
 		gbm_u8 col;
@@ -920,7 +931,7 @@ else
 			j = 0;
 	if ( hashtable[j] != NULL )
 		/* Found in the strings table */
-		tail = (hashtable[j]-dict);
+		tail = (cword)(hashtable[j]-dict);
 	else
 		/* Not found */
 		{

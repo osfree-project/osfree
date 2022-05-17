@@ -51,6 +51,10 @@ History:
 15-Aug-2008: Integrate new GBM types
 */
 
+#if defined(AIX) || defined(LINUX) || defined(SUN) || defined(MACOSX) || defined(IPHONE)
+#define _XOPEN_SOURCE
+#include <unistd.h>
+#endif
 #include <stdio.h>
 #include <ctype.h>
 #include <stddef.h>
@@ -64,6 +68,16 @@ History:
 /* ---------------------------------------- */
 
 #define  GBM_ERR_PPM_BAD_M    ((GBM_ERR) 2300)
+
+#define CVT(x) (((x) * 255) / ((1L << 16) - 1))
+
+#if defined(WIN32) && defined(_MSC_VER)
+  /* Use ISO variants */
+  #define gbm_swab _swab
+#else
+  /* Use POSIX variants */
+  #define gbm_swab swab
+#endif
 
 /* ---------------------------------------- */
 
@@ -138,19 +152,17 @@ static void rgb16msb_bgr(const gbm_u8 * p, gbm_u8 * q, int n, const unsigned int
          g = *p16++;
          b = *p16++;
 
-         swab((char *) &r, (char *) &r, 2);
-         swab((char *) &g, (char *) &g, 2);
-         swab((char *) &b, (char *) &b, 2);
+         gbm_swab((char *) &r, (char *) &r, 2);
+         gbm_swab((char *) &g, (char *) &g, 2);
+         gbm_swab((char *) &b, (char *) &b, 2);
 
          r = (r * 65535U) / max_intensity;
          g = (g * 65535U) / max_intensity;
          b = (b * 65535U) / max_intensity;
 
-         #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-
-         *q++ = CVT(b);
-         *q++ = CVT(g);
-         *q++ = CVT(r);
+         *q++ = (gbm_u8) CVT(b);
+         *q++ = (gbm_u8) CVT(g);
+         *q++ = (gbm_u8) CVT(r);
       }
    }
    else
@@ -161,15 +173,13 @@ static void rgb16msb_bgr(const gbm_u8 * p, gbm_u8 * q, int n, const unsigned int
          g = *p16++;
          b = *p16++;
 
-         swab((char *) &r, (char *) &r, 2);
-         swab((char *) &g, (char *) &g, 2);
-         swab((char *) &b, (char *) &b, 2);
+         gbm_swab((char *) &r, (char *) &r, 2);
+         gbm_swab((char *) &g, (char *) &g, 2);
+         gbm_swab((char *) &b, (char *) &b, 2);
 
-         #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
-
-         *q++ = CVT(b);
-         *q++ = CVT(g);
-         *q++ = CVT(r);
+         *q++ = (gbm_u8) CVT(b);
+         *q++ = (gbm_u8) CVT(g);
+         *q++ = (gbm_u8) CVT(r);
       }
    }
 }
@@ -189,9 +199,9 @@ static void rgb16msb_bgr16lsb(const gbm_u8 *p, gbm_u8 *q, int n, const unsigned 
          g = *p16++;
          b = *p16++;
 
-         swab((char *) &r, (char *) &r, 2);
-         swab((char *) &g, (char *) &g, 2);
-         swab((char *) &b, (char *) &b, 2);
+         gbm_swab((char *) &r, (char *) &r, 2);
+         gbm_swab((char *) &g, (char *) &g, 2);
+         gbm_swab((char *) &b, (char *) &b, 2);
 
          *q16++ = (b * 65535U) / max_intensity;
          *q16++ = (g * 65535U) / max_intensity;
@@ -206,9 +216,9 @@ static void rgb16msb_bgr16lsb(const gbm_u8 *p, gbm_u8 *q, int n, const unsigned 
          g = *p16++;
          b = *p16++;
 
-         swab((char *) &r, (char *) &r, 2);
-         swab((char *) &g, (char *) &g, 2);
-         swab((char *) &b, (char *) &b, 2);
+         gbm_swab((char *) &r, (char *) &r, 2);
+         gbm_swab((char *) &g, (char *) &g, 2);
+         gbm_swab((char *) &b, (char *) &b, 2);
 
          *q16++ = b;
          *q16++ = g;
@@ -515,7 +525,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
    int type = 0;
    GBM gbm_src;
 
-   const int stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
+   const size_t stride = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    GBM_ERR rc = internal_ppm_rhdr(fd, gbm, &gbm_src, &type);
    if (rc != GBM_ERR_OK)
@@ -523,7 +533,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
       return rc;
    }
    /* check for correct parameters */
-   if (stride != ((gbm->w * gbm->bpp + 31)/32) * 4)
+   if (stride != (size_t)((gbm->w * gbm->bpp + 31)/32) * 4)
    {
       return GBM_ERR_READ;
    }
@@ -534,7 +544,7 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
      int i;
      const int line_bytes = gbm_src.w * (gbm_src.bpp / 8);
 
-     gbm_u8 * p = data + ((gbm->h - 1) * stride);
+     gbm_u8 * p = data + (stride * (gbm->h - 1));
 
      switch(gbm->bpp)
      {
@@ -594,9 +604,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
    {
      int    i, x;
      int    num_r, num_g, num_b;
-     gbm_u8  * pNumFill8;
-     gbm_u16 * pNumFill16;
-     gbm_u8  * p = data + ((gbm->h - 1) * stride);
+     gbm_u8  * pNumFill8  = NULL;
+     gbm_u16 * pNumFill16 = NULL;
+     gbm_u8  * p = data + (stride * (gbm->h - 1));
 
      AHEAD * ahead = gbm_create_ahead(fd);
      if (ahead == NULL)
@@ -654,11 +664,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
                      return GBM_ERR_READ;
                    }
 
-                   #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
                    *pNumFill8++ = (gbm_u8) CVT(num_b);
                    *pNumFill8++ = (gbm_u8) CVT(num_g);
                    *pNumFill8++ = (gbm_u8) CVT(num_r);
-                   #undef CVT
                  }
                  p -= stride;
               }
@@ -710,9 +718,9 @@ GBM_ERR ppm_rdata(int fd, GBM *gbm, gbm_u8 *data)
 
 static gbm_boolean internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const gbm_u8 * data, int words)
 {
-  int  w, c;
-  char d[12] = { 0 };
-  char r,g,b;
+  int    w, c;
+  gbm_u8 d[12] = { 0 };
+  char   r,g,b;
 
   d[3]  = ' ';
   d[7]  = ' ';
@@ -773,7 +781,7 @@ static gbm_boolean internal_ppm_w_ascii_byte_bgr2rgb(WCACHE * wcache, const gbm_
 static gbm_boolean internal_ppm_w_ascii_word_bgr2rgb(WCACHE * wcache, const gbm_u16 * data16, int words)
 {
   int  w, c;
-  char d[18] = { 0 };
+  gbm_u8  d[18] = { 0 };
   gbm_u16 r,g,b;
 
   d[5]  = ' ';
@@ -861,7 +869,7 @@ static gbm_boolean internal_ppm_write_comment(int fd, const char *options)
        return GBM_FALSE;
      }
 
-     len = strlen(buf);
+     len = (int)strlen(buf);
      if (gbm_file_write(fd, buf, len) != len)
      {
        return GBM_FALSE;
@@ -883,20 +891,19 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
    char  s[100+1];
    int   i;
    const gbm_u8 *p;
-   gbm_u8   *linebuf = NULL;
+   gbm_u8 *linebuf = NULL;
    WCACHE *wcache  = NULL;
 
-   const int stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
-   const int line_bytes = gbm->w * (gbm->bpp / 8);
+   const size_t stride     = ((gbm->w * gbm->bpp + 31)/32) * 4;
+   const int    line_bytes = gbm->w * (gbm->bpp / 8);
 
    const gbm_boolean ascii = ( gbm_find_word(opt, "ascii" ) != NULL );
 
-   fn=fn; gbmrgb=gbmrgb; opt=opt; /* Suppress 'unref arg' compiler warnings */
+   fn=fn; gbmrgb=gbmrgb; /* Suppress 'unref arg' compiler warnings */
 
    sprintf(s, "P%c\n", (ascii ? '3' : '6'));
    if (gbm_file_write(fd, s, (int) strlen(s)) != (int) strlen(s))
    {
-     gbmmem_free(linebuf);
      return GBM_ERR_WRITE;
    }
 
@@ -942,7 +949,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
            return GBM_ERR_WRITE;
          }
 
-         p = data + ((gbm->h - 1) * stride);
+         p = data + (stride * (gbm->h - 1));
          for (i = gbm->h - 1; i >= 0; i--)
          {
             /* write as ASCII pattern or as binary data */
@@ -990,7 +997,7 @@ GBM_ERR ppm_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
            return GBM_ERR_WRITE;
          }
 
-         p = data + ((gbm->h - 1) * stride);
+         p = data + (stride * (gbm->h - 1));
          for (i = gbm->h - 1; i >= 0; i--)
          {
             /* write as ASCII pattern or as binary data */

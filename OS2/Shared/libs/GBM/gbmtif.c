@@ -48,7 +48,7 @@ Extended formats (not backward compatible, import option ext_bpp required):
   - CCITT
   - Deflate
   - Adobe Deflate
-
+  - JBIG
 
   Input:
   ------
@@ -129,6 +129,9 @@ Extended formats (not backward compatible, import option ext_bpp required):
   Can ask for CCITT Group 4 fax encoding (only 1 bpp).
     Output option: ccittfax4
 
+  Can ask for JBIG encoding (only 1 bpp).
+    Output option: jbig
+
   Can specify informational tags to append on output.
     Output options: artist=,software=,make=,model=,host=,documentname=,pagename=,imagedescription=
 
@@ -170,6 +173,22 @@ History:
              (IBM TIFF seems to write buggy images for 32bpp which are marked
               as graylevel image but has 4 samples per pixel)
 
+27-Sep-2008: Also use a temporary scanline buffer for writing palette bitmap
+             because otherwise the original bitmap data are modified. This by
+             was found to be the case for instance with the LZW compressor with
+             horizontal prediction.
+
+16-May-2009: Integrate JBIG support.
+             (JBIG is newly supported with libtiff 3.9.0)
+
+17-Jun-2010: Libtiff 3.9.4
+             - Workaround 64bit bug in libtiff since 3.9.0 for test image
+               g24lzw_YCbCr.tif (LZW compressed YCbCr flipped vertically).
+               The vertical flipping causes a crash in libtiff due to an
+               illegal write pointer position. The workaround will prevent
+               libtiff internal flipping and thus is itself outside.
+               The issue is in generic RGBA decoder of libtiff.
+               
 ******************************************************************************/
 
 #ifdef ENABLE_TIF
@@ -264,7 +283,7 @@ typedef struct
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
 
-/* Replace standard libpng I/O functions by our own that simply call the
+/* Replace standard libtif I/O functions by our own that simply call the
    GBM internal I/O functions.
 */
 static tsize_t tif_gbm_read_data(thandle_t fd, tdata_t data, tsize_t length)
@@ -1335,8 +1354,8 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, gbm_u8 * data)
    int row;
 
    /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
-   const int scanline_bytes = TIFFScanlineSize(tif_p);
-   const int gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
+   const size_t scanline_bytes = TIFFScanlineSize(tif_p);
+   const size_t gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    /* start at buffer begin */
    gbm_row_pointers = (gbm_u8 **) gbmmem_malloc(gbm->h * sizeof(gbm_u8 *));
@@ -1348,7 +1367,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, gbm_u8 * data)
    /* init pointers from bottom to top because the image is internally a DIB
     * which is mirrored vertically
     */
-   gbm_row_pointers[0] = data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
+   gbm_row_pointers[0] = data + (gbm_row_bytes * gbm->h) - gbm_row_bytes;
    for (row = 1; row < gbm->h; row++)
    {
       gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
@@ -1401,7 +1420,7 @@ GBM_ERR internal_tif_rdata_scanline_contig(GBM *gbm, gbm_u8 * data)
       if (tif_priv->upsamplePaletteToRGB)
       {
          /* get 16 bit color palette */
-         GBMRGB_16BPP * gbmrgb_src = (GBMRGB_16BPP *) gbmmem_malloc((1 << gbm_src.bpp) * sizeof(GBMRGB_16BPP));
+         GBMRGB_16BPP * gbmrgb_src = (GBMRGB_16BPP *) gbmmem_malloc((1 << gbm_src.bpp) * (int)sizeof(GBMRGB_16BPP));
          if (gbmrgb_src == NULL)
          {
             gbmmem_free(scanline_buffer);
@@ -1619,8 +1638,8 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, gbm_u8 * data)
    GBM gbm_src = *gbm;
 
    /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
-   const int scanline_bytes = TIFFScanlineSize(tif_p);
-   const int gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
+   const size_t scanline_bytes = TIFFScanlineSize(tif_p);
+   const size_t gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    /* Only non-palette images can be in separated planes */
    if ( ((tif_priv->photometric != PHOTOMETRIC_SEPARATED) && /* CMYK */
@@ -1640,7 +1659,7 @@ GBM_ERR internal_tif_rdata_scanline_separate(GBM *gbm, gbm_u8 * data)
    /* init pointers from bottom to top because the image is internally a DIB
     * which is mirrored vertically
     */
-   gbm_row_pointers[0] = data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
+   gbm_row_pointers[0] = data + (gbm_row_bytes * gbm->h) - gbm_row_bytes;
    for (row = 1; row < gbm->h; row++)
    {
       gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
@@ -1795,8 +1814,6 @@ GBM_ERR internal_tif_rdata_scanline(GBM *gbm, gbm_u8 * data)
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
 
-
-
 #if 0
 
 /* Read bitmap data Tile based for a single plane (continuous) */
@@ -1808,12 +1825,12 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, gbm_u8 * data)
    int row;
 
    /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
-   const int tif_tile_count     = TIFFNumberOfTiles(tif_p);
-   const int tif_tile_bytes     = TIFFTileSize(tif_p);
-   const int tif_tile_row_bytes = TIFFTileRowSize(tif_p);
+   const size_t tif_tile_count     = TIFFNumberOfTiles(tif_p);
+   const size_t tif_tile_bytes     = TIFFTileSize(tif_p);
+   const size_t tif_tile_row_bytes = TIFFTileRowSize(tif_p);
 
-   const int tif_row_bytes = tif_tile_row_bytes * tif_tile_count;
-   const int gbm_row_bytes = ((gbm->w * gbm->bpp + 31)/32) * 4;
+   const size_t tif_row_bytes = tif_tile_row_bytes * tif_tile_count;
+   const size_t gbm_row_bytes = ((gbm->w * gbm->bpp + 31)/32) * 4;
 
    uint32 tileWidth, tileHeight;
    uint32 x, y, t;
@@ -1835,7 +1852,7 @@ GBM_ERR internal_tif_rdata_tile_contig(GBM *gbm, gbm_u8 * data)
    /* init pointers from bottom to top because the image is internally a DIB
     * which is mirrored vertically
     */
-   gbm_row_pointers[0] = data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
+   gbm_row_pointers[0] = data + (gbm_row_bytes * gbm->h) - gbm_row_bytes;
    for (row = 1; row < gbm->h; row++)
    {
       gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
@@ -1921,9 +1938,6 @@ GBM_ERR internal_tif_rdata_tile(GBM *gbm, gbm_u8 * data)
 
 #endif
 
-
-
-
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
 
@@ -1934,16 +1948,50 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
    TIFF          *tif_p    = tif_priv->tif_p;
 
    /* The easiest way to read the image. Attn: Align to 32 bit rows for GBM !!! */
-   const int byte_length = gbm->w * gbm->h * sizeof(uint32);
+   const size_t byte_length = sizeof(gbm_u32) * gbm->w * gbm->h;
+   gbm_u32 * tif_data = NULL;
 
-   uint32 * tif_data = (uint32*) gbmmem_malloc(byte_length);
+   /* due to a bug in libtiff 3.9.x we prevent libtiff internal vertical
+    * flipping and do it by ourselves
+    */
+   gbm_boolean flipVertical = GBM_FALSE;
+   uint16 orientation = ORIENTATION_BOTLEFT;
+   if (! TIFFGetFieldDefaulted(tif_p, TIFFTAG_ORIENTATION, &orientation))
+   {
+      return GBM_ERR_TIF_DATA;
+   }
+   switch(orientation)
+   {
+      case ORIENTATION_TOPLEFT:
+      case ORIENTATION_TOPRIGHT:
+      case ORIENTATION_LEFTTOP:
+      case ORIENTATION_RIGHTTOP:
+        orientation  = ORIENTATION_TOPLEFT;
+        flipVertical = GBM_TRUE;
+        break;
+
+      case ORIENTATION_BOTRIGHT:
+      case ORIENTATION_BOTLEFT:
+      case ORIENTATION_RIGHTBOT:
+      case ORIENTATION_LEFTBOT:
+        orientation = ORIENTATION_LEFTBOT;
+        flipVertical = GBM_FALSE;
+        break;
+        
+      default:
+        return GBM_ERR_TIF_DATA;
+   }    
+   
+   tif_data = (gbm_u32*) gbmmem_malloc(byte_length);
    if (tif_data == NULL)
    {
       return GBM_ERR_MEM;
    }
 
    /* Read the image data: RGBA format */
-   if (! TIFFReadRGBAImage(tif_p, gbm->w, gbm->h, tif_data, 1 /* stop on error */))
+   if (! TIFFReadRGBAImageOriented(tif_p, gbm->w, gbm->h,
+                                   (uint32 *)tif_data,
+                                   orientation, 1 /* stop on error */))
    {
       gbmmem_free(tif_data);
       return GBM_ERR_TIF_DATA;
@@ -1951,7 +1999,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
 
    if (gbm->bpp <= 8)
    {
-      GBMRGB * gbmrgb = (GBMRGB *) gbmmem_malloc((1 << gbm->bpp) * sizeof(GBMRGB));
+      GBMRGB * gbmrgb = (GBMRGB *) gbmmem_malloc((1 << gbm->bpp) * (int)sizeof(GBMRGB));
 
       /* Get the target palette */
       if (internal_tif_rpal_8bpp(gbm, gbmrgb) != GBM_ERR_OK)
@@ -1962,7 +2010,7 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
       }
 
       /* convert the image from RGBA -> Palette */
-      if (! gbm_map_RGBA_PAL((const gbm_u32 *) tif_data, data, gbm, gbmrgb))
+      if (! gbm_map_RGBA_PAL(tif_data, data, gbm, gbmrgb, flipVertical))
       {
          gbmmem_free(gbmrgb);
          gbmmem_free(tif_data);
@@ -1973,14 +2021,10 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
    }
    else /* must be 24 Bit destination */
    {
-      uint16 compression = COMPRESSION_NONE;
-      if (! TIFFGetField(tif_p, TIFFTAG_COMPRESSION, &compression))
-      {
-         compression = COMPRESSION_NONE;
-      }
-
       /* convert the image from RGBA -> BGR */
-      if (! gbm_map_RGBA_BGR((const gbm_u32 *) tif_data, data, gbm, &tif_priv->backrgb, tif_priv->unassociatedAlpha))
+      if (! gbm_map_RGBA_BGR(tif_data, data, gbm,
+                             &tif_priv->backrgb, tif_priv->unassociatedAlpha,
+                             flipVertical))
       {
          gbmmem_free(tif_data);
          return GBM_ERR_READ;
@@ -1988,8 +2032,39 @@ GBM_ERR internal_tif_rdata_RGBA(GBM *gbm, gbm_u8 * data)
    }
 
    gbmmem_free(tif_data);
+   
    return GBM_ERR_OK;
 }
+
+
+/* ----------------------------------------------------------- */
+/* ----------------------------------------------------------- */
+
+/* Read bitmap data as single strip */
+GBM_ERR internal_tif_rdata_strip(GBM *gbm, gbm_u8 * data)
+{
+   TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
+   TIFF          *tif_p    = tif_priv->tif_p;
+
+   /* Read a single strip. Attn: Align to 32 bit rows for GBM !!! */
+   const tsize_t gbm_row_bytes   = (((size_t)gbm->w * gbm->bpp + 31)/32) * 4;
+         tsize_t gbm_strip_bytes = gbm_row_bytes * gbm->h;
+
+   const tsize_t tif_strip_bytes = TIFFStripSize(tif_p);
+
+   /* Only single strip is supported so far */
+   if ((TIFFNumberOfStrips(tif_p) != 1) ||
+       (tif_strip_bytes > gbm_strip_bytes))
+   {
+      return GBM_ERR_NOT_SUPP;
+   }
+   if (TIFFReadEncodedStrip(tif_p, 0 /* strip */, data, tif_strip_bytes) != tif_strip_bytes)
+   {
+      return GBM_ERR_TIF_DATA;
+   }
+   return GBM_ERR_OK;
+}
+
 
 /* ----------------------------------------------------------- */
 /* ----------------------------------------------------------- */
@@ -2009,6 +2084,12 @@ GBM_ERR tif_rdata(int fd, GBM *gbm, gbm_u8 *data)
       TIF_PRIV_READ *tif_priv = (TIF_PRIV_READ *) gbm->priv;
       TIFF          *tif_p    = tif_priv->tif_p;
 
+      uint16 compression = COMPRESSION_NONE;
+      if (! TIFFGetField(tif_p, TIFFTAG_COMPRESSION, &compression))
+      {
+         compression = COMPRESSION_NONE;
+      }
+
       /* Read BW, Palette, RGB and CMYK data by low level interface
        * and the rest via RGBA reader.
        */
@@ -2024,20 +2105,19 @@ GBM_ERR tif_rdata(int fd, GBM *gbm, gbm_u8 *data)
              {
                 rc = internal_tif_rdata_RGBA(gbm, data);
                 /* rc = internal_tif_rdata_tile(gbm, data); */
-                if (rc != GBM_ERR_OK)
-                {
-                   tif_read_deinit(tif_priv);
-                   return rc;
-                }
+             }
+             else if (compression == COMPRESSION_JBIG)
+             {
+                rc = internal_tif_rdata_strip(gbm, data);
              }
              else /* read via scanlines */
              {
                 rc = internal_tif_rdata_scanline(gbm, data);
-                if (rc != GBM_ERR_OK)
-                {
-                   tif_read_deinit(tif_priv);
-                   return rc;
-                }
+             }
+             if (rc != GBM_ERR_OK)
+             {
+                tif_read_deinit(tif_priv);
+                return rc;
              }
              break;
 
@@ -2057,11 +2137,10 @@ GBM_ERR tif_rdata(int fd, GBM *gbm, gbm_u8 *data)
              }
              break;
       }
-
+      
       /* cleanup */
       tif_read_deinit(tif_priv);
    }
-
    return GBM_ERR_OK;
 }
 
@@ -2124,6 +2203,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
    uint16  zip_compression_level = 6;
    uint16  jpeg_quality_level    = 75;
    uint32  strip_size            = 16*1024;
+   gbm_boolean use_strip_encode  = GBM_FALSE;
 
    const char * s;
 
@@ -2322,6 +2402,23 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       compression_set = GBM_TRUE;
       compression     = COMPRESSION_CCITTFAX4;
    }
+   if (gbm_find_word(opt, "jbig") != NULL)
+   {
+      /* don't allow compression override */
+      if (compression_set)
+      {
+         return GBM_ERR_BAD_OPTION;
+      }
+      /* this compression is only supported for BW images */
+      if ((gbm->bpp != 1) ||
+          ((photometric != PHOTOMETRIC_MINISBLACK) && (photometric != PHOTOMETRIC_MINISWHITE)))
+      {
+         return GBM_ERR_BAD_OPTION;
+      }
+      compression_set  = GBM_TRUE;
+      compression      = COMPRESSION_JBIG;
+      use_strip_encode = GBM_TRUE; /* JBIG encoder only supports strip encode */
+   }
 
    /* --- encoding options -------- */
 
@@ -2435,6 +2532,7 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          case COMPRESSION_CCITTRLE:
          case COMPRESSION_CCITTFAX3:
          case COMPRESSION_CCITTFAX4:
+         case COMPRESSION_JBIG:
             if (! TIFFSetField(tif_p, TIFFTAG_COMPRESSION, compression))
             {
                tif_write_deinit(&tif_priv);
@@ -2501,14 +2599,48 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       }
    }
 
-   /* write bitmap data (BGRA) as scanlines */
+   /* some encoders do only support strip encode (JBIG) and some also row encode (all others) */
+   if (use_strip_encode)
+   {
+      const size_t   gbm_row_bytes = ((gbm->w * gbm->bpp + 31)/32) * 4;
+            size_t   strip_bytes   = gbm_row_bytes * gbm->h;
+            gbm_u8 * strip_buffer  = NULL;
+
+      if (! TIFFSetField(tif_p, TIFFTAG_ROWSPERSTRIP, gbm->h))
+      {
+         tif_write_deinit(&tif_priv);
+         return GBM_ERR_WRITE;
+      }
+
+      /* allocate temporary buffer for writing */
+      strip_buffer = (gbm_u8 *) gbmmem_malloc(strip_bytes);
+      if (strip_buffer == NULL)
+      {
+         tif_write_deinit(&tif_priv);
+         return GBM_ERR_MEM;
+      }
+
+      /* copy the image to the temporary buffer to prevent modifications of the original data */
+      memcpy(strip_buffer, data, strip_bytes);
+
+      if (TIFFWriteEncodedStrip(tif_p, 0 /* strip */, strip_buffer, (tsize_t)strip_bytes) != strip_bytes)
+      {
+         gbmmem_free(strip_buffer);
+         tif_write_deinit(&tif_priv);
+         return GBM_ERR_WRITE;
+      }
+
+      gbmmem_free(strip_buffer);
+   }
+   else /* write bitmap data (BGRA) as scanlines */
    {
       gbm_u8 ** gbm_row_pointers = NULL;
+      gbm_u8 *  scanline_buffer  = NULL;
       int  row;
 
       /* Read the image in scanlines. Attn: Align to 32 bit rows for GBM !!! */
-      const int gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
-            int rows_per_strip = gbm_row_bytes * gbm->h / strip_size;
+      const size_t gbm_row_bytes  = ((gbm->w * gbm->bpp + 31)/32) * 4;
+            size_t rows_per_strip = gbm_row_bytes * gbm->h / strip_size;
 
       /* align to 8 rows per strip because some codecs (JPEG) require this */
       rows_per_strip = (rows_per_strip > 0)
@@ -2528,14 +2660,22 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
          tif_write_deinit(&tif_priv);
          return GBM_ERR_MEM;
       }
-
       /* init pointers from bottom to top because the image is internally a DIB
        * which is mirrored vertically
        */
-      gbm_row_pointers[0] = (gbm_u8 *) data + (gbm->h * gbm_row_bytes) - gbm_row_bytes;
+      gbm_row_pointers[0] = (gbm_u8 *) data + (gbm_row_bytes * gbm->h) - gbm_row_bytes;
       for (row = 1; row < gbm->h; row++)
       {
          gbm_row_pointers[row] = gbm_row_pointers[row-1] - gbm_row_bytes;
+      }
+
+      /* allocate temporary buffer for writing */
+      scanline_buffer = (gbm_u8 *) gbmmem_malloc(gbm_row_bytes);
+      if (scanline_buffer == NULL)
+      {
+         gbmmem_free(gbm_row_pointers);
+         tif_write_deinit(&tif_priv);
+         return GBM_ERR_MEM;
       }
 
       /* check if palette based image read or RGB (RGB->BGR conversion needed) */
@@ -2543,8 +2683,10 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       {
          for (row = 0; row < gbm->h; row++)
          {
-            if (TIFFWriteScanline(tif_p, gbm_row_pointers[row], row, 0) < 0)
+            memcpy(scanline_buffer, gbm_row_pointers[row], gbm_row_bytes);
+            if (TIFFWriteScanline(tif_p, scanline_buffer, row, 0) < 0)
             {
+               gbmmem_free(scanline_buffer);
                gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_WRITE;
@@ -2554,7 +2696,6 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
       else
       {
          GBMRGB_16BPP backrgb = { 0, 0, 0 };
-         gbm_u8 *  scanline_buffer = NULL;
 
          /* parse RGB value for background mixing with alpha channel */
          if ((s = gbm_find_word_prefix(opt, "back_rgb=")) != NULL)
@@ -2567,6 +2708,8 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                                           &image_background_green,
                                           &image_background_blue) != 3)
             {
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_BAD_OPTION;
             }
@@ -2575,6 +2718,8 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
                ((image_background_green < 0) || (image_background_green > 0xffff)) ||
                ((image_background_blue  < 0) || (image_background_blue  > 0xffff)))
             {
+               gbmmem_free(scanline_buffer);
+               gbmmem_free(gbm_row_pointers);
                tif_write_deinit(&tif_priv);
                return GBM_ERR_BAD_OPTION;
             }
@@ -2583,15 +2728,6 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             backrgb.r = image_background_blue;
             backrgb.g = image_background_green;
             backrgb.b = image_background_red;
-         }
-
-         /* allocate temporary buffer for reading */
-         scanline_buffer = (gbm_u8 *) gbmmem_malloc(gbm_row_bytes);
-         if (scanline_buffer == NULL)
-         {
-            gbmmem_free(gbm_row_pointers);
-            tif_write_deinit(&tif_priv);
-            return GBM_ERR_MEM;
          }
 
          for (row = 0; row < gbm->h; row++)
@@ -2616,9 +2752,8 @@ GBM_ERR tif_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, cons
             }
          }
 
-         gbmmem_free(scanline_buffer);
       }
-
+      gbmmem_free(scanline_buffer);
       gbmmem_free(gbm_row_pointers);
    }
 

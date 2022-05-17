@@ -42,14 +42,16 @@ gbm_boolean gbm_map_sep_row_RGBx_BGRx(const gbm_u8       * data_src, const GBM *
 
 gbm_boolean gbm_map_RGBA_BGR(const gbm_u32 * data_src,       gbm_u8       * data_dst,
                              const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
-                             const gbm_boolean unassociatedAlpha);
+                             const gbm_boolean unassociatedAlpha,
+                             const gbm_boolean flipVertical);
 
 gbm_boolean gbm_map_RGBA_RGB(const gbm_u32 * data_src,       gbm_u8       * data_dst,
                              const GBM     * gbm_dst , const GBMRGB_16BPP * back_rgb,
                              const gbm_boolean unassociatedAlpha);
 
 gbm_boolean gbm_map_RGBA_PAL(const gbm_u32 * data_src,       gbm_u8 * data_dst,
-                             const GBM     * gbm_dst , const GBMRGB * gbmrgb_dst);
+                             const GBM     * gbm_dst , const GBMRGB * gbmrgb_dst,
+                             const gbm_boolean flipVertical);
 
 #endif
 

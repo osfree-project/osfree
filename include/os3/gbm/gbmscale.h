@@ -26,8 +26,13 @@ typedef enum { GBM_SCALE_FILTER_NEARESTNEIGHBOR = 1,
                GBM_SCALE_FILTER_BELL            = 3,
                GBM_SCALE_FILTER_BSPLINE         = 4,
                GBM_SCALE_FILTER_MITCHELL        = 5,
-               GBM_SCALE_FILTER_LANCZOS         = 6
- } GBM_SCALE_FILTER;
+               GBM_SCALE_FILTER_LANCZOS         = 6,
+               GBM_SCALE_FILTER_BLACKMAN        = 7,
+               GBM_SCALE_FILTER_CATMULLROM      = 8,
+               GBM_SCALE_FILTER_QUADRATIC       = 9,
+               GBM_SCALE_FILTER_GAUSSIAN        = 10,
+               GBM_SCALE_FILTER_KAISER          = 11
+} GBM_SCALE_FILTER;
 
 /* gbm_quality_scale_gray - resample grayscale bitmaps using different filter types
  *

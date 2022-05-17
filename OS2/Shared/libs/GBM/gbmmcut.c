@@ -59,8 +59,8 @@ void gbm_add_to_mcut(
 	const GBM *gbm, const gbm_u8 *data24
 	)
 	{
-	int stride24 = ((gbm->w * 3 + 3) & ~3);
-	int step24   = stride24 - gbm->w * 3;
+	size_t stride24 = ((gbm->w * 3 + 3) & ~3);
+	size_t step24   = stride24 - gbm->w * 3;
 	int x, y;
 
 	for ( y = 0; y < gbm->h; y++, data24 += step24 )
@@ -72,7 +72,7 @@ void gbm_add_to_mcut(
 
 			( mcut->freqs[b][g][r] )++;
 			}
-	mcut->total += ( gbm->w * gbm->h );
+	mcut->total += ( (size_t)gbm->w * gbm->h );
 	}
 /*...e*/
 /*...sgbm_pal_mcut    \45\ build median palette via median cut:0:*/
@@ -200,7 +200,7 @@ else
 case DIV_R:
 	{
 	gbm_u8 r, g, b;
-	gbm_u32 slice, total = 0;
+	gbm_u32 slice = 0, total = 0;
 
 	for ( r = cmax->r0; total < (cmax->freq>>1); r++ )
 		{
@@ -232,7 +232,7 @@ case DIV_R:
 case DIV_G:
 	{
 	gbm_u8 r, g, b;
-	gbm_u32 slice, total = 0;
+	gbm_u32 slice = 0, total = 0;
 
 	for ( g = cmax->g0; total < (cmax->freq>>1); g++ )
 		{
@@ -264,7 +264,7 @@ case DIV_G:
 case DIV_B:
 	{
 	gbm_u8 r, g, b;
-	gbm_u32 slice, total = 0;
+	gbm_u32 slice = 0, total = 0;
 
 	for ( b = cmax->b0; total < (cmax->freq>>1); b++ )
 		{
@@ -361,10 +361,10 @@ void gbm_map_mcut(
 	const GBM *gbm, const gbm_u8 *data24, gbm_u8 *data8
 	)
 	{
-	int stride24 = ((gbm->w * 3 + 3) & ~3);
-	int step24   = stride24 - gbm->w * 3;
-	int stride8  = ((gbm->w + 3) & ~3);
-	int step8    = stride8 - gbm->w;
+	size_t stride24 = ((gbm->w * 3 + 3) & ~3);
+	size_t step24   = stride24 - gbm->w * 3;
+	size_t stride8  = ((gbm->w + 3) & ~3);
+	size_t step8    = stride8 - gbm->w;
 	int x, y;
 
 	/* Now transform the image data */

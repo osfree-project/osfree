@@ -21,6 +21,12 @@ gbmhelp.h - Internal helpers for GBM file I/O stuff
 #include <sys/stat.h>
 #endif
 
+/* Export as "C" to allow usage from C++ */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /* Functions pointers for process IO rerouting */
 extern int  (GBMENTRYP gbmio_file_open  )(const char *fn, int mode);
 extern int  (GBMENTRYP gbmio_file_create)(const char *fn, int mode);
@@ -39,7 +45,7 @@ extern long gbm_file_lseek            (int fd, long pos, int whence);
 extern int  gbm_file_read             (int fd, void *buf, int len);
 extern int  gbm_file_write            (int fd, const void *buf, int len);
 
-extern gbm_boolean gbm_same(const char *s1, const char *s2, int n);
+extern gbm_boolean gbm_same(const char *s1, const char *s2, size_t n);
 extern const char *gbm_find_word(const char *str, const char *substr);
 extern const char *gbm_find_word_prefix(const char *str, const char *substr);
 
@@ -56,6 +62,10 @@ extern WCACHE *gbm_create_wcache  (int fd);
 extern int     gbm_destroy_wcache (WCACHE *wcache);
 extern int     gbm_write_wcache   (WCACHE *wcache, gbm_u8 c);
 extern int     gbm_writebuf_wcache(WCACHE *wcache, const gbm_u8 * buf, int buflen);
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
 
 #endif
 

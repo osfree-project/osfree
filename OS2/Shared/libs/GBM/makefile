@@ -10,6 +10,13 @@ srcfiles = $(p)gbm$(e)    $(p)gbmpbm$(e)  $(p)gbmpgm$(e) $(p)gbmppm$(e) $(p)gbmp
            $(p)gbmpng$(e) $(p)gbmxpm$(e)  $(p)gbmxpmcn$(e) $(p)gbmhelp$(e) $(p)gbmmap$(e) &
            $(p)gbmmem$(e) $(p)gbmj2k$(e)  $(p)gbmtrunc$(e) $(p)gbmbpp$(e)
 
+#          gbms.obj  gbmpbm.obj gbmpgm.obj gbmppm.obj gbmpnm.obj \
+#          gbmbmp.obj gbmtga.obj gbmkps.obj gbmiax.obj gbmpcx.obj \
+#          gbmtif.obj gbmlbm.obj gbmvid.obj gbmgif.obj gbmxbm.obj \
+#          gbmspr.obj gbmpsg.obj gbmgem.obj gbmcvp.obj gbmjbg.obj gbmjpg.obj \
+#          gbmj2k.obj gbmpng.obj gbmxpm.obj gbmxpmcn.obj gbmraw.obj gbmhelp.obj gbmmap.obj 
+#          gbmmem.obj
+          
 !include $(%ROOT)/mk/libsos2.mk
 
 TARGETS  = $(PATH)$(PROJ).lib

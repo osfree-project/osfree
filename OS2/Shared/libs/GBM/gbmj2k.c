@@ -1,6 +1,6 @@
 /*************************************************************************
 
-gbmj2k.c - JPEG2000 Format support (JP2, J2K, J2C, JPC, JPT)
+gbmj2k.c - JPEG2000 Format support (JP2, J2K, J2C, JPT)
 
 Credit for writing this module must go to Heiko Nitzsche.
 
@@ -12,8 +12,9 @@ YUV, sRGB and Graylevel images.
 
 Supported formats and options:
 ------------------------------
-JPEG2000 : JPEG2000 Graphics Format : .JP2 .J2C .J2K .JPC .JPT
-           (YUV, sRGB, Gray)
+JPEG2000 : JPEG2000 Graphics File Format            : .JP2
+                     JPEG2000 Codestream            : .J2K .J2C
+                     JPT      Stream (JPEG200,JPIP) : .JPT
 
 Standard formats (backward compatible):
   Reads  8 bpp gray level files and presents them as 8 bpp.
@@ -28,9 +29,14 @@ Extended formats (not backward compatible, import option ext_bpp required):
 Writes  8 bpp gray level files (colour palette bitmaps are converted).
 Writes 24 and 48 bpp bpp colour files.
 
-
 Can specify the colour channel the output grey values are based on
     Output option: r,g,b,k (default: k, combine color channels and write grey equivalent)
+
+Can specify compression rate
+    Output option: compression=# (0..N, lossless compression (default=0) to N times compressed)
+
+Can specify quality based compression
+    Output option: quality=# (0..100, poor to very good quality)
 
 Write additonal comment
     Output option: comment=text
@@ -39,8 +45,15 @@ Write additonal comment
 History:
 --------
 28-Aug-2008  Initial version
-             TODO: JPWL support not yet included
-
+11-Sep-2008  JPWL support added
+             Fix wrong extension to codec assignment
+             Add support for rate based compression
+             Add support for quality based compression
+28-Nov-2008  Less checking for potentially wrong color space -> OpenJPEG does it itself
+             Get rid of unnecessary manual YUV->RGB conversion
+ 8-Feb-2011  Update to OpenJPEG 1.4 (fix a missing compression parameter initialization)
+23-Oct-2011  Disable JPWL decode when only trying to get the image info
+ 
 ******************************************************************************/
 
 #ifdef ENABLE_J2K
@@ -61,10 +74,15 @@ History:
 
 /* ----------------------------------------------------------- */
 
-#define GBM_ERR_J2K                   ((GBM_ERR) 6100)
-#define GBM_ERR_J2K_BPP               ((GBM_ERR) 6101)
-#define GBM_ERR_J2K_HEADER            ((GBM_ERR) 6102)
-#define GBM_ERR_J2K_BAD_COMMENT       ((GBM_ERR) 6103)
+#define GBM_ERR_J2K                             ((GBM_ERR) 6100)
+#define GBM_ERR_J2K_BPP                         ((GBM_ERR) 6101)
+#define GBM_ERR_J2K_HEADER                      ((GBM_ERR) 6102)
+#define GBM_ERR_J2K_BAD_COMMENT                 ((GBM_ERR) 6103)
+#define GBM_ERR_J2K_BAD_COMPRESSION             ((GBM_ERR) 6104)
+#define GBM_ERR_J2K_BAD_COMPRESSION_RANGE       ((GBM_ERR) 6105)
+#define GBM_ERR_J2K_BAD_QUALITY                 ((GBM_ERR) 6106)
+#define GBM_ERR_J2K_BAD_QUALITY_RANGE           ((GBM_ERR) 6107)
+#define GBM_ERR_J2K_BAD_MIX_COMPRESSION_QUALITY ((GBM_ERR) 6108)
 
 #define CVT(x) (((x) * 255) / ((1L << 16) - 1))
 
@@ -78,10 +96,15 @@ typedef struct
 
 static J2K_GBMERR_MSG j2k_errmsg[] =
 {
-    { GBM_ERR_J2K_BPP        , "bad bits per pixel"          },
-    { GBM_ERR_J2K_HEADER     , "bad header"                  },
-    { GBM_ERR_J2K_BAD_COMMENT, "comment could not be parsed" },
-    { -1                     , NULL                          }
+    { GBM_ERR_J2K_BPP                        , "bad bits per pixel"          },
+    { GBM_ERR_J2K_HEADER                     , "bad header"                  },
+    { GBM_ERR_J2K_BAD_COMMENT                , "comment could not be parsed" },
+    { GBM_ERR_J2K_BAD_COMPRESSION            , "compression rate could not be parsed" },
+    { GBM_ERR_J2K_BAD_COMPRESSION_RANGE      , "compression rate must be >=0"  },
+    { GBM_ERR_J2K_BAD_QUALITY                , "quality could not be parsed"   },
+    { GBM_ERR_J2K_BAD_QUALITY_RANGE          , "quality must be >=0 and <=100" },
+    { GBM_ERR_J2K_BAD_MIX_COMPRESSION_QUALITY, "parameters compression and quality cannot be used together" },
+    { -1                                     , NULL }
 };
 
 static GBMFT j2k_jp2_gbmft =
@@ -172,8 +195,10 @@ static void j2k_gbm_warning_callback(const char *warning_msg, void *client_data)
 {
 #if DEBUG
    printf("WARNING: %s", warning_msg);
+   client_data = client_data;
 #else
    warning_msg = warning_msg; /* prevent compiler warning */
+   client_data = client_data;
 #endif
 }
 
@@ -184,8 +209,10 @@ static void j2k_gbm_info_callback(const char *info_msg, void *client_data)
 {
 #if DEBUG
    printf("INFO: %s", info_msg);
+   client_data = client_data;
 #else
-   info_msg = info_msg; /* prevent compiler warning */
+   info_msg    = info_msg; /* prevent compiler warning */
+   client_data = client_data;
 #endif
 }
 
@@ -314,6 +341,11 @@ static GBM_ERR internal_j2k_checkStreamFormat(const gbm_u8      *src_data,
     /* prepare parameters */
     parameters->cp_limit_decoding = decodeHeaderOnly ? LIMIT_TO_MAIN_HEADER : NO_LIMITATION;
 
+#ifdef USE_JPWL
+    parameters->jpwl_correct = decodeHeaderOnly ? OPJ_FALSE : OPJ_TRUE;
+    /* parameters->jpwl_exp_comps = JPWL_EXPECTED_COMPONENTS; */
+#endif
+
     /* create the decompression scheme */
     dinfo = opj_create_decompress(j2k_read->codec);
     rc    = internal_j2k_decode(j2k_read, parameters, &event_mgr, dinfo,
@@ -387,39 +419,23 @@ static GBM_ERR internal_j2k_rhdr(const int          fd,
     gbm->h   = 0;
     gbm->bpp = 0;
 
-    switch(j2k_read->image->color_space)
+    if (j2k_read->image->color_space == CLRSPC_GRAY) /* grayscale */
     {
-        case 0: /* This seems to always RGB as well. It is a bug in OpenJPEG 1.3 (color space not always set). */
-        case CLRSPC_SRGB:
-            if ((j2k_read->image->numcomps != 1) &&
-                (j2k_read->image->numcomps != 3))
-            {
-              j2k_read_deinit(j2k_read);
-              return GBM_ERR_J2K_BPP;
-            }
-            break;
-
-        case CLRSPC_GRAY: /* grayscale */
-            /* only support for 8bit per component */
-            if (j2k_read->image->numcomps != 1)
-            {
-              j2k_read_deinit(j2k_read);
-              return GBM_ERR_J2K_BPP;
-            }
-            break;
-
-        case CLRSPC_SYCC: /* YUV */
-            if (j2k_read->image->numcomps != 3)
-            {
-              j2k_read_deinit(j2k_read);
-              return GBM_ERR_J2K_BPP;
-            }
-            break;
-
-        case CLRSPC_UNKNOWN:
-        default:
-            j2k_read_deinit(j2k_read);
-            return GBM_ERR_NOT_SUPP;
+        /* only support for 8bit per component */
+        if (j2k_read->image->numcomps != 1)
+        {
+          j2k_read_deinit(j2k_read);
+          return GBM_ERR_J2K_BPP;
+        }
+    }
+    else /* everything else (e.g. SRGB, YUV) */
+    {
+        if ((j2k_read->image->numcomps != 1) &&
+            (j2k_read->image->numcomps != 3))
+        {
+          j2k_read_deinit(j2k_read);
+          return GBM_ERR_J2K_BPP;
+        }
     }
 
     /* check that all components have the same color depth */
@@ -746,46 +762,19 @@ GBM_ERR j2k_rdata(int fd, GBM *gbm, gbm_u8 *data)
                    j2k_read_deinit(j2k_read);
                    return GBM_ERR_NOT_SUPP;
                  }
-                 if (image->color_space == CLRSPC_SYCC) /* YUV ? */
+                 for (i = 0; i < indices; i++)
                  {
-                   for (i = 0; i < indices; i++)
+                   const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
+
+                   *data++ = p2[index] + sOffset2;
+                   *data++ = p1[index] + sOffset1;
+                   *data++ = p0[index] + sOffset0;
+
+                   if ((i + 1) % wr == 0)
                    {
-                     const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                     const int y = p0[index] + sOffset0;
-                     const int u = p1[index] + sOffset1;
-                     const int v = p2[index] + sOffset2;
-
-                     /* convert to BGR */
-                     *data++ = y + (gbm_u8)((float)u / 0.493); /* B */
-                     *data++ = y - (gbm_u8)((float)u * 0.39466) - (gbm_u8)((float)v * 0.5806); /* G */
-                     *data++ = y + (gbm_u8)((float)v / 0.877); /* R */
-
-                     if ((i + 1) % wr == 0)
+                     for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
                      {
-                       for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                       {
-                         *data++ = 0;
-                       }
-                     }
-                   }
-                 }
-                 else /* RGB */
-                 {
-                   for (i = 0; i < indices; i++)
-                   {
-                     const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                     *data++ = p2[index] + sOffset2;
-                     *data++ = p1[index] + sOffset1;
-                     *data++ = p0[index] + sOffset0;
-
-                     if ((i + 1) % wr == 0)
-                     {
-                       for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                       {
-                         *data++ = 0;
-                       }
+                       *data++ = 0;
                      }
                    }
                  }
@@ -797,46 +786,19 @@ GBM_ERR j2k_rdata(int fd, GBM *gbm, gbm_u8 *data)
                  switch(gbm->bpp)
                  {
                    case 24: /* via downsampling */
-                     if (image->color_space == CLRSPC_SYCC) /* YUV ? */
+                     for (i = 0; i < indices; i++)
                      {
-                       for (i = 0; i < indices; i++)
+                       const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
+
+                       *data++ = (gbm_u8) CVT(p2[index] + sOffset2);
+                       *data++ = (gbm_u8) CVT(p1[index] + sOffset1);
+                       *data++ = (gbm_u8) CVT(p0[index] + sOffset0);
+
+                       if ((i + 1) % wr == 0)
                        {
-                         const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                         const int y = p0[index] + sOffset0;
-                         const int u = p1[index] + sOffset1;
-                         const int v = p2[index] + sOffset2;
-
-                         /* convert to BGR */
-                         *data++ = (gbm_u8) CVT(y + (gbm_u8)((float)u / 0.493)); /* B */
-                         *data++ = (gbm_u8) CVT(y - (gbm_u8)((float)u * 0.39466) - (gbm_u8)((float)v * 0.5806)); /* G */
-                         *data++ = (gbm_u8) CVT(y + (gbm_u8)((float)v / 0.877)); /* R */
-
-                         if ((i + 1) % wr == 0)
+                         for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
                          {
-                           for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                           {
-                             *data++ = 0;
-                           }
-                         }
-                       }
-                     }
-                     else /* RGB */
-                     {
-                       for (i = 0; i < indices; i++)
-                       {
-                         const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                         *data++ = (gbm_u8) CVT(p2[index] + sOffset2);
-                         *data++ = (gbm_u8) CVT(p1[index] + sOffset1);
-                         *data++ = (gbm_u8) CVT(p0[index] + sOffset0);
-
-                         if ((i + 1) % wr == 0)
-                         {
-                           for (pad = (3 * wr) % 4 ? 4 - (3 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                           {
-                              *data++ = 0;
-                           }
+                            *data++ = 0;
                          }
                        }
                      }
@@ -845,51 +807,22 @@ GBM_ERR j2k_rdata(int fd, GBM *gbm, gbm_u8 *data)
                    /* ---------------- */
 
                    case 48:
-                     if (image->color_space == CLRSPC_SYCC) /* YUV ? */
+                     for (i = 0; i < indices; i++)
                      {
-                       for (i = 0; i < indices; i++)
+                       const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
+
+                       *data16++ = p2[index] + sOffset2;
+                       *data16++ = p1[index] + sOffset1;
+                       *data16++ = p0[index] + sOffset0;
+                       data += 6;
+
+                       if ((i + 1) % wr == 0)
                        {
-                         const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                         const int y = p0[index] + sOffset0;
-                         const int u = p1[index] + sOffset1;
-                         const int v = p2[index] + sOffset2;
-
-                         /* convert to BGR */
-                         *data16++ = y + (gbm_u8)((float)u / 0.493); /* B */
-                         *data16++ = y - (gbm_u8)((float)u * 0.39466) - (gbm_u8)((float)v * 0.5806); /* G */
-                         *data16++ = y + (gbm_u8)((float)v / 0.877); /* R */
-                         data += 6;
-
-                         if ((i + 1) % wr == 0)
+                         for (pad = (6 * wr) % 4 ? 4 - (6 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
                          {
-                           for (pad = (6 * wr) % 4 ? 4 - (6 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                           {
-                             *data++ = 0;
-                           }
-                           data16 = (gbm_u16 *) data;
+                           *data++ = 0;
                          }
-                       }
-                     }
-                     else /* RGB */
-                     {
-                       for (i = 0; i < indices; i++)
-                       {
-                         const int index = w * hr - ((i) / (wr) + 1) * w + (i) % (wr);
-
-                         *data16++ = p2[index] + sOffset2;
-                         *data16++ = p1[index] + sOffset1;
-                         *data16++ = p0[index] + sOffset0;
-                         data += 6;
-
-                         if ((i + 1) % wr == 0)
-                         {
-                           for (pad = (6 * wr) % 4 ? 4 - (6 * wr) % 4 : 0; pad > 0; pad--) /* add padding */
-                           {
-                             *data++ = 0;
-                           }
-                           data16 = (gbm_u16 *) data;
-                         }
+                         data16 = (gbm_u16 *) data;
                        }
                      }
                      break;
@@ -990,11 +923,13 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
     gbm_u8 grey[0x100] = { 0 };
     const char *s      = NULL;
 
-          int   write_length   = 0;
-    const int   subsampling_dx = 1;
-    const int   subsampling_dy = 1;
-    const int   stride_src     = ((gbm->w * gbm->bpp + 31) / 32) * 4;
-          int   x, y, i_dst;
+          int    write_length   = 0;
+    const int    subsampling_dx = 1;
+    const int    subsampling_dy = 1;
+    const size_t stride_src     = ((gbm->w * gbm->bpp + 31) / 32) * 4;
+          int    x, y, i_dst;
+
+    fn = fn; /* prevent compiler warning */
 
     /* prepare the image */
     memset(&cmptparms[0], 0, 3 * sizeof(opj_image_cmptparm_t));
@@ -1025,7 +960,7 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
             i_dst = 0;
             for (y = 0; y < gbm->h; y++)
             {
-              const gbm_u8 *data_src = data + ((gbm->h - y - 1) * stride_src);
+              const gbm_u8 *data_src = data + (stride_src * (gbm->h - y - 1));
               for (x = 0; x < gbm->w; x++)
               {
                 image->comps[0].data[i_dst] = grey[*data_src];
@@ -1052,7 +987,7 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
             i_dst = 0;
             for (y = 0; y < gbm->h; y++)
             {
-              const gbm_u8 *data_src = data + ((gbm->h - y - 1) * stride_src);
+              const gbm_u8 *data_src = data + (stride_src * (gbm->h - y - 1));
               for (x = 0; x < gbm->w; x++)
               {
                 image->comps[2].data[i_dst] = *data_src++; /* B -> R */
@@ -1080,7 +1015,7 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
             i_dst = 0;
             for (y = 0; y < gbm->h; y++)
             {
-              const gbm_u16 *data16_src = (gbm_u16 *)(data + ((gbm->h - y - 1) * stride_src));
+              const gbm_u16 *data16_src = (gbm_u16 *)(data + (stride_src * (gbm->h - y - 1)));
               for (x = 0; x < gbm->w; x++)
               {
                 image->comps[2].data[i_dst] = *data16_src++; /* B -> R */
@@ -1117,9 +1052,65 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
     opj_set_default_encoder_parameters(parameters);
     if (parameters->tcp_numlayers == 0)
     {
-      parameters->tcp_rates[0] = 0; /* lossless bug */
+      parameters->tcp_rates[0] = 0; /* ensure default is lossless compression */
       parameters->tcp_numlayers++;
       parameters->cp_disto_alloc = 1;
+    }
+
+    /* user defined compression level (rate/distortion) */
+    if ((s = gbm_find_word_prefix(opt, "compression=")) != NULL)
+    {
+        parameters->tcp_rates[0] = 0; /* default lossless compression */
+
+        /* check for collision with quality parameter */
+        if (gbm_find_word_prefix(opt, "quality=") != NULL)
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_MIX_COMPRESSION_QUALITY;
+        }
+        if (sscanf(s + 12, "%f", &parameters->tcp_rates[0]) != 1)
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_COMPRESSION;
+        }
+        if (parameters->tcp_rates[0] < 0.0f)
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_COMPRESSION_RANGE;
+        }
+        parameters->cp_disto_alloc = 1;
+    }
+
+    /* user defined quality level (fixed quality) */
+    if ((s = gbm_find_word_prefix(opt, "quality=")) != NULL)
+    {
+        parameters->tcp_distoratio[0] = 100.0f; /* default best quality */
+
+        /* check for collision with compression parameter */
+        if (gbm_find_word_prefix(opt, "compression=") != NULL)
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_MIX_COMPRESSION_QUALITY;
+        }
+        if (sscanf(s + 8, "%f", &parameters->tcp_distoratio[0]) != 1)
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_QUALITY;
+        }
+        if ((parameters->tcp_distoratio[0] < 0.0f) ||
+            (parameters->tcp_distoratio[0] > 100.0f))
+        {
+           opj_image_destroy(image);
+           gbmmem_free(parameters);
+           return GBM_ERR_J2K_BAD_QUALITY_RANGE;
+        }
+        parameters->cp_fixed_quality = 1;
+        parameters->cp_disto_alloc   = 0;
     }
 
     /* Decide if MCT should be used */
@@ -1129,7 +1120,7 @@ static GBM_ERR j2k_w(const OPJ_CODEC_FORMAT codec_format,
     parameters->cp_comment = NULL;
     if ((s = gbm_find_word_prefix(opt, "comment=")) != NULL)
     {
-       parameters->cp_comment = gbmmem_malloc(strlen(s)+1);
+       parameters->cp_comment = gbmmem_calloc(strlen(s + 8) + 1, sizeof(char));
        if (sscanf(s + 8, "%[^\"]", parameters->cp_comment) != 1)
        {
           if (sscanf(s + 8, "%[^ ]", parameters->cp_comment) != 1)

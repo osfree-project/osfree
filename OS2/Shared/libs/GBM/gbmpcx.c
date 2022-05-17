@@ -234,10 +234,11 @@ GBM_ERR pcx_rdata(int fd, GBM *gbm, gbm_u8 *data)
 	PCX_PRIV *pcx_priv = (PCX_PRIV *) gbm->priv;
 	gbm_boolean trunc = pcx_priv->trunc;
 	int bytes_per_line = pcx_priv->bytes_per_line;
-	int stride, y;
+	int y;
+	size_t stride;
 	gbm_u8 *line;
 	AHEAD *ahead;
-	gbm_u8 runleft = 0, runval;
+	gbm_u8 runleft = 0, runval = 0;
 
 	if ( (ahead = gbm_create_ahead(fd)) == NULL )
 		return GBM_ERR_MEM;
@@ -257,7 +258,7 @@ case 1:
 	stride = ((gbm->w + 31) / 32) * 4;
 	for ( y = gbm->h - 1; y >= 0; y-- )
 		{
-		read_pcx_line(ahead, data + y * stride, bytes_per_line, &runleft, &runval);
+		read_pcx_line(ahead, data + stride * y, bytes_per_line, &runleft, &runval);
 		if ( trunc )
 			runleft = 0;
 		}
@@ -269,7 +270,7 @@ case 4:
 	if ( pcx_priv->planes == 1 )
 		for ( y = gbm->h - 1; y >= 0; y-- )
 			{
-			read_pcx_line(ahead, data + y * stride, bytes_per_line, &runleft, &runval);
+			read_pcx_line(ahead, data + stride * y, bytes_per_line, &runleft, &runval);
 			if ( trunc )
 				runleft = 0;
 			}
@@ -279,11 +280,11 @@ case 4:
 		int bytes = (gbm->w / 8);
 		int bits  = (gbm->w & 7);
 
-		memset(data, 0, gbm->h * stride);
+		memset(data, 0, stride * gbm->h);
 		for ( y = gbm->h - 1; y >= 0; y-- )
 			for ( p = 0x11; p <= 0x88 ; p <<= 1 )
 				{
-				gbm_u8 *dest = data + y * stride;
+				gbm_u8 *dest = data + stride * y;
 
 				read_pcx_line(ahead, line, bytes_per_line, &runleft, &runval);
 				if ( trunc )
@@ -320,7 +321,7 @@ case 24:
 			if ( trunc )
 				runleft = 0;
 			for ( x = 0; x < gbm->w; x++ )
-				data[y * stride + p + x * 3] = line[x];
+				data[stride * y + p + x * 3] = line[x];
 			}
 	}
 	break;
@@ -380,7 +381,8 @@ static void pcx_rle(const gbm_u8 *src, int n_src, gbm_u8 *dst, int *n_dst)
 
 GBM_ERR pcx_w(const char *fn, int fd, const GBM *gbm, const GBMRGB *gbmrgb, const gbm_u8 *data, const char *opt)
 	{
-	int i, y, stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
+	int i, y;
+	size_t stride = ((gbm->bpp * gbm->w + 31) / 32) * 4;
 	gbm_u8 *line;
 	gbm_u8 hdr[128];
 	int bytes_per_line, cnt;
@@ -445,7 +447,7 @@ case 1:
 			{
 			int i;
 			for ( i = 0; i < bytes_per_line; i++ )
-				b[i] = data[y*stride+i] ^ 0xffU;
+				b[i] = data[stride * y + i] ^ 0xffU;
 			pcx_rle(b, bytes_per_line, line, &cnt);
 			if ( gbm_file_write(fd, line, cnt) != cnt )
 				{
@@ -464,7 +466,7 @@ case 4:
 case 8:
 	for ( y = gbm->h - 1; y >= 0; y-- )
 		{
-		pcx_rle(data + y * stride, bytes_per_line, line, &cnt);
+		pcx_rle(data + stride * y, bytes_per_line, line, &cnt);
 		if ( gbm_file_write(fd, line, cnt) != cnt )
 			{
 			gbmmem_free(line);
@@ -488,7 +490,7 @@ case 24:
 	for ( y = gbm->h - 1; y >= 0; y-- )
 		for ( p = 2; p >= 0; p-- )
 			{
-			const gbm_u8 *src = data + y * stride;
+			const gbm_u8 *src = data + stride * y;
 
 			for ( x = 0; x < gbm->w; x++ )
 				line2[x] = src[x * 3 + p];
