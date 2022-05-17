@@ -1,6 +1,24 @@
+-=== osFree, Open Source OS/2 Clone ===-
+osFree(OS/3): The reincarnation of OS/2.
+
+
 Русский:
 
 Russian:
+
+# Получение исходников
+
+Исходные коды osFree состоят из главного Git-репозитория и нескольких
+субмодулей. Главный репозиторий: osfree и субмодули: 
+
+FamilyAPI, MacroLib, fat32, jfs и os3.
+
+Поэтому нужно сначала скачать главный репозиторий osfree, и затем подтянуть 
+субмодули:
+
+> git clone https://github.com/osfree-project
+> git submodule update --init --recursive
+> git submodule update --remote --recursive
 
 # Система сборки osFree
 
@@ -28,6 +46,20 @@ REXX (но, в случае OS/2 хоста, вы можете использо�
 
 English:
 
+# Getting the source code
+
+osFree sources consist of the main Git repository and several submodules.
+The main git repo is isfree, and submodules are:
+
+FamilyAPI, MacroLib, fat32,
+
+jfs and os3. Hence, you need to clone the main osfree repo first, and then
+pull the submodules:
+
+> git clone https://github.com/osfree-project
+> git submodule update --init --recursive
+> git submodule update --remote --recursive
+
 # osFree build system
 
 First, start %root%\\conf\\scripts\\_setup.{cmd|sh|bat}, to pull the build dependencies.
@@ -44,14 +76,11 @@ paths. After which, you can start build by launching _wcc.{sh|cmd}.
 
 Note that _wcc.cmd autodetects OS (OS/2, win32 or win64).
 
-Generally, we use .bat scripts to be specific for windows, .cmd specific to OS/2, and
+Generally, we use .bat scripts specific for windows, .cmd specific to OS/2, and
 .sh specific to UNIX/Linux.
 
-(c) osFree project,
-http://www.osfree.org/
 
---=={-- osFree, Open Source OS/2 Clone --}==--
-osFree(OS/3): The reincarnation of OS/2.
+---
 
 # Many thanks to those projects:
 
@@ -111,3 +140,6 @@ Ralf Brown documentation (Interrupt list). Great source of DOS and DOS VM inform
 
 
 and other projects here. Please add it if we missed one.
+
+(c) osFree project, 2002-2022
+http://www.osfree.org/
