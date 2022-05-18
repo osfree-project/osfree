@@ -16,8 +16,10 @@ FamilyAPI, MacroLib, fat32, jfs и os3.
 Поэтому нужно сначала скачать главный репозиторий osfree, и затем подтянуть 
 субмодули:
 
-> git clone https://github.com/osfree-project
+> git clone https://github.com/osfree-project/osfree.git
+
 > git submodule update --init --recursive
+
 > git submodule update --remote --recursive
 
 # Система сборки osFree
@@ -56,8 +58,10 @@ FamilyAPI, MacroLib, fat32,
 jfs and os3. Hence, you need to clone the main osfree repo first, and then
 pull the submodules:
 
-> git clone https://github.com/osfree-project
+> git clone https://github.com/osfree-project/osfree.git
+
 > git submodule update --init --recursive
+
 > git submodule update --remote --recursive
 
 # osFree build system
