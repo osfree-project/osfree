@@ -16,7 +16,7 @@ $(p)cleanup$(e) &
 # $(p)mac$(e)
 $(p)mdc$(e)
 
-ADD_COPT = -dNOAPIPROTO -u_MAX_DRIVE -i=..$(SEP)include -i=. -i=$(%ROOT)DOS$(SEP)WIN16$(SEP)include
+ADD_COPT = -dNOAPIPROTO -u_MAX_DRIVE -i=. -i=$(MYDIR)include # -i=$(%ROOT)DOS$(SEP)WIN16$(SEP)include
 
 !include $(%ROOT)/mk/tools.mk
 
