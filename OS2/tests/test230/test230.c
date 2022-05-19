@@ -1,8 +1,10 @@
 #define INCL_GPIPRIMITIVES      /* GPI Primitive functions      */
 
 #include <os2.h>
+#include <string.h>
 
-
+int main(VOID)
+{
 
 LONG  lHits;            /* correlation/error indicator          */
 
@@ -35,3 +37,6 @@ strcpy(pchString,"13 characters");
 lHits = GpiCharStringPosAt(hps, &pptlStart, &rclRect, flOptions,
 
                           lCount, pchString, NULL);
+
+return 0;
+}

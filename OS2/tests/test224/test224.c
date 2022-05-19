@@ -8,7 +8,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB     hab;            /* anchor-block handle                  */
 
@@ -87,3 +88,6 @@ hpsScreen = GpiCreatePS(hab, hdcScreen, &sizl, PU_PELS | GPIF_LONG
    device context into the screen device context */
 
 GpiBitBlt(hpsScreen, hpsMemory, 4L, aptl, ROP_SRCCOPY, BBO_IGNORE);
+
+return 0;
+}

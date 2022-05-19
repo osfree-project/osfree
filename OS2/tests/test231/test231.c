@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -21,3 +22,6 @@ GpiPolyLine(hps, 2L, ptlPoints);       /* draw two sides         */
 GpiCloseFigure(hps);                   /* close the triangle     */
 
 GpiEndPath(hps);                       /* end the path bracket   */
+
+return 0;
+}

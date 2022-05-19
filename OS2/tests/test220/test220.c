@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -17,3 +18,6 @@ GpiAssociate(hps, NULLHANDLE);
 /* associate a printer device context */
 
 GpiAssociate(hps, hdcPrinter);
+
+return 0;
+}

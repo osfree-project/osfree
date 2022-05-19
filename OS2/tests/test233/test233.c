@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -34,3 +35,6 @@ hrgn3 = GpiCreateRegion(hps, 0L, NULL);
 
 GpiCombineRegion(hps, hrgn3, hrgn1, hrgn2, CRGN_XOR);
 
+return 0;
+
+}

@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;
 
@@ -23,3 +24,6 @@ GpiMove(hps, &ptlStart);           /* move to start point (0, 0) */
 GpiPolyLine(hps, 3L, ptlTriangle); /* draw triangle              */
 
 GpiEndElement(hps);                /* end element bracket        */
+
+return 0;
+}
