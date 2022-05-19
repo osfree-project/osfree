@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG  lremapColors;     /* number of remapped colors            */
 
@@ -51,3 +52,6 @@ ULONG aulTable[4]=
 lremapColors = GpiAnimatePalette(hpal, LCOLF_CONSECRGB, 0L, 4L,
 
                                  aulTable);
+
+return 0;
+}
