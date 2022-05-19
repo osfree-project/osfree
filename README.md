@@ -11,7 +11,7 @@ Russian:
 Исходные коды osFree состоят из главного Git-репозитория и нескольких
 субмодулей. Главный репозиторий: osfree и субмодули: 
 
-FamilyAPI, MacroLib, fat32, jfs и os3.
+FamilyAPI, MacroLib, fat32, jfs, os3 и другие.
 
 Поэтому нужно сначала скачать главный репозиторий osfree, и затем подтянуть 
 субмодули:
@@ -51,11 +51,11 @@ English:
 # Getting the source code
 
 osFree sources consist of the main Git repository and several submodules.
-The main git repo is isfree, and submodules are:
+The main git repo is osfree, and submodules are:
 
-FamilyAPI, MacroLib, fat32,
+FamilyAPI, MacroLib, fat32, jfs, os3 and others.
 
-jfs and os3. Hence, you need to clone the main osfree repo first, and then
+Hence, you need to clone the main osfree repo first, and then
 pull the submodules:
 
 > git clone https://github.com/osfree-project/osfree.git
