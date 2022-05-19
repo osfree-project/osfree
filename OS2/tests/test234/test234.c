@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -25,3 +26,6 @@ GpiComment(hps, 13L, "Draw triangle");
 GpiPolyLine(hps, 3L, ptlTriangle);
 
 GpiCloseSegment(hps);                      /* close the segment */
+
+return 0;
+}

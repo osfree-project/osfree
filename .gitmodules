@@ -10,3 +10,6 @@
 [submodule "DOS/fapi"]
 	path = DOS/fapi
 	url = https://github.com/osfree-project/FamilyAPI.git
+[submodule "OS2/MM/WPS"]
+	path = OS2/MM/WPS
+	url = https://github.com/osfree-project/CWMM.git

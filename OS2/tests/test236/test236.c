@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL  fSuccess;         /* success indicator                    */
 
@@ -33,3 +34,6 @@ pmatlfArray.fxM11 = 2; /* set first element of transform matrix */
 fSuccess = GpiConvertWithMatrix(hps, lCountp, aptlPoints,
 
                                 lCount, &pmatlfArray);
+
+return 0;
+}

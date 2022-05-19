@@ -434,7 +434,11 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 # and does $(MAKE) $(TARGET) in each dir:
 #
 subdirs: .symbolic
- @for %d in ($(DIRS)) do @cd %d && $(MAKE) $(MAKEOPT) install
+!ifeq UNIX TRUE
+ @for %d in ($(DIRS)) do @if [ -d %d ]; then cd %d && $(MAKE) $(MAKEOPT) install && cd ..; fi
+!else
+ @for %d in ($(DIRS)) do @if exist %d cd %d && $(MAKE) $(MAKEOPT) install
+!endif
 
 dirhier: .symbolic
  $(verbose)$(SAY) cd       $(RELDIR) $(LOG)
