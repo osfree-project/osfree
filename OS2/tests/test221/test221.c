@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 
 
@@ -25,3 +26,6 @@ GpiBeginArea(hps,           /* start the area bracket            */
 GpiPolyLine(hps, 3L, ptlTriangle);       /* draw the triangle    */
 
 GpiEndArea(hps);                         /* end the area bracket */
+
+return 0;
+}

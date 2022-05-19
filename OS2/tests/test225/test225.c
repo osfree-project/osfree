@@ -6,7 +6,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS    hps;
 
@@ -55,3 +56,6 @@ for (i = 0; i < 3; i++)
     matlfInstance.fxM22 *= 2;
 
     }
+
+return 0;
+}
