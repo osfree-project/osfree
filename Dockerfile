@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=amd64/debian:bullseye
+ARG BASE_IMAGE=i386/debian:bullseye
 
 FROM $BASE_IMAGE
 
@@ -9,4 +9,4 @@ RUN apt update -y && \
 
 RUN /root/_setup.sh
 
-ENTRYPOINT []
+ENTRYPOINT [ "/bin/sh", "./conf/scripts/jnlp-lnx.sh" ]
