@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;
 
@@ -19,3 +20,6 @@ GpiOpenSegment(hps, 2L);            /* open segment #2   */
 GpiDeleteElementsBetweenLabels(hps, 1L, 2L);
 
 GpiCloseSegment(hps);               /* close the segment */
+
+return 0;
+}

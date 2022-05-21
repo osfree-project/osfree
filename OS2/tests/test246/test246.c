@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -21,3 +22,6 @@ hrgn = GpiCreateRegion(hps,               /* presentation space */
                        3L,                /* three rectangles   */
 
                        arcl); /* address of array of rectangles */
+
+return 0;
+}

@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -41,3 +42,6 @@ if (flDefMask & LBB_COLOR)
     /* The line color has the default value. */
 
    }
+
+return 0;
+}

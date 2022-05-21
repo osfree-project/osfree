@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG     lOff;          /* error or offset/element number       */
 
@@ -25,3 +26,6 @@ lOff = GpiErrorSegmentData(hps, &plSegment, &plContext);
 if (plContext == GPIE_ELEMENT)
 
    lElement = lOff;
+
+return 0;
+}

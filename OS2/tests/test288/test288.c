@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;               /* presentation space handle            */
 
@@ -22,14 +23,17 @@ GpiLabel(hps, 10L);  GpiPolyLine(hps, 3L, ptlTriangle);
 
 GpiCloseSegment(hps);
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiOpenSegment(hps, 4L);
 
 GpiSetElementPointerAtLabel(hps, 10L);/* move to label 10         */
 
 GpiOffsetElementPointer(hps, 1L);     /* move to polyline element */
+
+return 0;
+}

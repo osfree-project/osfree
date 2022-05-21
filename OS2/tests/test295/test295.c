@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB    hab;             /* anchor-block handle                  */
 
@@ -67,3 +68,6 @@ optArray[PMF_RESET]=RES_DEFAULT;
 lHits = GpiPlayMetaFile(hps, hmf, 9L, optArray, (LONG *)0, 80L,
 
                         szBuffer);
+
+return 0;
+}

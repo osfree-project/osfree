@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -15,3 +16,6 @@ BYTE abImage[] = { 0x00, 0x18, 0x3c, 0x7e, 0xff,
 
 
 GpiImage(hps, 0L, &sizl, 8L, abImage);       /* draws the image */
+
+return 0;
+}

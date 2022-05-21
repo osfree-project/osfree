@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,6 @@ GpiCloseSegment(hps);          /* closes the segment            */
 
 
 GpiDrawSegment(hps, 1L);
+
+return 0;
+}

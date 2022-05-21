@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;               /* presentation space handle            */
 
@@ -10,11 +11,11 @@ POINTL ptlStart = { 0, 0 }; /* first vertex                     */
 
 POINTL ptlTriangle[] = { 100, 100, 200, 0, 0, 0 }; /* vertices  */
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 /* begin the element bracket */
 
@@ -25,3 +26,6 @@ GpiMove(hps, &ptlStart);           /* move to start point (0, 0) */
 GpiPolyLine(hps, 3L, ptlTriangle); /* draw triangle              */
 
 GpiEndElement(hps);                /* end element bracket        */
+
+return 0;
+}

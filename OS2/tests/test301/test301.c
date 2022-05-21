@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -17,3 +18,6 @@ GpiPolyMarker(hps, 5L, aptl);
 GpiMove(hps, &ptlStart);
 
 GpiPolyLine(hps, 5L, aptl);
+
+return 0;
+}

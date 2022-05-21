@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB          hab;       /* Anchor-block handle                  */
 
@@ -24,11 +25,11 @@ hdc = DevOpenDC(hab, OD_MEMORY, "*", 5L, (PDEVOPENDATA)&dop, NULLHANDLE);
 
 hps = GpiCreatePS(hab, hdc, &page, PU_PELS|GPIT_MICRO|GPIA_ASSOC);
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiAssociate(hps, NULLHANDLE); /* disassociate device context */
 
@@ -36,3 +37,5 @@ GpiDestroyPS(hps);       /* destroys presentation space */
 
 DevCloseDC(hdc);         /* closes device context       */
 
+return 0;
+}

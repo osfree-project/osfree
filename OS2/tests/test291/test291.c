@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG   lHits;           /* correlation/error indicator          */
 
@@ -24,8 +25,11 @@ GpiCloseFigure(hps);                   /* close the triangle     */
 
 GpiEndPath(hps);                       /* end the path bracket   */
 
- .
+// .
 
- .
+// .
 
 lHits = GpiOutlinePath(hps, 1L, 0L);
+
+return 0;
+}

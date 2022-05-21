@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;               /* presentation space handle            */
 
@@ -23,3 +24,6 @@ GpiMove(hps, &ptlStart);
 GpiCloseSegment(hps);
 
 GpiPolyLine(hps, 3L, ptlTriangle);
+
+return 0;
+}

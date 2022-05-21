@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL   fSuccess;        /* success indicator                    */
 
@@ -15,3 +16,6 @@ POINTL pptlOffset = {3,3}; /* displacement                      */
 
 
 fSuccess = GpiOffsetRegion(hps, Hrgn, &pptlOffset);
+
+return 0;
+}

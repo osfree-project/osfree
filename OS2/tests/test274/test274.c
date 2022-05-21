@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,6 @@ for (i = 5; i > 0; i--)
         DRO_OUTLINE,         /* outline                         */
 
         MAKEFIXED(i, 0));    /* converts integer to fixed point */
+
+return 0;
+}

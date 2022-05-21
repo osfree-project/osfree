@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -15,3 +16,6 @@ POINTL aptl[3] = { 200, 100, 0, 100, 200, 0 }; /* curve points  */
 GpiMove(hps, &ptlStart);        /* move to the lower-left corner */
 
 GpiPolyFillet(hps, 3L, aptl);   /* draw the curve                */
+
+return 0;
+}

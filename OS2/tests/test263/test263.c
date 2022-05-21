@@ -6,7 +6,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG     lHits;         /* correlation/error indicator          */
 
@@ -67,3 +68,6 @@ lHits = GpiElement(hps, lType, pszDesc, lLength, (BYTE *)&pbData);
 
 
 GpiCloseSegment(hps);      /* closes segment that received data */
+
+return 0;
+}
