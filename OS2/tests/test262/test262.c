@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -20,10 +21,14 @@ GpiPolyLine(hps, 3L, ptlTriangle); /* draw triangle              */
 
 GpiCloseSegment(hps);              /* close the segment          */
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiDrawSegment(hps, 4L);           /* draw segment #4            */
+
+return 0;
+
+}

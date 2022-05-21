@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -29,3 +30,6 @@ GpiModifyPath(hps,
               MPATH_STROKE);     /* modifies path for wide line */
 
 GpiFillPath(hps, 1L, FPATH_ALTERNATE);   /* draws the wide line */
+
+return 0;
+}

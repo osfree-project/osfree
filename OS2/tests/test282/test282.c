@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB hab;                /* anchor block handle                  */
 
@@ -14,10 +15,13 @@ HMF hmf;                /* metafile handle                      */
 
 hmf = GpiLoadMetaFile(hab, "sample.met");
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiDeleteMetaFile(hmf);             /* deletes metafile         */
+
+return 0;
+}

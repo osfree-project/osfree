@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HRGN   hrgn;            /* handle for region                    */
 
@@ -27,3 +28,6 @@ GpiEndPath(hps);                       /* end the path bracket   */
 
 
 hrgn = GpiPathToRegion(hps, 1L, FPATH_WINDING);
+
+return 0;
+}

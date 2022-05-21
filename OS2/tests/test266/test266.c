@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,6 @@ GpiCloseFigure(hps);                   /* close the triangle     */
 GpiEndPath(hps);                       /* end the path bracket   */
 
 GpiFillPath(hps, 1L, FPATH_ALTERNATE); /* draw and fill the path */
+
+return 0;
+}

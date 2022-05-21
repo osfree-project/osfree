@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG  lComplexity;      /* clipping complexity/error return     */
 
@@ -13,3 +14,6 @@ POINTL pptlPoint = {3,3}; /* displacement                       */
 
 
 lComplexity = GpiOffsetClipRegion(hps, &pptlPoint);
+
+return 0;
+}

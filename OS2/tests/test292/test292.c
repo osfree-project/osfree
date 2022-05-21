@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,6 @@ GpiSetColor(hps, CLR_RED);
 GpiSetPattern(hps, PATSYM_DIAG1);
 
 GpiPaintRegion(hps, hrgn);
+
+return 0;
+}

@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL     fSuccess;      /* success indicator                    */
 
@@ -16,12 +17,15 @@ HAB hab;                /* anchor block handle                  */
 
 hmf = GpiLoadMetaFile(hab, "sample.met");
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 
 
 fSuccess = GpiDeleteMetaFile(hmf);
+
+return 0;
+}

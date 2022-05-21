@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL     fSuccess;      /* success indicator                    */
 
@@ -21,3 +22,6 @@ hpal = GpiQueryPalette(hps);
 /* delete palette */
 
 fSuccess = GpiDeletePalette(hpal);
+
+return 0;
+}

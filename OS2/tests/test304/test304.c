@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG   lInside;         /* inside/error indicator               */
 
@@ -27,3 +28,6 @@ hrgn = GpiCreateRegion(hps, 3L, arcl);
 
 
 lInside = GpiPtInRegion(hps, hrgn, &pptlPoint);
+
+return 0;
+}

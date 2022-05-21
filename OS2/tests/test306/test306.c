@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -49,3 +50,6 @@ do *lbrc.
 } while (cb > 0L);
 
 GpiCloseSegment(hps);        /* close segment that received data */
+
+return 0;
+}

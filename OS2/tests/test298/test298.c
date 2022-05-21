@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,6 @@ GpiPolyFilletSharp(hps,    /* presentation-space handle            */
     aptl,                  /* address of array of points           */
 
     afx);                  /* address of array of sharpness values */
+
+return 0;
+}

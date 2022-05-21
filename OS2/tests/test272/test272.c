@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG  lHits;            /* correlation/error indicator          */
 
@@ -27,3 +28,6 @@ lColor = 1;
 
 
 lHits = GpiFloodFill(hps, lOptions, lColor);
+
+return 0;
+}

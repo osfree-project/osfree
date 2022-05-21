@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -17,3 +18,6 @@ hrgn = GpiCreateRegion(hps, 3L, arcl); /* use 3 rectangles   */
 GpiPaintRegion(hps, hrgn);             /* paint the region   */
 
 GpiDestroyRegion(hps, hrgn);           /* destroy the region */
+
+return 0;
+}

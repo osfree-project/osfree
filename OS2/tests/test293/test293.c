@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -21,3 +22,6 @@ GpiSetLineType(hps, LINETYPE_SOLID);
 GpiPartialArc(hps, &ptl, MAKEFIXED(50, 0), MAKEFIXED(0, 0),
 
     MAKEFIXED(180, 0));
+
+return 0;
+}

@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -33,3 +34,6 @@ GpiCreateLogColorTable(hps,         /* presentation space       */
     16,                             /* 16 entries               */
 
     alTable);                       /* RGB color values         */
+
+return 0;
+}

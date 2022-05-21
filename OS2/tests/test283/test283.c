@@ -1,8 +1,10 @@
 #define INCL_GPILCIDS           /* Font functions               */
 
 #include <os2.h>
+#include <string.h>
 
-
+int main(VOID)
+{
 
 BOOL  fSuccess;         /* success indicator                    */
 
@@ -19,3 +21,6 @@ strcpy(pszFilename,"C:\\TEST.FON");
 
 
 fSuccess = GpiLoadPublicFonts(hab, pszFilename);
+
+return 0;
+}

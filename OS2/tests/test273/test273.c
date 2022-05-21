@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG     lHits;         /* correlation/error indicator          */
 
@@ -29,3 +30,6 @@ hrgn = GpiCreateRegion(hps, 3L, arcl);
 
 
 lHits = GpiFrameRegion(hps, hrgn, &psizlThickness);
+
+return 0;
+}
