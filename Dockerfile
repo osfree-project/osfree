@@ -9,4 +9,4 @@ RUN apt update -y && \
 
 RUN /root/_setup.sh
 
-ENTRYPOINT [ "/bin/sh", "/root/osfree/src/osfree/tmp/linux/scripts/jnlp-lnx.sh" ]
+ENTRYPOINT [ "/bin/sh", "/root/osfree/osfree/conf/scripts/jnlp-lnx.sh" ]
