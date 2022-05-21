@@ -34,7 +34,8 @@
 //
 
 node ('os2-vbox-i386') {
-            stage ('Pull submodules') {
+            stage ('Checkout sources') {
+                cmd 'git clone https://github.com/osfree-project/osfree'
                 cmd 'git submodule update --init --recursive'
                 cmd 'git submodule update --remote --recursive'
             }
