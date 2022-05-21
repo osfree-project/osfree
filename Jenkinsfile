@@ -36,5 +36,5 @@
 node {
     stage "Build"
     echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
-    cmd "_wcc.cmd"
+    sh "./_wcc.sh"
 }
