@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS  hps;
 
@@ -15,3 +16,6 @@ GpiSetElementPointer(hps, 3L);     /* move to third element */
 GpiDeleteElement(hps);             /* delete element        */
 
 GpiCloseSegment(hps);              /* close the segment     */
+
+return 0;
+}

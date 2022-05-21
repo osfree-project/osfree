@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB hab;                /* anchor block handle                  */
 
@@ -51,3 +52,6 @@ ULONG aulTable[4]=
 
 
 hpal = GpiCreatePalette(hab, 0L, LCOLF_CONSECRGB, 4L, aulTable);
+
+return 0;
+}

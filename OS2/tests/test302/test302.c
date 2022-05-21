@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -20,3 +21,5 @@ GpiPolySpline(hps,               /* presentation-space handle  */
 
     aptl);                       /* address of array of points */
 
+return 0;
+}

@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG     lEquality;     /* equality/error indicator             */
 
@@ -29,3 +30,6 @@ hrgnSrc2 = GpiCreateRegion(hps, 3L, arcl);
 
 
 lEquality = GpiEqualRegion(hps, hrgnSrc1, hrgnSrc2);
+
+return 0;
+}

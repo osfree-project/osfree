@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL     fSuccess;      /* success indicator                    */
 
@@ -20,9 +21,9 @@ GpiSetInitialSegmentAttrs(hps, ATTR_CHAINED, ATTR_ON);
 
 GpiOpenSegment(hps, 1L);
 
- .
+// .
 
- .
+// .
 
 GpiCloseSegment(hps);
 
@@ -30,9 +31,9 @@ GpiCloseSegment(hps);
 
 GpiOpenSegment(hps, 2L);
 
- .
+// .
 
- .
+// .
 
 GpiCloseSegment(hps);
 
@@ -41,3 +42,6 @@ GpiCloseSegment(hps);
 /* draw the segment chain */
 
 fSuccess = GpiDrawChain(hps);
+
+return 0;
+}

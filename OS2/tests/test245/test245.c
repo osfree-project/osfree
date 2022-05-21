@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HAB hab;                /* anchor block handle                  */
 
@@ -35,3 +36,6 @@ hdc = DevOpenDC(hab, OD_MEMORY, "*", 5L, (PDEVOPENDATA)&dop, NULLHANDLE);
 hps = GpiCreatePS(hab, hdc, &sizl, PU_PELS |
 
                                    GPIT_MICRO | GPIA_ASSOC);
+
+return 0;
+}

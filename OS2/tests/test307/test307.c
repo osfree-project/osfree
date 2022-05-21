@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL  fSuccess;         /* success indicator                    */
 
@@ -23,3 +24,6 @@ fSuccess = GpiQueryArcParams(hps, &parcpArcParams);
 if (fSuccess == TRUE)
 
    lPcoefficient = parcpArcParams.lP;
+
+return 0;
+}

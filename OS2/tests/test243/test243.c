@@ -3,8 +3,10 @@
 #define INCL_GPIPRIMITIVES      /* GPI primitive functions      */
 
 #include <os2.h>
+#include <string.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -55,3 +57,6 @@ GpiCreateLogFont(hps,        /* presentation space               */
 GpiSetCharSet(hps, 1L);      /* sets font for presentation space */
 
 GpiCharStringAt(hps, &ptl, 5L, "Hello"); /* displays a string    */
+
+return 0;
+}

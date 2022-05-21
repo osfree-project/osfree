@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 MPARAM mp1;
 
@@ -23,3 +24,6 @@ case WM_MOUSEMOVE:
     GpiConvert(hps, CVTC_DEVICE, CVTC_WORLD, 1L, &ptl);
 
     GpiMove(hps, &ptl);
+
+return 0;
+}

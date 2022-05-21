@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL     fSuccess;      /* success indicator                    */
 
@@ -65,3 +66,5 @@ lNumHits = GpiCorrelateSegment(hps, lSegment, PICKSEL_VISIBLE,
                                &pptlPick, lMaxHits, lMaxDepth,
 
                                &alSegTag);
+return 0;
+}

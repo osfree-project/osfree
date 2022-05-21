@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS    hps;             /* presentation-space handle            */
 
@@ -30,14 +31,17 @@ pbmi.cBitCount = 4;
 
 lScan = GpiQueryBitmapBits(hps, 0L, 100L, pb, &pbmi);
 
-  .
+//  .
 
-  .
+//  .
 
-  .
+//  .
 
 /* draw stored rectangle bit map */
 
 lHits = GpiDrawBits(hps, (VOID *)pb, &pbmi, 4L,
 
                     aptlPoints, ROP_SRCCOPY, BBO_IGNORE);
+
+return 0;
+}

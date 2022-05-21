@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 LONG   lMode;           /* current attribute mode (or error)    */
 
@@ -20,10 +21,13 @@ lMode = GpiQueryAttrMode(hps);
 
 GpiSetAttrMode(hps, AM_PRESERVE);
 
- .
+// .
 
- .
+// .
 
 /* restore original mode */
 
 GpiSetAttrMode(hps, lMode);
+
+return 0;
+}

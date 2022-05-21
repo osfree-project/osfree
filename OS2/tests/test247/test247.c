@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -23,3 +24,7 @@ hbmPrevious = GpiSetBitmap(hps, hbm);     /* set bit map for PS */
 GpiSetBitmap(hps, hbmPrevious);      /* release bit map from PS */
 
 GpiDeleteBitmap(hbm);                /* delete the bit map      */
+
+return 0;
+
+}

@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -20,12 +21,15 @@ GpiCreateLogFont(hps, NULL, 1L, &fat);
 
 GpiSetCharSet(hps, 1L);
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiSetCharSet(hps, 0L);          /* release the font before deleting */
 
 GpiDeleteSetId(hps, 1L);         /* delete the logical font          */
+
+return 0;
+}

@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -16,11 +17,11 @@ HRGN hrgn;              /* region handle                        */
 
 GpiSetAttrMode(hps, AM_PRESERVE);
 
-    .
+//    .
 
-    .
+//    .
 
-    .
+//    .
 
 GpiSetColor(hps, CLR_RED);        /* sets color to red          */
 
@@ -29,3 +30,6 @@ GpiSetPattern(hps, PATSYM_DIAG1); /* sets pattern to a diagonal */
 GpiPaintRegion(hps, hrgn);
 
 GpiPop(hps, 2L);  /* restores values of last two attributes set */
+
+return 0;
+}

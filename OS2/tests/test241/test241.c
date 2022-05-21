@@ -4,7 +4,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -33,3 +34,6 @@ bmih.cBitCount = 32*32;
 
 
 hbm = GpiCreateBitmap(hps, &bmih, 0L, NULL, NULL);
+
+return 0;
+}

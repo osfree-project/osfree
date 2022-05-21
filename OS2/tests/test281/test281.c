@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle            */
 
@@ -19,3 +20,6 @@ GpiLoadFonts(hab, "C:\\HELV.FON");
 
 
 remFonts = GpiQueryFonts(hps, QF_PRIVATE, NULL, &cFonts, 0L, NULL);
+
+return 0;
+}

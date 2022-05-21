@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 HPS hps;                /* presentation space handle                   */
 
@@ -15,3 +16,6 @@ POINTL ptlLines[] = { 100, 100, 100, 200,      /* line 1     */
 GpiPolyLineDisjoint(hps, 4L, ptlLines);
 
                         /* draw lines */
+
+return 0;
+}
