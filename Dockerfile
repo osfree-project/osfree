@@ -5,7 +5,7 @@ FROM $BASE_IMAGE
 COPY ./conf/scripts/_setup.sh /root
 
 RUN apt update -y && \
-  apt install -y openjdk-11-jre-headless openssh-server
+  apt install -y openjdk-11-jre-headless openssh-server git
 
 RUN /root/_setup.sh
 
