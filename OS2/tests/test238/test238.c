@@ -2,7 +2,8 @@
 
 #include <os2.h>
 
-
+int main(VOID)
+{
 
 BOOL     fSuccess;      /* success indicator                    */
 
@@ -51,3 +52,6 @@ lMaxDepth = 1L;
 lNumHits = GpiCorrelateChain(hps, PICKSEL_VISIBLE, &pptlPick, lMaxHits,
 
                                    lMaxDepth, &alSegTag);
+
+return 0;
+}
