@@ -33,19 +33,9 @@
 //parallel builders
 //
 
-node ('os2-vbox-i386') {
-            stage ('Checkout sources') {
-                cmd 'git clone https://github.com/osfree-project/osfree'
-                cmd 'git submodule update --init --recursive'
-                cmd 'git submodule update --remote --recursive'
-            }
-
-            stage ('Build') {
-                echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
-                cmd '_wcc.cmd'
-            }
-
-            stage ('Done') {
-                echo 'Done.'
-            }
+node {
+    stage ('Build') {
+        echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
+        cmd '_wcc.cmd'
+    }
 }
