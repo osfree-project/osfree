@@ -9,12 +9,23 @@ for (x in labels) {
     // Create a map to pass in to the 'parallel' step so we can fire all the builds at once
     builders[label] = {
         node (label) {
-            echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
+            stage ('Pull submodules') {
+                cmd 'git submodule update --init --recursive'
+                cmd 'git submodule update --remote --recursive'
+            }
 
-            if (label == 'linux-docker-i386')
-                cmd './_wcc.sh'
-            else
-                cmd '_wcc.cmd'
+            stage ('Build') {
+                echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
+
+                if (label == 'linux-docker-i386')
+                    cmd './_wcc.sh'
+                else
+                    cmd '_wcc.cmd'
+            }
+
+            stage ('Done') {
+                echo 'Done.'
+            }
         }
     }
 }
