@@ -7,9 +7,15 @@ NODE_NAME=linux-docker-i386
 JNLP_SECRET=c215e3e5695b58835883bc6bc6040f8479a7ae5c8d56409f30d2452cd728213c
 
 echo "Downloading the agent"
-wget ${JENKINS_URL}jnlpJars/slave.jar -O /root/slave.jar
+if [ ! -f "${WORKSPACE}/slave.jar" ]; then
+    wget ${JENKINS_URL}jnlpJars/slave.jar -O ${WORKSPACE}/slave.jar
+fi
 
-echo "Starting JNLP agent in container"
-java -jar /root/slave.jar \
-    -jnlpUrl ${JENKINS_URL}computer/${NODE_NAME}/jenkins-agent.jnlp \
-    -secret ${env.JNLP_SECRET} -workDir ${WORKSPACE} &"
+while true; do
+    echo "Starting JNLP agent in container"
+
+    java -jar ${WORKSPACE}/slave.jar \
+        -jnlpUrl ${JENKINS_URL}computer/${NODE_NAME}/slave-agent.jnlp \
+        -secret ${JNLP_SECRET}
+    sleep 10
+done
