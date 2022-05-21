@@ -18,7 +18,7 @@
 //                echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
 //
 //                if (label == 'linux-docker-i386')
-//                    cmd './_wcc.sh'
+//                    sh './_wcc.sh'
 //                else
 //                    cmd '_wcc.cmd'
 //            }
@@ -34,8 +34,7 @@
 //
 
 node {
-    stage ('Build') {
-        echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
-        cmd '_wcc.cmd'
-    }
+    stage "Build"
+    echo "Running build ${env.BUILD_ID} on ${env.JENKINS_URL}"
+    sh "./_wcc.sh"
 }
