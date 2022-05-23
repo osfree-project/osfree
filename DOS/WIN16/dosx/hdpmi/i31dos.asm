@@ -118,12 +118,10 @@ resizedos proc public
         jc      resizedos_err2      ;it's not a DOS selector
         @strout <"resize dos: memory is dos memory (%X)",lf>,bx
         mov		ss:[v86iret.rES], bx
-ife ?32BIT
         movzx   ebx,[esp].PUSHADS.rBX
         shl		ebx,4
 		call	selector_avail		;test if there are enough free descriptors
         jc		resizedos_err4
-endif
         mov     bx,[esp].PUSHADS.rBX
         mov     ah,4Ah
         call    rmdos               ;es=segment,bx=req. size
@@ -134,13 +132,11 @@ endif
         call    selector_resize		;resize selector DX, new size EAX
         jc      resizedos_err4		;might fail for 16-bit clients
         @strout <"resize dos: selectors adjusted",lf>
-ife ?32BIT
         lar		eax, clientDS
         jz		@F
         xor		eax,eax
         mov		clientDS, eax
 @@:
-endif
         popad
         clc
         ret

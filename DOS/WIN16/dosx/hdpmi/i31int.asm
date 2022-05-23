@@ -116,15 +116,9 @@ getpmevec proc public
         cmp     bl,20h             ;exceptions 00-1F!
         jnb     error8021
         movzx   ebx,bl
-  if ?32BIT
-        mov     edx, cs:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip
-        mov     cx, word ptr cs:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs
-        @strout <"get exception vector %X: %X:%lX",lf>, bx, cx, edx
-  else
         mov     dx, cs:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip
         mov     cx, cs:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs
         @strout <"get exception vector %X: %X:%X",lf>, bx, cx, dx
-  endif
         clc
         ret
         align 4
@@ -154,13 +148,8 @@ setpmevec proc public
         push	byte ptr _CSALIAS_
         pop		ds
 if 1        
-  if ?32BIT
-        mov     ds:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip, edx
-        mov     word ptr ds:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs, cx
-  else
         mov     ds:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip, dx
         mov     ds:[ebx*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs, cx
-  endif
 endif  
         clc
         ret
@@ -265,21 +254,12 @@ getpmivec proc public
         call    getpmptr
         jc      getpmivec_1        ;C if vector in IDT is ring 0
         mov     cx,[ebx.GATE.sel]
-if ?32BIT
-        mov     dx,[ebx.GATE.ofs32]
-        shl     edx,16
-endif
         mov     dx,[ebx.GATE.ofs]
         clc
         ret
 getpmivec_1:
-if ?32BIT
-        mov     edx, cs:[ebx].R3PROC._Eip
-        mov     cx, word ptr cs:[ebx].R3PROC._Cs
-else
         mov     dx, cs:[ebx].R3PROC._Eip
         mov     cx, cs:[ebx].R3PROC._Cs
-endif
         clc
         ret
         align 4
@@ -301,24 +281,13 @@ setpmivec proc public
         jc      setpmivec_1
         mov     [ebx.GATE.ofs],dx
         mov     [ebx.GATE.sel],cx
-if ?32BIT
-        push    edx
-        shr     edx,16
-        mov     [ebx.GATE.ofs32],dx
-        pop     edx
-endif
         clc
         ret
 setpmivec_1:
 		push	byte ptr  _CSALIAS_
         pop		ds
-if ?32BIT
-        mov     ds:[ebx].R3PROC._Eip, edx
-        mov     word ptr ds:[ebx].R3PROC._Cs, cx
-else
         mov     ds:[ebx].R3PROC._Eip, dx
         mov     ds:[ebx].R3PROC._Cs, cx
-endif
         clc
         ret
 error:

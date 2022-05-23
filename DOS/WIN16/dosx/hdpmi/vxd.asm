@@ -77,21 +77,13 @@ if ?LOG
         call    unsupp
 endif
 if ?CLRI2F1684
-  if ?32BIT
-		xor		edi,edi
-  else
 		xor		di,di
-  endif        
         mov		es,edi
 endif        
         stc
         ret
 found:        
-if ?32BIT
-		movzx	edi,word ptr cs:[esi+2]
-else
 		mov		di,cs:[esi+2]
-endif        
 		pop	esi
         push    _INTSEL_
         pop     es
@@ -335,11 +327,7 @@ error61:
         ret
 exit0:
 		mov ax,1
-if ?32BIT
-        mov word ptr es:[ebx],3
-else
         mov word ptr es:[bx],3
-endif        
 		ret
 exit3:
 		mov ax,55

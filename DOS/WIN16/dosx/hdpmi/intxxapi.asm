@@ -29,11 +29,7 @@ _DATA16	ends
 
 CDATA32	segment
 mouse15_rmcb dd 0		; real mode callback for int15, ax=c207h
-if ?32BIT
-mouse_evntproc	PF32 0	; mouse event proc for int 15, ax=c207h
-else
 mouse_evntproc	PF16 0
-endif
 CDATA32	ends
 
 endif
@@ -181,15 +177,9 @@ int15c207 proc
         push byte ptr _CSALIAS_
         pop ds
         assume ds:GROUP32
-if ?32BIT
-        mov dword ptr [mouse_evntproc+0],ebx
-        mov word ptr [mouse_evntproc+4],es
-		cmp word ptr [mouse_evntproc+4],0
-else
         mov word ptr [mouse_evntproc+0],bx
         mov word ptr [mouse_evntproc+2],es
 		cmp word ptr [mouse_evntproc+2],0
-endif
 		jnz install
 
 ;--- the mouse event proc is reset by the client
@@ -235,13 +225,8 @@ installc207handler proc
         pop ds
         push byte ptr _DSR3SEL_
         pop es
-if ?32BIT
-        mov esi,offset mouse_eventproc
-        mov edi,offset mouse_rmcs
-else
         mov si,LOWWORD(offset mouse_eventproc)
         mov di,LOWWORD(offset mouse_rmcs)
-endif
         call allocrmcb		;ds:esi -> pm proc, es:edi -> rmcs
         pop es
         pop ds
@@ -281,19 +266,6 @@ installc207handler endp
 
 mouse_eventproc proc
 		cld
-if ?32BIT
-		@strout <"mouse event (C207) in pm, SS:ESP=%lX:%lX,DS:ESI=%lX:%lX",lf>,ss,esp,ds,esi
-;--- pop CS:IP from real-mode stack and adjust real mode SP
-		lodsd
-		mov es:[edi].RMCS.rCSIP, eax
-		mov es:[edi].RMCS.rSP, si
-;--- transfer 4 WORDs from real-mode to protected mode stack
-		push dword ptr [esi+4]
-		push dword ptr [esi+0]
-		@strout <"calling %X:%lX",lf>,<word ptr cs:mouse_evntproc+4>,<dword ptr cs:mouse_evntproc+0>
-		call cs:[mouse_evntproc]
-		add esp,4*2
-else
 		@strout <"mouse event (C207) in pm, SS:SP=%lX:%X,DS:SI=%lX:%X",lf>,ss,sp,ds,si
 		@useext
 		lodsd
@@ -304,7 +276,6 @@ else
 		@strout <"calling %X:%X",lf>,<word ptr cs:mouse_evntproc+2>,<word ptr cs:mouse_evntproc+0>
 		call cs:[mouse_evntproc]
 		add sp,4*2
-endif
 		@strout <"mouse event (C207), return to rm",lf>
 		@iret
 		align 4
@@ -416,9 +387,7 @@ vds_05:
         jnz error10
 ;        test dl,40h
 ;        jz error0F
-ife ?32BIT
 		movzx edi,di
-endif
 		xor eax, eax
 		mov es:[edi].EDDS.wNumUsed,ax
 		cmp eax,es:[edi].EDDS.dwSize	;zero sized region is ok

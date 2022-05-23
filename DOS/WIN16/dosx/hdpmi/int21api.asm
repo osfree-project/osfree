@@ -26,15 +26,6 @@ SIZE_BY_HANDLE_FILE_INFO equ 7*4 + 3*8
 ;--- For 32bit there is *no* environment segment
 ;--- and the cmdline pointer is a QWORD.
 
-if ?32BIT
-
-EXECPM struct
-cmdline dq ?
-fcb1	dq ?
-fcb2	dq ?
-EXECPM ends
-
-else
 
 EXECPM struct
 environ dw ?
@@ -43,7 +34,6 @@ fcb1	dd ?
 fcb2	dd ?
 EXECPM ends
 
-endif
 
 EXECRM struct
 environ dw ?
@@ -104,14 +94,8 @@ if _LTRACE_
 		push offset protaftercall
 endif
 		cld
-if ?32BIT
-		@strout <"i21 bc: a-d=%X %lX %lX %lX ds=%lX es=%lX",lf>,\
-			ax,ebx,ecx,edx,ds,es
-;		@waitesckey
-else
 		@strout <"i21 bc: a=%X b=%X c=%X d=%X si=%X di=%X ds=%lX es=%lX",lf>,\
 			ax,bx,cx,dx,si,di,ds,es
-endif
 if ?FASTINT21
 		push offset retf2exit
 endif
@@ -319,13 +303,8 @@ endif
 		@ResetTrace
 
 intr211A proc
-if ?32BIT
-		@strout <"i21: dta set to %lX:%lX",lf>,ds,edx
-		mov dword ptr ss:[dtaadr+0],edx
-else
 		@strout <"i21: dta set to %lX:%X",lf>,ds,dx
 		mov word ptr ss:[dtaadr+0],dx
-endif
 		mov word ptr ss:[dtaadr+4],ds
 if ?DTAINHOSTPSP
 		push edx
@@ -347,27 +326,17 @@ intr212F proc
 		verr bx
 		jz @F
 		@strout <"i21: error - dta selector %X is invalid",lf>,bx
-if ?32BIT
-		xor ebx,ebx
-		mov dword ptr ss:[dtaadr+0],ebx
-else
 		xor bx,bx
 		mov word ptr ss:[dtaadr+0],bx
 		mov word ptr ss:[dtaadr+2],bx
-endif
 		mov word ptr ss:[dtaadr+4],bx
 @@:
 ife ?DTAINHOSTPSP
 		call getDTA
 endif
-if ?32BIT
-		les ebx,fword ptr ss:[dtaadr]
-		@strout <"i21: dta get (%lX:%lX)",lf>,es,ebx
-else
 		mov bx,word ptr ss:[dtaadr+0]
 		mov es,word ptr ss:[dtaadr+4]
 		@strout <"i21: dta get (%lX:%X)",lf>,es,bx
-endif
 		ret
 		align 4
 intr212F endp
@@ -384,11 +353,7 @@ intr2135 proc
 		mov ax,0204h
 		@int_31
 		mov es,ecx
-if ?32BIT
-		mov ebx,edx
-else
 		mov bx,dx
-endif
 		pop edx
 		pop ecx
 		pop eax
@@ -415,16 +380,10 @@ intr2125 endp
 
 intr2148 proc
 		pushad
-if ?32BIT
-		@strout <"I21, ah=48h: alloc %lX paragraphs",lf>,ebx
-		test ebx, 0F0000000h		;4 GB limit is 0FFFFFFFh paragraphs
-		jnz error1
-else
 		@strout <"I21, ah=48h: alloc %X paragraphs",lf>,bx
 		cmp bx,-1
 		jz error1
 		movzx ebx,bx
-endif
 		shl ebx,4 	;paragraphs -> bytes
 		mov ebp, ebx
 		push ebx
@@ -501,15 +460,11 @@ availpages proc
 		call _GetNumPhysPages
 		sub eax, ecx
 		shl eax,8			;pages -> paras
-if ?32BIT
-		mov [esp].PUSHADS.rEBX,eax
-else
 		cmp eax,0FFFFh
 		jc @F
 		mov ax,0FFFEh		;5.6.2004: changed from FFF0h
 @@:
 		mov [esp].PUSHADS.rBX,ax
-endif
 		popad
 		pop ds
 		mov ax,8			;not enough memory
@@ -549,19 +504,11 @@ intr214A proc
 isextmem:
 		mov esi,ecx	;handle is base in HDPMI
 		mov edi,edx
-if ?32BIT
-		mov ebx, [esp].PUSHADS.rEBX
-		test ebx, 0F0000000h
-		jnz error8
-else
 		movzx ebx, [esp].PUSHADS.rBX
-endif
 		shl ebx,4			;paras -> bytes
-ife ?32BIT
 		mov edx,es
 		call selector_avail	;check if enough free selectors are available
 		jc error8			;to map the new size of the block
-endif
 		push ebx
 		pop cx
 		pop bx
@@ -575,11 +522,7 @@ endif
 		mov ax, 7 			;set segment base
 		@int_31
 		@strout <"memselresize: base set for %X",lf>, es
-if ?32BIT
-		mov eax, [esp].PUSHADS.rEBX
-else
 		movzx eax, [esp].PUSHADS.rBX
-endif
 		shl eax, 4
 		mov edx, es
 		call selector_resize	;adjust selector array (should not fail)
@@ -621,44 +564,20 @@ intr214B proc
 		pushad
 		push ds
 		push es
-if ?32BIT
-		@strout <"I21: ax=%X ds:edx=%lX:%lX, es:ebx=%lX:%lX",lf>,ax,ds,edx,es,ebx
-		@strout <"   cmdl=%X:%lX">,\
-			< word ptr es:[ebx].EXECPM.cmdline+4>,\
-			<dword ptr es:[ebx].EXECPM.cmdline+0>
-		@strout <" fcb1=%X:%lX">,\
-			< word ptr es:[ebx].EXECPM.fcb1+4>,\
-			<dword ptr es:[ebx].EXECPM.fcb1+0>
-		@strout <" fcb2=%X:%lX",lf>,\
-			< word ptr es:[ebx].EXECPM.fcb2+4>,\
-			<dword ptr es:[ebx].EXECPM.fcb2+0>
-		push dword ptr es:[ebx].EXECPM.cmdline+4
-		push dword ptr es:[ebx].EXECPM.cmdline+0
-		push dword ptr es:[ebx].EXECPM.fcb2+4
-		push dword ptr es:[ebx].EXECPM.fcb2+0
-		push dword ptr es:[ebx].EXECPM.fcb1+4
-		push dword ptr es:[ebx].EXECPM.fcb1+0
-else
 		movzx ebx,bx
 		@strout <"I21: ax=%X ds:dx=%lX:%X, es:bx=%lX:%X",lf>,ax,ds,dx,es,bx
 		push dword ptr es:[ebx].EXECPM.cmdline
 		push dword ptr es:[ebx].EXECPM.fcb2
 		push dword ptr es:[ebx].EXECPM.fcb1
-endif
 		mov cl,2
 		movzx ecx,cl
 		mov edi,100h	   ;destination is TLB.100h
 		push byte ptr _TLBSEL_
 		pop es
 nextfcb:
-if ?32BIT
-		pop esi
-		pop eax
-else
 		pop si
 		movzx esi, si
 		pop ax
-endif
 		verr ax
 		jz @F
 		mov esi, offset dummyfcb
@@ -671,13 +590,8 @@ endif
 		movsd
 		dec cl
 		jnz nextfcb
-if ?32BIT
-		pop esi
-		pop eax
-else
 		pop si
 		pop ax
-endif
         verr ax
 		jz @F
 		mov esi, offset dummycmd
@@ -699,14 +613,6 @@ endif
 
 		pop es
 
-if ?32BIT
-  if 1
-		call getrmenv		 ;get current environment
-  else
-		xor eax,eax
-  endif
-		mov word ptr [execparm.environ],ax
-else
 		;for 16-bit, environment is included
 		;in parameter block. must be a real mode
 		;segment, though
@@ -720,13 +626,8 @@ else
 		mov bx, ax
 EnvIsValid:
 		mov word ptr [execparm.environ], bx
-endif
 		pop ds
-if ?32BIT
-		@strout <"I21: ah=4Bh ds:edx=%ls",lf>,ds,edx
-else
 		@strout <"I21: ah=4Bh ds:dx=%s",lf>,ds,dx
-endif
 		call copyz_dsdx_2_tlb	;DS:(E)DX -> tlb:0, dx=0
 
 		call _freephysmem		;in int15-mode, release some ext memory
@@ -749,12 +650,6 @@ if _LTRACE_
 endif
 ;		 @waitesckey
 		mov eax,[esp].PUSHADS.rEAX
-if ?32BIT
-		movzx edx, dx
-		movzx ebx, bx
-		movzx esi, si
-		movzx edi, di
-endif
 		call rmdos
 		mov [esp].PUSHADS.rAX,ax
 		pushfd
@@ -828,9 +723,7 @@ intr210C:
 intr210A proc
 		push ecx
 		push edx
-ife ?32BIT
 		movzx edx,dx
-endif
 		mov cl,[edx]
 		mov ch,00
 		inc ecx
@@ -888,11 +781,7 @@ intr2141:
 intr2143:
 intr215A:
 intr215B:
-if ?32BIT
-		@strout <"int 21,ax=%X ds:edx=%ls",lf>,ax,ds,edx
-else
 		@strout <"int 21,ax=%X ds:dx=%s",lf>,ax,ds,dx
-endif
 		push edx
 		call copyz_dsdx_2_tlb
 		call rmdos
@@ -991,12 +880,8 @@ intr2156 proc
 		call copyz_dsdx_2_tlb
 
 		push es
-if ?32BIT
-		push edi
-else
 		push word ptr 0
 		push di
-endif
 		mov edi,100h
 		push edi
 		call copyz_far32_2_tlbxx
@@ -1021,12 +906,8 @@ intr2160 proc
 		pop edi
 		jc @F
 		push es
-if ?32BIT
-		push edi
-else
 		push word ptr 0
 		push di
-endif
 		push 100h
 		call copyz_tlbxx_2_far32
 @@:
@@ -1039,11 +920,7 @@ intr2160 endp
 		@ResetTrace
 
 intr216C proc
-if ?32BIT
-		@strout <"int 21,ax=%X ds:esi=%ls ">,ax,ds,esi
-else
 		@strout <"int 21,ax=%X ds:si=%s" >,ax,ds,si
-endif
 		push esi
 		call copyz_dssi_2_tlb	   ;si=0,v86iret.ds = tlb
 		call rmdos
@@ -1098,11 +975,7 @@ intr214F endp
 		@ResetTrace
 
 intr2129 proc
-if ?32BIT
-		@strout <"fcb parse with fcb=%lX:%lX, name=%lX:%lX",lf>,es,edi,ds,esi
-else
 		@strout <"fcb parse with fcb=%lX:%X, name=%lX:%X",lf>,es,di,ds,si
-endif
 
 		push esi
 		push edi
@@ -1110,12 +983,8 @@ endif
 		call copyz_dssi_2_tlb	;sets v86-ds to TLB, si=0
 
 		push es
-if ?32BIT
-		push edi
-else
 		push word ptr 0
 		push di
-endif
 		mov edi,100h
 		push edi 
 		push 37
@@ -1145,11 +1014,6 @@ intr2129 endp
 
 checkfileparams proc
 		push eax
-if ?32BIT
-		lea eax, [ecx+edx]
-		cmp eax,010000h+1	;offset + bytes must not exceed 64 kB
-		jnc @F
-endif
 		push ds
 		call getlinaddr		;get linear address of DS
 		jc @F
@@ -1177,10 +1041,8 @@ if ?OPTIMIZETLBCOPY
 		call checkfileparams
 endif
 		pushad
-ife ?32BIT
 		movzx edx,dx
 		movzx ecx,cx
-endif
 		mov ebp,?TLBSIZE
 		mov si,ss:[wSegTLB]
 if ?DYNTLBALLOC
@@ -1232,18 +1094,10 @@ nextblock:
 		ja nextblock
 intr213F_1:
 		clc
-if ?32BIT
-		mov eax,edi
-else
 		mov ax,di
-endif
 intr213FB:
 intr213F_er:
-if ?32BIT
-		mov [esp].PUSHADS.rEAX,eax
-else
 		mov [esp].PUSHADS.rAX,ax
-endif
 if ?DYNTLBALLOC
 		pushfd
 		cmp bp,?TLBSIZE
@@ -1266,10 +1120,8 @@ if ?OPTIMIZETLBCOPY
 		call checkfileparams
 endif
 		pushad
-ife ?32BIT
 		movzx edx,dx
 		movzx ecx,cx
-endif
 		mov ebp,?TLBSIZE
 		mov si,ss:[wSegTLB]
 if ?DYNTLBALLOC
@@ -1312,17 +1164,9 @@ intr2140A:				 ;<----
 		sub ecx,ebp
 		ja intr2140A	;if > TLB another loop is required!
 		clc
-if ?32BIT
-		mov eax,edi
-else
 		mov ax,di
-endif
 fail:
-if ?32BIT
-		mov [esp].PUSHADS.rEAX,eax
-else
 		mov [esp].PUSHADS.rAX,ax
-endif
 if ?DYNTLBALLOC
 		pushfd
 		cmp bp,?TLBSIZE
@@ -1464,12 +1308,8 @@ intr21440D proc
 		push esi
 		cmp cl,40h
 		jnz not440D40
-if ?32BIT
-		mov ax,[edx+38]
-else
 		mov si,dx
 		mov ax,[si+38]
-endif
 		shl ax,2
 		add ax,38+2
 		pop esi
@@ -1569,9 +1409,7 @@ f440D41b:
 		pushad					 ;copy track [DS:DX+9] -> TLB
 		push ds
 		push es
-ife ?32BIT
 		movzx edx,dx
-endif
 		movzx ecx,[edx].LOGTRACKPARM.numsecs
 		lds si,[edx].LOGTRACKPARM.dta
 		movzx esi, si
@@ -1593,9 +1431,7 @@ f440D61a:
 		pushad
 		push ds
 		push es
-ife ?32BIT
 		movzx edx, dx
-endif
 		movzx ecx,[edx].LOGTRACKPARM.numsecs
 		les di,[edx].LOGTRACKPARM.dta
 		movzx edi, di
@@ -1720,9 +1556,7 @@ intr2113:							   ;ds:dx -> fcb
 		push ecx
 		push edx
 		mov cx,0025h			   ;size of "normal fcb" is 37 bytes
-ife ?32BIT
 		movzx edx,dx
-endif
 		cmp byte ptr [edx],0FFh	   ;extended fcb?
 		jnz @F
 		mov cl,25h+7			   ;then size 44 bytes
@@ -1763,9 +1597,6 @@ intr2132:
 		jz @F
 		call ds_segm2sel
 		@strout <"I21: ds=%X translated to %lX",lf>,ss:[v86iret.rDS],ds
-if ?32BIT
-		movzx ebx,bx
-endif
 		clc
 		ret
 @@:
@@ -1781,9 +1612,6 @@ intr2134:
 intr2152:
 		call rmdos
 		call es_segm2sel
-if ?32BIT
-		movzx ebx,bx
-endif
 		ret
 		align 4
 
@@ -1821,9 +1649,6 @@ intr2163 proc
 		cmp al,0
 		jnz @F
 		call ds_segm2sel
-if ?32BIT
-		movzx esi,si
-endif
 @@:
 		popfd
 		ret
@@ -1856,12 +1681,8 @@ int2171a7 proc
 		push esi
 		call setdsreg2tlb
 		push es
-if ?32BIT
-		push esi
-else
 		push word ptr 0
 		push si
-endif
 		xor esi, esi
 		push esi
 		push sizeof QWORD
@@ -1906,11 +1727,7 @@ int2171aa endp
 ;--- int 21, ax=7139 | 713A | 713B | 7141 | 7143        
         
 copyz_dsdx proc
-if ?32BIT
-		@strout <"int 21,ax=%X ds:edx=%ls",lf>,ax,ds,edx
-else
 		@strout <"int 21,ax=%X ds:dx=%s",lf>,ax,ds,dx
-endif
 		push edx
 		call copyz_dsdx_2_tlb
 		call rmdoswithcarry
@@ -1975,11 +1792,7 @@ intr2171 endp
 ;--- translate ds:e/si
         
 int21716c proc
-if ?32BIT
-		@strout <"int 21,ax=%X ds:esi=%ls",lf>,ax,ds,esi
-else
 		@strout <"int 21,ax=%X ds:si=%s",lf>,ax,ds,si
-endif
 		push esi
 		call copyz_dssi_2_tlb
 		call rmdoswithcarry
@@ -2007,23 +1820,15 @@ int217147 endp
 ;--- int 21, ax=7156 (rename file)        
         
 int217156 proc
-if ?32BIT
-		@strout <"int 21,ax=%X ds:edx=%ls",lf>,ax,ds,edx
-else
 		@strout <"int 21,ax=%X ds:dx=%s",lf>,ax,ds,dx
-endif
 		push edx
 		push edi
 
 		call copyz_dsdx_2_tlb
 
 		push es
-if ?32BIT
-		push edi
-else
 		push word ptr 0
 		push di
-endif
 		mov edi,100h
 		push edi
 		call copyz_far32_2_tlbxx
@@ -2066,11 +1871,7 @@ int2171a0 proc
 		push word ptr 100h	;offset in TLB (1. param copy_tlbxx_2_esdi)
 		call copyz_dsdx_ret_esdi
 		jc error
-if ?32BIT
-		@strout <"int 21,ax=71A0 ok, es:edi=%lX:%lX, cx=%X",lf>,es,edi,cx
-else
 		@strout <"int 21,ax=71A0 ok, es:di=%lX:%X, cx=%X",lf>,es,di,cx
-endif
 		call copy_tlbxx_2_esdi
 		ret
 error:
@@ -2085,11 +1886,7 @@ int2171a0 endp
 
 copyz_dsdx_ret_esdi proc
 
-if ?32BIT
-		@strout <"int 21 ax=%X ds:edx=%ls es:edi=%lX:%lX cx=%X",lf>,ax,ds,edx,es,edi,cx
-else
 		@strout <"int 21 ax=%X ds:dx=%s es:di=%lX:%X cx=%X",lf>,ax,ds,dx,es,di,cx
-endif
 		push edi
 		call copyz_dsdx_2_tlb	;copy ds:dx to TLB:0, set dx=0, v86-ds=TLB
 		mov di,100h
@@ -2135,11 +1932,7 @@ int2171a8:
 
 int217160 proc
 
-if ?32BIT
-		@strout <"int 21 ax=%X ds:esi=%ls es:edi=%lX:%lX",lf>,ax,ds,esi,es,edi
-else
 		@strout <"int 21 ax=%X ds:si=%s es:di=%lX:%X",lf>,ax,ds,si,es,di
-endif
 		push esi
 		push edi
 		call copyz_dssi_2_tlb
@@ -2150,12 +1943,8 @@ endif
 		pop esi
 		jc exit
 		push es
-if ?32BIT
-		push edi
-else
 		push word ptr 0
 		push di
-endif
 		push 100h
 		call copyz_tlbxx_2_far32
 exit:
@@ -2212,12 +2001,8 @@ intr2173 proc
 		cmp al,3
 		jnz @F
 		push ds				;for ax=7303 DS:E/DX is asciiz ptr
-if ?32BIT
-		push edx
-else
 		push word ptr 0
 		push dx
-endif
 		mov edx,100h
 		push edx				;offset in tlb
         call copyz_far32_2_tlbxx
@@ -2294,11 +2079,7 @@ getrmenv endp
 if 0
 fataldosexit:
 		mov ebp,esp
-if ?32BIT
-		mov si,[ebp+8]
-else
 		mov si,[ebp+6]
-endif
 		mov di,[ebp+4]
 		@printf <"I21: fatal error (ax=%X bx=%X cx=%X dx=%X cs:ip=%X:%X)",lf>,ax,bx,cx,dx,si,di
 		pop eax			;errorcode

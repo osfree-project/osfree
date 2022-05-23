@@ -987,11 +987,7 @@ ife ?STUB
 	dw offset text9    ;9
 endif        
 
-if ?32BIT
-HDPMI textequ <"HDPMI32">
-else
 HDPMI textequ <"HDPMI16">
-endif
 
 textX   db HDPMI,": $"
 szHDPMIx db HDPMI,"$"

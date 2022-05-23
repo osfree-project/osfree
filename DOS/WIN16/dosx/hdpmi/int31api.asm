@@ -378,9 +378,7 @@ func0401:
 	pushad
 	mov esi, offset dpmi10str
 	mov ecx, SIZEDPMI10
-ife ?32BIT
 	movzx edi, di
-endif
 	db 2Eh				;CS segment prefix
 	rep movsb
 	popad

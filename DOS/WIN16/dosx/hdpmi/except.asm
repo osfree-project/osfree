@@ -189,18 +189,6 @@ if 0
 		<word ptr [esi+00]>,<word ptr [esi+02]>,<word ptr [esi+04]>,\
 		<word ptr [esi+06]>,<word ptr [esi+08]>,<word ptr [esi+10]>
 endif
-if ?32BIT
-	lodsd
-	mov [ebp+8].R3FAULT32.rIP,eax
-	lodsd
-	mov [ebp+8].R3FAULT32.rCSd,eax
-	lodsd
-	mov [ebp+8].R3FAULT32.rFL,eax
-	lodsd
-	mov [ebp+8].R3FAULT32.rSP,eax
-	lodsd
-	mov [ebp+8].R3FAULT32.rSSd,eax
-else
 	xor eax,eax
 	lodsw
 	mov [ebp+8].R3FAULT32.rIP,eax
@@ -212,7 +200,6 @@ else
 	mov [ebp+8].R3FAULT32.rSP,eax
 	lodsw
 	mov [ebp+8].R3FAULT32.rSSd,eax
-endif
 	pop eax
 	pop esi
 	pop ds

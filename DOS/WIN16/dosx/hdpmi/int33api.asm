@@ -77,12 +77,8 @@ intr3316::				;save state to es:E/DX
 	mov ecx,ebx			;bx=size of buffer
 	and ch,1Fh			;just make sure that CX is < 2000h
 	push es
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	push ss:[dwSegTLB]
 	call copy_flat_2_far32
 	pop ecx
@@ -114,12 +110,8 @@ intr3309::				;graphic cursor (copy 20h bytes ES:E/DX)
 	mov cx,20h*2		;20h words!!!
 docopy33:
 	push es
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	push ss:[dwSegTLB]
 	call copy_far32_2_flat
 	call setesreg2tlb
@@ -163,28 +155,16 @@ mouse_setproc proc
 
 	cmp al,0Ch			;000C set the proc only
 	jnz @F
-if ?32BIT
-	mov mevntvec._Eip, edx
-else
 	mov mevntvec._Eip, dx
-endif
 	mov mevntvec._Cs, es
 	mov [moumask],cx
 	pop ds
 	ret
 @@:						;function 0014 + 0018 return old value
-if ?32BIT
-	xchg edx, mevntvec._Eip
-else
 	xchg dx, mevntvec._Eip
-endif
 	push eax
 	mov eax,es
-if ?32BIT
-	xchg eax, mevntvec._Cs
-else
 	xchg ax, mevntvec._Cs
-endif
 	mov es,eax
 	pop eax
 	xchg cx,[moumask]
@@ -205,12 +185,7 @@ mouse_setproc endp
 mouse_setrmcb proc
 	pushad
 	mov eax, es
-if ?32BIT
-	movzx eax, ax
-	or eax, edx
-else
 	or ax, dx
-endif
 	mov ax, ?RMCBMOUSE
 	jz resetrm
 
@@ -263,13 +238,8 @@ mouse33_reset proc public
 	jz mouse33_exit
 	push es
 	mov cx, cs:[moumask]
-  if ?32BIT
-	les edx, fword ptr cs:[mevntvec._Eip]
-	@strout <"mouse33_reset: calling mouse_setproc, cx=%X es:edx=%lX:%lX",lf>, cx, es, edx
-  else
 	les dx, dword ptr cs:[mevntvec._Eip]
 	@strout <"mouse33_reset: calling mouse_setproc, cx=%X es:dx=%lX:%X",lf>, cx, es, dx
-  endif
 	mov al, 0Ch
 	call mouse_setproc
 	pop es

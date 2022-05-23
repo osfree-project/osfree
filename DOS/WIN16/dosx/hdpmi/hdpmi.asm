@@ -266,7 +266,7 @@ else
 endif
 		db "MI", ?VERMAJOR, ?VERMINOR
 llogo	equ $ - logo
-		db ?32BIT
+		db 0			; not 32-bit
 
 ;--- IDT (vectors 00-7F only)
 ;--- the IDT usually is moved to extended memory
@@ -554,11 +554,7 @@ endif
 ;--- LPMS selector (if not in LDT)
 
 if ?LPMSINGDT
-  if ?32BIT
-	@defdesc <0FFFh,0,0,92h or ?PLVL,040h,0>,_LPMSSEL_, ?RING
-  else
 	@defdesc <0FFFh,0,0,92h or ?PLVL,0,0>,_LPMSSEL_, ?RING
-  endif
 endif
 
 if ?INT1D1E1F eq 0
@@ -1202,13 +1198,8 @@ exc2int proc
 		push edi
 
 		mov edi, [esp].EXC2INT.dwExc
-if ?32BIT
-		mov ebx, cs:[edi*sizeof R3PROC+offset r3vect00].R3PROC._Eip
-		mov eax, cs:[edi*sizeof R3PROC+offset r3vect00].R3PROC._Cs
-else
 		movzx ebx, cs:[edi*sizeof R3PROC+offset r3vect00].R3PROC._Eip
 		movzx eax, cs:[edi*sizeof R3PROC+offset r3vect00].R3PROC._Cs
-endif
 		mov [esp].EXC2INT.n.rIP, ebx
 		mov [esp].EXC2INT.n.rCSd, eax
 
@@ -1236,31 +1227,18 @@ else
 @@:
 endif
 
-if ?32BIT
-		mov edi,[esi].IRET32.rIP 		;original EIP
-		mov ebx,[esi].IRET32.rCSd
-		mov eax,[esi].IRET32.rFL 		;original Flags
-		lds esi,[esi].IRET32.rSSSP		;original SS:ESP
-else
 		movzx edi,[esi].IRET16.rIP
 		movzx ebx,[esi].IRET16.rCS
 		movzx eax,[esi].IRET16.rFL
 		lds si,[esi].IRET16.rSSSP
 		movzx esi, si
-endif
 
 		sub esi,sizeof IRETSPM			;make room for IRET32/IRET16
 		mov [esp].EXC2INT.n.rSP,esi
 		mov [esp].EXC2INT.n.rSS,ds
-if ?32BIT
-		mov [esi].IRET32PM.rIP,edi
-		mov [esi].IRET32PM.rCSd,ebx
-		mov [esi].IRET32PM.rFL,eax
-else
 		mov [esi].IRET16PM.rIP,di
 		mov [esi].IRET16PM.rCS,bx
 		mov [esi].IRET16PM.rFL,ax
-endif
 
 		and ah,not (_NT or _IF or _TF)		;NT,IF,TF reset
 		mov [esp].EXC2INT.n.rFL,eax
@@ -1302,17 +1280,6 @@ if ?HSINEXTMEM
 endif
 		sub edi,sizeof IRETSPM
 		mov [esp].PCIFR.rSP,edi
-if ?32BIT
-		mov eax, cs:[ebx].R3PROC._Eip
-		mov ebx, cs:[ebx].R3PROC._Cs
-		xchg eax, [esp].PCIFR.rIP
-		xchg ebx, [esp].PCIFR.rCSd
-		mov [edi].IRETSPM.rIP, eax
-		mov [edi].IRETSPM.rCSd, ebx
-
-		mov eax,[esp].PCIFR.rFL
-		mov [edi].IRETSPM.rFL, eax
-else
 		movzx eax, cs:[ebx].R3PROC._Eip
 		mov bx, cs:[ebx].R3PROC._Cs
 		xchg eax, [esp].PCIFR.rIP
@@ -1322,7 +1289,7 @@ else
 
 		mov eax, [esp].PCIFR.rFL
 		mov [edi].IRETSPM.rFL, ax
-endif
+
 		and byte ptr [esp].PCIFR.rFL+1,not _TF	;reset TF
 		pop ds
 		pop edi
@@ -1381,13 +1348,8 @@ lpms_call_int proc public
 		push edx
 		push edi
 		mov edi,[esp].IRQFRAME.pR3Proc
-if ?32BIT
-		mov eax, cs:[edi].R3PROC._Eip
-		mov edx, cs:[edi].R3PROC._Cs
-else
 		movzx eax, cs:[edi].R3PROC._Eip
 		movzx edx, cs:[edi].R3PROC._Cs
-endif
 		mov [esp].IRQFRAME.retfs.rIP,eax
 		mov [esp].IRQFRAME.retfs.rCSd,edx
 
@@ -1401,17 +1363,11 @@ endif
 
 		mov eax, [esp].IRQFRAME.iret32.rIP
 		mov edx, [esp].IRQFRAME.iret32.rCSd
-if ?32BIT
-		mov [edi].IRETSPM.rIP, eax
-		mov [edi].IRETSPM.rCSd, edx
-		mov eax, [esp].IRQFRAME.iret32.rFL
-		mov [edi].IRETSPM.rFL, eax
-else
 		mov [edi].IRETSPM.rIP, ax
 		mov [edi].IRETSPM.rCS, dx
 		mov eax, [esp].IRQFRAME.iret32.rFL
 		mov [edi].IRETSPM.rFL, ax
-endif
+
 		and ah,not 3		;reset TF + IF
 		mov [esp].IRQFRAME.rEfl,eax
 if _LTRACE_
@@ -1449,11 +1405,7 @@ lpms_ci_21:
 		mov eax, [esp].IRQFRAME.iret32.rFL
 		mov [edi].IRETSPM.rIP, _RTINT_
 		mov [edi].IRETSPM.rCS, _INTSEL_
-if ?32BIT
-		mov [edi].IRETSPM.rFL, eax
-else
 		mov [edi].IRETSPM.rFL, ax
-endif
 		and ah,not 3		;reset TF + IF
 		mov [esp].IRQFRAME.rEfl,eax
 
@@ -1657,13 +1609,8 @@ if ?DPMI10EXX
 		bt ss:[wExcHdlr],si
 		jnc nodpmi10handler
 		sub edi,sizeof DPMI10EXC - sizeof DPMIEXC
-if ?32BIT
-		mov [edi].DPMI10EXC.rDPMIIPx, _RTEXC_
-		mov [edi].DPMI10EXC.rDPMICSx, _INTSEL_
-else
 		mov [edi].DPMI10EXC.rDPMIIPx, _RTEXC_ + 10000h * _INTSEL_
 		mov [edi].DPMI10EXC.rDPMICSx, 0
-endif
 		mov eax, [ebp+4].LCEFR.f.rErr
 		cmp esi,1
 		jnz @F
@@ -1705,35 +1652,18 @@ endif
 		mov eax, [ebp+4].LCEFR.f.rErr
 		mov edx, [ebp+4].LCEFR.f.rIP
 		mov esi, [ebp+4].LCEFR.f.rCSd
-if ?32BIT
-		mov [edi].DPMIEXC.rErr, eax
-		mov [edi].DPMIEXC.rIP, edx
-		mov [edi].DPMIEXC.rCSd, esi
-else
 		mov [edi].DPMIEXC.rErr, ax
 		mov [edi].DPMIEXC.rIP, dx
 		mov [edi].DPMIEXC.rCS, si
-endif
 		mov eax, [ebp+4].LCEFR.f.rFL
 		mov edx, [ebp+4].LCEFR.f.rSP
 		mov esi, [ebp+4].LCEFR.f.rSSd
-if ?32BIT
-		mov [edi].DPMIEXC.rFL, eax
-		mov [edi].DPMIEXC.rSP, edx
-		mov [edi].DPMIEXC.rSSd, esi
-else
 		mov [edi].DPMIEXC.rFL, ax
 		mov [edi].DPMIEXC.rSP, dx
 		mov [edi].DPMIEXC.rSS, si
-endif
 		mov edi, [ebp+4].LCEFR.dwExc
-  if ?32BIT
-		mov eax, cs:[edi*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip
-		mov esi, cs:[edi*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs
-  else
 		movzx eax, cs:[edi*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Eip
 		movzx esi, cs:[edi*sizeof R3PROC+offset GROUP32:excvec].R3PROC._Cs
-  endif
 		mov [ebp+4].LCEFR.r.rIP, eax
 		mov [ebp+4].LCEFR.r.rCSd, esi
 
@@ -2026,16 +1956,8 @@ else
 		mov byte ptr ss:cLPMSused,0
 @@:
 endif
-if ?32BIT
-  if ?HSINEXTMEM
-		@checkssattr ds,bx
-  endif
-		mov eax,[esi+ 0 * ?RSIZE]
-		mov esi,[esi+ 1 * ?RSIZE]
-else
 		movzx eax,word ptr [esi+ 0 * ?RSIZE]
 		movzx esi,word ptr [esi+ 1 * ?RSIZE]
-endif
 		mov [esp].RPMEFR.rSP,eax
 		mov [esp].RPMEFR.rSSd,esi
 if _LTRACE_
@@ -2123,21 +2045,12 @@ if 0;?CHECKSSATTR
 @@:
 endif
 
-if ?32BIT
-		mov eax, [ebx].IRETS.rIP
-		mov [esp+4].I30FR.rIP,eax
-		mov eax, [ebx].IRETS.rCSd
-		mov [esp+4].I30FR.rCSd,eax
-		mov eax, [ebx].IRETS.rFL
-		mov [esp+4].I30FR.rFL,eax
-else
 		movzx eax, word ptr [ebx].IRETS.rIP
 		mov [esp+4].I30FR.rIP,eax
 		mov ax, [ebx].IRETS.rCS
 		mov [esp+4].I30FR.rCS,ax
 		mov ax, [ebx].IRETS.rFL
 		mov [esp+4].I30FR.rFL,eax
-endif
 		add [esp+4].I30FR.rSP,sizeof IRETSPM	;adjust client stack
 		pop ds
 		pop eax
@@ -2196,23 +2109,13 @@ endif
 		add [esp+4].I30FR.rSP, ?RSIZE
 @@:
 		cmp ax,_RETF_			   ;retf oder iret frame?
-if ?32BIT
-		mov eax, [ebx].IRET32.rIP
-		mov [esp+4].I30FR.rIP,eax
-		mov eax, [ebx].IRET32.rCSd
-else
 		mov eax,0
 		mov ax, [ebx].IRET16.rIP
 		mov [esp+4].I30FR.rIP,eax
 		mov ax, [ebx].IRET16.rCS
-endif
 		mov [esp+4].I30FR.rCSd,eax
 		jnb @F
-if ?32BIT
-		mov eax, [ebx].IRETS.rFL
-else
 		mov ax, [ebx].IRETS.rFL
-endif
 		mov [esp+4].I30FR.rFL,eax
 		and ah,not _TF			   ;reset TF
 		mov ss:[tmpFLReg],ax
@@ -2922,21 +2825,11 @@ stdrmcb_pm proc
 ;;		movzx ebx,word ptr ss:[bx+0]	;offset in IDT
 		movzx ebx, bx
 		add ebx,ss:[pdIDT.dwBase]
-if ?32BIT
-		mov ax,[ebx+6]
-endif
 		mov ebx, [ebx+0]
 		push byte ptr _CSALIAS_
 		pop ds
 		assume ds:GROUP32
-if ?32BIT
-		mov word ptr ds:[r3vectmp+0],bx
-		mov word ptr ds:[r3vectmp+2],ax
-		shr ebx,16
-		mov word ptr ds:[r3vectmp+4],bx
-else
 		mov dword ptr ds:[r3vectmp+0],ebx
-endif
 		pop ebx
 		mov ax,LOWWORD(offset GROUP32:r3vectmp)
 irqrm2pm_1:
@@ -2969,11 +2862,7 @@ endif
 if _LTRACE_
 		push eax
 		movzx eax,ax
-if ?32BIT
-		@strout <"#stdrmcb enter: call=%lX:%lX",lf>, cs:[eax].R3PROC._Cs, cs:[eax].R3PROC._Eip
-else
 		@strout <"#stdrmcb enter: call=%X:%X",lf>, cs:[eax].R3PROC._Cs, cs:[eax].R3PROC._Eip
-endif
 		pop eax
 ;       @waitesckey
 endif
@@ -3963,11 +3852,7 @@ else
 	mov [esi].DESCRPTR.A1623,al
 	mov [esi].DESCRPTR.A2431,ah
 	mov [esi].DESCRPTR.limit,0FFFh
-if ?32BIT
-	mov word ptr [esi].DESCRPTR.attrib,92h or ?PLVL + 4000h
-else
 	mov [esi].DESCRPTR.attrib,92h or ?PLVL
-endif
 	pop ds
 endif
 if ?INT1D1E1F
@@ -4004,19 +3889,11 @@ else					;int 1E immer umsetzen
 endif
 ife ?LOCALINT2324
 	mov cx,_INTSEL_
-if ?32BIT
-	mov edx,_INT23_
-else
 	mov dx,_INT23_
-endif
 	mov bl,23h
 	mov ax,205h 		;set pm vector
 	@int_31
-if ?32BIT
-	mov edx,_INT24_
-else
 	mov dx,_INT24_
-endif
 	mov bl,24h
 	@int_31
 endif
@@ -4468,11 +4345,7 @@ endif
 		mov v86iret.rES,ax
 								;get selector for DS
 		@strout <"call getmyseldata(big)",lf>
-if ?32BIT
-		call getmyseldatabig
-else
 		call getmyseldata
-endif
 		jc initclerr2
 		@strout <"DS=%X, real mode DS=%X",lf>,bx,es:[edi].INITCL.wDS
 		mov [ebp].INITCLSTK.rDS,ebx
@@ -4497,11 +4370,7 @@ endif
 		mov bx,[wCurSS]
 		cmp bx,es:[edi].INITCL.wDS
 		jz @F
-if ?32BIT
-		call getmyseldatabig
-else
 		call getmyseldata
-endif
 		jc initclerr3
 		@strout <"SS=%X, real mode SS=%X",lf>,bx,[wCurSS]
 		mov [ebp].INITCLSTK.rSS,bx
@@ -4568,19 +4437,11 @@ if ?INT21API
 endif
 if ?LOCALINT2324
 		mov cx,_INTSEL_
-if ?32BIT
-		mov edx,_INT23_
-else
 		mov dx,_INT23_
-endif
 		mov bl,23h
 		mov ax,205h
 		@int_31
-if ?32BIT
-		mov edx,_INT24_
-else
 		mov dx,_INT24_
-endif
 		mov bl,24h
 		@int_31
 endif
@@ -4611,19 +4472,7 @@ endif
 		@strout <"client: CS:IP=%X:%lX, SS:SP=%X:%lX, DS=%lX",lf>,[ebp].INITCLSTK.rCS, [ebp].INITCLSTK.rIP, [ebp].INITCLSTK.rSS, [ebp].INITCLSTK.rSP,[ebp].INITCLSTK.rDS
 		@strout <"GDT: %lX (%X), IDT: %lX (%X), LDT: %lX (%X)",lf>, pdGDT.dwBase, pdGDT.wLimit, pdIDT.dwBase, pdIDT.wLimit, dwLDTAddr, wLDTLimit
 		popad
-if ?32BIT
-  if ?CLEARHIWORDS
-		test bEnvFlags2,ENVF2_CLRHIWORD
-		jz @F
-		movzx esi,si
-		movzx edi,di
-@@:
-  endif
-endif
 		pop ds
-if ?32BIT
-;		mov al,1
-endif
 		iretd
 
 		assume ds:GROUP16
@@ -5237,11 +5086,7 @@ _initclient_rm proc
 		assume DS:nothing
 
 		test al,1
-if ?32BIT
-		jz req_bad
-else
 		jnz req_bad
-endif
 		pushf
 		@rm2pmbreak
 		push ds
@@ -5444,11 +5289,7 @@ PatchRMStkSize label word
 endif
 		mov dx,cs:[wVersion]
 		mov cl,cs:[_cpu]	;prozessor
-if ?32BIT
-		mov bx,1			;32-Bit Apps
-else
 		mov bx,0			;keine 32-Bit Apps
-endif
 		xor ax,ax
 		iret				;real-mode int ret!
 if ?SUPP32RTM

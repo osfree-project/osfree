@@ -8,11 +8,7 @@
 
 	option proc:private
 
-if ?32BIT
-?CHECKWRITE		equ 1	;std=?, when copying from TLB make sure dst isnt r/o
-else
 ?CHECKWRITE		equ 1	;std=1, when copying from TLB make sure dst isnt r/o
-endif
 
 @seg _TEXT32
 
@@ -81,11 +77,7 @@ copy$_dsdx_2_tlb proc public
 	pop es
 	cld
 	xor edi, edi
-if ?32BIT
-	mov esi, edx
-else
 	movzx esi, dx
-endif
 @@:
 	lodsb
 	stosb
@@ -221,12 +213,8 @@ copyz_tlbxx_2_far32 endp
 copyz_tlb_2_dssi proc public
 
 	push ds
-if ?32BIT
-	push esi
-else
 	push word ptr 0
 	push si
-endif
 	push 0
 	call copyz_tlbxx_2_far32
 	ret
@@ -237,12 +225,8 @@ copyz_tlb_2_dssi endp
 
 copyz_tlb_2_dsdx proc public
 	push ds
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	push 0				;offset in TLB
 	call copyz_tlbxx_2_far32
 @@:
@@ -255,12 +239,8 @@ copyz_tlb_2_dsdx endp
 
 copy_esdi_2_tlb proc public
 	push es
-if ?32BIT
-	push edi
-else
 	push word ptr 0
 	push di
-endif
 	call setesreg2tlb
 	push ss:[dwSegTLB]
 	call copy_far32_2_flat
@@ -273,12 +253,8 @@ copy_esdi_2_tlb endp
 
 copy_dsdx_2_tlb proc public
 	push ds
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	call setdsreg2tlb
 	push ss:[dwSegTLB]
 	call copy_far32_2_flat
@@ -369,12 +345,8 @@ copy_far32_2_tlbxx endp
 
 copy_tlb_2_esdi proc public
 	push es
-if ?32BIT
-	push edi
-else
 	push word ptr 0
 	push di
-endif
 	push ss:[dwSegTLB]
 	call copy_flat_2_far32
 	ret
@@ -386,12 +358,8 @@ copy_tlb_2_esdi endp
 copy_tlb_2_dsdx proc public
 
 	push ds
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	push ss:[dwSegTLB]
 	call copy_flat_2_far32
 	ret
@@ -418,9 +386,7 @@ copy_tlbxx_2_esdi proc public
 	pop ds
 	movzx ecx,[esp].COPYXX2ESDI.wNum
 	movzx esi,[esp].COPYXX2ESDI.wOfs
-ife ?32BIT
 	movzx edi, di
-endif
 	rep movsb
 	popad
 	pop ds
@@ -488,12 +454,8 @@ copy_flat_2_far32 endp
 
 copyz_dsdx_2_tlb proc public
 	push ds
-if ?32BIT
-	push edx
-else
 	push word ptr 0
 	push dx
-endif
 	xor dx,dx				;dx=offset 0 (start tlb)
 	push edx				;offset 0 in tlb
 	call copyz_far32_2_tlbxx
@@ -507,12 +469,8 @@ copyz_dsdx_2_tlb endp ;fall through
 
 copyz_dssi_2_tlb proc public
 	push ds
-if ?32BIT
-	push esi
-else
 	push word ptr 0
 	push si
-endif
 	xor si,si
 	push esi				;offset 0 in tlb
 	call copyz_far32_2_tlbxx
@@ -702,17 +660,6 @@ endif
 
 _LTRACE_ = 0
 
-if ?32BIT
-
-;--- alloc BIG DATA descriptor for real-mode memory
-;*** BX=segment
-
-getmyseldatabig proc public
-	mov dx,4000h
-	jmp getmyselx
-	align 4
-getmyseldatabig endp
-endif
 
 ;--- alloc a DATA descriptor for real-mode memory
 ;--- BX=segment 
@@ -905,7 +852,6 @@ selectortile2 proc
 	mov ax,0008h		 ;set limit (of 1. selector)
 	@int_31
 	jc error
-ife ?32BIT
 nextsel:
 	cmp esi,10000h
 	jb noerr
@@ -933,7 +879,6 @@ endif
 	mov ax,0008h
 	@int_31
 	jmp nextsel
-endif
 noerr:
 	clc
 error:
@@ -960,9 +905,6 @@ selector_alloc proc public
 	pushad
 	mov esi,[esp].STILEFRAME.dwSize
 	mov edi,[esp].STILEFRAME.dwAddr
-if ?32BIT
-	mov cx,1			;just 1 selector for 32-bit clients
-else
 	mov ebx,esi
 	mov ecx,ebx
 	shr ebx,16
@@ -970,7 +912,6 @@ else
 	inc ebx
 @@:
 	mov ecx,ebx
-endif
 	xor eax,eax			;alloc cx selector(s)
 	@int_31
 	jc error
@@ -983,7 +924,6 @@ exit:
 	align 4
 selector_alloc endp
 
-ife ?32BIT
 
 ;--- check if there are enough free selectors for a block
 ;--- for 16-bit only
@@ -999,7 +939,6 @@ selector_avail proc public
 	align 4
 selector_avail endp
 
-endif
 
 ;*** handle selectors for resize memory block
 ;*** called by int 31h, ax=0102h and int 21h, ah=4Ah
@@ -1016,14 +955,11 @@ selector_resize proc public
 
 	@strout <"selector_resize: entry, sel=%X, new size=%lX",lf>,dx,eax
 	pushad
-ife ?32BIT
 	xor ebp,ebp
 	inc ebp				;alloc selectors
-endif
 selector_resize_1::
 	mov esi,eax			;esi holds new size
 	movzx edi,dx		;di holds base selector
-ife ?32BIT
 	mov ebx,edi
 	lsl eax,edx
 	inc eax
@@ -1062,7 +998,6 @@ smallerblock:
 selectortilex_1:
 	and ebp,ebp
 	jz done
-endif
 	mov ebx,edi
 	mov ax,0006
 	@int_31
@@ -1076,12 +1011,10 @@ done:
 @@:
 	popad
 	ret
-ife ?32BIT
 error:
 	@strout <"selector_resize: error, not enough free selectors",lf>
 	popad
 	ret
-endif
 	align 4
 selector_resize endp
 
@@ -1094,10 +1027,6 @@ selector_resize endp
 
 selector_free proc public
 	mov ebx, edx
-if ?32BIT
-	mov ax,1
-	@int_31            ;may clear DS/ES/FS/GS
-else
 	lsl eax,ebx
 	stc
 	jnz exit
@@ -1106,7 +1035,6 @@ else
 	mov ecx,eax
 	call freeselx
 exit:
-endif
 	ret
 	align 4
 selector_free endp

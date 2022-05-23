@@ -90,7 +90,6 @@ exit:
         align 4
 allocsel endp
 
-ife ?32BIT
 
 ;--- internal function used for selector tiling
 ;--- alloc a selector array at a certain location in LDT
@@ -171,7 +170,6 @@ freeselx proc public
         align 4
 freeselx endp
 
-endif
 
 ;*** DPMI function 0001 ***
 
@@ -591,17 +589,10 @@ getcsalias endp
 getdesc proc public
         call    checksel
         push    eax
-if ?32BIT
-        mov     eax,[ebx+0]
-        mov     es:[edi+0],eax
-        mov     eax,[ebx+4]
-        mov     es:[edi+4],eax
-else
         mov     eax,[ebx+0]
         mov     es:[di+0],eax
         mov     eax,[ebx+4]
         mov     es:[di+4],eax
-endif
         pop     eax
         ret
         align 4
@@ -612,11 +603,7 @@ getdesc endp
 setdesc proc public
         call    checksel
         push    eax
-if ?32BIT
-        mov     eax,es:[edi+4]
-else
         mov     eax,es:[di+4]
-endif
         test    byte ptr [ebx].DESCRPTR.attrib,10h ;memory segment?
         jz      @F
         push    eax
@@ -626,11 +613,7 @@ endif
         jnz     error
 @@:
         mov     [ebx+4],eax
-if ?32BIT
-        mov     eax,es:[edi+0]
-else
         mov     eax,es:[di+0]
-endif
         mov     [ebx+0],eax
         pop     eax
         clc
@@ -661,9 +644,7 @@ setmultdesc endp			;fall through
 getmultdesc proc public
 		pushad
         movzx ecx, cx
-ife ?32BIT
 		movzx edi, di
-endif
         mov edx, setdesc
         cmp al,0Fh
 		jz @F

@@ -116,9 +116,6 @@ endif
 @proto getmysel           
 @proto getmyseldata       
 @proto getmyselx          
-if ?32BIT
-@proto getmyseldatabig    
-endif
 
 ;--- int2xapi
 

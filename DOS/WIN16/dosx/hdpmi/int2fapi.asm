@@ -125,11 +125,7 @@ endif
 if ?SUPI2F168A
         cmp al,8Ah            ;168A - 32 Bit extensions
         jnz @F
-if ?32BIT
-        @strout <"I2F: ax=168a, ds:esi=%ls",lf>,ds,esi
-else
         @strout <"I2F: ax=168a, ds:si=%s",lf>,ds,si
-endif
         push es
         push cs
         pop es
@@ -137,30 +133,9 @@ endif
 if ?INT21API
         mov edi, offset szMsdos
         mov ecx, 7
-  ife ?32BIT
 		movzx esi, si
-  endif
         repz cmpsb
         jz isMsDos
-endif
-if ?32BIT
-if ?32RTMSUPP
-  if 0
-        mov esi, [esp].PUSHADS.rESI
-        mov edi, offset szVirtual
-        mov ecx, 7+1+7+1			;"VIRTUAL" + " " + "SUPPORT" + 00
-        repz cmpsb
-        jz isVirtual
-  else
-		popad
-		pop es
-		push esi
-		call copyz_dssi_2_tlb	;copy ds:esi to tlb, ds=tlb, si=0
-        @simrmint 2Fh
-        pop esi
-        iretd
-  endif
-endif
 endif
         @strout <"I2F: return ax=168a, unsupported",lf>
 		popad
@@ -168,11 +143,7 @@ endif
 		iretd
 if ?INT21API
 isMsDos:
-  if ?32BIT
-        mov [esp].PUSHADS.rEDI,_I2F168A_
-  else
         mov [esp].PUSHADS.rDI,_I2F168A_
-  endif
         mov word ptr [esp + sizeof PUSHADS],_INTSEL_
 endif
 isVirtual:

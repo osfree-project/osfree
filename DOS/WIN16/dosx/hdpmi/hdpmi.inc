@@ -7,11 +7,7 @@ _TGATE32_ equ 8Fh
 ;_IGATE16_ equ 86h	;not used
 _TGATE16_ equ 87h
 
-if ?32BIT
-_TGATE_ = _TGATE32_
-else
 _TGATE_ = _TGATE16_
-endif
 
 		include version.inc
 		include dpmi.inc
@@ -278,16 +274,6 @@ endif
 
 ;----------------------------------------------------------------
 
-if ?32BIT
-  ?RSIZE    equ 4
-  @iret macro
-		iretd
-		endm
-
-  @retf macro x
-		retf  x
-		endm
-else
   ?RSIZE    equ 2
   @iret macro
 		iret
@@ -296,7 +282,6 @@ else
   		db 66h
 		retf  x
 		endm
-endif
 
 ;--- paging flags
 
@@ -655,13 +640,8 @@ RMVFL_SETALWAYS equ 08h		;init RM vector for each client (int 23/24)
 ;--- ring 3 far proc address structure
 
 R3PROC	struct
-if ?32BIT
-_Eip	dd ?
-_Cs		dd ?
-else
 _Eip	dw ?
 _Cs		dw ?
-endif
 R3PROC	ends
 
 ;--- real-mode callback item
@@ -669,9 +649,6 @@ R3PROC	ends
 
 RMCB	struct
 		R3PROC <>
-ife ?32BIT
-        dd ?
-endif
 rmcs	df ?			;address of real mode call structure
 if ?RMCBSTATICSS
 wSS		dw ?
@@ -793,11 +770,7 @@ rFL 	dw ?
 IRET16PM ends
 
 IRETSPM struct
-if ?32BIT
-	IRET32PM <>
-else
 	IRET16PM <>
-endif
 IRETSPM ends
 
 ;--- IRET protected mode with SS:E/SP
@@ -835,11 +808,7 @@ ends
 IRET16 ends
 
 IRETS struct
-if ?32BIT
-	IRET32 <>
-else
 	IRET16 <>
-endif
 IRETS ends
 
 ;--- IRET real mode
@@ -904,11 +873,7 @@ ends
 RETF16 ends
 
 RETFS struct
-if ?32BIT
-		RETF32 <>
-else
 		RETF16 <>
-endif
 RETFS ends
 
 ;--- fault (with error code) without SS:E/SP
@@ -951,11 +916,7 @@ R0FAULT16 ends
 
 
 R0FAULT struct
-if ?32BIT
-		R0FAULT32 <>
-else
 		R0FAULT16 <>
-endif
 R0FAULT ends
 
 ;--- fault with SS:E/SP
@@ -995,23 +956,14 @@ ends
 R3FAULT16 ends
 
 R3FAULT struct
-if ?32BIT
-		R3FAULT32 <>
-else
 		R3FAULT16 <>
-endif
 R3FAULT ends
 
 ;--- DPMI 0.9 exception frame
 
 DPMIEXC  struct
-if ?32BIT
-rDPMIIP dd ?
-rDPMICS dd ?
-else
 rDPMIIP dw ?
 rDPMICS dw ?
-endif
 		R3FAULT <>
 DPMIEXC  ends
 
@@ -1021,9 +973,7 @@ if ?DPMI10EXX
 
 DPMI10EXC struct
 		DPMIEXC <>
-ife ?32BIT
 		db 10h dup (?)
-endif
 rDPMIIPx	dd ?	;+20h
 rDPMICSx	dd ?	;+24h
 rErrx		dd ?	;+28h
@@ -1060,37 +1010,27 @@ IVTHOOK ends
 	endm
 
 @movsd macro
-ife ?32BIT
 	@useext
-endif
 	movsd
 	endm
 
 @stosw macro
-ife ?32BIT
 	@useext
-endif
 	stosw
 	endm
 
 @stosb macro
-ife ?32BIT
 	@useext
-endif
 	stosb
 	endm
 
 @lodsw macro
-ife ?32BIT
 	@useext
-endif
 	lodsw
 	endm
 
 @lodsb macro
-ife ?32BIT
 	@useext
-endif
 	lodsb
 	endm
 
@@ -1145,15 +1085,6 @@ endif
 
 @checkssattr macro x,y
 local xxxx
-if ?32BIT
-	ifnb <x>
-		mov ax,x
-	endif
-		lar eax,eax
-		bt eax,22
-		jc xxxx
-		movzx e&y,y
-endif
 xxxx:
 	endm
 

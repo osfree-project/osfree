@@ -233,13 +233,8 @@ endif
 		push ss:[tmpFLRegD]		;EFL
 		push _INTSEL_			;CS
 		push _RETCB_				;EIP
-if ?32BIT
-		 @strout <"rm cb, jmp to pm proc=%lX:%lX,EDI=%lX:%lX,ESI=%lX:%lX,HS=%lX",lf>,\
-			cs:[eax].R3PROC._Cs,cs:[eax].R3PROC._Eip,es,edi,ds,esi,ss:[taskseg._Esp0]
-else
 		@strout <"rm cb, jmp to pm proc=%X:%X,ES:DI=%lX:%X,DS:SI=%lX:%X,HS=%lX",lf>,\
 		   cs:[eax].R3PROC._Cs,cs:[eax].R3PROC._Eip,es,di,ds,si,ss:[taskseg._Esp0]
-endif
 ;		 @waitesckey
 		push eax
 		jmp lpms_call_int		;switch to LPMS
@@ -265,13 +260,8 @@ if _LTRACE_
 			<word ptr ss:[cLPMSused]>,[ebp+4],[ebp+6],[ebp+8],[ebp+10],[ebp+12],[ebp+14],[ebp+16],[ebp+18],[ebp+20],[ebp+22]
 		pop ebp
 endif
-if ?32BIT
-		@strout <"rm cb %X ret: SS:SP=%X:%X,ES:EDI=%X:%lX,HS=%lX",lf>,\
-		   ss:[cRMCB],ss,sp,es,edi,ss:[taskseg._Esp0]
-else
 		@strout <"rm cb ret: SS:SP=%X:%X,ES:DI=%X:%X,HS=%lX",lf>,\
 		   ss,sp,es,di,ss:[taskseg._Esp0]
-endif
 ;		@waitesckey
 		dec ss:[cRMCB]
 
@@ -281,11 +271,7 @@ endif
 		mov ds,eax
 		pop es
 		assume ds:nothing
-if ?32BIT        
-		mov esi,edi
-else
 		movzx esi,di
-endif
 		mov edi,offset MyRMCS1
 		mov ecx,30h/4
 		rep movsd
@@ -444,15 +430,9 @@ callrmiret endp	;fall through
 
 callrmproc proc
 		pushad
-if ?32BIT
-		@strout <"rm call, ax=%X bx=%X rmcs: a-d=%X %X %X %X, d-e=%X %X",lf>, ax, bx,\
-			es:[edi].RMCS.rAX, es:[edi].RMCS.rBX, es:[edi].RMCS.rCX, es:[edi].RMCS.rDX,\
-			es:[edi].RMCS.rDS, es:[edi].RMCS.rES
-else
 		@strout <"rm call, ax=%X bx=%X rmcs: a-d=%X %X %X %X, d-e=%X %X",lf>, ax, bx,\
 			es:[di].RMCS.rAX, es:[di].RMCS.rBX, es:[di].RMCS.rCX, es:[di].RMCS.rDX,\
 			es:[di].RMCS.rDS, es:[di].RMCS.rES
-endif
 ;		 @waitesckey
 		push ds
 
@@ -463,9 +443,7 @@ endif
 		push ss:[v86iret.rDS]
 		push ss:[v86iret.rES]
 
-ife ?32BIT
 		movzx edi,di
-endif
 		push edi
 		push es
 		mov ebp,esp
@@ -501,12 +479,6 @@ endif
 		mov ss:[MyRMCS2.rCSIP], eax
 if 0;_LTRACE_
 		shr bx,2
-  if ?32BIT
-		@strout <"sim rm int %X, ax=%X, bx=%X, fl=%X",lf>,bx,\
-			 <word ptr es:[edi.RMCS.rEAX]>,\
-			 <word ptr es:[edi.RMCS.rEBX]>,\
-			 <word ptr es:[edi.RMCS.rFlags]>
-  endif
 endif
 
 ;--- 4. set real-mode SS:SP
@@ -676,14 +648,9 @@ alloccb2:
 		stc
 		ret
 @@:
-if ?32BIT
-		mov [ebx].RMCB._Eip, esi
-		mov word ptr [ebx].RMCB._Cs, ax
-else
 		mov [ebx].RMCB._Eip, si
 		mov [ebx].RMCB._Cs, ax
 		movzx edi, di
-endif
 		mov dword ptr [ebx].RMCB.rmcs+0, edi
 		mov word ptr [ebx].RMCB.rmcs+4, es
 		@strout <"I31 0303: rmcb allocated: %X:%lX %lX:%lX",lf>, ax,esi,es,edi
@@ -781,11 +748,7 @@ getsraddr proc near public
 		mov cx, offset srtask_rm
 
 		mov si,_INTSEL_
-if ?32BIT
-		mov edi,_SRTSK_
-else
 		mov di,_SRTSK_
-endif
 		clc
 		ret
 		align 4
@@ -805,9 +768,7 @@ _srtask proc public
 
 		mov esi,offset tskstate
 		mov ecx,sizeof tskstate/2
-ife ?32BIT
 		movzx edi, di
-endif
 		cmp al,0
 		jnz @F
 		push ss
@@ -930,11 +891,7 @@ getrmsa proc near public
 		mov bx, ss:[wHostSeg]
 		mov cx,offset rm2pm
 		mov si,_INTSEL_
-if ?32BIT
-		mov edi,_RMSWT_
-else
 		mov di,_RMSWT_
-endif
 		clc
 		ret
 		align 4
@@ -996,10 +953,8 @@ rm2pm_pm proc
 		mov es,ecx
 		sub esp, sizeof IRET32
 		xor eax,eax
-ife ?32BIT
 		movzx edi, di
 		movzx ebx, bx
-endif
 		mov fs,eax
 		mov gs,eax
 ;		 @strout <"now in protected mode, DS,ES=%X,%X",lf>,ds,es
@@ -1011,12 +966,8 @@ endif
 		mov [esp].IRET32.rFL, eax
 		mov [esp].IRET32.rSP, ebx
 		mov [esp].IRET32.rSSd, edx
-if ?32BIT
-		@strout <"CS:Eip=%X:%lX,SS:Esp=%X:%lX,HS=%lX",lf>,si,edi,dx,ebx,ss:[taskseg._Esp0]
-else
 		@strout <"CS:Ip=%X:%X,SS:Sp=%X:%X,RMS=%X:%X,HS=%lX",lf>,si,di,dx,bx,\
 			ss:[tskstate.rmSS],ss:[tskstate.rmSP],ss:[taskseg._Esp0]
-endif
 		iretd
 		align 4
 

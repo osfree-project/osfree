@@ -25,11 +25,7 @@
 DISKIO  struct
 startsec dd ?
 sectors  dw ?
-if ?32BIT
-buffofs  dd ?
-else
 buffofs  dw ?
-endif
 buffseg  dw ?
 DISKIO  ends
 
@@ -145,13 +141,8 @@ copyDiskIo2Tlb proc public
 
         push byte ptr _TLBSEL_
         pop es
-if ?32BIT
-        mov edx,[ebx].DISKIO.startsec
-        mov cx,[ebx].DISKIO.sectors
-else
         mov edx,[bx].DISKIO.startsec
         mov cx,[bx].DISKIO.sectors
-endif
         mov es:[DISKIORM.startsec],edx
         mov es:[DISKIORM.sectors],cx
         mov es:[DISKIORM.buffofs],offset 200h
@@ -210,11 +201,7 @@ PrepareDiskIoWrite proc public
         push ecx
         push edx
         shl ecx,9           ;sectors -> bytes
-if ?32BIT
-        mov edx,ebx
-else
         movzx edx,bx
-endif
         call copy_dsdx_2_tlb	;copy CX bytes from DS:E/DX to TLB:0
         pop edx
         pop ecx
@@ -229,12 +216,8 @@ isext:
         push ds
         push edx
         push ecx
-if ?32BIT
-        lds edx,fword ptr [ebx].DISKIO.buffofs
-else
         lds dx,dword ptr [bx].DISKIO.buffofs
         movzx edx,dx
-endif
         push ds				;1. parameter QWORD
         push edx				;   parameter fuer copy_xx_2_flat
         mov cx,ss:[wSegTLB]
@@ -266,16 +249,10 @@ AfterDiskIoRead proc public uses ds esi ecx ebx
         mov si,ss:[wSegTLB]
         cmp cx,0FFFFh
         jnz @F
-if ?32BIT
-        mov cx, ds:[ebx].DISKIO.sectors
-        lds ebx, fword ptr ds:[ebx].DISKIO.buffofs
-        @strout <"AfterDiskIoRead: copy from tlb to ds:ebx=%lX:%lX, sectors=%X",lf>,ds,ebx,cx
-else
         movzx ebx,bx
         mov cx, ds:[ebx].DISKIO.sectors
         lds bx, dword ptr ds:[ebx].DISKIO.buffofs
         @strout <"AfterDiskIoRead: copy from tlb to ds:bx=%lX:%X, sectors=%X",lf>,ds,bx,cx
-endif
         add si,0020h			;first 200h bytes used otherwise
 @@:
         shl cx,9
@@ -300,13 +277,8 @@ AfterDiskIoRead endp
 
 intr25  proc near public
 
-if ?32BIT
-        @strout <"int 25, before call: ax=%X,ds:ebx=%lX:%lX,cx=%X,dx=%X,cs:eip=%X:%lX",lf>,\
-               ax,ds,ebx,cx,dx,[esp+4].IRETS.rCS,[esp].IRETS.rIP
-else
         @strout <"int 25, before call: ax=%X,ds:bx=%lX:%X,cx=%X,dx=%X,cs:ip=%X:%X",lf>,\
                ax,ds,bx,cx,dx,[esp+2].IRETS.rCS,[esp].IRETS.rIP
-endif
         call PrepareDiskIoRead
         jc intr25_1
         push ebx
@@ -334,11 +306,7 @@ seti2526stack::
         mov edx,ds
         lds ebx,[esp+sizeof PUSHADS].IRET32.rSSSP
         lea ebx,[ebx-?RSIZE]
-if ?32BIT
-        mov [ebx],eax
-else
         mov [ebx],ax
-endif
         mov ds,edx
         mov [esp+sizeof PUSHADS].IRET32.rSP,ebx
         popad

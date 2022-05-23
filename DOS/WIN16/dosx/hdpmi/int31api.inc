@@ -37,10 +37,8 @@ I31FR1 ends
 @proto checkrmsel   
 @proto setrmsel     	 	;called by setpspsel
 
-ife ?32BIT
 @proto allocselx
 @proto freeselx
-endif
 
 ;--- ah=01
 
@@ -120,9 +118,7 @@ endif
 
 ;@proto _getspecaddrspace ;alloc specific address space
 @proto _freeclientmemory 
-ife ?32BIT
 @proto _AllocMem		
-endif
 ;@proto _AllocMemEx		
 
 if ?DPMI10

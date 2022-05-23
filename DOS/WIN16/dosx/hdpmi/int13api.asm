@@ -53,10 +53,6 @@ _LTRACE_ = 0
 
 intr1302 proc
         push eax
-if ?32BIT
-        test ebx,0FFFF0000h
-        jnz @F
-endif
         push es
         call getlinaddr
         jc @F
@@ -77,11 +73,7 @@ endif
         pushad
         @getdrvparms         ;get drive structure
         popad
-if ?32BIT
-        mov edi,[ebp.PUSHADS.rEBX]
-else
         movzx edi,[ebp.PUSHADS.rBX]
-endif
 intr1302_0:                  ;<----
         push eax
         cmp al,?TLBSECS
@@ -138,11 +130,7 @@ intr1303 proc
         @getdrvparms         ;get drive structure
         popad
 
-if ?32BIT
-        mov edi,ebx
-else
         movzx   edi,bx
-endif
 intr1303_0:                  ;<----
         push eax
         cmp al,?TLBSECS

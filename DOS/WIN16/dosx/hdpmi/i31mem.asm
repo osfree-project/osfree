@@ -326,9 +326,7 @@ getmeminfo proc public
 
         call    _GetNumPhysPages	;eax=free pages, edx=total pages, ecx=reserved
         @strout <"I31 0500: free phys=%lX, total phys=%lX, res=%lX",lf>, eax, edx, ecx
-ife ?32BIT
 		movzx	edi,di
-endif
 ;--- some clients assume that they can allocate freePhys pages
 ;--- these will not work with HDPMI unless option -n is set!
 if ?MEMBUFF
@@ -555,13 +553,8 @@ freemem proc public
 		pop ebx
 if _LTRACE_
 		jnc		@F
-  if ?32BIT
-        mov     cx,[esp+3*4].IRETS.rCS
-        mov     ebx,[esp+3*4].IRETS.rIP
-  else
         mov     cx,[esp+3*4].IRETS.rCS
         movzx   ebx,[esp+3*4].IRETS.rIP
-  endif
         @strout <"freemem: free mem block FAILED, handle %X%X, CS:(E)IP=%X:%lX",lf>,si,di,cx,ebx
 
 ;        call    displayhdltab
@@ -1198,9 +1191,7 @@ getmeminfox proc public
 		@strout <"I31 %X: es:edi=%lX:%lX",lf>,ax,es,edi
 
         call    _GetNumPhysPages  ;get free pages
-if ?32BIT eq 0
 		movzx	edi,di
-endif
 		shl		edx,12
         shl		eax,12
         shl		ecx,12
