@@ -19,7 +19,8 @@ DIRS =   shared    &
          command   &
          debug     &
          comp      &
-         append
+         append    &
+         exit_vdm
 
 !include $(%ROOT)/mk/all.mk
 
