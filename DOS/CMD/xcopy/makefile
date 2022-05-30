@@ -8,8 +8,10 @@ PROJ = xcopy
 TRGT = $(PROJ).exe
 DESC = Extended COPY tool
 #defines object file names in format objname.$(O)
-srcfiles = $(p)kitten$(e) $(p)xcopy$(e) $(p)prf$(e)
+srcfiles = $(p)xcopy$(e) $(p)prf$(e)
 # defines additional options for C compiler
 STACKSIZE = 40000
+ADD_COPT  = -i=$(MYDIR)..$(SEP)include
+ADD_LINKOPT = lib $(BLD)lib$(SEP)doscmd_shared.lib
 
 !include $(%ROOT)/mk/appsdos.mk

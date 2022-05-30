@@ -4,7 +4,8 @@
 # valerius, 2006/10/30
 #
 
-DIRS =   attrib    &
+DIRS =   shared    &
+         attrib    &
          help      &
          find      &
          diskcomp  &
