@@ -1,6 +1,6 @@
 @echo off
 if -%1- == -- goto msg
-if -%1- == -on' goto on
+if -%1- == -on- goto on
 if -%1- == -ON- goto on
 if -%1- == -On- goto on
 if -%1- == -oN- goto on
