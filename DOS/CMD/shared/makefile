@@ -5,7 +5,7 @@
 PROJ      = doscmd_shared
 TRGT      = $(PROJ).lib
 ADD_COPT  = -ml -i=$(MYDIR)..$(SEP)include
-srcfiles  = $(p)tcc2wat$(e) $(p)kitten$(e)
+srcfiles  = $(p)tcc2wat$(e) $(p)kitten$(e) $(p)prf$(e)
 
 TARGETS  = $(PATH)$(TRGT)
 
