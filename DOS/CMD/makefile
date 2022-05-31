@@ -4,7 +4,8 @@
 # valerius, 2006/10/30
 #
 
-DIRS =   attrib    &
+DIRS =   shared    &
+         attrib    &
          help      &
          find      &
          diskcomp  &
@@ -18,7 +19,8 @@ DIRS =   attrib    &
          command   &
          debug     &
          comp      &
-         append
+         append    &
+         exit_vdm
 
 !include $(%ROOT)/mk/all.mk
 

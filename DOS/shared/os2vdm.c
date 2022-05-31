@@ -83,3 +83,4 @@ APIRET APIENTRY VdmSubstDelete(CHAR cDrive)
 
   return rp.x.ax; // error
 }
+
