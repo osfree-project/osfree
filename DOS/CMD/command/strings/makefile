@@ -9,13 +9,14 @@ DESC  = Control file attributes
 TRGT  = strings.lib
 DIRS  = critstrs
 #defines object file names in format objname.$(O)
-srcfiles = $(p)fixstrs$(e) $(p)porting$(e) # $(p)..$(SEP)tcc2wat$(e)
+srcfiles = $(p)fixstrs$(e) $(p)porting$(e)
 # defines additional options for C compiler
 !ifeq %OS LINUX
 ADD_COPT = -dLINUX
 !endif
-ADD_COPT += -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
-ADD_LINKOPT = debug all 
+ADD_COPT += -dMODEL=l -d2 -db -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$(SEP)suppl
+ADD_LINKOPT = debug all
+
 LANG = russian
 LNG = $(MYDIR)$(LANG).lng
 

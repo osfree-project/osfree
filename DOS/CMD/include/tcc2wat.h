@@ -21,6 +21,9 @@
 #include <time.h>
 #include <sys/types.h>
 
+#define coreleft()    0L
+#define farcoreleft() 0L
+
 struct ftime /* As defined by Borland C */
 {
     unsigned    ft_tsec  : 5;   /* Two second interval */

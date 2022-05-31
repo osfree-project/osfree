@@ -439,7 +439,7 @@ $(p)stfc_019$(e) &
 $(p)stfc_020$(e) &
 $(p)stfc_021$(e) &
 $(p)stpcat$(e) &
-$(p)stpcpy$(e) &
+#$(p)stpcpy$(e) &
 $(p)strnum$(e) &
 $(p)strtod$(e) &
 $(p)syslogc$(e) &
@@ -457,13 +457,14 @@ $(p)s_snglwd$(e) &
 $(p)toupperx$(e) &
 $(p)toxdigit$(e) &
 $(p)_flags$(e) &
-$(p)_getdcwd$(e) $(p)tcc2wat$(e)
+$(p)_getdcwd$(e)
 
 # defines additional options for C compiler
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT = -ml -dMODEL=l -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include -dSUPPL_DBG_ALL
+ADD_COPT = -ml -dMODEL=l -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)..$(SEP)include -dSUPPL_DBG_ALL
+ADD_LINKOPT = lib $(BLD)lib$(SEP)doscmd_shared.lib
 TARGETS = $(PATH)suppl.lib
 
 $(TARGETS): $(OBJS)

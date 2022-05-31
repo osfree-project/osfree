@@ -9,7 +9,7 @@ PROJ      = lib
 TRGT      = $(PROJ).lib
 DESC      = DOS command interpreter
 #defines object file names in format objname.$(O)
-srcfiles = $(p)myperror$(e) $(p)tcc2wat$(e) $(p)absfile$(e) $(p)almemblk$(e) $(p)alprmblk$(e) $(p)alsysblk$(e) $(p)app_get$(e) &
+srcfiles = $(p)myperror$(e) $(p)absfile$(e) $(p)almemblk$(e) $(p)alprmblk$(e) $(p)alsysblk$(e) $(p)app_get$(e) &
         $(p)app_set$(e) $(p)beep_l$(e) $(p)beep_n$(e) $(p)brk_get$(e) $(p)brk_set$(e) $(p)cbreak$(e) &
         $(p)cbs$(e) $(p)cd_dir$(e) $(p)cgetch$(e) $(p)cgettime$(e) $(p)chgctxt$(e) $(p)chgdrv$(e) &
         $(p)chgenv$(e) $(p)chgenvc$(e) $(p)chgenvr$(e) $(p)clrline$(e) $(p)cmdinput$(e) $(p)comfile$(e) &
@@ -128,8 +128,9 @@ $(p)err9$(e)
 
 !include $(%ROOT)/mk/libsdos.mk
 
-ADD_COPT   = -ml -dMODEL=l -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(PATH)
+ADD_COPT   = -ml -dMODEL=l -d2 -db -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include -i=$(MYDIR)..$(SEP)..$(SEP)include -i=$(PATH)
 ADD_ASMOPT = -ml -dMODEL=l -d2 -db  -i=$(MYDIR) -i=$(MYDIR).. -i=$(PATH)..$(SEP)criter$(SEP)criter1 -i=$(MYDIR)..$(SEP)suppl -i=$(MYDIR)..$(SEP)include
+ADD_LINKOPT = lib $(BLD)lib$(SEP)doscmd_shared.lib
 TARGETS = $(PATH)lib.lib
 
 $(TARGETS): $(OBJS)

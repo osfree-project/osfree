@@ -13,7 +13,7 @@ srcfiles = $(p)find95$(e) $(p)l2s95$(e) $(p)lfnapi$(e) $(p)more$(e) &
 
 # defines additional options for linker
 STACKSIZE = 40000
-ADD_COPT  = -i=$(MYDIR)..$(SEP)include
+ADD_COPT  = -ml -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib $(BLD)lib$(SEP)doscmd_shared.lib
 
 !include $(%ROOT)/mk/appsdos.mk

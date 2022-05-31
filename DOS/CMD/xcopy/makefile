@@ -11,7 +11,7 @@ DESC = Extended COPY tool
 srcfiles = $(p)xcopy$(e) $(p)prf$(e)
 # defines additional options for C compiler
 STACKSIZE = 40000
-ADD_COPT  = -i=$(MYDIR)..$(SEP)include
+ADD_COPT  = -ml -i=$(MYDIR)..$(SEP)include
 ADD_LINKOPT = lib $(BLD)lib$(SEP)doscmd_shared.lib
 
 !include $(%ROOT)/mk/appsdos.mk
