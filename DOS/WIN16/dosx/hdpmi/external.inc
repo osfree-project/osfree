@@ -52,7 +52,6 @@ endif
 
 @proto _disablea20, near16
 @proto _enablea20, near16
-;@proto _GetA20State_pm
 
 ;--- vxd
 

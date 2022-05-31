@@ -34,44 +34,6 @@ _DATA16 SEGMENT
 oldxms  dd 0
 _DATA16 ENDS
 
-if 0
-
-@seg _TEXT32
-
-_TEXT32 SEGMENT
-
-_GetA20State_pm proc
-
-	push ebx
-	push ds
-	push byte ptr _FLATSEL_
-	pop ds
-	mov ebx,100000h
-
-	mov cx,1
-	mov ah,ds:[bx]
-	mov al,0AAh
-@@:
-	mov ds:[bx],al
-	cmp al,ds:[ebx]
-	jnz @F
-	xor al,0FFh
-	mov ds:[bx],al
-	cmp al,ds:[ebx]
-	jnz @F
-	dec cx
-@@:
-	mov ds:[bx],ah
-	mov ax,cx
-	pop ds
-	pop ebx
-	ret
-_GetA20State_pm endp
-
-_TEXT32 ENDS
-
-endif
-
 _TEXT16 segment
 
 ;--- XMS hook proc
