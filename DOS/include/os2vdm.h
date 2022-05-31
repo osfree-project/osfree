@@ -515,3 +515,9 @@ Notes:  this function was introduced by LAN Manager but is also supported by
 SeeAlso: AX=5F39h,AX=5F3Bh,INT 2F/AX=118Fh
 */
 
+VOID VdmExit(VOID);
+#pragma aux VdmExit = \
+        "mov ah, 4dh"   \
+        "int 21h"       \
+        "hlt"    \
+	"db 02h, 0fdh";

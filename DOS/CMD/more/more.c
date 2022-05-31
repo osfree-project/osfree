@@ -68,6 +68,7 @@
 
 #define MAXPATH95 270
 
+/*
 int dos_read(int file, void *ptr, unsigned count);
 int dos_open(char *filename, int mode);
 int dos_close(int file);
@@ -92,7 +93,7 @@ parm [bx] [dx] [cx] value [ax];
 "mov ah, 0x3e" \
 "int 0x21" \
 parm [bx];
-
+*/
 
 /* Symbolic constants */
 
