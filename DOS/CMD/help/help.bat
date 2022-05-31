@@ -20,11 +20,11 @@ helpmsg
 goto exit
 
 :on
-prompt $i[$p]
+prompt $i$p$g
 goto exit
 
 :off
 cls
-prompt
+prompt $p$g
 
 :exit
