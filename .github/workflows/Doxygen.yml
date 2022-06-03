@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    name: cppcheck-test
+    name: Generate docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,3 +12,8 @@ jobs:
         with:
           working-directory: './OS2/CMD'
           doxyfile-path: './Doxyfile'
+          
+      - uses: mikeal/publish-to-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: 'master' # your branch name goes here          
