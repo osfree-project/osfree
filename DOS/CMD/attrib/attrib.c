@@ -286,18 +286,18 @@ int main (int argc, char *argv[]) {
 
         if (*arg == '+' || *arg == '-') {               /* +-HSRA       */
                 register char ch0 = *arg; arg++;
-                do {    ATTR mask = 0;
-                        if (*arg == 'H') mask = _A_HIDDEN;
-                        if (*arg == 'S') mask = _A_SYSTEM;
-                        if (*arg == 'R') mask = _A_RDONLY;
-                        if (*arg == 'A') mask = _A_ARCH;
+                do {    ATTR maskattr = 0;
+                        if (*arg == 'H') maskattr = _A_HIDDEN;
+                        if (*arg == 'S') maskattr = _A_SYSTEM;
+                        if (*arg == 'R') maskattr = _A_RDONLY;
+                        if (*arg == 'A') maskattr = _A_ARCH;
                         if (mask == 0) {
                                 sayerror (E_OPTION, "invalid attribute", arg);
                                 return retcode;
                         }
 
-                        if (ch0 == '+') attr_set |= mask;
-                        mask = ~mask, attr_keep &= mask;
+                        if (ch0 == '+') attr_set |= maskattr;
+                        maskattr = ~maskattr, attr_keep &= maskattr;
                         arg++;
                 } while (*arg && *arg != '/');
         }

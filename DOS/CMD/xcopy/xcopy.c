@@ -29,7 +29,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <io.h>
-/* #include <dir.h> - moved to shared.inc */
 #include <dos.h>        /* also has the date / time struct definitions */
 #include <sys/stat.h>
 
@@ -41,36 +40,10 @@ nl_catd cat;            /* message catalog, must be before shared.inc */
                         /* dir.h sets MAXPATH to 80 for DOS */
 #define MYMAXPATH 130   /* _fullname wants at least 128 bytes */
 
-#ifdef __TURBOC__
-#define _splitpath fnsplit
-void _fullpath(char * truename, char * rawname, unsigned int namelen)
-{
-  union REGS regs;
-  struct SREGS sregs;
-  if (namelen < 128)
-  {
-    truename[0] = '\0';
-    return;
-  }
-  regs.x.ax = 0x6000;   /* truename */
-  regs.x.si = FP_OFF(rawname);
-  sregs.ds = FP_SEG(rawname);
-  regs.x.di = FP_OFF(truename);
-  sregs.es = FP_SEG(truename);
-  intdosx(&regs, &regs, &sregs);
-  if (regs.x.cflag != 0)
-  {
-    truename[0] = '\0';
-  }
-}
-#endif
-
-
 /*-------------------------------------------------------------------------*/
 /* GLOBAL CONSTANTS                                                        */
 /*-------------------------------------------------------------------------*/
 #define MAXSWITCH 255
-
 
 /*-------------------------------------------------------------------------*/
 /* GLOBAL VARIABLES                                                        */

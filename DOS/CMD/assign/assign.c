@@ -250,7 +250,7 @@ void addAssignment(unsigned const segment, const char * const asgm)
 	else if(!isupper(dr1 = *p)) hlpScreen();
 
 	if(*++p == ':') ++p;
-	if(!*p == '=') hlpScreen();
+	if(!(*p == '=')) hlpScreen();
 
 	if(islower(*++p)) dr2 = toupper(*p);
 	else if(!isupper(dr2 = *p)) hlpScreen();

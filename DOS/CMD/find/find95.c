@@ -207,7 +207,7 @@ static int next95(FF_Block95 *ff)
 }
 
 int findfirst95(char *name, FF_Block95 *ff, int attr)
-{  int err;
+{  //int err;
 
    assert(name);
    assert(ff);

@@ -44,27 +44,23 @@ typing in commands, and how keystrokes are interpreted when you
 enter them at the command line.  The keystrokes discussed here are
 the ones normally used by CMD.EXE.  If you prefer using different
 keystrokes to perform these functions, you can assign new ones with
-:link reftype=hd refid=INIKeyMap.key mapping directives:elink. in
-:hp1.&4OS2INI.:ehp1..
+@ref INIKeyMap in &4OS2INI.
 
 The command line features documented in this section are:
 
   @li @ref Editing
   @li @ref CmdHist
   @li @ref HistWin
-  
-:pt.:pd.:link reftype=hd refid=Editing.Command-Line Editing:elink.
-:pt.:pd.:link reftype=hd refid=CmdHist.Command History and Recall:elink.
-:pt.:pd.:link reftype=hd refid=HistWin.Command History Window:elink.
-:pt.:pd.:link reftype=hd refid=CmdNames.Command Names and Parameters:elink.
-:pt.:pd.:link reftype=hd refid=FileComp.Filename Completion:elink.
-:pt.:pd.:link reftype=hd refid=AutoDir.Automatic Directory Changes:elink.
-:pt.:pd.:link reftype=hd refid=DirHist.Directory History Window:elink.
-:pt.:pd.:link reftype=hd refid=MultCmds.Multiple Commands:elink.
-:pt.:pd.:link reftype=hd refid=ExpandAlias.Expanding and Disabling Aliases:elink.
-:pt.:pd.:link reftype=hd refid=CmdLength.Command-Line Length Limits:elink.
+  @li @ref CmdNames
+  @li @ref FileComp
+  @li @ref AutoDir
+  @li @ref DirHist
+  @li @ref MultCmds
+  @li @ref ExpandAlias
+  @li @ref CmdLength
 
   Additional command-line features are documented under
+
   @ref FileSel
   @ref TOC_Other
 
@@ -73,26 +69,25 @@ The command line features documented in this section are:
 /*! @page Editing Command-Line Editing
 
   The command line works like a single-line word processor, allowing you to
-  edit any part of the command at any time before you press :hp2.Enter:ehp2.
-  to execute it, or :hp2.Esc:ehp2. to erase it.  The command line you enter
+  edit any part of the command at any time before you press Enter
+  to execute it, or Esc to erase it.  The command line you enter
   can be up to 1023 characters long.
 
   You can use the following editing keys when you are typing a command (the
-  words :hp2.Ctrl:ehp2. and :hp2.Shift:ehp2. mean to press the Ctrl or Shift
+  words Ctrl and Shift mean to press the Ctrl or Shift
   key together with the other key named)&colon.
 
-:hp2.Cursor Movement Keys&colon.:ehp2.
-:lm margin=8.:parml compact tsize=16 break=fit.
-:pt.:hp2.:ehp2.:pd.Move the cursor left one character.
-:pt.:hp2.:ehp2.:pd.Move the cursor right one character.
-:pt.:hp2.Ctrl :ehp2.:pd.Move the cursor left one word.
-:pt.:hp2.Ctrl :ehp2.:pd.Move the cursor right one word.
-:pt.:hp2.Home:ehp2.:pd.Move the cursor to the beginning of the line.
-:pt.:hp2.End:ehp2.:pd.Move the cursor to the end of the line.
-:eparml.:lm margin=1.
-.br
-:hp2.Insert and Delete&colon.:ehp2.
-:lm margin=8.:parml compact tsize=16 break=fit.
+  Cursor Movement Keys:
+  :pt.:hp2.:ehp2.:pd.Move the cursor left one character.
+  :pt.:hp2.:ehp2.:pd.Move the cursor right one character.
+  :pt.:hp2.Ctrl :ehp2.:pd.Move the cursor left one word.
+  :pt.:hp2.Ctrl :ehp2.:pd.Move the cursor right one word.
+  :pt.:hp2.Home:ehp2.:pd.Move the cursor to the beginning of the line.
+  :pt.:hp2.End:ehp2.:pd.Move the cursor to the end of the line.
+  :eparml.:lm margin=1.
+
+  Insert and Delete:
+
 :pt.:hp2.Ins:ehp2.:pd.Toggle between insert and overtype mode.
 :pt.:hp2.Del:ehp2.:pd.Delete the character at the cursor.
 :pt.:hp2.Backspace:ehp2.:pd.Delete the character to the left of the cursor.
@@ -101,14 +96,11 @@ The command line features documented in this section are:
 :pt.:hp2.Ctrl-Home:ehp2.:pd.Delete from the beginning of the line to the cursor.
 :pt.:hp2.Ctrl-End:ehp2.:pd.Delete from the cursor to the end of the line.
 :pt.:hp2.Esc:ehp2.:pd.Delete the entire line.
-:eparml.:lm margin=1.
 
+  Execution:
 
-:hp2.Execution&colon.:ehp2.
-:lm margin=8.:parml compact tsize=16 break=fit.
 :pt.:hp2.Ctrl-C:ehp2.:pd.or :hp2.Ctrl-Break:ehp2.  Cancel the command line.
 :pt.:hp2.Enter:ehp2.:pd.Execute the command line.
-:eparml.:lm margin=1.
 
   Most of the command-line editing capabilities are also available
   when a CMD command prompts you for a line of input.  For example,

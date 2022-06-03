@@ -258,15 +258,11 @@ void drivecheck(short *drive)
 
 void bioscheckside(short driveno, short sideno, md5_byte_t *digest)
 {
-        long tmp;
         short result;
-        register short i;
-        register int m;
         int j,k,l;
         char answer;
         char *buffer;
         md5_state_t state;
-        int di;
 
         /* initialize md5 */
         md5_init(&state);
