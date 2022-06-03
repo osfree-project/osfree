@@ -10,4 +10,5 @@ jobs:
       
       - uses: mattnotmitt/doxygen-action@v1.9.2
         with:
-          doxyfile-path: './OS2/CMD/Doxyfile'
+          working-directory: './OS2/CMD'
+          doxyfile-path: './Doxyfile'
