@@ -1,4 +1,4 @@
-name: cppcheck-action-test
+name: Static analyse
 on: [push]
 
 jobs:
