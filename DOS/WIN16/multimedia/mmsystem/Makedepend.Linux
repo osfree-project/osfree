@@ -1,5 +1,0 @@
-# DO NOT DELETE
-
-mmaux.o: mmddk.h
-midi.o: mmddk.h
-wave.o: mmddk.h

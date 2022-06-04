@@ -1,3 +1,0 @@
-  All of the Mouse handling code is in the "mouse" subdirectory.
-
-  There are only 2 main files, mouse.c and mouseint.c.

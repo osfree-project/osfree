@@ -1,3 +1,0 @@
-Implementation of utilities required for the build process of FreeCOM
-
-MKTOOLS		Creates the default target for TOOLS\ subdir

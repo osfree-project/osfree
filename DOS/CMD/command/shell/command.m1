@@ -1,8 +1,0 @@
-.AUTODEPEND
-
-CFG_DEPENDENCIES = COMMAND.MAK ..\strings.h
-
-!include "..\config.mak"
-
-all: $(CFG) command.exe
-

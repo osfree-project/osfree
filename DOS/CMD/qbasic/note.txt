@@ -1,1 +1,0 @@
-Use FreeDOS edit (and MS GW-BASIC?) as base of QBASIC
