@@ -1,0 +1,19 @@
+name: Doxygen
+on: [push]
+
+jobs:
+  build:
+    name: Generate docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: mattnotmitt/doxygen-action@v1.9.2
+        with:
+          working-directory: './OS2/CMD'
+          doxyfile-path: './Doxyfile'
+          
+      - uses: mikeal/publish-to-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: 'master' # your branch name goes here          

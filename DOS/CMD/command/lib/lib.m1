@@ -1,8 +1,0 @@
-.AUTODEPEND
-
-CFG_DEPENDENCIES = lib.mak
-
-!include "..\config.mak"
-
-all: $(CFG) freecom.lib
-

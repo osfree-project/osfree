@@ -1,0 +1,122 @@
+
+/*!
+  @page CmdHist Command History and Recall
+
+  Command History Keys:
+  
+
+:pt.:hp2.&uarrow.:ehp2.:pd.Recall the previous (or most recent) command, or the
+most recent command that matches a partial command line.
+:pt.:hp2.&darrow.:ehp2.:pd.Recall the next (or oldest) command, or the oldest
+command that matches a partial command line.
+:pt.:hp2.F3:ehp2.:pd.Fill in the rest of the command line from the previous command,
+beginning at the current cursor position.
+:pt.:hp2.Ctrl-D:ehp2.:pd.Delete the currently displayed history list entry, erase
+the command line, and display the previous (matching) history list entry.
+:pt.:hp2.Ctrl-E:ehp2.:pd.Display the last entry in the history list.
+:pt.:hp2.Ctrl-K:ehp2.:pd.Save the current command line in the history list without
+executing it, and then clear the command line.
+:pt.:hp2.Ctrl-Enter:ehp2.:pd.Copy the current command line to the end of
+the history list even it has not been altered, then execute it.
+:pt.:hp2.@:ehp2.:pd.As the first character in a line&colon.  Do not save the current line
+in the history list when it is executed, and do not store it in the :link reftype=hd refid=CMDLINE.CMDLINE:elink.
+environment variable.
+:eparml.:lm margin=1.
+
+  Use the :hp2.&uarrow.:ehp2. key repeatedly to scan back through the
+  history list.  When the desired command appears, press :hp2.Enter:ehp2. to
+  execute it again.  After you have found a command, you can edit it
+  before pressing :hp2.Enter:ehp2..
+
+  The history list is normally "circular".  If you move to the last command in
+  the list and then press the down arrow one more time, you'll see
+  the first command in the list.  Similarly, if you move to the first
+  command in the list and then press the up arrow one more time,
+  you'll see the last command in the list.  You can disable this feature and
+  make command history recall stop at the beginning or end of the list by
+  turning off the History Wrap selection on the Command Line 1 page of the
+  :link reftype=hd refid=OPTION.OPTION:elink. dialogs, or setting :link
+  reftype=hd refid=INI_HistWrap.Histwrap:elink. to No in the :hp1..INI:ehp1.
+  file.
+
+  You can search the command history list to find a previous command
+  quickly using :hp2.command completion:ehp2..  Just enter the first few
+  characters of the command you want to find and press :hp2.&uarrow.:ehp2..
+  You only need to enter enough characters to identify the command
+  that you want to find.  If you press the :hp2.&uarrow.:ehp2. key a second
+  time, you will see the previous command that matches.  The system
+  will beep if there are no matching commands.  The search process
+  stops as soon as you type one of the editing keys, whether or not
+  the line is changed.  At that point, the line you're viewing
+  becomes the new line to match if you press :hp2.&uarrow.:ehp2. again.
+
+  You can specify the size of the command history list with the
+  :link reftype=hd refid=OPTION.OPTION:elink. command, or with the
+  :link reftype=hd refid=INI_History.History:elink. directive in the :hp1..INI:ehp1. file.  When the
+  list is full, the oldest commands are discarded to make room for
+  new ones.  You can also use the :link reftype=hd refid=INI_HistMin.HistMin:elink. directive
+  in the :hp1..INI:ehp1. file to enable or disable history saves and to
+  specify the shortest command line that will be saved.
+
+  You can prevent any command line from being saved in the history by
+  beginning it with an at sign [:hp2.@:ehp2.].
+
+  When you execute a command from the history, that command remains
+  in the history list in its original position.  The command is not
+  copied to the end of the list (unless you modify it).  If you want
+  each command to be copied or moved to the end of the list when it is re-
+  executed, set :link reftype=hd refid=INI_HistCopy.HistCopy:elink. or
+  :link reftype=hd refid=INI_HistMove.HistMove:elink. to Yes in
+  :hp1.&4OS2INI.:ehp1..
+  If you select either of these options, the list entry identified as "current"
+  (the entry from which commands are retrieved when you press
+  :hp2.&uarrow.:ehp2.) is also adjusted to refer to the end of the history
+  list after each recalled command is executed.
+
+  Local and Global Command History
+
+  The command history can be stored in either a "local" or "global"
+  list.
+
+  With a local command history list, any changes made to the history will
+  only affect the current copy of &4OS2..  They will not be visible in
+  other shells, or other sessions.
+
+  With a global command history list, all copies of &4OS2. will share the same
+  command history, and any changes made to the history in one copy
+  will affect all other copies.  Global lists are the default for
+  &4OS2..
+
+  You can control the type of command history on the Startup page of the
+  :link reftype=hd refid=OPTION.OPTION:elink. dialogs, with the
+  :link reftype=hd refid=INI_LocalHistory.LocalHistory:elink. directive in the
+  :hp1..INI:ehp1. file, or with the :hp2./L:ehp2. and :hp2./LH:ehp2. options
+  of the :link reftype=hd refid=START.START:elink. command.
+
+  There is no fixed rule for deciding whether to use a local or global
+  command history list.  Depending on your work style, you may find
+  it most convenient to use one type, or a mixture of types in
+  different sessions or shells.  We recommend that you start with the
+  default setting, then modify it if you find a situation where the default is
+  not convenient.
+
+  If you select a global history list for &4OS2. you can share the
+  history among all copies of &4OS2. running in any session.  When you
+  close all &4OS2. sessions, the memory for the global history list is
+  released, and a new, empty history list is created the next time
+  you start &4OS2..
+
+  If you want the history list to be retained in
+  memory even when no command processor session is running, execute the :link
+  reftype=hd refid=SHRALIAS.SHRALIAS:elink. command, which loads a program to
+  perform this service for the global command history, directory history, and
+  alias lists.
+
+  Whenever you start a secondary shell which uses a local history list, it
+  inherits a copy of the command history from the previous shell.  However,
+  any changes to the history made in the secondary shell will affect only that
+  shell.  If you want changes made in a secondary shell to affect the previous
+  shell, use a global history list in both shells.
+
+*/
+

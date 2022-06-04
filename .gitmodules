@@ -7,9 +7,9 @@
 [submodule "OS2/Server"]
 	path = OS2/Server
 	url = https://github.com/osfree-project/os3.git
-[submodule "DOS/fapi"]
-	path = DOS/fapi
-	url = https://github.com/osfree-project/FamilyAPI.git
 [submodule "OS2/MM/WPS"]
 	path = OS2/MM/WPS
 	url = https://github.com/osfree-project/CWMM.git
+[submodule "DOS"]
+	path = DOS
+	url = https://github.com/osfree-project/DOS
