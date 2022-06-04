@@ -10,3 +10,6 @@
 [submodule "OS2/MM/WPS"]
 	path = OS2/MM/WPS
 	url = https://github.com/osfree-project/CWMM.git
+[submodule "DOS"]
+	path = DOS
+	url = https://github.com/osfree-project/DOS
