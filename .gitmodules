@@ -19,3 +19,6 @@
 [submodule "OS2/SOM/Core"]
 	path = OS2/SOM/Core
 	url = https://github.com/osfree-project/somfree.git
+[submodule "bootseq"]
+	path = bootseq
+	url = https://github.com/osfree-project/FreeLdr.git
