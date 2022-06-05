@@ -3598,6 +3598,15 @@ OS2/CMD/old/set.c:203:8: style: Unused variable: tmp [unusedVariable]
 OS2/CMD/old/set.c:51:8: style: The scope of the variable 'tmp' can be reduced. [variableScope]
  char *tmp;
        ^
+OS2/CMD/print/print.c:342:9: warning: fprintf format string requires 0 parameters but 1 is given. [wrongPrintfScanfArgNum]
+        fprintf( stderr, "Memory allocation error.\n", rc );
+        ^
+OS2/CMD/print/print.c:832:45: style: Obsolete function 'asctime' called. It is recommended to use 'strftime' instead. [asctimeCalled]
+                printf("  Submitted: %s",   asctime( gmtime( &tt )));
+                                            ^
+OS2/CMD/print/print.c:702:9: warning: fprintf format string requires 0 parameters but 1 is given. [wrongPrintfScanfArgNum]
+        fprintf( stderr, "Memory allocation error.\n", rc );
+        ^
 OS2/CMD/screenrs/screenrs.c:61:19: style: Redundant condition: If 'argc == 1', the comparison 'argc < 5' is always true. [redundantCondition]
     if (argc == 1 || argc < 5 || argc > 6)
                   ^
