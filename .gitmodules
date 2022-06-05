@@ -22,3 +22,6 @@
 [submodule "bootseq"]
 	path = bootseq
 	url = https://github.com/osfree-project/FreeLdr.git
+[submodule "Win32"]
+	path = Win32
+	url = https://github.com/cl91/NeptuneOS
