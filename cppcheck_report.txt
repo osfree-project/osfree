@@ -31045,1599 +31045,6 @@ OS2/tests/test99/test99.c:31:36: style: Variable 'BytesAvail' is assigned a valu
 OS2/tests/test99/test99.c:33:36: style: Variable 'Buffer' is assigned a value that is never used. [unreadVariable]
    UCHAR    Buffer[200]            = {0};
                                    ^
-bootseq/loader/cfgparse.c:198:13: style: Redundant condition: !f. 'f || (!f && buf[rd-1]=='\n')' is equivalent to 'f || buf[rd-1]=='\n'' [redundantCondition]
-      g = f || (!f && (buf[rd - 1] == '\n'));
-            ^
-bootseq/loader/cfgparse.c:180:15: style: Condition '!rd' is always false [knownConditionTrueFalse]
-    if (sz && !rd)
-              ^
-bootseq/loader/cfgparse.c:169:9: note: Assuming condition '!rd' is false
-    if (!rd)
-        ^
-bootseq/loader/cfgparse.c:180:15: note: Condition '!rd' is always false
-    if (sz && !rd)
-              ^
-bootseq/loader/cfgparse.c:121:11: warning: Either the condition '!q' is redundant or there is possible null pointer dereference: q. [nullPointerRedundantCheck]
-  while (*q != '\r' && *q != '\n' && *q != '\0' && q - buf < n)
-          ^
-bootseq/loader/cfgparse.c:118:7: note: Assuming that condition '!q' is not redundant
-  if (!q)
-      ^
-bootseq/loader/cfgparse.c:121:11: note: Null pointer dereference
-  while (*q != '\r' && *q != '\n' && *q != '\0' && q - buf < n)
-          ^
-bootseq/loader/cfgparse.c:142:8: style: The scope of the variable 'f' can be reduced. [variableScope]
-  char f, g;
-       ^
-bootseq/loader/cfgparse.c:144:16: style: The scope of the variable 'rd' can be reduced. [variableScope]
-  unsigned int rd;
-               ^
-bootseq/loader/cfgparse.c:99:10: style: Unused variable: i [unusedVariable]
-  int l, i;
-         ^
-bootseq/loader/cfgparse.c:141:20: style: Unused variable: q [unusedVariable]
-  char *p, *line, *q;
-                   ^
-bootseq/loader/edit.c:131:7: style: The scope of the variable 'c' can be reduced. [variableScope]
-  int c;
-      ^
-bootseq/loader/edit.c:76:13: style: Local variable 'line' shadows outer function [shadowFunction]
-  char *p, *line;
-            ^
-bootseq/loader/edit.c:64:14: note: Shadowed declaration
-struct line *line (int n)
-             ^
-bootseq/loader/edit.c:76:13: note: Shadow variable
-  char *p, *line;
-            ^
-bootseq/loader/edit.c:292:13: style: Local variable 'line' shadows outer function [shadowFunction]
-  int xoff, line, l, oldcursor, cursor;
-            ^
-bootseq/loader/edit.c:64:14: note: Shadowed declaration
-struct line *line (int n)
-             ^
-bootseq/loader/edit.c:292:13: note: Shadow variable
-  int xoff, line, l, oldcursor, cursor;
-            ^
-bootseq/loader/edit.c:133:11: style: Unused variable: y1 [unusedVariable]
-  int x1, y1;
-          ^
-bootseq/loader/edit.c:292:22: style: Unused variable: oldcursor [unusedVariable]
-  int xoff, line, l, oldcursor, cursor;
-                     ^
-bootseq/loader/edit.c:292:33: style: Unused variable: cursor [unusedVariable]
-  int xoff, line, l, oldcursor, cursor;
-                                ^
-bootseq/loader/filesys/fsys_ext2fs.c:537:3: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-  printf ("logical block %d\n", logical_block);
-  ^
-bootseq/loader/filesys/fsys_ext2fs.c:544:7: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned char *'. [invalidPrintfArgType_sint]
-      printf ("returning %d\n", (unsigned char *) (INODE->i_block[logical_block]));
-      ^
-bootseq/loader/filesys/fsys_ext2fs.c:545:7: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-      printf ("returning %d\n", INODE->i_block[logical_block]);
-      ^
-bootseq/loader/filesys/fsys_ext2fs.c:906:7: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-      printf ("ipg=%d, dpb=%d\n", SUPERBLOCK->s_inodes_per_group,
-      ^
-bootseq/loader/filesys/fsys_ext2fs.c:944:7: warning: %x in format string (no. 2) requires 'unsigned int' but the argument type is 'ext2_inode *'. [invalidPrintfArgType_uint]
-      printf ("inode=%x, raw_inode=%x\n", INODE, raw_inode);
-      ^
-bootseq/loader/filesys/fsys_ext2fs.c:1145:11: warning: %d in format string (no. 1) requires 'int' but the argument type is 'signed long'. [invalidPrintfArgType_sint]
-          printf ("fs block=%d\n", map);
-          ^
-bootseq/loader/filesys/fsys_ext2fs.c:1167:11: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-          printf ("directory entry ino=%d\n", dp->inode);
-          ^
-bootseq/loader/filesys/fsys_ext2fs.c:1176:20: style: The scope of the variable 'ch1' can be reduced. [variableScope]
-              char ch1;
-                   ^
-bootseq/loader/filesys/fsys_ext2fs.c:189:19: style: struct member 'Anonymous1::l_i_reserved1' is never used. [unusedStructMember]
-            __u32 l_i_reserved1;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:194:19: style: struct member 'Anonymous2::h_i_translator' is never used. [unusedStructMember]
-            __u32 h_i_translator;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:199:19: style: struct member 'Anonymous3::m_i_reserved1' is never used. [unusedStructMember]
-            __u32 m_i_reserved1;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:213:25: style: struct member 'Anonymous5::l_i_blocks_high' is never used. [unusedStructMember]
-                __u16   l_i_blocks_high; /* were l_i_reserved1 */
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:214:25: style: struct member 'Anonymous5::l_i_file_acl_high' is never used. [unusedStructMember]
-                __u16   l_i_file_acl_high;
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:215:25: style: struct member 'Anonymous5::l_i_uid_high' is never used. [unusedStructMember]
-                __u16   l_i_uid_high;   /* these 2 fields */
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:216:25: style: struct member 'Anonymous5::l_i_gid_high' is never used. [unusedStructMember]
-                __u16   l_i_gid_high;   /* were reserved2[0] */
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:217:25: style: struct member 'Anonymous5::l_i_reserved2' is never used. [unusedStructMember]
-                __u32   l_i_reserved2;
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:222:25: style: struct member 'Anonymous6::h_i_reserved1' is never used. [unusedStructMember]
-                __u16   h_i_reserved1;  /* Obsoleted fragment number/size which are removed in ext4 */
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:223:19: style: struct member 'Anonymous6::h_i_mode_high' is never used. [unusedStructMember]
-            __u16 h_i_mode_high;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:224:19: style: struct member 'Anonymous6::h_i_uid_high' is never used. [unusedStructMember]
-            __u16 h_i_uid_high;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:225:19: style: struct member 'Anonymous6::h_i_gid_high' is never used. [unusedStructMember]
-            __u16 h_i_gid_high;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:226:19: style: struct member 'Anonymous6::h_i_author' is never used. [unusedStructMember]
-            __u32 h_i_author;
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:231:25: style: struct member 'Anonymous7::h_i_reserved1' is never used. [unusedStructMember]
-                __u16   h_i_reserved1;  /* Obsoleted fragment number/size which are removed in ext4 */
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:232:25: style: struct member 'Anonymous7::m_i_file_acl_high' is never used. [unusedStructMember]
-                __u16   m_i_file_acl_high;
-                        ^
-bootseq/loader/filesys/fsys_ext2fs.c:233:19: style: struct member 'Anonymous7::m_i_reserved2' is never used. [unusedStructMember]
-            __u32 m_i_reserved2[2];
-                  ^
-bootseq/loader/filesys/fsys_ext2fs.c:745:22: style: Variable 'size' is assigned a value that is never used. [unreadVariable]
-  unsigned long size = 0;
-                     ^
-bootseq/loader/filesys/fsys_fat.c:683:23: style: Variable 'exfat_nextentry' is reassigned a value before the old one has been used. [redundantAssignment]
-      exfat_nextentry = EXFAT_ENTRY_FILE_INFO;
-                      ^
-bootseq/loader/filesys/fsys_fat.c:679:20: note: exfat_nextentry is assigned
-   exfat_nextentry = EXFAT_ENTRY_FILE;
-                   ^
-bootseq/loader/filesys/fsys_fat.c:683:23: note: exfat_nextentry is overwritten
-      exfat_nextentry = EXFAT_ENTRY_FILE_INFO;
-                      ^
-bootseq/loader/filesys/fsys_fat.c:160:13: error: Uninitialized variable: fat_length [uninitvar]
-  if (! bpb.fat_length && ! bpb.fat32_length)
-            ^
-bootseq/loader/filesys/fsys_fat.c:157:7: note: Assuming condition is false
-  if (! (*pdevread) (0, 0, sizeof (bpb), (char *) &bpb))
-      ^
-bootseq/loader/filesys/fsys_fat.c:160:13: note: Uninitialized variable: fat_length
-  if (! bpb.fat_length && ! bpb.fat32_length)
-            ^
-bootseq/loader/filesys/fsys_fat.c:476:6: style: Variable 'buf' is assigned a value that is never used. [unreadVariable]
- buf += size;
-     ^
-bootseq/loader/filesys/fsys_ffs.c:107:13: style: The scope of the variable 'offset' can be reduced. [variableScope]
-  int bnum, offset, bsize;
-            ^
-bootseq/loader/filesys/fsys_ffs.c:107:21: style: The scope of the variable 'bsize' can be reduced. [variableScope]
-  int bnum, offset, bsize;
-                    ^
-bootseq/loader/filesys/fsys_ffs.c:153:7: style: The scope of the variable 'logno' can be reduced. [variableScope]
-  int logno, off, size, map, ret = 0;
-      ^
-bootseq/loader/filesys/fsys_ffs.c:153:14: style: The scope of the variable 'off' can be reduced. [variableScope]
-  int logno, off, size, map, ret = 0;
-             ^
-bootseq/loader/filesys/fsys_ffs.c:153:19: style: The scope of the variable 'size' can be reduced. [variableScope]
-  int logno, off, size, map, ret = 0;
-                  ^
-bootseq/loader/filesys/fsys_ffs.c:153:25: style: The scope of the variable 'map' can be reduced. [variableScope]
-  int logno, off, size, map, ret = 0;
-                        ^
-bootseq/loader/filesys/fsys_hpfs.c:34:7: style: The scope of the variable 'u' can be reduced. [variableScope]
-  int u, v;
-      ^
-bootseq/loader/filesys/fsys_hpfs.c:34:10: style: The scope of the variable 'v' can be reduced. [variableScope]
-  int u, v;
-         ^
-bootseq/loader/filesys/fsys_hpfs.c:97:10: style: The scope of the variable 'n' can be reduced. [variableScope]
-  int i, n, boff, b, p, sl, rc;
-         ^
-bootseq/loader/filesys/fsys_hpfs.c:97:22: style: Unused variable: p [unusedVariable]
-  int i, n, boff, b, p, sl, rc;
-                     ^
-bootseq/loader/filesys/fsys_hpfs.c:97:25: style: Unused variable: sl [unusedVariable]
-  int i, n, boff, b, p, sl, rc;
-                        ^
-bootseq/loader/filesys/fsys_hpfs.c:181:15: style: Unused variable: up [unusedVariable]
-  dnode_secno up, down;
-              ^
-bootseq/loader/filesys/fsys_hpfs.c:186:8: style: Unused variable: flag [unusedVariable]
-  char flag;
-       ^
-bootseq/loader/filesys/fsys_iso9660.c:437:26: style: The scope of the variable 'size' can be reduced. [variableScope]
-  int sector, blkoffset, size, ret;
-                         ^
-bootseq/loader/filesys/fsys_jfs.c:116:13: style: The scope of the variable 'offset' can be reduced. [variableScope]
-        s64 offset;
-            ^
-bootseq/loader/filesys/fsys_jfs.c:140:13: style: The scope of the variable 'stbl' can be reduced. [variableScope]
-        s8 *stbl;
-            ^
-bootseq/loader/filesys/fsys_jfs.c:167:16: style: The scope of the variable 'xd' can be reduced. [variableScope]
-        pxd_t *xd;
-               ^
-bootseq/loader/filesys/fsys_jfs.c:241:13: style: The scope of the variable 'offset' can be reduced. [variableScope]
-        s64 offset, xadlen;
-            ^
-bootseq/loader/filesys/fsys_jfs.c:241:21: style: The scope of the variable 'xadlen' can be reduced. [variableScope]
-        s64 offset, xadlen;
-                    ^
-bootseq/loader/filesys/fsys_jfs.c:223:23: error: Uninitialized variable: s_magic [uninitvar]
-            || (super.s_magic != JFS_MAGIC)
-                      ^
-bootseq/loader/filesys/fsys_jfs.c:404:23: error: Uninitialized variable: s_magic [uninitvar]
-            || (super.s_magic != JFS_MAGIC)) {
-                      ^
-bootseq/loader/filesys/fsys_jfs.c:50:21: style: struct member 'jfs_info::de' is never used. [unusedStructMember]
-        ldtentry_t *de;
-                    ^
-bootseq/loader/filesys/fsys_minix.c:488:11: warning: %d in format string (no. 1) requires 'int' but the argument type is 'signed long'. [invalidPrintfArgType_sint]
-          printf ("fs block=%d\n", map);
-          ^
-bootseq/loader/filesys/fsys_minix.c:111:15: style: struct member 'minix2_inode::i_nlinks' is never used. [unusedStructMember]
-        __u16 i_nlinks;
-              ^
-bootseq/loader/filesys/fsys_minix.c:112:15: style: struct member 'minix2_inode::i_uid' is never used. [unusedStructMember]
-        __u16 i_uid;
-              ^
-bootseq/loader/filesys/fsys_minix.c:113:15: style: struct member 'minix2_inode::i_gid' is never used. [unusedStructMember]
-        __u16 i_gid;
-              ^
-bootseq/loader/filesys/fsys_minix.c:115:15: style: struct member 'minix2_inode::i_atime' is never used. [unusedStructMember]
-        __u32 i_atime;
-              ^
-bootseq/loader/filesys/fsys_minix.c:116:15: style: struct member 'minix2_inode::i_mtime' is never used. [unusedStructMember]
-        __u32 i_mtime;
-              ^
-bootseq/loader/filesys/fsys_minix.c:117:15: style: struct member 'minix2_inode::i_ctime' is never used. [unusedStructMember]
-        __u32 i_ctime;
-              ^
-bootseq/loader/filesys/fsys_minix.c:258:12: style: Variable 'size' is assigned a value that is never used. [unreadVariable]
-  int size = 0;
-           ^
-bootseq/loader/filesys/fsys_ntfs.c:177:7: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-      dbg_printf("Size not match %d!=%d\n",ss*blocksize,len*512);
-      ^
-bootseq/loader/filesys/fsys_ntfs.c:236:23: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-                      dbg_printf("Invalid MFT at 0x%X\n",valueat(pa,0x10,unsigned long));
-                      ^
-bootseq/loader/filesys/fsys_ntfs.c:1009:7: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-      dbg_printf("Read MFT 0x%X fails\n",mftno);
-      ^
-bootseq/loader/filesys/fsys_ntfs.c:1025:7: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-      dbg_printf("MFT 0x%X is not in use\n",mftno);
-      ^
-bootseq/loader/filesys/fsys_ntfs.c:1037:11: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-          dbg_printf("No $DATA in MFT 0x%X\n",mftno);
-          ^
-bootseq/loader/filesys/fsys_ntfs.c:1005:27: style:inconclusive: Function 'read_mft' argument 1 names different: declaration 'cur_mft' definition 'buf'. [funcArgNamesDifferent]
-static int read_mft(char* buf,unsigned long mftno)
-                          ^
-bootseq/loader/filesys/fsys_ntfs.c:198:27: note: Function 'read_mft' argument 1 names different: declaration 'cur_mft' definition 'buf'.
-static int read_mft(char* cur_mft,unsigned long mftno);
-                          ^
-bootseq/loader/filesys/fsys_ntfs.c:1005:27: note: Function 'read_mft' argument 1 names different: declaration 'cur_mft' definition 'buf'.
-static int read_mft(char* buf,unsigned long mftno)
-                          ^
-bootseq/loader/filesys/fsys_ntfs.c:1414:3: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
-  ^
-bootseq/loader/filesys/fsys_ntfs.c:1414:3: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
-  ^
-bootseq/loader/filesys/fsys_ntfs.c:1414:3: warning: %u in format string (no. 3) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
-  ^
-bootseq/loader/filesys/fsys_ntfs.c:1414:3: warning: %u in format string (no. 4) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
-  ^
-bootseq/loader/filesys/fsys_ntfs.c:1414:3: warning: %X in format string (no. 5) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  dbg_printf("blocksize: %u\nspc: %u\nmft_size: %u\nidx_size: %u\nmft_start: 0x%X\n",
-  ^
-bootseq/loader/filesys/fsys_ntfs.c:1482:9: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-        printf("(+%d)",(ctx.next_vcn-ctx.curr_vcn)*spc);
-        ^
-bootseq/loader/filesys/fsys_ntfs.c:1484:9: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-        printf("%d+%d",ctx.curr_lcn*spc,(ctx.next_vcn-ctx.curr_vcn)*spc);
-        ^
-bootseq/loader/filesys/fsys_ntfs.c:1484:9: warning: %d in format string (no. 2) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-        printf("%d+%d",ctx.curr_lcn*spc,(ctx.next_vcn-ctx.curr_vcn)*spc);
-        ^
-bootseq/loader/filesys/fsys_ntfs.c:1499:5: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-    printf("Base: 0x%X\n",valueat(cur_mft,0x20,unsigned long));
-    ^
-bootseq/loader/filesys/fsys_ntfs.c:1530:11: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-          printf(",mft=0x%X",valueat(ofs2ptr(attr_cur),0x10,unsigned long));
-          ^
-bootseq/loader/filesys/fsys_ntfs.c:1532:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-            printf(",vcn=0x%X",valueat(ofs2ptr(attr_cur),0x8,unsigned long));
-            ^
-bootseq/loader/filesys/fsys_ntfs.c:1541:7: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned long'. [invalidPrintfArgType_sint]
-      printf(",sz=%d",valueat(pos,((pos[8])?0x30:0x10),unsigned long));
-      ^
-bootseq/loader/filesys/fsys_ntfs1.c:237:5: warning: %x in format string (no. 4) requires 'unsigned int' but the argument type is 'signed char *'. [invalidPrintfArgType_uint]
-    printf("get_next_run: s=%d e=%d c=%d start=%x ptr=%x\n",
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:237:5: warning: %x in format string (no. 5) requires 'unsigned int' but the argument type is 'signed char *'. [invalidPrintfArgType_uint]
-    printf("get_next_run: s=%d e=%d c=%d start=%x ptr=%x\n",
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:292:5: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-    printf("size %d allocated=%d inited=%d cegin=%x csize=%d vcn=%d-%d\n",
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:292:5: warning: %d in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-    printf("size %d allocated=%d inited=%d cegin=%x csize=%d vcn=%d-%d\n",
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:292:5: warning: %d in format string (no. 3) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-    printf("size %d allocated=%d inited=%d cegin=%x csize=%d vcn=%d-%d\n",
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:899:5: warning: %x in format string (no. 2) requires 'unsigned int' but the argument type is 'signed long long'. [invalidPrintfArgType_uint]
-    printf("spc=%x mft_record=%x:%x\n", spc, *(__s64 *)(sb+0x30));
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:899:5: error: printf format string requires 3 parameters but only 2 are given. [wrongPrintfScanfArgNum]
-    printf("spc=%x mft_record=%x:%x\n", spc, *(__s64 *)(sb+0x30));
-    ^
-bootseq/loader/filesys/fsys_ntfs1.c:562:9: style: The scope of the variable 'n' can be reduced. [variableScope]
-    int n;
-        ^
-bootseq/loader/filesys/fsys_reiserfs.c:414:16: style: Opposite expression on both sides of '&'. [oppositeExpression]
-  return (word & -word) == word;
-               ^
-bootseq/loader/filesys/fsys_reiserfs.c:614:17: error: Uninitialized variable: s_journal_block [uninitvar]
-          super.s_journal_block * super.s_blocksize
-                ^
-bootseq/loader/filesys/fsys_reiserfs.c:614:41: error: Uninitialized variable: s_blocksize [uninitvar]
-          super.s_journal_block * super.s_blocksize
-                                        ^
-bootseq/loader/filesys/fsys_reiserfs.c:640:13: error: Uninitialized variable: s_version [uninitvar]
-  if (super.s_version > REISERFS_MAX_SUPPORTED_VERSION)
-            ^
-bootseq/loader/filesys/fsys_reiserfs.c:613:7: note: Assuming condition is false
-      || (/* check that this is not a copy inside the journal log */
-      ^
-bootseq/loader/filesys/fsys_reiserfs.c:640:13: note: Uninitialized variable: s_version
-  if (super.s_version > REISERFS_MAX_SUPPORTED_VERSION)
-            ^
-bootseq/loader/filesys/fsys_reiserfs.c:107:8: style: struct member 'reiserfs_journal_commit::j_digest' is never used. [unusedStructMember]
-  char j_digest[16];                    /* md5 sum of all the blocks involved, including desc and commit. not used, kill it */
-       ^
-bootseq/loader/filesys/fsys_reiserfs.c:206:11: style: union member 'Anonymous1::ih_free_space' is never used. [unusedStructMember]
-    __u16 ih_free_space; /* The free space in the last unformatted node of an indirect item if this
-          ^
-bootseq/loader/filesys/fsys_ufs2.c:91:7: style: The scope of the variable 'i' can be reduced. [variableScope]
-  int i;
-      ^
-bootseq/loader/filesys/fsys_ufs2.c:131:13: style: The scope of the variable 'offset' can be reduced. [variableScope]
-  int bnum, offset, bsize;
-            ^
-bootseq/loader/filesys/fsys_ufs2.c:131:21: style: The scope of the variable 'bsize' can be reduced. [variableScope]
-  int bnum, offset, bsize;
-                    ^
-bootseq/loader/filesys/fsys_ufs2.c:177:7: style: The scope of the variable 'logno' can be reduced. [variableScope]
-  int logno, off, size, ret = 0;
-      ^
-bootseq/loader/filesys/fsys_ufs2.c:177:14: style: The scope of the variable 'off' can be reduced. [variableScope]
-  int logno, off, size, ret = 0;
-             ^
-bootseq/loader/filesys/fsys_ufs2.c:177:19: style: The scope of the variable 'size' can be reduced. [variableScope]
-  int logno, off, size, ret = 0;
-                  ^
-bootseq/loader/filesys/fsys_ufs2.c:178:16: style: The scope of the variable 'map' can be reduced. [variableScope]
-  grub_int64_t map;
-               ^
-bootseq/loader/filesys/fsys_vstafs.c:198:7: style: The scope of the variable 'ext_size' can be reduced. [variableScope]
-  int ext_size;
-      ^
-bootseq/loader/filesys/fsys_vstafs.c:194:17: style: Local variable 'a' shadows outer variable [shadowVariable]
-  struct alloc *a;
-                ^
-bootseq/loader/filesys/fsys_vstafs.c:71:22: note: Shadowed declaration
-static struct alloc *a;
-                     ^
-bootseq/loader/filesys/fsys_vstafs.c:194:17: note: Shadow variable
-  struct alloc *a;
-                ^
-bootseq/loader/filesys/fsys_vstafs.c:196:7: style: Local variable 'curr_ext' shadows outer variable [shadowVariable]
-  int curr_ext;
-      ^
-bootseq/loader/filesys/fsys_vstafs.c:70:12: note: Shadowed declaration
-static int curr_ext, current_direntry, current_blockpos;
-           ^
-bootseq/loader/filesys/fsys_vstafs.c:196:7: note: Shadow variable
-  int curr_ext;
-      ^
-bootseq/loader/filesys/fsys_xfs.c:196:13: style: The scope of the variable 'i' can be reduced. [variableScope]
-        int i;
-            ^
-bootseq/loader/filesys/fsys_xfs.c:333:23: style: The scope of the variable 'offset' can be reduced. [variableScope]
-        xfs_fileoff_t offset;;
-                      ^
-bootseq/loader/filesys/fsys_xfs.c:527:44: style: The scope of the variable 'offset' can be reduced. [variableScope]
-        xfs_fileoff_t endofprev, endofcur, offset;
-                                           ^
-bootseq/loader/filesys/fsys_xfs.c:528:23: style: The scope of the variable 'xadlen' can be reduced. [variableScope]
-        xfs_filblks_t xadlen;
-                      ^
-bootseq/loader/filesys/fsys_xfs.c:308:47: error: Uninitialized variable: bb_numrecs [uninitvar]
-                        xfs.nextents = le16(h.bb_numrecs);
-                                              ^
-bootseq/loader/filesys/fsys_xfs.c:304:38: note: Assuming condition is false
-                        if (xfs.next == 0)
-                                     ^
-bootseq/loader/filesys/fsys_xfs.c:308:47: note: Uninitialized variable: bb_numrecs
-                        xfs.nextents = le16(h.bb_numrecs);
-                                              ^
-bootseq/loader/filesys/fsys_xfs.c:309:54: error: Uninitialized variable: bb_rightsib [uninitvar]
-                        xfs.next = fsb2daddr (le64(h.bb_rightsib));
-                                                     ^
-bootseq/loader/filesys/fsys_xfs.c:304:38: note: Assuming condition is false
-                        if (xfs.next == 0)
-                                     ^
-bootseq/loader/filesys/fsys_xfs.c:309:54: note: Uninitialized variable: bb_rightsib
-                        xfs.next = fsb2daddr (le64(h.bb_rightsib));
-                                                     ^
-bootseq/loader/filesys/fsys_xfs.c:497:28: error: Uninitialized variable: sb_magicnum [uninitvar]
-            || (le32(super.sb_magicnum) != XFS_SB_MAGIC)
-                           ^
-bootseq/loader/filesys/fsys_xfs.c:498:29: error: Uninitialized variable: sb_versionnum [uninitvar]
-            || ((le16(super.sb_versionnum)
-                            ^
-bootseq/loader/filesys/fsys_xfs.c:503:33: error: Uninitialized variable: sb_blocksize [uninitvar]
-        xfs.bsize = le32 (super.sb_blocksize);
-                                ^
-bootseq/loader/filesys/fsys_xfs.c:498:13: note: Assuming condition is false
-            || ((le16(super.sb_versionnum)
-            ^
-bootseq/loader/filesys/fsys_xfs.c:503:33: note: Uninitialized variable: sb_blocksize
-        xfs.bsize = le32 (super.sb_blocksize);
-                                ^
-bootseq/loader/filesys/fsys_xfs.c:506:35: error: Uninitialized variable: sb_rootino [uninitvar]
-        xfs.rootino = le64 (super.sb_rootino);
-                                  ^
-bootseq/loader/filesys/fsys_xfs.c:498:13: note: Assuming condition is false
-            || ((le16(super.sb_versionnum)
-            ^
-bootseq/loader/filesys/fsys_xfs.c:506:35: note: Uninitialized variable: sb_rootino
-        xfs.rootino = le64 (super.sb_rootino);
-                                  ^
-bootseq/loader/filesys/fsys_xfs.c:507:33: error: Uninitialized variable: sb_inodesize [uninitvar]
-        xfs.isize = le16 (super.sb_inodesize);
-                                ^
-bootseq/loader/filesys/fsys_xfs.c:498:13: note: Assuming condition is false
-            || ((le16(super.sb_versionnum)
-            ^
-bootseq/loader/filesys/fsys_xfs.c:507:33: note: Uninitialized variable: sb_inodesize
-        xfs.isize = le16 (super.sb_inodesize);
-                                ^
-bootseq/loader/filesys/fsys_xfs.c:508:36: error: Uninitialized variable: sb_agblocks [uninitvar]
-        xfs.agblocks = le32 (super.sb_agblocks);
-                                   ^
-bootseq/loader/filesys/fsys_xfs.c:498:13: note: Assuming condition is false
-            || ((le16(super.sb_versionnum)
-            ^
-bootseq/loader/filesys/fsys_xfs.c:508:36: note: Uninitialized variable: sb_agblocks
-        xfs.agblocks = le32 (super.sb_agblocks);
-                                   ^
-bootseq/loader/filesys/fsys_xfs.c:513:49: error: Uninitialized variable: sb_agcount [uninitvar]
-        xfs.agnolog = xfs_highbit32 (le32(super.sb_agcount));
-                                                ^
-bootseq/loader/filesys/fsys_xfs.c:498:13: note: Assuming condition is false
-            || ((le16(super.sb_versionnum)
-            ^
-bootseq/loader/filesys/fsys_xfs.c:513:49: note: Uninitialized variable: sb_agcount
-        xfs.agnolog = xfs_highbit32 (le32(super.sb_agcount));
-                                                ^
-bootseq/loader/kernels/bootos2.c:71:39: warning: The address of local variable 'rel_start' might be accessed at non-zero index. [objectIndex]
-    addr  = (unsigned long *)(base + p[i].addr);
-                                      ^
-bootseq/loader/kernels/bootos2.c:254:35: note: Address of variable taken here.
-  reloc((char *)ufs_base, (char *)&rel_start, relshift);
-                                  ^
-bootseq/loader/kernels/bootos2.c:254:27: note: Calling function 'reloc', 2nd argument '(char*)&rel_start' value is lifetime=rel_start
-  reloc((char *)ufs_base, (char *)&rel_start, relshift);
-                          ^
-bootseq/loader/kernels/bootos2.c:71:39: note: The address of local variable 'rel_start' might be accessed at non-zero index.
-    addr  = (unsigned long *)(base + p[i].addr);
-                                      ^
-bootseq/loader/kernels/bootos2.c:72:24: warning: The address of local variable 'rel_start' might be accessed at non-zero index. [objectIndex]
-    *addr += shift >> p[i].shift;
-                       ^
-bootseq/loader/kernels/bootos2.c:254:35: note: Address of variable taken here.
-  reloc((char *)ufs_base, (char *)&rel_start, relshift);
-                                  ^
-bootseq/loader/kernels/bootos2.c:254:27: note: Calling function 'reloc', 2nd argument '(char*)&rel_start' value is lifetime=rel_start
-  reloc((char *)ufs_base, (char *)&rel_start, relshift);
-                          ^
-bootseq/loader/kernels/bootos2.c:72:24: note: The address of local variable 'rel_start' might be accessed at non-zero index.
-    *addr += shift >> p[i].shift;
-                       ^
-bootseq/loader/kernels/bootos2.c:64:18: style: The scope of the variable 'addr' can be reduced. [variableScope]
-  unsigned long *addr;
-                 ^
-bootseq/loader/kernels/bootos2.c:81:25: style: The scope of the variable 'i' can be reduced. [variableScope]
-  int                   i;
-                        ^
-bootseq/loader/kernels/bootos2.c:56:14: style: Unused variable: rc [unusedVariable]
-  int  i, n, rc;
-             ^
-bootseq/loader/kernels/bootos2.c:84:26: style: Unused variable: mbi_new [unusedVariable]
-  struct multiboot_info *mbi_new;
-                         ^
-bootseq/loader/kernels/bootos2.c:85:26: style: Unused variable: mod_new [unusedVariable]
-  struct mod_list       *mod_new;
-                         ^
-bootseq/loader/kernels/bootos2.c:178:20: style: Unused variable: mod [unusedVariable]
-  struct mod_list *mod;
-                   ^
-bootseq/loader/kernels/cfgparsr.c:599:10: style: The scope of the variable 'c' can be reduced. [variableScope]
-    char c;               // Current character in CONFIG.SYS
-         ^
-bootseq/loader/kernels/cfgparsr.c:151:12: style: Variable 'count' is assigned a value that is never used. [unreadVariable]
-  int count=0,i=0;
-           ^
-bootseq/loader/kernels/cfgsys.c:412:20: style: Condition '*t==')'' is always false [knownConditionTrueFalse]
-            if (*t == ')')
-                   ^
-bootseq/loader/kernels/cfgsys.c:405:15: note: Assuming condition '*t' is true
-          if (*t) /* if the list not reached its end */
-              ^
-bootseq/loader/kernels/cfgsys.c:409:17: note: Assuming condition is false
-            if (!preload_library(str))
-                ^
-bootseq/loader/kernels/cfgsys.c:412:20: note: Condition '*t==')'' is always false
-            if (*t == ')')
-                   ^
-bootseq/loader/kernels/cfgsys.c:258:3: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  sprintf(buf, "modaddr 0x%x", cur_addr);
-  ^
-bootseq/loader/kernels/cfgsys.c:101:10: style: The scope of the variable 'p' can be reduced. [variableScope]
-  char **p;
-         ^
-bootseq/loader/kernels/cfgsys.c:233:9: style: The scope of the variable 'ifs' can be reduced. [variableScope]
-  char *ifs, *device;
-        ^
-bootseq/loader/kernels/cfgsys.c:234:8: style: The scope of the variable 'ifs_line' can be reduced. [variableScope]
-  int  ifs_line, line;
-       ^
-bootseq/loader/kernels/cfgsys.c:234:18: style: The scope of the variable 'line' can be reduced. [variableScope]
-  int  ifs_line, line;
-                 ^
-bootseq/loader/kernels/cfgsys.c:485:19: error: Expression '*p++=toupper(*p)' depends on order of evaluation of side effects [unknownEvaluationOrder]
-  while (*p) *p++ = toupper(*p);
-                  ^
-bootseq/loader/kernels/cfgsys.c:492:19: error: Expression '*p++=toupper(*p)' depends on order of evaluation of side effects [unknownEvaluationOrder]
-  while (*p) *p++ = toupper(*p);
-                  ^
-bootseq/loader/kernels/cfgsys.c:99:9: style: Local variable 't' shadows outer variable [shadowVariable]
-  char *t;
-        ^
-bootseq/loader/kernels/cfgsys.c:20:20: note: Shadowed declaration
-struct term_entry *t;
-                   ^
-bootseq/loader/kernels/cfgsys.c:99:9: note: Shadow variable
-  char *t;
-        ^
-bootseq/loader/kernels/cfgsys.c:150:13: style: Local variable 't' shadows outer variable [shadowVariable]
-  char *p, *t;
-            ^
-bootseq/loader/kernels/cfgsys.c:20:20: note: Shadowed declaration
-struct term_entry *t;
-                   ^
-bootseq/loader/kernels/cfgsys.c:150:13: note: Shadow variable
-  char *p, *t;
-            ^
-bootseq/loader/kernels/cfgsys.c:232:13: style: Local variable 't' shadows outer variable [shadowVariable]
-  char *p, *t;
-            ^
-bootseq/loader/kernels/cfgsys.c:20:20: note: Shadowed declaration
-struct term_entry *t;
-                   ^
-bootseq/loader/kernels/cfgsys.c:232:13: note: Shadow variable
-  char *p, *t;
-            ^
-bootseq/loader/kernels/cfgsys.c:482:7: style: Local variable 'len' shadows outer variable [shadowVariable]
-  int len = strlen(s), i;
-      ^
-bootseq/loader/kernels/cfgsys.c:37:15: note: Shadowed declaration
-extern int    len;
-              ^
-bootseq/loader/kernels/cfgsys.c:482:7: note: Shadow variable
-  int len = strlen(s), i;
-      ^
-bootseq/loader/kernels/cfgsys.c:230:8: style: Unused variable: last [unusedVariable]
-  int  last, first;
-       ^
-bootseq/loader/kernels/cfgsys.c:230:14: style: Unused variable: first [unusedVariable]
-  int  last, first;
-             ^
-bootseq/loader/kernels/cfgsys.c:482:24: style: Unused variable: i [unusedVariable]
-  int len = strlen(s), i;
-                       ^
-bootseq/loader/kernels/chainc.c:104:5: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'signed char *'. [invalidPrintfArgType_uint]
-    printf("kernel loaded @ 0x%x, len = %u\r\n", kernel, kernel_len);
-    ^
-bootseq/loader/kernels/chainc.c:104:5: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-    printf("kernel loaded @ 0x%x, len = %u\r\n", kernel, kernel_len);
-    ^
-bootseq/loader/kernels/chainc.c:218:29: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-    if (lip_module_present) printf("boot_drive=%u\r\n", boot_drive);
-                            ^
-bootseq/loader/kernels/chainc.c:250:31: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-      if (lip_module_present) printf("ldr_drive=%u\r\n",  current_drive);
-                              ^
-bootseq/loader/kernels/chainc.c:127:9: style: The scope of the variable 'kernel' can be reduced. [variableScope]
-  char *kernel;
-        ^
-bootseq/loader/kernels/chainc.c:128:17: style: The scope of the variable 'kernel_len' can be reduced. [variableScope]
-  unsigned long kernel_len;
-                ^
-bootseq/loader/kernels/chainc.c:129:13: style: The scope of the variable 'kernel_cmdline' can be reduced. [variableScope]
-  char *s, *kernel_cmdline;
-            ^
-bootseq/loader/kernels/chainc.c:130:7: style: The scope of the variable 'force' can be reduced. [variableScope]
-  int force = 0;
-      ^
-bootseq/loader/kernels/chainc.c:131:17: style: The scope of the variable 'ch' can be reduced. [variableScope]
-  unsigned char ch, *p;
-                ^
-bootseq/loader/kernels/chainc.c:131:22: style: The scope of the variable 'p' can be reduced. [variableScope]
-  unsigned char ch, *p;
-                     ^
-bootseq/loader/kernels/chainc.c:132:10: style: The scope of the variable 'i' can be reduced. [variableScope]
-  int n, i;
-         ^
-bootseq/loader/kernels/chainc.c:231:15: style: Local variable 'p' shadows outer variable [shadowVariable]
-        char *p;
-              ^
-bootseq/loader/kernels/chainc.c:131:22: note: Shadowed declaration
-  unsigned char ch, *p;
-                     ^
-bootseq/loader/kernels/chainc.c:231:15: note: Shadow variable
-        char *p;
-              ^
-bootseq/loader/kernels/chainc.c:130:13: style: Variable 'force' is assigned a value that is never used. [unreadVariable]
-  int force = 0;
-            ^
-bootseq/loader/kernels/chainc.c:154:20: style: Variable 'kernel_cmdline' is assigned a value that is never used. [unreadVariable]
-    kernel_cmdline = (char *)mod->cmdline;
-                   ^
-bootseq/loader/kernels/chainc.c:216:13: style: Variable 'force' is assigned a value that is never used. [unreadVariable]
-      force = 1;
-            ^
-bootseq/loader/kernels/chainc.c:123:26: style: Unused variable: bootblk [unusedVariable]
-  struct mod_list *mod, *bootblk;
-                         ^
-bootseq/loader/kernels/chainc.c:132:7: style: Unused variable: n [unusedVariable]
-  int n, i;
-      ^
-bootseq/loader/kernels/istable.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 51 configurations. Use --force to check all configurations. [toomanyconfigs]
-
-^
-bootseq/loader/kernels/linuxc.c:367:5: style:inconclusive: Statements following return, break, continue, goto or throw will never be executed. [unreachableCode]
-    no_decompression = 0;
-    ^
-bootseq/loader/kernels/mFSD/fs_all.c:575:11: style: Assignment of function parameter has no effect outside the function. [uselessAssignmentArg]
-          attr &= ~0x0040;
-          ^
-bootseq/loader/kernels/mFSD/fs_all.c:317:7: style: The scope of the variable 'rc' can be reduced. [variableScope]
-  int rc;
-      ^
-bootseq/loader/kernels/mFSD/fs_all.c:410:18: style: The scope of the variable 'hVPB' can be reduced. [variableScope]
-  unsigned short hVPB;
-                 ^
-bootseq/loader/kernels/mFSD/fs_all.c:411:8: style: The scope of the variable 'msg_toomany' can be reduced. [variableScope]
-  char msg_toomany[] = "Open file limit exceeded!\n";
-       ^
-bootseq/loader/kernels/mFSD/fs_all.c:469:10: error: Uninitialized variable: rc [uninitvar]
-  return rc;
-         ^
-bootseq/loader/kernels/mFSD/fs_all.c:111:18: style: Unused variable: selector [unusedVariable]
-  unsigned short selector;
-                 ^
-bootseq/loader/kernels/mFSD/fs_all.c:113:7: style: Unused variable: i [unusedVariable]
-  int i;
-      ^
-bootseq/loader/kernels/mFSD/fs_all.c:314:18: style: Unused variable: old_hVPB [unusedVariable]
-  unsigned short old_hVPB;
-                 ^
-bootseq/loader/kernels/mFSD/fs_all.c:315:18: style: Unused variable: selector [unusedVariable]
-  unsigned short selector;
-                 ^
-bootseq/loader/kernels/mFSD/fs_all.c:318:7: style: Unused variable: i [unusedVariable]
-  int i;
-      ^
-bootseq/loader/kernels/mFSD/fs_all.c:413:11: style: Unused variable: i [unusedVariable]
-  int rc, i;
-          ^
-bootseq/loader/kernels/mFSD/fs_all.c:476:7: style: Unused variable: rc [unusedVariable]
-  int rc;
-      ^
-bootseq/loader/kernels/mFSD/fs_all.c:497:7: style: Unused variable: rc [unusedVariable]
-  int rc;
-      ^
-bootseq/loader/kernels/mFSD/fs_all.c:575:16: style: Variable 'attr' is assigned a value that is never used. [unreadVariable]
-          attr &= ~0x0040;
-               ^
-bootseq/loader/kernels/mFSD/fs_all.c:526:8: style: Unused variable: buf [unusedVariable]
-  char buf[0x100];
-       ^
-bootseq/loader/kernels/mFSD/mfs.c:138:53: error: The code contains unhandled character(s) (character code=128). Neither unicode nor extended ascii is supported. [syntaxError]
-                                 unsigned short IOfl€);
-                                                    ^
-bootseq/loader/kernels/template/krnlc.c:84:7: style: Variable 'mod' is assigned a value that is never used. [unreadVariable]
-  mod = (struct mod_list *)mods_addr;
-      ^
-bootseq/loader/kernels/template/os2c.c:90:7: style: Variable 'mod' is assigned a value that is never used. [unreadVariable]
-  mod = (struct mod_list *)mods_addr;
-      ^
-bootseq/loader/kernels/ufsd/drv.c:370:12: style: Redundant initialization for 'letter'. The initialized value is overwritten before it is read. [redundantInitialization]
-    letter = assign_default();
-           ^
-bootseq/loader/kernels/ufsd/drv.c:362:14: note: letter is initialized
-  int letter = 'C';
-             ^
-bootseq/loader/kernels/ufsd/drv.c:370:12: note: letter is overwritten
-    letter = assign_default();
-           ^
-bootseq/loader/kernels/ufsd/drv.c:55:17: style: The scope of the variable 'part_start' can be reduced. [variableScope]
-  unsigned long part_start = 0;
-                ^
-bootseq/loader/kernels/ufsd/drv.c:117:10: style: The scope of the variable 'i' can be reduced. [variableScope]
-  int n, i = 0, l;
-         ^
-bootseq/loader/kernels/ufsd/drv.c:118:7: style: The scope of the variable 'len' can be reduced. [variableScope]
-  int len;
-      ^
-bootseq/loader/kernels/ufsd/drv.c:119:7: style: The scope of the variable 'diskno' can be reduced. [variableScope]
-  int diskno, diskno_sav;
-      ^
-bootseq/loader/kernels/ufsd/drv.c:203:7: style: The scope of the variable 'parts' can be reduced. [variableScope]
-  int parts = 1;
-      ^
-bootseq/loader/kernels/ufsd/drv.c:204:17: style: The scope of the variable 'ext_start' can be reduced. [variableScope]
-  unsigned long ext_start = 0;
-                ^
-bootseq/loader/kernels/ufsd/drv.c:284:17: style: The scope of the variable 'CRC32' can be reduced. [variableScope]
-  unsigned long CRC32, crc;
-                ^
-bootseq/loader/kernels/ufsd/drv.c:284:24: style: The scope of the variable 'crc' can be reduced. [variableScope]
-  unsigned long CRC32, crc;
-                       ^
-bootseq/loader/kernels/ufsd/drv.c:286:14: style: The scope of the variable 'dlae' can be reduced. [variableScope]
-  DLA_Entry *dlae;
-             ^
-bootseq/loader/kernels/ufsd/drv.c:50:8: style: Local variable 'buf' shadows outer variable [shadowVariable]
-  char buf[0x40];
-       ^
-bootseq/loader/kernels/ufsd/drv.c:37:13: note: Shadowed declaration
-extern char buf[];
-            ^
-bootseq/loader/kernels/ufsd/drv.c:50:8: note: Shadow variable
-  char buf[0x40];
-       ^
-bootseq/loader/kernels/ufsd/drv.c:199:8: style: Local variable 'buf' shadows outer variable [shadowVariable]
-  char buf[0x40];
-       ^
-bootseq/loader/kernels/ufsd/drv.c:37:13: note: Shadowed declaration
-extern char buf[];
-            ^
-bootseq/loader/kernels/ufsd/drv.c:199:8: note: Shadow variable
-  char buf[0x40];
-       ^
-bootseq/loader/kernels/ufsd/drv.c:55:28: style: Variable 'part_start' is assigned a value that is never used. [unreadVariable]
-  unsigned long part_start = 0;
-                           ^
-bootseq/loader/kernels/ufsd/drv.c:203:13: style: Variable 'parts' is assigned a value that is never used. [unreadVariable]
-  int parts = 1;
-            ^
-bootseq/loader/kernels/ufsd/drv.c:211:7: style: Variable 'ext' is assigned a value that is never used. [unreadVariable]
-  ext = 0;
-      ^
-bootseq/loader/kernels/ufsd/drv.c:200:17: style: Unused variable: sec [unusedVariable]
-  unsigned long sec;
-                ^
-bootseq/loader/kernels/ufsd/mbifunc.c:68:8: style: The scope of the variable 'mods_count' can be reduced. [variableScope]
-  int  mods_count;
-       ^
-bootseq/loader/kernels/ufsd/mbifunc.c:69:9: style: The scope of the variable 'mods_addr' can be reduced. [variableScope]
-  char *mods_addr;
-        ^
-bootseq/loader/kernels/ufsd/mbifunc.c:73:9: style: The scope of the variable 'p' can be reduced. [variableScope]
-  char *p, *q, *l;
-        ^
-bootseq/loader/kernels/ufsd/mbifunc.c:73:13: style: The scope of the variable 'q' can be reduced. [variableScope]
-  char *p, *q, *l;
-            ^
-bootseq/loader/kernels/ufsd/mbifunc.c:73:17: style: The scope of the variable 'l' can be reduced. [variableScope]
-  char *p, *q, *l;
-                ^
-bootseq/loader/kernels/ufsd/mbifunc.c:74:8: style: The scope of the variable 'n' can be reduced. [variableScope]
-  int  n;
-       ^
-bootseq/loader/kernels/ufsd/mbifunc.c:141:17: style: The scope of the variable 'chunk' can be reduced. [variableScope]
-  unsigned long chunk;
-                ^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:237:3: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'undi_call_info *'. [invalidPrintfArgType_uint]
-  printf("undi.undi_call_info=0x%x\r\n", undi.undi_call_info);
-  ^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:264:3: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'union'. [invalidPrintfArgType_uint]
-  printf("undi.pxs=0x%x, undi.pxe->EntryPointSP=0x%x:0x%x\r\n",
-  ^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:304:5: portability: %d in format string (no. 2) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
-    printf("strange copied: %d vs %d\n",
-    ^
-bootseq/loader/kernels/ufsd/ufsdc.c:271:3: warning: Either the condition 'pp0=strstr((char*)m->cmdline,"--drv=")' is redundant or there is possible null pointer dereference: pp0. [nullPointerRedundantCheck]
-  pp0[0] = (char)drvletter;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:187:13: note: Assuming that condition 'pp0=strstr((char*)m->cmdline,"--drv=")' is not redundant
-    if (pp0 = strstr((char *)m->cmdline, "--drv="))
-            ^
-bootseq/loader/kernels/ufsd/ufsdc.c:271:3: note: Null pointer dereference
-  pp0[0] = (char)drvletter;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:274:3: warning: Either the condition 'pp=strstr((char*)m->cmdline,"--drv2=")' is redundant or there is possible null pointer dereference: pp. [nullPointerRedundantCheck]
-  pp[0] = (char)drvletter2;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:200:12: note: Assuming that condition 'pp=strstr((char*)m->cmdline,"--drv2=")' is not redundant
-    if (pp = strstr((char *)m->cmdline, "--drv2="))
-           ^
-bootseq/loader/kernels/ufsd/ufsdc.c:274:3: note: Null pointer dereference
-  pp[0] = (char)drvletter2;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:338:18: style: Variable 'ft.ft_mfsseg' is reassigned a value before the old one has been used. [redundantAssignment]
-    ft.ft_mfsseg = 0x7c;
-                 ^
-bootseq/loader/kernels/ufsd/ufsdc.c:327:16: note: ft.ft_mfsseg is assigned
-  ft.ft_mfsseg = 0x7c0 >> 4;
-               ^
-bootseq/loader/kernels/ufsd/ufsdc.c:338:18: note: ft.ft_mfsseg is overwritten
-    ft.ft_mfsseg = 0x7c;
-                 ^
-bootseq/loader/kernels/ufsd/ufsdc.c:131:21: style: The scope of the variable 'mfsbase' can be reduced. [variableScope]
-  int  ldrbase = 0, mfsbase = 0;
-                    ^
-bootseq/loader/kernels/ufsd/ufsdc.c:136:17: style: The scope of the variable 'q' can be reduced. [variableScope]
-  unsigned long q;
-                ^
-bootseq/loader/kernels/ufsd/ufsdc.c:196:23: error: Expression '*r++=toupper(*r)' depends on order of evaluation of side effects [unknownEvaluationOrder]
-      while (*r) *r++ = toupper(*r);
-                      ^
-bootseq/loader/kernels/ufsd/ufsdc.c:209:23: error: Expression '*r++=toupper(*r)' depends on order of evaluation of side effects [unknownEvaluationOrder]
-      while (*r) *r++ = toupper(*r);
-                      ^
-bootseq/loader/kernels/ufsd/ufsdc.c:139:22: style: Local variable 't' shadows outer variable [shadowVariable]
-  long port = 0x3f8, t;
-                     ^
-bootseq/loader/kernels/ufsd/ufsdc.c:38:27: note: Shadowed declaration
-extern struct term_entry *t;
-                          ^
-bootseq/loader/kernels/ufsd/ufsdc.c:139:22: note: Shadow variable
-  long port = 0x3f8, t;
-                     ^
-bootseq/loader/kernels/ufsd/ufsdc.c:242:8: error: Uninitialized variable: mode2 [uninitvar]
-  if (*mode2) // if '--drv2=...' is defined
-       ^
-bootseq/loader/kernels/ufsd/ufsdc.c:274:3: error: Uninitialized variable: pp [uninitvar]
-  pp[0] = (char)drvletter2;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:271:3: error: Uninitialized variable: pp0 [uninitvar]
-  pp0[0] = (char)drvletter;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:271:3: error: Uninitialized variable: pp0 [uninitvar]
-  pp0[0] = (char)drvletter;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:149:16: note: Assuming condition is false
-  if (m->flags & MB_INFO_CMDLINE)
-               ^
-bootseq/loader/kernels/ufsd/ufsdc.c:271:3: note: Uninitialized variable: pp0
-  pp0[0] = (char)drvletter;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:274:3: error: Uninitialized variable: pp [uninitvar]
-  pp[0] = (char)drvletter2;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:149:16: note: Assuming condition is false
-  if (m->flags & MB_INFO_CMDLINE)
-               ^
-bootseq/loader/kernels/ufsd/ufsdc.c:274:3: note: Uninitialized variable: pp
-  pp[0] = (char)drvletter2;
-  ^
-bootseq/loader/kernels/ufsd/ufsdc.c:114:7: style: Unused variable: i [unusedVariable]
-  int i;
-      ^
-bootseq/loader/loader/boot.c:274:7: warning: %x in format string (no. 3) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-      printf (", loadaddr=0x%x, text%s=0x%x", cur_addr, str, text_len);
-      ^
-bootseq/loader/loader/boot.c:289:15: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-              printf (", data=0x%x", data_len);
-              ^
-bootseq/loader/loader/boot.c:306:15: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-              printf (", bss=0x%x", bss_len);
-              ^
-bootseq/loader/loader/boot.c:634:3: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-  printf ("   * VESA %d.%d info @ 0x%x, 0x%x bytes\r\n",
-  ^
-bootseq/loader/loader/boot.c:634:3: warning: %d in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-  printf ("   * VESA %d.%d info @ 0x%x, 0x%x bytes\r\n",
-  ^
-bootseq/loader/loader/boot.c:662:3: portability: %x in format string (no. 2) requires 'unsigned int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_uint]
-  printf("   * lip-mod @ 0x%x, 0x%x bytes\r\n",
-  ^
-bootseq/loader/loader/boot.c:936:7: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'signed int'. [invalidPrintfArgType_uint]
-      printf (" VBE version %u.%u is not supported.\r\n",
-      ^
-bootseq/loader/loader/boot.c:936:7: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'signed int'. [invalidPrintfArgType_uint]
-      printf (" VBE version %u.%u is not supported.\r\n",
-      ^
-bootseq/loader/loader/boot.c:450:29: style: The scope of the variable 'sec_size' can be reduced. [variableScope]
-              int tab_size, sec_size;
-                            ^
-bootseq/loader/loader/boot.c:732:17: style: The scope of the variable 'CRC32' can be reduced. [variableScope]
-  unsigned long CRC32, crc;
-                ^
-bootseq/loader/loader/boot.c:732:24: style: The scope of the variable 'crc' can be reduced. [variableScope]
-  unsigned long CRC32, crc;
-                       ^
-bootseq/loader/loader/boot.c:83:31: style: Unused variable: lh [unusedVariable]
-  struct linux_kernel_header *lh;
-                              ^
-bootseq/loader/loader/boot.c:91:32: style: Unused variable: mbext [unusedVariable]
-  struct multiboot_header_ext *mbext;
-                               ^
-bootseq/loader/loader/boot.c:97:17: style: Unused variable: b [unusedVariable]
-  unsigned char b[3];
-                ^
-bootseq/loader/loader/boot.c:98:17: style: Unused variable: b2 [unusedVariable]
-  unsigned char b2[4];
-                ^
-bootseq/loader/loader/commands.c:1006:13: style: Redundant condition: If 'EXPR == ' '', the comparison 'EXPR' is always true. [redundantCondition]
-  while (*a && *a == ' ')
-            ^
-bootseq/loader/loader/commands.c:166:5: warning: %d in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
-    printf("len = %d, variable_store_actpos = 0x%x\r\n", len, variable_store_actpos);
-    ^
-bootseq/loader/loader/commands.c:1191:12: style: Variable 'prev_cmd' is reassigned a value before the old one has been used. [redundantAssignment]
-  prev_cmd = COMMAND_NONE;
-           ^
-bootseq/loader/loader/commands.c:1105:16: note: prev_cmd is assigned
-      prev_cmd = COMMAND_SET;
-               ^
-bootseq/loader/loader/commands.c:1191:12: note: prev_cmd is overwritten
-  prev_cmd = COMMAND_NONE;
-           ^
-bootseq/loader/loader/commands.c:1191:12: style: Variable 'prev_cmd' is reassigned a value before the old one has been used. [redundantAssignment]
-  prev_cmd = COMMAND_NONE;
-           ^
-bootseq/loader/loader/commands.c:1137:16: note: prev_cmd is assigned
-      prev_cmd = COMMAND_SELECT;
-               ^
-bootseq/loader/loader/commands.c:1191:12: note: prev_cmd is overwritten
-  prev_cmd = COMMAND_NONE;
-           ^
-bootseq/loader/loader/commands.c:1477:18: style: The scope of the variable 'r' can be reduced. [variableScope]
-  char *s, *se, *r;
-                 ^
-bootseq/loader/loader/commands.c:1478:8: style: The scope of the variable 'bf' can be reduced. [variableScope]
-  char bf[0x200];
-       ^
-bootseq/loader/loader/commands.c:1562:15: style: The scope of the variable 's' can be reduced. [variableScope]
-  char *str, *s, *p;
-              ^
-bootseq/loader/loader/commands.c:1671:8: style: The scope of the variable 'flag' can be reduced. [variableScope]
-  char flag = 0;
-       ^
-bootseq/loader/loader/commands.c:1675:11: style: The scope of the variable 'j' can be reduced. [variableScope]
-  int  i, j;
-          ^
-bootseq/loader/loader/commands.c:1676:8: style: The scope of the variable 'x' can be reduced. [variableScope]
-  int  x = 0, y = 0;
-       ^
-bootseq/loader/loader/commands.c:1676:15: style: The scope of the variable 'y' can be reduced. [variableScope]
-  int  x = 0, y = 0;
-              ^
-bootseq/loader/loader/commands.c:1793:8: style: The scope of the variable 'x' can be reduced. [variableScope]
-  int  x;
-       ^
-bootseq/loader/loader/commands.c:874:11: style: Local variable 'l' shadows outer variable [shadowVariable]
-      int l = toggle_data[slot].block[block_nr].var[v].var;
-          ^
-bootseq/loader/loader/commands.c:68:16: note: Shadowed declaration
-extern lip2_t *l;
-               ^
-bootseq/loader/loader/commands.c:874:11: note: Shadow variable
-      int l = toggle_data[slot].block[block_nr].var[v].var;
-          ^
-bootseq/loader/loader/commands.c:896:7: style: Local variable 'slot' shadows outer variable [shadowVariable]
-  int slot;
-      ^
-bootseq/loader/loader/commands.c:105:5: note: Shadowed declaration
-int slot;
-    ^
-bootseq/loader/loader/commands.c:896:7: note: Shadow variable
-  int slot;
-      ^
-bootseq/loader/loader/commands.c:1603:8: style: Unused variable: rc [unusedVariable]
-  int  rc;
-       ^
-bootseq/loader/loader/commands.c:1676:10: style: Variable 'x' is assigned a value that is never used. [unreadVariable]
-  int  x = 0, y = 0;
-         ^
-bootseq/loader/loader/commands.c:1676:17: style: Variable 'y' is assigned a value that is never used. [unreadVariable]
-  int  x = 0, y = 0;
-                ^
-bootseq/loader/loader/commands.c:1680:6: style: Variable 'x0' is assigned a value that is never used. [unreadVariable]
-  x0 = 1; y0 = 0;
-     ^
-bootseq/loader/loader/commands.c:1680:14: style: Variable 'y0' is assigned a value that is never used. [unreadVariable]
-  x0 = 1; y0 = 0;
-             ^
-bootseq/loader/loader/commands.c:1704:14: style: Variable 'y' is assigned a value that is never used. [unreadVariable]
-    x = 1; y = 0;
-             ^
-bootseq/loader/loader/commands.c:1675:8: style: Unused variable: i [unusedVariable]
-  int  i, j;
-       ^
-bootseq/loader/loader/commands.c:1238:38: style: Condition 'detect_vmware()' is always false [knownConditionTrueFalse]
-  var_set("TT_VMWARE", (detect_vmware()) ? "1" : "0", 0);
-                                     ^
-bootseq/loader/loader/loader.c:238:8: style: The scope of the variable 'k' can be reduced. [variableScope]
-  int  k;
-       ^
-bootseq/loader/loader/loader.c:330:7: style: The scope of the variable 'i' can be reduced. [variableScope]
-  int i, rc;
-      ^
-bootseq/loader/loader/loader.c:369:7: style: The scope of the variable 'c' can be reduced. [variableScope]
-  int c;
-      ^
-bootseq/loader/loader/loader.c:603:14: style: The scope of the variable 'j' can be reduced. [variableScope]
-  int i = 0, j, l, k, m;
-             ^
-bootseq/loader/loader/loader.c:907:9: style: The scope of the variable 'cmd' can be reduced. [variableScope]
-  char *cmd;
-        ^
-bootseq/loader/loader/loader.c:908:8: style: The scope of the variable 'ch' can be reduced. [variableScope]
-  int  ch = 0;
-       ^
-bootseq/loader/loader/loader.c:938:21: style: The scope of the variable 's' can be reduced. [variableScope]
-  char *p, *q, *r, *s, *u;
-                    ^
-bootseq/loader/loader/loader.c:1060:11: style: The scope of the variable 'rc' can be reduced. [variableScope]
-  int  i, rc;
-          ^
-bootseq/loader/loader/loader.c:236:8: style: Local variable 'l' shadows outer variable [shadowVariable]
-  int  l = strlen((char *)at_drive);
-       ^
-bootseq/loader/loader/loader.c:18:16: note: Shadowed declaration
-extern lip2_t *l;
-               ^
-bootseq/loader/loader/loader.c:236:8: note: Shadow variable
-  int  l = strlen((char *)at_drive);
-       ^
-bootseq/loader/loader/loader.c:237:8: style: Local variable 'm' shadows outer variable [shadowVariable]
-  int  m = strlen(macro);
-       ^
-bootseq/loader/loader/loader.c:58:24: note: Shadowed declaration
-struct multiboot_info *m;
-                       ^
-bootseq/loader/loader/loader.c:237:8: note: Shadow variable
-  int  m = strlen(macro);
-       ^
-bootseq/loader/loader/loader.c:510:8: style: Local variable 'l' shadows outer variable [shadowVariable]
-  int  l, n;
-       ^
-bootseq/loader/loader/loader.c:18:16: note: Shadowed declaration
-extern lip2_t *l;
-               ^
-bootseq/loader/loader/loader.c:510:8: note: Shadow variable
-  int  l, n;
-       ^
-bootseq/loader/loader/loader.c:603:17: style: Local variable 'l' shadows outer variable [shadowVariable]
-  int i = 0, j, l, k, m;
-                ^
-bootseq/loader/loader/loader.c:18:16: note: Shadowed declaration
-extern lip2_t *l;
-               ^
-bootseq/loader/loader/loader.c:603:17: note: Shadow variable
-  int i = 0, j, l, k, m;
-                ^
-bootseq/loader/loader/loader.c:603:23: style: Local variable 'm' shadows outer variable [shadowVariable]
-  int i = 0, j, l, k, m;
-                      ^
-bootseq/loader/loader/loader.c:58:24: note: Shadowed declaration
-struct multiboot_info *m;
-                       ^
-bootseq/loader/loader/loader.c:603:23: note: Shadow variable
-  int i = 0, j, l, k, m;
-                      ^
-bootseq/loader/loader/loader.c:604:13: style: Local variable 'sc' shadows outer variable [shadowVariable]
-  script_t *sc;
-            ^
-bootseq/loader/loader/loader.c:157:18: note: Shadowed declaration
-static script_t *sc = 0, *sc_prev = 0;
-                 ^
-bootseq/loader/loader/loader.c:604:13: note: Shadow variable
-  script_t *sc;
-            ^
-bootseq/loader/loader/loader.c:941:13: style: Local variable 'sc' shadows outer variable [shadowVariable]
-  script_t *sc;
-            ^
-bootseq/loader/loader/loader.c:157:18: note: Shadowed declaration
-static script_t *sc = 0, *sc_prev = 0;
-                 ^
-bootseq/loader/loader/loader.c:941:13: note: Shadow variable
-  script_t *sc;
-            ^
-bootseq/loader/loader/loader.c:942:20: style: Local variable 'st' shadows outer variable [shadowVariable]
-  string_t *line, *st = 0, *st_prev = 0;
-                   ^
-bootseq/loader/loader/loader.c:158:18: note: Shadowed declaration
-static string_t *st = 0, *st_prev = 0;
-                 ^
-bootseq/loader/loader/loader.c:942:20: note: Shadow variable
-  string_t *line, *st = 0, *st_prev = 0;
-                   ^
-bootseq/loader/loader/loader.c:942:29: style: Local variable 'st_prev' shadows outer variable [shadowVariable]
-  string_t *line, *st = 0, *st_prev = 0;
-                            ^
-bootseq/loader/loader/loader.c:158:27: note: Shadowed declaration
-static string_t *st = 0, *st_prev = 0;
-                          ^
-bootseq/loader/loader/loader.c:942:29: note: Shadow variable
-  string_t *line, *st = 0, *st_prev = 0;
-                            ^
-bootseq/loader/loader/loader.c:1015:7: style: Local variable 't' shadows outer variable [shadowVariable]
-  int t = 0;
-      ^
-bootseq/loader/loader/loader.c:59:20: note: Shadowed declaration
-struct term_entry *t;
-                   ^
-bootseq/loader/loader/loader.c:1015:7: note: Shadow variable
-  int t = 0;
-      ^
-bootseq/loader/loader/loader.c:1063:8: style: Local variable 'l' shadows outer variable [shadowVariable]
-  int  l;
-       ^
-bootseq/loader/loader/loader.c:18:16: note: Shadowed declaration
-extern lip2_t *l;
-               ^
-bootseq/loader/loader/loader.c:1063:8: note: Shadow variable
-  int  l;
-       ^
-bootseq/loader/loader/loader.c:1147:9: error: Uninitialized variable: item [uninitvar]
-    if (item >= screen_items) item = num_items;
-        ^
-bootseq/loader/loader/loader.c:1146:9: note: Assuming condition is false
-    if (menu_item) item = menu_item;
-        ^
-bootseq/loader/loader/loader.c:1147:9: note: Uninitialized variable: item
-    if (item >= screen_items) item = num_items;
-        ^
-bootseq/loader/loader/loader.c:45:10: style: struct member 'Anonymous0::nr_vars' is never used. [unusedStructMember]
-    char nr_vars;
-         ^
-bootseq/loader/loader/loader.c:47:11: style: struct member 'Anonymous1::var' is never used. [unusedStructMember]
-      int var;          /* index of variable_list */
-          ^
-bootseq/loader/loader/loader.c:48:13: style: struct member 'Anonymous1::value' is never used. [unusedStructMember]
-      char *value;      /* pointer to value */
-            ^
-bootseq/loader/loader/loader.c:240:5: style: Variable 'p' is assigned a value that is never used. [unreadVariable]
-  p = q = r = path - 1;
-    ^
-bootseq/loader/loader/loader.c:264:10: style: Unused variable: n [unusedVariable]
-  int    n;
-         ^
-bootseq/loader/loader/loader.c:265:10: style: Unused variable: i [unusedVariable]
-  int    i, rc;
-         ^
-bootseq/loader/loader/loader.c:331:15: style: Variable 's' is assigned a value that is never used. [unreadVariable]
-  char *p, *s = line;
-              ^
-bootseq/loader/loader/loader.c:330:10: style: Unused variable: rc [unusedVariable]
-  int i, rc;
-         ^
-bootseq/loader/loader/loader.c:441:13: style: Unused variable: ii [unusedVariable]
-        int ii;
-            ^
-bootseq/loader/loader/loader.c:543:5: style: Variable 'n' is assigned a value that is never used. [unreadVariable]
-  n = (SCREEN_WIDTH - 2 - l) / 2;
-    ^
-bootseq/loader/loader/loader.c:507:7: style: Unused variable: i [unusedVariable]
-  int i, j;
-      ^
-bootseq/loader/loader/loader.c:507:10: style: Unused variable: j [unusedVariable]
-  int i, j;
-         ^
-bootseq/loader/loader/loader.c:605:8: style: Unused variable: s [unusedVariable]
-  char s[4];
-       ^
-bootseq/loader/loader/loader.c:606:8: style: Unused variable: str [unusedVariable]
-  char str[4];
-       ^
-bootseq/loader/loader/loader.c:611:8: style: Unused variable: offset [unusedVariable]
-  int  offset;
-       ^
-bootseq/loader/loader/loader.c:906:17: style: Variable 'exitflag' is assigned a value that is never used. [unreadVariable]
-  char exitflag = 0;
-                ^
-bootseq/loader/loader/loader.c:908:11: style: Variable 'ch' is assigned a value that is never used. [unreadVariable]
-  int  ch = 0;
-          ^
-bootseq/loader/loader/loader.c:904:8: style: Unused variable: ii [unusedVariable]
-  int  ii;
-       ^
-bootseq/loader/loader/loader.c:935:8: style: Unused variable: ch [unusedVariable]
-  int  ch;
-       ^
-bootseq/loader/loader/loader.c:936:11: style: Unused variable: k [unusedVariable]
-  int  i, k, n;
-          ^
-bootseq/loader/loader/loader.c:938:25: style: Unused variable: u [unusedVariable]
-  char *p, *q, *r, *s, *u;
-                        ^
-bootseq/loader/loader/loader.c:1063:8: style: Unused variable: l [unusedVariable]
-  int  l;
-       ^
-bootseq/loader/loader/loader.c:1161:38: style: Variable 'item' is assigned a value that is never used. [unreadVariable]
-      if (item >= screen_items) item = num_items;
-                                     ^
-bootseq/loader/loader/loader.c:1168:12: style: Variable 'item' is assigned a value that is never used. [unreadVariable]
-      item &= ~0x40000000; // clear flag in upper bits
-           ^
-bootseq/loader/loader/loader.c:1111:7: style: Unused variable: i [unusedVariable]
-  int i;
-      ^
-bootseq/loader/loader/loader.c:1116:9: style: Unused variable: line [unusedVariable]
-  char *line, *p;
-        ^
-bootseq/loader/loader/loader.c:1116:16: style: Unused variable: p [unusedVariable]
-  char *line, *p;
-               ^
-bootseq/loader/loader/loader.c:1223:7: style: Unused variable: i [unusedVariable]
-  int i, n = 0;
-      ^
-bootseq/loader/loader/pp.c:68:13: style: The scope of the variable 'r' can be reduced. [variableScope]
-  char *s, *r;
-            ^
-bootseq/loader/loader/pp.c:33:13: style: Local variable 'm' shadows outer variable [shadowVariable]
-  int l, n, m = *len;
-            ^
-bootseq/loader/loader/pp.c:9:31: note: Shadowed declaration
-extern struct multiboot_info *m;
-                              ^
-bootseq/loader/loader/pp.c:33:13: note: Shadow variable
-  int l, n, m = *len;
-            ^
-bootseq/loader/loader/pp.c:71:8: style: Local variable 'm' shadows outer variable [shadowVariable]
-  int  m     = *len;
-       ^
-bootseq/loader/loader/pp.c:9:31: note: Shadowed declaration
-extern struct multiboot_info *m;
-                              ^
-bootseq/loader/loader/pp.c:71:8: note: Shadow variable
-  int  m     = *len;
-       ^
-bootseq/loader/loader/pp.c:185:10: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
-  int rc = 1, ret;
-         ^
-bootseq/loader/preldr/dskaccess.c:245:8: style: Unused variable: s [unusedVariable]
-  char s[0x100];
-       ^
-bootseq/loader/preldr/dskaccess.c:250:12: style: Unused variable: rc [unusedVariable]
-  int      rc;
-           ^
-bootseq/loader/preldr/func.c:611:11: style: The scope of the variable 'size' can be reduced. [variableScope]
-      int size, off, ret = 0;
-          ^
-bootseq/loader/preldr/func.c:611:17: style: The scope of the variable 'off' can be reduced. [variableScope]
-      int size, off, ret = 0;
-                ^
-bootseq/loader/preldr/func.c:39:17: style: struct member 'Anonymous0::driveletter' is never used. [unusedStructMember]
-  unsigned char driveletter;
-                ^
-bootseq/loader/preldr/func.c:40:17: style: struct member 'Anonymous0::multiboot' is never used. [unusedStructMember]
-  unsigned char multiboot;
-                ^
-bootseq/loader/preldr/func.c:41:17: style: struct member 'Anonymous0::root' is never used. [unusedStructMember]
-  unsigned char root;
-                ^
-bootseq/loader/preldr/func.c:43:10: style: struct member 'Anonymous1::microfsd' is never used. [unusedStructMember]
-    char microfsd;
-         ^
-bootseq/loader/preldr/func.c:44:10: style: struct member 'Anonymous1::ignorecase' is never used. [unusedStructMember]
-    char ignorecase;
-         ^
-bootseq/loader/preldr/func.c:45:12: style: struct member 'Anonymous1::fsys_list' is never used. [unusedStructMember]
-    char **fsys_list;
-           ^
-bootseq/loader/preldr/func.c:48:10: style: struct member 'Anonymous2::name' is never used. [unusedStructMember]
-    char name[0x20];
-         ^
-bootseq/loader/preldr/func.c:49:10: style: struct member 'Anonymous2::base' is never used. [unusedStructMember]
-    int  base;
-         ^
-bootseq/loader/preldr/func.c:50:10: style: struct member 'Anonymous2::len' is never used. [unusedStructMember]
-    int  len;
-         ^
-bootseq/loader/preldr/func.c:53:10: style: struct member 'Anonymous3::name' is never used. [unusedStructMember]
-    char name[0x20];
-         ^
-bootseq/loader/preldr/func.c:54:10: style: struct member 'Anonymous3::base' is never used. [unusedStructMember]
-    int  base;
-         ^
-bootseq/loader/preldr/func.c:55:10: style: struct member 'Anonymous3::len' is never used. [unusedStructMember]
-    int  len;
-         ^
-bootseq/loader/preldr/func.c:58:10: style: struct member 'Anonymous4::name' is never used. [unusedStructMember]
-    char name[0x20];
-         ^
-bootseq/loader/preldr/func.c:59:10: style: struct member 'Anonymous4::base' is never used. [unusedStructMember]
-    int  base;
-         ^
-bootseq/loader/preldr/func.c:62:10: style: struct member 'Anonymous5::_default' is never used. [unusedStructMember]
-    int  _default;
-         ^
-bootseq/loader/preldr/func.c:63:12: style: struct member 'Anonymous5::term_list' is never used. [unusedStructMember]
-    char **term_list;
-           ^
-bootseq/loader/preldr/func.c:66:11: style: struct member 'Anonymous6::name' is never used. [unusedStructMember]
-    char *name;
-          ^
-bootseq/loader/preldr/func.c:67:11: style: struct member 'Anonymous6::alias' is never used. [unusedStructMember]
-    char *alias;
-          ^
-bootseq/loader/preldr/func.c:223:8: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
-    rc = freeldr_read(buf, -1);
-       ^
-bootseq/loader/preldr/func.c:211:8: style: Unused variable: start [unusedVariable]
-  int  start, len;
-       ^
-bootseq/loader/preldr/func.c:211:15: style: Unused variable: len [unusedVariable]
-  int  start, len;
-              ^
-bootseq/loader/preldr/part.c:372:27: style: Local variable 'saved_slice' shadows outer variable [shadowVariable]
-                      int saved_slice = current_slice;
-                          ^
-bootseq/loader/preldr/part.c:11:5: note: Shadowed declaration
-int saved_slice;
-    ^
-bootseq/loader/preldr/part.c:372:27: note: Shadow variable
-                      int saved_slice = current_slice;
-                          ^
-bootseq/loader/preldr/part.c:516:20: style: Variable 'id' is assigned a value that is never used. [unreadVariable]
-  unsigned long id = 0, offset = 0, off;
-                   ^
-bootseq/loader/preldr/part.c:525:15: style: Variable 'tracksize' is assigned a value that is never used. [unreadVariable]
-  tracksize   = p->bpb.track_size;
-              ^
-bootseq/loader/preldr/part.c:516:32: style: Variable 'offset' is assigned a value that is never used. [unreadVariable]
-  unsigned long id = 0, offset = 0, off;
-                               ^
-bootseq/loader/preldr/part.c:517:21: style: Variable 'bsd' is assigned a value that is never used. [unreadVariable]
-  unsigned long bsd = 0xff, n = 0xff, lba;
-                    ^
-bootseq/loader/preldr/part.c:517:31: style: Variable 'n' is assigned a value that is never used. [unreadVariable]
-  unsigned long bsd = 0xff, n = 0xff, lba;
-                              ^
-bootseq/loader/preldr/part.c:516:37: style: Unused variable: off [unusedVariable]
-  unsigned long id = 0, offset = 0, off;
-                                    ^
-bootseq/loader/preldr/root.c:152:36: style: Condition '(saved_partition>>16)==0xFF' is always false [knownConditionTrueFalse]
-  else if ((saved_partition >> 16) == 0xFF)
-                                   ^
-bootseq/loader/preldr/root.c:150:23: note: Assuming that condition 'saved_partition==0xFFFFFF' is not redundant
-  if (saved_partition == 0xFFFFFF)
-                      ^
-bootseq/loader/preldr/root.c:152:36: note: Condition '(saved_partition>>16)==0xFF' is always false
-  else if ((saved_partition >> 16) == 0xFF)
-                                   ^
-bootseq/loader/preldr/stage0_fs.c:349:12: style:inconclusive: Boolean expression '0xf!=0' is used in bitwise operation. Did you mean '&&'? [bitwiseOnBoolean]
-  if (addr & 0xf != 0)      // check if addr is paragraph-aligned
-           ^
-bootseq/loader/preldr/stage0_fs.c:1957:19: portability: Undefined behaviour, when 'rc' is -1 the pointer arithmetic 'cfg+rc' is out of bounds. [pointerOutOfBoundsCond]
-  grub_strcpy(cfg + rc, cfg_file);
-                  ^
-bootseq/loader/preldr/stage0_fs.c:1974:15: note: Assuming that condition 'rc==-1' is not redundant
-  else if (rc == -1)
-              ^
-bootseq/loader/preldr/stage0_fs.c:1957:19: note: Pointer arithmetic overflow
-  grub_strcpy(cfg + rc, cfg_file);
-                  ^
-bootseq/loader/preldr/stage0_fs.c:773:21: style: Array index 'i' is used before limits check. [arrayIndexThenCheck]
-     for (i = 0; buf[i] && i < 0x200; i++) {
-                    ^
-bootseq/loader/preldr/stage0_fs.c:837:21: style: Array index 'i' is used before limits check. [arrayIndexThenCheck]
-     for (i = 0; buf[i] && i < 0x200; i++) {
-                    ^
-bootseq/loader/preldr/stage0_fs.c:855:20: style: Array index 'i' is used before limits check. [arrayIndexThenCheck]
-         for (; buf[i] && i < 0x200; i++) {
-                   ^
-bootseq/loader/preldr/stage0_fs.c:864:25: style: Array index 'i' is used before limits check. [arrayIndexThenCheck]
-         for (i = 0; buf[i] && i < 0x200; i++)
-                        ^
-bootseq/loader/preldr/stage0_fs.c:349:6: style: Suspicious condition (bitwise operator + comparison); Clarify expression with parentheses. [clarifyCondition]
-  if (addr & 0xf != 0)      // check if addr is paragraph-aligned
-     ^
-bootseq/loader/preldr/stage0_fs.c:349:12: style: Boolean result is used in bitwise operation. Clarify expression with parentheses. [clarifyCondition]
-  if (addr & 0xf != 0)      // check if addr is paragraph-aligned
-           ^
-bootseq/loader/preldr/stage0_fs.c:1532:3: warning: %x in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
-  printf("ldr base 0x%x\r\n", ldrbase);
-  ^
-bootseq/loader/preldr/stage0_fs.c:739:12: style: The scope of the variable 'l' can be reduced. [variableScope]
-   int  i, l, k;
-           ^
-bootseq/loader/preldr/stage0_fs.c:739:15: style: The scope of the variable 'k' can be reduced. [variableScope]
-   int  i, l, k;
-              ^
-bootseq/loader/preldr/stage0_fs.c:740:9: style: The scope of the variable 'i0' can be reduced. [variableScope]
-   int  i0 = 0;
-        ^
-bootseq/loader/preldr/stage0_fs.c:742:19: style: The scope of the variable 'ret' can be reduced. [variableScope]
-   unsigned short ret;
-                  ^
-bootseq/loader/preldr/stage0_fs.c:897:9: style: The scope of the variable 'b' can be reduced. [variableScope]
-   char b[BSIZ];
-        ^
-bootseq/loader/preldr/stage0_fs.c:899:9: style: The scope of the variable 'rd' can be reduced. [variableScope]
-   int  rd = 0;
-        ^
-bootseq/loader/preldr/stage0_fs.c:1471:18: style: The scope of the variable 'addr' can be reduced. [variableScope]
-  unsigned long *addr;
-                 ^
-bootseq/loader/preldr/stage0_fs.c:1692:9: style: The scope of the variable 'files' can be reduced. [variableScope]
-  int   files;
-        ^
-bootseq/loader/preldr/stage0_fs.c:1693:9: style: The scope of the variable 'old_ft_addr' can be reduced. [variableScope]
-  char *old_ft_addr;
-        ^
-bootseq/loader/preldr/stage0_fs.c:1694:26: style: The scope of the variable 'bpb' can be reduced. [variableScope]
-  bios_parameters_block *bpb;
-                         ^
-bootseq/loader/preldr/stage0_fs.c:1804:8: style: The scope of the variable 'buf' can be reduced. [variableScope]
-  char buf[4];
-       ^
-bootseq/loader/preldr/stage0_fs.c:674:7: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int i, n;
-      ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:674:7: note: Shadow variable
-  int i, n;
-      ^
-bootseq/loader/preldr/stage0_fs.c:739:9: style: Local variable 'i' shadows outer variable [shadowVariable]
-   int  i, l, k;
-        ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:739:9: note: Shadow variable
-   int  i, l, k;
-        ^
-bootseq/loader/preldr/stage0_fs.c:1124:8: style: Local variable 'i' shadows outer variable [shadowVariable]
-   int i, n;
-       ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1124:8: note: Shadow variable
-   int i, n;
-       ^
-bootseq/loader/preldr/stage0_fs.c:1383:8: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int  i, rc;
-       ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1383:8: note: Shadow variable
-  int  i, rc;
-       ^
-bootseq/loader/preldr/stage0_fs.c:1448:7: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int i = grub_strlen(s) - 1;
-      ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1448:7: note: Shadow variable
-  int i = grub_strlen(s) - 1;
-      ^
-bootseq/loader/preldr/stage0_fs.c:1462:8: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int  i, n, rc;
-       ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1462:8: note: Shadow variable
-  int  i, n, rc;
-       ^
-bootseq/loader/preldr/stage0_fs.c:1500:7: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int i, k;
-      ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1500:7: note: Shadow variable
-  int i, k;
-      ^
-bootseq/loader/preldr/stage0_fs.c:1685:9: style: Local variable 'ldrlen' shadows outer variable [shadowVariable]
-  int   ldrlen;
-        ^
-bootseq/loader/preldr/stage0_fs.c:256:15: note: Shadowed declaration
-unsigned long ldrlen = 0;
-              ^
-bootseq/loader/preldr/stage0_fs.c:1685:9: note: Shadow variable
-  int   ldrlen;
-        ^
-bootseq/loader/preldr/stage0_fs.c:1868:17: style: Local variable 'ldrlen' shadows outer variable [shadowVariable]
-  unsigned long ldrlen = 0, mfslen = 0;
-                ^
-bootseq/loader/preldr/stage0_fs.c:256:15: note: Shadowed declaration
-unsigned long ldrlen = 0;
-              ^
-bootseq/loader/preldr/stage0_fs.c:1868:17: note: Shadow variable
-  unsigned long ldrlen = 0, mfslen = 0;
-                ^
-bootseq/loader/preldr/stage0_fs.c:1871:8: style: Local variable 'i' shadows outer variable [shadowVariable]
-  int  i, k, l;
-       ^
-bootseq/loader/preldr/stage0_fs.c:113:5: note: Shadowed declaration
-int i;
-    ^
-bootseq/loader/preldr/stage0_fs.c:1871:8: note: Shadow variable
-  int  i, k, l;
-       ^
-bootseq/loader/preldr/stage0_fs.c:175:12: style: struct member 'Anonymous1::fsys_list' is never used. [unusedStructMember]
-    char **fsys_list;
-           ^
-bootseq/loader/preldr/stage0_fs.c:197:11: style: struct member 'Anonymous6::alias' is never used. [unusedStructMember]
-    char *alias;
-          ^
-bootseq/loader/preldr/stage0_fs.c:1417:8: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
-    rc = freeldr_read(hidest, -1);
-       ^
-bootseq/loader/preldr/stage0_fs.c:1478:9: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
-    rc  = freeldr_read(buf, -1);
-        ^
-bootseq/loader/preldr/stage0_fs.c:736:10: style: Unused variable: p [unusedVariable]
-   char *p;
-         ^
-bootseq/loader/setdev.c:77:7: style: Unused variable: p [unusedVariable]
-  int p;
-      ^
-bootseq/loader/shared/aton.c:16:8: style: The scope of the variable 'c' can be reduced. [variableScope]
-  char c;
-       ^
-bootseq/loader/shared/istable.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 51 configurations. Use --force to check all configurations. [toomanyconfigs]
-
-^
-bootseq/loader/shared/ltoa.c:12:7: style: The scope of the variable 'm' can be reduced. [variableScope]
-  int m, i, l;
-      ^
-bootseq/loader/shared/ltoa.c:12:13: style: The scope of the variable 'l' can be reduced. [variableScope]
-  int m, i, l;
-            ^
-bootseq/loader/shared/ltoa.c:15:10: warning: Size of pointer 'buf' used instead of size of its data. [pointerSize]
-  memset(buf, 0, sizeof(buf));
-         ^
-bootseq/loader/shared/putchar.c:16:8: style: The scope of the variable 'buf' can be reduced. [variableScope]
-  char buf[2];
-       ^
-bootseq/loader/term/graphics.c:346:28: style: Local variable 'mask' shadows outer variable [shadowVariable]
-    unsigned char c, base, mask;
-                           ^
-bootseq/loader/term/graphics.c:567:22: note: Shadowed declaration
-static unsigned char mask[16];
-                     ^
-bootseq/loader/term/graphics.c:346:28: note: Shadow variable
-    unsigned char c, base, mask;
-                           ^
-bootseq/loader/term/graphics.c:415:10: style: Variable 'base' is assigned a value that is never used. [unreadVariable]
-    base = 0;
-         ^
-bootseq/loader/term/terminfo.c:59:8: style: The scope of the variable 'c' can be reduced. [variableScope]
-  char c;
-       ^
-bootseq/loader/term/terminfo.c:164:8: style: The scope of the variable 'c' can be reduced. [variableScope]
-  char c;
-       ^
 docs/dos/INTERRUP.C:7:22: error: No pair for character ('). Can't process file. File is either invalid or unicode, which is currently not supported. [syntaxError]
 Return: AX = function's return value??? (not specified in documentation)
                      ^
@@ -37588,57 +35995,6 @@ tools/yacc/warshall.c:37:22: style: The scope of the variable 'rowj' can be redu
 tools/yacc/warshall.c:40:22: style: The scope of the variable 'ccol' can be reduced. [variableScope]
   register unsigned *ccol;
                      ^
-win32/LoadPE.c:212:13: style: The if condition is the same as the previous if condition [duplicateCondition]
-  if (index == 0)
-            ^
-win32/LoadPE.c:198:13: note: First condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:212:13: note: Second condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:215:13: style: The if condition is the same as the previous if condition [duplicateCondition]
-  if (index == 0)
-            ^
-win32/LoadPE.c:212:13: note: First condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:215:13: note: Second condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:155:7: style: Variable 'ret' is reassigned a value before the old one has been used. [redundantAssignment]
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
-win32/LoadPE.c:104:7: note: ret is assigned
-  ret = _lread(hFile,pNTHeader, sizeof(IMAGE_NT_HEADERS));
-      ^
-win32/LoadPE.c:155:7: note: ret is overwritten
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
-win32/LoadPE.c:61:8: style: The scope of the variable 'len' can be reduced. [variableScope]
- int i,len;
-       ^
-win32/LoadPE.c:587:8: style: The scope of the variable 'libname' can be reduced. [variableScope]
- char *libname;
-       ^
-win32/LoadPE.c:588:18: style: The scope of the variable 'mp' can be reduced. [variableScope]
- MODULE_HEADERS *mp;
-                 ^
-win32/LoadPE.c:590:9: style: The scope of the variable 'ip' can be reduced. [variableScope]
- DWORD *ip;
-        ^
-win32/LoadPE.c:152:65: portability: '(void*)BaseAddress' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
-  pSectionHeaders = (PIMAGE_SECTION_HEADER)((void *)BaseAddress + sizeof(IMAGE_NT_HEADERS));
-                                                                ^
-win32/LoadPE.c:162:5: portability: '(void*)BaseAddress' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
-    RVA(BaseAddress,pSectionHeaders->VirtualAddress);
-    ^
-win32/LoadPE.c:95:13: style: Variable 'ret' is assigned a value that is never used. [unreadVariable]
-        ret = _lread(hFile,&DosHeader,sizeof(IMAGE_DOS_HEADER));
-            ^
-win32/LoadPE.c:155:7: style: Variable 'ret' is assigned a value that is never used. [unreadVariable]
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
 OS2/CMD/makeini/xstring.h:44:13: error: The one definition rule is violated, different classes/structs have the same name '_XSTRING' [ctuOneDefinitionRuleViolation]
     typedef struct _XSTRING
             ^
@@ -38002,16 +36358,10 @@ OS2/PM/API/PMMERGE/unimpl.cpp:258:0: style: The function 'BitmapLimitWarning' is
 OS2/PM/API/PMMERGE/unimpl.cpp:4317:0: style: The function 'CCHSetHailing' is never used. [unusedFunction]
 
 ^
-bootseq/util/fat/dummies.c:12:0: style: The function 'CHKDSK' is never used. [unusedFunction]
-
-^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:16344:0: style: The function 'CVPproc' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/string.c:73:0: style: The function 'CatStrDir' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/cfgparsr.c:554:0: style: The function 'CfgCleanup' is never used. [unusedFunction]
 
 ^
 OS2/PM/comm/pmpipe/unneeded/F_Client.cpp:77:0: style: The function 'CloseThreadPipe' is never used. [unusedFunction]
@@ -39661,9 +38011,6 @@ tools/jwasm/contrib/src/condasm.c:451:0: style: The function 'ErrorDirective' is
 tools/jwasm/contrib/src/proc.c:1833:0: style: The function 'ExcFrameDirective' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:762:0: style: The function 'ExecPEEx' is never used. [unusedFunction]
-
-^
 tools/jwasm/contrib/src/extern.c:497:0: style: The function 'ExternDirective' is never used. [unusedFunction]
 
 ^
@@ -40000,133 +38347,7 @@ OS2/Shared/libs/libflac/seekable_stream_decoder.c:519:0: style: The function 'FL
 OS2/PM/API/PMGPI/pmgpi16.c:1670:0: style: The function 'FMTCONVERTGOCAPOLY' is never used. [unusedFunction]
 
 ^
-bootseq/util/fat/dummies.c:19:0: style: The function 'FORMAT' is never used. [unusedFunction]
-
-^
 OS2/PM/API/PMMERGE/unimpl.cpp:4347:0: style: The function 'FPen' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:11:0: style: The function 'FS_ALLOCATEPAGESPACE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:75:0: style: The function 'FS_CANCELLOCKREQUEST' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:421:0: style: The function 'FS_CHDIR' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:187:0: style: The function 'FS_CHGFILEPTR' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:233:0: style: The function 'FS_CLOSE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:173:0: style: The function 'FS_COMMIT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:185:0: style: The function 'FS_COPY' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:203:0: style: The function 'FS_DELETE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:24:0: style: The function 'FS_DOPAGEIO' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:250:0: style: The function 'FS_EXIT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:393:0: style: The function 'FS_FILEATTRIBUTE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:340:0: style: The function 'FS_FILEINFO' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:101:0: style: The function 'FS_FILEIO' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:86:0: style: The function 'FS_FILELOCKS' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:595:0: style: The function 'FS_FINDCLOSE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:507:0: style: The function 'FS_FINDFIRST' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:306:0: style: The function 'FS_FINDFROMNAME' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:323:0: style: The function 'FS_FINDNEXT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:130:0: style: The function 'FS_FINDNOTIFYCLOSE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:140:0: style: The function 'FS_FINDNOTIFYFIRST' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:159:0: style: The function 'FS_FINDNOTIFYNEXT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:215:0: style: The function 'FS_FLUSHBUF' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:375:0: style: The function 'FS_FSCTL' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:408:0: style: The function 'FS_FSINFO' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:105:0: style: The function 'FS_INIT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:259:0: style: The function 'FS_IOCTL' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:276:0: style: The function 'FS_MKDIR' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:305:0: style: The function 'FS_MOUNT' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:225:0: style: The function 'FS_MOVE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:240:0: style: The function 'FS_NEWSIZE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:116:0: style: The function 'FS_NMPIPE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:394:0: style: The function 'FS_OPENCREATE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:35:0: style: The function 'FS_OPENPAGEFILE' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:358:0: style: The function 'FS_PATHINFO' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:472:0: style: The function 'FS_PROCESSNAME' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_all.c:125:0: style: The function 'FS_READ' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:290:0: style: The function 'FS_RMDIR' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:53:0: style: The function 'FS_SETSWAP' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:252:0: style: The function 'FS_SHUTDOWN' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:64:0: style: The function 'FS_VERIFYUNCNAME' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/mFSD/fs_stubs.c:262:0: style: The function 'FS_WRITE' is never used. [unusedFunction]
 
 ^
 OS2/PM/Server/F_GPI.cpp:31:0: style: The function 'F_GpiBox' is never used. [unusedFunction]
@@ -41125,19 +39346,10 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1938:0: style: The function 'GetIconWindowsICO' is
 OS2/MM/IOProcs/Format/Image/jpeg/jpgfunc.c:243:0: style: The function 'GetNLSData' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:738:0: style: The function 'GetPEExeInfo' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:756:0: style: The function 'GetPEResourceTable' is never used. [unusedFunction]
-
-^
 OS2/PM/API/PMMERGE/unimpl.cpp:612:0: style: The function 'GetPMDDCodeSelector' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:516:0: style: The function 'GetScreenSelector' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:744:0: style: The function 'GetW32SysVersion' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:4443:0: style: The function 'Gpi16LoadBitmap' is never used. [unusedFunction]
@@ -41989,12 +40201,6 @@ tools/jwasm/contrib/src/errmsg.c:353:0: style: The function 'InternalError' is n
 tools/jwasm/contrib/src/invoke.c:1457:0: style: The function 'InvokeDirective' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:732:0: style: The function 'IsPEFormat' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:774:0: style: The function 'ItsMe' is never used. [unusedFunction]
-
-^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:19218:0: style: The function 'J2Cproc' is never used. [unusedFunction]
 
 ^
@@ -42119,9 +40325,6 @@ tools/jwasm/contrib/src/listing.c:1160:0: style: The function 'ListingDirective'
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:510:0: style: The function 'LoadModuleHandle' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:750:0: style: The function 'LoadPEResource' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/listbox/lbsnd.c:294:0: style: The function 'LoadWaveFile' is never used. [unusedFunction]
@@ -42778,9 +40981,6 @@ OS2/Shared/libs/GDLib/gd_io.c:39:0: style: The function 'Putchar' is never used.
 OS2/Shared/libs/GDLib/gd_io.c:30:0: style: The function 'Putword' is never used. [unusedFunction]
 
 ^
-bootseq/util/fat/dummies.c:26:0: style: The function 'RECOVER' is never used. [unusedFunction]
-
-^
 OS2/REXX/rexx/rexx16.c:121:0: style: The function 'REXXSAA' is never used. [unusedFunction]
 
 ^
@@ -43045,9 +41245,6 @@ OS2/CPI/doscalls/unimp16.c:959:0: style: The function 'STRUCHECK' is never used.
 OS2/CPI/doscalls/unimp16.c:966:0: style: The function 'STRURESUPDATE' is never used. [unusedFunction]
 
 ^
-bootseq/util/fat/sys.c:10:0: style: The function 'SYS' is never used. [unusedFunction]
-
-^
 tools/jwasm/contrib/src/safeseh.c:26:0: style: The function 'SafeSEHDirective' is never used. [unusedFunction]
 
 ^
@@ -43055,9 +41252,6 @@ tools/jwasm/contrib/src/directiv.c:457:0: style: The function 'SegOrderDirective
 
 ^
 tools/jwasm/contrib/src/segment.c:943:0: style: The function 'SegmentDir' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:780:0: style: The function 'SegmentTableW32SYS' is never used. [unusedFunction]
 
 ^
 OS2/CMD/cmd/jpos2dll/jpos2dll.c:470:0: style: The function 'SendKeys' is never used. [unusedFunction]
@@ -43982,12 +42176,6 @@ OS2/CPI/sub32/unimplemented.c:739:0: style: The function 'VioShowPS' is never us
 
 ^
 OS2/CPI/sub32/unimplemented.c:448:0: style: The function 'VioWrtCharStrAttr' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:768:0: style: The function 'W32SError' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:726:0: style: The function 'WEP' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:4551:0: style: The function 'Win16AddAtom' is never used. [unusedFunction]
@@ -46579,9 +44767,6 @@ OS2/REXX/interp/vmscmd.c:392:0: style: The function '__regina_vms_killproc' is n
 OS2/REXX/interp/vmscmd.c:404:0: style: The function '__regina_vms_resolv_symbol' is never used. [unusedFunction]
 
 ^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:314:0: style: The function '__stop' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/libvorbis/lib/analysis.c:105:0: style: The function '_analysis_output' is never used. [unusedFunction]
 
 ^
@@ -47410,9 +45595,6 @@ tools/rexxwrap/des/rand_key.c:65:0: style: The function 'des_random_seed' is nev
 OS2/CMD/lvm/lib/misc/timestamp.c:128:0: style: The function 'destroy_timestamp' is never used. [unusedFunction]
 
 ^
-bootseq/loader/preldr/dskaccess.c:309:0: style: The function 'devwrite' is never used. [unusedFunction]
-
-^
 OS2/REXX/interp/contrib/time64.c:119:0: style: The function 'difftime_64' is never used. [unusedFunction]
 
 ^
@@ -47675,33 +45857,6 @@ OS2/Shared/libs/PDCurses/termattr.c:164:0: style: The function 'erasewchar' is n
 
 ^
 OS2/CMD/tshell/tshell.c:9:0: style: The function 'exec' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ext2fs.c:861:0: style: The function 'ext2fs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ext2fs.c:444:0: style: The function 'ext2fs_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ext2fs.c:740:0: style: The function 'ext2fs_read' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_fat.c:561:0: style: The function 'fat_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_fat.c:144:0: style: The function 'fat_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ffs.c:189:0: style: The function 'ffs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ffs.c:299:0: style: The function 'ffs_embed' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ffs.c:87:0: style: The function 'ffs_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ffs.c:151:0: style: The function 'ffs_read' is never used. [unusedFunction]
 
 ^
 tools/yacc/conflicts.c:743:0: style: The function 'finalize_conflicts' is never used. [unusedFunction]
@@ -47977,9 +46132,6 @@ OS2/Shared/libs/PDCurses/getyx.c:102:0: style: The function 'getparx' is never u
 OS2/Shared/libs/PDCurses/getyx.c:95:0: style: The function 'getpary' is never used. [unusedFunction]
 
 ^
-bootseq/loader/shared/memcheck.c:11:0: style: The function 'grub_memcheck' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/zlib/gzlib.c:627:0: style: The function 'gz_intmax' is never used. [unusedFunction]
 
 ^
@@ -48053,18 +46205,6 @@ OS2/Shared/libs/PDCurses/border.c:359:0: style: The function 'hline_set' is neve
 
 ^
 OS2/network/tcpip/finger/tcp.c:149:0: style: The function 'host_cmp' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_hpfs.c:177:0: style: The function 'hpfs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_hpfs.c:328:0: style: The function 'hpfs_embed' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_hpfs.c:72:0: style: The function 'hpfs_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_hpfs.c:91:0: style: The function 'hpfs_read' is never used. [unusedFunction]
 
 ^
 OS2/Shared/libs/PDCurses/outopts.c:103:0: style: The function 'idcok' is never used. [unusedFunction]
@@ -48214,31 +46354,10 @@ OS2/SOM/Frameworks/Emitter/nonsorted/rhbidl.cpp:4516:0: style: The function 'is_
 OS2/SOM/Frameworks/Emitter/nonsorted/rhbidl.cpp:4225:0: style: The function 'is_repository' is never used. [unusedFunction]
 
 ^
-bootseq/loader/loader/commands.c:1256:0: style: The function 'is_var_expand' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_iso9660.c:163:0: style: The function 'iso9660_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_iso9660.c:127:0: style: The function 'iso9660_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_iso9660.c:435:0: style: The function 'iso9660_read' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/libojpeg/j2k.c:277:0: style: The function 'j2k_dump_cp' is never used. [unusedFunction]
 
 ^
 OS2/Shared/libs/libojpeg/j2k.c:261:0: style: The function 'j2k_dump_image' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_jfs.c:282:0: style: The function 'jfs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_jfs.c:396:0: style: The function 'jfs_embed' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_jfs.c:216:0: style: The function 'jfs_mount' is never used. [unusedFunction]
 
 ^
 OS2/CMD/dskxtrct/stringe.c:243:0: style: The function 'justifynum' is never used. [unusedFunction]
@@ -48281,6 +46400,9 @@ OS2/Shared/all_dlist.c:343:0: style: The function 'list_set_end' is never used. 
 
 ^
 OS2/SOM/Frameworks/Emitter/Emitters/Pas/Animals/LDOG.C:10:0: style: The function 'littledog_talk' is never used. [unusedFunction]
+
+^
+tools/winrc/cmdline.c:540:0: style: The function 'load_file' is never used. [unusedFunction]
 
 ^
 OS2/CMD/zip/fileio.c:3249:0: style: The function 'local_to_escape_string' is never used. [unusedFunction]
@@ -48464,15 +46586,6 @@ tools/winrc/resources.c:508:0: style: The function 'menu_inactive' is never used
 
 ^
 OS2/Shared/libs/libvorbis/vq/latticehint.c:84:0: style: The function 'minerror' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_minix.c:303:0: style: The function 'minix_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_minix.c:167:0: style: The function 'minix_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_minix.c:252:0: style: The function 'minix_read' is never used. [unusedFunction]
 
 ^
 tools/lex/nfa.c:454:0: style: The function 'mkor' is never used. [unusedFunction]
@@ -48829,24 +46942,6 @@ OS2/Shared/libs/PDCurses/inopts.c:229:0: style: The function 'nodelay' is never 
 OS2/Shared/libs/PDCurses/inopts.c:268:0: style: The function 'noqiflush' is never used. [unusedFunction]
 
 ^
-bootseq/loader/filesys/fsys_ntfs.c:1321:0: style: The function 'ntfs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ntfs.c:1412:0: style: The function 'ntfs_info' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ntfs.c:1491:0: style: The function 'ntfs_inode_info' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ntfs.c:1418:0: style: The function 'ntfs_inode_read' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ntfs.c:1247:0: style: The function 'ntfs_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ntfs.c:1388:0: style: The function 'ntfs_read' is never used. [unusedFunction]
-
-^
 tools/winrc/printres.c:513:0: style: The function 'null_func' is never used. [unusedFunction]
 
 ^
@@ -49048,6 +47143,9 @@ OS2/Shared/libs/libogg/src/framing.c:973:0: style: The function 'print_header' i
 tools/yacc/print.c:83:0: style: The function 'print_token' is never used. [unusedFunction]
 
 ^
+OS2/Shared/libs/PDCurses/printw.c:70:0: style: The function 'printw' is never used. [unusedFunction]
+
+^
 tools/qemu-img/qemu-img.c:83:0: style: The function 'pstrcat' is never used. [unusedFunction]
 
 ^
@@ -49070,18 +47168,6 @@ OS2/CMD/lvm/lib/metadata/metadata.c:1859:0: style: The function 'pv_vgid' is nev
 
 ^
 OS2/network/tcpip/finger/util.c:318:0: style: The function 'pw_real_name' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:289:0: style: The function 'pxe_get_cache_info' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:640:0: style: The function 'pxe_probe' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:628:0: style: The function 'pxe_tftp_disable' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/netboot/pxe.c:327:0: style: The function 'pxe_tftp_driver_active' is never used. [unusedFunction]
 
 ^
 tools/qemu-img/qemu-img.c:55:0: style: The function 'qemu_strdup' is never used. [unusedFunction]
@@ -49115,15 +47201,6 @@ OS2/CMD/tedit/regex.c:813:0: style: The function 're_set_syntax' is never used. 
 
 ^
 OS2/Shared/libs/PDCurses/refresh.c:287:0: style: The function 'redrawwin' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_reiserfs.c:1027:0: style: The function 'reiserfs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_reiserfs.c:1248:0: style: The function 'reiserfs_embed' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_reiserfs.c:602:0: style: The function 'reiserfs_mount' is never used. [unusedFunction]
 
 ^
 OS2/CMD/lvm/devmapper/lib/libdm-common.c:609:0: style: The function 'rename_dev_node' is never used. [unusedFunction]
@@ -49223,9 +47300,6 @@ OS2/SOM/Frameworks/Emitter/Emitters/Pas/Animals/Implementation/sequences.c:23:0:
 
 ^
 OS2/SOM/Frameworks/Emitter/Emitters/Pas/Animals/Implementation/sequences.c:128:0: style: The function 'seqSwap' is never used. [unusedFunction]
-
-^
-bootseq/loader/term/serial.c:126:0: style: The function 'serial_hw_delay' is never used. [unusedFunction]
 
 ^
 OS2/REXX/libs/rxregexp/automaton.cpp:93:0: style: The function 'setMinimal' is never used. [unusedFunction]
@@ -49789,19 +47863,16 @@ OS2/Shared/all_dlist.c:143:0: style: The function 'stack_remove' is never used. 
 OS2/Shared/all_dlist.c:125:0: style: The function 'stack_top' is never used. [unusedFunction]
 
 ^
-bootseq/loader/preldr/stage0_fs.c:978:0: style: The function 'stage0_embed' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/PDCurses/attr.c:187:0: style: The function 'standend' is never used. [unusedFunction]
 
 ^
 OS2/Shared/libs/PDCurses/attr.c:194:0: style: The function 'standout' is never used. [unusedFunction]
 
 ^
-OS2/Shared/all_getopt.c:166:0: style: The function 'store_args_and_env' is never used. [unusedFunction]
+OS2/tests/test25/mini33.c:15:0: style: The function 'startup' is never used. [unusedFunction]
 
 ^
-bootseq/loader/tmp.c:49:0: style: The function 'stradd' is never used. [unusedFunction]
+OS2/Shared/all_getopt.c:166:0: style: The function 'store_args_and_env' is never used. [unusedFunction]
 
 ^
 OS2/CMD/makeini/stringh.cpp:1786:0: style: The function 'strhArrayAppend' is never used. [unusedFunction]
@@ -49945,18 +48016,6 @@ tools/jwasm/contrib/src/expreval.c:1589:0: style: The function 'this_op' is neve
 OS2/PM/Server/unneeded/Fs_pipe.cpp:89:0: style: The function 'threadsHits_statistics' is never used. [unusedFunction]
 
 ^
-bootseq/loader/term/terminfo.c:298:0: style: The function 'ti_escape_string' is never used. [unusedFunction]
-
-^
-bootseq/loader/term/terminfo.c:340:0: style: The function 'ti_get_term' is never used. [unusedFunction]
-
-^
-bootseq/loader/term/terminfo.c:333:0: style: The function 'ti_set_term' is never used. [unusedFunction]
-
-^
-bootseq/loader/term/terminfo.c:152:0: style: The function 'ti_unescape_string' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/PDCurses/terminfo.c:164:0: style: The function 'tigetflag' is never used. [unusedFunction]
 
 ^
@@ -49967,9 +48026,6 @@ OS2/Shared/libs/PDCurses/terminfo.c:178:0: style: The function 'tigetstr' is nev
 
 ^
 OS2/REXX/interp/contrib/time64.c:98:0: style: The function 'time_64' is never used. [unusedFunction]
-
-^
-bootseq/loader/loader/commands.c:1232:0: style: The function 'toggle_trigger_init' is never used. [unusedFunction]
 
 ^
 OS2/Shared/libs/PDCurses/panel.c:617:0: style: The function 'top_panel' is never used. [unusedFunction]
@@ -50006,24 +48062,6 @@ tools/winrc/resources.c:909:0: style: The function 'type_resource' is never used
 
 ^
 tools/winrc/resources.c:903:0: style: The function 'type_resource_rcdata' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ufs2.c:213:0: style: The function 'ufs2_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ufs2.c:320:0: style: The function 'ufs2_embed' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ufs2.c:88:0: style: The function 'ufs2_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_ufs2.c:175:0: style: The function 'ufs2_read' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/mbifunc.c:170:0: style: The function 'ufs_seek' is never used. [unusedFunction]
-
-^
-bootseq/loader/kernels/ufsd/mbifunc.c:189:0: style: The function 'ufs_term' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMGPI/pmgpi.c:1382:0: style: The function 'undoc625' is never used. [unusedFunction]
@@ -50245,15 +48283,6 @@ OS2/Shared/libs/libvorbis/vq/vqgen.c:225:0: style: The function 'vqgen_unquantiz
 OS2/Shared/libs/libvorbis/vq/vqsplit.c:371:0: style: The function 'vqsp_book' is never used. [unusedFunction]
 
 ^
-bootseq/loader/filesys/fsys_vstafs.c:123:0: style: The function 'vstafs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_vstafs.c:51:0: style: The function 'vstafs_mount' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_vstafs.c:192:0: style: The function 'vstafs_read' is never used. [unusedFunction]
-
-^
 OS2/Shared/libs/PDCurses/printw.c:132:0: style: The function 'vw_printw' is never used. [unusedFunction]
 
 ^
@@ -50336,12 +48365,6 @@ OS2/PM/API/PMMERGE/F_debug.cpp:91:0: style: The function 'xassert' is never used
 
 ^
 OS2/network/tcpip/finger/util.c:456:0: style: The function 'xfree' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_xfs.c:574:0: style: The function 'xfs_dir' is never used. [unusedFunction]
-
-^
-bootseq/loader/filesys/fsys_xfs.c:492:0: style: The function 'xfs_mount' is never used. [unusedFunction]
 
 ^
 OS2/CMD/makeini/xprf.cpp:1181:0: style: The function 'xprfQueryKeysForApp' is never used. [unusedFunction]

@@ -19,3 +19,12 @@
 [submodule "OS2/SOM/Core"]
 	path = OS2/SOM/Core
 	url = https://github.com/osfree-project/somfree.git
+[submodule "bootseq"]
+	path = bootseq
+	url = https://github.com/osfree-project/FreeLdr.git
+[submodule "Win32"]
+	path = Win32
+	url = https://github.com/cl91/NeptuneOS
+[submodule "OS2/CMD/lvm/alvm"]
+	path = OS2/CMD/lvm/alvm
+	url = https://github.com/OS2World/UTIL-SYSTEM-ALVM
