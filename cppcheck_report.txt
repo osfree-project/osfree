@@ -35995,57 +35995,6 @@ tools/yacc/warshall.c:37:22: style: The scope of the variable 'rowj' can be redu
 tools/yacc/warshall.c:40:22: style: The scope of the variable 'ccol' can be reduced. [variableScope]
   register unsigned *ccol;
                      ^
-win32/LoadPE.c:212:13: style: The if condition is the same as the previous if condition [duplicateCondition]
-  if (index == 0)
-            ^
-win32/LoadPE.c:198:13: note: First condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:212:13: note: Second condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:215:13: style: The if condition is the same as the previous if condition [duplicateCondition]
-  if (index == 0)
-            ^
-win32/LoadPE.c:212:13: note: First condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:215:13: note: Second condition
-  if (index == 0)
-            ^
-win32/LoadPE.c:155:7: style: Variable 'ret' is reassigned a value before the old one has been used. [redundantAssignment]
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
-win32/LoadPE.c:104:7: note: ret is assigned
-  ret = _lread(hFile,pNTHeader, sizeof(IMAGE_NT_HEADERS));
-      ^
-win32/LoadPE.c:155:7: note: ret is overwritten
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
-win32/LoadPE.c:61:8: style: The scope of the variable 'len' can be reduced. [variableScope]
- int i,len;
-       ^
-win32/LoadPE.c:587:8: style: The scope of the variable 'libname' can be reduced. [variableScope]
- char *libname;
-       ^
-win32/LoadPE.c:588:18: style: The scope of the variable 'mp' can be reduced. [variableScope]
- MODULE_HEADERS *mp;
-                 ^
-win32/LoadPE.c:590:9: style: The scope of the variable 'ip' can be reduced. [variableScope]
- DWORD *ip;
-        ^
-win32/LoadPE.c:152:65: portability: '(void*)BaseAddress' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
-  pSectionHeaders = (PIMAGE_SECTION_HEADER)((void *)BaseAddress + sizeof(IMAGE_NT_HEADERS));
-                                                                ^
-win32/LoadPE.c:162:5: portability: '(void*)BaseAddress' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
-    RVA(BaseAddress,pSectionHeaders->VirtualAddress);
-    ^
-win32/LoadPE.c:95:13: style: Variable 'ret' is assigned a value that is never used. [unreadVariable]
-        ret = _lread(hFile,&DosHeader,sizeof(IMAGE_DOS_HEADER));
-            ^
-win32/LoadPE.c:155:7: style: Variable 'ret' is assigned a value that is never used. [unreadVariable]
-  ret = _lread( hFile, pSectionHeaders, sizeof(IMAGE_SECTION_HEADER)*
-      ^
 OS2/CMD/makeini/xstring.h:44:13: error: The one definition rule is violated, different classes/structs have the same name '_XSTRING' [ctuOneDefinitionRuleViolation]
     typedef struct _XSTRING
             ^
@@ -38062,9 +38011,6 @@ tools/jwasm/contrib/src/condasm.c:451:0: style: The function 'ErrorDirective' is
 tools/jwasm/contrib/src/proc.c:1833:0: style: The function 'ExcFrameDirective' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:762:0: style: The function 'ExecPEEx' is never used. [unusedFunction]
-
-^
 tools/jwasm/contrib/src/extern.c:497:0: style: The function 'ExternDirective' is never used. [unusedFunction]
 
 ^
@@ -39400,19 +39346,10 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1938:0: style: The function 'GetIconWindowsICO' is
 OS2/MM/IOProcs/Format/Image/jpeg/jpgfunc.c:243:0: style: The function 'GetNLSData' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:738:0: style: The function 'GetPEExeInfo' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:756:0: style: The function 'GetPEResourceTable' is never used. [unusedFunction]
-
-^
 OS2/PM/API/PMMERGE/unimpl.cpp:612:0: style: The function 'GetPMDDCodeSelector' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:516:0: style: The function 'GetScreenSelector' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:744:0: style: The function 'GetW32SysVersion' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:4443:0: style: The function 'Gpi16LoadBitmap' is never used. [unusedFunction]
@@ -40264,12 +40201,6 @@ tools/jwasm/contrib/src/errmsg.c:353:0: style: The function 'InternalError' is n
 tools/jwasm/contrib/src/invoke.c:1457:0: style: The function 'InvokeDirective' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:732:0: style: The function 'IsPEFormat' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:774:0: style: The function 'ItsMe' is never used. [unusedFunction]
-
-^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:19218:0: style: The function 'J2Cproc' is never used. [unusedFunction]
 
 ^
@@ -40394,9 +40325,6 @@ tools/jwasm/contrib/src/listing.c:1160:0: style: The function 'ListingDirective'
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:510:0: style: The function 'LoadModuleHandle' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:750:0: style: The function 'LoadPEResource' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/listbox/lbsnd.c:294:0: style: The function 'LoadWaveFile' is never used. [unusedFunction]
@@ -41326,9 +41254,6 @@ tools/jwasm/contrib/src/directiv.c:457:0: style: The function 'SegOrderDirective
 tools/jwasm/contrib/src/segment.c:943:0: style: The function 'SegmentDir' is never used. [unusedFunction]
 
 ^
-win32/LoadPE.c:780:0: style: The function 'SegmentTableW32SYS' is never used. [unusedFunction]
-
-^
 OS2/CMD/cmd/jpos2dll/jpos2dll.c:470:0: style: The function 'SendKeys' is never used. [unusedFunction]
 
 ^
@@ -42251,12 +42176,6 @@ OS2/CPI/sub32/unimplemented.c:739:0: style: The function 'VioShowPS' is never us
 
 ^
 OS2/CPI/sub32/unimplemented.c:448:0: style: The function 'VioWrtCharStrAttr' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:768:0: style: The function 'W32SError' is never used. [unusedFunction]
-
-^
-win32/LoadPE.c:726:0: style: The function 'WEP' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:4551:0: style: The function 'Win16AddAtom' is never used. [unusedFunction]
