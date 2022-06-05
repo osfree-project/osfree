@@ -3,7 +3,7 @@
 #
 #
 
-SRC = $(%ROOT)OS2$(SEP)REXX$(SEP)interp$(SEP)
+SRC = $(%ROOT)OS2$(SEP)REXX$(SEP)interp$(SEP)contrib$(SEP)
 
 VERDOT = $(VER_DOT)
 VERDATE = $(VER_DATE)
@@ -30,7 +30,7 @@ THREADING_FILE = mt_os2
 HFILES = $(SRC)rexx.h $(SRC)defs.h $(SRC)extern.h $(SRC)regina_t.h $(SRC)configur.h $(SRC)strengs.h
 GCIHEADERS = $(SRC)gci$(SEP)gci.h $(SRC)gci$(SEP)embedded.h $(SRC)gci$(SEP)gci_convert.h
 
-HAVE_GCI = -dHAVE_GCI -i=$(MYDIR)gci
+HAVE_GCI = -dHAVE_GCI -i=$(SRC)gci
 ADD_COPT  += -i=$(%WATCOM)$(SEP)h -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifeq deb Y
@@ -46,8 +46,8 @@ ADD_LINKOPT  =  library tcpip32  $(ADD_LINKOPT)
 !endif
 
 ADD_COPT       =  -4s -wx -wcd=202 -zq -mf $(THREADING) &
-                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)regina-ver.h &
-                  -dOS2 -i=$(PATH) -i=$(MYDIR) -i=$(MYDIR).. $(ADD_COPT)
+                  -sg -st -dOREXX_BINARY_COMPATIBLE -bt=os2 -fi=$(SRC)..$(SEP)regina-ver.h &
+                  -dOS2 -i=$(PATH) -i=$(SRC) -i=$(SRC).. $(ADD_COPT)
 UNI2H = 1
 # NOLIBS = 1
 
@@ -55,19 +55,15 @@ UNI2H = 1
 
 .c: $(SRC)
 
-.c: $(MYDIR)
+.c: $(SRC)..
 
-.c: $(MYDIR)..
-
-.c: $(MYDIR)..$(SEP)gci
+.c: $(SRC)gci
 
 .h: $(SRC)
 
-.h: $(MYDIR)
+.h: $(SRC)..
 
-.h: $(MYDIR)..
-
-.h: $(MYDIR)..$(SEP)gci
+.h: $(SRC)gci
 
 $(PATH)client.$(O): $(SRC)client.c $(HFILES) $(SRC)rexxsaa.h $(SRC)rxiface.h
 
@@ -77,7 +73,7 @@ $(PATH)yaccsrc.$(O): $(SRC)yaccsrc.c $(SRC)defs.h $(SRC)rexx.h
  @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dYYMAXDEPTH=10000 -fr=$^*.err -fo=$^@ $[@ $(LOG)
 
-$(PATH)drexx.obj: $(MYDIR)..$(SEP)rexx.c $(HFILES)
+$(PATH)drexx.obj: $(SRC)rexx.c $(HFILES)
  @$(SAY) CC       $^. $(LOG)
  @$(CC) $(COPT) -dRXLIB -fr=$^*.err -fo=$^@ $[@
 
