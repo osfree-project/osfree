@@ -45,10 +45,10 @@ DIRS =        shared &
               ver &
               vol &
               xcopy &
-              zip
+              zip &
+              print
 
 #              diskcomp
-#              print
 #              network
 
 !include $(%ROOT)/mk/all.mk
