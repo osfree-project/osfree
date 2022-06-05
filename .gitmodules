@@ -28,3 +28,6 @@
 [submodule "OS2/CMD/lvm/alvm"]
 	path = OS2/CMD/lvm/alvm
 	url = https://github.com/OS2World/UTIL-SYSTEM-ALVM
+[submodule "OS2/CMD/lvmgui/lvmpm"]
+	path = OS2/CMD/lvmgui/lvmpm
+	url = https://github.com/altsan/os2-lvmpm
