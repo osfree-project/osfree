@@ -1,0 +1,273 @@
+diff -urN regina-rexx-3.9.4/builtin.c osfree/OS2/REXX/interp/contrib/builtin.c
+--- regina-rexx-3.9.4/builtin.c	2021-10-11 03:27:45.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/builtin.c	2022-06-04 18:40:15.783081702 +0300
+@@ -42,6 +42,10 @@
+ void putenv( char* );
+ #endif
+ 
++#if defined(__OS2__) && defined(__WATCOMC__)
++time_t mktime2(struct tm * tmp);
++#endif
++
+ #define UPPERLETTER(a) ((((a)&0xdf)>='A')&&(((a)&0xdf)<='Z'))
+ #define NUMERIC(a) (((a)>='0')&&((a)<='9'))
+ 
+diff -urN regina-rexx-3.9.4/configur.h osfree/OS2/REXX/interp/contrib/configur.h
+--- regina-rexx-3.9.4/configur.h	2021-10-23 23:58:14.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/configur.h	2022-06-04 18:40:15.787081789 +0300
+@@ -146,6 +146,8 @@
+ # define HAVE_PUTENV
+ # define HAVE_RAISE
+ # define HAVE_SETENV
++# define HAVE_STDINT_H
++# define HAVE_LIMITS_H
+ # define HAVE_SETJMP_H
+ # define HAVE_PROCESS_H
+ # define HAVE_SIGNAL_H
+@@ -196,11 +198,6 @@
+ # define HAVE_I64U
+ # define HAVE__STATI64
+ # define HAVE__ATOI64
+-/*
+- * Following for contrib/LibSha1
+- */
+-# define HAVE_STDINT_H
+-# define HAVE_INTTYPES_H
+ #endif
+ 
+ #if defined(DOS) && defined(__WATCOMC__)
+@@ -257,11 +254,6 @@
+ # define HAVE_I64U
+ # define HAVE__STATI64
+ # define HAVE__ATOI64
+-/*
+- * Following for contrib/LibSha1
+- */
+-# define HAVE_STDINT_H
+-# define HAVE_INTTYPES_H
+ #endif
+ 
+ #if defined(WIN32) && defined(__BORLANDC__)
+@@ -762,15 +754,18 @@
+ #endif
+ 
+ #if !defined(HAVE_MEMCPY)
+-# define memcpy(a,b,c)  bcopy((b),(a),(c))
++# define memcpy(a,b,c)  bcopy(b,a,c)
++//# define memcpy(a,b,c)  bcopy((b),(a),(c))
+ #endif
+ 
+ #if !defined(HAVE_MEMMOVE)
+-# define memmove(a,b,c) bcopy((b),(a),(c))
++# define memmove(a,b,c) bcopy(b,a,c)
++//# define memmove(a,b,c) bcopy((b),(a),(c))
+ #endif
+ 
+ #if !defined(HAVE_STRERROR)
+-  const char *get_sys_errlist( int num );
++  char *get_sys_errlist( int num );
++  //const char *get_sys_errlist( int num );
+ # define strerror(a)    get_sys_errlist(a)
+ #endif
+ 
+diff -urN regina-rexx-3.9.4/contrib/LibSha1.c osfree/OS2/REXX/interp/contrib/contrib/LibSha1.c
+--- regina-rexx-3.9.4/contrib/LibSha1.c	2020-05-18 04:26:22.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/contrib/LibSha1.c	2022-06-04 18:40:15.787081789 +0300
+@@ -15,7 +15,13 @@
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ #include "LibSha1.h"
+-#ifdef HAVE_MEMORY_H
++//#ifdef HAVE_MEMORY_H
++//# include <memory.h>
++//#endif
++
++#ifdef __WATCOMC__
++# include <string.h>
++#else
+ # include <memory.h>
+ #endif
+ 
+diff -urN regina-rexx-3.9.4/extstack.c osfree/OS2/REXX/interp/contrib/extstack.c
+--- regina-rexx-3.9.4/extstack.c	2019-10-06 09:09:39.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/extstack.c	2022-06-04 18:40:15.875083673 +0300
+@@ -17,9 +17,6 @@
+  *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#if defined(__WATCOMC__) && defined(OS2)
+-# include <os2/types.h>
+-#endif
+ #include "rexx.h"
+ 
+ #if defined(WIN32)
+diff -urN regina-rexx-3.9.4/gci/gci_convert.h osfree/OS2/REXX/interp/contrib/gci/gci_convert.h
+--- regina-rexx-3.9.4/gci/gci_convert.h	1970-01-01 03:00:00.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/gci/gci_convert.h	2022-06-04 18:40:15.879083759 +0300
+@@ -0,0 +1,106 @@
++/*
++ *  Generic Call Interface for Rexx
++ *  Copyright © 2003-2004, Florian Groﬂe-Coosmann
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Library General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Library General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Library General Public
++ *  License along with this library; if not, write to the Free
++ *  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * ----------------------------------------------------------------------------
++ *
++ * This file configures the number converting system. Have a look at
++ * gci_convert.c for the requirements. This file must include gci.h.
++ */
++
++#ifndef _GNU_SOURCE
++# define _GNU_SOURCE
++#endif
++#include <limits.h>
++#include <float.h>
++#include "gci.h"
++
++#define NEED_STRTOBIGL
++#define NEED_STRTOBIGUL
++
++#define GCI_Ir(s,p,b) strtobigl( hidden, s, p, b )
++#define GCI_Iw(s,v)   sprintf( s, "%Ld", v )
++#define GCI_I_1       signed char
++#define GCI_I_1m      SCHAR_MIN
++#define GCI_I_1M      SCHAR_MAX
++#define GCI_I_2       signed short
++#define GCI_I_2m      SHRT_MIN
++#define GCI_I_2M      SHRT_MAX
++#define GCI_I_4       signed int
++#define GCI_I_4m      INT_MIN
++#define GCI_I_4M      INT_MAX
++#define GCI_I_8       signed __int64
++#define GCI_I_8m      LONGLONG_MIN
++#define GCI_I_8M      LONGLONG_MAX
++
++#define GCI_Ur(s,p,b) strtobigul( hidden, s, p, b )
++#define GCI_Uw(s,v)   sprintf( s, "%Lu", v )
++#define GCI_U_1       unsigned char
++#define GCI_U_1M      UCHAR_MAX
++#define GCI_U_2       unsigned short
++#define GCI_U_2M      USHRT_MAX
++#define GCI_U_4       unsigned
++#define GCI_U_4M      UINT_MAX
++#define GCI_U_8       unsigned __int64
++#define GCI_U_8M      ULONGLONG_MAX
++
++#define GCI_Fr        strtod
++#define GCI_Fw(s,v)   sprintf( s, "%.*lE", LDBL_MANT_DIG/3, v )
++#define GCI_F_4       float
++#define GCI_F_4m      (-FLT_MAX)
++#define GCI_F_4M      FLT_MAX
++#define GCI_F_8       double
++#define GCI_F_8m      (-DBL_MAX)
++#define GCI_F_8M      DBL_MAX
++
++/*
++ ******************************************************************************
++ */
++
++/*
++ * GCI_STACK_ELEMENT sets integral type of a stack element. This is typically
++ * an unsigned or int.
++ */
++#define GCI_STACK_ELEMENT unsigned
++
++/*
++ * GCI_LITTLE_ENDIAN must be set to 1 or 0 depending on whether little endian
++ * or big endian is the machine's representation.
++ * In doubt, select 1 for Intel compatibles and 0 for others.
++ */
++#define GCI_LITTLE_ENDIAN 1
++
++/*
++ * GCI_ARGS shall be the maximum number of GCI_STACK_ELEMENTs which shall
++ * be passed on the stack. This is usually the base type of maximum width
++ * (e.g. long long or long double) / sizeof(unsigned) * GCI_REXX_ARGS.
++ * But you can't use sizeof(), therefore you have to compute it by hand.
++ * 4 * GCI_REXX_ARGS is an upper maximum for all useful systems I can imagine.
++ */
++#define GCI_ARGS 50   /* 25 full sized arguments */
++
++/*
++ * GCI_PASSARGS is a macro which enumerates GCI_ARGS args of an array which
++ * is passed to the macro. I don't know a good ANSI macro for this purpose.
++ * Feel free to provide it!
++ */
++#define GCI_PASSARGS(a) a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],\
++                        a[10],a[11],a[12],a[13],a[14],a[15],a[16],a[17],a[18],\
++                        a[19],a[20],a[21],a[22],a[23],a[24],a[25],a[26],a[27],\
++                        a[28],a[29],a[30],a[31],a[32],a[33],a[34],a[35],a[36],\
++                        a[37],a[38],a[39],a[40],a[41],a[42],a[43],a[44],a[45],\
++                        a[46],a[47],a[48],a[49]
+diff -urN regina-rexx-3.9.4/Makefile.in osfree/OS2/REXX/interp/contrib/Makefile.in
+--- regina-rexx-3.9.4/Makefile.in	2022-01-12 11:33:01.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/Makefile.in	2022-06-04 18:40:15.779081617 +0300
+@@ -198,7 +198,8 @@
+ 	contrib/time64.c contrib/fnmatch.h contrib/fnmatch.c \
+ 	contrib/LibSha1.c contrib/LibSha1.h \
+ 	apphead.h \
+-	common/*.nsh common/*.ico common/fixrc.rexx common/generatensi.rexx \
++	common/*.nsh common/*.ico common/fixrc.rexx \
++	common/*.nsh common/*.ico common/generatensi.rexx \
+ 	common/*.m4 \
+ 	os2/*.c os2/*.def \
+ 	gci/*.c gci/*.h gci/00README \
+diff -urN regina-rexx-3.9.4/rxqueue.c osfree/OS2/REXX/interp/contrib/rxqueue.c
+--- regina-rexx-3.9.4/rxqueue.c	2021-10-26 04:55:43.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/rxqueue.c	2022-06-04 18:40:15.927084787 +0300
+@@ -26,6 +26,10 @@
+ # include "configur.h"
+ #endif
+ 
++#if defined(OS2) && defined(__WATCOMC__)
++#include <os2/types.h>
++#endif
++
+ #ifdef WIN32
+ # if defined(_MSC_VER)
+ #  if _MSC_VER >= 1100
+diff -urN regina-rexx-3.9.4/rxstack.c osfree/OS2/REXX/interp/contrib/rxstack.c
+--- regina-rexx-3.9.4/rxstack.c	2021-10-26 04:55:43.000000000 +0300
++++ osfree/OS2/REXX/interp/contrib/rxstack.c	2022-06-04 18:40:15.927084787 +0300
+@@ -150,6 +150,7 @@
+ # include <io.h>
+ #else
+ # ifdef HAVE_SYS_SOCKET_H
++#  include <types.h>
+ #  include <sys/socket.h>
+ # endif
+ # ifdef HAVE_NETINET_IN_H
+@@ -214,7 +215,7 @@
+ #endif
+ 
+ #include "extstack.h"
+-#ifndef HAVE_GETOPT_LONG
++#if defined(HAVE_GETOPT_LONG) || (defined(OS2) && defined(__WATCOMC__))
+ # include "mygetopt.h"
+ #endif
+ #include "contrib/LibSha1.h"
+@@ -235,6 +236,12 @@
+ # define EINTR WSAEINTR
+ # undef ECONNRESET
+ # define ECONNRESET WSAECONNRESET
++#elif defined(__OS2__) && defined(__WATCOMC__)
++# include <sys/time.h>
++# include <nerrno.h>
++# define os_errno errno
++# define errno_str(code) strerror(code)
++# define INADDR_LOOPBACK (u_long)0x7f000001
+ #else
+ # define os_errno errno
+ # define errno_str(code) strerror(code)
