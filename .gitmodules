@@ -25,9 +25,6 @@
 [submodule "Win32"]
 	path = Win32
 	url = https://github.com/cl91/NeptuneOS
-[submodule "ALVM"]
-	path = ALVM
-	url = https://github.com/OS2World/UTIL-SYSTEM-ALVM
 [submodule "OS2/CMD/lvm/alvm"]
 	path = OS2/CMD/lvm/alvm
 	url = https://github.com/OS2World/UTIL-SYSTEM-ALVM
