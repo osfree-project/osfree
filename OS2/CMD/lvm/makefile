@@ -28,13 +28,13 @@ $(p)volume$(e) &
 $(p)menu$(e) &
 $(p)Volume_Manager$(e)
 
-ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)alvm$(SEP)include
+ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)contrib$(SEP)include
 ADD_LINKOPT = lib clib3r
-STACKSIZE = 0x20000
+
 #UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_cmd.mk
 
-.c: $(MYDIR)alvm
+.c: $(MYDIR)contrib
 
-.h: $(MYDIR)alvm$(SEP)include
+.h: $(MYDIR)contrib$(SEP)include
