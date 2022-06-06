@@ -377,7 +377,3 @@ int GetKeystroke ( void )
   return rc;
 */
 }
-
-
-
-

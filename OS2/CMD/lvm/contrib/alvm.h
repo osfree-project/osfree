@@ -1,3 +1,3 @@
 /* alvm.h */
 
-#define ALVM_VERSION "0.1 " __DATE__
+#define ALVM_VERSION "0.1 " ## __DATE__

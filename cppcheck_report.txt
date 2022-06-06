@@ -2470,12 +2470,12 @@ int rc;
 OS2/CMD/lvm/contrib/interface.c:671:5: style: Unused variable: n [unusedVariable]
 int n;
     ^
-OS2/CMD/lvm/contrib/lvm.c:151:10: style: Assignment of function parameter has no effect outside the function. [uselessAssignmentArg]
-       { argc--;
-         ^
-OS2/CMD/lvm/contrib/lvm.c:146:12: style: The scope of the variable 'loglevel' can be reduced. [variableScope]
-  {    int loglevel=0;
-           ^
+OS2/CMD/lvm/contrib/alvm.h:3:0: error: failed to expand 'ALVM_VERSION', Invalid ## usage when expanding 'ALVM_VERSION'. [preprocessorErrorDirective]
+#define ALVM_VERSION "0.1 " ## __DATE__
+^
+OS2/CMD/lvm/contrib/lvm.c:0:0: information: This file is not analyzed. Cppcheck failed to extract a valid configuration. Use -v for more details. [noValidConfiguration]
+
+^
 OS2/CMD/lvm/contrib/show.c:671:26: warning: Either the condition 'panel->input_line' is redundant or there is possible null pointer dereference: panel->input_line. [nullPointerRedundantCheck]
         l = strlen(*panel->input_line);
                          ^
@@ -41503,6 +41503,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:4293:0: style: The function 'InitGameFrameProc' is
 OS2/MM/minstall/genin/genin.c:29:0: style: The function 'InitGenin' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/user.c:95:0: style: The function 'InitializeUserInterface' is never used. [unusedFunction]
+
+^
 OS2/PM/API/PMMERGE/unimpl.cpp:1944:0: style: The function 'InnerGre32Entry10' is never used. [unusedFunction]
 
 ^
@@ -42463,6 +42466,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:342:0: style: The function 'RamSemRequest16' is ne
 OS2/PM/API/PMMERGE/unimpl.cpp:2172:0: style: The function 'RamSemRequest32' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:230:0: style: The function 'ReInitializePanels' is never used. [unusedFunction]
+
+^
 OS2/CMD/lvm/contrib/engine.c:4643:0: style: The function 'Read_Sectors' is never used. [unusedFunction]
 
 ^
@@ -42497,6 +42503,9 @@ OS2/REXX/interp/contrib/os2/rexx.c:505:0: style: The function 'RexxSAA' is never
 
 ^
 tools/rexxwrap/getargv0.c:71:0: style: The function 'RexxWrapper_GetArgv0' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/user.c:253:0: style: The function 'RunUserInterface' is never used. [unusedFunction]
 
 ^
 OS2/REXX/interp/contrib/os2/rexx.c:483:0: style: The function 'RxBreakCleanup' is never used. [unusedFunction]
