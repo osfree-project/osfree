@@ -1648,9 +1648,6 @@ OS2/CMD/lvm/contrib/DiskIO.c:1267:8: style: Variable 'rc' is assigned a value th
 OS2/CMD/lvm/contrib/DiskIO.c:1284:14: style: Variable 'ReturnCode' is assigned a value that is never used. [unreadVariable]
   ReturnCode = DosFindClose(Handle);
              ^
-OS2/CMD/lvm/contrib/Dlist.c:6023:31: warning:inconclusive: Found suspicious equality comparison. Did you intend to assign a value instead? [constStatement]
-    SourceListData->EndOfList == PreviousNode;
-                              ^
 OS2/CMD/lvm/contrib/Dlist.c:1457:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
   NotNeeded = (void *) memcpy(ItemLocation,CurrentLinkNode->DataLocation,ItemSize);
             ^
@@ -2410,16 +2407,16 @@ OS2/CMD/lvm/contrib/engine.c:8495:30: style: Unused variable: Required_LVM_Minor
 OS2/CMD/lvm/contrib/engine.c:8496:30: style: Unused variable: EntryPoints [unusedVariable]
   LVM_Plugin_DLL_Interface   EntryPoints;                       /* Used to hold the entry points to the DLL that was just loaded. */
                              ^
-OS2/CMD/lvm/contrib/engine.c:8566:30: style: Unused variable: EntryPoints [unusedVariable]
+OS2/CMD/lvm/contrib/engine.c:8567:30: style: Unused variable: EntryPoints [unusedVariable]
   LVM_Plugin_DLL_Interface   EntryPoints;                       /* Used to hold the entry points to the DLL that was just loaded. */
                              ^
-OS2/CMD/lvm/contrib/engine.c:8567:30: style: Unused variable: Required_LVM_Major_Version [unusedVariable]
+OS2/CMD/lvm/contrib/engine.c:8568:30: style: Unused variable: Required_LVM_Major_Version [unusedVariable]
   CARDINAL32                 Required_LVM_Major_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
                              ^
-OS2/CMD/lvm/contrib/engine.c:8568:30: style: Unused variable: Required_LVM_Minor_Version [unusedVariable]
+OS2/CMD/lvm/contrib/engine.c:8569:30: style: Unused variable: Required_LVM_Minor_Version [unusedVariable]
   CARDINAL32                 Required_LVM_Minor_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
                              ^
-OS2/CMD/lvm/contrib/engine.c:8571:30: style: Unused variable: Function_Table [unusedVariable]
+OS2/CMD/lvm/contrib/engine.c:8572:30: style: Unused variable: Function_Table [unusedVariable]
   Plugin_Function_Table_V1 * Function_Table;
                              ^
 OS2/CMD/lvm/contrib/help.c:150:13: style: The scope of the variable 'rc' can be reduced. [variableScope]
