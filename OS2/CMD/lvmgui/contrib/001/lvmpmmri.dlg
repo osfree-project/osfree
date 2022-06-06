@@ -1,0 +1,316 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "..\ids.h"
+
+DLGTEMPLATE IDD_VOLUME_LETTER LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Volume Drive Letter", IDD_VOLUME_LETTER, 0, 0, 170, 81, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 168, 61, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        CONTROL         "", IDD_VOLUME_LETTER_LIST, 66, 0, 60, 63,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Drive letter:", IDD_VOLUME_LETTER_TEXT, 5, 54, 60,
+                        9, DT_VCENTER
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 128, 2, 40, 13, BS_HELP
+        LTEXT           "Select a drive letter for this volume.",
+                        IDD_VOLUME_LETTER_INTRO, 5, 66, 161, 9
+// The quoted * below must be the value of IDS_LETTER_INUSE from lvmpmmri.rc:
+        LTEXT           "'*' indicates letters currently in use by volumes "
+                        "with automatic drive letter assignments.",
+                        IDD_VOLUME_LETTER_NOTE, 5, 22, 161, 27,
+                        DT_WORDBREAK
+    END
+END
+
+DLGTEMPLATE IDD_VOLUME_NAME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Volume Name", IDD_VOLUME_NAME, 1, 1, 170, 52, , FCF_SYSMENU |
+            FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 168, 32, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Name:", IDD_VOLUME_NAME_TEXT, 5, 24, 36, 9,
+                        DT_VCENTER
+        ENTRYFIELD      "", IDD_VOLUME_NAME_FIELD, 44, 25, 120, 8, ES_MARGIN
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 128, 2, 40, 13, BS_HELP
+        LTEXT           "", IDD_VOLUME_NAME_INTRO,
+                        5, 36, 161, 10
+    END
+END
+
+DLGTEMPLATE IDD_BOOTMGR_OPTIONS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Boot Manager Options", IDD_BOOTMGR_OPTIONS, 1, 1, 200, 86,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 198, 66, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Boot default:", IDD_BOOTMGR_DEFAULT_TEXT, 5, 71, 60,
+                        9, DT_VCENTER
+        CONTROL         "", IDD_BOOTMGR_DEFAULT_LIST, 66, 30, 130, 50,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        AUTOCHECKBOX    "Boot automatically after:",
+                        IDD_BOOTMGR_TIMEOUT_ENABLE, 5, 54, 116, 10
+        SPINBUTTON      IDD_BOOTMGR_TIMEOUT_VALUE, 123, 55, 30, 12,
+                        SPBS_MASTER | WS_GROUP
+        LTEXT           "seconds", IDD_BOOTMGR_TIMEOUT_TEXT, 155, 54, 40, 10,
+                        DT_VCENTER
+        AUTORADIOBUTTON "Simple display", IDD_BOOTMGR_MODE_BRIEF, 5, 32, 80,
+                        10, WS_TABSTOP
+        AUTORADIOBUTTON "Verbose display", IDD_BOOTMGR_MODE_VERBOSE, 5, 22,
+                        80, 10, WS_TABSTOP
+        DEFPUSHBUTTON   "OK", DID_OK, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 158, 2, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_VOLUME_CREATE_2 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Create New Volume", IDD_VOLUME_CREATE_2, 1, 1, 238, 126, NOT
+            FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR | FCF_MAXBUTTON
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 236, 106, WC_STATIC,
+                        SS_FGNDFRAME | WS_VISIBLE
+        LTEXT           "Select the free space and/or existing partition(s) "
+                        "that will belong to this volume.",
+                        IDD_VOLUME_CREATE_SELECT, 5, 102, 229, 18,
+                        DT_WORDBREAK
+        CONTROL         "", IDD_VOLUME_CREATE_LIST, 4, 35, 231, 65,
+                        "LVMDiskList", WS_GROUP | WS_TABSTOP | WS_VISIBLE
+        LISTBOX         IDD_VOLUME_CREATE_CONTENTS, 0, 0, 0, 0, LS_HORZSCROLL |
+                        LS_NOADJUSTPOS | WS_GROUP
+        PUSHBUTTON      "~Add", IDD_VOLUME_CREATE_ADD, 0, 0, 0, 0, WS_TABSTOP
+        PUSHBUTTON      "~Remove", IDD_VOLUME_CREATE_REMOVE, 0, 0, 0, 0, WS_TABSTOP | WS_DISABLED
+        CTEXT           "", IDD_VOLUME_CREATE_STATUS, 7, 22, 225, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, SYSCLR_WINDOW
+        CONTROL         "", IDD_DIALOG_INSET2, 5, 21, 229, 12, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | NOT WS_VISIBLE
+        PUSHBUTTON      " ~Previous", DID_PREVIOUS, 2, 2, 55, 13, WS_GROUP
+        DEFPUSHBUTTON   "Create", DID_OK, 58, 2, 40, 13
+        PUSHBUTTON      "Cancel", DID_CANCEL, 99, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 196, 2, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_ABOUT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Product Information", IDD_ABOUT, 1, -15, 224, 114, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        ICON            ID_MAINPROGRAM, IDD_ABOUT_ICON, 7, 80, 16, 15,
+                        WS_GROUP
+        LTEXT           "Logical Volume Manager PM", IDD_ABOUT_NAME, 40, 100,
+                        180, 10, DT_VCENTER
+        LTEXT           "", IDD_ABOUT_VERSION, 40, 89, 80, 10
+        LTEXT           "", IDD_ABOUT_BUILD, 134, 89, 80, 10
+        CONTROL         "", IDD_DIALOG_DIVIDER, 40, 86, 180, 1, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        DEFPUSHBUTTON   "OK", DID_CANCEL, 40, 2, 40, 13, WS_GROUP
+        LTEXT           "", IDD_ABOUT_AUTHOR, 40, 72, 180, 10
+        MLE             "", IDD_ABOUT_LICENSE, 40, 18, 180, 53, MLS_READONLY |
+                        MLS_WORDWRAP | MLS_VSCROLL | MLS_IGNORETAB
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFDEL
+    END
+END
+
+DLGTEMPLATE IDD_PARTITION_CREATE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Create New Partition", IDD_PARTITION_CREATE, 1, 1, 181, 103,
+            FS_DLGBORDER, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 70, 179, 31, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "An area of free space was selected. A partition will "
+                        "be created in this free space and added to the volume.",
+                        IDD_PARTITION_CREATE_INTRO, 3, 105, 175, 22,
+                        DT_WORDBREAK | NOT WS_VISIBLE
+        LTEXT           "Assign a name to this partition.",
+                        IDD_PARTITION_CREATE_NAME_INTRO, 5, 88, 171, 10
+        LTEXT           "Name:", IDD_PARTITION_CREATE_NAME_TEXT, 5, 75, 26,
+                        9, DT_VCENTER
+        ENTRYFIELD      "", IDD_PARTITION_CREATE_NAME_FIELD, 33, 76, 142, 8,
+                        ES_MARGIN
+        CONTROL         "", IDD_DIALOG_INSET2, 1, 18, 179, 49, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Specify the partition size and type.",
+                        IDD_PARTITION_CREATE_SIZE_INTRO, 5, 54, 171, 10,
+                        DT_WORDBREAK
+        LTEXT           "Partition size:", IDD_PARTITION_CREATE_SIZE_TEXT, 5,
+                        43, 68, 10, DT_VCENTER
+        SPINBUTTON      IDD_PARTITION_CREATE_SIZE_SPIN, 74, 44, 70, 12,
+                        SPBS_NUMERICONLY | SPBS_MASTER | SPBS_FASTSPIN |
+                        WS_GROUP
+        LTEXT           "", IDD_PARTITION_CREATE_SIZE_MB, 146, 43, 30, 10,
+                        DT_VCENTER
+        AUTOCHECKBOX    "Primary partition", IDD_PARTITION_CREATE_PRIMARY, 5,
+                        21, 171, 10
+        AUTOCHECKBOX    "Allocate from end", IDD_PARTITION_CREATE_FROM_END,
+                        74, 32, 102, 10
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 139, 2, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_PARTITION_ADD LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Add Partition to Volume", IDD_PARTITION_ADD, 1, 1, 270, 127,
+            NOT FS_DLGBORDER | FS_SIZEBORDER, FCF_SYSMENU | FCF_TITLEBAR | FCF_MAXBUTTON
+    BEGIN
+        CONTAINER       IDD_PARTITION_ADD_VOLUMES, 5, 21, 260, 80,
+                        CCS_SINGLESEL | CCS_MINIRECORDCORE | WS_GROUP
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 268, 107, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Select the volume to which this partition will be a"
+                        "dded.", IDD_PARTITION_ADD_TEXT, 5, 84, 260, 38,
+                        DT_WORDBREAK
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 228, 2, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_DISK_NAME LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Disk Name", IDD_DISK_NAME, 0, 0, 158, 51, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 156, 31, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 116, 2, 40, 13, BS_HELP
+        LTEXT           "Serial #:", IDD_DISK_SERIAL_TEXT, 5, 36, 35, 10,
+                        DT_VCENTER
+        LTEXT           "", IDD_DISK_SERIAL_FIELD, 42, 36, 111, 10,
+                        DT_VCENTER
+        LTEXT           "Name:", IDD_DISK_NAME_TEXT, 5, 22, 35, 10,
+                        DT_VCENTER
+        ENTRYFIELD      "", IDD_DISK_NAME_FIELD, 43, 23, 109, 8, ES_MARGIN
+    END
+END
+
+DLGTEMPLATE IDD_FONTS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Fonts", IDD_FONTS, 1, 1, 248, 119, , FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 18, 246, 99, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Volume list:", 1217, 5, 101, 85, 10, DT_VCENTER
+        LTEXT           "Volume details:", 1218, 5, 86, 85, 10, DT_VCENTER
+        LTEXT           "Disk list:", 1219, 5, 71, 85, 10, DT_VCENTER
+        LTEXT           "Status bar:", 1220, 5, 56, 85, 10, DT_VCENTER
+        LTEXT           "Secondary dialogs:", 1221, 5, 36, 85, 10,
+                        DT_VCENTER
+        CTEXT           "", IDD_FONTS_CONTAINER_PREVIEW, 92, 101, 98, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFECL
+        PUSHBUTTON      "Change...", IDD_FONTS_CONTAINER_BTN, 193, 100, 50,
+                        13
+        CTEXT           "", IDD_FONTS_DETAILS_PREVIEW, 92, 86, 98, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFECL
+        PUSHBUTTON      "Change...", IDD_FONTS_DETAILS_BTN, 193, 85, 50, 13
+        CTEXT           "", IDD_FONTS_DISKS_PREVIEW, 92, 71, 98, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFECL
+        PUSHBUTTON      "Change...", IDD_FONTS_DISKS_BTN, 193, 70, 50, 13
+        CTEXT           "", IDD_FONTS_STATUS_PREVIEW, 92, 56, 98, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFECL
+        PUSHBUTTON      "Change...", IDD_FONTS_STATUS_BTN, 193, 55, 50, 13
+        CONTROL         "", IDD_DIALOG_DIVIDER, 5, 50, 238, 1, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        CTEXT           "", IDD_FONTS_DIALOG_PREVIEW, 92, 36, 151, 10,
+                        DT_VCENTER
+                        PRESPARAMS PP_BACKGROUNDCOLORINDEX, 0xFFFFFFECL
+        PUSHBUTTON      "Clear", IDD_FONTS_DIALOG_CLEAR, 142, 22, 50, 13
+        PUSHBUTTON      "Change...", IDD_FONTS_DIALOG_BTN, 193, 22, 50, 13
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 1, 40, 13
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 1, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 206, 1, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_VOLUME_CREATE_1 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Create New Volume", IDD_VOLUME_CREATE_1, 1, 1, 219, 127, ,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        CONTROL         "", IDD_DIALOG_INSET, 1, 71, 217, 53, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Select the type of volume you want to create.",
+                        IDD_VOLUME_CREATE_INTRO, 5, 111, 210, 10
+        AUTORADIOBUTTON "", IDD_VOLUME_CREATE_STANDARD, 5, 100, 210, 10,
+                        WS_TABSTOP
+        AUTORADIOBUTTON "", IDD_VOLUME_CREATE_ADVANCED, 5, 91, 210, 10,
+                        WS_TABSTOP
+        AUTOCHECKBOX    "", IDD_VOLUME_CREATE_BOOTABLE, 5, 75, 155, 10
+        CONTROL         "", IDD_DIALOG_INSET2, 1, 18, 217, 50, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        LTEXT           "Assign a name and a drive letter to this volume.",
+                        IDD_VOLUME_NAME_INTRO, 5, 56, 210, 8
+        LTEXT           "Name:", IDD_VOLUME_NAME_TEXT, 5, 43, 56, 9,
+                        DT_VCENTER
+        ENTRYFIELD      "", IDD_VOLUME_NAME_FIELD, 63, 44, 149, 8, ES_MARGIN
+        LTEXT           "Drive letter:", IDD_VOLUME_LETTER_TEXT, 5, 31, 55,
+                        9, DT_VCENTER
+        CONTROL         "", IDD_VOLUME_LETTER_LIST, 62, -20, 60, 60,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        DEFPUSHBUTTON   "~Next ", ID_MAINPROGRAM, 2, 2, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", DID_HELP, 177, 2, 40, 13, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_PREFERENCES LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Preferences", IDD_PREFERENCES, 1, 1, 186, 163, , FCF_SYSMENU |
+            FCF_TITLEBAR
+    BEGIN
+        DEFPUSHBUTTON   "OK", ID_MAINPROGRAM, 2, 2, 40, 13
+        PUSHBUTTON      "Cancel", DID_CANCEL, 43, 2, 40, 13
+        PUSHBUTTON      "Help", IDD_PREFS_BOOT_WARNING, 144, 2, 40, 13,
+                        BS_HELP
+        CONTROL         "", IDD_DIALOG_INSET, 1, 49, 184, 112, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        AUTOCHECKBOX    "Use IBM terminology for volume type",
+                        IDD_PREFS_TERMS_IBM, 5, 148, 175, 10
+        AUTOCHECKBOX    "Use IEC terminology for binary sizes",
+                        IDD_PREFS_TERMS_IEC, 5, 136, 175, 10
+        AUTOCHECKBOX    "Show partitions with uniform width",
+                        IDD_PREFS_UNIFORM, 5, 124, 175, 10
+        AUTOCHECKBOX    "Automatically select corresponding objects",
+                        IDD_PREFS_AUTOSELECT, 5, 112, 175, 10
+        AUTOCHECKBOX    "Warn when no bootable volumes exist",
+                        IDD_PREFS_BOOT_WARNING, 5, 100, 175, 10
+        AUTOCHECKBOX    "Hide empty removable media drives",
+                        IDD_PREFS_NO_EMPTY_DISKS, 5, 88, 175, 10
+        AUTOCHECKBOX    "Hide non-LVM-managed volumes",
+                        IDD_PREFS_NO_ALIEN_VOLUMES, 5, 76, 175, 10
+        LTEXT           "Visual style:", IDD_PREFS_STYLE_TEXT, 5, 64, 61, 10,
+                        DT_VCENTER
+        AUTORADIOBUTTON "Presentation Manager", IDD_PREFS_STYLE_PM, 67, 64,
+                        113, 10, WS_TABSTOP
+        AUTORADIOBUTTON "Document", IDD_PREFS_STYLE_WEB, 67, 53, 113, 10,
+                        WS_TABSTOP
+        CONTROL         "", IDD_DIALOG_INSET2, 1, 18, 184, 28, WC_STATIC,
+                        SS_FGNDFRAME | WS_GROUP | WS_VISIBLE
+        AUTOCHECKBOX    "Enable IBM Boot Manager installation",
+                        IDD_PREFS_ENABLE_BM, 5, 33, 175, 10
+        AUTOCHECKBOX    "Enable Air-Boot installation", IDD_PREFS_ENABLE_AB,
+                        5, 21, 175, 10
+    END
+END

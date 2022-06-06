@@ -1,0 +1,5 @@
+#include "ids.h"
+
+ICON  1  "icons\\program.ico"
+
+
