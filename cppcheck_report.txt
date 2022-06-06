@@ -1387,6 +1387,1251 @@ OS2/CMD/format/format.c:44:9: style: Unused variable: ulAvailableDisks [unusedVa
 OS2/CMD/label/label.c:200:3: warning: Obsolete function 'gets' called. It is recommended to use 'fgets' or 'gets_s' instead. [getsCalled]
   gets(newLabel);
   ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:280:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Discover_BBR_Partitions has been invoked with one or more NULL pointers!\n     Partition_List is %X (hex)\n     Error_Code is %X (hex)", Partition_List, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:350:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Commit_BBR_Changes has been invoked with one or more NULL pointers!\n     VData is %X (hex)\n     PData is %X (hex)\n     Error_Code is %X (hex)", VData, PData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:357:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:707:7: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Open_BBR has been invoked with a NULL pointer!\n     Error_Code is %X (hex)", Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:752:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Can_Expand_BBR_Volume has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     Error_Code is %X (hex)", AData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:759:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:805:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Add_BBR_Partition has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     PData is %X (hex)\n     Error_Code is %X (hex)", AData, PData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:812:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:880:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Delete_BBR_Partition has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     Error_Code is %X (hex)", AData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:887:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:980:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"BBR_Write has been invoked with one or more NULL pointers!\n     PData is %X (hex)\n     Buffer is %X (hex)\n     Error_Code is %X (hex)", PData, Buffer, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:987:7: warning: %X in format string (no. 5) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1085:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"BBR_Read has been invoked with one or more NULL pointers!\n     PData is %X (hex)\n     Buffer is %X (hex)\n     Error_Code is %X (hex)", PData, Buffer, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1092:7: warning: %X in format string (no. 5) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:324:63: warning: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  BBR_Data_Record *            BBR_Data = (BBR_Data_Record *) PartitionRecord->Feature_Data->Data;
+                                                              ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:347:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( VData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:321:50: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *             PartitionRecord = (Partition_Data *) PData;
+                                                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:324:63: note: Null pointer dereference
+  BBR_Data_Record *            BBR_Data = (BBR_Data_Record *) PartitionRecord->Feature_Data->Data;
+                                                              ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:325:51: warning: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  LVM_Signature_Sector *       Signature_Sector = PartitionRecord->Signature_Sector;
+                                                  ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:347:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( VData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:321:50: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *             PartitionRecord = (Partition_Data *) PData;
+                                                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:325:51: note: Null pointer dereference
+  LVM_Signature_Sector *       Signature_Sector = PartitionRecord->Signature_Sector;
+                                                  ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:369:21: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  Current_Context = PartitionRecord->Feature_Data;
+                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:347:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( VData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:321:50: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *             PartitionRecord = (Partition_Data *) PData;
+                                                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:369:21: note: Null pointer dereference
+  Current_Context = PartitionRecord->Feature_Data;
+                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:867:53: warning: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  Feature_Context_Data *     Current_Feature_Data = PartitionRecord->Feature_Data; /* Save the current feature data. */
+                                                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:877:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:866:48: note: Assignment 'PartitionRecord=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) AData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:867:53: note: Null pointer dereference
+  Feature_Context_Data *     Current_Feature_Data = PartitionRecord->Feature_Data; /* Save the current feature data. */
+                                                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:901:3: warning:inconclusive: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  PartitionRecord->Feature_Data = Current_Feature_Data->Old_Context;
+  ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:877:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:866:48: note: Assignment 'PartitionRecord=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) AData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:901:3: note: Null pointer dereference
+  PartitionRecord->Feature_Data = Current_Feature_Data->Old_Context;
+  ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:902:24: warning:inconclusive: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  Old_Function_Table = PartitionRecord->Feature_Data->Function_Table;
+                       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:877:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:866:48: note: Assignment 'PartitionRecord=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) AData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:902:24: note: Null pointer dereference
+  Old_Function_Table = PartitionRecord->Feature_Data->Function_Table;
+                       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1003:8: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  if ( PartitionRecord->Feature_Data == NULL )
+       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:977:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( Buffer == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:967:48: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) PData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1003:8: note: Null pointer dereference
+  if ( PartitionRecord->Feature_Data == NULL )
+       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1073:53: warning: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  Feature_Context_Data *     Current_Feature_Data = PartitionRecord->Feature_Data; /* Save the feature data for the PartitionRecord. */
+                                                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1082:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( Buffer == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1072:48: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) PData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1073:53: note: Null pointer dereference
+  Feature_Context_Data *     Current_Feature_Data = PartitionRecord->Feature_Data; /* Save the feature data for the PartitionRecord. */
+                                                    ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1108:8: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  if ( PartitionRecord->Feature_Data == NULL )
+       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1082:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( Buffer == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1072:48: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *           PartitionRecord = (Partition_Data *) PData;
+                                               ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:1108:8: note: Null pointer dereference
+  if ( PartitionRecord->Feature_Data == NULL )
+       ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:318:49: style:inconclusive: Function 'Commit_BBR_Changes' argument 1 names different: declaration 'VolumeRecord' definition 'VData'. [funcArgNamesDifferent]
+static void _System Commit_BBR_Changes( ADDRESS VData, ADDRESS PData, CARDINAL32 * Error_Code )
+                                                ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:160:52: note: Function 'Commit_BBR_Changes' argument 1 names different: declaration 'VolumeRecord' definition 'VData'.
+static void    _System Commit_BBR_Changes( ADDRESS VolumeRecord, ADDRESS PData, CARDINAL32 * Error_Code );
+                                                   ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:318:49: note: Function 'Commit_BBR_Changes' argument 1 names different: declaration 'VolumeRecord' definition 'VData'.
+static void _System Commit_BBR_Changes( ADDRESS VData, ADDRESS PData, CARDINAL32 * Error_Code )
+                                                ^
+OS2/CMD/lvm/contrib/Bad_Block_Relocation.c:329:43: style: Variable 'BBR_Sector' is assigned a value that is never used. [unreadVariable]
+  LVM_BBR_Table_Sector *       BBR_Sector = (LVM_BBR_Table_Sector *) &Feature_Data_Buffer2;
+                                          ^
+OS2/CMD/lvm/contrib/BootManager.c:2652:44: style:inconclusive: Boolean expression '(ADDRESS)BM_Options==(ADDRESS)' is used in bitwise operation. Did you mean '&&'? [bitwiseOnBoolean]
+       ( (ADDRESS) BM_Options == (ADDRESS) &Boot_Manager_Options_Sector )
+                                           ^
+OS2/CMD/lvm/contrib/BootManager.c:2652:44: style: Boolean result is used in bitwise operation. Clarify expression with parentheses. [clarifyCondition]
+       ( (ADDRESS) BM_Options == (ADDRESS) &Boot_Manager_Options_Sector )
+                                           ^
+OS2/CMD/lvm/contrib/BootManager.c:403:15: style: Variable '*Error_Code' is reassigned a value before the old one has been used. [redundantAssignment]
+  *Error_Code = LVM_ENGINE_NO_ERROR;
+              ^
+OS2/CMD/lvm/contrib/BootManager.c:398:26: note: *Error_Code is assigned
+             *Error_Code = LVM_ENGINE_BAD_HANDLE;
+                         ^
+OS2/CMD/lvm/contrib/BootManager.c:403:15: note: *Error_Code is overwritten
+  *Error_Code = LVM_ENGINE_NO_ERROR;
+              ^
+OS2/CMD/lvm/contrib/BootManager.c:3953:10: style: Variable '*Error' is reassigned a value before the old one has been used. [redundantAssignment]
+  *Error = DLIST_SUCCESS;
+         ^
+OS2/CMD/lvm/contrib/BootManager.c:3944:16: note: *Error is assigned
+        *Error = DLIST_SEARCH_COMPLETE;
+               ^
+OS2/CMD/lvm/contrib/BootManager.c:3953:10: note: *Error is overwritten
+  *Error = DLIST_SUCCESS;
+         ^
+OS2/CMD/lvm/contrib/BootManager.c:1361:22: style: The scope of the variable 'PartitionRecord' can be reduced. [variableScope]
+  Partition_Data   * PartitionRecord; /* Used to point to the Partition_Data structure we are manipulating. */
+                     ^
+OS2/CMD/lvm/contrib/BootManager.c:1362:22: style: The scope of the variable 'VolumeRecord' can be reduced. [variableScope]
+  Volume_Data      * VolumeRecord;    /* Used to point to the Volume_Data structure we are manipulating. */
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:671:36: warning: The address of local variable 'Drive_Data' might be accessed at non-zero index. [objectIndex]
+              if ( Drive_Data_Check[J] != 0 )
+                                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:664:41: note: Address of variable taken here.
+            Drive_Data_Check = (BYTE *) &Drive_Data;
+                                        ^
+OS2/CMD/lvm/contrib/DiskIO.c:671:36: note: The address of local variable 'Drive_Data' might be accessed at non-zero index.
+              if ( Drive_Data_Check[J] != 0 )
+                                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:711:39: style: Condition 'DriveTable[I].Drive_Lock==(unsigned int)NULL' is always false [knownConditionTrueFalse]
+        if ( DriveTable[I].Drive_Lock == (SEMAPHORE)NULL )
+                                      ^
+OS2/CMD/lvm/contrib/DiskIO.c:708:36: note: Assignment 'DriveTable[I].Drive_Lock=88', assigned value is 88
+        DriveTable[I].Drive_Lock = CreateSemaphore();
+                                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:711:39: note: Condition 'DriveTable[I].Drive_Lock==(unsigned int)NULL' is always false
+        if ( DriveTable[I].Drive_Lock == (SEMAPHORE)NULL )
+                                      ^
+OS2/CMD/lvm/contrib/DiskIO.c:615:20: style: Variable 'ReturnCode' is reassigned a value before the old one has been used. [redundantAssignment]
+        ReturnCode = NO_ERROR + 1;
+                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:612:20: note: ReturnCode is assigned
+        ReturnCode = DosPhysicalDisk(3L,NULL,0,&(DriveTable[I].DriveHandle),sizeof(DriveTable[I].DriveHandle) );
+                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:615:20: note: ReturnCode is overwritten
+        ReturnCode = NO_ERROR + 1;
+                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:697:49: style: Variable 'DriveTable[I].Cylinder_Limit_Applies' is reassigned a value before the old one has been used. [redundantAssignment]
+           DriveTable[I].Cylinder_Limit_Applies = FALSE;
+                                                ^
+OS2/CMD/lvm/contrib/DiskIO.c:684:57: note: DriveTable[I].Cylinder_Limit_Applies is assigned
+                   DriveTable[I].Cylinder_Limit_Applies = FALSE;
+                                                        ^
+OS2/CMD/lvm/contrib/DiskIO.c:697:49: note: DriveTable[I].Cylinder_Limit_Applies is overwritten
+           DriveTable[I].Cylinder_Limit_Applies = FALSE;
+                                                ^
+OS2/CMD/lvm/contrib/DiskIO.c:720:22: style: Variable 'ReturnCode' is reassigned a value before the old one has been used. [redundantAssignment]
+          ReturnCode = NO_ERROR + 1;
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:717:22: note: ReturnCode is assigned
+          ReturnCode = DosPhysicalDisk(3L,NULL,0,&(DriveTable[I].DriveHandle),sizeof(DriveTable[I].DriveHandle) );
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:720:22: note: ReturnCode is overwritten
+          ReturnCode = NO_ERROR + 1;
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:747:22: style: Variable 'ReturnCode' is reassigned a value before the old one has been used. [redundantAssignment]
+          ReturnCode = NO_ERROR + 1;
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:744:22: note: ReturnCode is assigned
+          ReturnCode = DosPhysicalDisk(3L,NULL,0,&(DriveTable[I].DriveHandle),sizeof(DriveTable[I].DriveHandle) );
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:747:22: note: ReturnCode is overwritten
+          ReturnCode = NO_ERROR + 1;
+                     ^
+OS2/CMD/lvm/contrib/DiskIO.c:1106:18: style: The scope of the variable 'FileData' can be reduced. [variableScope]
+  FILEFINDBUF3 * FileData;    /* Used to extract data from Buffer after a call to DosFindFirst or DosFindNext. */
+                 ^
+OS2/CMD/lvm/contrib/DiskIO.c:842:16: style: Variable 'ReturnCode' is assigned a value that is never used. [unreadVariable]
+    ReturnCode = DosPhysicalDisk(3L,NULL,0,&(DriveTable[I].DriveHandle),sizeof(DriveTable[I].DriveHandle) );
+               ^
+OS2/CMD/lvm/contrib/DiskIO.c:1230:20: style: Variable 'ReturnCode' is assigned a value that is never used. [unreadVariable]
+        ReturnCode = DosFindClose(Handle);
+                   ^
+OS2/CMD/lvm/contrib/DiskIO.c:1267:8: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+    rc = DosFindClose(Handle);
+       ^
+OS2/CMD/lvm/contrib/DiskIO.c:1284:14: style: Variable 'ReturnCode' is assigned a value that is never used. [unreadVariable]
+  ReturnCode = DosFindClose(Handle);
+             ^
+OS2/CMD/lvm/contrib/Dlist.c:6023:31: warning:inconclusive: Found suspicious equality comparison. Did you intend to assign a value instead? [constStatement]
+    SourceListData->EndOfList == PreviousNode;
+                              ^
+OS2/CMD/lvm/contrib/Dlist.c:1457:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
+  NotNeeded = (void *) memcpy(ItemLocation,CurrentLinkNode->DataLocation,ItemSize);
+            ^
+OS2/CMD/lvm/contrib/Dlist.c:1644:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
+  NotNeeded = (void *) memcpy(ItemLocation,CurrentLinkNode->DataLocation,ItemSize);
+            ^
+OS2/CMD/lvm/contrib/Dlist.c:1824:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
+  NotNeeded = (void *) memcpy(ItemLocation,CurrentLinkNode->DataLocation,ItemSize);
+            ^
+OS2/CMD/lvm/contrib/Dlist.c:2548:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
+  NotNeeded = (void *) memcpy(ItemLocation,CurrentLinkNode->DataLocation,ItemSize);
+            ^
+OS2/CMD/lvm/contrib/Dlist.c:3068:13: style: Variable 'NotNeeded' is assigned a value that is never used. [unreadVariable]
+  NotNeeded = (void *) memcpy(NewData,ItemLocation,ItemSize);
+            ^
+OS2/CMD/lvm/contrib/Dlist.c:885:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToAddTo ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:1122:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToDeleteFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:1269:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToDeleteFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:1470:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:1648:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:1828:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:2016:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:2181:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:2351:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:2620:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:2877:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetItemFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:3097:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToReplaceItemIn ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:3309:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToReplaceItemIn ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:3447:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetTagFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:3549:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetHandleFrom ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:3635:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToGetSizeOf ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4158:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToAdvance ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4271:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToChange ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4358:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToReset ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4444:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToSet ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4558:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToReposition ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:4860:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToSort ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:5067:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToProcess ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:5403:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( ListToProcess ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:5586:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( SourceList ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:5587:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( TargetList ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:6176:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( SourceList ) );
+          ^
+OS2/CMD/lvm/contrib/Dlist.c:6177:11: warning: Assert statement calls a function which may have desired side effects: 'CheckListIntegrity'. [assertWithSideEffect]
+  assert (CheckListIntegrity( TargetList ) );
+          ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:313:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Discover_Drive_Links has been invoked with one or more NULL pointers!\n     Partition_List is %X (hex)\n     Error_Code is %X (hex)", Partition_List, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:495:7: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Open_Feature for drive linking has been invoked with a NULL pointer!\n     Error_Code is %X (hex)", Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:570:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Can_Expand_DL_Volume has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     Error_Code is %X (hex)", AData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:577:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:673:7: warning: %X in format string (no. 2) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Delete_DL_Partition has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     Error_Code is %X (hex)", AData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:680:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:1930:9: error: sprintf format string requires 1 parameter but only 0 are given. [wrongPrintfScanfArgNum]
+        sprintf(LVM_Common_Services->Log_Buffer,"List Error %d while trying to destroy the Partitions_To_Use list!");
+        ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:1976:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"DL_Write has been invoked with one or more NULL pointers!\n     PData is %X (hex)\n     Buffer is %X (hex)\n     Error_Code is %X (hex)", PData, Buffer, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:1983:7: warning: %X in format string (no. 5) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2118:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"DL_Read has been invoked with one or more NULL pointers!\n     PData is %X (hex)\n     Buffer is %X (hex)\n     Error_Code is %X (hex)", PData, Buffer, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2125:7: warning: %X in format string (no. 5) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2256:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Add_DL_Partition has been invoked with one or more NULL pointers!\n     AData is %X (hex)\n     PData is %X (hex)\n     Error_Code is %X (hex)", AData, New_Partitions, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2263:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2445:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,"Commit_DL_Changes has been invoked with one or more NULL pointers!\n     VData is %X (hex)\n     PData is %X (hex)\n     Error_Code is %X (hex)", VData, PData, Error_Code);
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2452:7: warning: %X in format string (no. 3) requires 'unsigned int' but the argument type is 'CARDINAL32 *'. [invalidPrintfArgType_uint]
+      sprintf(LVM_Common_Services->Log_Buffer,
+      ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:627:36: warning:inconclusive: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: Aggregate. [nullPointerRedundantCheck]
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:567:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:557:34: note: Assignment 'Aggregate=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *   Aggregate = (Partition_Data *) AData;
+                                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:627:36: note: Null pointer dereference
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:692:8: warning:inconclusive: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: Aggregate. [nullPointerRedundantCheck]
+  if ( Aggregate->Signature_Sector != NULL )
+       ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:670:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:659:42: note: Assignment 'Aggregate=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *           Aggregate = (Partition_Data *) AData;
+                                         ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:692:8: note: Null pointer dereference
+  if ( Aggregate->Signature_Sector != NULL )
+       ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:710:75: warning:inconclusive: Either the condition 'AData==NULL' is redundant or there is possible null pointer dereference: Aggregate. [nullPointerRedundantCheck]
+  LVM_Common_Services->DeleteItem(LVM_Common_Services->Aggregates, FALSE, Aggregate->Drive_Partition_Handle, &Dlist_Error);
+                                                                          ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:670:18: note: Assuming that condition 'AData==NULL' is not redundant
+    if ( ( AData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:659:42: note: Assignment 'Aggregate=(Partition_Data*)AData', assigned value is 0
+  Partition_Data *           Aggregate = (Partition_Data *) AData;
+                                         ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:710:75: note: Null pointer dereference
+  LVM_Common_Services->DeleteItem(LVM_Common_Services->Aggregates, FALSE, Aggregate->Drive_Partition_Handle, &Dlist_Error);
+                                                                          ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2005:36: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: Aggregate. [nullPointerRedundantCheck]
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:1973:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( Buffer == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:1960:42: note: Assignment 'Aggregate=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *           Aggregate = (Partition_Data *) PData;
+                                         ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2005:36: note: Null pointer dereference
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2147:36: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: Aggregate. [nullPointerRedundantCheck]
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2115:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( Buffer == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2102:42: note: Assignment 'Aggregate=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *           Aggregate = (Partition_Data *) PData;
+                                         ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2147:36: note: Null pointer dereference
+  LinkTable = (Drive_Link_Array *) Aggregate->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2436:36: warning: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  LinkTable = (Drive_Link_Array *) PartitionRecord->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2442:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( VData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2419:54: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *                 PartitionRecord = (Partition_Data *) PData;
+                                                     ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2436:36: note: Null pointer dereference
+  LinkTable = (Drive_Link_Array *) PartitionRecord->Feature_Data->Data;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2467:8: warning:inconclusive: Either the condition 'PData==NULL' is redundant or there is possible null pointer dereference: PartitionRecord. [nullPointerRedundantCheck]
+  if ( PartitionRecord->Signature_Sector != NULL )
+       ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2442:18: note: Assuming that condition 'PData==NULL' is not redundant
+    if ( ( PData == NULL ) || ( VData == NULL ) || ( Error_Code == NULL) )
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2419:54: note: Assignment 'PartitionRecord=(Partition_Data*)PData', assigned value is 0
+  Partition_Data *                 PartitionRecord = (Partition_Data *) PData;
+                                                     ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2467:8: note: Null pointer dereference
+  if ( PartitionRecord->Signature_Sector != NULL )
+       ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6808:13: style: Variable 'Token' is reassigned a value before the old one has been used. [redundantAssignment]
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6698:13: note: Token is assigned
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6808:13: note: Token is overwritten
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6808:13: style: Variable 'Token' is reassigned a value before the old one has been used. [redundantAssignment]
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6758:17: note: Token is assigned
+          Token = GetToken(Token_List, FALSE, Error_Code);
+                ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6808:13: note: Token is overwritten
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2244:27: style: The scope of the variable 'Signature_Sector' can be reduced. [variableScope]
+  LVM_Signature_Sector *  Signature_Sector;
+                          ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2424:36: style: The scope of the variable 'First_Sector' can be reduced. [variableScope]
+  LVM_Link_Table_First_Sector *    First_Sector;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2425:36: style: The scope of the variable 'Next_Sector' can be reduced. [variableScope]
+  LVM_Link_Table_Sector *          Next_Sector;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2429:36: style: The scope of the variable 'Signature_Sector' can be reduced. [variableScope]
+  LVM_Signature_Sector *           Signature_Sector;
+                                   ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:3289:34: style: The scope of the variable 'NextPartitionRecord' can be reduced. [variableScope]
+  Partition_Data *               NextPartitionRecord;
+                                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:3296:34: style: The scope of the variable 'Old_Function_Table' can be reduced. [variableScope]
+  Plugin_Function_Table_V1 *     Old_Function_Table;
+                                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5366:14: style: The scope of the variable 'line' can be reduced. [variableScope]
+    char    *line;
+             ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5368:13: style: The scope of the variable 'index' can be reduced. [variableScope]
+            index = 0,
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5435:13: style: The scope of the variable 'rc' can be reduced. [variableScope]
+    uint    rc,
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5436:13: style: The scope of the variable 'index' can be reduced. [variableScope]
+            index,
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5479:10: style: The scope of the variable 'memory' can be reduced. [variableScope]
+   char *memory;
+         ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5614:9: style: The scope of the variable 'num_selected_items' can be reduced. [variableScope]
+   uint num_selected_items;
+        ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5729:9: style: The scope of the variable 'key' can be reduced. [variableScope]
+   uint key;
+        ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5731:11: style: The scope of the variable 'j' can be reduced. [variableScope]
+   int i, j;
+          ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2239:61: style:inconclusive: Function 'Add_DL_Partition' argument 2 names different: declaration 'PData' definition 'New_Partitions'. [funcArgNamesDifferent]
+static void _System Add_DL_Partition ( ADDRESS AData, DLIST New_Partitions, CARDINAL32 * Error_Code )
+                                                            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:238:67: note: Function 'Add_DL_Partition' argument 2 names different: declaration 'PData' definition 'New_Partitions'.
+static void     _System Add_DL_Partition ( ADDRESS AData, ADDRESS PData, CARDINAL32 * Error_Code );
+                                                                  ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:2239:61: note: Function 'Add_DL_Partition' argument 2 names different: declaration 'PData' definition 'New_Partitions'.
+static void _System Add_DL_Partition ( ADDRESS AData, DLIST New_Partitions, CARDINAL32 * Error_Code )
+                                                            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5438:21: style: Variable 'no_help' is assigned a value that is never used. [unreadVariable]
+    bool    no_help = TRUE;
+                    ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5449:21: style: Variable 'no_help' is assigned a value that is never used. [unreadVariable]
+            no_help = FALSE;
+                    ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5728:18: style: Variable 'finished' is assigned a value that is never used. [unreadVariable]
+   bool finished = FALSE;
+                 ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:5826:14: style: Variable 'key' is assigned a value that is never used. [unreadVariable]
+         key = UserDefinedMenuPanel( &DL_group_panel,
+             ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:6547:13: style: Variable 'Token' is assigned a value that is never used. [unreadVariable]
+      Token = GetToken(Token_List, FALSE, Error_Code);
+            ^
+OS2/CMD/lvm/contrib/Drive_Linking.c:7239:9: style: Variable 'Token' is assigned a value that is never used. [unreadVariable]
+  Token = GetToken(Token_List, FALSE, Error_Code);
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:325:5: warning: %i in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    printf("Error in %s calloc(%i,%i) return NULL\n", __FUNCTION__,n,size);
+    ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:325:5: warning: %i in format string (no. 3) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    printf("Error in %s calloc(%i,%i) return NULL\n", __FUNCTION__,n,size);
+    ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:343:7: warning: %i in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+      printf("Error in %s calloc(%i,%i) return NULL\n", __FUNCTION__,n,sizeof(char *));
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:343:7: portability: %i in format string (no. 3) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
+      printf("Error in %s calloc(%i,%i) return NULL\n", __FUNCTION__,n,sizeof(char *));
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:159:6: style: Variable 'rc' is reassigned a value before the old one has been used. [redundantAssignment]
+  rc = VioWrtCellStr(pmem, l, row, column,VioHandle);
+     ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:154:6: note: rc is assigned
+  rc = VioReadCellStr(pmem, &l, row,column, VioHandle);
+     ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:159:6: note: rc is overwritten
+  rc = VioWrtCellStr(pmem, l, row, column,VioHandle);
+     ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:277:3: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
+  return 0;
+  ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:60:11: style: The scope of the variable 'rc' can be reduced. [variableScope]
+  int i,r,rc;
+          ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:134:9: style: The scope of the variable 'r' can be reduced. [variableScope]
+  int i,r,l,rc;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:134:13: style: The scope of the variable 'rc' can be reduced. [variableScope]
+  int i,r,l,rc;
+            ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:151:25: style: The scope of the variable 'ch' can be reduced. [variableScope]
+  char attr2[2], *pmem, ch;
+                        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:171:9: style: The scope of the variable 'r' can be reduced. [variableScope]
+  int i,r;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:194:9: style: The scope of the variable 'r' can be reduced. [variableScope]
+  int i,r;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:212:9: style: The scope of the variable 'r' can be reduced. [variableScope]
+  int i,r,col,rc, attr;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:212:11: style: The scope of the variable 'col' can be reduced. [variableScope]
+  int i,r,col,rc, attr;
+          ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:212:15: style: The scope of the variable 'rc' can be reduced. [variableScope]
+  int i,r,col,rc, attr;
+              ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:33:6: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+  rc = VioSetCurPos(0, 0, VioHandle);
+     ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:60:7: style: Unused variable: i [unusedVariable]
+  int i,r,rc;
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:109:7: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+   rc = VioWrtCharStrAtt(str, len, row, column, &attr2, VioHandle);
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:117:7: style: Unused variable: i [unusedVariable]
+  int i,r,l,rc;
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:117:9: style: Unused variable: r [unusedVariable]
+  int i,r,l,rc;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:117:11: style: Unused variable: l [unusedVariable]
+  int i,r,l,rc;
+          ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:141:8: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+    rc = VioWrtNCell(&attr2, row_length, r, column,VioHandle);
+       ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:134:11: style: Unused variable: l [unusedVariable]
+  int i,r,l,rc;
+          ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:159:6: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+  rc = VioWrtCellStr(pmem, l, row, column,VioHandle);
+     ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:149:9: style: Unused variable: r [unusedVariable]
+  int i,r,rc;
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:151:8: style: Unused variable: attr2 [unusedVariable]
+  char attr2[2], *pmem, ch;
+       ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:196:10: style: Variable 'Length' is assigned a value that is never used. [unreadVariable]
+  Length = row_length * number_of_rows *2;
+         ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:223:9: style: Variable 'rc' is assigned a value that is never used. [unreadVariable]
+     rc = VioWrtNCell(&attr2, 1, r, col,VioHandle);
+        ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:212:7: style: Unused variable: i [unusedVariable]
+  int i,r,col,rc, attr;
+      ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:244:15: style: Unused variable: rc [unusedVariable]
+    int l, i, rc;
+              ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:354:11: style: Unused variable: rc2 [unusedVariable]
+{  int rc,rc2,i;
+          ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:354:15: style: Unused variable: i [unusedVariable]
+{  int rc,rc2,i;
+              ^
+OS2/CMD/lvm/contrib/LVM_Cli.c:355:8: style: Unused variable: isKey [unusedVariable]
+   int isKey;
+       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3375:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3395:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3423:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3447:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3506:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3632:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3712:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3735:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3768:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3808:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3830:46: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                        free(Name);
+                                             ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3869:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3887:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3919:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4041:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4060:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4089:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4122:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4174:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4196:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4221:41: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                   free(Name);
+                                        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4257:41: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                   free(Name);
+                                        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4279:41: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                   free(Name);
+                                        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4296:41: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                   free(Name);
+                                        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4563:60: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                                      free(Name);
+                                                           ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4576:56: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                                  free(Name);
+                                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4634:45: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                       free(Name);
+                                            ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4667:43: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                     free(Name);
+                                          ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4705:41: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                   free(Name);
+                                        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4729:35: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                             free(Name);
+                                  ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4750:21: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+               free(Name);
+                    ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4762:8: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+  free(Name);
+       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:1013:30: style: Variable 'Is_Not_Boot_Sector' is reassigned a value before the old one has been used. [redundantAssignment]
+          Is_Not_Boot_Sector =  strncmp(BSector->Boot_OEM, OEM_Name, OEM_Name_Length);
+                             ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:1003:30: note: Is_Not_Boot_Sector is assigned
+          Is_Not_Boot_Sector = FALSE;
+                             ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:1013:30: note: Is_Not_Boot_Sector is overwritten
+          Is_Not_Boot_Sector =  strncmp(BSector->Boot_OEM, OEM_Name, OEM_Name_Length);
+                             ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4034:58: style: Variable 'New_Partition_Handle' is reassigned a value before the old one has been used. [redundantAssignment]
+                                    New_Partition_Handle = Find_And_Allocate_Partition( Index, Starting_Sector, Size, Partition, Primary_Partition, &Partition_Table_Entry, NEW_PARTITION_TABLE_INDEX, &DLA_Table_Entry, FALSE, FALSE, Error_Code);
+                                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3912:56: note: New_Partition_Handle is assigned
+                                  New_Partition_Handle = Allocate_Partition_From_Free_Space( Index, PartitionRecord, 0, DriveArray[Index].Geometry.Sectors, MBR_EBR, FALSE, NULL, NEW_PARTITION_TABLE_INDEX, NULL, FALSE, FALSE, Error_Code);
+                                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4034:58: note: New_Partition_Handle is overwritten
+                                    New_Partition_Handle = Find_And_Allocate_Partition( Index, Starting_Sector, Size, Partition, Primary_Partition, &Partition_Table_Entry, NEW_PARTITION_TABLE_INDEX, &DLA_Table_Entry, FALSE, FALSE, Error_Code);
+                                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4112:56: style: Variable 'New_Partition_Handle' is reassigned a value before the old one has been used. [redundantAssignment]
+                                  New_Partition_Handle = Find_And_Allocate_Partition( Index, Starting_Sector, Size, Partition, Primary_Partition, &Partition_Table_Entry, NEW_PARTITION_TABLE_INDEX, &DLA_Table_Entry, FALSE, FALSE, Error_Code);
+                                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4082:56: note: New_Partition_Handle is assigned
+                                  New_Partition_Handle = Allocate_Partition_From_Free_Space( Index, PartitionRecord, Starting_Sector, DriveArray[Index].Geometry.Sectors, MBR_EBR, FALSE, NULL, NEW_PARTITION_TABLE_INDEX, NULL, FALSE, FALSE, Error_Code);
+                                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4112:56: note: New_Partition_Handle is overwritten
+                                  New_Partition_Handle = Find_And_Allocate_Partition( Index, Starting_Sector, Size, Partition, Primary_Partition, &Partition_Table_Entry, NEW_PARTITION_TABLE_INDEX, &DLA_Table_Entry, FALSE, FALSE, Error_Code);
+                                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5459:37: style: Variable 'Partition_Information->Boot_Limit' is reassigned a value before the old one has been used. [redundantAssignment]
+  Partition_Information->Boot_Limit = 0;
+                                    ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5444:45: note: Partition_Information->Boot_Limit is assigned
+          Partition_Information->Boot_Limit = PartitionRecord->Partition_Size;
+                                            ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5459:37: note: Partition_Information->Boot_Limit is overwritten
+  Partition_Information->Boot_Limit = 0;
+                                    ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5459:37: style: Variable 'Partition_Information->Boot_Limit' is reassigned a value before the old one has been used. [redundantAssignment]
+  Partition_Information->Boot_Limit = 0;
+                                    ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5453:45: note: Partition_Information->Boot_Limit is assigned
+          Partition_Information->Boot_Limit = DriveArray[Index].Cylinder_Limit - PartitionRecord->Starting_Sector;
+                                            ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:5459:37: note: Partition_Information->Boot_Limit is overwritten
+  Partition_Information->Boot_Limit = 0;
+                                    ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:9662:36: style: Variable 'MBR_Index' is reassigned a value before the old one has been used. [redundantAssignment]
+                         MBR_Index = PartitionRecord->Partition_Table_Index;
+                                   ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:9590:38: note: MBR_Index is assigned
+                           MBR_Index = PartitionRecord->Partition_Table_Index;
+                                     ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:9662:36: note: MBR_Index is overwritten
+                         MBR_Index = PartitionRecord->Partition_Table_Index;
+                                   ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:719:9: style: Unused variable: i [unusedVariable]
+  { int i;
+        ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3486:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3541:40: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                  free(Name);
+                                       ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:3964:42: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                    free(Name);
+                                         ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:4357:44: error: Deallocation of an auto-variable results in undefined behaviour. [autovarInvalidDeallocation]
+                                      free(Name);
+                                           ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1288:8: style: The if condition is the same as the previous if condition [duplicateCondition]
+  if ( !RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1264:8: note: First condition
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1288:8: note: Second condition
+  if ( !RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1470:8: style: The if condition is the same as the previous if condition [duplicateCondition]
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1288:8: note: First condition
+  if ( !RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1470:8: note: Second condition
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1553:8: style: The if condition is the same as the previous if condition [duplicateCondition]
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1470:8: note: First condition
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:1553:8: note: Second condition
+  if ( ! RebootRequired )
+       ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:2543:14: error: Memory leak: New_Name [memleak]
+  Name_Check.New_Name = Name;
+             ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:7753:5: error: Returning/dereferencing 'New_Volume' after it is deallocated / released [deallocret]
+    return New_Volume;
+    ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:7749:5: note: Returning/dereferencing 'New_Volume' after it is deallocated / released
+    free(New_Volume);
+    ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:7753:5: note: Returning/dereferencing 'New_Volume' after it is deallocated / released
+    return New_Volume;
+    ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:7848:23: style: The scope of the variable 'PartitionRecord' can be reduced. [variableScope]
+  Partition_Data *    PartitionRecord;    /* Used to examine the partition associated with a compatibility volume. */
+                      ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:8000:23: style: The scope of the variable 'PartitionRecord' can be reduced. [variableScope]
+  Partition_Data *    PartitionRecord;    /* Used to examine the partition associated with a compatibility volume. */
+                      ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:8114:38: style: The scope of the variable 'PartitionRecord' can be reduced. [variableScope]
+  Partition_Data *                   PartitionRecord;          /* Used when accessing the data for a partition that the user has specified. */
+                                     ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:11766:35: style: Local variable 'Create_Volume' shadows outer function [shadowFunction]
+  BOOLEAN                         Create_Volume;     /* Used when processing an LVM Volume. */
+                                  ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:2209:14: note: Shadowed declaration
+void _System Create_Volume( char         Name[VOLUME_NAME_SIZE],
+             ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:11766:35: note: Shadow variable
+  BOOLEAN                         Create_Volume;     /* Used when processing an LVM Volume. */
+                                  ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:2869:14: error: Uninitialized variable: Aggregator_Found [uninitvar]
+    if ( ( ! Aggregator_Found ) &&
+             ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:3386:50: style: Variable 'Drive_Letter_Mask' is assigned a value that is never used. [unreadVariable]
+  CARDINAL32                   Drive_Letter_Mask = 0x1;         /* Used when releasing the drive letter assigned to the volume being deleted. */
+                                                 ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:3761:48: style: Variable 'Drive_Letter_Mask' is assigned a value that is never used. [unreadVariable]
+  CARDINAL32                 Drive_Letter_Mask = 0x1;         /* Used when releasing the drive letter assigned to the volume being hidden. */
+                                               ^
+OS2/CMD/lvm/contrib/disk.c:321:5: warning: %d in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf ( line, "%-*d %-*.*s %*u %*u %*u",
+    ^
+OS2/CMD/lvm/contrib/disk.c:541:1: warning: %i in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+printf("can_boot_partition %i %i\n", disk, partition );
+^
+OS2/CMD/lvm/contrib/disk.c:541:1: warning: %i in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+printf("can_boot_partition %i %i\n", disk, partition );
+^
+OS2/CMD/lvm/contrib/disk.c:553:5: warning: %i in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"+-+ can_boot_partition: disk %i handle=%x\n",disk,Disk.Drive_Control_Data [disk].Drive_Handle);
+    ^
+OS2/CMD/lvm/contrib/disk.c:555:5: warning: %i in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"+-+ can_boot_partition: partition %i handle=%x\n",partition, record [ partition ].Partition_Handle);
+    ^
+OS2/CMD/lvm/contrib/disk.c:1740:5: warning: %i in format string (no. 1) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"IS_AVAILABLE_PARTITION ( %i, %i)=%i\n", disk, partition, IS_AVAILABLE_PARTITION ( disk, partition ));
+    ^
+OS2/CMD/lvm/contrib/disk.c:1740:5: warning: %i in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"IS_AVAILABLE_PARTITION ( %i, %i)=%i\n", disk, partition, IS_AVAILABLE_PARTITION ( disk, partition ));
+    ^
+OS2/CMD/lvm/contrib/disk.c:1742:5: warning: %i in format string (no. 2) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"bootable=%i,can_boot_partition( %i, %i )= %i\n",
+    ^
+OS2/CMD/lvm/contrib/disk.c:1742:5: warning: %i in format string (no. 3) requires 'int' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+    sprintf(Log_Buffer,"bootable=%i,can_boot_partition( %i, %i )= %i\n",
+    ^
+OS2/CMD/lvm/contrib/disk.c:230:13: style: The scope of the variable 'size' can be reduced. [variableScope]
+    uint    size;
+            ^
+OS2/CMD/lvm/contrib/disk.c:381:13: style: The scope of the variable 'number' can be reduced. [variableScope]
+            number;
+            ^
+OS2/CMD/lvm/contrib/disk.c:382:14: style: The scope of the variable 'disk_name' can be reduced. [variableScope]
+    char    *disk_name;
+             ^
+OS2/CMD/lvm/contrib/disk.c:384:13: style: The scope of the variable 'size' can be reduced. [variableScope]
+    uint    size,
+            ^
+OS2/CMD/lvm/contrib/disk.c:385:13: style: The scope of the variable 'total' can be reduced. [variableScope]
+            total,
+            ^
+OS2/CMD/lvm/contrib/disk.c:386:13: style: The scope of the variable 'largest' can be reduced. [variableScope]
+            largest;
+            ^
+OS2/CMD/lvm/contrib/disk.c:1523:13: style: The scope of the variable 'index' can be reduced. [variableScope]
+    uint    index;
+            ^
+OS2/CMD/lvm/contrib/disk.c:1526:38: style: The scope of the variable 'memory' can be reduced. [variableScope]
+    void                            *memory;
+                                     ^
+OS2/CMD/lvm/contrib/disk.c:1653:13: style: The scope of the variable 'disk' can be reduced. [variableScope]
+            disk = 0,
+            ^
+OS2/CMD/lvm/contrib/disk.c:1804:13: style: The scope of the variable 'disk' can be reduced. [variableScope]
+            disk = 0,
+            ^
+OS2/CMD/lvm/contrib/disk.c:868:37: style: Local variable 'can_create_partition' shadows outer function [shadowFunction]
+                                    can_create_partition;
+                                    ^
+OS2/CMD/lvm/contrib/disk.c:487:1: note: Shadowed declaration
+can_create_partition ( uint   disk,
+^
+OS2/CMD/lvm/contrib/disk.c:868:37: note: Shadow variable
+                                    can_create_partition;
+                                    ^
+OS2/CMD/lvm/contrib/disk.c:1653:18: style: Variable 'disk' is assigned a value that is never used. [unreadVariable]
+            disk = 0,
+                 ^
+OS2/CMD/lvm/contrib/disk.c:1804:18: style: Variable 'disk' is assigned a value that is never used. [unreadVariable]
+            disk = 0,
+                 ^
+OS2/CMD/lvm/contrib/engine.c:4564:1: error: Memory leak: ReturnValue [memleak]
+}
+^
+OS2/CMD/lvm/contrib/engine.c:534:14: style: Variable 'ReturnCode' is reassigned a value before the old one has been used. [redundantAssignment]
+  ReturnCode = Rediscover( &Rediscovery_Parameters, &Rediscovery_Data );
+             ^
+OS2/CMD/lvm/contrib/engine.c:326:14: note: ReturnCode is assigned
+  ReturnCode = DosError(FERR_DISABLEHARDERR);
+             ^
+OS2/CMD/lvm/contrib/engine.c:534:14: note: ReturnCode is overwritten
+  ReturnCode = Rediscover( &Rediscovery_Parameters, &Rediscovery_Data );
+             ^
+OS2/CMD/lvm/contrib/engine.c:8490:55: style:inconclusive: Function 'AddDriveLinking_Plugins' argument 1 names different: declaration 'Error' definition 'Error_Code'. [funcArgNamesDifferent]
+static BOOLEAN  AddDriveLinking_Plugins( CARDINAL32 * Error_Code)
+                                                      ^
+OS2/CMD/lvm/contrib/engine.c:164:54: note: Function 'AddDriveLinking_Plugins' argument 1 names different: declaration 'Error' definition 'Error_Code'.
+static BOOLEAN AddDriveLinking_Plugins( CARDINAL32 * Error);
+                                                     ^
+OS2/CMD/lvm/contrib/engine.c:8490:55: note: Function 'AddDriveLinking_Plugins' argument 1 names different: declaration 'Error' definition 'Error_Code'.
+static BOOLEAN  AddDriveLinking_Plugins( CARDINAL32 * Error_Code)
+                                                      ^
+OS2/CMD/lvm/contrib/engine.c:3080:43: style: Variable 'Drive_Data' is assigned a value that is never used. [unreadVariable]
+                               Drive_Data = ( Disk_Drive_Data * ) Object;
+                                          ^
+OS2/CMD/lvm/contrib/engine.c:8493:30: style: Unused variable: ReturnCode [unusedVariable]
+  APIRET                     ReturnCode;                        /* Used with the OS/2 APIs to load and access a DLL. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8494:30: style: Unused variable: Required_LVM_Major_Version [unusedVariable]
+  CARDINAL32                 Required_LVM_Major_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8495:30: style: Unused variable: Required_LVM_Minor_Version [unusedVariable]
+  CARDINAL32                 Required_LVM_Minor_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8496:30: style: Unused variable: EntryPoints [unusedVariable]
+  LVM_Plugin_DLL_Interface   EntryPoints;                       /* Used to hold the entry points to the DLL that was just loaded. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8566:30: style: Unused variable: EntryPoints [unusedVariable]
+  LVM_Plugin_DLL_Interface   EntryPoints;                       /* Used to hold the entry points to the DLL that was just loaded. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8567:30: style: Unused variable: Required_LVM_Major_Version [unusedVariable]
+  CARDINAL32                 Required_LVM_Major_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8568:30: style: Unused variable: Required_LVM_Minor_Version [unusedVariable]
+  CARDINAL32                 Required_LVM_Minor_Version;        /* Used to determine if a plug-in module will work with this version of LVM. */
+                             ^
+OS2/CMD/lvm/contrib/engine.c:8571:30: style: Unused variable: Function_Table [unusedVariable]
+  Plugin_Function_Table_V1 * Function_Table;
+                             ^
+OS2/CMD/lvm/contrib/help.c:150:13: style: The scope of the variable 'rc' can be reduced. [variableScope]
+    uint    rc,
+            ^
+OS2/CMD/lvm/contrib/help.c:151:13: style: The scope of the variable 'index' can be reduced. [variableScope]
+            index,
+            ^
+OS2/CMD/lvm/contrib/interface.c:840:4: warning: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it? [uselessAssignmentPtrArg]
+   parea=NULL;
+   ^
+OS2/CMD/lvm/contrib/interface.c:72:15: style: The scope of the variable 'type' can be reduced. [variableScope]
+    int code, type;
+              ^
+OS2/CMD/lvm/contrib/interface.c:89:12: style: The scope of the variable 'tmp' can be reduced. [variableScope]
+CHF *pch, *tmp;
+           ^
+OS2/CMD/lvm/contrib/interface.c:213:5: style: The scope of the variable 'i' can be reduced. [variableScope]
+int i;
+    ^
+OS2/CMD/lvm/contrib/interface.c:383:5: style: The scope of the variable 'K_TYPE' can be reduced. [variableScope]
+int K_TYPE;
+    ^
+OS2/CMD/lvm/contrib/interface.c:539:8: style: The scope of the variable 'len' can be reduced. [variableScope]
+int i, len;
+       ^
+OS2/CMD/lvm/contrib/interface.c:540:7: style: The scope of the variable 'str' can be reduced. [variableScope]
+char *str;
+      ^
+OS2/CMD/lvm/contrib/interface.c:681:5: style: The scope of the variable 'code' can be reduced. [variableScope]
+int code, type;
+    ^
+OS2/CMD/lvm/contrib/interface.c:681:11: style: The scope of the variable 'type' can be reduced. [variableScope]
+int code, type;
+          ^
+OS2/CMD/lvm/contrib/interface.c:827:5: style: The scope of the variable 'i' can be reduced. [variableScope]
+int i,s;
+    ^
+OS2/CMD/lvm/contrib/interface.c:827:7: style: The scope of the variable 's' can be reduced. [variableScope]
+int i,s;
+      ^
+OS2/CMD/lvm/contrib/interface.c:385:8: style: Unused variable: i [unusedVariable]
+int rc,i;
+       ^
+OS2/CMD/lvm/contrib/interface.c:625:5: style: Unused variable: rc [unusedVariable]
+int rc;
+    ^
+OS2/CMD/lvm/contrib/interface.c:671:5: style: Unused variable: n [unusedVariable]
+int n;
+    ^
+OS2/CMD/lvm/contrib/lvm.c:151:10: style: Assignment of function parameter has no effect outside the function. [uselessAssignmentArg]
+       { argc--;
+         ^
+OS2/CMD/lvm/contrib/lvm.c:146:12: style: The scope of the variable 'loglevel' can be reduced. [variableScope]
+  {    int loglevel=0;
+           ^
+OS2/CMD/lvm/contrib/show.c:671:26: warning: Either the condition 'panel->input_line' is redundant or there is possible null pointer dereference: panel->input_line. [nullPointerRedundantCheck]
+        l = strlen(*panel->input_line);
+                         ^
+OS2/CMD/lvm/contrib/show.c:660:17: note: Assuming that condition 'panel->input_line' is not redundant
+        if(panel->input_line)
+                ^
+OS2/CMD/lvm/contrib/show.c:671:26: note: Null pointer dereference
+        l = strlen(*panel->input_line);
+                         ^
+OS2/CMD/lvm/contrib/show.c:674:33: warning: Either the condition 'panel->input_line' is redundant or there is possible null pointer dereference: panel->input_line. [nullPointerRedundantCheck]
+        strncpy(mess->buf,*panel->input_line,l);
+                                ^
+OS2/CMD/lvm/contrib/show.c:660:17: note: Assuming that condition 'panel->input_line' is not redundant
+        if(panel->input_line)
+                ^
+OS2/CMD/lvm/contrib/show.c:674:33: note: Null pointer dereference
+        strncpy(mess->buf,*panel->input_line,l);
+                                ^
+OS2/CMD/lvm/contrib/show.c:163:14: style: The scope of the variable 'string' can be reduced. [variableScope]
+    char    *string;
+             ^
+OS2/CMD/lvm/contrib/show.c:516:13: style: The scope of the variable 'max_string_length' can be reduced. [variableScope]
+            max_string_length,
+            ^
+OS2/CMD/lvm/contrib/show.c:519:13: style: The scope of the variable 'grayed_attribute' can be reduced. [variableScope]
+            grayed_attribute;
+            ^
+OS2/CMD/lvm/contrib/show.c:653:22: style: The scope of the variable 'xmle' can be reduced. [variableScope]
+    uint  row_length,xmle=1,l=2;
+                     ^
+OS2/CMD/lvm/contrib/show.c:654:9: style: The scope of the variable 'i' can be reduced. [variableScope]
+    int i, rc;
+        ^
+OS2/CMD/lvm/contrib/show.c:654:12: style: The scope of the variable 'rc' can be reduced. [variableScope]
+    int i, rc;
+           ^
+OS2/CMD/lvm/contrib/show.c:655:10: style: The scope of the variable 'ch' can be reduced. [variableScope]
+    char ch;
+         ^
+OS2/CMD/lvm/contrib/show.c:653:11: style: Unused variable: row_length [unusedVariable]
+    uint  row_length,xmle=1,l=2;
+          ^
+OS2/CMD/lvm/contrib/strings.c:1118:15: style: The scope of the variable 'array' can be reduced. [variableScope]
+    char    **array;
+              ^
+OS2/CMD/lvm/contrib/strings.c:1191:15: style: The scope of the variable 'string' can be reduced. [variableScope]
+    char    **string;
+              ^
+OS2/CMD/lvm/contrib/strings.c:1232:14: style: The scope of the variable 'line' can be reduced. [variableScope]
+    char    *line;
+             ^
+OS2/CMD/lvm/contrib/strings.c:1234:13: style: The scope of the variable 'index' can be reduced. [variableScope]
+            index = 0,
+            ^
+OS2/CMD/lvm/contrib/strings.c:1268:13: style: The scope of the variable 'rc' can be reduced. [variableScope]
+    uint    rc;
+            ^
+OS2/CMD/lvm/contrib/user.c:388:13: style: The scope of the variable 'key' can be reduced. [variableScope]
+    uint    key;
+            ^
+OS2/CMD/lvm/contrib/volume.c:203:14: style: The scope of the variable 'partition_name' can be reduced. [variableScope]
+    char    *partition_name;
+             ^
+OS2/CMD/lvm/contrib/volume.c:205:13: style: The scope of the variable 'size' can be reduced. [variableScope]
+            size;
+            ^
+OS2/CMD/lvm/contrib/volume.c:206:14: style: The scope of the variable 'disk_name' can be reduced. [variableScope]
+    char    *disk_name;
+             ^
+OS2/CMD/lvm/contrib/volume.c:594:9: style: The scope of the variable 'key' can be reduced. [variableScope]
+   uint key;
+        ^
+OS2/CMD/lvm/contrib/volume.c:810:13: style: The scope of the variable 'volume_type' can be reduced. [variableScope]
+    uint    volume_type = 0,
+            ^
+OS2/CMD/lvm/contrib/volume.c:812:14: style: The scope of the variable 'volume_name' can be reduced. [variableScope]
+    char    *volume_name,
+             ^
+OS2/CMD/lvm/contrib/volume.c:813:14: style: The scope of the variable 'file_system' can be reduced. [variableScope]
+            *file_system;
+             ^
+OS2/CMD/lvm/contrib/volume.c:814:13: style: The scope of the variable 'drive_string' can be reduced. [variableScope]
+    char    drive_string[VOLUME_DRIVE_WIDTH];
+            ^
+OS2/CMD/lvm/contrib/volume.c:815:13: style: The scope of the variable 'size' can be reduced. [variableScope]
+    uint    size;
+            ^
+OS2/CMD/lvm/contrib/volume.c:888:13: style: The scope of the variable 'volume_type' can be reduced. [variableScope]
+            volume_type = 0,
+            ^
+OS2/CMD/lvm/contrib/volume.c:890:14: style: The scope of the variable 'volume_name' can be reduced. [variableScope]
+    char    *volume_name,
+             ^
+OS2/CMD/lvm/contrib/volume.c:891:14: style: The scope of the variable 'file_system' can be reduced. [variableScope]
+            *file_system;
+             ^
+OS2/CMD/lvm/contrib/volume.c:897:13: style: The scope of the variable 'cbSector' can be reduced. [variableScope]
+    int rc, cbSector;
+            ^
+OS2/CMD/lvm/contrib/volume.c:1158:19: style: The scope of the variable 'text_line' can be reduced. [variableScope]
+    char        **text_line;
+                  ^
+OS2/CMD/lvm/contrib/volume.c:2218:13: style: The scope of the variable 'volume' can be reduced. [variableScope]
+            volume = 0;
+            ^
+OS2/CMD/lvm/contrib/volume.c:1609:13: error: Uninitialized variable: key [uninitvar]
+    return  key;
+            ^
+OS2/CMD/lvm/contrib/volume.c:1609:13: error: Uninitialized variable: key [uninitvar]
+    return  key;
+            ^
+OS2/CMD/lvm/contrib/volume.c:1519:8: note: Assuming condition is false
+   if (!error) {
+       ^
+OS2/CMD/lvm/contrib/volume.c:1609:13: note: Uninitialized variable: key
+    return  key;
+            ^
+OS2/CMD/lvm/contrib/volume.c:657:9: style: Unused variable: temp_index [unusedVariable]
+   uint temp_index;
+        ^
+OS2/CMD/lvm/contrib/volume.c:659:9: style: Unused variable: move [unusedVariable]
+   bool move;
+        ^
+OS2/CMD/lvm/contrib/volume.c:810:25: style: Variable 'volume_type' is assigned a value that is never used. [unreadVariable]
+    uint    volume_type = 0,
+                        ^
+OS2/CMD/lvm/contrib/volume.c:811:26: style: Variable 'drive_number' is assigned a value that is never used. [unreadVariable]
+            drive_number = 0;
+                         ^
+OS2/CMD/lvm/contrib/volume.c:888:25: style: Variable 'volume_type' is assigned a value that is never used. [unreadVariable]
+            volume_type = 0,
+                        ^
+OS2/CMD/lvm/contrib/volume.c:889:26: style: Variable 'drive_number' is assigned a value that is never used. [unreadVariable]
+            drive_number = 0;
+                         ^
+OS2/CMD/lvm/contrib/volume.c:897:9: style: Unused variable: rc [unusedVariable]
+    int rc, cbSector;
+        ^
+OS2/CMD/lvm/contrib/volume.c:1344:19: style: Unused variable: line [unusedVariable]
+   register char *line;
+                  ^
+OS2/CMD/lvm/contrib/volume.c:1407:13: style: Unused variable: i [unusedVariable]
+    uint    i;
+            ^
+OS2/CMD/lvm/contrib/volume.c:1503:22: style: Variable 'aggregate' is assigned a value that is never used. [unreadVariable]
+           aggregate = 0;
+                     ^
+OS2/CMD/lvm/contrib/volume.c:2218:20: style: Variable 'volume' is assigned a value that is never used. [unreadVariable]
+            volume = 0;
+                   ^
+OS2/CMD/lvm/contrib/volume.c:298:20: style: Variable 'error' is assigned a value that is never used. [unreadVariable]
+   CARDINAL32 error=0;
+                   ^
+OS2/CMD/lvm/contrib/volume.c:1244:21: style: Unused variable: memory [unusedVariable]
+   Feature_ID_Data *memory;
+                    ^
 OS2/CMD/lvm/daemons/clvmd/clvmd-gulm.c:169:16: warning: Logical conjunction always evaluates to false: port <= 0 && port >= 65536. [incorrectLogicOperator]
  if (port <= 0 && port >= 65536)
                ^
@@ -36280,7 +37525,13 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1590:0: style: The function 'AAB32GETREG' is never
 OS2/PM/API/PMMERGE/unimpl.cpp:1596:0: style: The function 'AAB32SETREG' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/BootManager.c:2809:0: style: The function 'ADD_TO_BOOT_MANAGER16' is never used. [unusedFunction]
+
+^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:6764:0: style: The function 'AFIproc' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6579:0: style: The function 'ASSIGN_DRIVE_LETTER16' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:492:0: style: The function 'AabGetReg' is never used. [unusedFunction]
@@ -36328,6 +37579,9 @@ OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:58:0: style: The function 'BM
 OS2/CPI/doscalls/unimp16.c:2601:0: style: The function 'BMSMAIN' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/BootManager.c:2730:0: style: The function 'BOOT_MANAGER_IS_INSTALLED16' is never used. [unusedFunction]
+
+^
 OS2/CPI/bvscalls/bvs32main.c:59:0: style: The function 'BVS32Main' is never used. [unusedFunction]
 
 ^
@@ -36349,6 +37603,18 @@ OS2/PM/API/PMMERGE/unimpl.cpp:258:0: style: The function 'BitmapLimitWarning' is
 OS2/PM/API/PMMERGE/unimpl.cpp:4317:0: style: The function 'CCHSetHailing' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/engine.c:7218:0: style: The function 'CHANGES_PENDING16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6218:0: style: The function 'CREATE_PARTITION16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6254:0: style: The function 'CREATE_VOLUME16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6354:0: style: The function 'CREATE_VOLUME216' is never used. [unusedFunction]
+
+^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:16344:0: style: The function 'CVPproc' is never used. [unusedFunction]
 
 ^
@@ -36358,13 +37624,22 @@ tools/jwasm/contrib/src/string.c:73:0: style: The function 'CatStrDir' is never 
 OS2/PM/comm/pmpipe/unneeded/F_Client.cpp:77:0: style: The function 'CloseThreadPipe' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/engine.c:6774:0: style: The function 'Close_LVM_Engine16' is never used. [unusedFunction]
+
+^
 tools/jwasm/contrib/src/extern.c:705:0: style: The function 'CommDirective' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6748:0: style: The function 'Commit_Changes16' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/condasm.c:219:0: style: The function 'CondAsmDirective' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/context.c:105:0: style: The function 'ContextDirective' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6032:0: style: The function 'Convert_Volumes_To_V1' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/cpumodel.c:468:0: style: The function 'CpuDirective' is never used. [unusedFunction]
@@ -36386,6 +37661,12 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1620:0: style: The function 'DEBUG32INPUT' is neve
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:1626:0: style: The function 'DEBUG32OUTPUT' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6267:0: style: The function 'DELETE_PARTITION16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6411:0: style: The function 'DELETE_VOLUME16' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMGPI/pmgpi16.c:248:0: style: The function 'DEVCLOSEDC' is never used. [unusedFunction]
@@ -37864,7 +39145,16 @@ OS2/REXX/interp/contrib/epoc32/recrexx/RexxFileRecognizer.cpp:82:0: style: The f
 OS2/PM/API/PMMERGE/unimpl.cpp:1638:0: style: The function 'EDITAllocSpace' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/interface.c:589:0: style: The function 'EDO_addCCKey' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:609:0: style: The function 'EDO_delCCKey' is never used. [unusedFunction]
+
+^
 OS2/CPI/sub32/emx_revision.c:23:0: style: The function 'EMX_REVISION' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6529:0: style: The function 'EXPAND_VOLUME16' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/directiv.c:53:0: style: The function 'EchoDirective' is never used. [unusedFunction]
@@ -38386,6 +39676,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1584:0: style: The function 'FirePSProbe' is never
 tools/shared/idl/libchash.c:1133:0: style: The function 'FreeHashTable' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/interface.c:836:0: style: The function 'Free_area' is never used. [unusedFunction]
+
+^
 OS2/PM/API/PMMERGE/unimpl.cpp:486:0: style: The function 'FsrSemCheck' is never used. [unusedFunction]
 
 ^
@@ -38423,6 +39716,51 @@ OS2/REXX/interp/contrib/gci/gci_helper.c:74:0: style: The function 'GCI_streq' i
 
 ^
 OS2/REXX/interp/contrib/gci/gci_helper.c:241:0: style: The function 'GCI_strtoascii' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6698:0: style: The function 'GET_AVAILABLE_DRIVE_LETTERS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:2768:0: style: The function 'GET_BOOT_MANAGER_HANDLE16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:2894:0: style: The function 'GET_BOOT_MANAGER_MENU16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:3082:0: style: The function 'GET_BOOT_MANAGER_OPTIONS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6853:0: style: The function 'GET_DRIVE_CONTROL_DATA16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6902:0: style: The function 'GET_DRIVE_STATUS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6657:0: style: The function 'GET_INSTALLABLE_VOLUME16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7551:0: style: The function 'GET_LVM_VIEW16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6970:0: style: The function 'GET_PARTITIONS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6127:0: style: The function 'GET_PARTITION_INFORMATION16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7296:0: style: The function 'GET_REBOOT_FLAG16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6737:0: style: The function 'GET_RESERVED_DRIVE_LETTERS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7114:0: style: The function 'GET_VALID_OPTIONS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6124:0: style: The function 'GET_VOLUME_CONTROL_DATA16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6171:0: style: The function 'GET_VOLUME_INFORMATION16' is never used. [unusedFunction]
 
 ^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:3411:0: style: The function 'GIFproc' is never used. [unusedFunction]
@@ -39343,6 +40681,18 @@ OS2/PM/API/PMMERGE/unimpl.cpp:612:0: style: The function 'GetPMDDCodeSelector' i
 OS2/PM/API/PMMERGE/unimpl.cpp:516:0: style: The function 'GetScreenSelector' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/engine.c:7700:0: style: The function 'Get_Install_Flags16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6404:0: style: The function 'Get_Parent_Handle' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7750:0: style: The function 'Get_Partition_Handle16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:9260:0: style: The function 'Get_Volume_Size' is never used. [unusedFunction]
+
+^
 OS2/PM/API/PMMERGE/unimpl.cpp:4443:0: style: The function 'Gpi16LoadBitmap' is never used. [unusedFunction]
 
 ^
@@ -39880,6 +41230,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:4299:0: style: The function 'GreNLS' is never used
 tools/jwasm/contrib/src/segment.c:405:0: style: The function 'GrpDir' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6458:0: style: The function 'HIDE_VOLUME16' is never used. [unusedFunction]
+
+^
 OS2/CPI/doscalls/unimp16.c:2723:0: style: The function 'HT16_CLEANUP' is never used. [unusedFunction]
 
 ^
@@ -40123,6 +41476,9 @@ OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:7243:0: style: The function '
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:15386:0: style: The function 'IMGproc' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/BootManager.c:2942:0: style: The function 'INSTALL_BOOT_MANAGER16' is never used. [unusedFunction]
+
+^
 OS2/MM/IOProcs/Format/Audio/mmioFlac/mmioFlac.c:290:0: style: The function 'IOProc_Entry' is never used. [unusedFunction]
 
 ^
@@ -40190,6 +41546,9 @@ tools/jwasm/contrib/src/errmsg.c:353:0: style: The function 'InternalError' is n
 
 ^
 tools/jwasm/contrib/src/invoke.c:1457:0: style: The function 'InvokeDirective' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:5946:0: style: The function 'Issue_Feature_Command' is never used. [unusedFunction]
 
 ^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:19218:0: style: The function 'J2Cproc' is never used. [unusedFunction]
@@ -40513,6 +41872,9 @@ tools/jwasm/contrib/src/macro.c:675:0: style: The function 'MacroDir' is never u
 OS2/CMD/cmd/cmd/misc.c:1307:0: style: The function 'MakeShortFromLong' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/menu.c:47:0: style: The function 'MessagePanel' is never used. [unusedFunction]
+
+^
 tools/jwasm/contrib/src/cpumodel.c:251:0: style: The function 'ModelDirective' is never used. [unusedFunction]
 
 ^
@@ -40523,6 +41885,9 @@ OS2/CPI/doscalls/unimplemented.c:2625:0: style: The function 'Mon32MonWrite' is 
 
 ^
 OS2/CMD/xcopy/rcopy.c:205:0: style: The function 'MyDosCopy' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6401:0: style: The function 'NEW_MBR16' is never used. [unusedFunction]
 
 ^
 OS2/BDNLS/bdcalls/bdcalls.c:78:0: style: The function 'NL16POPUP' is never used. [unusedFunction]
@@ -40559,6 +41924,12 @@ OS2/BDNLS/bdcalls/bdcalls.c:58:0: style: The function 'Nls16SetBidiPrint' is nev
 
 ^
 OS2/BDNLS/bdcalls/bdcalls.c:17:0: style: The function 'Nls16ShapeBidiString' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6642:0: style: The function 'OPEN_LVM_ENGINE16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6692:0: style: The function 'OPEN_LVM_ENGINE216' is never used. [unusedFunction]
 
 ^
 OS2/CPI/doscalls/os2baseinit.c:3:0: style: The function 'OS2BaseInit' is never used. [unusedFunction]
@@ -40715,6 +42086,9 @@ OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:13470:0: style: The function 
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:4371:0: style: The function 'PSharedHeap' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:5829:0: style: The function 'Parse_Feature_Parameters' is never used. [unusedFunction]
 
 ^
 OS2/CMD/cmd/jpos2dll/jpos2dll.c:493:0: style: The function 'PauseKeys' is never used. [unusedFunction]
@@ -40972,6 +42346,21 @@ OS2/Shared/libs/GDLib/gd_io.c:39:0: style: The function 'Putchar' is never used.
 OS2/Shared/libs/GDLib/gd_io.c:30:0: style: The function 'Putword' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/engine.c:7188:0: style: The function 'REBOOT_REQUIRED16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7494:0: style: The function 'REDISCOVER_PRMS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:6811:0: style: The function 'REFRESH_LVM_ENGINE16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:2973:0: style: The function 'REMOVE_BOOT_MANAGER16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:2849:0: style: The function 'REMOVE_FROM_BOOT_MANAGER16' is never used. [unusedFunction]
+
+^
 OS2/REXX/rexx/rexx16.c:121:0: style: The function 'REXXSAA' is never used. [unusedFunction]
 
 ^
@@ -41072,6 +42461,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:342:0: style: The function 'RamSemRequest16' is ne
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:2172:0: style: The function 'RamSemRequest32' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:4643:0: style: The function 'Read_Sectors' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/types.c:1109:0: style: The function 'RecordDirective' is never used. [unusedFunction]
@@ -41191,6 +42583,33 @@ OS2/PM/API/PMGPI/pmgpi16.c:1760:0: style: The function 'SEGSGWNEXTORDERF' is nev
 OS2/PM/API/PMGPI/pmgpi16.c:1634:0: style: The function 'SEGSGWOPENSEGMENTWINDOW' is never used. [unusedFunction]
 
 ^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6312:0: style: The function 'SET_ACTIVE_FLAG16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/BootManager.c:3022:0: style: The function 'SET_BOOT_MANAGER_OPTIONS16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7363:0: style: The function 'SET_FREE_SPACE_THRESHOLD16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Volume_Manager.c:6622:0: style: The function 'SET_INSTALLABLE16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7329:0: style: The function 'SET_MIN_INSTALL_SIZE16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7021:0: style: The function 'SET_NAME16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/Partition_Manager.c:6362:0: style: The function 'SET_OS_FLAG16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7257:0: style: The function 'SET_REBOOT_FLAG16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7068:0: style: The function 'SET_STARTABLE16' is never used. [unusedFunction]
+
+^
 OS2/MM/minstall/shared/shutdown.c:35:0: style: The function 'SHUTDOWN_Reboot' is never used. [unusedFunction]
 
 ^
@@ -41222,6 +42641,12 @@ OS2/PM/API/PMMERGE/unimpl.cpp:2220:0: style: The function 'SSFreeMem' is never u
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:330:0: style: The function 'SSFreeSeg' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7592:0: style: The function 'START_LOGGING16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7625:0: style: The function 'STOP_LOGGING16' is never used. [unusedFunction]
 
 ^
 OS2/MM/minstall/shared/globstr.c:35:0: style: The function 'STRING_GetCmdLinePtr' is never used. [unusedFunction]
@@ -41264,6 +42689,12 @@ OS2/CMD/xcopy/verbose.c:104:0: style: The function 'SetLogfile' is never used. [
 
 ^
 OS2/REXX/libs/rxsock/rxpack.c:1571:0: style: The function 'SetPackageConstants' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:7663:0: style: The function 'Set_Install_Flags16' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:5587:0: style: The function 'Set_Java_Call_Back' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:2184:0: style: The function 'She32PIInitIniFiles' is never used. [unusedFunction]
@@ -42068,6 +43499,21 @@ OS2/PM/API/PMMERGE/unimpl.cpp:4305:0: style: The function 'ValidateDCHandle' is 
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:504:0: style: The function 'ValidateSelector' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:469:0: style: The function 'Vid_EnableBlink' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:486:0: style: The function 'Vid_Erase' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:508:0: style: The function 'Vid_FillPart' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:439:0: style: The function 'Vid_Init' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/interface.c:478:0: style: The function 'Vid_Reset' is never used. [unusedFunction]
 
 ^
 OS2/CPI/sub32/unimplemented.c:645:0: style: The function 'VioAssociate' is never used. [unusedFunction]
@@ -44486,6 +45932,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:4035:0: style: The function 'WinXXQueryMemSize' is
 
 ^
 OS2/PM/API/PMMERGE/unimpl.cpp:3981:0: style: The function 'WinXXReallocMem' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvm/contrib/engine.c:4750:0: style: The function 'Write_Sectors' is never used. [unusedFunction]
 
 ^
 OS2/MM/IOProcs/Format/Image/gbm/mmiogbm/mmioproc.c:11554:0: style: The function 'XBMproc' is never used. [unusedFunction]
