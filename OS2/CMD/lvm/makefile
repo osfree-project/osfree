@@ -2,7 +2,7 @@
 
 PROJ = lvm
 TRGT = $(PROJ).exe
-DESC = Enhanced OW assembler
+DESC = Logical Volume Manager frontend
 srcfiles = $(p)Bad_Block_Relocation$(e) &
 $(p)BootManager$(e) &
 $(p)constant$(e) &

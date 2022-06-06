@@ -3425,7 +3425,7 @@ TAG _System GetTag( DLIST  ListToGetTagFrom,
 
       /* The handle is not valid!  Abort! */
       *Error = DLIST_BAD_HANDLE;
-      return NULL;
+      return 0;
 
     }
 
@@ -6020,7 +6020,7 @@ void _System TransferItem(DLIST             SourceList,
     SourceListData->StartOfList = NextNode;
 
   if ( SourceListData->EndOfList == SourceLinkNode )
-    SourceListData->EndOfList == PreviousNode;
+    SourceListData->EndOfList = PreviousNode;
 
   if ( SourceListData->CurrentItem == SourceLinkNode )
   {

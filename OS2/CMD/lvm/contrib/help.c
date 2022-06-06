@@ -156,7 +156,7 @@ get_help_message ( uint    message_number )
 
     if ( memory ) {
         rc = DosGetMessage ( NULL, 0, memory, MAX_HELP_MESSAGE_SIZE - 1,
-                             message_number, HELP_MESSAGE_FILE, &length );
+                             message_number, HELP_MESSAGE_FILE, (ULONG *)&length );
 
         if ( rc == 0 ) {
             no_help = FALSE;
@@ -260,4 +260,3 @@ ConstructHelpPanels ( uint  top_row,
     Help_panel.text_line = Help_panel_text;
 
 }
-

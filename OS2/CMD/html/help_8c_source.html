@@ -204,7 +204,7 @@ $(function() {
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keywordflow">if</span> ( memory ) {</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>        rc = DosGetMessage ( NULL, 0, memory, MAX_HELP_MESSAGE_SIZE - 1,</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                             message_number, HELP_MESSAGE_FILE, &amp;length );</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                             message_number, HELP_MESSAGE_FILE, (ULONG *)&amp;length );</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>        <span class="keywordflow">if</span> ( rc == 0 ) {</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>            no_help = FALSE;</div>
@@ -308,7 +308,6 @@ $(function() {
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    Help_panel.text_line = Help_panel_text;</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>}</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
 <div class="ttc" id="astruct__panel_html"><div class="ttname"><a href="struct__panel.html">_panel</a></div><div class="ttdef"><b>Definition:</b> <a href="panels_8h_source.html#l00151">panels.h:151</a></div></div>
 <div class="ttc" id="astructline_html"><div class="ttname"><a href="structline.html">line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00933">the.h:934</a></div></div>
 </div><!-- fragment --></div><!-- contents -->

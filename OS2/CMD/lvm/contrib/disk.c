@@ -1718,8 +1718,8 @@ GetPartitionHandles ( uint    ***partition_handles,
                 if ( !PRM_only  ||  Disk.Drive_Control_Data [disk].Drive_Is_PRM ) {
                     for ( partition = 0; partition_text [partition]; ++partition ) {
 
-//#define IS_AVAILABLE_PARTITION(d,p) ( ! strncmp ( Partition_panel_text [d][p] +\
-//PARTITION_STATUS_OFFSET, Partition_status_strings [PARTITION_IS_AVAILABLE], \
+//#define IS_AVAILABLE_PARTITION(d,p) ( ! strncmp ( Partition_panel_text [d][p] +
+//PARTITION_STATUS_OFFSET, Partition_status_strings [PARTITION_IS_AVAILABLE], 
 //min( strlen ( Partition_status_strings [PARTITION_IS_AVAILABLE] ), PARTITION_STATUS_WIDTH) ) )
   if ( Logging_Enabled )
   {
