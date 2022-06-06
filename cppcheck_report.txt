@@ -4369,6 +4369,1863 @@ OS2/CMD/lvm/tools/vgscan.c:47:14: style: The scope of the variable 'ret' can be 
 OS2/CMD/lvm/tools/vgsplit.c:174:25: style: The scope of the variable 'lv' can be reduced. [variableScope]
  struct logical_volume *lv;
                         ^
+OS2/CMD/lvmgui/contrib/airboot.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:47:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY nlsDBCS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:49:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY nlsQueryDBCSChar(PCSZ pcszString,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:52:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlschr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:54:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlsrchr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:122:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihManipulateRGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:123:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMANIPULATERGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:126:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihMediumRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:127:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHMEDIUMRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:130:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSwitchToRGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:131:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSWITCHTORGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:140:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawRect(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:141:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWRECT(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:144:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihBox(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:145:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHBOX(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:148:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihMarker(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:149:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMARKER(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:152:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawThickFrame(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:153:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWTHICKFRAME(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:156:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:161:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:168:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:173:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:180:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCharStringPosAt(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:186:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCHARSTRINGPOSAT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:244:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihMatchFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:251:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHMATCHFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:260:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSplitPresFont(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:263:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSPLITPRESFONT(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:268:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihLockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:269:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:272:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihUnlockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:273:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHUNLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:276:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCreateFont(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:277:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCREATEFONT(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:280:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:286:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:294:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindPresFont(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:300:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDPRESFONT(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:308:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSetPointSize(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:309:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSETPOINTSIZE(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:312:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihQueryLineSpacing(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:313:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHQUERYLINESPACING(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:322:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihCreateMemPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:323:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHCREATEMEMPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:326:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:327:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEBITMAP(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:330:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap2(HPS hpsMem, ULONG  cx, ULONG cy, ULONG cPlanes, ULONG cBitCount);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:332:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateHalftonedBitmap(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:333:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEHALFTONEDBITMAP(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:341:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY gpihLoadBitmapFile(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:342:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef APIRET XWPENTRY GPIHLOADBITMAPFILE(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:345:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihStretchBitmap(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:350:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHSTRETCHBITMAP(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:363:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihDrawPointer(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:370:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHDRAWPOINTER(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:407:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PXBITMAP XWPENTRY gpihCreateXBitmap(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:408:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PXBITMAP XWPENTRY GPIHCREATEXBITMAP(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:417:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihDetachBitmap(PXBITMAP pbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:419:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDestroyXBitmap(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:420:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDESTROYXBITMAP(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:173:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhOffsetRect(PRECTL prcl, LONG lx, LONG ly);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:181:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryWindowStyle(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:183:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhEnableDlgItem(HWND hwndDlg, SHORT id, BOOL fEnable);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:185:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsDlgItemEnabled(HWND hwndDlg, SHORT id);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:200:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQuerySubmenu(HWND hMenu, SHORT sID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:217:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuItem(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:223:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef SHORT XWPENTRY WINHINSERTMENUITEM(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:231:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhInsertSubmenu(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:240:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHINSERTSUBMENU(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:251:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetMenuCondCascade(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:266:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRemoveMenuItems(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:285:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuSeparator(HWND hMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:291:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem2(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:297:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:301:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHCOPYMENUITEM(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:307:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhMergeIntoSubMenu(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:312:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHMERGEINTOSUBMENU(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:319:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhMergeMenus(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:323:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHMERGEMENUS(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:329:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhClearMenu(HWND hwndMenu);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:331:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryMenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:334:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAppend2MenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:339:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhMenuRemoveEllipse(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:342:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhQueryItemUnderMouse(HWND hwndMenu, POINTL *pptlMouse, RECTL *prtlItem);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:350:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithLinearSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:357:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetSliderTicks(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:362:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETSLIDERTICKS(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:400:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithCircularSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:416:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:421:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHSETDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:428:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhAdjustDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:432:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHADJUSTDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:603:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxSelectAll(HWND hwndListBox, BOOL fSelect);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:625:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryLboxItemText(HWND hwndListbox, SHORT sIndex);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:627:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhMoveLboxItem(HWND hwndSource,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:633:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxFindItemFromHandle(HWND hwndListBox,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:642:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhUpdateScrollBar(HWND hwndScrollBar,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:648:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhHandleScrollMsg(HWND hwnd2Scroll,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:657:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhProcessScrollChars(HWND hwndClient,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:671:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSaveWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:673:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRestoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey, ULONG fl);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:714:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhStoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:733:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAdjustControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:739:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    void XWPENTRY winhCenterWindow(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:740:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef void XWPENTRY WINHCENTERWINDOW(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:749:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhFindWindowBelow(HWND hwndFind);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:757:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowFont(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:758:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PSZ XWPENTRY WINHQUERYWINDOWFONT(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:761:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowFont(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:762:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETWINDOWFONT(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:778:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhSetControlsFont(HWND hwndDlg, SHORT usIDMin, SHORT usIDMax, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:787:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:788:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHQUERYPRESCOLOR(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:791:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor2(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:797:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetPresColor(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:799:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETPRESCOLOR(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:827:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAnotherInstance(const char *pcszSemName, BOOL fSwitch);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:829:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HSWITCH XWPENTRY winhAddToTasklist(HWND hwnd, HPOINTER hIcon);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:837:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFree(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:838:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHFREE(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:841:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HAB XWPENTRY winhMyAnchorBlock(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:842:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HAB XWPENTRY WINHMYANCHORBLOCK(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:845:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSleep(ULONG ulSleep);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:851:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhFileDlg(HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:858:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HPOINTER XWPENTRY winhSetWaitPointer(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:860:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowText(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:862:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:874:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhReplaceWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:878:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhCenteredDlgBox(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:880:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHCENTEREDDLGBOX(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:884:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhEnableControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:894:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateStdWindow(HWND hwndFrameParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:906:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateObjectWindow(const char *pcszWindowClass,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:909:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateControl(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:916:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhRepaintWindows(HWND hwndParent);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:918:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HMQ XWPENTRY winhFindMsgQueue(PID pid, TID tid, HAB* phab);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:920:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFindPMErrorWindows(HWND *phwndHardError, HWND *phwndSysError);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:922:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateFakeDesktop(HWND hwndSibling);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:929:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAssertWarp4Notebook(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:932:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhDrawFormattedText(HPS hps, PRECTL prcl, const char *pcszText, ULONG flCmd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:942:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQueryTasklistWindow(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:943:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHQUERYTASKLISTWINDOW(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:946:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhKillTasklist(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:948:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryPendingSpoolJobs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:950:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetNumLock(BOOL fState);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:952:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetClipboardText(HAB hab,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1035:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClassList(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1037:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClass(PBYTE pObjClass, const char *pszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1039:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY winhRegisterClass(const char* pcszClassName,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1044:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsClassRegistered(const char *pcszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1048:0: information: Skipping configuration 'INCL_WINSTDCNR;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhResetWPS(HAB hab);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:47:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY nlsDBCS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:49:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY nlsQueryDBCSChar(PCSZ pcszString,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:52:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlschr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:54:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlsrchr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:92:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        VOID XWPENTRY nlsQueryCountrySettings(PCOUNTRYSETTINGS pcs);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:94:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        PSZ XWPENTRY nlsThousandsULong(PSZ pszTarget, ULONG ul, CHAR cThousands);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:95:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        typedef PSZ XWPENTRY NLSTHOUSANDSULONG(PSZ pszTarget, ULONG ul, CHAR cThousands);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:98:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        PSZ XWPENTRY nlsThousandsDouble(PSZ pszTarget, double dbl, CHAR cThousands);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:100:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        PSZ XWPENTRY nlsVariableDouble(PSZ pszTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:105:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        VOID XWPENTRY nlsFileDate(PSZ pszBuf,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:110:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        VOID XWPENTRY nlsFileTime(PSZ pszBuf,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:115:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        VOID XWPENTRY nlsDateTime(PSZ pszDate,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:122:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        typedef VOID XWPENTRY NLSDATETIME(PSZ pszDate,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:122:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihManipulateRGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:123:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMANIPULATERGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:126:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihMediumRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:127:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHMEDIUMRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:130:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSwitchToRGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:131:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSWITCHTORGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:140:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawRect(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:141:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWRECT(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:144:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihBox(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:145:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHBOX(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:148:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihMarker(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:149:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMARKER(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:152:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawThickFrame(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:153:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWTHICKFRAME(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:156:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:161:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:168:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:173:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:180:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCharStringPosAt(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:186:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCHARSTRINGPOSAT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:244:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihMatchFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:251:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHMATCHFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:260:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSplitPresFont(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:263:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSPLITPRESFONT(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:268:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihLockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:269:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:272:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihUnlockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:273:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHUNLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:276:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCreateFont(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:277:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCREATEFONT(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:280:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:286:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:294:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindPresFont(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:300:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDPRESFONT(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:308:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSetPointSize(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:309:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSETPOINTSIZE(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:312:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihQueryLineSpacing(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:313:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHQUERYLINESPACING(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:322:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihCreateMemPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:323:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHCREATEMEMPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:326:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:327:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEBITMAP(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:330:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap2(HPS hpsMem, ULONG  cx, ULONG cy, ULONG cPlanes, ULONG cBitCount);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:332:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateHalftonedBitmap(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:333:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEHALFTONEDBITMAP(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:341:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY gpihLoadBitmapFile(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:342:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef APIRET XWPENTRY GPIHLOADBITMAPFILE(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:345:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihStretchBitmap(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:350:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHSTRETCHBITMAP(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:363:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihDrawPointer(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:370:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHDRAWPOINTER(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:407:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PXBITMAP XWPENTRY gpihCreateXBitmap(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:408:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PXBITMAP XWPENTRY GPIHCREATEXBITMAP(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:417:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihDetachBitmap(PXBITMAP pbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:419:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDestroyXBitmap(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:420:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDESTROYXBITMAP(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:173:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhOffsetRect(PRECTL prcl, LONG lx, LONG ly);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:181:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryWindowStyle(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:183:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhEnableDlgItem(HWND hwndDlg, SHORT id, BOOL fEnable);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:185:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsDlgItemEnabled(HWND hwndDlg, SHORT id);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:200:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQuerySubmenu(HWND hMenu, SHORT sID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:217:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuItem(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:223:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef SHORT XWPENTRY WINHINSERTMENUITEM(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:231:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhInsertSubmenu(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:240:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHINSERTSUBMENU(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:251:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetMenuCondCascade(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:266:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRemoveMenuItems(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:285:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuSeparator(HWND hMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:291:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem2(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:297:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:301:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHCOPYMENUITEM(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:307:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhMergeIntoSubMenu(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:312:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHMERGEINTOSUBMENU(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:319:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhMergeMenus(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:323:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHMERGEMENUS(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:329:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhClearMenu(HWND hwndMenu);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:331:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryMenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:334:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAppend2MenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:339:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhMenuRemoveEllipse(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:342:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhQueryItemUnderMouse(HWND hwndMenu, POINTL *pptlMouse, RECTL *prtlItem);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:350:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithLinearSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:357:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetSliderTicks(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:362:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETSLIDERTICKS(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:400:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithCircularSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:416:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:421:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHSETDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:428:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhAdjustDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:432:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHADJUSTDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:603:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxSelectAll(HWND hwndListBox, BOOL fSelect);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:625:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryLboxItemText(HWND hwndListbox, SHORT sIndex);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:627:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhMoveLboxItem(HWND hwndSource,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:633:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxFindItemFromHandle(HWND hwndListBox,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:642:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhUpdateScrollBar(HWND hwndScrollBar,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:648:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhHandleScrollMsg(HWND hwnd2Scroll,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:657:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhProcessScrollChars(HWND hwndClient,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:671:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSaveWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:673:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRestoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey, ULONG fl);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:714:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhStoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:733:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAdjustControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:739:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    void XWPENTRY winhCenterWindow(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:740:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef void XWPENTRY WINHCENTERWINDOW(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:749:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhFindWindowBelow(HWND hwndFind);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:757:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowFont(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:758:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PSZ XWPENTRY WINHQUERYWINDOWFONT(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:761:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowFont(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:762:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETWINDOWFONT(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:778:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhSetControlsFont(HWND hwndDlg, SHORT usIDMin, SHORT usIDMax, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:787:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:788:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHQUERYPRESCOLOR(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:791:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor2(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:797:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetPresColor(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:799:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETPRESCOLOR(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:827:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAnotherInstance(const char *pcszSemName, BOOL fSwitch);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:829:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HSWITCH XWPENTRY winhAddToTasklist(HWND hwnd, HPOINTER hIcon);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:837:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFree(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:838:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHFREE(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:841:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HAB XWPENTRY winhMyAnchorBlock(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:842:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HAB XWPENTRY WINHMYANCHORBLOCK(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:845:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSleep(ULONG ulSleep);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:851:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhFileDlg(HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:858:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HPOINTER XWPENTRY winhSetWaitPointer(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:860:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowText(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:862:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:874:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhReplaceWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:878:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhCenteredDlgBox(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:880:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHCENTEREDDLGBOX(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:884:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhEnableControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:894:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateStdWindow(HWND hwndFrameParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:906:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateObjectWindow(const char *pcszWindowClass,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:909:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateControl(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:916:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhRepaintWindows(HWND hwndParent);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:918:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HMQ XWPENTRY winhFindMsgQueue(PID pid, TID tid, HAB* phab);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:920:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFindPMErrorWindows(HWND *phwndHardError, HWND *phwndSysError);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:922:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateFakeDesktop(HWND hwndSibling);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:929:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAssertWarp4Notebook(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:932:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhDrawFormattedText(HPS hps, PRECTL prcl, const char *pcszText, ULONG flCmd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:942:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQueryTasklistWindow(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:943:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHQUERYTASKLISTWINDOW(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:946:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhKillTasklist(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:948:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryPendingSpoolJobs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:950:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetNumLock(BOOL fState);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:952:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetClipboardText(HAB hab,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1035:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClassList(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1037:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClass(PBYTE pObjClass, const char *pszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1039:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY winhRegisterClass(const char* pcszClassName,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1044:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsClassRegistered(const char *pcszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1048:0: information: Skipping configuration 'OS2_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhResetWPS(HAB hab);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:47:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY nlsDBCS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:49:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY nlsQueryDBCSChar(PCSZ pcszString,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:52:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlschr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:54:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlsrchr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:122:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihManipulateRGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:123:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMANIPULATERGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:126:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihMediumRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:127:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHMEDIUMRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:130:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSwitchToRGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:131:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSWITCHTORGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:140:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawRect(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:141:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWRECT(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:144:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihBox(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:145:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHBOX(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:148:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihMarker(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:149:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMARKER(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:152:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawThickFrame(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:153:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWTHICKFRAME(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:156:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:161:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:168:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:173:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:180:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCharStringPosAt(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:186:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCHARSTRINGPOSAT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:244:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihMatchFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:251:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHMATCHFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:260:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSplitPresFont(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:263:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSPLITPRESFONT(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:268:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihLockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:269:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:272:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihUnlockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:273:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHUNLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:276:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCreateFont(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:277:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCREATEFONT(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:280:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:286:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:294:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindPresFont(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:300:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDPRESFONT(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:308:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSetPointSize(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:309:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSETPOINTSIZE(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:312:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihQueryLineSpacing(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:313:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHQUERYLINESPACING(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:322:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihCreateMemPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:323:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHCREATEMEMPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:326:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:327:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEBITMAP(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:330:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap2(HPS hpsMem, ULONG  cx, ULONG cy, ULONG cPlanes, ULONG cBitCount);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:332:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateHalftonedBitmap(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:333:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEHALFTONEDBITMAP(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:341:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY gpihLoadBitmapFile(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:342:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef APIRET XWPENTRY GPIHLOADBITMAPFILE(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:345:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihStretchBitmap(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:350:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHSTRETCHBITMAP(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:363:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihDrawPointer(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:370:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHDRAWPOINTER(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:407:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PXBITMAP XWPENTRY gpihCreateXBitmap(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:408:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PXBITMAP XWPENTRY GPIHCREATEXBITMAP(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:417:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihDetachBitmap(PXBITMAP pbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:419:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDestroyXBitmap(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:420:0: information: Skipping configuration 'WINH_HEADER_INCLUDED;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDESTROYXBITMAP(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/airboot.c:159:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "LVM CHANGES COMMITTED: %u\n", rc );
+            ^
+OS2/CMD/lvmgui/contrib/airboot.c:304:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Writing new MBR to disk: 0\nResult: %u\n", rc );
+            ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/bootmgr.c:302:17: warning:inconclusive: The buffer 'szName' may not be null-terminated after the call to strncpy(). [terminateStrncpy]
+                strncpy( szName, vir.Volume_Name, VOLUME_NAME_SIZE );
+                ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:310:17: warning:inconclusive: The buffer 'szName' may not be null-terminated after the call to strncpy(). [terminateStrncpy]
+                strncpy( szName, pir.Partition_Name, VOLUME_NAME_SIZE );
+                ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:304:17: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+                sprintf( szName, "%.8X (rc=%3u)", entry.Handle, rc );
+                ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:312:17: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+                sprintf( szName, "%.8X (rc=%3u)", entry.Handle, rc );
+                ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:393:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Installing Boot Manager on disk: %u\nResult: %u\n", disk, rc );
+        ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:393:9: warning: %u in format string (no. 2) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Installing Boot Manager on disk: %u\nResult: %u\n", disk, rc );
+        ^
+OS2/CMD/lvmgui/contrib/bootmgr.c:462:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Deleting Boot Manager\nResult: %u\n", rc );
+        ^
+OS2/CMD/lvmgui/contrib/disk.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/disk.c:151:18: style: Condition 'iNumber<1' is always true [knownConditionTrueFalse]
+    if ( iNumber < 1 ) return FALSE;
+                 ^
+OS2/CMD/lvmgui/contrib/disk.c:128:30: note: Assignment 'iNumber=0', assigned value is 0
+    CARDINAL32     iNumber = 0,     // LVM disk number
+                             ^
+OS2/CMD/lvmgui/contrib/disk.c:140:10: note: Assuming condition is false
+    if ( !hwndDisk ) return FALSE;
+         ^
+OS2/CMD/lvmgui/contrib/disk.c:151:18: note: Condition 'iNumber<1' is always true
+    if ( iNumber < 1 ) return FALSE;
+                 ^
+OS2/CMD/lvmgui/contrib/logging.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/logging.c:71:5: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "%u disk drives reported.\n", pGlobal->ulDisks );
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:94:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "\n     Unable to query partitions (error code %u)!\n\n", iErr );
+            ^
+OS2/CMD/lvmgui/contrib/logging.c:125:5: warning: %u in format string (no. 3) requires 'unsigned int' but the argument type is 'signed int'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "          Sta: %c   Pri: %u    BMgr: %u   Act: %u     OS:   0x%02X",
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:125:5: warning: %u in format string (no. 4) requires 'unsigned int' but the argument type is 'signed int'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "          Sta: %c   Pri: %u    BMgr: %u   Act: %u     OS:   0x%02X",
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:158:5: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "%u volumes reported.\n", pGlobal->ulVolumes );
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:166:13: warning: fprintf format string requires 0 parameters but 1 is given. [wrongPrintfScanfArgNum]
+            fprintf( pGlobal->pLog, "  ", pGlobal->volumes[ i ].cLetter );
+            ^
+OS2/CMD/lvmgui/contrib/logging.c:207:5: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "Free space: 0x%08X\n", data.pPartitions[ 0 ] );
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:209:5: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "Result:     %u\n", iRC );
+    ^
+OS2/CMD/lvmgui/contrib/logging.c:235:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "   0x%08X\n", data.pPartitions[ i ] );
+        ^
+OS2/CMD/lvmgui/contrib/logging.c:236:5: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+    fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+    ^
+OS2/CMD/lvmgui/contrib/lvm_ctls.c:419:13: style: The scope of the variable 'dScale' can be reduced. [variableScope]
+    double  dScale;                 // point scaling factor
+            ^
+OS2/CMD/lvmgui/contrib/lvm_ctls.c:476:11: error: Uninitialized variable: lDPI [uninitvar]
+    if ( !lDPI )
+          ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 18 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:47:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY nlsDBCS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:49:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY nlsQueryDBCSChar(PCSZ pcszString,
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:52:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlschr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/nls.h:54:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY nlsrchr(PCSZ p, char c);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:122:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihManipulateRGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:123:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMANIPULATERGB(PLONG plColor, double dFactor);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:126:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihMediumRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:127:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHMEDIUMRGB(LONG lcol1, LONG lcol2);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:130:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSwitchToRGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:131:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSWITCHTORGB(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:140:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawRect(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:141:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWRECT(HPS hps, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:144:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihBox(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:145:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHBOX(HPS hps, LONG lControl, PRECTL prcl);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:148:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihMarker(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:149:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHMARKER(HPS hps, LONG x, LONG y, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:152:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDrawThickFrame(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:153:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAWTHICKFRAME(HPS hps, PRECTL prcl, ULONG ulWidth);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:156:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:161:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME2(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:168:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDraw3DFrame(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:173:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDRAW3DFRAME(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:180:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCharStringPosAt(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:186:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCHARSTRINGPOSAT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:244:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihMatchFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:251:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHMATCHFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:260:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSplitPresFont(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:263:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSPLITPRESFONT(PSZ pszFontNameSize,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:268:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihLockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:269:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:272:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihUnlockLCIDs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:273:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHUNLOCKLCIDS(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:276:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihCreateFont(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:277:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHCREATEFONT(HPS hps, FATTRS *pfa);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:280:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindFont(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:286:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDFONT(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:294:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihFindPresFont(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:300:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHFINDPRESFONT(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:308:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihSetPointSize(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:309:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHSETPOINTSIZE(HPS hps, LONG lPointSize);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:312:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihQueryLineSpacing(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:313:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHQUERYLINESPACING(HPS hps);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:322:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihCreateMemPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:323:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHCREATEMEMPS(HAB hab, PSIZEL psizlPage, HDC *hdcMem, HPS *hpsMem);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:326:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:327:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEBITMAP(HPS hpsMem, ULONG  cx, ULONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:330:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateBitmap2(HPS hpsMem, ULONG  cx, ULONG cy, ULONG cPlanes, ULONG cBitCount);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:332:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihCreateHalftonedBitmap(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:333:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HBITMAP XWPENTRY GPIHCREATEHALFTONEDBITMAP(HAB hab, HBITMAP hbmSource, LONG lColorGray);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:341:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY gpihLoadBitmapFile(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:342:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef APIRET XWPENTRY GPIHLOADBITMAPFILE(HBITMAP *phbm, HPS hps, PCSZ pcszBmpFile);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:345:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY gpihStretchBitmap(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:350:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY GPIHSTRETCHBITMAP(HPS hpsTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:363:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY gpihDrawPointer(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:370:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY GPIHDRAWPOINTER(HPS hps,
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:407:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PXBITMAP XWPENTRY gpihCreateXBitmap(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:408:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PXBITMAP XWPENTRY GPIHCREATEXBITMAP(HAB hab, LONG cx, LONG cy);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:417:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HBITMAP XWPENTRY gpihDetachBitmap(PXBITMAP pbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:419:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY gpihDestroyXBitmap(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/gpih.h:420:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY GPIHDESTROYXBITMAP(PXBITMAP *ppbmp);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:173:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhOffsetRect(PRECTL prcl, LONG lx, LONG ly);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:181:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryWindowStyle(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:183:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhEnableDlgItem(HWND hwndDlg, SHORT id, BOOL fEnable);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:185:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsDlgItemEnabled(HWND hwndDlg, SHORT id);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:200:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQuerySubmenu(HWND hMenu, SHORT sID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:217:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuItem(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:223:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef SHORT XWPENTRY WINHINSERTMENUITEM(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:231:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhInsertSubmenu(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:240:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHINSERTSUBMENU(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:251:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetMenuCondCascade(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:266:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRemoveMenuItems(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:285:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhInsertMenuSeparator(HWND hMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:291:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem2(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:297:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhCopyMenuItem(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:301:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHCOPYMENUITEM(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:307:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhMergeIntoSubMenu(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:312:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHMERGEINTOSUBMENU(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:319:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhMergeMenus(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:323:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHMERGEMENUS(HWND hmenuTarget,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:329:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhClearMenu(HWND hwndMenu);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:331:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryMenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:334:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAppend2MenuItemText(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:339:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhMenuRemoveEllipse(HWND hwndMenu,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:342:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    SHORT XWPENTRY winhQueryItemUnderMouse(HWND hwndMenu, POINTL *pptlMouse, RECTL *prtlItem);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:350:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithLinearSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:357:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetSliderTicks(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:362:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETSLIDERTICKS(HWND hwndSlider,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:400:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhReplaceWithCircularSlider(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:416:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:421:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHSETDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:428:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhAdjustDlgItemSpinData(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:432:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHADJUSTDLGITEMSPINDATA(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:603:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxSelectAll(HWND hwndListBox, BOOL fSelect);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:625:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryLboxItemText(HWND hwndListbox, SHORT sIndex);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:627:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhMoveLboxItem(HWND hwndSource,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:633:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhLboxFindItemFromHandle(HWND hwndListBox,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:642:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhUpdateScrollBar(HWND hwndScrollBar,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:648:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhHandleScrollMsg(HWND hwnd2Scroll,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:657:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhProcessScrollChars(HWND hwndClient,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:671:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSaveWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:673:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhRestoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey, ULONG fl);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:714:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhStoreWindowPos(HWND hwnd, HINI hIni, const char *pcszApp, const char *pcszKey);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:733:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAdjustControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:739:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    void XWPENTRY winhCenterWindow(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:740:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef void XWPENTRY WINHCENTERWINDOW(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:749:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhFindWindowBelow(HWND hwndFind);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:757:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowFont(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:758:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef PSZ XWPENTRY WINHQUERYWINDOWFONT(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:761:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowFont(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:762:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETWINDOWFONT(HWND hwnd, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:778:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhSetControlsFont(HWND hwndDlg, SHORT usIDMin, SHORT usIDMax, const char *pcszFont);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:787:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:788:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef LONG XWPENTRY WINHQUERYPRESCOLOR(HWND hwnd, ULONG ulPP, BOOL fInherit, LONG lSysColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:791:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    LONG XWPENTRY winhQueryPresColor2(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:797:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetPresColor(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:799:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef BOOL XWPENTRY WINHSETPRESCOLOR(HWND hwnd, ULONG ulIndex, LONG lColor);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:827:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAnotherInstance(const char *pcszSemName, BOOL fSwitch);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:829:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HSWITCH XWPENTRY winhAddToTasklist(HWND hwnd, HPOINTER hIcon);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:837:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFree(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:838:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef VOID XWPENTRY WINHFREE(PVOID p);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:841:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HAB XWPENTRY winhMyAnchorBlock(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:842:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HAB XWPENTRY WINHMYANCHORBLOCK(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:845:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSleep(ULONG ulSleep);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:851:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhFileDlg(HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:858:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HPOINTER XWPENTRY winhSetWaitPointer(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:860:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PSZ XWPENTRY winhQueryWindowText(HWND hwnd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:862:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:874:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhReplaceWindowText(HWND hwnd,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:878:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhCenteredDlgBox(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:880:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef ULONG XWPENTRY WINHCENTEREDDLGBOX(HWND hwndParent, HWND hwndOwner,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:884:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhEnableControls(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:894:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateStdWindow(HWND hwndFrameParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:906:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateObjectWindow(const char *pcszWindowClass,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:909:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateControl(HWND hwndParent,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:916:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhRepaintWindows(HWND hwndParent);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:918:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HMQ XWPENTRY winhFindMsgQueue(PID pid, TID tid, HAB* phab);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:920:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhFindPMErrorWindows(HWND *phwndHardError, HWND *phwndSysError);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:922:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhCreateFakeDesktop(HWND hwndSibling);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:929:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhAssertWarp4Notebook(HWND hwndDlg,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:932:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhDrawFormattedText(HPS hps, PRECTL prcl, const char *pcszText, ULONG flCmd);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:942:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HWND XWPENTRY winhQueryTasklistWindow(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:943:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    typedef HWND XWPENTRY WINHQUERYTASKLISTWINDOW(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:946:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhKillTasklist(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:948:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhQueryPendingSpoolJobs(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:950:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    VOID XWPENTRY winhSetNumLock(BOOL fState);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:952:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhSetClipboardText(HAB hab,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1035:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClassList(VOID);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1037:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PBYTE XWPENTRY winhQueryWPSClass(PBYTE pObjClass, const char *pszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1039:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    APIRET XWPENTRY winhRegisterClass(const char* pcszClassName,
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1044:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    BOOL XWPENTRY winhIsClassRegistered(const char *pcszClass);
+^
+OS2/CMD/lvmgui/contrib/helpers/winh.h:1048:0: information: Skipping configuration 'VICTLDATA_STRINGS;XWPENTRY' since the value of 'XWPENTRY' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    ULONG XWPENTRY winhResetWPS(HAB hab);
+^
+OS2/CMD/lvmgui/contrib/lvmpm.c:1446:43: style:inconclusive: Redundant condition: If '!(EXPR >= 'C')', the comparison 'EXPR <= 'Z'' is always true. [redundantCondition]
+             !( pVol->cPreference >= 'C') && (pVol->cPreference <= 'Z'))
+                                          ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:449:37: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+                                    fprintf( pGlobal->pLog, "LVM CHANGES COMMITTED: %u\n", ulError );
+                                    ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:752:37: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+                                    fprintf( pGlobal->pLog, "LVM CHANGES COMMITTED: %u\n", ulError );
+                                    ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:4123:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pLog, "Failed to open LVM Engine (error code %u)\n", ulError );
+            ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:4395:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Failed to refresh LVM Engine (error code %u)\n", rc );
+            ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:2591:1: error: Memory leak: fi.pTitleData [memleak]
+}
+^
+OS2/CMD/lvmgui/contrib/lvmpm.c:1434:20: style: The scope of the variable 'pVol' can be reduced. [variableScope]
+    PLVMVOLUMEINFO pVol;
+                   ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:3154:22: style: The scope of the variable 'pVolRec' can be reduced. [variableScope]
+    PDVMVOLUMERECORD pVolRec;
+                     ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:3429:1: style: Label 'cleanup' is not used. There is #if in function body so the label might be used in code that is removed by the preprocessor. [unusedLabelConfiguration]
+cleanup:
+^
+OS2/CMD/lvmgui/contrib/lvmpm.c:3150:47: style:inconclusive: Function 'DiskListPartitionSelect' argument 2 names different: declaration 'hPartition' definition 'hwndPartition'. [funcArgNamesDifferent]
+void DiskListPartitionSelect( HWND hwnd, HWND hwndPartition )
+                                              ^
+OS2/CMD/lvmgui/contrib/lvmpm.h:424:59: note: Function 'DiskListPartitionSelect' argument 2 names different: declaration 'hPartition' definition 'hwndPartition'.
+void             DiskListPartitionSelect( HWND hwnd, HWND hPartition );
+                                                          ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:3150:47: note: Function 'DiskListPartitionSelect' argument 2 names different: declaration 'hPartition' definition 'hwndPartition'.
+void DiskListPartitionSelect( HWND hwnd, HWND hwndPartition )
+                                              ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:2288:8: style: Variable 'fi' is assigned a value that is never used. [unreadVariable]
+    fi = fi->pNextFieldInfo;
+       ^
+OS2/CMD/lvmgui/contrib/lvmpm.c:2581:8: style: Variable 'fi' is assigned a value that is never used. [unreadVariable]
+    fi = fi->pNextFieldInfo;
+       ^
+OS2/CMD/lvmgui/contrib/partition.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/partition.c:272:49: style:inconclusive: Boolean expression 'j<partitions.Count' is used in bitwise operation. Did you mean '&&'? [bitwiseOnBoolean]
+            for ( j = 0; (j < partitions.Count) & !fExists; j++ ) {
+                                                ^
+OS2/CMD/lvmgui/contrib/partition.c:272:49: style: Boolean result is used in bitwise operation. Clarify expression with parentheses. [clarifyCondition]
+            for ( j = 0; (j < partitions.Count) & !fExists; j++ ) {
+                                                ^
+OS2/CMD/lvmgui/contrib/partition.c:450:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Deleting partition: 0x%08X\n", pvd.handle );
+            ^
+OS2/CMD/lvmgui/contrib/partition.c:451:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/partition.c:509:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Renaming partition: 0x%08X\n", data.handle );
+        ^
+OS2/CMD/lvmgui/contrib/partition.c:511:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Result:   %u\n", iRC );
+        ^
+OS2/CMD/lvmgui/contrib/partition.c:646:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Expanding volume: 0x%08X\n", data.handle );
+        ^
+OS2/CMD/lvmgui/contrib/partition.c:647:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Adding partition: 0x%08X\n", pvd.handle );
+        ^
+OS2/CMD/lvmgui/contrib/partition.c:648:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Result:           %u\n", iRC );
+        ^
+OS2/CMD/lvmgui/contrib/partition.c:903:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Making partition bootable: 0x%08X\n", pvd.handle );
+            ^
+OS2/CMD/lvmgui/contrib/partition.c:904:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/partition.c:961:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Setting partition active flag: 0x%08X\n", pvd.handle );
+            ^
+OS2/CMD/lvmgui/contrib/partition.c:963:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result:    %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/test/testctls.c:352:35: style: Local variable 'rcl' shadows outer variable [shadowVariable]
+                            RECTL rcl;
+                                  ^
+OS2/CMD/lvmgui/contrib/test/testctls.c:323:17: note: Shadowed declaration
+    RECTL       rcl;
+                ^
+OS2/CMD/lvmgui/contrib/test/testctls.c:352:35: note: Shadow variable
+                            RECTL rcl;
+                                  ^
+OS2/CMD/lvmgui/contrib/utils.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/utils.c:201:9: warning:inconclusive: The buffer 'szShortLang' may not be null-terminated after the call to strncpy(). [terminateStrncpy]
+        strncpy( szShortLang, pszLang, 2 );
+        ^
+OS2/CMD/lvmgui/contrib/utils.c:43:25: style:inconclusive: Function 'CentreWindow' argument 1 names different: declaration 'hwnd' definition 'hwndCentre'. [funcArgNamesDifferent]
+void CentreWindow( HWND hwndCentre, HWND hwndRelative, ULONG flFlags )
+                        ^
+OS2/CMD/lvmgui/contrib/utils.h:25:37: note: Function 'CentreWindow' argument 1 names different: declaration 'hwnd' definition 'hwndCentre'.
+void             CentreWindow( HWND hwnd, HWND hwndRelative, ULONG ulFlags );
+                                    ^
+OS2/CMD/lvmgui/contrib/utils.c:43:25: note: Function 'CentreWindow' argument 1 names different: declaration 'hwnd' definition 'hwndCentre'.
+void CentreWindow( HWND hwndCentre, HWND hwndRelative, ULONG flFlags )
+                        ^
+OS2/CMD/lvmgui/contrib/utils.c:43:62: style:inconclusive: Function 'CentreWindow' argument 3 names different: declaration 'ulFlags' definition 'flFlags'. [funcArgNamesDifferent]
+void CentreWindow( HWND hwndCentre, HWND hwndRelative, ULONG flFlags )
+                                                             ^
+OS2/CMD/lvmgui/contrib/utils.h:25:68: note: Function 'CentreWindow' argument 3 names different: declaration 'ulFlags' definition 'flFlags'.
+void             CentreWindow( HWND hwnd, HWND hwndRelative, ULONG ulFlags );
+                                                                   ^
+OS2/CMD/lvmgui/contrib/utils.c:43:62: note: Function 'CentreWindow' argument 3 names different: declaration 'ulFlags' definition 'flFlags'.
+void CentreWindow( HWND hwndCentre, HWND hwndRelative, ULONG flFlags )
+                                                             ^
+OS2/CMD/lvmgui/contrib/volume.c:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 17 configurations. Use --force to check all configurations. [toomanyconfigs]
+
+^
+OS2/CMD/lvmgui/contrib/volume.c:1694:10: warning:inconclusive: The buffer 'szBuffer' may not be null-terminated after the call to strncpy(). [terminateStrncpy]
+    else strncpy( szBuffer, szRes2, STRING_RES_MAXZ );
+         ^
+OS2/CMD/lvmgui/contrib/volume.c:1254:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Deleting volume: 0x%08X\n", pVolRec->handle );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1255:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1323:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Renaming volume: 0x%08X\n", data.handle );
+        ^
+OS2/CMD/lvmgui/contrib/volume.c:1325:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Result:   %u\n", iRC );
+        ^
+OS2/CMD/lvmgui/contrib/volume.c:1462:9: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Changing volume letter: 0x%08X\n", data.handle );
+        ^
+OS2/CMD/lvmgui/contrib/volume.c:1464:9: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+        fprintf( pGlobal->pLog, "Result:     %u\n", iRC );
+        ^
+OS2/CMD/lvmgui/contrib/volume.c:1632:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Making volume bootable: 0x%08X\n", pVolRec->handle );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1633:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1704:13: warning: %X in format string (no. 1) requires 'unsigned int' but the argument type is 'void *'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Making volume startable: 0x%08X\n", pVolRec->handle );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1705:13: warning: %u in format string (no. 1) requires 'unsigned int' but the argument type is 'unsigned long'. [invalidPrintfArgType_uint]
+            fprintf( pGlobal->pLog, "Result: %u\n", iRC );
+            ^
+OS2/CMD/lvmgui/contrib/volume.c:1125:13: style: The scope of the variable 'handle' can be reduced. [variableScope]
+    ADDRESS handle;             // LVM handle of the current partition
+            ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:140:17: warning: %d in format string (no. 4) requires 'int' but the argument type is 'signed long'. [invalidPrintfArgType_sint]
+                printf("%c %20s  %7s  %7d  ", dletter,
+                ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:188:17: warning: %d in format string (no. 3) requires 'int' but the argument type is 'signed long'. [invalidPrintfArgType_sint]
+                printf("%2d %20s  %7d\n", dcr.Drive_Number,
+                ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:237:13: warning: %d in format string (no. 2) requires 'int' but the argument type is 'signed long'. [invalidPrintfArgType_sint]
+            printf("   %20s  %7d %8s  %2x  %20s  %s\n", partinfo.Partition_Name,
+            ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:90:10: style: The scope of the variable 'dletter' can be reduced. [variableScope]
+    char dletter;
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:91:10: style: The scope of the variable 'devtype' can be reduced. [variableScope]
+    char devtype[ 8 ],
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:92:10: style: The scope of the variable 'status' can be reduced. [variableScope]
+         status[ 12 ],
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:93:10: style: The scope of the variable 'voltype' can be reduced. [variableScope]
+         voltype[ 14 ];
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:94:9: style: The scope of the variable 'index' can be reduced. [variableScope]
+    int index;
+        ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:95:10: style: The scope of the variable 'vsize' can be reduced. [variableScope]
+    long vsize;
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:170:9: style: The scope of the variable 'index' can be reduced. [variableScope]
+    int index;
+        ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:171:10: style: The scope of the variable 'dsize' can be reduced. [variableScope]
+    long dsize;
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:215:9: style: The scope of the variable 'idx' can be reduced. [variableScope]
+    int idx;
+        ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:216:10: style: The scope of the variable 'psize' can be reduced. [variableScope]
+    long psize;
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:217:10: style: The scope of the variable 'ptype' can be reduced. [variableScope]
+    char ptype[ 8 ],
+         ^
+OS2/CMD/lvmgui/lvmtk/samples/querylvm.cpp:218:10: style: The scope of the variable 'pstatus' can be reduced. [variableScope]
+         pstatus[ 11 ];
+         ^
 OS2/CMD/makeini/dosh.cpp:0:0: information: Too many #ifdef configurations - cppcheck only checks 12 of 16 configurations. Use --force to check all configurations. [toomanyconfigs]
 
 ^
@@ -40699,9 +42556,6 @@ OS2/PM/API/PMMERGE/unimpl.cpp:1872:0: style: The function 'Gpi32LoadBitmap' is n
 OS2/PM/API/PMGPI/pmgpi.c:1606:0: style: The function 'GpiAllocateDCData' is never used. [unusedFunction]
 
 ^
-OS2/PM/API/PMGPI/pmgpi.c:42:0: style: The function 'GpiBox' is never used. [unusedFunction]
-
-^
 OS2/PM/API/PMGPI/pmgpi.c:1400:0: style: The function 'GpiCloseMetafile' is never used. [unusedFunction]
 
 ^
@@ -41132,9 +42986,6 @@ OS2/PM/API/PMGPI/pmgpi.c:1007:0: style: The function 'GpiSetStopDraw' is never u
 
 ^
 OS2/PM/API/PMGPI/pmgpi.c:1012:0: style: The function 'GpiSetTag' is never used. [unusedFunction]
-
-^
-OS2/PM/API/PMGPI/pmgpi.c:1518:0: style: The function 'GpiSetTextAlignment' is never used. [unusedFunction]
 
 ^
 OS2/PM/API/PMGPI/pmgpi.c:1017:0: style: The function 'GpiSetViewingLimits' is never used. [unusedFunction]
@@ -42466,9 +44317,6 @@ OS2/PM/API/PMMERGE/unimpl.cpp:2172:0: style: The function 'RamSemRequest32' is n
 OS2/CMD/lvm/contrib/LVM_Cli.c:230:0: style: The function 'ReInitializePanels' is never used. [unusedFunction]
 
 ^
-OS2/CMD/lvm/contrib/engine.c:4643:0: style: The function 'Read_Sectors' is never used. [unusedFunction]
-
-^
 tools/jwasm/contrib/src/types.c:1109:0: style: The function 'RecordDirective' is never used. [unusedFunction]
 
 ^
@@ -42800,6 +44648,9 @@ OS2/PM/API/PMMERGE/unimpl.cpp:2232:0: style: The function 'StartTimer' is never 
 
 ^
 tools/jwasm/contrib/src/end.c:94:0: style: The function 'StartupExitDirective' is never used. [unusedFunction]
+
+^
+OS2/CMD/lvmgui/contrib/lvmpm.c:3501:0: style: The function 'Status_Volume' is never used. [unusedFunction]
 
 ^
 tools/jwasm/contrib/src/fastpass.c:70:0: style: The function 'StoreLine' is never used. [unusedFunction]
@@ -48365,9 +50216,6 @@ OS2/CMD/makeini/nls.cpp:892:0: style: The function 'nlsFileTime' is never used. 
 
 ^
 OS2/CMD/makeini/nls.cpp:150:0: style: The function 'nlsQueryCodepage' is never used. [unusedFunction]
-
-^
-OS2/CMD/makeini/nls.cpp:569:0: style: The function 'nlsQueryCountrySettings' is never used. [unusedFunction]
 
 ^
 OS2/CMD/makeini/nls.cpp:237:0: style: The function 'nlsQueryDBCSChar' is never used. [unusedFunction]
