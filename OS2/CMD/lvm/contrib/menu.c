@@ -186,7 +186,8 @@ UserDefinedMenuPanel ( register panel_t  *panel,
             max_string_length;
     uint    *action;
     char    **line = panel->text_line;
-    uint    (* _System callback) (panel_t *panel) = panel->callback;
+    //uint    (* _System callback) (panel_t *panel) = panel->callback;
+    uint    _System (* callback) (panel_t *panel) = panel->callback;
     bool    finished = FALSE;
     uint    grayed_attribute, normal_attribute;
 
@@ -308,7 +309,8 @@ ScrollingMenuPanel ( register
             **current_line,
             **bottom_line;
     bool    finished = FALSE;
-    uint    (* _System callback) (panel_t *panel) = panel->callback;
+    //uint    (* _System callback) (panel_t *panel) = panel->callback;
+    uint    _System (* callback) (panel_t *panel) = panel->callback;
 
     if ( panel->control & INITIALIZE_PANEL ) {
         panel->control &= ~INITIALIZE_PANEL;

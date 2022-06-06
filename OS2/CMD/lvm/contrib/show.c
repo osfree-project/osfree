@@ -702,5 +702,3 @@ DataEntryPanel ( panel_t  *panel )
     return 0;
 
 }
-
-

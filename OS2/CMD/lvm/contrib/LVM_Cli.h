@@ -66,4 +66,3 @@ typedef struct _LVMCLI_BackEndToVIO
 LVMCLI_BackEndToVIO* lvmcli( int argc, char * argv[] );
 
 #endif
-
