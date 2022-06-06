@@ -3473,7 +3473,7 @@ $(function() {
 <div class="line"><a id="l03425" name="l03425"></a><span class="lineno"> 3425</span> </div>
 <div class="line"><a id="l03426" name="l03426"></a><span class="lineno"> 3426</span>      <span class="comment">/* The handle is not valid!  Abort! */</span></div>
 <div class="line"><a id="l03427" name="l03427"></a><span class="lineno"> 3427</span>      *Error = DLIST_BAD_HANDLE;</div>
-<div class="line"><a id="l03428" name="l03428"></a><span class="lineno"> 3428</span>      <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l03428" name="l03428"></a><span class="lineno"> 3428</span>      <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l03429" name="l03429"></a><span class="lineno"> 3429</span> </div>
 <div class="line"><a id="l03430" name="l03430"></a><span class="lineno"> 3430</span>    }</div>
 <div class="line"><a id="l03431" name="l03431"></a><span class="lineno"> 3431</span> </div>
@@ -6068,7 +6068,7 @@ $(function() {
 <div class="line"><a id="l06020" name="l06020"></a><span class="lineno"> 6020</span>    SourceListData-&gt;StartOfList = NextNode;</div>
 <div class="line"><a id="l06021" name="l06021"></a><span class="lineno"> 6021</span> </div>
 <div class="line"><a id="l06022" name="l06022"></a><span class="lineno"> 6022</span>  <span class="keywordflow">if</span> ( SourceListData-&gt;EndOfList == SourceLinkNode )</div>
-<div class="line"><a id="l06023" name="l06023"></a><span class="lineno"> 6023</span>    SourceListData-&gt;EndOfList == PreviousNode;</div>
+<div class="line"><a id="l06023" name="l06023"></a><span class="lineno"> 6023</span>    SourceListData-&gt;EndOfList = PreviousNode;</div>
 <div class="line"><a id="l06024" name="l06024"></a><span class="lineno"> 6024</span> </div>
 <div class="line"><a id="l06025" name="l06025"></a><span class="lineno"> 6025</span>  <span class="keywordflow">if</span> ( SourceListData-&gt;CurrentItem == SourceLinkNode )</div>
 <div class="line"><a id="l06026" name="l06026"></a><span class="lineno"> 6026</span>  {</div>
