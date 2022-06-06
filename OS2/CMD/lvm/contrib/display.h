@@ -58,7 +58,7 @@
 #define INFO_BORDER_ATTRIBUTE 80
 #define WARNING_ATTRIBUTE     0xf
 #define WARNING_BORDER_ATTRIBUTE 0xc0
-#define ERROR_ATTRIBUTE          0xf  
+#define ERROR_ATTRIBUTE          0xf
 #define ERROR_BORDER_ATTRIBUTE   0xc0
 #define HELP_ATTRIBUTE           (D_WHITE<<4)
 #define HELP_BORDER_ATTRIBUTE    (D_NEUTRAL<<4)|12

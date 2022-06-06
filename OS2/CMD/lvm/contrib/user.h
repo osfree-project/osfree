@@ -63,23 +63,24 @@ typedef unsigned int bool, *pbool;
 #define loop for(;;)
 
 
-uint    Message_bar_attribute;// = MESSAGE_BAR_ATTRIBUTE,
-uint    Panel_attribute;// = PANEL_ATTRIBUTE,
-uint    Panel_border_attribute;// = PANEL_BORDER_ATTRIBUTE,
-uint    Menu_attribute;// = MENU_ATTRIBUTE,
-uint    Menu_border_attribute;// = MENU_BORDER_ATTRIBUTE,
-uint    Entry_attribute;// = ENTRY_ATTRIBUTE,
-uint    Entry_border_attribute;// = ENTRY_BORDER_ATTRIBUTE,
-uint    Choice_attribute;// = CHOICE_ATTRIBUTE,
-uint    Choice_border_attribute;// = CHOICE_BORDER_ATTRIBUTE,
-uint    Info_attribute;// = INFO_ATTRIBUTE,
-uint    Info_border_attribute;// = INFO_BORDER_ATTRIBUTE,
-uint    Warning_attribute;// = WARNING_ATTRIBUTE,
-uint    Warning_border_attribute;// = WARNING_BORDER_ATTRIBUTE,
-uint    Error_attribute;// = ERROR_ATTRIBUTE,
-uint    Error_border_attribute;// = ERROR_BORDER_ATTRIBUTE,
-uint    Help_attribute;// = HELP_ATTRIBUTE,
-uint    Help_border_attribute;// = HELP_BORDER_ATTRIBUTE;
+extern
+uint    Message_bar_attribute, // = MESSAGE_BAR_ATTRIBUTE,
+        Panel_attribute, // = PANEL_ATTRIBUTE,
+        Panel_border_attribute, // = PANEL_BORDER_ATTRIBUTE,
+        Menu_attribute, // = MENU_ATTRIBUTE,
+        Menu_border_attribute, // = MENU_BORDER_ATTRIBUTE,
+        Entry_attribute, // = ENTRY_ATTRIBUTE,
+        Entry_border_attribute, // = ENTRY_BORDER_ATTRIBUTE,
+        Choice_attribute, // = CHOICE_ATTRIBUTE,
+        Choice_border_attribute, // = CHOICE_BORDER_ATTRIBUTE,
+        Info_attribute, // = INFO_ATTRIBUTE,
+        Info_border_attribute, // = INFO_BORDER_ATTRIBUTE,
+        Warning_attribute, // = WARNING_ATTRIBUTE,
+        Warning_border_attribute, // = WARNING_BORDER_ATTRIBUTE,
+        Error_attribute, // = ERROR_ATTRIBUTE,
+        Error_border_attribute, // = ERROR_BORDER_ATTRIBUTE,
+        Help_attribute, // = HELP_ATTRIBUTE,
+        Help_border_attribute; // = HELP_BORDER_ATTRIBUTE;
 
 
 extern
@@ -89,9 +90,9 @@ panel_t     Program_title_panel,
             Information_panel,
             None_startable_panel;
 
-//#define  MESSAGE_BAR_PANEL(str) Message_bar_panel.text_line = &str; \
+//#define  MESSAGE_BAR_PANEL(str) Message_bar_panel.text_line = &str; 
 //                                MessageBarPanel(&Message_bar_panel);
-                     
+
 extern void  MESSAGE_BAR_PANEL(char *str) ;
-            
+
 #endif //_USER_H

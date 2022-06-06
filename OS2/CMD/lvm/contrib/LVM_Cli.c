@@ -66,7 +66,7 @@ int  DisplayAttributes (int row, int column, int row_length, int  number_of_rows
      rc = VioWrtNCell(pattr, row_length, r, column,VioHandle);
      if(rc)
      {   printf("Error in %s VioWrtCellStr rc=%i\n", __FUNCTION__,rc);
-        return NULL;
+        return 0;
      }
   }
 

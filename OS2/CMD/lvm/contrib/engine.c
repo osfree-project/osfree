@@ -8538,6 +8538,7 @@ static BOOLEAN  AddDriveLinking_Plugins( CARDINAL32 * Error_Code)
   /* Indicate success and leave. */
   *Error_Code = DLIST_SUCCESS;
 
+  return TRUE;
 }
 
 
