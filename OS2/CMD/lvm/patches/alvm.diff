@@ -1,0 +1,130 @@
+diff -urN alvm\.git _alvm\.git
+--- alvm\.git	Mon Jun 06 10:27:28 2022
++++ _alvm\.git	Thu Jan 01 07:00:00 1970
+@@ -1 +0,0 @@
+-gitdir: ../../../../.git/modules/OS2/CMD/lvm/alvm
+diff -urN alvm\DiskIO.c _alvm\DiskIO.c
+--- alvm\DiskIO.c	Mon Jun 06 10:27:30 2022
++++ _alvm\DiskIO.c	Mon Jun 06 09:50:27 2022
+@@ -708,7 +708,7 @@
+         DriveTable[I].Drive_Lock = CreateSemaphore();
+ 
+         /* Did we get the semaphore? */
+-        if ( DriveTable[I].Drive_Lock == NULL )
++        if ( DriveTable[I].Drive_Lock == (SEMAPHORE)NULL )
+         {
+ 
+           /* We did not get the memory!  We must abort. */
+diff -urN alvm\engine.c _alvm\engine.c
+--- alvm\engine.c	Mon Jun 06 10:27:30 2022
++++ _alvm\engine.c	Mon Jun 06 10:02:37 2022
+@@ -7148,6 +7148,7 @@
+ /*           passed into this function.                              */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( ADDRESS _Seg16 Object )
+ {
+ 
+@@ -7160,7 +7161,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+@@ -7402,6 +7403,7 @@
+ /*   Notes:  None.                                                   */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds READ_SECTORS16 ( CARDINAL32          Drive_Number,
+                                              LBA                 Starting_Sector,
+                                              CARDINAL32          Sectors_To_Read,
+@@ -7414,7 +7416,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+@@ -7450,6 +7452,7 @@
+ /*   Notes:  None.                                                   */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds WRITE_SECTORS16 ( CARDINAL32          Drive_Number,
+                                               LBA                 Starting_Sector,
+                                               CARDINAL32          Sectors_To_Write,
+@@ -7462,7 +7465,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+diff -urN alvm\interface.c _alvm\interface.c
+--- alvm\interface.c	Mon Jun 06 10:27:30 2022
++++ _alvm\interface.c	Mon Jun 06 10:04:07 2022
+@@ -806,7 +806,8 @@
+ /******************************************************************/
+ PAREA Store_area(int row, int col, int width, int height)
+ {
+-int i,s;
++int i;
++unsigned short s;
+ PAREA tmp;
+    tmp=(PAREA)malloc(sizeof(AREA));
+    tmp->row=row;
+diff -urN alvm\LVM_Cli.c _alvm\LVM_Cli.c
+--- alvm\LVM_Cli.c	Mon Jun 06 10:27:30 2022
++++ _alvm\LVM_Cli.c	Mon Jun 06 10:05:14 2022
+@@ -146,7 +146,8 @@
+ uint ReverseAttributes ( uint row, uint column,uint max_string_length, uint bb )
+ {
+   HVIO      VioHandle=0;  /*  VIO presentation-space handle. */
+-  int i,r,rc, l;
++  int i,r,rc;
++  unsigned short l;
+   char attr2[2], *pmem, ch;
+   pmem = calloc(2, max_string_length);
+   l = max_string_length*2;
+@@ -167,7 +168,8 @@
+   HVIO      VioHandle=0;/*  VIO presentation-space handle. */
+   PCH       CellStr;    /*  Cell string buffer. */
+   USHORT     Length;     /*  Length of cell string buffer. */
+-  int i,r,l;
++  int i,r;
++  unsigned short l;
+ 
+   Length = row_length * number_of_rows *2;
+   CellStr = calloc(Length,1);
+diff -urN alvm\strings.c _alvm\strings.c
+--- alvm\strings.c	Mon Jun 06 10:27:30 2022
++++ _alvm\strings.c	Mon Jun 06 10:14:42 2022
+@@ -48,15 +48,15 @@
+     Single_line_outline      = { 'Ú', 'À', '¿', 'Ù', '³', 'Ä', 'Ã', '´' };
+ 
+ 
+-scroll_bar_t    Default_scroll_bar = { '', '', '³', ' ' },
++scroll_bar_t    Default_scroll_bar = { 0x0/*''*/, 0x0/*''*/, '³', ' ' },
+ 
+-                Line_scroll_bar    = { '', '', '³', ' ' },
++                Line_scroll_bar    = { 0x0/*''*/, 0x0/*''*/, '³', ' ' },
+ 
+-                Block_scroll_bar   = { '', '', '°', ' ' };
++                Block_scroll_bar   = { 0x0/*''*/, 0x0/*''*/, '°', ' ' };
+ 
+  char chars_less_than_greater_than[2] = {'<', '>'};
+ 
+- char chars_right_arrow_left_arrow[2] = {'', ''};
++ char chars_right_arrow_left_arrow[2] = {0x0/*''*/, 0x0/*''*/};
+ 
+ /*
+  * general use strings
