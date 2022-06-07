@@ -114,7 +114,7 @@ $(function() {
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keyword">struct</span></div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>{</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">char</span> *name;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">char</span> *string;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">char</span> *<a class="code hl_class" href="classBSString.html">string</a>;</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">int</span> severity;</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>} ziperrors[ZE_MAXERR + 1] = {</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment">/*  0 */</span> { <span class="stringliteral">&quot;OK&quot;</span>,      <span class="stringliteral">&quot;Normal successful completion&quot;</span>, ZE_S_SUCCESS },</div>
@@ -151,7 +151,7 @@ $(function() {
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keyword">extern</span> <span class="keyword">struct</span></div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>{</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keywordtype">char</span> *name;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">char</span> *string;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">char</span> *<a class="code hl_class" href="classBSString.html">string</a>;</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">int</span> severity;</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>} ziperrors[ZE_MAXERR + 1];</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor">#endif </span><span class="comment">/* ?GLOBALS */</span><span class="preprocessor"></span></div>
@@ -161,6 +161,7 @@ $(function() {
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="comment">/* Macro for easy access to the message string. */</span></div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="preprocessor">#define ZIPERRORS(e) ziperrors[e].string</span></div>
+<div class="ttc" id="aclassBSString_html"><div class="ttname"><a href="classBSString.html">BSString</a></div><div class="ttdef"><b>Definition:</b> <a href="bs__string_8h_source.html#l00546">bs_string.h:547</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -2786,7 +2786,7 @@ $(function() {
 <div class="line"><a id="l02738" name="l02738"></a><span class="lineno"> 2738</span><span class="comment">    * Initiate pointers to current char in intput string, and to</span></div>
 <div class="line"><a id="l02739" name="l02739"></a><span class="lineno"> 2739</span><span class="comment">    * end+1 in input string.</span></div>
 <div class="line"><a id="l02740" name="l02740"></a><span class="lineno"> 2740</span><span class="comment">    */</span></div>
-<div class="line"><a id="l02741" name="l02741"></a><span class="lineno"> 2741</span>   ptr = string ;</div>
+<div class="line"><a id="l02741" name="l02741"></a><span class="lineno"> 2741</span>   ptr = <a class="code hl_class" href="classBSString.html">string</a> ;</div>
 <div class="line"><a id="l02742" name="l02742"></a><span class="lineno"> 2742</span>   end_ptr = <span class="keywordtype">string</span> + strlen( <span class="keywordtype">string</span> ) ;</div>
 <div class="line"><a id="l02743" name="l02743"></a><span class="lineno"> 2743</span>   <span class="comment">/*</span></div>
 <div class="line"><a id="l02744" name="l02744"></a><span class="lineno"> 2744</span><span class="comment">    * Explicitly check for space at start or end. Illegal space within</span></div>
@@ -2809,7 +2809,7 @@ $(function() {
 <div class="line"><a id="l02761" name="l02761"></a><span class="lineno"> 2761</span><span class="comment">    */</span></div>
 <div class="line"><a id="l02762" name="l02762"></a><span class="lineno"> 2762</span>   <span class="keywordflow">for</span> (; (ptr&lt;end_ptr) &amp;&amp; (isxdigit(*ptr)); ptr++ )</div>
 <div class="line"><a id="l02763" name="l02763"></a><span class="lineno"> 2763</span>      ;</div>
-<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span>   byte_boundary = !((ptr-string)%2) ;</div>
+<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span>   byte_boundary = !((ptr-<a class="code hl_class" href="classBSString.html">string</a>)%2) ;</div>
 <div class="line"><a id="l02765" name="l02765"></a><span class="lineno"> 2765</span>   <span class="comment">/*</span></div>
 <div class="line"><a id="l02766" name="l02766"></a><span class="lineno"> 2766</span><span class="comment">    * Set output to null string</span></div>
 <div class="line"><a id="l02767" name="l02767"></a><span class="lineno"> 2767</span><span class="comment">    */</span></div>
@@ -4164,6 +4164,7 @@ $(function() {
 <div class="line"><a id="l04116" name="l04116"></a><span class="lineno"> 4116</span>   TRACE_RETURN();</div>
 <div class="line"><a id="l04117" name="l04117"></a><span class="lineno"> 4117</span>   <span class="keywordflow">return</span> rc;</div>
 <div class="line"><a id="l04118" name="l04118"></a><span class="lineno"> 4118</span>}</div>
+<div class="ttc" id="aclassBSString_html"><div class="ttname"><a href="classBSString.html">BSString</a></div><div class="ttdef"><b>Definition:</b> <a href="bs__string_8h_source.html#l00546">bs_string.h:547</a></div></div>
 <div class="ttc" id="astructcommand_html"><div class="ttname"><a href="structcommand.html">command</a></div><div class="ttdef"><b>Definition:</b> <a href="dmsetup_8c_source.html#l00167">dmsetup.c:167</a></div></div>
 <div class="ttc" id="astructcommands_html"><div class="ttname"><a href="structcommands.html">commands</a></div><div class="ttdef"><b>Definition:</b> <a href="command_8h_source.html#l00064">command.h:65</a></div></div>
 <div class="ttc" id="astructdefines_html"><div class="ttname"><a href="structdefines.html">defines</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01806">the.h:1807</a></div></div>

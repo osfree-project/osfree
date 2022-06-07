@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>osFree OS/2 Personality Command Line Tools: list Struct Reference</title>
+<title>osFree OS/2 Personality Command Line Tools: list&lt; P &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -40,31 +40,811 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="structlist-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">list Struct Reference</div></div>
+  <div class="headertitle"><div class="title">list&lt; P &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a911de86642347b78328c78264a14fb4d"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classlist__iterator.html">list_iterator</a>&lt; P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a911de86642347b78328c78264a14fb4d">iterator</a></td></tr>
+<tr class="separator:a911de86642347b78328c78264a14fb4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae48790361239f5d35881b343c9dc20d7"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classlist__reverse__iterator.html">list_reverse_iterator</a>&lt; P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#ae48790361239f5d35881b343c9dc20d7">reverse_iterator</a></td></tr>
+<tr class="separator:ae48790361239f5d35881b343c9dc20d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a79e46d2fb304e9c2cf5eff526d49e589"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a79e46d2fb304e9c2cf5eff526d49e589">list</a> (LISTMODE mode)</td></tr>
+<tr class="separator:a79e46d2fb304e9c2cf5eff526d49e589"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf0fb0f0fbff345c05315ccb8a8d4450"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#adf0fb0f0fbff345c05315ccb8a8d4450">list</a> (const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;llSource)</td></tr>
+<tr class="separator:adf0fb0f0fbff345c05315ccb8a8d4450"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06458ea781a64b2e860bcd3ca647bf37"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structlist.html">list</a>&lt; P &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a06458ea781a64b2e860bcd3ca647bf37">operator=</a> (const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;llSource)</td></tr>
+<tr class="separator:a06458ea781a64b2e860bcd3ca647bf37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab73d8ffaa4a813b1966a923768f474c8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#ab73d8ffaa4a813b1966a923768f474c8">push_front</a> (const P p)</td></tr>
+<tr class="separator:ab73d8ffaa4a813b1966a923768f474c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c6e96199c8e888058a52289c35e7d50"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a7c6e96199c8e888058a52289c35e7d50">push_back</a> (const P p)</td></tr>
+<tr class="separator:a7c6e96199c8e888058a52289c35e7d50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b0b45fa2ec53b92155f5efa50d4b791"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a5b0b45fa2ec53b92155f5efa50d4b791">remove</a> (P p)</td></tr>
+<tr class="separator:a5b0b45fa2ec53b92155f5efa50d4b791"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22bb085376d90c46c60593b10b97e2ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a22bb085376d90c46c60593b10b97e2ca">pop_back</a> ()</td></tr>
+<tr class="separator:a22bb085376d90c46c60593b10b97e2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f199a71a8bfdcdb8d076f5402361962"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a8f199a71a8bfdcdb8d076f5402361962">erase</a> (<a class="el" href="classlist__iterator.html">iterator</a> pos)</td></tr>
+<tr class="separator:a8f199a71a8bfdcdb8d076f5402361962"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ad0ae41bacc329fc72c0a6c8a8e3500"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a7ad0ae41bacc329fc72c0a6c8a8e3500">erase</a> (<a class="el" href="classlist__iterator.html">iterator</a> first, <a class="el" href="classlist__iterator.html">iterator</a> last)</td></tr>
+<tr class="separator:a7ad0ae41bacc329fc72c0a6c8a8e3500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87bcf54b3a768f22861adc550edbcdf3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a87bcf54b3a768f22861adc550edbcdf3">clear</a> ()</td></tr>
+<tr class="separator:a87bcf54b3a768f22861adc550edbcdf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21f114347b7b7d6d56c3e1f96e529efb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a21f114347b7b7d6d56c3e1f96e529efb">empty</a> () const</td></tr>
+<tr class="separator:a21f114347b7b7d6d56c3e1f96e529efb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae586f72a5171bc0777673081a6855a54"><td class="memItemLeft" align="right" valign="top">unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#ae586f72a5171bc0777673081a6855a54">count</a> () const</td></tr>
+<tr class="separator:ae586f72a5171bc0777673081a6855a54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abad14b658dcc8102078a53332b293c9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__iterator.html">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#abad14b658dcc8102078a53332b293c9d">begin</a> () const</td></tr>
+<tr class="separator:abad14b658dcc8102078a53332b293c9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7856238ac5d9fcc0308ceb82b759e616"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__iterator.html">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a7856238ac5d9fcc0308ceb82b759e616">end</a> () const</td></tr>
+<tr class="separator:a7856238ac5d9fcc0308ceb82b759e616"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ee447ccb7f44d3a4998b627f43c5785"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__reverse__iterator.html">reverse_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a9ee447ccb7f44d3a4998b627f43c5785">rbegin</a> ()</td></tr>
+<tr class="separator:a9ee447ccb7f44d3a4998b627f43c5785"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf5b2b751e1801097f00962fcd71d9bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__reverse__iterator.html">reverse_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#adf5b2b751e1801097f00962fcd71d9bd">rend</a> ()</td></tr>
+<tr class="separator:adf5b2b751e1801097f00962fcd71d9bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa32bf895aac1573206369837ae7179d"><td class="memItemLeft" align="right" valign="top">P&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#aaa32bf895aac1573206369837ae7179d">back</a> ()</td></tr>
+<tr class="separator:aaa32bf895aac1573206369837ae7179d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97af7fe688b9d1771a2fe9ee0834d7b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a97af7fe688b9d1771a2fe9ee0834d7b6">sort</a> (PFNSORTLIST pfnCompare)</td></tr>
+<tr class="separator:a97af7fe688b9d1771a2fe9ee0834d7b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ad829fdebad73793ab55194b32197aa77"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structlist.html">list</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#ad829fdebad73793ab55194b32197aa77">n</a></td></tr>
-<tr class="separator:ad829fdebad73793ab55194b32197aa77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa77f22e219fd0326506ae66af4961caf"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structlist.html">list</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#aa77f22e219fd0326506ae66af4961caf">p</a></td></tr>
-<tr class="separator:aa77f22e219fd0326506ae66af4961caf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ad6086fc537a8f5b11f18d5dd208d73"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structlist.html">list</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a2ad6086fc537a8f5b11f18d5dd208d73">n</a></td></tr>
+<tr class="separator:a2ad6086fc537a8f5b11f18d5dd208d73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21eb52bdcac6cab7701610d60cbecbe"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structlist.html">list</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#ab21eb52bdcac6cab7701610d60cbecbe">p</a></td></tr>
+<tr class="separator:ab21eb52bdcac6cab7701610d60cbecbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafb3390f5d8d6bb46e0885791cbbae53"><td class="memItemLeft" align="right" valign="top">const LISTMODE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#aafb3390f5d8d6bb46e0885791cbbae53">_mode</a></td></tr>
+<tr class="separator:aafb3390f5d8d6bb46e0885791cbbae53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a3d8874598846187ee3fdf27426743388"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a3d8874598846187ee3fdf27426743388">KillNode</a> (<a class="el" href="struct__LISTNODE.html">PLISTNODE</a> p)</td></tr>
+<tr class="separator:a3d8874598846187ee3fdf27426743388"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76302e0fed3f73235cd32c288b416c54"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a76302e0fed3f73235cd32c288b416c54">CopyFrom</a> (const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;llSource)</td></tr>
+<tr class="separator:a76302e0fed3f73235cd32c288b416c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a81db387507414936b75ce6a0c0e65d40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__LINKLIST.html">LINKLIST</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlist.html#a81db387507414936b75ce6a0c0e65d40">ll</a></td></tr>
+<tr class="separator:a81db387507414936b75ce6a0c0e65d40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
+<div class="textblock"><div class="compoundTemplParams">template&lt;class P&gt;<br />
+class list&lt; P &gt;</div>
 <p class="definition">Definition at line <a class="el" href="devmapper_2include_2list_8h_source.html#l00028">28</a> of file <a class="el" href="devmapper_2include_2list_8h_source.html">list.h</a>.</p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="ad829fdebad73793ab55194b32197aa77" name="ad829fdebad73793ab55194b32197aa77"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad829fdebad73793ab55194b32197aa77">&#9670;&nbsp;</a></span>n</h2>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a911de86642347b78328c78264a14fb4d" name="a911de86642347b78328c78264a14fb4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a911de86642347b78328c78264a14fb4d">&#9670;&nbsp;</a></span>iterator</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structlist.html">list</a> * list::n</td>
+          <td class="memname">typedef <a class="el" href="classlist__iterator.html">list_iterator</a>&lt;P&gt; <a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__iterator.html">iterator</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00352">352</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="ae48790361239f5d35881b343c9dc20d7" name="ae48790361239f5d35881b343c9dc20d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae48790361239f5d35881b343c9dc20d7">&#9670;&nbsp;</a></span>reverse_iterator</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="classlist__reverse__iterator.html">list_reverse_iterator</a>&lt;P&gt; <a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__reverse__iterator.html">reverse_iterator</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00353">353</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a79e46d2fb304e9c2cf5eff526d49e589" name="a79e46d2fb304e9c2cf5eff526d49e589"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79e46d2fb304e9c2cf5eff526d49e589">&#9670;&nbsp;</a></span>list() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="structlist.html">list</a> </td>
+          <td>(</td>
+          <td class="paramtype">LISTMODE&#160;</td>
+          <td class="paramname"><em>mode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00360">360</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="adf0fb0f0fbff345c05315ccb8a8d4450" name="adf0fb0f0fbff345c05315ccb8a8d4450"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf0fb0f0fbff345c05315ccb8a8d4450">&#9670;&nbsp;</a></span>list() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="structlist.html">list</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;&#160;</td>
+          <td class="paramname"><em>llSource</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00367">367</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a299758c2b7ec7a070b1032de31bd8e13" name="a299758c2b7ec7a070b1032de31bd8e13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a299758c2b7ec7a070b1032de31bd8e13">&#9670;&nbsp;</a></span>~list()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::~<a class="el" href="structlist.html">list</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00382">382</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="aaa32bf895aac1573206369837ae7179d" name="aaa32bf895aac1573206369837ae7179d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa32bf895aac1573206369837ae7179d">&#9670;&nbsp;</a></span>back()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">P <a class="el" href="structlist.html">list</a>&lt; P &gt;::back </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00599">599</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="abad14b658dcc8102078a53332b293c9d" name="abad14b658dcc8102078a53332b293c9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abad14b658dcc8102078a53332b293c9d">&#9670;&nbsp;</a></span>begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__iterator.html">iterator</a> <a class="el" href="structlist.html">list</a>&lt; P &gt;::begin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00545">545</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a87bcf54b3a768f22861adc550edbcdf3" name="a87bcf54b3a768f22861adc550edbcdf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87bcf54b3a768f22861adc550edbcdf3">&#9670;&nbsp;</a></span>clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::clear </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00504">504</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a76302e0fed3f73235cd32c288b416c54" name="a76302e0fed3f73235cd32c288b416c54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76302e0fed3f73235cd32c288b416c54">&#9670;&nbsp;</a></span>CopyFrom()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::CopyFrom </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;&#160;</td>
+          <td class="paramname"><em>llSource</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00340">340</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="ae586f72a5171bc0777673081a6855a54" name="ae586f72a5171bc0777673081a6855a54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae586f72a5171bc0777673081a6855a54">&#9670;&nbsp;</a></span>count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long <a class="el" href="structlist.html">list</a>&lt; P &gt;::count </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00534">534</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a21f114347b7b7d6d56c3e1f96e529efb" name="a21f114347b7b7d6d56c3e1f96e529efb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21f114347b7b7d6d56c3e1f96e529efb">&#9670;&nbsp;</a></span>empty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structlist.html">list</a>&lt; P &gt;::empty </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00522">522</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a7856238ac5d9fcc0308ceb82b759e616" name="a7856238ac5d9fcc0308ceb82b759e616"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7856238ac5d9fcc0308ceb82b759e616">&#9670;&nbsp;</a></span>end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__iterator.html">iterator</a> <a class="el" href="structlist.html">list</a>&lt; P &gt;::end </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00578">578</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a7ad0ae41bacc329fc72c0a6c8a8e3500" name="a7ad0ae41bacc329fc72c0a6c8a8e3500"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ad0ae41bacc329fc72c0a6c8a8e3500">&#9670;&nbsp;</a></span>erase() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::erase </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classlist__iterator.html">iterator</a>&#160;</td>
+          <td class="paramname"><em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classlist__iterator.html">iterator</a>&#160;</td>
+          <td class="paramname"><em>last</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00479">479</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a8f199a71a8bfdcdb8d076f5402361962" name="a8f199a71a8bfdcdb8d076f5402361962"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f199a71a8bfdcdb8d076f5402361962">&#9670;&nbsp;</a></span>erase() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::erase </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classlist__iterator.html">iterator</a>&#160;</td>
+          <td class="paramname"><em>pos</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00466">466</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a3d8874598846187ee3fdf27426743388" name="a3d8874598846187ee3fdf27426743388"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d8874598846187ee3fdf27426743388">&#9670;&nbsp;</a></span>KillNode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::KillNode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct__LISTNODE.html">PLISTNODE</a>&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00320">320</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a06458ea781a64b2e860bcd3ca647bf37" name="a06458ea781a64b2e860bcd3ca647bf37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06458ea781a64b2e860bcd3ca647bf37">&#9670;&nbsp;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structlist.html">list</a>&lt; P &gt; <a class="el" href="structlist.html">list</a>&lt; P &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structlist.html">list</a>&lt; P &gt; &amp;&#160;</td>
+          <td class="paramname"><em>llSource</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00393">393</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a22bb085376d90c46c60593b10b97e2ca" name="a22bb085376d90c46c60593b10b97e2ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22bb085376d90c46c60593b10b97e2ca">&#9670;&nbsp;</a></span>pop_back()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::pop_back </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00448">448</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a7c6e96199c8e888058a52289c35e7d50" name="a7c6e96199c8e888058a52289c35e7d50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c6e96199c8e888058a52289c35e7d50">&#9670;&nbsp;</a></span>push_back()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::push_back </td>
+          <td>(</td>
+          <td class="paramtype">const P&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00416">416</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="ab73d8ffaa4a813b1966a923768f474c8" name="ab73d8ffaa4a813b1966a923768f474c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab73d8ffaa4a813b1966a923768f474c8">&#9670;&nbsp;</a></span>push_front()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::push_front </td>
+          <td>(</td>
+          <td class="paramtype">const P&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00404">404</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a9ee447ccb7f44d3a4998b627f43c5785" name="a9ee447ccb7f44d3a4998b627f43c5785"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ee447ccb7f44d3a4998b627f43c5785">&#9670;&nbsp;</a></span>rbegin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__reverse__iterator.html">reverse_iterator</a> <a class="el" href="structlist.html">list</a>&lt; P &gt;::rbegin </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00589">589</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a5b0b45fa2ec53b92155f5efa50d4b791" name="a5b0b45fa2ec53b92155f5efa50d4b791"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b0b45fa2ec53b92155f5efa50d4b791">&#9670;&nbsp;</a></span>remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::remove </td>
+          <td>(</td>
+          <td class="paramtype">P&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00432">432</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="adf5b2b751e1801097f00962fcd71d9bd" name="adf5b2b751e1801097f00962fcd71d9bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf5b2b751e1801097f00962fcd71d9bd">&#9670;&nbsp;</a></span>rend()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlist.html">list</a>&lt; P &gt;::<a class="el" href="classlist__reverse__iterator.html">reverse_iterator</a> <a class="el" href="structlist.html">list</a>&lt; P &gt;::rend </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00594">594</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a97af7fe688b9d1771a2fe9ee0834d7b6" name="a97af7fe688b9d1771a2fe9ee0834d7b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97af7fe688b9d1771a2fe9ee0834d7b6">&#9670;&nbsp;</a></span>sort()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structlist.html">list</a>&lt; P &gt;::sort </td>
+          <td>(</td>
+          <td class="paramtype">PFNSORTLIST&#160;</td>
+          <td class="paramname"><em>pfnCompare</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00608">608</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="aafb3390f5d8d6bb46e0885791cbbae53" name="aafb3390f5d8d6bb46e0885791cbbae53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafb3390f5d8d6bb46e0885791cbbae53">&#9670;&nbsp;</a></span>_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">const LISTMODE <a class="el" href="structlist.html">list</a>&lt; P &gt;::_mode</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00315">315</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a81db387507414936b75ce6a0c0e65d40" name="a81db387507414936b75ce6a0c0e65d40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81db387507414936b75ce6a0c0e65d40">&#9670;&nbsp;</a></span>ll</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct__LINKLIST.html">LINKLIST</a> <a class="el" href="structlist.html">list</a>&lt; P &gt;::ll</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bs__list_8h_source.html#l00318">318</a> of file <a class="el" href="bs__list_8h_source.html">bs_list.h</a>.</p>
+
+</div>
+</div>
+<a id="a2ad6086fc537a8f5b11f18d5dd208d73" name="a2ad6086fc537a8f5b11f18d5dd208d73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ad6086fc537a8f5b11f18d5dd208d73">&#9670;&nbsp;</a></span>n</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structlist.html">list</a> * <a class="el" href="structlist.html">list</a>&lt; P &gt;::n</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -73,14 +853,16 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aa77f22e219fd0326506ae66af4961caf" name="aa77f22e219fd0326506ae66af4961caf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa77f22e219fd0326506ae66af4961caf">&#9670;&nbsp;</a></span>p</h2>
+<a id="ab21eb52bdcac6cab7701610d60cbecbe" name="ab21eb52bdcac6cab7701610d60cbecbe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab21eb52bdcac6cab7701610d60cbecbe">&#9670;&nbsp;</a></span>p</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class P &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structlist.html">list</a> * list::p</td>
+          <td class="memname">struct <a class="el" href="structlist.html">list</a> * <a class="el" href="structlist.html">list</a>&lt; P &gt;::p</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -89,8 +871,9 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>lvm/devmapper/include/<a class="el" href="devmapper_2include_2list_8h_source.html">list.h</a></li>
+<li>lvmgui/contrib2/include/cppbase/<a class="el" href="bs__list_8h_source.html">bs_list.h</a></li>
 <li>lvm/lib/datastruct/<a class="el" href="lib_2datastruct_2list_8h_source.html">list.h</a></li>
 </ul>
 </div><!-- contents -->

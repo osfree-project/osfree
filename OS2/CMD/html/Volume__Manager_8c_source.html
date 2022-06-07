@@ -597,7 +597,7 @@ $(function() {
 <div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span> </div>
 <div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>  }</div>
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span> </div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>  LOG_EVENT(&quot;Drive scan complete.  Attempting to process the resulting <a class="code hl_struct" href="structlist.html">list</a> of partitions.&quot;)</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>  LOG_EVENT(&quot;Drive scan complete.  Attempting to process the resulting <a class="code hl_class" href="structlist.html">list</a> of partitions.&quot;)</div>
 <div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span> </div>
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>  <span class="comment">/* Now that we have the list of potential volumes, we need to process each potential volume and determine if they really are volumes. */</span></div>
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>  ForEachItem(Potential_Volumes, &amp;Process_Potential_Volumes, NULL, TRUE, &amp;Error);</div>
@@ -636,7 +636,7 @@ $(function() {
 <div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span> </div>
 <div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>  }</div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>  LOG_EVENT(&quot;Processing of the Potential_Volumes <a class="code hl_struct" href="structlist.html">list</a> has been completed.&quot;)</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>  LOG_EVENT(&quot;Processing of the Potential_Volumes <a class="code hl_class" href="structlist.html">list</a> has been completed.&quot;)</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>  <span class="comment">/* Now that all of the potential volumes have been processed, we can eliminate the Potential_Volumes list.  All of the</span></div>
 <div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span><span class="comment">     real volumes have been moved to the Volumes list.  Anything remaining in this list is not a volume and can be deleted. */</span></div>
@@ -1159,7 +1159,7 @@ $(function() {
 <div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span> </div>
 <div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>  }</div>
 <div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span> </div>
-<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>  LOG_EVENT(&quot;Processing the Volumes <a class="code hl_struct" href="structlist.html">list</a>.&quot;)</div>
+<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>  LOG_EVENT(&quot;Processing the Volumes <a class="code hl_class" href="structlist.html">list</a>.&quot;)</div>
 <div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span> </div>
 <div class="line"><a id="l01116" name="l01116"></a><span class="lineno"> 1116</span>  <span class="comment">/* We must walk the Volumes list and, for each LVM volume which has been created or modified, we must have</span></div>
 <div class="line"><a id="l01117" name="l01117"></a><span class="lineno"> 1117</span><span class="comment">     each feature on that volume commit its changes.                                                          */</span></div>
@@ -11286,7 +11286,7 @@ $(function() {
 <div class="line"><a id="l11238" name="l11238"></a><span class="lineno">11238</span> </div>
 <div class="line"><a id="l11239" name="l11239"></a><span class="lineno">11239</span>  }</div>
 <div class="line"><a id="l11240" name="l11240"></a><span class="lineno">11240</span> </div>
-<div class="line"><a id="l11241" name="l11241"></a><span class="lineno">11241</span>  LOG_EVENT(&quot;Determining the <a class="code hl_struct" href="structlist.html">list</a> of <a class="code hl_struct" href="structreserved.html">reserved</a> drive letters.&quot;)</div>
+<div class="line"><a id="l11241" name="l11241"></a><span class="lineno">11241</span>  LOG_EVENT(&quot;Determining the <a class="code hl_class" href="structlist.html">list</a> of <a class="code hl_struct" href="structreserved.html">reserved</a> drive letters.&quot;)</div>
 <div class="line"><a id="l11242" name="l11242"></a><span class="lineno">11242</span> </div>
 <div class="line"><a id="l11243" name="l11243"></a><span class="lineno">11243</span>  <span class="comment">/* Now we must determine the list of reserved drive letters.  All of the &quot;fake&quot; volumes created to represent things</span></div>
 <div class="line"><a id="l11244" name="l11244"></a><span class="lineno">11244</span><span class="comment">     which consume drive letters but are not LVM controlled entities have a drive letter preference of &#39;*&#39; ( except</span></div>
@@ -11298,7 +11298,7 @@ $(function() {
 <div class="line"><a id="l11250" name="l11250"></a><span class="lineno">11250</span><span class="comment">     letter is non-zero, and put their current drive letters into the list of reserved drive letters.                    */</span></div>
 <div class="line"><a id="l11251" name="l11251"></a><span class="lineno">11251</span>  ForEachItem( Volumes, &amp;Find_Reserved_Drive_Letters, &amp;Reserved_Drive_Letters, TRUE, Error_Code);</div>
 <div class="line"><a id="l11252" name="l11252"></a><span class="lineno">11252</span> </div>
-<div class="line"><a id="l11253" name="l11253"></a><span class="lineno">11253</span>  LOG_EVENT1(&quot;Have determined the <a class="code hl_struct" href="structlist.html">list</a> of <a class="code hl_struct" href="structreserved.html">reserved</a> drive letters.&quot;,&quot;Reserved Drive Letters Bitmap&quot;,Reserved_Drive_Letters)</div>
+<div class="line"><a id="l11253" name="l11253"></a><span class="lineno">11253</span>  LOG_EVENT1(&quot;Have determined the <a class="code hl_class" href="structlist.html">list</a> of <a class="code hl_struct" href="structreserved.html">reserved</a> drive letters.&quot;,&quot;Reserved Drive Letters Bitmap&quot;,Reserved_Drive_Letters)</div>
 <div class="line"><a id="l11254" name="l11254"></a><span class="lineno">11254</span> </div>
 <div class="line"><a id="l11255" name="l11255"></a><span class="lineno">11255</span>  FUNCTION_EXIT(&quot;Reconcile_Drive_Letters&quot;)</div>
 <div class="line"><a id="l11256" name="l11256"></a><span class="lineno">11256</span> </div>

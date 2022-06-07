@@ -82,9 +82,9 @@ $(function() {
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment"> * PVs used by a segment of an LV</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structseg__pvs.html">   36</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structseg__pvs.html">seg_pvs</a> {</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> pvs;        <span class="comment">/* struct pv_list */</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> pvs;        <span class="comment">/* struct pv_list */</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        uint32_t le;</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        uint32_t len;</div>
@@ -443,7 +443,7 @@ $(function() {
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span><span class="comment"> * A set of contiguous physical extents allocated</span></div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno"><a class="line" href="structalloced__area.html">  397</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structalloced__area.html">alloced_area</a> {</div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span> </div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv;</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>        uint32_t pe;</div>
@@ -465,10 +465,10 @@ $(function() {
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span> </div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *mirrored_pv;    <span class="comment">/* FIXME Remove this */</span></div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>        uint32_t mirrored_pe;                   <span class="comment">/* FIXME Remove this */</span></div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *parallel_areas;    <span class="comment">/* PVs to avoid */</span></div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *parallel_areas;    <span class="comment">/* PVs to avoid */</span></div>
 <div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span> </div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structalloced__area.html">alloced_area</a> log_area;   <span class="comment">/* Extent used for log */</span></div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> alloced_areas[1]; <span class="comment">//[0];   /* Lists of areas in each stripe */</span></div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> alloced_areas[1]; <span class="comment">//[0];   /* Lists of areas in each stripe */</span></div>
 <div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>};</div>
 <div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span> </div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span><span class="keyword">static</span> uint32_t calc_area_multiple(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structsegment__type.html">segment_type</a> *segtype,</div>
@@ -492,7 +492,7 @@ $(function() {
 <div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>                                        uint32_t log_count,</div>
 <div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>                                        <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *mirrored_pv,</div>
 <div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>                                        uint32_t mirrored_pe,</div>
-<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>                                        <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *parallel_areas)</div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>                                        <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *parallel_areas)</div>
 <div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>{</div>
 <div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structalloc__handle.html">alloc_handle</a> *ah;</div>
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>        uint32_t s, area_count;</div>
@@ -559,7 +559,7 @@ $(function() {
 <div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                dm_pool_destroy(ah-&gt;mem);</div>
 <div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>}</div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span> </div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span><span class="keyword">static</span> <span class="keywordtype">int</span> _log_parallel_areas(<span class="keyword">struct</span> <a class="code hl_struct" href="structdm__pool.html">dm_pool</a> *mem, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *parallel_areas)</div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span><span class="keyword">static</span> <span class="keywordtype">int</span> _log_parallel_areas(<span class="keyword">struct</span> <a class="code hl_struct" href="structdm__pool.html">dm_pool</a> *mem, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *parallel_areas)</div>
 <div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>{</div>
 <div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structseg__pvs.html">seg_pvs</a> *spvs;</div>
 <div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structpv__list.html">pv_list</a> *pvl;</div>
@@ -661,7 +661,7 @@ $(function() {
 <div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>}</div>
 <div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span> </div>
 <div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span><span class="keyword">static</span> <span class="keywordtype">int</span> _setup_alloced_segments(<span class="keyword">struct</span> <a class="code hl_struct" href="structlogical__volume.html">logical_volume</a> *lv,</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                                   <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *alloced_areas,</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                                   <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *alloced_areas,</div>
 <div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>                                   uint32_t area_count,</div>
 <div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>                                   uint32_t status,</div>
 <div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>                                   uint32_t stripe_size,</div>
@@ -943,7 +943,7 @@ $(function() {
 <div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span><span class="comment"> * Choose sets of parallel areas to use, respecting any constraints.</span></div>
 <div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span><span class="keyword">static</span> <span class="keywordtype">int</span> _find_parallel_space(<span class="keyword">struct</span> <a class="code hl_struct" href="structalloc__handle.html">alloc_handle</a> *ah, alloc_policy_t alloc,</div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>                                <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *pvms, <span class="keyword">struct</span> <a class="code hl_struct" href="structpv__area.html">pv_area</a> **areas,</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>                                <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *pvms, <span class="keyword">struct</span> <a class="code hl_struct" href="structpv__area.html">pv_area</a> **areas,</div>
 <div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>                                uint32_t areas_size, <span class="keywordtype">unsigned</span> can_split,</div>
 <div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>                                <span class="keyword">struct</span> <a class="code hl_struct" href="structlv__segment.html">lv_segment</a> *prev_lvseg,</div>
 <div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>                                uint32_t *allocated, uint32_t needed)</div>
@@ -958,7 +958,7 @@ $(function() {
 <div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>        uint32_t max_parallel;  <span class="comment">/* Maximum extents to allocate */</span></div>
 <div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>        uint32_t next_le;</div>
 <div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structseg__pvs.html">seg_pvs</a> *spvs;</div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *parallel_pvs;</div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *parallel_pvs;</div>
 <div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>        uint32_t free_pes;</div>
 <div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span> </div>
 <div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>        <span class="comment">/* Is there enough total space? */</span></div>
@@ -1127,7 +1127,7 @@ $(function() {
 <div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>                     <span class="keyword">struct</span> <a class="code hl_struct" href="structvolume__group.html">volume_group</a> *vg,</div>
 <div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>                     <span class="keyword">struct</span> <a class="code hl_struct" href="structlogical__volume.html">logical_volume</a> *lv, uint32_t status,</div>
 <div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>                     uint32_t new_extents,</div>
-<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>                     <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *allocatable_pvs,</div>
+<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>                     <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *allocatable_pvs,</div>
 <div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>                     uint32_t stripes, uint32_t mirrors,</div>
 <div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>                     <span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structsegment__type.html">segment_type</a> *segtype)</div>
 <div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>{</div>
@@ -1137,7 +1137,7 @@ $(function() {
 <div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlv__segment.html">lv_segment</a> *prev_lvseg = NULL;</div>
 <div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>        <span class="keywordtype">unsigned</span> can_split = 1; <span class="comment">/* Are we allowed more than one segment? */</span></div>
 <div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>        <span class="keywordtype">int</span> r = 0;</div>
-<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *pvms;</div>
+<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *pvms;</div>
 <div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>        uint32_t areas_size;</div>
 <div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>        alloc_policy_t alloc;</div>
 <div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span> </div>
@@ -1255,9 +1255,9 @@ $(function() {
 <div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>                                      <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *mirrored_pv,</div>
 <div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>                                      uint32_t mirrored_pe,</div>
 <div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>                                      uint32_t status,</div>
-<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>                                      <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *allocatable_pvs,</div>
+<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>                                      <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *allocatable_pvs,</div>
 <div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>                                      alloc_policy_t alloc,</div>
-<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>                                      <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *parallel_areas)</div>
+<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>                                      <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *parallel_areas)</div>
 <div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>{</div>
 <div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structalloc__handle.html">alloc_handle</a> *ah;</div>
 <div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span> </div>
@@ -1476,7 +1476,7 @@ $(function() {
 <div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>              uint32_t stripes, uint32_t stripe_size,</div>
 <div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>              uint32_t mirrors, uint32_t extents,</div>
 <div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>              <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *mirrored_pv, uint32_t mirrored_pe,</div>
-<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>              uint32_t status, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *allocatable_pvs,</div>
+<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>              uint32_t status, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *allocatable_pvs,</div>
 <div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>              alloc_policy_t alloc)</div>
 <div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>{</div>
 <div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>        <span class="keywordtype">int</span> r = 1;</div>
@@ -1652,10 +1652,10 @@ $(function() {
 <div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span><span class="comment">/*</span></div>
 <div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span><span class="comment"> * Construct list of segments of LVs showing which PVs they use.</span></div>
 <div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span><span class="comment"> */</span></div>
-<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span><span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *build_parallel_areas_from_lv(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd,</div>
+<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span><span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *build_parallel_areas_from_lv(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd,</div>
 <div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>                                          <span class="keyword">struct</span> <a class="code hl_struct" href="structlogical__volume.html">logical_volume</a> *lv)</div>
 <div class="line"><a id="l01609" name="l01609"></a><span class="lineno"> 1609</span>{</div>
-<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *parallel_areas;</div>
+<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *parallel_areas;</div>
 <div class="line"><a id="l01611" name="l01611"></a><span class="lineno"> 1611</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structseg__pvs.html">seg_pvs</a> *spvs;</div>
 <div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span>        uint32_t current_le = 0;</div>
 <div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span> </div>

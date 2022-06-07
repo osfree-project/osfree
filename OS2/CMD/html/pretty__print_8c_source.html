@@ -112,12 +112,12 @@ $(function() {
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        fprintf(fp, <span class="stringliteral">&quot;}\n\n&quot;</span>);</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        list_for_each(tmp, &amp;vg-&gt;pvs) {</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>                <span class="keyword">struct </span><a class="code hl_struct" href="structpv__list.html">pv_list</a> *pvl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structpv__list.html">pv_list</a>, <a class="code hl_struct" href="structlist.html">list</a>);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>                <span class="keyword">struct </span><a class="code hl_struct" href="structpv__list.html">pv_list</a> *pvl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structpv__list.html">pv_list</a>, <a class="code hl_class" href="structlist.html">list</a>);</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>                dump_pv(&amp;pvl-&gt;pv, fp);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        }</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        list_for_each(tmp, &amp;vg-&gt;lvs) {</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                <span class="keyword">struct </span><a class="code hl_struct" href="structlv__list.html">lv_list</a> *lvl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structlv__list.html">lv_list</a>, <a class="code hl_struct" href="structlist.html">list</a>);</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                <span class="keyword">struct </span><a class="code hl_struct" href="structlv__list.html">lv_list</a> *lvl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structlv__list.html">lv_list</a>, <a class="code hl_class" href="structlist.html">list</a>);</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>                dump_lv(&amp;lvl-&gt;lv, fp);</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        }</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>}</div>
@@ -128,7 +128,7 @@ $(function() {
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structname__list.html">name_list</a> *nl;</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        list_for_each(tmp, vg_names) {</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                nl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structname__list.html">name_list</a>, <a class="code hl_struct" href="structlist.html">list</a>);</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                nl = list_entry(tmp, <span class="keyword">struct</span> <a class="code hl_struct" href="structname__list.html">name_list</a>, <a class="code hl_class" href="structlist.html">list</a>);</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                fprintf(fp, <span class="stringliteral">&quot;%s\n&quot;</span>, nl-&gt;name);</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        }</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>}</div>

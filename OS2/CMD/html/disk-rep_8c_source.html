@@ -480,7 +480,7 @@ $(function() {
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>        <span class="keywordflow">return</span> r;</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>}</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span> </div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keyword">static</span> <span class="keywordtype">void</span> _add_pv_to_list(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *head, <span class="keyword">struct</span> <a class="code hl_struct" href="structdisk__list.html">disk_list</a> *data)</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keyword">static</span> <span class="keywordtype">void</span> _add_pv_to_list(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *head, <span class="keyword">struct</span> <a class="code hl_struct" href="structdisk__list.html">disk_list</a> *data)</div>
 <div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>{</div>
 <div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structpv__disk.html">pv_disk</a> *pvd;</div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdisk__list.html">disk_list</a> *diskl;</div>
@@ -511,7 +511,7 @@ $(function() {
 <div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span><span class="keywordtype">int</span> read_pvs_in_vg(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt, <span class="keyword">const</span> <span class="keywordtype">char</span> *vg_name,</div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>                   <span class="keyword">struct</span> <a class="code hl_struct" href="structdev__filter.html">dev_filter</a> *filter, <span class="keyword">struct</span> <a class="code hl_struct" href="structdm__pool.html">dm_pool</a> *mem,</div>
-<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>                   <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *head)</div>
+<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>                   <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *head)</div>
 <div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>{</div>
 <div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdev__iter.html">dev_iter</a> *iter;</div>
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdevice.html">device</a> *dev;</div>
@@ -775,7 +775,7 @@ $(function() {
 <div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span><span class="comment"> * little sanity checking, so make sure correct</span></div>
 <div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span><span class="comment"> * data is passed to here.</span></div>
 <div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span><span class="keywordtype">int</span> write_disks(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *pvs)</div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span><span class="keywordtype">int</span> write_disks(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *pvs)</div>
 <div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>{</div>
 <div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdisk__list.html">disk_list</a> *dl;</div>
 <div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span> </div>

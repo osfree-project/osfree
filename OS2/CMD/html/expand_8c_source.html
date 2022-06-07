@@ -2075,7 +2075,7 @@ $(function() {
 <div class="line"><a id="l02027" name="l02027"></a><span class="lineno"> 2027</span>                    <span class="comment">// 4DOS gets 64K; everything else gets realloc&#39;d</span></div>
 <div class="line"><a id="l02028" name="l02028"></a><span class="lineno"> 2028</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> uListSize = 0xFFF0;</div>
 <div class="line"><a id="l02029" name="l02029"></a><span class="lineno"> 2029</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> size = 0L;</div>
-<div class="line"><a id="l02030" name="l02030"></a><span class="lineno"> 2030</span>                    <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a> = 0L;</div>
+<div class="line"><a id="l02030" name="l02030"></a><span class="lineno"> 2030</span>                    <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a> = 0L;</div>
 <div class="line"><a id="l02031" name="l02031"></a><span class="lineno"> 2031</span>                    <span class="keywordtype">char</span> title[80];</div>
 <div class="line"><a id="l02032" name="l02032"></a><span class="lineno"> 2032</span> </div>
 <div class="line"><a id="l02033" name="l02033"></a><span class="lineno"> 2033</span>                    <span class="comment">// get line from file - check for valid syntax</span></div>
@@ -2106,9 +2106,9 @@ $(function() {
 <div class="line"><a id="l02058" name="l02058"></a><span class="lineno"> 2058</span>                        <span class="comment">// allocate memory for 256 entries at a time</span></div>
 <div class="line"><a id="l02059" name="l02059"></a><span class="lineno"> 2059</span>                        <span class="keywordflow">if</span> (( i % 256 ) == 0 ) {</div>
 <div class="line"><a id="l02060" name="l02060"></a><span class="lineno"> 2060</span>                            size += 1024;</div>
-<div class="line"><a id="l02061" name="l02061"></a><span class="lineno"> 2061</span>                            <a class="code hl_struct" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a>, size );</div>
-<div class="line"><a id="l02062" name="l02062"></a><span class="lineno"> 2062</span>                            <span class="keywordflow">if</span> (( i == 0 ) &amp;&amp; ( <a class="code hl_struct" href="structlist.html">list</a> != 0L ))</div>
-<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>                                <a class="code hl_struct" href="structlist.html">list</a>[0] = fptr;</div>
+<div class="line"><a id="l02061" name="l02061"></a><span class="lineno"> 2061</span>                            <a class="code hl_class" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a>, size );</div>
+<div class="line"><a id="l02062" name="l02062"></a><span class="lineno"> 2062</span>                            <span class="keywordflow">if</span> (( i == 0 ) &amp;&amp; ( <a class="code hl_class" href="structlist.html">list</a> != 0L ))</div>
+<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>                                <a class="code hl_class" href="structlist.html">list</a>[0] = fptr;</div>
 <div class="line"><a id="l02064" name="l02064"></a><span class="lineno"> 2064</span>                        }</div>
 <div class="line"><a id="l02065" name="l02065"></a><span class="lineno"> 2065</span> </div>
 <div class="line"><a id="l02066" name="l02066"></a><span class="lineno"> 2066</span>                        <span class="keywordflow">if</span> ( getline( n, szBuffer, MAXARGSIZ, EDIT_DATA ) &lt;= 0 )</div>
@@ -2116,21 +2116,21 @@ $(function() {
 <div class="line"><a id="l02068" name="l02068"></a><span class="lineno"> 2068</span> </div>
 <div class="line"><a id="l02069" name="l02069"></a><span class="lineno"> 2069</span>                        length = strlen( szBuffer ) + 1;</div>
 <div class="line"><a id="l02070" name="l02070"></a><span class="lineno"> 2070</span> </div>
-<div class="line"><a id="l02071" name="l02071"></a><span class="lineno"> 2071</span>                        <span class="keywordflow">if</span> (( <a class="code hl_struct" href="structlist.html">list</a> == 0L ) || ( <a class="code hl_struct" href="structlist.html">list</a>[0] == 0L ) || (((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>)( fptr - <a class="code hl_struct" href="structlist.html">list</a>[0]) + length ) &gt;= uListSize )) {</div>
+<div class="line"><a id="l02071" name="l02071"></a><span class="lineno"> 2071</span>                        <span class="keywordflow">if</span> (( <a class="code hl_class" href="structlist.html">list</a> == 0L ) || ( <a class="code hl_class" href="structlist.html">list</a>[0] == 0L ) || (((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>)( fptr - <a class="code hl_class" href="structlist.html">list</a>[0]) + length ) &gt;= uListSize )) {</div>
 <div class="line"><a id="l02072" name="l02072"></a><span class="lineno"> 2072</span>                            uListSize += 0xFF;</div>
 <div class="line"><a id="l02073" name="l02073"></a><span class="lineno"> 2073</span>                            uListSize += 0xFFF0L;</div>
 <div class="line"><a id="l02074" name="l02074"></a><span class="lineno"> 2074</span>                            fptr = ReallocMem( fptr, uListSize );</div>
 <div class="line"><a id="l02075" name="l02075"></a><span class="lineno"> 2075</span>                            uListSize -= 0xFF;</div>
 <div class="line"><a id="l02076" name="l02076"></a><span class="lineno"> 2076</span>                            <span class="keywordflow">if</span> ( fptr == 0L ) {</div>
 <div class="line"><a id="l02077" name="l02077"></a><span class="lineno"> 2077</span>                                _close( n );</div>
-<div class="line"><a id="l02078" name="l02078"></a><span class="lineno"> 2078</span>                                FreeMem( <a class="code hl_struct" href="structlist.html">list</a>[0] );</div>
-<div class="line"><a id="l02079" name="l02079"></a><span class="lineno"> 2079</span>                                FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l02078" name="l02078"></a><span class="lineno"> 2078</span>                                FreeMem( <a class="code hl_class" href="structlist.html">list</a>[0] );</div>
+<div class="line"><a id="l02079" name="l02079"></a><span class="lineno"> 2079</span>                                FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l02080" name="l02080"></a><span class="lineno"> 2080</span>                                <span class="keywordflow">return</span> ERROR_NOT_ENOUGH_MEMORY;</div>
 <div class="line"><a id="l02081" name="l02081"></a><span class="lineno"> 2081</span>                            }</div>
 <div class="line"><a id="l02082" name="l02082"></a><span class="lineno"> 2082</span>                        }</div>
 <div class="line"><a id="l02083" name="l02083"></a><span class="lineno"> 2083</span> </div>
 <div class="line"><a id="l02084" name="l02084"></a><span class="lineno"> 2084</span>                        strcpy( fptr, szBuffer );</div>
-<div class="line"><a id="l02085" name="l02085"></a><span class="lineno"> 2085</span>                        <a class="code hl_struct" href="structlist.html">list</a>[i] = fptr;</div>
+<div class="line"><a id="l02085" name="l02085"></a><span class="lineno"> 2085</span>                        <a class="code hl_class" href="structlist.html">list</a>[i] = fptr;</div>
 <div class="line"><a id="l02086" name="l02086"></a><span class="lineno"> 2086</span>                        fptr += length;</div>
 <div class="line"><a id="l02087" name="l02087"></a><span class="lineno"> 2087</span>                    }</div>
 <div class="line"><a id="l02088" name="l02088"></a><span class="lineno"> 2088</span> </div>
@@ -2143,22 +2143,22 @@ $(function() {
 <div class="line"><a id="l02095" name="l02095"></a><span class="lineno"> 2095</span>                    EnableSignals();</div>
 <div class="line"><a id="l02096" name="l02096"></a><span class="lineno"> 2096</span> </div>
 <div class="line"><a id="l02097" name="l02097"></a><span class="lineno"> 2097</span>                    <span class="keywordflow">if</span> ( i == 0 ) {</div>
-<div class="line"><a id="l02098" name="l02098"></a><span class="lineno"> 2098</span>                            FreeMem( <a class="code hl_struct" href="structlist.html">list</a>[0]);</div>
-<div class="line"><a id="l02099" name="l02099"></a><span class="lineno"> 2099</span>                            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l02098" name="l02098"></a><span class="lineno"> 2098</span>                            FreeMem( <a class="code hl_class" href="structlist.html">list</a>[0]);</div>
+<div class="line"><a id="l02099" name="l02099"></a><span class="lineno"> 2099</span>                            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l02100" name="l02100"></a><span class="lineno"> 2100</span>                            <span class="keywordflow">return</span> ERROR_4DOS_FILE_EMPTY;</div>
 <div class="line"><a id="l02101" name="l02101"></a><span class="lineno"> 2101</span>                    }</div>
 <div class="line"><a id="l02102" name="l02102"></a><span class="lineno"> 2102</span> </div>
 <div class="line"><a id="l02103" name="l02103"></a><span class="lineno"> 2103</span>                    *(++fptr ) = <span class="charliteral">&#39;\0&#39;</span>;</div>
 <div class="line"><a id="l02104" name="l02104"></a><span class="lineno"> 2104</span> </div>
 <div class="line"><a id="l02105" name="l02105"></a><span class="lineno"> 2105</span>                    <span class="comment">// call the popup window</span></div>
-<div class="line"><a id="l02106" name="l02106"></a><span class="lineno"> 2106</span>                    <span class="keywordflow">if</span> (( fptr = wPopSelect( top, left, ( bottom - top ) - 1, ( right - left ) - 1, <a class="code hl_struct" href="structlist.html">list</a>, i, 1, title, NULL, NULL, sort )) != 0L )</div>
+<div class="line"><a id="l02106" name="l02106"></a><span class="lineno"> 2106</span>                    <span class="keywordflow">if</span> (( fptr = wPopSelect( top, left, ( bottom - top ) - 1, ( right - left ) - 1, <a class="code hl_class" href="structlist.html">list</a>, i, 1, title, NULL, NULL, sort )) != 0L )</div>
 <div class="line"><a id="l02107" name="l02107"></a><span class="lineno"> 2107</span>                        strcpy( var, fptr );</div>
 <div class="line"><a id="l02108" name="l02108"></a><span class="lineno"> 2108</span>                    <span class="keywordflow">else</span></div>
 <div class="line"><a id="l02109" name="l02109"></a><span class="lineno"> 2109</span>                        var = NULL;</div>
 <div class="line"><a id="l02110" name="l02110"></a><span class="lineno"> 2110</span> </div>
 <div class="line"><a id="l02111" name="l02111"></a><span class="lineno"> 2111</span>                    <span class="comment">// free the pointer array &amp; list memory</span></div>
-<div class="line"><a id="l02112" name="l02112"></a><span class="lineno"> 2112</span>                    FreeMem( <a class="code hl_struct" href="structlist.html">list</a>[0] );</div>
-<div class="line"><a id="l02113" name="l02113"></a><span class="lineno"> 2113</span>                    FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l02112" name="l02112"></a><span class="lineno"> 2112</span>                    FreeMem( <a class="code hl_class" href="structlist.html">list</a>[0] );</div>
+<div class="line"><a id="l02113" name="l02113"></a><span class="lineno"> 2113</span>                    FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l02114" name="l02114"></a><span class="lineno"> 2114</span> </div>
 <div class="line"><a id="l02115" name="l02115"></a><span class="lineno"> 2115</span>                    <span class="comment">// reenable signal handling after cleanup</span></div>
 <div class="line"><a id="l02116" name="l02116"></a><span class="lineno"> 2116</span>                    EnableSignals();</div>

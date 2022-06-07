@@ -298,7 +298,7 @@ $(function() {
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>        <span class="keywordtype">char</span> * fptr;</div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>        <span class="keywordtype">char</span> *lpBuf;</div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>        <span class="keywordtype">char</span> szBuffer[MAXFILENAME+12];</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>        <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a> = 0L;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>        <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a> = 0L;</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>        <span class="keywordflow">if</span> (( n = _sopen( bframe[ cv.bn ].pszBatchName, (O_RDONLY | O_BINARY), SH_DENYWR) ) &lt; 0 )</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>                <span class="keywordflow">return</span> ( error( _doserrno, bframe[cv.bn].pszBatchName ));</div>
@@ -321,11 +321,11 @@ $(function() {
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                <span class="comment">// allocate memory for 256 entries at a time</span></div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                <span class="keywordflow">if</span> (( i % 256 ) == 0 ) {</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>                    lListSize += ( 256 * <span class="keyword">sizeof</span>(<span class="keywordtype">char</span> *) );</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                    <span class="keywordflow">if</span> (( <a class="code hl_struct" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a>, lListSize )) == 0L )</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                    <span class="keywordflow">if</span> (( <a class="code hl_class" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a>, lListSize )) == 0L )</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>                        <span class="keywordflow">return</span> ( error( ERROR_NOT_ENOUGH_MEMORY, NULL ));</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>                }</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                <a class="code hl_struct" href="structlist.html">list</a>[i++] = fptr;</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>                <a class="code hl_class" href="structlist.html">list</a>[i++] = fptr;</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                sscanf( fptr, <span class="stringliteral">&quot;%*[^\r\n]%n&quot;</span>, &amp;nLength );</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                fptr += nLength;</div>
@@ -340,11 +340,11 @@ $(function() {
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>        <span class="comment">// call the popup window</span></div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>        sprintf( szBuffer, <span class="stringliteral">&quot;%s [%u]&quot;</span>, bframe[cv.bn].pszBatchName, bframe[cv.bn].uBatchLine );</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        <span class="keywordflow">if</span> ( wPopSelect( 2, 4, 8, 70, <a class="code hl_struct" href="structlist.html">list</a>, i, bframe[cv.bn].uBatchLine, szBuffer, DEBUGGER_PROMPT, <span class="stringliteral">&quot;TSJXVAOQL&quot;</span>, 0x12 ) == 0L )</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        <span class="keywordflow">if</span> ( wPopSelect( 2, 4, 8, 70, <a class="code hl_class" href="structlist.html">list</a>, i, bframe[cv.bn].uBatchLine, szBuffer, DEBUGGER_PROMPT, <span class="stringliteral">&quot;TSJXVAOQL&quot;</span>, 0x12 ) == 0L )</div>
 <div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                gnPopExitKey = ESC;</div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>        FreeMem( lpBuf );</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>        <span class="comment">// reenable signal handling after cleanup</span></div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        EnableSignals();</div>

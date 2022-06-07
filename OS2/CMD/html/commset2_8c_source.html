@@ -156,9 +156,9 @@ $(function() {
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="comment">     Complete.</span></div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="comment">**man-end**********************************************************************/</span></div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="preprocessor">#ifdef HAVE_PROTO</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordtype">short</span> Parser(CHARTYPE *params)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordtype">short</span> <a class="code hl_struct" href="structParser.html">Parser</a>(CHARTYPE *params)</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keywordtype">short</span> Parser(params)</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keywordtype">short</span> <a class="code hl_struct" href="structParser.html">Parser</a>(params)</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>CHARTYPE *params;</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
@@ -675,7 +675,7 @@ $(function() {
 <div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span><span class="preprocessor">#define PRE_PARAMS  5</span></div>
 <div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span> CHARTYPE *word[PRE_PARAMS+1];</div>
 <div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span> CHARTYPE strip[PRE_PARAMS];</div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span> CHARTYPE prefix=PREFIX_OFF;</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span> CHARTYPE <a class="code hl_struct" href="structprefix.html">prefix</a>=PREFIX_OFF;</div>
 <div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span> CHARTYPE previous_prefix=CURRENT_VIEW-&gt;prefix;</div>
 <div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> num_params=0;</div>
 <div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span> <span class="keywordtype">short</span> my_prefix_width=0,my_prefix_gap=0;</div>
@@ -715,13 +715,13 @@ $(function() {
 <div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span>       <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>      }</div>
 <div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>    <span class="keywordflow">if</span> (equal((CHARTYPE *)<span class="stringliteral">&quot;left&quot;</span>,word[1],1))</div>
-<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>       prefix = PREFIX_LEFT;</div>
+<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>       <a class="code hl_struct" href="structprefix.html">prefix</a> = PREFIX_LEFT;</div>
 <div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>    <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>       <span class="keywordflow">if</span> (equal((CHARTYPE *)<span class="stringliteral">&quot;right&quot;</span>,word[1],1))</div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>          prefix = PREFIX_RIGHT;</div>
+<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>          <a class="code hl_struct" href="structprefix.html">prefix</a> = PREFIX_RIGHT;</div>
 <div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>       <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>          <span class="keywordflow">if</span> (num_params == 1)       <span class="comment">/* no left/right, default to left */</span></div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>             prefix = PREFIX_LEFT;</div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>             <a class="code hl_struct" href="structprefix.html">prefix</a> = PREFIX_LEFT;</div>
 <div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>          <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>            {</div>
 <div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>             display_error(1,word[1],FALSE);</div>
@@ -729,9 +729,9 @@ $(function() {
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>             <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>            }</div>
 <div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>    <span class="keywordflow">if</span> (equal((CHARTYPE *)<span class="stringliteral">&quot;on&quot;</span>,word[0],2))</div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>       CURRENT_VIEW-&gt;prefix = prefix | PREFIX_ON;</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>       CURRENT_VIEW-&gt;prefix = <a class="code hl_struct" href="structprefix.html">prefix</a> | PREFIX_ON;</div>
 <div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>       CURRENT_VIEW-&gt;prefix = prefix | PREFIX_NULLS;</div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>       CURRENT_VIEW-&gt;prefix = <a class="code hl_struct" href="structprefix.html">prefix</a> | PREFIX_NULLS;</div>
 <div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>    <span class="keywordflow">if</span> (num_params &gt; 2)</div>
 <div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>      {</div>
 <div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>       <span class="keywordflow">if</span> (!valid_positive_integer(word[2]))</div>
@@ -4829,12 +4829,14 @@ $(function() {
 <div class="line"><a id="l04781" name="l04781"></a><span class="lineno"> 4781</span>   TRACE_RETURN();</div>
 <div class="line"><a id="l04782" name="l04782"></a><span class="lineno"> 4782</span>   <span class="keywordflow">return</span>(RC_OK);</div>
 <div class="line"><a id="l04783" name="l04783"></a><span class="lineno"> 4783</span>}</div>
+<div class="ttc" id="astructParser_html"><div class="ttname"><a href="structParser.html">Parser</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00455">xmlparse.c:456</a></div></div>
 <div class="ttc" id="astructcolour__attr_html"><div class="ttname"><a href="structcolour__attr.html">colour_attr</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00950">the.h:951</a></div></div>
 <div class="ttc" id="astructcommand_html"><div class="ttname"><a href="structcommand.html">command</a></div><div class="ttdef"><b>Definition:</b> <a href="dmsetup_8c_source.html#l00167">dmsetup.c:167</a></div></div>
 <div class="ttc" id="astructline_html"><div class="ttname"><a href="structline.html">line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00933">the.h:934</a></div></div>
 <div class="ttc" id="astructparser__details_html"><div class="ttname"><a href="structparser__details.html">parser_details</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01073">the.h:1074</a></div></div>
 <div class="ttc" id="astructparser__mapping_html"><div class="ttname"><a href="structparser__mapping.html">parser_mapping</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01181">the.h:1182</a></div></div>
 <div class="ttc" id="astructparser_html"><div class="ttname"><a href="structparser.html">parser</a></div><div class="ttdef"><b>Definition:</b> <a href="config_8c_source.html#l00049">config.c:49</a></div></div>
+<div class="ttc" id="astructprefix_html"><div class="ttname"><a href="structprefix.html">prefix</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00186">xmlparse.c:187</a></div></div>
 <div class="ttc" id="astructreserved_html"><div class="ttname"><a href="structreserved.html">reserved</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00958">the.h:959</a></div></div>
 <div class="ttc" id="astructtarget_html"><div class="ttname"><a href="structtarget.html">target</a></div><div class="ttdef"><b>Definition:</b> <a href="libdm-targets_8h_source.html#l00025">libdm-targets.h:25</a></div></div>
 <div class="ttc" id="astructview__details_html"><div class="ttname"><a href="structview__details.html">view_details</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01365">the.h:1366</a></div></div>

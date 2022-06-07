@@ -1087,7 +1087,7 @@ $(function() {
 <div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>   <span class="keyword">register</span> <span class="keywordtype">int</span> i=0;</div>
 <div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>   <span class="keyword">register</span> <span class="keywordtype">int</span> j=0;</div>
 <div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>   ROWTYPE cmdline=0;</div>
-<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>   CHARTYPE prefix=0;</div>
+<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>   CHARTYPE <a class="code hl_struct" href="structprefix.html">prefix</a>=0;</div>
 <div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>   ROWTYPE start_row=0,number_rows_less=0,idline_rows=0,filetabs_row=0;</div>
 <div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>   <span class="keywordtype">short</span> my_prefix_width=0,my_prefix_gap=0;</div>
 <div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>   <span class="keywordtype">bool</span> my_arrow=TRUE;</div>
@@ -1193,7 +1193,7 @@ $(function() {
 <div class="line"><a id="l01145" name="l01145"></a><span class="lineno"> 1145</span>      {</div>
 <div class="line"><a id="l01146" name="l01146"></a><span class="lineno"> 1146</span>         cmdline = <span class="charliteral">&#39;B&#39;</span>;</div>
 <div class="line"><a id="l01147" name="l01147"></a><span class="lineno"> 1147</span>         idline_rows = 1;</div>
-<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span>         prefix = PREFIXx;</div>
+<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span>         <a class="code hl_struct" href="structprefix.html">prefix</a> = PREFIXx;</div>
 <div class="line"><a id="l01149" name="l01149"></a><span class="lineno"> 1149</span>         my_prefix_width = DEFAULT_PREFIX_WIDTH;</div>
 <div class="line"><a id="l01150" name="l01150"></a><span class="lineno"> 1150</span>         my_prefix_gap = DEFAULT_PREFIX_GAP;</div>
 <div class="line"><a id="l01151" name="l01151"></a><span class="lineno"> 1151</span>         my_arrow = TRUE;</div>
@@ -1202,7 +1202,7 @@ $(function() {
 <div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>      {</div>
 <div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>         cmdline = screen[i].screen_view-&gt;cmd_line;</div>
 <div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>         idline_rows = (screen[i].screen_view-&gt;id_line) ? 1 : 0;</div>
-<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>         prefix = screen[i].screen_view-&gt;prefix;</div>
+<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>         <a class="code hl_struct" href="structprefix.html">prefix</a> = screen[i].screen_view-&gt;prefix;</div>
 <div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>         my_prefix_width = screen[i].screen_view-&gt;prefix_width;</div>
 <div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span>         my_prefix_gap = screen[i].screen_view-&gt;prefix_gap;</div>
 <div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span>         my_arrow = screen[i].screen_view-&gt;arrow_on;</div>
@@ -1249,7 +1249,7 @@ $(function() {
 <div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>         screen[i].rows[WINDOW_IDLINE] = 1;</div>
 <div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span>         screen[i].cols[WINDOW_IDLINE] = screen[i].screen_cols;</div>
 <div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>      }</div>
-<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>      <span class="keywordflow">if</span> ( prefix )</div>
+<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>      <span class="keywordflow">if</span> ( <a class="code hl_struct" href="structprefix.html">prefix</a> )</div>
 <div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span>      {</div>
 <div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>         screen[i].start_row[WINDOW_PREFIX] = screen[i].start_row[WINDOW_FILEAREA];</div>
 <div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>         screen[i].start_row[WINDOW_GAP] = screen[i].start_row[WINDOW_FILEAREA];</div>
@@ -1258,7 +1258,7 @@ $(function() {
 <div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>         screen[i].cols[WINDOW_PREFIX] = my_prefix_width-my_prefix_gap;</div>
 <div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>         screen[i].cols[WINDOW_GAP] = my_prefix_gap;</div>
 <div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>         screen[i].cols[WINDOW_FILEAREA] = screen[i].screen_cols-my_prefix_width;</div>
-<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>         <span class="keywordflow">if</span> ( (prefix&amp;PREFIX_LOCATION_MASK) == PREFIX_LEFT )</div>
+<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>         <span class="keywordflow">if</span> ( (<a class="code hl_struct" href="structprefix.html">prefix</a>&amp;PREFIX_LOCATION_MASK) == PREFIX_LEFT )</div>
 <div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>         {</div>
 <div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>            screen[i].start_col[WINDOW_PREFIX] = screen[i].screen_start_col;</div>
 <div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>            screen[i].start_col[WINDOW_GAP] = screen[i].screen_start_col+(my_prefix_width-my_prefix_gap);</div>
@@ -1705,6 +1705,7 @@ $(function() {
 <div class="ttc" id="astructline_html"><div class="ttname"><a href="structline.html">line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00933">the.h:934</a></div></div>
 <div class="ttc" id="astructparser__details_html"><div class="ttname"><a href="structparser__details.html">parser_details</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01073">the.h:1074</a></div></div>
 <div class="ttc" id="astructparser__mapping_html"><div class="ttname"><a href="structparser__mapping.html">parser_mapping</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01181">the.h:1182</a></div></div>
+<div class="ttc" id="astructprefix_html"><div class="ttname"><a href="structprefix.html">prefix</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00186">xmlparse.c:187</a></div></div>
 <div class="ttc" id="astructregexp__syntax_html"><div class="ttname"><a href="structregexp__syntax.html">regexp_syntax</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01524">the.h:1525</a></div></div>
 <div class="ttc" id="astructreserved_html"><div class="ttname"><a href="structreserved.html">reserved</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00958">the.h:959</a></div></div>
 <div class="ttc" id="astructshow__line_html"><div class="ttname"><a href="structshow__line.html">show_line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01465">the.h:1466</a></div></div>

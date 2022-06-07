@@ -72,7 +72,7 @@ $(function() {
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>{</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordtype">int</span> key;</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keywordtype">char</span> tokstr[11], tokbuf[11];</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keywordtype">int</span> knum, prefix = -1, tl, tstart;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keywordtype">int</span> knum, <a class="code hl_struct" href="structprefix.html">prefix</a> = -1, tl, tstart;</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        sprintf(tokstr, FMT_FAR_PREC_STR, ((klen &gt; 10) ? 10 : klen), keystr);</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
@@ -94,10 +94,10 @@ $(function() {
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                <span class="comment">// check prefix; complain if no match &amp; single character; if no</span></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>                <span class="comment">// match and multiple characters set prefix to 0</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                <span class="keywordflow">if</span> (toklist(tokbuf, &amp;KeyPrefixes, &amp;prefix) != 1) {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                <span class="keywordflow">if</span> (toklist(tokbuf, &amp;KeyPrefixes, &amp;<a class="code hl_struct" href="structprefix.html">prefix</a>) != 1) {</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>                        <span class="keywordflow">if</span> (tl == 1)</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                                <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>                        prefix = 0;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>                        <a class="code hl_struct" href="structprefix.html">prefix</a> = 0;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                }</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                <span class="comment">// if it matches look for something else, complain if not there</span></div>
@@ -115,7 +115,7 @@ $(function() {
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>                <span class="keywordflow">if</span> (isalpha(key)) {</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>                        <span class="keywordflow">switch</span> (prefix) {</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>                        <span class="keywordflow">switch</span> (<a class="code hl_struct" href="structprefix.html">prefix</a>) {</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                        <span class="keywordflow">case</span> 1:     <span class="comment">// Alt</span></div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                                key = 0x100 + (int)ALT_ALPHA_KEYS[key - <span class="charliteral">&#39;A&#39;</span>];</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>                                <span class="keywordflow">break</span>;</div>
@@ -128,7 +128,7 @@ $(function() {
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (isdigit(key)) {</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                        <span class="keywordflow">switch</span> (prefix) {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                        <span class="keywordflow">switch</span> (<a class="code hl_struct" href="structprefix.html">prefix</a>) {</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                        <span class="keywordflow">case</span> 0:     <span class="comment">// No prefix -- numeric key value</span></div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                                key = atoi(tokbuf);</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                                <span class="keywordflow">break</span>;</div>
@@ -147,7 +147,7 @@ $(function() {
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="comment">// We must have a non-printing key name, see if it&#39;s a function key</span></div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        <span class="comment">// (no other key names start with &#39;F&#39;)</span></div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keywordflow">if</span> (_ctoupper(tokbuf[0]) == <span class="charliteral">&#39;F&#39;</span>)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                <span class="keywordflow">return</span> ((((key = atoi(&amp;tokbuf[1]) - 1) &lt; 0) || (key &gt; 12)) ? -1 : 256 + (((key &lt;= 9) ? (<span class="keywordtype">int</span>)KeyPrefixList[prefix].F1Pref : (int)KeyPrefixList[prefix].F11Pref) + key) );</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                <span class="keywordflow">return</span> ((((key = atoi(&amp;tokbuf[1]) - 1) &lt; 0) || (key &gt; 12)) ? -1 : 256 + (((key &lt;= 9) ? (<span class="keywordtype">int</span>)KeyPrefixList[<a class="code hl_struct" href="structprefix.html">prefix</a>].F1Pref : (int)KeyPrefixList[<a class="code hl_struct" href="structprefix.html">prefix</a>].F11Pref) + key) );</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="comment">// Check for a valid non-printing key name</span></div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <span class="keywordflow">if</span> (toklist(tokbuf, &amp;KeyNames, &amp;knum) != 1)</div>
@@ -157,26 +157,26 @@ $(function() {
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        key = KeyNameList[knum].NPStd;</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="comment">// handle prefix (special handling for some keys)</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordflow">if</span> (prefix) {</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a>) {</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                <span class="comment">// don&#39;t allow Alt-Tab, handle Ctrl-Tab as special case</span></div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                <span class="comment">// (Shift-Tab drops through to load NPSecond value)</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                <span class="keywordflow">if</span> (key == K_Tab) {</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                        <span class="keywordflow">if</span> (prefix == 1)</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                        <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a> == 1)</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                                <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (prefix == 2)</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a> == 2)</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>            <span class="keywordflow">return</span> K_CtlTab;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>                <span class="comment">// don&#39;t allow Shift-Backspace, handle Alt-Backspace as special case</span></div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>                <span class="comment">// (Ctrl-Backspace drops through to load NPSecond value)</span></div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (key == K_Bksp) {</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                        <span class="keywordflow">if</span> (prefix == 3)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>                        <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a> == 3)</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>                                <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (prefix == 1)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>                        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a> == 1)</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                                <span class="keywordflow">return</span> K_AltBS;</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>                <span class="comment">// For all other keys the only valid prefix is Ctrl</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (prefix != 2)</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>                } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code hl_struct" href="structprefix.html">prefix</a> != 2)</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>                        <span class="keywordflow">return</span> -1;</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>                <span class="comment">// It is a real prefixed key, get value with prefix</span></div>
@@ -234,6 +234,7 @@ $(function() {
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>}  <span class="comment">// End FindNext</span></div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
 <div class="ttc" id="astructTL__HEADER_html"><div class="ttname"><a href="structTL__HEADER.html">TL_HEADER</a></div><div class="ttdef"><b>Definition:</b> <a href="inistruc_8h_source.html#l00021">inistruc.h:21</a></div></div>
+<div class="ttc" id="astructprefix_html"><div class="ttname"><a href="structprefix.html">prefix</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00186">xmlparse.c:187</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
