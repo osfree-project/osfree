@@ -119,7 +119,7 @@ $(function() {
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    }</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="comment">// draw the window border (with a shadow) and clear the text area</span></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    _box( wn-&gt;top, left, bottom, right, 1, wn-&gt;attrib, wn-&gt;attrib, wn-&gt;fShadow, 0 );</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <a class="code hl_struct" href="struct__box.html">_box</a>( wn-&gt;top, left, bottom, right, 1, wn-&gt;attrib, wn-&gt;attrib, wn-&gt;fShadow, 0 );</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">if</span> ( strlen( title ) &gt;= (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>)( right - ( left + 1 )))</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        title[ right - ( left + 1 ) ] = <span class="charliteral">&#39;\0&#39;</span>;</div>
@@ -224,7 +224,7 @@ $(function() {
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="comment">// Display a scroll bar along the right border of the active window.</span></div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollBar( <span class="keywordtype">int</span> position, <span class="keywordtype">int</span> outof )</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollBar( <span class="keywordtype">int</span> <a class="code hl_struct" href="structposition.html">position</a>, <span class="keywordtype">int</span> outof )</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>{</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="keywordtype">int</span> i, high;</div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
@@ -237,10 +237,10 @@ $(function() {
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        WriteChrAtt( win-&gt;top + 2 + i, win-&gt;right, win-&gt;attrib, gchDimBlock);</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="comment">// position the &quot;thumbwheel&quot;</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">if</span> ( position &gt; 1 ) {</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        <span class="keywordflow">if</span> (( i = ((( high * position ) / outof ) + (((high * position) % outof) != 0))) == 1)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">if</span> ( <a class="code hl_struct" href="structposition.html">position</a> &gt; 1 ) {</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        <span class="keywordflow">if</span> (( i = ((( high * <a class="code hl_struct" href="structposition.html">position</a> ) / outof ) + (((high * <a class="code hl_struct" href="structposition.html">position</a>) % outof) != 0))) == 1)</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>            i++;</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>        <span class="keywordflow">if</span> (( i == high ) &amp;&amp; ( position &lt; outof ))</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>        <span class="keywordflow">if</span> (( i == high ) &amp;&amp; ( <a class="code hl_struct" href="structposition.html">position</a> &lt; outof ))</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            i--;</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    } <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>        i = 1;</div>
@@ -249,22 +249,22 @@ $(function() {
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>}</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollBack( <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a>, <span class="keywordtype">int</span> first )</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollBack( <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a>, <span class="keywordtype">int</span> first )</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>{</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    Scroll( win-&gt;top+1, win-&gt;left+1, win-&gt;bottom-1, win-&gt;right-1, -1, win-&gt;attrib );</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    wWriteStrAtt( 0, 0, win-&gt;attrib, <a class="code hl_struct" href="structlist.html">list</a>[first-1] );</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    wWriteStrAtt( 0, 0, win-&gt;attrib, <a class="code hl_class" href="structlist.html">list</a>[first-1] );</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>}</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollForward( <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a>, <span class="keywordtype">int</span> first, <span class="keywordtype">int</span> last )</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keyword">static</span> <span class="keywordtype">void</span> ScrollForward( <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a>, <span class="keywordtype">int</span> first, <span class="keywordtype">int</span> last )</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>{</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    Scroll( win-&gt;top+1, win-&gt;left+1, win-&gt;bottom-1, win-&gt;right-1, 1, win-&gt;attrib);</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    wWriteStrAtt(( last - first ), 0, win-&gt;attrib, <a class="code hl_struct" href="structlist.html">list</a>[last-1] );</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    wWriteStrAtt(( last - first ), 0, win-&gt;attrib, <a class="code hl_class" href="structlist.html">list</a>[last-1] );</div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>}</div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="comment">// display a selection list</span></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keyword">static</span> <span class="keywordtype">char</span> * wSelect( <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a>, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> current, <span class="keywordtype">char</span> *pszChars )</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keyword">static</span> <span class="keywordtype">char</span> * wSelect( <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a>, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> current, <span class="keywordtype">char</span> *pszChars )</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>{</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordtype">int</span> i;</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordtype">int</span> height, j, key, indent, nSearch;</div>
@@ -305,7 +305,7 @@ $(function() {
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>Redraw2:</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    wClear();</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordflow">for</span> ( i = 1, j = first - 1; (( j &lt; count ) &amp;&amp; ( i &lt;= height )); i++, j++ )</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>        wWriteStrAtt( i - 1, 0, win-&gt;attrib, <a class="code hl_struct" href="structlist.html">list</a>[j] );</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>        wWriteStrAtt( i - 1, 0, win-&gt;attrib, <a class="code hl_class" href="structlist.html">list</a>[j] );</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    szSearch[0] = <span class="charliteral">&#39;\0&#39;</span>;</div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    nSearch = 0;</div>
@@ -317,7 +317,7 @@ $(function() {
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            first--;</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            <span class="comment">// only scroll within page</span></div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>            <span class="keywordflow">if</span> (( current + rows ) &gt;= first )</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                ScrollBack( <a class="code hl_struct" href="structlist.html">list</a>, first );</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                ScrollBack( <a class="code hl_class" href="structlist.html">list</a>, first );</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>            }</div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        }</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
@@ -332,7 +332,7 @@ $(function() {
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            <span class="comment">// only scroll within page</span></div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            <span class="keywordflow">if</span> (( current - rows ) &lt;= last )</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                ScrollForward( <a class="code hl_struct" href="structlist.html">list</a>, first, last );</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                ScrollForward( <a class="code hl_class" href="structlist.html">list</a>, first, last );</div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            }</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        }</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
@@ -362,13 +362,13 @@ $(function() {
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>            gnPopupSelection = current - 1;</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            <span class="keywordflow">if</span> ( win-&gt;fPopupFlags &amp; CDD_COLORS ) {</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>                fptr = <a class="code hl_struct" href="structlist.html">list</a>[ gnPopupSelection ] + strlen( <a class="code hl_struct" href="structlist.html">list</a>[ gnPopupSelection ] ) + 1;</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>                fptr = <a class="code hl_class" href="structlist.html">list</a>[ gnPopupSelection ] + strlen( <a class="code hl_class" href="structlist.html">list</a>[ gnPopupSelection ] ) + 1;</div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>                <span class="keywordflow">if</span> ( *fptr == 4 ) {</div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>                fptr++;</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>                <span class="keywordflow">return</span> fptr;</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>                }</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>            }</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>            <span class="keywordflow">return</span> ( <a class="code hl_struct" href="structlist.html">list</a>[ gnPopupSelection ] );</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>            <span class="keywordflow">return</span> ( <a class="code hl_class" href="structlist.html">list</a>[ gnPopupSelection ] );</div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span> </div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>        <span class="keywordflow">case</span> ESC:</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            <span class="keywordflow">return</span> 0L;</div>
@@ -376,12 +376,12 @@ $(function() {
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        <span class="keywordflow">case</span> F1:</div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>            <span class="comment">// popup some help</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>            _help( (( win-&gt;fPopupFlags &amp; BATCH_DEBUG ) ? <span class="stringliteral">&quot;Debugging&quot;</span> : NULL ), NULL );</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>            <a class="code hl_struct" href="struct__help.html">_help</a>( (( win-&gt;fPopupFlags &amp; BATCH_DEBUG ) ? <span class="stringliteral">&quot;Debugging&quot;</span> : NULL ), NULL );</div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>            <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <span class="keywordflow">case</span> 4:</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>            <span class="comment">// delete the current line (history &amp; CD lists only!)</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>            <span class="keywordflow">if</span> ((( <a class="code hl_struct" href="structlist.html">list</a>[0] &lt; glpHistoryList ) || ( <a class="code hl_struct" href="structlist.html">list</a>[0] &gt;= ( glpHistoryList + gpIniptr-&gt;HistorySize ))) &amp;&amp; (( <a class="code hl_struct" href="structlist.html">list</a>[0] &lt; glpDirHistory ) || ( <a class="code hl_struct" href="structlist.html">list</a>[0] &gt;= ( glpDirHistory + gpIniptr-&gt;DirHistorySize )))) {</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>            <span class="keywordflow">if</span> ((( <a class="code hl_class" href="structlist.html">list</a>[0] &lt; glpHistoryList ) || ( <a class="code hl_class" href="structlist.html">list</a>[0] &gt;= ( glpHistoryList + gpIniptr-&gt;HistorySize ))) &amp;&amp; (( <a class="code hl_class" href="structlist.html">list</a>[0] &lt; glpDirHistory ) || ( <a class="code hl_class" href="structlist.html">list</a>[0] &gt;= ( glpDirHistory + gpIniptr-&gt;DirHistorySize )))) {</div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>                honk();</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>                <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>            }</div>
@@ -390,14 +390,14 @@ $(function() {
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>            <span class="comment">// collapse the current entry from the list block</span></div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>            <span class="comment">//   and History / Directory list</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>            j = strlen( <a class="code hl_struct" href="structlist.html">list</a>[i] ) + 1;</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>            j = strlen( <a class="code hl_class" href="structlist.html">list</a>[i] ) + 1;</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>            count--;</div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>            memmove( <a class="code hl_struct" href="structlist.html">list</a>[i], <a class="code hl_struct" href="structlist.html">list</a>[i] + j, (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>)((end_of_env(<a class="code hl_struct" href="structlist.html">list</a>[count]) - <a class="code hl_struct" href="structlist.html">list</a>[i])+1) - j );</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>            memmove( <a class="code hl_class" href="structlist.html">list</a>[i], <a class="code hl_class" href="structlist.html">list</a>[i] + j, (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>)((end_of_env(<a class="code hl_class" href="structlist.html">list</a>[count]) - <a class="code hl_class" href="structlist.html">list</a>[i])+1) - j );</div>
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span> </div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>            <span class="comment">// adjust the list array pointers</span></div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>            <span class="keywordflow">for</span> ( ; ( i &lt; count ); i++ )</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                <a class="code hl_struct" href="structlist.html">list</a>[i] = ( <a class="code hl_struct" href="structlist.html">list</a>[i+1] - j );</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                <a class="code hl_class" href="structlist.html">list</a>[i] = ( <a class="code hl_class" href="structlist.html">list</a>[i+1] - j );</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
 <div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>            <span class="keywordflow">if</span> (( current &gt; count ) &amp;&amp; ( --current &lt;= 0 ))</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>                <span class="keywordflow">return</span> 0L;</div>
@@ -466,7 +466,7 @@ $(function() {
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span> </div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                <span class="keywordflow">if</span> ( first &gt; 1 ) {</div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>                    first--;</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                    ScrollBack( <a class="code hl_struct" href="structlist.html">list</a>, first );</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                    ScrollBack( <a class="code hl_class" href="structlist.html">list</a>, first );</div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>                    <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                }</div>
 <div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span> </div>
@@ -485,7 +485,7 @@ $(function() {
 <div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>                <span class="keywordflow">if</span> ( last &lt; count ) {</div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>                    first++;</div>
 <div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>                    last++;</div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>                    ScrollForward( <a class="code hl_struct" href="structlist.html">list</a>, first, last );</div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>                    ScrollForward( <a class="code hl_class" href="structlist.html">list</a>, first, last );</div>
 <div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>                    <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>                }</div>
 <div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span> </div>
@@ -575,7 +575,7 @@ $(function() {
 <div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span> </div>
 <div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>            <span class="keywordflow">for</span> ( j = 0, i = current - 1; ( i &lt; count ); i++ ) {</div>
 <div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>StartLoop:</div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                fptr = <a class="code hl_struct" href="structlist.html">list</a>[ i ];</div>
+<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                fptr = <a class="code hl_class" href="structlist.html">list</a>[ i ];</div>
 <div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>                <span class="keywordflow">while</span> (( *fptr == <span class="charliteral">&#39; &#39;</span> ) || ( *fptr == <span class="charliteral">&#39;\t&#39;</span>))</div>
 <div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                fptr++;</div>
 <div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span> </div>
@@ -624,7 +624,7 @@ $(function() {
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span> </div>
 <div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span><span class="comment">// do a Shell sort on the list (much smaller &amp; less stack than Quicksort)</span></div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span><span class="keyword">static</span> <span class="keywordtype">void</span> ssort( <span class="keywordtype">char</span> * * <a class="code hl_struct" href="structlist.html">list</a>, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> entries )</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span><span class="keyword">static</span> <span class="keywordtype">void</span> ssort( <span class="keywordtype">char</span> * * <a class="code hl_class" href="structlist.html">list</a>, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> entries )</div>
 <div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>{</div>
 <div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i, gap;</div>
 <div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    <span class="keywordtype">long</span> j;</div>
@@ -636,13 +636,13 @@ $(function() {
 <div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span> </div>
 <div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>            <span class="keywordflow">for</span> ( j = ( i - gap ); ( j &gt;= 0L ); j -= gap ) {</div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>                <span class="keywordflow">if</span> ( stricmp( <a class="code hl_struct" href="structlist.html">list</a>[ j ], <a class="code hl_struct" href="structlist.html">list</a>[ j + gap ] ) &lt;= 0 )</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>                <span class="keywordflow">if</span> ( stricmp( <a class="code hl_class" href="structlist.html">list</a>[ j ], <a class="code hl_class" href="structlist.html">list</a>[ j + gap ] ) &lt;= 0 )</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>                    <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span> </div>
 <div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>                <span class="comment">// swap the two records</span></div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>                pTmp = <a class="code hl_struct" href="structlist.html">list</a>[ j ];</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>                <a class="code hl_struct" href="structlist.html">list</a>[ j ] = <a class="code hl_struct" href="structlist.html">list</a>[ j + gap ];</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>                <a class="code hl_struct" href="structlist.html">list</a>[ j + gap ] = pTmp;</div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>                pTmp = <a class="code hl_class" href="structlist.html">list</a>[ j ];</div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>                <a class="code hl_class" href="structlist.html">list</a>[ j ] = <a class="code hl_class" href="structlist.html">list</a>[ j + gap ];</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>                <a class="code hl_class" href="structlist.html">list</a>[ j + gap ] = pTmp;</div>
 <div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>            }</div>
 <div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>        }</div>
 <div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    }</div>
@@ -650,14 +650,14 @@ $(function() {
 <div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
 <div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
 <div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span><span class="comment">// popup a selection list</span></div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span><span class="keywordtype">char</span> * wPopSelect( <span class="keywordtype">int</span> top, <span class="keywordtype">int</span> left, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> width, <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a>, <span class="keywordtype">int</span> entries, <span class="keywordtype">int</span> current, <span class="keywordtype">char</span> *title, <span class="keywordtype">char</span> *pszBottomTitle, <span class="keywordtype">char</span> *pszKeys, <span class="keywordtype">int</span> fOptions )</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span><span class="keywordtype">char</span> * wPopSelect( <span class="keywordtype">int</span> top, <span class="keywordtype">int</span> left, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> width, <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a>, <span class="keywordtype">int</span> entries, <span class="keywordtype">int</span> current, <span class="keywordtype">char</span> *title, <span class="keywordtype">char</span> *pszBottomTitle, <span class="keywordtype">char</span> *pszKeys, <span class="keywordtype">int</span> fOptions )</div>
 <div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>{</div>
 <div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>    <span class="keywordtype">int</span> i, bottom, right;</div>
 <div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>    <span class="keywordtype">char</span> *fptr = 0L;</div>
 <div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>    jmp_buf saved_env;</div>
 <div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span> </div>
 <div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>    <span class="keywordflow">if</span> ( fOptions &amp; SORT_LIST )</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>        ssort( <a class="code hl_struct" href="structlist.html">list</a>, entries );</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>        ssort( <a class="code hl_class" href="structlist.html">list</a>, entries );</div>
 <div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span> </div>
 <div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>    <span class="comment">// check for valid Top and Left parameters</span></div>
 <div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    <span class="keywordflow">if</span> (( i = (( GetScrCols() - 1 ) - width )) &lt; 0 )</div>
@@ -727,7 +727,7 @@ $(function() {
 <div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>        win-&gt;fPopupFlags = fOptions;</div>
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span> </div>
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>        <span class="comment">// call the selection window</span></div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>        fptr = wSelect( <a class="code hl_struct" href="structlist.html">list</a>, entries, current, pszKeys );</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>        fptr = wSelect( <a class="code hl_class" href="structlist.html">list</a>, entries, current, pszKeys );</div>
 <div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>    }</div>
 <div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span> </div>
 <div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>    <span class="comment">// remove the window, restore the screen &amp; free memory</span></div>
@@ -743,8 +743,11 @@ $(function() {
 <div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>}</div>
 <div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span> </div>
 <div class="ttc" id="astructPOPWINDOW_html"><div class="ttname"><a href="structPOPWINDOW.html">POPWINDOW</a></div><div class="ttdef"><b>Definition:</b> <a href="4all_8h_source.html#l00379">4all.h:380</a></div></div>
+<div class="ttc" id="astruct__box_html"><div class="ttname"><a href="struct__box.html">_box</a></div><div class="ttdef"><b>Definition:</b> <a href="panels_8h_source.html#l00128">panels.h:128</a></div></div>
+<div class="ttc" id="astruct__help_html"><div class="ttname"><a href="struct__help.html">_help</a></div><div class="ttdef"><b>Definition:</b> <a href="panels_8h_source.html#l00144">panels.h:144</a></div></div>
 <div class="ttc" id="astructline_html"><div class="ttname"><a href="structline.html">line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00933">the.h:934</a></div></div>
 <div class="ttc" id="astructlist_html"><div class="ttname"><a href="structlist.html">list</a></div><div class="ttdef"><b>Definition:</b> <a href="devmapper_2include_2list_8h_source.html#l00028">list.h:28</a></div></div>
+<div class="ttc" id="astructposition_html"><div class="ttname"><a href="structposition.html">position</a></div><div class="ttdef"><b>Definition:</b> <a href="xmltok_8h_source.html#l00110">xmltok.h:110</a></div></div>
 <div class="ttc" id="astructrow_html"><div class="ttname"><a href="structrow.html">row</a></div><div class="ttdef"><b>Definition:</b> <a href="libdm-report_8c_source.html#l00081">libdm-report.c:81</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

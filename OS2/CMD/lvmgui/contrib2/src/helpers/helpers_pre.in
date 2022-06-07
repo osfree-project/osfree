@@ -1,0 +1,80 @@
+#
+#   Pre-include file for the main helpers makefile.
+#
+#   This is shared between makefile and makefile_dll
+#   and defines all the objects that have to be built.
+#
+
+# The OBJS macro contains all the .OBJ files which need to be
+# created from the files in SRC\MAIN _and_ SRC\HELPERS.
+# These will be put into BIN\.
+
+PLAINCOBJS = $(OUTPUTDIR)\encodings.obj\
+$(OUTPUTDIR)\linklist.obj\
+$(OUTPUTDIR)\math.obj\
+$(OUTPUTDIR)\regexp.obj\
+$(OUTPUTDIR)\tree.obj\
+$(OUTPUTDIR)\xml.obj\
+
+XMLOBJS = $(OUTPUTDIR)\xmlparse.obj\
+$(OUTPUTDIR)\xmlrole.obj\
+$(OUTPUTDIR)\xmltok.obj\
+
+CPOBJS = $(PLAINCOBJS) $(XMLOBJS) \
+$(OUTPUTDIR)\acpih.obj\
+$(OUTPUTDIR)\apmh.obj\
+$(OUTPUTDIR)\datetime.obj\
+$(OUTPUTDIR)\debug.obj\
+$(OUTPUTDIR)\dosh.obj\
+$(OUTPUTDIR)\dosh2.obj\
+$(OUTPUTDIR)\eah.obj\
+$(OUTPUTDIR)\except.obj\
+$(OUTPUTDIR)\exeh.obj\
+$(OUTPUTDIR)\lan.obj\
+$(OUTPUTDIR)\level.obj\
+$(OUTPUTDIR)\nls.obj\
+$(OUTPUTDIR)\nlscache.obj\
+$(OUTPUTDIR)\procstat.obj\
+$(OUTPUTDIR)\prfh.obj\
+$(OUTPUTDIR)\prfh2.obj\
+$(OUTPUTDIR)\resh.obj\
+$(OUTPUTDIR)\sem.obj\
+$(OUTPUTDIR)\interlock.obj\
+$(OUTPUTDIR)\stringh.obj\
+$(OUTPUTDIR)\syssound.obj\
+$(OUTPUTDIR)\tmsgfile.obj\
+$(OUTPUTDIR)\vcard.obj\
+$(OUTPUTDIR)\wphandle.obj\
+$(OUTPUTDIR)\xprf.obj\
+$(OUTPUTDIR)\xprf2.obj\
+$(OUTPUTDIR)\xsecapi.obj\
+$(OUTPUTDIR)\xstring.obj
+
+OBJS = $(CPOBJS) \
+$(OUTPUTDIR)\animate.obj\
+$(OUTPUTDIR)\apps.obj\
+$(OUTPUTDIR)\cctl_chart.obj\
+$(OUTPUTDIR)\cctl_checkcnr.obj\
+$(OUTPUTDIR)\cctl_cnr.obj\
+$(OUTPUTDIR)\cctl_cnr_dtls.obj\
+$(OUTPUTDIR)\cctl_combo.obj\
+$(OUTPUTDIR)\cctl_progbar.obj\
+$(OUTPUTDIR)\cctl_splitwin.obj\
+$(OUTPUTDIR)\cctl_toolbar.obj\
+$(OUTPUTDIR)\cctl_tooltip.obj\
+$(OUTPUTDIR)\cctl_xframe.obj\
+$(OUTPUTDIR)\comctl.obj\
+$(OUTPUTDIR)\configsys.obj\
+$(OUTPUTDIR)\cnrh.obj\
+$(OUTPUTDIR)\dialog.obj\
+$(OUTPUTDIR)\gpih.obj\
+$(OUTPUTDIR)\memdebug.obj\
+$(OUTPUTDIR)\memdebug_win.obj\
+$(OUTPUTDIR)\mmpmh.obj\
+$(OUTPUTDIR)\shapewin.obj\
+$(OUTPUTDIR)\threads.obj\
+$(OUTPUTDIR)\textview.obj\
+$(OUTPUTDIR)\textv_html.obj\
+$(OUTPUTDIR)\timer.obj\
+$(OUTPUTDIR)\winh.obj
+

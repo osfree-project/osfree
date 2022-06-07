@@ -13,7 +13,7 @@ jobs:
           working-directory: './OS2/CMD'
           doxyfile-path: './Doxyfile'
           
-      - uses: mikeal/publish-to-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: 'master' # your branch name goes here          
+#      - uses: mikeal/publish-to-github-action@master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          BRANCH_NAME: 'master' # your branch name goes here          

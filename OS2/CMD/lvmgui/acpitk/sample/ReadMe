@@ -1,0 +1,18 @@
+ReadMe for the ACPI toolkit samples
+
+These sample programs are for illustration purposes only. They are provided
+for the sole purpose of providing an exmple of how certain operations might
+be performed so that they may assist you in the development of your own
+applications.
+
+These programs are provided with the following provisions:
+ - These programs are provided as-is, and have no warranty.
+ - These programs are not guaranteed to work.
+ - These programs may not represent the best method for implementing
+   a particular task.
+ - These programs may not represent the best coding style or technique.
+
+These sample programs have no checking to prevent damage to a system.
+It is up to you to add any additional logic, error checking, etc. that
+may be necessary if you use any of these examples in your software.
+

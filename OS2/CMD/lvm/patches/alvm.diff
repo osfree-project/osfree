@@ -1,0 +1,385 @@
+diff -urN alvm/alvm.h contrib/alvm.h
+--- alvm/alvm.h	2022-06-05 08:57:27.157042887 +0300
++++ contrib/alvm.h	2022-06-06 07:31:04.168666411 +0300
+@@ -1,3 +1,3 @@
+ /* alvm.h */
+ 
+-#define ALVM_VERSION "0.1 " __DATE__
++#define ALVM_VERSION "0.1 " ## __DATE__
+diff -urN alvm/Bad_Block_Relocation.c contrib/Bad_Block_Relocation.c
+--- alvm/Bad_Block_Relocation.c	2022-06-05 08:57:27.141042548 +0300
++++ contrib/Bad_Block_Relocation.c	2022-06-06 08:12:12.128784888 +0300
+@@ -2718,4 +2718,3 @@
+   return;
+ 
+ }
+-
+diff -urN alvm/BootManager.h contrib/BootManager.h
+--- alvm/BootManager.h	2022-06-05 08:57:27.145042633 +0300
++++ contrib/BootManager.h	2022-06-06 08:17:37.935665060 +0300
+@@ -1 +1 @@
+-/* BootManager.h */
+\ No newline at end of file
++/* BootManager.h */
+diff -urN alvm/disk.c contrib/disk.c
+--- alvm/disk.c	2022-06-05 08:57:27.157042887 +0300
++++ contrib/disk.c	2022-06-06 08:45:55.271380655 +0300
+@@ -1718,8 +1718,8 @@
+                 if ( !PRM_only  ||  Disk.Drive_Control_Data [disk].Drive_Is_PRM ) {
+                     for ( partition = 0; partition_text [partition]; ++partition ) {
+ 
+-//#define IS_AVAILABLE_PARTITION(d,p) ( ! strncmp ( Partition_panel_text [d][p] +\
+-//PARTITION_STATUS_OFFSET, Partition_status_strings [PARTITION_IS_AVAILABLE], \
++//#define IS_AVAILABLE_PARTITION(d,p) ( ! strncmp ( Partition_panel_text [d][p] +
++//PARTITION_STATUS_OFFSET, Partition_status_strings [PARTITION_IS_AVAILABLE], 
+ //min( strlen ( Partition_status_strings [PARTITION_IS_AVAILABLE] ), PARTITION_STATUS_WIDTH) ) )
+   if ( Logging_Enabled )
+   {
+diff -urN alvm/DiskIO.c contrib/DiskIO.c
+--- alvm/DiskIO.c	2022-06-05 08:57:27.145042633 +0300
++++ contrib/DiskIO.c	2022-06-06 07:22:28.829655372 +0300
+@@ -708,7 +708,7 @@
+         DriveTable[I].Drive_Lock = CreateSemaphore();
+ 
+         /* Did we get the semaphore? */
+-        if ( DriveTable[I].Drive_Lock == NULL )
++        if ( DriveTable[I].Drive_Lock == (SEMAPHORE)NULL )
+         {
+ 
+           /* We did not get the memory!  We must abort. */
+diff -urN alvm/display.h contrib/display.h
+--- alvm/display.h	2022-06-05 08:57:27.173043225 +0300
++++ contrib/display.h	2022-06-06 08:47:42.041631475 +0300
+@@ -58,10 +58,10 @@
+ #define INFO_BORDER_ATTRIBUTE 80
+ #define WARNING_ATTRIBUTE     0xf
+ #define WARNING_BORDER_ATTRIBUTE 0xc0
+-#define ERROR_ATTRIBUTE          0xf  
++#define ERROR_ATTRIBUTE          0xf
+ #define ERROR_BORDER_ATTRIBUTE   0xc0
+ #define HELP_ATTRIBUTE           (D_WHITE<<4)
+ #define HELP_BORDER_ATTRIBUTE    (D_NEUTRAL<<4)|12
+ 
+ 
+-#endif //__DISPLAY_H__
+\ No newline at end of file
++#endif //__DISPLAY_H__
+diff -urN alvm/Dlist.c contrib/Dlist.c
+--- alvm/Dlist.c	2022-06-05 08:57:27.145042633 +0300
++++ contrib/Dlist.c	2022-06-06 08:20:16.935023213 +0300
+@@ -3425,7 +3425,7 @@
+ 
+       /* The handle is not valid!  Abort! */
+       *Error = DLIST_BAD_HANDLE;
+-      return NULL;
++      return 0;
+ 
+     }
+ 
+@@ -6020,7 +6020,7 @@
+     SourceListData->StartOfList = NextNode;
+ 
+   if ( SourceListData->EndOfList == SourceLinkNode )
+-    SourceListData->EndOfList == PreviousNode;
++    SourceListData->EndOfList = PreviousNode;
+ 
+   if ( SourceListData->CurrentItem == SourceLinkNode )
+   {
+diff -urN alvm/engine.c contrib/engine.c
+--- alvm/engine.c	2022-06-05 08:57:27.173043225 +0300
++++ contrib/engine.c	2022-06-06 08:27:11.451722876 +0300
+@@ -7148,6 +7148,7 @@
+ /*           passed into this function.                              */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( ADDRESS _Seg16 Object )
+ {
+ 
+@@ -7160,7 +7161,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+@@ -7402,6 +7403,7 @@
+ /*   Notes:  None.                                                   */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds READ_SECTORS16 ( CARDINAL32          Drive_Number,
+                                              LBA                 Starting_Sector,
+                                              CARDINAL32          Sectors_To_Read,
+@@ -7414,7 +7416,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+@@ -7450,6 +7452,7 @@
+ /*   Notes:  None.                                                   */
+ /*                                                                   */
+ /*********************************************************************/
++#if 0
+ void _Far16 _Pascal _loadds WRITE_SECTORS16 ( CARDINAL32          Drive_Number,
+                                               LBA                 Starting_Sector,
+                                               CARDINAL32          Sectors_To_Write,
+@@ -7462,7 +7465,7 @@
+   return;
+ 
+ }
+-
++#endif
+ 
+ /*********************************************************************/
+ /*                                                                   */
+@@ -8535,6 +8538,7 @@
+   /* Indicate success and leave. */
+   *Error_Code = DLIST_SUCCESS;
+ 
++  return TRUE;
+ }
+ 
+ 
+diff -urN alvm/.git contrib/.git
+--- alvm/.git	2022-06-05 08:57:19.392878639 +0300
++++ contrib/.git	1970-01-01 03:00:00.000000000 +0300
+@@ -1 +0,0 @@
+-gitdir: ../../../../.git/modules/OS2/CMD/lvm/alvm
+diff -urN alvm/help.c contrib/help.c
+--- alvm/help.c	2022-06-05 08:57:27.173043225 +0300
++++ contrib/help.c	2022-06-06 08:28:35.361485036 +0300
+@@ -156,7 +156,7 @@
+ 
+     if ( memory ) {
+         rc = DosGetMessage ( NULL, 0, memory, MAX_HELP_MESSAGE_SIZE - 1,
+-                             message_number, HELP_MESSAGE_FILE, &length );
++                             message_number, HELP_MESSAGE_FILE, (ULONG *)&length );
+ 
+         if ( rc == 0 ) {
+             no_help = FALSE;
+@@ -260,4 +260,3 @@
+     Help_panel.text_line = Help_panel_text;
+ 
+ }
+-
+diff -urN alvm/include/lvm_types.h contrib/include/lvm_types.h
+--- alvm/include/lvm_types.h	2022-06-05 08:57:27.177043309 +0300
++++ contrib/include/lvm_types.h	2022-06-06 08:13:24.998323539 +0300
+@@ -1 +1 @@
+-#include <lvm_type.h>
+\ No newline at end of file
++#include <lvm_type.h>
+diff -urN alvm/include/pboot.h contrib/include/pboot.h
+--- alvm/include/pboot.h	2022-06-05 08:57:27.293045764 +0300
++++ contrib/include/pboot.h	2022-06-06 08:18:20.416562254 +0300
+@@ -907,4 +907,3 @@
+    0x783225, 0x73250000,          0, 0x20200001,  /* %2x...%s......   */
+  0x20202020,   0x202020,          0,          0
+ };
+- 
+\ No newline at end of file
+diff -urN alvm/interface.c contrib/interface.c
+--- alvm/interface.c	2022-06-05 08:57:27.321046355 +0300
++++ contrib/interface.c	2022-06-06 07:22:28.845655716 +0300
+@@ -806,7 +806,8 @@
+ /******************************************************************/
+ PAREA Store_area(int row, int col, int width, int height)
+ {
+-int i,s;
++int i;
++unsigned short s;
+ PAREA tmp;
+    tmp=(PAREA)malloc(sizeof(AREA));
+    tmp->row=row;
+diff -urN alvm/interface.h contrib/interface.h
+--- alvm/interface.h	2022-06-05 08:57:27.321046355 +0300
++++ contrib/interface.h	2022-06-06 08:20:55.687841729 +0300
+@@ -412,4 +412,4 @@
+ extern void Run_Help(void);
+ 
+ 
+-#endif //__INTERFACE_H__
+\ No newline at end of file
++#endif //__INTERFACE_H__
+diff -urN alvm/lvm.c contrib/lvm.c
+--- alvm/lvm.c	2022-06-05 08:57:27.321046355 +0300
++++ contrib/lvm.c	2022-06-06 08:29:17.054361050 +0300
+@@ -272,4 +272,5 @@
+ */
+ 
+       exit(1);
++      return 0;
+ }
+diff -urN alvm/LVM_Cli.c contrib/LVM_Cli.c
+--- alvm/LVM_Cli.c	2022-06-05 08:57:27.149042718 +0300
++++ contrib/LVM_Cli.c	2022-06-06 08:22:33.613899122 +0300
+@@ -66,7 +66,7 @@
+      rc = VioWrtNCell(pattr, row_length, r, column,VioHandle);
+      if(rc)
+      {   printf("Error in %s VioWrtCellStr rc=%i\n", __FUNCTION__,rc);
+-        return NULL;
++        return 0;
+      }
+   }
+ 
+@@ -146,7 +146,8 @@
+ uint ReverseAttributes ( uint row, uint column,uint max_string_length, uint bb )
+ {
+   HVIO      VioHandle=0;  /*  VIO presentation-space handle. */
+-  int i,r,rc, l;
++  int i,r,rc;
++  unsigned short l;
+   char attr2[2], *pmem, ch;
+   pmem = calloc(2, max_string_length);
+   l = max_string_length*2;
+@@ -167,7 +168,8 @@
+   HVIO      VioHandle=0;/*  VIO presentation-space handle. */
+   PCH       CellStr;    /*  Cell string buffer. */
+   USHORT     Length;     /*  Length of cell string buffer. */
+-  int i,r,l;
++  int i,r;
++  unsigned short l;
+ 
+   Length = row_length * number_of_rows *2;
+   CellStr = calloc(Length,1);
+@@ -375,7 +377,3 @@
+   return rc;
+ */
+ }
+-
+-
+-
+-
+\ No newline at end of file
+diff -urN alvm/LVM_Cli.h contrib/LVM_Cli.h
+--- alvm/LVM_Cli.h	2022-06-05 08:57:27.149042718 +0300
++++ contrib/LVM_Cli.h	2022-06-06 07:32:13.430139458 +0300
+@@ -66,4 +66,3 @@
+ LVMCLI_BackEndToVIO* lvmcli( int argc, char * argv[] );
+ 
+ #endif
+-
+\ No newline at end of file
+diff -urN alvm/menu.c contrib/menu.c
+--- alvm/menu.c	2022-06-05 08:57:27.321046355 +0300
++++ contrib/menu.c	2022-06-06 07:37:54.549381679 +0300
+@@ -186,7 +186,8 @@
+             max_string_length;
+     uint    *action;
+     char    **line = panel->text_line;
+-    uint    (* _System callback) (panel_t *panel) = panel->callback;
++    //uint    (* _System callback) (panel_t *panel) = panel->callback;
++    uint    _System (* callback) (panel_t *panel) = panel->callback;
+     bool    finished = FALSE;
+     uint    grayed_attribute, normal_attribute;
+ 
+@@ -308,7 +309,8 @@
+             **current_line,
+             **bottom_line;
+     bool    finished = FALSE;
+-    uint    (* _System callback) (panel_t *panel) = panel->callback;
++    //uint    (* _System callback) (panel_t *panel) = panel->callback;
++    uint    _System (* callback) (panel_t *panel) = panel->callback;
+ 
+     if ( panel->control & INITIALIZE_PANEL ) {
+         panel->control &= ~INITIALIZE_PANEL;
+diff -urN alvm/show.c contrib/show.c
+--- alvm/show.c	2022-06-05 08:57:27.325046440 +0300
++++ contrib/show.c	2022-06-06 07:34:22.624884533 +0300
+@@ -702,5 +702,3 @@
+     return 0;
+ 
+ }
+-
+-
+\ No newline at end of file
+diff -urN alvm/strings.c contrib/strings.c
+--- alvm/strings.c	2022-06-05 08:57:27.325046440 +0300
++++ contrib/strings.c	2022-06-06 07:22:28.845655716 +0300
+@@ -48,15 +48,15 @@
+     Single_line_outline      = { 'Ú', 'À', '¿', 'Ù', '³', 'Ä', 'Ã', '´' };
+ 
+ 
+-scroll_bar_t    Default_scroll_bar = { '', '', '³', ' ' },
++scroll_bar_t    Default_scroll_bar = { 0x0/*''*/, 0x0/*''*/, '³', ' ' },
+ 
+-                Line_scroll_bar    = { '', '', '³', ' ' },
++                Line_scroll_bar    = { 0x0/*''*/, 0x0/*''*/, '³', ' ' },
+ 
+-                Block_scroll_bar   = { '', '', '°', ' ' };
++                Block_scroll_bar   = { 0x0/*''*/, 0x0/*''*/, '°', ' ' };
+ 
+  char chars_less_than_greater_than[2] = {'<', '>'};
+ 
+- char chars_right_arrow_left_arrow[2] = {'', ''};
++ char chars_right_arrow_left_arrow[2] = {0x0/*''*/, 0x0/*''*/};
+ 
+ /*
+  * general use strings
+diff -urN alvm/user.h contrib/user.h
+--- alvm/user.h	2022-06-05 08:57:27.325046440 +0300
++++ contrib/user.h	2022-06-06 08:48:10.506231571 +0300
+@@ -63,23 +63,24 @@
+ #define loop for(;;)
+ 
+ 
+-uint    Message_bar_attribute;// = MESSAGE_BAR_ATTRIBUTE,
+-uint    Panel_attribute;// = PANEL_ATTRIBUTE,
+-uint    Panel_border_attribute;// = PANEL_BORDER_ATTRIBUTE,
+-uint    Menu_attribute;// = MENU_ATTRIBUTE,
+-uint    Menu_border_attribute;// = MENU_BORDER_ATTRIBUTE,
+-uint    Entry_attribute;// = ENTRY_ATTRIBUTE,
+-uint    Entry_border_attribute;// = ENTRY_BORDER_ATTRIBUTE,
+-uint    Choice_attribute;// = CHOICE_ATTRIBUTE,
+-uint    Choice_border_attribute;// = CHOICE_BORDER_ATTRIBUTE,
+-uint    Info_attribute;// = INFO_ATTRIBUTE,
+-uint    Info_border_attribute;// = INFO_BORDER_ATTRIBUTE,
+-uint    Warning_attribute;// = WARNING_ATTRIBUTE,
+-uint    Warning_border_attribute;// = WARNING_BORDER_ATTRIBUTE,
+-uint    Error_attribute;// = ERROR_ATTRIBUTE,
+-uint    Error_border_attribute;// = ERROR_BORDER_ATTRIBUTE,
+-uint    Help_attribute;// = HELP_ATTRIBUTE,
+-uint    Help_border_attribute;// = HELP_BORDER_ATTRIBUTE;
++extern
++uint    Message_bar_attribute, // = MESSAGE_BAR_ATTRIBUTE,
++        Panel_attribute, // = PANEL_ATTRIBUTE,
++        Panel_border_attribute, // = PANEL_BORDER_ATTRIBUTE,
++        Menu_attribute, // = MENU_ATTRIBUTE,
++        Menu_border_attribute, // = MENU_BORDER_ATTRIBUTE,
++        Entry_attribute, // = ENTRY_ATTRIBUTE,
++        Entry_border_attribute, // = ENTRY_BORDER_ATTRIBUTE,
++        Choice_attribute, // = CHOICE_ATTRIBUTE,
++        Choice_border_attribute, // = CHOICE_BORDER_ATTRIBUTE,
++        Info_attribute, // = INFO_ATTRIBUTE,
++        Info_border_attribute, // = INFO_BORDER_ATTRIBUTE,
++        Warning_attribute, // = WARNING_ATTRIBUTE,
++        Warning_border_attribute, // = WARNING_BORDER_ATTRIBUTE,
++        Error_attribute, // = ERROR_ATTRIBUTE,
++        Error_border_attribute, // = ERROR_BORDER_ATTRIBUTE,
++        Help_attribute, // = HELP_ATTRIBUTE,
++        Help_border_attribute; // = HELP_BORDER_ATTRIBUTE;
+ 
+ 
+ extern
+@@ -89,9 +90,9 @@
+             Information_panel,
+             None_startable_panel;
+ 
+-//#define  MESSAGE_BAR_PANEL(str) Message_bar_panel.text_line = &str; \
++//#define  MESSAGE_BAR_PANEL(str) Message_bar_panel.text_line = &str; 
+ //                                MessageBarPanel(&Message_bar_panel);
+-                     
++
+ extern void  MESSAGE_BAR_PANEL(char *str) ;
+-            
+-#endif //_USER_H
+\ No newline at end of file
++
++#endif //_USER_H

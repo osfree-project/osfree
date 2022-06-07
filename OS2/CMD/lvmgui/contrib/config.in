@@ -1,0 +1,62 @@
+#
+# config.in: 
+#    Contains path definitions used (only) by the xwphelpers target.
+#
+#
+
+# CVS DIRECTORY SETUP
+# -------------------
+
+# CVS_WORK_ROOT: the root of your CVS tree
+# (the parent dir of "xworkplace" and "xwphelpers")
+!ifndef CVS_WORK_ROOT
+CVS_WORK_ROOT = g:\netlabs\cvs
+!endif
+
+# XWPDIR: name of the directory this file resides in
+# (subdirectory of CVS_WORK_ROOT).
+# This will usually be xworkplace (the CVS repository
+# name), unless you chose a different name.
+XWPDIR = xworkplace
+
+# XWPHELPERSDIR: name of the directory the xwphelpers
+# resides in (subdirectory of CVS_WORK_ROOT).
+# This will usually be xwphelpers (the CVS repository
+# name), unless you chose a different name.
+XWPHELPERSDIR = xwphelpers
+
+# INCLUDE AND LIB SETUP
+# ---------------------
+
+# Starting with V0.9.12, we no longer use the default
+# INCLUDE and LIB paths. Instead, we specify all
+# directories directly on the command lines, so we
+# need to know where your toolkit and compiler things
+# are.
+
+# TKBASE: the main Toolkit directory.
+# This must be the parent of the "h" and "lib"
+# directories with the include files and libraries.
+!ifndef TKBASE
+TKBASE = e:\development\os2tk45
+!endif
+
+# VACBASE: the main directory of your IBM
+# VisualAge C++ installation. Only 3.0.8 has
+# been tested so far.
+# This must be the parent of the "include" and "lib"
+# directories with the include files and libraries.
+!ifndef VACBASE
+VACBASE = e:\development\ibmcpp
+!endif
+
+# DDKBASE: your DDK "base" directory.
+# Not used by the regular makefiles, unless you
+# want to build XWorkplace Security.
+# DDKBASE = e:\development\DDK\base
+
+# SESBASE: your SES "base" directory.
+# Not used by the regular makefiles, unless you
+# want to build XWorkplace Security.
+# SESBASE = K:\libs\security
+

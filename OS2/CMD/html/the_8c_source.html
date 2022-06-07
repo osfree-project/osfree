@@ -1670,7 +1670,7 @@ $(function() {
 <div class="line"><a id="l01622" name="l01622"></a><span class="lineno"> 1622</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l01623" name="l01623"></a><span class="lineno"> 1623</span><span class="keywordtype">char</span> **StringToArgv( argc, <span class="keywordtype">string</span> )</div>
 <div class="line"><a id="l01624" name="l01624"></a><span class="lineno"> 1624</span><span class="keywordtype">int</span> *argc;</div>
-<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span><span class="keywordtype">char</span> *string;</div>
+<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span><span class="keywordtype">char</span> *<a class="code hl_class" href="classBSString.html">string</a>;</div>
 <div class="line"><a id="l01626" name="l01626"></a><span class="lineno"> 1626</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l01627" name="l01627"></a><span class="lineno"> 1627</span><span class="comment">/***********************************************************************/</span></div>
 <div class="line"><a id="l01628" name="l01628"></a><span class="lineno"> 1628</span>{</div>
@@ -1710,7 +1710,7 @@ $(function() {
 <div class="line"><a id="l01662" name="l01662"></a><span class="lineno"> 1662</span>   <span class="comment">/*</span></div>
 <div class="line"><a id="l01663" name="l01663"></a><span class="lineno"> 1663</span><span class="comment">    * Now go and split the string into args</span></div>
 <div class="line"><a id="l01664" name="l01664"></a><span class="lineno"> 1664</span><span class="comment">    */</span></div>
-<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>   argv[ args++ ] = string;</div>
+<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>   argv[ args++ ] = <a class="code hl_class" href="classBSString.html">string</a>;</div>
 <div class="line"><a id="l01666" name="l01666"></a><span class="lineno"> 1666</span>   <a class="code hl_struct" href="structstate.html">state</a> = STA_IN_WORD;</div>
 <div class="line"><a id="l01667" name="l01667"></a><span class="lineno"> 1667</span>   <span class="keywordflow">for</span> ( i = 0; i &lt; len; i++ )</div>
 <div class="line"><a id="l01668" name="l01668"></a><span class="lineno"> 1668</span>   {</div>
@@ -1750,6 +1750,7 @@ $(function() {
 <div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>   <span class="keywordflow">return</span> argv;</div>
 <div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>}</div>
 <div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclassBSString_html"><div class="ttname"><a href="classBSString.html">BSString</a></div><div class="ttdef"><b>Definition:</b> <a href="bs__string_8h_source.html#l00546">bs_string.h:547</a></div></div>
 <div class="ttc" id="astructFILE__DETAILS_html"><div class="ttname"><a href="structFILE__DETAILS.html">FILE_DETAILS</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01239">the.h:1240</a></div></div>
 <div class="ttc" id="astructSCREEN__DETAILS_html"><div class="ttname"><a href="structSCREEN__DETAILS.html">SCREEN_DETAILS</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01499">the.h:1500</a></div></div>
 <div class="ttc" id="astructlastop__struct_html"><div class="ttname"><a href="structlastop__struct.html">lastop_struct</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00891">the.h:892</a></div></div>

@@ -1,0 +1,57 @@
+
+#
+# makefile_dll:
+#       makefile for src/helpers directory.
+#
+#       See "makefile" for remarks.
+#
+#       This is used with WarpIN for preparing the runtime
+#       DLL which is shared between the WarpIN executables.
+#
+#       As opposed to "makefile", this does not create
+#       helpers.lib, but only the objects files, which are
+#       then linked with the other shared components into
+#       the runtime DLL.
+#
+#       Edit "setup.in" to set up the make process.
+#
+
+# Say hello to yourself.
+!if [@echo +++++ Entering $(MAKEDIR)\makefile_dll]
+!endif
+
+# set up shared environment variables
+!include ..\..\make\helpers.in
+# define $(OBJ), which contains all object targets
+!include helpers_pre.in
+
+# The main target:
+# If we're called from the main makefile, MAINMAKERUNNING is defined,
+# and we'll set $(OBJS) as our targets (which will go on).
+# Otherwise, we call the main makefile, which will again call ourselves later.
+all:   \
+!ifndef MAINMAKERUNNING
+    callmainmake
+    @echo ----- Leaving $(MAKEDIR)
+!else
+    makedll
+#$(OBJS)
+    @echo ----- Leaving $(MAKEDIR)
+!endif
+
+callmainmake:
+    @echo $(MAKEDIR)\makefile: Recursing to main makefile.
+    @cd $(PROJECT_BASE_DIR)
+    @nmake
+    @echo $(MAKEDIR)\makefile: Returned from main makefile. Done.
+
+#
+# new target "makedll":
+#       this simply produces all the object files.
+#
+
+makedll: $(OBJS)
+    @echo ----- Leaving $(MAKEDIR)
+
+!include helpers_post.in
+

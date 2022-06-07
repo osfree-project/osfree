@@ -1909,7 +1909,7 @@ $(function() {
 <div class="line"><a id="l01861" name="l01861"></a><span class="lineno"> 1861</span>{</div>
 <div class="line"><a id="l01862" name="l01862"></a><span class="lineno"> 1862</span>        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i, n, uSize = 0;</div>
 <div class="line"><a id="l01863" name="l01863"></a><span class="lineno"> 1863</span>        <span class="keywordtype">char</span> *fptr;</div>
-<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span>        <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a> = 0L;</div>
+<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span>        <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a> = 0L;</div>
 <div class="line"><a id="l01865" name="l01865"></a><span class="lineno"> 1865</span> </div>
 <div class="line"><a id="l01866" name="l01866"></a><span class="lineno"> 1866</span>        <span class="comment">// get the environment or alias list into an array</span></div>
 <div class="line"><a id="l01867" name="l01867"></a><span class="lineno"> 1867</span>        fptr = (( fAlias ) ? glpAliasList : glpEnvironment );</div>
@@ -1918,10 +1918,10 @@ $(function() {
 <div class="line"><a id="l01870" name="l01870"></a><span class="lineno"> 1870</span>            <span class="comment">// allocate memory for 32 entries at a time</span></div>
 <div class="line"><a id="l01871" name="l01871"></a><span class="lineno"> 1871</span>            <span class="keywordflow">if</span> (( i % 32 ) == 0 ) {</div>
 <div class="line"><a id="l01872" name="l01872"></a><span class="lineno"> 1872</span>                uSize += 128;</div>
-<div class="line"><a id="l01873" name="l01873"></a><span class="lineno"> 1873</span>                <a class="code hl_struct" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a>, uSize );</div>
+<div class="line"><a id="l01873" name="l01873"></a><span class="lineno"> 1873</span>                <a class="code hl_class" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a>, uSize );</div>
 <div class="line"><a id="l01874" name="l01874"></a><span class="lineno"> 1874</span>            }</div>
 <div class="line"><a id="l01875" name="l01875"></a><span class="lineno"> 1875</span> </div>
-<div class="line"><a id="l01876" name="l01876"></a><span class="lineno"> 1876</span>            <a class="code hl_struct" href="structlist.html">list</a>[ i++ ] = fptr;</div>
+<div class="line"><a id="l01876" name="l01876"></a><span class="lineno"> 1876</span>            <a class="code hl_class" href="structlist.html">list</a>[ i++ ] = fptr;</div>
 <div class="line"><a id="l01877" name="l01877"></a><span class="lineno"> 1877</span>        }</div>
 <div class="line"><a id="l01878" name="l01878"></a><span class="lineno"> 1878</span> </div>
 <div class="line"><a id="l01879" name="l01879"></a><span class="lineno"> 1879</span>        <span class="comment">// get batch variables into the list</span></div>
@@ -1931,20 +1931,20 @@ $(function() {
 <div class="line"><a id="l01883" name="l01883"></a><span class="lineno"> 1883</span> </div>
 <div class="line"><a id="l01884" name="l01884"></a><span class="lineno"> 1884</span>                <span class="keywordflow">if</span> (( i % 32 ) == 0 ) {</div>
 <div class="line"><a id="l01885" name="l01885"></a><span class="lineno"> 1885</span>                    uSize += 128;</div>
-<div class="line"><a id="l01886" name="l01886"></a><span class="lineno"> 1886</span>                    <a class="code hl_struct" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a>, uSize );</div>
+<div class="line"><a id="l01886" name="l01886"></a><span class="lineno"> 1886</span>                    <a class="code hl_class" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a>, uSize );</div>
 <div class="line"><a id="l01887" name="l01887"></a><span class="lineno"> 1887</span>                }</div>
 <div class="line"><a id="l01888" name="l01888"></a><span class="lineno"> 1888</span> </div>
 <div class="line"><a id="l01889" name="l01889"></a><span class="lineno"> 1889</span>                fptr = (<span class="keywordtype">char</span> *)_alloca( strlen( bframe[ cv.bn ].Argv[ n ] ) + 6 );</div>
 <div class="line"><a id="l01890" name="l01890"></a><span class="lineno"> 1890</span>                sprintf( fptr, <span class="stringliteral">&quot;%%%d=%s&quot;</span>, n - bframe[cv.bn].Argv_Offset, bframe[ cv.bn ].Argv[ n ] );</div>
-<div class="line"><a id="l01891" name="l01891"></a><span class="lineno"> 1891</span>                <a class="code hl_struct" href="structlist.html">list</a>[ i++ ] = fptr;</div>
+<div class="line"><a id="l01891" name="l01891"></a><span class="lineno"> 1891</span>                <a class="code hl_class" href="structlist.html">list</a>[ i++ ] = fptr;</div>
 <div class="line"><a id="l01892" name="l01892"></a><span class="lineno"> 1892</span>            }</div>
 <div class="line"><a id="l01893" name="l01893"></a><span class="lineno"> 1893</span>        }</div>
 <div class="line"><a id="l01894" name="l01894"></a><span class="lineno"> 1894</span> </div>
 <div class="line"><a id="l01895" name="l01895"></a><span class="lineno"> 1895</span>        <span class="comment">// no entries or no matches?</span></div>
 <div class="line"><a id="l01896" name="l01896"></a><span class="lineno"> 1896</span>        <span class="keywordflow">if</span> ( i &gt; 0 ) {</div>
 <div class="line"><a id="l01897" name="l01897"></a><span class="lineno"> 1897</span>            <span class="comment">// display the popup selection list</span></div>
-<div class="line"><a id="l01898" name="l01898"></a><span class="lineno"> 1898</span>            wPopSelect( gpIniptr-&gt;PWTop, gpIniptr-&gt;PWLeft, gpIniptr-&gt;PWHeight, gpIniptr-&gt;PWWidth, <a class="code hl_struct" href="structlist.html">list</a>, i, 1, (( fAlias ) ? <span class="stringliteral">&quot;Alias list&quot;</span> : <span class="stringliteral">&quot;Environment&quot;</span> ), NULL, NULL, 1 );</div>
-<div class="line"><a id="l01899" name="l01899"></a><span class="lineno"> 1899</span>            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l01898" name="l01898"></a><span class="lineno"> 1898</span>            wPopSelect( gpIniptr-&gt;PWTop, gpIniptr-&gt;PWLeft, gpIniptr-&gt;PWHeight, gpIniptr-&gt;PWWidth, <a class="code hl_class" href="structlist.html">list</a>, i, 1, (( fAlias ) ? <span class="stringliteral">&quot;Alias list&quot;</span> : <span class="stringliteral">&quot;Environment&quot;</span> ), NULL, NULL, 1 );</div>
+<div class="line"><a id="l01899" name="l01899"></a><span class="lineno"> 1899</span>            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l01900" name="l01900"></a><span class="lineno"> 1900</span>        }</div>
 <div class="line"><a id="l01901" name="l01901"></a><span class="lineno"> 1901</span>}</div>
 <div class="line"><a id="l01902" name="l01902"></a><span class="lineno"> 1902</span> </div>
@@ -1980,7 +1980,7 @@ $(function() {
 <div class="line"><a id="l01932" name="l01932"></a><span class="lineno"> 1932</span> </div>
 <div class="line"><a id="l01933" name="l01933"></a><span class="lineno"> 1933</span>                        <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i, uSize = 0;</div>
 <div class="line"><a id="l01934" name="l01934"></a><span class="lineno"> 1934</span>                        <span class="keywordtype">char</span> *fptr;</div>
-<div class="line"><a id="l01935" name="l01935"></a><span class="lineno"> 1935</span>                        <span class="keywordtype">char</span> * *<a class="code hl_struct" href="structlist.html">list</a> = 0L;</div>
+<div class="line"><a id="l01935" name="l01935"></a><span class="lineno"> 1935</span>                        <span class="keywordtype">char</span> * *<a class="code hl_class" href="structlist.html">list</a> = 0L;</div>
 <div class="line"><a id="l01936" name="l01936"></a><span class="lineno"> 1936</span> </div>
 <div class="line"><a id="l01937" name="l01937"></a><span class="lineno"> 1937</span>                        <span class="comment">// get the environment or alias list into an array</span></div>
 <div class="line"><a id="l01938" name="l01938"></a><span class="lineno"> 1938</span>                        fptr = (( c == <span class="charliteral">&#39;A&#39;</span> ) ? glpAliasList : glpEnvironment );</div>
@@ -1989,18 +1989,18 @@ $(function() {
 <div class="line"><a id="l01941" name="l01941"></a><span class="lineno"> 1941</span>                            <span class="comment">// allocate memory for 32 entries at a time</span></div>
 <div class="line"><a id="l01942" name="l01942"></a><span class="lineno"> 1942</span>                            <span class="keywordflow">if</span> (( i % 32 ) == 0 ) {</div>
 <div class="line"><a id="l01943" name="l01943"></a><span class="lineno"> 1943</span>                                uSize += 128;</div>
-<div class="line"><a id="l01944" name="l01944"></a><span class="lineno"> 1944</span>                                <a class="code hl_struct" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a>, uSize );</div>
+<div class="line"><a id="l01944" name="l01944"></a><span class="lineno"> 1944</span>                                <a class="code hl_class" href="structlist.html">list</a> = (<span class="keywordtype">char</span> * *)ReallocMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a>, uSize );</div>
 <div class="line"><a id="l01945" name="l01945"></a><span class="lineno"> 1945</span>                            }</div>
 <div class="line"><a id="l01946" name="l01946"></a><span class="lineno"> 1946</span> </div>
-<div class="line"><a id="l01947" name="l01947"></a><span class="lineno"> 1947</span>                            <a class="code hl_struct" href="structlist.html">list</a>[ i++ ] = fptr;</div>
+<div class="line"><a id="l01947" name="l01947"></a><span class="lineno"> 1947</span>                            <a class="code hl_class" href="structlist.html">list</a>[ i++ ] = fptr;</div>
 <div class="line"><a id="l01948" name="l01948"></a><span class="lineno"> 1948</span>                        }</div>
 <div class="line"><a id="l01949" name="l01949"></a><span class="lineno"> 1949</span> </div>
 <div class="line"><a id="l01950" name="l01950"></a><span class="lineno"> 1950</span>                        <span class="comment">// no entries or no matches?</span></div>
 <div class="line"><a id="l01951" name="l01951"></a><span class="lineno"> 1951</span>                        <span class="keywordflow">if</span> ( i &gt; 0 ) {</div>
 <div class="line"><a id="l01952" name="l01952"></a><span class="lineno"> 1952</span> </div>
 <div class="line"><a id="l01953" name="l01953"></a><span class="lineno"> 1953</span>                            <span class="comment">// display the popup selection list</span></div>
-<div class="line"><a id="l01954" name="l01954"></a><span class="lineno"> 1954</span>                            wPopSelect( gpIniptr-&gt;PWTop, gpIniptr-&gt;PWLeft, gpIniptr-&gt;PWHeight, gpIniptr-&gt;PWWidth, <a class="code hl_struct" href="structlist.html">list</a>, i, 1, (( c == <span class="charliteral">&#39;A&#39;</span> ) ? <span class="stringliteral">&quot;Alias list&quot;</span> : <span class="stringliteral">&quot;Environment&quot;</span> ), NULL, NULL, 1 );</div>
-<div class="line"><a id="l01955" name="l01955"></a><span class="lineno"> 1955</span>                            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_struct" href="structlist.html">list</a> );</div>
+<div class="line"><a id="l01954" name="l01954"></a><span class="lineno"> 1954</span>                            wPopSelect( gpIniptr-&gt;PWTop, gpIniptr-&gt;PWLeft, gpIniptr-&gt;PWHeight, gpIniptr-&gt;PWWidth, <a class="code hl_class" href="structlist.html">list</a>, i, 1, (( c == <span class="charliteral">&#39;A&#39;</span> ) ? <span class="stringliteral">&quot;Alias list&quot;</span> : <span class="stringliteral">&quot;Environment&quot;</span> ), NULL, NULL, 1 );</div>
+<div class="line"><a id="l01955" name="l01955"></a><span class="lineno"> 1955</span>                            FreeMem( (<span class="keywordtype">char</span> *)<a class="code hl_class" href="structlist.html">list</a> );</div>
 <div class="line"><a id="l01956" name="l01956"></a><span class="lineno"> 1956</span> </div>
 <div class="line"><a id="l01957" name="l01957"></a><span class="lineno"> 1957</span>                            <span class="comment">// reenable signal handling after cleanup</span></div>
 <div class="line"><a id="l01958" name="l01958"></a><span class="lineno"> 1958</span>                            EnableSignals();</div>

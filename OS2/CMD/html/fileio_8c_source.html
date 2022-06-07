@@ -434,7 +434,7 @@ $(function() {
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    p = ex2in(n, 0, (<span class="keywordtype">int</span> *)NULL);       <span class="comment">/* shouldn&#39;t affect matching chars */</span></div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    m = 1;</div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="keywordflow">for</span> (z = zfiles; z != NULL; z = z-&gt;nxt) {</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>      <span class="keywordflow">if</span> (MATCH(p, z-&gt;iname, caseflag))</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>      <span class="keywordflow">if</span> (<a class="code hl_struct" href="structmatch__struct.html">MATCH</a>(p, z-&gt;iname, caseflag))</div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>      {</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>        z-&gt;mark = pcount ? filter(z-&gt;zname, caseflag) : 1;</div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>        <span class="keywordflow">if</span> (verbose)</div>
@@ -459,7 +459,7 @@ $(function() {
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>        <span class="keywordtype">char</span> *zuname = z-&gt;zuname;</div>
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>        <span class="keywordflow">if</span> (MATCH(p, zuname, caseflag))</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>        <span class="keywordflow">if</span> (<a class="code hl_struct" href="structmatch__struct.html">MATCH</a>(p, zuname, caseflag))</div>
 <div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>        {</div>
 <div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>          z-&gt;mark = pcount ? filter(zuname, caseflag) : 1;</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>          <span class="keywordflow">if</span> (verbose) {</div>
@@ -603,7 +603,7 @@ $(function() {
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>            <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>         <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>      }</div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>      <span class="keywordflow">if</span> (MATCH(patterns[n].zname, p, casesensitive)) {</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>      <span class="keywordflow">if</span> (<a class="code hl_struct" href="structmatch__struct.html">MATCH</a>(patterns[n].zname, p, casesensitive)) {</div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>         <span class="keywordflow">switch</span> (patterns[n].select) {</div>
 <div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>            <span class="keywordflow">case</span> <span class="charliteral">&#39;x&#39;</span>:</div>
 <div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>               <span class="comment">/* The -x match takes precedence over everything else */</span></div>
@@ -4952,6 +4952,7 @@ $(function() {
 <div class="ttc" id="astructarg_html"><div class="ttname"><a href="structarg.html">arg</a></div><div class="ttdef"><b>Definition:</b> <a href="tools_8h_source.html#l00099">tools.h:99</a></div></div>
 <div class="ttc" id="astructflist_html"><div class="ttname"><a href="structflist.html">flist</a></div><div class="ttdef"><b>Definition:</b> <a href="zip_8h_source.html#l00188">zip.h:188</a></div></div>
 <div class="ttc" id="astructlabel_html"><div class="ttname"><a href="structlabel.html">label</a></div><div class="ttdef"><b>Definition:</b> <a href="label_8h_source.html#l00041">label.h:41</a></div></div>
+<div class="ttc" id="astructmatch__struct_html"><div class="ttname"><a href="structmatch__struct.html">match_struct</a></div><div class="ttdef"><b>Definition:</b> <a href="regexp_8c_source.html#l00408">regexp.c:409</a></div></div>
 <div class="ttc" id="astructzlist_html"><div class="ttname"><a href="structzlist.html">zlist</a></div><div class="ttdef"><b>Definition:</b> <a href="zip_8h_source.html#l00147">zip.h:147</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

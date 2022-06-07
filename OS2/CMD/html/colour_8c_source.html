@@ -521,8 +521,8 @@ $(function() {
 <div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>      TRACE_RETURN();</div>
 <div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>      <span class="keywordflow">return</span>(RC_OUT_OF_MEMORY);</div>
 <div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>   }</div>
-<div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>   oldp = string;</div>
-<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>   p = (CHARTYPE *)strtok((DEFCHAR *)string,<span class="stringliteral">&quot; \t&quot;</span>);</div>
+<div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>   oldp = <a class="code hl_class" href="classBSString.html">string</a>;</div>
+<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>   p = (CHARTYPE *)strtok((DEFCHAR *)<a class="code hl_class" href="classBSString.html">string</a>,<span class="stringliteral">&quot; \t&quot;</span>);</div>
 <div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>   <span class="keywordflow">while</span>(p != NULL)</div>
 <div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>   {</div>
 <div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>      found = FALSE;</div>
@@ -535,7 +535,7 @@ $(function() {
 <div class="line"><a id="l00487" name="l00487"></a><span class="lineno">  487</span>            &amp;&amp;  !colour_support)</div>
 <div class="line"><a id="l00488" name="l00488"></a><span class="lineno">  488</span>            {</div>
 <div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>               display_error(61,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>               (*the_free)(string);</div>
+<div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>               (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>               TRACE_RETURN();</div>
 <div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>               <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>            }</div>
@@ -557,7 +557,7 @@ $(function() {
 <div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>                     &amp;&amp;  valid_attribs[i].actual_attrib != COLOR_WHITE)</div>
 <div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>                     {</div>
 <div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                        display_error(61,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>                        (*the_free)(string);</div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>                        (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>                        TRACE_RETURN();</div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>                        <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>                     }</div>
@@ -574,7 +574,7 @@ $(function() {
 <div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>                     &amp;&amp;  valid_attribs[i].actual_attrib != COLOR_BLACK)</div>
 <div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>                     {</div>
 <div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>                        display_error(61,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                        (*the_free)(string);</div>
+<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                        (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                        TRACE_RETURN();</div>
 <div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>                        <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                     }</div>
@@ -593,7 +593,7 @@ $(function() {
 <div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>                        <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>                     }</div>
 <div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>                     display_error(1,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>                     (*the_free)(string);</div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>                     (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>                     TRACE_RETURN();</div>
 <div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>                     <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>                     <span class="keywordflow">break</span>;</div>
@@ -619,7 +619,7 @@ $(function() {
 <div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>               <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>            }</div>
 <div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>            display_error(1,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>            (*the_free)(string);</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>            (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>            TRACE_RETURN();</div>
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>            <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>         }</div>
@@ -634,7 +634,7 @@ $(function() {
 <div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>   pattr-&gt;mod = specified_mod;</div>
 <div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>   pattr-&gt;mono = mono;</div>
 <div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>   *any_colours = any_found;</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>   (*the_free)(string);</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>   (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>   TRACE_RETURN();</div>
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>   <span class="keywordflow">return</span>(RC_OK);</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>}</div>
@@ -669,8 +669,8 @@ $(function() {
 <div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>      TRACE_RETURN();</div>
 <div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>      <span class="keywordflow">return</span>(RC_OUT_OF_MEMORY);</div>
 <div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>   }</div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>   oldp = string;</div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>   p = (CHARTYPE *)strtok((DEFCHAR *)string,<span class="stringliteral">&quot; \t&quot;</span>);</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>   oldp = <a class="code hl_class" href="classBSString.html">string</a>;</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>   p = (CHARTYPE *)strtok((DEFCHAR *)<a class="code hl_class" href="classBSString.html">string</a>,<span class="stringliteral">&quot; \t&quot;</span>);</div>
 <div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>   <span class="keywordflow">while</span>(p != NULL)</div>
 <div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>   {</div>
 <div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>      found = FALSE;</div>
@@ -684,7 +684,7 @@ $(function() {
 <div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>            &amp;&amp;  !colour_support)</div>
 <div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>            {</div>
 <div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>               display_error(61,(CHARTYPE *)p,FALSE);</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>               (*the_free)(string);</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>               (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>               TRACE_RETURN();</div>
 <div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>               <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>            }</div>
@@ -704,14 +704,14 @@ $(function() {
 <div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>         <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>         {</div>
 <div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>            display_error( 1, (CHARTYPE *)p, FALSE );</div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>            (*the_free)( string );</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>            (*the_free)( <a class="code hl_class" href="classBSString.html">string</a> );</div>
 <div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>            TRACE_RETURN();</div>
 <div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>            <span class="keywordflow">return</span>(RC_INVALID_OPERAND);</div>
 <div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>         }</div>
 <div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>      }</div>
 <div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>      p = (CHARTYPE *)strtok(NULL,<span class="stringliteral">&quot; \t&quot;</span>);</div>
 <div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>   }</div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>   (*the_free)(string);</div>
+<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>   (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span> </div>
 <div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span>   <span class="keywordflow">if</span> ( equal( (CHARTYPE *)<span class="stringliteral">&quot;on&quot;</span>, last_word, 2 )</div>
 <div class="line"><a id="l00669" name="l00669"></a><span class="lineno">  669</span>   ||   equal( (CHARTYPE *)<span class="stringliteral">&quot;off&quot;</span>, last_word, 3 ) )</div>
@@ -1008,6 +1008,7 @@ $(function() {
 <div class="line"><a id="l00960" name="l00960"></a><span class="lineno">  960</span>   TRACE_RETURN();</div>
 <div class="line"><a id="l00961" name="l00961"></a><span class="lineno">  961</span>   <span class="keywordflow">return</span>(attr_string);</div>
 <div class="line"><a id="l00962" name="l00962"></a><span class="lineno">  962</span>}</div>
+<div class="ttc" id="aclassBSString_html"><div class="ttname"><a href="classBSString.html">BSString</a></div><div class="ttdef"><b>Definition:</b> <a href="bs__string_8h_source.html#l00546">bs_string.h:547</a></div></div>
 <div class="ttc" id="astructCOLOUR__DEF_html"><div class="ttname"><a href="structCOLOUR__DEF.html">COLOUR_DEF</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01515">the.h:1516</a></div></div>
 <div class="ttc" id="astructFILE__DETAILS_html"><div class="ttname"><a href="structFILE__DETAILS.html">FILE_DETAILS</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01239">the.h:1240</a></div></div>
 <div class="ttc" id="astructattributes_html"><div class="ttname"><a href="structattributes.html">attributes</a></div><div class="ttdef"><b>Definition:</b> <a href="colour_8c_source.html#l00389">colour.c:390</a></div></div>

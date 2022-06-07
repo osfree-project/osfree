@@ -1,0 +1,77 @@
+#
+#  $Id$
+#
+# This file affects handling of files based on their names.
+#
+# The -t/-f options allow one to treat directories of files
+# as a single file, or to transform a file in other ways on
+# its way in and out of CVS.
+#
+# The -m option specifies whether CVS attempts to merge files.
+#
+# The -k option specifies keyword expansion (e.g. -kb for binary).
+#
+# Format of wrapper file ($CVSROOT/CVSROOT/cvswrappers or .cvswrappers)
+#
+#  wildcard     [option value][option value]...
+#
+#  where option is one of
+#  -f           from cvs filter         value: path to filter
+#  -t           to cvs filter           value: path to filter
+#  -m           update methodology      value: MERGE or COPY
+#  -k           expansion mode          value: b, o, kkv, &c
+#
+#  and value is a single-quote delimited value.
+# For example:
+#*.gif -k 'b'
+
+# binaries (should normally not be added to the archive )
+*.exe -k 'b'
+*.sys -k 'b'
+*.obj -k 'b'
+*.res -l 'b'
+
+# diverse others
+*.zip -k 'b'
+*.etc -k 'b'
+*.pch -k 'b'
+*.err -k 'b'
+*.map -k 'b'
+
+# icon and mouse pointer formats
+*.ico -k 'b'
+*.ptr -k 'b'
+*.cur -k 'b'
+*.ani -k 'b'
+*.and -k 'b'
+
+# font files
+*.ttf -k 'b'
+*.fnt -k 'b'
+
+# bitmap formats
+*.bmp -k 'b'
+*.gif -k 'b'
+*.jpg -k 'b'
+*.jpeg -k 'b'
+*.pcx -k 'b'
+*.tga -k 'b'
+*.tif -k 'b'
+*.tiff -k 'b'
+*.dib -k 'b'
+*.mng -k 'b'
+*.png -k 'b'
+*.xpm -k 'b'
+
+# presentation formats
+*.pdf -k 'b'
+*.ps -k 'b'
+
+
+# video and audio files
+*.mov -k 'b'
+*.avi -k 'b'
+*.mpg -k 'b'
+*.mp2 -k 'b'
+*.mp3 -k 'b'
+

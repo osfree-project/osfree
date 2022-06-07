@@ -1,0 +1,526 @@
+#include <os2.h>
+#include "ids.h"
+#include "lvm_ctls.h"
+
+POINTER ID_MAINPROGRAM      "..\\icons\\program.ico"
+
+POINTER IDP_HDD             "..\\icons\\hdd.ico"
+POINTER IDP_PRM             "..\\icons\\prm.ico"
+POINTER IDP_PRM_MISSING     "..\\icons\\prm_no.ico"
+POINTER IDP_DISK_BAD        "..\\icons\\bad_disk.ico"
+POINTER IDP_MEMDISK         "..\\icons\\mem_disk.ico"
+
+POINTER IDP_VOL_BASIC       "..\\icons\\volume1.ico"
+POINTER IDP_VOL_ADVANCED    "..\\icons\\volume2.ico"
+POINTER IDP_VOL_UNKNOWN     "..\\icons\\volume3.ico"
+POINTER IDP_VOL_CDROM       "..\\icons\\cd.ico"
+POINTER IDP_VOL_NETWORK     "..\\icons\\lan.ico"
+
+
+/* NOTE TO TRANSLATORS:
+ *  - Strings may NOT exceed 255 bytes.
+ *  - Make sure that any format specifiers (%*) remain in the SAME ORDER
+ *    as in the original English text.
+ */
+
+/* General message popup text
+ */
+STRINGTABLE
+BEGIN
+    IDS_HELP_TITLE              "Logical Volume Manager"
+    IDS_HELP_LOAD_ERROR         "Help is not available."
+    IDS_HELP_DISP_ERROR         "Error displaying help panel."
+    IDS_HELP_ERROR_TITLE        "Help Not Available"
+    IDS_PROGRAM_TITLE           "Logical Volume Manager"
+    IDS_SAVE_TITLE              "Save Changes?"
+    IDS_SAVE_QUIT               "Do you wish to save your changes before exiting?"
+    IDS_SAVE_CONFIRM            "Save all changes now?"
+    IDS_REBOOT_TITLE            "Reboot Required"
+    IDS_REBOOT_NOTIFY           "Changes have been made that require the computer to be rebooted.\x0d\x0dSelect ""OK"" to shut down and reboot the system.\x0d\x0d"
+    IDS_NOBOOT_TITLE            "No Bootable Volumes"
+    IDS_NOBOOT_WARNING          "There are no bootable OS/2 volumes defined.  Do you really want to exit?"
+    IDS_SAVE_WARNING            "IMPORTANT: All outstanding changes to your system will be saved automatically if you continue."
+    IDS_PROCEED_CONFIRM         "Do you wish to proceed?"
+    IDS_CONFIRM_TITLE           "Confirm Action"
+    IDS_SUCCESS_TITLE           "Operation Succeeded"
+END
+
+
+STRINGTABLE
+BEGIN
+    /* Strings used in the various fields of the status bar
+     */
+    IDS_STATUS_PARTITION        "Disk %u #%u (%s):   ""%.20s"""
+    IDS_STATUS_VOLUME_HIDDEN    "Volume: ""%.20s"""
+    IDS_STATUS_VOLUME_LETTER    "Volume: ""%.20s"" (%c:)"
+    IDS_STATUS_TYPE             "Volume Type: %s"
+    IDS_STATUS_FORMAT           "Format Type: %s"
+    IDS_STATUS_AVAILABLE        "Available"
+    IDS_STATUS_INUSE            "In Use"
+    IDS_STATUS_UNUSABLE         "Unusable"
+    IDS_STATUS_FREESPACE        "Free space"
+    // These next four are also used in the volumes container
+    IDS_STATUS_STARTABLE        "Startable"
+    IDS_STATUS_BOOTABLE         "Bootable"
+    IDS_STATUS_INSTALLABLE      "Installable"
+    IDS_STATUS_SPANNED          "Multi-partition volume"
+    // Text for the right-hand status field indicating that changes were made
+    IDS_STATUS_MODIFIED         "Modified"
+    // Abbreviated partition status used in the partition selection dialog:
+    // - Template:  "<name>"        <size>        [status will be appended]
+    IDS_STATUS_PARTITION_SHORT  "  ""%.20s""        %s%s        "
+    // - Template:  "<name>"        <size>        Free space
+    IDS_STATUS_FREESPACE_SHORT  "  ""%.20s""        %s%s        Free space"
+END
+
+STRINGTABLE
+BEGIN
+    /* Device type descriptions
+     */
+    IDS_DEVICE_HDD              "Hard disk"
+    IDS_DEVICE_PRM              "Partitioned removable media"
+    IDS_DEVICE_CD               "CD/DVD"
+    IDS_DEVICE_LAN              "Network drive"
+    IDS_DEVICE_UNKNOWN          "Unrecognized non-LVM device"
+    IDS_DEVICE_MEMDISK          "MEMDISK Boot Volume"
+
+    /* Some common terms used throughout the program
+     */
+    IDS_TERMS_PRIMARY           "primary partition"     // max. 40 bytes
+    IDS_TERMS_LOGICAL           "logical partition"     // max. 40 bytes
+    IDS_TERMS_FREE              "free space"            // max. 40 bytes
+    IDS_TERMS_STANDARD          "Standard"
+    IDS_TERMS_COMPATIBILITY     "Compatibility"
+    IDS_TERMS_ADVANCED          "Advanced"
+    IDS_TERMS_LVM               "LVM"
+
+    /* Some dynamic values used to display volume status
+     */
+    IDS_OS_OSTYPE               "(Type %2X)"
+    // The right-arrow character (0x1A) may vary by codepage; change as needed
+    IDS_LETTER_CHANGED          "%c \x1a %c:"
+    // This string will become "Standard Volume" / "Advanced Volume", etc.
+    IDS_VOLUME_TYPE_LONG        "%s Volume"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_LABELS_FILESYSTEM       "File system:"
+    IDS_LABELS_SIZE             "Size:"
+    IDS_LABELS_VOLUMES          "Logical Volumes"
+    IDS_LABELS_DISKS            "Disk Layout"
+    IDS_LABELS_PARTITIONS       "Partitions"
+    IDS_LABELS_DEVICE           "Device type:"
+    IDS_LABELS_DEFAULT_FONT     "(system default)"
+    IDS_FIELD_VOLUME_NAME       "Volume Name"
+    IDS_FIELD_SIZE              "Size (%s)"
+    IDS_FIELD_FILESYSTEM        "File System"
+    IDS_FIELD_VOLUME_TYPE       "Volume Type"
+    IDS_FIELD_FLAGS             "Flags"
+    IDS_FIELD_PARTITION_NAME    "Partition Name"
+    IDS_FIELD_DISK              "Disk"
+    // - Tooltip template:  "<name>" (<type>)\n <size>
+    IDS_TOOLTIP_PARTITION       """%.20s"" (%.40s)\x0d%.15s%.4s"
+END
+
+STRINGTABLE
+BEGIN
+    /* Miscellaneous UI text */
+    IDS_UITEXT_OK               "OK"
+    IDS_UITEXT_CREATE           "Create"
+    IDS_UITEXT_NOTALLOWED       "Operation Not Allowed"
+END
+
+STRINGTABLE
+BEGIN
+    /* Dynamically added menu items (should include shortcut indicator)
+     */
+    IDS_MENU_AIRBOOT_INSTALL    "~Install/Update Air-Boot"
+    IDS_MENU_AIRBOOT_REMOVE     "~Remove Air-Boot"
+    IDS_MENU_BOOTMGR_INSTALL    "Install IBM ~Boot Manager"
+    IDS_MENU_BOOTMGR_REMOVE     "Re~move IBM Boot Manager"
+    IDS_MENU_BOOTMGR_OPTIONS    "IBM Boot Manager ~Options..."
+    IDS_MENU_BOOTABLE           "~Bootable"
+    IDS_MENU_NO_BOOTMGR         "(Not Enabled)"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BOOTMGR_INSTALL         "Install IBM Boot Manager to disk %u?"
+    IDS_BOOTMGR_INSTALL_TITLE   "Install Boot Manager"
+    IDS_BOOTMGR_WRONG_DISK      "IBM Boot Manager must be installed to either the first or second hard disk.\x0d\x0dPlease select another disk.\x0d\x0d"
+    IDS_BOOTMGR_WRONG_TITLE     "Incorrect Disk"
+    IDS_BOOTMGR_EMPTY           "The Boot Manager menu is currently empty.\x0d\x0dYou must add at least one item to the menu before you can set Boot Manager options.\x0d\x0d"
+    IDS_BOOTMGR_EMPTY_TITLE     "No Bootable Volumes"
+    IDS_BOOTMGR_LAST_BOOTED     "[Last booted]"
+    IDS_BOOTMGR_DELETE          "Uninstall the IBM Boot Manager?"
+    IDS_BOOTMGR_DELETE_TITLE    "Remove Boot Manager"
+    IDS_AIRBOOT_INSTALL_TITLE   "Install/Update Air-Boot"
+    IDS_AIRBOOT_INSTALL_1       "This will install or update Air-Boot on your first hard disk.  "
+    IDS_AIRBOOT_INSTALL_2       "If you have any other MBR-based boot management software installed, it will be removed.\x0d\x0d"
+    IDS_AIRBOOT_DELETE          "You have selected to uninstall Air-Boot.  The Master Boot Record on disk 1 will be rewritten.\x0d\x0d"
+    IDS_AIRBOOT_FAILED_TITLE    "Air-Boot Not Installed"
+    IDS_AIRBOOT_FAILED          "Air-Boot could not be installed.\x0d\x0d%.255s (return code %u)\x0d\x0d"
+    IDS_AIRBOOT_INSTALLED       "Air-Boot was installed successfully."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_NEWMBR_TITLE            "Rewrite MBR"
+    IDS_NEWMBR_CONFIRM          "The Master Boot Record on disk %u will be rewritten.\x0d\x0d"
+    IDS_NEWMBR_WARN_1           "This action will uninstall Air-Boot from your hard disk.\x0d\x0d"
+    IDS_NEWMBR_WARN_2           "If you have any third-party boot management software (such as GRUB) installed, this action may disable it.\x0d\x0d"
+    IDS_NEWMBR_OK               "The Master Boot Record was written successfully."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_VOLUME_DEFAULT_NAME     "Volume %u"
+    IDS_VOLUME_NEW_STANDARD     "Create a standard volume"
+    IDS_VOLUME_NEW_COMPATIBLE   "Create a compatibility volume"
+    IDS_VOLUME_NEW_ADVANCED     "Create an advanced volume"
+    IDS_VOLUME_NEW_LVM          "Create a LVM volume"
+    IDS_VOLUME_NEW_BOOTABLE     "Make the volume bootable"
+    IDS_VOLUME_NEW_STARTABLE    "Make the volume startable"
+    IDS_VOLUME_NEW_SELECT_ONE   "Choose the free space or existing partition to use for this volume."
+    IDS_VOLUME_NEW_SELECT_SOME  "Choose the partition(s) and/or free space to use for this volume.  Use ""Add"" to add the current selection to the volume.  Select ""Create"" when done."
+    // These are used in the drop-down list of selectable drive letters:
+    // -- These next four strings have a maximum length of 24 characters!
+    IDS_LETTER_NONE             "None (hide)"
+    IDS_LETTER_AUTO             "Automatic"
+    IDS_LETTER_INUSE            "*"
+    IDS_LETTER_CURRENT          "(current)"
+    // Titlebar text of the partition-creation dialog
+    IDS_PARTITION_NEW_TITLE     "Create Partition (Disk %u #%u)"
+    IDS_PARTITION_NOT_SELECTED  "No partitions were selected!"
+    IDS_PARTITION_NOT_FREESPACE "You must select an area of free space in order to create a partition."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_VOLUME_NAME_TITLE           "Volume Name"
+    IDS_PARTITION_NAME_TITLE        "Partition Name"
+    IDS_VOLUME_NAME_PROMPT          "Enter the volume name."
+    IDS_PARTITION_NAME_PROMPT       "Enter the partition name."
+    IDS_VOLUME_DELETE_TITLE         "Delete Volume"
+    IDS_VOLUME_DELETE_CONFIRM       "Delete this volume?\x0d\x0d%s  %s\x0d\x0dThis action will delete the partition(s) belonging to the volume, and all data residing on it.\x0d\x0d"
+    IDS_PARTITION_DELETE_TITLE      "Delete Partition"
+    IDS_PARTITION_DELETE_CONFIRM    "Delete this partition?\x0d\x0dAll data on the partition will be lost.\x0d\x0d"
+    IDS_PARTITION_VOLUME            "Partition In Use"
+    IDS_PARTITION_DELETE_VOLUME     "This partition cannot be deleted directly as it is part of the following volume:\x0d\x0d%s  %s\x0d\x0d"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_VOLUME_BOOTABLE_TITLE       "Make Volume Bootable"
+    IDS_VOLUME_BOOTABLE_CONFIRM     "Add this volume to the IBM Boot Manager menu?"
+    IDS_VOLUME_STARTABLE_TITLE      "Make Volume Startable"
+    IDS_VOLUME_STARTABLE_CONFIRM    "Make this the system startup volume?"
+    IDS_VOLUME_STARTABLE_AIRBOOT    "NOTE: This setting will not affect the behaviour of Air-Boot. It will only take effect if Air-Boot is bypassed or uninstalled.\x0d\x0d"
+    IDS_VOLUME_STARTABLE_BOOTMGR    "NOTE: This will disable Boot Manager.\x0d\x0d"
+    IDS_PARTITION_BOOTABLE_TITLE    "Make Partition Bootable"
+    IDS_PARTITION_BOOTABLE_CONFIRM  "Add this partition to the IBM Boot Manager menu?"
+    IDS_PARTITION_ACTIVE_TITLE      "Make Partition Active"
+    IDS_PARTITION_ACTIVE_CONFIRM    "Make this the active (BIOS default) partition on disk %u?"
+    IDS_PARTITION_CONVERT_TITLE     "Convert Partition to Volume"
+    IDS_PARTITION_NO_LVM_VOLUMES    "No %s volumes are available. Partitions can only be appended to existing %s volumes."
+    IDS_VOLUME_NOT_AVAILABLE        "No Volumes Available"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PRODUCT_VERSION         "Version %.10s"
+    IDS_PRODUCT_REVISION        "revision %.10s"
+    IDS_PRODUCT_COPYRIGHT       "(C) %.10s Alex Taylor"
+
+    /* The following strings contain the overview paragraphs of the GNU GPL.
+     * Translators should use their own discretion regarding whether or not
+     * this text should be translated.  Unofficial translations are available
+     * for a number of languages, see:
+     * http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html
+     *
+     * These six strings are simply concatenated together for display.  You
+     * can therefore split up the text wherever you like in order to ensure
+     * that no string exceeds 255 bytes.
+     *
+     * To force a linebreak in the text use "\x0a" (newline character).  This
+     * apparently has to be preceeded by at least some text (hence the space
+     * characters preceding each one below) so that the MLE import message
+     * doesn't ignore it.
+     */
+    IDS_GPL_OVERVIEW_1          "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
+    IDS_GPL_OVERVIEW_2          " \x0a \x0a"
+    IDS_GPL_OVERVIEW_3          "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details."
+    IDS_GPL_OVERVIEW_4          " \x0a \x0a"
+    IDS_GPL_OVERVIEW_5          "You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
+    IDS_GPL_OVERVIEW_6          "\x0a"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_GENERIC       "Error"
+    IDS_ERROR_PROGRAM       "Program Error"
+    IDS_ERROR_ENGINE        "LVM Error (%u)"
+    IDS_ERROR_INTERNAL      "This is an internal program error.  Please contact support.\n"
+    IDS_ERROR_REGISTER      "Failed to register class %.40s:\r\nThe PM error code is: 0x%08X\n"
+    IDS_ERROR_INITDLG       "Failed to load the main window dialog:\r\nThe PM error code is 0x%08X\n"
+    IDS_ERROR_NODISKS       "There was a problem retrieving disk drive data, probably due to an internal program error.  Please contact support."
+    IDS_ERROR_CORRUPT       "Disk %u reports a corrupt partition table.  The Logical Volume Manager is not able to use this disk."
+    IDS_ERROR_STARTAPP      "The program ""%.255s"" could not be started:\r\nThe PM error code is: 0x%08X\n"
+    /* The next four strings are mainly for use with the Air-Boot installer,
+     * but they may also be usable in other contexts as well.
+     */
+    IDS_ERROR_IO            "An I/O error occurred"
+    IDS_ERROR_GEOMETRY      "The partitioning scheme on disk 1 is not supported"
+    IDS_ERROR_INSUFFICIENT  "There is not enough disk space available"
+    IDS_ERROR_SELECTION     "Invalid Selection"
+    // The next string has max length 20. It is a placeholder in case querying an LVM name fails.
+    IDS_ERROR_UNAVAILABLE   "(unknown)"
+    // Bottom catcher error text
+    IDS_ERROR_OTHER         "An unknown error occurred"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_LVM           "The operation was successful."
+    IDS_ERROR_LVM + 1       "Out of memory."
+    IDS_ERROR_LVM + 2       "I/O error."
+    IDS_ERROR_LVM + 3       "Invalid handle."
+    IDS_ERROR_LVM + 4       "Internal error."
+    IDS_ERROR_LVM + 5       "LVM engine is already open."
+    IDS_ERROR_LVM + 6       "LVM engine is not open."
+    IDS_ERROR_LVM + 7       "Name exceeds maximum allowed length."
+    IDS_ERROR_LVM + 8       "Operation is not allowed."
+    IDS_ERROR_LVM + 9       "Drive open failure."
+    IDS_ERROR_LVM + 10      "Invalid partition."
+    IDS_ERROR_LVM + 11      "Cannot create primary partition."
+    IDS_ERROR_LVM + 12      "Too many primary partitions."
+    IDS_ERROR_LVM + 13      "Cannot create logical partition."
+    IDS_ERROR_LVM + 14      "Requested size is too large."
+    IDS_ERROR_LVM + 15      "System reports INT13X bootable limit incompatibility."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_LVM + 16      "Partition alignment error."
+    IDS_ERROR_LVM + 17      "Requested size is too small."
+    IDS_ERROR_LVM + 18      "Not enough free space."
+    IDS_ERROR_LVM + 19      "Invalid allocation algorithm."
+    IDS_ERROR_LVM + 20      "Duplicate name."
+    IDS_ERROR_LVM + 21      "Invalid name."
+    IDS_ERROR_LVM + 22      "Invalid drive letter preference."
+    IDS_ERROR_LVM + 23      "No drives found."
+    IDS_ERROR_LVM + 24      "Incorrect volume type."
+    IDS_ERROR_LVM + 25      "Volume is too small."
+    IDS_ERROR_LVM + 26      "Boot Manager is already installed."
+    IDS_ERROR_LVM + 27      "Boot Manager not found."
+    IDS_ERROR_LVM + 28      "Invalid parameter."
+    IDS_ERROR_LVM + 29      "Invalid feature set."
+    IDS_ERROR_LVM + 30      "Too many partitions selected."
+    IDS_ERROR_LVM + 31      "LVM (Advanced) volumes cannot be made bootable."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_LVM + 32      "Partition is already in use"
+    IDS_ERROR_LVM + 33      "Selected partition is not bootable."
+    IDS_ERROR_LVM + 34      "Volume not found."
+    IDS_ERROR_LVM + 35      "Drive not found."
+    IDS_ERROR_LVM + 36      "Partition not found."
+    IDS_ERROR_LVM + 37      "Too many features active."
+    IDS_ERROR_LVM + 38      "Partition is too small."
+    IDS_ERROR_LVM + 39      "The maximum number of partitions is already in use."
+    IDS_ERROR_LVM + 40      "I/O request out of range."
+    IDS_ERROR_LVM + 41      "The specified partition is not startable."
+    IDS_ERROR_LVM + 42      "The selected volume is not startable."
+    IDS_ERROR_LVM + 43      "ExtendFS operation failed."
+    IDS_ERROR_LVM + 44      "Reboot required."
+    IDS_ERROR_LVM + 45      "Cannot open log file."
+    IDS_ERROR_LVM + 46      "Cannot write to log file."
+    IDS_ERROR_LVM + 47      "Rediscover failed."
+END
+
+
+MENU ID_MAINPROGRAM
+BEGIN
+    SUBMENU "~System",                              IDM_LVM
+    BEGIN
+        SUBMENU "~Boot Manager",                    IDM_LVM_BOOTMGR,        ,         MIA_DISABLED
+        BEGIN
+/* These are added dynamically as needed (see SetBootMgrActions in lvmpm.c), see string resources above
+            MENUITEM "~Install/Update Air-Boot",    ID_AIRBOOT_INSTALL,     MIS_TEXT, MIA_DISABLED
+            MENUITEM "~Remove Air-Boot",            ID_AIRBOOT_REMOVE,      MIS_TEXT, MIA_DISABLED
+            MENUITEM SEPARATOR
+            MENUITEM "Install/Update I~BM Boot Manager", ID_BM_INSTALL,     MIS_TEXT, MIA_DISABLED
+            MENUITEM "Re~move IBM Boot Manager",         ID_BM_REMOVE,      MIS_TEXT, MIA_DISABLED
+            MENUITEM "IBM Boot Manager ~Options...",     ID_BM_OPTIONS,     MIS_TEXT, MIA_DISABLED
+*/
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Rewrite ~MBR",                    ID_LVM_NEWMBR,          MIS_TEXT, MIA_DISABLED
+        MENUITEM "Rename ~disk...",                 ID_LVM_DISK,            MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "~Refresh\tF5",                    ID_LVM_REFRESH,         MIS_TEXT, MIA_DISABLED
+        MENUITEM "~Save changes\tF2",               ID_LVM_SAVE,            MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "E~xit\tF3",                       ID_LVM_EXIT,            MIS_TEXT
+    END
+    SUBMENU "~Volume",                              IDM_VOLUME,             ,         MIA_DISABLED
+    BEGIN
+        MENUITEM "~Create...\tIns",                 ID_VOLUME_CREATE,       MIS_TEXT
+        MENUITEM "~Delete\tDel",                    ID_VOLUME_DELETE,       MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "~Rename...",                      ID_VOLUME_RENAME,       MIS_TEXT, MIA_DISABLED
+        MENUITEM "Set/change ~letter...",           ID_VOLUME_LETTER,       MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "~Bootable",                       ID_VOLUME_BOOTABLE,     MIS_TEXT, MIA_DISABLED
+        MENUITEM "~Startable",                      ID_VOLUME_STARTABLE,    MIS_TEXT, MIA_DISABLED
+    END
+/* Popup menu only (see below)
+    SUBMENU "~Partition",                           IDM_PARTITION,          ,         MIA_DISABLED
+    BEGIN
+        MENUITEM "~Create...",                      ID_PARTITION_CREATE,    MIS_TEXT, MIA_DISABLED
+        MENUITEM "~Delete",                         ID_PARTITION_DELETE,    MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "~Rename...",                      ID_PARTITION_RENAME,    MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "Con~vert to volume...",           ID_PARTITION_CONVERT,   MIS_TEXT, MIA_DISABLED
+        MENUITEM "~Append to volume...",            ID_PARTITION_ADD,       MIS_TEXT, MIA_DISABLED
+        MENUITEM SEPARATOR
+        MENUITEM "~Bootable",                       ID_PARTITION_BOOTABLE,  MIS_TEXT, MIA_DISABLED
+        MENUITEM "~Active",                         ID_PARTITION_ACTIVE,    MIS_TEXT, MIA_DISABLED
+    END
+*/
+    SUBMENU "~Options",                             IDM_OPTIONS
+    BEGIN
+        MENUITEM "~Preferences...",                 ID_PREFS,               MIS_TEXT
+        MENUITEM "~Fonts...",                       ID_FONTS,               MIS_TEXT
+    END
+    SUBMENU "~Help",                                IDM_HELP
+    BEGIN
+        MENUITEM "~General help\tF1",               ID_HELP_GENERAL,        MIS_TEXT
+//        MENUITEM "~Keys help",                      ID_HELP_KEYS,           MIS_TEXT
+        MENUITEM "~Terminology",                    ID_HELP_TERMS,          MIS_TEXT
+        MENUITEM SEPARATOR
+        MENUITEM "~Product information",            ID_HELP_ABOUT,          MIS_TEXT
+    END
+END
+
+
+MENU IDM_CONTEXT_VOLUME
+BEGIN
+    MENUITEM "~Create...\tIns",                 ID_VOLUME_CREATE,       MIS_TEXT
+    MENUITEM "~Delete\tDel",                    ID_VOLUME_DELETE,       MIS_TEXT, MIA_DISABLED
+    MENUITEM SEPARATOR
+    MENUITEM "~Rename...",                      ID_VOLUME_RENAME,       MIS_TEXT, MIA_DISABLED
+    MENUITEM "Set/change ~letter...",           ID_VOLUME_LETTER,       MIS_TEXT, MIA_DISABLED
+    MENUITEM SEPARATOR
+    MENUITEM "~Bootable",                       ID_VOLUME_BOOTABLE,     MIS_TEXT, MIA_DISABLED
+    MENUITEM "~Startable",                      ID_VOLUME_STARTABLE,    MIS_TEXT, MIA_DISABLED
+END
+
+
+MENU IDM_CONTEXT_PARTITION
+BEGIN
+    MENUITEM "~Create...",                      ID_PARTITION_CREATE,    MIS_TEXT, MIA_DISABLED
+    MENUITEM "~Delete",                         ID_PARTITION_DELETE,    MIS_TEXT, MIA_DISABLED
+    MENUITEM SEPARATOR
+    MENUITEM "~Rename...",                      ID_PARTITION_RENAME,    MIS_TEXT, MIA_DISABLED
+    MENUITEM SEPARATOR
+    MENUITEM "Con~vert to volume...",           ID_PARTITION_CONVERT,   MIS_TEXT, MIA_DISABLED
+    MENUITEM "~Append to volume...",            ID_PARTITION_ADD,       MIS_TEXT, MIA_DISABLED
+    MENUITEM SEPARATOR
+    MENUITEM "~Bootable",                       ID_PARTITION_BOOTABLE,  MIS_TEXT, MIA_DISABLED
+    MENUITEM "~Active",                         ID_PARTITION_ACTIVE,    MIS_TEXT, MIA_DISABLED
+END
+
+
+HELPTABLE ID_MAINPROGRAM
+BEGIN
+    // Main window
+    HELPITEM ID_MAINPROGRAM,        IDH_MAIN,               1
+
+    // Secondary dialogs
+    HELPITEM IDD_DISK_NAME,         IDH_DISK_NAME           200
+    HELPITEM IDD_BOOTMGR_OPTIONS,   IDH_BOOTMGR_OPTIONS     300
+    HELPITEM IDD_VOLUME_CREATE_1,   IDH_VOLUME_CREATE_1     400
+    HELPITEM IDD_VOLUME_CREATE_2,   IDH_VOLUME_CREATE_2     500
+    HELPITEM IDD_VOLUME_LETTER,     IDH_VOLUME_LETTER       600
+    HELPITEM IDD_VOLUME_NAME,       IDH_VOLUME_NAME         700
+    HELPITEM IDD_PARTITION_CREATE,  IDH_PARTITION_CREATE    800
+    HELPITEM IDD_PARTITION_ADD,     IDH_PARTITION_ADD       1000
+    HELPITEM IDD_PREFERENCES        IDH_PREFERENCES,        1100
+    HELPITEM IDD_FONTS,             IDH_FONTS,              1200
+
+    // Message popups (dynamically generated 2000 + API error codes)
+    HELPITEM (IDD_ENGINE_ERROR + 1)     IDH_ENGINE_ERROR    12000 + 1
+    HELPITEM (IDD_ENGINE_ERROR + 2)     IDH_ENGINE_ERROR    12000 + 2
+    HELPITEM (IDD_ENGINE_ERROR + 3)     IDH_ENGINE_ERROR    12000 + 3
+    HELPITEM (IDD_ENGINE_ERROR + 4)     IDH_ENGINE_ERROR    12000 + 4
+    HELPITEM (IDD_ENGINE_ERROR + 5)     IDH_ENGINE_ERROR    12000 + 5
+    HELPITEM (IDD_ENGINE_ERROR + 6)     IDH_ENGINE_ERROR    12000 + 6
+    HELPITEM (IDD_ENGINE_ERROR + 7)     IDH_ENGINE_ERROR    12000 + 7
+    HELPITEM (IDD_ENGINE_ERROR + 8)     IDH_ENGINE_ERROR    12000 + 8
+    HELPITEM (IDD_ENGINE_ERROR + 9)     IDH_ENGINE_ERROR    12000 + 9
+    HELPITEM (IDD_ENGINE_ERROR + 10)    IDH_ENGINE_ERROR    12000 + 10
+    HELPITEM (IDD_ENGINE_ERROR + 11)    IDH_ENGINE_ERROR    12000 + 11
+    HELPITEM (IDD_ENGINE_ERROR + 12)    IDH_ENGINE_ERROR    12000 + 12
+    HELPITEM (IDD_ENGINE_ERROR + 13)    IDH_ENGINE_ERROR    12000 + 13
+    HELPITEM (IDD_ENGINE_ERROR + 14)    IDH_ENGINE_ERROR    12000 + 14
+    HELPITEM (IDD_ENGINE_ERROR + 15)    IDH_ENGINE_ERROR    12000 + 15
+    HELPITEM (IDD_ENGINE_ERROR + 16)    IDH_ENGINE_ERROR    12000 + 16
+    HELPITEM (IDD_ENGINE_ERROR + 17)    IDH_ENGINE_ERROR    12000 + 17
+    HELPITEM (IDD_ENGINE_ERROR + 18)    IDH_ENGINE_ERROR    12000 + 18
+    HELPITEM (IDD_ENGINE_ERROR + 19)    IDH_ENGINE_ERROR    12000 + 19
+    HELPITEM (IDD_ENGINE_ERROR + 20)    IDH_ENGINE_ERROR    12000 + 20
+    HELPITEM (IDD_ENGINE_ERROR + 21)    IDH_ENGINE_ERROR    12000 + 21
+    HELPITEM (IDD_ENGINE_ERROR + 22)    IDH_ENGINE_ERROR    12000 + 22
+    HELPITEM (IDD_ENGINE_ERROR + 23)    IDH_ENGINE_ERROR    12000 + 23
+    HELPITEM (IDD_ENGINE_ERROR + 24)    IDH_ENGINE_ERROR    12000 + 24
+    HELPITEM (IDD_ENGINE_ERROR + 25)    IDH_ENGINE_ERROR    12000 + 25
+    HELPITEM (IDD_ENGINE_ERROR + 26)    IDH_ENGINE_ERROR    12000 + 26
+    HELPITEM (IDD_ENGINE_ERROR + 27)    IDH_ENGINE_ERROR    12000 + 27
+    HELPITEM (IDD_ENGINE_ERROR + 28)    IDH_ENGINE_ERROR    12000 + 28
+    HELPITEM (IDD_ENGINE_ERROR + 29)    IDH_ENGINE_ERROR    12000 + 29
+    HELPITEM (IDD_ENGINE_ERROR + 30)    IDH_ENGINE_ERROR    12000 + 30
+    HELPITEM (IDD_ENGINE_ERROR + 31)    IDH_ENGINE_ERROR    12000 + 31
+    HELPITEM (IDD_ENGINE_ERROR + 32)    IDH_ENGINE_ERROR    12000 + 32
+    HELPITEM (IDD_ENGINE_ERROR + 33)    IDH_ENGINE_ERROR    12000 + 33
+    HELPITEM (IDD_ENGINE_ERROR + 34)    IDH_ENGINE_ERROR    12000 + 34
+    HELPITEM (IDD_ENGINE_ERROR + 35)    IDH_ENGINE_ERROR    12000 + 35
+    HELPITEM (IDD_ENGINE_ERROR + 36)    IDH_ENGINE_ERROR    12000 + 36
+    HELPITEM (IDD_ENGINE_ERROR + 37)    IDH_ENGINE_ERROR    12000 + 37
+    HELPITEM (IDD_ENGINE_ERROR + 38)    IDH_ENGINE_ERROR    12000 + 38
+    HELPITEM (IDD_ENGINE_ERROR + 39)    IDH_ENGINE_ERROR    12000 + 39
+    HELPITEM (IDD_ENGINE_ERROR + 40)    IDH_ENGINE_ERROR    12000 + 40
+    HELPITEM (IDD_ENGINE_ERROR + 41)    IDH_ENGINE_ERROR    12000 + 41
+    HELPITEM (IDD_ENGINE_ERROR + 42)    IDH_ENGINE_ERROR    12000 + 42
+    HELPITEM (IDD_ENGINE_ERROR + 43)    IDH_ENGINE_ERROR    12000 + 43
+    HELPITEM (IDD_ENGINE_ERROR + 44)    IDH_ENGINE_ERROR    12000 + 44
+    HELPITEM (IDD_ENGINE_ERROR + 45)    IDH_ENGINE_ERROR    12000 + 45
+    HELPITEM (IDD_ENGINE_ERROR + 46)    IDH_ENGINE_ERROR    12000 + 46
+    HELPITEM (IDD_ENGINE_ERROR + 47)    IDH_ENGINE_ERROR    12000 + 47
+
+    HELPITEM (IDD_ENGINE_ERROR + 70)    IDH_ENGINE_ERROR    12000 + 70
+    HELPITEM (IDD_ENGINE_ERROR + 99)    IDH_ENGINE_ERROR    12000 + 99
+END
+
+HELPSUBTABLE IDH_MAIN
+BEGIN
+END
+
+
+ACCELTABLE ID_MAINPROGRAM
+BEGIN
+    VK_F2,     ID_LVM_SAVE,      VIRTUALKEY
+    VK_F3,     ID_LVM_EXIT,      VIRTUALKEY
+    VK_F5,     ID_LVM_REFRESH,   VIRTUALKEY
+    VK_DELETE, ID_VOLUME_DELETE, VIRTUALKEY
+    VK_INSERT, ID_VOLUME_CREATE, VIRTUALKEY
+    VK_TAB,    ID_FOCUS_FORWARD, VIRTUALKEY
+    VK_BACKTAB,ID_FOCUS_BACK,    VIRTUALKEY, SHIFT
+END
+
+
+RCINCLUDE lvmpmmri.dlg
+

@@ -1,0 +1,87 @@
+#
+#   Required input:
+#
+#       --  MODULESTEM
+#
+#       --  MODULESDIR
+#
+#       --  COPYTODIR (optional)
+#
+#       --  BLDLEVELNAME (optional)
+#
+#       --  RESOURCE_SOURCES
+#
+#       --  either LINKOBJS or OBJS
+#
+
+!ifdef COPYTODIR
+
+ALLTARGET = $(COPYTODIR)\$(MODULESTEM).dll
+
+$(COPYTODIR)\$(MODULESTEM).dll: $(MODULESDIR)\$(@B).dll
+!ifdef XWP_UNLOCK_MODULES
+    $(RUN_UNLOCK) $@
+!endif
+    $(COPY) $(MODULESDIR)\$(@B).dll $(COPYTODIR)
+    $(COPY) $(MODULESDIR)\$(@B).sym $(COPYTODIR)
+
+!else
+
+ALLTARGET = $(MODULESDIR)\$(MODULESTEM).dll
+
+!endif
+
+!ifdef BLDLEVELNAME
+!ifndef MODULEDEF
+MODULEDEF = $(MODULESTEM).def
+!endif
+
+# update DEF file
+!if [@echo   +++ Updating $(MODULEDEF) from "$(BLDLEVEL_H)"]
+!endif
+!if [@$(RUN_BLDLEVEL) $(MODULEDEF) $(BLDLEVEL_H) $(BLDLEVELNAME)]
+!endif
+
+!endif
+
+!undef DEPEND_RES
+
+!ifdef RESOURCE_SOURCES
+$(OUTPUTDIR)\$(MODULESTEM).res: $(RESOURCE_SOURCES)
+    @echo   ### [$@]: Recreating res $(@F)
+    $(RC) -r $(@B).rc $(OUTPUTDIR)\$(@B).res
+DEPEND_RES = $(OUTPUTDIR)\$(MODULESTEM).res
+!endif
+
+#
+# now go link... if $(LINKOBJS) is defined, use that,
+# otherwise use $(OBJS)
+#
+
+!ifndef LINKOBJS
+LINKOBJS = $(OBJS)
+!endif
+
+$(MODULESDIR)\$(MODULESTEM).dll: $(LINKOBJS) $(MODULEDEF) $(DEPEND_RES)
+    @echo   ### [$@]: Linking $(@F)
+    $(LINK) @<<
+/OUT:$@ $(MODULEDEF) $(LINKOBJS) $(PMPRINTF_LIB)
+<<NOKEEP
+!ifdef DEPEND_RES
+    @echo   ### [$@]: Appending $(@B).res
+    $(RC) $(OUTPUTDIR)\$(@B).res $@
+!endif
+!ifdef XWP_OUTPUT_ROOT_DRIVE
+    @$(XWP_OUTPUT_ROOT_DRIVE)
+!endif
+    @cd $(MODULESDIR)
+    $(RUN_MAPSYM) $(@B).map
+!ifdef CVS_WORK_ROOT_DRIVE
+    @$(CVS_WORK_ROOT_DRIVE)
+!endif
+    @cd $(CURRENT_DIR)
+!ifdef RAISEBUILD
+    @echo   ### [$@]: Raising build number
+    @cmd.exe /c tools\raisebld.cmd include\build.h
+!endif
+

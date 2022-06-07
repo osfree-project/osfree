@@ -836,7 +836,7 @@ $(function() {
 <div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>        <span class="comment">// check for &quot;command /?&quot; &amp; display help if found</span></div>
 <div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>        <span class="comment">//   else, call the internal function</span></div>
 <div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>        <span class="keywordflow">if</span> ((( pszCmdName = first_arg( pszStartLine + strlen( gpInternalName ))) != NULL ) &amp;&amp; (pszCmdName[0] == gpIniptr-&gt;SwChr ) &amp;&amp; (pszCmdName[1] == <span class="charliteral">&#39;?&#39;</span> ) &amp;&amp; (pszCmdName[2] == <span class="charliteral">&#39;\0&#39;</span> ))</div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>                <span class="keywordflow">return</span> ( _help( gpInternalName, pszCmdName ));</div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>                <span class="keywordflow">return</span> ( <a class="code hl_struct" href="struct__help.html">_help</a>( gpInternalName, pszCmdName ));</div>
 <div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span> </div>
 <div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>        <span class="comment">// check if command only allowed in a batch file</span></div>
 <div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>        <span class="keywordflow">if</span> (( <a class="code hl_struct" href="structcommands.html">commands</a>[i].pflag &amp; CMD_ONLY_BATCH ) &amp;&amp; ( cv.bn == -1 )) {</div>
@@ -1546,6 +1546,7 @@ $(function() {
 <div class="ttc" id="astructFILESEARCH_html"><div class="ttname"><a href="structFILESEARCH.html">FILESEARCH</a></div><div class="ttdef"><b>Definition:</b> <a href="4os2_8h_source.html#l00192">4os2.h:193</a></div></div>
 <div class="ttc" id="astructPIPE__INHERIT_html"><div class="ttname"><a href="structPIPE__INHERIT.html">PIPE_INHERIT</a></div><div class="ttdef"><b>Definition:</b> <a href="4os2_8h_source.html#l00158">4os2.h:158</a></div></div>
 <div class="ttc" id="astructREDIR__IO_html"><div class="ttname"><a href="structREDIR__IO.html">REDIR_IO</a></div><div class="ttdef"><b>Definition:</b> <a href="4os2_8h_source.html#l00167">4os2.h:168</a></div></div>
+<div class="ttc" id="astruct__help_html"><div class="ttname"><a href="struct__help.html">_help</a></div><div class="ttdef"><b>Definition:</b> <a href="panels_8h_source.html#l00144">panels.h:144</a></div></div>
 <div class="ttc" id="astructarg_html"><div class="ttname"><a href="structarg.html">arg</a></div><div class="ttdef"><b>Definition:</b> <a href="tools_8h_source.html#l00099">tools.h:99</a></div></div>
 <div class="ttc" id="astructcommand_html"><div class="ttname"><a href="structcommand.html">command</a></div><div class="ttdef"><b>Definition:</b> <a href="dmsetup_8c_source.html#l00167">dmsetup.c:167</a></div></div>
 <div class="ttc" id="astructcommands_html"><div class="ttname"><a href="structcommands.html">commands</a></div><div class="ttdef"><b>Definition:</b> <a href="command_8h_source.html#l00064">command.h:65</a></div></div>

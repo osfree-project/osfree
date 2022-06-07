@@ -1981,11 +1981,11 @@ $(function() {
 <div class="line"><a id="l01933" name="l01933"></a><span class="lineno"> 1933</span><span class="comment">/***********************************************************************/</span></div>
 <div class="line"><a id="l01934" name="l01934"></a><span class="lineno"> 1934</span><span class="keyword">static</span> <span class="keywordtype">char</span> *get_a_line</div>
 <div class="line"><a id="l01935" name="l01935"></a><span class="lineno"> 1935</span><span class="preprocessor">#if defined(HAVE_PROTO)</span></div>
-<div class="line"><a id="l01936" name="l01936"></a><span class="lineno"> 1936</span>      (FILE *fp,<span class="keywordtype">char</span> *string,<span class="keywordtype">int</span> *length,<span class="keywordtype">int</span> *rcode)</div>
+<div class="line"><a id="l01936" name="l01936"></a><span class="lineno"> 1936</span>      (FILE *fp,<span class="keywordtype">char</span> *<a class="code hl_class" href="classBSString.html">string</a>,<span class="keywordtype">int</span> *length,<span class="keywordtype">int</span> *rcode)</div>
 <div class="line"><a id="l01937" name="l01937"></a><span class="lineno"> 1937</span>#<span class="keywordflow">else</span></div>
 <div class="line"><a id="l01938" name="l01938"></a><span class="lineno"> 1938</span>      (fp,<span class="keywordtype">string</span>,length,rcode)</div>
 <div class="line"><a id="l01939" name="l01939"></a><span class="lineno"> 1939</span>      FILE *fp;</div>
-<div class="line"><a id="l01940" name="l01940"></a><span class="lineno"> 1940</span>      <span class="keywordtype">char</span> *string;</div>
+<div class="line"><a id="l01940" name="l01940"></a><span class="lineno"> 1940</span>      <span class="keywordtype">char</span> *<a class="code hl_class" href="classBSString.html">string</a>;</div>
 <div class="line"><a id="l01941" name="l01941"></a><span class="lineno"> 1941</span>      <span class="keywordtype">int</span> *length;</div>
 <div class="line"><a id="l01942" name="l01942"></a><span class="lineno"> 1942</span>      <span class="keywordtype">int</span> *rcode;</div>
 <div class="line"><a id="l01943" name="l01943"></a><span class="lineno"> 1943</span><span class="preprocessor">#endif</span></div>
@@ -2085,11 +2085,11 @@ $(function() {
 <div class="line"><a id="l02037" name="l02037"></a><span class="lineno"> 2037</span>    <span class="keywordflow">if</span> (rcode == RC_TOF_EOF_REACHED</div>
 <div class="line"><a id="l02038" name="l02038"></a><span class="lineno"> 2038</span>    &amp;&amp; length == 0)</div>
 <div class="line"><a id="l02039" name="l02039"></a><span class="lineno"> 2039</span>      {</div>
-<div class="line"><a id="l02040" name="l02040"></a><span class="lineno"> 2040</span>       (*the_free)(string);</div>
+<div class="line"><a id="l02040" name="l02040"></a><span class="lineno"> 2040</span>       (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l02041" name="l02041"></a><span class="lineno"> 2041</span>       <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l02042" name="l02042"></a><span class="lineno"> 2042</span>      }</div>
 <div class="line"><a id="l02043" name="l02043"></a><span class="lineno"> 2043</span>    rc = set_rexx_variable(stem,(CHARTYPE *)<span class="keywordtype">string</span>,strlen(<span class="keywordtype">string</span>),i+1);</div>
-<div class="line"><a id="l02044" name="l02044"></a><span class="lineno"> 2044</span>    (*the_free)(string);</div>
+<div class="line"><a id="l02044" name="l02044"></a><span class="lineno"> 2044</span>    (*the_free)(<a class="code hl_class" href="classBSString.html">string</a>);</div>
 <div class="line"><a id="l02045" name="l02045"></a><span class="lineno"> 2045</span>    <span class="keywordflow">if</span> (rcode == RC_TOF_EOF_REACHED)</div>
 <div class="line"><a id="l02046" name="l02046"></a><span class="lineno"> 2046</span>       <span class="keywordflow">break</span>;</div>
 <div class="line"><a id="l02047" name="l02047"></a><span class="lineno"> 2047</span>   }</div>
@@ -2232,6 +2232,7 @@ $(function() {
 <div class="line"><a id="l02184" name="l02184"></a><span class="lineno"> 2184</span>   <span class="keywordflow">return</span> 0L;</div>
 <div class="line"><a id="l02185" name="l02185"></a><span class="lineno"> 2185</span>}</div>
 <div class="line"><a id="l02186" name="l02186"></a><span class="lineno"> 2186</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclassBSString_html"><div class="ttname"><a href="classBSString.html">BSString</a></div><div class="ttdef"><b>Definition:</b> <a href="bs__string_8h_source.html#l00546">bs_string.h:547</a></div></div>
 <div class="ttc" id="astructcommands_html"><div class="ttname"><a href="structcommands.html">commands</a></div><div class="ttdef"><b>Definition:</b> <a href="command_8h_source.html#l00064">command.h:65</a></div></div>
 <div class="ttc" id="astructline_html"><div class="ttname"><a href="structline.html">line</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l00933">the.h:934</a></div></div>
 <div class="ttc" id="astructquery__item_html"><div class="ttname"><a href="structquery__item.html">query_item</a></div><div class="ttdef"><b>Definition:</b> <a href="the_8h_source.html#l01833">the.h:1834</a></div></div>

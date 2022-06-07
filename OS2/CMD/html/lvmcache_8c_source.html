@@ -77,7 +77,7 @@ $(function() {
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">static</span> <span class="keyword">struct </span><a class="code hl_struct" href="structdm__hash__table.html">dm_hash_table</a> *_vgid_hash = NULL;</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">static</span> <span class="keyword">struct </span><a class="code hl_struct" href="structdm__hash__table.html">dm_hash_table</a> *_vgname_hash = NULL;</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">static</span> <span class="keyword">struct </span><a class="code hl_struct" href="structdm__hash__table.html">dm_hash_table</a> *_lock_hash = NULL;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">static</span> <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> _vginfos;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">static</span> <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> _vginfos;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">static</span> <span class="keywordtype">int</span> _has_scanned = 0;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">static</span> <span class="keywordtype">int</span> _vgs_locked = 0;</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
@@ -161,8 +161,8 @@ $(function() {
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__vginfo.html">lvmcache_vginfo</a> *vginfo;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__info.html">lvmcache_info</a> *info;</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlabel.html">label</a> *<a class="code hl_struct" href="structlabel.html">label</a>;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *devh, *tmp;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> devs;</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *devh, *tmp;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> devs;</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdevice__list.html">device_list</a> *devl;</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">char</span> vgid_found[ID_LEN + 1]; <span class="comment">// __attribute((aligned(8)));</span></div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
@@ -319,9 +319,9 @@ $(function() {
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        <span class="keywordflow">return</span> r;</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>}</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *lvmcache_get_vgids(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keywordtype">int</span> full_scan)</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *lvmcache_get_vgids(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keywordtype">int</span> full_scan)</div>
 <div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>{</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *vgids;</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *vgids;</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__vginfo.html">lvmcache_vginfo</a> *vginfo;</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        lvmcache_label_scan(cmd, full_scan);</div>
@@ -342,9 +342,9 @@ $(function() {
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>        <span class="keywordflow">return</span> vgids;</div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>}</div>
 <div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *lvmcache_get_vgnames(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keywordtype">int</span> full_scan)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *lvmcache_get_vgnames(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keywordtype">int</span> full_scan)</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>{</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *vgnames;</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *vgnames;</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__vginfo.html">lvmcache_vginfo</a> *vginfo;</div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        lvmcache_label_scan(cmd, full_scan);</div>
@@ -365,10 +365,10 @@ $(function() {
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>        <span class="keywordflow">return</span> vgnames;</div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>}</div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *lvmcache_get_pvids(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *vgname,</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *lvmcache_get_pvids(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *vgname,</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>                                <span class="keyword">const</span> <span class="keywordtype">char</span> *vgid)</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>{</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *pvids;</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *pvids;</div>
 <div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__vginfo.html">lvmcache_vginfo</a> *vginfo;</div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__info.html">lvmcache_info</a> *info;</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
