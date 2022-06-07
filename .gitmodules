@@ -31,3 +31,6 @@
 [submodule "OS2/CMD/lvmgui/lvmpm"]
 	path = OS2/CMD/lvmgui/lvmpm
 	url = https://github.com/altsan/os2-lvmpm
+[submodule "OS2/CMD/lvmgui/xwphelpers"]
+	path = OS2/CMD/lvmgui/xwphelpers
+	url = https://github.com/rousseaux/netlabs.xwphelpers

@@ -1,0 +1,154 @@
+
+XWorkplace/WarpIN Coding Conventions
+(W) Ulrich M”ller, March 13, 2000
+Last updated January 22, 2001 Ulrich M”ller
+
+When adding code to XWorkplace, WarpIN, or the XWorkplace helpers,
+please follow the coding conventions outlined below.
+
+Yes, I know everyone has his/her favorite coding style. This is
+a likely topic to cause endless debate, but if you contribute to
+my projects... please follow my style.
+
+In addition to consistency, this is very helpful for automatic code
+documentation through xdoc. See tools/xdoc in the WarpIN source tree
+for more about that utility.
+
+Here we go:
+
+    1.  Use a tab size of 4. Use real spaces instead of tabs.
+
+    2.  Align parameters vertically with function calls, at least
+        in function headers:
+
+            int StoreExecuteRexxCode(const char *pcszName,
+                                     const char *pcszCode,
+                                     const char *pcszArgs,
+                                     char **ppszRet);
+
+        Add xdoc documentation to all functions and parameters,
+        as outlined below.
+
+    3.  Brackets style:
+
+                if (condition)
+                {
+                    // do this
+                }
+                else
+                {
+                    // do that
+                }
+
+        You may leave out brackets if there's only one statement
+        after if or else, of course, but with nested if statements,
+        I usually add them even in that case since it's so easy
+        to mismatch the nesting then.
+
+    4.  switch/case style:
+
+                switch (msg)
+                {
+                    case WM_CREATE:
+                        // code
+                    break;
+
+                    case WM_DESTROY:
+                        // code
+                    break;
+                }
+
+    5.  For all variables, use the usual OS/2 type prefixes.
+        Here are some:
+
+        CHAR    c       (char)
+        PSZ     psz     (char* pointer)
+        PCSZ    pcsz    (const char* pointer)
+
+        USHORT  us      (unsigned short)
+        SHORT   s       (short)
+        ULONG   ul      (unsigned long)
+        LONG    l       (long)
+        BYTE    b       (byte)
+
+        BOOL    f       (flag)
+        LONG    fl      (for LONG's containing OR'ed flags)
+        SHORT   fs      (for SHORT's containing OR'ed flags)
+
+        string/BSString str (C++ string class instance)
+
+        For arrays, prefix "a" (e.g. USHORT ausThings[3]).
+        For pointers, prefix "p" (e.g. USHORT *pausThings[3]).
+
+    6.  Prefix C++ class member variables with an underscore ("_").
+        This allows people who are not familiar with the class
+        interface to identify member variables easily. Also, this
+        has a certain consistency with SOM/WPS class member
+        variables.
+
+    7.  Prefix global variables with "G_" for the same reason.
+        Global variables are potentially dangerous, so these
+        can be more easily identified.
+
+    8.  Comment your functions in xdoc-style. See any function
+        in the sources for how this can be done. Basically, use
+        /* */-style comments before the function header and
+        xdoc tags in that block.
+
+        Sorta like this:
+
+        /*
+         *@@ Create:
+         *      create something.
+         */
+
+        PVOID Create(PVOID pvCreateFrom,    // in: create from
+                     PULONG pulCount)       // out: new count
+        {
+            ... // code, ignored by xdoc
+        }
+
+        xdoc will even take the parameter descriptions if they
+        are specified as above.
+
+        tools/xdoc/readme.txt in the WarpIN sources has a more
+        detailed description.
+
+        I usually only document functions in the source files,
+        not in the headers. Even though xdoc will find documentation
+        in headers also, changing headers causes recompiles,
+        especially with the complex include hierarchy of WarpIN.
+        Also, changing code documentation in the sources only
+        reduces the amount of code which needs to be committed
+        to the CVS server.
+
+    9.  When changing code, mark the code as changed in the
+        xdoc comment by using something like the following:
+
+        @@changed V0.9.2 (2000-03-10) [umoeller]: fixed memory leak
+            |        |        |          |          |
+            |        |        |          |          +-- description
+            |        |        |          |
+            |        |        |          +- author tag (same as CVS login)
+            |        |        |
+            |        |        +-- ISO date (year, month, day)
+            |        |
+            |        +-- XWorkplace/WarpIN version number
+            |
+            +-- xdoc tag ("@@changed" or "@@added")
+
+        xdoc can create a full change log if these things are set
+        properly. Try "createdoc.cmd" or "createchangelog.cmd" in
+        the WarpIN and XWorkplace main source directories,
+        respectively.
+
+        Also, this way I can do a simple search over all files
+        to update the readme with changes and bugfixes for the new
+        version.
+
+    10. When adding a new function, use the same, just use @@added
+        instead of @@changed.
+
+Thank you!
+
+

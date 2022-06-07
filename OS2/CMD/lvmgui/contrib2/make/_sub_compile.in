@@ -1,0 +1,52 @@
+#
+#   make\_sub_compile.in.in:
+#
+#       sub-include file for nmake that defines the inference
+#       rule for compiling object code from C files.
+#
+#       Required macro definitions before !include'ing
+#       this file:
+#
+#       --  CC:             compiler setup. Use one of the
+#                           definitions from setup.in, e.g.:
+#
+#               --  CC_DLL_MT: code for a multithread DLL.
+#
+#       --  PRECH (optional): where precompiled headers should
+#                           go to. If not defined, precompiled
+#                           headers are not used.
+#
+#       --  OUTPUTDIR:      where the .obj files should go to.
+#
+
+!ifndef CC
+!error CC macro is not defined.
+!endif
+
+!if [@md $(OUTPUTDIR) 2> NUL]
+!endif
+
+.c.{$(OUTPUTDIR)}.obj:
+    @echo   ### [$@]: Compiling $(@B).c
+!ifndef PRECH
+# precompiled headers disabled:
+    $(CC) /Fo$(OUTPUTDIR)\$(@B).obj $(MAKEDIR)\$(@B).c
+!else
+    $(CC) /fi"$(PRECH)\$(@B).pch" /si"$(PRECH)\$(@B).pch" /Fo$(OUTPUTDIR)\$(@B).obj $(MAKEDIR)\$(@B).c
+!endif
+
+.cpp.{$(OUTPUTDIR)}.obj:
+    @echo   ### [$@]: Compiling $(@B).cpp
+!ifndef PRECH
+# precompiled headers disabled:
+    $(CC) /Fo$(OUTPUTDIR)\$(@B).obj $(MAKEDIR)\$(@B).cpp
+!else
+    $(CC) /fi"$(PRECH)\$(@B).pch" /si"$(PRECH)\$(@B).pch" /Fo$(OUTPUTDIR)\$(@B).obj $(MAKEDIR)\$(@B).cpp
+!endif
+
+.asm.{$(OUTPUTDIR)}.obj:
+    @echo   ### [$@]: Assembling $(@B).asm
+    alp -Sv:ALP -Fdo:$(OUTPUTDIR) $(@B).asm
+
+
+

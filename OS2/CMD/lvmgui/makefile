@@ -14,9 +14,11 @@ $(p)airboot$(e) &
 $(p)bootmgr$(e)
 
 DIRS = cmd
-ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)contrib$(SEP)include -i=$(MYDIR)lvmtk$(SEP)include
-ADD_LINKOPT = lib clib3r,$(MYDIR)lvmtk$(SEP)lib$(SEP)lvm,$(MYDIR)contrib$(SEP)helpers
-
+ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)contrib$(SEP)include -i=$(MYDIR)lvmtk$(SEP)include -i=$(MYDIR)acpitk$(SEP)h
+ADD_LINKOPT = lib clib3r,$(MYDIR)lvmtk$(SEP)lib$(SEP)lvm,helpers,$(MYDIR)acpitk$(SEP)lib$(SEP)acpi32
+IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
+       WinGetFrameTreePPs PMWIN.973, &
+       DOSQUERYMODFROMEIP DOSCALL1.360 
 #UNI2H = 1
 
 !include $(%ROOT)/mk/appsos2_pm.mk
