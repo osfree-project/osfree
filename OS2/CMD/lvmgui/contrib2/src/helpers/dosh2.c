@@ -60,6 +60,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <malloc.h>
 
 #include "setup.h"                      // code generation and debugging options
 

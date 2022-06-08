@@ -49,6 +49,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <malloc.h>
 
 #include "setup.h"                      // code generation and debugging options
 
