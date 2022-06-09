@@ -8,7 +8,7 @@
  *
  *@@include #define INCL_WINPROGRAMLIST
  *@@include #include <os2.h>
- *@@include #include "helpers\apps.h"
+ *@@include #include "helpers/apps.h"
  */
 
 /*      This file Copyright (C) 1997-2001 Ulrich M”ller.

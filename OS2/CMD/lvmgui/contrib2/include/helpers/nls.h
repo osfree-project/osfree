@@ -8,7 +8,7 @@
  *
  *@@include #define INCL_DOSDATETIME
  *@@include #include <os2.h>
- *@@include #include "helpers\nls.h"
+ *@@include #include "helpers/nls.h"
  */
 
 /*
@@ -31,7 +31,7 @@ extern "C" {
 #ifndef NLS_HEADER_INCLUDED
     #define NLS_HEADER_INCLUDED
 
-    #include "helpers\simples.h"
+    #include "helpers/simples.h"
             // V0.9.19 (2002-06-13) [umoeller]
 
     /* ******************************************************************

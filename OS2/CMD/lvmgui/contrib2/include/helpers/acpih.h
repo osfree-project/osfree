@@ -7,7 +7,7 @@
  *            numbering.
  *
  *@@include #include <os2.h>
- *@@include #include "helpers\acpih.h"
+ *@@include #include "helpers/acpih.h"
  */
 
 /*      Copyright (C) 2006-2014 Paul Ratcliffe.

@@ -7,7 +7,7 @@
  *            numbering.
  *
  *@@include #include <os2.h>
- *@@include #include "helpers\apmh.h"
+ *@@include #include "helpers/apmh.h"
  */
 
 /*      Copyright (C) 1998-2001 Ulrich M”ller.

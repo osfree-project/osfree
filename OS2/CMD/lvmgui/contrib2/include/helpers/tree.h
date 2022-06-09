@@ -12,7 +12,7 @@ extern "C" {
 #ifndef XWPTREE_INCLUDED
     #define XWPTREE_INCLUDED
 
-    #include "helpers\simples.h"
+    #include "helpers/simples.h"
             // V0.9.19 (2002-06-13) [umoeller]
 
     typedef enum { BLACK, RED } nodeColor;

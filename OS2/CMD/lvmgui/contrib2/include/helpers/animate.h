@@ -8,7 +8,7 @@
  *
  *@@include #define INCL_WINWINDOWMGR
  *@@include #include <os2.h>
- *@@include #include "helpers\animate.h"
+ *@@include #include "helpers/animate.h"
  */
 
 /*      Copyright (C) 1997-2000 Ulrich M”ller.
