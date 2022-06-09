@@ -42,13 +42,13 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\standards.h"
+#include "helpers/standards.h"
 
-#include "encodings\base.h"
+#include "encodings/base.h"
 
-#include "encodings\unicase.h"
+#include "encodings/unicase.h"
 
-#include "encodings\alltables.h"        // this takes a very long time
+#include "encodings/alltables.h"        // this takes a very long time
 
 #pragma hdrstop
 

@@ -60,10 +60,10 @@
 #ifdef WINH_STANDARDWRAPPERS
 #undef WINH_STANDARDWRAPPERS
 #endif
-#include "helpers\dosh.h"
-#include "helpers\gpih.h"
-#include "helpers\winh.h"
-#include "helpers\stringh.h"
+#include "helpers/dosh.h"
+#include "helpers/gpih.h"
+#include "helpers/winh.h"
+#include "helpers/stringh.h"
 
 #pragma hdrstop
 

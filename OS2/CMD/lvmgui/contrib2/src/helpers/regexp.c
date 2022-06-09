@@ -65,7 +65,7 @@
 #include "setup.h"                      // code generation and debugging options
 
 #define ERE_C
-#include "helpers\regexp.h"
+#include "helpers/regexp.h"
 
 #define isword(c) (isalnum(c)||(c)=='_')
 

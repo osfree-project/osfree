@@ -56,17 +56,17 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\except.h"
-#include "helpers\linklist.h"
-#include "helpers\nls.h"
-#include "helpers\prfh.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\tree.h"
-#include "helpers\xstring.h"
+#include "helpers/except.h"
+#include "helpers/linklist.h"
+#include "helpers/nls.h"
+#include "helpers/prfh.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/tree.h"
+#include "helpers/xstring.h"
 
 #define INCLUDE_WPHANDLE_PRIVATE
-#include "helpers\wphandle.h"
+#include "helpers/wphandle.h"
 
 /*
  *@@category: Helpers\PM helpers\Workplace Shell\Handles (OS2SYS.INI)

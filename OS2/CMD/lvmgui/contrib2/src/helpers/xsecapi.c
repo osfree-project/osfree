@@ -46,11 +46,11 @@
 #include "setup.h"                      // code generation and debugging options
 
 // headers in /helpers
-#include "helpers\standards.h"          // some standard macros
-#include "helpers\stringh.h"            // string helper routines
+#include "helpers/standards.h"          // some standard macros
+#include "helpers/stringh.h"            // string helper routines
 
 // XWorkplace implementation headers
-#include "helpers\xwpsecty.h"           // XWorkplace Security
+#include "helpers/xwpsecty.h"           // XWorkplace Security
 
 // other SOM headers
 #pragma hdrstop

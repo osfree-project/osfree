@@ -56,12 +56,12 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\ensure.h"
-#include "helpers\except.h"
-#include "helpers\exeh.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
+#include "helpers/dosh.h"
+#include "helpers/ensure.h"
+#include "helpers/except.h"
+#include "helpers/exeh.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
 
 #pragma hdrstop
 

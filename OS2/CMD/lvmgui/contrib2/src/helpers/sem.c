@@ -52,7 +52,7 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\sem.h"
+#include "helpers/sem.h"
 
 #pragma hdrstop
 

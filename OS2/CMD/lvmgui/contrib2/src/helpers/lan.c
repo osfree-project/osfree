@@ -49,9 +49,9 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\lan.h"
-#include "helpers\standards.h"
+#include "helpers/dosh.h"
+#include "helpers/lan.h"
+#include "helpers/standards.h"
 
 #pragma hdrstop
 

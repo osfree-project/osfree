@@ -85,7 +85,7 @@
 #define XMLPARSEAPI(type) __declspec(dllexport) type __cdecl
 #endif
 
-#include "expat\expat.h"
+#include "expat/expat.h"
 
 #ifdef __declspec
 #undef XMLPARSEAPI

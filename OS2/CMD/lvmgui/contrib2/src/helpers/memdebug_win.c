@@ -46,7 +46,7 @@
 // #include <malloc.h>
 #include <setjmp.h>
 
-#include "helpers\tree.h"
+#include "helpers/tree.h"
 
 #define DONT_REPLACE_MALLOC             // never do debug memory for this
 #define MEMDEBUG_PRIVATE
@@ -54,12 +54,12 @@
 
 #ifdef __XWPMEMDEBUG__
 
-#include "helpers\cnrh.h"
-#include "helpers\except.h"
+#include "helpers/cnrh.h"
+#include "helpers/except.h"
 // #include "helpers\memdebug.h"        // included by setup.h already
-#include "helpers\nls.h"
-#include "helpers\stringh.h"
-#include "helpers\winh.h"
+#include "helpers/nls.h"
+#include "helpers/stringh.h"
+#include "helpers/winh.h"
 
 /*
  *@@category: Helpers\C helpers\Heap debugging

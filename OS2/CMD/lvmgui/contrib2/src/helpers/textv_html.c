@@ -47,11 +47,11 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\linklist.h"
-#include "helpers\stringh.h"
-#include "helpers\textview.h"
+#include "helpers/linklist.h"
+#include "helpers/stringh.h"
+#include "helpers/textview.h"
 
-#include "helpers\textv_html.h"
+#include "helpers/textv_html.h"
 
 /*
  *@@category: Helpers\PM helpers\Window classes\XTextView control\HTML conversion

@@ -125,7 +125,7 @@
 #include <string.h>
 #include <setjmp.h>
 
-#include "helpers\tree.h"
+#include "helpers/tree.h"
 
 #define DONT_REPLACE_MALLOC             // never do debug memory for this
 #define MEMDEBUG_PRIVATE
@@ -133,11 +133,11 @@
 
 #ifdef __XWPMEMDEBUG__
 
-#include "helpers\dosh.h"
-#include "helpers\except.h"
+#include "helpers/dosh.h"
+#include "helpers/except.h"
 
-#include "helpers\memdebug.h"        // included by setup.h already
-#include "helpers\stringh.h"
+#include "helpers/memdebug.h"        // included by setup.h already
+#include "helpers/stringh.h"
 
 /*
  *@@category: Helpers\C helpers\Heap debugging

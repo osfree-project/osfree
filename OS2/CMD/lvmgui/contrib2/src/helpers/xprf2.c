@@ -48,10 +48,10 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\prfh.h"
-#include "helpers\stringh.h"
-#include "helpers\xprf.h"
+#include "helpers/dosh.h"
+#include "helpers/prfh.h"
+#include "helpers/stringh.h"
+#include "helpers/xprf.h"
 
 #pragma hdrstop
 

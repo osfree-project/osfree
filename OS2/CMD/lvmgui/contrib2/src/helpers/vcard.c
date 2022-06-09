@@ -42,16 +42,16 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\linklist.h"
-#include "helpers\nls.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\xstring.h"
+#include "helpers/dosh.h"
+#include "helpers/linklist.h"
+#include "helpers/nls.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/xstring.h"
 
 #define INCLUDE_VCARD_PRIVATE
 #define INCLUDE_VCARD_ALL
-#include "helpers\vcard.h"
+#include "helpers/vcard.h"
 
 #pragma hdrstop
 

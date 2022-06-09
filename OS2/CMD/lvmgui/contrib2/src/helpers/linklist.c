@@ -85,7 +85,7 @@
 #include "setup.h"                      // code generation and debugging options
 
 #define DONT_REPLACE_LIST_MALLOC
-#include "helpers\linklist.h"
+#include "helpers/linklist.h"
 
 #pragma hdrstop
 

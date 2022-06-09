@@ -54,8 +54,8 @@
 #include "setup.h"                      // code generation and debugging options
 
 #define DONT_REPLACE_STRINGH_MALLOC
-#include "helpers\stringh.h"
-#include "helpers\xstring.h"            // extended string helpers
+#include "helpers/stringh.h"
+#include "helpers/xstring.h"            // extended string helpers
 
 #pragma hdrstop
 

@@ -84,14 +84,14 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\winh.h"
-#include "helpers\prfh.h"
-#include "helpers\gpih.h"
-#include "helpers\nls.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\xstring.h"            // extended string helpers
+#include "helpers/dosh.h"
+#include "helpers/winh.h"
+#include "helpers/prfh.h"
+#include "helpers/gpih.h"
+#include "helpers/nls.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/xstring.h"            // extended string helpers
 
 /*
  *@@category: Helpers\PM helpers\Wrappers

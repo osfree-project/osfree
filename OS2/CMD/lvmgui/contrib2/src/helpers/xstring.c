@@ -117,9 +117,9 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\stringh.h"
+#include "helpers/stringh.h"
 #define DONT_REPLACE_XSTR_MALLOC
-#include "helpers\xstring.h"            // extended string helpers
+#include "helpers/xstring.h"            // extended string helpers
 
 /*
  *@@category: Helpers\C helpers\String management\XStrings (with memory management)

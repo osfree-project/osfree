@@ -60,7 +60,7 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\procstat.h"
+#include "helpers/procstat.h"
 
 #pragma hdrstop
 

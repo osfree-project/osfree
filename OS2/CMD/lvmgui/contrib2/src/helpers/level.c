@@ -40,7 +40,7 @@
 #include "setup.h"
 
 #define SYSLEVEL_PRIVATE
-#include "helpers\level.h"
+#include "helpers/level.h"
 
 // redefine the FIELDOFFSET macro; the one
 // in the OS/2 header files doesn't work with C++

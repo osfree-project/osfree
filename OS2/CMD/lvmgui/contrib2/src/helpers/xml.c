@@ -132,14 +132,14 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "expat\expat.h"
+#include "expat/expat.h"
 
-#include "helpers\linklist.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\tree.h"
-#include "helpers\xstring.h"
-#include "helpers\xml.h"
+#include "helpers/linklist.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/tree.h"
+#include "helpers/xstring.h"
+#include "helpers/xml.h"
 
 #pragma hdrstop
 

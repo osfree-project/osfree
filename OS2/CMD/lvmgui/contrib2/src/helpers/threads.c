@@ -50,8 +50,8 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\linklist.h"
-#include "helpers\threads.h"
+#include "helpers/linklist.h"
+#include "helpers/threads.h"
 
 #pragma hdrstop
 

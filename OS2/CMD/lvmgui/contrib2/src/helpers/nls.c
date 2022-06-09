@@ -57,10 +57,10 @@
 #define DONT_REPLACE_FOR_DBCS
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\nls.h"
-#include "helpers\prfh.h"
-#include "helpers\standards.h"
+#include "helpers/dosh.h"
+#include "helpers/nls.h"
+#include "helpers/prfh.h"
+#include "helpers/standards.h"
 
 #pragma hdrstop
 

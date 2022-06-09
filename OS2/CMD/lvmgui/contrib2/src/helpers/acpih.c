@@ -11,7 +11,7 @@
  *      Note: Version numbering in this file relates to XWorkplace version
  *            numbering.
  *
- *@@header "helpers\acpih.h"
+ *@@header "helpers/acpih.h"
  *@@added V1.0.5 (2006-06-26) [pr]
  */
 

@@ -29,9 +29,9 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\math.h"
-#include "helpers\linklist.h"
-#include "helpers\standards.h"
+#include "helpers/math.h"
+#include "helpers/linklist.h"
+#include "helpers/standards.h"
 
 #pragma hdrstop
 

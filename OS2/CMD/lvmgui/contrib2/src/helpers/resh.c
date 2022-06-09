@@ -40,7 +40,7 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\resh.h"
+#include "helpers/resh.h"
 
 /*
  *@@category: Helpers\Control program helpers\Resources

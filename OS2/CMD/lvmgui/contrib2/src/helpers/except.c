@@ -230,9 +230,9 @@
 #include "setup.h"                      // code generation and debugging options
 
 // headers in /helpers
-#include "helpers\dosh.h"               // Control Program helper routines
-#include "helpers\except.h"             // exception handling
-#include "helpers\debug.h"              // symbol/debug code analysis
+#include "helpers/dosh.h"               // Control Program helper routines
+#include "helpers/except.h"             // exception handling
+#include "helpers/debug.h"              // symbol/debug code analysis
 
 #pragma hdrstop
 

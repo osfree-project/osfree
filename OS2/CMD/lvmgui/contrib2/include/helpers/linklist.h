@@ -32,7 +32,7 @@ extern "C" {
         #error You must define XWPENTRY to contain the standard linkage for the XWPHelpers.
     #endif
 
-    #include "helpers\simples.h"
+    #include "helpers/simples.h"
             // V0.9.19 (2002-06-13) [umoeller]
 
     /* LISTITEM was used before V0.9.0 */

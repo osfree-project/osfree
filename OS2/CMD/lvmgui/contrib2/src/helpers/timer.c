@@ -102,13 +102,13 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\datetime.h"
-#include "helpers\except.h"
-#include "helpers\linklist.h"
-#include "helpers\math.h"
-#include "helpers\standards.h"
-#include "helpers\threads.h"
-#include "helpers\timer.h"
+#include "helpers/datetime.h"
+#include "helpers/except.h"
+#include "helpers/linklist.h"
+#include "helpers/math.h"
+#include "helpers/standards.h"
+#include "helpers/threads.h"
+#include "helpers/timer.h"
 
 // #define DEBUG_XTIMERS
 

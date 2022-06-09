@@ -265,7 +265,7 @@
  */
 
 #include "setup.h"
-#include "helpers\tree.h"
+#include "helpers/tree.h"
 
 #define LEAF &sentinel           // all leafs are sentinels
 STATIC TREE sentinel = { LEAF, LEAF, 0, BLACK};

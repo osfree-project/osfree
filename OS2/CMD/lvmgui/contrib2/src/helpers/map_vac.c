@@ -43,10 +43,10 @@
 #define DONT_REPLACE_MALLOC
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\linklist.h"
-#include "helpers\mapfile.h"
-#include "helpers\stringh.h"
-#include "helpers\standards.h"
+#include "helpers/linklist.h"
+#include "helpers/mapfile.h"
+#include "helpers/stringh.h"
+#include "helpers/standards.h"
 
 #pragma hdrstop
 

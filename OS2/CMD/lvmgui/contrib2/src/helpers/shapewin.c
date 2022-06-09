@@ -205,8 +205,8 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\gpih.h"
-#include "helpers\shapewin.h"
+#include "helpers/gpih.h"
+#include "helpers/shapewin.h"
 
 #pragma hdrstop
 

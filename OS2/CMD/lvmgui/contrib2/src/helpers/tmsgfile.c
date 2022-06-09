@@ -82,15 +82,15 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\datetime.h"
-#include "helpers\dosh.h"
-#include "helpers\eah.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\tree.h"
-#include "helpers\xstring.h"
+#include "helpers/datetime.h"
+#include "helpers/dosh.h"
+#include "helpers/eah.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/tree.h"
+#include "helpers/xstring.h"
 
-#include "helpers\tmsgfile.h"
+#include "helpers/tmsgfile.h"
 
 /*
  *@@category: Helpers\Control program helpers\Text message files (TMF)
