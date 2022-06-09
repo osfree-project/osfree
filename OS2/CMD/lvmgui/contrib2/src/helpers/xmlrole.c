@@ -10,14 +10,14 @@ See the file COPYING for copying permission.
 #endif
    */
 
-#include "expat\expat_setup.h"          // V0.9.9 (2001-02-10) [umoeller]
+#include "expat/expat_setup.h"          // V0.9.9 (2001-02-10) [umoeller]
 
 #pragma info(norea, nogen)
         // disable "statement unreachable" and "missing break statement"
         // this code generates those options HEAVILY
 
-#include "expat\xmlrole.h"
-#include "expat\ascii.h"
+#include "expat/xmlrole.h"
+#include "expat/ascii.h"
 
 /* Doesn't check:
 
