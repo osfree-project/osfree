@@ -135,8 +135,8 @@ typedef char ICHAR;
 /* Round up n to be a multiple of sz, where sz is a power of 2. */
 #define ROUND_UP(n, sz) (((n) + ((sz) - 1)) & ~((sz) - 1))
 
-#include "expat\xmltok.h"
-#include "expat\xmlrole.h"
+#include "expat/xmltok.h"
+#include "expat/xmlrole.h"
 
 typedef const XML_Char *KEY;
 
