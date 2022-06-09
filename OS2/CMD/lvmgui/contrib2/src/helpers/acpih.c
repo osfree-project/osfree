@@ -39,9 +39,9 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\apmh.h"               // @@added V1.0.9 (2012-02-20) [slevine]
-#include "helpers\acpih.h"
-#include "helpers\standards.h"
+#include "helpers/apmh.h"               // @@added V1.0.9 (2012-02-20) [slevine]
+#include "helpers/acpih.h"
+#include "helpers/standards.h"
 
 /* ******************************************************************
  *
