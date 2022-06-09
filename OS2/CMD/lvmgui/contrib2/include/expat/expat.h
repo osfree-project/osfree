@@ -8,7 +8,7 @@ See the file COPYING for copying permission.
 
 #include <stdlib.h>
 
-#include "expat\expat_setup.h"
+#include "expat/expat_setup.h"
                         // V0.9.9 (2001-02-10) [umoeller]
                         // to save the app from having to include this as well
 
