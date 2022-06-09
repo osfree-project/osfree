@@ -57,7 +57,7 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\winh.h"
+#include "helpers/winh.h"
 
 /*
  *@@category: Helpers\PM helpers\Animation helpers

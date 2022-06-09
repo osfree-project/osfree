@@ -43,8 +43,8 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\apmh.h"
-#include "helpers\standards.h"
+#include "helpers/apmh.h"
+#include "helpers/standards.h"
 
 /*
  *@@category: Helpers\Control program helpers\Advanced Power Management

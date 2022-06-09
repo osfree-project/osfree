@@ -91,7 +91,7 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\eah.h"
+#include "helpers/eah.h"
 
 #pragma hdrstop
 

@@ -86,17 +86,17 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\comctl.h"
-#include "helpers\dialog.h"
-#include "helpers\except.h"
-#include "helpers\gpih.h"
-#include "helpers\linklist.h"
-#include "helpers\nlscache.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\textview.h"
-#include "helpers\winh.h"
-#include "helpers\xstring.h"
+#include "helpers/comctl.h"
+#include "helpers/dialog.h"
+#include "helpers/except.h"
+#include "helpers/gpih.h"
+#include "helpers/linklist.h"
+#include "helpers/nlscache.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/textview.h"
+#include "helpers/winh.h"
+#include "helpers/xstring.h"
 
 #pragma hdrstop
 

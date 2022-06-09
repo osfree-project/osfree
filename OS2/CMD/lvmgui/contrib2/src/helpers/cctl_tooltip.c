@@ -68,14 +68,14 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\cnrh.h"
-#include "helpers\except.h"             // exception handling
-#include "helpers\gpih.h"
-#include "helpers\linklist.h"
-#include "helpers\nls.h"
-#include "helpers\winh.h"
+#include "helpers/cnrh.h"
+#include "helpers/except.h"             // exception handling
+#include "helpers/gpih.h"
+#include "helpers/linklist.h"
+#include "helpers/nls.h"
+#include "helpers/winh.h"
 
-#include "helpers\comctl.h"
+#include "helpers/comctl.h"
 
 #pragma hdrstop
 

@@ -64,8 +64,8 @@
 #define DONT_REPLACE_MALLOC
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\debug.h"
-#include "helpers\dosh.h"
+#include "helpers/debug.h"
+#include "helpers/dosh.h"
 
 #pragma hdrstop
 

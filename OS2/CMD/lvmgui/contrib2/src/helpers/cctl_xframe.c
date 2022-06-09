@@ -49,12 +49,12 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\gpih.h"
-#include "helpers\linklist.h"
-#include "helpers\standards.h"
-#include "helpers\winh.h"
+#include "helpers/gpih.h"
+#include "helpers/linklist.h"
+#include "helpers/standards.h"
+#include "helpers/winh.h"
 
-#include "helpers\comctl.h"
+#include "helpers/comctl.h"
 
 #pragma hdrstop
 

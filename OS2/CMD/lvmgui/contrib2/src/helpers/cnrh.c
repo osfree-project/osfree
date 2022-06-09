@@ -56,8 +56,8 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\winh.h"
-#include "helpers\cnrh.h"
+#include "helpers/winh.h"
+#include "helpers/cnrh.h"
 
 #pragma hdrstop
 

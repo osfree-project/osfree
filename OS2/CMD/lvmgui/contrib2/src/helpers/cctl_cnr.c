@@ -38,16 +38,16 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\comctl.h"
-#include "helpers\linklist.h"
-#include "helpers\gpih.h"
-#include "helpers\nls.h"
-#include "helpers\standards.h"
-#include "helpers\stringh.h"
-#include "helpers\tree.h"
-#include "helpers\winh.h"
+#include "helpers/comctl.h"
+#include "helpers/linklist.h"
+#include "helpers/gpih.h"
+#include "helpers/nls.h"
+#include "helpers/standards.h"
+#include "helpers/stringh.h"
+#include "helpers/tree.h"
+#include "helpers/winh.h"
 
-#include "private\cnr.h"
+#include "private/cnr.h"
 
 #pragma hdrstop
 

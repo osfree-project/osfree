@@ -50,16 +50,16 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\except.h"             // exception handling
-#include "helpers\exeh.h"
-#include "helpers\prfh.h"
-#include "helpers\standards.h"          // some standard macros
-#include "helpers\stringh.h"
-#include "helpers\winh.h"
-#include "helpers\xstring.h"
+#include "helpers/dosh.h"
+#include "helpers/except.h"             // exception handling
+#include "helpers/exeh.h"
+#include "helpers/prfh.h"
+#include "helpers/standards.h"          // some standard macros
+#include "helpers/stringh.h"
+#include "helpers/winh.h"
+#include "helpers/xstring.h"
 
-#include "helpers\apps.h"
+#include "helpers/apps.h"
 
 /*
  *@@category: Helpers\PM helpers\Application helpers

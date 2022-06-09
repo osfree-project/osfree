@@ -50,11 +50,11 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\dosh.h"
-#include "helpers\stringh.h"
-#include "helpers\xstring.h"            // extended string helpers
+#include "helpers/dosh.h"
+#include "helpers/stringh.h"
+#include "helpers/xstring.h"            // extended string helpers
 
-#include "helpers\configsys.h"          // CONFIG.SYS helpers
+#include "helpers/configsys.h"          // CONFIG.SYS helpers
 
 #pragma hdrstop
 

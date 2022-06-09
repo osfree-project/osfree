@@ -69,10 +69,10 @@
 
 #include "setup.h"                      // code generation and debugging options
 
-#include "helpers\except.h"             // exception handling
-#include "helpers\winh.h"
+#include "helpers/except.h"             // exception handling
+#include "helpers/winh.h"
 
-#include "helpers\comctl.h"
+#include "helpers/comctl.h"
 
 #pragma hdrstop
 
