@@ -71,9 +71,9 @@
 
 #include <fcntl.h>
 #ifdef __EMX__
-    #include <sys\types.h>      // required for sys\stat.h; UM 99-10-22
+    #include <sys/types.h>      // required for sys\stat.h; UM 99-10-22
 #endif
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include <share.h>
 #include <io.h>
 
