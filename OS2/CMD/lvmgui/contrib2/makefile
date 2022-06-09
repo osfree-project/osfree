@@ -69,7 +69,7 @@ $(p)dosh2$(e)
 #$(p)dialog$(e)
 
 
-ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)\acpitk$(SEP)h
+ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)acpitk$(SEP)h
 ADD_LINKOPT = lib clib3r
 IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
        WinGetFrameTreePPs PMWIN.973
