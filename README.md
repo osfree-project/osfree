@@ -130,7 +130,8 @@ Fiasco reused as microkernel
 
 PParser from FPK used as UNI2H tool base
 
-TWIN library as win16 base
+TWIN library/WINE 
+as win16 base
 
 MINSTALL by KIEWITZ
 
@@ -142,6 +143,15 @@ FreeDos parts as DOS subsystem base
 
 Ralf Brown documentation (Interrupt list). Great source of DOS and DOS VM information.
 
+ALVM
+
+LVMPM
+
+HX DOS Extender
+
+somFree
+
+CWMM Classes
 
 and other projects here. Please add it if we missed one.
 
