@@ -31,7 +31,7 @@ extern "C" {
 #ifndef NLS_HEADER_INCLUDED
     #define NLS_HEADER_INCLUDED
 
-    #include "helpers\simples.h"
+    #include "helpers/simples.h"
             // V0.9.19 (2002-06-13) [umoeller]
 
     /* ******************************************************************
