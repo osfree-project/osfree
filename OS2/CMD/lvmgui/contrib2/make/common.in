@@ -1,0 +1,12 @@
+# say hello on entering a directory
+!if [@echo +++++ Entering $(MAKEDIR)]
+!endif
+
+# Define the suffixes for files which NMAKE will work on.
+# .SUFFIXES is a reserved NMAKE keyword ("pseudotarget") for
+# defining file extensions that NMAKE will recognize.
+.SUFFIXES: .bmp .c .cpp .def .dll .exe .gif .h .hlp .html .idl .ih .inf .ipf .obj .rc .res .tmf .txt
+
+RUN_MAPSYM = mapsym
+
+

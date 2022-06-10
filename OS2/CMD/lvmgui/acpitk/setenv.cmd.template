@@ -1,0 +1,23 @@
+/* setenv.cmd
+ *
+ * This script defines and setup the build environment for building the ACPI toolkit programs.
+ *
+ * 26-Jun-2011: DAZ created.
+ *
+ * You'll have to edit this to set the correct paths.
+ *
+ */
+
+WATCOM='E:\Watcom'; /* the base of the Watcom installation on your system. */
+OS2TK='e:\os2tk45'; /* the base of the Toolkit (4.5) on you system. */
+
+/* you should not need to change anything below this line */
+
+TKROOT=DIRECTORY();
+
+ENV='OS2ENVIRONMENT';
+rc=VALUE('TKROOT', TKROOT, ENV);
+rc=VALUE('WATCOM', WATCOM, ENV);
+rc=VALUE('INCLUDE', OS2TK||'\h;', ENV);
+rc=VALUE('LIB', '.;'||TKROOT||'\lib;'||OS2TK||'\lib', ENV);
+

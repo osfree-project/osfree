@@ -262,12 +262,12 @@ $(function() {
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>        <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>}</div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keyword">static</span> <span class="keywordtype">int</span> _set_tag(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *tag)</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keyword">static</span> <span class="keywordtype">int</span> _set_tag(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>{</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>        log_very_verbose(<span class="stringliteral">&quot;Setting host tag: %s&quot;</span>, dm_pool_strdup(cmd-&gt;libmem, tag));</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>        log_very_verbose(<span class="stringliteral">&quot;Setting host tag: %s&quot;</span>, dm_pool_strdup(cmd-&gt;libmem, <a class="code hl_struct" href="structtag.html">tag</a>));</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>        <span class="keywordflow">if</span> (!str_list_add(cmd-&gt;libmem, &amp;cmd-&gt;tags, tag)) {</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>                log_error(<span class="stringliteral">&quot;_set_tag: str_list_add %s failed&quot;</span>, tag);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>        <span class="keywordflow">if</span> (!str_list_add(cmd-&gt;libmem, &amp;cmd-&gt;tags, <a class="code hl_struct" href="structtag.html">tag</a>)) {</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>                log_error(<span class="stringliteral">&quot;_set_tag: str_list_add %s failed&quot;</span>, <a class="code hl_struct" href="structtag.html">tag</a>);</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>        }</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
@@ -313,7 +313,7 @@ $(function() {
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="keyword">static</span> <span class="keywordtype">int</span> _init_tags(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">struct</span> <a class="code hl_struct" href="structconfig__tree.html">config_tree</a> *cft)</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>{</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>        <span class="keyword">const</span> <span class="keyword">struct </span><a class="code hl_struct" href="structconfig__node.html">config_node</a> *tn, *cn;</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        <span class="keyword">const</span> <span class="keywordtype">char</span> *tag;</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_struct" href="structtag.html">tag</a>;</div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        <span class="keywordtype">int</span> passes;</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
 <div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        <span class="keywordflow">if</span> (!(tn = find_config_node(cft-&gt;root, <span class="stringliteral">&quot;tags&quot;</span>)) || !tn-&gt;child)</div>
@@ -333,10 +333,10 @@ $(function() {
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        <span class="keywordflow">for</span> (cn = tn-&gt;child; cn; cn = cn-&gt;sib) {</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                <span class="keywordflow">if</span> (cn-&gt;v)</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                        <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                tag = cn-&gt;key;</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                <span class="keywordflow">if</span> (*tag == <span class="charliteral">&#39;@&#39;</span>)</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                        tag++;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                <span class="keywordflow">if</span> (!validate_name(tag)) {</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                <a class="code hl_struct" href="structtag.html">tag</a> = cn-&gt;key;</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                <span class="keywordflow">if</span> (*<a class="code hl_struct" href="structtag.html">tag</a> == <span class="charliteral">&#39;@&#39;</span>)</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                        <a class="code hl_struct" href="structtag.html">tag</a>++;</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                <span class="keywordflow">if</span> (!validate_name(<a class="code hl_struct" href="structtag.html">tag</a>)) {</div>
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                        log_error(<span class="stringliteral">&quot;Invalid tag in config file: %s&quot;</span>, cn-&gt;key);</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>                        <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>                }</div>
@@ -349,7 +349,7 @@ $(function() {
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>                        <span class="keywordflow">if</span> (!passes)</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>                                <span class="keywordflow">continue</span>;</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>                }</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                <span class="keywordflow">if</span> (!_set_tag(cmd, tag)) {</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                <span class="keywordflow">if</span> (!_set_tag(cmd, <a class="code hl_struct" href="structtag.html">tag</a>)) {</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                        stack;</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                        <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                }</div>
@@ -358,18 +358,18 @@ $(function() {
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>        <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>}</div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keyword">static</span> <span class="keywordtype">int</span> _load_config_file(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *tag)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keyword">static</span> <span class="keywordtype">int</span> _load_config_file(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd, <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>{</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>        <span class="keywordtype">char</span> config_file[PATH_MAX] = <span class="stringliteral">&quot;&quot;</span>;</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>        <span class="keyword">const</span> <span class="keywordtype">char</span> *filler = <span class="stringliteral">&quot;&quot;</span>;</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>        <span class="keyword">struct </span>stat info;</div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structconfig__tree__list.html">config_tree_list</a> *cfl;</div>
 <div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>        <span class="keywordflow">if</span> (*tag)</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>        <span class="keywordflow">if</span> (*<a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>                filler = <span class="stringliteral">&quot;_&quot;</span>;</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>        <span class="keywordflow">if</span> (dm_snprintf(config_file, <span class="keyword">sizeof</span>(config_file), <span class="stringliteral">&quot;%s/lvm%s%s.conf&quot;</span>,</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>                         cmd-&gt;sys_dir, filler, tag) &lt; 0) {</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>                         cmd-&gt;sys_dir, filler, <a class="code hl_struct" href="structtag.html">tag</a>) &lt; 0) {</div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>                log_error(<span class="stringliteral">&quot;LVM_SYSTEM_DIR or tag was too long&quot;</span>);</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>                <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        }</div>
@@ -405,7 +405,7 @@ $(function() {
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>        list_add(&amp;cmd-&gt;config_files, &amp;cfl-&gt;list);</div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span> </div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>      out:</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        <span class="keywordflow">if</span> (*tag)</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        <span class="keywordflow">if</span> (*<a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>                _init_tags(cmd, cfl-&gt;cft);</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>        <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                <span class="comment">/* Use temporary copy of lvm.conf while loading other files */</span></div>
@@ -478,7 +478,7 @@ $(function() {
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span><span class="keyword">static</span> <span class="keywordtype">void</span> _destroy_tags(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd)</div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>{</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *slh, *slht;</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *slh, *slht;</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span> </div>
 <div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>        list_iterate_safe(slh, slht, &amp;cmd-&gt;tags) {</div>
 <div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>                list_del(slh);</div>
@@ -1061,9 +1061,9 @@ $(function() {
 <div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>        <span class="keywordflow">return</span> NULL;</div>
 <div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>}</div>
 <div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span> </div>
-<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span><span class="keyword">static</span> <span class="keywordtype">void</span> _destroy_formats(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *formats)</div>
+<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span><span class="keyword">static</span> <span class="keywordtype">void</span> _destroy_formats(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *formats)</div>
 <div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span>{</div>
-<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *fmtl, *tmp;</div>
+<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *fmtl, *tmp;</div>
 <div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt;</div>
 <div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>        <span class="keywordtype">void</span> *lib;</div>
 <div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span> </div>
@@ -1079,9 +1079,9 @@ $(function() {
 <div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>        }</div>
 <div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>}</div>
 <div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span> </div>
-<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span><span class="keyword">static</span> <span class="keywordtype">void</span> _destroy_segtypes(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *segtypes)</div>
+<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span><span class="keyword">static</span> <span class="keywordtype">void</span> _destroy_segtypes(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *segtypes)</div>
 <div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>{</div>
-<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *sgtl, *tmp;</div>
+<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *sgtl, *tmp;</div>
 <div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structsegment__type.html">segment_type</a> *segtype;</div>
 <div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>        <span class="keywordtype">void</span> *lib;</div>
 <div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span> </div>
@@ -1198,6 +1198,7 @@ $(function() {
 <div class="ttc" id="astructlist_html"><div class="ttname"><a href="structlist.html">list</a></div><div class="ttdef"><b>Definition:</b> <a href="devmapper_2include_2list_8h_source.html#l00028">list.h:28</a></div></div>
 <div class="ttc" id="astructsegment__type_html"><div class="ttname"><a href="structsegment__type.html">segment_type</a></div><div class="ttdef"><b>Definition:</b> <a href="segtype_8h_source.html#l00049">segtype.h:49</a></div></div>
 <div class="ttc" id="astructstr__list_html"><div class="ttname"><a href="structstr__list.html">str_list</a></div><div class="ttdef"><b>Definition:</b> <a href="lvm-types_8h_source.html#l00028">lvm-types.h:28</a></div></div>
+<div class="ttc" id="astructtag_html"><div class="ttname"><a href="structtag.html">tag</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00201">xmlparse.c:202</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

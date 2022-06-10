@@ -728,11 +728,11 @@ $(function() {
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span><span class="comment"> * If it finds one it returns a pointer to it, else NULL.</span></div>
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span><span class="comment"> * Renamed and made generic.  10/3/03</span></div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span><span class="keywordtype">char</span> *get_extra_field( OFT( ush) tag,</div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span><span class="keywordtype">char</span> *get_extra_field( OFT( ush) <a class="code hl_struct" href="structtag.html">tag</a>,</div>
 <div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>                       OFT( <span class="keywordtype">char</span> *) pExtra,</div>
 <div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>                       OFT( <span class="keywordtype">unsigned</span>) iExtraLen)</div>
 <div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span><span class="preprocessor">#ifdef NO_PROTO</span></div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>  ush tag;              <span class="comment">/* tag to look for */</span></div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>  ush <a class="code hl_struct" href="structtag.html">tag</a>;              <span class="comment">/* tag to look for */</span></div>
 <div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>  <span class="keywordtype">char</span> *pExtra;         <span class="comment">/* pointer to extra field in memory */</span></div>
 <div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>  <span class="keywordtype">unsigned</span> iExtraLen;   <span class="comment">/* length of extra field */</span></div>
 <div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span><span class="preprocessor">#endif </span><span class="comment">/* def NO_PROTO */</span><span class="preprocessor"></span></div>
@@ -748,7 +748,7 @@ $(function() {
 <div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>  {</div>
 <div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    usBlockTag = SH(pTemp);       <span class="comment">/* get tag */</span></div>
 <div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span>    usBlockSize = SH(pTemp + 2);  <span class="comment">/* get field data size */</span></div>
-<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>    <span class="keywordflow">if</span> (usBlockTag == tag)</div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>    <span class="keywordflow">if</span> (usBlockTag == <a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>      <span class="keywordflow">return</span> pTemp;</div>
 <div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>    pTemp += (usBlockSize + ZIP_EF_HEADER_SIZE);</div>
 <div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>  }</div>
@@ -771,7 +771,7 @@ $(function() {
 <div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>  ush   returnExtraLen = 0;</div>
 <div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>  <span class="keywordtype">char</span> *tempExtra;</div>
 <div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>  <span class="keywordtype">char</span> *pTemp;</div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>  ush   tag;</div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>  ush   <a class="code hl_struct" href="structtag.html">tag</a>;</div>
 <div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>  ush   blocksize;</div>
 <div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span> </div>
 <div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>  <span class="keywordflow">if</span>( oldExtra == NULL ) {</div>
@@ -796,9 +796,9 @@ $(function() {
 <div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>  <span class="comment">/* look for each old extra field in new block */</span></div>
 <div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>  <span class="keywordflow">for</span> (pTemp = oldExtra; pTemp &lt; oldExtra  + oldExtraLen;)</div>
 <div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>  {</div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>    tag = SH(pTemp);            <span class="comment">/* get tag */</span></div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>    <a class="code hl_struct" href="structtag.html">tag</a> = SH(pTemp);            <span class="comment">/* get tag */</span></div>
 <div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>    blocksize = SH(pTemp + 2);  <span class="comment">/* get field data size */</span></div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>    <span class="keywordflow">if</span> (get_extra_field(tag, newExtra, newExtraLen) == NULL) {</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>    <span class="keywordflow">if</span> (get_extra_field(<a class="code hl_struct" href="structtag.html">tag</a>, newExtra, newExtraLen) == NULL) {</div>
 <div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>      <span class="comment">/* tag not in new block so add it */</span></div>
 <div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>      memcpy(tempExtra + returnExtraLen, pTemp, blocksize + 4);</div>
 <div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>      returnExtraLen += blocksize + 4;</div>
@@ -1277,9 +1277,9 @@ $(function() {
 <div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span><span class="comment"> * Return 1 if found, else 0</span></div>
 <div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span><span class="comment"> * 12/28/05</span></div>
 <div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span><span class="comment"> */</span></div>
-<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>local <span class="keywordtype">int</span> remove_local_extra_field(pZEntry, tag)</div>
+<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>local <span class="keywordtype">int</span> remove_local_extra_field(pZEntry, <a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>  <span class="keyword">struct </span><a class="code hl_struct" href="structzlist.html">zlist</a> far *pZEntry;</div>
-<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>  ulg tag;</div>
+<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>  ulg <a class="code hl_struct" href="structtag.html">tag</a>;</div>
 <div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>{</div>
 <div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>  <span class="keywordtype">char</span>  *pExtra;</div>
 <div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span>  <span class="keywordtype">char</span>  *pOldExtra;</div>
@@ -1290,7 +1290,7 @@ $(function() {
 <div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>  ush   blocksize;</div>
 <div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span> </div>
 <div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span>  <span class="comment">/* check if we have the extra field ... */</span></div>
-<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>  pOldExtra = get_extra_field( (ush)tag, pZEntry-&gt;extra, pZEntry-&gt;ext );</div>
+<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>  pOldExtra = get_extra_field( (ush)<a class="code hl_struct" href="structtag.html">tag</a>, pZEntry-&gt;extra, pZEntry-&gt;ext );</div>
 <div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>  <span class="keywordflow">if</span> (pOldExtra)</div>
 <div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>  {</div>
 <div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>    <span class="comment">/* We have. Get rid of it. */</span></div>
@@ -1322,9 +1322,9 @@ $(function() {
 <div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span><span class="comment"> * Return 1 if found, else 0</span></div>
 <div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span><span class="comment"> * 12/28/05</span></div>
 <div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span><span class="comment"> */</span></div>
-<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>local <span class="keywordtype">int</span> remove_central_extra_field(pZEntry, tag)</div>
+<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>local <span class="keywordtype">int</span> remove_central_extra_field(pZEntry, <a class="code hl_struct" href="structtag.html">tag</a>)</div>
 <div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>  <span class="keyword">struct </span><a class="code hl_struct" href="structzlist.html">zlist</a> far *pZEntry;</div>
-<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>  ulg tag;</div>
+<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>  ulg <a class="code hl_struct" href="structtag.html">tag</a>;</div>
 <div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>{</div>
 <div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>  <span class="keywordtype">char</span>  *pExtra;</div>
 <div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span>  <span class="keywordtype">char</span>  *pOldExtra;</div>
@@ -1335,7 +1335,7 @@ $(function() {
 <div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>  ush   blocksize;</div>
 <div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span> </div>
 <div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>  <span class="comment">/* check if we have the extra field ... */</span></div>
-<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>  pOldExtra = get_extra_field( (ush)tag, pZEntry-&gt;cextra, pZEntry-&gt;cext );</div>
+<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>  pOldExtra = get_extra_field( (ush)<a class="code hl_struct" href="structtag.html">tag</a>, pZEntry-&gt;cextra, pZEntry-&gt;cext );</div>
 <div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>  <span class="keywordflow">if</span> (pOldExtra)</div>
 <div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>  {</div>
 <div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>    <span class="comment">/* We have. Get rid of it. */</span></div>
@@ -6868,6 +6868,7 @@ $(function() {
 <div class="line"><a id="l06820" name="l06820"></a><span class="lineno"> 6820</span><span class="preprocessor">#endif </span><span class="comment">/* !UTIL */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="astructblock_html"><div class="ttname"><a href="structblock.html">block</a></div><div class="ttdef"><b>Definition:</b> <a href="pool-debug_8c_source.html#l00022">pool-debug.c:22</a></div></div>
 <div class="ttc" id="astructiztimes_html"><div class="ttname"><a href="structiztimes.html">iztimes</a></div><div class="ttdef"><b>Definition:</b> <a href="zip_8h_source.html#l00133">zip.h:133</a></div></div>
+<div class="ttc" id="astructtag_html"><div class="ttname"><a href="structtag.html">tag</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00201">xmlparse.c:202</a></div></div>
 <div class="ttc" id="astructzlist_html"><div class="ttname"><a href="structzlist.html">zlist</a></div><div class="ttdef"><b>Definition:</b> <a href="zip_8h_source.html#l00147">zip.h:147</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

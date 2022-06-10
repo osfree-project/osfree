@@ -113,12 +113,12 @@ $(function() {
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>};</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">struct </span><a class="code hl_struct" href="structdir__list.html">dir_list</a> {</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <span class="keywordtype">char</span> dir[1]; <span class="comment">//[0];</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>};</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="structraw__list.html">   72</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structraw__list.html">raw_list</a> {</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdevice__area.html">device_area</a> dev_area;</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>};</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
@@ -1065,7 +1065,7 @@ $(function() {
 <div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span>{</div>
 <div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdirent.html">dirent</a> *<a class="code hl_struct" href="structdirent.html">dirent</a>;</div>
 <div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdir__list.html">dir_list</a> *dl;</div>
-<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>;</div>
+<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>;</div>
 <div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>        <span class="keywordtype">char</span> *tmp;</div>
 <div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span>        <a class="code hl_struct" href="struct__dirdesc.html">DIR</a> *d;</div>
 <div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structvolume__group.html">volume_group</a> *vg;</div>
@@ -1202,7 +1202,7 @@ $(function() {
 <div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span><span class="keyword">static</span> <span class="keywordtype">int</span> _scan_raw(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt)</div>
 <div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>{</div>
 <div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structraw__list.html">raw_list</a> *rl;</div>
-<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>;</div>
+<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>;</div>
 <div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>        <span class="keyword">const</span> <span class="keywordtype">char</span> *vgname;</div>
 <div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structvolume__group.html">volume_group</a> *vg;</div>
 <div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structformat__instance.html">format_instance</a> fid;</div>
@@ -1238,7 +1238,7 @@ $(function() {
 <div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span><span class="keyword">static</span> <span class="keywordtype">int</span> _mda_setup(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt,</div>
 <div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>                      uint64_t pe_start, uint64_t pe_end,</div>
 <div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>                      <span class="keywordtype">int</span> pvmetadatacopies,</div>
-<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>                      uint64_t pvmetadatasize, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *mdas,</div>
+<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>                      uint64_t pvmetadatasize, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *mdas,</div>
 <div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>                      <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv, <span class="keyword">struct</span> <a class="code hl_struct" href="structvolume__group.html">volume_group</a> *vg)</div>
 <div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>{</div>
 <div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>        uint64_t mda_adjustment, disk_size, alignment;</div>
@@ -1365,7 +1365,7 @@ $(function() {
 <div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span><span class="comment">/* Only for orphans */</span></div>
 <div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span><span class="comment">/* Set label_sector to -1 if rewriting existing label into same sector */</span></div>
 <div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span><span class="keyword">static</span> <span class="keywordtype">int</span> _text_pv_write(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt, <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv,</div>
-<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>                     <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *mdas, int64_t label_sector)</div>
+<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>                     <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *mdas, int64_t label_sector)</div>
 <div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span>{</div>
 <div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlabel.html">label</a> *<a class="code hl_struct" href="structlabel.html">label</a>;</div>
 <div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__info.html">lvmcache_info</a> *info;</div>
@@ -1470,7 +1470,7 @@ $(function() {
 <div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span>        <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span>}</div>
 <div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span> </div>
-<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span><span class="keyword">static</span> <span class="keywordtype">int</span> _add_raw(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>, <span class="keyword">struct</span> <a class="code hl_struct" href="structdevice__area.html">device_area</a> *dev_area)</div>
+<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span><span class="keyword">static</span> <span class="keywordtype">int</span> _add_raw(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>, <span class="keyword">struct</span> <a class="code hl_struct" href="structdevice__area.html">device_area</a> *dev_area)</div>
 <div class="line"><a id="l01426" name="l01426"></a><span class="lineno"> 1426</span>{</div>
 <div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structraw__list.html">raw_list</a> *rl;</div>
 <div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span> </div>
@@ -1494,7 +1494,7 @@ $(function() {
 <div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>}</div>
 <div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span> </div>
 <div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span><span class="keyword">static</span> <span class="keywordtype">int</span> _text_pv_read(<span class="keyword">const</span> <span class="keyword">struct</span> <a class="code hl_struct" href="structformat__type.html">format_type</a> *fmt, <span class="keyword">const</span> <span class="keywordtype">char</span> *pv_name,</div>
-<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>                    <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *mdas)</div>
+<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>                    <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *mdas)</div>
 <div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>{</div>
 <div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlabel.html">label</a> *<a class="code hl_struct" href="structlabel.html">label</a>;</div>
 <div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdevice.html">device</a> *dev;</div>
@@ -1582,9 +1582,9 @@ $(function() {
 <div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span>        <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>}</div>
 <div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span> </div>
-<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span><span class="keyword">static</span> <span class="keywordtype">void</span> _free_dirs(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>)</div>
+<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span><span class="keyword">static</span> <span class="keywordtype">void</span> _free_dirs(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>)</div>
 <div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>{</div>
-<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *dl, *tmp;</div>
+<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *dl, *tmp;</div>
 <div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span> </div>
 <div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span>        list_iterate_safe(dl, tmp, <a class="code hl_struct" href="structdir__list.html">dir_list</a>) {</div>
 <div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span>                list_del(dl);</div>
@@ -1592,9 +1592,9 @@ $(function() {
 <div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span>        }</div>
 <div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>}</div>
 <div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span> </div>
-<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span><span class="keyword">static</span> <span class="keywordtype">void</span> _free_raws(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>)</div>
+<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span><span class="keyword">static</span> <span class="keywordtype">void</span> _free_raws(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>)</div>
 <div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span>{</div>
-<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *rl, *tmp;</div>
+<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *rl, *tmp;</div>
 <div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span> </div>
 <div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span>        list_iterate_safe(rl, tmp, <a class="code hl_struct" href="structraw__list.html">raw_list</a>) {</div>
 <div class="line"><a id="l01552" name="l01552"></a><span class="lineno"> 1552</span>                list_del(rl);</div>
@@ -1645,12 +1645,12 @@ $(function() {
 <div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>                     uint64_t pe_start, uint32_t extent_count,</div>
 <div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>                     uint32_t extent_size,</div>
 <div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>                     <span class="keywordtype">int</span> pvmetadatacopies,</div>
-<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>                     uint64_t pvmetadatasize, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *mdas,</div>
+<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>                     uint64_t pvmetadatasize, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *mdas,</div>
 <div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>                     <span class="keyword">struct</span> <a class="code hl_struct" href="structphysical__volume.html">physical_volume</a> *pv, <span class="keyword">struct</span> <a class="code hl_struct" href="structvolume__group.html">volume_group</a> *vg)</div>
 <div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>{</div>
 <div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structmetadata__area.html">metadata_area</a> *mda, *mda_new, *mda2;</div>
 <div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structmda__context.html">mda_context</a> *mdac, *mdac_new, *mdac2;</div>
-<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *pvmdas;</div>
+<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *pvmdas;</div>
 <div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__info.html">lvmcache_info</a> *info;</div>
 <div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span>        <span class="keywordtype">int</span> found;</div>
 <div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>        uint64_t pe_end = 0;</div>
@@ -1765,7 +1765,7 @@ $(function() {
 <div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structmda__context.html">mda_context</a> *mdac, *mdac_new;</div>
 <div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdir__list.html">dir_list</a> *dl;</div>
 <div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structraw__list.html">raw_list</a> *rl;</div>
-<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>, *<a class="code hl_struct" href="structraw__list.html">raw_list</a>, *mdas;</div>
+<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>, *<a class="code hl_struct" href="structraw__list.html">raw_list</a>, *mdas;</div>
 <div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>        <span class="keywordtype">char</span> path[PATH_MAX];</div>
 <div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__vginfo.html">lvmcache_vginfo</a> *vginfo;</div>
 <div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlvmcache__info.html">lvmcache_info</a> *info;</div>
@@ -1939,12 +1939,12 @@ $(function() {
 <div class="line"><a id="l01891" name="l01891"></a><span class="lineno"> 1891</span>        .destroy = _text_destroy</div>
 <div class="line"><a id="l01892" name="l01892"></a><span class="lineno"> 1892</span>};</div>
 <div class="line"><a id="l01893" name="l01893"></a><span class="lineno"> 1893</span> </div>
-<div class="line"><a id="l01894" name="l01894"></a><span class="lineno"> 1894</span><span class="keyword">static</span> <span class="keywordtype">int</span> _add_dir(<span class="keyword">const</span> <span class="keywordtype">char</span> *dir, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>)</div>
+<div class="line"><a id="l01894" name="l01894"></a><span class="lineno"> 1894</span><span class="keyword">static</span> <span class="keywordtype">int</span> _add_dir(<span class="keyword">const</span> <span class="keywordtype">char</span> *dir, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structdir__list.html">dir_list</a>)</div>
 <div class="line"><a id="l01895" name="l01895"></a><span class="lineno"> 1895</span>{</div>
 <div class="line"><a id="l01896" name="l01896"></a><span class="lineno"> 1896</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdir__list.html">dir_list</a> *dl;</div>
 <div class="line"><a id="l01897" name="l01897"></a><span class="lineno"> 1897</span> </div>
 <div class="line"><a id="l01898" name="l01898"></a><span class="lineno"> 1898</span>        <span class="keywordflow">if</span> (create_dir(dir)) {</div>
-<div class="line"><a id="l01899" name="l01899"></a><span class="lineno"> 1899</span>                <span class="keywordflow">if</span> (!(dl = dm_malloc(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a>) + strlen(dir) + 1))) {</div>
+<div class="line"><a id="l01899" name="l01899"></a><span class="lineno"> 1899</span>                <span class="keywordflow">if</span> (!(dl = dm_malloc(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a>) + strlen(dir) + 1))) {</div>
 <div class="line"><a id="l01900" name="l01900"></a><span class="lineno"> 1900</span>                        log_error(<span class="stringliteral">&quot;_add_dir allocation failed&quot;</span>);</div>
 <div class="line"><a id="l01901" name="l01901"></a><span class="lineno"> 1901</span>                        <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l01902" name="l01902"></a><span class="lineno"> 1902</span>                }</div>
@@ -1958,7 +1958,7 @@ $(function() {
 <div class="line"><a id="l01910" name="l01910"></a><span class="lineno"> 1910</span>}</div>
 <div class="line"><a id="l01911" name="l01911"></a><span class="lineno"> 1911</span> </div>
 <div class="line"><a id="l01912" name="l01912"></a><span class="lineno"> 1912</span><span class="keyword">static</span> <span class="keywordtype">int</span> _get_config_disk_area(<span class="keyword">struct</span> <a class="code hl_struct" href="structcmd__context.html">cmd_context</a> *cmd,</div>
-<div class="line"><a id="l01913" name="l01913"></a><span class="lineno"> 1913</span>                                 <span class="keyword">struct</span> <a class="code hl_struct" href="structconfig__node.html">config_node</a> *cn, <span class="keyword">struct</span> <a class="code hl_struct" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>)</div>
+<div class="line"><a id="l01913" name="l01913"></a><span class="lineno"> 1913</span>                                 <span class="keyword">struct</span> <a class="code hl_struct" href="structconfig__node.html">config_node</a> *cn, <span class="keyword">struct</span> <a class="code hl_class" href="structlist.html">list</a> *<a class="code hl_struct" href="structraw__list.html">raw_list</a>)</div>
 <div class="line"><a id="l01914" name="l01914"></a><span class="lineno"> 1914</span>{</div>
 <div class="line"><a id="l01915" name="l01915"></a><span class="lineno"> 1915</span>        <span class="keywordtype">char</span> buffer[64]; <span class="comment">// __attribute((aligned(8)));</span></div>
 <div class="line"><a id="l01916" name="l01916"></a><span class="lineno"> 1916</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdevice__area.html">device_area</a> dev_area;</div>

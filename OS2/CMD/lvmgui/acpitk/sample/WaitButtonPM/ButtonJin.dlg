@@ -1,0 +1,24 @@
+/***************************************************************************
+ *      Created 2005  eCo Software                                         *
+ *                                                                         *
+ *      DISCLAIMER OF WARRANTIES.  The following [enclosed] code is        *
+ *      sample code created by eCo Software. This sample code is not part  *
+ *      of any standard or eCo Software product and is provided to you     *
+ *      solely for the purpose of assisting you in the development of your *
+ *      applications.  The code is provided "AS IS", without               *
+ *      warranty of any kind. eCo Software shall not be liable for any     *
+ *      damages arising out of your use of the sample code, even if they   *
+ *      have been advised of the possibility of such damages.              *
+ *-------------------------------------------------------------------------*/
+DLGINCLUDE 1 "ButtonJin.h"
+
+DLGTEMPLATE ID_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", ID_MAIN, 0, 0, 156, 61, NOT FS_DLGBORDER | FS_SIZEBORDER | 
+            NOT WS_SAVEBITS, FCF_SYSMENU | FCF_TITLEBAR | FCF_MINBUTTON | 
+            FCF_MAXBUTTON
+    BEGIN
+        DEFPUSHBUTTON   "Yes", ID_EXIT, 98, 0, 58, 14
+        ICON            ID_MAINICON, ID_ICON, 0, 42, 20, 16, WS_GROUP
+    END
+END

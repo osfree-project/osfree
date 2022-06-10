@@ -1,0 +1,39 @@
+
+
+# The main target:
+# If we're called from the main makefile, MAINMAKERUNNING is defined,
+# and we'll set $(ALLTARGET) as our targets (which will go on).
+# Otherwise, we call the main makefile, which will again call ourselves later.
+all:   \
+!ifndef MAINMAKERUNNING
+# we're not being called from main makefile: start main makefile
+    callmainmake
+    @echo ----- Leaving $(MAKEDIR)
+!else
+    $(ALLTARGET)
+    @echo ----- Leaving $(MAKEDIR)
+!endif
+
+callmainmake:
+    @echo $(MAKEDIR)\makefile [$@]: Recursing to main makefile.
+    @cd $(PROJECT_BASE_DIR)
+    @nmake
+    @echo $(MAKEDIR)\makefile [$@]: Returned from main makefile. Done.
+
+# The "dep" target: run fastdep on the sources.
+# "nmake dep" gets called from src\makefile if nmake dep
+# is running on the main makefile.
+dep:
+    $(RUN_FASTDEP) *.c *.cpp
+    @echo ----- Leaving $(MAKEDIR)
+
+# The .OBJ-from-sources dependencies are now automatically
+# created by "nmake dep" into the .depend include file.
+# V0.9.12 (2001-05-22) [umoeller]
+
+!ifndef NOINCLUDEDEPEND
+!include .depend
+!endif
+
+
+

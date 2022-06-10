@@ -1,0 +1,27 @@
+#include <os2.h>
+
+ICON 1  "icons\\program.ico"
+
+ICON 10 "icons\\hdd.ico"
+ICON 12 "icons\\prm.ico"
+
+
+MENU 100
+BEGIN
+    MENUITEM "Disk Menu",             101,      MIS_TEXT, MIA_DISABLED
+    MENUITEM "Item 1",                102,      MIS_TEXT
+    MENUITEM "Item 2",                103,      MIS_TEXT
+    MENUITEM SEPARATOR
+    MENUITEM "Item 3",                104,      MIS_TEXT
+END
+
+MENU 200
+BEGIN
+    MENUITEM "Partition Menu",        201,      MIS_TEXT, MIA_DISABLED
+    MENUITEM "Item 1",                202,      MIS_TEXT
+    MENUITEM "Item 2",                203,      MIS_TEXT
+    MENUITEM SEPARATOR
+    MENUITEM "Item 3",                204,      MIS_TEXT
+END
+
+

@@ -1,0 +1,21 @@
+#
+#   make\compile_exe_mt.in:
+#
+#       include file for nmake that defines the inference
+#       rule for compiling standalone object code from C files.
+#       This has been put into this include file because
+#       I finally got tired of changing this rule in a
+#       dozen makefiles all the time.
+#
+#       !include this file only for code that will be in
+#       a standalone EXE file. This uses the $(CC_EXE_MT)
+#       compiler setup.
+#
+
+CC = $(CC_DLL_SUBSYS)
+
+OUTPUTDIR = $(PROJECT_OUTPUT_DIR)\dll_subs
+
+!include $(MAKE_INCLUDE_DIR)\_sub_compile.in
+
+

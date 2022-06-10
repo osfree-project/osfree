@@ -68,10 +68,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ace82c54be740beb2d0c40d8b5e98c3e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2886c66840eadf037d82e6e3229e300"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#ae2886c66840eadf037d82e6e3229e300">Reboot_Flag</a></td></tr>
 <tr class="separator:ae2886c66840eadf037d82e6e3229e300"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a028b984f3b55c471757fb94f791476e7"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#a028b984f3b55c471757fb94f791476e7">Reserved</a> [4]</td></tr>
-<tr class="separator:a028b984f3b55c471757fb94f791476e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4fb40ff81bbdcdd653dc45dcb1aaf50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__Alias__Entry.html">Alias_Entry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#ab4fb40ff81bbdcdd653dc45dcb1aaf50">Alias_Array</a> [MAX_ALIAS_ENTRIES]</td></tr>
-<tr class="separator:ab4fb40ff81bbdcdd653dc45dcb1aaf50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae18462470ef96d5bbddfa906bf0413d3"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#ae18462470ef96d5bbddfa906bf0413d3">Reserved</a> [4]</td></tr>
+<tr class="separator:ae18462470ef96d5bbddfa906bf0413d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abedea13c51edd5e91404e08ee8b66a5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__Alias__Entry.html">Alias_Entry</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#abedea13c51edd5e91404e08ee8b66a5a">Alias_Array</a> [MAX_ALIAS_ENTRIES]</td></tr>
+<tr class="separator:abedea13c51edd5e91404e08ee8b66a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5195684a402f80b2172ad788015bbbe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__Alias__Entry__2.html">Alias_Entry_2</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__Boot__Path__Record.html#ab5195684a402f80b2172ad788015bbbe">Alias_Array_2</a> [MAX_ALIAS_ENTRIES]</td></tr>
 <tr class="separator:ab5195684a402f80b2172ad788015bbbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -95,14 +95,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ab4fb40ff81bbdcdd653dc45dcb1aaf50" name="ab4fb40ff81bbdcdd653dc45dcb1aaf50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4fb40ff81bbdcdd653dc45dcb1aaf50">&#9670;&nbsp;</a></span>Alias_Array</h2>
+<a id="abedea13c51edd5e91404e08ee8b66a5a" name="abedea13c51edd5e91404e08ee8b66a5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abedea13c51edd5e91404e08ee8b66a5a">&#9670;&nbsp;</a></span>Alias_Array</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="struct__Alias__Entry.html">Alias_Entry</a> _Boot_Path_Record::Alias_Array[MAX_ALIAS_ENTRIES]</td>
+          <td class="memname"><a class="el" href="struct__Alias__Entry.html">Alias_Entry</a> _Boot_Path_Record::Alias_Array</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -239,14 +239,14 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a028b984f3b55c471757fb94f791476e7" name="a028b984f3b55c471757fb94f791476e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a028b984f3b55c471757fb94f791476e7">&#9670;&nbsp;</a></span>Reserved</h2>
+<a id="ae18462470ef96d5bbddfa906bf0413d3" name="ae18462470ef96d5bbddfa906bf0413d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae18462470ef96d5bbddfa906bf0413d3">&#9670;&nbsp;</a></span>Reserved</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned char _Boot_Path_Record::Reserved[4]</td>
+          <td class="memname">unsigned char _Boot_Path_Record::Reserved</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -287,8 +287,9 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<hr/>The documentation for this struct was generated from the following files:<ul>
 <li>lvm/contrib/include/<a class="el" href="extboot_8h_source.html">extboot.h</a></li>
+<li>lvmgui/contrib2/include/helpers/<a class="el" href="lvm_8h_source.html">lvm.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

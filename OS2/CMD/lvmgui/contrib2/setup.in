@@ -1,0 +1,89 @@
+#
+#   This is a sample implementation for a setup.in file
+#   which should reside in the directory pointed to by
+#   $(PROJECT_BASE_DIR).
+#
+
+# HELPERS_OUTPUT_DIR: where to put the *.obj and *.lib files;
+# this gets created if it doesn't exist
+HELPERS_OUTPUT_DIR = $(PROJECT_BASE_DIR)\bin
+
+# extend include path; this must include the helpers "include"
+# directory (the parent of include\helpers)
+INCLUDE = $(PROJECT_BASE_DIR)\include;$(INCLUDE)
+
+# COMPILER SETUP
+# --------------
+
+CC_WARNINGS  = /w3 /Wcmp+ /Wcnd- /Wcns+ /Wcnv+ /Wgen /Wcns /Wcpy /Wobs /Word- /Wpro /Wrea /Wret /Wtru
+
+CC_HELPERS = icc $(CC_WARNINGS) /c /q+ /se /ss /gm+
+
+# Some VisualAge C++ compiler options explained [default in brackets]:
+# /c:   compile only, no link (we'll call the linker explicitly)
+# /fi+: precompile header files                         [/fe-]
+# /g3|4|5: optimize for 386/486/Pentium                 [/g3]
+# /gd-: link runtime statically                         [/gd-]
+# /ge-: create DLL code                                 [/ge+]
+#           This switches between EXE and DLL initialization code
+#           for the .OBJ file. /ge+ is only needed when the object
+#           file contains a main() function. For libraries to be
+#           used either with EXE's or DLL's, use /ge+.
+# /gh+: generate profiling hooks for VAC profiler
+# /gi+: fast integer execution
+# /Gl+: remove unreferenced functions (when comp.+link in 1 step)
+# /gm+: multithread libraries
+# /gm+: disable stack probes (single-thread only!)
+# /kc+: produce preprocessor warnings
+# /o+:  optimization (inlining etc.)
+# /oi-: no inlining (?)
+# /ol+: use intermediate linker; do _not_ use with debug code
+# /q+:  suppress icc logo
+# /Re : don't use subsystem libraries (!= Rn)
+# /se:  all language extensions
+# /si+: allow use of precompiled header files
+# /ss:  allow double slashes comments in C too
+# /ti+: debug code
+# /tdp: compile everything as C++, even if it has a .C suffix
+# /tm:  use debug memory management (malloc etc.)
+# /tn:  add source line numbers to object files (for mapfile); a subset of /ti+
+# /Wcls: class problems
+# /Wcnd: conditional exprs problems (= / == etc.)
+# /Wcmp: possible unsigned comparison redundancies
+# /Wcns: operations involving constants
+# /Wcnv: conversions
+# /Wcpy: copy constructor problems
+# /Weff: statements with no effect (annoying)
+# /Wgen: generic debugging msgs
+# /Wobs: obsolete features
+# /Word: unspecified evaluation order
+# /Wpar: list non-referenced parameters (annoying)
+# /Wppc: list possible preprocessor problems (.h dependencies)
+# /Wpro: warn if funcs have not been prototyped
+# /Wrea: mark code that cannot be reached
+# /Wret: check consistency of return levels
+# /Wuni: uninitialized variables
+# /Wuse: unused variables
+# /w2:   produce error and warning messages, but no infos
+
+# LINK OPTIONS
+# ------------
+#
+# Link macro. This is used for final linking.
+# If we're supposed to do the release version, we'll turn
+# off debugging and optimize and pack the resulting files.
+#
+# No need to change this. Change the variables above instead.
+
+LINK_BASE = ilink /nologo /noe /map:$(@B).map /linenumbers
+
+!ifdef XWP_DEBUG
+LINK =  $(LINK_BASE) /debug
+LINK_ALWAYSPACK = $(LINK_BASE) /exepack:2
+!else
+LINK =  $(LINK_BASE) /exepack:2
+LINK_ALWAYSPACK = $(LINK)
+#/packcode /packdata
+# /optfunc
+!endif
+

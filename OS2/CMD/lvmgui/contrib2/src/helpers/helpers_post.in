@@ -1,0 +1,17 @@
+#
+#   Post-include file for the main helpers makefile.
+#
+#   This is shared between makefile and makefile_dll
+#   and contains inference rules for the files.
+#
+
+# The .OBJ-from-sources dependencies are now automatically
+# created by "nmake dep" into the .depend include file.
+# V0.9.12 (2001-05-22) [umoeller]
+
+!ifndef NOINCLUDEDEPEND
+!include .depend
+!endif
+
+$(OUTPUTDIR)\interlock.obj: $(@B).asm
+

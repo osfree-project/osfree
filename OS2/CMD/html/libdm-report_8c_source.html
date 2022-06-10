@@ -85,10 +85,10 @@ $(function() {
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        uint32_t keys_count;</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="comment">/* Ordered list of fields needed for this report */</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> field_props;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> field_props;</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="comment">/* Rows of report data */</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> rows;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> rows;</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="comment">/* Array of field definitions */</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keyword">const</span> <span class="keyword">struct </span><a class="code hl_struct" href="structdm__report__field__type.html">dm_report_field_type</a> *fields;</div>
@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="preprocessor">#define FLD_DESCENDING  0x00000800</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="structfield__properties.html">   61</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structfield__properties.html">field_properties</a> {</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        uint32_t field_num;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        uint32_t sort_posn;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        int32_t width;</div>
@@ -119,7 +119,7 @@ $(function() {
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="comment"> * Report data field</span></div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="structdm__report__field.html">   73</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structdm__report__field.html">dm_report_field</a> {</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structfield__properties.html">field_properties</a> *props;</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keyword">const</span> <span class="keywordtype">char</span> *report_string;      <span class="comment">/* Formatted ready for display */</span></div>
@@ -127,9 +127,9 @@ $(function() {
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>};</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="structrow.html">   81</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structrow.html">row</a> {</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> <a class="code hl_struct" href="structlist.html">list</a>;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> <a class="code hl_class" href="structlist.html">list</a>;</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdm__report.html">dm_report</a> *rh;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> fields;                       <span class="comment">/* Fields in display order */</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> fields;                       <span class="comment">/* Fields in display order */</span></div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdm__report__field.html">dm_report_field</a> *(*sort_fields)[]; <span class="comment">/* Fields in sort order */</span></div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>};</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
@@ -384,7 +384,7 @@ $(function() {
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span><span class="comment"> * len2 is the length of name2.</span></div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="keyword">static</span> <span class="keywordtype">int</span> _is_same_field(<span class="keyword">const</span> <span class="keywordtype">char</span> *name1, <span class="keyword">const</span> <span class="keywordtype">char</span> *name2,</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                          <span class="keywordtype">size_t</span> len2, <span class="keyword">const</span> <span class="keywordtype">char</span> *prefix)</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                          <span class="keywordtype">size_t</span> len2, <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_struct" href="structprefix.html">prefix</a>)</div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>{</div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>        <span class="keywordtype">size_t</span> prefix_len;</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
@@ -393,8 +393,8 @@ $(function() {
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>                <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>        <span class="comment">/* Match including prefix? */</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>        prefix_len = strlen(prefix);</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="keywordflow">if</span> (!strncasecmp(prefix, name1, prefix_len) &amp;&amp;</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>        prefix_len = strlen(<a class="code hl_struct" href="structprefix.html">prefix</a>);</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>        <span class="keywordflow">if</span> (!strncasecmp(<a class="code hl_struct" href="structprefix.html">prefix</a>, name1, prefix_len) &amp;&amp;</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>            !strncasecmp(name1 + prefix_len, name2, len2) &amp;&amp;</div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>            strlen(name1) == prefix_len + len2)</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                <span class="keywordflow">return</span> 1;</div>
@@ -622,14 +622,14 @@ $(function() {
 <div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span> </div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="keywordtype">int</span> dm_report_set_output_field_name_prefix(<span class="keyword">struct</span> <a class="code hl_struct" href="structdm__report.html">dm_report</a> *rh, <span class="keyword">const</span> <span class="keywordtype">char</span> *output_field_name_prefix)</div>
 <div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>{</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>        <span class="keywordtype">char</span> *prefix;</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>        <span class="keywordtype">char</span> *<a class="code hl_struct" href="structprefix.html">prefix</a>;</div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span> </div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>        <span class="keywordflow">if</span> (!(prefix = dm_pool_strdup(rh-&gt;mem, output_field_name_prefix))) {</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>        <span class="keywordflow">if</span> (!(<a class="code hl_struct" href="structprefix.html">prefix</a> = dm_pool_strdup(rh-&gt;mem, output_field_name_prefix))) {</div>
 <div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>                log_error(<span class="stringliteral">&quot;dm_report_set_output_field_name_prefix: dm_pool_strdup failed&quot;</span>);</div>
 <div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>                <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>        }</div>
 <div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span> </div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>        rh-&gt;output_field_name_prefix = _toupperstr(prefix);</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>        rh-&gt;output_field_name_prefix = _toupperstr(<a class="code hl_struct" href="structprefix.html">prefix</a>);</div>
 <div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>        </div>
 <div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>        <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>}</div>
@@ -991,7 +991,7 @@ $(function() {
 <div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span> </div>
 <div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span><span class="keyword">static</span> <span class="keywordtype">int</span> _output_as_columns(<span class="keyword">struct</span> <a class="code hl_struct" href="structdm__report.html">dm_report</a> *rh)</div>
 <div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>{</div>
-<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structlist.html">list</a> *fh, *rowh, *ftmp, *rtmp;</div>
+<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>        <span class="keyword">struct </span><a class="code hl_class" href="structlist.html">list</a> *fh, *rowh, *ftmp, *rtmp;</div>
 <div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structrow.html">row</a> *<a class="code hl_struct" href="structrow.html">row</a> = NULL;</div>
 <div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span>        <span class="keyword">struct </span><a class="code hl_struct" href="structdm__report__field.html">dm_report_field</a> *field;</div>
 <div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span> </div>
@@ -1060,6 +1060,7 @@ $(function() {
 <div class="ttc" id="astructdm__report_html"><div class="ttname"><a href="structdm__report.html">dm_report</a></div><div class="ttdef"><b>Definition:</b> <a href="libdm-report_8c_source.html#l00028">libdm-report.c:28</a></div></div>
 <div class="ttc" id="astructfield__properties_html"><div class="ttname"><a href="structfield__properties.html">field_properties</a></div><div class="ttdef"><b>Definition:</b> <a href="libdm-report_8c_source.html#l00061">libdm-report.c:61</a></div></div>
 <div class="ttc" id="astructlist_html"><div class="ttname"><a href="structlist.html">list</a></div><div class="ttdef"><b>Definition:</b> <a href="devmapper_2include_2list_8h_source.html#l00028">list.h:28</a></div></div>
+<div class="ttc" id="astructprefix_html"><div class="ttname"><a href="structprefix.html">prefix</a></div><div class="ttdef"><b>Definition:</b> <a href="xmlparse_8c_source.html#l00186">xmlparse.c:187</a></div></div>
 <div class="ttc" id="astructrow_html"><div class="ttname"><a href="structrow.html">row</a></div><div class="ttdef"><b>Definition:</b> <a href="libdm-report_8c_source.html#l00081">libdm-report.c:81</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

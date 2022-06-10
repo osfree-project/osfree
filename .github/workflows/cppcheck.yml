@@ -14,8 +14,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN}}
           
         
-      - name: publish report    
-        uses: mikeal/publish-to-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: 'master' # your branch name goes here
+#      - name: publish report    
+#        uses: mikeal/publish-to-github-action@master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          BRANCH_NAME: 'master' # your branch name goes here

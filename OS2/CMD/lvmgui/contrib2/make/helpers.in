@@ -1,0 +1,71 @@
+#
+#   Pre-include file for the main helpers makefile.
+#   This contains shared definitions for everything
+#   under the xwphelpers src\directory.
+#
+
+!ifndef PROJECT_BASE_DIR
+!error in $(MAKEDIR)\makefile: PROJECT_BASE_DIR must be set before calling the HELPERS makefile. Terminating.
+!endif
+
+# !if [@echo     $(MAKEDIR)\makefile: PROJECT_BASE_DIR is: $(PROJECT_BASE_DIR)]
+# !endif
+
+# include setup (compiler options etc.)
+!include $(PROJECT_BASE_DIR)\config.in
+!include $(PROJECT_BASE_DIR)\make\setup.in
+
+!ifndef HELPERS_OUTPUT_DIR
+!error in $(MAKEDIR)\makefile: HELPERS_OUTPUT_DIR must be set before calling the HELPERS makefile. Terminating.
+!endif
+
+# Define the suffixes for files which NMAKE will work on.
+# .SUFFIXES is a reserved NMAKE keyword ("pseudotarget") for
+# defining file extensions that NMAKE will recognize in inference
+# rules.
+.SUFFIXES: .c .h .ih .obj .lib .dll
+
+# OUTPUTDIR specifies the directory where we will put the
+# files created by this makefile.
+OUTPUTDIR = $(HELPERS_OUTPUT_DIR)
+
+# !if [@echo     $(MAKEDIR)\makefile: helpers OBJs will be written to $(OUTPUTDIR)]
+# !endif
+
+!if [@md $(OUTPUTDIR) 2> NUL]
+!endif
+
+# helpers include path
+INC = ..\..\include
+HLPINC = $(INC)\helpers
+
+PROJECTINC = $(PROJECT_BASE_DIR)\include
+
+# Now define inference rules for what to do with certain file
+# types, based on their file extension.
+# The syntax we need here is ".fromext.toext".
+# So whenever NMAKE encounters a .toext file, it
+# executes what we specify here.
+# The ugly {} brackets are some awkward syntax for specifying
+# files in other directories.
+
+# Special macros used here: $(@B) is the current target w/out ext.
+
+# -- compile C files to .OBJ files, using the CC_HELPPERS macro
+#    given to us.
+#    The output will be placed in the directory specified by
+#    the OUTPUTDIR variable (set above).
+
+.c.{$(OUTPUTDIR)}.obj:
+    @echo $(MAKEDIR)\makefile: Compiling $(@B).c
+!ifdef EMX
+    $(CC_HELPERS) -o $(OUTPUTDIR)\$(@B).obj $(@B).c
+!else
+!ifndef PRECH
+    $(CC_HELPERS) /Fo$(OUTPUTDIR)\$(@B).obj $(@B).c
+!else
+    $(CC_HELPERS) /fi"$(PRECH)\$(@B).pch" /si"$(PRECH)\$(@B).pch" /Fo$(OUTPUTDIR)\$(@B).obj $(@B).c
+!endif
+!endif
+
+

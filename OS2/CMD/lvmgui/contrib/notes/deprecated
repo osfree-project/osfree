@@ -1,0 +1,25 @@
+
+This has been removed from the LDM_SETEMPHASIS specification:
+// - If a disk is selected (i.e. has selection emphasis, which implies keyboard
+//   focus) then one of its partitions must be as well.  Thus, selecting a disk
+//   will automatically select its first partition (unless the disk was already
+//   selected, implying that a partition must also be selected already and so
+//   no change is necessary).
+// - Setting the LDV_FS_SELECTED flag on a WC_DISKVIEW will automatically set
+//   LPV_FS_SELECTED for the first partition on the disk IF (and only if) the
+//   disk did not already have LDV_FS_SELECTED set (in which case a partition
+//   must already have this flag set, and this should not be changed).
+
+// - If a partition has selection emphasis, then the disk that owns it must
+//   also have selection emphasis.  Conversely, if a disk does not have
+//   selection emphasis, then none of its partitions may have it either.
+
+// - Setting the LPV_FS_SELECTED on a WC_PARTITIONVIEW will automatically set
+//   the LDV_FS_SELECTED flag on the WC_DISKVIEW that owns it (if not already
+//   set).
+
+// - Clearing the LPV_FS_SELECTED flag on a WC_PARTITIONVIEW control has no
+//   other side effects.
+//
+// There are no side effects associated with either setting or clearing the
+// LPV_FS_ACTIVE flag on a WC_PARTITIONVIEW control. 

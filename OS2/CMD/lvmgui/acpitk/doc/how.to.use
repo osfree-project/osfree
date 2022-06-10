@@ -1,0 +1,7 @@
+To compile sample, set variables:
+
+Copy setenv.cmd.template to setenv.cmd
+Edit setenv.cmd and change the WATCOM and the OS2TK to the
+locations on your system.
+
+Run setenv.cmd before working on toolkit programs.

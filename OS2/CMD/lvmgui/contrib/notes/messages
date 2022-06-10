@@ -1,0 +1,97 @@
+----------------
+WC_PARTITIONVIEW
+
+  WM_BUTTON1CLICK:
+     Set LPV_FS_SELECTED
+     Clear LPV_FS_CONTEXT
+     Send LPN_SELECT(hwnd) to owner
+
+  WM_CONTEXTMENU:
+//     Set LPV_FS_CONTEXT
+     Send LPN_CONTEXT(hwnd) to owner
+
+  LPM_SETEMPHASIS:
+     If TRUE: Set selected flags
+     If FALSE: Clear selected flags
+
+
+-----------
+WC_DISKVIEW
+
+  WM_BUTTON1CLICK:
+     Set LDV_FS_SELECTED
+     Clear LDV_FS_CONTEXT
+     Clear LPV_FS_CONTEXT from all partitions   (Send LDM_SETEMPHASIS(0, FALSE / LDV_FS_CONTEXT|LPV_FS_CONTEXT) to self)
+     Set LPV_FS_SELECTED on the first partition
+     Send LDN_SELECT(PDISKNOTIFY) to owner
+
+  WM_CONTEXTMENU:
+//     Set LDV_FS_CONTEXT
+//     Clear LPV_FS_CONTEXT from all partitions   (Send LDM_SETEMPHASIS(0, FALSE / LPV_FS_CONTEXT) to self)
+     Send LDN_CONTEXT(PDISKNOTIFY) to owner
+
+  LPN_SELECT:
+        Set LDV_FS_SELECTED
+        Clear LDV_FS_CONTEXT
+        Clear LPV_FS_SELECTED and LPV_FS_CONTEXT from all other partitions
+        Send LDN_SELECT(PDISKNOTIFY) to owner
+
+  LPN_CONTEXT:
+//        Clear LDV_FS_CONTEXT
+//        Clear LPV_FS_CONTEXT from all other partitions
+        Send LDN_CONTEXT(PDISKNOTIFY) to owner
+
+  LDM_SETEMPHASIS:
+     If TRUE:
+       Set selected disk flags
+       If LDV_FS_SELECTED and NOT LPV_FS_SELECTED:
+          Set LPV_FS_SELECTED on the first partition
+       If LDV_FS_CONTEXT:
+          Remove LPV_FS_CONTEXT from requested options
+          Clear LPV_FS_CONTEXT from all partitions
+       If LPV_FS_SELECTED:
+          Set LPV_FS_SELECTED on requested partition
+          Clear LPV_FS_SELECTED on all other partitions
+       If LPV_FS_CONTEXT:
+          Set LPV_FS_CONTEXT on requested partition
+          Clear LPV_FS_CONTEXT on all other partitions
+     If FALSE:
+       Clear selected disk flags
+       If LDV_FS_SELECTED:
+          Clear LPV_FS_SELECTED from all partitions
+       Clear selected flags from requested partition(s)
+
+
+-----------
+WC_LVMDISKS
+
+  WM_BUTTON1CLICK:
+     Call WinSetFocus(hwnd)
+     ?Send LLN_GOTFOCUS? to owner
+
+  WM_CONTEXTMENU:
+     Send LLN_CONTEXTMENU(hwnd) to owner
+     Send LDM_SETEMPHASIS(0, FALSE / LDV_FS_CONTEXT|LPV_FS_CONTEXT) to all disks
+
+  LDN_SELECT:
+        Send LDM_SETEMPHASIS(0, FALSE / LDV_FS_SELECTED|LDV_FS_CONTEXT|LPV_FS_CONTEXT) to all other disks
+        Send LLN_EMPHASIS(PDISKNOTIFY) to owner
+
+  LDN_CONTEXT:
+        Send LDM_SETEMPHASIS(0, FALSE / LDV_FS_CONTEXT|LPV_FS_CONTEXT) to all other disks
+     Send LLN_CONTEXTMENU(hwnd) to owner
+//        Send LLN_EMPHASIS(PDISKNOTIFY) to owner
+
+
+   LLN_SETDISKEMPHASIS:
+     If TRUE:
+       Set selected disk flags
+       If LDV_FS_SELECTED:
+          Clear LDV_FS_SELECTED from all other disks
+          If not LDV_FS_CONTEXT, clear LDV_FS_CONTEXT from all disks
+       If LDV_FS_CONTEXT:
+          Clear LDV_FS_CONTEXT from all other disks
+     If FALSE:
+       Clear selected disk flags
+
+
