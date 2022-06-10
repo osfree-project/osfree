@@ -98,11 +98,11 @@
                                 Reboot_Required, Set_Min_Install_Size, Set_Name, Set_Reboot_Flag, Start_Logging,
                                 Stop_Logging */
 
-#include "Handle_Manager.H" /* Initialize_Handle_Manager, Create_Handle, Destroy_Handle, Translate_Handle */
+#include "Handle_Manager.h" /* Initialize_Handle_Manager, Create_Handle, Destroy_Handle, Translate_Handle */
 #include "Partition_Manager.h" /* Initialize_Partition_Manager, Close_Partition_Manager, Discover_Partitions, Commit_Partition_Changes */
 #include "Volume_Manager.h"    /* Initialize_Volume_Manger, Close_Volume_Manager, Discover_Volumes, Commit_Volume_Changes */
 #include "BootManager.h"       /* Discover_Boot_Manager */
-#include "CRC.H"               /* Build_CRC_Table, CalculateCRC, INITIAL_CRC */
+#include "crc.h"               /* Build_CRC_Table, CalculateCRC, INITIAL_CRC */
 #include "logging.h"           /* Log_Current_Configuration, Write_Log_Buffer, Logging_Enabled */
 #include "lvm_plug.h"          /* LVM_Plugin_DLL_Interface, LVM_Common_Services_V1, Plugin_Function_Table_V1, PLUGIN_FUNCTION_TABLE_V1_TAG */
 #include "Bad_Block_Relocation.h"
