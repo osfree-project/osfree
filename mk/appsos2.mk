@@ -72,7 +72,10 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)libtiff &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)gbm &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)pdcurses &
-                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)glib &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)acpitk &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)lvmtk &
+                      -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)xwphelpers
 
 ###
 !ifeq NOLIBS 1

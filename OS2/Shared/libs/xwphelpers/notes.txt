@@ -1,0 +1,3 @@
+[submodule "OS2/CMD/lvmgui/xwphelpers"]
+	path = OS2/CMD/lvmgui/xwphelpers
+	url = https://github.com/rousseaux/netlabs.xwphelpers

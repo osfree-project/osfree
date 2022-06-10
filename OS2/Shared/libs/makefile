@@ -4,7 +4,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff libvorbis lpng PDCurses zlib
+DIRS = GBM GDLib JpegLib libflac libmad libogg libojpeg libtiff libvorbis lpng PDCurses zlib xwphelpers acpitk lvmtk
 
 !include $(%ROOT)/mk/all.mk
 
