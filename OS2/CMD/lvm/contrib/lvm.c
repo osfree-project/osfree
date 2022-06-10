@@ -40,7 +40,7 @@
 #include "LVM_Cli.h"
 #include "lvm2.h"
 #include "LVM_Interface.h"
-#include "Logging.h"
+#include "logging.h"
 
 #define DEFAULT_ATTRIBUTE       PANEL_ATTRIBUTE
 #define EXIT_ATTRIBUTE          BLACK_BG | WHITE_FG  /* screen on exit */
