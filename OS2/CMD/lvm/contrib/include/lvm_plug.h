@@ -38,9 +38,9 @@
 
 #include "lvm_type.h"
 
-#include "LVM_LIST.H"
+#include "lvm_list.h"
 
-#include "LVM_HAND.h"
+#include "lvm_hand.h"
 
 #include "lvm_stru.h"      /* LVM Engine internal structures. */
 

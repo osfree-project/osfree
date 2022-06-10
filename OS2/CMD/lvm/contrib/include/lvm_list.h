@@ -153,7 +153,7 @@
 * Type definitions
 --------------------------------------------------*/
 
-#include "LVM_GBLS.h"
+#include "lvm_gbls.h"
 
 typedef unsigned long TAG;
 

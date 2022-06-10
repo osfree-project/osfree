@@ -72,7 +72,7 @@
 #include "gbltypes.h" /* CARDINAL32, BYTE, BOOLEAN, ADDRESS */
 
 #include "LVM_Constants.h"   /* PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, DISK_NAME_SIZE, BYTES_PER_SECTOR */
-#include "LVM_INTERFACE.H"
+#include "LVM_Interface.H"
 
 #include "Bad_Block_Relocation.h"
 
