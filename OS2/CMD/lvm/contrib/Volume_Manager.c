@@ -81,11 +81,11 @@
 
 #include "LVM_Interface.h"   /* */
 
-#include "Handle_Manager.H"    /* Create_Handle, Destroy_Handle, Translate_Handle */
+#include "Handle_Manager.h"    /* Create_Handle, Destroy_Handle, Translate_Handle */
 
-#include "partition_manager.h" /* */
+#include "Partition_Manager.h" /* */
 
-#include "CRC.H"               /* INITIAL_CRC, CalculateCRC */
+#include "crc.h"               /* INITIAL_CRC, CalculateCRC */
 
 #include "Bad_Block_Relocation.h"
 
@@ -93,7 +93,7 @@
 
 #include "drive_linking_feature.h"
 
-#include "Logging.h"
+#include "logging.h"
 
 #include "Volume_Manager.h"
 
