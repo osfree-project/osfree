@@ -75,7 +75,7 @@
 
 
 #include "lvm_cons.h"   /* PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, DISK_NAME_SIZE, BYTES_PER_SECTOR */
-#include "lvm_intr.h"
+#include "LVM_Interface.h"
 
 #include "crc.h"               /* INITIAL_CRC, CalculateCRC */
 
