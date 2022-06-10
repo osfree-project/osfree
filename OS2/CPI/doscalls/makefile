@@ -36,6 +36,19 @@ srcfiles = $(p)msg$(e) &
            $(p)doswrite$(e) &
            $(p)dosexit$(e) &
            $(p)dos16exit$(e) &
+           $(p)dos16getmachinemode$(e)    &
+           $(p)dos16cwait$(e) &
+           $(p)dos16bufreset$(e) &
+           $(p)dos16chdir$(e) &
+           $(p)dos16close$(e) &
+           $(p)dos16delete$(e) &
+           $(p)dos16duphandle$$(e) &
+           $(p)dos16getversion$$(e) &
+           $(p)dos16mkdir$$(e) &
+           $(p)dos16qverify$$(e) &
+           $(p)dos16setverify$$(e) &
+           $(p)dos16rmdir$$(e) &
+           $(p)dos16selectdisk$$(e) &
            $(p)doserror$(e) &
            $(p)dosexecpgm$(e) &
            $(p)dossetcurrentdir$(e) &
@@ -56,7 +69,6 @@ srcfiles = $(p)msg$(e) &
            $(p)token$(e) &
            $(p)monitors$(e) &
            $(p)viocalls$(e) &
-           $(p)dos16cwait$(e) &
            $(p)vars$(e)
 
 ADD_COPT = -s -od

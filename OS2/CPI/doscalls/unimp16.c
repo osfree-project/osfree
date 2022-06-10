@@ -577,12 +577,6 @@ USHORT APIENTRY16   DOS16GETMODNAME(HMODULE hmod, USHORT cbBuf, char * _Seg16 sz
 }
 
 
-USHORT APIENTRY16   DOS16GETMACHINEMODE(BYTE * _Seg16 MachineMode)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 USHORT APIENTRY16   DOS16BEEP(USHORT freq, USHORT duration)
 {
   return unimplemented(__FUNCTION__);
@@ -622,16 +616,8 @@ USHORT APIENTRY16   DOS16SGSWITCHME(void)
 }
 
 
-USHORT APIENTRY16   DOS16BUFRESET(HFILE hf)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
-USHORT APIENTRY16   DOS16CHDIR(char * _Seg16 dirname)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT APIENTRY16   DOS16CHGFILEPTR(HFILE hf, LONG distance,
@@ -641,22 +627,10 @@ USHORT APIENTRY16   DOS16CHGFILEPTR(HFILE hf, LONG distance,
 }
 
 
-USHORT APIENTRY16   DOS16CLOSE(HFILE hf)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
-USHORT APIENTRY16   DOS16DELETE(char * _Seg16 pszFilename, ULONG reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
-USHORT APIENTRY16   DOS16DUPHANDLE(HFILE hf, HFILE * _Seg16 phf2)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 USHORT APIENTRY16   DOS16FILELOCKS(HFILE hf, LONG * _Seg16 UnLockRange, LONG * _Seg16 LockRange)
@@ -684,13 +658,6 @@ USHORT APIENTRY16   DOS16FINDNEXT(HDIR hdir, FILEFINDBUF * _Seg16 pFileFindBuf,
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-USHORT APIENTRY16   DOS16MKDIR(char * _Seg16 dirname, ULONG reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT APIENTRY16   DOS16MOVE(char * _Seg16 old, char * _Seg16 new, ULONG reserved)
 {
@@ -764,30 +731,11 @@ USHORT APIENTRY16    DOS16QHANDTYPE(HFILE hf, USHORT * _Seg16 type, USHORT * _Se
 }
 
 
-USHORT APIENTRY16    DOS16QVERIFY(USHORT * _Seg16 verify)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
 // fix prototype !!! (internal)
 APIRET APIENTRY16    DOSIREAD(void)
 {
   return unimplemented(__FUNCTION__);
 }
-
-
-USHORT APIENTRY16    DOS16RMDIR(char * _Seg16 pszDir, ULONG reserved)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-USHORT APIENTRY16    DOS16SELECTDISK(USHORT drivenum)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 
 USHORT APIENTRY16    DOS16SETFHANDSTATE(HFILE hf, USHORT state)
 {
@@ -816,10 +764,6 @@ USHORT APIENTRY16    DOS16SETMAXFH(USHORT usNumHandles)
 }
 
 
-USHORT APIENTRY16    DOS16SETVERIFY(USHORT verify)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (internal)
@@ -855,10 +799,6 @@ USHORT APIENTRY16    DOS16GETENV(SEL * _Seg16 pEnvSel, USHORT * _Seg16 off)
 }
 
 
-USHORT APIENTRY16    DOS16GETVERSION(USHORT * _Seg16 version)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 
 // fix prototype !!! (undoc)
