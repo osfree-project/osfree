@@ -153,6 +153,10 @@ somFree
 
 CWMM Classes
 
+Open Watcom
+
+JWasm
+
 and other projects here. Please add it if we missed one.
 
 (c) osFree project, 2002-2022
