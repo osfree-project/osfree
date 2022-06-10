@@ -2,7 +2,7 @@
 
 PROJ = helpers
 TRGT = $(PROJ).lib
-DESC = Enhanced OW assembler
+DESC = XWPHelpers
 srcfiles = $(p)acpih$(e) &
 $(p)animate$(e) &
 $(p)apmh$(e) &
@@ -69,7 +69,7 @@ $(p)dosh2$(e)
 #$(p)dialog$(e)
 
 
-ADD_COPT = -ecs -dNDEBUG -i=$(MYDIR)include -i=$(MYDIR)..$(SEP)acpitk$(SEP)h
+ADD_COPT = -ecs -dNDEBUG
 ADD_LINKOPT = lib clib3r
 IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
        WinGetFrameTreePPs PMWIN.973
@@ -78,9 +78,7 @@ IMPORTS=WinGetFrameTreePPSize PMWIN.972, &
 
 !include $(%ROOT)/mk/libsos2.mk
 
-.c: $(MYDIR)src$(SEP)helpers
-
-.h: $(MYDIR)include
+.c: $(MYDIR)contrib$(SEP)src$(SEP)helpers
 
 $(PATH)$(PROJ).lib: $(OBJS)
  @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
