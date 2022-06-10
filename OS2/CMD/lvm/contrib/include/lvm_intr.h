@@ -73,10 +73,10 @@
 
 #define LVM_INTERFACE_H_INCLUDED 1
 
-#include "LVM_Gbls.h"         /* BYTE, CARDINAL32, ADDRESS, BOOLEAN, BYTE */
+#include "lvm_gbls.h"         /* BYTE, CARDINAL32, ADDRESS, BOOLEAN, BYTE */
 
-#include "LVM_Cons.h"         /* DISK_NAME_SIZE, PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, FILESYSTEM_NAME_SIZE */
-#include "LVM_Type.h"         /* DoubleWord */
+#include "lvm_cons.h"         /* DISK_NAME_SIZE, PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, FILESYSTEM_NAME_SIZE */
+#include "lvm_type.h"         /* DoubleWord */
 
 /* The following are invariant for a disk drive. */
 typedef struct _Drive_Control_Record {

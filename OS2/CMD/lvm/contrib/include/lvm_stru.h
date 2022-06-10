@@ -42,7 +42,7 @@
 
 #include "lvm_data.h"
 
-#include "LVM_LIST.H"
+#include "lvm_list.h"
 
 
 /*--------------------------------------------------

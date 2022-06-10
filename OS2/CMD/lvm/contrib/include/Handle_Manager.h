@@ -43,6 +43,6 @@
 
 #define MANAGE_HANDLES
 
-#include "LVM_HAND.H"
+#include "lvm_hand.h"
 
 #endif

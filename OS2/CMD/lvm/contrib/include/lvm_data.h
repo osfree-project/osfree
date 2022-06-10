@@ -44,13 +44,13 @@
 /* XLATON */
 
 /* XLATOFF */
-#include "LVM_Gbls.h"
+#include "lvm_gbls.h"
 /* XLATON */
 
-#include "LVM_Cons.h"
+#include "lvm_cons.h"
 
 /* XLATOFF */
-#include "LVM_Type.h"
+#include "lvm_type.h"
 /* XLATON */
 
 /*--------------------------------------------------

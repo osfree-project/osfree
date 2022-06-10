@@ -80,13 +80,13 @@
 
 #include "LVM_Interface.h"   /* */
 
-#include "Handle_Manager.H"    /* Create_Handle, Destroy_Handle, Translate_Handle */
+#include "Handle_Manager.h"    /* Create_Handle, Destroy_Handle, Translate_Handle */
 #include "Partition_Manager.h" /* Included to let the compiler check the consistency of declarations in Partition_Manager.H and Partition_Manager.C. */
 #include "Volume_Manager.h"    /* Get_Volume_Size */
 
 #include "extboot.h"           /* struct Extended_Boot */
 
-#include "CRC.H"               /* INITIAL_CRC, CalculateCRC */
+#include "crc.h"               /* INITIAL_CRC, CalculateCRC */
 
 #include "mbr.h"               /* mbr */
 

@@ -37,7 +37,7 @@
 #include "help.h"
 #include "LVM_Interface.h"
 #include "lvm2.h"
-#include "Logging.h"
+#include "logging.h"
 
 #define API_ENTRY_BORDER   "***?!?** ENTRY *****\n"
 #define API_EXIT_BORDER    "***?!?** return ******\n"

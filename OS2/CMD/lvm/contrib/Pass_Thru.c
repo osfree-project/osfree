@@ -68,16 +68,16 @@
 #include "engine.h"   /* Included for access to the global types and variables. */
 #include "gbltypes.h" /* CARDINAL32, BYTE, BOOLEAN, ADDRESS */
 
-#include "LVM_PLUG.H"
+#include "lvm_plug.h"
 
 #include "dlist.h"    /*  */
 #include "diskio.h"   /*  */
 
 
-#include "LVM_Constants.h"   /* PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, DISK_NAME_SIZE, BYTES_PER_SECTOR */
-#include "LVM_INTERFACE.H"
+#include "lvm_cons.h"   /* PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, DISK_NAME_SIZE, BYTES_PER_SECTOR */
+#include "LVM_Interface.h"
 
-#include "CRC.H"               /* INITIAL_CRC, CalculateCRC */
+#include "crc.h"               /* INITIAL_CRC, CalculateCRC */
 
 #include "Pass_Thru.h"
 

@@ -149,7 +149,7 @@
 
 #define DLISTHANDLER  1
 
-#include "LVM_LIST.H"
+#include "lvm_list.h"
 
 #endif
 

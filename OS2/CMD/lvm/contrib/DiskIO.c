@@ -54,7 +54,7 @@
 #include <ctype.h>           /* toupper */
 #include "gbltypes.h"        /* BOOLEAN, CARDINAL16, CARDINAL32 */
 #include "lvm_types.h"       /* LBA */
-#include "lvm_constants.h"   /* BYTES_PER_SECTOR */
+#include "lvm_cons.h"        /* BYTES_PER_SECTOR */
 #include "lock.h"            /* SEMAPHORE, CreateSemaphore, Lock, Unlock, DestroySemaphore. */
 #include "lvm_intr.h"        /* Get_LVM_View */
 #include "dlist.h"           /* DLIST, CreateList, InsertItem */
