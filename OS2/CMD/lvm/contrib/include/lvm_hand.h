@@ -42,8 +42,8 @@
 
 #define LVM_MANAGE_HANDLES
 
-#include "LVM_GBLS.h"  /* ADDRESS, BOOLEAN, CARDINAL32 */
-#include "LVM_LIST.h"     /* TAG */
+#include "lvm_gbls.h"  /* ADDRESS, BOOLEAN, CARDINAL32 */
+#include "lvm_list.h"     /* TAG */
 
 
 /* The following defines represent the error codes that can be returned by this module. */

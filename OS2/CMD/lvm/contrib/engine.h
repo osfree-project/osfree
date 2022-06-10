@@ -69,15 +69,15 @@
 
 #include "gbltypes.h"      /* CARDINAL32, CARDINAL16, ADDRESS, BOOLEAN */
 
-#include "LVM_Types.h"     /* LBA, QuadWord, DoubleWord */
+#include "lvm_types.h"     /* LBA, QuadWord, DoubleWord */
 
 #include "lvm_stru.h"      /* Drive_Geometry_Record */
 
-#include "LVM_Data.h"      /* Partition_Record, DLA_Entry */
+#include "lvm_data.h"      /* Partition_Record, DLA_Entry */
 
 #include "lvm_plug.h"
 
-#include "DLIST.H"         /* DLIST */
+#include "dlist.h"         /* DLIST */
 
 /*--------------------------------------------------
  * Type definitions
