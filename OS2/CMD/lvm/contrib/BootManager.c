@@ -76,9 +76,9 @@
 
 #include "LVM_Interface.h"   /* */
 
-#include "Handle_Manager.H"    /* Create_Handle, Destroy_Handle, Translate_Handle */
+#include "Handle_Manager.h"    /* Create_Handle, Destroy_Handle, Translate_Handle */
 
-#include "Partition_Manager.H" /* Get_Partition_Options */
+#include "Partition_Manager.h" /* Get_Partition_Options */
 
 #include "mbb.h"               /* Boot Manager. */
 
