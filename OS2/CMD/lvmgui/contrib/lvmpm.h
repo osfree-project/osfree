@@ -38,11 +38,11 @@
 #include "ids.h"        // resource IDs
 
 // Stuff from XWPHelpers
-#include "include\setup.h"      // basic project setup
-#include "helpers\comctl.h"     // split window
-#include "helpers\nls.h"        // NLS functions
-#include "helpers\gpih.h"       // GPI functions
-#include "helpers\winh.h"       // PM functions
+#include "include/setup.h"      // basic project setup
+#include "helpers/comctl.h"     // split window
+#include "helpers/nls.h"        // NLS functions
+#include "helpers/gpih.h"       // GPI functions
+#include "helpers/winh.h"       // PM functions
 
 
 /*****************************************************************************
