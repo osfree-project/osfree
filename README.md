@@ -157,6 +157,8 @@ Open Watcom
 
 JWasm
 
+4os2
+
 and other projects here. Please add it if we missed one.
 
 (c) osFree project, 2002-2022
