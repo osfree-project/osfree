@@ -65,7 +65,7 @@
 
 #define NEED_BYTE_DEFINED
 #include "gbltypes.h"
-#include "lvm_interface.h"
+#include "lvm_intr.h"
 
 
 BOOLEAN Initialize_Volume_Manager( CARDINAL32 * Error_Code );  /* Returns TRUE if successful, FALSE otherwise. */
