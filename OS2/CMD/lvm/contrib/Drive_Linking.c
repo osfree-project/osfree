@@ -65,13 +65,13 @@
 #define NEED_BYTE_DEFINED
 #include "gbltypes.h" /* CARDINAL32, BYTE, BOOLEAN, ADDRESS */
 
-#include "LVM_Data.h"
+#include "lvm_data.h"
 
 #include "LVM_Interface.h"
 
 #include "LVM_Constants.h"   /* PARTITION_NAME_SIZE, VOLUME_NAME_SIZE, DISK_NAME_SIZE, BYTES_PER_SECTOR */
 
-#include "LVM_PLUG.h"
+#include "lvm_plug.h"
 
 #include "Drive_Linking_Feature.h"
 
