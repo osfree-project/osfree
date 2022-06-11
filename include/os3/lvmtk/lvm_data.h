@@ -159,10 +159,10 @@ typedef struct _LVM_Signature_Sector { /* LSS */
                                         char              Comment[COMMENT_SIZE];                      /* User comment. */
                                         char              Disk_Name[DISK_NAME_SIZE];                  /* Added to allow BBR to report the name of a disk when bad sectors are encountered on that disk. */
 /* These next two fields are specific to LVM Version 2 and are not used in the OS/2 implementation */
-/*                                        
- *                                      CARDINAL32        Sequence_Number;                            /* This indicates the order that partitions within a volume are used.  This number is 1 based.  A 0 here indicates that the volume was made by LVM Ver. 1. */
- *                                      CARDINAL32        Next_Aggregate_Number;                      /* Used during volume creation and expansion when creating unique names for aggregates. */
- */
+#if 0                                        
+                                        CARDINAL32        Sequence_Number;                            /* This indicates the order that partitions within a volume are used.  This number is 1 based.  A 0 here indicates that the volume was made by LVM Ver. 1. */
+                                        CARDINAL32        Next_Aggregate_Number;                      /* Used during volume creation and expansion when creating unique names for aggregates. */
+#endif
                                         /* The remainder of the sector is reserved for future use and should be all zero or else the CRC will not come out correctly. */
                                      } LVM_Signature_Sector;
 

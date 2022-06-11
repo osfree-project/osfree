@@ -13,7 +13,7 @@ ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-UNI2H = 1
+UNI2H = 0
 
 EXPORTS = Open_LVM_Engine, &
 Open_LVM_Engine2, &
