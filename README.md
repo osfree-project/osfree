@@ -130,8 +130,7 @@ Fiasco reused as microkernel
 
 PParser from FPK used as UNI2H tool base
 
-TWIN library/WINE 
-as win16 base
+TWIN library/WINE as win16 base
 
 MINSTALL by KIEWITZ
 
@@ -156,6 +155,12 @@ CWMM Classes
 Open Watcom
 
 JWasm
+
+LVMTK
+
+ACPITK
+
+XWPHelpers
 
 4os2
 
