@@ -262,7 +262,7 @@ static void     _System Find_Duplicate_ANames( ADDRESS Object, TAG ObjectTag, CA
 
 
 void _System VIO_Help_Panel (CARDINAL32 Help_Index, CARDINAL32 * Error_Code);
-void _System VIO_Create_and_Configure ( CARDINAL32 ID, ADDRESS InputBuffer, CARDINAL32 InputBufferSize, ADDRESS * OutputBuffer, CARDINAL32 * OutputBufferSize, CARDINAL32 * Error_Code);
+//void _System VIO_Create_and_Configure ( CARDINAL32 ID, ADDRESS InputBuffer, CARDINAL32 InputBufferSize, ADDRESS * OutputBuffer, CARDINAL32 * OutputBufferSize, CARDINAL32 * Error_Code);
 unsigned int _System Create_and_Configure_callback (panel_t *panel);
 void Init_VIO_Help_Panel(void);
 unsigned long VIO_ShowMessageBar(unsigned long message_number);
@@ -5475,6 +5475,7 @@ void * get_help_message ( uint    message_number )
     return  memory;
 }
 
+#if 0
 void Init_VIO_Help_Panel()
 {
    char *memory;
@@ -5608,6 +5609,7 @@ bool MoveMenuCursor( unsigned int cur_position,
 
    return (success);
 }
+
 
 unsigned int _System Create_and_Configure_callback (panel_t *panel)
 {
@@ -5860,6 +5862,7 @@ void _System VIO_Create_and_Configure ( CARDINAL32 ID, ADDRESS InputBuffer, CARD
    return;
 }
 
+#endif
 
 ADDRESS _System Exchange_Function_Tables( ADDRESS Common_Services )
 {
@@ -5894,14 +5897,16 @@ ADDRESS _System Exchange_Function_Tables( ADDRESS Common_Services )
   Feature_ID_Record.ClassData[Volume_Class].Weight_Factor = 1;
   Feature_ID_Record.Interface_Support[PM_Interface].VIO_PM_Calls.Create_and_Configure = NULL;
   Feature_ID_Record.Interface_Support[PM_Interface].Interface_Supported = FALSE;
-  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Create_and_Configure = VIO_Create_and_Configure;
+//  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Create_and_Configure = VIO_Create_and_Configure;
+  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Create_and_Configure = NULL;
   Feature_ID_Record.Interface_Support[VIO_Interface].Interface_Supported = TRUE;
   Feature_ID_Record.Interface_Support[PM_Interface].VIO_PM_Calls.Display_Status = NULL;
   Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Display_Status = NULL;
   Feature_ID_Record.Interface_Support[PM_Interface].VIO_PM_Calls.Control_Panel = NULL;
   Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Control_Panel = NULL;
   Feature_ID_Record.Interface_Support[PM_Interface].VIO_PM_Calls.Help_Panel = NULL;
-  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Help_Panel = VIO_Help_Panel;
+//  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Help_Panel = VIO_Help_Panel;
+  Feature_ID_Record.Interface_Support[VIO_Interface].VIO_PM_Calls.Help_Panel = NULL;
   Feature_ID_Record.Interface_Support[Java_Interface].Java_Interface_Class = "drivelinking";
   Feature_ID_Record.Interface_Support[Java_Interface].Interface_Supported = TRUE;
 
