@@ -59,6 +59,9 @@
 #include <stdio.h>    /* sprintf */
 #include <string.h>   /* strlen */
 
+#define INCL_BASE
+#include <os2.h>   /* strlen */
+
 #include "engine.h"   /* Included for access to the global types and variables. */
 #include "diskio.h"   /*  */
 
@@ -5434,8 +5437,8 @@ void * get_help_message ( uint    message_number )
     char    *memory,
             *text_line;
     uint    rc,
-            index,
-            length;
+            index;
+    unsigned long        length;
     bool    no_help = TRUE;
 
     FEATURE_FUNCTION_ENTRY("get_help_message")
