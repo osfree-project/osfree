@@ -105,6 +105,8 @@ BOOLEAN      Unusable;                       /* If TRUE, the drive's MBR is not 
 BOOLEAN      IO_Error;                       /* If TRUE, then the last I/O operation on this drive failed! */
 BOOLEAN      Is_Big_Floppy;                  /* If TRUE, then the drive is a PRM formatted as a big floppy (i.e. the old style removable media support). */
 char         Drive_Name[DISK_NAME_SIZE];     /* User assigned name for this disk drive. */
+int LastErrorIOCTL;  //EK
+int LastError;  
 } Drive_Information_Record;
 
 typedef struct _Partition_Information_Record {
@@ -271,12 +273,12 @@ NULL if there is no initialization data being provided for this feature. */
 } LVM_Feature_Specification_Record;
 
 /* The following structure is used with the Get_Child_Handles function. */
-/*
+
 typedef struct {
 CARDINAL32   Count;
 ADDRESS *    Handles;
 } LVM_Handle_Array_Record;
-*/
+
 
 /* The following preprocessor directives define the operations that can be performed on a partition, volume, or a block of free space.
 These definitions represent bits in a 32 bit value returned by the Get_Valid_Options function.                                         */
@@ -385,7 +387,8 @@ All                      /* Turn the specified drive or block of free space into
 #define LVM_ENGINE_REDISCOVER_FAILED                  47
 
 /* The following errors are specific to LVM Version 2 and are not used under OS/2 */
-/*
+/* But used in ALVM, so reverted back */
+
 #define LVM_ENGINE_INTERNAL_VERSION_FAILURE           48
 #define LVM_ENGINE_PLUGIN_OPERATION_INCOMPLETE        49
 #define LVM_ENGINE_BAD_FEATURE_ID                     50
@@ -401,7 +404,7 @@ All                      /* Turn the specified drive or block of free space into
 #define LVM_ENGINE_PARSING_ERROR                      60
 #define LVM_ENGINE_INTERNAL_FEATURE_ERROR             61
 #define LVM_ENGINE_VOLUME_NOT_CONVERTED               62
-*/
+
 
 /* Function Prototypes */
 
@@ -491,9 +494,7 @@ void _System Open_LVM_Engine( BOOLEAN Ignore_CHS, CARDINAL32 * Error_Code );
 /*           OS/2 implementation.                                                                   */
 /*                                                                                                  */
 /****************************************************************************************************/
-/*
- * void _System Open_LVM_Engine2( BOOLEAN Ignore_CHS, LVM_Interface_Types Interface_Type, CARDINAL32 * Error_Code );
- */
+void _System Open_LVM_Engine2( BOOLEAN Ignore_CHS, LVM_Interface_Types Interface_Type, CARDINAL32 * Error_Code );
 
 /*********************************************************************/
 /*                                                                   */
@@ -1448,18 +1449,16 @@ CARDINAL32 * Error_Code
 /*           is not available in the current OS/2 implementation.    */
 /*                                                                   */
 /*********************************************************************/
-/*
-* void _System Create_Volume2( char                               Name[VOLUME_NAME_SIZE],
-* BOOLEAN                            Create_LVM_Volume,
-* BOOLEAN                            Bootable,
-* char                               Drive_Letter_Preference,
-* CARDINAL32                         Feature_Count,
-* LVM_Feature_Specification_Record   FeaturesToUse[],
-* CARDINAL32                         Partition_Count,
-* ADDRESS                            Partition_Handles[],
-* CARDINAL32 *                       Error_Code
-* );
-*/
+void _System Create_Volume2( char                               Name[VOLUME_NAME_SIZE],
+BOOLEAN                            Create_LVM_Volume,
+BOOLEAN                            Bootable,
+char                               Drive_Letter_Preference,
+CARDINAL32                         Feature_Count,
+LVM_Feature_Specification_Record   FeaturesToUse[],
+CARDINAL32                         Partition_Count,
+ADDRESS                            Partition_Handles[],
+CARDINAL32 *                       Error_Code
+);
 
 /*********************************************************************/
 /*                                                                   */
@@ -1901,9 +1900,7 @@ CARDINAL32 _System Get_Valid_Options( ADDRESS Handle, CARDINAL32 * Error_Code );
 /*           available in the current OS/2 implementation            */
 /*                                                                   */
 /*********************************************************************/
-/*
-* LVM_Handle_Array_Record  _System Get_Child_Handles( ADDRESS Handle, CARDINAL32 * Error_Code);
-*/
+LVM_Handle_Array_Record  _System Get_Child_Handles( ADDRESS Handle, CARDINAL32 * Error_Code);
 
 /*********************************************************************/
 /*                                                                   */
