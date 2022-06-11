@@ -7,13 +7,13 @@
 PROJ     = lvm
 TRGT     = $(PROJ).dll
 DESC     = LVM Engine
-srcfiles = $(p)dllstart$(e) $(p)engine$(e) $(p)Partition_Manager$(e) $(p)Volume_Manager$(e) $(p)BootManager$(e) $(p)DiskIO$(e) $(p)logging$(e) $(p)Dlist$(e) $(p)Handle_Manager$(e) $(p)CRC$(e) $(p)Bad_Block_Relocation$(e) $(p)Drive_Linking$(e)
-ADD_COPT    = -i=..$(SEP)include -s -ecs 
-ADD_LINKOPT = segment type DATA shared op nod OPTION REDEFSOK
+srcfiles = $(p)dllstart$(e) $(p)engine$(e) $(p)Partition_Manager$(e) $(p)Volume_Manager$(e) $(p)BootManager$(e) $(p)DiskIO$(e) $(p)logging$(e) $(p)Dlist$(e) $(p)Handle_Manager$(e) $(p)CRC$(e) $(p)Bad_Block_Relocation$(e) $(p)Drive_Linking$(e) $(p)Pass_Thru$(e) #$(p)menu$(e) $(p)user$(e)
+ADD_COPT    = -i=..$(SEP)include -s -ecs
+ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initglobal
 OPTIONS = manyautodata
-UNI2H = 1
+UNI2H = 0
 
 EXPORTS = Open_LVM_Engine, &
 Open_LVM_Engine2, &
