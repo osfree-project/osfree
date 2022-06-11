@@ -7149,8 +7149,8 @@ CARDINAL32 _Far16 _Pascal _loadds GET_VALID_OPTIONS16( CARDINAL32          Handl
 /*           passed into this function.                              */
 /*                                                                   */
 /*********************************************************************/
-#if 0
-void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( ADDRESS _Seg16 Object )
+//void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( ADDRESS _Seg16 Object )
+void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( void * _Seg16 Object )
 {
 
   API_ENTRY("FREE_ENGINE_MEMORY16")
@@ -7162,7 +7162,6 @@ void _Far16 _Pascal _loadds FREE_ENGINE_MEMORY16( ADDRESS _Seg16 Object )
   return;
 
 }
-#endif
 
 /*********************************************************************/
 /*                                                                   */
@@ -7404,11 +7403,11 @@ void _Far16 _Pascal _loadds SET_FREE_SPACE_THRESHOLD16( CARDINAL32  Min_Sectors 
 /*   Notes:  None.                                                   */
 /*                                                                   */
 /*********************************************************************/
-/*
 void _Far16 _Pascal _loadds READ_SECTORS16 ( CARDINAL32          Drive_Number,
                                              LBA                 Starting_Sector,
                                              CARDINAL32          Sectors_To_Read,
-                                             ADDRESS	  _Seg16 Buffer,
+//                                             ADDRESS	  _Seg16 Buffer,
+                                             void *	  _Seg16 Buffer,
                                              CARDINAL32 * _Seg16 Error)
 {
 
@@ -7417,7 +7416,7 @@ void _Far16 _Pascal _loadds READ_SECTORS16 ( CARDINAL32          Drive_Number,
   return;
 
 }
-*/
+
 /*********************************************************************/
 /*                                                                   */
 /*   Function Name: Write_Sectors                                    */
@@ -7452,11 +7451,12 @@ void _Far16 _Pascal _loadds READ_SECTORS16 ( CARDINAL32          Drive_Number,
 /*   Notes:  None.                                                   */
 /*                                                                   */
 /*********************************************************************/
-/*
+
 void _Far16 _Pascal _loadds WRITE_SECTORS16 ( CARDINAL32          Drive_Number,
                                               LBA                 Starting_Sector,
                                               CARDINAL32          Sectors_To_Write,
-                                              ADDRESS      _Seg16 Buffer,
+//                                              ADDRESS      _Seg16 Buffer,
+                                              void *      _Seg16 Buffer,
                                               CARDINAL32 * _Seg16 Error)
 {
 
@@ -7465,7 +7465,7 @@ void _Far16 _Pascal _loadds WRITE_SECTORS16 ( CARDINAL32          Drive_Number,
   return;
 
 }
-*/
+
 /*********************************************************************/
 /*                                                                   */
 /*   Function Name: REDISCOVER_PRMS16                                */
@@ -9649,3 +9649,66 @@ static void _System Free_Expansion_DLLs(ADDRESS Object, TAG ObjectTag, CARDINAL3
 
 }
 
+/*********************************************************************/
+/*                                                                   */
+/*   Function Name: Export_Configuration16                           */
+/*                                                                   */
+/*   Descriptive Name: This function creates a file containing all of*/
+/*                     the LVM.EXE commands necessary to recreate the*/
+/*                     current partition/volume layout.              */
+/*                                                                   */
+/*   Input: char * Filename - FQN of the output file to be created   */
+/*          CARDINAL32 * Error_Code - The address of a CARDINAL32 in */
+/*                                    in which to store an error code*/
+/*                                    should an error occur.         */
+/*                                                                   */
+/*   Output: A file creating LVM commands will be created.           */
+/*           *Error_Code will be 0 if this function completes        */
+/*           successfully; otherwise it will be > 0.                 */
+/*                                                                   */
+/*   Error Handling: If the output file cannot be created, or if     */
+/*                   the close operation fails on the log file, then */
+/*                   *Error_Code will be > 0.                        */
+/*                                                                   */
+/*   Side Effects:  A file may be created.                           */
+/*                                                                   */
+/*   Notes:  None.                                                   */
+/*                                                                   */
+/*********************************************************************/
+void _Far16 _Pascal _loadds EXPORT_CONFIGURATION16( char *       _Seg16 Filename,
+                                                    CARDINAL32 * _Seg16 Error_Code )
+{
+  Export_Configuration(Filename, Error_Code );
+
+  return ;
+}
+
+/*********************************************************************/
+/*                                                                   */
+/*   Function Name: Export_Configuration                             */
+/*                                                                   */
+/*   Descriptive Name: This function creates a file containing all of*/
+/*                     the LVM.EXE commands necessary to recreate the*/
+/*                     current partition/volume layout.              */
+/*                                                                   */
+/*   Input: char * Filename - FQN of the output file to be created   */
+/*          CARDINAL32 * Error_Code - The address of a CARDINAL32 in */
+/*                                    in which to store an error code*/
+/*                                    should an error occur.         */
+/*                                                                   */
+/*   Output: A file creating LVM commands will be created.           */
+/*           *Error_Code will be 0 if this function completes        */
+/*           successfully; otherwise it will be > 0.                 */
+/*                                                                   */
+/*   Error Handling: If the output file cannot be created, or if     */
+/*                   the close operation fails on the log file, then */
+/*                   *Error_Code will be > 0.                        */
+/*                                                                   */
+/*   Side Effects:  A file may be created.                           */
+/*                                                                   */
+/*   Notes:  None.                                                   */
+/*                                                                   */
+/*********************************************************************/
+void _System Export_Configuration( char * Filename, CARDINAL32 * Error_Code )
+{
+}
