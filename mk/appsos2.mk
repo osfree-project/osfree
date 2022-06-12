@@ -145,6 +145,9 @@ $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%append $^@ FORMAT os2 lx $(dllopts) $(bintype)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
+ @%append $^@ option osname='OS/2 32-bit'
+ @%append $^@ libpath $(%WATCOM)/lib386
+ @%append $^@ libpath $(%WATCOM)/lib386/os2
 !ifdef NODEFAULTLIBS
  @%append $^@ OPTION NODEFAULTLIBS
 !endif
