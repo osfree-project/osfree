@@ -8,7 +8,7 @@ PROJ     = lvm
 TRGT     = $(PROJ).dll
 DESC     = LVM Engine
 srcfiles =  $(p)engine$(e) $(p)Partition_Manager$(e) $(p)volume$(e) $(p)BootManager$(e) $(p)diskio$(e) $(p)logging$(e) $(p)dlist$(e) $(p)handlemgr$(e) $(p)crc$(e) $(p)Bad_Block_Relocation$(e) $(p)Drive_Linking$(e) $(p)Pass_Thru$(e)  #$(p)dllstart$(e)
-ADD_COPT    = -i=..$(SEP)include -s -ecs
+ADD_COPT    = -i=..$(SEP)include -s -ecs -zp=1
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
 DLLOPT  = initinstance terminstance
