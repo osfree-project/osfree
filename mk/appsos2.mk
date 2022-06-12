@@ -126,13 +126,23 @@ deps = $(RESOURCE)
 OBJS = $(OBJS) $(OBJS16)
 !endif
 
+!ifdef WINDOWCOMPAT
+bintype = pmc
+!else ifdef PM
+bintype = pm
+!else ifdef FULLSCREEN
+bintype = fullscreen
+!else ifdef PHYSDEVICE
+bintype = physdevice
+!else ifdef VIRTDEVICE
+bintype = virtdevice
+!else
+bintype =
+!endif
+
 $(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile
  @%create $^@
-!ifdef WINDOWCOMPAT
- @%append $^@ SYSTEM os2v2_pm $(dllopts)
-!else
- @%append $^@ SYSTEM os2v2 $(dllopts)
-!endif
+ @%append $^@ FORMAT os2 lx $(dllopts) $(bintype)
  @%append $^@ NAME $^*
  @%append $^@ OPTION DESCRIPTION '$(FILEVER)  $(DESC)'
 !ifdef NODEFAULTLIBS

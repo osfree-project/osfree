@@ -17,7 +17,7 @@ srcfiles     = $(p)sty_main$(e) $(p)sty_user$(e) $(p)sty_init$(e) &
 ADD_COPT     = -i=$(MYDIR) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -sg -3s # until UniAPI modules will be done
 ADD_LINKOPT  = lib os2386.lib, clib3s.lib
 # STUB       = $(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
-WINDOWCOMPAT = 1
+PM           = 1
 RES          = sty_main
 HEAPSIZE     = 10240
 STACKSIZE    = 24576

@@ -10,6 +10,7 @@ ADD_COPT     = -i=$(inc) -sg -3r # -3s
 ADD_RCOPT    = -i=$(inc)
 ADD_LINKOPT  = segment type DATA nonshared lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 DLL          = 1
+WINDOWCOMPAT = 1
 OPTIONS      = manyautodata, caseexact, heapsize=8192, quiet
 DLLOPT       = initinstance
 STACKSIZE    = 16384

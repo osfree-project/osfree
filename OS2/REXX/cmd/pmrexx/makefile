@@ -9,7 +9,7 @@ ADD_COPT     = -i=$(inc) -sg -3r # -3s
 #ADD_LINKOPT  = lib os2386.lib,clib3r.lib,math387r.lib,emu387.lib,rexx.lib
 OPTIONS      = heapsize=8192
 STACKSIZE    = 16384
-WINDOWCOMPAT = 1
+PM           = 1
 IMPORTS      = RexxCreateIOWindow_    PMREXXIO.RexxCreateIOWindow, &
     	       RexxDestroyIOWindow_   PMREXXIO.RexxDestroyIOWindow
 UNI2H        = 1
