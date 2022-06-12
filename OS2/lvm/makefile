@@ -11,116 +11,116 @@ srcfiles = $(p)dllstart$(e) $(p)engine$(e) $(p)Partition_Manager$(e) $(p)volume$
 ADD_COPT    = -i=..$(SEP)include -s -ecs
 ADD_LINKOPT = lib os2386.lib lib clib3r.lib segment type DATA shared
 DLL     = 1
-DLLOPT  = initglobal
+DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata
 UNI2H = 0
 
 EXPORTS = Get_Partition_Handle .1, &
-Remove_Boot_Manager .2, &
-Get_Boot_Manager_Menu .3, &
-Assign_Drive_Letter .4, &
-ADD_TO_BOOT_MANAGER16 .5, &
-REMOVE_BOOT_MANAGER16 .6, &
-Set_Min_Install_Size .7, &
-INSTALL_BOOT_MANAGER16 .8, &
-Export_Configuration .9, &
-ASSIGN_DRIVE_LETTER16 .10, &
-GET_PARTITION_HANDLE16 .11, &
-SET_MIN_INSTALL_SIZE16 .12, &
-EXPORT_CONFIGURATION16 .13, &
-Get_Installable_Volume .14, &
-Hide_Volume .15, &
-Get_Drive_Control_Data .16, &
-GET_BOOT_MANAGER_MENU16 .17, &
-Read_Sectors .18, &
-HIDE_VOLUME16 .19, &
-Get_Volume_Information .20, &
-Set_OS_Flag .21, &
-Get_LVM_View .22, &
-Stop_Logging .23, &
-Set_Startable .24, &
-Start_Logging .25, &
-SET_OS_FLAG16 .26, &
-GET_INSTALLABLE_VOLUME16 .27, &
-READ_SECTORS16 .28, &
-GET_DRIVE_CONTROL_DATA16 .29, &
-Create_Volume .30, &
-Delete_Volume .31, &
-GET_LVM_VIEW16 .32, &
-Write_Sectors .33, &
-STOP_LOGGING16 .34, &
-Get_Boot_Manager_Handle .35, &
-Expand_Volume .36, &
-GET_VOLUME_INFORMATION16 .37, &
-GET_BOOT_MANAGER_HANDLE16 .38, &
-Get_Partitions .39, &
-SET_STARTABLE16 .40, &
-Commit_Changes .41, &
-Get_Boot_Manager_Options .42, &
-START_LOGGING16 .43, &
-Remove_From_Boot_Manager .44, &
-Set_Boot_Manager_Options .45, &
-Set_Free_Space_Threshold .46, &
-CREATE_VOLUME16 .47, &
-Boot_Manager_Is_Installed .48, &
-DELETE_VOLUME16 .49, &
-Get_Volume_Control_Data .50, &
-WRITE_SECTORS16 .51, &
-EXPAND_VOLUME16 .52, &
-GET_BOOT_MANAGER_OPTIONS16 .53, &
-Get_Partition_Information .54, &
-REMOVE_FROM_BOOT_MANAGER16 .55, &
-SET_BOOT_MANAGER_OPTIONS16 .56, &
-GET_VOLUME_CONTROL_DATA16 .57, &
-GET_PARTITIONS16 .58, &
-COMMIT_CHANGES16 .59, &
-SET_FREE_SPACE_THRESHOLD16 .60, &
-Changes_Pending .61, &
-CHANGES_PENDING16 .62, &
-Set_Installable .63, &
-Get_Reboot_Flag .64, &
-Open_LVM_Engine .65, &
-Set_Reboot_Flag .66, &
-Reboot_Required .67, &
-BOOT_MANAGER_IS_INSTALLED16 .68, &
-Set_Active_Flag .69, &
-Rediscover_PRMs .70, &
-SET_INSTALLABLE16 .71, &
-Close_LVM_Engine .72, &
-GET_REBOOT_FLAG16 .73, &
-OPEN_LVM_ENGINE16 .74, &
-SET_REBOOT_FLAG16 .75, &
-REBOOT_REQUIRED16 .76, &
-GET_PARTITION_INFORMATION16 .77, &
-SET_ACTIVE_FLAG16 .78, &
-Create_Partition .79, &
-Get_Reserved_Drive_Letters .80, &
-Delete_Partition .81, &
-REDISCOVER_PRMS16 .82, &
-Get_Install_Flags .83, &
-Get_Drive_Status .84, &
-Set_Install_Flags .85, &
-Get_Valid_Options .86, &
-CLOSE_LVM_ENGINE16 .87, &
-CREATE_PARTITION16 .88, &
-DELETE_PARTITION16 .89, &
-GET_DRIVE_STATUS16 .90, &
-Refresh_LVM_Engine .91, &
-GET_RESERVED_DRIVE_LETTERS16 .92, &
-Get_Available_Drive_Letters .93, &
-Free_Engine_Memory .94, &
-GET_AVAILABLE_DRIVE_LETTERS16 .95, &
-New_MBR .96, &
-GET_INSTALL_FLAGS16 .97, &
-Set_Name .98, &
-SET_INSTALL_FLAGS16 .99, &
-NEW_MBR16 .100, &
-GET_VALID_OPTIONS16 .101, &
-REFRESH_LVM_ENGINE16 .102, &
-FREE_ENGINE_MEMORY16 .103, &
-SET_NAME16 .104, &
-Install_Boot_Manager .105, &
-Add_To_Boot_Manager .106
+Remove_Boot_Manager .2 RESIDENT, &
+Get_Boot_Manager_Menu .3 RESIDENT, &
+Assign_Drive_Letter .4 RESIDENT, &
+ADD_TO_BOOT_MANAGER16 .5 RESIDENT, &
+REMOVE_BOOT_MANAGER16 .6 RESIDENT, &
+Set_Min_Install_Size .7 RESIDENT, &
+INSTALL_BOOT_MANAGER16 .8 RESIDENT, &
+Export_Configuration .9 RESIDENT, &
+ASSIGN_DRIVE_LETTER16 .10 RESIDENT, &
+GET_PARTITION_HANDLE16 .11 RESIDENT, &
+SET_MIN_INSTALL_SIZE16 .12 RESIDENT, &
+EXPORT_CONFIGURATION16 .13 RESIDENT, &
+Get_Installable_Volume .14 RESIDENT, &
+Hide_Volume .15 RESIDENT, &
+Get_Drive_Control_Data .16 RESIDENT, &
+GET_BOOT_MANAGER_MENU16 .17 RESIDENT, &
+Read_Sectors .18 RESIDENT, &
+HIDE_VOLUME16 .19 RESIDENT, &
+Get_Volume_Information .20 RESIDENT, &
+Set_OS_Flag .21 RESIDENT, &
+Get_LVM_View .22 RESIDENT, &
+Stop_Logging .23 RESIDENT, &
+Set_Startable .24 RESIDENT, &
+Start_Logging .25 RESIDENT, &
+SET_OS_FLAG16 .26 RESIDENT, &
+GET_INSTALLABLE_VOLUME16 .27 RESIDENT, &
+READ_SECTORS16 .28 RESIDENT, &
+GET_DRIVE_CONTROL_DATA16 .29 RESIDENT, &
+Create_Volume .30 RESIDENT, &
+Delete_Volume .31 RESIDENT, &
+GET_LVM_VIEW16 .32 RESIDENT, &
+Write_Sectors .33 RESIDENT, &
+STOP_LOGGING16 .34 RESIDENT, &
+Get_Boot_Manager_Handle .35 RESIDENT, &
+Expand_Volume .36 RESIDENT, &
+GET_VOLUME_INFORMATION16 .37 RESIDENT, &
+GET_BOOT_MANAGER_HANDLE16 .38 RESIDENT, &
+Get_Partitions .39 RESIDENT, &
+SET_STARTABLE16 .40 RESIDENT, &
+Commit_Changes .41 RESIDENT, &
+Get_Boot_Manager_Options .42 RESIDENT, &
+START_LOGGING16 .43 RESIDENT, &
+Remove_From_Boot_Manager .44 RESIDENT, &
+Set_Boot_Manager_Options .45 RESIDENT, &
+Set_Free_Space_Threshold .46 RESIDENT, &
+CREATE_VOLUME16 .47 RESIDENT, &
+Boot_Manager_Is_Installed .48 RESIDENT, &
+DELETE_VOLUME16 .49 RESIDENT, &
+Get_Volume_Control_Data .50 RESIDENT, &
+WRITE_SECTORS16 .51 RESIDENT, &
+EXPAND_VOLUME16 .52 RESIDENT, &
+GET_BOOT_MANAGER_OPTIONS16 .53 RESIDENT, &
+Get_Partition_Information .54 RESIDENT, &
+REMOVE_FROM_BOOT_MANAGER16 .55 RESIDENT, &
+SET_BOOT_MANAGER_OPTIONS16 .56 RESIDENT, &
+GET_VOLUME_CONTROL_DATA16 .57 RESIDENT, &
+GET_PARTITIONS16 .58 RESIDENT, &
+COMMIT_CHANGES16 .59 RESIDENT, &
+SET_FREE_SPACE_THRESHOLD16 .60 RESIDENT, &
+Changes_Pending .61 RESIDENT, &
+CHANGES_PENDING16 .62 RESIDENT, &
+Set_Installable .63 RESIDENT, &
+Get_Reboot_Flag .64 RESIDENT, &
+Open_LVM_Engine .65 RESIDENT, &
+Set_Reboot_Flag .66 RESIDENT, &
+Reboot_Required .67 RESIDENT, &
+BOOT_MANAGER_IS_INSTALLED16 .68 RESIDENT, &
+Set_Active_Flag .69 RESIDENT, &
+Rediscover_PRMs .70 RESIDENT, &
+SET_INSTALLABLE16 .71 RESIDENT, &
+Close_LVM_Engine .72 RESIDENT, &
+GET_REBOOT_FLAG16 .73 RESIDENT, &
+OPEN_LVM_ENGINE16 .74 RESIDENT, &
+SET_REBOOT_FLAG16 .75 RESIDENT, &
+REBOOT_REQUIRED16 .76 RESIDENT, &
+GET_PARTITION_INFORMATION16 .77 RESIDENT, &
+SET_ACTIVE_FLAG16 .78 RESIDENT, &
+Create_Partition .79 RESIDENT, &
+Get_Reserved_Drive_Letters .80 RESIDENT, &
+Delete_Partition .81 RESIDENT, &
+REDISCOVER_PRMS16 .82 RESIDENT, &
+Get_Install_Flags .83 RESIDENT, &
+Get_Drive_Status .84 RESIDENT, &
+Set_Install_Flags .85 RESIDENT, &
+Get_Valid_Options .86 RESIDENT, &
+CLOSE_LVM_ENGINE16 .87 RESIDENT, &
+CREATE_PARTITION16 .88 RESIDENT, &
+DELETE_PARTITION16 .89 RESIDENT, &
+GET_DRIVE_STATUS16 .90 RESIDENT, &
+Refresh_LVM_Engine .91 RESIDENT, &
+GET_RESERVED_DRIVE_LETTERS16 .92 RESIDENT, &
+Get_Available_Drive_Letters .93 RESIDENT, &
+Free_Engine_Memory .94 RESIDENT, &
+GET_AVAILABLE_DRIVE_LETTERS16 .95 RESIDENT, &
+New_MBR .96 RESIDENT, &
+GET_INSTALL_FLAGS16 .97 RESIDENT, &
+Set_Name .98 RESIDENT, &
+SET_INSTALL_FLAGS16 .99 RESIDENT, &
+NEW_MBR16 .100 RESIDENT, &
+GET_VALID_OPTIONS16 .101 RESIDENT, &
+REFRESH_LVM_ENGINE16 .102 RESIDENT, &
+FREE_ENGINE_MEMORY16 .103 RESIDENT, &
+SET_NAME16 .104 RESIDENT, &
+Install_Boot_Manager .105 RESIDENT, &
+Add_To_Boot_Manager .106 RESIDENT
 
 DEST     = os2$(SEP)dll
 
