@@ -1,0 +1,13 @@
+.TH SOMTK 1 "4 January 2012"
+.SH NAME
+somtk(1) \- somFree Toolkit
+.SH ENVIRONMENT
+The following environment variables should be set:
+.IP SOMBASE
+This should be set to /opt/somtk.
+.IP SOMDPORT
+This should be a unique value for accessing \fBsomdd\fP.
+.IP SOMIR
+This points to the interface repository file, normally $SOMBASE/etc/som.ir.
+.IP LD_LIBRARY_PATH
+This should be set to include $SOMBASE/lib32.

@@ -1,0 +1,27 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsomd -lsomtc -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+all: testctx
+
+context.xh: context.idl
+	$(SC) -sxh $(INCL_SOMTK) context.idl
+
+context.xih: context.idl
+	$(SC) -sxih $(INCL_SOMTK) context.idl
+
+context.o: context.cpp context.xih context.xh
+	$(CXX) -c context.cpp -o $@ -I. $(INCL_SOMTK)
+
+testctx.o: testctx.cpp context.xh
+	$(CXX) -c testctx.cpp -o $@ -I. $(INCL_SOMTK) 
+
+testctx: context.o testctx.o
+	$(CXX) context.o testctx.o -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf testctx *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./testctx

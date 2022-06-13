@@ -1,0 +1,3 @@
+NAME somstubs
+DEPENDS shlbtest somdtype somkpub
+PROVIDES somstubs

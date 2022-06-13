@@ -1,0 +1,20 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsomd -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+OBJS=impdef.o
+
+all: impdef
+
+impdef.o: impdef.cpp 
+	$(CXX) -c impdef.cpp -o $@ -I. $(INCL_SOMTK)
+
+impdef: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf impdef *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./impdef Chris

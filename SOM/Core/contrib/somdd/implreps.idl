@@ -1,0 +1,147 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifdef __PRIVATE__
+
+#ifndef implreps_idl
+#define implreps_idl
+/*#include <rhbsomuk.idl>*/
+/* #include <rhbtypes.idl> */
+#include <implrep.idl>
+#include <snglicls.idl>
+#include <poa.idl>
+
+#ifdef __PRIVATE__
+typedef somToken RHBProcess;
+typedef somToken RHBRequestList;
+typedef somToken RHBServerRequestList;
+typedef somToken RHBServerWaitingRoom;
+typedef somToken RHBSOMUT_KeyData;
+typedef somToken RHBSOMUT_KeyDataSet;
+typedef somToken RHBProcessMgr;
+#endif
+
+interface ImplRepositoryServer :
+	ImplRepository
+{
+#ifdef __PRIVATE__
+	void impl_up(in string impl_id,in string ior,in somToken mutex);
+	void impl_down(in string impl_id,in somToken mutex);
+	void impl_failed(in string impl_id,in somToken proc_ref,in ORBStatus rc,in somToken mutex);
+
+	enum server_state 
+	{ 
+		Server_Passive, 
+		Server_Activating, 
+		Server_Ready,
+		Server_Deactivating 
+	};
+
+	struct ImplRepContents
+	{
+		RHBSOMUT_KeyData data;
+		ImplementationDef impl;
+		sequence<string> classes;
+		string impl_id;
+		boolean ephemeral;
+		server_state state;
+		ImplementationDef active_impl;
+		RHBProcess *child_process;
+	};
+	typedef ImplRepContents * ImplRepContentsPtr;
+	readonly attribute boolean implrep_changed;
+	attribute string implrep_filename;
+	void init_from_stream(in CosStream::StreamIO stream);
+	void save_to_stream(in CosStream::StreamIO stream);
+	ImplementationDef get_active_impldef(in string impl_id,in SOMObject somref);
+	boolean get_stable_state(in string impl_id);
+	void shutdown_server(in string impl_id);
+	void kill_all();
+	void implrep_update();
+	void obituary(in RHBProcess *proc,in long rc,in somToken mutex);
+	ORBStatus handle_requests(in long flags);
+	ORBStatus close(in somToken mutex);
+
+#ifdef __SOMIDL__
+    attribute RHBProcessMgr *process_mgr;
+
+	implementation
+	{
+		RHBServerWaitingRoom waiting_room;
+		RHBSOMUT_KeyDataSet data_set;
+		RHBRequestList request_list;
+		RHBServerRequestList server_request_list;
+		SOMObject codec;
+		implrep_changed : noget;
+		implrep_filename : noget,noset;
+
+		releaseorder:
+			impl_up,impl_down,impl_failed,
+			_get_implrep_filename,
+			_set_implrep_filename,
+			init_from_stream,
+			save_to_stream,
+			get_active_impldef,
+			shutdown_server,
+			kill_all,
+			implrep_update,
+			obituary,
+			get_stable_state,
+			_get_implrep_changed,
+			handle_requests,
+			close;
+
+		functionprefix = "implreps_";
+/*		handle_requests: procedure;
+		_get_process_mgr: procedure;
+		_set_process_mgr: procedure;
+*/
+
+		override : 
+			find_impldef,
+			find_impldef_by_alias,
+			find_impldef_by_class,
+			add_impldef,
+			update_impldef,
+			delete_impldef,
+			add_class_to_impldef,
+			remove_class_from_impldef,
+			remove_class_from_all,
+			find_classes_by_impldef,
+			find_all_impldefs,
+			find_all_aliases,
+			add_class_to_all,
+			add_class_with_properties,
+			somInit,
+			somUninit;
+		metaclass = SOMMSingleInstance;
+	};
+#endif /* __SOMIDL__ */
+#endif /* __PRIVATE_ */
+};
+
+#endif /* implreps_idl */
+
+#endif /* __PRIVATE__ */

@@ -1,0 +1,128 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef repostry_idl
+#define repostry_idl
+#include <somcls.idl>
+#include <containr.idl>
+
+#ifdef __PRIVATE__
+#include <containd.idl>
+#endif
+
+interface M_Repository :
+	SOMClass
+{
+#ifdef __PRIVATE__
+typedef SOMFOREIGN SingletonHolder;
+#endif
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		majorversion = 2;
+		minorversion = 1;
+		dllname = "somir.dll";
+#ifdef __PRIVATE__
+		classinit: clsInit;
+		SingletonHolder singleObject;
+		functionprefix = "m_repostry_";
+		override: 
+	#ifdef SOMRefObject
+			somUninit,
+	#else
+			somDestruct,
+	#endif
+			somNew;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+interface Repository :
+	Container
+{
+	struct RepositoryDescription
+	{
+		Identifier name;
+		string id;
+		string defined_in;
+	};
+	enum irOpenErrorCodes {NOACCESS,BADMAGICNUMBER,MISSINGVERSIONINFO,IOERROR,VERSIONMISMATCH,NOWRITEACCESS,INDEXINCONSISTENT,INDEXNOTPRESENT};
+	exception irOpenError {	irOpenErrorCodes errorCode;	string fileName; };
+	Contained lookup_id(in string search_id);
+	string lookup_modifier(in string name,in string modifier);
+	void release_cache();
+	boolean queryException();
+
+#ifdef __PRIVATE__
+/*	unsigned long dk_from_type(in Container::InterfaceName id);*/
+	Contained find(in string id);
+#endif
+
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		Contained_private_RepositoryTable data_set;
+#endif
+		releaseorder : 
+			lookup_id,
+			lookup_modifier,
+			release_cache,
+			saveIR,
+			_get_subrepositorylist,
+			_set_subrepositorylist,
+			queryException
+#ifdef __PRIVATE__
+			,find,
+			dk_from_type
+#endif
+			;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = repostry;
+		dllname = "somir.dll";
+		metaclass = M_Repository;
+#ifdef __PRIVATE__
+		override:
+	#ifdef SOMRefObject
+				somUninit,
+	#else
+				somDestruct,
+	#endif
+				describe_contents,
+				contents,
+				somInit,
+				somDumpSelf,
+				somDumpSelfInt;
+/*		dk_from_type: procedure;*/
+		functionprefix = "repostry_";
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* repostry_idl */

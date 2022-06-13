@@ -1,0 +1,19 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: impdef.exe
+
+impdef.obj: impdef.cpp 
+	$(CL) -c impdef.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+impdef.exe: impdef.obj
+	$(CL) impdef.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q impdef.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	impdef Chris

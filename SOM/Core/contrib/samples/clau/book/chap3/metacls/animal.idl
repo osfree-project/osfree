@@ -1,0 +1,55 @@
+/**************************************************************************
+ *
+ *  Copyright 1994, Christina Lau
+ *
+ *  This file is part of Object-Orientated Programming using SOM and DSOM.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+#include <somobj.idl>
+#include <somcls.idl>
+
+interface Animal;
+interface MetaAnimal : SOMClass
+{
+    readonly attribute short count;    // number of objects
+    Animal createAnimal(in string name);
+
+    #ifdef __SOMIDL__
+    implementation
+    {
+       releaseorder : createAnimal, _get_count;
+    };
+    #endif
+};
+
+interface Animal : SOMObject
+{
+    attribute string name;
+
+    void sleep();
+
+    #ifdef __SOMIDL__
+    implementation
+    {
+       releaseorder : _get_name, _set_name,
+                      sleep;
+
+       somInit: override;
+       metaclass = MetaAnimal;
+    };
+    #endif
+};

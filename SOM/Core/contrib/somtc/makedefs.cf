@@ -1,0 +1,3 @@
+NAME somtc
+DEPENDS som somiprep
+PROVIDES somtc

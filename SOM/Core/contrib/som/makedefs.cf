@@ -1,0 +1,3 @@
+NAME som
+DEPENDS somistub rhbmtuta somkprep somid
+PROVIDES som

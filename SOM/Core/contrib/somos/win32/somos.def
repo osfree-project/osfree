@@ -1,0 +1,52 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+
+LIBRARY		SOMOS
+VERSION		1.0
+EXPORTS
+		DllMain			PRIVATE
+		SOMInitModule	PRIVATE
+		somOS_ServerClassData
+		somOS_ServiceBaseClassData
+		somOS_ServiceBasePRefClassData
+		somOS_ServiceBaseCORBAClassData
+		somOS_ServiceBasePRefCORBAClassData
+		somOS_ServerCClassData
+		somOS_ServiceBaseCClassData
+		somOS_ServiceBasePRefCClassData
+		somOS_ServiceBaseCORBACClassData
+		somOS_ServiceBasePRefCORBACClassData
+		somOS_ServerNewClass
+		somOS_ServiceBaseNewClass
+		somOS_ServiceBasePRefNewClass
+		somOS_ServiceBaseCORBANewClass
+		somOS_ServiceBasePRefCORBANewClass
+		somAttributePersistence_PersistClassData
+		somAttributePersistence_PersistCClassData
+		somAttributePersistence_PersistNewClass
+		somos_init_persist_dbs
+		somos_uninit_persist_dbs
+		somos_getopt
+		somos_exit
+		somos_setup
+		somos_init_services
+		somos_init_services_afterimpl
+		somos_register_exit_callback
+		somos_init_logging

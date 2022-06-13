@@ -1,0 +1,122 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifdef __PRIVATE__
+
+#include <somcdr.idl>
+#include <somdtype.idl>
+
+#include <rhbtypes.idl>
+
+module RHBORBStream
+{
+	struct MarshalContext
+	{
+		RHBGIOPRequestStream *c_impl;
+/*		RHBORB *c_orb;*/
+		NamedValue *nv;
+	};
+
+	interface GIOPInput: SOMCDR::CDRInputStream
+	{
+#ifdef __PRIVATE__
+		Principal read_Principal();
+		SOMObject read_SOMObject(in TypeCode hint);
+		attribute MarshalContext *read_ctx;
+		attribute RHBORB *c_orb;
+		/* swallows data! */
+		void stream_init_data(inout sequence<octet> data,in boolean doSwap);
+#endif
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+#ifdef __PRIVATE__
+			SOMCDR_unmarshal_filter filter;
+			stream_init_data: procedure;
+			_get_c_orb: procedure;
+			_set_c_orb: procedure;
+			_get_read_ctx: procedure;
+			_set_read_ctx: procedure;
+			sequence<octet> data;
+			octet *read_ptr;
+			unsigned long read_length;
+			read_ctx: noset,noget;
+			c_orb: noset,noget;
+			override: 
+					read_Object,
+	#ifdef SOMRefObject
+					somUninit,
+	#else
+					somDestruct,
+	#endif
+					somInit;
+			functionprefix=rhborbsi_;
+#endif
+		};
+#endif
+	};
+
+	interface GIOPOutput: SOMCDR::CDROutputStream
+	{
+#ifdef __PRIVATE__
+		attribute RHBORB *c_orb;
+		attribute MarshalContext *write_ctx;
+		/* setting it initialises is */
+		/* reading it gets final result */
+		attribute sequence<octet> streamed_data;
+		void write_Principal(in Principal obj);
+#endif
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+#ifdef __PRIVATE__
+			_get_c_orb: procedure;
+			_set_c_orb: procedure;
+			_set_write_ctx: procedure;
+			_get_write_ctx: procedure;
+			_get_streamed_data: procedure;
+			_set_streamed_data: procedure;
+			write_ctx: noset,noget;
+			c_orb: noset,noget;
+			streamed_data: noset,noget;
+			override: 
+	#ifdef SOMRefObject
+					somUninit,
+	#else
+					somDestruct,
+	#endif
+					write_Object;
+			functionprefix=rhborbso_;
+#endif
+		};
+#endif
+	};
+};
+
+#endif

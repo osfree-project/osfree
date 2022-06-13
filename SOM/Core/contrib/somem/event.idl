@@ -1,0 +1,69 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef event_idl
+#define event_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+
+interface SOMEEvent : 
+#ifdef __PRIVATE__
+SOMRefObject
+#else
+SOMObject
+#endif
+{
+	unsigned long somevGetEventTime();
+	unsigned long somevGetEventType();
+	void somevSetEventTime(in unsigned long time);
+	void somevSetEventType(in unsigned long type);
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		unsigned long event_type;
+		unsigned long event_time;
+#endif
+		releaseorder : 
+			somevGetEventTime,
+			somevGetEventType,
+			somevSetEventTime,
+			somevSetEventType;
+		majorversion = 2;
+		minorversion = 1;
+		callstyle = idl;
+		dllname = "somem.dll";
+#ifdef __PRIVATE__
+		filestem = event;
+		functionprefix = "event_";
+		somInit : override;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* event_idl */

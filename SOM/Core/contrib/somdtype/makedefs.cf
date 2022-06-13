@@ -1,0 +1,3 @@
+NAME somdtype
+DEPENDS somkpub
+PROVIDES somdtype

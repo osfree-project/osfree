@@ -1,0 +1,19 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+OBJS=impdef.o
+
+all: impdef
+
+impdef.o: impdef.cpp 
+	$(CXX) -c impdef.cpp -o $@ -I. $(INCL_SOMTK)
+
+impdef: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf impdef *.o *.xh *.xih *.h
+
+test:
+	./impdef Chris

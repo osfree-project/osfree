@@ -1,0 +1,144 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef request_idl
+#define request_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <somdtype.idl>
+#ifdef __PRIVATE__
+#include <rhbtypes.idl>
+#endif
+#include <containd.idl>
+
+interface Request :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	ORBStatus add_arg(in Identifier name,in TypeCode arg_type,in void * value,in long len,in Flags arg_flags);
+	ORBStatus invoke(in Flags invoke_flags);
+	ORBStatus send(in Flags invoke_flags);
+	ORBStatus get_response(in Flags response_flags);
+	ORBStatus destroy();
+#ifdef __PRIVATE__
+	attribute RHBRequest * c_request;
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		_set_c_request: procedure;
+		_get_c_request: procedure;
+		c_request: noset,noget;
+		functionprefix = "request_";
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit: override;
+		somDestruct: override;
+	#endif
+		somDumpSelfInt: override;
+#endif
+		releaseorder : 
+			add_arg,
+			invoke,
+			send,
+			get_response,
+			destroy,
+			_get_c_request,
+			_set_c_request;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+
+    #define REQUEST_IDL_COMMON_H_PASSTHRU	    \
+		"#define ARG_IN				0x00000001" \
+		"#define ARG_OUT			0x00000002" \
+		"#define ARG_INOUT			0x00000004" \
+		"#define IN_COPY_VALUE		0x00000008" \
+		"#define DEPENDENT_LIST		0x00000010" \
+		"#define OUT_LIST_MEMORY	0x00000020" \
+		"#define INV_NO_RESPONSE	0x00000040" \
+		"#define INV_TERM_ON_ERR	0x00000080" \
+		"#define RESP_NO_WAIT		0x00000100"	\
+		"#define AUTH_IN_MSG		0x00010000" \
+		"#define ACKONEWAY			0x00020000" \
+		"#define ENV_IN_MSG			0x00040000" \
+		"#define CTX_IN_MSG			0x00080000" \
+		"#define OBJ_OWNED			0x00100000" \
+		"#define CALLER_OWNED		0x00200000" \
+		"#define RESULT_OUT			0x00400000" \
+		"#define CLIENT_SIDE		0x00800000" \
+		"#define SERVER_SIDE		0x01000000" \
+		"#define TXCTX_IN_MSG		0x02000000" \
+		"#define ARG_IS_PTRARG		0x10000000" \
+		"#define ARG_IS_COMPONENT	0x20000000" \
+		"#define ROOT_NOT_PTRARG	0x40000000" \
+		"#define RESERVED_FLAGS		0x8c00fe00" \
+		""
+
+    passthru C_xh_after=REQUEST_IDL_COMMON_H_PASSTHRU
+      "class Request;"
+	  "#ifndef SOM_IMPORTEXPORT_somd"
+	  "		#ifdef SOMDLLIMPORT"
+	  "			#define SOM_IMPORTEXPORT_somd SOMDLLIMPORT"
+	  "		#else"
+	  "			#define SOM_IMPORTEXPORT_somd"
+	  "		#endif"
+	  "#endif"
+      "SOMEXTERN SOM_IMPORTEXPORT_somd ORBStatus SOMLINK send_multiple_requests(Request *[],Environment *,long,Flags);"
+      "SOMEXTERN SOM_IMPORTEXPORT_somd ORBStatus SOMLINK get_next_response(Environment *,Flags,Request **);"
+	  "";
+
+    passthru C_h_after=REQUEST_IDL_COMMON_H_PASSTHRU
+      "#if defined(__IBMC__) && defined(_OS2)"
+      "  #pragma linkage(send_multiple_requests, system)"
+      "  #pragma linkage(get_next_response, system)"
+      "#endif"
+	  "#ifndef SOM_IMPORTEXPORT_somd"
+	  "		#ifdef SOMDLLIMPORT"
+	  "			#define SOM_IMPORTEXPORT_somd SOMDLLIMPORT"
+	  "		#else"
+	  "			#define SOM_IMPORTEXPORT_somd"
+	  "		#endif"
+	  "#endif"
+      "SOMEXTERN SOM_IMPORTEXPORT_somd ORBStatus SOMLINK send_multiple_requests(Request SOMSTAR [],Environment *,long,Flags);"
+      "SOMEXTERN SOM_IMPORTEXPORT_somd ORBStatus SOMLINK get_next_response(Environment *,Flags,Request SOMSTAR *req);"
+      "#ifndef Request_delete"
+      "#define Request_delete Request_destroy"
+      "#endif"
+	  "";
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* request_idl */

@@ -1,0 +1,3 @@
+NAME buildenv
+DEPENDS rhbseh config svnvers
+PROVIDES buildenv

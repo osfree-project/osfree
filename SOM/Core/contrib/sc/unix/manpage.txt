@@ -1,0 +1,28 @@
+.TH sc 1 "4 January 2012"
+.SH NAME
+sc(1) \- IDL compiler
+.SH SYNOPSIS
+.B sc -s
+.I
+emitter
+.B [-D
+.I
+define
+.B ] [ -d 
+.I output
+.B ] files...
+.SH DESCRIPTION
+.B sc
+is the IDL compiler, it generates headers from IDL files.
+.PP
+.SH OPTIONS
+.IP -s
+Select the emitter to use, out of h,ih,xh,xih and ir.
+.IP -D
+Add a define to the preprocessor.
+.IP -d
+target directory.
+.SH "SEE ALSO"
+.BR somipc (1)
+.SH HISTORY
+Emulates the SOM compiler from IBM\(aqs SOM Toolkit

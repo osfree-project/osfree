@@ -1,0 +1,3 @@
+NAME somddmsg
+DEPENDS somd somos somdapps
+PROVIDES somddmsg

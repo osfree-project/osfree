@@ -1,0 +1,35 @@
+            Report on class Test
+=====================================================
+  IDL source file: test.idl
+  Parent Name:     SOMObject
+
+               Attribute Definitions
+=====================================================
+   
+myfoo  Foo
+   
+mydouble  double
+   
+anyvalue  any
+   
+longList  /* seq<        50> */ _IDL_SEQUENCE_long
+
+               Method Definitions
+=====================================================
+Foo  _get_myfoo  
+void  _set_myfoo  in Foo myfoo
+double  _get_mydouble  
+void  _set_mydouble  in double mydouble
+any  _get_anyvalue  
+void  _set_anyvalue  in any anyvalue
+/* seq<        50> */ _IDL_SEQUENCE_long  _get_longList  
+void  _set_longList  in /* seq<        50> */ _IDL_SEQUENCE_long longList
+void  add  in string name
+string  query  in short index, inout octet aByte
+long  print  out boolean status
+
+                 Summary
+=====================================================
+Total number of attributes: 4
+Total number of methods:    11
+

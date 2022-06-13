@@ -1,0 +1,3 @@
+NAME somos
+DEPENDS somd somnmf somestrm somabs1 somu2 somcslib
+PROVIDES somos

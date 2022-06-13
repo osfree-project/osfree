@@ -1,0 +1,45 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+OBJS=initfunc.o cat.o dog.o 
+
+all: dynaload domestic.dll
+
+initfunc.o: initfunc.cpp cat.xh dog.xh
+	$(CXX) -c initfunc.cpp -o $@ -I. $(INCL_SOMTK)
+
+cat.xh: cat.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. cat.idl 
+
+cat.xih: cat.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. cat.idl
+
+cat.o: cat.cpp cat.xih cat.xh
+	$(CXX) -c cat.cpp -o $@ -I. $(INCL_SOMTK)
+
+dog.xh: dog.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. dog.idl
+
+dog.xih: dog.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. dog.idl
+
+dog.o: dog.cpp dog.xih dog.xh
+	$(CXX) -c dog.cpp -o $@ -I. $(INCL_SOMTK)
+
+dynaload.o: dynaload.cpp 
+	$(CXX) -c dynaload.cpp -o $@ -I. $(INCL_SOMTK) 
+
+dynaload: dynaload.o
+	$(CXX) dynaload.o -o $@ $(LINK_SOMTK)
+
+domestic.dll: $(OBJS)
+	echo _SOMInitModule >domestic.exp
+	$(CXX) -bundle $(OBJS) -o $@ $(LINK_SOMTK) -Wl,-exported_symbols_list,domestic.exp
+
+clean:
+	rm -rf dynaload *.o *.xh *.xih *.h *.exp *.dll
+
+test:
+	DYLD_LIBRARY_PATH=. ./dynaload Cat
+	DYLD_LIBRARY_PATH=. ./dynaload Dog

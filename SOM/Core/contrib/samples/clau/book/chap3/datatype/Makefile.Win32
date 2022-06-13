@@ -1,0 +1,50 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: any.exe seq.exe 
+
+company.xh: company.idl
+	$(SC) -sxh $(INCL_SOMTK) company.idl
+
+company.xih: company.idl
+	$(SC) -sxih $(INCL_SOMTK) company.idl
+
+company.h: company.idl
+	$(SC) -sh $(INCL_SOMTK) company.idl 
+
+company.obj: company.cpp company.xih company.xh
+	$(CL) -c company.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+employee.xh: employee.idl
+	$(SC) -sxh $(INCL_SOMTK) employee.idl
+
+employee.xih: employee.idl
+	$(SC) -sxih $(INCL_SOMTK) employee.idl
+
+employee.h: employee.idl
+	$(SC) -sh $(INCL_SOMTK) employee.idl 
+
+employee.obj: employee.cpp employee.xih employee.xh
+	$(CL) -c employee.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+seq.obj: seq.cpp company.xh employee.xh
+	$(CL) -c seq.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+seq.exe: company.obj seq.obj employee.obj
+	$(CL) company.obj seq.obj employee.obj /Fe$@ $(LINK_SOMTK)
+
+any.obj: any.cpp 
+	$(CL) -c any.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+any.exe: any.obj
+	$(CL) any.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q seq.exe any.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	any
+	seq

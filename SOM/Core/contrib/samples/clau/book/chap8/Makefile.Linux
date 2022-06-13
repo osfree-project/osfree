@@ -1,0 +1,23 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsomir -lsomtc -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+OBJS=browse.o
+
+all: browse som.ir
+
+browse.o: browse.cpp 
+	$(CXX) -c browse.cpp -o $@ -I. $(INCL_SOMTK)
+
+browse: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf browse *.o *.xh *.xih *.h
+
+som.ir: test.idl
+	SOMIR=./som.ir $(SC) -sir $(INCL_SOMTK) test.idl
+
+test:
+	SOMIR=./som.ir LD_LIBRARY_PATH=$(SOMBASE)/lib ./browse

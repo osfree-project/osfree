@@ -1,0 +1,56 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdtype_idl
+#define somdtype_idl
+
+#pragma prefix ""
+
+#include <somobj.idl>
+#include <somref.idl>
+#include <somdtype.idl>
+#include <unotypes.idl>
+
+#ifdef __PRIVATE__
+	#ifdef __GENERATE_REGIMPL__
+		#pragma somemittypes on
+/*			const TypeCode regimplTC__ushort=unsigned short;
+			const TypeCode regimplTC__short=short;
+			const TypeCode regimplTC__long=long;*/
+
+/*			const TypeCode regimplTC__octet=octet;
+			const TypeCode regimplTC__string=string;
+
+			const TypeCode regimplTC__char=char;
+			const TypeCode regimplTC__ulong=unsigned long;
+			const TypeCode regimplTC__seq_octet=sequence<octet>;*/
+			const TypeCode regimplTC__IOP_IOR=IOP::IOR;
+			const TypeCode regimplTC__IIOP_ProfileBody_1_0=IIOP::ProfileBody_1_0;
+			const TypeCode regimplTC__IIOP_ProfileBody_1_1=IIOP::ProfileBody_1_1;
+		#pragma somemittypes off
+	#endif
+#endif
+
+#endif /* somdtype_idl */

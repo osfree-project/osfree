@@ -1,0 +1,74 @@
+LINKTOOL_SET_SONAME=solarisSetSoname
+LINKTOOL_SET_EXPORT_FILE=solarisSetExportFile
+LINKTOOL_EMIT_EXPORTS=solarisEmitExports
+LINKTOOL_SET_ENTRY=solarisSetEntry
+LINKTOOL_VERSION=solarisVersion
+LINKTOOL_LINKSHLB=solarisLink
+
+VERSION_STYLE=n.e.v
+
+solarisSetSoname()
+{
+	echo_n ${CC_LINK_SONAME}$1
+}
+
+solarisSetEntry()
+{
+	echo_n ${CC_LINK_ENTRY}$1
+}
+
+solarisSetExportFile()
+{
+	echo_n ${CC_LINK_EXPORT}$1
+}
+
+solarisEmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+#			echo $exp
+			echo "{"
+			echo "    global:"
+		else
+			echo "         $exp;"
+		fi
+	done
+
+	if test "$EXPORT_SCOPE" != ""
+	then
+		echo "    local:"
+		echo "        *;"
+		echo "};"
+	fi
+}
+
+solarisVersion()
+{
+	case "$1" in
+	*lib*.so )
+		if test "$2" != ""
+		then
+			echo $1.$2
+		else
+			echo $1
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+solarisLink()
+{
+	if is_member "-cxx" $@
+	then
+		echo_n "\$(CXX_SHARED) \$(CXXFLAGS)"
+	else
+		echo_n "\$(CC_SHARED) \$(CFLAGS)"
+	fi
+}

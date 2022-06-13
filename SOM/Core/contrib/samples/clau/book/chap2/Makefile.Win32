@@ -1,0 +1,38 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: cHello.exe cppHello.exe
+
+hello.xh: hello.idl
+	$(SC) -sxh $(INCL_SOMTK) hello.idl
+
+hello.xih: hello.idl
+	$(SC) -sxih $(INCL_SOMTK) hello.idl
+
+hello.h: hello.idl
+	$(SC) -sh $(INCL_SOMTK) hello.idl 
+
+hello.obj: hello.cpp hello.xih hello.xh
+	$(CL) -c hello.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+cMain.obj: cMain.c hello.h
+	$(CL) -c cMain.c /Fo$@ -I. $(INCL_SOMTK) -DSOM_STRICT_IDL
+
+cppMain.obj: cppMain.cpp hello.xh
+	$(CL) -c cppMain.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+cHello.exe: hello.obj cMain.obj
+	$(CL) hello.obj cMain.obj /Fe$@ $(LINK_SOMTK)
+
+cppHello.exe: hello.obj cppMain.obj
+	$(CL) hello.obj cppMain.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q cppHello.exe cHello.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	cHello
+	cppHello

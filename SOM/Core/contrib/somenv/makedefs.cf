@@ -1,0 +1,3 @@
+NAME somenv
+DEPENDS buildenv
+PROVIDES somenv

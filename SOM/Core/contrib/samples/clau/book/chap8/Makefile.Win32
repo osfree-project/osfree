@@ -1,0 +1,23 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: browse.exe som.ir
+
+browse.obj: browse.cpp 
+	$(CL) -c browse.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+browse.exe: browse.obj
+	$(CL) browse.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q browse.exe *.obj *.xh *.xih *.h
+
+som.ir: test.idl
+	set SOMIR=.\som.ir
+	$(SC) -sir $(INCL_SOMTK) test.idl
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	browse Chris

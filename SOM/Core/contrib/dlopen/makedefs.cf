@@ -1,0 +1,3 @@
+NAME dlopen
+DEPENDS config
+PROVIDES dlopen

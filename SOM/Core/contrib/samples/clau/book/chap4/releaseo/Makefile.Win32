@@ -1,0 +1,31 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: main.exe
+
+a.xh: a.idl
+	$(SC) -sxh $(INCL_SOMTK) a.idl
+
+a.xih: a.idl
+	$(SC) -sxih $(INCL_SOMTK) a.idl
+
+a.h: a.idl
+	$(SC) -sh $(INCL_SOMTK) a.idl 
+
+a.obj: a.cpp a.xih a.xh
+	$(CL) -c a.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+main.obj: main.cpp a.xh
+	$(CL) -c main.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+main.exe: a.obj main.obj
+	$(CL) a.obj main.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q main.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	main

@@ -1,0 +1,3 @@
+NAME somu
+DEPENDS somref somtc uuid somdprep rhbiniut
+PROVIDES somu

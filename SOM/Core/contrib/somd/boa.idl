@@ -1,0 +1,91 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef boa_idl
+#define boa_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <somdtype.idl>
+#include <snglicls.idl>
+interface SOMDObject;
+interface Principal;
+interface ImplementationDef;
+interface InterfaceDef;
+interface Context;
+interface BOA :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	SOMDObject create(in ReferenceData id,in InterfaceDef intf,in ImplementationDef impl);
+	void dispose(in SOMDObject obj);
+	ReferenceData get_id(in SOMDObject obj);
+	Principal get_principal(in SOMDObject obj,in Environment req_ev);
+	void set_exception(in exception_type major,in string userid,in void * param);
+	void impl_is_ready(in ImplementationDef impl);
+	void deactivate_impl(in ImplementationDef impl);
+	void change_implementation(in SOMDObject obj,in ImplementationDef impl);
+	void obj_is_ready(in SOMDObject obj,in ImplementationDef impl);
+	void deactivate_obj(in SOMDObject obj);
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			create,
+			dispose,
+			get_id,
+			change_implementation,
+			get_principal,
+			set_exception,
+			impl_is_ready,
+			deactivate_impl,
+			obj_is_ready,
+			deactivate_obj,
+			private10,
+			private11;
+		callstyle = idl;
+		metaclass = "SOMMSingleInstance";
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		functionprefix = "boa_";
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit : override;
+		somDestruct: override;
+	#endif
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* boa_idl */

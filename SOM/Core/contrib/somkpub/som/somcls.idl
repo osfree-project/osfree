@@ -1,0 +1,255 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+ 
+/* 
+ * $Id$
+ */
+
+#ifndef somcls_idl
+#define somcls_idl
+#include <somobj.idl>
+
+#if ((SOMObject_MinorVersion >= 7)||(SOMObject_MajorVersion > 1))
+	#define SOMClass_MajorVersion	1
+	#define SOMClass_MinorVersion	6
+#else
+	#define SOMClass_MajorVersion	1
+	#define SOMClass_MinorVersion	4
+#endif
+
+#ifdef __PRIVATE__
+typedef somToken somMethodTabPtr;
+typedef somToken somClassInfoMethodTab;
+#endif
+
+/* typedef somClassDataStructure *somClassDataStructurePtr; */
+
+interface SOMClass : SOMObject
+{
+	typedef sequence<somToken> somTokenSequence;
+	typedef sequence<SOMClass> SOMClassSequence;
+	struct somOffsetInfo { SOMClass cls; long offset; };
+	typedef sequence<somOffsetInfo> somOffsets;
+	typedef sequence<somId> somIdSequence;
+	SOMObject somNew();
+	SOMObject somNewNoInit();
+	SOMObject somRenew(in void * obj);
+	SOMObject somRenewNoInit(in void * obj);
+	SOMObject somRenewNoZero(in void * obj);
+	SOMObject somRenewNoInitNoZero(in void * obj);
+	somToken somAllocate(in long size);
+	void somDeallocate(in somToken memptr);
+	SOMClass somGetParent();
+/*	SOMClass somJoin(in SOMClass secondParent,in string nameOfNewClass);
+	SOMClass somEndow(in SOMClass parent,in string nameOfNewClass);*/
+	SOMClass somClassOfNewClassWithParents(in string newClassName,in SOMClassSequence parents,in SOMClass explicitMeta);
+	void somInitClass(in string className,in SOMClass parentClass,in long dataSize,in long maxStaticMethods,in long majorVersion,in long minorVersion);
+	void somInitMIClass(in unsigned long inherit_vars,in string className,in SOMClassSequence parentClasses,
+		in long dataSize,in long dataAlignment,in long maxNDMethods,in long majorVersion,in long minorVersion);
+	somMToken somAddStaticMethod(in somId methodId,in somId methodDescriptor,
+		in somMethodPtr method,in somMethodPtr redispatchStub,in somMethodPtr applyStub);
+	void somOverrideSMethod(in somId methodId,in somMethodPtr method);
+	void somClassReady();
+	void somAddDynamicMethod(in somId methodId,in somId methodDescriptor,in somMethodPtr methodImpl,in somMethodPtr applyStub);
+	string somGetName();
+	void somGetVersionNumbers(out long majorVersion,out long minorVersion);
+	long somGetNumMethods();
+	long somGetNumStaticMethods();
+	SOMClassSequence somGetParents();
+	long somGetInstanceSize();
+	long somGetInstancePartSize();
+	somDToken somGetInstanceToken();
+	somDToken somGetMemberToken(in long memberOffset,in somDToken instanceToken);
+	somMethodTab * somGetClassMtab();
+/*	somMethodTabs somGetPClsMtabs(); disappeared in SOM 3.0 */
+	somClassDataStructure *somGetClassData();
+	void somSetClassData(in somClassDataStructure *cds);
+	boolean somSetMethodDescriptor(in somId methodId,in somId descriptor);
+	readonly attribute long somDataAlignment;
+	readonly attribute somOffsets somInstanceDataOffsets;
+	attribute SOMClassSequence somDirectInitClasses;
+	somId somGetMethodDescriptor(in somId methodId);
+	long somGetMethodIndex(in somId id);
+	somMToken somGetMethodToken(in somId methodId);
+	somId somGetNthMethodInfo(in long n,out somId descriptor);
+/*	somToken somGetMarshalPlan(in somId methodId);*/
+	boolean somGetMethodData(in somId methodId,out somMethodData md);
+	boolean somGetNthMethodData(in long n,out somMethodData md);
+	boolean somFindMethod(in somId methodId,out somMethodPtr m);
+	boolean somFindMethodOk(in somId methodId,out somMethodPtr m);
+	somMethodPtr somFindSMethod(in somId methodId);
+	somMethodPtr somFindSMethodOk(in somId methodId);
+	somMethodPtr somLookupMethod(in somId methodId);
+	somMethodPtr somGetApplyStub(in somId methodId);
+	somMethodTabs somGetPClsMtab();
+	boolean somCheckVersion(in long majorVersion,in long minorVersion);
+	boolean somDescendedFrom(in SOMClass aClassObj);
+	boolean somSupportsMethod(in somId mId);
+	somMethodPtr somDefinedMethod(in somMToken method);
+/*	SOMClass somMethodImplOwner(inout somMethodData md);*/
+	somMethodProc * somGetRdStub(in somId methodId);
+	void somOverrideMtab();
+/*	long somGetInstanceOffset(); disappeared in SOM 3.0 */
+
+	readonly attribute somMethodPtr somClassAllocate;
+	readonly attribute somMethodPtr somClassDeallocate;
+
+
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		somClassInfoMethodTab *cimtabs;
+		somClassDataStructure *cds;
+#endif
+		somAllocate : nonstatic;
+		somDeallocate : nonstatic;
+		somClassOfNewClassWithParents : procedure,noself;
+		somInitMIClass : pcall;
+		somClassReady : pcall;
+		somGetName : dual_owned_result;
+		_get_somInstanceDataOffsets : dual_owned_result;
+		somFindSMethod : nonstatic;
+		somGetPClsMtab : dual_owned_result;
+		somMethodImplOwner : nonstatic;
+		releaseorder : 
+			somNew,
+			somRenew,
+			somInitClass,
+			somClassReady,
+			somGetName,
+			somGetParent,
+			somDescendedFrom,
+			somCheckVersion,
+			somFindMethod,
+			somFindMethodOk,
+			somSupportsMethod,
+			somGetNumMethods,
+			somGetInstanceSize,
+			somGetInstanceOffset,
+			somGetInstancePartSize,
+			somGetMethodIndex,
+			somGetNumStaticMethods,
+			somGetPClsMtab,
+			somGetClassMtab,
+			somAddStaticMethod,
+			somOverrideSMethod,
+			somAddDynamicMethod,
+			somGetMethodOffset,
+			somGetApplyStub,
+			somFindSMethod,
+			somFindSMethodOk,
+			somGetMethodDescriptor,
+			somGetNthMethodInfo,
+			somSetClassData,
+			somGetClassData,
+			somNewNoInit,
+			somRenewNoInit,
+			somGetInstanceToken,
+			somGetMemberToken,
+			somSetMethodDescriptor,
+			somGetMethodData,
+			somOverrideMtab,
+			somGetMethodToken,
+			somGetParents,
+			somGetPClsMtabs,
+			somInitMIClass,
+			somGetVersionNumbers,
+			somLookupMethod,
+			_get_somInstanceDataOffsets,
+			somRenewNoZero,
+			somRenewNoInitNoZero,
+			somAllocate,
+			somDeallocate,
+			somGetRdStub,
+			somGetNthMethodData,
+			somCloneClass,
+			_get_somMethodOffsets,
+			_get_somDirectInitClasses,
+			_set_somDirectInitClasses,
+			somGetInstanceInitMask,
+			somGetInstanceDestructionMask,
+			somCastObjCls,
+			somResetObjCls,
+			_get_somTrueClass,
+			_get_somCastedClass,
+			somRegLPMToken,
+			somDefinedMethod,
+			somAddMethod,
+			_get_somCClassData,
+			_set_somCClassData,
+			somClassOfNewClassWithParents,
+			_set_somClassDataOrder,
+			_get_somClassDataOrder,
+			somGetClassDataEntry,
+			somSetClassDataEntry,
+			_get_somDataAlignment,
+			somGetInstanceAssignmentMask,
+			_get_somDirectAssignClasses,
+			setUserPCallDispatch,
+			_get_somClassAllocate,
+			_get_somClassDeallocate;
+		callstyle = oidl;
+		majorversion = SOMClass_MajorVersion;
+		minorversion = SOMClass_MinorVersion;
+		dllname = "som.dll";
+		somClassAllocate : nonstaticaccessors;
+		somClassDeallocate : nonstaticaccessors;
+
+#if 1
+		somInitMIClass: caller_owns_parameters="className, parentClasses";
+		somAddStaticMethod: caller_owns_parameters="methodId";
+		somAddDynamicMethod: caller_owns_parameters="methodId";
+		somOverrideSMethod: caller_owns_parameters="methodId";
+		somGetApplyStub: caller_owns_parameters="methodId";
+		somGetMemberToken: caller_owns_parameters="instanceToken",caller_owns_result;
+		somGetMethodData: caller_owns_parameters="methodId";
+		somGetRdStub: caller_owns_parameters="methodId";
+		somGetMethodDescriptor: caller_owns_parameters="methodId";
+		somGetMethodIndex: caller_owns_parameters="id";
+		somGetMethodToken: caller_owns_parameters="methodId";
+		somGetParents: caller_owns_result;
+		somSetMethodDescriptor: caller_owns_parameters="methodId";
+		somFindMethod: caller_owns_parameters="methodId";
+		somFindMethodOk: caller_owns_parameters="methodId";
+		somFindSMethod: caller_owns_parameters="methodId";
+		somFindSMethodOk: caller_owns_parameters="methodId";
+		somLookupMethod: caller_owns_parameters="methodId";
+		somSupportsMethod: caller_owns_parameters="mId";
+		somDefinedMethod: caller_owns_parameters="method";
+#endif
+
+#ifdef __PRIVATE__
+		somClassAllocate : nodata;
+		somClassDeallocate : nodata;
+		somDataAlignment : nodata;
+		somDirectInitClasses : nodata;
+		somInstanceDataOffsets : nodata;
+		somDestruct: override;
+		somDefaultInit: override;
+		somFree : override;
+		somDumpSelfInt : override;
+		functionprefix = "somcls_";
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somcls_idl */

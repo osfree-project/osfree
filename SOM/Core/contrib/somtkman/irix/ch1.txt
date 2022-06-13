@@ -1,0 +1,8 @@
+.TH SOMTK 1 "4 January 2012" 
+.SH NAME
+somtk(1) \- somFree Toolkit
+.SH DESCRIPTION
+.B somtk
+provides the runtime and development environment for running programs using SOM.
+.SH HISTORY
+This software is a clean-room implementation of IBM\(aas SOM.

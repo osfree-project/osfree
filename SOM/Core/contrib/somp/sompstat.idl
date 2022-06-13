@@ -1,0 +1,51 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef sompstat_idl
+#define sompstat_idl
+struct somp_stat
+{
+	unsigned long st_dev;
+	unsigned long st_ino;
+	unsigned long st_mode;
+	short st_nlink;
+	unsigned long st_uid;
+	unsigned long st_gid;
+	unsigned long st_rdev;
+	long st_size;
+	long st_atime;
+	long st_spare1;
+	long st_mtime;
+	long st_spare2;
+	long st_ctime;
+	long st_spare3;
+	unsigned long st_blksize;
+	unsigned long st_blocks;
+	unsigned long st_vfstype;
+	unsigned long st_vfs;
+	unsigned long st_type;
+};
+typedef somp_stat sompstat;
+#endif /* sompstat_idl */

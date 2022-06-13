@@ -1,0 +1,47 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsomtc -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+OBJS=car.o leftcar.o rightcar.o resolve.o
+
+all: resolve
+
+car.xh: car.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. car.idl
+
+car.xih: car.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. car.idl
+
+car.o: car.cpp car.xih car.xh
+	$(CXX) -c car.cpp -o $@ -I. $(INCL_SOMTK) 
+
+leftcar.xh: leftcar.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. leftcar.idl 
+
+leftcar.xih: leftcar.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. leftcar.idl
+
+leftcar.o: leftcar.cpp leftcar.xih leftcar.xh
+	$(CXX) -c leftcar.cpp -o $@ -I. $(INCL_SOMTK) 
+
+rightcar.xh: rightcar.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. rightcar.idl
+
+rightcar.xih: rightcar.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. rightcar.idl
+
+rightcar.o: rightcar.cpp rightcar.xih rightcar.xh
+	$(CXX) -c rightcar.cpp -o $@ -I. $(INCL_SOMTK) 
+
+resolve.o: resolve.cpp car.xh rightcar.xh
+	$(CXX) -c resolve.cpp -o $@ -I. $(INCL_SOMTK)  
+
+resolve: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK) 
+
+clean:
+	rm -rf resolve *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./resolve

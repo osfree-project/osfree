@@ -1,0 +1,119 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somddsrv_idl
+#define somddsrv_idl
+#include <somdserv.idl>
+#include <servmgr.idl>
+#include <eman.idl>
+#include <somdtype.idl>
+#include <unotypes.idl>
+
+#ifdef __PRIVATE__
+	#include <corba.idl>
+	#include <poa.idl>
+#endif
+
+interface ImplRepository;
+
+module SOMDD
+{
+	interface Server :
+		SOMDServer
+	{
+		void impl_up(in string impl_id,in string ior);
+		void impl_down(in string impl_id);
+		void impl_failed(in string impl_id,in long pid,in ORBStatus rc);
+
+#ifdef __SOMIDL__
+		implementation
+		{
+#ifdef __PRIVATE__
+			functionprefix = "somddsrv_";
+			SOMClass ImplementationDefClassObject;
+			SOMClass SOMClassClassObject;
+			SOMClass SOMDServerMgrClassObject;
+			SOMClass DynamicImplClassObject;
+			override : 
+				somInit,
+				somUninit,
+				somdRefFromSOMObj,
+				somdSOMObjFromRef,
+				somdCreateObj,
+				somdDispatchMethod;
+#endif
+			releaseorder : 
+				impl_up,
+				impl_down,
+				impl_failed;
+		};
+#endif /* __SOMIDL__ */
+	};
+
+#ifdef __PRIVATE__
+	/* this is a private interface */
+	interface ServerMgr : SOMDServerMgr
+	{
+	#ifdef __SOMIDL__
+		implementation
+		{
+			override:
+				somInit,somUninit,
+				somdShutdownServer,
+				somdStartServer,
+				somdRestartServer,
+				somdListServer,
+				somdDisableServer,
+				somdEnableServer,
+				somdIsServerEnabled,
+				somdShutdownImpl;
+			functionprefix = "somddsrvmgr_";
+		};
+	#endif
+	};
+#endif /* __PRIVATE__ */
+};
+#ifdef __PRIVATE__
+	#ifdef __GENERATE_SOMDD__
+		#pragma somemittypes on
+/*			const TypeCode somddTC__ushort=unsigned short;
+			const TypeCode somddTC__short=short;
+			const TypeCode somddTC__octet=octet;
+			const TypeCode somddTC__long=long;
+			const TypeCode somddTC__string=string;*/
+			const TypeCode somddTC__SOMDObject=SOMDObject;
+			const TypeCode somddTC__SOMDServer=SOMDServer;
+			const TypeCode somddTC__CORBA_InterfaceDef=CORBA::InterfaceDef;
+/*			const TypeCode somddTC__char=char;
+			const TypeCode somddTC__ulong=unsigned long;
+			const TypeCode somddTC__seq_octet=sequence<octet>;*/
+			const TypeCode somddTC__IOP_IOR=IOP::IOR;
+			const TypeCode somddTC__IIOP_ProfileBody_1_0=IIOP::ProfileBody_1_0;
+			const TypeCode somddTC__IIOP_ProfileBody_1_1=IIOP::ProfileBody_1_1;
+			const TypeCode somddTC__PortableServer_ForwardRequest=PortableServer::ForwardRequest;
+		#pragma somemittypes off
+	#endif /* __GENERATE_SOMDD__ */
+#endif /* __PRIVATE__ */
+#endif /* somddsrv_idl */

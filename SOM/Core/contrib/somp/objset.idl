@@ -1,0 +1,78 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef objset_idl
+#define objset_idl
+#include <somp.idl>
+#include <somobj.idl>
+interface SOMBuf;
+interface SOMPPersistentId;
+interface SOMPObjectSet;
+interface SOMPObjectSet :
+	SOMObject
+{
+	SOMObject sompSetGetNth(
+		in unsigned long n);
+	SOMObject sompFindByID(
+		in SOMPPersistentId lookfor);
+	long sompFindByAddress(
+		in SOMObject lookfor);
+	void sompAddToSet(
+		in SOMObject thisObject);
+	void sompSetDeleteNth(
+		in unsigned long n);
+	long sompGetSetSize();
+	boolean sompObjEqualsID(
+		in SOMObject cmpObj,
+		in SOMPPersistentId lookfor);
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		SOMBuf storage;
+#endif
+		callstyle = idl;
+		dllname = "somp.dll";
+		releaseorder : 
+			sompSetGetNth,
+			sompFindByID,
+			sompFindByAddress,
+			sompAddToSet,
+			sompSetDeleteNth,
+			sompGetSetSize,
+			sompObjEqualsID;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = objset;
+#ifdef __PRIVATE__
+		somInit : override;
+		somUninit : override;
+		somDumpSelfInt : override;
+		functionprefix = objset_;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* objset_idl */

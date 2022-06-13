@@ -1,0 +1,76 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdom_idl
+#define somdom_idl
+#include <om.idl>
+interface SOMDServer;
+interface SOMDObjectMgr;
+interface SOMDObjectMgr :
+	ObjectMgr
+{
+	SOMDServer somdFindServer(
+		in ImplId serverid);
+	SOMDServer somdFindServerByName(
+		in string servername);
+	sequence<SOMDServer> somdFindServersByClass(
+		in Identifier objclass);
+	SOMDServer somdFindAnyServerByClass(
+		in Identifier objclass);
+	attribute boolean somd21somFree;
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			somdFindServer,
+			somdFindServerByName,
+			somdFindServersByClass,
+			somdFindAnyServerByClass,
+			_get_somd21somFree,
+			_set_somd21somFree;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		metaclass = SOMMSingleInstance;
+		functionprefix = "somdom_";
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit : override;
+		somDestruct: override;
+	#endif
+		somdNewObject : override;
+		somdGetIdFromObject : override;
+		somdGetObjectFromId : override;
+		somdReleaseObject : override;
+		somdDestroyObject : override;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somdom_idl */

@@ -1,0 +1,135 @@
+LINKTOOL_SET_SONAME=elfSetSoname
+LINKTOOL_SET_EXPORT_FILE=elfSetExportFile
+LINKTOOL_EMIT_EXPORTS=elfEmitExports
+LINKTOOL_VERSION=elfVersion
+LINKTOOL_LINKSHLB=elfLink
+LINKTOOL_LINKDLL=elfLinkDll
+LINKTOOL_STUBLIB=elfStubLib
+
+elfSetSoname()
+{
+	echo_n " " -Wl,-soname,$1
+}
+
+elfSetExportFile()
+{
+	echo_n " " -Wl,-retain-symbols-file,$1
+}
+
+elfEmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+		else
+			echo "$exp"
+			if is_member $exp "$DLL_EXPORTS"
+			then
+				if test "$NAME" != ""
+				then
+					echo ${NAME}_$exp
+				fi
+			fi
+		fi
+	done
+}
+
+elfVersion()
+{
+	case "$1" in
+	*lib*.so )
+		if test "$2" != ""
+		then
+			echo $1.$2
+		else
+			echo $1
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+elfLink()
+{
+	if is_member "-cxx" $@
+	then
+		LINKER="\$(CXX) \$(CXXFLAGS) "
+	else
+		LINKER="\$(CC) \$(CFLAGS) "
+	fi
+	if test -f $INTDIR/_weak.ref
+	then
+		rm $INTDIR/_weak.ref
+		echo_n "$LINKER -shared "
+	else
+		echo_n "LIBPREFIX=lib LIBSUFFIX=.so ../../toolbox/adlib.sh ../../toolbox/asneeded.sh $LINKER \$(CC_NO_UNDEFS) -shared "
+	fi
+
+#	echo_n " -Wl,-Bsymbolic"
+	echo_n " -Wl,-rpath-link,\$(OUTDIR_IMPLIB)"
+	echo_n " -Wl,-z,nodelete" 
+}
+
+elfLinkDll()
+{
+	if test "$SHLB_REF_WEAK" = "only-platform-this-seems-to-work-is-on-linux"
+	then
+		do_link $1 $2
+	else
+		do_dll_proxy_src >$INTDIR/$NAME.dll.c
+		do_dll_proxy_exp >$INTDIR/$NAME.dll.def
+#		echo "char **environ; char **__progname;" >>$INTDIR/$NAME.dll.c
+		LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.dll.c $INTDIR/$NAME.dll.def"
+		echo
+		echo $1: $2 $INTDIR/$NAME.dll.c $INTDIR/$NAME.dll.def
+		echo_n "	if test -f \$@; then rm \$@; fi"
+		echo
+		echo_n "	LIBPREFIX=lib LIBSUFFIX=.so  ../../toolbox/adlib.sh ../../toolbox/asneeded.sh  \$(CC) -shared \$(CC_NO_UNDEFS) \$(CFLAGS) \$(CC_FLAG_FPIC) -Wl,-Bsymbolic "
+#		echo_n " -Wl,--no-allow-shlib-undefined "
+		$LINKTOOL_SET_SONAME `basename $1`
+		$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.dll.def
+		echo_n " " $INTDIR/$NAME.dll.c
+		echo_n " -L"`dirname $2` " -l"$NAME
+
+		for eld in $IMPORT_DIRS
+		do
+			echo_n " -L"$eld
+		done
+		for eld in $IMPORT_LIBS
+		do
+			echo_n " -l"$eld
+		done
+
+		echo_n " $LIBDIRS"
+		echo_n " $LIBLIST"
+
+		echo  " -o \$@"
+		echo
+	fi
+}
+
+elfStubLib()
+{
+	STUBLIB_PATH="$1"
+	ORIG_PATH="$2"
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.stub.c"
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.stub.o"
+	echo
+	echo "$INTDIR/$NAME.stub.c: $ORIG_PATH $INTDIR/$NAME.exp.def"
+	echo "	../../toolbox/objstub.sh $ORIG_PATH $INTDIR/$NAME.exp.def >\$@"
+	echo
+	echo "$INTDIR/$NAME.stub.o: $INTDIR/$NAME.stub.c"
+	echo "	\$(CC_DLL) \$(CFLAGS) -c $INTDIR/$NAME.stub.c -o \$@"
+	echo
+	echo "$STUBLIB_PATH: $INTDIR/$NAME.stub.o $INTDIR/$NAME.exp.def"
+	echo_n "	\$(CC_DLL) \$(CFLAGS) -shared $INTDIR/$NAME.stub.o "
+	$LINKTOOL_SET_SONAME `basename $ORIG_PATH`
+	$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.exp.def
+	echo " -o \$@"
+	echo
+}

@@ -1,0 +1,72 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef snglicls_idl
+#define snglicls_idl
+#include <somobj.idl>
+#include <somcls.idl>
+
+#ifdef __PRIVATE__
+typedef SOMFOREIGN   snglicls_private;
+#pragma modifier snglicls_private: impctx=C;
+#endif
+
+interface SOMMSingleInstance :
+	SOMClass
+{
+	SOMObject sommGetSingleInstance();
+	void sommFreeSingleInstance();
+	void sommSingleInstanceFreed(in SOMObject obj);
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		snglicls_private private_data;
+		somMethodPtr old_somFree;
+		somMethodPtr old_somUninitPtr;
+		somToken mutex;
+#endif
+		sommSingleInstanceFreed : procedure;
+		callstyle = idl;
+		dllname = "somu.dll";
+		releaseorder : sommGetSingleInstance,sommFreeSingleInstance,sommSingleInstanceFreed;
+		majorversion = 2;
+		minorversion = 2;
+		filestem = snglicls;
+#ifdef __PRIVATE__
+		somNew : override;
+		somNewNoInit : override;
+		somInit : override;
+		somUninit : override;
+		somClassReady : override;
+	#ifndef __MAC__
+		somDeallocate: override;
+	#endif
+		functionprefix = "snglicls_";
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* snglicls_idl */

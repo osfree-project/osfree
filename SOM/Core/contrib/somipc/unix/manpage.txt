@@ -1,0 +1,24 @@
+.TH somipc 1 "4 January 2012"
+.SH NAME
+somipc(1) \- IDL compiler emitter
+.SH SYNOPSIS
+.B somipc -s
+.I
+emitter
+.B [ -d 
+.I output
+.B ]
+.SH DESCRIPTION
+.B sc
+is the backend of the IDL compiler, it generates headers from IDL files. It takes input from cpp(1).
+.PP
+.SH OPTIONS
+.IP -s
+Select the emitter to use, out of h,ih,xh,xih and ir.
+.IP -d
+target directory.
+.SH "SEE ALSO"
+.BR cpp (1), sc (1)
+.SH HISTORY
+Unlike the IBM SOM compiler which uses a SOM based emitter framework, this is written in C++ in order to avoid the chicken and egg problem.
+This can cause a problem for platforms without C++, but the headers generated are cross-platform.

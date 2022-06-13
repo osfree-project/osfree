@@ -1,0 +1,22 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+OBJS=browse.o
+
+all: browse som.ir
+
+browse.o: browse.cpp 
+	$(CXX) -c browse.cpp -o $@ -I. $(INCL_SOMTK)
+
+browse: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf browse *.o *.xh *.xih *.h
+
+som.ir: test.idl
+	SOMIR=./som.ir $(SC) -sir $(INCL_SOMTK) test.idl
+
+test:
+	SOMIR=./som.ir ./browse

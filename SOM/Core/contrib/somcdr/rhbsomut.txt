@@ -1,0 +1,18 @@
+RHBSOMUT
+
+
+This should contain
+
+CDR routines, to and from 'any'
+
+'any' freeing
+
+'any' duplicating
+
+'any' data accessing and casting
+
+keyed data management
+
+this will allow removal of alot of stuff from 'rhbsomd'
+
+Only dependancies are 'som.dll' and 'somtc.dll'

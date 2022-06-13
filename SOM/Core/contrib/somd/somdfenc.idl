@@ -1,0 +1,61 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdfenc_idl
+#define somdfenc_idl
+
+#include <xnamingf.idl>
+
+module FENC
+{
+	interface FactoryENC : FileXNaming::FileENC
+	{
+		SOMObject find_any_from_proxy(in SOMObject proxy);
+		SOMObject resolve_from_proxy(in SOMObject proxy);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=2;
+			dllname="somd.dll";
+			#ifdef __PRIVATE__
+			functionprefix="somdfenc_";
+			override: 
+				bind,
+				rebind,
+				bind_context,
+				resolve,
+				unbind,
+				new_context,
+				bind_new_context,
+				destroy,
+				list;
+			#endif
+		};
+	#endif
+	};
+};
+
+#endif

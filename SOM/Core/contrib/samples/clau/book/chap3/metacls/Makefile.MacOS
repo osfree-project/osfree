@@ -1,0 +1,46 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+OBJS=animal.o fly.o robin.o meta.o
+
+all: meta
+
+animal.xh: animal.idl
+	$(SC) -sxh $(INCL_SOMTK) animal.idl
+
+animal.xih: animal.idl
+	$(SC) -sxih $(INCL_SOMTK) animal.idl
+
+animal.o: animal.cpp animal.xih animal.xh
+	$(CXX) -c animal.cpp -o $@ -I. $(INCL_SOMTK)
+
+fly.xh: fly.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. fly.idl 
+
+fly.xih: fly.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. fly.idl
+
+fly.o: fly.cpp fly.xih fly.xh
+	$(CXX) -c fly.cpp -o $@ -I. $(INCL_SOMTK)
+
+robin.xh: robin.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. robin.idl
+
+robin.xih: robin.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. robin.idl
+
+robin.o: robin.cpp robin.xih robin.xh
+	$(CXX) -c robin.cpp -o $@ -I. $(INCL_SOMTK)
+
+meta.o: meta.cpp animal.xh robin.xh
+	$(CXX) -c meta.cpp -o $@ -I. $(INCL_SOMTK) 
+
+meta: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf meta *.o *.xh *.xih *.h
+
+test:
+	./meta

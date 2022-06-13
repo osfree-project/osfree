@@ -1,0 +1,59 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somtdm_idl
+#define somtdm_idl
+#include <somobj.idl>
+#include <principl.idl>
+interface TypecodeDataManipulator :
+	SOMObject
+{
+#ifdef __SOMIDL__
+	implementation
+	{
+		unsigned long buffer_size;
+		unsigned long buffer_remaining;
+		somToken somtdm_mutex;
+		callstyle = idl;
+		dllname = "somu2.dll";
+		releaseorder : 
+			tc_copy,
+			tc_copy_contents,
+			tc_decode,
+			tc_decode_contents,
+			tc_encode,
+			tc_equal,
+			tc_init,
+			tc_test,
+			tc_free,
+			tc_free_contents;
+#ifdef __PRIVATE__
+		override : somInit,somUninit;
+		functionprefix = somtdm_;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somtdm_idl */

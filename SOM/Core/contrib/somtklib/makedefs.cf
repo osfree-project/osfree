@@ -1,0 +1,3 @@
+NAME somtklib
+PROVIDES somtklib
+DEPENDS somos somd somnmf somobjva somp somu somu2 somir

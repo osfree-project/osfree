@@ -1,0 +1,3 @@
+NAME rhbexecd
+DEPENDS buildenv
+PROVIDES rhbexecd

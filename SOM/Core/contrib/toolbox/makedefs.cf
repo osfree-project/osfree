@@ -1,0 +1,3 @@
+NAME toolbox
+DEPENDS makedefs
+PROVIDES toolbox

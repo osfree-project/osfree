@@ -1,0 +1,73 @@
+LINKTOOL_SET_SONAME=tru64SetSoname
+LINKTOOL_SET_EXPORT_FILE=tru64SetExportFile
+LINKTOOL_EMIT_EXPORTS=tru64EmitExports
+LINKTOOL_SET_ENTRY=tru64SetEntry
+LINKTOOL_VERSION=tru64Version
+LINKTOOL_LINKSHLB=tru64Link
+
+VERSION_STYLE=n.e.v
+
+tru64SetSoname()
+{
+	echo_n " -Wl,-soname,$1"
+}
+
+tru64SetEntry()
+{
+	echo_n " -Wl,-e,$1"
+}
+
+tru64SetExportFile()
+{
+	cat $1 | while read exp
+	do
+		echo_n " -Wl,-exported_symbol,$exp"
+	done
+}
+
+tru64EmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+		else
+			echo "$exp"
+		fi
+	done
+}
+
+tru64Version()
+{
+	case "$1" in
+	*lib*.so )
+		if test "$2" != ""
+		then
+			echo $1.$2
+		else
+			echo $1
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+tru64Link()
+{
+	SO_LOCATIONS=`dirname $FINAL_BINARY`/so_locations
+
+	echo_n	"../../toolbox/asneeded.sh "
+
+	echo_n "\$(CC) -shared \$(CFLAGS)"
+
+	echo_n " -Wl,-hidden"
+	echo_n " -Wl,-error_unresolved"
+#	echo_n " -Wl,-update_registry,\$(INTDIR)/so_locations"
+	echo_n " -Wl,-update_registry,$SO_LOCATIONS"
+
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/so_locations"
+}

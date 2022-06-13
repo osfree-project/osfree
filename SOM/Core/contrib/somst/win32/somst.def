@@ -1,0 +1,8 @@
+LIBRARY	SOMST
+VERSION 1.0
+EXPORTS
+	SOMInitModule		PRIVATE
+	DllMain				PRIVATE
+	TCPIPSocketsClassData
+	TCPIPSocketsCClassData
+	TCPIPSocketsNewClass

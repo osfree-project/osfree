@@ -1,0 +1,174 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef orb_idl
+#define orb_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <somdtype.idl>
+#include <snglicls.idl>
+#include <unotypes.idl>
+#ifdef __PRIVATE__
+#include <rhbtypes.idl>
+#endif
+interface OperationDef;
+interface SOMDObject;
+interface NVList;
+interface Context;
+interface ORB :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	string object_to_string(in SOMObject obj);
+	SOMObject string_to_object(in string str);
+	ORBStatus create_list(in long count,out NVList new_list);
+	ORBStatus create_operation_list(in OperationDef oper,out NVList new_list);
+	ORBStatus get_default_context(out Context ctx);
+	typedef string ObjectId;
+	typedef sequence<ObjectId> ObjectIdList;
+	exception InvalidName{};
+
+	const string initial_InterfaceRepository="InterfaceRepository";
+	const string initial_NameService="NameService";
+	const string initial_CodecFactory="CodecFactory";
+	const string initial_DynAnyFactory="DynAnyFactory";
+
+	ObjectIdList list_initial_services();
+	SOMObject resolve_initial_references(in ObjectId identifier) raises (InvalidName);
+
+	attribute boolean stringToObject30;
+
+	/* added from poa.idl */
+
+	boolean work_pending();
+	void perform_work();
+	void shutdown(in boolean wait_for_completion);
+	void run();
+
+#ifdef __PRIVATE__
+	void register_callback(in SOMObject eman,in somMethodPtr func);
+	NVList create_list_from_opdesc_value(
+		in any value,
+		in sequence<somModifier> mods,
+		in long flags);
+	string get_somModifier(in sequence<somModifier> mods,in string name);
+	readonly attribute RHBORB * c_orb;
+
+    const unsigned short DESCRIBE_CONST=0; /* do not free */
+    const unsigned short DESCRIBE_SOMIR=1; /* according to SOMIR rules */
+    const unsigned short DESCRIBE_FREE=2;  /* use SOMD_FreeType */
+
+	void contained_describe(
+			in SOMObject contained,
+			out unsigned short flags,
+			out any desc_value,
+			out sequence<somModifier> mods,
+			out string absolute_name,
+			out string id);
+
+	SOMObject lookup_id(in SOMObject rep,in string id);
+
+	sequence<SOMObject> lookup_name(
+				in SOMObject cnr,
+				in string search_name,
+				in long levels_to_search,
+				in unsigned long limit_type,
+				in boolean exclude_inherited);
+#endif
+
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		_get_c_orb: procedure;
+		create_list_from_opdesc_value: procedure;
+		register_callback: procedure;
+		c_orb: noget;
+		get_somModifier: object_owns_result,procedure;
+		contained_describe: procedure;
+		lookup_id: procedure;
+		acquire_containing_repository: procedure;
+		lookup_name: procedure;
+		Environment failure_ev;
+#endif
+		releaseorder : 
+			object_to_string,
+			string_to_object,
+			create_list,
+			create_operation_list,
+			get_default_context,
+			private5,
+			private6,
+			private7,
+			private8,
+			list_initial_services,
+			resolve_initial_references,
+			_get_stringToObject30,
+			_set_stringToObject30,
+			private13,
+			private14,
+			private15,
+			private16,
+			run,
+			shutdown,
+			perform_work,
+			work_pending
+#ifdef __PRIVATE__
+			,_get_c_orb,
+			create_list_from_opdesc_value,
+			register_callback,
+			get_somModifier,
+			contained_describe,
+			acquire_containing_repository,
+			lookup_id
+#endif
+			;
+		callstyle = idl;
+		metaclass = "SOMMSingleInstance";
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 1;
+#ifdef __PRIVATE__
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit : override;
+		somDestruct: override;
+	#endif
+		somDumpSelfInt: override;
+		functionprefix = "orb_";
+		stringToObject30: nodata;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* orb_idl */

@@ -1,0 +1,53 @@
+Interface Name: Test
+Typedef Fruit defined in ::Test
+<Enum:> Fruit
+  <enumerator:> apple
+  <enumerator:> orange
+  <enumerator:> strawberry
+
+
+Typedef Dummy defined in ::Test
+<Structure:> Dummy
+  <Member Name:> x  <Member Type:> short
+  <Member Name:> y  <Member Type:> short
+  <Member Name:> obj  <Member Type:> ::SOMObject
+  <Member Name:> name  <Member Type:> string
+  <Member Name:> afruit  <Member Type:> <Enum:> Fruit
+  <enumerator:> apple
+  <enumerator:> orange
+  <enumerator:> strawberry
+
+  <Member Name:> flist  <Member Type:> sequence
+<Sequence Type:> enum  <Maximum Length:> 50
+
+  <Member Name:> counts  <Member Type:> array
+<Array Type:> long <Size:> 10
+
+
+Typedef Foo defined in ::Test
+<Union:> Foo
+<Discriminator Type:> long 
+  <Label:> 1 <Member Type:> long  <Member Name:> x
+  <Label:> 2 <Member Type:> float  <Member Name:> y
+  <Label:> 0 <Member Type:> char  <Member Name:> z
+
+
+Constant MAXSIZE defined in ::Test
+<Type:> string <Value:> 50
+
+List of attributes
+<Attribute Name:> myfoo <Type:> union 
+<Attribute Name:> mydouble <Type:> double 
+<Attribute Name:> anyvalue <Type:> any  (readonly)
+<Attribute Name:> longList <Type:> sequence 
+
+List of methods
+<Method Name:> add <Return Type:> void 
+  in name string 
+<Method Name:> query <Return Type:> string 
+  in index short 
+ inout aByte octet 
+<Method Name:> print <Return Type:> long 
+  out status boolean 
+
+*************************************************

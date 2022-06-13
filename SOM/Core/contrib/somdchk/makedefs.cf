@@ -1,0 +1,3 @@
+NAME somdchk
+DEPENDS somu
+PROVIDES somdchk

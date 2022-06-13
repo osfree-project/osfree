@@ -1,0 +1,101 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdtype_idl
+#define somdtype_idl
+
+#pragma prefix ""
+
+#ifdef __PRIVATE__
+#	ifdef SOMObject_included_somdtype
+#		include <somobj.idl>
+#	else
+#		include <somref.idl>
+#		include <containd.idl>
+#	endif
+#else
+#	include <somobj.idl>
+#	include <containd.idl>
+#endif
+
+enum completion_status {YES,NO,MAYBE};
+#ifdef SOMRefObject
+/* normally this is defined in somobj.idl */
+enum TCKind {tk_null,tk_void,tk_short,tk_long,tk_ushort,tk_ulong,tk_float,tk_double,tk_boolean,tk_char,tk_octet,tk_any,tk_TypeCode,tk_Principal,tk_objref,tk_struct,tk_union,tk_enum,tk_string,tk_sequence,tk_array,tk_pointer,tk_self,tk_foreign};
+#endif
+
+#ifdef EMIT_SOMDTYPES
+#pragma somemittypes on
+#endif
+
+typedef unsigned long ORBStatus;
+typedef unsigned long Flags;
+
+struct NamedValue
+{
+#ifdef __PRIVATE__
+	string name;
+#else
+	Identifier name;
+#endif
+	any argument;
+	long len;
+	Flags arg_modes;
+};
+
+typedef sequence<octet> ReferenceData;
+typedef string ORBid;
+typedef string ImplId;
+
+#ifdef EMIT_SOMDTYPES
+#pragma somemittypes off
+#endif
+
+module SOMD
+{
+	enum marshaling_direction_t {DirCall,DirReply};
+	enum marshaling_op_t {OpMarshal,OpDemarshal,OpFreeStorage};
+
+#ifdef __SOMIDL__
+	struct ImplEntry
+	{
+		long ImplDataSize;
+		char * ImplData;
+	};
+#endif
+
+#ifdef __PRIVATE__
+	struct NetworkAddress
+	{
+		string name;
+		short family;
+		sequence<octet> value;
+	};
+
+	typedef sequence<NetworkAddress> NetworkAddressSeq;
+#endif
+};
+
+#endif /* somdtype_idl */

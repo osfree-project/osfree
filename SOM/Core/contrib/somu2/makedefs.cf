@@ -1,0 +1,3 @@
+NAME somu2
+DEPENDS somref somtc somdprep
+PROVIDES somu2

@@ -1,0 +1,113 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+
+LIBRARY		SOM
+VERSION		1.0
+EXPORTS
+			somMainProgram
+			DllMain			PRIVATE
+			SOMInitModule	PRIVATE
+			SOMObjectClassData
+			SOMObjectCClassData
+			SOM_WarnLevel
+			SOMClassMgrObject
+			SOMRequestMutexSem
+			SOMReleaseMutexSem
+			SOMMalloc
+			SOMCalloc
+			SOMRealloc
+			SOMFree
+			SOMClassCClassData
+			SOMClassClassData
+			SOM_TraceLevel
+			SOM_AssertLevel
+			SOMError
+			SOMGetThreadId
+			SOM_MaxThreads
+			SOMClassMgrClassData
+			SOMCreateMutexSem
+			SOMClassMgrCClassData
+			SOMDeleteModule
+			SOMLoadModule
+			SOMClassInitFuncName
+			SOM_MajorVersion
+			SOM_MinorVersion
+			SOMDestroyMutexSem
+			SOMObjectNewClass
+			SOMClassNewClass
+			SOMClassMgrNewClass
+			somRegisterClassLibrary
+			somEnvironmentNew
+			somDataResolve
+			somDataResolveChk
+			somResolve
+			somParentNumResolve
+			somClassResolve
+			somAncestorResolve
+			somResolveByName
+			somParentResolve
+			somGetClassFromMToken
+			somBuildClass
+			somConstructClass
+			somApply
+			somEnvironmentEnd
+			somCheckId
+			somRegisterId
+			somIdFromString
+			somStringFromId
+			somCompareIds
+			somUniqueKey
+			somTotalRegIds
+			somSetExpectedIds
+			somBeginPersistentIds
+			somEndPersistentIds
+			somAbnormalEnd
+			somLPrintf
+			somPrintf
+			somVprintf
+			somPrefixLevel
+			somIsObj
+			somTestCls
+			somTest
+			somAssert
+			somSetOutChar
+			somExceptionId
+			somExceptionValue
+			somExceptionFree
+			somSetException
+			somGetGlobalEnvironment
+			somIdMarshal
+			somStartCriticalSection
+			somEndCriticalSection
+			SOMOutCharRoutine
+			somCheckArgs
+			somFreeThreadData
+			somva_SOMObject_somDispatchV
+			somva_SOMObject_somDispatchL
+			somva_SOMObject_somDispatchA
+			somva_SOMObject_somDispatchD
+			somva_SOMObject_somDispatch
+			somva_SOMObject_somClassDispatch
+			va_SOMObject_somDispatchV
+			va_SOMObject_somDispatchL
+			va_SOMObject_somDispatchA
+			va_SOMObject_somDispatchD
+			va_SOMObject_somDispatch
+			va_SOMObject_somClassDispatch

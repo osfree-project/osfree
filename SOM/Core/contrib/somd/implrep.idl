@@ -1,0 +1,139 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef implrep_idl
+#define implrep_idl
+#include <somdtype.idl>
+#include <impldef.idl>
+#ifdef __PRIVATE__
+interface SOMDServer;
+#endif
+interface ImplRepository :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	struct PV
+	{
+		string name;
+		string value;
+	};
+	typedef PV PropertyValue;
+	typedef sequence<PropertyValue> PVList;
+	ImplementationDef find_impldef(
+		in ImplId implid);
+	ImplementationDef find_impldef_by_alias(
+		in string alias_name);
+	ORBStatus find_all_aliases(
+		out sequence<string> impl_aliases);
+	ORBStatus find_all_impldefs(
+		out sequence<ImplementationDef> outimpldefs);
+	ORBStatus add_impldef(
+		in ImplementationDef impldef);
+	ORBStatus update_impldef(
+		in ImplementationDef impldef);
+	ORBStatus delete_impldef(
+		in ImplId implid);
+	sequence<ImplementationDef> find_impldef_by_class(
+		in string classname);
+	void add_class_to_impldef(
+		in ImplId implid,
+		in string classname);
+	void remove_class_from_impldef(
+		in ImplId implid,
+		in string classname);
+	void remove_class_from_all(
+		in string classname);
+	sequence<string> find_classes_by_impldef(
+		in ImplId implid);
+	ORBStatus add_class_to_all(
+		in string classname);
+	ORBStatus add_class_with_properties(
+		in ImplId implid,
+		in string classname,
+		in PVList pvl);
+#ifdef __PRIVATE__
+	readonly attribute ImplementationDef SOMDD_ImplDefObject;
+	readonly attribute ImplRepository SOMDD_ImplRepObject;
+	readonly attribute SOMDServer SOMDD_ServerObject;
+	ORBStatus ensure_local(inout sequence<ImplementationDef> impl);
+	ORBStatus ensure_remote(inout ImplementationDef impl);
+	boolean somddDispatch(out somToken retValue,in string method,in va_list ap);
+	CosStream::StreamIO create_stream();
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			find_impldef,
+			find_impldef_by_alias,
+			private2,
+			private3,
+			find_impldef_by_class,
+			add_impldef,
+			update_impldef,
+			delete_impldef,
+			add_class_to_impldef,
+			remove_class_from_impldef,
+			remove_class_from_all,
+			find_classes_by_impldef,
+			private12,
+			private13,
+			private14,
+			private15,
+			find_all_impldefs,
+			find_all_aliases,
+			add_class_to_all,
+			add_class_with_properties;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		functionprefix = "implrep_";
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit : override;
+		somDestruct: override;
+	#endif
+		SOMDD_ImplDefObject: nodata;
+		SOMDD_ImplRepObject: nodata;
+		SOMDD_ServerObject: nodata;
+		ensure_local: procedure;
+		ensure_remote: procedure;
+/*		somddDispatch: procedure;*/
+		create_stream: procedure;
+		_get_SOMDD_ImplDefObject: procedure;
+		_get_SOMDD_ImplRepObject: procedure;
+		_get_SOMDD_ServerObject: procedure;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* implrep_idl */

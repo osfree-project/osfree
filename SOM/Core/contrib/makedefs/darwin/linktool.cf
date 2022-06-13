@@ -1,0 +1,240 @@
+LINKTOOL_SET_SONAME=darwinSetSoname
+LINKTOOL_SET_EXPORT_FILE=darwinSetExportFile
+LINKTOOL_EMIT_EXPORTS=darwinEmitExports
+LINKTOOL_VERSION=darwinVersion
+LINKTOOL_LINKSHLB=darwinLink
+LINKTOOL_LINKDLL=darwinLinkDll
+LINKTOOL_LINKAPP=darwinLinkApp
+LINKTOOL_DLLNAME=darwinDllName
+LINKTOOL_STUBLIB=darwinStubLib
+
+darwinSetSoname()
+{
+	case $1 in
+	*.dylib )
+		echo_n "-Wl,-install_name,$1 "
+		if test "$VERSION" != ""
+		then
+			case "$VERSION" in
+			0 | 0.* )
+				;;
+			*.* )
+				echo_n "-Wl,-current_version,$VERSION "
+				COMPATIBLE=`echo $VERSION | sed y/./\ /`
+				COMPATIBLE=`first $COMPATIBLE`
+				echo_n "-Wl,-compatibility_version,$COMPATIBLE.0 "
+				;;
+			* )
+				;;
+			esac
+		fi
+		;;
+	* )
+	esac
+}
+
+darwinSetExportFile()
+{
+	echo_n -Wl,-exported_symbols_list,$1
+}
+
+darwinGetNameFromFile()
+{
+	dv_bn=`basename $1`
+	case $dv_bn in
+	lib*.dylib )
+		dv_stem=`echo $dv_bn | sed y/./\ /`
+		dv_stem=`first $dv_stem`
+		dv_stem=`echo $dv_stem | sed s/lib/\ /`
+		first $dv_stem
+		;;
+	*.dll | *.bundle )
+		dv_stem=`echo $dv_bn | sed y/./\ /`
+		first $dv_stem
+		;;
+	* )
+		echo $dv_bn
+		;;
+	esac
+}
+
+darwinGetTypeFromFile()
+{
+	dv_bn=`basename $1`
+	case $dv_bn in
+	*.* )
+		dv_stem=`echo $dv_bn | sed y/./\ /`
+		last $dv_stem
+		;;
+	* )
+		echo $dv_bn
+		;;
+	esac
+}
+
+darwinEmitExports()
+{
+	EXPORT_MAP=
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=`darwinGetNameFromFile $exp`
+			if test `darwinGetTypeFromFile $exp` = dylib
+			then
+				EXPORT_MAP=${EXPORT_SCOPE}_
+			fi
+		else
+			if is_member $exp $DLL_EXPORTS
+			then
+				echo _$EXPORT_MAP$exp
+			else
+				echo _$exp
+			fi
+		fi
+	done
+}
+
+darwinVersion()
+{
+	case "$1" in
+	*lib*.dylib )
+		dv_dir=`dirname $1`
+		dv_bn=`basename $1`
+		dv_stem=`echo $dv_bn | sed y/./\ /`
+		dv_stem=`first $dv_stem`
+		if test "$2" = ""
+		then
+			echo "$dv_dir/$dv_stem.dylib"
+		else
+			echo "$dv_dir/$dv_stem.$2.dylib"
+		fi
+		;;
+	* )
+		echo bad darwinVersion $1 $2 1>&2
+		exit 1
+		;;
+	esac
+}
+
+darwinAddLibdirs()
+{
+#	for d in $LIBDIRS $IMPORT_DIRS
+#	do
+#		case "$d" in
+#		-L* )
+#			echo_n "$d "
+#			;;
+#		* )
+#			echo_n "-L$d "
+#			;;
+#		esac
+#	done
+
+	echo_n "-L\$(OUTDIR_IMPLIB)"
+}
+
+darwinLinkDll()
+{
+	BUNDLE_EXPORTS=
+	BUNDLE_OBJS=
+
+	dld_dir=`dirname $2`
+	dld_stem=`darwinGetNameFromFile $1`
+	dld_bundle=$dld_dir/$dld_stem.bundle
+
+	BUNDLE_EXP=$INTDIR/bundle.$dld_stem.def
+
+	if test -f $BUNDLE_EXP
+	then
+		rm $BUNDLE_EXP
+	fi
+
+	do_link $1 $dld_bundle
+
+	for dld_exp in $EXPORTS
+	do
+		if is_member $dld_exp $DLL_EXPORTS
+		then
+			BUNDLE_EXPORTS="$BUNDLE_EXPORTS $dld_exp"
+			BUNDLE_OBJ=$INTDIR/"bundle.$dld_stem.$dld_exp.c"
+			BUNDLE_OBJS="$BUNDLE_OBJS $BUNDLE_OBJ"
+			echo _$dld_exp >>$BUNDLE_EXP
+
+			do_dll_proxy_src_fn >$BUNDLE_OBJ $dld_exp 
+			LAUNDRY_LIST="$LAUNDRY_LIST $BUNDLE_OBJ"
+		fi
+	done
+
+	LAUNDRY_LIST="$LAUNDRY_LIST $BUNDLE_EXP $dld_bundle"
+
+	echo
+	echo $dld_bundle": "$2 $BUNDLE_OBJS $BUNDLE_EXP
+	echo_n "	../../toolbox/adlib.sh ../../toolbox/asneeded.sh \$(CC) \$(CFLAGS) -fPIC -bundle -Wl,-exported_symbols_list,$BUNDLE_EXP  $BUNDLE_OBJS -o \$@ -L$dld_dir -l$dld_stem " 
+	echo_n "-L\$(OUTDIR_IMPLIB) "
+	darwinAddLibdirs
+	echo
+}
+
+darwinLink()
+{
+	DARWIN_LINK_TYPE=-bundle
+	DARWIN_NAME=`darwinGetNameFromFile $1`
+	DARWIN_TYPE=`darwinGetTypeFromFile $1`	
+
+	if test $DARWIN_TYPE = dylib
+	then
+		DARWIN_LINK_TYPE="-dynamiclib -Wl,-single_module"
+	fi
+
+	echo_n "../../toolbox/adlib.sh ../../toolbox/asneeded.sh "
+
+	if is_member "-cxx" $@
+	then
+		echo_n "\$(CXX) \$(CXXFLAGS)"
+	else
+		echo_n "\$(CC) \$(CFLAGS)"
+	fi
+
+	echo_n " $DARWIN_LINK_TYPE -Wl,-twolevel_namespace "
+	darwinAddLibdirs
+}
+
+darwinLinkApp()
+{
+	if is_member "-cxx" $@
+	then
+		echo_n "../../toolbox/adlib.sh ../../toolbox/asneeded.sh \$(CXX) \$(CXXFLAGS)"
+	else
+		echo_n "../../toolbox/adlib.sh ../../toolbox/asneeded.sh \$(CC) \$(CFLAGS)"
+	fi
+}
+
+darwinDllName()
+{
+	dn_dir=`dirname $1`
+	dn_name=`darwinGetNameFromFile $1`
+	echo $dn_dir/$dn_name.bundle
+}
+
+darwinStubLib()
+{
+	STUBLIB_PATH="$1"
+	ORIG_PATH="$2"
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.stub.c"
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.stub.o"
+	echo
+	echo "$INTDIR/$NAME.stub.c: $ORIG_PATH $INTDIR/$NAME.exp.def"
+	echo "	../../toolbox/nmstub.sh $ORIG_PATH $INTDIR/$NAME.exp.def _ >\$@"
+	echo
+	echo "$INTDIR/$NAME.stub.o: $INTDIR/$NAME.stub.c"
+	echo "	\$(CC) \$(CFLAGS) -c $INTDIR/$NAME.stub.c -o \$@"
+	echo
+	echo "$STUBLIB_PATH: $INTDIR/$NAME.stub.o $INTDIR/$NAME.exp.def"
+	echo_n "	\$(CC) \$(CFLAGS) -dynamiclib -Wl,-single_module $INTDIR/$NAME.stub.o "
+	$LINKTOOL_SET_SONAME `basename $ORIG_PATH`
+	$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.exp.def
+	echo " -o \$@"
+	echo
+}

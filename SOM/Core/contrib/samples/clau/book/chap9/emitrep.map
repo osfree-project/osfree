@@ -1,0 +1,366 @@
+
+ emitrep
+
+ Start         Length     Name                   Class
+ 0001:00000000 000004410H CODE32                 CODE 32-bit
+ 0001:00004410 000000030H _MSGSEG32              CODE 32-bit
+ 0002:00000000 0000008B0H DATA32                 DATA 32-bit
+ 0002:000008B0 000000000H CTOR_DTOR1             DATA 32-bit
+ 0002:000008B0 000000000H CTOR_DTOR2             DATA 32-bit
+ 0002:000008B0 000000000H CTOR_DTOR3             DATA 32-bit
+ 0002:000008B0 000000110H CONST32                CONST 32-bit
+ 0002:000009C0 00000000CH EDC1                   EDC_CLASS 32-bit
+ 0002:000009CC 0000001D4H EDC2                   EDC_CLASS 32-bit
+ 0002:00000BA0 000000004H EDC3                   EDC_CLASS 32-bit
+ 0002:00000BA4 000000000H BSS32                  BSS 32-bit
+ 0002:00000BA4 0000000C8H c_common               BSS 32-bit
+
+ Origin   Group
+ 0002:0   DGROUP
+ 0000:0   FLAT
+
+ Address       Export                  Alias
+
+ 0001:00000000 emit                    emit
+
+  Address         Publics by Name
+
+ 0002:00000BDC       @BSSEDCINIT.C
+ 0002:00000BAC       @BSSN_EXCEPT.C
+ 0002:00000C58       @BSSPRTEMSG.C
+ 0001:00004422       DOS32GETMESSAGE
+ 0001:00004422       Dos32GetMessage
+ 0000:00000000  Imp  DOS32IQUERYMESSAGECP (MSG.8)
+ 0000:00000000  Imp  DOS32TRUEGETMESSAGE  (MSG.6)
+ 0000:00000000  Imp  DosAllocMem          (DOSCALLS.299)
+ 0000:00000000  Imp  DosClose             (DOSCALLS.257)
+ 0000:00000000  Imp  DosCreateMutexSem    (DOSCALLS.331)
+ 0000:00000000  Imp  DosExit              (DOSCALLS.234)
+ 0000:00000000  Imp  DosForceDelete       (DOSCALLS.110)
+ 0000:00000000  Imp  DosFreeMem           (DOSCALLS.304)
+ 0000:00000000  Imp  DosGetInfoBlocks     (DOSCALLS.312)
+ 0001:00004422       DosGetMessage
+ 0001:00004422       DOSGETMESSAGE
+ 0000:00000000  Imp  DosQueryDBCSEnv      (NLS.6)
+ 0000:00000000  Imp  DosQueryHType        (DOSCALLS.224)
+ 0000:00000000  Imp  DosQuerySysInfo      (DOSCALLS.348)
+ 0000:00000000  Imp  DosRaiseException    (DOSCALLS.356)
+ 0000:00000000  Imp  DosSetFilePtr        (DOSCALLS.256)
+ 0000:00000000  Imp  DosSetSignalExceptionFocus (DOSCALLS.378)
+ 0000:00000000  Imp  DosWrite             (DOSCALLS.282)
+ 0001:00000000       emit
+ 0002:00000BF8       errno
+ 0001:00001558       exit
+ 0001:00003804       fclose
+ 0001:0000388C       fflush
+ 0001:00001090       free
+ 0001:00003FEC       getenv
+ 0001:00000DC0       malloc
+ 0002:00000084       ReportEmitterCClassData
+ 0002:00000080       ReportEmitterClassData
+ 0001:0000030C       ReportEmitterNewClass
+ 0001:00004410       sig32
+ 0000:00000000  Imp  somBuildClass        (som.49)
+ 0000:00000000  Imp  SOMClassClassData    (som.3)
+ 0000:00000000  Imp  somDataResolve       (som.47)
+ 0000:00000000  Imp  SOMObjectClassData   (som.14)
+ 0000:00000000  Imp  somParentNumResolve  (som.50)
+ 0000:00000000  Imp  somPrintf            (som.35)
+ 0000:00000000  Imp  SOMTEmitCClassData   (some.SOMTEmitCClassData)
+ 0000:00000000  Imp  SOMTEmitCNewClass    (some.SOMTEmitCNewClass)
+ 0000:00000000  Imp  somtfclose           (somc.somtfclose)
+ 0000:00000000  Imp  somtGetObjectWrapper (some.somtGetObjectWrapper)
+ 0000:00000000  Imp  somtopenEmitFile     (somc.somtopenEmitFile)
+ 0000:00000000  Imp  SOMTTemplateOutputCClassData (some.SOMTTemplateOutputCClassData)
+ 0000:00000000  Imp  SOM_TraceLevel       (som.18)
+ 0002:000003F8       stderr
+ 0002:000003F0       stdin
+ 0002:000003F4       stdout
+ 0001:00002384       strspn
+ 0001:00004278       wcstombs
+ 0001:000034D0       wctomb
+ 0002:00000BBC       _Async_exception_flag
+ 0001:00004264       _bit_test_set
+ 0002:00000BB8       _broken_time_ptr
+ 0001:000035A4       _bufprint
+ 0001:00001FEC       _callback_opt_sys
+ 0001:00003698       _CloseStream
+ 0001:00001DE0       _critlib_except
+ 0001:000006E0       _CRT_init
+ 0002:000008A0       _crt_msg_handle
+ 0001:00000BD4       _CRT_term
+ 0002:00000770       _ctable
+ 0002:00000BC8       _ctype
+ 0002:00000874       _ctypeModule
+ 0002:00000BCC       _cvt_buf_ptr
+ 0002:00000400       _daylight
+ 0002:000003E0       _dllentry
+ 0001:00000648       _DLL_InitTerm
+ 0002:00000C60       _doserrno
+ 0002:00000BF0       _dttm_ptr
+ 0002:00000BA4       _edata
+ 0001:00002108       _edcGetMessage
+ 0002:00000C4C       _edcinit_fin
+ 0002:00000C6C       _end
+ 0002:00000BA4       _environ
+ 0001:00001FC8       _Exception
+ 0001:00001D04       _exception_dllinit
+ 0001:00001D34       _exception_procinit
+ 0001:000015F0       _EXE_Exception
+ 0001:00001FA8       _fcloseall_weak
+ 0001:00003914       _fillb
+ 0002:000009C0       _firsteib
+ 0002:00000C68       _flags
+ 0001:00003B5C       _Flush
+ 0001:00003CE8       _flushb
+ 0001:00001F98       _fpreset
+ 0001:000033F8       _fprintfieee
+ 0001:00003438       _fprintf_ansi
+ 0001:000023C0       _freeCtype
+ 0001:00001FC4       _freeCtype_weak
+ 0001:00002040       _FreeFCB
+ 0001:00001FBC       _freeLocale_weak
+ 0001:00001D68       _get_eib
+ 0001:00002004       _get_seglim
+ 0002:00000BA8       _have_freed
+ 0001:0000151C       _heapmin
+ 0001:00001348       _heapmin_int
+ 0001:000040E4       _ilog2
+ 0001:000023DC       _init_ctype
+ 0001:00001FC0       _init_ctype_weak
+ 0002:00000C64       _internal_buf_ptr
+ 0001:000040EC       _internal_err
+ 0002:00000BA0       _lasteib
+ 0002:00000BEC       _lcvt_buf_ptr
+ 0001:00001790       _Lib_excpt
+ 0002:00000C50       _locale_initialized
+ 0001:00004140       _ltoa
+ 0001:000043FC       _matherr
+ 0002:000006A0       _matherr_ptr
+ 0001:000043E8       _Math_Exception_Def
+ 0001:00002180       _MesgServ
+ 0001:00001DC4       _mig_eib_store
+ 0002:00000BC4       _osmajor
+ 0002:00000BD8       _osminor
+ 0002:00000408       _osmode
+ 0002:00000BFC       _pBucketArr
+ 0002:00000C48       _perror_msg_ptr
+ 0002:000003FC       _PGLOBAL_PTR
+ 0001:0000212C       _PrintErrMsg
+ 0002:00000410       _random_seed
+ 0001:00001634       _recreate_exception
+ 0001:00001FF8       _Regen_exception
+ 0002:00000BD0       _Saved_Return_Address
+ 0001:000009C0       _setupenv
+ 0001:00004230       _set_crt_msg_handle
+ 0001:00000CC8       _split_chunk
+ 0001:00003468       _sprintfieee
+ 0001:000034A4       _sprintf_ansi
+ 0002:00000C54       _strerror_msg_ptr
+ 0002:00000C3C       _strtok_pos
+ 0002:00000BC0       _tempname_ptr
+ 0001:000015D0       _terminate
+ 0002:00000BF4       _TerminateAndDumpSem
+ 0001:00001FE0       _Test_and_reset
+ 0001:00000690       _test_handle
+ 0002:00000404       _timezone
+ 0002:00000C40       _tzname
+ 0001:000041EC       _uwrite
+ 0002:0000040C       _version
+ 0001:000033E4       _wcputs
+ 0001:0000124C       _Weak_FreeListEntry
+ 0001:000037D4       _wfgetposMem
+ 0001:000033BC       _wfloatfmt
+ 0001:000037C4       _wfsetposMem
+ 0001:000037FC       _wOpenMemory
+ 0001:000037C0       _wreadbSyncMem
+ 0001:000037F8       _wRemoveMem
+ 0001:000037E4       _wrewindMem
+ 0001:000037CC       _wSeekMem
+ 0001:000037E8       _wtellMem
+ 0001:000037BC       _wuwriteMem
+ 0001:000041E4       _w_raise
+ 0001:00001F1C       _w_Terminate_and_dump
+ 0002:00000418       __char_set_type
+ 0002:00000650       __ctdtused
+ 0002:00000BD4       __ctordtorCurrent
+ 0002:000008B0       __ctordtorEnd
+ 0001:00000AD8       __ctordtorInit
+ 0002:000008B0       __ctordtorStart
+ 0001:00000AA0       __ctordtorTerm
+ 0002:00000C5C       __c_local_ctype
+ 0002:00000414       __decimal_point
+ 0001:00002A10       __dofmto
+ 0001:000018FC       __Exception
+
+  Address         Publics by Value
+
+ 0000:00000000  Imp  somtGetObjectWrapper (some.somtGetObjectWrapper)
+ 0000:00000000  Imp  DOS32IQUERYMESSAGECP (MSG.8)
+ 0000:00000000  Imp  somtopenEmitFile     (somc.somtopenEmitFile)
+ 0000:00000000  Imp  DosSetSignalExceptionFocus (DOSCALLS.378)
+ 0000:00000000  Imp  SOMTEmitCClassData   (some.SOMTEmitCClassData)
+ 0000:00000000  Imp  somParentNumResolve  (som.50)
+ 0000:00000000  Imp  SOMClassClassData    (som.3)
+ 0000:00000000  Imp  somtfclose           (somc.somtfclose)
+ 0000:00000000  Imp  DOS32TRUEGETMESSAGE  (MSG.6)
+ 0000:00000000  Imp  DosWrite             (DOSCALLS.282)
+ 0000:00000000  Imp  DosCreateMutexSem    (DOSCALLS.331)
+ 0000:00000000  Imp  somPrintf            (som.35)
+ 0000:00000000  Imp  DosSetFilePtr        (DOSCALLS.256)
+ 0000:00000000  Imp  DosQueryHType        (DOSCALLS.224)
+ 0000:00000000  Imp  DosRaiseException    (DOSCALLS.356)
+ 0000:00000000  Imp  DosFreeMem           (DOSCALLS.304)
+ 0000:00000000  Imp  SOMObjectClassData   (som.14)
+ 0000:00000000  Imp  somBuildClass        (som.49)
+ 0000:00000000  Imp  DosClose             (DOSCALLS.257)
+ 0000:00000000  Imp  DosForceDelete       (DOSCALLS.110)
+ 0000:00000000  Imp  DosQueryDBCSEnv      (NLS.6)
+ 0000:00000000  Imp  SOMTTemplateOutputCClassData (some.SOMTTemplateOutputCClassData)
+ 0000:00000000  Imp  SOM_TraceLevel       (som.18)
+ 0000:00000000  Imp  DosGetInfoBlocks     (DOSCALLS.312)
+ 0000:00000000  Imp  DosAllocMem          (DOSCALLS.299)
+ 0000:00000000  Imp  somDataResolve       (som.47)
+ 0000:00000000  Imp  SOMTEmitCNewClass    (some.SOMTEmitCNewClass)
+ 0000:00000000  Imp  DosQuerySysInfo      (DOSCALLS.348)
+ 0000:00000000  Imp  DosExit              (DOSCALLS.234)
+ 0001:00000000       emit
+ 0001:0000030C       ReportEmitterNewClass
+ 0001:00000648       _DLL_InitTerm
+ 0001:00000690       _test_handle
+ 0001:000006E0       _CRT_init
+ 0001:000009C0       _setupenv
+ 0001:00000AA0       __ctordtorTerm
+ 0001:00000AD8       __ctordtorInit
+ 0001:00000BD4       _CRT_term
+ 0001:00000CC8       _split_chunk
+ 0001:00000DC0       malloc
+ 0001:00001090       free
+ 0001:0000124C       _Weak_FreeListEntry
+ 0001:00001348       _heapmin_int
+ 0001:0000151C       _heapmin
+ 0001:00001558       exit
+ 0001:000015D0       _terminate
+ 0001:000015F0       _EXE_Exception
+ 0001:00001634       _recreate_exception
+ 0001:00001790       _Lib_excpt
+ 0001:000018FC       __Exception
+ 0001:00001D04       _exception_dllinit
+ 0001:00001D34       _exception_procinit
+ 0001:00001D68       _get_eib
+ 0001:00001DC4       _mig_eib_store
+ 0001:00001DE0       _critlib_except
+ 0001:00001F1C       _w_Terminate_and_dump
+ 0001:00001F98       _fpreset
+ 0001:00001FA8       _fcloseall_weak
+ 0001:00001FBC       _freeLocale_weak
+ 0001:00001FC0       _init_ctype_weak
+ 0001:00001FC4       _freeCtype_weak
+ 0001:00001FC8       _Exception
+ 0001:00001FE0       _Test_and_reset
+ 0001:00001FEC       _callback_opt_sys
+ 0001:00001FF8       _Regen_exception
+ 0001:00002004       _get_seglim
+ 0001:00002040       _FreeFCB
+ 0001:00002108       _edcGetMessage
+ 0001:0000212C       _PrintErrMsg
+ 0001:00002180       _MesgServ
+ 0001:00002384       strspn
+ 0001:000023C0       _freeCtype
+ 0001:000023DC       _init_ctype
+ 0001:00002A10       __dofmto
+ 0001:000033BC       _wfloatfmt
+ 0001:000033E4       _wcputs
+ 0001:000033F8       _fprintfieee
+ 0001:00003438       _fprintf_ansi
+ 0001:00003468       _sprintfieee
+ 0001:000034A4       _sprintf_ansi
+ 0001:000034D0       wctomb
+ 0001:000035A4       _bufprint
+ 0001:00003698       _CloseStream
+ 0001:000037BC       _wuwriteMem
+ 0001:000037C0       _wreadbSyncMem
+ 0001:000037C4       _wfsetposMem
+ 0001:000037CC       _wSeekMem
+ 0001:000037D4       _wfgetposMem
+ 0001:000037E4       _wrewindMem
+ 0001:000037E8       _wtellMem
+ 0001:000037F8       _wRemoveMem
+ 0001:000037FC       _wOpenMemory
+ 0001:00003804       fclose
+ 0001:0000388C       fflush
+ 0001:00003914       _fillb
+ 0001:00003B5C       _Flush
+ 0001:00003CE8       _flushb
+ 0001:00003FEC       getenv
+ 0001:000040E4       _ilog2
+ 0001:000040EC       _internal_err
+ 0001:00004140       _ltoa
+ 0001:000041E4       _w_raise
+ 0001:000041EC       _uwrite
+ 0001:00004230       _set_crt_msg_handle
+ 0001:00004264       _bit_test_set
+ 0001:00004278       wcstombs
+ 0001:000043E8       _Math_Exception_Def
+ 0001:000043FC       _matherr
+ 0001:00004410       sig32
+ 0001:00004422       DOS32GETMESSAGE
+ 0001:00004422       DosGetMessage
+ 0001:00004422       Dos32GetMessage
+ 0001:00004422       DOSGETMESSAGE
+ 0002:00000080       ReportEmitterClassData
+ 0002:00000084       ReportEmitterCClassData
+ 0002:000003E0       _dllentry
+ 0002:000003F0       stdin
+ 0002:000003F4       stdout
+ 0002:000003F8       stderr
+ 0002:000003FC       _PGLOBAL_PTR
+ 0002:00000400       _daylight
+ 0002:00000404       _timezone
+ 0002:00000408       _osmode
+ 0002:0000040C       _version
+ 0002:00000410       _random_seed
+ 0002:00000414       __decimal_point
+ 0002:00000418       __char_set_type
+ 0002:00000650       __ctdtused
+ 0002:000006A0       _matherr_ptr
+ 0002:00000770       _ctable
+ 0002:00000874       _ctypeModule
+ 0002:000008A0       _crt_msg_handle
+ 0002:000008B0       __ctordtorEnd
+ 0002:000008B0       __ctordtorStart
+ 0002:000009C0       _firsteib
+ 0002:00000BA0       _lasteib
+ 0002:00000BA4       _edata
+ 0002:00000BA4       _environ
+ 0002:00000BA8       _have_freed
+ 0002:00000BAC       @BSSN_EXCEPT.C
+ 0002:00000BB8       _broken_time_ptr
+ 0002:00000BBC       _Async_exception_flag
+ 0002:00000BC0       _tempname_ptr
+ 0002:00000BC4       _osmajor
+ 0002:00000BC8       _ctype
+ 0002:00000BCC       _cvt_buf_ptr
+ 0002:00000BD0       _Saved_Return_Address
+ 0002:00000BD4       __ctordtorCurrent
+ 0002:00000BD8       _osminor
+ 0002:00000BDC       @BSSEDCINIT.C
+ 0002:00000BEC       _lcvt_buf_ptr
+ 0002:00000BF0       _dttm_ptr
+ 0002:00000BF4       _TerminateAndDumpSem
+ 0002:00000BF8       errno
+ 0002:00000BFC       _pBucketArr
+ 0002:00000C3C       _strtok_pos
+ 0002:00000C40       _tzname
+ 0002:00000C48       _perror_msg_ptr
+ 0002:00000C4C       _edcinit_fin
+ 0002:00000C50       _locale_initialized
+ 0002:00000C54       _strerror_msg_ptr
+ 0002:00000C58       @BSSPRTEMSG.C
+ 0002:00000C5C       __c_local_ctype
+ 0002:00000C60       _doserrno
+ 0002:00000C64       _internal_buf_ptr
+ 0002:00000C68       _flags
+ 0002:00000C6C       _end
+
+Program entry point at 0001:00000648

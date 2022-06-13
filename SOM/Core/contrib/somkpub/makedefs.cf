@@ -1,0 +1,3 @@
+NAME somkpub
+DEPENDS sc pdl somtkidl
+PROVIDES somkpub

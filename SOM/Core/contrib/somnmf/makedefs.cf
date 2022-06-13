@@ -1,0 +1,3 @@
+NAME somnmf
+DEPENDS somref somdstub somdprep
+PROVIDES somnmf

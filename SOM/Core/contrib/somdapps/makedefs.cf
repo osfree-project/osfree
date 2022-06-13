@@ -1,0 +1,3 @@
+NAME somdapps
+DEPENDS somtklib
+PROVIDES somdapps

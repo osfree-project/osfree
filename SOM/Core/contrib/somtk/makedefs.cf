@@ -1,0 +1,3 @@
+NAME somtk
+DEPENDS sc pdl
+PROVIDES somtk

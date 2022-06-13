@@ -1,0 +1,13 @@
+.TH somdd 8 "4 January 2012"
+.SH NAME
+somdd(8) \- DSOM daemon
+.SH SYNOPSIS
+.B somdd
+.SH DESCRIPTION
+.B somdd
+is a network daemon for invoking requests to SOM servers.
+.SH ENVIRONMENT
+.I SOMBASE, SOMDPORT, SOMIR
+.SH "SEE ALSO"
+.BR somdsvr (8),
+.BR regimpl (8)

@@ -1,0 +1,3 @@
+NAME somossvr
+DEPENDS somtklib
+PROVIDES somossvr
