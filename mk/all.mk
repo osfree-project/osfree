@@ -279,7 +279,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -362,6 +362,8 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .h:   $(MYDIR)
 
+.idl:   $(MYDIR)
+
 .asm: $(MYDIR)
 
 .pas: $(MYDIR)
@@ -428,6 +430,10 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .rexx.exe: .AUTODEPEND
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
+
+.idl.h: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc $< -o $(ROOT)build$(SEP)include $(ADD_SCOPT)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)

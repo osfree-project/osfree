@@ -1,7 +1,0 @@
-
-C:\yuri\osfree\SOM\Core\somipc>set root=..\..\.. 
-
-C:\yuri\osfree\SOM\Core\somipc>set path=..\..\..\conf\scripts;C:\Program Files\Far Manager\;C:\Program Files\Broadcom\Broadcom 802.11;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Hewlett-Packard\SimplePass\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files\Git\cmd;C:\Program Files\TortoiseGit\bin;C:\FPC\3.2.2\bin\i386-Win32;C:\REXX 
-
-C:\yuri\osfree\SOM\Core\somipc>call build          
-cd       SOM\Core\somipc\ 

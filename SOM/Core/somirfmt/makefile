@@ -2,7 +2,7 @@
 
 PROJ = somirfmt
 TRGT = $(PROJ).lib
-srcfiles = $(p)somirfmt$(e)
+srcfiles = $(p)somirfmt$(e) $(p)somirutl$(e)
 
 !ifeq %OS OS2
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -23,9 +23,14 @@ defs = $(%WATCOM)$(SEP)lh
 ADD_COPT = -dNDEBUG -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_H &
            -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include &
            -i=$(MYDIR)..$(SEP)contrib$(SEP)somir$(SEP)include &
-           -i=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include
+           -i=$(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)include &
+           -i=$(MYDIR)..$(SEP)contrib$(SEP)rhbmtut$(SEP)include &
+           -i=$(MYDIR)..$(SEP)contrib$(SEP)somtk$(SEP)include &
+           -i=$(MYDIR)..$(SEP)contrib$(SEP)somtc$(SEP)include &
+           -i=$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)include &
+           -i=$(ROOT)build$(SEP)include
 
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clbrdll
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r

@@ -5,9 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = pdl sc somirfmt somipc Frameworks
+DIRS = pdl sc somipc som somcdr somcorba somany somkpub somref somir somu somestrm somnmf somd somirfmt Frameworks
 
 !include $(%ROOT)/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all

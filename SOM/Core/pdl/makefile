@@ -22,7 +22,7 @@ defs = $(%WATCOM)$(SEP)lh
 !endif
 
 ADD_COPT = -dNDEBUG -i=$(defs) -i=$(MYDIR)..$(SEP)contrib$(SEP)include -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_H
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clbrdll
 #STACKSIZE = 0x20000
 #UNI2H = 1
 C = r
