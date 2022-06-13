@@ -4161,7 +4161,7 @@ static void do_once(
         once_end = &once_list[ max_once];
         max_once *= 2;
     }
-    once_end->name = fullname;
+    once_end->name = (char *)fullname;
     once_end->len = strlen( fullname);
     once_end++;
 }

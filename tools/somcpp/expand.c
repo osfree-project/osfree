@@ -710,7 +710,8 @@ static char *   replace(
         } else {
             m_inf->locs.start_col = m_inf->locs.start_line = 0L;
         }
-        m_inf->args = (char *) m_inf->loc_args = NULL;       /* Default args */
+        m_inf->loc_args = NULL;
+        m_inf->args = (char *) NULL;       /* Default args */
         for (num = 1, recurs = 0; num < m_num; num++)
             if (mac_inf[ num].defp == defp)
                 recurs++;           /* Recursively nested macro     */
