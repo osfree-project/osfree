@@ -62,7 +62,6 @@ $(IDLH)rhbsomuk.h &
 $(TRGT)
 
 $(p)rhbsomue$(e): $(IDLH)somcdr.h .SYMBOLIC
-  echo $(SEP)
 
 .idl: $(MYDIR)..$(SEP)contrib$(SEP)somcdr
 

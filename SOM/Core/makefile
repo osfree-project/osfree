@@ -1,11 +1,12 @@
 #
-# A Makefile for OS/3 boot sequence project
-# micro IIF drivers
-# (c) osFree project,
-# valerius, 2006/10/30
+# A Makefile for somFree project
 #
 
-DIRS = pdl sc somipc somkpub somref somcorba somir somd somnmf somcdr som somany somu somestrm somirfmt Frameworks
+DIRS = makeall
+
+pdl somipc sc somtk
+
+#somkpub somref somcorba somir somd somnmf somcdr som somany somu somestrm somirfmt Frameworks
 
 !include $(%ROOT)/mk/all.mk
 
