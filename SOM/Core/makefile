@@ -5,7 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = pdl sc somipc som somcdr somcorba somany somkpub somref somir somu somestrm somnmf somd somirfmt Frameworks
+DIRS = pdl sc somipc somkpub somref somcorba somir somd somnmf somcdr som somany somu somestrm somirfmt Frameworks
 
 !include $(%ROOT)/mk/all.mk
 

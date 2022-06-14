@@ -8,8 +8,9 @@ $(IDLH)somida.h &
 $(IDLH)somproxy.h &
 $(IDLH)somsid.h &
 
-ADD_SCOPT = -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
-             -I$(MYDIR)..$(SEP)contrib$(SEP)somu
+ADD_SCOPT = -D__PRIVATE__ &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somu
 
 !include $(%ROOT)/mk/all.mk
 

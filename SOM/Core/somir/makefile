@@ -12,8 +12,11 @@ $(ROOT)build$(SEP)include$(SEP)paramdef.h &
 $(ROOT)build$(SEP)include$(SEP)repostry.h &
 $(ROOT)build$(SEP)include$(SEP)typedef.h
 
-ADD_SCOPT = -I$(MYDIR)..$(SEP)contrib$(SEP)somir &
-            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som
+ADD_SCOPT = -D__PRIVATE__ &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somd &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somir &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somref
 
 !include $(%ROOT)/mk/all.mk
 

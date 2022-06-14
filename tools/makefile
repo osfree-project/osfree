@@ -11,7 +11,7 @@
 # Note II: Do not list 'scripts' dir here, in this case you'll encounter the dead loop
 DIRS = sed yacc lex jwasm uniapi ..$(SEP)UNI awk &
        mkmsgf mkctxt critstrs freeinst libmmap os2386 genext2fs winrc &
-       shared sc somcpp qemu-img hlldump mapsym renmodul # rexxwrap somipc ltools lxlite
+       shared somcpp qemu-img hlldump mapsym renmodul # sc rexxwrap somipc ltools lxlite
 
 !include $(%ROOT)/mk/all.mk
 

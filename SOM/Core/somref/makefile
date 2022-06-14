@@ -2,7 +2,10 @@
 
 TARGETS=$(ROOT)build$(SEP)include$(SEP)somref.h
 
-ADD_SCOPT = -I$(MYDIR)..$(SEP)contrib$(SEP)somref -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som
+ADD_SCOPT = -D__PRIVATE__ &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somref &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somd &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som
 
 
 !include $(%ROOT)/mk/all.mk
