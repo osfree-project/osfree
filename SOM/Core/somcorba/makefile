@@ -21,3 +21,5 @@ ADD_SCOPT = -D__PRIVATE__ &
 
 .idl: $(MYDIR)..$(SEP)contrib$(SEP)somcorba
 .h: $(IDLH)
+
+$(IDLH)corba.h: $(MYDIR)..$(SEP)contrib$(SEP)somcorba$(SEP)corba.idl

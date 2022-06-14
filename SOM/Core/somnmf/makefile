@@ -11,6 +11,7 @@ xnamingf.h
 
 ADD_SCOPT = -D__PRIVATE__ &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somkpub$(SEP)som &
+            -I$(MYDIR)..$(SEP)contrib$(SEP)somref &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somnmf &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somd &
             -I$(MYDIR)..$(SEP)contrib$(SEP)somu &

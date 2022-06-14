@@ -12,3 +12,5 @@ ADD_SCOPT = -D__PRIVATE__ &
 
 .idl: $(MYDIR)..$(SEP)contrib$(SEP)somref
 .h: $(ROOT)build$(SEP)include
+
+$(ROOT)build$(SEP)include$(SEP)somref.h: $(MYDIR)..$(SEP)contrib$(SEP)somref$(SEP)somref.idl
