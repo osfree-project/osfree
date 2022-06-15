@@ -2,9 +2,15 @@
 # A Makefile for somFree project
 #
 
-DIRS = pdl somipc sc somtk somkpub somdtype
+#TARGET = prepr
+
+DIRS = pdl somipc sc somkpub somdtype
+
 
 # somref somcorba somir somd somnmf somcdr som somany somu somestrm somirfmt Frameworks
 
 !include $(%ROOT)/mk/all.mk
 
+#prepr: .symbolic
+#  $(verbose)$(MDHIER) $(ROOT)build$(SEP)include$(SEP)somidl
+#  $(verbose)$(MDHIER) $(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS)
