@@ -4,6 +4,8 @@ PROJ = som
 TRGT = $(PROJ).dll
 DLL = 1
 DESC = SOM Kernel
+DLLOPT  = initinstance terminstance
+OPTIONS = manyautodata
 srcfiles = $(p)somkern$(e) &
 	 $(p)rhbsomid$(e) &
 	 $(p)somalloc$(e) &
