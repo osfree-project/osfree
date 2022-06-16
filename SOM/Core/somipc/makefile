@@ -36,7 +36,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS LINUX
-OPTS = -d_PLATFORM_UNIX_
+OPTS = -d_PLATFORM_UNIX_ -dHAVE_CONFIG_HPP -dUSE_THREADS -dUSE_PTHREADS
 defs = $(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
