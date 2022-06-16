@@ -4,6 +4,7 @@ PROJ = somipc
 TRGT = $(PROJ).exe
 DESC = SOM IPC
 srcfiles = $(p)rhbsc$(e) &
+	 $(p)rhbseh2$(e) &
 	 $(p)rhbsckih$(e) &
 	 $(p)rhbidl$(e) &
 	 $(p)rhbscemt$(e) &
@@ -26,7 +27,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
-OPTS = -bm -br -dWIN32_LEAN_AND_MEAN -d_WIN32 -dHAVE_CONFIG_HPP
+OPTS = -bm -br -dWIN32_LEAN_AND_MEAN -d_WIN32 -dHAVE_CONFIG_HPP -DBUILD_RHBSEH2
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
@@ -51,6 +52,8 @@ C = r
 !include $(%ROOT)/mk/tools.mk
 
 .cpp: $(MYDIR)..$(SEP)contrib$(SEP)somipc$(SEP)src
+
+.c: $(MYDIR)..$(SEP)contrib$(SEP)rhbseh2$(SEP)src
 
 .h: $(MYDIR)..$(SEP)contrib$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somipc$(SEP)include;$(MYDIR)..$(SEP)contrib$(SEP)somirfmt$(SEP)include
 

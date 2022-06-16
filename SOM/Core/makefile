@@ -4,10 +4,10 @@
 
 #TARGET = prepr
 
-DIRS = pdl somipc sc somkpub somdtype somkprep
+DIRS = pdl somipc sc somkpub somdtype somkprep som
 
 
-# somref somcorba somir somd somnmf somcdr som somany somu somestrm somirfmt Frameworks
+# somref somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks
 
 !include $(%ROOT)/mk/all.mk
 

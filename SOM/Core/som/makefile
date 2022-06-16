@@ -11,11 +11,12 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)somapi$(e) &
 	 $(p)sommutex$(e) &
 	 $(p)somkpath$(e) &
+	 $(p)rhbseh2$(e) &
 	 $(p)somshlb$(e)
 
 DEST    = os2$(SEP)dll
 
-EXPORTS=		somMainProgram	, &
+EXPORTS=	somMainProgram	, &
 			DllMain			, & 
 			SOMInitModule	, & 
 			SOMObjectClassData , &
@@ -115,7 +116,7 @@ ADD_OPTS = -DSTRICT
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS WIN64
-ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT
+ADD_OPTS = -i=$(SOM_DIR)som$(SEP)win32 -D_WIN32 -DSTRICT -DBUILD_RHBSEH2
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 !endif
 !ifeq %OS DOS
@@ -151,7 +152,7 @@ C = r
 #!include $(%ROOT)/mk/libsos2.mk
 
 
-.c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src
+.c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src;$(SOM_DIR)rhbseh2$(SEP)src
 
 .h: $(MYDIR)..$(SEP)contrib$(SEP)include
 
