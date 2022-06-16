@@ -253,9 +253,17 @@ TARGETS: $(PRODUCTS_PDL) $(SOMDTYPE_SC) $(PRODUCTS_SC)
 $(PRODUCTS_PDL): $(SOM_IDL)
   pdl -d $(SOMIDL_IDL) $<
 
-ADD_SCOPT = -I$(SOMIDL_IDL) -DEMIT_SOMDTYPES
+ADD_SCOPT = -I$(SOMIDL_IDL) 
 
 $(SOMDTYPE_SC): $(SOMIDL_IDL)$(SEP)somdtype.idl
+
+$(SOMIDL_HEADERS)$(SEP)somdtype.h: $(SOMIDL_IDL)$(SEP)somdtype.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sh $< -o $^: $(ADD_SCOPT) -DEMIT_SOMDTYPES
+
+$(SOMIDL_HEADERS)$(SEP)somdtype.xh: $(SOMIDL_IDL)$(SEP)somdtype.idl
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sxh $< -o $^: $(ADD_SCOPT)  -DEMIT_SOMDTYPES
 
 #$(PRODUCTS_SC):  $(PRODUCTS_PDL)
 #	$(IDLTOOL) $(SC) $(SOMIDL_IDL) -o $@ -I$(SOMIDL_IDL)
