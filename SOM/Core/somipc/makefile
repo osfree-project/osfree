@@ -26,7 +26,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
 !ifeq %OS WIN64
-OPTS = -br -dWIN32_LEAN_AND_MEAN
+OPTS = -br -dWIN32_LEAN_AND_MEAN -d_WIN32
 defs = $(%WATCOM)$(SEP)h$(SEP)nt
 ADD_LINKOPT = lib clbrdll
 !endif
@@ -36,7 +36,7 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS LINUX
-OPTS =
+OPTS = -d_PLATFORM_UNIX_
 defs = $(%WATCOM)$(SEP)lh
 ADD_LINKOPT = lib clib3r
 !endif
