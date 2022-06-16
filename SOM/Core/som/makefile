@@ -13,6 +13,99 @@ srcfiles = $(p)somkern$(e) &
 	 $(p)somkpath$(e) &
 	 $(p)somshlb$(e)
 
+DEST    = os2$(SEP)dll
+
+EXPORTS=		somMainProgram	, &
+			DllMain			, & 
+			SOMInitModule	, & 
+			SOMObjectClassData , &
+			SOMObjectCClassData , &
+			SOM_WarnLevel                       , &
+			SOMClassMgrObject                   , &
+			SOMRequestMutexSem                  , &
+			SOMReleaseMutexSem                  , &
+			SOMMalloc                           , &
+			SOMCalloc                           , &
+			SOMRealloc                          , &
+			SOMFree                             , &
+			SOMClassCClassData                  , &
+			SOMClassClassData                   , &
+			SOM_TraceLevel                      , &
+			SOM_AssertLevel                     , &
+			SOMError                            , &
+			SOMGetThreadId                      , &
+			SOM_MaxThreads                      , &
+			SOMClassMgrClassData                , &
+			SOMCreateMutexSem                   , &
+			SOMClassMgrCClassData               , &
+			SOMDeleteModule                     , &
+			SOMLoadModule                       , &
+			SOMClassInitFuncName                , &
+			SOM_MajorVersion                    , &
+			SOM_MinorVersion                    , &
+			SOMDestroyMutexSem                  , &
+			SOMObjectNewClass                   , &
+			SOMClassNewClass                    , &
+			SOMClassMgrNewClass                 , &
+			somRegisterClassLibrary             , &
+			somEnvironmentNew                   , &
+			somDataResolve                      , &
+			somDataResolveChk                   , &
+			somResolve                          , &
+			somParentNumResolve                 , &
+			somClassResolve                     , &
+			somAncestorResolve                  , &
+			somResolveByName                    , &
+			somParentResolve                    , &
+			somGetClassFromMToken               , &
+			somBuildClass                       , &
+			somConstructClass                   , &
+			somApply                            , &
+			somEnvironmentEnd                   , &
+			somCheckId                          , &
+			somRegisterId                       , &
+			somIdFromString                     , &
+			somStringFromId                     , &
+			somCompareIds                       , &
+			somUniqueKey                        , &
+			somTotalRegIds                      , &
+			somSetExpectedIds                   , &
+			somBeginPersistentIds               , &
+			somEndPersistentIds                 , &
+			somAbnormalEnd                      , &
+			somLPrintf                          , &
+			somPrintf                           , &
+			somVprintf                          , &
+			somPrefixLevel                      , &
+			somIsObj                            , &
+			somTestCls                          , &
+			somTest                             , &
+			somAssert                           , &
+			somSetOutChar                       , &
+			somExceptionId                      , &
+			somExceptionValue                   , &
+			somExceptionFree                    , &
+			somSetException                     , &
+			somGetGlobalEnvironment             , &
+			somIdMarshal                        , &
+			somStartCriticalSection             , &
+			somEndCriticalSection               , &
+			SOMOutCharRoutine                   , &
+			somCheckArgs                        , &
+			somFreeThreadData                   , &
+			somva_SOMObject_somDispatchV        , &
+			somva_SOMObject_somDispatchL        , &
+			somva_SOMObject_somDispatchA        , &
+			somva_SOMObject_somDispatchD        , &
+			somva_SOMObject_somDispatch         , &
+			somva_SOMObject_somClassDispatch    , &
+			va_SOMObject_somDispatchV           , &
+			va_SOMObject_somDispatchL           , &
+			va_SOMObject_somDispatchA           , &
+			va_SOMObject_somDispatchD           , &
+			va_SOMObject_somDispatch            , &
+			va_SOMObject_somClassDispatch
+
 !ifeq %OS OS2
 ADD_OPTS = 
 defs = $(%WATCOM)$(SEP)h$(SEP)os2
@@ -45,7 +138,6 @@ SOM_INCL= -i=$(SOM_DIR)include &
 		 -i=$(ROOT)build$(SEP)include$(SEP)somidl$(SEP)$(%OS) &
 		 -i=$(SOM_DIR)somkpub$(SEP)include &
 		 -i=$(SOM_DIR)somtk$(SEP)include
-#-i=$(INTDIR) &
 
 ADD_COPT = -dNDEBUG -i=$(defs)  -bc -bm -br -dWIN32_LEAN_AND_MEAN -dHAVE_CONFIG_H &
            $(SOM_INCL) -DBUILD_SOM $(ADD_OPTS)
@@ -56,6 +148,8 @@ ADD_LINKOPT = lib clbrdll
 C = r
 
 !include $(%ROOT)/mk/tools.mk
+#!include $(%ROOT)/mk/libsos2.mk
+
 
 .c: $(MYDIR)..$(SEP)contrib$(SEP)som$(SEP)src;$(SOM_DIR)somid$(SEP)src
 
