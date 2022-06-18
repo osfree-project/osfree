@@ -1,0 +1,21 @@
+
+Directory	Name		Comments
+\OS2		SOMDD.EXE	DSOM daemon. It must be started prior to running a DSOM application
+		SOMDSVR.EXE	Generic DSOM server program
+\OS2\DLL	SOM.DLL		SOM Run-time Library
+		SOMD.DLL	Distributed SOM (DSOM)
+		SOMEM.DLL	SOM Event Manager
+		SOMIR.DLL	CORBA Interface Repository support
+		SOMS.DLL	SOM Sockets library
+		SOMSEC.DLL	SOM Security library
+		SOMTC.DLL	CORBA TypeCode support
+		SOMU.DLL	Metaclass framework
+		SOMUC.DLL	Collection Class Library
+\OS2\ETC	SOM.IR		SOM Implementation Repository. Types, classes, and methods provided by the SOMobjects Framework
+\OS2\ETC\DSOM	SOMDCLS.DAT	Distributed SOM class database
+		SOMDCLS.TOC	Distributed SOM class index
+		SOMDIMPL.DAT	Distributed SOM implementation database
+		SOMDIMPL.TOC	Distributed SOM implementation index
+\OS2\SYSTEM	SOMD.MSG	Messages for SOMD.DLL
+		SOME_OS2.MSG	
+		SOMK.MSG	SOM error messages file
