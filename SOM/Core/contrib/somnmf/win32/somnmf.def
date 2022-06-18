@@ -1,0 +1,79 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+
+LIBRARY		SOMNMF
+VERSION		1.0
+EXPORTS
+		DllMain			PRIVATE
+		SOMInitModule	PRIVATE
+		CosNaming_NamingContextNewClass
+		CosNaming_NamingContextClassData
+		CosNaming_NamingContextCClassData
+		CosNaming_BindingIteratorNewClass
+		CosNaming_BindingIteratorClassData
+		CosNaming_BindingIteratorCClassData
+		FileXNaming_FileENCClassData
+		FileXNaming_FileENCCClassData
+		FileXNaming_FileENCNewClass
+		Biter_BINDITER_ONEClassData
+		Biter_BINDITER_ONECClassData
+		Biter_BINDITER_ONENewClass
+		Biter_BINDITER_TWOClassData
+		Biter_BINDITER_TWOCClassData
+		Biter_BINDITER_TWONewClass
+		ExtendedNaming_ExtendedNamingContextClassData
+		ExtendedNaming_ExtendedNamingContextCClassData
+		ExtendedNaming_ExtendedNamingContextNewClass
+		ExtendedNaming_PropertyBindingIteratorClassData
+		ExtendedNaming_PropertyBindingIteratorCClassData
+		ExtendedNaming_PropertyBindingIteratorNewClass
+		ExtendedNaming_IndexIteratorClassData
+		ExtendedNaming_IndexIteratorCClassData
+		ExtendedNaming_IndexIteratorNewClass
+		FileXNaming_FileENCClassData
+		FileXNaming_FileENCCClassData
+		FileXNaming_FileENCNewClass
+		FileXNaming_FileBindingIteratorClassData
+		FileXNaming_FileBindingIteratorCClassData
+		FileXNaming_FileBindingIteratorNewClass
+		FileXNaming_FPropertyBindingIteratorClassData
+		FileXNaming_FPropertyBindingIteratorCClassData
+		FileXNaming_FPropertyBindingIteratorNewClass
+		FileXNaming_FileIndexIteratorClassData
+		FileXNaming_FileIndexIteratorCClassData
+		FileXNaming_FileIndexIteratorNewClass
+		FileXNaming_FPropertyIteratorClassData
+		FileXNaming_FPropertyIteratorCClassData
+		FileXNaming_FPropertyIteratorNewClass
+		ExtendedNaming_PropertyIteratorClassData
+		ExtendedNaming_PropertyIteratorCClassData
+		ExtendedNaming_PropertyIteratorNewClass
+		create_lname
+		create_lname_component
+		LNameClassData
+		LNameCClassData
+		LNameNewClass
+		LNameComponentClassData
+		LNameComponentCClassData
+		LNameComponentNewClass
+		CosNaming_NamingContextExtClassData
+		CosNaming_NamingContextExtCClassData
+		CosNaming_NamingContextExtNewClass
+

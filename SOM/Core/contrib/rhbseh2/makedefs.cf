@@ -1,0 +1,3 @@
+NAME rhbseh2
+DEPENDS libtools
+PROVIDES rhbseh2

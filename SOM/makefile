@@ -5,7 +5,7 @@
 # valerius, 2006/10/30
 #
 
-DIRS = Frameworks
+DIRS =  Frameworks # Core
 
 !include $(%ROOT)/mk/all.mk
 

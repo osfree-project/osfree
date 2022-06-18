@@ -1,0 +1,3 @@
+NAME shlbtest
+DEPENDS dlopen libtools somkpub
+PROVIDES shlbtest

@@ -1,0 +1,4 @@
+NAME somdd
+DEPENDS somdapps rhbexecd somddmsg
+PROVIDES somdd
+VERSION 1.0

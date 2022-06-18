@@ -1,0 +1,27 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+all: testerr
+
+error.xh: error.idl
+	$(SC) -sxh $(INCL_SOMTK) error.idl
+
+error.xih: error.idl
+	$(SC) -sxih $(INCL_SOMTK) error.idl
+
+error.o: error.cpp error.xih error.xh
+	$(CXX) -c error.cpp -o $@ -I. $(INCL_SOMTK)
+
+testerr.o: testerr.cpp error.xh
+	$(CXX) -c testerr.cpp -o $@ -I. $(INCL_SOMTK) 
+
+testerr: error.o testerr.o
+	$(CXX) error.o testerr.o -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf testerr *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./testerr

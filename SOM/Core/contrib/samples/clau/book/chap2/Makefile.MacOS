@@ -1,0 +1,36 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+all: cHello cppHello
+
+hello.xh: hello.idl
+	$(SC) -sxh $(INCL_SOMTK) hello.idl
+
+hello.xih: hello.idl
+	$(SC) -sxih $(INCL_SOMTK) hello.idl
+
+hello.h: hello.idl
+	$(SC) -sh $(INCL_SOMTK) hello.idl 
+
+hello.o: hello.cpp hello.xih hello.xh
+	$(CXX) -c hello.cpp -o $@ -I. $(INCL_SOMTK)
+
+cmain.o: cmain.c hello.h
+	$(CC) -c cmain.c -o $@ -I. $(INCL_SOMTK) -DSOM_STRICT_IDL
+
+cppmain.o: cppmain.cpp hello.xh
+	$(CXX) -c cppmain.cpp -o $@ -I. $(INCL_SOMTK) 
+
+cHello: hello.o cmain.o
+	$(CXX) hello.o cmain.o -o $@ $(LINK_SOMTK)
+
+cppHello: hello.o cppmain.o
+	$(CXX) hello.o cppmain.o -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf cppHello cHello *.o *.xh *.xih *.h
+
+test:
+	./cHello
+	./cppHello

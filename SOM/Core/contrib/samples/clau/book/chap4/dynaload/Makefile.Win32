@@ -1,0 +1,52 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+OBJS=initfunc.obj dog.obj cat.obj
+
+all: dynaload.exe domestic.dll
+
+cat.xh: cat.idl
+	$(SC) -sxh $(INCL_SOMTK) cat.idl
+
+cat.xih: cat.idl
+	$(SC) -sxih $(INCL_SOMTK) cat.idl
+
+cat.h: cat.idl
+	$(SC) -sh $(INCL_SOMTK) cat.idl 
+
+cat.obj: cat.cpp cat.xih cat.xh
+	$(CL) -c cat.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+dog.xh: dog.idl
+	$(SC) -sxh $(INCL_SOMTK) dog.idl
+
+dog.xih: dog.idl
+	$(SC) -sxih $(INCL_SOMTK) dog.idl
+
+dog.h: dog.idl
+	$(SC) -sh $(INCL_SOMTK) dog.idl 
+
+dog.obj: dog.cpp dog.xih dog.xh
+	$(CL) -c dog.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+initfunc.obj: initfunc.cpp dog.xh cat.xh 
+	$(CL) -c initfunc.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+dynaload.obj: dynaload.cpp dog.xh cat.xh 
+	$(CL) -c dynaload.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+dynaload.exe: dynaload.obj
+	$(CL) dynaload.obj /Fe$@ $(LINK_SOMTK)
+
+domestic.dll: $(OBJS) domestic.Win32.def
+	$(CL) $(OBJS) /LD /Fe$@ $(LINK_SOMTK) /link /DEF:domestic.Win32.def
+
+clean:
+	del /Q dynaload.exe *.obj *.xh *.xih *.h *.dll *.lib *.exp
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	dynaload Cat
+	dynaload Dog

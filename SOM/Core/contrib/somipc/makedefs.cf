@@ -1,0 +1,4 @@
+NAME somipc
+DEPENDS buildenv somirfmt
+PROVIDES somipc
+VERSION 1.0

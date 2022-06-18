@@ -1,0 +1,187 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef fma_idl
+#define fma_idl
+#include <somobj.idl>
+#include <somp.idl>
+#include <mia.idl>
+interface SOMPFileMediaAbstract;
+interface SOMPFileMediaAbstract :
+	SOMPMediaInterfaceAbstract
+{
+	void sompInitReadWrite(
+		in string mediaInfo)
+			raises (SOMPError::sompException);
+	void sompInitReadOnly(
+		in string mediaInfo)
+			raises (SOMPError::sompException);
+	void sompSeekPosition(
+		in long offset)
+			raises (SOMPError::sompException);
+	void sompSeekPositionRel(
+		in long offset)
+			raises (SOMPError::sompException);
+	long sompGetOffset();
+	void sompReadBytes(
+		in string byteStream,
+		in long length)
+			raises (SOMPError::sompException);
+	void sompWriteBytes(
+		in string byteStream,
+		in long length)
+			raises (SOMPError::sompException);
+	void sompWriteOctet(
+		in octet i1)
+			raises (SOMPError::sompException);
+	void sompWriteShort(
+		in short i2)
+			raises (SOMPError::sompException);
+	void sompWriteUnsignedShort(
+		in unsigned short u2)
+			raises (SOMPError::sompException);
+	void sompWriteLong(
+		in long i4)
+			raises (SOMPError::sompException);
+	void sompWriteUnsignedLong(
+		in unsigned long u4)
+			raises (SOMPError::sompException);
+	void sompWriteDouble(
+		in double f8)
+			raises (SOMPError::sompException);
+	void sompWriteFloat(
+		in float f4)
+			raises (SOMPError::sompException);
+	void sompWriteCharacter(
+		in char c)
+			raises (SOMPError::sompException);
+	void sompWriteSomobject(
+		in SOMObject so,
+		in SOMObject parentObject)
+			raises (SOMPError::sompException);
+	void sompWriteString(
+		in string wstring)
+			raises (SOMPError::sompException);
+	void sompReadOctet(
+		inout octet i1)
+			raises (SOMPError::sompException);
+	void sompReadShort(
+		inout short i2)
+			raises (SOMPError::sompException);
+	void sompReadUnsignedShort(
+		inout unsigned short u2)
+			raises (SOMPError::sompException);
+	void sompReadLong(
+		inout long i4)
+			raises (SOMPError::sompException);
+	void sompReadUnsignedLong(
+		inout unsigned long i4)
+			raises (SOMPError::sompException);
+	void sompReadDouble(
+		inout double f8)
+			raises (SOMPError::sompException);
+	void sompReadFloat(
+		inout float f4)
+			raises (SOMPError::sompException);
+	void sompReadCharacter(
+		inout char c)
+			raises (SOMPError::sompException);
+	void sompReadSomobject(
+		inout SOMObject so)
+			raises (SOMPError::sompException);
+	void sompReadString(
+		inout string rstring)
+			raises (SOMPError::sompException);
+	void sompReadStringToBuffer(
+		in string buffer,
+		in long bufsize)
+			raises (SOMPError::sompException);
+	void sompWriteLine(
+		in string buffer)
+			raises (SOMPError::sompException);
+	void sompReadLine(
+		in string buffer,
+		in long bufsize)
+			raises (SOMPError::sompException);
+	void sompWriteTypeCode(
+		in TypeCode tc)
+			raises (SOMPError::sompException);
+	void sompReadTypeCode(
+		inout TypeCode tc)
+			raises (SOMPError::sompException);
+#ifdef __SOMIDL__
+	implementation
+	{
+		callstyle = idl;
+		dllname = "somp.dll";
+		releaseorder : 
+			sompInitReadWrite,
+			sompInitReadOnly,
+			sompOpen,
+			sompClose,
+			sompSeekPosition,
+			sompSeekPositionRel,
+			sompGetOffset,
+			sompReadBytes,
+			sompWriteBytes,
+			sompWriteOctet,
+			sompWriteShort,
+			sompWriteUnsignedShort,
+			private12,
+			sompWriteLong,
+			sompWriteUnsignedLong,
+			sompWriteDouble,
+			sompWriteFloat,
+			sompWriteCharacter,
+			sompWriteSomobject,
+			sompWriteString,
+			sompReadOctet,
+			sompReadShort,
+			sompReadUnsignedShort,
+			private23,
+			sompReadLong,
+			sompReadUnsignedLong,
+			sompReadDouble,
+			sompReadFloat,
+			sompReadCharacter,
+			sompReadSomobject,
+			sompReadString,
+			sompReadStringToBuffer,
+			sompWriteLine,
+			sompReadLine,
+			sompWriteTypeCode,
+			sompReadTypeCode;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = fma;
+#ifdef __PRIVATE__
+		sompOpen : override;
+		sompClose : override;
+		functionprefix = fma_;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* fma_idl */

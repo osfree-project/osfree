@@ -1,0 +1,112 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+ 
+/* 
+ * $Id$
+ */
+
+#ifndef somcm_idl
+#define somcm_idl
+#include <somobj.idl>
+interface Repository;
+
+#ifdef __PRIVATE__
+typedef SOMFOREIGN SOMClassMgrList;
+typedef SOMFOREIGN SOMClassMgrDataPtr;
+#endif
+
+interface SOMClassMgr : SOMObject
+{
+	typedef SOMClass * SOMClassArray;
+	SOMClass somLoadClassFile(in somId classId,in long majorVersion,in long minorVersion,in string file);
+	string somLocateClassFile(in somId classId,in long majorVersion,in long minorVersion);
+	void somRegisterClass(in SOMClass classObj);
+	void somRegisterClassLibrary(in string libraryName,in somMethodPtr libraryInitRtn);
+	void somUnregisterClassLibrary(in string libraryName);
+	long somUnloadClassFile(in SOMClass classObj);
+	long somUnregisterClass(in SOMClass classObj);
+	void somBeginPersistentClasses();
+	void somEndPersistentClasses();
+	boolean somJoinAffinityGroup(in SOMClass newClass,in SOMClass affClass);
+	string somGetInitFunction();
+	attribute Repository somInterfaceRepository;
+	readonly attribute sequence<SOMClass> somRegisteredClasses;
+	SOMClassArray somGetRelatedClasses(in SOMClass classObj);
+	SOMClass somClassFromId(in somId classId);
+	SOMClass somFindClass(in somId classId,in long majorVersion,in long minorVersion);
+	SOMClass somFindClsInFile(in somId classId,in long majorVersion,in long minorVersion,in string file);
+	void somMergeInto(in SOMObject targetObj);
+	long somSubstituteClass(in string origClassName,in string newClassName);
+/*	boolean somImportObject(in SOMObject objToBeShared);*/
+#ifdef __SOMIDL__
+	implementation
+	{
+		somLocateClassFile : dual_owned_result;
+		somGetInitFunction : dual_owned_result;
+#ifdef __PRIVATE__
+		somInterfaceRepository : nodata;
+		somRegisteredClasses : nodata;
+		SOMClassMgrList classList;
+		SOMClassMgrDataPtr prev;
+		SOMClassMgrDataPtr next;
+		SOMClassMgr somClassMgr;
+#endif
+		releaseorder : 
+			somFindClsInFile,
+			somFindClass,
+			somClassFromId,
+			somRegisterClass,
+			somUnregisterClass,
+			somLocateClassFile,
+			somLoadClassFile,
+			somUnloadClassFile,
+			somGetInitFunction,
+			somMergeInto,
+			somGetRelatedClasses,
+			somSubstituteClass,
+			_get_somInterfaceRepository,
+			_set_somInterfaceRepository,
+			_get_somRegisteredClasses,
+			somBeginPersistentClasses,
+			somEndPersistentClasses,
+			somReleaseClasses,
+			somRegisterThreadUsage,
+			somRegisterClassLibrary,
+			somJoinAffinityGroup,
+			somUnregisterClassLibrary,
+			somImportObject,
+			private23,
+			private24;
+		callstyle = oidl;
+		majorversion = 1;
+		minorversion = 4;
+		dllname = "som.dll";
+#ifdef __PRIVATE__
+		somDestruct: override;
+		somDefaultInit: override;
+/*		somFree : override; */
+		somDumpSelfInt : override;
+		functionprefix = "somcm_";
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somcm_idl */

@@ -1,0 +1,57 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+OBJS=robin.obj fly.obj animal.obj meta.obj
+
+all: meta.exe 
+
+animal.xh: animal.idl
+	$(SC) -sxh $(INCL_SOMTK) animal.idl
+
+animal.xih: animal.idl
+	$(SC) -sxih $(INCL_SOMTK) animal.idl
+
+animal.h: animal.idl
+	$(SC) -sh $(INCL_SOMTK) animal.idl 
+
+animal.obj: animal.cpp animal.xih animal.xh
+	$(CL) -c animal.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+fly.xh: fly.idl
+	$(SC) -sxh $(INCL_SOMTK) fly.idl
+
+fly.xih: fly.idl
+	$(SC) -sxih $(INCL_SOMTK) fly.idl
+
+fly.h: fly.idl
+	$(SC) -sh $(INCL_SOMTK) fly.idl 
+
+fly.obj: fly.cpp fly.xih fly.xh animal.xh
+	$(CL) -c fly.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+robin.xh: robin.idl
+	$(SC) -sxh $(INCL_SOMTK) robin.idl
+
+robin.xih: robin.idl
+	$(SC) -sxih $(INCL_SOMTK) robin.idl
+
+robin.h: robin.idl
+	$(SC) -sh $(INCL_SOMTK) robin.idl 
+
+robin.obj: robin.cpp robin.xih robin.xh animal.xh fly.xh
+	$(CL) -c robin.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+meta.obj: meta.cpp animal.xh fly.xh robin.xh
+	$(CL) -c meta.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+meta.exe: $(OBJS)
+	$(CL) $(OBJS) /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q meta.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	meta

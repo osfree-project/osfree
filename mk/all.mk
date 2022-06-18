@@ -279,7 +279,7 @@ OBJS = $+$(srcfiles)$-
 !endif
 !endif
 
-SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd
+SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c .cpp .cc .asm .api .xh .ih .h .hpp .inc .y .l .pas .pp .ipf .map .wmp .rexx .cmd .idl
 
 .SUFFIXES:
 .SUFFIXES: $(SUF)
@@ -315,6 +315,10 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .c16: $(PATH)
 
 .h:   $(PATH)
+
+.xh:   $(PATH)
+
+.ih:   $(PATH)
 
 .hlp: $(PATH)
 
@@ -361,6 +365,8 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .cc: $(MYDIR)
 
 .h:   $(MYDIR)
+
+.idl:   $(MYDIR)
 
 .asm: $(MYDIR)
 
@@ -428,6 +434,22 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 .rexx.exe: .AUTODEPEND
  @$(SAY) WRAPXX   $^. $(LOG)
  $(verbose)rexxwrapper -program=$^* -rexxfiles=$^*.rexx -srcdir=$(%ROOT)$(SEP)tools$(SEP)rexxwrap -compiler=wcc -interpreter=os2rexx -intlib=rexx.lib -intincdir=$(%WATCOM)$(SEP)h$(SEP)os2 -compress $(LOG2)
+
+.idl.ih: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sih $< -o $^: $(ADD_SCOPT)
+
+.idl.xh: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sxh $< -o $^: $(ADD_SCOPT)
+
+.idl.h: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sh $< -o $^: $(ADD_SCOPT)
+
+.idl.api: .AUTODEPEND
+ @$(SAY) SC       $^. $(LOG)
+ $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sapi $< -o $^: $(ADD_SCOPT)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)

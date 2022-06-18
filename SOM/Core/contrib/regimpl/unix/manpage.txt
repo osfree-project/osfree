@@ -1,0 +1,12 @@
+.TH regimpl 8 "4 January 2012"
+.SH NAME
+regimpl(8) \- implementation repository tool
+.SH SYNOPSIS
+.B regimpl
+.SH DESCRIPTION
+.B regimpl
+is a tool to interactively manage the implementation repository used by SOMDD(8).
+.SH ENVIRONMENT
+.I SOMBASE
+.SH "SEE ALSO"
+.BR somdd (8)

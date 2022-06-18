@@ -1,0 +1,3 @@
+NAME svnvers
+DEPENDS config
+PROVIDES svnvers

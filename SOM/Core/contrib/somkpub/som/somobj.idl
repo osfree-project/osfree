@@ -1,0 +1,284 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+ 
+/* 
+ * $Id$
+ */
+
+#ifndef somobj_idl
+#define somobj_idl
+
+/* versions work something like this
+
+	1.x					OS/2 original WPS OIDL/single inheritence
+	2.0		
+	2.1		1.4			(somDefaultInit/somDestruct added)
+	2.5		1.5, 1.6	(1.6 with SOMPCALL, not sure what pcall really does)
+	3.0		1.7			(stringray)
+*/
+
+#define SOMObject_MajorVersion   1
+#define SOMObject_MinorVersion   7
+
+#ifdef __PRIVATE__
+	#if ((SOMObject_MinorVersion >= 7) || (SOMObject_MajorVersion > 1))
+		 #define USE_SOM30 
+	#endif
+#endif
+
+interface SOMClass;
+interface SOMObject;
+
+typedef long int;
+typedef octet uchar_t;
+typedef unsigned long size_t;
+typedef octet signed_char;
+typedef void * SOMFOREIGN;
+typedef SOMFOREIGN FILE;
+#pragma modifier FILE: impctx=C,length=0;
+typedef SOMFOREIGN va_list;
+#pragma modifier va_list: impctx=C;
+typedef SOMFOREIGN SOMHANDLE;
+#pragma modifier SOMHANDLE: impctx=SOM;
+typedef void * somToken;
+typedef SOMFOREIGN somId;
+#pragma modifier somId: impctx="SOM,static(somIdMarshal,0)";
+enum TCKind {tk_null,tk_void,tk_short,tk_long,tk_ushort,tk_ulong,tk_float,tk_double,tk_boolean,tk_char,tk_octet,tk_any,tk_TypeCode,tk_Principal,tk_objref,tk_struct,tk_union,tk_enum,tk_string,tk_sequence,tk_array,tk_pointer,tk_self,tk_foreign};
+typedef somToken somMethodProc;
+typedef somToken somMethodPtr;
+typedef somToken somInitCtrl;
+typedef somToken somInitInfo;
+typedef somToken somDestructCtrl;
+typedef somToken somDestructInfo;
+typedef somToken somAssignCtrl;
+typedef somToken somAssignInfo;
+
+struct somMethodTab
+{
+	SOMClass classObject;
+};
+struct SOMAny
+{
+	somMethodTab * mtab;
+};
+typedef somToken somMToken;
+typedef somToken somDToken;
+struct somMethodDataStruct
+{
+	somId id;
+	long type;
+	somId descriptor;
+	somMToken mToken;
+	somMethodPtr method;
+	somToken * shared;
+};
+typedef somMethodDataStruct somMethodData;
+struct somClassList
+{
+	SOMClass cls;
+	somClassList * next;
+};
+typedef somClassList * somClasses;
+typedef somToken somObjects;
+struct somMethodTabList
+{
+	somMethodTab * mtab;
+	somMethodTabList * next;
+};
+typedef somMethodTabList * somMethodTabs;
+typedef somMethodTabList * somParentMtabStructPtr;
+struct somClassDataStructure
+{
+	SOMClass classObject;
+	somToken tokens[1];
+};
+struct somCClassDataStructure
+{
+	somMethodTabs parentMtab;
+	somDToken instanceDataToken;
+	somMethodPtr ptrs[1];
+};
+typedef somCClassDataStructure *somCClassDataStructurePtr;
+typedef octet * somBooleanVector;
+enum exception_type {NO_EXCEPTION,USER_EXCEPTION,SYSTEM_EXCEPTION};
+struct Environment
+{
+	exception_type major;
+	octet opaque_data[12];
+};
+
+#ifdef __PRIVATE__
+#	ifdef USE_SOM30
+#		define SOMD_BASE_TYPES
+#		define SOMObject_included_somdtype
+		interface InterfaceDef;
+		interface Context;
+		interface ImplementationDef;
+		interface NVList;
+		interface Request;
+#		include <somdtype.idl>
+#	endif
+#endif
+
+interface SOMObject
+{
+	typedef sequence<SOMObject> SOMObjectSequence;
+	typedef sequence<octet> BooleanSequence;
+	struct somObjectOffset { SOMObject obj;	long offset; };
+	typedef sequence<somObjectOffset> somObjectOffsets;
+	void somInit();
+	void somUninit();
+	void somFree();
+	SOMClass somGetClass();
+	string somGetClassName();
+	long somGetSize();
+	boolean somIsA(in SOMClass aClassObj);
+	boolean somIsInstanceOf(in SOMClass aClassObj);
+	boolean somRespondsTo(in somId mId);
+	boolean somDispatch(out somToken retValue,in somId methodId,in va_list ap);
+	boolean somClassDispatch(in SOMClass clsObj,out somToken retValue,in somId methodId,in va_list ap);
+	boolean somCastObj(in SOMClass castedCls);
+	boolean somResetObj();
+	SOMObject somPrintSelf();
+	void somDumpSelf(in long level);
+	void somDumpSelfInt(in long level);
+
+#ifdef __PRIVATE__
+	/* these migrated from SOMDObject */
+	#ifdef USE_SOM30
+		SOMObject duplicate(out Environment ev);
+		ImplementationDef get_implementation(out Environment ev);
+		InterfaceDef get_interface(out Environment ev);
+		boolean is_proxy(out Environment ev);
+		void release(out Environment ev);
+		ORBStatus create_request(out Environment ev,in Context ctx,in string operation,in NVList arg_list,inout NamedValue result,out Request request,in Flags req_flags);
+		ORBStatus create_request_args(out Environment ev,in string operation,out NVList arg_list,out NamedValue result);
+		boolean is_nil_migrated(out Environment ev);
+	#endif
+
+	/* obsolete methods, use somDispatch */
+	void somDispatchV(in somId methodId,in somId descriptor,in va_list ap);
+	long somDispatchL(in somId methodId,in somId descriptor,in va_list ap);
+	somToken somDispatchA(in somId methodId,in somId descriptor,in va_list ap);
+	double somDispatchD(in somId methodId,in somId descriptor,in va_list ap);
+#endif
+
+	/* SOM 2.1 style constructors/destructors */
+
+	void somDefaultInit(inout somInitCtrl ctrl);
+	void somDefaultCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultConstCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+	void somDefaultConstVCopyInit(inout somInitCtrl ctrl,in SOMObject fromObj);
+
+	SOMObject somDefaultAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultConstAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+	SOMObject somDefaultConstVAssign(inout somAssignCtrl ctrl,in SOMObject fromObj);
+
+	void somDestruct(in octet doFree,inout somDestructCtrl ctrl);
+
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			somInit,
+			somUninit,
+			somFree,
+			somDefaultVCopyInit,
+			somGetClassName,
+			somGetClass,
+			somIsA,
+			somRespondsTo,
+			somIsInstanceOf,
+			somGetSize,
+			somDumpSelf,
+			somDumpSelfInt,
+			somPrintSelf,
+			somDefaultConstVCopyInit,
+			somDispatchV,
+			somDispatchL,
+			somDispatchA,
+			somDispatchD,
+			somDispatch,
+			somClassDispatch,
+			somCastObj,
+			somResetObj,
+			somDefaultInit,
+			somDestruct,
+			somComputeForwardVisitMask,
+			somComputeReverseVisitMask,
+			somDefaultCopyInit,
+			somDefaultConstCopyInit,
+			somDefaultAssign,
+			somDefaultConstAssign,
+			somDefaultVAssign,
+			somDefaultConstVAssign,
+			release,
+			duplicate,
+			get_interface,
+			get_implementation,
+			is_proxy,
+			create_request,
+			create_request_args,
+#ifdef __PRIVATE__
+			is_nil_migrated;
+#else
+			is_nil;
+#endif
+#ifdef __PRIVATE__
+		functionprefix = somobj_;
+	#ifdef USE_SOM30
+		is_nil_migrated: procedure;
+	#endif
+#endif
+		callstyle = oidl;
+		majorversion = SOMObject_MajorVersion;
+		minorversion = SOMObject_MinorVersion;
+		dllname = "som.dll";
+
+		somGetClass : dual_owned_result;
+		somGetClassName : dual_owned_result;
+
+		somDefaultInit: init;
+		somDefaultCopyInit: init;
+		somDefaultConstCopyInit: init;
+		somDefaultVCopyInit: init;
+		somDefaultConstVCopyInit: init;
+
+		somDefaultInit: caller_owns_parameters="ctrl";
+		somDestruct: caller_owns_parameters="ctrl";
+		somDefaultCopyInit: caller_owns_parameters="ctrl";
+		somDefaultConstCopyInit: caller_owns_parameters="ctrl";
+		somDefaultVCopyInit: caller_owns_parameters="ctrl";
+		somDefaultConstVCopyInit: caller_owns_parameters="ctrl";
+		somDefaultAssign: caller_owns_parameters="ctrl";
+		somDefaultConstAssign: caller_owns_parameters="ctrl";
+		somDefaultVAssign: caller_owns_parameters="ctrl";
+		somDefaultConstVAssign: caller_owns_parameters="ctrl";
+
+		somRespondsTo: caller_owns_parameters="mId";
+		somDispatch: caller_owns_parameters="methodId,ap";
+		somClassDispatch: caller_owns_parameters="methodId,ap";
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somobj_idl */

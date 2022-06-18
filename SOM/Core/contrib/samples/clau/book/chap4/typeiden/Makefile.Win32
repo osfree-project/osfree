@@ -1,0 +1,57 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+OBJS=calc.obj empl.obj mgr.obj prg.obj
+
+all: calc.exe
+
+prg.xh: prg.idl
+	$(SC) -sxh $(INCL_SOMTK) prg.idl
+
+prg.xih: prg.idl
+	$(SC) -sxih $(INCL_SOMTK) prg.idl
+
+prg.h: prg.idl
+	$(SC) -sh $(INCL_SOMTK) prg.idl 
+
+prg.obj: prg.cpp prg.xih prg.xh
+	$(CL) -c prg.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+empl.xh: empl.idl
+	$(SC) -sxh $(INCL_SOMTK) empl.idl
+
+empl.xih: empl.idl
+	$(SC) -sxih $(INCL_SOMTK) empl.idl
+
+empl.h: empl.idl
+	$(SC) -sh $(INCL_SOMTK) empl.idl 
+
+empl.obj: empl.cpp empl.xih empl.xh
+	$(CL) -c empl.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+mgr.xh: mgr.idl
+	$(SC) -sxh $(INCL_SOMTK) mgr.idl
+
+mgr.xih: mgr.idl
+	$(SC) -sxih $(INCL_SOMTK) mgr.idl
+
+mgr.h: mgr.idl
+	$(SC) -sh $(INCL_SOMTK) mgr.idl 
+
+mgr.obj: mgr.cpp mgr.xih mgr.xh
+	$(CL) -c mgr.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+calc.obj: calc.cpp mgr.xh prg.xh empl.xh
+	$(CL) -c calc.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+calc.exe: $(OBJS)
+	$(CL) $(OBJS) /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q calc.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	calc

@@ -1,0 +1,103 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somref_idl
+	#define somref_idl
+		#include <somobj.idl>
+
+	/***********************************************
+	 *  On the Apple Macintosh CFM version of SOM,
+	 *	somobj.idl defines SOMRefObject as SOMObject
+	 *	whereas other platforms define SOMRefObject
+	 *  as a true interface
+     *
+	 *	SOM 3.0 migrates various methods from
+	 *		SOMDObject to SOMObject
+     *
+	 *	duplicate() and release() will be overridden here
+	 */
+
+	#ifdef SOMRefObject
+		/* this means we are on Apples SOM */
+	#else
+#ifdef __PRIVATE__
+		typedef somToken SOMRefObjectPrivateData;
+#endif
+		interface SOMRefObject : SOMObject
+		{
+			SOMObject somDuplicateReference();
+			boolean somCompareReference(in SOMObject anObject);
+			SOMObject somRelease();
+			boolean somCanDelete();
+		#ifdef __SOMIDL__
+			implementation
+			{
+#ifdef __PRIVATE__
+				SOMRefObjectPrivateData fData;
+#endif
+				somRelease : nooverride;
+				releaseorder : 
+					somDuplicateReference,
+					somCompareReference,
+					somRelease,
+					somCanDelete;
+				callstyle = oidl;
+				majorversion = 70;
+				minorversion = 1;
+				filestem = somref;
+				dllname = "somref.dll";
+#ifdef __PRIVATE__
+				classinit: clsInit;
+				somFree : override;
+				somDefaultInit: override;
+				somDestruct: override;
+				duplicate : override;
+				release : override;
+				functionprefix = somro_;
+#endif
+				passthru C_h=
+					"#include <som.h>"
+					"typedef char *corbastring;"
+					"SOMEXTERN SOMClassMgr SOMSTAR SOMLINK somGetClassManagerReference(void);"
+					"SOMEXTERN void SOMLINK somReleaseObjectReference(SOMObject SOMSTAR);"
+					"SOMEXTERN void SOMLINK somReleaseClassReference(SOMClass SOMSTAR);"
+					"SOMEXTERN void SOMLINK somReleaseClassManagerReference(SOMClass SOMSTAR);"
+					"SOMEXTERN corbastring SOMLINK somMakeStringFromId(somId id);"
+					"";
+
+				passthru C_xh=
+					"#include <som.xh>"
+					"typedef char *corbastring;"
+					"SOMEXTERN SOMClassMgr * SOMLINK somGetClassManagerReference(void);"
+					"SOMEXTERN void SOMLINK somReleaseObjectReference(SOMObject *);"
+					"SOMEXTERN void SOMLINK somReleaseClassReference(SOMClass *);"
+					"SOMEXTERN void SOMLINK somReleaseClassManagerReference(SOMClass *);"
+					"SOMEXTERN corbastring SOMLINK somMakeStringFromId(somId id);"
+					"";
+			};
+		#endif /* __SOMIDL__ */
+		};
+	#endif
+#endif /* somref_idl */

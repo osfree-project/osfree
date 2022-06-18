@@ -1,0 +1,3 @@
+NAME config
+DEPENDS missing include libeay32
+PROVIDES config

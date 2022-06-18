@@ -1,0 +1,124 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef __servreq_idl__
+#define __servreq_idl__
+
+#include <somref.idl>
+#include <nvlist.idl>
+#include <cntxt.idl>
+
+#ifdef __PRIVATE__
+#include <rhbtypes.idl>
+#endif
+
+/*
+The identity and/or reference of the target object of the invocation is provided by the
+object adapter and its language mapping. In the context of a bridge, the target object will
+typically be a proxy for an object in some other ORB.
+The operation attribute provides the identifier naming the operation being invoked;
+according to OMG IDL's rules, these names must be unique among all operations
+supported by the object's "most-derived" interface. Note that the operation names for
+getting and setting attributes are _get_<attribute_name> and
+_set_<attribute_name>, respectively. The operation attribute can be accessed by the
+DIR at any time.
+Operation parameter types will be specified, and "in" and "inout" argument values will
+be retrieved, with arguments. Unless it calls set_exception, the DIR must call
+arguments exactly once, even if the operation signature contains no parameters. Once
+arguments or set_exception has been called, calling arguments on the same
+ServerRequest will result in a BAD_INV_ORDER system exception. The DIR must
+pass in to arguments an NVList initialized with TypeCodes and Flags describing the
+parameter types for the operation, in the order in which they appear in the IDL
+specification (left to right). A potentially-different NVList will be returned from
+arguments, with the "in" and "inout" argument values supplied. If it does not call
+set_exception, the DIR must supply the returned NVList with return values for any
+"out" arguments before returning, and may also change the return values for any "inout"
+arguments.
+
+When the operation is not an attribute access, and the operation's IDL definition contains
+a context expression, ctx will return the context information specified in IDL for the
+operation. Otherwise it will return a nil Context reference. Calling ctx before
+arguments has been called or after ctx, set_result, or set_exception has been
+called will result in a BAD_INV_ORDER system exception.
+The set_result operation is used to specify any return value for the call. Unless
+set_exception is called, if the invoked operation has a non-void result type,
+set_result must be called exactly once before the DIR returns. If the operation has a
+void result type, set_result may optionally be called once with an Any whose type is
+tk_void. Calling set_result before arguments has been called or after set_result or
+set_exception has been called will result in a BAD_INV_ORDER system exception.
+Calling set_result without having previously called ctx when the operation IDL
+contains a context expression, or when the NVList passed to arguments did not
+describe all parameters passed by the client, may result in a MARSHAL system
+exception.
+The DIR may call set_exception at any time to return an exception to the client. The
+Any passed to set_exception must contain either a system exception or one of the user
+exceptions specified in the raises expression of the invoked operation’s IDL definition.
+Passing in an Any that does not contain an exception will result in a BAD_PARAM
+system exception. Passing in an unlisted user exception will result in either the DIR
+receiving a BAD_PARAM system exception or in the client receiving an
+UNKNOWN_EXCEPTION system exception.
+See each language mapping for a description of the memory management aspects of the
+parameters to the ServerRequest operations.
+*/
+
+interface ServerRequest
+#ifdef __SOMIDL__
+ : SOMRefObject
+#endif
+{ 
+	readonly attribute Identifier operation;
+	void arguments(inout NVList nv);
+	Context ctx();
+	void set_result(in any val);
+	void set_exception(in any val);
+#ifdef __SOMIDL__
+#ifdef __PRIVATE__
+	attribute RHBServerRequest *c_request;
+#endif
+	implementation
+	{
+		dllname = "somd.dll";
+		majorversion = 1;
+		minorversion = 0;
+		releaseorder: 
+				_get_operation,
+				arguments,
+				ctx,
+				set_result,
+				set_exception,
+				_get_c_request,
+				_set_c_request;
+		_get_operation: object_owns_result;
+#ifdef __PRIVATE__
+		c_request: noset,noget;
+		operation : noget;
+		functionprefix = "servreq_";
+		somUninit: override;
+#endif
+	};
+#endif
+};
+
+#endif

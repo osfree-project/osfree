@@ -1,0 +1,122 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef intfacdf_idl
+#define intfacdf_idl
+#include <containd.idl>
+#include <containr.idl>
+#include <attribdf.idl>
+#include <operatdf.idl>
+
+#ifdef __PRIVATE__
+interface M_InterfaceDef : M_Contained
+{
+#ifdef __SOMIDL__
+	implementation
+	{
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		dllname = "somir.dll";
+#ifdef __PRIVATE__
+	#ifdef SOMRefObject
+		somUninit : override;
+	#else
+		somDefaultInit: override;
+		somDestruct : override;
+	#endif
+		functionprefix = m_intfacdf_;
+#endif
+	};
+#endif
+};
+#endif
+
+interface InterfaceDef : Contained,Container
+{
+	struct FullInterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+		sequence<OperationDef::OperationDescription> operation;
+		sequence<AttributeDef::AttributeDescription> attributes;
+	};
+	struct InterfaceDescription
+	{
+		Identifier name;
+		RepositoryId id;
+		RepositoryId defined_in;
+	};
+	attribute sequence<RepositoryId> base_interfaces;
+	FullInterfaceDescription describe_interface();
+	attribute TypeCode instanceData;
+
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		base_interfaces : nodata;
+		instanceData : nodata;
+#endif
+		_set_base_interfaces : caller_owns_parameters="base_interfaces";
+		_set_instanceData : caller_owns_parameters="instanceData";
+		_get_instanceData: dual_owned_result;
+		_get_base_interfaces: dual_owned_result;
+		describe_interface: dual_owned_result;
+		releaseorder : 
+			describe_interface,
+			_get_base_interfaces,
+			_set_base_interfaces,
+			_get_instanceData,
+			_set_instanceData,
+			subclasses;
+		callstyle = idl;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = intfacdf;
+		dllname = "somir.dll";
+#ifdef __PRIVATE__
+		metaclass=M_InterfaceDef;
+		private_build : override;
+	#ifdef SOMRefObject
+		somUninit : override;
+	#else
+		somDefaultInit: override;
+		somDestruct : override;
+	#endif
+		somDumpSelf : override;
+		somDumpSelfInt : override;
+		lookup_name : override;
+		get_description_type: override;
+		operations: nodata;
+		attributes: nodata;
+		functionprefix = intfacdf_;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+
+#endif /* intfacdf_idl */

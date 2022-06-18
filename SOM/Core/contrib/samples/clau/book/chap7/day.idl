@@ -1,0 +1,67 @@
+/**************************************************************************
+ *
+ *  Copyright 1994, Christina Lau
+ *
+ *  This file is part of Object-Orientated Programming using SOM and DSOM.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+#ifndef day_idl
+#define day_idl
+
+#include <replicbl.idl>
+
+interface WorkItem;
+
+interface Day : SOMRReplicbl
+{
+  const unsigned long MAXITEM = 50;
+  attribute long date; 
+  attribute sequence<WorkItem,MAXITEM> workList;
+
+  short book2(in string start, in string end, in string desc);
+  short removeItem(in string start, in string end, in string desc);
+
+  void  initReplica(in string replicaName);
+ 
+  void registerView(in SOMObject anyObj, in string methodName);
+  void notifyView(in long eventId);
+  SOMObject getViewObject();
+
+  #ifdef __SOMIDL__
+  implementation
+  {
+    releaseorder : _get_date, _set_date,
+                   _get_workList, _set_workList,
+                   book2, removeItem,
+                   initReplica, registerView, notifyView,
+                   getViewObject;
+
+    string            methodName;
+    SOMObject         objectPtr;
+
+    somInit:          override;
+    somUninit:        override;
+    somrGetState:     override;
+    somrSetState:     override;
+    somrDoDirective:  override;
+
+    dllname = "calendar.dll";
+  };
+  #endif
+};
+#endif
+

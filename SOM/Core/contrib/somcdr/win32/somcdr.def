@@ -1,0 +1,50 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+;
+
+LIBRARY		SOMCDR
+VERSION		1.0
+EXPORTS
+		SOMInitModule	PRIVATE
+		DllMain			PRIVATE
+		RHBCDR_cast_any_to_string
+		RHBCDR_cast_any_to_long
+		RHBCDR_cast_any_to_ulong
+		RHBCDR_cast_any_to_enum
+		RHBCDR_cast_any_to_TypeCode
+		RHBCDR_cast_any_to_SOMObject
+		RHBCDR_free_data
+		RHBCDR_copy_from
+		RHBCDR_get_named_element
+		RHBCDR_get_nth_element
+		RHBCDR_count_elements
+		RHBCDR_IDLenumToGIOPenum
+		RHBCDR_GIOPenumToIDLenum
+		RHBCDR_swap_bytes
+		RHBCDR_kds_init
+		RHBCDR_unmarshal
+		RHBCDR_marshal
+		SOMCDR_CDRInputStreamClassData
+		SOMCDR_CDRInputStreamCClassData
+		SOMCDR_CDRInputStreamNewClass
+		SOMCDR_CDROutputStreamClassData
+		SOMCDR_CDROutputStreamCClassData
+		SOMCDR_CDROutputStreamNewClass
+		somMakeStringFromId

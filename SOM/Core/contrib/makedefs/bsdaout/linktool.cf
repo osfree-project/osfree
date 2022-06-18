@@ -1,0 +1,134 @@
+LINKTOOL_SET_SONAME=aoutSetSoname
+LINKTOOL_SET_EXPORT_FILE=aoutSetExportFile
+LINKTOOL_EMIT_EXPORTS=aoutEmitExports
+LINKTOOL_VERSION=aoutVersion
+LINKTOOL_LINKSHLB=aoutLink
+LINKTOOL_LINKDLL=aoutLinkDll
+LINKTOOL_SYMLINK=aoutSymLink
+LINKTOOL_STUBLIB=aoutSymLink
+LINKTOOL_GETVERSIONS=aoutGetVersions
+
+aoutSymLink()
+{
+	echo
+	echo_n $1": "
+	echo $2
+	echo_n "	echo \$@"
+	echo
+	echo
+}
+
+aoutSetSoname()
+{
+	echo_n " -soname $1 "
+}
+
+aoutSetExportFile()
+{
+	echo_n " "
+}
+
+aoutEmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+		else
+			if is_member $exp "$DLL_EXPORTS"
+			then
+				if test "$NAME" != ""
+				then
+					echo _${NAME}_$exp
+				fi
+			else
+				echo _"$exp"
+			fi
+		fi
+	done
+}
+
+aoutVersion()
+{
+	case "$1" in
+	*lib*.so )
+		if test "$2" = ""
+		then
+			echo $1
+		else
+			echo $1.$2
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+aoutLink()
+{
+	echo_n LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+
+	for eld in $IMPORT_DIRS
+	do
+		echo_n ":"$eld
+	done
+
+	for eld in $LIBDIRS
+	do
+		echo_n ":"$eld
+	done
+
+	echo_n " "
+
+	if test -f $INTDIR/_weak.ref
+	then
+		rm $INTDIR/_weak.ref
+	fi
+
+	echo_n "\$(LD) \$(LDFLAGS) -Bshareable -Bdynamic "
+}
+
+aoutLinkDll()
+{
+	do_dll_proxy_src >$INTDIR/$NAME.dll.c
+	do_dll_proxy_exp >$INTDIR/$NAME.dll.def
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.dll.c $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def"
+	echo
+	echo $INTDIR/$NAME.dll.c.o: $INTDIR/$NAME.dll.c
+	echo_n "	\$(CC_DLL) -c $INTDIR/$NAME.dll.c -o \$@"
+	echo
+	echo
+	echo $1: $2 $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def
+	echo_n "	if test -f \$@; then rm \$@; fi"
+	echo
+	echo_n "	"
+
+	aoutLink
+
+	$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.dll.def
+	echo_n " " $INTDIR/$NAME.dll.c.o
+	echo_n " -L"`dirname $2` " -l"$NAME
+
+	for eld in $IMPORT_DIRS
+	do
+		echo_n " -L"$eld
+	done
+	for eld in $IMPORT_LIBS
+	do
+		echo_n " -l"$eld
+	done
+
+	echo_n " $LIBDIRS"
+	echo_n " $LIBLIST"
+
+	echo  " -o \$@"
+	echo
+}
+
+aoutGetVersions()
+{
+	echo $@
+}

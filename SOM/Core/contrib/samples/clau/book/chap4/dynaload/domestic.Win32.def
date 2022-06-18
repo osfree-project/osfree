@@ -1,0 +1,9 @@
+LIBRARY domestic 
+EXPORTS
+   SOMInitModule
+   CatCClassData
+   CatClassData
+   CatNewClass
+   DogCClassData
+   DogClassData
+   DogNewClass

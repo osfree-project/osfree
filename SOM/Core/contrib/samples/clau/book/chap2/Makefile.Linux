@@ -1,0 +1,37 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+all: cHello cppHello
+
+hello.xh: hello.idl
+	$(SC) -sxh $(INCL_SOMTK) hello.idl
+
+hello.xih: hello.idl
+	$(SC) -sxih $(INCL_SOMTK) hello.idl
+
+hello.h: hello.idl
+	$(SC) -sh $(INCL_SOMTK) hello.idl 
+
+hello.o: hello.cpp hello.xih hello.xh
+	$(CXX) $(CXXFLAGS) -c hello.cpp -o $@ -I. $(INCL_SOMTK)
+
+cMain.o: cMain.c hello.h
+	$(CC) $(CFLAGS) -c cMain.c -o $@ -I. $(INCL_SOMTK) -DSOM_STRICT_IDL
+
+cppMain.o: cppMain.cpp hello.xh
+	$(CXX) $(CXXFLAGS) -c cppMain.cpp -o $@ -I. $(INCL_SOMTK) 
+
+cHello: hello.o cMain.o
+	$(CXX) $(CXXFLAGS) hello.o cMain.o -o $@ $(LINK_SOMTK)
+
+cppHello: hello.o cppMain.o
+	$(CXX) $(CXXFLAGS) hello.o cppMain.o -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf cppHello cHello *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./cHello
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./cppHello

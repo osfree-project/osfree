@@ -1,0 +1,182 @@
+LINKTOOL_SET_SONAME=elfSetSoname
+LINKTOOL_SET_EXPORT_FILE=elfSetExportFile
+LINKTOOL_EMIT_EXPORTS=elfEmitExports
+LINKTOOL_VERSION=elfVersion
+LINKTOOL_LINKSHLB=elfLink
+LINKTOOL_LINKDLL=elfLinkDll
+
+use_linkwrapper()
+{
+	if ( echo __GNUC__ | $CC $CFLAGS -E - | grep __GNUC__ >/dev/null )
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+elfLinkOpt()
+{
+	GOVERNOR=$1
+	shift
+
+	if $GOVERNOR
+	then
+		echo_n " -Wl"
+	else
+		echo_n " "
+	fi
+
+	while test "$1" != ""
+	do
+		if $GOVERNOR
+		then
+			echo_n ","
+		else
+			echo_n " "
+		fi
+		echo_n $1
+		shift
+	done
+}
+
+elfSetSoname()
+{
+	elfLinkOpt `use_linkwrapper` "-soname" "$1"
+}
+
+elfSetExportFile()
+{
+	elfLinkOpt `use_linkwrapper` "-exports_file" "$1"
+}
+
+elfEmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+		else
+			if is_member $exp "$DLL_EXPORTS"
+			then
+				if test "$NAME" != ""
+				then
+					echo ${NAME}_$exp
+				fi
+			else
+				echo "$exp"
+			fi
+		fi
+	done
+}
+
+elfVersion()
+{
+	case "$1" in
+	*lib*.so )
+		if test "$2" != ""
+		then
+			echo $1.$2
+		else
+			echo $1
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+elfLink()
+{
+	GOVERNOR=`use_linkwrapper`
+
+	echo_n "../../toolbox/asneeded.sh "
+
+	if $GOVERNOR
+	then
+		if is_member -cxx $@
+		then
+			echo_n " \$(CXX) \$(CXXFLAGS)"
+		else
+			echo_n " \$(CC) \$(CFLAGS)"
+		fi
+	else	
+		echo_n	" \$(LD) \$(LDFLAGS)"
+	fi
+
+	echo_n " -shared"
+
+	elfLinkOpt $GOVERNOR -LD_MSG:error=157
+	elfLinkOpt $GOVERNOR -no_unresolved
+	elfLinkOpt $GOVERNOR -B symbolic
+#	elfLinkOpt $GOVERNOR -update_registry $INTDIR/so_locations
+	elfLinkOpt $GOVERNOR -update_registry `dirname $FINAL_BINARY`/so_locations
+
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/so_locations"
+
+	if test "$VERSION" != ""
+	then
+		elfLinkOpt $GOVERNOR -set_version "$VERSION"
+	fi
+}
+
+elfLinkDll()
+{
+	GOVERNOR=`use_linkwrapper`
+
+	do_dll_proxy_src >$INTDIR/$NAME.dll.c
+	do_dll_proxy_exp >$INTDIR/$NAME.dll.def
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.dll.c $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def"
+	echo
+	echo $INTDIR/$NAME.dll.c.o: $INTDIR/$NAME.dll.c
+	echo_n "	\$(CC_DLL) -c $INTDIR/$NAME.dll.c -o \$@"
+	echo
+	echo
+	echo $1: $2 $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def
+	echo_n "	if test -f \$@; then rm \$@; fi"
+	echo
+	echo_n "	"
+	echo_n "../../toolbox/asneeded.sh "
+
+	if $GOVERNOR
+	then
+		echo_n "\$(CC) \$(CFLAGS)"
+	else
+		echo_n "\$(LD) \$(LDFLAGS)"
+	fi
+
+	echo_n " -shared"
+
+	elfLinkOpt $GOVERNOR -LD_MSG:error=157
+	elfLinkOpt $GOVERNOR -no_unresolved
+	elfLinkOpt $GOVERNOR -B symbolic
+#	elfLinkOpt $GOVERNOR -update_registry $INTDIR/so_locations
+	elfLinkOpt $GOVERNOR -update_registry `dirname $FINAL_BINARY`/so_locations
+
+
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/so_locations"
+
+	$LINKTOOL_SET_SONAME `basename $1`
+	echo_n " "
+	$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.dll.def
+	echo_n " " $INTDIR/$NAME.dll.c.o
+	echo_n " -L"`dirname $2` " -l"$NAME
+
+	for eld in $IMPORT_DIRS
+	do
+		echo_n " -L"$eld
+	done
+	for eld in $IMPORT_LIBS
+	do
+		echo_n " -l"$eld
+	done
+
+	echo_n " $LIBDIRS"
+	echo_n " $LIBLIST"
+
+	echo  " -o \$@"
+	echo
+}

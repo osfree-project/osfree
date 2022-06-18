@@ -1,0 +1,3 @@
+NAME rhbmtut
+DEPENDS buildenv
+PROVIDES rhbmtut

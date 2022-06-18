@@ -1,0 +1,42 @@
+/* @(#) somc/gen_idl.efw 2.3 9/15/93 08:28:50 [10/5/93 13:12:18] */
+
+/*
+ * 96F8647, 96F8648 (C) Copyright IBM Corp. 1992, 1993
+ * All Rights Reserved
+ * Licensed Materials - Property of IBM
+ */
+
+/*
+ *         File:    ReportEmitter.idl
+ *       Author:    SOMObjects Emitter Framework
+ *     Contents:    Generic framework logic class for ReportEmitter.
+ *         Date:    Mon Jan  3 18:24:25 1994.
+ */
+
+#ifndef ReportEmitter_idl
+#define ReportEmitter_idl
+
+#include <scemit.idl>
+interface ReportEmitter : SOMTEmitC
+{
+  #ifdef __SOMIDL__
+  implementation 
+  {
+    //# Class Modifiers
+    callstyle = oidl;
+  
+    //# Method Modifiers
+    somtGenerateSections: override;
+
+    somtEmitMethod: override;
+    somtEmitAttribute: override;
+    somInit: override;
+
+    short numOfAttributes;
+    short numOfMethods;
+  };
+  #endif /* __SOMIDL__ */
+};
+
+#endif  /* ReportEmitter_idl */
+

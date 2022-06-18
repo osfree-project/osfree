@@ -1,0 +1,171 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdobj_idl
+#define somdobj_idl
+#include <somobj.idl>
+#ifdef __PRIVATE__
+#include <somref.idl>
+#endif
+#include <unotypes.idl>
+
+#include <containd.idl>
+
+#ifdef __PRIVATE__
+#include <rhbtypes.idl>
+#endif /* __PRIVATE__ */
+
+interface ImplementationDef;
+interface InterfaceDef;
+interface NVList;
+interface Request;
+interface Context;
+
+interface SOMDObject : 
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	boolean is_nil();
+	boolean is_SOM_ref();
+	boolean is_constant();
+
+#ifdef __PRIVATE__
+	#ifdef USE_SOM30
+		#define migrate_SOMObject
+	#else
+		ImplementationDef get_implementation();
+		InterfaceDef get_interface();
+		boolean is_proxy();
+		SOMObject duplicate();
+		void release();
+		ORBStatus create_request(in Context ctx,in Identifier operation,in NVList arg_list,inout NamedValue result,out Request request,in Flags req_flags);
+		ORBStatus create_request_args(in Identifier operation,out NVList arg_list,out NamedValue result);
+	#endif
+#else
+	ImplementationDef get_implementation();
+	InterfaceDef get_interface();
+	boolean is_proxy();
+	SOMObject duplicate();
+	void release();
+	ORBStatus create_request(in Context ctx,in Identifier operation,in NVList arg_list,inout NamedValue result,out Request request,in Flags req_flags);
+	ORBStatus create_request_args(in Identifier operation,out NVList arg_list,out NamedValue result);
+#endif
+
+	attribute string type_id;
+#ifdef __PRIVATE__
+	attribute somToken somd_rid;
+	attribute unsigned short somd_flags;
+	attribute somToken somd_impl;
+	readonly attribute somToken somd_tag;
+	attribute sequence<octet> somd_id;
+	readonly attribute RHBObject *c_proxy;
+	void somdMarshal(in SOMObject stream);
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+	#ifdef __PRIVATE__
+		RHBObject object;
+		type_id : nodata;
+		c_proxy: nodata;
+		_get_c_proxy: procedure;
+		somd_id: nodata;
+		somd_tag: nodata;
+		somd_impl: nodata;
+		somd_flags: nodata;
+		somd_rid: nodata;
+	#endif
+		is_nil : procedure;
+		releaseorder : 
+			get_implementation,
+			get_interface,
+			get_c_proxy,
+			is_nil,
+			is_SOM_ref,
+			is_constant,
+			is_proxy,
+			duplicate,
+			release,
+			create_request,
+			create_request_args,
+			_get_somd_tag,
+			_get_somd_flags,
+			_set_somd_flags,
+			_get_somd_impl,
+			_set_somd_impl,
+			_get_somd_rid,
+			_set_somd_rid,
+			_get_somd_id,
+			_set_somd_id,
+			somdMarshal,
+			set_to_nil,
+			_get_type_id,
+			_set_type_id;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 1;
+#ifdef __PRIVATE__
+		override:
+	#ifdef migrate_SOMObject
+			is_proxy,
+			get_implementation,
+			get_interface,
+			create_request,
+			create_request_args,
+			duplicate,
+			release,
+	#endif
+	#ifdef SOMRefObject
+			somInit,
+			somUninit,
+	#else
+			somDefaultInit,
+			somDestruct,
+	#endif
+			somDumpSelfInt,
+			somDispatch,
+			somPrintSelf;
+		functionprefix = "somdobj_";
+	#ifndef SOMRefObject
+		classinit: clsInit;
+	#endif
+	#ifdef migrate_SOMObject
+		is_proxy: migrate=SOMObject;
+		get_implementation: migrate=SOMObject;
+		get_interface: migrate=SOMObject;
+		create_request: migrate=SOMObject;
+		create_request_args: migrate=SOMObject;
+		duplicate: migrate=SOMObject;
+		release: migrate=SOMObject;
+	#endif
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somdobj_idl */

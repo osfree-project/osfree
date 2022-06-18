@@ -1,0 +1,1 @@
+somFree: Open source SOM replacement. (License: LGPLv3)

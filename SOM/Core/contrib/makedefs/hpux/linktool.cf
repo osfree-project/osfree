@@ -1,0 +1,143 @@
+LINKTOOL_SET_SONAME=hpuxSetSoname
+LINKTOOL_SET_EXPORT_FILE=hpuxSetExportFile
+LINKTOOL_EMIT_EXPORTS=hpuxEmitExports
+LINKTOOL_SET_ENTRY=hpuxSetEntry
+LINKTOOL_VERSION=hpuxVersion
+LINKTOOL_LINKSHLB=hpuxLink
+LINKTOOL_LINKDLL=hpuxLinkDll
+LINKTOOL_LINKAPP=hpuxLinkApp
+
+VERSION_STYLE=n.e.v
+
+hpuxSetSoname()
+{
+	echo_n " +h "$1
+}
+
+hpuxSetEntry()
+{
+	echo_n 
+}
+
+# echo_n " -Wl,+hideallsymbols"
+
+hpuxSetExportFile()
+{
+	cat $1 | while read N
+	do
+		echo_n " +e"$N
+	done
+}
+
+hpuxEmitExports()
+{
+	EXPORT_SCOPE=
+	for exp in $@
+	do
+		if test "$EXPORT_SCOPE" = ""
+		then
+			EXPORT_SCOPE=$exp
+		else
+			echo "$exp"
+			if is_member $exp "$DLL_EXPORTS"
+			then
+				if test "$NAME" != ""
+				then
+					echo ${NAME}_$exp
+				fi
+			fi
+		fi
+	done
+}
+
+hpuxVersion()
+{
+	case `basename $1` in
+	lib*.sl )
+		if test "$2" != ""
+		then
+			HPUX_VERSION_DIR=`dirname $1`
+			if test "$HPUX_VERSION_DIR" != ""
+			then
+				HPUX_VERSION_DIR="$HPUX_VERSION_DIR/"
+			fi
+			basename $1 | ( IFS=. read N M; echo ${HPUX_VERSION_DIR}$N.$2; ) 
+		else
+			echo $1
+		fi
+		;;
+	lib*.so )
+		if test "$2" != ""
+		then
+			echo $1.$2
+		else
+			echo $1
+		fi
+		;;
+	* )
+		echo $1
+		;;
+	esac
+}
+
+hpuxLink()
+{
+	if is_member "-cxx" $@
+	then
+		echo_n "$LDXX_SHARED"
+	else
+		echo_n "$LD_SHARED"
+	fi
+}
+
+hpuxLinkDll()
+{
+	do_dll_proxy_src >$INTDIR/$NAME.dll.c
+	do_dll_proxy_exp >$INTDIR/$NAME.dll.def
+	LAUNDRY_LIST="$LAUNDRY_LIST $INTDIR/$NAME.dll.c $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def"
+	echo
+	echo $INTDIR/$NAME.dll.c.o: $INTDIR/$NAME.dll.c
+	echo_n "	\$(CC) \$(CFLAGS) \$(CC_FLAG_FPIC) -c $INTDIR/$NAME.dll.c -o \$@"
+	echo
+	echo
+	echo $1: $2 $INTDIR/$NAME.dll.c.o $INTDIR/$NAME.dll.def
+	echo_n "	if test -f \$@; then rm \$@; fi"
+	echo
+	if is_member "-cxx" $@
+	then
+		echo_n "	$LDXX_SHARED"
+	else
+		echo_n "	$LD_SHARED"
+	fi
+	$LINKTOOL_SET_SONAME `basename $1`
+	echo_n " "
+	$LINKTOOL_SET_EXPORT_FILE $INTDIR/$NAME.dll.def
+	echo_n " " $INTDIR/$NAME.dll.c.o
+	echo_n " -L"`dirname $2` " -l"$NAME
+
+	for eld in $IMPORT_DIRS
+	do
+		echo_n " -L"$eld
+	done
+	for eld in $IMPORT_LIBS
+	do
+		echo_n " -l"$eld
+	done
+
+	echo_n " $LIBDIRS"
+	echo_n " $LIBLIST"
+
+	echo  " -o \$@"
+	echo
+}
+
+hpuxLinkApp()
+{
+	if is_member "-cxx" $@
+	then
+		echo_n	"../../toolbox/asneeded.sh ../../toolbox/ldhppa.sh \$(CXX) \$(CXXFLAGS)"
+	else
+		echo_n	"../../toolbox/asneeded.sh ../../toolbox/ldhppa.sh \$(CC) \$(CFLAGS)"
+	fi
+}
+

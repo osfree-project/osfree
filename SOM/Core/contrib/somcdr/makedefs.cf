@@ -1,0 +1,3 @@
+NAME somcdr
+DEPENDS somir somcorba
+PROVIDES somcdr

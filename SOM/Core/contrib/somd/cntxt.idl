@@ -1,0 +1,116 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef cntxt_idl
+#define cntxt_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <somdtype.idl>
+#include <containd.idl>
+interface NVList;
+interface Context :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	ORBStatus set_one_value(in Identifier prop_name,in string value);
+	ORBStatus set_values(in NVList values);
+	ORBStatus get_values(in Identifier start_scope,in Flags op_flags,in Identifier prop_name,out NVList values);
+	ORBStatus delete_values(in Identifier prop_name);
+	ORBStatus create_child(in Identifier ctx_name,out Context child_ctx);
+	ORBStatus destroy(in Flags flags);
+	attribute string context_name;
+	attribute Context context_parent;
+	#ifdef __PRIVATE__
+	struct ContextItem
+	{
+		string name;
+		string value;
+	};
+	typedef sequence<ContextItem> ContextItemSeq;
+	typedef sequence<Context> ContextSeq;
+	struct ContextDataSet
+	{
+		ContextItemSeq items;
+		ContextSeq children;
+	};
+	#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		ContextDataSet data;
+		ctx_name : nodata;
+#endif
+		releaseorder : 
+			set_one_value,
+			set_values,
+			get_values,
+			delete_values,
+			create_child,
+			destroy,
+			_get_context_name,
+			_set_context_name,
+			_get_context_parent,
+			_set_context_parent,
+			private10,
+			private11;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		functionprefix = "cntxt_";
+#	ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+#	else
+		somDefaultInit : override;
+		somDestruct: override;
+#	endif
+		somDumpSelfInt : override;
+		context_name: noset,noget;
+		context_parent: noset,noget;
+#endif
+		#define CNTXT_IDL_COMMON_H_PASSTHU \
+			"#define CTX_DELETE_DESCENDENTS      0x00000200" \
+			"#define CTX_RESTRICT_SCOPE          0x00000400" \
+			"#ifndef Context_delete"						 \
+			"#define Context_delete Context_destroy"		 \
+			"#endif"										 \
+			""
+
+		passthru C_xh_after=CNTXT_IDL_COMMON_H_PASSTHU;
+		passthru C_h_after=CNTXT_IDL_COMMON_H_PASSTHU;
+
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* cntxt_idl */

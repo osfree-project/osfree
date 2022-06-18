@@ -1,0 +1,114 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef fmi_idl
+#define fmi_idl
+#include <somp.idl>
+#include <fma.idl>
+#include <sompstad.idl>
+interface SOMPAsciiMediaInterface;
+interface SOMPAsciiMediaInterface :
+	SOMPFileMediaAbstract
+{
+	struct mediaFlags_Type
+	{
+		octet open_for_read;
+		octet open_for_readwrite;
+		octet create_if_nonexistent;
+		octet share;
+	};
+	typedef mediaFlags_Type mediaFlagsType;
+	struct mediaInfo_Type
+	{
+		string Name;
+		mediaFlagsType Flags;
+		unsigned short unix_file_permissions;
+	};
+	typedef mediaInfo_Type mediaInfoType;
+	void sompInitSpecific(
+		inout mediaInfoType mediaInfo);
+	void sompStat(
+		inout SOMPStatDef::sompstat fileStats)
+			raises (SOMPError::sompException);
+	unsigned long sompQueryBlockSize();
+	string sompGetMediaName(
+		in string toBuffer);
+#ifdef __SOMIDL__
+	implementation
+	{
+		callstyle = idl;
+		dllname = "somp.dll";
+		releaseorder : 
+			sompStat,
+			private1,
+			sompQueryBlockSize,
+			sompGetMediaName,
+			sompInitSpecific;
+		majorversion = 2;
+		minorversion = 1;
+		filestem = fmi;
+#ifdef __PRIVATE__
+		sompInitReadWrite : override;
+		sompInitReadOnly : override;
+		sompOpen : override;
+		sompClose : override;
+		sompSeekPosition : override;
+		sompSeekPositionRel : override;
+		sompGetOffset : override;
+		sompReadBytes : override;
+		sompWriteBytes : override;
+		somInit : override;
+		somUninit : override;
+		sompWriteOctet : override;
+		sompWriteShort : override;
+		sompWriteUnsignedShort : override;
+		sompWriteLong : override;
+		sompWriteUnsignedLong : override;
+		sompWriteDouble : override;
+		sompWriteFloat : override;
+		sompWriteCharacter : override;
+		sompWriteSomobject : override;
+		sompWriteString : override;
+		sompReadOctet : override;
+		sompReadShort : override;
+		sompReadUnsignedShort : override;
+		sompReadLong : override;
+		sompReadUnsignedLong : override;
+		sompReadDouble : override;
+		sompReadFloat : override;
+		sompReadCharacter : override;
+		sompReadSomobject : override;
+		sompReadString : override;
+		sompReadStringToBuffer : override;
+		sompWriteLine : override;
+		sompReadLine : override;
+		sompWriteTypeCode : override;
+		sompReadTypeCode : override;
+		functionprefix = fmi_;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* fmi_idl */

@@ -1,0 +1,3 @@
+NAME irdump
+DEPENDS somir
+PROVIDES irdump

@@ -1,0 +1,101 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifdef __PRIVATE__
+
+#ifndef somdtcdt_idl
+#define somdtcdt_idl
+
+		#include <somobj.idl>
+		#include <somref.idl>
+		#include <unotypes.idl>
+	#ifdef __GENERATE_SOMD__
+/*		#include <irobject.idl>*/
+		#include <containd.idl>
+		#include <nvlist.idl>
+		#include <cntxt.idl>
+		#include <corba.idl>
+		#include <somdobj.idl>
+		#include <orb.idl>
+		#include <poa.idl>
+		#include <somdserv.idl>
+
+		#pragma somemittypes on
+			const TypeCode somdTC__SOMDObject=SOMDObject;
+			const TypeCode somdTC__sequence_octet=sequence<octet>;
+			const TypeCode somdTC__IOP_TaggedComponent=IOP::TaggedComponent;
+			const TypeCode somdTC__IOP_TaggedProfile=IOP::TaggedProfile;
+
+/*			const TypeCode somdTC__CORBA_IRObject_DefinitionKind=CORBA::IRObject::DefinitionKind;*/
+
+			const TypeCode somdTC__GIOP_MsgType=GIOP::MsgType;
+			const TypeCode somdTC__GIOP_Version=GIOP::Version;
+			const TypeCode somdTC__GIOP_MessageHeader=GIOP::MessageHeader;
+
+			const TypeCode somdTC__GIOP_IORAddressingInfo=GIOP::IORAddressingInfo;
+			const TypeCode somdTC__GIOP_TargetAddress=GIOP::TargetAddress;
+
+			const TypeCode somdTC__GIOP_RequestHeader_1_0=GIOP::RequestHeader_1_0;
+
+			const TypeCode somdTC__GIOP_RequestHeader_1_2=GIOP::RequestHeader_1_2;
+
+			const TypeCode somdTC__GIOP_ReplyStatusType_1_0=GIOP::ReplyStatusType_1_0;
+			const TypeCode somdTC__GIOP_ReplyHeader_1_0=GIOP::ReplyHeader_1_0;
+
+			const TypeCode somdTC__GIOP_ReplyStatusType_1_2=GIOP::ReplyStatusType_1_2;
+			const TypeCode somdTC__GIOP_ReplyHeader_1_2=GIOP::ReplyHeader_1_2;
+
+			const TypeCode somdTC__GIOP_CancelRequestHeader=GIOP::CancelRequestHeader;
+			const TypeCode somdTC__GIOP_LocateRequestHeader=GIOP::LocateRequestHeader;
+
+			const TypeCode somdTC__GIOP_LocateStatusType_1_0=GIOP::LocateStatusType_1_0;
+			const TypeCode somdTC__GIOP_LocateReplyHeader_1_0=GIOP::LocateReplyHeader_1_0;
+
+			const TypeCode somdTC__GIOP_LocateStatusType_1_2=GIOP::LocateStatusType_1_2;
+			const TypeCode somdTC__GIOP_LocateReplyHeader_1_2=GIOP::LocateReplyHeader_1_2;
+
+			const TypeCode somdTC__IOP_IOR=IOP::IOR;
+			const TypeCode somdTC__IOP_MultipleComponentProfile=IOP::MultipleComponentProfile;
+
+			const TypeCode somdTC__IIOP_Version=IIOP::Version;
+			const TypeCode somdTC__IIOP_ProfileBody_1_0=IIOP::ProfileBody_1_0;
+			const TypeCode somdTC__IIOP_ProfileBody_1_1=IIOP::ProfileBody_1_1;
+
+			const TypeCode somdTC__sequence_somModifier=sequence<somModifier>;
+			const TypeCode somdTC__CORBA_DefinitionKind=CORBA::DefinitionKind;
+			const TypeCode somdTC__Contained_Description=Contained::Description;
+			const TypeCode somdTC__CORBA_Contained_Description=CORBA::Contained::Description;
+			const TypeCode somdTC__sequence_SOMObject=sequence<SOMObject>;
+			const TypeCode somdTC__short=short;
+			const TypeCode somdTC__sequence_SOMD_NetworkAddress=sequence<SOMD::NetworkAddress>;
+			const TypeCode somdTC__PortableServer_ForwardRequest=PortableServer::ForwardRequest;
+			const TypeCode somdTC__CORBA_InterfaceDef=CORBA::InterfaceDef;
+			const TypeCode somdTC__SOMDServer=SOMDServer;
+		#pragma somemittypes off
+	#endif /* __GENERATE_SOMD__ */
+
+#endif /* somdtcdt_idl */
+
+#endif /* __PRIVATE__ */

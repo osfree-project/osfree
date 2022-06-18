@@ -220,6 +220,10 @@ Procedure ParseSwitch(var S: String);
 -l, --language
 -v, --verbose
 -h, -H, -?, --help
+-q, --quiet		// Added in MKMSGF by Michael K Greene
+-i			// Undocumentet IBM switch found by Michael K Greene
+-a			// Undocumentet IBM switch found by Michael K Greene
+-c			// Undocumentet IBM switch found by Michael K Greene
 }
 Var
   DOSSwitch: Boolean;
@@ -237,6 +241,14 @@ Begin
       'L': begin
       end;
       'V': begin
+      end;
+      'Q': begin
+      end;
+      'I': begin
+      end;
+      'A': begin
+      end;
+      'C': begin
       end;
       '?', 'H': begin
       end;

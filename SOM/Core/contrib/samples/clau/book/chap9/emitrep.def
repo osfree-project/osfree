@@ -1,0 +1,13 @@
+; @(#) some/gen_def.efw 2.2 5/3/93 13:45:17 [6/4/93 21:50:00]
+
+; 96F8647, 96F8648 (C) Copyright IBM Corp. 1992, 1993
+; All Rights Reserved
+; Licensed Materials - Property of IBM
+
+LIBRARY emitrep TERMINSTANCE
+DESCRIPTION 'SOM Emitter Framework - rep emittter, (C) Copyright IBM Corp. 1992, 1993'
+PROTMODE
+DATA MULTIPLE NONSHARED LOADONCALL
+EXPORTS
+   emit
+

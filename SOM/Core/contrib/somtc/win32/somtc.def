@@ -1,0 +1,73 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+
+LIBRARY		SOMTC
+VERSION		1.0
+EXPORTS
+	TC__string
+	TC__long
+	TC__TypeCode
+	TC__octet
+	TC__boolean
+	TC__char
+	TC__ushort
+	TC__short
+	TC__ulong
+	TC__null
+	TC__void
+	TC__float
+	TC__double
+	TC__any
+	TC__Principal
+	TC__Object
+	TC__NamedValue
+	TC__InterfaceDescription
+	TC__OperationDescription
+	TC__AttributeDescription
+	TC__ParameterDescription
+	TC__RepositoryDescription
+	TC__ModuleDescription
+	TC__ConstDescription
+	TC__ExceptionDescription
+	TC__TypeDescription
+	TC__FullInterfaceDescription
+	tcKind
+	tcParmCount
+	tcEqual
+	tcParameter
+	tcPrint
+	tcNew
+	tcNewVL
+	tcFree
+	tcAlignment
+	tcSetAlignment
+	tcCopy
+	tcSequenceNew
+	tcSize
+	tcSetZeroOriginEnum
+	tcGetZeroOriginEnum
+	somVaBuf_create
+	somVaBuf_get_valist
+	somVaBuf_destroy
+	somVaBuf_add
+	somvalistGetTarget
+	somvalistSetTarget
+	tcSeqFromListString
+	DllMain			PRIVATE

@@ -1,0 +1,3 @@
+NAME somcslib
+DEPENDS somdprep
+PROVIDES somcslib

@@ -1,0 +1,3 @@
+NAME somiprep
+DEPENDS somdtype 
+PROVIDES somiprep

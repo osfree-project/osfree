@@ -1,0 +1,29 @@
+#include <os2.h>
+#include "week.h"
+
+STRINGTABLE
+  BEGIN
+    WND_MAIN,  "A Weekly Calendar"
+  END
+
+MENU WND_MAIN
+  BEGIN
+    SUBMENU "~Day", MI_NOT_IMPORTANT
+      BEGIN
+        MENUITEM "~Sunday",     MI_SUN
+        MENUITEM "~Monday",     MI_MON
+        MENUITEM "~Tuesday",    MI_TUE
+        MENUITEM "~Wednesday",  MI_WED
+        MENUITEM "~Thursday",   MI_THU
+        MENUITEM "~Friday",     MI_FRI
+        MENUITEM "~Saturday",   MI_SAT
+        MENUITEM SEPARATOR
+        MENUITEM "~Quit",       MI_QUIT
+      END
+    SUBMENU "~Item", MI_NOT_IMPORTANT
+      BEGIN
+        MENUITEM "~Add",        MI_ADD
+        MENUITEM "~Delete",     MI_DEL
+      END
+  END
+

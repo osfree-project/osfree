@@ -1,0 +1,3 @@
+NAME regimpl
+DEPENDS somdapps
+PROVIDES regimpl

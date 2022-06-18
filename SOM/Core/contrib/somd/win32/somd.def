@@ -1,0 +1,118 @@
+;
+; Copyright 2008, Roger Brown
+;
+; This file is part of Roger Brown's Toolkit.
+;
+; This program is free software: you can redistribute it and/or modify it
+; under the terms of the GNU Lesser General Public License as published by the
+; Free Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+; 
+; This program is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+; more details.
+;
+; You should have received a copy of the GNU Lesser General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+;
+; $Id$
+
+LIBRARY		SOMD
+VERSION		1.0
+EXPORTS
+			DllMain				PRIVATE
+			SOMInitModule		PRIVATE
+			BOAClassData
+			BOACClassData
+			SOMD_DebugFlag
+			SOMD_SOMOAObject
+			SOMD_ImplDefObject
+			SOMD_SocketObject
+			SOMOAClassData
+			SOMOACClassData
+			ImplementationDefClassData
+			SOMDObjectClassData
+			SOMDObjectCClassData
+			SOMD_ImplRepObject
+			ImplRepositoryClassData
+			SOMDClientProxyClassData
+			SOMD_DefaultContext
+			ContextClassData
+			ContextCClassData
+			NVListClassData
+			NVListCClassData
+			PrincipalClassData
+			PrincipalCClassData
+			RequestClassData
+			SOMD_ORBObject
+			ORBClassData
+			SOMDServerClassData
+			SOMD_ServerObject
+			ImplRepositoryCClassData
+			ImplementationDefCClassData
+			SOMD_ObjectMgr
+			SOMDObjectMgrClassData
+			ObjectMgrClassData
+			ObjectMgrCClassData
+			SOMDObjectMgrCClassData
+			SOMDMetaproxyClassData
+			ORBCClassData
+			SOMDMetaproxyCClassData
+			SOMDClientProxyCClassData
+			RequestCClassData
+			SOMDServerCClassData
+			SOMDServerMgrClassData
+			SOMDServerMgrCClassData
+			SOMD_TraceLevel
+			ORBfree
+			SOMD_NoORBfree
+			SOMD_QueryORBfree
+			somdExceptionFree
+			BOANewClass
+			SOMOANewClass
+			ContextNewClass
+			ImplementationDefNewClass
+			ImplRepositoryNewClass
+			NVListNewClass
+			ObjectMgrNewClass
+			SOMDObjectMgrNewClass
+			ORBNewClass
+			SOMDServerNewClass
+			RequestNewClass
+			send_multiple_requests
+			get_next_response
+			SOMDObjectNewClass
+			SOMDClientProxyNewClass
+			SOMDMetaproxyNewClass
+			PrincipalNewClass
+			SOMDServerMgrNewClass
+			SOMD_Init
+			SOMD_Uninit
+			SOMD_RegisterCallback
+			SOMD_FlushInterfaceCache
+			SOMInitsomd
+			somdCreateDynProxyClass
+			somdExtractUUID
+			somdGetDefaultObjectKey
+			somdStartProcess
+			somdDaemonReady
+			somdDaemonRequired
+			somdCreate
+			IOP_CodecClassData
+			IOP_CodecCClassData
+			IOP_CodecNewClass
+			IOP_CodecFactoryClassData
+			IOP_CodecFactoryCClassData
+			IOP_CodecFactoryNewClass
+			somva_SOMDServer_somdDispatchMethod	
+			PortableServer_DynamicImplNewClass
+			PortableServer_DynamicImplClassData
+			PortableServer_DynamicImplCClassData
+			ServerRequestNewClass
+			ServerRequestClassData
+			ServerRequestCClassData
+			FENC_FactoryENCClassData
+			FENC_FactoryENCCClassData
+			FENC_FactoryENCNewClass
+

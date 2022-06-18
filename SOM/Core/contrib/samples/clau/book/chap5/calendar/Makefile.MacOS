@@ -1,0 +1,52 @@
+LINK_SOMTK=-framework SOMTK
+INCL_SOMTK=-I/Library/Frameworks/SOMTK.framework/Headers
+SC=/Library/Frameworks/SOMTK.framework/Versions/Current/bin/sc
+
+OBJS=initfunc.o day.o workitem.o caldir.o
+
+all: calendar.dll mysvr
+
+initfunc.o: initfunc.cpp day.xh workitem.xh caldir.xh
+	$(CXX) -c initfunc.cpp -o $@ -I. $(INCL_SOMTK)
+
+day.xh: day.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. day.idl 
+
+day.xih: day.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. day.idl
+
+day.o: day.cpp day.xih day.xh
+	$(CXX) -c day.cpp -o $@ -I. $(INCL_SOMTK)
+
+caldir.xh: caldir.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. caldir.idl 
+
+caldir.xih: caldir.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. caldir.idl
+
+caldir.o: caldir.cpp caldir.xih caldir.xh
+	$(CXX) -c caldir.cpp -o $@ -I. $(INCL_SOMTK)
+
+workitem.xh: workitem.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. workitem.idl
+
+workitem.xih: workitem.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. workitem.idl
+
+workitem.o: workitem.cpp workitem.xih workitem.xh
+	$(CXX) -c workitem.cpp -o $@ -I. $(INCL_SOMTK)
+
+mysvr.o: mysvr.cpp 
+	$(CXX) -c mysvr.cpp -o $@ -I. $(INCL_SOMTK) 
+
+mysvr: mysvr.o
+	$(CXX) mysvr.o -o $@ $(LINK_SOMTK)
+
+calendar.dll: $(OBJS)
+	echo _SOMInitModule >calendar.exp
+	$(CXX) -bundle $(OBJS) -o $@ $(LINK_SOMTK) -Wl,-exported_symbols_list,calendar.exp
+
+clean:
+	rm -rf mysvr *.o *.xh *.xih *.h *.exp *.dll
+
+test:

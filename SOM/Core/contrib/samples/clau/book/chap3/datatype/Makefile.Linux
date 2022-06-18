@@ -1,0 +1,46 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsomtc -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+OBJS=company.o employee.o seq.o
+
+all: seq any
+
+company.xh: company.idl
+	$(SC) -sxh $(INCL_SOMTK) company.idl
+
+company.xih: company.idl
+	$(SC) -sxih $(INCL_SOMTK) company.idl
+
+company.o: company.cpp company.xih company.xh
+	$(CXX) -c company.cpp -o $@ -I. $(INCL_SOMTK)
+
+employee.xh: employee.idl
+	$(SC) -sxh $(INCL_SOMTK) employee.idl
+
+employee.xih: employee.idl
+	$(SC) -sxih $(INCL_SOMTK) employee.idl
+
+employee.o: employee.cpp employee.xih employee.xh
+	$(CXX) -c employee.cpp -o $@ -I. $(INCL_SOMTK)
+
+seq.o: seq.cpp 
+	$(CXX) -c seq.cpp -o $@ -I. $(INCL_SOMTK) 
+
+seq: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+any.o: any.cpp 
+	$(CXX) -c any.cpp -o $@ -I. $(INCL_SOMTK) 
+
+any: any.o
+	$(CXX) any.o -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf any seq *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./seq
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./any
+

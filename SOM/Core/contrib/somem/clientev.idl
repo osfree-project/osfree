@@ -1,0 +1,74 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef clientev_idl
+#define clientev_idl
+#include <event.idl>
+interface SOMEClientEvent;
+
+#ifdef __PRIVATE__
+typedef SOMFOREIGN SOMEClientEventQL;
+#pragma modifier SOMEClientEventQL: impctx=C;
+#endif
+
+interface SOMEClientEvent :
+	SOMEEvent
+{
+	void * somevGetEventClientData();
+	string somevGetEventClientType();
+	void somevSetEventClientData(
+		in void * clientData);
+	void somevSetEventClientType(
+		in string clientType);
+#ifdef __PRIVATE__
+	SOMEClientEventQL *somevGetClientEventQL();
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		SOMEClientEventQL element;
+		somevGetClientEventQL: procedure;
+#endif
+		releaseorder : 
+			somevGetEventClientData,
+			somevGetEventClientType,
+			somevSetEventClientData,
+			somevSetEventClientType;
+		majorversion = 2;
+		minorversion = 1;
+		callstyle = idl;
+		dllname = "somem.dll";
+	#ifdef __PRIVATE__
+		filestem = clientev;
+		functionprefix = "clientev_";
+		somInit : override;
+		somUninit : override;
+		somDumpSelfInt : override;
+	#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* clientev_idl */

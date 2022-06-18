@@ -16,12 +16,12 @@
 [submodule "OS2/SOM/Frameworks/Emitter/some"]
 	path = SOM/Frameworks/Emitter/some
 	url = https://github.com/osfree-project/some.git
-[submodule "OS2/SOM/Core"]
-	path = SOM/Core
-	url = https://github.com/osfree-project/somfree.git
 [submodule "bootseq"]
 	path = bootseq
 	url = https://github.com/osfree-project/FreeLdr.git
 [submodule "Win32"]
 	path = Win32
 	url = https://github.com/cl91/NeptuneOS
+[submodule "SOM/Core/somfree"]
+	path = SOM/Core/somfree
+	url = https://github.com/osfree-project/somfree.git

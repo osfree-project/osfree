@@ -1,0 +1,123 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef eman_idl
+#define eman_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+
+#include <snglicls.idl>
+interface SOMEEvent;
+interface SOMEClientEvent;
+interface SOMEEMRegisterData;
+interface SOMEEMan;
+typedef somToken EMRegProc;
+typedef somToken EMMethodProc;
+typedef somToken EMMethodProcEv;
+
+#ifdef __PRIVATE__
+typedef SOMFOREIGN SOMEEManPrivateData;
+#pragma modifier SOMEEManPrivateData: impctx=C;
+#endif
+
+interface SOMEEMan :
+#ifdef __PRIVATE__
+SOMRefObject
+#else
+SOMObject
+#endif
+{
+	void someGetEManSem();
+	void someReleaseEManSem();
+	void someChangeRegData(in long registrationId,in SOMEEMRegisterData registerData);
+	void someProcessEvent(in unsigned long mask);
+	void someProcessEvents();
+	void someQueueEvent(in SOMEClientEvent event);
+	long someRegister(in SOMEEMRegisterData registerData,in SOMObject targetObject,in string targetMethod,in void * targetData);
+	long someRegisterEv(in SOMEEMRegisterData registerData,in SOMObject targetObject,inout Environment callbackEv,in string targetMethod,in void * targetData);
+	long someRegisterProc(in SOMEEMRegisterData registerData,in EMRegProc * targetProcedure,in void * targetData);
+	void someShutdown();
+	void someUnRegister(in long registrationId);
+
+	void someProcessEventInterval(in unsigned long mask,in unsigned long interval,in unsigned long inst);
+#ifdef _PLATFORM_MACINTOSH_
+	void someWait(in unsigned long interval);
+#endif
+
+#ifdef __SOMIDL__
+	implementation
+	{
+	#ifdef __PRIVATE__
+		SOMEEManPrivateData privdata;
+	#endif
+
+		releaseorder : 
+			someGetEManSem,
+			someReleaseEManSem,
+			someChangeRegData,
+			someProcessEvent,
+			someProcessEvents,
+			someQueueEvent,
+			someRegister,
+			someRegisterEv,
+			someRegisterProc,
+			someShutdown,
+			someUnRegister,
+#ifdef _WIN16
+			someProcessEventInterval,
+#endif
+			someExecute,
+			someAddClientEventRegistration,
+			someDeQueueEvent,
+			someGetClientDataFor,
+			someGetNumRegisteredClients,
+			someRemoveClientEventRegistration,
+			someSearchForClientEvent,
+#ifndef _WIN16
+			someProcessEventInterval,
+#endif
+			someWait;
+		majorversion = 2;
+		minorversion = 1;
+#ifndef SOMRefObject
+		metaclass = SOMMSingleInstance;
+#endif
+		callstyle = idl;
+		dllname = "somem.dll";
+#ifdef __PRIVATE__
+		filestem = eman;
+		functionprefix = "eman_";
+		somInit : override;
+		somUninit : override;
+#endif
+		passthru C_h="#include <emtypes.h>";
+		passthru C_xh="#include <emtypes.xh>";
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* eman_idl */

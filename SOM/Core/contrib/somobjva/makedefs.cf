@@ -1,0 +1,3 @@
+NAME somobjva
+DEPENDS som
+PROVIDES somobjva

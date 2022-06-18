@@ -1,0 +1,1227 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef corba_idl
+#define corba_idl
+
+#ifdef __SOMIDL__
+	#include <somobj.idl>
+	#ifdef __PRIVATE__
+		#include <somref.idl>
+		#ifdef SOMRefObject
+			#define CORBA_IMPLEMENTATION   dllname="somcorba.dll"; majorversion=1; minorversion=1;
+		#else
+			#define CORBA_IMPLEMENTATION   dllname="somcorba.dll"; majorversion=1; minorversion=1; somDestruct: override; somDefaultInit: override;
+		#endif
+	#else
+		#define CORBA_IMPLEMENTATION   dllname="somcorba.dll"; majorversion=1; minorversion=1;
+	#endif
+#endif
+
+interface Principal;
+
+#pragma prefix "omg.org"
+
+module CORBA
+{
+	interface Object
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+			#ifdef __PRIVATE__
+			functionprefix="object_";
+			#endif
+		};
+	#endif
+	};
+
+	/* two special non-idl reserved words */
+	typedef TypeCode TypeCode;
+	typedef Principal Principal;
+	interface Policy;
+
+	interface Current
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION		
+			#ifdef __PRIVATE__
+				functionprefix=currnt_;
+			#endif
+		};
+	#endif
+	};
+
+	enum Enum { Origin };
+
+// File: CORBA_Stream.idl
+// CORBA 2.3, Chapter 5
+
+    typedef sequence<any>                AnySeq;
+    typedef sequence<boolean>            BooleanSeq;
+    typedef sequence<char>               CharSeq;
+/*    typedef sequence<wchar>              WCharSeq;*/
+    typedef sequence<octet>              OctetSeq;
+    typedef sequence<short>              ShortSeq;
+    typedef sequence<unsigned short>     UShortSeq;
+    typedef sequence<long>               LongSeq;
+    typedef sequence<unsigned long>      ULongSeq;
+/*    typedef sequence<long long>          LongLongSeq;
+    typedef sequence<unsigned long long> ULongLongSeq;*/
+    typedef sequence<float>              FloatSeq;
+    typedef sequence<double>             DoubleSeq;
+
+	interface AbstractBase;
+	interface ValueBase;
+
+    interface DataOutputStream
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+        void write_any              (in any                 value);
+        void write_boolean          (in boolean             value);
+        void write_char             (in char                value);
+        /*void write_wchar            (in wchar               value);*/
+        void write_octet            (in octet               value);
+        void write_short            (in short               value);
+        void write_ushort           (in unsigned short      value);
+        void write_long             (in long                value);
+        void write_ulong            (in unsigned long       value);
+ /*       void write_longlong         (in long long           value);
+        void write_ulonglong        (in unsigned long long  value);*/
+        void write_float            (in float               value);
+        void write_double           (in double              value);
+/*        void write_longdouble       (in long double         value);*/
+        void write_string           (in string              value);
+/*        void write_wstring          (in wstring             value);*/
+        void write_Object           (in SOMObject              value);
+        void write_Abstract         (in AbstractBase        value);
+        void write_Value            (in ValueBase           value);
+        void write_TypeCode         (in TypeCode            value);
+        void write_any_array        (in AnySeq              seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_boolean_array    (in BooleanSeq          seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_char_array       (in CharSeq             seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        /*void write_wchar_array      (in WCharSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);*/
+        void write_octet_array      (in OctetSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_short_array      (in ShortSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_ushort_array     (in UShortSeq           seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_long_array       (in LongSeq             seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_ulong_array      (in ULongSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+/*        void write_ulonglong_array  (in ULongLongSeq        seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_longlong_array   (in LongLongSeq         seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);*/
+        void write_float_array      (in FloatSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+        void write_double_array     (in DoubleSeq            seq,
+                                     in unsigned long       offset,
+                                     in unsigned long       length);
+
+#ifdef __SOMIDL__
+
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+			#ifdef __PRIVATE__
+				functionprefix=doutstr_;
+			#endif
+			releaseorder:
+				write_any,
+				write_boolean,
+				write_char,
+				write_wchar,
+				write_octet,
+				write_short,
+				write_ushort,
+				write_long,
+				write_ulong,
+				write_longlong,
+				write_ulonglong,
+				write_float,
+				write_double,
+				write_longdouble,
+				write_string,
+				write_wstring,
+				write_Object,
+				write_Abstract,
+				write_Value,
+				write_TypeCode,
+				write_any_array,
+				write_boolean_array,
+				write_char_array,
+				write_wchar_array,
+				write_octet_array,
+				write_short_array,
+				write_ushort_array,
+				write_long_array,
+				write_ulong_array,
+				write_ulonglong_array,
+				write_longlong_array,
+				write_float_array,
+				write_double_array;
+		};
+#endif
+    };
+
+    interface DataInputStream
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+        any         read_any();
+        boolean     read_boolean();
+        char        read_char();
+/*        wchar       read_wchar();*/
+        octet       read_octet();
+        short       read_short();
+        unsigned    short read_ushort();
+        long        read_long();
+        unsigned    long read_ulong();
+/*        long long   read_longlong();
+        unsigned long long read_ulonglong();*/
+        float       read_float();
+        double      read_double();
+/*        long double read_longdouble();*/
+        string      read_string();
+/*        wstring     read_wstring();*/
+        SOMObject      read_Object();
+        AbstractBase read_Abstract();
+        ValueBase   read_Value();
+        TypeCode    read_TypeCode();
+
+        void read_any_array(        inout AnySeq        seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_boolean_array(    inout BooleanSeq    seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_char_array(       inout CharSeq       seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+ /*       void read_wchar_array(      inout WCharSeq      seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);*/
+        void read_octet_array(      inout OctetSeq      seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_short_array(      inout ShortSeq      seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_ushort_array(     inout UShortSeq     seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_long_array(       inout LongSeq       seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_ulong_array(      inout ULongSeq      seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+/*        void read_ulonglong_array(  inout ULongLongSeq  seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_longlong_array(   inout LongLongSeq   seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);*/
+        void read_float_array(      inout FloatSeq      seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+        void read_double_array(     inout DoubleSeq     seq,
+                                    in unsigned long    offset,
+                                    in unsigned long    length);
+
+#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+			#ifdef __PRIVATE__
+				functionprefix=dinstr_;
+			#endif
+			releaseorder:
+				read_any,
+				read_boolean,
+				read_char,
+				read_wchar,
+				read_octet,
+				read_short,
+				read_ushort,
+				read_long,
+				read_ulong,
+				read_longlong,
+				read_ulonglong,
+				read_float,
+				read_double,
+				read_longdouble,
+				read_string,
+				read_wstring,
+				read_Object,
+				read_Abstract,
+				read_Value,
+				read_TypeCode,
+				read_any_array,
+				read_boolean_array,
+				read_char_array,
+				read_wchar_array,
+				read_octet_array,
+				read_short_array,
+				read_ushort_array,
+				read_long_array,
+				read_ulong_array,
+				read_ulonglong_array,
+				read_longlong_array,
+				read_float_array,
+				read_double_array;
+		};
+#endif
+    };
+
+    typedef unsigned long PolicyType;
+
+    // Basic IDL definition
+    interface Policy
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+        readonly attribute PolicyType policy_type;
+        Policy copy();
+        void destroy();
+#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+			#ifdef __PRIVATE__
+				policy_type: nodata;
+				functionprefix=policy_;
+			#endif
+			releaseorder:
+				_get_policy_type,
+				copy,destroy;
+		};
+#endif
+    };
+
+    typedef sequence <Policy> PolicyList;
+
+    typedef short PolicyErrorCode;
+    exception PolicyError {PolicyErrorCode reason;};
+
+    const PolicyErrorCode BAD_POLICY = 0;
+    const PolicyErrorCode UNSUPPORTED_POLICY = 1;
+    const PolicyErrorCode BAD_POLICY_TYPE = 2;
+    const PolicyErrorCode BAD_POLICY_VALUE = 3;
+    const PolicyErrorCode UNSUPPORTED_POLICY_VALUE = 4;
+
+
+// Chapter 10 Interface Repository
+
+    typedef string Identifier;
+    typedef string ScopedName;
+    typedef string RepositoryId;
+    enum DefinitionKind {
+	dk_none, dk_all,
+	dk_Attribute, dk_Constant, dk_Exception, dk_Interface,
+	dk_Module, dk_Operation, dk_Typedef,
+	dk_Alias, dk_Struct, dk_Union, dk_Enum,
+	dk_Primitive, dk_String, dk_Sequence, dk_Array,
+	dk_Repository,
+	dk_Wstring, dk_Fixed,
+	dk_Value, dk_ValueBox, dk_ValueMember,
+	dk_Native,
+	dk_AbstractInterface
+    };
+    interface IRObject 
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+	// read interface
+	readonly attribute DefinitionKind def_kind;
+	// write interface
+	void destroy ();
+
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			def_kind: nodata;
+			functionprefix="ir2_irobject_";
+	#endif
+		};
+	#endif
+    };
+    typedef string VersionSpec;
+    interface Contained;
+    interface Repository;
+    interface Container;
+    interface Contained : IRObject {
+
+	// read/write interface
+	attribute RepositoryId id;
+	attribute Identifier name; 
+	attribute VersionSpec version;
+	// read interface
+	readonly attribute Container defined_in;
+	readonly attribute ScopedName absolute_name;
+	readonly attribute Repository containing_repository;
+	struct Description {
+	    DefinitionKind kind;
+	    any value; 
+	}; 
+	Description describe ();
+	// write interface
+	void move (
+	    in Container 		new_container,
+	    in Identifier 		new_name,
+	    in VersionSpec 		new_version
+	);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			id: nodata;
+			name: nodata;
+			version: nodata;
+			defined_in: nodata;
+			absolute_name: nodata;
+			containing_repository: nodata;
+			functionprefix="ir2_containd_";
+	#endif
+		};
+	#endif
+    };
+    interface ModuleDef;
+    interface ConstantDef;
+    interface IDLType;
+    interface StructDef;
+    interface UnionDef;
+    interface EnumDef;
+    interface AliasDef;
+    interface InterfaceDef;
+    interface ExceptionDef;
+    interface NativeDef;
+    typedef sequence <InterfaceDef> InterfaceDefSeq;
+    interface ValueDef;
+    typedef sequence <ValueDef> ValueDefSeq;
+    interface ValueBoxDef;
+    typedef sequence <Contained> ContainedSeq;
+    interface AbstractInterfaceDef;
+    typedef sequence <AbstractInterfaceDef> AbstractInterfaceDefSeq;
+    struct StructMember {
+	Identifier 				name;
+	TypeCode 				type;
+	IDLType 				type_def;
+    };
+    typedef sequence <StructMember> StructMemberSeq;
+    struct Initializer {
+	StructMemberSeq 			members;
+	Identifier				name;
+    };
+    typedef sequence <Initializer> InitializerSeq;
+    struct UnionMember {
+	Identifier 				name;
+	any 					label;
+	TypeCode 				type;
+	IDLType 				type_def;
+    };
+    typedef sequence <UnionMember> UnionMemberSeq;
+    typedef sequence <Identifier> EnumMemberSeq;
+    interface Container : IRObject {
+	// read interface
+	Contained lookup (
+	    in ScopedName 			search_name
+	);
+	ContainedSeq contents (
+	    in DefinitionKind 			limit_type,
+	    in boolean 				exclude_inherited
+	);
+	ContainedSeq lookup_name (
+	    in Identifier 			search_name, 
+	    in long 				levels_to_search, 
+	    in DefinitionKind 			limit_type,
+	    in boolean 				exclude_inherited
+	);
+	struct Description {
+	    Contained 				contained_object; 
+	    DefinitionKind 			kind;
+	    any 				value; 
+	};
+	typedef sequence<Description> DescriptionSeq;
+	DescriptionSeq describe_contents (
+	    in DefinitionKind 			limit_type,
+	    in boolean 				exclude_inherited,
+	    in long 				max_returned_objs
+	);
+	// write interface
+	ModuleDef create_module (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version
+	);
+	ConstantDef create_constant (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in IDLType 				type,
+	    in any 				value
+	);
+	StructDef create_struct (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in StructMemberSeq 			members
+	);
+	UnionDef create_union (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in IDLType 				discriminator_type,
+	    in UnionMemberSeq 			members
+	);
+	EnumDef create_enum (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in EnumMemberSeq			members
+	);
+	AliasDef create_alias (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in IDLType 				original_type
+	);
+	InterfaceDef create_interface (
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in InterfaceDefSeq			base_interfaces
+	);
+	ValueDef create_value(
+	    in RepositoryId			id,
+	    in Identifier			name,
+	    in VersionSpec			version,
+	    in boolean				is_custom,
+	    in boolean				is_abstract,
+	    in ValueDef				base_value,
+	    in boolean				is_truncatable,
+	    in ValueDefSeq			abstract_base_values,
+	    in InterfaceDefSeq			supported_interfaces,
+	    in InitializerSeq			initializers
+	);
+	ValueBoxDef create_value_box(
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in IDLType 				original_type_def
+	);
+	ExceptionDef create_exception(
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version,
+	    in StructMemberSeq 			members
+	);
+	NativeDef create_native(
+	    in RepositoryId 			id,
+	    in Identifier 			name,
+	    in VersionSpec 			version
+	);
+	AbstractInterfaceDef create_abstract_interface (
+	    in RepositoryId id,
+	    in Identifier name,
+	    in VersionSpec version,
+	    in AbstractInterfaceDefSeq base_interfaces
+	);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_containr_";
+	#endif
+		};
+	#endif
+    };
+
+    interface IDLType : IRObject {
+	readonly attribute TypeCode 	type;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			type: nodata;
+			functionprefix="ir2_idltype_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface PrimitiveDef;
+    interface StringDef;
+    interface SequenceDef;
+    interface ArrayDef;
+    interface WstringDef;
+    interface FixedDef;
+    enum PrimitiveKind {
+	pk_null, pk_void, pk_short, pk_long, pk_ushort, pk_ulong,
+	pk_float, pk_double, pk_boolean, pk_char, pk_octet,
+	pk_any, pk_TypeCode, pk_Principal, pk_string, pk_objref,
+	pk_longlong, pk_ulonglong, pk_longdouble, 
+	pk_wchar, pk_wstring, pk_value_base
+    };
+	
+    interface Repository : Container {
+	// read interface
+	Contained lookup_id (in RepositoryId search_id);
+	TypeCode get_canonical_typecode(in TypeCode tc); 
+	PrimitiveDef get_primitive (in PrimitiveKind kind);
+	// write interface
+	StringDef create_string (in unsigned long bound);
+	WstringDef create_wstring (in unsigned long bound);
+	SequenceDef create_sequence (
+	    in unsigned long 		bound,
+	    in IDLType 			element_type
+	 );
+	ArrayDef create_array (
+	    in unsigned long 		length,
+	    in IDLType 			element_type
+	);
+	FixedDef create_fixed (
+	    in unsigned short 		digits,
+	    in short 			scale
+	);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_repostry_";
+	#endif
+		};
+	#endif
+    };
+
+    interface ModuleDef : Container, Contained {
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_moduledf_";
+	#endif
+		};
+	#endif
+    };
+
+    struct ModuleDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in;
+	VersionSpec 			version;
+    };
+	
+    interface ConstantDef : Contained {
+	readonly attribute TypeCode type;
+	attribute IDLType type_def;
+	attribute any value;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			type: nodata;
+			type_def: nodata;
+			value: nodata;
+			functionprefix="ir2_constdef_";
+	#endif
+		};
+	#endif
+    };
+	
+    struct ConstantDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	TypeCode 			type; 
+	any 				value; 
+    };
+	
+    interface TypedefDef : Contained, IDLType {
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_typedef_";
+	#endif
+		};
+	#endif
+    };
+	
+    struct TypeDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	TypeCode 			type; 
+    };
+	
+    interface StructDef : TypedefDef, Container {
+	attribute StructMemberSeq 	members;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			members: nodata;
+			functionprefix="ir2_structdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface UnionDef : TypedefDef, Container {
+	readonly attribute TypeCode 	discriminator_type;
+	attribute IDLType 		discriminator_type_def;
+	attribute UnionMemberSeq 	members;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			members: nodata;
+			discriminator_type_def: nodata;
+			discriminator_type: nodata;
+			functionprefix="ir2_uniondef_";
+	#endif
+		};
+	#endif
+    };
+
+    interface EnumDef : TypedefDef {
+	attribute EnumMemberSeq 	members;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			members: nodata;
+			functionprefix="ir2_enumdef_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface AliasDef : TypedefDef {
+	attribute IDLType 		original_type_def;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			original_type_def: nodata;
+			functionprefix="ir2_aliasdef_";
+	#endif
+		};
+	#endif
+    };
+
+    interface NativeDef : TypedefDef {
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_nativedf_";
+	#endif
+		};
+	#endif
+    };
+
+    interface PrimitiveDef: IDLType {
+	readonly attribute PrimitiveKind kind;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			kind: nodata;
+			functionprefix="ir2_primitiv_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface StringDef : IDLType {
+	attribute unsigned long 	bound;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			bound: nodata;
+			functionprefix="ir2_stringdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface WstringDef : IDLType {
+	attribute unsigned long 	bound;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			bound: nodata;
+			functionprefix="ir2_wstringd_";
+	#endif
+		};
+	#endif
+    };
+
+    interface FixedDef : IDLType {
+	attribute unsigned short 	digits;
+	attribute short 		scale;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			digits: nodata;
+			scale: nodata;
+			functionprefix="ir2_fixeddef_";
+	#endif
+		};
+	#endif
+    };
+
+    interface SequenceDef : IDLType {
+	attribute unsigned long 	bound;
+	readonly attribute TypeCode 	element_type;
+	attribute IDLType 		element_type_def;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			bound: nodata;
+			element_type: nodata;
+			element_type_def: nodata;
+			functionprefix="ir2_seqdef_";
+	#endif
+		};
+	#endif
+    };
+
+    interface ArrayDef : IDLType {
+	attribute unsigned long 	length;
+	readonly attribute TypeCode 	element_type;
+	attribute IDLType 		element_type_def;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			length: nodata;
+			element_type: nodata;
+			element_type_def: nodata;
+			functionprefix="ir2_arraydef_";
+	#endif
+		};
+	#endif
+    };
+
+    interface ExceptionDef : Contained, Container {
+	readonly attribute TypeCode 	type;
+	attribute StructMemberSeq 	members;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			type: nodata;
+			members: nodata;
+			functionprefix="ir2_exceptdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    struct ExceptionDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	TypeCode 			type; 
+    };
+	
+    enum AttributeMode {ATTR_NORMAL, ATTR_READONLY};
+	
+    interface AttributeDef : Contained {
+	readonly attribute TypeCode 	type;
+	attribute IDLType	 	type_def;
+	attribute AttributeMode		mode;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			type: nodata;
+			type_def: nodata;
+			mode: nodata;
+			functionprefix="ir2_attribdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    struct AttributeDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	TypeCode 			type;
+	AttributeMode 			mode; 
+    };
+	
+    enum OperationMode {OP_NORMAL, OP_ONEWAY};
+    enum ParameterMode {PARAM_IN, PARAM_OUT, PARAM_INOUT};
+    struct ParameterDescription {
+	Identifier 			name; 
+	TypeCode 			type; 
+	IDLType 			type_def;
+	ParameterMode 			mode;
+    };
+ 
+    typedef sequence <ParameterDescription> ParDescriptionSeq;
+    typedef Identifier ContextIdentifier;
+    typedef sequence <ContextIdentifier> ContextIdSeq;
+    typedef sequence <ExceptionDef> ExceptionDefSeq;
+    typedef sequence <ExceptionDescription> ExcDescriptionSeq;
+
+    interface OperationDef : Contained {
+	readonly attribute TypeCode	result;
+	attribute IDLType 		result_def;
+	attribute ParDescriptionSeq 	params;
+	attribute OperationMode 	mode; 
+	attribute ContextIdSeq 		contexts;
+	attribute ExceptionDefSeq 	exceptions;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			result: nodata;
+			result_def: nodata;
+			params: nodata;
+			mode: nodata;
+			contexts: nodata;
+			exceptions: nodata;
+			functionprefix="ir2_operatdf_";
+	#endif
+		};
+	#endif
+    };
+
+    struct OperationDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	TypeCode 			result; 
+	OperationMode 			mode; 
+	ContextIdSeq 			contexts; 
+	ParDescriptionSeq 		parameters;
+	ExcDescriptionSeq 		exceptions;
+    };
+	
+    typedef sequence <RepositoryId> RepositoryIdSeq;
+    typedef sequence <OperationDescription> OpDescriptionSeq;
+    typedef sequence <AttributeDescription> AttrDescriptionSeq;
+
+    interface InterfaceDef : Container, Contained, IDLType {
+	// read/write interface
+	attribute InterfaceDefSeq 	base_interfaces;
+   	// read interface
+	boolean is_a (
+	    in RepositoryId 		interface_id
+	);
+	struct FullInterfaceDescription {
+	    Identifier 			name;
+	    RepositoryId		id;
+	    RepositoryId 		defined_in;
+	    VersionSpec 		version;
+	    OpDescriptionSeq 		operations;
+	    AttrDescriptionSeq 		attributes;
+	    RepositoryIdSeq 		base_interfaces;
+	    TypeCode 			type;
+	};
+	FullInterfaceDescription describe_interface();
+	// write interface
+	AttributeDef create_attribute (
+	    in RepositoryId 		id,
+	    in Identifier 		name,
+	    in VersionSpec 		version,
+	    in IDLType 			type,
+	    in AttributeMode 		mode
+	);
+	OperationDef create_operation (
+   	    in RepositoryId 		id,
+	    in Identifier 		name,
+	    in VersionSpec 		version,
+	    in IDLType 			result,
+	    in OperationMode 		mode, 
+	    in ParDescriptionSeq 	params,
+	    in ExceptionDefSeq 		exceptions,
+	    in ContextIdSeq 		contexts
+	);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			base_interfaces: nodata;
+			functionprefix="ir2_intfacdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    struct InterfaceDescription {
+	Identifier 			name; 
+	RepositoryId 			id; 
+	RepositoryId 			defined_in; 
+	VersionSpec 			version;
+	RepositoryIdSeq 		base_interfaces;
+    };
+
+    typedef short Visibility;
+    const Visibility PRIVATE_MEMBER = 0;
+    const Visibility PUBLIC_MEMBER = 1;
+
+    struct ValueMember {
+	Identifier 			name;
+	RepositoryId 			id;
+	RepositoryId 			defined_in;
+	VersionSpec 			version;
+	TypeCode 			type;
+	IDLType 			type_def;
+	Visibility 			access; 
+    };
+
+    typedef sequence <ValueMember> ValueMemberSeq;
+
+    interface ValueMemberDef : Contained {
+	readonly attribute TypeCode type;
+	attribute IDLType type_def;
+	attribute Visibility access;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			type: nodata;
+			type_def: nodata;
+			access: nodata;
+			functionprefix="ir2_valmemdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface ValueDef : Container, Contained, IDLType {
+	// read/write interface
+	attribute InterfaceDefSeq supported_interfaces;
+	attribute InitializerSeq initializers;
+	attribute ValueDef base_value;
+	attribute ValueDefSeq abstract_base_values;
+	attribute boolean is_abstract;
+	attribute boolean is_custom;
+	attribute boolean is_truncatable;
+	// read interface
+	boolean is_a(in RepositoryId id);
+	struct FullValueDescription {
+	    Identifier			name;
+	    RepositoryId		id;
+	    boolean			is_abstract;
+	    boolean			is_custom;
+	    RepositoryId		defined_in;
+	    VersionSpec			version;
+	    OpDescriptionSeq		operations;
+	    AttrDescriptionSeq		attributes;
+	    ValueMemberSeq		members;
+	    InitializerSeq		initializers;
+	    RepositoryIdSeq		supported_interfaces;
+	    RepositoryIdSeq		abstract_base_values;
+	    boolean			is_truncatable;
+	    RepositoryId		base_value;
+	    TypeCode			type;
+	};
+	FullValueDescription describe_value();
+	ValueMemberDef create_value_member(in RepositoryId 		id,in Identifier 		name,in VersionSpec 		version,in IDLType 			type,in Visibility 		access);
+	AttributeDef create_attribute(in RepositoryId		id,in Identifier		name,in VersionSpec		version,in IDLType			type,in AttributeMode		mode);
+	OperationDef create_operation(in RepositoryId id,in Identifier name,in VersionSpec		version,in IDLType			result,in OperationMode		mode,in ParDescriptionSeq	params,in ExceptionDefSeq		exceptions,in ContextIdSeq contexts);
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			supported_interfaces: nodata;
+			abstract_base_values: nodata;
+			initializers: nodata;
+			base_value: nodata;
+			is_custom: nodata;
+			is_abstract: nodata;
+			is_truncatable: nodata;
+			functionprefix="ir2_valuedef_";
+	#endif
+		};
+	#endif
+    };
+    struct ValueDescription {
+	Identifier			name;
+	RepositoryId			id;
+	boolean 			is_abstract;
+	boolean				is_custom;
+	RepositoryId			defined_in;
+	VersionSpec			version;
+	RepositoryIdSeq			supported_interfaces;
+	RepositoryIdSeq			abstract_base_values;
+	boolean				is_truncatable;
+	RepositoryId			base_value; 
+    };
+	
+    interface ValueBoxDef : TypedefDef {
+	attribute IDLType original_type_def;
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			original_type_def: nodata;
+			functionprefix="ir2_valboxdf_";
+	#endif
+		};
+	#endif
+    };
+	
+    interface AbstractInterfaceDef : InterfaceDef {
+	#ifdef __SOMIDL__
+		implementation
+		{
+			CORBA_IMPLEMENTATION
+	#ifdef __PRIVATE__
+			functionprefix="ir2_absintdf_";
+	#endif
+		};
+	#endif
+    };
+
+
+    enum TCKind {		
+#ifdef CORBA_PEDANTIC		
+#pragma version TCKind 2.3
+#endif
+	tk_null, tk_void, 
+	tk_short, tk_long, tk_ushort, tk_ulong, 
+	tk_float, tk_double, tk_boolean, tk_char, 
+	tk_octet, tk_any, tk_TypeCode, tk_Principal, tk_objref, 
+	tk_struct, tk_union, tk_enum, tk_string, 
+	tk_sequence, tk_array, tk_alias, tk_except,
+	tk_longlong, tk_ulonglong, tk_longdouble,
+	tk_wchar, tk_wstring, tk_fixed,
+	tk_value, tk_value_box,
+	tk_native,
+	tk_abstract_interface
+    };
+	
+    typedef short ValueModifier;	
+	const ValueModifier VM_NONE = 0;
+	const ValueModifier VM_CUSTOM = 1;
+	const ValueModifier VM_ABSTRACT = 2;
+	const ValueModifier VM_TRUNCATABLE = 3;
+};
+
+#pragma prefix ""
+
+#endif

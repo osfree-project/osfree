@@ -1,0 +1,12 @@
+LIBRARY calendar
+EXPORTS
+   SOMInitModule
+   WorkItemCClassData
+   WorkItemClassData
+   WorkItemNewClass
+   DayCClassData
+   DayClassData
+   DayNewClass
+   CalendarDirCClassData
+   CalendarDirClassData
+   CalendarDirNewClass

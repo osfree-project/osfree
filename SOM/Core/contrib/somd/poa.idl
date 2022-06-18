@@ -1,0 +1,584 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+// File: PortableServer.idl
+// CORBA 2.3, Chapter 11
+
+#ifndef _PORTABLESERVER_IDL_
+#define _PORTABLESERVER_IDL_
+
+#include <orb.idl>
+#include <corba.idl>
+/* #include <ir.idl> */
+
+interface ServerRequest;
+interface SOMDObject;
+
+#pragma prefix "omg.org"
+
+// Most IDL compilers don't accept the "native" keyword in application IDL 
+//    files. In order to compile an IDL (really PIDL) file that has it, the 
+//    following trick can be used: change what the compiler sees. Instead
+//    of letting the compiler see the keyword "native", use a preprocessor
+//    definition that results in valid IDL, even if it doesn't yield
+//    useful stubs and skeletons. Of course, PIDL never results in
+//    the standard stubs so that's not a problem.
+#ifndef native
+	#ifdef __SOMIDL__
+		#define native typedef somToken
+	#else
+		#define native typedef long
+	#endif
+#endif
+
+module PortableServer {
+#pragma version PortableServer 2.3
+    interface POA;                          // forward declaration
+    typedef sequence<POA> POAList; 
+    native Servant;
+    typedef sequence<octet> ObjectId;
+
+	typedef string Identifier;
+	typedef string RepositoryId;
+
+    exception ForwardRequest 
+	{
+        SOMDObject forward_reference;
+    };
+    
+    // Policy interfaces
+    const CORBA::PolicyType THREAD_POLICY_ID                = 16;
+    const CORBA::PolicyType LIFESPAN_POLICY_ID              = 17;
+    const CORBA::PolicyType ID_UNIQUENESS_POLICY_ID         = 18;
+    const CORBA::PolicyType ID_ASSIGNMENT_POLICY_ID         = 19;
+    const CORBA::PolicyType IMPLICIT_ACTIVATION_POLICY_ID   = 20;
+    const CORBA::PolicyType SERVANT_RETENTION_POLICY_ID     = 21;
+    const CORBA::PolicyType REQUEST_PROCESSING_POLICY_ID    = 22;
+    
+    enum ThreadPolicyValue 
+	{
+        ORB_CTRL_MODEL,
+        SINGLE_THREAD_MODEL
+    };
+
+    interface ThreadPolicy : CORBA::Policy 
+	{
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+		attribute ThreadPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_tp_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum LifespanPolicyValue {
+        TRANSIENT,
+        PERSISTENT
+    };
+        interface LifespanPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute LifespanPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_lsp_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum IdUniquenessPolicyValue {
+        UNIQUE_ID,
+        MULTIPLE_ID
+    };
+        interface IdUniquenessPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute IdUniquenessPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_iup_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum IdAssignmentPolicyValue {
+        USER_ID,
+        SYSTEM_ID
+    };
+    interface IdAssignmentPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute IdAssignmentPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_idap_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum ImplicitActivationPolicyValue {
+        IMPLICIT_ACTIVATION,
+        NO_IMPLICIT_ACTIVATION
+    };
+    interface ImplicitActivationPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute ImplicitActivationPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_impap_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum ServantRetentionPolicyValue {
+        RETAIN,
+        NON_RETAIN
+    };
+    interface ServantRetentionPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute ServantRetentionPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_srp_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    enum RequestProcessingPolicyValue {
+        USE_ACTIVE_OBJECT_MAP_ONLY,
+        USE_DEFAULT_SERVANT,
+        USE_SERVANT_MANAGER
+    };
+
+    interface RequestProcessingPolicy : CORBA::Policy {
+#ifdef __PRIVATE__
+#else
+        readonly 
+#endif
+        attribute RequestProcessingPolicyValue value;
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_rrp_";
+			value: noset,noget;
+			_get_policy_type: override;
+		#endif
+			releaseorder:
+				_get_value,
+				_set_value;
+		};
+		#endif
+    };
+    
+    // POAManager interface
+    interface POAManager
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+        exception AdapterInactive{};
+        enum State {HOLDING, ACTIVE, DISCARDING, INACTIVE};
+        void activate()             raises(AdapterInactive);
+        void hold_requests(     in boolean wait_for_completion)
+                                    raises(AdapterInactive);
+        void discard_requests(  in boolean wait_for_completion)
+                                    raises(AdapterInactive);
+        void deactivate(        in boolean etherealize_objects, 
+                                in boolean wait_for_completion)
+                                    raises(AdapterInactive);
+        State get_state();
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_poam_";
+		#endif
+		};
+		#endif
+    };
+    
+    // AdapterActivator interface
+    interface AdapterActivator
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+#pragma version AdapterActivator 2.3
+        boolean unknown_adapter(in POA parent, 
+                                in string name);
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_aa_";
+		#endif
+		};
+		#endif
+    };
+    
+    // ServantManager interface
+    interface ServantManager
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{ 
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_sm_";
+		#endif
+		};
+		#endif
+	};
+    
+    interface ServantActivator : ServantManager {
+#pragma version ServantActivator 2.3
+        Servant incarnate (     in ObjectId oid,
+                                in POA      adapter)
+                                    raises (ForwardRequest);
+        void etherealize (      in ObjectId oid, 
+                                in POA      adapter,
+                                in Servant  serv,
+                                in boolean  cleanup_in_progress,
+                                in boolean  remaining_activations);
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_sa_";
+		#endif
+		};
+		#endif
+    };
+    
+    interface ServantLocator : ServantManager {
+#pragma version ServantLocator 2.3
+        native  Cookie;
+        Servant preinvoke(      in ObjectId oid,
+                                in POA      adapter,
+                                in Identifier 
+                                            operation,
+                                out Cookie  the_cookie)
+                                    raises (ForwardRequest);
+        void postinvoke(        in ObjectId oid,
+                                in POA      adapter,
+                                in Identifier
+                                            operation,
+                                in Cookie   the_cookie,
+                                in Servant  the_servant );
+		#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+		#ifdef __PRIVATE__
+			functionprefix="ps_sl_";
+		#endif
+		};
+		#endif
+    };
+    
+    interface POA
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+#pragma version POA 2.3
+        exception AdapterAlreadyExists {};
+        exception AdapterNonExistent {};
+        exception InvalidPolicy {unsigned short index;};
+        exception NoServant {};
+        exception ObjectAlreadyActive {};
+        exception ObjectNotActive {};
+        exception ServantAlreadyActive {};
+        exception ServantNotActive {};
+        exception WrongAdapter {};
+        exception WrongPolicy {};
+
+        // POA creation and destruction
+        POA create_POA(         in string       adapter_name,
+                                in POAManager   a_POAManager,
+                                in CORBA::PolicyList policies)
+                                    raises (AdapterAlreadyExists, InvalidPolicy);
+        POA find_POA(           in string       adapter_name, 
+                                in boolean      activate_it)
+                                    raises (AdapterNonExistent);
+        void destroy(           in boolean      etherealize_objects, 
+                                in boolean      wait_for_completion);
+
+        // Factories for Policy objects
+        ThreadPolicy        create_thread_policy(in ThreadPolicyValue value);
+        LifespanPolicy      
+            create_lifespan_policy(in LifespanPolicyValue value);
+        IdUniquenessPolicy  create_id_uniqueness_policy(
+                                in IdUniquenessPolicyValue value);
+        IdAssignmentPolicy  create_id_assignment_policy(
+                                in IdAssignmentPolicyValue value);
+        ImplicitActivationPolicy create_implicit_activation_policy(
+                                in ImplicitActivationPolicyValue value);
+        ServantRetentionPolicy create_servant_retention_policy(
+                                in ServantRetentionPolicyValue value);
+        RequestProcessingPolicy create_request_processing_policy(
+                                in RequestProcessingPolicyValue value);
+        
+        // POA attributes
+        readonly attribute string       the_name;
+        readonly attribute POA          the_parent;
+        readonly attribute POAList      the_children; 
+        readonly attribute POAManager   the_POAManager;
+        attribute AdapterActivator      the_activator;
+        
+        // Servant Manager registration:
+        ServantManager  get_servant_manager()    
+                                    raises (WrongPolicy);
+        void            set_servant_manager(in      ServantManager imgr)
+                                    raises (WrongPolicy);
+        
+        // operations for the USE_DEFAULT_SERVANT policy
+        Servant         get_servant() raises (NoServant, WrongPolicy);
+        void            set_servant( in Servant      p_servant) 
+                                    raises (WrongPolicy);
+        
+        // object activation and deactivation
+        ObjectId        activate_object(in Servant p_servant)
+                                    raises (ServantAlreadyActive, WrongPolicy);
+        void activate_object_with_id(in ObjectId    id,
+                                     in Servant     p_servant)
+                                    raises (ServantAlreadyActive, 
+                                            ObjectAlreadyActive,  
+                                            WrongPolicy);
+        void deactivate_object(      in ObjectId oid) 
+                                    raises (ObjectNotActive, WrongPolicy);
+
+        // reference creation operations
+        SOMDObject create_reference (    in RepositoryId intf)
+                                    raises (WrongPolicy);
+        SOMDObject create_reference_with_id (
+                                    in ObjectId             oid,
+                                    in RepositoryId  intf)
+                                    raises (WrongPolicy);
+        
+        // Identity mapping operations:
+        ObjectId servant_to_id(     in Servant              p_servant) 
+                                    raises (ServantNotActive, WrongPolicy);
+        SOMDObject servant_to_reference(in Servant              p_servant) 
+                                    raises (ServantNotActive, WrongPolicy);
+        Servant reference_to_servant(in SOMDObject              reference)
+                                    raises(ObjectNotActive, WrongPolicy);
+        ObjectId reference_to_id(   in SOMDObject               reference)
+                                    raises (WrongAdapter, WrongPolicy);
+        Servant id_to_servant(      in ObjectId             oid)
+                                    raises (ObjectNotActive, WrongPolicy);
+        SOMDObject id_to_reference(     in ObjectId             oid)
+                                        raises (ObjectNotActive, WrongPolicy);
+
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+#ifdef __PRIVATE__
+			functionprefix=poa_;
+			the_name: noset,noget;
+			the_parent: noset,noget;
+			the_children: noset,noget;
+			the_POAManager: noset,noget;
+			the_activator: noset,noget;
+#endif
+		};
+#endif
+    };
+    
+    // Current interface
+    interface Current : CORBA::Current 
+	{
+#pragma version Current 2.3
+        exception   NoContext { };
+        POA         get_POA()       raises (NoContext);
+        ObjectId    get_object_id() raises (NoContext);
+
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=2;
+			minorversion=3;
+			dllname="somd.dll";
+#ifdef __PRIVATE__
+			functionprefix=pscrrnt_;
+#endif
+		};
+#endif
+    };
+
+	interface DynamicImpl
+#ifdef __SOMIDL__
+	#ifdef __PRIVATE__
+	 : SOMRefObject
+	#else
+	 : SOMObject
+	#endif
+#endif
+	{
+		void invoke(in ServerRequest request);
+				RepositoryId primary_interface(
+				in ObjectId object_key,
+				in POA poa
+				/* SOM already provides environment...,
+				out Environment envp */);
+#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			dllname="somd.dll";
+			releaseorder: invoke,primary_interface;
+#ifdef __PRIVATE__
+			functionprefix=dynimpl_;
+#endif
+		};
+#endif
+	};
+};
+
+#pragma prefix ""
+
+#endif /* _PORTABLESERVER_IDL_ */

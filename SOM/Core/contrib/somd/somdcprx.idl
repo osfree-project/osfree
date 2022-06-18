@@ -1,0 +1,93 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somdcprx_idl
+#define somdcprx_idl
+#include <somobj.idl>
+#include <somproxy.idl>
+#include <somdobj.idl>
+interface SOMDClientProxy;
+interface SOMDClientProxy :
+	SOMMProxyForObject,
+	SOMDObject
+{
+	void somdTargetFree();
+	SOMClass somdTargetGetClass();
+	string somdTargetGetClassName();
+	void somdProxyFree();
+	SOMClass somdProxyGetClass();
+	string somdProxyGetClassName();
+	void somdReleaseResources();
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			somdTargetFree,
+			somdTargetGetClass,
+			somdTargetGetClassName,
+			somdProxyFree,
+			somdProxyGetClass,
+			somdProxyGetClassName,
+			private6,
+			private7,
+			private8,
+			private9,
+			private10,
+			somdReleaseResources,
+			private12,
+			private13,
+			private14,
+			private15,
+			private16;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		create_request: override;
+		create_request_args : override;
+		get_implementation : override;
+		get_interface : override;
+		is_proxy : override;
+	#ifdef SOMRefObject
+		somInit: override;
+		somUninit : override;
+	#else
+		somDefaultInit: override;
+		somDestruct: override;
+	#endif
+		somDumpSelfInt: override;
+	#ifndef __MAC__
+		somGetClass : override;
+		somGetClassName : override;
+	#endif
+		somDispatch : override;
+		_get_sommProxyTarget : override;
+		functionprefix = "somdcprx_";
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somdcprx_idl */

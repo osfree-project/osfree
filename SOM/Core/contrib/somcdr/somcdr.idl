@@ -1,0 +1,199 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somcdr_idl
+#define somcdr_idl
+
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <corba.idl>
+
+interface Principal;
+
+typedef SOMFOREIGN SOMCDR_marshal_filter;
+#pragma modifier SOMCDR_marshal_filter: impctx=C;
+typedef SOMFOREIGN SOMCDR_unmarshal_filter;
+#pragma modifier SOMCDR_unmarshal_filter: impctx=C;
+typedef SOMFOREIGN SOMCDR_marshalling_stream;
+#pragma modifier SOMCDR_marshalling_stream: impctx=C;
+
+module SOMCDR
+{
+#ifdef __PRIVATE__
+	typedef string Identifier;
+	typedef string RepositoryId;
+	typedef string VersionSpec;
+
+	struct StructMember
+	{
+		Identifier name;
+		TypeCode type;
+		SOMObject /*IDLType*/ type_def;
+	};
+
+	struct UnionMember
+	{
+		Identifier name;
+		any label;
+		TypeCode type;
+		SOMObject /*IDLType*/ type_def;
+	};
+
+	typedef sequence<UnionMember> UnionMemberSeq;
+	typedef sequence<Identifier> EnumMemberSeq;
+	typedef sequence<StructMember> StructMemberSeq;
+#endif
+
+	typedef SOMCDR_marshalling_stream StreamData;
+
+	interface CDRInputStream: CORBA::DataInputStream
+	{
+		struct StreamState
+		{
+			StreamData stream;
+			boolean swap;
+		};
+
+		void stream_init(
+			in SOMCDR_unmarshal_filter *filter,
+			in StreamState state,
+			in boolean donation);
+		/* this is needed for example for GIOP 1.2 headers
+			where data is now aligned on 8 octet boundaries */
+		void read_align(in unsigned long alignment);
+
+	#ifdef __SOMIDL__
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			releaseorder:
+				stream_init,
+				read_align;
+			dllname="somcdr.dll";
+#ifdef __PRIVATE__
+			SOMCDR_unmarshal_filter *filter;
+			StreamState state;
+			boolean cleanup_flag;
+
+			override: 
+	#ifdef SOMRefObject
+					somInit,
+					somUninit,
+	#else
+					somDefaultInit,
+					somDestruct,
+	#endif
+					read_any,
+					read_boolean,
+					read_char,
+					read_octet,
+					read_short,
+					read_ushort,
+					read_long,
+					read_ulong,
+					read_float,
+					read_double,
+					read_string,
+					read_TypeCode,
+					read_any_array,
+					read_boolean_array,
+					read_char_array,
+					read_octet_array,
+					read_short_array,
+					read_ushort_array,
+					read_long_array,
+					read_ulong_array,
+					read_float_array,
+					read_Object,
+					read_double_array;
+			functionprefix=cdristr_;
+#endif
+		};
+	#endif
+	};
+
+	interface CDROutputStream: CORBA::DataOutputStream
+	{
+		void stream_init(inout StreamData data);
+		void write_align(in unsigned long alignment);
+		void completed();
+	#ifdef __SOMIDL__
+		attribute SOMCDR_marshal_filter *marshal_filter;
+
+		implementation
+		{
+			majorversion=1;
+			minorversion=0;
+			releaseorder: 
+				stream_init,
+				write_align,
+				completed;
+			dllname="somcdr.dll";
+#ifdef __PRIVATE__
+			StreamData data;
+			boolean cleanup_flag;
+			marshal_filter: noset,noget;
+
+			override: 
+					somInit,
+	#ifdef SOMRefObject
+					somUninit,
+	#else
+					somDestruct,
+	#endif
+					write_any,
+					write_boolean,
+					write_char,
+					write_octet,
+					write_short,
+					write_ushort,
+					write_long,
+					write_ulong,
+					write_float,
+					write_double,
+					write_string,
+					write_TypeCode,
+					write_any_array,
+					write_boolean_array,
+					write_char_array,
+					write_octet_array,
+					write_short_array,
+					write_ushort_array,
+					write_long_array,
+					write_ulong_array,
+					write_float_array,
+					write_double_array
+					;
+			functionprefix=cdrostr_;
+#endif
+		};
+	#endif
+	};
+};
+#endif /* somcdr_idl */

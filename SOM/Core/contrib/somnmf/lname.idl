@@ -1,0 +1,78 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef lname_idl
+#define lname_idl
+#include <lnamec.idl>
+interface LName;
+interface LName :
+	SOMObject
+{
+	exception NoComponent{};
+	exception OverFlow{};
+	exception InvalidName{};
+	LName insert_component(
+		in unsigned long i,
+		in LNameComponent n)
+			raises (NoComponent,OverFlow);
+	LNameComponent get_component(
+		in unsigned long i)
+			raises (NoComponent);
+	LNameComponent delete_component(
+		in unsigned long i)
+			raises (NoComponent);
+	unsigned long num_components();
+	boolean equal(
+		in LName ln);
+	boolean less_than(
+		in LName ln);
+	CosNaming::Name to_idl_form()
+			raises (InvalidName);
+	void from_idl_form(
+		in CosNaming::Name n);
+	void destroy();
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			to_idl_form,
+			insert_component,
+			get_component,
+			delete_component,
+			num_components,
+			equal,
+			less_than,
+			from_idl_form,
+			destroy;
+#ifdef __PRIVATE__
+		functionprefix = "lname_";
+#endif
+		dllname = "somnmf.dll";
+		majorversion = 3;
+		minorversion = 0;
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* lname_idl */

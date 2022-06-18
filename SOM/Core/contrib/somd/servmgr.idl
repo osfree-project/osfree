@@ -1,0 +1,86 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef servmgr_idl
+#define servmgr_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <somdtype.idl>
+interface ImplementationDef;
+
+interface SOMDServerMgr :
+#ifdef __PRIVATE__
+	SOMRefObject
+#else
+	SOMObject
+#endif
+{
+	ORBStatus somdShutdownServer(
+		in string server_alias);
+	ORBStatus somdShutdownImpl(
+		in ImplementationDef impldef);
+	ORBStatus somdStartServer(
+		in string server_alias);
+	ORBStatus somdRestartServer(
+		in string server_alias);
+	ORBStatus somdListServer(
+		in string server_alias);
+	ORBStatus somdDisableServer(
+		in string server_alias);
+	ORBStatus somdEnableServer(
+		in string server_alias);
+	boolean somdIsServerEnabled(
+		in ImplementationDef impldef);
+#ifdef __PRIVATE__
+	readonly attribute SOMDServerMgr SOMDD_ServerMgrObject;
+	boolean somddDispatch(out somToken retValue,in string method,in va_list ap);
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+		releaseorder : 
+			somdShutdownServer,
+			somdStartServer,
+			somdRestartServer,
+			somdListServer,
+			somdDisableServer,
+			somdEnableServer,
+			somdIsServerEnabled,
+			somdShutdownImpl;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 1;
+#ifdef __PRIVATE__
+		functionprefix = "servmgr_";
+		SOMDD_ServerMgrObject: nodata;
+#endif
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* servmgr_idl */

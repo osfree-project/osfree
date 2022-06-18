@@ -1,0 +1,3 @@
+NAME somcorba
+DEPENDS somdprep
+PROVIDES somcorba

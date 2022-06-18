@@ -1,0 +1,3 @@
+NAME libtools
+DEPENDS cpp
+PROVIDES libtools

@@ -1,0 +1,57 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+OBJS=rightcar.obj leftcar.obj car.obj resolve.obj
+
+all: resolve.exe 
+
+car.xh: car.idl
+	$(SC) -sxh $(INCL_SOMTK) car.idl
+
+car.xih: car.idl
+	$(SC) -sxih $(INCL_SOMTK) car.idl
+
+car.h: car.idl
+	$(SC) -sh $(INCL_SOMTK) car.idl 
+
+car.obj: car.cpp car.xih car.xh
+	$(CL) -c car.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+leftcar.xh: leftcar.idl
+	$(SC) -sxh $(INCL_SOMTK) leftcar.idl
+
+leftcar.xih: leftcar.idl
+	$(SC) -sxih $(INCL_SOMTK) leftcar.idl
+
+leftcar.h: leftcar.idl
+	$(SC) -sh $(INCL_SOMTK) leftcar.idl 
+
+leftcar.obj: leftcar.cpp leftcar.xih leftcar.xh car.xh
+	$(CL) -c leftcar.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+rightcar.xh: rightcar.idl
+	$(SC) -sxh $(INCL_SOMTK) rightcar.idl
+
+rightcar.xih: rightcar.idl
+	$(SC) -sxih $(INCL_SOMTK) rightcar.idl
+
+rightcar.h: rightcar.idl
+	$(SC) -sh $(INCL_SOMTK) rightcar.idl 
+
+rightcar.obj: rightcar.cpp rightcar.xih rightcar.xh car.xh leftcar.xh
+	$(CL) -c rightcar.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+resolve.obj: resolve.cpp car.xh leftcar.xh rightcar.xh
+	$(CL) -c resolve.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+resolve.exe: $(OBJS)
+	$(CL) $(OBJS) /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q resolve.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	resolve

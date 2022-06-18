@@ -1,0 +1,3 @@
+NAME somdsvrp
+PROVIDES somdsvrp
+DEPENDS somdapps

@@ -1,0 +1,79 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifdef __PRIVATE__
+#include <somobj.idl>
+#include <omgestio.idl>
+
+module RHBSOMUS
+{
+	/* stream implementation classes */
+
+	interface CDRStreamIO : CosStream::StreamIO
+	{
+		attribute SOMObject input_stream;
+		attribute SOMObject output_stream;
+#ifdef __SOMIDL__
+		implementation
+		{
+			input_stream: noset,noget;
+			output_stream: noset,noget;
+			override:
+	#ifdef SOMRefObject
+				somInit,
+				somUninit,
+	#else
+				somDefaultInit,
+				somDestruct,
+	#endif
+				read_short,
+				write_short,
+				read_long,
+				write_long,
+				read_unsigned_short,
+				write_unsigned_short,
+				read_unsigned_long,
+				write_unsigned_long,
+				read_float,
+				write_float,
+				read_double,
+				write_double,
+				read_boolean,
+				write_boolean,
+				read_char,
+				write_char,
+				read_octet,
+				write_octet,
+				read_string,
+				write_string,
+				read_object,
+				write_object;
+			functionprefix="rhbsomus_cdrstrio_";
+		};
+#endif
+	};
+};
+
+#endif

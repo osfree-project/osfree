@@ -1,0 +1,28 @@
+:classS
+            Report on class <className>
+=====================================================
+? Description:     <classComment>
+  IDL source file: <classSourceFile>
+  Parent Name:     <baseName>
+
+:attributePrologS
+               Attribute Definitions
+=====================================================
+:attributeS    
+<attributeDeclarators, ...>  <attributeBaseType>
+:attributeEpilogS
+
+:methodsPrologS
+               Method Definitions
+=====================================================
+:methodsS
+<methodType>  <methodName>  <methodIDLParamList, ...>
+:methodsEpilogS
+
+:summaryS
+                 Summary
+=====================================================
+Total number of attributes: <totalAttributes>
+Total number of methods:    <totalMethods>
+
+

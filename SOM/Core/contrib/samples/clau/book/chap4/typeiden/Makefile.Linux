@@ -1,0 +1,47 @@
+SOMBASE=/opt/somtk
+LINK_SOMTK=-L$(SOMBASE)/lib -lsom
+INCL_SOMTK=-I$(SOMBASE)/include
+SC=$(SOMBASE)/bin/sc
+
+OBJS=empl.o mgr.o prg.o calc.o
+
+all: calc
+
+empl.xh: empl.idl
+	$(SC) -sxh $(INCL_SOMTK) empl.idl
+
+empl.xih: empl.idl
+	$(SC) -sxih $(INCL_SOMTK) empl.idl
+
+empl.o: empl.cpp empl.xih empl.xh
+	$(CXX) -c empl.cpp -o $@ -I. $(INCL_SOMTK)
+
+mgr.xh: mgr.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. mgr.idl 
+
+mgr.xih: mgr.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. mgr.idl
+
+mgr.o: mgr.cpp mgr.xih mgr.xh
+	$(CXX) -c mgr.cpp -o $@ -I. $(INCL_SOMTK)
+
+prg.xh: prg.idl
+	$(SC) -sxh $(INCL_SOMTK) -I. prg.idl
+
+prg.xih: prg.idl
+	$(SC) -sxih $(INCL_SOMTK) -I. prg.idl
+
+prg.o: prg.cpp prg.xih prg.xh
+	$(CXX) -c prg.cpp -o $@ -I. $(INCL_SOMTK)
+
+calc.o: calc.cpp empl.xh prg.xh
+	$(CXX) -c calc.cpp -o $@ -I. $(INCL_SOMTK) 
+
+calc: $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LINK_SOMTK)
+
+clean:
+	rm -rf calc *.o *.xh *.xih *.h
+
+test:
+	LD_LIBRARY_PATH=$(SOMBASE)/lib ./calc

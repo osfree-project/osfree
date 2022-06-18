@@ -1,0 +1,182 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef xnamingf_idl
+#define xnamingf_idl
+#include <xnaming.idl>
+#include <somos.idl>
+
+module FileXNaming
+{
+	const unsigned long STARTINGLENGTH=16;
+	const long MAXSTACK=100;
+	interface FileENC :
+		ExtendedNaming::ExtendedNamingContext,
+		somOS::ServiceBase
+	{
+		typedef string Constraint;
+		typedef char * Strings;
+#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somnmf.dll";
+#ifdef __PRIVATE__
+			sequence<Strings> allowedObjTypes;
+			sequence<Strings> allowedPropTypes;
+			sequence<Strings> allowedPropNames;
+			somToken cs_mutex;
+			functionprefix = xnamingf_FENC_;
+			somDumpSelfInt : override;
+			bind : override;
+			rebind : override;
+			bind_context : override;
+			rebind_context : override;
+			resolve : override;
+			unbind : override;
+			new_context : override;
+			bind_new_context : override;
+			destroy : override;
+			list : override;
+			get_features_supported : override;
+			add_property : override;
+			add_properties : override;
+			bind_with_properties : override;
+			bind_context_with_properties : override;
+			rebind_with_properties : override;
+			rebind_context_with_properties : override;
+			share_property : override;
+			share_properties : override;
+			unshare_property : override;
+			unshare_properties : override;
+			list_properties : override;
+			get_property : override;
+			get_properties : override;
+			get_all_properties : override;
+			resolve_with_property : override;
+			resolve_with_properties : override;
+			resolve_with_all_properties : override;
+			remove_property : override;
+			remove_properties : override;
+			remove_all_properties : override;
+			find_any : override;
+			find_all : override;
+			find_any_name_binding : override;
+			add_index : override;
+			list_indexes : override;
+			remove_index : override;
+			_get_allowed_object_types : override;
+			_get_allowed_property_types : override;
+			_get_allowed_property_names : override;
+			_get_shared_property_names : override;
+			_get_shared_property_types : override;
+			reinit : override;
+			capture : override;
+			init_for_object_creation : override;
+			uninit_for_object_destruction : override;
+#endif
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FileBindingIterator :
+		CosNaming::BindingIterator
+	{
+		typedef sequence<string> stringSeq;
+		void FileBindingIterator_Init1(
+			inout somToken ctrl,
+			in stringSeq key,
+			in string databaseFile);
+		void FileBindingIterator_Init2(
+			inout somToken ctrl,
+			in CosNaming::BindingList bl);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : FileBindingIterator_Init1,FileBindingIterator_Init2;
+			dllname = "somnmf.dll";
+#ifdef __PRIVATE__
+			functionprefix = xnamingf_FBI_;
+			CosNaming::BindingIterator obj;
+			next_one : override;
+			next_n : override;
+			destroy : override;
+#endif
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FPropertyBindingIterator :
+		ExtendedNaming::PropertyBindingIterator
+	{
+#ifdef __SOMIDL__
+		implementation
+		{
+#ifdef __PRIVATE__
+			next_one : override;
+			next_n : override;
+			destroy : override;
+			functionprefix = xnamingf_FPB_;
+#endif
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FPropertyIterator :
+		ExtendedNaming::PropertyIterator
+	{
+#ifdef __SOMIDL__
+		implementation
+		{
+#ifdef __PRIVATE__
+			next_one : override;
+			next_n : override;
+			destroy : override;
+			functionprefix = xnamingf_FP_;
+#endif
+			dllname = "somnmf.dll";
+		};
+#endif /* __SOMIDL__ */
+	};
+	interface FileIndexIterator :
+		ExtendedNaming::IndexIterator
+	{
+		void FileIndexIterator_Init(
+			inout somToken ctrl,
+			in sequence<octet> key,
+			in string databaseFile);
+#ifdef __SOMIDL__
+		implementation
+		{
+			releaseorder : FileIndexIterator_Init;
+			dllname = "somnmf.dll";
+#ifdef __PRIVATE__
+			functionprefix = xnamingf_II_;
+			next_one : override;
+			next_n : override;
+			destroy : override;
+#endif
+		};
+#endif /* __SOMIDL__ */
+	};
+};
+#endif /* xnamingf_idl */

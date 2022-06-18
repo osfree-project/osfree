@@ -1,0 +1,3 @@
+NAME somd
+DEPENDS uuid somu somdcomm somabs1 somem somst somnmf rhbgiop1 somany somcorba somir
+PROVIDES somd

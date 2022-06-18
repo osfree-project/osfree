@@ -1,0 +1,1 @@
+This is obsolete source code planned to be used by somipc.ex. Was replaced by somFree implementation.

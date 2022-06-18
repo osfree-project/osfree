@@ -1,0 +1,4 @@
+NAME somdsvr
+DEPENDS somtklib
+PROVIDES somdsvr
+VERSION 1.0

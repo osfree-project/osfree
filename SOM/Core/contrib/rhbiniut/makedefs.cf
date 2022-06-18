@@ -1,0 +1,3 @@
+NAME rhbiniut
+DEPENDS config
+PROVIDES rhbiniut

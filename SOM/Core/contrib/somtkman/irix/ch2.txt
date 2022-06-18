@@ -1,0 +1,7 @@
+.TH SOMTK 1 "4 January 2012"
+.SH NAME
+somtk(1) \- somFree Toolkit
+.SH INSTALLATION
+Package is installed in /opt/somtk and associated subdirectories. Following installation the
+.B somcorba
+script should be run to generate the include files for development.

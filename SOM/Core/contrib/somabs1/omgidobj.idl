@@ -1,0 +1,66 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef omgidobj_idl
+#define omgidobj_idl
+#include <somobj.idl>
+
+#ifdef __PRIVATE__
+#include <somref.idl>
+#endif
+
+module CosObjectIdentity
+{
+	typedef unsigned long ObjectIdentifier;
+	interface IdentifiableObject :
+#ifdef __PRIVATE__
+		SOMRefObject
+#else
+		SOMObject
+#endif
+	{
+		readonly attribute ObjectIdentifier constant_random_id;
+		boolean is_identical(in IdentifiableObject other_object);
+#ifdef __SOMIDL__
+		implementation
+		{
+			dllname = "somabs1.dll";
+			majorversion = 3;
+			minorversion = 0;
+			memory_management = corba;
+			override : somInit,somUninit;
+			releaseorder : 
+				_get_constant_random_id,
+				private1,
+				is_identical;
+#ifdef __PRIVATE__
+			constant_random_id : nodata;
+			functionprefix = omgidobj_CosObjectIdentity_IdentifiableObject_;
+#endif
+		};
+#endif /* __SOMIDL__ */
+	};
+};
+#endif /* omgidobj_idl */

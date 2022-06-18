@@ -1,0 +1,312 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+/* File: DynamicAny.idl
+ *CORBA 2.3, Chapter 9
+ */
+
+#ifndef _DYNAMIC_ANY_IDL_
+#define _DYNAMIC_ANY_IDL_
+
+#include <somobj.idl>
+#include <somdtype.idl>
+
+#pragma prefix "omg.org"
+
+#define _DYNAMIC_ANY_IMPL_    	majorversion=1; \
+								minorversion=0; \
+								dllname="somany.dll";
+
+
+module DynamicAny 
+{
+	interface DynAny;
+
+    interface DynAnyFactory : SOMObject 
+	{
+        exception           InconsistentTypeCode {};
+        DynAny              create_dyn_any(in any value)
+                                                    raises(InconsistentTypeCode);
+        DynAny              create_dyn_any_from_type_code(in TypeCode type)
+                                                    raises(InconsistentTypeCode);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynanyfactory_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+
+    interface DynAny : SOMObject
+	{
+        exception InvalidValue {};
+        exception TypeMismatch {};
+                
+        TypeCode type();
+
+        void assign(        in DynAny   dyn_any)    raises(TypeMismatch);
+        void from_any(      in any      value)      raises(TypeMismatch, InvalidValue);
+        any to_any();
+
+        boolean equal(      in DynAny   dyn_any);
+
+        void destroy();
+        DynAny copy();
+        void insert_boolean(in boolean  value)      raises(TypeMismatch, InvalidValue);
+        void insert_octet(  in octet    value)      raises(TypeMismatch, InvalidValue);
+        void insert_char(   in char     value)      raises(TypeMismatch, InvalidValue);
+        void insert_short(  in short    value)      raises(TypeMismatch, InvalidValue);
+        void insert_ushort( in unsigned short 
+                                        value)      raises(TypeMismatch, InvalidValue);
+        void insert_long(   in long     value)      raises(TypeMismatch, InvalidValue);
+        void insert_ulong(  in unsigned long 
+                                        value)      raises(TypeMismatch, InvalidValue);
+        void insert_float(  in float    value)      raises(TypeMismatch, InvalidValue);
+        void insert_double( in double   value)      raises(TypeMismatch, InvalidValue);
+        void insert_string( in string   value)      raises(TypeMismatch, InvalidValue);
+        void insert_reference(in SOMObject value)      raises(TypeMismatch, InvalidValue);
+        void insert_typecode(in TypeCode 
+                                        value)      raises(TypeMismatch, InvalidValue);
+/*        void insert_longlong(in long long value)    raises(TypeMismatch, InvalidValue);
+        void insert_ulonglong(in unsigned long long 
+                                        value)      raises(TypeMismatch, InvalidValue);
+        void insert_longdouble(in long double 
+                                        value)      raises(TypeMismatch, InvalidValue);
+        void insert_wchar(  in wchar    value)      raises(TypeMismatch, InvalidValue);
+        void insert_wstring(in wstring  value)      raises(TypeMismatch, InvalidValue);*/
+
+        void insert_any(    in any      value)      raises(TypeMismatch, InvalidValue);
+        void insert_dyn_any(in DynAny   value)      raises(TypeMismatch, InvalidValue);
+/*        void insert_val(    in ValueBase value)     raises(TypeMismatch, InvalidValue);*/
+
+        boolean         get_boolean()               raises(TypeMismatch, InvalidValue);
+        octet           get_octet()                 raises(TypeMismatch, InvalidValue);
+        char            get_char()                  raises(TypeMismatch, InvalidValue);
+        short           get_short()                 raises(TypeMismatch, InvalidValue);
+        unsigned short  get_ushort()                raises(TypeMismatch, InvalidValue);
+        long            get_long()                  raises(TypeMismatch, InvalidValue);
+        unsigned long   get_ulong()                 raises(TypeMismatch, InvalidValue);
+        float           get_float()                 raises(TypeMismatch, InvalidValue);
+        double          get_double()                raises(TypeMismatch, InvalidValue);
+        string          get_string()                raises(TypeMismatch, InvalidValue);
+        SOMObject          get_reference()             raises(TypeMismatch, InvalidValue);
+        TypeCode get_typecode()              raises(TypeMismatch, InvalidValue);
+/*        long long       get_longlong()              raises(TypeMismatch, InvalidValue);
+        unsigned long long get_ulonglong()          raises(TypeMismatch, InvalidValue);
+        long double     get_longdouble()            raises(TypeMismatch, InvalidValue);
+        wchar           get_wchar()                 raises(TypeMismatch, InvalidValue);
+        wstring         get_wstring()               raises(TypeMismatch, InvalidValue);*/
+        any             get_any()                   raises(TypeMismatch, InvalidValue);
+        DynAny          get_dyn_any()               raises(TypeMismatch, InvalidValue);
+/*        ValueBase       get_val()                   raises(TypeMismatch, InvalidValue);*/
+
+        boolean         seek(in long index);
+        void            rewind();
+        boolean         next();
+        unsigned long   component_count();
+        DynAny          current_component()         raises(TypeMismatch);
+
+#ifdef __PRIVATE__
+		attribute		any value;
+#endif
+
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynany_;
+			override: somInit,somUninit;
+			value: noset,noget;
+#endif
+		};
+#endif
+    };
+    
+    interface DynFixed : DynAny {
+        string          get_value();
+        boolean         set_value(in string val)    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynfixed_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+    
+    interface DynEnum : DynAny {
+        string          get_as_string();
+        void            set_as_string(in string value) 
+                                                    raises(DynAny::InvalidValue);
+        unsigned long   get_as_ulong();
+        void            set_as_ulong( in unsigned long value) 
+                                                    raises(DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynenum_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+    typedef string FieldName;
+    struct NameValuePair {
+        FieldName   id;
+        any         value;
+    };
+    
+    typedef sequence<NameValuePair> NameValuePairSeq;
+    struct NameDynAnyPair {
+        FieldName   id;
+        DynAny      value;
+    };
+
+    typedef sequence<NameDynAnyPair> NameDynAnyPairSeq;
+    interface DynStruct : DynAny {
+        FieldName           current_member_name()   raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        TCKind       current_member_kind()   raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        NameValuePairSeq    get_members();
+        void                set_members(in NameValuePairSeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        NameDynAnyPairSeq   get_members_as_dyn_any();
+        void                set_members_as_dyn_any(in NameDynAnyPairSeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynstruct_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+
+    interface DynUnion : DynAny {
+        DynAny              get_discriminator();
+        void                set_discriminator(in DynAny d) 
+                                                    raises(DynAny::TypeMismatch);
+        void                set_to_default_member() raises(DynAny::TypeMismatch);
+        void                set_to_no_active_member() raises(DynAny::TypeMismatch);
+        boolean             has_no_active_member();
+        TCKind       discriminator_kind();
+        DynAny              member()                raises(DynAny::InvalidValue);
+        FieldName           member_name()           raises(DynAny::InvalidValue);
+        TCKind       member_kind()           raises(DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynunion_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+    
+    typedef sequence<any>    AnySeq;
+    typedef sequence<DynAny> DynAnySeq;
+    interface DynSequence : DynAny {
+        unsigned long       get_length();
+        void                set_length(in unsigned long len) 
+                                                    raises(DynAny::InvalidValue);
+        AnySeq              get_elements();
+        void                set_elements(in AnySeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        DynAnySeq           get_elements_as_dyn_any();
+        void                set_elements_as_dyn_any(in DynAnySeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynseq_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+
+    interface DynArray : DynAny {
+        AnySeq              get_elements();
+        void                set_elements(in AnySeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        DynAnySeq           get_elements_as_dyn_any();
+        void                set_elements_as_dyn_any(in DynAnySeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynarray_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+    
+    interface DynValue : DynAny {
+        FieldName           current_member_name()   raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        TCKind       current_member_kind()   raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        NameValuePairSeq    get_members();
+        void                set_members(in NameValuePairSeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+        NameDynAnyPairSeq   get_members_as_dyn_any();
+        void                set_members_as_dyn_any(in NameDynAnyPairSeq value)
+                                                    raises(DynAny::TypeMismatch, DynAny::InvalidValue);
+#ifdef __SOMIDL__
+		implementation
+		{
+			_DYNAMIC_ANY_IMPL_
+#ifdef __PRIVATE__
+			functionprefix = dynvalue_;
+			override: somInit,somUninit;
+#endif
+		};
+#endif
+    };
+
+
+}; /* module DynamicAny */
+
+#pragma prefix ""
+
+#endif /* _DYNAMIC_ANY_IDL_ */
+

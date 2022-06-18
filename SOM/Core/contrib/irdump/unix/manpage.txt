@@ -1,0 +1,11 @@
+.TH irdump 1 "4 January 2012"
+.SH NAME
+irdump(1) \- IR dump tool
+.SH SYNOPSIS
+.B irdump
+.I names...
+.SH DESCRIPTION
+.B irdump
+is a tool to dump the contents of the interface repository.
+.SH ENVIRONMENT
+.I SOMIR

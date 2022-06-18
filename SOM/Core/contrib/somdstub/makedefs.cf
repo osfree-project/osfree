@@ -1,0 +1,3 @@
+NAME somdstub
+DEPENDS somistub
+PROVIDES somdstub

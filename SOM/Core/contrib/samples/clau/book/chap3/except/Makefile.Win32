@@ -1,0 +1,31 @@
+LINK_SOMTK="$(SOMBASE)\lib\somtk.lib"
+INCL_SOMTK="-I$(SOMBASE)\include"
+SC="$(SOMBASE)\bin\sc.exe"
+CL=cl.exe
+
+all: testerr.exe
+
+error.xh: error.idl
+	$(SC) -sxh $(INCL_SOMTK) error.idl
+
+error.xih: error.idl
+	$(SC) -sxih $(INCL_SOMTK) error.idl
+
+error.h: error.idl
+	$(SC) -sh $(INCL_SOMTK) error.idl 
+
+error.obj: error.cpp error.xih error.xh
+	$(CL) -c error.cpp /Fo$@ -I. $(INCL_SOMTK)
+
+testerr.obj: testerr.cpp error.xh
+	$(CL) -c testerr.cpp /Fo$@ -I. $(INCL_SOMTK) 
+
+testerr.exe: error.obj testerr.obj
+	$(CL) error.obj testerr.obj /Fe$@ $(LINK_SOMTK)
+
+clean:
+	del /Q testerr.exe *.obj *.xh *.xih *.h
+
+test:
+	set PATH=%PATH%;%SOMBASE%\bin
+	testerr

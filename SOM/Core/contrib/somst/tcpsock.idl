@@ -1,0 +1,93 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef tcpsock_idl
+#define tcpsock_idl
+#include <somssock.idl>
+#include <snglicls.idl>
+interface TCPIPSockets : Sockets
+{
+#ifdef __SOMIDL__
+    implementation
+    {
+        majorversion = 2;
+        minorversion = 1;
+	callstyle=idl;
+	dllname="somst.dll";
+	metaclass=SOMMSingleInstance;
+#ifdef __PRIVATE__
+	long tcpip_serrno;
+	somsAccept: override;
+	somsBind: override;
+	somsConnect: override;
+        somsGethostbyaddr: override;
+	somsGethostbyname: override;
+	somsGethostent: override;
+	somsGethostid: override;
+	somsGethostname: override;
+	somsGetpeername: override;
+	somsGetservbyname: override;
+	somsGetsockname: override;
+	somsGetsockopt: override;
+	somsHtonl: override;
+	somsHtons: override;
+	somsIoctl: override;
+	somsInet_addr: override;
+	somsInet_lnaof: override;
+	somsInet_makeaddr: override;
+	somsInet_netof: override;
+	somsInet_network: override;
+	somsInet_ntoa: override;
+	somsListen: override;
+	somsNtohl: override;
+	somsNtohs: override;
+	somsReadv: override;
+	somsRecv: override;
+	somsRecvfrom: override;
+	somsRecvmsg: override;
+	somsSelect: override;
+	somsSend: override;
+	somsSendmsg: override;
+	somsSendto: override;
+	somsSetsockopt: override;
+	somsShutdown: override;
+	somsSocket: override;
+	somsSoclose: override;
+	somsWritev: override;
+	_set_serrno: override;
+	_get_serrno: override;
+#ifdef SOMRefObject
+	somInit: override;
+	somUninit: override;
+#else
+	somDefaultInit: override;
+	somDestruct: override;
+#endif
+	functionprefix="tcpsock_";
+#endif
+    };
+#endif /* __SOMIDL__ */
+};
+#endif  /* tcpsock_idl */

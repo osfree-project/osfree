@@ -1,0 +1,130 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+#ifndef somoa_idl
+#define somoa_idl
+#include <somdtype.idl>
+#include <unotypes.idl>
+#include <boa.idl>
+interface SOMOA;
+
+#ifdef __PRIVATE__
+typedef SOMFOREIGN SOMOAPrivateData;
+#pragma modifier SOMOAPrivateData: impctx=C,length=0;
+#endif
+
+interface SOMDServer;
+
+interface SOMOA : BOA
+{
+	ORBStatus execute_next_request(in Flags waitFlag);
+	ORBStatus execute_request_loop(in Flags waitFlag);
+	void change_id(in SOMDObject objref,in ReferenceData id);
+	SOMDObject create_constant(in ReferenceData id,in InterfaceDef intf,in ImplementationDef impl);
+	SOMDObject create_SOM_ref(in SOMObject somobj,in ImplementationDef impl);
+	SOMObject get_SOM_object(in SOMDObject somref);
+	void activate_impl_failed(in ImplementationDef impl,in ORBStatus rc);
+	void interrupt_server();
+	IIOP::SOMDServiceContextList get_service_contexts(in SOMDObject obj);
+#ifdef __PRIVATE__
+	attribute SOMDServer default_SOMDServer;
+	/* like interrupt_server() but specifies what
+		the SOMOA returns from execute_request_loop */
+	void interrupt_server_status(in ORBStatus status);
+	void notify_somdd(in short transition,in string impl_id,in string impl_server_ior,in ORBStatus rc);
+	string contained__get_id(in SOMObject iface);
+#endif
+#ifdef __SOMIDL__
+	implementation
+	{
+#ifdef __PRIVATE__
+		SOMOAPrivateData waiter;
+		default_SOMDServer: nodata;
+		notify_somdd: procedure;
+		contained__get_id: procedure;
+/*		interrupt_server_status: procedure; */
+#endif
+		releaseorder : 
+			execute_next_request,
+			execute_request_loop,
+			create_constant,
+			change_id,
+			create_SOM_ref,
+			get_SOM_object,
+			activate_impl_failed,
+			interrupt_server,
+			private8,
+			get_service_contexts,
+			private10,
+			private11,
+			_get_default_SOMDServer,
+			_set_default_SOMDServer,
+			interrupt_server_status,
+			notify_somdd;
+		callstyle = idl;
+		dllname = "somd.dll";
+		majorversion = 2;
+		minorversion = 2;
+#ifdef __PRIVATE__
+		metaclass = "SOMMSingleInstance";
+	#ifdef SOMRefObject
+		somInit : override;
+		somUninit : override;
+	#else
+		somDefaultInit : override;
+		somDestruct: override;
+	#endif
+		create : override;
+		dispose : override;
+		get_id : override;
+		get_principal : override;
+		set_exception : override;
+		impl_is_ready : override;
+		deactivate_impl : override;
+		change_implementation : override;
+		obj_is_ready : override;
+		deactivate_obj : override;
+		functionprefix = "somoa_";
+#endif
+
+    #define SOMOA_IDL_COMMON_PASSTHRU \
+		"" \
+		"#define SOMD_WAIT					1" \
+		"#define SOMD_NO_WAIT				0" \
+		"#define SOMD_IMPL_NOT_INITIALIZED	0" \
+		"#define SOMD_IMPL_NOT_ACTIVE		1" \
+		"#define SOMD_IMPL_ACTIVE			2" \
+		""
+
+    passthru C_h_after=SOMOA_IDL_COMMON_PASSTHRU
+      "";
+
+    passthru C_xh_after=SOMOA_IDL_COMMON_PASSTHRU
+      "";
+
+	};
+#endif /* __SOMIDL__ */
+};
+#endif /* somoa_idl */

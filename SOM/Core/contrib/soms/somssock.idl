@@ -1,0 +1,178 @@
+/**************************************************************************
+ *
+ *  Copyright 2008, Roger Brown
+ *
+ *  This file is part of Roger Brown's Toolkit.
+ *
+ *  This program is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License as published by the
+ *  Free Software Foundation, either version 3 of the License, or (at your
+ *  option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
+/*
+ * $Id$
+ */
+
+/*******************************************************************
+ *
+ * Sockets is an abstract class used by DSOM and EMan
+ *
+ * the following are standard subclasses
+ * TCPIPSockets[32]
+ * IPXSockets
+ * NBSockets
+ *
+ * Notes
+ * OS2 can only use TCPIPSockets32 with 32 bit stack TCP/IP v2.0 and up
+ * Subclasses must override all methods
+ * Valid values for the serrno attribute are defined in the file soms.h
+ *
+ */
+
+#ifndef somssock_idl
+#define somssock_idl
+#ifdef __PRIVATE__
+#include <somref.idl>
+#else
+#include <somobj.idl>
+#endif
+#include <snglicls.idl>
+
+interface Sockets : 
+#ifdef __PRIVATE__
+SOMRefObject
+#else
+SOMObject
+#endif
+{
+	typedef SOMFOREIGN sockaddr;
+	#pragma modifier sockaddr : impctx="C", struct;
+	typedef SOMFOREIGN iovec;
+	#pragma modifier iovec : impctx="C", struct;
+	typedef SOMFOREIGN msghdr;
+	#pragma modifier msghdr : impctx="C", struct;
+	typedef SOMFOREIGN fd_set;
+	#pragma modifier fd_set : impctx="C", struct;
+	typedef SOMFOREIGN timeval;
+	#pragma modifier timeval : impctx="C", struct;
+	typedef SOMFOREIGN hostent;
+	#pragma modifier hostent : impctx="C", struct;
+	typedef SOMFOREIGN servent;
+	#pragma modifier servent : impctx="C", struct;
+	typedef SOMFOREIGN in_addr;
+	#pragma modifier in_addr : impctx="C", struct;
+
+	long somsAccept (in long s, out sockaddr name, out long namelen);
+	long somsBind (in long s, inout sockaddr name, in long namelen);
+	long somsConnect (in long s, inout sockaddr name, in long namelen);
+	hostent *somsGethostbyaddr (in char *addr, in long addrlen, in long domain);
+	hostent *somsGethostbyname (in string name);
+	hostent *somsGethostent ();
+	unsigned long somsGethostid ();
+	long somsGethostname (in string name, in long namelength);
+	long somsGetpeername (in long s, out sockaddr name, out long namelen);
+	servent *somsGetservbyname (in string name, in string protocol);
+	long somsGetsockname (in long s, out sockaddr name, out long namelen);
+	long somsGetsockopt (in long s, in long level, in long optname,in char *optval, out long option);
+	unsigned long somsHtonl (in unsigned long a);
+	unsigned short somsHtons (in unsigned short a);
+	long somsIoctl (in long s, in long cmd, in char *data, in long length);
+	unsigned long somsInet_addr (in string cp);
+	unsigned long somsInet_lnaof (in in_addr addr);
+	in_addr somsInet_makeaddr (in unsigned long net, in unsigned long lna);
+	unsigned long somsInet_netof (in in_addr addr);
+	unsigned long somsInet_network (in string cp);
+	string somsInet_ntoa (in in_addr addr);
+	long somsListen (in long s, in long backlog);
+	unsigned long somsNtohl (in unsigned long a);
+	unsigned short somsNtohs (in unsigned short a);
+	long somsReadv (in long s, inout iovec iov, in long iovcnt);
+	long somsRecv (in long s, in char *buf, in long len, in long flags);
+	long somsRecvfrom (in long s, in char *buf, in long len,in long flags, out sockaddr name, out long namelen);
+	long somsRecvmsg (in long s, inout msghdr msg, in long flags);
+	long somsSelect (in long nfds, inout fd_set readfds,inout fd_set writefds, inout fd_set exceptfds,inout timeval timeout);
+	long somsSend (in long s, in char *msg, in long len, in long flags);
+	long somsSendmsg (in long s, inout msghdr msg, in long flags);
+	long somsSendto (in long s, inout char msg, in long len,in long flags, inout sockaddr to, in long tolen);
+	long somsSetsockopt (in long s, in long level, in long optname,in char *optval, in long optlen);
+	long somsShutdown (in long s, in long how);
+	long somsSocket (in long domain, in long type, in long protocol);
+	long somsSoclose (in long s);
+	long somsWritev (in long s, inout iovec iov, in long iovcnt);
+	attribute long serrno;
+
+#ifdef __SOMIDL__
+    implementation
+    {
+	releaseorder: 
+		somsAccept, 
+		somsBind, 
+		somsConnect, 
+		somsGethostbyaddr,
+		somsGethostbyname, 
+		somsGethostent, 
+		somsGethostid,
+		somsGethostname, 
+		somsGetpeername, 
+		somsGetsockname,
+		somsGetsockopt, 
+		somsHtonl, 
+		somsHtons, 
+		somsIoctl,
+		somsInet_addr, 
+		somsInet_lnaof, 
+		somsInet_makeaddr,
+		somsInet_netof, 
+		somsInet_network, 
+		somsInet_ntoa,
+		somsListen, 
+		somsNtohl, 
+		somsNtohs, 
+		somsReadv,
+		somsRecv, 
+		somsRecvfrom, 
+		somsRecvmsg, 
+		somsSelect,
+		somsSend, 
+		somsSendmsg, 
+		somsSendto, 
+		somsSetsockopt,
+		somsShutdown, 
+		somsSocket, 
+		somsSoclose, 
+		somsWritev,
+		_set_serrno, 
+		_get_serrno, 
+		somsGetservbyname;
+
+        majorversion = 2;
+        minorversion = 1;
+	callstyle=idl;
+	metaclass = SOMMSingleInstance;
+	dllname="soms.dll";
+#ifdef __PRIVATE__
+		serrno: noset,noget;
+		functionprefix="soms_";
+#ifdef SOMRefObject
+		somInit: override;
+		somUninit: override;
+#else
+		somDefaultInit: override;
+		somDestruct: override;
+#endif
+#endif /* __PRIVATE__ */
+    };
+#endif /* __SOMIDL__ */
+};
+
+#endif 

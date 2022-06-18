@@ -1,0 +1,9 @@
+LIBRARY   SOMDSVRP
+VERSION 1.0
+
+EXPORTS
+        DllMain                 PRIVATE
+        SOMInitModule           PRIVATE
+		SOMDServerPNewClass
+		SOMDServerPClassData
+		SOMDServerPCClassData
