@@ -463,7 +463,7 @@ subdirs: .symbolic
 !endif
 
 dirhier: .symbolic
- $(verbose)$(SAY) cd       $(RELDIR) $(LOG)
+ $(verbose)$(SAY) CD       $(RELDIR) $(LOG)
  $(verbose)$(MDHIER) $(PATH)
 
 clean: .SYMBOLIC

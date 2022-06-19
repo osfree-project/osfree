@@ -9,5 +9,6 @@
 PROJ = mkmsgf
 TRGT = $(PROJ).exe
 DESC = Make message file tool
+DEST = os2tk45$(SEP)bin
 
 !include $(%ROOT)/mk/toolspas.mk

@@ -17,7 +17,7 @@ ADD_COPT   =         -d__OS2__ -i=$(%WATCOM)$(SEP)h $(ADD_COPT)
 # generated uni2h headers
 
 ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
+                      -i=$(%OS2TK)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 !else

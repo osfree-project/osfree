@@ -5,6 +5,8 @@ TRGT = $(PROJ).exe
 DESC = pdl
 srcfiles = $(p)pdl$(e)
 
+DEST = os2tk45$(SEP)bin
+
 !ifeq %OS OS2
 OPTS =
 defs = $(%WATCOM)$(SEP)h$(SEP)os2

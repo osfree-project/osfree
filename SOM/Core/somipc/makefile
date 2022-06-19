@@ -15,6 +15,7 @@ srcfiles = $(p)rhbsc$(e) &
 	 $(p)rhbsctc$(e) &
 	 $(p)rhbscapi$(e)
 
+DEST = os2tk45$(SEP)bin
 
 !ifeq %OS OS2
 OPTS =

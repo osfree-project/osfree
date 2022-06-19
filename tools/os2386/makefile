@@ -11,6 +11,8 @@ lbcs =  bdcalls.lbc doscalls.lbc helpmgr.lbc sub32.lbc  &
         pmspl.lbc pmshapi.lbc pmviop.lbc pmwin.lbc pmwp.lbc quecalls.lbc sesmgr.lbc
 UNI2H = 1
 
+DEST = os2tk45$(SEP)lib
+
 #TARGETS  = $(PATH)$(PROJ).lib subdirs
 
 !include $(%ROOT)/mk/libsos2.mk
