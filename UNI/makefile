@@ -24,9 +24,11 @@ pre: .symbolic
 $(OUT)$(SEP)osfree.h: $(MYDIR)osfree.uni
 # Main osFree file
 
-workaround: $(MYDIR)cdeftypes2.h $(MYDIR)dosfilemgrcommon.h .symbolic
+workaround: $(MYDIR)cdeftypes2.h $(MYDIR)dosfilemgrcommon.h $(MYDIR)exe386.h $(MYDIR)newexe.h .symbolic
 # Workaround of uniplemented features of uni2h tool
   @$(CP) $(MYDIR)cdeftypes2.h $(OS2TKH) $(BLACKHOLE)
+  @$(CP) $(MYDIR)newexe.h $(OS2TKH) $(BLACKHOLE)
+  @$(CP) $(MYDIR)exe386.h $(OS2TKH) $(BLACKHOLE)
   @$(CP) $(MYDIR)dosfilemgrcommon.h $(OS2TKH) $(BLACKHOLE)
 
 ## OS/2 Personality files

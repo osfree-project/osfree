@@ -5,7 +5,7 @@ TRGT = $(PROJ).exe
 DESC = pdl
 srcfiles = $(p)pdl$(e)
 
-DEST = os2tk45$(SEP)bin
+DEST = os2tk45$(SEP)som$(SEP)bin
 
 !ifeq %OS OS2
 OPTS =
