@@ -17,7 +17,7 @@ SERVERENV=os2
 #ARCH=`dpkg --print-architecture`
 
 TOOLS=$ROOT/bin/tools
-OS2TK=$ROOT/bin/os2tk45/
+OS2TK=$ROOT/bin/os2tk45
 INCLUDE=$watcom/h:$watcom/h/os2:$watcom/h/dos:$watcom/h/win
 LIB=$watcom/lib386:$watcom/lib386/dos:$watcom/lib286:$ROOT/lib
 PATH=$OS2TK/bin:$TOOLS:$watcom/binl:$FPCPATH:$ROOT:$PATH
