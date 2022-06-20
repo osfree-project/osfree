@@ -25,7 +25,5 @@ rexx    = 'Regina'
 ; ---------------------
 ; -- disk images directory --
 imgdir  = 'f:\data\vm\img'
-; -- OS/2 toolkit location --
-tkpath  = 'f:\os2tk45'
 ; -- os2server host --
 serverenv = 'os2'

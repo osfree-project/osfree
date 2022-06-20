@@ -93,8 +93,9 @@ end
 if lastpos('\', root) \= length(root) then root = root || '\'
 
 tools = root || 'bin\tools'
+os2tk = root || 'bin\os2tk45'
 path  = value('PATH',, env)
-path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || tkpath || '\bin;' || fppath || ';' || path
+path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
@@ -126,7 +127,7 @@ else
 
 lib = watcom || '\lib286;' || watcom || '\lib286\dos;' || watcom || '\lib286\win;' || libos2 || ';' || root || '\lib'
 
-vars = 'WATCOM IMGDIR ROOT IMGDIR1 TOOLS PATH INCLUDE LOG ',
+vars = 'WATCOM IMGDIR ROOT OS2TK IMGDIR1 TOOLS PATH INCLUDE LOG ',
        'FINCLUDE EDPATH HELP BOOKSHELF BEGINLIBPATH ',
        'LIBOS2 LIB OS SHELL REXX REXX_PATH MKISOFS SERVERENV WIPFC'
 
