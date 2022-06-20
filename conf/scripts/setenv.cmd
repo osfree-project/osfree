@@ -95,7 +95,7 @@ if lastpos('\', root) \= length(root) then root = root || '\'
 tools = root || 'bin\tools'
 os2tk = root || 'bin\os2tk45'
 path  = value('PATH',, env)
-path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || fppath || ';' || path
+path  = watcom || wosdir || ';' || watcom || '\binw;' || tools || ';' || os2tk || '\bin;' || os2tk || '\som\bin;' || fppath || ';' || path
 include = watcom || '\h;' || watcom || '\h\dos;' || watcom || '\h\win'
 finclude = watcom || '\src\fortran'
 edpath = watcom || '\eddat'
