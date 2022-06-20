@@ -25,7 +25,7 @@ TARGETS= $(SOMKERNP_KIH) $(SOM_HEADERS)
 ADD_SCOPT=-p -I$(SOM_DIR)somkpub$(SEP)som -I$(SOMIDL_IDL)
 
 $(SOMKERNP_KIH): $(SOM_DIR)som$(SEP)somkernp.idl
-	$(ROOT)bin$(SEP)tools$(SEP)sc -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -skih -o $(SOM_INTDIR) $(SOM_DIR)som$(SEP)somkernp.idl -D __GENERATE_SOM__  $(ADD_SCOPT)
 
 $(SOM_HEADERS): $(SOM_IDL) $(SOM_DIR)somcdr$(SEP)rhbsomuk.idl
 

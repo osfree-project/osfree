@@ -4,8 +4,8 @@ for %%i in (%root%) do set root=%%~fi\
 
 set WATCOM=c:\watcom
 set svn=\data\dev\svn-win32-1.6.6\bin
-set os2tk=%root%\bin\os2tk45\
-set tools=%root%\bin\tools
+set os2tk=%root%bin\os2tk45
+set tools=%root%bin\tools
 set FPPATH=c:\fpc\3.2.2\bin\i386-win32
 set imgdir=\data\vm\img
 set mkisofs=\data\dev\cdrtools\mkisofs.exe
