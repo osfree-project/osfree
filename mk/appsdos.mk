@@ -8,10 +8,7 @@
 
 !include $(%ROOT)/mk/site.mk
 
-ADD_COPT =            $(ADD_COPT) &
-                      -bt=dos
-#                      -i=$(ROOT)$(SEP)build$(SEP)include &
-#                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)dos &
+ADD_COPT =            $(ADD_COPT) -bt=dos
 
 !ifndef DEST
 DEST     = os2$(SEP)mdos
@@ -20,9 +17,9 @@ DEST     = os2$(SEP)mdos
 !include $(%ROOT)/mk/all.mk
 
 !ifeq COM 1
-com = com
+comf = com
 !else
-com = 
+comf = 
 !endif
 
 !ifeq DLL 1
@@ -35,8 +32,15 @@ TARGETS  = $(PATH)$(PROJ).exe # $(PATH)$(PROJ).sym
 
 $(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
  @%create $^@
- @%append $^@ SYSTEM dos $(com)
+ @%append $^@ FORMAT dos $(comf)
  @%append $^@ NAME $^*
+ @%append $^@ libpath %WATCOM%/lib286
+ @%append $^@ libpath %WATCOM%/lib286/dos
+!ifneq NOLIBS 1
+!ifeq COM 1
+ @%append $^@ libfile cstart_t.obj
+!endif
+!endif
 !ifdef ALIASES
  alias $(ALIASES)
 !endif

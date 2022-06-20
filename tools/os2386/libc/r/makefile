@@ -14,8 +14,6 @@ ADD_LINKOPT = lib sub32.lib
 UNI2H = 1
 C = r
 
-#TARGETS  = $(PATH)$(PROJ).lib
-
 !include $(%ROOT)/mk/libsos2.mk
 
 .SUFFIXES:
@@ -28,8 +26,8 @@ C = r
 .obj: $(PATH)
 
 .c.obj: .AUTODEPEND
- @echo CC      $^. $(LOG)
- @wcc386 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
+ $(verbose)echo CC      $^. $(LOG)
+ $(verbose)wcc386 $(COPT) -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 $(PATH)$(PROJ).lib: $(OBJS)
- @$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library
+ $(verbose)$(MAKE) $(MAKEOPT) library=$(PATH)$(PROJ).lib library

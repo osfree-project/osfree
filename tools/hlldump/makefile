@@ -8,11 +8,7 @@ srcfiles = $(p)hll$(e) $(p)hlldirectory$(e) $(p)exe$(e) $(p)hllmodule$(e) $(p)hl
 
 !include $(%ROOT)/mk/tools.mk
 
-#ADD_COPT +=           -i=$(ROOT)$(SEP)build$(SEP)include &
-#                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)shared &
-#                      -i=$(ROOT)$(SEP)build$(SEP)include$(SEP)os2
-
-ADD_COPT +=           -i=$(%WATCOM)$(SEP)h$(SEP)include &
-                      -i=$(%WATCOM)$(SEP)h$(SEP)os2
+ADD_COPT +=           -i=$(%OS2TK)$(SEP)h &
+                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
 
 STACKSIZE = 65536

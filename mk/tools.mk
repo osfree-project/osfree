@@ -17,7 +17,7 @@ DEST    = tools
 # system os2v2   
 # -bt=os2v2 -d__OS2__
 
-ADD_COPT = $(ADD_COPT) -i=. -i=..$(SEP)..$(SEP)include $(DEFINES)
+ADD_COPT = $(ADD_COPT) -i=. -i=$(%ROOT)$(SEP)include $(DEFINES)
 
 # Building tools for Linux
 # -dUNIX

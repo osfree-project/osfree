@@ -116,7 +116,7 @@ LINKER    = wlink
 # as it breaks all non-LX executables, for ex., bootsectors
 
 !ifndef NOLIBS 1
-LINKOPT   = op q $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib
+LINKOPT   = op q $(ADD_LINKOPT) libpath $(%ROOT)$(SEP)build$(SEP)lib libpath $(%OS2TK)$(SEP)lib
 !else
 LINKOPT   = op q $(ADD_LINKOPT)
 !endif
@@ -437,19 +437,19 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .idl.ih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sih $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sih $< -o $^: $(ADD_SCOPT)
 
 .idl.xh: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sxh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sxh $< -o $^: $(ADD_SCOPT)
 
 .idl.h: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sh $< -o $^: $(ADD_SCOPT)
 
 .idl.api: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(ROOT)bin$(SEP)tools$(SEP)sc -sapi $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sapi $< -o $^: $(ADD_SCOPT)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
@@ -463,7 +463,7 @@ subdirs: .symbolic
 !endif
 
 dirhier: .symbolic
- $(verbose)$(SAY) cd       $(RELDIR) $(LOG)
+ $(verbose)$(SAY) CD       $(RELDIR) $(LOG)
  $(verbose)$(MDHIER) $(PATH)
 
 clean: .SYMBOLIC

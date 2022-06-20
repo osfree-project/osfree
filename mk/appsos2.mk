@@ -23,11 +23,8 @@ C = r
 # generated uni2h headers
 
 ADD_COPT   +=         -i=$(%ROOT)$(SEP)build$(SEP)include &
-                      -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)os2 &
+                      -i=$(%OS2TK)$(SEP)h &
                       -i=$(%ROOT)$(SEP)build$(SEP)include$(SEP)shared
-
-#ADD_COPT    +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)sub32 &
-#                       -i=$(%WATCOM)$(SEP)h$(SEP)os2
 
 !ifneq NOLIBS 1
 ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
@@ -37,7 +34,7 @@ ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)plib3$(C).lib, &
 !endif
                $(%WATCOM)$(SEP)lib386$(SEP)os2$(SEP)clib3$(C).lib, &
-               $(BLD)lib$(SEP)os2386.lib, &
+               $(%OS2TK)$(SEP)lib$(SEP)os2386.lib, &
                rexx.lib,$(BLD)lib$(SEP)pdcurses.lib
 
 !endif

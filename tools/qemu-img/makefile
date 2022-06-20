@@ -7,7 +7,6 @@
 PROJ = qemu-img
 TRGT = $(PROJ).exe
 DESC = Generate/convert HDD images
-#TARGETS = $(PROJ).exe $(PROJ)
 srcfiles = $(p)qemu-img$(e) $(p)block$(e) $(p)block-qcow$(e) $(p)aes$(e) &
            $(p)block-vmdk$(e) $(p)block-cloop$(e) $(p)block-dmg$(e) $(p)block-bochs$(e) &
            $(p)block-vpc$(e) $(p)block-vvfat$(e) $(p)porting$(e) # $(p)block-cow$(e)
@@ -26,6 +25,6 @@ defs = -dLINUX
 !endif
 
 ADD_COPT += $(defs) -dQEMU_TOOL -i=$(MYDIR) -i=$(MYDIR)..$(SEP)include
-ADD_LINKOPT = lib z.lib # ALIAS mmap_=_mmap, munmap_=_munmap
+ADD_LINKOPT = lib z.lib
 
 !include $(%ROOT)/mk/tools.mk

@@ -1,1 +1,0 @@
-This is obsolete source code. Was replaced by somFree implementation.

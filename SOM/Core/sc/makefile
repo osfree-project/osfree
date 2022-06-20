@@ -2,8 +2,9 @@
 
 PROJ = sc
 TRGT = $(PROJ).exe
-DESC = Som Compiler
+DESC = SOM Compiler
 srcfiles = $(p)sc$(e)
+DEST = os2tk45$(SEP)som$(SEP)bin
 
 !ifeq %OS OS2
 OPTS =
