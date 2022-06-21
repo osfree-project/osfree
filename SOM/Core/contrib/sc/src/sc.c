@@ -219,6 +219,62 @@ static int load_somir(const char *app,const char *f)
 	return retVal;
 }
 
+void usage(void)
+{
+  printf("usage: sc [-C:D:E:I:S:VU:cd:hi:m:prsvw] f1 f2 ...\n");
+  printf("Where:\n");
+  printf("        -C <n>            - size of comment buffer (default: 200000)\n");
+  printf("        -D <DEFINE>       - same as -D option for cpp.\n");
+  printf("        -E <var>=<value>  - set environment variable.\n");
+  printf("        -I <INCLUDE>      - same as -I option for cpp.\n");
+  printf("        -S <n>            - size of string buffer (default: 200000)\n");
+  printf("        -U <UNDEFINE>     - same as -U option for cpp.\n");
+  printf("        -V                - show version number of compiler.\n");
+  printf("        -c                - ignore all comments.\n");
+  printf("        -d <dir>          - output directory for each emitted file.\n");
+  printf("        -o <dir>          - -d option alias.\n");
+  printf("        -h                - this message.\n");
+  printf("        -i <file>         - use this file name as supplied.\n");
+  printf("        -m <name[=value]> - add global modifier.\n");
+  printf("        -p                - shorthand for -D__PRIVATE__.\n");
+  printf("        -r                - check releaseorder entries exist (default: FALSE).\n");
+  printf("        -s <string>       - replace SMEMIT variable with <string>\n");
+  printf("        -e <string>       - -s option alias.\n");
+  printf("        -u                - update interface repository.\n");
+  printf("        -v                - verbose debugging mode (default: FALSE).\n");
+  printf("        -w                - don't display warnings (default: FALSE).\n");
+  printf("\n");
+  printf("Modifiers:\n");
+  printf("        addprefixes : adds 'functionprefix' to method names in template file\n");
+  printf("        [no]addstar : [no]add '*' to C bindings for interface references.\n");
+  printf("              corba : check the source for CORBA compliance.\n");
+  printf("                csc : force running of OIDL compiler.\n");
+  printf("         emitappend : append the emitted files at the end of existing file.\n");
+  printf("           noheader : don't add a header to the emitted file.\n");
+  printf("              noint : don't warn about 'int' causing portability problems.\n");
+  printf("             nolock : don't lock the IR during update.\n");
+  printf("               nopp : don't run the source through the pre-processor.\n");
+  printf("               notc : don't use typecodes for emit information.\n");
+  printf("         nouseshort : don't generate short names for types.\n");
+  printf("          pp=<path> : specify a local pre-processor to use.\n");
+  printf("           tcconsts : generate CORBA TypeCode constants.\n");
+  printf("\n");
+  printf("Note: All command-line modifiers can be set in the environment\n");
+  printf("by changing them to UPPERCASE and preappending 'SM' to them.\n");
+  printf("\n");
+  printf("Environment Variables (current state):\n");
+  printf("        SMEMIT='||emitters\n");
+  printf("                : emitters to run (default : h;ih).\n");
+  printf("        SMINCLUDE='||include\n");
+  printf("                : where to search for .idl and .efw files.\n");
+  printf("        SMKNOWNEXTS='||knownext\n");
+  printf("                : add headers to user written emitters.\n");
+  printf("        SMADDSTAR='||addstar\n");
+  printf("                : add or no '*' to C bindings for interface references.\n");
+  printf("        SMEMITAPPEND='||emitappend\n");
+  printf("                : add or no '*' to C bindings for interface references.\n");
+}
+
 int main(int argc,char **argv)
 {
 	item *emitters=NULL;
@@ -320,8 +376,37 @@ int main(int argc,char **argv)
 			case 'u':
 				update=1;
 				break;
+			case 'h':
+				usage();
+				return 0;
+			case 'C':
+				// comment buffer //ignore
+				break;
+			case 'S':
+				// string buffer //ignore
+				break;
+			case 'v':
+				// verbose
+				break;
+			case 'V':
+				// version
+				return 0;
+			case 'i':
+/*				item *t=itemNew(p,strlen(p));
+				if (idls)
+				{
+					item *p=idls;
+					while (p->next) p=p->next;
+					p->next=t;
+				}
+				else
+				{
+					idls=t;
+				}*/
+				break;
 			default:
 				fprintf(stderr,"%s: unknown switch - \"%s\"\n",app,p);
+				usage();
 				return 1;
 			}
 		}
@@ -541,15 +626,18 @@ int main(int argc,char **argv)
 					t=t->next;
 				}
 
-				add_seq(&somcpp,&zero);
-				add_seq(&somipc,&zero);
+				//add_seq(&somcpp,&zero);
+				//add_seq(&somipc,&zero);
 
-#if 1
+#if 0
 				printf("somcpp: %s\n",somcpp._buffer);
 				printf("somipc: %s\n",somipc._buffer);
 #endif
 
+#if 0
 				{
+				add_seq(&somcpp,&zero);
+				add_seq(&somipc,&zero);
 					STARTUPINFO cpp_startup,somipc_startup;
 					PROCESS_INFORMATION cpp_pinfo={0,0,0,0},somipc_pinfo={0,0,0,0};
 					BOOL b=TRUE;
@@ -667,7 +755,32 @@ int main(int argc,char **argv)
 						return 1;
 					}
 				}
+#else
+				{
+				char name2[L_tmpnam];
+				tmpnam(name2);
+				add_str(&somcpp," ");
+					add_seq(&somcpp,&idl->data);
+				add_str(&somcpp," > ");
+					add_str(&somcpp, getenv("TMP"));
+				add_str(&somcpp,"/");
+					add_str(&somcpp,&name2);
 
+				add_str(&somipc," ");
+					add_str(&somipc, getenv("TMP"));
+				add_str(&somipc,"/");
+					add_str(&somipc,&name2);
+
+				add_seq(&somcpp,&zero);
+				add_seq(&somipc,&zero);
+#if 1
+				printf("somcpp: %s\n",somcpp._buffer);
+				printf("somcpp: %s\n",somipc._buffer);
+#endif
+					system(somcpp._buffer);
+					system(somipc._buffer);
+				}
+#endif
 				emitter=emitter->next;
 			}
 
