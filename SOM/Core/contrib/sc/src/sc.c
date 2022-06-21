@@ -479,11 +479,14 @@ int main(int argc,char **argv)
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
 				long len=1;
-				buf[0]=0x0;
 #endif
 				item *t;
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
+
+#ifndef _WIN32
+				buf[0]=0x0;
+#endif
 
 				/* get to start of file name */
 
