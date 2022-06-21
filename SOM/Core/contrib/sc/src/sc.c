@@ -42,6 +42,8 @@
 #include <windows.h>
 #endif
 
+#define _USE_PIPES_ 0
+
 typedef struct 
 {
 	size_t _length,_maximum;
@@ -157,6 +159,7 @@ static void add_many(item **h,char *p)
 	}
 }
 
+#if _USE_PIPES_
 static BOOL shareable(HANDLE *ph)
 {
 	return DuplicateHandle(
@@ -168,10 +171,12 @@ static BOOL shareable(HANDLE *ph)
 		TRUE,
 		DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
 }
+#endif
 
 static int load_somir(const char *app,const char *f)
 {
 	int retVal=1;
+#if _WIN32
 	HMODULE hMod=GetModuleHandle(NULL);
 	if (hMod)
 	{
@@ -216,7 +221,8 @@ static int load_somir(const char *app,const char *f)
 	{
 		fprintf(stderr,"%s: failed to create \"%s\"\n",app,f);
 	}
-
+#else
+#endif
 	return retVal;
 }
 
@@ -627,7 +633,7 @@ int main(int argc,char **argv)
 					t=t->next;
 				}
 
-#if 0
+#if _USE_PIPES_
 				{
 					add_seq(&somcpp,&zero);
 					add_seq(&somipc,&zero);
