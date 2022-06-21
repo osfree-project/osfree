@@ -12,5 +12,3 @@ DIRS = tools bootseq DOS OS2 SOM
 
 !include $(%ROOT)/mk/all.mk
 
-#TARGETS = subdirs
-#TARGET = all
