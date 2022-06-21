@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <io.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -626,18 +627,10 @@ int main(int argc,char **argv)
 					t=t->next;
 				}
 
-				//add_seq(&somcpp,&zero);
-				//add_seq(&somipc,&zero);
-
-#if 0
-				printf("somcpp: %s\n",somcpp._buffer);
-				printf("somipc: %s\n",somipc._buffer);
-#endif
-
 #if 0
 				{
-				add_seq(&somcpp,&zero);
-				add_seq(&somipc,&zero);
+					add_seq(&somcpp,&zero);
+					add_seq(&somipc,&zero);
 					STARTUPINFO cpp_startup,somipc_startup;
 					PROCESS_INFORMATION cpp_pinfo={0,0,0,0},somipc_pinfo={0,0,0,0};
 					BOOL b=TRUE;
@@ -757,28 +750,39 @@ int main(int argc,char **argv)
 				}
 #else
 				{
-				char name2[L_tmpnam];
-				tmpnam(name2);
-				add_str(&somcpp," ");
+					char name2[L_tmpnam];
+					int cppExitCode;
+					int somipcExitCode;
+					_IDL_SEQUENCE_char tmpf={0,0,NULL};
+
+					tmpnam(name2);
+					add_str(&tmpf, getenv("TMP"));
+					add_str(&tmpf,"/");
+					add_str(&tmpf,&name2);
+
+					add_str(&somcpp," ");
 					add_seq(&somcpp,&idl->data);
-				add_str(&somcpp," > ");
-					add_str(&somcpp, getenv("TMP"));
-				add_str(&somcpp,"/");
-					add_str(&somcpp,&name2);
+					add_str(&somcpp," > ");
+					add_str(&somcpp,tmpf._buffer);
 
-				add_str(&somipc," ");
-					add_str(&somipc, getenv("TMP"));
-				add_str(&somipc,"/");
-					add_str(&somipc,&name2);
+					add_str(&somipc," ");
+					add_str(&somipc,tmpf._buffer);
 
-				add_seq(&somcpp,&zero);
-				add_seq(&somipc,&zero);
-#if 1
-				printf("somcpp: %s\n",somcpp._buffer);
-				printf("somcpp: %s\n",somipc._buffer);
+					add_seq(&somcpp,&zero);
+					add_seq(&somipc,&zero);
+#if 0
+					printf("somcpp: %s\n",somcpp._buffer);
+					printf("somcpp: %s\n",somipc._buffer);
 #endif
-					system(somcpp._buffer);
-					system(somipc._buffer);
+					cppExitCode=system(somcpp._buffer);
+					somipcExitCode=system(somipc._buffer);
+					unlink(tmpf._buffer);
+
+					if (somipcExitCode || cppExitCode)
+					{
+						return cppExitCode ? cppExitCode : somipcExitCode;
+					}
+
 				}
 #endif
 				emitter=emitter->next;
