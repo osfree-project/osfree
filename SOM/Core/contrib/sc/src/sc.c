@@ -38,6 +38,8 @@
 #include <string.h>
 #ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
 #endif
 
 #ifdef _WIN32
@@ -581,7 +583,6 @@ int main(int argc,char **argv)
 				{
 					char *ir=getenv("SOMIR");
 					char *filename;
-					long attr;
 
 					if (!ir) 
 					{
@@ -599,6 +600,10 @@ int main(int argc,char **argv)
 
 /*					fprintf(stderr,"%s: ir output file is \"%s\"\n",app,filename);*/
 
+#if 0
+					{
+					long attr;
+
 					attr=GetFileAttributes(filename);
 
 					if (attr < 0)
@@ -610,7 +615,22 @@ int main(int argc,char **argv)
 							return 1;
 						}
 					}
+					}
+#else
+					{
+					struct stat   buffer;
 
+					if (!(stat(filename, &buffer) == 0))
+					{
+						fprintf(stderr,"%s,\"%s\" does not exist\n",app,filename);
+
+						if (load_somir(app,filename))
+						{
+							return 1;
+						}
+					}
+					}
+#endif
 					add_str(&somipc,filename);
 					add_str(&somipc," ");
 				}
