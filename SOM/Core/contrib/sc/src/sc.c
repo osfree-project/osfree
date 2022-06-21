@@ -42,7 +42,7 @@
 #include <windows.h>
 #endif
 
-#define _USE_PIPES_ 0
+//#define _USE_PIPES_
 
 typedef struct 
 {
@@ -159,7 +159,7 @@ static void add_many(item **h,char *p)
 	}
 }
 
-#if _USE_PIPES_
+#ifdef _USE_PIPES_
 static BOOL shareable(HANDLE *ph)
 {
 	return DuplicateHandle(
@@ -176,7 +176,7 @@ static BOOL shareable(HANDLE *ph)
 static int load_somir(const char *app,const char *f)
 {
 	int retVal=1;
-#if _WIN32
+#ifdef _WIN32
 	HMODULE hMod=GetModuleHandle(NULL);
 	if (hMod)
 	{
@@ -299,8 +299,10 @@ int main(int argc,char **argv)
 
 #ifdef _PLATFORM_WIN32_
 	add_many(&defines,"_PLATFORM_WIN32_");
-#else
-#error missing _PLATFORM_WIN32_
+#endif
+
+#ifdef _PLATFORM_UNIX_
+	add_many(&defines,"_PLATFORM_UNIX_");
 #endif
 
 #ifdef _PLATFORM_X11_
@@ -633,7 +635,7 @@ int main(int argc,char **argv)
 					t=t->next;
 				}
 
-#if _USE_PIPES_
+#ifdef _USE_PIPES_
 				{
 					add_seq(&somcpp,&zero);
 					add_seq(&somipc,&zero);
