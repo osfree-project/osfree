@@ -1,13 +1,8 @@
 #
-# A Makefile for OS/3 boot sequence project
-# micro IIF drivers
-# (c) osFree project,
-# valerius, 2006/10/30
+# A Makefile for SOM
+# (c) osFree project
 #
 
-DIRS =  Frameworks # Core
+DIRS =  #Core Frameworks 
 
 !include $(%ROOT)/mk/all.mk
-
-#TARGETS = subdirs
-#TARGET = all

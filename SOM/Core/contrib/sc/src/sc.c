@@ -36,10 +36,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+//#define _USE_PIPES_
 
 typedef struct 
 {
@@ -156,6 +164,7 @@ static void add_many(item **h,char *p)
 	}
 }
 
+#ifdef _USE_PIPES_
 static BOOL shareable(HANDLE *ph)
 {
 	return DuplicateHandle(
@@ -167,10 +176,12 @@ static BOOL shareable(HANDLE *ph)
 		TRUE,
 		DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE);
 }
+#endif
 
 static int load_somir(const char *app,const char *f)
 {
 	int retVal=1;
+#ifdef _WIN32
 	HMODULE hMod=GetModuleHandle(NULL);
 	if (hMod)
 	{
@@ -215,7 +226,8 @@ static int load_somir(const char *app,const char *f)
 	{
 		fprintf(stderr,"%s: failed to create \"%s\"\n",app,f);
 	}
-
+#else
+#endif
 	return retVal;
 }
 
@@ -292,8 +304,10 @@ int main(int argc,char **argv)
 
 #ifdef _PLATFORM_WIN32_
 	add_many(&defines,"_PLATFORM_WIN32_");
-#else
-#error missing _PLATFORM_WIN32_
+#endif
+
+#ifdef _PLATFORM_UNIX_
+	add_many(&defines,"_PLATFORM_UNIX_");
 #endif
 
 #ifdef _PLATFORM_X11_
@@ -461,10 +475,18 @@ int main(int argc,char **argv)
 				_IDL_SEQUENCE_char somipc={0,0,NULL};
 				_IDL_SEQUENCE_char idlname={0,0,NULL};
 				char buf[512];
+#if 0
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
+#else
+				long len=1;
+#endif
 				item *t;
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
+
+#if 1
+				buf[0]=0x0;
+#endif
 
 				/* get to start of file name */
 
@@ -570,7 +592,6 @@ int main(int argc,char **argv)
 				{
 					char *ir=getenv("SOMIR");
 					char *filename;
-					long attr;
 
 					if (!ir) 
 					{
@@ -588,6 +609,10 @@ int main(int argc,char **argv)
 
 /*					fprintf(stderr,"%s: ir output file is \"%s\"\n",app,filename);*/
 
+#if 0
+					{
+					long attr;
+
 					attr=GetFileAttributes(filename);
 
 					if (attr < 0)
@@ -599,7 +624,22 @@ int main(int argc,char **argv)
 							return 1;
 						}
 					}
+					}
+#else
+					{
+					struct stat   buffer;
 
+					if (!(stat(filename, &buffer) == 0))
+					{
+						fprintf(stderr,"%s,\"%s\" does not exist\n",app,filename);
+
+						if (load_somir(app,filename))
+						{
+							return 1;
+						}
+					}
+					}
+#endif
 					add_str(&somipc,filename);
 					add_str(&somipc," ");
 				}
@@ -626,18 +666,10 @@ int main(int argc,char **argv)
 					t=t->next;
 				}
 
-				//add_seq(&somcpp,&zero);
-				//add_seq(&somipc,&zero);
-
-#if 0
-				printf("somcpp: %s\n",somcpp._buffer);
-				printf("somipc: %s\n",somipc._buffer);
-#endif
-
-#if 0
+#ifdef _USE_PIPES_
 				{
-				add_seq(&somcpp,&zero);
-				add_seq(&somipc,&zero);
+					add_seq(&somcpp,&zero);
+					add_seq(&somipc,&zero);
 					STARTUPINFO cpp_startup,somipc_startup;
 					PROCESS_INFORMATION cpp_pinfo={0,0,0,0},somipc_pinfo={0,0,0,0};
 					BOOL b=TRUE;
@@ -757,28 +789,39 @@ int main(int argc,char **argv)
 				}
 #else
 				{
-				char name2[L_tmpnam];
-				tmpnam(name2);
-				add_str(&somcpp," ");
+					char name2[L_tmpnam];
+					int cppExitCode;
+					int somipcExitCode;
+					_IDL_SEQUENCE_char tmpf={0,0,NULL};
+
+					tmpnam(name2);
+					add_str(&tmpf, getenv("TMP"));
+					add_str(&tmpf,"/");
+					add_str(&tmpf,&name2);
+
+					add_str(&somcpp," ");
 					add_seq(&somcpp,&idl->data);
-				add_str(&somcpp," > ");
-					add_str(&somcpp, getenv("TMP"));
-				add_str(&somcpp,"/");
-					add_str(&somcpp,&name2);
+					add_str(&somcpp," > ");
+					add_str(&somcpp,tmpf._buffer);
 
-				add_str(&somipc," ");
-					add_str(&somipc, getenv("TMP"));
-				add_str(&somipc,"/");
-					add_str(&somipc,&name2);
+					add_str(&somipc," ");
+					add_str(&somipc,tmpf._buffer);
 
-				add_seq(&somcpp,&zero);
-				add_seq(&somipc,&zero);
-#if 1
-				printf("somcpp: %s\n",somcpp._buffer);
-				printf("somcpp: %s\n",somipc._buffer);
+					add_seq(&somcpp,&zero);
+					add_seq(&somipc,&zero);
+#if 0
+					printf("somcpp: %s\n",somcpp._buffer);
+					printf("somcpp: %s\n",somipc._buffer);
 #endif
-					system(somcpp._buffer);
-					system(somipc._buffer);
+					cppExitCode=system(somcpp._buffer);
+					somipcExitCode=system(somipc._buffer);
+					unlink(tmpf._buffer);
+
+					if (somipcExitCode || cppExitCode)
+					{
+						return cppExitCode ? cppExitCode : somipcExitCode;
+					}
+
 				}
 #endif
 				emitter=emitter->next;
