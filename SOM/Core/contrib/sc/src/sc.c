@@ -478,7 +478,8 @@ int main(int argc,char **argv)
 #ifdef _WIN32
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
-				long len=0;
+				long len=1;
+				buf[0]=0x0;
 #endif
 				item *t;
 				size_t ul=0,ul2=0;
