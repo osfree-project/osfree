@@ -4,7 +4,7 @@
 
 #TARGET = prepr
 
-DIRS = pdl somipc sc somkpub somdtype somkprep som
+DIRS = pdl somcpp somipc sc somkpub somdtype somkprep som
 
 
 # somref somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks

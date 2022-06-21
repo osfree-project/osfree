@@ -27,10 +27,10 @@ ADD_SCOPT = -I$(SOMIDL_IDL)
 TARGETS=$(PRODUCTS_PDL) $(PRODUCTS_SC)
 
 $(PRODUCTS_PDL): $(SOM_IDL)
- @$(SAY) PDL       $^. $(LOG)
+ @$(SAY) PDL      $^. $(LOG)
  @$(MDHIER) $(SOMIDL_IDL)
  @$(MDHIER) $(SOMIDL_IDL)$(SEP)$(%OS)
- @pdl -d $(SOMIDL_IDL) $<
+ @pdl.exe -d $(SOMIDL_IDL) $<
 
 .idl: $(SOM_DIR)
 .h: $(SOMIDL_HEADERS)
