@@ -437,19 +437,19 @@ SUF = $(SUF) .ico .sym .exe .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c16 .c 
 
 .idl.ih: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sih $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sih $< -o $^: $(ADD_SCOPT)
 
 .idl.xh: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sxh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sxh $< -o $^: $(ADD_SCOPT)
 
 .idl.h: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sh $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sh $< -o $^: $(ADD_SCOPT)
 
 .idl.api: .AUTODEPEND
  @$(SAY) SC       $^. $(LOG)
- $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc -sapi $< -o $^: $(ADD_SCOPT)
+ $(verbose)$(%OS2TK)$(SEP)som$(SEP)bin$(SEP)sc.exe -sapi $< -o $^: $(ADD_SCOPT)
 
 #
 # "$(MAKE) subdirs" enters each dir in $(DIRS)
