@@ -475,7 +475,7 @@ int main(int argc,char **argv)
 				_IDL_SEQUENCE_char somipc={0,0,NULL};
 				_IDL_SEQUENCE_char idlname={0,0,NULL};
 				char buf[512];
-#ifdef _WIN32
+#if 0
 				long len=GetModuleFileName(NULL,buf,sizeof(buf));
 #else
 				long len=1;
@@ -484,7 +484,7 @@ int main(int argc,char **argv)
 				size_t ul=0,ul2=0;
 				int appPathSpaces=has_spaces(buf,len);
 
-#ifndef _WIN32
+#if 1
 				buf[0]=0x0;
 #endif
 
