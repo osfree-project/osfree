@@ -2,7 +2,13 @@
 # A Makefile for somFree project
 #
 
-DIRS = pdl somcpp somipc sc somkpub somdtype somkprep som
+SOM_COMPILER = pdl somcpp somipc sc
+# SOM Run-time kernel
+SOM_KERNEL = somkpub somdtype somkprep som
+# Interface Repository Framework
+SOM_IR =
+
+DIRS = $(SOM_COMPILER) $(SOM_KERNEL) $(SOM_IR)
 
 # Below not correct yet
 # somref somcorba somir somd somnmf somcdr somany somu somestrm somirfmt Frameworks

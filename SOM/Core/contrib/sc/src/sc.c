@@ -29,7 +29,8 @@
  * SMINCLUDE include dirs for IDL files
  * SMKNOWNEXTS add headers to user written emitters
  * SOMIR for IR emitter
- * SMTMP for temporary variables
+ * SMTMP for temporary variables (@todo)
+ * SMADDSTAR (@todo)
  */
 
 #include <rhbopt.h>
@@ -275,16 +276,16 @@ void usage(void)
   printf("by changing them to UPPERCASE and preappending 'SM' to them.\n");
   printf("\n");
   printf("Environment Variables (current state):\n");
-  printf("        SMEMIT='||emitters\n");
+  printf("        SMEMIT=%s\n", getenv("SMEMIT"));
   printf("                : emitters to run (default : h;ih).\n");
-  printf("        SMINCLUDE='||include\n");
+  printf("        SMINCLUDE=%s\n", getenv("SMINCLUDE"));
   printf("                : where to search for .idl and .efw files.\n");
-  printf("        SMKNOWNEXTS='||knownext\n");
+  printf("        SMKNOWNEXTS=%s\n", getenv("SMKNOWNEXTS"));
   printf("                : add headers to user written emitters.\n");
-  printf("        SMADDSTAR='||addstar\n");
+  printf("        SMADDSTAR=%s\n", getenv("SMADDSTAR"));
   printf("                : add or no '*' to C bindings for interface references.\n");
-  printf("        SMEMITAPPEND='||emitappend\n");
-  printf("                : add or no '*' to C bindings for interface references.\n");
+  printf("        SMEMITAPPEND=%s\n", getenv("SMEMITAPPEND"));
+  printf("                : append the emitted files at the end of existing file.\n");
 }
 
 int main(int argc,char **argv)
@@ -330,7 +331,7 @@ int main(int argc,char **argv)
 			case 'p':
 				add_many(&defines,"__PRIVATE__");
 				break;
-			case 'D':
+			case 'D': // DEFINE
 				if (p[2])
 				{
 					add_many(&defines,p+2);
@@ -339,6 +340,16 @@ int main(int argc,char **argv)
 				{
 					add_many(&defines,argv[i++]);
 				}
+				break;
+			case 'U': // UNDEFINE
+				/*if (p[2])
+				{
+					add_many(&defines,p+2);
+				}
+				else
+				{
+					add_many(&defines,argv[i++]);
+				}*/
 				break;
 			case 'm':
 				if (p[2])
@@ -388,9 +399,10 @@ int main(int argc,char **argv)
 				}
 				break;
 			case 'u':
-				update=1;
+				update=1; // update IR
 				break;
 			case 'h':
+			case '?':
 				usage();
 				return 0;
 			case 'C':
@@ -401,6 +413,12 @@ int main(int argc,char **argv)
 				break;
 			case 'v':
 				// verbose
+				break;
+			case 'c':
+				// ignore all comments
+				break;
+			case 'r':
+				// check releaseorder
 				break;
 			case 'V':
 				// version

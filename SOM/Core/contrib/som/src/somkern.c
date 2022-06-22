@@ -2823,6 +2823,16 @@ SOMEXTERN void SOMLINK somFreeThreadData(void)
 	}
 }
 
+/*unsigned APIENTRY LibMain( unsigned hmod, unsigned termination )
+{
+    if( termination ) {
+        // DLL is detaching from process
+    } else {
+        // DLL is attaching to process
+    }
+    return( 1 );
+}
+*/
 #ifdef _WIN32
 __declspec(dllexport) BOOL CALLBACK DllMain(HMODULE hInst,DWORD reason,LPVOID extra)
 {
