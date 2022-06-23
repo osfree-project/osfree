@@ -7,6 +7,3 @@
 DIRS = Shared CPI CMD UtlAPI PM MM REXX tests
 
 !include $(%ROOT)/mk/all.mk
-
-#TARGETS = subdirs
-#TARGET = all
