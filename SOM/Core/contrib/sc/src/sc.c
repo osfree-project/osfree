@@ -295,6 +295,7 @@ int main(int argc,char **argv)
 	char *outputDir=NULL;
 	item *includes=NULL;
 	item *defines=NULL;
+	item *undefines=NULL;
 	item *modifiers=NULL;
 	int i=1;
 	int update=0;
@@ -331,6 +332,16 @@ int main(int argc,char **argv)
 			case 'p':
 				add_many(&defines,"__PRIVATE__");
 				break;
+			case 'E':
+				if (p[2])
+				{
+					setenv(p+2,"Y",1);
+				}
+				else
+				{
+					setenv(argv[i++],"Y",1);
+				}
+				break;
 			case 'D': // DEFINE
 				if (p[2])
 				{
@@ -342,14 +353,14 @@ int main(int argc,char **argv)
 				}
 				break;
 			case 'U': // UNDEFINE
-				/*if (p[2])
+				if (p[2])
 				{
-					add_many(&defines,p+2);
+					add_many(&undefines,p+2);
 				}
 				else
 				{
-					add_many(&defines,argv[i++]);
-				}*/
+					add_many(&undefines,argv[i++]);
+				}
 				break;
 			case 'm':
 				if (p[2])
@@ -580,6 +591,16 @@ int main(int argc,char **argv)
 				while (t)
 				{
 					add_str(&somcpp," -D");
+					add_seq(&somcpp,&t->data);
+
+					t=t->next;
+				}
+
+				t=undefines;
+
+				while (t)
+				{
+					add_str(&somcpp," -U");
 					add_seq(&somcpp,&t->data);
 
 					t=t->next;
